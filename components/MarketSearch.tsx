@@ -846,7 +846,7 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
 
           {/* Vehicle List */}
           {sortedVehicles.length > 0 ? (
-            <div className="space-y-3">
+            <div className="space-y-2.5">
               {sortedVehicles.map((vehicle) => {
                 const discountDollars = Math.max(0, vehicle.msrp - vehicle.dealerPrice);
                 const discountPercent = ((discountDollars / vehicle.msrp) * 100).toFixed(1);
@@ -855,27 +855,27 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
                 return (
                   <div
                     key={vehicle.id}
-                    className="group rounded-xl border border-border/80 bg-surface hover:border-emerald-500/40 hover:bg-surface-elevated transition-all overflow-hidden shadow-sm hover:shadow-md"
+                    className="group rounded-xl border border-border/80 bg-surface hover:border-emerald-500/40 hover:bg-surface-elevated transition-all overflow-hidden shadow-sm"
                   >
                     <div className="flex flex-col sm:flex-row">
-                      {/* Left: Compact Vehicle Photo */}
-                      <div className="relative w-full sm:w-48 md:w-52 sm:min-h-[145px] shrink-0 bg-background overflow-hidden">
+                      {/* Left: Small Compact Vehicle Photo */}
+                      <div className="relative w-full sm:w-36 md:w-40 sm:min-h-[115px] shrink-0 bg-background overflow-hidden">
                         <img
                           src={vehicle.imageUrl}
                           alt={`${vehicle.year} ${vehicle.make} ${vehicle.model} ${vehicle.trim}`}
-                          className="h-36 sm:h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          className="h-28 sm:h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
                           loading="lazy"
                         />
                         
                         {/* Status Badge */}
-                        <div className="absolute top-2 left-2">
+                        <div className="absolute top-1.5 left-1.5">
                           {vehicle.status === "on_lot" ? (
-                            <span className="inline-flex items-center gap-1 rounded bg-black/85 backdrop-blur-md px-1.5 py-0.5 text-[9px] font-extrabold text-emerald-400 border border-emerald-500/30">
+                            <span className="inline-flex items-center gap-1 rounded bg-black/85 backdrop-blur-md px-1 py-0.2 text-[8.5px] font-extrabold text-emerald-400 border border-emerald-500/30">
                               <span className="h-1 w-1 rounded-full bg-emerald-400 animate-pulse" />
                               On Lot • {vehicle.daysOnLot}d
                             </span>
                           ) : (
-                            <span className="inline-flex items-center gap-1 rounded bg-black/85 backdrop-blur-md px-1.5 py-0.5 text-[9px] font-extrabold text-blue-400 border border-blue-500/30">
+                            <span className="inline-flex items-center gap-1 rounded bg-black/85 backdrop-blur-md px-1 py-0.2 text-[8.5px] font-extrabold text-blue-400 border border-blue-500/30">
                               <span className="h-1 w-1 rounded-full bg-blue-400" />
                               In Transit
                             </span>
@@ -883,36 +883,36 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
                         </div>
 
                         {/* Distance Badge */}
-                        <div className="absolute bottom-2 left-2">
-                          <span className="inline-flex items-center gap-1 rounded bg-black/85 backdrop-blur-md px-1.5 py-0.5 text-[9px] font-bold text-white border border-border">
+                        <div className="absolute bottom-1.5 left-1.5">
+                          <span className="inline-flex items-center gap-0.5 rounded bg-black/85 backdrop-blur-md px-1 py-0.2 text-[8.5px] font-bold text-white border border-border">
                             <MapPin className="h-2.5 w-2.5 text-emerald-400" />
                             <span className="font-mono">{vehicle.dynamicDistance} mi</span>
                           </span>
                         </div>
                       </div>
 
-                      {/* Middle: Vehicle Specs */}
-                      <div className="flex-1 p-3 sm:p-3.5 flex flex-col justify-between space-y-2">
+                      {/* Middle: Compact Specs */}
+                      <div className="flex-1 p-2.5 sm:p-3 flex flex-col justify-between space-y-1.5">
                         <div>
                           {/* Title & VIN */}
-                          <div className="flex flex-wrap items-center justify-between gap-1.5">
-                            <div className="flex items-center gap-1.5">
-                              <span className="text-[10px] font-extrabold uppercase tracking-wider text-emerald-400">
+                          <div className="flex flex-wrap items-center justify-between gap-1">
+                            <div className="flex items-center gap-1">
+                              <span className="text-[9px] font-extrabold uppercase tracking-wider text-emerald-400">
                                 {vehicle.year} {vehicle.make}
                               </span>
                               <span className="text-border">•</span>
-                              <h3 className="font-bold text-white text-sm sm:text-base leading-tight">
-                                {vehicle.model} <span className="text-ink-light font-medium text-xs sm:text-sm">{vehicle.trim}</span>
+                              <h3 className="font-bold text-white text-xs sm:text-sm leading-tight">
+                                {vehicle.model} <span className="text-ink-light font-medium text-[11px] sm:text-xs">{vehicle.trim}</span>
                               </h3>
                             </div>
 
-                            <span className="text-[9px] font-mono text-ink-muted bg-background px-1.5 py-0.2 rounded border border-border">
+                            <span className="text-[8.5px] font-mono text-ink-muted bg-background px-1.5 py-0.2 rounded border border-border">
                               {vehicle.vin}
                             </span>
                           </div>
 
                           {/* Specs Subtext */}
-                          <p className="text-[11px] text-ink-muted mt-0.5 flex flex-wrap items-center gap-1.5 leading-snug">
+                          <p className="text-[10px] text-ink-muted mt-0.5 flex flex-wrap items-center gap-1 leading-snug">
                             <span>{vehicle.engine}</span>
                             <span className="text-border">•</span>
                             <span>{vehicle.drivetrain}</span>
@@ -920,37 +920,25 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
                             <span className="text-ink-light">{vehicle.exteriorColor}</span>
                           </p>
 
-                          {/* Dealer Location & Direct Listing Link */}
-                          <div className="text-[11px] text-ink-muted mt-0.5 flex flex-wrap items-center gap-1.5">
+                          {/* Dealer Location */}
+                          <div className="text-[10px] text-ink-muted mt-0.5 flex flex-wrap items-center gap-1">
                             <span className="text-ink-light font-medium">{vehicle.location.dealerName}</span>
                             <span>({vehicle.location.city}, {vehicle.location.state})</span>
-                            <span className="text-border">•</span>
-                            {vehicle.dealerUrl ? (
-                              <a
-                                href={vehicle.dealerUrl}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="inline-flex items-center gap-1 text-emerald-400 hover:text-emerald-300 font-semibold hover:underline"
-                              >
-                                <span>Dealer Page</span>
-                                <ExternalLink className="h-2.5 w-2.5" />
-                              </a>
-                            ) : null}
                           </div>
 
                           {/* Package Pills */}
-                          <div className="flex flex-wrap gap-1 pt-1.5">
+                          <div className="flex flex-wrap gap-1 pt-1">
                             {vehicle.packages.slice(0, 3).map((pkg, idx) => (
                               <span
                                 key={idx}
-                                className="rounded bg-background px-1.5 py-0.2 text-[9px] font-medium text-ink-light border border-border flex items-center gap-1"
+                                className="rounded bg-background px-1.5 py-0.2 text-[8.5px] font-medium text-ink-light border border-border flex items-center gap-1"
                               >
                                 <CheckCircle2 className="h-2 w-2 text-emerald-400 shrink-0" />
                                 {pkg}
                               </span>
                             ))}
                             {vehicle.packages.length > 3 && (
-                              <span className="rounded bg-background px-1.5 py-0.2 text-[9px] text-ink-faint border border-border">
+                              <span className="rounded bg-background px-1 py-0.2 text-[8.5px] text-ink-faint border border-border">
                                 +{vehicle.packages.length - 3} more
                               </span>
                             )}
@@ -959,9 +947,9 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
 
                         {/* Expanded Build Sheet */}
                         {isExpanded && (
-                          <div className="rounded-lg border border-border-strong bg-background p-2.5 text-xs space-y-1.5 mt-1.5 animate-fadeIn">
+                          <div className="rounded-lg border border-border-strong bg-background p-2.5 text-xs space-y-1.5 mt-1 animate-fadeIn">
                             <div className="flex items-center justify-between border-b border-border pb-1">
-                              <span className="font-bold text-ink-light uppercase text-[9px] tracking-wider text-emerald-400">
+                              <span className="font-bold text-ink-light uppercase text-[8.5px] tracking-wider text-emerald-400">
                                 Factory Option Build Sheet ({vehicle.options.length} line items)
                               </span>
                               {vehicle.dealerUrl && (
@@ -969,16 +957,16 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
                                   href={vehicle.dealerUrl}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  className="inline-flex items-center gap-1 text-[10px] text-emerald-400 hover:underline font-bold"
+                                  className="inline-flex items-center gap-1 text-[9.5px] text-emerald-400 hover:underline font-bold"
                                 >
-                                  <span>View Original Dealer Window Sticker</span>
+                                  <span>View Original Window Sticker</span>
                                   <ExternalLink className="h-2.5 w-2.5" />
                                 </a>
                               )}
                             </div>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-1">
                               {vehicle.options.map((opt) => (
-                                <div key={opt.code} className="flex justify-between text-[10px] border-b border-border/30 pb-0.5">
+                                <div key={opt.code} className="flex justify-between text-[9.5px] border-b border-border/30 pb-0.5">
                                   <span className="text-ink-muted">
                                     <strong className="text-white font-mono mr-1">[{opt.code}]</strong>
                                     {opt.name}
@@ -991,48 +979,51 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
                         )}
                       </div>
 
-                      {/* Right: Compact Price & Action Column */}
-                      <div className="sm:w-44 p-3 sm:p-3.5 bg-surface-elevated/30 border-t sm:border-t-0 sm:border-l border-border flex flex-col justify-between shrink-0 space-y-2">
-                        <div className="space-y-0.5 sm:text-right">
-                          <div className="text-[10px] text-ink-muted line-through font-medium">
+                      {/* Right: Compact Price & Action Button Column */}
+                      <div className="sm:w-40 p-2.5 sm:p-3 bg-surface-elevated/30 border-t sm:border-t-0 sm:border-l border-border flex flex-col justify-between shrink-0 space-y-1.5">
+                        <div className="space-y-0.2 sm:text-right">
+                          <div className="text-[9px] text-ink-muted line-through font-medium">
                             MSRP {formatCurrency(vehicle.msrp)}
                           </div>
-                          <div className="text-lg font-black text-white tracking-tight">
+                          <div className="text-base font-black text-white tracking-tight">
                             {formatCurrency(vehicle.dealerPrice)}
                           </div>
                           {discountDollars > 0 && (
                             <div className="inline-flex sm:flex sm:justify-end">
-                              <span className="rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-1 py-0.2 text-[9px] font-extrabold">
-                                Save {formatCurrency(discountDollars)} ({discountPercent}%)
+                              <span className="rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-1 py-0.2 text-[8.5px] font-extrabold">
+                                -{formatCurrency(discountDollars)} ({discountPercent}%)
                               </span>
                             </div>
                           )}
                         </div>
 
-                        <div className="flex flex-col gap-1.5">
+                        <div className="flex flex-col gap-1">
+                          {/* Dealer Website Button */}
                           {vehicle.dealerUrl && (
                             <a
                               href={vehicle.dealerUrl}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="w-full text-center text-[10px] font-semibold text-emerald-400 hover:text-emerald-300 flex items-center justify-center gap-1 transition-colors pb-0.5 hover:underline"
+                              className="w-full rounded-lg border border-border/90 hover:border-emerald-500/60 bg-surface hover:bg-surface-elevated py-1 px-2 text-[10px] font-bold text-emerald-400 hover:text-emerald-300 flex items-center justify-center gap-1 transition-all shadow-sm"
                             >
                               <span>Dealer Website</span>
                               <ExternalLink className="h-2.5 w-2.5" />
                             </a>
                           )}
 
+                          {/* Primary Bid Button */}
                           <button
                             onClick={() => onSelectForBid(vehicle)}
-                            className="w-full rounded-lg bg-emerald-500 py-1.5 px-2.5 text-xs font-extrabold text-black hover:bg-emerald-400 transition-all shadow-sm flex items-center justify-center gap-1 active:scale-95"
+                            className="w-full rounded-lg bg-emerald-500 py-1.5 px-2 text-[11px] font-extrabold text-black hover:bg-emerald-400 transition-all shadow-sm flex items-center justify-center gap-1 active:scale-95"
                           >
                             <Zap className="h-3 w-3 fill-black" />
                             <span>Bid On Spec</span>
                           </button>
 
+                          {/* Window Sticker Toggle Button */}
                           <button
                             onClick={() => setExpandedBuildSheet(isExpanded ? null : vehicle.id)}
-                            className="w-full rounded-md border border-border hover:border-ink-muted bg-background py-1 text-[10px] font-semibold text-ink-light hover:text-white transition-all text-center"
+                            className="w-full rounded-md border border-border hover:border-ink-muted bg-background py-1 text-[9.5px] font-semibold text-ink-light hover:text-white transition-all text-center"
                           >
                             {isExpanded ? "Hide Specs" : "Window Sticker"}
                           </button>
