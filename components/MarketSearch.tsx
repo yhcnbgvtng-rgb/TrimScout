@@ -536,6 +536,18 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
                       </div>
 
                       <div className="flex flex-col gap-1.5">
+                        {vehicle.dealerUrl && (
+                          <a
+                            href={vehicle.dealerUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="w-full text-center text-[10px] font-semibold text-emerald-400 hover:text-emerald-300 flex items-center justify-center gap-1 transition-colors pb-0.5 hover:underline"
+                          >
+                            <span>Dealer Website</span>
+                            <ExternalLink className="h-2.5 w-2.5" />
+                          </a>
+                        )}
+
                         <button
                           onClick={() => onSelectForBid(vehicle)}
                           className="w-full rounded-lg bg-emerald-500 py-1.5 px-2.5 text-xs font-extrabold text-black hover:bg-emerald-400 transition-all shadow-sm flex items-center justify-center gap-1 active:scale-95"
@@ -550,18 +562,6 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
                         >
                           {isExpanded ? "Hide Specs" : "Window Sticker"}
                         </button>
-
-                        {vehicle.dealerUrl && (
-                          <a
-                            href={vehicle.dealerUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="w-full text-center text-[10px] text-ink-muted hover:text-emerald-400 flex items-center justify-center gap-1 transition-colors pt-0.5"
-                          >
-                            <span>Dealer Website</span>
-                            <ExternalLink className="h-2.5 w-2.5" />
-                          </a>
-                        )}
                       </div>
                     </div>
                   </div>
