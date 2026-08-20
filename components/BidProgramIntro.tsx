@@ -65,8 +65,8 @@ export const BidProgramIntro: React.FC<BidProgramIntroProps> = ({
         </div>
       </div>
 
-      {/* 4 CORE PILLARS */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {/* 3 CORE PILLARS */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="rounded-2xl border border-border bg-surface p-6 space-y-3 hover:border-border-strong transition-all">
           <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-400">
             <Home className="h-6 w-6 stroke-[2]" />
@@ -84,16 +84,6 @@ export const BidProgramIntro: React.FC<BidProgramIntroProps> = ({
           <h3 className="text-lg font-bold text-white">Zero Sales Calls or Email Spam</h3>
           <p className="text-xs text-ink-muted leading-relaxed">
             We assign you a masked identity (e.g. Buyer #CA-4921). Dealerships never see your phone number or real email address. Communications happen through our secure anonymized relay.
-          </p>
-        </div>
-
-        <div className="rounded-2xl border border-border bg-surface p-6 space-y-3 hover:border-border-strong transition-all">
-          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-amber-500/10 text-amber-400">
-            <ShieldCheck className="h-6 w-6 stroke-[2]" />
-          </div>
-          <h3 className="text-lg font-bold text-white">/bin/zsh Hidden Dealer Add-ons Guarantee</h3>
-          <p className="text-xs text-ink-muted leading-relaxed">
-            Every dealer bid is a binding, itemized Out-The-Door (OTD) invoice covering vehicle price, discounts, state taxes, and DMV fees. Any dealer attempting unauthorized markup faces a  penalty paid to you.
           </p>
         </div>
 
@@ -131,7 +121,7 @@ export const BidProgramIntro: React.FC<BidProgramIntroProps> = ({
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-red-400 font-bold">✕</span>
-                <span>Surprise ,500+ dealer prep, tint, or GPS add-ons added at signing.</span>
+                <span>Surprise $1,500+ dealer prep, tint, or GPS add-ons added at signing.</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-red-400 font-bold">✕</span>
@@ -155,7 +145,7 @@ export const BidProgramIntro: React.FC<BidProgramIntroProps> = ({
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-emerald-400 font-bold">✓</span>
-                <span><strong>Legally Protected OTD Vouchers:</strong> Guaranteed /bin/zsh hidden dealer fees.</span>
+                <span><strong>Legally Protected OTD Vouchers:</strong> Guaranteed $0 hidden dealer fees.</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-emerald-400 font-bold">✓</span>
