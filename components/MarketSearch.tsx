@@ -20,7 +20,8 @@ import {
   Sparkles,
   ArrowUpDown,
   ArrowLeft,
-  Filter
+  Filter,
+  Clock
 } from "lucide-react";
 
 interface MarketSearchProps {
@@ -858,34 +859,41 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
                     className="group rounded-xl border border-border/80 bg-surface hover:border-emerald-500/40 hover:bg-surface-elevated transition-all overflow-hidden shadow-sm"
                   >
                     <div className="flex flex-col sm:flex-row">
-                      {/* Left: Small Compact Vehicle Photo */}
-                      <div className="relative w-full sm:w-36 md:w-40 sm:min-h-[115px] shrink-0 bg-background overflow-hidden">
+                      {/* Left: Small Compact Vehicle Photo with Overlaid Price & Days Listed */}
+                      <div className="relative w-full sm:w-36 md:w-44 sm:min-h-[120px] shrink-0 bg-background overflow-hidden">
                         <img
                           src={vehicle.imageUrl}
                           alt={`${vehicle.year} ${vehicle.make} ${vehicle.model} ${vehicle.trim}`}
-                          className="h-28 sm:h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          className="h-32 sm:h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
                           loading="lazy"
                         />
                         
-                        {/* Status Badge */}
+                        {/* Status & Days Listed Badge (Top-Left of picture) */}
                         <div className="absolute top-1.5 left-1.5">
                           {vehicle.status === "on_lot" ? (
-                            <span className="inline-flex items-center gap-1 rounded bg-black/85 backdrop-blur-md px-1 py-0.2 text-[8.5px] font-extrabold text-emerald-400 border border-emerald-500/30">
-                              <span className="h-1 w-1 rounded-full bg-emerald-400 animate-pulse" />
-                              On Lot • {vehicle.daysOnLot}d
+                            <span className="inline-flex items-center gap-1 rounded bg-black/90 backdrop-blur-md px-1.5 py-0.5 text-[8.5px] font-extrabold text-emerald-400 border border-emerald-500/40 shadow-sm">
+                              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                              {vehicle.daysOnLot} Days Listed
                             </span>
                           ) : (
-                            <span className="inline-flex items-center gap-1 rounded bg-black/85 backdrop-blur-md px-1 py-0.2 text-[8.5px] font-extrabold text-blue-400 border border-blue-500/30">
-                              <span className="h-1 w-1 rounded-full bg-blue-400" />
-                              In Transit
+                            <span className="inline-flex items-center gap-1 rounded bg-black/90 backdrop-blur-md px-1.5 py-0.5 text-[8.5px] font-extrabold text-blue-400 border border-blue-500/40 shadow-sm">
+                              <span className="h-1.5 w-1.5 rounded-full bg-blue-400" />
+                              In Transit • {vehicle.daysOnLot}d
                             </span>
                           )}
                         </div>
 
-                        {/* Distance Badge */}
+                        {/* Price Tag Floating Inside Picture (Bottom-Right of picture) */}
+                        <div className="absolute bottom-1.5 right-1.5">
+                          <span className="inline-flex items-center rounded-md bg-black/90 backdrop-blur-md px-1.5 py-0.5 text-[11px] font-black text-white border border-emerald-500/50 shadow-md">
+                            {formatCurrency(vehicle.dealerPrice)}
+                          </span>
+                        </div>
+
+                        {/* Distance Badge (Bottom-Left of picture) */}
                         <div className="absolute bottom-1.5 left-1.5">
-                          <span className="inline-flex items-center gap-0.5 rounded bg-black/85 backdrop-blur-md px-1 py-0.2 text-[8.5px] font-bold text-white border border-border">
-                            <MapPin className="h-2.5 w-2.5 text-emerald-400" />
+                          <span className="inline-flex items-center gap-0.5 rounded bg-black/85 backdrop-blur-md px-1 py-0.2 text-[8px] font-bold text-white border border-border">
+                            <MapPin className="h-2 w-2 text-emerald-400" />
                             <span className="font-mono">{vehicle.dynamicDistance} mi</span>
                           </span>
                         </div>
@@ -920,10 +928,15 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
                             <span className="text-ink-light">{vehicle.exteriorColor}</span>
                           </p>
 
-                          {/* Dealer Location */}
-                          <div className="text-[10px] text-ink-muted mt-0.5 flex flex-wrap items-center gap-1">
+                          {/* Dealer Location & Prominent Days Listed */}
+                          <div className="text-[10px] text-ink-muted mt-0.5 flex flex-wrap items-center gap-1.5">
                             <span className="text-ink-light font-medium">{vehicle.location.dealerName}</span>
                             <span>({vehicle.location.city}, {vehicle.location.state})</span>
+                            <span className="text-border">•</span>
+                            <span className="inline-flex items-center gap-1 text-emerald-400 font-semibold bg-emerald-950/40 px-1.5 py-0.2 rounded border border-emerald-500/30">
+                              <Clock className="h-2.5 w-2.5" />
+                              <span>{vehicle.daysOnLot} days listed</span>
+                            </span>
                           </div>
 
                           {/* Package Pills */}
