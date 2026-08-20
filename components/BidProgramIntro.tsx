@@ -52,7 +52,7 @@ export const BidProgramIntro: React.FC<BidProgramIntroProps> = ({
             className="flex items-center gap-2 rounded-xl bg-emerald-500 px-7 py-3.5 font-extrabold text-sm text-black hover:bg-emerald-400 transition-all shadow-xl shadow-emerald-500/20 active:scale-95"
           >
             <Zap className="h-4 w-4 fill-black" />
-            <span>Start Your Deal Hunt</span>
+            <span>Structure Your Deal Now</span>
             <ArrowRight className="h-4 w-4 stroke-[2.5]" />
           </button>
 
@@ -219,7 +219,7 @@ export const BidProgramIntro: React.FC<BidProgramIntroProps> = ({
           className="inline-flex items-center gap-2 rounded-xl bg-emerald-500 px-8 py-3.5 font-extrabold text-sm text-black hover:bg-emerald-400 transition-all shadow-xl shadow-emerald-500/20 active:scale-95"
         >
           <Zap className="h-4 w-4 fill-black" />
-          <span>Launch Your Deal Hunt Now</span>
+          <span>Structure Your Deal Now</span>
           <ArrowRight className="h-4 w-4 stroke-[2.5]" />
         </button>
       </div>
