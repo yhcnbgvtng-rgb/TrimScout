@@ -29,7 +29,7 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
                 <CheckCircle2 className="h-3 w-3" /> Deal Locked & Confirmed
               </div>
               <h2 className="text-xl sm:text-2xl font-black tracking-tight">
-                Out-The-Door Guarantee Voucher
+                Out-The-Door Deal Voucher
               </h2>
               <p className="text-xs font-semibold text-black/80 mt-0.5">
                 Certificate #{deal.certificateId}
@@ -142,9 +142,9 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
           <div className="rounded-xl border border-border bg-surface-elevated p-3 flex items-start gap-2.5 text-[11px] text-ink-light">
             <ShieldCheck className="h-5 w-5 text-emerald-400 shrink-0 mt-0.5" />
             <div>
-              <div className="font-bold text-white">$500 Purchase Protection Guarantee</div>
+              <div className="font-bold text-white">$500 Purchase Protection Policy</div>
               <p className="text-ink-muted mt-0.5 leading-relaxed">
-                Show this voucher upon arrival. If the dealership attempts to charge a higher price or add unauthorized accessories, report it to claim your $500 guarantee.
+                Show this voucher upon arrival. If the dealership attempts to charge a higher price or add unauthorized accessories, report it to claim your $500 protection credit.
               </p>
             </div>
           </div>

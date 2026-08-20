@@ -97,7 +97,7 @@ export default function Home() {
           docFee: otd1.docFee,
           dealerAccessories: otd1.accessories,
           totalOtdPrice: otd1.totalOtdPrice,
-          notes: "Vehicle in stock on showroom floor. Guaranteed $0 add-ons.",
+          notes: "Vehicle in stock on showroom floor. Verified $0 add-ons.",
           rank: 1,
           createdAt: "Just now",
           isTopDeal: true,

@@ -138,7 +138,7 @@ export const BidProgramIntro: React.FC<BidProgramIntroProps> = ({
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-emerald-400 font-bold">✓</span>
-                <span><strong>Legally Protected OTD Vouchers:</strong> Guaranteed $0 hidden dealer fees.</span>
+                <span><strong>Legally Protected OTD Vouchers:</strong> Verified $0 hidden dealer fees.</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-emerald-400 font-bold">✓</span>

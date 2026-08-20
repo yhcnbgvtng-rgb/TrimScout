@@ -408,7 +408,7 @@ export const INITIAL_DEMO_BIDS: DealerBid[] = [
     totalOtdPrice: 53623,
     financeMonthlyEstimate: 815,
     leaseMonthlyEstimate: 589,
-    notes: "Unit is on lot, ready for same-day delivery. Full MSRP discount guaranteed with $0 dealer add-ons.",
+    notes: "Unit is on lot, ready for same-day delivery. Full MSRP discount applied with $0 dealer add-ons.",
     rank: 1,
     createdAt: "2 mins ago",
     isTopDeal: true,

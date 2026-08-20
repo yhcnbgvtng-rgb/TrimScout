@@ -68,7 +68,7 @@ export const DealerPortal: React.FC<DealerPortalProps> = ({
   const [rebates, setRebates] = useState<number>(1000);
   const [tradeInAllowance, setTradeInAllowance] = useState<number>(25500);
   const [dealerNotes, setDealerNotes] = useState<string>(
-    "Vehicle in stock on showroom floor. $0 dealer add-ons guaranteed. Full trade-in value honored upon physical VIN inspection."
+    "Vehicle in stock on showroom floor. $0 dealer add-ons. Full trade-in value honored upon physical VIN inspection."
   );
 
   const matchedVehicle = vehicles.find((v) => v.vin === selectedVehicleVin) || vehicles[0];
@@ -222,7 +222,7 @@ export const DealerPortal: React.FC<DealerPortalProps> = ({
         <div className="rounded-2xl border border-border bg-surface p-4 space-y-1">
           <div className="text-[11px] font-semibold text-ink-muted uppercase tracking-wider">Deals Won & Locked</div>
           <div className="text-2xl font-black text-emerald-400">{lockedDeal ? "8" : "7"}</div>
-          <p className="text-[10px] text-ink-faint">$0 doc fee guaranteed</p>
+          <p className="text-[10px] text-ink-faint">$0 doc fee policy</p>
         </div>
 
         <div className="rounded-2xl border border-border bg-surface p-4 space-y-1">
@@ -230,7 +230,7 @@ export const DealerPortal: React.FC<DealerPortalProps> = ({
           <div className="text-2xl font-black text-amber-400">
             {lockedDeal && lockedDeal.paperworkStatus === "uploaded" ? "Uploaded" : lockedDeal ? "1 Pending" : "All Clear"}
           </div>
-          <p className="text-[10px] text-ink-faint">24-hr turnaround guarantee</p>
+          <p className="text-[10px] text-ink-faint">24-hr turnaround target</p>
         </div>
       </div>
 
@@ -503,7 +503,7 @@ export const DealerPortal: React.FC<DealerPortalProps> = ({
                   <CheckCircle2 className="h-4 w-4" /> 1. Deal Locked by Buyer
                 </div>
                 <p className="text-[11px] text-ink-muted">
-                  Buyer accepted binding OTD price with $500 guarantee.
+                  Buyer accepted binding OTD price with $500 protection pledge.
                 </p>
               </div>
 
@@ -800,7 +800,7 @@ export const DealerPortal: React.FC<DealerPortalProps> = ({
 
                 <div className="flex justify-between text-ink-muted">
                   <span>Dealer Add-ons / Accessories:</span>
-                  <span className="text-emerald-400 font-mono font-bold">$0 (Guaranteed)</span>
+                  <span className="text-emerald-400 font-mono font-bold">$0 (Verified $0)</span>
                 </div>
 
                 <div className="flex justify-between text-sm font-black text-emerald-400 border-t border-border pt-2">
@@ -818,7 +818,7 @@ export const DealerPortal: React.FC<DealerPortalProps> = ({
                     </div>
 
                     <div className="flex justify-between items-center text-ink-light">
-                      <span>Guaranteed Trade-In Allowance ($):</span>
+                      <span>Committed Trade-In Allowance ($):</span>
                       <div className="relative w-36">
                         <DollarSign className="absolute left-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-ink-faint" />
                         <input
@@ -962,7 +962,7 @@ export const DealerPortal: React.FC<DealerPortalProps> = ({
               </div>
 
               <div className="rounded-xl border border-emerald-500/30 bg-emerald-950/20 p-3 text-[11px] text-ink-light leading-relaxed">
-                <strong className="text-emerald-400">Guaranteed ACV Commitment:</strong> As a verified dealer partner, your submitted trade-in allowance is guaranteed upon physical delivery, subject only to accurate condition & odometer matching these photos.
+                <strong className="text-emerald-400">Committed ACV Policy:</strong> As a verified dealer partner, your submitted trade-in allowance is honored upon physical delivery, subject only to accurate condition & odometer matching these photos.
               </div>
             </div>
 

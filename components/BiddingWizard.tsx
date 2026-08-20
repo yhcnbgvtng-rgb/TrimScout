@@ -734,7 +734,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                         $24,500 – $26,800
                       </div>
                       <p className="text-[10px] text-ink-muted">
-                        Dealer bids will compete with guaranteed cash values reducing your taxable price.
+                        Dealer bids will compete with confirmed cash values reducing your taxable price.
                       </p>
                     </div>
 
@@ -1151,7 +1151,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                 </div>
               </div>
 
-              {/* Guarantee Box */}
+              {/* Protection Pledge Box */}
               <div className="rounded-xl border border-emerald-500/30 bg-emerald-950/20 p-3 flex items-start gap-2.5 text-xs text-ink-light">
                 <ShieldCheck className="h-5 w-5 text-emerald-400 shrink-0 mt-0.5" />
                 <div>

@@ -287,7 +287,7 @@ export const LiveDealRoom: React.FC<LiveDealRoomProps> = ({
                     </div>
 
                     <div>
-                      <span className="text-[10px] uppercase font-bold text-emerald-400">Guaranteed OTD</span>
+                      <span className="text-[10px] uppercase font-bold text-emerald-400">Total OTD Price</span>
                       <div className="font-black text-white font-mono text-base">
                         {formatCurrency(bid.totalOtdPrice)}
                       </div>
@@ -422,7 +422,7 @@ export const LiveDealRoom: React.FC<LiveDealRoomProps> = ({
           <div className="rounded-2xl border border-border bg-surface-elevated p-4 flex items-start gap-3 text-xs">
             <ShieldCheck className="h-5 w-5 text-emerald-400 shrink-0 mt-0.5" />
             <div>
-              <h4 className="font-bold text-white">Transparent Transaction Guarantee</h4>
+              <h4 className="font-bold text-white">Transparent Transaction Policy</h4>
               <p className="text-[11px] text-ink-muted mt-0.5 leading-relaxed">
                 Every dealer in the TrimScout network is certified. All doc fees are legally capped, and unwanted dealer add-ons are strictly forbidden.
               </p>

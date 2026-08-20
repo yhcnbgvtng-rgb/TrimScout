@@ -108,7 +108,7 @@ export const FeeBreakdownModal: React.FC<FeeBreakdownModalProps> = ({
             <div className="flex items-center justify-between">
               <div>
                 <span className="text-[10px] uppercase font-extrabold text-emerald-400 tracking-wider">
-                  GUARANTEED OUT-THE-DOOR (OTD) PRICE
+                  FINAL OUT-THE-DOOR (OTD) PRICE
                 </span>
                 <div className="text-2xl font-extrabold text-white">
                   {formatCurrency(bid.totalOtdPrice)}
@@ -126,7 +126,7 @@ export const FeeBreakdownModal: React.FC<FeeBreakdownModalProps> = ({
           {/* Protection Note */}
           <div className="flex items-center gap-2 text-[11px] text-ink-muted bg-surface-elevated p-2.5 rounded-lg border border-border">
             <ShieldCheck className="h-4 w-4 text-emerald-400 shrink-0" />
-            <span>Protected by TrimScout $500 Price Guarantee against dealer markup.</span>
+            <span>Protected by TrimScout $500 Price Protection Policy against dealer markup.</span>
           </div>
         </div>
 
