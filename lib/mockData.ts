@@ -40,6 +40,7 @@ export const MOCK_VEHICLES: Vehicle[] = [
     ],
     imageUrl: "https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=1200&q=80",
     mileage: 8,
+    dealerUrl: "https://www.bmwsanrafael.com/new/BMW/2026-BMW-330i-M-Sport-wba33ay08rf892110.htm",
   },
   {
     id: "v2",
@@ -75,6 +76,7 @@ export const MOCK_VEHICLES: Vehicle[] = [
     ],
     imageUrl: "https://images.unsplash.com/photo-1580273916550-e323be2ae537?auto=format&fit=crop&w=1200&q=80",
     mileage: 12,
+    dealerUrl: "https://www.stevenscreekbmw.com/new/BMW/2026-BMW-330i-xDrive-wba33ay05rf774102.htm",
   },
   {
     id: "v3",
@@ -111,6 +113,7 @@ export const MOCK_VEHICLES: Vehicle[] = [
     ],
     imageUrl: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1200&q=80",
     mileage: 18,
+    dealerUrl: "https://www.porscheredwoodcity.com/inventory/new-2026-porsche-911-carrera-s-wp0ab2a99ss109284/",
   },
   {
     id: "v4",
@@ -145,6 +148,7 @@ export const MOCK_VEHICLES: Vehicle[] = [
     ],
     imageUrl: "https://images.unsplash.com/photo-1619767886558-efdc259cde1a?auto=format&fit=crop&w=1200&q=80",
     mileage: 0,
+    dealerUrl: "https://www.toyotaofberkeley.com/new-inventory/2026-toyota-prius-limited-awd-jtdka3fp5r0092182.htm",
   },
   {
     id: "v5",
@@ -179,6 +183,7 @@ export const MOCK_VEHICLES: Vehicle[] = [
     ],
     imageUrl: "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=1200&q=80",
     mileage: 45,
+    dealerUrl: "https://www.cadillacmarin.com/VehicleDetails/new-2026-Cadillac-LYRIQ-1GYKPDR49RZ110948",
   },
 
   // --- NEW YORK / TRI-STATE DEALERSHIPS ---
@@ -216,6 +221,7 @@ export const MOCK_VEHICLES: Vehicle[] = [
     ],
     imageUrl: "https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=1200&q=80",
     mileage: 15,
+    dealerUrl: "https://www.bmwofmanhattan.com/new/BMW/2026-BMW-330i-xDrive-wba33ay02rf119284.htm",
   },
   {
     id: "v7",
@@ -251,6 +257,7 @@ export const MOCK_VEHICLES: Vehicle[] = [
     ],
     imageUrl: "https://images.unsplash.com/photo-1614162692292-7ac56d7f7f1e?auto=format&fit=crop&w=1200&q=80",
     mileage: 0,
+    dealerUrl: "https://www.porschebrooklyn.com/inventory/new-2026-porsche-911-carrera-4-gts-wp0ab2a97ss491820/",
   },
 
   // --- TEXAS / DALLAS DEALERSHIPS ---
@@ -287,6 +294,7 @@ export const MOCK_VEHICLES: Vehicle[] = [
     ],
     imageUrl: "https://images.unsplash.com/photo-1584345604476-8ec5e12e42dd?auto=format&fit=crop&w=1200&q=80",
     mileage: 22,
+    dealerUrl: "https://www.parkcitiesforddallas.com/new/Ford/2026-Ford-Mustang-Dark-Horse-1fa6p8cf9r5102941.htm",
   },
   {
     id: "v9",
@@ -321,6 +329,7 @@ export const MOCK_VEHICLES: Vehicle[] = [
     ],
     imageUrl: "https://images.unsplash.com/photo-1619767886558-efdc259cde1a?auto=format&fit=crop&w=1200&q=80",
     mileage: 14,
+    dealerUrl: "https://www.toyotaofdallas.com/new-inventory/2026-toyota-prius-xle-awd-jtdka3fp8r0044192.htm",
   },
 
   // --- LOS ANGELES / SOCAL DEALERSHIPS ---
@@ -358,6 +367,7 @@ export const MOCK_VEHICLES: Vehicle[] = [
     ],
     imageUrl: "https://images.unsplash.com/photo-1560958089-b8a1929cea89?auto=format&fit=crop&w=1200&q=80",
     mileage: 0,
+    dealerUrl: "https://www.tesla.com/model3/design#overview",
   }
 ];
 

@@ -49,6 +49,7 @@ export interface Vehicle {
   options: Option[];
   imageUrl: string;
   mileage: number;
+  dealerUrl?: string;
 }
 
 export interface FlexibleCriteria {

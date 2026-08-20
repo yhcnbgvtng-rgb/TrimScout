@@ -11,7 +11,8 @@ import {
   ChevronDown,
   ArrowRight,
   X,
-  Car
+  Car,
+  ExternalLink
 } from "lucide-react";
 
 interface MarketSearchProps {
@@ -445,11 +446,23 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
                           <span className="text-ink-light">{vehicle.exteriorColor}</span>
                         </p>
 
-                        {/* Dealer Location */}
-                        <p className="text-[11px] text-ink-muted mt-0.5 flex items-center gap-1">
+                        {/* Dealer Location & Direct Listing Link */}
+                        <div className="text-[11px] text-ink-muted mt-0.5 flex flex-wrap items-center gap-1.5">
                           <span className="text-ink-light font-medium">{vehicle.location.dealerName}</span>
                           <span>({vehicle.location.city}, {vehicle.location.state})</span>
-                        </p>
+                          <span className="text-border">•</span>
+                          {vehicle.dealerUrl ? (
+                            <a
+                              href={vehicle.dealerUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1 text-emerald-400 hover:text-emerald-300 font-semibold hover:underline"
+                            >
+                              <span>Dealer Page</span>
+                              <ExternalLink className="h-2.5 w-2.5" />
+                            </a>
+                          ) : null}
+                        </div>
 
                         {/* Package Pills */}
                         <div className="flex flex-wrap gap-1 pt-1.5">
@@ -473,8 +486,21 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
                       {/* Expanded Build Sheet */}
                       {isExpanded && (
                         <div className="rounded-lg border border-border-strong bg-background p-2.5 text-xs space-y-1.5 mt-1.5 animate-fadeIn">
-                          <div className="font-bold text-ink-light uppercase text-[9px] tracking-wider text-emerald-400 border-b border-border pb-1">
-                            Factory Option Build Sheet ({vehicle.options.length} line items)
+                          <div className="flex items-center justify-between border-b border-border pb-1">
+                            <span className="font-bold text-ink-light uppercase text-[9px] tracking-wider text-emerald-400">
+                              Factory Option Build Sheet ({vehicle.options.length} line items)
+                            </span>
+                            {vehicle.dealerUrl && (
+                              <a
+                                href={vehicle.dealerUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1 text-[10px] text-emerald-400 hover:underline font-bold"
+                              >
+                                <span>View Original Dealer Window Sticker</span>
+                                <ExternalLink className="h-2.5 w-2.5" />
+                              </a>
+                            )}
                           </div>
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
                             {vehicle.options.map((opt) => (
@@ -524,6 +550,18 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
                         >
                           {isExpanded ? "Hide Specs" : "Window Sticker"}
                         </button>
+
+                        {vehicle.dealerUrl && (
+                          <a
+                            href={vehicle.dealerUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="w-full text-center text-[10px] text-ink-muted hover:text-emerald-400 flex items-center justify-center gap-1 transition-colors pt-0.5"
+                          >
+                            <span>Dealer Website</span>
+                            <ExternalLink className="h-2.5 w-2.5" />
+                          </a>
+                        )}
                       </div>
                     </div>
                   </div>
