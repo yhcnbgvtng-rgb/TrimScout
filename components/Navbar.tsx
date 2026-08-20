@@ -1,33 +1,64 @@
 "use client";
 
-import React, { useState } from "react";
-import { Compass, Zap, Search, Layers, Building2, Menu, X } from "lucide-react";
+import React, { useState, useRef, useEffect } from "react";
+import { UserProfile } from "../lib/types";
+import {
+  Compass,
+  Zap,
+  Menu,
+  X,
+  User,
+  LogIn,
+  LogOut,
+  ShieldCheck,
+  Building2,
+  ChevronDown,
+  Lock,
+  Layers,
+} from "lucide-react";
 
 interface NavbarProps {
-  onOpenBidProgram: () => void;
+  user: UserProfile | null;
   activeDealCount: number;
-  currentView: "search" | "bid_program" | "deal_room" | "dealer_portal";
-  onToggleView: (view: "search" | "bid_program" | "deal_room" | "dealer_portal") => void;
+  currentView: "search" | "bid_program" | "deal_room" | "dealer_portal" | "track_deals";
+  onToggleView: (view: "search" | "bid_program" | "deal_room" | "dealer_portal" | "track_deals") => void;
+  onOpenAuthModal: () => void;
+  onLogout: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
-  onOpenBidProgram,
+  user,
   activeDealCount,
   currentView,
   onToggleView,
+  onOpenAuthModal,
+  onLogout,
 }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsUserMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const navLinks: {
-    id: "search" | "bid_program" | "deal_room" | "dealer_portal";
+    id: "search" | "bid_program" | "deal_room" | "dealer_portal" | "track_deals";
     label: string;
-    icon?: React.ReactNode;
     badge?: number;
   }[] = [
     { id: "search", label: "Search Market" },
-    { id: "bid_program", label: "How Bidding Works" },
-    { id: "deal_room", label: "Live Deal Room", badge: activeDealCount },
+    { id: "track_deals", label: "Track Deals", badge: activeDealCount },
+    { id: "deal_room", label: "Live Deal Room" },
     { id: "dealer_portal", label: "Dealer Portal" },
+    { id: "bid_program", label: "How It Works" },
   ];
 
   return (
@@ -73,14 +104,96 @@ export const Navbar: React.FC<NavbarProps> = ({
           })}
         </nav>
 
-        {/* Right Action */}
+        {/* Right Actions: User Profile / Login Button + Bid Out CTA */}
         <div className="flex items-center gap-2.5">
+          {/* User Profile Pill / Login Trigger */}
+          {user ? (
+            <div className="relative" ref={menuRef}>
+              <button
+                onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                className="flex items-center gap-2 rounded-xl border border-border bg-surface-elevated py-1.5 pl-2 pr-3 text-xs font-bold text-white hover:border-emerald-500/50 hover:bg-surface transition-all shadow-sm"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={user.avatarUrl || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80"}
+                  alt={user.name}
+                  className="h-6 w-6 rounded-lg object-cover border border-emerald-500/40"
+                />
+                <span className="hidden sm:inline max-w-[100px] truncate">{user.name}</span>
+                <span className="rounded bg-emerald-500/20 px-1.5 py-0.2 text-[9px] font-extrabold text-emerald-400 uppercase hidden md:inline">
+                  {user.role === "buyer" ? "Buyer" : "Dealer"}
+                </span>
+                <ChevronDown className="h-3.5 w-3.5 text-ink-faint" />
+              </button>
+
+              {/* Profile Dropdown Menu */}
+              {isUserMenuOpen && (
+                <div className="absolute right-0 mt-2 w-56 rounded-2xl border border-border-strong bg-surface shadow-2xl p-2 z-50 text-xs space-y-1 animate-fadeIn">
+                  <div className="px-3 py-2 border-b border-border/80 space-y-0.5">
+                    <div className="font-bold text-white truncate">{user.name}</div>
+                    <div className="text-[11px] text-ink-muted truncate">{user.email}</div>
+                    {user.buyerAlias && (
+                      <div className="text-[10px] text-emerald-400 font-mono pt-0.5">
+                        {user.buyerAlias}
+                      </div>
+                    )}
+                  </div>
+
+                  <button
+                    onClick={() => {
+                      onToggleView("track_deals");
+                      setIsUserMenuOpen(false);
+                    }}
+                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-ink-light hover:bg-emerald-500/10 hover:text-emerald-400 font-medium transition-colors text-left"
+                  >
+                    <Layers className="h-4 w-4" />
+                    <span>My Deal Tracker</span>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      onOpenAuthModal();
+                      setIsUserMenuOpen(false);
+                    }}
+                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-ink-light hover:bg-surface-elevated font-medium transition-colors text-left"
+                  >
+                    <ShieldCheck className="h-4 w-4 text-emerald-400" />
+                    <span>Switch Test Account</span>
+                  </button>
+
+                  <div className="pt-1 border-t border-border">
+                    <button
+                      onClick={() => {
+                        onLogout();
+                        setIsUserMenuOpen(false);
+                      }}
+                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-rose-400 hover:bg-rose-500/10 font-medium transition-colors text-left"
+                    >
+                      <LogOut className="h-4 w-4" />
+                      <span>Sign Out</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          ) : (
+            <button
+              onClick={onOpenAuthModal}
+              className="flex items-center gap-1.5 rounded-xl border border-border bg-surface-elevated px-3.5 py-1.5 text-xs font-bold text-ink-light hover:text-white hover:border-emerald-500/50 hover:bg-surface transition-all shadow-sm"
+            >
+              <LogIn className="h-3.5 w-3.5 text-emerald-400" />
+              <span>Log In</span>
+            </button>
+          )}
+
+          {/* Primary CTA */}
           <button
             onClick={() => onToggleView("bid_program")}
-            className="flex items-center gap-1.5 rounded-lg bg-emerald-500 px-3.5 py-1.5 text-xs font-extrabold text-black hover:bg-emerald-400 transition-all shadow-sm active:scale-95"
+            className="flex items-center gap-1.5 rounded-xl bg-emerald-500 px-3.5 py-1.5 text-xs font-extrabold text-black hover:bg-emerald-400 transition-all shadow-sm active:scale-95"
           >
             <Zap className="h-3.5 w-3.5 fill-black" />
-            <span>Bid Out a Deal</span>
+            <span className="hidden sm:inline">Bid Out a Deal</span>
+            <span className="sm:hidden">Bid</span>
           </button>
 
           {/* Mobile Menu Toggle */}

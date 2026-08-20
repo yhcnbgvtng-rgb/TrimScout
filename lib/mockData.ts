@@ -493,3 +493,27 @@ export const SAMPLE_TRADE_IN_VEHICLE = {
   ],
 };
 
+export const DEMO_BUYER_USER: import("./types").UserProfile = {
+  id: "user-buyer-101",
+  name: "Alex Rivera",
+  email: "alex.rivera@example.com",
+  role: "buyer",
+  phone: "(415) 555-8910",
+  zipCode: "94107",
+  buyerAlias: "Buyer #CA-4921",
+  avatarUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80",
+  savedVehicleIds: ["veh-1", "veh-4"],
+};
+
+export const DEMO_DEALER_USER: import("./types").UserProfile = {
+  id: "user-dealer-202",
+  name: "Marcus Vance",
+  email: "marcus.vance@bmwsanrafael.com",
+  role: "dealer",
+  phone: "(415) 555-0199",
+  zipCode: "94901",
+  dealerName: "BMW of San Rafael",
+  avatarUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80",
+  savedVehicleIds: [],
+};
+

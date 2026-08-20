@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
-import { Vehicle, BiddingRequest, DealerBid, LockedDeal } from "../lib/types";
-import { MOCK_VEHICLES, INITIAL_DEMO_BIDS, SAMPLE_TRADE_IN_VEHICLE } from "../lib/mockData";
+import { Vehicle, BiddingRequest, DealerBid, LockedDeal, UserProfile } from "../lib/types";
+import { MOCK_VEHICLES, INITIAL_DEMO_BIDS, SAMPLE_TRADE_IN_VEHICLE, DEMO_BUYER_USER } from "../lib/mockData";
 import { calculateOtd } from "../lib/otdCalculator";
 import { Navbar } from "../components/Navbar";
 import { MarketSearch } from "../components/MarketSearch";
@@ -12,10 +12,17 @@ import { LiveDealRoom } from "../components/LiveDealRoom";
 import { DealerPortal } from "../components/DealerPortal";
 import { FeeBreakdownModal } from "../components/FeeBreakdownModal";
 import { VoucherModal } from "../components/VoucherModal";
+import { AuthModal } from "../components/AuthModal";
+import { DealTrackerDashboard } from "../components/DealTrackerDashboard";
 
 export default function Home() {
   const [vehicles] = useState<Vehicle[]>(MOCK_VEHICLES);
-  const [currentView, setCurrentView] = useState<"search" | "bid_program" | "deal_room" | "dealer_portal">("search");
+  const [currentView, setCurrentView] = useState<"search" | "bid_program" | "deal_room" | "dealer_portal" | "track_deals">("track_deals");
+
+  // User Authentication State
+  const [currentUser, setCurrentUser] = useState<UserProfile | null>(DEMO_BUYER_USER);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [savedVehicleIds, setSavedVehicleIds] = useState<string[]>(["veh-1", "veh-4"]);
 
   // Wizard state
   const [isWizardOpen, setIsWizardOpen] = useState(false);
@@ -233,15 +240,69 @@ export default function Home() {
     handleDealerSubmitBid(newBid);
   };
 
+  const handleLogin = (user: UserProfile) => {
+    setCurrentUser(user);
+    if (user.role === "dealer") {
+      setCurrentView("dealer_portal");
+    } else {
+      setCurrentView("track_deals");
+    }
+  };
+
+  const handleLogout = () => {
+    setCurrentUser(null);
+    setCurrentView("search");
+  };
+
+  const savedVehiclesList = vehicles.filter((v) => savedVehicleIds.includes(v.id));
+
   return (
     <main className="min-h-screen bg-background text-foreground">
       {/* Navigation Header */}
       <Navbar
-        onOpenBidProgram={() => setCurrentView("bid_program")}
+        user={currentUser}
         activeDealCount={bids.length > 0 ? 1 : 0}
         currentView={currentView}
         onToggleView={setCurrentView}
+        onOpenAuthModal={() => setIsAuthModalOpen(true)}
+        onLogout={handleLogout}
       />
+
+      {/* View 0: Deal Tracking Hub & User Dashboard */}
+      {currentView === "track_deals" && (
+        currentUser ? (
+          <DealTrackerDashboard
+            user={currentUser}
+            requests={[activeRequest]}
+            bids={bids}
+            lockedDeal={lockedDeal}
+            savedVehicles={savedVehiclesList}
+            onOpenLiveDealRoom={() => setCurrentView("deal_room")}
+            onOpenVoucherModal={(deal) => {
+              setLockedDeal(deal);
+              setIsVoucherModalOpen(true);
+            }}
+            onStartNewBid={handleOpenFlexibleWizard}
+            onInspectSavedVehicle={handleSelectForBid}
+            onRemoveSavedVehicle={(id) => setSavedVehicleIds((prev) => prev.filter((vId) => vId !== id))}
+          />
+        ) : (
+          <div className="mx-auto max-w-2xl px-4 py-16 text-center space-y-6">
+            <div className="rounded-2xl border border-border bg-surface p-8 space-y-4 shadow-xl">
+              <h2 className="text-xl font-black text-white">Sign In to Track Your Car Deals</h2>
+              <p className="text-xs text-ink-muted max-w-md mx-auto">
+                Log in to your TrimScout account to monitor live reverse bidding, download your locked out-the-door vouchers, and access saved vehicles.
+              </p>
+              <button
+                onClick={() => setIsAuthModalOpen(true)}
+                className="inline-flex items-center gap-2 rounded-xl bg-emerald-500 px-6 py-2.5 text-xs font-black text-black hover:bg-emerald-400 shadow-md shadow-emerald-500/20 transition-all"
+              >
+                Log In / Switch Account
+              </button>
+            </div>
+          </div>
+        )
+      )}
 
       {/* View 1: Clean Opening Search (Carvana-Style) */}
       {currentView === "search" && (
@@ -306,6 +367,13 @@ export default function Home() {
         deal={lockedDeal}
         isOpen={isVoucherModalOpen}
         onClose={() => setIsVoucherModalOpen(false)}
+      />
+
+      {/* Authentication Modal */}
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        onLogin={handleLogin}
       />
     </main>
   );

@@ -153,3 +153,16 @@ export interface LockedDeal {
   deliveryMethod?: "driveway_delivery" | "express_pickup";
   deliveryScheduledDate?: string;
 }
+
+export interface UserProfile {
+  id: string;
+  name: string;
+  email: string;
+  role: "buyer" | "dealer";
+  phone: string;
+  zipCode: string;
+  avatarUrl?: string;
+  buyerAlias?: string;
+  dealerName?: string;
+  savedVehicleIds: string[];
+}
