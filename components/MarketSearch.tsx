@@ -992,55 +992,37 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
                         )}
                       </div>
 
-                      {/* Right: Compact Price & Action Button Column */}
-                      <div className="sm:w-40 p-2.5 sm:p-3 bg-surface-elevated/30 border-t sm:border-t-0 sm:border-l border-border flex flex-col justify-between shrink-0 space-y-1.5">
-                        <div className="space-y-0.2 sm:text-right">
-                          <div className="text-[9px] text-ink-muted line-through font-medium">
-                            MSRP {formatCurrency(vehicle.msrp)}
-                          </div>
-                          <div className="text-base font-black text-white tracking-tight">
-                            {formatCurrency(vehicle.dealerPrice)}
-                          </div>
-                          {discountDollars > 0 && (
-                            <div className="inline-flex sm:flex sm:justify-end">
-                              <span className="rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-1 py-0.2 text-[8.5px] font-extrabold">
-                                -{formatCurrency(discountDollars)} ({discountPercent}%)
-                              </span>
-                            </div>
-                          )}
-                        </div>
-
-                        <div className="flex flex-col gap-1">
-                          {/* Dealer Website Button */}
-                          {vehicle.dealerUrl && (
-                            <a
-                              href={vehicle.dealerUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="w-full rounded-lg border border-border/90 hover:border-emerald-500/60 bg-surface hover:bg-surface-elevated py-1 px-2 text-[10px] font-bold text-emerald-400 hover:text-emerald-300 flex items-center justify-center gap-1 transition-all shadow-sm"
-                            >
-                              <span>Dealer Website</span>
-                              <ExternalLink className="h-2.5 w-2.5" />
-                            </a>
-                          )}
-
-                          {/* Primary Bid Button */}
-                          <button
-                            onClick={() => onSelectForBid(vehicle)}
-                            className="w-full rounded-lg bg-emerald-500 py-1.5 px-2 text-[11px] font-extrabold text-black hover:bg-emerald-400 transition-all shadow-sm flex items-center justify-center gap-1 active:scale-95"
+                      {/* Right: Action Buttons Column (Clean, Prices now in photo) */}
+                      <div className="sm:w-36 p-2.5 sm:p-3 bg-surface-elevated/20 border-t sm:border-t-0 sm:border-l border-border flex flex-col justify-center gap-1.5 shrink-0">
+                        {/* Dealer Website Button */}
+                        {vehicle.dealerUrl && (
+                          <a
+                            href={vehicle.dealerUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="w-full rounded-lg border border-border/90 hover:border-emerald-500/60 bg-surface hover:bg-surface-elevated py-1.5 px-2 text-[10px] font-bold text-emerald-400 hover:text-emerald-300 flex items-center justify-center gap-1 transition-all shadow-sm"
                           >
-                            <Zap className="h-3 w-3 fill-black" />
-                            <span>Bid On Spec</span>
-                          </button>
+                            <span>Dealer Website</span>
+                            <ExternalLink className="h-2.5 w-2.5" />
+                          </a>
+                        )}
 
-                          {/* Window Sticker Toggle Button */}
-                          <button
-                            onClick={() => setExpandedBuildSheet(isExpanded ? null : vehicle.id)}
-                            className="w-full rounded-md border border-border hover:border-ink-muted bg-background py-1 text-[9.5px] font-semibold text-ink-light hover:text-white transition-all text-center"
-                          >
-                            {isExpanded ? "Hide Specs" : "Window Sticker"}
-                          </button>
-                        </div>
+                        {/* Primary Bid Button */}
+                        <button
+                          onClick={() => onSelectForBid(vehicle)}
+                          className="w-full rounded-lg bg-emerald-500 py-1.5 px-2 text-[11px] font-extrabold text-black hover:bg-emerald-400 transition-all shadow-sm flex items-center justify-center gap-1 active:scale-95"
+                        >
+                          <Zap className="h-3 w-3 fill-black" />
+                          <span>Bid On Spec</span>
+                        </button>
+
+                        {/* Window Sticker Toggle Button */}
+                        <button
+                          onClick={() => setExpandedBuildSheet(isExpanded ? null : vehicle.id)}
+                          className="w-full rounded-md border border-border hover:border-ink-muted bg-background py-1 text-[9.5px] font-semibold text-ink-light hover:text-white transition-all text-center"
+                        >
+                          {isExpanded ? "Hide Specs" : "Window Sticker"}
+                        </button>
                       </div>
                     </div>
                   </div>
