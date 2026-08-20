@@ -858,25 +858,26 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
                     key={vehicle.id}
                     className="group rounded-xl border border-border/80 bg-surface hover:border-emerald-500/40 hover:bg-surface-elevated transition-all overflow-hidden shadow-sm"
                   >
-                    <div className="flex flex-col sm:flex-row">
-                      {/* Left: Small Compact Vehicle Photo with Overlaid Price & Days Listed */}
-                      <div className="relative w-full sm:w-36 md:w-44 sm:min-h-[120px] shrink-0 bg-background overflow-hidden">
+                    {/* Fixed Height Uniform Card Row */}
+                    <div className="flex flex-col sm:flex-row sm:h-[130px]">
+                      {/* Left: Fixed Dimension Vehicle Photo with Overlaid Price & Days Listed */}
+                      <div className="relative w-full sm:w-44 h-32 sm:h-full shrink-0 bg-background overflow-hidden">
                         <img
                           src={vehicle.imageUrl}
                           alt={`${vehicle.year} ${vehicle.make} ${vehicle.model} ${vehicle.trim}`}
-                          className="h-32 sm:h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
                           loading="lazy"
                         />
                         
                         {/* Status & Days Listed Badge (Top-Left of picture) */}
                         <div className="absolute top-1.5 left-1.5">
                           {vehicle.status === "on_lot" ? (
-                            <span className="inline-flex items-center gap-1 rounded bg-black/90 backdrop-blur-md px-1.5 py-0.5 text-[8.5px] font-extrabold text-emerald-400 border border-emerald-500/40 shadow-sm">
+                            <span className="inline-flex items-center gap-1 rounded bg-black/90 backdrop-blur-md px-1.5 py-0.5 text-[8.5px] font-extrabold text-emerald-400 border border-emerald-500/40 shadow-sm leading-none">
                               <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
                               {vehicle.daysOnLot} Days Listed
                             </span>
                           ) : (
-                            <span className="inline-flex items-center gap-1 rounded bg-black/90 backdrop-blur-md px-1.5 py-0.5 text-[8.5px] font-extrabold text-blue-400 border border-blue-500/40 shadow-sm">
+                            <span className="inline-flex items-center gap-1 rounded bg-black/90 backdrop-blur-md px-1.5 py-0.5 text-[8.5px] font-extrabold text-blue-400 border border-blue-500/40 shadow-sm leading-none">
                               <span className="h-1.5 w-1.5 rounded-full bg-blue-400" />
                               In Transit • {vehicle.daysOnLot}d
                             </span>
@@ -885,115 +886,80 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
 
                         {/* Price Tag Floating Inside Picture (Bottom-Right of picture) */}
                         <div className="absolute bottom-1.5 right-1.5">
-                          <span className="inline-flex items-center rounded-md bg-black/90 backdrop-blur-md px-1.5 py-0.5 text-[11px] font-black text-white border border-emerald-500/50 shadow-md">
+                          <span className="inline-flex items-center rounded-md bg-black/90 backdrop-blur-md px-1.5 py-0.5 text-[11px] font-black text-white border border-emerald-500/50 shadow-md leading-none">
                             {formatCurrency(vehicle.dealerPrice)}
                           </span>
                         </div>
 
                         {/* Distance Badge (Bottom-Left of picture) */}
                         <div className="absolute bottom-1.5 left-1.5">
-                          <span className="inline-flex items-center gap-0.5 rounded bg-black/85 backdrop-blur-md px-1 py-0.2 text-[8px] font-bold text-white border border-border">
+                          <span className="inline-flex items-center gap-0.5 rounded bg-black/85 backdrop-blur-md px-1 py-0.5 text-[8px] font-bold text-white border border-border leading-none">
                             <MapPin className="h-2 w-2 text-emerald-400" />
                             <span className="font-mono">{vehicle.dynamicDistance} mi</span>
                           </span>
                         </div>
                       </div>
 
-                      {/* Middle: Compact Specs */}
-                      <div className="flex-1 p-2.5 sm:p-3 flex flex-col justify-between space-y-1.5">
-                        <div>
-                          {/* Title & VIN */}
-                          <div className="flex flex-wrap items-center justify-between gap-1">
-                            <div className="flex items-center gap-1">
-                              <span className="text-[9px] font-extrabold uppercase tracking-wider text-emerald-400">
-                                {vehicle.year} {vehicle.make}
-                              </span>
-                              <span className="text-border">•</span>
-                              <h3 className="font-bold text-white text-xs sm:text-sm leading-tight">
-                                {vehicle.model} <span className="text-ink-light font-medium text-[11px] sm:text-xs">{vehicle.trim}</span>
-                              </h3>
-                            </div>
-
-                            <span className="text-[8.5px] font-mono text-ink-muted bg-background px-1.5 py-0.2 rounded border border-border">
-                              {vehicle.vin}
+                      {/* Middle: Uniform 4-Row Clamped Specs Column */}
+                      <div className="flex-1 p-2.5 sm:p-3 flex flex-col justify-between min-w-0 overflow-hidden h-full">
+                        {/* Row 1: Title & VIN */}
+                        <div className="flex items-center justify-between gap-1.5 min-w-0">
+                          <div className="flex items-center gap-1 min-w-0 truncate">
+                            <span className="text-[9px] font-extrabold uppercase tracking-wider text-emerald-400 shrink-0">
+                              {vehicle.year} {vehicle.make}
                             </span>
+                            <span className="text-border shrink-0">•</span>
+                            <h3 className="font-bold text-white text-xs sm:text-sm truncate leading-none">
+                              {vehicle.model} <span className="text-ink-light font-medium text-[11px]">{vehicle.trim}</span>
+                            </h3>
                           </div>
 
-                          {/* Specs Subtext */}
-                          <p className="text-[10px] text-ink-muted mt-0.5 flex flex-wrap items-center gap-1 leading-snug">
-                            <span>{vehicle.engine}</span>
-                            <span className="text-border">•</span>
-                            <span>{vehicle.drivetrain}</span>
-                            <span className="text-border">•</span>
-                            <span className="text-ink-light">{vehicle.exteriorColor}</span>
-                          </p>
-
-                          {/* Dealer Location & Prominent Days Listed */}
-                          <div className="text-[10px] text-ink-muted mt-0.5 flex flex-wrap items-center gap-1.5">
-                            <span className="text-ink-light font-medium">{vehicle.location.dealerName}</span>
-                            <span>({vehicle.location.city}, {vehicle.location.state})</span>
-                            <span className="text-border">•</span>
-                            <span className="inline-flex items-center gap-1 text-emerald-400 font-semibold bg-emerald-950/40 px-1.5 py-0.2 rounded border border-emerald-500/30">
-                              <Clock className="h-2.5 w-2.5" />
-                              <span>{vehicle.daysOnLot} days listed</span>
-                            </span>
-                          </div>
-
-                          {/* Package Pills */}
-                          <div className="flex flex-wrap gap-1 pt-1">
-                            {vehicle.packages.slice(0, 3).map((pkg, idx) => (
-                              <span
-                                key={idx}
-                                className="rounded bg-background px-1.5 py-0.2 text-[8.5px] font-medium text-ink-light border border-border flex items-center gap-1"
-                              >
-                                <CheckCircle2 className="h-2 w-2 text-emerald-400 shrink-0" />
-                                {pkg}
-                              </span>
-                            ))}
-                            {vehicle.packages.length > 3 && (
-                              <span className="rounded bg-background px-1 py-0.2 text-[8.5px] text-ink-faint border border-border">
-                                +{vehicle.packages.length - 3} more
-                              </span>
-                            )}
-                          </div>
+                          <span className="text-[8.5px] font-mono text-ink-muted bg-background px-1.5 py-0.5 rounded border border-border shrink-0 leading-none">
+                            {vehicle.vin}
+                          </span>
                         </div>
 
-                        {/* Expanded Build Sheet */}
-                        {isExpanded && (
-                          <div className="rounded-lg border border-border-strong bg-background p-2.5 text-xs space-y-1.5 mt-1 animate-fadeIn">
-                            <div className="flex items-center justify-between border-b border-border pb-1">
-                              <span className="font-bold text-ink-light uppercase text-[8.5px] tracking-wider text-emerald-400">
-                                Factory Option Build Sheet ({vehicle.options.length} line items)
-                              </span>
-                              {vehicle.dealerUrl && (
-                                <a
-                                  href={vehicle.dealerUrl}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="inline-flex items-center gap-1 text-[9.5px] text-emerald-400 hover:underline font-bold"
-                                >
-                                  <span>View Original Window Sticker</span>
-                                  <ExternalLink className="h-2.5 w-2.5" />
-                                </a>
-                              )}
-                            </div>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-1">
-                              {vehicle.options.map((opt) => (
-                                <div key={opt.code} className="flex justify-between text-[9.5px] border-b border-border/30 pb-0.5">
-                                  <span className="text-ink-muted">
-                                    <strong className="text-white font-mono mr-1">[{opt.code}]</strong>
-                                    {opt.name}
-                                  </span>
-                                  <span className="text-emerald-400 font-medium">+{formatCurrency(opt.price)}</span>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        )}
+                        {/* Row 2: Specs */}
+                        <p className="text-[10px] text-ink-muted flex items-center gap-1.5 truncate leading-none">
+                          <span className="shrink-0">{vehicle.engine}</span>
+                          <span className="text-border shrink-0">•</span>
+                          <span className="shrink-0">{vehicle.drivetrain}</span>
+                          <span className="text-border shrink-0">•</span>
+                          <span className="text-ink-light truncate">{vehicle.exteriorColor}</span>
+                        </p>
+
+                        {/* Row 3: Dealer Location & Prominent Days Listed */}
+                        <div className="text-[10px] text-ink-muted flex items-center gap-1.5 truncate leading-none">
+                          <span className="text-ink-light font-medium truncate">{vehicle.location.dealerName}</span>
+                          <span className="text-ink-muted shrink-0">({vehicle.location.city}, {vehicle.location.state})</span>
+                          <span className="text-border shrink-0">•</span>
+                          <span className="inline-flex items-center gap-1 text-emerald-400 font-semibold bg-emerald-950/40 px-1.5 py-0.5 rounded border border-emerald-500/30 shrink-0 leading-none">
+                            <Clock className="h-2.5 w-2.5" />
+                            <span>{vehicle.daysOnLot} days listed</span>
+                          </span>
+                        </div>
+
+                        {/* Row 4: Single-Line Factory Package Pills (No Wrapping) */}
+                        <div className="flex items-center gap-1 overflow-hidden min-w-0 h-5">
+                          {vehicle.packages.slice(0, 2).map((pkg, idx) => (
+                            <span
+                              key={idx}
+                              className="rounded bg-background px-1.5 py-0.5 text-[8.5px] font-medium text-ink-light border border-border flex items-center gap-1 shrink-0 whitespace-nowrap leading-none"
+                            >
+                              <CheckCircle2 className="h-2 w-2 text-emerald-400 shrink-0" />
+                              <span className="truncate max-w-[130px]">{pkg}</span>
+                            </span>
+                          ))}
+                          {vehicle.packages.length > 2 && (
+                            <span className="rounded bg-background px-1.5 py-0.5 text-[8.5px] text-ink-faint border border-border shrink-0 whitespace-nowrap leading-none">
+                              +{vehicle.packages.length - 2} more
+                            </span>
+                          )}
+                        </div>
                       </div>
 
-                      {/* Right: Action Buttons Column (Clean, Prices now in photo) */}
-                      <div className="sm:w-36 p-2.5 sm:p-3 bg-surface-elevated/20 border-t sm:border-t-0 sm:border-l border-border flex flex-col justify-center gap-1.5 shrink-0">
+                      {/* Right: Uniform Fixed-Width Action Buttons Column */}
+                      <div className="sm:w-36 p-2.5 sm:p-3 bg-surface-elevated/20 border-t sm:border-t-0 sm:border-l border-border flex flex-col justify-center gap-1 shrink-0 h-full">
                         {/* Dealer Website Button */}
                         {vehicle.dealerUrl && (
                           <a
@@ -1025,6 +991,39 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
                         </button>
                       </div>
                     </div>
+
+                    {/* Expandable Build Sheet Drawer (Renders below card when opened) */}
+                    {isExpanded && (
+                      <div className="border-t border-border-strong bg-background/95 p-3 text-xs space-y-2 animate-fadeIn">
+                        <div className="flex items-center justify-between border-b border-border pb-1.5">
+                          <span className="font-bold text-ink-light uppercase text-[8.5px] tracking-wider text-emerald-400">
+                            Factory Option Build Sheet ({vehicle.options.length} line items)
+                          </span>
+                          {vehicle.dealerUrl && (
+                            <a
+                              href={vehicle.dealerUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1 text-[9.5px] text-emerald-400 hover:underline font-bold"
+                            >
+                              <span>View Original Window Sticker</span>
+                              <ExternalLink className="h-2.5 w-2.5" />
+                            </a>
+                          )}
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 max-h-48 overflow-y-auto pr-1">
+                          {vehicle.options.map((opt) => (
+                            <div key={opt.code} className="flex justify-between text-[9.5px] border-b border-border/30 pb-0.5">
+                              <span className="text-ink-muted truncate mr-2">
+                                <strong className="text-white font-mono mr-1">[{opt.code}]</strong>
+                                {opt.name}
+                              </span>
+                              <span className="text-emerald-400 font-medium shrink-0">+{formatCurrency(opt.price)}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 );
               })}
