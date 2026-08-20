@@ -928,15 +928,10 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
                           <span className="text-ink-light truncate">{vehicle.exteriorColor}</span>
                         </p>
 
-                        {/* Row 3: Dealer Location & Prominent Days Listed */}
+                        {/* Row 3: Dealer Location */}
                         <div className="text-[10px] text-ink-muted flex items-center gap-1.5 truncate leading-none">
                           <span className="text-ink-light font-medium truncate">{vehicle.location.dealerName}</span>
                           <span className="text-ink-muted shrink-0">({vehicle.location.city}, {vehicle.location.state})</span>
-                          <span className="text-border shrink-0">•</span>
-                          <span className="inline-flex items-center gap-1 text-emerald-400 font-semibold bg-emerald-950/40 px-1.5 py-0.5 rounded border border-emerald-500/30 shrink-0 leading-none">
-                            <Clock className="h-2.5 w-2.5" />
-                            <span>{vehicle.daysOnLot} days listed</span>
-                          </span>
                         </div>
 
                         {/* Row 4: Single-Line Factory Package Pills (No Wrapping) */}
