@@ -371,7 +371,7 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
 
         {/* Vehicle List */}
         {sortedVehicles.length > 0 ? (
-          <div className="space-y-4">
+          <div className="space-y-3">
             {sortedVehicles.map((vehicle) => {
               const discountDollars = Math.max(0, vehicle.msrp - vehicle.dealerPrice);
               const discountPercent = ((discountDollars / vehicle.msrp) * 100).toFixed(1);
@@ -380,63 +380,64 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
               return (
                 <div
                   key={vehicle.id}
-                  className="group rounded-2xl border border-border/80 bg-surface hover:border-emerald-500/40 hover:bg-surface-elevated transition-all overflow-hidden shadow-sm hover:shadow-xl"
+                  className="group rounded-xl border border-border/80 bg-surface hover:border-emerald-500/40 hover:bg-surface-elevated transition-all overflow-hidden shadow-sm hover:shadow-md"
                 >
                   <div className="flex flex-col sm:flex-row">
-                    {/* Left: High-Res Vehicle Photo */}
-                    <div className="relative w-full sm:w-64 md:w-72 sm:min-h-[190px] shrink-0 bg-background overflow-hidden">
+                    {/* Left: Compact Vehicle Photo */}
+                    <div className="relative w-full sm:w-48 md:w-52 sm:min-h-[145px] shrink-0 bg-background overflow-hidden">
                       <img
                         src={vehicle.imageUrl}
                         alt={`${vehicle.year} ${vehicle.make} ${vehicle.model} ${vehicle.trim}`}
-                        className="h-48 sm:h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        className="h-36 sm:h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
                         loading="lazy"
                       />
                       
-                      {/* Status Badge floating on image */}
-                      <div className="absolute top-2.5 left-2.5">
+                      {/* Status Badge */}
+                      <div className="absolute top-2 left-2">
                         {vehicle.status === "on_lot" ? (
-                          <span className="inline-flex items-center gap-1 rounded-md bg-black/80 backdrop-blur-md px-2 py-0.5 text-[10px] font-extrabold text-emerald-400 border border-emerald-500/30 shadow-sm">
-                            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                          <span className="inline-flex items-center gap-1 rounded bg-black/85 backdrop-blur-md px-1.5 py-0.5 text-[9px] font-extrabold text-emerald-400 border border-emerald-500/30">
+                            <span className="h-1 w-1 rounded-full bg-emerald-400 animate-pulse" />
                             On Lot • {vehicle.daysOnLot}d
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1 rounded-md bg-black/80 backdrop-blur-md px-2 py-0.5 text-[10px] font-extrabold text-blue-400 border border-blue-500/30 shadow-sm">
-                            <span className="h-1.5 w-1.5 rounded-full bg-blue-400" />
+                          <span className="inline-flex items-center gap-1 rounded bg-black/85 backdrop-blur-md px-1.5 py-0.5 text-[9px] font-extrabold text-blue-400 border border-blue-500/30">
+                            <span className="h-1 w-1 rounded-full bg-blue-400" />
                             In Transit
                           </span>
                         )}
                       </div>
 
-                      {/* Distance Badge floating on image bottom */}
-                      <div className="absolute bottom-2.5 left-2.5">
-                        <span className="inline-flex items-center gap-1 rounded-md bg-black/80 backdrop-blur-md px-2 py-0.5 text-[10px] font-bold text-white border border-border shadow-sm">
-                          <MapPin className="h-3 w-3 text-emerald-400" />
+                      {/* Distance Badge */}
+                      <div className="absolute bottom-2 left-2">
+                        <span className="inline-flex items-center gap-1 rounded bg-black/85 backdrop-blur-md px-1.5 py-0.5 text-[9px] font-bold text-white border border-border">
+                          <MapPin className="h-2.5 w-2.5 text-emerald-400" />
                           <span className="font-mono">{vehicle.dynamicDistance} mi</span>
                         </span>
                       </div>
                     </div>
 
-                    {/* Middle: Vehicle Specs & Details */}
-                    <div className="flex-1 p-4 sm:p-5 flex flex-col justify-between space-y-3">
+                    {/* Middle: Vehicle Specs */}
+                    <div className="flex-1 p-3 sm:p-3.5 flex flex-col justify-between space-y-2">
                       <div>
-                        {/* Make / Model / Trim */}
-                        <div className="flex flex-wrap items-center justify-between gap-2">
-                          <div>
-                            <span className="text-[11px] font-extrabold uppercase tracking-wider text-emerald-400">
+                        {/* Title & VIN */}
+                        <div className="flex flex-wrap items-center justify-between gap-1.5">
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-[10px] font-extrabold uppercase tracking-wider text-emerald-400">
                               {vehicle.year} {vehicle.make}
                             </span>
-                            <h3 className="font-extrabold text-white text-lg sm:text-xl leading-tight">
-                              {vehicle.model} <span className="text-ink-light font-semibold text-base">{vehicle.trim}</span>
+                            <span className="text-border">•</span>
+                            <h3 className="font-bold text-white text-sm sm:text-base leading-tight">
+                              {vehicle.model} <span className="text-ink-light font-medium text-xs sm:text-sm">{vehicle.trim}</span>
                             </h3>
                           </div>
 
-                          <span className="text-[10px] font-mono text-ink-muted bg-background px-2 py-0.5 rounded border border-border">
-                            VIN: {vehicle.vin}
+                          <span className="text-[9px] font-mono text-ink-muted bg-background px-1.5 py-0.2 rounded border border-border">
+                            {vehicle.vin}
                           </span>
                         </div>
 
-                        {/* Engine & Color Subtext */}
-                        <p className="text-xs text-ink-muted mt-1 flex flex-wrap items-center gap-2">
+                        {/* Specs Subtext */}
+                        <p className="text-[11px] text-ink-muted mt-0.5 flex flex-wrap items-center gap-1.5 leading-snug">
                           <span>{vehicle.engine}</span>
                           <span className="text-border">•</span>
                           <span>{vehicle.drivetrain}</span>
@@ -444,40 +445,40 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
                           <span className="text-ink-light">{vehicle.exteriorColor}</span>
                         </p>
 
-                        {/* Dealership Location */}
-                        <p className="text-xs text-ink-muted mt-1 flex items-center gap-1.5">
-                          <span className="text-ink-light font-semibold">{vehicle.location.dealerName}</span>
+                        {/* Dealer Location */}
+                        <p className="text-[11px] text-ink-muted mt-0.5 flex items-center gap-1">
+                          <span className="text-ink-light font-medium">{vehicle.location.dealerName}</span>
                           <span>({vehicle.location.city}, {vehicle.location.state})</span>
                         </p>
 
-                        {/* Factory Packages Pills */}
-                        <div className="flex flex-wrap gap-1.5 pt-2.5">
+                        {/* Package Pills */}
+                        <div className="flex flex-wrap gap-1 pt-1.5">
                           {vehicle.packages.slice(0, 3).map((pkg, idx) => (
                             <span
                               key={idx}
-                              className="rounded-md bg-background px-2 py-0.5 text-[10px] font-medium text-ink-light border border-border flex items-center gap-1"
+                              className="rounded bg-background px-1.5 py-0.2 text-[9px] font-medium text-ink-light border border-border flex items-center gap-1"
                             >
-                              <CheckCircle2 className="h-2.5 w-2.5 text-emerald-400 shrink-0" />
+                              <CheckCircle2 className="h-2 w-2 text-emerald-400 shrink-0" />
                               {pkg}
                             </span>
                           ))}
                           {vehicle.packages.length > 3 && (
-                            <span className="rounded-md bg-background px-1.5 py-0.5 text-[10px] text-ink-faint border border-border">
-                              +{vehicle.packages.length - 3} more options
+                            <span className="rounded bg-background px-1.5 py-0.2 text-[9px] text-ink-faint border border-border">
+                              +{vehicle.packages.length - 3} more
                             </span>
                           )}
                         </div>
                       </div>
 
-                      {/* Expanded Build Sheet Drawer */}
+                      {/* Expanded Build Sheet */}
                       {isExpanded && (
-                        <div className="rounded-xl border border-border-strong bg-background p-3 text-xs space-y-2 mt-2 animate-fadeIn">
-                          <div className="font-bold text-ink-light uppercase text-[10px] tracking-wider text-emerald-400 border-b border-border pb-1">
+                        <div className="rounded-lg border border-border-strong bg-background p-2.5 text-xs space-y-1.5 mt-1.5 animate-fadeIn">
+                          <div className="font-bold text-ink-light uppercase text-[9px] tracking-wider text-emerald-400 border-b border-border pb-1">
                             Factory Option Build Sheet ({vehicle.options.length} line items)
                           </div>
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
                             {vehicle.options.map((opt) => (
-                              <div key={opt.code} className="flex justify-between text-[11px] border-b border-border/30 pb-0.5">
+                              <div key={opt.code} className="flex justify-between text-[10px] border-b border-border/30 pb-0.5">
                                 <span className="text-ink-muted">
                                   <strong className="text-white font-mono mr-1">[{opt.code}]</strong>
                                   {opt.name}
@@ -490,38 +491,38 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
                       )}
                     </div>
 
-                    {/* Right: Price & CTA Column */}
-                    <div className="sm:w-52 p-4 sm:p-5 bg-surface-elevated/40 border-t sm:border-t-0 sm:border-l border-border flex flex-col justify-between shrink-0 space-y-3">
-                      <div className="space-y-1 sm:text-right">
-                        <div className="text-xs text-ink-muted line-through font-medium">
+                    {/* Right: Compact Price & Action Column */}
+                    <div className="sm:w-44 p-3 sm:p-3.5 bg-surface-elevated/30 border-t sm:border-t-0 sm:border-l border-border flex flex-col justify-between shrink-0 space-y-2">
+                      <div className="space-y-0.5 sm:text-right">
+                        <div className="text-[10px] text-ink-muted line-through font-medium">
                           MSRP {formatCurrency(vehicle.msrp)}
                         </div>
-                        <div className="text-2xl font-black text-white tracking-tight">
+                        <div className="text-lg font-black text-white tracking-tight">
                           {formatCurrency(vehicle.dealerPrice)}
                         </div>
                         {discountDollars > 0 && (
                           <div className="inline-flex sm:flex sm:justify-end">
-                            <span className="rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-1.5 py-0.5 text-[10px] font-extrabold">
+                            <span className="rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-1 py-0.2 text-[9px] font-extrabold">
                               Save {formatCurrency(discountDollars)} ({discountPercent}%)
                             </span>
                           </div>
                         )}
                       </div>
 
-                      <div className="flex flex-col gap-2">
+                      <div className="flex flex-col gap-1.5">
                         <button
                           onClick={() => onSelectForBid(vehicle)}
-                          className="w-full rounded-xl bg-emerald-500 py-2.5 px-3 text-xs font-extrabold text-black hover:bg-emerald-400 transition-all shadow-md shadow-emerald-500/20 flex items-center justify-center gap-1.5 active:scale-95"
+                          className="w-full rounded-lg bg-emerald-500 py-1.5 px-2.5 text-xs font-extrabold text-black hover:bg-emerald-400 transition-all shadow-sm flex items-center justify-center gap-1 active:scale-95"
                         >
-                          <Zap className="h-3.5 w-3.5 fill-black" />
-                          <span>Bid Out This Car</span>
+                          <Zap className="h-3 w-3 fill-black" />
+                          <span>Bid On Spec</span>
                         </button>
 
                         <button
                           onClick={() => setExpandedBuildSheet(isExpanded ? null : vehicle.id)}
-                          className="w-full rounded-lg border border-border hover:border-ink-muted bg-background py-1.5 text-[11px] font-semibold text-ink-light hover:text-white transition-all text-center"
+                          className="w-full rounded-md border border-border hover:border-ink-muted bg-background py-1 text-[10px] font-semibold text-ink-light hover:text-white transition-all text-center"
                         >
-                          {isExpanded ? "Hide Window Sticker" : "View Window Sticker"}
+                          {isExpanded ? "Hide Specs" : "Window Sticker"}
                         </button>
                       </div>
                     </div>
