@@ -18,7 +18,9 @@ import {
   RotateCcw,
   Check,
   Sparkles,
-  ArrowUpDown
+  ArrowUpDown,
+  ArrowLeft,
+  Filter
 } from "lucide-react";
 
 interface MarketSearchProps {
@@ -32,7 +34,10 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
   onSelectForBid,
   onOpenFlexibleWizard,
 }) => {
-  // Search & Basic Filters
+  // Navigation State: "landing" (search input hero) vs "results" (visor.vin filter page)
+  const [viewState, setViewState] = useState<"landing" | "results">("landing");
+
+  // Search & Filter States
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedMake, setSelectedMake] = useState<string>("All");
   const [selectedTrims, setSelectedTrims] = useState<string[]>([]);
@@ -66,13 +71,33 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
     }
   };
 
+  const handleSearchSubmit = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    setViewState("results");
+  };
+
+  const handleQuickSearch = (query: string, make?: string) => {
+    setSearchQuery(query);
+    if (make) setSelectedMake(make);
+    setViewState("results");
+  };
+
   const quickPillSuggestions = [
-    { label: "BMW 3 Series", query: "BMW 3 Series" },
-    { label: "Porsche 911", query: "Porsche 911" },
-    { label: "Toyota Prius Hybrid", query: "Prius" },
-    { label: "Cadillac Lyriq EV", query: "Lyriq" },
-    { label: "Ford Mustang Dark Horse", query: "Mustang" },
-    { label: "Tesla Model 3", query: "Tesla" },
+    { label: "BMW 3 Series", query: "BMW 3 Series", make: "BMW" },
+    { label: "Porsche 911", query: "Porsche 911", make: "Porsche" },
+    { label: "Toyota Prius Hybrid", query: "Prius", make: "Toyota" },
+    { label: "Cadillac Lyriq EV", query: "Lyriq", make: "Cadillac" },
+    { label: "Ford Mustang V8", query: "Mustang", make: "Ford" },
+    { label: "Tesla Model 3", query: "Tesla", make: "Tesla" },
+  ];
+
+  const popularMakes = [
+    { name: "BMW", count: "3 Series • 4 Series • M3" },
+    { name: "Porsche", count: "911 • Cayman • Taycan" },
+    { name: "Toyota", count: "Prius • Supra • RAV4" },
+    { name: "Cadillac", count: "Lyriq • CT5-V • Escalade" },
+    { name: "Ford", count: "Mustang • Mach-E • F-150" },
+    { name: "Tesla", count: "Model 3 • Model Y • Plaid" },
   ];
 
   const radiusOptions = [
@@ -294,7 +319,7 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
 
   const zipInfo = getZipCoordinates(zipCode);
 
-  // Filter Sidebar Content Component (Reusable for Desktop & Mobile Sheet)
+  // Reusable Filter Sidebar Content Component
   const FilterSidebarContent = () => (
     <div className="space-y-6 text-xs">
       {/* Sidebar Header */}
@@ -560,141 +585,163 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
     </div>
   );
 
-  return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 space-y-8">
-      {/* ========================================================================= */}
-      {/* HERO & SEARCH BAR                                                         */}
-      {/* ========================================================================= */}
-      <div className="flex flex-col items-center text-center space-y-5">
-        <div className="inline-flex items-center gap-2 rounded-full border border-border bg-surface px-4 py-1.5 text-xs font-semibold text-ink-light shadow-sm">
-          <span className="flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-          <span>Option-Level Search • Visor Filters • Reverse Dealer Bidding</span>
-        </div>
+  // ===========================================================================
+  // RENDER: STEP 1 - SEARCH LANDING PAGE (Visor.vin Entry State)
+  // ===========================================================================
+  if (viewState === "landing") {
+    return (
+      <div className="mx-auto max-w-4xl px-4 py-16 sm:px-6 lg:px-8 space-y-12 animate-fadeIn">
+        {/* Hero Title */}
+        <div className="text-center space-y-4">
+          <div className="inline-flex items-center gap-2 rounded-full border border-border bg-surface px-4 py-1.5 text-xs font-semibold text-ink-light shadow-sm">
+            <span className="flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span>Whole-Market Option Search • Reverse Dealer Bidding</span>
+          </div>
 
-        <div className="max-w-2xl space-y-1.5">
-          <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight leading-tight">
-            Search By Exact Factory Spec. <br />
+          <h1 className="text-4xl sm:text-6xl font-black text-white tracking-tight leading-tight">
+            What car are you <br />
             <span className="bg-gradient-to-r from-emerald-400 to-teal-300 bg-clip-text text-transparent">
-              Make Dealerships Bid On Your Deal.
+              looking for today?
             </span>
           </h1>
+          <p className="text-base text-ink-muted max-w-lg mx-auto">
+            Type any vehicle name, trim, or factory option to launch deep dealer bidding and filter by exact specs.
+          </p>
         </div>
 
-        {/* Search Bar + Zip & Radius */}
-        <div className="w-full max-w-3xl space-y-2.5 pt-1 relative z-30">
-          <div className="flex flex-col sm:flex-row items-center rounded-2xl border-2 border-border-strong bg-surface p-1.5 shadow-2xl transition-all focus-within:border-emerald-500 focus-within:ring-2 focus-within:ring-emerald-500/20 gap-2">
-            {/* Main Search Input */}
+        {/* Large Focused Search Input Bar */}
+        <form onSubmit={handleSearchSubmit} className="space-y-4">
+          <div className="relative flex flex-col sm:flex-row items-center rounded-2xl border-2 border-border-strong bg-surface p-2 shadow-2xl transition-all focus-within:border-emerald-500 focus-within:ring-4 focus-within:ring-emerald-500/20 gap-2">
             <div className="flex items-center w-full flex-1">
-              <Search className="h-5 w-5 text-ink-muted ml-3 shrink-0" />
+              <Search className="h-6 w-6 text-emerald-400 ml-3 shrink-0" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => handleSearchInputChange(e.target.value)}
-                placeholder="Search Make, Model, Option (e.g. BMW 330i, Sport Chrono, Lyriq)..."
-                className="w-full bg-transparent px-3 py-2.5 text-sm sm:text-base text-white placeholder-ink-faint focus:outline-none"
+                placeholder="Search Make, Model, Trim, or Option (e.g. BMW 330i, 911, Prius, Lyriq)..."
+                className="w-full bg-transparent px-4 py-3.5 text-base sm:text-lg text-white placeholder-ink-faint focus:outline-none"
+                autoFocus
               />
               {searchQuery && (
                 <button
+                  type="button"
                   onClick={() => setSearchQuery("")}
                   className="text-xs text-ink-muted hover:text-white px-2"
                 >
-                  <X className="h-4 w-4" />
+                  <X className="h-5 w-5" />
                 </button>
               )}
             </div>
 
-            {/* Zip Code & Radius Selector Dropdown */}
-            <div className="relative w-full sm:w-auto border-t sm:border-t-0 sm:border-l border-border pt-1 sm:pt-0 sm:pl-2">
-              <button
-                type="button"
-                onClick={() => setIsLocationOpen(!isLocationOpen)}
-                className="flex items-center justify-between sm:justify-start gap-2 rounded-xl bg-surface-elevated hover:bg-border px-3 py-2 text-xs font-semibold text-ink-light transition-all border border-border w-full sm:w-auto"
-              >
-                <MapPin className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
-                <div className="text-left">
-                  <div className="truncate font-mono font-bold text-white leading-none">
-                    {zipCode} ({zipInfo.state}) • {searchRadius >= 3000 ? "Nationwide" : `${searchRadius} mi`}
-                  </div>
-                  <div className="text-[9px] text-ink-muted font-normal mt-0.5 leading-none">
-                    {zipInfo.city}
-                  </div>
-                </div>
-                <ChevronDown className={`h-3.5 w-3.5 text-ink-muted transition-transform ml-1 ${isLocationOpen ? "rotate-180" : ""}`} />
-              </button>
-
-              {/* Location Popover */}
-              {isLocationOpen && (
-                <div className="absolute right-0 top-full mt-2 w-80 rounded-2xl border border-border-strong bg-surface-elevated p-4 shadow-2xl space-y-4 text-left text-xs z-50 animate-fadeIn">
-                  <div className="flex items-center justify-between border-b border-border pb-2">
-                    <span className="font-bold text-white uppercase text-[10px] tracking-wider text-emerald-400">
-                      Set ZIP Code & Radius
-                    </span>
-                    <button
-                      onClick={() => setIsLocationOpen(false)}
-                      className="text-ink-muted hover:text-white"
-                    >
-                      <X className="h-3.5 w-3.5" />
-                    </button>
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <label className="text-[11px] font-semibold text-ink-light">5-Digit ZIP Code:</label>
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="text"
-                        maxLength={5}
-                        value={zipCode}
-                        onChange={(e) => setZipCode(e.target.value.replace(/\D/g, ""))}
-                        placeholder="94107"
-                        className="flex-1 rounded-lg border border-border bg-background py-2 px-3 text-sm text-white focus:border-emerald-500 focus:outline-none font-mono font-bold"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setIsLocationOpen(false)}
-                        className="rounded-lg bg-emerald-500 px-3.5 py-2 text-xs font-bold text-black hover:bg-emerald-400 transition-all"
-                      >
-                        Set
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Search Action Button */}
             <button
-              onClick={() => {}}
-              className="flex items-center justify-center gap-1.5 rounded-xl bg-emerald-500 px-4 py-2 font-extrabold text-xs text-black transition-all hover:bg-emerald-400 active:scale-95 shadow-md shrink-0 w-full sm:w-auto"
+              type="submit"
+              className="flex items-center justify-center gap-2 rounded-xl bg-emerald-500 px-7 py-3.5 font-extrabold text-sm text-black transition-all hover:bg-emerald-400 active:scale-95 shadow-lg shadow-emerald-500/20 shrink-0 w-full sm:w-auto"
             >
-              <span>Search</span>
-              <ArrowRight className="h-3.5 w-3.5 stroke-[2.5]" />
+              <span>Search Cars</span>
+              <ArrowRight className="h-4 w-4 stroke-[2.5]" />
             </button>
           </div>
 
-          {/* Quick Pill Suggestions */}
-          <div className="flex flex-wrap items-center justify-center gap-1.5 pt-0.5 text-xs">
-            <span className="text-ink-faint font-semibold mr-1">Popular:</span>
+          {/* Quick Suggestions */}
+          <div className="flex flex-wrap items-center justify-center gap-2 pt-2 text-xs">
+            <span className="text-ink-faint font-semibold mr-1">Trending Searches:</span>
             {quickPillSuggestions.map((item, idx) => (
               <button
                 key={idx}
-                onClick={() => setSearchQuery(item.query)}
-                className={`rounded-lg border px-2.5 py-0.5 text-[11px] transition-all ${
-                  searchQuery === item.query
-                    ? "bg-emerald-500/20 text-emerald-300 border-emerald-500 font-semibold"
-                    : "border-border bg-surface text-ink-muted hover:border-border-strong hover:text-white"
-                }`}
+                type="button"
+                onClick={() => handleQuickSearch(item.query, item.make)}
+                className="rounded-lg border border-border bg-surface px-3 py-1 text-ink-muted hover:border-emerald-500/50 hover:text-white transition-all flex items-center gap-1.5"
               >
-                {item.label}
+                <span>{item.label}</span>
+                <ArrowRight className="h-3 w-3 opacity-60" />
+              </button>
+            ))}
+          </div>
+        </form>
+
+        {/* Popular Brands Grid */}
+        <div className="space-y-4 pt-6 border-t border-border">
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-bold uppercase tracking-wider text-ink-muted">Or Browse by Brand</h2>
+            <button
+              type="button"
+              onClick={() => {
+                setSelectedMake("All");
+                setViewState("results");
+              }}
+              className="text-xs font-semibold text-emerald-400 hover:underline"
+            >
+              View All {vehicles.length} Available Vehicles →
+            </button>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            {popularMakes.map((m) => (
+              <button
+                key={m.name}
+                type="button"
+                onClick={() => handleQuickSearch(m.name, m.name)}
+                className="group rounded-xl border border-border bg-surface p-4 text-left hover:border-emerald-500/50 hover:bg-surface-elevated transition-all"
+              >
+                <div className="font-extrabold text-white text-base group-hover:text-emerald-400 transition-colors flex items-center justify-between">
+                  <span>{m.name}</span>
+                  <ArrowRight className="h-4 w-4 text-ink-muted group-hover:text-emerald-400 transition-colors" />
+                </div>
+                <div className="text-[11px] text-ink-muted mt-1 truncate">{m.count}</div>
               </button>
             ))}
           </div>
         </div>
       </div>
+    );
+  }
 
-      {/* ========================================================================= */}
-      {/* 2-COLUMN VISOR.VIN STYLE RESULTS + FILTER SYSTEM                          */}
-      {/* ========================================================================= */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 pt-4 border-t border-border">
+  // ===========================================================================
+  // RENDER: STEP 2 - VISOR.VIN DEDICATED RESULTS & MULTI-FACETED FILTER PAGE
+  // ===========================================================================
+  return (
+    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 space-y-6 animate-fadeIn">
+      {/* Top Search & Breadcrumb Bar */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-border">
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setViewState("landing")}
+            className="flex items-center gap-1.5 rounded-lg border border-border bg-surface px-3 py-1.5 text-xs font-bold text-ink-light hover:text-white hover:border-border-strong transition-all"
+          >
+            <ArrowLeft className="h-3.5 w-3.5" />
+            <span>New Search</span>
+          </button>
+
+          <div className="text-xs text-ink-muted hidden sm:block">
+            Searching for: <strong className="text-white">{searchQuery || selectedMake || "All Vehicles"}</strong>
+          </div>
+        </div>
+
+        {/* Compact Quick Search Input in Results View */}
+        <div className="flex items-center gap-2 max-w-md w-full">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-2.5 h-4 w-4 text-ink-muted" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => handleSearchInputChange(e.target.value)}
+              placeholder="Refine search (e.g. M Sport, Sport Chrono)..."
+              className="w-full rounded-xl border border-border bg-surface pl-9 pr-3 py-1.5 text-xs text-white placeholder-ink-faint focus:border-emerald-500 focus:outline-none"
+            />
+          </div>
+
+          <button
+            onClick={() => setIsLocationOpen(!isLocationOpen)}
+            className="flex items-center gap-1 rounded-xl border border-border bg-surface px-3 py-1.5 text-xs font-semibold text-ink-light shrink-0"
+          >
+            <MapPin className="h-3.5 w-3.5 text-emerald-400" />
+            <span className="font-mono">{zipCode}</span>
+          </button>
+        </div>
+      </div>
+
+      {/* 2-COLUMN VISOR.VIN STYLE RESULTS + FILTER SYSTEM */}
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
         
         {/* DESKTOP FILTER SIDEBAR (Left Column) */}
         <aside className="hidden lg:block lg:col-span-1 space-y-6 bg-surface/40 p-4 rounded-2xl border border-border/80 h-fit sticky top-20">
@@ -717,7 +764,7 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
               </button>
 
               <div className="text-xs text-ink-muted">
-                Showing <strong className="text-white font-bold">{sortedVehicles.length}</strong> vehicles matching spec
+                Showing <strong className="text-white font-bold">{sortedVehicles.length}</strong> matching vehicles
               </div>
             </div>
 
