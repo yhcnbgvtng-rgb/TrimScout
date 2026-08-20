@@ -166,14 +166,14 @@ export const BidProgramIntro: React.FC<BidProgramIntroProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="rounded-2xl border-2 border-emerald-500 bg-surface p-5 space-y-3 relative overflow-hidden">
             <div className="rounded bg-emerald-500 text-black px-2 py-0.5 text-[10px] font-black uppercase tracking-wider w-fit">
-              MOST POPULAR
+              ULTIMATE FLEXIBILITY
             </div>
             <div className="flex items-center gap-2 font-extrabold text-white text-base">
               <Percent className="h-5 w-5 text-emerald-400" />
-              <h3>Find your car based on Make and Model</h3>
+              <h3>Ultimate Flexibility</h3>
             </div>
             <p className="text-xs text-ink-muted leading-relaxed">
-              Select your target make and model. Dealers attach matching in-stock and in-transit cars from their lot and compete on who offers the <strong>highest % discount below MSRP</strong>.
+              If you&apos;re not picky about the spec, let TrimScout help source a great deal among dealers in your area.
             </p>
           </div>
 
@@ -199,7 +199,7 @@ export const BidProgramIntro: React.FC<BidProgramIntroProps> = ({
               <h3>Firm Target Offer</h3>
             </div>
             <p className="text-xs text-ink-muted leading-relaxed">
-              Have a firm budget? Submit your target price (e.g. <i>,500 OTD</i>). The first dealer to accept wins your business immediately.
+              Have a firm budget? Submit your target price (e.g. <i>$48,500 OTD</i>). The first dealer to accept wins your business immediately.
             </p>
           </div>
         </div>
