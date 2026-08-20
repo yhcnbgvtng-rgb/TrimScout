@@ -327,7 +327,7 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
         <div className="flex items-center gap-2">
           <SlidersHorizontal className="h-4 w-4 text-emerald-400" />
           <span className="font-bold text-white uppercase text-xs tracking-wider">
-            Visor Filters {activeFilterCount > 0 && `(${activeFilterCount})`}
+            Trim Results {activeFilterCount > 0 && `(${activeFilterCount})`}
           </span>
         </div>
         {activeFilterCount > 0 && (
@@ -1067,7 +1067,7 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
           <div className="ml-auto w-full max-w-md bg-surface border-l border-border h-full flex flex-col p-5 overflow-y-auto space-y-4">
             <div className="flex items-center justify-between border-b border-border pb-3">
               <span className="font-bold text-white text-sm uppercase tracking-wider">
-                Visor Filters {activeFilterCount > 0 && `(${activeFilterCount})`}
+                Trim Results {activeFilterCount > 0 && `(${activeFilterCount})`}
               </span>
               <button
                 onClick={() => setIsMobileFilterOpen(false)}
