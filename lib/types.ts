@@ -50,6 +50,8 @@ export interface Vehicle {
   imageUrl: string;
   mileage: number;
   dealerUrl?: string;
+  porscheCode?: string;
+  oemBuildSheetUrl?: string;
 }
 
 export interface FlexibleCriteria {

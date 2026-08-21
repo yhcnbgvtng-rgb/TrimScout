@@ -71,13 +71,13 @@ export const ScraperDashboardModal: React.FC<ScraperDashboardModalProps> = ({
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-lg font-black text-white">4-Engine Live CMS & OEM Scraper</h2>
+                <h2 className="text-lg font-black text-white">5-Engine Live CMS, OEM & Porsche Finder Scraper</h2>
                 <span className="rounded-full bg-emerald-500/20 border border-emerald-500/40 px-2 py-0.5 text-[9px] font-black text-emerald-400 uppercase">
                   Zero Data Cost
                 </span>
               </div>
               <p className="text-xs text-ink-muted">
-                Direct public JSON scraper covering Dealer.com, DealerInspire, DealerOn, and OEM Allocations
+                Direct public JSON scraper covering Dealer.com, DealerInspire, DealerOn, OEM Allocations & Porsche Finder
               </p>
             </div>
           </div>
@@ -89,42 +89,51 @@ export const ScraperDashboardModal: React.FC<ScraperDashboardModalProps> = ({
           </button>
         </div>
 
-        {/* 4 Engine Cards */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <div className="rounded-2xl border border-border bg-surface-elevated p-3.5 space-y-1">
+        {/* 5 Engine Cards */}
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5">
+          <div className="rounded-2xl border border-border bg-surface-elevated p-3 space-y-1">
             <div className="flex items-center justify-between text-xs">
               <span className="font-bold text-white">1. Dealer.com</span>
               <span className="flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
             </div>
-            <div className="text-[11px] text-ink-muted">~14,000 Dealerships</div>
-            <div className="text-[10px] text-emerald-400 font-mono">/apis/widget/k/auto-pricing</div>
+            <div className="text-[10.5px] text-ink-muted">~14,000 Dealers</div>
+            <div className="text-[9.5px] text-emerald-400 font-mono">/apis/widget/k/</div>
           </div>
 
-          <div className="rounded-2xl border border-border bg-surface-elevated p-3.5 space-y-1">
+          <div className="rounded-2xl border border-border bg-surface-elevated p-3 space-y-1">
             <div className="flex items-center justify-between text-xs">
               <span className="font-bold text-white">2. DealerInspire</span>
               <span className="flex h-2 w-2 rounded-full bg-blue-400 animate-pulse" />
             </div>
-            <div className="text-[11px] text-ink-muted">~6,000 Dealerships</div>
-            <div className="text-[10px] text-blue-400 font-mono">/inventory/json/</div>
+            <div className="text-[10.5px] text-ink-muted">~6,000 Dealers</div>
+            <div className="text-[9.5px] text-blue-400 font-mono">/inventory/json/</div>
           </div>
 
-          <div className="rounded-2xl border border-border bg-surface-elevated p-3.5 space-y-1">
+          <div className="rounded-2xl border border-border bg-surface-elevated p-3 space-y-1">
             <div className="flex items-center justify-between text-xs">
-              <span className="font-bold text-white">3. DealerOn / Fox</span>
+              <span className="font-bold text-white">3. DealerOn</span>
               <span className="flex h-2 w-2 rounded-full bg-purple-400 animate-pulse" />
             </div>
-            <div className="text-[11px] text-ink-muted">~4,500 Dealerships</div>
-            <div className="text-[10px] text-purple-400 font-mono">/api/v1/inventory/</div>
+            <div className="text-[10.5px] text-ink-muted">~4,500 Dealers</div>
+            <div className="text-[9.5px] text-purple-400 font-mono">/api/v1/inventory</div>
           </div>
 
-          <div className="rounded-2xl border border-border bg-surface-elevated p-3.5 space-y-1">
+          <div className="rounded-2xl border border-border bg-surface-elevated p-3 space-y-1">
             <div className="flex items-center justify-between text-xs">
-              <span className="font-bold text-white">4. OEM Allocations</span>
+              <span className="font-bold text-white">4. OEM Feeds</span>
               <span className="flex h-2 w-2 rounded-full bg-amber-400 animate-pulse" />
             </div>
-            <div className="text-[11px] text-ink-muted">In-Transit Pipeline</div>
-            <div className="text-[10px] text-amber-400 font-mono">Factory API Locator</div>
+            <div className="text-[10.5px] text-ink-muted">In-Transit Streams</div>
+            <div className="text-[9.5px] text-amber-400 font-mono">Factory Pipeline</div>
+          </div>
+
+          <div className="rounded-2xl border border-border bg-surface-elevated p-3 space-y-1">
+            <div className="flex items-center justify-between text-xs">
+              <span className="font-bold text-white">5. Porsche Finder</span>
+              <span className="flex h-2 w-2 rounded-full bg-rose-400 animate-pulse" />
+            </div>
+            <div className="text-[10.5px] text-ink-muted">Porsche Centers</div>
+            <div className="text-[9.5px] text-rose-400 font-mono">Porsche Codes</div>
           </div>
         </div>
 
@@ -189,7 +198,7 @@ export const ScraperDashboardModal: React.FC<ScraperDashboardModalProps> = ({
               ) : (
                 <>
                   <Play className="h-3.5 w-3.5 fill-black" />
-                  <span>Run 4 Scrapers Now</span>
+                  <span>Run 5 Scrapers Now</span>
                 </>
               )}
             </button>
@@ -208,7 +217,7 @@ export const ScraperDashboardModal: React.FC<ScraperDashboardModalProps> = ({
               </div>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 text-xs">
               <div className="p-2.5 rounded-xl border border-border bg-surface-elevated space-y-0.5">
                 <div className="text-[10px] text-ink-faint uppercase font-bold">Dealer.com</div>
                 <div className="text-emerald-400 font-bold">
@@ -224,7 +233,7 @@ export const ScraperDashboardModal: React.FC<ScraperDashboardModalProps> = ({
               </div>
 
               <div className="p-2.5 rounded-xl border border-border bg-surface-elevated space-y-0.5">
-                <div className="text-[10px] text-ink-faint uppercase font-bold">DealerOn / Fox</div>
+                <div className="text-[10px] text-ink-faint uppercase font-bold">DealerOn</div>
                 <div className="text-purple-400 font-bold">
                   {scraperResults.engineBreakdown.dealerOn.count} listings ({scraperResults.engineBreakdown.dealerOn.timeMs}ms)
                 </div>
@@ -234,6 +243,13 @@ export const ScraperDashboardModal: React.FC<ScraperDashboardModalProps> = ({
                 <div className="text-[10px] text-ink-faint uppercase font-bold">OEM Allocations</div>
                 <div className="text-amber-400 font-bold">
                   {scraperResults.engineBreakdown.oemAllocations.count} listings ({scraperResults.engineBreakdown.oemAllocations.timeMs}ms)
+                </div>
+              </div>
+
+              <div className="p-2.5 rounded-xl border border-border bg-surface-elevated space-y-0.5">
+                <div className="text-[10px] text-ink-faint uppercase font-bold">Porsche Finder</div>
+                <div className="text-rose-400 font-bold">
+                  {scraperResults.engineBreakdown.porscheFinder?.count || 0} listings ({scraperResults.engineBreakdown.porscheFinder?.timeMs || 0}ms)
                 </div>
               </div>
             </div>

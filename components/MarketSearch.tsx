@@ -1976,7 +1976,7 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
 
                       {/* Middle: Uniform 4-Row Clamped Specs Column */}
                       <div className="flex-1 p-2.5 sm:p-3 flex flex-col justify-between min-w-0 overflow-hidden h-full">
-                        {/* Row 1: Title & VIN */}
+                        {/* Row 1: Title & VIN & Porsche Code */}
                         <div className="flex items-center justify-between gap-1.5 min-w-0">
                           <div className="flex items-center gap-1 min-w-0 truncate">
                             <span className="text-[9px] font-extrabold uppercase tracking-wider text-emerald-400 shrink-0">
@@ -1988,9 +1988,24 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
                             </h3>
                           </div>
 
-                          <span className="text-[8.5px] font-mono text-ink-muted bg-background px-1.5 py-0.5 rounded border border-border shrink-0 leading-none">
-                            {vehicle.vin}
-                          </span>
+                          <div className="flex items-center gap-1 shrink-0">
+                            {vehicle.porscheCode && (
+                              <a
+                                href={`https://porsche-code.com/${vehicle.porscheCode}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                onClick={(e) => e.stopPropagation()}
+                                className="hidden sm:inline-flex items-center gap-0.5 text-[8.5px] font-mono font-bold text-rose-400 bg-rose-950/60 hover:bg-rose-900/60 border border-rose-500/30 px-1.5 py-0.5 rounded leading-none transition-colors"
+                                title="Open Official 3D Porsche Configurator Build Sheet"
+                              >
+                                <span>Code: {vehicle.porscheCode}</span>
+                                <ExternalLink className="h-2 w-2 text-rose-400/80" />
+                              </a>
+                            )}
+                            <span className="text-[8.5px] font-mono text-ink-muted bg-background px-1.5 py-0.5 rounded border border-border leading-none">
+                              {vehicle.vin}
+                            </span>
+                          </div>
                         </div>
 
                         {/* Row 2: Transmission • Engine • Drivetrain • Exterior */}
@@ -2116,9 +2131,22 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
                     {isExpanded && (
                       <div className="border-t border-border-strong bg-background/95 p-3 text-xs space-y-2 animate-fadeIn">
                         <div className="flex items-center justify-between border-b border-border pb-1.5 flex-wrap gap-2">
-                          <span className="font-bold text-ink-light uppercase text-[8.5px] tracking-wider text-emerald-400">
-                            Factory Option Build Sheet ({vehicle.options.length} line items)
-                          </span>
+                          <div className="flex items-center gap-2">
+                            <span className="font-bold text-ink-light uppercase text-[8.5px] tracking-wider text-emerald-400">
+                              Factory Option Build Sheet ({vehicle.options.length} line items)
+                            </span>
+                            {vehicle.porscheCode && (
+                              <a
+                                href={`https://porsche-code.com/${vehicle.porscheCode}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1 text-[9px] font-mono font-bold text-rose-400 bg-rose-950/60 border border-rose-500/30 px-1.5 py-0.5 rounded hover:bg-rose-900/60 transition-colors"
+                              >
+                                <span>3D Configurator ({vehicle.porscheCode})</span>
+                                <ExternalLink className="h-2 w-2 text-rose-400" />
+                              </a>
+                            )}
+                          </div>
                           
                           <div className="flex items-center gap-2.5 flex-wrap">
                             <a

@@ -3,6 +3,7 @@ import { scrapeDealerDotCom, ScraperResult } from "./dealerDotComScraper";
 import { scrapeDealerInspire } from "./dealerInspireScraper";
 import { scrapeDealerOn } from "./dealerOnScraper";
 import { scrapeOemAllocationFeed } from "./oemInventoryScraper";
+import { scrapePorscheInventory } from "./porscheFinderScraper";
 
 export interface UnifiedScraperResponse {
   vehicles: Vehicle[];
@@ -12,13 +13,14 @@ export interface UnifiedScraperResponse {
     dealerInspire: { count: number; status: "success" | "error"; timeMs: number };
     dealerOn: { count: number; status: "success" | "error"; timeMs: number };
     oemAllocations: { count: number; status: "success" | "error"; timeMs: number };
+    porscheFinder: { count: number; status: "success" | "error"; timeMs: number };
   };
   totalExecutionTimeMs: number;
 }
 
 /**
- * Unified 4-Engine Scraper Orchestrator for TrimScout
- * Runs Dealer.com, DealerInspire, DealerOn, and OEM Factory feeds concurrently.
+ * Unified 5-Engine Scraper Orchestrator for TrimScout
+ * Runs Dealer.com, DealerInspire, DealerOn, OEM Factory feeds, and Porsche Finder concurrently.
  */
 export async function runUnifiedScrapers(options: {
   zip: string;
@@ -37,8 +39,8 @@ export async function runUnifiedScrapers(options: {
   const dealerInspireTarget = options.dealerDomain || "vallejohyundai.com";
   const dealerOnTarget = options.dealerDomain || "hilltopford.com";
 
-  // Execute all 4 scraping engines concurrently
-  const [ddcResult, diResult, donResult, oemResult] = await Promise.allSettled([
+  // Execute all 5 scraping engines concurrently
+  const [ddcResult, diResult, donResult, oemResult, porscheResult] = await Promise.allSettled([
     scrapeDealerDotCom(dealerDotComTarget, {
       make: options.make,
       model: options.model,
@@ -63,6 +65,12 @@ export async function runUnifiedScrapers(options: {
       zip: targetZip,
       radiusMiles: radius,
     }),
+    scrapePorscheInventory({
+      model: options.model,
+      query: options.query,
+      zip: targetZip,
+      radiusMiles: radius,
+    }),
   ]);
 
   const vehicles: Vehicle[] = [];
@@ -82,6 +90,7 @@ export async function runUnifiedScrapers(options: {
     dealerInspire: { count: 0, status: "error" as "success" | "error", timeMs: 0 },
     dealerOn: { count: 0, status: "error" as "success" | "error", timeMs: 0 },
     oemAllocations: { count: 0, status: "success" as "success" | "error", timeMs: 0 },
+    porscheFinder: { count: 0, status: "success" as "success" | "error", timeMs: 0 },
   };
 
   if (ddcResult.status === "fulfilled") {
@@ -120,6 +129,15 @@ export async function runUnifiedScrapers(options: {
     };
   }
 
+  if (porscheResult.status === "fulfilled") {
+    addUnique(porscheResult.value.vehicles);
+    engineStats.porscheFinder = {
+      count: porscheResult.value.vehicles.length,
+      status: "success",
+      timeMs: porscheResult.value.executionTimeMs,
+    };
+  }
+
   return {
     vehicles,
     totalFound: vehicles.length,
@@ -132,3 +150,4 @@ export * from "./dealerDotComScraper";
 export * from "./dealerInspireScraper";
 export * from "./dealerOnScraper";
 export * from "./oemInventoryScraper";
+export * from "./porscheFinderScraper";

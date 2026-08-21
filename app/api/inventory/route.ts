@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { Vehicle } from "@/lib/types";
 import { MOCK_VEHICLES } from "@/lib/mockData";
 import { calculateDistanceMiles, getZipCoordinates } from "@/lib/otdCalculator";
-import { runUnifiedScrapers } from "@/lib/scrapers";
+import { runUnifiedScrapers, scrapePorscheInventory } from "@/lib/scrapers";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -552,6 +552,22 @@ export async function GET(request: Request) {
     // Check if query or make matches any extended templates (Audi, Mercedes, Honda, Corvette, Lexus, Subaru)
     const lowerQuery = rawQuery.toLowerCase();
     const lowerMake = make.toLowerCase();
+
+    // High-Fidelity Porsche Finder Scraper Stream Injection
+    if (lowerMake.includes("porsche") || lowerQuery.includes("porsche") || lowerQuery.includes("911") || lowerQuery.includes("gt3") || lowerQuery.includes("cayman") || lowerQuery.includes("taycan") || lowerQuery.includes("macan") || lowerQuery.includes("cayenne")) {
+      try {
+        const pResult = await scrapePorscheInventory({ query: rawQuery, model: rawQuery, zip, radiusMiles: radius });
+        if (pResult && pResult.vehicles.length > 0) {
+          pResult.vehicles.forEach((pv) => {
+            if (!baseList.some((b) => b.vin === pv.vin)) {
+              baseList.push(pv);
+            }
+          });
+        }
+      } catch (err) {
+        console.error("Porsche scraper error:", err);
+      }
+    }
 
     for (const [key, template] of Object.entries(VEHICLE_TEMPLATES)) {
       if (lowerQuery.includes(key) || lowerQuery.includes(template.make.toLowerCase()) || lowerQuery.includes(template.model.toLowerCase()) || lowerMake.includes(key) || lowerMake.includes(template.make.toLowerCase())) {
