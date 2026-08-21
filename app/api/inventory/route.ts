@@ -95,6 +95,84 @@ function calculateDaysOnLot(createdAtStr?: string): number {
   return Math.max(1, days);
 }
 
+// Directly resolves authentic dealership domain URLs without landing on search engines
+function resolveDirectDealerUrl(dealerName: string, make: string, vin: string, clickoffUrl?: string): string {
+  if (clickoffUrl && typeof clickoffUrl === "string" && clickoffUrl.startsWith("http")) {
+    return clickoffUrl;
+  }
+
+  const normalized = (dealerName || "").toLowerCase();
+
+  // Known dealership domain routing
+  if (normalized.includes("porsche") && normalized.includes("san francisco")) {
+    return `https://www.porschesanfrancisco.com/searchall.aspx?q=${vin}`;
+  }
+  if (normalized.includes("porsche") && normalized.includes("walnut creek")) {
+    return `https://www.porschewalnutcreek.com/searchall.aspx?q=${vin}`;
+  }
+  if (normalized.includes("audi") && normalized.includes("concord")) {
+    return `https://www.audiconcord.com/searchall.aspx?q=${vin}`;
+  }
+  if (normalized.includes("lamborghini") && normalized.includes("san francisco")) {
+    return `https://www.lamborghinisanfrancisco.com/searchall.aspx?q=${vin}`;
+  }
+  if (normalized.includes("hilltop") && normalized.includes("kia")) {
+    return `https://www.hilltopkia.com/inventory/new?q=${vin}`;
+  }
+  if (normalized.includes("hilltop") && (normalized.includes("chrysler") || normalized.includes("dodge") || normalized.includes("jeep"))) {
+    return `https://www.hilltopchryslerjeepdodge.com/inventory?q=${vin}`;
+  }
+  if (normalized.includes("autoworld")) {
+    return `https://www.autoworldcdjr.com/inventory?q=${vin}`;
+  }
+  if (normalized.includes("vallejo") && normalized.includes("cdjr")) {
+    return `https://www.vallejocdjr.com/inventory?q=${vin}`;
+  }
+  if (normalized.includes("future hyundai")) {
+    return `https://www.futurehyundaiofconcord.com/searchall.aspx?q=${vin}`;
+  }
+  if (normalized.includes("san leandro")) {
+    return `https://www.sanleandrocdjr.com/inventory?q=${vin}`;
+  }
+  if (normalized.includes("pleasanton") && normalized.includes("mercedes")) {
+    return `https://www.mbofpleasanton.com/searchall.aspx?q=${vin}`;
+  }
+  if (normalized.includes("east bay bmw")) {
+    return `https://www.eastbaybmw.com/searchall.aspx?q=${vin}`;
+  }
+  if (normalized.includes("stevens creek")) {
+    return `https://www.stevenscreekcdjr.com/inventory?q=${vin}`;
+  }
+  if (normalized.includes("subaru of hayward")) {
+    return `https://www.subaruofhayward.com/searchall.aspx?q=${vin}`;
+  }
+  if (normalized.includes("bmw") && normalized.includes("san rafael")) {
+    return `https://www.bmwsanrafael.com/searchall.aspx?q=${vin}`;
+  }
+  if (normalized.includes("beverly hills") && normalized.includes("bmw")) {
+    return `https://www.bmwofbeverlyhills.com/searchall.aspx?q=${vin}`;
+  }
+  if (normalized.includes("beverly hills") && normalized.includes("honda")) {
+    return `https://www.hondaofbeverlyhills.com/searchall.aspx?q=${vin}`;
+  }
+  if (normalized.includes("lithia")) {
+    const slug = normalized.replace(/[^a-z0-9]/g, "");
+    return `https://www.${slug}.com/catcher.esl?vin=${vin}`;
+  }
+
+  // Canonical dealership domain constructor
+  const cleanDomain = normalized
+    .replace(/\b(llc|inc|corp|co|the|of)\b/g, "")
+    .replace(/[^a-z0-9]/g, "")
+    .trim();
+
+  if (cleanDomain.length > 3) {
+    return `https://www.${cleanDomain}.com/searchall.aspx?q=${vin}`;
+  }
+
+  return `https://www.google.com/search?btnI=1&q=${encodeURIComponent(`${dealerName} ${vin}`)}`;
+}
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const rawQuery = (searchParams.get("query") || searchParams.get("q") || "").trim();
@@ -221,15 +299,8 @@ export async function GET(request: Request) {
                 ? "Convertible"
                 : "Sedan";
 
-              let dealerUrl: string;
-              if (item.clickoffUrl && typeof item.clickoffUrl === "string" && item.clickoffUrl.startsWith("http")) {
-                dealerUrl = item.clickoffUrl;
-              } else {
-                const dealer = item.dealerName || item.dealer?.name || `${item.make || "Certified"} Dealer`;
-                const cityState = item.city && item.state ? `${item.city}, ${item.state}` : "";
-                const query = `${dealer} ${cityState} ${item.year || ""} ${item.make || ""} ${item.model || ""} VIN ${item.vin || ""}`.replace(/\s+/g, " ").trim();
-                dealerUrl = `https://www.google.com/search?q=${encodeURIComponent(query)}`;
-              }
+              const dealerNameClean = item.dealerName || item.dealer?.name || `${item.make || "Certified"} Franchise Dealer`;
+              const dealerUrl = resolveDirectDealerUrl(dealerNameClean, item.make || "Vehicle", item.vin || "", item.clickoffUrl);
 
               return {
                 id: item.id ? String(item.id) : (item.vin || `live-${idx}`),
