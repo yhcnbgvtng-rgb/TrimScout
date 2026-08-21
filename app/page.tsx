@@ -16,10 +16,11 @@ import { VoucherModal } from "../components/VoucherModal";
 import { AuthModal } from "../components/AuthModal";
 import { DealTrackerDashboard } from "../components/DealTrackerDashboard";
 import { InventoryConnectorModal } from "../components/InventoryConnectorModal";
+import { SignupView } from "../components/SignupView";
 
 export default function Home() {
   const [vehicles, setVehicles] = useState<Vehicle[]>(MOCK_VEHICLES);
-  const [currentView, setCurrentView] = useState<"search" | "bid_program" | "deal_room" | "dealer_portal" | "track_deals">("search");
+  const [currentView, setCurrentView] = useState<"search" | "bid_program" | "deal_room" | "dealer_portal" | "track_deals" | "signup">("search");
 
   // User Authentication State
   const [currentUser, setCurrentUser] = useState<UserProfile | null>(DEMO_BUYER_USER);
@@ -453,6 +454,18 @@ export default function Home() {
           onDealerUploadPaperwork={handleDealerUploadPaperwork}
           onSwitchToBuyerView={() => setCurrentView("deal_room")}
         />
+      )}
+
+      {/* View 5: Dedicated Signup & Registration View */}
+      {currentView === "signup" && (
+        <div className="animate-fadeIn">
+          <SignupView
+            onSuccess={(newUser) => {
+              handleLogin(newUser);
+            }}
+            onNavigateHome={() => setCurrentView("search")}
+          />
+        </div>
       )}
 
       {/* Bidding Wizard Modal */}
