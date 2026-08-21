@@ -221,9 +221,14 @@ export async function GET(request: Request) {
                 ? "Convertible"
                 : "Sedan";
 
-              let dealerUrl = item.clickoffUrl || item.vdpUrl || null;
-              if (dealerUrl && !dealerUrl.startsWith("http")) {
-                dealerUrl = `https://auto.dev${dealerUrl}`;
+              let dealerUrl: string;
+              if (item.clickoffUrl && typeof item.clickoffUrl === "string" && item.clickoffUrl.startsWith("http")) {
+                dealerUrl = item.clickoffUrl;
+              } else {
+                const dealer = item.dealerName || item.dealer?.name || `${item.make || "Certified"} Dealer`;
+                const cityState = item.city && item.state ? `${item.city}, ${item.state}` : "";
+                const query = `${dealer} ${cityState} ${item.year || ""} ${item.make || ""} ${item.model || ""} VIN ${item.vin || ""}`.replace(/\s+/g, " ").trim();
+                dealerUrl = `https://www.google.com/search?q=${encodeURIComponent(query)}`;
               }
 
               return {
