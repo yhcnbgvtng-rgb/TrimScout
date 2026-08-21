@@ -80,6 +80,12 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
   const [isMakeDropdownOpen, setIsMakeDropdownOpen] = useState(false);
   const makeDropdownRef = useRef<HTMLDivElement>(null);
 
+  // Model Autofilling Datafield States
+  const [selectedModels, setSelectedModels] = useState<string[]>([]);
+  const [modelSearchInput, setModelSearchInput] = useState("");
+  const [isModelDropdownOpen, setIsModelDropdownOpen] = useState(false);
+  const modelDropdownRef = useRef<HTMLDivElement>(null);
+
   // Trim / Submodel Autofilling Datafield States
   const [trimSearchInput, setTrimSearchInput] = useState("");
   const [isTrimDropdownOpen, setIsTrimDropdownOpen] = useState(false);
@@ -96,6 +102,9 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
       const target = e.target as Node;
       if (makeDropdownRef.current && !makeDropdownRef.current.contains(target)) {
         setIsMakeDropdownOpen(false);
+      }
+      if (modelDropdownRef.current && !modelDropdownRef.current.contains(target)) {
+        setIsModelDropdownOpen(false);
       }
       if (trimDropdownRef.current && !trimDropdownRef.current.contains(target)) {
         setIsTrimDropdownOpen(false);
@@ -260,11 +269,41 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
     return availableMakes.filter((m) => m.name.toLowerCase().includes(lower));
   }, [availableMakes, makeSearchInput]);
 
-  // Dynamic Available Trims extracted in real-time from active vehicle dataset (respects selectedMake)
+  // Dynamic Available Models extracted in real-time from active vehicle dataset (respects selectedMake)
+  const availableModelsData = useMemo(() => {
+    const subset = selectedMake === "All"
+      ? vehicles
+      : vehicles.filter((v) => v.make.toLowerCase() === selectedMake.toLowerCase());
+
+    const counts: Record<string, number> = {};
+    subset.forEach((v) => {
+      if (v.model && v.model.trim()) {
+        const m = v.model.trim();
+        counts[m] = (counts[m] || 0) + 1;
+      }
+    });
+
+    const entries = Object.entries(counts).map(([name, count]) => ({ name, count }));
+    entries.sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+    return entries;
+  }, [vehicles, selectedMake]);
+
+  // Autocomplete matching models based on user typing
+  const filteredModelsForAutocomplete = useMemo(() => {
+    if (!modelSearchInput.trim()) return availableModelsData;
+    const lower = modelSearchInput.toLowerCase().trim();
+    return availableModelsData.filter((m) => m.name.toLowerCase().includes(lower));
+  }, [availableModelsData, modelSearchInput]);
+
+  // Dynamic Available Trims extracted in real-time from active vehicle dataset (respects selectedMake and selectedModels)
   const availableTrimsData = useMemo(() => {
-    const subset = selectedMake === "All" 
+    let subset = selectedMake === "All" 
       ? vehicles 
       : vehicles.filter(v => v.make.toLowerCase() === selectedMake.toLowerCase());
+    
+    if (selectedModels.length > 0) {
+      subset = subset.filter(v => selectedModels.includes(v.model));
+    }
     
     const counts: Record<string, number> = {};
     subset.forEach(v => {
@@ -277,7 +316,7 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
     const entries = Object.entries(counts).map(([name, count]) => ({ name, count }));
     entries.sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
     return entries;
-  }, [vehicles, selectedMake]);
+  }, [vehicles, selectedMake, selectedModels]);
 
   // Autocomplete matching trims based on user typing
   const filteredTrimsForAutocomplete = useMemo(() => {
@@ -286,11 +325,15 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
     return availableTrimsData.filter(t => t.name.toLowerCase().includes(lower));
   }, [availableTrimsData, trimSearchInput]);
 
-  // Dynamic Available Factory Packages & Options extracted from active vehicle dataset
+  // Dynamic Available Factory Packages & Options extracted from active vehicle dataset (respects selectedMake and selectedModels)
   const availablePackagesData = useMemo(() => {
-    const subset = selectedMake === "All" 
+    let subset = selectedMake === "All" 
       ? vehicles 
       : vehicles.filter(v => v.make.toLowerCase() === selectedMake.toLowerCase());
+
+    if (selectedModels.length > 0) {
+      subset = subset.filter(v => selectedModels.includes(v.model));
+    }
 
     const counts: Record<string, number> = {};
     subset.forEach(v => {
@@ -311,7 +354,7 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
     const entries = Object.entries(counts).map(([name, count]) => ({ name, count }));
     entries.sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
     return entries;
-  }, [vehicles, selectedMake]);
+  }, [vehicles, selectedMake, selectedModels]);
 
   // Autocomplete matching packages based on user typing
   const filteredPackagesForAutocomplete = useMemo(() => {
@@ -420,6 +463,7 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
 
       const textMatch = isPureZipQuery || queryTokens.length === 0 || queryTokens.every((token) => haystack.includes(token));
       const makeMatch = selectedMake === "All" || v.make === selectedMake;
+      const modelMatch = selectedModels.length === 0 || selectedModels.includes(v.model);
       const trimMatch = selectedTrims.length === 0 || selectedTrims.includes(v.trim);
       
       const statusMatch =
@@ -455,6 +499,7 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
       return (
         textMatch &&
         makeMatch &&
+        modelMatch &&
         trimMatch &&
         statusMatch &&
         packageMatch &&
@@ -470,6 +515,7 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
     vehiclesWithDistance,
     searchQuery,
     selectedMake,
+    selectedModels,
     selectedTrims,
     selectedStatus,
     selectedPackages,
@@ -502,6 +548,7 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
   const activeFilterCount = useMemo(() => {
     let count = 0;
     if (selectedMake !== "All") count++;
+    if (selectedModels.length > 0) count += selectedModels.length;
     if (selectedTrims.length > 0) count += selectedTrims.length;
     if (selectedPackages.length > 0) count += selectedPackages.length;
     if (selectedDrivetrains.length > 0) count += selectedDrivetrains.length;
@@ -509,11 +556,12 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
     if (selectedColors.length > 0) count += selectedColors.length;
     if (selectedBodyTypes.length > 0) count += selectedBodyTypes.length;
     if (selectedStatus !== "All") count++;
-    if (maxPrice < 200000 || minPrice > 0) count++;
+    if (maxPrice < 350000 || minPrice > 0) count++;
     if (searchRadius < 3000) count++;
     return count;
   }, [
     selectedMake,
+    selectedModels,
     selectedTrims,
     selectedPackages,
     selectedDrivetrains,
@@ -528,6 +576,7 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
 
   const clearAllFilters = () => {
     setSelectedMake("All");
+    setSelectedModels([]);
     setSelectedTrims([]);
     setSelectedPackages([]);
     setSelectedDrivetrains([]);
@@ -535,10 +584,17 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
     setSelectedColors([]);
     setSelectedBodyTypes([]);
     setSelectedStatus("All");
-    setMaxPrice(200000);
+    setMaxPrice(350000);
     setMinPrice(0);
     setSearchRadius(3000);
     setSearchQuery("");
+  };
+
+  const toggleModel = (model: string) => {
+    setSelectedModels((prev) =>
+      prev.includes(model) ? prev.filter((m) => m !== model) : [...prev, model]
+    );
+    setSelectedTrims([]); // Reset trims when model changes
   };
 
   const toggleTrim = (trim: string) => {
@@ -821,6 +877,7 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
               onClick={() => {
                 setSelectedMake("All");
                 setMakeSearchInput("");
+                setSelectedModels([]);
                 setSelectedTrims([]);
                 setIsMakeDropdownOpen(false);
                 if (onSyncLiveInventory) {
@@ -846,6 +903,7 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
                   onClick={() => {
                     setSelectedMake(m.name);
                     setMakeSearchInput("");
+                    setSelectedModels([]);
                     setSelectedTrims([]);
                     setIsMakeDropdownOpen(false);
                     if (onSyncLiveInventory) {
@@ -881,6 +939,7 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
                 type="button"
                 onClick={() => {
                   setSelectedMake(m.name);
+                  setSelectedModels([]);
                   setSelectedTrims([]);
                   if (onSyncLiveInventory) {
                     onSyncLiveInventory(zipCode, searchRadius, searchQuery, m.name, resultsLimit);
@@ -896,7 +955,141 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
         )}
       </div>
 
-      {/* 2. Trim / Submodel Autofilling Datafield */}
+      {/* 2. Model Autofilling Datafield */}
+      {availableModelsData.length > 0 && (
+        <div className="space-y-2 pt-3 border-t border-border/50 relative" ref={modelDropdownRef}>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-1.5">
+              <label className="font-bold text-ink-light uppercase text-[10px] tracking-wider">Model</label>
+              <span className="text-[9.5px] text-ink-faint font-mono">({availableModelsData.length} available)</span>
+            </div>
+            {selectedModels.length > 0 && (
+              <button
+                type="button"
+                onClick={() => setSelectedModels([])}
+                className="text-[10px] text-emerald-400 hover:underline font-bold cursor-pointer"
+              >
+                Clear ({selectedModels.length})
+              </button>
+            )}
+          </div>
+
+          {/* Active Selected Model Chips */}
+          {selectedModels.length > 0 && (
+            <div className="flex flex-wrap gap-1">
+              {selectedModels.map((model) => (
+                <span
+                  key={model}
+                  className="inline-flex items-center gap-1 rounded-lg bg-emerald-950/70 border border-emerald-500/50 px-2 py-0.5 text-[11px] font-medium text-emerald-300 animate-fadeIn"
+                >
+                  <span>{model}</span>
+                  <button
+                    type="button"
+                    onClick={() => toggleModel(model)}
+                    className="hover:text-white p-0.5 rounded cursor-pointer"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
+
+          {/* Searchable Autofilling Input for Model */}
+          <div className="relative">
+            <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-ink-muted" />
+            <input
+              type="text"
+              value={modelSearchInput}
+              onChange={(e) => {
+                setModelSearchInput(e.target.value);
+                setIsModelDropdownOpen(true);
+              }}
+              onFocus={() => setIsModelDropdownOpen(true)}
+              placeholder="Search or pick model (e.g. 911, Cayenne, Tacoma)..."
+              className="w-full rounded-xl border border-border bg-surface pl-8 pr-7 py-2 text-xs text-white placeholder-ink-faint focus:border-emerald-500 focus:outline-none"
+            />
+            {modelSearchInput && (
+              <button
+                type="button"
+                onClick={() => {
+                  setModelSearchInput("");
+                  setIsModelDropdownOpen(false);
+                }}
+                className="absolute right-2.5 top-2.5 text-ink-muted hover:text-white cursor-pointer"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            )}
+          </div>
+
+          {/* Model Autocomplete Dropdown Popover */}
+          {isModelDropdownOpen && (
+            <div className="absolute top-full left-0 right-0 z-50 mt-1 max-h-52 overflow-y-auto rounded-xl border border-border bg-surface-elevated shadow-2xl p-1 divide-y divide-border/40 animate-fadeIn">
+              {filteredModelsForAutocomplete.length > 0 ? (
+                filteredModelsForAutocomplete.map((m) => {
+                  const isChecked = selectedModels.includes(m.name);
+                  return (
+                    <button
+                      key={m.name}
+                      type="button"
+                      onClick={() => {
+                        toggleModel(m.name);
+                        setModelSearchInput("");
+                        setIsModelDropdownOpen(false);
+                      }}
+                      className={`w-full flex items-center justify-between px-3 py-2 text-xs rounded-lg text-left transition-all cursor-pointer ${
+                        isChecked
+                          ? "bg-emerald-500/20 text-emerald-300 font-bold"
+                          : "text-ink-muted hover:bg-surface hover:text-white"
+                      }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <div
+                          className={`h-3.5 w-3.5 rounded border flex items-center justify-center ${
+                            isChecked
+                              ? "bg-emerald-500 border-emerald-500 text-black"
+                              : "border-border"
+                          }`}
+                        >
+                          {isChecked && <Check className="h-2.5 w-2.5 stroke-[3]" />}
+                        </div>
+                        <span className="font-medium text-white">{m.name}</span>
+                      </div>
+                      <span className="rounded-full bg-surface border border-border px-1.5 py-0.5 text-[10px] text-emerald-400 font-mono">
+                        {m.count}
+                      </span>
+                    </button>
+                  );
+                })
+              ) : (
+                <div className="p-3 text-center text-xs text-ink-muted">
+                  No matching models found for "{modelSearchInput}"
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Quick-Select Model Pills below Datafield */}
+          {selectedModels.length === 0 && availableModelsData.length > 0 && (
+            <div className="flex flex-wrap gap-1 pt-1">
+              {availableModelsData.slice(0, 6).map((m) => (
+                <button
+                  key={m.name}
+                  type="button"
+                  onClick={() => toggleModel(m.name)}
+                  className="rounded-lg border border-border bg-surface px-2 py-0.5 text-[10.5px] font-semibold text-ink-muted hover:text-white hover:border-emerald-500/40 transition-all flex items-center gap-1 cursor-pointer"
+                >
+                  <span>{m.name}</span>
+                  <span className="text-[9px] text-ink-faint font-mono">({m.count})</span>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* 3. Trim / Submodel Autofilling Datafield */}
       {availableTrimsData.length > 0 && (
         <div className="space-y-2 pt-3 border-t border-border/50 relative" ref={trimDropdownRef}>
           <div className="flex items-center justify-between">
