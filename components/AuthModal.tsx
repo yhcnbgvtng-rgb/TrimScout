@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Link from "next/link";
 import { UserProfile } from "../lib/types";
 import { DEMO_BUYER_USER, DEMO_DEALER_USER } from "../lib/mockData";
 import {
@@ -353,7 +354,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               {/* Submit Button */}
               <button
                 type="submit"
-                className="w-full flex items-center justify-center gap-2 rounded-xl bg-emerald-500 py-2.5 text-xs font-black text-black hover:bg-emerald-400 transition-all shadow-md shadow-emerald-500/20 active:scale-95 mt-2"
+                className="w-full flex items-center justify-center gap-2 rounded-xl bg-emerald-500 py-2.5 text-xs font-black text-black hover:bg-emerald-400 transition-all shadow-md shadow-emerald-500/20 active:scale-95 mt-2 cursor-pointer"
               >
                 {tab === "signin" ? (
                   <>
@@ -367,6 +368,16 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   </>
                 )}
               </button>
+
+              <div className="pt-2 text-center">
+                <Link
+                  href="/signup"
+                  onClick={onClose}
+                  className="text-[11px] text-ink-muted hover:text-emerald-400 transition-colors"
+                >
+                  Need a full registration? <strong className="text-white underline">Open Dedicated Signup Page →</strong>
+                </Link>
+              </div>
             </form>
           )}
         </div>

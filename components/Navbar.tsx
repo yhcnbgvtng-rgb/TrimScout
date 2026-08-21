@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
+import Link from "next/link";
 import { UserProfile } from "../lib/types";
 import {
   Compass,
@@ -15,6 +16,7 @@ import {
   ChevronDown,
   Lock,
   Layers,
+  UserPlus,
 } from "lucide-react";
 
 interface NavbarProps {
@@ -177,13 +179,23 @@ export const Navbar: React.FC<NavbarProps> = ({
               )}
             </div>
           ) : (
-            <button
-              onClick={onOpenAuthModal}
-              className="flex items-center gap-1.5 rounded-xl border border-border bg-surface-elevated px-3.5 py-1.5 text-xs font-bold text-ink-light hover:text-white hover:border-emerald-500/50 hover:bg-surface transition-all shadow-sm"
-            >
-              <LogIn className="h-3.5 w-3.5 text-emerald-400" />
-              <span>Log In</span>
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={onOpenAuthModal}
+                className="flex items-center gap-1.5 rounded-xl border border-border bg-surface-elevated px-3 py-1.5 text-xs font-bold text-ink-light hover:text-white hover:border-emerald-500/50 hover:bg-surface transition-all shadow-sm"
+              >
+                <LogIn className="h-3.5 w-3.5 text-emerald-400" />
+                <span>Log In</span>
+              </button>
+
+              <Link
+                href="/signup"
+                className="hidden sm:flex items-center gap-1.5 rounded-xl border border-emerald-500/40 bg-emerald-950/40 hover:bg-emerald-900/50 px-3 py-1.5 text-xs font-extrabold text-emerald-400 hover:text-emerald-300 transition-all shadow-sm"
+              >
+                <UserPlus className="h-3.5 w-3.5" />
+                <span>Sign Up</span>
+              </Link>
+            </div>
           )}
 
           {/* Primary CTA */}
@@ -234,6 +246,19 @@ export const Navbar: React.FC<NavbarProps> = ({
               </button>
             );
           })}
+
+          {!user && (
+            <div className="pt-2 border-t border-border flex items-center gap-2">
+              <Link
+                href="/signup"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="w-full flex items-center justify-center gap-1.5 rounded-xl bg-emerald-500 py-2 text-xs font-extrabold text-black"
+              >
+                <UserPlus className="h-3.5 w-3.5" />
+                <span>Create Free Account / Sign Up</span>
+              </Link>
+            </div>
+          )}
         </div>
       )}
     </header>

@@ -75,10 +75,44 @@ export default function Home() {
   const [lockedDeal, setLockedDeal] = useState<LockedDeal | null>(null);
   const [isVoucherModalOpen, setIsVoucherModalOpen] = useState(false);
 
-  // Initial live inventory sync on load
+  // Initial live inventory sync & user session restore on load
   useEffect(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const saved = localStorage.getItem("trimscout_current_user");
+        if (saved) {
+          setCurrentUser(JSON.parse(saved));
+        }
+      } catch (e) {
+        console.error("Failed to load user from localStorage:", e);
+      }
+    }
     handleSyncLiveInventory("94107", 150);
   }, []);
+
+  const handleLogin = (user: UserProfile) => {
+    setCurrentUser(user);
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem("trimscout_current_user", JSON.stringify(user));
+      } catch (e) {}
+    }
+    if (user.role === "dealer") {
+      setCurrentView("dealer_portal");
+    } else {
+      setCurrentView("track_deals");
+    }
+  };
+
+  const handleLogout = () => {
+    setCurrentUser(null);
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.removeItem("trimscout_current_user");
+      } catch (e) {}
+    }
+    setCurrentView("search");
+  };
 
   // Sync Live Inventory from Connector
   const handleSyncLiveInventory = async (
@@ -321,20 +355,6 @@ export default function Home() {
     };
 
     handleDealerSubmitBid(newBid);
-  };
-
-  const handleLogin = (user: UserProfile) => {
-    setCurrentUser(user);
-    if (user.role === "dealer") {
-      setCurrentView("dealer_portal");
-    } else {
-      setCurrentView("track_deals");
-    }
-  };
-
-  const handleLogout = () => {
-    setCurrentUser(null);
-    setCurrentView("search");
   };
 
   const savedVehiclesList = vehicles.filter((v) => savedVehicleIds.includes(v.id));
