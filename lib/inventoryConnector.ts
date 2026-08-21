@@ -23,23 +23,28 @@ export interface InventoryFeedResponse {
 }
 
 const STORAGE_KEY = "trimscout_inventory_connector_config";
+const DEFAULT_AUTO_DEV_KEY = "sk_ad_Xc5T6i3mwxFF1X8x_WbFNl5a";
 
 export function getConnectorConfig(): {
   provider: "autodev" | "marketcheck" | "smart_feed";
   apiKey: string;
 } {
   if (typeof window === "undefined") {
-    return { provider: "smart_feed", apiKey: "" };
+    return { provider: "autodev", apiKey: DEFAULT_AUTO_DEV_KEY };
   }
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
-      return JSON.parse(raw);
+      const parsed = JSON.parse(raw);
+      return {
+        provider: parsed.provider || "autodev",
+        apiKey: parsed.apiKey || DEFAULT_AUTO_DEV_KEY,
+      };
     }
   } catch (e) {
     console.error("Failed to load connector config:", e);
   }
-  return { provider: "smart_feed", apiKey: "" };
+  return { provider: "autodev", apiKey: DEFAULT_AUTO_DEV_KEY };
 }
 
 export function saveConnectorConfig(config: {
