@@ -1172,7 +1172,20 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
                         <div className="flex items-center justify-between gap-2 text-[10.5px]">
                           <div className="flex items-center gap-1 text-ink-muted truncate min-w-0">
                             <MapPin className="h-3 w-3 text-emerald-400 shrink-0" />
-                            <span className="text-white font-medium truncate">{vehicle.location.dealerName}</span>
+                            {vehicle.dealerUrl ? (
+                              <a
+                                href={vehicle.dealerUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-white font-medium hover:text-emerald-400 hover:underline truncate transition-colors flex items-center gap-1"
+                                title={`Open ${vehicle.location.dealerName} Website`}
+                              >
+                                <span>{vehicle.location.dealerName}</span>
+                                <ExternalLink className="h-2 w-2 text-emerald-400/70 inline shrink-0" />
+                              </a>
+                            ) : (
+                              <span className="text-white font-medium truncate">{vehicle.location.dealerName}</span>
+                            )}
                             <span className="text-ink-faint">({vehicle.location.city}, {vehicle.location.state})</span>
                           </div>
 
@@ -1203,7 +1216,8 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
                                 href={vehicle.dealerUrl}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="inline-flex items-center gap-1 rounded-lg border border-border bg-surface-elevated px-2 py-1 text-[10px] font-semibold text-ink-light hover:text-white hover:border-emerald-500/40 transition-all"
+                                className="inline-flex items-center gap-1 rounded-lg border border-border bg-surface-elevated px-2 py-1 text-[10px] font-semibold text-ink-light hover:text-white hover:border-emerald-500/40 transition-all shadow-sm"
+                                title="Open Official Dealership Website"
                               >
                                 <span>Dealer Website</span>
                                 <ExternalLink className="h-2.5 w-2.5 text-emerald-400" />
@@ -1225,21 +1239,34 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
                     {/* Expandable Build Sheet Drawer (Renders below card when opened) */}
                     {isExpanded && (
                       <div className="border-t border-border-strong bg-background/95 p-3 text-xs space-y-2 animate-fadeIn">
-                        <div className="flex items-center justify-between border-b border-border pb-1.5">
+                        <div className="flex items-center justify-between border-b border-border pb-1.5 flex-wrap gap-2">
                           <span className="font-bold text-ink-light uppercase text-[8.5px] tracking-wider text-emerald-400">
                             Factory Option Build Sheet ({vehicle.options.length} line items)
                           </span>
-                          {vehicle.dealerUrl && (
+                          
+                          <div className="flex items-center gap-3">
                             <a
-                              href={vehicle.dealerUrl}
+                              href={`https://vpic.nhtsa.dot.gov/decoder/Decoder?vin=${vehicle.vin}`}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1 text-[9.5px] text-emerald-400 hover:underline font-bold"
+                              className="inline-flex items-center gap-1 text-[9.5px] text-ink-muted hover:text-white font-medium transition-colors"
                             >
-                              <span>View Original Window Sticker</span>
-                              <ExternalLink className="h-2.5 w-2.5" />
+                              <span>NHTSA Factory Specs</span>
+                              <ExternalLink className="h-2.5 w-2.5 text-ink-faint" />
                             </a>
-                          )}
+
+                            {vehicle.dealerUrl && (
+                              <a
+                                href={vehicle.dealerUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1 text-[9.5px] text-emerald-400 hover:underline font-bold"
+                              >
+                                <span>Open Dealership Website</span>
+                                <ExternalLink className="h-2.5 w-2.5" />
+                              </a>
+                            )}
+                          </div>
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 max-h-48 overflow-y-auto pr-1">
                           {vehicle.options.map((opt) => (

@@ -104,79 +104,120 @@ function resolveDirectDealerUrl(dealerName: string, make: string, vin: string, c
     return clickoffUrl;
   }
 
-  const normalized = (dealerName || "").toLowerCase();
+  const norm = (dealerName || "").toLowerCase();
+  const makeLower = (make || "").toLowerCase();
 
-  // Known dealership domain routing
-  if (normalized.includes("porsche") && normalized.includes("san francisco")) {
-    return "https://www.porschesanfrancisco.com";
+  // Multi-franchise dual rooftop splits (e.g. Hilltop Ford Kia)
+  if (norm.includes("hilltop") && norm.includes("ford") && norm.includes("kia")) {
+    if (makeLower.includes("kia")) return "https://www.hilltopkia.com";
+    return "https://www.hilltopfordca.com";
   }
-  if (normalized.includes("porsche") && normalized.includes("walnut creek")) {
-    return "https://www.porschewalnutcreek.com";
-  }
-  if (normalized.includes("audi") && normalized.includes("concord")) {
-    return "https://www.audiconcord.com";
-  }
-  if (normalized.includes("lamborghini") && normalized.includes("san francisco")) {
-    return "https://www.lamborghinisanfrancisco.com";
-  }
-  if (normalized.includes("hilltop") && normalized.includes("kia")) {
+  if (norm.includes("hilltop") && norm.includes("kia")) {
     return "https://www.hilltopkia.com";
   }
-  if (normalized.includes("hilltop") && (normalized.includes("chrysler") || normalized.includes("dodge") || normalized.includes("jeep"))) {
+  if (norm.includes("hilltop") && (norm.includes("chrysler") || norm.includes("dodge") || norm.includes("jeep") || norm.includes("ram"))) {
     return "https://www.hilltopchryslerjeepdodge.com";
   }
-  if (normalized.includes("autoworld")) {
-    return "https://www.autoworldcdjr.com";
-  }
-  if (normalized.includes("vallejo") && normalized.includes("cdjr")) {
-    return "https://www.vallejocdjr.com";
-  }
-  if (normalized.includes("future hyundai")) {
-    return "https://www.futurehyundaiofconcord.com";
-  }
-  if (normalized.includes("san leandro")) {
+  if (norm.includes("san leandro") && (norm.includes("cdjr") || norm.includes("chrysler") || norm.includes("dodge") || norm.includes("jeep") || norm.includes("ram"))) {
     return "https://www.sanleandrocdjr.com";
   }
-  if (normalized.includes("pleasanton") && normalized.includes("mercedes")) {
-    return "https://www.mbofpleasanton.com";
-  }
-  if (normalized.includes("east bay bmw")) {
-    return "https://www.eastbaybmw.com";
-  }
-  if (normalized.includes("stevens creek")) {
+  if (norm.includes("stevens creek") && (norm.includes("cdjr") || norm.includes("chrysler") || norm.includes("dodge") || norm.includes("jeep") || norm.includes("ram"))) {
     return "https://www.stevenscreekcdjr.com";
   }
-  if (normalized.includes("subaru of hayward")) {
+  if (norm.includes("stevens creek") && (norm.includes("chevy") || norm.includes("chevrolet"))) {
+    return "https://www.stevenscreekchevy.com";
+  }
+  if (norm.includes("vallejo") && norm.includes("hyundai")) {
+    return "https://www.vallejohyundai.com";
+  }
+  if (norm.includes("vallejo") && norm.includes("cdjr")) {
+    return "https://www.vallejocdjr.com";
+  }
+  if (norm.includes("ford") && norm.includes("fairfield")) {
+    return "https://www.fordfairfield.com";
+  }
+  if (norm.includes("fremont") && norm.includes("chevrolet")) {
+    return "https://www.fremontchevrolet.com";
+  }
+  if (norm.includes("albany") && norm.includes("subaru")) {
+    return "https://www.albanysubaru.com";
+  }
+  if (norm.includes("oakland") && norm.includes("kia")) {
+    return "https://www.oaklandkia.com";
+  }
+  if (norm.includes("north bay") && norm.includes("hyundai")) {
+    return "https://www.northbayhyundai.com";
+  }
+  if (norm.includes("hayward") && norm.includes("mitsubishi")) {
+    return "https://www.haywardmitsubishi.com";
+  }
+  if (norm.includes("subaru of hayward") || (norm.includes("hayward") && norm.includes("subaru"))) {
     return "https://www.subaruofhayward.com";
   }
-  if (normalized.includes("bmw") && normalized.includes("san rafael")) {
+  if (norm.includes("bmw") && norm.includes("san rafael")) {
     return "https://www.bmwsanrafael.com";
   }
-  if (normalized.includes("beverly hills") && normalized.includes("bmw")) {
+  if (norm.includes("bmw") && norm.includes("fremont")) {
+    return "https://www.bmwoffremont.com";
+  }
+  if (norm.includes("peter pan") && norm.includes("bmw")) {
+    return "https://www.peterpanbmw.com";
+  }
+  if (norm.includes("porsche") && norm.includes("san francisco")) {
+    return "https://www.porschesanfrancisco.com";
+  }
+  if (norm.includes("porsche") && norm.includes("walnut creek")) {
+    return "https://www.porschewalnutcreek.com";
+  }
+  if (norm.includes("audi") && norm.includes("concord")) {
+    return "https://www.audiconcord.com";
+  }
+  if (norm.includes("lamborghini") && norm.includes("san francisco")) {
+    return "https://www.lamborghinisanfrancisco.com";
+  }
+  if (norm.includes("autoworld")) {
+    return "https://www.autoworldcdjr.com";
+  }
+  if (norm.includes("future hyundai")) {
+    return "https://www.futurehyundaiofconcord.com";
+  }
+  if (norm.includes("pleasanton") && norm.includes("mercedes")) {
+    return "https://www.mbofpleasanton.com";
+  }
+  if (norm.includes("east bay bmw")) {
+    return "https://www.eastbaybmw.com";
+  }
+  if (norm.includes("beverly hills") && norm.includes("bmw")) {
     return "https://www.bmwofbeverlyhills.com";
   }
-  if (normalized.includes("beverly hills") && normalized.includes("honda")) {
+  if (norm.includes("beverly hills") && norm.includes("honda")) {
     return "https://www.hondaofbeverlyhills.com";
   }
-  if (normalized.includes("lithia")) {
-    const slug = normalized.replace(/[^a-z0-9]/g, "");
+  if (norm.includes("lithia")) {
+    const slug = norm.replace(/[^a-z0-9]/g, "");
     return `https://www.${slug}.com`;
   }
-  if (normalized.includes("manhattan motorcars")) {
+  if (norm.includes("manhattan motorcars")) {
     return "https://www.manhattanmotorcars.com";
   }
-  if (normalized.includes("park place")) {
+  if (norm.includes("park place")) {
     return "https://www.parkplace.com";
   }
-  if (normalized.includes("fletcher jones")) {
+  if (norm.includes("fletcher jones")) {
     return "https://www.fletcherjones.com";
   }
-  if (normalized.includes("braman")) {
+  if (norm.includes("braman")) {
     return "https://www.bramanmotors.com";
   }
+  if (norm.includes("samotors")) {
+    return "https://www.samotors.com";
+  }
+  if (norm.includes("mcbay")) {
+    return "https://www.mcbayauto.com";
+  }
 
-  // Canonical dealership domain constructor
-  const cleanDomain = normalized
+  // Canonical US automotive domain slug
+  let cleanDomain = norm
     .replace(/\b(llc|inc|corp|co|the|of)\b/g, "")
     .replace(/[^a-z0-9]/g, "")
     .trim();
