@@ -19,6 +19,8 @@ export interface Option {
   category: "package" | "standalone" | "exterior" | "interior" | "performance";
 }
 
+export type VehicleCondition = "new" | "used" | "cpo";
+
 export interface Vehicle {
   id: string;
   vin: string;
@@ -36,6 +38,7 @@ export interface Vehicle {
   dealerPrice: number;
   daysOnLot: number;
   status: VehicleStatus;
+  condition?: VehicleCondition;
   location: {
     dealerName: string;
     city: string;

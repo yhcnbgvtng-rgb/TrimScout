@@ -29,6 +29,7 @@ import {
   Loader2,
   Eye,
   Cpu,
+  ShieldCheck,
 } from "lucide-react";
 
 interface MarketSearchProps {
@@ -71,6 +72,7 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
   const [selectedColors, setSelectedColors] = useState<string[]>([]);
   const [selectedBodyTypes, setSelectedBodyTypes] = useState<string[]>([]);
   const [selectedStatus, setSelectedStatus] = useState<string>("All");
+  const [selectedConditions, setSelectedConditions] = useState<string[]>([]);
   const [maxPrice, setMaxPrice] = useState<number>(350000);
   const [minPrice, setMinPrice] = useState<number>(0);
   const [resultsLimit, setResultsLimit] = useState<number>(500);
@@ -268,6 +270,29 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
     const lower = makeSearchInput.toLowerCase().trim();
     return availableMakes.filter((m) => m.name.toLowerCase().includes(lower));
   }, [availableMakes, makeSearchInput]);
+
+  // Dynamic Available Conditions extracted in real-time from active vehicle dataset (respects selectedMake and selectedModels)
+  const availableConditionsData = useMemo(() => {
+    let subset = vehicles;
+    if (selectedMake !== "All") {
+      subset = subset.filter(v => v.make.toLowerCase() === selectedMake.toLowerCase());
+    }
+    if (selectedModels.length > 0) {
+      subset = subset.filter(v => selectedModels.includes(v.model));
+    }
+    const counts = { new: 0, cpo: 0, used: 0 };
+    subset.forEach(v => {
+      const cond = v.condition || (v.mileage > 500 ? "used" : "new");
+      if (cond === "cpo") counts.cpo++;
+      else if (cond === "used") counts.used++;
+      else counts.new++;
+    });
+    return [
+      { id: "new", label: "New", count: counts.new },
+      { id: "cpo", label: "Certified Used", count: counts.cpo },
+      { id: "used", label: "Used", count: counts.used },
+    ];
+  }, [vehicles, selectedMake, selectedModels]);
 
   // Dynamic Available Models extracted in real-time from active vehicle dataset (respects selectedMake)
   const availableModelsData = useMemo(() => {
@@ -496,11 +521,16 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
       const priceMatch = v.dealerPrice >= minPrice && v.dealerPrice <= maxPrice;
       const distanceMatch = searchRadius >= 3000 || v.dynamicDistance <= searchRadius;
 
+      const condition = v.condition || (v.mileage > 500 ? "used" : "new");
+      const conditionMatch =
+        selectedConditions.length === 0 || selectedConditions.includes(condition);
+
       return (
         textMatch &&
         makeMatch &&
         modelMatch &&
         trimMatch &&
+        conditionMatch &&
         statusMatch &&
         packageMatch &&
         drivetrainMatch &&
@@ -517,6 +547,7 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
     selectedMake,
     selectedModels,
     selectedTrims,
+    selectedConditions,
     selectedStatus,
     selectedPackages,
     selectedDrivetrains,
@@ -550,6 +581,7 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
     if (selectedMake !== "All") count++;
     if (selectedModels.length > 0) count += selectedModels.length;
     if (selectedTrims.length > 0) count += selectedTrims.length;
+    if (selectedConditions.length > 0) count += selectedConditions.length;
     if (selectedPackages.length > 0) count += selectedPackages.length;
     if (selectedDrivetrains.length > 0) count += selectedDrivetrains.length;
     if (selectedTransmissions.length > 0) count += selectedTransmissions.length;
@@ -563,6 +595,7 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
     selectedMake,
     selectedModels,
     selectedTrims,
+    selectedConditions,
     selectedPackages,
     selectedDrivetrains,
     selectedTransmissions,
@@ -578,6 +611,7 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
     setSelectedMake("All");
     setSelectedModels([]);
     setSelectedTrims([]);
+    setSelectedConditions([]);
     setSelectedPackages([]);
     setSelectedDrivetrains([]);
     setSelectedTransmissions([]);
@@ -588,6 +622,14 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
     setMinPrice(0);
     setSearchRadius(3000);
     setSearchQuery("");
+  };
+
+  const toggleCondition = (conditionId: string) => {
+    setSelectedConditions((prev) =>
+      prev.includes(conditionId)
+        ? prev.filter((c) => c !== conditionId)
+        : [...prev, conditionId]
+    );
   };
 
   const toggleModel = (model: string) => {
@@ -789,8 +831,64 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
         </div>
       </div>
 
-      {/* 1. Make / Brand Autofilling Datafield */}
-      <div className="space-y-2 relative" ref={makeDropdownRef}>
+      {/* 1. Vehicle Condition (New / Used / Certified Used) */}
+      <div className="space-y-2 pt-3 border-t border-border/50">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1.5">
+            <label className="font-bold text-ink-light uppercase text-[10px] tracking-wider">Condition</label>
+            {selectedConditions.length > 0 && (
+              <span className="text-[9px] text-emerald-400 font-mono font-bold">
+                ({selectedConditions.length} selected)
+              </span>
+            )}
+          </div>
+          {selectedConditions.length > 0 && (
+            <button
+              type="button"
+              onClick={() => setSelectedConditions([])}
+              className="text-[10px] text-emerald-400 hover:underline font-bold cursor-pointer"
+            >
+              All ({vehicles.length})
+            </button>
+          )}
+        </div>
+
+        {/* Condition Segmented / Card Toggles with Live Counts */}
+        <div className="grid grid-cols-3 gap-1.5">
+          {availableConditionsData.map((cond) => {
+            const isChecked = selectedConditions.includes(cond.id);
+            return (
+              <button
+                key={cond.id}
+                type="button"
+                onClick={() => toggleCondition(cond.id)}
+                className={`flex flex-col items-center justify-center p-2 rounded-xl border text-center transition-all cursor-pointer ${
+                  isChecked
+                    ? cond.id === "cpo"
+                      ? "bg-amber-500/20 border-amber-500 text-amber-300 font-bold shadow-sm"
+                      : cond.id === "used"
+                      ? "bg-sky-500/20 border-sky-500 text-sky-300 font-bold shadow-sm"
+                      : "bg-emerald-500/20 border-emerald-500 text-emerald-300 font-bold shadow-sm"
+                    : "bg-surface border-border text-ink-muted hover:text-white hover:border-border/80"
+                }`}
+              >
+                <div className="flex items-center gap-1">
+                  {cond.id === "cpo" && <ShieldCheck className="h-3 w-3 text-amber-400 shrink-0" />}
+                  <span className="text-[11px] font-bold tracking-tight">
+                    {cond.id === "cpo" ? "Certified CPO" : cond.label}
+                  </span>
+                </div>
+                <span className="text-[9.5px] font-mono text-ink-faint mt-0.5">
+                  {cond.count} {cond.count === 1 ? "car" : "cars"}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* 2. Make / Brand Autofilling Datafield */}
+      <div className="space-y-2 pt-3 border-t border-border/50 relative" ref={makeDropdownRef}>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5">
             <label className="font-bold text-ink-light uppercase text-[10px] tracking-wider">Make / Brand</label>
@@ -2169,9 +2267,24 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
 
                       {/* Middle: Uniform 4-Row Clamped Specs Column */}
                       <div className="flex-1 p-2.5 sm:p-3 flex flex-col justify-between min-w-0 overflow-hidden h-full">
-                        {/* Row 1: Title & VIN & Porsche Code */}
+                        {/* Row 1: Title & Condition & VIN & Porsche Code */}
                         <div className="flex items-center justify-between gap-1.5 min-w-0">
-                          <div className="flex items-center gap-1 min-w-0 truncate">
+                          <div className="flex items-center gap-1.5 min-w-0 truncate">
+                            {/* Condition Tag */}
+                            {vehicle.condition === "cpo" ? (
+                              <span className="inline-flex items-center gap-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 px-1.5 py-0.5 text-[8px] font-extrabold uppercase tracking-wide shrink-0">
+                                <ShieldCheck className="h-2.5 w-2.5 text-amber-400" />
+                                CPO
+                              </span>
+                            ) : vehicle.condition === "used" ? (
+                              <span className="inline-flex items-center rounded bg-sky-500/20 text-sky-300 border border-sky-500/40 px-1.5 py-0.5 text-[8px] font-extrabold uppercase tracking-wide shrink-0">
+                                USED
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-1.5 py-0.5 text-[8px] font-extrabold uppercase tracking-wide shrink-0">
+                                NEW
+                              </span>
+                            )}
                             <span className="text-[9px] font-extrabold uppercase tracking-wider text-emerald-400 shrink-0">
                               {vehicle.year} {vehicle.make}
                             </span>
@@ -2201,8 +2314,14 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
                           </div>
                         </div>
 
-                        {/* Row 2: Transmission • Engine • Drivetrain • Exterior */}
+                        {/* Row 2: Mileage • Transmission • Engine • Drivetrain • Exterior */}
                         <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[10.5px] text-ink-muted leading-tight">
+                          {vehicle.mileage > 0 && (
+                            <>
+                              <span className="font-mono text-white font-semibold">{vehicle.mileage.toLocaleString()} mi</span>
+                              <span>•</span>
+                            </>
+                          )}
                           <span className="text-ink-light">{vehicle.transmission}</span>
                           <span>•</span>
                           <span>{vehicle.engine}</span>

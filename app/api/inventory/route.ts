@@ -529,6 +529,11 @@ export async function GET(request: Request) {
               dealerPrice,
               daysOnLot: calculateDaysOnLot(item.createdAt),
               status: "on_lot",
+              condition: (item.isCpo || item.cpo || String(item.condition || "").toLowerCase().includes("cpo") || String(item.type || "").toLowerCase().includes("cpo") || String(item.title || "").toLowerCase().includes("certified"))
+                ? "cpo"
+                : (item.isNew === false || String(item.condition || "").toLowerCase().includes("used") || String(item.type || "").toLowerCase().includes("used") || parseMileage(item.mileage) > 500)
+                ? "used"
+                : "new",
               location: {
                 dealerName: item.dealerName || item.dealer?.name || `${item.make || "Certified"} Franchise Dealer`,
                 city: item.city || item.dealer?.city || userCoords.city,
