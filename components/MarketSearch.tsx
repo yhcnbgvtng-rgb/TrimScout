@@ -17,6 +17,7 @@ import {
   SlidersHorizontal,
   RotateCcw,
   Check,
+  Copy,
   Sparkles,
   ArrowUpDown,
   ArrowLeft,
@@ -148,6 +149,16 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
   const [searchRadius, setSearchRadius] = useState<number>(25); // 25 = Standard, 3000 = Nationwide
   const [radiusInput, setRadiusInput] = useState<string>("25");
   const [isLocationOpen, setIsLocationOpen] = useState<boolean>(false);
+  const [copiedVin, setCopiedVin] = useState<string | null>(null);
+
+  const handleCopyVin = (vin: string, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    if (typeof navigator !== "undefined" && navigator.clipboard) {
+      navigator.clipboard.writeText(vin);
+      setCopiedVin(vin);
+      setTimeout(() => setCopiedVin(null), 2000);
+    }
+  };
 
   const handleApplyZip = (overrideZip?: string) => {
     const target = overrideZip || zipInput;
@@ -2045,6 +2056,26 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
                           </button>
 
                           <div className="flex items-center gap-1.5">
+                            {/* Copy VIN Quick Action */}
+                            <button
+                              type="button"
+                              onClick={(e) => handleCopyVin(vehicle.vin, e)}
+                              className="inline-flex items-center gap-1 rounded-lg border border-border/80 bg-surface px-2 py-1 text-[10px] font-mono text-ink-muted hover:text-white hover:border-emerald-500/40 transition-all"
+                              title="Copy 17-digit VIN"
+                            >
+                              {copiedVin === vehicle.vin ? (
+                                <>
+                                  <Check className="h-2.5 w-2.5 text-emerald-400" />
+                                  <span className="text-emerald-400 font-bold">Copied</span>
+                                </>
+                              ) : (
+                                <>
+                                  <Copy className="h-2.5 w-2.5" />
+                                  <span>VIN</span>
+                                </>
+                              )}
+                            </button>
+
                             {/* Official Dealer Website / Direct Listing */}
                             {vehicle.dealerUrl && (
                               <a
@@ -2056,7 +2087,7 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
                                   markVehicleAsViewed(vehicle.id, vehicle.vin);
                                 }}
                                 className="inline-flex items-center gap-1 rounded-lg border border-border/90 bg-surface-elevated hover:bg-surface-elevated/80 px-2.5 py-1 text-[10px] font-bold text-emerald-400 hover:text-emerald-300 hover:border-emerald-500/40 transition-all shadow-sm"
-                                title="Open Direct Dealer Vehicle Listing"
+                                title={`Open Direct Dealer Listing for ${vehicle.year} ${vehicle.make} ${vehicle.model} (${vehicle.vin})`}
                               >
                                 <span>Dealer Site</span>
                                 <ExternalLink className="h-2.5 w-2.5 text-emerald-400" />
@@ -2121,12 +2152,25 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
                                   rel="noopener noreferrer"
                                   onClick={() => markVehicleAsViewed(vehicle.id, vehicle.vin)}
                                   className="inline-flex items-center gap-1 text-[9.5px] text-emerald-400 hover:underline font-bold"
+                                  title="Open Direct VDP Link on Dealership Website"
                                 >
                                   <span>Open Dealership Listing</span>
                                   <ExternalLink className="h-2.5 w-2.5" />
                                 </a>
                               </>
                             )}
+
+                            <span className="text-border">•</span>
+                            <a
+                              href={`https://www.google.com/search?q=${encodeURIComponent(`${vehicle.location.dealerName} "${vehicle.vin}"`)}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1 text-[9.5px] text-ink-muted hover:text-emerald-400 font-medium transition-colors"
+                              title="Search exact VIN across dealer domain index"
+                            >
+                              <span>Verify on Lot</span>
+                              <ExternalLink className="h-2.5 w-2.5 text-ink-faint" />
+                            </a>
                           </div>
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 max-h-48 overflow-y-auto pr-1">

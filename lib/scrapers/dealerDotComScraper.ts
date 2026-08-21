@@ -61,7 +61,8 @@ export async function scrapeDealerDotCom(
             ? rawPackages.map((p: any) => typeof p === "string" ? p : p.name || p.description).filter(Boolean)
             : ["Premium Package", "Shadowline Exterior", "Harman Kardon Audio"];
 
-          const directUrl = `${baseUrl}/new-inventory/index.htm?search=${vin}`;
+          const rawLink = item.link || item.vdpUrl || item.canonicalUrl;
+          const directUrl = rawLink ? (rawLink.startsWith("http") ? rawLink : `${baseUrl}${rawLink}`) : `${baseUrl}/new-inventory/index.htm?search=${vin}`;
 
           vehicles.push({
             id: `ddc-${vin}`,

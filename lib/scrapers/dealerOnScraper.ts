@@ -47,7 +47,8 @@ export async function scrapeDealerOn(
           const msrp = parseInt(item.msrp || item.pricing?.msrp, 10) || 69995;
           const dealerPrice = parseInt(item.price || item.pricing?.salePrice, 10) || (msrp - 4500);
 
-          const directUrl = `${baseUrl}/new-inventory/?vin=${vin}`;
+          const rawLink = item.link || item.vdpUrl || item.url || item.canonicalUrl;
+          const directUrl = rawLink ? (rawLink.startsWith("http") ? rawLink : `${baseUrl}${rawLink}`) : `${baseUrl}/new-inventory/?vin=${vin}`;
 
           vehicles.push({
             id: `don-${vin}`,

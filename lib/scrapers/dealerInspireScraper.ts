@@ -54,7 +54,8 @@ export async function scrapeDealerInspire(
             item.availability === "in-transit"
           );
 
-          const directUrl = `${baseUrl}/inventory/?q=${vin}`;
+          const rawLink = item.link || item.vdp_url || item.url || item.canonical_url;
+          const directUrl = rawLink ? (rawLink.startsWith("http") ? rawLink : `${baseUrl}${rawLink}`) : `${baseUrl}/inventory/?q=${vin}`;
 
           vehicles.push({
             id: `di-${vin}`,

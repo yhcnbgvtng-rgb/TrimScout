@@ -99,10 +99,25 @@ function calculateDaysOnLot(createdAtStr?: string): number {
   return Math.max(1, days);
 }
 
-// Directly resolves authentic dealership domain URLs and constructs exact VIN vehicle search links
-function resolveDirectDealerUrl(dealerName: string, make: string, vin: string, clickoffUrl?: string): string {
-  if (clickoffUrl && typeof clickoffUrl === "string" && clickoffUrl.startsWith("http")) {
+// Multi-Tier VDP Deep Link Resolver: Guarantees direct vehicle link on dealer website
+function resolveDirectDealerUrl(
+  dealerName: string,
+  make: string,
+  vin: string,
+  clickoffUrl?: string,
+  dealerWebsite?: string,
+  year?: number,
+  model?: string
+): string {
+  // Tier 1: Canonical direct VDP URL from scraper or API payload
+  if (clickoffUrl && typeof clickoffUrl === "string" && clickoffUrl.startsWith("http") && !clickoffUrl.includes("aggregator")) {
     return clickoffUrl;
+  }
+
+  // Tier 2: If dealer domain / website is provided directly
+  if (dealerWebsite && typeof dealerWebsite === "string" && dealerWebsite.startsWith("http")) {
+    const cleanWeb = dealerWebsite.replace(/\/$/, "");
+    return `${cleanWeb}/new-inventory/index.htm?search=${vin}`;
   }
 
   const norm = (dealerName || "").toLowerCase();
@@ -214,7 +229,7 @@ function resolveDirectDealerUrl(dealerName: string, make: string, vin: string, c
     .trim();
 
   if (cleanDomain.length > 3) {
-    return `https://www.${cleanDomain}.com/?s=${vin}`;
+    return `https://www.${cleanDomain}.com/new-inventory/?search=${vin}`;
   }
 
   return `https://www.google.com/search?q=${encodeURIComponent(dealerName + " " + vin)}`;
@@ -504,7 +519,15 @@ export async function GET(request: Request) {
               : "Sedan";
 
             const dealerNameClean = item.dealerName || item.dealer?.name || `${item.make || "Certified"} Franchise Dealer`;
-            const dealerUrl = resolveDirectDealerUrl(dealerNameClean, item.make || "Vehicle", item.vin || "", item.clickoffUrl);
+            const dealerUrl = resolveDirectDealerUrl(
+              dealerNameClean,
+              item.make || "Vehicle",
+              item.vin || "",
+              item.clickoffUrl || item.vdpUrl || item.vdp_url,
+              item.dealer?.website || item.dealerWebsite,
+              item.year,
+              item.model
+            );
 
             return {
               id: item.id ? String(item.id) : (item.vin || `live-${idx}`),
