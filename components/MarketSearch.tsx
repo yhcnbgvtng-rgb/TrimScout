@@ -27,6 +27,7 @@ import {
   Sliders,
   Loader2,
   Eye,
+  Cpu,
 } from "lucide-react";
 
 interface MarketSearchProps {
@@ -34,6 +35,7 @@ interface MarketSearchProps {
   onSelectForBid: (vehicle: Vehicle) => void;
   onOpenFlexibleWizard: () => void;
   onOpenConnectorModal?: () => void;
+  onOpenScraperModal?: () => void;
   onSyncLiveInventory?: (zip: string, radius: number, query?: string, make?: string) => Promise<void>;
   isSyncingInventory?: boolean;
   onLoadMoreLiveInventory?: () => Promise<void>;
@@ -47,6 +49,7 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
   onSelectForBid,
   onOpenFlexibleWizard,
   onOpenConnectorModal,
+  onOpenScraperModal,
   onSyncLiveInventory,
   isSyncingInventory = false,
   onLoadMoreLiveInventory,
@@ -870,6 +873,17 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
                 >
                   <Sliders className="h-3.5 w-3.5" />
                   <span>Feed Settings</span>
+                </button>
+              )}
+
+              {onOpenScraperModal && (
+                <button
+                  type="button"
+                  onClick={onOpenScraperModal}
+                  className="flex items-center gap-1.5 rounded-xl bg-purple-500/20 border border-purple-500/30 px-3.5 py-2 text-xs font-bold text-purple-300 hover:bg-purple-500/30 transition-all shadow-sm"
+                >
+                  <Cpu className="h-3.5 w-3.5 text-purple-400" />
+                  <span>4 CMS Scrapers</span>
                 </button>
               )}
             </div>

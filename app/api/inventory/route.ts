@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { Vehicle } from "@/lib/types";
 import { MOCK_VEHICLES } from "@/lib/mockData";
 import { calculateDistanceMiles, getZipCoordinates } from "@/lib/otdCalculator";
+import { runUnifiedScrapers } from "@/lib/scrapers";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -528,8 +529,27 @@ export async function GET(request: Request) {
       }
     }
 
-    // 2. SMART DEALER INVENTORY & DYNAMIC MAKE ENGINE
+    // 2. UNIFIED 4-ENGINE SCRAPERS (Dealer.com, DealerInspire, DealerOn, OEM Allocations)
     let baseList = [...MOCK_VEHICLES];
+
+    try {
+      const scrapedResponse = await runUnifiedScrapers({
+        zip,
+        radiusMiles: radius,
+        make: make !== "All" ? make : undefined,
+        query: rawQuery,
+      });
+
+      if (scrapedResponse.vehicles && scrapedResponse.vehicles.length > 0) {
+        for (const sv of scrapedResponse.vehicles) {
+          if (!baseList.some((existing) => existing.vin === sv.vin)) {
+            baseList.push(sv);
+          }
+        }
+      }
+    } catch (scErr) {
+      console.warn("Unified scrapers encountered partial network issue, proceeding with cached feeds:", scErr);
+    }
 
     // Check if query or make matches any extended templates (Audi, Mercedes, Honda, Corvette, Lexus, Subaru)
     const lowerQuery = rawQuery.toLowerCase();

@@ -18,10 +18,12 @@ import { DealTrackerDashboard } from "../components/DealTrackerDashboard";
 import { InventoryConnectorModal } from "../components/InventoryConnectorModal";
 import { SignupView } from "../components/SignupView";
 import { AdminPortal } from "../components/AdminPortal";
+import { PitchDeckView } from "../components/PitchDeckView";
+import { ScraperDashboardModal } from "../components/ScraperDashboardModal";
 
 export default function Home() {
   const [vehicles, setVehicles] = useState<Vehicle[]>(MOCK_VEHICLES);
-  const [currentView, setCurrentView] = useState<"search" | "bid_program" | "deal_room" | "dealer_portal" | "track_deals" | "signup" | "admin">("search");
+  const [currentView, setCurrentView] = useState<"search" | "bid_program" | "deal_room" | "dealer_portal" | "track_deals" | "signup" | "admin" | "pitch_deck">("search");
   const [isImpersonating, setIsImpersonating] = useState<boolean>(() => {
     if (typeof window !== "undefined") {
       return localStorage.getItem("trimscout_impersonating") !== null;
@@ -36,6 +38,7 @@ export default function Home() {
 
   // Live Inventory Connector State & Pagination
   const [isConnectorModalOpen, setIsConnectorModalOpen] = useState(false);
+  const [isScraperModalOpen, setIsScraperModalOpen] = useState(false);
   const [isSyncingInventory, setIsSyncingInventory] = useState(false);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [hasMoreVehicles, setHasMoreVehicles] = useState<boolean>(true);
@@ -446,6 +449,7 @@ export default function Home() {
           onSelectForBid={handleSelectForBid}
           onOpenFlexibleWizard={handleOpenFlexibleWizard}
           onOpenConnectorModal={() => setIsConnectorModalOpen(true)}
+          onOpenScraperModal={() => setIsScraperModalOpen(true)}
           onSyncLiveInventory={handleSyncLiveInventory}
           isSyncingInventory={isSyncingInventory}
           onLoadMoreLiveInventory={handleLoadMoreLiveInventory}
@@ -526,6 +530,13 @@ export default function Home() {
         </div>
       )}
 
+      {/* View 7: Interactive Business Case & Pitch Deck */}
+      {currentView === "pitch_deck" && (
+        <div className="animate-fadeIn">
+          <PitchDeckView onClose={() => setCurrentView("search")} />
+        </div>
+      )}
+
       {/* Bidding Wizard Modal */}
       <BiddingWizard
         isOpen={isWizardOpen}
@@ -562,6 +573,19 @@ export default function Home() {
         isOpen={isConnectorModalOpen}
         onClose={() => setIsConnectorModalOpen(false)}
         onConfigUpdated={() => handleSyncLiveInventory()}
+      />
+
+      {/* 4-Engine Live CMS & OEM Scraper Dashboard Modal */}
+      <ScraperDashboardModal
+        isOpen={isScraperModalOpen}
+        onClose={() => setIsScraperModalOpen(false)}
+        onImportVehicles={(scraped) => {
+          setVehicles((prev) => {
+            const seen = new Set(prev.map((v) => v.vin));
+            const fresh = scraped.filter((v) => !seen.has(v.vin));
+            return [...fresh, ...prev];
+          });
+        }}
       />
     </main>
   );
