@@ -193,6 +193,8 @@ export async function GET(request: Request) {
   const radius = parseInt(searchParams.get("radius") || "150", 10);
   const minPrice = parseInt(searchParams.get("minPrice") || "0", 10);
   const maxPrice = parseInt(searchParams.get("maxPrice") || "250000", 10);
+  const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
+  const limit = Math.min(100, Math.max(10, parseInt(searchParams.get("limit") || "100", 10)));
   const provider = searchParams.get("provider") || "autodev";
   const apiKey =
     searchParams.get("apiKey") ||
@@ -247,6 +249,9 @@ export async function GET(request: Request) {
             provider: "nhtsa_live_vin",
             isLiveApi: true,
             totalFound: 1,
+            page: 1,
+            limit: 1,
+            hasMore: false,
             zip,
             radius,
             data: [vinVehicle],
@@ -265,8 +270,8 @@ export async function GET(request: Request) {
         if (radius && radius < 3000) autoDevUrl.searchParams.set("distance", radius.toString());
         if (minPrice > 0) autoDevUrl.searchParams.set("price_min", minPrice.toString());
         if (maxPrice < 250000) autoDevUrl.searchParams.set("price_max", maxPrice.toString());
-        autoDevUrl.searchParams.set("page", "1");
-        autoDevUrl.searchParams.set("limit", "35");
+        autoDevUrl.searchParams.set("page", page.toString());
+        autoDevUrl.searchParams.set("limit", limit.toString());
 
         const res = await fetch(autoDevUrl.toString(), {
           headers: {
@@ -348,11 +353,15 @@ export async function GET(request: Request) {
               };
             });
 
+            const totalCount = data.totalCount || liveVehicles.length;
             return NextResponse.json({
               success: true,
               provider: "autodev",
               isLiveApi: true,
-              totalFound: data.totalCount || liveVehicles.length,
+              totalFound: totalCount,
+              page,
+              limit,
+              hasMore: (page * limit) < totalCount,
               zip,
               radius,
               query: rawQuery,

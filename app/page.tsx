@@ -26,14 +26,17 @@ export default function Home() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [savedVehicleIds, setSavedVehicleIds] = useState<string[]>(["veh-1", "veh-4"]);
 
-  // Live Inventory Connector State
+  // Live Inventory Connector State & Pagination
   const [isConnectorModalOpen, setIsConnectorModalOpen] = useState(false);
   const [isSyncingInventory, setIsSyncingInventory] = useState(false);
-
-  // Initial live inventory sync on load
-  useEffect(() => {
-    handleSyncLiveInventory("94107", 150);
-  }, []);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [hasMoreVehicles, setHasMoreVehicles] = useState<boolean>(true);
+  const [totalFoundVehicles, setTotalFoundVehicles] = useState<number>(0);
+  const [isLoadingMore, setIsLoadingMore] = useState<boolean>(false);
+  const [currentSearchParams, setCurrentSearchParams] = useState<{ zip: string; radius: number; query?: string; make?: string }>({
+    zip: "94107",
+    radius: 150,
+  });
 
   // Wizard state
   const [isWizardOpen, setIsWizardOpen] = useState(false);
@@ -72,6 +75,11 @@ export default function Home() {
   const [lockedDeal, setLockedDeal] = useState<LockedDeal | null>(null);
   const [isVoucherModalOpen, setIsVoucherModalOpen] = useState(false);
 
+  // Initial live inventory sync on load
+  useEffect(() => {
+    handleSyncLiveInventory("94107", 150);
+  }, []);
+
   // Sync Live Inventory from Connector
   const handleSyncLiveInventory = async (
     zip: string = "94107",
@@ -80,20 +88,59 @@ export default function Home() {
     make?: string
   ) => {
     setIsSyncingInventory(true);
+    setCurrentSearchParams({ zip, radius, query, make });
+    setCurrentPage(1);
     try {
       const res = await fetchLiveInventory({
         zip,
         radius,
         query,
         make: make && make !== "All" ? make : undefined,
+        page: 1,
+        limit: 100,
       });
       if (res.success && res.data.length > 0) {
         setVehicles(res.data);
+        setTotalFoundVehicles(res.totalFound || res.data.length);
+        setHasMoreVehicles(res.hasMore ?? res.data.length >= 100);
       }
     } catch (e) {
       console.error("Failed to sync live inventory:", e);
     } finally {
       setIsSyncingInventory(false);
+    }
+  };
+
+  // Load More (Pagination)
+  const handleLoadMoreLiveInventory = async () => {
+    if (isLoadingMore || !hasMoreVehicles) return;
+    setIsLoadingMore(true);
+    const nextPage = currentPage + 1;
+    try {
+      const res = await fetchLiveInventory({
+        zip: currentSearchParams.zip,
+        radius: currentSearchParams.radius,
+        query: currentSearchParams.query,
+        make: currentSearchParams.make && currentSearchParams.make !== "All" ? currentSearchParams.make : undefined,
+        page: nextPage,
+        limit: 50,
+      });
+      if (res.success && res.data.length > 0) {
+        setVehicles(prev => {
+          const existingIds = new Set(prev.map(v => v.id || v.vin));
+          const newUnique = res.data.filter(v => !existingIds.has(v.id || v.vin));
+          return [...prev, ...newUnique];
+        });
+        setCurrentPage(nextPage);
+        setHasMoreVehicles(res.hasMore ?? (res.data.length >= 50));
+        if (res.totalFound) setTotalFoundVehicles(res.totalFound);
+      } else {
+        setHasMoreVehicles(false);
+      }
+    } catch (e) {
+      console.error("Failed to load more vehicles:", e);
+    } finally {
+      setIsLoadingMore(false);
     }
   };
 
@@ -349,6 +396,10 @@ export default function Home() {
           onOpenConnectorModal={() => setIsConnectorModalOpen(true)}
           onSyncLiveInventory={handleSyncLiveInventory}
           isSyncingInventory={isSyncingInventory}
+          onLoadMoreLiveInventory={handleLoadMoreLiveInventory}
+          hasMoreVehicles={hasMoreVehicles}
+          totalFoundVehicles={totalFoundVehicles}
+          isLoadingMore={isLoadingMore}
         />
       )}
 

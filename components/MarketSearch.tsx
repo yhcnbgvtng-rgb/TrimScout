@@ -35,6 +35,10 @@ interface MarketSearchProps {
   onOpenConnectorModal?: () => void;
   onSyncLiveInventory?: (zip: string, radius: number, query?: string, make?: string) => Promise<void>;
   isSyncingInventory?: boolean;
+  onLoadMoreLiveInventory?: () => Promise<void>;
+  hasMoreVehicles?: boolean;
+  totalFoundVehicles?: number;
+  isLoadingMore?: boolean;
 }
 
 export const MarketSearch: React.FC<MarketSearchProps> = ({
@@ -44,6 +48,10 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
   onOpenConnectorModal,
   onSyncLiveInventory,
   isSyncingInventory = false,
+  onLoadMoreLiveInventory,
+  hasMoreVehicles = false,
+  totalFoundVehicles = 0,
+  isLoadingMore = false,
 }) => {
   // Navigation State: "results" (shows live car listings immediately on load) vs "landing" (search hero)
   const [viewState, setViewState] = useState<"landing" | "results">("results");
@@ -1149,71 +1157,68 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
                           </span>
                         </div>
 
-                        {/* Row 2: Specs */}
-                        <p className="text-[10px] text-ink-muted flex items-center gap-1.5 truncate leading-none">
-                          <span className="shrink-0">{vehicle.engine}</span>
-                          <span className="text-border shrink-0">•</span>
-                          <span className="shrink-0">{vehicle.drivetrain}</span>
-                          <span className="text-border shrink-0">•</span>
-                          <span className="text-ink-light truncate">{vehicle.exteriorColor}</span>
-                        </p>
-
-                        {/* Row 3: Dealer Location */}
-                        <div className="text-[10px] text-ink-muted flex items-center gap-1.5 truncate leading-none">
-                          <span className="text-ink-light font-medium truncate">{vehicle.location.dealerName}</span>
-                          <span className="text-ink-muted shrink-0">({vehicle.location.city}, {vehicle.location.state})</span>
+                        {/* Row 2: Transmission • Engine • Drivetrain • Exterior */}
+                        <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[10.5px] text-ink-muted leading-tight">
+                          <span className="text-ink-light">{vehicle.transmission}</span>
+                          <span>•</span>
+                          <span>{vehicle.engine}</span>
+                          <span>•</span>
+                          <span className="font-semibold text-white">{vehicle.drivetrain}</span>
+                          <span>•</span>
+                          <span className="text-ink-light">{vehicle.exteriorColor}</span>
                         </div>
 
-                        {/* Row 4: Single-Line Factory Package Pills (No Wrapping) */}
-                        <div className="flex items-center gap-1 overflow-hidden min-w-0 h-5">
-                          {vehicle.packages.slice(0, 2).map((pkg, idx) => (
-                            <span
-                              key={idx}
-                              className="rounded bg-background px-1.5 py-0.5 text-[8.5px] font-medium text-ink-light border border-border flex items-center gap-1 shrink-0 whitespace-nowrap leading-none"
-                            >
-                              <CheckCircle2 className="h-2 w-2 text-emerald-400 shrink-0" />
-                              <span className="truncate max-w-[130px]">{pkg}</span>
+                        {/* Row 3: Dealership Name & Distance */}
+                        <div className="flex items-center justify-between gap-2 text-[10.5px]">
+                          <div className="flex items-center gap-1 text-ink-muted truncate min-w-0">
+                            <MapPin className="h-3 w-3 text-emerald-400 shrink-0" />
+                            <span className="text-white font-medium truncate">{vehicle.location.dealerName}</span>
+                            <span className="text-ink-faint">({vehicle.location.city}, {vehicle.location.state})</span>
+                          </div>
+
+                          {discountDollars > 0 ? (
+                            <span className="text-[10px] font-extrabold text-emerald-400 bg-emerald-950/60 px-1.5 py-0.5 rounded border border-emerald-500/30 shrink-0">
+                              {discountPercent}% Off MSRP
                             </span>
-                          ))}
-                          {vehicle.packages.length > 2 && (
-                            <span className="rounded bg-background px-1.5 py-0.5 text-[8.5px] text-ink-faint border border-border shrink-0 whitespace-nowrap leading-none">
-                              +{vehicle.packages.length - 2} more
+                          ) : (
+                            <span className="text-[10px] font-semibold text-ink-faint shrink-0">
+                              MSRP {formatCurrency(vehicle.msrp)}
                             </span>
                           )}
                         </div>
-                      </div>
 
-                      {/* Right: Uniform Fixed-Width Action Buttons Column */}
-                      <div className="sm:w-36 p-2.5 sm:p-3 bg-surface-elevated/20 border-t sm:border-t-0 sm:border-l border-border flex flex-col justify-center gap-1 shrink-0 h-full">
-                        {/* Dealer Website Button */}
-                        {vehicle.dealerUrl && (
-                          <a
-                            href={vehicle.dealerUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="w-full rounded-lg border border-border/90 hover:border-emerald-500/60 bg-surface hover:bg-surface-elevated py-1.5 px-2 text-[10px] font-bold text-emerald-400 hover:text-emerald-300 flex items-center justify-center gap-1 transition-all shadow-sm"
+                        {/* Row 4: Action Buttons (Build Sheet, Dealer Link, Reverse Bid) */}
+                        <div className="flex items-center justify-between gap-2 pt-1 border-t border-border/40">
+                          <button
+                            onClick={() => setExpandedBuildSheet(isExpanded ? null : vehicle.id)}
+                            className="inline-flex items-center gap-1 text-[10px] font-bold text-ink-light hover:text-emerald-400 transition-colors"
                           >
-                            <span>Dealer Website</span>
-                            <ExternalLink className="h-2.5 w-2.5" />
-                          </a>
-                        )}
+                            <span>Build Sheet ({vehicle.options.length})</span>
+                            <ChevronDown className={`h-3 w-3 transition-transform duration-200 ${isExpanded ? "rotate-180" : ""}`} />
+                          </button>
 
-                        {/* Primary Bid Button */}
-                        <button
-                          onClick={() => onSelectForBid(vehicle)}
-                          className="w-full rounded-lg bg-emerald-500 py-1.5 px-2 text-[11px] font-extrabold text-black hover:bg-emerald-400 transition-all shadow-sm flex items-center justify-center gap-1 active:scale-95"
-                        >
-                          <Zap className="h-3 w-3 fill-black" />
-                          <span>Bid On Spec</span>
-                        </button>
+                          <div className="flex items-center gap-1.5">
+                            {vehicle.dealerUrl && (
+                              <a
+                                href={vehicle.dealerUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1 rounded-lg border border-border bg-surface-elevated px-2 py-1 text-[10px] font-semibold text-ink-light hover:text-white hover:border-emerald-500/40 transition-all"
+                              >
+                                <span>Dealer Website</span>
+                                <ExternalLink className="h-2.5 w-2.5 text-emerald-400" />
+                              </a>
+                            )}
 
-                        {/* Window Sticker Toggle Button */}
-                        <button
-                          onClick={() => setExpandedBuildSheet(isExpanded ? null : vehicle.id)}
-                          className="w-full rounded-md border border-border hover:border-ink-muted bg-background py-1 text-[9.5px] font-semibold text-ink-light hover:text-white transition-all text-center"
-                        >
-                          {isExpanded ? "Hide Specs" : "Window Sticker"}
-                        </button>
+                            <button
+                              onClick={() => onSelectForBid(vehicle)}
+                              className="inline-flex items-center gap-1 rounded-lg bg-emerald-500 hover:bg-emerald-400 px-2.5 py-1 text-[10px] font-extrabold text-black transition-all shadow-sm shadow-emerald-500/20"
+                            >
+                              <Zap className="h-2.5 w-2.5 fill-black" />
+                              <span>Request Bids</span>
+                            </button>
+                          </div>
+                        </div>
                       </div>
                     </div>
 
@@ -1252,6 +1257,33 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
                   </div>
                 );
               })}
+
+              {/* Load More Vehicles Button */}
+              {onLoadMoreLiveInventory && hasMoreVehicles && (
+                <div className="pt-4 pb-2 flex flex-col items-center gap-2">
+                  <button
+                    type="button"
+                    disabled={isLoadingMore}
+                    onClick={() => onLoadMoreLiveInventory()}
+                    className="w-full sm:w-auto min-w-[280px] flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 px-6 py-3 text-xs font-black text-black shadow-lg shadow-emerald-500/20 transition-all cursor-pointer disabled:opacity-50"
+                  >
+                    {isLoadingMore ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin text-black" />
+                        <span>Loading More Dealer Allocations...</span>
+                      </>
+                    ) : (
+                      <>
+                        <RefreshCw className="h-4 w-4 text-black" />
+                        <span>Load More Live Vehicles (+50 More Cars)</span>
+                      </>
+                    )}
+                  </button>
+                  <span className="text-[11px] text-ink-muted">
+                    Showing <strong className="text-white">{sortedVehicles.length}</strong> {totalFoundVehicles > 0 ? `of ${totalFoundVehicles.toLocaleString()}+` : ""} live lot postings
+                  </span>
+                </div>
+              )}
             </div>
           ) : (
             <div className="rounded-2xl border border-border bg-surface p-8 text-center space-y-3">

@@ -7,6 +7,8 @@ export interface InventoryFetchOptions {
   radius?: number;
   minPrice?: number;
   maxPrice?: number;
+  page?: number;
+  limit?: number;
   provider?: "autodev" | "marketcheck" | "smart_feed";
   apiKey?: string;
 }
@@ -16,6 +18,9 @@ export interface InventoryFeedResponse {
   provider: "autodev" | "marketcheck" | "smart_feed";
   isLiveApi: boolean;
   totalFound: number;
+  page?: number;
+  limit?: number;
+  hasMore?: boolean;
   zip: string;
   radius: number;
   query?: string;
@@ -75,6 +80,8 @@ export async function fetchLiveInventory(
   if (options.radius) url.searchParams.set("radius", options.radius.toString());
   if (options.minPrice) url.searchParams.set("minPrice", options.minPrice.toString());
   if (options.maxPrice) url.searchParams.set("maxPrice", options.maxPrice.toString());
+  if (options.page) url.searchParams.set("page", options.page.toString());
+  if (options.limit) url.searchParams.set("limit", options.limit.toString());
   url.searchParams.set("provider", provider);
   if (apiKey) url.searchParams.set("apiKey", apiKey);
 
