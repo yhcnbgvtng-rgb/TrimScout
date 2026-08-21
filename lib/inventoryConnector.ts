@@ -1,0 +1,79 @@
+import { Vehicle } from "./types";
+
+export interface InventoryFetchOptions {
+  make?: string;
+  zip?: string;
+  radius?: number;
+  minPrice?: number;
+  maxPrice?: number;
+  provider?: "autodev" | "marketcheck" | "smart_feed";
+  apiKey?: string;
+}
+
+export interface InventoryFeedResponse {
+  success: boolean;
+  provider: "autodev" | "marketcheck" | "smart_feed";
+  isLiveApi: boolean;
+  totalFound: number;
+  zip: string;
+  radius: number;
+  data: Vehicle[];
+}
+
+const STORAGE_KEY = "trimscout_inventory_connector_config";
+
+export function getConnectorConfig(): {
+  provider: "autodev" | "marketcheck" | "smart_feed";
+  apiKey: string;
+} {
+  if (typeof window === "undefined") {
+    return { provider: "smart_feed", apiKey: "" };
+  }
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      return JSON.parse(raw);
+    }
+  } catch (e) {
+    console.error("Failed to load connector config:", e);
+  }
+  return { provider: "smart_feed", apiKey: "" };
+}
+
+export function saveConnectorConfig(config: {
+  provider: "autodev" | "marketcheck" | "smart_feed";
+  apiKey: string;
+}) {
+  if (typeof window !== "undefined") {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
+    } catch (e) {
+      console.error("Failed to save connector config:", e);
+    }
+  }
+}
+
+export async function fetchLiveInventory(
+  options: InventoryFetchOptions = {}
+): Promise<InventoryFeedResponse> {
+  const config = getConnectorConfig();
+  const provider = options.provider || config.provider || "smart_feed";
+  const apiKey = options.apiKey || config.apiKey || "";
+
+  const url = new URL("/api/inventory", window.location.origin);
+  if (options.make && options.make !== "All") url.searchParams.set("make", options.make);
+  if (options.zip) url.searchParams.set("zip", options.zip);
+  if (options.radius) url.searchParams.set("radius", options.radius.toString());
+  if (options.minPrice) url.searchParams.set("minPrice", options.minPrice.toString());
+  if (options.maxPrice) url.searchParams.set("maxPrice", options.maxPrice.toString());
+  url.searchParams.set("provider", provider);
+  if (apiKey) url.searchParams.set("apiKey", apiKey);
+
+  const res = await fetch(url.toString());
+  if (!res.ok) {
+    throw new Error(`Inventory connector responded with HTTP ${res.status}`);
+  }
+
+  const data = await res.json();
+  return data as InventoryFeedResponse;
+}

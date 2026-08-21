@@ -21,19 +21,28 @@ import {
   ArrowUpDown,
   ArrowLeft,
   Filter,
-  Clock
+  Clock,
+  Radio,
+  RefreshCw,
+  Sliders,
 } from "lucide-react";
 
 interface MarketSearchProps {
   vehicles: Vehicle[];
   onSelectForBid: (vehicle: Vehicle) => void;
   onOpenFlexibleWizard: () => void;
+  onOpenConnectorModal?: () => void;
+  onSyncLiveInventory?: (zip: string, radius: number) => Promise<void>;
+  isSyncingInventory?: boolean;
 }
 
 export const MarketSearch: React.FC<MarketSearchProps> = ({
   vehicles,
   onSelectForBid,
   onOpenFlexibleWizard,
+  onOpenConnectorModal,
+  onSyncLiveInventory,
+  isSyncingInventory = false,
 }) => {
   // Navigation State: "landing" (search input hero) vs "results" (visor.vin filter page)
   const [viewState, setViewState] = useState<"landing" | "results">("landing");
@@ -658,6 +667,49 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
               </button>
             ))}
           </div>
+
+          {/* Live Dealership Inventory Connector Banner */}
+          <div className="rounded-2xl border border-emerald-500/30 bg-emerald-950/20 p-4 flex flex-wrap items-center justify-between gap-3 text-xs mt-6">
+            <div className="flex items-center gap-3">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-500/20 text-emerald-400">
+                <Radio className="h-5 w-5 animate-pulse" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="font-bold text-white text-sm">Live Dealership Network Connected</span>
+                  <span className="flex h-2 w-2 rounded-full bg-emerald-400 animate-ping" />
+                </div>
+                <p className="text-[11px] text-ink-muted">
+                  Auto-syncing certified dealer allocations within {searchRadius >= 3000 ? "Nationwide" : `${searchRadius} miles`} of {zipCode}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              {onSyncLiveInventory && (
+                <button
+                  type="button"
+                  disabled={isSyncingInventory}
+                  onClick={() => onSyncLiveInventory(zipCode, searchRadius)}
+                  className="flex items-center gap-1.5 rounded-xl border border-border bg-surface px-3.5 py-2 text-xs font-bold text-ink-light hover:text-white hover:border-emerald-500/40 transition-all shadow-sm"
+                >
+                  <RefreshCw className={`h-3.5 w-3.5 text-emerald-400 ${isSyncingInventory ? "animate-spin" : ""}`} />
+                  <span>{isSyncingInventory ? "Syncing..." : "Sync Live Lots"}</span>
+                </button>
+              )}
+
+              {onOpenConnectorModal && (
+                <button
+                  type="button"
+                  onClick={onOpenConnectorModal}
+                  className="flex items-center gap-1.5 rounded-xl bg-emerald-500/20 border border-emerald-500/30 px-3.5 py-2 text-xs font-bold text-emerald-400 hover:bg-emerald-500/30 transition-all shadow-sm"
+                >
+                  <Sliders className="h-3.5 w-3.5" />
+                  <span>Feed Settings</span>
+                </button>
+              )}
+            </div>
+          </div>
         </form>
 
         {/* Popular Brands Grid */}
@@ -738,6 +790,46 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
             <MapPin className="h-3.5 w-3.5 text-emerald-400" />
             <span className="font-mono">{zipCode}</span>
           </button>
+        </div>
+      </div>
+
+      {/* Live Dealership Inventory Connector Bar */}
+      <div className="rounded-xl border border-emerald-500/30 bg-emerald-950/20 px-4 py-3 flex flex-wrap items-center justify-between gap-3 text-xs">
+        <div className="flex items-center gap-2.5">
+          <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-emerald-500/20 text-emerald-400">
+            <Radio className="h-3.5 w-3.5 animate-pulse" />
+          </div>
+          <div>
+            <span className="font-bold text-white">Live Dealership Network Active: </span>
+            <span className="text-ink-muted">
+              {sortedVehicles.length} vehicles found within {searchRadius >= 3000 ? "Nationwide" : `${searchRadius} miles`} of {zipCode}
+            </span>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2">
+          {onSyncLiveInventory && (
+            <button
+              type="button"
+              disabled={isSyncingInventory}
+              onClick={() => onSyncLiveInventory(zipCode, searchRadius)}
+              className="flex items-center gap-1.5 rounded-lg border border-border bg-surface px-2.5 py-1 text-xs font-semibold text-ink-light hover:text-white hover:border-emerald-500/40 transition-all"
+            >
+              <RefreshCw className={`h-3 w-3 text-emerald-400 ${isSyncingInventory ? "animate-spin" : ""}`} />
+              <span>{isSyncingInventory ? "Syncing..." : "Sync Lots"}</span>
+            </button>
+          )}
+
+          {onOpenConnectorModal && (
+            <button
+              type="button"
+              onClick={onOpenConnectorModal}
+              className="flex items-center gap-1.5 rounded-lg bg-emerald-500/20 border border-emerald-500/30 px-2.5 py-1 text-xs font-bold text-emerald-400 hover:bg-emerald-500/30 transition-all"
+            >
+              <Sliders className="h-3 w-3" />
+              <span>Feed Settings</span>
+            </button>
+          )}
         </div>
       </div>
 

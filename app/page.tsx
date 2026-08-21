@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Vehicle, BiddingRequest, DealerBid, LockedDeal, UserProfile } from "../lib/types";
 import { MOCK_VEHICLES, INITIAL_DEMO_BIDS, SAMPLE_TRADE_IN_VEHICLE, DEMO_BUYER_USER } from "../lib/mockData";
 import { calculateOtd } from "../lib/otdCalculator";
+import { fetchLiveInventory } from "../lib/inventoryConnector";
 import { Navbar } from "../components/Navbar";
 import { MarketSearch } from "../components/MarketSearch";
 import { BidProgramIntro } from "../components/BidProgramIntro";
@@ -14,15 +15,20 @@ import { FeeBreakdownModal } from "../components/FeeBreakdownModal";
 import { VoucherModal } from "../components/VoucherModal";
 import { AuthModal } from "../components/AuthModal";
 import { DealTrackerDashboard } from "../components/DealTrackerDashboard";
+import { InventoryConnectorModal } from "../components/InventoryConnectorModal";
 
 export default function Home() {
-  const [vehicles] = useState<Vehicle[]>(MOCK_VEHICLES);
+  const [vehicles, setVehicles] = useState<Vehicle[]>(MOCK_VEHICLES);
   const [currentView, setCurrentView] = useState<"search" | "bid_program" | "deal_room" | "dealer_portal" | "track_deals">("track_deals");
 
   // User Authentication State
   const [currentUser, setCurrentUser] = useState<UserProfile | null>(DEMO_BUYER_USER);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [savedVehicleIds, setSavedVehicleIds] = useState<string[]>(["veh-1", "veh-4"]);
+
+  // Live Inventory Connector State
+  const [isConnectorModalOpen, setIsConnectorModalOpen] = useState(false);
+  const [isSyncingInventory, setIsSyncingInventory] = useState(false);
 
   // Wizard state
   const [isWizardOpen, setIsWizardOpen] = useState(false);
@@ -60,6 +66,24 @@ export default function Home() {
   const [isFeeModalOpen, setIsFeeModalOpen] = useState(false);
   const [lockedDeal, setLockedDeal] = useState<LockedDeal | null>(null);
   const [isVoucherModalOpen, setIsVoucherModalOpen] = useState(false);
+
+  // Sync Live Inventory from Connector
+  const handleSyncLiveInventory = async (zip: string = "94107", radius: number = 150) => {
+    setIsSyncingInventory(true);
+    try {
+      const res = await fetchLiveInventory({
+        zip,
+        radius,
+      });
+      if (res.success && res.data.length > 0) {
+        setVehicles(res.data);
+      }
+    } catch (e) {
+      console.error("Failed to sync live inventory:", e);
+    } finally {
+      setIsSyncingInventory(false);
+    }
+  };
 
   // Handlers
   const handleSelectForBid = (vehicle: Vehicle) => {
@@ -310,6 +334,9 @@ export default function Home() {
           vehicles={vehicles}
           onSelectForBid={handleSelectForBid}
           onOpenFlexibleWizard={handleOpenFlexibleWizard}
+          onOpenConnectorModal={() => setIsConnectorModalOpen(true)}
+          onSyncLiveInventory={handleSyncLiveInventory}
+          isSyncingInventory={isSyncingInventory}
         />
       )}
 
@@ -374,6 +401,13 @@ export default function Home() {
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}
         onLogin={handleLogin}
+      />
+
+      {/* Live Inventory Connector Settings Modal */}
+      <InventoryConnectorModal
+        isOpen={isConnectorModalOpen}
+        onClose={() => setIsConnectorModalOpen(false)}
+        onConfigUpdated={() => handleSyncLiveInventory()}
       />
     </main>
   );
