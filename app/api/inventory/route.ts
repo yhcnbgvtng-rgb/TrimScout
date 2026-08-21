@@ -3,6 +3,9 @@ import { Vehicle } from "@/lib/types";
 import { MOCK_VEHICLES } from "@/lib/mockData";
 import { calculateDistanceMiles, getZipCoordinates } from "@/lib/otdCalculator";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 // Known vehicle database template for dynamic search matching
 const VEHICLE_TEMPLATES: Record<string, {
   make: string;
@@ -278,7 +281,7 @@ export async function GET(request: Request) {
             Accept: "application/json",
             Authorization: `Bearer ${apiKey}`,
           },
-          next: { revalidate: 60 },
+          cache: "no-store",
         });
 
         if (res.ok) {
