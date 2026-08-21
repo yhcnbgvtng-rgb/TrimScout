@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { Vehicle, BiddingStrategy, PaymentMethod, BiddingRequest, TradeInVehicle, TradeInPhoto } from "../lib/types";
 import { formatCurrency, getEstimatedTaxRate } from "../lib/otdCalculator";
 import { MOCK_POPULAR_PACKAGES, SAMPLE_TRADE_IN_VEHICLE } from "../lib/mockData";
+import { decodeVin, SAMPLE_TEST_VINS, DecodedVehicle } from "../lib/vinDecoder";
 import {
   X,
   ShieldCheck,
@@ -81,6 +82,36 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   const [tradeInVin, setTradeInVin] = useState<string>("WAUZZAF42NA091482");
   const [tradeInCondition, setTradeInCondition] = useState<"excellent" | "very_good" | "good" | "fair">("very_good");
   const [tradeInPhotos, setTradeInPhotos] = useState<TradeInPhoto[]>(SAMPLE_TRADE_IN_VEHICLE.photos);
+
+  // Live NHTSA VIN Decoder State
+  const [isDecodingVin, setIsDecodingVin] = useState<boolean>(false);
+  const [decodedVinResult, setDecodedVinResult] = useState<DecodedVehicle | null>(null);
+  const [vinLookupError, setVinLookupError] = useState<string | null>(null);
+
+  const handleDecodeVin = async (vinToDecode: string) => {
+    const cleanVin = (vinToDecode || "").trim().toUpperCase();
+    if (cleanVin.length !== 17) {
+      setVinLookupError("Please enter a full 17-character VIN");
+      return;
+    }
+    setVinLookupError(null);
+    setIsDecodingVin(true);
+    try {
+      const data = await decodeVin(cleanVin);
+      if (data) {
+        setDecodedVinResult(data);
+        setTradeInVin(data.vin);
+        if (data.year) setTradeInYear(data.year);
+        if (data.make) setTradeInMake(data.make);
+        if (data.model) setTradeInModel(data.model);
+        if (data.trim) setTradeInTrim(data.trim);
+      }
+    } catch (err: any) {
+      setVinLookupError(err.message || "Failed to decode VIN from NHTSA database");
+    } finally {
+      setIsDecodingVin(false);
+    }
+  };
 
   // Step 4: Deal Structuring Fields (All 3 / Cash / Finance / Lease)
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("all_three");
@@ -679,6 +710,79 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
 
               {hasTradeIn ? (
                 <div className="space-y-4">
+                  {/* Live NHTSA VIN Lookup Tool */}
+                  <div className="rounded-xl border border-emerald-500/30 bg-surface-elevated p-3.5 space-y-2.5">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-400">
+                        <Sparkles className="h-4 w-4" />
+                        <span>Live VIN Decoder (NHTSA Database)</span>
+                      </div>
+                      <span className="text-[10px] text-ink-muted">Auto-populates verified factory specs</span>
+                    </div>
+
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        maxLength={17}
+                        placeholder="Paste 17-digit VIN (e.g. WAUZZAF42NA091482)..."
+                        value={tradeInVin}
+                        onChange={(e) => setTradeInVin(e.target.value.toUpperCase())}
+                        className="flex-1 rounded-lg border border-border bg-background py-1.5 px-3 text-xs font-mono uppercase text-white placeholder-ink-faint focus:border-emerald-500 focus:outline-none"
+                      />
+                      <button
+                        type="button"
+                        disabled={isDecodingVin || tradeInVin.length !== 17}
+                        onClick={() => handleDecodeVin(tradeInVin)}
+                        className="flex items-center gap-1.5 rounded-lg bg-emerald-500 px-3 py-1.5 text-xs font-bold text-black hover:bg-emerald-400 disabled:opacity-50 transition-all shrink-0"
+                      >
+                        {isDecodingVin ? (
+                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        ) : (
+                          <Search className="h-3.5 w-3.5" />
+                        )}
+                        <span>Decode VIN</span>
+                      </button>
+                    </div>
+
+                    {/* Quick Test VIN Pills */}
+                    <div className="flex flex-wrap items-center gap-1.5 text-[10px]">
+                      <span className="text-ink-faint">Try sample VINs:</span>
+                      {SAMPLE_TEST_VINS.map((t) => (
+                        <button
+                          key={t.vin}
+                          type="button"
+                          onClick={() => {
+                            setTradeInVin(t.vin);
+                            handleDecodeVin(t.vin);
+                          }}
+                          className="rounded bg-surface px-2 py-0.5 text-ink-muted hover:text-white hover:bg-border transition-colors font-mono border border-border"
+                        >
+                          {t.label}
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* Decoded Spec Badge */}
+                    {decodedVinResult && (
+                      <div className="rounded-lg bg-emerald-500/10 border border-emerald-500/30 p-2.5 text-xs space-y-1 animate-fadeIn">
+                        <div className="flex items-center gap-1.5 text-emerald-400 font-bold text-[11px]">
+                          <CheckCircle2 className="h-3.5 w-3.5" />
+                          <span>NHTSA Verified: {decodedVinResult.year} {decodedVinResult.make} {decodedVinResult.model} {decodedVinResult.trim || ""}</span>
+                        </div>
+                        <div className="text-[10px] text-ink-muted flex flex-wrap gap-2">
+                          {decodedVinResult.displacementL && <span>Engine: {decodedVinResult.displacementL}</span>}
+                          {decodedVinResult.driveType && <span>• Drivetrain: {decodedVinResult.driveType}</span>}
+                          {decodedVinResult.bodyClass && <span>• Body: {decodedVinResult.bodyClass}</span>}
+                          {decodedVinResult.plantCountry && <span>• Plant: {decodedVinResult.plantCountry}</span>}
+                        </div>
+                      </div>
+                    )}
+
+                    {vinLookupError && (
+                      <p className="text-[11px] text-rose-400">{vinLookupError}</p>
+                    )}
+                  </div>
+
                   {/* Vehicle Spec Grid */}
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
                     <div className="space-y-1">
