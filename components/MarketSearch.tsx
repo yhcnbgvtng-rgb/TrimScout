@@ -25,6 +25,7 @@ import {
   Radio,
   RefreshCw,
   Sliders,
+  Loader2,
 } from "lucide-react";
 
 interface MarketSearchProps {
@@ -32,7 +33,7 @@ interface MarketSearchProps {
   onSelectForBid: (vehicle: Vehicle) => void;
   onOpenFlexibleWizard: () => void;
   onOpenConnectorModal?: () => void;
-  onSyncLiveInventory?: (zip: string, radius: number) => Promise<void>;
+  onSyncLiveInventory?: (zip: string, radius: number, query?: string, make?: string) => Promise<void>;
   isSyncingInventory?: boolean;
 }
 
@@ -84,19 +85,28 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
   const handleSearchSubmit = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     setViewState("results");
+    if (onSyncLiveInventory) {
+      onSyncLiveInventory(zipCode, searchRadius, searchQuery, selectedMake !== "All" ? selectedMake : undefined);
+    }
   };
 
   const handleQuickSearch = (query: string, make?: string) => {
     setSearchQuery(query);
     if (make) setSelectedMake(make);
     setViewState("results");
+    if (onSyncLiveInventory) {
+      onSyncLiveInventory(zipCode, searchRadius, query, make);
+    }
   };
 
   const quickPillSuggestions = [
     { label: "BMW 3 Series", query: "BMW 3 Series", make: "BMW" },
     { label: "Porsche 911", query: "Porsche 911", make: "Porsche" },
     { label: "Toyota Prius Hybrid", query: "Prius", make: "Toyota" },
-    { label: "Cadillac Lyriq EV", query: "Lyriq", make: "Cadillac" },
+    { label: "Audi A4 Quattro", query: "Audi A4", make: "Audi" },
+    { label: "Mercedes C-Class", query: "Mercedes C 300", make: "Mercedes-Benz" },
+    { label: "Honda Civic Hybrid", query: "Civic", make: "Honda" },
+    { label: "Corvette Stingray", query: "Corvette", make: "Chevrolet" },
     { label: "Ford Mustang V8", query: "Mustang", make: "Ford" },
     { label: "Tesla Model 3", query: "Tesla", make: "Tesla" },
   ];
@@ -105,6 +115,10 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
     { name: "BMW", count: "3 Series • 4 Series • M3" },
     { name: "Porsche", count: "911 • Cayman • Taycan" },
     { name: "Toyota", count: "Prius • Supra • RAV4" },
+    { name: "Audi", count: "A4 • S4 • Q5 • e-tron" },
+    { name: "Mercedes-Benz", count: "C 300 • E-Class • AMG" },
+    { name: "Honda", count: "Civic • Accord • CR-V" },
+    { name: "Chevrolet", count: "Corvette • Tahoe • Camaro" },
     { name: "Cadillac", count: "Lyriq • CT5-V • Escalade" },
     { name: "Ford", count: "Mustang • Mach-E • F-150" },
     { name: "Tesla", count: "Model 3 • Model Y • Plaid" },
@@ -119,7 +133,7 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
     { label: "Nationwide", value: 3000 },
   ];
 
-  const allMakes = ["All", "BMW", "Porsche", "Toyota", "Cadillac", "Ford", "Tesla"];
+  const allMakes = ["All", "BMW", "Porsche", "Toyota", "Audi", "Mercedes-Benz", "Honda", "Chevrolet", "Cadillac", "Ford", "Tesla", "Lexus", "Subaru"];
   const colorOptions = [
     { label: "Grey", bg: "bg-neutral-500", match: "grey" },
     { label: "Black", bg: "bg-neutral-900 border-neutral-700", match: "black" },
@@ -361,6 +375,9 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
               onClick={() => {
                 setSelectedMake(make);
                 setSelectedTrims([]);
+                if (onSyncLiveInventory) {
+                  onSyncLiveInventory(zipCode, searchRadius, searchQuery, make !== "All" ? make : undefined);
+                }
               }}
               className={`rounded-lg px-2.5 py-1 text-xs font-semibold transition-all ${
                 selectedMake === make
@@ -571,7 +588,12 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
           {radiusOptions.map((opt) => (
             <button
               key={opt.value}
-              onClick={() => setSearchRadius(opt.value)}
+              onClick={() => {
+                setSearchRadius(opt.value);
+                if (onSyncLiveInventory) {
+                  onSyncLiveInventory(zipCode, opt.value, searchQuery, selectedMake !== "All" ? selectedMake : undefined);
+                }
+              }}
               className={`py-1 px-1 text-[10px] rounded-lg font-semibold transition-all text-center truncate ${
                 searchRadius === opt.value
                   ? "bg-emerald-500 text-black font-bold"
@@ -844,6 +866,14 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
         {/* RESULTS CONTENT (Right Column) */}
         <main className="lg:col-span-3 space-y-4">
           
+          {/* Live Syncing Feedback */}
+          {isSyncingInventory && (
+            <div className="rounded-xl border border-emerald-500/30 bg-emerald-950/40 p-3.5 flex items-center justify-center gap-2.5 text-xs text-emerald-300 animate-pulse">
+              <Loader2 className="h-4 w-4 animate-spin text-emerald-400" />
+              <span className="font-bold">Syncing live dealership network allocations across {searchRadius >= 3000 ? "Nationwide" : `${searchRadius} miles`} of {zipCode}...</span>
+            </div>
+          )}
+
           {/* Top Results Control Bar */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-surface p-3 rounded-xl border border-border">
             <div className="flex items-center gap-2">

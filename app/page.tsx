@@ -68,12 +68,19 @@ export default function Home() {
   const [isVoucherModalOpen, setIsVoucherModalOpen] = useState(false);
 
   // Sync Live Inventory from Connector
-  const handleSyncLiveInventory = async (zip: string = "94107", radius: number = 150) => {
+  const handleSyncLiveInventory = async (
+    zip: string = "94107",
+    radius: number = 150,
+    query?: string,
+    make?: string
+  ) => {
     setIsSyncingInventory(true);
     try {
       const res = await fetchLiveInventory({
         zip,
         radius,
+        query,
+        make: make && make !== "All" ? make : undefined,
       });
       if (res.success && res.data.length > 0) {
         setVehicles(res.data);

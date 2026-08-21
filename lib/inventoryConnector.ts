@@ -1,6 +1,7 @@
 import { Vehicle } from "./types";
 
 export interface InventoryFetchOptions {
+  query?: string;
   make?: string;
   zip?: string;
   radius?: number;
@@ -17,6 +18,7 @@ export interface InventoryFeedResponse {
   totalFound: number;
   zip: string;
   radius: number;
+  query?: string;
   data: Vehicle[];
 }
 
@@ -61,6 +63,7 @@ export async function fetchLiveInventory(
   const apiKey = options.apiKey || config.apiKey || "";
 
   const url = new URL("/api/inventory", window.location.origin);
+  if (options.query) url.searchParams.set("query", options.query);
   if (options.make && options.make !== "All") url.searchParams.set("make", options.make);
   if (options.zip) url.searchParams.set("zip", options.zip);
   if (options.radius) url.searchParams.set("radius", options.radius.toString());
