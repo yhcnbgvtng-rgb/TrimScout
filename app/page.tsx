@@ -97,7 +97,7 @@ export default function Home() {
         console.error("Failed to load user from localStorage:", e);
       }
     }
-    handleSyncLiveInventory("94107", 150);
+    handleSyncLiveInventory("94107", 150, undefined, undefined, 500);
   }, []);
 
   const handleLogin = (user: UserProfile) => {
@@ -129,7 +129,8 @@ export default function Home() {
     zip: string = "94107",
     radius: number = 150,
     query?: string,
-    make?: string
+    make?: string,
+    limit: number = 500
   ) => {
     setIsSyncingInventory(true);
     setCurrentSearchParams({ zip, radius, query, make });
@@ -141,12 +142,12 @@ export default function Home() {
         query,
         make: make && make !== "All" ? make : undefined,
         page: 1,
-        limit: 250, // Load 250 vehicles across parallel stream pages
+        limit, // Load up to 500-1000 vehicles across parallel stream pages
       });
       if (res.success && res.data.length > 0) {
         setVehicles(res.data);
         setTotalFoundVehicles(res.totalFound || res.data.length);
-        setHasMoreVehicles(res.hasMore ?? (res.totalFound ? res.totalFound > res.data.length : res.data.length >= 250));
+        setHasMoreVehicles(res.hasMore ?? (res.totalFound ? res.totalFound > res.data.length : res.data.length >= limit));
       }
     } catch (e) {
       console.error("Failed to sync live inventory:", e);

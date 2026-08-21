@@ -419,7 +419,7 @@ export async function GET(request: Request) {
     if (apiKey) {
       try {
         const pageSize = 100;
-        const totalPagesNeeded = Math.min(6, Math.ceil(limit / pageSize)); // Fetch up to 600 vehicles in parallel
+        const totalPagesNeeded = Math.min(10, Math.ceil(limit / pageSize)); // Fetch up to 1,000 vehicles in parallel
         const startPage = page;
 
         const pagePromises = Array.from({ length: totalPagesNeeded }, (_, i) => {

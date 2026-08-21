@@ -36,7 +36,7 @@ interface MarketSearchProps {
   onOpenFlexibleWizard: () => void;
   onOpenConnectorModal?: () => void;
   onOpenScraperModal?: () => void;
-  onSyncLiveInventory?: (zip: string, radius: number, query?: string, make?: string) => Promise<void>;
+  onSyncLiveInventory?: (zip: string, radius: number, query?: string, make?: string, limit?: number) => Promise<void>;
   isSyncingInventory?: boolean;
   onLoadMoreLiveInventory?: () => Promise<void>;
   hasMoreVehicles?: boolean;
@@ -72,6 +72,7 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
   const [selectedStatus, setSelectedStatus] = useState<string>("All");
   const [maxPrice, setMaxPrice] = useState<number>(200000);
   const [minPrice, setMinPrice] = useState<number>(0);
+  const [resultsLimit, setResultsLimit] = useState<number>(500);
   
   // Sorting: distance | price_asc | price_desc | discount_desc | days_on_lot
   const [sortBy, setSortBy] = useState<string>("distance");
@@ -1045,28 +1046,55 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
                 <span>Filters {activeFilterCount > 0 && `(${activeFilterCount})`}</span>
               </button>
 
-              <div className="text-xs text-ink-muted">
-                Showing <strong className="text-white font-bold">{sortedVehicles.length}</strong> matching vehicles
+              <div className="text-xs text-ink-muted flex items-center gap-1.5 flex-wrap">
+                <span>Showing <strong className="text-white font-bold">{sortedVehicles.length}</strong> {totalFoundVehicles > 0 ? `of ${totalFoundVehicles.toLocaleString()}+` : ""} cars</span>
               </div>
             </div>
 
-            {/* Sort Dropdown */}
-            <div className="flex items-center gap-2 text-xs">
-              <span className="text-ink-muted font-medium shrink-0 flex items-center gap-1">
-                <ArrowUpDown className="h-3.5 w-3.5 text-emerald-400" />
-                <span>Sort:</span>
-              </span>
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                className="rounded-lg border border-border bg-surface-elevated px-2.5 py-1.5 text-xs text-white font-semibold focus:border-emerald-500 focus:outline-none cursor-pointer"
-              >
-                <option value="distance">Nearest Distance</option>
-                <option value="price_asc">Price: Low to High</option>
-                <option value="price_desc">Price: High to Low</option>
-                <option value="discount_desc">Highest Discount %</option>
-                <option value="days_on_lot">Days On Lot</option>
-              </select>
+            {/* Results Limit & Sort Controls */}
+            <div className="flex flex-wrap items-center gap-3 text-xs">
+              {/* Batch Size Selector */}
+              <div className="flex items-center gap-1 bg-surface-elevated p-1 rounded-lg border border-border">
+                <span className="text-[10px] text-ink-faint font-bold px-1 uppercase">Batch:</span>
+                {[100, 250, 500, 1000].map((lim) => (
+                  <button
+                    key={lim}
+                    type="button"
+                    onClick={() => {
+                      setResultsLimit(lim);
+                      if (onSyncLiveInventory) {
+                        onSyncLiveInventory(zipCode, searchRadius, searchQuery, selectedMake !== "All" ? selectedMake : undefined, lim);
+                      }
+                    }}
+                    className={`px-2 py-0.5 rounded text-[10.5px] font-bold font-mono transition-all ${
+                      resultsLimit === lim
+                        ? "bg-emerald-500 text-black shadow-sm"
+                        : "text-ink-muted hover:text-white"
+                    }`}
+                  >
+                    {lim === 1000 ? "1K (Max)" : lim}
+                  </button>
+                ))}
+              </div>
+
+              {/* Sort Dropdown */}
+              <div className="flex items-center gap-1.5">
+                <span className="text-ink-muted font-medium shrink-0 flex items-center gap-1">
+                  <ArrowUpDown className="h-3.5 w-3.5 text-emerald-400" />
+                  <span>Sort:</span>
+                </span>
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="rounded-lg border border-border bg-surface-elevated px-2.5 py-1.5 text-xs text-white font-semibold focus:border-emerald-500 focus:outline-none cursor-pointer"
+                >
+                  <option value="distance">Nearest Distance</option>
+                  <option value="price_asc">Price: Low to High</option>
+                  <option value="price_desc">Price: High to Low</option>
+                  <option value="discount_desc">Highest Discount %</option>
+                  <option value="days_on_lot">Days On Lot</option>
+                </select>
+              </div>
             </div>
           </div>
 
