@@ -45,8 +45,8 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
   onSyncLiveInventory,
   isSyncingInventory = false,
 }) => {
-  // Navigation State: "landing" (search input hero) vs "results" (visor.vin filter page)
-  const [viewState, setViewState] = useState<"landing" | "results">("landing");
+  // Navigation State: "results" (shows live car listings immediately on load) vs "landing" (search hero)
+  const [viewState, setViewState] = useState<"landing" | "results">("results");
 
   // Search & Filter States
   const [searchQuery, setSearchQuery] = useState("");
