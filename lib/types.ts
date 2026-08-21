@@ -158,11 +158,18 @@ export interface UserProfile {
   id: string;
   name: string;
   email: string;
-  role: "buyer" | "dealer";
+  role: "buyer" | "dealer" | "admin";
   phone: string;
   zipCode: string;
   avatarUrl?: string;
   buyerAlias?: string;
   dealerName?: string;
+  dealerTitle?: string;
   savedVehicleIds: string[];
+  status?: "active" | "suspended" | "pending_verification";
+  createdAt?: string;
+  lastLogin?: string;
+  notes?: string;
+  totalDealsCount?: number;
+  activeBidsCount?: number;
 }

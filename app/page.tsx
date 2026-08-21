@@ -17,10 +17,17 @@ import { AuthModal } from "../components/AuthModal";
 import { DealTrackerDashboard } from "../components/DealTrackerDashboard";
 import { InventoryConnectorModal } from "../components/InventoryConnectorModal";
 import { SignupView } from "../components/SignupView";
+import { AdminPortal } from "../components/AdminPortal";
 
 export default function Home() {
   const [vehicles, setVehicles] = useState<Vehicle[]>(MOCK_VEHICLES);
-  const [currentView, setCurrentView] = useState<"search" | "bid_program" | "deal_room" | "dealer_portal" | "track_deals" | "signup">("search");
+  const [currentView, setCurrentView] = useState<"search" | "bid_program" | "deal_room" | "dealer_portal" | "track_deals" | "signup" | "admin">("search");
+  const [isImpersonating, setIsImpersonating] = useState<boolean>(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("trimscout_impersonating") !== null;
+    }
+    return false;
+  });
 
   // User Authentication State
   const [currentUser, setCurrentUser] = useState<UserProfile | null>(DEMO_BUYER_USER);
@@ -372,6 +379,30 @@ export default function Home() {
         onLogout={handleLogout}
       />
 
+      {/* Impersonation Active Banner */}
+      {isImpersonating && currentUser && (
+        <div className="bg-amber-500/20 border-b border-amber-500/40 px-4 py-2 text-xs text-amber-200 flex items-center justify-between gap-2 z-30">
+          <div className="flex items-center gap-2">
+            <span className="flex h-2 w-2 rounded-full bg-amber-400 animate-ping" />
+            <span>
+              <strong>Admin Mode:</strong> Currently impersonating <strong>{currentUser.name}</strong> ({currentUser.role === "buyer" ? (currentUser.buyerAlias || "Buyer") : (currentUser.dealerName || "Dealer")}).
+            </span>
+          </div>
+          <button
+            onClick={() => {
+              if (typeof window !== "undefined") {
+                localStorage.removeItem("trimscout_impersonating");
+              }
+              setIsImpersonating(false);
+              setCurrentView("admin");
+            }}
+            className="rounded-lg bg-amber-500 hover:bg-amber-400 px-3 py-1 text-[11px] font-black text-black transition-all shadow-sm"
+          >
+            Return to Admin Portal →
+          </button>
+        </div>
+      )}
+
       {/* View 0: Deal Tracking Hub & User Dashboard */}
       {currentView === "track_deals" && (
         currentUser ? (
@@ -464,6 +495,33 @@ export default function Home() {
               handleLogin(newUser);
             }}
             onNavigateHome={() => setCurrentView("search")}
+          />
+        </div>
+      )}
+
+      {/* View 6: Secret Admin Command Center */}
+      {currentView === "admin" && (
+        <div className="animate-fadeIn">
+          <AdminPortal
+            onImpersonateUser={(targetUser) => {
+              setCurrentUser(targetUser);
+              setIsImpersonating(true);
+              if (typeof window !== "undefined") {
+                try {
+                  localStorage.setItem("trimscout_current_user", JSON.stringify(targetUser));
+                  localStorage.setItem("trimscout_impersonating", JSON.stringify({
+                    originalAdmin: true,
+                    target: targetUser.name,
+                  }));
+                } catch {}
+              }
+              if (targetUser.role === "dealer") {
+                setCurrentView("dealer_portal");
+              } else {
+                setCurrentView("track_deals");
+              }
+            }}
+            onExitAdmin={() => setCurrentView("search")}
           />
         </div>
       )}

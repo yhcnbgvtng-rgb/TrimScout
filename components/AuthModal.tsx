@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { UserProfile } from "../lib/types";
-import { DEMO_BUYER_USER, DEMO_DEALER_USER } from "../lib/mockData";
+import { DEMO_BUYER_USER, DEMO_DEALER_USER, DEMO_ADMIN_USER } from "../lib/mockData";
 import {
   X,
   LogIn,
@@ -17,6 +17,7 @@ import {
   MapPin,
   ArrowRight,
   Sparkles,
+  ShieldAlert,
 } from "lucide-react";
 
 interface AuthModalProps {
@@ -204,6 +205,38 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     </div>
                   </div>
                   <ArrowRight className="h-4 w-4 text-blue-400 group-hover:translate-x-1 transition-transform" />
+                </div>
+
+                {/* Super Admin Demo Card */}
+                <div
+                  onClick={() => handleSelectDemoUser(DEMO_ADMIN_USER)}
+                  className="group cursor-pointer rounded-xl border border-rose-500/40 bg-rose-950/20 p-4 hover:border-rose-400 hover:bg-rose-950/30 transition-all flex items-center justify-between"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="relative">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={DEMO_ADMIN_USER.avatarUrl}
+                        alt={DEMO_ADMIN_USER.name}
+                        className="h-10 w-10 rounded-full object-cover border border-rose-500/40"
+                      />
+                      <span className="absolute -bottom-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-rose-500 text-[9px] font-black text-black">
+                        🔒
+                      </span>
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-white text-sm">{DEMO_ADMIN_USER.name}</span>
+                        <span className="rounded bg-rose-500/20 px-1.5 py-0.5 text-[9px] font-bold text-rose-400 uppercase">
+                          Root Admin
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-ink-muted">
+                        Master Access • Administer All Buyer & Dealer Accounts
+                      </p>
+                    </div>
+                  </div>
+                  <ArrowRight className="h-4 w-4 text-rose-400 group-hover:translate-x-1 transition-transform" />
                 </div>
               </div>
 

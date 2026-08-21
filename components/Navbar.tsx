@@ -17,13 +17,14 @@ import {
   Lock,
   Layers,
   UserPlus,
+  ShieldAlert,
 } from "lucide-react";
 
 interface NavbarProps {
   user: UserProfile | null;
   activeDealCount: number;
-  currentView: "search" | "bid_program" | "deal_room" | "dealer_portal" | "track_deals" | "signup";
-  onToggleView: (view: "search" | "bid_program" | "deal_room" | "dealer_portal" | "track_deals" | "signup") => void;
+  currentView: "search" | "bid_program" | "deal_room" | "dealer_portal" | "track_deals" | "signup" | "admin";
+  onToggleView: (view: "search" | "bid_program" | "deal_room" | "dealer_portal" | "track_deals" | "signup" | "admin") => void;
   onOpenAuthModal: () => void;
   onLogout: () => void;
 }
@@ -161,6 +162,17 @@ export const Navbar: React.FC<NavbarProps> = ({
                   >
                     <ShieldCheck className="h-4 w-4 text-emerald-400" />
                     <span>Switch Test Account</span>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      onToggleView("admin");
+                      setIsUserMenuOpen(false);
+                    }}
+                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-rose-300 hover:bg-rose-950/40 hover:text-rose-200 font-medium transition-colors text-left"
+                  >
+                    <ShieldAlert className="h-4 w-4 text-rose-400" />
+                    <span>Admin Portal</span>
                   </button>
 
                   <div className="pt-1 border-t border-border">
