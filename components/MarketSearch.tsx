@@ -1384,27 +1384,27 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
 
               {/* Load More Vehicles Button */}
               {onLoadMoreLiveInventory && hasMoreVehicles && (
-                <div className="pt-4 pb-2 flex flex-col items-center gap-2">
+                <div className="pt-6 pb-4 flex flex-col items-center gap-2.5">
                   <button
                     type="button"
                     disabled={isLoadingMore}
                     onClick={() => onLoadMoreLiveInventory()}
-                    className="w-full sm:w-auto min-w-[280px] flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 px-6 py-3 text-xs font-black text-black shadow-lg shadow-emerald-500/20 transition-all cursor-pointer disabled:opacity-50"
+                    className="w-full sm:w-auto min-w-[320px] flex items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-400 hover:from-emerald-400 hover:to-teal-300 px-8 py-3.5 text-xs font-black text-black shadow-xl shadow-emerald-500/25 transition-all cursor-pointer disabled:opacity-50"
                   >
                     {isLoadingMore ? (
                       <>
                         <Loader2 className="h-4 w-4 animate-spin text-black" />
-                        <span>Loading More Dealer Allocations...</span>
+                        <span>Streaming Live Dealer Allocations...</span>
                       </>
                     ) : (
                       <>
                         <RefreshCw className="h-4 w-4 text-black" />
-                        <span>Load More Live Vehicles (+50 More Cars)</span>
+                        <span>Stream Next 150 Vehicles (+150 Live Cars)</span>
                       </>
                     )}
                   </button>
-                  <span className="text-[11px] text-ink-muted">
-                    Showing <strong className="text-white">{sortedVehicles.length}</strong> {totalFoundVehicles > 0 ? `of ${totalFoundVehicles.toLocaleString()}+` : ""} live lot postings
+                  <span className="text-xs text-ink-muted">
+                    Showing <strong className="text-white font-bold">{sortedVehicles.length}</strong> {totalFoundVehicles > 0 ? `of ${totalFoundVehicles.toLocaleString()}+` : ""} live lot postings across US Dealerships
                   </span>
                 </div>
               )}

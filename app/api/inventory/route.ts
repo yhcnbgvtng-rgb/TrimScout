@@ -229,7 +229,7 @@ export async function GET(request: Request) {
   const minPrice = parseInt(searchParams.get("minPrice") || "0", 10);
   const maxPrice = parseInt(searchParams.get("maxPrice") || "250000", 10);
   const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
-  const limit = Math.min(100, Math.max(10, parseInt(searchParams.get("limit") || "100", 10)));
+  const limit = Math.min(1000, Math.max(10, parseInt(searchParams.get("limit") || "250", 10)));
   const provider = searchParams.get("provider") || "autodev";
   const apiKey =
     searchParams.get("apiKey") ||
@@ -415,114 +415,145 @@ export async function GET(request: Request) {
       }
     }
 
-    // 3. AUTO.DEV 100% REAL LIVE DEALERSHIP INVENTORY API
+    // 3. AUTO.DEV 100% REAL LIVE DEALERSHIP INVENTORY API (Multi-Page Parallel Stream)
     if (apiKey) {
       try {
-        const autoDevUrl = new URL("https://api.auto.dev/api/listings");
-        if (make !== "All") autoDevUrl.searchParams.set("make", make);
-        if (rawQuery) autoDevUrl.searchParams.set("query", rawQuery);
-        if (zip) autoDevUrl.searchParams.set("zip", zip);
-        if (radius && radius < 3000) autoDevUrl.searchParams.set("distance", radius.toString());
-        if (minPrice > 0) autoDevUrl.searchParams.set("price_min", minPrice.toString());
-        if (maxPrice < 250000) autoDevUrl.searchParams.set("price_max", maxPrice.toString());
-        autoDevUrl.searchParams.set("page", page.toString());
-        autoDevUrl.searchParams.set("limit", limit.toString());
+        const pageSize = 100;
+        const totalPagesNeeded = Math.min(6, Math.ceil(limit / pageSize)); // Fetch up to 600 vehicles in parallel
+        const startPage = page;
 
-        const res = await fetch(autoDevUrl.toString(), {
-          headers: {
-            Accept: "application/json",
-            Authorization: `Bearer ${apiKey}`,
-          },
-          cache: "no-store",
+        const pagePromises = Array.from({ length: totalPagesNeeded }, (_, i) => {
+          const targetPage = startPage + i;
+          const autoDevUrl = new URL("https://api.auto.dev/api/listings");
+          if (make !== "All") autoDevUrl.searchParams.set("make", make);
+          if (rawQuery) autoDevUrl.searchParams.set("query", rawQuery);
+          if (zip) autoDevUrl.searchParams.set("zip", zip);
+          if (radius && radius < 3000) autoDevUrl.searchParams.set("distance", radius.toString());
+          if (minPrice > 0) autoDevUrl.searchParams.set("price_min", minPrice.toString());
+          if (maxPrice < 250000) autoDevUrl.searchParams.set("price_max", maxPrice.toString());
+          autoDevUrl.searchParams.set("page", targetPage.toString());
+          autoDevUrl.searchParams.set("limit", pageSize.toString());
+
+          return fetch(autoDevUrl.toString(), {
+            headers: {
+              Accept: "application/json",
+              Authorization: `Bearer ${apiKey}`,
+            },
+            cache: "no-store",
+          }).then(async (res) => {
+            if (res.ok) return res.json();
+            return null;
+          }).catch(() => null);
         });
 
-        if (res.ok) {
-          const data = await res.json();
-          const rawListings = data.records || data.data || [];
-          if (rawListings.length > 0) {
-            const liveVehicles: Vehicle[] = rawListings.map((item: any, idx: number) => {
-              const lat = item.lat || item.dealer?.latitude || userCoords.lat;
-              const lng = item.lon || item.lng || item.dealer?.longitude || userCoords.lng;
-              const dist = calculateDistanceMiles(zip, {
+        const settledResponses = await Promise.all(pagePromises);
+        const allRecords: any[] = [];
+        let totalCount = 0;
+
+        for (const data of settledResponses) {
+          if (data) {
+            if (data.totalCount && data.totalCount > totalCount) {
+              totalCount = data.totalCount;
+            }
+            const records = data.records || data.data || [];
+            if (Array.isArray(records)) {
+              allRecords.push(...records);
+            }
+          }
+        }
+
+        if (allRecords.length > 0) {
+          // Deduplicate by VIN
+          const seenVins = new Set<string>();
+          const uniqueRecords = allRecords.filter((item: any) => {
+            const vin = item.vin || item.id;
+            if (!vin || seenVins.has(vin)) return false;
+            seenVins.add(vin);
+            return true;
+          });
+
+          const liveVehicles: Vehicle[] = uniqueRecords.slice(0, limit).map((item: any, idx: number) => {
+            const lat = item.lat || item.dealer?.latitude || userCoords.lat;
+            const lng = item.lon || item.lng || item.dealer?.longitude || userCoords.lng;
+            const dist = calculateDistanceMiles(zip, {
+              city: item.city || item.dealer?.city || userCoords.city,
+              state: item.state || item.dealer?.state || userCoords.state,
+              lat,
+              lng,
+            });
+
+            const msrp = parsePrice(item.price, 45000);
+            const dealerPrice = parsePrice(item.dealerPrice || item.price, msrp);
+            const dealerFees = item.feeTax?.dealerFees || [];
+            const options = dealerFees.map((fee: any, fIdx: number) => ({
+              code: `FEE-${fIdx + 1}`,
+              name: fee.name || "Dealer Fee",
+              price: typeof fee.amount === "number" ? fee.amount : 0,
+              category: "fee" as const,
+            }));
+
+            const bodyTypeRaw = (item.bodyType || item.bodyStyle || "Sedan").toLowerCase();
+            const bodyType = bodyTypeRaw.includes("truck") || bodyTypeRaw.includes("pickup")
+              ? "Truck"
+              : bodyTypeRaw.includes("suv")
+              ? "SUV"
+              : bodyTypeRaw.includes("coupe")
+              ? "Coupe"
+              : bodyTypeRaw.includes("convertible")
+              ? "Convertible"
+              : "Sedan";
+
+            const dealerNameClean = item.dealerName || item.dealer?.name || `${item.make || "Certified"} Franchise Dealer`;
+            const dealerUrl = resolveDirectDealerUrl(dealerNameClean, item.make || "Vehicle", item.vin || "", item.clickoffUrl);
+
+            return {
+              id: item.id ? String(item.id) : (item.vin || `live-${idx}`),
+              vin: item.vin || `1FTFW1ED5PFA${Math.floor(10000 + Math.random() * 90000)}`,
+              year: item.year || 2025,
+              make: item.make || "Vehicle",
+              model: item.model || "",
+              trim: item.trim || "Standard",
+              bodyType,
+              engine: item.engine || "Factory Engine",
+              drivetrain: item.drivetrain || "AWD",
+              transmission: item.transmission || "Automatic",
+              exteriorColor: item.displayColor || item.exteriorColor || "Factory Exterior",
+              interiorColor: item.interiorColor || "Standard Interior",
+              msrp,
+              dealerPrice,
+              daysOnLot: calculateDaysOnLot(item.createdAt),
+              status: "on_lot",
+              location: {
+                dealerName: item.dealerName || item.dealer?.name || `${item.make || "Certified"} Franchise Dealer`,
                 city: item.city || item.dealer?.city || userCoords.city,
                 state: item.state || item.dealer?.state || userCoords.state,
+                zip: item.zip || item.dealer?.zip || zip,
+                distanceMiles: Math.round(dist),
                 lat,
                 lng,
-              });
+              },
+              packages: ["Verified Live Lot Posting", "Factory Option Sheet"],
+              options,
+              imageUrl: item.primaryPhotoUrl || item.photoUrls?.[0] || "https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=1200&q=80",
+              mileage: parseMileage(item.mileage),
+              dealerUrl,
+            };
+          });
 
-              const msrp = parsePrice(item.price, 45000);
-              const dealerPrice = parsePrice(item.dealerPrice || item.price, msrp);
-              const dealerFees = item.feeTax?.dealerFees || [];
-              const options = dealerFees.map((fee: any, fIdx: number) => ({
-                code: `FEE-${fIdx + 1}`,
-                name: fee.name || "Dealer Fee",
-                price: typeof fee.amount === "number" ? fee.amount : 0,
-                category: "fee" as const,
-              }));
-
-              const bodyTypeRaw = (item.bodyType || item.bodyStyle || "Sedan").toLowerCase();
-              const bodyType = bodyTypeRaw.includes("truck") || bodyTypeRaw.includes("pickup")
-                ? "Truck"
-                : bodyTypeRaw.includes("suv")
-                ? "SUV"
-                : bodyTypeRaw.includes("coupe")
-                ? "Coupe"
-                : bodyTypeRaw.includes("convertible")
-                ? "Convertible"
-                : "Sedan";
-
-              const dealerNameClean = item.dealerName || item.dealer?.name || `${item.make || "Certified"} Franchise Dealer`;
-              const dealerUrl = resolveDirectDealerUrl(dealerNameClean, item.make || "Vehicle", item.vin || "", item.clickoffUrl);
-
-              return {
-                id: item.id ? String(item.id) : (item.vin || `live-${idx}`),
-                vin: item.vin || `1FTFW1ED5PFA${Math.floor(10000 + Math.random() * 90000)}`,
-                year: item.year || 2025,
-                make: item.make || "Vehicle",
-                model: item.model || "",
-                trim: item.trim || "Standard",
-                bodyType,
-                engine: item.engine || "Factory Engine",
-                drivetrain: item.drivetrain || "AWD",
-                transmission: item.transmission || "Automatic",
-                exteriorColor: item.displayColor || item.exteriorColor || "Factory Exterior",
-                interiorColor: item.interiorColor || "Standard Interior",
-                msrp,
-                dealerPrice,
-                daysOnLot: calculateDaysOnLot(item.createdAt),
-                status: "on_lot",
-                location: {
-                  dealerName: item.dealerName || item.dealer?.name || `${item.make || "Certified"} Franchise Dealer`,
-                  city: item.city || item.dealer?.city || userCoords.city,
-                  state: item.state || item.dealer?.state || userCoords.state,
-                  zip: item.zip || item.dealer?.zip || zip,
-                  distanceMiles: Math.round(dist),
-                  lat,
-                  lng,
-                },
-                packages: ["Verified Live Lot Posting", "Factory Option Sheet"],
-                options,
-                imageUrl: item.primaryPhotoUrl || item.photoUrls?.[0] || "https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=1200&q=80",
-                mileage: parseMileage(item.mileage),
-                dealerUrl,
-              };
-            });
-
-            const totalCount = data.totalCount || liveVehicles.length;
-            return NextResponse.json({
-              success: true,
-              provider: "autodev",
-              isLiveApi: true,
-              totalFound: totalCount,
-              page,
-              limit,
-              hasMore: (page * limit) < totalCount,
-              zip,
-              radius,
-              query: rawQuery,
-              data: liveVehicles,
-            });
-          }
+          const finalTotalCount = Math.max(totalCount, liveVehicles.length);
+          return NextResponse.json({
+            success: true,
+            provider: "autodev",
+            isLiveApi: true,
+            totalFound: finalTotalCount,
+            page,
+            limit,
+            hasMore: (startPage * pageSize) < finalTotalCount,
+            zip,
+            radius,
+            query: rawQuery,
+            data: liveVehicles,
+          });
         }
       } catch (err) {
         console.error("Auto.dev fetch failed, falling back to smart dealer catalog:", err);

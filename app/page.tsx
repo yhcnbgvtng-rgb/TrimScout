@@ -141,12 +141,12 @@ export default function Home() {
         query,
         make: make && make !== "All" ? make : undefined,
         page: 1,
-        limit: 100,
+        limit: 250, // Load 250 vehicles across parallel stream pages
       });
       if (res.success && res.data.length > 0) {
         setVehicles(res.data);
         setTotalFoundVehicles(res.totalFound || res.data.length);
-        setHasMoreVehicles(res.hasMore ?? res.data.length >= 100);
+        setHasMoreVehicles(res.hasMore ?? (res.totalFound ? res.totalFound > res.data.length : res.data.length >= 250));
       }
     } catch (e) {
       console.error("Failed to sync live inventory:", e);
@@ -167,7 +167,7 @@ export default function Home() {
         query: currentSearchParams.query,
         make: currentSearchParams.make && currentSearchParams.make !== "All" ? currentSearchParams.make : undefined,
         page: nextPage,
-        limit: 50,
+        limit: 150,
       });
       if (res.success && res.data.length > 0) {
         setVehicles(prev => {
@@ -176,7 +176,7 @@ export default function Home() {
           return [...prev, ...newUnique];
         });
         setCurrentPage(nextPage);
-        setHasMoreVehicles(res.hasMore ?? (res.data.length >= 50));
+        setHasMoreVehicles(res.hasMore ?? (res.totalFound ? res.totalFound > (vehicles.length + res.data.length) : res.data.length >= 150));
         if (res.totalFound) setTotalFoundVehicles(res.totalFound);
       } else {
         setHasMoreVehicles(false);
