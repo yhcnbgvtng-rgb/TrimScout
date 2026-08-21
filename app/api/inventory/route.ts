@@ -95,7 +95,7 @@ function calculateDaysOnLot(createdAtStr?: string): number {
   return Math.max(1, days);
 }
 
-// Directly resolves authentic dealership domain URLs without landing on search engines
+// Directly resolves authentic dealership domain URLs without landing on search engines or 404 paths
 function resolveDirectDealerUrl(dealerName: string, make: string, vin: string, clickoffUrl?: string): string {
   if (clickoffUrl && typeof clickoffUrl === "string" && clickoffUrl.startsWith("http")) {
     return clickoffUrl;
@@ -105,59 +105,71 @@ function resolveDirectDealerUrl(dealerName: string, make: string, vin: string, c
 
   // Known dealership domain routing
   if (normalized.includes("porsche") && normalized.includes("san francisco")) {
-    return `https://www.porschesanfrancisco.com/searchall.aspx?q=${vin}`;
+    return "https://www.porschesanfrancisco.com";
   }
   if (normalized.includes("porsche") && normalized.includes("walnut creek")) {
-    return `https://www.porschewalnutcreek.com/searchall.aspx?q=${vin}`;
+    return "https://www.porschewalnutcreek.com";
   }
   if (normalized.includes("audi") && normalized.includes("concord")) {
-    return `https://www.audiconcord.com/searchall.aspx?q=${vin}`;
+    return "https://www.audiconcord.com";
   }
   if (normalized.includes("lamborghini") && normalized.includes("san francisco")) {
-    return `https://www.lamborghinisanfrancisco.com/searchall.aspx?q=${vin}`;
+    return "https://www.lamborghinisanfrancisco.com";
   }
   if (normalized.includes("hilltop") && normalized.includes("kia")) {
-    return `https://www.hilltopkia.com/inventory/new?q=${vin}`;
+    return "https://www.hilltopkia.com";
   }
   if (normalized.includes("hilltop") && (normalized.includes("chrysler") || normalized.includes("dodge") || normalized.includes("jeep"))) {
-    return `https://www.hilltopchryslerjeepdodge.com/inventory?q=${vin}`;
+    return "https://www.hilltopchryslerjeepdodge.com";
   }
   if (normalized.includes("autoworld")) {
-    return `https://www.autoworldcdjr.com/inventory?q=${vin}`;
+    return "https://www.autoworldcdjr.com";
   }
   if (normalized.includes("vallejo") && normalized.includes("cdjr")) {
-    return `https://www.vallejocdjr.com/inventory?q=${vin}`;
+    return "https://www.vallejocdjr.com";
   }
   if (normalized.includes("future hyundai")) {
-    return `https://www.futurehyundaiofconcord.com/searchall.aspx?q=${vin}`;
+    return "https://www.futurehyundaiofconcord.com";
   }
   if (normalized.includes("san leandro")) {
-    return `https://www.sanleandrocdjr.com/inventory?q=${vin}`;
+    return "https://www.sanleandrocdjr.com";
   }
   if (normalized.includes("pleasanton") && normalized.includes("mercedes")) {
-    return `https://www.mbofpleasanton.com/searchall.aspx?q=${vin}`;
+    return "https://www.mbofpleasanton.com";
   }
   if (normalized.includes("east bay bmw")) {
-    return `https://www.eastbaybmw.com/searchall.aspx?q=${vin}`;
+    return "https://www.eastbaybmw.com";
   }
   if (normalized.includes("stevens creek")) {
-    return `https://www.stevenscreekcdjr.com/inventory?q=${vin}`;
+    return "https://www.stevenscreekcdjr.com";
   }
   if (normalized.includes("subaru of hayward")) {
-    return `https://www.subaruofhayward.com/searchall.aspx?q=${vin}`;
+    return "https://www.subaruofhayward.com";
   }
   if (normalized.includes("bmw") && normalized.includes("san rafael")) {
-    return `https://www.bmwsanrafael.com/searchall.aspx?q=${vin}`;
+    return "https://www.bmwsanrafael.com";
   }
   if (normalized.includes("beverly hills") && normalized.includes("bmw")) {
-    return `https://www.bmwofbeverlyhills.com/searchall.aspx?q=${vin}`;
+    return "https://www.bmwofbeverlyhills.com";
   }
   if (normalized.includes("beverly hills") && normalized.includes("honda")) {
-    return `https://www.hondaofbeverlyhills.com/searchall.aspx?q=${vin}`;
+    return "https://www.hondaofbeverlyhills.com";
   }
   if (normalized.includes("lithia")) {
     const slug = normalized.replace(/[^a-z0-9]/g, "");
-    return `https://www.${slug}.com/catcher.esl?vin=${vin}`;
+    return `https://www.${slug}.com`;
+  }
+  if (normalized.includes("manhattan motorcars")) {
+    return "https://www.manhattanmotorcars.com";
+  }
+  if (normalized.includes("park place")) {
+    return "https://www.parkplace.com";
+  }
+  if (normalized.includes("fletcher jones")) {
+    return "https://www.fletcherjones.com";
+  }
+  if (normalized.includes("braman")) {
+    return "https://www.bramanmotors.com";
   }
 
   // Canonical dealership domain constructor
@@ -167,10 +179,10 @@ function resolveDirectDealerUrl(dealerName: string, make: string, vin: string, c
     .trim();
 
   if (cleanDomain.length > 3) {
-    return `https://www.${cleanDomain}.com/searchall.aspx?q=${vin}`;
+    return `https://www.${cleanDomain}.com`;
   }
 
-  return `https://www.google.com/search?btnI=1&q=${encodeURIComponent(`${dealerName} ${vin}`)}`;
+  return `https://www.edmunds.com/inventory/vin/${vin}`;
 }
 
 export async function GET(request: Request) {
