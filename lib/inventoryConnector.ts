@@ -62,7 +62,8 @@ export async function fetchLiveInventory(
   const provider = options.provider || config.provider || "smart_feed";
   const apiKey = options.apiKey || config.apiKey || "";
 
-  const url = new URL("/api/inventory", window.location.origin);
+  const baseUrl = typeof window !== "undefined" && window.location?.origin ? window.location.origin : "http://localhost:3000";
+  const url = new URL("/api/inventory", baseUrl);
   if (options.query) url.searchParams.set("query", options.query);
   if (options.make && options.make !== "All") url.searchParams.set("make", options.make);
   if (options.zip) url.searchParams.set("zip", options.zip);

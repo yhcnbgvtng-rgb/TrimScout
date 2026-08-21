@@ -276,7 +276,8 @@ export async function GET(request: Request) {
     }
 
     // Dynamic Distance Recalculation relative to requested zip code
-    const enrichedVehicles: Vehicle[] = (filtered.length > 0 ? filtered : baseList).map((v, i) => {
+    const targetVehicles: Vehicle[] = (rawQuery || make !== "All") ? filtered : baseList;
+    const enrichedVehicles: Vehicle[] = targetVehicles.map((v, i) => {
       const jitterLat = (i % 3 === 0 ? 0.08 : i % 3 === 1 ? -0.12 : 0.15) * (i + 1);
       const jitterLng = (i % 2 === 0 ? 0.09 : -0.11) * (i + 1);
       const carLat = (v.location.lat || userCoords.lat) + jitterLat;
@@ -313,7 +314,7 @@ export async function GET(request: Request) {
       zip,
       radius,
       query: rawQuery,
-      data: radiusFiltered.length > 0 ? radiusFiltered : enrichedVehicles,
+      data: radiusFiltered,
     });
   } catch (error: any) {
     console.error("Inventory connector error:", error);
