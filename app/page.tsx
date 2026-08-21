@@ -97,7 +97,7 @@ export default function Home() {
         console.error("Failed to load user from localStorage:", e);
       }
     }
-    handleSyncLiveInventory("94107", 150, undefined, undefined, 500);
+    handleSyncLiveInventory("94107", 25, undefined, undefined, 500);
   }, []);
 
   const handleLogin = (user: UserProfile) => {
@@ -127,7 +127,7 @@ export default function Home() {
   // Sync Live Inventory from Connector
   const handleSyncLiveInventory = async (
     zip: string = "94107",
-    radius: number = 150,
+    radius: number = 25,
     query?: string,
     make?: string,
     limit: number = 500

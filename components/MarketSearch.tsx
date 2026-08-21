@@ -145,7 +145,8 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
   // Zip Code & Radius State
   const [zipCode, setZipCode] = useState<string>("94107");
   const [zipInput, setZipInput] = useState<string>("94107");
-  const [searchRadius, setSearchRadius] = useState<number>(100); // 3000 = Nationwide
+  const [searchRadius, setSearchRadius] = useState<number>(25); // 25 = Standard, 3000 = Nationwide
+  const [radiusInput, setRadiusInput] = useState<string>("25");
   const [isLocationOpen, setIsLocationOpen] = useState<boolean>(false);
 
   const handleApplyZip = (overrideZip?: string) => {
@@ -156,7 +157,7 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
       setZipInput(clean);
       setIsLocationOpen(false);
       if (onSyncLiveInventory) {
-        onSyncLiveInventory(clean, searchRadius, searchQuery, selectedMake !== "All" ? selectedMake : undefined);
+        onSyncLiveInventory(clean, searchRadius, searchQuery, selectedMake !== "All" ? selectedMake : undefined, resultsLimit);
       }
     }
   };
@@ -581,6 +582,144 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
             <span>Reset</span>
           </button>
         )}
+      </div>
+
+      {/* 0. Zip Code & Mile Radius Filter (Inputtable Data Fields - Standard 25 Miles) */}
+      <div className="space-y-3 p-3 rounded-xl bg-surface-elevated/70 border border-border">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1.5 text-white font-bold">
+            <MapPin className="h-3.5 w-3.5 text-emerald-400" />
+            <span className="uppercase text-[10px] tracking-wider text-ink-light">Location & Search Radius</span>
+          </div>
+          <span className="text-[10px] font-mono text-emerald-400 font-bold">
+            {searchRadius >= 3000 ? "Nationwide" : `${searchRadius} mi`}
+          </span>
+        </div>
+
+        <div className="grid grid-cols-2 gap-2">
+          {/* Zip Code Input Datafield */}
+          <div className="space-y-1">
+            <label className="text-[9.5px] font-bold uppercase text-ink-muted flex items-center justify-between">
+              <span>Zip Code</span>
+              <span className="text-ink-faint font-normal truncate max-w-[65px]">{zipInfo.city}</span>
+            </label>
+            <div className="relative">
+              <input
+                type="text"
+                maxLength={5}
+                value={zipInput}
+                onChange={(e) => {
+                  const val = e.target.value.replace(/\D/g, "");
+                  setZipInput(val);
+                  if (val.length === 5) {
+                    setZipCode(val);
+                    if (onSyncLiveInventory) {
+                      onSyncLiveInventory(val, searchRadius, searchQuery, selectedMake !== "All" ? selectedMake : undefined, resultsLimit);
+                    }
+                  }
+                }}
+                onBlur={() => {
+                  if (zipInput.length === 5 && zipInput !== zipCode) {
+                    setZipCode(zipInput);
+                    if (onSyncLiveInventory) {
+                      onSyncLiveInventory(zipInput, searchRadius, searchQuery, selectedMake !== "All" ? selectedMake : undefined, resultsLimit);
+                    }
+                  }
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && zipInput.length === 5) {
+                    setZipCode(zipInput);
+                    if (onSyncLiveInventory) {
+                      onSyncLiveInventory(zipInput, searchRadius, searchQuery, selectedMake !== "All" ? selectedMake : undefined, resultsLimit);
+                    }
+                  }
+                }}
+                placeholder="94107"
+                className="w-full rounded-lg border border-border bg-surface px-2.5 py-1.5 text-xs text-white font-mono placeholder-ink-faint focus:border-emerald-500 focus:outline-none"
+              />
+            </div>
+          </div>
+
+          {/* Mile Radius Input Datafield */}
+          <div className="space-y-1">
+            <label className="text-[9.5px] font-bold uppercase text-ink-muted flex items-center justify-between">
+              <span>Radius</span>
+              <span className="text-emerald-400/80 font-normal">miles</span>
+            </label>
+            <div className="relative flex items-center">
+              <input
+                type="number"
+                min={1}
+                max={3000}
+                value={radiusInput}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setRadiusInput(val);
+                  const num = parseInt(val, 10);
+                  if (!isNaN(num) && num > 0) {
+                    setSearchRadius(num);
+                  }
+                }}
+                onBlur={() => {
+                  const num = parseInt(radiusInput, 10);
+                  if (!isNaN(num) && num > 0) {
+                    setSearchRadius(num);
+                    if (onSyncLiveInventory) {
+                      onSyncLiveInventory(zipCode, num, searchQuery, selectedMake !== "All" ? selectedMake : undefined, resultsLimit);
+                    }
+                  } else {
+                    setSearchRadius(25);
+                    setRadiusInput("25");
+                  }
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    const num = parseInt(radiusInput, 10);
+                    if (!isNaN(num) && num > 0) {
+                      setSearchRadius(num);
+                      if (onSyncLiveInventory) {
+                        onSyncLiveInventory(zipCode, num, searchQuery, selectedMake !== "All" ? selectedMake : undefined, resultsLimit);
+                      }
+                    }
+                  }
+                }}
+                placeholder="25"
+                className="w-full rounded-lg border border-border bg-surface px-2.5 py-1.5 text-xs text-white font-mono placeholder-ink-faint focus:border-emerald-500 focus:outline-none"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Radius Quick Presets with Standard 25 Miles */}
+        <div className="flex flex-wrap gap-1 pt-1 border-t border-border/40">
+          {[
+            { label: "15 mi", val: 15 },
+            { label: "25 mi (Std)", val: 25 },
+            { label: "50 mi", val: 50 },
+            { label: "100 mi", val: 100 },
+            { label: "250 mi", val: 250 },
+            { label: "Nationwide", val: 3000 },
+          ].map((opt) => (
+            <button
+              key={opt.val}
+              type="button"
+              onClick={() => {
+                setSearchRadius(opt.val);
+                setRadiusInput(opt.val.toString());
+                if (onSyncLiveInventory) {
+                  onSyncLiveInventory(zipCode, opt.val, searchQuery, selectedMake !== "All" ? selectedMake : undefined, resultsLimit);
+                }
+              }}
+              className={`px-2 py-0.5 rounded text-[10px] font-semibold transition-all cursor-pointer ${
+                searchRadius === opt.val
+                  ? "bg-emerald-500 text-black font-bold shadow-sm"
+                  : "border border-border bg-surface text-ink-muted hover:text-white hover:border-emerald-500/40"
+              }`}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* 1. Make / Brand Autofilling Datafield */}
