@@ -19,7 +19,7 @@ import { InventoryConnectorModal } from "../components/InventoryConnectorModal";
 
 export default function Home() {
   const [vehicles, setVehicles] = useState<Vehicle[]>(MOCK_VEHICLES);
-  const [currentView, setCurrentView] = useState<"search" | "bid_program" | "deal_room" | "dealer_portal" | "track_deals">("track_deals");
+  const [currentView, setCurrentView] = useState<"search" | "bid_program" | "deal_room" | "dealer_portal" | "track_deals">("search");
 
   // User Authentication State
   const [currentUser, setCurrentUser] = useState<UserProfile | null>(DEMO_BUYER_USER);
@@ -29,6 +29,11 @@ export default function Home() {
   // Live Inventory Connector State
   const [isConnectorModalOpen, setIsConnectorModalOpen] = useState(false);
   const [isSyncingInventory, setIsSyncingInventory] = useState(false);
+
+  // Initial live inventory sync on load
+  useEffect(() => {
+    handleSyncLiveInventory("94107", 150);
+  }, []);
 
   // Wizard state
   const [isWizardOpen, setIsWizardOpen] = useState(false);

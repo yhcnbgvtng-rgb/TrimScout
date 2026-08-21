@@ -70,8 +70,22 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
 
   // Zip Code & Radius State
   const [zipCode, setZipCode] = useState<string>("94107");
+  const [zipInput, setZipInput] = useState<string>("94107");
   const [searchRadius, setSearchRadius] = useState<number>(100); // 3000 = Nationwide
   const [isLocationOpen, setIsLocationOpen] = useState<boolean>(false);
+
+  const handleApplyZip = (overrideZip?: string) => {
+    const target = overrideZip || zipInput;
+    const clean = target.trim().replace(/\D/g, "");
+    if (clean.length === 5) {
+      setZipCode(clean);
+      setZipInput(clean);
+      setIsLocationOpen(false);
+      if (onSyncLiveInventory) {
+        onSyncLiveInventory(clean, searchRadius, searchQuery, selectedMake !== "All" ? selectedMake : undefined);
+      }
+    }
+  };
 
   // Auto-detect 5-digit zip in search bar
   const handleSearchInputChange = (val: string) => {
@@ -79,6 +93,10 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
     const trimmed = val.trim();
     if (/^\d{5}$/.test(trimmed)) {
       setZipCode(trimmed);
+      setZipInput(trimmed);
+      if (onSyncLiveInventory) {
+        onSyncLiveInventory(trimmed, searchRadius, undefined, selectedMake !== "All" ? selectedMake : undefined);
+      }
     }
   };
 
@@ -608,7 +626,7 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
           <span>ZIP: <strong className="text-white font-mono">{zipCode}</strong> ({zipInfo.city}, {zipInfo.state})</span>
           <button
             onClick={() => setIsLocationOpen(true)}
-            className="text-emerald-400 hover:underline"
+            className="text-emerald-400 hover:underline font-bold"
           >
             Change
           </button>
@@ -616,6 +634,82 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
       </div>
     </div>
   );
+
+  // Reusable Location / ZIP Change Modal
+  const renderLocationModal = () => {
+    if (!isLocationOpen) return null;
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-fadeIn">
+        <div className="relative w-full max-w-md rounded-2xl border border-border-strong bg-surface p-6 shadow-2xl space-y-5">
+          <div className="flex items-center justify-between border-b border-border pb-3">
+            <div className="flex items-center gap-2">
+              <MapPin className="h-5 w-5 text-emerald-400" />
+              <h3 className="font-bold text-white text-base">Change Search Location</h3>
+            </div>
+            <button
+              onClick={() => setIsLocationOpen(false)}
+              className="rounded-lg p-1 text-ink-muted hover:bg-border hover:text-white"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+
+          <div className="space-y-3">
+            <label className="text-xs font-bold text-ink-light uppercase">Enter 5-Digit US ZIP Code</label>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                maxLength={5}
+                placeholder="e.g. 90210, 10001, 75201..."
+                value={zipInput}
+                onChange={(e) => setZipInput(e.target.value.replace(/\D/g, ""))}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") handleApplyZip();
+                }}
+                className="flex-1 rounded-xl border border-border bg-background py-2.5 px-4 text-base font-mono text-white placeholder-ink-faint focus:border-emerald-500 focus:outline-none"
+                autoFocus
+              />
+              <button
+                type="button"
+                onClick={() => handleApplyZip()}
+                className="rounded-xl bg-emerald-500 px-5 py-2.5 text-xs font-black text-black hover:bg-emerald-400 transition-all shadow-md active:scale-95 shrink-0"
+              >
+                Update
+              </button>
+            </div>
+            <p className="text-[11px] text-ink-muted">
+              Active: <strong className="text-white font-mono">{zipCode}</strong> ({zipInfo.city}, {zipInfo.state})
+            </p>
+          </div>
+
+          {/* Popular Metro Quick Picks */}
+          <div className="space-y-2 pt-2 border-t border-border">
+            <span className="text-[10px] uppercase font-bold text-ink-faint">Popular Metro Regions:</span>
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              {[
+                { city: "San Francisco, CA", zip: "94107" },
+                { city: "Los Angeles, CA", zip: "90210" },
+                { city: "New York, NY", zip: "10001" },
+                { city: "Dallas, TX", zip: "75201" },
+                { city: "Miami, FL", zip: "33101" },
+                { city: "Chicago, IL", zip: "60601" },
+              ].map((m) => (
+                <button
+                  key={m.zip}
+                  type="button"
+                  onClick={() => handleApplyZip(m.zip)}
+                  className="flex items-center justify-between p-2.5 rounded-lg border border-border bg-surface-elevated hover:border-emerald-500/50 hover:bg-background text-left transition-all"
+                >
+                  <span className="font-medium text-white truncate text-[11px]">{m.city}</span>
+                  <span className="text-[10px] font-mono text-emerald-400 font-bold ml-1">{m.zip}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   // ===========================================================================
   // RENDER: STEP 1 - SEARCH LANDING PAGE (Visor.vin Entry State)
@@ -664,6 +758,17 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
                 </button>
               )}
             </div>
+
+            {/* Change Location Button in Search Bar */}
+            <button
+              type="button"
+              onClick={() => setIsLocationOpen(true)}
+              className="flex items-center gap-1.5 rounded-xl border border-border bg-surface-elevated/70 hover:bg-border px-3.5 py-3 text-xs font-bold text-ink-light hover:text-white shrink-0 transition-all"
+            >
+              <MapPin className="h-4 w-4 text-emerald-400" />
+              <span className="font-mono">{zipCode}</span>
+              <span className="text-[10px] text-ink-muted hidden sm:inline font-normal">({zipInfo.city})</span>
+            </button>
 
             <button
               type="submit"
@@ -767,6 +872,9 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
             ))}
           </div>
         </div>
+
+        {/* Location Change Modal */}
+        {renderLocationModal()}
       </div>
     );
   }
@@ -1192,6 +1300,9 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
           </div>
         </div>
       )}
+
+      {/* Location Change Modal */}
+      {renderLocationModal()}
     </div>
   );
 };
