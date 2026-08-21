@@ -71,7 +71,7 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
   const [selectedColors, setSelectedColors] = useState<string[]>([]);
   const [selectedBodyTypes, setSelectedBodyTypes] = useState<string[]>([]);
   const [selectedStatus, setSelectedStatus] = useState<string>("All");
-  const [maxPrice, setMaxPrice] = useState<number>(200000);
+  const [maxPrice, setMaxPrice] = useState<number>(350000);
   const [minPrice, setMinPrice] = useState<number>(0);
   const [resultsLimit, setResultsLimit] = useState<number>(500);
   
@@ -1331,17 +1331,17 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
         </div>
         <input
           type="range"
-          min={30000}
-          max={200000}
+          min={20000}
+          max={350000}
           step={5000}
           value={maxPrice}
           onChange={(e) => setMaxPrice(Number(e.target.value))}
           className="w-full accent-emerald-400 cursor-pointer"
         />
         <div className="flex justify-between text-[10px] text-ink-faint font-mono">
-          <span>$30k</span>
-          <span>$100k</span>
-          <span>$200k+</span>
+          <span>$20k</span>
+          <span>$150k</span>
+          <span>$350k+</span>
         </div>
       </div>
 

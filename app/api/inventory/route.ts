@@ -381,15 +381,54 @@ export async function GET(request: Request) {
         const totalPagesNeeded = Math.min(10, Math.ceil(limit / pageSize)); // Fetch up to 1,000 vehicles in parallel
         const startPage = page;
 
+        // Smart Query Mapper for Auto.dev
+        const lowerQ = (rawQuery || "").toLowerCase().trim();
+        let autoDevMake = make !== "All" ? make : undefined;
+        let autoDevModel: string | undefined = undefined;
+
+        if (!autoDevMake) {
+          if (lowerQ.includes("porsche")) {
+            autoDevMake = "Porsche";
+          } else if (lowerQ.includes("911")) {
+            autoDevMake = "Porsche";
+            autoDevModel = "911";
+          } else if (lowerQ.includes("cayman") || lowerQ.includes("718")) {
+            autoDevMake = "Porsche";
+            autoDevModel = "718 Cayman";
+          } else if (lowerQ.includes("taycan")) {
+            autoDevMake = "Porsche";
+            autoDevModel = "Taycan";
+          } else if (lowerQ.includes("macan")) {
+            autoDevMake = "Porsche";
+            autoDevModel = "Macan";
+          } else if (lowerQ.includes("cayenne")) {
+            autoDevMake = "Porsche";
+            autoDevModel = "Cayenne";
+          } else if (lowerQ.includes("bmw")) {
+            autoDevMake = "BMW";
+          } else if (lowerQ.includes("toyota")) {
+            autoDevMake = "Toyota";
+          } else if (lowerQ.includes("ford")) {
+            autoDevMake = "Ford";
+          } else if (lowerQ.includes("honda")) {
+            autoDevMake = "Honda";
+          } else if (lowerQ.includes("audi")) {
+            autoDevMake = "Audi";
+          } else if (lowerQ.includes("corvette")) {
+            autoDevMake = "Chevrolet";
+            autoDevModel = "Corvette";
+          }
+        }
+
         const pagePromises = Array.from({ length: totalPagesNeeded }, (_, i) => {
           const targetPage = startPage + i;
           const autoDevUrl = new URL("https://api.auto.dev/api/listings");
-          if (make !== "All") autoDevUrl.searchParams.set("make", make);
-          if (rawQuery) autoDevUrl.searchParams.set("query", rawQuery);
+          if (autoDevMake) autoDevUrl.searchParams.set("make", autoDevMake);
+          if (autoDevModel) autoDevUrl.searchParams.set("model", autoDevModel);
           if (zip) autoDevUrl.searchParams.set("zip", zip);
           if (radius && radius < 3000) autoDevUrl.searchParams.set("distance", radius.toString());
           if (minPrice > 0) autoDevUrl.searchParams.set("price_min", minPrice.toString());
-          if (maxPrice < 250000) autoDevUrl.searchParams.set("price_max", maxPrice.toString());
+          if (maxPrice < 350000) autoDevUrl.searchParams.set("price_max", maxPrice.toString());
           autoDevUrl.searchParams.set("page", targetPage.toString());
           autoDevUrl.searchParams.set("limit", pageSize.toString());
 
@@ -431,7 +470,7 @@ export async function GET(request: Request) {
             return true;
           });
 
-          const liveVehicles: Vehicle[] = uniqueRecords.slice(0, limit).map((item: any, idx: number) => {
+          let liveVehicles: Vehicle[] = uniqueRecords.slice(0, limit).map((item: any, idx: number) => {
             const lat = item.lat || item.dealer?.latitude || userCoords.lat;
             const lng = item.lon || item.lng || item.dealer?.longitude || userCoords.lng;
             const dist = calculateDistanceMiles(zip, {
@@ -506,6 +545,49 @@ export async function GET(request: Request) {
               dealerUrl,
             };
           });
+
+          // Always enrich with Dedicated Porsche Finder Scraper Feed
+          try {
+            const pRes = await scrapePorscheInventory({
+              query: rawQuery,
+              model: rawQuery,
+              zip,
+              radiusMiles: radius,
+            });
+            if (pRes && pRes.vehicles.length > 0) {
+              pRes.vehicles.forEach((pv) => {
+                if (!liveVehicles.some((lv) => lv.vin === pv.vin)) {
+                  liveVehicles.unshift(pv);
+                }
+              });
+            }
+          } catch (e) {
+            console.error("Porsche scraper enrichment failed:", e);
+          }
+
+          // If user specifically requested Porsche or a Porsche model, strictly filter
+          if (
+            make.toLowerCase().includes("porsche") ||
+            lowerQ.includes("porsche") ||
+            lowerQ.includes("911") ||
+            lowerQ.includes("cayman") ||
+            lowerQ.includes("taycan") ||
+            lowerQ.includes("macan") ||
+            lowerQ.includes("cayenne")
+          ) {
+            liveVehicles = liveVehicles.filter((v) => {
+              const str = `${v.make} ${v.model} ${v.trim}`.toLowerCase();
+              if (make.toLowerCase().includes("porsche") || lowerQ.includes("porsche")) {
+                return v.make.toLowerCase().includes("porsche");
+              }
+              if (lowerQ.includes("911")) return str.includes("911");
+              if (lowerQ.includes("cayman") || lowerQ.includes("718")) return str.includes("cayman") || str.includes("718");
+              if (lowerQ.includes("taycan")) return str.includes("taycan");
+              if (lowerQ.includes("macan")) return str.includes("macan");
+              if (lowerQ.includes("cayenne")) return str.includes("cayenne");
+              return true;
+            });
+          }
 
           const finalTotalCount = Math.max(totalCount, liveVehicles.length);
           return NextResponse.json({
