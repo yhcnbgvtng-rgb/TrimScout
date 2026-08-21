@@ -26,6 +26,7 @@ import {
   RefreshCw,
   Sliders,
   Loader2,
+  Eye,
 } from "lucide-react";
 
 interface MarketSearchProps {
@@ -75,6 +76,34 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
   // Mobile Filter Drawer
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const [expandedBuildSheet, setExpandedBuildSheet] = useState<string | null>(null);
+
+  // Viewed Vehicles State (Tracked & Persisted in localStorage)
+  const [viewedVehicleIds, setViewedVehicleIds] = useState<string[]>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const saved = localStorage.getItem("trimscout_viewed_vehicles");
+        return saved ? JSON.parse(saved) : [];
+      } catch {
+        return [];
+      }
+    }
+    return [];
+  });
+
+  const markVehicleAsViewed = (id: string, vin?: string) => {
+    setViewedVehicleIds((prev) => {
+      const set = new Set(prev);
+      if (id) set.add(id);
+      if (vin) set.add(vin);
+      const updated = Array.from(set);
+      if (typeof window !== "undefined") {
+        try {
+          localStorage.setItem("trimscout_viewed_vehicles", JSON.stringify(updated));
+        } catch {}
+      }
+      return updated;
+    });
+  };
 
   // Zip Code & Radius State
   const [zipCode, setZipCode] = useState<string>("94107");
@@ -1090,11 +1119,15 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
                 const discountDollars = Math.max(0, vehicle.msrp - vehicle.dealerPrice);
                 const discountPercent = ((discountDollars / vehicle.msrp) * 100).toFixed(1);
                 const isExpanded = expandedBuildSheet === vehicle.id;
+                const isViewed = viewedVehicleIds.includes(vehicle.id) || Boolean(vehicle.vin && viewedVehicleIds.includes(vehicle.vin));
 
                 return (
                   <div
                     key={vehicle.id}
-                    className="group rounded-xl border border-border/80 bg-surface hover:border-emerald-500/40 hover:bg-surface-elevated transition-all overflow-hidden shadow-sm"
+                    onClick={() => markVehicleAsViewed(vehicle.id, vehicle.vin)}
+                    className={`group rounded-xl border bg-surface hover:border-emerald-500/40 hover:bg-surface-elevated transition-all overflow-hidden shadow-sm ${
+                      isViewed ? "border-border/60 opacity-85 hover:opacity-100" : "border-border/90"
+                    }`}
                   >
                     {/* Fixed Height Uniform Card Row */}
                     <div className="flex flex-col sm:flex-row sm:h-[130px]">
@@ -1103,7 +1136,11 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
                         <img
                           src={vehicle.imageUrl}
                           alt={`${vehicle.year} ${vehicle.make} ${vehicle.model} ${vehicle.trim}`}
-                          className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          className={`h-full w-full object-cover transition-all duration-500 ${
+                            isViewed
+                              ? "grayscale contrast-90 brightness-90 opacity-60 group-hover:grayscale-0 group-hover:opacity-100"
+                              : "group-hover:scale-105"
+                          }`}
                           loading="lazy"
                         />
                         
@@ -1121,6 +1158,16 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
                             </span>
                           )}
                         </div>
+
+                        {/* Viewed Status Badge (Top-Right of picture) */}
+                        {isViewed && (
+                          <div className="absolute top-1.5 right-1.5 z-10">
+                            <span className="inline-flex items-center gap-1 rounded bg-black/95 backdrop-blur-md px-1.5 py-0.5 text-[8px] font-black text-ink-muted border border-border shadow-md leading-none">
+                              <Eye className="h-2.5 w-2.5 text-ink-faint" />
+                              VIEWED
+                            </span>
+                          </div>
+                        )}
 
                         {/* Price Tag Floating Inside Picture (Bottom-Right of picture) */}
                         <div className="absolute bottom-1.5 right-1.5">
@@ -1140,7 +1187,7 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
 
                       {/* Middle: Uniform 4-Row Clamped Specs Column */}
                       <div className="flex-1 p-2.5 sm:p-3 flex flex-col justify-between min-w-0 overflow-hidden h-full">
-                        {/* Row 1: Title & VIN with direct Visor.vin deep-link */}
+                        {/* Row 1: Title & VIN */}
                         <div className="flex items-center justify-between gap-1.5 min-w-0">
                           <div className="flex items-center gap-1 min-w-0 truncate">
                             <span className="text-[9px] font-extrabold uppercase tracking-wider text-emerald-400 shrink-0">
@@ -1152,16 +1199,9 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
                             </h3>
                           </div>
 
-                          <a
-                            href={`https://visor.vin/search?query=${vehicle.vin}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="group/vin inline-flex items-center gap-1 text-[8.5px] font-mono text-ink-muted hover:text-emerald-400 bg-background hover:bg-emerald-950/30 px-1.5 py-0.5 rounded border border-border hover:border-emerald-500/40 shrink-0 leading-none transition-all"
-                            title="Direct Visor.vin vehicle dossier, price history & window sticker"
-                          >
-                            <span>{vehicle.vin}</span>
-                            <ExternalLink className="h-2 w-2 text-ink-faint group-hover/vin:text-emerald-400" />
-                          </a>
+                          <span className="text-[8.5px] font-mono text-ink-muted bg-background px-1.5 py-0.5 rounded border border-border shrink-0 leading-none">
+                            {vehicle.vin}
+                          </span>
                         </div>
 
                         {/* Row 2: Transmission • Engine • Drivetrain • Exterior */}
@@ -1184,8 +1224,12 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
                                 href={vehicle.dealerUrl}
                                 target="_blank"
                                 rel="noopener noreferrer"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  markVehicleAsViewed(vehicle.id, vehicle.vin);
+                                }}
                                 className="text-white font-medium hover:text-emerald-400 hover:underline truncate transition-colors flex items-center gap-1"
-                                title={`Open ${vehicle.location.dealerName} Website`}
+                                title={`Open ${vehicle.location.dealerName} Listing`}
                               >
                                 <span>{vehicle.location.dealerName}</span>
                                 <ExternalLink className="h-2 w-2 text-emerald-400/70 inline shrink-0" />
@@ -1207,10 +1251,15 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
                           )}
                         </div>
 
-                        {/* Row 4: Action Buttons (Build Sheet, Visor Link, Dealer Link, Reverse Bid) */}
+                        {/* Row 4: Action Buttons (Build Sheet, Dealer Link, Reverse Bid) */}
                         <div className="flex items-center justify-between gap-2 pt-1 border-t border-border/40">
                           <button
-                            onClick={() => setExpandedBuildSheet(isExpanded ? null : vehicle.id)}
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              markVehicleAsViewed(vehicle.id, vehicle.vin);
+                              setExpandedBuildSheet(isExpanded ? null : vehicle.id);
+                            }}
                             className="inline-flex items-center gap-1 text-[10px] font-bold text-ink-light hover:text-emerald-400 transition-colors"
                           >
                             <span>Build Sheet ({vehicle.options.length})</span>
@@ -1218,26 +1267,18 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
                           </button>
 
                           <div className="flex items-center gap-1.5">
-                            {/* Visor.vin Direct Vehicle Link */}
-                            <a
-                              href={`https://visor.vin/search?query=${vehicle.vin}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1 rounded-lg border border-purple-500/30 bg-purple-950/30 hover:bg-purple-900/40 hover:border-purple-400/60 px-2 py-1 text-[10px] font-bold text-purple-300 hover:text-white transition-all shadow-sm"
-                              title="Open exact vehicle on Visor.vin"
-                            >
-                              <span>Visor.vin</span>
-                              <ExternalLink className="h-2.5 w-2.5 text-purple-400" />
-                            </a>
-
-                            {/* Official Dealer Website */}
+                            {/* Official Dealer Website / Direct Listing */}
                             {vehicle.dealerUrl && (
                               <a
                                 href={vehicle.dealerUrl}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="inline-flex items-center gap-1 rounded-lg border border-border bg-surface-elevated px-2 py-1 text-[10px] font-semibold text-ink-light hover:text-white hover:border-emerald-500/40 transition-all shadow-sm"
-                                title="Open Official Dealership Website"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  markVehicleAsViewed(vehicle.id, vehicle.vin);
+                                }}
+                                className="inline-flex items-center gap-1 rounded-lg border border-border/90 bg-surface-elevated hover:bg-surface-elevated/80 px-2.5 py-1 text-[10px] font-bold text-emerald-400 hover:text-emerald-300 hover:border-emerald-500/40 transition-all shadow-sm"
+                                title="Open Direct Dealer Vehicle Listing"
                               >
                                 <span>Dealer Site</span>
                                 <ExternalLink className="h-2.5 w-2.5 text-emerald-400" />
@@ -1246,7 +1287,12 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
 
                             {/* Request Reverse Bids */}
                             <button
-                              onClick={() => onSelectForBid(vehicle)}
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                markVehicleAsViewed(vehicle.id, vehicle.vin);
+                                onSelectForBid(vehicle);
+                              }}
                               className="inline-flex items-center gap-1 rounded-lg bg-emerald-500 hover:bg-emerald-400 px-2.5 py-1 text-[10px] font-extrabold text-black transition-all shadow-sm shadow-emerald-500/20"
                             >
                               <Zap className="h-2.5 w-2.5 fill-black" />
@@ -1266,18 +1312,6 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
                           </span>
                           
                           <div className="flex items-center gap-2.5 flex-wrap">
-                            <a
-                              href={`https://visor.vin/search?query=${vehicle.vin}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1 text-[9.5px] text-purple-400 hover:text-purple-300 hover:underline font-bold"
-                            >
-                              <span>Visor Dossier</span>
-                              <ExternalLink className="h-2.5 w-2.5" />
-                            </a>
-
-                            <span className="text-border">•</span>
-
                             <a
                               href={`https://vpic.nhtsa.dot.gov/decoder/Decoder?vin=${vehicle.vin}`}
                               target="_blank"
@@ -1307,9 +1341,10 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
                                   href={vehicle.dealerUrl}
                                   target="_blank"
                                   rel="noopener noreferrer"
+                                  onClick={() => markVehicleAsViewed(vehicle.id, vehicle.vin)}
                                   className="inline-flex items-center gap-1 text-[9.5px] text-emerald-400 hover:underline font-bold"
                                 >
-                                  <span>Dealer Website</span>
+                                  <span>Open Dealership Listing</span>
                                   <ExternalLink className="h-2.5 w-2.5" />
                                 </a>
                               </>
