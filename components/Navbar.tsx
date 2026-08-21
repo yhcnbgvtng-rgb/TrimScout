@@ -18,13 +18,14 @@ import {
   Layers,
   UserPlus,
   ShieldAlert,
+  Presentation,
 } from "lucide-react";
 
 interface NavbarProps {
   user: UserProfile | null;
   activeDealCount: number;
-  currentView: "search" | "bid_program" | "deal_room" | "dealer_portal" | "track_deals" | "signup" | "admin";
-  onToggleView: (view: "search" | "bid_program" | "deal_room" | "dealer_portal" | "track_deals" | "signup" | "admin") => void;
+  currentView: "search" | "bid_program" | "deal_room" | "dealer_portal" | "track_deals" | "signup" | "admin" | "pitch_deck";
+  onToggleView: (view: "search" | "bid_program" | "deal_room" | "dealer_portal" | "track_deals" | "signup" | "admin" | "pitch_deck") => void;
   onOpenAuthModal: () => void;
   onLogout: () => void;
 }
@@ -53,7 +54,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   }, []);
 
   const navLinks: {
-    id: "search" | "bid_program" | "deal_room" | "dealer_portal" | "track_deals";
+    id: "search" | "bid_program" | "deal_room" | "dealer_portal" | "track_deals" | "pitch_deck";
     label: string;
     badge?: number;
   }[] = [
@@ -61,6 +62,7 @@ export const Navbar: React.FC<NavbarProps> = ({
     { id: "track_deals", label: "Track Deals", badge: activeDealCount },
     { id: "deal_room", label: "Live Deal Room" },
     { id: "dealer_portal", label: "Dealer Portal" },
+    { id: "pitch_deck", label: "Pitch Deck" },
     { id: "bid_program", label: "How It Works" },
   ];
 

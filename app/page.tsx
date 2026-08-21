@@ -18,10 +18,11 @@ import { DealTrackerDashboard } from "../components/DealTrackerDashboard";
 import { InventoryConnectorModal } from "../components/InventoryConnectorModal";
 import { SignupView } from "../components/SignupView";
 import { AdminPortal } from "../components/AdminPortal";
+import { PitchDeckView } from "../components/PitchDeckView";
 
 export default function Home() {
   const [vehicles, setVehicles] = useState<Vehicle[]>(MOCK_VEHICLES);
-  const [currentView, setCurrentView] = useState<"search" | "bid_program" | "deal_room" | "dealer_portal" | "track_deals" | "signup" | "admin">("search");
+  const [currentView, setCurrentView] = useState<"search" | "bid_program" | "deal_room" | "dealer_portal" | "track_deals" | "signup" | "admin" | "pitch_deck">("search");
   const [isImpersonating, setIsImpersonating] = useState<boolean>(() => {
     if (typeof window !== "undefined") {
       return localStorage.getItem("trimscout_impersonating") !== null;
@@ -523,6 +524,13 @@ export default function Home() {
             }}
             onExitAdmin={() => setCurrentView("search")}
           />
+        </div>
+      )}
+
+      {/* View 7: Interactive Business Case & Pitch Deck */}
+      {currentView === "pitch_deck" && (
+        <div className="animate-fadeIn">
+          <PitchDeckView onClose={() => setCurrentView("search")} />
         </div>
       )}
 
