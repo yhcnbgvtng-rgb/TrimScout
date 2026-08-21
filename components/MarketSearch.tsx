@@ -573,8 +573,8 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
 
   const zipInfo = getZipCoordinates(zipCode);
 
-  // Reusable Filter Sidebar Content Component
-  const FilterSidebarContent = () => (
+  // Reusable Filter Sidebar Content Render Function
+  const renderFilterSidebarContent = () => (
     <div className="space-y-6 text-xs">
       {/* Sidebar Header */}
       <div className="flex items-center justify-between border-b border-border pb-3">
@@ -1767,7 +1767,7 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
         
         {/* DESKTOP FILTER SIDEBAR (Left Column) */}
         <aside className="hidden lg:block lg:col-span-1 space-y-6 bg-surface/40 p-4 rounded-2xl border border-border/80 h-fit sticky top-20">
-          <FilterSidebarContent />
+          {renderFilterSidebarContent()}
         </aside>
 
         {/* RESULTS CONTENT (Right Column) */}
@@ -2279,7 +2279,7 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
               </button>
             </div>
 
-            <FilterSidebarContent />
+            {renderFilterSidebarContent()}
 
             <div className="pt-4 border-t border-border">
               <button
