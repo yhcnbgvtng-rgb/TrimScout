@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useRef, useEffect } from "react";
 import { Vehicle } from "../lib/types";
 import { formatCurrency, calculateDistanceMiles, getZipCoordinates } from "../lib/otdCalculator";
 import { MOCK_POPULAR_PACKAGES } from "../lib/mockData";
@@ -74,6 +74,22 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
   const [minPrice, setMinPrice] = useState<number>(0);
   const [resultsLimit, setResultsLimit] = useState<number>(500);
   
+  // Make / Brand Autofilling Datafield States
+  const [makeSearchInput, setMakeSearchInput] = useState("");
+  const [isMakeDropdownOpen, setIsMakeDropdownOpen] = useState(false);
+  const makeDropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close make dropdown when clicking outside
+  useEffect(() => {
+    const handleOutsideClick = (e: MouseEvent) => {
+      if (makeDropdownRef.current && !makeDropdownRef.current.contains(e.target as Node)) {
+        setIsMakeDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleOutsideClick);
+    return () => document.removeEventListener("mousedown", handleOutsideClick);
+  }, []);
+
   // Sorting: distance | price_asc | price_desc | discount_desc | days_on_lot
   const [sortBy, setSortBy] = useState<string>("distance");
 
@@ -192,7 +208,29 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
     { label: "Nationwide", value: 3000 },
   ];
 
-  const allMakes = ["All", "BMW", "Porsche", "Toyota", "Audi", "Mercedes-Benz", "Honda", "Chevrolet", "Cadillac", "Ford", "Tesla", "Lexus", "Subaru"];
+  // Dynamically compute all distinct makes and their real-time vehicle counts from the available results
+  const availableMakes = useMemo(() => {
+    const counts: Record<string, number> = {};
+    vehicles.forEach((v) => {
+      if (v.make && v.make.trim()) {
+        const cleaned = v.make.trim();
+        counts[cleaned] = (counts[cleaned] || 0) + 1;
+      }
+    });
+
+    const entries = Object.entries(counts).map(([name, count]) => ({ name, count }));
+    // Sort descending by vehicle count, then alphabetically
+    entries.sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+    return entries;
+  }, [vehicles]);
+
+  // Autocomplete matching makes based on user typing in the datafield
+  const filteredMakesForAutocomplete = useMemo(() => {
+    if (!makeSearchInput.trim()) return availableMakes;
+    const lower = makeSearchInput.toLowerCase().trim();
+    return availableMakes.filter((m) => m.name.toLowerCase().includes(lower));
+  }, [availableMakes, makeSearchInput]);
+
   const colorOptions = [
     { label: "Grey", bg: "bg-neutral-500", match: "grey" },
     { label: "Black", bg: "bg-neutral-900 border-neutral-700", match: "black" },
@@ -424,30 +462,167 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
         )}
       </div>
 
-      {/* 1. Make / Brand */}
-      <div className="space-y-2">
-        <label className="font-bold text-ink-light uppercase text-[10px] tracking-wider">Make / Brand</label>
-        <div className="flex flex-wrap gap-1.5">
-          {allMakes.map((make) => (
+      {/* 1. Make / Brand Autofilling Datafield */}
+      <div className="space-y-2 relative" ref={makeDropdownRef}>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1.5">
+            <label className="font-bold text-ink-light uppercase text-[10px] tracking-wider">Make / Brand</label>
+            <span className="text-[9.5px] text-ink-faint font-mono">({availableMakes.length} available)</span>
+          </div>
+          {selectedMake !== "All" && (
             <button
-              key={make}
+              type="button"
               onClick={() => {
-                setSelectedMake(make);
+                setSelectedMake("All");
+                setMakeSearchInput("");
                 setSelectedTrims([]);
                 if (onSyncLiveInventory) {
-                  onSyncLiveInventory(zipCode, searchRadius, searchQuery, make !== "All" ? make : undefined);
+                  onSyncLiveInventory(zipCode, searchRadius, searchQuery, undefined, resultsLimit);
                 }
               }}
-              className={`rounded-lg px-2.5 py-1 text-xs font-semibold transition-all ${
-                selectedMake === make
-                  ? "bg-emerald-500 text-black shadow-sm"
-                  : "border border-border bg-surface text-ink-muted hover:text-white"
+              className="text-[10px] text-emerald-400 hover:underline font-bold cursor-pointer"
+            >
+              Reset All
+            </button>
+          )}
+        </div>
+
+        {/* Selected Make Active Chip (if selected) */}
+        {selectedMake !== "All" ? (
+          <div className="flex items-center justify-between p-2.5 rounded-xl bg-emerald-950/60 border border-emerald-500/50 text-white text-xs animate-fadeIn">
+            <div className="flex items-center gap-2">
+              <span className="font-bold text-emerald-300 text-sm">{selectedMake}</span>
+              <span className="rounded-full bg-emerald-500/20 px-2 py-0.5 text-[10px] text-emerald-400 font-mono font-bold">
+                {availableMakes.find(m => m.name.toLowerCase() === selectedMake.toLowerCase())?.count || 0} cars
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setSelectedMake("All");
+                setMakeSearchInput("");
+                setSelectedTrims([]);
+                if (onSyncLiveInventory) {
+                  onSyncLiveInventory(zipCode, searchRadius, searchQuery, undefined, resultsLimit);
+                }
+              }}
+              className="p-1 text-ink-muted hover:text-white rounded-lg hover:bg-emerald-900/60 transition-colors cursor-pointer"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        ) : (
+          /* Searchable Autofilling Input Datafield */
+          <div className="relative">
+            <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-ink-muted" />
+            <input
+              type="text"
+              value={makeSearchInput}
+              onChange={(e) => {
+                setMakeSearchInput(e.target.value);
+                setIsMakeDropdownOpen(true);
+              }}
+              onFocus={() => setIsMakeDropdownOpen(true)}
+              placeholder="Search or pick brand (e.g. Ford, BMW)..."
+              className="w-full rounded-xl border border-border bg-surface pl-8 pr-7 py-2 text-xs text-white placeholder-ink-faint focus:border-emerald-500 focus:outline-none"
+            />
+            {makeSearchInput && (
+              <button
+                type="button"
+                onClick={() => {
+                  setMakeSearchInput("");
+                  setIsMakeDropdownOpen(false);
+                }}
+                className="absolute right-2.5 top-2.5 text-ink-muted hover:text-white cursor-pointer"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            )}
+          </div>
+        )}
+
+        {/* Autocomplete Dropdown Popover */}
+        {isMakeDropdownOpen && (
+          <div className="absolute top-full left-0 right-0 z-50 mt-1 max-h-56 overflow-y-auto rounded-xl border border-border bg-surface-elevated shadow-2xl p-1 divide-y divide-border/40 animate-fadeIn">
+            {/* Show All Option */}
+            <button
+              type="button"
+              onClick={() => {
+                setSelectedMake("All");
+                setMakeSearchInput("");
+                setSelectedTrims([]);
+                setIsMakeDropdownOpen(false);
+                if (onSyncLiveInventory) {
+                  onSyncLiveInventory(zipCode, searchRadius, searchQuery, undefined, resultsLimit);
+                }
+              }}
+              className={`w-full flex items-center justify-between px-3 py-2 text-xs rounded-lg text-left transition-all cursor-pointer ${
+                selectedMake === "All"
+                  ? "bg-emerald-500/20 text-emerald-300 font-bold"
+                  : "text-ink-muted hover:bg-surface hover:text-white"
               }`}
             >
-              {make}
+              <span>All Makes & Brands</span>
+              <span className="text-[10px] text-ink-faint font-mono">({vehicles.length} total)</span>
             </button>
-          ))}
-        </div>
+
+            {/* Matching Makes Populated from Available Results */}
+            {filteredMakesForAutocomplete.length > 0 ? (
+              filteredMakesForAutocomplete.map((m) => (
+                <button
+                  key={m.name}
+                  type="button"
+                  onClick={() => {
+                    setSelectedMake(m.name);
+                    setMakeSearchInput("");
+                    setSelectedTrims([]);
+                    setIsMakeDropdownOpen(false);
+                    if (onSyncLiveInventory) {
+                      onSyncLiveInventory(zipCode, searchRadius, searchQuery, m.name, resultsLimit);
+                    }
+                  }}
+                  className={`w-full flex items-center justify-between px-3 py-2 text-xs rounded-lg text-left transition-all cursor-pointer ${
+                    selectedMake.toLowerCase() === m.name.toLowerCase()
+                      ? "bg-emerald-500/20 text-emerald-300 font-bold"
+                      : "text-ink-muted hover:bg-surface hover:text-white"
+                  }`}
+                >
+                  <span className="font-medium text-white">{m.name}</span>
+                  <span className="rounded-full bg-surface border border-border px-1.5 py-0.5 text-[10px] text-emerald-400 font-mono">
+                    {m.count} available
+                  </span>
+                </button>
+              ))
+            ) : (
+              <div className="p-3 text-center text-xs text-ink-muted">
+                No matching makes found for "{makeSearchInput}"
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Quick-Select Popular Brand Pills below Datafield */}
+        {selectedMake === "All" && availableMakes.length > 0 && (
+          <div className="flex flex-wrap gap-1 pt-1">
+            {availableMakes.slice(0, 6).map((m) => (
+              <button
+                key={m.name}
+                type="button"
+                onClick={() => {
+                  setSelectedMake(m.name);
+                  setSelectedTrims([]);
+                  if (onSyncLiveInventory) {
+                    onSyncLiveInventory(zipCode, searchRadius, searchQuery, m.name, resultsLimit);
+                  }
+                }}
+                className="rounded-lg border border-border bg-surface px-2 py-0.5 text-[10.5px] font-semibold text-ink-muted hover:text-white hover:border-emerald-500/40 transition-all flex items-center gap-1 cursor-pointer"
+              >
+                <span>{m.name}</span>
+                <span className="text-[9px] text-ink-faint font-mono">({m.count})</span>
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* 2. Trims / Submodels */}
