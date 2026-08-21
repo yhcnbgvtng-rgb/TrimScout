@@ -79,11 +79,28 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
   const [isMakeDropdownOpen, setIsMakeDropdownOpen] = useState(false);
   const makeDropdownRef = useRef<HTMLDivElement>(null);
 
-  // Close make dropdown when clicking outside
+  // Trim / Submodel Autofilling Datafield States
+  const [trimSearchInput, setTrimSearchInput] = useState("");
+  const [isTrimDropdownOpen, setIsTrimDropdownOpen] = useState(false);
+  const trimDropdownRef = useRef<HTMLDivElement>(null);
+
+  // Factory Packages & Options Autofilling Datafield States
+  const [packageSearchInput, setPackageSearchInput] = useState("");
+  const [isPackageDropdownOpen, setIsPackageDropdownOpen] = useState(false);
+  const packageDropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdowns when clicking outside
   useEffect(() => {
     const handleOutsideClick = (e: MouseEvent) => {
-      if (makeDropdownRef.current && !makeDropdownRef.current.contains(e.target as Node)) {
+      const target = e.target as Node;
+      if (makeDropdownRef.current && !makeDropdownRef.current.contains(target)) {
         setIsMakeDropdownOpen(false);
+      }
+      if (trimDropdownRef.current && !trimDropdownRef.current.contains(target)) {
+        setIsTrimDropdownOpen(false);
+      }
+      if (packageDropdownRef.current && !packageDropdownRef.current.contains(target)) {
+        setIsPackageDropdownOpen(false);
       }
     };
     document.addEventListener("mousedown", handleOutsideClick);
@@ -231,16 +248,130 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
     return availableMakes.filter((m) => m.name.toLowerCase().includes(lower));
   }, [availableMakes, makeSearchInput]);
 
-  const colorOptions = [
-    { label: "Grey", bg: "bg-neutral-500", match: "grey" },
-    { label: "Black", bg: "bg-neutral-900 border-neutral-700", match: "black" },
-    { label: "Blue", bg: "bg-blue-600", match: "blue" },
-    { label: "White", bg: "bg-neutral-100", match: "white" },
-    { label: "Red", bg: "bg-red-600", match: "red" },
-  ];
+  // Dynamic Available Trims extracted in real-time from active vehicle dataset (respects selectedMake)
+  const availableTrimsData = useMemo(() => {
+    const subset = selectedMake === "All" 
+      ? vehicles 
+      : vehicles.filter(v => v.make.toLowerCase() === selectedMake.toLowerCase());
+    
+    const counts: Record<string, number> = {};
+    subset.forEach(v => {
+      if (v.trim && v.trim.trim()) {
+        const t = v.trim.trim();
+        counts[t] = (counts[t] || 0) + 1;
+      }
+    });
 
-  const drivetrainOptions = ["AWD", "RWD", "FWD"];
-  const transmissionOptions = ["Automatic", "Manual", "Dual-Clutch"];
+    const entries = Object.entries(counts).map(([name, count]) => ({ name, count }));
+    entries.sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+    return entries;
+  }, [vehicles, selectedMake]);
+
+  // Autocomplete matching trims based on user typing
+  const filteredTrimsForAutocomplete = useMemo(() => {
+    if (!trimSearchInput.trim()) return availableTrimsData;
+    const lower = trimSearchInput.toLowerCase().trim();
+    return availableTrimsData.filter(t => t.name.toLowerCase().includes(lower));
+  }, [availableTrimsData, trimSearchInput]);
+
+  // Dynamic Available Factory Packages & Options extracted from active vehicle dataset
+  const availablePackagesData = useMemo(() => {
+    const subset = selectedMake === "All" 
+      ? vehicles 
+      : vehicles.filter(v => v.make.toLowerCase() === selectedMake.toLowerCase());
+
+    const counts: Record<string, number> = {};
+    subset.forEach(v => {
+      const allPkgs = [
+        ...(v.packages || []),
+        ...(v.options?.map(o => o.name) || [])
+      ];
+      const seenForThisCar = new Set<string>();
+      allPkgs.forEach(pkg => {
+        if (pkg && pkg.trim() && !seenForThisCar.has(pkg.trim())) {
+          const p = pkg.trim();
+          seenForThisCar.add(p);
+          counts[p] = (counts[p] || 0) + 1;
+        }
+      });
+    });
+
+    const entries = Object.entries(counts).map(([name, count]) => ({ name, count }));
+    entries.sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+    return entries;
+  }, [vehicles, selectedMake]);
+
+  // Autocomplete matching packages based on user typing
+  const filteredPackagesForAutocomplete = useMemo(() => {
+    if (!packageSearchInput.trim()) return availablePackagesData;
+    const lower = packageSearchInput.toLowerCase().trim();
+    return availablePackagesData.filter(p => p.name.toLowerCase().includes(lower));
+  }, [availablePackagesData, packageSearchInput]);
+
+  // Dynamic Drivetrains with live counts from active results
+  const availableDrivetrainsData = useMemo(() => {
+    const counts: Record<string, number> = {};
+    vehicles.forEach(v => {
+      if (v.drivetrain) {
+        const dt = v.drivetrain.toUpperCase().trim();
+        counts[dt] = (counts[dt] || 0) + 1;
+      }
+    });
+    const standardDts = ["AWD", "4WD", "FWD", "RWD"];
+    return standardDts.map(dt => ({
+      name: dt,
+      count: counts[dt] || 0
+    }));
+  }, [vehicles]);
+
+  // Dynamic Transmissions with live counts from active results
+  const availableTransmissionsData = useMemo(() => {
+    const counts: Record<string, number> = {
+      Automatic: 0,
+      Manual: 0,
+      "Dual-Clutch": 0,
+    };
+    vehicles.forEach(v => {
+      const tr = (v.transmission || "").toLowerCase();
+      if (tr.includes("manual")) counts.Manual++;
+      else if (tr.includes("dual") || tr.includes("dct") || tr.includes("pdk")) counts["Dual-Clutch"]++;
+      else counts.Automatic++;
+    });
+    return Object.entries(counts).map(([name, count]) => ({ name, count }));
+  }, [vehicles]);
+
+  // Dynamic Body Types with live counts
+  const availableBodyTypesData = useMemo(() => {
+    const counts: Record<string, number> = {};
+    vehicles.forEach(v => {
+      if (v.bodyType) {
+        const bt = v.bodyType.trim();
+        counts[bt] = (counts[bt] || 0) + 1;
+      }
+    });
+    const entries = Object.entries(counts).map(([name, count]) => ({ name, count }));
+    entries.sort((a, b) => b.count - a.count);
+    return entries;
+  }, [vehicles]);
+
+  // Dynamic Colors with live counts
+  const availableColorsData = useMemo(() => {
+    const baseColors = [
+      { label: "Black", bg: "bg-neutral-900 border-neutral-700", match: "black" },
+      { label: "White", bg: "bg-neutral-100", match: "white" },
+      { label: "Grey / Silver", bg: "bg-neutral-500", match: "grey" },
+      { label: "Blue", bg: "bg-blue-600", match: "blue" },
+      { label: "Red", bg: "bg-red-600", match: "red" },
+      { label: "Green", bg: "bg-emerald-600", match: "green" },
+    ];
+    return baseColors.map(c => {
+      const count = vehicles.filter(v => {
+        const ext = (v.exteriorColor || "").toLowerCase();
+        return ext.includes(c.match) || (c.match === "grey" && ext.includes("silver"));
+      }).length;
+      return { ...c, count };
+    });
+  }, [vehicles]);
 
   // Dynamic Distance Map for each vehicle relative to active zipCode
   const vehiclesWithDistance = useMemo(() => {
@@ -249,16 +380,6 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
       return { ...v, dynamicDistance: dist };
     });
   }, [vehicles, zipCode]);
-
-  // Derived available trims based on selected make
-  const availableTrims = useMemo(() => {
-    const subset = selectedMake === "All" 
-      ? vehicles 
-      : vehicles.filter(v => v.make === selectedMake);
-    const set = new Set<string>();
-    subset.forEach(v => set.add(v.trim));
-    return Array.from(set);
-  }, [vehicles, selectedMake]);
 
   // Multi-Token Search Matching + Visor.vin Granular Filtering
   const filteredVehicles = useMemo(() => {
@@ -625,25 +746,385 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
         )}
       </div>
 
-      {/* 2. Trims / Submodels */}
-      {availableTrims.length > 0 && (
+      {/* 2. Trim / Submodel Autofilling Datafield */}
+      {availableTrimsData.length > 0 && (
+        <div className="space-y-2 pt-3 border-t border-border/50 relative" ref={trimDropdownRef}>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-1.5">
+              <label className="font-bold text-ink-light uppercase text-[10px] tracking-wider">Trim / Submodel</label>
+              <span className="text-[9.5px] text-ink-faint font-mono">({availableTrimsData.length} available)</span>
+            </div>
+            {selectedTrims.length > 0 && (
+              <button
+                type="button"
+                onClick={() => setSelectedTrims([])}
+                className="text-[10px] text-emerald-400 hover:underline font-bold cursor-pointer"
+              >
+                Clear ({selectedTrims.length})
+              </button>
+            )}
+          </div>
+
+          {/* Active Selected Trim Chips */}
+          {selectedTrims.length > 0 && (
+            <div className="flex flex-wrap gap-1">
+              {selectedTrims.map((trim) => (
+                <span
+                  key={trim}
+                  className="inline-flex items-center gap-1 rounded-lg bg-emerald-950/70 border border-emerald-500/50 px-2 py-0.5 text-[11px] font-medium text-emerald-300 animate-fadeIn"
+                >
+                  <span>{trim}</span>
+                  <button
+                    type="button"
+                    onClick={() => toggleTrim(trim)}
+                    className="hover:text-white p-0.5 rounded cursor-pointer"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
+
+          {/* Searchable Autofilling Input for Trim */}
+          <div className="relative">
+            <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-ink-muted" />
+            <input
+              type="text"
+              value={trimSearchInput}
+              onChange={(e) => {
+                setTrimSearchInput(e.target.value);
+                setIsTrimDropdownOpen(true);
+              }}
+              onFocus={() => setIsTrimDropdownOpen(true)}
+              placeholder="Search or pick trim (e.g. Rubicon, M Sport)..."
+              className="w-full rounded-xl border border-border bg-surface pl-8 pr-7 py-2 text-xs text-white placeholder-ink-faint focus:border-emerald-500 focus:outline-none"
+            />
+            {trimSearchInput && (
+              <button
+                type="button"
+                onClick={() => {
+                  setTrimSearchInput("");
+                  setIsTrimDropdownOpen(false);
+                }}
+                className="absolute right-2.5 top-2.5 text-ink-muted hover:text-white cursor-pointer"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            )}
+          </div>
+
+          {/* Trim Autocomplete Dropdown Popover */}
+          {isTrimDropdownOpen && (
+            <div className="absolute top-full left-0 right-0 z-50 mt-1 max-h-52 overflow-y-auto rounded-xl border border-border bg-surface-elevated shadow-2xl p-1 divide-y divide-border/40 animate-fadeIn">
+              {filteredTrimsForAutocomplete.length > 0 ? (
+                filteredTrimsForAutocomplete.map((t) => {
+                  const isChecked = selectedTrims.includes(t.name);
+                  return (
+                    <button
+                      key={t.name}
+                      type="button"
+                      onClick={() => {
+                        toggleTrim(t.name);
+                        setTrimSearchInput("");
+                        setIsTrimDropdownOpen(false);
+                      }}
+                      className={`w-full flex items-center justify-between px-3 py-2 text-xs rounded-lg text-left transition-all cursor-pointer ${
+                        isChecked
+                          ? "bg-emerald-500/20 text-emerald-300 font-bold"
+                          : "text-ink-muted hover:bg-surface hover:text-white"
+                      }`}
+                    >
+                      <div className="flex items-center gap-1.5 truncate">
+                        {isChecked && <Check className="h-3 w-3 text-emerald-400 shrink-0" />}
+                        <span className="truncate">{t.name}</span>
+                      </div>
+                      <span className="rounded-full bg-surface border border-border px-1.5 py-0.5 text-[10px] text-emerald-400 font-mono shrink-0 ml-1">
+                        {t.count} cars
+                      </span>
+                    </button>
+                  );
+                })
+              ) : (
+                <div className="p-3 text-center text-xs text-ink-muted">
+                  No matching trims found for "{trimSearchInput}"
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Quick-Select Top Trim Pills */}
+          {availableTrimsData.length > 0 && (
+            <div className="flex flex-wrap gap-1 pt-0.5">
+              {availableTrimsData.slice(0, 5).map((t) => {
+                const isChecked = selectedTrims.includes(t.name);
+                return (
+                  <button
+                    key={t.name}
+                    type="button"
+                    onClick={() => toggleTrim(t.name)}
+                    className={`rounded-lg border px-2 py-0.5 text-[10.5px] font-semibold transition-all flex items-center gap-1 cursor-pointer ${
+                      isChecked
+                        ? "border-emerald-500 bg-emerald-950/60 text-emerald-300"
+                        : "border-border bg-surface text-ink-muted hover:text-white hover:border-emerald-500/40"
+                    }`}
+                  >
+                    <span>{t.name}</span>
+                    <span className="text-[9px] text-ink-faint font-mono">({t.count})</span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* 3. Must-Have Factory Packages & Options (Visor.vin Signature) */}
+      {availablePackagesData.length > 0 && (
+        <div className="space-y-2 pt-3 border-t border-border/50 relative" ref={packageDropdownRef}>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-1.5">
+              <label className="font-bold text-ink-light uppercase text-[10px] tracking-wider flex items-center gap-1">
+                <Sparkles className="h-3 w-3 text-emerald-400" />
+                <span>Must-Have Packages</span>
+              </label>
+              <span className="text-[9.5px] text-ink-faint font-mono">({availablePackagesData.length} available)</span>
+            </div>
+            {selectedPackages.length > 0 && (
+              <button
+                type="button"
+                onClick={() => setSelectedPackages([])}
+                className="text-[10px] text-emerald-400 hover:underline font-bold cursor-pointer"
+              >
+                Clear ({selectedPackages.length})
+              </button>
+            )}
+          </div>
+
+          {/* Active Selected Package Chips */}
+          {selectedPackages.length > 0 && (
+            <div className="flex flex-wrap gap-1">
+              {selectedPackages.map((pkg) => (
+                <span
+                  key={pkg}
+                  className="inline-flex items-center gap-1 rounded-lg bg-emerald-950/70 border border-emerald-500/50 px-2 py-0.5 text-[11px] font-medium text-emerald-300 animate-fadeIn"
+                >
+                  <span className="truncate max-w-[150px]">📦 {pkg}</span>
+                  <button
+                    type="button"
+                    onClick={() => togglePackage(pkg)}
+                    className="hover:text-white p-0.5 rounded cursor-pointer shrink-0"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
+
+          {/* Searchable Autofilling Input for Packages */}
+          <div className="relative">
+            <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-ink-muted" />
+            <input
+              type="text"
+              value={packageSearchInput}
+              onChange={(e) => {
+                setPackageSearchInput(e.target.value);
+                setIsPackageDropdownOpen(true);
+              }}
+              onFocus={() => setIsPackageDropdownOpen(true)}
+              placeholder="Search packages & options (e.g. Cold Weather, Tow)..."
+              className="w-full rounded-xl border border-border bg-surface pl-8 pr-7 py-2 text-xs text-white placeholder-ink-faint focus:border-emerald-500 focus:outline-none"
+            />
+            {packageSearchInput && (
+              <button
+                type="button"
+                onClick={() => {
+                  setPackageSearchInput("");
+                  setIsPackageDropdownOpen(false);
+                }}
+                className="absolute right-2.5 top-2.5 text-ink-muted hover:text-white cursor-pointer"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            )}
+          </div>
+
+          {/* Package Autocomplete Dropdown Popover */}
+          {isPackageDropdownOpen && (
+            <div className="absolute top-full left-0 right-0 z-50 mt-1 max-h-56 overflow-y-auto rounded-xl border border-border bg-surface-elevated shadow-2xl p-1 divide-y divide-border/40 animate-fadeIn">
+              {filteredPackagesForAutocomplete.length > 0 ? (
+                filteredPackagesForAutocomplete.map((p) => {
+                  const isChecked = selectedPackages.includes(p.name);
+                  return (
+                    <button
+                      key={p.name}
+                      type="button"
+                      onClick={() => {
+                        togglePackage(p.name);
+                        setPackageSearchInput("");
+                        setIsPackageDropdownOpen(false);
+                      }}
+                      className={`w-full flex items-center justify-between px-3 py-2 text-xs rounded-lg text-left transition-all cursor-pointer ${
+                        isChecked
+                          ? "bg-emerald-500/20 text-emerald-300 font-bold"
+                          : "text-ink-muted hover:bg-surface hover:text-white"
+                      }`}
+                    >
+                      <div className="flex items-center gap-1.5 truncate">
+                        <span className={`h-1.5 w-1.5 rounded-full shrink-0 ${isChecked ? "bg-emerald-400" : "bg-ink-faint"}`} />
+                        <span className="truncate">{p.name}</span>
+                      </div>
+                      <span className="rounded-full bg-surface border border-border px-1.5 py-0.5 text-[10px] text-emerald-400 font-mono shrink-0 ml-1">
+                        {p.count} cars
+                      </span>
+                    </button>
+                  );
+                })
+              ) : (
+                <div className="p-3 text-center text-xs text-ink-muted">
+                  No matching options found for "{packageSearchInput}"
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Quick-Select Top Package Pills */}
+          {availablePackagesData.length > 0 && (
+            <div className="flex flex-wrap gap-1 pt-0.5">
+              {availablePackagesData.slice(0, 4).map((p) => {
+                const isChecked = selectedPackages.includes(p.name);
+                return (
+                  <button
+                    key={p.name}
+                    type="button"
+                    onClick={() => togglePackage(p.name)}
+                    className={`rounded-lg border px-2 py-0.5 text-[10.5px] font-semibold transition-all flex items-center gap-1 cursor-pointer truncate max-w-full ${
+                      isChecked
+                        ? "border-emerald-500 bg-emerald-950/60 text-emerald-300"
+                        : "border-border bg-surface text-ink-muted hover:text-white hover:border-emerald-500/40"
+                    }`}
+                  >
+                    <span className="truncate">{p.name}</span>
+                    <span className="text-[9px] text-ink-faint font-mono shrink-0">({p.count})</span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* 4. Drivetrain & Transmission with Live Result Counts */}
+      <div className="space-y-2 pt-3 border-t border-border/50">
+        <div className="flex items-center justify-between">
+          <label className="font-bold text-ink-light uppercase text-[10px] tracking-wider">Drivetrain</label>
+          {selectedDrivetrains.length > 0 && (
+            <button
+              type="button"
+              onClick={() => setSelectedDrivetrains([])}
+              className="text-[10px] text-emerald-400 hover:underline font-bold cursor-pointer"
+            >
+              Clear
+            </button>
+          )}
+        </div>
+        <div className="grid grid-cols-2 gap-1.5">
+          {availableDrivetrainsData.map((dt) => {
+            const isChecked = selectedDrivetrains.includes(dt.name);
+            return (
+              <button
+                key={dt.name}
+                type="button"
+                onClick={() => toggleDrivetrain(dt.name)}
+                className={`py-1.5 px-2 rounded-lg text-[11px] font-semibold transition-all flex items-center justify-between cursor-pointer ${
+                  isChecked
+                    ? "bg-emerald-500 text-black shadow-sm"
+                    : "border border-border bg-surface text-ink-muted hover:text-white"
+                }`}
+              >
+                <span>{dt.name}</span>
+                <span className={`text-[10px] font-mono ${isChecked ? "text-black/80 font-bold" : "text-ink-faint"}`}>
+                  ({dt.count})
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="flex items-center justify-between pt-2">
+          <label className="font-bold text-ink-light uppercase text-[10px] tracking-wider">Transmission</label>
+          {selectedTransmissions.length > 0 && (
+            <button
+              type="button"
+              onClick={() => setSelectedTransmissions([])}
+              className="text-[10px] text-emerald-400 hover:underline font-bold cursor-pointer"
+            >
+              Clear
+            </button>
+          )}
+        </div>
+        <div className="grid grid-cols-1 gap-1">
+          {availableTransmissionsData.map((tr) => {
+            const isChecked = selectedTransmissions.includes(tr.name);
+            return (
+              <button
+                key={tr.name}
+                type="button"
+                onClick={() => toggleTransmission(tr.name)}
+                className={`py-1.5 px-2 rounded-lg text-[10.5px] font-semibold transition-all flex items-center justify-between cursor-pointer ${
+                  isChecked
+                    ? "bg-emerald-500 text-black shadow-sm"
+                    : "border border-border bg-surface text-ink-muted hover:text-white"
+                }`}
+              >
+                <span>{tr.name}</span>
+                <span className={`text-[10px] font-mono ${isChecked ? "text-black/80 font-bold" : "text-ink-faint"}`}>
+                  ({tr.count})
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* 5. Body Type Filter with Live Counts */}
+      {availableBodyTypesData.length > 0 && (
         <div className="space-y-2 pt-3 border-t border-border/50">
-          <label className="font-bold text-ink-light uppercase text-[10px] tracking-wider">Trim / Submodel</label>
-          <div className="space-y-1.5 max-h-40 overflow-y-auto pr-1">
-            {availableTrims.map((trim) => {
-              const isChecked = selectedTrims.includes(trim);
+          <div className="flex items-center justify-between">
+            <label className="font-bold text-ink-light uppercase text-[10px] tracking-wider">Body Type</label>
+            {selectedBodyTypes.length > 0 && (
+              <button
+                type="button"
+                onClick={() => setSelectedBodyTypes([])}
+                className="text-[10px] text-emerald-400 hover:underline font-bold cursor-pointer"
+              >
+                Clear
+              </button>
+            )}
+          </div>
+          <div className="grid grid-cols-2 gap-1.5">
+            {availableBodyTypesData.slice(0, 6).map((bt) => {
+              const isChecked = selectedBodyTypes.includes(bt.name);
               return (
                 <button
-                  key={trim}
-                  onClick={() => toggleTrim(trim)}
-                  className={`w-full flex items-center justify-between p-1.5 rounded-lg border text-left transition-all ${
+                  key={bt.name}
+                  type="button"
+                  onClick={() => {
+                    setSelectedBodyTypes(prev => 
+                      prev.includes(bt.name) ? prev.filter(b => b !== bt.name) : [...prev, bt.name]
+                    );
+                  }}
+                  className={`py-1.5 px-2 rounded-lg text-[11px] font-semibold transition-all flex items-center justify-between cursor-pointer ${
                     isChecked
-                      ? "border-emerald-500/50 bg-emerald-950/20 text-white font-medium"
-                      : "border-border bg-surface text-ink-muted hover:text-white"
+                      ? "bg-emerald-500 text-black shadow-sm"
+                      : "border border-border bg-surface text-ink-muted hover:text-white"
                   }`}
                 >
-                  <span className="truncate">{trim}</span>
-                  {isChecked && <Check className="h-3.5 w-3.5 text-emerald-400 shrink-0" />}
+                  <span className="truncate">{bt.name}</span>
+                  <span className={`text-[10px] font-mono ${isChecked ? "text-black/80 font-bold" : "text-ink-faint"}`}>
+                    ({bt.count})
+                  </span>
                 </button>
               );
             })}
@@ -651,100 +1132,41 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
         </div>
       )}
 
-      {/* 3. Must-Have Factory Packages & Options (Visor.vin Signature) */}
+      {/* 6. Exterior Color Family with Live Counts */}
       <div className="space-y-2 pt-3 border-t border-border/50">
         <div className="flex items-center justify-between">
-          <label className="font-bold text-ink-light uppercase text-[10px] tracking-wider flex items-center gap-1">
-            <Sparkles className="h-3 w-3 text-emerald-400" />
-            <span>Must-Have Packages</span>
-          </label>
-          <span className="text-[10px] text-emerald-400 font-mono">Exact Match</span>
+          <label className="font-bold text-ink-light uppercase text-[10px] tracking-wider">Exterior Color</label>
+          {selectedColors.length > 0 && (
+            <button
+              type="button"
+              onClick={() => setSelectedColors([])}
+              className="text-[10px] text-emerald-400 hover:underline font-bold cursor-pointer"
+            >
+              Clear
+            </button>
+          )}
         </div>
-        <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
-          {MOCK_POPULAR_PACKAGES.map((pkg) => {
-            const isChecked = selectedPackages.includes(pkg.name);
-            return (
-              <button
-                key={pkg.name}
-                onClick={() => togglePackage(pkg.name)}
-                className={`w-full flex items-center justify-between p-1.5 rounded-lg border text-left transition-all ${
-                  isChecked
-                    ? "border-emerald-500 bg-emerald-950/30 text-white font-semibold"
-                    : "border-border bg-surface text-ink-muted hover:text-white"
-                }`}
-              >
-                <div className="flex items-center gap-1.5 truncate">
-                  <span className={`h-1.5 w-1.5 rounded-full ${isChecked ? "bg-emerald-400" : "bg-ink-faint"}`} />
-                  <span className="truncate">{pkg.name}</span>
-                </div>
-                <span className="text-[10px] text-ink-faint font-mono shrink-0 ml-1">({pkg.count})</span>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* 4. Drivetrain & Transmission */}
-      <div className="space-y-2 pt-3 border-t border-border/50">
-        <label className="font-bold text-ink-light uppercase text-[10px] tracking-wider">Drivetrain</label>
-        <div className="grid grid-cols-3 gap-1">
-          {drivetrainOptions.map((dt) => {
-            const isChecked = selectedDrivetrains.includes(dt);
-            return (
-              <button
-                key={dt}
-                onClick={() => toggleDrivetrain(dt)}
-                className={`py-1 px-2 rounded-lg text-[11px] font-semibold transition-all text-center ${
-                  isChecked
-                    ? "bg-emerald-500 text-black shadow-sm"
-                    : "border border-border bg-surface text-ink-muted hover:text-white"
-                }`}
-              >
-                {dt}
-              </button>
-            );
-          })}
-        </div>
-
-        <label className="font-bold text-ink-light uppercase text-[10px] tracking-wider pt-2 block">Transmission</label>
-        <div className="grid grid-cols-3 gap-1">
-          {transmissionOptions.map((tr) => {
-            const isChecked = selectedTransmissions.includes(tr);
-            return (
-              <button
-                key={tr}
-                onClick={() => toggleTransmission(tr)}
-                className={`py-1 px-1.5 rounded-lg text-[10px] font-semibold transition-all text-center truncate ${
-                  isChecked
-                    ? "bg-emerald-500 text-black shadow-sm"
-                    : "border border-border bg-surface text-ink-muted hover:text-white"
-                }`}
-              >
-                {tr}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* 5. Exterior Color Family */}
-      <div className="space-y-2 pt-3 border-t border-border/50">
-        <label className="font-bold text-ink-light uppercase text-[10px] tracking-wider">Exterior Color</label>
-        <div className="flex flex-wrap gap-1.5">
-          {colorOptions.map((c) => {
+        <div className="grid grid-cols-2 gap-1.5">
+          {availableColorsData.map((c) => {
             const isChecked = selectedColors.includes(c.match);
             return (
               <button
                 key={c.match}
+                type="button"
                 onClick={() => toggleColor(c.match)}
-                className={`flex items-center gap-1.5 px-2 py-1 rounded-lg border text-[11px] font-medium transition-all ${
+                className={`flex items-center justify-between px-2 py-1.5 rounded-lg border text-[11px] font-medium transition-all cursor-pointer ${
                   isChecked
                     ? "border-emerald-500 bg-emerald-950/40 text-white"
                     : "border-border bg-surface text-ink-muted hover:text-white"
                 }`}
               >
-                <span className={`h-2.5 w-2.5 rounded-full border ${c.bg}`} />
-                <span>{c.label}</span>
+                <div className="flex items-center gap-1.5 truncate">
+                  <span className={`h-2.5 w-2.5 rounded-full border shrink-0 ${c.bg}`} />
+                  <span className="truncate">{c.label}</span>
+                </div>
+                <span className="text-[10px] text-ink-faint font-mono shrink-0 ml-1">
+                  ({c.count})
+                </span>
               </button>
             );
           })}
