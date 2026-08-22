@@ -505,3 +505,26 @@ def get_vehicle_full_options(vin):
 
 if __name__ == "__main__":
     init_database()
+
+def get_vehicle_price_history(vin):
+    """Returns the historical daily price timeline for a specific VIN."""
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        SELECT snapshot_date, price, price_delta, status 
+        FROM price_history 
+        WHERE vin = ? 
+        ORDER BY snapshot_date ASC
+    """, (vin,))
+    history = [dict(row) for row in cursor.fetchall()]
+    conn.close()
+    return history
+
+def get_top_price_drops():
+    """Returns vehicles with the biggest price cuts across NJ dealers."""
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM v_top_price_drops LIMIT 15")
+    rows = [dict(row) for row in cursor.fetchall()]
+    conn.close()
+    return rows
