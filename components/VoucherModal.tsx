@@ -3,7 +3,16 @@
 import React from "react";
 import { LockedDeal } from "../lib/types";
 import { formatCurrency } from "../lib/otdCalculator";
-import { X, CheckCircle2, ShieldCheck, Printer, Download, Phone, Calendar, Clock } from "lucide-react";
+import {
+  X,
+  CircleCheck as CheckCircle2,
+  ShieldCheck,
+  Printer,
+  Download,
+  Phone,
+  Calendar,
+  Clock
+} from "lucide-react";
 
 interface VoucherModalProps {
   deal: LockedDeal | null;

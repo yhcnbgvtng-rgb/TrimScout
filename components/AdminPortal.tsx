@@ -15,7 +15,7 @@ import {
   Filter,
   UserCheck,
   UserX,
-  Edit3,
+  Pencil as Edit3,
   Trash2,
   ArrowRight,
   LogOut,
@@ -23,8 +23,8 @@ import {
   Download,
   Plus,
   X,
-  CheckCircle2,
-  AlertTriangle,
+  CircleCheck as CheckCircle2,
+  TriangleAlert as AlertTriangle,
   RefreshCw,
   Activity,
   DollarSign,
@@ -32,7 +32,7 @@ import {
   Eye,
   Copy,
   Check,
-  ExternalLink,
+  ExternalLink
 } from "lucide-react";
 
 interface AdminPortalProps {

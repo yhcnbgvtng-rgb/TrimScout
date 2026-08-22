@@ -17,7 +17,7 @@ import {
   MapPin,
   ArrowRight,
   Sparkles,
-  ShieldAlert,
+  ShieldAlert
 } from "lucide-react";
 
 interface AuthModalProps {

@@ -3,7 +3,10 @@
 import React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Compass, ChevronRight } from "lucide-react";
+import {
+  Compass,
+  ChevronRight
+} from "lucide-react";
 import { SignupView } from "@/components/SignupView";
 
 export default function SignupPage() {

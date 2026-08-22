@@ -19,7 +19,7 @@ import {
   ChevronRight,
   TrendingDown,
   Shield,
-  FileCheck,
+  FileCheck
 } from "lucide-react";
 import { UserProfile } from "@/lib/types";
 import { DEMO_BUYER_USER, DEMO_DEALER_USER } from "@/lib/mockData";

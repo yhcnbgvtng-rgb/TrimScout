@@ -5,8 +5,8 @@ import {
   Cpu,
   X,
   Play,
-  CheckCircle2,
-  AlertTriangle,
+  CircleCheck as CheckCircle2,
+  TriangleAlert as AlertTriangle,
   Globe,
   Building2,
   Zap,
@@ -15,7 +15,7 @@ import {
   ExternalLink,
   ShieldCheck,
   RefreshCw,
-  Layers,
+  Layers
 } from "lucide-react";
 import { runUnifiedScrapers, UnifiedScraperResponse } from "../lib/scrapers";
 import { Vehicle } from "../lib/types";

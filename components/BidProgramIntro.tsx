@@ -4,9 +4,9 @@ import React from "react";
 import {
   ShieldCheck,
   Zap,
-  Home,
-  CheckCircle2,
-  XCircle,
+  House as Home,
+  CircleCheck as CheckCircle2,
+  CircleX as XCircle,
   Percent,
   RefreshCw,
   DollarSign,

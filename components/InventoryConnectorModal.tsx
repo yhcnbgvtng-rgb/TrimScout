@@ -5,14 +5,14 @@ import {
   X,
   Radio,
   KeyRound,
-  CheckCircle2,
-  AlertCircle,
-  Loader2,
+  CircleCheck as CheckCircle2,
+  CircleAlert as AlertCircle,
+  LoaderCircle as Loader2,
   Zap,
   Globe,
   Database,
   ExternalLink,
-  ShieldCheck,
+  ShieldCheck
 } from "lucide-react";
 import {
   getConnectorConfig,

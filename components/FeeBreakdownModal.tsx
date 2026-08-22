@@ -3,7 +3,13 @@
 import React from "react";
 import { DealerBid } from "../lib/types";
 import { formatCurrency, formatPercent } from "../lib/otdCalculator";
-import { X, ShieldCheck, FileText, CheckCircle2, Lock } from "lucide-react";
+import {
+  X,
+  ShieldCheck,
+  FileText,
+  CircleCheck as CheckCircle2,
+  Lock
+} from "lucide-react";
 
 interface FeeBreakdownModalProps {
   bid: DealerBid | null;

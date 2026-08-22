@@ -1,5 +1,9 @@
 import React from 'react';
-import { TrendingDown, Clock, Zap } from 'lucide-react';
+import {
+  TrendingDown,
+  Clock,
+  Zap
+} from "lucide-react";
 
 export const MarketAnalytics: React.FC = () => {
   return (

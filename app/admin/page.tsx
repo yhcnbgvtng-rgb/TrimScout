@@ -3,7 +3,11 @@
 import React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Compass, ShieldAlert, LogOut } from "lucide-react";
+import {
+  Compass,
+  ShieldAlert,
+  LogOut
+} from "lucide-react";
 import { AdminPortal } from "@/components/AdminPortal";
 import { UserProfile } from "@/lib/types";
 

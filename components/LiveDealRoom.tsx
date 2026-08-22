@@ -3,7 +3,20 @@
 import React, { useState, useEffect } from "react";
 import { BiddingRequest, DealerBid } from "../lib/types";
 import { formatCurrency, formatPercent } from "../lib/otdCalculator";
-import { Clock, ShieldCheck, Zap, Trophy, MessageSquare, FileText, Lock, Plus, Send, Camera, Eye, Image as ImageIcon } from "lucide-react";
+import {
+  Clock,
+  ShieldCheck,
+  Zap,
+  Trophy,
+  MessageSquare,
+  FileText,
+  Lock,
+  Plus,
+  Send,
+  Camera,
+  Eye,
+  Image as ImageIcon
+} from "lucide-react";
 
 interface LiveDealRoomProps {
   request: BiddingRequest;

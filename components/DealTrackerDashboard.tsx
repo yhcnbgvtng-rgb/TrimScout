@@ -7,7 +7,7 @@ import {
   ShieldCheck,
   Zap,
   Clock,
-  CheckCircle2,
+  CircleCheck as CheckCircle2,
   FileText,
   Lock,
   Building2,
@@ -19,9 +19,9 @@ import {
   TrendingDown,
   Heart,
   Car,
-  AlertCircle,
+  CircleAlert as AlertCircle,
   ExternalLink,
-  Plus,
+  Plus
 } from "lucide-react";
 
 interface DealTrackerDashboardProps {

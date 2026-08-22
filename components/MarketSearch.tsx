@@ -8,7 +8,7 @@ import {
   Search,
   MapPin,
   Zap,
-  CheckCircle2,
+  CircleCheck as CheckCircle2,
   ChevronDown,
   ArrowRight,
   X,
@@ -25,11 +25,10 @@ import {
   Clock,
   Radio,
   RefreshCw,
-  Sliders,
-  Loader2,
+  LoaderCircle as Loader2,
   Eye,
   Cpu,
-  ShieldCheck,
+  ShieldCheck
 } from "lucide-react";
 
 interface MarketSearchProps {
@@ -1910,7 +1909,7 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
                   onClick={onOpenConnectorModal}
                   className="flex items-center gap-1.5 rounded-xl bg-emerald-500/20 border border-emerald-500/30 px-3.5 py-2 text-xs font-bold text-emerald-400 hover:bg-emerald-500/30 transition-all shadow-sm"
                 >
-                  <Sliders className="h-3.5 w-3.5" />
+                  <SlidersHorizontal className="h-3.5 w-3.5" />
                   <span>Feed Settings</span>
                 </button>
               )}
@@ -2046,7 +2045,7 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
               onClick={onOpenConnectorModal}
               className="flex items-center gap-1.5 rounded-lg bg-emerald-500/20 border border-emerald-500/30 px-2.5 py-1 text-xs font-bold text-emerald-400 hover:bg-emerald-500/30 transition-all"
             >
-              <Sliders className="h-3 w-3" />
+              <SlidersHorizontal className="h-3 w-3" />
               <span>Feed Settings</span>
             </button>
           )}

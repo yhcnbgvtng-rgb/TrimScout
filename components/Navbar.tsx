@@ -18,7 +18,7 @@ import {
   Layers,
   UserPlus,
   ShieldAlert,
-  Presentation,
+  Presentation
 } from "lucide-react";
 
 interface NavbarProps {
