@@ -35,6 +35,7 @@ import {
   FileText,
   BadgePercent,
   Layers,
+  Navigation,
 } from "lucide-react";
 import {
   PORSCHE_OPTION_CATALOG,
@@ -42,6 +43,7 @@ import {
   PorscheOption,
   NhtsaSpec,
 } from "@/lib/enrichmentEngine";
+import { calculateDistanceMiles } from "@/lib/otdCalculator";
 
 export interface VehicleRecord {
   vin: string;
@@ -102,6 +104,7 @@ export const LightsailIntelligence: React.FC = () => {
   const [selectedDaysOnLot, setSelectedDaysOnLot] = useState<string>("ALL");
   const [selectedOpportunity, setSelectedOpportunity] = useState<string>("ALL");
   const [selectedOptionCode, setSelectedOptionCode] = useState<string>("ALL");
+  const [userZip, setUserZip] = useState<string>("07054");
   const [sortBy, setSortBy] = useState<string>("default");
 
   // Fetch full live dataset
@@ -137,6 +140,15 @@ export const LightsailIntelligence: React.FC = () => {
       setCopiedVin(vin);
       setTimeout(() => setCopiedVin(null), 2000);
     }
+  };
+
+  // Helper to compute vehicle distance in miles from active user ZIP
+  const getVehicleDistance = (v: VehicleRecord): number => {
+    const zip = userZip.trim() || "07054";
+    return calculateDistanceMiles(zip, {
+      city: v.city || v.dealerName || "Parsippany",
+      state: v.state || "NJ",
+    });
   };
 
   // Canonical Model Series Normalizer
@@ -218,6 +230,7 @@ export const LightsailIntelligence: React.FC = () => {
     setSelectedDaysOnLot("ALL");
     setSelectedOpportunity("ALL");
     setSelectedOptionCode("ALL");
+    setUserZip("07054");
     setSortBy("default");
   };
 
@@ -237,6 +250,7 @@ export const LightsailIntelligence: React.FC = () => {
     if (selectedDaysOnLot !== "ALL") count++;
     if (selectedOpportunity !== "ALL") count++;
     if (selectedOptionCode !== "ALL") count++;
+    if (sortBy !== "default") count++;
     return count;
   }, [
     searchTerm,
@@ -253,6 +267,7 @@ export const LightsailIntelligence: React.FC = () => {
     selectedDaysOnLot,
     selectedOpportunity,
     selectedOptionCode,
+    sortBy,
   ]);
 
   // Comprehensive Filtering & Sorting Pipeline
@@ -310,7 +325,6 @@ export const LightsailIntelligence: React.FC = () => {
         if (selectedOptionCode !== "ALL") {
           const codes = v.optionCodes || [];
           if (!codes.includes(selectedOptionCode)) {
-            // Also check model/trim fallback
             const hay = `${v.model || ""} ${v.trim || ""}`.toLowerCase();
             if (selectedOptionCode === "8LH" && !hay.includes("gts") && !hay.includes("gt3") && !hay.includes("chrono")) return false;
             if (selectedOptionCode === "2UH" && !hay.includes("gt3") && !hay.includes("lift")) return false;
@@ -349,18 +363,44 @@ export const LightsailIntelligence: React.FC = () => {
         return true;
       })
       .sort((a, b) => {
+        // 1. Closest to ZIP
+        if (sortBy === "closest_to_zip") {
+          const distA = getVehicleDistance(a);
+          const distB = getVehicleDistance(b);
+          if (distA !== distB) return distA - distB;
+          return (a.price || 0) - (b.price || 0);
+        }
+
+        // 2. Price: High to Low
+        if (sortBy === "price_desc") {
+          const pA = a.price && a.price > 0 ? a.price : 0;
+          const pB = b.price && b.price > 0 ? b.price : 0;
+          return pB - pA;
+        }
+
+        // 3. Price: Low to High (Put Call for Price / 0 at bottom)
+        if (sortBy === "price_asc") {
+          const pA = a.price && a.price > 0 ? a.price : Infinity;
+          const pB = b.price && b.price > 0 ? b.price : Infinity;
+          return pA - pB;
+        }
+
+        // 4. Largest Price Drop First
         if (sortBy === "price_drop_first") {
           const dropA = a.priceDiff && a.priceDiff < 0 ? Math.abs(a.priceDiff) : 0;
           const dropB = b.priceDiff && b.priceDiff < 0 ? Math.abs(b.priceDiff) : 0;
           if (dropB !== dropA) return dropB - dropA;
           return (a.price || 0) - (b.price || 0);
         }
-        if (sortBy === "price_asc") return (a.price || 0) - (b.price || 0);
-        if (sortBy === "price_desc") return (b.price || 0) - (a.price || 0);
+
+        // 5. Days on Lot
         if (sortBy === "days_desc") return (b.daysOnLot || 0) - (a.daysOnLot || 0);
         if (sortBy === "days_asc") return (a.daysOnLot || 0) - (b.daysOnLot || 0);
+
+        // 6. Mileage & Year
         if (sortBy === "mileage_asc") return (a.mileage || 0) - (b.mileage || 0);
         if (sortBy === "year_desc") return (b.year || 0) - (a.year || 0);
+
         return 0;
       });
   }, [
@@ -374,6 +414,7 @@ export const LightsailIntelligence: React.FC = () => {
     selectedBodyStyle,
     selectedYear,
     selectedOptionCode,
+    userZip,
     minPriceInput,
     maxPriceInput,
     maxMileageInput,
@@ -419,6 +460,7 @@ export const LightsailIntelligence: React.FC = () => {
       "Dealer",
       "City",
       "State",
+      "DistanceMiles",
       "Condition",
       "Year",
       "Make",
@@ -442,6 +484,7 @@ export const LightsailIntelligence: React.FC = () => {
       `"${(v.dealerName || "").replace(/"/g, '""')}"`,
       v.city || "",
       v.state,
+      getVehicleDistance(v),
       getNormalizedCondition(v),
       v.year,
       v.make,
@@ -494,7 +537,7 @@ export const LightsailIntelligence: React.FC = () => {
               🏎️ Porsche Market Intelligence & Factory Spec Explorer
             </h1>
             <p className="text-xs sm:text-sm text-ink-muted max-w-3xl">
-              Real-time nationwide inventory cross-referenced with <strong>NHTSA Plant Specs</strong> and <strong>OEM Factory Option Sheets</strong> (Sport Chrono, Front Axle Lift, PCCB, Burmester). Click any car to view its Monroney Spec Sheet.
+              Real-time nationwide inventory cross-referenced with <strong>NHTSA Plant Specs</strong> and <strong>OEM Factory Option Sheets</strong> (Sport Chrono, Front Axle Lift, PCCB, Burmester). Sort by proximity to your ZIP or price tiers.
             </p>
           </div>
 
@@ -572,7 +615,7 @@ export const LightsailIntelligence: React.FC = () => {
           <div className="flex items-center gap-2">
             <SlidersHorizontal className="h-4 w-4 text-emerald-400" />
             <h2 className="font-black text-white text-sm uppercase tracking-wider">
-              Filter by Every Possible Category & Option
+              Filter & Sort Results by Proximity & Spec
             </h2>
             {activeFiltersCount > 0 && (
               <span className="rounded-full bg-emerald-500/20 text-emerald-400 px-2 py-0.2 text-[10px] font-bold">
@@ -615,7 +658,7 @@ export const LightsailIntelligence: React.FC = () => {
           </div>
         </div>
 
-        {/* 13 Filter Dropdowns & Inputs */}
+        {/* Filter Dropdowns & Inputs */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 text-xs">
           {/* 1. Global Search */}
           <div className="space-y-1">
@@ -632,7 +675,45 @@ export const LightsailIntelligence: React.FC = () => {
             />
           </div>
 
-          {/* 2. Model Series */}
+          {/* 2. Sort Dropdown (Closest to ZIP, Price High to Low, Price Low to High) */}
+          <div className="space-y-1">
+            <label className="text-[10px] font-bold uppercase text-ink-faint flex items-center gap-1">
+              <ArrowUpDown className="h-3 w-3 text-emerald-400" />
+              <span>Sort Results</span>
+            </label>
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className="w-full rounded-xl border border-emerald-500/40 bg-surface-elevated px-3 py-2 text-xs text-emerald-300 font-bold focus:border-emerald-500 focus:outline-none"
+            >
+              <option value="default">Default Order</option>
+              <option value="closest_to_zip">📍 Closest to ZIP Code</option>
+              <option value="price_desc">💰 Price: High to Low</option>
+              <option value="price_asc">💵 Price: Low to High</option>
+              <option value="price_drop_first">🔥 Largest Price Drop First</option>
+              <option value="days_desc">⏳ Days on Lot: Longest</option>
+              <option value="days_asc">⚡ Days on Lot: Newest</option>
+              <option value="mileage_asc">🚗 Mileage: Lowest First</option>
+              <option value="year_desc">📅 Year: Newest First</option>
+            </select>
+          </div>
+
+          {/* 3. Your ZIP Code Anchor */}
+          <div className="space-y-1">
+            <label className="text-[10px] font-bold uppercase text-ink-faint flex items-center gap-1">
+              <Navigation className="h-3 w-3 text-blue-400" />
+              <span>Your ZIP Code (Distance Anchor)</span>
+            </label>
+            <input
+              type="text"
+              value={userZip}
+              onChange={(e) => setUserZip(e.target.value.replace(/\D/g, "").slice(0, 5))}
+              placeholder="e.g. 07054 or 90210"
+              className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-xs text-white placeholder-ink-faint font-mono focus:border-blue-500 focus:outline-none"
+            />
+          </div>
+
+          {/* 4. Model Series */}
           <div className="space-y-1">
             <label className="text-[10px] font-bold uppercase text-ink-faint flex items-center gap-1">
               <Car className="h-3 w-3 text-blue-400" />
@@ -652,7 +733,7 @@ export const LightsailIntelligence: React.FC = () => {
             </select>
           </div>
 
-          {/* 3. Factory Option Filter */}
+          {/* 5. Factory Option Filter */}
           <div className="space-y-1">
             <label className="text-[10px] font-bold uppercase text-ink-faint flex items-center gap-1">
               <Sparkles className="h-3 w-3 text-amber-400" />
@@ -673,7 +754,7 @@ export const LightsailIntelligence: React.FC = () => {
             </select>
           </div>
 
-          {/* 4. Condition / Type */}
+          {/* 6. Condition / Type */}
           <div className="space-y-1">
             <label className="text-[10px] font-bold uppercase text-ink-faint flex items-center gap-1">
               <ShieldCheck className="h-3 w-3 text-emerald-400" />
@@ -691,7 +772,7 @@ export const LightsailIntelligence: React.FC = () => {
             </select>
           </div>
 
-          {/* 5. Dealership Center */}
+          {/* 7. Dealership Center */}
           <div className="space-y-1">
             <label className="text-[10px] font-bold uppercase text-ink-faint flex items-center gap-1">
               <Building2 className="h-3 w-3 text-emerald-400" />
@@ -711,7 +792,7 @@ export const LightsailIntelligence: React.FC = () => {
             </select>
           </div>
 
-          {/* 6. State / Region */}
+          {/* 8. State / Region */}
           <div className="space-y-1">
             <label className="text-[10px] font-bold uppercase text-ink-faint flex items-center gap-1">
               <MapPin className="h-3 w-3 text-rose-400" />
@@ -726,46 +807,6 @@ export const LightsailIntelligence: React.FC = () => {
               {facetOptions.states.map(([s, count]) => (
                 <option key={s} value={s}>
                   {s} ({count} vehicles)
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* 7. Body Style */}
-          <div className="space-y-1">
-            <label className="text-[10px] font-bold uppercase text-ink-faint flex items-center gap-1">
-              <Car className="h-3 w-3 text-blue-400" />
-              <span>Body Style</span>
-            </label>
-            <select
-              value={selectedBodyStyle}
-              onChange={(e) => setSelectedBodyStyle(e.target.value)}
-              className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
-            >
-              <option value="ALL">All Body Styles</option>
-              {facetOptions.bodyStyles.map(([b, count]) => (
-                <option key={b} value={b}>
-                  {b} ({count})
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* 8. Model Year */}
-          <div className="space-y-1">
-            <label className="text-[10px] font-bold uppercase text-ink-faint flex items-center gap-1">
-              <Calendar className="h-3 w-3 text-purple-400" />
-              <span>Model Year</span>
-            </label>
-            <select
-              value={selectedYear}
-              onChange={(e) => setSelectedYear(e.target.value)}
-              className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
-            >
-              <option value="ALL">All Years</option>
-              {facetOptions.years.map(([y, count]) => (
-                <option key={y} value={y.toString()}>
-                  {y} ({count})
                 </option>
               ))}
             </select>
@@ -832,25 +873,23 @@ export const LightsailIntelligence: React.FC = () => {
             </select>
           </div>
 
-          {/* 12. Sort By */}
+          {/* 12. Body Style */}
           <div className="space-y-1">
             <label className="text-[10px] font-bold uppercase text-ink-faint flex items-center gap-1">
-              <ArrowUpDown className="h-3 w-3 text-emerald-400" />
-              <span>Sort Results</span>
+              <Car className="h-3 w-3 text-purple-400" />
+              <span>Body Style</span>
             </label>
             <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none font-bold"
+              value={selectedBodyStyle}
+              onChange={(e) => setSelectedBodyStyle(e.target.value)}
+              className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
             >
-              <option value="default">Default Order</option>
-              <option value="price_drop_first">🔥 Largest Price Drop First</option>
-              <option value="price_asc">Price: Low to High</option>
-              <option value="price_desc">Price: High to Low</option>
-              <option value="days_desc">Days on Lot: Longest</option>
-              <option value="days_asc">Days on Lot: Newest</option>
-              <option value="mileage_asc">Mileage: Lowest First</option>
-              <option value="year_desc">Year: Newest First</option>
+              <option value="ALL">All Body Styles</option>
+              {facetOptions.bodyStyles.map(([b, count]) => (
+                <option key={b} value={b}>
+                  {b} ({count})
+                </option>
+              ))}
             </select>
           </div>
         </div>
@@ -858,7 +897,16 @@ export const LightsailIntelligence: React.FC = () => {
         {/* Active Filter Badges */}
         {activeFiltersCount > 0 && (
           <div className="flex flex-wrap items-center gap-2 pt-3 border-t border-border/60 text-xs">
-            <span className="text-[10px] text-ink-faint font-bold uppercase">Active Filters:</span>
+            <span className="text-[10px] text-ink-faint font-bold uppercase">Active:</span>
+
+            {sortBy !== "default" && (
+              <span className="inline-flex items-center gap-1 rounded-lg bg-emerald-500/20 border border-emerald-500/40 px-2 py-0.5 text-emerald-300 font-bold">
+                <span>
+                  Sort: {sortBy === "closest_to_zip" ? `📍 Closest to ${userZip || "07054"}` : sortBy === "price_desc" ? "💰 Price: High to Low" : sortBy === "price_asc" ? "💵 Price: Low to High" : sortBy}
+                </span>
+                <X className="h-3 w-3 cursor-pointer hover:text-white" onClick={() => setSortBy("default")} />
+              </span>
+            )}
 
             {selectedOptionCode !== "ALL" && (
               <span className="inline-flex items-center gap-1 rounded-lg bg-amber-500/20 border border-amber-500/40 px-2 py-0.5 text-amber-300 font-bold">
@@ -947,7 +995,7 @@ export const LightsailIntelligence: React.FC = () => {
                   <th className="p-3">VIN / Model / Origin</th>
                   <th className="p-3">Factory Options</th>
                   <th className="p-3">Condition</th>
-                  <th className="p-3">Dealership</th>
+                  <th className="p-3">Dealership & Proximity</th>
                   <th className="p-3">Current Price</th>
                   <th className="p-3">Price Movement</th>
                   <th className="p-3">Days on Lot</th>
@@ -959,6 +1007,7 @@ export const LightsailIntelligence: React.FC = () => {
                   const cond = getNormalizedCondition(v);
                   const hasPriceDrop = v.priceDiff && v.priceDiff < 0;
                   const opts = v.factoryOptions || [];
+                  const dist = getVehicleDistance(v);
                   return (
                     <tr
                       key={v.vin}
@@ -1022,7 +1071,10 @@ export const LightsailIntelligence: React.FC = () => {
                       </td>
                       <td className="p-3 text-ink-light">
                         <div className="font-semibold text-white truncate max-w-[140px]">{v.dealerName}</div>
-                        <div className="text-[10px] text-ink-muted">{v.state}</div>
+                        <div className="text-[10.5px] text-blue-400 font-mono font-bold flex items-center gap-1">
+                          <span>📍 {dist} mi away</span>
+                          <span className="text-ink-muted">({v.state})</span>
+                        </div>
                       </td>
                       <td className="p-3 font-mono font-bold text-emerald-400 text-sm">
                         {v.price ? `$${v.price.toLocaleString()}` : "Call"}
@@ -1071,6 +1123,7 @@ export const LightsailIntelligence: React.FC = () => {
             const cond = getNormalizedCondition(v);
             const hasPriceDrop = v.priceDiff && v.priceDiff < 0;
             const opts = v.factoryOptions || [];
+            const dist = getVehicleDistance(v);
             return (
               <div
                 key={v.vin}
@@ -1090,7 +1143,7 @@ export const LightsailIntelligence: React.FC = () => {
                     >
                       {cond}
                     </span>
-                    <span className="font-mono text-ink-muted text-[10.5px]">🇩🇪 {v.nhtsa?.plantCountry || "Germany"}</span>
+                    <span className="font-mono text-blue-400 text-[10.5px] font-bold">📍 {dist} mi away</span>
                   </div>
 
                   <div>
@@ -1137,7 +1190,7 @@ export const LightsailIntelligence: React.FC = () => {
                   </div>
 
                   <div className="flex items-center justify-between text-[11px] text-ink-muted pt-1">
-                    <span className="truncate max-w-[150px]">{v.dealerName}</span>
+                    <span className="truncate max-w-[150px]">{v.dealerName} ({v.state})</span>
                     <span className="font-mono">{v.daysOnLot || 14} days on lot</span>
                   </div>
                 </div>
@@ -1176,7 +1229,7 @@ export const LightsailIntelligence: React.FC = () => {
             </div>
 
             {/* Spec Sheet Grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
               <div className="rounded-xl border border-border bg-surface-elevated p-3 space-y-1">
                 <div className="text-[10px] uppercase text-ink-faint font-bold">Country of Origin</div>
                 <div className="font-bold text-white">🇩🇪 {selectedVehicleForModal.nhtsa?.plantCountry || "Germany"}</div>
@@ -1185,6 +1238,12 @@ export const LightsailIntelligence: React.FC = () => {
                 <div className="text-[10px] uppercase text-ink-faint font-bold">Engine & Cylinders</div>
                 <div className="font-bold text-white font-mono">
                   {selectedVehicleForModal.nhtsa?.engineDisplacementL || "3.0L"} Boxer-{selectedVehicleForModal.nhtsa?.engineCylinders || 6}
+                </div>
+              </div>
+              <div className="rounded-xl border border-border bg-surface-elevated p-3 space-y-1">
+                <div className="text-[10px] uppercase text-ink-faint font-bold">Proximity</div>
+                <div className="font-bold text-blue-400 font-mono">
+                  📍 {getVehicleDistance(selectedVehicleForModal)} mi
                 </div>
               </div>
               <div className="rounded-xl border border-border bg-surface-elevated p-3 space-y-1">
