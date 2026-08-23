@@ -4,384 +4,1655 @@
     "name": "Paul Miller Porsche",
     "city": "Parsippany",
     "state": "NJ",
-    "sitemapUrl": "https://www.paulmillerporsche.com/sitemap.xml"
-  },
-  {
-    "id": "champion-porsche",
-    "name": "Champion Porsche",
-    "city": "Pompano Beach",
-    "state": "FL",
-    "sitemapUrl": "https://www.champion-porsche.com/sitemap.xml"
-  },
-  {
-    "id": "the-collection-porsche",
-    "name": "The Collection Porsche",
-    "city": "Coral Gables",
-    "state": "FL",
-    "sitemapUrl": "https://www.thecollectionporsche.com/sitemap.xml"
-  },
-  {
-    "id": "porsche-brooklyn",
-    "name": "Porsche Brooklyn",
-    "city": "Brooklyn",
-    "state": "NY",
-    "sitemapUrl": "https://www.porschebrooklyn.com/sitemap.xml"
-  },
-  {
-    "id": "porsche-south-shore",
-    "name": "Porsche South Shore",
-    "city": "Freeport",
-    "state": "NY",
-    "sitemapUrl": "https://www.porschesouthshore.com/sitemap.xml"
-  },
-  {
-    "id": "porsche-beverly-hills",
-    "name": "Porsche Beverly Hills",
-    "city": "Los Angeles",
-    "state": "CA",
-    "sitemapUrl": "https://www.porschebeverlyhills.com/sitemap.xml"
-  },
-  {
-    "id": "porsche-downtown-la",
-    "name": "Porsche Downtown L.A.",
-    "city": "Los Angeles",
-    "state": "CA",
-    "sitemapUrl": "https://www.porschedowntownla.com/sitemap.xml"
-  },
-  {
-    "id": "porsche-stevens-creek",
-    "name": "Porsche Stevens Creek",
-    "city": "Santa Clara",
-    "state": "CA",
-    "sitemapUrl": "https://www.porschestevenscreek.com/sitemap.xml"
-  },
-  {
-    "id": "porsche-san-diego",
-    "name": "Porsche San Diego",
-    "city": "San Diego",
-    "state": "CA",
-    "sitemapUrl": "https://www.porschesandiego.com/sitemap.xml"
-  },
-  {
-    "id": "porsche-irvine",
-    "name": "Porsche Irvine",
-    "city": "Irvine",
-    "state": "CA",
-    "sitemapUrl": "https://www.porscheirvine.com/sitemap.xml"
-  },
-  {
-    "id": "porsche-south-bay",
-    "name": "Porsche South Bay",
-    "city": "Hawthorne",
-    "state": "CA",
-    "sitemapUrl": "https://www.porschesouthbay.com/sitemap.xml"
-  },
-  {
-    "id": "porsche-marin",
-    "name": "Porsche Marin",
-    "city": "Mill Valley",
-    "state": "CA",
-    "sitemapUrl": "https://www.porschemarin.com/sitemap.xml"
-  },
-  {
-    "id": "porsche-carlsbad",
-    "name": "Porsche Carlsbad",
-    "city": "Carlsbad",
-    "state": "CA",
-    "sitemapUrl": "https://www.porschecarlsbad.com/sitemap.xml"
-  },
-  {
-    "id": "porsche-redwood-city",
-    "name": "Porsche Redwood City",
-    "city": "Redwood City",
-    "state": "CA",
-    "sitemapUrl": "https://www.porscheredwoodcity.com/sitemap.xml"
-  },
-  {
-    "id": "porsche-walnut-creek",
-    "name": "Porsche Walnut Creek",
-    "city": "Walnut Creek",
-    "state": "CA",
-    "sitemapUrl": "https://www.porschewalnutcreek.com/sitemap.xml"
-  },
-  {
-    "id": "porsche-west-broward",
-    "name": "Porsche West Broward",
-    "city": "Davie",
-    "state": "FL",
-    "sitemapUrl": "https://www.porschewestbroward.com/sitemap.xml"
-  },
-  {
-    "id": "porsche-orlando",
-    "name": "Porsche Orlando",
-    "city": "Maitland",
-    "state": "FL",
-    "sitemapUrl": "https://www.porscheorlando.com/sitemap.xml"
-  },
-  {
-    "id": "porsche-fort-myers",
-    "name": "Porsche Fort Myers",
-    "city": "Fort Myers",
-    "state": "FL",
-    "sitemapUrl": "https://www.porschefortmyers.com/sitemap.xml"
-  },
-  {
-    "id": "porsche-jacksonville",
-    "name": "Porsche Jacksonville",
-    "city": "Jacksonville",
-    "state": "FL",
-    "sitemapUrl": "https://www.porschejacksonville.com/sitemap.xml"
-  },
-  {
-    "id": "porsche-north-houston",
-    "name": "Porsche North Houston",
-    "city": "Houston",
-    "state": "TX",
-    "sitemapUrl": "https://www.porschenorthhouston.com/sitemap.xml"
-  },
-  {
-    "id": "porsche-austin",
-    "name": "Porsche Austin",
-    "city": "Austin",
-    "state": "TX",
-    "sitemapUrl": "https://www.porscheaustin.com/sitemap.xml"
-  },
-  {
-    "id": "porsche-dallas",
-    "name": "Park Place Porsche Dallas",
-    "city": "Dallas",
-    "state": "TX",
-    "sitemapUrl": "https://www.parkplace.com/sitemap.xml"
-  },
-  {
-    "id": "porsche-grapevine",
-    "name": "Porsche Grapevine",
-    "city": "Grapevine",
-    "state": "TX",
-    "sitemapUrl": "https://www.porschegrapevine.com/sitemap.xml"
-  },
-  {
-    "id": "porsche-plano",
-    "name": "Porsche Plano",
-    "city": "Plano",
-    "state": "TX",
-    "sitemapUrl": "https://www.porscheplano.com/sitemap.xml"
-  },
-  {
-    "id": "porsche-west-houston",
-    "name": "Porsche West Houston",
-    "city": "Houston",
-    "state": "TX",
-    "sitemapUrl": "https://www.porschewesthouston.com/sitemap.xml"
-  },
-  {
-    "id": "porsche-river-oaks",
-    "name": "Porsche River Oaks",
-    "city": "Houston",
-    "state": "TX",
-    "sitemapUrl": "https://www.porscheriveroaks.com/sitemap.xml"
-  },
-  {
-    "id": "porsche-san-antonio",
-    "name": "Porsche San Antonio",
-    "city": "San Antonio",
-    "state": "TX",
-    "sitemapUrl": "https://www.porschesanantonio.com/sitemap.xml"
+    "sitemapUrl": "https://www.paulmillerporsche.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.paulmillerporsche.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://paulmillerporsche.com/sitemap.xml"
   },
   {
     "id": "porsche-englewood",
     "name": "Porsche Englewood",
     "city": "Englewood",
     "state": "NJ",
-    "sitemapUrl": "https://www.porscheenglewood.com/sitemap.xml"
+    "sitemapUrl": "https://www.porscheenglewood.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porscheenglewood.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porscheenglewood.com/sitemap.xml"
   },
   {
     "id": "porsche-monmouth",
     "name": "Porsche Monmouth",
     "city": "West Long Branch",
     "state": "NJ",
-    "sitemapUrl": "https://www.porschemonmouth.com/sitemap.xml"
+    "sitemapUrl": "https://www.porschemonmouth.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschemonmouth.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschemonmouth.com/sitemap.xml"
   },
   {
     "id": "porsche-cherry-hill",
     "name": "Porsche Cherry Hill",
     "city": "Cherry Hill",
     "state": "NJ",
-    "sitemapUrl": "https://www.porschecherryhill.com/sitemap.xml"
+    "sitemapUrl": "https://www.porschecherryhill.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschecherryhill.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschecherryhill.com/sitemap.xml"
   },
   {
-    "id": "porsche-fairfield",
-    "name": "Porsche Fairfield",
-    "city": "Fairfield",
-    "state": "CT",
-    "sitemapUrl": "https://www.porschefairfield.com/sitemap.xml"
+    "id": "ray-catena-porsche",
+    "name": "Ray Catena Porsche",
+    "city": "Edison",
+    "state": "NJ",
+    "sitemapUrl": "https://www.raycatenaporsche.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.raycatenaporsche.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://raycatenaporsche.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-princeton",
+    "name": "Porsche Princeton",
+    "city": "Lawrenceville",
+    "state": "NJ",
+    "sitemapUrl": "https://www.porscheprinceton.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porscheprinceton.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porscheprinceton.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-bridgewater",
+    "name": "Porsche Bridgewater",
+    "city": "Bridgewater",
+    "state": "NJ",
+    "sitemapUrl": "https://www.porschebridgewater.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschebridgewater.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschebridgewater.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-brooklyn",
+    "name": "Porsche Brooklyn",
+    "city": "Brooklyn",
+    "state": "NY",
+    "sitemapUrl": "https://www.porschebrooklyn.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschebrooklyn.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschebrooklyn.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-south-shore",
+    "name": "Porsche South Shore",
+    "city": "Freeport",
+    "state": "NY",
+    "sitemapUrl": "https://www.porschesouthshore.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschesouthshore.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschesouthshore.com/sitemap.xml"
   },
   {
     "id": "porsche-gold-coast",
     "name": "Porsche Gold Coast",
     "city": "Jericho",
     "state": "NY",
-    "sitemapUrl": "https://www.porschegoldcoast.com/sitemap.xml"
+    "sitemapUrl": "https://www.porschegoldcoast.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschegoldcoast.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschegoldcoast.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-larchmont",
+    "name": "Porsche Larchmont",
+    "city": "Larchmont",
+    "state": "NY",
+    "sitemapUrl": "https://www.porschelarchmont.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschelarchmont.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschelarchmont.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-manhattan",
+    "name": "Porsche Manhattan",
+    "city": "New York",
+    "state": "NY",
+    "sitemapUrl": "https://www.porscheofmanhattan.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porscheofmanhattan.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porscheofmanhattan.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-huntington",
+    "name": "Porsche Huntington",
+    "city": "Huntington Station",
+    "state": "NY",
+    "sitemapUrl": "https://www.porschehuntington.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschehuntington.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschehuntington.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-roslyn",
+    "name": "Porsche Roslyn",
+    "city": "Roslyn",
+    "state": "NY",
+    "sitemapUrl": "https://www.porscheroslyn.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porscheroslyn.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porscheroslyn.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-buffalo",
+    "name": "Porsche Buffalo",
+    "city": "Williamsville",
+    "state": "NY",
+    "sitemapUrl": "https://www.porscheofbuffalo.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porscheofbuffalo.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porscheofbuffalo.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-rochester",
+    "name": "Porsche Rochester",
+    "city": "Rochester",
+    "state": "NY",
+    "sitemapUrl": "https://www.porscherochester.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porscherochester.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porscherochester.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-syracuse",
+    "name": "Porsche Syracuse",
+    "city": "East Syracuse",
+    "state": "NY",
+    "sitemapUrl": "https://www.porschesyracuse.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschesyracuse.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschesyracuse.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-albany",
+    "name": "Porsche Albany",
+    "city": "Latham",
+    "state": "NY",
+    "sitemapUrl": "https://www.porschealbany.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschealbany.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschealbany.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-greenwich",
+    "name": "Porsche Greenwich",
+    "city": "Greenwich",
+    "state": "CT",
+    "sitemapUrl": "https://www.porschegreenwich.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschegreenwich.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschegreenwich.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-fairfield",
+    "name": "Porsche Fairfield",
+    "city": "Fairfield",
+    "state": "CT",
+    "sitemapUrl": "https://www.porschefairfield.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschefairfield.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschefairfield.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-hartford",
+    "name": "Porsche Hartford",
+    "city": "East Hartford",
+    "state": "CT",
+    "sitemapUrl": "https://www.porscheofhartford.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porscheofhartford.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porscheofhartford.com/sitemap.xml"
   },
   {
     "id": "porsche-westwood",
     "name": "Porsche Westwood",
     "city": "Westwood",
     "state": "MA",
-    "sitemapUrl": "https://www.porschewestwood.com/sitemap.xml"
+    "sitemapUrl": "https://www.porschewestwood.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschewestwood.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschewestwood.com/sitemap.xml"
   },
   {
     "id": "porsche-norwell",
     "name": "Porsche Norwell",
     "city": "Norwell",
     "state": "MA",
-    "sitemapUrl": "https://www.porschenorwell.com/sitemap.xml"
+    "sitemapUrl": "https://www.porschenorwell.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschenorwell.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschenorwell.com/sitemap.xml"
   },
   {
     "id": "porsche-burlington",
     "name": "Porsche Burlington",
     "city": "Burlington",
     "state": "MA",
-    "sitemapUrl": "https://www.porscheburlington.com/sitemap.xml"
+    "sitemapUrl": "https://www.porscheburlington.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porscheburlington.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porscheburlington.com/sitemap.xml"
   },
   {
-    "id": "hennessy-porsche-atlanta",
+    "id": "porsche-brookline",
+    "name": "Porsche Brookline",
+    "city": "Brookline",
+    "state": "MA",
+    "sitemapUrl": "https://www.porschebrookline.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschebrookline.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschebrookline.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-warwick",
+    "name": "Porsche Warwick",
+    "city": "Warwick",
+    "state": "RI",
+    "sitemapUrl": "https://www.porschewarwick.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschewarwick.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschewarwick.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-stratham",
+    "name": "Porsche Stratham",
+    "city": "Stratham",
+    "state": "NH",
+    "sitemapUrl": "https://www.porschestratham.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschestratham.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschestratham.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-nashua",
+    "name": "Porsche Nashua",
+    "city": "Nashua",
+    "state": "NH",
+    "sitemapUrl": "https://www.porschenashua.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschenashua.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschenashua.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-south-burlington",
+    "name": "Porsche South Burlington",
+    "city": "South Burlington",
+    "state": "VT",
+    "sitemapUrl": "https://www.porscheofsouthburlington.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porscheofsouthburlington.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porscheofsouthburlington.com/sitemap.xml"
+  },
+  {
+    "id": "champion-porsche",
+    "name": "Champion Porsche",
+    "city": "Pompano Beach",
+    "state": "FL",
+    "sitemapUrl": "https://www.champion-porsche.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.champion-porsche.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://champion-porsche.com/sitemap.xml"
+  },
+  {
+    "id": "the-collection-porsche",
+    "name": "The Collection Porsche",
+    "city": "Coral Gables",
+    "state": "FL",
+    "sitemapUrl": "https://www.thecollectionporsche.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.thecollectionporsche.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://thecollectionporsche.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-west-broward",
+    "name": "Porsche West Broward",
+    "city": "Davie",
+    "state": "FL",
+    "sitemapUrl": "https://www.porschewestbroward.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschewestbroward.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschewestbroward.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-orlando",
+    "name": "Porsche Orlando",
+    "city": "Maitland",
+    "state": "FL",
+    "sitemapUrl": "https://www.porscheorlando.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porscheorlando.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porscheorlando.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-fort-myers",
+    "name": "Porsche Fort Myers",
+    "city": "Fort Myers",
+    "state": "FL",
+    "sitemapUrl": "https://www.porschefortmyers.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschefortmyers.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschefortmyers.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-jacksonville",
+    "name": "Porsche Jacksonville",
+    "city": "Jacksonville",
+    "state": "FL",
+    "sitemapUrl": "https://www.porschejacksonville.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschejacksonville.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschejacksonville.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-sarasota",
+    "name": "Porsche Sarasota",
+    "city": "Sarasota",
+    "state": "FL",
+    "sitemapUrl": "https://www.porschesarasota.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschesarasota.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschesarasota.com/sitemap.xml"
+  },
+  {
+    "id": "braman-porsche",
+    "name": "Braman Porsche",
+    "city": "West Palm Beach",
+    "state": "FL",
+    "sitemapUrl": "https://www.bramanporsche.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.bramanporsche.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://bramanporsche.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-tampa",
+    "name": "Porsche Tampa",
+    "city": "Tampa",
+    "state": "FL",
+    "sitemapUrl": "https://www.porscheoftampa.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porscheoftampa.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porscheoftampa.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-melbourne",
+    "name": "Porsche Melbourne",
+    "city": "Melbourne",
+    "state": "FL",
+    "sitemapUrl": "https://www.porschemelbourne.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschemelbourne.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschemelbourne.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-tallahassee",
+    "name": "Porsche Tallahassee",
+    "city": "Tallahassee",
+    "state": "FL",
+    "sitemapUrl": "https://www.porschetallahassee.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschetallahassee.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschetallahassee.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-pensacola",
+    "name": "Porsche Pensacola",
+    "city": "Pensacola",
+    "state": "FL",
+    "sitemapUrl": "https://www.porschepensacola.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschepensacola.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschepensacola.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-naples",
+    "name": "Porsche Naples",
+    "city": "Naples",
+    "state": "FL",
+    "sitemapUrl": "https://www.porschenaples.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschenaples.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschenaples.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-ocala",
+    "name": "Porsche Ocala",
+    "city": "Ocala",
+    "state": "FL",
+    "sitemapUrl": "https://www.porscheocala.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porscheocala.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porscheocala.com/sitemap.xml"
+  },
+  {
+    "id": "hennessy-porsche-north-atlanta",
     "name": "Hennessy Porsche North Atlanta",
     "city": "Roswell",
     "state": "GA",
-    "sitemapUrl": "https://www.hennessyporsche.com/sitemap.xml"
+    "sitemapUrl": "https://www.hennessyporsche.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.hennessyporsche.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://hennessyporsche.com/sitemap.xml"
   },
   {
-    "id": "porsche-tysons-corner",
-    "name": "Porsche Tysons Corner",
-    "city": "Vienna",
-    "state": "VA",
-    "sitemapUrl": "https://www.porschetysonscorner.com/sitemap.xml"
+    "id": "porsche-perimeter-atlanta",
+    "name": "Porsche Perimeter Atlanta",
+    "city": "Atlanta",
+    "state": "GA",
+    "sitemapUrl": "https://www.porscheperimeter.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porscheperimeter.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porscheperimeter.com/sitemap.xml"
   },
   {
-    "id": "porsche-bethesda",
-    "name": "Porsche Bethesda",
-    "city": "Bethesda",
-    "state": "MD",
-    "sitemapUrl": "https://www.porschebethesda.com/sitemap.xml"
-  },
-  {
-    "id": "porsche-silver-spring",
-    "name": "Porsche Silver Spring",
-    "city": "Silver Spring",
-    "state": "MD",
-    "sitemapUrl": "https://www.porschesilverspring.com/sitemap.xml"
-  },
-  {
-    "id": "porsche-warrington",
-    "name": "Porsche Warrington",
-    "city": "Warrington",
-    "state": "PA",
-    "sitemapUrl": "https://www.porschewarrington.com/sitemap.xml"
-  },
-  {
-    "id": "porsche-main-line",
-    "name": "Porsche Main Line",
-    "city": "Newtown Square",
-    "state": "PA",
-    "sitemapUrl": "https://www.porscheofthemainline.com/sitemap.xml"
-  },
-  {
-    "id": "porsche-conshohocken",
-    "name": "Porsche Conshohocken",
-    "city": "Conshohocken",
-    "state": "PA",
-    "sitemapUrl": "https://www.porscheconshohocken.com/sitemap.xml"
-  },
-  {
-    "id": "porsche-west-chester",
-    "name": "Porsche West Chester",
-    "city": "West Chester",
-    "state": "PA",
-    "sitemapUrl": "https://www.porschewestchester.com/sitemap.xml"
-  },
-  {
-    "id": "porsche-downtown-chicago",
-    "name": "Porsche Downtown Chicago",
-    "city": "Chicago",
-    "state": "IL",
-    "sitemapUrl": "https://www.porschedowntownchicago.com/sitemap.xml"
-  },
-  {
-    "id": "porsche-exchange",
-    "name": "Porsche Exchange",
-    "city": "Highland Park",
-    "state": "IL",
-    "sitemapUrl": "https://www.4porsche.com/sitemap.xml"
-  },
-  {
-    "id": "porsche-columbus",
-    "name": "Porsche Columbus",
-    "city": "Columbus",
-    "state": "OH",
-    "sitemapUrl": "https://www.porschecolumbus.com/sitemap.xml"
-  },
-  {
-    "id": "porsche-north-scottsdale",
-    "name": "Porsche North Scottsdale",
-    "city": "Scottsdale",
-    "state": "AZ",
-    "sitemapUrl": "https://www.porschenorthscottsdale.com/sitemap.xml"
-  },
-  {
-    "id": "porsche-chandler",
-    "name": "Porsche Chandler",
-    "city": "Chandler",
-    "state": "AZ",
-    "sitemapUrl": "https://www.porschechandler.com/sitemap.xml"
-  },
-  {
-    "id": "porsche-las-vegas",
-    "name": "Porsche Las Vegas",
-    "city": "Las Vegas",
-    "state": "NV",
-    "sitemapUrl": "https://www.gaudinporschelv.com/sitemap.xml"
-  },
-  {
-    "id": "porsche-bellevue",
-    "name": "Porsche Bellevue",
-    "city": "Bellevue",
-    "state": "WA",
-    "sitemapUrl": "https://www.porschebellevue.com/sitemap.xml"
-  },
-  {
-    "id": "porsche-seattle",
-    "name": "Porsche Seattle North",
-    "city": "Lynnwood",
-    "state": "WA",
-    "sitemapUrl": "https://www.porscheseattlenorth.com/sitemap.xml"
-  },
-  {
-    "id": "porsche-beaverton",
-    "name": "Porsche Beaverton",
-    "city": "Beaverton",
-    "state": "OR",
-    "sitemapUrl": "https://www.porschebeaverton.com/sitemap.xml"
-  },
-  {
-    "id": "porsche-denver",
-    "name": "Porsche Littleton (Denver)",
-    "city": "Littleton",
-    "state": "CO",
-    "sitemapUrl": "https://www.porschelittleton.com/sitemap.xml"
-  },
-  {
-    "id": "porsche-st-louis",
-    "name": "Porsche St. Louis",
-    "city": "St. Louis",
-    "state": "MO",
-    "sitemapUrl": "https://www.porschestlouis.com/sitemap.xml"
+    "id": "porsche-south-atlanta",
+    "name": "Porsche South Atlanta",
+    "city": "Atlanta",
+    "state": "GA",
+    "sitemapUrl": "https://www.porschesouthatlanta.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschesouthatlanta.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschesouthatlanta.com/sitemap.xml"
   },
   {
     "id": "porsche-nashville",
     "name": "Porsche Nashville",
     "city": "Brentwood",
     "state": "TN",
-    "sitemapUrl": "https://www.porschenashville.com/sitemap.xml"
+    "sitemapUrl": "https://www.porschenashville.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschenashville.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschenashville.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-memphis",
+    "name": "Porsche Memphis",
+    "city": "Memphis",
+    "state": "TN",
+    "sitemapUrl": "https://www.porscheofmemphis.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porscheofmemphis.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porscheofmemphis.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-chattanooga",
+    "name": "Porsche Chattanooga",
+    "city": "Chattanooga",
+    "state": "TN",
+    "sitemapUrl": "https://www.porschechattanooga.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschechattanooga.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschechattanooga.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-knoxville",
+    "name": "Porsche Knoxville",
+    "city": "Knoxville",
+    "state": "TN",
+    "sitemapUrl": "https://www.porscheknoxville.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porscheknoxville.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porscheknoxville.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-birmingham",
+    "name": "Porsche Birmingham",
+    "city": "Birmingham",
+    "state": "AL",
+    "sitemapUrl": "https://www.porschebirmingham.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschebirmingham.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschebirmingham.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-huntsville",
+    "name": "Porsche Huntsville",
+    "city": "Huntsville",
+    "state": "AL",
+    "sitemapUrl": "https://www.porschehuntsville.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschehuntsville.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschehuntsville.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-mobile",
+    "name": "Porsche Mobile",
+    "city": "Mobile",
+    "state": "AL",
+    "sitemapUrl": "https://www.porscheofmobile.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porscheofmobile.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porscheofmobile.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-jackson",
+    "name": "Porsche Jackson",
+    "city": "Jackson",
+    "state": "MS",
+    "sitemapUrl": "https://www.porschejackson.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschejackson.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschejackson.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-new-orleans",
+    "name": "Porsche New Orleans",
+    "city": "Metairie",
+    "state": "LA",
+    "sitemapUrl": "https://www.porscheneworleans.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porscheneworleans.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porscheneworleans.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-baton-rouge",
+    "name": "Porsche Baton Rouge",
+    "city": "Baton Rouge",
+    "state": "LA",
+    "sitemapUrl": "https://www.porschebatonrouge.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschebatonrouge.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschebatonrouge.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-shreveport",
+    "name": "Porsche Shreveport",
+    "city": "Shreveport",
+    "state": "LA",
+    "sitemapUrl": "https://www.porscheshreveport.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porscheshreveport.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porscheshreveport.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-tysons-corner",
+    "name": "Porsche Tysons Corner",
+    "city": "Vienna",
+    "state": "VA",
+    "sitemapUrl": "https://www.porschetysonscorner.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschetysonscorner.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschetysonscorner.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-bethesda",
+    "name": "Porsche Bethesda",
+    "city": "Bethesda",
+    "state": "MD",
+    "sitemapUrl": "https://www.porschebethesda.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschebethesda.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschebethesda.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-silver-spring",
+    "name": "Porsche Silver Spring",
+    "city": "Silver Spring",
+    "state": "MD",
+    "sitemapUrl": "https://www.porschesilverspring.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschesilverspring.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschesilverspring.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-towson",
+    "name": "Porsche Towson",
+    "city": "Towson",
+    "state": "MD",
+    "sitemapUrl": "https://www.porschetowson.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschetowson.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschetowson.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-annapolis",
+    "name": "Porsche Annapolis",
+    "city": "Annapolis",
+    "state": "MD",
+    "sitemapUrl": "https://www.porscheannapolis.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porscheannapolis.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porscheannapolis.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-chantilly",
+    "name": "Porsche Chantilly",
+    "city": "Chantilly",
+    "state": "VA",
+    "sitemapUrl": "https://www.porschechantilly.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschechantilly.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschechantilly.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-arlington",
+    "name": "Porsche Arlington",
+    "city": "Arlington",
+    "state": "VA",
+    "sitemapUrl": "https://www.porschearlington.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschearlington.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschearlington.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-richmond",
+    "name": "Porsche Richmond",
+    "city": "Richmond",
+    "state": "VA",
+    "sitemapUrl": "https://www.porscherichmond.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porscherichmond.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porscherichmond.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-virginia-beach",
+    "name": "Porsche Virginia Beach",
+    "city": "Virginia Beach",
+    "state": "VA",
+    "sitemapUrl": "https://www.porschevirginiabeach.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschevirginiabeach.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschevirginiabeach.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-roanoke",
+    "name": "Porsche Roanoke",
+    "city": "Roanoke",
+    "state": "VA",
+    "sitemapUrl": "https://www.porscheroanoke.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porscheroanoke.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porscheroanoke.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-warrington",
+    "name": "Porsche Warrington",
+    "city": "Warrington",
+    "state": "PA",
+    "sitemapUrl": "https://www.porschewarrington.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschewarrington.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschewarrington.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-main-line",
+    "name": "Porsche Main Line",
+    "city": "Newtown Square",
+    "state": "PA",
+    "sitemapUrl": "https://www.porscheofthemainline.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porscheofthemainline.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porscheofthemainline.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-conshohocken",
+    "name": "Porsche Conshohocken",
+    "city": "Conshohocken",
+    "state": "PA",
+    "sitemapUrl": "https://www.porscheconshohocken.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porscheconshohocken.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porscheconshohocken.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-west-chester",
+    "name": "Porsche West Chester",
+    "city": "West Chester",
+    "state": "PA",
+    "sitemapUrl": "https://www.porschewestchester.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschewestchester.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschewestchester.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-pittsburgh",
+    "name": "Porsche Pittsburgh",
+    "city": "Pittsburgh",
+    "state": "PA",
+    "sitemapUrl": "https://www.porschepittsburgh.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschepittsburgh.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschepittsburgh.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-mechanicsburg",
+    "name": "Porsche Mechanicsburg",
+    "city": "Mechanicsburg",
+    "state": "PA",
+    "sitemapUrl": "https://www.porschemechanicsburg.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschemechanicsburg.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschemechanicsburg.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-lehigh-valley",
+    "name": "Porsche Lehigh Valley",
+    "city": "Allentown",
+    "state": "PA",
+    "sitemapUrl": "https://www.porschelehighvalley.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschelehighvalley.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschelehighvalley.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-delaware",
+    "name": "Porsche Delaware",
+    "city": "Newark",
+    "state": "DE",
+    "sitemapUrl": "https://www.porschedelaware.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschedelaware.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschedelaware.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-south-charlotte",
+    "name": "Porsche South Charlotte",
+    "city": "Pineville",
+    "state": "NC",
+    "sitemapUrl": "https://www.porschesouthcharlotte.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschesouthcharlotte.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschesouthcharlotte.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-charlotte",
+    "name": "Porsche Charlotte",
+    "city": "Charlotte",
+    "state": "NC",
+    "sitemapUrl": "https://www.porscheofcharlotte.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porscheofcharlotte.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porscheofcharlotte.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-southpoint-raleigh",
+    "name": "Porsche Southpoint Raleigh",
+    "city": "Durham",
+    "state": "NC",
+    "sitemapUrl": "https://www.porschesouthpoint.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschesouthpoint.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschesouthpoint.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-greensboro",
+    "name": "Porsche Greensboro",
+    "city": "Greensboro",
+    "state": "NC",
+    "sitemapUrl": "https://www.porschegreensboro.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschegreensboro.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschegreensboro.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-asheville",
+    "name": "Porsche Asheville",
+    "city": "Fletcher",
+    "state": "NC",
+    "sitemapUrl": "https://www.porscheasheville.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porscheasheville.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porscheasheville.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-wilmington",
+    "name": "Porsche Wilmington",
+    "city": "Wilmington",
+    "state": "NC",
+    "sitemapUrl": "https://www.porschewilmington.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschewilmington.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschewilmington.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-charleston",
+    "name": "Porsche Charleston",
+    "city": "Charleston",
+    "state": "SC",
+    "sitemapUrl": "https://www.porschecharleston.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschecharleston.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschecharleston.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-greenville",
+    "name": "Porsche Greenville",
+    "city": "Greenville",
+    "state": "SC",
+    "sitemapUrl": "https://www.porschegreenville.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschegreenville.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschegreenville.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-columbia",
+    "name": "Porsche Columbia",
+    "city": "Columbia",
+    "state": "SC",
+    "sitemapUrl": "https://www.porschecolumbia.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschecolumbia.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschecolumbia.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-hilton-head",
+    "name": "Porsche Hilton Head",
+    "city": "Hardeeville",
+    "state": "SC",
+    "sitemapUrl": "https://www.porschehiltonhead.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschehiltonhead.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschehiltonhead.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-north-houston",
+    "name": "Porsche North Houston",
+    "city": "Houston",
+    "state": "TX",
+    "sitemapUrl": "https://www.porschenorthhouston.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschenorthhouston.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschenorthhouston.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-west-houston",
+    "name": "Porsche West Houston",
+    "city": "Houston",
+    "state": "TX",
+    "sitemapUrl": "https://www.porschewesthouston.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschewesthouston.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschewesthouston.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-river-oaks",
+    "name": "Porsche River Oaks",
+    "city": "Houston",
+    "state": "TX",
+    "sitemapUrl": "https://www.porscheriveroaks.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porscheriveroaks.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porscheriveroaks.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-houston-central",
+    "name": "Porsche Houston Central",
+    "city": "Houston",
+    "state": "TX",
+    "sitemapUrl": "https://www.porschehoustoncentral.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschehoustoncentral.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschehoustoncentral.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-the-woodlands",
+    "name": "Porsche The Woodlands",
+    "city": "The Woodlands",
+    "state": "TX",
+    "sitemapUrl": "https://www.porschethewoodlands.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschethewoodlands.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschethewoodlands.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-austin",
+    "name": "Porsche Austin",
+    "city": "Austin",
+    "state": "TX",
+    "sitemapUrl": "https://www.porscheaustin.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porscheaustin.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porscheaustin.com/sitemap.xml"
+  },
+  {
+    "id": "park-place-porsche-dallas",
+    "name": "Park Place Porsche Dallas",
+    "city": "Dallas",
+    "state": "TX",
+    "sitemapUrl": "https://www.parkplace.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.parkplace.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://parkplace.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-grapevine",
+    "name": "Porsche Grapevine",
+    "city": "Grapevine",
+    "state": "TX",
+    "sitemapUrl": "https://www.porschegrapevine.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschegrapevine.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschegrapevine.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-plano",
+    "name": "Porsche Plano",
+    "city": "Plano",
+    "state": "TX",
+    "sitemapUrl": "https://www.porscheplano.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porscheplano.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porscheplano.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-fort-worth",
+    "name": "Porsche Fort Worth",
+    "city": "Fort Worth",
+    "state": "TX",
+    "sitemapUrl": "https://www.porschefortworth.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschefortworth.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschefortworth.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-san-antonio",
+    "name": "Porsche San Antonio",
+    "city": "San Antonio",
+    "state": "TX",
+    "sitemapUrl": "https://www.porschesanantonio.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschesanantonio.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschesanantonio.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-el-paso",
+    "name": "Porsche El Paso",
+    "city": "El Paso",
+    "state": "TX",
+    "sitemapUrl": "https://www.porscheelpaso.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porscheelpaso.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porscheelpaso.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-lubbock",
+    "name": "Porsche Lubbock",
+    "city": "Lubbock",
+    "state": "TX",
+    "sitemapUrl": "https://www.porschelubbock.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschelubbock.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschelubbock.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-oklahoma-city",
+    "name": "Porsche Oklahoma City",
+    "city": "Oklahoma City",
+    "state": "OK",
+    "sitemapUrl": "https://www.porscheoklahomacity.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porscheoklahomacity.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porscheoklahomacity.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-tulsa",
+    "name": "Porsche Tulsa",
+    "city": "Tulsa",
+    "state": "OK",
+    "sitemapUrl": "https://www.porschetulsa.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschetulsa.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschetulsa.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-little-rock",
+    "name": "Porsche Little Rock",
+    "city": "Little Rock",
+    "state": "AR",
+    "sitemapUrl": "https://www.porschelittlerock.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschelittlerock.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschelittlerock.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-northwest-arkansas",
+    "name": "Porsche Northwest Arkansas",
+    "city": "Rogers",
+    "state": "AR",
+    "sitemapUrl": "https://www.porschenorthwestarkansas.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschenorthwestarkansas.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschenorthwestarkansas.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-downtown-chicago",
+    "name": "Porsche Downtown Chicago",
+    "city": "Chicago",
+    "state": "IL",
+    "sitemapUrl": "https://www.porschedowntownchicago.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschedowntownchicago.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschedowntownchicago.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-exchange",
+    "name": "Porsche Exchange",
+    "city": "Highland Park",
+    "state": "IL",
+    "sitemapUrl": "https://www.4porsche.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.4porsche.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://4porsche.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-barrington",
+    "name": "Porsche Barrington",
+    "city": "Barrington",
+    "state": "IL",
+    "sitemapUrl": "https://www.motorwerks.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.motorwerks.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://motorwerks.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-westmont",
+    "name": "Porsche Westmont",
+    "city": "Westmont",
+    "state": "IL",
+    "sitemapUrl": "https://www.porschewestmont.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschewestmont.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschewestmont.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-naperville",
+    "name": "Porsche Naperville",
+    "city": "Naperville",
+    "state": "IL",
+    "sitemapUrl": "https://www.porschenaperville.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschenaperville.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschenaperville.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-orland-park",
+    "name": "Porsche Orland Park",
+    "city": "Orland Park",
+    "state": "IL",
+    "sitemapUrl": "https://www.porscheorlandpark.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porscheorlandpark.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porscheorlandpark.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-hoffman-estates",
+    "name": "Porsche Hoffman Estates",
+    "city": "Hoffman Estates",
+    "state": "IL",
+    "sitemapUrl": "https://www.porschehoffmanestates.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschehoffmanestates.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschehoffmanestates.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-peoria",
+    "name": "Porsche Peoria",
+    "city": "Peoria",
+    "state": "IL",
+    "sitemapUrl": "https://www.porschepeoria.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschepeoria.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschepeoria.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-columbus",
+    "name": "Porsche Columbus",
+    "city": "Columbus",
+    "state": "OH",
+    "sitemapUrl": "https://www.porschecolumbus.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschecolumbus.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschecolumbus.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-cleveland",
+    "name": "Porsche Cleveland",
+    "city": "North Olmsted",
+    "state": "OH",
+    "sitemapUrl": "https://www.porschecleveland.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschecleveland.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschecleveland.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-cincinnati-kings",
+    "name": "Porsche Cincinnati Kings",
+    "city": "Cincinnati",
+    "state": "OH",
+    "sitemapUrl": "https://www.porschecincinnatikings.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschecincinnatikings.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschecincinnatikings.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-beachwood",
+    "name": "Porsche Beachwood",
+    "city": "Beachwood",
+    "state": "OH",
+    "sitemapUrl": "https://www.porschebeachwood.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschebeachwood.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschebeachwood.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-akron",
+    "name": "Porsche Akron",
+    "city": "Akron",
+    "state": "OH",
+    "sitemapUrl": "https://www.porscheakron.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porscheakron.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porscheakron.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-ann-arbor",
+    "name": "Porsche Ann Arbor",
+    "city": "Ann Arbor",
+    "state": "MI",
+    "sitemapUrl": "https://www.porscheannarbor.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porscheannarbor.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porscheannarbor.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-farmington-hills",
+    "name": "Porsche Farmington Hills",
+    "city": "Farmington Hills",
+    "state": "MI",
+    "sitemapUrl": "https://www.porschefarmingtonhills.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschefarmingtonhills.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschefarmingtonhills.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-grand-rapids",
+    "name": "Porsche Grand Rapids",
+    "city": "Grand Rapids",
+    "state": "MI",
+    "sitemapUrl": "https://www.porschegrandrapids.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschegrandrapids.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschegrandrapids.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-indianapolis",
+    "name": "Porsche Indianapolis",
+    "city": "Indianapolis",
+    "state": "IN",
+    "sitemapUrl": "https://www.porscheindianapolis.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porscheindianapolis.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porscheindianapolis.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-fort-wayne",
+    "name": "Porsche Fort Wayne",
+    "city": "Fort Wayne",
+    "state": "IN",
+    "sitemapUrl": "https://www.porschefortwayne.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschefortwayne.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschefortwayne.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-st-louis",
+    "name": "Porsche St. Louis",
+    "city": "St. Louis",
+    "state": "MO",
+    "sitemapUrl": "https://www.porschestlouis.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschestlouis.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschestlouis.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-kansas-city",
+    "name": "Porsche Kansas City",
+    "city": "Merriam",
+    "state": "KS",
+    "sitemapUrl": "https://www.porschekansascity.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschekansascity.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschekansascity.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-wichita",
+    "name": "Porsche Wichita",
+    "city": "Wichita",
+    "state": "KS",
+    "sitemapUrl": "https://www.porschewichita.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschewichita.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschewichita.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-springfield",
+    "name": "Porsche Springfield",
+    "city": "Springfield",
+    "state": "MO",
+    "sitemapUrl": "https://www.porschespringfield.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschespringfield.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschespringfield.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-milwaukee-north",
+    "name": "Porsche Milwaukee North",
+    "city": "Milwaukee",
+    "state": "WI",
+    "sitemapUrl": "https://www.porschemilwaukeenorth.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschemilwaukeenorth.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschemilwaukeenorth.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-madison",
+    "name": "Porsche Madison",
+    "city": "Madison",
+    "state": "WI",
+    "sitemapUrl": "https://www.porschemadison.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschemadison.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschemadison.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-fox-valley",
+    "name": "Porsche Fox Valley",
+    "city": "Appleton",
+    "state": "WI",
+    "sitemapUrl": "https://www.porschefoxvalley.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschefoxvalley.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschefoxvalley.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-minneapolis",
+    "name": "Porsche Minneapolis",
+    "city": "Minneapolis",
+    "state": "MN",
+    "sitemapUrl": "https://www.porscheminneapolis.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porscheminneapolis.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porscheminneapolis.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-st-paul",
+    "name": "Porsche St. Paul",
+    "city": "Maplewood",
+    "state": "MN",
+    "sitemapUrl": "https://www.porschestpaul.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschestpaul.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschestpaul.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-des-moines",
+    "name": "Porsche Des Moines",
+    "city": "Des Moines",
+    "state": "IA",
+    "sitemapUrl": "https://www.porschedesmoines.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschedesmoines.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschedesmoines.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-omaha",
+    "name": "Porsche Omaha",
+    "city": "Omaha",
+    "state": "NE",
+    "sitemapUrl": "https://www.porscheomaha.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porscheomaha.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porscheomaha.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-louisville",
+    "name": "Porsche Louisville",
+    "city": "Louisville",
+    "state": "KY",
+    "sitemapUrl": "https://www.porschelouisville.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschelouisville.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschelouisville.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-lexington",
+    "name": "Porsche Lexington",
+    "city": "Lexington",
+    "state": "KY",
+    "sitemapUrl": "https://www.porschelexington.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschelexington.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschelexington.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-beverly-hills",
+    "name": "Porsche Beverly Hills",
+    "city": "Los Angeles",
+    "state": "CA",
+    "sitemapUrl": "https://www.porschebeverlyhills.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschebeverlyhills.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschebeverlyhills.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-downtown-l-a",
+    "name": "Porsche Downtown L.A.",
+    "city": "Los Angeles",
+    "state": "CA",
+    "sitemapUrl": "https://www.porschedowntownla.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschedowntownla.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschedowntownla.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-stevens-creek",
+    "name": "Porsche Stevens Creek",
+    "city": "Santa Clara",
+    "state": "CA",
+    "sitemapUrl": "https://www.porschestevenscreek.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschestevenscreek.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschestevenscreek.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-san-diego",
+    "name": "Porsche San Diego",
+    "city": "San Diego",
+    "state": "CA",
+    "sitemapUrl": "https://www.porschesandiego.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschesandiego.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschesandiego.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-irvine",
+    "name": "Porsche Irvine",
+    "city": "Irvine",
+    "state": "CA",
+    "sitemapUrl": "https://www.porscheirvine.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porscheirvine.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porscheirvine.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-newport-beach",
+    "name": "Porsche Newport Beach",
+    "city": "Newport Beach",
+    "state": "CA",
+    "sitemapUrl": "https://www.porschenewportbeach.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschenewportbeach.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschenewportbeach.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-south-bay",
+    "name": "Porsche South Bay",
+    "city": "Hawthorne",
+    "state": "CA",
+    "sitemapUrl": "https://www.porschesouthbay.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschesouthbay.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschesouthbay.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-marin",
+    "name": "Porsche Marin",
+    "city": "Mill Valley",
+    "state": "CA",
+    "sitemapUrl": "https://www.porschemarin.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschemarin.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschemarin.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-carlsbad",
+    "name": "Porsche Carlsbad",
+    "city": "Carlsbad",
+    "state": "CA",
+    "sitemapUrl": "https://www.porschecarlsbad.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschecarlsbad.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschecarlsbad.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-redwood-city",
+    "name": "Porsche Redwood City",
+    "city": "Redwood City",
+    "state": "CA",
+    "sitemapUrl": "https://www.porscheredwoodcity.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porscheredwoodcity.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porscheredwoodcity.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-walnut-creek",
+    "name": "Porsche Walnut Creek",
+    "city": "Walnut Creek",
+    "state": "CA",
+    "sitemapUrl": "https://www.porschewalnutcreek.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschewalnutcreek.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschewalnutcreek.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-fremont",
+    "name": "Porsche Fremont",
+    "city": "Fremont",
+    "state": "CA",
+    "sitemapUrl": "https://www.porschefremont.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschefremont.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschefremont.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-ontario",
+    "name": "Porsche Ontario",
+    "city": "Ontario",
+    "state": "CA",
+    "sitemapUrl": "https://www.porscheontario.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porscheontario.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porscheontario.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-riverside",
+    "name": "Porsche Riverside",
+    "city": "Riverside",
+    "state": "CA",
+    "sitemapUrl": "https://www.porscheriverside.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porscheriverside.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porscheriverside.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-santa-barbara",
+    "name": "Porsche Santa Barbara",
+    "city": "Santa Barbara",
+    "state": "CA",
+    "sitemapUrl": "https://www.porschesantabarbara.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschesantabarbara.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschesantabarbara.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-monterey",
+    "name": "Porsche Monterey",
+    "city": "Seaside",
+    "state": "CA",
+    "sitemapUrl": "https://www.porschemonterey.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschemonterey.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschemonterey.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-rocklin",
+    "name": "Porsche Rocklin",
+    "city": "Rocklin",
+    "state": "CA",
+    "sitemapUrl": "https://www.porscherocklin.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porscherocklin.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porscherocklin.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-bakersfield",
+    "name": "Porsche Bakersfield",
+    "city": "Bakersfield",
+    "state": "CA",
+    "sitemapUrl": "https://www.porschebakersfield.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschebakersfield.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschebakersfield.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-fresno",
+    "name": "Porsche Fresno",
+    "city": "Fresno",
+    "state": "CA",
+    "sitemapUrl": "https://www.porschefresno.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschefresno.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschefresno.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-san-luis-obispo",
+    "name": "Porsche San Luis Obispo",
+    "city": "San Luis Obispo",
+    "state": "CA",
+    "sitemapUrl": "https://www.porschesanluisobispo.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschesanluisobispo.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschesanluisobispo.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-palm-springs",
+    "name": "Porsche Palm Springs",
+    "city": "Palm Springs",
+    "state": "CA",
+    "sitemapUrl": "https://www.porschepalmsprings.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschepalmsprings.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschepalmsprings.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-woodland-hills",
+    "name": "Porsche Woodland Hills",
+    "city": "Woodland Hills",
+    "state": "CA",
+    "sitemapUrl": "https://www.porschewoodlandhills.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschewoodlandhills.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschewoodlandhills.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-westlake",
+    "name": "Porsche Westlake",
+    "city": "Thousand Oaks",
+    "state": "CA",
+    "sitemapUrl": "https://www.porschewestlake.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschewestlake.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschewestlake.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-santa-clarita",
+    "name": "Porsche Santa Clarita",
+    "city": "Santa Clarita",
+    "state": "CA",
+    "sitemapUrl": "https://www.porschesantaclarita.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschesantaclarita.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschesantaclarita.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-honolulu",
+    "name": "Porsche Honolulu",
+    "city": "Honolulu",
+    "state": "HI",
+    "sitemapUrl": "https://www.porschehonolulu.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschehonolulu.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschehonolulu.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-bellevue",
+    "name": "Porsche Bellevue",
+    "city": "Bellevue",
+    "state": "WA",
+    "sitemapUrl": "https://www.porschebellevue.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschebellevue.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschebellevue.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-seattle-north",
+    "name": "Porsche Seattle North",
+    "city": "Lynnwood",
+    "state": "WA",
+    "sitemapUrl": "https://www.porscheseattlenorth.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porscheseattlenorth.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porscheseattlenorth.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-tacoma",
+    "name": "Porsche Tacoma",
+    "city": "Fife",
+    "state": "WA",
+    "sitemapUrl": "https://www.porschetacoma.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschetacoma.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschetacoma.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-spokane",
+    "name": "Porsche Spokane",
+    "city": "Spokane",
+    "state": "WA",
+    "sitemapUrl": "https://www.porschespokane.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschespokane.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschespokane.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-bellingham",
+    "name": "Porsche Bellingham",
+    "city": "Bellingham",
+    "state": "WA",
+    "sitemapUrl": "https://www.porschebellingham.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschebellingham.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschebellingham.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-beaverton",
+    "name": "Porsche Beaverton",
+    "city": "Beaverton",
+    "state": "OR",
+    "sitemapUrl": "https://www.porschebeaverton.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschebeaverton.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschebeaverton.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-bend",
+    "name": "Porsche Bend",
+    "city": "Bend",
+    "state": "OR",
+    "sitemapUrl": "https://www.porschebend.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschebend.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschebend.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-north-scottsdale",
+    "name": "Porsche North Scottsdale",
+    "city": "Scottsdale",
+    "state": "AZ",
+    "sitemapUrl": "https://www.porschenorthscottsdale.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschenorthscottsdale.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschenorthscottsdale.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-chandler",
+    "name": "Porsche Chandler",
+    "city": "Chandler",
+    "state": "AZ",
+    "sitemapUrl": "https://www.porschechandler.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschechandler.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschechandler.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-tucson",
+    "name": "Porsche Tucson",
+    "city": "Tucson",
+    "state": "AZ",
+    "sitemapUrl": "https://www.porschetucson.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschetucson.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschetucson.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-arrowhead",
+    "name": "Porsche Arrowhead",
+    "city": "Peoria",
+    "state": "AZ",
+    "sitemapUrl": "https://www.porschearrowhead.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschearrowhead.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschearrowhead.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-las-vegas",
+    "name": "Porsche Las Vegas",
+    "city": "Las Vegas",
+    "state": "NV",
+    "sitemapUrl": "https://www.gaudinporschelv.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.gaudinporschelv.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://gaudinporschelv.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-reno",
+    "name": "Porsche Reno",
+    "city": "Reno",
+    "state": "NV",
+    "sitemapUrl": "https://www.porschereno.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschereno.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschereno.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-littleton-denver",
+    "name": "Porsche Littleton (Denver)",
+    "city": "Littleton",
+    "state": "CO",
+    "sitemapUrl": "https://www.porschelittleton.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschelittleton.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschelittleton.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-denver-central",
+    "name": "Porsche Denver Central",
+    "city": "Denver",
+    "state": "CO",
+    "sitemapUrl": "https://www.porschedenvercentral.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschedenvercentral.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschedenvercentral.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-colorado-springs",
+    "name": "Porsche Colorado Springs",
+    "city": "Colorado Springs",
+    "state": "CO",
+    "sitemapUrl": "https://www.porschecoloradosprings.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschecoloradosprings.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschecoloradosprings.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-fort-collins",
+    "name": "Porsche Fort Collins",
+    "city": "Fort Collins",
+    "state": "CO",
+    "sitemapUrl": "https://www.porschefortcollins.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschefortcollins.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschefortcollins.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-salt-lake-city",
+    "name": "Porsche Salt Lake City",
+    "city": "Salt Lake City",
+    "state": "UT",
+    "sitemapUrl": "https://www.porschesaltlakecity.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschesaltlakecity.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschesaltlakecity.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-lehi",
+    "name": "Porsche Lehi",
+    "city": "Lehi",
+    "state": "UT",
+    "sitemapUrl": "https://www.porschelehi.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschelehi.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschelehi.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-boise",
+    "name": "Porsche Boise",
+    "city": "Boise",
+    "state": "ID",
+    "sitemapUrl": "https://www.porscheboise.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porscheboise.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porscheboise.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-billings",
+    "name": "Porsche Billings",
+    "city": "Billings",
+    "state": "MT",
+    "sitemapUrl": "https://www.porschebillings.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschebillings.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschebillings.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-albuquerque",
+    "name": "Porsche Albuquerque",
+    "city": "Albuquerque",
+    "state": "NM",
+    "sitemapUrl": "https://www.porschealbuquerque.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschealbuquerque.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschealbuquerque.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-anchorage",
+    "name": "Porsche Anchorage",
+    "city": "Anchorage",
+    "state": "AK",
+    "sitemapUrl": "https://www.porscheanchorage.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porscheanchorage.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porscheanchorage.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-sioux-falls",
+    "name": "Porsche Sioux Falls",
+    "city": "Sioux Falls",
+    "state": "SD",
+    "sitemapUrl": "https://www.porschesiouxfalls.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschesiouxfalls.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschesiouxfalls.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-fargo",
+    "name": "Porsche Fargo",
+    "city": "Fargo",
+    "state": "ND",
+    "sitemapUrl": "https://www.porschefargo.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschefargo.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschefargo.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-charleston-wv",
+    "name": "Porsche Charleston WV",
+    "city": "Charleston",
+    "state": "WV",
+    "sitemapUrl": "https://www.porscheofcharleston.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porscheofcharleston.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porscheofcharleston.com/sitemap.xml"
   }
 ]
