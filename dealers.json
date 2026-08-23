@@ -1,0 +1,387 @@
+[
+  {
+    "id": "paul-miller-porsche",
+    "name": "Paul Miller Porsche",
+    "city": "Parsippany",
+    "state": "NJ",
+    "sitemapUrl": "https://www.paulmillerporsche.com/sitemap.xml"
+  },
+  {
+    "id": "champion-porsche",
+    "name": "Champion Porsche",
+    "city": "Pompano Beach",
+    "state": "FL",
+    "sitemapUrl": "https://www.champion-porsche.com/sitemap.xml"
+  },
+  {
+    "id": "the-collection-porsche",
+    "name": "The Collection Porsche",
+    "city": "Coral Gables",
+    "state": "FL",
+    "sitemapUrl": "https://www.thecollectionporsche.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-brooklyn",
+    "name": "Porsche Brooklyn",
+    "city": "Brooklyn",
+    "state": "NY",
+    "sitemapUrl": "https://www.porschebrooklyn.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-south-shore",
+    "name": "Porsche South Shore",
+    "city": "Freeport",
+    "state": "NY",
+    "sitemapUrl": "https://www.porschesouthshore.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-beverly-hills",
+    "name": "Porsche Beverly Hills",
+    "city": "Los Angeles",
+    "state": "CA",
+    "sitemapUrl": "https://www.porschebeverlyhills.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-downtown-la",
+    "name": "Porsche Downtown L.A.",
+    "city": "Los Angeles",
+    "state": "CA",
+    "sitemapUrl": "https://www.porschedowntownla.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-stevens-creek",
+    "name": "Porsche Stevens Creek",
+    "city": "Santa Clara",
+    "state": "CA",
+    "sitemapUrl": "https://www.porschestevenscreek.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-san-diego",
+    "name": "Porsche San Diego",
+    "city": "San Diego",
+    "state": "CA",
+    "sitemapUrl": "https://www.porschesandiego.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-irvine",
+    "name": "Porsche Irvine",
+    "city": "Irvine",
+    "state": "CA",
+    "sitemapUrl": "https://www.porscheirvine.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-south-bay",
+    "name": "Porsche South Bay",
+    "city": "Hawthorne",
+    "state": "CA",
+    "sitemapUrl": "https://www.porschesouthbay.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-marin",
+    "name": "Porsche Marin",
+    "city": "Mill Valley",
+    "state": "CA",
+    "sitemapUrl": "https://www.porschemarin.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-carlsbad",
+    "name": "Porsche Carlsbad",
+    "city": "Carlsbad",
+    "state": "CA",
+    "sitemapUrl": "https://www.porschecarlsbad.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-redwood-city",
+    "name": "Porsche Redwood City",
+    "city": "Redwood City",
+    "state": "CA",
+    "sitemapUrl": "https://www.porscheredwoodcity.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-walnut-creek",
+    "name": "Porsche Walnut Creek",
+    "city": "Walnut Creek",
+    "state": "CA",
+    "sitemapUrl": "https://www.porschewalnutcreek.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-west-broward",
+    "name": "Porsche West Broward",
+    "city": "Davie",
+    "state": "FL",
+    "sitemapUrl": "https://www.porschewestbroward.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-orlando",
+    "name": "Porsche Orlando",
+    "city": "Maitland",
+    "state": "FL",
+    "sitemapUrl": "https://www.porscheorlando.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-fort-myers",
+    "name": "Porsche Fort Myers",
+    "city": "Fort Myers",
+    "state": "FL",
+    "sitemapUrl": "https://www.porschefortmyers.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-jacksonville",
+    "name": "Porsche Jacksonville",
+    "city": "Jacksonville",
+    "state": "FL",
+    "sitemapUrl": "https://www.porschejacksonville.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-north-houston",
+    "name": "Porsche North Houston",
+    "city": "Houston",
+    "state": "TX",
+    "sitemapUrl": "https://www.porschenorthhouston.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-austin",
+    "name": "Porsche Austin",
+    "city": "Austin",
+    "state": "TX",
+    "sitemapUrl": "https://www.porscheaustin.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-dallas",
+    "name": "Park Place Porsche Dallas",
+    "city": "Dallas",
+    "state": "TX",
+    "sitemapUrl": "https://www.parkplace.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-grapevine",
+    "name": "Porsche Grapevine",
+    "city": "Grapevine",
+    "state": "TX",
+    "sitemapUrl": "https://www.porschegrapevine.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-plano",
+    "name": "Porsche Plano",
+    "city": "Plano",
+    "state": "TX",
+    "sitemapUrl": "https://www.porscheplano.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-west-houston",
+    "name": "Porsche West Houston",
+    "city": "Houston",
+    "state": "TX",
+    "sitemapUrl": "https://www.porschewesthouston.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-river-oaks",
+    "name": "Porsche River Oaks",
+    "city": "Houston",
+    "state": "TX",
+    "sitemapUrl": "https://www.porscheriveroaks.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-san-antonio",
+    "name": "Porsche San Antonio",
+    "city": "San Antonio",
+    "state": "TX",
+    "sitemapUrl": "https://www.porschesanantonio.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-englewood",
+    "name": "Porsche Englewood",
+    "city": "Englewood",
+    "state": "NJ",
+    "sitemapUrl": "https://www.porscheenglewood.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-monmouth",
+    "name": "Porsche Monmouth",
+    "city": "West Long Branch",
+    "state": "NJ",
+    "sitemapUrl": "https://www.porschemonmouth.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-cherry-hill",
+    "name": "Porsche Cherry Hill",
+    "city": "Cherry Hill",
+    "state": "NJ",
+    "sitemapUrl": "https://www.porschecherryhill.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-fairfield",
+    "name": "Porsche Fairfield",
+    "city": "Fairfield",
+    "state": "CT",
+    "sitemapUrl": "https://www.porschefairfield.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-gold-coast",
+    "name": "Porsche Gold Coast",
+    "city": "Jericho",
+    "state": "NY",
+    "sitemapUrl": "https://www.porschegoldcoast.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-westwood",
+    "name": "Porsche Westwood",
+    "city": "Westwood",
+    "state": "MA",
+    "sitemapUrl": "https://www.porschewestwood.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-norwell",
+    "name": "Porsche Norwell",
+    "city": "Norwell",
+    "state": "MA",
+    "sitemapUrl": "https://www.porschenorwell.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-burlington",
+    "name": "Porsche Burlington",
+    "city": "Burlington",
+    "state": "MA",
+    "sitemapUrl": "https://www.porscheburlington.com/sitemap.xml"
+  },
+  {
+    "id": "hennessy-porsche-atlanta",
+    "name": "Hennessy Porsche North Atlanta",
+    "city": "Roswell",
+    "state": "GA",
+    "sitemapUrl": "https://www.hennessyporsche.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-tysons-corner",
+    "name": "Porsche Tysons Corner",
+    "city": "Vienna",
+    "state": "VA",
+    "sitemapUrl": "https://www.porschetysonscorner.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-bethesda",
+    "name": "Porsche Bethesda",
+    "city": "Bethesda",
+    "state": "MD",
+    "sitemapUrl": "https://www.porschebethesda.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-silver-spring",
+    "name": "Porsche Silver Spring",
+    "city": "Silver Spring",
+    "state": "MD",
+    "sitemapUrl": "https://www.porschesilverspring.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-warrington",
+    "name": "Porsche Warrington",
+    "city": "Warrington",
+    "state": "PA",
+    "sitemapUrl": "https://www.porschewarrington.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-main-line",
+    "name": "Porsche Main Line",
+    "city": "Newtown Square",
+    "state": "PA",
+    "sitemapUrl": "https://www.porscheofthemainline.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-conshohocken",
+    "name": "Porsche Conshohocken",
+    "city": "Conshohocken",
+    "state": "PA",
+    "sitemapUrl": "https://www.porscheconshohocken.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-west-chester",
+    "name": "Porsche West Chester",
+    "city": "West Chester",
+    "state": "PA",
+    "sitemapUrl": "https://www.porschewestchester.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-downtown-chicago",
+    "name": "Porsche Downtown Chicago",
+    "city": "Chicago",
+    "state": "IL",
+    "sitemapUrl": "https://www.porschedowntownchicago.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-exchange",
+    "name": "Porsche Exchange",
+    "city": "Highland Park",
+    "state": "IL",
+    "sitemapUrl": "https://www.4porsche.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-columbus",
+    "name": "Porsche Columbus",
+    "city": "Columbus",
+    "state": "OH",
+    "sitemapUrl": "https://www.porschecolumbus.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-north-scottsdale",
+    "name": "Porsche North Scottsdale",
+    "city": "Scottsdale",
+    "state": "AZ",
+    "sitemapUrl": "https://www.porschenorthscottsdale.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-chandler",
+    "name": "Porsche Chandler",
+    "city": "Chandler",
+    "state": "AZ",
+    "sitemapUrl": "https://www.porschechandler.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-las-vegas",
+    "name": "Porsche Las Vegas",
+    "city": "Las Vegas",
+    "state": "NV",
+    "sitemapUrl": "https://www.gaudinporschelv.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-bellevue",
+    "name": "Porsche Bellevue",
+    "city": "Bellevue",
+    "state": "WA",
+    "sitemapUrl": "https://www.porschebellevue.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-seattle",
+    "name": "Porsche Seattle North",
+    "city": "Lynnwood",
+    "state": "WA",
+    "sitemapUrl": "https://www.porscheseattlenorth.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-beaverton",
+    "name": "Porsche Beaverton",
+    "city": "Beaverton",
+    "state": "OR",
+    "sitemapUrl": "https://www.porschebeaverton.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-denver",
+    "name": "Porsche Littleton (Denver)",
+    "city": "Littleton",
+    "state": "CO",
+    "sitemapUrl": "https://www.porschelittleton.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-st-louis",
+    "name": "Porsche St. Louis",
+    "city": "St. Louis",
+    "state": "MO",
+    "sitemapUrl": "https://www.porschestlouis.com/sitemap.xml"
+  },
+  {
+    "id": "porsche-nashville",
+    "name": "Porsche Nashville",
+    "city": "Brentwood",
+    "state": "TN",
+    "sitemapUrl": "https://www.porschenashville.com/sitemap.xml"
+  }
+]
