@@ -25,7 +25,7 @@ import { LightsailIntelligence } from "../components/LightsailIntelligence";
 
 export default function Home() {
   const [vehicles, setVehicles] = useState<Vehicle[]>(MOCK_VEHICLES);
-  const [currentView, setCurrentView] = useState<"search" | "bid_program" | "deal_room" | "dealer_portal" | "track_deals" | "signup" | "admin" | "lightsail_analytics">("search");
+  const [currentView, setCurrentView] = useState<"lightsail_analytics" | "bid_program" | "deal_room" | "dealer_portal" | "track_deals" | "signup" | "admin" | "search">("lightsail_analytics");
   const [isImpersonating, setIsImpersonating] = useState<boolean>(() => {
     if (typeof window !== "undefined") {
       return localStorage.getItem("trimscout_impersonating") !== null;
@@ -124,7 +124,7 @@ export default function Home() {
         localStorage.removeItem("trimscout_current_user");
       } catch (e) {}
     }
-    setCurrentView("search");
+    setCurrentView("lightsail_analytics");
   };
 
   // Sync Live Inventory from Connector
@@ -445,23 +445,7 @@ export default function Home() {
         )
       )}
 
-      {/* View 1: Clean Opening Search (Carvana-Style) */}
-      {currentView === "search" && (
-        <MarketSearch
-          vehicles={vehicles}
-          onSelectForBid={handleSelectForBid}
-          onOpenFlexibleWizard={handleOpenFlexibleWizard}
-          onOpenConnectorModal={() => setIsConnectorModalOpen(true)}
-          onOpenScraperModal={() => setIsScraperModalOpen(true)}
-          onSyncLiveInventory={handleSyncLiveInventory}
-          isSyncingInventory={isSyncingInventory}
-          onLoadMoreLiveInventory={handleLoadMoreLiveInventory}
-          hasMoreVehicles={hasMoreVehicles}
-          totalFoundVehicles={totalFoundVehicles}
-          isLoadingMore={isLoadingMore}
-          onNavigateToLightsail={() => setCurrentView("lightsail_analytics")}
-        />
-      )}
+
 
       {/* View 2: Reverse Bidding Program Intro Page */}
       {currentView === "bid_program" && (
@@ -502,7 +486,7 @@ export default function Home() {
             onSuccess={(newUser) => {
               handleLogin(newUser);
             }}
-            onNavigateHome={() => setCurrentView("search")}
+            onNavigateHome={() => setCurrentView("lightsail_analytics")}
           />
         </div>
       )}
@@ -529,13 +513,13 @@ export default function Home() {
                 setCurrentView("track_deals");
               }
             }}
-            onExitAdmin={() => setCurrentView("search")}
+            onExitAdmin={() => setCurrentView("lightsail_analytics")}
           />
         </div>
       )}
 
       {/* View 7: Live AWS Lightsail Market Intelligence & Price Drops */}
-      {currentView === "lightsail_analytics" && (
+      {(currentView === "lightsail_analytics" || currentView === "search") && (
         <div className="animate-fadeIn">
           <LightsailIntelligence />
         </div>

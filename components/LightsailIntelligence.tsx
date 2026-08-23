@@ -15,6 +15,9 @@ import {
   ShieldCheck,
   Tag,
   SlidersHorizontal,
+  Sliders,
+  ChevronDown,
+  ChevronUp,
   X,
   RotateCcw,
   LayoutGrid,
@@ -64,6 +67,7 @@ export const LightsailIntelligence: React.FC = () => {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [viewMode, setViewMode] = useState<"table" | "grid">("table");
   const [copiedVin, setCopiedVin] = useState<string | null>(null);
+  const [isAdvancedFiltersOpen, setIsAdvancedFiltersOpen] = useState(false);
 
   // ==========================================
   // UNCONSTRAINED COMPREHENSIVE FILTER STATES
@@ -532,342 +536,451 @@ export const LightsailIntelligence: React.FC = () => {
       </div>
 
       {/* ==================================================== */}
-      {/* MULTI-CATEGORY COMPREHENSIVE FILTER PANEL */}
       {/* ==================================================== */}
-      <div className="rounded-3xl border border-border bg-surface p-6 shadow-xl space-y-4">
-        <div className="flex items-center justify-between border-b border-border/60 pb-3">
-          <div className="flex items-center gap-2">
-            <SlidersHorizontal className="h-4 w-4 text-emerald-400" />
-            <h2 className="font-black text-white text-sm uppercase tracking-wider">
-              Filter by Every Possible Category
-            </h2>
-            {activeFiltersCount > 0 && (
-              <span className="rounded-full bg-emerald-500/20 text-emerald-400 px-2 py-0.2 text-[10px] font-bold">
-                {activeFiltersCount} active
-              </span>
-            )}
-          </div>
+      {/* 3. CLEAN PROMINENT SEARCH BAR & QUICK FILTERS */}
+      {/* ==================================================== */}
+      <div className="space-y-4">
+        {/* Main Search Bar Card */}
+        <div className="rounded-2xl border border-border bg-surface p-3.5 sm:p-4 shadow-xl space-y-3 focus-within:border-emerald-500/60 focus-within:ring-1 focus-within:ring-emerald-500/20 transition-all">
+          {/* Top Search Input Row */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
+            {/* Input Field with Left Search Icon & Right Clear / Result Count */}
+            <div className="relative flex-1 flex items-center">
+              <Search className="absolute left-3.5 h-4.5 w-4.5 text-emerald-400 pointer-events-none" />
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Search any Porsche by VIN, model, trim (e.g. 911 GT3, GTS 4.0, Taycan 4S), color, or dealer..."
+                className="w-full rounded-xl border border-border/80 bg-surface-elevated pl-11 pr-24 py-3 text-sm text-white placeholder-ink-faint focus:border-emerald-500 focus:bg-background focus:outline-none transition-all shadow-inner"
+              />
+              <div className="absolute right-2.5 flex items-center gap-1.5">
+                {searchTerm && (
+                  <button
+                    type="button"
+                    onClick={() => setSearchTerm("")}
+                    className="p-1 rounded-md text-ink-muted hover:text-white hover:bg-surface transition-colors cursor-pointer"
+                    title="Clear search"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                )}
+                <span className="hidden sm:inline-flex items-center rounded-lg bg-surface px-2 py-1 text-[11px] font-mono font-bold text-ink-light border border-border/60">
+                  {filteredVehicles.length} found
+                </span>
+              </div>
+            </div>
 
-          <div className="flex items-center gap-3">
-            {activeFiltersCount > 0 && (
+            {/* Action Buttons: Filter Toggle + Reset + View Mode */}
+            <div className="flex items-center gap-2 shrink-0">
               <button
-                onClick={handleResetFilters}
-                className="text-emerald-400 hover:underline inline-flex items-center gap-1 font-bold text-xs cursor-pointer"
+                type="button"
+                onClick={() => setIsAdvancedFiltersOpen(!isAdvancedFiltersOpen)}
+                className={`inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl border text-xs font-bold transition-all cursor-pointer shadow-sm ${
+                  isAdvancedFiltersOpen || activeFiltersCount > (searchTerm ? 1 : 0)
+                    ? "bg-emerald-500/15 border-emerald-500/50 text-emerald-300"
+                    : "bg-surface-elevated border-border text-ink-light hover:text-white hover:border-border-strong"
+                }`}
               >
-                <RotateCcw className="h-3 w-3" />
-                <span>Reset Filters</span>
+                <SlidersHorizontal className="h-3.5 w-3.5 text-emerald-400" />
+                <span>Filters</span>
+                {activeFiltersCount > 0 && (
+                  <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-emerald-500 px-1 text-[9px] font-black text-black">
+                    {activeFiltersCount}
+                  </span>
+                )}
+                {isAdvancedFiltersOpen ? (
+                  <ChevronUp className="h-3.5 w-3.5 text-ink-faint" />
+                ) : (
+                  <ChevronDown className="h-3.5 w-3.5 text-ink-faint" />
+                )}
               </button>
-            )}
 
-            <div className="flex items-center rounded-xl border border-border bg-surface-elevated p-1">
-              <button
-                onClick={() => setViewMode("table")}
-                className={`p-1.5 rounded-lg text-xs font-bold transition-all ${
-                  viewMode === "table" ? "bg-surface text-emerald-400 shadow-sm" : "text-ink-muted hover:text-white"
-                }`}
-                title="Dense Table View"
-              >
-                <List className="h-4 w-4" />
-              </button>
-              <button
-                onClick={() => setViewMode("grid")}
-                className={`p-1.5 rounded-lg text-xs font-bold transition-all ${
-                  viewMode === "grid" ? "bg-surface text-emerald-400 shadow-sm" : "text-ink-muted hover:text-white"
-                }`}
-                title="Visual Card Grid View"
-              >
-                <LayoutGrid className="h-4 w-4" />
-              </button>
+              {activeFiltersCount > 0 && (
+                <button
+                  type="button"
+                  onClick={handleResetFilters}
+                  className="inline-flex items-center gap-1 px-3 py-2.5 rounded-xl border border-border bg-surface-elevated hover:bg-surface text-ink-muted hover:text-rose-400 hover:border-rose-500/40 text-xs font-bold transition-all cursor-pointer"
+                  title="Reset all filters"
+                >
+                  <RotateCcw className="h-3.5 w-3.5" />
+                  <span className="hidden sm:inline">Reset</span>
+                </button>
+              )}
+
+              {/* View Mode Switcher */}
+              <div className="flex items-center rounded-xl border border-border bg-surface-elevated p-0.5">
+                <button
+                  type="button"
+                  onClick={() => setViewMode("table")}
+                  className={`p-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                    viewMode === "table" ? "bg-surface text-emerald-400 shadow-sm" : "text-ink-muted hover:text-white"
+                  }`}
+                  title="Table View"
+                >
+                  <List className="h-3.5 w-3.5" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setViewMode("grid")}
+                  className={`p-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                    viewMode === "grid" ? "bg-surface text-emerald-400 shadow-sm" : "text-ink-muted hover:text-white"
+                  }`}
+                  title="Card Grid View"
+                >
+                  <LayoutGrid className="h-3.5 w-3.5" />
+                </button>
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* 12 Filter Dropdowns & Inputs */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 text-xs">
-          {/* 1. Global Search */}
-          <div className="space-y-1">
-            <label className="text-[10px] font-bold uppercase text-ink-faint flex items-center gap-1">
-              <Search className="h-3 w-3 text-emerald-400" />
-              <span>Keyword / Exact VIN</span>
-            </label>
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search VIN, Model, GTS, Color..."
-              className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-xs text-white placeholder-ink-faint focus:border-emerald-500 focus:outline-none font-mono"
-            />
-          </div>
-
-          {/* 2. Model Series */}
-          <div className="space-y-1">
-            <label className="text-[10px] font-bold uppercase text-ink-faint flex items-center gap-1">
-              <Car className="h-3 w-3 text-blue-400" />
-              <span>Model Series</span>
-            </label>
-            <select
-              value={selectedModel}
-              onChange={(e) => setSelectedModel(e.target.value)}
-              className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
+          {/* Quick Model Pills Row */}
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 pt-0.5 scrollbar-thin scrollbar-thumb-border">
+            <span className="text-[10px] font-bold uppercase text-ink-faint shrink-0 mr-1">
+              Model:
+            </span>
+            <button
+              type="button"
+              onClick={() => setSelectedModel("ALL")}
+              className={`px-3 py-1 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer ${
+                selectedModel === "ALL"
+                  ? "bg-emerald-500 text-black shadow-sm"
+                  : "bg-surface-elevated border border-border text-ink-muted hover:text-white hover:border-emerald-500/40"
+              }`}
             >
-              <option value="ALL">All Models ({allVehicles.length})</option>
-              {facetOptions.models.map(([m, count]) => (
-                <option key={m} value={m}>
-                  {m} ({count})
-                </option>
-              ))}
-            </select>
+              All ({allVehicles.length})
+            </button>
+            {facetOptions.models.map(([m, count]) => (
+              <button
+                key={m}
+                type="button"
+                onClick={() => setSelectedModel(selectedModel === m ? "ALL" : m)}
+                className={`px-3 py-1 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer ${
+                  selectedModel === m
+                    ? "bg-emerald-500 text-black shadow-sm"
+                    : "bg-surface-elevated border border-border text-ink-muted hover:text-white hover:border-emerald-500/40"
+                }`}
+              >
+                {m} <span className="font-mono text-[10px] opacity-75">({count})</span>
+              </button>
+            ))}
           </div>
 
-          {/* 3. Trim / Edition */}
-          <div className="space-y-1">
-            <label className="text-[10px] font-bold uppercase text-ink-faint flex items-center gap-1">
-              <Tag className="h-3 w-3 text-purple-400" />
-              <span>Trim / Edition</span>
-            </label>
-            <select
-              value={selectedTrim}
-              onChange={(e) => setSelectedTrim(e.target.value)}
-              className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
+          {/* Quick Condition & Market Signals Row */}
+          <div className="flex flex-wrap items-center gap-1.5 pt-2 border-t border-border/50 text-xs">
+            <span className="text-[10px] font-bold uppercase text-ink-faint shrink-0 mr-1">
+              Condition:
+            </span>
+            {[
+              { id: "ALL", label: "All Conditions" },
+              { id: "NEW", label: "New", count: allVehicles.filter((v) => getNormalizedCondition(v) === "NEW").length },
+              { id: "CERTIFIED", label: "Certified (CPO)", count: allVehicles.filter((v) => getNormalizedCondition(v) === "CERTIFIED").length },
+              { id: "USED", label: "Pre-Owned", count: allVehicles.filter((v) => getNormalizedCondition(v) === "USED").length },
+            ].map((c) => (
+              <button
+                key={c.id}
+                type="button"
+                onClick={() => setSelectedCondition(c.id)}
+                className={`px-2.5 py-0.5 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
+                  selectedCondition === c.id
+                    ? c.id === "CERTIFIED"
+                      ? "bg-amber-500/20 border border-amber-500 text-amber-300"
+                      : c.id === "NEW"
+                      ? "bg-emerald-500/20 border border-emerald-500 text-emerald-300"
+                      : c.id === "USED"
+                      ? "bg-sky-500/20 border border-sky-500 text-sky-300"
+                      : "bg-surface-elevated border border-emerald-500 text-emerald-400"
+                    : "bg-surface-elevated/60 border border-border/70 text-ink-muted hover:text-white"
+                }`}
+              >
+                {c.label} {c.count !== undefined && <span className="font-mono text-[9.5px]">({c.count})</span>}
+              </button>
+            ))}
+
+            <div className="h-3.5 w-px bg-border/80 mx-1 hidden sm:block" />
+
+            <span className="text-[10px] font-bold uppercase text-ink-faint shrink-0 mr-1 hidden sm:inline">
+              Signals:
+            </span>
+            <button
+              type="button"
+              onClick={() => setSelectedOpportunity(selectedOpportunity === "PRICE_DROPS" ? "ALL" : "PRICE_DROPS")}
+              className={`px-2.5 py-0.5 rounded-lg text-[11px] font-bold transition-all cursor-pointer inline-flex items-center gap-1 ${
+                selectedOpportunity === "PRICE_DROPS"
+                  ? "bg-rose-500/20 border border-rose-500 text-rose-300"
+                  : "bg-surface-elevated/60 border border-border/70 text-ink-muted hover:text-rose-400"
+              }`}
             >
-              <option value="ALL">All Trims</option>
-              {facetOptions.trims.map(([t, count]) => (
-                <option key={t} value={t}>
-                  {t} ({count})
-                </option>
-              ))}
-            </select>
-          </div>
+              <Flame className="h-3 w-3 text-rose-400" />
+              <span>Price Drops ({allVehicles.filter((v) => v.changeType === "PRICE_DROP" || (v.priceDiff && v.priceDiff < 0)).length})</span>
+            </button>
 
-          {/* 4. Condition / Type */}
-          <div className="space-y-1">
-            <label className="text-[10px] font-bold uppercase text-ink-faint flex items-center gap-1">
-              <ShieldCheck className="h-3 w-3 text-amber-400" />
-              <span>Condition</span>
-            </label>
-            <select
-              value={selectedCondition}
-              onChange={(e) => setSelectedCondition(e.target.value)}
-              className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
+            <button
+              type="button"
+              onClick={() => setSelectedOpportunity(selectedOpportunity === "NEW_ARRIVALS" ? "ALL" : "NEW_ARRIVALS")}
+              className={`px-2.5 py-0.5 rounded-lg text-[11px] font-bold transition-all cursor-pointer inline-flex items-center gap-1 ${
+                selectedOpportunity === "NEW_ARRIVALS"
+                  ? "bg-blue-500/20 border border-blue-500 text-blue-300"
+                  : "bg-surface-elevated/60 border border-border/70 text-ink-muted hover:text-blue-400"
+              }`}
             >
-              <option value="ALL">All Conditions</option>
-              <option value="NEW">New Units ({allVehicles.filter((v) => getNormalizedCondition(v) === "NEW").length})</option>
-              <option value="USED">Pre-Owned ({allVehicles.filter((v) => getNormalizedCondition(v) === "USED").length})</option>
-              <option value="CERTIFIED">Certified Pre-Owned (CPO) ({allVehicles.filter((v) => getNormalizedCondition(v) === "CERTIFIED").length})</option>
-            </select>
-          </div>
+              <Zap className="h-3 w-3 text-blue-400" />
+              <span>New Arrivals (&lt;3d)</span>
+            </button>
 
-          {/* 5. Dealership Center */}
-          <div className="space-y-1">
-            <label className="text-[10px] font-bold uppercase text-ink-faint flex items-center gap-1">
-              <Building2 className="h-3 w-3 text-emerald-400" />
-              <span>Dealership Center</span>
-            </label>
-            <select
-              value={selectedDealer}
-              onChange={(e) => setSelectedDealer(e.target.value)}
-              className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
+            <button
+              type="button"
+              onClick={() => setSelectedDaysOnLot(selectedDaysOnLot === "over_45" ? "ALL" : "over_45")}
+              className={`px-2.5 py-0.5 rounded-lg text-[11px] font-bold transition-all cursor-pointer inline-flex items-center gap-1 ${
+                selectedDaysOnLot === "over_45"
+                  ? "bg-amber-500/20 border border-amber-500 text-amber-300"
+                  : "bg-surface-elevated/60 border border-border/70 text-ink-muted hover:text-amber-400"
+              }`}
             >
-              <option value="ALL">All Dealerships</option>
-              {facetOptions.dealers.map(([d, count]) => (
-                <option key={d} value={d}>
-                  {d} ({count})
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* 6. State / Region */}
-          <div className="space-y-1">
-            <label className="text-[10px] font-bold uppercase text-ink-faint flex items-center gap-1">
-              <MapPin className="h-3 w-3 text-rose-400" />
-              <span>State / Region</span>
-            </label>
-            <select
-              value={selectedState}
-              onChange={(e) => setSelectedState(e.target.value)}
-              className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
-            >
-              <option value="ALL">All States</option>
-              {facetOptions.states.map(([s, count]) => (
-                <option key={s} value={s}>
-                  {s} ({count} vehicles)
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* 7. Body Style */}
-          <div className="space-y-1">
-            <label className="text-[10px] font-bold uppercase text-ink-faint flex items-center gap-1">
-              <Car className="h-3 w-3 text-blue-400" />
-              <span>Body Style</span>
-            </label>
-            <select
-              value={selectedBodyStyle}
-              onChange={(e) => setSelectedBodyStyle(e.target.value)}
-              className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
-            >
-              <option value="ALL">All Body Styles</option>
-              {facetOptions.bodyStyles.map(([b, count]) => (
-                <option key={b} value={b}>
-                  {b} ({count})
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* 8. Model Year */}
-          <div className="space-y-1">
-            <label className="text-[10px] font-bold uppercase text-ink-faint flex items-center gap-1">
-              <Calendar className="h-3 w-3 text-purple-400" />
-              <span>Model Year</span>
-            </label>
-            <select
-              value={selectedYear}
-              onChange={(e) => setSelectedYear(e.target.value)}
-              className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
-            >
-              <option value="ALL">All Years</option>
-              {facetOptions.years.map(([y, count]) => (
-                <option key={y} value={y.toString()}>
-                  {y} ({count})
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* 9. Days on Lot */}
-          <div className="space-y-1">
-            <label className="text-[10px] font-bold uppercase text-ink-faint flex items-center gap-1">
               <Clock className="h-3 w-3 text-amber-400" />
-              <span>Days on Lot</span>
-            </label>
-            <select
-              value={selectedDaysOnLot}
-              onChange={(e) => setSelectedDaysOnLot(e.target.value)}
-              className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
-            >
-              <option value="ALL">Any Days on Lot</option>
-              <option value="under_7">Fresh Arrival (&lt;7 Days)</option>
-              <option value="7_to_30">Normal (7 - 30 Days)</option>
-              <option value="31_to_60">Aging (31 - 60 Days)</option>
-              <option value="over_45">High Leverage (&gt;45 Days)</option>
-              <option value="over_60">Stale Stock (&gt;60 Days)</option>
-            </select>
-          </div>
-
-          {/* 10. Price Range Inputs */}
-          <div className="space-y-1">
-            <label className="text-[10px] font-bold uppercase text-ink-faint flex items-center gap-1">
-              <DollarSign className="h-3 w-3 text-emerald-400" />
-              <span>Price Range ($)</span>
-            </label>
-            <div className="grid grid-cols-2 gap-1.5">
-              <input
-                type="number"
-                value={minPriceInput}
-                onChange={(e) => setMinPriceInput(e.target.value)}
-                placeholder="Min $"
-                className="w-full rounded-xl border border-border bg-surface-elevated px-2.5 py-2 text-xs text-white font-mono focus:border-emerald-500 focus:outline-none"
-              />
-              <input
-                type="number"
-                value={maxPriceInput}
-                onChange={(e) => setMaxPriceInput(e.target.value)}
-                placeholder="Max $"
-                className="w-full rounded-xl border border-border bg-surface-elevated px-2.5 py-2 text-xs text-white font-mono focus:border-emerald-500 focus:outline-none"
-              />
-            </div>
-          </div>
-
-          {/* 11. Max Mileage */}
-          <div className="space-y-1">
-            <label className="text-[10px] font-bold uppercase text-ink-faint flex items-center gap-1">
-              <Gauge className="h-3 w-3 text-blue-400" />
-              <span>Max Mileage</span>
-            </label>
-            <input
-              type="number"
-              value={maxMileageInput}
-              onChange={(e) => setMaxMileageInput(e.target.value)}
-              placeholder="e.g. 15000"
-              className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-xs text-white font-mono focus:border-emerald-500 focus:outline-none"
-            />
-          </div>
-
-          {/* 12. Sort By */}
-          <div className="space-y-1">
-            <label className="text-[10px] font-bold uppercase text-ink-faint flex items-center gap-1">
-              <ArrowUpDown className="h-3 w-3 text-emerald-400" />
-              <span>Sort Results</span>
-            </label>
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none font-bold"
-            >
-              <option value="default">Default Order</option>
-              <option value="price_drop_first">🔥 Largest Price Drop First</option>
-              <option value="price_asc">Price: Low to High</option>
-              <option value="price_desc">Price: High to Low</option>
-              <option value="days_desc">Days on Lot: Longest</option>
-              <option value="days_asc">Days on Lot: Newest</option>
-              <option value="mileage_asc">Mileage: Lowest First</option>
-              <option value="year_desc">Year: Newest First</option>
-            </select>
+              <span>High Leverage (&gt;45d)</span>
+            </button>
           </div>
         </div>
+
+        {/* Expandable Detailed Filters Drawer */}
+        {isAdvancedFiltersOpen && (
+          <div className="rounded-2xl border border-border bg-surface p-5 shadow-xl space-y-4 animate-fadeIn">
+            <div className="flex items-center justify-between border-b border-border/60 pb-3">
+              <div className="flex items-center gap-2">
+                <Sliders className="h-4 w-4 text-emerald-400" />
+                <h3 className="font-bold text-white text-xs uppercase tracking-wider">
+                  Detailed Filter Controls
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={handleResetFilters}
+                className="text-xs text-emerald-400 hover:underline font-bold cursor-pointer"
+              >
+                Reset All
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5 text-xs">
+              {/* Trim / Submodel */}
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold uppercase text-ink-faint flex items-center gap-1">
+                  <Tag className="h-3 w-3 text-purple-400" />
+                  <span>Trim / Edition</span>
+                </label>
+                <select
+                  value={selectedTrim}
+                  onChange={(e) => setSelectedTrim(e.target.value)}
+                  className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
+                >
+                  <option value="ALL">All Trims</option>
+                  {facetOptions.trims.map(([t, count]) => (
+                    <option key={t} value={t}>
+                      {t} ({count})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Dealership */}
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold uppercase text-ink-faint flex items-center gap-1">
+                  <Building2 className="h-3 w-3 text-emerald-400" />
+                  <span>Dealership Center</span>
+                </label>
+                <select
+                  value={selectedDealer}
+                  onChange={(e) => setSelectedDealer(e.target.value)}
+                  className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
+                >
+                  <option value="ALL">All Dealerships</option>
+                  {facetOptions.dealers.map(([d, count]) => (
+                    <option key={d} value={d}>
+                      {d} ({count})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* State / Region */}
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold uppercase text-ink-faint flex items-center gap-1">
+                  <MapPin className="h-3 w-3 text-rose-400" />
+                  <span>State / Region</span>
+                </label>
+                <select
+                  value={selectedState}
+                  onChange={(e) => setSelectedState(e.target.value)}
+                  className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
+                >
+                  <option value="ALL">All States</option>
+                  {facetOptions.states.map(([s, count]) => (
+                    <option key={s} value={s}>
+                      {s} ({count} vehicles)
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Body Style */}
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold uppercase text-ink-faint flex items-center gap-1">
+                  <Car className="h-3 w-3 text-blue-400" />
+                  <span>Body Style</span>
+                </label>
+                <select
+                  value={selectedBodyStyle}
+                  onChange={(e) => setSelectedBodyStyle(e.target.value)}
+                  className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
+                >
+                  <option value="ALL">All Body Styles</option>
+                  {facetOptions.bodyStyles.map(([b, count]) => (
+                    <option key={b} value={b}>
+                      {b} ({count})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Model Year */}
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold uppercase text-ink-faint flex items-center gap-1">
+                  <Calendar className="h-3 w-3 text-purple-400" />
+                  <span>Model Year</span>
+                </label>
+                <select
+                  value={selectedYear}
+                  onChange={(e) => setSelectedYear(e.target.value)}
+                  className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
+                >
+                  <option value="ALL">All Years</option>
+                  {facetOptions.years.map(([y, count]) => (
+                    <option key={y} value={y.toString()}>
+                      {y} ({count})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Days on Lot */}
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold uppercase text-ink-faint flex items-center gap-1">
+                  <Clock className="h-3 w-3 text-amber-400" />
+                  <span>Days on Lot</span>
+                </label>
+                <select
+                  value={selectedDaysOnLot}
+                  onChange={(e) => setSelectedDaysOnLot(e.target.value)}
+                  className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
+                >
+                  <option value="ALL">Any Days on Lot</option>
+                  <option value="under_7">Fresh Arrival (&lt;7 Days)</option>
+                  <option value="7_to_30">Normal (7 - 30 Days)</option>
+                  <option value="31_to_60">Aging (31 - 60 Days)</option>
+                  <option value="over_45">High Leverage (&gt;45 Days)</option>
+                  <option value="over_60">Stale Stock (&gt;60 Days)</option>
+                </select>
+              </div>
+
+              {/* Price Range */}
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold uppercase text-ink-faint flex items-center gap-1">
+                  <DollarSign className="h-3 w-3 text-emerald-400" />
+                  <span>Price Range ($)</span>
+                </label>
+                <div className="grid grid-cols-2 gap-1.5">
+                  <input
+                    type="number"
+                    value={minPriceInput}
+                    onChange={(e) => setMinPriceInput(e.target.value)}
+                    placeholder="Min $"
+                    className="w-full rounded-xl border border-border bg-surface-elevated px-2.5 py-2 text-xs text-white font-mono focus:border-emerald-500 focus:outline-none"
+                  />
+                  <input
+                    type="number"
+                    value={maxPriceInput}
+                    onChange={(e) => setMaxPriceInput(e.target.value)}
+                    placeholder="Max $"
+                    className="w-full rounded-xl border border-border bg-surface-elevated px-2.5 py-2 text-xs text-white font-mono focus:border-emerald-500 focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              {/* Sort By */}
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold uppercase text-ink-faint flex items-center gap-1">
+                  <ArrowUpDown className="h-3 w-3 text-emerald-400" />
+                  <span>Sort Order</span>
+                </label>
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none font-bold"
+                >
+                  <option value="default">Default Order</option>
+                  <option value="price_drop_first">🔥 Largest Price Drop First</option>
+                  <option value="price_asc">Price: Low to High</option>
+                  <option value="price_desc">Price: High to Low</option>
+                  <option value="days_desc">Days on Lot: Longest</option>
+                  <option value="days_asc">Days on Lot: Newest</option>
+                  <option value="mileage_asc">Mileage: Lowest First</option>
+                  <option value="year_desc">Year: Newest First</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Active Filter Badges */}
         {activeFiltersCount > 0 && (
-          <div className="flex flex-wrap items-center gap-2 pt-3 border-t border-border/60 text-xs">
-            <span className="text-[10px] text-ink-faint font-bold uppercase">Active Filters:</span>
+          <div className="flex flex-wrap items-center gap-2 text-xs">
+            <span className="text-[10px] text-ink-faint font-bold uppercase">Active:</span>
 
             {searchTerm && (
-              <span className="inline-flex items-center gap-1 rounded-lg bg-surface-elevated border border-border px-2 py-0.5 text-ink-light">
+              <span className="inline-flex items-center gap-1 rounded-lg bg-surface border border-border px-2.5 py-1 text-ink-light">
                 <span>Keyword: &quot;{searchTerm}&quot;</span>
                 <X className="h-3 w-3 cursor-pointer hover:text-white" onClick={() => setSearchTerm("")} />
               </span>
             )}
 
             {selectedModel !== "ALL" && (
-              <span className="inline-flex items-center gap-1 rounded-lg bg-surface-elevated border border-border px-2 py-0.5 text-ink-light">
+              <span className="inline-flex items-center gap-1 rounded-lg bg-surface border border-border px-2.5 py-1 text-ink-light">
                 <span>Model: {selectedModel}</span>
                 <X className="h-3 w-3 cursor-pointer hover:text-white" onClick={() => setSelectedModel("ALL")} />
               </span>
             )}
 
             {selectedTrim !== "ALL" && (
-              <span className="inline-flex items-center gap-1 rounded-lg bg-surface-elevated border border-border px-2 py-0.5 text-ink-light">
+              <span className="inline-flex items-center gap-1 rounded-lg bg-surface border border-border px-2.5 py-1 text-ink-light">
                 <span>Trim: {selectedTrim}</span>
                 <X className="h-3 w-3 cursor-pointer hover:text-white" onClick={() => setSelectedTrim("ALL")} />
               </span>
             )}
 
             {selectedCondition !== "ALL" && (
-              <span className="inline-flex items-center gap-1 rounded-lg bg-surface-elevated border border-border px-2 py-0.5 text-ink-light">
+              <span className="inline-flex items-center gap-1 rounded-lg bg-surface border border-border px-2.5 py-1 text-ink-light">
                 <span>Condition: {selectedCondition}</span>
                 <X className="h-3 w-3 cursor-pointer hover:text-white" onClick={() => setSelectedCondition("ALL")} />
               </span>
             )}
 
             {selectedDealer !== "ALL" && (
-              <span className="inline-flex items-center gap-1 rounded-lg bg-surface-elevated border border-border px-2 py-0.5 text-ink-light">
+              <span className="inline-flex items-center gap-1 rounded-lg bg-surface border border-border px-2.5 py-1 text-ink-light">
                 <span>Dealer: {selectedDealer}</span>
                 <X className="h-3 w-3 cursor-pointer hover:text-white" onClick={() => setSelectedDealer("ALL")} />
               </span>
             )}
 
             {selectedOpportunity !== "ALL" && (
-              <span className="inline-flex items-center gap-1 rounded-lg bg-surface-elevated border border-border px-2 py-0.5 text-ink-light">
-                <span>Opportunity: {selectedOpportunity}</span>
+              <span className="inline-flex items-center gap-1 rounded-lg bg-surface border border-border px-2.5 py-1 text-ink-light">
+                <span>Signal: {selectedOpportunity}</span>
                 <X className="h-3 w-3 cursor-pointer hover:text-white" onClick={() => setSelectedOpportunity("ALL")} />
               </span>
             )}
 
             {(minPriceInput || maxPriceInput) && (
-              <span className="inline-flex items-center gap-1 rounded-lg bg-surface-elevated border border-border px-2 py-0.5 text-ink-light">
+              <span className="inline-flex items-center gap-1 rounded-lg bg-surface border border-border px-2.5 py-1 text-ink-light">
                 <span>Price: ${minPriceInput || "0"} - ${maxPriceInput || "∞"}</span>
                 <X className="h-3 w-3 cursor-pointer hover:text-white" onClick={() => { setMinPriceInput(""); setMaxPriceInput(""); }} />
               </span>
@@ -875,7 +988,7 @@ export const LightsailIntelligence: React.FC = () => {
 
             <button
               onClick={handleResetFilters}
-              className="text-rose-400 hover:text-rose-300 font-bold text-xs ml-auto"
+              className="text-rose-400 hover:text-rose-300 font-bold text-xs ml-auto cursor-pointer"
             >
               Clear All ({activeFiltersCount})
             </button>
