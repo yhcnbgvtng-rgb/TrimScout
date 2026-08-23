@@ -14,6 +14,7 @@ export interface NhtsaSpec {
   bodyClass: string;
   grossWeightClass?: string;
   brakeSystem?: string;
+  fuelType?: string;
 }
 
 export interface EnrichedVehicleSpec {
@@ -23,6 +24,114 @@ export interface EnrichedVehicleSpec {
   totalOptionsPrice?: number;
   baseMsrp?: number | null;
   enrichedAt?: string;
+}
+
+export const PORSCHE_BASE_MSRP: Record<string, number> = {
+  // 911 Series
+  "911 Carrera": 120100,
+  "911 Carrera Cabriolet": 133400,
+  "911 Carrera 4": 127900,
+  "911 Carrera 4 Cabriolet": 141200,
+  "911 Carrera S": 138000,
+  "911 Carrera S Cabriolet": 151300,
+  "911 Carrera 4S": 145800,
+  "911 Carrera 4S Cabriolet": 159100,
+  "911 Targa 4": 139500,
+  "911 Targa 4S": 157400,
+  "911 Carrera GTS": 164900,
+  "911 Carrera GTS Cabriolet": 178200,
+  "911 Carrera 4 GTS": 172700,
+  "911 Carrera 4 GTS Cabriolet": 186000,
+  "911 Targa 4 GTS": 186000,
+  "911 Turbo": 197200,
+  "911 Turbo Cabriolet": 210000,
+  "911 Turbo S": 230400,
+  "911 Turbo S Cabriolet": 243200,
+  "911 GT3": 222500,
+  "911 GT3 RS": 241300,
+  "911 Dakar": 222000,
+  "911 S/T": 290000,
+
+  // 718 Series
+  "718 Cayman": 68300,
+  "718 Cayman Style Edition": 74600,
+  "718 Cayman S": 80300,
+  "718 Cayman GTS 4.0": 95200,
+  "718 Cayman GT4 RS": 160700,
+  "718 Boxster": 70400,
+  "718 Boxster Style Edition": 76700,
+  "718 Boxster S": 82400,
+  "718 Boxster GTS 4.0": 97300,
+  "718 Spyder RS": 160700,
+
+  // Taycan EV Series
+  "Taycan": 99400,
+  "Taycan 4": 103300,
+  "Taycan 4S": 118500,
+  "Taycan GTS": 147900,
+  "Taycan Turbo": 174000,
+  "Taycan Turbo S": 209000,
+  "Taycan Turbo GT": 230000,
+  "Taycan 4 Cross Turismo": 111100,
+  "Taycan 4S Cross Turismo": 125200,
+  "Taycan Turbo Cross Turismo": 176600,
+  "Taycan Turbo S Cross Turismo": 211700,
+
+  // Macan Series
+  "Macan": 62900,
+  "Macan T": 68500,
+  "Macan S": 72300,
+  "Macan GTS": 86800,
+  "Macan Electric": 78800,
+  "Macan 4 Electric": 78800,
+  "Macan 4S Electric": 84900,
+  "Macan Turbo Electric": 105300,
+
+  // Cayenne Series
+  "Cayenne": 79200,
+  "Cayenne E-Hybrid": 91700,
+  "Cayenne S": 95700,
+  "Cayenne S E-Hybrid": 99100,
+  "Cayenne GTS": 124900,
+  "Cayenne Turbo E-Hybrid": 146900,
+  "Cayenne Coupe": 84300,
+  "Cayenne E-Hybrid Coupe": 95700,
+  "Cayenne S Coupe": 102100,
+  "Cayenne S E-Hybrid Coupe": 104000,
+  "Cayenne GTS Coupe": 129900,
+  "Cayenne Turbo E-Hybrid Coupe": 151400,
+  "Cayenne Turbo GT": 196300,
+
+  // Panamera Series
+  "Panamera": 102800,
+  "Panamera 4": 109800,
+  "Panamera 4 E-Hybrid": 115500,
+  "Panamera 4S E-Hybrid": 126800,
+  "Panamera GTS": 154200,
+  "Panamera Turbo E-Hybrid": 191000,
+};
+
+export function lookupPorscheBaseMsrp(modelStr: string): number {
+  if (!modelStr) return 100000;
+  const clean = modelStr.trim();
+  if (PORSCHE_BASE_MSRP[clean]) return PORSCHE_BASE_MSRP[clean];
+
+  for (const [key, msrp] of Object.entries(PORSCHE_BASE_MSRP)) {
+    if (clean.toLowerCase().includes(key.toLowerCase())) {
+      return msrp;
+    }
+  }
+
+  const hay = clean.toLowerCase();
+  if (hay.includes("911")) return 120100;
+  if (hay.includes("cayman")) return 68300;
+  if (hay.includes("boxster")) return 70400;
+  if (hay.includes("taycan")) return 99400;
+  if (hay.includes("macan")) return 62900;
+  if (hay.includes("cayenne")) return 79200;
+  if (hay.includes("panamera")) return 102800;
+
+  return 100000;
 }
 
 export const PORSCHE_OPTION_CATALOG: Record<string, PorscheOption> = {
