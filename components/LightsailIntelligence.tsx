@@ -1116,19 +1116,42 @@ export const LightsailIntelligence: React.FC = () => {
                         </span>
                       </td>
                       <td className="p-3 text-right">
-                        {v.url ? (
+                        <div className="flex items-center justify-end gap-1.5">
                           <a
-                            href={v.url}
+                            href={`https://finder.porsche.com/us/en-US/search?vin=${v.vin}`}
                             target="_blank"
                             rel="noreferrer"
-                            className="inline-flex items-center gap-1 rounded-lg bg-surface-elevated hover:bg-surface px-2.5 py-1 text-[11px] font-bold text-ink-light hover:text-white border border-border transition-all"
+                            className="inline-flex items-center gap-1 rounded-lg bg-red-950/50 hover:bg-red-900/60 border border-red-500/40 px-2 py-1 text-[10.5px] font-bold text-rose-300 hover:text-rose-200 transition-all shadow-sm"
+                            title="Cross-reference on official Porsche Finder"
                           >
-                            <span>Lot Link</span>
-                            <ExternalLink className="h-3 w-3 text-emerald-400" />
+                            <span>Porsche Finder</span>
+                            <ExternalLink className="h-2.5 w-2.5 text-rose-400" />
                           </a>
-                        ) : (
-                          <span className="text-ink-faint">—</span>
-                        )}
+
+                          <a
+                            href={`https://windowsticker.dealer.com/?vin=${v.vin}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex items-center gap-1 rounded-lg bg-surface-elevated hover:bg-surface border border-border px-2 py-1 text-[10.5px] font-bold text-ink-light hover:text-white transition-all shadow-sm"
+                            title="View Official Window Sticker (Monroney)"
+                          >
+                            <span>Sticker</span>
+                            <ExternalLink className="h-2.5 w-2.5 text-emerald-400" />
+                          </a>
+
+                          {v.url && (
+                            <a
+                              href={v.url}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="inline-flex items-center gap-1 rounded-lg bg-surface-elevated hover:bg-surface border border-border px-2 py-1 text-[10.5px] font-bold text-ink-light hover:text-white transition-all shadow-sm"
+                              title="View Dealership Lot Posting"
+                            >
+                              <span>Lot</span>
+                              <ExternalLink className="h-2.5 w-2.5 text-ink-muted" />
+                            </a>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   );
@@ -1210,14 +1233,38 @@ export const LightsailIntelligence: React.FC = () => {
                     <span className="font-mono">{v.daysOnLot || 14} days on lot</span>
                   </div>
 
+                  <div className="grid grid-cols-2 gap-2 pt-2">
+                    <a
+                      href={`https://finder.porsche.com/us/en-US/search?vin=${v.vin}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center justify-center gap-1 rounded-xl bg-red-950/50 hover:bg-red-900/60 border border-red-500/40 py-2 text-xs font-bold text-rose-300 hover:text-rose-200 transition-all shadow-sm"
+                      title="Cross-reference on official Porsche Finder"
+                    >
+                      <span>Porsche Finder</span>
+                      <ExternalLink className="h-3 w-3 text-rose-400" />
+                    </a>
+
+                    <a
+                      href={`https://windowsticker.dealer.com/?vin=${v.vin}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center justify-center gap-1 rounded-xl bg-surface-elevated hover:bg-surface border border-border py-2 text-xs font-bold text-white transition-all shadow-sm"
+                      title="View Official Window Sticker (Monroney)"
+                    >
+                      <span>Window Sticker</span>
+                      <ExternalLink className="h-3 w-3 text-emerald-400" />
+                    </a>
+                  </div>
+
                   {v.url && (
                     <a
                       href={v.url}
                       target="_blank"
                       rel="noreferrer"
-                      className="w-full mt-2 inline-flex items-center justify-center gap-1.5 rounded-xl bg-surface-elevated hover:bg-surface border border-border py-2 text-xs font-bold text-white transition-all"
+                      className="w-full inline-flex items-center justify-center gap-1.5 rounded-xl bg-surface-elevated/60 hover:bg-surface border border-border py-1.5 text-xs font-semibold text-ink-muted hover:text-white transition-all"
                     >
-                      <span>View Dealership Lot</span>
+                      <span>Dealership Lot Listing</span>
                       <ExternalLink className="h-3 w-3 text-emerald-400" />
                     </a>
                   )}
