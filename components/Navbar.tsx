@@ -24,8 +24,8 @@ import {
 interface NavbarProps {
   user: UserProfile | null;
   activeDealCount: number;
-  currentView: "search" | "bid_program" | "deal_room" | "dealer_portal" | "track_deals" | "signup" | "admin";
-  onToggleView: (view: "search" | "bid_program" | "deal_room" | "dealer_portal" | "track_deals" | "signup" | "admin") => void;
+  currentView: "search" | "bid_program" | "deal_room" | "dealer_portal" | "track_deals" | "signup" | "admin" | "lightsail_analytics";
+  onToggleView: (view: "search" | "bid_program" | "deal_room" | "dealer_portal" | "track_deals" | "signup" | "admin" | "lightsail_analytics") => void;
   onOpenAuthModal: () => void;
   onLogout: () => void;
 }
@@ -54,11 +54,12 @@ export const Navbar: React.FC<NavbarProps> = ({
   }, []);
 
   const navLinks: {
-    id: "search" | "bid_program" | "deal_room" | "dealer_portal" | "track_deals";
+    id: "search" | "lightsail_analytics" | "track_deals" | "deal_room" | "dealer_portal" | "bid_program";
     label: string;
-    badge?: number;
+    badge?: string | number;
   }[] = [
     { id: "search", label: "Search Market" },
+    { id: "lightsail_analytics", label: "Market Intelligence", badge: "LIVE" },
     { id: "track_deals", label: "Track Deals", badge: activeDealCount },
     { id: "deal_room", label: "Live Deal Room" },
     { id: "dealer_portal", label: "Dealer Portal" },

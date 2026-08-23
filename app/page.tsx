@@ -21,10 +21,11 @@ import { InventoryConnectorModal } from "../components/InventoryConnectorModal";
 import { SignupView } from "../components/SignupView";
 import { AdminPortal } from "../components/AdminPortal";
 import { ScraperDashboardModal } from "../components/ScraperDashboardModal";
+import { LightsailIntelligence } from "../components/LightsailIntelligence";
 
 export default function Home() {
   const [vehicles, setVehicles] = useState<Vehicle[]>(MOCK_VEHICLES);
-  const [currentView, setCurrentView] = useState<"search" | "bid_program" | "deal_room" | "dealer_portal" | "track_deals" | "signup" | "admin">("search");
+  const [currentView, setCurrentView] = useState<"search" | "bid_program" | "deal_room" | "dealer_portal" | "track_deals" | "signup" | "admin" | "lightsail_analytics">("search");
   const [isImpersonating, setIsImpersonating] = useState<boolean>(() => {
     if (typeof window !== "undefined") {
       return localStorage.getItem("trimscout_impersonating") !== null;
@@ -458,6 +459,7 @@ export default function Home() {
           hasMoreVehicles={hasMoreVehicles}
           totalFoundVehicles={totalFoundVehicles}
           isLoadingMore={isLoadingMore}
+          onNavigateToLightsail={() => setCurrentView("lightsail_analytics")}
         />
       )}
 
@@ -529,6 +531,13 @@ export default function Home() {
             }}
             onExitAdmin={() => setCurrentView("search")}
           />
+        </div>
+      )}
+
+      {/* View 7: Live AWS Lightsail Market Intelligence & Price Drops */}
+      {currentView === "lightsail_analytics" && (
+        <div className="animate-fadeIn">
+          <LightsailIntelligence />
         </div>
       )}
 

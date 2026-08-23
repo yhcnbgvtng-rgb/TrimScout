@@ -2633,7 +2633,7 @@ export const INITIAL_DEMO_BIDS: DealerBid[] = [
     distanceMiles: 14,
     matchedVin: "WBA33AY08RF892110",
     matchedVehicleTitle: "2026 BMW 330i M Sport",
-    matchedVehicleSpec: "Mineral Grey • Shadowline • Premium Pkg • 19" Wheels",
+    matchedVehicleSpec: 'Mineral Grey • Shadowline • Premium Pkg • 19" Wheels',
     matchedVehicleImageUrl: "https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=800&q=80",
     vehicleStatus: "on_lot",
     msrp: 54200,

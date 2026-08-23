@@ -30,6 +30,7 @@ import {
   Cpu,
   ShieldCheck
 } from "lucide-react";
+import { MarketAnalytics } from "./MarketAnalytics";
 
 interface MarketSearchProps {
   vehicles: Vehicle[];
@@ -43,6 +44,7 @@ interface MarketSearchProps {
   hasMoreVehicles?: boolean;
   totalFoundVehicles?: number;
   isLoadingMore?: boolean;
+  onNavigateToLightsail?: () => void;
 }
 
 export const MarketSearch: React.FC<MarketSearchProps> = ({
@@ -57,6 +59,7 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
   hasMoreVehicles = false,
   totalFoundVehicles = 0,
   isLoadingMore = false,
+  onNavigateToLightsail,
 }) => {
   // Navigation State: "results" (shows live car listings immediately on load) vs "landing" (search hero)
   const [viewState, setViewState] = useState<"landing" | "results">("results");
@@ -1973,6 +1976,9 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
   // ===========================================================================
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 space-y-6 animate-fadeIn">
+      {/* Real-time Market Dynamics & AWS Lightsail Intelligence Bar */}
+      <MarketAnalytics onNavigateToLightsail={onNavigateToLightsail} />
+
       {/* Top Search & Breadcrumb Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-border">
         <div className="flex items-center gap-3">
