@@ -99,7 +99,7 @@ export const LightsailIntelligence: React.FC = () => {
   const [selectedState, setSelectedState] = useState<string>("All");
   const [selectedBodyStyle, setSelectedBodyStyle] = useState<string>("All");
   const [minPrice, setMinPrice] = useState<number>(0);
-  const [maxPrice, setMaxPrice] = useState<number>(350000);
+  const [maxPrice, setMaxPrice] = useState<number>(1000000);
   const [maxMileage, setMaxMileage] = useState<number>(100000);
   const [selectedYear, setSelectedYear] = useState<string>("All");
   const [selectedDaysOnLotRange, setSelectedDaysOnLotRange] = useState<string>("All");
@@ -132,8 +132,8 @@ export const LightsailIntelligence: React.FC = () => {
 
   // Helper to normalize Porsche model series
   const getModelSeries = (v: VehicleRecord): string => {
-    const raw = `${v.model} ${v.trim || ""}`.toLowerCase();
-    if (raw.includes("911")) return "911";
+    const raw = `${v.make || ""} ${v.model || ""} ${v.trim || ""} ${v.bodyStyle || ""}`.toLowerCase();
+    if (raw.includes("911") || raw.includes("carrera") || raw.includes("targa") || raw.includes("gt3") || raw.includes("turbo")) return "911";
     if (raw.includes("718") || raw.includes("cayman")) return "718 Cayman";
     if (raw.includes("boxster")) return "718 Boxster";
     if (raw.includes("taycan")) return "Taycan";
@@ -202,7 +202,7 @@ export const LightsailIntelligence: React.FC = () => {
     setSelectedState("All");
     setSelectedBodyStyle("All");
     setMinPrice(0);
-    setMaxPrice(350000);
+    setMaxPrice(1000000);
     setMaxMileage(100000);
     setSelectedYear("All");
     setSelectedDaysOnLotRange("All");
@@ -341,7 +341,8 @@ export const LightsailIntelligence: React.FC = () => {
 
         // 9. Price Range
         const price = v.price || 0;
-        if (price < minPrice || price > maxPrice) return false;
+        if (minPrice > 0 && price > 0 && price < minPrice) return false;
+        if (maxPrice < 1000000 && price > maxPrice) return false;
 
         // 10. Mileage Range
         const miles = v.mileage || 0;

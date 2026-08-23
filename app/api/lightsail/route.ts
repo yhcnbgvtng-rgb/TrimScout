@@ -246,8 +246,8 @@ export async function GET(request: Request) {
         dealershipsCount: Object.keys(dealerBreakdown).length,
       },
       dealerBreakdown,
-      topPriceDrops: priceDrops.sort((a: any, b: any) => (a.priceDiff || 0) - (b.priceDiff || 0)).slice(0, 15),
-      recentVehicles: liveData.slice(0, 100),
+      topPriceDrops: priceDrops.sort((a: any, b: any) => (a.priceDiff || 0) - (b.priceDiff || 0)).slice(0, 30),
+      recentVehicles: liveData,
     });
   } catch (error: any) {
     return NextResponse.json(
