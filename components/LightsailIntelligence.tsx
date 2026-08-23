@@ -16,9 +16,6 @@ import {
   Tag,
   SlidersHorizontal,
   X,
-  Check,
-  ChevronDown,
-  ChevronUp,
   RotateCcw,
   LayoutGrid,
   List,
@@ -30,9 +27,11 @@ import {
   DollarSign,
   MapPin,
   CheckCircle2,
+  Copy,
+  Check,
 } from "lucide-react";
 
-interface VehicleRecord {
+export interface VehicleRecord {
   vin: string;
   dealerName: string;
   city?: string;
@@ -59,62 +58,42 @@ interface VehicleRecord {
   exteriorColor?: string | null;
 }
 
-interface LightsailAnalyticsData {
-  success: boolean;
-  serverHost: string;
-  lastSync: string;
-  stats: {
-    totalTrackedVehicles: number;
-    totalPriceDrops: number;
-    totalNewArrivals: number;
-    totalStaleVehicles: number;
-    highLeverageRatioPercent: number;
-    dealershipsCount: number;
-  };
-  dealerBreakdown: Record<
-    string,
-    { count: number; state: string; avgPrice: number; priceDropsCount: number }
-  >;
-  topPriceDrops: VehicleRecord[];
-  recentVehicles: VehicleRecord[];
-}
-
 export const LightsailIntelligence: React.FC = () => {
-  const [data, setData] = useState<LightsailAnalyticsData | null>(null);
   const [allVehicles, setAllVehicles] = useState<VehicleRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [viewMode, setViewMode] = useState<"table" | "grid">("table");
-  const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(true);
+  const [copiedVin, setCopiedVin] = useState<string | null>(null);
 
   // ==========================================
-  // COMPREHENSIVE FILTER STATES
+  // UNCONSTRAINED COMPREHENSIVE FILTER STATES
   // ==========================================
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedQuickPreset, setSelectedQuickPreset] = useState<string>("all");
-  const [selectedModelSeries, setSelectedModelSeries] = useState<string>("All");
-  const [selectedTrim, setSelectedTrim] = useState<string>("All");
-  const [selectedType, setSelectedType] = useState<string>("All");
-  const [selectedDealer, setSelectedDealer] = useState<string>("All");
-  const [selectedState, setSelectedState] = useState<string>("All");
-  const [selectedBodyStyle, setSelectedBodyStyle] = useState<string>("All");
-  const [minPrice, setMinPrice] = useState<number>(0);
-  const [maxPrice, setMaxPrice] = useState<number>(1000000);
-  const [maxMileage, setMaxMileage] = useState<number>(100000);
-  const [selectedYear, setSelectedYear] = useState<string>("All");
-  const [selectedDaysOnLotRange, setSelectedDaysOnLotRange] = useState<string>("All");
-  const [sortBy, setSortBy] = useState<string>("price_drop_first");
+  const [selectedModel, setSelectedModel] = useState<string>("ALL");
+  const [selectedTrim, setSelectedTrim] = useState<string>("ALL");
+  const [selectedCondition, setSelectedCondition] = useState<string>("ALL");
+  const [selectedDealer, setSelectedDealer] = useState<string>("ALL");
+  const [selectedState, setSelectedState] = useState<string>("ALL");
+  const [selectedBodyStyle, setSelectedBodyStyle] = useState<string>("ALL");
+  const [selectedYear, setSelectedYear] = useState<string>("ALL");
+  const [minPriceInput, setMinPriceInput] = useState<string>("");
+  const [maxPriceInput, setMaxPriceInput] = useState<string>("");
+  const [maxMileageInput, setMaxMileageInput] = useState<string>("");
+  const [selectedDaysOnLot, setSelectedDaysOnLot] = useState<string>("ALL");
+  const [selectedOpportunity, setSelectedOpportunity] = useState<string>("ALL");
+  const [sortBy, setSortBy] = useState<string>("default");
 
+  // Fetch full live dataset
   const fetchData = async () => {
     try {
       const res = await fetch("/api/lightsail");
       if (res.ok) {
-        const json: LightsailAnalyticsData = await res.json();
-        setData(json);
-        setAllVehicles(json.recentVehicles || []);
+        const json = await res.json();
+        const records: VehicleRecord[] = json.recentVehicles || [];
+        setAllVehicles(records);
       }
     } catch (err) {
-      console.error("Failed to load Lightsail analytics:", err);
+      console.error("Failed to load Lightsail inventory:", err);
     } finally {
       setIsLoading(false);
       setIsRefreshing(false);
@@ -130,10 +109,21 @@ export const LightsailIntelligence: React.FC = () => {
     fetchData();
   };
 
-  // Helper to normalize Porsche model series
+  const handleCopyVin = (vin: string, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    if (typeof navigator !== "undefined" && navigator.clipboard) {
+      navigator.clipboard.writeText(vin);
+      setCopiedVin(vin);
+      setTimeout(() => setCopiedVin(null), 2000);
+    }
+  };
+
+  // Canonical Model Series Normalizer
   const getModelSeries = (v: VehicleRecord): string => {
     const raw = `${v.make || ""} ${v.model || ""} ${v.trim || ""} ${v.bodyStyle || ""}`.toLowerCase();
-    if (raw.includes("911") || raw.includes("carrera") || raw.includes("targa") || raw.includes("gt3") || raw.includes("turbo")) return "911";
+    if (raw.includes("911") || raw.includes("carrera") || raw.includes("targa") || raw.includes("gt3") || raw.includes("turbo")) {
+      return "911";
+    }
     if (raw.includes("718") || raw.includes("cayman")) return "718 Cayman";
     if (raw.includes("boxster")) return "718 Boxster";
     if (raw.includes("taycan")) return "Taycan";
@@ -143,15 +133,15 @@ export const LightsailIntelligence: React.FC = () => {
     return v.model || "Other";
   };
 
-  // Helper to normalize Condition
-  const getNormalizedType = (v: VehicleRecord): "NEW" | "USED" | "CERTIFIED" => {
+  // Canonical Condition Normalizer
+  const getNormalizedCondition = (v: VehicleRecord): "NEW" | "USED" | "CERTIFIED" => {
     const t = (v.inventoryType || "").toUpperCase();
     if (t.includes("CERT")) return "CERTIFIED";
     if (t.includes("NEW")) return "NEW";
     return "USED";
   };
 
-  // Dynamic Facet Options & Counts from live dataset
+  // Extract all available facets and counts from the full dataset
   const facetOptions = useMemo(() => {
     const models = new Map<string, number>();
     const trims = new Map<string, number>();
@@ -164,7 +154,7 @@ export const LightsailIntelligence: React.FC = () => {
       const series = getModelSeries(v);
       models.set(series, (models.get(series) || 0) + 1);
 
-      if (v.trim) {
+      if (v.trim && v.trim !== "null") {
         trims.set(v.trim, (trims.get(v.trim) || 0) + 1);
       }
       if (v.dealerName) {
@@ -183,7 +173,7 @@ export const LightsailIntelligence: React.FC = () => {
 
     return {
       models: Array.from(models.entries()).sort((a, b) => b[1] - a[1]),
-      trims: Array.from(trims.entries()).sort((a, b) => b[1] - a[1]).slice(0, 15),
+      trims: Array.from(trims.entries()).sort((a, b) => b[1] - a[1]).slice(0, 25),
       dealers: Array.from(dealers.entries()).sort((a, b) => b[1] - a[1]),
       states: Array.from(states.entries()).sort((a, b) => b[1] - a[1]),
       bodyStyles: Array.from(bodyStyles.entries()).sort((a, b) => b[1] - a[1]),
@@ -194,172 +184,141 @@ export const LightsailIntelligence: React.FC = () => {
   // Reset all filters to default
   const handleResetFilters = () => {
     setSearchTerm("");
-    setSelectedQuickPreset("all");
-    setSelectedModelSeries("All");
-    setSelectedTrim("All");
-    setSelectedType("All");
-    setSelectedDealer("All");
-    setSelectedState("All");
-    setSelectedBodyStyle("All");
-    setMinPrice(0);
-    setMaxPrice(1000000);
-    setMaxMileage(100000);
-    setSelectedYear("All");
-    setSelectedDaysOnLotRange("All");
-    setSortBy("price_drop_first");
+    setSelectedModel("ALL");
+    setSelectedTrim("ALL");
+    setSelectedCondition("ALL");
+    setSelectedDealer("ALL");
+    setSelectedState("ALL");
+    setSelectedBodyStyle("ALL");
+    setSelectedYear("ALL");
+    setMinPriceInput("");
+    setMaxPriceInput("");
+    setMaxMileageInput("");
+    setSelectedDaysOnLot("ALL");
+    setSelectedOpportunity("ALL");
+    setSortBy("default");
   };
 
-  // Quick Preset Handlers
-  const handlePresetSelect = (preset: string) => {
-    setSelectedQuickPreset(preset);
-    if (preset === "all") {
-      handleResetFilters();
-    } else if (preset === "price_drops") {
-      handleResetFilters();
-      setSelectedQuickPreset("price_drops");
-      setSortBy("price_drop_first");
-    } else if (preset === "new_arrivals") {
-      handleResetFilters();
-      setSelectedQuickPreset("new_arrivals");
-      setSelectedDaysOnLotRange("under_7");
-      setSortBy("newest_arrival");
-    } else if (preset === "high_leverage") {
-      handleResetFilters();
-      setSelectedQuickPreset("high_leverage");
-      setSelectedDaysOnLotRange("over_45");
-      setSortBy("days_on_lot_desc");
-    } else if (preset === "911") {
-      handleResetFilters();
-      setSelectedQuickPreset("911");
-      setSelectedModelSeries("911");
-    } else if (preset === "suv") {
-      handleResetFilters();
-      setSelectedQuickPreset("suv");
-      setSelectedBodyStyle("SUV");
-    } else if (preset === "ev") {
-      handleResetFilters();
-      setSelectedQuickPreset("ev");
-      setSelectedModelSeries("Taycan");
-    } else if (preset === "cpo") {
-      handleResetFilters();
-      setSelectedQuickPreset("cpo");
-      setSelectedType("CERTIFIED");
-    }
+  // Quick Preset Selection
+  const applyPreset = (preset: string) => {
+    handleResetFilters();
+    if (preset === "911") setSelectedModel("911");
+    if (preset === "macan") setSelectedModel("Macan");
+    if (preset === "cayenne") setSelectedModel("Cayenne");
+    if (preset === "taycan") setSelectedModel("Taycan");
+    if (preset === "cayman") setSelectedModel("718 Cayman");
+    if (preset === "price_drops") setSelectedOpportunity("PRICE_DROPS");
+    if (preset === "new_arrivals") setSelectedOpportunity("NEW_ARRIVALS");
+    if (preset === "cpo") setSelectedCondition("CERTIFIED");
+    if (preset === "high_leverage") setSelectedDaysOnLot("over_45");
   };
 
-  // Count active filters
+  // Count active applied filters
   const activeFiltersCount = useMemo(() => {
     let count = 0;
-    if (searchTerm) count++;
-    if (selectedModelSeries !== "All") count++;
-    if (selectedTrim !== "All") count++;
-    if (selectedType !== "All") count++;
-    if (selectedDealer !== "All") count++;
-    if (selectedState !== "All") count++;
-    if (selectedBodyStyle !== "All") count++;
-    if (minPrice > 0 || maxPrice < 350000) count++;
-    if (maxMileage < 100000) count++;
-    if (selectedYear !== "All") count++;
-    if (selectedDaysOnLotRange !== "All") count++;
-    if (selectedQuickPreset !== "all") count++;
+    if (searchTerm.trim()) count++;
+    if (selectedModel !== "ALL") count++;
+    if (selectedTrim !== "ALL") count++;
+    if (selectedCondition !== "ALL") count++;
+    if (selectedDealer !== "ALL") count++;
+    if (selectedState !== "ALL") count++;
+    if (selectedBodyStyle !== "ALL") count++;
+    if (selectedYear !== "ALL") count++;
+    if (minPriceInput.trim() || maxPriceInput.trim()) count++;
+    if (maxMileageInput.trim()) count++;
+    if (selectedDaysOnLot !== "ALL") count++;
+    if (selectedOpportunity !== "ALL") count++;
     return count;
   }, [
     searchTerm,
-    selectedModelSeries,
+    selectedModel,
     selectedTrim,
-    selectedType,
+    selectedCondition,
     selectedDealer,
     selectedState,
     selectedBodyStyle,
-    minPrice,
-    maxPrice,
-    maxMileage,
     selectedYear,
-    selectedDaysOnLotRange,
-    selectedQuickPreset,
+    minPriceInput,
+    maxPriceInput,
+    maxMileageInput,
+    selectedDaysOnLot,
+    selectedOpportunity,
   ]);
 
-  // Comprehensive Filter & Sorting Pipeline
+  // Comprehensive Filtering & Sorting Pipeline
   const filteredVehicles = useMemo(() => {
+    const minPrice = minPriceInput ? parseFloat(minPriceInput) : 0;
+    const maxPrice = maxPriceInput ? parseFloat(maxPriceInput) : Infinity;
+    const maxMiles = maxMileageInput ? parseFloat(maxMileageInput) : Infinity;
+
     return allVehicles
       .filter((v) => {
-        // 1. Text Search (VIN, Make, Model, Trim, Dealer, City, Color, Stock)
+        // 1. Free Search (VIN, Make, Model, Trim, Dealer, City, State, Body, Color)
         if (searchTerm.trim() !== "") {
-          const hay = `${v.vin} ${v.year} ${v.make} ${v.model} ${v.trim || ""} ${v.dealerName} ${v.city || ""} ${v.exteriorColor || ""} ${v.stockNumber || ""}`.toLowerCase();
-          const words = searchTerm.toLowerCase().split(/\s+/).filter(Boolean);
-          if (!words.every((w) => hay.includes(w))) return false;
+          const haystack = `${v.vin} ${v.year} ${v.make} ${v.model} ${v.trim || ""} ${v.bodyStyle || ""} ${v.dealerName} ${v.city || ""} ${v.state} ${v.exteriorColor || ""}`.toLowerCase();
+          const tokens = searchTerm.toLowerCase().split(/\s+/).filter(Boolean);
+          if (!tokens.every((t) => haystack.includes(t))) return false;
         }
 
-        // 2. Quick Preset Filtering
-        if (selectedQuickPreset === "price_drops") {
-          if (!(v.changeType === "PRICE_DROP" || (v.priceDiff && v.priceDiff < 0))) return false;
-        } else if (selectedQuickPreset === "new_arrivals") {
-          if (!((v.daysOnLot || 0) <= 3 || v.changeType === "NEW_ARRIVAL")) return false;
-        } else if (selectedQuickPreset === "high_leverage") {
-          if (!((v.daysOnLot || 0) >= 45)) return false;
-        } else if (selectedQuickPreset === "911") {
-          if (!getModelSeries(v).includes("911")) return false;
-        } else if (selectedQuickPreset === "suv") {
-          const isSuv = (v.bodyStyle || "").toLowerCase().includes("suv") || v.model?.includes("Macan") || v.model?.includes("Cayenne");
-          if (!isSuv) return false;
-        } else if (selectedQuickPreset === "ev") {
-          const isEv = v.model?.includes("Taycan") || v.model?.includes("Electric") || v.trim?.includes("Electric");
-          if (!isEv) return false;
-        } else if (selectedQuickPreset === "cpo") {
-          if (getNormalizedType(v) !== "CERTIFIED") return false;
+        // 2. Model Series Filter
+        if (selectedModel !== "ALL") {
+          if (getModelSeries(v) !== selectedModel) return false;
         }
 
-        // 3. Model Series Filter
-        if (selectedModelSeries !== "All") {
-          if (getModelSeries(v) !== selectedModelSeries) return false;
-        }
-
-        // 4. Trim Filter
-        if (selectedTrim !== "All") {
+        // 3. Trim Filter
+        if (selectedTrim !== "ALL") {
           if (v.trim !== selectedTrim) return false;
         }
 
-        // 5. Inventory Type (New / Used / CPO)
-        if (selectedType !== "All") {
-          if (getNormalizedType(v) !== selectedType) return false;
+        // 4. Condition Filter
+        if (selectedCondition !== "ALL") {
+          if (getNormalizedCondition(v) !== selectedCondition) return false;
         }
 
-        // 6. Dealership Filter
-        if (selectedDealer !== "All") {
+        // 5. Dealership Filter
+        if (selectedDealer !== "ALL") {
           if (v.dealerName !== selectedDealer) return false;
         }
 
-        // 7. State Filter
-        if (selectedState !== "All") {
+        // 6. State Filter
+        if (selectedState !== "ALL") {
           if (v.state !== selectedState) return false;
         }
 
-        // 8. Body Style Filter
-        if (selectedBodyStyle !== "All") {
+        // 7. Body Style Filter
+        if (selectedBodyStyle !== "ALL") {
           if (v.bodyStyle !== selectedBodyStyle) return false;
         }
 
-        // 9. Price Range
-        const price = v.price || 0;
-        if (minPrice > 0 && price > 0 && price < minPrice) return false;
-        if (maxPrice < 1000000 && price > maxPrice) return false;
-
-        // 10. Mileage Range
-        const miles = v.mileage || 0;
-        if (miles > maxMileage) return false;
-
-        // 11. Model Year
-        if (selectedYear !== "All") {
+        // 8. Model Year
+        if (selectedYear !== "ALL") {
           if (v.year !== parseInt(selectedYear, 10)) return false;
         }
 
-        // 12. Days on Lot
+        // 9. Price Range
+        if (v.price !== null && v.price !== undefined && v.price > 0) {
+          if (v.price < minPrice || v.price > maxPrice) return false;
+        }
+
+        // 10. Mileage Range
+        if (v.mileage > maxMiles) return false;
+
+        // 11. Days on Lot
         const days = v.daysOnLot || 0;
-        if (selectedDaysOnLotRange === "under_7" && days > 7) return false;
-        if (selectedDaysOnLotRange === "7_to_30" && (days < 7 || days > 30)) return false;
-        if (selectedDaysOnLotRange === "31_to_60" && (days < 31 || days > 60)) return false;
-        if (selectedDaysOnLotRange === "over_45" && days < 45) return false;
-        if (selectedDaysOnLotRange === "over_60" && days < 60) return false;
+        if (selectedDaysOnLot === "under_7" && days > 7) return false;
+        if (selectedDaysOnLot === "7_to_30" && (days < 7 || days > 30)) return false;
+        if (selectedDaysOnLot === "31_to_60" && (days < 31 || days > 60)) return false;
+        if (selectedDaysOnLot === "over_45" && days < 45) return false;
+        if (selectedDaysOnLot === "over_60" && days < 60) return false;
+
+        // 12. Market Opportunity (Price Drops / New Arrivals)
+        if (selectedOpportunity === "PRICE_DROPS") {
+          const hasDrop = v.changeType === "PRICE_DROP" || (v.priceDiff && v.priceDiff < 0);
+          if (!hasDrop) return false;
+        } else if (selectedOpportunity === "NEW_ARRIVALS") {
+          const isNew = v.changeType === "NEW_ARRIVAL" || (v.daysOnLot || 0) <= 3;
+          if (!isNew) return false;
+        }
 
         return true;
       })
@@ -372,8 +331,8 @@ export const LightsailIntelligence: React.FC = () => {
         }
         if (sortBy === "price_asc") return (a.price || 0) - (b.price || 0);
         if (sortBy === "price_desc") return (b.price || 0) - (a.price || 0);
-        if (sortBy === "days_on_lot_desc") return (b.daysOnLot || 0) - (a.daysOnLot || 0);
-        if (sortBy === "newest_arrival") return (a.daysOnLot || 0) - (b.daysOnLot || 0);
+        if (sortBy === "days_desc") return (b.daysOnLot || 0) - (a.daysOnLot || 0);
+        if (sortBy === "days_asc") return (a.daysOnLot || 0) - (b.daysOnLot || 0);
         if (sortBy === "mileage_asc") return (a.mileage || 0) - (b.mileage || 0);
         if (sortBy === "year_desc") return (b.year || 0) - (a.year || 0);
         return 0;
@@ -381,22 +340,51 @@ export const LightsailIntelligence: React.FC = () => {
   }, [
     allVehicles,
     searchTerm,
-    selectedQuickPreset,
-    selectedModelSeries,
+    selectedModel,
     selectedTrim,
-    selectedType,
+    selectedCondition,
     selectedDealer,
     selectedState,
     selectedBodyStyle,
-    minPrice,
-    maxPrice,
-    maxMileage,
     selectedYear,
-    selectedDaysOnLotRange,
+    minPriceInput,
+    maxPriceInput,
+    maxMileageInput,
+    selectedDaysOnLot,
+    selectedOpportunity,
     sortBy,
   ]);
 
-  // Export Filtered Vehicles to CSV
+  // Live Aggregate Statistics for the Filtered Selection
+  const liveStats = useMemo(() => {
+    const count = filteredVehicles.length;
+    const priced = filteredVehicles.filter((v) => v.price && v.price > 0);
+    const avgPrice =
+      priced.length > 0
+        ? Math.round(priced.reduce((acc, v) => acc + (v.price || 0), 0) / priced.length)
+        : 0;
+    const drops = filteredVehicles.filter((v) => v.priceDiff && v.priceDiff < 0);
+    const maxDrop =
+      drops.length > 0
+        ? Math.max(...drops.map((v) => Math.abs(v.priceDiff || 0)))
+        : 0;
+    const avgDays =
+      count > 0
+        ? Math.round(filteredVehicles.reduce((acc, v) => acc + (v.daysOnLot || 0), 0) / count)
+        : 0;
+    const staleCount = filteredVehicles.filter((v) => (v.daysOnLot || 0) >= 45).length;
+
+    return {
+      count,
+      avgPrice,
+      totalDrops: drops.length,
+      maxDrop,
+      avgDays,
+      staleCount,
+    };
+  }, [filteredVehicles]);
+
+  // Instant CSV Export of current filtered selection
   const handleExportFilteredCSV = () => {
     if (filteredVehicles.length === 0) return;
     const headers = [
@@ -424,7 +412,7 @@ export const LightsailIntelligence: React.FC = () => {
       `"${(v.dealerName || "").replace(/"/g, '""')}"`,
       v.city || "",
       v.state,
-      getNormalizedType(v),
+      getNormalizedCondition(v),
       v.year,
       v.make,
       `"${(v.model || "").replace(/"/g, '""')}"`,
@@ -448,7 +436,7 @@ export const LightsailIntelligence: React.FC = () => {
     link.setAttribute("href", encodedUri);
     link.setAttribute(
       "download",
-      `trimscout_filtered_inventory_${new Date().toISOString().slice(0, 10)}.csv`
+      `trimscout_inventory_${new Date().toISOString().slice(0, 10)}.csv`
     );
     document.body.appendChild(link);
     link.click();
@@ -456,35 +444,32 @@ export const LightsailIntelligence: React.FC = () => {
   };
 
   return (
-    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 space-y-8 animate-fadeIn">
+    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 space-y-6 animate-fadeIn">
       {/* ==================================================== */}
-      {/* 1. CLOUD HEADER & CRAWLER STATUS BANNER */}
+      {/* 1. HEADER & CLOUD TELEMETRY BAR */}
       {/* ==================================================== */}
-      <div className="rounded-3xl border border-border-strong bg-gradient-to-r from-surface-elevated via-surface to-surface-elevated p-6 sm:p-8 shadow-2xl relative overflow-hidden">
-        <div className="absolute top-0 right-0 h-48 w-48 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 relative z-10">
-          <div className="space-y-2">
-            <div className="flex items-center gap-2.5">
+      <div className="rounded-3xl border border-border bg-gradient-to-r from-surface-elevated via-surface to-surface-elevated p-6 shadow-2xl relative overflow-hidden">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+          <div className="space-y-1.5">
+            <div className="flex items-center gap-2">
               <span className="flex h-2.5 w-2.5 rounded-full bg-emerald-400 animate-ping" />
               <span className="rounded-full bg-emerald-500/20 border border-emerald-500/40 px-2.5 py-0.5 text-[10px] font-black text-emerald-400 uppercase tracking-wider">
-                AWS Lightsail Cloud Connected • 34.205.155.92
+                Live Cloud Feed • AWS Lightsail 34.205.155.92
               </span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white flex items-center gap-2">
-              🏎️ Live Dealership Market Intelligence & Multi-Category Scanner
+              🏎️ Porsche Market Intelligence & Multi-Category Explorer
             </h1>
-            <p className="text-xs sm:text-sm text-ink-muted max-w-3xl leading-relaxed">
-              Real-time daily telemetry ingested directly from our autonomous AWS Lightsail crawler. 
-              Slice and filter ground-truth inventory across every category: Model, Trim, Price Drops, Days on Lot, Condition, Dealer, and Body Style.
+            <p className="text-xs sm:text-sm text-ink-muted max-w-3xl">
+              100% of live vehicles loaded across Paul Miller (NJ), Champion (FL), The Collection (FL), Brooklyn (NY), and South Shore (NY). Filter by any category with zero restrictions.
             </p>
           </div>
 
-          {/* Action Buttons */}
           <div className="flex flex-wrap items-center gap-3">
             <button
               onClick={handleRefresh}
               disabled={isRefreshing}
-              className="inline-flex items-center gap-2 rounded-xl border border-border bg-surface px-4 py-2.5 text-xs font-bold text-ink-light hover:text-white hover:border-emerald-500/50 transition-all cursor-pointer shadow-sm"
+              className="inline-flex items-center gap-2 rounded-xl border border-border bg-surface px-4 py-2 text-xs font-bold text-ink-light hover:text-white hover:border-emerald-500/50 transition-all cursor-pointer shadow-sm"
             >
               <RefreshCw className={`h-3.5 w-3.5 text-emerald-400 ${isRefreshing ? "animate-spin" : ""}`} />
               <span>{isRefreshing ? "Syncing..." : "Sync Lightsail"}</span>
@@ -492,45 +477,70 @@ export const LightsailIntelligence: React.FC = () => {
 
             <button
               onClick={handleExportFilteredCSV}
-              className="inline-flex items-center gap-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 px-4 py-2.5 text-xs font-extrabold text-black transition-all shadow-md shadow-emerald-500/20 cursor-pointer"
+              className="inline-flex items-center gap-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 px-4 py-2 text-xs font-extrabold text-black transition-all shadow-md shadow-emerald-500/20 cursor-pointer"
             >
               <Download className="h-3.5 w-3.5 fill-black" />
-              <span>Export Filtered ({filteredVehicles.length})</span>
+              <span>Export CSV ({filteredVehicles.length})</span>
             </button>
-          </div>
-        </div>
-
-        {/* Live Crawler Telemetry Badges */}
-        <div className="mt-6 pt-6 border-t border-border/60 grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-          <div className="flex items-center gap-2 text-ink-muted">
-            <Server className="h-4 w-4 text-emerald-400" />
-            <span>Host: <strong className="text-white">34.205.155.92</strong></span>
-          </div>
-          <div className="flex items-center gap-2 text-ink-muted">
-            <Clock className="h-4 w-4 text-blue-400" />
-            <span>Schedule: <strong className="text-white">Daily 6:00 AM EST</strong></span>
-          </div>
-          <div className="flex items-center gap-2 text-ink-muted">
-            <Building2 className="h-4 w-4 text-purple-400" />
-            <span>Dealerships: <strong className="text-white">5 Flagships</strong></span>
-          </div>
-          <div className="flex items-center gap-2 text-ink-muted">
-            <ShieldCheck className="h-4 w-4 text-amber-400" />
-            <span>Active Baseline: <strong className="text-white">{allVehicles.length} Vehicles</strong></span>
           </div>
         </div>
       </div>
 
       {/* ==================================================== */}
-      {/* 2. QUICK 1-CLICK PRESET CHIPS */}
+      {/* 2. REAL-TIME DYNAMIC AGGREGATE KPI CARDS */}
+      {/* ==================================================== */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+        <div className="rounded-2xl border border-border bg-surface p-4 space-y-1">
+          <div className="text-[10px] font-bold uppercase text-ink-faint">Matching Vehicles</div>
+          <div className="text-2xl font-black text-white font-mono">{liveStats.count}</div>
+          <div className="text-[10px] text-emerald-400 font-medium">of {allVehicles.length} total live</div>
+        </div>
+
+        <div className="rounded-2xl border border-border bg-surface p-4 space-y-1">
+          <div className="text-[10px] font-bold uppercase text-ink-faint">Avg Asking Price</div>
+          <div className="text-2xl font-black text-emerald-400 font-mono">
+            {liveStats.avgPrice ? `$${liveStats.avgPrice.toLocaleString()}` : "—"}
+          </div>
+          <div className="text-[10px] text-ink-muted font-medium">Across active filter</div>
+        </div>
+
+        <div className="rounded-2xl border border-border bg-surface p-4 space-y-1">
+          <div className="text-[10px] font-bold uppercase text-ink-faint">Price Drops Active</div>
+          <div className="text-2xl font-black text-rose-400 font-mono">{liveStats.totalDrops}</div>
+          <div className="text-[10px] text-rose-400 font-medium">
+            {liveStats.maxDrop ? `Max -$${liveStats.maxDrop.toLocaleString()}` : "0 drops"}
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-border bg-surface p-4 space-y-1">
+          <div className="text-[10px] font-bold uppercase text-ink-faint">Avg Days on Lot</div>
+          <div className="text-2xl font-black text-blue-400 font-mono">{liveStats.avgDays}d</div>
+          <div className="text-[10px] text-ink-muted font-medium">Showroom age</div>
+        </div>
+
+        <div className="rounded-2xl border border-border bg-surface p-4 space-y-1">
+          <div className="text-[10px] font-bold uppercase text-ink-faint">High Leverage (&gt;45d)</div>
+          <div className="text-2xl font-black text-amber-400 font-mono">{liveStats.staleCount}</div>
+          <div className="text-[10px] text-amber-400 font-medium">Aging lot stock</div>
+        </div>
+
+        <div className="rounded-2xl border border-border bg-surface p-4 space-y-1">
+          <div className="text-[10px] font-bold uppercase text-ink-faint">Dealer Centers</div>
+          <div className="text-2xl font-black text-purple-400 font-mono">{facetOptions.dealers.length}</div>
+          <div className="text-[10px] text-purple-400 font-medium">Flagships active</div>
+        </div>
+      </div>
+
+      {/* ==================================================== */}
+      {/* 3. QUICK 1-CLICK PRESET CHIPS */}
       {/* ==================================================== */}
       <div className="space-y-2">
         <div className="text-[11px] font-bold uppercase tracking-wider text-ink-faint flex items-center justify-between">
-          <span>Quick Market Presets</span>
+          <span>Quick Model & Category Presets</span>
           {activeFiltersCount > 0 && (
             <button
               onClick={handleResetFilters}
-              className="text-emerald-400 hover:underline inline-flex items-center gap-1 normal-case font-bold"
+              className="text-emerald-400 hover:underline inline-flex items-center gap-1 font-bold normal-case text-xs"
             >
               <RotateCcw className="h-3 w-3" />
               <span>Reset All ({activeFiltersCount})</span>
@@ -539,67 +549,90 @@ export const LightsailIntelligence: React.FC = () => {
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          {[
-            { id: "all", label: "All Vehicles", icon: Car, count: allVehicles.length },
-            { id: "price_drops", label: "🔥 Price Drops", icon: TrendingDown, count: data?.stats.totalPriceDrops || data?.topPriceDrops.length || 0, badgeColor: "text-rose-400 bg-rose-500/10 border-rose-500/30" },
-            { id: "new_arrivals", label: "⚡ New Arrivals (<3 Days)", icon: Sparkles, count: data?.stats.totalNewArrivals || 0 },
-            { id: "high_leverage", label: "⏳ Stale Stock (>45 Days)", icon: Clock, count: data?.stats.totalStaleVehicles || 0 },
-            { id: "911", label: "🏎️ 911 Series", icon: Flame, count: facetOptions.models.find((m) => m[0] === "911")?.[1] || 0 },
-            { id: "suv", label: "🚙 SUVs (Macan & Cayenne)", icon: ShieldCheck, count: (facetOptions.models.find((m) => m[0] === "Macan")?.[1] || 0) + (facetOptions.models.find((m) => m[0] === "Cayenne")?.[1] || 0) },
-            { id: "ev", label: "⚡ Taycan EVs", icon: Zap, count: facetOptions.models.find((m) => m[0] === "Taycan")?.[1] || 0 },
-            { id: "cpo", label: "🏆 Certified Pre-Owned (CPO)", icon: CheckCircle2, count: allVehicles.filter((v) => getNormalizedType(v) === "CERTIFIED").length },
-          ].map((preset) => {
-            const isActive = selectedQuickPreset === preset.id;
-            return (
-              <button
-                key={preset.id}
-                onClick={() => handlePresetSelect(preset.id)}
-                className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all border cursor-pointer ${
-                  isActive
-                    ? "bg-emerald-500 text-black border-emerald-400 shadow-md shadow-emerald-500/20"
-                    : "bg-surface hover:bg-surface-elevated text-ink-light border-border hover:border-border-strong"
-                }`}
-              >
-                <span>{preset.label}</span>
-                <span
-                  className={`rounded-md px-1.5 py-0.2 text-[10px] font-mono font-black ${
-                    isActive ? "bg-black/20 text-black" : "bg-surface-elevated text-ink-muted border border-border/60"
-                  }`}
-                >
-                  {preset.count}
-                </span>
-              </button>
-            );
-          })}
+          <button
+            onClick={() => handleResetFilters()}
+            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all border cursor-pointer ${
+              activeFiltersCount === 0
+                ? "bg-emerald-500 text-black border-emerald-400 shadow-md shadow-emerald-500/20"
+                : "bg-surface hover:bg-surface-elevated text-ink-light border-border"
+            }`}
+          >
+            All Vehicles ({allVehicles.length})
+          </button>
+
+          {facetOptions.models.map(([m, count]) => (
+            <button
+              key={m}
+              onClick={() => {
+                handleResetFilters();
+                setSelectedModel(m);
+              }}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all border cursor-pointer ${
+                selectedModel === m
+                  ? "bg-emerald-500 text-black border-emerald-400 shadow-md shadow-emerald-500/20"
+                  : "bg-surface hover:bg-surface-elevated text-ink-light border-border"
+              }`}
+            >
+              <span>{m === "911" ? "🏎️ 911 Series" : m === "Macan" ? "🚙 Macan" : m === "Cayenne" ? "🚙 Cayenne" : m === "Taycan" ? "⚡ Taycan" : m}</span>
+              <span className="text-[10px] font-mono opacity-80">({count})</span>
+            </button>
+          ))}
+
+          <button
+            onClick={() => applyPreset("price_drops")}
+            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all border cursor-pointer ${
+              selectedOpportunity === "PRICE_DROPS"
+                ? "bg-rose-500 text-white border-rose-400 shadow-md shadow-rose-500/20"
+                : "bg-surface hover:bg-surface-elevated text-rose-400 border-rose-500/30"
+            }`}
+          >
+            🔥 Price Drops ({allVehicles.filter((v) => v.priceDiff && v.priceDiff < 0).length})
+          </button>
+
+          <button
+            onClick={() => applyPreset("cpo")}
+            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all border cursor-pointer ${
+              selectedCondition === "CERTIFIED"
+                ? "bg-blue-500 text-white border-blue-400 shadow-md shadow-blue-500/20"
+                : "bg-surface hover:bg-surface-elevated text-blue-400 border-blue-500/30"
+            }`}
+          >
+            🏆 CPO Only ({allVehicles.filter((v) => getNormalizedCondition(v) === "CERTIFIED").length})
+          </button>
+
+          <button
+            onClick={() => applyPreset("high_leverage")}
+            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all border cursor-pointer ${
+              selectedDaysOnLot === "over_45"
+                ? "bg-amber-500 text-black border-amber-400 shadow-md shadow-amber-500/20"
+                : "bg-surface hover:bg-surface-elevated text-amber-400 border-amber-500/30"
+            }`}
+          >
+            ⏳ &gt;45 Days on Lot ({allVehicles.filter((v) => (v.daysOnLot || 0) >= 45).length})
+          </button>
         </div>
       </div>
 
       {/* ==================================================== */}
-      {/* 3. MULTI-CATEGORY COMPREHENSIVE FILTER MATRIX */}
+      {/* 4. MULTI-CATEGORY COMPREHENSIVE FILTER PANEL */}
       {/* ==================================================== */}
-      <div className="rounded-3xl border border-border bg-surface p-6 shadow-xl space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border/80 pb-4">
-          <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-              <SlidersHorizontal className="h-5 w-5" />
-            </div>
-            <div>
-              <h2 className="font-black text-white text-base">Filter by Every Possible Category</h2>
-              <p className="text-xs text-ink-muted">
-                Showing <strong className="text-white">{filteredVehicles.length}</strong> matching vehicles across 5 dealer centers
-              </p>
-            </div>
+      <div className="rounded-3xl border border-border bg-surface p-6 shadow-xl space-y-4">
+        <div className="flex items-center justify-between border-b border-border/60 pb-3">
+          <div className="flex items-center gap-2">
+            <SlidersHorizontal className="h-4 w-4 text-emerald-400" />
+            <h2 className="font-black text-white text-sm uppercase tracking-wider">
+              Filter by Every Possible Category
+            </h2>
           </div>
 
           <div className="flex items-center gap-2">
-            {/* View Mode Toggle */}
             <div className="flex items-center rounded-xl border border-border bg-surface-elevated p-1">
               <button
                 onClick={() => setViewMode("table")}
                 className={`p-1.5 rounded-lg text-xs font-bold transition-all ${
                   viewMode === "table" ? "bg-surface text-emerald-400 shadow-sm" : "text-ink-muted hover:text-white"
                 }`}
-                title="Table View"
+                title="Dense Table View"
               >
                 <List className="h-4 w-4" />
               </button>
@@ -608,347 +641,317 @@ export const LightsailIntelligence: React.FC = () => {
                 className={`p-1.5 rounded-lg text-xs font-bold transition-all ${
                   viewMode === "grid" ? "bg-surface text-emerald-400 shadow-sm" : "text-ink-muted hover:text-white"
                 }`}
-                title="Grid View"
+                title="Visual Card Grid View"
               >
                 <LayoutGrid className="h-4 w-4" />
               </button>
             </div>
-
-            <button
-              onClick={() => setIsFilterPanelOpen(!isFilterPanelOpen)}
-              className="flex items-center gap-1.5 rounded-xl border border-border bg-surface-elevated px-3 py-1.5 text-xs font-bold text-ink-light hover:text-white transition-all cursor-pointer"
-            >
-              <span>{isFilterPanelOpen ? "Collapse Filters" : "Expand Filters"}</span>
-              {isFilterPanelOpen ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
-            </button>
           </div>
         </div>
 
-        {/* Collapsible Filter Categories Grid */}
-        {isFilterPanelOpen && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 pt-1 animate-fadeIn text-xs">
-            {/* 1. Global Search Box */}
-            <div className="space-y-1.5">
-              <label className="text-[10.5px] font-bold uppercase text-ink-faint flex items-center gap-1">
-                <Search className="h-3 w-3 text-emerald-400" />
-                <span>Search Keywords / VIN</span>
-              </label>
+        {/* 12 Filter Dropdowns & Inputs */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 text-xs">
+          {/* 1. Global Search */}
+          <div className="space-y-1">
+            <label className="text-[10px] font-bold uppercase text-ink-faint flex items-center gap-1">
+              <Search className="h-3 w-3 text-emerald-400" />
+              <span>Keyword / Exact VIN</span>
+            </label>
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search VIN, Model, GTS, Color..."
+              className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-xs text-white placeholder-ink-faint focus:border-emerald-500 focus:outline-none font-mono"
+            />
+          </div>
+
+          {/* 2. Model Series */}
+          <div className="space-y-1">
+            <label className="text-[10px] font-bold uppercase text-ink-faint flex items-center gap-1">
+              <Car className="h-3 w-3 text-blue-400" />
+              <span>Model Series</span>
+            </label>
+            <select
+              value={selectedModel}
+              onChange={(e) => setSelectedModel(e.target.value)}
+              className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
+            >
+              <option value="ALL">All Models ({allVehicles.length})</option>
+              {facetOptions.models.map(([m, count]) => (
+                <option key={m} value={m}>
+                  {m} ({count})
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* 3. Trim / Edition */}
+          <div className="space-y-1">
+            <label className="text-[10px] font-bold uppercase text-ink-faint flex items-center gap-1">
+              <Tag className="h-3 w-3 text-purple-400" />
+              <span>Trim / Edition</span>
+            </label>
+            <select
+              value={selectedTrim}
+              onChange={(e) => setSelectedTrim(e.target.value)}
+              className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
+            >
+              <option value="ALL">All Trims</option>
+              {facetOptions.trims.map(([t, count]) => (
+                <option key={t} value={t}>
+                  {t} ({count})
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* 4. Condition / Type */}
+          <div className="space-y-1">
+            <label className="text-[10px] font-bold uppercase text-ink-faint flex items-center gap-1">
+              <ShieldCheck className="h-3 w-3 text-amber-400" />
+              <span>Condition</span>
+            </label>
+            <select
+              value={selectedCondition}
+              onChange={(e) => setSelectedCondition(e.target.value)}
+              className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
+            >
+              <option value="ALL">All Conditions</option>
+              <option value="NEW">New Units ({allVehicles.filter((v) => getNormalizedCondition(v) === "NEW").length})</option>
+              <option value="USED">Pre-Owned ({allVehicles.filter((v) => getNormalizedCondition(v) === "USED").length})</option>
+              <option value="CERTIFIED">Certified Pre-Owned (CPO) ({allVehicles.filter((v) => getNormalizedCondition(v) === "CERTIFIED").length})</option>
+            </select>
+          </div>
+
+          {/* 5. Dealership Center */}
+          <div className="space-y-1">
+            <label className="text-[10px] font-bold uppercase text-ink-faint flex items-center gap-1">
+              <Building2 className="h-3 w-3 text-emerald-400" />
+              <span>Dealership Center</span>
+            </label>
+            <select
+              value={selectedDealer}
+              onChange={(e) => setSelectedDealer(e.target.value)}
+              className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
+            >
+              <option value="ALL">All Dealerships</option>
+              {facetOptions.dealers.map(([d, count]) => (
+                <option key={d} value={d}>
+                  {d} ({count})
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* 6. State / Region */}
+          <div className="space-y-1">
+            <label className="text-[10px] font-bold uppercase text-ink-faint flex items-center gap-1">
+              <MapPin className="h-3 w-3 text-rose-400" />
+              <span>State / Region</span>
+            </label>
+            <select
+              value={selectedState}
+              onChange={(e) => setSelectedState(e.target.value)}
+              className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
+            >
+              <option value="ALL">All States</option>
+              {facetOptions.states.map(([s, count]) => (
+                <option key={s} value={s}>
+                  {s} ({count} vehicles)
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* 7. Body Style */}
+          <div className="space-y-1">
+            <label className="text-[10px] font-bold uppercase text-ink-faint flex items-center gap-1">
+              <Car className="h-3 w-3 text-blue-400" />
+              <span>Body Style</span>
+            </label>
+            <select
+              value={selectedBodyStyle}
+              onChange={(e) => setSelectedBodyStyle(e.target.value)}
+              className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
+            >
+              <option value="ALL">All Body Styles</option>
+              {facetOptions.bodyStyles.map(([b, count]) => (
+                <option key={b} value={b}>
+                  {b} ({count})
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* 8. Model Year */}
+          <div className="space-y-1">
+            <label className="text-[10px] font-bold uppercase text-ink-faint flex items-center gap-1">
+              <Calendar className="h-3 w-3 text-purple-400" />
+              <span>Model Year</span>
+            </label>
+            <select
+              value={selectedYear}
+              onChange={(e) => setSelectedYear(e.target.value)}
+              className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
+            >
+              <option value="ALL">All Years</option>
+              {facetOptions.years.map(([y, count]) => (
+                <option key={y} value={y.toString()}>
+                  {y} ({count})
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* 9. Days on Lot */}
+          <div className="space-y-1">
+            <label className="text-[10px] font-bold uppercase text-ink-faint flex items-center gap-1">
+              <Clock className="h-3 w-3 text-amber-400" />
+              <span>Days on Lot</span>
+            </label>
+            <select
+              value={selectedDaysOnLot}
+              onChange={(e) => setSelectedDaysOnLot(e.target.value)}
+              className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
+            >
+              <option value="ALL">Any Days on Lot</option>
+              <option value="under_7">Fresh Arrival (&lt;7 Days)</option>
+              <option value="7_to_30">Normal (7 - 30 Days)</option>
+              <option value="31_to_60">Aging (31 - 60 Days)</option>
+              <option value="over_45">High Leverage (&gt;45 Days)</option>
+              <option value="over_60">Stale Stock (&gt;60 Days)</option>
+            </select>
+          </div>
+
+          {/* 10. Price Range Inputs */}
+          <div className="space-y-1">
+            <label className="text-[10px] font-bold uppercase text-ink-faint flex items-center gap-1">
+              <DollarSign className="h-3 w-3 text-emerald-400" />
+              <span>Price Range ($)</span>
+            </label>
+            <div className="grid grid-cols-2 gap-1.5">
               <input
-                type="text"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="VIN, GTS, Turbo, Red..."
-                className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-xs text-white placeholder-ink-faint focus:border-emerald-500 focus:outline-none font-mono"
+                type="number"
+                value={minPriceInput}
+                onChange={(e) => setMinPriceInput(e.target.value)}
+                placeholder="Min $"
+                className="w-full rounded-xl border border-border bg-surface-elevated px-2.5 py-2 text-xs text-white font-mono focus:border-emerald-500 focus:outline-none"
+              />
+              <input
+                type="number"
+                value={maxPriceInput}
+                onChange={(e) => setMaxPriceInput(e.target.value)}
+                placeholder="Max $"
+                className="w-full rounded-xl border border-border bg-surface-elevated px-2.5 py-2 text-xs text-white font-mono focus:border-emerald-500 focus:outline-none"
               />
             </div>
-
-            {/* 2. Model / Series Filter */}
-            <div className="space-y-1.5">
-              <label className="text-[10.5px] font-bold uppercase text-ink-faint flex items-center gap-1">
-                <Car className="h-3 w-3 text-blue-400" />
-                <span>Model Series</span>
-              </label>
-              <select
-                value={selectedModelSeries}
-                onChange={(e) => setSelectedModelSeries(e.target.value)}
-                className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
-              >
-                <option value="All">All Models ({allVehicles.length})</option>
-                {facetOptions.models.map(([m, count]) => (
-                  <option key={m} value={m}>
-                    {m} ({count})
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* 3. Trim / Edition */}
-            <div className="space-y-1.5">
-              <label className="text-[10.5px] font-bold uppercase text-ink-faint flex items-center gap-1">
-                <Tag className="h-3 w-3 text-purple-400" />
-                <span>Trim / Edition</span>
-              </label>
-              <select
-                value={selectedTrim}
-                onChange={(e) => setSelectedTrim(e.target.value)}
-                className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
-              >
-                <option value="All">All Trims</option>
-                {facetOptions.trims.map(([t, count]) => (
-                  <option key={t} value={t}>
-                    {t} ({count})
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* 4. Condition / Type */}
-            <div className="space-y-1.5">
-              <label className="text-[10.5px] font-bold uppercase text-ink-faint flex items-center gap-1">
-                <ShieldCheck className="h-3 w-3 text-amber-400" />
-                <span>Condition</span>
-              </label>
-              <select
-                value={selectedType}
-                onChange={(e) => setSelectedType(e.target.value)}
-                className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
-              >
-                <option value="All">All Conditions</option>
-                <option value="NEW">New Units</option>
-                <option value="USED">Pre-Owned</option>
-                <option value="CERTIFIED">Certified Pre-Owned (CPO)</option>
-              </select>
-            </div>
-
-            {/* 5. Dealership Center */}
-            <div className="space-y-1.5">
-              <label className="text-[10.5px] font-bold uppercase text-ink-faint flex items-center gap-1">
-                <Building2 className="h-3 w-3 text-emerald-400" />
-                <span>Dealership Center</span>
-              </label>
-              <select
-                value={selectedDealer}
-                onChange={(e) => setSelectedDealer(e.target.value)}
-                className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
-              >
-                <option value="All">All 5 Dealerships</option>
-                {facetOptions.dealers.map(([d, count]) => (
-                  <option key={d} value={d}>
-                    {d} ({count})
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* 6. State / Region */}
-            <div className="space-y-1.5">
-              <label className="text-[10.5px] font-bold uppercase text-ink-faint flex items-center gap-1">
-                <MapPin className="h-3 w-3 text-rose-400" />
-                <span>State / Region</span>
-              </label>
-              <select
-                value={selectedState}
-                onChange={(e) => setSelectedState(e.target.value)}
-                className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
-              >
-                <option value="All">All States (NJ, FL, NY)</option>
-                {facetOptions.states.map(([s, count]) => (
-                  <option key={s} value={s}>
-                    {s} ({count} vehicles)
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* 7. Body Style */}
-            <div className="space-y-1.5">
-              <label className="text-[10.5px] font-bold uppercase text-ink-faint flex items-center gap-1">
-                <Car className="h-3 w-3 text-blue-400" />
-                <span>Body Style</span>
-              </label>
-              <select
-                value={selectedBodyStyle}
-                onChange={(e) => setSelectedBodyStyle(e.target.value)}
-                className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
-              >
-                <option value="All">All Body Styles</option>
-                {facetOptions.bodyStyles.map(([b, count]) => (
-                  <option key={b} value={b}>
-                    {b} ({count})
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* 8. Model Year */}
-            <div className="space-y-1.5">
-              <label className="text-[10.5px] font-bold uppercase text-ink-faint flex items-center gap-1">
-                <Calendar className="h-3 w-3 text-purple-400" />
-                <span>Model Year</span>
-              </label>
-              <select
-                value={selectedYear}
-                onChange={(e) => setSelectedYear(e.target.value)}
-                className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
-              >
-                <option value="All">All Years</option>
-                {facetOptions.years.map(([y, count]) => (
-                  <option key={y} value={y.toString()}>
-                    {y} ({count})
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* 9. Days on Lot / Supply Age */}
-            <div className="space-y-1.5">
-              <label className="text-[10.5px] font-bold uppercase text-ink-faint flex items-center gap-1">
-                <Clock className="h-3 w-3 text-amber-400" />
-                <span>Days on Lot (Negotiation Leverage)</span>
-              </label>
-              <select
-                value={selectedDaysOnLotRange}
-                onChange={(e) => setSelectedDaysOnLotRange(e.target.value)}
-                className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
-              >
-                <option value="All">Any Days on Lot</option>
-                <option value="under_7">Fresh Arrival (&lt;7 Days)</option>
-                <option value="7_to_30">Normal Rotation (7 - 30 Days)</option>
-                <option value="31_to_60">Aging Supply (31 - 60 Days)</option>
-                <option value="over_45">High Leverage (&gt;45 Days)</option>
-                <option value="over_60">Stale / Heavy Discount (&gt;60 Days)</option>
-              </select>
-            </div>
-
-            {/* 10. Maximum Mileage */}
-            <div className="space-y-1.5">
-              <label className="text-[10.5px] font-bold uppercase text-ink-faint flex items-center justify-between">
-                <span className="flex items-center gap-1">
-                  <Gauge className="h-3 w-3 text-blue-400" />
-                  <span>Max Mileage</span>
-                </span>
-                <span className="text-white font-mono">{maxMileage >= 100000 ? "Any" : `< ${maxMileage.toLocaleString()} mi`}</span>
-              </label>
-              <select
-                value={maxMileage}
-                onChange={(e) => setMaxMileage(parseInt(e.target.value, 10))}
-                className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
-              >
-                <option value="100000">Any Mileage</option>
-                <option value="5000">Under 5,000 mi</option>
-                <option value="15000">Under 15,000 mi</option>
-                <option value="30000">Under 30,000 mi</option>
-                <option value="50000">Under 50,000 mi</option>
-              </select>
-            </div>
-
-            {/* 11. Price Range */}
-            <div className="space-y-1.5">
-              <label className="text-[10.5px] font-bold uppercase text-ink-faint flex items-center justify-between">
-                <span className="flex items-center gap-1">
-                  <DollarSign className="h-3 w-3 text-emerald-400" />
-                  <span>Price Range</span>
-                </span>
-                <span className="text-white font-mono">
-                  ${(minPrice / 1000).toFixed(0)}k - ${(maxPrice / 1000).toFixed(0)}k
-                </span>
-              </label>
-              <div className="grid grid-cols-2 gap-2">
-                <input
-                  type="number"
-                  step={5000}
-                  value={minPrice}
-                  onChange={(e) => setMinPrice(Math.max(0, parseInt(e.target.value || "0", 10)))}
-                  placeholder="Min $"
-                  className="rounded-xl border border-border bg-surface-elevated px-2 py-1.5 text-xs text-white font-mono focus:border-emerald-500 focus:outline-none"
-                />
-                <input
-                  type="number"
-                  step={10000}
-                  value={maxPrice}
-                  onChange={(e) => setMaxPrice(Math.max(0, parseInt(e.target.value || "350000", 10)))}
-                  placeholder="Max $"
-                  className="rounded-xl border border-border bg-surface-elevated px-2 py-1.5 text-xs text-white font-mono focus:border-emerald-500 focus:outline-none"
-                />
-              </div>
-            </div>
-
-            {/* 12. Sort By */}
-            <div className="space-y-1.5">
-              <label className="text-[10.5px] font-bold uppercase text-ink-faint flex items-center gap-1">
-                <ArrowUpDown className="h-3 w-3 text-emerald-400" />
-                <span>Sort Results</span>
-              </label>
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none font-bold"
-              >
-                <option value="price_drop_first">🔥 Largest Price Drops First</option>
-                <option value="price_asc">Price: Low to High</option>
-                <option value="price_desc">Price: High to Low</option>
-                <option value="days_on_lot_desc">Days on Lot: Longest (High Leverage)</option>
-                <option value="newest_arrival">Days on Lot: Newest First</option>
-                <option value="mileage_asc">Mileage: Lowest First</option>
-                <option value="year_desc">Year: Newest First</option>
-              </select>
-            </div>
           </div>
-        )}
 
-        {/* Active Filter Tags */}
+          {/* 11. Max Mileage */}
+          <div className="space-y-1">
+            <label className="text-[10px] font-bold uppercase text-ink-faint flex items-center gap-1">
+              <Gauge className="h-3 w-3 text-blue-400" />
+              <span>Max Mileage</span>
+            </label>
+            <input
+              type="number"
+              value={maxMileageInput}
+              onChange={(e) => setMaxMileageInput(e.target.value)}
+              placeholder="e.g. 15000"
+              className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-xs text-white font-mono focus:border-emerald-500 focus:outline-none"
+            />
+          </div>
+
+          {/* 12. Sort By */}
+          <div className="space-y-1">
+            <label className="text-[10px] font-bold uppercase text-ink-faint flex items-center gap-1">
+              <ArrowUpDown className="h-3 w-3 text-emerald-400" />
+              <span>Sort Results</span>
+            </label>
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none font-bold"
+            >
+              <option value="default">Default Order</option>
+              <option value="price_drop_first">🔥 Largest Price Drop First</option>
+              <option value="price_asc">Price: Low to High</option>
+              <option value="price_desc">Price: High to Low</option>
+              <option value="days_desc">Days on Lot: Longest</option>
+              <option value="days_asc">Days on Lot: Newest</option>
+              <option value="mileage_asc">Mileage: Lowest First</option>
+              <option value="year_desc">Year: Newest First</option>
+            </select>
+          </div>
+        </div>
+
+        {/* Active Filter Badges */}
         {activeFiltersCount > 0 && (
           <div className="flex flex-wrap items-center gap-2 pt-3 border-t border-border/60 text-xs">
-            <span className="text-[10.5px] text-ink-faint font-bold uppercase">Active Filters:</span>
+            <span className="text-[10px] text-ink-faint font-bold uppercase">Active Filters:</span>
 
-            {selectedModelSeries !== "All" && (
-              <span className="inline-flex items-center gap-1 rounded-lg bg-surface-elevated border border-border px-2 py-1 text-ink-light">
-                <span>Model: {selectedModelSeries}</span>
-                <X className="h-3 w-3 cursor-pointer hover:text-white" onClick={() => setSelectedModelSeries("All")} />
+            {searchTerm && (
+              <span className="inline-flex items-center gap-1 rounded-lg bg-surface-elevated border border-border px-2 py-0.5 text-ink-light">
+                <span>Keyword: &quot;{searchTerm}&quot;</span>
+                <X className="h-3 w-3 cursor-pointer hover:text-white" onClick={() => setSearchTerm("")} />
               </span>
             )}
 
-            {selectedTrim !== "All" && (
-              <span className="inline-flex items-center gap-1 rounded-lg bg-surface-elevated border border-border px-2 py-1 text-ink-light">
+            {selectedModel !== "ALL" && (
+              <span className="inline-flex items-center gap-1 rounded-lg bg-surface-elevated border border-border px-2 py-0.5 text-ink-light">
+                <span>Model: {selectedModel}</span>
+                <X className="h-3 w-3 cursor-pointer hover:text-white" onClick={() => setSelectedModel("ALL")} />
+              </span>
+            )}
+
+            {selectedTrim !== "ALL" && (
+              <span className="inline-flex items-center gap-1 rounded-lg bg-surface-elevated border border-border px-2 py-0.5 text-ink-light">
                 <span>Trim: {selectedTrim}</span>
-                <X className="h-3 w-3 cursor-pointer hover:text-white" onClick={() => setSelectedTrim("All")} />
+                <X className="h-3 w-3 cursor-pointer hover:text-white" onClick={() => setSelectedTrim("ALL")} />
               </span>
             )}
 
-            {selectedType !== "All" && (
-              <span className="inline-flex items-center gap-1 rounded-lg bg-surface-elevated border border-border px-2 py-1 text-ink-light">
-                <span>Type: {selectedType}</span>
-                <X className="h-3 w-3 cursor-pointer hover:text-white" onClick={() => setSelectedType("All")} />
+            {selectedCondition !== "ALL" && (
+              <span className="inline-flex items-center gap-1 rounded-lg bg-surface-elevated border border-border px-2 py-0.5 text-ink-light">
+                <span>Condition: {selectedCondition}</span>
+                <X className="h-3 w-3 cursor-pointer hover:text-white" onClick={() => setSelectedCondition("ALL")} />
               </span>
             )}
 
-            {selectedDealer !== "All" && (
-              <span className="inline-flex items-center gap-1 rounded-lg bg-surface-elevated border border-border px-2 py-1 text-ink-light">
+            {selectedDealer !== "ALL" && (
+              <span className="inline-flex items-center gap-1 rounded-lg bg-surface-elevated border border-border px-2 py-0.5 text-ink-light">
                 <span>Dealer: {selectedDealer}</span>
-                <X className="h-3 w-3 cursor-pointer hover:text-white" onClick={() => setSelectedDealer("All")} />
+                <X className="h-3 w-3 cursor-pointer hover:text-white" onClick={() => setSelectedDealer("ALL")} />
               </span>
             )}
 
-            {selectedState !== "All" && (
-              <span className="inline-flex items-center gap-1 rounded-lg bg-surface-elevated border border-border px-2 py-1 text-ink-light">
-                <span>State: {selectedState}</span>
-                <X className="h-3 w-3 cursor-pointer hover:text-white" onClick={() => setSelectedState("All")} />
+            {selectedOpportunity !== "ALL" && (
+              <span className="inline-flex items-center gap-1 rounded-lg bg-surface-elevated border border-border px-2 py-0.5 text-ink-light">
+                <span>Opportunity: {selectedOpportunity}</span>
+                <X className="h-3 w-3 cursor-pointer hover:text-white" onClick={() => setSelectedOpportunity("ALL")} />
               </span>
             )}
 
-            {selectedDaysOnLotRange !== "All" && (
-              <span className="inline-flex items-center gap-1 rounded-lg bg-surface-elevated border border-border px-2 py-1 text-ink-light">
-                <span>Days: {selectedDaysOnLotRange}</span>
-                <X className="h-3 w-3 cursor-pointer hover:text-white" onClick={() => setSelectedDaysOnLotRange("All")} />
-              </span>
-            )}
-
-            {selectedYear !== "All" && (
-              <span className="inline-flex items-center gap-1 rounded-lg bg-surface-elevated border border-border px-2 py-1 text-ink-light">
-                <span>Year: {selectedYear}</span>
-                <X className="h-3 w-3 cursor-pointer hover:text-white" onClick={() => setSelectedYear("All")} />
-              </span>
-            )}
-
-            {(minPrice > 0 || maxPrice < 350000) && (
-              <span className="inline-flex items-center gap-1 rounded-lg bg-surface-elevated border border-border px-2 py-1 text-ink-light">
-                <span>Price: ${minPrice.toLocaleString()} - ${maxPrice.toLocaleString()}</span>
-                <X className="h-3 w-3 cursor-pointer hover:text-white" onClick={() => { setMinPrice(0); setMaxPrice(350000); }} />
+            {(minPriceInput || maxPriceInput) && (
+              <span className="inline-flex items-center gap-1 rounded-lg bg-surface-elevated border border-border px-2 py-0.5 text-ink-light">
+                <span>Price: ${minPriceInput || "0"} - ${maxPriceInput || "∞"}</span>
+                <X className="h-3 w-3 cursor-pointer hover:text-white" onClick={() => { setMinPriceInput(""); setMaxPriceInput(""); }} />
               </span>
             )}
 
             <button
               onClick={handleResetFilters}
-              className="text-rose-400 hover:text-rose-300 font-bold ml-auto text-xs"
+              className="text-rose-400 hover:text-rose-300 font-bold text-xs ml-auto"
             >
-              Clear All
+              Clear All ({activeFiltersCount})
             </button>
           </div>
         )}
       </div>
 
       {/* ==================================================== */}
-      {/* 4. RESULTS DISPLAY: TABLE OR GRID VIEW */}
+      {/* 5. DATA TABLE & CARD GRID VIEW */}
       {/* ==================================================== */}
       {filteredVehicles.length === 0 ? (
         <div className="rounded-3xl border border-border bg-surface p-12 text-center space-y-4 shadow-xl">
@@ -957,7 +960,7 @@ export const LightsailIntelligence: React.FC = () => {
           </div>
           <h3 className="text-lg font-black text-white">No vehicles match your active filters</h3>
           <p className="text-xs text-ink-muted max-w-md mx-auto">
-            Try loosening your price bounds, clearing model selections, or resetting all filters.
+            Try loosening price/mileage limits or resetting filters to view all {allVehicles.length} vehicles.
           </p>
           <button
             onClick={handleResetFilters}
@@ -967,11 +970,11 @@ export const LightsailIntelligence: React.FC = () => {
           </button>
         </div>
       ) : viewMode === "table" ? (
-        /* DENSE TABLE VIEW */
+        /* DENSE ANALYTICAL TABLE VIEW */
         <div className="rounded-3xl border border-border bg-surface p-6 space-y-4 shadow-xl">
           <div className="flex items-center justify-between text-xs">
             <span className="text-ink-muted">
-              Showing <strong className="text-white">{filteredVehicles.length}</strong> vehicles matching current criteria
+              Displaying <strong className="text-white">{filteredVehicles.length}</strong> of <strong className="text-white">{allVehicles.length}</strong> live vehicles
             </span>
             <button
               onClick={handleExportFilteredCSV}
@@ -982,7 +985,7 @@ export const LightsailIntelligence: React.FC = () => {
             </button>
           </div>
 
-          <div className="overflow-x-auto rounded-2xl border border-border max-h-[600px] overflow-y-auto">
+          <div className="overflow-x-auto rounded-2xl border border-border max-h-[700px] overflow-y-auto">
             <table className="w-full text-left text-xs border-collapse">
               <thead className="sticky top-0 z-10 bg-surface-elevated text-ink-faint uppercase font-bold border-b border-border text-[10px]">
                 <tr>
@@ -998,7 +1001,7 @@ export const LightsailIntelligence: React.FC = () => {
               </thead>
               <tbody className="divide-y divide-border/60 font-medium">
                 {filteredVehicles.map((v) => {
-                  const cond = getNormalizedType(v);
+                  const cond = getNormalizedCondition(v);
                   const hasPriceDrop = v.priceDiff && v.priceDiff < 0;
                   return (
                     <tr key={v.vin} className="hover:bg-surface-elevated transition-colors">
@@ -1010,7 +1013,18 @@ export const LightsailIntelligence: React.FC = () => {
                           {v.trim && <span className="text-ink-muted font-normal">({v.trim})</span>}
                         </div>
                         <div className="font-mono text-[10.5px] text-ink-faint flex items-center gap-2">
-                          <span>{v.vin}</span>
+                          <button
+                            onClick={(e) => handleCopyVin(v.vin, e)}
+                            className="hover:text-white inline-flex items-center gap-1"
+                            title="Copy VIN"
+                          >
+                            <span>{v.vin}</span>
+                            {copiedVin === v.vin ? (
+                              <Check className="h-3 w-3 text-emerald-400" />
+                            ) : (
+                              <Copy className="h-3 w-3 text-ink-faint" />
+                            )}
+                          </button>
                           {v.bodyStyle && <span className="text-[9.5px] text-ink-muted">• {v.bodyStyle}</span>}
                         </div>
                       </td>
@@ -1081,7 +1095,7 @@ export const LightsailIntelligence: React.FC = () => {
         /* VISUAL CARD GRID VIEW */
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredVehicles.map((v) => {
-            const cond = getNormalizedType(v);
+            const cond = getNormalizedCondition(v);
             const hasPriceDrop = v.priceDiff && v.priceDiff < 0;
             return (
               <div
@@ -1113,8 +1127,15 @@ export const LightsailIntelligence: React.FC = () => {
                     </div>
                   </div>
 
-                  <div className="text-[11px] font-mono text-ink-faint truncate">
-                    VIN: {v.vin}
+                  <div className="text-[11px] font-mono text-ink-faint flex items-center justify-between">
+                    <span>VIN: {v.vin}</span>
+                    <button
+                      onClick={(e) => handleCopyVin(v.vin, e)}
+                      className="hover:text-white"
+                      title="Copy VIN"
+                    >
+                      {copiedVin === v.vin ? <Check className="h-3 w-3 text-emerald-400" /> : <Copy className="h-3 w-3" />}
+                    </button>
                   </div>
                 </div>
 
