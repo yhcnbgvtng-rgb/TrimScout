@@ -1129,7 +1129,7 @@ export const LightsailIntelligence: React.FC = () => {
                           </a>
 
                           <a
-                            href={`https://windowsticker.dealer.com/?vin=${v.vin}`}
+                            href={`https://monroneylabels.com/cars/${v.vin}`}
                             target="_blank"
                             rel="noreferrer"
                             className="inline-flex items-center gap-1 rounded-lg bg-surface-elevated hover:bg-surface border border-border px-2 py-1 text-[10.5px] font-bold text-ink-light hover:text-white transition-all shadow-sm"
@@ -1246,7 +1246,7 @@ export const LightsailIntelligence: React.FC = () => {
                     </a>
 
                     <a
-                      href={`https://windowsticker.dealer.com/?vin=${v.vin}`}
+                      href={`https://monroneylabels.com/cars/${v.vin}`}
                       target="_blank"
                       rel="noreferrer"
                       className="inline-flex items-center justify-center gap-1 rounded-xl bg-surface-elevated hover:bg-surface border border-border py-2 text-xs font-bold text-white transition-all shadow-sm"
