@@ -532,89 +532,7 @@ export const LightsailIntelligence: React.FC = () => {
       </div>
 
       {/* ==================================================== */}
-      {/* 3. QUICK 1-CLICK PRESET CHIPS */}
-      {/* ==================================================== */}
-      <div className="space-y-2">
-        <div className="text-[11px] font-bold uppercase tracking-wider text-ink-faint flex items-center justify-between">
-          <span>Quick Model & Category Presets</span>
-          {activeFiltersCount > 0 && (
-            <button
-              onClick={handleResetFilters}
-              className="text-emerald-400 hover:underline inline-flex items-center gap-1 font-bold normal-case text-xs"
-            >
-              <RotateCcw className="h-3 w-3" />
-              <span>Reset All ({activeFiltersCount})</span>
-            </button>
-          )}
-        </div>
-
-        <div className="flex flex-wrap items-center gap-2">
-          <button
-            onClick={() => handleResetFilters()}
-            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all border cursor-pointer ${
-              activeFiltersCount === 0
-                ? "bg-emerald-500 text-black border-emerald-400 shadow-md shadow-emerald-500/20"
-                : "bg-surface hover:bg-surface-elevated text-ink-light border-border"
-            }`}
-          >
-            All Vehicles ({allVehicles.length})
-          </button>
-
-          {facetOptions.models.map(([m, count]) => (
-            <button
-              key={m}
-              onClick={() => {
-                handleResetFilters();
-                setSelectedModel(m);
-              }}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all border cursor-pointer ${
-                selectedModel === m
-                  ? "bg-emerald-500 text-black border-emerald-400 shadow-md shadow-emerald-500/20"
-                  : "bg-surface hover:bg-surface-elevated text-ink-light border-border"
-              }`}
-            >
-              <span>{m === "911" ? "🏎️ 911 Series" : m === "Macan" ? "🚙 Macan" : m === "Cayenne" ? "🚙 Cayenne" : m === "Taycan" ? "⚡ Taycan" : m}</span>
-              <span className="text-[10px] font-mono opacity-80">({count})</span>
-            </button>
-          ))}
-
-          <button
-            onClick={() => applyPreset("price_drops")}
-            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all border cursor-pointer ${
-              selectedOpportunity === "PRICE_DROPS"
-                ? "bg-rose-500 text-white border-rose-400 shadow-md shadow-rose-500/20"
-                : "bg-surface hover:bg-surface-elevated text-rose-400 border-rose-500/30"
-            }`}
-          >
-            🔥 Price Drops ({allVehicles.filter((v) => v.priceDiff && v.priceDiff < 0).length})
-          </button>
-
-          <button
-            onClick={() => applyPreset("cpo")}
-            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all border cursor-pointer ${
-              selectedCondition === "CERTIFIED"
-                ? "bg-blue-500 text-white border-blue-400 shadow-md shadow-blue-500/20"
-                : "bg-surface hover:bg-surface-elevated text-blue-400 border-blue-500/30"
-            }`}
-          >
-            🏆 CPO Only ({allVehicles.filter((v) => getNormalizedCondition(v) === "CERTIFIED").length})
-          </button>
-
-          <button
-            onClick={() => applyPreset("high_leverage")}
-            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all border cursor-pointer ${
-              selectedDaysOnLot === "over_45"
-                ? "bg-amber-500 text-black border-amber-400 shadow-md shadow-amber-500/20"
-                : "bg-surface hover:bg-surface-elevated text-amber-400 border-amber-500/30"
-            }`}
-          >
-            ⏳ &gt;45 Days on Lot ({allVehicles.filter((v) => (v.daysOnLot || 0) >= 45).length})
-          </button>
-        </div>
-      </div>
-
-      {/* ==================================================== */}
-      {/* 4. MULTI-CATEGORY COMPREHENSIVE FILTER PANEL */}
+      {/* MULTI-CATEGORY COMPREHENSIVE FILTER PANEL */}
       {/* ==================================================== */}
       <div className="rounded-3xl border border-border bg-surface p-6 shadow-xl space-y-4">
         <div className="flex items-center justify-between border-b border-border/60 pb-3">
@@ -623,9 +541,24 @@ export const LightsailIntelligence: React.FC = () => {
             <h2 className="font-black text-white text-sm uppercase tracking-wider">
               Filter by Every Possible Category
             </h2>
+            {activeFiltersCount > 0 && (
+              <span className="rounded-full bg-emerald-500/20 text-emerald-400 px-2 py-0.2 text-[10px] font-bold">
+                {activeFiltersCount} active
+              </span>
+            )}
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
+            {activeFiltersCount > 0 && (
+              <button
+                onClick={handleResetFilters}
+                className="text-emerald-400 hover:underline inline-flex items-center gap-1 font-bold text-xs cursor-pointer"
+              >
+                <RotateCcw className="h-3 w-3" />
+                <span>Reset Filters</span>
+              </button>
+            )}
+
             <div className="flex items-center rounded-xl border border-border bg-surface-elevated p-1">
               <button
                 onClick={() => setViewMode("table")}
