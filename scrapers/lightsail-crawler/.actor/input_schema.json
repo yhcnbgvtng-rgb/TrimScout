@@ -1,0 +1,51 @@
+{
+  "title": "Paul Miller Porsche VIN Tracker Input",
+  "type": "object",
+  "schemaVersion": 1,
+  "properties": {
+    "sitemapUrl": {
+      "title": "Sitemap URL",
+      "type": "string",
+      "description": "The XML sitemap containing all inventory URLs for Paul Miller Porsche.",
+      "default": "https://www.paulmillerporsche.com/sitemap.xml",
+      "editor": "textfield"
+    },
+    "storeName": {
+      "title": "Named Key-Value Store",
+      "type": "string",
+      "description": "The persistent Key-Value Store name used to preserve vehicle snapshot state between runs.",
+      "default": "PORSCHE_PAUL_MILLER_STORE",
+      "editor": "textfield"
+    },
+    "includeSold": {
+      "title": "Include Sold/Removed in Dataset",
+      "type": "boolean",
+      "description": "If enabled, vehicles that are no longer on the site will also be pushed to the dataset with status 'SOLD_OR_REMOVED'.",
+      "default": true
+    },
+    "notifyWebhookUrl": {
+      "title": "Notification Webhook URL (Optional)",
+      "type": "string",
+      "description": "Optional Slack, Discord, or Zapier webhook URL to receive daily inventory and price drop alerts.",
+      "editor": "textfield"
+    },
+    "maxConcurrency": {
+      "title": "Max Concurrency",
+      "type": "integer",
+      "description": "Maximum number of parallel requests during scraping.",
+      "default": 5,
+      "minimum": 1,
+      "maximum": 20
+    },
+    "proxyConfiguration": {
+      "title": "Proxy Configuration",
+      "type": "object",
+      "description": "Apify Proxy configuration (residential or datacenter proxies).",
+      "prefill": {
+        "useApifyProxy": false
+      },
+      "editor": "proxy"
+    }
+  },
+  "required": ["sitemapUrl"]
+}

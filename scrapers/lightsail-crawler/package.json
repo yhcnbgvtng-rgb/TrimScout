@@ -1,0 +1,28 @@
+{
+  "name": "paul-miller-porsche-inventory-tracker",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Apify Actor to crawl, track, and monitor daily VIN changes and price movements at Paul Miller Porsche.",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "node src/main.js",
+    "test": "echo \"No test specified\" && exit 0"
+  },
+  "keywords": [
+    "apify",
+    "actor",
+    "crawler",
+    "porsche",
+    "vin-tracker",
+    "dealer-dot-com",
+    "inventory-monitor",
+    "crawlee"
+  ],
+  "author": "Antigravity",
+  "license": "ISC",
+  "dependencies": {
+    "apify": "^3.2.0",
+    "crawlee": "^3.12.0",
+    "got-scraping": "^4.0.7"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "actorSpecification": 1,
+  "name": "paul-miller-porsche-vin-tracker",
+  "title": "Paul Miller Porsche Daily VIN Tracker & Scraper",
+  "description": "Scrapes and crawls all vehicle inventory (New, Certified, Used) at Paul Miller Porsche, tracking every VIN, price movements, daily additions, and sold/removed cars.",
+  "version": "0.1",
+  "meta": {
+    "templateId": "js-crawlee-cheerio"
+  },
+  "dockerfile": "./Dockerfile",
+  "input": "./input_schema.json"
+}

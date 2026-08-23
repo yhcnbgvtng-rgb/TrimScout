@@ -1,0 +1,8 @@
+node_modules
+storage
+.git
+.gitignore
+.idea
+.vscode
+.DS_Store
+README.md
