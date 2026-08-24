@@ -433,6 +433,7 @@ export const LightsailIntelligence: React.FC = () => {
 
   // Real-time dynamic faceted intersection counts across all criteria
   const facetOptions = useMemo(() => {
+    const trims = new Map<string, number>();
     const models = new Map<string, number>();
     const conditions = { NEW: 0, USED: 0, CERTIFIED: 0 };
     const dealers = new Map<string, number>();
@@ -445,6 +446,7 @@ export const LightsailIntelligence: React.FC = () => {
     allVehicles.forEach((v) => {
       const s = getModelSeries(v);
       if (!models.has(s)) models.set(s, 0);
+      if (v.trim && v.trim !== "null" && v.trim.trim() !== "" && !trims.has(v.trim)) trims.set(v.trim, 0);
       if (v.dealerName && !dealers.has(v.dealerName)) dealers.set(v.dealerName, 0);
       if (v.state && !states.has(v.state)) states.set(v.state, 0);
       if (v.bodyStyle && v.bodyStyle !== "null" && !bodyStyles.has(v.bodyStyle)) bodyStyles.set(v.bodyStyle, 0);
@@ -457,6 +459,11 @@ export const LightsailIntelligence: React.FC = () => {
       if (checkFilterMatch(v, "model")) {
         const s = getModelSeries(v);
         models.set(s, (models.get(s) || 0) + 1);
+      }
+
+      // 1b. Trim counts (given all filters except trim)
+      if (checkFilterMatch(v, "trim") && v.trim && v.trim !== "null" && v.trim.trim() !== "") {
+        trims.set(v.trim, (trims.get(v.trim) || 0) + 1);
       }
 
       // 2. Condition counts (given all filters except condition)
@@ -513,6 +520,7 @@ export const LightsailIntelligence: React.FC = () => {
 
     return {
       models: Array.from(models.entries()).sort((a, b) => b[1] - a[1]),
+      trims: Array.from(trims.entries()).sort((a, b) => b[1] - a[1]),
       conditions,
       dealers: Array.from(dealers.entries()).sort((a, b) => b[1] - a[1]),
       states: Array.from(states.entries()).sort((a, b) => b[1] - a[1]),
@@ -1086,13 +1094,36 @@ export const LightsailIntelligence: React.FC = () => {
             </label>
             <select
               value={selectedModel}
-              onChange={(e) => setSelectedModel(e.target.value)}
+              onChange={(e) => {
+                setSelectedModel(e.target.value);
+                setSelectedTrim("ALL");
+              }}
               className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
             >
               <option value="ALL">All Models ({allVehicles.length})</option>
               {facetOptions.models.map(([m, count]) => (
                 <option key={m} value={m}>
                   {m} ({count})
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* 4b. Trim / Submodel */}
+          <div className="space-y-1">
+            <label className="text-[10px] font-bold uppercase text-ink-faint flex items-center gap-1">
+              <Sparkles className="h-3 w-3 text-purple-400" />
+              <span>Trim / Submodel</span>
+            </label>
+            <select
+              value={selectedTrim}
+              onChange={(e) => setSelectedTrim(e.target.value)}
+              className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none font-medium"
+            >
+              <option value="ALL">All Trims ({facetOptions.trims.filter(([, count]) => count > 0).length} matching)</option>
+              {facetOptions.trims.map(([t, count]) => (
+                <option key={t} value={t}>
+                  {t} ({count})
                 </option>
               ))}
             </select>
