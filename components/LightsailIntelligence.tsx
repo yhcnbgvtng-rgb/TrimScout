@@ -1944,14 +1944,14 @@ export const LightsailIntelligence: React.FC = () => {
 
               <div className="flex flex-wrap items-center gap-2">
                 <a
-                  href={`https://finder.porsche.com/us/en-US/search?searchTerm=${selectedVehicleForModal.vin}`}
+                  href={`https://finder.porsche.com/us/en-US/search/${(selectedVehicleForModal.model || "taycan").toLowerCase().includes("911") ? "911" : (selectedVehicleForModal.model || "taycan").toLowerCase().includes("cayenne") ? "cayenne" : (selectedVehicleForModal.model || "taycan").toLowerCase().includes("macan") ? "macan" : (selectedVehicleForModal.model || "taycan").toLowerCase().includes("panamera") ? "panamera" : (selectedVehicleForModal.model || "taycan").toLowerCase().includes("718") ? "718" : "taycan"}`}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex items-center gap-1.5 rounded-xl bg-rose-600 hover:bg-rose-500 px-4 py-2 text-xs font-black text-white transition-all shadow-md shadow-rose-600/20"
-                  title="Sole authoritative source: finder.porsche.com"
+                  className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-surface-elevated hover:bg-surface px-4 py-2 text-xs font-bold text-ink-light hover:text-white transition-all"
+                  title="Browse Porsche Finder official inventory"
                 >
-                  <ExternalLink className="h-3.5 w-3.5" />
-                  <span>Open on finder.porsche.com</span>
+                  <ExternalLink className="h-3.5 w-3.5 text-rose-400" />
+                  <span>Porsche Finder Inventory</span>
                 </a>
 
                 {selectedVehicleForModal.url && (
@@ -1959,10 +1959,10 @@ export const LightsailIntelligence: React.FC = () => {
                     href={selectedVehicleForModal.url}
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-surface-elevated hover:bg-surface px-4 py-2 text-xs font-bold text-ink-light hover:text-white transition-all"
+                    className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 px-5 py-2 text-xs font-black text-black transition-all shadow-md shadow-emerald-500/20"
                   >
-                    <span>Dealer Lot Page</span>
-                    <ExternalLink className="h-3.5 w-3.5" />
+                    <span>View Dealer Lot Page</span>
+                    <ExternalLink className="h-4 w-4 fill-black" />
                   </a>
                 )}
               </div>
