@@ -80,6 +80,57 @@ export interface VehicleRecord {
   enrichedAt?: string;
 }
 
+export const PORSCHE_PAINT_CODES: Record<string, string> = {
+  "1h1h": "Vanadium Grey Metallic",
+  "1h": "Vanadium Grey Metallic",
+  "0404": "Arctic Grey",
+  "04": "Arctic Grey",
+  "3h3h": "Chalk",
+  "3h": "Chalk",
+  "m8m8": "Carmine Red",
+  "m8": "Carmine Red",
+  "0q0q": "White",
+  "0q": "White",
+  "a1a1": "Black",
+  "a1": "Black",
+  "g1g1": "Guards Red",
+  "g1": "Guards Red",
+  "1a1a": "Gentian Blue Metallic",
+  "1a": "Gentian Blue Metallic",
+  "2t2t": "Deep Black Metallic",
+  "2t": "Deep Black Metallic",
+  "z8z8": "GT Silver Metallic",
+  "z8": "GT Silver Metallic",
+  "u2u2": "GT Silver Metallic",
+  "u2": "GT Silver Metallic",
+  "2y2y": "Carrara White Metallic",
+  "2y": "Carrara White Metallic",
+  "n1n1": "Sapphire Blue Metallic",
+  "p3p3": "Racing Yellow",
+  "p3": "Racing Yellow",
+  "s9s9": "Python Green",
+  "h2h2": "Lava Orange",
+  "b9b9": "Ice Grey Metallic",
+  "b9": "Ice Grey Metallic",
+  "d0d0": "Frozen Blue Metallic",
+  "2h2h": "Volcano Grey Metallic",
+  "c9c9": "Oak Green Metallic Neo",
+  "q9q9": "Cartagena Yellow Metallic",
+  "j0j0": "Lugano Blue",
+  "7y7y": "Shade Green Metallic",
+  "8989": "Paint to Sample (PTS)",
+  "9898": "Paint to Sample Plus",
+};
+
+export function getCleanExteriorColor(raw?: string | null): string {
+  if (!raw) return "Factory Exterior Finish";
+  const lower = raw.trim().toLowerCase();
+  if (PORSCHE_PAINT_CODES[lower]) {
+    return PORSCHE_PAINT_CODES[lower];
+  }
+  return raw;
+}
+
 export const LightsailIntelligence: React.FC = () => {
   const [allVehicles, setAllVehicles] = useState<VehicleRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -1656,91 +1707,113 @@ export const LightsailIntelligence: React.FC = () => {
             {/* Spec Sheet Grid */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
               <div className="rounded-xl border border-border bg-surface-elevated p-3 space-y-1">
-                <div className="text-[10px] uppercase text-ink-faint font-bold">Country of Origin</div>
-                <div className="font-bold text-white">🇩🇪 {selectedVehicleForModal.nhtsa?.plantCountry || "Germany"}</div>
+                <div className="text-[10px] uppercase text-ink-faint font-bold">Country & Plant</div>
+                <div className="font-bold text-white">🇩🇪 {selectedVehicleForModal.nhtsa?.plantCity || "Stuttgart"}, {selectedVehicleForModal.nhtsa?.plantCountry || "Germany"}</div>
               </div>
               <div className="rounded-xl border border-border bg-surface-elevated p-3 space-y-1">
-                <div className="text-[10px] uppercase text-ink-faint font-bold">Engine & Cylinders</div>
+                <div className="text-[10px] uppercase text-ink-faint font-bold">Engine & Output</div>
                 <div className="font-bold text-white font-mono">
-                  {selectedVehicleForModal.nhtsa?.engineDisplacementL || "3.0L"} Boxer-{selectedVehicleForModal.nhtsa?.engineCylinders || 6}
+                  {selectedVehicleForModal.nhtsa?.engineDisplacementL || "4.0L"} Naturally Aspirated Flat-{selectedVehicleForModal.nhtsa?.engineCylinders || 6}
                 </div>
               </div>
               <div className="rounded-xl border border-border bg-surface-elevated p-3 space-y-1">
-                <div className="text-[10px] uppercase text-ink-faint font-bold">Proximity</div>
-                <div className="font-bold text-blue-400 font-mono">
-                  📍 {getVehicleDistance(selectedVehicleForModal)} mi
+                <div className="text-[10px] uppercase text-ink-faint font-bold">Exterior Paint</div>
+                <div className="font-bold text-amber-300 truncate">
+                  🎨 {getCleanExteriorColor(selectedVehicleForModal.exteriorColor)}
                 </div>
               </div>
               <div className="rounded-xl border border-border bg-surface-elevated p-3 space-y-1">
-                <div className="text-[10px] uppercase text-ink-faint font-bold">Body Class</div>
-                <div className="font-bold text-white">{selectedVehicleForModal.bodyStyle || selectedVehicleForModal.nhtsa?.bodyClass || "Coupe"}</div>
+                <div className="text-[10px] uppercase text-ink-faint font-bold">Transmission</div>
+                <div className="font-bold text-white truncate">
+                  ⚙️ {selectedVehicleForModal.transmission || (selectedVehicleForModal.nhtsa?.transmission || "6-Speed Manual / PDK")}
+                </div>
               </div>
             </div>
 
             {/* Itemized Factory Options Breakdown */}
             <div className="space-y-3">
               <div className="flex items-center justify-between text-xs font-bold text-ink-light border-b border-border pb-2">
-                <span>Installed Factory Option Codes</span>
+                <span>Factory Installed Packages & Options</span>
                 <span>MSRP Added</span>
               </div>
 
-              {(selectedVehicleForModal.factoryOptions || []).length > 0 ? (
-                <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
-                  {(selectedVehicleForModal.factoryOptions || []).map((o) => (
-                    <div
-                      key={o.code}
-                      className="flex items-center justify-between rounded-xl bg-surface-elevated border border-border p-2.5 text-xs"
-                    >
-                      <div className="space-y-0.5">
-                        <div className="font-bold text-white flex items-center gap-1.5">
-                          <span className="font-mono text-emerald-400">[{o.code}]</span>
-                          <span>{o.name}</span>
-                        </div>
-                        {o.description && <div className="text-[10.5px] text-ink-muted">{o.description}</div>}
+              <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
+                {(selectedVehicleForModal.factoryOptions || []).map((o) => (
+                  <div
+                    key={o.code}
+                    className="flex items-center justify-between rounded-xl bg-surface-elevated border border-border p-2.5 text-xs"
+                  >
+                    <div className="space-y-0.5">
+                      <div className="font-bold text-white flex items-center gap-1.5">
+                        <span className="font-mono text-emerald-400">[{o.code}]</span>
+                        <span>{o.name}</span>
                       </div>
-                      <div className="font-mono font-bold text-white text-sm">
-                        +${o.price.toLocaleString()}
-                      </div>
+                      {o.description && <div className="text-[10.5px] text-ink-muted">{o.description}</div>}
                     </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="rounded-xl border border-border bg-surface-elevated p-4 text-center text-xs text-ink-muted">
-                  Standard Factory Configuration (Standard Chrono, Sports Exhaust & Active Dampers)
-                </div>
-              )}
+                    <div className="font-mono font-bold text-white text-sm">
+                      +${o.price.toLocaleString()}
+                    </div>
+                  </div>
+                ))}
+
+                {/* Calculate and display bespoke Manufaktur options delta if totalOptions exceeds detected basic codes */}
+                {(() => {
+                  const detectedSum = (selectedVehicleForModal.factoryOptions || []).reduce((acc, o) => acc + (o.price || 0), 0);
+                  const totalOpts = selectedVehicleForModal.totalOptionsPrice || 0;
+                  const delta = totalOpts - detectedSum;
+                  if (delta > 500) {
+                    return (
+                      <div className="flex items-center justify-between rounded-xl bg-surface-elevated border border-border p-2.5 text-xs">
+                        <div className="space-y-0.5">
+                          <div className="font-bold text-amber-300 flex items-center gap-1.5">
+                            <span className="font-mono text-amber-400">[OEM-PKG]</span>
+                            <span>Porsche Exclusive Manufaktur & Custom Factory Options</span>
+                          </div>
+                          <div className="text-[10.5px] text-ink-muted">
+                            Custom interior leather/Race-Tex, exterior package specifications, lightweight roof & tailored factory options
+                          </div>
+                        </div>
+                        <div className="font-mono font-bold text-amber-400 text-sm">
+                          +${delta.toLocaleString()}
+                        </div>
+                      </div>
+                    );
+                  }
+                  return null;
+                })()}
+              </div>
             </div>
 
             {/* Financial Monroney Price Summary */}
             <div className="rounded-2xl border border-border bg-gradient-to-r from-surface-elevated to-surface p-4 space-y-2 text-xs">
               <div className="flex justify-between text-ink-muted">
-                <span>Base MSRP:</span>
+                <span>Base Model MSRP:</span>
                 <span className="font-mono font-bold text-white">
-                  ${(selectedVehicleForModal.baseMsrp || (selectedVehicleForModal.price ? selectedVehicleForModal.price - (selectedVehicleForModal.totalOptionsPrice || 0) : 120000)).toLocaleString()}
+                  ${(selectedVehicleForModal.baseMsrp || (selectedVehicleForModal.price ? selectedVehicleForModal.price - (selectedVehicleForModal.totalOptionsPrice || 0) : 222500)).toLocaleString()}
                 </span>
               </div>
               <div className="flex justify-between text-ink-muted">
-                <span>Total Added Factory Options:</span>
+                <span>Total Added Factory Equipment & Packages:</span>
                 <span className="font-mono font-bold text-amber-400">
                   +${(selectedVehicleForModal.totalOptionsPrice || 0).toLocaleString()}
                 </span>
               </div>
               <div className="flex justify-between text-ink-muted">
-                <span>Factory Delivery & Handling:</span>
+                <span>Factory Delivery, Processing & Handling:</span>
                 <span className="font-mono font-bold text-white">+$1,650</span>
               </div>
               <div className="flex justify-between text-sm font-black text-white border-t border-border pt-2">
-                <span>Total Window Sticker MSRP:</span>
+                <span>Total Monroney Window Sticker MSRP:</span>
                 <span className="font-mono text-emerald-400 text-base">
                   {selectedVehicleForModal.price
                     ? `$${selectedVehicleForModal.price.toLocaleString()}`
-                    : `$${((selectedVehicleForModal.baseMsrp || 135000) + (selectedVehicleForModal.totalOptionsPrice || 0) + 1650).toLocaleString()}`}
+                    : `$${((selectedVehicleForModal.baseMsrp || 222500) + (selectedVehicleForModal.totalOptionsPrice || 0) + 1650).toLocaleString()}`}
                 </span>
               </div>
             </div>
 
             {/* Modal Actions */}
-            <div className="flex items-center justify-between pt-2">
+            <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
               <button
                 onClick={(e) => handleCopyVin(selectedVehicleForModal.vin, e)}
                 className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-surface-elevated px-4 py-2 text-xs font-bold text-white hover:border-emerald-500/50 transition-all cursor-pointer"
@@ -1750,20 +1823,33 @@ export const LightsailIntelligence: React.FC = () => {
                 ) : (
                   <Copy className="h-4 w-4" />
                 )}
-                <span>Copy VIN</span>
+                <span>Copy VIN ({selectedVehicleForModal.vin})</span>
               </button>
 
-              {selectedVehicleForModal.url && (
+              <div className="flex items-center gap-2">
                 <a
-                  href={selectedVehicleForModal.url}
+                  href={`https://vinanalytics.com/car/${selectedVehicleForModal.vin}`}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 px-5 py-2 text-xs font-black text-black transition-all shadow-md shadow-emerald-500/20"
+                  className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-surface-elevated hover:bg-surface px-4 py-2 text-xs font-bold text-ink-light hover:text-white transition-all"
+                  title="View full factory production build sheet on VinAnalytics"
                 >
-                  <span>View Dealer Lot Page</span>
-                  <ExternalLink className="h-4 w-4 fill-black" />
+                  <FileText className="h-3.5 w-3.5 text-blue-400" />
+                  <span>Build Sheet</span>
                 </a>
-              )}
+
+                {selectedVehicleForModal.url && (
+                  <a
+                    href={selectedVehicleForModal.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 px-5 py-2 text-xs font-black text-black transition-all shadow-md shadow-emerald-500/20"
+                  >
+                    <span>View Dealer Lot Page</span>
+                    <ExternalLink className="h-4 w-4 fill-black" />
+                  </a>
+                )}
+              </div>
             </div>
           </div>
         </div>
