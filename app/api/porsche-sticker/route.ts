@@ -97,7 +97,7 @@ export async function GET(request: Request) {
     );
   }
 
-  const porscheFinderUrl = `https://finder.porsche.com/us/en-US/search?vin=${rawVin}`;
+  const porscheFinderUrl = `https://finder.porsche.com/us/en-US/search?searchTerm=${rawVin}`;
   const directPdfUrl = `https://finder.porsche.com/api/us/en-US/vehicles/${rawVin}/window-sticker.pdf`;
 
   try {

@@ -1944,7 +1944,7 @@ export const LightsailIntelligence: React.FC = () => {
 
               <div className="flex flex-wrap items-center gap-2">
                 <a
-                  href={`https://finder.porsche.com/us/en-US/search?vin=${selectedVehicleForModal.vin}`}
+                  href={`https://finder.porsche.com/us/en-US/search?searchTerm=${selectedVehicleForModal.vin}`}
                   target="_blank"
                   rel="noreferrer"
                   className="inline-flex items-center gap-1.5 rounded-xl bg-rose-600 hover:bg-rose-500 px-4 py-2 text-xs font-black text-white transition-all shadow-md shadow-rose-600/20"
