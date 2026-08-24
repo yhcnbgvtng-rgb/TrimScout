@@ -1450,7 +1450,10 @@ export const LightsailIntelligence: React.FC = () => {
                   return (
                     <tr
                       key={v.vin}
-                      onClick={() => setSelectedVehicleForModal(v)}
+                      onClick={() => {
+                        setSelectedVehicleForModal(v);
+                        setAiStickerData(null);
+                      }}
                       className="hover:bg-surface-elevated transition-colors cursor-pointer"
                     >
                       <td className="p-3 space-y-0.5">
@@ -1541,6 +1544,7 @@ export const LightsailIntelligence: React.FC = () => {
                           onClick={(e) => {
                             e.stopPropagation();
                             setSelectedVehicleForModal(v);
+                            setAiStickerData(null);
                           }}
                           className="inline-flex items-center gap-1 rounded-lg bg-surface-elevated hover:bg-surface px-2.5 py-1 text-[11px] font-bold text-ink-light hover:text-white border border-border transition-all"
                         >
@@ -1628,7 +1632,10 @@ export const LightsailIntelligence: React.FC = () => {
               return (
                 <div
                   key={v.vin}
-                  onClick={() => setSelectedVehicleForModal(v)}
+                  onClick={() => {
+                    setSelectedVehicleForModal(v);
+                    setAiStickerData(null);
+                  }}
                   className="rounded-2xl border border-border bg-surface p-5 space-y-3 hover:border-border-strong hover:bg-surface-elevated transition-all flex flex-col justify-between shadow-md cursor-pointer"
                 >
                   <div className="space-y-2">
@@ -1863,41 +1870,83 @@ export const LightsailIntelligence: React.FC = () => {
             </div>
 
             {/* Itemized Factory Options Breakdown */}
+            {/* A VIN alone never tells us which options were actually installed on
+                this car, so the itemized list below only ever comes from a source
+                that's genuinely tied to this VIN: a live Porsche Finder lookup or
+                pasted window-sticker text. There's no silent fallback to guessed data. */}
             <div className="space-y-3">
-              <div className="flex items-center justify-between text-xs font-bold text-ink-light border-b border-border pb-2">
-                <span className="flex items-center gap-1.5">
-                  <span>Factory Installed Options (Itemized List)</span>
-                  <span className="rounded-full bg-emerald-500/20 text-emerald-400 px-2 py-0.2 text-[10px]">
-                    {(aiStickerData?.installedOptions || selectedVehicleForModal.factoryOptions || []).length} Options
-                  </span>
-                </span>
-                <span>MSRP Added</span>
-              </div>
-
-              <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
-                {(aiStickerData?.installedOptions || selectedVehicleForModal.factoryOptions || []).map((o: any) => (
-                  <div
-                    key={o.code}
-                    className="flex items-center justify-between rounded-xl bg-surface-elevated border border-border p-2.5 text-xs hover:border-border-strong transition-all"
-                  >
-                    <div className="space-y-0.5">
-                      <div className="font-bold text-white flex items-center gap-1.5">
-                        <span className="font-mono text-emerald-400 font-bold">[{o.code}]</span>
-                        <span>{o.name}</span>
-                        {o.category && (
-                          <span className="text-[9px] uppercase px-1.5 py-0.2 rounded bg-surface border border-border text-ink-muted">
-                            {o.category}
-                          </span>
-                        )}
-                      </div>
-                      {o.description && <div className="text-[10.5px] text-ink-muted">{o.description}</div>}
-                    </div>
-                    <div className="font-mono font-bold text-white text-sm">
-                      +${(o.price || 0).toLocaleString()}
-                    </div>
+              {aiStickerData?.installedOptions?.length > 0 ? (
+                <>
+                  <div className="flex items-center justify-between text-xs font-bold text-ink-light border-b border-border pb-2">
+                    <span className="flex items-center gap-1.5">
+                      <span>Factory Installed Options (Itemized List)</span>
+                      <span className="rounded-full bg-emerald-500/20 text-emerald-400 px-2 py-0.2 text-[10px]">
+                        {aiStickerData.installedOptions.length} Options · Verified
+                      </span>
+                    </span>
+                    <span>MSRP Added</span>
                   </div>
-                ))}
-              </div>
+
+                  <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
+                    {aiStickerData.installedOptions.map((o: any) => (
+                      <div
+                        key={o.code}
+                        className="flex items-center justify-between rounded-xl bg-surface-elevated border border-border p-2.5 text-xs hover:border-border-strong transition-all"
+                      >
+                        <div className="space-y-0.5">
+                          <div className="font-bold text-white flex items-center gap-1.5">
+                            <span className="font-mono text-emerald-400 font-bold">[{o.code}]</span>
+                            <span>{o.name}</span>
+                            {o.category && (
+                              <span className="text-[9px] uppercase px-1.5 py-0.2 rounded bg-surface border border-border text-ink-muted">
+                                {o.category}
+                              </span>
+                            )}
+                          </div>
+                          {o.description && <div className="text-[10.5px] text-ink-muted">{o.description}</div>}
+                        </div>
+                        <div className="font-mono font-bold text-white text-sm">
+                          +${(o.price || 0).toLocaleString()}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              ) : aiStickerData?.isEstimate ? (
+                <>
+                  <div className="flex items-center justify-between text-xs font-bold text-ink-light border-b border-border pb-2">
+                    <span className="flex items-center gap-1.5">
+                      <span>Factory Options</span>
+                      <span className="rounded-full bg-amber-500/20 text-amber-400 px-2 py-0.2 text-[10px]">
+                        Not verified for this VIN
+                      </span>
+                    </span>
+                  </div>
+                  {aiStickerData.note && (
+                    <div className="text-[11px] text-ink-muted rounded-xl bg-surface-elevated border border-border p-2.5">
+                      {aiStickerData.note}
+                    </div>
+                  )}
+                  {aiStickerData.standardEquipment?.length > 0 && (
+                    <div className="space-y-1.5">
+                      <div className="text-[10px] uppercase text-ink-faint font-bold">
+                        Typical Equipment for This Trim
+                      </div>
+                      {aiStickerData.standardEquipment.map((eq: string, i: number) => (
+                        <div key={i} className="text-[11px] text-ink-light rounded-lg bg-surface-elevated border border-border px-2.5 py-1.5">
+                          {eq}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className="text-[11px] text-ink-muted rounded-xl bg-surface-elevated border border-border p-3 text-center">
+                  Options for this exact VIN haven't been looked up yet. Use{" "}
+                  <span className="text-emerald-400 font-bold">Live AI Scan</span> or{" "}
+                  <span className="text-blue-400 font-bold">Paste Build Text</span> above.
+                </div>
+              )}
             </div>
 
             {/* Porsche Factory Window Sticker Financial Summary */}
@@ -1910,9 +1959,13 @@ export const LightsailIntelligence: React.FC = () => {
               </div>
               <div className="flex justify-between text-ink-muted">
                 <span>Total Added Factory Equipment & Options:</span>
-                <span className="font-mono font-bold text-amber-400">
-                  +${(aiStickerData?.totalOptionsPrice || selectedVehicleForModal.totalOptionsPrice || 0).toLocaleString()}
-                </span>
+                {aiStickerData?.isEstimate ? (
+                  <span className="font-mono font-bold text-ink-faint">Not verified</span>
+                ) : (
+                  <span className="font-mono font-bold text-amber-400">
+                    +${(aiStickerData?.totalOptionsPrice || selectedVehicleForModal.totalOptionsPrice || 0).toLocaleString()}
+                  </span>
+                )}
               </div>
               <div className="flex justify-between text-ink-muted">
                 <span>Factory Delivery, Processing & Handling:</span>

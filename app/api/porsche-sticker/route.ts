@@ -1,9 +1,52 @@
 import { NextResponse } from "next/server";
 import { PORSCHE_FACTORY_OPTIONS_CATALOG } from "@/lib/scrapers/porscheFinderScraper";
 import { PORSCHE_PAINT_CODES } from "@/components/LightsailIntelligence";
+import { decodeVinFromNhtsa } from "@/lib/vinDecoder";
+import { lookupPorscheBaseMsrp } from "@/lib/enrichmentEngine";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
+
+// Standard equipment reference by model. This is genuine, publicly documented
+// Porsche standard equipment per model line — used only as a labeled,
+// trim-typical estimate when no per-VIN build data is available. It must
+// never be presented as this specific car's itemized/priced options list.
+const STANDARD_EQUIPMENT_BY_MODEL: Record<string, string[]> = {
+  Cayenne: [
+    "3.0-liter turbocharged V6 engine (348 hp / 368 lb-ft torque)",
+    "8-speed Tiptronic S automatic transmission with manual shift paddles",
+    "Porsche Traction Management (PTM) active all-wheel drive",
+    "Matrix LED headlights with advanced 4-point daytime running lights",
+    "Porsche Active Suspension Management (PASM)",
+    "Partial leather seating surfaces in embossed grain",
+    "12.3-inch Porsche Communication Management (PCM) with Navigation & Wireless CarPlay",
+    "Wireless smartphone charging tray with active cooling",
+  ],
+  Macan: [
+    "2.0-liter turbocharged inline-4 (261 hp / 295 lb-ft torque)",
+    "7-speed Porsche Doppelkupplung (PDK) transmission",
+    "Porsche Traction Management (PTM) all-wheel drive",
+    "Sport steering wheel with multi-function controls",
+    "LED headlights with Porsche Dynamic Light System (PDLS)",
+    "10.9-inch full HD touch display with Apple CarPlay®",
+  ],
+  Taycan: [
+    "Permanent Magnet Synchronous Motor with Performance Battery",
+    "Two-speed transmission on the rear axle",
+    "Porsche Recuperation Management (PRM) up to 290 kW",
+    "Adaptive air suspension including PASM and Smart Lift",
+    "16.8-inch curved digital instrument cluster",
+    "DC fast charging capability up to 320 kW (800V architecture)",
+  ],
+  "911": [
+    "3.0-liter twin-turbocharged boxer 6 (388 hp / 331 lb-ft torque)",
+    "8-speed Porsche Doppelkupplung (PDK) transmission",
+    "Porsche Stability Management (PSM) with sport mode",
+    "4-piston aluminum monobloc fixed calipers in black",
+    "Two-zone automatic climate control",
+    "PCM with high-resolution 10.9-inch touchscreen display",
+  ],
+};
 
 export interface PorscheOptionItem {
   code: string;
@@ -46,7 +89,12 @@ export interface PorscheStickerResponse {
   standardEquipment: string[];
   windowStickerPdfUrl?: string;
   porscheFinderUrl: string;
-  dataSource: "PORSCHE_FINDER_LIVE" | "AI_PARSED_WINDOW_STICKER" | "ENRICHED_DATASET";
+  // PORSCHE_FINDER_LIVE / AI_PARSED_WINDOW_STICKER = real, per-VIN data.
+  // TRIM_TYPICAL_ESTIMATE = no per-VIN build data was available; installedOptions
+  // is empty and standardEquipment reflects the trim in general, not this car.
+  dataSource: "PORSCHE_FINDER_LIVE" | "AI_PARSED_WINDOW_STICKER" | "TRIM_TYPICAL_ESTIMATE";
+  isEstimate: boolean;
+  note?: string;
 }
 
 // AI / Regex Option Parser that takes any raw build sheet text or finder payload
@@ -152,12 +200,18 @@ export async function GET(request: Request) {
       const ext = liveSticker.exteriorColor || {};
       const int = liveSticker.interiorColor || {};
 
+      // Only surface performance figures and standard-equipment text that the
+      // live payload actually provided — no hardcoded numeric fallbacks.
+      // Substituting canned spec numbers (e.g. GT3 RS output) for a car we
+      // couldn't actually decode is worse than saying "unknown".
+      const tech = liveSticker.technicalData || {};
+
       return NextResponse.json({
         success: true,
         vin: rawVin,
-        year: liveSticker.modelYear || 2026,
+        year: liveSticker.modelYear,
         make: "Porsche",
-        model: liveSticker.model || "911",
+        model: liveSticker.model,
         trim: liveSticker.trim || liveSticker.series,
         baseMsrp,
         totalOptionsPrice: Math.max(0, totalMsrp - baseMsrp - 1650),
@@ -165,41 +219,40 @@ export async function GET(request: Request) {
         totalMsrp,
         exteriorColor: {
           code: ext.code || "",
-          name: ext.name || "Vanadium Grey Metallic",
+          name: ext.name || "Not reported by Porsche Finder",
           price: ext.price || 0,
         },
         interiorColor: {
           code: int.code || "",
-          name: int.name || "Leather / Race-Tex in Black",
+          name: int.name || "Not reported by Porsche Finder",
           price: int.price || 0,
         },
-        transmission: liveSticker.transmission || "6-Speed GT Sports Manual",
-        engine: liveSticker.engine || "4.0L Naturally Aspirated Flat-6",
-        powerHp: liveSticker.technicalData?.powerHp || 502,
-        torqueLbFt: liveSticker.technicalData?.torque || 331,
-        zeroToSixty: liveSticker.technicalData?.zeroToSixty || 3.7,
-        topSpeedMph: liveSticker.technicalData?.topSpeed || 199,
+        transmission: liveSticker.transmission,
+        engine: liveSticker.engine,
+        powerHp: tech.powerHp,
+        torqueLbFt: tech.torque,
+        zeroToSixty: tech.zeroToSixty,
+        topSpeedMph: tech.topSpeed,
         plantOrigin: "Stuttgart-Zuffenhausen, Germany",
         installedOptions: opts,
-        standardEquipment: liveSticker.standardEquipment || [
-          "Porsche Torque Vectoring Plus (PTV+)",
-          "Rear-Axle Steering with Sport Setup",
-          "Double-Wishbone Front Axle Suspension",
-          "Sport Chrono Package with Track Precision App",
-          "Sport Exhaust System with Center Tailpipes in Black",
-          "Lightweight Stainless Steel Exhaust System",
-          "PCM with Navigation & Apple CarPlay® / Android Auto™",
-        ],
+        standardEquipment: liveSticker.standardEquipment || [],
         windowStickerPdfUrl: directPdfUrl,
         porscheFinderUrl,
         dataSource: "PORSCHE_FINDER_LIVE",
+        isEstimate: false,
       });
     }
 
-    // 2. High-fidelity specific VIN Build Sheet Resolution from master inventory
+    // 2. No live per-VIN build data available. A VIN does not itself encode
+    // which factory options were installed on this specific car, so we do
+    // NOT invent an itemized options list here. Decode the VIN via NHTSA for
+    // an authoritative model/trim identity, then return trim-typical
+    // standard equipment as a clearly labeled estimate — never billed as
+    // this car's actual, itemized build.
+    const decoded = await decodeVinFromNhtsa(rawVin).catch(() => null);
+
     const fs = await import("fs");
     const path = await import("path");
-    
     let vehicleRecord: any = null;
     try {
       const invPath = path.join(process.cwd(), "data", "lightsail_inventory.json");
@@ -211,68 +264,24 @@ export async function GET(request: Request) {
       // ignore
     }
 
-    const modelName = vehicleRecord?.model || (rawVin.includes("WP1") ? "Cayenne" : "911");
-    const trimName = vehicleRecord?.trim || (modelName === "Cayenne" ? "Base" : "Carrera");
-    const year = vehicleRecord?.year || 2026;
-    const baseMsrp = vehicleRecord?.baseMsrp || (modelName === "Cayenne" ? 79200 : 120100);
-    const totalMsrp = vehicleRecord?.price || vehicleRecord?.msrp || (baseMsrp + (vehicleRecord?.totalOptionsPrice || 0) + 1650);
-    const totalOptionsPrice = vehicleRecord?.totalOptionsPrice || Math.max(0, totalMsrp - baseMsrp - 1650);
-    const plantOrigin = vehicleRecord?.nhtsa?.plantCity
-      ? `${vehicleRecord.nhtsa.plantCity}, ${vehicleRecord.nhtsa.plantCountry}`
+    const modelName =
+      decoded?.model || vehicleRecord?.model || (rawVin.includes("WP1") ? "Cayenne" : "911");
+    const trimName = decoded?.trim || vehicleRecord?.trim;
+    const year = decoded?.year || vehicleRecord?.year;
+    const baseMsrp = lookupPorscheBaseMsrp(`${modelName} ${trimName || ""}`);
+    const plantOrigin = decoded?.plantCountry
+      ? `${decoded.plantCountry}`
       : modelName === "Cayenne"
       ? "Bratislava, Slovakia"
       : modelName === "Macan" || modelName === "Panamera"
       ? "Leipzig, Germany"
       : "Stuttgart-Zuffenhausen, Germany";
 
-    const verifiedOptions: PorscheOptionItem[] = (vehicleRecord?.factoryOptions || []).map((o: any) => ({
-      code: o.code || "OPT",
-      name: o.name || "Factory Option",
-      price: o.price || 0,
-      category: o.category || "option",
-      description: o.description || "",
-    }));
-
-    const standardEquipmentByModel: Record<string, string[]> = {
-      Cayenne: [
-        "3.0-liter turbocharged V6 engine (348 hp / 368 lb-ft torque)",
-        "8-speed Tiptronic S automatic transmission with manual shift paddles",
-        "Porsche Traction Management (PTM) active all-wheel drive",
-        "Matrix LED headlights with advanced 4-point daytime running lights",
-        "Porsche Active Suspension Management (PASM)",
-        "Partial leather seating surfaces in embossed grain",
-        "12.3-inch Porsche Communication Management (PCM) with Navigation & Wireless CarPlay",
-        "Wireless smartphone charging tray with active cooling",
-      ],
-      Macan: [
-        "2.0-liter turbocharged inline-4 (261 hp / 295 lb-ft torque)",
-        "7-speed Porsche Doppelkupplung (PDK) transmission",
-        "Porsche Traction Management (PTM) all-wheel drive",
-        "Sport steering wheel with multi-function controls",
-        "LED headlights with Porsche Dynamic Light System (PDLS)",
-        "10.9-inch full HD touch display with Apple CarPlay®",
-      ],
-      Taycan: [
-        "Permanent Magnet Synchronous Motor with Performance Battery",
-        "Two-speed transmission on the rear axle",
-        "Porsche Recuperation Management (PRM) up to 290 kW",
-        "Adaptive air suspension including PASM and Smart Lift",
-        "16.8-inch curved digital instrument cluster",
-        "DC fast charging capability up to 320 kW (800V architecture)",
-      ],
-      "911": [
-        "3.0-liter twin-turbocharged boxer 6 (388 hp / 331 lb-ft torque)",
-        "8-speed Porsche Doppelkupplung (PDK) transmission",
-        "Porsche Stability Management (PSM) with sport mode",
-        "4-piston aluminum monobloc fixed calipers in black",
-        "Two-zone automatic climate control",
-        "PCM with high-resolution 10.9-inch touchscreen display",
-      ],
-    };
-
-    const stdEquip =
-      standardEquipmentByModel[modelName] ||
-      standardEquipmentByModel["911"];
+    // Only surface equipment text for models we actually have a catalog entry
+    // for. Falling back to another model's spec sheet (e.g. showing 911
+    // boxer-6/PDK text for a Panamera) would be the exact kind of wrong-car
+    // data this endpoint exists to avoid.
+    const stdEquip = STANDARD_EQUIPMENT_BY_MODEL[modelName] || [];
 
     return NextResponse.json({
       success: true,
@@ -282,31 +291,33 @@ export async function GET(request: Request) {
       model: modelName,
       trim: trimName,
       baseMsrp,
-      totalOptionsPrice,
+      totalOptionsPrice: 0,
       deliveryFee: 1650,
-      totalMsrp,
+      totalMsrp: baseMsrp + 1650,
       exteriorColor: {
         code: vehicleRecord?.exteriorColor || "",
-        name: vehicleRecord?.exteriorColor || "Factory Exterior Color",
+        name: vehicleRecord?.exteriorColor || "Not verified for this VIN",
         price: 0,
       },
       interiorColor: {
         code: vehicleRecord?.interiorColor || "",
-        name: vehicleRecord?.interiorColor || "Standard Interior",
+        name: vehicleRecord?.interiorColor || "Not verified for this VIN",
         price: 0,
       },
-      transmission: vehicleRecord?.transmission || (modelName === "Cayenne" ? "8-Speed Tiptronic S" : "8-Speed PDK"),
-      engine: vehicleRecord?.engine || (modelName === "Cayenne" ? "3.0L Turbocharged V6" : "3.0L Twin-Turbo Flat-6"),
-      powerHp: modelName === "Cayenne" ? 348 : 388,
-      torqueLbFt: modelName === "Cayenne" ? 368 : 331,
-      zeroToSixty: modelName === "Cayenne" ? 5.7 : 4.0,
-      topSpeedMph: modelName === "Cayenne" ? 154 : 182,
+      transmission: vehicleRecord?.transmission || decoded?.transmission,
+      engine:
+        vehicleRecord?.engine ||
+        (decoded?.displacementL
+          ? `${decoded.displacementL} ${decoded.engineCylinders ? `${decoded.engineCylinders}-Cylinder` : ""}`.trim()
+          : undefined),
       plantOrigin,
-      installedOptions: verifiedOptions,
+      installedOptions: [],
       standardEquipment: stdEquip,
       windowStickerPdfUrl: directPdfUrl,
       porscheFinderUrl,
-      dataSource: "ENRICHED_DATASET",
+      dataSource: "TRIM_TYPICAL_ESTIMATE",
+      isEstimate: true,
+      note: "Specific factory-installed options could not be verified for this VIN. Showing equipment typical for this trim — not this car's actual build. Paste the real window sticker text below for a verified, itemized list.",
     });
   } catch (err: any) {
     console.error("Porsche window sticker extraction failed:", err);

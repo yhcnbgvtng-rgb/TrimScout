@@ -44,6 +44,49 @@ export const SAMPLE_TEST_VINS = [
   },
 ];
 
+// Server-side NHTSA lookup. A VIN only ever encodes the base vehicle
+// configuration (make/model/year/engine/body) — it never encodes which
+// individual factory options were installed on that specific car. Callers
+// looking to pair a VIN with an options list must treat this as the
+// authoritative vehicle identity, and source the options list separately.
+export async function decodeVinFromNhtsa(vin: string): Promise<DecodedVehicle | null> {
+  const cleanVin = vin.trim().toUpperCase();
+  if (cleanVin.length !== 17) return null;
+
+  const nhtsaUrl = `https://vpic.nhtsa.dot.gov/api/vehicles/decodevinvalues/${encodeURIComponent(
+    cleanVin
+  )}?format=json`;
+
+  const response = await fetch(nhtsaUrl, {
+    headers: { Accept: "application/json" },
+    next: { revalidate: 86400 },
+  });
+  if (!response.ok) throw new Error(`NHTSA API returned status ${response.status}`);
+
+  const data = await response.json();
+  const result = data.Results?.[0];
+  if (!result || !result.Make) return null;
+
+  return {
+    vin: cleanVin,
+    year: result.ModelYear ? parseInt(result.ModelYear, 10) : undefined,
+    make: result.Make || undefined,
+    model: result.Model || undefined,
+    trim: result.Trim || result.Series || undefined,
+    bodyClass: result.BodyClass || undefined,
+    doors: result.Doors ? parseInt(result.Doors, 10) : undefined,
+    driveType: result.DriveType || undefined,
+    engineCylinders: result.EngineCylinders || undefined,
+    displacementL: result.DisplacementL ? `${result.DisplacementL}L` : undefined,
+    fuelType: result.FuelTypePrimary || undefined,
+    transmission: result.TransmissionStyle || undefined,
+    manufacturer: result.Manufacturer || undefined,
+    plantCountry: result.PlantCountry || undefined,
+    vehicleType: result.VehicleType || undefined,
+    errorText: result.ErrorText || undefined,
+  };
+}
+
 export async function decodeVin(vin: string): Promise<DecodedVehicle | null> {
   const cleanVin = vin.trim().toUpperCase();
   if (cleanVin.length !== 17) {
