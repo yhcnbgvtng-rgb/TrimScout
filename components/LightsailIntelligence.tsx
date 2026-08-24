@@ -244,8 +244,9 @@ export const LightsailIntelligence: React.FC = () => {
     // 10. Price Range
     const minPrice = minPriceInput ? parseFloat(minPriceInput) : 0;
     const maxPrice = maxPriceInput ? parseFloat(maxPriceInput) : Infinity;
-    if (v.price !== null && v.price !== undefined && v.price > 0) {
-      if (v.price < minPrice || v.price > maxPrice) return false;
+    const cleanP = v.price && v.price > 0 && v.price < 5000000 && v.price !== 2147483647 ? v.price : null;
+    if (cleanP !== null) {
+      if (cleanP < minPrice || cleanP > maxPrice) return false;
     }
 
     // 11. Mileage Range
@@ -519,8 +520,9 @@ export const LightsailIntelligence: React.FC = () => {
         }
 
         // 10. Price Range
-        if (v.price !== null && v.price !== undefined && v.price > 0) {
-          if (v.price < minPrice || v.price > maxPrice) return false;
+        const cleanP = v.price && v.price > 0 && v.price < 5000000 && v.price !== 2147483647 ? v.price : null;
+        if (cleanP !== null) {
+          if (cleanP < minPrice || cleanP > maxPrice) return false;
         }
 
         // 11. Mileage Range
@@ -551,29 +553,31 @@ export const LightsailIntelligence: React.FC = () => {
           const distA = getVehicleDistance(a);
           const distB = getVehicleDistance(b);
           if (distA !== distB) return distA - distB;
-          return (a.price || 0) - (b.price || 0);
+          const pA = a.price && a.price > 0 && a.price < 5000000 ? a.price : 0;
+          const pB = b.price && b.price > 0 && b.price < 5000000 ? b.price : 0;
+          return pA - pB;
         }
 
         // 2. Price: High to Low
         if (sortBy === "price_desc") {
-          const pA = a.price && a.price > 0 ? a.price : 0;
-          const pB = b.price && b.price > 0 ? b.price : 0;
+          const pA = a.price && a.price > 0 && a.price < 5000000 ? a.price : 0;
+          const pB = b.price && b.price > 0 && b.price < 5000000 ? b.price : 0;
           return pB - pA;
         }
 
         // 3. Price: Low to High (Put Call for Price / 0 at bottom)
         if (sortBy === "price_asc") {
-          const pA = a.price && a.price > 0 ? a.price : Infinity;
-          const pB = b.price && b.price > 0 ? b.price : Infinity;
+          const pA = a.price && a.price > 0 && a.price < 5000000 ? a.price : Infinity;
+          const pB = b.price && b.price > 0 && b.price < 5000000 ? b.price : Infinity;
           return pA - pB;
         }
 
         // 4. Largest Price Drop First
         if (sortBy === "price_drop_first") {
-          const dropA = a.priceDiff && a.priceDiff < 0 ? Math.abs(a.priceDiff) : 0;
-          const dropB = b.priceDiff && b.priceDiff < 0 ? Math.abs(b.priceDiff) : 0;
-          if (dropB !== dropA) return dropB - dropA;
-          return (a.price || 0) - (b.price || 0);
+          const dropA = Math.abs(a.priceDiff && a.priceDiff < 0 && Math.abs(a.priceDiff) < 5000000 ? a.priceDiff : 0);
+          const dropB = Math.abs(b.priceDiff && b.priceDiff < 0 && Math.abs(b.priceDiff) < 5000000 ? b.priceDiff : 0);
+          if (dropA !== dropB) return dropB - dropA;
+          return (b.daysOnLot || 0) - (a.daysOnLot || 0);
         }
 
         // 5. Days on Lot
@@ -584,7 +588,13 @@ export const LightsailIntelligence: React.FC = () => {
         if (sortBy === "mileage_asc") return (a.mileage || 0) - (b.mileage || 0);
         if (sortBy === "year_desc") return (b.year || 0) - (a.year || 0);
 
-        return 0;
+        // Default: Price Drops first, then newest arrivals, then lowest price
+        const hasDropA = a.changeType === "PRICE_DROP" || (a.priceDiff && a.priceDiff < 0);
+        const hasDropB = b.changeType === "PRICE_DROP" || (b.priceDiff && b.priceDiff < 0);
+        if (hasDropA && !hasDropB) return -1;
+        if (!hasDropA && hasDropB) return 1;
+
+        return (a.daysOnLot || 0) - (b.daysOnLot || 0);
       });
   }, [
     allVehicles,
@@ -609,7 +619,7 @@ export const LightsailIntelligence: React.FC = () => {
   // Live Aggregate Statistics for the Filtered Selection
   const liveStats = useMemo(() => {
     const count = filteredVehicles.length;
-    const priced = filteredVehicles.filter((v) => v.price && v.price > 0);
+    const priced = filteredVehicles.filter((v) => v.price && v.price > 0 && v.price < 5000000);
     const avgPrice =
       priced.length > 0
         ? Math.round(priced.reduce((acc, v) => acc + (v.price || 0), 0) / priced.length)
@@ -1303,7 +1313,7 @@ export const LightsailIntelligence: React.FC = () => {
                         </div>
                       </td>
                       <td className="p-3 font-mono font-bold text-emerald-400 text-sm">
-                        {v.price ? `$${v.price.toLocaleString()}` : "Call"}
+                        {v.price && v.price > 0 && v.price < 5000000 ? `$${v.price.toLocaleString()}` : "Call"}
                       </td>
                       <td className="p-3">
                         {hasPriceDrop ? (
@@ -1399,9 +1409,9 @@ export const LightsailIntelligence: React.FC = () => {
                   <div className="flex items-baseline justify-between">
                     <div>
                       <div className="text-lg font-black text-emerald-400 font-mono">
-                        {v.price ? `$${v.price.toLocaleString()}` : "Call"}
+                        {v.price && v.price > 0 && v.price < 5000000 ? `$${v.price.toLocaleString()}` : "Call"}
                       </div>
-                      {v.oldPrice && (
+                      {v.oldPrice && v.oldPrice < 5000000 && (
                         <div className="text-xs text-ink-faint line-through font-mono">
                           ${v.oldPrice.toLocaleString()}
                         </div>
