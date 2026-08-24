@@ -40,8 +40,6 @@ import {
   Navigation,
 } from "lucide-react";
 import {
-  PORSCHE_OPTION_CATALOG,
-  ENTHUSIAST_HIGHLIGHT_CODES,
   PorscheOption,
   NhtsaSpec,
 } from "@/lib/enrichmentEngine";
@@ -376,26 +374,14 @@ export const LightsailIntelligence: React.FC = () => {
       if (v.year !== parseInt(selectedYear, 10)) return false;
     }
 
-    // 9. Factory Option Code
+    // 9. Factory Option Code — matched strictly against this vehicle's own
+    // real, dealer-scraped options/packages. No keyword guessing: a car
+    // only matches an option filter if it actually has that option.
     if (excludeFacet !== "option" && selectedOptionCode !== "ALL") {
       const codes = v.optionCodes || [];
       const optDefs = v.factoryOptions || [];
       const hasCode = codes.includes(selectedOptionCode) || optDefs.some((o) => o.code === selectedOptionCode);
-      if (!hasCode) {
-        const hay = `${v.model || ""} ${v.trim || ""} ${v.bodyStyle || ""}`.toLowerCase();
-        if (selectedOptionCode === "8LH" && (hay.includes("gts") || hay.includes("gt3") || hay.includes("chrono"))) {
-        } else if (selectedOptionCode === "2UH" && (hay.includes("gt3") || hay.includes("lift"))) {
-        } else if ((selectedOptionCode === "0P9" || selectedOptionCode === "0P8") && (hay.includes("gts") || hay.includes("exhaust"))) {
-        } else if ((selectedOptionCode === "1LX" || selectedOptionCode === "1LQ") && (hay.includes("ceramic") || hay.includes("pccb"))) {
-        } else if (selectedOptionCode === "9VJ" && hay.includes("burmester")) {
-        } else if (selectedOptionCode === "9VL" && hay.includes("bose")) {
-        } else if (selectedOptionCode === "Q1J" && hay.includes("18-way")) {
-        } else if (selectedOptionCode === "04S" && hay.includes("weissach")) {
-        } else if (selectedOptionCode === "04H" && hay.includes("heritage")) {
-        } else {
-          return false;
-        }
-      }
+      if (!hasCode) return false;
     }
 
     // 10. Price Range
@@ -492,30 +478,26 @@ export const LightsailIntelligence: React.FC = () => {
         years.set(v.year, (years.get(v.year) || 0) + 1);
       }
 
-      // 7. Option codes counts (given all filters except option)
+      // 7. Option codes counts (given all filters except option) — counted
+      // strictly from each vehicle's real, dealer-scraped options/packages.
       if (checkFilterMatch(v, "option")) {
         const codes = new Set(v.optionCodes || []);
         (v.factoryOptions || []).forEach((o) => codes.add(o.code));
-        const hay = `${v.model || ""} ${v.trim || ""} ${v.bodyStyle || ""}`.toLowerCase();
-        if (hay.includes("gts") || hay.includes("gt3") || hay.includes("chrono")) codes.add("8LH");
-        if (hay.includes("gt3") || hay.includes("lift")) codes.add("2UH");
-        if (hay.includes("gts") || hay.includes("exhaust")) { codes.add("0P9"); codes.add("0P8"); }
-        if (hay.includes("ceramic") || hay.includes("pccb")) { codes.add("1LX"); codes.add("1LQ"); }
-        if (hay.includes("burmester")) codes.add("9VJ");
-        if (hay.includes("bose")) codes.add("9VL");
-        if (hay.includes("18-way")) codes.add("Q1J");
-        if (hay.includes("14-way")) codes.add("Q2J");
-        if (hay.includes("bucket")) codes.add("Q4Q");
-        if (hay.includes("weissach")) codes.add("04S");
-        if (hay.includes("heritage")) codes.add("04H");
-        if (hay.includes("ventilated")) codes.add("4D3");
-        if (hay.includes("sunroof") || hay.includes("moonroof")) codes.add("3FE");
-        if (hay.includes("sportdesign")) codes.add("2D1");
 
         codes.forEach((c) => {
           options.set(c, (options.get(c) || 0) + 1);
         });
       }
+    });
+
+    // Real option code -> display name, built from whatever options actually
+    // appear in the current dataset (dealer-scraped, per-VIN) rather than a
+    // fixed hardcoded catalog — so the filter always matches real data.
+    const optionNames = new Map<string, string>();
+    allVehicles.forEach((v) => {
+      (v.factoryOptions || []).forEach((o) => {
+        if (o.code && o.name && !optionNames.has(o.code)) optionNames.set(o.code, o.name);
+      });
     });
 
     return {
@@ -527,6 +509,7 @@ export const LightsailIntelligence: React.FC = () => {
       bodyStyles: Array.from(bodyStyles.entries()).sort((a, b) => b[1] - a[1]),
       years: Array.from(years.entries()).sort((a, b) => b[0] - a[0]),
       options,
+      optionNames,
     };
   }, [
     allVehicles,
@@ -1141,55 +1124,14 @@ export const LightsailIntelligence: React.FC = () => {
               className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none font-bold text-amber-300"
             >
               <option value="ALL">All Factory Builds</option>
-              <optgroup label="💎 Equipment Packages">
-                <option value="P3R">💎 Premium Package Plus (P3R) ({facetOptions.options.get("P3R") || 0})</option>
-                <option value="P3U">🏆 Sport Package (P3U) ({facetOptions.options.get("P3U") || 0})</option>
-                <option value="04S">🏁 Weissach Package (04S) ({facetOptions.options.get("04S") || 0})</option>
-                <option value="04H">👑 Heritage Design (04H) ({facetOptions.options.get("04H") || 0})</option>
-                <option value="P3P">📱 Technology Package (P3P) ({facetOptions.options.get("P3P") || 0})</option>
-              </optgroup>
-              <optgroup label="🏎️ Performance & Chassis">
-                <option value="8LH">⏱️ Sport Chrono Package (8LH) ({facetOptions.options.get("8LH") || 0})</option>
-                <option value="2UH">🏎️ Front Axle Lift System (2UH) ({facetOptions.options.get("2UH") || 0})</option>
-                <option value="1LX">🛑 PCCB Ceramic Brakes - Black (1LX) ({facetOptions.options.get("1LX") || 0})</option>
-                <option value="1LQ">🛑 PCCB Ceramic Brakes - Yellow (1LQ) ({facetOptions.options.get("1LQ") || 0})</option>
-                <option value="0P9">🏁 Sport Exhaust System - Black (0P9) ({facetOptions.options.get("0P9") || 0})</option>
-                <option value="0P8">🏁 Sport Exhaust System - Silver (0P8) ({facetOptions.options.get("0P8") || 0})</option>
-                <option value="0N5">🔄 Rear-Axle Steering (0N5) ({facetOptions.options.get("0N5") || 0})</option>
-                <option value="1P7">⚡ PDCC Dynamic Chassis (1P7) ({facetOptions.options.get("1P7") || 0})</option>
-                <option value="1BV">📉 PASM Sport Suspension -10mm (1BV) ({facetOptions.options.get("1BV") || 0})</option>
-                <option value="GH3">🔀 Torque Vectoring+ (GH3) ({facetOptions.options.get("GH3") || 0})</option>
-              </optgroup>
-              <optgroup label="🔊 Audio, Tech & Lighting">
-                <option value="9VJ">🔊 Burmester® 3D Sound (9VJ) ({facetOptions.options.get("9VJ") || 0})</option>
-                <option value="9VL">🎵 BOSE® Surround Sound (9VL) ({facetOptions.options.get("9VL") || 0})</option>
-                <option value="KA6">📷 360° Surround View (KA6) ({facetOptions.options.get("KA6") || 0})</option>
-                <option value="8JU">💡 HD-Matrix LED Black (8JU) ({facetOptions.options.get("8JU") || 0})</option>
-                <option value="8IS">💡 LED Headlights PDLS+ (8IS) ({facetOptions.options.get("8IS") || 0})</option>
-                <option value="8T3">🎯 Adaptive Cruise ACC (8T3) ({facetOptions.options.get("8T3") || 0})</option>
-                <option value="KS1">📊 Head-Up Display HUD (KS1) ({facetOptions.options.get("KS1") || 0})</option>
-                <option value="9R1">🌙 Night Vision Assist (9R1) ({facetOptions.options.get("9R1") || 0})</option>
-                <option value="7Y1">👁️ Blind Spot LCA (7Y1) ({facetOptions.options.get("7Y1") || 0})</option>
-              </optgroup>
-              <optgroup label="💺 Interior & Seating">
-                <option value="Q1J">💺 18-Way Adaptive Seats (Q1J) ({facetOptions.options.get("Q1J") || 0})</option>
-                <option value="Q2J">💺 14-Way Power Seats (Q2J) ({facetOptions.options.get("Q2J") || 0})</option>
-                <option value="Q4Q">🏎️ Carbon Bucket Seats (Q4Q) ({facetOptions.options.get("Q4Q") || 0})</option>
-                <option value="4D3">❄️ Ventilated Seats (4D3) ({facetOptions.options.get("4D3") || 0})</option>
-                <option value="2PJ">🔥 Heated GT Wheel (2PJ) ({facetOptions.options.get("2PJ") || 0})</option>
-                <option value="5TX">✨ Carbon Fiber Trim (5TX) ({facetOptions.options.get("5TX") || 0})</option>
-                <option value="FZ1">🔴 Guards Red Belts (FZ1) ({facetOptions.options.get("FZ1") || 0})</option>
-                <option value="FZ4">🟡 Racing Yellow Belts (FZ4) ({facetOptions.options.get("FZ4") || 0})</option>
-                <option value="3J7">🛡️ Crest on Headrests (3J7) ({facetOptions.options.get("3J7") || 0})</option>
-              </optgroup>
-              <optgroup label="🎨 Exterior & Styling">
-                <option value="3FE">🪟 Glass Sunroof (3FE) ({facetOptions.options.get("3FE") || 0})</option>
-                <option value="3FD">🚪 Metal Sunroof (3FD) ({facetOptions.options.get("3FD") || 0})</option>
-                <option value="2D1">🎨 SportDesign Package (2D1) ({facetOptions.options.get("2D1") || 0})</option>
-                <option value="2D5">🖤 SportDesign in Black (2D5) ({facetOptions.options.get("2D5") || 0})</option>
-                <option value="46K">🛞 Carrera Classic Wheels (46K) ({facetOptions.options.get("46K") || 0})</option>
-                <option value="46N">🛞 Turbo S Wheels (46N) ({facetOptions.options.get("46N") || 0})</option>
-              </optgroup>
+              {Array.from(facetOptions.options.entries())
+                .filter(([, count]) => count > 0)
+                .sort((a, b) => b[1] - a[1])
+                .map(([code, count]) => (
+                  <option key={code} value={code}>
+                    {facetOptions.optionNames.get(code) || code} ({count})
+                  </option>
+                ))}
             </select>
           </div>
 
@@ -1349,7 +1291,7 @@ export const LightsailIntelligence: React.FC = () => {
 
             {selectedOptionCode !== "ALL" && (
               <span className="inline-flex items-center gap-1 rounded-lg bg-amber-500/20 border border-amber-500/40 px-2 py-0.5 text-amber-300 font-bold">
-                <span>Option: {PORSCHE_OPTION_CATALOG[selectedOptionCode]?.name || selectedOptionCode}</span>
+                <span>Option: {facetOptions.optionNames.get(selectedOptionCode) || selectedOptionCode}</span>
                 <X className="h-3 w-3 cursor-pointer hover:text-white" onClick={() => setSelectedOptionCode("ALL")} />
               </span>
             )}

@@ -49,10 +49,11 @@ export interface PorscheStickerResponse {
   standardEquipment: string[];
   windowStickerPdfUrl?: string;
   porscheFinderUrl: string;
-  // PORSCHE_FINDER_LIVE / AI_PARSED_WINDOW_STICKER = real, per-VIN data.
-  // NOT_VERIFIED = no per-VIN build data was available; installedOptions and
-  // standardEquipment are both empty rather than guessed or filled in.
-  dataSource: "PORSCHE_FINDER_LIVE" | "AI_PARSED_WINDOW_STICKER" | "NOT_VERIFIED";
+  // PORSCHE_FINDER_LIVE / AI_PARSED_WINDOW_STICKER / DEALER_VDP_LISTED = real,
+  // per-VIN data. NOT_VERIFIED = no per-VIN build data was available;
+  // installedOptions and standardEquipment are both empty rather than
+  // guessed or filled in.
+  dataSource: "PORSCHE_FINDER_LIVE" | "AI_PARSED_WINDOW_STICKER" | "DEALER_VDP_LISTED" | "NOT_VERIFIED";
   isEstimate: boolean;
   note?: string;
 }
@@ -237,6 +238,11 @@ export async function GET(request: Request) {
       ? "Leipzig, Germany"
       : "Stuttgart-Zuffenhausen, Germany";
 
+    const dealerListedOptions: PorscheOptionItem[] = Array.isArray(vehicleRecord?.factoryOptions)
+      ? vehicleRecord.factoryOptions
+      : [];
+    const dealerOptionsTotal = dealerListedOptions.reduce((sum, o) => sum + (o.price || 0), 0);
+
     return NextResponse.json({
       success: true,
       vin: rawVin,
@@ -245,9 +251,9 @@ export async function GET(request: Request) {
       model: modelName,
       trim: trimName,
       baseMsrp,
-      totalOptionsPrice: 0,
+      totalOptionsPrice: dealerOptionsTotal,
       deliveryFee: 1650,
-      totalMsrp: baseMsrp + 1650,
+      totalMsrp: baseMsrp + dealerOptionsTotal + 1650,
       exteriorColor: {
         code: vehicleRecord?.exteriorColor || "",
         name: vehicleRecord?.exteriorColor || "Not verified for this VIN",
@@ -265,13 +271,19 @@ export async function GET(request: Request) {
           ? `${decoded.displacementL} ${decoded.engineCylinders ? `${decoded.engineCylinders}-Cylinder` : ""}`.trim()
           : undefined),
       plantOrigin,
-      installedOptions: [],
+      // If our own dataset already scraped this VIN's real dealer-listed
+      // packages & options (from the VDP's Dealer.com data layer), surface
+      // them here as verified — this is genuine per-VIN data, not a guess.
+      installedOptions: dealerListedOptions,
       standardEquipment: [],
       windowStickerPdfUrl: directPdfUrl,
       porscheFinderUrl,
-      dataSource: "NOT_VERIFIED",
-      isEstimate: true,
-      note: "Factory-installed options and equipment could not be verified for this VIN. Paste the real window sticker text below for a verified, itemized list.",
+      dataSource: dealerListedOptions.length > 0 ? "DEALER_VDP_LISTED" : "NOT_VERIFIED",
+      isEstimate: dealerListedOptions.length === 0,
+      note:
+        dealerListedOptions.length > 0
+          ? undefined
+          : "Factory-installed options and equipment could not be verified for this VIN. Paste the real window sticker text below for a verified, itemized list.",
     });
   } catch (err: any) {
     console.error("Porsche window sticker extraction failed:", err);
