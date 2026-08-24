@@ -363,7 +363,7 @@ export async function scrapePorscheInventory(options?: {
     return fullSpec.includes(queryLower);
   });
 
-  const targetConfigs = matchedConfigs.length > 0 ? matchedConfigs : PORSCHE_MODELS_DEFINITIONS;
+  const targetConfigs = queryLower ? matchedConfigs : PORSCHE_MODELS_DEFINITIONS;
 
   targetConfigs.forEach((cfg, idx) => {
     const dealer = PORSCHE_DEALERS_REGISTRY[idx % PORSCHE_DEALERS_REGISTRY.length];

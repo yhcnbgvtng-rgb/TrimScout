@@ -584,14 +584,14 @@ export async function GET(request: Request) {
           ) {
             liveVehicles = liveVehicles.filter((v) => {
               const str = `${v.make} ${v.model} ${v.trim}`.toLowerCase();
-              if (make.toLowerCase().includes("porsche") || lowerQ.includes("porsche")) {
-                return v.make.toLowerCase().includes("porsche");
-              }
-              if (lowerQ.includes("911")) return str.includes("911");
+              if (lowerQ.includes("911")) return str.includes("911") || str.includes("carrera") || str.includes("targa") || str.includes("gt3");
               if (lowerQ.includes("cayman") || lowerQ.includes("718")) return str.includes("cayman") || str.includes("718");
               if (lowerQ.includes("taycan")) return str.includes("taycan");
               if (lowerQ.includes("macan")) return str.includes("macan");
               if (lowerQ.includes("cayenne")) return str.includes("cayenne");
+              if (make.toLowerCase().includes("porsche") || lowerQ.includes("porsche")) {
+                return v.make.toLowerCase().includes("porsche");
+              }
               return true;
             });
           }
@@ -760,9 +760,16 @@ export async function GET(request: Request) {
     // Filter by Free text Query if provided
     if (rawQuery) {
       filtered = filtered.filter((v) => {
-        const fullString = `${v.year} ${v.make} ${v.model} ${v.trim} ${v.engine} ${v.drivetrain} ${v.packages.join(" ")} ${v.vin}`.toLowerCase();
+        const optNames = (v.options || []).map((o) => `${o.code} ${o.name}`).join(" ");
+        const textFields = `${v.year} ${v.make} ${v.model} ${v.trim} ${v.engine} ${v.drivetrain} ${v.packages.join(" ")} ${optNames}`.toLowerCase();
+        const vinLower = (v.vin || "").toLowerCase();
         const terms = lowerQuery.split(/\s+/).filter(Boolean);
-        return terms.every((t) => fullString.includes(t));
+        return terms.every((t) => {
+          if (textFields.includes(t)) return true;
+          if (t.length >= 6 && vinLower.includes(t)) return true;
+          if (t === vinLower) return true;
+          return false;
+        });
       });
     }
 

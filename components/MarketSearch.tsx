@@ -467,9 +467,12 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
   const filteredVehicles = useMemo(() => {
     return vehiclesWithDistance.filter((v) => {
       const queryTokens = searchQuery.toLowerCase().trim().split(/\s+/).filter(Boolean);
-      const isPureZipQuery = /^\d{5}$/.test(searchQuery.trim());
+      const optNames = [
+        ...v.packages.map((p) => p.toLowerCase()),
+        ...v.options.map((o) => `${o.code.toLowerCase()} ${o.name.toLowerCase()}`),
+      ].join(" ");
 
-      const haystack = [
+      const textHaystack = [
         v.year.toString(),
         v.make.toLowerCase(),
         v.model.toLowerCase(),
@@ -480,17 +483,34 @@ export const MarketSearch: React.FC<MarketSearchProps> = ({
         v.transmission.toLowerCase(),
         v.exteriorColor.toLowerCase(),
         v.interiorColor.toLowerCase(),
-        v.vin.toLowerCase(),
         v.location.dealerName.toLowerCase(),
         v.location.city.toLowerCase(),
         v.location.state.toLowerCase(),
-        ...v.packages.map((p) => p.toLowerCase()),
-        ...v.options.map((o) => `${o.code.toLowerCase()} ${o.name.toLowerCase()}`),
+        optNames,
       ].join(" ");
+      const vinLower = (v.vin || "").toLowerCase();
 
-      const textMatch = isPureZipQuery || queryTokens.length === 0 || queryTokens.every((token) => haystack.includes(token));
-      const makeMatch = selectedMake === "All" || v.make === selectedMake;
-      const modelMatch = selectedModels.length === 0 || selectedModels.includes(v.model);
+      const textMatch =
+        isPureZipQuery ||
+        queryTokens.length === 0 ||
+        queryTokens.every((token) => {
+          if (textHaystack.includes(token)) return true;
+          if (token.length >= 6 && vinLower.includes(token)) return true;
+          if (token === vinLower) return true;
+          return false;
+        });
+
+      const makeMatch = selectedMake === "All" || v.make.toLowerCase() === selectedMake.toLowerCase();
+      const modelMatch =
+        selectedModels.length === 0 ||
+        selectedModels.some((sm) => {
+          if (v.model.toLowerCase() === sm.toLowerCase()) return true;
+          const vClean = v.model.replace(/^Porsche\s+/i, "").trim().toLowerCase();
+          const smClean = sm.replace(/^Porsche\s+/i, "").trim().toLowerCase();
+          if (vClean === smClean) return true;
+          if (vClean.startsWith(smClean) || smClean.startsWith(vClean)) return true;
+          return false;
+        });
       const trimMatch = selectedTrims.length === 0 || selectedTrims.includes(v.trim);
       
       const statusMatch =

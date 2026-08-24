@@ -153,16 +153,32 @@ export const LightsailIntelligence: React.FC = () => {
 
   // Canonical Model Series Normalizer
   const getModelSeries = (v: VehicleRecord): string => {
-    const raw = `${v.make || ""} ${v.model || ""} ${v.trim || ""} ${v.bodyStyle || ""}`.toLowerCase();
-    if (raw.includes("911") || raw.includes("carrera") || raw.includes("targa") || raw.includes("gt3") || raw.includes("turbo")) {
+    const make = (v.make || "").toLowerCase();
+    const model = (v.model || "").toLowerCase();
+    const trim = (v.trim || "").toLowerCase();
+    const body = (v.bodyStyle || "").toLowerCase();
+    const raw = `${make} ${model} ${trim} ${body}`.toLowerCase();
+
+    // Specific Porsche models checked first to avoid false positives with generic trims (e.g. Turbo, GTS)
+    if (raw.includes("cayenne")) return "Cayenne";
+    if (raw.includes("macan")) return "Macan";
+    if (raw.includes("taycan")) return "Taycan";
+    if (raw.includes("panamera")) return "Panamera";
+    if (raw.includes("boxster") || raw.includes("spyder")) return "718 Boxster";
+    if (raw.includes("718") || raw.includes("cayman")) return "718 Cayman";
+    if (
+      raw.includes("911") ||
+      raw.includes("carrera") ||
+      raw.includes("targa") ||
+      raw.includes("gt3") ||
+      raw.includes("gt2") ||
+      raw.includes("dakar") ||
+      raw.includes("sport classic") ||
+      raw.includes("s/t")
+    ) {
       return "911";
     }
-    if (raw.includes("718") || raw.includes("cayman")) return "718 Cayman";
-    if (raw.includes("boxster")) return "718 Boxster";
-    if (raw.includes("taycan")) return "Taycan";
-    if (raw.includes("macan")) return "Macan";
-    if (raw.includes("cayenne")) return "Cayenne";
-    if (raw.includes("panamera")) return "Panamera";
+
     return v.model || "Other";
   };
 
@@ -448,9 +464,18 @@ export const LightsailIntelligence: React.FC = () => {
         // 1. Free Search (VIN, Make, Model, Trim, Dealer, City, State, Body, Color, Options)
         if (searchTerm.trim() !== "") {
           const optNames = (v.factoryOptions || []).map((o) => `${o.code} ${o.name}`).join(" ");
-          const haystack = `${v.vin} ${v.year} ${v.make} ${v.model} ${v.trim || ""} ${v.bodyStyle || ""} ${v.dealerName} ${v.city || ""} ${v.state} ${v.exteriorColor || ""} ${optNames}`.toLowerCase();
+          const textHaystack = `${v.year} ${v.make} ${v.model} ${v.trim || ""} ${v.bodyStyle || ""} ${v.dealerName} ${v.city || ""} ${v.state} ${v.exteriorColor || ""} ${optNames}`.toLowerCase();
+          const vinLower = (v.vin || "").toLowerCase();
           const tokens = searchTerm.toLowerCase().split(/\s+/).filter(Boolean);
-          if (!tokens.every((t) => haystack.includes(t))) return false;
+          
+          const matchesAllTokens = tokens.every((t) => {
+            if (textHaystack.includes(t)) return true;
+            // Only match against VIN if the token is a specific VIN search (length >= 6) or exact VIN
+            if (t.length >= 6 && vinLower.includes(t)) return true;
+            if (t === vinLower) return true;
+            return false;
+          });
+          if (!matchesAllTokens) return false;
         }
 
         // 2. Model Series Filter
