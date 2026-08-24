@@ -18,6 +18,8 @@ import {
   Sliders,
   ChevronDown,
   ChevronUp,
+  ChevronLeft,
+  ChevronRight,
   X,
   RotateCcw,
   LayoutGrid,
@@ -106,6 +108,30 @@ export const LightsailIntelligence: React.FC = () => {
   const [selectedOptionCode, setSelectedOptionCode] = useState<string>("ALL");
   const [userZip, setUserZip] = useState<string>("07054");
   const [sortBy, setSortBy] = useState<string>("default");
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [pageSize, setPageSize] = useState<number>(50);
+
+  // Reset page whenever any active filter is updated
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [
+    searchTerm,
+    selectedModel,
+    selectedTrim,
+    selectedCondition,
+    selectedDealer,
+    selectedState,
+    selectedBodyStyle,
+    selectedYear,
+    minPriceInput,
+    maxPriceInput,
+    maxMileageInput,
+    selectedDaysOnLot,
+    selectedOpportunity,
+    selectedOptionCode,
+    sortBy,
+    userZip,
+  ]);
 
   // Fetch full live dataset
   const fetchData = async () => {
@@ -151,15 +177,29 @@ export const LightsailIntelligence: React.FC = () => {
     });
   };
 
-  // Canonical Model Series Normalizer
+  // Canonical Model Series Normalizer with deterministic VIN decoding
   const getModelSeries = (v: VehicleRecord): string => {
+    const vin = (v.vin || "").toUpperCase();
     const make = (v.make || "").toLowerCase();
     const model = (v.model || "").toLowerCase();
     const trim = (v.trim || "").toLowerCase();
     const body = (v.bodyStyle || "").toLowerCase();
     const raw = `${make} ${model} ${trim} ${body}`.toLowerCase();
 
-    // Specific Porsche models checked first to avoid false positives with generic trims (e.g. Turbo, GTS)
+    // 1. Deterministic VIN VDS decoding
+    if (vin.length >= 8) {
+      const vds = vin.substring(3, 8);
+      if (vds.includes("A9") || vds.includes("99")) return "911";
+      if (vds.includes("Y1")) return "Taycan";
+      if (vds.includes("YA")) return "Panamera";
+      if (vds.includes("AY")) return "Cayenne";
+      if (vds.includes("A5") || vds.includes("XA")) return "Macan";
+      if (vds.includes("98") || vds.includes("97")) {
+        return raw.includes("boxster") || raw.includes("spyder") || raw.includes("cabriolet") ? "718 Boxster" : "718 Cayman";
+      }
+    }
+
+    // 2. Text & Specification Fallback Classification
     if (raw.includes("cayenne")) return "Cayenne";
     if (raw.includes("macan")) return "Macan";
     if (raw.includes("taycan")) return "Taycan";
@@ -645,8 +685,14 @@ export const LightsailIntelligence: React.FC = () => {
     maxMileageInput,
     selectedDaysOnLot,
     selectedOpportunity,
-    sortBy,
   ]);
+
+  // Pagination slice for smooth rendering
+  const totalPages = Math.max(1, Math.ceil(filteredVehicles.length / pageSize));
+  const paginatedVehicles = useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    return filteredVehicles.slice(start, start + pageSize);
+  }, [filteredVehicles, currentPage, pageSize]);
 
   // Live Aggregate Statistics for the Filtered Selection
   const liveStats = useMemo(() => {
@@ -1271,7 +1317,7 @@ export const LightsailIntelligence: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-border/60 font-medium">
-                {filteredVehicles.map((v) => {
+                {paginatedVehicles.map((v) => {
                   const cond = getNormalizedCondition(v);
                   const hasPriceDrop = v.priceDiff && v.priceDiff < 0;
                   const opts = v.factoryOptions || [];
@@ -1383,88 +1429,199 @@ export const LightsailIntelligence: React.FC = () => {
               </tbody>
             </table>
           </div>
+
+          {/* Table Pagination Bar */}
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2 border-t border-border/60 text-xs">
+            <div className="text-ink-muted">
+              Showing <strong className="text-white">{(currentPage - 1) * pageSize + 1}</strong>–<strong className="text-white">{Math.min(currentPage * pageSize, filteredVehicles.length)}</strong> of <strong className="text-white">{filteredVehicles.length.toLocaleString()}</strong> matching vehicles
+            </div>
+
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5 mr-2">
+                <span className="text-[11px] text-ink-faint">Per page:</span>
+                <select
+                  value={pageSize}
+                  onChange={(e) => {
+                    setPageSize(parseInt(e.target.value, 10));
+                    setCurrentPage(1);
+                  }}
+                  className="rounded-lg border border-border bg-surface-elevated px-2 py-1 text-xs text-white focus:outline-none"
+                >
+                  <option value={25}>25</option>
+                  <option value={50}>50</option>
+                  <option value={100}>100</option>
+                  <option value={200}>200</option>
+                </select>
+              </div>
+
+              <button
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                disabled={currentPage <= 1}
+                className="rounded-lg border border-border bg-surface-elevated px-2.5 py-1 text-xs font-bold text-ink-light hover:text-white disabled:opacity-30 disabled:cursor-not-allowed inline-flex items-center gap-1"
+              >
+                <ChevronLeft className="h-3.5 w-3.5" />
+                <span>Prev</span>
+              </button>
+
+              <span className="text-xs font-mono font-bold text-white px-2">
+                Page {currentPage} / {totalPages}
+              </span>
+
+              <button
+                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                disabled={currentPage >= totalPages}
+                className="rounded-lg border border-border bg-surface-elevated px-2.5 py-1 text-xs font-bold text-ink-light hover:text-white disabled:opacity-30 disabled:cursor-not-allowed inline-flex items-center gap-1"
+              >
+                <span>Next</span>
+                <ChevronRight className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          </div>
         </div>
       ) : (
         /* VISUAL CARD GRID VIEW */
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredVehicles.map((v) => {
-            const cond = getNormalizedCondition(v);
-            const hasPriceDrop = v.priceDiff && v.priceDiff < 0;
-            const opts = v.factoryOptions || [];
-            const dist = getVehicleDistance(v);
-            return (
-              <div
-                key={v.vin}
-                onClick={() => setSelectedVehicleForModal(v)}
-                className="rounded-2xl border border-border bg-surface p-5 space-y-3 hover:border-border-strong hover:bg-surface-elevated transition-all flex flex-col justify-between shadow-md cursor-pointer"
-              >
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between text-[11px]">
-                    <span
-                      className={`rounded px-2 py-0.5 text-[9.5px] font-black uppercase ${
-                        cond === "NEW"
-                          ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
-                          : cond === "CERTIFIED"
-                          ? "bg-blue-500/20 text-blue-400 border border-blue-500/30"
-                          : "bg-purple-500/20 text-purple-400 border border-purple-500/30"
-                      }`}
-                    >
-                      {cond}
-                    </span>
-                    <span className="font-mono text-blue-400 text-[10.5px] font-bold">📍 {dist} mi away</span>
-                  </div>
+        <div className="space-y-6">
+          <div className="flex items-center justify-between text-xs">
+            <span className="text-ink-muted">
+              Displaying <strong className="text-white">{(currentPage - 1) * pageSize + 1}</strong>–<strong className="text-white">{Math.min(currentPage * pageSize, filteredVehicles.length)}</strong> of <strong className="text-white">{filteredVehicles.length.toLocaleString()}</strong> live vehicles
+            </span>
+            <button
+              onClick={handleExportFilteredCSV}
+              className="inline-flex items-center gap-1 text-emerald-400 hover:underline font-bold"
+            >
+              <Download className="h-3 w-3" />
+              <span>Download CSV</span>
+            </button>
+          </div>
 
-                  <div>
-                    <h3 className="font-black text-white text-base">
-                      {v.year} {v.make} {v.model}
-                    </h3>
-                    <div className="text-xs text-ink-muted font-medium">
-                      {v.trim || "Standard"} • {v.bodyStyle || "Coupe"}
-                    </div>
-                  </div>
-
-                  {opts.length > 0 && (
-                    <div className="flex flex-wrap gap-1 pt-1">
-                      {opts.slice(0, 3).map((o) => (
-                        <span
-                          key={o.code}
-                          className="rounded bg-surface-elevated border border-border px-1.5 py-0.5 text-[9.5px] font-bold text-amber-300"
-                        >
-                          {o.name.split(" ")[0]} (${o.price.toLocaleString()})
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                <div className="pt-3 border-t border-border/60 space-y-2">
-                  <div className="flex items-baseline justify-between">
-                    <div>
-                      <div className="text-lg font-black text-emerald-400 font-mono">
-                        {v.price && v.price > 0 && v.price < 5000000 ? `$${v.price.toLocaleString()}` : "Call"}
-                      </div>
-                      {v.oldPrice && v.oldPrice < 5000000 && (
-                        <div className="text-xs text-ink-faint line-through font-mono">
-                          ${v.oldPrice.toLocaleString()}
-                        </div>
-                      )}
-                    </div>
-
-                    {hasPriceDrop && (
-                      <span className="rounded-md bg-rose-500/20 text-rose-400 border border-rose-500/30 px-2 py-0.5 font-bold font-mono text-xs">
-                        -${Math.abs(v.priceDiff || 0).toLocaleString()}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {paginatedVehicles.map((v) => {
+              const cond = getNormalizedCondition(v);
+              const hasPriceDrop = v.priceDiff && v.priceDiff < 0;
+              const opts = v.factoryOptions || [];
+              const dist = getVehicleDistance(v);
+              return (
+                <div
+                  key={v.vin}
+                  onClick={() => setSelectedVehicleForModal(v)}
+                  className="rounded-2xl border border-border bg-surface p-5 space-y-3 hover:border-border-strong hover:bg-surface-elevated transition-all flex flex-col justify-between shadow-md cursor-pointer"
+                >
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between text-[11px]">
+                      <span
+                        className={`rounded px-2 py-0.5 text-[9.5px] font-black uppercase ${
+                          cond === "NEW"
+                            ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
+                            : cond === "CERTIFIED"
+                            ? "bg-blue-500/20 text-blue-400 border border-blue-500/30"
+                            : "bg-purple-500/20 text-purple-400 border border-purple-500/30"
+                        }`}
+                      >
+                        {cond}
                       </span>
+                      <span className="font-mono text-blue-400 text-[10.5px] font-bold">📍 {dist} mi away</span>
+                    </div>
+
+                    <div>
+                      <h3 className="font-black text-white text-base">
+                        {v.year} {v.make} {v.model}
+                      </h3>
+                      <div className="text-xs text-ink-muted font-medium">
+                        {v.trim || "Standard"} • {v.bodyStyle || "Coupe"}
+                      </div>
+                    </div>
+
+                    {opts.length > 0 && (
+                      <div className="flex flex-wrap gap-1 pt-1">
+                        {opts.slice(0, 3).map((o) => (
+                          <span
+                            key={o.code}
+                            className="rounded bg-surface-elevated border border-border px-1.5 py-0.5 text-[9.5px] font-bold text-amber-300"
+                          >
+                            {o.name.split(" ")[0]} (${o.price.toLocaleString()})
+                          </span>
+                        ))}
+                      </div>
                     )}
                   </div>
 
-                  <div className="flex items-center justify-between text-[11px] text-ink-muted pt-1">
-                    <span className="truncate max-w-[150px]">{v.dealerName} ({v.state})</span>
-                    <span className="font-mono">{v.daysOnLot || 14} days on lot</span>
+                  <div className="pt-3 border-t border-border/60 space-y-2">
+                    <div className="flex items-baseline justify-between">
+                      <div>
+                        <div className="text-lg font-black text-emerald-400 font-mono">
+                          {v.price && v.price > 0 && v.price < 5000000 ? `$${v.price.toLocaleString()}` : "Call"}
+                        </div>
+                        {v.oldPrice && v.oldPrice < 5000000 && (
+                          <div className="text-xs text-ink-faint line-through font-mono">
+                            ${v.oldPrice.toLocaleString()}
+                          </div>
+                        )}
+                      </div>
+
+                      {hasPriceDrop && (
+                        <span className="rounded-md bg-rose-500/20 text-rose-400 border border-rose-500/30 px-2 py-0.5 font-bold font-mono text-xs">
+                          -${Math.abs(v.priceDiff || 0).toLocaleString()}
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="flex items-center justify-between text-[11px] text-ink-muted pt-1">
+                      <span className="truncate max-w-[150px]">{v.dealerName} ({v.state})</span>
+                      <span className="font-mono">{v.daysOnLot || 14} days on lot</span>
+                    </div>
                   </div>
                 </div>
+              );
+            })}
+          </div>
+
+          {/* Grid Pagination Bar */}
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-4 border-t border-border/60 text-xs">
+            <div className="text-ink-muted">
+              Showing <strong className="text-white">{(currentPage - 1) * pageSize + 1}</strong>–<strong className="text-white">{Math.min(currentPage * pageSize, filteredVehicles.length)}</strong> of <strong className="text-white">{filteredVehicles.length.toLocaleString()}</strong> matching vehicles
+            </div>
+
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5 mr-2">
+                <span className="text-[11px] text-ink-faint">Per page:</span>
+                <select
+                  value={pageSize}
+                  onChange={(e) => {
+                    setPageSize(parseInt(e.target.value, 10));
+                    setCurrentPage(1);
+                  }}
+                  className="rounded-lg border border-border bg-surface-elevated px-2 py-1 text-xs text-white focus:outline-none"
+                >
+                  <option value={25}>25</option>
+                  <option value={50}>50</option>
+                  <option value={100}>100</option>
+                  <option value={200}>200</option>
+                </select>
               </div>
-            );
-          })}
+
+              <button
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                disabled={currentPage <= 1}
+                className="rounded-lg border border-border bg-surface-elevated px-2.5 py-1 text-xs font-bold text-ink-light hover:text-white disabled:opacity-30 disabled:cursor-not-allowed inline-flex items-center gap-1"
+              >
+                <ChevronLeft className="h-3.5 w-3.5" />
+                <span>Prev</span>
+              </button>
+
+              <span className="text-xs font-mono font-bold text-white px-2">
+                Page {currentPage} / {totalPages}
+              </span>
+
+              <button
+                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                disabled={currentPage >= totalPages}
+                className="rounded-lg border border-border bg-surface-elevated px-2.5 py-1 text-xs font-bold text-ink-light hover:text-white disabled:opacity-30 disabled:cursor-not-allowed inline-flex items-center gap-1"
+              >
+                <span>Next</span>
+                <ChevronRight className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          </div>
         </div>
       )}
 

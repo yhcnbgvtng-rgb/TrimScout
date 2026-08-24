@@ -12,9 +12,27 @@ def load_dataset():
 def get_model_series(v):
     make = str(v.get("make", "")).lower()
     model = str(v.get("model", "")).lower()
+    vin = str(v.get("vin", "")).upper()
+    make = str(v.get("make", "")).lower()
+    model = str(v.get("model", "")).lower()
     trim = str(v.get("trim", "")).lower()
     body = str(v.get("bodyStyle", "")).lower()
     raw = (make + " " + model + " " + trim + " " + body).lower()
+
+    if len(vin) >= 8:
+        vds = vin[3:8]
+        if "A9" in vds or "99" in vds:
+            return "911"
+        if "Y1" in vds:
+            return "Taycan"
+        if "YA" in vds:
+            return "Panamera"
+        if "AY" in vds:
+            return "Cayenne"
+        if "A5" in vds or "XA" in vds:
+            return "Macan"
+        if "98" in vds or "97" in vds:
+            return "718 Boxster" if ("boxster" in raw or "spyder" in raw) else "718 Cayman"
 
     if "cayenne" in raw:
         return "Cayenne"
