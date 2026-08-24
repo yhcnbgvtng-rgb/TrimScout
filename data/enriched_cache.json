@@ -63558,10 +63558,132 @@
       "grossWeightClass": "Class 1C: 4,001 - 5,000 lb (1,814 - 2,268 kg)",
       "brakeSystem": "Hydraulic"
     },
-    "factoryOptions": [],
-    "optionCodes": [],
-    "totalOptionsPrice": 59580,
-    "baseMsrp": 145800,
+    "factoryOptions": [
+      {
+        "code": "P3R",
+        "name": "Premium Package",
+        "price": 5460,
+        "category": "package",
+        "description": "BOSE Surround Sound, Ventilated Seats, Adaptive Cruise (ACC), Lane Change Assist (LCA), Surround View & Ionizer"
+      },
+      {
+        "code": "2D5",
+        "name": "SportDesign Package in High Gloss Black",
+        "price": 5060,
+        "category": "exterior",
+        "description": "Bespoke SportDesign front and rear aprons finished in high gloss black"
+      },
+      {
+        "code": "Q1J",
+        "name": "Adaptive Sport Seats Plus (18-way) with Memory Package",
+        "price": 3600,
+        "category": "interior",
+        "description": "18-way electric adjustment with active memory package and pneumatic bolsters"
+      },
+      {
+        "code": "8LH",
+        "name": "Sport Chrono Package",
+        "price": 2490,
+        "category": "performance",
+        "description": "Analog & digital stopwatch, steering wheel drive-mode switch, and launch control"
+      },
+      {
+        "code": "8JU",
+        "name": "HD-Matrix Design LED Headlights",
+        "price": 1850,
+        "category": "exterior",
+        "description": "High-definition matrix LED lighting technology with individual pixel beam control"
+      },
+      {
+        "code": "9VL",
+        "name": "BOSE® Surround Sound System",
+        "price": 0,
+        "category": "audio",
+        "description": "Included in Premium Package: 12 loudspeakers, 570 watts"
+      },
+      {
+        "code": "4D3",
+        "name": "Ventilated Front Seats",
+        "price": 0,
+        "category": "interior",
+        "description": "Included in Premium Package: Active 3-stage perforated seat cooling"
+      },
+      {
+        "code": "8T3",
+        "name": "Adaptive Cruise Control (ACC)",
+        "price": 0,
+        "category": "tech",
+        "description": "Included in Premium Package: Radar & camera automated speed/distance cruising"
+      },
+      {
+        "code": "7Y1",
+        "name": "Lane Change Assist (LCA)",
+        "price": 0,
+        "category": "tech",
+        "description": "Included in Premium Package: Blind spot radar monitoring in side mirrors"
+      },
+      {
+        "code": "KA6",
+        "name": "Surround View with Active Parking Support",
+        "price": 0,
+        "category": "tech",
+        "description": "Included in Premium Package: 360-degree camera system"
+      },
+      {
+        "code": "0P9",
+        "name": "Sport Exhaust System incl. Tailpipes in Black",
+        "price": 0,
+        "category": "performance",
+        "description": "Dual switchable sport exhaust tailpipes in high gloss black"
+      },
+      {
+        "code": "1N3",
+        "name": "Power Steering Plus",
+        "price": 320,
+        "category": "performance",
+        "description": "Speed-sensitive dynamic steering assist"
+      },
+      {
+        "code": "2PJ",
+        "name": "Heated GT Sport Steering Wheel in Leather",
+        "price": 340,
+        "category": "interior",
+        "description": "Ergonomic leather sport steering wheel with heating element"
+      },
+      {
+        "code": "6FU",
+        "name": "Exterior Mirrors in Exterior Color & High Gloss Black",
+        "price": 680,
+        "category": "exterior",
+        "description": "Lower mirror trims painted in high gloss black and upper housing in Carmine Red"
+      },
+      {
+        "code": "FZ1",
+        "name": "Seat Belts in Bordeaux Red",
+        "price": 560,
+        "category": "interior",
+        "description": "Porsche Exclusive Manufaktur contrast seat belts"
+      }
+    ],
+    "optionCodes": [
+      "P3R",
+      "2D5",
+      "Q1J",
+      "8LH",
+      "8JU",
+      "9VL",
+      "4D3",
+      "8T3",
+      "7Y1",
+      "KA6",
+      "0P9",
+      "1N3",
+      "2PJ",
+      "6FU",
+      "FZ1"
+    ],
+    "totalOptionsPrice": 29630,
+    "baseMsrp": 173400,
     "enrichedAt": "2026-08-24T01:23:05.731Z"
   },
   "WP1AA2A54TLB04533": {

@@ -661,7 +661,7 @@ export const LightsailIntelligence: React.FC = () => {
           const hasCode = codes.includes(selectedOptionCode) || optDefs.some((o) => o.code === selectedOptionCode);
           if (!hasCode) {
             const hay = `${v.model || ""} ${v.trim || ""} ${v.bodyStyle || ""}`.toLowerCase();
-            if (selectedOptionCode === "8LH" && (hay.includes("gts") || hay.includes("gt3") || hay.includes("chrono"))) {
+            if (selectedOptionCode === "8LH" && (hay.includes("gts") || (hay.includes("gt3") && !hay.includes("touring")) || hay.includes("chrono"))) {
               // baseline inclusion
             } else if (selectedOptionCode === "2UH" && (hay.includes("gt3") || hay.includes("lift"))) {
               // baseline inclusion
@@ -675,8 +675,8 @@ export const LightsailIntelligence: React.FC = () => {
               // baseline inclusion
             } else if (selectedOptionCode === "Q1J" && hay.includes("18-way")) {
               // baseline inclusion
-            } else if (selectedOptionCode === "04S" && hay.includes("weissach")) {
-              // baseline inclusion
+            } else if (selectedOptionCode === "04S" && hay.includes("weissach") && (hay.includes("rs") || hay.includes("gt3") || hay.includes("gt4") || hay.includes("turbo gt"))) {
+              // baseline inclusion only for GT RS / Turbo GT models
             } else if (selectedOptionCode === "04H" && hay.includes("heritage")) {
               // baseline inclusion
             } else {
