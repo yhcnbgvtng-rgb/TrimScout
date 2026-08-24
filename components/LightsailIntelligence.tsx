@@ -1927,18 +1927,6 @@ export const LightsailIntelligence: React.FC = () => {
                       {aiStickerData.note}
                     </div>
                   )}
-                  {aiStickerData.standardEquipment?.length > 0 && (
-                    <div className="space-y-1.5">
-                      <div className="text-[10px] uppercase text-ink-faint font-bold">
-                        Typical Equipment for This Trim
-                      </div>
-                      {aiStickerData.standardEquipment.map((eq: string, i: number) => (
-                        <div key={i} className="text-[11px] text-ink-light rounded-lg bg-surface-elevated border border-border px-2.5 py-1.5">
-                          {eq}
-                        </div>
-                      ))}
-                    </div>
-                  )}
                 </>
               ) : (
                 <div className="text-[11px] text-ink-muted rounded-xl bg-surface-elevated border border-border p-3 text-center">

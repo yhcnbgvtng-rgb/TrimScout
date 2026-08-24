@@ -7,72 +7,6 @@ import { lookupPorscheBaseMsrp } from "@/lib/enrichmentEngine";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-// Standard equipment reference by model. This is genuine, publicly documented
-// Porsche standard equipment per model line — used only as a labeled,
-// trim-typical estimate when no per-VIN build data is available. It must
-// never be presented as this specific car's itemized/priced options list.
-const STANDARD_EQUIPMENT_BY_MODEL: Record<string, string[]> = {
-  Cayenne: [
-    "3.0-liter turbocharged V6 engine (348 hp / 368 lb-ft torque)",
-    "8-speed Tiptronic S automatic transmission with manual shift paddles",
-    "Porsche Traction Management (PTM) active all-wheel drive",
-    "Matrix LED headlights with advanced 4-point daytime running lights",
-    "Porsche Active Suspension Management (PASM)",
-    "Partial leather seating surfaces in embossed grain",
-    "12.3-inch Porsche Communication Management (PCM) with Navigation & Wireless CarPlay",
-    "Wireless smartphone charging tray with active cooling",
-  ],
-  Macan: [
-    "2.0-liter turbocharged inline-4 (261 hp / 295 lb-ft torque)",
-    "7-speed Porsche Doppelkupplung (PDK) transmission",
-    "Porsche Traction Management (PTM) all-wheel drive",
-    "Sport steering wheel with multi-function controls",
-    "LED headlights with Porsche Dynamic Light System (PDLS)",
-    "10.9-inch full HD touch display with Apple CarPlay®",
-  ],
-  Taycan: [
-    "Permanent Magnet Synchronous Motor with Performance Battery",
-    "Two-speed transmission on the rear axle",
-    "Porsche Recuperation Management (PRM) up to 290 kW",
-    "Adaptive air suspension including PASM and Smart Lift",
-    "16.8-inch curved digital instrument cluster",
-    "DC fast charging capability up to 320 kW (800V architecture)",
-  ],
-  "911": [
-    "3.0-liter twin-turbocharged boxer 6 (388 hp / 331 lb-ft torque)",
-    "8-speed Porsche Doppelkupplung (PDK) transmission",
-    "Porsche Stability Management (PSM) with sport mode",
-    "4-piston aluminum monobloc fixed calipers in black",
-    "Two-zone automatic climate control",
-    "PCM with high-resolution 10.9-inch touchscreen display",
-  ],
-};
-
-// Trim-level overrides for 911 variants whose standard equipment differs
-// materially from the base Carrera bucket above (naturally-aspirated GT
-// cars in particular). Checked before falling back to STANDARD_EQUIPMENT_BY_MODEL
-// so a GT3 doesn't get shown turbocharged-Carrera engine specs.
-const STANDARD_EQUIPMENT_911_TRIM_OVERRIDES: { match: RegExp; equipment: string[] }[] = [
-  {
-    match: /gt3|gt2/i,
-    equipment: [
-      "4.0-liter naturally aspirated flat-6 (502 hp / 331 lb-ft torque)",
-      "6-speed manual or 7-speed Porsche Doppelkupplung (PDK) transmission",
-      "Double-wishbone front axle suspension (motorsport-derived)",
-      "PASM Sport suspension, 10mm lower than Carrera",
-      "Michelin Pilot Sport Cup 2 tires",
-      "PCM with 10.9-inch touchscreen display",
-    ],
-  },
-];
-
-function resolveStandardEquipment(modelName: string, trimName?: string): string[] {
-  if (modelName === "911" && trimName) {
-    const override = STANDARD_EQUIPMENT_911_TRIM_OVERRIDES.find((o) => o.match.test(trimName));
-    if (override) return override.equipment;
-  }
-  return STANDARD_EQUIPMENT_BY_MODEL[modelName] || [];
-}
 
 export interface PorscheOptionItem {
   code: string;
@@ -116,9 +50,9 @@ export interface PorscheStickerResponse {
   windowStickerPdfUrl?: string;
   porscheFinderUrl: string;
   // PORSCHE_FINDER_LIVE / AI_PARSED_WINDOW_STICKER = real, per-VIN data.
-  // TRIM_TYPICAL_ESTIMATE = no per-VIN build data was available; installedOptions
-  // is empty and standardEquipment reflects the trim in general, not this car.
-  dataSource: "PORSCHE_FINDER_LIVE" | "AI_PARSED_WINDOW_STICKER" | "TRIM_TYPICAL_ESTIMATE";
+  // NOT_VERIFIED = no per-VIN build data was available; installedOptions and
+  // standardEquipment are both empty rather than guessed or filled in.
+  dataSource: "PORSCHE_FINDER_LIVE" | "AI_PARSED_WINDOW_STICKER" | "NOT_VERIFIED";
   isEstimate: boolean;
   note?: string;
 }
@@ -303,12 +237,6 @@ export async function GET(request: Request) {
       ? "Leipzig, Germany"
       : "Stuttgart-Zuffenhausen, Germany";
 
-    // Only surface equipment text for models we actually have a catalog entry
-    // for. Falling back to another model's spec sheet (e.g. showing 911
-    // boxer-6/PDK text for a Panamera) would be the exact kind of wrong-car
-    // data this endpoint exists to avoid.
-    const stdEquip = resolveStandardEquipment(modelName, trimName);
-
     return NextResponse.json({
       success: true,
       vin: rawVin,
@@ -338,12 +266,12 @@ export async function GET(request: Request) {
           : undefined),
       plantOrigin,
       installedOptions: [],
-      standardEquipment: stdEquip,
+      standardEquipment: [],
       windowStickerPdfUrl: directPdfUrl,
       porscheFinderUrl,
-      dataSource: "TRIM_TYPICAL_ESTIMATE",
+      dataSource: "NOT_VERIFIED",
       isEstimate: true,
-      note: "Specific factory-installed options could not be verified for this VIN. Showing equipment typical for this trim — not this car's actual build. Paste the real window sticker text below for a verified, itemized list.",
+      note: "Factory-installed options and equipment could not be verified for this VIN. Paste the real window sticker text below for a verified, itemized list.",
     });
   } catch (err: any) {
     console.error("Porsche window sticker extraction failed:", err);
