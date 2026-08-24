@@ -35,6 +35,57 @@ function cleanString(val) {
     return str === '' || str === 'null' ? null : str;
 }
 
+// Extracts the real "Included Packages & Options" section from a Dealer.com
+// DDC.dataLayer vehicle record — genuine, itemized, per-VIN data as
+// published on the dealer's own VDP. Not a guess: if the dealer didn't
+// list it, it isn't included here.
+function extractDealerListedOptions(raw) {
+    const items = [];
+    if (!Array.isArray(raw.packages)) return items;
+
+    for (const pkg of raw.packages) {
+        // Dealer.com dumps the vehicle's entire baseline standard-equipment
+        // catalog (power windows, ABS, cupholders...) into an unnamed
+        // bucket (packageName "null", id -1) alongside real add-on
+        // packages. That bucket isn't "Included Packages & Options" in any
+        // meaningful sense — every car has it — so skip it entirely rather
+        // than flooding the options filter with universal baseline features.
+        if (!pkg.packageName || pkg.packageName === 'null') continue;
+
+        items.push({
+            code: `PKG-${pkg.id ?? pkg.packageName}`,
+            name: pkg.packageName,
+            price: typeof pkg.msrp === 'number' ? pkg.msrp : 0,
+            category: 'package',
+        });
+
+        const optionList = Array.isArray(pkg.includedOptionList)
+            ? pkg.includedOptionList
+            : Array.isArray(pkg.includedOptions)
+            ? pkg.includedOptions
+            : [];
+
+        for (const opt of optionList) {
+            const description = opt.textMap && opt.textMap.description;
+            if (!description) continue;
+            items.push({
+                code: opt.textMap.id ? `OPT-${opt.textMap.id}` : 'OPT',
+                name: description,
+                price: typeof opt.msrPrice === 'number' ? opt.msrPrice : 0,
+                category: 'option',
+            });
+        }
+    }
+
+    const seen = new Set();
+    return items.filter((item) => {
+        const key = `${item.code}|${item.name}`;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+    });
+}
+
 async function safeFetch(url, timeoutMs = 7000) {
     return Promise.race([
         gotScraping({
@@ -195,6 +246,7 @@ for (let i = 0; i < dealers.length; i++) {
                                 interiorColor: cleanString(raw.interiorColor),
                                 engine: cleanString(raw.engine),
                                 transmission: cleanString(raw.transmission),
+                                dealerListedOptions: extractDealerListedOptions(raw),
                                 url,
                             };
                         }

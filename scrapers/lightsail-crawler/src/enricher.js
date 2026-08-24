@@ -93,54 +93,6 @@ export const PORSCHE_BASE_MSRP = {
 };
 
 // Master Porsche Factory Options Catalog
-export const PORSCHE_OPTION_DEFINITIONS = {
-  // Performance
-  "8LH": { code: "8LH", name: "Sport Chrono Package with Mode Switch", price: 2790, category: "performance", description: "Analog/digital stopwatch on dashboard, steering wheel drive-mode dial, launch control & dynamic mounts" },
-  "2UH": { code: "2UH", name: "Front Axle Lift System", price: 2770, category: "performance", description: "Electro-hydraulic front suspension lift adding ~40mm ground clearance at low speeds" },
-  "0P8": { code: "0P8", name: "Sport Exhaust System with Silver Tailpipes", price: 2950, category: "performance", description: "Dual stainless-steel sport exhaust system with switchable sound valves" },
-  "0P9": { code: "0P9", name: "Sport Exhaust System with Black Tailpipes", price: 2950, category: "performance", description: "Dual stainless-steel sport exhaust system with switchable sound valves in high gloss black" },
-  "1LX": { code: "1LX", name: "Porsche Ceramic Composite Brakes (PCCB)", price: 9650, category: "performance", description: "410mm carbon-fiber reinforced ceramic brake discs with 6-piston monobloc calipers" },
-  "1BV": { code: "1BV", name: "PASM Sport Suspension (-10mm)", price: 1020, category: "performance", description: "Stiffer sport dampers, shorter springs, and aerodynamically optimized front lip" },
-  "0N5": { code: "0N5", name: "Rear-Axle Steering", price: 2090, category: "performance", description: "Active rear-wheel steering for sharper turning radius at low speeds and high-speed stability" },
-  "1P7": { code: "1P7", name: "Porsche Dynamic Chassis Control Sport (PDCC)", price: 3170, category: "performance", description: "Active electromechanical roll stabilization system for flat cornering" },
-  
-  // Audio & Tech
-  "9VJ": { code: "9VJ", name: "Burmester® High-End 3D Surround Sound", price: 5560, category: "audio", description: "13 individually controlled loudspeakers, 855 watts, ribbon tweeters & active subwoofer" },
-  "9VL": { code: "9VL", name: "BOSE® Surround Sound System", price: 1600, category: "audio", description: "12 loudspeakers with 570 watts of output and AudioPilot noise compensation" },
-  "KA6": { code: "KA6", name: "Surround View with Active Parking Support", price: 1430, category: "tech", description: "360-degree overhead camera view with automated parking assistance" },
-  "7Y1": { code: "7Y1", name: "Lane Change Assist (LCA)", price: 1060, category: "tech", description: "Radar-based blind-spot monitoring" },
-  "8T3": { code: "8T3", name: "Adaptive Cruise Control (ACC)", price: 2000, category: "tech", description: "Radar and camera-based distance control" },
-  "8JU": { code: "8JU", name: "HD-Matrix LED Headlights in Black", price: 4050, category: "exterior", description: "32,000 individually controllable pixels per headlight with dynamic high-beam masking" },
-
-  // Interior & Comfort
-  "Q1J": { code: "Q1J", name: "Adaptive Sports Seats Plus (18-Way) with Memory", price: 3030, category: "interior", description: "Power adjustable side bolsters, lumbar support, and dual-driver memory presets" },
-  "Q4Q": { code: "Q4Q", name: "Full Bucket Carbon Fiber Racing Seats", price: 5900, category: "interior", description: "Lightweight carbon-fiber reinforced plastic (CFRP) shell seats with integrated thorax airbags" },
-  "4D3": { code: "4D3", name: "Ventilated Front Seats", price: 840, category: "interior", description: "Three-stage active seat cooling for driver and front passenger" },
-  "2PJ": { code: "2PJ", name: "Heated GT Sport Steering Wheel in Leather", price: 590, category: "interior", description: "Ergonomic sport wheel with integrated multifunction controls" },
-  "3FE": { code: "3FE", name: "Electric Slide/Tilt Glass Sunroof", price: 2000, category: "exterior", description: "Tinted laminated safety glass slide/tilt roof with integrated wind deflector" },
-  "5TX": { code: "5TX", name: "Extended Carbon Fiber Interior Package", price: 3970, category: "interior", description: "High-gloss carbon fiber dashboard trim, door panels, and center console" },
-  "FZ1": { code: "FZ1", name: "Guards Red Seat Belts", price: 540, category: "interior", description: "Contrast safety belts in authentic Porsche Guards Red" }
-};
-
-// Keyword mapping for detecting options from dealer description & packages
-const KEYWORD_MAP = [
-  { regex: /sport chrono/i, code: "8LH" },
-  { regex: /front axle lift|axle lift/i, code: "2UH" },
-  { regex: /sport exhaust/i, code: "0P9" },
-  { regex: /pccb|ceramic composite|ceramic brake/i, code: "1LX" },
-  { regex: /burmester/i, code: "9VJ" },
-  { regex: /bose/i, code: "9VL" },
-  { regex: /18-way|adaptive sport seat/i, code: "Q1J" },
-  { regex: /bucket seat|full bucket/i, code: "Q4Q" },
-  { regex: /rear-axle steering|rear axle steer/i, code: "0N5" },
-  { regex: /pasm sport|pasm suspension/i, code: "1BV" },
-  { regex: /pdcc|chassis control/i, code: "1P7" },
-  { regex: /surround view|360 camera/i, code: "KA6" },
-  { regex: /matrix led|matrix headlight/i, code: "8JU" },
-  { regex: /glass sunroof|sunroof in glass/i, code: "3FE" },
-  { regex: /ventilated seat|seat ventilation/i, code: "4D3" }
-];
-
 export async function fetchNhtsaSpec(vin, vehicleContext = {}) {
   const isEv = /taycan|electric/i.test(`${vehicleContext.model || ''} ${vehicleContext.trim || ''} ${vehicleContext.bodyStyle || ''}`);
   
@@ -216,52 +168,19 @@ export function lookupPorscheBaseMsrp(vehicle) {
   return 100000;
 }
 
-export function detectFactoryOptions(vehicle) {
-  const hay = `${vehicle.model || ''} ${vehicle.trim || ''} ${vehicle.bodyStyle || ''} ${vehicle.url || ''}`.toLowerCase();
-  const options = [];
-  const foundCodes = new Set();
-
-  for (const { regex, code } of KEYWORD_MAP) {
-    if (regex.test(hay) && !foundCodes.has(code)) {
-      foundCodes.add(code);
-      options.push(PORSCHE_OPTION_DEFINITIONS[code]);
-    }
-  }
-
-  // Model-specific baseline packages for high-trim 911/GTS/Turbo
-  const isGts = /gts/i.test(hay);
-  const isTurbo = /turbo/i.test(hay);
-  const isGt3 = /gt3/i.test(hay);
-
-  if (isGts && !foundCodes.has("8LH")) {
-    foundCodes.add("8LH");
-    options.push(PORSCHE_OPTION_DEFINITIONS["8LH"]);
-  }
-  if (isGts && !foundCodes.has("0P9")) {
-    foundCodes.add("0P9");
-    options.push(PORSCHE_OPTION_DEFINITIONS["0P9"]);
-  }
-  if (isTurbo && !foundCodes.has("0N5")) {
-    foundCodes.add("0N5");
-    options.push(PORSCHE_OPTION_DEFINITIONS["0N5"]);
-  }
-  if (isGt3 && !foundCodes.has("2UH")) {
-    foundCodes.add("2UH");
-    options.push(PORSCHE_OPTION_DEFINITIONS["2UH"]);
-  }
-  if (isGt3 && !foundCodes.has("8LH")) {
-    foundCodes.add("8LH");
-    options.push(PORSCHE_OPTION_DEFINITIONS["8LH"]);
-  }
-
+// Resolves factory options strictly from what the crawler actually scraped
+// off this vehicle's own VDP ("Included Packages & Options" — real,
+// itemized, per-VIN data pulled from the dealer's Dealer.com data layer).
+// No keyword guessing, no model/trim-based inference: if the dealer page
+// didn't publish it, it's not included.
+export function resolveFactoryOptions(vehicle) {
+  const real = Array.isArray(vehicle.dealerListedOptions) ? vehicle.dealerListedOptions : [];
   const baseMsrp = lookupPorscheBaseMsrp(vehicle);
-  const detectedSum = options.reduce((sum, opt) => sum + opt.price, 0);
-  const priceDelta = vehicle.price ? Math.max(0, vehicle.price - baseMsrp) : 0;
-  const totalOptionsPrice = Math.max(detectedSum, priceDelta);
+  const totalOptionsPrice = real.reduce((sum, opt) => sum + (opt.price || 0), 0);
 
   return {
-    options,
-    optionCodes: Array.from(foundCodes),
+    options: real,
+    optionCodes: real.map((opt) => opt.code),
     totalOptionsPrice,
     baseMsrp
   };
@@ -303,14 +222,27 @@ export async function runEnrichmentPipeline(limit = Infinity) {
     const isEv = /taycan|electric/i.test(`${v.model || ''} ${v.trim || ''}`);
     const cached = cache[v.vin];
 
+    // factoryOptions is always recomputed fresh from this run's scraped
+    // dealerListedOptions, never trusted from cache — the cache predates
+    // real per-VIN option scraping and would otherwise silently resurrect
+    // the old guessed data. Only the (expensive, network-bound) NHTSA
+    // lookup is cached.
+    const optionData = resolveFactoryOptions(v);
+
     if (cached && cached.nhtsa && (!isEv || cached.nhtsa.engineCylinders === 0)) {
       cacheHits++;
-      Object.assign(v, cached);
+      Object.assign(v, {
+        nhtsa: cached.nhtsa,
+        factoryOptions: optionData.options,
+        optionCodes: optionData.optionCodes,
+        totalOptionsPrice: optionData.totalOptionsPrice,
+        baseMsrp: optionData.baseMsrp,
+        enrichedAt: cached.enrichedAt,
+      });
       continue;
     }
 
     const progress = `[${i + 1}/${targetVehicles.length}]`;
-    const optionData = detectFactoryOptions(v);
     const nhtsaData = await fetchNhtsaSpec(v.vin, v);
 
     const enrichment = {
