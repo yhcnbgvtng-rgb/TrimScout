@@ -1720,7 +1720,7 @@ export const LightsailIntelligence: React.FC = () => {
       )}
 
       {/* ==================================================== */}
-      {/* 5. MONRONEY FACTORY WINDOW STICKER SPEC SHEET MODAL */}
+      {/* 5. OFFICIAL PORSCHE FACTORY WINDOW STICKER SPEC SHEET MODAL */}
       {/* ==================================================== */}
       {selectedVehicleForModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4 animate-fadeIn">
@@ -1889,7 +1889,7 @@ export const LightsailIntelligence: React.FC = () => {
               </div>
             </div>
 
-            {/* Financial Monroney Price Summary */}
+            {/* Porsche Factory Window Sticker Financial Summary */}
             <div className="rounded-2xl border border-border bg-gradient-to-r from-surface-elevated to-surface p-4 space-y-2 text-xs">
               <div className="flex justify-between text-ink-muted">
                 <span>Base Model MSRP:</span>
@@ -1908,7 +1908,7 @@ export const LightsailIntelligence: React.FC = () => {
                 <span className="font-mono font-bold text-white">+$1,650</span>
               </div>
               <div className="flex justify-between text-sm font-black text-white border-t border-border pt-2">
-                <span>Total Monroney Window Sticker MSRP:</span>
+                <span>Total Porsche Window Sticker MSRP:</span>
                 <span className="font-mono text-emerald-400 text-base">
                   {selectedVehicleForModal.price
                     ? `$${selectedVehicleForModal.price.toLocaleString()}`
