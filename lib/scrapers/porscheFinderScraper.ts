@@ -168,6 +168,22 @@ export const PORSCHE_FACTORY_OPTIONS_CATALOG: Record<string, PorscheOptionDefini
 
 export const PORSCHE_DEALERS_REGISTRY = [
   {
+    name: "Paul Miller Porsche",
+    domain: "paulmillerporsche.com",
+    city: "Parsippany",
+    state: "NJ",
+    zip: "07054",
+    distanceMiles: 8,
+  },
+  {
+    name: "Champion Porsche",
+    domain: "champion-porsche.com",
+    city: "Pompano Beach",
+    state: "FL",
+    zip: "33064",
+    distanceMiles: 1100,
+  },
+  {
     name: "Porsche Redwood City",
     domain: "porscheredwoodcity.com",
     city: "Redwood City",

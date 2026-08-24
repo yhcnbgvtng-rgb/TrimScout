@@ -147,6 +147,18 @@ function resolveDirectDealerUrl(
   if (norm.includes("toyota of berkeley") || (norm.includes("berkeley") && norm.includes("toyota"))) {
     return `https://www.toyotaofberkeley.com/new-inventory/index.htm?search=${vin}`;
   }
+  if (norm.includes("paul miller") && norm.includes("porsche")) {
+    return `https://www.paulmillerporsche.com/new-inventory/index.htm?search=${vin}`;
+  }
+  if (norm.includes("champion") && norm.includes("porsche")) {
+    return `https://www.champion-porsche.com/new-inventory/index.htm?search=${vin}`;
+  }
+  if (norm.includes("porsche") && norm.includes("brooklyn")) {
+    return `https://www.porschebrooklyn.com/new-inventory/index.htm?search=${vin}`;
+  }
+  if (norm.includes("porsche") && (norm.includes("south shore") || norm.includes("southshore"))) {
+    return `https://www.porschesouthshore.com/new-inventory/index.htm?search=${vin}`;
+  }
   if (norm.includes("porsche") && norm.includes("redwood")) {
     return `https://www.porscheredwoodcity.com/inventory/?q=${vin}`;
   }

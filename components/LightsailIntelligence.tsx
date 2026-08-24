@@ -195,9 +195,16 @@ export const LightsailIntelligence: React.FC = () => {
     // 1. Search term
     if (searchTerm.trim() !== "") {
       const optNames = (v.factoryOptions || []).map((o) => `${o.code} ${o.name}`).join(" ");
-      const haystack = `${v.vin} ${v.year} ${v.make} ${v.model} ${v.trim || ""} ${v.bodyStyle || ""} ${v.dealerName} ${v.city || ""} ${v.state} ${v.exteriorColor || ""} ${optNames}`.toLowerCase();
+      const textHaystack = `${v.year} ${v.make} ${v.model} ${v.trim || ""} ${v.bodyStyle || ""} ${v.dealerName} ${v.city || ""} ${v.state} ${v.exteriorColor || ""} ${optNames}`.toLowerCase();
+      const vinLower = (v.vin || "").toLowerCase();
       const tokens = searchTerm.toLowerCase().split(/\s+/).filter(Boolean);
-      if (!tokens.every((t) => haystack.includes(t))) return false;
+      const matchesAllTokens = tokens.every((t) => {
+        if (textHaystack.includes(t)) return true;
+        if (t.length >= 6 && vinLower.includes(t)) return true;
+        if (t === vinLower) return true;
+        return false;
+      });
+      if (!matchesAllTokens) return false;
     }
 
     // 2. Model Series
