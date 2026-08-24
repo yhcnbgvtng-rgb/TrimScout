@@ -52,9 +52,9 @@ export async function GET(request: Request) {
               make: values[5] || "Porsche",
               model: values[6]?.replace(/^"|"$/g, "") || "",
               trim: values[7]?.replace(/^"|"$/g, "") || "",
-              price: parseFloat(values[8]) || null,
-              oldPrice: parseFloat(values[9]) || null,
-              priceDiff: parseFloat(values[10]) || 0,
+              price: (parseFloat(values[8]) > 0 && parseFloat(values[8]) < 5000000 && parseFloat(values[8]) !== 2147483647) ? parseFloat(values[8]) : null,
+              oldPrice: (parseFloat(values[9]) > 0 && parseFloat(values[9]) < 5000000 && parseFloat(values[9]) !== 2147483647) ? parseFloat(values[9]) : null,
+              priceDiff: (parseFloat(values[10]) && Math.abs(parseFloat(values[10])) < 5000000) ? parseFloat(values[10]) : 0,
               mileage: parseFloat(values[11]) || 0,
               status: values[12] || "ACTIVE",
               changeType: values[13] || "UNCHANGED",
@@ -214,22 +214,25 @@ export async function GET(request: Request) {
     const staleInventory = liveData.filter((v: any) => (v.daysOnLot || 0) >= 45);
 
     // Dealer aggregation
-    const dealerBreakdown: Record<string, { count: number; state: string; avgPrice: number; priceDropsCount: number }> = {};
+    const dealerBreakdown: Record<string, { count: number; pricedCount: number; state: string; totalPrice: number; avgPrice: number; priceDropsCount: number }> = {};
     liveData.forEach((v: any) => {
       const dName = v.dealerName || "Other";
       if (!dealerBreakdown[dName]) {
-        dealerBreakdown[dName] = { count: 0, state: v.state || "US", avgPrice: 0, priceDropsCount: 0 };
+        dealerBreakdown[dName] = { count: 0, pricedCount: 0, state: v.state || "US", totalPrice: 0, avgPrice: 0, priceDropsCount: 0 };
       }
       dealerBreakdown[dName].count++;
-      if (v.price) dealerBreakdown[dName].avgPrice += v.price;
+      if (v.price && v.price > 0 && v.price < 5000000) {
+        dealerBreakdown[dName].totalPrice += v.price;
+        dealerBreakdown[dName].pricedCount++;
+      }
       if (v.changeType === "PRICE_DROP" || v.priceDiff < 0) {
         dealerBreakdown[dName].priceDropsCount++;
       }
     });
 
     Object.keys(dealerBreakdown).forEach((d) => {
-      if (dealerBreakdown[d].count > 0) {
-        dealerBreakdown[d].avgPrice = Math.round(dealerBreakdown[d].avgPrice / dealerBreakdown[d].count);
+      if (dealerBreakdown[d].pricedCount > 0) {
+        dealerBreakdown[d].avgPrice = Math.round(dealerBreakdown[d].totalPrice / dealerBreakdown[d].pricedCount);
       }
     });
 
