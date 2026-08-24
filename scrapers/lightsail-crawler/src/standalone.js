@@ -320,6 +320,18 @@ for (let i = 0; i < dealers.length; i++) {
         erroredDealersCount++;
         console.error(`${progress} ❌ Error crawling ${dealer.name}: ${err.message}`);
     }
+
+    // Checkpoint after every dealer. A full nationwide run can take hours;
+    // without this, a stall or crash partway through loses everything —
+    // the real output files only get written after the whole loop finishes.
+    try {
+        fs.writeFileSync(
+            path.join(DATA_DIR, 'checkpoint_raw_inventory.json'),
+            JSON.stringify(Array.from(currentInventory.values()), null, 2)
+        );
+    } catch (checkpointErr) {
+        console.error(`⚠️ Checkpoint write failed: ${checkpointErr.message}`);
+    }
 }
 
 console.log(`\n🎉 Nationwide Crawl Complete!`);

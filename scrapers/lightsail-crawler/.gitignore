@@ -3,3 +3,4 @@ storage
 .idea
 .vscode
 .DS_Store
+data/checkpoint_raw_inventory.json
