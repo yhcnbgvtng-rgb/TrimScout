@@ -1245,8 +1245,90 @@
       "grossWeightClass": "Class 2E: 6,001 - 7,000 lb (2,722 - 3,175 kg)",
       "brakeSystem": "Hydraulic"
     },
-    "factoryOptions": [],
-    "optionCodes": [],
+    "factoryOptions": [
+      {
+        "code": "P3R",
+        "name": "Premium Package Plus",
+        "price": 6940,
+        "category": "package",
+        "description": "Panoramic Roof System, 14-Way Power Seats, Heated Front & Rear Seats, Ventilated Front Seats, 4-Zone Climate Control, Ambient Lighting"
+      },
+      {
+        "code": "P3P",
+        "name": "Technology Package",
+        "price": 3860,
+        "category": "tech",
+        "description": "Passenger Display, Head-Up Display, Night Vision Assist & Porsche InnoDrive"
+      },
+      {
+        "code": "46S",
+        "name": "21\" RS Spyder Design Wheels",
+        "price": 2810,
+        "category": "exterior",
+        "description": "Multi-spoke lightweight alloy wheels in RS Spyder motorsport design"
+      },
+      {
+        "code": "9VL",
+        "name": "BOSE® Surround Sound System",
+        "price": 0,
+        "category": "audio",
+        "description": "Included in Premium Package: 14 loudspeakers, 710 watts"
+      },
+      {
+        "code": "KA6",
+        "name": "Surround View with Active Parking Support",
+        "price": 0,
+        "category": "tech",
+        "description": "Included in Premium Package: 360-degree overhead parking camera"
+      },
+      {
+        "code": "4D3",
+        "name": "Ventilated Front Seats",
+        "price": 0,
+        "category": "interior",
+        "description": "Included in Premium Package: 3-stage active seat cooling"
+      },
+      {
+        "code": "Q2J",
+        "name": "Power Seats (14-way) with Comfort Memory",
+        "price": 0,
+        "category": "interior",
+        "description": "Included in Premium Package: 14-way electric adjustment with memory"
+      },
+      {
+        "code": "2PJ",
+        "name": "Heated GT Sport Steering Wheel",
+        "price": 340,
+        "category": "interior",
+        "description": "Ergonomic leather sport steering wheel with heating element"
+      },
+      {
+        "code": "P60",
+        "name": "Lane Keep Assist (LKA) incl. Traffic Sign Recognition",
+        "price": 0,
+        "category": "tech",
+        "description": "Active steering lane keeping assistance"
+      },
+      {
+        "code": "1BK",
+        "name": "Adaptive Air Suspension incl. PASM",
+        "price": 2390,
+        "category": "performance",
+        "description": "Electronic active damping air suspension with selectable ride height"
+      }
+    ],
+    "optionCodes": [
+      "P3R",
+      "P3P",
+      "46S",
+      "9VL",
+      "KA6",
+      "4D3",
+      "Q2J",
+      "2PJ",
+      "P60",
+      "1BK"
+    ],
     "totalOptionsPrice": 34050,
     "baseMsrp": 79200,
     "enrichedAt": "2026-08-24T01:23:05.764Z"

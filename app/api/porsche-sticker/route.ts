@@ -196,193 +196,117 @@ export async function GET(request: Request) {
       });
     }
 
-    // 2. High-fidelity specific VIN Build Sheet Resolution
-    const isGT3 = rawVin.includes("A97") || rawVin.includes("A98") || rawVin === "WP0AC2A97TS290962";
-    const baseMsrp = isGT3 ? 222500 : 120100;
-    const totalMsrp = isGT3 ? 322450 : 142000;
-    const totalOptionsPrice = Math.max(0, totalMsrp - baseMsrp - 1650);
+    // 2. High-fidelity specific VIN Build Sheet Resolution from master inventory
+    const fs = await import("fs");
+    const path = await import("path");
+    
+    let vehicleRecord: any = null;
+    try {
+      const invPath = path.join(process.cwd(), "data", "lightsail_inventory.json");
+      if (fs.existsSync(invPath)) {
+        const inv = JSON.parse(fs.readFileSync(invPath, "utf-8"));
+        vehicleRecord = inv.find((x: any) => x.vin === rawVin);
+      }
+    } catch {
+      // ignore
+    }
 
-    const detailedGT3Options: PorscheOptionItem[] = [
-      {
-        code: "04S",
-        name: "Weissach Package",
-        price: 33520,
-        category: "performance",
-        description: "Carbon fiber anti-roll bars, CFRP roof, exposed carbon mirrors, and lightweight chassis components",
-      },
-      {
-        code: "1LX",
-        name: "Porsche Ceramic Composite Brakes (PCCB) in Yellow",
-        price: 9210,
-        category: "performance",
-        description: "410mm carbon-fiber reinforced ceramic discs with 6-piston yellow monobloc calipers",
-      },
-      {
-        code: "Q1K",
-        name: "Full Bucket Carbon Fiber Racing Seats",
-        price: 5900,
-        category: "interior",
-        description: "Lightweight carbon-fiber reinforced plastic (CFRP) shell seats with integrated thorax airbags",
-      },
-      {
-        code: "8JU",
-        name: "HD-Matrix LED Headlights in Black with PDLS+",
-        price: 4010,
-        category: "exterior",
-        description: "32,000 individually controllable pixels per headlight with dynamic cornering light",
-      },
-      {
-        code: "3FF",
-        name: "Carbon Fiber Lightweight Roof",
-        price: 3890,
-        category: "exterior",
-        description: "Contoured lightweight carbon fiber reinforced plastic (CFRP) roof",
-      },
-      {
-        code: "8LH",
-        name: "Chrono Package with Preparation for Lap Trigger",
-        price: 2790,
-        category: "performance",
-        description: "Analog stopwatch on dashboard, steering wheel mode switch & Porsche Track Precision App",
-      },
-      {
-        code: "2UH",
-        name: "Front Axle Lift System",
-        price: 2770,
-        category: "performance",
-        description: "Electro-hydraulic front suspension lift adding ~40mm ground clearance at low speeds",
-      },
-      {
-        code: "5TX",
-        name: "Interior Trim in Matte Carbon Fiber",
-        price: 1600,
-        category: "interior",
-        description: "Dashboard trim, door panels, and center console in high gloss carbon fiber",
-      },
-      {
-        code: "9VL",
-        name: "BOSE® Surround Sound System",
-        price: 1600,
-        category: "audio",
-        description: "12 loudspeakers with 570 watts of output and AudioPilot noise compensation",
-      },
-      {
-        code: "6FP",
-        name: "Carbon Fiber Exterior Mirror Upper Trims",
-        price: 1630,
-        category: "exterior",
-        description: "Exterior mirror upper shells in carbon fiber finish",
-      },
-      {
-        code: "KA6",
-        name: "Surround View 3D Camera System",
-        price: 1430,
-        category: "tech",
-        description: "360-degree overhead vehicle perspective with active curb-view guidelines",
-      },
-      {
-        code: "8VH",
-        name: "Exclusive Design Taillights",
-        price: 990,
-        category: "exterior",
-        description: "Bespoke clear taillight lenses with dark housing",
-      },
-      {
-        code: "1H1H",
-        name: "Vanadium Grey Metallic Exterior Paint",
-        price: 840,
-        category: "exterior",
-        description: "Porsche Exclusive Manufaktur metallic finish",
-      },
-      {
-        code: "P14",
-        name: "Auto-Dimming Mirrors with Integrated Rain Sensor",
-        price: 700,
-        category: "tech",
-        description: "Automatic anti-glare interior and exterior side mirrors",
-      },
-      {
-        code: "FZ1",
-        name: "Seat Belts in Guards Red",
-        price: 540,
-        category: "interior",
-        description: "Porsche Exclusive Manufaktur colored safety belts",
-      },
-      {
-        code: "3J7",
-        name: "Porsche Crest on Headrests",
-        price: 290,
-        category: "interior",
-        description: "Embossed Porsche crest on head restraints",
-      },
-      {
-        code: "0I2",
-        name: "Extended Range Fuel Tank (23.7 gal)",
-        price: 230,
-        category: "performance",
-        description: "High-capacity fuel tank for extended track range",
-      },
-      {
-        code: "UD1",
-        name: "Under-Door Puddle Light Projectors",
-        price: 160,
-        category: "exterior",
-        description: "LED Porsche logo projection on pavement when doors open",
-      },
-      {
-        code: "MANUFAKTUR",
-        name: "Porsche Exclusive Manufaktur Extended Leather & Stitching Package",
-        price: 28270,
-        category: "interior",
-        description: "Full bespoke interior with contrast leather dashboard, steering column, sun visors & door sills",
-      },
-    ];
+    const modelName = vehicleRecord?.model || (rawVin.includes("WP1") ? "Cayenne" : "911");
+    const trimName = vehicleRecord?.trim || (modelName === "Cayenne" ? "Base" : "Carrera");
+    const year = vehicleRecord?.year || 2026;
+    const baseMsrp = vehicleRecord?.baseMsrp || (modelName === "Cayenne" ? 79200 : 120100);
+    const totalMsrp = vehicleRecord?.price || vehicleRecord?.msrp || (baseMsrp + (vehicleRecord?.totalOptionsPrice || 0) + 1650);
+    const totalOptionsPrice = vehicleRecord?.totalOptionsPrice || Math.max(0, totalMsrp - baseMsrp - 1650);
+    const plantOrigin = vehicleRecord?.nhtsa?.plantCity
+      ? `${vehicleRecord.nhtsa.plantCity}, ${vehicleRecord.nhtsa.plantCountry}`
+      : modelName === "Cayenne"
+      ? "Bratislava, Slovakia"
+      : modelName === "Macan" || modelName === "Panamera"
+      ? "Leipzig, Germany"
+      : "Stuttgart-Zuffenhausen, Germany";
 
-    const standardEquipment = [
-      "4.0-liter naturally aspirated boxer 6 (502 hp / 331 lb-ft @ 9,000 RPM)",
-      "6-Speed GT Sports Manual Transmission with Auto-Blip Function",
-      "Double-wishbone front axle with integrated helper springs",
-      "Rear-axle steering with sport tuning",
-      "Porsche Active Suspension Management (PASM) with -20mm sport damping",
-      "Porsche Torque Vectoring (PTV) with mechanical limited-slip differential",
-      "Lightweight stainless steel sport exhaust system with dual central tailpipes",
-      "Auto-deploying rear wing with swan-neck mountings in lightweight CFRP",
-      "Porsche Communication Management (PCM) with 10.9-inch HD touchscreen",
-    ];
+    const verifiedOptions: PorscheOptionItem[] = (vehicleRecord?.factoryOptions || []).map((o: any) => ({
+      code: o.code || "OPT",
+      name: o.name || "Factory Option",
+      price: o.price || 0,
+      category: o.category || "option",
+      description: o.description || "",
+    }));
+
+    const standardEquipmentByModel: Record<string, string[]> = {
+      Cayenne: [
+        "3.0-liter turbocharged V6 engine (348 hp / 368 lb-ft torque)",
+        "8-speed Tiptronic S automatic transmission with manual shift paddles",
+        "Porsche Traction Management (PTM) active all-wheel drive",
+        "Matrix LED headlights with advanced 4-point daytime running lights",
+        "Porsche Active Suspension Management (PASM)",
+        "Partial leather seating surfaces in embossed grain",
+        "12.3-inch Porsche Communication Management (PCM) with Navigation & Wireless CarPlay",
+        "Wireless smartphone charging tray with active cooling",
+      ],
+      Macan: [
+        "2.0-liter turbocharged inline-4 (261 hp / 295 lb-ft torque)",
+        "7-speed Porsche Doppelkupplung (PDK) transmission",
+        "Porsche Traction Management (PTM) all-wheel drive",
+        "Sport steering wheel with multi-function controls",
+        "LED headlights with Porsche Dynamic Light System (PDLS)",
+        "10.9-inch full HD touch display with Apple CarPlay®",
+      ],
+      Taycan: [
+        "Permanent Magnet Synchronous Motor with Performance Battery",
+        "Two-speed transmission on the rear axle",
+        "Porsche Recuperation Management (PRM) up to 290 kW",
+        "Adaptive air suspension including PASM and Smart Lift",
+        "16.8-inch curved digital instrument cluster",
+        "DC fast charging capability up to 320 kW (800V architecture)",
+      ],
+      "911": [
+        "3.0-liter twin-turbocharged boxer 6 (388 hp / 331 lb-ft torque)",
+        "8-speed Porsche Doppelkupplung (PDK) transmission",
+        "Porsche Stability Management (PSM) with sport mode",
+        "4-piston aluminum monobloc fixed calipers in black",
+        "Two-zone automatic climate control",
+        "PCM with high-resolution 10.9-inch touchscreen display",
+      ],
+    };
+
+    const stdEquip =
+      standardEquipmentByModel[modelName] ||
+      standardEquipmentByModel["911"];
 
     return NextResponse.json({
       success: true,
       vin: rawVin,
-      year: 2026,
+      year,
       make: "Porsche",
-      model: "911",
-      trim: isGT3 ? "GT3" : "Carrera",
+      model: modelName,
+      trim: trimName,
       baseMsrp,
       totalOptionsPrice,
       deliveryFee: 1650,
       totalMsrp,
       exteriorColor: {
-        code: "1H1H",
-        name: "Vanadium Grey Metallic",
-        price: 840,
+        code: vehicleRecord?.exteriorColor || "",
+        name: vehicleRecord?.exteriorColor || "Factory Exterior Color",
+        price: 0,
       },
       interiorColor: {
-        code: "72",
-        name: "Leather / Race-Tex in Black with GT Silver Stitching",
-        price: 6230,
+        code: vehicleRecord?.interiorColor || "",
+        name: vehicleRecord?.interiorColor || "Standard Interior",
+        price: 0,
       },
-      transmission: "6-Speed GT Sports Manual Transmission",
-      engine: "4.0L Naturally Aspirated Flat-6 (502 HP / 9,000 RPM)",
-      powerHp: 502,
-      torqueLbFt: 331,
-      zeroToSixty: 3.7,
-      topSpeedMph: 199,
-      plantOrigin: "Stuttgart-Zuffenhausen, Baden-Württemberg, Germany",
-      installedOptions: detailedGT3Options,
-      standardEquipment,
+      transmission: vehicleRecord?.transmission || (modelName === "Cayenne" ? "8-Speed Tiptronic S" : "8-Speed PDK"),
+      engine: vehicleRecord?.engine || (modelName === "Cayenne" ? "3.0L Turbocharged V6" : "3.0L Twin-Turbo Flat-6"),
+      powerHp: modelName === "Cayenne" ? 348 : 388,
+      torqueLbFt: modelName === "Cayenne" ? 368 : 331,
+      zeroToSixty: modelName === "Cayenne" ? 5.7 : 4.0,
+      topSpeedMph: modelName === "Cayenne" ? 154 : 182,
+      plantOrigin,
+      installedOptions: verifiedOptions,
+      standardEquipment: stdEquip,
       windowStickerPdfUrl: directPdfUrl,
       porscheFinderUrl,
-      dataSource: "AI_PARSED_WINDOW_STICKER",
+      dataSource: "ENRICHED_DATASET",
     });
   } catch (err: any) {
     console.error("Porsche window sticker extraction failed:", err);

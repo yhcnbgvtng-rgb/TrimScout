@@ -1844,27 +1844,7 @@ export const LightsailIntelligence: React.FC = () => {
               </div>
 
               <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
-                {(aiStickerData?.installedOptions || (selectedVehicleForModal.vin === "WP0AC2A97TS290962" ? [
-                  { code: "04S", name: "Weissach Package", price: 33520, category: "performance", description: "Carbon fiber anti-roll bars, CFRP roof, exposed carbon mirrors, and lightweight chassis components" },
-                  { code: "1LX", name: "Porsche Ceramic Composite Brakes (PCCB) in Yellow", price: 9210, category: "performance", description: "410mm carbon-fiber reinforced ceramic discs with 6-piston yellow monobloc calipers" },
-                  { code: "Q1K", name: "Full Bucket Carbon Fiber Racing Seats", price: 5900, category: "interior", description: "Lightweight carbon-fiber reinforced plastic (CFRP) shell seats with integrated thorax airbags" },
-                  { code: "8JU", name: "HD-Matrix LED Headlights in Black with PDLS+", price: 4010, category: "exterior", description: "32,000 individually controllable pixels per headlight with dynamic cornering light" },
-                  { code: "3FF", name: "Carbon Fiber Lightweight Roof", price: 3890, category: "exterior", description: "Contoured lightweight carbon fiber reinforced plastic (CFRP) roof" },
-                  { code: "8LH", name: "Chrono Package with Preparation for Lap Trigger", price: 2790, category: "performance", description: "Analog stopwatch on dashboard, steering wheel mode switch & Porsche Track Precision App" },
-                  { code: "2UH", name: "Front Axle Lift System", price: 2770, category: "performance", description: "Electro-hydraulic front suspension lift adding ~40mm ground clearance at low speeds" },
-                  { code: "5TX", name: "Interior Trim in Matte Carbon Fiber", price: 1600, category: "interior", description: "Dashboard trim, door panels, and center console in high gloss carbon fiber" },
-                  { code: "9VL", name: "BOSE® Surround Sound System", price: 1600, category: "audio", description: "12 loudspeakers with 570 watts of output and AudioPilot noise compensation" },
-                  { code: "6FP", name: "Carbon Fiber Exterior Mirror Upper Trims", price: 1630, category: "exterior", description: "Exterior mirror upper shells in carbon fiber finish" },
-                  { code: "KA6", name: "Surround View 3D Camera System", price: 1430, category: "tech", description: "360-degree overhead vehicle perspective with active curb-view guidelines" },
-                  { code: "8VH", name: "Exclusive Design Taillights", price: 990, category: "exterior", description: "Bespoke clear taillight lenses with dark housing" },
-                  { code: "1H1H", name: "Vanadium Grey Metallic Exterior Paint", price: 840, category: "exterior", description: "Porsche Exclusive Manufaktur metallic finish" },
-                  { code: "P14", name: "Auto-Dimming Mirrors with Integrated Rain Sensor", price: 700, category: "tech", description: "Automatic anti-glare interior and exterior side mirrors" },
-                  { code: "FZ1", name: "Seat Belts in Guards Red", price: 540, category: "interior", description: "Porsche Exclusive Manufaktur colored safety belts" },
-                  { code: "3J7", name: "Porsche Crest on Headrests", price: 290, category: "interior", description: "Embossed Porsche crest on head restraints" },
-                  { code: "0I2", name: "Extended Range Fuel Tank (23.7 gal)", price: 230, category: "performance", description: "High-capacity fuel tank for extended track range" },
-                  { code: "UD1", name: "Under-Door Puddle Light Projectors", price: 160, category: "exterior", description: "LED Porsche logo projection on pavement when doors open" },
-                  { code: "MANUFAKTUR", name: "Porsche Exclusive Manufaktur Extended Leather & Stitching Package", price: 28270, category: "interior", description: "Full bespoke interior with contrast leather dashboard, steering column, sun visors & door sills" }
-                ] : (selectedVehicleForModal.factoryOptions || []))).map((o: any) => (
+                {(aiStickerData?.installedOptions || selectedVehicleForModal.factoryOptions || []).map((o: any) => (
                   <div
                     key={o.code}
                     className="flex items-center justify-between rounded-xl bg-surface-elevated border border-border p-2.5 text-xs hover:border-border-strong transition-all"
