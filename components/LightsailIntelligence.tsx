@@ -1826,7 +1826,18 @@ export const LightsailIntelligence: React.FC = () => {
                 <span>Copy VIN ({selectedVehicleForModal.vin})</span>
               </button>
 
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
+                <a
+                  href={`https://finder.porsche.com/us/en-US/search?vin=${selectedVehicleForModal.vin}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-surface-elevated hover:bg-surface px-4 py-2 text-xs font-bold text-ink-light hover:text-white transition-all"
+                  title="Search vehicle on official Porsche Finder"
+                >
+                  <ExternalLink className="h-3.5 w-3.5 text-rose-400" />
+                  <span>Porsche Finder Sticker</span>
+                </a>
+
                 <a
                   href={`https://vinanalytics.com/car/${selectedVehicleForModal.vin}`}
                   target="_blank"
