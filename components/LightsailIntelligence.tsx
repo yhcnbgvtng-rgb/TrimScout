@@ -321,17 +321,34 @@ export const LightsailIntelligence: React.FC = () => {
           if (v.year !== parseInt(selectedYear, 10)) return false;
         }
 
-        // 9. Factory Option Filter (Sport Chrono, Front Axle Lift, etc.)
+        // 9. Factory Option Filter (45+ Comprehensive PR Codes)
         if (selectedOptionCode !== "ALL") {
           const codes = v.optionCodes || [];
-          if (!codes.includes(selectedOptionCode)) {
-            const hay = `${v.model || ""} ${v.trim || ""}`.toLowerCase();
-            if (selectedOptionCode === "8LH" && !hay.includes("gts") && !hay.includes("gt3") && !hay.includes("chrono")) return false;
-            if (selectedOptionCode === "2UH" && !hay.includes("gt3") && !hay.includes("lift")) return false;
-            if (selectedOptionCode === "0P9" && !hay.includes("gts") && !hay.includes("exhaust")) return false;
-            if (selectedOptionCode === "1LX" && !hay.includes("ceramic") && !hay.includes("pccb")) return false;
-            if (selectedOptionCode === "9VJ" && !hay.includes("burmester")) return false;
-            if (selectedOptionCode === "Q1J" && !hay.includes("18-way")) return false;
+          const optDefs = v.factoryOptions || [];
+          const hasCode = codes.includes(selectedOptionCode) || optDefs.some((o) => o.code === selectedOptionCode);
+          if (!hasCode) {
+            const hay = `${v.model || ""} ${v.trim || ""} ${v.bodyStyle || ""}`.toLowerCase();
+            if (selectedOptionCode === "8LH" && (hay.includes("gts") || hay.includes("gt3") || hay.includes("chrono"))) {
+              // baseline inclusion
+            } else if (selectedOptionCode === "2UH" && (hay.includes("gt3") || hay.includes("lift"))) {
+              // baseline inclusion
+            } else if ((selectedOptionCode === "0P9" || selectedOptionCode === "0P8") && (hay.includes("gts") || hay.includes("exhaust"))) {
+              // baseline inclusion
+            } else if ((selectedOptionCode === "1LX" || selectedOptionCode === "1LQ") && (hay.includes("ceramic") || hay.includes("pccb"))) {
+              // baseline inclusion
+            } else if (selectedOptionCode === "9VJ" && hay.includes("burmester")) {
+              // baseline inclusion
+            } else if (selectedOptionCode === "9VL" && hay.includes("bose")) {
+              // baseline inclusion
+            } else if (selectedOptionCode === "Q1J" && hay.includes("18-way")) {
+              // baseline inclusion
+            } else if (selectedOptionCode === "04S" && hay.includes("weissach")) {
+              // baseline inclusion
+            } else if (selectedOptionCode === "04H" && hay.includes("heritage")) {
+              // baseline inclusion
+            } else {
+              return false;
+            }
           }
         }
 
@@ -745,12 +762,55 @@ export const LightsailIntelligence: React.FC = () => {
               className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none font-bold text-amber-300"
             >
               <option value="ALL">All Factory Builds</option>
-              <option value="8LH">⏱️ Sport Chrono Package (8LH)</option>
-              <option value="2UH">🏎️ Front Axle Lift System (2UH)</option>
-              <option value="1LX">🛑 PCCB Ceramic Composite (1LX)</option>
-              <option value="9VJ">🔊 Burmester® 3D Sound (9VJ)</option>
-              <option value="0P9">🏁 Sport Exhaust System (0P9)</option>
-              <option value="Q1J">💺 18-Way Adaptive Seats (Q1J)</option>
+              <optgroup label="💎 Equipment Packages">
+                <option value="P3R">💎 Premium Package Plus (P3R)</option>
+                <option value="P3U">🏆 Sport Package (P3U)</option>
+                <option value="04S">🏁 Weissach Package (04S)</option>
+                <option value="04H">👑 Heritage Design Package (04H)</option>
+                <option value="P3P">📱 Technology Package (P3P)</option>
+              </optgroup>
+              <optgroup label="🏎️ Performance & Chassis">
+                <option value="8LH">⏱️ Sport Chrono Package (8LH)</option>
+                <option value="2UH">🏎️ Front Axle Lift System (2UH)</option>
+                <option value="1LX">🛑 PCCB Ceramic Brakes - Black (1LX)</option>
+                <option value="1LQ">🛑 PCCB Ceramic Brakes - Yellow (1LQ)</option>
+                <option value="0P9">🏁 Sport Exhaust System - Black (0P9)</option>
+                <option value="0P8">🏁 Sport Exhaust System - Silver (0P8)</option>
+                <option value="0N5">🔄 Rear-Axle Steering (0N5)</option>
+                <option value="1P7">⚡ PDCC Dynamic Chassis Control (1P7)</option>
+                <option value="1BV">📉 PASM Sport Suspension -10mm (1BV)</option>
+                <option value="GH3">🔀 Porsche Torque Vectoring+ (GH3)</option>
+              </optgroup>
+              <optgroup label="🔊 Audio, Tech & Lighting">
+                <option value="9VJ">🔊 Burmester® 3D High-End Sound (9VJ)</option>
+                <option value="9VL">🎵 BOSE® Surround Sound (9VL)</option>
+                <option value="KA6">📷 360° Surround View Camera (KA6)</option>
+                <option value="8JU">💡 HD-Matrix LED Headlights Black (8JU)</option>
+                <option value="8IS">💡 LED Headlights incl. PDLS+ (8IS)</option>
+                <option value="8T3">🎯 Adaptive Cruise Control ACC (8T3)</option>
+                <option value="KS1">📊 Head-Up Display HUD (KS1)</option>
+                <option value="9R1">🌙 Night Vision Assist (9R1)</option>
+                <option value="7Y1">👁️ Lane Change Assist / Blind Spot (7Y1)</option>
+              </optgroup>
+              <optgroup label="💺 Interior & Seating">
+                <option value="Q1J">💺 18-Way Adaptive Sports Seats (Q1J)</option>
+                <option value="Q2J">💺 14-Way Power Sport Seats (Q2J)</option>
+                <option value="Q4Q">🏎️ Full Carbon Bucket Seats (Q4Q)</option>
+                <option value="4D3">❄️ Ventilated Front Seats (4D3)</option>
+                <option value="2PJ">🔥 Heated GT Sport Wheel (2PJ)</option>
+                <option value="5TX">✨ Carbon Fiber Interior Trim (5TX)</option>
+                <option value="FZ1">🔴 Guards Red Seat Belts (FZ1)</option>
+                <option value="FZ4">🟡 Racing Yellow Seat Belts (FZ4)</option>
+                <option value="3J7">🛡️ Porsche Crest on Headrests (3J7)</option>
+              </optgroup>
+              <optgroup label="🎨 Exterior & Styling">
+                <option value="3FE">🪟 Electric Glass Sunroof (3FE)</option>
+                <option value="3FD">🚪 Electric Metal Sunroof (3FD)</option>
+                <option value="2D1">🎨 SportDesign Package (2D1)</option>
+                <option value="2D5">🖤 SportDesign in High Gloss Black (2D5)</option>
+                <option value="46K">🛞 20"/21" Carrera Classic Wheels (46K)</option>
+                <option value="46N">🛞 20"/21" Turbo S Wheels (46N)</option>
+              </optgroup>
             </select>
           </div>
 
