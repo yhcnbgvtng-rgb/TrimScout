@@ -174,45 +174,211 @@ export const LightsailIntelligence: React.FC = () => {
     return "USED";
   };
 
-  // Extract all available facets and counts from the full dataset
+  // Check if a vehicle passes active filters, optionally excluding a specific facet for cross-count calculation
+  const checkFilterMatch = (v: VehicleRecord, excludeFacet?: string): boolean => {
+    // 1. Search term
+    if (searchTerm.trim() !== "") {
+      const optNames = (v.factoryOptions || []).map((o) => `${o.code} ${o.name}`).join(" ");
+      const haystack = `${v.vin} ${v.year} ${v.make} ${v.model} ${v.trim || ""} ${v.bodyStyle || ""} ${v.dealerName} ${v.city || ""} ${v.state} ${v.exteriorColor || ""} ${optNames}`.toLowerCase();
+      const tokens = searchTerm.toLowerCase().split(/\s+/).filter(Boolean);
+      if (!tokens.every((t) => haystack.includes(t))) return false;
+    }
+
+    // 2. Model Series
+    if (excludeFacet !== "model" && selectedModel !== "ALL") {
+      if (getModelSeries(v) !== selectedModel) return false;
+    }
+
+    // 3. Trim
+    if (excludeFacet !== "trim" && selectedTrim !== "ALL") {
+      if (v.trim !== selectedTrim) return false;
+    }
+
+    // 4. Condition
+    if (excludeFacet !== "condition" && selectedCondition !== "ALL") {
+      if (getNormalizedCondition(v) !== selectedCondition) return false;
+    }
+
+    // 5. Dealer
+    if (excludeFacet !== "dealer" && selectedDealer !== "ALL") {
+      if (v.dealerName !== selectedDealer) return false;
+    }
+
+    // 6. State
+    if (excludeFacet !== "state" && selectedState !== "ALL") {
+      if (v.state !== selectedState) return false;
+    }
+
+    // 7. Body Style
+    if (excludeFacet !== "bodyStyle" && selectedBodyStyle !== "ALL") {
+      if (v.bodyStyle !== selectedBodyStyle) return false;
+    }
+
+    // 8. Year
+    if (excludeFacet !== "year" && selectedYear !== "ALL") {
+      if (v.year !== parseInt(selectedYear, 10)) return false;
+    }
+
+    // 9. Factory Option Code
+    if (excludeFacet !== "option" && selectedOptionCode !== "ALL") {
+      const codes = v.optionCodes || [];
+      const optDefs = v.factoryOptions || [];
+      const hasCode = codes.includes(selectedOptionCode) || optDefs.some((o) => o.code === selectedOptionCode);
+      if (!hasCode) {
+        const hay = `${v.model || ""} ${v.trim || ""} ${v.bodyStyle || ""}`.toLowerCase();
+        if (selectedOptionCode === "8LH" && (hay.includes("gts") || hay.includes("gt3") || hay.includes("chrono"))) {
+        } else if (selectedOptionCode === "2UH" && (hay.includes("gt3") || hay.includes("lift"))) {
+        } else if ((selectedOptionCode === "0P9" || selectedOptionCode === "0P8") && (hay.includes("gts") || hay.includes("exhaust"))) {
+        } else if ((selectedOptionCode === "1LX" || selectedOptionCode === "1LQ") && (hay.includes("ceramic") || hay.includes("pccb"))) {
+        } else if (selectedOptionCode === "9VJ" && hay.includes("burmester")) {
+        } else if (selectedOptionCode === "9VL" && hay.includes("bose")) {
+        } else if (selectedOptionCode === "Q1J" && hay.includes("18-way")) {
+        } else if (selectedOptionCode === "04S" && hay.includes("weissach")) {
+        } else if (selectedOptionCode === "04H" && hay.includes("heritage")) {
+        } else {
+          return false;
+        }
+      }
+    }
+
+    // 10. Price Range
+    const minPrice = minPriceInput ? parseFloat(minPriceInput) : 0;
+    const maxPrice = maxPriceInput ? parseFloat(maxPriceInput) : Infinity;
+    if (v.price !== null && v.price !== undefined && v.price > 0) {
+      if (v.price < minPrice || v.price > maxPrice) return false;
+    }
+
+    // 11. Mileage Range
+    const maxMiles = maxMileageInput ? parseFloat(maxMileageInput) : Infinity;
+    if (v.mileage > maxMiles) return false;
+
+    // 12. Days on Lot
+    if (excludeFacet !== "days" && selectedDaysOnLot !== "ALL") {
+      const days = v.daysOnLot || 0;
+      if (selectedDaysOnLot === "under_7" && days > 7) return false;
+      if (selectedDaysOnLot === "7_to_30" && (days < 7 || days > 30)) return false;
+      if (selectedDaysOnLot === "31_to_60" && (days < 31 || days > 60)) return false;
+      if (selectedDaysOnLot === "over_45" && days < 45) return false;
+      if (selectedDaysOnLot === "over_60" && days < 60) return false;
+    }
+
+    // 13. Market Opportunity
+    if (excludeFacet !== "opportunity" && selectedOpportunity !== "ALL") {
+      if (selectedOpportunity === "drops" && !(v.changeType === "PRICE_DROP" || (v.priceDiff && v.priceDiff < 0))) return false;
+      if (selectedOpportunity === "fresh" && !(v.changeType === "NEW_ARRIVAL" || (v.daysOnLot || 0) <= 3)) return false;
+      if (selectedOpportunity === "stale" && (v.daysOnLot || 0) < 45) return false;
+      if (selectedOpportunity === "cpo" && getNormalizedCondition(v) !== "CERTIFIED") return false;
+    }
+
+    return true;
+  };
+
+  // Real-time dynamic faceted intersection counts across all criteria
   const facetOptions = useMemo(() => {
     const models = new Map<string, number>();
-    const trims = new Map<string, number>();
+    const conditions = { NEW: 0, USED: 0, CERTIFIED: 0 };
     const dealers = new Map<string, number>();
     const states = new Map<string, number>();
     const bodyStyles = new Map<string, number>();
     const years = new Map<number, number>();
+    const options = new Map<string, number>();
 
+    // Initial base collection of all unique facets
     allVehicles.forEach((v) => {
-      const series = getModelSeries(v);
-      models.set(series, (models.get(series) || 0) + 1);
+      const s = getModelSeries(v);
+      if (!models.has(s)) models.set(s, 0);
+      if (v.dealerName && !dealers.has(v.dealerName)) dealers.set(v.dealerName, 0);
+      if (v.state && !states.has(v.state)) states.set(v.state, 0);
+      if (v.bodyStyle && v.bodyStyle !== "null" && !bodyStyles.has(v.bodyStyle)) bodyStyles.set(v.bodyStyle, 0);
+      if (v.year && !years.has(v.year)) years.set(v.year, 0);
+    });
 
-      if (v.trim && v.trim !== "null") {
-        trims.set(v.trim, (trims.get(v.trim) || 0) + 1);
+    // Populate dynamic intersection counts
+    allVehicles.forEach((v) => {
+      // 1. Model series counts (given all filters except model)
+      if (checkFilterMatch(v, "model")) {
+        const s = getModelSeries(v);
+        models.set(s, (models.get(s) || 0) + 1);
       }
-      if (v.dealerName) {
+
+      // 2. Condition counts (given all filters except condition)
+      if (checkFilterMatch(v, "condition")) {
+        const cond = getNormalizedCondition(v);
+        conditions[cond] = (conditions[cond] || 0) + 1;
+      }
+
+      // 3. Dealer counts (given all filters except dealer)
+      if (checkFilterMatch(v, "dealer") && v.dealerName) {
         dealers.set(v.dealerName, (dealers.get(v.dealerName) || 0) + 1);
       }
-      if (v.state) {
+
+      // 4. State counts (given all filters except state)
+      if (checkFilterMatch(v, "state") && v.state) {
         states.set(v.state, (states.get(v.state) || 0) + 1);
       }
-      if (v.bodyStyle && v.bodyStyle !== "null") {
+
+      // 5. Body style counts (given all filters except bodyStyle)
+      if (checkFilterMatch(v, "bodyStyle") && v.bodyStyle && v.bodyStyle !== "null") {
         bodyStyles.set(v.bodyStyle, (bodyStyles.get(v.bodyStyle) || 0) + 1);
       }
-      if (v.year) {
+
+      // 6. Year counts (given all filters except year)
+      if (checkFilterMatch(v, "year") && v.year) {
         years.set(v.year, (years.get(v.year) || 0) + 1);
+      }
+
+      // 7. Option codes counts (given all filters except option)
+      if (checkFilterMatch(v, "option")) {
+        const codes = new Set(v.optionCodes || []);
+        (v.factoryOptions || []).forEach((o) => codes.add(o.code));
+        const hay = `${v.model || ""} ${v.trim || ""} ${v.bodyStyle || ""}`.toLowerCase();
+        if (hay.includes("gts") || hay.includes("gt3") || hay.includes("chrono")) codes.add("8LH");
+        if (hay.includes("gt3") || hay.includes("lift")) codes.add("2UH");
+        if (hay.includes("gts") || hay.includes("exhaust")) { codes.add("0P9"); codes.add("0P8"); }
+        if (hay.includes("ceramic") || hay.includes("pccb")) { codes.add("1LX"); codes.add("1LQ"); }
+        if (hay.includes("burmester")) codes.add("9VJ");
+        if (hay.includes("bose")) codes.add("9VL");
+        if (hay.includes("18-way")) codes.add("Q1J");
+        if (hay.includes("14-way")) codes.add("Q2J");
+        if (hay.includes("bucket")) codes.add("Q4Q");
+        if (hay.includes("weissach")) codes.add("04S");
+        if (hay.includes("heritage")) codes.add("04H");
+        if (hay.includes("ventilated")) codes.add("4D3");
+        if (hay.includes("sunroof") || hay.includes("moonroof")) codes.add("3FE");
+        if (hay.includes("sportdesign")) codes.add("2D1");
+
+        codes.forEach((c) => {
+          options.set(c, (options.get(c) || 0) + 1);
+        });
       }
     });
 
     return {
       models: Array.from(models.entries()).sort((a, b) => b[1] - a[1]),
-      trims: Array.from(trims.entries()).sort((a, b) => b[1] - a[1]).slice(0, 25),
+      conditions,
       dealers: Array.from(dealers.entries()).sort((a, b) => b[1] - a[1]),
       states: Array.from(states.entries()).sort((a, b) => b[1] - a[1]),
       bodyStyles: Array.from(bodyStyles.entries()).sort((a, b) => b[1] - a[1]),
       years: Array.from(years.entries()).sort((a, b) => b[0] - a[0]),
+      options,
     };
-  }, [allVehicles]);
+  }, [
+    allVehicles,
+    searchTerm,
+    selectedModel,
+    selectedTrim,
+    selectedCondition,
+    selectedDealer,
+    selectedState,
+    selectedBodyStyle,
+    selectedYear,
+    minPriceInput,
+    maxPriceInput,
+    maxMileageInput,
+    selectedDaysOnLot,
+    selectedOpportunity,
+    selectedOptionCode,
+  ]);
 
   // Reset all filters to default
   const handleResetFilters = () => {
@@ -763,53 +929,53 @@ export const LightsailIntelligence: React.FC = () => {
             >
               <option value="ALL">All Factory Builds</option>
               <optgroup label="💎 Equipment Packages">
-                <option value="P3R">💎 Premium Package Plus (P3R)</option>
-                <option value="P3U">🏆 Sport Package (P3U)</option>
-                <option value="04S">🏁 Weissach Package (04S)</option>
-                <option value="04H">👑 Heritage Design Package (04H)</option>
-                <option value="P3P">📱 Technology Package (P3P)</option>
+                <option value="P3R">💎 Premium Package Plus (P3R) ({facetOptions.options.get("P3R") || 0})</option>
+                <option value="P3U">🏆 Sport Package (P3U) ({facetOptions.options.get("P3U") || 0})</option>
+                <option value="04S">🏁 Weissach Package (04S) ({facetOptions.options.get("04S") || 0})</option>
+                <option value="04H">👑 Heritage Design (04H) ({facetOptions.options.get("04H") || 0})</option>
+                <option value="P3P">📱 Technology Package (P3P) ({facetOptions.options.get("P3P") || 0})</option>
               </optgroup>
               <optgroup label="🏎️ Performance & Chassis">
-                <option value="8LH">⏱️ Sport Chrono Package (8LH)</option>
-                <option value="2UH">🏎️ Front Axle Lift System (2UH)</option>
-                <option value="1LX">🛑 PCCB Ceramic Brakes - Black (1LX)</option>
-                <option value="1LQ">🛑 PCCB Ceramic Brakes - Yellow (1LQ)</option>
-                <option value="0P9">🏁 Sport Exhaust System - Black (0P9)</option>
-                <option value="0P8">🏁 Sport Exhaust System - Silver (0P8)</option>
-                <option value="0N5">🔄 Rear-Axle Steering (0N5)</option>
-                <option value="1P7">⚡ PDCC Dynamic Chassis Control (1P7)</option>
-                <option value="1BV">📉 PASM Sport Suspension -10mm (1BV)</option>
-                <option value="GH3">🔀 Porsche Torque Vectoring+ (GH3)</option>
+                <option value="8LH">⏱️ Sport Chrono Package (8LH) ({facetOptions.options.get("8LH") || 0})</option>
+                <option value="2UH">🏎️ Front Axle Lift System (2UH) ({facetOptions.options.get("2UH") || 0})</option>
+                <option value="1LX">🛑 PCCB Ceramic Brakes - Black (1LX) ({facetOptions.options.get("1LX") || 0})</option>
+                <option value="1LQ">🛑 PCCB Ceramic Brakes - Yellow (1LQ) ({facetOptions.options.get("1LQ") || 0})</option>
+                <option value="0P9">🏁 Sport Exhaust System - Black (0P9) ({facetOptions.options.get("0P9") || 0})</option>
+                <option value="0P8">🏁 Sport Exhaust System - Silver (0P8) ({facetOptions.options.get("0P8") || 0})</option>
+                <option value="0N5">🔄 Rear-Axle Steering (0N5) ({facetOptions.options.get("0N5") || 0})</option>
+                <option value="1P7">⚡ PDCC Dynamic Chassis (1P7) ({facetOptions.options.get("1P7") || 0})</option>
+                <option value="1BV">📉 PASM Sport Suspension -10mm (1BV) ({facetOptions.options.get("1BV") || 0})</option>
+                <option value="GH3">🔀 Torque Vectoring+ (GH3) ({facetOptions.options.get("GH3") || 0})</option>
               </optgroup>
               <optgroup label="🔊 Audio, Tech & Lighting">
-                <option value="9VJ">🔊 Burmester® 3D High-End Sound (9VJ)</option>
-                <option value="9VL">🎵 BOSE® Surround Sound (9VL)</option>
-                <option value="KA6">📷 360° Surround View Camera (KA6)</option>
-                <option value="8JU">💡 HD-Matrix LED Headlights Black (8JU)</option>
-                <option value="8IS">💡 LED Headlights incl. PDLS+ (8IS)</option>
-                <option value="8T3">🎯 Adaptive Cruise Control ACC (8T3)</option>
-                <option value="KS1">📊 Head-Up Display HUD (KS1)</option>
-                <option value="9R1">🌙 Night Vision Assist (9R1)</option>
-                <option value="7Y1">👁️ Lane Change Assist / Blind Spot (7Y1)</option>
+                <option value="9VJ">🔊 Burmester® 3D Sound (9VJ) ({facetOptions.options.get("9VJ") || 0})</option>
+                <option value="9VL">🎵 BOSE® Surround Sound (9VL) ({facetOptions.options.get("9VL") || 0})</option>
+                <option value="KA6">📷 360° Surround View (KA6) ({facetOptions.options.get("KA6") || 0})</option>
+                <option value="8JU">💡 HD-Matrix LED Black (8JU) ({facetOptions.options.get("8JU") || 0})</option>
+                <option value="8IS">💡 LED Headlights PDLS+ (8IS) ({facetOptions.options.get("8IS") || 0})</option>
+                <option value="8T3">🎯 Adaptive Cruise ACC (8T3) ({facetOptions.options.get("8T3") || 0})</option>
+                <option value="KS1">📊 Head-Up Display HUD (KS1) ({facetOptions.options.get("KS1") || 0})</option>
+                <option value="9R1">🌙 Night Vision Assist (9R1) ({facetOptions.options.get("9R1") || 0})</option>
+                <option value="7Y1">👁️ Blind Spot LCA (7Y1) ({facetOptions.options.get("7Y1") || 0})</option>
               </optgroup>
               <optgroup label="💺 Interior & Seating">
-                <option value="Q1J">💺 18-Way Adaptive Sports Seats (Q1J)</option>
-                <option value="Q2J">💺 14-Way Power Sport Seats (Q2J)</option>
-                <option value="Q4Q">🏎️ Full Carbon Bucket Seats (Q4Q)</option>
-                <option value="4D3">❄️ Ventilated Front Seats (4D3)</option>
-                <option value="2PJ">🔥 Heated GT Sport Wheel (2PJ)</option>
-                <option value="5TX">✨ Carbon Fiber Interior Trim (5TX)</option>
-                <option value="FZ1">🔴 Guards Red Seat Belts (FZ1)</option>
-                <option value="FZ4">🟡 Racing Yellow Seat Belts (FZ4)</option>
-                <option value="3J7">🛡️ Porsche Crest on Headrests (3J7)</option>
+                <option value="Q1J">💺 18-Way Adaptive Seats (Q1J) ({facetOptions.options.get("Q1J") || 0})</option>
+                <option value="Q2J">💺 14-Way Power Seats (Q2J) ({facetOptions.options.get("Q2J") || 0})</option>
+                <option value="Q4Q">🏎️ Carbon Bucket Seats (Q4Q) ({facetOptions.options.get("Q4Q") || 0})</option>
+                <option value="4D3">❄️ Ventilated Seats (4D3) ({facetOptions.options.get("4D3") || 0})</option>
+                <option value="2PJ">🔥 Heated GT Wheel (2PJ) ({facetOptions.options.get("2PJ") || 0})</option>
+                <option value="5TX">✨ Carbon Fiber Trim (5TX) ({facetOptions.options.get("5TX") || 0})</option>
+                <option value="FZ1">🔴 Guards Red Belts (FZ1) ({facetOptions.options.get("FZ1") || 0})</option>
+                <option value="FZ4">🟡 Racing Yellow Belts (FZ4) ({facetOptions.options.get("FZ4") || 0})</option>
+                <option value="3J7">🛡️ Crest on Headrests (3J7) ({facetOptions.options.get("3J7") || 0})</option>
               </optgroup>
               <optgroup label="🎨 Exterior & Styling">
-                <option value="3FE">🪟 Electric Glass Sunroof (3FE)</option>
-                <option value="3FD">🚪 Electric Metal Sunroof (3FD)</option>
-                <option value="2D1">🎨 SportDesign Package (2D1)</option>
-                <option value="2D5">🖤 SportDesign in High Gloss Black (2D5)</option>
-                <option value="46K">🛞 20"/21" Carrera Classic Wheels (46K)</option>
-                <option value="46N">🛞 20"/21" Turbo S Wheels (46N)</option>
+                <option value="3FE">🪟 Glass Sunroof (3FE) ({facetOptions.options.get("3FE") || 0})</option>
+                <option value="3FD">🚪 Metal Sunroof (3FD) ({facetOptions.options.get("3FD") || 0})</option>
+                <option value="2D1">🎨 SportDesign Package (2D1) ({facetOptions.options.get("2D1") || 0})</option>
+                <option value="2D5">🖤 SportDesign in Black (2D5) ({facetOptions.options.get("2D5") || 0})</option>
+                <option value="46K">🛞 Carrera Classic Wheels (46K) ({facetOptions.options.get("46K") || 0})</option>
+                <option value="46N">🛞 Turbo S Wheels (46N) ({facetOptions.options.get("46N") || 0})</option>
               </optgroup>
             </select>
           </div>
@@ -826,9 +992,9 @@ export const LightsailIntelligence: React.FC = () => {
               className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
             >
               <option value="ALL">All Conditions</option>
-              <option value="NEW">New Units ({allVehicles.filter((v) => getNormalizedCondition(v) === "NEW").length})</option>
-              <option value="USED">Pre-Owned ({allVehicles.filter((v) => getNormalizedCondition(v) === "USED").length})</option>
-              <option value="CERTIFIED">Certified Pre-Owned (CPO) ({allVehicles.filter((v) => getNormalizedCondition(v) === "CERTIFIED").length})</option>
+              <option value="NEW">New Units ({facetOptions.conditions.NEW})</option>
+              <option value="USED">Pre-Owned ({facetOptions.conditions.USED})</option>
+              <option value="CERTIFIED">Certified Pre-Owned (CPO) ({facetOptions.conditions.CERTIFIED})</option>
             </select>
           </div>
 
@@ -843,7 +1009,7 @@ export const LightsailIntelligence: React.FC = () => {
               onChange={(e) => setSelectedDealer(e.target.value)}
               className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
             >
-              <option value="ALL">All Dealerships ({facetOptions.dealers.length})</option>
+              <option value="ALL">All Dealerships ({facetOptions.dealers.filter(([, count]) => count > 0).length} active matching)</option>
               {facetOptions.dealers.map(([d, count]) => (
                 <option key={d} value={d}>
                   {d} ({count})
@@ -863,7 +1029,7 @@ export const LightsailIntelligence: React.FC = () => {
               onChange={(e) => setSelectedState(e.target.value)}
               className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
             >
-              <option value="ALL">All States</option>
+              <option value="ALL">All States ({facetOptions.states.filter(([, count]) => count > 0).length} matching)</option>
               {facetOptions.states.map(([s, count]) => (
                 <option key={s} value={s}>
                   {s} ({count} vehicles)
