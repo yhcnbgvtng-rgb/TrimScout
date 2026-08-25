@@ -293,6 +293,22 @@ async function safeFetch(url, timeoutMs = 7000) {
     ]);
 }
 
+// Sitemap XML escapes reserved characters inside <loc> (e.g. a literal "+"
+// in a URL slug becomes "&#x2B;"), but that was never being decoded back —
+// every <loc> value was stored and used verbatim, so any URL containing an
+// escaped character 404'd both when the crawler itself re-fetched it and
+// when a trimscout.com visitor clicked through to the dealer's listing.
+function decodeXmlEntities(str) {
+    return str
+        .replace(/&#x([0-9a-fA-F]+);/g, (_, hex) => String.fromCodePoint(parseInt(hex, 16)))
+        .replace(/&#(\d+);/g, (_, dec) => String.fromCodePoint(parseInt(dec, 10)))
+        .replace(/&amp;/g, '&')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&quot;/g, '"')
+        .replace(/&apos;/g, "'");
+}
+
 async function fetchSitemapXmlUrls(sitemapUrl, depth = 0) {
     if (depth > 2) return [];
     try {
@@ -310,7 +326,7 @@ async function fetchSitemapXmlUrls(sitemapUrl, depth = 0) {
             xml = res.rawBody.toString('utf-8');
         }
 
-        const childSitemaps = [...xml.matchAll(/<sitemap>\s*<loc>([^<]+)<\/loc>/gi)].map((m) => m[1].trim());
+        const childSitemaps = [...xml.matchAll(/<sitemap>\s*<loc>([^<]+)<\/loc>/gi)].map((m) => decodeXmlEntities(m[1].trim()));
         if (childSitemaps.length > 0) {
             const inventoryChild = childSitemaps.filter((u) => /vehicle|inventory|cars|porsche|sitemap/i.test(u));
             const targets = inventoryChild.length > 0 ? inventoryChild : childSitemaps;
@@ -321,7 +337,7 @@ async function fetchSitemapXmlUrls(sitemapUrl, depth = 0) {
             return nested;
         }
 
-        const allUrls = [...xml.matchAll(/<loc>([^<]+)<\/loc>/gi)].map((m) => m[1].trim());
+        const allUrls = [...xml.matchAll(/<loc>([^<]+)<\/loc>/gi)].map((m) => decodeXmlEntities(m[1].trim()));
         return allUrls.filter((u) =>
             /-[a-f0-9]{32}\.htm/i.test(u) ||
             /\/vehicle-details/i.test(u) ||
