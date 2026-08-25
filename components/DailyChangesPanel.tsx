@@ -62,12 +62,36 @@ export const DailyChangesPanel: React.FC<DailyChangesPanelProps> = ({ vehicles, 
   const activeList =
     activeTab === "new" ? newArrivals : activeTab === "sold" ? sold : activeTab === "price_drop" ? priceDrops : priceIncreases;
 
-  // If every tracked vehicle shares the same changeType, there's no real
-  // day-over-day comparison to show yet — most likely the crawler has only
-  // run once (or ran without a persistent snapshot), so everything reads as
-  // "new" by default rather than reflecting genuine change. Say so rather
-  // than presenting that as a meaningful "activity" summary.
-  const allSameChangeType = scoped.length > 0 && scoped.every((v) => v.changeType === scoped[0].changeType);
+  // If every tracked vehicle shares the same changeType, "NEW_ARRIVAL" isn't
+  // a real signal — it just means the crawler has only ever run once (or
+  // without a persistent snapshot to diff against), so everything defaults
+  // to "new" regardless of whether it actually is. In that case there is no
+  // real day-over-day comparison available, so show nothing rather than the
+  // entire inventory mislabeled as "activity" — that was the actual bug:
+  // dumping ~17,000 vehicles into "New Arrivals" because the field couldn't
+  // distinguish real change from "never compared."
+  const hasComparableData = scoped.length > 0 && !scoped.every((v) => v.changeType === scoped[0].changeType);
+
+  if (!hasComparableData) {
+    return (
+      <div className="rounded-3xl border border-border bg-surface p-6 space-y-4 shadow-xl">
+        <div>
+          <h3 className="text-sm font-black text-white flex items-center gap-2">
+            <Clock className="h-4 w-4 text-emerald-400" />
+            Daily Market Activity
+          </h3>
+          <p className="text-[11px] text-ink-muted mt-1">
+            {selectedDealer === "ALL" ? "All dealerships" : selectedDealer}
+          </p>
+        </div>
+        <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-[11px] text-amber-300">
+          No day-over-day comparison is available yet. This inventory sync doesn't have a prior snapshot to diff against, so
+          there's nothing genuine to show as "new," "sold," or a price change — new arrivals, sold vehicles, and price moves
+          will appear here once the crawler runs on a recurring schedule against a persistent snapshot.
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="rounded-3xl border border-border bg-surface p-6 space-y-5 shadow-xl">
@@ -81,14 +105,6 @@ export const DailyChangesPanel: React.FC<DailyChangesPanelProps> = ({ vehicles, 
           {lastSync ? ` (${formatDate(lastSync)})` : ""}
         </p>
       </div>
-
-      {allSameChangeType && (
-        <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-[11px] text-amber-300">
-          Every tracked vehicle here currently shows the same status. That usually means the inventory sync hasn't run more
-          than once yet — new arrivals, sold vehicles, and price moves will populate here once the crawler runs on a
-          recurring schedule and has a real prior state to compare against.
-        </div>
-      )}
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
         {tabs.map((tab) => (
