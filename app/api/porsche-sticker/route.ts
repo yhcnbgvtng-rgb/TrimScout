@@ -27,7 +27,10 @@ export interface PorscheStickerResponse {
   model: string;
   trim?: string;
   baseMsrp: number;
-  totalOptionsPrice: number;
+  // null when the options are real/verified but Porsche doesn't publish a
+  // price for them (Finder-sourced) — never coerced to 0, which would read
+  // as "no added cost" for a car that actually has real options installed.
+  totalOptionsPrice: number | null;
   deliveryFee: number;
   totalMsrp: number;
   exteriorColor: {
@@ -272,9 +275,16 @@ export async function GET(request: Request) {
       model: modelName,
       trim: trimName,
       baseMsrp,
-      totalOptionsPrice: optionsTotal ?? 0,
+      totalOptionsPrice: optionsTotal ?? null,
       deliveryFee: 1650,
-      totalMsrp: baseMsrp + (optionsTotal ?? 0) + 1650,
+      // When the options total is unknown (Finder-sourced), baseMsrp + 0 +
+      // delivery would understate the real price. Prefer this VIN's actual
+      // listed price — which already reflects whatever it's really
+      // equipped with — over a breakdown built on an unknown quantity.
+      totalMsrp:
+        optionsTotal !== undefined
+          ? baseMsrp + optionsTotal + 1650
+          : vehicleRecord?.price ?? baseMsrp + 1650,
       exteriorColor: {
         code: vehicleRecord?.exteriorColor || "",
         name: vehicleRecord?.exteriorColor || "Not verified for this VIN",

@@ -861,7 +861,7 @@ export const LightsailIntelligence: React.FC = () => {
       v.daysOnLot || 0,
       v.status || "ACTIVE",
       `"${(v.factoryOptions || []).map((o) => o.name).join("; ")}"`,
-      v.totalOptionsPrice || 0,
+      typeof v.totalOptionsPrice === "number" ? v.totalOptionsPrice : "",
       v.nhtsa?.plantCountry || "Germany",
       v.url || "",
     ]);
@@ -1910,10 +1910,12 @@ export const LightsailIntelligence: React.FC = () => {
                 <span>Total Added Factory Equipment & Options:</span>
                 {aiStickerData?.isEstimate ? (
                   <span className="font-mono font-bold text-ink-faint">Not verified</span>
-                ) : (
+                ) : typeof (aiStickerData?.totalOptionsPrice ?? selectedVehicleForModal.totalOptionsPrice) === "number" ? (
                   <span className="font-mono font-bold text-amber-400">
-                    +${(aiStickerData?.totalOptionsPrice || selectedVehicleForModal.totalOptionsPrice || 0).toLocaleString()}
+                    +${(aiStickerData?.totalOptionsPrice ?? selectedVehicleForModal.totalOptionsPrice ?? 0).toLocaleString()}
                   </span>
+                ) : (
+                  <span className="font-mono font-bold text-ink-faint">Pricing not published</span>
                 )}
               </div>
               <div className="flex justify-between text-ink-muted">
