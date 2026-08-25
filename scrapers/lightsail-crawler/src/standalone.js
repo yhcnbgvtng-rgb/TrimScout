@@ -86,6 +86,102 @@ function extractDealerListedOptions(raw) {
     });
 }
 
+// Boilerplate that shows up at the end of DealerOn (and similar) VDP
+// descriptions, unrelated to the actual vehicle — fees, disclaimers, taxes.
+// Everything from the first match onward is dropped before feature parsing.
+const DESCRIPTION_BOILERPLATE_MARKERS = [
+    /plus government fees/i,
+    /dealer document (processing )?charge/i,
+    /price does not include/i,
+    /see dealer for details/i,
+    /\*.*disclaimer/i,
+];
+
+// Extracts a real, dealer-published feature list from a VDP's free-text
+// description field (used on DealerOn and similar platforms). This is
+// genuinely written by the dealer for this specific vehicle, but unlike
+// Dealer.com's structured packages it has no per-item price or code — just
+// names. Represented with price: 0 (unknown, not "free") and a distinct
+// category so it's never confused with itemized, priced packages.
+function parseFeaturesFromDescription(description) {
+    if (!description) return [];
+
+    let text = description;
+    for (const marker of DESCRIPTION_BOILERPLATE_MARKERS) {
+        const idx = text.search(marker);
+        if (idx !== -1) text = text.slice(0, idx);
+    }
+
+    text = text
+        .replace(/<br\s*\/?>/gi, '\n')
+        .replace(/KEY FEATURES INCLUDE/gi, '\n')
+        .replace(/<[^>]+>/g, ' ');
+
+    const rawItems = text.split(/[\n,.]/).map((s) => s.trim());
+
+    const seen = new Set();
+    const features = [];
+    for (const item of rawItems) {
+        const clean = item.replace(/\s+/g, ' ').trim();
+        if (clean.length < 3 || clean.length > 60) continue;
+        const key = clean.toLowerCase();
+        if (seen.has(key)) continue;
+        seen.add(key);
+        features.push({ code: 'FEATURE', name: clean, price: 0, category: 'feature' });
+    }
+    return features;
+}
+
+// Strategy 2: schema.org Vehicle JSON-LD. Used by DealerOn and other
+// platforms that publish structured vehicle markup for SEO. Real per-VIN
+// data (VIN, price, model, dealer-written feature list) straight from the
+// page's own structured data — not scraped by guessing at page text.
+function extractSchemaOrgVehicle(html, url, dealer) {
+    const ldBlocks = [...html.matchAll(/<script type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/gi)];
+    let vehicleLd = null;
+    for (const block of ldBlocks) {
+        try {
+            const parsed = JSON.parse(block[1]);
+            if (parsed && parsed['@type'] === 'Vehicle' && parsed.vehicleIdentificationNumber) {
+                vehicleLd = parsed;
+                break;
+            }
+        } catch {
+            // not valid JSON, skip
+        }
+    }
+    if (!vehicleLd) return null;
+
+    const vin = vehicleLd.vehicleIdentificationNumber.trim().toUpperCase();
+    if (!/^[A-HJ-NPR-Z0-9]{17}$/i.test(vin)) return null;
+
+    const price = vehicleLd.offers?.price ? Math.round(Number(vehicleLd.offers.price)) : null;
+    const year = vehicleLd.vehicleModelDate ? parseInt(vehicleLd.vehicleModelDate, 10) : null;
+
+    return {
+        vin,
+        dealerName: dealer.name,
+        city: dealer.city,
+        state: dealer.state,
+        stockNumber: null,
+        inventoryType: url.includes('/used') || url.toLowerCase().includes('used') ? 'USED' : 'NEW',
+        year: Number.isFinite(year) ? year : null,
+        make: cleanString(vehicleLd.manufacturer?.name) || 'Porsche',
+        model: cleanString(vehicleLd.model),
+        trim: null,
+        bodyStyle: cleanString(vehicleLd.bodyType),
+        price,
+        msrp: price,
+        mileage: 0,
+        exteriorColor: null,
+        interiorColor: null,
+        engine: cleanString(vehicleLd.vehicleEngine?.name),
+        transmission: null,
+        dealerListedOptions: parseFeaturesFromDescription(vehicleLd.description),
+        url,
+    };
+}
+
 async function safeFetch(url, timeoutMs = 7000) {
     return Promise.race([
         gotScraping({
@@ -253,26 +349,37 @@ for (let i = 0; i < dealers.length; i++) {
                     } catch {}
                 }
 
-                // Strategy 2: Universal Regex / Schema.org (DealerInspire, DealerOn, CDK, HTML)
+                // Strategy 2: schema.org Vehicle JSON-LD (DealerOn and others).
+                if (!vehicle || !vehicle.vin) {
+                    vehicle = extractSchemaOrgVehicle(html, url, dealer);
+                }
+
+                // Strategy 3: last-resort structured-field scan. Only trusts
+                // explicit, labeled VIN/price/year signals (a JSON key, a
+                // microdata itemprop, or the VIN literally embedded in the
+                // URL slug, which every platform we've seen does). It does
+                // NOT guess model from freeform page text — that produced
+                // false positives like a "2029 Porsche 718" whose own URL
+                // said "cayenne-coupe" (a phone number or unrelated page
+                // text matched instead). Model/year are left null rather
+                // than guessed; a real VIN is still useful on its own since
+                // NHTSA decoding downstream can supply accurate specs.
                 if (!vehicle || !vehicle.vin) {
                     const vinMatch = html.match(/vehicleIdentificationNumber["']?\s*:\s*["']([A-HJ-NPR-Z0-9]{16,17})/i) ||
-                                     html.match(/VIN:\s*([A-HJ-NPR-Z0-9]{16,17})/i) ||
                                      html.match(/"vin":\s*"([A-HJ-NPR-Z0-9]{16,17})"/i) ||
+                                     html.match(/itemprop=["']vehicleIdentificationNumber["'][^>]*content=["']([A-HJ-NPR-Z0-9]{16,17})["']/i) ||
                                      url.match(/(WP0[A-Z0-9]{13,14}|WP1[A-Z0-9]{13,14})/i);
 
-                    const priceMatch = html.match(/"price"\s*:\s*"?([\d,]+)"?/i) ||
-                                       html.match(/itemprop="price"[^>]*content="([^"]+)"/i) ||
-                                       html.match(/class="[^"]*price[^"]*"[^>]*>\$?([\d,]+)/i);
+                    const priceMatch = html.match(/"price"\s*:\s*"?([\d,]+(?:\.\d+)?)"?/i) ||
+                                       html.match(/itemprop=["']price["'][^>]*content=["']([\d,]+(?:\.\d+)?)["']/i);
 
-                    const yearMatch = html.match(/vehicleModelDate["']?\s*:\s*(\d{4})/i) ||
-                                      html.match(/(?:201\d|202\d)/);
-
-                    const modelMatch = html.match(/(?:Cayenne|Macan|911|Taycan|Panamera|Boxster|Cayman|718)/i);
+                    const yearMatch = html.match(/vehicleModelDate["']?\s*:\s*["']?(\d{4})["']?/i) ||
+                                      html.match(/itemprop=["']vehicleModelDate["'][^>]*content=["'](\d{4})["']/i);
 
                     if (vinMatch) {
                         const rawPriceStr = priceMatch ? priceMatch[1].replace(/,/g, '') : null;
-                        const price = rawPriceStr ? parseFloat(rawPriceStr) : null;
-                        const cleanModel = modelMatch ? `Porsche ${modelMatch[0]}` : 'Porsche';
+                        const price = rawPriceStr ? Math.round(parseFloat(rawPriceStr)) : null;
+                        const year = yearMatch ? parseInt(yearMatch[1], 10) : null;
 
                         vehicle = {
                             vin: vinMatch[1].trim().toUpperCase(),
@@ -281,9 +388,9 @@ for (let i = 0; i < dealers.length; i++) {
                             state: dealer.state,
                             stockNumber: null,
                             inventoryType: url.includes('/new') ? 'NEW' : url.includes('/certified') || url.includes('/cpo') ? 'CERTIFIED_PRE_OWNED' : 'USED',
-                            year: yearMatch ? parseInt(yearMatch[0] || yearMatch[1], 10) : null,
+                            year: Number.isFinite(year) && year >= 1950 && year <= new Date().getFullYear() + 1 ? year : null,
                             make: 'Porsche',
-                            model: cleanModel,
+                            model: null,
                             trim: null,
                             bodyStyle: null,
                             price,
