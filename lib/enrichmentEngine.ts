@@ -1,8 +1,11 @@
 export interface PorscheOption {
   code: string;
   name: string;
-  price: number;
-  category: "performance" | "audio" | "interior" | "exterior" | "tech";
+  // Dealer-VDP-sourced options carry a real price. Porsche Finder does not
+  // publish per-option retail pricing, so Finder-sourced options omit it
+  // rather than defaulting to 0 (which would misrepresent "no added cost").
+  price?: number;
+  category: string;
   description?: string;
 }
 

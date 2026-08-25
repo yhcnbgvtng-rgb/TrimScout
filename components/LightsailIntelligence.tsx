@@ -77,6 +77,12 @@ export interface VehicleRecord {
   totalOptionsPrice?: number;
   baseMsrp?: number | null;
   enrichedAt?: string;
+  // Present when factoryOptions came from a Porsche Finder VIN cross-reference
+  // rather than the dealer's own VDP. Finder publishes real per-VIN equipment
+  // but not per-option retail pricing, so those items carry no `price`.
+  optionsSource?: "DEALER_VDP" | "PORSCHE_FINDER";
+  standardEquipment?: string[];
+  finderUrl?: string;
 }
 
 export const PORSCHE_PAINT_CODES: Record<string, string> = {
@@ -1624,7 +1630,8 @@ export const LightsailIntelligence: React.FC = () => {
                             key={o.code}
                             className="rounded bg-surface-elevated border border-border px-1.5 py-0.5 text-[9.5px] font-bold text-amber-300"
                           >
-                            {o.name.split(" ")[0]} (${o.price.toLocaleString()})
+                            {o.name.split(" ")[0]}
+                            {typeof o.price === "number" ? ` ($${o.price.toLocaleString()})` : ""}
                           </span>
                         ))}
                       </div>

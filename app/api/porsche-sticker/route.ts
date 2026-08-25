@@ -11,7 +11,9 @@ export const revalidate = 0;
 export interface PorscheOptionItem {
   code: string;
   name: string;
-  price: number;
+  // Only known for dealer-VDP-sourced options; Porsche Finder does not
+  // publish per-option retail pricing.
+  price?: number;
   category: string;
   description?: string;
   isStandard?: boolean;
@@ -49,11 +51,18 @@ export interface PorscheStickerResponse {
   standardEquipment: string[];
   windowStickerPdfUrl?: string;
   porscheFinderUrl: string;
-  // PORSCHE_FINDER_LIVE / AI_PARSED_WINDOW_STICKER / DEALER_VDP_LISTED = real,
-  // per-VIN data. NOT_VERIFIED = no per-VIN build data was available;
-  // installedOptions and standardEquipment are both empty rather than
-  // guessed or filled in.
-  dataSource: "PORSCHE_FINDER_LIVE" | "AI_PARSED_WINDOW_STICKER" | "DEALER_VDP_LISTED" | "NOT_VERIFIED";
+  // PORSCHE_FINDER_LIVE (fetched live from Finder at request time) /
+  // PORSCHE_FINDER_MATCHED (Finder data for this exact VIN, obtained via an
+  // earlier VIN cross-reference and cached) / AI_PARSED_WINDOW_STICKER /
+  // DEALER_VDP_LISTED = real, per-VIN data. NOT_VERIFIED = no per-VIN build
+  // data was available; installedOptions and standardEquipment are both
+  // empty rather than guessed or filled in.
+  dataSource:
+    | "PORSCHE_FINDER_LIVE"
+    | "PORSCHE_FINDER_MATCHED"
+    | "AI_PARSED_WINDOW_STICKER"
+    | "DEALER_VDP_LISTED"
+    | "NOT_VERIFIED";
   isEstimate: boolean;
   note?: string;
 }
@@ -238,10 +247,22 @@ export async function GET(request: Request) {
       ? "Leipzig, Germany"
       : "Stuttgart-Zuffenhausen, Germany";
 
-    const dealerListedOptions: PorscheOptionItem[] = Array.isArray(vehicleRecord?.factoryOptions)
+    const listedOptions: PorscheOptionItem[] = Array.isArray(vehicleRecord?.factoryOptions)
       ? vehicleRecord.factoryOptions
       : [];
-    const dealerOptionsTotal = dealerListedOptions.reduce((sum, o) => sum + (o.price || 0), 0);
+    const fromFinder = vehicleRecord?.optionsSource === "PORSCHE_FINDER";
+    // Finder doesn't publish per-option pricing, so a Finder-sourced options
+    // total would silently read as "$0 added" despite a real, populated
+    // options list — report it as unknown rather than fabricating a number.
+    const optionsTotal = fromFinder
+      ? undefined
+      : listedOptions.reduce((sum, o) => sum + (o.price || 0), 0);
+
+    const resolvedDataSource: PorscheStickerResponse["dataSource"] = fromFinder
+      ? "PORSCHE_FINDER_MATCHED"
+      : listedOptions.length > 0
+      ? "DEALER_VDP_LISTED"
+      : "NOT_VERIFIED";
 
     return NextResponse.json({
       success: true,
@@ -251,9 +272,9 @@ export async function GET(request: Request) {
       model: modelName,
       trim: trimName,
       baseMsrp,
-      totalOptionsPrice: dealerOptionsTotal,
+      totalOptionsPrice: optionsTotal ?? 0,
       deliveryFee: 1650,
-      totalMsrp: baseMsrp + dealerOptionsTotal + 1650,
+      totalMsrp: baseMsrp + (optionsTotal ?? 0) + 1650,
       exteriorColor: {
         code: vehicleRecord?.exteriorColor || "",
         name: vehicleRecord?.exteriorColor || "Not verified for this VIN",
@@ -271,18 +292,20 @@ export async function GET(request: Request) {
           ? `${decoded.displacementL} ${decoded.engineCylinders ? `${decoded.engineCylinders}-Cylinder` : ""}`.trim()
           : undefined),
       plantOrigin,
-      // If our own dataset already scraped this VIN's real dealer-listed
-      // packages & options (from the VDP's Dealer.com data layer), surface
-      // them here as verified — this is genuine per-VIN data, not a guess.
-      installedOptions: dealerListedOptions,
-      standardEquipment: [],
+      // Real per-VIN data, either scraped from the dealer's own VDP (Dealer.com
+      // data layer) or cross-referenced against this VIN's Porsche Finder
+      // listing — never guessed.
+      installedOptions: listedOptions,
+      standardEquipment: fromFinder ? vehicleRecord?.standardEquipment || [] : [],
       windowStickerPdfUrl: directPdfUrl,
-      porscheFinderUrl,
-      dataSource: dealerListedOptions.length > 0 ? "DEALER_VDP_LISTED" : "NOT_VERIFIED",
-      isEstimate: dealerListedOptions.length === 0,
+      porscheFinderUrl: vehicleRecord?.finderUrl || porscheFinderUrl,
+      dataSource: resolvedDataSource,
+      isEstimate: listedOptions.length === 0,
       note:
-        dealerListedOptions.length > 0
-          ? undefined
+        listedOptions.length > 0
+          ? fromFinder
+            ? "Equipment list verified against this VIN's Porsche Finder listing. Porsche does not publish per-option retail pricing on Finder, so individual and total option prices are not available."
+            : undefined
           : "Factory-installed options and equipment could not be verified for this VIN. Paste the real window sticker text below for a verified, itemized list.",
     });
   } catch (err: any) {
@@ -310,7 +333,7 @@ export async function POST(request: Request) {
     }
 
     const parsedOptions = parseOptionsFromText(rawText);
-    const optionsTotal = parsedOptions.reduce((acc, o) => acc + o.price, 0);
+    const optionsTotal = parsedOptions.reduce((acc, o) => acc + (o.price || 0), 0);
 
     return NextResponse.json({
       success: true,
