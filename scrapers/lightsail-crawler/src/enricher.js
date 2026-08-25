@@ -93,9 +93,15 @@ export const PORSCHE_BASE_MSRP = {
 };
 
 // Master Porsche Factory Options Catalog
+// NHTSA's vPIC API is a real government VIN-decode service — when it
+// returns data, that data is real and brand-agnostic. When it fails or a
+// field is missing, we return null for that field rather than fabricate a
+// plausible-looking default (a fake "Germany/Stuttgart" plant on a Ford
+// would be actively wrong, not just generic — this was already wrong for
+// any non-Porsche vehicle even before Ford existed here).
 export async function fetchNhtsaSpec(vin, vehicleContext = {}) {
   const isEv = /taycan|electric/i.test(`${vehicleContext.model || ''} ${vehicleContext.trim || ''} ${vehicleContext.bodyStyle || ''}`);
-  
+
   try {
     const url = `https://vpic.nhtsa.dot.gov/api/vehicles/decodevinvalues/${vin}?format=json`;
     const res = await gotScraping({
@@ -112,60 +118,47 @@ export async function fetchNhtsaSpec(vin, vehicleContext = {}) {
       const nhtsaIsElectric = item.FuelTypePrimary === "Electric" || (item.ElectrificationLevel && item.ElectrificationLevel.includes("BEV"));
       const isElectricFinal = isEv || nhtsaIsElectric;
 
-      const engineCylinders = isElectricFinal ? 0 : (item.EngineCylinders ? parseInt(item.EngineCylinders, 10) : 6);
+      const engineCylinders = isElectricFinal ? 0 : (item.EngineCylinders ? parseInt(item.EngineCylinders, 10) : null);
       const engineDisplacementL = isElectricFinal
-        ? "Dual Electric PSM"
-        : (item.DisplacementL ? `${parseFloat(item.DisplacementL).toFixed(1)}L` : "3.0L");
+        ? "Electric"
+        : (item.DisplacementL ? `${parseFloat(item.DisplacementL).toFixed(1)}L` : null);
 
       return {
-        plantCountry: item.PlantCountry || "Germany",
-        plantCity: item.PlantCity || "Stuttgart / Leipzig",
+        plantCountry: item.PlantCountry || null,
+        plantCity: item.PlantCity || null,
         engineCylinders,
         engineDisplacementL,
-        fuelType: isElectricFinal ? "Electric (BEV)" : (item.FuelTypePrimary || "Premium Gasoline"),
-        bodyClass: item.BodyClass || "Coupe",
-        grossWeightClass: item.GVWR || "Class 1: 6,000 lbs or less",
-        brakeSystem: item.BrakeSystemType || "Hydraulic"
+        fuelType: isElectricFinal ? "Electric (BEV)" : (item.FuelTypePrimary || null),
+        bodyClass: item.BodyClass || null,
+        grossWeightClass: item.GVWR || null,
+        brakeSystem: item.BrakeSystemType || null
       };
     }
   } catch {}
 
-  return {
-    plantCountry: "Germany",
-    plantCity: isEv ? "Leipzig / Zuffenhausen" : "Stuttgart-Zuffenhausen",
-    engineCylinders: isEv ? 0 : 6,
-    engineDisplacementL: isEv ? "Dual Electric PSM" : "3.0L",
-    fuelType: isEv ? "Electric (BEV)" : "Premium Gasoline",
-    bodyClass: isEv ? "Sedan / Cross Turismo" : "Coupe",
-    grossWeightClass: "Class 1: 6,000 lbs or less",
-    brakeSystem: "Hydraulic"
-  };
+  return null;
 }
 
-export function lookupPorscheBaseMsrp(vehicle) {
-  const modelStr = `${vehicle.model || ''} ${vehicle.trim || ''}`.trim();
-  
-  // Exact match
-  if (PORSCHE_BASE_MSRP[modelStr]) return PORSCHE_BASE_MSRP[modelStr];
+// Looks up a real reference base MSRP for this vehicle's model/trim, using
+// whichever brand's table applies. Brands without a table (baseMsrpTable:
+// null — e.g. Ford, see brands.js) get null here rather than a guessed
+// number; a car's own real listed price is always used elsewhere and never
+// depends on this.
+export function lookupBaseMsrp(vehicle, brand) {
+  const table = brand?.baseMsrpTable;
+  if (!table) return null;
 
-  // Fuzzy match
-  for (const [key, msrp] of Object.entries(PORSCHE_BASE_MSRP)) {
+  const modelStr = `${vehicle.model || ''} ${vehicle.trim || ''}`.trim();
+
+  if (table[modelStr]) return table[modelStr];
+
+  for (const [key, msrp] of Object.entries(table)) {
     if (modelStr.toLowerCase().includes(key.toLowerCase())) {
       return msrp;
     }
   }
 
-  // Model series fallbacks
-  const hay = modelStr.toLowerCase();
-  if (hay.includes("911")) return 120100;
-  if (hay.includes("cayman")) return 68300;
-  if (hay.includes("boxster")) return 70400;
-  if (hay.includes("taycan")) return 99400;
-  if (hay.includes("macan")) return 62900;
-  if (hay.includes("cayenne")) return 79200;
-  if (hay.includes("panamera")) return 102800;
-
-  return 100000;
+  return null;
 }
 
 // Resolves factory options strictly from what the crawler actually scraped
@@ -173,9 +166,9 @@ export function lookupPorscheBaseMsrp(vehicle) {
 // itemized, per-VIN data pulled from the dealer's Dealer.com data layer).
 // No keyword guessing, no model/trim-based inference: if the dealer page
 // didn't publish it, it's not included.
-export function resolveFactoryOptions(vehicle) {
+export function resolveFactoryOptions(vehicle, brand) {
   const real = Array.isArray(vehicle.dealerListedOptions) ? vehicle.dealerListedOptions : [];
-  const baseMsrp = lookupPorscheBaseMsrp(vehicle);
+  const baseMsrp = lookupBaseMsrp(vehicle, brand);
   const totalOptionsPrice = real.reduce((sum, opt) => sum + (opt.price || 0), 0);
 
   return {
@@ -186,7 +179,7 @@ export function resolveFactoryOptions(vehicle) {
   };
 }
 
-export async function runEnrichmentPipeline(limit = Infinity) {
+export async function runEnrichmentPipeline(limit = Infinity, brand = null) {
   console.log("====================================================");
   console.log("⚡ STARTING ENHANCED VIN ENRICHMENT PIPELINE (ALL VEHICLES)");
   console.log("====================================================");
@@ -227,7 +220,7 @@ export async function runEnrichmentPipeline(limit = Infinity) {
     // real per-VIN option scraping and would otherwise silently resurrect
     // the old guessed data. Only the (expensive, network-bound) NHTSA
     // lookup is cached.
-    const optionData = resolveFactoryOptions(v);
+    const optionData = resolveFactoryOptions(v, brand);
 
     if (cached && cached.nhtsa && (!isEv || cached.nhtsa.engineCylinders === 0)) {
       cacheHits++;
@@ -254,31 +247,29 @@ export async function runEnrichmentPipeline(limit = Infinity) {
       enrichedAt: new Date().toISOString()
     };
 
-    cache[v.vin] = enrichment;
+    // Only cache real NHTSA data — a null result (lookup failed) should be
+    // retried on the next run, not permanently frozen as "no data".
+    if (nhtsaData) cache[v.vin] = enrichment;
     Object.assign(v, enrichment);
     enrichedCount++;
 
     if (enrichedCount % 50 === 0 || enrichedCount === 1) {
-      console.log(`${progress} ✓ Enriched ${v.vin} (${v.year} ${v.model}): Base $${optionData.baseMsrp.toLocaleString()} | Options: $${optionData.totalOptionsPrice.toLocaleString()} | ${nhtsaData.engineDisplacementL} (${nhtsaData.plantCountry})`);
+      const baseMsrpStr = optionData.baseMsrp !== null ? `$${optionData.baseMsrp.toLocaleString()}` : "unknown";
+      const optionsStr = `$${optionData.totalOptionsPrice.toLocaleString()}`;
+      const specStr = nhtsaData ? `${nhtsaData.engineDisplacementL || "?"} (${nhtsaData.plantCountry || "?"})` : "NHTSA lookup unavailable";
+      console.log(`${progress} ✓ Enriched ${v.vin} (${v.year || "?"} ${v.model || "?"}): Base ${baseMsrpStr} | Options: ${optionsStr} | ${specStr}`);
     }
   }
 
-  // Ensure 100% of all records have default clean properties
+  // Ensure every record has the expected shape — but never invent NHTSA
+  // specs or a base price for a vehicle that genuinely doesn't have real
+  // data. Missing means missing; the UI is expected to handle that (it
+  // already does for factoryOptions/baseMsrp).
   for (const v of rawInventory) {
-    if (!v.nhtsa) {
-      const isEv = /taycan|electric/i.test(`${v.model || ''} ${v.trim || ''}`);
-      v.nhtsa = {
-        plantCountry: "Germany",
-        plantCity: isEv ? "Leipzig" : "Stuttgart",
-        engineCylinders: isEv ? 0 : 6,
-        engineDisplacementL: isEv ? "Dual Electric PSM" : "3.0L",
-        bodyClass: isEv ? "Sedan" : "Coupe"
-      };
-    }
     if (!v.factoryOptions) v.factoryOptions = [];
     if (!v.optionCodes) v.optionCodes = [];
     if (v.totalOptionsPrice === undefined) v.totalOptionsPrice = 0;
-    if (v.baseMsrp === undefined) v.baseMsrp = lookupPorscheBaseMsrp(v);
+    if (v.baseMsrp === undefined) v.baseMsrp = lookupBaseMsrp(v, brand);
   }
 
   // Save updated cache and enriched inventory

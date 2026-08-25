@@ -4,6 +4,7 @@ import path from 'node:path';
 import vm from 'node:vm';
 import zlib from 'node:zlib';
 import { runEnrichmentPipeline } from './enricher.js';
+import { getBrand } from './brands.js';
 
 const DATA_DIR = path.resolve(process.cwd(), 'data');
 const SNAPSHOTS_DIR = path.join(DATA_DIR, 'snapshots');
@@ -13,12 +14,21 @@ const LATEST_SNAPSHOT_PATH = path.join(SNAPSHOTS_DIR, 'latest_snapshot.json');
 await fs.mkdir(SNAPSHOTS_DIR, { recursive: true });
 await fs.mkdir(CHANGES_DIR, { recursive: true });
 
-const dealersPath = path.resolve(process.cwd(), 'dealers.json');
+// One invocation crawls one brand's dealer list — a dedicated dealers.json
+// per brand/deployment, not a mixed file. Enrichment runs as a single
+// batch pass over the whole inventory at the end, which needs one brand
+// config (base-MSRP table, etc.) to apply consistently; mixing brands in
+// one file would need per-vehicle brand resolution there too, which isn't
+// built. Override with CRAWLER_BRAND, otherwise inferred from the dealer
+// list itself, defaulting to Porsche so existing deployments need zero
+// changes.
+const dealersPath = path.resolve(process.cwd(), process.env.CRAWLER_DEALERS_FILE || 'dealers.json');
 const dealers = JSON.parse(await fs.readFile(dealersPath, 'utf-8'));
+const brand = getBrand(process.env.CRAWLER_BRAND || dealers[0]?.make || 'Porsche');
 
 console.log('====================================================');
-console.log(`🏎️ PORSCHE ALL-DEALERSHIP NATIONWIDE TRACKER`);
-console.log(`Total Authorized Porsche Centers Configured: ${dealers.length}`);
+console.log(`🏎️ ${brand.name.toUpperCase()} ALL-DEALERSHIP NATIONWIDE TRACKER`);
+console.log(`Total Authorized ${brand.name} Centers Configured: ${dealers.length}`);
 console.log('====================================================\n');
 
 let previousSnapshot = {};
@@ -33,6 +43,18 @@ function cleanString(val) {
     if (!val || val === 'null' || val === 'undefined' || val === 'NULL' || val === 'None') return null;
     const str = val.toString().trim();
     return str === '' || str === 'null' ? null : str;
+}
+
+// Rejects prices that are structurally impossible rather than just
+// implausible: <= 0, an absurd >$5M sticker (no real Porsche listing hits
+// this — a sign of a misparsed field), or exactly 2147483647 (INT32_MAX,
+// the classic "null" sentinel some dealer platforms use for a missing
+// price instead of an actual empty value).
+function cleanPrice(val) {
+    if (val === null || val === undefined) return null;
+    const num = typeof val === 'number' ? val : parseFloat(val.toString().replace(/[^\d.]/g, ''));
+    if (isNaN(num) || num <= 0 || num >= 5000000 || num === 2147483647) return null;
+    return Math.round(num);
 }
 
 // Extracts the real "Included Packages & Options" section from a Dealer.com
@@ -251,7 +273,7 @@ function extractSchemaOrgVehicle(html, url, dealer) {
     const vin = vehicleLd.vehicleIdentificationNumber.trim().toUpperCase();
     if (!/^[A-HJ-NPR-Z0-9]{17}$/i.test(vin)) return null;
 
-    const price = vehicleLd.offers?.price ? Math.round(Number(vehicleLd.offers.price)) : null;
+    const price = cleanPrice(vehicleLd.offers?.price);
     const year = vehicleLd.vehicleModelDate ? parseInt(vehicleLd.vehicleModelDate, 10) : null;
 
     return {
@@ -262,7 +284,13 @@ function extractSchemaOrgVehicle(html, url, dealer) {
         stockNumber: null,
         inventoryType: url.includes('/used') || url.toLowerCase().includes('used') ? 'USED' : 'NEW',
         year: Number.isFinite(year) ? year : null,
-        make: cleanString(vehicleLd.manufacturer?.name) || 'Porsche',
+        // The page's own manufacturer field is the real signal — dealer.make
+        // is only "which brand we're targeting at this dealer", not a
+        // guarantee every vehicle there is that brand. Multi-franchise
+        // dealer groups (confirmed live: an NJ Ford dealer's sitemap also
+        // surfaced Ram, VW, Honda, Mazda, and Maserati vehicles) would get
+        // every vehicle mislabeled if dealer.make won here.
+        make: cleanString(vehicleLd.manufacturer?.name) || dealer.make || null,
         model: cleanString(vehicleLd.model),
         trim: null,
         bodyStyle: cleanString(vehicleLd.bodyType),
@@ -273,7 +301,147 @@ function extractSchemaOrgVehicle(html, url, dealer) {
         interiorColor: null,
         engine: cleanString(vehicleLd.vehicleEngine?.name),
         transmission: null,
-        dealerListedOptions: parseFeaturesFromDescription(vehicleLd.description),
+        // Deliberately not parsing options from vehicleLd.description here.
+        // Confirmed live on Porsche Beverly Hills: that field is sometimes an
+        // undelimited third-party spec-sheet dump ("Standard
+        // EquipmentMECHANICALFull-Time All-Wheel3.36 Axle Ratio...") with no
+        // real item boundaries — splitting it produces mashed-together
+        // garbage, not real per-VIN options. Left empty (honest) rather than
+        // risk shipping that as an itemized options list.
+        dealerListedOptions: [],
+        imageUrl: extractImageUrl(html, vehicleLd, url),
+        url,
+    };
+}
+
+// Best-effort real photo URL for this vehicle, tried across the platforms
+// seen so far. Never fabricated — only what the page itself actually
+// serves, in the same order confirmed live: og:image (Porsche retailer
+// platform), then schema.org's own `image` property (sometimes a
+// site-relative path, e.g. Porsche Beverly Hills — resolved against the
+// vehicle's own page URL).
+function extractImageUrl(html, vehicleLd, pageUrl) {
+    const og = html.match(/<meta property="og:image" content="([^"]+)"/i);
+    if (og && og[1]) return og[1];
+    if (vehicleLd?.image) {
+        const img = Array.isArray(vehicleLd.image) ? vehicleLd.image[0] : vehicleLd.image;
+        if (typeof img === 'string') {
+            if (img.startsWith('http')) return img;
+            try {
+                return new URL(img, pageUrl).href;
+            } catch {
+                return null;
+            }
+        }
+    }
+    return null;
+}
+
+// Strategy 2b: Porsche's own official retailer platform
+// (*.porsche.com/en/inventory/...). Runs the same Next.js RSC streaming
+// architecture as finder.porsche.com — real vehicle data is embedded as
+// JSON fragments inside self.__next_f.push(...) calls, not in a simple
+// top-level __NEXT_DATA__ tag. This is a majority platform in this
+// dataset (roughly 70% of dealers use it); a prior fragile regex-based
+// approach against this same platform was found (live, on the deployed
+// Lightsail crawler) to sometimes attach the wrong model to a VIN — e.g.
+// labeling a Cayenne listing "Porsche 911" — because proximity-based
+// regex matching near a VIN can pick up an unrelated nearby field. This
+// extracts the vehicle's own compact, flat "car" object instead, which
+// carries real vin/model/year/price/mileage as direct keys.
+function decodeRscStream(html) {
+    const matches = [...html.matchAll(/self\.__next_f\.push\(\[1,(".*?")\]\)/gs)];
+    let full = '';
+    for (const m of matches) {
+        try {
+            full += JSON.parse(m[1]);
+        } catch {
+            // skip malformed fragment
+        }
+    }
+    return full;
+}
+
+function extractBracketedValue(text, key, openChar, closeChar) {
+    const marker = `"${key}":${openChar}`;
+    const startIdx = text.indexOf(marker);
+    if (startIdx === -1) return null;
+    const start = startIdx + marker.length - 1;
+    let depth = 0;
+    let inString = false;
+    let escaped = false;
+    for (let i = start; i < text.length; i++) {
+        const ch = text[i];
+        if (inString) {
+            if (escaped) escaped = false;
+            else if (ch === '\\') escaped = true;
+            else if (ch === '"') inString = false;
+            continue;
+        }
+        if (ch === '"') inString = true;
+        else if (ch === openChar) depth++;
+        else if (ch === closeChar) {
+            depth--;
+            if (depth === 0) {
+                const raw = text.slice(start, i + 1);
+                try {
+                    return JSON.parse(raw);
+                } catch {
+                    return null;
+                }
+            }
+        }
+    }
+    return null;
+}
+
+function extractPorscheRetailerVehicle(html, url, dealer) {
+    if (!html.includes('self.__next_f.push')) return null;
+    const decoded = decodeRscStream(html);
+    const car = extractBracketedValue(decoded, 'car', '{', '}');
+    if (!car || !car.vin) return null;
+
+    const vin = car.vin.trim().toUpperCase();
+    if (!/^[A-HJ-NPR-Z0-9]{17}$/i.test(vin)) return null;
+
+    // Porsche's own feed is inconsistent about case for this field ("Macan"
+    // and "macan" both appear across different listings of the same real
+    // model) — normalizing casing isn't guessing content, just presenting
+    // the same real value consistently.
+    const rawModelRange = cleanString(car.modelRangeName);
+    const modelRange = rawModelRange && /^[a-z]/.test(rawModelRange) && !/^\d/.test(rawModelRange)
+        ? rawModelRange.charAt(0).toUpperCase() + rawModelRange.slice(1)
+        : rawModelRange;
+    const modelName = cleanString(car.modelName);
+    // modelName includes modelRangeName as a prefix ("718" + "718 Spyder");
+    // strip the confirmed-matching prefix rather than guess a split.
+    const trim = rawModelRange && modelName && modelName.startsWith(rawModelRange)
+        ? cleanString(modelName.slice(rawModelRange.length)) || null
+        : modelName;
+
+    const price = cleanPrice(car.priceTotalTotal);
+
+    return {
+        vin,
+        dealerName: dealer.name,
+        city: dealer.city,
+        state: dealer.state,
+        stockNumber: cleanString(car.listingId),
+        inventoryType: car.realcarStatus === 'new' ? 'NEW' : car.realcarStatus === 'preowned' ? 'USED' : url.toLowerCase().includes('new') ? 'NEW' : 'USED',
+        year: Number.isFinite(car.modelModelYear) ? car.modelModelYear : null,
+        make: 'Porsche',
+        model: modelRange,
+        trim,
+        bodyStyle: null,
+        price,
+        msrp: price,
+        mileage: typeof car.mileageValue === 'number' ? Math.round(car.mileageValue) : 0,
+        exteriorColor: null,
+        interiorColor: null,
+        engine: cleanString(car.engineType),
+        transmission: null,
+        dealerListedOptions: [],
+        imageUrl: extractImageUrl(html, null, url),
         url,
     };
 }
@@ -309,8 +477,9 @@ function decodeXmlEntities(str) {
         .replace(/&apos;/g, "'");
 }
 
-async function fetchSitemapXmlUrls(sitemapUrl, depth = 0) {
+async function fetchSitemapXmlUrls(sitemapUrl, depth = 0, brand) {
     if (depth > 2) return [];
+    const brandWord = brand.name.toLowerCase();
     try {
         const res = await gotScraping({
             url: sitemapUrl,
@@ -328,29 +497,30 @@ async function fetchSitemapXmlUrls(sitemapUrl, depth = 0) {
 
         const childSitemaps = [...xml.matchAll(/<sitemap>\s*<loc>([^<]+)<\/loc>/gi)].map((m) => decodeXmlEntities(m[1].trim()));
         if (childSitemaps.length > 0) {
-            const inventoryChild = childSitemaps.filter((u) => /vehicle|inventory|cars|porsche|sitemap/i.test(u));
+            const inventoryChild = childSitemaps.filter((u) => new RegExp(`vehicle|inventory|cars|${brandWord}|sitemap`, 'i').test(u));
             const targets = inventoryChild.length > 0 ? inventoryChild : childSitemaps;
             let nested = [];
             for (const child of targets.slice(0, 8)) {
-                nested.push(...await fetchSitemapXmlUrls(child, depth + 1));
+                nested.push(...await fetchSitemapXmlUrls(child, depth + 1, brand));
             }
             return nested;
         }
 
         const allUrls = [...xml.matchAll(/<loc>([^<]+)<\/loc>/gi)].map((m) => decodeXmlEntities(m[1].trim()));
+        const vinPattern = brand.vinPrefixes.map((p) => `${p}[A-Z0-9]{13,14}`).join('|');
         return allUrls.filter((u) =>
             /-[a-f0-9]{32}\.htm/i.test(u) ||
             /\/vehicle-details/i.test(u) ||
-            /\/inventory\/(?:new|used|certified|porsche|all)/i.test(u) ||
-            /\/(?:new|used|certified|cpo)\/(?:Porsche|inventory)\//i.test(u) ||
-            /WP0[A-Z0-9]{13,14}|WP1[A-Z0-9]{13,14}/i.test(u)
+            new RegExp(`\\/inventory\\/(?:new|used|certified|${brandWord}|all)`, 'i').test(u) ||
+            new RegExp(`\\/(?:new|used|certified|cpo)\\/(?:${brand.name}|inventory)\\/`, 'i').test(u) ||
+            new RegExp(vinPattern, 'i').test(u)
         );
     } catch {
         return [];
     }
 }
 
-async function resolveSitemapUrls(dealer) {
+async function resolveSitemapUrls(dealer, brand) {
     const candidateUrls = [
         dealer.sitemapUrl,
         dealer.inventorySitemapUrl,
@@ -360,7 +530,7 @@ async function resolveSitemapUrls(dealer) {
     ].filter(Boolean);
 
     for (const url of candidateUrls) {
-        const found = await fetchSitemapXmlUrls(url);
+        const found = await fetchSitemapXmlUrls(url, 0, brand);
         if (found.length > 0) {
             return found;
         }
@@ -395,7 +565,7 @@ for (let i = 0; i < dealers.length; i++) {
     console.log(`${progress} 🏢 Crawling ${dealer.name} (${dealer.city}, ${dealer.state})...`);
 
     try {
-        const vehicleUrls = await resolveSitemapUrls(dealer);
+        const vehicleUrls = await resolveSitemapUrls(dealer, brand);
         if (vehicleUrls.length === 0) {
             console.log(`${progress} ⚠️ No inventory URLs detected for ${dealer.name}.`);
             dealerStats[dealer.name] = 0;
@@ -420,9 +590,9 @@ for (let i = 0; i < dealers.length; i++) {
                         vm.runInNewContext('vehicles = ' + ddcMatch[1], sandbox);
                         if (sandbox.vehicles && sandbox.vehicles.length > 0) {
                             const raw = sandbox.vehicles[0];
-                            const askingPrice = parseFloat(raw.askingPrice || '0') || null;
-                            const salePrice = parseFloat(raw.salePrice || '0') || null;
-                            const retailValue = parseFloat(raw.retailValue || '0') || null;
+                            const askingPrice = cleanPrice(raw.askingPrice);
+                            const salePrice = cleanPrice(raw.salePrice);
+                            const retailValue = cleanPrice(raw.retailValue);
                             const price = salePrice || askingPrice || retailValue || null;
                             const msrp = retailValue || askingPrice || null;
                             const mileage = parseFloat(raw.odometer || raw.mileage || '0') || 0;
@@ -443,7 +613,7 @@ for (let i = 0; i < dealers.length; i++) {
                                 stockNumber: cleanString(raw.stockNumber),
                                 inventoryType,
                                 year: raw.year ? parseInt(raw.year, 10) : null,
-                                make: cleanString(raw.make) || 'Porsche',
+                                make: cleanString(raw.make) || dealer.make || brand.name,
                                 model: cleanString(raw.model),
                                 trim: cleanString(raw.trim),
                                 bodyStyle: cleanString(raw.bodyStyle),
@@ -455,6 +625,7 @@ for (let i = 0; i < dealers.length; i++) {
                                 engine: cleanString(raw.engine),
                                 transmission: cleanString(raw.transmission),
                                 dealerListedOptions: extractDealerListedOptions(raw),
+                                imageUrl: Array.isArray(raw.images) && raw.images[0]?.uri ? raw.images[0].uri : null,
                                 url,
                             };
                         }
@@ -464,6 +635,15 @@ for (let i = 0; i < dealers.length; i++) {
                 // Strategy 2: schema.org Vehicle JSON-LD (DealerOn and others).
                 if (!vehicle || !vehicle.vin) {
                     vehicle = extractSchemaOrgVehicle(html, url, dealer);
+                }
+
+                // Strategy 2b: manufacturer's own official retailer platform
+                // (RSC) — only Porsche has one of these (confirmed this
+                // session: Audi, VW, and Lamborghini each run separate,
+                // brand-specific systems), so this is skipped entirely for
+                // other brands rather than wastefully attempted.
+                if (brand.hasOfficialRetailerPlatform && (!vehicle || !vehicle.vin)) {
+                    vehicle = extractPorscheRetailerVehicle(html, url, dealer);
                 }
 
                 // Strategy 3: last-resort structured-field scan. Only trusts
@@ -477,10 +657,11 @@ for (let i = 0; i < dealers.length; i++) {
                 // than guessed; a real VIN is still useful on its own since
                 // NHTSA decoding downstream can supply accurate specs.
                 if (!vehicle || !vehicle.vin) {
+                    const urlVinPattern = brand.vinPrefixes.map((p) => `${p}[A-Z0-9]{13,14}`).join('|');
                     const vinMatch = html.match(/vehicleIdentificationNumber["']?\s*:\s*["']([A-HJ-NPR-Z0-9]{16,17})/i) ||
                                      html.match(/"vin":\s*"([A-HJ-NPR-Z0-9]{16,17})"/i) ||
                                      html.match(/itemprop=["']vehicleIdentificationNumber["'][^>]*content=["']([A-HJ-NPR-Z0-9]{16,17})["']/i) ||
-                                     url.match(/(WP0[A-Z0-9]{13,14}|WP1[A-Z0-9]{13,14})/i);
+                                     url.match(new RegExp(`(${urlVinPattern})`, 'i'));
 
                     const priceMatch = html.match(/"price"\s*:\s*"?([\d,]+(?:\.\d+)?)"?/i) ||
                                        html.match(/itemprop=["']price["'][^>]*content=["']([\d,]+(?:\.\d+)?)["']/i);
@@ -490,7 +671,7 @@ for (let i = 0; i < dealers.length; i++) {
 
                     if (vinMatch) {
                         const rawPriceStr = priceMatch ? priceMatch[1].replace(/,/g, '') : null;
-                        const price = rawPriceStr ? Math.round(parseFloat(rawPriceStr)) : null;
+                        const price = cleanPrice(rawPriceStr);
                         const year = yearMatch ? parseInt(yearMatch[1], 10) : null;
 
                         vehicle = {
@@ -501,7 +682,12 @@ for (let i = 0; i < dealers.length; i++) {
                             stockNumber: null,
                             inventoryType: url.includes('/new') ? 'NEW' : url.includes('/certified') || url.includes('/cpo') ? 'CERTIFIED_PRE_OWNED' : 'USED',
                             year: Number.isFinite(year) && year >= 1950 && year <= new Date().getFullYear() + 1 ? year : null,
-                            make: 'Porsche',
+                            // No real manufacturer field is scraped by this
+                            // strategy (see comment above) — left null rather
+                            // than asserting dealer.make, since multi-brand
+                            // dealers mean that's not reliable. The isolation
+                            // check just below gates on VIN prefix instead.
+                            make: null,
                             model: null,
                             trim: null,
                             bodyStyle: null,
@@ -518,19 +704,24 @@ for (let i = 0; i < dealers.length; i++) {
                 }
 
                 if (vehicle && vehicle.vin && vehicle.vin.length >= 16) {
-                    // Multi-brand isolation check: only store Porsche vehicles
-                    const isPorsche = vehicle.make?.toLowerCase().includes('porsche') ||
-                                      vehicle.vin.startsWith('WP0') ||
-                                      vehicle.vin.startsWith('WP1') ||
-                                      /911|carrera|cayman|boxster|taycan|macan|cayenne|panamera/i.test(vehicle.model || '');
+                    // Multi-brand isolation check: some dealers (especially
+                    // multi-franchise groups) surface other brands they also
+                    // sell in the same sitemap/pages — only keep vehicles
+                    // that actually match the brand this run is targeting.
+                    const isTargetBrand = vehicle.make?.toLowerCase().includes(brand.name.toLowerCase()) ||
+                                      brand.vinPrefixes.some((p) => vehicle.vin.startsWith(p));
 
-                    if (isPorsche) {
+                    if (isTargetBrand) {
+                        // Strategy 3 leaves make unset (no real manufacturer
+                        // field available) — safe to fill in now that the
+                        // VIN prefix has actually confirmed the brand.
+                        if (!vehicle.make) vehicle.make = brand.name;
                         currentInventory.set(vehicle.vin, vehicle);
                         dealerCount++;
                     }
                 }
             } catch {}
-        }, 8);
+        }, Number(process.env.CRAWLER_CONCURRENCY) || 8);
 
         dealerStats[dealer.name] = dealerCount;
         if (dealerCount > 0) activeDealersCount++;
@@ -544,7 +735,7 @@ for (let i = 0; i < dealers.length; i++) {
     // without this, a stall or crash partway through loses everything —
     // the real output files only get written after the whole loop finishes.
     try {
-        fs.writeFileSync(
+        await fs.writeFile(
             path.join(DATA_DIR, 'checkpoint_raw_inventory.json'),
             JSON.stringify(Array.from(currentInventory.values()), null, 2)
         );
@@ -554,7 +745,7 @@ for (let i = 0; i < dealers.length; i++) {
 }
 
 console.log(`\n🎉 Nationwide Crawl Complete!`);
-console.log(`Total Active Porsche Centers with Live Inventory: ${activeDealersCount}`);
+console.log(`Total Active ${brand.name} Centers with Live Inventory: ${activeDealersCount}`);
 console.log(`Total Live Vehicles Tracked: ${currentInventory.size}`);
 
 // Compute Nationwide Diffs
@@ -670,7 +861,7 @@ console.log('====================================================\n');
 // Automatically trigger enrichment pipeline on all captured inventory
 try {
     console.log('⚡ Triggering automatic spec enrichment pipeline...');
-    await runEnrichmentPipeline();
+    await runEnrichmentPipeline(Infinity, brand);
 } catch (enrichErr) {
     console.error('Enrichment step warning:', enrichErr.message);
 }
