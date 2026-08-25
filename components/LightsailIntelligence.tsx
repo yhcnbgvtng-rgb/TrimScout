@@ -44,6 +44,7 @@ import {
   NhtsaSpec,
 } from "@/lib/enrichmentEngine";
 import { calculateDistanceMiles } from "@/lib/otdCalculator";
+import { DailyChangesPanel } from "./DailyChangesPanel";
 
 export interface VehicleRecord {
   vin: string;
@@ -133,7 +134,7 @@ export const LightsailIntelligence: React.FC = () => {
   const [allVehicles, setAllVehicles] = useState<VehicleRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [viewMode, setViewMode] = useState<"table" | "grid">("table");
+  const [viewMode, setViewMode] = useState<"table" | "grid" | "changes">("table");
   const [copiedVin, setCopiedVin] = useState<string | null>(null);
   const [isAdvancedFiltersOpen, setIsAdvancedFiltersOpen] = useState(false);
   const [selectedVehicleForModal, setSelectedVehicleForModal] = useState<VehicleRecord | null>(null);
@@ -1010,6 +1011,15 @@ export const LightsailIntelligence: React.FC = () => {
               >
                 <LayoutGrid className="h-4 w-4" />
               </button>
+              <button
+                onClick={() => setViewMode("changes")}
+                className={`p-1.5 rounded-lg text-xs font-bold transition-all ${
+                  viewMode === "changes" ? "bg-surface text-emerald-400 shadow-sm" : "text-ink-muted hover:text-white"
+                }`}
+                title="Daily Market Activity"
+              >
+                <Clock className="h-4 w-4" />
+              </button>
             </div>
           </div>
         </div>
@@ -1337,7 +1347,9 @@ export const LightsailIntelligence: React.FC = () => {
       {/* ==================================================== */}
       {/* 4. DATA TABLE & CARD GRID VIEW */}
       {/* ==================================================== */}
-      {filteredVehicles.length === 0 ? (
+      {viewMode === "changes" ? (
+        <DailyChangesPanel vehicles={allVehicles} selectedDealer={selectedDealer} />
+      ) : filteredVehicles.length === 0 ? (
         <div className="rounded-3xl border border-border bg-surface p-12 text-center space-y-4 shadow-xl">
           <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-surface-elevated text-ink-muted mx-auto border border-border">
             <Search className="h-6 w-6" />
