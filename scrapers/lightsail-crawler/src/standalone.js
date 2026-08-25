@@ -46,18 +46,26 @@ function extractDealerListedOptions(raw) {
     for (const pkg of raw.packages) {
         // Dealer.com dumps the vehicle's entire baseline standard-equipment
         // catalog (power windows, ABS, cupholders...) into an unnamed
-        // bucket (packageName "null", id -1) alongside real add-on
-        // packages. That bucket isn't "Included Packages & Options" in any
-        // meaningful sense — every car has it — so skip it entirely rather
-        // than flooding the options filter with universal baseline features.
-        if (!pkg.packageName || pkg.packageName === 'null') continue;
+        // bucket (packageName "null", id -1) — but on some dealer sites
+        // (confirmed on paulmillerporsche.com, e.g. VIN WP0BB2A99TS258067)
+        // that same unnamed bucket also holds real, specifically-installed
+        // factory options with genuine dollar prices (e.g. a $3,210 memory
+        // seats package). Skipping the whole bucket throws those real
+        // options away along with the baseline noise. The reliable signal
+        // isn't the package name, it's the price: baseline equipment is
+        // always listed at $0 here, real installed options are not — so
+        // filter unnamed-bucket items by price instead of dropping the
+        // bucket wholesale.
+        const isNamedPackage = Boolean(pkg.packageName) && pkg.packageName !== 'null';
 
-        items.push({
-            code: `PKG-${pkg.id ?? pkg.packageName}`,
-            name: pkg.packageName,
-            price: typeof pkg.msrp === 'number' ? pkg.msrp : 0,
-            category: 'package',
-        });
+        if (isNamedPackage) {
+            items.push({
+                code: `PKG-${pkg.id ?? pkg.packageName}`,
+                name: pkg.packageName,
+                price: typeof pkg.msrp === 'number' ? pkg.msrp : 0,
+                category: 'package',
+            });
+        }
 
         const optionList = Array.isArray(pkg.includedOptionList)
             ? pkg.includedOptionList
@@ -68,10 +76,12 @@ function extractDealerListedOptions(raw) {
         for (const opt of optionList) {
             const description = opt.textMap && opt.textMap.description;
             if (!description) continue;
+            const price = typeof opt.msrPrice === 'number' ? opt.msrPrice : 0;
+            if (!isNamedPackage && price <= 0) continue;
             items.push({
-                code: opt.textMap.id ? `OPT-${opt.textMap.id}` : 'OPT',
+                code: opt.textMap.id && opt.textMap.id !== 'null' ? `OPT-${opt.textMap.id}` : 'OPT',
                 name: description,
-                price: typeof opt.msrPrice === 'number' ? opt.msrPrice : 0,
+                price,
                 category: 'option',
             });
         }
