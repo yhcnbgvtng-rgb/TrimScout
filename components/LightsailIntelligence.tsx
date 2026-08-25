@@ -83,6 +83,7 @@ export interface VehicleRecord {
   optionsSource?: "DEALER_VDP" | "PORSCHE_FINDER";
   standardEquipment?: string[];
   finderUrl?: string;
+  imageUrl?: string;
 }
 
 export const PORSCHE_PAINT_CODES: Record<string, string> = {
@@ -136,11 +137,72 @@ export function getCleanExteriorColor(raw?: string | null): string {
   return raw;
 }
 
+// A filter field that behaves like a dropdown (browse via native suggestions)
+// and a text input (type to jump straight to a value) at once, via a native
+// <input list="..."> + <datalist> pairing — no extra combobox dependency.
+function ComboField({
+  label,
+  value,
+  onChange,
+  options,
+  allLabel,
+}: {
+  label: string;
+  value: string;
+  onChange: (val: string) => void;
+  options: { value: string; label: string }[];
+  allLabel: string;
+}) {
+  const listId = `combo-${label.replace(/\s+/g, "-").toLowerCase()}`;
+  const [text, setText] = useState("");
+
+  useEffect(() => {
+    const match = options.find((o) => o.value === value);
+    setText(match ? match.label : "");
+  }, [value, options]);
+
+  const commit = (raw: string) => {
+    if (!raw.trim()) {
+      onChange("ALL");
+      return;
+    }
+    const exact = options.find(
+      (o) => o.label.toLowerCase() === raw.toLowerCase() || o.value.toLowerCase() === raw.toLowerCase()
+    );
+    if (exact) onChange(exact.value);
+  };
+
+  return (
+    <div className="space-y-1">
+      <label className="text-[10px] font-bold uppercase text-ink-faint">{label}</label>
+      <input
+        type="text"
+        list={listId}
+        value={text}
+        onChange={(e) => {
+          setText(e.target.value);
+          commit(e.target.value);
+        }}
+        onBlur={(e) => {
+          if (!e.target.value.trim()) onChange("ALL");
+        }}
+        placeholder={allLabel}
+        className="w-full rounded-lg border border-border bg-surface-elevated px-2.5 py-1.5 text-xs text-white placeholder-ink-faint focus:border-emerald-500 focus:outline-none"
+      />
+      <datalist id={listId}>
+        {options.map((o) => (
+          <option key={o.value} value={o.label} />
+        ))}
+      </datalist>
+    </div>
+  );
+}
+
 export const LightsailIntelligence: React.FC = () => {
   const [allVehicles, setAllVehicles] = useState<VehicleRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [viewMode, setViewMode] = useState<"table" | "grid" | "changes">("table");
+  const [viewMode, setViewMode] = useState<"grid" | "changes">("grid");
   const [copiedVin, setCopiedVin] = useState<string | null>(null);
   const [isAdvancedFiltersOpen, setIsAdvancedFiltersOpen] = useState(false);
   const [selectedVehicleForModal, setSelectedVehicleForModal] = useState<VehicleRecord | null>(null);
@@ -883,105 +945,39 @@ export const LightsailIntelligence: React.FC = () => {
   };
 
   return (
-    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 space-y-6 animate-fadeIn">
+    <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-8 space-y-5 animate-fadeIn">
       {/* ==================================================== */}
-      {/* 1. HEADER & CLOUD TELEMETRY BAR */}
+      {/* SEARCH */}
       {/* ==================================================== */}
-      <div className="rounded-3xl border border-border bg-gradient-to-r from-surface-elevated via-surface to-surface-elevated p-6 shadow-2xl relative overflow-hidden">
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-          <div className="space-y-1.5">
-            <div className="flex items-center gap-2">
-              <span className="flex h-2.5 w-2.5 rounded-full bg-emerald-400 animate-ping" />
-              <span className="rounded-full bg-emerald-500/20 border border-emerald-500/40 px-2.5 py-0.5 text-[10px] font-black text-emerald-400 uppercase tracking-wider">
-                Live Cloud Feed • AWS Lightsail 34.205.155.92
-              </span>
-            </div>
-            <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white flex items-center gap-2">
-              🏎️ Porsche Market Intelligence & Factory Spec Explorer
-            </h1>
-            <p className="text-xs sm:text-sm text-ink-muted max-w-3xl">
-              Real-time nationwide inventory cross-referenced with <strong>NHTSA Plant Specs</strong> and <strong>OEM Factory Option Sheets</strong> (Sport Chrono, Front Axle Lift, PCCB, Burmester). Sort by proximity to your ZIP or price tiers.
-            </p>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-3">
-            <button
-              onClick={handleRefresh}
-              disabled={isRefreshing}
-              className="inline-flex items-center gap-2 rounded-xl border border-border bg-surface px-4 py-2 text-xs font-bold text-ink-light hover:text-white hover:border-emerald-500/50 transition-all cursor-pointer shadow-sm"
-            >
-              <RefreshCw className={`h-3.5 w-3.5 text-emerald-400 ${isRefreshing ? "animate-spin" : ""}`} />
-              <span>{isRefreshing ? "Syncing..." : "Sync Lightsail"}</span>
-            </button>
-
-            <button
-              onClick={handleExportFilteredCSV}
-              className="inline-flex items-center gap-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 px-4 py-2 text-xs font-extrabold text-black transition-all shadow-md shadow-emerald-500/20 cursor-pointer"
-            >
-              <Download className="h-3.5 w-3.5 fill-black" />
-              <span>Export CSV ({filteredVehicles.length})</span>
-            </button>
-          </div>
-        </div>
+      <div className="relative">
+        <Search className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-ink-faint" />
+        <input
+          type="text"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          placeholder="Search by VIN, model, trim, dealer, or option..."
+          className="w-full rounded-2xl border border-border bg-surface pl-11 pr-4 py-3.5 text-sm text-white placeholder-ink-faint focus:border-emerald-500 focus:outline-none shadow-sm"
+        />
+        {searchTerm && (
+          <button
+            onClick={() => setSearchTerm("")}
+            className="absolute right-4 top-1/2 -translate-y-1/2 text-ink-faint hover:text-white cursor-pointer"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        )}
       </div>
 
       {/* ==================================================== */}
-      {/* 2. REAL-TIME DYNAMIC AGGREGATE KPI CARDS */}
+      {/* FILTER & SORT */}
       {/* ==================================================== */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-        <div className="rounded-2xl border border-border bg-surface p-4 space-y-1">
-          <div className="text-[10px] font-bold uppercase text-ink-faint">Matching Vehicles</div>
-          <div className="text-2xl font-black text-white font-mono">{liveStats.count}</div>
-          <div className="text-[10px] text-emerald-400 font-medium">of {allVehicles.length} nationwide</div>
-        </div>
-
-        <div className="rounded-2xl border border-border bg-surface p-4 space-y-1">
-          <div className="text-[10px] font-bold uppercase text-ink-faint">Avg Asking Price</div>
-          <div className="text-2xl font-black text-emerald-400 font-mono">
-            {liveStats.avgPrice ? `$${liveStats.avgPrice.toLocaleString()}` : "—"}
-          </div>
-          <div className="text-[10px] text-ink-muted font-medium">Active filter selection</div>
-        </div>
-
-        <div className="rounded-2xl border border-border bg-surface p-4 space-y-1">
-          <div className="text-[10px] font-bold uppercase text-ink-faint">Price Drops Active</div>
-          <div className="text-2xl font-black text-rose-400 font-mono">{liveStats.totalDrops}</div>
-          <div className="text-[10px] text-rose-400 font-medium">
-            {liveStats.maxDrop ? `Max -$${liveStats.maxDrop.toLocaleString()}` : "0 drops"}
-          </div>
-        </div>
-
-        <div className="rounded-2xl border border-border bg-surface p-4 space-y-1">
-          <div className="text-[10px] font-bold uppercase text-ink-faint">Avg Days on Lot</div>
-          <div className="text-2xl font-black text-blue-400 font-mono">{liveStats.avgDays}d</div>
-          <div className="text-[10px] text-ink-muted font-medium">Showroom age</div>
-        </div>
-
-        <div className="rounded-2xl border border-border bg-surface p-4 space-y-1">
-          <div className="text-[10px] font-bold uppercase text-ink-faint">High Leverage (&gt;45d)</div>
-          <div className="text-2xl font-black text-amber-400 font-mono">{liveStats.staleCount}</div>
-          <div className="text-[10px] text-amber-400 font-medium">Aging dealer stock</div>
-        </div>
-
-        <div className="rounded-2xl border border-border bg-surface p-4 space-y-1">
-          <div className="text-[10px] font-bold uppercase text-ink-faint">Dealer Centers</div>
-          <div className="text-2xl font-black text-purple-400 font-mono">{facetOptions.dealers.length}</div>
-          <div className="text-[10px] text-purple-400 font-medium">Authorized Centers</div>
-        </div>
-      </div>
-
-      {/* ==================================================== */}
-      {/* 3. MULTI-CATEGORY COMPREHENSIVE FILTER PANEL */}
-      {/* ==================================================== */}
-      <div className="rounded-3xl border border-border bg-surface p-6 shadow-xl space-y-4">
-        <div className="flex items-center justify-between border-b border-border/60 pb-3">
+      <div className="rounded-2xl border border-border bg-surface p-4 sm:p-5 space-y-3">
+        <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <SlidersHorizontal className="h-4 w-4 text-emerald-400" />
-            <h2 className="font-black text-white text-sm uppercase tracking-wider">
-              Filter & Sort Results by Proximity & Spec
-            </h2>
+            <SlidersHorizontal className="h-3.5 w-3.5 text-ink-faint" />
+            <h2 className="font-bold text-ink-light text-xs uppercase tracking-wider">Filter & Sort</h2>
             {activeFiltersCount > 0 && (
-              <span className="rounded-full bg-emerald-500/20 text-emerald-400 px-2 py-0.2 text-[10px] font-bold">
+              <span className="rounded-full bg-emerald-500/20 text-emerald-400 px-2 py-0.5 text-[10px] font-bold">
                 {activeFiltersCount} active
               </span>
             )}
@@ -991,315 +987,193 @@ export const LightsailIntelligence: React.FC = () => {
             {activeFiltersCount > 0 && (
               <button
                 onClick={handleResetFilters}
-                className="text-emerald-400 hover:underline inline-flex items-center gap-1 font-bold text-xs cursor-pointer"
+                className="text-emerald-400 hover:underline inline-flex items-center gap-1 font-bold text-[11px] cursor-pointer"
               >
                 <RotateCcw className="h-3 w-3" />
-                <span>Reset Filters</span>
+                <span>Reset</span>
               </button>
             )}
 
-            <div className="flex items-center rounded-xl border border-border bg-surface-elevated p-1">
-              <button
-                onClick={() => setViewMode("table")}
-                className={`p-1.5 rounded-lg text-xs font-bold transition-all ${
-                  viewMode === "table" ? "bg-surface text-emerald-400 shadow-sm" : "text-ink-muted hover:text-white"
-                }`}
-                title="Dense Table View"
-              >
-                <List className="h-4 w-4" />
-              </button>
+            <div className="flex items-center rounded-lg border border-border bg-surface-elevated p-0.5 text-[11px] font-bold">
               <button
                 onClick={() => setViewMode("grid")}
-                className={`p-1.5 rounded-lg text-xs font-bold transition-all ${
-                  viewMode === "grid" ? "bg-surface text-emerald-400 shadow-sm" : "text-ink-muted hover:text-white"
+                className={`px-2.5 py-1 rounded-md transition-all cursor-pointer ${
+                  viewMode === "grid" ? "bg-surface text-emerald-400" : "text-ink-muted hover:text-white"
                 }`}
-                title="Visual Card Grid View"
               >
-                <LayoutGrid className="h-4 w-4" />
+                Results
               </button>
               <button
                 onClick={() => setViewMode("changes")}
-                className={`p-1.5 rounded-lg text-xs font-bold transition-all ${
-                  viewMode === "changes" ? "bg-surface text-emerald-400 shadow-sm" : "text-ink-muted hover:text-white"
+                className={`px-2.5 py-1 rounded-md transition-all cursor-pointer ${
+                  viewMode === "changes" ? "bg-surface text-emerald-400" : "text-ink-muted hover:text-white"
                 }`}
-                title="Daily Market Activity"
               >
-                <Clock className="h-4 w-4" />
+                Daily Activity
               </button>
             </div>
           </div>
         </div>
 
-        {/* Filter Dropdowns & Inputs */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 text-xs">
-          {/* 1. Global Search */}
-          <div className="space-y-1">
-            <label className="text-[10px] font-bold uppercase text-ink-faint flex items-center gap-1">
-              <Search className="h-3 w-3 text-emerald-400" />
-              <span>Keyword / Exact VIN / Option</span>
-            </label>
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search VIN, Chrono, Lift, GTS..."
-              className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-xs text-white placeholder-ink-faint focus:border-emerald-500 focus:outline-none font-mono"
-            />
-          </div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 text-xs">
+          <ComboField
+            label="Model"
+            value={selectedModel}
+            onChange={(val) => {
+              setSelectedModel(val);
+              setSelectedTrim("ALL");
+            }}
+            options={facetOptions.models.map(([m, count]) => ({ value: m, label: `${m} (${count})` }))}
+            allLabel={`All Models (${allVehicles.length})`}
+          />
 
-          {/* 2. Sort Dropdown (Closest to ZIP, Price High to Low, Price Low to High) */}
-          <div className="space-y-1">
-            <label className="text-[10px] font-bold uppercase text-ink-faint flex items-center gap-1">
-              <ArrowUpDown className="h-3 w-3 text-emerald-400" />
-              <span>Sort Results</span>
-            </label>
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              className="w-full rounded-xl border border-emerald-500/40 bg-surface-elevated px-3 py-2 text-xs text-emerald-300 font-bold focus:border-emerald-500 focus:outline-none"
-            >
-              <option value="default">Default Order</option>
-              <option value="closest_to_zip">📍 Closest to ZIP Code</option>
-              <option value="price_desc">💰 Price: High to Low</option>
-              <option value="price_asc">💵 Price: Low to High</option>
-              <option value="price_drop_first">🔥 Largest Price Drop First</option>
-              <option value="days_desc">⏳ Days on Lot: Longest</option>
-              <option value="days_asc">⚡ Days on Lot: Newest</option>
-              <option value="mileage_asc">🚗 Mileage: Lowest First</option>
-              <option value="year_desc">📅 Year: Newest First</option>
-            </select>
-          </div>
+          <ComboField
+            label="Trim"
+            value={selectedTrim}
+            onChange={setSelectedTrim}
+            options={facetOptions.trims.map(([t, count]) => ({ value: t, label: `${t} (${count})` }))}
+            allLabel="All Trims"
+          />
 
-          {/* 3. Your ZIP Code Anchor */}
-          <div className="space-y-1">
-            <label className="text-[10px] font-bold uppercase text-ink-faint flex items-center gap-1">
-              <Navigation className="h-3 w-3 text-blue-400" />
-              <span>Your ZIP Code (Distance Anchor)</span>
-            </label>
-            <input
-              type="text"
-              value={userZip}
-              onChange={(e) => setUserZip(e.target.value.replace(/\D/g, "").slice(0, 5))}
-              placeholder="e.g. 07054 or 90210"
-              className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-xs text-white placeholder-ink-faint font-mono focus:border-blue-500 focus:outline-none"
-            />
-          </div>
+          <ComboField
+            label="Dealership"
+            value={selectedDealer}
+            onChange={setSelectedDealer}
+            options={facetOptions.dealers.map(([d, count]) => ({ value: d, label: `${d} (${count})` }))}
+            allLabel="All Dealerships"
+          />
 
-          {/* 4. Model Series */}
-          <div className="space-y-1">
-            <label className="text-[10px] font-bold uppercase text-ink-faint flex items-center gap-1">
-              <Car className="h-3 w-3 text-blue-400" />
-              <span>Model Series</span>
-            </label>
-            <select
-              value={selectedModel}
-              onChange={(e) => {
-                setSelectedModel(e.target.value);
-                setSelectedTrim("ALL");
-              }}
-              className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
-            >
-              <option value="ALL">All Models ({allVehicles.length})</option>
-              {facetOptions.models.map(([m, count]) => (
-                <option key={m} value={m}>
-                  {m} ({count})
-                </option>
-              ))}
-            </select>
-          </div>
+          <ComboField
+            label="State"
+            value={selectedState}
+            onChange={setSelectedState}
+            options={facetOptions.states.map(([s, count]) => ({ value: s, label: `${s} (${count})` }))}
+            allLabel="All States"
+          />
 
-          {/* 4b. Trim / Submodel */}
-          <div className="space-y-1">
-            <label className="text-[10px] font-bold uppercase text-ink-faint flex items-center gap-1">
-              <Sparkles className="h-3 w-3 text-purple-400" />
-              <span>Trim / Submodel</span>
-            </label>
-            <select
-              value={selectedTrim}
-              onChange={(e) => setSelectedTrim(e.target.value)}
-              className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none font-medium"
-            >
-              <option value="ALL">All Trims ({facetOptions.trims.filter(([, count]) => count > 0).length} matching)</option>
-              {facetOptions.trims.map(([t, count]) => (
-                <option key={t} value={t}>
-                  {t} ({count})
-                </option>
-              ))}
-            </select>
-          </div>
+          <ComboField
+            label="Factory Option"
+            value={selectedOptionCode}
+            onChange={setSelectedOptionCode}
+            options={Array.from(facetOptions.options.entries())
+              .filter(([, count]) => count > 0)
+              .sort((a, b) => b[1] - a[1])
+              .map(([code, count]) => ({
+                value: code,
+                label: `${facetOptions.optionNames.get(code) || code} (${count})`,
+              }))}
+            allLabel="All Options"
+          />
 
-          {/* 5. Factory Option Filter */}
-          <div className="space-y-1">
-            <label className="text-[10px] font-bold uppercase text-ink-faint flex items-center gap-1">
-              <Sparkles className="h-3 w-3 text-amber-400" />
-              <span>Factory Option / Package</span>
-            </label>
-            <select
-              value={selectedOptionCode}
-              onChange={(e) => setSelectedOptionCode(e.target.value)}
-              className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none font-bold text-amber-300"
-            >
-              <option value="ALL">All Factory Builds</option>
-              {Array.from(facetOptions.options.entries())
-                .filter(([, count]) => count > 0)
-                .sort((a, b) => b[1] - a[1])
-                .map(([code, count]) => (
-                  <option key={code} value={code}>
-                    {facetOptions.optionNames.get(code) || code} ({count})
-                  </option>
-                ))}
-            </select>
-          </div>
+          <ComboField
+            label="Body Style"
+            value={selectedBodyStyle}
+            onChange={setSelectedBodyStyle}
+            options={facetOptions.bodyStyles.map(([b, count]) => ({ value: b, label: `${b} (${count})` }))}
+            allLabel="All Body Styles"
+          />
 
-          {/* 6. Condition / Type */}
           <div className="space-y-1">
-            <label className="text-[10px] font-bold uppercase text-ink-faint flex items-center gap-1">
-              <ShieldCheck className="h-3 w-3 text-emerald-400" />
-              <span>Condition</span>
-            </label>
+            <label className="text-[10px] font-bold uppercase text-ink-faint">Condition</label>
             <select
               value={selectedCondition}
               onChange={(e) => setSelectedCondition(e.target.value)}
-              className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
+              className="w-full rounded-lg border border-border bg-surface-elevated px-2.5 py-1.5 text-xs text-white focus:border-emerald-500 focus:outline-none"
             >
               <option value="ALL">All Conditions</option>
-              <option value="NEW">New Units ({facetOptions.conditions.NEW})</option>
+              <option value="NEW">New ({facetOptions.conditions.NEW})</option>
               <option value="USED">Pre-Owned ({facetOptions.conditions.USED})</option>
-              <option value="CERTIFIED">Certified Pre-Owned (CPO) ({facetOptions.conditions.CERTIFIED})</option>
+              <option value="CERTIFIED">CPO ({facetOptions.conditions.CERTIFIED})</option>
             </select>
           </div>
 
-          {/* 7. Dealership Center */}
           <div className="space-y-1">
-            <label className="text-[10px] font-bold uppercase text-ink-faint flex items-center gap-1">
-              <Building2 className="h-3 w-3 text-emerald-400" />
-              <span>Dealership Center</span>
-            </label>
+            <label className="text-[10px] font-bold uppercase text-ink-faint">Sort</label>
             <select
-              value={selectedDealer}
-              onChange={(e) => setSelectedDealer(e.target.value)}
-              className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className="w-full rounded-lg border border-border bg-surface-elevated px-2.5 py-1.5 text-xs text-white focus:border-emerald-500 focus:outline-none"
             >
-              <option value="ALL">All Dealerships ({facetOptions.dealers.filter(([, count]) => count > 0).length} active matching)</option>
-              {facetOptions.dealers.map(([d, count]) => (
-                <option key={d} value={d}>
-                  {d} ({count})
-                </option>
-              ))}
+              <option value="default">Default Order</option>
+              <option value="closest_to_zip">Closest to ZIP</option>
+              <option value="price_desc">Price: High to Low</option>
+              <option value="price_asc">Price: Low to High</option>
+              <option value="price_drop_first">Largest Price Drop</option>
+              <option value="days_desc">Days on Lot: Longest</option>
+              <option value="days_asc">Days on Lot: Newest</option>
+              <option value="mileage_asc">Mileage: Lowest</option>
+              <option value="year_desc">Year: Newest</option>
             </select>
           </div>
 
-          {/* 8. State / Region */}
           <div className="space-y-1">
-            <label className="text-[10px] font-bold uppercase text-ink-faint flex items-center gap-1">
-              <MapPin className="h-3 w-3 text-rose-400" />
-              <span>State / Region</span>
-            </label>
-            <select
-              value={selectedState}
-              onChange={(e) => setSelectedState(e.target.value)}
-              className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
-            >
-              <option value="ALL">All States ({facetOptions.states.filter(([, count]) => count > 0).length} matching)</option>
-              {facetOptions.states.map(([s, count]) => (
-                <option key={s} value={s}>
-                  {s} ({count} vehicles)
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* 9. Price Range Inputs */}
-          <div className="space-y-1">
-            <label className="text-[10px] font-bold uppercase text-ink-faint flex items-center gap-1">
-              <DollarSign className="h-3 w-3 text-emerald-400" />
-              <span>Price Range ($)</span>
-            </label>
+            <label className="text-[10px] font-bold uppercase text-ink-faint">Price Range</label>
             <div className="grid grid-cols-2 gap-1.5">
               <input
                 type="number"
                 value={minPriceInput}
                 onChange={(e) => setMinPriceInput(e.target.value)}
                 placeholder="Min $"
-                className="w-full rounded-xl border border-border bg-surface-elevated px-2.5 py-2 text-xs text-white font-mono focus:border-emerald-500 focus:outline-none"
+                className="w-full rounded-lg border border-border bg-surface-elevated px-2 py-1.5 text-xs text-white font-mono focus:border-emerald-500 focus:outline-none"
               />
               <input
                 type="number"
                 value={maxPriceInput}
                 onChange={(e) => setMaxPriceInput(e.target.value)}
                 placeholder="Max $"
-                className="w-full rounded-xl border border-border bg-surface-elevated px-2.5 py-2 text-xs text-white font-mono focus:border-emerald-500 focus:outline-none"
+                className="w-full rounded-lg border border-border bg-surface-elevated px-2 py-1.5 text-xs text-white font-mono focus:border-emerald-500 focus:outline-none"
               />
             </div>
           </div>
 
-          {/* 10. Days on Lot */}
           <div className="space-y-1">
-            <label className="text-[10px] font-bold uppercase text-ink-faint flex items-center gap-1">
-              <Clock className="h-3 w-3 text-amber-400" />
-              <span>Days on Lot</span>
-            </label>
+            <label className="text-[10px] font-bold uppercase text-ink-faint">Days on Lot</label>
             <select
               value={selectedDaysOnLot}
               onChange={(e) => setSelectedDaysOnLot(e.target.value)}
-              className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
+              className="w-full rounded-lg border border-border bg-surface-elevated px-2.5 py-1.5 text-xs text-white focus:border-emerald-500 focus:outline-none"
             >
-              <option value="ALL">Any Days on Lot</option>
-              <option value="under_7">Fresh Arrival (&lt;7 Days)</option>
-              <option value="7_to_30">Normal (7 - 30 Days)</option>
-              <option value="31_to_60">Aging (31 - 60 Days)</option>
+              <option value="ALL">Any</option>
+              <option value="under_7">Fresh (&lt;7 Days)</option>
+              <option value="7_to_30">Normal (7–30 Days)</option>
+              <option value="31_to_60">Aging (31–60 Days)</option>
               <option value="over_45">High Leverage (&gt;45 Days)</option>
-              <option value="over_60">Stale Stock (&gt;60 Days)</option>
+              <option value="over_60">Stale (&gt;60 Days)</option>
             </select>
           </div>
 
-          {/* 11. Market Opportunity */}
           <div className="space-y-1">
-            <label className="text-[10px] font-bold uppercase text-ink-faint flex items-center gap-1">
-              <Flame className="h-3 w-3 text-rose-400" />
-              <span>Market Opportunity</span>
-            </label>
+            <label className="text-[10px] font-bold uppercase text-ink-faint">Opportunity</label>
             <select
               value={selectedOpportunity}
               onChange={(e) => setSelectedOpportunity(e.target.value)}
-              className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none font-bold"
+              className="w-full rounded-lg border border-border bg-surface-elevated px-2.5 py-1.5 text-xs text-white focus:border-emerald-500 focus:outline-none"
             >
               <option value="ALL">All Inventory</option>
-              <option value="PRICE_DROPS">🔥 Price Drops Active</option>
-              <option value="NEW_ARRIVALS">⚡ New Arrivals (&lt;3 Days)</option>
+              <option value="PRICE_DROPS">Price Drops Active</option>
+              <option value="NEW_ARRIVALS">New Arrivals (&lt;3 Days)</option>
             </select>
           </div>
 
-          {/* 12. Body Style */}
           <div className="space-y-1">
-            <label className="text-[10px] font-bold uppercase text-ink-faint flex items-center gap-1">
-              <Car className="h-3 w-3 text-purple-400" />
-              <span>Body Style</span>
-            </label>
-            <select
-              value={selectedBodyStyle}
-              onChange={(e) => setSelectedBodyStyle(e.target.value)}
-              className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
-            >
-              <option value="ALL">All Body Styles</option>
-              {facetOptions.bodyStyles.map(([b, count]) => (
-                <option key={b} value={b}>
-                  {b} ({count})
-                </option>
-              ))}
-            </select>
+            <label className="text-[10px] font-bold uppercase text-ink-faint">Your ZIP</label>
+            <input
+              type="text"
+              value={userZip}
+              onChange={(e) => setUserZip(e.target.value.replace(/\D/g, "").slice(0, 5))}
+              placeholder="e.g. 07054"
+              className="w-full rounded-lg border border-border bg-surface-elevated px-2.5 py-1.5 text-xs text-white placeholder-ink-faint font-mono focus:border-blue-500 focus:outline-none"
+            />
           </div>
         </div>
 
         {/* Active Filter Badges */}
         {activeFiltersCount > 0 && (
           <div className="flex flex-wrap items-center gap-2 pt-3 border-t border-border/60 text-xs">
-            <span className="text-[10px] text-ink-faint font-bold uppercase">Active:</span>
-
             {sortBy !== "default" && (
               <span className="inline-flex items-center gap-1 rounded-lg bg-emerald-500/20 border border-emerald-500/40 px-2 py-0.5 text-emerald-300 font-bold">
                 <span>
-                  Sort: {sortBy === "closest_to_zip" ? `📍 Closest to ${userZip || "07054"}` : sortBy === "price_desc" ? "💰 Price: High to Low" : sortBy === "price_asc" ? "💵 Price: Low to High" : sortBy}
+                  Sort: {sortBy === "closest_to_zip" ? `Closest to ${userZip || "07054"}` : sortBy === "price_desc" ? "Price: High to Low" : sortBy === "price_asc" ? "Price: Low to High" : sortBy}
                 </span>
                 <X className="h-3 w-3 cursor-pointer hover:text-white" onClick={() => setSortBy("default")} />
               </span>
@@ -1309,13 +1183,6 @@ export const LightsailIntelligence: React.FC = () => {
               <span className="inline-flex items-center gap-1 rounded-lg bg-amber-500/20 border border-amber-500/40 px-2 py-0.5 text-amber-300 font-bold">
                 <span>Option: {facetOptions.optionNames.get(selectedOptionCode) || selectedOptionCode}</span>
                 <X className="h-3 w-3 cursor-pointer hover:text-white" onClick={() => setSelectedOptionCode("ALL")} />
-              </span>
-            )}
-
-            {searchTerm && (
-              <span className="inline-flex items-center gap-1 rounded-lg bg-surface-elevated border border-border px-2 py-0.5 text-ink-light">
-                <span>Keyword: &quot;{searchTerm}&quot;</span>
-                <X className="h-3 w-3 cursor-pointer hover:text-white" onClick={() => setSearchTerm("")} />
               </span>
             )}
 
@@ -1342,7 +1209,7 @@ export const LightsailIntelligence: React.FC = () => {
 
             <button
               onClick={handleResetFilters}
-              className="text-rose-400 hover:text-rose-300 font-bold text-xs ml-auto"
+              className="text-rose-400 hover:text-rose-300 font-bold text-xs ml-auto cursor-pointer"
             >
               Clear All ({activeFiltersCount})
             </button>
@@ -1371,204 +1238,8 @@ export const LightsailIntelligence: React.FC = () => {
             Reset All Filters
           </button>
         </div>
-      ) : viewMode === "table" ? (
-        /* DENSE ANALYTICAL TABLE VIEW */
-        <div className="rounded-3xl border border-border bg-surface p-6 space-y-4 shadow-xl">
-          <div className="flex items-center justify-between text-xs">
-            <span className="text-ink-muted">
-              Displaying <strong className="text-white">{filteredVehicles.length}</strong> of <strong className="text-white">{allVehicles.length}</strong> live vehicles
-            </span>
-            <button
-              onClick={handleExportFilteredCSV}
-              className="inline-flex items-center gap-1 text-emerald-400 hover:underline font-bold"
-            >
-              <Download className="h-3 w-3" />
-              <span>Download CSV</span>
-            </button>
-          </div>
-
-          <div className="overflow-x-auto rounded-2xl border border-border max-h-[700px] overflow-y-auto">
-            <table className="w-full text-left text-xs border-collapse">
-              <thead className="sticky top-0 z-10 bg-surface-elevated text-ink-faint uppercase font-bold border-b border-border text-[10px]">
-                <tr>
-                  <th className="p-3">VIN / Model / Origin</th>
-                  <th className="p-3">Factory Options</th>
-                  <th className="p-3">Condition</th>
-                  <th className="p-3">Dealership & Proximity</th>
-                  <th className="p-3">Current Price</th>
-                  <th className="p-3">Price Movement</th>
-                  <th className="p-3">Days on Lot</th>
-                  <th className="p-3 text-right">Spec Sheet</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border/60 font-medium">
-                {paginatedVehicles.map((v) => {
-                  const cond = getNormalizedCondition(v);
-                  const hasPriceDrop = v.priceDiff && v.priceDiff < 0;
-                  const opts = v.factoryOptions || [];
-                  const dist = getVehicleDistance(v);
-                  return (
-                    <tr
-                      key={v.vin}
-                      onClick={() => {
-                        setSelectedVehicleForModal(v);
-                        setAiStickerData(null);
-                      }}
-                      className="hover:bg-surface-elevated transition-colors cursor-pointer"
-                    >
-                      <td className="p-3 space-y-0.5">
-                        <div className="font-bold text-white flex items-center gap-1.5">
-                          <span>
-                            {v.year} {v.make} {v.model}
-                          </span>
-                          {v.trim && <span className="text-ink-muted font-normal">({v.trim})</span>}
-                        </div>
-                        <div className="font-mono text-[10.5px] text-ink-faint flex items-center gap-2">
-                          <button
-                            onClick={(e) => handleCopyVin(v.vin, e)}
-                            className="hover:text-white inline-flex items-center gap-1"
-                            title="Copy VIN"
-                          >
-                            <span>{v.vin}</span>
-                            {copiedVin === v.vin ? (
-                              <Check className="h-3 w-3 text-emerald-400" />
-                            ) : (
-                              <Copy className="h-3 w-3 text-ink-faint" />
-                            )}
-                          </button>
-                          <span className="text-[9.5px] text-emerald-400/80">🇩🇪 {v.nhtsa?.plantCountry || "Germany"}</span>
-                        </div>
-                      </td>
-                      <td className="p-3">
-                        {opts.length > 0 ? (
-                          <div className="flex flex-wrap gap-1 max-w-[200px]">
-                            {opts.slice(0, 2).map((o) => (
-                              <span
-                                key={o.code}
-                                className="rounded bg-surface-elevated border border-border px-1.5 py-0.5 text-[9.5px] font-bold text-amber-300"
-                              >
-                                {o.name.split(" ")[0]} ({o.code})
-                              </span>
-                            ))}
-                            {opts.length > 2 && (
-                              <span className="text-[9.5px] text-ink-faint">+{opts.length - 2} more</span>
-                            )}
-                          </div>
-                        ) : (
-                          <span className="text-ink-faint text-[10px]">Standard Build</span>
-                        )}
-                      </td>
-                      <td className="p-3">
-                        <span
-                          className={`rounded px-2 py-0.5 text-[9.5px] font-black uppercase ${
-                            cond === "NEW"
-                              ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
-                              : cond === "CERTIFIED"
-                              ? "bg-blue-500/20 text-blue-400 border border-blue-500/30"
-                              : "bg-purple-500/20 text-purple-400 border border-purple-500/30"
-                          }`}
-                        >
-                          {cond}
-                        </span>
-                      </td>
-                      <td className="p-3 text-ink-light">
-                        <div className="font-semibold text-white truncate max-w-[140px]">{v.dealerName}</div>
-                        <div className="text-[10.5px] text-blue-400 font-mono font-bold flex items-center gap-1">
-                          <span>📍 {dist} mi away</span>
-                          <span className="text-ink-muted">({v.state})</span>
-                        </div>
-                      </td>
-                      <td className="p-3 font-mono font-bold text-emerald-400 text-sm">
-                        {v.price && v.price > 0 && v.price < 5000000 ? `$${v.price.toLocaleString()}` : "Call"}
-                      </td>
-                      <td className="p-3">
-                        {hasPriceDrop ? (
-                          <span className="rounded-md bg-rose-500/20 text-rose-400 border border-rose-500/30 px-2 py-0.5 font-bold font-mono text-[10.5px]">
-                            -${Math.abs(v.priceDiff || 0).toLocaleString()}
-                          </span>
-                        ) : (
-                          <span className="text-ink-faint text-[10.5px]">Baseline</span>
-                        )}
-                      </td>
-                      <td className="p-3 font-mono">
-                        <span
-                          className={`font-bold ${
-                            (v.daysOnLot || 0) >= 45 ? "text-amber-400" : "text-ink-muted"
-                          }`}
-                        >
-                          {v.daysOnLot || 14}d
-                        </span>
-                      </td>
-                      <td className="p-3 text-right">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setSelectedVehicleForModal(v);
-                            setAiStickerData(null);
-                          }}
-                          className="inline-flex items-center gap-1 rounded-lg bg-surface-elevated hover:bg-surface px-2.5 py-1 text-[11px] font-bold text-ink-light hover:text-white border border-border transition-all"
-                        >
-                          <FileText className="h-3 w-3 text-emerald-400" />
-                          <span>Window Sticker</span>
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Table Pagination Bar */}
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2 border-t border-border/60 text-xs">
-            <div className="text-ink-muted">
-              Showing <strong className="text-white">{(currentPage - 1) * pageSize + 1}</strong>–<strong className="text-white">{Math.min(currentPage * pageSize, filteredVehicles.length)}</strong> of <strong className="text-white">{filteredVehicles.length.toLocaleString()}</strong> matching vehicles
-            </div>
-
-            <div className="flex items-center gap-2">
-              <div className="flex items-center gap-1.5 mr-2">
-                <span className="text-[11px] text-ink-faint">Per page:</span>
-                <select
-                  value={pageSize}
-                  onChange={(e) => {
-                    setPageSize(parseInt(e.target.value, 10));
-                    setCurrentPage(1);
-                  }}
-                  className="rounded-lg border border-border bg-surface-elevated px-2 py-1 text-xs text-white focus:outline-none"
-                >
-                  <option value={25}>25</option>
-                  <option value={50}>50</option>
-                  <option value={100}>100</option>
-                  <option value={200}>200</option>
-                </select>
-              </div>
-
-              <button
-                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                disabled={currentPage <= 1}
-                className="rounded-lg border border-border bg-surface-elevated px-2.5 py-1 text-xs font-bold text-ink-light hover:text-white disabled:opacity-30 disabled:cursor-not-allowed inline-flex items-center gap-1"
-              >
-                <ChevronLeft className="h-3.5 w-3.5" />
-                <span>Prev</span>
-              </button>
-
-              <span className="text-xs font-mono font-bold text-white px-2">
-                Page {currentPage} / {totalPages}
-              </span>
-
-              <button
-                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                disabled={currentPage >= totalPages}
-                className="rounded-lg border border-border bg-surface-elevated px-2.5 py-1 text-xs font-bold text-ink-light hover:text-white disabled:opacity-30 disabled:cursor-not-allowed inline-flex items-center gap-1"
-              >
-                <span>Next</span>
-                <ChevronRight className="h-3.5 w-3.5" />
-              </button>
-            </div>
-          </div>
-        </div>
       ) : (
-        /* VISUAL CARD GRID VIEW */
+        /* CARD GRID RESULTS */
         <div className="space-y-6">
           <div className="flex items-center justify-between text-xs">
             <span className="text-ink-muted">
@@ -1586,7 +1257,7 @@ export const LightsailIntelligence: React.FC = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {paginatedVehicles.map((v) => {
               const cond = getNormalizedCondition(v);
-              const hasPriceDrop = v.priceDiff && v.priceDiff < 0;
+              const hasPriceDrop = Boolean(v.priceDiff && v.priceDiff < 0);
               const opts = v.factoryOptions || [];
               const dist = getVehicleDistance(v);
               return (
@@ -1596,71 +1267,91 @@ export const LightsailIntelligence: React.FC = () => {
                     setSelectedVehicleForModal(v);
                     setAiStickerData(null);
                   }}
-                  className="rounded-2xl border border-border bg-surface p-5 space-y-3 hover:border-border-strong hover:bg-surface-elevated transition-all flex flex-col justify-between shadow-md cursor-pointer"
+                  className="rounded-2xl border border-border bg-surface overflow-hidden hover:border-border-strong hover:bg-surface-elevated transition-all flex flex-col shadow-md cursor-pointer"
                 >
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between text-[11px]">
+                  <div className="relative aspect-[4/3] bg-surface-elevated">
+                    {v.imageUrl ? (
+                      <img
+                        src={v.imageUrl}
+                        alt={`${v.year} ${v.make} ${v.model}`}
+                        loading="lazy"
+                        className="h-full w-full object-cover"
+                        onError={(e) => {
+                          (e.currentTarget as HTMLImageElement).style.display = "none";
+                        }}
+                      />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center text-ink-faint">
+                        <Car className="h-10 w-10" />
+                      </div>
+                    )}
+                    <div className="absolute top-2 left-2 flex items-center gap-1.5">
                       <span
-                        className={`rounded px-2 py-0.5 text-[9.5px] font-black uppercase ${
+                        className={`rounded px-2 py-0.5 text-[9.5px] font-black uppercase backdrop-blur-sm ${
                           cond === "NEW"
-                            ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
+                            ? "bg-emerald-500/30 text-emerald-300 border border-emerald-500/40"
                             : cond === "CERTIFIED"
-                            ? "bg-blue-500/20 text-blue-400 border border-blue-500/30"
-                            : "bg-purple-500/20 text-purple-400 border border-purple-500/30"
+                            ? "bg-blue-500/30 text-blue-300 border border-blue-500/40"
+                            : "bg-purple-500/30 text-purple-300 border border-purple-500/40"
                         }`}
                       >
                         {cond}
                       </span>
-                      <span className="font-mono text-blue-400 text-[10.5px] font-bold">📍 {dist} mi away</span>
+                      {hasPriceDrop && (
+                        <span className="rounded px-2 py-0.5 text-[9.5px] font-black bg-rose-500/30 text-rose-300 border border-rose-500/40 backdrop-blur-sm">
+                          -${Math.abs(v.priceDiff || 0).toLocaleString()}
+                        </span>
+                      )}
                     </div>
-
-                    <div>
-                      <h3 className="font-black text-white text-base">
-                        {v.year} {v.make} {v.model}
-                      </h3>
-                      <div className="text-xs text-ink-muted font-medium">
-                        {v.trim || "Standard"} • {v.bodyStyle || "Coupe"}
-                      </div>
+                    <div className="absolute top-2 right-2 rounded bg-black/50 backdrop-blur-sm px-2 py-0.5 text-[10px] font-bold text-blue-300 font-mono">
+                      {dist} mi
                     </div>
-
-                    {opts.length > 0 && (
-                      <div className="flex flex-wrap gap-1 pt-1">
-                        {opts.slice(0, 3).map((o) => (
-                          <span
-                            key={o.code}
-                            className="rounded bg-surface-elevated border border-border px-1.5 py-0.5 text-[9.5px] font-bold text-amber-300"
-                          >
-                            {o.name.split(" ")[0]}
-                            {typeof o.price === "number" ? ` ($${o.price.toLocaleString()})` : ""}
-                          </span>
-                        ))}
-                      </div>
-                    )}
                   </div>
 
-                  <div className="pt-3 border-t border-border/60 space-y-2">
-                    <div className="flex items-baseline justify-between">
+                  <div className="p-4 space-y-2.5 flex-1 flex flex-col justify-between">
+                    <div className="space-y-2">
                       <div>
-                        <div className="text-lg font-black text-emerald-400 font-mono">
+                        <h3 className="font-black text-white text-sm leading-tight">
+                          {v.year || v.model
+                            ? `${v.year || ""} ${v.make} ${v.model || ""}`.replace(/\s+/g, " ").trim()
+                            : `${v.make} — model not verified`}
+                        </h3>
+                        <div className="text-xs text-ink-muted font-medium">
+                          {[v.trim, v.bodyStyle].filter(Boolean).join(" • ") || "Spec details pending"}
+                        </div>
+                      </div>
+
+                      {opts.length > 0 && (
+                        <div className="flex flex-wrap gap-1">
+                          {opts.slice(0, 3).map((o) => (
+                            <span
+                              key={o.code}
+                              className="rounded bg-surface-elevated border border-border px-1.5 py-0.5 text-[9.5px] font-bold text-amber-300"
+                            >
+                              {o.name.split(" ")[0]}
+                              {typeof o.price === "number" ? ` ($${o.price.toLocaleString()})` : ""}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="pt-2 border-t border-border/60 space-y-1.5">
+                      <div className="flex items-baseline justify-between">
+                        <div className="text-base font-black text-emerald-400 font-mono">
                           {v.price && v.price > 0 && v.price < 5000000 ? `$${v.price.toLocaleString()}` : "Call"}
                         </div>
                         {v.oldPrice && v.oldPrice < 5000000 && (
-                          <div className="text-xs text-ink-faint line-through font-mono">
+                          <div className="text-[11px] text-ink-faint line-through font-mono">
                             ${v.oldPrice.toLocaleString()}
                           </div>
                         )}
                       </div>
 
-                      {hasPriceDrop && (
-                        <span className="rounded-md bg-rose-500/20 text-rose-400 border border-rose-500/30 px-2 py-0.5 font-bold font-mono text-xs">
-                          -${Math.abs(v.priceDiff || 0).toLocaleString()}
-                        </span>
-                      )}
-                    </div>
-
-                    <div className="flex items-center justify-between text-[11px] text-ink-muted pt-1">
-                      <span className="truncate max-w-[150px]">{v.dealerName} ({v.state})</span>
-                      <span className="font-mono">{v.daysOnLot || 14} days on lot</span>
+                      <div className="flex items-center justify-between text-[10.5px] text-ink-muted">
+                        <span className="truncate max-w-[150px]">{v.dealerName}</span>
+                        <span className="font-mono">{v.daysOnLot || 14}d on lot</span>
+                      </div>
                     </div>
                   </div>
                 </div>
