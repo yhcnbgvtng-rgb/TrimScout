@@ -5,7 +5,11 @@ import path from "node:path";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-const LIGHTSAIL_HOST = process.env.LIGHTSAIL_IP || "34.205.155.92";
+// This is a Lightsail Static IP (allocated 2026-08-25), not the instance's
+// original ephemeral public IP — it stays valid across instance
+// resize/migration since the static IP can be reattached to whichever box
+// is currently the production crawler.
+const LIGHTSAIL_HOST = process.env.LIGHTSAIL_IP || "44.205.48.153";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
