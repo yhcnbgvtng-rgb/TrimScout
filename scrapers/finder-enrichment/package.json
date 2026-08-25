@@ -1,0 +1,10 @@
+{
+  "name": "finder-enrichment",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Cross-references our own dealer-scraped vehicles against Porsche Finder's official listings to pull the authoritative factory build sheet per VIN.",
+  "dependencies": {
+    "got-scraping": "^4.0.7"
+  }
+}
