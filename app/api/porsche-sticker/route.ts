@@ -253,18 +253,22 @@ export async function GET(request: Request) {
     const listedOptions: PorscheOptionItem[] = Array.isArray(vehicleRecord?.factoryOptions)
       ? vehicleRecord.factoryOptions
       : [];
-    const fromFinder = vehicleRecord?.optionsSource === "PORSCHE_FINDER";
-    // Finder doesn't publish per-option pricing, so a Finder-sourced options
-    // total would silently read as "$0 added" despite a real, populated
-    // options list — report it as unknown rather than fabricating a number.
-    const optionsTotal = fromFinder
-      ? undefined
-      : listedOptions.reduce((sum, o) => sum + (o.price || 0), 0);
+    // Whether pricing is available is derived from the options themselves
+    // (do any carry a real numeric price?), not from the stored
+    // optionsSource label — a vehicle can have Finder-sourced equipment
+    // *and* real dealer-VDP pricing merged in (see the Paul Miller Porsche
+    // backfill), and both should surface: real pricing where it exists,
+    // standard equipment where it exists, independently of each other.
+    const hasPricedOptions = listedOptions.some((o) => typeof o.price === "number");
+    const optionsTotal = hasPricedOptions
+      ? listedOptions.reduce((sum, o) => sum + (o.price || 0), 0)
+      : undefined;
+    const fromFinder = vehicleRecord?.optionsSource === "PORSCHE_FINDER" && !hasPricedOptions;
 
-    const resolvedDataSource: PorscheStickerResponse["dataSource"] = fromFinder
-      ? "PORSCHE_FINDER_MATCHED"
-      : listedOptions.length > 0
+    const resolvedDataSource: PorscheStickerResponse["dataSource"] = hasPricedOptions
       ? "DEALER_VDP_LISTED"
+      : listedOptions.length > 0
+      ? "PORSCHE_FINDER_MATCHED"
       : "NOT_VERIFIED";
 
     return NextResponse.json({
@@ -306,7 +310,7 @@ export async function GET(request: Request) {
       // data layer) or cross-referenced against this VIN's Porsche Finder
       // listing — never guessed.
       installedOptions: listedOptions,
-      standardEquipment: fromFinder ? vehicleRecord?.standardEquipment || [] : [],
+      standardEquipment: vehicleRecord?.standardEquipment || [],
       windowStickerPdfUrl: directPdfUrl,
       porscheFinderUrl: vehicleRecord?.finderUrl || porscheFinderUrl,
       dataSource: resolvedDataSource,
