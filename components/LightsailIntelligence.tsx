@@ -254,6 +254,7 @@ export const LightsailIntelligence: React.FC = () => {
     }
   };
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedMake, setSelectedMake] = useState<string>("ALL");
   const [selectedModel, setSelectedModel] = useState<string>("ALL");
   const [selectedTrim, setSelectedTrim] = useState<string>("ALL");
   const [selectedCondition, setSelectedCondition] = useState<string>("ALL");
@@ -277,6 +278,7 @@ export const LightsailIntelligence: React.FC = () => {
     setCurrentPage(1);
   }, [
     searchTerm,
+    selectedMake,
     selectedModel,
     selectedTrim,
     selectedCondition,
@@ -408,6 +410,11 @@ export const LightsailIntelligence: React.FC = () => {
       if (!matchesAllTokens) return false;
     }
 
+    // 1b. Make (manufacturer)
+    if (excludeFacet !== "make" && selectedMake !== "ALL") {
+      if (v.make !== selectedMake) return false;
+    }
+
     // 2. Model Series
     if (excludeFacet !== "model" && selectedModel !== "ALL") {
       if (getModelSeries(v) !== selectedModel) return false;
@@ -489,6 +496,7 @@ export const LightsailIntelligence: React.FC = () => {
   // Real-time dynamic faceted intersection counts across all criteria
   const facetOptions = useMemo(() => {
     const trims = new Map<string, number>();
+    const makes = new Map<string, number>();
     const models = new Map<string, number>();
     const conditions = { NEW: 0, USED: 0, CERTIFIED: 0 };
     const dealers = new Map<string, number>();
@@ -499,6 +507,7 @@ export const LightsailIntelligence: React.FC = () => {
 
     // Initial base collection of all unique facets
     allVehicles.forEach((v) => {
+      if (v.make && !makes.has(v.make)) makes.set(v.make, 0);
       const s = getModelSeries(v);
       if (!models.has(s)) models.set(s, 0);
       if (v.trim && v.trim !== "null" && v.trim.trim() !== "" && !trims.has(v.trim)) trims.set(v.trim, 0);
@@ -510,6 +519,11 @@ export const LightsailIntelligence: React.FC = () => {
 
     // Populate dynamic intersection counts
     allVehicles.forEach((v) => {
+      // 0. Make counts (given all filters except make)
+      if (checkFilterMatch(v, "make") && v.make) {
+        makes.set(v.make, (makes.get(v.make) || 0) + 1);
+      }
+
       // 1. Model series counts (given all filters except model)
       if (checkFilterMatch(v, "model")) {
         const s = getModelSeries(v);
@@ -570,6 +584,7 @@ export const LightsailIntelligence: React.FC = () => {
     });
 
     return {
+      makes: Array.from(makes.entries()).sort((a, b) => b[1] - a[1]),
       models: Array.from(models.entries()).sort((a, b) => b[1] - a[1]),
       trims: Array.from(trims.entries()).sort((a, b) => b[1] - a[1]),
       conditions,
@@ -583,6 +598,7 @@ export const LightsailIntelligence: React.FC = () => {
   }, [
     allVehicles,
     searchTerm,
+    selectedMake,
     selectedModel,
     selectedTrim,
     selectedCondition,
@@ -601,6 +617,7 @@ export const LightsailIntelligence: React.FC = () => {
   // Reset all filters to default
   const handleResetFilters = () => {
     setSearchTerm("");
+    setSelectedMake("ALL");
     setSelectedModel("ALL");
     setSelectedTrim("ALL");
     setSelectedCondition("ALL");
@@ -622,6 +639,7 @@ export const LightsailIntelligence: React.FC = () => {
   const activeFiltersCount = useMemo(() => {
     let count = 0;
     if (searchTerm.trim()) count++;
+    if (selectedMake !== "ALL") count++;
     if (selectedModel !== "ALL") count++;
     if (selectedTrim !== "ALL") count++;
     if (selectedCondition !== "ALL") count++;
@@ -638,6 +656,7 @@ export const LightsailIntelligence: React.FC = () => {
     return count;
   }, [
     searchTerm,
+    selectedMake,
     selectedModel,
     selectedTrim,
     selectedCondition,
@@ -677,6 +696,11 @@ export const LightsailIntelligence: React.FC = () => {
             return false;
           });
           if (!matchesAllTokens) return false;
+        }
+
+        // 1b. Make Filter
+        if (selectedMake !== "ALL") {
+          if (v.make !== selectedMake) return false;
         }
 
         // 2. Model Series Filter
@@ -825,6 +849,7 @@ export const LightsailIntelligence: React.FC = () => {
   }, [
     allVehicles,
     searchTerm,
+    selectedMake,
     selectedModel,
     selectedTrim,
     selectedCondition,
@@ -1017,6 +1042,18 @@ export const LightsailIntelligence: React.FC = () => {
 
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 text-xs">
           <ComboField
+            label="Make"
+            value={selectedMake}
+            onChange={(val) => {
+              setSelectedMake(val);
+              setSelectedModel("ALL");
+              setSelectedTrim("ALL");
+            }}
+            options={facetOptions.makes.map(([m, count]) => ({ value: m, label: `${m} (${count})` }))}
+            allLabel={`All Makes (${allVehicles.length})`}
+          />
+
+          <ComboField
             label="Model"
             value={selectedModel}
             onChange={(val) => {
@@ -1183,6 +1220,13 @@ export const LightsailIntelligence: React.FC = () => {
               <span className="inline-flex items-center gap-1 rounded-lg bg-amber-500/20 border border-amber-500/40 px-2 py-0.5 text-amber-300 font-bold">
                 <span>Option: {facetOptions.optionNames.get(selectedOptionCode) || selectedOptionCode}</span>
                 <X className="h-3 w-3 cursor-pointer hover:text-white" onClick={() => setSelectedOptionCode("ALL")} />
+              </span>
+            )}
+
+            {selectedMake !== "ALL" && (
+              <span className="inline-flex items-center gap-1 rounded-lg bg-surface-elevated border border-border px-2 py-0.5 text-ink-light">
+                <span>Make: {selectedMake}</span>
+                <X className="h-3 w-3 cursor-pointer hover:text-white" onClick={() => setSelectedMake("ALL")} />
               </span>
             )}
 
