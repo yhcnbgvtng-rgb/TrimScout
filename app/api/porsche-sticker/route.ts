@@ -3,6 +3,7 @@ import { PORSCHE_FACTORY_OPTIONS_CATALOG } from "@/lib/scrapers/porscheFinderScr
 import { PORSCHE_PAINT_CODES } from "@/components/LightsailIntelligence";
 import { decodeVinFromNhtsa } from "@/lib/vinDecoder";
 import { lookupPorscheBaseMsrp } from "@/lib/enrichmentEngine";
+import { fetchVehicleByVinFromBox, type BoxVehicle } from "@/lib/lightsailClient";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -105,6 +106,51 @@ export function parseOptionsFromText(rawText: string): PorscheOptionItem[] {
   }
 
   return options;
+}
+
+// Maps the box API's raw (snake_case) vehicle-detail shape onto the same
+// loose shape the existing code below expects from a
+// data/lightsail_inventory.json record (vehicleRecord?.model,
+// ?.factoryOptions, etc.), so the rest of the handler doesn't need to know
+// which tier the data came from.
+function mapBoxVehicleToStickerRecord(bv: BoxVehicle) {
+  const options = bv.options || [];
+  const factoryOptions: PorscheOptionItem[] = options.map((o) => ({
+    code: o.code,
+    name: o.name,
+    price: typeof o.price === "number" ? o.price : undefined,
+    category: o.category || "option",
+  }));
+
+  // The box stores a `source` per option (e.g. "DEALER_VDP", "PORSCHE_FINDER")
+  // rather than one optionsSource per vehicle like the legacy JSON snapshot.
+  // Use the first option's source as a best-effort stand-in for that field,
+  // which is only ever compared against the "PORSCHE_FINDER" case below.
+  const optionsSource = options[0]?.source;
+
+  const standardEquipment = bv.standard_equipment
+    ? bv.standard_equipment
+        .split(/[,|;]\s*/)
+        .map((s) => s.trim())
+        .filter(Boolean)
+    : [];
+
+  return {
+    model: bv.model,
+    trim: bv.trim,
+    year: bv.year,
+    price: bv.price,
+    exteriorColor: bv.exterior_color,
+    interiorColor: bv.interior_color,
+    transmission: bv.transmission,
+    engine: bv.engine,
+    factoryOptions,
+    optionsSource,
+    standardEquipment,
+    // The box doesn't persist a per-vehicle Porsche Finder URL; the caller
+    // falls back to the generic search-by-VIN URL when this is undefined.
+    finderUrl: undefined,
+  };
 }
 
 export async function GET(request: Request) {
@@ -224,17 +270,31 @@ export async function GET(request: Request) {
     // this car's actual, itemized build.
     const decoded = await decodeVinFromNhtsa(rawVin).catch(() => null);
 
-    const fs = await import("fs");
-    const path = await import("path");
     let vehicleRecord: any = null;
-    try {
-      const invPath = path.join(process.cwd(), "data", "lightsail_inventory.json");
-      if (fs.existsSync(invPath)) {
-        const inv = JSON.parse(fs.readFileSync(invPath, "utf-8"));
-        vehicleRecord = inv.find((x: any) => x.vin === rawVin);
+
+    // 2a. NEW first attempt: the Step 4/5 box API (MariaDB-backed, real-time
+    // per-VIN detail with joined options/enrichment) — tried ahead of the
+    // committed JSON snapshot below. Returns null on any failure (network,
+    // timeout, 404, unconfigured key), in which case we fall straight
+    // through to the existing file-read logic unchanged.
+    const boxVehicle = await fetchVehicleByVinFromBox(rawVin);
+    if (boxVehicle) {
+      vehicleRecord = mapBoxVehicleToStickerRecord(boxVehicle);
+    }
+
+    // 2b. Existing fallback: committed JSON snapshot lookup (unchanged).
+    if (!vehicleRecord) {
+      const fs = await import("fs");
+      const path = await import("path");
+      try {
+        const invPath = path.join(process.cwd(), "data", "lightsail_inventory.json");
+        if (fs.existsSync(invPath)) {
+          const inv = JSON.parse(fs.readFileSync(invPath, "utf-8"));
+          vehicleRecord = inv.find((x: any) => x.vin === rawVin);
+        }
+      } catch {
+        // ignore
       }
-    } catch {
-      // ignore
     }
 
     const modelName =

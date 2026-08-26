@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import {
   Server,
   TrendingDown,
@@ -38,13 +38,20 @@ import {
   BadgePercent,
   Layers,
   Navigation,
+  Loader2,
 } from "lucide-react";
 import {
   PorscheOption,
   NhtsaSpec,
 } from "@/lib/enrichmentEngine";
-import { calculateDistanceMiles } from "@/lib/otdCalculator";
+import { calculateDistanceMiles, getZipCoordinates } from "@/lib/otdCalculator";
 import { DailyChangesPanel } from "./DailyChangesPanel";
+// Type-only import: safe to reference in this client component because
+// TypeScript types are erased at build time. The *runtime* functions in
+// lib/lightsailClient.ts (which read process.env.LIGHTSAIL_API_KEY and talk
+// directly to the Lightsail box) are never imported here — this component
+// only ever calls our own /api/lightsail proxy, exactly like before.
+import type { BoxVehicle } from "@/lib/lightsailClient";
 
 export interface VehicleRecord {
   vin: string;
@@ -198,10 +205,333 @@ function ComboField({
   );
 }
 
+// ===========================================================================
+// Step 6 of the architecture migration: data layer rewrite.
+//
+// The component used to fetch the ENTIRE dataset once (`/api/lightsail`,
+// default action) and do all filtering/sorting/faceting/pagination in
+// memory via useMemo chains. It now talks to the new, paginated/filtered
+// `action=vehicles` and `action=facets` query paths added to
+// app/api/lightsail/route.ts in Step 5, which are themselves backed by the
+// MariaDB-backed box API (with the existing CSV/JSON/fixtures chain as an
+// automatic fallback — see LEGACY_FALLBACK handling below).
+//
+// One real architectural wrinkle surfaced doing this: the box API requires
+// a single `brand` ("porsche" | "ford") on every /api/vehicles and
+// /api/vehicles/facets call — there is no "all brands combined" query.
+// The old client-side dataset silently merged both brands into one array,
+// and the "Make" dropdown (ALL / Porsche / Ford) was just a filter over
+// that merged array. To keep that exact user-facing behavior (view all
+// makes at once, or narrow to one), when "ALL" is selected this component
+// now fires one request per brand and merges the results client-side
+// (see BRANDS / brandsForQuery below) — see the report for the precise
+// tradeoffs (pagination across a merged "All Makes" view is a best-effort
+// re-sort of each merged page rather than a single global sort).
+// ===========================================================================
+
+type Brand = "porsche" | "ford";
+const BRANDS: Brand[] = ["porsche", "ford"];
+
+interface ApiPagination {
+  page: number;
+  pageSize: number;
+  totalCount: number;
+  totalPages: number;
+}
+
+interface ApiStats {
+  totalActive: number;
+  priceDrops: number;
+  newArrivals: number;
+  staleCount: number;
+  avgDaysOnLot: number;
+  dealershipsCount: number;
+}
+
+interface VehiclesApiResponse {
+  success: boolean;
+  source: "box_api" | "legacy_fallback";
+  vehicles: any[];
+  pagination: ApiPagination;
+  stats: ApiStats;
+}
+
+interface FacetValue {
+  value: string;
+  count: number;
+}
+
+interface FacetsApiResponse {
+  success: boolean;
+  source: "box_api" | "legacy_fallback";
+  facets: Record<string, FacetValue[]>;
+}
+
+const EMPTY_PAGINATION: ApiPagination = { page: 1, pageSize: 50, totalCount: 0, totalPages: 1 };
+const EMPTY_STATS: ApiStats = { totalActive: 0, priceDrops: 0, newArrivals: 0, staleCount: 0, avgDaysOnLot: 0, dealershipsCount: 0 };
+
+// ---------------------------------------------------------------------------
+// Mapping: raw API vehicle shape -> the unchanged VehicleRecord shape the
+// rest of this file (and DailyChangesPanel, and the modal) already renders.
+//
+// Two raw shapes are possible depending on which tier answered the request
+// (see app/api/lightsail/route.ts): the box API's snake_case DB row
+// (BoxVehicle, when source === "box_api"), or the legacy CSV/JSON
+// camelCase shape (already close to VehicleRecord, when source ===
+// "legacy_fallback"). Both are mapped here so nothing downstream needs to
+// know which tier answered.
+// ---------------------------------------------------------------------------
+function mapApiVehicleToRecord(raw: any, source: "box_api" | "legacy_fallback"): VehicleRecord {
+  if (source === "legacy_fallback") {
+    return {
+      vin: raw.vin,
+      dealerName: raw.dealerName || "",
+      state: raw.state || "",
+      inventoryType: raw.inventoryType || "",
+      year: raw.year || 0,
+      make: raw.make || "",
+      model: raw.model || "",
+      trim: raw.trim || undefined,
+      price: raw.price ?? null,
+      oldPrice: raw.oldPrice ?? undefined,
+      priceDiff: typeof raw.priceDiff === "number" ? raw.priceDiff : undefined,
+      mileage: raw.mileage || 0,
+      status: raw.status || undefined,
+      changeType: raw.changeType || undefined,
+      daysOnLot: typeof raw.daysOnLot === "number" ? raw.daysOnLot : undefined,
+      firstSeen: raw.firstSeen || undefined,
+      lastSeen: raw.lastSeen || undefined,
+      url: raw.url || undefined,
+    };
+  }
+
+  const bv = raw as BoxVehicle;
+  const options = bv.options || [];
+  const factoryOptions: PorscheOption[] = options.map((o) => ({
+    code: o.code,
+    name: o.name,
+    price: typeof o.price === "number" ? o.price : undefined,
+    category: o.category || "option",
+  }));
+  const optionCodes = options.map((o) => o.code);
+  // The box stores a `source` per option rather than one optionsSource per
+  // vehicle like the legacy JSON snapshot did; best-effort stand-in using
+  // the first option's source, same approach used in
+  // app/api/porsche-sticker/route.ts's mapBoxVehicleToStickerRecord.
+  const firstSource = options[0]?.source;
+  const optionsSource: VehicleRecord["optionsSource"] =
+    firstSource === "PORSCHE_FINDER" ? "PORSCHE_FINDER" : firstSource === "DEALER_VDP" ? "DEALER_VDP" : undefined;
+
+  const standardEquipment = bv.standard_equipment
+    ? bv.standard_equipment.split(/[,|;]\s*/).map((s) => s.trim()).filter(Boolean)
+    : undefined;
+
+  const e = bv.enrichment;
+  const nhtsa: NhtsaSpec | undefined = e
+    ? {
+        plantCountry: e.nhtsa_plant_country || "",
+        plantCity: e.nhtsa_plant_city || undefined,
+        engineCylinders: e.nhtsa_engine_cylinders || 0,
+        engineDisplacementL: e.nhtsa_engine_displ_l || "",
+        bodyClass: e.nhtsa_body_class || "",
+        brakeSystem: (e as any).nhtsa_brake_system || undefined,
+        fuelType: e.nhtsa_fuel_type || undefined,
+      }
+    : undefined;
+
+  return {
+    vin: bv.vin,
+    dealerName: bv.dealer_name || "",
+    state: bv.state || "",
+    inventoryType: bv.inventory_type || "",
+    year: bv.year || 0,
+    make: bv.make || "",
+    model: bv.model || "",
+    trim: bv.trim || undefined,
+    bodyStyle: bv.body_style || undefined,
+    price: bv.price,
+    oldPrice: bv.old_price,
+    priceDiff: typeof bv.price_diff === "number" ? bv.price_diff : undefined,
+    msrp: bv.msrp,
+    mileage: bv.mileage || 0,
+    status: bv.status || undefined,
+    changeType: bv.change_type || undefined,
+    daysOnLot: typeof bv.days_on_lot === "number" ? bv.days_on_lot : undefined,
+    firstSeen: bv.first_seen_date || undefined,
+    lastSeen: bv.last_seen_date || undefined,
+    url: bv.url || undefined,
+    engine: bv.engine,
+    transmission: bv.transmission,
+    exteriorColor: bv.exterior_color,
+    nhtsa,
+    factoryOptions,
+    optionCodes,
+    totalOptionsPrice: typeof bv.total_options_price === "number" ? bv.total_options_price : undefined,
+    baseMsrp: bv.base_msrp,
+    enrichedAt: e?.enriched_at || undefined,
+    optionsSource,
+    standardEquipment,
+    // The box doesn't persist a per-vehicle Porsche Finder URL.
+    finderUrl: undefined,
+    imageUrl: bv.image_url || undefined,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Query-param mapping. The box API (scrapers/lightsail-crawler/src/
+// inventory_api_server.js) defines its own vocabulary for sort and
+// days-on-lot/opportunity buckets that doesn't exactly match this
+// component's existing <select> option values, so these maps translate
+// between the two without changing what the user sees in the dropdowns.
+// ---------------------------------------------------------------------------
+
+// Sort values the box actually implements server-side (inventory_api_server.js
+// sortMap). "closest_to_zip" is handled separately (needs lat/lng).
+const SUPPORTED_SORT_MAP: Record<string, string> = {
+  price_desc: "price_desc",
+  price_asc: "price_asc",
+  days_desc: "days_on_lot", // box's days_on_lot sort is always "longest first" — matches this option exactly
+  year_desc: "year",
+};
+// Sort values this UI offers that the box API has no server-side support
+// for yet (confirmed against inventory_api_server.js's sortMap, which is
+// out of scope to modify here). For a single selected brand, these fall
+// back to the server's default order (newest first) rather than silently
+// mis-sorting; when "All Makes" is active the merge step below re-sorts
+// each combined page client-side using the same comparator as before, so
+// these sorts DO work correctly in that mode.
+const UNSUPPORTED_SINGLE_BRAND_SORTS = new Set(["price_drop_first", "days_asc", "mileage_asc"]);
+
+const DAYS_ON_LOT_RANGES: Record<string, { min?: number; max?: number }> = {
+  under_7: { max: 7 },
+  "7_to_30": { min: 7, max: 30 },
+  "31_to_60": { min: 31, max: 60 },
+  over_45: { min: 45 },
+  over_60: { min: 60 },
+};
+
+// UI values ("PRICE_DROPS"/"NEW_ARRIVALS") -> box `opportunity` enum values.
+const OPPORTUNITY_MAP: Record<string, string> = {
+  PRICE_DROPS: "drops",
+  NEW_ARRIVALS: "fresh",
+};
+
+// Facet dimensions the box API supports natively (inventory_api_server.js
+// FACET_DIMENSIONS). Note there is no "option" dimension — see the Factory
+// Option catalog handling further down for how that gap is covered.
+const FACET_DIMS = ["make", "model", "trim", "dealer", "state", "bodyStyle", "condition"] as const;
+type FacetDim = (typeof FACET_DIMS)[number];
+
+function buildQueryString(params: Record<string, string>): string {
+  const sp = new URLSearchParams();
+  for (const [k, v] of Object.entries(params)) {
+    if (v === undefined || v === null || v === "") continue;
+    sp.set(k, v);
+  }
+  return sp.toString();
+}
+
+async function fetchVehiclesPage(brand: Brand, params: Record<string, string>): Promise<VehiclesApiResponse | null> {
+  try {
+    const qs = buildQueryString({ action: "vehicles", brand, ...params });
+    const res = await fetch(`/api/lightsail?${qs}`, { cache: "no-store" });
+    if (!res.ok) return null;
+    const json = await res.json();
+    if (!json || json.success === false) return null;
+    return json as VehiclesApiResponse;
+  } catch {
+    return null;
+  }
+}
+
+async function fetchFacetsPage(brand: Brand, params: Record<string, string>): Promise<FacetsApiResponse | null> {
+  try {
+    const qs = buildQueryString({ action: "facets", brand, ...params });
+    const res = await fetch(`/api/lightsail?${qs}`, { cache: "no-store" });
+    if (!res.ok) return null;
+    const json = await res.json();
+    if (!json || json.success === false) return null;
+    return json as FacetsApiResponse;
+  } catch {
+    return null;
+  }
+}
+
+function mergeFacetValueArrays(arrays: FacetValue[][]): FacetValue[] {
+  const counts = new Map<string, number>();
+  for (const arr of arrays) {
+    for (const { value, count } of arr) {
+      counts.set(value, (counts.get(value) || 0) + count);
+    }
+  }
+  return Array.from(counts.entries())
+    .map(([value, count]) => ({ value, count }))
+    .sort((a, b) => b.count - a.count);
+}
+
+function mergeStats(all: ApiStats[]): ApiStats {
+  if (all.length === 0) return EMPTY_STATS;
+  const totalActive = all.reduce((s, x) => s + x.totalActive, 0);
+  const weightedDays = all.reduce((s, x) => s + x.avgDaysOnLot * x.totalActive, 0);
+  return {
+    totalActive,
+    priceDrops: all.reduce((s, x) => s + x.priceDrops, 0),
+    newArrivals: all.reduce((s, x) => s + x.newArrivals, 0),
+    staleCount: all.reduce((s, x) => s + x.staleCount, 0),
+    avgDaysOnLot: totalActive > 0 ? weightedDays / totalActive : 0,
+    // Porsche and Ford dealer networks are disjoint in this dataset, so a
+    // plain sum (rather than a deduped count, which would need another
+    // query) is accurate, not just an approximation.
+    dealershipsCount: all.reduce((s, x) => s + x.dealershipsCount, 0),
+  };
+}
+
+// Client-side comparator used ONLY to re-sort a merged "All Makes" page
+// (porsche results + ford results concatenated) into one consistent order.
+// For a single selected brand the server already returns a correctly
+// sorted, correctly paginated page, so this is never applied there.
+function sortMergedVehicles(vehicles: VehicleRecord[], sortBy: string, userZip: string, getVehicleDistance: (v: VehicleRecord) => number): VehicleRecord[] {
+  const arr = [...vehicles];
+  arr.sort((a, b) => {
+    if (sortBy === "closest_to_zip") {
+      const distA = getVehicleDistance(a);
+      const distB = getVehicleDistance(b);
+      if (distA !== distB) return distA - distB;
+      const pA = a.price && a.price > 0 && a.price < 5000000 ? a.price : 0;
+      const pB = b.price && b.price > 0 && b.price < 5000000 ? b.price : 0;
+      return pA - pB;
+    }
+    if (sortBy === "price_desc") {
+      const pA = a.price && a.price > 0 && a.price < 5000000 ? a.price : 0;
+      const pB = b.price && b.price > 0 && b.price < 5000000 ? b.price : 0;
+      return pB - pA;
+    }
+    if (sortBy === "price_asc") {
+      const pA = a.price && a.price > 0 && a.price < 5000000 ? a.price : Infinity;
+      const pB = b.price && b.price > 0 && b.price < 5000000 ? b.price : Infinity;
+      return pA - pB;
+    }
+    if (sortBy === "price_drop_first") {
+      const dropA = Math.abs(a.priceDiff && a.priceDiff < 0 && Math.abs(a.priceDiff) < 5000000 ? a.priceDiff : 0);
+      const dropB = Math.abs(b.priceDiff && b.priceDiff < 0 && Math.abs(b.priceDiff) < 5000000 ? b.priceDiff : 0);
+      if (dropA !== dropB) return dropB - dropA;
+      return (b.daysOnLot || 0) - (a.daysOnLot || 0);
+    }
+    if (sortBy === "days_desc") return (b.daysOnLot || 0) - (a.daysOnLot || 0);
+    if (sortBy === "days_asc") return (a.daysOnLot || 0) - (b.daysOnLot || 0);
+    if (sortBy === "mileage_asc") return (a.mileage || 0) - (b.mileage || 0);
+    if (sortBy === "year_desc") return (b.year || 0) - (a.year || 0);
+
+    const hasDropA = a.changeType === "PRICE_DROP" || (a.priceDiff && a.priceDiff < 0);
+    const hasDropB = b.changeType === "PRICE_DROP" || (b.priceDiff && b.priceDiff < 0);
+    if (hasDropA && !hasDropB) return -1;
+    if (!hasDropA && hasDropB) return 1;
+    return (a.daysOnLot || 0) - (b.daysOnLot || 0);
+  });
+  return arr;
+}
+
 export const LightsailIntelligence: React.FC = () => {
-  const [allVehicles, setAllVehicles] = useState<VehicleRecord[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isRefreshing, setIsRefreshing] = useState(false);
   const [viewMode, setViewMode] = useState<"grid" | "changes">("grid");
   const [copiedVin, setCopiedVin] = useState<string | null>(null);
   const [isAdvancedFiltersOpen, setIsAdvancedFiltersOpen] = useState(false);
@@ -253,7 +583,13 @@ export const LightsailIntelligence: React.FC = () => {
       setAiStickerLoading(false);
     }
   };
+
+  // ------------------------------------------------------------------
+  // Filter / sort / page state — unchanged from before. These now drive
+  // server-side query params instead of an in-memory useMemo filter chain.
+  // ------------------------------------------------------------------
   const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
   const [selectedMake, setSelectedMake] = useState<string>("ALL");
   const [selectedModel, setSelectedModel] = useState<string>("ALL");
   const [selectedTrim, setSelectedTrim] = useState<string>("ALL");
@@ -273,11 +609,18 @@ export const LightsailIntelligence: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [pageSize, setPageSize] = useState<number>(50);
 
+  // Debounce only the free-text search field (~300ms), per the migration
+  // plan — every other filter re-fetches immediately on change.
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedSearchTerm(searchTerm), 300);
+    return () => clearTimeout(t);
+  }, [searchTerm]);
+
   // Reset page whenever any active filter is updated
   useEffect(() => {
     setCurrentPage(1);
   }, [
-    searchTerm,
+    debouncedSearchTerm,
     selectedMake,
     selectedModel,
     selectedTrim,
@@ -296,42 +639,112 @@ export const LightsailIntelligence: React.FC = () => {
     userZip,
   ]);
 
-  // Fetch full live dataset
-  const fetchData = async () => {
-    try {
-      const res = await fetch("/api/lightsail");
-      if (res.ok) {
-        const json = await res.json();
-        const records: VehicleRecord[] = json.recentVehicles || [];
-        setAllVehicles(records);
-      }
-    } catch (err) {
-      console.error("Failed to load Lightsail inventory:", err);
-    } finally {
-      setIsLoading(false);
-      setIsRefreshing(false);
-    }
-  };
+  // ------------------------------------------------------------------
+  // Live server state
+  // ------------------------------------------------------------------
+  const [vehicles, setVehicles] = useState<VehicleRecord[]>([]);
+  const [pagination, setPagination] = useState<ApiPagination>(EMPTY_PAGINATION);
+  const [stats, setStats] = useState<ApiStats>(EMPTY_STATS);
+  const [dataSource, setDataSource] = useState<"box_api" | "legacy_fallback" | null>(null);
+  const [isLoading, setIsLoading] = useState(true); // first paint only
+  const [isFetching, setIsFetching] = useState(false); // every subsequent re-fetch
 
+  const [rawFacets, setRawFacets] = useState<Record<string, FacetValue[]>>({});
+  const [isFacetsLoading, setIsFacetsLoading] = useState(false);
+
+  // Which brand a given `make` value belongs to, learned from the facets
+  // response so a specific Make selection (e.g. "Ford") can be resolved to
+  // the one `brand` the box API requires per request. See the header
+  // comment above for why this exists.
+  const [makeBrandMap, setMakeBrandMap] = useState<Record<string, Brand>>({});
+
+  // One-time (per mount) grand total across both brands, used only for the
+  // "All Makes (N)" / "All Models (N)" style labels and the empty-state
+  // message — matching the old behavior of always showing the full,
+  // filter-independent dataset size there.
+  const [grandTotal, setGrandTotal] = useState<number | null>(null);
   useEffect(() => {
-    fetchData();
+    let cancelled = false;
+    (async () => {
+      const results = await Promise.all(BRANDS.map((b) => fetchVehiclesPage(b, { page: "1", pageSize: "1" })));
+      if (cancelled) return;
+      const total = results.reduce((s, r) => s + (r?.pagination.totalCount || 0), 0);
+      setGrandTotal(total);
+    })();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleRefresh = () => {
-    setIsRefreshing(true);
-    fetchData();
-  };
+  // Factory-option catalog: the box API has no facet dimension for options
+  // (they live in a separate join table — see FACET_DIMS above), so there
+  // is no single query that returns "every option code with its count."
+  // Known gap, flagged in the migration report. Interim behavior: build the
+  // catalog incrementally from whatever vehicles this session has actually
+  // fetched, deduping by VIN per code so re-fetching the same page never
+  // inflates a count.
+  const [optionCatalog, setOptionCatalog] = useState<Map<string, { name: string; vins: Set<string> }>>(new Map());
 
-  const handleCopyVin = (vin: string, e?: React.MouseEvent) => {
-    if (e) e.stopPropagation();
-    if (typeof navigator !== "undefined" && navigator.clipboard) {
-      navigator.clipboard.writeText(vin);
-      setCopiedVin(vin);
-      setTimeout(() => setCopiedVin(null), 2000);
+  function brandsForQuery(): Brand[] {
+    if (selectedMake === "ALL") return BRANDS;
+    const b = makeBrandMap[selectedMake];
+    return b ? [b] : BRANDS; // safe fallback: query both, `make` filter narrows correctly either way
+  }
+
+  function activeFacetFilterDims(): FacetDim[] {
+    const dims: FacetDim[] = [];
+    if (selectedMake !== "ALL") dims.push("make");
+    if (selectedModel !== "ALL") dims.push("model");
+    if (selectedTrim !== "ALL") dims.push("trim");
+    if (selectedDealer !== "ALL") dims.push("dealer");
+    if (selectedState !== "ALL") dims.push("state");
+    if (selectedBodyStyle !== "ALL") dims.push("bodyStyle");
+    if (selectedCondition !== "ALL") dims.push("condition");
+    return dims;
+  }
+
+  // Shared filter params (search/model/trim/condition/dealer/state/
+  // bodyStyle/year/price/mileage/daysOnLot/opportunity/optionCode) — NOT
+  // including brand/make/page/pageSize/sortBy/excludeFacet, which callers
+  // attach themselves since they vary per-brand or per-purpose.
+  function buildFilterParams(): Record<string, string> {
+    const p: Record<string, string> = {};
+    if (debouncedSearchTerm.trim()) p.search = debouncedSearchTerm.trim();
+    if (selectedModel !== "ALL") p.model = selectedModel;
+    if (selectedTrim !== "ALL") p.trim = selectedTrim;
+    if (selectedCondition !== "ALL") p.condition = selectedCondition;
+    if (selectedDealer !== "ALL") p.dealer = selectedDealer;
+    if (selectedState !== "ALL") p.state = selectedState;
+    if (selectedBodyStyle !== "ALL") p.bodyStyle = selectedBodyStyle;
+    if (selectedYear !== "ALL") p.year = selectedYear;
+    if (minPriceInput.trim()) p.minPrice = minPriceInput.trim();
+    if (maxPriceInput.trim()) p.maxPrice = maxPriceInput.trim();
+    if (maxMileageInput.trim()) p.maxMileage = maxMileageInput.trim();
+    if (selectedOptionCode !== "ALL") p.optionCode = selectedOptionCode;
+    const dayRange = DAYS_ON_LOT_RANGES[selectedDaysOnLot];
+    if (dayRange) {
+      if (dayRange.min !== undefined) p.minDaysOnLot = String(dayRange.min);
+      if (dayRange.max !== undefined) p.maxDaysOnLot = String(dayRange.max);
     }
-  };
+    const opp = OPPORTUNITY_MAP[selectedOpportunity];
+    if (opp) p.opportunity = opp;
+    return p;
+  }
+
+  function buildSortParams(): Record<string, string> {
+    if (sortBy === "closest_to_zip") {
+      const coords = getZipCoordinates(userZip.trim() || "07054");
+      return { sortBy: "closest_to_zip", lat: String(coords.lat), lng: String(coords.lng) };
+    }
+    if (SUPPORTED_SORT_MAP[sortBy]) return { sortBy: SUPPORTED_SORT_MAP[sortBy] };
+    return {};
+  }
 
   // Helper to compute vehicle distance in miles from active user ZIP
+  // (unchanged client heuristic — kept exactly as before so the per-card
+  // "X mi" badge and CSV column don't change behavior; see the report for
+  // how this relates to the server-side closest_to_zip sort).
   const getVehicleDistance = (v: VehicleRecord): number => {
     const zip = userZip.trim() || "07054";
     return calculateDistanceMiles(zip, {
@@ -340,52 +753,8 @@ export const LightsailIntelligence: React.FC = () => {
     });
   };
 
-  // Canonical Model Series Normalizer with deterministic VIN decoding
-  const getModelSeries = (v: VehicleRecord): string => {
-    const vin = (v.vin || "").toUpperCase();
-    const make = (v.make || "").toLowerCase();
-    const model = (v.model || "").toLowerCase();
-    const trim = (v.trim || "").toLowerCase();
-    const body = (v.bodyStyle || "").toLowerCase();
-    const raw = `${make} ${model} ${trim} ${body}`.toLowerCase();
-
-    // 1. Deterministic VIN VDS decoding
-    if (vin.length >= 8) {
-      const vds = vin.substring(3, 8);
-      if (vds.includes("A9") || vds.includes("99")) return "911";
-      if (vds.includes("Y1")) return "Taycan";
-      if (vds.includes("YA")) return "Panamera";
-      if (vds.includes("AY")) return "Cayenne";
-      if (vds.includes("A5") || vds.includes("XA")) return "Macan";
-      if (vds.includes("98") || vds.includes("97")) {
-        return raw.includes("boxster") || raw.includes("spyder") || raw.includes("cabriolet") ? "718 Boxster" : "718 Cayman";
-      }
-    }
-
-    // 2. Text & Specification Fallback Classification
-    if (raw.includes("cayenne")) return "Cayenne";
-    if (raw.includes("macan")) return "Macan";
-    if (raw.includes("taycan")) return "Taycan";
-    if (raw.includes("panamera")) return "Panamera";
-    if (raw.includes("boxster") || raw.includes("spyder")) return "718 Boxster";
-    if (raw.includes("718") || raw.includes("cayman")) return "718 Cayman";
-    if (
-      raw.includes("911") ||
-      raw.includes("carrera") ||
-      raw.includes("targa") ||
-      raw.includes("gt3") ||
-      raw.includes("gt2") ||
-      raw.includes("dakar") ||
-      raw.includes("sport classic") ||
-      raw.includes("s/t")
-    ) {
-      return "911";
-    }
-
-    return v.model || "Other";
-  };
-
-  // Canonical Condition Normalizer
+  // Canonical Condition Normalizer — unchanged; resilient to both the box's
+  // "CERTIFIED_PRE_OWNED" and any legacy "CERTIFIED"-style value.
   const getNormalizedCondition = (v: VehicleRecord): "NEW" | "USED" | "CERTIFIED" => {
     const t = (v.inventoryType || "").toUpperCase();
     if (t.includes("CERT")) return "CERTIFIED";
@@ -393,211 +762,166 @@ export const LightsailIntelligence: React.FC = () => {
     return "USED";
   };
 
-  // Check if a vehicle passes active filters, optionally excluding a specific facet for cross-count calculation
-  const checkFilterMatch = (v: VehicleRecord, excludeFacet?: string): boolean => {
-    // 1. Search term
-    if (searchTerm.trim() !== "") {
-      const optNames = (v.factoryOptions || []).map((o) => `${o.code} ${o.name}`).join(" ");
-      const textHaystack = `${v.year} ${v.make} ${v.model} ${v.trim || ""} ${v.bodyStyle || ""} ${v.dealerName} ${v.city || ""} ${v.state} ${v.exteriorColor || ""} ${optNames}`.toLowerCase();
-      const vinLower = (v.vin || "").toLowerCase();
-      const tokens = searchTerm.toLowerCase().split(/\s+/).filter(Boolean);
-      const matchesAllTokens = tokens.every((t) => {
-        if (textHaystack.includes(t)) return true;
-        if (t.length >= 6 && vinLower.includes(t)) return true;
-        if (t === vinLower) return true;
-        return false;
-      });
-      if (!matchesAllTokens) return false;
-    }
+  // ------------------------------------------------------------------
+  // Main paginated vehicles fetch — re-runs whenever any filter/sort/page
+  // state changes. Ignores out-of-order responses via a sequence guard so
+  // a slow earlier request can't clobber a faster later one.
+  // ------------------------------------------------------------------
+  const fetchSeqRef = useRef(0);
+  useEffect(() => {
+    const seq = ++fetchSeqRef.current;
+    setIsFetching(true);
+    (async () => {
+      const brands = brandsForQuery();
+      const baseParams = buildFilterParams();
+      const sortParams = buildSortParams();
 
-    // 1b. Make (manufacturer)
-    if (excludeFacet !== "make" && selectedMake !== "ALL") {
-      if (v.make !== selectedMake) return false;
-    }
-
-    // 2. Model Series
-    if (excludeFacet !== "model" && selectedModel !== "ALL") {
-      if (getModelSeries(v) !== selectedModel) return false;
-    }
-
-    // 3. Trim
-    if (excludeFacet !== "trim" && selectedTrim !== "ALL") {
-      if (v.trim !== selectedTrim) return false;
-    }
-
-    // 4. Condition
-    if (excludeFacet !== "condition" && selectedCondition !== "ALL") {
-      if (getNormalizedCondition(v) !== selectedCondition) return false;
-    }
-
-    // 5. Dealer
-    if (excludeFacet !== "dealer" && selectedDealer !== "ALL") {
-      if (v.dealerName !== selectedDealer) return false;
-    }
-
-    // 6. State
-    if (excludeFacet !== "state" && selectedState !== "ALL") {
-      if (v.state !== selectedState) return false;
-    }
-
-    // 7. Body Style
-    if (excludeFacet !== "bodyStyle" && selectedBodyStyle !== "ALL") {
-      if (v.bodyStyle !== selectedBodyStyle) return false;
-    }
-
-    // 8. Year
-    if (excludeFacet !== "year" && selectedYear !== "ALL") {
-      if (v.year !== parseInt(selectedYear, 10)) return false;
-    }
-
-    // 9. Factory Option Code — matched strictly against this vehicle's own
-    // real, dealer-scraped options/packages. No keyword guessing: a car
-    // only matches an option filter if it actually has that option.
-    if (excludeFacet !== "option" && selectedOptionCode !== "ALL") {
-      const codes = v.optionCodes || [];
-      const optDefs = v.factoryOptions || [];
-      const hasCode = codes.includes(selectedOptionCode) || optDefs.some((o) => o.code === selectedOptionCode);
-      if (!hasCode) return false;
-    }
-
-    // 10. Price Range
-    const minPrice = minPriceInput ? parseFloat(minPriceInput) : 0;
-    const maxPrice = maxPriceInput ? parseFloat(maxPriceInput) : Infinity;
-    const cleanP = v.price && v.price > 0 && v.price < 5000000 && v.price !== 2147483647 ? v.price : null;
-    if (cleanP !== null) {
-      if (cleanP < minPrice || cleanP > maxPrice) return false;
-    }
-
-    // 11. Mileage Range
-    const maxMiles = maxMileageInput ? parseFloat(maxMileageInput) : Infinity;
-    if (v.mileage > maxMiles) return false;
-
-    // 12. Days on Lot
-    if (excludeFacet !== "days" && selectedDaysOnLot !== "ALL") {
-      const days = v.daysOnLot || 0;
-      if (selectedDaysOnLot === "under_7" && days > 7) return false;
-      if (selectedDaysOnLot === "7_to_30" && (days < 7 || days > 30)) return false;
-      if (selectedDaysOnLot === "31_to_60" && (days < 31 || days > 60)) return false;
-      if (selectedDaysOnLot === "over_45" && days < 45) return false;
-      if (selectedDaysOnLot === "over_60" && days < 60) return false;
-    }
-
-    // 13. Market Opportunity
-    if (excludeFacet !== "opportunity" && selectedOpportunity !== "ALL") {
-      if (selectedOpportunity === "drops" && !(v.changeType === "PRICE_DROP" || (v.priceDiff && v.priceDiff < 0))) return false;
-      if (selectedOpportunity === "fresh" && !(v.changeType === "NEW_ARRIVAL" || (v.daysOnLot || 0) <= 3)) return false;
-      if (selectedOpportunity === "stale" && (v.daysOnLot || 0) < 45) return false;
-      if (selectedOpportunity === "cpo" && getNormalizedCondition(v) !== "CERTIFIED") return false;
-    }
-
-    return true;
-  };
-
-  // Real-time dynamic faceted intersection counts across all criteria
-  const facetOptions = useMemo(() => {
-    const trims = new Map<string, number>();
-    const makes = new Map<string, number>();
-    const models = new Map<string, number>();
-    const conditions = { NEW: 0, USED: 0, CERTIFIED: 0 };
-    const dealers = new Map<string, number>();
-    const states = new Map<string, number>();
-    const bodyStyles = new Map<string, number>();
-    const years = new Map<number, number>();
-    const options = new Map<string, number>();
-
-    // Initial base collection of all unique facets
-    allVehicles.forEach((v) => {
-      if (v.make && !makes.has(v.make)) makes.set(v.make, 0);
-      const s = getModelSeries(v);
-      if (!models.has(s)) models.set(s, 0);
-      if (v.trim && v.trim !== "null" && v.trim.trim() !== "" && !trims.has(v.trim)) trims.set(v.trim, 0);
-      if (v.dealerName && !dealers.has(v.dealerName)) dealers.set(v.dealerName, 0);
-      if (v.state && !states.has(v.state)) states.set(v.state, 0);
-      if (v.bodyStyle && v.bodyStyle !== "null" && !bodyStyles.has(v.bodyStyle)) bodyStyles.set(v.bodyStyle, 0);
-      if (v.year && !years.has(v.year)) years.set(v.year, 0);
-    });
-
-    // Populate dynamic intersection counts
-    allVehicles.forEach((v) => {
-      // 0. Make counts (given all filters except make)
-      if (checkFilterMatch(v, "make") && v.make) {
-        makes.set(v.make, (makes.get(v.make) || 0) + 1);
+      if (brands.length === 1) {
+        const brand = brands[0];
+        const params: Record<string, string> = {
+          ...baseParams,
+          ...sortParams,
+          page: String(currentPage),
+          pageSize: String(pageSize),
+        };
+        if (selectedMake !== "ALL") params.make = selectedMake;
+        const result = await fetchVehiclesPage(brand, params);
+        if (seq !== fetchSeqRef.current) return;
+        if (result) {
+          const mapped = result.vehicles.map((v) => mapApiVehicleToRecord(v, result.source));
+          setVehicles(mapped);
+          setPagination(result.pagination);
+          setStats(result.stats);
+          setDataSource(result.source);
+          absorbOptionCatalog(mapped);
+        } else {
+          setVehicles([]);
+          setPagination({ ...EMPTY_PAGINATION, pageSize });
+          setStats(EMPTY_STATS);
+          setDataSource(null);
+        }
+      } else {
+        const params: Record<string, string> = {
+          ...baseParams,
+          ...sortParams,
+          page: String(currentPage),
+          pageSize: String(pageSize),
+        };
+        const results = await Promise.all(brands.map((b) => fetchVehiclesPage(b, params)));
+        if (seq !== fetchSeqRef.current) return;
+        const valid = results.filter((r): r is VehiclesApiResponse => !!r);
+        const merged = valid.flatMap((r) => r.vehicles.map((v) => mapApiVehicleToRecord(v, r.source)));
+        const sorted = sortMergedVehicles(merged, sortBy, userZip, getVehicleDistance);
+        const totalCount = valid.reduce((s, r) => s + r.pagination.totalCount, 0);
+        const page = sorted.slice(0, pageSize);
+        setVehicles(page);
+        setPagination({ page: currentPage, pageSize, totalCount, totalPages: Math.max(1, Math.ceil(totalCount / pageSize)) });
+        setStats(mergeStats(valid.map((r) => r.stats)));
+        setDataSource(valid.some((r) => r.source === "box_api") ? "box_api" : valid.length > 0 ? "legacy_fallback" : null);
+        absorbOptionCatalog(page);
       }
-
-      // 1. Model series counts (given all filters except model)
-      if (checkFilterMatch(v, "model")) {
-        const s = getModelSeries(v);
-        models.set(s, (models.get(s) || 0) + 1);
-      }
-
-      // 1b. Trim counts (given all filters except trim)
-      if (checkFilterMatch(v, "trim") && v.trim && v.trim !== "null" && v.trim.trim() !== "") {
-        trims.set(v.trim, (trims.get(v.trim) || 0) + 1);
-      }
-
-      // 2. Condition counts (given all filters except condition)
-      if (checkFilterMatch(v, "condition")) {
-        const cond = getNormalizedCondition(v);
-        conditions[cond] = (conditions[cond] || 0) + 1;
-      }
-
-      // 3. Dealer counts (given all filters except dealer)
-      if (checkFilterMatch(v, "dealer") && v.dealerName) {
-        dealers.set(v.dealerName, (dealers.get(v.dealerName) || 0) + 1);
-      }
-
-      // 4. State counts (given all filters except state)
-      if (checkFilterMatch(v, "state") && v.state) {
-        states.set(v.state, (states.get(v.state) || 0) + 1);
-      }
-
-      // 5. Body style counts (given all filters except bodyStyle)
-      if (checkFilterMatch(v, "bodyStyle") && v.bodyStyle && v.bodyStyle !== "null") {
-        bodyStyles.set(v.bodyStyle, (bodyStyles.get(v.bodyStyle) || 0) + 1);
-      }
-
-      // 6. Year counts (given all filters except year)
-      if (checkFilterMatch(v, "year") && v.year) {
-        years.set(v.year, (years.get(v.year) || 0) + 1);
-      }
-
-      // 7. Option codes counts (given all filters except option) — counted
-      // strictly from each vehicle's real, dealer-scraped options/packages.
-      if (checkFilterMatch(v, "option")) {
-        const codes = new Set(v.optionCodes || []);
-        (v.factoryOptions || []).forEach((o) => codes.add(o.code));
-
-        codes.forEach((c) => {
-          options.set(c, (options.get(c) || 0) + 1);
-        });
-      }
-    });
-
-    // Real option code -> display name, built from whatever options actually
-    // appear in the current dataset (dealer-scraped, per-VIN) rather than a
-    // fixed hardcoded catalog — so the filter always matches real data.
-    const optionNames = new Map<string, string>();
-    allVehicles.forEach((v) => {
-      (v.factoryOptions || []).forEach((o) => {
-        if (o.code && o.name && !optionNames.has(o.code)) optionNames.set(o.code, o.name);
-      });
-    });
-
-    return {
-      makes: Array.from(makes.entries()).sort((a, b) => b[1] - a[1]),
-      models: Array.from(models.entries()).sort((a, b) => b[1] - a[1]),
-      trims: Array.from(trims.entries()).sort((a, b) => b[1] - a[1]),
-      conditions,
-      dealers: Array.from(dealers.entries()).sort((a, b) => b[1] - a[1]),
-      states: Array.from(states.entries()).sort((a, b) => b[1] - a[1]),
-      bodyStyles: Array.from(bodyStyles.entries()).sort((a, b) => b[1] - a[1]),
-      years: Array.from(years.entries()).sort((a, b) => b[0] - a[0]),
-      options,
-      optionNames,
-    };
+      setIsLoading(false);
+      setIsFetching(false);
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
-    allVehicles,
-    searchTerm,
+    debouncedSearchTerm,
+    selectedMake,
+    selectedModel,
+    selectedTrim,
+    selectedCondition,
+    selectedDealer,
+    selectedState,
+    selectedBodyStyle,
+    selectedYear,
+    minPriceInput,
+    maxPriceInput,
+    maxMileageInput,
+    selectedDaysOnLot,
+    selectedOpportunity,
+    selectedOptionCode,
+    sortBy,
+    currentPage,
+    pageSize,
+    userZip,
+  ]);
+
+  function absorbOptionCatalog(newVehicles: VehicleRecord[]) {
+    setOptionCatalog((prev) => {
+      let changed = false;
+      const next = new Map(prev);
+      for (const v of newVehicles) {
+        for (const o of v.factoryOptions || []) {
+          if (!o.code) continue;
+          const entry = next.get(o.code) || { name: o.name || o.code, vins: new Set<string>() };
+          if (!entry.vins.has(v.vin)) {
+            entry.vins = new Set(entry.vins);
+            entry.vins.add(v.vin);
+            changed = true;
+          }
+          next.set(o.code, entry);
+        }
+      }
+      return changed ? next : prev;
+    });
+  }
+
+  // ------------------------------------------------------------------
+  // Facets fetch — cross-filtered dropdown counts. Runs in parallel with
+  // the vehicles fetch above (separate effect/loading state per the plan).
+  // For each dimension that currently has an active filter, an extra
+  // `excludeFacet=<dim>` request is made so that dropdown still shows every
+  // value (not just the one selected) with counts computed as if that one
+  // filter weren't applied — matching the old client-side cross-count
+  // behavior exactly. Dimensions with no active filter need no extra call.
+  // ------------------------------------------------------------------
+  const facetsSeqRef = useRef(0);
+  useEffect(() => {
+    const seq = ++facetsSeqRef.current;
+    setIsFacetsLoading(true);
+    (async () => {
+      const brands = brandsForQuery();
+      const baseParams = buildFilterParams();
+      const activeDims = activeFacetFilterDims();
+
+      async function fetchForBrand(brand: Brand): Promise<Record<string, FacetValue[]>> {
+        const params = selectedMake !== "ALL" ? { ...baseParams, make: selectedMake } : baseParams;
+        const basePromise = fetchFacetsPage(brand, params);
+        const extraPromises = activeDims.map(async (dim) => {
+          const r = await fetchFacetsPage(brand, { ...params, excludeFacet: dim });
+          return [dim, r?.facets?.[dim] || []] as [FacetDim, FacetValue[]];
+        });
+        const [base, ...extras] = await Promise.all([basePromise, ...extraPromises]);
+        const merged: Record<string, FacetValue[]> = { ...(base?.facets || {}) };
+        for (const [dim, values] of extras) merged[dim] = values;
+        return merged;
+      }
+
+      const perBrand = await Promise.all(brands.map((b) => fetchForBrand(b)));
+      if (seq !== facetsSeqRef.current) return;
+
+      // Track which brand each make value belongs to (only meaningful in
+      // "ALL" mode where there's more than one brand's facets to compare).
+      if (brands.length > 1) {
+        const newMap: Record<string, Brand> = {};
+        brands.forEach((b, i) => {
+          (perBrand[i].make || []).forEach(({ value }) => {
+            newMap[value] = b;
+          });
+        });
+        setMakeBrandMap((prev) => ({ ...prev, ...newMap }));
+      }
+
+      const mergedFacets: Record<string, FacetValue[]> = {};
+      for (const dim of FACET_DIMS) {
+        mergedFacets[dim] = mergeFacetValueArrays(perBrand.map((f) => f[dim] || []));
+      }
+      setRawFacets(mergedFacets);
+      setIsFacetsLoading(false);
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    debouncedSearchTerm,
     selectedMake,
     selectedModel,
     selectedTrim,
@@ -613,6 +937,92 @@ export const LightsailIntelligence: React.FC = () => {
     selectedOpportunity,
     selectedOptionCode,
   ]);
+
+  // Shape-compatible with the old client-computed `facetOptions` so the
+  // JSX below barely had to change.
+  const facetOptions = useMemo(() => {
+    const toTuples = (dim: FacetDim) => (rawFacets[dim] || []).map((f) => [f.value, f.count] as [string, number]);
+    const conditions = { NEW: 0, USED: 0, CERTIFIED_PRE_OWNED: 0 } as Record<string, number>;
+    (rawFacets.condition || []).forEach(({ value, count }) => {
+      conditions[value] = (conditions[value] || 0) + count;
+    });
+
+    const options = new Map<string, number>();
+    const optionNames = new Map<string, string>();
+    optionCatalog.forEach((entry, code) => {
+      options.set(code, entry.vins.size);
+      optionNames.set(code, entry.name);
+    });
+
+    return {
+      makes: toTuples("make"),
+      models: toTuples("model"),
+      trims: toTuples("trim"),
+      conditions,
+      dealers: toTuples("dealer"),
+      states: toTuples("state"),
+      bodyStyles: toTuples("bodyStyle"),
+      options,
+      optionNames,
+    };
+  }, [rawFacets, optionCatalog]);
+
+  const totalMakesCount = useMemo(() => facetOptions.makes.reduce((s, [, c]) => s + c, 0), [facetOptions.makes]);
+  const totalModelsCount = useMemo(() => facetOptions.models.reduce((s, [, c]) => s + c, 0), [facetOptions.models]);
+
+  // ------------------------------------------------------------------
+  // "Daily Activity" tab — needs the (near-)full inventory for the current
+  // brand/dealer scope, including recently sold/removed vehicles, to bucket
+  // into new/sold/price-drop/price-up exactly like DailyChangesPanel always
+  // did. Lazily fetched only when that tab is opened, via several parallel
+  // paginated requests (status=ALL so sold/removed vehicles are included —
+  // the default vehicles query only returns status=ACTIVE).
+  // ------------------------------------------------------------------
+  const [changesVehicles, setChangesVehicles] = useState<VehicleRecord[]>([]);
+  const [isChangesLoading, setIsChangesLoading] = useState(false);
+  const changesSeqRef = useRef(0);
+
+  useEffect(() => {
+    if (viewMode !== "changes") return;
+    const seq = ++changesSeqRef.current;
+    setIsChangesLoading(true);
+    (async () => {
+      const brands = brandsForQuery();
+      const dealerParam: Record<string, string> = selectedDealer !== "ALL" ? { dealer: selectedDealer } : {};
+      const PAGE_SIZE = 200;
+      const MAX_PAGES_PER_BRAND = 30; // covers ~6,000 vehicles/brand — comfortably above current ~5,300 (active+sold) per brand
+
+      async function fetchAllForBrand(brand: Brand): Promise<VehicleRecord[]> {
+        const baseParams: Record<string, string> = { status: "ALL", pageSize: String(PAGE_SIZE), ...dealerParam };
+        if (selectedMake !== "ALL") baseParams.make = selectedMake;
+        const first = await fetchVehiclesPage(brand, { ...baseParams, page: "1" });
+        if (!first) return [];
+        const totalPages = Math.min(first.pagination.totalPages, MAX_PAGES_PER_BRAND);
+        const rest = await Promise.all(
+          Array.from({ length: Math.max(0, totalPages - 1) }, (_, i) => i + 2).map((p) =>
+            fetchVehiclesPage(brand, { ...baseParams, page: String(p) })
+          )
+        );
+        const all = [first, ...rest].filter((r): r is VehiclesApiResponse => !!r);
+        return all.flatMap((r) => r.vehicles.map((v) => mapApiVehicleToRecord(v, r.source)));
+      }
+
+      const perBrand = await Promise.all(brands.map((b) => fetchAllForBrand(b)));
+      if (seq !== changesSeqRef.current) return;
+      setChangesVehicles(perBrand.flat());
+      setIsChangesLoading(false);
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [viewMode, selectedMake, selectedDealer]);
+
+  const handleCopyVin = (vin: string, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    if (typeof navigator !== "undefined" && navigator.clipboard) {
+      navigator.clipboard.writeText(vin);
+      setCopiedVin(vin);
+      setTimeout(() => setCopiedVin(null), 2000);
+    }
+  };
 
   // Reset all filters to default
   const handleResetFilters = () => {
@@ -673,300 +1083,113 @@ export const LightsailIntelligence: React.FC = () => {
     sortBy,
   ]);
 
-  // Comprehensive Filtering & Sorting Pipeline
-  const filteredVehicles = useMemo(() => {
-    const minPrice = minPriceInput ? parseFloat(minPriceInput) : 0;
-    const maxPrice = maxPriceInput ? parseFloat(maxPriceInput) : Infinity;
-    const maxMiles = maxMileageInput ? parseFloat(maxMileageInput) : Infinity;
+  const totalPages = pagination.totalPages;
 
-    return allVehicles
-      .filter((v) => {
-        // 1. Free Search (VIN, Make, Model, Trim, Dealer, City, State, Body, Color, Options)
-        if (searchTerm.trim() !== "") {
-          const optNames = (v.factoryOptions || []).map((o) => `${o.code} ${o.name}`).join(" ");
-          const textHaystack = `${v.year} ${v.make} ${v.model} ${v.trim || ""} ${v.bodyStyle || ""} ${v.dealerName} ${v.city || ""} ${v.state} ${v.exteriorColor || ""} ${optNames}`.toLowerCase();
-          const vinLower = (v.vin || "").toLowerCase();
-          const tokens = searchTerm.toLowerCase().split(/\s+/).filter(Boolean);
-          
-          const matchesAllTokens = tokens.every((t) => {
-            if (textHaystack.includes(t)) return true;
-            // Only match against VIN if the token is a specific VIN search (length >= 6) or exact VIN
-            if (t.length >= 6 && vinLower.includes(t)) return true;
-            if (t === vinLower) return true;
-            return false;
-          });
-          if (!matchesAllTokens) return false;
-        }
+  // Instant CSV Export of the current filtered selection. There is no
+  // dedicated unpaginated export endpoint wired into app/api/lightsail/
+  // route.ts yet (the box API does have one — /api/vehicles/export.csv —
+  // but it's a direct box endpoint requiring the server-only API key, not
+  // something this client component should call). Per the migration plan,
+  // this is the documented interim: page through the same action=vehicles
+  // endpoint at the max pageSize (200) until the filtered set is fully
+  // collected, then build the CSV exactly as before. Known limitation:
+  // slower than a real streaming export for very large filtered result
+  // sets, and capped at MAX_EXPORT_PAGES per brand as a safety bound.
+  const [isExporting, setIsExporting] = useState(false);
+  const handleExportFilteredCSV = async () => {
+    if (pagination.totalCount === 0 || isExporting) return;
+    setIsExporting(true);
+    try {
+      const brands = brandsForQuery();
+      const baseParams = buildFilterParams();
+      const sortParams = buildSortParams();
+      const PAGE_SIZE = 200;
+      const MAX_EXPORT_PAGES = 60; // 12,000 rows/brand — comfortably above current dataset size
 
-        // 1b. Make Filter
-        if (selectedMake !== "ALL") {
-          if (v.make !== selectedMake) return false;
-        }
+      async function fetchAllForBrand(brand: Brand): Promise<VehicleRecord[]> {
+        const params: Record<string, string> = { ...baseParams, ...sortParams, pageSize: String(PAGE_SIZE) };
+        if (selectedMake !== "ALL") params.make = selectedMake;
+        const first = await fetchVehiclesPage(brand, { ...params, page: "1" });
+        if (!first) return [];
+        const totalPages = Math.min(first.pagination.totalPages, MAX_EXPORT_PAGES);
+        const rest = await Promise.all(
+          Array.from({ length: Math.max(0, totalPages - 1) }, (_, i) => i + 2).map((p) =>
+            fetchVehiclesPage(brand, { ...params, page: String(p) })
+          )
+        );
+        const all = [first, ...rest].filter((r): r is VehiclesApiResponse => !!r);
+        return all.flatMap((r) => r.vehicles.map((v) => mapApiVehicleToRecord(v, r.source)));
+      }
 
-        // 2. Model Series Filter
-        if (selectedModel !== "ALL") {
-          if (getModelSeries(v) !== selectedModel) return false;
-        }
+      const perBrand = await Promise.all(brands.map((b) => fetchAllForBrand(b)));
+      const exportVehicles = perBrand.flat();
+      if (exportVehicles.length === 0) return;
 
-        // 3. Trim Filter
-        if (selectedTrim !== "ALL") {
-          if (v.trim !== selectedTrim) return false;
-        }
+      const headers = [
+        "VIN",
+        "Dealer",
+        "City",
+        "State",
+        "DistanceMiles",
+        "Condition",
+        "Year",
+        "Make",
+        "Model",
+        "Trim",
+        "BodyStyle",
+        "Price",
+        "OldPrice",
+        "PriceDiff",
+        "Mileage",
+        "DaysOnLot",
+        "Status",
+        "FactoryOptions",
+        "TotalOptionsMSRP",
+        "PlantCountry",
+        "URL",
+      ];
 
-        // 4. Condition Filter
-        if (selectedCondition !== "ALL") {
-          if (getNormalizedCondition(v) !== selectedCondition) return false;
-        }
+      const rows = exportVehicles.map((v) => [
+        v.vin,
+        `"${(v.dealerName || "").replace(/"/g, '""')}"`,
+        v.city || "",
+        v.state,
+        getVehicleDistance(v),
+        getNormalizedCondition(v),
+        v.year,
+        v.make,
+        `"${(v.model || "").replace(/"/g, '""')}"`,
+        `"${(v.trim || "").replace(/"/g, '""')}"`,
+        v.bodyStyle || "",
+        v.price || "",
+        v.oldPrice || "",
+        v.priceDiff || 0,
+        v.mileage || 0,
+        v.daysOnLot || 0,
+        v.status || "ACTIVE",
+        `"${(v.factoryOptions || []).map((o) => o.name).join("; ")}"`,
+        typeof v.totalOptionsPrice === "number" ? v.totalOptionsPrice : "",
+        v.nhtsa?.plantCountry || "Germany",
+        v.url || "",
+      ]);
 
-        // 5. Dealership Filter
-        if (selectedDealer !== "ALL") {
-          if (v.dealerName !== selectedDealer) return false;
-        }
+      const csvContent =
+        "data:text/csv;charset=utf-8," +
+        [headers.join(","), ...rows.map((e) => e.join(","))].join("\n");
 
-        // 6. State Filter
-        if (selectedState !== "ALL") {
-          if (v.state !== selectedState) return false;
-        }
-
-        // 7. Body Style Filter
-        if (selectedBodyStyle !== "ALL") {
-          if (v.bodyStyle !== selectedBodyStyle) return false;
-        }
-
-        // 8. Model Year
-        if (selectedYear !== "ALL") {
-          if (v.year !== parseInt(selectedYear, 10)) return false;
-        }
-
-        // 9. Factory Option Filter (45+ Comprehensive PR Codes)
-        if (selectedOptionCode !== "ALL") {
-          const codes = v.optionCodes || [];
-          const optDefs = v.factoryOptions || [];
-          const hasCode = codes.includes(selectedOptionCode) || optDefs.some((o) => o.code === selectedOptionCode);
-          if (!hasCode) {
-            const hay = `${v.model || ""} ${v.trim || ""} ${v.bodyStyle || ""}`.toLowerCase();
-            if (selectedOptionCode === "8LH" && (hay.includes("gts") || (hay.includes("gt3") && !hay.includes("touring")) || hay.includes("chrono"))) {
-              // baseline inclusion
-            } else if (selectedOptionCode === "2UH" && (hay.includes("gt3") || hay.includes("lift"))) {
-              // baseline inclusion
-            } else if ((selectedOptionCode === "0P9" || selectedOptionCode === "0P8") && (hay.includes("gts") || hay.includes("exhaust"))) {
-              // baseline inclusion
-            } else if ((selectedOptionCode === "1LX" || selectedOptionCode === "1LQ") && (hay.includes("ceramic") || hay.includes("pccb"))) {
-              // baseline inclusion
-            } else if (selectedOptionCode === "9VJ" && hay.includes("burmester")) {
-              // baseline inclusion
-            } else if (selectedOptionCode === "9VL" && hay.includes("bose")) {
-              // baseline inclusion
-            } else if (selectedOptionCode === "Q1J" && hay.includes("18-way")) {
-              // baseline inclusion
-            } else if (selectedOptionCode === "04S" && hay.includes("weissach") && (hay.includes("rs") || hay.includes("gt3") || hay.includes("gt4") || hay.includes("turbo gt"))) {
-              // baseline inclusion only for GT RS / Turbo GT models
-            } else if (selectedOptionCode === "04H" && hay.includes("heritage")) {
-              // baseline inclusion
-            } else {
-              return false;
-            }
-          }
-        }
-
-        // 10. Price Range
-        const cleanP = v.price && v.price > 0 && v.price < 5000000 && v.price !== 2147483647 ? v.price : null;
-        if (cleanP !== null) {
-          if (cleanP < minPrice || cleanP > maxPrice) return false;
-        }
-
-        // 11. Mileage Range
-        if (v.mileage > maxMiles) return false;
-
-        // 12. Days on Lot
-        const days = v.daysOnLot || 0;
-        if (selectedDaysOnLot === "under_7" && days > 7) return false;
-        if (selectedDaysOnLot === "7_to_30" && (days < 7 || days > 30)) return false;
-        if (selectedDaysOnLot === "31_to_60" && (days < 31 || days > 60)) return false;
-        if (selectedDaysOnLot === "over_45" && days < 45) return false;
-        if (selectedDaysOnLot === "over_60" && days < 60) return false;
-
-        // 13. Market Opportunity (Price Drops / New Arrivals)
-        if (selectedOpportunity === "PRICE_DROPS") {
-          const hasDrop = v.changeType === "PRICE_DROP" || (v.priceDiff && v.priceDiff < 0);
-          if (!hasDrop) return false;
-        } else if (selectedOpportunity === "NEW_ARRIVALS") {
-          const isNew = v.changeType === "NEW_ARRIVAL" || (v.daysOnLot || 0) <= 3;
-          if (!isNew) return false;
-        }
-
-        return true;
-      })
-      .sort((a, b) => {
-        // 1. Closest to ZIP
-        if (sortBy === "closest_to_zip") {
-          const distA = getVehicleDistance(a);
-          const distB = getVehicleDistance(b);
-          if (distA !== distB) return distA - distB;
-          const pA = a.price && a.price > 0 && a.price < 5000000 ? a.price : 0;
-          const pB = b.price && b.price > 0 && b.price < 5000000 ? b.price : 0;
-          return pA - pB;
-        }
-
-        // 2. Price: High to Low
-        if (sortBy === "price_desc") {
-          const pA = a.price && a.price > 0 && a.price < 5000000 ? a.price : 0;
-          const pB = b.price && b.price > 0 && b.price < 5000000 ? b.price : 0;
-          return pB - pA;
-        }
-
-        // 3. Price: Low to High (Put Call for Price / 0 at bottom)
-        if (sortBy === "price_asc") {
-          const pA = a.price && a.price > 0 && a.price < 5000000 ? a.price : Infinity;
-          const pB = b.price && b.price > 0 && b.price < 5000000 ? b.price : Infinity;
-          return pA - pB;
-        }
-
-        // 4. Largest Price Drop First
-        if (sortBy === "price_drop_first") {
-          const dropA = Math.abs(a.priceDiff && a.priceDiff < 0 && Math.abs(a.priceDiff) < 5000000 ? a.priceDiff : 0);
-          const dropB = Math.abs(b.priceDiff && b.priceDiff < 0 && Math.abs(b.priceDiff) < 5000000 ? b.priceDiff : 0);
-          if (dropA !== dropB) return dropB - dropA;
-          return (b.daysOnLot || 0) - (a.daysOnLot || 0);
-        }
-
-        // 5. Days on Lot
-        if (sortBy === "days_desc") return (b.daysOnLot || 0) - (a.daysOnLot || 0);
-        if (sortBy === "days_asc") return (a.daysOnLot || 0) - (b.daysOnLot || 0);
-
-        // 6. Mileage & Year
-        if (sortBy === "mileage_asc") return (a.mileage || 0) - (b.mileage || 0);
-        if (sortBy === "year_desc") return (b.year || 0) - (a.year || 0);
-
-        // Default: Price Drops first, then newest arrivals, then lowest price
-        const hasDropA = a.changeType === "PRICE_DROP" || (a.priceDiff && a.priceDiff < 0);
-        const hasDropB = b.changeType === "PRICE_DROP" || (b.priceDiff && b.priceDiff < 0);
-        if (hasDropA && !hasDropB) return -1;
-        if (!hasDropA && hasDropB) return 1;
-
-        return (a.daysOnLot || 0) - (b.daysOnLot || 0);
-      });
-  }, [
-    allVehicles,
-    searchTerm,
-    selectedMake,
-    selectedModel,
-    selectedTrim,
-    selectedCondition,
-    selectedDealer,
-    selectedState,
-    selectedBodyStyle,
-    selectedYear,
-    selectedOptionCode,
-    userZip,
-    minPriceInput,
-    maxPriceInput,
-    maxMileageInput,
-    selectedDaysOnLot,
-    selectedOpportunity,
-  ]);
-
-  // Pagination slice for smooth rendering
-  const totalPages = Math.max(1, Math.ceil(filteredVehicles.length / pageSize));
-  const paginatedVehicles = useMemo(() => {
-    const start = (currentPage - 1) * pageSize;
-    return filteredVehicles.slice(start, start + pageSize);
-  }, [filteredVehicles, currentPage, pageSize]);
-
-  // Live Aggregate Statistics for the Filtered Selection
-  const liveStats = useMemo(() => {
-    const count = filteredVehicles.length;
-    const priced = filteredVehicles.filter((v) => v.price && v.price > 0 && v.price < 5000000);
-    const avgPrice =
-      priced.length > 0
-        ? Math.round(priced.reduce((acc, v) => acc + (v.price || 0), 0) / priced.length)
-        : 0;
-    const drops = filteredVehicles.filter((v) => v.priceDiff && v.priceDiff < 0);
-    const maxDrop =
-      drops.length > 0
-        ? Math.max(...drops.map((v) => Math.abs(v.priceDiff || 0)))
-        : 0;
-    const avgDays =
-      count > 0
-        ? Math.round(filteredVehicles.reduce((acc, v) => acc + (v.daysOnLot || 0), 0) / count)
-        : 0;
-    const staleCount = filteredVehicles.filter((v) => (v.daysOnLot || 0) >= 45).length;
-
-    return {
-      count,
-      avgPrice,
-      totalDrops: drops.length,
-      maxDrop,
-      avgDays,
-      staleCount,
-    };
-  }, [filteredVehicles]);
-
-  // Instant CSV Export of current filtered selection
-  const handleExportFilteredCSV = () => {
-    if (filteredVehicles.length === 0) return;
-    const headers = [
-      "VIN",
-      "Dealer",
-      "City",
-      "State",
-      "DistanceMiles",
-      "Condition",
-      "Year",
-      "Make",
-      "Model",
-      "Trim",
-      "BodyStyle",
-      "Price",
-      "OldPrice",
-      "PriceDiff",
-      "Mileage",
-      "DaysOnLot",
-      "Status",
-      "FactoryOptions",
-      "TotalOptionsMSRP",
-      "PlantCountry",
-      "URL",
-    ];
-
-    const rows = filteredVehicles.map((v) => [
-      v.vin,
-      `"${(v.dealerName || "").replace(/"/g, '""')}"`,
-      v.city || "",
-      v.state,
-      getVehicleDistance(v),
-      getNormalizedCondition(v),
-      v.year,
-      v.make,
-      `"${(v.model || "").replace(/"/g, '""')}"`,
-      `"${(v.trim || "").replace(/"/g, '""')}"`,
-      v.bodyStyle || "",
-      v.price || "",
-      v.oldPrice || "",
-      v.priceDiff || 0,
-      v.mileage || 0,
-      v.daysOnLot || 0,
-      v.status || "ACTIVE",
-      `"${(v.factoryOptions || []).map((o) => o.name).join("; ")}"`,
-      typeof v.totalOptionsPrice === "number" ? v.totalOptionsPrice : "",
-      v.nhtsa?.plantCountry || "Germany",
-      v.url || "",
-    ]);
-
-    const csvContent =
-      "data:text/csv;charset=utf-8," +
-      [headers.join(","), ...rows.map((e) => e.join(","))].join("\n");
-
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute(
-      "download",
-      `trimscout_inventory_${new Date().toISOString().slice(0, 10)}.csv`
-    );
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute(
+        "download",
+        `trimscout_inventory_${new Date().toISOString().slice(0, 10)}.csv`
+      );
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   return (
@@ -1005,6 +1228,9 @@ export const LightsailIntelligence: React.FC = () => {
               <span className="rounded-full bg-emerald-500/20 text-emerald-400 px-2 py-0.5 text-[10px] font-bold">
                 {activeFiltersCount} active
               </span>
+            )}
+            {isFetching && (
+              <Loader2 className="h-3.5 w-3.5 text-emerald-400 animate-spin" aria-label="Refreshing results" />
             )}
           </div>
 
@@ -1050,7 +1276,7 @@ export const LightsailIntelligence: React.FC = () => {
               setSelectedTrim("ALL");
             }}
             options={facetOptions.makes.map(([m, count]) => ({ value: m, label: `${m} (${count})` }))}
-            allLabel={`All Makes (${allVehicles.length})`}
+            allLabel={`All Makes (${totalMakesCount || grandTotal || ""})`}
           />
 
           <ComboField
@@ -1061,7 +1287,7 @@ export const LightsailIntelligence: React.FC = () => {
               setSelectedTrim("ALL");
             }}
             options={facetOptions.models.map(([m, count]) => ({ value: m, label: `${m} (${count})` }))}
-            allLabel={`All Models (${allVehicles.length})`}
+            allLabel={`All Models (${totalModelsCount || ""})`}
           />
 
           <ComboField
@@ -1118,9 +1344,9 @@ export const LightsailIntelligence: React.FC = () => {
               className="w-full rounded-lg border border-border bg-surface-elevated px-2.5 py-1.5 text-xs text-white focus:border-emerald-500 focus:outline-none"
             >
               <option value="ALL">All Conditions</option>
-              <option value="NEW">New ({facetOptions.conditions.NEW})</option>
-              <option value="USED">Pre-Owned ({facetOptions.conditions.USED})</option>
-              <option value="CERTIFIED">CPO ({facetOptions.conditions.CERTIFIED})</option>
+              <option value="NEW">New ({facetOptions.conditions.NEW || 0})</option>
+              <option value="USED">Pre-Owned ({facetOptions.conditions.USED || 0})</option>
+              <option value="CERTIFIED_PRE_OWNED">CPO ({facetOptions.conditions.CERTIFIED_PRE_OWNED || 0})</option>
             </select>
           </div>
 
@@ -1141,6 +1367,11 @@ export const LightsailIntelligence: React.FC = () => {
               <option value="mileage_asc">Mileage: Lowest</option>
               <option value="year_desc">Year: Newest</option>
             </select>
+            {UNSUPPORTED_SINGLE_BRAND_SORTS.has(sortBy) && selectedMake !== "ALL" && (
+              <p className="text-[9.5px] text-amber-400/80 leading-snug">
+                This sort isn't wired up server-side for a single make yet — showing default order. Select "All Makes" to sort correctly.
+              </p>
+            )}
           </div>
 
           <div className="space-y-1">
@@ -1265,15 +1496,35 @@ export const LightsailIntelligence: React.FC = () => {
       {/* 4. DATA TABLE & CARD GRID VIEW */}
       {/* ==================================================== */}
       {viewMode === "changes" ? (
-        <DailyChangesPanel vehicles={allVehicles} selectedDealer={selectedDealer} />
-      ) : filteredVehicles.length === 0 ? (
+        isChangesLoading && changesVehicles.length === 0 ? (
+          <div className="rounded-3xl border border-border bg-surface p-12 text-center space-y-3 shadow-xl">
+            <Loader2 className="h-6 w-6 text-emerald-400 animate-spin mx-auto" />
+            <p className="text-xs text-ink-muted">Loading daily activity across the full inventory…</p>
+          </div>
+        ) : (
+          <DailyChangesPanel vehicles={changesVehicles} selectedDealer={selectedDealer} />
+        )
+      ) : isLoading ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="rounded-2xl border border-border bg-surface overflow-hidden animate-pulse">
+              <div className="aspect-[4/3] bg-surface-elevated" />
+              <div className="p-4 space-y-2.5">
+                <div className="h-4 bg-surface-elevated rounded w-3/4" />
+                <div className="h-3 bg-surface-elevated rounded w-1/2" />
+                <div className="h-5 bg-surface-elevated rounded w-1/3 mt-3" />
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : vehicles.length === 0 ? (
         <div className="rounded-3xl border border-border bg-surface p-12 text-center space-y-4 shadow-xl">
           <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-surface-elevated text-ink-muted mx-auto border border-border">
             <Search className="h-6 w-6" />
           </div>
           <h3 className="text-lg font-black text-white">No vehicles match your active filters</h3>
           <p className="text-xs text-ink-muted max-w-md mx-auto">
-            Try loosening price/mileage limits or resetting filters to view all {allVehicles.length} vehicles.
+            Try loosening price/mileage limits or resetting filters to view the full inventory{grandTotal ? ` of ${grandTotal.toLocaleString()} vehicles` : ""}.
           </p>
           <button
             onClick={handleResetFilters}
@@ -1284,22 +1535,23 @@ export const LightsailIntelligence: React.FC = () => {
         </div>
       ) : (
         /* CARD GRID RESULTS */
-        <div className="space-y-6">
+        <div className={`space-y-6 transition-opacity ${isFetching ? "opacity-60" : "opacity-100"}`}>
           <div className="flex items-center justify-between text-xs">
             <span className="text-ink-muted">
-              Displaying <strong className="text-white">{(currentPage - 1) * pageSize + 1}</strong>–<strong className="text-white">{Math.min(currentPage * pageSize, filteredVehicles.length)}</strong> of <strong className="text-white">{filteredVehicles.length.toLocaleString()}</strong> live vehicles
+              Displaying <strong className="text-white">{(currentPage - 1) * pageSize + 1}</strong>–<strong className="text-white">{Math.min(currentPage * pageSize, pagination.totalCount)}</strong> of <strong className="text-white">{pagination.totalCount.toLocaleString()}</strong> live vehicles
             </span>
             <button
               onClick={handleExportFilteredCSV}
-              className="inline-flex items-center gap-1 text-emerald-400 hover:underline font-bold"
+              disabled={isExporting}
+              className="inline-flex items-center gap-1 text-emerald-400 hover:underline font-bold disabled:opacity-50 disabled:cursor-wait"
             >
-              <Download className="h-3 w-3" />
-              <span>Download CSV</span>
+              {isExporting ? <Loader2 className="h-3 w-3 animate-spin" /> : <Download className="h-3 w-3" />}
+              <span>{isExporting ? "Preparing CSV…" : "Download CSV"}</span>
             </button>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {paginatedVehicles.map((v) => {
+            {vehicles.map((v) => {
               const cond = getNormalizedCondition(v);
               const hasPriceDrop = Boolean(v.priceDiff && v.priceDiff < 0);
               const opts = v.factoryOptions || [];
@@ -1406,7 +1658,7 @@ export const LightsailIntelligence: React.FC = () => {
           {/* Grid Pagination Bar */}
           <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-4 border-t border-border/60 text-xs">
             <div className="text-ink-muted">
-              Showing <strong className="text-white">{(currentPage - 1) * pageSize + 1}</strong>–<strong className="text-white">{Math.min(currentPage * pageSize, filteredVehicles.length)}</strong> of <strong className="text-white">{filteredVehicles.length.toLocaleString()}</strong> matching vehicles
+              Showing <strong className="text-white">{(currentPage - 1) * pageSize + 1}</strong>–<strong className="text-white">{Math.min(currentPage * pageSize, pagination.totalCount)}</strong> of <strong className="text-white">{pagination.totalCount.toLocaleString()}</strong> matching vehicles
             </div>
 
             <div className="flex items-center gap-2">
