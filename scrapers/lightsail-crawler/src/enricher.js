@@ -179,7 +179,7 @@ export function resolveFactoryOptions(vehicle, brand) {
   };
 }
 
-export async function runEnrichmentPipeline(limit = Infinity, brand = null) {
+export async function runEnrichmentPipeline(limit = Infinity, brand = null, dbRunContext = null) {
   console.log("====================================================");
   console.log("⚡ STARTING ENHANCED VIN ENRICHMENT PIPELINE (ALL VEHICLES)");
   console.log("====================================================");
@@ -276,6 +276,30 @@ export async function runEnrichmentPipeline(limit = Infinity, brand = null) {
   await fs.writeFile(CACHE_PATH, JSON.stringify(cache, null, 2));
   await fs.writeFile(INVENTORY_PATH, JSON.stringify(rawInventory, null, 2));
   await fs.writeFile(path.join(DATA_DIR, "inventory_latest.json"), JSON.stringify(rawInventory, null, 2));
+
+  // Sync to MariaDB (additive — this never touches the JSON files above,
+  // which remain the source of truth for anything that reads them today).
+  // `db.js` loads DB_HOST/etc. itself from `.env.trimscout-db` as a side
+  // effect of being imported, so the dynamic import has to happen before
+  // checking process.env.DB_HOST, not after. dbRunContext is optional: a
+  // direct `node src/enricher.js` CLI run won't have a scrape_runs row,
+  // but the sync still runs (with runId left null) so ad-hoc runs keep the
+  // DB current too. Wrapped end-to-end so a DB outage can never crash the
+  // pipeline that just wrote the real JSON output.
+  try {
+    const { upsertBrand, syncInventoryToDatabase } = await import("./db.js");
+    if (process.env.DB_HOST) {
+      const brandName = brand?.name || "Porsche";
+      const brandCode = brandName.toLowerCase();
+      const brandId = dbRunContext?.brandId ?? (await upsertBrand(brandCode, brandName));
+      const dbStats = await syncInventoryToDatabase(brandId, rawInventory, { runId: dbRunContext?.runId ?? null });
+      console.log(`💾 DB sync complete: ${JSON.stringify(dbStats)}`);
+    } else {
+      console.log("DB_HOST not set — skipping database sync (JSON files still written).");
+    }
+  } catch (dbErr) {
+    console.error("DB sync failed (non-fatal, JSON files still written):", dbErr);
+  }
 
   console.log("\n====================================================");
   console.log(`🎉 ENRICHMENT COMPLETE WITH 0 ERRORS!`);

@@ -53,6 +53,30 @@ try {
     console.log('No previous baseline found. Starting fresh initial scan.');
 }
 
+// --- DB scrape-run tracking (additive) ---------------------------------
+// Once dealers are loaded, register this run in MariaDB: upsert the brand
+// row and this run's dealer list (both idempotent — safe on every run,
+// not just the first), then open a scrape_runs row so enricher.js's later
+// syncInventoryToDatabase() call can attach daily_change_log rows and the
+// final stats to the same run. All non-fatal: `db.js` loads DB_HOST from
+// .env.trimscout-db as a side effect of the dynamic import, so the import
+// has to happen before the process.env.DB_HOST check, not after.
+let dbBrandId = null;
+let dbRunId = null;
+try {
+    const dbMod = await import('./db.js');
+    if (process.env.DB_HOST) {
+        dbBrandId = await dbMod.upsertBrand(brand.name.toLowerCase(), brand.name);
+        await dbMod.upsertDealers(dbBrandId, dealers);
+        dbRunId = await dbMod.startScrapeRun(dbBrandId, dealers.length);
+        console.log(`💾 DB scrape_run started: id=${dbRunId} (brand_id=${dbBrandId})`);
+    } else {
+        console.log('DB_HOST not set — skipping database run-tracking.');
+    }
+} catch (dbErr) {
+    console.error('DB run-tracking start failed (non-fatal):', dbErr.message);
+}
+
 function cleanString(val) {
     if (!val || val === 'null' || val === 'undefined' || val === 'NULL' || val === 'None') return null;
     const str = val.toString().trim();
@@ -874,7 +898,31 @@ console.log('====================================================\n');
 // Automatically trigger enrichment pipeline on all captured inventory
 try {
     console.log('⚡ Triggering automatic spec enrichment pipeline...');
-    await runEnrichmentPipeline(Infinity, brand);
+    await runEnrichmentPipeline(Infinity, brand, { brandId: dbBrandId, runId: dbRunId });
 } catch (enrichErr) {
     console.error('Enrichment step warning:', enrichErr.message);
+}
+
+// Close out the DB scrape_run row (non-fatal). This has to run after
+// enrichment, not before: enrichment's syncInventoryToDatabase() call is
+// what actually populates the vehicles this run touched, and its own
+// per-chunk changeType counts are more authoritative than the pre-
+// enrichment diff computed above — but that diff's aggregate counts are
+// what scrape_runs' own summary columns want, so they're used here.
+if (dbRunId) {
+    try {
+        const { finishScrapeRun } = await import('./db.js');
+        await finishScrapeRun(dbRunId, {
+            dealersActive: activeDealersCount,
+            dealersErrored: erroredDealersCount,
+            totalVehicles: currentInventory.size,
+            newArrivals: newArrivals.length,
+            priceDrops: priceDrops.length,
+            priceIncreases: priceIncreases.length,
+            soldOrRemoved: soldVehicles.length,
+        });
+        console.log(`💾 DB scrape_run ${dbRunId} marked COMPLETE.`);
+    } catch (dbErr) {
+        console.error('DB run-tracking finish failed (non-fatal):', dbErr.message);
+    }
 }
