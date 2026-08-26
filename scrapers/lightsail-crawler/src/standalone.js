@@ -6,6 +6,20 @@ import zlib from 'node:zlib';
 import { runEnrichmentPipeline } from './enricher.js';
 import { getBrand } from './brands.js';
 
+// One shared V8 context, reused for every vehicle's DDC dataLayer eval
+// (Strategy 1) instead of creating a fresh one per call via
+// vm.runInNewContext. Confirmed this session (twice — first in a separate
+// one-off backfill script, now here against Ford's much larger per-dealer
+// inventories) that vm.runInNewContext leaks measurably: each call
+// contextifies a new global object that V8 is slow to collect, and across
+// thousands of vehicles in one long-running process this accumulates
+// enough retained memory to OOM even well within a normal heap size — it
+// crashed a 512MB box on a single 1,005-vehicle dealer. Safe to share: the
+// eval + the read of its result happen synchronously with no `await`
+// between them, so nothing else can interleave mid-evaluation even though
+// many vehicles are processed concurrently overall.
+const ddcEvalContext = vm.createContext({});
+
 const DATA_DIR = path.resolve(process.cwd(), 'data');
 const SNAPSHOTS_DIR = path.join(DATA_DIR, 'snapshots');
 const CHANGES_DIR = path.join(DATA_DIR, 'daily_changes');
@@ -586,10 +600,9 @@ for (let i = 0; i < dealers.length; i++) {
                                  html.match(/window\.DDC\.dataLayer\[.vehicles.\]\s*=\s*(\[[\s\S]*?\]);/);
                 if (ddcMatch) {
                     try {
-                        const sandbox = {};
-                        vm.runInNewContext('vehicles = ' + ddcMatch[1], sandbox);
-                        if (sandbox.vehicles && sandbox.vehicles.length > 0) {
-                            const raw = sandbox.vehicles[0];
+                        vm.runInContext('vehicles = ' + ddcMatch[1], ddcEvalContext);
+                        if (ddcEvalContext.vehicles && ddcEvalContext.vehicles.length > 0) {
+                            const raw = ddcEvalContext.vehicles[0];
                             const askingPrice = cleanPrice(raw.askingPrice);
                             const salePrice = cleanPrice(raw.salePrice);
                             const retailValue = cleanPrice(raw.retailValue);
