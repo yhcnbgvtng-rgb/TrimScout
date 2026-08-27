@@ -138,7 +138,7 @@ export const DailyChangesPanel: React.FC<DailyChangesPanelProps> = ({ vehicles, 
               href={v.url || undefined}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center justify-between rounded-xl border border-border bg-surface-elevated p-3 text-xs hover:border-border-strong transition-all group"
+              className="flex items-start justify-between rounded-xl border border-border bg-surface-elevated p-3 text-xs hover:border-border-strong transition-all group"
             >
               <div className="space-y-0.5 min-w-0">
                 <div className="font-bold text-white flex items-center gap-1.5 truncate">
