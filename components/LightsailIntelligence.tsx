@@ -357,6 +357,12 @@ function mapApiVehicleToRecord(raw: any, source: "box_api" | "legacy_fallback"):
     status: bv.status || undefined,
     changeType: bv.change_type || undefined,
     daysOnLot: typeof bv.days_on_lot === "number" ? bv.days_on_lot : undefined,
+    // dealer_city is only present on the box API (a LEFT JOIN to dealers
+    // added specifically to fix per-vehicle distance calculation — the
+    // vehicles table itself only stores state, not city; every card was
+    // silently falling back to the same default location and showing an
+    // identical "X mi" badge on every single result before this).
+    city: bv.dealer_city || undefined,
     firstSeen: bv.first_seen_date || undefined,
     lastSeen: bv.last_seen_date || undefined,
     url: bv.url || undefined,
@@ -1647,7 +1653,7 @@ export const LightsailIntelligence: React.FC = () => {
 
                       <div className="flex items-center justify-between text-[10.5px] text-ink-muted">
                         <span className="truncate max-w-[150px]">{v.dealerName}</span>
-                        <span className="font-mono">{v.daysOnLot || 14}d on lot</span>
+                        <span className="font-mono">{v.daysOnLot ?? "—"}d on lot</span>
                       </div>
                     </div>
                   </div>

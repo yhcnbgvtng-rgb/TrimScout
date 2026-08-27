@@ -309,7 +309,7 @@ async function handleVehicles(req, res, params) {
     const stats = statsRows[0] || {};
 
     const listSql = (w) => `
-      SELECT v.*${extraSelect}
+      SELECT v.*, d.city AS dealer_city${extraSelect}
       FROM vehicles v
       LEFT JOIN dealers d ON d.id = v.dealer_id
       WHERE ${w}
@@ -440,7 +440,10 @@ async function handleVehicleByVin(req, res, vin) {
   const pool = getPool();
   const conn = await pool.getConnection();
   try {
-    const [rows] = await conn.query(`SELECT v.* FROM vehicles v WHERE v.vin = ? LIMIT 1`, [vin]);
+    const [rows] = await conn.query(
+      `SELECT v.*, d.city AS dealer_city FROM vehicles v LEFT JOIN dealers d ON d.id = v.dealer_id WHERE v.vin = ? LIMIT 1`,
+      [vin]
+    );
     if (rows.length === 0) {
       return sendJson(res, 404, { error: "Vehicle not found" });
     }
