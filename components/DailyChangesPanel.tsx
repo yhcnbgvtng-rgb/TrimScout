@@ -150,18 +150,18 @@ export const DailyChangesPanel: React.FC<DailyChangesPanelProps> = ({ vehicles, 
                 <div className="text-[10.5px] text-ink-muted truncate">
                   {v.dealerName} · {v.vin}
                 </div>
+                {(activeTab === "price_drop" || activeTab === "price_up") && (
+                  <div className="text-[10px] text-ink-faint font-mono">
+                    {formatMoney(v.oldPrice)} → {formatMoney(v.price)}
+                  </div>
+                )}
               </div>
               <div className="text-right font-mono flex-shrink-0 pl-3">
                 {activeTab === "price_drop" || activeTab === "price_up" ? (
-                  <>
-                    <div className={`font-bold ${activeTab === "price_drop" ? "text-rose-400" : "text-amber-400"}`}>
-                      {v.priceDiff && v.priceDiff > 0 ? "+" : ""}
-                      {formatMoney(v.priceDiff)}
-                    </div>
-                    <div className="text-[10px] text-ink-faint">
-                      {formatMoney(v.oldPrice)} → {formatMoney(v.price)}
-                    </div>
-                  </>
+                  <div className={`font-bold ${activeTab === "price_drop" ? "text-rose-400" : "text-amber-400"}`}>
+                    {v.priceDiff && v.priceDiff > 0 ? "+" : ""}
+                    {formatMoney(v.priceDiff)}
+                  </div>
                 ) : activeTab === "sold" ? (
                   <div className="text-[10.5px] text-ink-faint">Last seen {formatDate(v.lastSeen)}</div>
                 ) : (

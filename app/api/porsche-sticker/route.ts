@@ -380,7 +380,7 @@ export async function GET(request: Request) {
           ? fromFinder
             ? "Equipment list verified against this VIN's Porsche Finder listing. Porsche does not publish per-option retail pricing on Finder, so individual and total option prices are not available."
             : undefined
-          : "Factory-installed options and equipment could not be verified for this VIN. Paste the real window sticker text below for a verified, itemized list.",
+          : "Factory-installed options and equipment could not be verified for this VIN.",
     });
   } catch (err: any) {
     console.error("Porsche window sticker extraction failed:", err);

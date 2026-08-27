@@ -12,7 +12,6 @@ import {
   ExternalLink,
   Download,
   Search,
-  ShieldCheck,
   Tag,
   SlidersHorizontal,
   Sliders,
@@ -34,7 +33,6 @@ import {
   CheckCircle2,
   Copy,
   Check,
-  FileText,
   BadgePercent,
   Layers,
   Navigation,
@@ -544,8 +542,6 @@ export const LightsailIntelligence: React.FC = () => {
   const [selectedVehicleForModal, setSelectedVehicleForModal] = useState<VehicleRecord | null>(null);
   const [aiStickerLoading, setAiStickerLoading] = useState(false);
   const [aiStickerData, setAiStickerData] = useState<any | null>(null);
-  const [aiPasteMode, setAiPasteMode] = useState(false);
-  const [rawPasteInput, setRawPasteInput] = useState("");
 
   const handleFetchPorscheFinderAiSticker = async (vin: string) => {
     setAiStickerLoading(true);
@@ -562,33 +558,16 @@ export const LightsailIntelligence: React.FC = () => {
     }
   };
 
-  const handleParseRawPorscheStickerText = async () => {
-    if (!rawPasteInput.trim()) return;
-    setAiStickerLoading(true);
-    try {
-      const res = await fetch(`/api/porsche-sticker`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          rawText: rawPasteInput,
-          vin: selectedVehicleForModal?.vin || "CUSTOM_VIN",
-        }),
-      });
-      const json = await res.json();
-      if (json.success) {
-        setAiStickerData((prev: any) => ({
-          ...(prev || selectedVehicleForModal),
-          installedOptions: json.options,
-          totalOptionsPrice: json.totalOptionsPrice,
-          dataSource: "AI_PARSED_WINDOW_STICKER",
-        }));
-      }
-    } catch (e) {
-      console.error("AI Parse error:", e);
-    } finally {
-      setAiStickerLoading(false);
+  // Auto-run the AI window sticker scan as soon as the spec sheet modal
+  // opens for a vehicle, instead of waiting for a manual "Live AI Scan"
+  // click. Keyed on VIN so it re-fires when the modal is reopened for a
+  // different vehicle but not on every unrelated re-render.
+  useEffect(() => {
+    if (selectedVehicleForModal) {
+      handleFetchPorscheFinderAiSticker(selectedVehicleForModal.vin);
     }
-  };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedVehicleForModal?.vin]);
 
   // ------------------------------------------------------------------
   // Filter / sort / page state — unchanged from before. These now drive
@@ -993,11 +972,16 @@ export const LightsailIntelligence: React.FC = () => {
 
   // ------------------------------------------------------------------
   // "Daily Activity" tab — needs the (near-)full inventory for the current
-  // brand/dealer scope, including recently sold/removed vehicles, to bucket
-  // into new/sold/price-drop/price-up exactly like DailyChangesPanel always
-  // did. Lazily fetched only when that tab is opened, via several parallel
-  // paginated requests (status=ALL so sold/removed vehicles are included —
-  // the default vehicles query only returns status=ACTIVE).
+  // brand/dealer/filter scope, including recently sold/removed vehicles, to
+  // bucket into new/sold/price-drop/price-up exactly like DailyChangesPanel
+  // always did. Lazily fetched only when that tab is opened, via several
+  // parallel paginated requests (status=ALL so sold/removed vehicles are
+  // included — the default vehicles query only returns status=ACTIVE).
+  //
+  // Shares buildFilterParams() with the Results tab so every active filter
+  // (search/model/trim/condition/dealer/state-or-radius/bodyStyle/year/
+  // price/mileage/daysOnLot/opportunity/optionCode) applies here too,
+  // instead of only make/dealer as before.
   // ------------------------------------------------------------------
   const [changesVehicles, setChangesVehicles] = useState<VehicleRecord[]>([]);
   const [isChangesLoading, setIsChangesLoading] = useState(false);
@@ -1009,12 +993,12 @@ export const LightsailIntelligence: React.FC = () => {
     setIsChangesLoading(true);
     (async () => {
       const brands = brandsForQuery();
-      const dealerParam: Record<string, string> = selectedDealer !== "ALL" ? { dealer: selectedDealer } : {};
+      const filterParams = buildFilterParams();
       const PAGE_SIZE = 200;
       const MAX_PAGES_PER_BRAND = 30; // covers ~6,000 vehicles/brand — comfortably above current ~5,300 (active+sold) per brand
 
       async function fetchAllForBrand(brand: Brand): Promise<VehicleRecord[]> {
-        const baseParams: Record<string, string> = { status: "ALL", pageSize: String(PAGE_SIZE), ...dealerParam };
+        const baseParams: Record<string, string> = { ...filterParams, status: "ALL", pageSize: String(PAGE_SIZE) };
         if (selectedMake !== "ALL") baseParams.make = selectedMake;
         const first = await fetchVehiclesPage(brand, { ...baseParams, page: "1" });
         if (!first) return [];
@@ -1034,7 +1018,26 @@ export const LightsailIntelligence: React.FC = () => {
       setIsChangesLoading(false);
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [viewMode, selectedMake, selectedDealer]);
+  }, [
+    viewMode,
+    selectedMake,
+    selectedModel,
+    selectedTrim,
+    selectedCondition,
+    selectedDealer,
+    selectedState,
+    selectedRadius,
+    selectedBodyStyle,
+    selectedYear,
+    minPriceInput,
+    maxPriceInput,
+    maxMileageInput,
+    selectedDaysOnLot,
+    selectedOpportunity,
+    selectedOptionCode,
+    debouncedSearchTerm,
+    userZip,
+  ]);
 
   const handleCopyVin = (vin: string, e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
@@ -1764,10 +1767,6 @@ export const LightsailIntelligence: React.FC = () => {
             <div className="flex items-center justify-between border-b border-border pb-4">
               <div className="space-y-1">
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="rounded bg-rose-500/20 border border-rose-500/40 px-2.5 py-0.5 text-[10px] font-black text-rose-400 uppercase flex items-center gap-1">
-                    <ShieldCheck className="h-3 w-3" />
-                    Sole Source: finder.porsche.com
-                  </span>
                   <span className="text-xs text-ink-muted font-mono">VIN: {selectedVehicleForModal.vin}</span>
                 </div>
                 <h2 className="text-xl sm:text-2xl font-black text-white">
@@ -1779,7 +1778,6 @@ export const LightsailIntelligence: React.FC = () => {
                 onClick={() => {
                   setSelectedVehicleForModal(null);
                   setAiStickerData(null);
-                  setAiPasteMode(false);
                 }}
                 className="rounded-xl border border-border bg-surface-elevated p-2 text-ink-muted hover:text-white"
               >
@@ -1803,42 +1801,8 @@ export const LightsailIntelligence: React.FC = () => {
                   <RefreshCw className={`h-3.5 w-3.5 ${aiStickerLoading ? "animate-spin" : ""}`} />
                   <span>{aiStickerLoading ? "Reading Sticker..." : "Live AI Scan"}</span>
                 </button>
-                <button
-                  onClick={() => setAiPasteMode(!aiPasteMode)}
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface px-3 py-1 text-xs font-bold text-ink-light hover:text-white transition-all cursor-pointer"
-                >
-                  <FileText className="h-3.5 w-3.5 text-blue-400" />
-                  <span>{aiPasteMode ? "Close OCR" : "Paste Build Text"}</span>
-                </button>
               </div>
             </div>
-
-            {/* Optional AI Raw Text Parser Drawer */}
-            {aiPasteMode && (
-              <div className="rounded-2xl border border-blue-500/30 bg-blue-500/5 p-4 space-y-3 animate-fadeIn">
-                <div className="text-xs font-bold text-white flex items-center gap-1.5">
-                  <Sparkles className="h-3.5 w-3.5 text-blue-400" />
-                  <span>Paste raw options or build sheet text from finder.porsche.com:</span>
-                </div>
-                <textarea
-                  rows={3}
-                  value={rawPasteInput}
-                  onChange={(e) => setRawPasteInput(e.target.value)}
-                  placeholder="Example: [04S] Weissach Package $33,520&#10;[1LX] Porsche Ceramic Composite Brakes $9,210&#10;[2UH] Front Axle Lift System $2,770"
-                  className="w-full rounded-xl border border-border bg-surface p-3 text-xs text-white placeholder:text-ink-faint focus:outline-none focus:border-blue-500"
-                />
-                <div className="flex justify-end">
-                  <button
-                    onClick={handleParseRawPorscheStickerText}
-                    disabled={!rawPasteInput.trim() || aiStickerLoading}
-                    className="inline-flex items-center gap-1.5 rounded-xl bg-blue-500 hover:bg-blue-400 px-4 py-1.5 text-xs font-black text-black transition-all cursor-pointer disabled:opacity-50"
-                  >
-                    <Sparkles className="h-3.5 w-3.5" />
-                    <span>Extract Options with AI</span>
-                  </button>
-                </div>
-              </div>
-            )}
 
             {/* Spec Sheet Grid */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
@@ -1928,8 +1892,7 @@ export const LightsailIntelligence: React.FC = () => {
               ) : (
                 <div className="text-[11px] text-ink-muted rounded-xl bg-surface-elevated border border-border p-3 text-center">
                   Options for this exact VIN haven't been looked up yet. Use{" "}
-                  <span className="text-emerald-400 font-bold">Live AI Scan</span> or{" "}
-                  <span className="text-blue-400 font-bold">Paste Build Text</span> above.
+                  <span className="text-emerald-400 font-bold">Live AI Scan</span> above.
                 </div>
               )}
             </div>
@@ -1983,17 +1946,6 @@ export const LightsailIntelligence: React.FC = () => {
               </button>
 
               <div className="flex flex-wrap items-center gap-2">
-                <a
-                  href={`https://finder.porsche.com/us/en-US/search/${(selectedVehicleForModal.model || "taycan").toLowerCase().includes("911") ? "911" : (selectedVehicleForModal.model || "taycan").toLowerCase().includes("cayenne") ? "cayenne" : (selectedVehicleForModal.model || "taycan").toLowerCase().includes("macan") ? "macan" : (selectedVehicleForModal.model || "taycan").toLowerCase().includes("panamera") ? "panamera" : (selectedVehicleForModal.model || "taycan").toLowerCase().includes("718") ? "718" : "taycan"}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-surface-elevated hover:bg-surface px-4 py-2 text-xs font-bold text-ink-light hover:text-white transition-all"
-                  title="Browse Porsche Finder official inventory"
-                >
-                  <ExternalLink className="h-3.5 w-3.5 text-rose-400" />
-                  <span>Porsche Finder Inventory</span>
-                </a>
-
                 {selectedVehicleForModal.url && (
                   <a
                     href={selectedVehicleForModal.url}
