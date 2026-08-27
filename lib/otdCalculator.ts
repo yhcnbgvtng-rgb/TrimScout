@@ -75,7 +75,7 @@ export function getZipCoordinates(zipCode: string): ZipLocation {
 // unrecognized city to San Francisco (confirmed live: this was producing
 // an identical distance badge on every single card for any dealer outside
 // that ~20-city list, i.e. most of the country).
-const STATE_CENTROIDS: Record<string, { lat: number; lng: number }> = {
+export const STATE_CENTROIDS: Record<string, { lat: number; lng: number }> = {
   AL: { lat: 32.806671, lng: -86.79113 }, AK: { lat: 61.370716, lng: -152.404419 },
   AZ: { lat: 33.729759, lng: -111.431221 }, AR: { lat: 34.969704, lng: -92.373123 },
   CA: { lat: 36.116203, lng: -119.681564 }, CO: { lat: 39.059811, lng: -105.311104 },
@@ -163,6 +163,33 @@ export function calculateDistanceMiles(
   if (rawDist < 1) return 1;
   if (rawDist < 50) return Math.round(rawDist * 10) / 10;
   return Math.round(rawDist);
+}
+
+// Which states fall within `radiusMiles` of a ZIP, using state centroids —
+// the same state-level approximation the distance badge already uses (real
+// per-dealer geocoding doesn't exist yet). A state is included if its
+// centroid is within range; note this can under-include a user's own state
+// at a tight radius if they're far from its centroid (e.g. a user in far-
+// west Texas at a 50mi radius might not see TX's own centroid, which sits
+// near Austin) — an inherent limitation of state-level approximation, not
+// a bug, and consistent with what the distance badge already shows.
+export function getStatesWithinRadius(zipCode: string, radiusMiles: number): string[] {
+  const userCoords = getZipCoordinates(zipCode);
+  const R = 3958.8;
+  const matches: string[] = [];
+  for (const [state, centroid] of Object.entries(STATE_CENTROIDS)) {
+    const dLat = ((centroid.lat - userCoords.lat) * Math.PI) / 180;
+    const dLng = ((centroid.lng - userCoords.lng) * Math.PI) / 180;
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos((userCoords.lat * Math.PI) / 180) *
+        Math.cos((centroid.lat * Math.PI) / 180) *
+        Math.sin(dLng / 2) *
+        Math.sin(dLng / 2);
+    const dist = R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    if (dist <= radiusMiles) matches.push(state);
+  }
+  return matches;
 }
 
 export function getEstimatedTaxRate(zipCode: string = "94107"): number {

@@ -44,7 +44,7 @@ import {
   PorscheOption,
   NhtsaSpec,
 } from "@/lib/enrichmentEngine";
-import { calculateDistanceMiles, getZipCoordinates } from "@/lib/otdCalculator";
+import { calculateDistanceMiles, getZipCoordinates, getStatesWithinRadius } from "@/lib/otdCalculator";
 import { DailyChangesPanel } from "./DailyChangesPanel";
 // Type-only import: safe to reference in this client component because
 // TypeScript types are erased at build time. The *runtime* functions in
@@ -611,6 +611,7 @@ export const LightsailIntelligence: React.FC = () => {
   const [selectedOpportunity, setSelectedOpportunity] = useState<string>("ALL");
   const [selectedOptionCode, setSelectedOptionCode] = useState<string>("ALL");
   const [userZip, setUserZip] = useState<string>("07054");
+  const [selectedRadius, setSelectedRadius] = useState<string>("ALL");
   const [sortBy, setSortBy] = useState<string>("default");
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [pageSize, setPageSize] = useState<number>(50);
@@ -643,6 +644,7 @@ export const LightsailIntelligence: React.FC = () => {
     selectedOptionCode,
     sortBy,
     userZip,
+    selectedRadius,
   ]);
 
   // ------------------------------------------------------------------
@@ -704,7 +706,7 @@ export const LightsailIntelligence: React.FC = () => {
     if (selectedModel !== "ALL") dims.push("model");
     if (selectedTrim !== "ALL") dims.push("trim");
     if (selectedDealer !== "ALL") dims.push("dealer");
-    if (selectedState !== "ALL") dims.push("state");
+    if (selectedState !== "ALL" || selectedRadius !== "ALL") dims.push("state");
     if (selectedBodyStyle !== "ALL") dims.push("bodyStyle");
     if (selectedCondition !== "ALL") dims.push("condition");
     return dims;
@@ -721,7 +723,19 @@ export const LightsailIntelligence: React.FC = () => {
     if (selectedTrim !== "ALL") p.trim = selectedTrim;
     if (selectedCondition !== "ALL") p.condition = selectedCondition;
     if (selectedDealer !== "ALL") p.dealer = selectedDealer;
-    if (selectedState !== "ALL") p.state = selectedState;
+    if (selectedState !== "ALL") {
+      // Explicit state selection wins over the radius filter.
+      p.state = selectedState;
+    } else if (selectedRadius !== "ALL") {
+      // "Within N miles" maps to the set of states whose centroid falls in
+      // range (state-level approximation — see getStatesWithinRadius),
+      // sent as a comma-joined list the box API's buildWhere() understands.
+      const radiusMiles = Number(selectedRadius);
+      if (radiusMiles > 0) {
+        const states = getStatesWithinRadius(userZip.trim() || "07054", radiusMiles);
+        if (states.length > 0) p.state = states.join(",");
+      }
+    }
     if (selectedBodyStyle !== "ALL") p.bodyStyle = selectedBodyStyle;
     if (selectedYear !== "ALL") p.year = selectedYear;
     if (minPriceInput.trim()) p.minPrice = minPriceInput.trim();
@@ -850,6 +864,7 @@ export const LightsailIntelligence: React.FC = () => {
     currentPage,
     pageSize,
     userZip,
+    selectedRadius,
   ]);
 
   function absorbOptionCatalog(newVehicles: VehicleRecord[]) {
@@ -942,6 +957,8 @@ export const LightsailIntelligence: React.FC = () => {
     selectedDaysOnLot,
     selectedOpportunity,
     selectedOptionCode,
+    userZip,
+    selectedRadius,
   ]);
 
   // Shape-compatible with the old client-computed `facetOptions` so the
@@ -1046,6 +1063,7 @@ export const LightsailIntelligence: React.FC = () => {
     setSelectedOpportunity("ALL");
     setSelectedOptionCode("ALL");
     setUserZip("07054");
+    setSelectedRadius("ALL");
     setSortBy("default");
   };
 
@@ -1059,6 +1077,7 @@ export const LightsailIntelligence: React.FC = () => {
     if (selectedCondition !== "ALL") count++;
     if (selectedDealer !== "ALL") count++;
     if (selectedState !== "ALL") count++;
+    if (selectedRadius !== "ALL") count++;
     if (selectedBodyStyle !== "ALL") count++;
     if (selectedYear !== "ALL") count++;
     if (minPriceInput.trim() || maxPriceInput.trim()) count++;
@@ -1076,6 +1095,7 @@ export const LightsailIntelligence: React.FC = () => {
     selectedCondition,
     selectedDealer,
     selectedState,
+    selectedRadius,
     selectedBodyStyle,
     selectedYear,
     minPriceInput,
@@ -1437,6 +1457,21 @@ export const LightsailIntelligence: React.FC = () => {
               className="w-full rounded-lg border border-border bg-surface-elevated px-2.5 py-1.5 text-xs text-white placeholder-ink-faint font-mono focus:border-blue-500 focus:outline-none"
             />
           </div>
+
+          <div className="space-y-1">
+            <label className="text-[10px] font-bold uppercase text-ink-faint">Radius</label>
+            <select
+              value={selectedRadius}
+              onChange={(e) => setSelectedRadius(e.target.value)}
+              className="w-full rounded-lg border border-border bg-surface-elevated px-2.5 py-1.5 text-xs text-white focus:border-blue-500 focus:outline-none"
+            >
+              <option value="ALL">Any Distance</option>
+              <option value="50">Within 50 mi</option>
+              <option value="100">Within 100 mi</option>
+              <option value="250">Within 250 mi</option>
+              <option value="500">Within 500 mi</option>
+            </select>
+          </div>
         </div>
 
         {/* Active Filter Badges */}
@@ -1483,6 +1518,13 @@ export const LightsailIntelligence: React.FC = () => {
               <span className="inline-flex items-center gap-1 rounded-lg bg-surface-elevated border border-border px-2 py-0.5 text-ink-light">
                 <span>Dealer: {selectedDealer}</span>
                 <X className="h-3 w-3 cursor-pointer hover:text-white" onClick={() => setSelectedDealer("ALL")} />
+              </span>
+            )}
+
+            {selectedState === "ALL" && selectedRadius !== "ALL" && (
+              <span className="inline-flex items-center gap-1 rounded-lg bg-surface-elevated border border-border px-2 py-0.5 text-ink-light">
+                <span>Within {selectedRadius} mi of {userZip || "07054"}</span>
+                <X className="h-3 w-3 cursor-pointer hover:text-white" onClick={() => setSelectedRadius("ALL")} />
               </span>
             )}
 

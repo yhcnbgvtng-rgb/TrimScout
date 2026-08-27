@@ -143,7 +143,21 @@ function buildWhere(params, excludeDimension) {
   eq("model", "v.model", params.model);
   eq("trim", "v.trim", params.trim);
   eq("dealer", "v.dealer_name", params.dealer);
-  eq("state", "v.state", params.state);
+
+  // state supports a comma-separated list (used by the radius filter, which
+  // maps "within N miles" to a set of nearby states via state centroids on
+  // the frontend, then sends them all here) as well as a single value.
+  if (excludeDimension !== "state" && params.state) {
+    const states = params.state.split(",").map((s) => s.trim()).filter(Boolean);
+    if (states.length === 1) {
+      clauses.push("v.state = ?");
+      args.push(states[0]);
+    } else if (states.length > 1) {
+      clauses.push(`v.state IN (${states.map(() => "?").join(",")})`);
+      args.push(...states);
+    }
+  }
+
   eq("bodyStyle", "v.body_style", params.bodyStyle);
   eq("year", "v.year", params.year ? Number(params.year) : undefined);
 
