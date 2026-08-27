@@ -41,6 +41,35 @@ export const BRANDS = {
     baseMsrpTable: null,
     plantFallback: null,
   },
+  Chevrolet: {
+    name: "Chevrolet",
+    // GM WMI prefixes for the Chevrolet division specifically (not GMC,
+    // Buick, or Cadillac, which get their own third character under the
+    // shared 1G/2G/3G GM ranges). Verified this session via cross-checked
+    // web sources (Wikibooks' WMI table, carcheckervin.com's GM decoder,
+    // youcanic's Chevrolet decoder) rather than trusted from memory:
+    // 1G1 = US-built Chevrolet passenger cars, 1GC = US-built Chevrolet
+    // trucks (Silverado/Colorado), 1GN = US-built Chevrolet SUVs/MPVs
+    // (Tahoe/Suburban/Blazer/Traverse), 2G1/2GC = Canada-built cars/trucks,
+    // 3G1/3GC = Mexico-built cars/trucks, KL1/KL7 = GM Korea-built
+    // Chevrolet (Spark/Trax). 3GN and 1GB added after the fact: seen live
+    // in this session's own NJ pilot enrichment output on real VINs
+    // (3GN7DNRP5TS120963, a Mexico-built 2026 Equinox EV; 1GB4KSE74TF256032,
+    // a US-built 2026 Silverado 3500 HD Chassis Cab) — the same
+    // 1G/2G/3G x division-letter pattern as the others, just not called
+    // out explicitly by the web sources consulted (one source explicitly
+    // said it couldn't confirm 1GB — real data settled it). Secondary
+    // signal only, same as Ford — the brand-agnostic URL/DDC-dataLayer
+    // extraction doesn't need this to work, and the multi-brand isolation
+    // check in standalone.js also falls back to matching vehicle.make
+    // against "Chevrolet" directly.
+    vinPrefixes: ["1G1", "1GB", "1GC", "1GN", "2G1", "2GC", "3G1", "3GC", "3GN", "KL1", "KL7"],
+    hasOfficialRetailerPlatform: false,
+    // Same reasoning as Ford: mass-market fixed trims, not a base-plus-
+    // options culture — no hand-built MSRP table at launch.
+    baseMsrpTable: null,
+    plantFallback: null,
+  },
 };
 
 export function getBrand(name) {

@@ -259,6 +259,14 @@ export async function runEnrichmentPipeline(limit = Infinity, brand = null, dbRu
       const specStr = nhtsaData ? `${nhtsaData.engineDisplacementL || "?"} (${nhtsaData.plantCountry || "?"})` : "NHTSA lookup unavailable";
       console.log(`${progress} ✓ Enriched ${v.vin} (${v.year || "?"} ${v.model || "?"}): Base ${baseMsrpStr} | Options: ${optionsStr} | ${specStr}`);
     }
+
+    // Checkpoint the cache periodically, not just at the very end. At small
+    // scale losing an interrupted run's un-persisted NHTSA lookups is a minor
+    // annoyance; at nationwide scale (hours-long, many thousands of external
+    // API calls) it's real lost work if the process is ever killed mid-run.
+    if (enrichedCount % 200 === 0) {
+      await fs.writeFile(CACHE_PATH, JSON.stringify(cache, null, 2));
+    }
   }
 
   // Ensure every record has the expected shape — but never invent NHTSA

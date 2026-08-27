@@ -5,6 +5,7 @@ import vm from 'node:vm';
 import zlib from 'node:zlib';
 import { runEnrichmentPipeline } from './enricher.js';
 import { getBrand } from './brands.js';
+import { normalizeVehicleFields } from './modelNormalizer.js';
 
 // One shared V8 context, reused for every vehicle's DDC dataLayer eval
 // (Strategy 1) instead of creating a fresh one per call via
@@ -642,11 +643,32 @@ for (let i = 0; i < dealers.length; i++) {
                                         ? 'NEW'
                                         : 'USED';
 
+                            // Prefer the vehicle's own scraped dealership identity
+                            // (DDC.dataLayer's address.accountName) over the crawl
+                            // config's dealer.name — some dealer groups (e.g.
+                            // Schumacher's NJ Chevrolet rooftops) share inventory
+                            // across multiple domains, so which URL the crawler
+                            // happened to visit doesn't reliably tell you which
+                            // physical location a given vehicle is actually at.
+                            // Same principle as the make-field fix below: trust
+                            // the vehicle's own data over which dealer's crawl
+                            // loop discovered it.
+                            const realDealerName = cleanString(raw.address?.accountName) || dealer.name;
+                            const realCity = cleanString(raw.address?.city) || dealer.city;
+                            const realState = cleanString(raw.address?.state) || dealer.state;
+
                             vehicle = {
                                 vin: raw.vin ? raw.vin.trim().toUpperCase() : null,
-                                dealerName: dealer.name,
-                                city: dealer.city,
-                                state: dealer.state,
+                                dealerName: realDealerName,
+                                // Guaranteed-valid fallback for DB dealer_id resolution
+                                // (a real string match against dealers.json's own
+                                // `name` field) — used only if realDealerName doesn't
+                                // match any known dealer, so a vehicle is never
+                                // silently dropped just because its real scraped
+                                // dealership name doesn't exactly match our config.
+                                configDealerName: dealer.name,
+                                city: realCity,
+                                state: realState,
                                 stockNumber: cleanString(raw.stockNumber),
                                 inventoryType,
                                 year: raw.year ? parseInt(raw.year, 10) : null,
@@ -753,6 +775,17 @@ for (let i = 0; i < dealers.length; i++) {
                         // field available) — safe to fill in now that the
                         // VIN prefix has actually confirmed the brand.
                         if (!vehicle.make) vehicle.make = brand.name;
+                        // Un-mix model/trim/body_style for brands whose
+                        // source sites bake trim/body-style tokens into the
+                        // model field (confirmed live: Porsche dealer.com
+                        // feeds do this inconsistently per-site, e.g. raw
+                        // model "Macan S" or "Cayenne GTS Coupe"). Applied
+                        // uniformly here (after all extraction strategies
+                        // converge) rather than per-strategy, so every path
+                        // — DDC, schema.org, the Porsche retailer platform —
+                        // gets the same cleanup. No-op for every other
+                        // brand (see modelNormalizer.js's brand dispatcher).
+                        vehicle = normalizeVehicleFields(brand.name, vehicle);
                         currentInventory.set(vehicle.vin, vehicle);
                         dealerCount++;
                     }

@@ -89,7 +89,22 @@ function getPool() {
 // Small helpers
 // ---------------------------------------------------------------------------
 
-const BRAND_IDS = { porsche: 1, ford: 2 };
+// Loaded dynamically from the `brands` table rather than hardcoded, so a
+// newly-registered brand (e.g. Chevrolet) shows up without a code change +
+// redeploy every time — the seed values below are only a fallback for the
+// brief window before the first refresh completes at startup.
+let BRAND_IDS = { porsche: 1, ford: 2 };
+
+async function refreshBrandIds() {
+  try {
+    const [rows] = await getPool().query("SELECT code, id FROM brands");
+    const fresh = {};
+    for (const r of rows) fresh[r.code] = r.id;
+    if (Object.keys(fresh).length > 0) BRAND_IDS = fresh;
+  } catch (err) {
+    console.error("refreshBrandIds failed (keeping previous BRAND_IDS):", err.message);
+  }
+}
 
 function sendJson(res, status, obj) {
   res.writeHead(status, { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" });
@@ -239,7 +254,7 @@ function parseQuery(req) {
 
 async function handleVehicles(req, res, params) {
   if (!params.brand || !BRAND_IDS[params.brand]) {
-    return badRequest(res, "Query param 'brand' is required and must be 'porsche' or 'ford'");
+    return badRequest(res, "Query param 'brand' is required and must be a known brand code");
   }
 
   const page = Math.max(1, parseInt(params.page, 10) || 1);
@@ -388,7 +403,7 @@ const FACET_DIMENSIONS = {
 
 async function handleFacets(req, res, params) {
   if (!params.brand || !BRAND_IDS[params.brand]) {
-    return badRequest(res, "Query param 'brand' is required and must be 'porsche' or 'ford'");
+    return badRequest(res, "Query param 'brand' is required and must be a known brand code");
   }
 
   const pool = getPool();
@@ -477,7 +492,7 @@ function csvEscape(value) {
 
 async function handleExportCsv(req, res, params) {
   if (!params.brand || !BRAND_IDS[params.brand]) {
-    return badRequest(res, "Query param 'brand' is required and must be 'porsche' or 'ford'");
+    return badRequest(res, "Query param 'brand' is required and must be a known brand code");
   }
 
   const { where, args, searchTerm } = buildWhere(params);
@@ -613,8 +628,12 @@ const server = http.createServer((req, res) => {
   sendJson(res, 404, { error: "Not found" });
 });
 
+await refreshBrandIds();
+setInterval(refreshBrandIds, 60_000);
+
 server.listen(PORT, () => {
   console.log(`Inventory API server listening on port ${PORT} (3001 was already taken by ford-nj-dashboard/export_server.js)`);
+  console.log(`  Brands loaded: ${JSON.stringify(BRAND_IDS)}`);
   console.log(`  GET /api/vehicles              - paginated/filtered vehicle list`);
   console.log(`  GET /api/vehicles/facets       - cross-filtered facet counts`);
   console.log(`  GET /api/vehicles/:vin         - single vehicle detail`);

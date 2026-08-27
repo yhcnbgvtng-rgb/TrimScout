@@ -229,8 +229,8 @@ function ComboField({
 // re-sort of each merged page rather than a single global sort).
 // ===========================================================================
 
-type Brand = "porsche" | "ford";
-const BRANDS: Brand[] = ["porsche", "ford"];
+type Brand = "porsche" | "ford" | "chevrolet";
+const BRANDS: Brand[] = ["porsche", "ford", "chevrolet"];
 
 interface ApiPagination {
   page: number;
@@ -966,8 +966,6 @@ export const LightsailIntelligence: React.FC = () => {
       optionNames,
     };
   }, [rawFacets, optionCatalog]);
-
-  const totalMakesCount = useMemo(() => facetOptions.makes.reduce((s, [, c]) => s + c, 0), [facetOptions.makes]);
   const totalModelsCount = useMemo(() => facetOptions.models.reduce((s, [, c]) => s + c, 0), [facetOptions.models]);
 
   // ------------------------------------------------------------------
@@ -1276,7 +1274,7 @@ export const LightsailIntelligence: React.FC = () => {
               setSelectedTrim("ALL");
             }}
             options={facetOptions.makes.map(([m, count]) => ({ value: m, label: `${m} (${count})` }))}
-            allLabel={`All Makes (${totalMakesCount || grandTotal || ""})`}
+            allLabel="All Makes"
           />
 
           <ComboField
@@ -1505,10 +1503,10 @@ export const LightsailIntelligence: React.FC = () => {
           <DailyChangesPanel vehicles={changesVehicles} selectedDealer={selectedDealer} />
         )
       ) : isLoading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7 gap-2">
           {Array.from({ length: 6 }).map((_, i) => (
             <div key={i} className="rounded-2xl border border-border bg-surface overflow-hidden animate-pulse">
-              <div className="aspect-[4/3] bg-surface-elevated" />
+              <div className="aspect-[2/1] bg-surface-elevated" />
               <div className="p-4 space-y-2.5">
                 <div className="h-4 bg-surface-elevated rounded w-3/4" />
                 <div className="h-3 bg-surface-elevated rounded w-1/2" />
@@ -1538,7 +1536,10 @@ export const LightsailIntelligence: React.FC = () => {
         <div className={`space-y-6 transition-opacity ${isFetching ? "opacity-60" : "opacity-100"}`}>
           <div className="flex items-center justify-between text-xs">
             <span className="text-ink-muted">
-              Displaying <strong className="text-white">{(currentPage - 1) * pageSize + 1}</strong>–<strong className="text-white">{Math.min(currentPage * pageSize, pagination.totalCount)}</strong> of <strong className="text-white">{pagination.totalCount.toLocaleString()}</strong> live vehicles
+              Displaying <strong className="text-white">{(currentPage - 1) * pageSize + 1}</strong>–<strong className="text-white">{Math.min(currentPage * pageSize, pagination.totalCount)}</strong>
+              {selectedMake !== "ALL" && (
+                <> of <strong className="text-white">{pagination.totalCount.toLocaleString()}</strong> live vehicles</>
+              )}
             </span>
             <button
               onClick={handleExportFilteredCSV}
@@ -1550,7 +1551,7 @@ export const LightsailIntelligence: React.FC = () => {
             </button>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7 gap-2">
             {vehicles.map((v) => {
               const cond = getNormalizedCondition(v);
               const hasPriceDrop = Boolean(v.priceDiff && v.priceDiff < 0);
@@ -1565,7 +1566,7 @@ export const LightsailIntelligence: React.FC = () => {
                   }}
                   className="rounded-2xl border border-border bg-surface overflow-hidden hover:border-border-strong hover:bg-surface-elevated transition-all flex flex-col shadow-md cursor-pointer"
                 >
-                  <div className="relative aspect-[4/3] bg-surface-elevated">
+                  <div className="relative aspect-[2/1] bg-surface-elevated">
                     {v.imageUrl ? (
                       <img
                         src={v.imageUrl}

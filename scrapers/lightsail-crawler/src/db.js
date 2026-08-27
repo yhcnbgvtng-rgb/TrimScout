@@ -45,7 +45,11 @@ function loadDbEnv() {
 loadDbEnv();
 
 let pool = null;
-function getPool() {
+// Exported (in addition to the higher-level functions below) so one-off
+// operational scripts — e.g. scripts/backfill_porsche_model_normalization.mjs
+// — can run their own targeted queries against the exact same pool/
+// credentials setup instead of duplicating the connection code.
+export function getPool() {
   if (!pool) {
     pool = mysql.createPool({
       host: process.env.DB_HOST,
@@ -267,8 +271,15 @@ export async function syncInventoryToDatabase(brandId, records, { runId = null }
   }
 
   // Dealer id resolution — one query for the whole run, not one per record.
+  // Keyed on a normalized (lowercase/trimmed) name because a vehicle's real
+  // scraped dealership name (e.g. Dealer.com's address.accountName) can
+  // differ in casing/whitespace from the name configured in dealers.json
+  // even when it's genuinely the same dealer (seen live: "Schumacher
+  // Chevrolet of Denville" scraped vs. "Schumacher Chevrolet Of Denville"
+  // configured).
+  const normalizeDealerKey = (name) => (name || '').trim().toLowerCase();
   const [dealerRows] = await pool.query('SELECT id, name FROM dealers WHERE brand_id = ?', [brandId]);
-  const dealerIdByName = new Map(dealerRows.map((d) => [d.name, d.id]));
+  const dealerIdByName = new Map(dealerRows.map((d) => [normalizeDealerKey(d.name), d.id]));
 
   const stats = {
     upserted: 0,
@@ -288,7 +299,14 @@ export async function syncInventoryToDatabase(brandId, records, { runId = null }
 
       const usable = [];
       for (const r of batch) {
-        const dealerId = dealerIdByName.get(r.dealerName);
+        // Try the vehicle's own real scraped dealer name first (normalized);
+        // fall back to the crawl-config dealer name it came from (guaranteed
+        // to exist in `dealers`, since that's literally where it's sourced
+        // from) rather than ever silently dropping a real vehicle record
+        // just because its real name didn't match our config exactly.
+        const dealerId =
+          dealerIdByName.get(normalizeDealerKey(r.dealerName)) ??
+          dealerIdByName.get(normalizeDealerKey(r.configDealerName));
         if (!dealerId) {
           stats.skippedNoDealer++;
           continue;
