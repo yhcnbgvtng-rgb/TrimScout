@@ -959,3 +959,19 @@ if (dbRunId) {
         console.error('DB run-tracking finish failed (non-fatal):', dbErr.message);
     }
 }
+
+// The mysql2 connection pool keeps sockets/timers open, so the process
+// never exits on its own once the crawl is genuinely done — confirmed live:
+// this silently stalled an entire multi-batch sequence for 1.5+ hours
+// (the orchestrating shell script blocks on this process, waiting for it
+// to return control) because nothing forced the event loop to end. Also
+// almost certainly why the daily Porsche/Ford-NJ cron processes are
+// observed lingering as idle "zombies" long after their own logs show
+// completion. Close the pool if it was ever opened, then exit explicitly.
+try {
+    const { closePool } = await import('./db.js');
+    await closePool();
+} catch {
+    // db.js may never have been imported this run (DB_HOST unset) — fine.
+}
+process.exit(0);
