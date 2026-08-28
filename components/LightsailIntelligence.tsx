@@ -259,6 +259,10 @@ interface VehiclesApiResponse {
 interface FacetValue {
   value: string;
   count: number;
+  // Only populated for dimensions where the display label differs from the
+  // filter value itself — currently just optionCode (a slug) vs. its real
+  // option name.
+  label?: string;
 }
 
 interface FacetsApiResponse {
@@ -428,10 +432,10 @@ const OPPORTUNITY_MAP: Record<string, string> = {
   NEW_ARRIVALS: "fresh",
 };
 
-// Facet dimensions the box API supports natively (inventory_api_server.js
-// FACET_DIMENSIONS). Note there is no "option" dimension — see the Factory
-// Option catalog handling further down for how that gap is covered.
-const FACET_DIMS = ["make", "model", "trim", "dealer", "state", "bodyStyle", "condition"] as const;
+// Facet dimensions the box API supports (inventory_api_server.js
+// FACET_DIMENSIONS, plus optionCode which the API computes separately via a
+// join against vehicle_options rather than a plain vehicles column).
+const FACET_DIMS = ["make", "model", "trim", "dealer", "state", "bodyStyle", "condition", "optionCode"] as const;
 type FacetDim = (typeof FACET_DIMS)[number];
 
 function buildQueryString(params: Record<string, string>): string {
@@ -471,13 +475,15 @@ async function fetchFacetsPage(brand: Brand, params: Record<string, string>): Pr
 
 function mergeFacetValueArrays(arrays: FacetValue[][]): FacetValue[] {
   const counts = new Map<string, number>();
+  const labels = new Map<string, string>();
   for (const arr of arrays) {
-    for (const { value, count } of arr) {
+    for (const { value, count, label } of arr) {
       counts.set(value, (counts.get(value) || 0) + count);
+      if (label && !labels.has(value)) labels.set(value, label);
     }
   }
   return Array.from(counts.entries())
-    .map(([value, count]) => ({ value, count }))
+    .map(([value, count]) => ({ value, count, label: labels.get(value) }))
     .sort((a, b) => b.count - a.count);
 }
 
@@ -672,15 +678,6 @@ export const LightsailIntelligence: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Factory-option catalog: the box API has no facet dimension for options
-  // (they live in a separate join table — see FACET_DIMS above), so there
-  // is no single query that returns "every option code with its count."
-  // Known gap, flagged in the migration report. Interim behavior: build the
-  // catalog incrementally from whatever vehicles this session has actually
-  // fetched, deduping by VIN per code so re-fetching the same page never
-  // inflates a count.
-  const [optionCatalog, setOptionCatalog] = useState<Map<string, { name: string; vins: Set<string> }>>(new Map());
-
   function brandsForQuery(): Brand[] {
     if (selectedMake === "ALL") return BRANDS;
     const b = makeBrandMap[selectedMake];
@@ -696,6 +693,7 @@ export const LightsailIntelligence: React.FC = () => {
     if (selectedState !== "ALL" || selectedRadius !== "ALL") dims.push("state");
     if (selectedBodyStyle !== "ALL") dims.push("bodyStyle");
     if (selectedCondition !== "ALL") dims.push("condition");
+    if (selectedOptionCode !== "ALL") dims.push("optionCode");
     return dims;
   }
 
@@ -805,7 +803,6 @@ export const LightsailIntelligence: React.FC = () => {
           setPagination(result.pagination);
           setStats(result.stats);
           setDataSource(result.source);
-          absorbOptionCatalog(mapped);
         } else {
           setVehicles([]);
           setPagination({ ...EMPTY_PAGINATION, pageSize });
@@ -830,7 +827,6 @@ export const LightsailIntelligence: React.FC = () => {
         setPagination({ page: currentPage, pageSize, totalCount, totalPages: Math.max(1, Math.ceil(totalCount / pageSize)) });
         setStats(mergeStats(valid.map((r) => r.stats)));
         setDataSource(valid.some((r) => r.source === "box_api") ? "box_api" : valid.length > 0 ? "legacy_fallback" : null);
-        absorbOptionCatalog(page);
       }
       setIsLoading(false);
       setIsFetching(false);
@@ -858,26 +854,6 @@ export const LightsailIntelligence: React.FC = () => {
     userZip,
     selectedRadius,
   ]);
-
-  function absorbOptionCatalog(newVehicles: VehicleRecord[]) {
-    setOptionCatalog((prev) => {
-      let changed = false;
-      const next = new Map(prev);
-      for (const v of newVehicles) {
-        for (const o of v.factoryOptions || []) {
-          if (!o.code) continue;
-          const entry = next.get(o.code) || { name: o.name || o.code, vins: new Set<string>() };
-          if (!entry.vins.has(v.vin)) {
-            entry.vins = new Set(entry.vins);
-            entry.vins.add(v.vin);
-            changed = true;
-          }
-          next.set(o.code, entry);
-        }
-      }
-      return changed ? next : prev;
-    });
-  }
 
   // ------------------------------------------------------------------
   // Facets fetch — cross-filtered dropdown counts. Runs in parallel with
@@ -964,9 +940,9 @@ export const LightsailIntelligence: React.FC = () => {
 
     const options = new Map<string, number>();
     const optionNames = new Map<string, string>();
-    optionCatalog.forEach((entry, code) => {
-      options.set(code, entry.vins.size);
-      optionNames.set(code, entry.name);
+    (rawFacets.optionCode || []).forEach(({ value, count, label }) => {
+      options.set(value, count);
+      optionNames.set(value, label || value);
     });
 
     return {
@@ -980,7 +956,7 @@ export const LightsailIntelligence: React.FC = () => {
       options,
       optionNames,
     };
-  }, [rawFacets, optionCatalog]);
+  }, [rawFacets]);
   const totalModelsCount = useMemo(() => facetOptions.models.reduce((s, [, c]) => s + c, 0), [facetOptions.models]);
 
   // ------------------------------------------------------------------

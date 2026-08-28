@@ -417,25 +417,59 @@ export async function syncInventoryToDatabase(brandId, records, { runId = null }
           vehicleIdsInChunk
         );
 
-        const oCols = ['vehicle_id', 'vin', 'code', 'name', 'price', 'category'];
+        // brand_id/status are denormalized copies of the parent vehicle's own
+        // columns — safe because this table is fully rewritten (delete +
+        // reinsert) for every vehicle on every sync, so they can never go
+        // stale. Exists purely so the options facet query (inventory_api_
+        // server.js) can filter on vehicle_options directly instead of
+        // joining the full vehicles table for every row — confirmed live
+        // that join-based version hung for 2.5+ minutes on Ford's ~280K
+        // active vehicle_options rows.
+        const oCols = ['vehicle_id', 'vin', 'brand_id', 'code', 'name', 'price', 'category', 'status', 'source'];
         const oValues = [];
         let oRows = 0;
+        // Small reference table (code -> canonical name), kept separate from
+        // the 100K+ row vehicle_options table specifically so the options
+        // facet query can resolve a display label via a cheap PK-indexed
+        // join instead of pulling `name` off vehicle_options itself —
+        // confirmed live that MIN(name) over vehicle_options directly took
+        // 45s even for a single brand; joining this small table instead
+        // keeps the facet query under a second.
+        const optionNamesSeen = new Map(); // `${code}` -> { name, category }
         for (const { r, vin } of usable) {
           const vehicleId = idByVin.get(vin);
           if (!vehicleId) continue;
+          const vStatus = r.status === 'SOLD_OR_REMOVED' ? 'SOLD_OR_REMOVED' : 'ACTIVE';
           const opts = Array.isArray(r.factoryOptions) ? r.factoryOptions : [];
           for (const opt of opts) {
             if (!opt || !opt.name) continue;
             const category = ['package', 'option', 'feature'].includes(opt.category) ? opt.category : 'option';
+            const source = opt.source === 'finder' ? 'PORSCHE_FINDER' : 'DEALER_VDP';
+            const code = (opt.code || 'OPT').toString().slice(0, 64);
+            const name = opt.name.toString().slice(0, 255);
             // vehicle_options.price is unsigned too — same negative-rebate
             // items clamp to 0 here as they do in total_options_price above.
-            oValues.push(vehicleId, vin, (opt.code || 'OPT').toString().slice(0, 64), opt.name.toString().slice(0, 255), Math.max(0, opt.price || 0), category);
+            oValues.push(vehicleId, vin, brandId, code, name, Math.max(0, opt.price || 0), category, vStatus, source);
             oRows++;
+            optionNamesSeen.set(code, { name, category });
           }
         }
         if (oRows > 0) {
           const oPlaceholders = Array.from({ length: oRows }, () => `(${oCols.map(() => '?').join(',')})`).join(',');
           await conn.query(`INSERT INTO vehicle_options (${oCols.join(',')}) VALUES ${oPlaceholders}`, oValues);
+        }
+        if (optionNamesSeen.size > 0) {
+          const nCols = ['brand_id', 'code', 'name', 'category'];
+          const nValues = [];
+          for (const [code, { name, category }] of optionNamesSeen) {
+            nValues.push(brandId, code, name, category);
+          }
+          const nPlaceholders = Array.from({ length: optionNamesSeen.size }, () => `(${nCols.map(() => '?').join(',')})`).join(',');
+          await conn.query(
+            `INSERT INTO option_names (${nCols.join(',')}) VALUES ${nPlaceholders}
+             ON DUPLICATE KEY UPDATE name = VALUES(name), category = VALUES(category)`,
+            nValues
+          );
         }
       }
 

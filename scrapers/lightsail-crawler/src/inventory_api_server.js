@@ -415,36 +415,114 @@ const FACET_DIMENSIONS = {
   condition: "v.inventory_type",
 };
 
+// Filter keys that live on the `vehicles` table (not vehicle_options) — if
+// none of these are active, the options facet doesn't need to join back to
+// vehicles at all, since brand_id/status are already denormalized directly
+// onto vehicle_options (see db.js). This is the overwhelmingly common case
+// (browsing a brand with no other filter yet), so it's worth a dedicated
+// fast path: confirmed live the join-based query took 2.5+ minutes on
+// Ford's ~280K active options rows even after indexing, vs. near-instant
+// for the no-join path below.
+const VEHICLE_ONLY_FILTER_KEYS = [
+  'make', 'model', 'trim', 'dealer', 'state', 'bodyStyle', 'year', 'condition',
+  'minPrice', 'maxPrice', 'maxMileage', 'minDaysOnLot', 'maxDaysOnLot', 'opportunity', 'search',
+];
+
+async function fetchOptionCodeFacet(conn, params) {
+  const statusValue = params.status ? params.status : 'ACTIVE';
+  const statusArgs = statusValue !== 'ALL' ? [statusValue] : [];
+  const brandId = BRAND_IDS[params.brand];
+
+  const hasVehicleOnlyFilter = VEHICLE_ONLY_FILTER_KEYS.some(
+    (k) => params[k] !== undefined && params[k] !== null && params[k] !== ''
+  );
+  if (!hasVehicleOnlyFilter) {
+    const statusClause = statusValue !== 'ALL' ? 'AND vo.status = ?' : '';
+    // COUNT(*) rather than COUNT(DISTINCT vehicle_id): confirmed live these
+    // are effectively unique per (vehicle, code) already (delete+reinsert
+    // per vehicle per sync — see db.js), and DISTINCT's dedup bookkeeping
+    // alone was the difference between 629ms and never finishing at this
+    // row count. name comes from the small option_names reference table,
+    // not vehicle_options itself — see fetchOptionCodeFacet's header comment.
+    const sql = `
+      SELECT vo.code AS value, opn.name AS label, COUNT(*) AS count
+      FROM vehicle_options vo
+      LEFT JOIN option_names opn ON opn.brand_id = vo.brand_id AND opn.code = vo.code
+      WHERE vo.brand_id = ? ${statusClause} AND vo.code IS NOT NULL
+      GROUP BY vo.code, opn.name
+      ORDER BY count DESC
+      LIMIT 500
+    `;
+    const [rows] = await conn.query(sql, [brandId, ...statusArgs]);
+    return rows;
+  }
+
+  // Slower, correct-in-all-cases path: some other filter (state/model/price/
+  // etc.) is active, so it needs the join back to vehicles. brand_id/status
+  // are still pre-filtered on vehicle_options directly (via the index) before
+  // that join runs, so this stays bounded even though it's not free.
+  const optionExclude = params.excludeFacet === 'optionCode' ? 'optionCode' : null;
+  const { where, args, searchTerm } = buildWhere(params, optionExclude);
+  const statusClause = statusValue !== 'ALL' ? 'AND vo.status = ?' : '';
+  const sql = (w) => `
+    SELECT vo.code AS value, opn.name AS label, COUNT(*) AS count
+    FROM vehicle_options vo
+    JOIN vehicles v ON v.id = vo.vehicle_id
+    LEFT JOIN option_names opn ON opn.brand_id = vo.brand_id AND opn.code = vo.code
+    WHERE vo.brand_id = ? ${statusClause} AND vo.code IS NOT NULL AND ${w}
+    GROUP BY vo.code, opn.name
+    ORDER BY count DESC
+    LIMIT 500
+  `;
+  const prefixArgs = [brandId, ...statusArgs];
+  if (!searchTerm) {
+    const [rows] = await conn.query(sql(where), [...prefixArgs, ...args]);
+    return rows;
+  }
+  const ftWhere = `${where} AND MATCH(v.search_text) AGAINST(? IN NATURAL LANGUAGE MODE)`;
+  try {
+    const [rows] = await conn.query(sql(ftWhere), [...prefixArgs, ...args, searchTerm]);
+    return rows;
+  } catch {
+    const likeWhere = `${where} AND v.search_text LIKE ?`;
+    const [rows] = await conn.query(sql(likeWhere), [...prefixArgs, ...args, `%${searchTerm}%`]);
+    return rows;
+  }
+}
+
 async function handleFacets(req, res, params) {
   if (!params.brand || !BRAND_IDS[params.brand]) {
     return badRequest(res, "Query param 'brand' is required and must be a known brand code");
   }
 
+  // Each branch below queries the pool directly (not a single checked-out
+  // connection) so they run genuinely concurrently — confirmed live that
+  // sharing one connection across all 9 of these serializes them on the
+  // wire regardless of Promise.all, turning "9 queries in parallel" into
+  // "9 queries back to back" and pushing total latency past 15s on Ford's
+  // ~280K-row vehicles table. The pool's own connectionLimit (5) caps real
+  // concurrency, which is still a large win over fully sequential.
   const pool = getPool();
-  const conn = await pool.getConnection();
-  try {
-    const dims = Object.keys(FACET_DIMENSIONS);
-    const results = await Promise.all(
-      dims.map(async (dim) => {
-        const column = FACET_DIMENSIONS[dim];
-        const exclude = params.excludeFacet === dim ? dim : null;
-        const { where, args, searchTerm } = buildWhere(params, exclude);
-        const sql = (w) => `
-          SELECT ${column} AS value, COUNT(*) AS count
-          FROM vehicles v
-          WHERE ${w} AND ${column} IS NOT NULL
-          GROUP BY ${column}
-          ORDER BY count DESC
-        `;
-        const [rows] = await runSearchAwareQuery(conn, where, args, searchTerm, sql);
-        return [dim, rows];
-      })
-    );
-    const facets = Object.fromEntries(results);
-    sendJson(res, 200, { facets });
-  } finally {
-    conn.release();
-  }
+  const dims = Object.keys(FACET_DIMENSIONS);
+  const results = await Promise.all([
+    ...dims.map(async (dim) => {
+      const column = FACET_DIMENSIONS[dim];
+      const exclude = params.excludeFacet === dim ? dim : null;
+      const { where, args, searchTerm } = buildWhere(params, exclude);
+      const sql = (w) => `
+        SELECT ${column} AS value, COUNT(*) AS count
+        FROM vehicles v
+        WHERE ${w} AND ${column} IS NOT NULL
+        GROUP BY ${column}
+        ORDER BY count DESC
+      `;
+      const [rows] = await runSearchAwareQuery(pool, where, args, searchTerm, sql);
+      return [dim, rows];
+    }),
+    fetchOptionCodeFacet(pool, params).then((rows) => ['optionCode', rows]),
+  ]);
+  const facets = Object.fromEntries(results);
+  sendJson(res, 200, { facets });
 }
 
 async function handleVehicleByVin(req, res, vin) {
