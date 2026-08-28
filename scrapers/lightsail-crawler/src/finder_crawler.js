@@ -78,6 +78,39 @@ function cleanPrice(val) {
     return Math.round(num);
 }
 
+// Finder's own JSON-LD doesn't give us a clean model/trim split: item.name
+// is the full combined string ("911 Carrera GTS"), item.vehicleConfiguration
+// duplicates item.name almost every time (confirmed live: 30/31 in a sample
+// pull — the one exception was "Taycan 4" vs. "Taycan 4 Black Edition"), and
+// item.model is an internal chassis/generation code ("992 II", "H2", "E3
+// II") that's meaningless as a human-facing model field. So instead of
+// trusting any single Finder field, split item.name against Porsche's own
+// known model-line names (longest match first, so "718 Cayman" doesn't
+// short-circuit on a bare "718" that Finder doesn't actually use) — this
+// matches the model/trim convention the dealer-site scraper already uses
+// (standalone.js pulls model/trim as separate fields straight from each
+// dealer's own Dealer.com inventory API).
+const KNOWN_MODEL_LINES = [
+    '718 Boxster', '718 Cayman', '718 Spyder',
+    'Carrera GT',
+    '911', 'Boxster', 'Cayman', 'Cayenne', 'Macan', 'Panamera', 'Taycan',
+    '928', '944', '968',
+];
+
+function splitModelAndTrim(name) {
+    if (!name) return { model: null, trim: null };
+    for (const base of KNOWN_MODEL_LINES) {
+        if (name === base) return { model: base, trim: null };
+        if (name.startsWith(base + ' ')) {
+            const rest = name.slice(base.length).trim();
+            return { model: base, trim: rest || null };
+        }
+    }
+    // Unrecognized model line (a future Porsche model we haven't seen yet) —
+    // keep the full string as model rather than guessing at a split.
+    return { model: name, trim: null };
+}
+
 // Maps one Finder ItemList "Car" JSON-LD entry to our shared vehicle record
 // shape. Real, per-VIN, per-dealer data straight from Porsche's own system
 // — no guessing, no cross-referencing.
@@ -103,8 +136,7 @@ function mapFinderCarToVehicle(item) {
         inventoryType: isUsed ? 'USED' : 'NEW',
         year: Number.isFinite(year) ? year : null,
         make: 'Porsche',
-        model: cleanString(item.name),
-        trim: cleanString(item.vehicleConfiguration) !== cleanString(item.name) ? cleanString(item.vehicleConfiguration) : null,
+        ...splitModelAndTrim(cleanString(item.name)),
         bodyStyle: cleanString(item.bodyType),
         price,
         msrp: price,
