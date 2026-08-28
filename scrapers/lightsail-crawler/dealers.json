@@ -1,5 +1,17 @@
 [
   {
+    "id": "jack-daniels-porsche",
+    "name": "Jack Daniels Porsche",
+    "city": "Upper Saddle River",
+    "state": "NJ",
+    "domain": "jackdaniels.porsche.com",
+    "sitemapUrl": "https://jackdaniels.porsche.com/sitemap.xml",
+    "inventorySitemapUrl": "https://jackdaniels.porsche.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://jackdaniels.porsche.com/sitemap.xml",
+    "lat": 41.0585352,
+    "lng": -74.0984769
+  },
+  {
     "id": "porsche-beverly-hills",
     "name": "Porsche Beverly Hills",
     "city": "Los Angeles",
