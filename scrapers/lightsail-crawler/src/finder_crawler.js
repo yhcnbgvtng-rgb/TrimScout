@@ -184,6 +184,63 @@ async function fetchFinderPage(context, url, waitMs) {
     }
 }
 
+// Fetches one vehicle's own Finder detail page and extracts its real,
+// itemized "Included Options" breakdown (packages + per-category equipment)
+// straight from the rendered DOM — confirmed live this isn't an image/PDF,
+// it's plain structured text. Selects on Porsche's actual custom element
+// tags (fnssr-p-accordion / fnssr-p-button-pure) and the accordion's own
+// [slot="summary"] text rather than the page's hashed CSS-module class
+// names, which are far more likely to change across Porsche's own deploys.
+// No per-option price is exposed here (unlike a dealer's own Dealer.com
+// data layer, which standalone.js reads real prices from) — code is a
+// slug of the option name for search/dedup purposes, not a real Porsche
+// option code, and price is left null rather than guessed.
+async function fetchVehicleOptions(context, url) {
+    if (!url) return [];
+    for (let attempt = 1; attempt <= 3; attempt++) {
+        const page = await context.newPage();
+        try {
+            await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
+            await page.waitForTimeout(3000 * attempt);
+            const items = await page.evaluate(() => {
+                const accordions = [...document.querySelectorAll('fnssr-p-accordion')];
+                const accordion = accordions.find((acc) => {
+                    const summary = acc.querySelector('[slot="summary"]');
+                    return summary && summary.textContent.trim() === 'Included Options';
+                });
+                if (!accordion) return [];
+                const results = [];
+                for (const h3 of accordion.querySelectorAll('h3')) {
+                    const category = h3.textContent.trim();
+                    const categoryBlock = h3.parentElement?.parentElement;
+                    if (!categoryBlock) continue;
+                    for (const btn of categoryBlock.querySelectorAll('fnssr-p-button-pure')) {
+                        const name = btn.querySelector(':scope > div')?.textContent.trim();
+                        if (name) results.push({ category, name });
+                    }
+                }
+                return results;
+            });
+            if (items.length > 0) {
+                return items.map(({ category, name }) => ({
+                    code: name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 64) || null,
+                    name,
+                    price: null,
+                    category,
+                    source: 'finder',
+                }));
+            }
+            // Zero items is ambiguous on the first attempt (mistimed checkpoint,
+            // same as fetchFinderPage above) — retry before accepting "no options".
+        } catch {
+            // fall through to retry
+        } finally {
+            await page.close();
+        }
+    }
+    return [];
+}
+
 // One Finder search: a (city, lat, lng, radiusMiles) origin, paginated
 // until a page returns no new Car entries. Returns raw mapped vehicles;
 // caller dedupes by VIN.
@@ -246,6 +303,21 @@ let erroredDealersCount = 0;
 // than any gap.
 const RADIUS_MILES = Number(process.env.FINDER_RADIUS_MILES) || 30;
 
+// Options-detail-page fetches are a second page load per VIN (same
+// Vercel-checkpoint cost as a search page), so they're only worth paying
+// for VINs we don't already have real options cached for — genuinely new
+// arrivals, or ones whose fetch previously came back empty. On the very
+// first run after this shipped, essentially all ~23K already-known Porsche
+// vehicles look "uncached" at once; fetching every one of them in a single
+// run would multiply this crawl's runtime by hours. This cap spreads that
+// one-time backfill across many nightly runs instead of blowing up one of
+// them; override with FINDER_MAX_OPTIONS_FETCH_PER_RUN if a faster (or
+// unbounded, with 0) backfill is wanted for a specific run.
+const MAX_OPTIONS_FETCHES_PER_RUN = process.env.FINDER_MAX_OPTIONS_FETCH_PER_RUN !== undefined
+    ? Number(process.env.FINDER_MAX_OPTIONS_FETCH_PER_RUN)
+    : 500;
+let optionsFetchCount = 0;
+
 const browser = await chromium.launch({ headless: true });
 const context = await browser.newContext({
     userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36',
@@ -288,7 +360,16 @@ for (let i = 0; i < dealersWithCoords.length; i++) {
                     v.configDealerName = dealer.name;
                     v.state = v.state || dealer.state;
                 }
-                if (!currentInventory.has(v.vin)) newCount++;
+                if (!currentInventory.has(v.vin)) {
+                    newCount++;
+                    const prevRecord = previousSnapshot[v.vin];
+                    if (Array.isArray(prevRecord?.dealerListedOptions) && prevRecord.dealerListedOptions.length > 0) {
+                        v.dealerListedOptions = prevRecord.dealerListedOptions; // already have real options, carry forward for free
+                    } else if (v.url && (MAX_OPTIONS_FETCHES_PER_RUN === 0 || optionsFetchCount < MAX_OPTIONS_FETCHES_PER_RUN)) {
+                        v.dealerListedOptions = await fetchVehicleOptions(context, v.url);
+                        optionsFetchCount++;
+                    }
+                }
                 currentInventory.set(v.vin, v);
             }
             dealerStats[dealer.name] = vehicles.length;
@@ -313,6 +394,7 @@ await browser.close();
 
 console.log(`\n🎉 Finder-Based Crawl Complete!`);
 console.log(`Total Live Vehicles Tracked: ${currentInventory.size}`);
+console.log(`Options detail-page fetches this run: ${optionsFetchCount} (cap: ${MAX_OPTIONS_FETCHES_PER_RUN === 0 ? 'unbounded' : MAX_OPTIONS_FETCHES_PER_RUN})`);
 
 // --- Same diff / sold / snapshot / DB-sync tail as standalone.js --------
 const updatedSnapshot = {};
