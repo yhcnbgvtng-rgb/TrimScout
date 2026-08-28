@@ -138,7 +138,7 @@ function slugify(s) {
 
 function buildSearchText(v) {
   const optionNames = Array.isArray(v.factoryOptions) ? v.factoryOptions.map((o) => o.name).filter(Boolean) : [];
-  const parts = [v.year, v.make, v.model, v.trim, v.bodyStyle, v.dealerName, v.state, v.exteriorColor, optionNames.join(' ')];
+  const parts = [v.vin, v.year, v.make, v.model, v.trim, v.bodyStyle, v.dealerName, v.state, v.exteriorColor, optionNames.join(' ')];
   return parts.filter(Boolean).join(' ').slice(0, 1024);
 }
 
