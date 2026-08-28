@@ -176,6 +176,7 @@ export async function upsertDealers(brandId, dealersArray) {
     for (const batch of chunkArray(dealersArray, 500)) {
       const cols = [
         'brand_id', 'external_id', 'name', 'domain', 'city', 'state',
+        'latitude', 'longitude',
         'sitemap_url', 'inventory_sitemap_url', 'fallback_url',
       ];
       const placeholders = batch.map(() => `(${cols.map(() => '?').join(',')})`).join(',');
@@ -189,6 +190,8 @@ export async function upsertDealers(brandId, dealersArray) {
           d.domain || null,
           d.city || null,
           d.state || null,
+          typeof d.lat === 'number' ? d.lat : null,
+          typeof d.lng === 'number' ? d.lng : null,
           d.sitemapUrl || null,
           d.inventorySitemapUrl || null,
           d.fallbackUrl || null,
@@ -197,7 +200,10 @@ export async function upsertDealers(brandId, dealersArray) {
       const sql = `INSERT INTO dealers (${cols.join(',')}) VALUES ${placeholders}
         ON DUPLICATE KEY UPDATE
           name = VALUES(name), domain = VALUES(domain), city = VALUES(city),
-          state = VALUES(state), sitemap_url = VALUES(sitemap_url),
+          state = VALUES(state),
+          latitude = COALESCE(VALUES(latitude), latitude),
+          longitude = COALESCE(VALUES(longitude), longitude),
+          sitemap_url = VALUES(sitemap_url),
           inventory_sitemap_url = VALUES(inventory_sitemap_url),
           fallback_url = VALUES(fallback_url)`;
       await conn.query(sql, values);

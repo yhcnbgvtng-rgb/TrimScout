@@ -55,6 +55,8 @@ export interface VehicleRecord {
   vin: string;
   dealerName: string;
   city?: string;
+  dealerLat?: number;
+  dealerLng?: number;
   state: string;
   inventoryType: string;
   year: number;
@@ -361,6 +363,12 @@ function mapApiVehicleToRecord(raw: any, source: "box_api" | "legacy_fallback"):
     // silently falling back to the same default location and showing an
     // identical "X mi" badge on every single result before this).
     city: bv.dealer_city || undefined,
+    // Real per-dealer lat/lng (currently populated for Porsche's 216
+    // dealers, geocoded to build the Finder-crawler's search origins).
+    // mysql2 returns DECIMAL columns as strings by default, so parse
+    // defensively rather than assume a number came back.
+    dealerLat: bv.dealer_latitude != null && bv.dealer_latitude !== "" ? Number(bv.dealer_latitude) : undefined,
+    dealerLng: bv.dealer_longitude != null && bv.dealer_longitude !== "" ? Number(bv.dealer_longitude) : undefined,
     firstSeen: bv.first_seen_date || undefined,
     lastSeen: bv.last_seen_date || undefined,
     url: bv.url || undefined,
@@ -749,6 +757,11 @@ export const LightsailIntelligence: React.FC = () => {
     return calculateDistanceMiles(zip, {
       city: v.city || v.dealerName || "Parsippany",
       state: v.state || "NJ",
+      // Real per-dealer coordinates when we have them (currently Porsche's
+      // 216 dealers) — calculateDistanceMiles only falls back to the
+      // city-list/state-centroid approximation when these are absent.
+      lat: v.dealerLat,
+      lng: v.dealerLng,
     });
   };
 
@@ -1813,7 +1826,11 @@ export const LightsailIntelligence: React.FC = () => {
               <div className="rounded-xl border border-border bg-surface-elevated p-3 space-y-1">
                 <div className="text-[10px] uppercase text-ink-faint font-bold">Engine & Output</div>
                 <div className="font-bold text-white font-mono">
-                  {selectedVehicleForModal.nhtsa?.engineDisplacementL || "4.0L"} Flat-{selectedVehicleForModal.nhtsa?.engineCylinders || 6}
+                  {selectedVehicleForModal.nhtsa?.engineCylinders === 0 ? (
+                    <>⚡ Electric</>
+                  ) : (
+                    <>{selectedVehicleForModal.nhtsa?.engineDisplacementL || "4.0L"} Flat-{selectedVehicleForModal.nhtsa?.engineCylinders || 6}</>
+                  )}
                 </div>
               </div>
               <div className="rounded-xl border border-border bg-surface-elevated p-3 space-y-1">

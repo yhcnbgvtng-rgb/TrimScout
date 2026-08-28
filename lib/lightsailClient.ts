@@ -65,6 +65,8 @@ export interface BoxVehicle {
   dealer_id: number | null;
   dealer_name: string | null;
   dealer_city?: string | null;
+  dealer_latitude?: number | string | null;
+  dealer_longitude?: number | string | null;
   state: string | null;
   stock_number: string | null;
   inventory_type: string | null;
