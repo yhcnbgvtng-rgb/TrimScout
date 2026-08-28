@@ -595,6 +595,15 @@ const todayDate = new Date().toISOString().slice(0, 10);
 const todayIso = new Date().toISOString();
 const dealerStats = {};
 
+// Dealers whose crawl produced zero real evidence this run — either the
+// sitemap fetch itself failed/was bot-blocked (fetchSitemapXmlUrls swallows
+// that and returns [], indistinguishable here from "genuinely zero
+// inventory"), or every page fetched failed extraction. Confirmed live:
+// bot-blocking alone hits roughly 80% of configured dealers to some degree.
+// A vehicle whose dealer lands in this set is excluded from the sold-diff
+// below rather than being marked SOLD on no real evidence either way.
+const failedDealerNames = new Set();
+
 let activeDealersCount = 0;
 let erroredDealersCount = 0;
 
@@ -608,6 +617,7 @@ for (let i = 0; i < dealers.length; i++) {
         if (vehicleUrls.length === 0) {
             console.log(`${progress} ⚠️ No inventory URLs detected for ${dealer.name}.`);
             dealerStats[dealer.name] = 0;
+            failedDealerNames.add(dealer.name);
             continue;
         }
 
@@ -722,8 +732,24 @@ for (let i = 0; i < dealers.length; i++) {
                                      html.match(/itemprop=["']vehicleIdentificationNumber["'][^>]*content=["']([A-HJ-NPR-Z0-9]{16,17})["']/i) ||
                                      url.match(new RegExp(`(${urlVinPattern})`, 'i'));
 
-                    const priceMatch = html.match(/"price"\s*:\s*"?([\d,]+(?:\.\d+)?)"?/i) ||
-                                       html.match(/itemprop=["']price["'][^>]*content=["']([\d,]+(?:\.\d+)?)["']/i);
+                    // Prefer schema.org microdata (itemprop="price"), which lives
+                    // in the same structured Product/Offer block as the VIN
+                    // itemprop above. Only fall back to the freeform "price" JSON
+                    // key if it appears near the VIN's own position in the page —
+                    // a page-wide match can (and did, confirmed live at Porsche
+                    // Naples: implausible $815/$1,554 "prices" on certified
+                    // listings, a tiny fraction of any real Porsche's price) grab
+                    // an unrelated dollar figure from somewhere else entirely,
+                    // like a finance-calculator payment estimate.
+                    let priceMatch = html.match(/itemprop=["']price["'][^>]*content=["']([\d,]+(?:\.\d+)?)["']/i);
+                    if (!priceMatch && vinMatch) {
+                        const vinIndex = html.indexOf(vinMatch[1]);
+                        if (vinIndex !== -1) {
+                            const windowStart = Math.max(0, vinIndex - 2000);
+                            const windowEnd = Math.min(html.length, vinIndex + 2000);
+                            priceMatch = html.slice(windowStart, windowEnd).match(/"price"\s*:\s*"?([\d,]+(?:\.\d+)?)"?/i);
+                        }
+                    }
 
                     const yearMatch = html.match(/vehicleModelDate["']?\s*:\s*["']?(\d{4})["']?/i) ||
                                       html.match(/itemprop=["']vehicleModelDate["'][^>]*content=["'](\d{4})["']/i);
@@ -771,10 +797,15 @@ for (let i = 0; i < dealers.length; i++) {
                                       brand.vinPrefixes.some((p) => vehicle.vin.startsWith(p));
 
                     if (isTargetBrand) {
-                        // Strategy 3 leaves make unset (no real manufacturer
-                        // field available) — safe to fill in now that the
-                        // VIN prefix has actually confirmed the brand.
-                        if (!vehicle.make) vehicle.make = brand.name;
+                        // Collapse to the canonical brand name. isTargetBrand
+                        // just confirmed this vehicle genuinely belongs to
+                        // this brand (by label match or VIN prefix), so any
+                        // raw label variant the source site used — "FORD
+                        // TRUCK", "FORD MEDIUM TRUCK", etc. — is the same
+                        // vehicle, not a different make; storing the raw
+                        // variant instead of "Ford"/"Chevrolet" just splits
+                        // one brand into several make values downstream.
+                        vehicle.make = brand.name;
                         // Un-mix model/trim/body_style for brands whose
                         // source sites bake trim/body-style tokens into the
                         // model field (confirmed live: Porsche dealer.com
@@ -794,10 +825,17 @@ for (let i = 0; i < dealers.length; i++) {
         }, Number(process.env.CRAWLER_CONCURRENCY) || 8);
 
         dealerStats[dealer.name] = dealerCount;
-        if (dealerCount > 0) activeDealersCount++;
+        if (dealerCount > 0) {
+            activeDealersCount++;
+        } else {
+            // Pages were fetched but nothing survived extraction — same "no
+            // real evidence this run" situation as the zero-URL case above.
+            failedDealerNames.add(dealer.name);
+        }
         console.log(`${progress} ✅ Extracted ${dealerCount} vehicles from ${dealer.name}. (Running Total: ${currentInventory.size})`);
     } catch (err) {
         erroredDealersCount++;
+        failedDealerNames.add(dealer.name);
         console.error(`${progress} ❌ Error crawling ${dealer.name}: ${err.message}`);
     }
 
@@ -883,6 +921,23 @@ for (const [vin, cur] of currentInventory.entries()) {
 // Identify Sold / Removed Vehicles
 for (const [vin, prev] of Object.entries(previousSnapshot)) {
     if (!currentInventory.has(vin) && prev.status === 'ACTIVE') {
+        // configDealerName is the crawl-loop dealer key (reliable even for
+        // shared-inventory dealer groups where the vehicle's own scraped
+        // dealerName differs — see the DDC extraction comment above); older
+        // records predate that field, so fall back to dealerName for those.
+        const dealerKey = prev.configDealerName || prev.dealerName;
+        if (failedDealerNames.has(dealerKey)) {
+            // This vehicle's dealer produced zero real evidence this run
+            // (bot-blocked, fetch failure, or extraction failure) — carry it
+            // forward unchanged instead of marking it sold. Worst case a
+            // genuinely-sold vehicle stays ACTIVE one extra day; the
+            // alternative (mass-marking a blocked dealer's whole active
+            // inventory SOLD, confirmed happening live) is far worse.
+            updatedSnapshot[vin] = prev;
+            allRecords.push(prev);
+            continue;
+        }
+
         const soldRecord = {
             ...prev,
             status: 'SOLD_OR_REMOVED',
