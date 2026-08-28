@@ -208,6 +208,17 @@ export async function runEnrichmentPipeline(limit = Infinity, brand = null, dbRu
   let cacheHits = 0;
   const targetVehicles = rawInventory.slice(0, limit);
 
+  // Escape hatch for nationwide batch runs where the per-VIN NHTSA lookup
+  // (sequential, one network round-trip at a time) is the dominant cost of
+  // a whole batch — confirmed live: Ford batch 1 took ~5 hours end-to-end
+  // for 250 dealers. Skipping it here still runs the cheap, local
+  // factoryOptions/baseMsrp computation and — critically — still reaches
+  // syncInventoryToDatabase() below, so basic listing data (VIN, price,
+  // model, dealer) lands in the DB at crawl speed instead of NHTSA speed.
+  // nhtsa stays null; a later pass with this flag off can backfill specs
+  // without re-crawling (cache-miss vehicles just get picked up again).
+  const skipNhtsa = process.env.SKIP_NHTSA_ENRICHMENT === 'true';
+
   for (let i = 0; i < targetVehicles.length; i++) {
     const v = targetVehicles[i];
 
@@ -231,6 +242,17 @@ export async function runEnrichmentPipeline(limit = Infinity, brand = null, dbRu
         totalOptionsPrice: optionData.totalOptionsPrice,
         baseMsrp: optionData.baseMsrp,
         enrichedAt: cached.enrichedAt,
+      });
+      continue;
+    }
+
+    if (skipNhtsa) {
+      Object.assign(v, {
+        nhtsa: null,
+        factoryOptions: optionData.options,
+        optionCodes: optionData.optionCodes,
+        totalOptionsPrice: optionData.totalOptionsPrice,
+        baseMsrp: optionData.baseMsrp,
       });
       continue;
     }
