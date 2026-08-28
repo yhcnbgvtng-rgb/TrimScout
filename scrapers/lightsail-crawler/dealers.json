@@ -7,7 +7,9 @@
     "domain": "porschebeverlyhills.com",
     "sitemapUrl": "https://www.porschebeverlyhills.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschebeverlyhills.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschebeverlyhills.com/sitemap.xml"
+    "fallbackUrl": "https://porschebeverlyhills.com/sitemap.xml",
+    "lat": 34.0536909,
+    "lng": -118.242766
   },
   {
     "id": "porsche-downtown-l-a",
@@ -17,7 +19,9 @@
     "domain": "porschedowntownla.com",
     "sitemapUrl": "https://www.porschedowntownla.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschedowntownla.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschedowntownla.com/sitemap.xml"
+    "fallbackUrl": "https://porschedowntownla.com/sitemap.xml",
+    "lat": 34.0536909,
+    "lng": -118.242766
   },
   {
     "id": "porsche-san-francisco",
@@ -27,7 +31,9 @@
     "domain": "porschesanfrancisco.com",
     "sitemapUrl": "https://www.porschesanfrancisco.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschesanfrancisco.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschesanfrancisco.com/sitemap.xml"
+    "fallbackUrl": "https://porschesanfrancisco.com/sitemap.xml",
+    "lat": 37.7879363,
+    "lng": -122.4075201
   },
   {
     "id": "porsche-stevens-creek",
@@ -37,7 +43,9 @@
     "domain": "porschestevenscreek.com",
     "sitemapUrl": "https://www.porschestevenscreek.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschestevenscreek.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschestevenscreek.com/sitemap.xml"
+    "fallbackUrl": "https://porschestevenscreek.com/sitemap.xml",
+    "lat": 37.3541132,
+    "lng": -121.955174
   },
   {
     "id": "porsche-san-diego",
@@ -47,7 +55,9 @@
     "domain": "porschesandiego.com",
     "sitemapUrl": "https://www.porschesandiego.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschesandiego.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschesandiego.com/sitemap.xml"
+    "fallbackUrl": "https://porschesandiego.com/sitemap.xml",
+    "lat": 32.7174202,
+    "lng": -117.162772
   },
   {
     "id": "porsche-irvine",
@@ -57,7 +67,9 @@
     "domain": "porscheirvine.com",
     "sitemapUrl": "https://www.porscheirvine.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porscheirvine.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porscheirvine.com/sitemap.xml"
+    "fallbackUrl": "https://porscheirvine.com/sitemap.xml",
+    "lat": 33.6856969,
+    "lng": -117.825981
   },
   {
     "id": "porsche-newport-beach",
@@ -67,7 +79,9 @@
     "domain": "porschenewportbeach.com",
     "sitemapUrl": "https://www.porschenewportbeach.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschenewportbeach.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschenewportbeach.com/sitemap.xml"
+    "fallbackUrl": "https://porschenewportbeach.com/sitemap.xml",
+    "lat": 33.6170092,
+    "lng": -117.9294401
   },
   {
     "id": "porsche-south-bay",
@@ -77,7 +91,9 @@
     "domain": "porschesouthbay.com",
     "sitemapUrl": "https://www.porschesouthbay.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschesouthbay.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschesouthbay.com/sitemap.xml"
+    "fallbackUrl": "https://porschesouthbay.com/sitemap.xml",
+    "lat": 33.9128272,
+    "lng": -118.3426122
   },
   {
     "id": "porsche-marin",
@@ -87,7 +103,9 @@
     "domain": "porschemarin.com",
     "sitemapUrl": "https://www.porschemarin.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschemarin.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschemarin.com/sitemap.xml"
+    "fallbackUrl": "https://porschemarin.com/sitemap.xml",
+    "lat": 37.9060368,
+    "lng": -122.5449763
   },
   {
     "id": "porsche-carlsbad",
@@ -97,7 +115,9 @@
     "domain": "porschecarlsbad.com",
     "sitemapUrl": "https://www.porschecarlsbad.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschecarlsbad.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschecarlsbad.com/sitemap.xml"
+    "fallbackUrl": "https://porschecarlsbad.com/sitemap.xml",
+    "lat": 33.1580933,
+    "lng": -117.3505966
   },
   {
     "id": "porsche-redwood-city",
@@ -107,7 +127,9 @@
     "domain": "porscheredwoodcity.com",
     "sitemapUrl": "https://www.porscheredwoodcity.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porscheredwoodcity.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porscheredwoodcity.com/sitemap.xml"
+    "fallbackUrl": "https://porscheredwoodcity.com/sitemap.xml",
+    "lat": 37.4863239,
+    "lng": -122.232523
   },
   {
     "id": "porsche-burlingame",
@@ -117,7 +139,9 @@
     "domain": "porscheburlingame.com",
     "sitemapUrl": "https://www.porscheburlingame.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porscheburlingame.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porscheburlingame.com/sitemap.xml"
+    "fallbackUrl": "https://porscheburlingame.com/sitemap.xml",
+    "lat": 37.5780965,
+    "lng": -122.3473099
   },
   {
     "id": "porsche-palo-alto",
@@ -127,7 +151,9 @@
     "domain": "porschepaloalto.com",
     "sitemapUrl": "https://www.porschepaloalto.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschepaloalto.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschepaloalto.com/sitemap.xml"
+    "fallbackUrl": "https://porschepaloalto.com/sitemap.xml",
+    "lat": 37.4443293,
+    "lng": -122.1598465
   },
   {
     "id": "porsche-walnut-creek",
@@ -137,7 +163,9 @@
     "domain": "porschewalnutcreek.com",
     "sitemapUrl": "https://www.porschewalnutcreek.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschewalnutcreek.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschewalnutcreek.com/sitemap.xml"
+    "fallbackUrl": "https://porschewalnutcreek.com/sitemap.xml",
+    "lat": 37.9020731,
+    "lng": -122.0618702
   },
   {
     "id": "porsche-fremont",
@@ -147,7 +175,9 @@
     "domain": "porschefremont.com",
     "sitemapUrl": "https://www.porschefremont.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschefremont.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschefremont.com/sitemap.xml"
+    "fallbackUrl": "https://porschefremont.com/sitemap.xml",
+    "lat": 37.5482697,
+    "lng": -121.988571
   },
   {
     "id": "porsche-ontario",
@@ -157,7 +187,9 @@
     "domain": "porscheontario.com",
     "sitemapUrl": "https://www.porscheontario.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porscheontario.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porscheontario.com/sitemap.xml"
+    "fallbackUrl": "https://porscheontario.com/sitemap.xml",
+    "lat": 34.065846,
+    "lng": -117.64843
   },
   {
     "id": "porsche-riverside",
@@ -167,7 +199,9 @@
     "domain": "porscheriverside.com",
     "sitemapUrl": "https://www.porscheriverside.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porscheriverside.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porscheriverside.com/sitemap.xml"
+    "fallbackUrl": "https://porscheriverside.com/sitemap.xml",
+    "lat": 33.9824949,
+    "lng": -117.374238
   },
   {
     "id": "porsche-santa-barbara",
@@ -177,7 +211,9 @@
     "domain": "porschesantabarbara.com",
     "sitemapUrl": "https://www.porschesantabarbara.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschesantabarbara.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschesantabarbara.com/sitemap.xml"
+    "fallbackUrl": "https://porschesantabarbara.com/sitemap.xml",
+    "lat": 34.4221319,
+    "lng": -119.702667
   },
   {
     "id": "porsche-monterey",
@@ -187,7 +223,9 @@
     "domain": "porschemonterey.com",
     "sitemapUrl": "https://www.porschemonterey.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschemonterey.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschemonterey.com/sitemap.xml"
+    "fallbackUrl": "https://porschemonterey.com/sitemap.xml",
+    "lat": 36.62593,
+    "lng": -121.816926
   },
   {
     "id": "porsche-rocklin",
@@ -197,7 +235,9 @@
     "domain": "porscherocklin.com",
     "sitemapUrl": "https://www.porscherocklin.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porscherocklin.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porscherocklin.com/sitemap.xml"
+    "fallbackUrl": "https://porscherocklin.com/sitemap.xml",
+    "lat": 38.7907339,
+    "lng": -121.2357828
   },
   {
     "id": "porsche-sacramento",
@@ -207,7 +247,9 @@
     "domain": "porschesacramento.com",
     "sitemapUrl": "https://www.porschesacramento.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschesacramento.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschesacramento.com/sitemap.xml"
+    "fallbackUrl": "https://porschesacramento.com/sitemap.xml",
+    "lat": 38.5810606,
+    "lng": -121.493895
   },
   {
     "id": "porsche-bakersfield",
@@ -217,7 +259,9 @@
     "domain": "porschebakersfield.com",
     "sitemapUrl": "https://www.porschebakersfield.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschebakersfield.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschebakersfield.com/sitemap.xml"
+    "fallbackUrl": "https://porschebakersfield.com/sitemap.xml",
+    "lat": 35.3738712,
+    "lng": -119.019463
   },
   {
     "id": "porsche-fresno",
@@ -227,7 +271,9 @@
     "domain": "porschefresno.com",
     "sitemapUrl": "https://www.porschefresno.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschefresno.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschefresno.com/sitemap.xml"
+    "fallbackUrl": "https://porschefresno.com/sitemap.xml",
+    "lat": 36.7394421,
+    "lng": -119.78483
   },
   {
     "id": "porsche-san-luis-obispo",
@@ -237,7 +283,9 @@
     "domain": "porschesanluisobispo.com",
     "sitemapUrl": "https://www.porschesanluisobispo.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschesanluisobispo.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschesanluisobispo.com/sitemap.xml"
+    "fallbackUrl": "https://porschesanluisobispo.com/sitemap.xml",
+    "lat": 35.2827525,
+    "lng": -120.659615
   },
   {
     "id": "porsche-palm-springs",
@@ -247,7 +295,9 @@
     "domain": "porschepalmsprings.com",
     "sitemapUrl": "https://www.porschepalmsprings.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschepalmsprings.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschepalmsprings.com/sitemap.xml"
+    "fallbackUrl": "https://porschepalmsprings.com/sitemap.xml",
+    "lat": 33.8246269,
+    "lng": -116.540303
   },
   {
     "id": "porsche-woodland-hills",
@@ -257,7 +307,9 @@
     "domain": "porschewoodlandhills.com",
     "sitemapUrl": "https://www.porschewoodlandhills.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschewoodlandhills.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschewoodlandhills.com/sitemap.xml"
+    "fallbackUrl": "https://porschewoodlandhills.com/sitemap.xml",
+    "lat": 34.1684364,
+    "lng": -118.6058382
   },
   {
     "id": "porsche-westlake",
@@ -267,7 +319,9 @@
     "domain": "porschewestlake.com",
     "sitemapUrl": "https://www.porschewestlake.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschewestlake.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschewestlake.com/sitemap.xml"
+    "fallbackUrl": "https://porschewestlake.com/sitemap.xml",
+    "lat": 34.1705609,
+    "lng": -118.8375937
   },
   {
     "id": "porsche-santa-clarita",
@@ -277,7 +331,9 @@
     "domain": "porschesantaclarita.com",
     "sitemapUrl": "https://www.porschesantaclarita.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschesantaclarita.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschesantaclarita.com/sitemap.xml"
+    "fallbackUrl": "https://porschesantaclarita.com/sitemap.xml",
+    "lat": 34.4127963,
+    "lng": -118.5538088
   },
   {
     "id": "porsche-pasadena",
@@ -287,7 +343,9 @@
     "domain": "rusnakporsche.com",
     "sitemapUrl": "https://www.rusnakporsche.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.rusnakporsche.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://rusnakporsche.com/sitemap.xml"
+    "fallbackUrl": "https://rusnakporsche.com/sitemap.xml",
+    "lat": 34.1476507,
+    "lng": -118.144155
   },
   {
     "id": "porsche-long-beach",
@@ -297,7 +355,9 @@
     "domain": "circleporsche.com",
     "sitemapUrl": "https://www.circleporsche.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.circleporsche.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://circleporsche.com/sitemap.xml"
+    "fallbackUrl": "https://circleporsche.com/sitemap.xml",
+    "lat": 33.7690164,
+    "lng": -118.191604
   },
   {
     "id": "porsche-santa-monica",
@@ -307,7 +367,9 @@
     "domain": "porschesantamonica.com",
     "sitemapUrl": "https://www.porschesantamonica.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschesantamonica.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschesantamonica.com/sitemap.xml"
+    "fallbackUrl": "https://porschesantamonica.com/sitemap.xml",
+    "lat": 34.0194704,
+    "lng": -118.491227
   },
   {
     "id": "porsche-livermore",
@@ -317,7 +379,9 @@
     "domain": "porschelivermore.com",
     "sitemapUrl": "https://www.porschelivermore.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschelivermore.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschelivermore.com/sitemap.xml"
+    "fallbackUrl": "https://porschelivermore.com/sitemap.xml",
+    "lat": 37.6820583,
+    "lng": -121.768053
   },
   {
     "id": "porsche-modesto",
@@ -327,7 +391,9 @@
     "domain": "porschemodesto.com",
     "sitemapUrl": "https://www.porschemodesto.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschemodesto.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschemodesto.com/sitemap.xml"
+    "fallbackUrl": "https://porschemodesto.com/sitemap.xml",
+    "lat": 37.6393419,
+    "lng": -120.9968892
   },
   {
     "id": "champion-porsche",
@@ -337,7 +403,9 @@
     "domain": "champion-porsche.com",
     "sitemapUrl": "https://www.champion-porsche.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.champion-porsche.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://champion-porsche.com/sitemap.xml"
+    "fallbackUrl": "https://champion-porsche.com/sitemap.xml",
+    "lat": 26.2378597,
+    "lng": -80.1247667
   },
   {
     "id": "the-collection-porsche",
@@ -347,7 +415,9 @@
     "domain": "thecollectionporsche.com",
     "sitemapUrl": "https://www.thecollectionporsche.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.thecollectionporsche.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://thecollectionporsche.com/sitemap.xml"
+    "fallbackUrl": "https://thecollectionporsche.com/sitemap.xml",
+    "lat": 25.7331105,
+    "lng": -80.2585107
   },
   {
     "id": "porsche-west-broward",
@@ -357,7 +427,9 @@
     "domain": "porschewestbroward.com",
     "sitemapUrl": "https://www.porschewestbroward.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschewestbroward.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschewestbroward.com/sitemap.xml"
+    "fallbackUrl": "https://porschewestbroward.com/sitemap.xml",
+    "lat": 26.0628665,
+    "lng": -80.2331038
   },
   {
     "id": "porsche-north-miami",
@@ -367,7 +439,9 @@
     "domain": "porschenorthmiami.com",
     "sitemapUrl": "https://www.porschenorthmiami.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschenorthmiami.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschenorthmiami.com/sitemap.xml"
+    "fallbackUrl": "https://porschenorthmiami.com/sitemap.xml",
+    "lat": 25.8900949,
+    "lng": -80.1867138
   },
   {
     "id": "porsche-orlando",
@@ -377,7 +451,9 @@
     "domain": "porscheorlando.com",
     "sitemapUrl": "https://www.porscheorlando.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porscheorlando.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porscheorlando.com/sitemap.xml"
+    "fallbackUrl": "https://porscheorlando.com/sitemap.xml",
+    "lat": 28.6275253,
+    "lng": -81.3656419
   },
   {
     "id": "porsche-south-orlando",
@@ -387,7 +463,9 @@
     "domain": "porschesouthorlando.com",
     "sitemapUrl": "https://www.porschesouthorlando.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschesouthorlando.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschesouthorlando.com/sitemap.xml"
+    "fallbackUrl": "https://porschesouthorlando.com/sitemap.xml",
+    "lat": 28.5421218,
+    "lng": -81.379045
   },
   {
     "id": "porsche-fort-myers",
@@ -397,7 +475,9 @@
     "domain": "porschefortmyers.com",
     "sitemapUrl": "https://www.porschefortmyers.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschefortmyers.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschefortmyers.com/sitemap.xml"
+    "fallbackUrl": "https://porschefortmyers.com/sitemap.xml",
+    "lat": 26.640628,
+    "lng": -81.8723084
   },
   {
     "id": "porsche-jacksonville",
@@ -407,7 +487,9 @@
     "domain": "porschejacksonville.com",
     "sitemapUrl": "https://www.porschejacksonville.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschejacksonville.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschejacksonville.com/sitemap.xml"
+    "fallbackUrl": "https://porschejacksonville.com/sitemap.xml",
+    "lat": 30.3262247,
+    "lng": -81.6579179
   },
   {
     "id": "porsche-sarasota",
@@ -417,7 +499,9 @@
     "domain": "porschesarasota.com",
     "sitemapUrl": "https://www.porschesarasota.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschesarasota.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschesarasota.com/sitemap.xml"
+    "fallbackUrl": "https://porschesarasota.com/sitemap.xml",
+    "lat": 27.3365805,
+    "lng": -82.5308545
   },
   {
     "id": "braman-porsche",
@@ -427,7 +511,9 @@
     "domain": "bramanporsche.com",
     "sitemapUrl": "https://www.bramanporsche.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.bramanporsche.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://bramanporsche.com/sitemap.xml"
+    "fallbackUrl": "https://bramanporsche.com/sitemap.xml",
+    "lat": 26.715364,
+    "lng": -80.0532942
   },
   {
     "id": "porsche-tampa",
@@ -437,7 +523,9 @@
     "domain": "porscheoftampa.com",
     "sitemapUrl": "https://www.porscheoftampa.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porscheoftampa.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porscheoftampa.com/sitemap.xml"
+    "fallbackUrl": "https://porscheoftampa.com/sitemap.xml",
+    "lat": 27.9449854,
+    "lng": -82.4583107
   },
   {
     "id": "porsche-clearwater",
@@ -447,7 +535,9 @@
     "domain": "bertsmithporsche.com",
     "sitemapUrl": "https://www.bertsmithporsche.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.bertsmithporsche.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://bertsmithporsche.com/sitemap.xml"
+    "fallbackUrl": "https://bertsmithporsche.com/sitemap.xml",
+    "lat": 27.9658533,
+    "lng": -82.8001026
   },
   {
     "id": "porsche-st-petersburg",
@@ -457,7 +547,9 @@
     "domain": "porschestpetersburg.com",
     "sitemapUrl": "https://www.porschestpetersburg.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschestpetersburg.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschestpetersburg.com/sitemap.xml"
+    "fallbackUrl": "https://porschestpetersburg.com/sitemap.xml",
+    "lat": 27.7712264,
+    "lng": -82.6340259
   },
   {
     "id": "porsche-melbourne",
@@ -467,7 +559,9 @@
     "domain": "porschemelbourne.com",
     "sitemapUrl": "https://www.porschemelbourne.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschemelbourne.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschemelbourne.com/sitemap.xml"
+    "fallbackUrl": "https://porschemelbourne.com/sitemap.xml",
+    "lat": 28.0785034,
+    "lng": -80.6077908
   },
   {
     "id": "porsche-tallahassee",
@@ -477,7 +571,9 @@
     "domain": "porschetallahassee.com",
     "sitemapUrl": "https://www.porschetallahassee.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschetallahassee.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschetallahassee.com/sitemap.xml"
+    "fallbackUrl": "https://porschetallahassee.com/sitemap.xml",
+    "lat": 30.4380832,
+    "lng": -84.2809332
   },
   {
     "id": "porsche-pensacola",
@@ -487,7 +583,9 @@
     "domain": "porschepensacola.com",
     "sitemapUrl": "https://www.porschepensacola.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschepensacola.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschepensacola.com/sitemap.xml"
+    "fallbackUrl": "https://porschepensacola.com/sitemap.xml",
+    "lat": 30.421309,
+    "lng": -87.2169149
   },
   {
     "id": "porsche-naples",
@@ -497,7 +595,9 @@
     "domain": "porschenaples.com",
     "sitemapUrl": "https://www.porschenaples.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschenaples.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschenaples.com/sitemap.xml"
+    "fallbackUrl": "https://porschenaples.com/sitemap.xml",
+    "lat": 26.1421976,
+    "lng": -81.7942944
   },
   {
     "id": "porsche-ocala",
@@ -507,7 +607,9 @@
     "domain": "porscheocala.com",
     "sitemapUrl": "https://www.porscheocala.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porscheocala.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porscheocala.com/sitemap.xml"
+    "fallbackUrl": "https://porscheocala.com/sitemap.xml",
+    "lat": 29.1871986,
+    "lng": -82.1400923
   },
   {
     "id": "porsche-north-houston",
@@ -517,7 +619,9 @@
     "domain": "porschenorthhouston.com",
     "sitemapUrl": "https://www.porschenorthhouston.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschenorthhouston.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschenorthhouston.com/sitemap.xml"
+    "fallbackUrl": "https://porschenorthhouston.com/sitemap.xml",
+    "lat": 29.7589382,
+    "lng": -95.3676974
   },
   {
     "id": "porsche-west-houston",
@@ -527,7 +631,9 @@
     "domain": "porschewesthouston.com",
     "sitemapUrl": "https://www.porschewesthouston.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschewesthouston.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschewesthouston.com/sitemap.xml"
+    "fallbackUrl": "https://porschewesthouston.com/sitemap.xml",
+    "lat": 29.7589382,
+    "lng": -95.3676974
   },
   {
     "id": "porsche-river-oaks",
@@ -537,7 +643,9 @@
     "domain": "porscheriveroaks.com",
     "sitemapUrl": "https://www.porscheriveroaks.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porscheriveroaks.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porscheriveroaks.com/sitemap.xml"
+    "fallbackUrl": "https://porscheriveroaks.com/sitemap.xml",
+    "lat": 29.7589382,
+    "lng": -95.3676974
   },
   {
     "id": "porsche-houston-central",
@@ -547,7 +655,9 @@
     "domain": "porschehoustoncentral.com",
     "sitemapUrl": "https://www.porschehoustoncentral.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschehoustoncentral.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschehoustoncentral.com/sitemap.xml"
+    "fallbackUrl": "https://porschehoustoncentral.com/sitemap.xml",
+    "lat": 29.7589382,
+    "lng": -95.3676974
   },
   {
     "id": "porsche-the-woodlands",
@@ -557,7 +667,9 @@
     "domain": "porschethewoodlands.com",
     "sitemapUrl": "https://www.porschethewoodlands.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschethewoodlands.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschethewoodlands.com/sitemap.xml"
+    "fallbackUrl": "https://porschethewoodlands.com/sitemap.xml",
+    "lat": 30.1734194,
+    "lng": -95.504686
   },
   {
     "id": "porsche-sugar-land",
@@ -567,7 +679,9 @@
     "domain": "porschesugarland.com",
     "sitemapUrl": "https://www.porschesugarland.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschesugarland.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschesugarland.com/sitemap.xml"
+    "fallbackUrl": "https://porschesugarland.com/sitemap.xml",
+    "lat": 29.6196787,
+    "lng": -95.6349463
   },
   {
     "id": "porsche-clear-lake",
@@ -577,7 +691,9 @@
     "domain": "porscheclearlake.com",
     "sitemapUrl": "https://www.porscheclearlake.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porscheclearlake.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porscheclearlake.com/sitemap.xml"
+    "fallbackUrl": "https://porscheclearlake.com/sitemap.xml",
+    "lat": 29.7589382,
+    "lng": -95.3676974
   },
   {
     "id": "porsche-austin",
@@ -587,7 +703,9 @@
     "domain": "porscheaustin.com",
     "sitemapUrl": "https://www.porscheaustin.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porscheaustin.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porscheaustin.com/sitemap.xml"
+    "fallbackUrl": "https://porscheaustin.com/sitemap.xml",
+    "lat": 30.2711286,
+    "lng": -97.7436995
   },
   {
     "id": "porsche-south-austin",
@@ -597,7 +715,9 @@
     "domain": "porschesouthaustin.com",
     "sitemapUrl": "https://www.porschesouthaustin.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschesouthaustin.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschesouthaustin.com/sitemap.xml"
+    "fallbackUrl": "https://porschesouthaustin.com/sitemap.xml",
+    "lat": 30.2711286,
+    "lng": -97.7436995
   },
   {
     "id": "park-place-porsche-dallas",
@@ -607,7 +727,9 @@
     "domain": "parkplace.com",
     "sitemapUrl": "https://www.parkplace.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.parkplace.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://parkplace.com/sitemap.xml"
+    "fallbackUrl": "https://parkplace.com/sitemap.xml",
+    "lat": 32.7762719,
+    "lng": -96.7968559
   },
   {
     "id": "porsche-grapevine",
@@ -617,7 +739,9 @@
     "domain": "porschegrapevine.com",
     "sitemapUrl": "https://www.porschegrapevine.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschegrapevine.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschegrapevine.com/sitemap.xml"
+    "fallbackUrl": "https://porschegrapevine.com/sitemap.xml",
+    "lat": 32.9337381,
+    "lng": -97.0788754
   },
   {
     "id": "porsche-plano",
@@ -627,7 +751,9 @@
     "domain": "porscheplano.com",
     "sitemapUrl": "https://www.porscheplano.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porscheplano.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porscheplano.com/sitemap.xml"
+    "fallbackUrl": "https://porscheplano.com/sitemap.xml",
+    "lat": 33.0136764,
+    "lng": -96.6925096
   },
   {
     "id": "porsche-fort-worth",
@@ -637,7 +763,9 @@
     "domain": "porschefortworth.com",
     "sitemapUrl": "https://www.porschefortworth.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschefortworth.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschefortworth.com/sitemap.xml"
+    "fallbackUrl": "https://porschefortworth.com/sitemap.xml",
+    "lat": 32.753177,
+    "lng": -97.3327459
   },
   {
     "id": "porsche-san-antonio",
@@ -647,7 +775,9 @@
     "domain": "porschesanantonio.com",
     "sitemapUrl": "https://www.porschesanantonio.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschesanantonio.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschesanantonio.com/sitemap.xml"
+    "fallbackUrl": "https://porschesanantonio.com/sitemap.xml",
+    "lat": 29.4246002,
+    "lng": -98.4951405
   },
   {
     "id": "porsche-el-paso",
@@ -657,7 +787,9 @@
     "domain": "porscheelpaso.com",
     "sitemapUrl": "https://www.porscheelpaso.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porscheelpaso.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porscheelpaso.com/sitemap.xml"
+    "fallbackUrl": "https://porscheelpaso.com/sitemap.xml",
+    "lat": 31.7601001,
+    "lng": -106.4870476
   },
   {
     "id": "porsche-lubbock",
@@ -667,7 +799,9 @@
     "domain": "porschelubbock.com",
     "sitemapUrl": "https://www.porschelubbock.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschelubbock.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschelubbock.com/sitemap.xml"
+    "fallbackUrl": "https://porschelubbock.com/sitemap.xml",
+    "lat": 33.5855677,
+    "lng": -101.8470215
   },
   {
     "id": "porsche-corpus-christi",
@@ -677,7 +811,9 @@
     "domain": "porschecorpuschristi.com",
     "sitemapUrl": "https://www.porschecorpuschristi.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschecorpuschristi.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschecorpuschristi.com/sitemap.xml"
+    "fallbackUrl": "https://porschecorpuschristi.com/sitemap.xml",
+    "lat": 27.7635302,
+    "lng": -97.4033191
   },
   {
     "id": "porsche-manhattan",
@@ -687,7 +823,9 @@
     "domain": "porschemanhattan.com",
     "sitemapUrl": "https://www.porschemanhattan.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschemanhattan.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschemanhattan.com/sitemap.xml"
+    "fallbackUrl": "https://porschemanhattan.com/sitemap.xml",
+    "lat": 40.7127281,
+    "lng": -74.0060152
   },
   {
     "id": "porsche-brooklyn",
@@ -697,7 +835,9 @@
     "domain": "porschebrooklyn.com",
     "sitemapUrl": "https://www.porschebrooklyn.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschebrooklyn.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschebrooklyn.com/sitemap.xml"
+    "fallbackUrl": "https://porschebrooklyn.com/sitemap.xml",
+    "lat": 40.6526006,
+    "lng": -73.9497211
   },
   {
     "id": "porsche-south-shore",
@@ -707,7 +847,9 @@
     "domain": "porschesouthshore.com",
     "sitemapUrl": "https://www.porschesouthshore.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschesouthshore.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschesouthshore.com/sitemap.xml"
+    "fallbackUrl": "https://porschesouthshore.com/sitemap.xml",
+    "lat": 40.6576071,
+    "lng": -73.5835826
   },
   {
     "id": "porsche-gold-coast",
@@ -717,7 +859,9 @@
     "domain": "porschegoldcoast.com",
     "sitemapUrl": "https://www.porschegoldcoast.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschegoldcoast.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschegoldcoast.com/sitemap.xml"
+    "fallbackUrl": "https://porschegoldcoast.com/sitemap.xml",
+    "lat": 40.7920441,
+    "lng": -73.5398476
   },
   {
     "id": "porsche-roslyn",
@@ -727,7 +871,9 @@
     "domain": "porscheroslyn.com",
     "sitemapUrl": "https://www.porscheroslyn.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porscheroslyn.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porscheroslyn.com/sitemap.xml"
+    "fallbackUrl": "https://porscheroslyn.com/sitemap.xml",
+    "lat": 40.7998227,
+    "lng": -73.6509621
   },
   {
     "id": "porsche-huntington",
@@ -737,7 +883,9 @@
     "domain": "porschehuntington.com",
     "sitemapUrl": "https://www.porschehuntington.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschehuntington.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschehuntington.com/sitemap.xml"
+    "fallbackUrl": "https://porschehuntington.com/sitemap.xml",
+    "lat": 40.8534318,
+    "lng": -73.4115091
   },
   {
     "id": "porsche-southampton",
@@ -747,7 +895,9 @@
     "domain": "porschesouthampton.com",
     "sitemapUrl": "https://www.porschesouthampton.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschesouthampton.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschesouthampton.com/sitemap.xml"
+    "fallbackUrl": "https://porschesouthampton.com/sitemap.xml",
+    "lat": 40.8842482,
+    "lng": -72.3897131
   },
   {
     "id": "porsche-larchmont",
@@ -757,7 +907,9 @@
     "domain": "porschelarchmont.com",
     "sitemapUrl": "https://www.porschelarchmont.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschelarchmont.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschelarchmont.com/sitemap.xml"
+    "fallbackUrl": "https://porschelarchmont.com/sitemap.xml",
+    "lat": 40.9278769,
+    "lng": -73.7517983
   },
   {
     "id": "porsche-buffalo",
@@ -767,7 +919,9 @@
     "domain": "porscheofbuffalo.com",
     "sitemapUrl": "https://www.porscheofbuffalo.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porscheofbuffalo.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porscheofbuffalo.com/sitemap.xml"
+    "fallbackUrl": "https://porscheofbuffalo.com/sitemap.xml",
+    "lat": 42.9637836,
+    "lng": -78.7377258
   },
   {
     "id": "porsche-rochester",
@@ -777,7 +931,9 @@
     "domain": "porscherochester.com",
     "sitemapUrl": "https://www.porscherochester.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porscherochester.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porscherochester.com/sitemap.xml"
+    "fallbackUrl": "https://porscherochester.com/sitemap.xml",
+    "lat": 43.157285,
+    "lng": -77.615214
   },
   {
     "id": "porsche-syracuse",
@@ -787,7 +943,9 @@
     "domain": "porschesyracuse.com",
     "sitemapUrl": "https://www.porschesyracuse.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschesyracuse.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschesyracuse.com/sitemap.xml"
+    "fallbackUrl": "https://porschesyracuse.com/sitemap.xml",
+    "lat": 43.0653446,
+    "lng": -76.0785332
   },
   {
     "id": "porsche-albany",
@@ -797,7 +955,9 @@
     "domain": "porschealbany.com",
     "sitemapUrl": "https://www.porschealbany.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschealbany.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschealbany.com/sitemap.xml"
+    "fallbackUrl": "https://porschealbany.com/sitemap.xml",
+    "lat": 42.7444055,
+    "lng": -73.761563
   },
   {
     "id": "porsche-mt-kisco",
@@ -807,7 +967,9 @@
     "domain": "porschemtkisco.com",
     "sitemapUrl": "https://www.porschemtkisco.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschemtkisco.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschemtkisco.com/sitemap.xml"
+    "fallbackUrl": "https://porschemtkisco.com/sitemap.xml",
+    "lat": 41.2042616,
+    "lng": -73.7270761
   },
   {
     "id": "paul-miller-porsche",
@@ -817,7 +979,9 @@
     "domain": "paulmillerporsche.com",
     "sitemapUrl": "https://www.paulmillerporsche.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.paulmillerporsche.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://paulmillerporsche.com/sitemap.xml"
+    "fallbackUrl": "https://paulmillerporsche.com/sitemap.xml",
+    "lat": 40.8578772,
+    "lng": -74.4259866
   },
   {
     "id": "porsche-englewood",
@@ -827,7 +991,9 @@
     "domain": "porscheenglewood.com",
     "sitemapUrl": "https://www.porscheenglewood.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porscheenglewood.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porscheenglewood.com/sitemap.xml"
+    "fallbackUrl": "https://porscheenglewood.com/sitemap.xml",
+    "lat": 40.8929329,
+    "lng": -73.9726508
   },
   {
     "id": "porsche-monmouth",
@@ -837,7 +1003,9 @@
     "domain": "porschemonmouth.com",
     "sitemapUrl": "https://www.porschemonmouth.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschemonmouth.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschemonmouth.com/sitemap.xml"
+    "fallbackUrl": "https://porschemonmouth.com/sitemap.xml",
+    "lat": 40.2904235,
+    "lng": -74.0172558
   },
   {
     "id": "porsche-cherry-hill",
@@ -847,7 +1015,9 @@
     "domain": "porschecherryhill.com",
     "sitemapUrl": "https://www.porschecherryhill.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschecherryhill.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschecherryhill.com/sitemap.xml"
+    "fallbackUrl": "https://porschecherryhill.com/sitemap.xml",
+    "lat": 39.9348351,
+    "lng": -75.0307264
   },
   {
     "id": "ray-catena-porsche",
@@ -857,7 +1027,9 @@
     "domain": "raycatenaporsche.com",
     "sitemapUrl": "https://www.raycatenaporsche.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.raycatenaporsche.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://raycatenaporsche.com/sitemap.xml"
+    "fallbackUrl": "https://raycatenaporsche.com/sitemap.xml",
+    "lat": 40.5005351,
+    "lng": -74.3983939
   },
   {
     "id": "porsche-princeton",
@@ -867,7 +1039,9 @@
     "domain": "porscheprinceton.com",
     "sitemapUrl": "https://www.porscheprinceton.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porscheprinceton.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porscheprinceton.com/sitemap.xml"
+    "fallbackUrl": "https://porscheprinceton.com/sitemap.xml",
+    "lat": 40.2973299,
+    "lng": -74.7296049
   },
   {
     "id": "porsche-bridgewater",
@@ -877,7 +1051,9 @@
     "domain": "porschebridgewater.com",
     "sitemapUrl": "https://www.porschebridgewater.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschebridgewater.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschebridgewater.com/sitemap.xml"
+    "fallbackUrl": "https://porschebridgewater.com/sitemap.xml",
+    "lat": 40.5931225,
+    "lng": -74.604954
   },
   {
     "id": "porsche-millburn",
@@ -887,7 +1063,9 @@
     "domain": "porschemillburn.com",
     "sitemapUrl": "https://www.porschemillburn.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschemillburn.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschemillburn.com/sitemap.xml"
+    "fallbackUrl": "https://porschemillburn.com/sitemap.xml",
+    "lat": 40.7244443,
+    "lng": -74.3069069
   },
   {
     "id": "porsche-flemington",
@@ -897,7 +1075,9 @@
     "domain": "porscheflemington.com",
     "sitemapUrl": "https://www.porscheflemington.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porscheflemington.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porscheflemington.com/sitemap.xml"
+    "fallbackUrl": "https://porscheflemington.com/sitemap.xml",
+    "lat": 40.5130953,
+    "lng": -74.8591333
   },
   {
     "id": "porsche-downtown-chicago",
@@ -907,7 +1087,9 @@
     "domain": "porschedowntownchicago.com",
     "sitemapUrl": "https://www.porschedowntownchicago.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschedowntownchicago.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschedowntownchicago.com/sitemap.xml"
+    "fallbackUrl": "https://porschedowntownchicago.com/sitemap.xml",
+    "lat": 41.8755616,
+    "lng": -87.6244212
   },
   {
     "id": "porsche-exchange",
@@ -917,7 +1099,9 @@
     "domain": "4porsche.com",
     "sitemapUrl": "https://www.4porsche.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.4porsche.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://4porsche.com/sitemap.xml"
+    "fallbackUrl": "https://4porsche.com/sitemap.xml",
+    "lat": 42.1836719,
+    "lng": -87.7993245
   },
   {
     "id": "porsche-barrington",
@@ -927,7 +1111,9 @@
     "domain": "motorwerks.com",
     "sitemapUrl": "https://www.motorwerks.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.motorwerks.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://motorwerks.com/sitemap.xml"
+    "fallbackUrl": "https://motorwerks.com/sitemap.xml",
+    "lat": 42.1539141,
+    "lng": -88.1361888
   },
   {
     "id": "porsche-westmont",
@@ -937,7 +1123,9 @@
     "domain": "porschewestmont.com",
     "sitemapUrl": "https://www.porschewestmont.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschewestmont.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschewestmont.com/sitemap.xml"
+    "fallbackUrl": "https://porschewestmont.com/sitemap.xml",
+    "lat": 41.7950525,
+    "lng": -87.9751964
   },
   {
     "id": "porsche-naperville",
@@ -947,7 +1135,9 @@
     "domain": "porschenaperville.com",
     "sitemapUrl": "https://www.porschenaperville.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschenaperville.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschenaperville.com/sitemap.xml"
+    "fallbackUrl": "https://porschenaperville.com/sitemap.xml",
+    "lat": 41.7728699,
+    "lng": -88.1479278
   },
   {
     "id": "porsche-orland-park",
@@ -957,7 +1147,9 @@
     "domain": "porscheorlandpark.com",
     "sitemapUrl": "https://www.porscheorlandpark.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porscheorlandpark.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porscheorlandpark.com/sitemap.xml"
+    "fallbackUrl": "https://porscheorlandpark.com/sitemap.xml",
+    "lat": 41.630663,
+    "lng": -87.8536288
   },
   {
     "id": "porsche-hoffman-estates",
@@ -967,7 +1159,9 @@
     "domain": "porschehoffmanestates.com",
     "sitemapUrl": "https://www.porschehoffmanestates.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschehoffmanestates.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschehoffmanestates.com/sitemap.xml"
+    "fallbackUrl": "https://porschehoffmanestates.com/sitemap.xml",
+    "lat": 42.0427256,
+    "lng": -88.0792782
   },
   {
     "id": "porsche-lincolnwood",
@@ -977,7 +1171,9 @@
     "domain": "loeberporsche.com",
     "sitemapUrl": "https://www.loeberporsche.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.loeberporsche.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://loeberporsche.com/sitemap.xml"
+    "fallbackUrl": "https://loeberporsche.com/sitemap.xml",
+    "lat": 42.0055985,
+    "lng": -87.735572
   },
   {
     "id": "porsche-peoria",
@@ -987,7 +1183,9 @@
     "domain": "porschepeoria.com",
     "sitemapUrl": "https://www.porschepeoria.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschepeoria.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschepeoria.com/sitemap.xml"
+    "fallbackUrl": "https://porschepeoria.com/sitemap.xml",
+    "lat": 40.6938609,
+    "lng": -89.5891008
   },
   {
     "id": "porsche-warrington",
@@ -997,7 +1195,9 @@
     "domain": "porschewarrington.com",
     "sitemapUrl": "https://www.porschewarrington.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschewarrington.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschewarrington.com/sitemap.xml"
+    "fallbackUrl": "https://porschewarrington.com/sitemap.xml",
+    "lat": 40.2492741,
+    "lng": -75.1340604
   },
   {
     "id": "porsche-main-line",
@@ -1007,7 +1207,9 @@
     "domain": "porscheofthemainline.com",
     "sitemapUrl": "https://www.porscheofthemainline.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porscheofthemainline.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porscheofthemainline.com/sitemap.xml"
+    "fallbackUrl": "https://porscheofthemainline.com/sitemap.xml",
+    "lat": 39.9868117,
+    "lng": -75.4007633
   },
   {
     "id": "porsche-conshohocken",
@@ -1017,7 +1219,9 @@
     "domain": "porscheconshohocken.com",
     "sitemapUrl": "https://www.porscheconshohocken.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porscheconshohocken.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porscheconshohocken.com/sitemap.xml"
+    "fallbackUrl": "https://porscheconshohocken.com/sitemap.xml",
+    "lat": 40.0738835,
+    "lng": -75.30625
   },
   {
     "id": "porsche-west-chester",
@@ -1027,7 +1231,9 @@
     "domain": "porschewestchester.com",
     "sitemapUrl": "https://www.porschewestchester.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschewestchester.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschewestchester.com/sitemap.xml"
+    "fallbackUrl": "https://porschewestchester.com/sitemap.xml",
+    "lat": 39.9597389,
+    "lng": -75.6044609
   },
   {
     "id": "porsche-willow-grove",
@@ -1037,7 +1243,9 @@
     "domain": "porschewillowgrove.com",
     "sitemapUrl": "https://www.porschewillowgrove.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschewillowgrove.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschewillowgrove.com/sitemap.xml"
+    "fallbackUrl": "https://porschewillowgrove.com/sitemap.xml",
+    "lat": 40.1439985,
+    "lng": -75.1157286
   },
   {
     "id": "porsche-pittsburgh",
@@ -1047,7 +1255,9 @@
     "domain": "porschepittsburgh.com",
     "sitemapUrl": "https://www.porschepittsburgh.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschepittsburgh.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschepittsburgh.com/sitemap.xml"
+    "fallbackUrl": "https://porschepittsburgh.com/sitemap.xml",
+    "lat": 40.4406968,
+    "lng": -80.0025666
   },
   {
     "id": "porsche-mechanicsburg",
@@ -1057,7 +1267,9 @@
     "domain": "porschemechanicsburg.com",
     "sitemapUrl": "https://www.porschemechanicsburg.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschemechanicsburg.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschemechanicsburg.com/sitemap.xml"
+    "fallbackUrl": "https://porschemechanicsburg.com/sitemap.xml",
+    "lat": 40.2101972,
+    "lng": -77.0047276
   },
   {
     "id": "porsche-lehigh-valley",
@@ -1067,7 +1279,9 @@
     "domain": "porschelehighvalley.com",
     "sitemapUrl": "https://www.porschelehighvalley.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschelehighvalley.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschelehighvalley.com/sitemap.xml"
+    "fallbackUrl": "https://porschelehighvalley.com/sitemap.xml",
+    "lat": 40.6022552,
+    "lng": -75.4716115
   },
   {
     "id": "porsche-delaware",
@@ -1077,7 +1291,9 @@
     "domain": "porschedelaware.com",
     "sitemapUrl": "https://www.porschedelaware.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschedelaware.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschedelaware.com/sitemap.xml"
+    "fallbackUrl": "https://porschedelaware.com/sitemap.xml",
+    "lat": 39.6828358,
+    "lng": -75.7515682
   },
   {
     "id": "porsche-columbus",
@@ -1087,7 +1303,9 @@
     "domain": "porschecolumbus.com",
     "sitemapUrl": "https://www.porschecolumbus.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschecolumbus.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschecolumbus.com/sitemap.xml"
+    "fallbackUrl": "https://porschecolumbus.com/sitemap.xml",
+    "lat": 39.9622601,
+    "lng": -83.0007065
   },
   {
     "id": "porsche-dublin",
@@ -1097,7 +1315,9 @@
     "domain": "magporsche.com",
     "sitemapUrl": "https://www.magporsche.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.magporsche.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://magporsche.com/sitemap.xml"
+    "fallbackUrl": "https://magporsche.com/sitemap.xml",
+    "lat": 40.0996009,
+    "lng": -83.1135563
   },
   {
     "id": "porsche-cleveland",
@@ -1107,7 +1327,9 @@
     "domain": "porschecleveland.com",
     "sitemapUrl": "https://www.porschecleveland.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschecleveland.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschecleveland.com/sitemap.xml"
+    "fallbackUrl": "https://porschecleveland.com/sitemap.xml",
+    "lat": 41.4156025,
+    "lng": -81.9234726
   },
   {
     "id": "porsche-cincinnati-kings",
@@ -1117,7 +1339,9 @@
     "domain": "porschecincinnatikings.com",
     "sitemapUrl": "https://www.porschecincinnatikings.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschecincinnatikings.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschecincinnatikings.com/sitemap.xml"
+    "fallbackUrl": "https://porschecincinnatikings.com/sitemap.xml",
+    "lat": 39.1012809,
+    "lng": -84.5127405
   },
   {
     "id": "porsche-beachwood",
@@ -1127,7 +1351,9 @@
     "domain": "porschebeachwood.com",
     "sitemapUrl": "https://www.porschebeachwood.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschebeachwood.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschebeachwood.com/sitemap.xml"
+    "fallbackUrl": "https://porschebeachwood.com/sitemap.xml",
+    "lat": 41.464498,
+    "lng": -81.508732
   },
   {
     "id": "porsche-akron",
@@ -1137,7 +1363,9 @@
     "domain": "porscheakron.com",
     "sitemapUrl": "https://www.porscheakron.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porscheakron.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porscheakron.com/sitemap.xml"
+    "fallbackUrl": "https://porscheakron.com/sitemap.xml",
+    "lat": 41.083064,
+    "lng": -81.518485
   },
   {
     "id": "porsche-dayton",
@@ -1147,7 +1375,9 @@
     "domain": "porschedayton.com",
     "sitemapUrl": "https://www.porschedayton.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschedayton.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschedayton.com/sitemap.xml"
+    "fallbackUrl": "https://porschedayton.com/sitemap.xml",
+    "lat": 39.6283928,
+    "lng": -84.1593818
   },
   {
     "id": "porsche-westwood",
@@ -1157,7 +1387,9 @@
     "domain": "porschewestwood.com",
     "sitemapUrl": "https://www.porschewestwood.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschewestwood.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschewestwood.com/sitemap.xml"
+    "fallbackUrl": "https://porschewestwood.com/sitemap.xml",
+    "lat": 42.2186913,
+    "lng": -71.2233829
   },
   {
     "id": "porsche-norwell",
@@ -1167,7 +1399,9 @@
     "domain": "porschenorwell.com",
     "sitemapUrl": "https://www.porschenorwell.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschenorwell.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschenorwell.com/sitemap.xml"
+    "fallbackUrl": "https://porschenorwell.com/sitemap.xml",
+    "lat": 42.1617681,
+    "lng": -70.7939307
   },
   {
     "id": "porsche-burlington",
@@ -1177,7 +1411,9 @@
     "domain": "porscheburlington.com",
     "sitemapUrl": "https://www.porscheburlington.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porscheburlington.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porscheburlington.com/sitemap.xml"
+    "fallbackUrl": "https://porscheburlington.com/sitemap.xml",
+    "lat": 42.5048167,
+    "lng": -71.1956111
   },
   {
     "id": "porsche-brookline",
@@ -1187,7 +1423,9 @@
     "domain": "porschebrookline.com",
     "sitemapUrl": "https://www.porschebrookline.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschebrookline.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschebrookline.com/sitemap.xml"
+    "fallbackUrl": "https://porschebrookline.com/sitemap.xml",
+    "lat": 42.332918,
+    "lng": -71.1187829
   },
   {
     "id": "porsche-cape-cod",
@@ -1197,7 +1435,9 @@
     "domain": "porschecapecod.com",
     "sitemapUrl": "https://www.porschecapecod.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschecapecod.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschecapecod.com/sitemap.xml"
+    "fallbackUrl": "https://porschecapecod.com/sitemap.xml",
+    "lat": 41.6535345,
+    "lng": -70.2823287
   },
   {
     "id": "porsche-warwick",
@@ -1207,7 +1447,9 @@
     "domain": "porschewarwick.com",
     "sitemapUrl": "https://www.porschewarwick.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschewarwick.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschewarwick.com/sitemap.xml"
+    "fallbackUrl": "https://porschewarwick.com/sitemap.xml",
+    "lat": 41.6992717,
+    "lng": -71.4586114
   },
   {
     "id": "porsche-greenwich",
@@ -1217,7 +1459,9 @@
     "domain": "porschegreenwich.com",
     "sitemapUrl": "https://www.porschegreenwich.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschegreenwich.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschegreenwich.com/sitemap.xml"
+    "fallbackUrl": "https://porschegreenwich.com/sitemap.xml",
+    "lat": 41.0264862,
+    "lng": -73.6284598
   },
   {
     "id": "porsche-fairfield",
@@ -1227,7 +1471,9 @@
     "domain": "porschefairfield.com",
     "sitemapUrl": "https://www.porschefairfield.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschefairfield.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschefairfield.com/sitemap.xml"
+    "fallbackUrl": "https://porschefairfield.com/sitemap.xml",
+    "lat": 41.1412078,
+    "lng": -73.2637258
   },
   {
     "id": "porsche-hartford",
@@ -1237,7 +1483,9 @@
     "domain": "porscheofhartford.com",
     "sitemapUrl": "https://www.porscheofhartford.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porscheofhartford.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porscheofhartford.com/sitemap.xml"
+    "fallbackUrl": "https://porscheofhartford.com/sitemap.xml",
+    "lat": 41.767914,
+    "lng": -72.644512
   },
   {
     "id": "porsche-danbury",
@@ -1247,7 +1495,9 @@
     "domain": "porschedanbury.com",
     "sitemapUrl": "https://www.porschedanbury.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschedanbury.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschedanbury.com/sitemap.xml"
+    "fallbackUrl": "https://porschedanbury.com/sitemap.xml",
+    "lat": 41.394817,
+    "lng": -73.4540111
   },
   {
     "id": "porsche-south-charlotte",
@@ -1257,7 +1507,9 @@
     "domain": "porschesouthcharlotte.com",
     "sitemapUrl": "https://www.porschesouthcharlotte.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschesouthcharlotte.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschesouthcharlotte.com/sitemap.xml"
+    "fallbackUrl": "https://porschesouthcharlotte.com/sitemap.xml",
+    "lat": 35.0855409,
+    "lng": -80.8871253
   },
   {
     "id": "porsche-charlotte",
@@ -1267,7 +1519,9 @@
     "domain": "porscheofcharlotte.com",
     "sitemapUrl": "https://www.porscheofcharlotte.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porscheofcharlotte.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porscheofcharlotte.com/sitemap.xml"
+    "fallbackUrl": "https://porscheofcharlotte.com/sitemap.xml",
+    "lat": 35.2272086,
+    "lng": -80.8430827
   },
   {
     "id": "porsche-southpoint",
@@ -1277,7 +1531,9 @@
     "domain": "porschesouthpoint.com",
     "sitemapUrl": "https://www.porschesouthpoint.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschesouthpoint.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschesouthpoint.com/sitemap.xml"
+    "fallbackUrl": "https://porschesouthpoint.com/sitemap.xml",
+    "lat": 35.996653,
+    "lng": -78.9018053
   },
   {
     "id": "porsche-greensboro",
@@ -1287,7 +1543,9 @@
     "domain": "porschegreensboro.com",
     "sitemapUrl": "https://www.porschegreensboro.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschegreensboro.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschegreensboro.com/sitemap.xml"
+    "fallbackUrl": "https://porschegreensboro.com/sitemap.xml",
+    "lat": 36.0726355,
+    "lng": -79.7919754
   },
   {
     "id": "porsche-asheville",
@@ -1297,7 +1555,9 @@
     "domain": "porscheasheville.com",
     "sitemapUrl": "https://www.porscheasheville.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porscheasheville.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porscheasheville.com/sitemap.xml"
+    "fallbackUrl": "https://porscheasheville.com/sitemap.xml",
+    "lat": 35.4309336,
+    "lng": -82.5011239
   },
   {
     "id": "porsche-wilmington",
@@ -1307,7 +1567,9 @@
     "domain": "porschewilmington.com",
     "sitemapUrl": "https://www.porschewilmington.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschewilmington.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschewilmington.com/sitemap.xml"
+    "fallbackUrl": "https://porschewilmington.com/sitemap.xml",
+    "lat": 34.2352853,
+    "lng": -77.9487284
   },
   {
     "id": "porsche-charleston",
@@ -1317,7 +1579,9 @@
     "domain": "porschecharleston.com",
     "sitemapUrl": "https://www.porschecharleston.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschecharleston.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschecharleston.com/sitemap.xml"
+    "fallbackUrl": "https://porschecharleston.com/sitemap.xml",
+    "lat": 32.7884363,
+    "lng": -79.9399309
   },
   {
     "id": "porsche-greenville",
@@ -1327,7 +1591,9 @@
     "domain": "porschegreenville.com",
     "sitemapUrl": "https://www.porschegreenville.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschegreenville.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschegreenville.com/sitemap.xml"
+    "fallbackUrl": "https://porschegreenville.com/sitemap.xml",
+    "lat": 34.851354,
+    "lng": -82.3984882
   },
   {
     "id": "porsche-columbia",
@@ -1337,7 +1603,9 @@
     "domain": "porschecolumbia.com",
     "sitemapUrl": "https://www.porschecolumbia.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschecolumbia.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschecolumbia.com/sitemap.xml"
+    "fallbackUrl": "https://porschecolumbia.com/sitemap.xml",
+    "lat": 34.000754,
+    "lng": -81.0352313
   },
   {
     "id": "porsche-hilton-head",
@@ -1347,7 +1615,9 @@
     "domain": "porschehiltonhead.com",
     "sitemapUrl": "https://www.porschehiltonhead.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschehiltonhead.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschehiltonhead.com/sitemap.xml"
+    "fallbackUrl": "https://porschehiltonhead.com/sitemap.xml",
+    "lat": 32.2802665,
+    "lng": -81.0726108
   },
   {
     "id": "hennessy-porsche-north-atlanta",
@@ -1357,7 +1627,9 @@
     "domain": "hennessyporsche.com",
     "sitemapUrl": "https://www.hennessyporsche.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.hennessyporsche.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://hennessyporsche.com/sitemap.xml"
+    "fallbackUrl": "https://hennessyporsche.com/sitemap.xml",
+    "lat": 34.02332,
+    "lng": -84.360022
   },
   {
     "id": "porsche-perimeter-atlanta",
@@ -1367,7 +1639,9 @@
     "domain": "porscheperimeter.com",
     "sitemapUrl": "https://www.porscheperimeter.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porscheperimeter.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porscheperimeter.com/sitemap.xml"
+    "fallbackUrl": "https://porscheperimeter.com/sitemap.xml",
+    "lat": 33.7544657,
+    "lng": -84.3898151
   },
   {
     "id": "porsche-south-atlanta",
@@ -1377,7 +1651,9 @@
     "domain": "porschesouthatlanta.com",
     "sitemapUrl": "https://www.porschesouthatlanta.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschesouthatlanta.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschesouthatlanta.com/sitemap.xml"
+    "fallbackUrl": "https://porschesouthatlanta.com/sitemap.xml",
+    "lat": 33.7544657,
+    "lng": -84.3898151
   },
   {
     "id": "porsche-nashville",
@@ -1387,7 +1663,9 @@
     "domain": "porschenashville.com",
     "sitemapUrl": "https://www.porschenashville.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschenashville.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschenashville.com/sitemap.xml"
+    "fallbackUrl": "https://porschenashville.com/sitemap.xml",
+    "lat": 36.0325687,
+    "lng": -86.7825235
   },
   {
     "id": "porsche-memphis",
@@ -1397,7 +1675,9 @@
     "domain": "porscheofmemphis.com",
     "sitemapUrl": "https://www.porscheofmemphis.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porscheofmemphis.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porscheofmemphis.com/sitemap.xml"
+    "fallbackUrl": "https://porscheofmemphis.com/sitemap.xml",
+    "lat": 35.146026,
+    "lng": -90.0517786
   },
   {
     "id": "porsche-chattanooga",
@@ -1407,7 +1687,9 @@
     "domain": "porschechattanooga.com",
     "sitemapUrl": "https://www.porschechattanooga.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschechattanooga.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschechattanooga.com/sitemap.xml"
+    "fallbackUrl": "https://porschechattanooga.com/sitemap.xml",
+    "lat": 35.0457219,
+    "lng": -85.3094883
   },
   {
     "id": "porsche-knoxville",
@@ -1417,7 +1699,9 @@
     "domain": "porscheknoxville.com",
     "sitemapUrl": "https://www.porscheknoxville.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porscheknoxville.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porscheknoxville.com/sitemap.xml"
+    "fallbackUrl": "https://porscheknoxville.com/sitemap.xml",
+    "lat": 35.9603948,
+    "lng": -83.9210261
   },
   {
     "id": "porsche-tysons-corner",
@@ -1427,7 +1711,9 @@
     "domain": "porschetysonscorner.com",
     "sitemapUrl": "https://www.porschetysonscorner.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschetysonscorner.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschetysonscorner.com/sitemap.xml"
+    "fallbackUrl": "https://porschetysonscorner.com/sitemap.xml",
+    "lat": 38.9013729,
+    "lng": -77.2651762
   },
   {
     "id": "porsche-chantilly",
@@ -1437,7 +1723,9 @@
     "domain": "porschechantilly.com",
     "sitemapUrl": "https://www.porschechantilly.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschechantilly.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschechantilly.com/sitemap.xml"
+    "fallbackUrl": "https://porschechantilly.com/sitemap.xml",
+    "lat": 38.8941543,
+    "lng": -77.4311513
   },
   {
     "id": "porsche-arlington",
@@ -1447,7 +1735,9 @@
     "domain": "porschearlington.com",
     "sitemapUrl": "https://www.porschearlington.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschearlington.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschearlington.com/sitemap.xml"
+    "fallbackUrl": "https://porschearlington.com/sitemap.xml",
+    "lat": 38.8903961,
+    "lng": -77.0841585
   },
   {
     "id": "porsche-richmond",
@@ -1457,7 +1747,9 @@
     "domain": "porscherichmond.com",
     "sitemapUrl": "https://www.porscherichmond.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porscherichmond.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porscherichmond.com/sitemap.xml"
+    "fallbackUrl": "https://porscherichmond.com/sitemap.xml",
+    "lat": 37.5385087,
+    "lng": -77.43428
   },
   {
     "id": "porsche-virginia-beach",
@@ -1467,7 +1759,9 @@
     "domain": "porschevirginiabeach.com",
     "sitemapUrl": "https://www.porschevirginiabeach.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschevirginiabeach.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschevirginiabeach.com/sitemap.xml"
+    "fallbackUrl": "https://porschevirginiabeach.com/sitemap.xml",
+    "lat": 36.8496579,
+    "lng": -75.9760751
   },
   {
     "id": "porsche-bethesda",
@@ -1477,7 +1771,9 @@
     "domain": "porschebethesda.com",
     "sitemapUrl": "https://www.porschebethesda.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschebethesda.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschebethesda.com/sitemap.xml"
+    "fallbackUrl": "https://porschebethesda.com/sitemap.xml",
+    "lat": 38.9846816,
+    "lng": -77.0942447
   },
   {
     "id": "porsche-silver-spring",
@@ -1487,7 +1783,9 @@
     "domain": "porschesilverspring.com",
     "sitemapUrl": "https://www.porschesilverspring.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschesilverspring.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschesilverspring.com/sitemap.xml"
+    "fallbackUrl": "https://porschesilverspring.com/sitemap.xml",
+    "lat": 38.9959461,
+    "lng": -77.0276231
   },
   {
     "id": "porsche-towson",
@@ -1497,7 +1795,9 @@
     "domain": "porschetowson.com",
     "sitemapUrl": "https://www.porschetowson.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschetowson.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschetowson.com/sitemap.xml"
+    "fallbackUrl": "https://porschetowson.com/sitemap.xml",
+    "lat": 39.4018513,
+    "lng": -76.6023803
   },
   {
     "id": "porsche-annapolis",
@@ -1507,7 +1807,9 @@
     "domain": "porscheannapolis.com",
     "sitemapUrl": "https://www.porscheannapolis.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porscheannapolis.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porscheannapolis.com/sitemap.xml"
+    "fallbackUrl": "https://porscheannapolis.com/sitemap.xml",
+    "lat": 38.9786401,
+    "lng": -76.492786
   },
   {
     "id": "porsche-ann-arbor",
@@ -1517,7 +1819,9 @@
     "domain": "porscheannarbor.com",
     "sitemapUrl": "https://www.porscheannarbor.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porscheannarbor.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porscheannarbor.com/sitemap.xml"
+    "fallbackUrl": "https://porscheannarbor.com/sitemap.xml",
+    "lat": 42.2813722,
+    "lng": -83.7484616
   },
   {
     "id": "porsche-farmington-hills",
@@ -1527,7 +1831,9 @@
     "domain": "porschefarmingtonhills.com",
     "sitemapUrl": "https://www.porschefarmingtonhills.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschefarmingtonhills.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschefarmingtonhills.com/sitemap.xml"
+    "fallbackUrl": "https://porschefarmingtonhills.com/sitemap.xml",
+    "lat": 42.4853125,
+    "lng": -83.3771553
   },
   {
     "id": "porsche-grand-rapids",
@@ -1537,7 +1843,9 @@
     "domain": "porschegrandrapids.com",
     "sitemapUrl": "https://www.porschegrandrapids.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschegrandrapids.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschegrandrapids.com/sitemap.xml"
+    "fallbackUrl": "https://porschegrandrapids.com/sitemap.xml",
+    "lat": 42.9632425,
+    "lng": -85.6678639
   },
   {
     "id": "porsche-troy",
@@ -1547,7 +1855,9 @@
     "domain": "suburbanporsche.com",
     "sitemapUrl": "https://www.suburbanporsche.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.suburbanporsche.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://suburbanporsche.com/sitemap.xml"
+    "fallbackUrl": "https://suburbanporsche.com/sitemap.xml",
+    "lat": 42.6055893,
+    "lng": -83.1499304
   },
   {
     "id": "porsche-indianapolis",
@@ -1557,7 +1867,9 @@
     "domain": "porscheindianapolis.com",
     "sitemapUrl": "https://www.porscheindianapolis.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porscheindianapolis.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porscheindianapolis.com/sitemap.xml"
+    "fallbackUrl": "https://porscheindianapolis.com/sitemap.xml",
+    "lat": 39.7683331,
+    "lng": -86.1583502
   },
   {
     "id": "porsche-fort-wayne",
@@ -1567,7 +1879,9 @@
     "domain": "porschefortwayne.com",
     "sitemapUrl": "https://www.porschefortwayne.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschefortwayne.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschefortwayne.com/sitemap.xml"
+    "fallbackUrl": "https://porschefortwayne.com/sitemap.xml",
+    "lat": 41.0799898,
+    "lng": -85.1386015
   },
   {
     "id": "porsche-south-bend",
@@ -1577,7 +1891,9 @@
     "domain": "porschesouthbend.com",
     "sitemapUrl": "https://www.porschesouthbend.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschesouthbend.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschesouthbend.com/sitemap.xml"
+    "fallbackUrl": "https://porschesouthbend.com/sitemap.xml",
+    "lat": 41.6833813,
+    "lng": -86.2500066
   },
   {
     "id": "porsche-bellevue",
@@ -1587,7 +1903,9 @@
     "domain": "porschebellevue.com",
     "sitemapUrl": "https://www.porschebellevue.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschebellevue.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschebellevue.com/sitemap.xml"
+    "fallbackUrl": "https://porschebellevue.com/sitemap.xml",
+    "lat": 47.6144219,
+    "lng": -122.192337
   },
   {
     "id": "porsche-seattle-north",
@@ -1597,7 +1915,9 @@
     "domain": "porscheseattlenorth.com",
     "sitemapUrl": "https://www.porscheseattlenorth.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porscheseattlenorth.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porscheseattlenorth.com/sitemap.xml"
+    "fallbackUrl": "https://porscheseattlenorth.com/sitemap.xml",
+    "lat": 47.8278656,
+    "lng": -122.3053932
   },
   {
     "id": "porsche-tacoma",
@@ -1607,7 +1927,9 @@
     "domain": "porschetacoma.com",
     "sitemapUrl": "https://www.porschetacoma.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschetacoma.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschetacoma.com/sitemap.xml"
+    "fallbackUrl": "https://porschetacoma.com/sitemap.xml",
+    "lat": 47.2359524,
+    "lng": -122.3626381
   },
   {
     "id": "porsche-spokane",
@@ -1617,7 +1939,9 @@
     "domain": "porschespokane.com",
     "sitemapUrl": "https://www.porschespokane.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschespokane.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschespokane.com/sitemap.xml"
+    "fallbackUrl": "https://porschespokane.com/sitemap.xml",
+    "lat": 47.6571934,
+    "lng": -117.42351
   },
   {
     "id": "porsche-bellingham",
@@ -1627,7 +1951,9 @@
     "domain": "porschebellingham.com",
     "sitemapUrl": "https://www.porschebellingham.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschebellingham.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschebellingham.com/sitemap.xml"
+    "fallbackUrl": "https://porschebellingham.com/sitemap.xml",
+    "lat": 48.7544012,
+    "lng": -122.478836
   },
   {
     "id": "porsche-beaverton",
@@ -1637,7 +1963,9 @@
     "domain": "porschebeaverton.com",
     "sitemapUrl": "https://www.porschebeaverton.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschebeaverton.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschebeaverton.com/sitemap.xml"
+    "fallbackUrl": "https://porschebeaverton.com/sitemap.xml",
+    "lat": 45.4871723,
+    "lng": -122.80378
   },
   {
     "id": "porsche-bend",
@@ -1647,7 +1975,9 @@
     "domain": "porschebend.com",
     "sitemapUrl": "https://www.porschebend.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschebend.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschebend.com/sitemap.xml"
+    "fallbackUrl": "https://porschebend.com/sitemap.xml",
+    "lat": 44.0581728,
+    "lng": -121.3153096
   },
   {
     "id": "porsche-eugene",
@@ -1657,7 +1987,9 @@
     "domain": "porscheeugene.com",
     "sitemapUrl": "https://www.porscheeugene.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porscheeugene.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porscheeugene.com/sitemap.xml"
+    "fallbackUrl": "https://porscheeugene.com/sitemap.xml",
+    "lat": 44.0505054,
+    "lng": -123.0950506
   },
   {
     "id": "porsche-north-scottsdale",
@@ -1667,7 +1999,9 @@
     "domain": "porschenorthscottsdale.com",
     "sitemapUrl": "https://www.porschenorthscottsdale.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschenorthscottsdale.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschenorthscottsdale.com/sitemap.xml"
+    "fallbackUrl": "https://porschenorthscottsdale.com/sitemap.xml",
+    "lat": 33.4942189,
+    "lng": -111.926018
   },
   {
     "id": "porsche-chandler",
@@ -1677,7 +2011,9 @@
     "domain": "porschechandler.com",
     "sitemapUrl": "https://www.porschechandler.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschechandler.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschechandler.com/sitemap.xml"
+    "fallbackUrl": "https://porschechandler.com/sitemap.xml",
+    "lat": 33.3062031,
+    "lng": -111.841185
   },
   {
     "id": "porsche-tucson",
@@ -1687,7 +2023,9 @@
     "domain": "porschetucson.com",
     "sitemapUrl": "https://www.porschetucson.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschetucson.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschetucson.com/sitemap.xml"
+    "fallbackUrl": "https://porschetucson.com/sitemap.xml",
+    "lat": 32.2228765,
+    "lng": -110.974847
   },
   {
     "id": "porsche-arrowhead",
@@ -1697,7 +2035,9 @@
     "domain": "porschearrowhead.com",
     "sitemapUrl": "https://www.porschearrowhead.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschearrowhead.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschearrowhead.com/sitemap.xml"
+    "fallbackUrl": "https://porschearrowhead.com/sitemap.xml",
+    "lat": 33.5806115,
+    "lng": -112.237294
   },
   {
     "id": "porsche-las-vegas",
@@ -1707,7 +2047,9 @@
     "domain": "gaudinporschelv.com",
     "sitemapUrl": "https://www.gaudinporschelv.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.gaudinporschelv.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://gaudinporschelv.com/sitemap.xml"
+    "fallbackUrl": "https://gaudinporschelv.com/sitemap.xml",
+    "lat": 36.1674263,
+    "lng": -115.1484131
   },
   {
     "id": "porsche-henderson",
@@ -1717,7 +2059,9 @@
     "domain": "porschehenderson.com",
     "sitemapUrl": "https://www.porschehenderson.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschehenderson.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschehenderson.com/sitemap.xml"
+    "fallbackUrl": "https://porschehenderson.com/sitemap.xml",
+    "lat": 36.0319602,
+    "lng": -114.9822716
   },
   {
     "id": "porsche-reno",
@@ -1727,7 +2071,9 @@
     "domain": "porschereno.com",
     "sitemapUrl": "https://www.porschereno.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschereno.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschereno.com/sitemap.xml"
+    "fallbackUrl": "https://porschereno.com/sitemap.xml",
+    "lat": 39.5261788,
+    "lng": -119.812658
   },
   {
     "id": "porsche-littleton",
@@ -1737,7 +2083,9 @@
     "domain": "porschelittleton.com",
     "sitemapUrl": "https://www.porschelittleton.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschelittleton.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschelittleton.com/sitemap.xml"
+    "fallbackUrl": "https://porschelittleton.com/sitemap.xml",
+    "lat": 39.613321,
+    "lng": -105.016649
   },
   {
     "id": "porsche-denver-central",
@@ -1747,7 +2095,9 @@
     "domain": "porschedenvercentral.com",
     "sitemapUrl": "https://www.porschedenvercentral.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschedenvercentral.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschedenvercentral.com/sitemap.xml"
+    "fallbackUrl": "https://porschedenvercentral.com/sitemap.xml",
+    "lat": 39.7392364,
+    "lng": -104.984862
   },
   {
     "id": "porsche-colorado-springs",
@@ -1757,7 +2107,9 @@
     "domain": "porschecoloradosprings.com",
     "sitemapUrl": "https://www.porschecoloradosprings.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschecoloradosprings.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschecoloradosprings.com/sitemap.xml"
+    "fallbackUrl": "https://porschecoloradosprings.com/sitemap.xml",
+    "lat": 38.8339578,
+    "lng": -104.825348
   },
   {
     "id": "porsche-fort-collins",
@@ -1767,7 +2119,9 @@
     "domain": "porschefortcollins.com",
     "sitemapUrl": "https://www.porschefortcollins.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschefortcollins.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschefortcollins.com/sitemap.xml"
+    "fallbackUrl": "https://porschefortcollins.com/sitemap.xml",
+    "lat": 40.5871782,
+    "lng": -105.0770113
   },
   {
     "id": "porsche-salt-lake-city",
@@ -1777,7 +2131,9 @@
     "domain": "porschesaltlakecity.com",
     "sitemapUrl": "https://www.porschesaltlakecity.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschesaltlakecity.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschesaltlakecity.com/sitemap.xml"
+    "fallbackUrl": "https://porschesaltlakecity.com/sitemap.xml",
+    "lat": 40.7596198,
+    "lng": -111.886797
   },
   {
     "id": "porsche-lehi",
@@ -1787,7 +2143,9 @@
     "domain": "porschelehi.com",
     "sitemapUrl": "https://www.porschelehi.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschelehi.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschelehi.com/sitemap.xml"
+    "fallbackUrl": "https://porschelehi.com/sitemap.xml",
+    "lat": 40.3881114,
+    "lng": -111.8486019
   },
   {
     "id": "porsche-boise",
@@ -1797,7 +2155,9 @@
     "domain": "porscheboise.com",
     "sitemapUrl": "https://www.porscheboise.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porscheboise.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porscheboise.com/sitemap.xml"
+    "fallbackUrl": "https://porscheboise.com/sitemap.xml",
+    "lat": 43.6166163,
+    "lng": -116.200886
   },
   {
     "id": "porsche-billings",
@@ -1807,7 +2167,9 @@
     "domain": "porschebillings.com",
     "sitemapUrl": "https://www.porschebillings.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschebillings.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschebillings.com/sitemap.xml"
+    "fallbackUrl": "https://porschebillings.com/sitemap.xml",
+    "lat": 45.7874957,
+    "lng": -108.49607
   },
   {
     "id": "porsche-missoula",
@@ -1817,7 +2179,9 @@
     "domain": "porschemissoula.com",
     "sitemapUrl": "https://www.porschemissoula.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschemissoula.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschemissoula.com/sitemap.xml"
+    "fallbackUrl": "https://porschemissoula.com/sitemap.xml",
+    "lat": 46.8701049,
+    "lng": -113.995267
   },
   {
     "id": "porsche-st-louis",
@@ -1827,7 +2191,9 @@
     "domain": "porschestlouis.com",
     "sitemapUrl": "https://www.porschestlouis.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschestlouis.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschestlouis.com/sitemap.xml"
+    "fallbackUrl": "https://porschestlouis.com/sitemap.xml",
+    "lat": 38.6254063,
+    "lng": -90.190009
   },
   {
     "id": "porsche-kansas-city",
@@ -1837,7 +2203,9 @@
     "domain": "porschekansascity.com",
     "sitemapUrl": "https://www.porschekansascity.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschekansascity.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschekansascity.com/sitemap.xml"
+    "fallbackUrl": "https://porschekansascity.com/sitemap.xml",
+    "lat": 39.0168058,
+    "lng": -94.689947
   },
   {
     "id": "porsche-wichita",
@@ -1847,7 +2215,9 @@
     "domain": "porschewichita.com",
     "sitemapUrl": "https://www.porschewichita.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschewichita.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschewichita.com/sitemap.xml"
+    "fallbackUrl": "https://porschewichita.com/sitemap.xml",
+    "lat": 37.6922361,
+    "lng": -97.3375448
   },
   {
     "id": "porsche-springfield",
@@ -1857,7 +2227,9 @@
     "domain": "porschespringfield.com",
     "sitemapUrl": "https://www.porschespringfield.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschespringfield.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschespringfield.com/sitemap.xml"
+    "fallbackUrl": "https://porschespringfield.com/sitemap.xml",
+    "lat": 37.2081729,
+    "lng": -93.2922715
   },
   {
     "id": "porsche-milwaukee-north",
@@ -1867,7 +2239,9 @@
     "domain": "porschemilwaukeenorth.com",
     "sitemapUrl": "https://www.porschemilwaukeenorth.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschemilwaukeenorth.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschemilwaukeenorth.com/sitemap.xml"
+    "fallbackUrl": "https://porschemilwaukeenorth.com/sitemap.xml",
+    "lat": 43.0386475,
+    "lng": -87.9090751
   },
   {
     "id": "porsche-madison",
@@ -1877,7 +2251,9 @@
     "domain": "porschemadison.com",
     "sitemapUrl": "https://www.porschemadison.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschemadison.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschemadison.com/sitemap.xml"
+    "fallbackUrl": "https://porschemadison.com/sitemap.xml",
+    "lat": 43.07469,
+    "lng": -89.3841663
   },
   {
     "id": "porsche-fox-valley",
@@ -1887,7 +2263,9 @@
     "domain": "porschefoxvalley.com",
     "sitemapUrl": "https://www.porschefoxvalley.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschefoxvalley.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschefoxvalley.com/sitemap.xml"
+    "fallbackUrl": "https://porschefoxvalley.com/sitemap.xml",
+    "lat": 44.2613967,
+    "lng": -88.4069744
   },
   {
     "id": "porsche-minneapolis",
@@ -1897,7 +2275,9 @@
     "domain": "porscheminneapolis.com",
     "sitemapUrl": "https://www.porscheminneapolis.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porscheminneapolis.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porscheminneapolis.com/sitemap.xml"
+    "fallbackUrl": "https://porscheminneapolis.com/sitemap.xml",
+    "lat": 44.9772995,
+    "lng": -93.2654692
   },
   {
     "id": "porsche-st-paul",
@@ -1907,7 +2287,9 @@
     "domain": "porschestpaul.com",
     "sitemapUrl": "https://www.porschestpaul.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschestpaul.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschestpaul.com/sitemap.xml"
+    "fallbackUrl": "https://porschestpaul.com/sitemap.xml",
+    "lat": 45.0082216,
+    "lng": -93.0456985
   },
   {
     "id": "porsche-des-moines",
@@ -1917,7 +2299,9 @@
     "domain": "porschedesmoines.com",
     "sitemapUrl": "https://www.porschedesmoines.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschedesmoines.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschedesmoines.com/sitemap.xml"
+    "fallbackUrl": "https://porschedesmoines.com/sitemap.xml",
+    "lat": 41.5868654,
+    "lng": -93.6249494
   },
   {
     "id": "porsche-omaha",
@@ -1927,7 +2311,9 @@
     "domain": "porscheomaha.com",
     "sitemapUrl": "https://www.porscheomaha.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porscheomaha.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porscheomaha.com/sitemap.xml"
+    "fallbackUrl": "https://porscheomaha.com/sitemap.xml",
+    "lat": 41.2587459,
+    "lng": -95.9383758
   },
   {
     "id": "porsche-oklahoma-city",
@@ -1937,7 +2323,9 @@
     "domain": "porscheoklahomacity.com",
     "sitemapUrl": "https://www.porscheoklahomacity.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porscheoklahomacity.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porscheoklahomacity.com/sitemap.xml"
+    "fallbackUrl": "https://porscheoklahomacity.com/sitemap.xml",
+    "lat": 35.4729886,
+    "lng": -97.5170536
   },
   {
     "id": "porsche-tulsa",
@@ -1947,7 +2335,9 @@
     "domain": "porschetulsa.com",
     "sitemapUrl": "https://www.porschetulsa.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschetulsa.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschetulsa.com/sitemap.xml"
+    "fallbackUrl": "https://porschetulsa.com/sitemap.xml",
+    "lat": 36.1563122,
+    "lng": -95.9927516
   },
   {
     "id": "porsche-little-rock",
@@ -1957,7 +2347,9 @@
     "domain": "porschelittlerock.com",
     "sitemapUrl": "https://www.porschelittlerock.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschelittlerock.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschelittlerock.com/sitemap.xml"
+    "fallbackUrl": "https://porschelittlerock.com/sitemap.xml",
+    "lat": 34.7465071,
+    "lng": -92.2896267
   },
   {
     "id": "porsche-northwest-arkansas",
@@ -1967,7 +2359,9 @@
     "domain": "porschenorthwestarkansas.com",
     "sitemapUrl": "https://www.porschenorthwestarkansas.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschenorthwestarkansas.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschenorthwestarkansas.com/sitemap.xml"
+    "fallbackUrl": "https://porschenorthwestarkansas.com/sitemap.xml",
+    "lat": 36.334857,
+    "lng": -94.1193816
   },
   {
     "id": "porsche-birmingham",
@@ -1977,7 +2371,9 @@
     "domain": "porschebirmingham.com",
     "sitemapUrl": "https://www.porschebirmingham.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschebirmingham.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschebirmingham.com/sitemap.xml"
+    "fallbackUrl": "https://porschebirmingham.com/sitemap.xml",
+    "lat": 33.5206824,
+    "lng": -86.8024326
   },
   {
     "id": "porsche-huntsville",
@@ -1987,7 +2383,9 @@
     "domain": "porschehuntsville.com",
     "sitemapUrl": "https://www.porschehuntsville.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschehuntsville.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschehuntsville.com/sitemap.xml"
+    "fallbackUrl": "https://porschehuntsville.com/sitemap.xml",
+    "lat": 34.729847,
+    "lng": -86.5859011
   },
   {
     "id": "porsche-mobile",
@@ -1997,7 +2395,9 @@
     "domain": "porscheofmobile.com",
     "sitemapUrl": "https://www.porscheofmobile.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porscheofmobile.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porscheofmobile.com/sitemap.xml"
+    "fallbackUrl": "https://porscheofmobile.com/sitemap.xml",
+    "lat": 30.6913462,
+    "lng": -88.0437509
   },
   {
     "id": "porsche-jackson",
@@ -2007,7 +2407,9 @@
     "domain": "porschejackson.com",
     "sitemapUrl": "https://www.porschejackson.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschejackson.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschejackson.com/sitemap.xml"
+    "fallbackUrl": "https://porschejackson.com/sitemap.xml",
+    "lat": 32.2998686,
+    "lng": -90.1830408
   },
   {
     "id": "porsche-new-orleans",
@@ -2017,7 +2419,9 @@
     "domain": "porscheneworleans.com",
     "sitemapUrl": "https://www.porscheneworleans.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porscheneworleans.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porscheneworleans.com/sitemap.xml"
+    "fallbackUrl": "https://porscheneworleans.com/sitemap.xml",
+    "lat": 29.9899926,
+    "lng": -90.1505426
   },
   {
     "id": "porsche-baton-rouge",
@@ -2027,7 +2431,9 @@
     "domain": "porschebatonrouge.com",
     "sitemapUrl": "https://www.porschebatonrouge.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschebatonrouge.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschebatonrouge.com/sitemap.xml"
+    "fallbackUrl": "https://porschebatonrouge.com/sitemap.xml",
+    "lat": 30.4494155,
+    "lng": -91.1869659
   },
   {
     "id": "porsche-shreveport",
@@ -2037,7 +2443,9 @@
     "domain": "porscheshreveport.com",
     "sitemapUrl": "https://www.porscheshreveport.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porscheshreveport.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porscheshreveport.com/sitemap.xml"
+    "fallbackUrl": "https://porscheshreveport.com/sitemap.xml",
+    "lat": 32.5135356,
+    "lng": -93.7477839
   },
   {
     "id": "porsche-louisville",
@@ -2047,7 +2455,9 @@
     "domain": "porschelouisville.com",
     "sitemapUrl": "https://www.porschelouisville.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschelouisville.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschelouisville.com/sitemap.xml"
+    "fallbackUrl": "https://porschelouisville.com/sitemap.xml",
+    "lat": 38.2542376,
+    "lng": -85.759407
   },
   {
     "id": "porsche-lexington",
@@ -2057,7 +2467,9 @@
     "domain": "porschelexington.com",
     "sitemapUrl": "https://www.porschelexington.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschelexington.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschelexington.com/sitemap.xml"
+    "fallbackUrl": "https://porschelexington.com/sitemap.xml",
+    "lat": 38.0464066,
+    "lng": -84.4970393
   },
   {
     "id": "porsche-stratham",
@@ -2067,7 +2479,9 @@
     "domain": "porschestratham.com",
     "sitemapUrl": "https://www.porschestratham.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschestratham.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschestratham.com/sitemap.xml"
+    "fallbackUrl": "https://porschestratham.com/sitemap.xml",
+    "lat": 43.0244129,
+    "lng": -70.9122808
   },
   {
     "id": "porsche-nashua",
@@ -2077,7 +2491,9 @@
     "domain": "porschenashua.com",
     "sitemapUrl": "https://www.porschenashua.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschenashua.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschenashua.com/sitemap.xml"
+    "fallbackUrl": "https://porschenashua.com/sitemap.xml",
+    "lat": 42.7656251,
+    "lng": -71.4677032
   },
   {
     "id": "porsche-south-burlington",
@@ -2087,7 +2503,9 @@
     "domain": "porscheofsouthburlington.com",
     "sitemapUrl": "https://www.porscheofsouthburlington.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porscheofsouthburlington.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porscheofsouthburlington.com/sitemap.xml"
+    "fallbackUrl": "https://porscheofsouthburlington.com/sitemap.xml",
+    "lat": 44.4642957,
+    "lng": -73.176273
   },
   {
     "id": "porsche-albuquerque",
@@ -2097,7 +2515,9 @@
     "domain": "porschealbuquerque.com",
     "sitemapUrl": "https://www.porschealbuquerque.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschealbuquerque.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschealbuquerque.com/sitemap.xml"
+    "fallbackUrl": "https://porschealbuquerque.com/sitemap.xml",
+    "lat": 35.0841034,
+    "lng": -106.650985
   },
   {
     "id": "porsche-anchorage",
@@ -2107,7 +2527,9 @@
     "domain": "porscheanchorage.com",
     "sitemapUrl": "https://www.porscheanchorage.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porscheanchorage.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porscheanchorage.com/sitemap.xml"
+    "fallbackUrl": "https://porscheanchorage.com/sitemap.xml",
+    "lat": 61.2163129,
+    "lng": -149.894852
   },
   {
     "id": "porsche-honolulu",
@@ -2117,7 +2539,9 @@
     "domain": "porschehonolulu.com",
     "sitemapUrl": "https://www.porschehonolulu.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschehonolulu.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschehonolulu.com/sitemap.xml"
+    "fallbackUrl": "https://porschehonolulu.com/sitemap.xml",
+    "lat": 21.304547,
+    "lng": -157.855676
   },
   {
     "id": "porsche-sioux-falls",
@@ -2127,7 +2551,9 @@
     "domain": "porschesiouxfalls.com",
     "sitemapUrl": "https://www.porschesiouxfalls.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschesiouxfalls.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschesiouxfalls.com/sitemap.xml"
+    "fallbackUrl": "https://porschesiouxfalls.com/sitemap.xml",
+    "lat": 43.5476008,
+    "lng": -96.7293629
   },
   {
     "id": "porsche-fargo",
@@ -2137,7 +2563,9 @@
     "domain": "porschefargo.com",
     "sitemapUrl": "https://www.porschefargo.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschefargo.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschefargo.com/sitemap.xml"
+    "fallbackUrl": "https://porschefargo.com/sitemap.xml",
+    "lat": 46.877229,
+    "lng": -96.789821
   },
   {
     "id": "porsche-charleston-wv",
@@ -2147,6 +2575,8 @@
     "domain": "porscheofcharleston.com",
     "sitemapUrl": "https://www.porscheofcharleston.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porscheofcharleston.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porscheofcharleston.com/sitemap.xml"
+    "fallbackUrl": "https://porscheofcharleston.com/sitemap.xml",
+    "lat": 38.3505995,
+    "lng": -81.6332812
   }
 ]
