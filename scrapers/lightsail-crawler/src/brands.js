@@ -87,6 +87,18 @@ export const BRANDS = {
     baseMsrpTable: null,
     plantFallback: null,
   },
+  Audi: {
+    name: "Audi",
+    // Commonly-cited Audi WMI prefixes: WA1 (SUVs) and WAU (sedans/other
+    // models), both via VW Group's German plants (Ingolstadt/Neckarsulm);
+    // TRU covers some Hungary-built models (Audi Hungaria, e.g. TT). Not
+    // yet cross-checked against real live VINs — no Audi crawl has run yet
+    // to produce any, same caveat as Acura's table. Secondary signal only.
+    vinPrefixes: ["WA1", "WAU", "TRU"],
+    hasOfficialRetailerPlatform: false,
+    baseMsrpTable: null,
+    plantFallback: null,
+  },
 };
 
 export function getBrand(name) {
