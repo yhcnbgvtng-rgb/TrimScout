@@ -78,7 +78,15 @@ function getPool() {
       user: process.env.DB_READER_USER,
       password: process.env.DB_READER_PASSWORD,
       waitForConnections: true,
-      connectionLimit: 5,
+      // handleFacets fires up to 9 concurrent queries per brand (see its own
+      // header comment), and the "All Makes" view loads all 3 brands' facets
+      // at once — confirmed live that 27 queries competing for a 5-connection
+      // pool pushed some past Vercel's 5.5s client timeout, silently
+      // dropping Porsche/Chevrolet to the legacy fallback (no bodyStyle or
+      // optionCode) even though each brand is fast in isolation. MariaDB's
+      // own max_connections is 151 with ~6 in routine use, so 25 here still
+      // leaves ample headroom for the crawlers' own separate pools.
+      connectionLimit: 25,
       dateStrings: false,
     });
   }
