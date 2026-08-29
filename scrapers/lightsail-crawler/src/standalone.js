@@ -1,4 +1,5 @@
 import { gotScraping } from 'got-scraping';
+import { chromium } from 'patchright';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import vm from 'node:vm';
@@ -485,7 +486,25 @@ function extractPorscheRetailerVehicle(html, url, dealer) {
     };
 }
 
-async function safeFetch(url, timeoutMs = 7000) {
+async function safeFetch(url, timeoutMs = 7000, patchrightPage = null) {
+    // patchright fallback: a real browser navigation (not gotScraping's
+    // plain HTTP, and not even an in-page fetch()) — confirmed live that
+    // Cloudflare's bot-fight challenge treats navigations and fetch()
+    // requests differently, only clearing on real page.goto() navigations.
+    // Only used for dealers whose plain HTTP fetch already came back
+    // bot-blocked; every dealer that already worked keeps using gotScraping
+    // unchanged.
+    if (patchrightPage) {
+        // res.text() reads the raw HTTP response body (same shape gotScraping
+        // returns) rather than page.content()/DOM state — confirmed live
+        // page.content() came back empty for an XML response (Chromium
+        // doesn't populate a normal DOM for it), while res.text() returns
+        // the real body correctly and fast (~300ms once the domain's
+        // Cloudflare challenge is already cleared).
+        const res = await patchrightPage.goto(url, { waitUntil: 'domcontentloaded', timeout: timeoutMs });
+        const body = res ? await res.text() : '';
+        return { body, statusCode: res ? res.status() : 0 };
+    }
     return Promise.race([
         gotScraping({
             url,
@@ -516,22 +535,30 @@ function decodeXmlEntities(str) {
         .replace(/&apos;/g, "'");
 }
 
-async function fetchSitemapXmlUrls(sitemapUrl, depth = 0, brand) {
+async function fetchSitemapXmlUrls(sitemapUrl, depth = 0, brand, patchrightPage = null) {
     if (depth > 2) return [];
     const brandWord = brand.name.toLowerCase();
     try {
-        const res = await gotScraping({
-            url: sitemapUrl,
-            responseType: 'buffer',
-            timeout: { request: 8000 },
-            retry: { limit: 1 },
-        });
-
         let xml = '';
-        if (sitemapUrl.endsWith('.gz') || (res.rawBody[0] === 0x1f && res.rawBody[1] === 0x8b)) {
-            try { xml = zlib.gunzipSync(res.rawBody).toString('utf-8'); } catch { xml = res.rawBody.toString('utf-8'); }
+        if (patchrightPage) {
+            // Same patchright-navigation fallback as safeFetch — see its
+            // header comment. gzip sitemaps aren't handled on this path (the
+            // browser already transparently decompresses gzip transfer
+            // encoding), which covers every case actually seen live so far.
+            const res = await patchrightPage.goto(sitemapUrl, { waitUntil: 'domcontentloaded', timeout: 8000 });
+            xml = res ? await res.text() : '';
         } else {
-            xml = res.rawBody.toString('utf-8');
+            const res = await gotScraping({
+                url: sitemapUrl,
+                responseType: 'buffer',
+                timeout: { request: 8000 },
+                retry: { limit: 1 },
+            });
+            if (sitemapUrl.endsWith('.gz') || (res.rawBody[0] === 0x1f && res.rawBody[1] === 0x8b)) {
+                try { xml = zlib.gunzipSync(res.rawBody).toString('utf-8'); } catch { xml = res.rawBody.toString('utf-8'); }
+            } else {
+                xml = res.rawBody.toString('utf-8');
+            }
         }
 
         const childSitemaps = [...xml.matchAll(/<sitemap>\s*<loc>([^<]+)<\/loc>/gi)].map((m) => decodeXmlEntities(m[1].trim()));
@@ -540,7 +567,7 @@ async function fetchSitemapXmlUrls(sitemapUrl, depth = 0, brand) {
             const targets = inventoryChild.length > 0 ? inventoryChild : childSitemaps;
             let nested = [];
             for (const child of targets.slice(0, 8)) {
-                nested.push(...await fetchSitemapXmlUrls(child, depth + 1, brand));
+                nested.push(...await fetchSitemapXmlUrls(child, depth + 1, brand, patchrightPage));
             }
             return nested;
         }
@@ -559,7 +586,7 @@ async function fetchSitemapXmlUrls(sitemapUrl, depth = 0, brand) {
     }
 }
 
-async function resolveSitemapUrls(dealer, brand) {
+async function resolveSitemapUrls(dealer, brand, patchrightPage = null) {
     const candidateUrls = [
         dealer.sitemapUrl,
         dealer.inventorySitemapUrl,
@@ -569,7 +596,7 @@ async function resolveSitemapUrls(dealer, brand) {
     ].filter(Boolean);
 
     for (const url of candidateUrls) {
-        const found = await fetchSitemapXmlUrls(url, 0, brand);
+        const found = await fetchSitemapXmlUrls(url, 0, brand, patchrightPage);
         if (found.length > 0) {
             return found;
         }
@@ -588,6 +615,109 @@ async function pMap(items, mapper, concurrency = 8) {
         }
     });
     await Promise.allSettled(workers);
+}
+
+// Same worker-pool shape as pMap, but each of the `pages.length` workers
+// gets its own dedicated patchright Page (all sharing one context, so the
+// Cloudflare clearance cookie from the homepage visit applies to every
+// page) instead of firing independent gotScraping requests. Concurrency is
+// capped at pages.length rather than a plain number, since a genuinely
+// concurrent navigation needs its own Page object — one Page can't
+// navigate two URLs "at once".
+async function pMapWithPages(items, mapper, pages) {
+    let cursor = 0;
+    const workers = pages.map((page) => (async () => {
+        while (cursor < items.length) {
+            const idx = cursor++;
+            try {
+                await mapper(items[idx], idx, page);
+            } catch {}
+        }
+    })());
+    await Promise.allSettled(workers);
+}
+
+// Lazily launched — only the dealers whose plain-HTTP sitemap fetch comes
+// back empty ever need this, so most crawl runs never pay the cost of
+// starting a browser at all. Reused across dealers that need it (fresh
+// context per dealer — closed in the main loop's finally block), but the
+// browser process itself is recycled every PATCHRIGHT_RECYCLE_AFTER uses
+// rather than kept alive for an entire multi-hour, hundreds-of-dealers run.
+// Confirmed live (Acura, 08-29): a single long-lived browser hit a kernel-
+// level "TCP: out of memory" around dealer 14 of a run using the fallback
+// on roughly half the dealers so far — contexts were being closed
+// correctly, but Chromium's own per-connection socket/process state
+// apparently still accumulates across many hours in one browser process.
+// Periodic recycling bounds that regardless of the exact leak source.
+let patchrightBrowser = null;
+let patchrightUseCount = 0;
+const PATCHRIGHT_RECYCLE_AFTER = Number(process.env.CRAWLER_PATCHRIGHT_RECYCLE_AFTER) || 10;
+async function getPatchrightBrowser() {
+    if (patchrightBrowser && patchrightUseCount >= PATCHRIGHT_RECYCLE_AFTER) {
+        await patchrightBrowser.close().catch(() => {});
+        patchrightBrowser = null;
+        patchrightUseCount = 0;
+    }
+    if (!patchrightBrowser) {
+        patchrightBrowser = await chromium.launch({ headless: true });
+    }
+    patchrightUseCount++;
+    return patchrightBrowser;
+}
+
+const PATCHRIGHT_USER_AGENT =
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36';
+const PATCHRIGHT_PAGE_POOL_SIZE = Number(process.env.CRAWLER_PATCHRIGHT_CONCURRENCY) || 3;
+
+// Attempts the same dealer via a real browser instead of gotScraping —
+// only called after the plain-HTTP path already came back with zero
+// vehicle URLs. Confirmed live (Chevrolet, 08-28): plain HTTP to both the
+// homepage and every sitemap path gets Cloudflare's standard bot-fight
+// "Attention Required" challenge (HTTP 403), which patchright resolves via
+// a real homepage navigation — subsequent navigations to other paths on
+// the same domain then clear fast (~300ms-2.5s) reusing that same
+// context's cookies, no need to re-solve per URL. Returns null (no
+// context left dangling) if even the homepage navigation doesn't produce
+// real content, so the dealer is correctly left in failedDealerNames
+// rather than reported as a false success.
+async function tryPatchrightFallback(dealer, brand) {
+    const browser = await getPatchrightBrowser();
+    const context = await browser.newContext({ userAgent: PATCHRIGHT_USER_AGENT });
+    // Every fetch through this fallback only ever reads the raw HTTP
+    // response body (res.text() — see safeFetch/fetchSitemapXmlUrls), never
+    // rendered pixels or evaluated JS, so images/fonts/media/stylesheets
+    // are pure overhead here — a real dealer VDP page pulls in dozens of
+    // them. First smoke test (before this) took 19+ minutes for one
+    // 280-vehicle dealer at 3-way concurrency; aborting these request
+    // types is the standard fix for exactly that cost.
+    await context.route('**/*', (route) => {
+        const type = route.request().resourceType();
+        if (['image', 'font', 'media', 'stylesheet'].includes(type)) {
+            return route.abort();
+        }
+        return route.continue();
+    });
+    try {
+        const homepageUrl = `https://${dealer.domain}`;
+        const page = await context.newPage();
+        await page.goto(homepageUrl, { waitUntil: 'domcontentloaded', timeout: 20000 });
+        await page.waitForTimeout(6000);
+
+        const vehicleUrls = await resolveSitemapUrls(dealer, brand, page);
+        if (vehicleUrls.length === 0) {
+            await context.close();
+            return null;
+        }
+
+        const pages = [page];
+        for (let p = 1; p < PATCHRIGHT_PAGE_POOL_SIZE; p++) {
+            pages.push(await context.newPage());
+        }
+        return { context, pages, vehicleUrls };
+    } catch {
+        await context.close().catch(() => {});
+        return null;
+    }
 }
 
 const currentInventory = new Map();
@@ -612,8 +742,24 @@ for (let i = 0; i < dealers.length; i++) {
     const progress = `[${i + 1}/${dealers.length}]`;
     console.log(`${progress} 🏢 Crawling ${dealer.name} (${dealer.city}, ${dealer.state})...`);
 
+    let patchrightFallback = null;
     try {
-        const vehicleUrls = await resolveSitemapUrls(dealer, brand);
+        let vehicleUrls = await resolveSitemapUrls(dealer, brand);
+        if (vehicleUrls.length === 0 && process.env.CRAWLER_PATCHRIGHT_FALLBACK !== 'false') {
+            // Plain HTTP found nothing — before giving up on this dealer,
+            // try a real browser. Confirmed live this recovers real
+            // inventory for dealers behind Cloudflare's standard bot-fight
+            // challenge (see tryPatchrightFallback's header comment); a
+            // dealer that's genuinely empty or blocked by something
+            // patchright can't beat still correctly falls through to
+            // failedDealerNames below.
+            console.log(`${progress} 🛡️ No inventory URLs via plain HTTP for ${dealer.name} — trying patchright fallback...`);
+            patchrightFallback = await tryPatchrightFallback(dealer, brand);
+            if (patchrightFallback) {
+                vehicleUrls = patchrightFallback.vehicleUrls;
+                console.log(`${progress} 🛡️ Patchright recovered ${vehicleUrls.length} vehicle URLs for ${dealer.name}.`);
+            }
+        }
         if (vehicleUrls.length === 0) {
             console.log(`${progress} ⚠️ No inventory URLs detected for ${dealer.name}.`);
             dealerStats[dealer.name] = 0;
@@ -624,9 +770,9 @@ for (let i = 0; i < dealers.length; i++) {
         console.log(`${progress} Found ${vehicleUrls.length} vehicle URLs. Extracting data...`);
 
         let dealerCount = 0;
-        await pMap(vehicleUrls, async (url) => {
+        const extractOne = async (url, _idx, patchrightPage) => {
             try {
-                const res = await safeFetch(url, 7000);
+                const res = await safeFetch(url, patchrightPage ? 15000 : 7000, patchrightPage);
                 const html = res.body;
                 let vehicle = null;
 
@@ -822,7 +968,13 @@ for (let i = 0; i < dealers.length; i++) {
                     }
                 }
             } catch {}
-        }, Number(process.env.CRAWLER_CONCURRENCY) || 8);
+        };
+
+        if (patchrightFallback) {
+            await pMapWithPages(vehicleUrls, extractOne, patchrightFallback.pages);
+        } else {
+            await pMap(vehicleUrls, extractOne, Number(process.env.CRAWLER_CONCURRENCY) || 8);
+        }
 
         dealerStats[dealer.name] = dealerCount;
         if (dealerCount > 0) {
@@ -837,6 +989,10 @@ for (let i = 0; i < dealers.length; i++) {
         erroredDealersCount++;
         failedDealerNames.add(dealer.name);
         console.error(`${progress} ❌ Error crawling ${dealer.name}: ${err.message}`);
+    } finally {
+        if (patchrightFallback) {
+            await patchrightFallback.context.close().catch(() => {});
+        }
     }
 
     // Checkpoint after every dealer. A full nationwide run can take hours;
@@ -850,6 +1006,10 @@ for (let i = 0; i < dealers.length; i++) {
     } catch (checkpointErr) {
         console.error(`⚠️ Checkpoint write failed: ${checkpointErr.message}`);
     }
+}
+
+if (patchrightBrowser) {
+    await patchrightBrowser.close().catch(() => {});
 }
 
 console.log(`\n🎉 Nationwide Crawl Complete!`);

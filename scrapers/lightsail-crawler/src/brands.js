@@ -70,6 +70,23 @@ export const BRANDS = {
     baseMsrpTable: null,
     plantFallback: null,
   },
+  Acura: {
+    name: "Acura",
+    // Commonly-cited Acura WMI prefixes (19U = US-built, JH4 = Japan-built,
+    // both via Honda's Marysville/Suzuka-linked plants) — not yet
+    // cross-checked against real live VINs the way Chevrolet's table was
+    // (no Acura crawl has run yet to produce any). Secondary signal only,
+    // same as every other brand here — the brand-agnostic URL/DDC-
+    // dataLayer extraction and the vehicle.make string match don't depend
+    // on this being exact.
+    vinPrefixes: ["19U", "JH4"],
+    hasOfficialRetailerPlatform: false,
+    // Same reasoning as Ford/Chevrolet: no hand-built base-MSRP table at
+    // launch — rely on real dealer-listed price and whatever options DDC
+    // itemizes.
+    baseMsrpTable: null,
+    plantFallback: null,
+  },
 };
 
 export function getBrand(name) {
