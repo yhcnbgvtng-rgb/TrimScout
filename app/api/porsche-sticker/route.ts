@@ -278,6 +278,22 @@ export async function GET(request: Request) {
     // timeout, 404, unconfigured key), in which case we fall straight
     // through to the existing file-read logic unchanged.
     const boxVehicle = await fetchVehicleByVinFromBox(rawVin);
+    // This route's whole fallback path below assumes a Porsche (Porsche
+    // Finder cross-reference, lookupPorscheBaseMsrp, German-plant guesses)
+    // — for a real Ford/Chevrolet VIN, none of that data means anything, so
+    // don't fabricate a Porsche-shaped response for it. Confirmed live this
+    // was happening: any non-Porsche VIN got make:"Porsche" and a guessed
+    // Porsche baseMsrp back. Only short-circuits when the box actually knows
+    // the vehicle's real brand (never blocks Porsche's own path when the
+    // box lookup itself fails, e.g. before this VIN synced).
+    if (boxVehicle?.make && boxVehicle.make.toLowerCase() !== "porsche") {
+      return NextResponse.json({
+        success: false,
+        vin: rawVin,
+        make: boxVehicle.make,
+        error: `This VIN is a ${boxVehicle.make} — window sticker decoding is Porsche-specific (sourced from Porsche's own Finder platform, which has no equivalent for other brands).`,
+      });
+    }
     if (boxVehicle) {
       vehicleRecord = mapBoxVehicleToStickerRecord(boxVehicle);
     }

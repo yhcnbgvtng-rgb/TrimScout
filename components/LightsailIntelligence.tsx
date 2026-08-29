@@ -598,10 +598,17 @@ export const LightsailIntelligence: React.FC = () => {
   // Auto-run the AI window sticker scan as soon as the spec sheet modal
   // opens for a vehicle, instead of waiting for a manual "Live AI Scan"
   // click. Keyed on VIN so it re-fires when the modal is reopened for a
-  // different vehicle but not on every unrelated re-render.
+  // different vehicle but not on every unrelated re-render. Porsche-only:
+  // this whole feature is sourced from Porsche's own Finder platform, which
+  // has no equivalent for Ford/Chevrolet — the API route itself also
+  // rejects non-Porsche VINs now, but skipping the call client-side avoids
+  // firing it (and showing its loading state) for vehicles it can never
+  // answer for.
   useEffect(() => {
-    if (selectedVehicleForModal) {
+    if (selectedVehicleForModal && selectedVehicleForModal.make === "Porsche") {
       handleFetchPorscheFinderAiSticker(selectedVehicleForModal.vin);
+    } else {
+      setAiStickerData(null);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedVehicleForModal?.vin]);
@@ -1825,7 +1832,8 @@ export const LightsailIntelligence: React.FC = () => {
               </button>
             </div>
 
-            {/* AI Control Toolbar */}
+            {/* AI Control Toolbar — Porsche-only, see the auto-fetch effect above */}
+            {selectedVehicleForModal.make === "Porsche" && (
             <div className="flex flex-wrap items-center justify-between gap-2 p-3 rounded-2xl bg-surface-elevated/70 border border-border">
               <div className="flex items-center gap-2 text-xs">
                 <Sparkles className="h-4 w-4 text-amber-400" />
@@ -1843,20 +1851,31 @@ export const LightsailIntelligence: React.FC = () => {
                 </button>
               </div>
             </div>
+            )}
 
             {/* Spec Sheet Grid */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
               <div className="rounded-xl border border-border bg-surface-elevated p-3 space-y-1">
                 <div className="text-[10px] uppercase text-ink-faint font-bold">Country & Plant</div>
-                <div className="font-bold text-white">🇩🇪 {selectedVehicleForModal.nhtsa?.plantCity || "Stuttgart"}, {selectedVehicleForModal.nhtsa?.plantCountry || "Germany"}</div>
+                <div className="font-bold text-white">
+                  {selectedVehicleForModal.nhtsa?.plantCity || selectedVehicleForModal.nhtsa?.plantCountry
+                    ? `${selectedVehicleForModal.nhtsa?.plantCity || "Unknown city"}, ${selectedVehicleForModal.nhtsa?.plantCountry || "Unknown country"}`
+                    : "Not reported"}
+                </div>
               </div>
               <div className="rounded-xl border border-border bg-surface-elevated p-3 space-y-1">
                 <div className="text-[10px] uppercase text-ink-faint font-bold">Engine & Output</div>
                 <div className="font-bold text-white font-mono">
                   {selectedVehicleForModal.nhtsa?.engineCylinders === 0 ? (
                     <>⚡ Electric</>
+                  ) : selectedVehicleForModal.nhtsa?.engineDisplacementL || selectedVehicleForModal.nhtsa?.engineCylinders ? (
+                    // Real NHTSA data doesn't report layout (flat/V/inline), so
+                    // this only ever states displacement + cylinder count —
+                    // "Flat-N" was a Porsche-only assumption that was wrong for
+                    // every Ford/Chevy V-engine and I-4 in the fleet.
+                    <>{selectedVehicleForModal.nhtsa?.engineDisplacementL ? `${selectedVehicleForModal.nhtsa.engineDisplacementL}L ` : ""}{selectedVehicleForModal.nhtsa?.engineCylinders ? `${selectedVehicleForModal.nhtsa.engineCylinders}-Cyl` : ""}</>
                   ) : (
-                    <>{selectedVehicleForModal.nhtsa?.engineDisplacementL || "4.0L"} Flat-{selectedVehicleForModal.nhtsa?.engineCylinders || 6}</>
+                    <>Not reported</>
                   )}
                 </div>
               </div>
@@ -1869,7 +1888,7 @@ export const LightsailIntelligence: React.FC = () => {
               <div className="rounded-xl border border-border bg-surface-elevated p-3 space-y-1">
                 <div className="text-[10px] uppercase text-ink-faint font-bold">Transmission</div>
                 <div className="font-bold text-white truncate">
-                  ⚙️ {selectedVehicleForModal.transmission || (selectedVehicleForModal.nhtsa?.transmission || "6-Speed Manual / PDK")}
+                  ⚙️ {selectedVehicleForModal.transmission || "Not reported"}
                 </div>
               </div>
             </div>
@@ -1933,20 +1952,58 @@ export const LightsailIntelligence: React.FC = () => {
                     </div>
                   )}
                 </>
-              ) : (
+              ) : selectedVehicleForModal.factoryOptions && selectedVehicleForModal.factoryOptions.length > 0 ? (
+                // Real per-vehicle options data the crawler already scraped for
+                // this VIN, independent of the Porsche-only AI sticker flow —
+                // works for any brand.
+                <>
+                  <div className="flex items-center justify-between text-xs font-bold text-ink-light border-b border-border pb-2">
+                    <span className="flex items-center gap-1.5">
+                      <span>Factory Options</span>
+                      <span className="rounded-full bg-emerald-500/20 text-emerald-400 px-2 py-0.2 text-[10px]">
+                        {selectedVehicleForModal.factoryOptions.length} Options
+                      </span>
+                    </span>
+                  </div>
+                  <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
+                    {selectedVehicleForModal.factoryOptions.map((o, i) => (
+                      <div
+                        key={o.code || i}
+                        className="flex items-center justify-between rounded-xl bg-surface-elevated border border-border p-2.5 text-xs hover:border-border-strong transition-all"
+                      >
+                        <div className="space-y-0.5">
+                          <div className="font-bold text-white flex items-center gap-1.5">
+                            {o.code && <span className="font-mono text-emerald-400 font-bold">[{o.code}]</span>}
+                            <span>{o.name}</span>
+                          </div>
+                        </div>
+                        {typeof o.price === "number" && o.price > 0 && (
+                          <div className="font-mono font-bold text-white text-sm">+${o.price.toLocaleString()}</div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </>
+              ) : selectedVehicleForModal.make === "Porsche" ? (
                 <div className="text-[11px] text-ink-muted rounded-xl bg-surface-elevated border border-border p-3 text-center">
                   Options for this exact VIN haven't been looked up yet. Use{" "}
                   <span className="text-emerald-400 font-bold">Live AI Scan</span> above.
                 </div>
+              ) : (
+                <div className="text-[11px] text-ink-muted rounded-xl bg-surface-elevated border border-border p-3 text-center">
+                  No itemized factory options available for this vehicle.
+                </div>
               )}
             </div>
 
-            {/* Porsche Factory Window Sticker Financial Summary */}
+            {/* Factory Window Sticker Financial Summary */}
             <div className="rounded-2xl border border-border bg-gradient-to-r from-surface-elevated to-surface p-4 space-y-2 text-xs">
               <div className="flex justify-between text-ink-muted">
                 <span>Base Model MSRP:</span>
                 <span className="font-mono font-bold text-white">
-                  ${(aiStickerData?.baseMsrp || selectedVehicleForModal.baseMsrp || (selectedVehicleForModal.price ? selectedVehicleForModal.price - (selectedVehicleForModal.totalOptionsPrice || 0) : 222500)).toLocaleString()}
+                  {aiStickerData?.baseMsrp || selectedVehicleForModal.baseMsrp || selectedVehicleForModal.price
+                    ? `$${(aiStickerData?.baseMsrp || selectedVehicleForModal.baseMsrp || (selectedVehicleForModal.price! - (selectedVehicleForModal.totalOptionsPrice || 0))).toLocaleString()}`
+                    : "Not available"}
                 </span>
               </div>
               <div className="flex justify-between text-ink-muted">
@@ -1966,11 +2023,13 @@ export const LightsailIntelligence: React.FC = () => {
                 <span className="font-mono font-bold text-white">+$1,650</span>
               </div>
               <div className="flex justify-between text-sm font-black text-white border-t border-border pt-2">
-                <span>Total Porsche Window Sticker MSRP:</span>
+                <span>Total Estimated MSRP:</span>
                 <span className="font-mono text-emerald-400 text-base">
                   {selectedVehicleForModal.price
                     ? `$${selectedVehicleForModal.price.toLocaleString()}`
-                    : `$${((selectedVehicleForModal.baseMsrp || 222500) + (selectedVehicleForModal.totalOptionsPrice || 0) + 1650).toLocaleString()}`}
+                    : selectedVehicleForModal.baseMsrp
+                    ? `$${(selectedVehicleForModal.baseMsrp + (selectedVehicleForModal.totalOptionsPrice || 0) + 1650).toLocaleString()}`
+                    : "Not available"}
                 </span>
               </div>
             </div>
