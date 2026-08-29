@@ -232,6 +232,29 @@ function ComboField({
 type Brand = "porsche" | "ford" | "chevrolet";
 const BRANDS: Brand[] = ["porsche", "ford", "chevrolet"];
 
+// Option codes are small per-brand sequential IDs (OPT-1, OPT-2, ...)
+// assigned independently by each brand's own crawl — confirmed live they
+// collide constantly across brands (e.g. Porsche's OPT-45 is "4-Zone
+// Climate Control", Ford's OPT-45 is an unrelated "10.1" LCD Touchscreen").
+// Within a single brand this is a non-issue (the box API already scopes
+// its facet/filter query to one brand_id), but the "All Makes" merged view
+// queries all three brands with the same raw code, silently mixing in
+// vehicles from a brand that never had the option the user actually
+// selected. Namespacing the dropdown's own value (not the API param) with
+// the owning brand fixes this: `brandsForQuery()` reads the prefix to
+// scope the request to the one real brand, and buildFilterParams() strips
+// it back to a bare code before it ever reaches the API.
+const OPTION_KEY_SEP = "::";
+function makeOptionKey(brand: Brand, code: string): string {
+  return `${brand}${OPTION_KEY_SEP}${code}`;
+}
+function parseOptionKey(key: string): { brand: Brand | null; code: string } {
+  const idx = key.indexOf(OPTION_KEY_SEP);
+  if (idx === -1) return { brand: null, code: key };
+  const brand = key.slice(0, idx) as Brand;
+  return { brand: BRANDS.includes(brand) ? brand : null, code: key.slice(idx + OPTION_KEY_SEP.length) };
+}
+
 interface ApiPagination {
   page: number;
   pageSize: number;
@@ -679,9 +702,18 @@ export const LightsailIntelligence: React.FC = () => {
   }, []);
 
   function brandsForQuery(): Brand[] {
-    if (selectedMake === "ALL") return BRANDS;
-    const b = makeBrandMap[selectedMake];
-    return b ? [b] : BRANDS; // safe fallback: query both, `make` filter narrows correctly either way
+    if (selectedMake !== "ALL") {
+      const b = makeBrandMap[selectedMake];
+      return b ? [b] : BRANDS; // safe fallback: query all, `make` filter narrows correctly either way
+    }
+    // No make selected, but a namespaced option is — scope to just the
+    // brand that option actually belongs to, so its code (meaningless to
+    // the other brands) never gets applied to them. See OPTION_KEY_SEP.
+    if (selectedOptionCode !== "ALL") {
+      const { brand } = parseOptionKey(selectedOptionCode);
+      if (brand) return [brand];
+    }
+    return BRANDS;
   }
 
   function activeFacetFilterDims(): FacetDim[] {
@@ -726,7 +758,7 @@ export const LightsailIntelligence: React.FC = () => {
     if (minPriceInput.trim()) p.minPrice = minPriceInput.trim();
     if (maxPriceInput.trim()) p.maxPrice = maxPriceInput.trim();
     if (maxMileageInput.trim()) p.maxMileage = maxMileageInput.trim();
-    if (selectedOptionCode !== "ALL") p.optionCode = selectedOptionCode;
+    if (selectedOptionCode !== "ALL") p.optionCode = parseOptionKey(selectedOptionCode).code;
     const dayRange = DAYS_ON_LOT_RANGES[selectedDaysOnLot];
     if (dayRange) {
       if (dayRange.min !== undefined) p.minDaysOnLot = String(dayRange.min);
@@ -903,7 +935,26 @@ export const LightsailIntelligence: React.FC = () => {
 
       const mergedFacets: Record<string, FacetValue[]> = {};
       for (const dim of FACET_DIMS) {
-        mergedFacets[dim] = mergeFacetValueArrays(perBrand.map((f) => f[dim] || []));
+        if (dim === "optionCode") {
+          // Always namespaced with the owning brand (see OPTION_KEY_SEP),
+          // even when brands.length === 1 — selectedOptionCode is always a
+          // namespaced value once anything is picked, so the ComboField's
+          // own value===option.value match (which drives what text it
+          // displays) needs this dimension namespaced unconditionally, not
+          // only in the "All Makes, nothing selected yet" case. Can't merge
+          // by raw code across brands here regardless — see OPTION_KEY_SEP's
+          // own comment for why the same code means different things per
+          // brand.
+          const namespaced: FacetValue[] = [];
+          brands.forEach((b, i) => {
+            for (const f of perBrand[i].optionCode || []) {
+              namespaced.push({ ...f, value: makeOptionKey(b, f.value) });
+            }
+          });
+          mergedFacets[dim] = namespaced.sort((a, b) => b.count - a.count);
+        } else {
+          mergedFacets[dim] = mergeFacetValueArrays(perBrand.map((f) => f[dim] || []));
+        }
       }
       setRawFacets(mergedFacets);
       setIsFacetsLoading(false);
