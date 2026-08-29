@@ -99,6 +99,25 @@ export const BRANDS = {
     baseMsrpTable: null,
     plantFallback: null,
   },
+  McLaren: {
+    name: "McLaren",
+    // WMI SBM = McLaren Automotive Ltd, Woking, England — the brand's only
+    // plant. Confirmed this session against a real live VIN pulled from
+    // preowned.mclaren.com (SBM22GCA4LW000348, a 2020 GT). Not used by
+    // mclaren_crawler.js's own extraction (that reads the VIN directly off
+    // each vehicle detail page), but kept for consistency with every other
+    // brand's registry entry and as a sanity check elsewhere.
+    vinPrefixes: ["SBM"],
+    // McLaren doesn't crawl per-dealer at all: mclaren_crawler.js pulls the
+    // brand's entire North American used-inventory from one shared official
+    // platform (preowned.mclaren.com), not each dealer's own site — a
+    // different shape from Porsche's per-dealer Strategy 2b, so this flag
+    // is left false rather than repurposed for a case standalone.js's main
+    // loop doesn't actually implement.
+    hasOfficialRetailerPlatform: false,
+    baseMsrpTable: null,
+    plantFallback: { country: "England", city: "Woking" },
+  },
 };
 
 export function getBrand(name) {
