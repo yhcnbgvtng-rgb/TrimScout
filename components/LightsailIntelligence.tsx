@@ -229,8 +229,8 @@ function ComboField({
 // re-sort of each merged page rather than a single global sort).
 // ===========================================================================
 
-type Brand = "porsche" | "ford" | "chevrolet";
-const BRANDS: Brand[] = ["porsche", "ford", "chevrolet"];
+type Brand = "porsche" | "ford" | "chevrolet" | "acura" | "audi" | "mclaren";
+const BRANDS: Brand[] = ["porsche", "ford", "chevrolet", "acura", "audi", "mclaren"];
 
 // Option codes are small per-brand sequential IDs (OPT-1, OPT-2, ...)
 // assigned independently by each brand's own crawl — confirmed live they
