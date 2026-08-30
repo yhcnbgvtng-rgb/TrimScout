@@ -111,10 +111,10 @@ export default function Home() {
   }, []);
 
   // Real Auth.js session -> currentUser sync. Runs whenever the session
-  // resolves (page load, after sign-in, after OAuth redirect back). A demo
-  // profile picked from AuthModal's "1-Click Demo" tab is a separate,
-  // real-session-free path (handleLogin below) and this effect leaves it
-  // alone — it only acts when Auth.js actually has something to report.
+  // resolves (page load, after sign-in, after OAuth redirect back). Admin
+  // impersonation (see AdminPortal's onImpersonateUser below) is a
+  // separate, real-session-free path and this effect leaves it alone — it
+  // only acts when Auth.js actually has something to report.
   //
   // Navigation only fires once per real sign-in transition (tracked via
   // lastSyncedUserIdRef), not on every session refresh — Auth.js re-polls
@@ -142,20 +142,6 @@ export default function Home() {
       }
     }
   }, [session, sessionStatus]);
-
-  const handleLogin = (user: UserProfile) => {
-    setCurrentUser(user);
-    if (typeof window !== "undefined") {
-      try {
-        localStorage.setItem("trimscout_current_user", JSON.stringify(user));
-      } catch (e) {}
-    }
-    if (user.role === "dealer") {
-      setCurrentView("dealer_analytics");
-    } else {
-      setCurrentView("track_deals");
-    }
-  };
 
   const handleLogout = () => {
     setCurrentUser(null);
@@ -331,10 +317,13 @@ export default function Home() {
     setIsFeeModalOpen(true);
   };
 
-  const handleAcceptDeal = (bid: DealerBid) => {
+  // Called only after a real Stripe payment is confirmed (see the checkout
+  // verification effect below) — certificateId comes from the deals table
+  // on the box, not generated client-side, since it's now a real paid
+  // record rather than a demo placeholder.
+  const finalizeLockedDeal = (certificateId: string, bid: DealerBid) => {
     const deal: LockedDeal = {
-      certificateId: `OTD-BMW-${Math.floor(10000 + Math.random() * 90000)}`,
-      request: activeRequest,
+      certificateId,
       winningBid: bid,
       lockedAt: new Date().toLocaleDateString(),
       expiresAt: "5 Business Days",
@@ -344,6 +333,48 @@ export default function Home() {
     setLockedDeal(deal);
     setIsVoucherModalOpen(true);
   };
+
+  // After a buyer completes payment on Stripe's hosted checkout, they're
+  // redirected back here with ?checkout=success&dealId=... in the URL. The
+  // SPA has remounted at that point (Stripe Checkout is a real navigation
+  // away from the page), so the locked deal has to be reconstructed from
+  // the server rather than from in-memory state.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    const checkoutStatus = params.get("checkout");
+    const dealId = params.get("dealId");
+    if (!checkoutStatus || !dealId) return;
+
+    window.history.replaceState({}, "", window.location.pathname);
+
+    if (checkoutStatus !== "success") return;
+
+    let cancelled = false;
+    const verify = async (attempt: number) => {
+      try {
+        const res = await fetch(`/api/checkout/verify?dealId=${dealId}`);
+        const json = await res.json();
+        if (cancelled) return;
+        if (res.ok && json.deal?.status === "paid") {
+          finalizeLockedDeal(json.deal.certificateId, json.deal.winningBid as DealerBid);
+          return;
+        }
+        // The Stripe webhook can land a beat after the redirect — retry
+        // briefly before giving up.
+        if (attempt < 3) {
+          setTimeout(() => verify(attempt + 1), 1500);
+        }
+      } catch {
+        // Silent — worst case the buyer's payment succeeded but the
+        // voucher didn't auto-open; nothing destructive happened.
+      }
+    };
+    verify(0);
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const handleDealerUploadPaperwork = (
     contractName: string,
@@ -507,7 +538,6 @@ export default function Home() {
           request={activeRequest}
           bids={bids}
           onInspectFee={handleInspectFee}
-          onAcceptDeal={handleAcceptDeal}
           onSimulateNewBid={handleSimulateNewBid}
         />
       )}
@@ -545,9 +575,7 @@ export default function Home() {
       {currentView === "signup" && (
         <div className="animate-fadeIn">
           <SignupView
-            onSuccess={(newUser) => {
-              handleLogin(newUser);
-            }}
+            onSuccess={() => setCurrentView("lightsail_analytics")}
             onNavigateHome={() => setCurrentView("lightsail_analytics")}
           />
         </div>
@@ -600,8 +628,9 @@ export default function Home() {
       <FeeBreakdownModal
         bid={inspectedBid}
         isOpen={isFeeModalOpen}
+        currentUser={currentUser}
         onClose={() => setIsFeeModalOpen(false)}
-        onAcceptDeal={handleAcceptDeal}
+        onRequireLogin={() => setIsAuthModalOpen(true)}
       />
 
       {/* Deal Acceptance Voucher Modal */}

@@ -148,7 +148,11 @@ export interface DealerBid {
 
 export interface LockedDeal {
   certificateId: string;
-  request: BiddingRequest;
+  // Optional: a deal reconstructed from the server after a Stripe Checkout
+  // redirect (see app/api/checkout/verify) only has the winning bid on
+  // hand, not the original BiddingRequest — nothing in VoucherModal reads
+  // this field, so it's safe to omit in that path.
+  request?: BiddingRequest;
   winningBid: DealerBid;
   lockedAt: string;
   expiresAt: string;

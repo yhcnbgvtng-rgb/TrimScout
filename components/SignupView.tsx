@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { signIn } from "next-auth/react";
 import {
   Compass,
   ShieldCheck,
@@ -21,11 +22,9 @@ import {
   Shield,
   FileCheck
 } from "lucide-react";
-import { UserProfile } from "@/lib/types";
-import { DEMO_BUYER_USER, DEMO_DEALER_USER } from "@/lib/mockData";
 
 interface SignupViewProps {
-  onSuccess?: (user: UserProfile) => void;
+  onSuccess?: () => void;
   onNavigateHome?: () => void;
 }
 
@@ -48,7 +47,7 @@ export const SignupView: React.FC<SignupViewProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
-  const handleSignup = (e: React.FormEvent) => {
+  const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password) {
       setErrorMsg("Please provide an email and password to create your account.");
@@ -62,51 +61,37 @@ export const SignupView: React.FC<SignupViewProps> = ({
     setIsLoading(true);
     setErrorMsg("");
 
-    const newUser: UserProfile = {
-      id: `user-${Date.now()}`,
-      name: name || (email ? email.split("@")[0] : "New Member"),
-      email: email,
-      role,
-      phone: phone || "(415) 555-0100",
-      zipCode: zipCode || "94107",
-      buyerAlias: role === "buyer" ? `Buyer #CA-${Math.floor(1000 + Math.random() * 9000)}` : undefined,
-      dealerName: role === "dealer" ? (dealerName || "Franchise Dealer Partner") : undefined,
-      avatarUrl: role === "dealer" ? DEMO_DEALER_USER.avatarUrl : DEMO_BUYER_USER.avatarUrl,
-      savedVehicleIds: ["veh-1", "veh-4"],
-    };
-
-    // Store in localStorage for persistent session
-    if (typeof window !== "undefined") {
-      try {
-        localStorage.setItem("trimscout_current_user", JSON.stringify(newUser));
-      } catch (err) {
-        console.error("Failed to persist user session:", err);
+    try {
+      const res = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email,
+          password,
+          name: name || email.split("@")[0],
+          role,
+          phone: phone || undefined,
+          zipCode: zipCode || undefined,
+          dealerName: role === "dealer" ? dealerName : undefined,
+        }),
+      });
+      const json = await res.json();
+      if (!res.ok) {
+        setErrorMsg(json.error || "Could not create your account.");
+        return;
       }
-    }
-
-    setTimeout(() => {
-      setIsLoading(false);
+      // The signup route already signs the new user in server-side; make
+      // sure the client's session state reflects it (same pattern as
+      // AuthModal's real signup flow) so the caller's onSuccess navigation
+      // lands on an already-authenticated page.
+      await signIn("credentials", { email, password, redirect: false });
       if (onSuccess) {
-        onSuccess(newUser);
+        onSuccess();
       } else if (typeof window !== "undefined") {
         window.location.href = "/";
       }
-    }, 600);
-  };
-
-  const handleQuickDemoSignup = (demoRole: "buyer" | "dealer") => {
-    const demoUser = demoRole === "dealer" ? DEMO_DEALER_USER : DEMO_BUYER_USER;
-    if (typeof window !== "undefined") {
-      try {
-        localStorage.setItem("trimscout_current_user", JSON.stringify(demoUser));
-      } catch (err) {
-        console.error("Failed to persist demo user:", err);
-      }
-    }
-    if (onSuccess) {
-      onSuccess(demoUser);
-    } else if (typeof window !== "undefined") {
-      window.location.href = "/";
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -207,22 +192,6 @@ export const SignupView: React.FC<SignupViewProps> = ({
                   <span>Dealer Partner Portal</span>
                 </button>
               </div>
-            </div>
-
-            {/* Quick Demo Access Bar */}
-            <div className="rounded-2xl border border-emerald-500/30 bg-emerald-950/20 p-3 flex flex-col sm:flex-row items-center justify-between gap-2.5 text-xs">
-              <div className="flex items-center gap-2">
-                <Sparkles className="h-4 w-4 text-emerald-400 shrink-0" />
-                <span className="text-ink-light">Looking to test drive the platform immediately?</span>
-              </div>
-              <button
-                type="button"
-                onClick={() => handleQuickDemoSignup(role)}
-                className="w-full sm:w-auto shrink-0 inline-flex items-center justify-center gap-1.5 rounded-xl bg-surface-elevated hover:bg-surface border border-emerald-500/40 px-3 py-1.5 text-xs font-extrabold text-emerald-400 hover:text-emerald-300 transition-all shadow-sm cursor-pointer"
-              >
-                <span>Instant Demo Login</span>
-                <ArrowRight className="h-3 w-3" />
-              </button>
             </div>
 
             {/* Error Message display */}

@@ -22,7 +22,6 @@ interface LiveDealRoomProps {
   request: BiddingRequest;
   bids: DealerBid[];
   onInspectFee: (bid: DealerBid) => void;
-  onAcceptDeal: (bid: DealerBid) => void;
   onSimulateNewBid: () => void;
 }
 
@@ -30,7 +29,6 @@ export const LiveDealRoom: React.FC<LiveDealRoomProps> = ({
   request,
   bids,
   onInspectFee,
-  onAcceptDeal,
   onSimulateNewBid,
 }) => {
   const [sortBy, setSortBy] = useState<"discount" | "otd">("discount");
@@ -358,7 +356,7 @@ export const LiveDealRoom: React.FC<LiveDealRoomProps> = ({
                     </button>
 
                     <button
-                      onClick={() => onAcceptDeal(bid)}
+                      onClick={() => onInspectFee(bid)}
                       className={`flex items-center gap-2 rounded-xl px-5 py-2.5 text-xs font-extrabold transition-all shadow-md active:scale-95 ${
                         isFirst
                           ? "bg-emerald-500 text-black hover:bg-emerald-400 shadow-emerald-500/20"
