@@ -42,10 +42,18 @@ export const FeeBreakdownModal: React.FC<FeeBreakdownModalProps> = ({
     setIsSubmitting(true);
     setError(null);
     try {
+      // Real bids have purely numeric DB ids; the older client-fabricated
+      // demo bids (BidProgramIntro's mock path) use ids like "bid-1" —
+      // only send {dealRequestId, bidId} when both are real, so the server
+      // fetches authoritative unmasked data instead of trusting this
+      // (possibly masked) client object.
+      const isReal = /^\d+$/.test(bid.id) && /^\d+$/.test(bid.dealRequestId);
       const res = await fetch("/api/checkout/create-session", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ winningBid: bid }),
+        body: JSON.stringify(
+          isReal ? { dealRequestId: bid.dealRequestId, bidId: bid.id } : { winningBid: bid }
+        ),
       });
       const json = await res.json();
       if (!res.ok || !json.url) {
@@ -71,7 +79,10 @@ export const FeeBreakdownModal: React.FC<FeeBreakdownModalProps> = ({
             </div>
             <div>
               <h2 className="text-sm font-bold text-white">Itemized Out-The-Door (OTD) Invoice</h2>
-              <p className="text-xs text-ink-muted">{bid.dealerName} • VIN #{bid.matchedVin.slice(-6)}</p>
+              <p className="text-xs text-ink-muted">
+                {bid.dealerName}
+                {bid.matchedVin && ` • VIN #${bid.matchedVin.slice(-6)}`}
+              </p>
             </div>
           </div>
           <button

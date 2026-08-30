@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { auth } from "@/auth";
-import { createDeal, DealsApiError } from "@/lib/dealsApi";
+import { createDeal, getSingleBid, DealsApiError } from "@/lib/dealsApi";
 import { PLATFORM_FEE_CENTS } from "@/lib/pricing";
 import type { DealerBid } from "@/lib/types";
 
@@ -12,7 +12,59 @@ export async function POST(req: Request) {
   }
 
   const body = await req.json().catch(() => null);
-  const winningBid = body?.winningBid as DealerBid | undefined;
+
+  // Two paths: the real reverse-auction flow sends {dealRequestId, bidId}
+  // and the authoritative, unmasked bid is fetched server-to-server here
+  // (never trusting whatever the browser had, which was masked) — the
+  // older client-fabricated-object path stays for the out-of-scope mock
+  // demo flow (BidProgramIntro's "View Demo Deal Room"), which has no real
+  // bid to look up.
+  let winningBid: DealerBid | undefined;
+  let dealRequestId: string | undefined;
+  let bidId: string | undefined;
+
+  if (body?.dealRequestId && body?.bidId) {
+    dealRequestId = String(body.dealRequestId);
+    bidId = String(body.bidId);
+    const realBid = await getSingleBid(dealRequestId, bidId);
+    if (!realBid) {
+      return NextResponse.json({ error: "That bid no longer exists." }, { status: 404 });
+    }
+    winningBid = {
+      id: realBid.id,
+      dealRequestId: realBid.dealRequestId,
+      dealerName: realBid.dealerName,
+      dealerCity: realBid.dealerCity || "",
+      dealerState: realBid.dealerState || "",
+      distanceMiles: realBid.distanceMiles || 0,
+      matchedVin: realBid.matchedVin,
+      matchedVehicleTitle: realBid.matchedVehicleTitle,
+      matchedVehicleSpec: realBid.matchedVehicleSpec || "",
+      matchedVehicleImageUrl: realBid.matchedVehicleImageUrl || "",
+      vehicleStatus: (realBid.vehicleStatus as any) || "on_lot",
+      msrp: realBid.msrp,
+      dealerDiscountDollars: realBid.dealerDiscountDollars,
+      dealerDiscountPercent: realBid.dealerDiscountPercent,
+      manufacturerRebates: realBid.manufacturerRebates,
+      sellingPrice: realBid.sellingPrice,
+      salesTax: realBid.salesTax,
+      dmvFees: realBid.dmvFees,
+      docFee: realBid.docFee,
+      dealerAccessories: realBid.dealerAccessories,
+      tradeInAllowance: realBid.tradeInAllowance ?? undefined,
+      totalOtdPrice: realBid.totalOtdPrice,
+      quotedOtdPrice: realBid.quotedOtdPrice,
+      netOtdWithTradeIn: realBid.netOtdWithTradeIn ?? undefined,
+      notes: realBid.notes,
+      rank: realBid.rank || 1,
+      createdAt: realBid.createdAt,
+      isTopDeal: realBid.isTopDeal,
+      salesRep: realBid.salesRep || undefined,
+    };
+  } else {
+    winningBid = body?.winningBid as DealerBid | undefined;
+  }
+
   if (
     !winningBid ||
     !winningBid.dealerName ||
@@ -36,6 +88,8 @@ export async function POST(req: Request) {
       totalOtdPrice: winningBid.totalOtdPrice,
       platformFeeCents: PLATFORM_FEE_CENTS,
       winningBid: winningBid as unknown as Record<string, unknown>,
+      dealRequestId,
+      bidId,
     });
   } catch (err) {
     const message = err instanceof DealsApiError ? err.message : "Could not create deal record.";

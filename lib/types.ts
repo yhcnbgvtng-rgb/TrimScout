@@ -102,11 +102,43 @@ export interface BiddingRequest {
   paymentMethod: PaymentMethod;
   dealStructurePreferences?: DealStructurePreferences;
   buyerZip: string;
+  buyerState?: string;
   searchRadiusMiles: number;
+  // Default true: prefer dealers in the buyer's own state within
+  // searchRadiusMiles; the buyer can turn this off in the wizard to widen
+  // the match to any state within the radius. Optional so the older
+  // client-only demo request (BidProgramIntro's mock path) still type-checks.
+  sameStateOnly?: boolean;
   tradeIn?: TradeInVehicle;
   createdAt: string;
   expiresAt: string;
   status: "active" | "locked" | "expired";
+}
+
+// A dealer's inbox view of one real active buyer request — masked (per the
+// buyer-anonymity requirement: no real name/phone/email/exact zip, just an
+// alias + state-level region) and returned by GET /api/dealer-requests.
+export interface DealerInboundRequest {
+  requestId: string;
+  buyerAlias: string;
+  buyerState: string;
+  distanceMiles: number;
+  strategy: BiddingStrategy;
+  referenceBrandCode: string;
+  referenceVin: string;
+  referenceYear: number | null;
+  referenceMake: string;
+  referenceModel: string;
+  referenceTrim: string | null;
+  referencePrice: number | null;
+  referenceMsrp: number | null;
+  referenceImageUrl: string | null;
+  targetOtdPrice: number | null;
+  targetDiscountPercent: number | null;
+  paymentMethod: PaymentMethod;
+  tradeIn?: TradeInVehicle;
+  createdAt: string;
+  expiresAt: string;
 }
 
 export interface DealerBid {
@@ -132,6 +164,10 @@ export interface DealerBid {
   dealerAccessories: number;
   tradeInAllowance?: number;
   totalOtdPrice: number;
+  // Excludes sales tax + DMV/registration fees (buyer-location-dependent,
+  // not dealer-competitiveness-dependent) — the number bids are ranked
+  // and headlined on. See lib/otdCalculator.ts.
+  quotedOtdPrice: number;
   netOtdWithTradeIn?: number;
   financeMonthlyEstimate?: number;
   leaseMonthlyEstimate?: number;
@@ -139,7 +175,12 @@ export interface DealerBid {
   rank: number;
   createdAt: string;
   isTopDeal?: boolean;
-  salesRep: {
+  // True until the buyer has paid to lock in this specific bid — dealer
+  // identity/VIN/contact are withheld from the buyer until then (see
+  // app/api/deal-requests/[id]/bids/route.ts). dealerName/dealerCity/
+  // matchedVin are masked placeholders/empty strings while true.
+  isMasked?: boolean;
+  salesRep?: {
     name: string;
     title: string;
     phone: string;

@@ -6,97 +6,103 @@ import { formatCurrency, formatPercent } from "../lib/otdCalculator";
 import {
   Clock,
   ShieldCheck,
-  Zap,
   Trophy,
-  MessageSquare,
   FileText,
   Lock,
-  Plus,
-  Send,
   Camera,
-  Eye,
-  Image as ImageIcon
+  Eye
 } from "lucide-react";
 
 interface LiveDealRoomProps {
   request: BiddingRequest;
   bids: DealerBid[];
   onInspectFee: (bid: DealerBid) => void;
-  onSimulateNewBid: () => void;
+  // True only for the real reverse-auction flow (a real vehicle the buyer
+  // selected from live inventory) — polls the box for real competing bids.
+  // The out-of-scope mock demo path (BidProgramIntro's "View Demo Deal
+  // Room") leaves this unset and just renders whatever `bids` it was
+  // given, unchanged.
+  pollBids?: boolean;
+}
+
+function formatCountdown(expiresAt: string): string | null {
+  const target = new Date(expiresAt).getTime();
+  if (Number.isNaN(target)) return null;
+  const remainingMs = target - Date.now();
+  if (remainingMs <= 0) return "00h : 00m : 00s";
+  const totalSeconds = Math.floor(remainingMs / 1000);
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+  return `${String(hours).padStart(2, "0")}h : ${String(minutes).padStart(2, "0")}m : ${String(seconds).padStart(2, "0")}s`;
 }
 
 export const LiveDealRoom: React.FC<LiveDealRoomProps> = ({
   request,
   bids,
   onInspectFee,
-  onSimulateNewBid,
+  pollBids,
 }) => {
-  const [sortBy, setSortBy] = useState<"discount" | "otd">("discount");
+  const [sortBy, setSortBy] = useState<"discount" | "quoted">("discount");
   const [isTradeInModalOpen, setIsTradeInModalOpen] = useState(false);
-  const [timeLeft, setTimeLeft] = useState<{ hours: number; minutes: number; seconds: number }>({
-    hours: 23,
-    minutes: 58,
-    seconds: 44,
-  });
+  const [liveBids, setLiveBids] = useState<DealerBid[]>(bids);
+  const [countdownLabel, setCountdownLabel] = useState<string | null>(() => formatCountdown(request.expiresAt));
 
-  const [chatMessages, setChatMessages] = useState<
-    { sender: "buyer" | "dealer"; name: string; text: string; time: string }[]
-  >([
-    {
-      sender: "dealer",
-      name: "BMW of San Rafael (Sales Director)",
-      text: "Hi Buyer #CA-4921, our 330i M Sport just came off the transport truck today. We unlocked our maximum 8.5% discount for you.",
-      time: "5m ago",
-    },
-  ]);
-  const [newMessage, setNewMessage] = useState("");
-
+  // Non-real flow: just mirror whatever bids the parent passes in.
   useEffect(() => {
-    const timer = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev.seconds > 0) return { ...prev, seconds: prev.seconds - 1 };
-        if (prev.minutes > 0) return { ...prev, minutes: 59, seconds: 59 };
-        if (prev.hours > 0) return { hours: prev.hours - 1, minutes: 59, seconds: 59 };
-        return prev;
-      });
-    }, 1000);
-    return () => clearInterval(timer);
-  }, []);
+    if (!pollBids) setLiveBids(bids);
+  }, [bids, pollBids]);
 
-  const handleSendMessage = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newMessage.trim()) return;
+  // Real flow: poll the box for real competing bids every ~9s.
+  useEffect(() => {
+    if (!pollBids) return;
+    let cancelled = false;
+    const poll = async () => {
+      try {
+        const res = await fetch(`/api/deal-requests/${request.id}/bids`);
+        if (!res.ok) return;
+        const json = await res.json();
+        if (cancelled) return;
+        const mapped: DealerBid[] = (json.bids || []).map((b: any) => ({
+          ...b,
+          dealerCity: b.dealerCity || "",
+          dealerState: b.dealerState || "",
+          distanceMiles: b.distanceMiles || 0,
+          matchedVehicleSpec: b.matchedVehicleSpec || "",
+          matchedVehicleImageUrl: b.matchedVehicleImageUrl || "",
+        }));
+        setLiveBids(mapped);
+      } catch {
+        // Silent — next tick retries; a transient miss isn't worth an error banner.
+      }
+    };
+    poll();
+    const interval = setInterval(poll, 9000);
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+    };
+  }, [pollBids, request.id]);
 
-    setChatMessages((prev) => [
-      ...prev,
-      {
-        sender: "buyer",
-        name: "You (Buyer #CA-4921)",
-        text: newMessage,
-        time: "Just now",
-      },
-    ]);
-    setNewMessage("");
+  // Real countdown, re-rendered every second from request.expiresAt — not
+  // local incrementing state. The mock demo request's expiresAt is a
+  // non-date placeholder string ("48 Hours"); formatCountdown returns null
+  // for that and we just show it as-is.
+  useEffect(() => {
+    const tick = () => setCountdownLabel(formatCountdown(request.expiresAt));
+    tick();
+    const interval = setInterval(tick, 1000);
+    return () => clearInterval(interval);
+  }, [request.expiresAt]);
 
-    setTimeout(() => {
-      setChatMessages((prev) => [
-        ...prev,
-        {
-          sender: "dealer",
-          name: "BMW of San Rafael (Sales Director)",
-          text: "Confirmed! This unit has the factory Shadowline trim and 19-inch Style 791M wheels with Michelin Pilot Sport tires.",
-          time: "Just now",
-        },
-      ]);
-    }, 1500);
-  };
-
-  const sortedBids = [...bids].sort((a, b) => {
+  const sortedBids = [...liveBids].sort((a, b) => {
     if (sortBy === "discount") {
       return b.dealerDiscountPercent - a.dealerDiscountPercent;
     }
-    return a.totalOtdPrice - b.totalOtdPrice;
+    return a.quotedOtdPrice - b.quotedOtdPrice;
   });
+
+  const buyerAlias = request.buyerState ? `Buyer #${request.buyerState}` : "Buyer";
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 space-y-6">
@@ -112,37 +118,27 @@ export const LiveDealRoom: React.FC<LiveDealRoomProps> = ({
                 LIVE BIDDING IN PROGRESS
               </span>
               <span className="rounded-md bg-black/50 px-2 py-0.5 text-xs font-medium text-ink-muted border border-border">
-                Masked Alias: <strong className="text-white font-mono">Buyer #CA-4921</strong>
+                Masked Alias: <strong className="text-white font-mono">{buyerAlias}</strong>
               </span>
             </div>
 
             <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
-              Deal Room: 2026 {request.targetVehicle ? `${request.targetVehicle.make} ${request.targetVehicle.model}` : `${request.flexibleCriteria?.make} ${request.flexibleCriteria?.model}`}
+              Deal Room: {request.targetVehicle ? `${request.targetVehicle.year} ${request.targetVehicle.make} ${request.targetVehicle.model}` : `${request.flexibleCriteria?.make} ${request.flexibleCriteria?.model}`}
             </h1>
 
             <p className="mt-1 text-xs text-ink-muted">
-              Strategy: <strong className="text-emerald-400">{request.strategy === "flexible_discount" ? "Find your car based on Make and Model" : request.strategy === "exact_auction" ? "Find your car based on must have specs" : "Firm Target Offer"}</strong> • Payment: <span className="uppercase text-white font-semibold">{request.paymentMethod}</span> • Radius: <span className="text-white font-semibold">{request.searchRadiusMiles} Miles</span>
+              Strategy: <strong className="text-emerald-400">{request.strategy === "flexible_discount" ? "Find your car based on Make and Model" : request.strategy === "exact_auction" ? "Find your car based on must have specs" : "Firm Target Offer"}</strong> • Payment: <span className="uppercase text-white font-semibold">{request.paymentMethod}</span> • Radius: <span className="text-white font-semibold">{request.searchRadiusMiles} Miles{request.sameStateOnly ? ` (${request.buyerState || "your state"} only)` : ""}</span>
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-4">
-            <div className="flex items-center gap-3 rounded-xl border border-border bg-black/60 px-4 py-2.5 shadow-inner">
-              <Clock className="h-5 w-5 text-emerald-400" />
-              <div>
-                <span className="text-[10px] uppercase font-bold text-ink-faint">Time Remaining</span>
-                <div className="font-mono text-lg font-bold text-white tracking-wider">
-                  {String(timeLeft.hours).padStart(2, "0")}h : {String(timeLeft.minutes).padStart(2, "0")}m : {String(timeLeft.seconds).padStart(2, "0")}s
-                </div>
+          <div className="flex items-center gap-3 rounded-xl border border-border bg-black/60 px-4 py-2.5 shadow-inner">
+            <Clock className="h-5 w-5 text-emerald-400" />
+            <div>
+              <span className="text-[10px] uppercase font-bold text-ink-faint">Time Remaining</span>
+              <div className="font-mono text-lg font-bold text-white tracking-wider">
+                {countdownLabel || request.expiresAt}
               </div>
             </div>
-
-            <button
-              onClick={onSimulateNewBid}
-              className="flex items-center gap-1.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-xs font-bold text-emerald-400 hover:bg-emerald-500 hover:text-black transition-all shadow-md active:scale-95"
-            >
-              <Plus className="h-4 w-4 stroke-[2.5]" />
-              <span>Simulate New Dealer Bid</span>
-            </button>
           </div>
         </div>
       </div>
@@ -164,7 +160,7 @@ export const LiveDealRoom: React.FC<LiveDealRoomProps> = ({
                 </span>
               </div>
               <p className="text-[11px] text-ink-muted mt-0.5">
-                Mileage: <strong className="text-white font-mono">{request.tradeIn.mileage.toLocaleString()} mi</strong> • Condition: <strong className="text-white capitalize">{request.tradeIn.condition.replace("_", " ")}</strong> • Est. Market Value: <strong className="text-emerald-400 font-mono">$24,500 – $26,800</strong>
+                Mileage: <strong className="text-white font-mono">{request.tradeIn.mileage.toLocaleString()} mi</strong> • Condition: <strong className="text-white capitalize">{request.tradeIn.condition.replace("_", " ")}</strong> • Est. Market Value: <strong className="text-emerald-400 font-mono">{formatCurrency(request.tradeIn.estimatedValueMin)} – {formatCurrency(request.tradeIn.estimatedValueMax)}</strong>
               </p>
             </div>
           </div>
@@ -179,265 +175,181 @@ export const LiveDealRoom: React.FC<LiveDealRoomProps> = ({
         </div>
       )}
 
-      {/* Main Grid: Leaderboard + Masked Chat */}
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
-        {/* Left 2 Cols: Live Dealer Leaderboard */}
-        <div className="lg:col-span-2 space-y-4">
-          {/* Controls Bar */}
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-3">
-            <div className="flex items-center gap-2">
-              <Trophy className="h-4 w-4 text-emerald-400" />
-              <h2 className="text-sm font-bold text-white uppercase tracking-wider">
-                Ranked Dealer Offers ({sortedBids.length})
-              </h2>
-            </div>
-
-            <div className="flex items-center gap-2 text-xs">
-              <span className="text-ink-muted font-medium">Sort Leaderboard By:</span>
-              <button
-                onClick={() => setSortBy("discount")}
-                className={`rounded-lg px-2.5 py-1 font-semibold transition-all ${
-                  sortBy === "discount"
-                    ? "bg-emerald-500 text-black shadow-sm"
-                    : "border border-border bg-surface text-ink-muted hover:text-white"
-                }`}
-              >
-                🔥 % Discount off MSRP
-              </button>
-              <button
-                onClick={() => setSortBy("otd")}
-                className={`rounded-lg px-2.5 py-1 font-semibold transition-all ${
-                  sortBy === "otd"
-                    ? "bg-emerald-500 text-black shadow-sm"
-                    : "border border-border bg-surface text-ink-muted hover:text-white"
-                }`}
-              >
-                💲 Lowest Out-The-Door
-              </button>
-            </div>
+      {/* Leaderboard */}
+      <div className="space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-3">
+          <div className="flex items-center gap-2">
+            <Trophy className="h-4 w-4 text-emerald-400" />
+            <h2 className="text-sm font-bold text-white uppercase tracking-wider">
+              Ranked Dealer Offers ({sortedBids.length})
+            </h2>
           </div>
 
-          {/* Dealer Bid Cards */}
-          <div className="space-y-4">
-            {sortedBids.map((bid, index) => {
-              const isFirst = index === 0;
-
-              return (
-                <div
-                  key={bid.id}
-                  className={`rounded-2xl border transition-all p-5 space-y-4 ${
-                    isFirst
-                      ? "border-emerald-500 bg-surface-elevated shadow-xl ring-1 ring-emerald-500/50"
-                      : "border-border bg-surface hover:border-border-strong"
-                  }`}
-                >
-                  {/* Card Header */}
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                    <div className="flex items-center gap-3">
-                      {/* Rank Badge */}
-                      <div
-                        className={`flex h-9 w-9 items-center justify-center rounded-xl font-black text-sm ${
-                          index === 0
-                            ? "bg-emerald-500 text-black shadow-lg shadow-emerald-500/20"
-                            : index === 1
-                            ? "bg-slate-300 text-black"
-                            : "bg-amber-700 text-white"
-                        }`}
-                      >
-                        #{index + 1}
-                      </div>
-
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <h3 className="font-extrabold text-white text-base">{bid.dealerName}</h3>
-                          <span className="text-xs text-ink-muted">
-                            ({bid.dealerCity}, {bid.dealerState} • {bid.distanceMiles} mi)
-                          </span>
-                        </div>
-                        <p className="text-xs text-ink-light font-medium">
-                          {bid.matchedVehicleTitle} • <span className="font-mono text-[11px] text-ink-faint">VIN: {bid.matchedVin}</span>
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Inventory Status */}
-                    <div>
-                      {bid.vehicleStatus === "on_lot" ? (
-                        <span className="inline-flex items-center gap-1 rounded-md bg-emerald-950/80 px-2.5 py-1 text-xs font-bold text-emerald-400 border border-emerald-500/30">
-                          🟢 On Lot (Immediate Delivery)
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center gap-1 rounded-md bg-blue-950/80 px-2.5 py-1 text-xs font-bold text-blue-400 border border-blue-500/30">
-                          🚚 In Transit (Allocated)
-                        </span>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Financial Breakdown Grid */}
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 rounded-xl border border-border bg-background p-3.5 text-xs">
-                    <div>
-                      <span className="text-[10px] uppercase font-bold text-ink-faint">Window MSRP</span>
-                      <div className="font-bold text-ink-light font-mono text-sm">
-                        {formatCurrency(bid.msrp)}
-                      </div>
-                    </div>
-
-                    <div>
-                      <span className="text-[10px] uppercase font-bold text-emerald-400">Dealer Discount</span>
-                      <div className="font-bold text-emerald-400 font-mono text-sm">
-                        -{formatCurrency(bid.dealerDiscountDollars)} ({formatPercent(bid.dealerDiscountPercent)})
-                      </div>
-                    </div>
-
-                    <div>
-                      <span className="text-[10px] uppercase font-bold text-ink-faint">Est. Tax & DMV</span>
-                      <div className="font-semibold text-ink-muted font-mono text-sm">
-                        +{formatCurrency(bid.salesTax + bid.dmvFees)}
-                      </div>
-                    </div>
-
-                    <div>
-                      <span className="text-[10px] uppercase font-bold text-emerald-400">Total OTD Price</span>
-                      <div className="font-black text-white font-mono text-base">
-                        {formatCurrency(bid.totalOtdPrice)}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* 3-Way Deal Structure Comparison Strip */}
-                  <div className="rounded-xl border border-emerald-500/30 bg-emerald-950/20 p-2.5 flex flex-wrap items-center justify-between gap-2 text-xs">
-                    <span className="text-[10px] uppercase font-bold text-emerald-400">
-                      Multi-Structure Quote:
-                    </span>
-
-                    <div className="flex flex-wrap items-center gap-3">
-                      <div className="flex items-center gap-1">
-                        <span className="text-ink-muted text-[11px]">💵 Cash:</span>
-                        <span className="font-bold text-white font-mono">{formatCurrency(bid.totalOtdPrice)}</span>
-                      </div>
-
-                      <span className="text-border">|</span>
-
-                      <div className="flex items-center gap-1">
-                        <span className="text-ink-muted text-[11px]">🏦 Finance:</span>
-                        <span className="font-bold text-emerald-400 font-mono">
-                          ${bid.financeMonthlyEstimate || Math.round(bid.totalOtdPrice / 65)} / mo
-                        </span>
-                        <span className="text-[10px] text-ink-faint">(60 mo)</span>
-                      </div>
-
-                      <span className="text-border">|</span>
-
-                      <div className="flex items-center gap-1">
-                        <span className="text-ink-muted text-[11px]">🔑 Lease:</span>
-                        <span className="font-bold text-purple-400 font-mono">
-                          ${bid.leaseMonthlyEstimate || Math.round(bid.totalOtdPrice / 90)} / mo
-                        </span>
-                        <span className="text-[10px] text-ink-faint">(36 mo • 12k mi)</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Dealer Notes */}
-                  {bid.notes && (
-                    <p className="text-xs text-ink-muted bg-surface p-2.5 rounded-lg border border-border/60 italic">
-                      "{bid.notes}"
-                    </p>
-                  )}
-
-                  {/* Action Buttons */}
-                  <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
-                    <button
-                      onClick={() => onInspectFee(bid)}
-                      className="flex items-center gap-1.5 text-xs font-semibold text-emerald-400 hover:underline"
-                    >
-                      <FileText className="h-3.5 w-3.5" /> Inspect Itemized Line Items
-                    </button>
-
-                    <button
-                      onClick={() => onInspectFee(bid)}
-                      className={`flex items-center gap-2 rounded-xl px-5 py-2.5 text-xs font-extrabold transition-all shadow-md active:scale-95 ${
-                        isFirst
-                          ? "bg-emerald-500 text-black hover:bg-emerald-400 shadow-emerald-500/20"
-                          : "border border-emerald-500/40 bg-emerald-500/10 text-emerald-300 hover:bg-emerald-500 hover:text-black"
-                      }`}
-                    >
-                      <Lock className="h-3.5 w-3.5" /> Accept This Deal & Lock OTD Price
-                    </button>
-                  </div>
-                </div>
-              );
-            })}
+          <div className="flex items-center gap-2 text-xs">
+            <span className="text-ink-muted font-medium">Sort Leaderboard By:</span>
+            <button
+              onClick={() => setSortBy("discount")}
+              className={`rounded-lg px-2.5 py-1 font-semibold transition-all ${
+                sortBy === "discount"
+                  ? "bg-emerald-500 text-black shadow-sm"
+                  : "border border-border bg-surface text-ink-muted hover:text-white"
+              }`}
+            >
+              🔥 % Discount off MSRP
+            </button>
+            <button
+              onClick={() => setSortBy("quoted")}
+              className={`rounded-lg px-2.5 py-1 font-semibold transition-all ${
+                sortBy === "quoted"
+                  ? "bg-emerald-500 text-black shadow-sm"
+                  : "border border-border bg-surface text-ink-muted hover:text-white"
+              }`}
+            >
+              💲 Lowest Quoted Price
+            </button>
           </div>
         </div>
 
-        {/* Right Col: Masked Dealer Q&A Relay */}
-        <div className="space-y-4">
-          <div className="rounded-2xl border border-border bg-surface p-5 space-y-4 flex flex-col h-[560px]">
-            <div className="flex items-center justify-between border-b border-border pb-3">
-              <div className="flex items-center gap-2">
-                <MessageSquare className="h-4 w-4 text-emerald-400" />
-                <h3 className="text-xs font-bold text-white uppercase tracking-wider">
-                  Masked Dealer Q&A Relay
-                </h3>
-              </div>
-              <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-bold text-emerald-400 border border-emerald-500/20">
-                Anonymized
-              </span>
-            </div>
-
-            <p className="text-[11px] text-ink-muted">
-              Ask questions to sales managers without revealing your phone number or email.
-            </p>
-
-            {/* Chat Log */}
-            <div className="flex-1 overflow-y-auto space-y-3 pr-1">
-              {chatMessages.map((msg, i) => (
-                <div
-                  key={i}
-                  className={`rounded-xl p-3 text-xs space-y-1 ${
-                    msg.sender === "buyer"
-                      ? "bg-emerald-500/10 border border-emerald-500/20 ml-4 text-emerald-100"
-                      : "bg-surface-elevated border border-border mr-4 text-ink-light"
-                  }`}
-                >
-                  <div className="flex justify-between text-[10px] font-semibold text-ink-faint">
-                    <span>{msg.name}</span>
-                    <span>{msg.time}</span>
-                  </div>
-                  <p className="leading-relaxed">{msg.text}</p>
-                </div>
-              ))}
-            </div>
-
-            {/* Message Input */}
-            <form onSubmit={handleSendMessage} className="relative pt-2 border-t border-border">
-              <input
-                type="text"
-                value={newMessage}
-                onChange={(e) => setNewMessage(e.target.value)}
-                placeholder="Ask dealer about tire specs, arrival date, etc..."
-                className="w-full rounded-xl border border-border bg-surface-elevated py-2.5 pl-3 pr-10 text-xs text-white placeholder-ink-faint focus:border-emerald-500 focus:outline-none"
-              />
-              <button
-                type="submit"
-                className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg bg-emerald-500 p-1.5 text-black hover:bg-emerald-400 transition-colors"
-              >
-                <Send className="h-3.5 w-3.5" />
-              </button>
-            </form>
+        {sortedBids.length === 0 && (
+          <div className="rounded-2xl border border-border bg-surface p-10 text-center text-sm text-ink-muted">
+            No dealer bids yet — certified dealers matching this vehicle are being notified. Check back shortly.
           </div>
+        )}
 
-          {/* Safe Purchase Info Card */}
-          <div className="rounded-2xl border border-border bg-surface-elevated p-4 flex items-start gap-3 text-xs">
-            <ShieldCheck className="h-5 w-5 text-emerald-400 shrink-0 mt-0.5" />
-            <div>
-              <h4 className="font-bold text-white">Transparent Transaction Policy</h4>
-              <p className="text-[11px] text-ink-muted mt-0.5 leading-relaxed">
-                Every dealer in the TrimScout network is certified. All doc fees are legally capped, and unwanted dealer add-ons are strictly forbidden.
-              </p>
-            </div>
+        {/* Dealer Bid Cards */}
+        <div className="space-y-4">
+          {sortedBids.map((bid, index) => {
+            const isFirst = index === 0;
+
+            return (
+              <div
+                key={bid.id}
+                className={`rounded-2xl border transition-all p-5 space-y-4 ${
+                  isFirst
+                    ? "border-emerald-500 bg-surface-elevated shadow-xl ring-1 ring-emerald-500/50"
+                    : "border-border bg-surface hover:border-border-strong"
+                }`}
+              >
+                {/* Card Header */}
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    {/* Rank Badge */}
+                    <div
+                      className={`flex h-9 w-9 items-center justify-center rounded-xl font-black text-sm ${
+                        index === 0
+                          ? "bg-emerald-500 text-black shadow-lg shadow-emerald-500/20"
+                          : index === 1
+                          ? "bg-slate-300 text-black"
+                          : "bg-amber-700 text-white"
+                      }`}
+                    >
+                      #{index + 1}
+                    </div>
+
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <h3 className="font-extrabold text-white text-base">{bid.dealerName}</h3>
+                        <span className="text-xs text-ink-muted">
+                          ({bid.dealerCity ? `${bid.dealerCity}, ` : ""}{bid.dealerState}{bid.distanceMiles ? ` • ${bid.distanceMiles} mi` : ""})
+                        </span>
+                      </div>
+                      <p className="text-xs text-ink-light font-medium">
+                        {bid.matchedVehicleTitle}
+                        {bid.matchedVin && (
+                          <span className="font-mono text-[11px] text-ink-faint"> • VIN: {bid.matchedVin}</span>
+                        )}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Inventory Status */}
+                  <div>
+                    {bid.vehicleStatus === "on_lot" ? (
+                      <span className="inline-flex items-center gap-1 rounded-md bg-emerald-950/80 px-2.5 py-1 text-xs font-bold text-emerald-400 border border-emerald-500/30">
+                        🟢 On Lot (Immediate Delivery)
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 rounded-md bg-blue-950/80 px-2.5 py-1 text-xs font-bold text-blue-400 border border-blue-500/30">
+                        🚚 In Transit (Allocated)
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Financial Breakdown Grid */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 rounded-xl border border-border bg-background p-3.5 text-xs">
+                  <div>
+                    <span className="text-[10px] uppercase font-bold text-ink-faint">Window MSRP</span>
+                    <div className="font-bold text-ink-light font-mono text-sm">
+                      {formatCurrency(bid.msrp)}
+                    </div>
+                  </div>
+
+                  <div>
+                    <span className="text-[10px] uppercase font-bold text-emerald-400">Dealer Discount</span>
+                    <div className="font-bold text-emerald-400 font-mono text-sm">
+                      -{formatCurrency(bid.dealerDiscountDollars)} ({formatPercent(bid.dealerDiscountPercent)})
+                    </div>
+                  </div>
+
+                  <div>
+                    <span className="text-[10px] uppercase font-bold text-ink-faint">Doc Fee</span>
+                    <div className="font-semibold text-ink-muted font-mono text-sm">
+                      +{formatCurrency(bid.docFee)}
+                    </div>
+                  </div>
+
+                  <div>
+                    <span className="text-[10px] uppercase font-bold text-emerald-400">Quoted Price</span>
+                    <div className="font-black text-white font-mono text-base">
+                      {formatCurrency(bid.quotedOtdPrice)}
+                    </div>
+                  </div>
+                </div>
+                <p className="text-[10px] text-ink-faint -mt-2">
+                  Quoted price excludes sales tax & registration fees, which depend on your location — those are computed exactly at checkout.
+                </p>
+
+                {/* Dealer Notes */}
+                {bid.notes && (
+                  <p className="text-xs text-ink-muted bg-surface p-2.5 rounded-lg border border-border/60 italic">
+                    "{bid.notes}"
+                  </p>
+                )}
+
+                {/* Action Buttons */}
+                <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
+                  <button
+                    onClick={() => onInspectFee(bid)}
+                    className="flex items-center gap-1.5 text-xs font-semibold text-emerald-400 hover:underline"
+                  >
+                    <FileText className="h-3.5 w-3.5" /> Inspect Itemized Line Items
+                  </button>
+
+                  <button
+                    onClick={() => onInspectFee(bid)}
+                    className={`flex items-center gap-2 rounded-xl px-5 py-2.5 text-xs font-extrabold transition-all shadow-md active:scale-95 ${
+                      isFirst
+                        ? "bg-emerald-500 text-black hover:bg-emerald-400 shadow-emerald-500/20"
+                        : "border border-emerald-500/40 bg-emerald-500/10 text-emerald-300 hover:bg-emerald-500 hover:text-black"
+                    }`}
+                  >
+                    <Lock className="h-3.5 w-3.5" /> Accept This Deal & Lock OTD Price
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Safe Purchase Info Card */}
+        <div className="rounded-2xl border border-border bg-surface-elevated p-4 flex items-start gap-3 text-xs">
+          <ShieldCheck className="h-5 w-5 text-emerald-400 shrink-0 mt-0.5" />
+          <div>
+            <h4 className="font-bold text-white">Transparent Transaction Policy</h4>
+            <p className="text-[11px] text-ink-muted mt-0.5 leading-relaxed">
+              Every dealer in the TrimScout network is certified. Dealer identity, contact info, and VIN stay hidden until you lock in a deal — all doc fees are legally capped, and unwanted dealer add-ons are strictly forbidden.
+            </p>
           </div>
         </div>
       </div>
@@ -476,6 +388,7 @@ export const LiveDealRoom: React.FC<LiveDealRoomProps> = ({
                     className="rounded-xl border border-border bg-background overflow-hidden space-y-2 group"
                   >
                     <div className="relative aspect-video overflow-hidden bg-black/40">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={photo.imageUrl}
                         alt={photo.label}

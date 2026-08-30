@@ -23,7 +23,8 @@ import { SignupView } from "../components/SignupView";
 import { AdminPortal } from "../components/AdminPortal";
 import { DealerAnalytics } from "../components/DealerAnalytics";
 import { ScraperDashboardModal } from "../components/ScraperDashboardModal";
-import { LightsailIntelligence } from "../components/LightsailIntelligence";
+import { LightsailIntelligence, type VehicleRecord } from "../components/LightsailIntelligence";
+import { mapVehicleRecordToVehicle } from "../lib/vehicleMapper";
 
 export default function Home() {
   const [vehicles, setVehicles] = useState<Vehicle[]>(MOCK_VEHICLES);
@@ -61,6 +62,11 @@ export default function Home() {
   // Wizard state
   const [isWizardOpen, setIsWizardOpen] = useState(false);
   const [preselectedVehicle, setPreselectedVehicle] = useState<Vehicle | null>(null);
+  // True when the wizard was launched from a real vehicle in Market
+  // Intelligence (LightsailIntelligence) rather than the mock demo flow —
+  // switches BiddingWizard/LiveDealRoom into their real-backend modes.
+  const [isRealVehicleFlow, setIsRealVehicleFlow] = useState(false);
+  const [realVehicleBrand, setRealVehicleBrand] = useState<string>("");
 
   // Active Bidding Request state
   const [activeRequest, setActiveRequest] = useState<BiddingRequest>({
@@ -226,13 +232,27 @@ export default function Home() {
 
   // Handlers
   const handleSelectForBid = (vehicle: Vehicle) => {
+    setIsRealVehicleFlow(false);
     setPreselectedVehicle(vehicle);
     setIsWizardOpen(true);
   };
 
   const handleOpenFlexibleWizard = () => {
+    setIsRealVehicleFlow(false);
     setPreselectedVehicle(null);
     setIsWizardOpen(true);
+  };
+
+  const handleSelectRealVehicleForBid = (v: VehicleRecord, brand: string) => {
+    setIsRealVehicleFlow(true);
+    setRealVehicleBrand(brand);
+    setPreselectedVehicle(mapVehicleRecordToVehicle(v, brand));
+    setIsWizardOpen(true);
+  };
+
+  const handleRealBidRequestCreated = (request: BiddingRequest) => {
+    setActiveRequest(request);
+    setCurrentView("deal_room");
   };
 
   const handleSubmitBidRequest = (newRequest: BiddingRequest) => {
@@ -267,6 +287,7 @@ export default function Home() {
           docFee: otd1.docFee,
           dealerAccessories: otd1.accessories,
           totalOtdPrice: otd1.totalOtdPrice,
+          quotedOtdPrice: otd1.quotedOtdPrice,
           notes: "Vehicle in stock on showroom floor. Verified $0 add-ons.",
           rank: 1,
           createdAt: "Just now",
@@ -299,6 +320,7 @@ export default function Home() {
           docFee: otd2.docFee,
           dealerAccessories: otd2.accessories,
           totalOtdPrice: otd2.totalOtdPrice,
+          quotedOtdPrice: otd2.quotedOtdPrice,
           notes: "In transit allocation arriving within 5 days. Ready to lock in.",
           rank: 2,
           createdAt: "3m ago",
@@ -391,63 +413,6 @@ export default function Home() {
     }
   };
 
-  const handleDealerSubmitBid = (newBid: DealerBid) => {
-    setBids((prev) => {
-      const updated = [newBid, ...prev.filter((b) => b.id !== newBid.id)];
-      // Re-rank by lowest total OTD price
-      updated.sort((a, b) => a.totalOtdPrice - b.totalOtdPrice);
-      return updated.map((b, idx) => ({
-        ...b,
-        rank: idx + 1,
-        isTopDeal: idx === 0,
-      }));
-    });
-  };
-
-  const handleSimulateNewBid = () => {
-    const otdNew = calculateOtd({
-      msrp: 54600,
-      discountPercent: 9.4,
-      rebates: 1000,
-      zipCode: activeRequest.buyerZip,
-    });
-
-    const newBid: DealerBid = {
-      id: `bid-sim-${Date.now()}`,
-      dealRequestId: activeRequest.id,
-      dealerName: "BMW of Fremont",
-      dealerCity: "Fremont",
-      dealerState: "CA",
-      distanceMiles: 29,
-      matchedVin: "WBA33AY09RF994182",
-      matchedVehicleTitle: "2026 BMW 330i M Sport",
-      matchedVehicleSpec: "Mineral White • Shadowline Pro • Harman Kardon",
-      matchedVehicleImageUrl: "https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=800&q=80",
-      vehicleStatus: "on_lot",
-      msrp: otdNew.msrp,
-      dealerDiscountDollars: otdNew.discountDollars,
-      dealerDiscountPercent: otdNew.discountPercent,
-      manufacturerRebates: otdNew.rebates,
-      sellingPrice: otdNew.sellingPrice,
-      salesTax: otdNew.salesTax,
-      dmvFees: otdNew.dmvFees,
-      docFee: otdNew.docFee,
-      dealerAccessories: otdNew.accessories,
-      totalOtdPrice: otdNew.totalOtdPrice,
-      notes: "🔥 Price drop! Just countered with 9.4% off MSRP to win your business today!",
-      rank: 1,
-      createdAt: "Just now",
-      isTopDeal: true,
-      salesRep: {
-        name: "Alexander Kim",
-        title: "General Sales Manager",
-        phone: "(510) 555-0177",
-      },
-    };
-
-    handleDealerSubmitBid(newBid);
-  };
-
   const savedVehiclesList = vehicles.filter((v) => savedVehicleIds.includes(v.id));
 
   return (
@@ -538,7 +503,7 @@ export default function Home() {
           request={activeRequest}
           bids={bids}
           onInspectFee={handleInspectFee}
-          onSimulateNewBid={handleSimulateNewBid}
+          pollBids={isRealVehicleFlow}
         />
       )}
 
@@ -560,15 +525,24 @@ export default function Home() {
 
       {/* View 4: Dealer Partner Portal (Dealer Sales Manager View) */}
       {currentView === "dealer_portal" && (
-        <DealerPortal
-          requests={[activeRequest]}
-          bids={bids}
-          vehicles={vehicles}
-          lockedDeal={lockedDeal}
-          onDealerSubmitBid={handleDealerSubmitBid}
-          onDealerUploadPaperwork={handleDealerUploadPaperwork}
-          onSwitchToBuyerView={() => setCurrentView("deal_room")}
-        />
+        currentUser?.role === "dealer" ? (
+          <DealerPortal
+            currentUser={currentUser}
+            lockedDeal={lockedDeal}
+            onDealerUploadPaperwork={handleDealerUploadPaperwork}
+            onSwitchToBuyerView={() => setCurrentView("deal_room")}
+          />
+        ) : (
+          <div className="mx-auto max-w-md px-4 py-24 text-center space-y-4">
+            <p className="text-sm text-ink-muted">Sign in with a dealer account to view the Dealer Portal.</p>
+            <button
+              onClick={() => setIsAuthModalOpen(true)}
+              className="rounded-xl bg-emerald-500 px-5 py-2 text-xs font-extrabold text-black hover:bg-emerald-400 transition-all"
+            >
+              Sign In
+            </button>
+          </div>
+        )
       )}
 
       {/* View 5: Dedicated Signup & Registration View */}
@@ -611,7 +585,7 @@ export default function Home() {
       {/* View 7: Live AWS Lightsail Market Intelligence & Price Drops */}
       {(currentView === "lightsail_analytics" || currentView === "search") && (
         <div className="animate-fadeIn">
-          <LightsailIntelligence />
+          <LightsailIntelligence onSelectForBid={handleSelectRealVehicleForBid} />
         </div>
       )}
 
@@ -621,6 +595,11 @@ export default function Home() {
         onClose={() => setIsWizardOpen(false)}
         vehicles={vehicles}
         preselectedVehicle={preselectedVehicle}
+        lockVehicleSelection={isRealVehicleFlow}
+        referenceBrandCode={realVehicleBrand}
+        currentUser={currentUser}
+        onRequireLogin={() => setIsAuthModalOpen(true)}
+        onRealBidRequestCreated={handleRealBidRequestCreated}
         onSubmitBidRequest={handleSubmitBidRequest}
       />
 

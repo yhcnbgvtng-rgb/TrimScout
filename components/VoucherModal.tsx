@@ -131,21 +131,23 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
           </div>
 
           {/* Assigned Sales Director Contact */}
-          <div className="rounded-xl border border-border bg-surface-elevated p-4 space-y-2">
-            <div className="text-[10px] uppercase font-bold text-ink-light flex items-center gap-1.5">
-              <Phone className="h-3.5 w-3.5 text-emerald-400" /> Assigned Dealership Executive Contact
-            </div>
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="font-bold text-white text-sm">{deal.winningBid.salesRep.name}</div>
-                <div className="text-ink-muted text-xs">{deal.winningBid.salesRep.title}</div>
+          {deal.winningBid.salesRep && (
+            <div className="rounded-xl border border-border bg-surface-elevated p-4 space-y-2">
+              <div className="text-[10px] uppercase font-bold text-ink-light flex items-center gap-1.5">
+                <Phone className="h-3.5 w-3.5 text-emerald-400" /> Assigned Dealership Executive Contact
               </div>
-              <div className="text-right">
-                <div className="font-mono font-bold text-emerald-400 text-sm">{deal.winningBid.salesRep.phone}</div>
-                <span className="text-[10px] text-ink-faint">Direct Line</span>
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="font-bold text-white text-sm">{deal.winningBid.salesRep.name}</div>
+                  <div className="text-ink-muted text-xs">{deal.winningBid.salesRep.title}</div>
+                </div>
+                <div className="text-right">
+                  <div className="font-mono font-bold text-emerald-400 text-sm">{deal.winningBid.salesRep.phone}</div>
+                  <span className="text-[10px] text-ink-faint">Direct Line</span>
+                </div>
               </div>
             </div>
-          </div>
+          )}
 
           {/* Protection Policy */}
           <div className="rounded-xl border border-border bg-surface-elevated p-3 flex items-start gap-2.5 text-[11px] text-ink-light">

@@ -572,7 +572,11 @@ function sortMergedVehicles(vehicles: VehicleRecord[], sortBy: string, userZip: 
   return arr;
 }
 
-export const LightsailIntelligence: React.FC = () => {
+interface LightsailIntelligenceProps {
+  onSelectForBid?: (vehicle: VehicleRecord, brand: Brand) => void;
+}
+
+export const LightsailIntelligence: React.FC<LightsailIntelligenceProps> = ({ onSelectForBid }) => {
   const [viewMode, setViewMode] = useState<"grid" | "changes">("grid");
   const [copiedVin, setCopiedVin] = useState<string | null>(null);
   const [isAdvancedFiltersOpen, setIsAdvancedFiltersOpen] = useState(false);
@@ -2049,6 +2053,19 @@ export const LightsailIntelligence: React.FC = () => {
               </button>
 
               <div className="flex flex-wrap items-center gap-2">
+                {onSelectForBid && (
+                  <button
+                    onClick={() => {
+                      const brand = makeBrandMap[selectedVehicleForModal.make];
+                      if (brand) onSelectForBid(selectedVehicleForModal, brand);
+                      setSelectedVehicleForModal(null);
+                    }}
+                    className="inline-flex items-center gap-1.5 rounded-xl border-2 border-emerald-500 bg-emerald-500/10 hover:bg-emerald-500 hover:text-black px-5 py-2 text-xs font-black text-emerald-400 transition-all"
+                  >
+                    <Zap className="h-4 w-4" />
+                    <span>Get Dealers to Compete →</span>
+                  </button>
+                )}
                 {selectedVehicleForModal.url && (
                   <a
                     href={selectedVehicleForModal.url}

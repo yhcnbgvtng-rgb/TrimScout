@@ -22,6 +22,11 @@ export interface OtdCalculationResult {
   docFee: number;
   accessories: number;
   totalOtdPrice: number;
+  // Excludes salesTax/dmvFees — those depend on the buyer's location, not
+  // the dealer's competitiveness. This is the number dealers are ranked
+  // and compete on in the reverse auction; totalOtdPrice (tax+DMV
+  // included) stays the itemized true final amount the buyer pays.
+  quotedOtdPrice: number;
 }
 
 export interface ZipLocation {
@@ -216,6 +221,7 @@ export function calculateOtd(input: OtdCalculationInput): OtdCalculationResult {
   const salesTax = Math.round(sellingPrice * taxRate);
   const dmvFees = Math.round(sellingPrice * 0.011 + 220);
   const totalOtdPrice = sellingPrice + salesTax + dmvFees + docFee + accessories;
+  const quotedOtdPrice = sellingPrice + docFee + accessories;
 
   return {
     msrp,
@@ -229,6 +235,7 @@ export function calculateOtd(input: OtdCalculationInput): OtdCalculationResult {
     docFee,
     accessories,
     totalOtdPrice,
+    quotedOtdPrice,
   };
 }
 

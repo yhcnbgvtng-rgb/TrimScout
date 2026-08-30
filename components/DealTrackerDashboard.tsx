@@ -505,16 +505,18 @@ export const DealTrackerDashboard: React.FC<DealTrackerDashboardProps> = ({
                     {lockedDeal.winningBid.dealerCity}, {lockedDeal.winningBid.dealerState} ({lockedDeal.winningBid.distanceMiles} miles from {user.zipCode})
                   </p>
 
-                  <div className="pt-2 border-t border-border flex items-center justify-between">
-                    <div>
-                      <div className="font-bold text-white">{lockedDeal.winningBid.salesRep.name}</div>
-                      <div className="text-[11px] text-ink-muted">{lockedDeal.winningBid.salesRep.title}</div>
+                  {lockedDeal.winningBid.salesRep && (
+                    <div className="pt-2 border-t border-border flex items-center justify-between">
+                      <div>
+                        <div className="font-bold text-white">{lockedDeal.winningBid.salesRep.name}</div>
+                        <div className="text-[11px] text-ink-muted">{lockedDeal.winningBid.salesRep.title}</div>
+                      </div>
+                      <div className="text-right">
+                        <div className="font-mono font-bold text-emerald-400">{lockedDeal.winningBid.salesRep.phone}</div>
+                        <span className="text-[10px] text-ink-faint">Direct Phone Line</span>
+                      </div>
                     </div>
-                    <div className="text-right">
-                      <div className="font-mono font-bold text-emerald-400">{lockedDeal.winningBid.salesRep.phone}</div>
-                      <span className="text-[10px] text-ink-faint">Direct Phone Line</span>
-                    </div>
-                  </div>
+                  )}
                 </div>
 
                 {/* Pricing & Guarantee Card */}

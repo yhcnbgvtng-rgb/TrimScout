@@ -2756,6 +2756,7 @@ export const INITIAL_DEMO_BIDS: DealerBid[] = [
     docFee: 85,
     dealerAccessories: 0,
     totalOtdPrice: 53481,
+    quotedOtdPrice: 48678,
     notes: "Vehicle in stock on showroom floor. Verified $0 add-ons.",
     rank: 1,
     createdAt: "10m ago",

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Vehicle, BiddingStrategy, PaymentMethod, BiddingRequest, TradeInVehicle, TradeInPhoto } from "../lib/types";
+import { Vehicle, BiddingStrategy, PaymentMethod, BiddingRequest, TradeInVehicle, TradeInPhoto, UserProfile } from "../lib/types";
 import { formatCurrency, getEstimatedTaxRate } from "../lib/otdCalculator";
 import { MOCK_POPULAR_PACKAGES, SAMPLE_TRADE_IN_VEHICLE } from "../lib/mockData";
 import { decodeVin, SAMPLE_TEST_VINS, DecodedVehicle } from "../lib/vinDecoder";
@@ -41,6 +41,15 @@ interface BiddingWizardProps {
   preselectedVehicle?: Vehicle | null;
   initialStrategy?: BiddingStrategy;
   onSubmitBidRequest: (request: BiddingRequest) => void;
+  // Real reverse-auction flow: the buyer already picked a specific real
+  // vehicle from live inventory, so Step 1's fake paste-link/catalog-search
+  // UI is skipped entirely, and submission goes through a real backend
+  // instead of building a client-side-only BiddingRequest.
+  lockVehicleSelection?: boolean;
+  referenceBrandCode?: string;
+  currentUser?: UserProfile | null;
+  onRequireLogin?: () => void;
+  onRealBidRequestCreated?: (request: BiddingRequest) => void;
 }
 
 export const BiddingWizard: React.FC<BiddingWizardProps> = ({
@@ -50,6 +59,11 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   preselectedVehicle,
   initialStrategy = "flexible_discount",
   onSubmitBidRequest,
+  lockVehicleSelection,
+  referenceBrandCode,
+  currentUser,
+  onRequireLogin,
+  onRealBidRequestCreated,
 }) => {
   const [step, setStep] = useState<number>(1);
   const [strategy, setStrategy] = useState<BiddingStrategy>(initialStrategy);
@@ -124,7 +138,10 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   const [targetOtdPrice, setTargetOtdPrice] = useState<number>(52000);
   const [targetDiscountPercent, setTargetDiscountPercent] = useState<number>(8.5);
   const [buyerZip, setBuyerZip] = useState<string>("94107");
-  const [searchRadius, setSearchRadius] = useState<number>(150);
+  const [searchRadius, setSearchRadius] = useState<number>(100);
+  const [sameStateOnly, setSameStateOnly] = useState<boolean>(true);
+  const [isSubmittingReal, setIsSubmittingReal] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   useEffect(() => {
     if (preselectedVehicle) {
@@ -135,8 +152,9 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
       setMustHavePackages(preselectedVehicle.packages);
       setTargetOtdPrice(Math.round(preselectedVehicle.msrp * 0.92));
       setSelectionMode("catalog_search");
+      if (lockVehicleSelection) setStep(2);
     }
-  }, [preselectedVehicle]);
+  }, [preselectedVehicle, lockVehicleSelection]);
 
   const handleParseDealerUrl = (urlToParse?: string) => {
     const url = (urlToParse || dealerUrlInput).trim().toLowerCase();
@@ -226,7 +244,93 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     }
   };
 
-  const handleLaunchDeal = () => {
+  const buildTradeIn = (): TradeInVehicle | undefined =>
+    hasTradeIn
+      ? {
+          hasTradeIn: true,
+          year: tradeInYear,
+          make: tradeInMake,
+          model: tradeInModel,
+          trim: tradeInTrim,
+          mileage: tradeInMileage,
+          vin: tradeInVin,
+          condition: tradeInCondition,
+          estimatedValueMin: 24500,
+          estimatedValueMax: 26800,
+          photos: tradeInPhotos,
+        }
+      : undefined;
+
+  const handleLaunchDeal = async () => {
+    if (lockVehicleSelection) {
+      if (!currentUser) {
+        onClose();
+        onRequireLogin?.();
+        return;
+      }
+      if (!selectedVehicle) return;
+      setIsSubmittingReal(true);
+      setSubmitError(null);
+      try {
+        const res = await fetch("/api/deal-requests", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            strategy,
+            referenceBrandCode,
+            referenceVin: selectedVehicle.vin,
+            referenceYear: selectedVehicle.year,
+            referenceMake: selectedVehicle.make,
+            referenceModel: selectedVehicle.model,
+            referenceTrim: selectedVehicle.trim,
+            referencePrice: selectedVehicle.dealerPrice,
+            referenceMsrp: selectedVehicle.msrp,
+            referenceImageUrl: selectedVehicle.imageUrl,
+            targetOtdPrice: strategy === "firm_offer" ? targetOtdPrice : undefined,
+            targetDiscountPercent: strategy === "flexible_discount" ? targetDiscountPercent : undefined,
+            paymentMethod,
+            dealStructure: {
+              requestedStructures: paymentMethod === "all_three" ? ["cash", "finance", "lease"] : [paymentMethod],
+              financeTermMonths: financeTerm,
+              downPayment,
+              leaseMileagePerYear: leaseMileage,
+              leaseTermMonths: leaseTerm,
+            },
+            tradeIn: buildTradeIn(),
+            buyerZip,
+            searchRadiusMiles: searchRadius,
+            sameStateOnly,
+          }),
+        });
+        const json = await res.json();
+        if (!res.ok) throw new Error(json.error || "Could not submit your request.");
+
+        const dr = json.dealRequest;
+        const newRequest: BiddingRequest = {
+          id: dr.id,
+          strategy: dr.strategy,
+          targetVin: dr.referenceVin,
+          targetVehicle: selectedVehicle,
+          paymentMethod: dr.paymentMethod,
+          buyerZip: dr.buyerZip,
+          buyerState: dr.buyerState,
+          searchRadiusMiles: dr.searchRadiusMiles,
+          sameStateOnly: dr.sameStateOnly,
+          tradeIn: buildTradeIn(),
+          createdAt: dr.createdAt,
+          expiresAt: dr.expiresAt,
+          status: dr.status,
+        };
+        onRealBidRequestCreated?.(newRequest);
+        onClose();
+      } catch (e) {
+        setSubmitError(e instanceof Error ? e.message : "Could not submit your request.");
+      } finally {
+        setIsSubmittingReal(false);
+      }
+      return;
+    }
+
     const newRequest: BiddingRequest = {
       id: `req-${Date.now()}`,
       strategy,
@@ -243,21 +347,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
         dealbreakers: ["Red Interior"],
         allowedStatuses: ["on_lot", "in_transit"],
       },
-      tradeIn: hasTradeIn
-        ? {
-            hasTradeIn: true,
-            year: tradeInYear,
-            make: tradeInMake,
-            model: tradeInModel,
-            trim: tradeInTrim,
-            mileage: tradeInMileage,
-            vin: tradeInVin,
-            condition: tradeInCondition,
-            estimatedValueMin: 24500,
-            estimatedValueMax: 26800,
-            photos: tradeInPhotos,
-          }
-        : undefined,
+      tradeIn: buildTradeIn(),
       targetOtdPrice: strategy === "firm_offer" ? targetOtdPrice : undefined,
       targetDiscountPercent: strategy === "flexible_discount" ? targetDiscountPercent : undefined,
       paymentMethod,
@@ -1175,13 +1265,30 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                     className="w-full rounded-xl border border-border bg-background py-2 px-3 text-sm text-white focus:border-emerald-500 focus:outline-none"
                   >
                     <option value={50}>50 Miles (Local)</option>
-                    <option value={150}>150 Miles (Regional)</option>
+                    <option value={100}>100 Miles (Recommended)</option>
+                    <option value={250}>250 Miles</option>
                     <option value={500}>500 Miles (Statewide)</option>
                     <option value={2000}>Nationwide</option>
                   </select>
-                  <span className="text-[10px] text-ink-faint">14 dealers eligible</span>
                 </div>
               </div>
+
+              {lockVehicleSelection && (
+                <label className="flex items-center justify-between gap-3 rounded-xl border border-border bg-background p-3 cursor-pointer">
+                  <div>
+                    <div className="text-xs font-semibold text-ink-light">Prefer dealers in my state</div>
+                    <p className="text-[10px] text-ink-faint">
+                      On by default — turn off to also see dealers in other states within your radius.
+                    </p>
+                  </div>
+                  <input
+                    type="checkbox"
+                    checked={sameStateOnly}
+                    onChange={(e) => setSameStateOnly(e.target.checked)}
+                    className="h-4 w-4 rounded border-border bg-surface-elevated text-emerald-500 focus:ring-emerald-500/20"
+                  />
+                </label>
+              )}
             </div>
           )}
 
@@ -1270,33 +1377,47 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
         </div>
 
         {/* Footer Navigation */}
-        <div className="flex items-center justify-between border-t border-border bg-surface-elevated px-6 py-4">
-          {step > 1 ? (
-            <button
-              onClick={() => setStep(step - 1)}
-              className="flex items-center gap-1.5 rounded-lg border border-border px-4 py-2 text-xs font-semibold text-ink-light hover:bg-border transition-colors"
-            >
-              <ArrowLeft className="h-4 w-4" /> Back
-            </button>
-          ) : (
-            <div />
+        <div className="flex flex-col gap-2 border-t border-border bg-surface-elevated px-6 py-4">
+          {submitError && (
+            <div className="rounded-lg border border-rose-500/40 bg-rose-950/30 px-3 py-2 text-[11px] text-rose-300">
+              {submitError}
+            </div>
           )}
+          <div className="flex items-center justify-between">
+            {step > (lockVehicleSelection ? 2 : 1) ? (
+              <button
+                onClick={() => setStep(step - 1)}
+                disabled={isSubmittingReal}
+                className="flex items-center gap-1.5 rounded-lg border border-border px-4 py-2 text-xs font-semibold text-ink-light hover:bg-border transition-colors disabled:opacity-50"
+              >
+                <ArrowLeft className="h-4 w-4" /> Back
+              </button>
+            ) : (
+              <div />
+            )}
 
-          {step < 5 ? (
-            <button
-              onClick={() => setStep(step + 1)}
-              className="flex items-center gap-1.5 rounded-lg bg-emerald-500 px-5 py-2 text-xs font-bold text-black hover:bg-emerald-400 transition-all shadow-md shadow-emerald-500/20"
-            >
-              Continue <ArrowRight className="h-4 w-4" />
-            </button>
-          ) : (
-            <button
-              onClick={handleLaunchDeal}
-              className="flex items-center gap-2 rounded-lg bg-emerald-500 px-6 py-2.5 text-xs font-extrabold text-black hover:bg-emerald-400 transition-all shadow-lg shadow-emerald-500/20 active:scale-95"
-            >
-              <Zap className="h-4 w-4 fill-black" /> Broadcast Deal Request
-            </button>
-          )}
+            {step < 5 ? (
+              <button
+                onClick={() => setStep(step + 1)}
+                className="flex items-center gap-1.5 rounded-lg bg-emerald-500 px-5 py-2 text-xs font-bold text-black hover:bg-emerald-400 transition-all shadow-md shadow-emerald-500/20"
+              >
+                Continue <ArrowRight className="h-4 w-4" />
+              </button>
+            ) : (
+              <button
+                onClick={handleLaunchDeal}
+                disabled={isSubmittingReal}
+                className="flex items-center gap-2 rounded-lg bg-emerald-500 px-6 py-2.5 text-xs font-extrabold text-black hover:bg-emerald-400 transition-all shadow-lg shadow-emerald-500/20 active:scale-95 disabled:opacity-60"
+              >
+                {isSubmittingReal ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Zap className="h-4 w-4 fill-black" />
+                )}
+                {isSubmittingReal ? "Broadcasting…" : "Broadcast Deal Request"}
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </div>
