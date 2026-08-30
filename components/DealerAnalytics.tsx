@@ -12,6 +12,7 @@ import {
   Loader2,
   Search,
   Layers,
+  Globe,
 } from "lucide-react";
 import { UserProfile } from "../lib/types";
 import { VehicleHistoryTimeline } from "./VehicleHistoryTimeline";
@@ -67,6 +68,26 @@ interface AnalyticsResponse {
     daysOnLot: number | null;
     url: string | null;
   }[];
+  nationwideInventory: {
+    model: string;
+    brand: string;
+    totalCount: number;
+    vehicles: {
+      vin: string;
+      dealerName: string | null;
+      state: string | null;
+      year: number | null;
+      make: string | null;
+      model: string | null;
+      trim: string | null;
+      price: number | null;
+      oldPrice: number | null;
+      priceDiff: number | null;
+      changeType: string | null;
+      daysOnLot: number | null;
+      url: string | null;
+    }[];
+  }[];
 }
 
 // Rule-based for now, computed entirely from this dealer's own real
@@ -119,6 +140,7 @@ export const DealerAnalytics: React.FC<DealerAnalyticsProps> = ({ user }) => {
   const [lookupVin, setLookupVin] = useState<string | null>(null);
 
   const [inventoryFilter, setInventoryFilter] = useState("");
+  const [nationwideFilter, setNationwideFilter] = useState("");
 
   useEffect(() => {
     if (!user.dealerName) {
@@ -154,6 +176,27 @@ export const DealerAnalytics: React.FC<DealerAnalyticsProps> = ({ user }) => {
     }
     return [...byModel.entries()].sort((a, b) => a[0].localeCompare(b[0]));
   }, [data, inventoryFilter]);
+
+  // Each group already arrives sorted by days-on-lot descending (the box
+  // API sorts server-side) — filtering here must not re-sort, just narrow.
+  const filteredNationwide = useMemo(() => {
+    if (!data) return [];
+    const q = nationwideFilter.trim().toLowerCase();
+    return data.nationwideInventory
+      .map((group) => ({
+        ...group,
+        vehicles: q
+          ? group.vehicles.filter((v) =>
+              [v.vin, v.year, v.make, v.model, v.trim, v.dealerName, v.state]
+                .filter(Boolean)
+                .join(" ")
+                .toLowerCase()
+                .includes(q)
+            )
+          : group.vehicles,
+      }))
+      .filter((group) => group.vehicles.length > 0);
+  }, [data, nationwideFilter]);
 
   const handleVinSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -422,6 +465,94 @@ export const DealerAnalytics: React.FC<DealerAnalyticsProps> = ({ user }) => {
                             </div>
                             <div className="text-right shrink-0 space-y-0.5">
                               <div className="text-white font-mono font-bold">
+                                {v.price != null ? `$${v.price.toLocaleString()}` : "—"}
+                              </div>
+                              {hasDelta ? (
+                                <div className={`font-mono ${dropped ? "text-rose-400" : "text-amber-400"}`}>
+                                  {dropped ? "-" : "+"}${Math.abs(v.priceDiff || 0).toLocaleString()}
+                                </div>
+                              ) : (
+                                <div className="text-ink-faint font-mono">no change</div>
+                              )}
+                              {v.url && (
+                                <a
+                                  href={v.url}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="inline-flex items-center gap-1 text-emerald-400 hover:underline"
+                                >
+                                  View <ExternalLink className="h-2.5 w-2.5" />
+                                </a>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Nationwide inventory for the same make/model/trim, across every
+              dealer — competitive view, sorted by highest days-on-hand. */}
+          <div className="rounded-2xl border border-border bg-surface p-5 space-y-3">
+            <div className="flex items-center justify-between gap-3 flex-wrap">
+              <div className="flex items-center gap-2 text-xs font-bold text-white uppercase tracking-wide">
+                <Globe className="h-3.5 w-3.5 text-emerald-400" />
+                Nationwide Inventory — Same Models
+              </div>
+              <div className="relative">
+                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3 w-3 text-ink-faint" />
+                <input
+                  value={nationwideFilter}
+                  onChange={(e) => setNationwideFilter(e.target.value)}
+                  placeholder="Search model, VIN, trim, dealer, state…"
+                  className="w-64 rounded-xl border border-border bg-surface-elevated pl-7 pr-3 py-1.5 text-[11px] text-white placeholder:text-ink-faint focus:outline-none focus:border-emerald-500/50"
+                />
+              </div>
+            </div>
+            <p className="text-[11px] text-ink-muted">
+              Every VIN nationwide (any dealer) for the models you carry, sorted by days on hand — highest first.
+            </p>
+
+            {filteredNationwide.length === 0 ? (
+              <p className="text-xs text-ink-faint py-4">No matching nationwide inventory.</p>
+            ) : (
+              <div className="space-y-4 max-h-[32rem] overflow-y-auto pr-1">
+                {filteredNationwide.map((group) => (
+                  <div key={group.model} className="space-y-1.5">
+                    <div className="flex items-center gap-2 text-[11px] font-bold text-white sticky top-0 bg-surface py-1">
+                      {group.model}
+                      <span className="text-ink-faint font-normal">
+                        (showing {group.vehicles.length} of {group.totalCount.toLocaleString()} nationwide)
+                      </span>
+                    </div>
+                    <div className="space-y-1.5">
+                      {group.vehicles.map((v) => {
+                        const hasDelta = v.priceDiff != null && v.priceDiff !== 0;
+                        const dropped = (v.priceDiff ?? 0) < 0;
+                        return (
+                          <div
+                            key={v.vin}
+                            className="flex items-center justify-between gap-3 rounded-xl border border-border bg-surface-elevated p-2.5 text-[11px]"
+                          >
+                            <div className="min-w-0">
+                              <div className="font-bold text-white truncate">
+                                {v.year} {v.make} {v.model} {v.trim && `(${v.trim})`}
+                              </div>
+                              <div className="text-ink-faint font-mono flex items-center gap-2 flex-wrap">
+                                {v.vin}
+                                <span className="text-ink-muted font-sans">
+                                  {v.dealerName}
+                                  {v.state && ` · ${v.state}`}
+                                </span>
+                              </div>
+                            </div>
+                            <div className="text-right shrink-0 space-y-0.5">
+                              <div className="text-amber-400 font-mono font-bold">{v.daysOnLot ?? 0}d on lot</div>
+                              <div className="text-white font-mono">
                                 {v.price != null ? `$${v.price.toLocaleString()}` : "—"}
                               </div>
                               {hasDelta ? (

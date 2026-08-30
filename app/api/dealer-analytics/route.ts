@@ -131,6 +131,61 @@ export async function GET(req: Request) {
     }))
     .sort((a, b) => (a.model || "").localeCompare(b.model || "") || (a.price || 0) - (b.price || 0));
 
+  // Nationwide competitive view: for every model this dealer carries, pull
+  // the same model across ALL dealers (no `dealer` filter), sorted by
+  // days-on-lot descending — the box already supports this sort server-side
+  // (same param used for `agingInventory` above), so the top of each list is
+  // exactly the highest-days-on-hand units without a full-catalog pull.
+  // Capped at 60/model: this is a "how does my inventory compare" view, not
+  // a full nationwide export, and a hot model can run into the thousands
+  // nationwide.
+  const NATIONWIDE_PER_MODEL_CAP = 60;
+  const modelBrandPairs = new Map<string, string>(); // model -> brand
+  for (const b of matched) {
+    for (const f of b.facetsRes?.facets.model ?? []) {
+      if (!modelBrandPairs.has(f.value)) modelBrandPairs.set(f.value, b.brand);
+    }
+  }
+
+  const nationwideByModel = await Promise.all(
+    [...modelBrandPairs.entries()].map(async ([model, brand]) => {
+      const res = await fetchVehiclesFromBox({
+        brand,
+        model,
+        pageSize: NATIONWIDE_PER_MODEL_CAP,
+        page: 1,
+        sortBy: "days_desc",
+      });
+      const vehicles = (res?.vehicles ?? [])
+        .slice()
+        .sort((a, b) => (b.days_on_lot ?? 0) - (a.days_on_lot ?? 0))
+        .map((v) => ({
+          vin: v.vin,
+          dealerName: v.dealer_name,
+          state: v.state,
+          year: v.year,
+          make: v.make,
+          model: v.model,
+          trim: v.trim,
+          price: v.price,
+          oldPrice: v.old_price,
+          priceDiff: v.price_diff,
+          changeType: v.change_type,
+          daysOnLot: v.days_on_lot,
+          url: v.url,
+        }));
+      return {
+        model,
+        brand,
+        totalCount: res?.pagination.totalCount ?? vehicles.length,
+        vehicles,
+      };
+    })
+  );
+  const nationwideInventory = nationwideByModel
+    .filter((m) => m.vehicles.length > 0)
+    .sort((a, b) => a.model.localeCompare(b.model));
+
   return NextResponse.json({
     dealerName,
     brands: matched.map((b) => b.brand),
@@ -140,5 +195,6 @@ export async function GET(req: Request) {
     agingInventory,
     recentPriceDrops,
     fullInventory,
+    nationwideInventory,
   });
 }

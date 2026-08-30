@@ -352,9 +352,14 @@ async function handleVehicles(req, res, params) {
   const sortMap = {
     price_asc: "v.price ASC",
     price_desc: "v.price DESC",
+    price_drop_first: "CASE WHEN v.change_type = 'PRICE_DROP' THEN 0 ELSE 1 END ASC, v.price_diff ASC",
     days_on_lot: "v.days_on_lot DESC",
+    days_desc: "v.days_on_lot DESC",
+    days_asc: "v.days_on_lot ASC",
+    mileage_asc: "v.mileage ASC",
     newest: "v.first_seen_date DESC",
     year: "v.year DESC",
+    year_desc: "v.year DESC",
   };
 
   let orderBy = "v.first_seen_date DESC";
