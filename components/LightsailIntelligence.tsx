@@ -1845,6 +1845,16 @@ export const LightsailIntelligence: React.FC<LightsailIntelligenceProps> = ({ on
                   {selectedVehicleForModal.year} {selectedVehicleForModal.make} {selectedVehicleForModal.model}{" "}
                   {selectedVehicleForModal.trim && `(${selectedVehicleForModal.trim})`}
                 </h2>
+                {selectedVehicleForModal.dealerName && (
+                  <div className="flex items-center gap-1.5 text-xs text-emerald-400 font-semibold">
+                    <Building2 className="h-3.5 w-3.5" />
+                    <span>
+                      {selectedVehicleForModal.dealerName}
+                      {(selectedVehicleForModal.city || selectedVehicleForModal.state) &&
+                        ` — ${[selectedVehicleForModal.city, selectedVehicleForModal.state].filter(Boolean).join(", ")}`}
+                    </span>
+                  </div>
+                )}
               </div>
               <button
                 onClick={() => {
