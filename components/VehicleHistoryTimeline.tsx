@@ -104,7 +104,7 @@ export const VehicleHistoryTimeline: React.FC<{ vin: string; showSummary?: boole
     setHistory(null);
     fetch(`/api/vehicle-history?vin=${encodeURIComponent(vin)}`)
       .then((res) => {
-        if (!res.ok) throw new Error(res.status === 404 ? "No crawl history recorded yet for this VIN." : "Could not load history.");
+        if (!res.ok) throw new Error(res.status === 404 ? "No TrimScout history recorded yet for this VIN." : "Could not load history.");
         return res.json();
       })
       .then((json: VehicleHistoryResponse) => setHistory(json))
@@ -116,7 +116,7 @@ export const VehicleHistoryTimeline: React.FC<{ vin: string; showSummary?: boole
     <div className="rounded-2xl border border-border bg-surface-elevated p-4 space-y-3">
       <div className="flex items-center gap-2 text-xs font-bold text-white uppercase tracking-wide">
         <Clock className="h-3.5 w-3.5 text-emerald-400" />
-        Crawl History — By Day
+        TrimScout History — By Day
       </div>
 
       {showSummary && !isLoading && !error && history && (history.year || history.make || history.model) && (
@@ -138,7 +138,7 @@ export const VehicleHistoryTimeline: React.FC<{ vin: string; showSummary?: boole
 
       {isLoading && (
         <div className="flex items-center gap-2 text-ink-muted text-xs py-4">
-          <Loader2 className="h-3.5 w-3.5 animate-spin" /> Loading real crawl history…
+          <Loader2 className="h-3.5 w-3.5 animate-spin" /> Loading real TrimScout history…
         </div>
       )}
 
