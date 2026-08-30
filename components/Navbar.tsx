@@ -54,13 +54,11 @@ export const Navbar: React.FC<NavbarProps> = ({
   }, []);
 
   const navLinks: {
-    id: "lightsail_analytics" | "track_deals" | "deal_room" | "dealer_analytics" | "bid_program";
+    id: "lightsail_analytics" | "dealer_analytics" | "bid_program";
     label: string;
     badge?: string | number;
   }[] = [
     { id: "lightsail_analytics", label: "Market Intelligence", badge: "LIVE" },
-    { id: "track_deals", label: "Track Deals", badge: activeDealCount },
-    { id: "deal_room", label: "Live Deal Room" },
     { id: "dealer_analytics", label: "AI Sales Analytics" },
     { id: "bid_program", label: "How It Works" },
   ];
@@ -151,7 +149,23 @@ export const Navbar: React.FC<NavbarProps> = ({
                     className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-ink-light hover:bg-emerald-500/10 hover:text-emerald-400 font-medium transition-colors text-left"
                   >
                     <Layers className="h-4 w-4" />
-                    <span>My Deal Tracker</span>
+                    <span className="flex-1">My Deal Tracker</span>
+                    {activeDealCount > 0 && (
+                      <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-emerald-500 px-1 text-[9px] font-black text-black">
+                        {activeDealCount}
+                      </span>
+                    )}
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      onToggleView("deal_room");
+                      setIsUserMenuOpen(false);
+                    }}
+                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-ink-light hover:bg-emerald-500/10 hover:text-emerald-400 font-medium transition-colors text-left"
+                  >
+                    <Presentation className="h-4 w-4" />
+                    <span>Live Deal Room</span>
                   </button>
 
                   <button
