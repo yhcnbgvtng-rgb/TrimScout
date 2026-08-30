@@ -138,7 +138,7 @@ export const BidProgramIntro: React.FC<BidProgramIntroProps> = ({
           </div>
           <h3 className="text-lg font-bold text-white">Zero Sales Calls or Email Spam</h3>
           <p className="text-xs text-ink-muted leading-relaxed">
-            We assign you a masked identity (e.g. Buyer #CA-4921). Dealerships never see your phone number or real email address. Communications happen through our secure anonymized relay.
+            We assign you a masked identity (e.g. Buyer #CA-4921). Dealerships never see your phone number, real email, or who you are — just your spec. So the price you're offered depends on the car you want, not on who's asking.
           </p>
         </div>
 
