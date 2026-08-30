@@ -152,9 +152,30 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
       setMustHavePackages(preselectedVehicle.packages);
       setTargetOtdPrice(Math.round(preselectedVehicle.msrp * 0.92));
       setSelectionMode("catalog_search");
-      if (lockVehicleSelection) setStep(2);
+      // Vehicle selection (step 2) is skipped via goNext/goBack below — the
+      // payment-method question (step 1) still shows first for every flow,
+      // real-vehicle or not, so we don't jump away from it here.
     }
   }, [preselectedVehicle, lockVehicleSelection]);
+
+  const TOTAL_STEPS = 6;
+  // Step 2 (vehicle selection) is skipped when a real vehicle is already
+  // locked in — the payment-method question (step 1) still always shows
+  // first, so the skip happens on navigation, not on mount.
+  const goNext = () => {
+    if (step === 1 && lockVehicleSelection) {
+      setStep(3);
+    } else {
+      setStep(step + 1);
+    }
+  };
+  const goBack = () => {
+    if (step === 3 && lockVehicleSelection) {
+      setStep(1);
+    } else {
+      setStep(step - 1);
+    }
+  };
 
   const handleParseDealerUrl = (urlToParse?: string) => {
     const url = (urlToParse || dealerUrlInput).trim().toLowerCase();
@@ -210,7 +231,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     setSelectedTrims([v.trim]);
     setMustHavePackages(v.packages);
     setTargetOtdPrice(Math.round(v.msrp * 0.92));
-    setStep(2); // Advance to strategy choice
+    setStep(3); // Advance to strategy choice
   };
 
   const toggleTrim = (trim: string) => {
@@ -383,7 +404,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
             </div>
             <div>
               <h2 className="text-base font-bold text-white">Launch Dealership Bidding Hunt</h2>
-              <p className="text-xs text-ink-muted">Step {step} of 5 • Certified Dealer Reverse Auction</p>
+              <p className="text-xs text-ink-muted">Step {step} of {TOTAL_STEPS} • Certified Dealer Reverse Auction</p>
             </div>
           </div>
           <button
@@ -397,16 +418,126 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
         {/* Wizard Body */}
         <div className="p-6 space-y-6 max-h-[70vh] overflow-y-auto">
           {/* ========================================================================= */}
-          {/* STEP 1: SEARCH & SELECT THE TARGET VEHICLE                                */}
-          {/* ========================================================================= */}
-          {/* ========================================================================= */}
-          {/* STEP 1: SEARCH & SELECT THE TARGET VEHICLE                                */}
+          {/* STEP 1: PAYMENT METHOD — CASH, FINANCE, OR LEASE                          */}
           {/* ========================================================================= */}
           {step === 1 && (
+            <div className="space-y-4">
+              <div>
+                <h3 className="text-sm font-bold text-white uppercase tracking-wider text-emerald-400">
+                  Step 1: How Are You Paying?
+                </h3>
+                <p className="text-xs text-ink-muted mt-0.5">
+                  This shapes every offer dealers send you — we'll ask for the details next.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                {/* Option 1: ALL 3 (Full Width Featured Card) */}
+                <div
+                  onClick={() => setPaymentMethod("all_three")}
+                  className={`sm:col-span-2 cursor-pointer rounded-xl border p-4 transition-all ${
+                    paymentMethod === "all_three"
+                      ? "border-emerald-500 bg-emerald-500/10 shadow-md ring-1 ring-emerald-500"
+                      : "border-border bg-surface-elevated hover:border-border-strong"
+                  }`}
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-500 text-black font-extrabold shrink-0 shadow-md">
+                        <Layers className="h-5 w-5 stroke-[2.5]" />
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <h4 className="font-extrabold text-white text-sm">Show Me All 3 (Cash, Finance & Lease)</h4>
+                          <span className="rounded bg-emerald-500 text-black px-1.5 py-0.2 text-[9px] font-black uppercase">
+                            RECOMMENDED
+                          </span>
+                        </div>
+                        <p className="text-xs text-ink-muted mt-0.5 leading-relaxed">
+                          Dealers will submit side-by-side bids showing full <strong>Cash Out-The-Door price</strong>, <strong>60-mo Finance payments</strong>, and <strong>36-mo Lease terms</strong> so you can compare the best mathematical option.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Option 2: Cash Only */}
+                <div
+                  onClick={() => setPaymentMethod("cash")}
+                  className={`cursor-pointer rounded-xl border p-3.5 transition-all ${
+                    paymentMethod === "cash"
+                      ? "border-emerald-500 bg-emerald-500/10 shadow-md ring-1 ring-emerald-500"
+                      : "border-border bg-surface-elevated hover:border-border-strong"
+                  }`}
+                >
+                  <div className="flex items-center gap-2.5">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/20 text-emerald-400 font-bold shrink-0">
+                      <Coins className="h-4 w-4 stroke-[2.5]" />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-white text-xs">Cash Out-The-Door Only</h4>
+                      <p className="text-[11px] text-ink-muted mt-0.5">
+                        Single lump-sum payment with $0 surprise dealer fee markups.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Option 3: Finance Only */}
+                <div
+                  onClick={() => setPaymentMethod("finance")}
+                  className={`cursor-pointer rounded-xl border p-3.5 transition-all ${
+                    paymentMethod === "finance"
+                      ? "border-emerald-500 bg-emerald-500/10 shadow-md ring-1 ring-emerald-500"
+                      : "border-border bg-surface-elevated hover:border-border-strong"
+                  }`}
+                >
+                  <div className="flex items-center gap-2.5">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/20 text-blue-400 font-bold shrink-0">
+                      <CreditCard className="h-4 w-4 stroke-[2.5]" />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-white text-xs">Finance Deal (Loan)</h4>
+                      <p className="text-[11px] text-ink-muted mt-0.5">
+                        Dealers compete on vehicle selling price & monthly loan rate.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Option 4: Lease Only */}
+                <div
+                  onClick={() => setPaymentMethod("lease")}
+                  className={`sm:col-span-2 cursor-pointer rounded-xl border p-3.5 transition-all ${
+                    paymentMethod === "lease"
+                      ? "border-emerald-500 bg-emerald-500/10 shadow-md ring-1 ring-emerald-500"
+                      : "border-border bg-surface-elevated hover:border-border-strong"
+                  }`}
+                >
+                  <div className="flex items-center gap-2.5">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-500/20 text-purple-400 font-bold shrink-0">
+                      <KeyRound className="h-4 w-4 stroke-[2.5]" />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-white text-xs">Lease Deal Structure</h4>
+                      <p className="text-[11px] text-ink-muted mt-0.5">
+                        Dealers compete on capitalized cost reduction, money factor & monthly lease price.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ========================================================================= */}
+          {/* STEP 2: SEARCH & SELECT THE TARGET VEHICLE                                */}
+          {/* ========================================================================= */}
+          {step === 2 && (
             <div className="space-y-5">
               <div>
                 <h3 className="text-sm font-bold text-white uppercase tracking-wider text-emerald-400">
-                  Step 1: Choose Your Target Car
+                  Step 2: Choose Your Target Car
                 </h3>
                 <p className="text-xs text-ink-muted mt-0.5">
                   Paste a direct dealership listing link, or search our nationwide inventory network.
@@ -565,7 +696,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                           </div>
                           <button
                             type="button"
-                            onClick={() => setStep(2)}
+                            onClick={() => setStep(3)}
                             className="rounded-lg bg-emerald-500 px-4 py-1.5 text-xs font-extrabold text-black hover:bg-emerald-400 transition-all flex items-center gap-1 shadow-md"
                           >
                             <span>Lock This Car & Continue →</span>
@@ -647,13 +778,13 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
           )}
 
           {/* ========================================================================= */}
-          {/* STEP 2: CHOOSE STRATEGY                                                   */}
+          {/* STEP 3: CHOOSE STRATEGY                                                   */}
           {/* ========================================================================= */}
-          {step === 2 && (
+          {step === 3 && (
             <div className="space-y-4">
               <div>
                 <h3 className="text-sm font-bold text-white uppercase tracking-wider text-emerald-400">
-                  Step 2: Choose Your Bidding Strategy
+                  Step 3: Choose Your Bidding Strategy
                 </h3>
                 <p className="text-xs text-ink-muted mt-0.5">
                   Selected Car: <strong className="text-white">{selectedVehicle ? `${selectedVehicle.year} ${selectedVehicle.make} ${selectedVehicle.model} ${selectedVehicle.trim}` : `${make} ${model}`}</strong>
@@ -767,14 +898,14 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
           )}
 
           {/* ========================================================================= */}
-          {/* STEP 3: TRADE-IN EVALUATION & PHOTO UPLOAD                                */}
+          {/* STEP 4: TRADE-IN EVALUATION & PHOTO UPLOAD                                */}
           {/* ========================================================================= */}
-          {step === 3 && (
+          {step === 4 && (
             <div className="space-y-5">
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="text-sm font-bold text-white uppercase tracking-wider text-emerald-400">
-                    Step 3: Trade-In Vehicle & Photo Appraisal
+                    Step 4: Trade-In Vehicle & Photo Appraisal
                   </h3>
                   <p className="text-xs text-ink-muted mt-0.5">
                     Dealers submit firm, binding trade-in allowances when photos are attached.
@@ -1030,115 +1161,33 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
           )}
 
           {/* ========================================================================= */}
-          {/* STEP 4: DEAL STRUCTURE & FINANCIAL TERMS                                  */}
+          {/* STEP 5: DEAL STRUCTURE & FINANCIAL TERMS                                  */}
           {/* ========================================================================= */}
-          {step === 4 && (
+          {step === 5 && (
             <div className="space-y-4">
-              <div>
-                <h3 className="text-sm font-bold text-white uppercase tracking-wider text-emerald-400">
-                  Step 4: How Would You Like Dealers to Structure Your Deal?
-                </h3>
-                <p className="text-xs text-ink-muted mt-0.5">
-                  Request binding bids for all 3 structures (Cash, Finance & Lease) or choose a single payment model.
-                </p>
-              </div>
-
-              {/* Deal Structure Cards Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                {/* Option 1: ALL 3 (Full Width Featured Card) */}
-                <div
-                  onClick={() => setPaymentMethod("all_three")}
-                  className={`sm:col-span-2 cursor-pointer rounded-xl border p-4 transition-all ${
-                    paymentMethod === "all_three"
-                      ? "border-emerald-500 bg-emerald-500/10 shadow-md ring-1 ring-emerald-500"
-                      : "border-border bg-surface-elevated hover:border-border-strong"
-                  }`}
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-500 text-black font-extrabold shrink-0 shadow-md">
-                        <Layers className="h-5 w-5 stroke-[2.5]" />
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <h4 className="font-extrabold text-white text-sm">Quote All 3 Structures (Cash, Finance & Lease)</h4>
-                          <span className="rounded bg-emerald-500 text-black px-1.5 py-0.2 text-[9px] font-black uppercase">
-                            RECOMMENDED
-                          </span>
-                        </div>
-                        <p className="text-xs text-ink-muted mt-0.5 leading-relaxed">
-                          Dealers will submit side-by-side bids showing full <strong>Cash Out-The-Door price</strong>, <strong>60-mo Finance payments</strong>, and <strong>36-mo Lease terms</strong> so you can compare the best mathematical option.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <h3 className="text-sm font-bold text-white uppercase tracking-wider text-emerald-400">
+                    Step 5: Set Your Deal Parameters
+                  </h3>
+                  <p className="text-xs text-ink-muted mt-0.5">
+                    Fine-tune the terms dealers will bid against.
+                  </p>
                 </div>
-
-                {/* Option 2: Cash Only */}
-                <div
-                  onClick={() => setPaymentMethod("cash")}
-                  className={`cursor-pointer rounded-xl border p-3.5 transition-all ${
-                    paymentMethod === "cash"
-                      ? "border-emerald-500 bg-emerald-500/10 shadow-md ring-1 ring-emerald-500"
-                      : "border-border bg-surface-elevated hover:border-border-strong"
-                  }`}
+                <button
+                  type="button"
+                  onClick={() => setStep(1)}
+                  className="shrink-0 rounded-lg border border-border bg-surface-elevated px-2.5 py-1 text-[10px] font-bold text-ink-muted hover:text-white hover:border-border-strong transition-colors"
                 >
-                  <div className="flex items-center gap-2.5">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/20 text-emerald-400 font-bold shrink-0">
-                      <Coins className="h-4 w-4 stroke-[2.5]" />
-                    </div>
-                    <div>
-                      <h4 className="font-bold text-white text-xs">Cash Out-The-Door Only</h4>
-                      <p className="text-[11px] text-ink-muted mt-0.5">
-                        Single lump-sum payment with $0 surprise dealer fee markups.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Option 3: Finance Only */}
-                <div
-                  onClick={() => setPaymentMethod("finance")}
-                  className={`cursor-pointer rounded-xl border p-3.5 transition-all ${
-                    paymentMethod === "finance"
-                      ? "border-emerald-500 bg-emerald-500/10 shadow-md ring-1 ring-emerald-500"
-                      : "border-border bg-surface-elevated hover:border-border-strong"
-                  }`}
-                >
-                  <div className="flex items-center gap-2.5">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/20 text-blue-400 font-bold shrink-0">
-                      <CreditCard className="h-4 w-4 stroke-[2.5]" />
-                    </div>
-                    <div>
-                      <h4 className="font-bold text-white text-xs">Finance Deal (Loan)</h4>
-                      <p className="text-[11px] text-ink-muted mt-0.5">
-                        Dealers compete on vehicle selling price & monthly loan rate.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Option 4: Lease Only */}
-                <div
-                  onClick={() => setPaymentMethod("lease")}
-                  className={`sm:col-span-2 cursor-pointer rounded-xl border p-3.5 transition-all ${
-                    paymentMethod === "lease"
-                      ? "border-emerald-500 bg-emerald-500/10 shadow-md ring-1 ring-emerald-500"
-                      : "border-border bg-surface-elevated hover:border-border-strong"
-                  }`}
-                >
-                  <div className="flex items-center gap-2.5">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-500/20 text-purple-400 font-bold shrink-0">
-                      <KeyRound className="h-4 w-4 stroke-[2.5]" />
-                    </div>
-                    <div>
-                      <h4 className="font-bold text-white text-xs">Lease Deal Structure</h4>
-                      <p className="text-[11px] text-ink-muted mt-0.5">
-                        Dealers compete on capitalized cost reduction, money factor & monthly lease price.
-                      </p>
-                    </div>
-                  </div>
-                </div>
+                  {paymentMethod === "all_three"
+                    ? "Cash + Finance + Lease"
+                    : paymentMethod === "cash"
+                    ? "Cash Only"
+                    : paymentMethod === "finance"
+                    ? "Finance Only"
+                    : "Lease Only"}{" "}
+                  · Change
+                </button>
               </div>
 
               {/* Deal Structure Parameters Box */}
@@ -1293,13 +1342,13 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
           )}
 
           {/* ========================================================================= */}
-          {/* STEP 5: REVIEW & BROADCAST                                                */}
+          {/* STEP 6: REVIEW & BROADCAST                                                */}
           {/* ========================================================================= */}
-          {step === 5 && (
+          {step === 6 && (
             <div className="space-y-4">
               <div>
                 <h3 className="text-sm font-bold text-white uppercase tracking-wider text-emerald-400">
-                  Step 5: Review & Privacy Shield
+                  Step 6: Review & Privacy Shield
                 </h3>
                 <p className="text-xs text-ink-muted mt-0.5">
                   Your personal identity is 100% masked to prevent annoying dealer sales calls.
@@ -1384,9 +1433,9 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
             </div>
           )}
           <div className="flex items-center justify-between">
-            {step > (lockVehicleSelection ? 2 : 1) ? (
+            {step > 1 ? (
               <button
-                onClick={() => setStep(step - 1)}
+                onClick={goBack}
                 disabled={isSubmittingReal}
                 className="flex items-center gap-1.5 rounded-lg border border-border px-4 py-2 text-xs font-semibold text-ink-light hover:bg-border transition-colors disabled:opacity-50"
               >
@@ -1396,9 +1445,9 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
               <div />
             )}
 
-            {step < 5 ? (
+            {step < TOTAL_STEPS ? (
               <button
-                onClick={() => setStep(step + 1)}
+                onClick={goNext}
                 className="flex items-center gap-1.5 rounded-lg bg-emerald-500 px-5 py-2 text-xs font-bold text-black hover:bg-emerald-400 transition-all shadow-md shadow-emerald-500/20"
               >
                 Continue <ArrowRight className="h-4 w-4" />
