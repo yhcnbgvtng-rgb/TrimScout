@@ -632,6 +632,67 @@ async function handleVehicleByVin(req, res, vin) {
   }
 }
 
+// GET /api/vehicles/:vin/history — real day-by-day crawl history for one
+// VIN: every logged price-history/change-log row, plus the brand's own
+// completed scrape_run dates (so the caller can show "seen, no change" on
+// days nothing happened, not just the sparse days something did). Kept as
+// its own endpoint rather than folded into handleVehicleByVin so the
+// heavier joins here don't run on every plain vehicle-detail lookup.
+// mysql2 (dateStrings: false) returns DATE columns as JS Date objects,
+// which JSON.stringify serializes as a full "2026-08-28T00:00:00.000Z"
+// timestamp — the frontend timeline does exact string equality against
+// plain "YYYY-MM-DD" run dates, so every date field here is normalized
+// through this first.
+function toDateStr(d) {
+  if (d === null || d === undefined) return null;
+  if (d instanceof Date) return d.toISOString().slice(0, 10);
+  return String(d).slice(0, 10);
+}
+
+async function handleVehicleHistory(req, res, vin) {
+  if (!/^[A-HJ-NPR-Z0-9]{17}$/i.test(vin)) {
+    return badRequest(res, "Invalid VIN format");
+  }
+  const pool = getPool();
+  const [vehicleRows] = await pool.query(
+    `SELECT id, brand_id, first_seen_date, last_seen_date FROM vehicles WHERE vin = ? LIMIT 1`,
+    [vin]
+  );
+  if (vehicleRows.length === 0) {
+    return sendJson(res, 404, { error: "Vehicle not found" });
+  }
+  const vehicle = vehicleRows[0];
+
+  const [priceHistoryRows] = await pool.query(
+    `SELECT snapshot_date, price, price_delta FROM vehicle_price_history WHERE vehicle_id = ? ORDER BY snapshot_date`,
+    [vehicle.id]
+  );
+  const [changeLogRows] = await pool.query(
+    `SELECT change_date, change_type, old_price, new_price, price_diff, days_on_lot FROM daily_change_log WHERE vehicle_id = ? ORDER BY change_date`,
+    [vehicle.id]
+  );
+  const [runDateRows] = await pool.query(
+    `SELECT DISTINCT run_date FROM scrape_runs WHERE brand_id = ? AND status = 'COMPLETE' ORDER BY run_date`,
+    [vehicle.brand_id]
+  );
+
+  sendJson(res, 200, {
+    vin,
+    firstSeenDate: toDateStr(vehicle.first_seen_date),
+    lastSeenDate: toDateStr(vehicle.last_seen_date),
+    priceHistory: priceHistoryRows.map((r) => ({ date: toDateStr(r.snapshot_date), price: r.price, priceDelta: r.price_delta })),
+    changeLog: changeLogRows.map((r) => ({
+      date: toDateStr(r.change_date),
+      type: r.change_type,
+      oldPrice: r.old_price,
+      newPrice: r.new_price,
+      priceDiff: r.price_diff,
+      daysOnLot: r.days_on_lot,
+    })),
+    brandRunDates: runDateRows.map((r) => toDateStr(r.run_date)),
+  });
+}
+
 const EXPORT_CSV_COLUMNS = [
   "vin", "dealer_name", "state", "inventory_type", "year", "make", "model", "trim",
   "body_style", "transmission", "drivetrain", "engine", "exterior_color", "interior_color",
@@ -783,6 +844,10 @@ const server = http.createServer((req, res) => {
   }
   if (pathname === "/api/vehicles/export.csv") {
     return run(() => handleExportCsv(req, res, params));
+  }
+  const historyMatch = pathname.match(/^\/api\/vehicles\/([A-Za-z0-9]{17})\/history$/);
+  if (historyMatch) {
+    return run(() => handleVehicleHistory(req, res, historyMatch[1]));
   }
   const vinMatch = pathname.match(/^\/api\/vehicles\/([A-Za-z0-9]{17})$/);
   if (vinMatch) {

@@ -196,6 +196,41 @@ export async function fetchVehicleByVinFromBox(
   return fetchBoxJson<BoxVehicleDetail>(`/api/vehicles/${encodeURIComponent(vin)}`);
 }
 
+export interface BoxVehiclePriceHistoryEntry {
+  date: string;
+  price: number;
+  priceDelta: number;
+}
+
+export interface BoxVehicleChangeLogEntry {
+  date: string;
+  type: "NEW_ARRIVAL" | "PRICE_DROP" | "PRICE_INCREASE" | "SOLD" | "UNCHANGED";
+  oldPrice: number | null;
+  newPrice: number | null;
+  priceDiff: number;
+  daysOnLot: number;
+}
+
+export interface BoxVehicleHistory {
+  vin: string;
+  firstSeenDate: string | null;
+  lastSeenDate: string | null;
+  priceHistory: BoxVehiclePriceHistoryEntry[];
+  changeLog: BoxVehicleChangeLogEntry[];
+  // Every date the vehicle's brand completed a real crawl — lets the
+  // caller show "seen, no change" on days nothing happened, not just the
+  // sparse days a priceHistory/changeLog row exists.
+  brandRunDates: string[];
+}
+
+/** GET /api/vehicles/:vin/history — real day-by-day crawl history for one VIN. Returns null on any failure (including 404). */
+export async function fetchVehicleHistoryFromBox(
+  vin: string
+): Promise<BoxVehicleHistory | null> {
+  if (!vin || !/^[A-HJ-NPR-Z0-9]{17}$/i.test(vin)) return null;
+  return fetchBoxJson<BoxVehicleHistory>(`/api/vehicles/${encodeURIComponent(vin)}/history`);
+}
+
 /** GET /health — box status check. Returns null on any failure. */
 export async function fetchBoxHealth(): Promise<{
   status: string;

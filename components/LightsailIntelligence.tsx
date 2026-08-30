@@ -44,6 +44,7 @@ import {
 } from "@/lib/enrichmentEngine";
 import { calculateDistanceMiles, getZipCoordinates, getStatesWithinRadius } from "@/lib/otdCalculator";
 import { DailyChangesPanel } from "./DailyChangesPanel";
+import { VehicleHistoryTimeline } from "./VehicleHistoryTimeline";
 // Type-only import: safe to reference in this client component because
 // TypeScript types are erased at build time. The *runtime* functions in
 // lib/lightsailClient.ts (which read process.env.LIGHTSAIL_API_KEY and talk
@@ -2057,6 +2058,9 @@ export const LightsailIntelligence: React.FC<LightsailIntelligenceProps> = ({ on
                 </span>
               </div>
             </div>
+
+            {/* Real day-by-day crawl history for this VIN */}
+            <VehicleHistoryTimeline vin={selectedVehicleForModal.vin} />
 
             {/* Modal Actions */}
             <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
