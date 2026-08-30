@@ -31,8 +31,62 @@ import {
   Layers,
   Coins,
   CreditCard,
-  KeyRound
+  KeyRound,
+  Plus,
+  Handshake
 } from "lucide-react";
+
+// A real, live-inventory competing vehicle suggested by /api/comparable-vehicles
+// (same make/model, same state, within 50 miles of the buyer) — only ever
+// populated from a real box query, never fabricated.
+interface ComparableSuggestion {
+  vin: string;
+  year: number | null;
+  make: string;
+  model: string;
+  trim: string | null;
+  price: number | null;
+  msrp: number | null;
+  mileage: number | null;
+  status: string | null;
+  dealerName: string | null;
+  city: string | null;
+  state: string | null;
+  distanceMiles: number | null;
+  url: string | null;
+}
+
+function suggestionToVehicle(s: ComparableSuggestion): Vehicle {
+  return {
+    id: s.vin,
+    vin: s.vin,
+    year: s.year || 0,
+    make: s.make,
+    model: s.model,
+    trim: s.trim || "",
+    bodyType: "",
+    engine: "",
+    drivetrain: "",
+    transmission: "",
+    exteriorColor: "",
+    interiorColor: "",
+    msrp: s.msrp || s.price || 0,
+    dealerPrice: s.price || s.msrp || 0,
+    daysOnLot: 0,
+    status: "on_lot",
+    location: {
+      dealerName: s.dealerName || "",
+      city: s.city || "",
+      state: s.state || "",
+      distanceMiles: s.distanceMiles || 0,
+    },
+    packages: [],
+    options: [],
+    imageUrl: "",
+    mileage: s.mileage || 0,
+    dealerUrl: s.url || undefined,
+  };
+}
 
 interface BiddingWizardProps {
   isOpen: boolean;
@@ -75,6 +129,23 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   );
   const [isParsingLink, setIsParsingLink] = useState<boolean>(false);
   const [parseSuccessMsg, setParseSuccessMsg] = useState<string | null>(null);
+
+  // Step 2: up to 2 optional secondary vehicle links, to widen competition
+  // beyond just the favorite pick.
+  const [secondaryUrls, setSecondaryUrls] = useState<string[]>(["", ""]);
+  const [secondaryVehicles, setSecondaryVehicles] = useState<(Vehicle | null)[]>([null, null]);
+  const [isParsingSecondary, setIsParsingSecondary] = useState<boolean[]>([false, false]);
+
+  // Real, live comparable vehicles (same make/model, same state, <=50mi of
+  // the buyer) — fetched from the box's real inventory, never fabricated.
+  const [aiSuggestions, setAiSuggestions] = useState<ComparableSuggestion[]>([]);
+  const [isLoadingAiSuggestions, setIsLoadingAiSuggestions] = useState(false);
+  const [aiSuggestionsSupported, setAiSuggestionsSupported] = useState(true);
+
+  // Set when the buyer explicitly chooses to skip the multi-dealer auction
+  // and send a single, anonymized offer straight to the favorite vehicle's
+  // dealer instead (only offered when no secondary vehicles are attached).
+  const [directOfferMode, setDirectOfferMode] = useState(false);
 
   // Vehicle Search & Selection inside Wizard
   const [vehicleSearchQuery, setVehicleSearchQuery] = useState<string>("");
@@ -172,10 +243,48 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   const goBack = () => {
     if (step === 3 && lockVehicleSelection) {
       setStep(1);
+    } else if (step === 4 && directOfferMode) {
+      setDirectOfferMode(false);
+      setStep(2);
     } else {
       setStep(step - 1);
     }
   };
+
+  // Real, live comparable-vehicle suggestions — same make/model, same
+  // state, within 50 miles of the buyer's ZIP. Only covers the 6 brands
+  // the crawler actually tracks; unsupported makes (e.g. a mock BMW/Toyota
+  // pick) just come back empty rather than fabricating results.
+  useEffect(() => {
+    if (!selectedVehicle || !buyerZip || buyerZip.trim().length < 5) {
+      setAiSuggestions([]);
+      return;
+    }
+    let cancelled = false;
+    setIsLoadingAiSuggestions(true);
+    const params = new URLSearchParams({
+      make: selectedVehicle.make,
+      model: selectedVehicle.model,
+      zip: buyerZip,
+      excludeVin: selectedVehicle.vin,
+    });
+    fetch(`/api/comparable-vehicles?${params.toString()}`)
+      .then((res) => res.json())
+      .then((json) => {
+        if (cancelled) return;
+        setAiSuggestionsSupported(!!json.supported);
+        setAiSuggestions(json.vehicles || []);
+      })
+      .catch(() => {
+        if (!cancelled) setAiSuggestions([]);
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoadingAiSuggestions(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedVehicle?.vin, selectedVehicle?.make, selectedVehicle?.model, buyerZip]);
 
   const handleParseDealerUrl = (urlToParse?: string) => {
     const url = (urlToParse || dealerUrlInput).trim().toLowerCase();
@@ -205,6 +314,54 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
       setIsParsingLink(false);
       setParseSuccessMsg(`✓ Decoded Window Sticker from ${matched.location.dealerName}! (VIN: ${matched.vin} • ${formatCurrency(matched.msrp)} MSRP)`);
     }, 700);
+  };
+
+  const handleParseSecondaryUrl = (idx: number, urlToParse?: string) => {
+    const url = (urlToParse ?? secondaryUrls[idx] ?? "").trim().toLowerCase();
+    if (!url) return;
+    setIsParsingSecondary((prev) => prev.map((v, i) => (i === idx ? true : v)));
+    setTimeout(() => {
+      const matched =
+        vehicles.find((v) => url.includes(v.vin.toLowerCase()) || url.includes(v.make.toLowerCase())) || null;
+      setSecondaryVehicles((prev) => prev.map((v, i) => (i === idx ? matched : v)));
+      setIsParsingSecondary((prev) => prev.map((v, i) => (i === idx ? false : v)));
+    }, 500);
+  };
+
+  const handleRemoveSecondary = (idx: number) => {
+    setSecondaryUrls((prev) => prev.map((v, i) => (i === idx ? "" : v)));
+    setSecondaryVehicles((prev) => prev.map((v, i) => (i === idx ? null : v)));
+  };
+
+  const handleImportAiSuggestions = () => {
+    const emptySlots = secondaryVehicles.reduce<number[]>((acc, v, i) => {
+      if (!v) acc.push(i);
+      return acc;
+    }, []);
+    if (emptySlots.length === 0 || aiSuggestions.length === 0) return;
+    const picks = aiSuggestions.slice(0, emptySlots.length);
+    setSecondaryVehicles((prev) => {
+      const next = [...prev];
+      emptySlots.forEach((slotIdx, i) => {
+        if (picks[i]) next[slotIdx] = suggestionToVehicle(picks[i]);
+      });
+      return next;
+    });
+    setSecondaryUrls((prev) => {
+      const next = [...prev];
+      emptySlots.forEach((slotIdx, i) => {
+        if (picks[i]?.url) next[slotIdx] = picks[i].url as string;
+      });
+      return next;
+    });
+  };
+
+  const hasCompetition = secondaryVehicles.some((v) => !!v);
+
+  const handleSubmitDirectOffer = () => {
+    setStrategy("firm_offer");
+    setDirectOfferMode(true);
+    setStep(4); // skip the strategy-choice step — it's implicitly decided
   };
 
   if (!isOpen) return null;
@@ -475,10 +632,10 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
             <div className="space-y-5">
               <div>
                 <h3 className="text-sm font-bold text-white uppercase tracking-wider text-emerald-400">
-                  Step 2: Choose Your Target Car
+                  Step 2: Pick Your Favorite Car
                 </h3>
                 <p className="text-xs text-ink-muted mt-0.5">
-                  Paste a direct dealership listing link, or search our nationwide inventory network.
+                  This is the one you actually want — paste a direct dealership listing link, or search our nationwide inventory network.
                 </p>
               </div>
 
@@ -710,6 +867,168 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                       );
                     })}
                   </div>
+                </div>
+              )}
+
+              {/* Once a favorite is locked in, offer to widen the field */}
+              {selectedVehicle && (
+                <div className="space-y-5 pt-4 border-t border-border/50">
+                  {/* INCREASE COMPETITION: up to 2 optional secondary links */}
+                  <div className="space-y-2.5">
+                    <div>
+                      <h4 className="text-xs font-bold text-white uppercase tracking-wider">
+                        Increase Competition <span className="text-ink-faint font-normal normal-case">(optional)</span>
+                      </h4>
+                      <p className="text-[11px] text-ink-muted mt-0.5">
+                        Add up to 2 more listings you'd also accept — more dealers means more pressure on price.
+                      </p>
+                    </div>
+
+                    {[0, 1].map((idx) => {
+                      const matchedVehicle = secondaryVehicles[idx];
+                      return (
+                        <div key={idx} className="space-y-1.5">
+                          {matchedVehicle ? (
+                            <div className="flex items-center justify-between gap-2 rounded-xl border border-emerald-500/40 bg-emerald-500/10 px-3 py-2.5">
+                              <div className="flex items-center gap-2 min-w-0">
+                                <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" />
+                                <span className="text-xs font-bold text-white truncate">
+                                  {matchedVehicle.year} {matchedVehicle.make} {matchedVehicle.model} {matchedVehicle.trim}
+                                </span>
+                                <span className="text-[11px] text-ink-muted shrink-0">· {matchedVehicle.location.dealerName}</span>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => handleRemoveSecondary(idx)}
+                                className="shrink-0 rounded-lg p-1.5 text-ink-muted hover:bg-border hover:text-white transition-colors"
+                              >
+                                <Trash2 className="h-3.5 w-3.5" />
+                              </button>
+                            </div>
+                          ) : (
+                            <div className="flex gap-2">
+                              <div className="relative flex-1">
+                                <Link2 className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-ink-faint" />
+                                <input
+                                  type="url"
+                                  value={secondaryUrls[idx]}
+                                  onChange={(e) =>
+                                    setSecondaryUrls((prev) => prev.map((v, i) => (i === idx ? e.target.value : v)))
+                                  }
+                                  placeholder={`Paste a ${idx === 0 ? "2nd" : "3rd"} listing link (optional)`}
+                                  className="w-full rounded-xl border border-border bg-background py-2 pl-9 pr-3 text-xs text-white placeholder-ink-faint focus:border-emerald-500 focus:outline-none font-mono"
+                                />
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => handleParseSecondaryUrl(idx)}
+                                disabled={isParsingSecondary[idx] || !secondaryUrls[idx].trim()}
+                                className="rounded-xl border border-border bg-surface-elevated px-3 py-2 text-xs font-bold text-ink-light hover:text-white hover:border-border-strong transition-all shrink-0 disabled:opacity-50 flex items-center gap-1.5"
+                              >
+                                {isParsingSecondary[idx] ? (
+                                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                                ) : (
+                                  <Plus className="h-3.5 w-3.5" />
+                                )}
+                                <span>Add</span>
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+
+                    {!hasCompetition && aiSuggestions.length > 0 && (
+                      <button
+                        type="button"
+                        onClick={handleImportAiSuggestions}
+                        className="w-full flex items-center justify-center gap-1.5 rounded-xl border border-dashed border-emerald-500/40 bg-emerald-500/5 py-2 text-xs font-bold text-emerald-400 hover:bg-emerald-500/10 transition-all"
+                      >
+                        <Sparkles className="h-3.5 w-3.5" />
+                        <span>Import AI Suggestions Below ↓</span>
+                      </button>
+                    )}
+                  </div>
+
+                  {/* AI-SUGGESTED CLOSE COMPETITION: real nearby inventory */}
+                  <div className="rounded-xl border border-border bg-surface-elevated p-3.5 space-y-3">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2 text-xs font-bold text-white">
+                        <Sparkles className="h-3.5 w-3.5 text-emerald-400" />
+                        <span>AI-Suggested Close Competition</span>
+                      </div>
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        <MapPin className="h-3 w-3 text-ink-faint" />
+                        <input
+                          type="text"
+                          value={buyerZip}
+                          onChange={(e) => setBuyerZip(e.target.value)}
+                          placeholder="ZIP"
+                          className="w-16 rounded-lg border border-border bg-background py-1 px-2 text-[11px] text-white font-mono focus:border-emerald-500 focus:outline-none"
+                        />
+                      </div>
+                    </div>
+                    <p className="text-[11px] text-ink-muted -mt-1.5">
+                      Real matching inventory in-state, within 50 miles — dealers you didn't have to find yourself.
+                    </p>
+
+                    {isLoadingAiSuggestions ? (
+                      <div className="flex items-center gap-2 text-ink-muted text-xs py-3">
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" /> Scanning nearby inventory…
+                      </div>
+                    ) : !aiSuggestionsSupported ? (
+                      <p className="text-[11px] text-ink-faint py-1">
+                        We don't have live crawl coverage for {selectedVehicle.make} yet, so no real suggestions to show here.
+                      </p>
+                    ) : aiSuggestions.length === 0 ? (
+                      <p className="text-[11px] text-ink-faint py-1">
+                        No matching {selectedVehicle.model} found within 50 miles of {buyerZip || "your ZIP"} yet.
+                      </p>
+                    ) : (
+                      <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
+                        {aiSuggestions.map((s) => (
+                          <div
+                            key={s.vin}
+                            className="flex items-center justify-between gap-2 rounded-lg border border-border bg-background px-2.5 py-2 text-[11px]"
+                          >
+                            <div className="min-w-0">
+                              <div className="font-bold text-white truncate">
+                                {s.year} {s.make} {s.model} {s.trim}
+                              </div>
+                              <div className="text-ink-faint truncate">
+                                {s.dealerName} · {s.distanceMiles ?? "?"} mi
+                              </div>
+                            </div>
+                            <div className="text-right shrink-0 font-mono text-white font-bold">
+                              {s.price ? formatCurrency(s.price) : "—"}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* DIRECT OFFER SHORTCUT: only one car, skip the auction */}
+                  {!hasCompetition && (
+                    <div className="rounded-xl border border-border bg-surface p-3.5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                      <div className="flex items-center gap-2.5">
+                        <Handshake className="h-5 w-5 text-emerald-400 shrink-0" />
+                        <div>
+                          <div className="text-xs font-bold text-white">Only want this one car?</div>
+                          <p className="text-[11px] text-ink-muted">
+                            Skip the multi-dealer auction — send {selectedVehicle.location.dealerName} a reasonable, anonymized offer directly for their review.
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleSubmitDirectOffer}
+                        className="shrink-0 rounded-lg border border-emerald-500/50 bg-emerald-500/10 px-3.5 py-2 text-xs font-bold text-emerald-400 hover:bg-emerald-500/20 transition-all"
+                      >
+                        Submit Direct Offer →
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -1289,7 +1608,9 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                   Step 6: Review & Privacy Shield
                 </h3>
                 <p className="text-xs text-ink-muted mt-0.5">
-                  Your personal identity is 100% masked to prevent annoying dealer sales calls.
+                  {directOfferMode
+                    ? `Sending a direct, anonymized offer to ${selectedVehicle?.location.dealerName ?? "the dealer"} — your identity stays masked until they accept.`
+                    : "Your personal identity is 100% masked to prevent annoying dealer sales calls."}
                 </p>
               </div>
 
@@ -1401,7 +1722,13 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                 ) : (
                   <Zap className="h-4 w-4 fill-black" />
                 )}
-                {isSubmittingReal ? "Broadcasting…" : "Broadcast Deal Request"}
+                {isSubmittingReal
+                  ? directOfferMode
+                    ? "Sending…"
+                    : "Broadcasting…"
+                  : directOfferMode
+                  ? "Send Direct Offer"
+                  : "Broadcast Deal Request"}
               </button>
             )}
           </div>
