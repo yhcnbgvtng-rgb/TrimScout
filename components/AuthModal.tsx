@@ -3,8 +3,6 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
-import { UserProfile } from "../lib/types";
-import { DEMO_BUYER_USER, DEMO_DEALER_USER, DEMO_ADMIN_USER } from "../lib/mockData";
 import {
   X,
   LogIn,
@@ -16,15 +14,12 @@ import {
   Lock,
   Phone,
   MapPin,
-  ArrowRight,
-  Sparkles,
-  ShieldAlert,
   Loader2,
   AlertCircle,
 } from "lucide-react";
 
-// Inline brand marks — Google/Apple's own guidelines call for their real
-// logo, not a generic icon, on "Continue with" buttons.
+// Inline brand mark — Google's own guidelines call for their real logo,
+// not a generic icon, on a "Continue with" button.
 const GoogleIcon = () => (
   <svg viewBox="0 0 24 24" className="h-4 w-4" aria-hidden="true">
     <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.19 3.32v2.77h3.55c2.08-1.92 3.28-4.74 3.28-8.1z" />
@@ -34,24 +29,16 @@ const GoogleIcon = () => (
   </svg>
 );
 
-const AppleIcon = () => (
-  <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor" aria-hidden="true">
-    <path d="M16.365 1.43c0 1.14-.415 2.06-1.245 2.98-.997 1.09-2.19 1.72-3.49 1.61-.145-1.09.418-2.24 1.19-3.02.87-.9 2.31-1.57 3.47-1.65.02.02.07.05.075.08zM20.66 17.6c-.5 1.16-.73 1.68-1.37 2.72-.89 1.44-2.14 3.23-3.7 3.24-1.38.02-1.73-.9-3.6-.89-1.87.01-2.26.91-3.64.89-1.56-.02-2.74-1.63-3.63-3.07-2.49-4.02-2.75-8.73-1.21-11.24.93-1.51 2.4-2.4 3.79-2.4 1.42 0 2.31.9 3.48.9 1.13 0 1.83-.9 3.48-.9 1.24 0 2.55.68 3.48 1.85-3.06 1.68-2.57 6.05.42 7.4z" />
-  </svg>
-);
-
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onLogin: (user: UserProfile) => void;
 }
 
 export const AuthModal: React.FC<AuthModalProps> = ({
   isOpen,
   onClose,
-  onLogin,
 }) => {
-  const [tab, setTab] = useState<"signin" | "signup" | "demo">("demo");
+  const [tab, setTab] = useState<"signin" | "signup">("signin");
   const [role, setRole] = useState<"buyer" | "dealer">("buyer");
 
   // Form fields
@@ -64,7 +51,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
-  const [oauthLoading, setOauthLoading] = useState<"google" | "apple" | null>(null);
+  const [oauthLoading, setOauthLoading] = useState<"google" | null>(null);
 
   if (!isOpen) return null;
 
@@ -105,16 +92,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     }
   };
 
-  const handleOAuth = async (provider: "google" | "apple") => {
+  const handleOAuth = async (provider: "google") => {
     setOauthLoading(provider);
     // Real redirect flow (not redirect: false) — the provider's own login
     // page needs the full page, not an in-modal fetch.
     await signIn(provider, { callbackUrl: "/" });
-  };
-
-  const handleSelectDemoUser = (demoUser: UserProfile) => {
-    onLogin(demoUser);
-    onClose();
   };
 
   return (
@@ -140,19 +122,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         </div>
 
         {/* Tab Selection */}
-        <div className="grid grid-cols-3 border-b border-border bg-surface-elevated/50 p-1.5 gap-1 text-xs font-semibold">
-          <button
-            onClick={() => setTab("demo")}
-            className={`flex items-center justify-center gap-1.5 py-2 rounded-lg transition-all ${
-              tab === "demo"
-                ? "bg-emerald-500 text-black font-extrabold shadow-sm"
-                : "text-ink-muted hover:text-white"
-            }`}
-          >
-            <Sparkles className="h-3.5 w-3.5" />
-            <span>1-Click Demo</span>
-          </button>
-
+        <div className="grid grid-cols-2 border-b border-border bg-surface-elevated/50 p-1.5 gap-1 text-xs font-semibold">
           <button
             onClick={() => setTab("signin")}
             className={`flex items-center justify-center gap-1.5 py-2 rounded-lg transition-all ${
@@ -180,125 +150,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
         {/* Tab Content */}
         <div className="p-6">
-          {/* TAB 1: 1-CLICK DEMO PROFILES */}
-          {tab === "demo" && (
-            <div className="space-y-4">
-              <div className="text-center space-y-1">
-                <span className="text-[11px] uppercase font-bold text-emerald-400 tracking-wider">
-                  Instant Test Accounts
-                </span>
-                <p className="text-xs text-ink-muted">
-                  Select a test profile to immediately view deal tracking as a buyer or dealer.
-                </p>
-              </div>
-
-              <div className="space-y-3 pt-1">
-                {/* Buyer Demo Card */}
-                <div
-                  onClick={() => handleSelectDemoUser(DEMO_BUYER_USER)}
-                  className="group cursor-pointer rounded-xl border border-emerald-500/40 bg-emerald-950/20 p-4 hover:border-emerald-400 hover:bg-emerald-950/30 transition-all flex items-center justify-between"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="relative">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={DEMO_BUYER_USER.avatarUrl}
-                        alt={DEMO_BUYER_USER.name}
-                        className="h-10 w-10 rounded-full object-cover border border-emerald-500/40"
-                      />
-                      <span className="absolute -bottom-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-emerald-500 text-[9px] font-black text-black">
-                        ✓
-                      </span>
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="font-bold text-white text-sm">{DEMO_BUYER_USER.name}</span>
-                        <span className="rounded bg-emerald-500/20 px-1.5 py-0.5 text-[9px] font-bold text-emerald-400 uppercase">
-                          Car Buyer
-                        </span>
-                      </div>
-                      <p className="text-[11px] text-ink-muted">
-                        Active Bids: BMW 3 Series • 2 Dealership Bids Live
-                      </p>
-                    </div>
-                  </div>
-                  <ArrowRight className="h-4 w-4 text-emerald-400 group-hover:translate-x-1 transition-transform" />
-                </div>
-
-                {/* Dealer Demo Card */}
-                <div
-                  onClick={() => handleSelectDemoUser(DEMO_DEALER_USER)}
-                  className="group cursor-pointer rounded-xl border border-blue-500/40 bg-blue-950/20 p-4 hover:border-blue-400 hover:bg-blue-950/30 transition-all flex items-center justify-between"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="relative">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={DEMO_DEALER_USER.avatarUrl}
-                        alt={DEMO_DEALER_USER.name}
-                        className="h-10 w-10 rounded-full object-cover border border-blue-500/40"
-                      />
-                      <span className="absolute -bottom-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-blue-500 text-[9px] font-black text-white">
-                        🏢
-                      </span>
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="font-bold text-white text-sm">{DEMO_DEALER_USER.name}</span>
-                        <span className="rounded bg-blue-500/20 px-1.5 py-0.5 text-[9px] font-bold text-blue-400 uppercase">
-                          Sales Director
-                        </span>
-                      </div>
-                      <p className="text-[11px] text-ink-muted">
-                        BMW of San Rafael • 8 Won Deals
-                      </p>
-                    </div>
-                  </div>
-                  <ArrowRight className="h-4 w-4 text-blue-400 group-hover:translate-x-1 transition-transform" />
-                </div>
-
-                {/* Super Admin Demo Card */}
-                <div
-                  onClick={() => handleSelectDemoUser(DEMO_ADMIN_USER)}
-                  className="group cursor-pointer rounded-xl border border-rose-500/40 bg-rose-950/20 p-4 hover:border-rose-400 hover:bg-rose-950/30 transition-all flex items-center justify-between"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="relative">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={DEMO_ADMIN_USER.avatarUrl}
-                        alt={DEMO_ADMIN_USER.name}
-                        className="h-10 w-10 rounded-full object-cover border border-rose-500/40"
-                      />
-                      <span className="absolute -bottom-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-rose-500 text-[9px] font-black text-black">
-                        🔒
-                      </span>
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="font-bold text-white text-sm">{DEMO_ADMIN_USER.name}</span>
-                        <span className="rounded bg-rose-500/20 px-1.5 py-0.5 text-[9px] font-bold text-rose-400 uppercase">
-                          Root Admin
-                        </span>
-                      </div>
-                      <p className="text-[11px] text-ink-muted">
-                        Master Access • Administer All Buyer & Dealer Accounts
-                      </p>
-                    </div>
-                  </div>
-                  <ArrowRight className="h-4 w-4 text-rose-400 group-hover:translate-x-1 transition-transform" />
-                </div>
-              </div>
-
-              <div className="rounded-xl border border-border bg-surface-elevated p-3 text-[11px] text-ink-muted flex items-center gap-2">
-                <ShieldCheck className="h-4 w-4 text-emerald-400 shrink-0" />
-                <span>Buyer identities and contact info are 100% masked from dealerships until a deal is locked.</span>
-              </div>
-            </div>
-          )}
-
-          {/* TAB 2 & 3: SIGN IN / SIGN UP FORM */}
-          {(tab === "signin" || tab === "signup") && (
             <div className="space-y-4">
               {/* OAuth */}
               <div className="space-y-2">
@@ -310,15 +161,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 >
                   {oauthLoading === "google" ? <Loader2 className="h-4 w-4 animate-spin" /> : <GoogleIcon />}
                   <span>Continue with Google</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleOAuth("apple")}
-                  disabled={oauthLoading !== null}
-                  className="w-full flex items-center justify-center gap-2.5 rounded-xl border border-border bg-black py-2.5 text-xs font-bold text-white hover:bg-gray-900 transition-all disabled:opacity-50 disabled:cursor-wait"
-                >
-                  {oauthLoading === "apple" ? <Loader2 className="h-4 w-4 animate-spin" /> : <AppleIcon />}
-                  <span>Continue with Apple</span>
                 </button>
               </div>
 
@@ -502,7 +344,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               </div>
             </form>
             </div>
-          )}
         </div>
       </div>
     </div>

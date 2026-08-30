@@ -1,4 +1,4 @@
-// Auth.js v5 config — Credentials (email/password) + Google + Apple.
+// Auth.js v5 config — Credentials (email/password) + Google.
 //
 // No DB adapter here on purpose: Credentials sign-in can't work through
 // Auth.js's standard adapter flow (it has no concept of a password), so the
@@ -8,14 +8,15 @@
 // header comment for why). Sessions are JWT-based, so no `sessions` table
 // is needed either.
 //
-// Google and Apple are wired in below but stay inert until real credentials
-// land in Vercel's env — see the setup notes in the PR/commit this shipped
-// with for exactly what to create in each console.
+// Google is wired in below but stays inert until real credentials land in
+// Vercel's env. Apple was deliberately left out — it requires a paid
+// ($99/yr) Apple Developer account; the `user_accounts.provider` enum still
+// has an 'apple' value reserved if this changes later, but nothing in the
+// app currently offers it.
 
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import Google from "next-auth/providers/google";
-import Apple from "next-auth/providers/apple";
 import { verifyCredentials, oauthUpsert, type AuthUser } from "./lib/authApi";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
@@ -59,14 +60,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       clientId: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     }),
-    Apple({
-      clientId: process.env.AUTH_APPLE_ID,
-      clientSecret: process.env.AUTH_APPLE_SECRET,
-    }),
   ],
   callbacks: {
     async signIn({ user, account }) {
-      if (account?.provider !== "google" && account?.provider !== "apple") {
+      if (account?.provider !== "google") {
         return true; // Credentials already resolved a real user in authorize()
       }
       if (!user.email) return false;

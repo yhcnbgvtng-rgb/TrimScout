@@ -588,7 +588,6 @@ export default function Home() {
       <AuthModal
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}
-        onLogin={handleLogin}
       />
 
       {/* Live Inventory Connector Settings Modal */}
