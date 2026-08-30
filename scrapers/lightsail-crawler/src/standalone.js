@@ -1204,6 +1204,7 @@ if (dbRunId) {
             priceDrops: priceDrops.length,
             priceIncreases: priceIncreases.length,
             soldOrRemoved: soldVehicles.length,
+            failedDealerNames: Array.from(failedDealerNames),
         });
         console.log(`💾 DB scrape_run ${dbRunId} marked COMPLETE.`);
     } catch (dbErr) {

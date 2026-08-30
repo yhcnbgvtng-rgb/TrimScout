@@ -238,6 +238,37 @@ export async function fetchVehicleHistoryFromBox(
   return fetchBoxJson<BoxVehicleHistory>(`/api/vehicles/${encodeURIComponent(vin)}/history`);
 }
 
+export interface BoxCrawlHistoryRun {
+  id: string;
+  brandCode: string;
+  brandName: string;
+  status: "RUNNING" | "COMPLETE" | "FAILED";
+  startedAt: string;
+  finishedAt: string | null;
+  durationMinutes: number | null;
+  dealersConfigured: number;
+  dealersActive: number;
+  dealersErrored: number;
+  totalVehicles: number;
+  newArrivals: number;
+  priceDrops: number;
+  priceIncreases: number;
+  soldOrRemoved: number;
+  errorSummary: string | null;
+  failedDealerNames: string[] | null;
+}
+
+export interface BoxCrawlHistoryResponse {
+  availableDates: string[];
+  date: string | null;
+  runs: BoxCrawlHistoryRun[];
+}
+
+/** GET /api/crawl-history — real scrape_runs history, optionally for one date (YYYY-MM-DD). Returns null on any failure. */
+export async function fetchCrawlHistoryFromBox(date?: string): Promise<BoxCrawlHistoryResponse | null> {
+  return fetchBoxJson<BoxCrawlHistoryResponse>(`/api/crawl-history${date ? `?date=${encodeURIComponent(date)}` : ""}`);
+}
+
 /** GET /health — box status check. Returns null on any failure. */
 export async function fetchBoxHealth(): Promise<{
   status: string;

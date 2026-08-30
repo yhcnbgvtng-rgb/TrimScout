@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { UserProfile } from "../lib/types";
 import { INITIAL_ALL_ACCOUNTS, DEMO_ADMIN_USER } from "../lib/mockData";
+import { CrawlHistoryDashboard } from "./CrawlHistoryDashboard";
 import {
   ShieldAlert,
   ShieldCheck,
@@ -410,6 +411,8 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
           </button>
         </div>
       </div>
+
+      <CrawlHistoryDashboard />
 
       {/* Platform Telemetry Metric Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">

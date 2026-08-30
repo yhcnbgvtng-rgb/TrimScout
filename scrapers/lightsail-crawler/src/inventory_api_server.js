@@ -829,6 +829,74 @@ async function handleHealth(req, res) {
   sendJson(res, 200, { status: "ok", dbConnected, recordCount, lastCrawlAt, lastEnrichedAt });
 }
 
+// Real day-by-day crawl health, for the admin "Crawl History" dashboard —
+// every row here is a real scrape_runs record (one per brand per crawl
+// attempt), never synthesized. Lets an admin look back at any past day and
+// see whether each brand's crawl actually completed, how many dealers/
+// vehicles it touched, and which specific dealers failed (once that field
+// exists on a run — older rows predate failed_dealer_names and just come
+// back null for it).
+async function handleCrawlHistory(req, res, params) {
+  const pool = getPool();
+
+  const [dateRows] = await pool.query(
+    `SELECT DISTINCT run_date FROM scrape_runs ORDER BY run_date DESC LIMIT 90`
+  );
+  const availableDates = dateRows.map((r) => toDateStr(r.run_date));
+
+  const requestedDate = params.date && /^\d{4}-\d{2}-\d{2}$/.test(params.date) ? params.date : null;
+  const date = requestedDate || availableDates[0] || null;
+
+  if (!date) {
+    return sendJson(res, 200, { availableDates: [], date: null, runs: [] });
+  }
+
+  const [runRows] = await pool.query(
+    `SELECT sr.*, b.code AS brand_code, b.name AS brand_name
+     FROM scrape_runs sr
+     JOIN brands b ON b.id = sr.brand_id
+     WHERE sr.run_date = ?
+     ORDER BY b.name ASC, sr.started_at ASC`,
+    [date]
+  );
+
+  const runs = runRows.map((r) => {
+    const startedAt = r.started_at;
+    const finishedAt = r.finished_at;
+    const durationMinutes =
+      finishedAt && startedAt ? Math.round((new Date(finishedAt) - new Date(startedAt)) / 60000) : null;
+    let failedDealerNames = null;
+    if (r.failed_dealer_names) {
+      try {
+        failedDealerNames = typeof r.failed_dealer_names === "string" ? JSON.parse(r.failed_dealer_names) : r.failed_dealer_names;
+      } catch {
+        failedDealerNames = null;
+      }
+    }
+    return {
+      id: String(r.id),
+      brandCode: r.brand_code,
+      brandName: r.brand_name,
+      status: r.status,
+      startedAt: r.started_at,
+      finishedAt: r.finished_at,
+      durationMinutes,
+      dealersConfigured: r.dealers_configured,
+      dealersActive: r.dealers_active,
+      dealersErrored: r.dealers_errored,
+      totalVehicles: r.total_vehicles,
+      newArrivals: r.new_arrivals,
+      priceDrops: r.price_drops,
+      priceIncreases: r.price_increases,
+      soldOrRemoved: r.sold_or_removed,
+      errorSummary: r.error_summary,
+      failedDealerNames,
+    };
+  });
+
+  sendJson(res, 200, { availableDates, date, runs });
+}
+
 // ---------------------------------------------------------------------------
 // Router
 // ---------------------------------------------------------------------------
@@ -851,6 +919,9 @@ const server = http.createServer((req, res) => {
 
   if (pathname === "/health") {
     return run(() => handleHealth(req, res));
+  }
+  if (pathname === "/api/crawl-history") {
+    return run(() => handleCrawlHistory(req, res, params));
   }
   if (pathname === "/api/vehicles/facets") {
     return run(() => withResponseCache(req.url, res, () => handleFacets(req, res, params)));

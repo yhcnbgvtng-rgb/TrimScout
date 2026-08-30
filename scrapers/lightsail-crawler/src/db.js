@@ -235,7 +235,7 @@ export async function finishScrapeRun(runId, stats = {}, errorMessage = null) {
     `UPDATE scrape_runs SET
        status = ?, finished_at = ?, dealers_active = ?, dealers_errored = ?,
        total_vehicles = ?, new_arrivals = ?, price_drops = ?, price_increases = ?,
-       sold_or_removed = ?, error_summary = ?
+       sold_or_removed = ?, error_summary = ?, failed_dealer_names = ?
      WHERE id = ?`,
     [
       errorMessage ? 'FAILED' : 'COMPLETE',
@@ -248,6 +248,9 @@ export async function finishScrapeRun(runId, stats = {}, errorMessage = null) {
       stats.priceIncreases || 0,
       stats.soldOrRemoved || 0,
       errorMessage ? String(errorMessage).slice(0, 60000) : null,
+      Array.isArray(stats.failedDealerNames) && stats.failedDealerNames.length > 0
+        ? JSON.stringify(stats.failedDealerNames.slice(0, 500))
+        : null,
       runId,
     ]
   );
