@@ -119,6 +119,58 @@ function sendJson(res, status, obj) {
   res.end(JSON.stringify(obj));
 }
 
+// ---------------------------------------------------------------------------
+// Short-TTL response cache for the two hot read paths (GET /api/vehicles and
+// /api/vehicles/facets) — the site's Market Intelligence page re-issues
+// these on every filter/page change, and with many crawlers now sharing
+// this box's 2 vCPUs with MariaDB, a fresh query per request means live
+// page loads queue up behind crawler CPU load. Crawlers only write via
+// batch syncs a few times a day, so a short TTL (not query-invalidated) is
+// enough to absorb request bursts without serving meaningfully stale data.
+// Keyed on the exact request URL (method is always GET for cached routes).
+const RESPONSE_CACHE_TTL_MS = 20_000;
+const RESPONSE_CACHE_MAX_ENTRIES = 500;
+const responseCache = new Map(); // url -> { body: string, expiresAt: number }
+
+setInterval(() => {
+  const now = Date.now();
+  for (const [key, entry] of responseCache) {
+    if (entry.expiresAt <= now) responseCache.delete(key);
+  }
+}, 30_000);
+
+// Wraps a handler that internally calls sendJson(res, ...): serves a cached
+// body on a hit, otherwise lets the handler run and transparently captures
+// whatever it sends via res.end() so the next matching request can be
+// served from memory instead of hitting MariaDB again.
+function withResponseCache(cacheKey, res, handlerFn) {
+  const cached = responseCache.get(cacheKey);
+  if (cached && cached.expiresAt > Date.now()) {
+    res.writeHead(200, { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store", "X-Cache": "HIT" });
+    res.end(cached.body);
+    return Promise.resolve();
+  }
+
+  const realWriteHead = res.writeHead.bind(res);
+  const realEnd = res.end.bind(res);
+  let capturedStatus = 200;
+  res.writeHead = (status, headers) => {
+    capturedStatus = status;
+    return realWriteHead(status, { ...headers, "X-Cache": "MISS" });
+  };
+  res.end = (body) => {
+    if (capturedStatus === 200 && typeof body === "string") {
+      if (responseCache.size >= RESPONSE_CACHE_MAX_ENTRIES) {
+        const oldestKey = responseCache.keys().next().value;
+        if (oldestKey !== undefined) responseCache.delete(oldestKey);
+      }
+      responseCache.set(cacheKey, { body, expiresAt: Date.now() + RESPONSE_CACHE_TTL_MS });
+    }
+    return realEnd(body);
+  };
+  return Promise.resolve(handlerFn());
+}
+
 function badRequest(res, message) {
   sendJson(res, 400, { error: message });
 }
@@ -220,6 +272,18 @@ function buildWhere(params, excludeDimension) {
       "EXISTS (SELECT 1 FROM vehicle_options vo WHERE vo.vehicle_id = v.id AND vo.code = ?)"
     );
     args.push(params.optionCode);
+  }
+
+  // Direct change_type filter — lets a caller ask for e.g. just
+  // PRICE_DROP/SOLD/PRICE_INCREASE rows instead of paging through the
+  // entire status=ALL history to find them (that history is far larger
+  // than any real day's actual change volume, so a full sweep is both slow
+  // and, past a page cap, silently incomplete for anything that isn't a
+  // recent NEW_ARRIVAL).
+  const VALID_CHANGE_TYPES = new Set(["NEW_ARRIVAL", "PRICE_DROP", "PRICE_INCREASE", "SOLD", "UNCHANGED"]);
+  if (params.changeType && excludeDimension !== "changeType" && VALID_CHANGE_TYPES.has(params.changeType)) {
+    clauses.push("v.change_type = ?");
+    args.push(params.changeType);
   }
 
   let searchSql = null;
@@ -715,7 +779,7 @@ const server = http.createServer((req, res) => {
     return run(() => handleHealth(req, res));
   }
   if (pathname === "/api/vehicles/facets") {
-    return run(() => handleFacets(req, res, params));
+    return run(() => withResponseCache(req.url, res, () => handleFacets(req, res, params)));
   }
   if (pathname === "/api/vehicles/export.csv") {
     return run(() => handleExportCsv(req, res, params));
@@ -725,7 +789,7 @@ const server = http.createServer((req, res) => {
     return run(() => handleVehicleByVin(req, res, vinMatch[1]));
   }
   if (pathname === "/api/vehicles") {
-    return run(() => handleVehicles(req, res, params));
+    return run(() => withResponseCache(req.url, res, () => handleVehicles(req, res, params)));
   }
 
   sendJson(res, 404, { error: "Not found" });

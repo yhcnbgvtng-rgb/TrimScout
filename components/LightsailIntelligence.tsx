@@ -1046,14 +1046,29 @@ export const LightsailIntelligence: React.FC<LightsailIntelligenceProps> = ({ on
       const brands = brandsForQuery();
       const filterParams = buildFilterParams();
       const PAGE_SIZE = 200;
-      const MAX_PAGES_PER_BRAND = 30; // covers ~6,000 vehicles/brand — comfortably above current ~5,300 (active+sold) per brand
+      // Fetching each change_type directly (rather than paging through the
+      // entire status=ALL history, which for a brand like Porsche now runs
+      // well past 20,000 rows) avoids the bug this used to have: a fixed
+      // page cap sorted newest-first-seen meant PRICE_DROP/PRICE_INCREASE/
+      // SOLD rows — which by definition belong to vehicles that have been
+      // in inventory a while, not just-listed ones — sorted past the cutoff
+      // and never appeared, even when the crawl that same day found plenty.
+      // 10 pages (2,000 rows) per type comfortably covers any real day's
+      // volume for a single brand.
+      const CHANGE_TYPES = ["NEW_ARRIVAL", "SOLD", "PRICE_DROP", "PRICE_INCREASE"] as const;
+      const MAX_PAGES_PER_TYPE = 10;
 
-      async function fetchAllForBrand(brand: Brand): Promise<VehicleRecord[]> {
-        const baseParams: Record<string, string> = { ...filterParams, status: "ALL", pageSize: String(PAGE_SIZE) };
+      async function fetchChangeTypeForBrand(brand: Brand, changeType: string): Promise<VehicleRecord[]> {
+        const baseParams: Record<string, string> = {
+          ...filterParams,
+          status: "ALL",
+          changeType,
+          pageSize: String(PAGE_SIZE),
+        };
         if (selectedMake !== "ALL") baseParams.make = selectedMake;
         const first = await fetchVehiclesPage(brand, { ...baseParams, page: "1" });
         if (!first) return [];
-        const totalPages = Math.min(first.pagination.totalPages, MAX_PAGES_PER_BRAND);
+        const totalPages = Math.min(first.pagination.totalPages, MAX_PAGES_PER_TYPE);
         const rest = await Promise.all(
           Array.from({ length: Math.max(0, totalPages - 1) }, (_, i) => i + 2).map((p) =>
             fetchVehiclesPage(brand, { ...baseParams, page: String(p) })
@@ -1061,6 +1076,11 @@ export const LightsailIntelligence: React.FC<LightsailIntelligenceProps> = ({ on
         );
         const all = [first, ...rest].filter((r): r is VehiclesApiResponse => !!r);
         return all.flatMap((r) => r.vehicles.map((v) => mapApiVehicleToRecord(v, r.source)));
+      }
+
+      async function fetchAllForBrand(brand: Brand): Promise<VehicleRecord[]> {
+        const perType = await Promise.all(CHANGE_TYPES.map((ct) => fetchChangeTypeForBrand(brand, ct)));
+        return perType.flat();
       }
 
       const perBrand = await Promise.all(brands.map((b) => fetchAllForBrand(b)));

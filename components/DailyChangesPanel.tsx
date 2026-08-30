@@ -62,15 +62,12 @@ export const DailyChangesPanel: React.FC<DailyChangesPanelProps> = ({ vehicles, 
   const activeList =
     activeTab === "new" ? newArrivals : activeTab === "sold" ? sold : activeTab === "price_drop" ? priceDrops : priceIncreases;
 
-  // If every tracked vehicle shares the same changeType, "NEW_ARRIVAL" isn't
-  // a real signal — it just means the crawler has only ever run once (or
-  // without a persistent snapshot to diff against), so everything defaults
-  // to "new" regardless of whether it actually is. In that case there is no
-  // real day-over-day comparison available, so show nothing rather than the
-  // entire inventory mislabeled as "activity" — that was the actual bug:
-  // dumping ~17,000 vehicles into "New Arrivals" because the field couldn't
-  // distinguish real change from "never compared."
-  const hasComparableData = scoped.length > 0 && !scoped.every((v) => v.changeType === scoped[0].changeType);
+  // `vehicles` now arrives pre-filtered by the box directly querying each
+  // real change_type (see LightsailIntelligence's changes-tab fetch), not
+  // from dumping the entire inventory and guessing — so there's no longer a
+  // "everything defaulted to the same type" failure mode to guard against
+  // here. An empty result now genuinely means no matching changes exist.
+  const hasComparableData = scoped.length > 0;
 
   if (!hasComparableData) {
     return (
