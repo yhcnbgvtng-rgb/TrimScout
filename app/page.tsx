@@ -122,11 +122,16 @@ export default function Home() {
   // separate, real-session-free path and this effect leaves it alone — it
   // only acts when Auth.js actually has something to report.
   //
-  // Navigation only fires once per real sign-in transition (tracked via
-  // lastSyncedUserIdRef), not on every session refresh — Auth.js re-polls
-  // the session on window focus etc., and re-navigating a dealer away from
-  // wherever they'd since clicked to would be a real annoyance.
+  // Navigation to the role dashboard only fires on a genuine sign-in
+  // transition within this browser session (status flips from
+  // "unauthenticated" to "authenticated" — tracked via prevSessionStatusRef)
+  // — not on a fresh page load/reload with an already-valid session, where
+  // status goes straight "loading" -> "authenticated" and the site should
+  // land on Market Intelligence like any other fresh visit. The
+  // lastSyncedUserIdRef check on top of that still guards against
+  // re-navigating on Auth.js's window-focus session re-polls.
   const lastSyncedUserIdRef = React.useRef<string | null>(null);
+  const prevSessionStatusRef = React.useRef(sessionStatus);
   useEffect(() => {
     if (sessionStatus === "authenticated" && session?.user) {
       const su = session.user as any;
@@ -142,11 +147,15 @@ export default function Home() {
         buyerAlias: su.role === "buyer" ? `Buyer #${su.id}` : undefined,
         savedVehicleIds: [],
       });
-      if (lastSyncedUserIdRef.current !== su.id) {
+      const isFreshSignIn = prevSessionStatusRef.current === "unauthenticated";
+      if (isFreshSignIn && lastSyncedUserIdRef.current !== su.id) {
         lastSyncedUserIdRef.current = su.id;
         setCurrentView(su.role === "dealer" ? "dealer_analytics" : "track_deals");
+      } else {
+        lastSyncedUserIdRef.current = su.id;
       }
     }
+    prevSessionStatusRef.current = sessionStatus;
   }, [session, sessionStatus]);
 
   const handleLogout = () => {
