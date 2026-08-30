@@ -21,12 +21,13 @@ import { DealTrackerDashboard } from "../components/DealTrackerDashboard";
 import { InventoryConnectorModal } from "../components/InventoryConnectorModal";
 import { SignupView } from "../components/SignupView";
 import { AdminPortal } from "../components/AdminPortal";
+import { DealerAnalytics } from "../components/DealerAnalytics";
 import { ScraperDashboardModal } from "../components/ScraperDashboardModal";
 import { LightsailIntelligence } from "../components/LightsailIntelligence";
 
 export default function Home() {
   const [vehicles, setVehicles] = useState<Vehicle[]>(MOCK_VEHICLES);
-  const [currentView, setCurrentView] = useState<"lightsail_analytics" | "bid_program" | "deal_room" | "dealer_portal" | "track_deals" | "signup" | "admin" | "search">("lightsail_analytics");
+  const [currentView, setCurrentView] = useState<"lightsail_analytics" | "bid_program" | "deal_room" | "dealer_portal" | "dealer_analytics" | "track_deals" | "signup" | "admin" | "search">("lightsail_analytics");
   const [isImpersonating, setIsImpersonating] = useState<boolean>(() => {
     if (typeof window !== "undefined") {
       return localStorage.getItem("trimscout_impersonating") !== null;
@@ -114,6 +115,12 @@ export default function Home() {
   // profile picked from AuthModal's "1-Click Demo" tab is a separate,
   // real-session-free path (handleLogin below) and this effect leaves it
   // alone — it only acts when Auth.js actually has something to report.
+  //
+  // Navigation only fires once per real sign-in transition (tracked via
+  // lastSyncedUserIdRef), not on every session refresh — Auth.js re-polls
+  // the session on window focus etc., and re-navigating a dealer away from
+  // wherever they'd since clicked to would be a real annoyance.
+  const lastSyncedUserIdRef = React.useRef<string | null>(null);
   useEffect(() => {
     if (sessionStatus === "authenticated" && session?.user) {
       const su = session.user as any;
@@ -129,6 +136,10 @@ export default function Home() {
         buyerAlias: su.role === "buyer" ? `Buyer #${su.id}` : undefined,
         savedVehicleIds: [],
       });
+      if (lastSyncedUserIdRef.current !== su.id) {
+        lastSyncedUserIdRef.current = su.id;
+        setCurrentView(su.role === "dealer" ? "dealer_analytics" : "track_deals");
+      }
     }
   }, [session, sessionStatus]);
 
@@ -140,7 +151,7 @@ export default function Home() {
       } catch (e) {}
     }
     if (user.role === "dealer") {
-      setCurrentView("dealer_portal");
+      setCurrentView("dealer_analytics");
     } else {
       setCurrentView("track_deals");
     }
@@ -499,6 +510,22 @@ export default function Home() {
           onAcceptDeal={handleAcceptDeal}
           onSimulateNewBid={handleSimulateNewBid}
         />
+      )}
+
+      {/* View: AI Sales Analytics — the new default landing view for dealers
+          on login, real inventory data (see app/api/dealer-analytics). */}
+      {currentView === "dealer_analytics" && currentUser && (
+        <div className="animate-fadeIn">
+          <DealerAnalytics user={currentUser} />
+          <div className="max-w-6xl mx-auto px-4 pb-8">
+            <button
+              onClick={() => setCurrentView("dealer_portal")}
+              className="text-xs text-ink-muted hover:text-emerald-400 transition-colors"
+            >
+              Manage active bids & deals →
+            </button>
+          </div>
+        </div>
       )}
 
       {/* View 4: Dealer Partner Portal (Dealer Sales Manager View) */}
