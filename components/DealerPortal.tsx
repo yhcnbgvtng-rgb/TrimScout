@@ -23,7 +23,8 @@ import {
   Eye,
   Image as ImageIcon,
   DollarSign,
-  Loader2
+  Loader2,
+  MessageSquare
 } from "lucide-react";
 
 interface DealerInventoryOption {
@@ -423,6 +424,16 @@ export const DealerPortal: React.FC<DealerPortalProps> = ({
                           <Eye className="h-3.5 w-3.5" />
                           <span>Inspect Trade Photos ({req.tradeIn.photos.length})</span>
                         </button>
+                      </div>
+                    )}
+
+                    {req.buyerComment && (
+                      <div className="rounded-xl border border-border bg-surface-elevated p-3 flex items-start gap-2.5">
+                        <MessageSquare className="h-3.5 w-3.5 text-emerald-400 shrink-0 mt-0.5" />
+                        <div>
+                          <div className="text-[10px] font-bold text-ink-muted uppercase tracking-wide">Buyer Comment</div>
+                          <p className="text-xs text-ink-light mt-0.5 whitespace-pre-wrap">{req.buyerComment}</p>
+                        </div>
                       </div>
                     )}
                   </div>

@@ -255,10 +255,28 @@ function publicDealRequest(row) {
     buyerState: row.buyer_state,
     searchRadiusMiles: row.search_radius_miles,
     sameStateOnly: Boolean(row.same_state_only),
+    buyerComment: row.buyer_comment,
     status: row.status,
     createdAt: row.created_at,
     expiresAt: row.expires_at,
   };
+}
+
+// Safety-net check, mirrored (not shared — different runtimes) from the
+// Next.js layer's real-time validation: the Next.js route is the primary
+// enforcement point since it sits closest to the untrusted browser, but
+// this server never assumes a caller upheld that — a comment containing an
+// actual contact vector (email/phone/link/handle/solicitation phrase)
+// never gets persisted, no matter what called this endpoint.
+function findContactInfo(text) {
+  const t = (text || "").toString();
+  if (/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/.test(t)) return "an email address";
+  if (/(\+?\d{1,2}[\s.-]?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}\b/.test(t)) return "a phone number";
+  if (/\b((https?:\/\/)|(www\.))\S+/i.test(t)) return "a website link";
+  if (/\b[a-z0-9-]+\.(com|net|org|io|co|biz|info)\b/i.test(t)) return "a website link";
+  if (/@[a-zA-Z0-9_]{3,}/.test(t)) return "a social media handle";
+  if (/\b(call|text|email|dm|reach|contact)\s+me\b/i.test(t)) return "contact instructions";
+  return null;
 }
 
 async function handleCreateDealRequest(req, res) {
@@ -272,6 +290,7 @@ async function handleCreateDealRequest(req, res) {
   const paymentMethod = body.paymentMethod;
   const buyerZip = (body.buyerZip || "").trim();
   const buyerState = (body.buyerState || "").trim().toUpperCase();
+  const buyerComment = typeof body.buyerComment === "string" ? body.buyerComment.trim().slice(0, 1000) : "";
 
   if (!Number.isFinite(buyerUserId) || buyerUserId <= 0) return badRequest(res, "Invalid buyerUserId");
   if (!["exact_auction", "firm_offer", "flexible_discount"].includes(strategy)) return badRequest(res, "Invalid strategy");
@@ -281,6 +300,8 @@ async function handleCreateDealRequest(req, res) {
   if (!["all_three", "cash", "finance", "lease"].includes(paymentMethod)) return badRequest(res, "Invalid paymentMethod");
   if (!buyerZip) return badRequest(res, "buyerZip is required");
   if (!/^[A-Z]{2}$/.test(buyerState)) return badRequest(res, "Invalid buyerState");
+  const contactInfoFound = findContactInfo(buyerComment);
+  if (contactInfoFound) return badRequest(res, `Your comment appears to contain ${contactInfoFound} — remove it and try again.`);
 
   const searchRadiusMiles = Number.isFinite(Number(body.searchRadiusMiles)) ? Number(body.searchRadiusMiles) : 100;
   const sameStateOnly = body.sameStateOnly !== false;
@@ -291,8 +312,8 @@ async function handleCreateDealRequest(req, res) {
        (buyer_user_id, strategy, reference_brand_code, reference_vin, reference_year, reference_make, reference_model,
         reference_trim, reference_price, reference_msrp, reference_image_url, target_otd_price, target_discount_percent,
         payment_method, deal_structure_json, trade_in_json, buyer_zip, buyer_state, search_radius_miles, same_state_only,
-        status, expires_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', NOW() + INTERVAL 48 HOUR)`,
+        buyer_comment, status, expires_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', NOW() + INTERVAL 48 HOUR)`,
     [
       buyerUserId,
       strategy,
@@ -314,6 +335,7 @@ async function handleCreateDealRequest(req, res) {
       buyerState,
       searchRadiusMiles,
       sameStateOnly,
+      buyerComment || null,
     ]
   );
 

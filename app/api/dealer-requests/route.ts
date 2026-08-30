@@ -83,6 +83,7 @@ export async function GET() {
       targetDiscountPercent: req.targetDiscountPercent,
       paymentMethod: req.paymentMethod,
       tradeIn: req.tradeIn as any,
+      buyerComment: req.buyerComment,
       createdAt: req.createdAt,
       expiresAt: req.expiresAt,
     });

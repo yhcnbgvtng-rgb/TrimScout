@@ -137,6 +137,7 @@ export interface DealRequestRecord {
   buyerState: string;
   searchRadiusMiles: number;
   sameStateOnly: boolean;
+  buyerComment: string | null;
   status: "active" | "locked" | "expired" | "cancelled";
   createdAt: string;
   expiresAt: string;
@@ -206,6 +207,7 @@ export async function createDealRequest(input: {
   buyerState: string;
   searchRadiusMiles?: number;
   sameStateOnly?: boolean;
+  buyerComment?: string;
 }): Promise<DealRequestRecord> {
   const json = await request("POST", "/api/deal-requests", input);
   return json.dealRequest as DealRequestRecord;

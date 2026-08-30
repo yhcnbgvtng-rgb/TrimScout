@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { Vehicle, BiddingStrategy, PaymentMethod, BiddingRequest, TradeInVehicle, TradeInPhoto, UserProfile } from "../lib/types";
 import { formatCurrency, getEstimatedTaxRate } from "../lib/otdCalculator";
+import { findContactInfo } from "../lib/piiFilter";
 import { MOCK_POPULAR_PACKAGES, SAMPLE_TRADE_IN_VEHICLE } from "../lib/mockData";
 import { decodeVin, SAMPLE_TEST_VINS, DecodedVehicle } from "../lib/vinDecoder";
 import {
@@ -214,6 +215,21 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   const [isSubmittingReal, setIsSubmittingReal] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
+  // Step 6: optional free-text note to the dealer. Real-time-checked for
+  // contact info (email/phone/link/handle) — the masked-identity system
+  // only holds if a buyer can't just paste it in here; server-side
+  // (app/api/deal-requests and the box) re-checks authoritatively.
+  const [dealComment, setDealComment] = useState("");
+  const dealCommentContactWarning = findContactInfo(dealComment);
+
+  // Real deal_requests.id, shown as a confirmation once a real submission
+  // (broadcast or direct offer) succeeds.
+  const [createdDealId, setCreatedDealId] = useState<string | null>(null);
+  const handleCloseConfirmation = () => {
+    setCreatedDealId(null);
+    onClose();
+  };
+
   useEffect(() => {
     if (preselectedVehicle) {
       setSelectedVehicle(preselectedVehicle);
@@ -366,6 +382,38 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
 
   if (!isOpen) return null;
 
+  if (createdDealId) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4">
+        <div className="relative w-full max-w-md rounded-2xl border border-emerald-500/40 bg-surface shadow-2xl p-6 space-y-4 text-center animate-fadeIn">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-400">
+            <CheckCircle2 className="h-7 w-7" />
+          </div>
+          <div>
+            <h2 className="text-lg font-black text-white">
+              {directOfferMode ? "Your Direct Offer Has Been Sent" : "Your Deal Request Is Live"}
+            </h2>
+            <p className="text-xs text-ink-muted mt-1">
+              {directOfferMode
+                ? `${selectedVehicle?.location.dealerName ?? "The dealer"} will review your anonymized offer and respond.`
+                : "Certified dealers in your area are now reviewing your request."}
+            </p>
+          </div>
+          <div className="rounded-xl border border-border bg-surface-elevated py-3">
+            <div className="text-[10px] font-bold text-ink-faint uppercase tracking-wider">Deal Number</div>
+            <div className="text-2xl font-mono font-black text-emerald-400">#{createdDealId}</div>
+          </div>
+          <button
+            onClick={handleCloseConfirmation}
+            className="w-full rounded-xl bg-emerald-500 py-2.5 text-xs font-extrabold text-black hover:bg-emerald-400 transition-all active:scale-95"
+          >
+            Done
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   const estimatedTaxPercent = (getEstimatedTaxRate(buyerZip) * 100).toFixed(2);
 
   // Filter vehicles within wizard search
@@ -440,6 +488,10 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
       : undefined;
 
   const handleLaunchDeal = async () => {
+    if (dealCommentContactWarning) {
+      setSubmitError(`Your comment appears to contain ${dealCommentContactWarning} — remove it before submitting.`);
+      return;
+    }
     if (lockVehicleSelection) {
       if (!currentUser) {
         onClose();
@@ -478,6 +530,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
             buyerZip,
             searchRadiusMiles: searchRadius,
             sameStateOnly,
+            buyerComment: dealComment.trim() || undefined,
           }),
         });
         const json = await res.json();
@@ -495,12 +548,13 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
           searchRadiusMiles: dr.searchRadiusMiles,
           sameStateOnly: dr.sameStateOnly,
           tradeIn: buildTradeIn(),
+          buyerComment: dr.buyerComment ?? undefined,
           createdAt: dr.createdAt,
           expiresAt: dr.expiresAt,
           status: dr.status,
         };
         onRealBidRequestCreated?.(newRequest);
-        onClose();
+        setCreatedDealId(dr.id);
       } catch (e) {
         setSubmitError(e instanceof Error ? e.message : "Could not submit your request.");
       } finally {
@@ -526,6 +580,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
         allowedStatuses: ["on_lot", "in_transit"],
       },
       tradeIn: buildTradeIn(),
+      buyerComment: dealComment.trim() || undefined,
       targetOtdPrice: strategy === "firm_offer" ? targetOtdPrice : undefined,
       targetDiscountPercent: strategy === "flexible_discount" ? targetDiscountPercent : undefined,
       paymentMethod,
@@ -1670,13 +1725,44 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                 </div>
               </div>
 
-              {/* Protection Pledge Box */}
+              {/* Buyer Comment — scrubbed of contact info before it ever leaves the browser */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-ink-light flex items-center justify-between">
+                  <span>Add a Comment for the Dealer <span className="text-ink-faint font-normal">(optional)</span></span>
+                  <span className={`text-[10px] font-mono ${dealComment.length > 900 ? "text-amber-400" : "text-ink-faint"}`}>
+                    {dealComment.length}/1000
+                  </span>
+                </label>
+                <textarea
+                  value={dealComment}
+                  onChange={(e) => setDealComment(e.target.value.slice(0, 1000))}
+                  placeholder="e.g. Flexible on color, need delivery within 2 weeks, prior lease customer…"
+                  rows={3}
+                  className={`w-full rounded-xl border bg-background py-2.5 px-3.5 text-xs text-white placeholder-ink-faint focus:outline-none resize-none ${
+                    dealCommentContactWarning
+                      ? "border-rose-500 focus:border-rose-500"
+                      : "border-border focus:border-emerald-500"
+                  }`}
+                />
+                {dealCommentContactWarning ? (
+                  <p className="text-[11px] text-rose-400 flex items-center gap-1.5">
+                    <ShieldCheck className="h-3 w-3 shrink-0" />
+                    Looks like your comment contains {dealCommentContactWarning} — remove it. Dealers only ever see your masked buyer ID here.
+                  </p>
+                ) : (
+                  <p className="text-[11px] text-ink-faint">
+                    Please don't include your name, email, phone number, or any links — dealers only see your masked buyer ID until you accept a deal. We automatically block emails, phone numbers, links, and handles.
+                  </p>
+                )}
+              </div>
+
+              {/* How This Works Box */}
               <div className="rounded-xl border border-emerald-500/30 bg-emerald-950/20 p-3 flex items-start gap-2.5 text-xs text-ink-light">
                 <ShieldCheck className="h-5 w-5 text-emerald-400 shrink-0 mt-0.5" />
                 <div>
-                  <div className="font-bold text-emerald-400">The TrimScout Price Protection Pledge</div>
+                  <div className="font-bold text-emerald-400">How This Works</div>
                   <p className="text-[11px] text-ink-muted mt-0.5 leading-relaxed">
-                    Dealers are legally bound to honor their itemized bids with $0 surprise dealer add-ons or hidden markups upon vehicle delivery.
+                    We send the dealer your Out-The-Door price request first — vehicle, taxes, fees, everything. Once you and the dealer finalize that price together, we'll work through any trade-in value from there.
                   </p>
                 </div>
               </div>
@@ -1714,7 +1800,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
             ) : (
               <button
                 onClick={handleLaunchDeal}
-                disabled={isSubmittingReal}
+                disabled={isSubmittingReal || !!dealCommentContactWarning}
                 className="flex items-center gap-2 rounded-lg bg-emerald-500 px-6 py-2.5 text-xs font-extrabold text-black hover:bg-emerald-400 transition-all shadow-lg shadow-emerald-500/20 active:scale-95 disabled:opacity-60"
               >
                 {isSubmittingReal ? (

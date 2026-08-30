@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { createDealRequest, DealsApiError } from "@/lib/dealsApi";
 import { getZipCoordinates } from "@/lib/otdCalculator";
+import { findContactInfo } from "@/lib/piiFilter";
 
 export async function POST(req: Request) {
   const session = await auth();
@@ -15,6 +16,15 @@ export async function POST(req: Request) {
   }
   if (!body?.buyerZip) {
     return NextResponse.json({ error: "buyerZip is required." }, { status: 400 });
+  }
+
+  const buyerComment = typeof body.buyerComment === "string" ? body.buyerComment.trim().slice(0, 1000) : "";
+  const contactInfoFound = findContactInfo(buyerComment);
+  if (contactInfoFound) {
+    return NextResponse.json(
+      { error: `Your comment appears to contain ${contactInfoFound} — remove it and try again. Dealers only see your masked buyer ID.` },
+      { status: 400 }
+    );
   }
 
   const buyerState = getZipCoordinates(body.buyerZip).state;
@@ -41,6 +51,7 @@ export async function POST(req: Request) {
       buyerState,
       searchRadiusMiles: body.searchRadiusMiles ?? 100,
       sameStateOnly: body.sameStateOnly !== false,
+      buyerComment: buyerComment || undefined,
     });
     return NextResponse.json({ dealRequest });
   } catch (err) {

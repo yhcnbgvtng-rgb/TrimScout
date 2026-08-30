@@ -110,6 +110,9 @@ export interface BiddingRequest {
   // client-only demo request (BidProgramIntro's mock path) still type-checks.
   sameStateOnly?: boolean;
   tradeIn?: TradeInVehicle;
+  // Free-text note to the dealer, scrubbed of contact info (email/phone/
+  // link/handle) before it's ever sent — see lib/piiFilter.ts.
+  buyerComment?: string;
   createdAt: string;
   expiresAt: string;
   status: "active" | "locked" | "expired";
@@ -137,6 +140,7 @@ export interface DealerInboundRequest {
   targetDiscountPercent: number | null;
   paymentMethod: PaymentMethod;
   tradeIn?: TradeInVehicle;
+  buyerComment?: string | null;
   createdAt: string;
   expiresAt: string;
 }
