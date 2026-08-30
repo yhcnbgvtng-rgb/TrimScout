@@ -737,12 +737,30 @@ const failedDealerNames = new Set();
 let activeDealersCount = 0;
 let erroredDealersCount = 0;
 
+// A single pathological dealer (huge sitemap, a slow-failing site) should
+// never be able to stall the whole nationwide run — confirmed live
+// (Acura, West Herr Acura, 08-30) a dealer can run for hours with nothing
+// to stop it. Closing the patchright context on timeout is a REAL cancel,
+// not just abandoning a promise: it aborts in-flight page navigations, so
+// pMapWithPages's remaining workers fail-fast and the loop actually moves
+// on within seconds of the timeout firing, not "eventually."
+const DEALER_TIMEOUT_MS = 60 * 60 * 1000; // 1 hour
+
 for (let i = 0; i < dealers.length; i++) {
     const dealer = dealers[i];
     const progress = `[${i + 1}/${dealers.length}]`;
     console.log(`${progress} 🏢 Crawling ${dealer.name} (${dealer.city}, ${dealer.state})...`);
 
     let patchrightFallback = null;
+    let dealerTimedOut = false;
+    const dealerTimeoutHandle = setTimeout(() => {
+        dealerTimedOut = true;
+        console.log(`${progress} ⏱️ ${dealer.name} has been running over 1 hour — abandoning it and moving to the next dealer.`);
+        if (patchrightFallback) {
+            patchrightFallback.context.close().catch(() => {});
+        }
+    }, DEALER_TIMEOUT_MS);
+
     try {
         let vehicleUrls = await resolveSitemapUrls(dealer, brand);
         if (vehicleUrls.length === 0 && process.env.CRAWLER_PATCHRIGHT_FALLBACK !== 'false') {
@@ -762,6 +780,15 @@ for (let i = 0; i < dealers.length; i++) {
         }
         if (vehicleUrls.length === 0) {
             console.log(`${progress} ⚠️ No inventory URLs detected for ${dealer.name}.`);
+            dealerStats[dealer.name] = 0;
+            failedDealerNames.add(dealer.name);
+            continue;
+        }
+        if (dealerTimedOut) {
+            // The 1-hour mark already passed during sitemap resolution
+            // itself (rare — that phase has its own short per-request
+            // timeouts) — don't start a whole new extraction pass on a
+            // dealer we've already decided to abandon.
             dealerStats[dealer.name] = 0;
             failedDealerNames.add(dealer.name);
             continue;
@@ -984,12 +1011,21 @@ for (let i = 0; i < dealers.length; i++) {
             // real evidence this run" situation as the zero-URL case above.
             failedDealerNames.add(dealer.name);
         }
-        console.log(`${progress} ✅ Extracted ${dealerCount} vehicles from ${dealer.name}. (Running Total: ${currentInventory.size})`);
+        if (dealerTimedOut) {
+            // Closing the context made pMapWithPages settle instead of throw
+            // (each worker's own try/catch swallows the abort), so this is
+            // the success path even though the dealer was really cut short.
+            failedDealerNames.add(dealer.name);
+            console.log(`${progress} ⏱️ Kept ${dealerCount} vehicles extracted before the 1-hour cutoff for ${dealer.name}. (Running Total: ${currentInventory.size})`);
+        } else {
+            console.log(`${progress} ✅ Extracted ${dealerCount} vehicles from ${dealer.name}. (Running Total: ${currentInventory.size})`);
+        }
     } catch (err) {
         erroredDealersCount++;
         failedDealerNames.add(dealer.name);
         console.error(`${progress} ❌ Error crawling ${dealer.name}: ${err.message}`);
     } finally {
+        clearTimeout(dealerTimeoutHandle);
         if (patchrightFallback) {
             await patchrightFallback.context.close().catch(() => {});
         }
