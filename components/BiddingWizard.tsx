@@ -404,7 +404,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
             </div>
             <div>
               <h2 className="text-base font-bold text-white">Launch Dealership Bidding Hunt</h2>
-              <p className="text-xs text-ink-muted">Step {step} of {TOTAL_STEPS} • Certified Dealer Reverse Auction</p>
+              <p className="text-xs text-ink-muted">Step {step} of {TOTAL_STEPS} • Dealer Reverse Auction</p>
             </div>
           </div>
           <button
@@ -431,101 +431,39 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                {/* Option 1: ALL 3 (Full Width Featured Card) */}
-                <div
-                  onClick={() => setPaymentMethod("all_three")}
-                  className={`sm:col-span-2 cursor-pointer rounded-xl border p-4 transition-all ${
-                    paymentMethod === "all_three"
-                      ? "border-emerald-500 bg-emerald-500/10 shadow-md ring-1 ring-emerald-500"
-                      : "border-border bg-surface-elevated hover:border-border-strong"
-                  }`}
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-500 text-black font-extrabold shrink-0 shadow-md">
-                        <Layers className="h-5 w-5 stroke-[2.5]" />
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                {(
+                  [
+                    { id: "cash", label: "Cash", icon: Coins },
+                    { id: "finance", label: "Finance", icon: CreditCard },
+                    { id: "lease", label: "Lease", icon: KeyRound },
+                    { id: "all_three", label: "Show Me All 3", icon: Layers },
+                  ] as const
+                ).map((opt) => {
+                  const Icon = opt.icon;
+                  const isSelected = paymentMethod === opt.id;
+                  return (
+                    <button
+                      type="button"
+                      key={opt.id}
+                      onClick={() => setPaymentMethod(opt.id)}
+                      className={`flex flex-col items-center justify-center gap-2 rounded-xl border p-4 text-center transition-all ${
+                        isSelected
+                          ? "border-emerald-500 bg-emerald-500/10 shadow-md ring-1 ring-emerald-500"
+                          : "border-border bg-surface-elevated hover:border-border-strong"
+                      }`}
+                    >
+                      <div
+                        className={`flex h-9 w-9 items-center justify-center rounded-xl ${
+                          isSelected ? "bg-emerald-500 text-black" : "bg-background text-ink-muted"
+                        }`}
+                      >
+                        <Icon className="h-4.5 w-4.5 stroke-[2.5]" />
                       </div>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <h4 className="font-extrabold text-white text-sm">Show Me All 3 (Cash, Finance & Lease)</h4>
-                          <span className="rounded bg-emerald-500 text-black px-1.5 py-0.2 text-[9px] font-black uppercase">
-                            RECOMMENDED
-                          </span>
-                        </div>
-                        <p className="text-xs text-ink-muted mt-0.5 leading-relaxed">
-                          Dealers will submit side-by-side bids showing full <strong>Cash Out-The-Door price</strong>, <strong>60-mo Finance payments</strong>, and <strong>36-mo Lease terms</strong> so you can compare the best mathematical option.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Option 2: Cash Only */}
-                <div
-                  onClick={() => setPaymentMethod("cash")}
-                  className={`cursor-pointer rounded-xl border p-3.5 transition-all ${
-                    paymentMethod === "cash"
-                      ? "border-emerald-500 bg-emerald-500/10 shadow-md ring-1 ring-emerald-500"
-                      : "border-border bg-surface-elevated hover:border-border-strong"
-                  }`}
-                >
-                  <div className="flex items-center gap-2.5">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/20 text-emerald-400 font-bold shrink-0">
-                      <Coins className="h-4 w-4 stroke-[2.5]" />
-                    </div>
-                    <div>
-                      <h4 className="font-bold text-white text-xs">Cash Out-The-Door Only</h4>
-                      <p className="text-[11px] text-ink-muted mt-0.5">
-                        Single lump-sum payment with $0 surprise dealer fee markups.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Option 3: Finance Only */}
-                <div
-                  onClick={() => setPaymentMethod("finance")}
-                  className={`cursor-pointer rounded-xl border p-3.5 transition-all ${
-                    paymentMethod === "finance"
-                      ? "border-emerald-500 bg-emerald-500/10 shadow-md ring-1 ring-emerald-500"
-                      : "border-border bg-surface-elevated hover:border-border-strong"
-                  }`}
-                >
-                  <div className="flex items-center gap-2.5">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/20 text-blue-400 font-bold shrink-0">
-                      <CreditCard className="h-4 w-4 stroke-[2.5]" />
-                    </div>
-                    <div>
-                      <h4 className="font-bold text-white text-xs">Finance Deal (Loan)</h4>
-                      <p className="text-[11px] text-ink-muted mt-0.5">
-                        Dealers compete on vehicle selling price & monthly loan rate.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Option 4: Lease Only */}
-                <div
-                  onClick={() => setPaymentMethod("lease")}
-                  className={`sm:col-span-2 cursor-pointer rounded-xl border p-3.5 transition-all ${
-                    paymentMethod === "lease"
-                      ? "border-emerald-500 bg-emerald-500/10 shadow-md ring-1 ring-emerald-500"
-                      : "border-border bg-surface-elevated hover:border-border-strong"
-                  }`}
-                >
-                  <div className="flex items-center gap-2.5">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-500/20 text-purple-400 font-bold shrink-0">
-                      <KeyRound className="h-4 w-4 stroke-[2.5]" />
-                    </div>
-                    <div>
-                      <h4 className="font-bold text-white text-xs">Lease Deal Structure</h4>
-                      <p className="text-[11px] text-ink-muted mt-0.5">
-                        Dealers compete on capitalized cost reduction, money factor & monthly lease price.
-                      </p>
-                    </div>
-                  </div>
-                </div>
+                      <span className="text-xs font-bold text-white leading-tight">{opt.label}</span>
+                    </button>
+                  );
+                })}
               </div>
             </div>
           )}
