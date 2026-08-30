@@ -503,6 +503,7 @@ export default function Home() {
         <BidProgramIntro
           onStartWizard={handleOpenFlexibleWizard}
           onViewDemoDealRoom={() => setCurrentView("deal_room")}
+          onExploreSearch={() => setCurrentView("lightsail_analytics")}
         />
       )}
 
