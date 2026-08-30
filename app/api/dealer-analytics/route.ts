@@ -12,6 +12,14 @@ const BRAND_CODES = ["porsche", "ford", "chevrolet", "acura", "audi", "mclaren"]
 
 const STALE_DAYS_ON_LOT_THRESHOLD = 45;
 
+// A large dealer's full-inventory pagination plus the nationwide lookups
+// below can run several seconds under normal load, and longer while the
+// box's crawlers are actively running (they share the same small instance
+// — see the pending Lightsail upgrade). Vercel's default function timeout
+// is tight enough to risk a hard failure here; this raises the ceiling
+// (Hobby plans cap it regardless, so this is a no-op there, not a risk).
+export const maxDuration = 30;
+
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const dealerName = searchParams.get("dealerName");
@@ -131,24 +139,32 @@ export async function GET(req: Request) {
     }))
     .sort((a, b) => (a.model || "").localeCompare(b.model || "") || (a.price || 0) - (b.price || 0));
 
-  // Nationwide competitive view: for every model this dealer carries, pull
-  // the same model across ALL dealers (no `dealer` filter), sorted by
-  // days-on-lot descending — the box already supports this sort server-side
-  // (same param used for `agingInventory` above), so the top of each list is
+  // Nationwide competitive view: for the dealer's own top models, pull the
+  // same model across ALL dealers (no `dealer` filter), sorted by
+  // days-on-lot descending — the box supports this sort server-side (same
+  // param used for `agingInventory` above), so the top of each list is
   // exactly the highest-days-on-hand units without a full-catalog pull.
-  // Capped at 60/model: this is a "how does my inventory compare" view, not
-  // a full nationwide export, and a hot model can run into the thousands
-  // nationwide.
-  const NATIONWIDE_PER_MODEL_CAP = 60;
+  // Capped at 5 models / 25 rows each: this box currently runs its crawlers
+  // on the same small instance that serves this API (a known, temporary
+  // capacity constraint — see the pending Lightsail instance upgrade), so
+  // this stays conservative to avoid piling parallel load onto an
+  // already-contended box. Revisit these caps upward once that upgrade
+  // lands.
+  const NATIONWIDE_MODEL_CAP = 5;
+  const NATIONWIDE_PER_MODEL_CAP = 25;
   const modelBrandPairs = new Map<string, string>(); // model -> brand
   for (const b of matched) {
     for (const f of b.facetsRes?.facets.model ?? []) {
       if (!modelBrandPairs.has(f.value)) modelBrandPairs.set(f.value, b.brand);
     }
   }
+  const topModelPairs = modelMix
+    .slice(0, NATIONWIDE_MODEL_CAP)
+    .map((m) => [m.model, modelBrandPairs.get(m.model)] as const)
+    .filter((pair): pair is [string, string] => !!pair[1]);
 
   const nationwideByModel = await Promise.all(
-    [...modelBrandPairs.entries()].map(async ([model, brand]) => {
+    topModelPairs.map(async ([model, brand]) => {
       const res = await fetchVehiclesFromBox({
         brand,
         model,
