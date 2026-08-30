@@ -3,6 +3,7 @@
 export const dynamic = "force-dynamic";
 
 import React, { useState, useEffect } from "react";
+import { useSession, signOut as authSignOut } from "next-auth/react";
 import { Vehicle, BiddingRequest, DealerBid, LockedDeal, UserProfile } from "../lib/types";
 import { MOCK_VEHICLES, INITIAL_DEMO_BIDS, SAMPLE_TRADE_IN_VEHICLE, DEMO_BUYER_USER } from "../lib/mockData";
 import { calculateOtd } from "../lib/otdCalculator";
@@ -33,9 +34,14 @@ export default function Home() {
     return false;
   });
 
-  // User Authentication State
-  const [currentUser, setCurrentUser] = useState<UserProfile | null>(DEMO_BUYER_USER);
+  // User Authentication State — currentUser is populated either from a real
+  // Auth.js session (see the sync effect below) or from a demo-profile pick
+  // in AuthModal's "1-Click Demo" tab. No default: a fresh visit is
+  // genuinely logged out now that real auth exists (this used to default to
+  // DEMO_BUYER_USER, which silently auto-logged in every visitor).
+  const [currentUser, setCurrentUser] = useState<UserProfile | null>(null);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const { data: session, status: sessionStatus } = useSession();
   const [savedVehicleIds, setSavedVehicleIds] = useState<string[]>(["veh-1", "veh-4"]);
 
   // Live Inventory Connector State & Pagination
@@ -103,6 +109,29 @@ export default function Home() {
     handleSyncLiveInventory("94107", 25, undefined, undefined, 500);
   }, []);
 
+  // Real Auth.js session -> currentUser sync. Runs whenever the session
+  // resolves (page load, after sign-in, after OAuth redirect back). A demo
+  // profile picked from AuthModal's "1-Click Demo" tab is a separate,
+  // real-session-free path (handleLogin below) and this effect leaves it
+  // alone — it only acts when Auth.js actually has something to report.
+  useEffect(() => {
+    if (sessionStatus === "authenticated" && session?.user) {
+      const su = session.user as any;
+      setCurrentUser({
+        id: su.id,
+        name: su.name || su.email?.split("@")[0] || "Member",
+        email: su.email || "",
+        role: su.role || "buyer",
+        phone: su.phone || "",
+        zipCode: su.zipCode || "94107",
+        dealerName: su.dealerName || undefined,
+        avatarUrl: su.image || undefined,
+        buyerAlias: su.role === "buyer" ? `Buyer #${su.id}` : undefined,
+        savedVehicleIds: [],
+      });
+    }
+  }, [session, sessionStatus]);
+
   const handleLogin = (user: UserProfile) => {
     setCurrentUser(user);
     if (typeof window !== "undefined") {
@@ -125,6 +154,12 @@ export default function Home() {
       } catch (e) {}
     }
     setCurrentView("lightsail_analytics");
+    // Only real Auth.js sessions (email/password, Google, Apple) need this;
+    // a demo-tab profile never created one, and signOut() is a harmless
+    // no-op when there's no session to clear.
+    if (sessionStatus === "authenticated") {
+      authSignOut({ redirect: false });
+    }
   };
 
   // Sync Live Inventory from Connector

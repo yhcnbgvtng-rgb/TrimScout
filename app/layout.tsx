@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { SessionProvider } from 'next-auth/react';
 import './globals.css';
 
 const title = 'TrimScout | Whole Market Vehicle Search & Dealership Bidding';
@@ -31,7 +32,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body className="min-h-screen bg-background text-foreground antialiased selection:bg-emerald-500/20 selection:text-emerald-300">
-        {children}
+        <SessionProvider>{children}</SessionProvider>
       </body>
     </html>
   );

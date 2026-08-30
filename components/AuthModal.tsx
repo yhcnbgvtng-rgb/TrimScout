@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { signIn } from "next-auth/react";
 import { UserProfile } from "../lib/types";
 import { DEMO_BUYER_USER, DEMO_DEALER_USER, DEMO_ADMIN_USER } from "../lib/mockData";
 import {
@@ -17,8 +18,27 @@ import {
   MapPin,
   ArrowRight,
   Sparkles,
-  ShieldAlert
+  ShieldAlert,
+  Loader2,
+  AlertCircle,
 } from "lucide-react";
+
+// Inline brand marks — Google/Apple's own guidelines call for their real
+// logo, not a generic icon, on "Continue with" buttons.
+const GoogleIcon = () => (
+  <svg viewBox="0 0 24 24" className="h-4 w-4" aria-hidden="true">
+    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.19 3.32v2.77h3.55c2.08-1.92 3.28-4.74 3.28-8.1z" />
+    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.55-2.77c-.98.66-2.23 1.06-3.73 1.06-2.87 0-5.3-1.94-6.17-4.53H2.18v2.85A11 11 0 0012 23z" />
+    <path fill="#FBBC05" d="M5.83 14.1A6.6 6.6 0 015.48 12c0-.73.13-1.44.35-2.1V7.05H2.18A11 11 0 001 12c0 1.77.43 3.45 1.18 4.95l3.65-2.85z" />
+    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1a11 11 0 00-9.82 6.05l3.65 2.85C6.7 7.32 9.13 5.38 12 5.38z" />
+  </svg>
+);
+
+const AppleIcon = () => (
+  <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor" aria-hidden="true">
+    <path d="M16.365 1.43c0 1.14-.415 2.06-1.245 2.98-.997 1.09-2.19 1.72-3.49 1.61-.145-1.09.418-2.24 1.19-3.02.87-.9 2.31-1.57 3.47-1.65.02.02.07.05.075.08zM20.66 17.6c-.5 1.16-.73 1.68-1.37 2.72-.89 1.44-2.14 3.23-3.7 3.24-1.38.02-1.73-.9-3.6-.89-1.87.01-2.26.91-3.64.89-1.56-.02-2.74-1.63-3.63-3.07-2.49-4.02-2.75-8.73-1.21-11.24.93-1.51 2.4-2.4 3.79-2.4 1.42 0 2.31.9 3.48.9 1.13 0 1.83-.9 3.48-.9 1.24 0 2.55.68 3.48 1.85-3.06 1.68-2.57 6.05.42 7.4z" />
+  </svg>
+);
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -33,7 +53,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 }) => {
   const [tab, setTab] = useState<"signin" | "signup" | "demo">("demo");
   const [role, setRole] = useState<"buyer" | "dealer">("buyer");
-  
+
   // Form fields
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -42,24 +62,54 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const [zipCode, setZipCode] = useState("94107");
   const [dealerName, setDealerName] = useState("BMW of San Rafael");
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
+  const [oauthLoading, setOauthLoading] = useState<"google" | "apple" | null>(null);
+
   if (!isOpen) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const newUser: UserProfile = {
-      id: `user-${Date.now()}`,
-      name: name || (email ? email.split("@")[0] : "New Member"),
-      email: email || "user@example.com",
-      role,
-      phone: phone || "(415) 555-0100",
-      zipCode: zipCode || "94107",
-      buyerAlias: role === "buyer" ? `Buyer #CA-${Math.floor(1000 + Math.random() * 9000)}` : undefined,
-      dealerName: role === "dealer" ? dealerName : undefined,
-      avatarUrl: role === "dealer" ? DEMO_DEALER_USER.avatarUrl : DEMO_BUYER_USER.avatarUrl,
-      savedVehicleIds: ["veh-1"],
-    };
-    onLogin(newUser);
-    onClose();
+    setFormError(null);
+    setIsSubmitting(true);
+    try {
+      if (tab === "signin") {
+        const result = await signIn("credentials", { email, password, redirect: false });
+        if (result?.error) {
+          setFormError("Incorrect email or password.");
+          return;
+        }
+        // page.tsx's session-sync effect picks up currentUser from here —
+        // nothing further to do but close the modal.
+        onClose();
+        return;
+      }
+
+      // tab === "signup"
+      const res = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password, name, role, phone, zipCode, dealerName: role === "dealer" ? dealerName : undefined }),
+      });
+      const json = await res.json();
+      if (!res.ok) {
+        setFormError(json.error || "Could not create your account.");
+        return;
+      }
+      // The signup route already signs the new user in server-side; make
+      // sure the client's session state reflects it.
+      await signIn("credentials", { email, password, redirect: false });
+      onClose();
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleOAuth = async (provider: "google" | "apple") => {
+    setOauthLoading(provider);
+    // Real redirect flow (not redirect: false) — the provider's own login
+    // page needs the full page, not an in-modal fetch.
+    await signIn(provider, { callbackUrl: "/" });
   };
 
   const handleSelectDemoUser = (demoUser: UserProfile) => {
@@ -249,6 +299,42 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
           {/* TAB 2 & 3: SIGN IN / SIGN UP FORM */}
           {(tab === "signin" || tab === "signup") && (
+            <div className="space-y-4">
+              {/* OAuth */}
+              <div className="space-y-2">
+                <button
+                  type="button"
+                  onClick={() => handleOAuth("google")}
+                  disabled={oauthLoading !== null}
+                  className="w-full flex items-center justify-center gap-2.5 rounded-xl border border-border bg-white py-2.5 text-xs font-bold text-gray-800 hover:bg-gray-50 transition-all disabled:opacity-50 disabled:cursor-wait"
+                >
+                  {oauthLoading === "google" ? <Loader2 className="h-4 w-4 animate-spin" /> : <GoogleIcon />}
+                  <span>Continue with Google</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleOAuth("apple")}
+                  disabled={oauthLoading !== null}
+                  className="w-full flex items-center justify-center gap-2.5 rounded-xl border border-border bg-black py-2.5 text-xs font-bold text-white hover:bg-gray-900 transition-all disabled:opacity-50 disabled:cursor-wait"
+                >
+                  {oauthLoading === "apple" ? <Loader2 className="h-4 w-4 animate-spin" /> : <AppleIcon />}
+                  <span>Continue with Apple</span>
+                </button>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <div className="h-px flex-1 bg-border" />
+                <span className="text-[10px] uppercase font-bold text-ink-faint">Or with email</span>
+                <div className="h-px flex-1 bg-border" />
+              </div>
+
+              {formError && (
+                <div className="flex items-start gap-2 rounded-xl border border-rose-500/40 bg-rose-950/20 p-3 text-[11px] text-rose-300">
+                  <AlertCircle className="h-3.5 w-3.5 shrink-0 mt-0.5" />
+                  <span>{formError}</span>
+                </div>
+              )}
+
             <form onSubmit={handleSubmit} className="space-y-4 text-xs">
               {/* Role Toggle */}
               <div className="space-y-1.5">
@@ -387,9 +473,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               {/* Submit Button */}
               <button
                 type="submit"
-                className="w-full flex items-center justify-center gap-2 rounded-xl bg-emerald-500 py-2.5 text-xs font-black text-black hover:bg-emerald-400 transition-all shadow-md shadow-emerald-500/20 active:scale-95 mt-2 cursor-pointer"
+                disabled={isSubmitting}
+                className="w-full flex items-center justify-center gap-2 rounded-xl bg-emerald-500 py-2.5 text-xs font-black text-black hover:bg-emerald-400 transition-all shadow-md shadow-emerald-500/20 active:scale-95 mt-2 cursor-pointer disabled:opacity-50 disabled:cursor-wait"
               >
-                {tab === "signin" ? (
+                {isSubmitting ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : tab === "signin" ? (
                   <>
                     <LogIn className="h-4 w-4" />
                     <span>Sign In to TrimScout</span>
@@ -412,6 +501,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 </Link>
               </div>
             </form>
+            </div>
           )}
         </div>
       </div>
