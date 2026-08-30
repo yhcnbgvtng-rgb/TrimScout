@@ -61,7 +61,7 @@ export const Navbar: React.FC<NavbarProps> = ({
     { id: "lightsail_analytics", label: "Market Intelligence", badge: "LIVE" },
     { id: "track_deals", label: "Track Deals", badge: activeDealCount },
     { id: "deal_room", label: "Live Deal Room" },
-    { id: "dealer_analytics", label: "Dealer Portal" },
+    { id: "dealer_analytics", label: "AI Sales Analytics" },
     { id: "bid_program", label: "How It Works" },
   ];
 

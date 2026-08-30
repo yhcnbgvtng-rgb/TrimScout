@@ -213,6 +213,13 @@ export interface BoxVehicleChangeLogEntry {
 
 export interface BoxVehicleHistory {
   vin: string;
+  year: number | null;
+  make: string | null;
+  model: string | null;
+  trim: string | null;
+  dealerName: string | null;
+  price: number | null;
+  status: string | null;
   firstSeenDate: string | null;
   lastSeenDate: string | null;
   priceHistory: BoxVehiclePriceHistoryEntry[];

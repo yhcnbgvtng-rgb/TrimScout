@@ -655,7 +655,8 @@ async function handleVehicleHistory(req, res, vin) {
   }
   const pool = getPool();
   const [vehicleRows] = await pool.query(
-    `SELECT id, brand_id, first_seen_date, last_seen_date FROM vehicles WHERE vin = ? LIMIT 1`,
+    `SELECT id, brand_id, first_seen_date, last_seen_date, year, make, model, trim, dealer_name, price, status
+     FROM vehicles WHERE vin = ? LIMIT 1`,
     [vin]
   );
   if (vehicleRows.length === 0) {
@@ -678,6 +679,13 @@ async function handleVehicleHistory(req, res, vin) {
 
   sendJson(res, 200, {
     vin,
+    year: vehicle.year,
+    make: vehicle.make,
+    model: vehicle.model,
+    trim: vehicle.trim,
+    dealerName: vehicle.dealer_name,
+    price: vehicle.price,
+    status: vehicle.status,
     firstSeenDate: toDateStr(vehicle.first_seen_date),
     lastSeenDate: toDateStr(vehicle.last_seen_date),
     priceHistory: priceHistoryRows.map((r) => ({ date: toDateStr(r.snapshot_date), price: r.price, priceDelta: r.price_delta })),

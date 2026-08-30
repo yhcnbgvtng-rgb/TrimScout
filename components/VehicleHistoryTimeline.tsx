@@ -13,6 +13,13 @@ interface HistoryEntry {
 
 interface VehicleHistoryResponse {
   vin: string;
+  year?: number | null;
+  make?: string | null;
+  model?: string | null;
+  trim?: string | null;
+  dealerName?: string | null;
+  price?: number | null;
+  status?: string | null;
   firstSeenDate: string | null;
   lastSeenDate: string | null;
   priceHistory: { date: string; price: number; priceDelta: number }[];
@@ -86,7 +93,7 @@ function buildDayRows(history: VehicleHistoryResponse): DayRow[] {
   });
 }
 
-export const VehicleHistoryTimeline: React.FC<{ vin: string }> = ({ vin }) => {
+export const VehicleHistoryTimeline: React.FC<{ vin: string; showSummary?: boolean }> = ({ vin, showSummary }) => {
   const [history, setHistory] = useState<VehicleHistoryResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -111,6 +118,23 @@ export const VehicleHistoryTimeline: React.FC<{ vin: string }> = ({ vin }) => {
         <Clock className="h-3.5 w-3.5 text-emerald-400" />
         Crawl History — By Day
       </div>
+
+      {showSummary && !isLoading && !error && history && (history.year || history.make || history.model) && (
+        <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-border bg-surface px-3 py-2.5">
+          <div className="min-w-0">
+            <div className="text-sm font-bold text-white truncate">
+              {[history.year, history.make, history.model, history.trim].filter(Boolean).join(" ")}
+            </div>
+            <div className="text-[11px] text-ink-muted truncate">
+              {history.dealerName || "Unknown dealer"} · <span className="font-mono">{history.vin}</span>
+              {history.status && <span className="ml-1.5 text-ink-faint uppercase">{history.status}</span>}
+            </div>
+          </div>
+          <div className="font-mono text-sm font-extrabold text-emerald-400 shrink-0">
+            {formatMoney(history.price)}
+          </div>
+        </div>
+      )}
 
       {isLoading && (
         <div className="flex items-center gap-2 text-ink-muted text-xs py-4">

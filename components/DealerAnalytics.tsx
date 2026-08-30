@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   Sparkles,
   TrendingDown,
@@ -10,8 +10,11 @@ import {
   AlertTriangle,
   ExternalLink,
   Loader2,
+  Search,
+  Layers,
 } from "lucide-react";
 import { UserProfile } from "../lib/types";
+import { VehicleHistoryTimeline } from "./VehicleHistoryTimeline";
 
 interface DealerAnalyticsProps {
   user: UserProfile;
@@ -48,6 +51,20 @@ interface AnalyticsResponse {
     price: number | null;
     oldPrice: number | null;
     priceDiff: number | null;
+    url: string | null;
+  }[];
+  fullInventory: {
+    vin: string;
+    year: number | null;
+    make: string | null;
+    model: string | null;
+    trim: string | null;
+    price: number | null;
+    oldPrice: number | null;
+    priceDiff: number | null;
+    changeType: string | null;
+    status: string | null;
+    daysOnLot: number | null;
     url: string | null;
   }[];
 }
@@ -98,6 +115,11 @@ export const DealerAnalytics: React.FC<DealerAnalyticsProps> = ({ user }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const [vinInput, setVinInput] = useState("");
+  const [lookupVin, setLookupVin] = useState<string | null>(null);
+
+  const [inventoryFilter, setInventoryFilter] = useState("");
+
   useEffect(() => {
     if (!user.dealerName) {
       setIsLoading(false);
@@ -116,6 +138,29 @@ export const DealerAnalytics: React.FC<DealerAnalyticsProps> = ({ user }) => {
       .finally(() => setIsLoading(false));
   }, [user.dealerName]);
 
+  const groupedInventory = useMemo(() => {
+    if (!data) return [];
+    const q = inventoryFilter.trim().toLowerCase();
+    const filtered = q
+      ? data.fullInventory.filter((v) =>
+          [v.vin, v.year, v.make, v.model, v.trim].filter(Boolean).join(" ").toLowerCase().includes(q)
+        )
+      : data.fullInventory;
+    const byModel = new Map<string, AnalyticsResponse["fullInventory"]>();
+    for (const v of filtered) {
+      const key = v.model || "Unknown Model";
+      if (!byModel.has(key)) byModel.set(key, []);
+      byModel.get(key)!.push(v);
+    }
+    return [...byModel.entries()].sort((a, b) => a[0].localeCompare(b[0]));
+  }, [data, inventoryFilter]);
+
+  const handleVinSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    const vin = vinInput.trim().toUpperCase();
+    if (vin.length === 17) setLookupVin(vin);
+  };
+
   return (
     <div className="max-w-6xl mx-auto px-4 py-8 space-y-6">
       <div className="flex items-center gap-3">
@@ -131,6 +176,31 @@ export const DealerAnalytics: React.FC<DealerAnalyticsProps> = ({ user }) => {
             )}
           </p>
         </div>
+      </div>
+
+      {/* VIN price-history search — works for any VIN, independent of dealer match */}
+      <div className="rounded-2xl border border-border bg-surface p-5 space-y-3">
+        <div className="flex items-center gap-2 text-xs font-bold text-white uppercase tracking-wide">
+          <Search className="h-3.5 w-3.5 text-emerald-400" />
+          VIN Price History Search
+        </div>
+        <form onSubmit={handleVinSearch} className="flex gap-2">
+          <input
+            value={vinInput}
+            onChange={(e) => setVinInput(e.target.value)}
+            placeholder="Enter a 17-character VIN…"
+            maxLength={17}
+            className="flex-1 rounded-xl border border-border bg-surface-elevated px-3 py-2 text-xs font-mono text-white placeholder:text-ink-faint focus:outline-none focus:border-emerald-500/50"
+          />
+          <button
+            type="submit"
+            disabled={vinInput.trim().length !== 17}
+            className="rounded-xl bg-emerald-500 px-4 py-2 text-xs font-extrabold text-black hover:bg-emerald-400 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            Search
+          </button>
+        </form>
+        {lookupVin && <VehicleHistoryTimeline key={lookupVin} vin={lookupVin} showSummary />}
       </div>
 
       {isLoading && (
@@ -303,6 +373,84 @@ export const DealerAnalytics: React.FC<DealerAnalyticsProps> = ({ user }) => {
               </div>
             </div>
           )}
+
+          {/* Full inventory, grouped by model, searchable, with price change per VIN */}
+          <div className="rounded-2xl border border-border bg-surface p-5 space-y-3">
+            <div className="flex items-center justify-between gap-3 flex-wrap">
+              <div className="flex items-center gap-2 text-xs font-bold text-white uppercase tracking-wide">
+                <Layers className="h-3.5 w-3.5 text-emerald-400" />
+                Dealership Inventory ({data.fullInventory.length})
+              </div>
+              <div className="relative">
+                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3 w-3 text-ink-faint" />
+                <input
+                  value={inventoryFilter}
+                  onChange={(e) => setInventoryFilter(e.target.value)}
+                  placeholder="Search model, VIN, trim…"
+                  className="w-56 rounded-xl border border-border bg-surface-elevated pl-7 pr-3 py-1.5 text-[11px] text-white placeholder:text-ink-faint focus:outline-none focus:border-emerald-500/50"
+                />
+              </div>
+            </div>
+
+            {groupedInventory.length === 0 ? (
+              <p className="text-xs text-ink-faint py-4">No vehicles match your search.</p>
+            ) : (
+              <div className="space-y-4 max-h-[32rem] overflow-y-auto pr-1">
+                {groupedInventory.map(([model, vehicles]) => (
+                  <div key={model} className="space-y-1.5">
+                    <div className="flex items-center gap-2 text-[11px] font-bold text-white sticky top-0 bg-surface py-1">
+                      {model}
+                      <span className="text-ink-faint font-normal">({vehicles.length})</span>
+                    </div>
+                    <div className="space-y-1.5">
+                      {vehicles.map((v) => {
+                        const hasDelta = v.priceDiff != null && v.priceDiff !== 0;
+                        const dropped = (v.priceDiff ?? 0) < 0;
+                        return (
+                          <div
+                            key={v.vin}
+                            className="flex items-center justify-between gap-3 rounded-xl border border-border bg-surface-elevated p-2.5 text-[11px]"
+                          >
+                            <div className="min-w-0">
+                              <div className="font-bold text-white truncate">
+                                {v.year} {v.make} {v.model} {v.trim && `(${v.trim})`}
+                              </div>
+                              <div className="text-ink-faint font-mono flex items-center gap-2">
+                                {v.vin}
+                                {v.daysOnLot != null && <span>· {v.daysOnLot}d on lot</span>}
+                              </div>
+                            </div>
+                            <div className="text-right shrink-0 space-y-0.5">
+                              <div className="text-white font-mono font-bold">
+                                {v.price != null ? `$${v.price.toLocaleString()}` : "—"}
+                              </div>
+                              {hasDelta ? (
+                                <div className={`font-mono ${dropped ? "text-rose-400" : "text-amber-400"}`}>
+                                  {dropped ? "-" : "+"}${Math.abs(v.priceDiff || 0).toLocaleString()}
+                                </div>
+                              ) : (
+                                <div className="text-ink-faint font-mono">no change</div>
+                              )}
+                              {v.url && (
+                                <a
+                                  href={v.url}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="inline-flex items-center gap-1 text-emerald-400 hover:underline"
+                                >
+                                  View <ExternalLink className="h-2.5 w-2.5" />
+                                </a>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </>
       )}
     </div>

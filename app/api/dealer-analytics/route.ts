@@ -21,10 +21,24 @@ export async function GET(req: Request) {
 
   const perBrand = await Promise.all(
     BRAND_CODES.map(async (brand) => {
-      const [vehiclesRes, facetsRes] = await Promise.all([
-        fetchVehiclesFromBox({ brand, dealer: dealerName, pageSize: 200, sortBy: "days_desc" }),
+      const [firstPage, facetsRes] = await Promise.all([
+        fetchVehiclesFromBox({ brand, dealer: dealerName, pageSize: 200, page: 1, sortBy: "days_desc" }),
         fetchFacetsFromBox({ brand, dealer: dealerName }),
       ]);
+      // 200/page is the box's hard cap — a dealer with more than that (real
+      // case: Paul Miller Porsche has 246) needs the remaining pages pulled
+      // too, or "full inventory" would silently truncate.
+      let vehicles = firstPage?.vehicles ?? [];
+      const totalPages = firstPage?.pagination.totalPages ?? 1;
+      if (totalPages > 1) {
+        const restPages = await Promise.all(
+          Array.from({ length: totalPages - 1 }, (_, i) => i + 2).map((page) =>
+            fetchVehiclesFromBox({ brand, dealer: dealerName, pageSize: 200, page, sortBy: "days_desc" })
+          )
+        );
+        vehicles = vehicles.concat(...restPages.map((r) => r?.vehicles ?? []));
+      }
+      const vehiclesRes = firstPage ? { ...firstPage, vehicles } : null;
       return { brand, vehiclesRes, facetsRes };
     })
   );
@@ -97,6 +111,26 @@ export async function GET(req: Request) {
       url: v.url,
     }));
 
+  // Full real inventory (every vehicle, not just the top-10 aging/price-drop
+  // slices above), for the model-grouped searchable list at the bottom of
+  // the page — every VIN, with its real price change.
+  const fullInventory = allVehicles
+    .map((v) => ({
+      vin: v.vin,
+      year: v.year,
+      make: v.make,
+      model: v.model,
+      trim: v.trim,
+      price: v.price,
+      oldPrice: v.old_price,
+      priceDiff: v.price_diff,
+      changeType: v.change_type,
+      status: v.status,
+      daysOnLot: v.days_on_lot,
+      url: v.url,
+    }))
+    .sort((a, b) => (a.model || "").localeCompare(b.model || "") || (a.price || 0) - (b.price || 0));
+
   return NextResponse.json({
     dealerName,
     brands: matched.map((b) => b.brand),
@@ -105,5 +139,6 @@ export async function GET(req: Request) {
     modelMix,
     agingInventory,
     recentPriceDrops,
+    fullInventory,
   });
 }
