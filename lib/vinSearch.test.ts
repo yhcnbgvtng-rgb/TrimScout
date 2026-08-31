@@ -13,6 +13,7 @@ import {
   fordCompetitionEmptyCopy,
   formatPriceAmount,
 } from "./fordCompetitionUi";
+import { resolveListingsProvider } from "./listingsProvider";
 import {
   DEMO_COMPARABLE_LISTINGS,
   findSimilarFordVehicles,
@@ -479,6 +480,7 @@ describe("Increase Competition slots are the hunt result", () => {
 describe("listings secrets are read from Node env, not webpack-stripped process.env", () => {
   it("serverSecret uses node:process env plus static fallbacks; listings modules do not rely solely on dynamic process.env[name]", () => {
     const vinSearchSrc = fs.readFileSync(path.join(import.meta.dirname, "vinSearch.ts"), "utf8");
+    const listingsProviderSrc = fs.readFileSync(path.join(import.meta.dirname, "listingsProvider.ts"), "utf8");
     const helperSrc = fs.readFileSync(path.join(import.meta.dirname, "serverSecret.ts"), "utf8");
     const inventorySrc = fs.readFileSync(path.join(process.cwd(), "app/api/inventory/route.ts"), "utf8");
     const routeSrc = fs.readFileSync(path.join(process.cwd(), "app/api/ford-comparables/route.ts"), "utf8");
@@ -486,37 +488,56 @@ describe("listings secrets are read from Node env, not webpack-stripped process.
     assert.match(helperSrc, /env\[name\]/);
     assert.match(helperSrc, /env\.AUTO_DEV_API_KEY \|\| process\.env\.AUTO_DEV_API_KEY/);
     assert.match(helperSrc, /env\.MARKETCHECK_API_KEY \|\| process\.env\.MARKETCHECK_API_KEY/);
+    assert.match(helperSrc, /env\.LISTINGS_PROVIDER \|\| process\.env\.LISTINGS_PROVIDER/);
     assert.doesNotMatch(helperSrc, /NEXT_PUBLIC_[A-Z0-9_]+/);
     assert.match(routeSrc, /export const dynamic = ["']force-dynamic["']/);
     assert.match(routeSrc, /export const runtime = ["']nodejs["']/);
     assert.match(routeSrc, /export const revalidate = 0/);
-    for (const src of [vinSearchSrc, inventorySrc]) {
-      assert.match(src, /serverSecret\(/);
+    assert.match(listingsProviderSrc, /serverSecret\(/);
+    assert.match(inventorySrc, /serverSecret\(/);
+    assert.match(vinSearchSrc, /resolveListingsProvider/);
+    for (const src of [vinSearchSrc, inventorySrc, listingsProviderSrc]) {
       assert.doesNotMatch(src, /process\.env\[/);
       assert.doesNotMatch(src, /process\.env\.AUTO_DEV_API_KEY/);
       assert.doesNotMatch(src, /process\.env\.MARKETCHECK_API_KEY/);
     }
     assert.doesNotMatch(vinSearchSrc, /searchParams\.set\(["']vehicle\.trim["']/);
+    assert.doesNotMatch(vinSearchSrc, /searchParams\.set\(["']trim["']/);
+    assert.doesNotMatch(vinSearchSrc, /Math\.min\([^)]*100/);
+    assert.doesNotMatch(vinSearchSrc, /redis|@vercel\/kv|upstash/i);
+    assert.match(vinSearchSrc, /api\.marketcheck\.com\/v2\/search\/car\/active/);
     assert.match(routeSrc, /hasListingsKey/);
     assert.doesNotMatch(routeSrc, /NEXT_PUBLIC_/);
   });
 
-  it("serverSecret reads AUTO_DEV_API_KEY from node:process env", () => {
+  it("serverSecret reads AUTO_DEV_API_KEY, MARKETCHECK_API_KEY, and LISTINGS_PROVIDER from node:process env", () => {
     const prevA = env["AUTO_DEV_API_KEY"];
+    const prevM = env["MARKETCHECK_API_KEY"];
+    const prevP = env["LISTINGS_PROVIDER"];
     env["AUTO_DEV_API_KEY"] = "runtime-test-auto-dev";
+    env["MARKETCHECK_API_KEY"] = "runtime-test-marketcheck";
+    env["LISTINGS_PROVIDER"] = "auto.dev";
     try {
       assert.equal(serverSecret("AUTO_DEV_API_KEY"), "runtime-test-auto-dev");
+      assert.equal(serverSecret("MARKETCHECK_API_KEY"), "runtime-test-marketcheck");
+      assert.equal(serverSecret("LISTINGS_PROVIDER"), "auto.dev");
     } finally {
       if (prevA !== undefined) env["AUTO_DEV_API_KEY"] = prevA;
       else delete env["AUTO_DEV_API_KEY"];
+      if (prevM !== undefined) env["MARKETCHECK_API_KEY"] = prevM;
+      else delete env["MARKETCHECK_API_KEY"];
+      if (prevP !== undefined) env["LISTINGS_PROVIDER"] = prevP;
+      else delete env["LISTINGS_PROVIDER"];
     }
   });
 
   it("searchCoarseListings chooses auto.dev when AUTO_DEV_API_KEY is set on node:process env", async () => {
     const prevA = env["AUTO_DEV_API_KEY"];
     const prevM = env["MARKETCHECK_API_KEY"];
+    const prevP = env["LISTINGS_PROVIDER"];
     env["AUTO_DEV_API_KEY"] = "runtime-test-auto-dev";
     delete env["MARKETCHECK_API_KEY"];
+    delete env["LISTINGS_PROVIDER"];
     const origFetch = globalThis.fetch;
     let autoDevCalls = 0;
     globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
@@ -558,42 +579,60 @@ describe("listings secrets are read from Node env, not webpack-stripped process.
       else delete env["AUTO_DEV_API_KEY"];
       if (prevM !== undefined) env["MARKETCHECK_API_KEY"] = prevM;
       else delete env["MARKETCHECK_API_KEY"];
+      if (prevP !== undefined) env["LISTINGS_PROVIDER"] = prevP;
+      else delete env["LISTINGS_PROVIDER"];
     }
   });
 
   it("searchCoarseListings chooses marketcheck when only MARKETCHECK_API_KEY is set on node:process env", async () => {
     const prevA = env["AUTO_DEV_API_KEY"];
     const prevM = env["MARKETCHECK_API_KEY"];
+    const prevP = env["LISTINGS_PROVIDER"];
     delete env["AUTO_DEV_API_KEY"];
+    delete env["LISTINGS_PROVIDER"];
     env["MARKETCHECK_API_KEY"] = "runtime-test-marketcheck";
     const origFetch = globalThis.fetch;
     let marketcheckCalls = 0;
     globalThis.fetch = (async (input: RequestInfo | URL) => {
-      const url = String(input);
-      assert.match(url, /api\.marketcheck\.com/);
-      assert.match(url, /api_key=runtime-test-marketcheck/);
+      const parsed = new URL(String(input));
+      assert.equal(parsed.origin + parsed.pathname, "https://api.marketcheck.com/v2/search/car/active");
+      assert.equal(parsed.searchParams.get("api_key"), "runtime-test-marketcheck");
+      assert.equal(parsed.searchParams.get("append_api_key"), "false");
+      assert.equal(parsed.searchParams.get("make"), "Ford");
+      assert.equal(parsed.searchParams.get("model"), "F-150");
+      assert.equal(parsed.searchParams.get("year"), "2026");
+      assert.equal(parsed.searchParams.get("zip"), "07405");
+      assert.equal(parsed.searchParams.get("radius"), "500", "must not clamp the user radius");
+      assert.equal(parsed.searchParams.get("car_type"), "new");
+      assert.equal(parsed.searchParams.get("rows"), "50");
+      assert.equal(parsed.searchParams.has("trim"), false);
       marketcheckCalls += 1;
-      return new Response(JSON.stringify({ listings: [] }), {
+      return new Response(JSON.stringify({ num_found: 0, listings: [] }), {
         status: 200,
         headers: { "Content-Type": "application/json" },
       });
     }) as typeof fetch;
     try {
       const result = await searchCoarseListings({
+        year: 2026,
         make: "Ford",
         model: "F-150",
+        trim: "Raptor R",
         zip: "07405",
         radiusMiles: 500,
       });
       assert.equal(result.provider, "marketcheck");
       assert.equal(marketcheckCalls, 1);
       assert.equal(hasListingsApiKey(), true);
+      assert.match(result.note, /MarketCheck/);
     } finally {
       globalThis.fetch = origFetch;
       if (prevA !== undefined) env["AUTO_DEV_API_KEY"] = prevA;
       else delete env["AUTO_DEV_API_KEY"];
       if (prevM !== undefined) env["MARKETCHECK_API_KEY"] = prevM;
       else delete env["MARKETCHECK_API_KEY"];
+      if (prevP !== undefined) env["LISTINGS_PROVIDER"] = prevP;
+      else delete env["LISTINGS_PROVIDER"];
     }
   });
 });
@@ -628,8 +667,10 @@ describe("listings API failure never falls back to Explorer demo", () => {
   it("Auto.dev HTTP 429 returns provider auto.dev, empty listings, and Retry-After seconds — not Explorer demo", async () => {
     const prevA = env["AUTO_DEV_API_KEY"];
     const prevM = env["MARKETCHECK_API_KEY"];
+    const prevP = env["LISTINGS_PROVIDER"];
     env["AUTO_DEV_API_KEY"] = "runtime-test-auto-dev";
-    env["MARKETCHECK_API_KEY"] = "runtime-test-marketcheck";
+    delete env["MARKETCHECK_API_KEY"];
+    delete env["LISTINGS_PROVIDER"];
     const origFetch = globalThis.fetch;
     let autoDevCalls = 0;
     globalThis.fetch = (async (input: RequestInfo | URL) => {
@@ -690,6 +731,8 @@ describe("listings API failure never falls back to Explorer demo", () => {
       else delete env["AUTO_DEV_API_KEY"];
       if (prevM !== undefined) env["MARKETCHECK_API_KEY"] = prevM;
       else delete env["MARKETCHECK_API_KEY"];
+      if (prevP !== undefined) env["LISTINGS_PROVIDER"] = prevP;
+      else delete env["LISTINGS_PROVIDER"];
     }
   });
 
@@ -715,6 +758,315 @@ describe("listings API failure never falls back to Explorer demo", () => {
       else delete env["AUTO_DEV_API_KEY"];
       if (prevM !== undefined) env["MARKETCHECK_API_KEY"] = prevM;
       else delete env["MARKETCHECK_API_KEY"];
+    }
+  });
+});
+
+describe("listings provider selection prefers MarketCheck", () => {
+  it("resolveListingsProvider prefers MarketCheck when both keys are set", () => {
+    const prevA = env["AUTO_DEV_API_KEY"];
+    const prevM = env["MARKETCHECK_API_KEY"];
+    const prevP = env["LISTINGS_PROVIDER"];
+    env["AUTO_DEV_API_KEY"] = "runtime-test-auto-dev";
+    env["MARKETCHECK_API_KEY"] = "runtime-test-marketcheck";
+    delete env["LISTINGS_PROVIDER"];
+    try {
+      assert.deepEqual(resolveListingsProvider(), {
+        provider: "marketcheck",
+        key: "runtime-test-marketcheck",
+      });
+      assert.equal(hasListingsApiKey(), true);
+    } finally {
+      if (prevA !== undefined) env["AUTO_DEV_API_KEY"] = prevA;
+      else delete env["AUTO_DEV_API_KEY"];
+      if (prevM !== undefined) env["MARKETCHECK_API_KEY"] = prevM;
+      else delete env["MARKETCHECK_API_KEY"];
+      if (prevP !== undefined) env["LISTINGS_PROVIDER"] = prevP;
+      else delete env["LISTINGS_PROVIDER"];
+    }
+  });
+
+  it("LISTINGS_PROVIDER=auto.dev uses Auto.dev even when a MarketCheck key is also set", () => {
+    const prevA = env["AUTO_DEV_API_KEY"];
+    const prevM = env["MARKETCHECK_API_KEY"];
+    const prevP = env["LISTINGS_PROVIDER"];
+    env["AUTO_DEV_API_KEY"] = "runtime-test-auto-dev";
+    env["MARKETCHECK_API_KEY"] = "runtime-test-marketcheck";
+    env["LISTINGS_PROVIDER"] = "auto.dev";
+    try {
+      assert.equal(resolveListingsProvider().provider, "auto.dev");
+      assert.equal(resolveListingsProvider().key, "runtime-test-auto-dev");
+    } finally {
+      if (prevA !== undefined) env["AUTO_DEV_API_KEY"] = prevA;
+      else delete env["AUTO_DEV_API_KEY"];
+      if (prevM !== undefined) env["MARKETCHECK_API_KEY"] = prevM;
+      else delete env["MARKETCHECK_API_KEY"];
+      if (prevP !== undefined) env["LISTINGS_PROVIDER"] = prevP;
+      else delete env["LISTINGS_PROVIDER"];
+    }
+  });
+
+  it("LISTINGS_PROVIDER=marketcheck is ignored when that key is missing and Auto.dev is used", () => {
+    const prevA = env["AUTO_DEV_API_KEY"];
+    const prevM = env["MARKETCHECK_API_KEY"];
+    const prevP = env["LISTINGS_PROVIDER"];
+    env["AUTO_DEV_API_KEY"] = "runtime-test-auto-dev";
+    delete env["MARKETCHECK_API_KEY"];
+    env["LISTINGS_PROVIDER"] = "marketcheck";
+    try {
+      assert.equal(resolveListingsProvider().provider, "auto.dev");
+    } finally {
+      if (prevA !== undefined) env["AUTO_DEV_API_KEY"] = prevA;
+      else delete env["AUTO_DEV_API_KEY"];
+      if (prevM !== undefined) env["MARKETCHECK_API_KEY"] = prevM;
+      else delete env["MARKETCHECK_API_KEY"];
+      if (prevP !== undefined) env["LISTINGS_PROVIDER"] = prevP;
+      else delete env["LISTINGS_PROVIDER"];
+    }
+  });
+
+  it("searchCoarseListings hits MarketCheck once when both keys are set", async () => {
+    const prevA = env["AUTO_DEV_API_KEY"];
+    const prevM = env["MARKETCHECK_API_KEY"];
+    const prevP = env["LISTINGS_PROVIDER"];
+    env["AUTO_DEV_API_KEY"] = "runtime-test-auto-dev";
+    env["MARKETCHECK_API_KEY"] = "runtime-test-marketcheck";
+    delete env["LISTINGS_PROVIDER"];
+    const origFetch = globalThis.fetch;
+    let marketcheckCalls = 0;
+    let autoDevCalls = 0;
+    globalThis.fetch = (async (input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url.includes("api.auto.dev")) autoDevCalls += 1;
+      if (url.includes("api.marketcheck.com")) marketcheckCalls += 1;
+      return new Response(JSON.stringify({ num_found: 0, listings: [] }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    }) as typeof fetch;
+    try {
+      const result = await searchCoarseListings({
+        year: 2026,
+        make: "Ford",
+        model: "F-150",
+        trim: "Raptor R",
+        zip: "07405",
+        radiusMiles: 500,
+      });
+      assert.equal(result.provider, "marketcheck");
+      assert.equal(marketcheckCalls, 1);
+      assert.equal(autoDevCalls, 0);
+    } finally {
+      globalThis.fetch = origFetch;
+      if (prevA !== undefined) env["AUTO_DEV_API_KEY"] = prevA;
+      else delete env["AUTO_DEV_API_KEY"];
+      if (prevM !== undefined) env["MARKETCHECK_API_KEY"] = prevM;
+      else delete env["MARKETCHECK_API_KEY"];
+      if (prevP !== undefined) env["LISTINGS_PROVIDER"] = prevP;
+      else delete env["LISTINGS_PROVIDER"];
+    }
+  });
+
+  it("maps MarketCheck listings from build + dealer (string lat/lng) and leaves Ford sticker matching unchanged", async () => {
+    const prevA = env["AUTO_DEV_API_KEY"];
+    const prevM = env["MARKETCHECK_API_KEY"];
+    const prevP = env["LISTINGS_PROVIDER"];
+    delete env["AUTO_DEV_API_KEY"];
+    delete env["LISTINGS_PROVIDER"];
+    env["MARKETCHECK_API_KEY"] = "runtime-test-marketcheck";
+    const origFetch = globalThis.fetch;
+    globalThis.fetch = (async (input: RequestInfo | URL) => {
+      const parsed = new URL(String(input));
+      assert.equal(parsed.origin + parsed.pathname, "https://api.marketcheck.com/v2/search/car/active");
+      assert.equal(parsed.searchParams.has("trim"), false);
+      return new Response(
+        JSON.stringify({
+          num_found: 3,
+          listings: [
+            {
+              vin: BATTLEFIELD,
+              price: 55990,
+              vdp_url: null,
+              exterior_color: "Star White",
+              build: { year: 2026, make: "Ford", model: "Explorer", trim: "Tremor" },
+              dealer: {
+                name: "Battlefield Ford",
+                city: "Culpeper",
+                state: "VA",
+                zip: "22701",
+                latitude: "38.473",
+                longitude: "-77.996",
+              },
+            },
+            {
+              vin: SHORKEY,
+              price: 58372,
+              vdp_url:
+                "https://www.jimshorkey.com/new-Pittsburgh-2026-Ford-Explorer-Tremor+Ultimate+Package-1FMWK8JC7TGB81309",
+              build: { year: 2026, make: "Ford", model: "Explorer", trim: "Tremor" },
+              dealer: {
+                name: "Jim Shorkey Ford",
+                city: "White Oak",
+                state: "PA",
+                zip: "15131",
+                latitude: "40.341",
+                longitude: "-79.807",
+              },
+            },
+            {
+              vin: MALL_OF_GEORGIA,
+              price: 61000,
+              build: { year: 2026, make: "Ford", model: "Explorer", trim: "Tremor" },
+              dealer: {
+                name: "Mall of Georgia Ford",
+                city: "Buford",
+                state: "GA",
+                zip: "30518",
+                latitude: "34.121",
+                longitude: "-84.004",
+              },
+            },
+          ],
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } }
+      );
+    }) as typeof fetch;
+    try {
+      const subject = parseFordStickerText(SUBJECT, loadFixture(SUBJECT));
+      const result = await findSimilarFordVehicles({
+        subjectVin: SUBJECT,
+        subject,
+        mustHaveLines: ["Ultimate Package", "Keyless Entry Keypad"],
+        zip: "07405",
+        radiusMiles: 500,
+        fetchSticker: async (vin) => parseFordStickerText(vin, loadFixture(vin)),
+      });
+      assert.equal(result.provider, "marketcheck");
+      assert.equal(result.hasListingsKey, true);
+      assert.equal(result.matches.length, 2);
+      assert.equal(result.matches[0].vin, BATTLEFIELD);
+      assert.equal(result.matches[1].vin, SHORKEY);
+      assert.equal(result.matches[0].listingPrice, 55990);
+      assert.equal(result.matches[0].listingPriceSource, "listing");
+      assert.equal(result.dropped.find((d) => d.vin === MALL_OF_GEORGIA)?.reason, "missing_must_have");
+      assert.match(result.note, /MarketCheck|factory options/i);
+    } finally {
+      globalThis.fetch = origFetch;
+      if (prevA !== undefined) env["AUTO_DEV_API_KEY"] = prevA;
+      else delete env["AUTO_DEV_API_KEY"];
+      if (prevM !== undefined) env["MARKETCHECK_API_KEY"] = prevM;
+      else delete env["MARKETCHECK_API_KEY"];
+      if (prevP !== undefined) env["LISTINGS_PROVIDER"] = prevP;
+      else delete env["LISTINGS_PROVIDER"];
+    }
+  });
+
+  it("MarketCheck HTTP 400 surfaces status + provider message and does not fall back to demo lots", async () => {
+    const prevA = env["AUTO_DEV_API_KEY"];
+    const prevM = env["MARKETCHECK_API_KEY"];
+    const prevP = env["LISTINGS_PROVIDER"];
+    delete env["AUTO_DEV_API_KEY"];
+    delete env["LISTINGS_PROVIDER"];
+    env["MARKETCHECK_API_KEY"] = "runtime-test-marketcheck";
+    const origFetch = globalThis.fetch;
+    let marketcheckCalls = 0;
+    globalThis.fetch = (async (input: RequestInfo | URL) => {
+      const parsed = new URL(String(input));
+      assert.equal(parsed.searchParams.get("radius"), "500");
+      marketcheckCalls += 1;
+      return new Response(
+        JSON.stringify({
+          code: 400,
+          message: "radius exceeds package limit of 100 miles",
+        }),
+        { status: 400, headers: { "Content-Type": "application/json" } }
+      );
+    }) as typeof fetch;
+    try {
+      const coarse = await searchCoarseListings({
+        year: 2026,
+        make: "Ford",
+        model: "F-150",
+        trim: "Raptor R",
+        zip: "07405",
+        radiusMiles: 500,
+      });
+      assert.equal(coarse.provider, "marketcheck");
+      assert.deepEqual(coarse.listings, []);
+      assert.equal(coarse.listingsError, true);
+      assert.match(coarse.note, /HTTP 400/);
+      assert.match(coarse.note, /radius exceeds package limit of 100 miles/);
+      assert.doesNotMatch(coarse.note, /Explorer Tremor only/i);
+      assert.doesNotMatch(coarse.note, /runtime-test-marketcheck/);
+
+      const bronco = parseFordStickerText(
+        "3FMCR9BN8TRE94740",
+        fs.readFileSync(path.join(FIXTURE_DIR, "3FMCR9BN8TRE94740.txt"), "utf8")
+      );
+      const hunt = await findSimilarFordVehicles({
+        subjectVin: bronco.vin,
+        subject: bronco,
+        mustHaveLines: [],
+        zip: "07405",
+        radiusMiles: 500,
+      });
+      assert.equal(hunt.provider, "marketcheck");
+      assert.equal(hunt.hasListingsKey, true);
+      assert.equal(hunt.matches.length, 0);
+      assert.equal(hunt.candidatesConsidered, 0);
+      assert.equal(hunt.stickersFetched, 0);
+      assert.match(hunt.note, /HTTP 400/);
+      assert.match(hunt.note, /radius exceeds package limit of 100 miles/);
+      assert.doesNotMatch(hunt.note, /Explorer Tremor only/i);
+      assert.doesNotMatch(hunt.note, /Demo listings/i);
+      assert.equal(marketcheckCalls, 2, "one MarketCheck request per hunt, no retry or clamp");
+    } finally {
+      globalThis.fetch = origFetch;
+      if (prevA !== undefined) env["AUTO_DEV_API_KEY"] = prevA;
+      else delete env["AUTO_DEV_API_KEY"];
+      if (prevM !== undefined) env["MARKETCHECK_API_KEY"] = prevM;
+      else delete env["MARKETCHECK_API_KEY"];
+      if (prevP !== undefined) env["LISTINGS_PROVIDER"] = prevP;
+      else delete env["LISTINGS_PROVIDER"];
+    }
+  });
+
+  it("MarketCheck HTTP 429 includes provider message and Retry-After seconds", async () => {
+    const prevA = env["AUTO_DEV_API_KEY"];
+    const prevM = env["MARKETCHECK_API_KEY"];
+    const prevP = env["LISTINGS_PROVIDER"];
+    delete env["AUTO_DEV_API_KEY"];
+    delete env["LISTINGS_PROVIDER"];
+    env["MARKETCHECK_API_KEY"] = "runtime-test-marketcheck";
+    const origFetch = globalThis.fetch;
+    globalThis.fetch = (async () => {
+      return new Response(JSON.stringify({ message: "Monthly API quota exhausted" }), {
+        status: 429,
+        headers: { "Content-Type": "application/json", "Retry-After": "86400" },
+      });
+    }) as typeof fetch;
+    try {
+      const coarse = await searchCoarseListings({
+        make: "Ford",
+        model: "F-150",
+        zip: "07405",
+        radiusMiles: 500,
+      });
+      assert.equal(coarse.provider, "marketcheck");
+      assert.equal(coarse.listingsError, true);
+      assert.match(coarse.note, /HTTP 429/);
+      assert.match(coarse.note, /Monthly API quota exhausted/);
+      assert.match(coarse.note, /86400 seconds/);
+      assert.doesNotMatch(coarse.note, /runtime-test-marketcheck/);
+      assert.doesNotMatch(coarse.note, /Explorer Tremor only/i);
+    } finally {
+      globalThis.fetch = origFetch;
+      if (prevA !== undefined) env["AUTO_DEV_API_KEY"] = prevA;
+      else delete env["AUTO_DEV_API_KEY"];
+      if (prevM !== undefined) env["MARKETCHECK_API_KEY"] = prevM;
+      else delete env["MARKETCHECK_API_KEY"];
+      if (prevP !== undefined) env["LISTINGS_PROVIDER"] = prevP;
+      else delete env["LISTINGS_PROVIDER"];
     }
   });
 });

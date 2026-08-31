@@ -16,5 +16,8 @@ export function serverSecret(name: string): string {
   if (name === "MARKETCHECK_API_KEY") {
     return String(env.MARKETCHECK_API_KEY || process.env.MARKETCHECK_API_KEY || "").trim();
   }
+  if (name === "LISTINGS_PROVIDER") {
+    return String(env.LISTINGS_PROVIDER || process.env.LISTINGS_PROVIDER || "").trim();
+  }
   return String(env[name] ?? "").trim();
 }

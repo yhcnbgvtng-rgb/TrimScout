@@ -56,10 +56,15 @@ npm test
 
 | Variable | Required? | Role |
 | --- | --- | --- |
-| `AUTO_DEV_API_KEY` | No | Preferred coarse listings (`GET https://api.auto.dev/listings`). Free plan: listings + VIN decode, **no OEM Build**. |
-| `MARKETCHECK_API_KEY` | No | Fallback listings (`/v2/search/car/active`). |
+| `MARKETCHECK_API_KEY` | No | Preferred coarse listings (`GET https://api.marketcheck.com/v2/search/car/active`). Free developer tier: 500 calls/month, 5 req/sec, 100-mile radius cap. Do **not** clamp a wider hunt — if MarketCheck rejects the radius, the API `note` includes their HTTP status and message. |
+| `AUTO_DEV_API_KEY` | No | Fallback coarse listings (`GET https://api.auto.dev/listings`) when no MarketCheck key is set. Free plan: listings + VIN decode, **no OEM Build**. |
+| `LISTINGS_PROVIDER` | No | Optional override: `marketcheck` or `auto.dev` (also `autodev` / `auto_dev`). Ignored if that provider’s key is missing. |
 
-Listings APIs filter year/make/model/trim/zip. They cannot filter Ultimate / BlueCruise / keypad. After a coarse query we sticker-pass only the first 25–50 candidate VINs.
+If only one listings key is set, that provider is used. If both are set, MarketCheck wins unless `LISTINGS_PROVIDER` selects Auto.dev. If neither is set, Increase Competition stays on today’s no-key demo (Explorer Tremor fixtures only).
+
+Listings APIs filter year/make/model/zip/radius. They cannot filter Ultimate / BlueCruise / keypad, and this hunt **does not send a trim filter** — option matching is the Ford window sticker. After one coarse query we sticker-pass only the first 25–50 candidate VINs.
+
+**Do not cache MarketCheck listing responses** (Redis, KV, disk, or DB). Their developer ToS allows only transient in-memory data for the duration of one end-user request. Ford Direct window-sticker PDF caching is unchanged — those are Ford’s files, not MarketCheck’s.
 
 ### What this is not
 
