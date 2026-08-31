@@ -1689,7 +1689,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                       Must-have factory options (Ford sticker):
                     </label>
                     <p className="text-[10px] text-ink-faint">
-                      Same list as Step 2. Ticked lines are hard filters. Color is off unless you tick it. KEYLESS ENTRY W/PUSH START is not a filter.
+                      Same list as Step 2. Ticked lines are hard filters.
                     </p>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 max-h-56 overflow-y-auto pr-1">
                       {fordFilterableOptions.map((opt) => {
