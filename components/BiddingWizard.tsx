@@ -78,6 +78,11 @@ function sourceBadge(source: string): string {
   return "unconfirmed";
 }
 
+function milesFromUserZip(miles: number | null | undefined, zip: string): string | null {
+  if (miles == null || !/^\d{5}$/.test(zip.trim())) return null;
+  return `${miles} mi from ${zip.trim()}`;
+}
+
 function fordSuggestionToVehicle(s: FordSuggestionCard): Vehicle {
   return {
     id: `ford-${s.vin}`,
@@ -219,8 +224,9 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   const [isLoadingFordSuggestions, setIsLoadingFordSuggestions] = useState(false);
   const [fordSearchNote, setFordSearchNote] = useState<string | null>(null);
   const [fordDroppedCount, setFordDroppedCount] = useState(0);
-  const [fordRadius, setFordRadius] = useState(500);
-  const autoFilledForVin = useRef<string | null>(null);
+  const [huntZip, setHuntZip] = useState("");
+  const [huntRadius, setHuntRadius] = useState("");
+  const autoFilledVins = useRef<Set<string>>(new Set());
 
   // Step 2: up to 2 optional secondary vehicle links, to widen competition
   // beyond just the favorite pick.
@@ -358,12 +364,20 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     }
   };
 
+  const huntReady = /^\d{5}$/.test(huntZip.trim()) && Number(huntRadius) > 0;
+
   // Ford sticker-confirmed lots for the Increase Competition slots.
   // Warehouse /api/comparable-vehicles is intentionally NOT the source of
-  // truth for Ford factory options.
+  // truth for Ford factory options. ZIP + radius are required user input.
   useEffect(() => {
     if (fordStickerStatus !== "released" || !selectedVehicle?.vin) {
       setFordSuggestions([]);
+      return;
+    }
+    if (!huntReady) {
+      setFordSuggestions([]);
+      setFordSearchNote("Enter a ZIP and radius (miles) to get two sticker-matched lots in range.");
+      setIsLoadingFordSuggestions(false);
       return;
     }
     let cancelled = false;
@@ -375,8 +389,8 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
         subjectVin: selectedVehicle.vin,
         mustHaveLines: mustHavePackages,
         niceToHaveLines: niceToHavePackages,
-        zip: buyerZip || "07405",
-        radiusMiles: fordRadius,
+        zip: huntZip.trim(),
+        radiusMiles: Number(huntRadius),
       }),
     })
       .then((res) => res.json())
@@ -400,8 +414,9 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     selectedVehicle?.vin,
     mustHavePackages,
     niceToHavePackages,
-    buyerZip,
-    fordRadius,
+    huntZip,
+    huntRadius,
+    huntReady,
   ]);
 
   useEffect(() => {
@@ -438,14 +453,48 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
 
   useEffect(() => {
     if (fordStickerStatus !== "released" || !selectedVehicle?.vin) return;
-    if (autoFilledForVin.current === selectedVehicle.vin) return;
-    if (fordSuggestions.length === 0) return;
-    if (secondaryVehicles.some((v) => !!v)) return;
-    autoFilledForVin.current = selectedVehicle.vin;
-    const picks = fordSuggestions.slice(0, 2);
-    setSecondaryVehicles((prev) => prev.map((v, i) => (picks[i] ? fordSuggestionToVehicle(picks[i]) : v)));
-    setSecondaryUrls((prev) => prev.map((u, i) => (picks[i]?.dealerUrl ? (picks[i].dealerUrl as string) : u)));
-  }, [fordSuggestions, selectedVehicle?.vin, fordStickerStatus, secondaryVehicles]);
+    if (!huntReady) {
+      setSecondaryVehicles((prev) =>
+        prev.map((v) => {
+          if (v && autoFilledVins.current.has(v.vin)) {
+            autoFilledVins.current.delete(v.vin);
+            return null;
+          }
+          return v;
+        })
+      );
+      return;
+    }
+    const suggestionVins = new Set(fordSuggestions.map((s) => s.vin));
+    setSecondaryVehicles((prev) => {
+      const cleared = prev.map((v) => {
+        if (v && autoFilledVins.current.has(v.vin) && !suggestionVins.has(v.vin)) {
+          autoFilledVins.current.delete(v.vin);
+          return null;
+        }
+        return v;
+      });
+      if (fordSuggestions.length === 0) return cleared;
+      const next = [...cleared];
+      const used = new Set(next.filter(Boolean).map((v) => v!.vin));
+      for (const s of fordSuggestions.slice(0, 2)) {
+        const emptyIdx = next.findIndex((v) => !v);
+        if (emptyIdx < 0) break;
+        if (used.has(s.vin)) continue;
+        next[emptyIdx] = fordSuggestionToVehicle(s);
+        autoFilledVins.current.add(s.vin);
+        used.add(s.vin);
+      }
+      return next;
+    });
+    setSecondaryUrls((prev) => {
+      const next = [...prev];
+      fordSuggestions.slice(0, 2).forEach((s, i) => {
+        if (!next[i] && s.dealerUrl) next[i] = s.dealerUrl;
+      });
+      return next;
+    });
+  }, [fordSuggestions, selectedVehicle?.vin, fordStickerStatus, huntReady]);
 
   const applyMockParse = (raw: string) => {
     const url = raw.toLowerCase();
@@ -488,7 +537,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     setNiceToHavePackages([]);
     setSecondaryVehicles([null, null]);
     setSecondaryUrls(["", ""]);
-    autoFilledForVin.current = null;
+    autoFilledVins.current = new Set();
 
     try {
       const res = await fetch("/api/ford-sticker", {
@@ -538,8 +587,6 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
       if (typeof json.sticker?.msrp === "number" && json.sticker.msrp > 0) {
         setTargetOtdPrice(Math.round(json.sticker.msrp * 0.92));
       }
-      const soldZip = json.sticker?.dealerSoldTo?.zip;
-      if (soldZip) setBuyerZip(soldZip);
       setParseSuccessMsg(
         `Ford window sticker (sticker) · VIN ${matched.vin}${
           json.sticker?.msrp ? ` · MSRP ${formatStickerMsrp(json.sticker.msrp)}` : ""
@@ -583,7 +630,15 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
 
   const handleRemoveSecondary = (idx: number) => {
     setSecondaryUrls((prev) => prev.map((v, i) => (i === idx ? "" : v)));
-    setSecondaryVehicles((prev) => prev.map((v, i) => (i === idx ? null : v)));
+    setSecondaryVehicles((prev) =>
+      prev.map((v, i) => {
+        if (i === idx) {
+          if (v) autoFilledVins.current.delete(v.vin);
+          return null;
+        }
+        return v;
+      })
+    );
   };
 
   const fillSecondaryFromFord = (picks: FordSuggestionCard[]) => {
@@ -595,7 +650,10 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     setSecondaryVehicles((prev) => {
       const next = [...prev];
       emptySlots.forEach((slotIdx, i) => {
-        if (picks[i]) next[slotIdx] = fordSuggestionToVehicle(picks[i]);
+        if (picks[i]) {
+          next[slotIdx] = fordSuggestionToVehicle(picks[i]);
+          autoFilledVins.current.add(picks[i].vin);
+        }
       });
       return next;
     });
@@ -960,7 +1018,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                   Step 2: Pick Your Favorite Car
                 </h3>
                 <p className="text-xs text-ink-muted mt-0.5">
-                  This is the one you actually want — paste a VIN or a dealership listing URL.
+                  This is the one you actually want — paste a dealer listing URL or a 17-character VIN.
                 </p>
               </div>
 
@@ -976,7 +1034,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                   }`}
                 >
                   <Link2 className="h-4 w-4" />
-                  <span>Paste Dealer Link (Fastest)</span>
+                  <span>Paste VIN or dealer URL</span>
                 </button>
                 <button
                   type="button"
@@ -997,7 +1055,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                 <div className="space-y-4">
                   <div className="space-y-2">
                     <label className="text-[11px] font-bold text-ink-light uppercase flex items-center justify-between">
-                      <span>Paste a VIN or dealer listing URL:</span>
+                      <span>Paste a dealer VDP URL or 17-character VIN:</span>
                     </label>
 
                     <div className="flex flex-col sm:flex-row gap-2">
@@ -1031,7 +1089,50 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                       </button>
                     </div>
 
-                    {/* Quick 1-Click Preset Samples */}
+                    <div className="grid grid-cols-2 gap-2">
+                      <label className="space-y-1">
+                        <span className="text-[10px] font-bold uppercase text-ink-faint">Your ZIP (required)</span>
+                        <div className="relative">
+                          <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-emerald-400" />
+                          <input
+                            type="text"
+                            inputMode="numeric"
+                            maxLength={5}
+                            value={huntZip}
+                            onChange={(e) => {
+                              const next = e.target.value.replace(/\D/g, "").slice(0, 5);
+                              setHuntZip(next);
+                              if (next.length === 5) setBuyerZip(next);
+                            }}
+                            placeholder="07405"
+                            aria-required="true"
+                            autoComplete="postal-code"
+                            className="w-full rounded-xl border border-border bg-background py-2 pl-9 pr-3 text-xs text-white placeholder-ink-faint focus:border-emerald-500 focus:outline-none font-mono"
+                          />
+                        </div>
+                      </label>
+                      <label className="space-y-1">
+                        <span className="text-[10px] font-bold uppercase text-ink-faint">Radius miles (required)</span>
+                        <input
+                          type="number"
+                          min={1}
+                          inputMode="numeric"
+                          value={huntRadius}
+                          onChange={(e) => {
+                            setHuntRadius(e.target.value);
+                            const n = Number(e.target.value);
+                            if (Number.isFinite(n) && n > 0) setSearchRadius(n);
+                          }}
+                          placeholder="100"
+                          aria-required="true"
+                          aria-label="Search radius in miles"
+                          className="w-full rounded-xl border border-border bg-background py-2 px-3 text-xs text-white placeholder-ink-faint focus:border-emerald-500 focus:outline-none font-mono"
+                        />
+                      </label>
+                    </div>
+                    <p className="text-[10px] text-ink-faint">
+                      ZIP and radius are required before we recommend two other lots. Suggestions use your ZIP, not the dealer&apos;s.
+                    </p>
                     <div className="space-y-1.5 pt-1">
                       <span className="text-[10px] uppercase font-bold text-ink-faint">
                         Or click a sample to test:
@@ -1281,6 +1382,9 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                                     {matchedVehicle.location.dealerName}
                                     {matchedVehicle.location.city ? ` · ${matchedVehicle.location.city}` : ""}
                                     {matchedVehicle.location.state ? `, ${matchedVehicle.location.state}` : ""}
+                                    {milesFromUserZip(matchedVehicle.location.distanceMiles, huntZip)
+                                      ? ` · ${milesFromUserZip(matchedVehicle.location.distanceMiles, huntZip)}`
+                                      : ""}
                                     {" · "}
                                     <span className="font-mono">{matchedVehicle.vin}</span>
                                   </span>
@@ -1350,29 +1454,19 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                           <Sparkles className="h-3.5 w-3.5 text-emerald-400" />
                           <span>Sticker-confirmed similar lots</span>
                         </div>
-                        <div className="flex items-center gap-1.5 shrink-0">
-                          <MapPin className="h-3 w-3 text-ink-faint" />
-                          <input
-                            type="text"
-                            value={buyerZip}
-                            onChange={(e) => setBuyerZip(e.target.value)}
-                            placeholder="07405"
-                            className="w-16 rounded-lg border border-border bg-background py-1 px-2 text-[11px] text-white font-mono focus:border-emerald-500 focus:outline-none"
-                          />
-                          <input
-                            type="number"
-                            min={25}
-                            max={2000}
-                            value={fordRadius}
-                            onChange={(e) => setFordRadius(Number(e.target.value) || 500)}
-                            className="w-16 rounded-lg border border-border bg-background py-1 px-2 text-[11px] text-white font-mono focus:border-emerald-500 focus:outline-none"
-                            aria-label="Radius miles"
-                          />
-                          <span className="text-[10px] text-ink-faint">mi</span>
+                        <div className="flex items-center gap-1 text-[10px] text-ink-faint shrink-0">
+                          <MapPin className="h-3 w-3" />
+                          {huntReady ? (
+                            <span>
+                              {huntZip} · {huntRadius} mi
+                            </span>
+                          ) : (
+                            <span>ZIP + radius required above</span>
+                          )}
                         </div>
                       </div>
                       <p className="text-[11px] text-ink-muted -mt-1.5">
-                        Coarse listings, then Ford window-sticker filter. Must-haves are hard filters. Dealer ads are not proof.
+                        Coarse listings, then Ford window-sticker filter. Must-haves are hard filters. Dealer ads are not proof. Distance is from your ZIP.
                       </p>
                       {fordSearchNote && (
                         <p className="text-[10px] text-ink-faint">{fordSearchNote}</p>
@@ -1382,10 +1476,17 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                         <div className="flex items-center gap-2 text-ink-muted text-xs py-3">
                           <Loader2 className="h-3.5 w-3.5 animate-spin" /> Reading Ford stickers for nearby lots…
                         </div>
+                      ) : !huntReady ? (
+                        <p className="text-[11px] text-ink-faint py-1">
+                          Enter your ZIP and search radius (miles) next to the paste box. We will not suggest lots until both are set, and we will not pad with cars outside that radius.
+                        </p>
                       ) : fordSuggestions.length === 0 ? (
                         <p className="text-[11px] text-ink-faint py-1">
-                          No sticker-confirmed matches for those must-haves yet
-                          {fordDroppedCount > 0 ? ` (${fordDroppedCount} candidates dropped).` : "."}
+                          No sticker-confirmed matches within {huntRadius} miles of {huntZip}
+                          {fordDroppedCount > 0
+                            ? ` (${fordDroppedCount} candidates dropped, including lots outside your radius).`
+                            : "."}{" "}
+                          Farther cars are not shown.
                         </p>
                       ) : (
                         <div className="space-y-1.5">
@@ -1407,7 +1508,9 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                                       <span className="uppercase">{sourceBadge(s.listingPriceSource)}</span>
                                       {" · "}MSRP {formatStickerMsrp(s.msrp)}{" "}
                                       <span className="uppercase">{sourceBadge(s.msrpSource)}</span>
-                                      {s.distanceMiles != null ? ` · ${s.distanceMiles} mi` : ""}
+                                      {milesFromUserZip(s.distanceMiles, huntZip)
+                                        ? ` · ${milesFromUserZip(s.distanceMiles, huntZip)}`
+                                        : ""}
                                     </div>
                                     <div className="text-emerald-400/90">
                                       Must: {s.matchedMustHaves.join(", ") || "—"}

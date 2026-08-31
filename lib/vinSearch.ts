@@ -10,7 +10,7 @@
  * live for the known worked-example VINs.
  */
 
-import { calculateDistanceMiles, getZipCoordinates } from "./otdCalculator";
+import { calculateDistanceMiles } from "./otdCalculator";
 import {
   confirmFordMustHavesFromSticker,
   engineFamilyFromVin,
@@ -24,8 +24,7 @@ import {
 import type { Vehicle } from "./types";
 
 export const MAX_STICKER_CANDIDATES = 50;
-export const DEFAULT_COMPARE_ZIP = "07405";
-export const DEFAULT_COMPARE_RADIUS_MILES = 500;
+export const MAX_FORD_RECS = 2;
 
 export type ListingsProvider = "auto.dev" | "marketcheck" | "demo";
 export type PriceFact = "listing" | "sticker" | "unconfirmed";
@@ -73,18 +72,27 @@ export interface FordMatchCard {
 
 export interface FordSearchDropped {
   vin: string;
-  reason: "engine_prefix" | "unreleased" | "missing_must_have" | "sticker_error";
+  reason: "engine_prefix" | "unreleased" | "missing_must_have" | "sticker_error" | "outside_radius";
   missing?: string[];
   dealerName?: string;
+  distanceMiles?: number | null;
 }
 
 export interface FordSearchResult {
   provider: ListingsProvider;
   note: string;
+  needsLocation?: boolean;
+  originZip?: string;
+  radiusMiles?: number;
   candidatesConsidered: number;
   stickersFetched: number;
   matches: FordMatchCard[];
   dropped: FordSearchDropped[];
+}
+
+export function isUsableHuntLocation(zip?: string, radiusMiles?: number): boolean {
+  const z = (zip || "").trim();
+  return /^\d{5}$/.test(z) && typeof radiusMiles === "number" && Number.isFinite(radiusMiles) && radiusMiles > 0;
 }
 
 export const DEMO_COMPARABLE_LISTINGS: ListingCandidate[] = [
@@ -413,8 +421,20 @@ export async function findSimilarFordVehicles(opts: {
   listings?: ListingCandidate[];
   fetchSticker?: (vin: string) => Promise<FordSticker>;
 }): Promise<FordSearchResult> {
-  const zip = (opts.zip || DEFAULT_COMPARE_ZIP).trim() || DEFAULT_COMPARE_ZIP;
-  const radius = opts.radiusMiles && opts.radiusMiles > 0 ? opts.radiusMiles : DEFAULT_COMPARE_RADIUS_MILES;
+  const zip = (opts.zip || "").trim();
+  const radius = opts.radiusMiles;
+  if (!isUsableHuntLocation(zip, radius)) {
+    return {
+      provider: "demo",
+      note: "Enter a 5-digit ZIP and a search radius in miles to see two sticker-matched lots in range.",
+      needsLocation: true,
+      candidatesConsidered: 0,
+      stickersFetched: 0,
+      matches: [],
+      dropped: [],
+    };
+  }
+  const radiusMiles = radius as number;
   const subject = opts.subject || (await getFordSticker(opts.subjectVin));
   const fetchSticker = opts.fetchSticker || getFordSticker;
   const mustHaves = opts.mustHaveLines.filter(Boolean);
@@ -425,12 +445,12 @@ export async function findSimilarFordVehicles(opts: {
   let listings = opts.listings;
   if (!listings) {
     const searched = await searchCoarseListings({
-      year: subject.year,
+      year: subject.year && subject.year >= 1990 && subject.year <= 2035 ? subject.year : undefined,
       make: subject.make || "Ford",
       model: subject.model || "Explorer",
       trim: subject.trim,
       zip,
-      radiusMiles: radius,
+      radiusMiles,
     });
     provider = searched.provider;
     note = searched.note;
@@ -494,6 +514,15 @@ export async function findSimilarFordVehicles(opts: {
       if (dealer.city || dealer.state || dealer.lat) {
         distanceMiles = calculateDistanceMiles(zip, dealer);
       }
+      if (distanceMiles == null || distanceMiles > radiusMiles) {
+        dropped.push({
+          vin: listing.vin,
+          reason: "outside_radius",
+          dealerName: listing.dealerName,
+          distanceMiles,
+        });
+        return;
+      }
       matches.push({
         vin: listing.vin,
         year: sticker.year || listing.year,
@@ -522,12 +551,21 @@ export async function findSimilarFordVehicles(opts: {
     }
   });
 
+  const ranked = rankFordMatches(matches).slice(0, MAX_FORD_RECS);
+  if (ranked.length === 0) {
+    note = `No sticker-confirmed matches within ${radiusMiles} miles of ${zip}. Farther lots are not shown.${
+      note ? ` ${note}` : ""
+    }`;
+  }
+
   return {
     provider,
     note,
+    originZip: zip,
+    radiusMiles,
     candidatesConsidered: listings.length,
     stickersFetched: capped.length,
-    matches: rankFordMatches(matches),
+    matches: ranked,
     dropped,
   };
 }
@@ -614,13 +652,4 @@ export function stickerToVehicle(sticker: FordSticker, listingUrl?: string | nul
     dealerUrl: listingUrl || undefined,
     oemBuildSheetUrl: sticker.pdfUrl,
   };
-}
-
-export function zipForUnknownBuyer(stickerZip?: string): string {
-  return stickerZip || DEFAULT_COMPARE_ZIP;
-}
-
-export function buyerCoordsHint(zip: string): { lat: number; lng: number; city: string; state: string } {
-  const c = getZipCoordinates(zip);
-  return { lat: c.lat, lng: c.lng, city: c.city, state: c.state };
 }

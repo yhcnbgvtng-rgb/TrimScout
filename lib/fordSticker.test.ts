@@ -83,6 +83,7 @@ describe("Ford sticker parse — subject 1FMWK8JCXTGB47204", () => {
   it("is a released 2026 Explorer Tremor 3.0 with Ultimate + keypad", () => {
     assert.equal(sticker.status, "released");
     assert.equal(sticker.year, 2026);
+    assert.notEqual(sticker.year, 7204);
     assert.equal(sticker.model, "Explorer");
     assert.equal(sticker.trim, "Tremor");
     assert.match(sticker.engine || "", /3\.0L/i);

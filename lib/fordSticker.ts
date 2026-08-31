@@ -79,6 +79,7 @@ export interface MustHaveCheck {
 const VIN_RE = /\b[A-HJ-NPR-Z0-9]{17}\b/gi;
 const MEMORY_CACHE = new Map<string, FordSticker>();
 const CACHE_DIR = path.join("/tmp", "trimscout-ford-stickers");
+const PARSER_VERSION = 2;
 
 const UNRELEASED_PATTERNS = [
   /window sticker has not yet been\s+released/i,
@@ -270,7 +271,7 @@ export function parseFordStickerText(vin: string, text: string): FordSticker {
     sticker.model = parts.join(" ") || ymm;
     sticker.drivetrain = headline[3].toUpperCase();
   } else {
-    const loose = text.match(/(\d{4})\s+EXPLORER\s+(\S+)/i);
+    const loose = text.match(/\b(20\d{2})\s+EXPLORER\s+(\S+)/i);
     if (loose) {
       sticker.year = Number.parseInt(loose[1], 10);
       sticker.model = "Explorer";
@@ -519,8 +520,10 @@ function cachePath(vin: string): string {
 function readDiskCache(vin: string): FordSticker | null {
   try {
     const raw = fs.readFileSync(cachePath(vin), "utf8");
-    const parsed = JSON.parse(raw) as FordSticker;
-    if (parsed?.status === "released" && parsed.vin) return parsed;
+    const parsed = JSON.parse(raw) as FordSticker & { parserVersion?: number };
+    if (parsed?.status === "released" && parsed.vin && parsed.parserVersion === PARSER_VERSION) {
+      return parsed;
+    }
   } catch {
     // miss
   }
@@ -531,7 +534,10 @@ function writeDiskCache(sticker: FordSticker): void {
   if (sticker.status !== "released") return;
   try {
     fs.mkdirSync(CACHE_DIR, { recursive: true });
-    fs.writeFileSync(cachePath(sticker.vin), JSON.stringify(sticker));
+    fs.writeFileSync(
+      cachePath(sticker.vin),
+      JSON.stringify({ ...sticker, parserVersion: PARSER_VERSION })
+    );
   } catch {
     // /tmp may be unavailable; memory cache still works
   }

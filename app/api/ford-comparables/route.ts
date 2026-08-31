@@ -4,11 +4,7 @@ export const runtime = "nodejs";
 
 import { NextResponse } from "next/server";
 import { getFordSticker, isFordOrLincolnVin } from "@/lib/fordSticker";
-import {
-  DEFAULT_COMPARE_RADIUS_MILES,
-  DEFAULT_COMPARE_ZIP,
-  findSimilarFordVehicles,
-} from "@/lib/vinSearch";
+import { findSimilarFordVehicles, isUsableHuntLocation } from "@/lib/vinSearch";
 
 export async function POST(request: Request) {
   const body = await request.json().catch(() => ({}));
@@ -28,8 +24,18 @@ export async function POST(request: Request) {
   const niceToHaveLines: string[] = Array.isArray(body?.niceToHaveLines)
     ? body.niceToHaveLines.map(String).filter(Boolean)
     : [];
-  const zip = String(body?.zip || DEFAULT_COMPARE_ZIP).trim() || DEFAULT_COMPARE_ZIP;
-  const radiusMiles = Number(body?.radiusMiles) > 0 ? Number(body.radiusMiles) : DEFAULT_COMPARE_RADIUS_MILES;
+  const zip = String(body?.zip || "").trim();
+  const radiusMiles = Number(body?.radiusMiles);
+
+  if (!isUsableHuntLocation(zip, radiusMiles)) {
+    return NextResponse.json({
+      success: true,
+      needsLocation: true,
+      matches: [],
+      dropped: [],
+      note: "Enter a 5-digit ZIP and a search radius in miles to see two sticker-matched lots in range.",
+    });
+  }
 
   try {
     const subject = await getFordSticker(subjectVin);

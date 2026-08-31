@@ -6,6 +6,7 @@ import { getFordSticker, parseFordStickerText } from "./fordSticker";
 import {
   DEMO_COMPARABLE_LISTINGS,
   findSimilarFordVehicles,
+  isUsableHuntLocation,
   rankFordMatches,
   type FordMatchCard,
 } from "./vinSearch";
@@ -22,7 +23,52 @@ function loadFixture(vin: string): string {
 }
 
 describe("vinSearch rank + must-have filter", () => {
-  it("keeps Shorkey + Battlefield and drops Mall of Georgia and the 2.3 decoy", async () => {
+  it("requires a 5-digit ZIP and a positive radius — never a silent default", () => {
+    assert.equal(isUsableHuntLocation("07405", 100), true);
+    assert.equal(isUsableHuntLocation("07405", 0), false);
+    assert.equal(isUsableHuntLocation("07405"), false);
+    assert.equal(isUsableHuntLocation("", 100), false);
+    assert.equal(isUsableHuntLocation("7405", 100), false);
+  });
+  it("does not search until the user enters zip and radius", async () => {
+    const subject = parseFordStickerText(SUBJECT, loadFixture(SUBJECT));
+    const result = await findSimilarFordVehicles({
+      subjectVin: SUBJECT,
+      subject,
+      mustHaveLines: ["Ultimate Package", "Keyless Entry Keypad"],
+      listings: DEMO_COMPARABLE_LISTINGS,
+      fetchSticker: async (vin) => parseFordStickerText(vin, loadFixture(vin)),
+    });
+    assert.equal(result.needsLocation, true);
+    assert.equal(result.matches.length, 0);
+    assert.equal(result.candidatesConsidered, 0);
+  });
+
+  it("drops sticker matches outside the user-entered radius instead of padding with far cars", async () => {
+    const subject = parseFordStickerText(SUBJECT, loadFixture(SUBJECT));
+    const result = await findSimilarFordVehicles({
+      subjectVin: SUBJECT,
+      subject,
+      mustHaveLines: ["Ultimate Package", "Keyless Entry Keypad"],
+      niceToHaveLines: ["BlueCruise"],
+      zip: "07405",
+      radiusMiles: 100,
+      listings: DEMO_COMPARABLE_LISTINGS,
+      fetchSticker: async (vin) => parseFordStickerText(vin, loadFixture(vin)),
+    });
+
+    assert.equal(result.matches.length, 0, "100 mi from 07405 must not pad with PA/VA lots");
+    assert.equal(result.needsLocation, undefined);
+    const shorkey = result.dropped.find((d) => d.vin === SHORKEY);
+    const battlefield = result.dropped.find((d) => d.vin === BATTLEFIELD);
+    assert.equal(shorkey?.reason, "outside_radius");
+    assert.equal(battlefield?.reason, "outside_radius");
+    assert.ok((shorkey?.distanceMiles ?? 0) > 100);
+    assert.ok((battlefield?.distanceMiles ?? 0) > 100);
+    assert.match(result.note, /100 miles of 07405/);
+  });
+
+  it("keeps Shorkey + Battlefield when the user-entered radius is large enough", async () => {
     const subject = parseFordStickerText(SUBJECT, loadFixture(SUBJECT));
     const result = await findSimilarFordVehicles({
       subjectVin: SUBJECT,
@@ -36,10 +82,12 @@ describe("vinSearch rank + must-have filter", () => {
     });
 
     const matchVins = result.matches.map((m) => m.vin);
+    assert.equal(result.matches.length, 2);
     assert.ok(matchVins.includes(SHORKEY), `expected Shorkey in ${matchVins.join(",")}`);
     assert.ok(matchVins.includes(BATTLEFIELD), `expected Battlefield in ${matchVins.join(",")}`);
     assert.ok(!matchVins.includes(MALL_OF_GEORGIA), "Mall of Georgia has Ultimate but no keypad");
     assert.ok(!matchVins.includes(DECOY_23), "1FMUK 2.3 decoy must be prefix-excluded");
+    assert.ok(result.matches.every((m) => m.distanceMiles != null && m.distanceMiles <= 500));
 
     const decoyDrop = result.dropped.find((d) => d.vin === DECOY_23);
     assert.equal(decoyDrop?.reason, "engine_prefix");
@@ -82,13 +130,14 @@ describe("vinSearch rank + must-have filter", () => {
     );
   });
 
-  it("live Ford Direct hunt still returns Shorkey + Battlefield only among the demo VINs", async () => {
+  it("live Ford Direct hunt still returns Shorkey + Battlefield only among the demo VINs when radius allows", async () => {
     const subject = await getFordSticker(SUBJECT);
     const result = await findSimilarFordVehicles({
       subjectVin: SUBJECT,
       subject,
       mustHaveLines: ["Ultimate Package", "Keyless Entry Keypad"],
       zip: "07405",
+      radiusMiles: 500,
       listings: DEMO_COMPARABLE_LISTINGS,
     });
     const matchVins = result.matches.map((m) => m.vin);
