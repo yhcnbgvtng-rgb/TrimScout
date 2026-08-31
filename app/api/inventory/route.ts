@@ -5,6 +5,7 @@ import { Vehicle } from "@/lib/types";
 import { MOCK_VEHICLES } from "@/lib/mockData";
 import { calculateDistanceMiles, getZipCoordinates } from "@/lib/otdCalculator";
 import { runUnifiedScrapers, scrapePorscheInventory } from "@/lib/scrapers";
+import { serverSecret } from "@/lib/serverSecret";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -206,7 +207,7 @@ export async function GET(request: Request) {
   const provider = searchParams.get("provider") || "autodev";
   const apiKey =
     searchParams.get("apiKey") ||
-    process.env.AUTO_DEV_API_KEY ||
+    serverSecret("AUTO_DEV_API_KEY") ||
     "sk_ad_Xc5T6i3mwxFF1X8x_WbFNl5a";
 
   const userCoords = getZipCoordinates(zip);
@@ -270,7 +271,7 @@ export async function GET(request: Request) {
 
     // 2. MARKETCHECK LIVE AUTOMOTIVE INVENTORY API
     if (provider === "marketcheck" || (apiKey && (apiKey.startsWith("mc_") || apiKey.includes("marketcheck")))) {
-      const mcKey = apiKey || process.env.MARKETCHECK_API_KEY || "";
+      const mcKey = apiKey || serverSecret("MARKETCHECK_API_KEY") || "";
       if (mcKey) {
         try {
           const mcUrl = new URL("https://mc-api.marketcheck.com/v2/search/car/active");

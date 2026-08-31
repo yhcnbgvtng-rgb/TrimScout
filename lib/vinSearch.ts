@@ -26,6 +26,7 @@ import {
   stickerHasMustHave,
   type FordSticker,
 } from "./fordSticker";
+import { serverSecret } from "./serverSecret";
 import type { Vehicle } from "./types";
 
 export const MAX_STICKER_CANDIDATES = 50;
@@ -312,9 +313,9 @@ function asFinitePrice(value: unknown): number | null {
 }
 
 function listingsProvider(): { provider: ListingsProvider; key: string | null } {
-  const autoDev = process.env.AUTO_DEV_API_KEY?.trim();
+  const autoDev = serverSecret("AUTO_DEV_API_KEY");
   if (autoDev) return { provider: "auto.dev", key: autoDev };
-  const marketcheck = process.env.MARKETCHECK_API_KEY?.trim();
+  const marketcheck = serverSecret("MARKETCHECK_API_KEY");
   if (marketcheck) return { provider: "marketcheck", key: marketcheck };
   return { provider: "demo", key: null };
 }
@@ -455,9 +456,10 @@ export async function searchCoarseListings(q: {
       console.error("Auto.dev listings failed, falling back to demo comparables:", err);
     }
   }
-  if ((provider === "marketcheck" || provider === "auto.dev") && process.env.MARKETCHECK_API_KEY) {
+  const marketcheckKey = serverSecret("MARKETCHECK_API_KEY");
+  if ((provider === "marketcheck" || provider === "auto.dev") && marketcheckKey) {
     try {
-      const listings = await searchMarketCheck(process.env.MARKETCHECK_API_KEY, q);
+      const listings = await searchMarketCheck(marketcheckKey, q);
       return {
         provider: "marketcheck",
         listings,
