@@ -8,8 +8,10 @@ import {
   DEMO_SUBJECT_VIN,
   defaultMustHaveLines,
   engineFamilyFromVin,
+  exteriorColorMustHaveName,
   extractVin,
   extractVinFromDealerPage,
+  filterableFactoryOptions,
   getFordSticker,
   isFordOrLincolnVin,
   isKeypadIntent,
@@ -224,6 +226,33 @@ describe("Ford sticker parse — 2026 Bronco Sport Big Bend 3FMCR9BN8TRE94740", 
     assert.equal(s.msrp, 36220);
     assert.match(s.engine || "", /1\.5L/i);
     assert.notEqual(s.model, "Explorer");
+  });
+
+  it("lists Oxford White as a selectable must-have, off by default", () => {
+    const s = parseFordStickerText(BRONCO, loadFixture(BRONCO));
+    const names = filterableFactoryOptions(s).map((o) => o.name);
+    const colorLine = exteriorColorMustHaveName(s.exteriorColor || "");
+    assert.ok(names.includes(colorLine), `expected ${colorLine} in ${names.join(" | ")}`);
+    assert.ok(!names.some((n) => /KEYLESS ENTRY W\/?PUSH START/i.test(n) || /KEYLESS ENTRY W PUSH START/i.test(n)));
+    assert.deepEqual(defaultMustHaveLines(s), []);
+    assert.equal(stickerHasMustHave(s, colorLine), true);
+    const shorkey = parseFordStickerText(SHORKEY, loadFixture(SHORKEY));
+    assert.equal(stickerHasMustHave(shorkey, colorLine), false);
+  });
+});
+
+describe("must-have color vs Explorer Ultimate + keypad defaults", () => {
+  it("Explorer defaults Ultimate + keypad and does not default color", () => {
+    const s = parseFordStickerText(SUBJECT, loadFixture(SUBJECT));
+    assert.deepEqual(defaultMustHaveLines(s), ["Ultimate Package", "Keyless Entry Keypad"]);
+    const names = filterableFactoryOptions(s).map((o) => o.name);
+    assert.ok(names.some((n) => /^Exterior color:/i.test(n)));
+    assert.ok(!defaultMustHaveLines(s).some((n) => /exterior color/i.test(n)));
+    assert.equal(
+      stickerHasMustHave(s, ["Ultimate Package", "Keyless Entry Keypad"][0]) &&
+        stickerHasMustHave(s, "Keyless Entry Keypad"),
+      true
+    );
   });
 });
 

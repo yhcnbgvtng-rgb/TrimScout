@@ -594,6 +594,11 @@ export function optionMatchesQuery(optionName: string, query: string): boolean {
 
 export function stickerHasMustHave(sticker: FordSticker, query: string): boolean {
   if (sticker.status !== "released") return false;
+  const colorReq = parseColorMustHave(query);
+  if (colorReq) {
+    const actual = colorReq.kind === "exterior" ? sticker.exteriorColor : sticker.interiorColor;
+    return colorsMatch(actual, colorReq.color);
+  }
   for (const opt of sticker.options) {
     if (opt.isStandard && isStandardKeylessLine(opt.name)) {
       if (isKeypadIntent(query)) continue;
@@ -644,6 +649,65 @@ export function confirmFordMustHavesFromSticker(
   };
 }
 
+export const EXTERIOR_COLOR_LABEL = "Exterior color";
+export const INTERIOR_COLOR_LABEL = "Interior color";
+
+export function normalizeColorName(s: string): string {
+  return normalizeForMatch(s)
+    .replace(/\b(METALLIC|MET TRI COAT|TRI COAT|PEARL EFFECT|PEARL|MATTE|GLOSS)\b/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+export function colorsMatch(a?: string | null, b?: string | null): boolean {
+  const na = normalizeColorName(a || "");
+  const nb = normalizeColorName(b || "");
+  if (!na || !nb) return false;
+  return na === nb;
+}
+
+export function exteriorColorMustHaveName(color: string): string {
+  return `${EXTERIOR_COLOR_LABEL}: ${color}`;
+}
+
+export function interiorColorMustHaveName(color: string): string {
+  return `${INTERIOR_COLOR_LABEL}: ${color}`;
+}
+
+export function parseColorMustHave(
+  query: string
+): { kind: "exterior" | "interior"; color: string } | null {
+  const n = query.trim();
+  const ext = n.match(/^exterior color:\s*(.+)$/i);
+  if (ext?.[1]) return { kind: "exterior", color: ext[1].trim() };
+  const int = n.match(/^interior color:\s*(.+)$/i);
+  if (int?.[1]) return { kind: "interior", color: int[1].trim() };
+  return null;
+}
+
+export function stickerColorOptionLines(sticker: FordSticker): FordOptionLine[] {
+  const lines: FordOptionLine[] = [];
+  if (sticker.exteriorColor) {
+    lines.push({
+      name: exteriorColorMustHaveName(sticker.exteriorColor),
+      price: null,
+      isStandard: false,
+      isPackageChild: false,
+      source: "sticker",
+    });
+  }
+  if (sticker.interiorColor) {
+    lines.push({
+      name: interiorColorMustHaveName(sticker.interiorColor),
+      price: null,
+      isStandard: false,
+      isPackageChild: false,
+      source: "sticker",
+    });
+  }
+  return lines;
+}
+
 export function defaultMustHaveLines(sticker: FordSticker): string[] {
   const lines: string[] = [];
   if (sticker.options.some((o) => !o.isStandard && isUltimateLine(o.name))) {
@@ -669,9 +733,10 @@ export function defaultNiceToHaveLines(sticker: FordSticker, mustHaves: string[]
 }
 
 export function filterableFactoryOptions(sticker: FordSticker): FordOptionLine[] {
-  return sticker.options.filter(
-    (o) => !o.isStandard && !isStandardKeylessLine(o.name)
+  const opts = sticker.options.filter(
+    (o) => !o.isStandard && !isStandardKeylessLine(o.name) && !o.isPackageChild
   );
+  return [...stickerColorOptionLines(sticker), ...opts];
 }
 
 function cachePath(vin: string): string {

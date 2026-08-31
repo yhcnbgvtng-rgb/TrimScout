@@ -38,8 +38,6 @@ import {
   FileText
 } from "lucide-react";
 
-const FORD_DEMO_VIN = "1FMWK8JCXTGB47204";
-
 interface FordSuggestionCard {
   vin: string;
   year?: number;
@@ -709,13 +707,6 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     });
   };
 
-  const setFactoryPref = (name: string, pref: "must" | "nice" | "off") => {
-    setMustHavePackages((prev) => (pref === "must" ? Array.from(new Set([...prev, name])) : prev.filter((p) => p !== name)));
-    setNiceToHavePackages((prev) =>
-      pref === "nice" ? Array.from(new Set([...prev, name])) : prev.filter((p) => p !== name)
-    );
-  };
-
   const hasCompetition = secondaryVehicles.some((v) => !!v);
 
   const handleSubmitDirectOffer = () => {
@@ -799,6 +790,13 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     } else {
       setMustHavePackages([...mustHavePackages, pkgName]);
     }
+  };
+
+  const toggleFordMustHave = (name: string) => {
+    setMustHavePackages((prev) =>
+      prev.includes(name) ? prev.filter((p) => p !== name) : [...prev, name]
+    );
+    setNiceToHavePackages((prev) => prev.filter((p) => p !== name));
   };
 
   const handleRemovePhoto = (photoId: string) => {
@@ -1150,62 +1148,6 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                     <p className="text-[10px] text-ink-faint">
                       ZIP and radius are required before we recommend two other lots. Suggestions use your ZIP, not the dealer&apos;s.
                     </p>
-                    <div className="space-y-1.5 pt-1">
-                      <span className="text-[10px] uppercase font-bold text-ink-faint">
-                        Or click a sample to test:
-                      </span>
-                      <div className="flex flex-wrap gap-1.5">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setDealerUrlInput(FORD_DEMO_VIN);
-                            handleParseDealerUrl(FORD_DEMO_VIN);
-                          }}
-                          className="rounded-lg bg-surface-elevated hover:bg-emerald-500/20 border border-border hover:border-emerald-500/40 px-2.5 py-1 text-[11px] text-ink-light hover:text-white transition-all flex items-center gap-1"
-                        >
-                          <Sparkles className="h-3 w-3 text-emerald-400" />
-                          <span>2026 Explorer Tremor (Ford sticker)</span>
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            const url = "https://www.bmwsanrafael.com/new/BMW/2026-BMW-330i-M-Sport-wba33ay08rf892110.htm";
-                            setDealerUrlInput(url);
-                            handleParseDealerUrl(url);
-                          }}
-                          className="rounded-lg bg-surface-elevated hover:bg-emerald-500/20 border border-border hover:border-emerald-500/40 px-2.5 py-1 text-[11px] text-ink-light hover:text-white transition-all flex items-center gap-1"
-                        >
-                          <Sparkles className="h-3 w-3 text-emerald-400" />
-                          <span>BMW of San Rafael (330i M Sport)</span>
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() => {
-                            const url = "https://www.porschesanfrancisco.com/inventory/new-2026-porsche-911-carrera-s-coupe-wp0ab2a98ts198231/";
-                            setDealerUrlInput(url);
-                            handleParseDealerUrl(url);
-                          }}
-                          className="rounded-lg bg-surface-elevated hover:bg-emerald-500/20 border border-border hover:border-emerald-500/40 px-2.5 py-1 text-[11px] text-ink-light hover:text-white transition-all flex items-center gap-1"
-                        >
-                          <Sparkles className="h-3 w-3 text-emerald-400" />
-                          <span>Porsche San Francisco (911 Carrera S)</span>
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() => {
-                            const url = "https://www.marintoyota.com/new-inventory/2026-toyota-prius-prime-xse-jtdekabf3r3089124.htm";
-                            setDealerUrlInput(url);
-                            handleParseDealerUrl(url);
-                          }}
-                          className="rounded-lg bg-surface-elevated hover:bg-emerald-500/20 border border-border hover:border-emerald-500/40 px-2.5 py-1 text-[11px] text-ink-light hover:text-white transition-all flex items-center gap-1"
-                        >
-                          <Sparkles className="h-3 w-3 text-emerald-400" />
-                          <span>Marin Toyota (Prius Prime XSE)</span>
-                        </button>
-                      </div>
-                    </div>
                   </div>
 
                     {parseError && (
@@ -1369,6 +1311,45 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
               {/* Once a favorite is locked in, offer to widen the field */}
               {selectedVehicle && (
                 <div className="space-y-5 pt-4 border-t border-border/50">
+                  {fordStickerStatus === "released" && fordFilterableOptions.length > 0 && (
+                    <div className="space-y-2">
+                      <h4 className="text-xs font-bold text-white uppercase tracking-wider">
+                        Must-have factory options
+                      </h4>
+                      <p className="text-[11px] text-ink-muted">
+                        From this Ford window sticker. Comparables must have every ticked line on their own released sticker — including color if you tick it. Color is off by default. Keyless fob (push start) is standard and is not listed.
+                      </p>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 max-h-56 overflow-y-auto pr-1">
+                        {fordFilterableOptions.map((opt) => {
+                          const isChecked = mustHavePackages.includes(opt.name);
+                          return (
+                            <label
+                              key={opt.name}
+                              className={`flex items-start gap-2 rounded-lg border p-2 text-xs cursor-pointer transition-all ${
+                                isChecked
+                                  ? "border-emerald-500 bg-emerald-500/10 text-emerald-300 font-semibold"
+                                  : "border-border bg-surface-elevated text-ink-muted hover:border-border-strong"
+                              }`}
+                            >
+                              <input
+                                type="checkbox"
+                                checked={isChecked}
+                                onChange={() => toggleFordMustHave(opt.name)}
+                                className="mt-0.5 rounded border-border text-emerald-500 focus:ring-0"
+                              />
+                              <span className="min-w-0">
+                                <span className="block truncate text-white">{opt.name}</span>
+                                <span className="text-[9px] uppercase text-emerald-400/80">sticker</span>
+                                {opt.price != null && opt.price > 0 ? (
+                                  <span className="text-ink-faint"> · {formatCurrency(opt.price)}</span>
+                                ) : null}
+                              </span>
+                            </label>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
                   {/* INCREASE COMPETITION: up to 2 optional secondary links */}
                   <div className="space-y-2.5">
                     <div>
@@ -1753,55 +1734,39 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                 {fordStickerStatus === "released" && fordFilterableOptions.length > 0 ? (
                   <>
                     <label className="text-xs font-semibold text-ink-light">
-                      Must-have vs nice-to-have factory options (sticker):
+                      Must-have factory options (Ford sticker):
                     </label>
                     <p className="text-[10px] text-ink-faint">
-                      Glossary: Keyless (fob) is standard. Keypad is $455. KEYLESS ENTRY W/PUSH START is not a filter.
+                      Same list as Step 2. Ticked lines are hard filters. Color is off unless you tick it. KEYLESS ENTRY W/PUSH START is not a filter.
                     </p>
-                    <div className="space-y-1.5">
-                      {fordFilterableOptions
-                        .filter((o) => !o.isPackageChild)
-                        .map((opt) => {
-                          const pref = mustHavePackages.includes(opt.name)
-                            ? "must"
-                            : niceToHavePackages.includes(opt.name)
-                              ? "nice"
-                              : "off";
-                          return (
-                            <div
-                              key={opt.name}
-                              className="flex items-center justify-between gap-2 rounded-lg border border-border bg-surface-elevated px-2.5 py-2 text-xs"
-                            >
-                              <span className="truncate text-white">
-                                {opt.name}
-                                {opt.price != null && opt.price > 0 ? (
-                                  <span className="text-ink-muted"> · {formatCurrency(opt.price)}</span>
-                                ) : null}
-                                <span className="ml-1 text-[9px] uppercase text-emerald-400/80">sticker</span>
-                              </span>
-                              <div className="flex gap-1 shrink-0">
-                                {(["must", "nice", "off"] as const).map((p) => (
-                                  <button
-                                    type="button"
-                                    key={p}
-                                    onClick={() => setFactoryPref(opt.name, p)}
-                                    className={`rounded px-1.5 py-0.5 text-[10px] font-bold uppercase ${
-                                      pref === p
-                                        ? p === "must"
-                                          ? "bg-emerald-500 text-black"
-                                          : p === "nice"
-                                            ? "bg-sky-500 text-black"
-                                            : "bg-border text-white"
-                                        : "bg-background text-ink-faint hover:text-white"
-                                    }`}
-                                  >
-                                    {p === "must" ? "Must" : p === "nice" ? "Nice" : "Off"}
-                                  </button>
-                                ))}
-                              </div>
-                            </div>
-                          );
-                        })}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 max-h-56 overflow-y-auto pr-1">
+                      {fordFilterableOptions.map((opt) => {
+                        const isChecked = mustHavePackages.includes(opt.name);
+                        return (
+                          <label
+                            key={opt.name}
+                            className={`flex items-start gap-2 rounded-lg border p-2 text-xs cursor-pointer transition-all ${
+                              isChecked
+                                ? "border-emerald-500 bg-emerald-500/10 text-emerald-300 font-semibold"
+                                : "border-border bg-surface-elevated text-ink-muted hover:border-border-strong"
+                            }`}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={isChecked}
+                              onChange={() => toggleFordMustHave(opt.name)}
+                              className="mt-0.5 rounded border-border text-emerald-500 focus:ring-0"
+                            />
+                            <span className="min-w-0">
+                              <span className="block truncate text-white">{opt.name}</span>
+                              <span className="text-[9px] uppercase text-emerald-400/80">sticker</span>
+                              {opt.price != null && opt.price > 0 ? (
+                                <span className="text-ink-faint"> · {formatCurrency(opt.price)}</span>
+                              ) : null}
+                            </span>
+                          </label>
+                        );
+                      })}
                     </div>
                   </>
                 ) : (

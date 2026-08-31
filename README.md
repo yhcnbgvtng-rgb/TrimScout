@@ -23,8 +23,8 @@ This lives **inside Launch Dealership Bidding Hunt** (`components/BiddingWizard.
 4. Enter **your ZIP** and **search radius in miles** next to that box (placeholders like `07405` / `100` are examples only — fields stay empty until you type). Those values are required before suggestions run. They are never hardcoded and never silently defaulted to 100.
 5. TrimScout fetches the official Ford Direct PDF (server-side, no account):
    `https://www.windowsticker.forddirect.com/windowsticker.pdf?vin={VIN}`
-6. Factory options come from that sticker. **Ultimate Package** and **Keyless Entry Keypad** are pre-checked as must-haves when those lines exist.
-7. After paste **and** zip+radius, the **Increase Competition** area (2 optional secondary slots) auto-fills up to two sticker-confirmed similar lots **within your radius of your ZIP**. Each card shows miles-from-your-ZIP. Lots outside the radius are dropped — we do not pad with farther cars. If none are in range, the UI says so. Demo Explorer lots are not applied to a Bronco Sport (or any other model).
+6. Factory options come from that sticker as **checkboxes** (not mock package lists). **Ultimate Package** and **Keyless Entry Keypad** are pre-checked when those lines exist. Exterior (and interior, if parsed) color is listed and **off by default**. Standard `KEYLESS ENTRY W/PUSH START` is never a filter. Toggling must-haves re-runs the hunt when ZIP + radius are set.
+7. After paste **and** zip+radius, the **Increase Competition** area (2 optional secondary slots) auto-fills up to two sticker-confirmed similar lots **within your radius of your ZIP** that have **every ticked must-have** on their Ford sticker (including color if ticked). Each card shows miles-from-your-ZIP. Lots outside the radius or missing a must-have are dropped — we do not pad. If none are in range, the UI says so. Demo Explorer lots are not applied to a Bronco Sport (or any other model).
 
 Worked example must-haves: Ultimate Package **and** Keyless Entry Keypad. Distance is from the **user ZIP**, not the subject dealer ZIP.
 

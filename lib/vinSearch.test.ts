@@ -164,4 +164,86 @@ describe("vinSearch rank + must-have filter", () => {
     assert.equal(result.matches.length, 0);
     assert.match(result.note, /do not apply to Bronco Sport/i);
   });
+
+  it("drops non-white Bronco comparables only when exterior color is a must-have", async () => {
+    const bronco = parseFordStickerText(
+      "3FMCR9BN8TRE94740",
+      fs.readFileSync(path.join(FIXTURE_DIR, "3FMCR9BN8TRE94740.txt"), "utf8")
+    );
+    const whiteVin = "3FMCR9BN8TRE11111";
+    const blackVin = "3FMCR9BN8TRE22222";
+    const near = {
+      model: "Bronco Sport",
+      year: 2026,
+      make: "Ford",
+      city: "Butler",
+      state: "NJ",
+      zip: "07405",
+      lat: 40.927,
+      lng: -74.341,
+      listingPrice: null as number | null,
+    };
+    const listings = [
+      { ...near, vin: whiteVin, dealerName: "White Lot" },
+      { ...near, vin: blackVin, dealerName: "Black Lot" },
+    ];
+    const stickers: Record<string, ReturnType<typeof parseFordStickerText>> = {
+      [whiteVin]: { ...bronco, vin: whiteVin, exteriorColor: "Oxford White" },
+      [blackVin]: { ...bronco, vin: blackVin, exteriorColor: "Agate Black Metallic" },
+    };
+    const colorLine = `Exterior color: ${bronco.exteriorColor}`;
+    const withColor = await findSimilarFordVehicles({
+      subjectVin: bronco.vin,
+      subject: bronco,
+      mustHaveLines: [colorLine],
+      zip: "07405",
+      radiusMiles: 100,
+      listings,
+      fetchSticker: async (vin) => stickers[vin],
+    });
+    assert.deepEqual(
+      withColor.matches.map((m) => m.vin),
+      [whiteVin]
+    );
+    assert.equal(withColor.dropped.find((d) => d.vin === blackVin)?.reason, "missing_must_have");
+
+    const noColor = await findSimilarFordVehicles({
+      subjectVin: bronco.vin,
+      subject: bronco,
+      mustHaveLines: [],
+      zip: "07405",
+      radiusMiles: 100,
+      listings,
+      fetchSticker: async (vin) => stickers[vin],
+    });
+    assert.equal(noColor.matches.length, 2);
+  });
+
+  it("Explorer Ultimate + keypad still requires both sticker lines; color filter is extra", async () => {
+    const subject = parseFordStickerText(SUBJECT, loadFixture(SUBJECT));
+    const both = await findSimilarFordVehicles({
+      subjectVin: SUBJECT,
+      subject,
+      mustHaveLines: ["Ultimate Package", "Keyless Entry Keypad"],
+      zip: "07405",
+      radiusMiles: 500,
+      listings: DEMO_COMPARABLE_LISTINGS,
+      fetchSticker: async (vin) => parseFordStickerText(vin, loadFixture(vin)),
+    });
+    assert.ok(both.matches.map((m) => m.vin).includes(SHORKEY));
+    assert.ok(both.matches.map((m) => m.vin).includes(BATTLEFIELD));
+
+    const colorLine = `Exterior color: ${subject.exteriorColor}`;
+    const withColor = await findSimilarFordVehicles({
+      subjectVin: SUBJECT,
+      subject,
+      mustHaveLines: ["Ultimate Package", "Keyless Entry Keypad", colorLine],
+      zip: "07405",
+      radiusMiles: 500,
+      listings: DEMO_COMPARABLE_LISTINGS,
+      fetchSticker: async (vin) => parseFordStickerText(vin, loadFixture(vin)),
+    });
+    assert.equal(withColor.matches.length, 0);
+    assert.ok(withColor.dropped.some((d) => d.reason === "missing_must_have"));
+  });
 });
