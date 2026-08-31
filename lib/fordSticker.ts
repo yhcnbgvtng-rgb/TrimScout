@@ -934,15 +934,38 @@ function pickDiscounted(prices: number[], msrpFloor: number | null): number | nu
   return ok.length > 0 ? Math.min(...ok) : null;
 }
 
+const NON_SALE_PRICE_LEAD =
+  /^(msrp|invoice|retail|list|doc|was|strike|starting|destination|holdback|total|map|market)$/i;
+
+/** Labeled selling prices (Sale / Internet / Our / Your / "{Dealer} Price"). Not camelCase internetPrice. */
+function collectLabeledSalePrices(html: string): number[] {
+  const out: number[] = [];
+  const re = new RegExp(
+    `\\b([a-z][a-z0-9'-]{1,24})\\s+price[^$0-9]{0,120}${COMMA_USD_RE.source}`,
+    "gi"
+  );
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(html)) !== null) {
+    if (NON_SALE_PRICE_LEAD.test(m[1])) continue;
+    const n = parseUsdAmount(m[2]);
+    if (n) out.push(n);
+  }
+  const ePrice = collectRegexAmounts(
+    html,
+    new RegExp(`\\be-?\\s*price[^$0-9]{0,80}${COMMA_USD_RE.source}`, "gi")
+  );
+  return [...out, ...ePrice];
+}
+
 /**
- * Advertised dealer selling price from a pasted VDP.
+ * Advertised dealer selling price from any pasted Ford VDP.
  *
- * Dealer.com (23ford and similar) shows:
- *   MSRP, a "Price" line that is often MSRP + doc fee (typeClass internetPrice),
- *   then a headline "Sale Price" in JSON-LD offers.price / price-summary.
+ * Dealer.com and similar stacks often show MSRP, a fee-inclusive "Price" line
+ * (JSON `internetPrice` / typeClass internetPrice), then a headline Sale Price
+ * in JSON-LD offers.price or `.price-summary__final-price-value`.
  * Prefer JSON-LD Offer.price when it is a real discount vs MSRP. Never treat
- * camelCase `internetPrice` / the $64,794 "Price" line as the sale price, and
- * never return sticker MSRP here — the UI shows TOTAL MSRP separately.
+ * camelCase `internetPrice` or the fee-inclusive "Price" line as the sale
+ * price, and never return sticker MSRP here — the UI shows TOTAL MSRP separately.
  */
 export function extractAdvertisedListingPrice(html: string): number | null {
   if (!html) return null;
@@ -952,15 +975,7 @@ export function extractAdvertisedListingPrice(html: string): number | null {
   const fromJsonLd = pickDiscounted(jsonLd.listing, msrpFloor);
   if (fromJsonLd) return fromJsonLd;
 
-  // Require whitespace so Dealer.com typeClass "internetPrice" does not match.
-  const labeled = collectRegexAmounts(
-    html,
-    new RegExp(
-      `(?:internet\\s+price|sale\\s+price|our\\s+price|your\\s+price|shorkey\\s+price)[^$0-9]{0,120}${COMMA_USD_RE.source}`,
-      "gi"
-    )
-  );
-  const fromLabeled = pickDiscounted(labeled, msrpFloor);
+  const fromLabeled = pickDiscounted(collectLabeledSalePrices(html), msrpFloor);
   if (fromLabeled) return fromLabeled;
 
   const headline = collectRegexAmounts(

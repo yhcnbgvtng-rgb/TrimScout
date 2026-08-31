@@ -349,12 +349,85 @@ describe("Increase Competition slots are the hunt result", () => {
       assert.match(second!.dealerName, /Shorkey/i);
       assert.equal(second?.listingPrice, 58372);
       assert.equal(second?.listingPriceSource, "listing");
+      assert.equal(first?.listingPrice, null);
+      assert.equal(advertisedOrStickerPrice(first?.listingPrice, first?.msrp).source, "sticker");
+      assert.ok((first?.msrp || 0) > 0);
     } finally {
       if (prevA !== undefined) process.env.AUTO_DEV_API_KEY = prevA;
       else delete process.env.AUTO_DEV_API_KEY;
       if (prevM !== undefined) process.env.MARKETCHECK_API_KEY = prevM;
       else delete process.env.MARKETCHECK_API_KEY;
     }
+  });
+
+  it("fills a missing listings-API price from that lot's VDP sale price", async () => {
+    const subject = parseFordStickerText(SUBJECT, loadFixture(SUBJECT));
+    const battlefield = DEMO_COMPARABLE_LISTINGS.find((l) => l.vin === BATTLEFIELD);
+    const shorkey = DEMO_COMPARABLE_LISTINGS.find((l) => l.vin === SHORKEY);
+    assert.ok(battlefield && shorkey);
+    let vdpCalls = 0;
+    const result = await findSimilarFordVehicles({
+      subjectVin: SUBJECT,
+      subject,
+      mustHaveLines: [],
+      zip: "07405",
+      radiusMiles: 500,
+      listings: [
+        { ...battlefield, dealerUrl: "https://www.example.com/ford/vdp-a", listingPrice: null },
+        { ...shorkey },
+      ],
+      fetchVdpPrice: async (url) => {
+        vdpCalls += 1;
+        assert.equal(url, "https://www.example.com/ford/vdp-a");
+        return 41250;
+      },
+    });
+    assert.equal(result.matches[0]?.vin, BATTLEFIELD);
+    assert.equal(result.matches[0]?.listingPrice, 41250);
+    assert.equal(result.matches[0]?.listingPriceSource, "listing");
+    assert.equal(result.matches[1]?.listingPrice, 58372);
+    assert.equal(vdpCalls, 1);
+  });
+
+  it("does not scrape a VDP when the listings API already has a price", async () => {
+    const subject = parseFordStickerText(SUBJECT, loadFixture(SUBJECT));
+    const shorkey = DEMO_COMPARABLE_LISTINGS.find((l) => l.vin === SHORKEY);
+    assert.ok(shorkey);
+    const result = await findSimilarFordVehicles({
+      subjectVin: SUBJECT,
+      subject,
+      mustHaveLines: [],
+      zip: "07405",
+      radiusMiles: 500,
+      listings: [{ ...shorkey, listingPrice: 58372 }],
+      fetchVdpPrice: async () => {
+        throw new Error("should not fetch VDP when listings price exists");
+      },
+    });
+    assert.equal(result.matches[0]?.listingPrice, 58372);
+    assert.equal(result.matches[0]?.listingPriceSource, "listing");
+  });
+
+  it("blocked comparable VDP still shows sticker MSRP, never call dealer", async () => {
+    const subject = parseFordStickerText(SUBJECT, loadFixture(SUBJECT));
+    const battlefield = DEMO_COMPARABLE_LISTINGS.find((l) => l.vin === BATTLEFIELD);
+    assert.ok(battlefield);
+    const result = await findSimilarFordVehicles({
+      subjectVin: SUBJECT,
+      subject,
+      mustHaveLines: [],
+      zip: "07405",
+      radiusMiles: 500,
+      listings: [
+        { ...battlefield, dealerUrl: "https://www.example.com/ford/blocked", listingPrice: null },
+      ],
+      fetchVdpPrice: async () => null,
+    });
+    assert.equal(result.matches[0]?.listingPrice, null);
+    const shown = advertisedOrStickerPrice(result.matches[0]?.listingPrice, result.matches[0]?.msrp);
+    assert.equal(shown.source, "sticker");
+    assert.ok((shown.amount || 0) > 0);
+    assert.doesNotMatch(formatPriceAmount(shown.amount), /call dealer/i);
   });
 
   it("demo Bronco Sport with zip/radius does not hang or pad Explorers", async () => {

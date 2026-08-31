@@ -19,7 +19,7 @@ This lives **inside Launch Dealership Bidding Hunt** (`components/BiddingWizard.
 
 1. Click **Bid Out a Deal** / **Launch Dealership Bidding Hunt**.
 2. Step 1 payment defaults to **Cash**.
-3. Step 2: paste a VIN or dealer URL in the existing paste field. Placeholder / test VIN: `1FMWK8JCXTGB47204`. Some dealer URLs (e.g. Route 23 `www.23ford.com`) use a hash id with **no VIN in the URL**. TrimScout fetches that page once and reads JSON-LD / labeled VIN fields. It will not treat AWS instance ids or hashes as VINs. If the dealer site blocks the fetch, paste the 17-character VIN — we will not decode a mock Explorer/Porsche.
+3. Step 2: paste a VIN or dealer URL in the existing paste field. Some dealer URLs (e.g. Dealer.com hash paths) have **no VIN in the URL**. TrimScout fetches that page once and reads JSON-LD / labeled VIN fields. It will not treat AWS instance ids or hashes as VINs. If the dealer site blocks the fetch, paste the 17-character VIN — we will not decode a mock Explorer/Porsche.
 4. Enter **your ZIP** and **search radius in miles** next to that box (placeholders like `07405` / `100` are examples only — fields stay empty until you type). Those values are required before suggestions run. They are never hardcoded and never silently defaulted to 100.
 5. TrimScout fetches the official Ford Direct PDF (server-side, no account):
    `https://www.windowsticker.forddirect.com/windowsticker.pdf?vin={VIN}`
@@ -42,7 +42,7 @@ Worked example must-haves: Ultimate Package **and** Keyless Entry Keypad. Distan
 - `KEYLESS ENTRY W/PUSH START` is **standard**. It is never a must-have filter. User “keyless entry” means the $455 door-pillar **Keyless Entry Keypad**.
 - Must-have = hard filter on sticker text. Nice-to-have = overlap score, then lower price, then closer.
 - Placeholder PDFs (“The window sticker has not yet been released”) are `unreleased`. Dealer ad copy is never proof.
-- Every price/option is labeled `sticker`, `listing`, or `unconfirmed`. On Dealer.com VDPs (e.g. 23ford), the advertised number is JSON-LD `offers.price` / headline **Sale Price**, not the fee-inclusive **Price** line and not MSRP. If the VDP scrape is blocked, show sticker TOTAL MSRP — never invent a number and never print **call dealer**.
+- Every price/option is labeled `sticker`, `listing`, or `unconfirmed`. For **any** Ford VIN: a pasted VDP’s advertised selling price (JSON-LD `offers.price` / Sale / Internet / Our price) is the listing number; Ford Direct TOTAL MSRP is the MSRP line. VIN-only or a blocked scrape → sticker MSRP, listing omitted/`unconfirmed`. Increase Competition lots use listings-API price, else that lot’s VDP sale price, else that VIN’s sticker MSRP. Never invent a number and never print **call dealer**.
 
 ### What works without listings API keys
 

@@ -17,6 +17,7 @@ import { calculateDistanceMiles } from "./otdCalculator";
 import {
   confirmFordMustHavesFromSticker,
   engineFamilyFromVin,
+  extractVinFromDealerPage,
   fordStickerPdfUrl,
   getFordSticker,
   isStandardKeylessLine,
@@ -482,6 +483,45 @@ export function rankFordMatches(matches: FordMatchCard[]): FordMatchCard[] {
   });
 }
 
+function asPositivePrice(n: number | null | undefined): number | null {
+  return typeof n === "number" && Number.isFinite(n) && n > 0 ? n : null;
+}
+
+/**
+ * Comp price: listings API if present; else that lot's VDP sale price; else
+ * leave null so the UI shows Ford sticker TOTAL MSRP. Never "call dealer".
+ * Only the ranked slots are fetched — not the full candidate list.
+ */
+export async function enrichMatchListingPrices(
+  matches: FordMatchCard[],
+  fetchVdpPrice?: (url: string) => Promise<number | null>
+): Promise<FordMatchCard[]> {
+  return Promise.all(
+    matches.map(async (match) => {
+      const fromApi = asPositivePrice(match.listingPrice);
+      if (fromApi) {
+        return { ...match, listingPrice: fromApi, listingPriceSource: "listing" as const };
+      }
+      const url = match.dealerUrl;
+      if (!url || !/^https?:\/\//i.test(url)) {
+        return { ...match, listingPrice: null, listingPriceSource: "unconfirmed" as const };
+      }
+      try {
+        const scraped = fetchVdpPrice
+          ? await fetchVdpPrice(url)
+          : ((await extractVinFromDealerPage(url)).listingPrice ?? null);
+        const fromVdp = asPositivePrice(scraped);
+        if (fromVdp) {
+          return { ...match, listingPrice: fromVdp, listingPriceSource: "listing" as const };
+        }
+      } catch {
+        // 403 / timeout — sticker MSRP remains the display fallback
+      }
+      return { ...match, listingPrice: null, listingPriceSource: "unconfirmed" as const };
+    })
+  );
+}
+
 async function mapPool<T, R>(items: T[], limit: number, fn: (item: T) => Promise<R>): Promise<R[]> {
   const results: R[] = [];
   let i = 0;
@@ -505,6 +545,8 @@ export async function findSimilarFordVehicles(opts: {
   radiusMiles?: number;
   listings?: ListingCandidate[];
   fetchSticker?: (vin: string) => Promise<FordSticker>;
+  /** Optional VDP price fetch for tests; production uses extractVinFromDealerPage. */
+  fetchVdpPrice?: (url: string) => Promise<number | null>;
 }): Promise<FordSearchResult> {
   const zip = (opts.zip || "").trim();
   const radius = opts.radiusMiles;
@@ -653,7 +695,10 @@ export async function findSimilarFordVehicles(opts: {
     }
   });
 
-  const ranked = rankFordMatches(matches).slice(0, MAX_FORD_RECS);
+  const ranked = await enrichMatchListingPrices(
+    rankFordMatches(matches).slice(0, MAX_FORD_RECS),
+    opts.fetchVdpPrice
+  );
   if (ranked.length === 0) {
     note = composeEmptyHuntNote({
       zip,

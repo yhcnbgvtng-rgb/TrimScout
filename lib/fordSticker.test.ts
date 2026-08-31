@@ -371,4 +371,21 @@ describe("advertised listing price from VDP HTML", () => {
       globalThis.fetch = orig;
     }
   });
+
+  it("reads advertised sale price from any Ford VDP shape, not a hardcoded VIN or dollar amount", () => {
+    const f150 = `
+      <div>MSRP $52,140</div>
+      <script type="application/ld+json">{"@type":"Vehicle","vehicleIdentificationNumber":"1FTFW3L82RKF12345","offers":{"@type":"Offer","price":"48210"}}</script>
+    `;
+    assert.equal(extractAdvertisedListingPrice(f150), 48210);
+
+    const bronco = `
+      <span>MSRP $36,220</span>
+      <span>Our Price $34,900</span>
+    `;
+    assert.equal(extractAdvertisedListingPrice(bronco), 34900);
+
+    const namedDealer = `<span>MSRP $41,000</span><span>Westgate Price $38,250</span>`;
+    assert.equal(extractAdvertisedListingPrice(namedDealer), 38250);
+  });
 });

@@ -1043,7 +1043,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                           type="text"
                           value={dealerUrlInput}
                           onChange={(e) => setDealerUrlInput(e.target.value)}
-                          placeholder="1FMWK8JCXTGB47204"
+                          placeholder="17-character VIN or dealer listing URL"
                           className="w-full rounded-xl border border-border bg-background py-2.5 pl-10 pr-3 text-xs text-white placeholder-ink-faint focus:border-emerald-500 focus:outline-none font-mono"
                         />
                       </div>
