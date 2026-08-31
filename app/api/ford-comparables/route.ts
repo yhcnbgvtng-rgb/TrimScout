@@ -4,7 +4,7 @@ export const runtime = "nodejs";
 
 import { NextResponse } from "next/server";
 import { getFordSticker, isFordOrLincolnVin } from "@/lib/fordSticker";
-import { findSimilarFordVehicles, isUsableHuntLocation } from "@/lib/vinSearch";
+import { findSimilarFordVehicles, hasListingsApiKey, isUsableHuntLocation } from "@/lib/vinSearch";
 
 export async function POST(request: Request) {
   const body = await request.json().catch(() => ({}));
@@ -33,6 +33,7 @@ export async function POST(request: Request) {
       needsLocation: true,
       matches: [],
       dropped: [],
+      hasListingsKey: hasListingsApiKey(),
       note: "Enter a 5-digit ZIP and a search radius in miles to see two sticker-matched lots in range.",
     });
   }

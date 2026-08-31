@@ -9,6 +9,8 @@
  * Without a listings API key, demo comparables use bundled sticker fixtures
  * for the known Explorer Tremor example VINs (no live PDF round-trip, so the
  * hunt cannot hang). Other models get an empty result plus an Explorer-only note.
+ * If a listings key is configured, never fall back to that demo pool — return
+ * the live provider with empty listings and a short HTTP/error note instead.
  */
 
 import fs from "node:fs";
@@ -153,6 +155,8 @@ export interface FordSearchResult {
   stickersFetched: number;
   matches: FordMatchCard[];
   dropped: FordSearchDropped[];
+  /** True iff AUTO_DEV_API_KEY or MARKETCHECK_API_KEY is non-empty after trim. Boolean only. */
+  hasListingsKey: boolean;
 }
 
 export function isUsableHuntLocation(zip?: string, radiusMiles?: number): boolean {
@@ -320,6 +324,46 @@ function listingsProvider(): { provider: ListingsProvider; key: string | null } 
   return { provider: "demo", key: null };
 }
 
+/** True iff a listings API key is configured. Never returns key material. */
+export function hasListingsApiKey(): boolean {
+  return Boolean(serverSecret("AUTO_DEV_API_KEY") || serverSecret("MARKETCHECK_API_KEY"));
+}
+
+function huntResult(partial: Omit<FordSearchResult, "hasListingsKey">): FordSearchResult {
+  return { ...partial, hasListingsKey: hasListingsApiKey() };
+}
+
+function parseRetryAfterSeconds(header: string | null): number | null {
+  if (!header) return null;
+  const trimmed = header.trim();
+  if (!trimmed) return null;
+  if (/^\d+$/.test(trimmed)) {
+    const n = Number.parseInt(trimmed, 10);
+    return Number.isFinite(n) && n >= 0 ? n : null;
+  }
+  const when = Date.parse(trimmed);
+  if (Number.isNaN(when)) return null;
+  return Math.max(0, Math.ceil((when - Date.now()) / 1000));
+}
+
+function listingsHttpFailureNote(label: string, status: number, retryAfter: string | null): string {
+  const base = `${label} listings HTTP ${status}`;
+  if (status !== 429) return base;
+  const seconds = parseRetryAfterSeconds(retryAfter);
+  if (seconds != null) return `${base}. Rate limited; retry after ${seconds} seconds.`;
+  return `${base}. Rate limited; try again later.`;
+}
+
+/** Short error for the hunt note. Never includes Authorization or key material. */
+function shortListingsError(err: unknown, label: string): string {
+  const raw = err instanceof Error ? err.message : "unknown error";
+  const cleaned = raw.replace(/Bearer\s+\S+/gi, "Bearer [redacted]").replace(/\s+/g, " ").trim().slice(0, 180);
+  if (/HTTP \d+/.test(cleaned) || /parse error/i.test(cleaned) || /rate limited/i.test(cleaned)) {
+    return cleaned;
+  }
+  return `${label} listings failed`;
+}
+
 async function searchAutoDev(
   key: string,
   q: {
@@ -335,7 +379,6 @@ async function searchAutoDev(
   url.searchParams.set("vehicle.make", q.make);
   if (q.model) url.searchParams.set("vehicle.model", q.model);
   if (q.year) url.searchParams.set("vehicle.year", String(q.year));
-  if (q.trim) url.searchParams.set("vehicle.trim", q.trim);
   url.searchParams.set("zip", q.zip);
   url.searchParams.set("distance", String(q.radiusMiles));
   url.searchParams.set("retailListing.used", "false");
@@ -350,10 +393,21 @@ async function searchAutoDev(
     cache: "no-store",
   });
   if (!res.ok) {
-    throw new Error(`Auto.dev listings HTTP ${res.status}`);
+    throw new Error(listingsHttpFailureNote("Auto.dev", res.status, res.headers.get("Retry-After")));
   }
-  const json = await res.json();
-  const rows: unknown[] = Array.isArray(json?.data) ? json.data : Array.isArray(json) ? json : [];
+  let payload: unknown;
+  try {
+    payload = await res.json();
+  } catch {
+    throw new Error("Auto.dev listings parse error");
+  }
+  const rows: unknown[] = Array.isArray(payload)
+    ? payload
+    : payload &&
+        typeof payload === "object" &&
+        Array.isArray((payload as { data?: unknown }).data)
+      ? ((payload as { data: unknown[] }).data)
+      : [];
   const out: ListingCandidate[] = [];
   for (const row of rows) {
     const r = row as Record<string, unknown>;
@@ -405,9 +459,21 @@ async function searchMarketCheck(
   url.searchParams.set("rows", "50");
 
   const res = await fetch(url, { headers: { Accept: "application/json" }, cache: "no-store" });
-  if (!res.ok) throw new Error(`MarketCheck HTTP ${res.status}`);
-  const json = await res.json();
-  const rows: unknown[] = Array.isArray(json?.listings) ? json.listings : [];
+  if (!res.ok) {
+    throw new Error(listingsHttpFailureNote("MarketCheck", res.status, res.headers.get("Retry-After")));
+  }
+  let payload: unknown;
+  try {
+    payload = await res.json();
+  } catch {
+    throw new Error("MarketCheck listings parse error");
+  }
+  const rows: unknown[] =
+    payload &&
+    typeof payload === "object" &&
+    Array.isArray((payload as { listings?: unknown }).listings)
+      ? ((payload as { listings: unknown[] }).listings)
+      : [];
   const out: ListingCandidate[] = [];
   for (const row of rows) {
     const r = row as Record<string, unknown>;
@@ -442,7 +508,12 @@ export async function searchCoarseListings(q: {
   trim?: string;
   zip: string;
   radiusMiles: number;
-}): Promise<{ provider: ListingsProvider; listings: ListingCandidate[]; note: string }> {
+}): Promise<{
+  provider: ListingsProvider;
+  listings: ListingCandidate[];
+  note: string;
+  listingsError?: boolean;
+}> {
   const { provider, key } = listingsProvider();
   if (provider === "auto.dev" && key) {
     try {
@@ -453,20 +524,23 @@ export async function searchCoarseListings(q: {
         note: "Live listings from Auto.dev; factory options come only from the Ford window sticker.",
       };
     } catch (err) {
-      console.error("Auto.dev listings failed, falling back to demo comparables:", err);
+      const note = shortListingsError(err, "Auto.dev");
+      console.error("Auto.dev listings failed:", note);
+      return { provider: "auto.dev", listings: [], note, listingsError: true };
     }
   }
-  const marketcheckKey = serverSecret("MARKETCHECK_API_KEY");
-  if ((provider === "marketcheck" || provider === "auto.dev") && marketcheckKey) {
+  if (provider === "marketcheck" && key) {
     try {
-      const listings = await searchMarketCheck(marketcheckKey, q);
+      const listings = await searchMarketCheck(key, q);
       return {
         provider: "marketcheck",
         listings,
         note: "Live listings from MarketCheck; factory options come only from the Ford window sticker.",
       };
     } catch (err) {
-      console.error("MarketCheck listings failed, falling back to demo comparables:", err);
+      const note = shortListingsError(err, "MarketCheck");
+      console.error("MarketCheck listings failed:", note);
+      return { provider: "marketcheck", listings: [], note, listingsError: true };
     }
   }
   return {
@@ -553,7 +627,7 @@ export async function findSimilarFordVehicles(opts: {
   const zip = (opts.zip || "").trim();
   const radius = opts.radiusMiles;
   if (!isUsableHuntLocation(zip, radius)) {
-    return {
+    return huntResult({
       provider: "demo",
       note: "Enter a 5-digit ZIP and a search radius in miles to see two sticker-matched lots in range.",
       needsLocation: true,
@@ -561,7 +635,7 @@ export async function findSimilarFordVehicles(opts: {
       stickersFetched: 0,
       matches: [],
       dropped: [],
-    };
+    });
   }
   const radiusMiles = radius as number;
   const subject = opts.subject || (await getFordSticker(opts.subjectVin));
@@ -583,6 +657,18 @@ export async function findSimilarFordVehicles(opts: {
     provider = searched.provider;
     note = searched.note;
     listings = searched.listings;
+    if (searched.listingsError) {
+      return huntResult({
+        provider,
+        note,
+        originZip: zip,
+        radiusMiles,
+        candidatesConsidered: 0,
+        stickersFetched: 0,
+        matches: [],
+        dropped: [],
+      });
+    }
   } else {
     provider = "demo";
     note = "Using provided candidate list.";
@@ -591,7 +677,7 @@ export async function findSimilarFordVehicles(opts: {
   listings = (listings || []).filter((l) => listingMatchesSubjectModel(l, subject.model));
   if (listings.length === 0 && provider === "demo") {
     // Do not score Explorer demo VINs for a Bronco Sport (or any other model).
-    return {
+    return huntResult({
       provider: "demo",
       note: demoListingsNote(subject.model),
       originZip: zip,
@@ -600,7 +686,7 @@ export async function findSimilarFordVehicles(opts: {
       stickersFetched: 0,
       matches: [],
       dropped: [],
-    };
+    });
   }
 
   const fetchSticker =
@@ -713,7 +799,7 @@ export async function findSimilarFordVehicles(opts: {
     });
   }
 
-  return {
+  return huntResult({
     provider,
     note,
     originZip: zip,
@@ -722,7 +808,7 @@ export async function findSimilarFordVehicles(opts: {
     stickersFetched: capped.length,
     matches: ranked,
     dropped,
-  };
+  });
 }
 
 export function fordMatchToVehicle(match: FordMatchCard): Vehicle {

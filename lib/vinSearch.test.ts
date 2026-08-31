@@ -18,6 +18,7 @@ import {
   findSimilarFordVehicles,
   fordMatchToVehicle,
   formatListingPrice,
+  hasListingsApiKey,
   isUsableHuntLocation,
   rankFordMatches,
   searchCoarseListings,
@@ -495,6 +496,9 @@ describe("listings secrets are read from Node env, not webpack-stripped process.
       assert.doesNotMatch(src, /process\.env\.AUTO_DEV_API_KEY/);
       assert.doesNotMatch(src, /process\.env\.MARKETCHECK_API_KEY/);
     }
+    assert.doesNotMatch(vinSearchSrc, /searchParams\.set\(["']vehicle\.trim["']/);
+    assert.match(routeSrc, /hasListingsKey/);
+    assert.doesNotMatch(routeSrc, /NEXT_PUBLIC_/);
   });
 
   it("serverSecret reads AUTO_DEV_API_KEY from node:process env", () => {
@@ -517,7 +521,16 @@ describe("listings secrets are read from Node env, not webpack-stripped process.
     let autoDevCalls = 0;
     globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
       const url = String(input);
-      assert.match(url, /api\.auto\.dev\/listings/);
+      const parsed = new URL(url);
+      assert.equal(parsed.origin + parsed.pathname, "https://api.auto.dev/listings");
+      assert.equal(parsed.searchParams.get("vehicle.make"), "Ford");
+      assert.equal(parsed.searchParams.get("vehicle.model"), "F-150");
+      assert.equal(parsed.searchParams.get("vehicle.year"), "2026");
+      assert.equal(parsed.searchParams.get("zip"), "07405");
+      assert.equal(parsed.searchParams.get("distance"), "500");
+      assert.equal(parsed.searchParams.get("retailListing.used"), "false");
+      assert.equal(parsed.searchParams.get("includeUnpriced"), "true");
+      assert.equal(parsed.searchParams.has("vehicle.trim"), false);
       autoDevCalls += 1;
       const headers = new Headers(init?.headers);
       assert.equal(headers.get("Authorization"), "Bearer runtime-test-auto-dev");
@@ -528,13 +541,16 @@ describe("listings secrets are read from Node env, not webpack-stripped process.
     }) as typeof fetch;
     try {
       const result = await searchCoarseListings({
+        year: 2026,
         make: "Ford",
         model: "F-150",
+        trim: "Raptor R",
         zip: "07405",
         radiusMiles: 500,
       });
       assert.equal(result.provider, "auto.dev");
       assert.equal(autoDevCalls, 1);
+      assert.equal(hasListingsApiKey(), true);
       assert.match(result.note, /Auto\.dev/);
     } finally {
       globalThis.fetch = origFetch;
@@ -571,8 +587,130 @@ describe("listings secrets are read from Node env, not webpack-stripped process.
       });
       assert.equal(result.provider, "marketcheck");
       assert.equal(marketcheckCalls, 1);
+      assert.equal(hasListingsApiKey(), true);
     } finally {
       globalThis.fetch = origFetch;
+      if (prevA !== undefined) env["AUTO_DEV_API_KEY"] = prevA;
+      else delete env["AUTO_DEV_API_KEY"];
+      if (prevM !== undefined) env["MARKETCHECK_API_KEY"] = prevM;
+      else delete env["MARKETCHECK_API_KEY"];
+    }
+  });
+});
+
+describe("listings API failure never falls back to Explorer demo", () => {
+  it("hasListingsKey is true iff a listings key is configured (boolean only)", () => {
+    const prevA = env["AUTO_DEV_API_KEY"];
+    const prevM = env["MARKETCHECK_API_KEY"];
+    try {
+      delete env["AUTO_DEV_API_KEY"];
+      delete env["MARKETCHECK_API_KEY"];
+      assert.equal(hasListingsApiKey(), false);
+
+      env["AUTO_DEV_API_KEY"] = "runtime-test-auto-dev";
+      assert.equal(hasListingsApiKey(), true);
+
+      delete env["AUTO_DEV_API_KEY"];
+      env["MARKETCHECK_API_KEY"] = "runtime-test-marketcheck";
+      assert.equal(hasListingsApiKey(), true);
+
+      env["AUTO_DEV_API_KEY"] = "   ";
+      env["MARKETCHECK_API_KEY"] = "   ";
+      assert.equal(hasListingsApiKey(), false);
+    } finally {
+      if (prevA !== undefined) env["AUTO_DEV_API_KEY"] = prevA;
+      else delete env["AUTO_DEV_API_KEY"];
+      if (prevM !== undefined) env["MARKETCHECK_API_KEY"] = prevM;
+      else delete env["MARKETCHECK_API_KEY"];
+    }
+  });
+
+  it("Auto.dev HTTP 429 returns provider auto.dev, empty listings, and Retry-After seconds — not Explorer demo", async () => {
+    const prevA = env["AUTO_DEV_API_KEY"];
+    const prevM = env["MARKETCHECK_API_KEY"];
+    env["AUTO_DEV_API_KEY"] = "runtime-test-auto-dev";
+    env["MARKETCHECK_API_KEY"] = "runtime-test-marketcheck";
+    const origFetch = globalThis.fetch;
+    let autoDevCalls = 0;
+    globalThis.fetch = (async (input: RequestInfo | URL) => {
+      const url = String(input);
+      assert.match(url, /api\.auto\.dev\/listings/);
+      assert.doesNotMatch(url, /marketcheck/i);
+      assert.doesNotMatch(url, /vehicle\.trim=/);
+      autoDevCalls += 1;
+      return new Response(JSON.stringify({ error: "rate limited" }), {
+        status: 429,
+        headers: { "Content-Type": "application/json", "Retry-After": "30" },
+      });
+    }) as typeof fetch;
+    try {
+      const coarse = await searchCoarseListings({
+        year: 2026,
+        make: "Ford",
+        model: "F-150",
+        trim: "Raptor R",
+        zip: "07405",
+        radiusMiles: 500,
+      });
+      assert.equal(coarse.provider, "auto.dev");
+      assert.deepEqual(coarse.listings, []);
+      assert.equal(coarse.listingsError, true);
+      assert.match(coarse.note, /HTTP 429/);
+      assert.match(coarse.note, /30 seconds/);
+      assert.doesNotMatch(coarse.note, /Explorer Tremor only/i);
+      assert.doesNotMatch(coarse.note, /runtime-test-auto-dev/);
+      assert.doesNotMatch(coarse.note, /Bearer/i);
+      assert.equal(autoDevCalls, 1);
+
+      const bronco = parseFordStickerText(
+        "3FMCR9BN8TRE94740",
+        fs.readFileSync(path.join(FIXTURE_DIR, "3FMCR9BN8TRE94740.txt"), "utf8")
+      );
+      const hunt = await findSimilarFordVehicles({
+        subjectVin: bronco.vin,
+        subject: bronco,
+        mustHaveLines: [],
+        zip: "07405",
+        radiusMiles: 500,
+      });
+      assert.equal(hunt.provider, "auto.dev");
+      assert.equal(hunt.hasListingsKey, true);
+      assert.equal(hunt.matches.length, 0);
+      assert.equal(hunt.candidatesConsidered, 0);
+      assert.equal(hunt.stickersFetched, 0);
+      assert.match(hunt.note, /HTTP 429/);
+      assert.match(hunt.note, /30 seconds/);
+      assert.doesNotMatch(hunt.note, /Explorer Tremor only/i);
+      assert.doesNotMatch(hunt.note, /Demo listings/i);
+      assert.doesNotMatch(hunt.note, /runtime-test-auto-dev/);
+      assert.equal(autoDevCalls, 2, "one Auto.dev request per hunt, no retry loop");
+    } finally {
+      globalThis.fetch = origFetch;
+      if (prevA !== undefined) env["AUTO_DEV_API_KEY"] = prevA;
+      else delete env["AUTO_DEV_API_KEY"];
+      if (prevM !== undefined) env["MARKETCHECK_API_KEY"] = prevM;
+      else delete env["MARKETCHECK_API_KEY"];
+    }
+  });
+
+  it("findSimilarFordVehicles reports hasListingsKey false in demo when no listings key is set", async () => {
+    const prevA = env["AUTO_DEV_API_KEY"];
+    const prevM = env["MARKETCHECK_API_KEY"];
+    delete env["AUTO_DEV_API_KEY"];
+    delete env["MARKETCHECK_API_KEY"];
+    try {
+      assert.equal(hasListingsApiKey(), false);
+      const subject = parseFordStickerText(SUBJECT, loadFixture(SUBJECT));
+      const result = await findSimilarFordVehicles({
+        subjectVin: SUBJECT,
+        subject,
+        mustHaveLines: [],
+        zip: "07405",
+        radiusMiles: 500,
+      });
+      assert.equal(result.provider, "demo");
+      assert.equal(result.hasListingsKey, false);
+    } finally {
       if (prevA !== undefined) env["AUTO_DEV_API_KEY"] = prevA;
       else delete env["AUTO_DEV_API_KEY"];
       if (prevM !== undefined) env["MARKETCHECK_API_KEY"] = prevM;
