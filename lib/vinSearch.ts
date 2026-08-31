@@ -171,7 +171,7 @@ export const DEMO_COMPARABLE_LISTINGS: ListingCandidate[] = [
     zip: "15131",
     dealerUrl:
       "https://www.jimshorkey.com/new-Pittsburgh-2026-Ford-Explorer-Tremor+Ultimate+Package-1FMWK8JC7TGB81309",
-    listingPrice: null,
+    listingPrice: 58372,
     lat: 40.341,
     lng: -79.807,
     exteriorColor: "Star White",
@@ -284,7 +284,7 @@ async function fetchStickerPreferDemoFixture(vin: string): Promise<FordSticker> 
 }
 
 export function formatListingPrice(amount: number | null | undefined): string {
-  if (amount == null || amount <= 0) return "call dealer";
+  if (amount == null || amount <= 0) return "unconfirmed";
   return new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
@@ -718,7 +718,11 @@ export function fordMatchToVehicle(match: FordMatchCard): Vehicle {
   };
 }
 
-export function stickerToVehicle(sticker: FordSticker, listingUrl?: string | null): Vehicle {
+export function stickerToVehicle(
+  sticker: FordSticker,
+  listingUrl?: string | null,
+  listingPrice?: number | null
+): Vehicle {
   return {
     id: `ford-${sticker.vin}`,
     vin: sticker.vin,
@@ -733,7 +737,7 @@ export function stickerToVehicle(sticker: FordSticker, listingUrl?: string | nul
     exteriorColor: sticker.exteriorColor || "",
     interiorColor: sticker.interiorColor || "",
     msrp: sticker.msrp || 0,
-    dealerPrice: 0,
+    dealerPrice: listingPrice && listingPrice > 0 ? listingPrice : 0,
     daysOnLot: 0,
     status: "on_lot",
     condition: "new",

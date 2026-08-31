@@ -4,20 +4,23 @@ import path from "node:path";
 import { describe, it } from "node:test";
 import { getFordSticker, parseFordStickerText } from "./fordSticker";
 import {
+  FORD_COMPETITION_LOADING,
+  FORD_COMPETITION_NEED_LOCATION,
+  advertisedOrStickerPrice,
+  autoFillCompetitionSlots,
+  fordCompetitionEmptyCopy,
+  formatPriceAmount,
+} from "./fordCompetitionUi";
+import {
   DEMO_COMPARABLE_LISTINGS,
   findSimilarFordVehicles,
   fordMatchToVehicle,
+  formatListingPrice,
   isUsableHuntLocation,
   rankFordMatches,
   stickerFromDemoFixture,
   type FordMatchCard,
 } from "./vinSearch";
-import {
-  FORD_COMPETITION_LOADING,
-  FORD_COMPETITION_NEED_LOCATION,
-  autoFillCompetitionSlots,
-  fordCompetitionEmptyCopy,
-} from "./fordCompetitionUi";
 
 const FIXTURE_DIR = path.join(import.meta.dirname, "testdata", "ford-stickers");
 const SUBJECT = "1FMWK8JCXTGB47204";
@@ -331,7 +334,7 @@ describe("Increase Competition slots are the hunt result", () => {
       const result = await findSimilarFordVehicles({
         subjectVin: SUBJECT,
         subject,
-        mustHaveLines: ["Ultimate Package", "Keyless Entry Keypad"],
+        mustHaveLines: [],
         zip: "07405",
         radiusMiles: 500,
       });
@@ -344,6 +347,8 @@ describe("Increase Competition slots are the hunt result", () => {
       assert.equal(first?.dealerUrl, null);
       assert.match(first!.dealerName, /Battlefield/i);
       assert.match(second!.dealerName, /Shorkey/i);
+      assert.equal(second?.listingPrice, 58372);
+      assert.equal(second?.listingPriceSource, "listing");
     } finally {
       if (prevA !== undefined) process.env.AUTO_DEV_API_KEY = prevA;
       else delete process.env.AUTO_DEV_API_KEY;
@@ -384,11 +389,22 @@ describe("Increase Competition slots are the hunt result", () => {
       });
       assert.equal(copy?.kind, "empty");
       assert.match(copy!.message, /Explorer Tremor only/i);
+      assert.equal(copy!.message, result.note);
     } finally {
       if (prevA !== undefined) process.env.AUTO_DEV_API_KEY = prevA;
       else delete process.env.AUTO_DEV_API_KEY;
       if (prevM !== undefined) process.env.MARKETCHECK_API_KEY = prevM;
       else delete process.env.MARKETCHECK_API_KEY;
     }
+  });
+});
+
+describe("price display never says call dealer", () => {
+  it("listing wins over sticker; missing listing falls back to MSRP", () => {
+    assert.equal(formatListingPrice(null), "unconfirmed");
+    assert.doesNotMatch(formatListingPrice(null), /call dealer/i);
+    assert.deepEqual(advertisedOrStickerPrice(null, 64705), { amount: 64705, source: "sticker" });
+    assert.deepEqual(advertisedOrStickerPrice(58372, 65500), { amount: 58372, source: "listing" });
+    assert.match(formatPriceAmount(64705), /64,705/);
   });
 });

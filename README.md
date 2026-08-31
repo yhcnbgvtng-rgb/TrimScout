@@ -23,7 +23,7 @@ This lives **inside Launch Dealership Bidding Hunt** (`components/BiddingWizard.
 4. Enter **your ZIP** and **search radius in miles** next to that box (placeholders like `07405` / `100` are examples only — fields stay empty until you type). Those values are required before suggestions run. They are never hardcoded and never silently defaulted to 100.
 5. TrimScout fetches the official Ford Direct PDF (server-side, no account):
    `https://www.windowsticker.forddirect.com/windowsticker.pdf?vin={VIN}`
-6. Factory options come from that sticker as **checkboxes** (not mock package lists). **Ultimate Package** and **Keyless Entry Keypad** are pre-checked when those lines exist. Exterior (and interior, if parsed) color is listed and **off by default**. Standard `KEYLESS ENTRY W/PUSH START` is never a filter. Toggling must-haves re-runs the hunt when ZIP + radius are set.
+6. Factory options come from that sticker as **checkboxes** (not mock package lists). **Every box starts unchecked** — Ultimate Package and keypad are examples of filters, not defaults. Exterior (and interior, if parsed) color is listed. Standard `KEYLESS ENTRY W/PUSH START` is never a filter even if the user ticks other lines. Toggling must-haves re-runs the hunt when ZIP + radius are set. Empty ticks = same model in radius, no option filter.
 7. After paste **and** zip+radius, the **Increase Competition** slots **are** the two nearest sticker-confirmed similar lots **within your radius of your ZIP** that have **every ticked must-have** on their Ford sticker (including color if ticked). No extra “Fill both slots” click. Each card shows dealer, VIN, and miles-from-your-ZIP even when the lot has no dealer URL. Distance from your ZIP decides the two slots — not price or optional overlap. Lots outside the radius or missing a must-have are dropped — we do not pad. If ZIP/radius are missing, the hunt is in flight, nothing is in range, demo inventory is Explorer-only (e.g. a Bronco Sport), or the search errors, **that block shows one clear reason** instead of empty paste boxes. Demo Explorer lots are not applied to a Bronco Sport (or any other model).
 
 Worked example must-haves: Ultimate Package **and** Keyless Entry Keypad. Distance is from the **user ZIP**, not the subject dealer ZIP.
@@ -42,7 +42,7 @@ Worked example must-haves: Ultimate Package **and** Keyless Entry Keypad. Distan
 - `KEYLESS ENTRY W/PUSH START` is **standard**. It is never a must-have filter. User “keyless entry” means the $455 door-pillar **Keyless Entry Keypad**.
 - Must-have = hard filter on sticker text. Nice-to-have = overlap score, then lower price, then closer.
 - Placeholder PDFs (“The window sticker has not yet been released”) are `unreleased`. Dealer ad copy is never proof.
-- Every price/option is labeled `sticker`, `listing`, or `unconfirmed`. Missing listing price → **call dealer**. Prices are never invented.
+- Every price/option is labeled `sticker`, `listing`, or `unconfirmed`. Advertised dealer selling price (listing) wins when parsed from the VDP. Otherwise show Ford sticker TOTAL MSRP. Never invent a number and never print **call dealer**.
 
 ### What works without listings API keys
 

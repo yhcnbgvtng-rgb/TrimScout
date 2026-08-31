@@ -11,6 +11,7 @@ import {
   exteriorColorMustHaveName,
   extractVin,
   extractVinFromDealerPage,
+  extractAdvertisedListingPrice,
   filterableFactoryOptions,
   getFordSticker,
   isFordOrLincolnVin,
@@ -155,7 +156,7 @@ describe("Ford sticker parse — subject 1FMWK8JCXTGB47204", () => {
     assert.match(sticker.engine || "", /3\.0L/i);
     assert.equal(stickerHasMustHave(sticker, "Ultimate Package"), true);
     assert.equal(stickerHasMustHave(sticker, "Keyless Entry Keypad"), true);
-    assert.deepEqual(defaultMustHaveLines(sticker), ["Ultimate Package", "Keyless Entry Keypad"]);
+    assert.deepEqual(defaultMustHaveLines(sticker), []);
   });
 
   it("parses sticker MSRP $64,705 and sold-to Butler NJ", () => {
@@ -241,18 +242,17 @@ describe("Ford sticker parse — 2026 Bronco Sport Big Bend 3FMCR9BN8TRE94740", 
   });
 });
 
-describe("must-have color vs Explorer Ultimate + keypad defaults", () => {
-  it("Explorer defaults Ultimate + keypad and does not default color", () => {
+describe("must-have checkboxes start unchecked", () => {
+  it("Explorer does not default Ultimate, keypad, or color", () => {
     const s = parseFordStickerText(SUBJECT, loadFixture(SUBJECT));
-    assert.deepEqual(defaultMustHaveLines(s), ["Ultimate Package", "Keyless Entry Keypad"]);
+    assert.deepEqual(defaultMustHaveLines(s), []);
     const names = filterableFactoryOptions(s).map((o) => o.name);
+    assert.ok(names.includes("Ultimate Package"));
+    assert.ok(names.includes("Keyless Entry Keypad"));
     assert.ok(names.some((n) => /^Exterior color:/i.test(n)));
     assert.ok(!defaultMustHaveLines(s).some((n) => /exterior color/i.test(n)));
-    assert.equal(
-      stickerHasMustHave(s, ["Ultimate Package", "Keyless Entry Keypad"][0]) &&
-        stickerHasMustHave(s, "Keyless Entry Keypad"),
-      true
-    );
+    assert.equal(stickerHasMustHave(s, "Ultimate Package"), true);
+    assert.equal(stickerHasMustHave(s, "Keyless Entry Keypad"), true);
   });
 });
 
@@ -276,5 +276,25 @@ describe("live Ford Direct confirmFordMustHaves (network)", () => {
     assert.equal(s.model, "Bronco Sport");
     assert.equal(s.trim, "Big Bend");
     assert.equal(s.msrp, 36220);
+  });
+});
+
+describe("advertised listing price from VDP HTML", () => {
+  it("prefers internet/sale price over MSRP and never invents a number", () => {
+    const html = `
+      <div>MSRP $64,705</div>
+      <div>Internet Price $60,294</div>
+      <script type="application/ld+json">{"@type":"Vehicle","offers":{"@type":"Offer","price":"60294"}}</script>
+    `;
+    assert.equal(extractAdvertisedListingPrice(html), 60294);
+  });
+
+  it("reads Shorkey Price below MSRP", () => {
+    const html = `<span>MSRP $65,500</span><span>Shorkey Price $58,372</span>`;
+    assert.equal(extractAdvertisedListingPrice(html), 58372);
+  });
+
+  it("returns null when only MSRP is on the page", () => {
+    assert.equal(extractAdvertisedListingPrice(`<div>MSRP $64,705</div>`), null);
   });
 });

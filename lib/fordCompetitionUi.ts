@@ -33,14 +33,33 @@ export function fordCompetitionEmptyCopy(opts: {
   if (opts.error) {
     return { kind: "error", message: opts.error };
   }
-  let message = (opts.note || "").trim() || "No sticker-confirmed lots in range.";
-  if (opts.droppedCount && opts.droppedCount > 0 && !/dropped/i.test(message)) {
-    message += ` ${opts.droppedCount} candidates dropped.`;
-  }
+  const message = (opts.note || "").trim() || "No sticker-confirmed lots in range.";
   return { kind: "empty", message };
 }
 
-/** The two Increase Competition slots ARE the hunt result: nearest first, no extra click. */
+/** Prefer advertised listing price; else sticker MSRP. Never "call dealer". */
+export function advertisedOrStickerPrice(
+  listingPrice: number | null | undefined,
+  msrp: number | null | undefined
+): { amount: number | null; source: "listing" | "sticker" | "unconfirmed" } {
+  if (typeof listingPrice === "number" && Number.isFinite(listingPrice) && listingPrice > 0) {
+    return { amount: listingPrice, source: "listing" };
+  }
+  if (typeof msrp === "number" && Number.isFinite(msrp) && msrp > 0) {
+    return { amount: msrp, source: "sticker" };
+  }
+  return { amount: null, source: "unconfirmed" };
+}
+
+export function formatPriceAmount(amount: number | null | undefined): string {
+  if (amount == null || amount <= 0) return "unconfirmed";
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0,
+  }).format(amount);
+}
+
 export function autoFillCompetitionSlots<T>(matches: T[]): [T | null, T | null] {
   return [matches[0] ?? null, matches[1] ?? null];
 }

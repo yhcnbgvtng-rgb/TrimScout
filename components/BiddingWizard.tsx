@@ -9,8 +9,10 @@ import { decodeVin, SAMPLE_TEST_VINS, DecodedVehicle } from "../lib/vinDecoder";
 import {
   FORD_COMPETITION_LOADING,
   FORD_COMPETITION_NEED_LOCATION,
+  advertisedOrStickerPrice,
   autoFillCompetitionSlots,
   fordCompetitionEmptyCopy,
+  formatPriceAmount,
 } from "../lib/fordCompetitionUi";
 import {
   X,
@@ -65,14 +67,8 @@ interface FordSuggestionCard {
   matchedNiceToHaves: string[];
 }
 
-function formatListingPrice(amount: number | null | undefined): string {
-  if (amount == null || amount <= 0) return "call dealer";
-  return formatCurrency(amount);
-}
-
 function formatStickerMsrp(amount: number | null | undefined): string {
-  if (amount == null || amount <= 0) return "unconfirmed";
-  return formatCurrency(amount);
+  return formatPriceAmount(amount);
 }
 
 function milesFromUserZip(miles: number | null | undefined, zip: string): string | null {
@@ -403,14 +399,14 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
         const json = await res.json().catch(() => ({}));
         if (cancelled) return;
         if (!res.ok || json.error) {
-          setFordSuggestions([]);
-          setFordSearchNote(null);
-          setFordDroppedCount(0);
-          setFordHuntError(
+          const message =
             typeof json.error === "string" && json.error.trim()
               ? json.error
-              : `Could not load similar lots (${res.status || "network error"}).`
-          );
+              : `Could not load similar lots (${res.status || "network error"}).`;
+          setFordSuggestions([]);
+          setFordDroppedCount(0);
+          setFordHuntError(message);
+          setFordSearchNote(message);
           return;
         }
         setFordHuntError(null);
@@ -420,10 +416,11 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
       })
       .catch((err: unknown) => {
         if (cancelled) return;
+        const message = err instanceof Error ? err.message : "Could not load similar lots.";
         setFordSuggestions([]);
-        setFordSearchNote(null);
         setFordDroppedCount(0);
-        setFordHuntError(err instanceof Error ? err.message : "Could not load similar lots.");
+        setFordHuntError(message);
+        setFordSearchNote(message);
       })
       .finally(() => {
         if (!cancelled) setIsLoadingFordSuggestions(false);
@@ -1193,27 +1190,35 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                               </span>
                             ))}
                           </div>
-                          {fordStickerStatus === "released" && (
-                            <p className="text-[10px] text-ink-faint pt-1">
-                              Glossary: Keyless (fob) is standard. Keypad is $455. KEYLESS ENTRY W/PUSH START is not a filter.
-                            </p>
-                          )}
                         </div>
 
                         <div className="sm:text-right shrink-0 space-y-1">
                           <div>
-                            <div className="text-[11px] text-ink-muted">
-                              MSRP {formatStickerMsrp(selectedVehicle.msrp || null)}{" "}
-                              <span className="uppercase text-[9px] text-ink-faint">
-                                {selectedVehicle.msrp ? "sticker" : "unconfirmed"}
-                              </span>
-                            </div>
-                            <div className="text-base font-black text-white">
-                              {formatListingPrice(selectedVehicle.dealerPrice || null)}{" "}
-                              <span className="uppercase text-[9px] font-bold text-ink-faint">
-                                {selectedVehicle.dealerPrice ? "listing" : "unconfirmed"}
-                              </span>
-                            </div>
+                            {(() => {
+                              const shown = advertisedOrStickerPrice(
+                                selectedVehicle.dealerPrice,
+                                selectedVehicle.msrp
+                              );
+                              const hasListing =
+                                typeof selectedVehicle.dealerPrice === "number" &&
+                                selectedVehicle.dealerPrice > 0;
+                              return (
+                                <>
+                                  {hasListing && selectedVehicle.msrp > 0 && (
+                                    <div className="text-[11px] text-ink-muted">
+                                      MSRP {formatStickerMsrp(selectedVehicle.msrp)}{" "}
+                                      <span className="uppercase text-[9px] text-ink-faint">sticker</span>
+                                    </div>
+                                  )}
+                                  <div className="text-base font-black text-white">
+                                    {formatPriceAmount(shown.amount)}{" "}
+                                    <span className="uppercase text-[9px] font-bold text-ink-faint">
+                                      {shown.source}
+                                    </span>
+                                  </div>
+                                </>
+                              );
+                            })()}
                           </div>
                           <button
                             type="button"
@@ -1305,7 +1310,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                         Must-have factory options
                       </h4>
                       <p className="text-[11px] text-ink-muted">
-                        From this Ford window sticker. Comparables must have every ticked line on their own released sticker — including color if you tick it. Color is off by default. Keyless fob (push start) is standard and is not listed.
+                        From this Ford window sticker. Every box starts unchecked. Comparables must have every ticked line on their own released sticker — including color if you tick it.
                       </p>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 max-h-56 overflow-y-auto pr-1">
                         {fordFilterableOptions.map((opt) => {
@@ -1425,6 +1430,14 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                                         {milesFromUserZip(matchedVehicle.location.distanceMiles, huntZip)
                                           ? ` · ${milesFromUserZip(matchedVehicle.location.distanceMiles, huntZip)}`
                                           : ""}
+                                        {" · "}
+                                        {(() => {
+                                          const shown = advertisedOrStickerPrice(
+                                            matchedVehicle.dealerPrice,
+                                            matchedVehicle.msrp
+                                          );
+                                          return `${formatPriceAmount(shown.amount)} ${shown.source}`;
+                                        })()}
                                         {" · "}
                                         <span className="font-mono">{matchedVehicle.vin}</span>
                                       </span>

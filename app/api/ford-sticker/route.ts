@@ -88,11 +88,14 @@ async function lookup(opts: { vin?: string; paste?: string; pasteUrl: string | n
       opts.pasteUrl && /^https?:\/\//i.test(opts.pasteUrl) ? opts.pasteUrl.trim() : null;
     const mustHaveLines = defaultMustHaveLines(sticker);
     const niceToHaveLines = defaultNiceToHaveLines(sticker, mustHaveLines);
+    const listingPrice = resolved.listingPrice && resolved.listingPrice > 0 ? resolved.listingPrice : null;
     return NextResponse.json({
       handled: true,
       vin,
       sticker,
-      vehicle: sticker.status === "released" ? stickerToVehicle(sticker, listingUrl) : null,
+      vehicle:
+        sticker.status === "released" ? stickerToVehicle(sticker, listingUrl, listingPrice) : null,
+      listingPrice,
       mustHaveLines,
       niceToHaveLines,
       filterableOptions: filterableFactoryOptions(sticker).map((o) => ({

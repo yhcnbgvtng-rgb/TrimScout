@@ -708,15 +708,8 @@ export function stickerColorOptionLines(sticker: FordSticker): FordOptionLine[] 
   return lines;
 }
 
-export function defaultMustHaveLines(sticker: FordSticker): string[] {
-  const lines: string[] = [];
-  if (sticker.options.some((o) => !o.isStandard && isUltimateLine(o.name))) {
-    lines.push("Ultimate Package");
-  }
-  if (sticker.options.some((o) => !o.isStandard && isKeypadLine(o.name))) {
-    lines.push("Keyless Entry Keypad");
-  }
-  return lines;
+export function defaultMustHaveLines(_sticker?: FordSticker): string[] {
+  return [];
 }
 
 export function defaultNiceToHaveLines(sticker: FordSticker, mustHaves: string[]): string[] {
@@ -843,17 +836,100 @@ export type DealerPageVinResult = {
   vin: string | null;
   blocked: boolean;
   httpStatus?: number;
+  listingPrice?: number | null;
 };
 
 export type PasteVinResolution = {
   vin: string | null;
   dealerBlocked: boolean;
   source: "paste" | "dealer_page" | "none";
+  listingPrice?: number | null;
 };
 
+function asVehiclePrice(n: number): number | null {
+  if (!Number.isFinite(n) || n < 8000 || n > 250000) return null;
+  return Math.round(n);
+}
+
+function parseUsdAmount(raw: string): number | null {
+  const n = Number.parseFloat(String(raw).replace(/[$,]/g, ""));
+  return asVehiclePrice(n);
+}
+
+function collectJsonLdOffers(html: string): { listing: number[]; msrp: number[] } {
+  const listing: number[] = [];
+  const msrp: number[] = [];
+  const scripts = html.match(/<script[^>]*type=["']application\/ld\+json["'][^>]*>[\s\S]*?<\/script>/gi) || [];
+  const visit = (node: unknown) => {
+    if (!node) return;
+    if (Array.isArray(node)) {
+      node.forEach(visit);
+      return;
+    }
+    if (typeof node !== "object") return;
+    const obj = node as Record<string, unknown>;
+    const types = [obj["@type"], obj.type]
+      .flatMap((t) => (Array.isArray(t) ? t : [t]))
+      .map((t) => String(t || "").toLowerCase());
+    const isOffer = types.some((t) => t.includes("offer"));
+    const rawPrice = obj.price;
+    const price =
+      typeof rawPrice === "number" ? asVehiclePrice(rawPrice) : typeof rawPrice === "string" ? parseUsdAmount(rawPrice) : null;
+    if (isOffer && price) listing.push(price);
+    const rawMsrp = obj.msrp;
+    const msrpVal =
+      typeof rawMsrp === "number" ? asVehiclePrice(rawMsrp) : typeof rawMsrp === "string" ? parseUsdAmount(rawMsrp) : null;
+    if (msrpVal) msrp.push(msrpVal);
+    if (obj.offers) visit(obj.offers);
+    for (const v of Object.values(obj)) {
+      if (v && typeof v === "object") visit(v);
+    }
+  };
+  for (const block of scripts) {
+    const jsonText = block.replace(/^<script[^>]*>/i, "").replace(/<\/script>$/i, "");
+    try {
+      visit(JSON.parse(jsonText));
+    } catch {
+      /* ignore malformed JSON-LD */
+    }
+  }
+  return { listing, msrp };
+}
+
 /**
- * Fetch a user-pasted dealer VDP once to pull a VIN out of the HTML.
- * Not a warehouse crawl — one URL the user just handed us.
+ * Advertised dealer selling price from a pasted VDP. Never returns sticker MSRP
+ * when a lower internet/sale/our/your price is present. Returns null if we
+ * only see MSRP — the UI then shows sticker TOTAL MSRP separately.
+ */
+export function extractAdvertisedListingPrice(html: string): number | null {
+  if (!html) return null;
+  const labeled: number[] = [];
+  const labeledRe =
+    /(?:internet|sale|our|your|shorkey|dealer)\s*price[^$0-9]{0,80}\$?\s*([0-9]{1,3}(?:,[0-9]{3})+(?:\.[0-9]{2})?)/gi;
+  let m: RegExpExecArray | null;
+  while ((m = labeledRe.exec(html)) !== null) {
+    const n = parseUsdAmount(m[1]);
+    if (n) labeled.push(n);
+  }
+  const jsonLd = collectJsonLdOffers(html);
+  const msrpLabeled: number[] = [];
+  const msrpRe = /msrp[^$0-9]{0,80}\$?\s*([0-9]{1,3}(?:,[0-9]{3})+(?:\.[0-9]{2})?)/gi;
+  while ((m = msrpRe.exec(html)) !== null) {
+    const n = parseUsdAmount(m[1]);
+    if (n) msrpLabeled.push(n);
+  }
+  const advertised = [...labeled, ...jsonLd.listing];
+  const msrpSet = new Set([...msrpLabeled, ...jsonLd.msrp]);
+  const nonMsrp = advertised.filter((p) => !msrpSet.has(p));
+  if (nonMsrp.length > 0) return Math.min(...nonMsrp);
+  if (advertised.length > 0) return advertised[0];
+  return null;
+}
+
+/**
+ * Fetch a user-pasted dealer VDP once to pull a VIN (and advertised price)
+ * out of the HTML. Not a warehouse crawl — one URL the user just handed us.
+ * If the dealer 403s but HTML is still returned, we still parse VIN/price.
  */
 export async function extractVinFromDealerPage(url: string): Promise<DealerPageVinResult> {
   try {
@@ -867,11 +943,12 @@ export async function extractVinFromDealerPage(url: string): Promise<DealerPageV
       signal: AbortSignal.timeout(8000),
     });
     const html = await res.text().catch(() => "");
+    const listingPrice = extractAdvertisedListingPrice(html);
+    const vin = extractVin(html);
     const denied = /access denied|akamai|errors\.edgesuite|reference\s+#/i.test(html);
-    if (!res.ok || denied) {
-      return { vin: null, blocked: true, httpStatus: res.status };
-    }
-    return { vin: extractVin(html), blocked: false, httpStatus: res.status };
+    if (vin) return { vin, blocked: false, httpStatus: res.status, listingPrice };
+    if (!res.ok || denied) return { vin: null, blocked: true, httpStatus: res.status, listingPrice };
+    return { vin: null, blocked: false, httpStatus: res.status, listingPrice };
   } catch {
     return { vin: null, blocked: true };
   }
@@ -884,17 +961,33 @@ export async function resolveVinFromPaste(paste: string): Promise<string | null>
 
 export async function resolvePasteVin(paste: string): Promise<PasteVinResolution> {
   const direct = extractVin(paste);
-  if (direct) {
-    if (looksLikeFordOrLincolnPaste(paste) && !isFordOrLincolnVin(direct) && looksLikeUrl(paste)) {
-      // Hash/AWS-shaped token in the URL is not the vehicle. Fetch the page.
-    } else {
-      return { vin: direct, dealerBlocked: false, source: "paste" };
-    }
-  }
   if (looksLikeUrl(paste)) {
     const page = await extractVinFromDealerPage(paste.trim());
-    if (page.vin) return { vin: page.vin, dealerBlocked: false, source: "dealer_page" };
-    return { vin: null, dealerBlocked: page.blocked, source: "none" };
+    let vin = page.vin;
+    if (!vin && direct) {
+      if (looksLikeFordOrLincolnPaste(paste) && !isFordOrLincolnVin(direct)) {
+        vin = null;
+      } else {
+        vin = direct;
+      }
+    }
+    if (vin) {
+      return {
+        vin,
+        dealerBlocked: false,
+        source: page.vin ? "dealer_page" : "paste",
+        listingPrice: page.listingPrice ?? null,
+      };
+    }
+    return {
+      vin: null,
+      dealerBlocked: page.blocked,
+      source: "none",
+      listingPrice: page.listingPrice ?? null,
+    };
   }
-  return { vin: null, dealerBlocked: false, source: "none" };
+  if (direct) {
+    return { vin: direct, dealerBlocked: false, source: "paste", listingPrice: null };
+  }
+  return { vin: null, dealerBlocked: false, source: "none", listingPrice: null };
 }
