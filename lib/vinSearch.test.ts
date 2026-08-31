@@ -405,6 +405,10 @@ describe("price display never says call dealer", () => {
     assert.doesNotMatch(formatListingPrice(null), /call dealer/i);
     assert.deepEqual(advertisedOrStickerPrice(null, 64705), { amount: 64705, source: "sticker" });
     assert.deepEqual(advertisedOrStickerPrice(58372, 65500), { amount: 58372, source: "listing" });
+    assert.deepEqual(advertisedOrStickerPrice(60294, 64705), { amount: 60294, source: "listing" });
+    assert.match(formatPriceAmount(60294), /60,294/);
     assert.match(formatPriceAmount(64705), /64,705/);
+    assert.doesNotMatch(formatPriceAmount(null), /call dealer/i);
+    assert.doesNotMatch(formatPriceAmount(0), /call dealer/i);
   });
 });

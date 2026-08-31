@@ -111,6 +111,7 @@ describe("VIN extract / Ford identity", () => {
       assert.equal(page.vin, null);
       assert.equal(page.blocked, true);
       assert.equal(page.httpStatus, 403);
+      assert.equal(page.listingPrice ?? null, null);
     } finally {
       globalThis.fetch = orig;
     }
@@ -280,6 +281,8 @@ describe("live Ford Direct confirmFordMustHaves (network)", () => {
 });
 
 describe("advertised listing price from VDP HTML", () => {
+  const DEALER_PAGE_DIR = path.join(import.meta.dirname, "testdata", "dealer-pages");
+
   it("prefers internet/sale price over MSRP and never invents a number", () => {
     const html = `
       <div>MSRP $64,705</div>
@@ -318,5 +321,54 @@ describe("advertised listing price from VDP HTML", () => {
     `;
     assert.equal(extractAdvertisedListingPrice(feesOnly), null);
     assert.equal(extractAdvertisedListingPrice(`<div>MSRP $64,705</div>`), null);
+  });
+
+  it("reads 23ford Dealer.com JSON-LD 60294 and ignores internetPrice 64794 / salePrice 62499", () => {
+    const html = fs.readFileSync(path.join(DEALER_PAGE_DIR, "23ford-explorer-47204.html"), "utf8");
+    assert.equal(extractVin(html), SUBJECT);
+    assert.equal(extractAdvertisedListingPrice(html), 60294);
+  });
+
+  it("does not treat Dealer.com typeClass internetPrice as Sale Price", () => {
+    const html = `
+      <div>MSRP¹ $64,705</div>
+      {"label":"Price","type":"TOTAL","typeClass":"internetPrice","value":"$64,794"}
+      "internetPrice": "64794",
+      "salePrice": "62499"
+    `;
+    assert.equal(extractAdvertisedListingPrice(html), null);
+  });
+
+  it("falls back to the Dealer.com headline when JSON-LD is the fee-inclusive Price", () => {
+    const html = `
+      <div class="price-summary">
+        <span class="price-summary__starting-price-value">$64,705</span>
+        <span class="price-summary__final-price-value">60,294</span>
+        <span class="price-summary__final-price-label">Sale Price**</span>
+      </div>
+      <script type="application/ld+json">{"@type":"Vehicle","offers":{"@type":"Offer","price":"64794"}}</script>
+    `;
+    assert.equal(extractAdvertisedListingPrice(html), 60294);
+  });
+
+  it("returns no listing price on empty or Akamai-denied HTML", () => {
+    assert.equal(extractAdvertisedListingPrice(""), null);
+    assert.equal(extractAdvertisedListingPrice("Access Denied\nReference #18.abc"), null);
+  });
+
+  it("parses VIN and Sale Price from a fetched 23ford hash URL", async () => {
+    const html = fs.readFileSync(path.join(DEALER_PAGE_DIR, "23ford-explorer-47204.html"), "utf8");
+    const orig = globalThis.fetch;
+    globalThis.fetch = (async () => new Response(html, { status: 200 })) as typeof fetch;
+    try {
+      const page = await extractVinFromDealerPage(
+        "https://www.23ford.com/new/Ford/2026-Ford-Explorer-0cfbeebbac183eb725aa528a13fcbb21.htm"
+      );
+      assert.equal(page.blocked, false);
+      assert.equal(page.vin, SUBJECT);
+      assert.equal(page.listingPrice, 60294);
+    } finally {
+      globalThis.fetch = orig;
+    }
   });
 });

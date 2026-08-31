@@ -897,35 +897,86 @@ function collectJsonLdOffers(html: string): { listing: number[]; msrp: number[] 
   return { listing, msrp };
 }
 
+const COMMA_USD_RE = /\$?\s*([0-9]{1,3}(?:,[0-9]{3})+(?:\.[0-9]{2})?)/;
+const MSRP_FEE_SLACK = 500;
+
+function collectRegexAmounts(html: string, re: RegExp): number[] {
+  const out: number[] = [];
+  let m: RegExpExecArray | null;
+  const copy = new RegExp(re.source, re.flags.includes("g") ? re.flags : `${re.flags}g`);
+  while ((m = copy.exec(html)) !== null) {
+    const n = parseUsdAmount(m[1]);
+    if (n) out.push(n);
+  }
+  return out;
+}
+
+function pageMsrpFloor(html: string, jsonLdMsrp: number[]): number | null {
+  const labeled = collectRegexAmounts(
+    html,
+    /msrp[^$0-9]{0,80}\$?\s*([0-9]{1,3}(?:,[0-9]{3})+(?:\.[0-9]{2})?)/gi
+  );
+  const starting = collectRegexAmounts(
+    html,
+    /price-summary__starting-price-value[^>]*>\s*\$?\s*([0-9]{1,3}(?:,[0-9]{3})+)/gi
+  );
+  const all = [...labeled, ...starting, ...jsonLdMsrp];
+  return all.length > 0 ? Math.min(...all) : null;
+}
+
+function belowMsrpFees(price: number, msrpFloor: number | null): boolean {
+  if (msrpFloor == null) return true;
+  return price <= msrpFloor - MSRP_FEE_SLACK;
+}
+
+function pickDiscounted(prices: number[], msrpFloor: number | null): number | null {
+  const ok = prices.filter((p) => belowMsrpFees(p, msrpFloor));
+  return ok.length > 0 ? Math.min(...ok) : null;
+}
+
 /**
- * Advertised dealer selling price from a pasted VDP. Never returns sticker MSRP
- * when a lower internet/sale/our/your price is present. Returns null if we
- * only see MSRP — the UI then shows sticker TOTAL MSRP separately.
+ * Advertised dealer selling price from a pasted VDP.
+ *
+ * Dealer.com (23ford and similar) shows:
+ *   MSRP, a "Price" line that is often MSRP + doc fee (typeClass internetPrice),
+ *   then a headline "Sale Price" in JSON-LD offers.price / price-summary.
+ * Prefer JSON-LD Offer.price when it is a real discount vs MSRP. Never treat
+ * camelCase `internetPrice` / the $64,794 "Price" line as the sale price, and
+ * never return sticker MSRP here — the UI shows TOTAL MSRP separately.
  */
 export function extractAdvertisedListingPrice(html: string): number | null {
   if (!html) return null;
-  const saleLabeled: number[] = [];
-  const saleRe =
-    /(?:internet\s*price|sale\s*price|our\s*price|your\s*price|shorkey\s*price)[^$0-9]{0,80}\$?\s*([0-9]{1,3}(?:,[0-9]{3})+(?:\.[0-9]{2})?)/gi;
-  let m: RegExpExecArray | null;
-  while ((m = saleRe.exec(html)) !== null) {
-    const n = parseUsdAmount(m[1]);
-    if (n) saleLabeled.push(n);
-  }
-  if (saleLabeled.length > 0) return Math.min(...saleLabeled);
-
   const jsonLd = collectJsonLdOffers(html);
-  const msrpLabeled: number[] = [];
-  const msrpRe = /msrp[^$0-9]{0,80}\$?\s*([0-9]{1,3}(?:,[0-9]{3})+(?:\.[0-9]{2})?)/gi;
-  while ((m = msrpRe.exec(html)) !== null) {
-    const n = parseUsdAmount(m[1]);
-    if (n) msrpLabeled.push(n);
-  }
-  const msrpVals = [...msrpLabeled, ...jsonLd.msrp];
-  const msrpFloor = msrpVals.length > 0 ? Math.min(...msrpVals) : null;
-  // Ignore a generic "Price" / Offer that is just MSRP + fees (e.g. 23ford $64,794).
-  const discounted = jsonLd.listing.filter((p) => msrpFloor == null || p <= msrpFloor - 500);
-  if (discounted.length > 0) return Math.min(...discounted);
+  const msrpFloor = pageMsrpFloor(html, jsonLd.msrp);
+
+  const fromJsonLd = pickDiscounted(jsonLd.listing, msrpFloor);
+  if (fromJsonLd) return fromJsonLd;
+
+  // Require whitespace so Dealer.com typeClass "internetPrice" does not match.
+  const labeled = collectRegexAmounts(
+    html,
+    new RegExp(
+      `(?:internet\\s+price|sale\\s+price|our\\s+price|your\\s+price|shorkey\\s+price)[^$0-9]{0,120}${COMMA_USD_RE.source}`,
+      "gi"
+    )
+  );
+  const fromLabeled = pickDiscounted(labeled, msrpFloor);
+  if (fromLabeled) return fromLabeled;
+
+  const headline = collectRegexAmounts(
+    html,
+    /price-summary__final-price-value[^>]*>\s*([0-9]{1,3}(?:,[0-9]{3})+(?:\.[0-9]{2})?)/gi
+  );
+  const fromHeadline = pickDiscounted(headline, msrpFloor);
+  if (fromHeadline) return fromHeadline;
+
+  const finalRow = collectRegexAmounts(
+    html,
+    /\$([0-9]{1,3}(?:,[0-9]{3})+(?:\.[0-9]{2})?)[^0-9]{0,48}"isFinalPrice"\s*:\s*true/gi
+  );
+  const fromFinal = pickDiscounted(finalRow, msrpFloor);
+  if (fromFinal) return fromFinal;
+
   return null;
 }
 
@@ -939,6 +990,7 @@ export async function extractVinFromDealerPage(url: string): Promise<DealerPageV
     const res = await fetch(url, {
       headers: {
         Accept: "text/html,application/xhtml+xml;q=0.9,*/*;q=0.8",
+        "Accept-Language": "en-US,en;q=0.9",
         "User-Agent": BROWSER_UA,
       },
       cache: "no-store",
@@ -953,7 +1005,7 @@ export async function extractVinFromDealerPage(url: string): Promise<DealerPageV
     if (!res.ok || denied) return { vin: null, blocked: true, httpStatus: res.status, listingPrice };
     return { vin: null, blocked: false, httpStatus: res.status, listingPrice };
   } catch {
-    return { vin: null, blocked: true };
+    return { vin: null, blocked: true, listingPrice: null };
   }
 }
 
