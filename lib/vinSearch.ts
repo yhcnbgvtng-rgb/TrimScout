@@ -26,10 +26,19 @@ import {
   stickerHasMustHave,
   type FordSticker,
 } from "./fordSticker";
+import {
+  confirmGmMustHavesFromSticker,
+  getGmSticker,
+  gmStickerPdfUrl,
+  stickerFromGmDemoFixture,
+  stickerHasMustHave as gmStickerHasMustHave,
+  type GmSticker,
+} from "./gmSticker";
 import type { Vehicle } from "./types";
 
 export const MAX_STICKER_CANDIDATES = 50;
 export const MAX_FORD_RECS = 2;
+export const MAX_GM_RECS = 2;
 
 function normalizeModelName(s?: string): string {
   return (s || "").toLowerCase().replace(/[^a-z0-9]+/g, "");
@@ -40,13 +49,17 @@ export function listingMatchesSubjectModel(listing: { model?: string }, subjectM
   const got = normalizeModelName(listing.model);
   if (!want) return true;
   if (!got) return true;
-  return want === got;
+  if (want === got) return true;
+  // Silverado vs Silverado 1500 (listings APIs omit the series)
+  if (want.startsWith(got) || got.startsWith(want)) return true;
+  return false;
 }
 
 function demoListingsForModel(model?: string): ListingCandidate[] {
   const want = normalizeModelName(model);
   if (!want) return [];
-  return DEMO_COMPARABLE_LISTINGS.filter((l) => listingMatchesSubjectModel(l, model));
+  const pool = [...DEMO_COMPARABLE_LISTINGS, ...DEMO_GM_COMPARABLE_LISTINGS];
+  return pool.filter((l) => listingMatchesSubjectModel(l, model));
 }
 
 export function demoListingsNote(model?: string): string {
@@ -55,6 +68,9 @@ export function demoListingsNote(model?: string): string {
     return `Demo listings are Explorer Tremor only and do not apply to ${
       model || "this vehicle"
     }. Increase Competition was left empty. Set AUTO_DEV_API_KEY or MARKETCHECK_API_KEY for live same-model search.`;
+  }
+  if (/silverado/i.test(model || "")) {
+    return "No listings API key configured. Demo comparables use known Silverado 1500 VINs plus GM window-sticker fixtures. Set AUTO_DEV_API_KEY or MARKETCHECK_API_KEY for live same-model search.";
   }
   return "No listings API key configured. Demo comparables use known Explorer Tremor VINs plus live Ford Direct stickers. Set AUTO_DEV_API_KEY or MARKETCHECK_API_KEY for live same-model search.";
 }
@@ -254,6 +270,88 @@ export const DEMO_COMPARABLE_LISTINGS: ListingCandidate[] = [
   },
 ];
 
+/** Demo Chevy lots — not a warehouse. Used only when no listings API key is set. */
+export const DEMO_GM_COMPARABLE_LISTINGS: ListingCandidate[] = [
+  {
+    vin: "1GCUKDED8TZ200011",
+    year: 2026,
+    make: "Chevrolet",
+    model: "Silverado 1500",
+    trim: "LT",
+    dealerName: "Ditschman Flemington Chevrolet",
+    city: "Flemington",
+    state: "NJ",
+    zip: "08822",
+    dealerUrl: null,
+    listingPrice: 57980,
+    lat: 40.512,
+    lng: -74.859,
+    exteriorColor: "Black",
+  },
+  {
+    vin: "1GCUKDED2TZ200022",
+    year: 2026,
+    make: "Chevrolet",
+    model: "Silverado 1500",
+    trim: "LT",
+    dealerName: "Ciocca Chevrolet of Allentown",
+    city: "Allentown",
+    state: "PA",
+    zip: "18103",
+    dealerUrl: null,
+    listingPrice: null,
+    lat: 40.602,
+    lng: -75.472,
+    exteriorColor: "Summit White",
+  },
+  {
+    vin: "1GCUKDED7TZ200033",
+    year: 2026,
+    make: "Chevrolet",
+    model: "Silverado 1500",
+    trim: "LT",
+    dealerName: "Reading Chevrolet",
+    city: "Reading",
+    state: "PA",
+    zip: "19605",
+    dealerUrl: null,
+    listingPrice: null,
+    lat: 40.335,
+    lng: -75.927,
+    exteriorColor: "Black",
+  },
+  {
+    vin: "1GCUKDED1TZ200044",
+    year: 2026,
+    make: "Chevrolet",
+    model: "Silverado 1500",
+    trim: "LT",
+    dealerName: "Unreleased Chevy",
+    city: "Vineland",
+    state: "NJ",
+    zip: "08360",
+    dealerUrl: null,
+    listingPrice: null,
+    lat: 39.486,
+    lng: -75.026,
+  },
+  {
+    vin: "1GCPYBEK4TZ300055",
+    year: 2026,
+    make: "Chevrolet",
+    model: "Colorado",
+    trim: "Trail Boss",
+    dealerName: "Example Chevrolet",
+    city: "Butler",
+    state: "NJ",
+    zip: "07405",
+    dealerUrl: null,
+    listingPrice: null,
+    lat: 40.927,
+    lng: -74.341,
+  },
+];
+
 function demoFixturePaths(vin: string): string[] {
   const file = `${vin.trim().toUpperCase()}.txt`;
   const paths = [path.join(process.cwd(), "lib/testdata/ford-stickers", file)];
@@ -449,7 +547,7 @@ export async function searchCoarseListings(q: {
       return {
         provider,
         listings,
-        note: "Live listings from Auto.dev; factory options come only from the Ford window sticker.",
+        note: "Live listings from Auto.dev; factory options come only from the OEM window sticker.",
       };
     } catch (err) {
       console.error("Auto.dev listings failed, falling back to demo comparables:", err);
@@ -461,7 +559,7 @@ export async function searchCoarseListings(q: {
       return {
         provider: "marketcheck",
         listings,
-        note: "Live listings from MarketCheck; factory options come only from the Ford window sticker.",
+        note: "Live listings from MarketCheck; factory options come only from the OEM window sticker.",
       };
     } catch (err) {
       console.error("MarketCheck listings failed, falling back to demo comparables:", err);
@@ -800,6 +898,277 @@ export function stickerToVehicle(
       .filter((o) => !o.isStandard)
       .map((o) => ({
         code: o.name,
+        name: o.name,
+        price: o.price || 0,
+        category: o.isPackageChild ? ("standalone" as const) : ("package" as const),
+      })),
+    imageUrl: "",
+    mileage: 0,
+    dealerUrl: listingUrl || undefined,
+    oemBuildSheetUrl: sticker.pdfUrl,
+  };
+}
+
+async function fetchGmStickerPreferDemoFixture(vin: string): Promise<GmSticker> {
+  const local = stickerFromGmDemoFixture(vin);
+  if (local) return local;
+  return getGmSticker(vin);
+}
+
+export async function findSimilarGmVehicles(opts: {
+  subjectVin: string;
+  subject?: GmSticker;
+  mustHaveLines: string[];
+  niceToHaveLines?: string[];
+  zip?: string;
+  radiusMiles?: number;
+  listings?: ListingCandidate[];
+  fetchSticker?: (vin: string) => Promise<GmSticker>;
+  fetchVdpPrice?: (url: string) => Promise<number | null>;
+}): Promise<FordSearchResult> {
+  const zip = (opts.zip || "").trim();
+  const radius = opts.radiusMiles;
+  if (!isUsableHuntLocation(zip, radius)) {
+    return {
+      provider: "demo",
+      note: "Enter a 5-digit ZIP and a search radius in miles to see two sticker-matched lots in range.",
+      needsLocation: true,
+      candidatesConsidered: 0,
+      stickersFetched: 0,
+      matches: [],
+      dropped: [],
+    };
+  }
+  const radiusMiles = radius as number;
+  const subject = opts.subject || (await getGmSticker(opts.subjectVin));
+  const mustHaves = opts.mustHaveLines.filter(Boolean);
+  const niceHaves = (opts.niceToHaveLines || []).filter(Boolean);
+
+  let provider: ListingsProvider = "demo";
+  let note = "";
+  let listings = opts.listings;
+  if (!listings) {
+    const searched = await searchCoarseListings({
+      year: subject.year && subject.year >= 1990 && subject.year <= 2035 ? subject.year : undefined,
+      make: subject.make || "Chevrolet",
+      model: subject.model,
+      trim: subject.trim,
+      zip,
+      radiusMiles,
+    });
+    provider = searched.provider;
+    note = searched.note;
+    listings = searched.listings;
+  } else {
+    provider = "demo";
+    note = "Using provided candidate list.";
+  }
+
+  listings = (listings || []).filter((l) => listingMatchesSubjectModel(l, subject.model));
+  if (listings.length === 0 && provider === "demo") {
+    return {
+      provider: "demo",
+      note: demoListingsNote(subject.model),
+      originZip: zip,
+      radiusMiles,
+      candidatesConsidered: 0,
+      stickersFetched: 0,
+      matches: [],
+      dropped: [],
+    };
+  }
+
+  const fetchSticker =
+    opts.fetchSticker || (provider === "demo" ? fetchGmStickerPreferDemoFixture : getGmSticker);
+
+  const dropped: FordSearchDropped[] = [];
+  const prefixPassed: ListingCandidate[] = [];
+  for (const listing of listings) {
+    if (listing.vin.toUpperCase() === opts.subjectVin.toUpperCase()) continue;
+    prefixPassed.push(listing);
+  }
+
+  const capped = prefixPassed.slice(0, MAX_STICKER_CANDIDATES);
+  const matches: FordMatchCard[] = [];
+
+  await mapPool(capped, 4, async (listing) => {
+    try {
+      const sticker = await fetchSticker(listing.vin);
+      if (sticker.status === "unreleased") {
+        dropped.push({
+          vin: listing.vin,
+          reason: "unreleased",
+          dealerName: listing.dealerName,
+        });
+        return;
+      }
+      if (sticker.status !== "released") {
+        dropped.push({ vin: listing.vin, reason: "sticker_error", dealerName: listing.dealerName });
+        return;
+      }
+      const check = confirmGmMustHavesFromSticker(sticker, mustHaves);
+      if (!check.pass) {
+        dropped.push({
+          vin: listing.vin,
+          reason: "missing_must_have",
+          missing: check.missing,
+          dealerName: listing.dealerName,
+        });
+        return;
+      }
+      const matchedNice = niceHaves.filter((line) => gmStickerHasMustHave(sticker, line));
+      const dealer = {
+        city: listing.city || sticker.dealerSoldTo?.city || "",
+        state: listing.state || sticker.dealerSoldTo?.state || "",
+        lat: listing.lat,
+        lng: listing.lng,
+      };
+      let distanceMiles: number | null = null;
+      if (dealer.city || dealer.state || dealer.lat) {
+        distanceMiles = calculateDistanceMiles(zip, dealer);
+      }
+      if (distanceMiles == null || distanceMiles > radiusMiles) {
+        dropped.push({
+          vin: listing.vin,
+          reason: "outside_radius",
+          dealerName: listing.dealerName,
+          distanceMiles,
+        });
+        return;
+      }
+      matches.push({
+        vin: listing.vin,
+        year: sticker.year || listing.year,
+        make: sticker.make || listing.make || "Chevrolet",
+        model: sticker.model || listing.model,
+        trim: sticker.trim || listing.trim,
+        engine: sticker.engine,
+        exteriorColor: sticker.exteriorColor || listing.exteriorColor,
+        dealerName: listing.dealerName || sticker.dealerSoldTo?.name || "Unknown dealer",
+        city: dealer.city,
+        state: dealer.state,
+        zip: listing.zip || sticker.dealerSoldTo?.zip,
+        distanceMiles,
+        listingPrice: listing.listingPrice,
+        listingPriceSource: listing.listingPrice && listing.listingPrice > 0 ? "listing" : "unconfirmed",
+        msrp: sticker.msrp,
+        msrpSource: sticker.msrp != null ? "sticker" : "unconfirmed",
+        dealerUrl: listing.dealerUrl || null,
+        pdfUrl: gmStickerPdfUrl(listing.vin),
+        matchedMustHaves: check.matched,
+        matchedNiceToHaves: matchedNice,
+        stickerStatus: sticker.status,
+      });
+    } catch {
+      dropped.push({ vin: listing.vin, reason: "sticker_error", dealerName: listing.dealerName });
+    }
+  });
+
+  const ranked = await enrichMatchListingPrices(
+    rankFordMatches(matches).slice(0, MAX_GM_RECS),
+    opts.fetchVdpPrice
+  );
+  if (ranked.length === 0) {
+    note = composeEmptyHuntNote({
+      zip,
+      radiusMiles,
+      provider,
+      existingNote: note,
+      dropped,
+      subjectModel: subject.model,
+      candidateCount: listings.length,
+    });
+  }
+
+  return {
+    provider,
+    note,
+    originZip: zip,
+    radiusMiles,
+    candidatesConsidered: listings.length,
+    stickersFetched: capped.length,
+    matches: ranked,
+    dropped,
+  };
+}
+
+export function gmMatchToVehicle(match: FordMatchCard): Vehicle {
+  return {
+    id: `gm-${match.vin}`,
+    vin: match.vin,
+    year: match.year || 0,
+    make: match.make || "Chevrolet",
+    model: match.model || "",
+    trim: match.trim || "",
+    bodyType: "Truck",
+    engine: match.engine || "",
+    drivetrain: "",
+    transmission: "",
+    exteriorColor: match.exteriorColor || "",
+    interiorColor: "",
+    msrp: match.msrp || 0,
+    dealerPrice: match.listingPrice || 0,
+    daysOnLot: 0,
+    status: "on_lot",
+    condition: "new",
+    location: {
+      dealerName: match.dealerName,
+      city: match.city,
+      state: match.state,
+      zip: match.zip,
+      distanceMiles: match.distanceMiles || 0,
+    },
+    packages: [...match.matchedMustHaves, ...match.matchedNiceToHaves],
+    options: match.matchedMustHaves.map((name) => ({
+      code: name,
+      name,
+      price: 0,
+      category: "package" as const,
+    })),
+    imageUrl: "",
+    mileage: 0,
+    dealerUrl: match.dealerUrl || undefined,
+    oemBuildSheetUrl: match.pdfUrl,
+  };
+}
+
+export function gmStickerToVehicle(
+  sticker: GmSticker,
+  listingUrl?: string | null,
+  listingPrice?: number | null
+): Vehicle {
+  return {
+    id: `gm-${sticker.vin}`,
+    vin: sticker.vin,
+    year: sticker.year || 0,
+    make: sticker.make || "Chevrolet",
+    model: sticker.model || "",
+    trim: sticker.trim || "",
+    bodyType: "Truck",
+    engine: sticker.engine || "",
+    drivetrain: sticker.drivetrain || "",
+    transmission: sticker.transmission || "",
+    exteriorColor: sticker.exteriorColor || "",
+    interiorColor: sticker.interiorColor || "",
+    msrp: sticker.msrp || 0,
+    dealerPrice: listingPrice && listingPrice > 0 ? listingPrice : 0,
+    daysOnLot: 0,
+    status: "on_lot",
+    condition: "new",
+    location: {
+      dealerName: sticker.dealerSoldTo?.name || "Chevrolet dealer",
+      city: sticker.dealerSoldTo?.city || "",
+      state: sticker.dealerSoldTo?.state || "",
+      zip: sticker.dealerSoldTo?.zip,
+      distanceMiles: 0,
+    },
+    packages: sticker.options
+      .filter((o) => !o.isStandard && !o.isPackageChild)
+      .map((o) => o.name),
+    options: sticker.options
+      .filter((o) => !o.isStandard)
+      .map((o) => ({
+        code: o.rpo || o.name,
         name: o.name,
         price: o.price || 0,
         category: o.isPackageChild ? ("standalone" as const) : ("package" as const),

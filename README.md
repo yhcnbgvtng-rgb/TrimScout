@@ -61,6 +61,55 @@ npm test
 
 Listings APIs filter year/make/model/trim/zip. They cannot filter Ultimate / BlueCruise / keypad. After a coarse query we sticker-pass only the first 25–50 candidate VINs.
 
+---
+
+## Paste-a-VIN similar lots (Chevrolet / GM window sticker)
+
+Same Launch Dealership Bidding Hunt — not a second product and not the 1,973-dealer crawl.
+
+### How it routes
+
+WMI `1G1` / `1GC` / `1GN` (Chevy USA) plus Canada/Mexico `2G*` / `3G*`, and related GM brands that share the public CWS sticker URL (GMC / Buick / Cadillac). The wizard sends those VINs to `/api/gm-sticker` and `/api/gm-comparables` instead of the Ford path.
+
+Official PDF:
+
+`https://cws.gm.com/vs-cws/vehshop/v2/vehicle/windowsticker?vin={VIN}`
+
+GM layout is **not** Ford Direct. Parser keys off `OPTIONAL EQUIPMENT`, RPO-prefixed lines (Z71 / QT6 / UVZ), `DESTINATION CHARGE`, and `TOTAL VEHICLE PRICE`.
+
+Demo vehicle: **2026 Silverado 1500 LT** — Z71, Multi-Flex tailgate, Super Cruise. Sample VIN `1GCUKDED9TZ134987`.
+
+### Akamai 0-byte PDF (critical)
+
+On 2026-08-31 this datacenter host:
+
+| Fetch | Result |
+| --- | --- |
+| `curl` / Node `fetch` / `curl_cffi` Chrome TLS impersonation of `cws.gm.com` | HTTP 200, `Content-Type: application/pdf`, **0 bytes**, `_abck` + `bm_sz` cookies |
+| Headless Chrome / Puppeteer against the same URL | Still empty (or Chrome's PDF-viewer shell around an empty body) |
+| Ford Direct `windowsticker.pdf?vin=1FMWK8JCXTGB47204` from the **same machine** | Real ~1.1 MB PDF |
+
+If serverless still gets zero-byte PDFs, TrimScout uses a **small Chrome/CDP browser worker** (`lib/gmStickerBrowser.ts`) — not dealer-site scraping and not the Chevrolet rooftop list. Configure:
+
+| Variable | Required? | Role |
+| --- | --- | --- |
+| `GM_STICKER_BROWSER_WS` | No | Remote CDP websocket (Browserless / Browserbase / similar) so Vercel can fetch real GM PDF bytes |
+| `CHROME_PATH` | No | Local Chrome binary for the same worker |
+
+When the worker is also empty, the **demo Silverado VIN** (and its known comparable fixtures) still parse from bundled `lib/testdata/gm-stickers/*.txt` so the hunt can be exercised. Live GM bytes are cached per VIN in `/tmp/trimscout-gm-stickers` after a successful user-initiated lookup. Lookups stay user-initiated (subject + ≤50 hunt candidates). Do not warehouse Chevy inventory.
+
+### Hunt rules (same as Ford)
+
+- Coarse Auto.dev / MarketCheck year/make/model/zip, then sticker-pass 25–50 candidate VINs.
+- Cap **two** recommendations inside the buyer-entered radius. Never pad.
+- Must-have boxes start **unchecked**. Tick Z71 / Multi-Flex / Super Cruise (or color) to hard-filter.
+- Listing price if advertised; else sticker Total Vehicle Price. Never "call dealer".
+
+```bash
+npm test
+```
+
+
 ### What this is not
 
 - Not a Visor.vin clone, VIN warehouse, or daily scrape of Ford rooftops.
