@@ -7,6 +7,7 @@ export const FORD_COMPETITION_NEED_LOCATION =
   "Enter ZIP and radius above to fill these two slots with the nearest sticker-matched lots.";
 
 export const FORD_COMPETITION_LOADING = "Reading Ford stickers…";
+export const GM_COMPETITION_LOADING = "Reading Chevrolet window stickers…";
 
 export type FordCompetitionEmptyKind = "need_location" | "loading" | "error" | "empty";
 
@@ -22,13 +23,14 @@ export function fordCompetitionEmptyCopy(opts: {
   note: string | null;
   droppedCount?: number;
   matchCount: number;
+  loadingMessage?: string;
 }): FordCompetitionEmptyCopy | null {
   if (opts.matchCount > 0) return null;
   if (!opts.huntReady) {
     return { kind: "need_location", message: FORD_COMPETITION_NEED_LOCATION };
   }
   if (opts.loading) {
-    return { kind: "loading", message: FORD_COMPETITION_LOADING };
+    return { kind: "loading", message: opts.loadingMessage || FORD_COMPETITION_LOADING };
   }
   if (opts.error) {
     return { kind: "error", message: opts.error };

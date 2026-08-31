@@ -9,11 +9,13 @@ import { decodeVin, SAMPLE_TEST_VINS, DecodedVehicle } from "../lib/vinDecoder";
 import {
   FORD_COMPETITION_LOADING,
   FORD_COMPETITION_NEED_LOCATION,
+  GM_COMPETITION_LOADING,
   advertisedOrStickerPrice,
   autoFillCompetitionSlots,
   fordCompetitionEmptyCopy,
   formatPriceAmount,
 } from "../lib/fordCompetitionUi";
+import { isGmVin, looksLikeFordPaste, looksLikeGmPaste } from "../lib/oemWmi";
 import {
   X,
   ShieldCheck,
@@ -76,12 +78,12 @@ function milesFromUserZip(miles: number | null | undefined, zip: string): string
   return `${miles} mi from ${zip.trim()}`;
 }
 
-function fordSuggestionToVehicle(s: FordSuggestionCard): Vehicle {
+function fordSuggestionToVehicle(s: FordSuggestionCard, brand: "ford" | "gm" = "ford"): Vehicle {
   return {
-    id: `ford-${s.vin}`,
+    id: `${brand}-${s.vin}`,
     vin: s.vin,
     year: s.year || 0,
-    make: s.make || "Ford",
+    make: s.make || (brand === "gm" ? "Chevrolet" : "Ford"),
     model: s.model || "",
     trim: s.trim || "",
     bodyType: "SUV",
@@ -208,6 +210,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   const [parseSuccessMsg, setParseSuccessMsg] = useState<string | null>(null);
   const [parseError, setParseError] = useState<string | null>(null);
   const [fordStickerStatus, setFordStickerStatus] = useState<"released" | "unreleased" | "error" | null>(null);
+  const [stickerBrand, setStickerBrand] = useState<"ford" | "gm" | null>(null);
   const [fordPdfUrl, setFordPdfUrl] = useState<string | null>(null);
   const [fordFilterableOptions, setFordFilterableOptions] = useState<
     { name: string; price: number | null; isPackageChild: boolean }[]
@@ -359,9 +362,8 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
 
   const huntReady = /^\d{5}$/.test(huntZip.trim()) && Number(huntRadius) > 0;
 
-  // Ford sticker-confirmed lots for the Increase Competition slots.
   // Warehouse /api/comparable-vehicles is intentionally NOT the source of
-  // truth for Ford factory options. ZIP + radius are required user input.
+  // truth for Ford/GM factory options. ZIP + radius are required user input.
   useEffect(() => {
     if (fordStickerStatus !== "released" || !selectedVehicle?.vin) {
       setFordSuggestions([]);
@@ -384,7 +386,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     setFordSuggestions([]);
     setFordSearchNote(null);
     setFordDroppedCount(0);
-    fetch("/api/ford-comparables", {
+    fetch(stickerBrand === "gm" ? "/api/gm-comparables" : "/api/ford-comparables", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -435,6 +437,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     niceToHavePackages,
     huntZip,
     huntRadius,
+    stickerBrand,
     huntReady,
   ]);
 
@@ -476,11 +479,11 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     if (fordStickerStatus !== "released") return;
     const [first, second] = autoFillCompetitionSlots(fordSuggestions);
     setSecondaryVehicles([
-      first ? fordSuggestionToVehicle(first) : null,
-      second ? fordSuggestionToVehicle(second) : null,
+      first ? fordSuggestionToVehicle(first, stickerBrand || "ford") : null,
+      second ? fordSuggestionToVehicle(second, stickerBrand || "ford") : null,
     ]);
     setSecondaryUrls([first?.dealerUrl || "", second?.dealerUrl || ""]);
-  }, [fordSuggestions, fordStickerStatus]);
+  }, [fordSuggestions, fordStickerStatus, stickerBrand]);
 
   const applyMockParse = (raw: string) => {
     const url = raw.toLowerCase();
@@ -517,6 +520,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     setParseSuccessMsg(null);
     setParseError(null);
     setFordStickerStatus(null);
+    setStickerBrand(null);
     setFordPdfUrl(null);
     setFordSuggestions([]);
     setFordFilterableOptions([]);
@@ -527,15 +531,23 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     setFordHuntError(null);
 
     try {
-      const res = await fetch("/api/ford-sticker", {
+      const vinGuess = raw.toUpperCase().match(/\b[A-HJ-NPR-Z0-9]{17}\b/)?.[0];
+      const preferGm =
+        (looksLikeGmPaste(raw) && !looksLikeFordPaste(raw)) ||
+        !!(vinGuess && isGmVin(vinGuess) && !looksLikeFordPaste(raw));
+      const oemPath = preferGm ? "/api/gm-sticker" : "/api/ford-sticker";
+      const oemBrand: "ford" | "gm" = preferGm ? "gm" : "ford";
+      const oemLabel = preferGm ? "Chevrolet" : "Ford";
+
+      const res = await fetch(oemPath, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ paste: raw }),
       });
       const json = await res.json().catch(() => ({}));
 
-      const looksFord = /ford|lincoln|forddirect/i.test(raw);
-      if (json.needsVin || json.dealerBlocked || (looksFord && (json.handled === false || json.notFord))) {
+      const looksOem = preferGm ? looksLikeGmPaste(raw) : looksLikeFordPaste(raw);
+      if (json.needsVin || json.dealerBlocked || (looksOem && (json.handled === false || json.notFord || json.notGm))) {
         setParseError(
           json.error ||
             "Could not read a VIN from that page. Paste the 17-character VIN."
@@ -544,56 +556,86 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
         return;
       }
 
-      if (json.notFord && json.handled === false) {
+      if ((json.notFord || json.notGm) && json.handled === false) {
+        if (!preferGm && (looksLikeGmPaste(raw) || (json.vin && isGmVin(json.vin)))) {
+          const gmRes = await fetch("/api/gm-sticker", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ paste: raw, vin: json.vin || undefined }),
+          });
+          const gmJson = await gmRes.json().catch(() => ({}));
+          if (gmJson.handled && (gmJson.vehicle || gmJson.sticker)) {
+            applyOemStickerJson(gmJson, gmRes.ok, "gm");
+            return;
+          }
+        }
         applyMockParse(raw);
         return;
       }
 
-      if (!res.ok) {
-        setParseError(json.error || "Could not read the Ford window sticker. Paste the 17-character VIN if you have it.");
-        setIsParsingLink(false);
-        return;
-      }
-
-      if (json.sticker?.status === "unreleased") {
-        setFordStickerStatus("unreleased");
-        setFordPdfUrl(json.pdfUrl || json.sticker?.pdfUrl || null);
-        setParseError(
-          "The Ford window sticker has not yet been released. Dealer ad copy is not proof — status is unconfirmed."
-        );
-        setIsParsingLink(false);
-        return;
-      }
-
-      const matched = json.vehicle as Vehicle | null;
-      if (!matched) {
-        setParseError("Ford returned a sticker we could not parse.");
-        setIsParsingLink(false);
-        return;
-      }
-
-      setSelectedVehicle(matched);
-      setMake(matched.make);
-      setModel(matched.model);
-      setSelectedTrims([matched.trim]);
-      setMustHavePackages(Array.isArray(json.mustHaveLines) ? json.mustHaveLines : []);
-      setNiceToHavePackages(json.niceToHaveLines || []);
-      setFordFilterableOptions(json.filterableOptions || []);
-      setFordStickerStatus("released");
-      setFordPdfUrl(json.pdfUrl || matched.oemBuildSheetUrl || null);
-      if (typeof json.sticker?.msrp === "number" && json.sticker.msrp > 0) {
-        setTargetOtdPrice(Math.round(json.sticker.msrp * 0.92));
-      }
-      setParseSuccessMsg(
-        `Ford window sticker (sticker) · VIN ${matched.vin}${
-          json.sticker?.msrp ? ` · MSRP ${formatStickerMsrp(json.sticker.msrp)}` : ""
-        }`
-      );
-      setIsParsingLink(false);
+      applyOemStickerJson(json, res.ok, oemBrand, oemLabel);
     } catch (err: unknown) {
       setParseError(err instanceof Error ? err.message : "Lookup failed");
       setIsParsingLink(false);
     }
+  };
+
+  const applyOemStickerJson = (
+    json: Record<string, unknown>,
+    ok: boolean,
+    brand: "ford" | "gm",
+    label = brand === "gm" ? "Chevrolet" : "Ford"
+  ) => {
+    const sticker = json.sticker as { status?: string; pdfUrl?: string; msrp?: number } | undefined;
+    if (!ok) {
+      setParseError(
+        (typeof json.error === "string" && json.error) ||
+          `Could not read the ${label} window sticker. Paste the 17-character VIN if you have it.`
+      );
+      setIsParsingLink(false);
+      return;
+    }
+
+    if (sticker?.status === "unreleased") {
+      setStickerBrand(brand);
+      setFordStickerStatus("unreleased");
+      setFordPdfUrl((json.pdfUrl as string) || sticker?.pdfUrl || null);
+      setParseError(
+        `The ${label} window sticker has not yet been released. Dealer ad copy is not proof — status is unconfirmed.`
+      );
+      setIsParsingLink(false);
+      return;
+    }
+
+    const matched = json.vehicle as Vehicle | null;
+    if (!matched) {
+      setParseError(`${label} returned a sticker we could not parse.`);
+      setIsParsingLink(false);
+      return;
+    }
+
+    setSelectedVehicle(matched);
+    setMake(matched.make);
+    setModel(matched.model);
+    setSelectedTrims([matched.trim]);
+    setMustHavePackages(Array.isArray(json.mustHaveLines) ? (json.mustHaveLines as string[]) : []);
+    setNiceToHavePackages((json.niceToHaveLines as string[]) || []);
+    setFordFilterableOptions(
+      (json.filterableOptions as { name: string; price: number | null; isPackageChild: boolean }[]) || []
+    );
+    setStickerBrand(brand);
+    setFordStickerStatus("released");
+    setFordPdfUrl((json.pdfUrl as string) || matched.oemBuildSheetUrl || null);
+    if (typeof sticker?.msrp === "number" && sticker.msrp > 0) {
+      setTargetOtdPrice(Math.round(sticker.msrp * 0.92));
+    }
+    const akamai = json.akamaiBlocked === true || json.fetchSource === "fixture";
+    setParseSuccessMsg(
+      `${label} window sticker (sticker) · VIN ${matched.vin}${
+        sticker?.msrp ? ` · MSRP ${formatStickerMsrp(sticker.msrp)}` : ""
+      }${akamai ? " · demo fixture (GM CWS Akamai 0-byte PDF)" : ""}`
+    );
+    setIsParsingLink(false);
   };
 
   const handleParseSecondaryUrl = async (idx: number, urlToParse?: string) => {
@@ -601,7 +643,8 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     if (!raw) return;
     setIsParsingSecondary((prev) => prev.map((v, i) => (i === idx ? true : v)));
     try {
-      const res = await fetch("/api/ford-sticker", {
+      const oemPath = looksLikeGmPaste(raw) ? "/api/gm-sticker" : "/api/ford-sticker";
+      const res = await fetch(oemPath, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ paste: raw }),
@@ -611,8 +654,9 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
         setSecondaryVehicles((prev) => prev.map((v, i) => (i === idx ? json.vehicle : v)));
         return;
       }
-      const looksFord = /ford|lincoln|forddirect/i.test(raw);
-      if (looksFord || json.needsVin || json.dealerBlocked) {
+      const looksFord = looksLikeFordPaste(raw);
+      const looksGm = looksLikeGmPaste(raw);
+      if (looksFord || looksGm || json.needsVin || json.dealerBlocked) {
         return;
       }
       const url = raw.toLowerCase();
@@ -620,7 +664,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
         vehicles.find((v) => url.includes(v.vin.toLowerCase()) || url.includes(v.make.toLowerCase())) || null;
       setSecondaryVehicles((prev) => prev.map((v, i) => (i === idx ? matched : v)));
     } catch {
-      if (!/ford|lincoln|forddirect/i.test(raw)) {
+      if (!looksLikeFordPaste(raw) && !looksLikeGmPaste(raw)) {
         const url = raw.toLowerCase();
         const matched =
           vehicles.find((v) => url.includes(v.vin.toLowerCase()) || url.includes(v.make.toLowerCase())) || null;
@@ -670,6 +714,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
           note: fordSearchNote,
           droppedCount: fordDroppedCount,
           matchCount: fordSuggestions.length,
+          loadingMessage: stickerBrand === "gm" ? GM_COMPETITION_LOADING : FORD_COMPETITION_LOADING,
         })
       : null;
 
@@ -1158,7 +1203,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                             className="flex items-center gap-1 text-[10px] font-bold text-emerald-300 hover:text-white"
                           >
                             <FileText className="h-3.5 w-3.5" />
-                            Ford sticker PDF
+                            {stickerBrand === "gm" ? "Chevrolet sticker PDF" : "Ford sticker PDF"}
                           </a>
                         )}
                       </div>
@@ -1311,7 +1356,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                         Must-have factory options
                       </h4>
                       <p className="text-[11px] text-ink-muted">
-                        From this Ford window sticker. Every box starts unchecked. Comparables must have every ticked line on their own released sticker — including color if you tick it.
+                        From this {stickerBrand === "gm" ? "Chevrolet" : "Ford"} window sticker. Every box starts unchecked. Comparables must have every ticked line on their own released sticker — including color if you tick it.
                       </p>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 max-h-56 overflow-y-auto pr-1">
                         {fordFilterableOptions.map((opt) => {
@@ -1366,7 +1411,9 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                     {fordStickerStatus === "released" && fordEmptySlots?.kind === "loading" ? (
                       <div className="flex items-center gap-2 rounded-xl border border-border bg-surface-elevated px-3 py-4">
                         <Loader2 className="h-4 w-4 animate-spin text-emerald-400" />
-                        <span className="text-xs text-ink-muted">{FORD_COMPETITION_LOADING}</span>
+                        <span className="text-xs text-ink-muted">
+                          {stickerBrand === "gm" ? GM_COMPETITION_LOADING : FORD_COMPETITION_LOADING}
+                        </span>
                       </div>
                     ) : fordStickerStatus === "released" && fordEmptySlots && !hasCompetition ? (
                       <>
@@ -1502,7 +1549,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                     )}
                     {fordStickerStatus === "released" && (
                       <p className="text-[10px] text-ink-faint">
-                        Must-haves are hard-filtered from each lot&apos;s Ford window sticker. Dealer ads are not
+                        Must-haves are hard-filtered from each lot&apos;s {stickerBrand === "gm" ? "Chevrolet" : "Ford"} window sticker. Dealer ads are not
                         proof. Distance is from your ZIP
                         {huntReady ? ` (${huntZip} · ${huntRadius} mi)` : ""}.
                       </p>
@@ -1686,7 +1733,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                 {fordStickerStatus === "released" && fordFilterableOptions.length > 0 ? (
                   <>
                     <label className="text-xs font-semibold text-ink-light">
-                      Must-have factory options (Ford sticker):
+                      Must-have factory options ({stickerBrand === "gm" ? "Chevrolet" : "Ford"} sticker):
                     </label>
                     <p className="text-[10px] text-ink-faint">
                       Same list as Step 2. Ticked lines are hard filters.
