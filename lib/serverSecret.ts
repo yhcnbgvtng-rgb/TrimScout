@@ -1,12 +1,20 @@
+import { env } from "node:process";
+
 /**
- * Read a server env var at runtime.
+ * Read a server env var from Node's real environment.
  *
- * Next.js statically inlines `process.env.NAME` at `next build`. Vercel
- * Sensitive/Secret values are often absent from the build environment, so
- * that inlining becomes a permanent empty string in the serverless bundle.
- * Dynamic `process.env[name]` is not inlined and sees dashboard-injected
- * secrets when the function runs.
+ * Next.js webpack/turbopack often replaces `process.env` with an object of
+ * only statically referenced keys, so `process.env[name]` is empty in the
+ * bundled function. `env` from `node:process` is not rewritten that way.
+ * Static `process.env.NAME` fallbacks keep listings key names on Next's
+ * env allowlist / DefinePlugin. These keys stay server-only.
  */
 export function serverSecret(name: string): string {
-  return String(process.env[name] || "").trim();
+  if (name === "AUTO_DEV_API_KEY") {
+    return String(env.AUTO_DEV_API_KEY || process.env.AUTO_DEV_API_KEY || "").trim();
+  }
+  if (name === "MARKETCHECK_API_KEY") {
+    return String(env.MARKETCHECK_API_KEY || process.env.MARKETCHECK_API_KEY || "").trim();
+  }
+  return String(env[name] ?? "").trim();
 }
