@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Vehicle, BiddingStrategy, PaymentMethod, BiddingRequest, TradeInVehicle, TradeInPhoto, UserProfile } from "../lib/types";
 import { formatCurrency, getEstimatedTaxRate } from "../lib/otdCalculator";
 import { findContactInfo } from "../lib/piiFilter";
@@ -34,8 +34,88 @@ import {
   CreditCard,
   KeyRound,
   Plus,
-  Handshake
+  Handshake,
+  FileText
 } from "lucide-react";
+
+const FORD_DEMO_VIN = "1FMWK8JCXTGB47204";
+
+interface FordSuggestionCard {
+  vin: string;
+  year?: number;
+  make?: string;
+  model?: string;
+  trim?: string;
+  engine?: string;
+  exteriorColor?: string;
+  dealerName: string;
+  city: string;
+  state: string;
+  distanceMiles: number | null;
+  listingPrice: number | null;
+  listingPriceSource: "listing" | "sticker" | "unconfirmed";
+  msrp: number | null;
+  msrpSource: "listing" | "sticker" | "unconfirmed";
+  dealerUrl: string | null;
+  pdfUrl: string;
+  matchedMustHaves: string[];
+  matchedNiceToHaves: string[];
+}
+
+function formatListingPrice(amount: number | null | undefined): string {
+  if (amount == null || amount <= 0) return "call dealer";
+  return formatCurrency(amount);
+}
+
+function formatStickerMsrp(amount: number | null | undefined): string {
+  if (amount == null || amount <= 0) return "unconfirmed";
+  return formatCurrency(amount);
+}
+
+function sourceBadge(source: string): string {
+  if (source === "sticker") return "sticker";
+  if (source === "listing") return "listing";
+  return "unconfirmed";
+}
+
+function fordSuggestionToVehicle(s: FordSuggestionCard): Vehicle {
+  return {
+    id: `ford-${s.vin}`,
+    vin: s.vin,
+    year: s.year || 0,
+    make: s.make || "Ford",
+    model: s.model || "",
+    trim: s.trim || "",
+    bodyType: "SUV",
+    engine: s.engine || "",
+    drivetrain: "",
+    transmission: "",
+    exteriorColor: s.exteriorColor || "",
+    interiorColor: "",
+    msrp: s.msrp || 0,
+    dealerPrice: s.listingPrice || 0,
+    daysOnLot: 0,
+    status: "on_lot",
+    condition: "new",
+    location: {
+      dealerName: s.dealerName,
+      city: s.city,
+      state: s.state,
+      distanceMiles: s.distanceMiles || 0,
+    },
+    packages: [...s.matchedMustHaves, ...s.matchedNiceToHaves],
+    options: s.matchedMustHaves.map((name) => ({
+      code: name,
+      name,
+      price: 0,
+      category: "package" as const,
+    })),
+    imageUrl: "",
+    mileage: 0,
+    dealerUrl: s.dealerUrl || undefined,
+    oemBuildSheetUrl: s.pdfUrl,
+  };
+}
 
 // A real, live-inventory competing vehicle suggested by /api/comparable-vehicles
 // (same make/model, same state, within 50 miles of the buyer) — only ever
@@ -125,11 +205,22 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
 
   // Step 1: Vehicle Selection Mode (Dealer Link vs Catalog Search)
   const [selectionMode, setSelectionMode] = useState<"paste_link" | "catalog_search">("paste_link");
-  const [dealerUrlInput, setDealerUrlInput] = useState<string>(
-    "https://www.bmwsanrafael.com/inventory/new-2026-bmw-3-series-330i-m-sport-wba33ay08rf892110/"
-  );
+  const [dealerUrlInput, setDealerUrlInput] = useState<string>("");
   const [isParsingLink, setIsParsingLink] = useState<boolean>(false);
   const [parseSuccessMsg, setParseSuccessMsg] = useState<string | null>(null);
+  const [parseError, setParseError] = useState<string | null>(null);
+  const [fordStickerStatus, setFordStickerStatus] = useState<"released" | "unreleased" | "error" | null>(null);
+  const [fordPdfUrl, setFordPdfUrl] = useState<string | null>(null);
+  const [fordFilterableOptions, setFordFilterableOptions] = useState<
+    { name: string; price: number | null; isPackageChild: boolean }[]
+  >([]);
+  const [niceToHavePackages, setNiceToHavePackages] = useState<string[]>([]);
+  const [fordSuggestions, setFordSuggestions] = useState<FordSuggestionCard[]>([]);
+  const [isLoadingFordSuggestions, setIsLoadingFordSuggestions] = useState(false);
+  const [fordSearchNote, setFordSearchNote] = useState<string | null>(null);
+  const [fordDroppedCount, setFordDroppedCount] = useState(0);
+  const [fordRadius, setFordRadius] = useState(500);
+  const autoFilledForVin = useRef<string | null>(null);
 
   // Step 2: up to 2 optional secondary vehicle links, to widen competition
   // beyond just the favorite pick.
@@ -200,7 +291,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   };
 
   // Step 4: Deal Structuring Fields (All 3 / Cash / Finance / Lease)
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("all_three");
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("cash");
   const [financeTerm, setFinanceTerm] = useState<number>(60);
   const [downPayment, setDownPayment] = useState<number>(5000);
   const [leaseMileage, setLeaseMileage] = useState<number>(12000);
@@ -267,12 +358,55 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     }
   };
 
-  // Real, live comparable-vehicle suggestions — same make/model, same
-  // state, within 50 miles of the buyer's ZIP. Only covers the 6 brands
-  // the crawler actually tracks; unsupported makes (e.g. a mock BMW/Toyota
-  // pick) just come back empty rather than fabricating results.
+  // Ford sticker-confirmed lots for the Increase Competition slots.
+  // Warehouse /api/comparable-vehicles is intentionally NOT the source of
+  // truth for Ford factory options.
   useEffect(() => {
-    if (!selectedVehicle || !buyerZip || buyerZip.trim().length < 5) {
+    if (fordStickerStatus !== "released" || !selectedVehicle?.vin) {
+      setFordSuggestions([]);
+      return;
+    }
+    let cancelled = false;
+    setIsLoadingFordSuggestions(true);
+    fetch("/api/ford-comparables", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        subjectVin: selectedVehicle.vin,
+        mustHaveLines: mustHavePackages,
+        niceToHaveLines: niceToHavePackages,
+        zip: buyerZip || "07405",
+        radiusMiles: fordRadius,
+      }),
+    })
+      .then((res) => res.json())
+      .then((json) => {
+        if (cancelled) return;
+        setFordSuggestions(json.matches || []);
+        setFordSearchNote(json.note || null);
+        setFordDroppedCount(Array.isArray(json.dropped) ? json.dropped.length : 0);
+      })
+      .catch(() => {
+        if (!cancelled) setFordSuggestions([]);
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoadingFordSuggestions(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    fordStickerStatus,
+    selectedVehicle?.vin,
+    mustHavePackages,
+    niceToHavePackages,
+    buyerZip,
+    fordRadius,
+  ]);
+
+  useEffect(() => {
+    if (!selectedVehicle || fordStickerStatus === "released") return;
+    if (!buyerZip || buyerZip.trim().length < 5) {
       setAiSuggestions([]);
       return;
     }
@@ -300,26 +434,32 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     return () => {
       cancelled = true;
     };
-  }, [selectedVehicle?.vin, selectedVehicle?.make, selectedVehicle?.model, buyerZip]);
+  }, [fordStickerStatus, selectedVehicle?.vin, selectedVehicle?.make, selectedVehicle?.model, buyerZip]);
 
-  const handleParseDealerUrl = (urlToParse?: string) => {
-    const url = (urlToParse || dealerUrlInput).trim().toLowerCase();
-    if (!url) return;
+  useEffect(() => {
+    if (fordStickerStatus !== "released" || !selectedVehicle?.vin) return;
+    if (autoFilledForVin.current === selectedVehicle.vin) return;
+    if (fordSuggestions.length === 0) return;
+    if (secondaryVehicles.some((v) => !!v)) return;
+    autoFilledForVin.current = selectedVehicle.vin;
+    const picks = fordSuggestions.slice(0, 2);
+    setSecondaryVehicles((prev) => prev.map((v, i) => (picks[i] ? fordSuggestionToVehicle(picks[i]) : v)));
+    setSecondaryUrls((prev) => prev.map((u, i) => (picks[i]?.dealerUrl ? (picks[i].dealerUrl as string) : u)));
+  }, [fordSuggestions, selectedVehicle?.vin, fordStickerStatus, secondaryVehicles]);
 
-    setIsParsingLink(true);
-    setParseSuccessMsg(null);
-
+  const applyMockParse = (raw: string) => {
+    const url = raw.toLowerCase();
     setTimeout(() => {
-      // Smart matching against vehicles network
-      let matched = vehicles.find((v) => {
-        if (url.includes(v.vin.toLowerCase())) return true;
-        if (url.includes("porsche") && v.make === "Porsche") return true;
-        if (url.includes("toyota") && v.make === "Toyota") return true;
-        if (url.includes("mercedes") && v.make === "Mercedes-Benz") return true;
-        if (url.includes("bmw") && v.make === "BMW") return true;
-        if (url.includes(v.make.toLowerCase())) return true;
-        return false;
-      }) || vehicles[0];
+      const matched =
+        vehicles.find((v) => {
+          if (url.includes(v.vin.toLowerCase())) return true;
+          if (url.includes("porsche") && v.make === "Porsche") return true;
+          if (url.includes("toyota") && v.make === "Toyota") return true;
+          if (url.includes("mercedes") && v.make === "Mercedes-Benz") return true;
+          if (url.includes("bmw") && v.make === "BMW") return true;
+          if (url.includes(v.make.toLowerCase())) return true;
+          return false;
+        }) || vehicles[0];
 
       setSelectedVehicle(matched);
       setMake(matched.make);
@@ -328,20 +468,117 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
       setMustHavePackages(matched.packages);
       setTargetOtdPrice(Math.round(matched.msrp * 0.92));
       setIsParsingLink(false);
-      setParseSuccessMsg(`✓ Decoded Window Sticker from ${matched.location.dealerName}! (VIN: ${matched.vin} • ${formatCurrency(matched.msrp)} MSRP)`);
+      setParseSuccessMsg(
+        `✓ Decoded Window Sticker from ${matched.location.dealerName}! (VIN: ${matched.vin} • ${formatCurrency(matched.msrp)} MSRP)`
+      );
     }, 700);
   };
 
-  const handleParseSecondaryUrl = (idx: number, urlToParse?: string) => {
-    const url = (urlToParse ?? secondaryUrls[idx] ?? "").trim().toLowerCase();
-    if (!url) return;
+  const handleParseDealerUrl = async (urlToParse?: string) => {
+    const raw = (urlToParse || dealerUrlInput).trim();
+    if (!raw) return;
+
+    setIsParsingLink(true);
+    setParseSuccessMsg(null);
+    setParseError(null);
+    setFordStickerStatus(null);
+    setFordPdfUrl(null);
+    setFordSuggestions([]);
+    setFordFilterableOptions([]);
+    setNiceToHavePackages([]);
+    setSecondaryVehicles([null, null]);
+    setSecondaryUrls(["", ""]);
+    autoFilledForVin.current = null;
+
+    try {
+      const res = await fetch("/api/ford-sticker", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ paste: raw }),
+      });
+      const json = await res.json().catch(() => ({}));
+
+      if (json.notFord || json.handled === false) {
+        applyMockParse(raw);
+        return;
+      }
+
+      if (!res.ok) {
+        setParseError(json.error || "Could not read the Ford window sticker.");
+        setIsParsingLink(false);
+        return;
+      }
+
+      if (json.sticker?.status === "unreleased") {
+        setFordStickerStatus("unreleased");
+        setFordPdfUrl(json.pdfUrl || json.sticker?.pdfUrl || null);
+        setParseError(
+          "The Ford window sticker has not yet been released. Dealer ad copy is not proof — status is unconfirmed."
+        );
+        setIsParsingLink(false);
+        return;
+      }
+
+      const matched = json.vehicle as Vehicle | null;
+      if (!matched) {
+        setParseError("Ford returned a sticker we could not parse.");
+        setIsParsingLink(false);
+        return;
+      }
+
+      setSelectedVehicle(matched);
+      setMake(matched.make);
+      setModel(matched.model);
+      setSelectedTrims([matched.trim]);
+      setMustHavePackages(json.mustHaveLines || []);
+      setNiceToHavePackages(json.niceToHaveLines || []);
+      setFordFilterableOptions(json.filterableOptions || []);
+      setFordStickerStatus("released");
+      setFordPdfUrl(json.pdfUrl || matched.oemBuildSheetUrl || null);
+      if (typeof json.sticker?.msrp === "number" && json.sticker.msrp > 0) {
+        setTargetOtdPrice(Math.round(json.sticker.msrp * 0.92));
+      }
+      const soldZip = json.sticker?.dealerSoldTo?.zip;
+      if (soldZip) setBuyerZip(soldZip);
+      setParseSuccessMsg(
+        `Ford window sticker (sticker) · VIN ${matched.vin}${
+          json.sticker?.msrp ? ` · MSRP ${formatStickerMsrp(json.sticker.msrp)}` : ""
+        }`
+      );
+      setIsParsingLink(false);
+    } catch (err: unknown) {
+      setParseError(err instanceof Error ? err.message : "Lookup failed");
+      setIsParsingLink(false);
+    }
+  };
+
+  const handleParseSecondaryUrl = async (idx: number, urlToParse?: string) => {
+    const raw = (urlToParse ?? secondaryUrls[idx] ?? "").trim();
+    if (!raw) return;
     setIsParsingSecondary((prev) => prev.map((v, i) => (i === idx ? true : v)));
-    setTimeout(() => {
+    try {
+      const res = await fetch("/api/ford-sticker", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ paste: raw }),
+      });
+      const json = await res.json().catch(() => ({}));
+      if (json.handled && json.vehicle) {
+        setSecondaryVehicles((prev) => prev.map((v, i) => (i === idx ? json.vehicle : v)));
+        return;
+      }
+      const url = raw.toLowerCase();
       const matched =
         vehicles.find((v) => url.includes(v.vin.toLowerCase()) || url.includes(v.make.toLowerCase())) || null;
       setSecondaryVehicles((prev) => prev.map((v, i) => (i === idx ? matched : v)));
+    } catch {
+      const url = raw.toLowerCase();
+      const matched =
+        vehicles.find((v) => url.includes(v.vin.toLowerCase()) || url.includes(v.make.toLowerCase())) || null;
+      setSecondaryVehicles((prev) => prev.map((v, i) => (i === idx ? matched : v)));
+    } finally {
       setIsParsingSecondary((prev) => prev.map((v, i) => (i === idx ? false : v)));
-    }, 500);
+    }
   };
 
   const handleRemoveSecondary = (idx: number) => {
@@ -349,7 +586,33 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     setSecondaryVehicles((prev) => prev.map((v, i) => (i === idx ? null : v)));
   };
 
+  const fillSecondaryFromFord = (picks: FordSuggestionCard[]) => {
+    const emptySlots = secondaryVehicles.reduce<number[]>((acc, v, i) => {
+      if (!v) acc.push(i);
+      return acc;
+    }, []);
+    if (emptySlots.length === 0 || picks.length === 0) return;
+    setSecondaryVehicles((prev) => {
+      const next = [...prev];
+      emptySlots.forEach((slotIdx, i) => {
+        if (picks[i]) next[slotIdx] = fordSuggestionToVehicle(picks[i]);
+      });
+      return next;
+    });
+    setSecondaryUrls((prev) => {
+      const next = [...prev];
+      emptySlots.forEach((slotIdx, i) => {
+        if (picks[i]?.dealerUrl) next[slotIdx] = picks[i].dealerUrl as string;
+      });
+      return next;
+    });
+  };
+
   const handleImportAiSuggestions = () => {
+    if (fordSuggestions.length > 0) {
+      fillSecondaryFromFord(fordSuggestions.slice(0, 2));
+      return;
+    }
     const emptySlots = secondaryVehicles.reduce<number[]>((acc, v, i) => {
       if (!v) acc.push(i);
       return acc;
@@ -370,6 +633,13 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
       });
       return next;
     });
+  };
+
+  const setFactoryPref = (name: string, pref: "must" | "nice" | "off") => {
+    setMustHavePackages((prev) => (pref === "must" ? Array.from(new Set([...prev, name])) : prev.filter((p) => p !== name)));
+    setNiceToHavePackages((prev) =>
+      pref === "nice" ? Array.from(new Set([...prev, name])) : prev.filter((p) => p !== name)
+    );
   };
 
   const hasCompetition = secondaryVehicles.some((v) => !!v);
@@ -690,7 +960,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                   Step 2: Pick Your Favorite Car
                 </h3>
                 <p className="text-xs text-ink-muted mt-0.5">
-                  This is the one you actually want — paste a direct dealership listing link, or search our nationwide inventory network.
+                  This is the one you actually want — paste a VIN or a dealership listing URL.
                 </p>
               </div>
 
@@ -727,17 +997,17 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                 <div className="space-y-4">
                   <div className="space-y-2">
                     <label className="text-[11px] font-bold text-ink-light uppercase flex items-center justify-between">
-                      <span>Paste Dealer / Listing URL (Autotrader, Dealer Website, Cars.com):</span>
+                      <span>Paste a VIN or dealer listing URL:</span>
                     </label>
 
                     <div className="flex flex-col sm:flex-row gap-2">
                       <div className="relative flex-1">
                         <Globe className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-emerald-400" />
                         <input
-                          type="url"
+                          type="text"
                           value={dealerUrlInput}
                           onChange={(e) => setDealerUrlInput(e.target.value)}
-                          placeholder="https://www.bmwsanrafael.com/inventory/new-2026-bmw-3-series..."
+                          placeholder="1FMWK8JCXTGB47204"
                           className="w-full rounded-xl border border-border bg-background py-2.5 pl-10 pr-3 text-xs text-white placeholder-ink-faint focus:border-emerald-500 focus:outline-none font-mono"
                         />
                       </div>
@@ -764,9 +1034,20 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                     {/* Quick 1-Click Preset Samples */}
                     <div className="space-y-1.5 pt-1">
                       <span className="text-[10px] uppercase font-bold text-ink-faint">
-                        Or click a sample dealer link to test:
+                        Or click a sample to test:
                       </span>
                       <div className="flex flex-wrap gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setDealerUrlInput(FORD_DEMO_VIN);
+                            handleParseDealerUrl(FORD_DEMO_VIN);
+                          }}
+                          className="rounded-lg bg-surface-elevated hover:bg-emerald-500/20 border border-border hover:border-emerald-500/40 px-2.5 py-1 text-[11px] text-ink-light hover:text-white transition-all flex items-center gap-1"
+                        >
+                          <Sparkles className="h-3 w-3 text-emerald-400" />
+                          <span>2026 Explorer Tremor (Ford sticker)</span>
+                        </button>
                         <button
                           type="button"
                           onClick={() => {
@@ -809,12 +1090,31 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                     </div>
                   </div>
 
+                    {parseError && (
+                      <div className="rounded-xl border border-amber-500/40 bg-amber-950/30 px-3 py-2 text-[11px] text-amber-200">
+                        {parseError}
+                      </div>
+                    )}
+
                   {/* Decoded Vehicle Preview Box */}
                   {parseSuccessMsg && selectedVehicle && (
                     <div className="rounded-2xl border-2 border-emerald-500/60 bg-gradient-to-r from-emerald-950/40 via-surface to-surface p-4 space-y-3 shadow-lg animate-fadeIn">
-                      <div className="flex items-center gap-2 text-xs font-bold text-emerald-400">
-                        <CheckCircle2 className="h-4 w-4 text-emerald-400" />
-                        <span>{parseSuccessMsg}</span>
+                      <div className="flex items-center justify-between gap-2 text-xs font-bold text-emerald-400">
+                        <span className="flex items-center gap-2">
+                          <CheckCircle2 className="h-4 w-4 text-emerald-400" />
+                          <span>{parseSuccessMsg}</span>
+                        </span>
+                        {fordPdfUrl && (
+                          <a
+                            href={fordPdfUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="flex items-center gap-1 text-[10px] font-bold text-emerald-300 hover:text-white"
+                          >
+                            <FileText className="h-3.5 w-3.5" />
+                            Ford sticker PDF
+                          </a>
+                        )}
                       </div>
 
                       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-t border-border/50 pt-3">
@@ -828,21 +1128,44 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                             </span>
                           </div>
                           <p className="text-xs text-ink-muted">
-                            VIN: <span className="font-mono text-ink-light">{selectedVehicle.vin}</span> • {selectedVehicle.engine} • {selectedVehicle.exteriorColor}
+                            VIN: <span className="font-mono text-ink-light">{selectedVehicle.vin}</span>
+                            {selectedVehicle.engine ? ` • ${selectedVehicle.engine}` : ""}
+                            {selectedVehicle.exteriorColor ? ` • ${selectedVehicle.exteriorColor}` : ""}
                           </p>
                           <div className="flex flex-wrap gap-1 pt-0.5">
-                            {selectedVehicle.packages.map((p, i) => (
+                            {(fordFilterableOptions.length > 0
+                              ? fordFilterableOptions.filter((o) => !o.isPackageChild).map((o) => o.name)
+                              : selectedVehicle.packages
+                            ).slice(0, 8).map((p, i) => (
                               <span key={i} className="rounded bg-surface-elevated px-1.5 py-0.2 text-[10px] text-ink-light border border-border">
                                 {p}
+                                {fordStickerStatus === "released" && (
+                                  <span className="ml-1 text-[9px] uppercase text-emerald-400/80">sticker</span>
+                                )}
                               </span>
                             ))}
                           </div>
+                          {fordStickerStatus === "released" && (
+                            <p className="text-[10px] text-ink-faint pt-1">
+                              Glossary: Keyless (fob) is standard. Keypad is $455. KEYLESS ENTRY W/PUSH START is not a filter.
+                            </p>
+                          )}
                         </div>
 
                         <div className="sm:text-right shrink-0 space-y-1">
                           <div>
-                            <div className="text-[11px] text-ink-muted line-through">MSRP {formatCurrency(selectedVehicle.msrp)}</div>
-                            <div className="text-base font-black text-white">{formatCurrency(selectedVehicle.dealerPrice)}</div>
+                            <div className="text-[11px] text-ink-muted">
+                              MSRP {formatStickerMsrp(selectedVehicle.msrp || null)}{" "}
+                              <span className="uppercase text-[9px] text-ink-faint">
+                                {selectedVehicle.msrp ? "sticker" : "unconfirmed"}
+                              </span>
+                            </div>
+                            <div className="text-base font-black text-white">
+                              {formatListingPrice(selectedVehicle.dealerPrice || null)}{" "}
+                              <span className="uppercase text-[9px] font-bold text-ink-faint">
+                                {selectedVehicle.dealerPrice ? "listing" : "unconfirmed"}
+                              </span>
+                            </div>
                           </div>
                           <button
                             type="button"
@@ -936,6 +1259,9 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                       </h4>
                       <p className="text-[11px] text-ink-muted mt-0.5">
                         Add up to 2 more listings you'd also accept — more dealers means more pressure on price.
+                        {fordStickerStatus === "released" && (
+                          <> Sticker-confirmed suggestions below fill these slots when they share your must-have factory options.</>
+                        )}
                       </p>
                     </div>
 
@@ -947,10 +1273,18 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                             <div className="flex items-center justify-between gap-2 rounded-xl border border-emerald-500/40 bg-emerald-500/10 px-3 py-2.5">
                               <div className="flex items-center gap-2 min-w-0">
                                 <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" />
-                                <span className="text-xs font-bold text-white truncate">
-                                  {matchedVehicle.year} {matchedVehicle.make} {matchedVehicle.model} {matchedVehicle.trim}
-                                </span>
-                                <span className="text-[11px] text-ink-muted shrink-0">· {matchedVehicle.location.dealerName}</span>
+                                <div className="min-w-0">
+                                  <span className="text-xs font-bold text-white truncate block">
+                                    {matchedVehicle.year} {matchedVehicle.make} {matchedVehicle.model} {matchedVehicle.trim}
+                                  </span>
+                                  <span className="text-[11px] text-ink-muted">
+                                    {matchedVehicle.location.dealerName}
+                                    {matchedVehicle.location.city ? ` · ${matchedVehicle.location.city}` : ""}
+                                    {matchedVehicle.location.state ? `, ${matchedVehicle.location.state}` : ""}
+                                    {" · "}
+                                    <span className="font-mono">{matchedVehicle.vin}</span>
+                                  </span>
+                                </div>
                               </div>
                               <button
                                 type="button"
@@ -965,12 +1299,12 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                               <div className="relative flex-1">
                                 <Link2 className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-ink-faint" />
                                 <input
-                                  type="url"
+                                  type="text"
                                   value={secondaryUrls[idx]}
                                   onChange={(e) =>
                                     setSecondaryUrls((prev) => prev.map((v, i) => (i === idx ? e.target.value : v)))
                                   }
-                                  placeholder={`Paste a ${idx === 0 ? "2nd" : "3rd"} listing link (optional)`}
+                                  placeholder={`Paste a ${idx === 0 ? "2nd" : "3rd"} VIN or listing link (optional)`}
                                   className="w-full rounded-xl border border-border bg-background py-2 pl-9 pr-3 text-xs text-white placeholder-ink-faint focus:border-emerald-500 focus:outline-none font-mono"
                                 />
                               </div>
@@ -993,19 +1327,136 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                       );
                     })}
 
-                    {!hasCompetition && aiSuggestions.length > 0 && (
+                    {!hasCompetition && (fordSuggestions.length > 0 || aiSuggestions.length > 0) && (
                       <button
                         type="button"
                         onClick={handleImportAiSuggestions}
                         className="w-full flex items-center justify-center gap-1.5 rounded-xl border border-dashed border-emerald-500/40 bg-emerald-500/5 py-2 text-xs font-bold text-emerald-400 hover:bg-emerald-500/10 transition-all"
                       >
                         <Sparkles className="h-3.5 w-3.5" />
-                        <span>Import AI Suggestions Below ↓</span>
+                        <span>
+                          {fordSuggestions.length > 0
+                            ? "Fill both slots with sticker-confirmed lots"
+                            : "Import AI Suggestions Below ↓"}
+                        </span>
                       </button>
                     )}
                   </div>
 
-                  {/* AI-SUGGESTED CLOSE COMPETITION: real nearby inventory */}
+                  {fordStickerStatus === "released" ? (
+                    <div className="rounded-xl border border-border bg-surface-elevated p-3.5 space-y-3">
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2 text-xs font-bold text-white">
+                          <Sparkles className="h-3.5 w-3.5 text-emerald-400" />
+                          <span>Sticker-confirmed similar lots</span>
+                        </div>
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          <MapPin className="h-3 w-3 text-ink-faint" />
+                          <input
+                            type="text"
+                            value={buyerZip}
+                            onChange={(e) => setBuyerZip(e.target.value)}
+                            placeholder="07405"
+                            className="w-16 rounded-lg border border-border bg-background py-1 px-2 text-[11px] text-white font-mono focus:border-emerald-500 focus:outline-none"
+                          />
+                          <input
+                            type="number"
+                            min={25}
+                            max={2000}
+                            value={fordRadius}
+                            onChange={(e) => setFordRadius(Number(e.target.value) || 500)}
+                            className="w-16 rounded-lg border border-border bg-background py-1 px-2 text-[11px] text-white font-mono focus:border-emerald-500 focus:outline-none"
+                            aria-label="Radius miles"
+                          />
+                          <span className="text-[10px] text-ink-faint">mi</span>
+                        </div>
+                      </div>
+                      <p className="text-[11px] text-ink-muted -mt-1.5">
+                        Coarse listings, then Ford window-sticker filter. Must-haves are hard filters. Dealer ads are not proof.
+                      </p>
+                      {fordSearchNote && (
+                        <p className="text-[10px] text-ink-faint">{fordSearchNote}</p>
+                      )}
+
+                      {isLoadingFordSuggestions ? (
+                        <div className="flex items-center gap-2 text-ink-muted text-xs py-3">
+                          <Loader2 className="h-3.5 w-3.5 animate-spin" /> Reading Ford stickers for nearby lots…
+                        </div>
+                      ) : fordSuggestions.length === 0 ? (
+                        <p className="text-[11px] text-ink-faint py-1">
+                          No sticker-confirmed matches for those must-haves yet
+                          {fordDroppedCount > 0 ? ` (${fordDroppedCount} candidates dropped).` : "."}
+                        </p>
+                      ) : (
+                        <div className="space-y-1.5">
+                          {fordSuggestions.slice(0, 2).map((s) => {
+                            const inHunt = secondaryVehicles.some((v) => v?.vin === s.vin);
+                            return (
+                              <div
+                                key={s.vin}
+                                className="rounded-lg border border-border bg-background px-2.5 py-2 text-[11px] space-y-1.5"
+                              >
+                                <div className="flex items-start justify-between gap-2">
+                                  <div className="min-w-0">
+                                    <div className="font-bold text-white truncate">
+                                      {s.dealerName} · {s.city}{s.state ? `, ${s.state}` : ""}
+                                    </div>
+                                    <div className="font-mono text-ink-light truncate">{s.vin}</div>
+                                    <div className="text-ink-faint">
+                                      Listing {formatListingPrice(s.listingPrice)}{" "}
+                                      <span className="uppercase">{sourceBadge(s.listingPriceSource)}</span>
+                                      {" · "}MSRP {formatStickerMsrp(s.msrp)}{" "}
+                                      <span className="uppercase">{sourceBadge(s.msrpSource)}</span>
+                                      {s.distanceMiles != null ? ` · ${s.distanceMiles} mi` : ""}
+                                    </div>
+                                    <div className="text-emerald-400/90">
+                                      Must: {s.matchedMustHaves.join(", ") || "—"}
+                                    </div>
+                                    {s.matchedNiceToHaves.length > 0 && (
+                                      <div className="text-ink-muted">
+                                        Nice: {s.matchedNiceToHaves.join(", ")}
+                                      </div>
+                                    )}
+                                  </div>
+                                  <div className="flex flex-col items-end gap-1 shrink-0">
+                                    {inHunt ? (
+                                      <span className="text-[10px] font-bold text-emerald-400">In hunt</span>
+                                    ) : (
+                                      <button
+                                        type="button"
+                                        onClick={() => fillSecondaryFromFord([s])}
+                                        className="rounded-lg bg-emerald-500 px-2 py-1 text-[10px] font-extrabold text-black hover:bg-emerald-400"
+                                      >
+                                        Add slot
+                                      </button>
+                                    )}
+                                    {s.dealerUrl && (
+                                      <a
+                                        href={s.dealerUrl}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="text-[10px] text-emerald-300 hover:text-white flex items-center gap-0.5"
+                                      >
+                                        Dealer <ExternalLink className="h-2.5 w-2.5" />
+                                      </a>
+                                    )}
+                                    <a
+                                      href={s.pdfUrl}
+                                      target="_blank"
+                                      rel="noreferrer"
+                                      className="text-[10px] text-ink-light hover:text-white flex items-center gap-0.5"
+                                    >
+                                      Sticker PDF <FileText className="h-2.5 w-2.5" />
+                                    </a>
+                                  </div>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  ) : (
                   <div className="rounded-xl border border-border bg-surface-elevated p-3.5 space-y-3">
                     <div className="flex items-center justify-between gap-2">
                       <div className="flex items-center gap-2 text-xs font-bold text-white">
@@ -1062,6 +1513,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                       </div>
                     )}
                   </div>
+                  )}
 
                   {/* DIRECT OFFER SHORTCUT: only one car, skip the auction */}
                   {!hasCompetition && (
@@ -1178,33 +1630,91 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
 
               {/* Must-Have Option Packages Selection */}
               <div className="space-y-2 pt-3 border-t border-border/50">
-                <label className="text-xs font-semibold text-ink-light">
-                  Confirm Must-Have Factory Packages:
-                </label>
-                <div className="grid grid-cols-2 gap-2">
-                  {MOCK_POPULAR_PACKAGES.map((pkg) => {
-                    const isChecked = mustHavePackages.includes(pkg.name);
-                    return (
-                      <div
-                        key={pkg.name}
-                        onClick={() => togglePackage(pkg.name)}
-                        className={`flex items-center gap-2 rounded-lg border p-2 text-xs cursor-pointer transition-all ${
-                          isChecked
-                            ? "border-emerald-500 bg-emerald-500/10 text-emerald-300 font-semibold"
-                            : "border-border bg-surface-elevated text-ink-muted hover:border-border-strong"
-                        }`}
-                      >
-                        <input
-                          type="checkbox"
-                          checked={isChecked}
-                          onChange={() => {}}
-                          className="rounded border-border text-emerald-500 focus:ring-0"
-                        />
-                        <span className="truncate">{pkg.name}</span>
-                      </div>
-                    );
-                  })}
-                </div>
+                {fordStickerStatus === "released" && fordFilterableOptions.length > 0 ? (
+                  <>
+                    <label className="text-xs font-semibold text-ink-light">
+                      Must-have vs nice-to-have factory options (sticker):
+                    </label>
+                    <p className="text-[10px] text-ink-faint">
+                      Glossary: Keyless (fob) is standard. Keypad is $455. KEYLESS ENTRY W/PUSH START is not a filter.
+                    </p>
+                    <div className="space-y-1.5">
+                      {fordFilterableOptions
+                        .filter((o) => !o.isPackageChild)
+                        .map((opt) => {
+                          const pref = mustHavePackages.includes(opt.name)
+                            ? "must"
+                            : niceToHavePackages.includes(opt.name)
+                              ? "nice"
+                              : "off";
+                          return (
+                            <div
+                              key={opt.name}
+                              className="flex items-center justify-between gap-2 rounded-lg border border-border bg-surface-elevated px-2.5 py-2 text-xs"
+                            >
+                              <span className="truncate text-white">
+                                {opt.name}
+                                {opt.price != null && opt.price > 0 ? (
+                                  <span className="text-ink-muted"> · {formatCurrency(opt.price)}</span>
+                                ) : null}
+                                <span className="ml-1 text-[9px] uppercase text-emerald-400/80">sticker</span>
+                              </span>
+                              <div className="flex gap-1 shrink-0">
+                                {(["must", "nice", "off"] as const).map((p) => (
+                                  <button
+                                    type="button"
+                                    key={p}
+                                    onClick={() => setFactoryPref(opt.name, p)}
+                                    className={`rounded px-1.5 py-0.5 text-[10px] font-bold uppercase ${
+                                      pref === p
+                                        ? p === "must"
+                                          ? "bg-emerald-500 text-black"
+                                          : p === "nice"
+                                            ? "bg-sky-500 text-black"
+                                            : "bg-border text-white"
+                                        : "bg-background text-ink-faint hover:text-white"
+                                    }`}
+                                  >
+                                    {p === "must" ? "Must" : p === "nice" ? "Nice" : "Off"}
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                          );
+                        })}
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <label className="text-xs font-semibold text-ink-light">
+                      Confirm Must-Have Factory Packages:
+                    </label>
+                    <div className="grid grid-cols-2 gap-2">
+                      {MOCK_POPULAR_PACKAGES.map((pkg) => {
+                        const isChecked = mustHavePackages.includes(pkg.name);
+                        return (
+                          <div
+                            key={pkg.name}
+                            onClick={() => togglePackage(pkg.name)}
+                            className={`flex items-center gap-2 rounded-lg border p-2 text-xs cursor-pointer transition-all ${
+                              isChecked
+                                ? "border-emerald-500 bg-emerald-500/10 text-emerald-300 font-semibold"
+                                : "border-border bg-surface-elevated text-ink-muted hover:border-border-strong"
+                            }`}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={isChecked}
+                              onChange={() => {}}
+                              className="rounded border-border text-emerald-500 focus:ring-0"
+                            />
+                            <span className="truncate">{pkg.name}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           )}
