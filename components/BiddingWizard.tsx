@@ -1104,7 +1104,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                               setHuntZip(next);
                               if (next.length === 5) setBuyerZip(next);
                             }}
-                            placeholder="07405"
+                            placeholder="e.g. 07405"
                             aria-required="true"
                             autoComplete="postal-code"
                             className="w-full rounded-xl border border-border bg-background py-2 pl-9 pr-3 text-xs text-white placeholder-ink-faint focus:border-emerald-500 focus:outline-none font-mono"
@@ -1114,16 +1114,16 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                       <label className="space-y-1">
                         <span className="text-[10px] font-bold uppercase text-ink-faint">Radius miles (required)</span>
                         <input
-                          type="number"
-                          min={1}
+                          type="text"
                           inputMode="numeric"
                           value={huntRadius}
                           onChange={(e) => {
-                            setHuntRadius(e.target.value);
-                            const n = Number(e.target.value);
+                            const next = e.target.value.replace(/\D/g, "").slice(0, 4);
+                            setHuntRadius(next);
+                            const n = Number(next);
                             if (Number.isFinite(n) && n > 0) setSearchRadius(n);
                           }}
-                          placeholder="100"
+                          placeholder="e.g. 100"
                           aria-required="true"
                           aria-label="Search radius in miles"
                           className="w-full rounded-xl border border-border bg-background py-2 px-3 text-xs text-white placeholder-ink-faint focus:border-emerald-500 focus:outline-none font-mono"
