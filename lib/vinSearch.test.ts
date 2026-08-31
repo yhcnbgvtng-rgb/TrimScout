@@ -1,8 +1,10 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
+import { env } from "node:process";
 import { describe, it } from "node:test";
 import { getFordSticker, parseFordStickerText } from "./fordSticker";
+import { serverSecret } from "./serverSecret";
 import {
   FORD_COMPETITION_LOADING,
   FORD_COMPETITION_NEED_LOCATION,
@@ -473,23 +475,44 @@ describe("Increase Competition slots are the hunt result", () => {
   });
 });
 
-describe("listings secrets are read at runtime, not inlined at build", () => {
-  it("does not statically access listings keys via process.env.NAME", () => {
+describe("listings secrets are read from Node env, not webpack-stripped process.env", () => {
+  it("serverSecret uses node:process env plus static fallbacks; listings modules do not rely solely on dynamic process.env[name]", () => {
     const vinSearchSrc = fs.readFileSync(path.join(import.meta.dirname, "vinSearch.ts"), "utf8");
     const helperSrc = fs.readFileSync(path.join(import.meta.dirname, "serverSecret.ts"), "utf8");
     const inventorySrc = fs.readFileSync(path.join(process.cwd(), "app/api/inventory/route.ts"), "utf8");
-    assert.match(helperSrc, /process\.env\[name\]/);
+    const routeSrc = fs.readFileSync(path.join(process.cwd(), "app/api/ford-comparables/route.ts"), "utf8");
+    assert.match(helperSrc, /from ["']node:process["']/);
+    assert.match(helperSrc, /env\[name\]/);
+    assert.match(helperSrc, /env\.AUTO_DEV_API_KEY \|\| process\.env\.AUTO_DEV_API_KEY/);
+    assert.match(helperSrc, /env\.MARKETCHECK_API_KEY \|\| process\.env\.MARKETCHECK_API_KEY/);
+    assert.doesNotMatch(helperSrc, /NEXT_PUBLIC_[A-Z0-9_]+/);
+    assert.match(routeSrc, /export const dynamic = ["']force-dynamic["']/);
+    assert.match(routeSrc, /export const runtime = ["']nodejs["']/);
+    assert.match(routeSrc, /export const revalidate = 0/);
     for (const src of [vinSearchSrc, inventorySrc]) {
+      assert.match(src, /serverSecret\(/);
+      assert.doesNotMatch(src, /process\.env\[/);
       assert.doesNotMatch(src, /process\.env\.AUTO_DEV_API_KEY/);
       assert.doesNotMatch(src, /process\.env\.MARKETCHECK_API_KEY/);
     }
   });
 
-  it("searchCoarseListings chooses auto.dev when AUTO_DEV_API_KEY is set via bracket access", async () => {
-    const prevA = process.env["AUTO_DEV_API_KEY"];
-    const prevM = process.env["MARKETCHECK_API_KEY"];
-    process.env["AUTO_DEV_API_KEY"] = "runtime-test-auto-dev";
-    delete process.env["MARKETCHECK_API_KEY"];
+  it("serverSecret reads AUTO_DEV_API_KEY from node:process env", () => {
+    const prevA = env["AUTO_DEV_API_KEY"];
+    env["AUTO_DEV_API_KEY"] = "runtime-test-auto-dev";
+    try {
+      assert.equal(serverSecret("AUTO_DEV_API_KEY"), "runtime-test-auto-dev");
+    } finally {
+      if (prevA !== undefined) env["AUTO_DEV_API_KEY"] = prevA;
+      else delete env["AUTO_DEV_API_KEY"];
+    }
+  });
+
+  it("searchCoarseListings chooses auto.dev when AUTO_DEV_API_KEY is set on node:process env", async () => {
+    const prevA = env["AUTO_DEV_API_KEY"];
+    const prevM = env["MARKETCHECK_API_KEY"];
+    env["AUTO_DEV_API_KEY"] = "runtime-test-auto-dev";
+    delete env["MARKETCHECK_API_KEY"];
     const origFetch = globalThis.fetch;
     let autoDevCalls = 0;
     globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
@@ -515,18 +538,18 @@ describe("listings secrets are read at runtime, not inlined at build", () => {
       assert.match(result.note, /Auto\.dev/);
     } finally {
       globalThis.fetch = origFetch;
-      if (prevA !== undefined) process.env["AUTO_DEV_API_KEY"] = prevA;
-      else delete process.env["AUTO_DEV_API_KEY"];
-      if (prevM !== undefined) process.env["MARKETCHECK_API_KEY"] = prevM;
-      else delete process.env["MARKETCHECK_API_KEY"];
+      if (prevA !== undefined) env["AUTO_DEV_API_KEY"] = prevA;
+      else delete env["AUTO_DEV_API_KEY"];
+      if (prevM !== undefined) env["MARKETCHECK_API_KEY"] = prevM;
+      else delete env["MARKETCHECK_API_KEY"];
     }
   });
 
-  it("searchCoarseListings chooses marketcheck when only MARKETCHECK_API_KEY is set via bracket access", async () => {
-    const prevA = process.env["AUTO_DEV_API_KEY"];
-    const prevM = process.env["MARKETCHECK_API_KEY"];
-    delete process.env["AUTO_DEV_API_KEY"];
-    process.env["MARKETCHECK_API_KEY"] = "runtime-test-marketcheck";
+  it("searchCoarseListings chooses marketcheck when only MARKETCHECK_API_KEY is set on node:process env", async () => {
+    const prevA = env["AUTO_DEV_API_KEY"];
+    const prevM = env["MARKETCHECK_API_KEY"];
+    delete env["AUTO_DEV_API_KEY"];
+    env["MARKETCHECK_API_KEY"] = "runtime-test-marketcheck";
     const origFetch = globalThis.fetch;
     let marketcheckCalls = 0;
     globalThis.fetch = (async (input: RequestInfo | URL) => {
@@ -550,10 +573,10 @@ describe("listings secrets are read at runtime, not inlined at build", () => {
       assert.equal(marketcheckCalls, 1);
     } finally {
       globalThis.fetch = origFetch;
-      if (prevA !== undefined) process.env["AUTO_DEV_API_KEY"] = prevA;
-      else delete process.env["AUTO_DEV_API_KEY"];
-      if (prevM !== undefined) process.env["MARKETCHECK_API_KEY"] = prevM;
-      else delete process.env["MARKETCHECK_API_KEY"];
+      if (prevA !== undefined) env["AUTO_DEV_API_KEY"] = prevA;
+      else delete env["AUTO_DEV_API_KEY"];
+      if (prevM !== undefined) env["MARKETCHECK_API_KEY"] = prevM;
+      else delete env["MARKETCHECK_API_KEY"];
     }
   });
 });
