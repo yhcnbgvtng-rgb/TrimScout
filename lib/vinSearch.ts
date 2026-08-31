@@ -410,18 +410,10 @@ export async function searchCoarseListings(q: {
 
 export function rankFordMatches(matches: FordMatchCard[]): FordMatchCard[] {
   return [...matches].sort((a, b) => {
-    if (b.matchedNiceToHaves.length !== a.matchedNiceToHaves.length) {
-      return b.matchedNiceToHaves.length - a.matchedNiceToHaves.length;
-    }
-    const aPrice = a.listingPrice && a.listingPrice > 0 ? a.listingPrice : Number.POSITIVE_INFINITY;
-    const bPrice = b.listingPrice && b.listingPrice > 0 ? b.listingPrice : Number.POSITIVE_INFINITY;
-    if (aPrice !== bPrice) return aPrice - bPrice;
-    const aMsrp = a.msrp && a.msrp > 0 ? a.msrp : Number.POSITIVE_INFINITY;
-    const bMsrp = b.msrp && b.msrp > 0 ? b.msrp : Number.POSITIVE_INFINITY;
-    if (aMsrp !== bMsrp) return aMsrp - bMsrp;
     const aDist = a.distanceMiles ?? Number.POSITIVE_INFINITY;
     const bDist = b.distanceMiles ?? Number.POSITIVE_INFINITY;
-    return aDist - bDist;
+    if (aDist !== bDist) return aDist - bDist;
+    return a.vin.localeCompare(b.vin);
   });
 }
 

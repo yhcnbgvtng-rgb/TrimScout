@@ -88,6 +88,10 @@ describe("vinSearch rank + must-have filter", () => {
     assert.ok(!matchVins.includes(MALL_OF_GEORGIA), "Mall of Georgia has Ultimate but no keypad");
     assert.ok(!matchVins.includes(DECOY_23), "1FMUK 2.3 decoy must be prefix-excluded");
     assert.ok(result.matches.every((m) => m.distanceMiles != null && m.distanceMiles <= 500));
+    assert.ok(
+      (result.matches[0].distanceMiles ?? Infinity) <= (result.matches[1].distanceMiles ?? Infinity),
+      "Increase Competition slots must be nearest-first"
+    );
 
     const decoyDrop = result.dropped.find((d) => d.vin === DECOY_23);
     assert.equal(decoyDrop?.reason, "engine_prefix");
@@ -99,34 +103,35 @@ describe("vinSearch rank + must-have filter", () => {
     assert.ok(unreleased.length >= 2, "Lilliston + Larson placeholders must not count as matches");
   });
 
-  it("ranks more nice-to-have overlap first, then lower price, then closer", () => {
-    const a: FordMatchCard = {
+  it("ranks nearest first even if a farther lot is cheaper or has more niceties", () => {
+    const base: FordMatchCard = {
       vin: "A",
       dealerName: "A",
       city: "X",
       state: "NJ",
-      distanceMiles: 10,
-      listingPrice: 50000,
+      distanceMiles: 20,
+      listingPrice: 60000,
       listingPriceSource: "listing",
-      msrp: 60000,
+      msrp: 62000,
       msrpSource: "sticker",
       dealerUrl: null,
       pdfUrl: "",
       matchedMustHaves: ["Ultimate Package"],
-      matchedNiceToHaves: ["BlueCruise"],
+      matchedNiceToHaves: [],
       stickerStatus: "released",
     };
-    const b: FordMatchCard = {
-      ...a,
-      vin: "B",
-      dealerName: "B",
-      distanceMiles: 5,
-      listingPrice: 48000,
+    const near = { ...base, vin: "NEAR", distanceMiles: 20, listingPrice: 60000, matchedNiceToHaves: [] };
+    const farCheapNice = {
+      ...base,
+      vin: "FAR",
+      dealerName: "FAR",
+      distanceMiles: 80,
+      listingPrice: 40000,
       matchedNiceToHaves: ["BlueCruise", "Spare"],
     };
     assert.deepEqual(
-      rankFordMatches([a, b]).map((m) => m.vin),
-      ["B", "A"]
+      rankFordMatches([farCheapNice, near]).map((m) => m.vin),
+      ["NEAR", "FAR"]
     );
   });
 
@@ -145,6 +150,9 @@ describe("vinSearch rank + must-have filter", () => {
     assert.ok(matchVins.includes(BATTLEFIELD));
     assert.equal(matchVins.includes(MALL_OF_GEORGIA), false);
     assert.equal(matchVins.includes(DECOY_23), false);
+    assert.ok(
+      (result.matches[0].distanceMiles ?? Infinity) <= (result.matches[1].distanceMiles ?? Infinity)
+    );
   });
 
   it("does not fill Explorer Tremor demo lots onto a Bronco Sport subject", async () => {

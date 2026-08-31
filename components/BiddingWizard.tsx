@@ -463,32 +463,37 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
       );
       return;
     }
-    const suggestionVins = new Set(fordSuggestions.map((s) => s.vin));
+    const suggestionPair = fordSuggestions.slice(0, 2);
     setSecondaryVehicles((prev) => {
-      const cleared = prev.map((v) => {
-        if (v && autoFilledVins.current.has(v.vin) && !suggestionVins.has(v.vin)) {
+      const clearedIdx: number[] = [];
+      const next = prev.map((v, i) => {
+        if (v && autoFilledVins.current.has(v.vin)) {
           autoFilledVins.current.delete(v.vin);
+          clearedIdx.push(i);
           return null;
         }
         return v;
       });
-      if (fordSuggestions.length === 0) return cleared;
-      const next = [...cleared];
       const used = new Set(next.filter(Boolean).map((v) => v!.vin));
-      for (const s of fordSuggestions.slice(0, 2)) {
+      for (const s of suggestionPair) {
+        if (used.has(s.vin)) continue;
         const emptyIdx = next.findIndex((v) => !v);
         if (emptyIdx < 0) break;
-        if (used.has(s.vin)) continue;
         next[emptyIdx] = fordSuggestionToVehicle(s);
         autoFilledVins.current.add(s.vin);
         used.add(s.vin);
       }
-      return next;
-    });
-    setSecondaryUrls((prev) => {
-      const next = [...prev];
-      fordSuggestions.slice(0, 2).forEach((s, i) => {
-        if (!next[i] && s.dealerUrl) next[i] = s.dealerUrl;
+      setSecondaryUrls((prevUrls) => {
+        const urls = [...prevUrls];
+        clearedIdx.forEach((i) => {
+          urls[i] = "";
+        });
+        next.forEach((v, i) => {
+          if (!v || !autoFilledVins.current.has(v.vin)) return;
+          const s = suggestionPair.find((x) => x.vin === v.vin);
+          if (s?.dealerUrl) urls[i] = s.dealerUrl;
+        });
+        return urls;
       });
       return next;
     });
