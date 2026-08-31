@@ -68,6 +68,9 @@ export const EXACT_ZIP_LOOKUP: Record<string, ExactZipData> = {
   "11101": { lat: 40.7480, lng: -73.9390, city: "Long Island City", state: "NY", taxRate: 0.08875 },
   "07030": { lat: 40.7440, lng: -74.0320, city: "Hoboken", state: "NJ", taxRate: 0.06625 },
   "07302": { lat: 40.7180, lng: -74.0430, city: "Jersey City", state: "NJ", taxRate: 0.06625 },
+  "07405": { lat: 40.9273, lng: -74.3415, city: "Butler", state: "NJ", taxRate: 0.06625 },
+  "15131": { lat: 40.3410, lng: -79.8070, city: "White Oak", state: "PA", taxRate: 0.07 },
+  "22701": { lat: 38.4730, lng: -77.9960, city: "Culpeper", state: "VA", taxRate: 0.053 },
 
   // --- TEXAS METROS ---
   "75201": { lat: 32.7880, lng: -96.7990, city: "Dallas (Downtown)", state: "TX", taxRate: 0.0825 },
