@@ -294,7 +294,29 @@ describe("advertised listing price from VDP HTML", () => {
     assert.equal(extractAdvertisedListingPrice(html), 58372);
   });
 
-  it("returns null when only MSRP is on the page", () => {
+  it("prefers 23ford Sale Price over the higher Price line and MSRP", () => {
+    const html = `
+      <div>MSRP¹ $64,705</div>
+      <div>Documentation Fee $589</div>
+      <div>Price $64,794</div>
+      <div>Sale Price** $60,294</div>
+      <script type="application/ld+json">{"@type":"Vehicle","offers":{"@type":"Offer","price":"64794"}}</script>
+    `;
+    assert.equal(extractAdvertisedListingPrice(html), 60294);
+  });
+
+  it("uses JSON-LD offer only when it is a real discount vs MSRP", () => {
+    const discounted = `
+      <div>MSRP $64,705</div>
+      <script type="application/ld+json">{"@type":"Vehicle","offers":{"@type":"Offer","price":60294}}</script>
+    `;
+    assert.equal(extractAdvertisedListingPrice(discounted), 60294);
+    const feesOnly = `
+      <div>MSRP $64,705</div>
+      <div>Price $64,794</div>
+      <script type="application/ld+json">{"@type":"Vehicle","offers":{"@type":"Offer","price":64794}}</script>
+    `;
+    assert.equal(extractAdvertisedListingPrice(feesOnly), null);
     assert.equal(extractAdvertisedListingPrice(`<div>MSRP $64,705</div>`), null);
   });
 });

@@ -521,6 +521,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     setFordSuggestions([]);
     setFordFilterableOptions([]);
     setNiceToHavePackages([]);
+    setMustHavePackages([]);
     setSecondaryVehicles([null, null]);
     setSecondaryUrls(["", ""]);
     setFordHuntError(null);
@@ -575,7 +576,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
       setMake(matched.make);
       setModel(matched.model);
       setSelectedTrims([matched.trim]);
-      setMustHavePackages(json.mustHaveLines || []);
+      setMustHavePackages(Array.isArray(json.mustHaveLines) ? json.mustHaveLines : []);
       setNiceToHavePackages(json.niceToHaveLines || []);
       setFordFilterableOptions(json.filterableOptions || []);
       setFordStickerStatus("released");

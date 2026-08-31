@@ -709,6 +709,7 @@ export function stickerColorOptionLines(sticker: FordSticker): FordOptionLine[] 
 }
 
 export function defaultMustHaveLines(_sticker?: FordSticker): string[] {
+  // Ultimate Package / keypad / color are filter examples, not product defaults.
   return [];
 }
 
@@ -903,14 +904,16 @@ function collectJsonLdOffers(html: string): { listing: number[]; msrp: number[] 
  */
 export function extractAdvertisedListingPrice(html: string): number | null {
   if (!html) return null;
-  const labeled: number[] = [];
-  const labeledRe =
-    /(?:internet|sale|our|your|shorkey|dealer)\s*price[^$0-9]{0,80}\$?\s*([0-9]{1,3}(?:,[0-9]{3})+(?:\.[0-9]{2})?)/gi;
+  const saleLabeled: number[] = [];
+  const saleRe =
+    /(?:internet\s*price|sale\s*price|our\s*price|your\s*price|shorkey\s*price)[^$0-9]{0,80}\$?\s*([0-9]{1,3}(?:,[0-9]{3})+(?:\.[0-9]{2})?)/gi;
   let m: RegExpExecArray | null;
-  while ((m = labeledRe.exec(html)) !== null) {
+  while ((m = saleRe.exec(html)) !== null) {
     const n = parseUsdAmount(m[1]);
-    if (n) labeled.push(n);
+    if (n) saleLabeled.push(n);
   }
+  if (saleLabeled.length > 0) return Math.min(...saleLabeled);
+
   const jsonLd = collectJsonLdOffers(html);
   const msrpLabeled: number[] = [];
   const msrpRe = /msrp[^$0-9]{0,80}\$?\s*([0-9]{1,3}(?:,[0-9]{3})+(?:\.[0-9]{2})?)/gi;
@@ -918,11 +921,11 @@ export function extractAdvertisedListingPrice(html: string): number | null {
     const n = parseUsdAmount(m[1]);
     if (n) msrpLabeled.push(n);
   }
-  const advertised = [...labeled, ...jsonLd.listing];
-  const msrpSet = new Set([...msrpLabeled, ...jsonLd.msrp]);
-  const nonMsrp = advertised.filter((p) => !msrpSet.has(p));
-  if (nonMsrp.length > 0) return Math.min(...nonMsrp);
-  if (advertised.length > 0) return advertised[0];
+  const msrpVals = [...msrpLabeled, ...jsonLd.msrp];
+  const msrpFloor = msrpVals.length > 0 ? Math.min(...msrpVals) : null;
+  // Ignore a generic "Price" / Offer that is just MSRP + fees (e.g. 23ford $64,794).
+  const discounted = jsonLd.listing.filter((p) => msrpFloor == null || p <= msrpFloor - 500);
+  if (discounted.length > 0) return Math.min(...discounted);
   return null;
 }
 
