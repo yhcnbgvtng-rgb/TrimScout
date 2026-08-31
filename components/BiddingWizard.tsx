@@ -1,11 +1,17 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { Vehicle, BiddingStrategy, PaymentMethod, BiddingRequest, TradeInVehicle, TradeInPhoto, UserProfile } from "../lib/types";
 import { formatCurrency, getEstimatedTaxRate } from "../lib/otdCalculator";
 import { findContactInfo } from "../lib/piiFilter";
 import { MOCK_POPULAR_PACKAGES, SAMPLE_TRADE_IN_VEHICLE } from "../lib/mockData";
 import { decodeVin, SAMPLE_TEST_VINS, DecodedVehicle } from "../lib/vinDecoder";
+import {
+  FORD_COMPETITION_LOADING,
+  FORD_COMPETITION_NEED_LOCATION,
+  autoFillCompetitionSlots,
+  fordCompetitionEmptyCopy,
+} from "../lib/fordCompetitionUi";
 import {
   X,
   ShieldCheck,
@@ -28,7 +34,6 @@ import {
   Link2,
   Globe,
   LoaderCircle as Loader2,
-  ExternalLink,
   Layers,
   Coins,
   CreditCard,
@@ -68,12 +73,6 @@ function formatListingPrice(amount: number | null | undefined): string {
 function formatStickerMsrp(amount: number | null | undefined): string {
   if (amount == null || amount <= 0) return "unconfirmed";
   return formatCurrency(amount);
-}
-
-function sourceBadge(source: string): string {
-  if (source === "sticker") return "sticker";
-  if (source === "listing") return "listing";
-  return "unconfirmed";
 }
 
 function milesFromUserZip(miles: number | null | undefined, zip: string): string | null {
@@ -221,10 +220,10 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   const [fordSuggestions, setFordSuggestions] = useState<FordSuggestionCard[]>([]);
   const [isLoadingFordSuggestions, setIsLoadingFordSuggestions] = useState(false);
   const [fordSearchNote, setFordSearchNote] = useState<string | null>(null);
+  const [fordHuntError, setFordHuntError] = useState<string | null>(null);
   const [fordDroppedCount, setFordDroppedCount] = useState(0);
   const [huntZip, setHuntZip] = useState("");
   const [huntRadius, setHuntRadius] = useState("");
-  const autoFilledVins = useRef<Set<string>>(new Set());
 
   // Step 2: up to 2 optional secondary vehicle links, to widen competition
   // beyond just the favorite pick.
@@ -370,16 +369,25 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   useEffect(() => {
     if (fordStickerStatus !== "released" || !selectedVehicle?.vin) {
       setFordSuggestions([]);
+      setFordHuntError(null);
+      setFordSearchNote(null);
+      setIsLoadingFordSuggestions(false);
       return;
     }
     if (!huntReady) {
       setFordSuggestions([]);
-      setFordSearchNote("Enter a ZIP and radius (miles) to get two sticker-matched lots in range.");
+      setFordHuntError(null);
+      setFordSearchNote(FORD_COMPETITION_NEED_LOCATION);
+      setFordDroppedCount(0);
       setIsLoadingFordSuggestions(false);
       return;
     }
     let cancelled = false;
     setIsLoadingFordSuggestions(true);
+    setFordHuntError(null);
+    setFordSuggestions([]);
+    setFordSearchNote(null);
+    setFordDroppedCount(0);
     fetch("/api/ford-comparables", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -391,15 +399,31 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
         radiusMiles: Number(huntRadius),
       }),
     })
-      .then((res) => res.json())
-      .then((json) => {
+      .then(async (res) => {
+        const json = await res.json().catch(() => ({}));
         if (cancelled) return;
+        if (!res.ok || json.error) {
+          setFordSuggestions([]);
+          setFordSearchNote(null);
+          setFordDroppedCount(0);
+          setFordHuntError(
+            typeof json.error === "string" && json.error.trim()
+              ? json.error
+              : `Could not load similar lots (${res.status || "network error"}).`
+          );
+          return;
+        }
+        setFordHuntError(null);
         setFordSuggestions(json.matches || []);
         setFordSearchNote(json.note || null);
         setFordDroppedCount(Array.isArray(json.dropped) ? json.dropped.length : 0);
       })
-      .catch(() => {
-        if (!cancelled) setFordSuggestions([]);
+      .catch((err: unknown) => {
+        if (cancelled) return;
+        setFordSuggestions([]);
+        setFordSearchNote(null);
+        setFordDroppedCount(0);
+        setFordHuntError(err instanceof Error ? err.message : "Could not load similar lots.");
       })
       .finally(() => {
         if (!cancelled) setIsLoadingFordSuggestions(false);
@@ -449,55 +473,17 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     };
   }, [fordStickerStatus, selectedVehicle?.vin, selectedVehicle?.make, selectedVehicle?.model, buyerZip]);
 
+  // One path: when hunt results update, the two slots ARE those two nearest
+  // matches (including lots with no dealerUrl). No extra click.
   useEffect(() => {
-    if (fordStickerStatus !== "released" || !selectedVehicle?.vin) return;
-    if (!huntReady) {
-      setSecondaryVehicles((prev) =>
-        prev.map((v) => {
-          if (v && autoFilledVins.current.has(v.vin)) {
-            autoFilledVins.current.delete(v.vin);
-            return null;
-          }
-          return v;
-        })
-      );
-      return;
-    }
-    const suggestionPair = fordSuggestions.slice(0, 2);
-    setSecondaryVehicles((prev) => {
-      const clearedIdx: number[] = [];
-      const next = prev.map((v, i) => {
-        if (v && autoFilledVins.current.has(v.vin)) {
-          autoFilledVins.current.delete(v.vin);
-          clearedIdx.push(i);
-          return null;
-        }
-        return v;
-      });
-      const used = new Set(next.filter(Boolean).map((v) => v!.vin));
-      for (const s of suggestionPair) {
-        if (used.has(s.vin)) continue;
-        const emptyIdx = next.findIndex((v) => !v);
-        if (emptyIdx < 0) break;
-        next[emptyIdx] = fordSuggestionToVehicle(s);
-        autoFilledVins.current.add(s.vin);
-        used.add(s.vin);
-      }
-      setSecondaryUrls((prevUrls) => {
-        const urls = [...prevUrls];
-        clearedIdx.forEach((i) => {
-          urls[i] = "";
-        });
-        next.forEach((v, i) => {
-          if (!v || !autoFilledVins.current.has(v.vin)) return;
-          const s = suggestionPair.find((x) => x.vin === v.vin);
-          if (s?.dealerUrl) urls[i] = s.dealerUrl;
-        });
-        return urls;
-      });
-      return next;
-    });
-  }, [fordSuggestions, selectedVehicle?.vin, fordStickerStatus, huntReady]);
+    if (fordStickerStatus !== "released") return;
+    const [first, second] = autoFillCompetitionSlots(fordSuggestions);
+    setSecondaryVehicles([
+      first ? fordSuggestionToVehicle(first) : null,
+      second ? fordSuggestionToVehicle(second) : null,
+    ]);
+    setSecondaryUrls([first?.dealerUrl || "", second?.dealerUrl || ""]);
+  }, [fordSuggestions, fordStickerStatus]);
 
   const applyMockParse = (raw: string) => {
     const url = raw.toLowerCase();
@@ -540,7 +526,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     setNiceToHavePackages([]);
     setSecondaryVehicles([null, null]);
     setSecondaryUrls(["", ""]);
-    autoFilledVins.current = new Set();
+    setFordHuntError(null);
 
     try {
       const res = await fetch("/api/ford-sticker", {
@@ -649,47 +635,10 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
 
   const handleRemoveSecondary = (idx: number) => {
     setSecondaryUrls((prev) => prev.map((v, i) => (i === idx ? "" : v)));
-    setSecondaryVehicles((prev) =>
-      prev.map((v, i) => {
-        if (i === idx) {
-          if (v) autoFilledVins.current.delete(v.vin);
-          return null;
-        }
-        return v;
-      })
-    );
-  };
-
-  const fillSecondaryFromFord = (picks: FordSuggestionCard[]) => {
-    const emptySlots = secondaryVehicles.reduce<number[]>((acc, v, i) => {
-      if (!v) acc.push(i);
-      return acc;
-    }, []);
-    if (emptySlots.length === 0 || picks.length === 0) return;
-    setSecondaryVehicles((prev) => {
-      const next = [...prev];
-      emptySlots.forEach((slotIdx, i) => {
-        if (picks[i]) {
-          next[slotIdx] = fordSuggestionToVehicle(picks[i]);
-          autoFilledVins.current.add(picks[i].vin);
-        }
-      });
-      return next;
-    });
-    setSecondaryUrls((prev) => {
-      const next = [...prev];
-      emptySlots.forEach((slotIdx, i) => {
-        if (picks[i]?.dealerUrl) next[slotIdx] = picks[i].dealerUrl as string;
-      });
-      return next;
-    });
+    setSecondaryVehicles((prev) => prev.map((v, i) => (i === idx ? null : v)));
   };
 
   const handleImportAiSuggestions = () => {
-    if (fordSuggestions.length > 0) {
-      fillSecondaryFromFord(fordSuggestions.slice(0, 2));
-      return;
-    }
     const emptySlots = secondaryVehicles.reduce<number[]>((acc, v, i) => {
       if (!v) acc.push(i);
       return acc;
@@ -713,6 +662,18 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   };
 
   const hasCompetition = secondaryVehicles.some((v) => !!v);
+  const huntLocationMissing = fordStickerStatus === "released" && !huntReady;
+  const fordEmptySlots =
+    fordStickerStatus === "released"
+      ? fordCompetitionEmptyCopy({
+          huntReady,
+          loading: isLoadingFordSuggestions,
+          error: fordHuntError,
+          note: fordSearchNote,
+          droppedCount: fordDroppedCount,
+          matchCount: fordSuggestions.length,
+        })
+      : null;
 
   const handleSubmitDirectOffer = () => {
     setStrategy("firm_offer");
@@ -1110,7 +1071,13 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
 
                     <div className="grid grid-cols-2 gap-2">
                       <label className="space-y-1">
-                        <span className="text-[10px] font-bold uppercase text-ink-faint">Your ZIP (required)</span>
+                        <span
+                          className={`text-[10px] font-bold uppercase ${
+                            huntLocationMissing ? "text-amber-300" : "text-ink-faint"
+                          }`}
+                        >
+                          Your ZIP (required)
+                        </span>
                         <div className="relative">
                           <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-emerald-400" />
                           <input
@@ -1125,13 +1092,24 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                             }}
                             placeholder="e.g. 07405"
                             aria-required="true"
+                            aria-invalid={huntLocationMissing}
                             autoComplete="off"
-                            className="w-full rounded-xl border border-border bg-background py-2 pl-9 pr-3 text-xs text-white placeholder-ink-faint focus:border-emerald-500 focus:outline-none font-mono"
+                            className={`w-full rounded-xl border bg-background py-2 pl-9 pr-3 text-xs text-white placeholder-ink-faint focus:border-emerald-500 focus:outline-none font-mono ${
+                              huntLocationMissing
+                                ? "border-amber-500 ring-1 ring-amber-500/40"
+                                : "border-border"
+                            }`}
                           />
                         </div>
                       </label>
                       <label className="space-y-1">
-                        <span className="text-[10px] font-bold uppercase text-ink-faint">Radius miles (required)</span>
+                        <span
+                          className={`text-[10px] font-bold uppercase ${
+                            huntLocationMissing ? "text-amber-300" : "text-ink-faint"
+                          }`}
+                        >
+                          Radius miles (required)
+                        </span>
                         <input
                           type="text"
                           inputMode="numeric"
@@ -1144,9 +1122,14 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                           }}
                           placeholder="e.g. 100"
                           aria-required="true"
+                          aria-invalid={huntLocationMissing}
                           aria-label="Search radius in miles"
                           autoComplete="off"
-                          className="w-full rounded-xl border border-border bg-background py-2 px-3 text-xs text-white placeholder-ink-faint focus:border-emerald-500 focus:outline-none font-mono"
+                          className={`w-full rounded-xl border bg-background py-2 px-3 text-xs text-white placeholder-ink-faint focus:border-emerald-500 focus:outline-none font-mono ${
+                            huntLocationMissing
+                              ? "border-amber-500 ring-1 ring-amber-500/40"
+                              : "border-border"
+                          }`}
                         />
                       </label>
                     </div>
@@ -1355,214 +1338,164 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                       </div>
                     </div>
                   )}
-                  {/* INCREASE COMPETITION: up to 2 optional secondary links */}
+                  {/* INCREASE COMPETITION: the two slots ARE the hunt result */}
                   <div className="space-y-2.5">
                     <div>
                       <h4 className="text-xs font-bold text-white uppercase tracking-wider">
                         Increase Competition <span className="text-ink-faint font-normal normal-case">(optional)</span>
                       </h4>
                       <p className="text-[11px] text-ink-muted mt-0.5">
-                        Add up to 2 more listings you'd also accept — more dealers means more pressure on price.
+                        Up to 2 more lots you&apos;d also accept — more dealers means more pressure on price.
                         {fordStickerStatus === "released" && (
-                          <> Sticker-confirmed suggestions below fill these slots when they share your must-have factory options.</>
+                          <> The two nearest sticker-matched lots fill these slots automatically after ZIP and radius.</>
                         )}
                       </p>
+                      {huntLocationMissing && (
+                        <p className="text-[11px] text-amber-300 mt-1">
+                          ZIP and radius are required above to fill these two slots.
+                        </p>
+                      )}
                     </div>
 
-                    {[0, 1].map((idx) => {
-                      const matchedVehicle = secondaryVehicles[idx];
-                      return (
-                        <div key={idx} className="space-y-1.5">
-                          {matchedVehicle ? (
-                            <div className="flex items-center justify-between gap-2 rounded-xl border border-emerald-500/40 bg-emerald-500/10 px-3 py-2.5">
-                              <div className="flex items-center gap-2 min-w-0">
-                                <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" />
-                                <div className="min-w-0">
-                                  <span className="text-xs font-bold text-white truncate block">
-                                    {matchedVehicle.year} {matchedVehicle.make} {matchedVehicle.model} {matchedVehicle.trim}
-                                  </span>
-                                  <span className="text-[11px] text-ink-muted">
-                                    {matchedVehicle.location.dealerName}
-                                    {matchedVehicle.location.city ? ` · ${matchedVehicle.location.city}` : ""}
-                                    {matchedVehicle.location.state ? `, ${matchedVehicle.location.state}` : ""}
-                                    {milesFromUserZip(matchedVehicle.location.distanceMiles, huntZip)
-                                      ? ` · ${milesFromUserZip(matchedVehicle.location.distanceMiles, huntZip)}`
-                                      : ""}
-                                    {" · "}
-                                    <span className="font-mono">{matchedVehicle.vin}</span>
-                                  </span>
-                                </div>
-                              </div>
-                              <button
-                                type="button"
-                                onClick={() => handleRemoveSecondary(idx)}
-                                className="shrink-0 rounded-lg p-1.5 text-ink-muted hover:bg-border hover:text-white transition-colors"
-                              >
-                                <Trash2 className="h-3.5 w-3.5" />
-                              </button>
-                            </div>
-                          ) : (
-                            <div className="flex gap-2">
-                              <div className="relative flex-1">
-                                <Link2 className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-ink-faint" />
-                                <input
-                                  type="text"
-                                  value={secondaryUrls[idx]}
-                                  onChange={(e) =>
-                                    setSecondaryUrls((prev) => prev.map((v, i) => (i === idx ? e.target.value : v)))
-                                  }
-                                  placeholder={`Paste a ${idx === 0 ? "2nd" : "3rd"} VIN or listing link (optional)`}
-                                  className="w-full rounded-xl border border-border bg-background py-2 pl-9 pr-3 text-xs text-white placeholder-ink-faint focus:border-emerald-500 focus:outline-none font-mono"
-                                />
-                              </div>
-                              <button
-                                type="button"
-                                onClick={() => handleParseSecondaryUrl(idx)}
-                                disabled={isParsingSecondary[idx] || !secondaryUrls[idx].trim()}
-                                className="rounded-xl border border-border bg-surface-elevated px-3 py-2 text-xs font-bold text-ink-light hover:text-white hover:border-border-strong transition-all shrink-0 disabled:opacity-50 flex items-center gap-1.5"
-                              >
-                                {isParsingSecondary[idx] ? (
-                                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                                ) : (
-                                  <Plus className="h-3.5 w-3.5" />
-                                )}
-                                <span>Add</span>
-                              </button>
-                            </div>
-                          )}
+                    {fordStickerStatus === "released" && fordEmptySlots?.kind === "loading" ? (
+                      <div className="flex items-center gap-2 rounded-xl border border-border bg-surface-elevated px-3 py-4">
+                        <Loader2 className="h-4 w-4 animate-spin text-emerald-400" />
+                        <span className="text-xs text-ink-muted">{FORD_COMPETITION_LOADING}</span>
+                      </div>
+                    ) : fordStickerStatus === "released" && fordEmptySlots && !hasCompetition ? (
+                      <>
+                        <div
+                          className={`rounded-xl border px-3 py-3 text-xs leading-relaxed ${
+                            fordEmptySlots.kind === "error" || fordEmptySlots.kind === "need_location"
+                              ? "border-amber-500/50 bg-amber-950/30 text-amber-100"
+                              : "border-border bg-surface-elevated text-ink-muted"
+                          }`}
+                        >
+                          {fordEmptySlots.message}
                         </div>
-                      );
-                    })}
-
-                    {!hasCompetition && (fordSuggestions.length > 0 || aiSuggestions.length > 0) && (
-                      <button
-                        type="button"
-                        onClick={handleImportAiSuggestions}
-                        className="w-full flex items-center justify-center gap-1.5 rounded-xl border border-dashed border-emerald-500/40 bg-emerald-500/5 py-2 text-xs font-bold text-emerald-400 hover:bg-emerald-500/10 transition-all"
-                      >
-                        <Sparkles className="h-3.5 w-3.5" />
-                        <span>
-                          {fordSuggestions.length > 0
-                            ? "Fill both slots with sticker-confirmed lots"
-                            : "Import AI Suggestions Below ↓"}
-                        </span>
-                      </button>
+                        <div className="flex gap-2">
+                          <div className="relative flex-1">
+                            <Link2 className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-ink-faint" />
+                            <input
+                              type="text"
+                              value={secondaryUrls[0]}
+                              onChange={(e) =>
+                                setSecondaryUrls((prev) => prev.map((v, i) => (i === 0 ? e.target.value : v)))
+                              }
+                              placeholder="Or paste a VIN or listing link (optional)"
+                              className="w-full rounded-xl border border-border bg-background py-2 pl-9 pr-3 text-xs text-white placeholder-ink-faint focus:border-emerald-500 focus:outline-none font-mono"
+                            />
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => handleParseSecondaryUrl(0)}
+                            disabled={isParsingSecondary[0] || !secondaryUrls[0].trim()}
+                            className="rounded-xl border border-border bg-surface-elevated px-3 py-2 text-xs font-bold text-ink-light hover:text-white hover:border-border-strong transition-all shrink-0 disabled:opacity-50 flex items-center gap-1.5"
+                          >
+                            {isParsingSecondary[0] ? (
+                              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                            ) : (
+                              <Plus className="h-3.5 w-3.5" />
+                            )}
+                            <span>Add</span>
+                          </button>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        {[0, 1].map((idx) => {
+                          const matchedVehicle = secondaryVehicles[idx];
+                          return (
+                            <div key={idx} className="space-y-1.5">
+                              {matchedVehicle ? (
+                                <div className="flex items-center justify-between gap-2 rounded-xl border border-emerald-500/40 bg-emerald-500/10 px-3 py-2.5">
+                                  <div className="flex items-center gap-2 min-w-0">
+                                    <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" />
+                                    <div className="min-w-0">
+                                      <span className="text-xs font-bold text-white truncate block">
+                                        {matchedVehicle.year} {matchedVehicle.make} {matchedVehicle.model}{" "}
+                                        {matchedVehicle.trim}
+                                      </span>
+                                      <span className="text-[11px] text-ink-muted">
+                                        {matchedVehicle.location.dealerName}
+                                        {matchedVehicle.location.city ? ` · ${matchedVehicle.location.city}` : ""}
+                                        {matchedVehicle.location.state
+                                          ? `, ${matchedVehicle.location.state}`
+                                          : ""}
+                                        {milesFromUserZip(matchedVehicle.location.distanceMiles, huntZip)
+                                          ? ` · ${milesFromUserZip(matchedVehicle.location.distanceMiles, huntZip)}`
+                                          : ""}
+                                        {" · "}
+                                        <span className="font-mono">{matchedVehicle.vin}</span>
+                                      </span>
+                                    </div>
+                                  </div>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleRemoveSecondary(idx)}
+                                    className="shrink-0 rounded-lg p-1.5 text-ink-muted hover:bg-border hover:text-white transition-colors"
+                                  >
+                                    <Trash2 className="h-3.5 w-3.5" />
+                                  </button>
+                                </div>
+                              ) : (
+                                <div className="flex gap-2">
+                                  <div className="relative flex-1">
+                                    <Link2 className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-ink-faint" />
+                                    <input
+                                      type="text"
+                                      value={secondaryUrls[idx]}
+                                      onChange={(e) =>
+                                        setSecondaryUrls((prev) =>
+                                          prev.map((v, i) => (i === idx ? e.target.value : v))
+                                        )
+                                      }
+                                      placeholder={`Paste a ${idx === 0 ? "2nd" : "3rd"} VIN or listing link (optional)`}
+                                      className="w-full rounded-xl border border-border bg-background py-2 pl-9 pr-3 text-xs text-white placeholder-ink-faint focus:border-emerald-500 focus:outline-none font-mono"
+                                    />
+                                  </div>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleParseSecondaryUrl(idx)}
+                                    disabled={isParsingSecondary[idx] || !secondaryUrls[idx].trim()}
+                                    className="rounded-xl border border-border bg-surface-elevated px-3 py-2 text-xs font-bold text-ink-light hover:text-white hover:border-border-strong transition-all shrink-0 disabled:opacity-50 flex items-center gap-1.5"
+                                  >
+                                    {isParsingSecondary[idx] ? (
+                                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                                    ) : (
+                                      <Plus className="h-3.5 w-3.5" />
+                                    )}
+                                    <span>Add</span>
+                                  </button>
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
+                        {fordStickerStatus !== "released" &&
+                          !hasCompetition &&
+                          aiSuggestions.length > 0 && (
+                            <button
+                              type="button"
+                              onClick={handleImportAiSuggestions}
+                              className="w-full flex items-center justify-center gap-1.5 rounded-xl border border-dashed border-emerald-500/40 bg-emerald-500/5 py-2 text-xs font-bold text-emerald-400 hover:bg-emerald-500/10 transition-all"
+                            >
+                              <Sparkles className="h-3.5 w-3.5" />
+                              <span>Import AI Suggestions Below ↓</span>
+                            </button>
+                          )}
+                      </>
+                    )}
+                    {fordStickerStatus === "released" && (
+                      <p className="text-[10px] text-ink-faint">
+                        Must-haves are hard-filtered from each lot&apos;s Ford window sticker. Dealer ads are not
+                        proof. Distance is from your ZIP
+                        {huntReady ? ` (${huntZip} · ${huntRadius} mi)` : ""}.
+                      </p>
                     )}
                   </div>
 
-                  {fordStickerStatus === "released" ? (
-                    <div className="rounded-xl border border-border bg-surface-elevated p-3.5 space-y-3">
-                      <div className="flex items-center justify-between gap-2">
-                        <div className="flex items-center gap-2 text-xs font-bold text-white">
-                          <Sparkles className="h-3.5 w-3.5 text-emerald-400" />
-                          <span>Sticker-confirmed similar lots</span>
-                        </div>
-                        <div className="flex items-center gap-1 text-[10px] text-ink-faint shrink-0">
-                          <MapPin className="h-3 w-3" />
-                          {huntReady ? (
-                            <span>
-                              {huntZip} · {huntRadius} mi
-                            </span>
-                          ) : (
-                            <span>ZIP + radius required above</span>
-                          )}
-                        </div>
-                      </div>
-                      <p className="text-[11px] text-ink-muted -mt-1.5">
-                        Coarse listings, then Ford window-sticker filter. Must-haves are hard filters. Dealer ads are not proof. Distance is from your ZIP.
-                      </p>
-                      {fordSearchNote && (
-                        <p className="text-[10px] text-ink-faint">{fordSearchNote}</p>
-                      )}
-
-                      {isLoadingFordSuggestions ? (
-                        <div className="flex items-center gap-2 text-ink-muted text-xs py-3">
-                          <Loader2 className="h-3.5 w-3.5 animate-spin" /> Reading Ford stickers for nearby lots…
-                        </div>
-                      ) : !huntReady ? (
-                        <p className="text-[11px] text-ink-faint py-1">
-                          Enter your ZIP and search radius (miles) next to the paste box. We will not suggest lots until both are set, and we will not pad with cars outside that radius.
-                        </p>
-                      ) : fordSuggestions.length === 0 ? (
-                        <p className="text-[11px] text-ink-faint py-1">
-                          No sticker-confirmed matches within {huntRadius} miles of {huntZip}
-                          {fordDroppedCount > 0
-                            ? ` (${fordDroppedCount} candidates dropped, including lots outside your radius).`
-                            : "."}{" "}
-                          Farther cars are not shown.
-                        </p>
-                      ) : (
-                        <div className="space-y-1.5">
-                          {fordSuggestions.slice(0, 2).map((s) => {
-                            const inHunt = secondaryVehicles.some((v) => v?.vin === s.vin);
-                            return (
-                              <div
-                                key={s.vin}
-                                className="rounded-lg border border-border bg-background px-2.5 py-2 text-[11px] space-y-1.5"
-                              >
-                                <div className="flex items-start justify-between gap-2">
-                                  <div className="min-w-0">
-                                    <div className="font-bold text-white truncate">
-                                      {s.dealerName} · {s.city}{s.state ? `, ${s.state}` : ""}
-                                    </div>
-                                    <div className="font-mono text-ink-light truncate">{s.vin}</div>
-                                    <div className="text-ink-faint">
-                                      Listing {formatListingPrice(s.listingPrice)}{" "}
-                                      <span className="uppercase">{sourceBadge(s.listingPriceSource)}</span>
-                                      {" · "}MSRP {formatStickerMsrp(s.msrp)}{" "}
-                                      <span className="uppercase">{sourceBadge(s.msrpSource)}</span>
-                                      {milesFromUserZip(s.distanceMiles, huntZip)
-                                        ? ` · ${milesFromUserZip(s.distanceMiles, huntZip)}`
-                                        : ""}
-                                    </div>
-                                    <div className="text-emerald-400/90">
-                                      Must: {s.matchedMustHaves.join(", ") || "—"}
-                                    </div>
-                                    {s.matchedNiceToHaves.length > 0 && (
-                                      <div className="text-ink-muted">
-                                        Nice: {s.matchedNiceToHaves.join(", ")}
-                                      </div>
-                                    )}
-                                  </div>
-                                  <div className="flex flex-col items-end gap-1 shrink-0">
-                                    {inHunt ? (
-                                      <span className="text-[10px] font-bold text-emerald-400">In hunt</span>
-                                    ) : (
-                                      <button
-                                        type="button"
-                                        onClick={() => fillSecondaryFromFord([s])}
-                                        className="rounded-lg bg-emerald-500 px-2 py-1 text-[10px] font-extrabold text-black hover:bg-emerald-400"
-                                      >
-                                        Add slot
-                                      </button>
-                                    )}
-                                    {s.dealerUrl && (
-                                      <a
-                                        href={s.dealerUrl}
-                                        target="_blank"
-                                        rel="noreferrer"
-                                        className="text-[10px] text-emerald-300 hover:text-white flex items-center gap-0.5"
-                                      >
-                                        Dealer <ExternalLink className="h-2.5 w-2.5" />
-                                      </a>
-                                    )}
-                                    <a
-                                      href={s.pdfUrl}
-                                      target="_blank"
-                                      rel="noreferrer"
-                                      className="text-[10px] text-ink-light hover:text-white flex items-center gap-0.5"
-                                    >
-                                      Sticker PDF <FileText className="h-2.5 w-2.5" />
-                                    </a>
-                                  </div>
-                                </div>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      )}
-                    </div>
-                  ) : (
+                  {fordStickerStatus === "released" ? null : (
                   <div className="rounded-xl border border-border bg-surface-elevated p-3.5 space-y-3">
                     <div className="flex items-center justify-between gap-2">
                       <div className="flex items-center gap-2 text-xs font-bold text-white">

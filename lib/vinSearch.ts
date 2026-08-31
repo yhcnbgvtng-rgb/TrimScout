@@ -6,10 +6,13 @@
  * We take the first 25–50 candidate VINs, fetch each Ford sticker, and
  * DROP any VIN missing a must-have option line.
  *
- * Without a listings API key, demo comparables mode still hits Ford Direct
- * live for the known worked-example VINs.
+ * Without a listings API key, demo comparables use bundled sticker fixtures
+ * for the known Explorer Tremor example VINs (no live PDF round-trip, so the
+ * hunt cannot hang). Other models get an empty result plus an Explorer-only note.
  */
 
+import fs from "node:fs";
+import path from "node:path";
 import { calculateDistanceMiles } from "./otdCalculator";
 import {
   confirmFordMustHavesFromSticker,
@@ -17,6 +20,7 @@ import {
   fordStickerPdfUrl,
   getFordSticker,
   isStandardKeylessLine,
+  parseFordStickerText,
   shouldExcludeByEnginePrefix,
   stickerHasMustHave,
   type FordSticker,
@@ -44,14 +48,45 @@ function demoListingsForModel(model?: string): ListingCandidate[] {
   return DEMO_COMPARABLE_LISTINGS.filter((l) => listingMatchesSubjectModel(l, model));
 }
 
-function demoListingsNote(model?: string): string {
+export function demoListingsNote(model?: string): string {
   const matched = demoListingsForModel(model);
   if (matched.length === 0) {
-    return `No listings API key configured. Demo similar lots are Explorer Tremor examples and do not apply to ${
+    return `Demo listings are Explorer Tremor only and do not apply to ${
       model || "this vehicle"
-    }. Increase Competition was left empty. Set AUTO_DEV_API_KEY or MARKETCHECK_API_KEY for nationwide search.`;
+    }. Increase Competition was left empty. Set AUTO_DEV_API_KEY or MARKETCHECK_API_KEY for live same-model search.`;
   }
-  return "No listings API key configured. Demo comparables use known VINs plus live Ford Direct stickers. Set AUTO_DEV_API_KEY or MARKETCHECK_API_KEY for nationwide search.";
+  return "No listings API key configured. Demo comparables use known Explorer Tremor VINs plus live Ford Direct stickers. Set AUTO_DEV_API_KEY or MARKETCHECK_API_KEY for live same-model search.";
+}
+
+export function composeEmptyHuntNote(opts: {
+  zip: string;
+  radiusMiles: number;
+  provider: ListingsProvider;
+  existingNote: string;
+  dropped: FordSearchDropped[];
+  subjectModel?: string;
+  candidateCount: number;
+}): string {
+  if (opts.provider === "demo" && opts.candidateCount === 0) {
+    return demoListingsNote(opts.subjectModel);
+  }
+  const outside = opts.dropped.filter((d) => d.reason === "outside_radius").length;
+  const missing = opts.dropped.filter((d) => d.reason === "missing_must_have").length;
+  const parts = [
+    `No sticker-confirmed matches within ${opts.radiusMiles} miles of ${opts.zip}. Farther lots are not shown.`,
+  ];
+  if (outside > 0) {
+    parts.push(
+      `${outside} sticker-confirmed lot${outside === 1 ? " was" : "s were"} outside your radius.`
+    );
+  }
+  if (missing > 0) {
+    parts.push(
+      `${missing} lot${missing === 1 ? " was" : "s were"} dropped because a must-have was missing from the sticker.`
+    );
+  }
+  if (opts.existingNote) parts.push(opts.existingNote);
+  return parts.join(" ");
 }
 
 export type ListingsProvider = "auto.dev" | "marketcheck" | "demo";
@@ -217,6 +252,36 @@ export const DEMO_COMPARABLE_LISTINGS: ListingCandidate[] = [
     lng: -74.365,
   },
 ];
+
+function demoFixturePaths(vin: string): string[] {
+  const file = `${vin.trim().toUpperCase()}.txt`;
+  const paths = [path.join(process.cwd(), "lib/testdata/ford-stickers", file)];
+  try {
+    paths.unshift(path.join(import.meta.dirname, "testdata/ford-stickers", file));
+  } catch {
+    // import.meta.dirname is unavailable in some bundles
+  }
+  return paths;
+}
+
+/** Bundled Explorer demo stickers — no live Ford Direct round-trip. */
+export function stickerFromDemoFixture(vin: string): FordSticker | null {
+  for (const filePath of demoFixturePaths(vin)) {
+    try {
+      if (!fs.existsSync(filePath)) continue;
+      return parseFordStickerText(vin, fs.readFileSync(filePath, "utf8"));
+    } catch {
+      // try next path
+    }
+  }
+  return null;
+}
+
+async function fetchStickerPreferDemoFixture(vin: string): Promise<FordSticker> {
+  const local = stickerFromDemoFixture(vin);
+  if (local) return local;
+  return getFordSticker(vin);
+}
 
 export function formatListingPrice(amount: number | null | undefined): string {
   if (amount == null || amount <= 0) return "call dealer";
@@ -456,7 +521,6 @@ export async function findSimilarFordVehicles(opts: {
   }
   const radiusMiles = radius as number;
   const subject = opts.subject || (await getFordSticker(opts.subjectVin));
-  const fetchSticker = opts.fetchSticker || getFordSticker;
   const mustHaves = opts.mustHaveLines.filter(Boolean);
   const niceHaves = (opts.niceToHaveLines || []).filter((n) => !isStandardKeylessLine(n));
 
@@ -482,8 +546,21 @@ export async function findSimilarFordVehicles(opts: {
 
   listings = (listings || []).filter((l) => listingMatchesSubjectModel(l, subject.model));
   if (listings.length === 0 && provider === "demo") {
-    note = demoListingsNote(subject.model);
+    // Do not score Explorer demo VINs for a Bronco Sport (or any other model).
+    return {
+      provider: "demo",
+      note: demoListingsNote(subject.model),
+      originZip: zip,
+      radiusMiles,
+      candidatesConsidered: 0,
+      stickersFetched: 0,
+      matches: [],
+      dropped: [],
+    };
   }
+
+  const fetchSticker =
+    opts.fetchSticker || (provider === "demo" ? fetchStickerPreferDemoFixture : getFordSticker);
 
   const dropped: FordSearchDropped[] = [];
   const prefixPassed: ListingCandidate[] = [];
@@ -578,9 +655,15 @@ export async function findSimilarFordVehicles(opts: {
 
   const ranked = rankFordMatches(matches).slice(0, MAX_FORD_RECS);
   if (ranked.length === 0) {
-    note = `No sticker-confirmed matches within ${radiusMiles} miles of ${zip}. Farther lots are not shown.${
-      note ? ` ${note}` : ""
-    }`;
+    note = composeEmptyHuntNote({
+      zip,
+      radiusMiles,
+      provider,
+      existingNote: note,
+      dropped,
+      subjectModel: subject.model,
+      candidateCount: listings.length,
+    });
   }
 
   return {

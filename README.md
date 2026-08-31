@@ -24,7 +24,7 @@ This lives **inside Launch Dealership Bidding Hunt** (`components/BiddingWizard.
 5. TrimScout fetches the official Ford Direct PDF (server-side, no account):
    `https://www.windowsticker.forddirect.com/windowsticker.pdf?vin={VIN}`
 6. Factory options come from that sticker as **checkboxes** (not mock package lists). **Ultimate Package** and **Keyless Entry Keypad** are pre-checked when those lines exist. Exterior (and interior, if parsed) color is listed and **off by default**. Standard `KEYLESS ENTRY W/PUSH START` is never a filter. Toggling must-haves re-runs the hunt when ZIP + radius are set.
-7. After paste **and** zip+radius, the **Increase Competition** area (2 optional secondary slots) auto-fills the **two nearest** sticker-confirmed similar lots **within your radius of your ZIP** that have **every ticked must-have** on their Ford sticker (including color if ticked). Each card shows miles-from-your-ZIP. Distance from your ZIP decides the two slots — not price or optional overlap. Lots outside the radius or missing a must-have are dropped — we do not pad. If none are in range, the UI says so. Demo Explorer lots are not applied to a Bronco Sport (or any other model).
+7. After paste **and** zip+radius, the **Increase Competition** slots **are** the two nearest sticker-confirmed similar lots **within your radius of your ZIP** that have **every ticked must-have** on their Ford sticker (including color if ticked). No extra “Fill both slots” click. Each card shows dealer, VIN, and miles-from-your-ZIP even when the lot has no dealer URL. Distance from your ZIP decides the two slots — not price or optional overlap. Lots outside the radius or missing a must-have are dropped — we do not pad. If ZIP/radius are missing, the hunt is in flight, nothing is in range, demo inventory is Explorer-only (e.g. a Bronco Sport), or the search errors, **that block shows one clear reason** instead of empty paste boxes. Demo Explorer lots are not applied to a Bronco Sport (or any other model).
 
 Worked example must-haves: Ultimate Package **and** Keyless Entry Keypad. Distance is from the **user ZIP**, not the subject dealer ZIP.
 
@@ -46,7 +46,7 @@ Worked example must-haves: Ultimate Package **and** Keyless Entry Keypad. Distan
 
 ### What works without listings API keys
 
-Ford sticker fetch + parse + demo comparables always work (they hit Ford Direct live for the subject VIN and the known demo VINs above). Nationwide live inventory search needs a key.
+Ford sticker fetch + parse always work. Demo Increase Competition for Explorer Tremor uses bundled sticker fixtures (no listings key, no live PDF round-trip for those example lots). Nationwide live inventory search for other models needs a key.
 
 ```bash
 npm test

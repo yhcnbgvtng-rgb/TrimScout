@@ -6,10 +6,18 @@ import { getFordSticker, parseFordStickerText } from "./fordSticker";
 import {
   DEMO_COMPARABLE_LISTINGS,
   findSimilarFordVehicles,
+  fordMatchToVehicle,
   isUsableHuntLocation,
   rankFordMatches,
+  stickerFromDemoFixture,
   type FordMatchCard,
 } from "./vinSearch";
+import {
+  FORD_COMPETITION_LOADING,
+  FORD_COMPETITION_NEED_LOCATION,
+  autoFillCompetitionSlots,
+  fordCompetitionEmptyCopy,
+} from "./fordCompetitionUi";
 
 const FIXTURE_DIR = path.join(import.meta.dirname, "testdata", "ford-stickers");
 const SUBJECT = "1FMWK8JCXTGB47204";
@@ -66,6 +74,10 @@ describe("vinSearch rank + must-have filter", () => {
     assert.ok((shorkey?.distanceMiles ?? 0) > 100);
     assert.ok((battlefield?.distanceMiles ?? 0) > 100);
     assert.match(result.note, /100 miles of 07405/);
+    assert.match(result.note, /outside your radius/i);
+    const emptySlots = autoFillCompetitionSlots(result.matches);
+    assert.equal(emptySlots[0], null);
+    assert.equal(emptySlots[1], null);
   });
 
   it("keeps Shorkey + Battlefield when the user-entered radius is large enough", async () => {
@@ -83,8 +95,18 @@ describe("vinSearch rank + must-have filter", () => {
 
     const matchVins = result.matches.map((m) => m.vin);
     assert.equal(result.matches.length, 2);
-    assert.ok(matchVins.includes(SHORKEY), `expected Shorkey in ${matchVins.join(",")}`);
-    assert.ok(matchVins.includes(BATTLEFIELD), `expected Battlefield in ${matchVins.join(",")}`);
+    assert.equal(result.matches[0].vin, BATTLEFIELD, "nearest slot is Battlefield (Culpeper)");
+    assert.equal(result.matches[1].vin, SHORKEY, "second slot is Shorkey (White Oak)");
+    assert.equal(result.matches[0].dealerUrl, null, "Battlefield has no VDP URL and must still fill a slot");
+    assert.ok(result.matches[0].dealerName);
+    assert.ok(result.matches[0].distanceMiles != null);
+    const [slot0, slot1] = autoFillCompetitionSlots(result.matches);
+    assert.equal(slot0?.vin, BATTLEFIELD);
+    assert.equal(slot1?.vin, SHORKEY);
+    const filled = [slot0, slot1].map((m) => fordMatchToVehicle(m!));
+    assert.equal(filled[0].location.dealerName, result.matches[0].dealerName);
+    assert.equal(filled[0].vin, BATTLEFIELD);
+    assert.ok((filled[0].location.distanceMiles || 0) > 0);
     assert.ok(!matchVins.includes(MALL_OF_GEORGIA), "Mall of Georgia has Ultimate but no keypad");
     assert.ok(!matchVins.includes(DECOY_23), "1FMUK 2.3 decoy must be prefix-excluded");
     assert.ok(result.matches.every((m) => m.distanceMiles != null && m.distanceMiles <= 500));
@@ -171,6 +193,8 @@ describe("vinSearch rank + must-have filter", () => {
     });
     assert.equal(result.matches.length, 0);
     assert.match(result.note, /do not apply to Bronco Sport/i);
+    assert.match(result.note, /Explorer Tremor only/i);
+    assert.equal(autoFillCompetitionSlots(result.matches)[0], null);
   });
 
   it("drops non-white Bronco comparables only when exterior color is a must-have", async () => {
@@ -253,5 +277,118 @@ describe("vinSearch rank + must-have filter", () => {
     });
     assert.equal(withColor.matches.length, 0);
     assert.ok(withColor.dropped.some((d) => d.reason === "missing_must_have"));
+    assert.match(withColor.note, /must-have/i);
+  });
+});
+
+describe("Increase Competition slots are the hunt result", () => {
+  it("no zip → slots explain, no fake cars", () => {
+    const copy = fordCompetitionEmptyCopy({
+      huntReady: false,
+      loading: false,
+      error: null,
+      note: null,
+      matchCount: 0,
+    });
+    assert.equal(copy?.kind, "need_location");
+    assert.equal(copy?.message, FORD_COMPETITION_NEED_LOCATION);
+    assert.deepEqual(autoFillCompetitionSlots([]), [null, null]);
+  });
+
+  it("loading copy is a spinner label, not an empty paste box", () => {
+    const copy = fordCompetitionEmptyCopy({
+      huntReady: true,
+      loading: true,
+      error: null,
+      note: null,
+      matchCount: 0,
+    });
+    assert.equal(copy?.kind, "loading");
+    assert.equal(copy?.message, FORD_COMPETITION_LOADING);
+  });
+
+  it("surfaces hunt API errors instead of swallowing them", () => {
+    const copy = fordCompetitionEmptyCopy({
+      huntReady: true,
+      loading: false,
+      error: "Could not load similar lots (502).",
+      note: null,
+      matchCount: 0,
+    });
+    assert.equal(copy?.kind, "error");
+    assert.match(copy!.message, /502/);
+  });
+
+  it("demo Explorer 07405+500 auto-fills Battlefield then Shorkey without a listings API key", async () => {
+    const prevA = process.env.AUTO_DEV_API_KEY;
+    const prevM = process.env.MARKETCHECK_API_KEY;
+    delete process.env.AUTO_DEV_API_KEY;
+    delete process.env.MARKETCHECK_API_KEY;
+    try {
+      assert.ok(stickerFromDemoFixture(BATTLEFIELD)?.status === "released");
+      assert.ok(stickerFromDemoFixture(SHORKEY)?.status === "released");
+      const subject = parseFordStickerText(SUBJECT, loadFixture(SUBJECT));
+      const result = await findSimilarFordVehicles({
+        subjectVin: SUBJECT,
+        subject,
+        mustHaveLines: ["Ultimate Package", "Keyless Entry Keypad"],
+        zip: "07405",
+        radiusMiles: 500,
+      });
+      assert.equal(result.provider, "demo");
+      assert.equal(result.matches[0]?.vin, BATTLEFIELD);
+      assert.equal(result.matches[1]?.vin, SHORKEY);
+      const [first, second] = autoFillCompetitionSlots(result.matches);
+      assert.equal(first?.vin, BATTLEFIELD);
+      assert.equal(second?.vin, SHORKEY);
+      assert.equal(first?.dealerUrl, null);
+      assert.match(first!.dealerName, /Battlefield/i);
+      assert.match(second!.dealerName, /Shorkey/i);
+    } finally {
+      if (prevA !== undefined) process.env.AUTO_DEV_API_KEY = prevA;
+      else delete process.env.AUTO_DEV_API_KEY;
+      if (prevM !== undefined) process.env.MARKETCHECK_API_KEY = prevM;
+      else delete process.env.MARKETCHECK_API_KEY;
+    }
+  });
+
+  it("demo Bronco Sport with zip/radius does not hang or pad Explorers", async () => {
+    const prevA = process.env.AUTO_DEV_API_KEY;
+    const prevM = process.env.MARKETCHECK_API_KEY;
+    delete process.env.AUTO_DEV_API_KEY;
+    delete process.env.MARKETCHECK_API_KEY;
+    try {
+      const bronco = parseFordStickerText(
+        "3FMCR9BN8TRE94740",
+        fs.readFileSync(path.join(FIXTURE_DIR, "3FMCR9BN8TRE94740.txt"), "utf8")
+      );
+      const result = await findSimilarFordVehicles({
+        subjectVin: bronco.vin,
+        subject: bronco,
+        mustHaveLines: [],
+        zip: "07405",
+        radiusMiles: 500,
+      });
+      assert.equal(result.provider, "demo");
+      assert.equal(result.matches.length, 0);
+      assert.equal(result.stickersFetched, 0);
+      assert.match(result.note, /Explorer Tremor only/i);
+      assert.doesNotMatch(result.note, /1FMWK8JC7TGB81309/);
+      const copy = fordCompetitionEmptyCopy({
+        huntReady: true,
+        loading: false,
+        error: null,
+        note: result.note,
+        droppedCount: result.dropped.length,
+        matchCount: result.matches.length,
+      });
+      assert.equal(copy?.kind, "empty");
+      assert.match(copy!.message, /Explorer Tremor only/i);
+    } finally {
+      if (prevA !== undefined) process.env.AUTO_DEV_API_KEY = prevA;
+      else delete process.env.AUTO_DEV_API_KEY;
+      if (prevM !== undefined) process.env.MARKETCHECK_API_KEY = prevM;
+      else delete process.env.MARKETCHECK_API_KEY;
+    }
   });
 });
