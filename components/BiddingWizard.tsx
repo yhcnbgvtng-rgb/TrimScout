@@ -1106,7 +1106,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                             }}
                             placeholder="e.g. 07405"
                             aria-required="true"
-                            autoComplete="postal-code"
+                            autoComplete="off"
                             className="w-full rounded-xl border border-border bg-background py-2 pl-9 pr-3 text-xs text-white placeholder-ink-faint focus:border-emerald-500 focus:outline-none font-mono"
                           />
                         </div>
@@ -1126,6 +1126,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                           placeholder="e.g. 100"
                           aria-required="true"
                           aria-label="Search radius in miles"
+                          autoComplete="off"
                           className="w-full rounded-xl border border-border bg-background py-2 px-3 text-xs text-white placeholder-ink-faint focus:border-emerald-500 focus:outline-none font-mono"
                         />
                       </label>
