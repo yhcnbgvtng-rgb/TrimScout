@@ -8,8 +8,10 @@ import {
   defaultNiceToHaveLines,
   filterableFactoryOptions,
   getFordSticker,
+  isExplicitNonFordDemoPaste,
   isFordOrLincolnVin,
-  resolveVinFromPaste,
+  looksLikeFordOrLincolnPaste,
+  resolvePasteVin,
 } from "@/lib/fordSticker";
 import { stickerToVehicle } from "@/lib/vinSearch";
 
@@ -19,7 +21,7 @@ export async function GET(request: Request) {
   if (!vin) {
     return NextResponse.json({ error: "vin is required" }, { status: 400 });
   }
-  return lookup({ vin, pasteUrl: null });
+  return lookup({ vin, paste: vin, pasteUrl: null });
 }
 
 export async function POST(request: Request) {
@@ -29,16 +31,50 @@ export async function POST(request: Request) {
   return lookup({ vin: vinArg, paste, pasteUrl: paste });
 }
 
+function vinPasteError(message: string, extra?: { dealerBlocked?: boolean }) {
+  return NextResponse.json(
+    {
+      error: message,
+      handled: true,
+      needsVin: true,
+      dealerBlocked: !!extra?.dealerBlocked,
+    },
+    { status: 422 }
+  );
+}
+
 async function lookup(opts: { vin?: string; paste?: string; pasteUrl: string | null }) {
-  const vin = (opts.vin && opts.vin.trim().toUpperCase()) || (await resolveVinFromPaste(opts.paste || ""));
+  const paste = opts.paste || "";
+  const fordish = looksLikeFordOrLincolnPaste(paste) || looksLikeFordOrLincolnPaste(opts.vin || "");
+  const forcedVin = opts.vin && opts.vin.trim().length === 17 ? opts.vin.trim().toUpperCase() : "";
+  const resolved = forcedVin
+    ? { vin: forcedVin, dealerBlocked: false, source: "paste" as const }
+    : await resolvePasteVin(paste);
+
+  let vin = resolved.vin;
+  if (vin && fordish && !isFordOrLincolnVin(vin)) {
+    vin = null;
+  }
+
   if (!vin) {
-    return NextResponse.json(
-      { error: "Could not find a 17-character VIN in that paste.", handled: false },
-      { status: 400 }
-    );
+    if (!fordish && isExplicitNonFordDemoPaste(paste)) {
+      return NextResponse.json({ handled: false, notFord: true });
+    }
+    if (resolved.dealerBlocked || fordish) {
+      return vinPasteError(
+        resolved.dealerBlocked
+          ? "That dealer site blocked the VIN lookup. Paste the 17-character VIN from the listing."
+          : "Could not read a VIN from that page. Paste the 17-character VIN.",
+        { dealerBlocked: resolved.dealerBlocked }
+      );
+    }
+    return vinPasteError("Could not find a 17-character VIN in that paste.");
   }
 
   if (!isFordOrLincolnVin(vin)) {
+    if (fordish) {
+      return vinPasteError("Could not read a Ford VIN from that page. Paste the 17-character VIN.");
+    }
     return NextResponse.json({
       handled: false,
       notFord: true,
@@ -69,6 +105,14 @@ async function lookup(opts: { vin?: string; paste?: string; pasteUrl: string | n
     });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Failed to fetch Ford window sticker";
-    return NextResponse.json({ error: message, handled: true, vin }, { status: 502 });
+    return NextResponse.json(
+      {
+        error: `${message} Paste the 17-character VIN if you have it.`,
+        handled: true,
+        needsVin: true,
+        vin,
+      },
+      { status: 502 }
+    );
   }
 }

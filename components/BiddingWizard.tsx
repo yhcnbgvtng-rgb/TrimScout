@@ -547,13 +547,23 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
       });
       const json = await res.json().catch(() => ({}));
 
-      if (json.notFord || json.handled === false) {
+      const looksFord = /ford|lincoln|forddirect/i.test(raw);
+      if (json.needsVin || json.dealerBlocked || (looksFord && (json.handled === false || json.notFord))) {
+        setParseError(
+          json.error ||
+            "Could not read a VIN from that page. Paste the 17-character VIN."
+        );
+        setIsParsingLink(false);
+        return;
+      }
+
+      if (json.notFord && json.handled === false) {
         applyMockParse(raw);
         return;
       }
 
       if (!res.ok) {
-        setParseError(json.error || "Could not read the Ford window sticker.");
+        setParseError(json.error || "Could not read the Ford window sticker. Paste the 17-character VIN if you have it.");
         setIsParsingLink(false);
         return;
       }
@@ -614,15 +624,21 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
         setSecondaryVehicles((prev) => prev.map((v, i) => (i === idx ? json.vehicle : v)));
         return;
       }
+      const looksFord = /ford|lincoln|forddirect/i.test(raw);
+      if (looksFord || json.needsVin || json.dealerBlocked) {
+        return;
+      }
       const url = raw.toLowerCase();
       const matched =
         vehicles.find((v) => url.includes(v.vin.toLowerCase()) || url.includes(v.make.toLowerCase())) || null;
       setSecondaryVehicles((prev) => prev.map((v, i) => (i === idx ? matched : v)));
     } catch {
-      const url = raw.toLowerCase();
-      const matched =
-        vehicles.find((v) => url.includes(v.vin.toLowerCase()) || url.includes(v.make.toLowerCase())) || null;
-      setSecondaryVehicles((prev) => prev.map((v, i) => (i === idx ? matched : v)));
+      if (!/ford|lincoln|forddirect/i.test(raw)) {
+        const url = raw.toLowerCase();
+        const matched =
+          vehicles.find((v) => url.includes(v.vin.toLowerCase()) || url.includes(v.make.toLowerCase())) || null;
+        setSecondaryVehicles((prev) => prev.map((v, i) => (i === idx ? matched : v)));
+      }
     } finally {
       setIsParsingSecondary((prev) => prev.map((v, i) => (i === idx ? false : v)));
     }

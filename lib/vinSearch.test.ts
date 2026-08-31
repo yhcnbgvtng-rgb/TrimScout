@@ -146,4 +146,22 @@ describe("vinSearch rank + must-have filter", () => {
     assert.equal(matchVins.includes(MALL_OF_GEORGIA), false);
     assert.equal(matchVins.includes(DECOY_23), false);
   });
+
+  it("does not fill Explorer Tremor demo lots onto a Bronco Sport subject", async () => {
+    const bronco = parseFordStickerText(
+      "3FMCR9BN8TRE94740",
+      fs.readFileSync(path.join(FIXTURE_DIR, "3FMCR9BN8TRE94740.txt"), "utf8")
+    );
+    const result = await findSimilarFordVehicles({
+      subjectVin: bronco.vin,
+      subject: bronco,
+      mustHaveLines: [],
+      zip: "07405",
+      radiusMiles: 500,
+      listings: DEMO_COMPARABLE_LISTINGS,
+      fetchSticker: async (vin) => parseFordStickerText(vin, loadFixture(vin)),
+    });
+    assert.equal(result.matches.length, 0);
+    assert.match(result.note, /do not apply to Bronco Sport/i);
+  });
 });

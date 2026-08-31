@@ -76,10 +76,14 @@ export interface MustHaveCheck {
   status: StickerStatus;
 }
 
+const VIN_CHAR_RE = /[A-HJ-NPR-Z0-9]{17}/gi;
 const VIN_RE = /\b[A-HJ-NPR-Z0-9]{17}\b/gi;
 const MEMORY_CACHE = new Map<string, FordSticker>();
 const CACHE_DIR = path.join("/tmp", "trimscout-ford-stickers");
-const PARSER_VERSION = 2;
+const PARSER_VERSION = 3;
+const BROWSER_UA =
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36";
+const NON_FORD_DEMO_HINT = /\b(bmw|porsche|toyota|mercedes|mini|audi|volkswagen|vw)\b/i;
 
 const UNRELEASED_PATTERNS = [
   /window sticker has not yet been\s+released/i,
@@ -139,19 +143,150 @@ export function normalizeForMatch(s: string): string {
     .trim();
 }
 
+export function isHexBlob(candidate: string): boolean {
+  return /^[0-9A-F]{17}$/.test(candidate.trim().toUpperCase());
+}
+
+/** ISO-3779 VIN check digit (position 9). */
+export function vinCheckDigitValid(vin: string): boolean {
+  const u = vin.trim().toUpperCase();
+  if (u.length !== 17) return false;
+  const map: Record<string, number> = {
+    A: 1, B: 2, C: 3, D: 4, E: 5, F: 6, G: 7, H: 8,
+    J: 1, K: 2, L: 3, M: 4, N: 5, P: 7, R: 9,
+    S: 2, T: 3, U: 4, V: 5, W: 6, X: 7, Y: 8, Z: 9,
+    "0": 0, "1": 1, "2": 2, "3": 3, "4": 4, "5": 5, "6": 6, "7": 7, "8": 8, "9": 9,
+  };
+  const weights = [8, 7, 6, 5, 4, 3, 2, 10, 0, 9, 8, 7, 6, 5, 4, 3, 2];
+  let sum = 0;
+  for (let i = 0; i < 17; i++) {
+    const v = map[u[i]];
+    if (v == null) return false;
+    sum += v * weights[i];
+  }
+  const rem = sum % 11;
+  const expected = rem === 10 ? "X" : String(rem);
+  return u[8] === expected;
+}
+
+export function isPlausibleVin(candidate: string): boolean {
+  const u = candidate.trim().toUpperCase();
+  if (!/^[A-HJ-NPR-Z0-9]{17}$/.test(u)) return false;
+  if (!/[A-Z]/.test(u) || !/\d/.test(u)) return false;
+  if (isHexBlob(u)) return false;
+  return true;
+}
+
+function isAwsInstanceIdContext(haystack: string, index: number): boolean {
+  const before = haystack.slice(Math.max(0, index - 4), index).toUpperCase();
+  return before.endsWith("I-");
+}
+
+function scoreVinCandidate(vin: string): number {
+  let score = 0;
+  if (vinCheckDigitValid(vin)) score += 5;
+  if (isFordOrLincolnVin(vin)) score += 4;
+  if (isPlausibleVin(vin)) score += 1;
+  return score;
+}
+
+function pickBestVin(candidates: string[]): string | null {
+  const uniq = [...new Set(candidates.map((c) => c.toUpperCase()))].filter(isPlausibleVin);
+  if (uniq.length === 0) return null;
+  uniq.sort((a, b) => scoreVinCandidate(b) - scoreVinCandidate(a));
+  const preferred = uniq.find((v) => isFordOrLincolnVin(v) || vinCheckDigitValid(v));
+  return preferred || uniq[0];
+}
+
+function labeledVinCandidates(raw: string): string[] {
+  const found: string[] = [];
+  const push = (v?: string) => {
+    if (v && isPlausibleVin(v)) found.push(v.toUpperCase());
+  };
+
+  const param = raw.match(/[?&]vin=([A-HJ-NPR-Z0-9]{17})/i);
+  push(param?.[1]);
+
+  for (const m of raw.matchAll(/vehicleIdentificationNumber["'\s:]+([A-HJ-NPR-Z0-9]{17})/gi)) {
+    push(m[1]);
+  }
+  for (const m of raw.matchAll(/itemprop=["']vehicleIdentificationNumber["'][^>]*>([A-HJ-NPR-Z0-9]{17})/gi)) {
+    push(m[1]);
+  }
+  for (const m of raw.matchAll(/["']vin["']\s*:\s*["']([A-HJ-NPR-Z0-9]{17})["']/gi)) {
+    push(m[1]);
+  }
+  for (const m of raw.matchAll(/\b(?:vehicleVin|vehicle_vin|vinNumber)\s*:\s*["']([A-HJ-NPR-Z0-9]{17})["']/gi)) {
+    push(m[1]);
+  }
+  for (const m of raw.matchAll(/property=["']og:description["'][^>]*content=["']([^"']+)/gi)) {
+    const nested = unlabeledVinCandidates(m[1]);
+    nested.forEach((v) => push(v));
+  }
+  for (const m of raw.matchAll(/content=["']([^"']+)["'][^>]*property=["']og:description["']/gi)) {
+    unlabeledVinCandidates(m[1]).forEach((v) => push(v));
+  }
+  for (const m of raw.matchAll(/<dt[^>]*>\s*VIN\s*<\/dt>\s*<dd[^>]*>\s*([A-HJ-NPR-Z0-9]{17})/gi)) {
+    push(m[1]);
+  }
+  for (const m of raw.matchAll(/\bVIN[:\s#=-]+([A-HJ-NPR-Z0-9]{17})/gi)) {
+    push(m[1]);
+  }
+  // Concatenated dealer labels: Engine3VIN3FMCR9BN8TRE94740
+  for (const m of raw.matchAll(/VIN([A-HJ-NPR-Z0-9]{17})/gi)) {
+    push(m[1]);
+  }
+  return found;
+}
+
+function unlabeledVinCandidates(raw: string): string[] {
+  const found: string[] = [];
+  const text = raw.toUpperCase();
+  for (const source of [VIN_RE, VIN_CHAR_RE]) {
+    const clone = new RegExp(source.source, source.flags);
+    let m: RegExpExecArray | null;
+    while ((m = clone.exec(text)) !== null) {
+      if (isAwsInstanceIdContext(text, m.index)) continue;
+      if (isPlausibleVin(m[0])) found.push(m[0].toUpperCase());
+    }
+  }
+  return found;
+}
+
 export function extractVin(input: string): string | null {
   if (!input) return null;
-  const text = input.trim().toUpperCase();
-  const param = text.match(/[?&]VIN=([A-HJ-NPR-Z0-9]{17})/);
-  if (param) return param[1];
-  const matches = text.match(VIN_RE);
-  if (!matches || matches.length === 0) return null;
-  const real = matches.find((m) => /[A-Z]/.test(m) && /\d/.test(m));
-  return real || matches[0];
+  const raw = input.trim();
+  const labeled = pickBestVin(labeledVinCandidates(raw));
+  if (labeled) return labeled;
+  return pickBestVin(unlabeledVinCandidates(raw));
 }
 
 export function looksLikeUrl(input: string): boolean {
   return /^https?:\/\//i.test(input.trim());
+}
+
+export function looksLikeFordOrLincolnPaste(paste: string): boolean {
+  const raw = (paste || "").trim();
+  if (!raw) return false;
+  if (looksLikeUrl(raw)) {
+    try {
+      const u = new URL(raw);
+      const hay = `${u.hostname} ${u.pathname} ${u.search}`.toLowerCase();
+      if (hay.includes("ford") || hay.includes("lincoln") || hay.includes("forddirect")) return true;
+    } catch {
+      /* ignore invalid URL */
+    }
+  }
+  const lower = raw.toLowerCase();
+  if (lower.includes("ford") || lower.includes("lincoln") || lower.includes("windowsticker")) return true;
+  const vin = extractVin(raw);
+  return !!(vin && isFordOrLincolnVin(vin));
+}
+
+/** BMW/Porsche/Toyota sample chips — never used for a Ford dealer URL. */
+export function isExplicitNonFordDemoPaste(paste: string): boolean {
+  if (looksLikeFordOrLincolnPaste(paste)) return false;
+  return NON_FORD_DEMO_HINT.test(paste);
 }
 
 export function isFordOrLincolnVin(vin: string): boolean {
@@ -201,6 +336,20 @@ function titleOption(name: string): string {
   if (isUltimateLine(trimmed)) return "Ultimate Package";
   if (isKeypadLine(trimmed)) return "Keyless Entry Keypad";
   return trimmed;
+}
+
+/** `VEHICLE DESCRIPTION` / `BRONCO SPORT TR E94740` → Bronco Sport */
+function modelFromVehicleDescription(text: string): string | undefined {
+  const m = text.match(/VEHICLE DESCRIPTION\s+([A-Z0-9][A-Z0-9 \-]{2,50})/i);
+  if (!m) return undefined;
+  const tokens = m[1].trim().split(/\s+/);
+  while (tokens.length > 1) {
+    const last = tokens[tokens.length - 1];
+    if (/\d/.test(last) || last.length <= 2) tokens.pop();
+    else break;
+  }
+  const model = tokens.join(" ").trim();
+  return model || undefined;
 }
 
 function isUnreleasedText(text: string): boolean {
@@ -260,21 +409,31 @@ export function parseFordStickerText(vin: string, text: string): FordSticker {
     fetchedAt,
   };
 
+  const descModel = modelFromVehicleDescription(text);
+  if (descModel) sticker.model = descModel;
+
   const headline = text.match(
-    /\b(20\d{2})\s+([A-Z][A-Z0-9\-]+(?:\s+[A-Z0-9\-]+)*)\s+(4WD|AWD|RWD|2WD|FWD)\s+EXTERIOR/i
+    /\b(20\d{2})\s+([A-Z][A-Z0-9\-]+(?:\s+[A-Z0-9\-]+)*)\s+(4WD|AWD|RWD|2WD|FWD|4X4|4X2)\s+EXTERIOR/i
   );
   if (headline) {
     sticker.year = Number.parseInt(headline[1], 10);
     const ymm = headline[2].replace(/\s+/g, " ").trim();
-    const parts = ymm.split(" ");
-    sticker.trim = parts.pop();
-    sticker.model = parts.join(" ") || ymm;
     sticker.drivetrain = headline[3].toUpperCase();
+    const modelNorm = (sticker.model || "").toUpperCase();
+    if (modelNorm && ymm.toUpperCase().startsWith(modelNorm)) {
+      sticker.trim = ymm.slice(modelNorm.length).trim() || ymm;
+    } else if (sticker.model) {
+      sticker.trim = ymm;
+    } else {
+      const parts = ymm.split(" ");
+      sticker.trim = parts.pop();
+      sticker.model = parts.join(" ") || ymm;
+    }
   } else {
     const loose = text.match(/\b(20\d{2})\s+EXPLORER\s+(\S+)/i);
     if (loose) {
       sticker.year = Number.parseInt(loose[1], 10);
-      sticker.model = "Explorer";
+      sticker.model = sticker.model || "Explorer";
       sticker.trim = loose[2];
     }
   }
@@ -289,7 +448,9 @@ export function parseFordStickerText(vin: string, text: string): FordSticker {
       .replace(/\b\w/g, (c) => c.toUpperCase());
   }
 
-  const colorLine = text.match(/WHEELBASE\s+([A-Z0-9][A-Z0-9 \-\/]+)/i);
+  const colorLine =
+    text.match(/WHEELBASE\s+([A-Z0-9][A-Z0-9 \-\/]+)/i) ||
+    text.match(/\d-PASSENGER\s+([A-Z][A-Z0-9 \-\/]+)/i);
   if (colorLine) {
     sticker.exteriorColor = colorLine[1]
       .replace(/\s+/g, " ")
@@ -613,35 +774,62 @@ export async function confirmFordMustHaves(
   return confirmFordMustHavesFromSticker(sticker, mustHaveLines);
 }
 
+export type DealerPageVinResult = {
+  vin: string | null;
+  blocked: boolean;
+  httpStatus?: number;
+};
+
+export type PasteVinResolution = {
+  vin: string | null;
+  dealerBlocked: boolean;
+  source: "paste" | "dealer_page" | "none";
+};
+
 /**
  * Fetch a user-pasted dealer VDP once to pull a VIN out of the HTML.
  * Not a warehouse crawl — one URL the user just handed us.
  */
-export async function extractVinFromDealerPage(url: string): Promise<string | null> {
-  const res = await fetch(url, {
-    headers: {
-      Accept: "text/html,application/xhtml+xml",
-      "User-Agent":
-        "Mozilla/5.0 (compatible; TrimScout/1.0; +https://www.trimscout.com)",
-    },
-    cache: "no-store",
-    redirect: "follow",
-    signal: AbortSignal.timeout(8000),
-  });
-  if (!res.ok) return null;
-  const html = await res.text();
-  return extractVin(html);
+export async function extractVinFromDealerPage(url: string): Promise<DealerPageVinResult> {
+  try {
+    const res = await fetch(url, {
+      headers: {
+        Accept: "text/html,application/xhtml+xml;q=0.9,*/*;q=0.8",
+        "User-Agent": BROWSER_UA,
+      },
+      cache: "no-store",
+      redirect: "follow",
+      signal: AbortSignal.timeout(8000),
+    });
+    const html = await res.text().catch(() => "");
+    const denied = /access denied|akamai|errors\.edgesuite|reference\s+#/i.test(html);
+    if (!res.ok || denied) {
+      return { vin: null, blocked: true, httpStatus: res.status };
+    }
+    return { vin: extractVin(html), blocked: false, httpStatus: res.status };
+  } catch {
+    return { vin: null, blocked: true };
+  }
 }
 
 export async function resolveVinFromPaste(paste: string): Promise<string | null> {
+  const resolved = await resolvePasteVin(paste);
+  return resolved.vin;
+}
+
+export async function resolvePasteVin(paste: string): Promise<PasteVinResolution> {
   const direct = extractVin(paste);
-  if (direct) return direct;
-  if (looksLikeUrl(paste)) {
-    try {
-      return await extractVinFromDealerPage(paste.trim());
-    } catch {
-      return null;
+  if (direct) {
+    if (looksLikeFordOrLincolnPaste(paste) && !isFordOrLincolnVin(direct) && looksLikeUrl(paste)) {
+      // Hash/AWS-shaped token in the URL is not the vehicle. Fetch the page.
+    } else {
+      return { vin: direct, dealerBlocked: false, source: "paste" };
     }
   }
-  return null;
+  if (looksLikeUrl(paste)) {
+    const page = await extractVinFromDealerPage(paste.trim());
+    if (page.vin) return { vin: page.vin, dealerBlocked: false, source: "dealer_page" };
+    return { vin: null, dealerBlocked: page.blocked, source: "none" };
+  }
+  return { vin: null, dealerBlocked: false, source: "none" };
 }

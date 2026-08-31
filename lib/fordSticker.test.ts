@@ -9,13 +9,18 @@ import {
   defaultMustHaveLines,
   engineFamilyFromVin,
   extractVin,
+  extractVinFromDealerPage,
+  getFordSticker,
   isFordOrLincolnVin,
   isKeypadIntent,
   isKeypadLine,
+  isPlausibleVin,
   isStandardKeylessLine,
+  looksLikeFordOrLincolnPaste,
   parseFordStickerText,
   shouldExcludeByEnginePrefix,
   stickerHasMustHave,
+  vinCheckDigitValid,
 } from "./fordSticker";
 
 const FIXTURE_DIR = path.join(import.meta.dirname, "testdata", "ford-stickers");
@@ -30,6 +35,10 @@ const BATTLEFIELD = "1FMWK8JC1TGB69561";
 const MALL_OF_GEORGIA = "1FMWK8JC7TGA20216";
 const UNRELEASED = "1FMWK8JC2TGB72467";
 const DECOY_23 = "1FMUK8JH8TGB25138";
+const BRONCO = "3FMCR9BN8TRE94740";
+const AWS_INSTANCE_ID = "0CF3D43CA21F9C687";
+const ROUTE23_BRONCO_URL =
+  "https://www.23ford.com/new/Ford/2026-Ford-Bronco-Sport-63303543ac181bfc6c479fade5d937fb.htm";
 
 describe("VIN extract / Ford identity", () => {
   it("extracts a raw 17-char VIN", () => {
@@ -61,6 +70,61 @@ describe("VIN extract / Ford identity", () => {
     assert.equal(engineFamilyFromVin(DECOY_23), "2.3");
     assert.equal(shouldExcludeByEnginePrefix(SUBJECT, DECOY_23), true);
     assert.equal(shouldExcludeByEnginePrefix(SUBJECT, SHORKEY), false);
+  });
+
+  it("does not treat a 23ford hash URL as a VIN", () => {
+    assert.equal(extractVin(ROUTE23_BRONCO_URL), null);
+    assert.equal(looksLikeFordOrLincolnPaste(ROUTE23_BRONCO_URL), true);
+  });
+
+  it("prefers the real VIN over an AWS instance id that appears first in the HTML", () => {
+    const html = `<!-- i-0cf3d43ca21f9c687-us-east-1-bot1 -->
+      <meta property="og:description" content="2026 Ford Bronco Sport Big Bend VIN ${BRONCO}" />
+      <script type="application/ld+json">{"@type":"Vehicle","vehicleIdentificationNumber":"${BRONCO}"}</script>
+      <dt>VIN</dt><dd>${BRONCO}</dd>
+      Engine3VIN${BRONCO}`;
+    assert.equal(isFordOrLincolnVin(AWS_INSTANCE_ID), false);
+    assert.equal(isPlausibleVin(AWS_INSTANCE_ID), false);
+    assert.equal(extractVin(html), BRONCO);
+    assert.equal(extractVin(`<!-- i-${AWS_INSTANCE_ID.toLowerCase()}-us-east-1-bot1 --> later ${BRONCO}`), BRONCO);
+  });
+
+  it("extracts a concatenated Engine3VIN token", () => {
+    assert.equal(extractVin(`Engine3VIN${BRONCO}`), BRONCO);
+  });
+
+  it("validates VIN check digits and Ford WMIs", () => {
+    assert.equal(vinCheckDigitValid(SUBJECT), true);
+    assert.equal(vinCheckDigitValid(BRONCO), true);
+    assert.equal(vinCheckDigitValid(AWS_INSTANCE_ID), false);
+    assert.equal(isFordOrLincolnVin(BRONCO), true);
+  });
+
+  it("treats a dealer 403 as a blocked scrape, not a VIN", async () => {
+    const orig = globalThis.fetch;
+    globalThis.fetch = (async () => new Response("Access Denied", { status: 403 })) as typeof fetch;
+    try {
+      const page = await extractVinFromDealerPage(ROUTE23_BRONCO_URL);
+      assert.equal(page.vin, null);
+      assert.equal(page.blocked, true);
+      assert.equal(page.httpStatus, 403);
+    } finally {
+      globalThis.fetch = orig;
+    }
+  });
+
+  it("reads the Bronco VIN from dealer HTML even when an AWS instance id is first", async () => {
+    const html = `<!-- i-0cf3d43ca21f9c687-us-east-1-bot1 -->
+      <script type="application/ld+json">{"vehicleIdentificationNumber":"${BRONCO}"}</script>`;
+    const orig = globalThis.fetch;
+    globalThis.fetch = (async () => new Response(html, { status: 200 })) as typeof fetch;
+    try {
+      const page = await extractVinFromDealerPage(ROUTE23_BRONCO_URL);
+      assert.equal(page.blocked, false);
+      assert.equal(page.vin, BRONCO);
+    } finally {
+      globalThis.fetch = orig;
+    }
   });
 });
 
@@ -148,6 +212,21 @@ describe("Ford sticker parse — true positives / false positive / unreleased", 
   });
 });
 
+describe("Ford sticker parse — 2026 Bronco Sport Big Bend 3FMCR9BN8TRE94740", () => {
+  it("reads Bronco Sport Big Bend 4X4 from the sticker, not Explorer", () => {
+    const s = parseFordStickerText(BRONCO, loadFixture(BRONCO));
+    assert.equal(s.status, "released");
+    assert.equal(s.year, 2026);
+    assert.equal(s.model, "Bronco Sport");
+    assert.equal(s.trim, "Big Bend");
+    assert.equal((s.drivetrain || "").toUpperCase(), "4X4");
+    assert.match(s.exteriorColor || "", /Oxford White/i);
+    assert.equal(s.msrp, 36220);
+    assert.match(s.engine || "", /1\.5L/i);
+    assert.notEqual(s.model, "Explorer");
+  });
+});
+
 describe("live Ford Direct confirmFordMustHaves (network)", () => {
   it("subject VIN still has Ultimate + keypad on Ford Direct", async () => {
     const check = await confirmFordMustHaves(SUBJECT, ["Ultimate Package", "Keyless Entry Keypad"]);
@@ -160,5 +239,13 @@ describe("live Ford Direct confirmFordMustHaves (network)", () => {
     assert.equal(check.status, "released");
     assert.equal(check.pass, false);
     assert.ok(check.missing.includes("Keyless Entry Keypad"));
+  });
+
+  it("Bronco Sport VIN decodes as Big Bend from Ford Direct", async () => {
+    const s = await getFordSticker(BRONCO);
+    assert.equal(s.status, "released");
+    assert.equal(s.model, "Bronco Sport");
+    assert.equal(s.trim, "Big Bend");
+    assert.equal(s.msrp, 36220);
   });
 });

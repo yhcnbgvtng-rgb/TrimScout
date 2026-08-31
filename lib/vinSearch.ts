@@ -26,6 +26,34 @@ import type { Vehicle } from "./types";
 export const MAX_STICKER_CANDIDATES = 50;
 export const MAX_FORD_RECS = 2;
 
+function normalizeModelName(s?: string): string {
+  return (s || "").toLowerCase().replace(/[^a-z0-9]+/g, "");
+}
+
+export function listingMatchesSubjectModel(listing: { model?: string }, subjectModel?: string): boolean {
+  const want = normalizeModelName(subjectModel);
+  const got = normalizeModelName(listing.model);
+  if (!want) return true;
+  if (!got) return true;
+  return want === got;
+}
+
+function demoListingsForModel(model?: string): ListingCandidate[] {
+  const want = normalizeModelName(model);
+  if (!want) return [];
+  return DEMO_COMPARABLE_LISTINGS.filter((l) => listingMatchesSubjectModel(l, model));
+}
+
+function demoListingsNote(model?: string): string {
+  const matched = demoListingsForModel(model);
+  if (matched.length === 0) {
+    return `No listings API key configured. Demo similar lots are Explorer Tremor examples and do not apply to ${
+      model || "this vehicle"
+    }. Increase Competition was left empty. Set AUTO_DEV_API_KEY or MARKETCHECK_API_KEY for nationwide search.`;
+  }
+  return "No listings API key configured. Demo comparables use known VINs plus live Ford Direct stickers. Set AUTO_DEV_API_KEY or MARKETCHECK_API_KEY for nationwide search.";
+}
+
 export type ListingsProvider = "auto.dev" | "marketcheck" | "demo";
 export type PriceFact = "listing" | "sticker" | "unconfirmed";
 
@@ -230,7 +258,7 @@ async function searchAutoDev(
   q: {
     year?: number;
     make: string;
-    model: string;
+    model?: string;
     trim?: string;
     zip: string;
     radiusMiles: number;
@@ -238,7 +266,7 @@ async function searchAutoDev(
 ): Promise<ListingCandidate[]> {
   const url = new URL("https://api.auto.dev/listings");
   url.searchParams.set("vehicle.make", q.make);
-  url.searchParams.set("vehicle.model", q.model);
+  if (q.model) url.searchParams.set("vehicle.model", q.model);
   if (q.year) url.searchParams.set("vehicle.year", String(q.year));
   if (q.trim) url.searchParams.set("vehicle.trim", q.trim);
   url.searchParams.set("zip", q.zip);
@@ -292,7 +320,7 @@ async function searchMarketCheck(
   q: {
     year?: number;
     make: string;
-    model: string;
+    model?: string;
     trim?: string;
     zip: string;
     radiusMiles: number;
@@ -302,7 +330,7 @@ async function searchMarketCheck(
   url.searchParams.set("api_key", key);
   if (q.year) url.searchParams.set("year", String(q.year));
   url.searchParams.set("make", q.make);
-  url.searchParams.set("model", q.model);
+  if (q.model) url.searchParams.set("model", q.model);
   if (q.trim) url.searchParams.set("trim", q.trim);
   url.searchParams.set("car_type", "new");
   url.searchParams.set("zip", q.zip);
@@ -343,7 +371,7 @@ async function searchMarketCheck(
 export async function searchCoarseListings(q: {
   year?: number;
   make: string;
-  model: string;
+  model?: string;
   trim?: string;
   zip: string;
   radiusMiles: number;
@@ -375,8 +403,8 @@ export async function searchCoarseListings(q: {
   }
   return {
     provider: "demo",
-    listings: DEMO_COMPARABLE_LISTINGS,
-    note: "No listings API key configured. Demo comparables use known VINs plus live Ford Direct stickers. Set AUTO_DEV_API_KEY or MARKETCHECK_API_KEY for nationwide search.",
+    listings: demoListingsForModel(q.model),
+    note: demoListingsNote(q.model),
   };
 }
 
@@ -447,7 +475,7 @@ export async function findSimilarFordVehicles(opts: {
     const searched = await searchCoarseListings({
       year: subject.year && subject.year >= 1990 && subject.year <= 2035 ? subject.year : undefined,
       make: subject.make || "Ford",
-      model: subject.model || "Explorer",
+      model: subject.model,
       trim: subject.trim,
       zip,
       radiusMiles,
@@ -458,6 +486,11 @@ export async function findSimilarFordVehicles(opts: {
   } else {
     provider = "demo";
     note = "Using provided candidate list.";
+  }
+
+  listings = (listings || []).filter((l) => listingMatchesSubjectModel(l, subject.model));
+  if (listings.length === 0 && provider === "demo") {
+    note = demoListingsNote(subject.model);
   }
 
   const dropped: FordSearchDropped[] = [];

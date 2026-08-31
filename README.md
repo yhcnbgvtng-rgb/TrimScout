@@ -19,12 +19,12 @@ This lives **inside Launch Dealership Bidding Hunt** (`components/BiddingWizard.
 
 1. Click **Bid Out a Deal** / **Launch Dealership Bidding Hunt**.
 2. Step 1 payment defaults to **Cash**.
-3. Step 2: paste a VIN or dealer URL in the existing paste field. Placeholder / test VIN: `1FMWK8JCXTGB47204`.
+3. Step 2: paste a VIN or dealer URL in the existing paste field. Placeholder / test VIN: `1FMWK8JCXTGB47204`. Some dealer URLs (e.g. Route 23 `www.23ford.com`) use a hash id with **no VIN in the URL**. TrimScout fetches that page once and reads JSON-LD / labeled VIN fields. It will not treat AWS instance ids or hashes as VINs. If the dealer site blocks the fetch, paste the 17-character VIN — we will not decode a mock Explorer/Porsche.
 4. Enter **your ZIP** and **search radius in miles** next to that box (placeholders like `07405` / `100` are examples only — fields stay empty until you type). Those values are required before suggestions run. They are never hardcoded and never silently defaulted to 100.
 5. TrimScout fetches the official Ford Direct PDF (server-side, no account):
    `https://www.windowsticker.forddirect.com/windowsticker.pdf?vin={VIN}`
 6. Factory options come from that sticker. **Ultimate Package** and **Keyless Entry Keypad** are pre-checked as must-haves when those lines exist.
-7. After paste **and** zip+radius, the **Increase Competition** area (2 optional secondary slots) auto-fills up to two sticker-confirmed similar lots **within your radius of your ZIP**. Each card shows miles-from-your-ZIP. Lots outside the radius are dropped — we do not pad with farther cars. If none are in range, the UI says so.
+7. After paste **and** zip+radius, the **Increase Competition** area (2 optional secondary slots) auto-fills up to two sticker-confirmed similar lots **within your radius of your ZIP**. Each card shows miles-from-your-ZIP. Lots outside the radius are dropped — we do not pad with farther cars. If none are in range, the UI says so. Demo Explorer lots are not applied to a Bronco Sport (or any other model).
 
 Worked example must-haves: Ultimate Package **and** Keyless Entry Keypad. Distance is from the **user ZIP**, not the subject dealer ZIP.
 
@@ -34,7 +34,7 @@ Worked example must-haves: Ultimate Package **and** Keyless Entry Keypad. Distan
 | `1FMWK8JC1TGB69561` Battlefield Ford, Culpeper VA | Keep **only if** your radius covers ~250 mi. At 07405 + 100 mi → drop `outside_radius`. |
 | `1FMWK8JC7TGA20216` Mall of Georgia Ford | Drop (Ultimate, no keypad) |
 | `1FMUK8JH8TGB25138` All American Ford Old Bridge | Drop (2.3L VIN prefix `1FMU`) |
-| `1FMWK8JC2TGB72467` / `1FMWK8JC5TGA02149` | Unreleased sticker → not a match |
+| `3FMCR9BN8TRE94740` Route 23 Bronco Sport Big Bend | Subject vehicle (not Explorer). Demo Tremor lots are not suggestions. |
 
 ### Ford rules baked in
 
