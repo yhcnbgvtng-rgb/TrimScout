@@ -2,10 +2,13 @@ import "./testdata/blockLiveHttp";
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
+  DUPLICATE_COMPARE_VIN,
+  assignCompetitorLot,
   buildOfferCompareSnapshot,
   collectDealVehicles,
   parseOfferCompareSnapshot,
   snapshotVehiclesFromDeal,
+  vehicleForCompareRole,
 } from "./offerCompare";
 import type { BiddingRequest, Vehicle } from "./types";
 
@@ -115,6 +118,42 @@ describe("offer compare snapshot", () => {
     assert.equal(parsed?.vehicles.length, 2);
     assert.equal(parsed?.request.dealStructurePreferences?.vehicleTerms?.[1].cash?.offerPrice, 50000);
     assert.equal(parsed?.vehicles[0].vehicle.options[0].name, "Ultimate Package");
+    assert.equal(parsed?.vehicles[1].role, "other_lot_1");
+    assert.equal(parsed?.vehicles[1].label, "Competitor 1");
+  });
+
+  it("keeps competitor 2 empty until the shopper pastes a VIN — never invents a third car", () => {
+    const snapshot = buildOfferCompareSnapshot({
+      request,
+      favorite,
+      otherLots: [null, lot1],
+      buyerZip: "76541",
+      requestedStructures: ["cash", "finance"],
+    });
+    assert.ok(snapshot);
+    assert.equal(snapshot!.vehicles.length, 2);
+    assert.equal(snapshot!.vehicles[1].role, "other_lot_2");
+    assert.equal(vehicleForCompareRole(snapshot!, "other_lot_1"), null);
+    assert.equal(vehicleForCompareRole(snapshot!, "other_lot_2")?.vehicle.vin, lot1.vin);
+    const assigned = assignCompetitorLot(snapshot!, 1, lot1);
+    assert.equal(assigned.ok, false);
+    if (!assigned.ok) assert.equal(assigned.error, DUPLICATE_COMPARE_VIN);
+    const lot2 = vehicle({
+      vin: "1FMWK8JC1TGB69561",
+      dealerPrice: 50000,
+      location: { dealerName: "Battlefield Ford", city: "Culpeper", state: "VA", zip: "22701", distanceMiles: 40 },
+    });
+    const filled = assignCompetitorLot(snapshot!, 1, lot2);
+    assert.equal(filled.ok, true);
+    if (filled.ok) {
+      assert.equal(filled.snapshot.vehicles.length, 3);
+      assert.equal(vehicleForCompareRole(filled.snapshot, "other_lot_1")?.vehicle.vin, lot2.vin);
+      assert.equal(vehicleForCompareRole(filled.snapshot, "other_lot_2")?.vehicle.vin, lot1.vin);
+      const terms = filled.snapshot.request.dealStructurePreferences?.vehicleTerms || [];
+      assert.equal(terms.length, 3);
+      assert.equal(terms[1].vin, lot2.vin.toUpperCase());
+      assert.notEqual(terms[1].cash?.offerPrice, terms[0].cash?.offerPrice);
+    }
   });
 
   it("parse refuses an empty snapshot instead of inventing demo Explorers", () => {

@@ -10,6 +10,7 @@ import {
   acceptImportedVehicle,
   factoryBuildFailedError,
   factoryBuildUnavailableError,
+  importPastedFactoryVehicle,
   preferredFactoryBuildEndpoint,
   vehicleVinMatchesPaste,
 } from "./pasteImport";
@@ -317,5 +318,46 @@ describe("paste import never substitutes a catalog VIN", () => {
     assert.match(factoryBuildUnavailableError(PAUL_CHEVY_VIN), new RegExp(PAUL_CHEVY_VIN));
     assert.match(factoryBuildFailedError(PAUL_CHEVY_VIN), new RegExp(PAUL_CHEVY_VIN));
     assert.doesNotMatch(factoryBuildUnavailableError(PAUL_CHEVY_VIN), /porsche/i);
+  });
+
+  it("importPastedFactoryVehicle drops a catalog Porsche returned for a Chevy paste", async () => {
+    const fetchImpl = (async (input: RequestInfo | URL) => {
+      assert.match(String(input), /\/api\/gm-sticker/);
+      return new Response(
+        JSON.stringify({
+          vin: PAUL_CHEVY_VIN,
+          vehicle: { vin: MOCK_CATALOG_PORSCHE_VIN, make: "Porsche", model: "911" },
+        }),
+        { status: 200 }
+      );
+    }) as typeof fetch;
+    const result = await importPastedFactoryVehicle(PAUL_CHEVY_VIN, fetchImpl);
+    assert.equal(result.ok, false);
+  });
+
+  it("importPastedFactoryVehicle keeps the pasted Chevy VIN", async () => {
+    const fetchImpl = (async (input: RequestInfo | URL) => {
+      assert.match(String(input), /\/api\/gm-sticker/);
+      return new Response(
+        JSON.stringify({
+          vin: PAUL_CHEVY_VIN,
+          vehicle: {
+            vin: PAUL_CHEVY_VIN,
+            year: 2026,
+            make: "Chevrolet",
+            model: "Silverado",
+            trim: "LT",
+          },
+          sticker: { status: "released", msrp: 52000 },
+        }),
+        { status: 200 }
+      );
+    }) as typeof fetch;
+    const result = await importPastedFactoryVehicle(PAUL_CHEVY_VIN, fetchImpl);
+    assert.equal(result.ok, true);
+    if (result.ok) {
+      assert.equal(result.vehicle.vin, PAUL_CHEVY_VIN);
+      assert.equal(result.oem, "gm");
+    }
   });
 });

@@ -5,9 +5,11 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   Car,
+  Globe,
   LoaderCircle as Loader2,
   MapPin,
   Phone,
+  Zap,
 } from "lucide-react";
 import {
   FORD_COMPETITION_FACTORY_OPTIONS,
@@ -36,17 +38,53 @@ import {
   termsForVin,
 } from "../lib/dealTerms";
 import {
+  COMPARE_COLUMN_ROLES,
+  ROLE_LABELS,
   applyVehicleTermsToSnapshot,
+  assignCompetitorLot,
   loadOfferCompareSnapshot,
   saveOfferCompareSnapshot,
   setLandingView,
   upsertShopperRequest,
+  vehicleForCompareRole,
   type OfferCompareSnapshot,
   type OfferCompareVehicle,
 } from "../lib/offerCompare";
+import { importPastedFactoryVehicle } from "../lib/pasteImport";
 import type { ShopperListingSheet } from "../lib/listingSheet";
 import type { DealStructureMethod, Vehicle, VehicleDealTerms } from "../lib/types";
 import { formatCurrency } from "../lib/otdCalculator";
+
+function unavailableSheet(vin: string, note: string): ShopperListingSheet {
+  return {
+    vin,
+    available: false,
+    attribution: null,
+    advertisedPrice: null,
+    msrp: null,
+    priceChange: null,
+    priceHistory: [],
+    daysOnMarket: null,
+    daysOnMarketActive: null,
+    firstSeen: null,
+    lastSeen: null,
+    stockNumber: null,
+    inventoryType: null,
+    exteriorColor: null,
+    interiorColor: null,
+    mileage: null,
+    dealerName: null,
+    dealerStreet: null,
+    dealerCity: null,
+    dealerState: null,
+    dealerZip: null,
+    dealerPhone: null,
+    vdpUrl: null,
+    inTransit: null,
+    photoUrl: null,
+    note,
+  };
+}
 
 function factoryLines(vehicle: Vehicle): FactoryOptionDisplay[] {
   if (vehicle.options && vehicle.options.length > 0) {
@@ -72,11 +110,12 @@ function milesLabel(miles: number | undefined, zip: string): string | null {
   return `${miles} mi from ${zip.trim()}`;
 }
 
-function formatSignedPrice(amount: number): string {
-  const abs = formatPriceAmount(Math.abs(amount));
-  if (amount > 0) return `+${abs} vs prior`;
-  if (amount < 0) return `−${abs} vs prior`;
-  return "No change vs prior";
+function formatPriceHistoryLine(entry: { date: string; price: number; change: number | null }): string {
+  const price = formatPriceAmount(entry.price);
+  if (entry.change == null || entry.change === 0) return `${entry.date}  ${price}`;
+  const abs = formatPriceAmount(Math.abs(entry.change));
+  if (entry.change > 0) return `${entry.date}  ${price}  (+${abs})`;
+  return `${entry.date}  ${price}  (−${abs})`;
 }
 
 function moneyInput(value: number, onChange: (n: number) => void, label: string) {
@@ -100,6 +139,9 @@ export const OfferCompareView: React.FC = () => {
   const [loaded, setLoaded] = useState(false);
   const [sheets, setSheets] = useState<Record<string, ShopperListingSheet>>({});
   const [listingStatus, setListingStatus] = useState<"idle" | "loading" | "ready">("idle");
+  const [slotPaste, setSlotPaste] = useState<Record<1 | 2, string>>({ 1: "", 2: "" });
+  const [slotError, setSlotError] = useState<Record<1 | 2, string | null>>({ 1: null, 2: null });
+  const [importingSlot, setImportingSlot] = useState<1 | 2 | null>(null);
 
   useEffect(() => {
     const next = loadOfferCompareSnapshot();
@@ -107,13 +149,19 @@ export const OfferCompareView: React.FC = () => {
     setLoaded(true);
   }, []);
 
-  const vins = useMemo(
-    () => (snapshot?.vehicles || []).map((col) => col.vehicle.vin).filter((vin) => vin.length === 17),
+  const importedVins = useMemo(
+    () =>
+      (snapshot?.vehicles || [])
+        .map((col) => col.vehicle.vin.toUpperCase())
+        .filter((vin) => vin.length === 17)
+        .slice(0, 3),
     [snapshot]
   );
+  const vinKey = importedVins.join(",");
 
   useEffect(() => {
-    if (vins.length === 0) return;
+    if (!vinKey) return;
+    const vins = vinKey.split(",").filter((vin) => vin.length === 17);
     let cancelled = false;
     setListingStatus("loading");
     fetch("/api/listing-facts", {
@@ -135,33 +183,7 @@ export const OfferCompareView: React.FC = () => {
         if (cancelled) return;
         const byVin: Record<string, ShopperListingSheet> = {};
         for (const vin of vins) {
-          byVin[vin] = {
-            vin,
-            available: false,
-            attribution: null,
-            advertisedPrice: null,
-            msrp: null,
-            priceChange: null,
-            daysOnMarket: null,
-            daysOnMarketActive: null,
-            firstSeen: null,
-            lastSeen: null,
-            stockNumber: null,
-            inventoryType: null,
-            exteriorColor: null,
-            interiorColor: null,
-            mileage: null,
-            dealerName: null,
-            dealerStreet: null,
-            dealerCity: null,
-            dealerState: null,
-            dealerZip: null,
-            dealerPhone: null,
-            vdpUrl: null,
-            inTransit: null,
-            photoUrl: null,
-            note: FORD_LISTINGS_LOAD_FAILED,
-          };
+          byVin[vin] = unavailableSheet(vin, FORD_LISTINGS_LOAD_FAILED);
         }
         setSheets(byVin);
       })
@@ -171,7 +193,7 @@ export const OfferCompareView: React.FC = () => {
     return () => {
       cancelled = true;
     };
-  }, [vins.join("|")]);
+  }, [vinKey]);
 
   const persist = useCallback((next: OfferCompareSnapshot) => {
     setSnapshot(next);
@@ -189,6 +211,32 @@ export const OfferCompareView: React.FC = () => {
       persist(applyVehicleTermsToSnapshot(snapshot, merged));
     },
     [persist, snapshot]
+  );
+
+  const importCompetitor = useCallback(
+    async (slot: 1 | 2) => {
+      if (!snapshot) return;
+      const paste = slotPaste[slot].trim();
+      if (!paste) return;
+      setImportingSlot(slot);
+      setSlotError((prev) => ({ ...prev, [slot]: null }));
+      const result = await importPastedFactoryVehicle(paste);
+      if (!result.ok) {
+        setSlotError((prev) => ({ ...prev, [slot]: result.error }));
+        setImportingSlot(null);
+        return;
+      }
+      const assigned = assignCompetitorLot(snapshot, slot, result.vehicle);
+      if (!assigned.ok) {
+        setSlotError((prev) => ({ ...prev, [slot]: assigned.error }));
+        setImportingSlot(null);
+        return;
+      }
+      persist(assigned.snapshot);
+      setSlotPaste((prev) => ({ ...prev, [slot]: "" }));
+      setImportingSlot(null);
+    },
+    [persist, slotPaste, snapshot]
   );
 
   const goToTracker = () => {
@@ -216,7 +264,7 @@ export const OfferCompareView: React.FC = () => {
         </div>
         <h1 className="text-xl font-black text-white">No vehicles in this deal</h1>
         <p className="text-xs text-ink-muted">
-          Finish Step 6 of Launch Dealership Bidding Hunt to compare the imported favorite and any other lots.
+          Finish Step 5 of Launch Dealership Bidding Hunt to compare the imported favorite. You can paste two competitor VINs on this page.
         </p>
         <Link
           href="/"
@@ -228,12 +276,10 @@ export const OfferCompareView: React.FC = () => {
     );
   }
 
-  const colClass =
-    snapshot.vehicles.length === 1
-      ? "grid-cols-1 max-w-xl mx-auto"
-      : snapshot.vehicles.length === 2
-        ? "grid-cols-1 md:grid-cols-2"
-        : "grid-cols-1 md:grid-cols-2 xl:grid-cols-3";
+  const columns = COMPARE_COLUMN_ROLES.map((role) => ({
+    role,
+    column: vehicleForCompareRole(snapshot, role),
+  }));
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 space-y-6">
@@ -256,26 +302,113 @@ export const OfferCompareView: React.FC = () => {
         </button>
       </div>
 
-      <div className={`grid gap-4 ${colClass}`}>
-        {snapshot.vehicles.map((column) => (
-          <VehicleOfferColumn
-            key={column.vehicle.vin}
-            column={column}
-            buyerZip={snapshot.buyerZip}
-            requested={snapshot.requestedStructures}
-            terms={termsForVin(snapshot.request.dealStructurePreferences?.vehicleTerms, column.vehicle.vin)}
-            sheet={sheets[column.vehicle.vin.toUpperCase()]}
-            listingLoading={listingStatus === "loading"}
-            onChangeTerms={updateTerms}
-          />
-        ))}
+      <div className="grid gap-4 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
+        {columns.map(({ role, column }) => {
+          if (column) {
+            return (
+              <VehicleOfferColumn
+                key={column.vehicle.vin}
+                column={column}
+                highlighted={role === "favorite"}
+                buyerZip={snapshot.buyerZip}
+                requested={snapshot.requestedStructures}
+                terms={termsForVin(snapshot.request.dealStructurePreferences?.vehicleTerms, column.vehicle.vin)}
+                sheet={sheets[column.vehicle.vin.toUpperCase()]}
+                listingLoading={listingStatus === "loading"}
+                onChangeTerms={updateTerms}
+              />
+            );
+          }
+          const slot: 1 | 2 = role === "other_lot_1" ? 1 : 2;
+          return (
+            <CompetitorPasteSlot
+              key={role}
+              slot={slot}
+              label={ROLE_LABELS[role]}
+              paste={slotPaste[slot]}
+              error={slotError[slot]}
+              importing={importingSlot === slot}
+              onPasteChange={(value) => {
+                setSlotPaste((prev) => ({ ...prev, [slot]: value }));
+                setSlotError((prev) => ({ ...prev, [slot]: null }));
+              }}
+              onImport={() => void importCompetitor(slot)}
+            />
+          );
+        })}
       </div>
     </div>
   );
 };
 
+function CompetitorPasteSlot({
+  slot,
+  label,
+  paste,
+  error,
+  importing,
+  onPasteChange,
+  onImport,
+}: {
+  slot: 1 | 2;
+  label: string;
+  paste: string;
+  error: string | null;
+  importing: boolean;
+  onPasteChange: (value: string) => void;
+  onImport: () => void;
+}) {
+  return (
+    <section className="rounded-2xl border border-dashed border-border bg-surface shadow-xl overflow-hidden flex flex-col min-h-[240px]">
+      <div className="border-b border-border bg-surface-elevated px-4 py-3">
+        <div className="text-[10px] font-bold uppercase tracking-wider text-ink-faint">{label}</div>
+        <h2 className="text-base font-black text-white mt-0.5">Add a competitor</h2>
+        <p className="text-[11px] text-ink-muted mt-0.5">Paste a VIN or dealer listing URL.</p>
+      </div>
+      <div className="px-4 py-3 space-y-2 flex-1">
+        <div className="flex flex-col gap-2">
+          <div className="relative">
+            <Globe className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-emerald-400" />
+            <input
+              type="text"
+              value={paste}
+              onChange={(e) => onPasteChange(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") onImport();
+              }}
+              placeholder="17-character VIN or dealer listing URL"
+              aria-label={`Competitor ${slot} VIN or dealer URL`}
+              className="w-full rounded-xl border border-border bg-background py-2 pl-9 pr-3 text-xs text-white placeholder-ink-faint focus:border-emerald-500 focus:outline-none font-mono"
+            />
+          </div>
+          <button
+            type="button"
+            onClick={onImport}
+            disabled={importing || !paste.trim()}
+            className="rounded-xl bg-emerald-500 px-4 py-2 text-xs font-extrabold text-black hover:bg-emerald-400 transition-all shadow-md flex items-center justify-center gap-1.5 disabled:opacity-50"
+          >
+            {importing ? (
+              <>
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                Importing…
+              </>
+            ) : (
+              <>
+                <Zap className="h-3.5 w-3.5 fill-black" />
+                Import
+              </>
+            )}
+          </button>
+        </div>
+        {error ? <p className="text-[11px] text-amber-200">{error}</p> : null}
+      </div>
+    </section>
+  );
+}
+
 function VehicleOfferColumn({
   column,
+  highlighted,
   buyerZip,
   requested,
   terms,
@@ -284,6 +417,7 @@ function VehicleOfferColumn({
   onChangeTerms,
 }: {
   column: OfferCompareVehicle;
+  highlighted?: boolean;
   buyerZip: string;
   requested: DealStructureMethod[];
   terms: VehicleDealTerms | undefined;
@@ -334,7 +468,7 @@ function VehicleOfferColumn({
     : null;
 
   return (
-    <section className="rounded-2xl border border-border bg-surface shadow-xl overflow-hidden flex flex-col">
+    <section className={`rounded-2xl bg-surface shadow-xl overflow-hidden flex flex-col ${highlighted ? "border-2 border-emerald-500" : "border border-border"}`}>
       <div className="border-b border-border bg-surface-elevated px-4 py-3">
         <div className="text-[10px] font-bold uppercase tracking-wider text-emerald-400">{column.label}</div>
         <h2 className="text-base font-black text-white mt-0.5">
@@ -380,44 +514,6 @@ function VehicleOfferColumn({
       </div>
 
       <div className="px-4 py-3 space-y-3 flex-1">
-        <div>
-          <div className="text-[10px] font-semibold uppercase tracking-wider text-ink-faint">
-            {FORD_COMPETITION_FACTORY_OPTIONS}
-          </div>
-          {options.length === 0 ? (
-            <p className="text-[11px] text-ink-muted mt-1">{FORD_COMPETITION_FACTORY_OPTIONS_UNAVAILABLE}</p>
-          ) : (
-            <ul className="mt-1 max-h-36 overflow-y-auto space-y-0.5">
-              {options.map((opt, i) => (
-                <li
-                  key={`${opt.code || ""}-${opt.description}-${i}`}
-                  className={`text-[11px] leading-snug text-ink-light ${opt.isPackageChild ? "pl-3 text-ink-muted" : ""}`}
-                >
-                  {formatFactoryOptionLine(opt)}
-                  {opt.price != null && opt.price > 0 ? (
-                    <span className="text-ink-faint"> · {formatCurrency(opt.price)}</span>
-                  ) : null}
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-
-        <div className="rounded-xl border border-border bg-background p-3 space-y-1.5">
-          <div className="text-[10px] font-semibold uppercase tracking-wider text-ink-faint">Listing details</div>
-          {listingLoading && !sheet ? (
-            <p className="text-[11px] text-ink-muted flex items-center gap-1.5">
-              <Loader2 className="h-3 w-3 animate-spin" /> Loading listing details…
-            </p>
-          ) : listingNote ? (
-            <p className="text-[11px] text-ink-muted">{listingNote}</p>
-          ) : sheet?.available ? (
-            <ListingFacts sheet={sheet} />
-          ) : (
-            <p className="text-[11px] text-ink-muted">{LISTING_DETAILS_UNAVAILABLE}</p>
-          )}
-        </div>
-
         <div className="space-y-3">
           <div className="text-[10px] font-semibold uppercase tracking-wider text-ink-faint">
             Terms for this VIN
@@ -519,6 +615,44 @@ function VehicleOfferColumn({
             </div>
           ) : null}
         </div>
+
+        <div>
+          <div className="text-[10px] font-semibold uppercase tracking-wider text-ink-faint">
+            {FORD_COMPETITION_FACTORY_OPTIONS}
+          </div>
+          {options.length === 0 ? (
+            <p className="text-[11px] text-ink-muted mt-1">{FORD_COMPETITION_FACTORY_OPTIONS_UNAVAILABLE}</p>
+          ) : (
+            <ul className="mt-1 max-h-36 overflow-y-auto space-y-0.5">
+              {options.map((opt, i) => (
+                <li
+                  key={`${opt.code || ""}-${opt.description}-${i}`}
+                  className={`text-[11px] leading-snug text-ink-light ${opt.isPackageChild ? "pl-3 text-ink-muted" : ""}`}
+                >
+                  {formatFactoryOptionLine(opt)}
+                  {opt.price != null && opt.price > 0 ? (
+                    <span className="text-ink-faint"> · {formatCurrency(opt.price)}</span>
+                  ) : null}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+
+        <div className="rounded-xl border border-border bg-background p-3 space-y-1.5">
+          <div className="text-[10px] font-semibold uppercase tracking-wider text-ink-faint">Listing details</div>
+          {listingLoading && !sheet ? (
+            <p className="text-[11px] text-ink-muted flex items-center gap-1.5">
+              <Loader2 className="h-3 w-3 animate-spin" /> Loading listing details…
+            </p>
+          ) : listingNote ? (
+            <p className="text-[11px] text-ink-muted">{listingNote}</p>
+          ) : sheet?.available ? (
+            <ListingFacts sheet={sheet} />
+          ) : (
+            <p className="text-[11px] text-ink-muted">{LISTING_DETAILS_UNAVAILABLE}</p>
+          )}
+        </div>
       </div>
     </section>
   );
@@ -528,9 +662,6 @@ function ListingFacts({ sheet }: { sheet: ShopperListingSheet }) {
   const facts: Array<{ label: string; value: React.ReactNode }> = [];
   if (sheet.advertisedPrice) facts.push({ label: "Advertised price", value: formatPriceAmount(sheet.advertisedPrice) });
   if (sheet.msrp) facts.push({ label: "MSRP", value: formatPriceAmount(sheet.msrp) });
-  if (sheet.priceChange != null && sheet.priceChange !== 0) {
-    facts.push({ label: "Price change", value: formatSignedPrice(sheet.priceChange) });
-  }
   if (sheet.daysOnMarket != null) facts.push({ label: "Days on market", value: String(sheet.daysOnMarket) });
   if (sheet.daysOnMarketActive != null) {
     facts.push({ label: "Days on market (active)", value: String(sheet.daysOnMarketActive) });
@@ -573,6 +704,18 @@ function ListingFacts({ sheet }: { sheet: ShopperListingSheet }) {
           </div>
         ))}
       </dl>
+      {sheet.priceHistory && sheet.priceHistory.length > 0 ? (
+        <div className="pt-1">
+          <div className="text-[10px] font-semibold uppercase tracking-wider text-ink-faint">Price history</div>
+          <ul className="mt-1 space-y-0.5">
+            {sheet.priceHistory.map((entry) => (
+              <li key={`${entry.date}-${entry.price}`} className="text-[11px] font-mono text-ink-light">
+                {formatPriceHistoryLine(entry)}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
       {sheet.vdpUrl ? (
         <a
           href={sheet.vdpUrl}

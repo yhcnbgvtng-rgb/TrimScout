@@ -298,7 +298,7 @@ export function formatReviewVehicleLocation(
 }
 
 /**
- * Step 6 Target Vehicle: imported car only. Never leftover make/model defaults
+ * Step 5 Target Vehicle: imported car only. Never leftover make/model defaults
  * (BMW 3 Series) and never an invented dealer when location is blank.
  */
 export function reviewTargetFromVehicle(

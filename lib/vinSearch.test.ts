@@ -875,7 +875,7 @@ describe("shopper-facing factory option copy", () => {
   it("must-have picker is checkbox plus text with no bordered cards or sticker label", () => {
     const src = fs.readFileSync(path.join(process.cwd(), "components/BiddingWizard.tsx"), "utf8");
     const start = src.indexOf("function FactoryMustHavePicker");
-    const end = src.indexOf("function competitionFactoryLines");
+    const end = src.indexOf("interface BiddingWizardProps");
     assert.ok(start >= 0 && end > start);
     const picker = src.slice(start, end);
     assert.match(picker, /type="checkbox"/);
@@ -884,7 +884,8 @@ describe("shopper-facing factory option copy", () => {
     assert.doesNotMatch(picker, /bg-surface-elevated/);
     assert.match(src, /FORD_MUST_HAVE_HEADING/);
     assert.match(src, /FORD_MUST_HAVE_HELP/);
-    assert.match(src, /FORD_COMPETITION_FACTORY_OPTIONS_UNAVAILABLE/);
+    const compare = fs.readFileSync(path.join(process.cwd(), "components/OfferCompareView.tsx"), "utf8");
+    assert.match(compare, /FORD_COMPETITION_FACTORY_OPTIONS_UNAVAILABLE/);
   });
 
   it("step 2 preview and other-lots copy never say sticker or Increase Competition", () => {
@@ -901,21 +902,26 @@ describe("shopper-facing factory option copy", () => {
     assert.doesNotMatch(step2, />sticker</);
     assert.match(step2, /FORD_BUILD_SHEET_LINK/);
     assert.match(step2, /shopperPriceSourceLabel/);
-    assert.match(step2, /FORD_OTHER_LOTS_HEADING/);
-    assert.match(step2, /FORD_OTHER_LOTS_MODE_FIND/);
-    assert.match(step2, /FORD_OTHER_LOTS_MODE_PASTE/);
-    assert.match(step2, /type="radio"/);
-    assert.match(src, /useState<OtherLotsMode>\("find"\)/);
-    assert.match(src, /findLotsMode \|\| factoryBuildOem !== "ford" \|\| fordStickerStatus !== "released"/);
-    assert.match(src, /\/api\/ford-comparables/);
-    assert.match(src, /FORD_LISTINGS_LOAD_FAILED/);
-    assert.match(src, /sanitizeShopperListingsCopy/);
-    assert.match(src, /json\.listingsError/);
+    assert.doesNotMatch(step2, /FORD_OTHER_LOTS_HEADING/);
+    assert.doesNotMatch(step2, /FORD_OTHER_LOTS_MODE_FIND/);
+    assert.doesNotMatch(step2, /FORD_OTHER_LOTS_MODE_PASTE/);
+    assert.doesNotMatch(step2, /type="radio"/);
+    assert.doesNotMatch(src, /useState<OtherLotsMode>/);
+    assert.doesNotMatch(src, /findLotsMode/);
+    assert.doesNotMatch(src, /\/api\/ford-comparables/);
+    assert.doesNotMatch(src, /\/api\/comparable-vehicles/);
+    const compare = fs.readFileSync(path.join(process.cwd(), "components/OfferCompareView.tsx"), "utf8");
+    assert.doesNotMatch(compare, /\/api\/ford-comparables/);
+    assert.doesNotMatch(compare, /\/api\/compare-deal/);
+    assert.match(compare, /\/api\/listing-facts/);
+    assert.match(compare, /importPastedFactoryVehicle/);
+    assert.match(compare, /FORD_LISTINGS_LOAD_FAILED/);
+    assert.match(compare, /sanitizeShopperListingsCopy/);
     assert.doesNotMatch(src, /Could not load similar lots/);
     assert.doesNotMatch(src, /MarketCheck/);
     assert.doesNotMatch(src, /Auto\.dev/);
     assert.doesNotMatch(src, /json\.provider/);
-    assert.match(src, /\/api\/gm-sticker/);
+    assert.match(src, /importPastedFactoryVehicle/);
     assert.doesNotMatch(src, /applyMockParse/);
     assert.doesNotMatch(src, /vehicles\[0\]/);
     assert.match(FORD_MUST_HAVE_HELP, /Unchecked options are ignored/);
@@ -1017,7 +1023,7 @@ describe("shopper-facing factory option copy", () => {
     );
 
     const src = fs.readFileSync(path.join(process.cwd(), "components/BiddingWizard.tsx"), "utf8");
-    const start = src.indexOf("STEP 6:");
+    const start = src.indexOf("STEP 5: REVIEW");
     const end = src.indexOf("Footer Navigation");
     assert.ok(start >= 0 && end > start);
     const step6 = src.slice(start, end);
@@ -1060,30 +1066,28 @@ describe("shopper-facing factory option copy", () => {
     assert.match(dealsRoute, /listDealRequestsForBuyer/);
   });
 
-  it("hides must-have factory options on the paste-two-VINs path", () => {
+  it("shows must-have factory options after a Ford import — no hunt in the wizard", () => {
     const src = fs.readFileSync(path.join(process.cwd(), "components/BiddingWizard.tsx"), "utf8");
     const start = src.indexOf("STEP 2:");
     const end = src.indexOf("STEP 3:");
     const step2 = src.slice(start, end);
     assert.match(
       step2,
-      /findLotsMode && fordStickerStatus === "released" && fordFilterableOptions\.length > 0/
+      /fordStickerStatus === "released" && fordFilterableOptions\.length > 0/
     );
-    assert.match(step2, /FORD_OTHER_LOTS_MODE_PASTE/);
-    assert.match(src, /!findLotsMode \|\| factoryBuildOem !== "ford" \|\| fordStickerStatus !== "released"/);
+    assert.doesNotMatch(step2, /findLotsMode/);
+    assert.doesNotMatch(step2, /FORD_OTHER_LOTS_MODE_PASTE/);
+    assert.doesNotMatch(src, /\/api\/ford-comparables/);
   });
 
-  it("other-lots card VIN links the listings VDP in a new tab, or is plain text with no invented URL", () => {
-    const src = fs.readFileSync(path.join(process.cwd(), "components/BiddingWizard.tsx"), "utf8");
-    const start = src.indexOf("STEP 2:");
-    const end = src.indexOf("STEP 3:");
-    const step2 = src.slice(start, end);
-    assert.match(step2, /listingVdpHref/);
-    assert.match(step2, /matchedVehicle\.vin/);
-    assert.match(step2, /target="_blank"/);
-    assert.match(step2, /rel="noopener noreferrer"/);
-    assert.doesNotMatch(step2, /oemBuildSheetUrl/);
-    assert.doesNotMatch(step2, /windowsticker\.forddirect/);
+  it("compare competitor VIN links the listings VDP in a new tab, or is plain text with no invented URL", () => {
+    const src = fs.readFileSync(path.join(process.cwd(), "components/OfferCompareView.tsx"), "utf8");
+    assert.match(src, /listingVdpHref/);
+    assert.match(src, /vehicle\.vin/);
+    assert.match(src, /target="_blank"/);
+    assert.match(src, /rel="noopener noreferrer"/);
+    assert.doesNotMatch(src, /oemBuildSheetUrl/);
+    assert.doesNotMatch(src, /windowsticker\.forddirect/);
     const battlefield = listingVdpHref(null);
     const shorkey = listingVdpHref("https://www.example.com/ford/vdp-a");
     assert.equal(battlefield, null);
@@ -1092,21 +1096,32 @@ describe("shopper-facing factory option copy", () => {
 
   it("pasting Chevy VIN 2GC4KREY7T1167690 never yields a Porsche or mock catalog VIN", () => {
     const src = fs.readFileSync(path.join(process.cwd(), "components/BiddingWizard.tsx"), "utf8");
+    const pasteImport = fs.readFileSync(path.join(process.cwd(), "lib/pasteImport.ts"), "utf8");
+    const compare = fs.readFileSync(path.join(process.cwd(), "components/OfferCompareView.tsx"), "utf8");
     assert.doesNotMatch(src, /applyMockParse/);
     assert.doesNotMatch(src, /vehicles\[0\]/);
     assert.doesNotMatch(src, /WP0AB2A98SS160032/);
-    assert.match(src, /acceptImportedVehicle/);
-    assert.match(src, /factoryBuildUnavailableError/);
-    assert.match(src, /preferredFactoryBuildEndpoint/);
-    assert.match(src, /\/api\/gm-sticker/);
+    assert.match(src, /importPastedFactoryVehicle/);
+    assert.match(pasteImport, /acceptImportedVehicle/);
+    assert.match(pasteImport, /factoryBuildUnavailableError/);
+    assert.match(pasteImport, /preferredFactoryBuildEndpoint/);
+    assert.match(pasteImport, /\/api\/gm-sticker/);
+    assert.match(pasteImport, /isGmVin/);
     assert.match(src, /setSelectedVehicle\(null\)/);
+    assert.match(compare, /importPastedFactoryVehicle/);
     const parseStart = src.indexOf("const handleParseDealerUrl");
-    const parseEnd = src.indexOf("const handleParseSecondaryUrl");
+    const parseEnd = src.indexOf("const chooseDirectOffer");
     assert.ok(parseStart >= 0 && parseEnd > parseStart);
     const parseFn = src.slice(parseStart, parseEnd);
     assert.doesNotMatch(parseFn, /porsche/i);
     assert.doesNotMatch(parseFn, /MOCK_VEHICLES/);
-    assert.match(parseFn, /isGmVin/);
+    assert.match(parseFn, /importPastedFactoryVehicle/);
+    const helperStart = pasteImport.indexOf("export async function importPastedFactoryVehicle");
+    assert.ok(helperStart >= 0);
+    const helperFn = pasteImport.slice(helperStart);
+    assert.doesNotMatch(helperFn, /porsche/i);
+    assert.doesNotMatch(helperFn, /MOCK_VEHICLES/);
+    assert.doesNotMatch(helperFn, /MOCK_CATALOG_PORSCHE_VIN/);
   });
 
   it("shopper-facing hunt notes never say sticker, MarketCheck, or Auto.dev", () => {

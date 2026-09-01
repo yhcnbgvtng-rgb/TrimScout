@@ -10,7 +10,9 @@ import {
 } from "./fordCompetitionUi";
 import {
   MARKETCHECK_SHOPPER_ATTRIBUTION,
+  MAX_SHOPPER_PRICE_HISTORY,
   fetchShopperListingSheets,
+  mapShopperPriceHistory,
   normalizeListingVins,
   publicListingSheets,
   shopperSheetFromMarketCheckPayloads,
@@ -67,13 +69,22 @@ describe("listing sheet mapping", () => {
     const sheet = shopperSheetFromMarketCheckPayloads({
       vin: OTHER,
       searchListing: listingPayload(OTHER),
-      history: { listings: [{ price: 58872 }, { price: 58372 }] },
+      history: {
+        listings: [
+          { price: 58872, first_seen_at_date: "2026-03-01" },
+          { price: 58372, first_seen_at_date: "2026-08-12" },
+        ],
+      },
     });
     assert.equal(sheet.available, true);
     assert.equal(sheet.attribution, MARKETCHECK_SHOPPER_ATTRIBUTION);
     assert.equal(sheet.advertisedPrice, 58372);
     assert.equal(sheet.msrp, 64705);
     assert.equal(sheet.priceChange, -500);
+    assert.deepEqual(sheet.priceHistory, [
+      { date: "2026-03-01", price: 58872, change: null },
+      { date: "2026-08-12", price: 58372, change: -500 },
+    ]);
     assert.equal(sheet.daysOnMarket, 40);
     assert.equal(sheet.daysOnMarketActive, 18);
     assert.equal(sheet.firstSeen, "2026-03-01");
@@ -102,6 +113,7 @@ describe("listing sheet mapping", () => {
     assert.equal(sheet.available, false);
     assert.equal(sheet.attribution, null);
     assert.equal(sheet.note, LISTING_DETAILS_UNAVAILABLE);
+    assert.deepEqual(sheet.priceHistory, []);
     assert.doesNotMatch(sheet.note || "", /marketcheck|auto\.dev/i);
   });
 
@@ -114,6 +126,69 @@ describe("listing sheet mapping", () => {
       history: { listings: [{ price: 58372 }, { price: 56000 }] },
     });
     assert.equal(sheet.priceChange, 2372);
+    assert.deepEqual(sheet.priceHistory, []);
+  });
+});
+
+describe("dated shopper price history", () => {
+  it("maps chronological distinct prices with change vs previous and includes them in public sheets", () => {
+    const history = {
+      listings: [
+        { price: 49990, first_seen_at_date: "2026-08-12" },
+        { price: 49990, first_seen_at_date: "2026-08-20" },
+        { price: 50990, first_seen_at_date: "2026-03-01" },
+        { price: 50990, last_seen_at_date: "2026-04-01" },
+      ],
+    };
+    const mapped = mapShopperPriceHistory(history);
+    assert.deepEqual(mapped, [
+      { date: "2026-03-01", price: 50990, change: null },
+      { date: "2026-08-12", price: 49990, change: -1000 },
+    ]);
+    const sheet = shopperSheetFromMarketCheckPayloads({
+      vin: OTHER,
+      searchListing: listingPayload(OTHER),
+      history,
+      listingDetail: { ...listingPayload(OTHER), ref_price: 51990, ref_price_dt: "2026-01-15" },
+    });
+    assert.deepEqual(sheet.priceHistory, [
+      { date: "2026-01-15", price: 51990, change: null },
+      { date: "2026-03-01", price: 50990, change: -1000 },
+      { date: "2026-08-12", price: 49990, change: -1000 },
+    ]);
+    const json = JSON.stringify(publicListingSheets([sheet]));
+    assert.match(json, /"priceHistory"/);
+    assert.match(json, /2026-08-12/);
+    assert.doesNotMatch(json, /data_source/);
+    assert.doesNotMatch(json, /ref_price/);
+    assert.doesNotMatch(json, /first_seen_at_date/);
+    assert.match(json, /Data powered by MarketCheck/);
+  });
+
+  it("dedupes consecutive identical prices, caps to the last N, and omits undated rows", () => {
+    const listings = [];
+    for (let i = 0; i < 14; i++) {
+      listings.push({
+        price: 40000 + i * 100,
+        first_seen_at_date: `2026-01-${String(i + 1).padStart(2, "0")}`,
+      });
+      listings.push({
+        price: 40000 + i * 100,
+        first_seen_at_date: `2026-01-${String(i + 1).padStart(2, "0")}`,
+      });
+    }
+    listings.push({ price: 99999 });
+    const mapped = mapShopperPriceHistory({ listings });
+    assert.equal(mapped.length, MAX_SHOPPER_PRICE_HISTORY);
+    assert.equal(mapped[0].date, "2026-01-05");
+    assert.equal(mapped[0].price, 40400);
+    assert.equal(mapped[mapped.length - 1].date, "2026-01-14");
+    assert.equal(mapped[mapped.length - 1].price, 41300);
+    assert.equal(mapped[mapped.length - 1].change, 100);
+    assert.equal(
+      mapShopperPriceHistory({ listings: [{ price: 50000 }, { price: 49000 }] }).length,
+      0
+    );
   });
 });
 
@@ -225,6 +300,7 @@ describe("listing-facts route and compare page copy", () => {
     const view = fs.readFileSync(path.join(process.cwd(), "components/OfferCompareView.tsx"), "utf8");
     const wizard = fs.readFileSync(path.join(process.cwd(), "components/BiddingWizard.tsx"), "utf8");
     assert.match(page, /OfferCompareView/);
+    assert.match(view, /Compare vehicles in this deal/);
     assert.match(view, /LISTING_DETAILS_UNAVAILABLE/);
     assert.match(view, /sanitizeShopperListingsCopy/);
     assert.match(view, /FORD_LISTINGS_LOAD_FAILED/);
@@ -233,6 +309,13 @@ describe("listing-facts route and compare page copy", () => {
     assert.match(view, /Estimated monthly/);
     assert.match(view, /Estimate only/);
     assert.match(view, /FORD_COMPETITION_FACTORY_OPTIONS/);
+    assert.match(view, /Price history/);
+    assert.match(view, /formatPriceHistoryLine/);
+    assert.doesNotMatch(view, /vs prior/);
+    const termsAt = view.indexOf("Terms for this VIN");
+    const factoryAt = view.indexOf("{FORD_COMPETITION_FACTORY_OPTIONS}");
+    const listingAt = view.indexOf("Listing details");
+    assert.ok(termsAt >= 0 && factoryAt > termsAt && listingAt > termsAt);
     assert.doesNotMatch(view, /call dealer/i);
     assert.doesNotMatch(view, /window sticker/i);
     assert.doesNotMatch(view, /Porsche 911/);
@@ -240,10 +323,34 @@ describe("listing-facts route and compare page copy", () => {
     assert.doesNotMatch(view, /DEMO_COMPARABLE_LISTINGS/);
     assert.doesNotMatch(view, /MarketCheck/);
     assert.doesNotMatch(view, /Auto\.dev/);
+    assert.doesNotMatch(view, /Finding matching lots/);
+    assert.match(view, /\/api\/listing-facts/);
+    assert.doesNotMatch(view, /\/api\/ford-comparables/);
+    assert.doesNotMatch(view, /\/api\/compare-deal/);
+    assert.doesNotMatch(view, /findSimilarFordVehicles/);
+    assert.match(view, /importPastedFactoryVehicle/);
+    assert.match(view, /assignCompetitorLot/);
+    assert.match(view, /border-2 border-emerald-500/);
+    assert.match(view, /grid-cols-1 md:grid-cols-2 xl:grid-cols-3/);
+    assert.match(view, /COMPARE_COLUMN_ROLES/);
+    assert.match(view, /Add a competitor/);
+    assert.match(view, /Paste a VIN or dealer listing URL/);
     assert.match(wizard, /router\.push\("\/compare"\)/);
     assert.match(wizard, /buildOfferCompareSnapshot/);
     assert.match(wizard, /otherLots: otherLotsForDeal/);
     assert.match(wizard, /vehicleTerms: vehicleTermsForDeal/);
+    assert.match(wizard, /TOTAL_STEPS = 5/);
+    assert.match(wizard, /STEP 5: REVIEW/);
+    assert.match(wizard, /Step 5: Review & Privacy Shield/);
+    assert.match(wizard, /huntZip/);
+    assert.match(wizard, /Your ZIP/);
+    assert.match(wizard, /Radius miles/);
+    assert.doesNotMatch(wizard, /Set Your Deal Parameters/);
+    assert.doesNotMatch(wizard, /Buyer Zip Code/);
+    assert.doesNotMatch(wizard, /Dealer Radius/);
+    assert.doesNotMatch(wizard, /\/api\/ford-comparables/);
+    assert.match(wizard, /They do not search listings/);
+    assert.doesNotMatch(wizard, /STEP 6:/);
   });
 
   it("generic load-failed copy is reused", () => {

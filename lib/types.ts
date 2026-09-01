@@ -39,7 +39,7 @@ export interface DealStructurePreferences {
   downPayment?: number;
   leaseMileagePerYear?: number;
   leaseTermMonths?: number;
-  /** Per-VIN deal terms from the post-Step-6 compare page. */
+  /** Per-VIN deal terms from the post-Step-5 compare page. */
   vehicleTerms?: VehicleDealTerms[];
 }
 
