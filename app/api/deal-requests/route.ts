@@ -44,7 +44,7 @@ export async function POST(req: Request) {
       referenceImageUrl: body.referenceImageUrl ?? null,
       targetOtdPrice: body.targetOtdPrice ?? null,
       targetDiscountPercent: body.targetDiscountPercent ?? null,
-      paymentMethod: body.paymentMethod || "all_three",
+      paymentMethod: body.paymentMethod || "cash",
       dealStructure: body.dealStructure ?? null,
       tradeIn: body.tradeIn ?? null,
       buyerZip: body.buyerZip,

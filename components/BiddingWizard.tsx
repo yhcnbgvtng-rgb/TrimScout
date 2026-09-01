@@ -1,7 +1,14 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Vehicle, BiddingStrategy, PaymentMethod, BiddingRequest, TradeInVehicle, TradeInPhoto, UserProfile } from "../lib/types";
+import { Vehicle, BiddingStrategy, BiddingRequest, TradeInVehicle, TradeInPhoto, UserProfile, type DealStructureMethod } from "../lib/types";
+import {
+  DEAL_STRUCTURE_LABELS,
+  DEAL_STRUCTURE_METHODS,
+  formatDealStructures,
+  paymentMethodFromStructures,
+  toggleDealStructure,
+} from "../lib/dealStructure";
 import { formatCurrency, getEstimatedTaxRate } from "../lib/otdCalculator";
 import { findContactInfo } from "../lib/piiFilter";
 import { MOCK_POPULAR_PACKAGES, SAMPLE_TRADE_IN_VEHICLE } from "../lib/mockData";
@@ -42,10 +49,6 @@ import {
   Link2,
   Globe,
   LoaderCircle as Loader2,
-  Layers,
-  Coins,
-  CreditCard,
-  KeyRound,
   Plus,
   Handshake,
   FileText
@@ -402,8 +405,11 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     }
   };
 
-  // Step 4: Deal Structuring Fields (All 3 / Cash / Finance / Lease)
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("cash");
+  // Step 1: independently checked cash / finance / lease (at least one required)
+  const [requestedStructures, setRequestedStructures] = useState<DealStructureMethod[]>(["cash"]);
+  const paymentMethod = paymentMethodFromStructures(requestedStructures);
+  const wantsFinance = requestedStructures.includes("finance");
+  const wantsLease = requestedStructures.includes("lease");
   const [financeTerm, setFinanceTerm] = useState<number>(60);
   const [downPayment, setDownPayment] = useState<number>(5000);
   const [leaseMileage, setLeaseMileage] = useState<number>(12000);
@@ -453,6 +459,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   // locked in — the payment-method question (step 1) still always shows
   // first, so the skip happens on navigation, not on mount.
   const goNext = () => {
+    if (step === 1 && requestedStructures.length === 0) return;
     if (step === 1 && lockVehicleSelection) {
       setStep(3);
     } else {
@@ -939,7 +946,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
             targetDiscountPercent: strategy === "flexible_discount" ? targetDiscountPercent : undefined,
             paymentMethod,
             dealStructure: {
-              requestedStructures: paymentMethod === "all_three" ? ["cash", "finance", "lease"] : [paymentMethod],
+              requestedStructures,
               financeTermMonths: financeTerm,
               downPayment,
               leaseMileagePerYear: leaseMileage,
@@ -1004,10 +1011,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
       targetDiscountPercent: strategy === "flexible_discount" ? targetDiscountPercent : undefined,
       paymentMethod,
       dealStructurePreferences: {
-        requestedStructures:
-          paymentMethod === "all_three"
-            ? ["cash", "finance", "lease"]
-            : [paymentMethod],
+        requestedStructures,
         financeTermMonths: financeTerm,
         downPayment,
         leaseMileagePerYear: leaseMileage,
@@ -1062,40 +1066,28 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                 </p>
               </div>
 
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-                {(
-                  [
-                    { id: "cash", label: "Cash", icon: Coins },
-                    { id: "finance", label: "Finance", icon: CreditCard },
-                    { id: "lease", label: "Lease", icon: KeyRound },
-                    { id: "all_three", label: "Show Me All 3", icon: Layers },
-                  ] as const
-                ).map((opt) => {
-                  const Icon = opt.icon;
-                  const isSelected = paymentMethod === opt.id;
+              <div className="flex flex-wrap items-center gap-x-5 gap-y-1.5">
+                <span className="text-xs font-semibold text-ink-light">Payment methods</span>
+                {DEAL_STRUCTURE_METHODS.map((id) => {
+                  const isChecked = requestedStructures.includes(id);
                   return (
-                    <button
-                      type="button"
-                      key={opt.id}
-                      onClick={() => setPaymentMethod(opt.id)}
-                      className={`flex flex-col items-center justify-center gap-2 rounded-xl border p-4 text-center transition-all ${
-                        isSelected
-                          ? "border-emerald-500 bg-emerald-500/10 shadow-md ring-1 ring-emerald-500"
-                          : "border-border bg-surface-elevated hover:border-border-strong"
-                      }`}
-                    >
-                      <div
-                        className={`flex h-9 w-9 items-center justify-center rounded-xl ${
-                          isSelected ? "bg-emerald-500 text-black" : "bg-background text-ink-muted"
-                        }`}
-                      >
-                        <Icon className="h-4.5 w-4.5 stroke-[2.5]" />
-                      </div>
-                      <span className="text-xs font-bold text-white leading-tight">{opt.label}</span>
-                    </button>
+                    <label key={id} className="flex items-center gap-2 py-0.5 text-xs cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={isChecked}
+                        onChange={() => setRequestedStructures((current) => toggleDealStructure(current, id))}
+                        className="h-3.5 w-3.5 shrink-0 rounded border-border text-emerald-500 focus:ring-0"
+                      />
+                      <span className={isChecked ? "text-white" : "text-ink-light"}>
+                        {DEAL_STRUCTURE_LABELS[id]}
+                      </span>
+                    </label>
                   );
                 })}
               </div>
+              {requestedStructures.length === 0 && (
+                <p className="text-[11px] text-rose-400">Select at least one payment method to continue.</p>
+              )}
             </div>
           )}
 
@@ -2104,19 +2096,12 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                   onClick={() => setStep(1)}
                   className="shrink-0 rounded-lg border border-border bg-surface-elevated px-2.5 py-1 text-[10px] font-bold text-ink-muted hover:text-white hover:border-border-strong transition-colors"
                 >
-                  {paymentMethod === "all_three"
-                    ? "Cash + Finance + Lease"
-                    : paymentMethod === "cash"
-                    ? "Cash Only"
-                    : paymentMethod === "finance"
-                    ? "Finance Only"
-                    : "Lease Only"}{" "}
-                  · Change
+                  {formatDealStructures(requestedStructures) || "Payment methods"} · Change
                 </button>
               </div>
 
               {/* Deal Structure Parameters Box */}
-              {(paymentMethod === "all_three" || paymentMethod === "finance" || paymentMethod === "lease") && (
+              {(wantsFinance || wantsLease) && (
                 <div className="rounded-xl border border-border bg-surface-elevated p-3.5 space-y-3">
                   <div className="text-[11px] font-bold text-ink-light uppercase tracking-wider flex items-center justify-between border-b border-border/50 pb-2">
                     <span>Customize Finance & Lease Guidelines:</span>
@@ -2139,7 +2124,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                     </div>
 
                     {/* Finance Term */}
-                    {(paymentMethod === "all_three" || paymentMethod === "finance") && (
+                    {wantsFinance && (
                       <div className="space-y-1">
                         <label className="text-[11px] font-semibold text-ink-muted">Finance Loan Term:</label>
                         <select
@@ -2156,7 +2141,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                     )}
 
                     {/* Lease Mileage */}
-                    {(paymentMethod === "all_three" || paymentMethod === "lease") && (
+                    {wantsLease && (
                       <div className="space-y-1">
                         <label className="text-[11px] font-semibold text-ink-muted">Annual Lease Mileage:</label>
                         <select
@@ -2322,13 +2307,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                 <div className="flex justify-between border-b border-border/50 pb-2">
                   <span className="text-ink-muted">Deal Structure:</span>
                   <span className="text-white font-semibold text-right">
-                    {paymentMethod === "all_three"
-                      ? "All 3 Structures (Cash, 60-mo Finance, 36-mo Lease)"
-                      : paymentMethod === "cash"
-                      ? "Cash Out-The-Door Only"
-                      : paymentMethod === "finance"
-                      ? `${financeTerm}-Month Finance (${formatCurrency(downPayment)} Down)`
-                      : `36-Month Lease (${leaseMileage.toLocaleString()} mi/yr)`}
+                    {formatDealStructures(requestedStructures)}
                   </span>
                 </div>
 
@@ -2406,7 +2385,8 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
             {step < TOTAL_STEPS ? (
               <button
                 onClick={goNext}
-                className="flex items-center gap-1.5 rounded-lg bg-emerald-500 px-5 py-2 text-xs font-bold text-black hover:bg-emerald-400 transition-all shadow-md shadow-emerald-500/20"
+                disabled={step === 1 && requestedStructures.length === 0}
+                className="flex items-center gap-1.5 rounded-lg bg-emerald-500 px-5 py-2 text-xs font-bold text-black hover:bg-emerald-400 transition-all shadow-md shadow-emerald-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Continue <ArrowRight className="h-4 w-4" />
               </button>
