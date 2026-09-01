@@ -319,8 +319,6 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   const [step, setStep] = useState<number>(1);
   const [strategy, setStrategy] = useState<BiddingStrategy>(initialStrategy);
 
-  // Step 1: Vehicle Selection Mode (Dealer Link vs Catalog Search)
-  const [selectionMode, setSelectionMode] = useState<"paste_link" | "catalog_search">("paste_link");
   const [dealerUrlInput, setDealerUrlInput] = useState<string>("");
   const [isParsingLink, setIsParsingLink] = useState<boolean>(false);
   const [parseSuccessMsg, setParseSuccessMsg] = useState<string | null>(null);
@@ -354,8 +352,6 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   // dealer instead (only offered when no secondary vehicles are attached).
   const [directOfferMode, setDirectOfferMode] = useState(false);
 
-  // Vehicle Search & Selection inside Wizard
-  const [vehicleSearchQuery, setVehicleSearchQuery] = useState<string>("");
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(preselectedVehicle || null);
 
   // Custom/Flexible Spec Fields
@@ -447,7 +443,6 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
       setSelectedTrims([preselectedVehicle.trim]);
       setMustHavePackages(preselectedVehicle.packages);
       setTargetOtdPrice(Math.round(preselectedVehicle.msrp * 0.92));
-      setSelectionMode("catalog_search");
       // Vehicle selection (step 2) is skipped via goNext/goBack below — the
       // payment-method question (step 1) still shows first for every flow,
       // real-vehicle or not, so we don't jump away from it here.
@@ -835,29 +830,6 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
 
   const estimatedTaxPercent = (getEstimatedTaxRate(buyerZip) * 100).toFixed(2);
 
-  // Filter vehicles within wizard search
-  const matchingVehicles = vehicles.filter((v) => {
-    if (!vehicleSearchQuery.trim()) return true;
-    const q = vehicleSearchQuery.toLowerCase();
-    return (
-      v.make.toLowerCase().includes(q) ||
-      v.model.toLowerCase().includes(q) ||
-      v.trim.toLowerCase().includes(q) ||
-      v.vin.toLowerCase().includes(q) ||
-      v.packages.some((p) => p.toLowerCase().includes(q))
-    );
-  });
-
-  const handleSelectVehicleCard = (v: Vehicle) => {
-    setSelectedVehicle(v);
-    setMake(v.make);
-    setModel(v.model);
-    setSelectedTrims([v.trim]);
-    setMustHavePackages(v.packages);
-    setTargetOtdPrice(Math.round(v.msrp * 0.92));
-    setStep(3); // Advance to strategy choice
-  };
-
   const toggleTrim = (trim: string) => {
     if (selectedTrims.includes(trim)) {
       if (selectedTrims.length > 1) {
@@ -1092,7 +1064,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
           )}
 
           {/* ========================================================================= */}
-          {/* STEP 2: SEARCH & SELECT THE TARGET VEHICLE                                */}
+          {/* STEP 2: SELECT THE TARGET VEHICLE                                         */}
           {/* ========================================================================= */}
           {step === 2 && (
             <div className="space-y-5">
@@ -1105,73 +1077,8 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                 </p>
               </div>
 
-              {/* Mode Selector Tabs */}
-              <div className="grid grid-cols-2 gap-2 bg-surface p-1 rounded-xl border border-border">
-                <button
-                  type="button"
-                  onClick={() => setSelectionMode("paste_link")}
-                  className={`flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-xs font-bold transition-all ${
-                    selectionMode === "paste_link"
-                      ? "bg-emerald-500 text-black shadow-md"
-                      : "text-ink-muted hover:text-white"
-                  }`}
-                >
-                  <Link2 className="h-4 w-4" />
-                  <span>Paste VIN or dealer URL</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setSelectionMode("catalog_search")}
-                  className={`flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-xs font-bold transition-all ${
-                    selectionMode === "catalog_search"
-                      ? "bg-emerald-500 text-black shadow-md"
-                      : "text-ink-muted hover:text-white"
-                  }`}
-                >
-                  <Search className="h-4 w-4" />
-                  <span>Search Network Catalog</span>
-                </button>
-              </div>
-
-              {/* TAB 1: PASTE DEALER LINK */}
-              {selectionMode === "paste_link" && (
-                <div className="space-y-4">
+              <div className="space-y-4">
                   <div className="space-y-2">
-                    <label className="text-[11px] font-bold text-ink-light uppercase flex items-center justify-between">
-                      <span>Paste a dealer VDP URL or 17-character VIN:</span>
-                    </label>
-
-                    <div className="flex flex-col sm:flex-row gap-2">
-                      <div className="relative flex-1">
-                        <Globe className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-emerald-400" />
-                        <input
-                          type="text"
-                          value={dealerUrlInput}
-                          onChange={(e) => setDealerUrlInput(e.target.value)}
-                          placeholder="17-character VIN or dealer listing URL"
-                          className="w-full rounded-xl border border-border bg-background py-2.5 pl-10 pr-3 text-xs text-white placeholder-ink-faint focus:border-emerald-500 focus:outline-none font-mono"
-                        />
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => handleParseDealerUrl()}
-                        disabled={isParsingLink || !dealerUrlInput.trim()}
-                        className="rounded-xl bg-emerald-500 px-5 py-2.5 text-xs font-extrabold text-black hover:bg-emerald-400 transition-all shadow-md flex items-center justify-center gap-1.5 shrink-0 disabled:opacity-50 active:scale-95"
-                      >
-                        {isParsingLink ? (
-                          <>
-                            <Loader2 className="h-4 w-4 animate-spin" />
-                            <span>Decoding Window Sticker...</span>
-                          </>
-                        ) : (
-                          <>
-                            <Zap className="h-4 w-4 fill-black" />
-                            <span>Import Car →</span>
-                          </>
-                        )}
-                      </button>
-                    </div>
-
                     <div className="grid grid-cols-2 gap-2">
                       <label className="space-y-1">
                         <span
@@ -1239,6 +1146,41 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                     <p className="text-[10px] text-ink-faint">
                       ZIP and radius are required before we recommend two other lots. Suggestions use your ZIP, not the dealer&apos;s.
                     </p>
+
+                    <label className="text-[11px] font-bold text-ink-light uppercase flex items-center justify-between pt-2">
+                      <span>Paste a dealer VDP URL or 17-character VIN:</span>
+                    </label>
+
+                    <div className="flex flex-col sm:flex-row gap-2">
+                      <div className="relative flex-1">
+                        <Globe className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-emerald-400" />
+                        <input
+                          type="text"
+                          value={dealerUrlInput}
+                          onChange={(e) => setDealerUrlInput(e.target.value)}
+                          placeholder="17-character VIN or dealer listing URL"
+                          className="w-full rounded-xl border border-border bg-background py-2.5 pl-10 pr-3 text-xs text-white placeholder-ink-faint focus:border-emerald-500 focus:outline-none font-mono"
+                        />
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleParseDealerUrl()}
+                        disabled={isParsingLink || !dealerUrlInput.trim()}
+                        className="rounded-xl bg-emerald-500 px-5 py-2.5 text-xs font-extrabold text-black hover:bg-emerald-400 transition-all shadow-md flex items-center justify-center gap-1.5 shrink-0 disabled:opacity-50 active:scale-95"
+                      >
+                        {isParsingLink ? (
+                          <>
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                            <span>Decoding Window Sticker...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Zap className="h-4 w-4 fill-black" />
+                            <span>Import Car →</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
                   </div>
 
                     {parseError && (
@@ -1338,74 +1280,6 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                     </div>
                   )}
                 </div>
-              )}
-
-              {/* TAB 2: SEARCH CATALOG */}
-              {selectionMode === "catalog_search" && (
-                <div className="space-y-4">
-                  {/* Vehicle Search Bar */}
-                  <div className="relative">
-                    <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-ink-muted" />
-                    <input
-                      type="text"
-                      value={vehicleSearchQuery}
-                      onChange={(e) => setVehicleSearchQuery(e.target.value)}
-                      placeholder="Search Make, Model, Trim, Option (e.g. BMW 330i, Porsche 911, Prius)..."
-                      className="w-full rounded-xl border border-border bg-background py-2.5 pl-10 pr-4 text-xs text-white placeholder-ink-faint focus:border-emerald-500 focus:outline-none"
-                      autoFocus
-                    />
-                  </div>
-
-                  {/* Quick Model Cards */}
-                  <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
-                    {matchingVehicles.map((v) => {
-                      const isSelected = selectedVehicle?.id === v.id;
-                      return (
-                        <div
-                          key={v.id}
-                          onClick={() => handleSelectVehicleCard(v)}
-                          className={`cursor-pointer rounded-xl border p-3 transition-all flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 ${
-                            isSelected
-                              ? "border-emerald-500 bg-emerald-500/10 shadow-md ring-1 ring-emerald-500"
-                              : "border-border bg-surface-elevated hover:border-border-strong hover:bg-background"
-                          }`}
-                        >
-                          <div className="space-y-1">
-                            <div className="flex items-center gap-2">
-                              <span className="rounded bg-emerald-500/20 px-1.5 py-0.2 text-[10px] font-bold text-emerald-400">
-                                {v.year} {v.make}
-                              </span>
-                              <span className="font-bold text-white text-xs">
-                                {v.model} <span className="text-ink-light">{v.trim}</span>
-                              </span>
-                            </div>
-                            <p className="text-[11px] text-ink-muted">
-                              {v.engine} • {v.drivetrain} • {v.exteriorColor}
-                            </p>
-                          </div>
-
-                          <div className="sm:text-right shrink-0 flex items-center sm:flex-col sm:items-end gap-2">
-                            <div>
-                              <div className="text-[10px] text-ink-muted line-through">MSRP {formatCurrency(v.msrp)}</div>
-                              <div className="text-xs font-extrabold text-white">{formatCurrency(v.dealerPrice)}</div>
-                            </div>
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleSelectVehicleCard(v);
-                              }}
-                              className="rounded-lg bg-emerald-500 px-2.5 py-1 text-xs font-bold text-black hover:bg-emerald-400 transition-all"
-                            >
-                              Select →
-                            </button>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
 
               {/* Once a favorite is locked in, offer to widen the field */}
               {selectedVehicle && (
