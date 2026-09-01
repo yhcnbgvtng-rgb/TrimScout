@@ -1058,6 +1058,8 @@ describe("shopper-facing factory option copy", () => {
     assert.match(dealerInbox, /req\.strategy === "firm_offer"/);
     assert.match(dealsRoute, /export async function GET/);
     assert.match(dealsRoute, /listDealRequestsForBuyer/);
+    assert.match(dealsRoute, /seedDealInvites/);
+    assert.match(dealsRoute, /decorateDealRequestJson/);
   });
 
   it("hides must-have factory options on the paste-two-VINs path", () => {

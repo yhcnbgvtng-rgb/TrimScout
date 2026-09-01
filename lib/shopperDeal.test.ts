@@ -237,8 +237,38 @@ describe("Live Deal Room and tracker render the mapped imported deal", () => {
     assert.match(src, /reviewTarget\?\.vin/);
     assert.match(src, /offerPathLabel\(req\.directOffer\)/);
     assert.match(src, /DealVehiclesSummary/);
+    assert.match(src, /DealerEngagementChips/);
+    assert.match(src, /OfferCloseClockCard/);
+    assert.match(src, /Extend \+24 hours|onUpdated/);
+    assert.doesNotMatch(src, /MarketCheck/);
+    assert.doesNotMatch(src, /Auto\.dev/);
     assert.doesNotMatch(src, /flexibleCriteria\.make\} \$\{req\.flexibleCriteria\.model/);
     assert.doesNotMatch(src, /\$24\.5k - \$26\.8k/);
     assert.doesNotMatch(src, /BMW 3 Series/);
+  });
+
+  it("Live Deal Room shows the close clock and per-dealer engagement chips", () => {
+    const src = fs.readFileSync(path.join(process.cwd(), "components/LiveDealRoom.tsx"), "utf8");
+    assert.match(src, /OfferCloseClockCard/);
+    assert.match(src, /DealerEngagementChips/);
+    assert.doesNotMatch(src, /MarketCheck/);
+    assert.doesNotMatch(src, /Auto\.dev/);
+    assert.match(src, /\/api\/deal-requests\/\$\{request\.id\}\/engagement/);
+  });
+
+  it("dealer inbox records viewed only when the offer is opened, and bid POST records responded", () => {
+    const inbox = fs.readFileSync(path.join(process.cwd(), "app/api/dealer-requests/route.ts"), "utf8");
+    const viewRoute = fs.readFileSync(path.join(process.cwd(), "app/api/deal-requests/[id]/view/route.ts"), "utf8");
+    const bidsRoute = fs.readFileSync(path.join(process.cwd(), "app/api/deal-requests/[id]/bids/route.ts"), "utf8");
+    const clickRoute = fs.readFileSync(path.join(process.cwd(), "app/d/[token]/route.ts"), "utf8");
+    const portal = fs.readFileSync(path.join(process.cwd(), "components/DealerPortal.tsx"), "utf8");
+    assert.match(inbox, /isDealAcceptingResponses/);
+    assert.doesNotMatch(inbox, /recordDealerView/);
+    assert.match(viewRoute, /recordDealerView/);
+    assert.match(portal, /\/api\/deal-requests\/\$\{req\.requestId\}\/view/);
+    assert.match(bidsRoute, /recordDealerRespond/);
+    assert.match(bidsRoute, /isDealAcceptingResponses/);
+    assert.match(clickRoute, /recordDealerClick/);
+    assert.match(clickRoute, /recordDealerView/);
   });
 });

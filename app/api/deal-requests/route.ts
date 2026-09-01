@@ -3,6 +3,9 @@ import { auth } from "@/auth";
 import { createDealRequest, listDealRequestsForBuyer, DealsApiError } from "@/lib/dealsApi";
 import { getZipCoordinates } from "@/lib/otdCalculator";
 import { findContactInfo } from "@/lib/piiFilter";
+import { invitedDealersFromVehicles, primaryDealTimeZone } from "@/lib/dealEngagement";
+import { decorateDealRequestJson, seedDealInvites } from "@/lib/dealEngagementStore";
+import { mapDealRequestJson } from "@/lib/shopperDeal";
 
 export async function GET() {
   const session = await auth();
@@ -12,7 +15,10 @@ export async function GET() {
 
   try {
     const dealRequests = await listDealRequestsForBuyer(session.user.id as string);
-    return NextResponse.json({ dealRequests });
+    const decorated = await Promise.all(
+      dealRequests.map((row) => decorateDealRequestJson({ ...row } as unknown as Record<string, unknown>))
+    );
+    return NextResponse.json({ dealRequests: decorated });
   } catch (err) {
     const message = err instanceof DealsApiError ? err.message : "Could not load your deals.";
     return NextResponse.json({ error: message }, { status: 502 });
@@ -68,7 +74,15 @@ export async function POST(req: Request) {
       sameStateOnly: body.sameStateOnly !== false,
       buyerComment: buyerComment || undefined,
     });
-    return NextResponse.json({ dealRequest });
+    const mapped = mapDealRequestJson(dealRequest as unknown as Record<string, unknown>);
+    const seeds = invitedDealersFromVehicles(mapped.targetVehicle, mapped.otherLots);
+    await seedDealInvites(
+      dealRequest.id,
+      seeds,
+      primaryDealTimeZone(mapped.targetVehicle, dealRequest.buyerState)
+    );
+    const decorated = await decorateDealRequestJson({ ...dealRequest } as unknown as Record<string, unknown>);
+    return NextResponse.json({ dealRequest: decorated });
   } catch (err) {
     const message = err instanceof DealsApiError ? err.message : "Could not create your request.";
     return NextResponse.json({ error: message }, { status: 502 });

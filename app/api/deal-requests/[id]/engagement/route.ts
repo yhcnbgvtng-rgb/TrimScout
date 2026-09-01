@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { getDealRequest } from "@/lib/dealsApi";
-import { decorateDealRequestJson } from "@/lib/dealEngagementStore";
+import { decorateDealRequestJson, getDealEngagementSnapshot } from "@/lib/dealEngagementStore";
 
-export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Not signed in" }, { status: 401 });
@@ -18,5 +18,11 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
     return NextResponse.json({ error: "Not authorized to view this request" }, { status: 403 });
   }
 
-  return NextResponse.json({ dealRequest: await decorateDealRequestJson({ ...dealRequest } as unknown as Record<string, unknown>) });
+  const decorated = await decorateDealRequestJson({ ...dealRequest } as unknown as Record<string, unknown>);
+  const snap = await getDealEngagementSnapshot(id);
+  return NextResponse.json({
+    dealRequest: decorated,
+    dealers: snap?.dealers || [],
+    offerClock: snap?.clock || decorated.offerClock,
+  });
 }

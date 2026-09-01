@@ -114,6 +114,10 @@ export default function Home() {
       }
       const landing = consumeLandingView();
       if (landing) setCurrentView(landing);
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("open") === "dealer_inbox") {
+        setCurrentView("dealer_portal");
+      }
     }
     handleSyncLiveInventory("94107", 25, undefined, undefined, 500);
   }, []);
@@ -152,7 +156,12 @@ export default function Home() {
       const isFreshSignIn = prevSessionStatusRef.current === "unauthenticated";
       if (isFreshSignIn && lastSyncedUserIdRef.current !== su.id) {
         lastSyncedUserIdRef.current = su.id;
-        setCurrentView(su.role === "dealer" ? "dealer_analytics" : "track_deals");
+        const params = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
+        if (params?.get("open") === "dealer_inbox" && su.role === "dealer") {
+          setCurrentView("dealer_portal");
+        } else {
+          setCurrentView(su.role === "dealer" ? "dealer_analytics" : "track_deals");
+        }
       } else {
         lastSyncedUserIdRef.current = su.id;
       }
@@ -163,7 +172,7 @@ export default function Home() {
   const persistedShopperIds = shopperRequests.map((r) => r.id).filter(isPersistedDealId).join(",");
 
   useEffect(() => {
-    if (currentView !== "track_deals") return;
+    if (currentView !== "track_deals" && currentView !== "deal_room") return;
     if (!currentUser || currentUser.role !== "buyer") return;
     let cancelled = false;
 
@@ -181,6 +190,10 @@ export default function Home() {
             byId.set(mapped.id, mapped);
           }
           return Array.from(byId.values());
+        });
+        setActiveRequest((prev) => {
+          const match = rows.find((row) => String((row as { id?: string }).id) === prev.id);
+          return match ? mapDealRequestJson(match as Record<string, unknown>, prev) : prev;
         });
       } catch {
         // Local tracker rows from this session still show if the box is down.
@@ -219,7 +232,10 @@ export default function Home() {
 
     loadRequests();
     loadBids();
-    const interval = setInterval(loadBids, 9000);
+    const interval = setInterval(() => {
+      loadRequests();
+      loadBids();
+    }, 9000);
     return () => {
       cancelled = true;
       clearInterval(interval);
