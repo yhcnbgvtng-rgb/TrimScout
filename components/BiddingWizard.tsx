@@ -470,11 +470,15 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   }, [preselectedVehicle, lockVehicleSelection]);
 
   const TOTAL_STEPS = 6;
+  // Step 2 Continue is blocked until Import Car actually loaded a vehicle.
+  // Typing a VIN/URL, or merely arriving on this step, is not enough.
+  const vehicleImported = Boolean(parseSuccessMsg && selectedVehicle);
   // Step 2 (vehicle selection) is skipped when a real vehicle is already
   // locked in — the payment-method question (step 1) still always shows
   // first, so the skip happens on navigation, not on mount.
   const goNext = () => {
     if (step === 1 && requestedStructures.length === 0) return;
+    if (step === 2 && !vehicleImported) return;
     if (step === 1 && lockVehicleSelection) {
       setStep(3);
     } else {
@@ -1255,6 +1259,9 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                         {parseError}
                       </div>
                     )}
+                    {!vehicleImported && !isParsingLink && (
+                      <p className="text-[11px] text-rose-400">Import a car to continue.</p>
+                    )}
 
                   {/* Decoded Vehicle Preview Box */}
                   {parseSuccessMsg && selectedVehicle && (
@@ -1304,40 +1311,31 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                           </div>
                         </div>
 
-                        <div className="sm:text-right shrink-0 space-y-1">
-                          <div>
-                            {(() => {
-                              const shown = advertisedOrStickerPrice(
-                                selectedVehicle.dealerPrice,
-                                selectedVehicle.msrp
-                              );
-                              const hasListing =
-                                typeof selectedVehicle.dealerPrice === "number" &&
-                                selectedVehicle.dealerPrice > 0;
-                              return (
-                                <>
-                                  {hasListing && selectedVehicle.msrp > 0 && (
-                                    <div className="text-[11px] text-ink-muted">
-                                      MSRP {formatStickerMsrp(selectedVehicle.msrp)}
-                                    </div>
-                                  )}
-                                  <div className="text-base font-black text-white">
-                                    {formatPriceAmount(shown.amount)}{" "}
-                                    <span className="uppercase text-[9px] font-bold text-ink-faint">
-                                      {shopperPriceSourceLabel(shown.source)}
-                                    </span>
+                        <div className="sm:text-right shrink-0">
+                          {(() => {
+                            const shown = advertisedOrStickerPrice(
+                              selectedVehicle.dealerPrice,
+                              selectedVehicle.msrp
+                            );
+                            const hasListing =
+                              typeof selectedVehicle.dealerPrice === "number" &&
+                              selectedVehicle.dealerPrice > 0;
+                            return (
+                              <>
+                                {hasListing && selectedVehicle.msrp > 0 && (
+                                  <div className="text-[11px] text-ink-muted">
+                                    MSRP {formatStickerMsrp(selectedVehicle.msrp)}
                                   </div>
-                                </>
-                              );
-                            })()}
-                          </div>
-                          <button
-                            type="button"
-                            onClick={() => setStep(3)}
-                            className="rounded-lg bg-emerald-500 px-4 py-1.5 text-xs font-extrabold text-black hover:bg-emerald-400 transition-all flex items-center gap-1 shadow-md"
-                          >
-                            <span>Lock This Car & Continue →</span>
-                          </button>
+                                )}
+                                <div className="text-base font-black text-white">
+                                  {formatPriceAmount(shown.amount)}{" "}
+                                  <span className="uppercase text-[9px] font-bold text-ink-faint">
+                                    {shopperPriceSourceLabel(shown.source)}
+                                  </span>
+                                </div>
+                              </>
+                            );
+                          })()}
                         </div>
                       </div>
                     </div>
@@ -2365,7 +2363,10 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
             {step < TOTAL_STEPS ? (
               <button
                 onClick={goNext}
-                disabled={step === 1 && requestedStructures.length === 0}
+                disabled={
+                  (step === 1 && requestedStructures.length === 0) ||
+                  (step === 2 && !vehicleImported)
+                }
                 className="flex items-center gap-1.5 rounded-lg bg-emerald-500 px-5 py-2 text-xs font-bold text-black hover:bg-emerald-400 transition-all shadow-md shadow-emerald-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Continue <ArrowRight className="h-4 w-4" />

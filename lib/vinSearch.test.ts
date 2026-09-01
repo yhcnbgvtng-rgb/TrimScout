@@ -677,6 +677,21 @@ describe("shopper-facing factory option copy", () => {
     assert.match(FORD_MUST_HAVE_HELP, /Unchecked options are ignored/);
   });
 
+  it("step 2 has no Lock This Car control; footer Continue waits for a successful Import Car", () => {
+    const src = fs.readFileSync(path.join(process.cwd(), "components/BiddingWizard.tsx"), "utf8");
+    const start = src.indexOf("STEP 2:");
+    const end = src.indexOf("STEP 3:");
+    assert.ok(start >= 0 && end > start);
+    const step2 = src.slice(start, end);
+    assert.doesNotMatch(src, /Lock This Car/);
+    assert.doesNotMatch(step2, /onClick=\{\(\) => setStep\(3\)\}/);
+    assert.match(src, /const vehicleImported = Boolean\(parseSuccessMsg && selectedVehicle\)/);
+    assert.match(src, /if \(step === 2 && !vehicleImported\) return;/);
+    assert.match(src, /step === 2 && !vehicleImported/);
+    assert.match(step2, /Import a car to continue/);
+    assert.match(step2, /Import Car →/);
+  });
+
   it("hides must-have factory options on the paste-two-VINs path", () => {
     const src = fs.readFileSync(path.join(process.cwd(), "components/BiddingWizard.tsx"), "utf8");
     const start = src.indexOf("STEP 2:");
