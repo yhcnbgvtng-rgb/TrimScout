@@ -13,20 +13,17 @@ import {
   Sparkles,
   Truck,
   PhoneOff,
-  Search,
   Clock
 } from "lucide-react";
 
 interface BidProgramIntroProps {
   onStartWizard: () => void;
   onViewDemoDealRoom: () => void;
-  onExploreSearch: () => void;
 }
 
 export const BidProgramIntro: React.FC<BidProgramIntroProps> = ({
   onStartWizard,
   onViewDemoDealRoom,
-  onExploreSearch,
 }) => {
   return (
     <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6 lg:px-8 space-y-16 animate-fadeIn">
@@ -61,32 +58,14 @@ export const BidProgramIntro: React.FC<BidProgramIntroProps> = ({
         </div>
       </div>
 
-      {/* THREE PRODUCT PILLARS */}
+      {/* PRODUCT PILLARS */}
       <div className="space-y-6">
         <div className="text-center space-y-1">
-          <h2 className="text-xl sm:text-2xl font-black text-white">Three Ways TrimScout Works For You</h2>
-          <p className="text-xs text-ink-muted">Everything below is free to start. You only ever pay for what you actually use.</p>
+          <h2 className="text-xl sm:text-2xl font-black text-white">How TrimScout Works For You</h2>
+          <p className="text-xs text-ink-muted">Free to start. You only ever pay for what you actually use.</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <button
-            onClick={onExploreSearch}
-            className="text-left rounded-2xl border border-border bg-surface p-6 space-y-3 hover:border-emerald-500/50 transition-all"
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-400">
-                <Search className="h-6 w-6 stroke-[2]" />
-              </div>
-              <span className="rounded bg-emerald-500/20 text-emerald-400 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider border border-emerald-500/30">
-                Live Now
-              </span>
-            </div>
-            <h3 className="text-lg font-bold text-white">Search Every Trim, Free</h3>
-            <p className="text-xs text-ink-muted leading-relaxed">
-              Real-time inventory across thousands of dealerships, down to the exact trim and factory option — always free, no account needed.
-            </p>
-          </button>
-
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="rounded-2xl border-2 border-emerald-500 bg-surface p-6 space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-400">
@@ -209,14 +188,7 @@ export const BidProgramIntro: React.FC<BidProgramIntroProps> = ({
           <p className="text-xs text-ink-muted">No hidden fees. No percentage cut of your savings. Ever.</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="rounded-2xl border border-border bg-surface p-5 space-y-2">
-            <div className="flex items-center gap-2 text-sm font-extrabold text-white">
-              <CheckCircle2 className="h-4 w-4 text-emerald-400" />
-              <span>Search</span>
-            </div>
-            <p className="text-xs text-ink-muted leading-relaxed">Always free. Browse every trim at every dealership, no account required.</p>
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="rounded-2xl border-2 border-emerald-500 bg-surface p-5 space-y-2">
             <div className="flex items-center gap-2 text-sm font-extrabold text-white">
               <CheckCircle2 className="h-4 w-4 text-emerald-400" />

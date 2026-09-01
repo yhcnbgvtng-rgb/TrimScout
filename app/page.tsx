@@ -3,13 +3,13 @@
 export const dynamic = "force-dynamic";
 
 import React, { useState, useEffect } from "react";
+import Link from "next/link";
 import { useSession, signOut as authSignOut } from "next-auth/react";
 import { Vehicle, BiddingRequest, DealerBid, LockedDeal, UserProfile } from "../lib/types";
 import { MOCK_VEHICLES, INITIAL_DEMO_BIDS, SAMPLE_TRADE_IN_VEHICLE, DEMO_BUYER_USER } from "../lib/mockData";
 import { calculateOtd } from "../lib/otdCalculator";
 import { fetchLiveInventory } from "../lib/inventoryConnector";
 import { Navbar } from "../components/Navbar";
-import { MarketSearch } from "../components/MarketSearch";
 import { BidProgramIntro } from "../components/BidProgramIntro";
 import { BiddingWizard } from "../components/BiddingWizard";
 import { LiveDealRoom } from "../components/LiveDealRoom";
@@ -18,17 +18,13 @@ import { FeeBreakdownModal } from "../components/FeeBreakdownModal";
 import { VoucherModal } from "../components/VoucherModal";
 import { AuthModal } from "../components/AuthModal";
 import { DealTrackerDashboard } from "../components/DealTrackerDashboard";
-import { InventoryConnectorModal } from "../components/InventoryConnectorModal";
 import { SignupView } from "../components/SignupView";
 import { AdminPortal } from "../components/AdminPortal";
 import { DealerAnalytics } from "../components/DealerAnalytics";
-import { ScraperDashboardModal } from "../components/ScraperDashboardModal";
-import { LightsailIntelligence, type VehicleRecord } from "../components/LightsailIntelligence";
-import { mapVehicleRecordToVehicle } from "../lib/vehicleMapper";
 
 export default function Home() {
   const [vehicles, setVehicles] = useState<Vehicle[]>(MOCK_VEHICLES);
-  const [currentView, setCurrentView] = useState<"lightsail_analytics" | "bid_program" | "deal_room" | "dealer_portal" | "dealer_analytics" | "track_deals" | "signup" | "admin" | "search">("lightsail_analytics");
+  const [currentView, setCurrentView] = useState<"bid_program" | "deal_room" | "dealer_portal" | "dealer_analytics" | "track_deals" | "signup" | "admin">("bid_program");
   const [isImpersonating, setIsImpersonating] = useState<boolean>(() => {
     if (typeof window !== "undefined") {
       return localStorage.getItem("trimscout_impersonating") !== null;
@@ -47,8 +43,6 @@ export default function Home() {
   const [savedVehicleIds, setSavedVehicleIds] = useState<string[]>(["veh-1", "veh-4"]);
 
   // Live Inventory Connector State & Pagination
-  const [isConnectorModalOpen, setIsConnectorModalOpen] = useState(false);
-  const [isScraperModalOpen, setIsScraperModalOpen] = useState(false);
   const [isSyncingInventory, setIsSyncingInventory] = useState(false);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [hasMoreVehicles, setHasMoreVehicles] = useState<boolean>(true);
@@ -62,11 +56,6 @@ export default function Home() {
   // Wizard state
   const [isWizardOpen, setIsWizardOpen] = useState(false);
   const [preselectedVehicle, setPreselectedVehicle] = useState<Vehicle | null>(null);
-  // True when the wizard was launched from a real vehicle in Market
-  // Intelligence (LightsailIntelligence) rather than the mock demo flow —
-  // switches BiddingWizard/LiveDealRoom into their real-backend modes.
-  const [isRealVehicleFlow, setIsRealVehicleFlow] = useState(false);
-  const [realVehicleBrand, setRealVehicleBrand] = useState<string>("");
 
   // Active Bidding Request state
   const [activeRequest, setActiveRequest] = useState<BiddingRequest>({
@@ -127,7 +116,7 @@ export default function Home() {
   // "unauthenticated" to "authenticated" — tracked via prevSessionStatusRef)
   // — not on a fresh page load/reload with an already-valid session, where
   // status goes straight "loading" -> "authenticated" and the site should
-  // land on Market Intelligence like any other fresh visit. The
+  // land on the Bid Program Intro like any other fresh visit. The
   // lastSyncedUserIdRef check on top of that still guards against
   // re-navigating on Auth.js's window-focus session re-polls.
   const lastSyncedUserIdRef = React.useRef<string | null>(null);
@@ -165,7 +154,7 @@ export default function Home() {
         localStorage.removeItem("trimscout_current_user");
       } catch (e) {}
     }
-    setCurrentView("lightsail_analytics");
+    setCurrentView("bid_program");
     // Only real Auth.js sessions (email/password, Google, Apple) need this;
     // a demo-tab profile never created one, and signOut() is a harmless
     // no-op when there's no session to clear.
@@ -241,21 +230,12 @@ export default function Home() {
 
   // Handlers
   const handleSelectForBid = (vehicle: Vehicle) => {
-    setIsRealVehicleFlow(false);
     setPreselectedVehicle(vehicle);
     setIsWizardOpen(true);
   };
 
   const handleOpenFlexibleWizard = () => {
-    setIsRealVehicleFlow(false);
     setPreselectedVehicle(null);
-    setIsWizardOpen(true);
-  };
-
-  const handleSelectRealVehicleForBid = (v: VehicleRecord, brand: string) => {
-    setIsRealVehicleFlow(true);
-    setRealVehicleBrand(brand);
-    setPreselectedVehicle(mapVehicleRecordToVehicle(v, brand));
     setIsWizardOpen(true);
   };
 
@@ -503,7 +483,6 @@ export default function Home() {
         <BidProgramIntro
           onStartWizard={handleOpenFlexibleWizard}
           onViewDemoDealRoom={() => setCurrentView("deal_room")}
-          onExploreSearch={() => setCurrentView("lightsail_analytics")}
         />
       )}
 
@@ -513,7 +492,7 @@ export default function Home() {
           request={activeRequest}
           bids={bids}
           onInspectFee={handleInspectFee}
-          pollBids={isRealVehicleFlow}
+          pollBids={false}
         />
       )}
 
@@ -559,8 +538,8 @@ export default function Home() {
       {currentView === "signup" && (
         <div className="animate-fadeIn">
           <SignupView
-            onSuccess={() => setCurrentView("lightsail_analytics")}
-            onNavigateHome={() => setCurrentView("lightsail_analytics")}
+            onSuccess={() => setCurrentView("bid_program")}
+            onNavigateHome={() => setCurrentView("bid_program")}
           />
         </div>
       )}
@@ -587,17 +566,20 @@ export default function Home() {
                 setCurrentView("track_deals");
               }
             }}
-            onExitAdmin={() => setCurrentView("lightsail_analytics")}
+            onExitAdmin={() => setCurrentView("bid_program")}
           />
         </div>
       )}
 
-      {/* View 7: Live AWS Lightsail Market Intelligence & Price Drops */}
-      {(currentView === "lightsail_analytics" || currentView === "search") && (
-        <div className="animate-fadeIn">
-          <LightsailIntelligence onSelectForBid={handleSelectRealVehicleForBid} />
-        </div>
-      )}
+      {/* Site Footer */}
+      <footer className="border-t border-border/60 mt-12 py-6 text-center text-xs text-ink-faint">
+        <p>© 2026 TrimScout Inc. Built for transparent, reverse-bid automotive transactions.</p>
+        <p className="mt-2 flex items-center justify-center gap-4">
+          <Link href="/terms" className="hover:text-white transition-colors">Terms of Use</Link>
+          <span className="text-border-strong">•</span>
+          <Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link>
+        </p>
+      </footer>
 
       {/* Bidding Wizard Modal */}
       <BiddingWizard
@@ -605,8 +587,6 @@ export default function Home() {
         onClose={() => setIsWizardOpen(false)}
         vehicles={vehicles}
         preselectedVehicle={preselectedVehicle}
-        lockVehicleSelection={isRealVehicleFlow}
-        referenceBrandCode={realVehicleBrand}
         currentUser={currentUser}
         onRequireLogin={() => setIsAuthModalOpen(true)}
         onRealBidRequestCreated={handleRealBidRequestCreated}
@@ -633,26 +613,6 @@ export default function Home() {
       <AuthModal
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}
-      />
-
-      {/* Live Inventory Connector Settings Modal */}
-      <InventoryConnectorModal
-        isOpen={isConnectorModalOpen}
-        onClose={() => setIsConnectorModalOpen(false)}
-        onConfigUpdated={() => handleSyncLiveInventory()}
-      />
-
-      {/* 4-Engine Live CMS & OEM Scraper Dashboard Modal */}
-      <ScraperDashboardModal
-        isOpen={isScraperModalOpen}
-        onClose={() => setIsScraperModalOpen(false)}
-        onImportVehicles={(scraped) => {
-          setVehicles((prev) => {
-            const seen = new Set(prev.map((v) => v.vin));
-            const fresh = scraped.filter((v) => !seen.has(v.vin));
-            return [...fresh, ...prev];
-          });
-        }}
       />
     </main>
   );

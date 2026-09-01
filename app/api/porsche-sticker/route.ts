@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { PORSCHE_FACTORY_OPTIONS_CATALOG } from "@/lib/scrapers/porscheFinderScraper";
-import { PORSCHE_PAINT_CODES } from "@/components/LightsailIntelligence";
 import { decodeVinFromNhtsa } from "@/lib/vinDecoder";
 import { lookupPorscheBaseMsrp } from "@/lib/enrichmentEngine";
 import { fetchVehicleByVinFromBox, type BoxVehicle } from "@/lib/lightsailClient";
