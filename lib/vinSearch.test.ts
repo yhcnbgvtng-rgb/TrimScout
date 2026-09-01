@@ -1,9 +1,10 @@
+import { guardedFetch, LIVE_HTTP_BLOCKLIST } from "./testdata/blockLiveHttp";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import { env } from "node:process";
 import { describe, it } from "node:test";
-import { getFordSticker, parseFordStickerText } from "./fordSticker";
+import { parseFordStickerText } from "./fordSticker";
 import { serverSecret } from "./serverSecret";
 import {
   FORD_COMPETITION_FACTORY_OPTIONS,
@@ -275,8 +276,8 @@ describe("vinSearch rank + must-have filter", () => {
     assert.equal(listingDealerId(undefined, "", "mc-9"), "mc-9");
   });
 
-  it("live Ford Direct hunt still returns Shorkey + Battlefield only among the demo VINs when radius allows", async () => {
-    const subject = await getFordSticker(SUBJECT);
+  it("fixture hunt still returns Shorkey + Battlefield only among the demo VINs when radius allows", async () => {
+    const subject = parseFordStickerText(SUBJECT, loadFixture(SUBJECT));
     const result = await findSimilarFordVehicles({
       subjectVin: SUBJECT,
       subject,
@@ -284,6 +285,7 @@ describe("vinSearch rank + must-have filter", () => {
       zip: "07405",
       radiusMiles: 500,
       listings: DEMO_COMPARABLE_LISTINGS,
+      fetchSticker: async (vin) => parseFordStickerText(vin, loadFixture(vin)),
     });
     const matchVins = result.matches.map((m) => m.vin);
     assert.ok(matchVins.includes(SHORKEY));
@@ -608,6 +610,40 @@ describe("shopper-facing factory option copy", () => {
     assert.match(src, /FORD_MUST_HAVE_HEADING/);
     assert.match(src, /FORD_MUST_HAVE_HELP/);
     assert.match(src, /FORD_COMPETITION_FACTORY_OPTIONS_UNAVAILABLE/);
+  });
+
+  it("tests never call live MarketCheck, Auto.dev, Ford Direct, or production comparables", async () => {
+    const vinSearchTest = fs.readFileSync(path.join(import.meta.dirname, "vinSearch.test.ts"), "utf8");
+    const stickerTest = fs.readFileSync(path.join(import.meta.dirname, "fordSticker.test.ts"), "utf8");
+    const guardSrc = fs.readFileSync(path.join(import.meta.dirname, "testdata/blockLiveHttp.ts"), "utf8");
+    for (const src of [vinSearchTest, stickerTest]) {
+      assert.match(src, /blockLiveHttp/);
+      assert.doesNotMatch(src, /getFordSticker\(/);
+      assert.doesNotMatch(src, /confirmFordMustHaves\(/);
+      assert.doesNotMatch(src, /fetch\([^)]*trim-scout\.vercel\.app/);
+      assert.doesNotMatch(src, /\bcurl\b[\s\S]{0,120}trim-scout\.vercel\.app/);
+    }
+    assert.ok(guardSrc.includes("forddirect"));
+    assert.ok(guardSrc.includes("marketcheck"));
+    assert.ok(guardSrc.includes("auto.dev") || guardSrc.includes("auto\\.dev"));
+    assert.ok(guardSrc.includes("trim-scout"));
+    assert.equal(LIVE_HTTP_BLOCKLIST.test("https://www.windowsticker.forddirect.com/windowsticker.pdf?vin=X"), true);
+    assert.equal(LIVE_HTTP_BLOCKLIST.test("https://api.marketcheck.com/v2/search/car/active"), true);
+    assert.equal(LIVE_HTTP_BLOCKLIST.test("https://api.auto.dev/listings"), true);
+    assert.equal(LIVE_HTTP_BLOCKLIST.test("https://trim-scout.vercel.app/api/ford-comparables"), true);
+    assert.equal(LIVE_HTTP_BLOCKLIST.test("https://example.com/ford/vdp"), false);
+    await assert.rejects(
+      () => guardedFetch("https://www.windowsticker.forddirect.com/windowsticker.pdf?vin=1FTFW3LD7TFB08996"),
+      /must mock HTTP/
+    );
+    await assert.rejects(
+      () => guardedFetch("https://api.marketcheck.com/v2/search/car/active"),
+      /must mock HTTP/
+    );
+    await assert.rejects(
+      () => guardedFetch("https://trim-scout.vercel.app/api/ford-comparables"),
+      /must mock HTTP/
+    );
   });
 });
 

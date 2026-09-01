@@ -1,9 +1,9 @@
+import "./testdata/blockLiveHttp";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import { describe, it } from "node:test";
 import {
-  confirmFordMustHaves,
   confirmFordMustHavesFromSticker,
   DEMO_SUBJECT_VIN,
   defaultMustHaveLines,
@@ -15,7 +15,6 @@ import {
   factoryOptionBreakout,
   factoryOptionCode,
   filterableFactoryOptions,
-  getFordSticker,
   isFordOrLincolnVin,
   isKeypadIntent,
   isKeypadLine,
@@ -283,22 +282,28 @@ describe("must-have checkboxes start unchecked", () => {
   });
 });
 
-describe("live Ford Direct confirmFordMustHaves (network)", () => {
-  it("subject VIN still has Ultimate + keypad on Ford Direct", async () => {
-    const check = await confirmFordMustHaves(SUBJECT, ["Ultimate Package", "Keyless Entry Keypad"]);
+describe("fixture confirmFordMustHavesFromSticker (no live HTTP)", () => {
+  it("subject VIN fixture has Ultimate + keypad", () => {
+    const check = confirmFordMustHavesFromSticker(
+      parseFordStickerText(SUBJECT, loadFixture(SUBJECT)),
+      ["Ultimate Package", "Keyless Entry Keypad"]
+    );
     assert.equal(check.status, "released");
     assert.equal(check.pass, true);
   });
 
-  it("Mall of Georgia still fails keypad on a live Ford PDF", async () => {
-    const check = await confirmFordMustHaves(MALL_OF_GEORGIA, ["Ultimate Package", "Keyless Entry Keypad"]);
+  it("Mall of Georgia fixture fails keypad", () => {
+    const check = confirmFordMustHavesFromSticker(
+      parseFordStickerText(MALL_OF_GEORGIA, loadFixture(MALL_OF_GEORGIA)),
+      ["Ultimate Package", "Keyless Entry Keypad"]
+    );
     assert.equal(check.status, "released");
     assert.equal(check.pass, false);
     assert.ok(check.missing.includes("Keyless Entry Keypad"));
   });
 
-  it("Bronco Sport VIN decodes as Big Bend from Ford Direct", async () => {
-    const s = await getFordSticker(BRONCO);
+  it("Bronco Sport fixture decodes as Big Bend", () => {
+    const s = parseFordStickerText(BRONCO, loadFixture(BRONCO));
     assert.equal(s.status, "released");
     assert.equal(s.model, "Bronco Sport");
     assert.equal(s.trim, "Big Bend");
