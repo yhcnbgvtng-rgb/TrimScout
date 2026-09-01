@@ -135,10 +135,6 @@ export function formatPriceAmount(amount: number | null | undefined): string {
   }).format(amount);
 }
 
-export function autoFillCompetitionSlots<T>(matches: T[]): [T | null, T | null] {
-  return [matches[0] ?? null, matches[1] ?? null];
-}
-
 /** Listing VDP only — never invent a URL, never Ford Direct window-sticker PDFs. */
 export function listingVdpHref(url: string | null | undefined): string | null {
   const trimmed = (url || "").trim();
@@ -151,6 +147,109 @@ export function listingVdpHref(url: string | null | undefined): string | null {
     return null;
   }
   return trimmed;
+}
+
+/** Physical store fields used to decide whether two lots are the same rooftop. */
+export type CompetitionLotIdentity = {
+  dealerId?: string | null;
+  dealerName?: string;
+  city?: string;
+  state?: string;
+  zip?: string;
+  dealerUrl?: string | null;
+};
+
+function normalizeDealerToken(value?: string | null): string {
+  return (value || "").toLowerCase().replace(/[^a-z0-9]+/g, "");
+}
+
+/** Stable listings-provider dealer id when present. May be per-listing, not a rooftop. */
+export function listingDealerId(...candidates: unknown[]): string | undefined {
+  for (const value of candidates) {
+    if (typeof value === "number" && Number.isFinite(value)) return String(value);
+    if (typeof value === "string" && value.trim()) return value.trim();
+  }
+  return undefined;
+}
+
+function rooftopLocationKey(lot: CompetitionLotIdentity): string {
+  return [lot.city, lot.state, lot.zip].map(normalizeDealerToken).filter(Boolean).join("|");
+}
+
+function listingWebsiteHost(url?: string | null): string {
+  const href = listingVdpHref(url);
+  if (!href) return "";
+  try {
+    return new URL(href).hostname.toLowerCase().replace(/^www\./, "");
+  } catch {
+    return "";
+  }
+}
+
+/**
+ * Canonical rooftop identity: normalized dealer name + city/state/zip.
+ * Listings dealerId is not preferred — those ids may be per-VIN.
+ */
+export function dealerIdentity(lot: CompetitionLotIdentity): string {
+  const name = normalizeDealerToken(lot.dealerName);
+  const rooftop = rooftopLocationKey(lot);
+  if (name) return `name:${name}|${rooftop}`;
+  const host = listingWebsiteHost(lot.dealerUrl);
+  if (host) return `host:${host}`;
+  const id = listingDealerId(lot.dealerId);
+  if (id) return `id:${id}`;
+  return "unknown";
+}
+
+/**
+ * Two lots are one rooftop when they share a physical store.
+ * Same name+location wins even if listings dealerIds differ. Matching
+ * dealerId still groups slightly different names at one store. Website host
+ * helps when names match and location is missing. Different dealerIds never
+ * prove different rooftops.
+ */
+export function sameRooftop(a: CompetitionLotIdentity, b: CompetitionLotIdentity): boolean {
+  const idA = listingDealerId(a.dealerId);
+  const idB = listingDealerId(b.dealerId);
+  if (idA && idB && idA === idB) return true;
+
+  const nameA = normalizeDealerToken(a.dealerName);
+  const nameB = normalizeDealerToken(b.dealerName);
+  if (!nameA || !nameB || nameA !== nameB) return false;
+
+  const locA = rooftopLocationKey(a);
+  const locB = rooftopLocationKey(b);
+  if (locA && locB) return locA === locB;
+
+  const hostA = listingWebsiteHost(a.dealerUrl);
+  const hostB = listingWebsiteHost(b.dealerUrl);
+  if (hostA && hostB) return hostA === hostB;
+
+  return true;
+}
+
+/**
+ * Slot 1 = nearest sticker-matched lot. Slot 2 = nearest lot from a different
+ * rooftop when one exists. Same-lot twins never fill both slots. Does not
+ * invent dealers or pad with demo inventory.
+ */
+export function selectCompetitionSlots<T extends CompetitionLotIdentity>(rankedMatches: T[]): T[] {
+  if (rankedMatches.length === 0) return [];
+  const first = rankedMatches[0];
+  const other = rankedMatches.find((lot, index) => index > 0 && !sameRooftop(lot, first));
+  if (other) return [first, other];
+  return [first];
+}
+
+/**
+ * Wizard slots are the hunt `matches` array (already rooftop-diverse).
+ * If a longer ranked list is passed, skip same-rooftop twins the same way.
+ */
+export function autoFillCompetitionSlots<T extends CompetitionLotIdentity>(
+  matches: T[]
+): [T | null, T | null] {
+  const slots = selectCompetitionSlots(matches);
+  return [slots[0] ?? null, slots[1] ?? null];
 }
 
 export interface ReviewTargetVehicleFields {

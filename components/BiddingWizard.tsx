@@ -84,6 +84,7 @@ interface FordSuggestionCard {
   trim?: string;
   engine?: string;
   exteriorColor?: string;
+  dealerId?: string;
   dealerName: string;
   city: string;
   state: string;
@@ -637,8 +638,9 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     };
   }, [findLotsMode, fordStickerStatus, selectedVehicle?.vin, selectedVehicle?.make, selectedVehicle?.model, buyerZip]);
 
-  // Find path only: the two slots ARE the nearest match plus the nearest
-  // different dealer (including lots with no dealerUrl). Paste-own never auto-fills.
+  // Find path only: the two slots ARE the API `matches` (nearest lot, then the
+  // nearest different rooftop). autoFillCompetitionSlots will not take two
+  // twins from the same lot even if a longer list is passed. Paste-own never auto-fills.
   useEffect(() => {
     if (!findLotsMode || factoryBuildOem !== "ford" || fordStickerStatus !== "released") return;
     const [first, second] = autoFillCompetitionSlots(fordSuggestions);
