@@ -10,6 +10,7 @@ import {
   looksLikeGmPaste,
   pastedVinCandidate,
 } from "./oemWmi";
+import type { Vehicle } from "./types";
 
 export type FactoryBuildOem = "ford" | "gm";
 export type FactoryBuildEndpoint = "/api/ford-sticker" | "/api/gm-sticker";
@@ -70,4 +71,165 @@ export function acceptImportedVehicle<T extends { vin?: string }>(
   if (!vehicle?.vin) return null;
   if (!vehicleVinMatchesPaste(vehicle.vin, pastedVin)) return null;
   return vehicle;
+}
+
+export type FactoryFilterableOption = {
+  name: string;
+  code?: string | null;
+  description?: string;
+  price: number | null;
+  isPackageChild?: boolean;
+};
+
+export type PasteImportSuccess = {
+  ok: true;
+  vehicle: Vehicle;
+  oem: FactoryBuildOem;
+  pdfUrl: string | null;
+  msrp: number | null;
+  mustHaveLines: string[];
+  niceToHaveLines: string[];
+  filterableOptions: FactoryFilterableOption[];
+};
+
+export type PasteImportFailure = {
+  ok: false;
+  error: string;
+  unreleased?: boolean;
+  oem?: FactoryBuildOem;
+  pdfUrl?: string | null;
+};
+
+export type PasteImportResult = PasteImportSuccess | PasteImportFailure;
+
+function interpretFactoryBuildJson(
+  json: Record<string, unknown>,
+  ok: boolean,
+  oem: FactoryBuildOem,
+  pastedVin: string | null
+): PasteImportResult {
+  const sticker = json.sticker as { status?: string; pdfUrl?: string; msrp?: number } | undefined;
+  const responseVin =
+    (typeof json.vin === "string" && json.vin.trim().toUpperCase()) || pastedVin || null;
+  const pdfUrl =
+    (typeof json.pdfUrl === "string" && json.pdfUrl) || sticker?.pdfUrl || null;
+
+  if (!ok) {
+    return {
+      ok: false,
+      error: factoryBuildFailedError(
+        responseVin,
+        typeof json.error === "string" ? json.error : undefined
+      ),
+    };
+  }
+
+  if (sticker?.status === "unreleased") {
+    return {
+      ok: false,
+      error: factoryBuildUnreleasedError(responseVin),
+      unreleased: true,
+      oem,
+      pdfUrl,
+    };
+  }
+
+  const matched = acceptImportedVehicle(json.vehicle as Vehicle | null, responseVin);
+  if (!matched) {
+    return {
+      ok: false,
+      error: factoryBuildFailedError(
+        responseVin,
+        typeof json.error === "string" ? json.error : undefined
+      ),
+    };
+  }
+
+  return {
+    ok: true,
+    vehicle: matched,
+    oem,
+    pdfUrl: pdfUrl || matched.oemBuildSheetUrl || null,
+    msrp: typeof sticker?.msrp === "number" && sticker.msrp > 0 ? sticker.msrp : null,
+    mustHaveLines: Array.isArray(json.mustHaveLines)
+      ? json.mustHaveLines.map(String).filter(Boolean)
+      : [],
+    niceToHaveLines: Array.isArray(json.niceToHaveLines)
+      ? json.niceToHaveLines.map(String).filter(Boolean)
+      : [],
+    filterableOptions: Array.isArray(json.filterableOptions)
+      ? (json.filterableOptions as FactoryFilterableOption[])
+      : [],
+  };
+}
+
+/**
+ * Same Ford Direct / GM CWS factory-build import the wizard uses.
+ * Never swaps in a catalog VIN. Callers must mock fetch in tests.
+ */
+export async function importPastedFactoryVehicle(
+  paste: string,
+  fetchImpl: typeof fetch = fetch
+): Promise<PasteImportResult> {
+  const raw = paste.trim();
+  if (!raw) {
+    return { ok: false, error: "Paste a 17-character VIN or dealer listing URL." };
+  }
+  const pastedVin = pastedVinCandidate(raw);
+
+  try {
+    const endpoint = preferredFactoryBuildEndpoint(raw) || "/api/ford-sticker";
+    const res = await fetchImpl(endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ paste: raw }),
+    });
+    const json = (await res.json().catch(() => ({}))) as Record<string, unknown>;
+    const jsonVin =
+      typeof json.vin === "string" ? json.vin.trim().toUpperCase() : pastedVin;
+
+    if (json.needsVin || json.dealerBlocked) {
+      return {
+        ok: false,
+        error:
+          (typeof json.error === "string" && json.error) ||
+          "Could not read a VIN from that page. Paste the 17-character VIN.",
+      };
+    }
+
+    if (endpoint === "/api/ford-sticker" && json.notFord && json.handled === false) {
+      if (jsonVin && isGmVin(jsonVin)) {
+        const gmRes = await fetchImpl("/api/gm-sticker", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ paste: raw, vin: jsonVin }),
+        });
+        const gmJson = (await gmRes.json().catch(() => ({}))) as Record<string, unknown>;
+        return interpretFactoryBuildJson(gmJson, gmRes.ok, "gm", jsonVin);
+      }
+      return { ok: false, error: factoryBuildUnavailableError(jsonVin || pastedVin) };
+    }
+
+    if (endpoint === "/api/gm-sticker" && json.notGm && json.handled === false) {
+      if (jsonVin && isFordOrLincolnVin(jsonVin)) {
+        const fordRes = await fetchImpl("/api/ford-sticker", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ paste: raw, vin: jsonVin }),
+        });
+        const fordJson = (await fordRes.json().catch(() => ({}))) as Record<string, unknown>;
+        return interpretFactoryBuildJson(fordJson, fordRes.ok, "ford", jsonVin);
+      }
+      return { ok: false, error: factoryBuildUnavailableError(jsonVin || pastedVin) };
+    }
+
+    return interpretFactoryBuildJson(
+      json,
+      res.ok,
+      endpoint === "/api/gm-sticker" ? "gm" : "ford",
+      jsonVin || pastedVin
+    );
+  } catch (err: unknown) {
+    return { ok: false, error: err instanceof Error ? err.message : "Lookup failed" };
+  }
 }

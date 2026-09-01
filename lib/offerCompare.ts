@@ -26,15 +26,20 @@ export interface OfferCompareSnapshot {
   vehicles: OfferCompareVehicle[];
   buyerZip: string;
   requestedStructures: DealStructureMethod[];
+  mustHaveLines: string[];
+  niceToHaveLines: string[];
+  searchRadiusMiles: number;
 }
 
-const ROLE_LABELS: Record<OfferVehicleRole, string> = {
+export const ROLE_LABELS: Record<OfferVehicleRole, string> = {
   favorite: "Imported favorite",
-  other_lot_1: "Other lot 1",
-  other_lot_2: "Other lot 2",
+  other_lot_1: "Competitor 1",
+  other_lot_2: "Competitor 2",
 };
 
-const ROLES: OfferVehicleRole[] = ["favorite", "other_lot_1", "other_lot_2"];
+export const DUPLICATE_COMPARE_VIN = "That VIN is already in this deal.";
+
+export const COMPARE_COLUMN_ROLES: OfferVehicleRole[] = ["favorite", "other_lot_1", "other_lot_2"];
 
 function asString(value: unknown): string {
   if (typeof value === "string") return value.trim();
@@ -159,11 +164,65 @@ export function snapshotVehiclesFromDeal(
   favorite: Vehicle | null | undefined,
   otherLots: Array<Vehicle | null | undefined>
 ): OfferCompareVehicle[] {
-  const vehicles = collectDealVehicles(favorite, otherLots);
-  return vehicles.map((vehicle, index) => {
-    const role = ROLES[index] || "other_lot_2";
-    return { role, label: ROLE_LABELS[role], vehicle };
+  const out: OfferCompareVehicle[] = [];
+  const seen = new Set<string>();
+  const add = (vehicle: Vehicle | null | undefined, role: OfferVehicleRole) => {
+    if (!vehicle) return;
+    const vin = (vehicle.vin || "").trim().toUpperCase();
+    if (!vin || seen.has(vin)) return;
+    seen.add(vin);
+    out.push({ role, label: ROLE_LABELS[role], vehicle: { ...vehicle, vin } });
+  };
+  add(favorite, "favorite");
+  add(otherLots[0], "other_lot_1");
+  add(otherLots[1], "other_lot_2");
+  return out;
+}
+
+export function vehicleForCompareRole(
+  snapshot: OfferCompareSnapshot,
+  role: OfferVehicleRole
+): OfferCompareVehicle | null {
+  if (role === "favorite") {
+    return snapshot.vehicles.find((col) => col.role === "favorite") || snapshot.vehicles[0] || null;
+  }
+  return snapshot.vehicles.find((col) => col.role === role) || null;
+}
+
+export function assignCompetitorLot(
+  snapshot: OfferCompareSnapshot,
+  slot: 1 | 2,
+  vehicle: Vehicle
+): { ok: true; snapshot: OfferCompareSnapshot } | { ok: false; error: string } {
+  const vin = (vehicle.vin || "").trim().toUpperCase();
+  if (vin.length !== 17) {
+    return { ok: false, error: "Paste a 17-character VIN or dealer listing URL." };
+  }
+  const favorite = vehicleForCompareRole(snapshot, "favorite")?.vehicle;
+  const lot1 = vehicleForCompareRole(snapshot, "other_lot_1")?.vehicle ?? null;
+  const lot2 = vehicleForCompareRole(snapshot, "other_lot_2")?.vehicle ?? null;
+  const used = [favorite?.vin, slot === 1 ? lot2?.vin : lot1?.vin]
+    .filter(Boolean)
+    .map((value) => String(value).toUpperCase());
+  if (used.includes(vin)) {
+    return { ok: false, error: DUPLICATE_COMPARE_VIN };
+  }
+  const nextLots: [Vehicle | null, Vehicle | null] = [
+    slot === 1 ? { ...vehicle, vin } : lot1,
+    slot === 2 ? { ...vehicle, vin } : lot2,
+  ];
+  const next = buildOfferCompareSnapshot({
+    request: snapshot.request,
+    favorite,
+    otherLots: nextLots,
+    buyerZip: snapshot.buyerZip,
+    requestedStructures: snapshot.requestedStructures,
+    mustHaveLines: snapshot.mustHaveLines,
+    niceToHaveLines: snapshot.niceToHaveLines,
+    searchRadiusMiles: snapshot.searchRadiusMiles,
   });
+  if (!next) return { ok: false, error: "Could not add that vehicle." };
+  return { ok: true, snapshot: next };
 }
 
 export function buildOfferCompareSnapshot(opts: {
@@ -172,6 +231,9 @@ export function buildOfferCompareSnapshot(opts: {
   otherLots: Array<Vehicle | null | undefined>;
   buyerZip: string;
   requestedStructures: DealStructureMethod[];
+  mustHaveLines?: string[];
+  niceToHaveLines?: string[];
+  searchRadiusMiles?: number;
 }): OfferCompareSnapshot | null {
   const columns = snapshotVehiclesFromDeal(opts.favorite, opts.otherLots);
   if (columns.length === 0) return null;
@@ -199,12 +261,19 @@ export function buildOfferCompareSnapshot(opts: {
       vehicleTerms,
     },
   };
+  const buyerZip = (opts.buyerZip || request.buyerZip || "").trim();
+  const searchRadiusMiles =
+    opts.searchRadiusMiles ??
+    (typeof request.searchRadiusMiles === "number" ? request.searchRadiusMiles : 0);
   return {
     version: 1,
     request,
     vehicles: columns,
-    buyerZip: (opts.buyerZip || request.buyerZip || "").trim(),
+    buyerZip,
     requestedStructures,
+    mustHaveLines: (opts.mustHaveLines || request.flexibleCriteria?.mustHavePackages || []).filter(Boolean),
+    niceToHaveLines: (opts.niceToHaveLines || []).filter(Boolean),
+    searchRadiusMiles,
   };
 }
 
@@ -228,9 +297,9 @@ export function parseOfferCompareSnapshot(raw: unknown): OfferCompareSnapshot | 
       const rec = item as Record<string, unknown>;
       const vehicle = deserializeDealVehicle(rec.vehicle);
       if (!vehicle) continue;
-      const role = ROLES.includes(rec.role as OfferVehicleRole)
+      const role = COMPARE_COLUMN_ROLES.includes(rec.role as OfferVehicleRole)
         ? (rec.role as OfferVehicleRole)
-        : ROLES[columns.length];
+        : COMPARE_COLUMN_ROLES[columns.length] || "other_lot_2";
       columns.push({
         role,
         label: asString(rec.label) || ROLE_LABELS[role],
@@ -259,6 +328,16 @@ export function parseOfferCompareSnapshot(raw: unknown): OfferCompareSnapshot | 
           { ...prefs, requestedStructures }
         );
 
+  const mustHaveLines = Array.isArray(row.mustHaveLines)
+    ? row.mustHaveLines.filter((line): line is string => typeof line === "string" && Boolean(line.trim()))
+    : request.flexibleCriteria?.mustHavePackages || [];
+  const niceToHaveLines = Array.isArray(row.niceToHaveLines)
+    ? row.niceToHaveLines.filter((line): line is string => typeof line === "string" && Boolean(line.trim()))
+    : [];
+  const searchRadiusMiles =
+    asNumber(row.searchRadiusMiles) ??
+    (typeof request.searchRadiusMiles === "number" ? request.searchRadiusMiles : 0);
+
   return {
     version: 1,
     request: {
@@ -272,6 +351,9 @@ export function parseOfferCompareSnapshot(raw: unknown): OfferCompareSnapshot | 
     vehicles: columns,
     buyerZip,
     requestedStructures,
+    mustHaveLines,
+    niceToHaveLines,
+    searchRadiusMiles,
   };
 }
 

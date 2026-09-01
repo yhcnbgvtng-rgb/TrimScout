@@ -323,6 +323,18 @@ describe("listing-facts route and compare page copy", () => {
     assert.doesNotMatch(view, /DEMO_COMPARABLE_LISTINGS/);
     assert.doesNotMatch(view, /MarketCheck/);
     assert.doesNotMatch(view, /Auto\.dev/);
+    assert.doesNotMatch(view, /Finding matching lots/);
+    assert.match(view, /\/api\/listing-facts/);
+    assert.doesNotMatch(view, /\/api\/ford-comparables/);
+    assert.doesNotMatch(view, /\/api\/compare-deal/);
+    assert.doesNotMatch(view, /findSimilarFordVehicles/);
+    assert.match(view, /importPastedFactoryVehicle/);
+    assert.match(view, /assignCompetitorLot/);
+    assert.match(view, /border-2 border-emerald-500/);
+    assert.match(view, /grid-cols-1 md:grid-cols-2 xl:grid-cols-3/);
+    assert.match(view, /COMPARE_COLUMN_ROLES/);
+    assert.match(view, /Add a competitor/);
+    assert.match(view, /Paste a VIN or dealer listing URL/);
     assert.match(wizard, /router\.push\("\/compare"\)/);
     assert.match(wizard, /buildOfferCompareSnapshot/);
     assert.match(wizard, /otherLots: otherLotsForDeal/);
@@ -336,6 +348,8 @@ describe("listing-facts route and compare page copy", () => {
     assert.doesNotMatch(wizard, /Set Your Deal Parameters/);
     assert.doesNotMatch(wizard, /Buyer Zip Code/);
     assert.doesNotMatch(wizard, /Dealer Radius/);
+    assert.doesNotMatch(wizard, /\/api\/ford-comparables/);
+    assert.match(wizard, /They do not search listings/);
     assert.doesNotMatch(wizard, /STEP 6:/);
   });
 

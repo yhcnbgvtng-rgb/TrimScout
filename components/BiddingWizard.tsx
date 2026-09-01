@@ -16,39 +16,19 @@ import { SAMPLE_TRADE_IN_VEHICLE } from "../lib/mockData";
 import { decodeVin, SAMPLE_TEST_VINS, DecodedVehicle } from "../lib/vinDecoder";
 import {
   FORD_BUILD_SHEET_LINK,
-  FORD_COMPETITION_FACTORY_OPTIONS,
-  FORD_COMPETITION_FACTORY_OPTIONS_UNAVAILABLE,
-  FORD_COMPETITION_LOADING,
-  FORD_COMPETITION_NEED_LOCATION,
-  FORD_LISTINGS_LOAD_FAILED,
   FORD_MUST_HAVE_HEADING,
   FORD_MUST_HAVE_HELP,
-  FORD_OTHER_LOTS_HEADING,
-  FORD_OTHER_LOTS_HELP,
-  FORD_OTHER_LOTS_HELP_FIND,
-  FORD_OTHER_LOTS_HELP_PASTE,
-  FORD_OTHER_LOTS_MODE_FIND,
-  FORD_OTHER_LOTS_MODE_PASTE,
   advertisedOrStickerPrice,
-  autoFillCompetitionSlots,
-  fordCompetitionEmptyCopy,
   formatFactoryOptionLine,
   formatPriceAmount,
-  listingVdpHref,
   reviewTargetFromVehicle,
-  sanitizeShopperListingsCopy,
   shopperPriceSourceLabel,
-  type FactoryOptionDisplay,
-  type OtherLotsMode,
 } from "../lib/fordCompetitionUi";
-import { brandCodeFromMake, isFordOrLincolnVin, isGmVin, pastedVinCandidate } from "../lib/oemWmi";
+import { brandCodeFromMake } from "../lib/oemWmi";
 import {
-  acceptImportedVehicle,
-  factoryBuildFailedError,
-  factoryBuildUnavailableError,
-  factoryBuildUnreleasedError,
-  preferredFactoryBuildEndpoint,
+  importPastedFactoryVehicle,
   type FactoryBuildOem,
+  type FactoryFilterableOption,
 } from "../lib/pasteImport";
 import { shopperDealStructurePayload, mapDealRequestJson } from "../lib/shopperDeal";
 import { defaultTermsForVehicles } from "../lib/dealTerms";
@@ -73,56 +53,16 @@ import {
   Trash2,
   Image as ImageIcon,
   Sparkles,
-  CircleHelp as HelpCircle,
-  Link2,
   Globe,
   LoaderCircle as Loader2,
-  Plus,
   Handshake,
   FileText
 } from "lucide-react";
 
-interface FordSuggestionCard {
-  vin: string;
-  year?: number;
-  make?: string;
-  model?: string;
-  trim?: string;
-  engine?: string;
-  exteriorColor?: string;
-  dealerId?: string;
-  dealerName: string;
-  city: string;
-  state: string;
-  zip?: string;
-  distanceMiles: number | null;
-  listingPrice: number | null;
-  listingPriceSource: "listing" | "sticker" | "unconfirmed";
-  msrp: number | null;
-  msrpSource: "listing" | "sticker" | "unconfirmed";
-  dealerUrl: string | null;
-  pdfUrl: string;
-  matchedMustHaves: string[];
-  matchedNiceToHaves: string[];
-  factoryOptions?: FactoryOptionDisplay[];
-  factoryOptionsStatus?: "ok" | "unavailable";
-}
-
-interface FilterableFactoryOption {
-  name: string;
-  code?: string | null;
-  description?: string;
-  price: number | null;
-  isPackageChild?: boolean;
-}
+type FilterableFactoryOption = FactoryFilterableOption;
 
 function formatStickerMsrp(amount: number | null | undefined): string {
   return formatPriceAmount(amount);
-}
-
-function milesFromUserZip(miles: number | null | undefined, zip: string): string | null {
-  if (miles == null || !/^\d{5}$/.test(zip.trim())) return null;
-  return `${miles} mi from ${zip.trim()}`;
 }
 
 function FactoryMustHavePicker({
@@ -161,159 +101,6 @@ function FactoryMustHavePicker({
       })}
     </div>
   );
-}
-
-function competitionFactoryLines(
-  suggestion: FordSuggestionCard | null,
-  vehicle: Vehicle
-): { status: "ok" | "unavailable"; lines: FactoryOptionDisplay[] } {
-  if (suggestion?.factoryOptionsStatus === "unavailable") {
-    return { status: "unavailable", lines: [] };
-  }
-  if (suggestion?.factoryOptions && suggestion.factoryOptions.length > 0) {
-    return { status: "ok", lines: suggestion.factoryOptions };
-  }
-  if (vehicle.options && vehicle.options.length > 0) {
-    return {
-      status: "ok",
-      lines: vehicle.options.map((o) => ({
-        code: o.code || null,
-        description: o.name,
-        price: o.price,
-        isPackageChild: o.category === "standalone",
-      })),
-    };
-  }
-  return { status: "unavailable", lines: [] };
-}
-
-function CompetitionFactoryOptions({
-  suggestion,
-  vehicle,
-}: {
-  suggestion: FordSuggestionCard | null;
-  vehicle: Vehicle;
-}) {
-  const { status, lines } = competitionFactoryLines(suggestion, vehicle);
-  if (status === "unavailable") {
-    return (
-      <p className="text-[11px] text-ink-muted mt-1.5">{FORD_COMPETITION_FACTORY_OPTIONS_UNAVAILABLE}</p>
-    );
-  }
-  return (
-    <div className="mt-1.5">
-      <div className="text-[10px] font-semibold uppercase tracking-wider text-ink-faint">
-        {FORD_COMPETITION_FACTORY_OPTIONS}
-      </div>
-      <ul className="mt-0.5 max-h-40 overflow-y-auto space-y-0.5">
-        {lines.map((opt, i) => (
-          <li
-            key={`${opt.code || ""}-${opt.description}-${i}`}
-            className={`text-[11px] leading-snug text-ink-light ${opt.isPackageChild ? "pl-3 text-ink-muted" : ""}`}
-          >
-            {formatFactoryOptionLine(opt)}
-            {opt.price != null && opt.price > 0 ? (
-              <span className="text-ink-faint"> · {formatCurrency(opt.price)}</span>
-            ) : null}
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-
-function fordSuggestionToVehicle(s: FordSuggestionCard): Vehicle {
-  return {
-    id: `ford-${s.vin}`,
-    vin: s.vin,
-    year: s.year || 0,
-    make: s.make || "Ford",
-    model: s.model || "",
-    trim: s.trim || "",
-    bodyType: "SUV",
-    engine: s.engine || "",
-    drivetrain: "",
-    transmission: "",
-    exteriorColor: s.exteriorColor || "",
-    interiorColor: "",
-    msrp: s.msrp || 0,
-    dealerPrice: s.listingPrice || 0,
-    daysOnLot: 0,
-    status: "on_lot",
-    condition: "new",
-    location: {
-      dealerName: s.dealerName,
-      city: s.city,
-      state: s.state,
-      zip: s.zip,
-      distanceMiles: s.distanceMiles || 0,
-    },
-    packages: (s.factoryOptions || [])
-      .filter((o) => !o.isPackageChild)
-      .map((o) => o.description),
-    options: (s.factoryOptions || []).map((o) => ({
-      code: o.code || "",
-      name: o.description,
-      price: o.price || 0,
-      category: o.isPackageChild ? ("standalone" as const) : ("package" as const),
-    })),
-    imageUrl: "",
-    mileage: 0,
-    dealerUrl: s.dealerUrl || undefined,
-    oemBuildSheetUrl: s.pdfUrl,
-  };
-}
-
-// A real, live-inventory competing vehicle suggested by /api/comparable-vehicles
-// (same make/model, same state, within 50 miles of the buyer) — only ever
-// populated from a real box query, never fabricated.
-interface ComparableSuggestion {
-  vin: string;
-  year: number | null;
-  make: string;
-  model: string;
-  trim: string | null;
-  price: number | null;
-  msrp: number | null;
-  mileage: number | null;
-  status: string | null;
-  dealerName: string | null;
-  city: string | null;
-  state: string | null;
-  distanceMiles: number | null;
-  url: string | null;
-}
-
-function suggestionToVehicle(s: ComparableSuggestion): Vehicle {
-  return {
-    id: s.vin,
-    vin: s.vin,
-    year: s.year || 0,
-    make: s.make,
-    model: s.model,
-    trim: s.trim || "",
-    bodyType: "",
-    engine: "",
-    drivetrain: "",
-    transmission: "",
-    exteriorColor: "",
-    interiorColor: "",
-    msrp: s.msrp || s.price || 0,
-    dealerPrice: s.price || s.msrp || 0,
-    daysOnLot: 0,
-    status: "on_lot",
-    location: {
-      dealerName: s.dealerName || "",
-      city: s.city || "",
-      state: s.state || "",
-      distanceMiles: s.distanceMiles || 0,
-    },
-    packages: [],
-    options: [],
-    imageUrl: "",
-    mileage: s.mileage || 0,
-    dealerUrl: s.url || undefined,
-  };
 }
 
 interface BiddingWizardProps {
@@ -359,26 +146,8 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   const [fordPdfUrl, setFordPdfUrl] = useState<string | null>(null);
   const [fordFilterableOptions, setFordFilterableOptions] = useState<FilterableFactoryOption[]>([]);
   const [niceToHavePackages, setNiceToHavePackages] = useState<string[]>([]);
-  const [fordSuggestions, setFordSuggestions] = useState<FordSuggestionCard[]>([]);
-  const [isLoadingFordSuggestions, setIsLoadingFordSuggestions] = useState(false);
-  const [fordSearchNote, setFordSearchNote] = useState<string | null>(null);
-  const [fordHuntError, setFordHuntError] = useState<string | null>(null);
-  const [fordDroppedCount, setFordDroppedCount] = useState(0);
   const [huntZip, setHuntZip] = useState("");
   const [huntRadius, setHuntRadius] = useState("");
-  const [otherLotsMode, setOtherLotsMode] = useState<OtherLotsMode>("find");
-
-  // Step 2: up to 2 optional secondary vehicle links, to widen competition
-  // beyond just the favorite pick.
-  const [secondaryUrls, setSecondaryUrls] = useState<string[]>(["", ""]);
-  const [secondaryVehicles, setSecondaryVehicles] = useState<(Vehicle | null)[]>([null, null]);
-  const [isParsingSecondary, setIsParsingSecondary] = useState<boolean[]>([false, false]);
-
-  // Real, live comparable vehicles (same make/model, same state, <=50mi of
-  // the buyer) — fetched from the box's real inventory, never fabricated.
-  const [aiSuggestions, setAiSuggestions] = useState<ComparableSuggestion[]>([]);
-  const [isLoadingAiSuggestions, setIsLoadingAiSuggestions] = useState(false);
-  const [aiSuggestionsSupported, setAiSuggestionsSupported] = useState(true);
 
   // Set when the buyer explicitly chooses to skip the multi-dealer auction
   // and send a single, anonymized offer straight to the favorite vehicle's
@@ -507,218 +276,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   };
 
   const huntReady = /^\d{5}$/.test(huntZip.trim()) && Number(huntRadius) > 0;
-  const findLotsMode = otherLotsMode === "find";
-  const fordHuntActive = factoryBuildOem === "ford" && fordStickerStatus === "released";
-
-  const selectOtherLotsMode = (mode: OtherLotsMode) => {
-    if (mode === otherLotsMode) return;
-    setOtherLotsMode(mode);
-    if (mode === "paste") {
-      setSecondaryVehicles([null, null]);
-      setSecondaryUrls(["", ""]);
-    }
-  };
-
-  // Matching lots for the two "other lots" slots on the find path only.
-  // Warehouse /api/comparable-vehicles is intentionally NOT the source of
-  // truth for Ford factory options. ZIP + radius are required user input.
-  // Paste-own mode must not call /api/ford-comparables.
-  useEffect(() => {
-    if (!findLotsMode || factoryBuildOem !== "ford" || fordStickerStatus !== "released" || !selectedVehicle?.vin) {
-      setFordSuggestions([]);
-      setFordHuntError(null);
-      setFordSearchNote(null);
-      setIsLoadingFordSuggestions(false);
-      return;
-    }
-    if (!huntReady) {
-      setFordSuggestions([]);
-      setFordHuntError(null);
-      setFordSearchNote(FORD_COMPETITION_NEED_LOCATION);
-      setFordDroppedCount(0);
-      setIsLoadingFordSuggestions(false);
-      return;
-    }
-    let cancelled = false;
-    setIsLoadingFordSuggestions(true);
-    setFordHuntError(null);
-    setFordSuggestions([]);
-    setFordSearchNote(null);
-    setFordDroppedCount(0);
-    fetch("/api/ford-comparables", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        subjectVin: selectedVehicle.vin,
-        mustHaveLines: mustHavePackages,
-        niceToHaveLines: niceToHavePackages,
-        zip: huntZip.trim(),
-        radiusMiles: Number(huntRadius),
-      }),
-    })
-      .then(async (res) => {
-        const json = await res.json().catch(() => ({}));
-        if (cancelled) return;
-        if (!res.ok || json.error) {
-          const raw =
-            (typeof json.note === "string" && json.note.trim()) ||
-            (typeof json.error === "string" && json.error.trim()) ||
-            FORD_LISTINGS_LOAD_FAILED;
-          const message = sanitizeShopperListingsCopy(raw);
-          setFordSuggestions([]);
-          setFordDroppedCount(0);
-          setFordHuntError(message);
-          setFordSearchNote(message);
-          return;
-        }
-        const huntNote = typeof json.note === "string" ? json.note : null;
-        const listingsFailed = Boolean(json.listingsError);
-        setFordHuntError(
-          listingsFailed
-            ? sanitizeShopperListingsCopy(huntNote || FORD_LISTINGS_LOAD_FAILED)
-            : null
-        );
-        setFordSuggestions(json.matches || []);
-        setFordSearchNote(huntNote);
-        setFordDroppedCount(Array.isArray(json.dropped) ? json.dropped.length : 0);
-      })
-      .catch(() => {
-        if (cancelled) return;
-        setFordSuggestions([]);
-        setFordDroppedCount(0);
-        setFordHuntError(FORD_LISTINGS_LOAD_FAILED);
-        setFordSearchNote(FORD_LISTINGS_LOAD_FAILED);
-      })
-      .finally(() => {
-        if (!cancelled) setIsLoadingFordSuggestions(false);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [
-    findLotsMode,
-    factoryBuildOem,
-    fordStickerStatus,
-    selectedVehicle?.vin,
-    mustHavePackages,
-    niceToHavePackages,
-    huntZip,
-    huntRadius,
-    huntReady,
-  ]);
-
-  useEffect(() => {
-    if (!findLotsMode) {
-      setAiSuggestions([]);
-      setIsLoadingAiSuggestions(false);
-      return;
-    }
-    if (!selectedVehicle || fordStickerStatus === "released") return;
-    if (!buyerZip || buyerZip.trim().length < 5) {
-      setAiSuggestions([]);
-      return;
-    }
-    let cancelled = false;
-    setIsLoadingAiSuggestions(true);
-    const params = new URLSearchParams({
-      make: selectedVehicle.make,
-      model: selectedVehicle.model,
-      zip: buyerZip,
-      excludeVin: selectedVehicle.vin,
-    });
-    fetch(`/api/comparable-vehicles?${params.toString()}`)
-      .then((res) => res.json())
-      .then((json) => {
-        if (cancelled) return;
-        setAiSuggestionsSupported(!!json.supported);
-        setAiSuggestions(json.vehicles || []);
-      })
-      .catch(() => {
-        if (!cancelled) setAiSuggestions([]);
-      })
-      .finally(() => {
-        if (!cancelled) setIsLoadingAiSuggestions(false);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [findLotsMode, fordStickerStatus, selectedVehicle?.vin, selectedVehicle?.make, selectedVehicle?.model, buyerZip]);
-
-  // Find path only: the two slots ARE the API `matches` (nearest lot, then the
-  // nearest different rooftop). autoFillCompetitionSlots will not take two
-  // twins from the same lot even if a longer list is passed. Paste-own never auto-fills.
-  useEffect(() => {
-    if (!findLotsMode || factoryBuildOem !== "ford" || fordStickerStatus !== "released") return;
-    const [first, second] = autoFillCompetitionSlots(fordSuggestions);
-    setSecondaryVehicles([
-      first ? fordSuggestionToVehicle(first) : null,
-      second ? fordSuggestionToVehicle(second) : null,
-    ]);
-    setSecondaryUrls([first?.dealerUrl || "", second?.dealerUrl || ""]);
-  }, [findLotsMode, factoryBuildOem, fordSuggestions, fordStickerStatus]);
-
-  const applyFactoryBuildJson = (
-    json: Record<string, unknown>,
-    ok: boolean,
-    oem: FactoryBuildOem,
-    pastedVin: string | null
-  ) => {
-    const sticker = json.sticker as { status?: string; pdfUrl?: string; msrp?: number } | undefined;
-    const responseVin =
-      (typeof json.vin === "string" && json.vin.trim().toUpperCase()) || pastedVin || null;
-
-    if (!ok) {
-      setParseError(
-        factoryBuildFailedError(
-          responseVin,
-          typeof json.error === "string" ? json.error : undefined
-        )
-      );
-      setIsParsingLink(false);
-      return;
-    }
-
-    if (sticker?.status === "unreleased") {
-      setFactoryBuildOem(oem);
-      setFordStickerStatus("unreleased");
-      setFordPdfUrl((typeof json.pdfUrl === "string" && json.pdfUrl) || sticker?.pdfUrl || null);
-      setParseError(factoryBuildUnreleasedError(responseVin));
-      setIsParsingLink(false);
-      return;
-    }
-
-    const matched = acceptImportedVehicle(json.vehicle as Vehicle | null, responseVin);
-    if (!matched) {
-      setParseError(
-        factoryBuildFailedError(
-          responseVin,
-          typeof json.error === "string" ? json.error : undefined
-        )
-      );
-      setIsParsingLink(false);
-      return;
-    }
-
-    setSelectedVehicle(matched);
-    setMake(matched.make);
-    setModel(matched.model);
-    setSelectedTrims([matched.trim]);
-    setMustHavePackages(Array.isArray(json.mustHaveLines) ? (json.mustHaveLines as string[]) : []);
-    setNiceToHavePackages(Array.isArray(json.niceToHaveLines) ? (json.niceToHaveLines as string[]) : []);
-    setFordFilterableOptions((json.filterableOptions as FilterableFactoryOption[]) || []);
-    setFactoryBuildOem(oem);
-    setFordStickerStatus("released");
-    setFordPdfUrl(
-      (typeof json.pdfUrl === "string" && json.pdfUrl) || matched.oemBuildSheetUrl || null
-    );
-    if (typeof sticker?.msrp === "number" && sticker.msrp > 0) {
-      setTargetOtdPrice(Math.round(sticker.msrp * 0.92));
-    }
-    setParseSuccessMsg(
-      `VIN ${matched.vin}${sticker?.msrp ? ` · MSRP ${formatStickerMsrp(sticker.msrp)}` : ""}`
-    );
-    setIsParsingLink(false);
-  };
+  const huntLocationMissing = !huntReady;
 
   const handleParseDealerUrl = async (urlToParse?: string) => {
     const raw = (urlToParse || dealerUrlInput).trim();
@@ -731,150 +289,40 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     setFactoryBuildOem(null);
     setFordStickerStatus(null);
     setFordPdfUrl(null);
-    setFordSuggestions([]);
     setFordFilterableOptions([]);
     setNiceToHavePackages([]);
     setMustHavePackages([]);
-    setSecondaryVehicles([null, null]);
-    setSecondaryUrls(["", ""]);
-    setFordHuntError(null);
 
-    const pastedVin = pastedVinCandidate(raw);
-
-    try {
-      const endpoint = preferredFactoryBuildEndpoint(raw) || "/api/ford-sticker";
-      const res = await fetch(endpoint, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ paste: raw }),
-      });
-      const json = (await res.json().catch(() => ({}))) as Record<string, unknown>;
-      const jsonVin =
-        typeof json.vin === "string" ? json.vin.trim().toUpperCase() : pastedVin;
-
-      if (json.needsVin || json.dealerBlocked) {
-        setParseError(
-          (typeof json.error === "string" && json.error) ||
-            "Could not read a VIN from that page. Paste the 17-character VIN."
-        );
-        setIsParsingLink(false);
-        return;
+    const result = await importPastedFactoryVehicle(raw);
+    if (!result.ok) {
+      if (result.unreleased) {
+        setFactoryBuildOem(result.oem ?? null);
+        setFordStickerStatus("unreleased");
+        setFordPdfUrl(result.pdfUrl ?? null);
       }
-
-      if (endpoint === "/api/ford-sticker" && json.notFord && json.handled === false) {
-        if (jsonVin && isGmVin(jsonVin)) {
-          const gmRes = await fetch("/api/gm-sticker", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ paste: raw, vin: jsonVin }),
-          });
-          const gmJson = (await gmRes.json().catch(() => ({}))) as Record<string, unknown>;
-          applyFactoryBuildJson(gmJson, gmRes.ok, "gm", jsonVin);
-          return;
-        }
-        setParseError(factoryBuildUnavailableError(jsonVin || pastedVin));
-        setIsParsingLink(false);
-        return;
-      }
-
-      if (endpoint === "/api/gm-sticker" && json.notGm && json.handled === false) {
-        if (jsonVin && isFordOrLincolnVin(jsonVin)) {
-          const fordRes = await fetch("/api/ford-sticker", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ paste: raw, vin: jsonVin }),
-          });
-          const fordJson = (await fordRes.json().catch(() => ({}))) as Record<string, unknown>;
-          applyFactoryBuildJson(fordJson, fordRes.ok, "ford", jsonVin);
-          return;
-        }
-        setParseError(factoryBuildUnavailableError(jsonVin || pastedVin));
-        setIsParsingLink(false);
-        return;
-      }
-
-      applyFactoryBuildJson(
-        json,
-        res.ok,
-        endpoint === "/api/gm-sticker" ? "gm" : "ford",
-        jsonVin || pastedVin
-      );
-    } catch (err: unknown) {
-      setParseError(err instanceof Error ? err.message : "Lookup failed");
+      setParseError(result.error);
       setIsParsingLink(false);
+      return;
     }
-  };
 
-  const handleParseSecondaryUrl = async (idx: number, urlToParse?: string) => {
-    const raw = (urlToParse ?? secondaryUrls[idx] ?? "").trim();
-    if (!raw) return;
-    setIsParsingSecondary((prev) => prev.map((v, i) => (i === idx ? true : v)));
-    try {
-      const endpoint = preferredFactoryBuildEndpoint(raw) || "/api/ford-sticker";
-      let res = await fetch(endpoint, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ paste: raw }),
-      });
-      let json = (await res.json().catch(() => ({}))) as Record<string, unknown>;
-      if (endpoint === "/api/ford-sticker" && json.notFord && typeof json.vin === "string" && isGmVin(json.vin)) {
-        res = await fetch("/api/gm-sticker", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ paste: raw, vin: json.vin }),
-        });
-        json = (await res.json().catch(() => ({}))) as Record<string, unknown>;
-      }
-      const pastedVin = pastedVinCandidate(raw) || (typeof json.vin === "string" ? json.vin : null);
-      const matched = acceptImportedVehicle(json.vehicle as Vehicle | null, pastedVin);
-      if (matched) {
-        setSecondaryVehicles((prev) => prev.map((v, i) => (i === idx ? matched : v)));
-      }
-    } finally {
-      setIsParsingSecondary((prev) => prev.map((v, i) => (i === idx ? false : v)));
+    setSelectedVehicle(result.vehicle);
+    setMake(result.vehicle.make);
+    setModel(result.vehicle.model);
+    setSelectedTrims([result.vehicle.trim]);
+    setMustHavePackages(result.mustHaveLines);
+    setNiceToHavePackages(result.niceToHaveLines);
+    setFordFilterableOptions(result.filterableOptions);
+    setFactoryBuildOem(result.oem);
+    setFordStickerStatus("released");
+    setFordPdfUrl(result.pdfUrl);
+    if (result.msrp && result.msrp > 0) {
+      setTargetOtdPrice(Math.round(result.msrp * 0.92));
     }
+    setParseSuccessMsg(
+      `VIN ${result.vehicle.vin}${result.msrp ? ` · MSRP ${formatStickerMsrp(result.msrp)}` : ""}`
+    );
+    setIsParsingLink(false);
   };
-
-  const handleRemoveSecondary = (idx: number) => {
-    setSecondaryUrls((prev) => prev.map((v, i) => (i === idx ? "" : v)));
-    setSecondaryVehicles((prev) => prev.map((v, i) => (i === idx ? null : v)));
-  };
-
-  const handleImportAiSuggestions = () => {
-    const emptySlots = secondaryVehicles.reduce<number[]>((acc, v, i) => {
-      if (!v) acc.push(i);
-      return acc;
-    }, []);
-    if (emptySlots.length === 0 || aiSuggestions.length === 0) return;
-    const picks = aiSuggestions.slice(0, emptySlots.length);
-    setSecondaryVehicles((prev) => {
-      const next = [...prev];
-      emptySlots.forEach((slotIdx, i) => {
-        if (picks[i]) next[slotIdx] = suggestionToVehicle(picks[i]);
-      });
-      return next;
-    });
-    setSecondaryUrls((prev) => {
-      const next = [...prev];
-      emptySlots.forEach((slotIdx, i) => {
-        if (picks[i]?.url) next[slotIdx] = picks[i].url as string;
-      });
-      return next;
-    });
-  };
-
-  const hasCompetition = secondaryVehicles.some((v) => !!v);
-  const huntLocationMissing = findLotsMode && fordHuntActive && !huntReady;
-  const fordEmptySlots = fordHuntActive
-    ? fordCompetitionEmptyCopy({
-          huntReady,
-          loading: isLoadingFordSuggestions,
-          error: fordHuntError,
-          note: fordSearchNote,
-          droppedCount: fordDroppedCount,
-          matchCount: fordSuggestions.length,
-        })
-      : null;
 
   const chooseDirectOffer = () => {
     setOfferPath("direct");
@@ -972,9 +420,8 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   const launchStrategy: BiddingStrategy =
     directOfferMode || offerPath === "direct" ? "firm_offer" : "exact_auction";
 
-  const dealVehicles = collectDealVehicles(selectedVehicle, secondaryVehicles);
-  const favoriteVin = (selectedVehicle?.vin || "").trim().toUpperCase();
-  const otherLotsForDeal = dealVehicles.filter((v) => v.vin !== favoriteVin);
+  const dealVehicles = collectDealVehicles(selectedVehicle, []);
+  const otherLotsForDeal: Vehicle[] = [];
 
   const vehicleTermsForDeal = defaultTermsForVehicles(dealVehicles, {
       requestedStructures,
@@ -1028,9 +475,12 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     const snapshot = buildOfferCompareSnapshot({
       request,
       favorite: selectedVehicle,
-      otherLots: secondaryVehicles,
+      otherLots: [],
       buyerZip,
       requestedStructures,
+      mustHaveLines: mustHavePackages,
+      niceToHaveLines: niceToHavePackages,
+      searchRadiusMiles: searchRadius,
     });
     if (snapshot) {
       saveOfferCompareSnapshot(snapshot);
@@ -1216,7 +666,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                             huntLocationMissing ? "text-amber-300" : "text-ink-faint"
                           }`}
                         >
-                          Your ZIP{findLotsMode ? " (required)" : ""}
+                          Your ZIP (required)
                         </span>
                         <div className="relative">
                           <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-emerald-400" />
@@ -1248,7 +698,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                             huntLocationMissing ? "text-amber-300" : "text-ink-faint"
                           }`}
                         >
-                          Radius miles{findLotsMode ? " (required)" : ""}
+                          Radius miles (required)
                         </span>
                         <input
                           type="text"
@@ -1274,7 +724,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                       </label>
                     </div>
                     <p className="text-[10px] text-ink-faint">
-                      ZIP and radius are required before we recommend two other lots. Suggestions use your ZIP, not the dealer&apos;s.
+                      ZIP and radius are saved with this deal. They do not search listings.
                     </p>
 
                     <label className="text-[11px] font-bold text-ink-light uppercase flex items-center justify-between pt-2">
@@ -1401,299 +851,22 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                   )}
                 </div>
 
-              {/* Once a favorite is locked in, offer to widen the field */}
-              {selectedVehicle && (
-                <div className="space-y-5 pt-4 border-t border-border/50">
-                  <div className="space-y-1">
-                    <span className="text-xs font-semibold text-ink-light">Other lots</span>
-                    <div className="flex flex-wrap items-center gap-x-5 gap-y-1.5">
-                      {(
-                        [
-                          { id: "find" as const, label: FORD_OTHER_LOTS_MODE_FIND },
-                          { id: "paste" as const, label: FORD_OTHER_LOTS_MODE_PASTE },
-                        ]
-                      ).map((opt) => (
-                        <label key={opt.id} className="flex items-center gap-2 py-0.5 text-xs cursor-pointer">
-                          <input
-                            type="radio"
-                            name="otherLotsMode"
-                            checked={otherLotsMode === opt.id}
-                            onChange={() => selectOtherLotsMode(opt.id)}
-                            className="h-3.5 w-3.5 shrink-0 border-border text-emerald-500 focus:ring-0"
-                          />
-                          <span className={otherLotsMode === opt.id ? "text-white" : "text-ink-light"}>
-                            {opt.label}
-                          </span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-
-                  {findLotsMode && fordStickerStatus === "released" && fordFilterableOptions.length > 0 && (
-                    <div className="space-y-1">
-                      <h4 className="text-xs font-bold text-white uppercase tracking-wider">
-                        {FORD_MUST_HAVE_HEADING}
-                      </h4>
-                      <p className="text-[11px] text-ink-muted">{FORD_MUST_HAVE_HELP}</p>
-                      <FactoryMustHavePicker
-                        options={fordFilterableOptions}
-                        checked={mustHavePackages}
-                        onToggle={toggleFordMustHave}
-                      />
-                    </div>
-                  )}
-                  {/* Other lots: hunt auto-fill on the find path; two paste fields on the paste path */}
-                  <div className="space-y-2.5">
-                    <div>
-                      <h4 className="text-xs font-bold text-white uppercase tracking-wider">
-                        {FORD_OTHER_LOTS_HEADING}{" "}
-                        <span className="text-ink-faint font-normal normal-case">(optional)</span>
-                      </h4>
-                      <p className="text-[11px] text-ink-muted mt-0.5">
-                        {FORD_OTHER_LOTS_HELP}{" "}
-                        {findLotsMode ? FORD_OTHER_LOTS_HELP_FIND : FORD_OTHER_LOTS_HELP_PASTE}
-                      </p>
-                      {huntLocationMissing && (
-                        <p className="text-[11px] text-amber-300 mt-1">
-                          ZIP and radius are required above to fill these two slots.
-                        </p>
-                      )}
-                    </div>
-
-                    {findLotsMode && fordStickerStatus === "released" && fordEmptySlots?.kind === "loading" ? (
-                      <div className="flex items-center gap-2 rounded-xl border border-border bg-surface-elevated px-3 py-4">
-                        <Loader2 className="h-4 w-4 animate-spin text-emerald-400" />
-                        <span className="text-xs text-ink-muted">{FORD_COMPETITION_LOADING}</span>
-                      </div>
-                    ) : findLotsMode && fordStickerStatus === "released" && fordEmptySlots && !hasCompetition ? (
-                      <>
-                        <div
-                          className={`rounded-xl border px-3 py-3 text-xs leading-relaxed ${
-                            fordEmptySlots.kind === "error" || fordEmptySlots.kind === "need_location"
-                              ? "border-amber-500/50 bg-amber-950/30 text-amber-100"
-                              : "border-border bg-surface-elevated text-ink-muted"
-                          }`}
-                        >
-                          {fordEmptySlots.message}
-                        </div>
-                        <div className="flex gap-2">
-                          <div className="relative flex-1">
-                            <Link2 className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-ink-faint" />
-                            <input
-                              type="text"
-                              value={secondaryUrls[0]}
-                              onChange={(e) =>
-                                setSecondaryUrls((prev) => prev.map((v, i) => (i === 0 ? e.target.value : v)))
-                              }
-                              placeholder="Or paste a VIN or listing link (optional)"
-                              className="w-full rounded-xl border border-border bg-background py-2 pl-9 pr-3 text-xs text-white placeholder-ink-faint focus:border-emerald-500 focus:outline-none font-mono"
-                            />
-                          </div>
-                          <button
-                            type="button"
-                            onClick={() => handleParseSecondaryUrl(0)}
-                            disabled={isParsingSecondary[0] || !secondaryUrls[0].trim()}
-                            className="rounded-xl border border-border bg-surface-elevated px-3 py-2 text-xs font-bold text-ink-light hover:text-white hover:border-border-strong transition-all shrink-0 disabled:opacity-50 flex items-center gap-1.5"
-                          >
-                            {isParsingSecondary[0] ? (
-                              <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                            ) : (
-                              <Plus className="h-3.5 w-3.5" />
-                            )}
-                            <span>Add</span>
-                          </button>
-                        </div>
-                      </>
-                    ) : (
-                      <>
-                        {[0, 1].map((idx) => {
-                          const matchedVehicle = secondaryVehicles[idx];
-                          const suggestion = autoFillCompetitionSlots(fordSuggestions)[idx];
-                          return (
-                            <div key={idx} className="space-y-1.5">
-                              {matchedVehicle ? (
-                                <div className="rounded-xl border border-emerald-500/40 bg-emerald-500/10 px-3 py-2.5">
-                                  <div className="flex items-start justify-between gap-2">
-                                    <div className="flex items-start gap-2 min-w-0">
-                                      <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0 mt-0.5" />
-                                      <div className="min-w-0">
-                                        <span className="text-xs font-bold text-white truncate block">
-                                          {matchedVehicle.year} {matchedVehicle.make} {matchedVehicle.model}{" "}
-                                          {matchedVehicle.trim}
-                                        </span>
-                                        <span className="text-[11px] text-ink-muted">
-                                          {matchedVehicle.location.dealerName}
-                                          {matchedVehicle.location.city ? ` · ${matchedVehicle.location.city}` : ""}
-                                          {matchedVehicle.location.state
-                                            ? `, ${matchedVehicle.location.state}`
-                                            : ""}
-                                          {milesFromUserZip(matchedVehicle.location.distanceMiles, huntZip)
-                                            ? ` · ${milesFromUserZip(matchedVehicle.location.distanceMiles, huntZip)}`
-                                            : ""}
-                                          {" · "}
-                                          {(() => {
-                                            const shown = advertisedOrStickerPrice(
-                                              matchedVehicle.dealerPrice,
-                                              matchedVehicle.msrp
-                                            );
-                                            return `${formatPriceAmount(shown.amount)} ${shopperPriceSourceLabel(shown.source)}`;
-                                          })()}
-                                          {" · "}
-                                          {(() => {
-                                            const vdpHref = listingVdpHref(
-                                              matchedVehicle.dealerUrl ||
-                                                suggestion?.dealerUrl ||
-                                                secondaryUrls[idx]
-                                            );
-                                            return vdpHref ? (
-                                              <a
-                                                href={vdpHref}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="font-mono text-emerald-400 hover:underline"
-                                              >
-                                                {matchedVehicle.vin}
-                                              </a>
-                                            ) : (
-                                              <span className="font-mono">{matchedVehicle.vin}</span>
-                                            );
-                                          })()}
-                                        </span>
-                                        <CompetitionFactoryOptions
-                                          suggestion={suggestion}
-                                          vehicle={matchedVehicle}
-                                        />
-                                      </div>
-                                    </div>
-                                    <button
-                                      type="button"
-                                      onClick={() => handleRemoveSecondary(idx)}
-                                      className="shrink-0 rounded-lg p-1.5 text-ink-muted hover:bg-border hover:text-white transition-colors"
-                                    >
-                                      <Trash2 className="h-3.5 w-3.5" />
-                                    </button>
-                                  </div>
-                                </div>
-                              ) : (
-                                <div className="flex gap-2">
-                                  <div className="relative flex-1">
-                                    <Link2 className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-ink-faint" />
-                                    <input
-                                      type="text"
-                                      value={secondaryUrls[idx]}
-                                      onChange={(e) =>
-                                        setSecondaryUrls((prev) =>
-                                          prev.map((v, i) => (i === idx ? e.target.value : v))
-                                        )
-                                      }
-                                      placeholder={`Paste a ${idx === 0 ? "2nd" : "3rd"} VIN or listing link (optional)`}
-                                      className="w-full rounded-xl border border-border bg-background py-2 pl-9 pr-3 text-xs text-white placeholder-ink-faint focus:border-emerald-500 focus:outline-none font-mono"
-                                    />
-                                  </div>
-                                  <button
-                                    type="button"
-                                    onClick={() => handleParseSecondaryUrl(idx)}
-                                    disabled={isParsingSecondary[idx] || !secondaryUrls[idx].trim()}
-                                    className="rounded-xl border border-border bg-surface-elevated px-3 py-2 text-xs font-bold text-ink-light hover:text-white hover:border-border-strong transition-all shrink-0 disabled:opacity-50 flex items-center gap-1.5"
-                                  >
-                                    {isParsingSecondary[idx] ? (
-                                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                                    ) : (
-                                      <Plus className="h-3.5 w-3.5" />
-                                    )}
-                                    <span>Add</span>
-                                  </button>
-                                </div>
-                              )}
-                            </div>
-                          );
-                        })}
-                        {findLotsMode &&
-                          fordStickerStatus !== "released" &&
-                          !hasCompetition &&
-                          aiSuggestions.length > 0 && (
-                            <button
-                              type="button"
-                              onClick={handleImportAiSuggestions}
-                              className="w-full flex items-center justify-center gap-1.5 rounded-xl border border-dashed border-emerald-500/40 bg-emerald-500/5 py-2 text-xs font-bold text-emerald-400 hover:bg-emerald-500/10 transition-all"
-                            >
-                              <Sparkles className="h-3.5 w-3.5" />
-                              <span>Import AI Suggestions Below ↓</span>
-                            </button>
-                          )}
-                      </>
-                    )}
-                    {findLotsMode && fordHuntActive && (
-                      <p className="text-[10px] text-ink-faint">
-                        Must-haves filter matching lots from each factory build. Dealer ads are not
-                        proof. Distance is from your ZIP
-                        {huntReady ? ` (${huntZip} · ${huntRadius} mi)` : ""}.
-                      </p>
-                    )}
-                  </div>
-
-                  {fordStickerStatus === "released" || !findLotsMode ? null : (
-                  <div className="rounded-xl border border-border bg-surface-elevated p-3.5 space-y-3">
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="flex items-center gap-2 text-xs font-bold text-white">
-                        <Sparkles className="h-3.5 w-3.5 text-emerald-400" />
-                        <span>AI-Suggested Close Competition</span>
-                      </div>
-                      <div className="flex items-center gap-1.5 shrink-0">
-                        <MapPin className="h-3 w-3 text-ink-faint" />
-                        <input
-                          type="text"
-                          value={buyerZip}
-                          onChange={(e) => setBuyerZip(e.target.value)}
-                          placeholder="ZIP"
-                          className="w-16 rounded-lg border border-border bg-background py-1 px-2 text-[11px] text-white font-mono focus:border-emerald-500 focus:outline-none"
-                        />
-                      </div>
-                    </div>
-                    <p className="text-[11px] text-ink-muted -mt-1.5">
-                      Real matching inventory in-state, within 50 miles — dealers you didn't have to find yourself.
-                    </p>
-
-                    {isLoadingAiSuggestions ? (
-                      <div className="flex items-center gap-2 text-ink-muted text-xs py-3">
-                        <Loader2 className="h-3.5 w-3.5 animate-spin" /> Scanning nearby inventory…
-                      </div>
-                    ) : !aiSuggestionsSupported ? (
-                      <p className="text-[11px] text-ink-faint py-1">
-                        We don't have live crawl coverage for {selectedVehicle.make} yet, so no real suggestions to show here.
-                      </p>
-                    ) : aiSuggestions.length === 0 ? (
-                      <p className="text-[11px] text-ink-faint py-1">
-                        No matching {selectedVehicle.model} found within 50 miles of {buyerZip || "your ZIP"} yet.
-                      </p>
-                    ) : (
-                      <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
-                        {aiSuggestions.map((s) => (
-                          <div
-                            key={s.vin}
-                            className="flex items-center justify-between gap-2 rounded-lg border border-border bg-background px-2.5 py-2 text-[11px]"
-                          >
-                            <div className="min-w-0">
-                              <div className="font-bold text-white truncate">
-                                {s.year} {s.make} {s.model} {s.trim}
-                              </div>
-                              <div className="text-ink-faint truncate">
-                                {s.dealerName} · {s.distanceMiles ?? "?"} mi
-                              </div>
-                            </div>
-                            <div className="text-right shrink-0 font-mono text-white font-bold">
-                              {s.price ? formatCurrency(s.price) : "—"}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                  )}
+              {selectedVehicle && fordStickerStatus === "released" && fordFilterableOptions.length > 0 && (
+                <div className="space-y-1 pt-4 border-t border-border/50">
+                  <h4 className="text-xs font-bold text-white uppercase tracking-wider">
+                    {FORD_MUST_HAVE_HEADING}
+                  </h4>
+                  <p className="text-[11px] text-ink-muted">{FORD_MUST_HAVE_HELP}</p>
+                  <FactoryMustHavePicker
+                    options={fordFilterableOptions}
+                    checked={mustHavePackages}
+                    onToggle={toggleFordMustHave}
+                  />
+                  <p className="text-[10px] text-ink-faint">
+                    Must-haves filter matching lots on the compare page. Dealer ads are not proof.
+                  </p>
                 </div>
               )}
-            </div>
-          )}
 
           {/* ========================================================================= */}
           {/* STEP 3: DIRECT OFFER OR MULTI-DEALER                                      */}
