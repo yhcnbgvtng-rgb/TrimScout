@@ -615,8 +615,9 @@ describe("shopper-facing factory option copy", () => {
   it("tests never call live MarketCheck, Auto.dev, Ford Direct, or production comparables", async () => {
     const vinSearchTest = fs.readFileSync(path.join(import.meta.dirname, "vinSearch.test.ts"), "utf8");
     const stickerTest = fs.readFileSync(path.join(import.meta.dirname, "fordSticker.test.ts"), "utf8");
+    const dealStructureTest = fs.readFileSync(path.join(import.meta.dirname, "dealStructure.test.ts"), "utf8");
     const guardSrc = fs.readFileSync(path.join(import.meta.dirname, "testdata/blockLiveHttp.ts"), "utf8");
-    for (const src of [vinSearchTest, stickerTest]) {
+    for (const src of [vinSearchTest, stickerTest, dealStructureTest]) {
       assert.match(src, /blockLiveHttp/);
       assert.doesNotMatch(src, /getFordSticker\(/);
       assert.doesNotMatch(src, /confirmFordMustHaves\(/);
