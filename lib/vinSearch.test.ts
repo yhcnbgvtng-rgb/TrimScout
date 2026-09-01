@@ -670,6 +670,19 @@ describe("shopper-facing factory option copy", () => {
     assert.match(FORD_MUST_HAVE_HELP, /Unchecked options are ignored/);
   });
 
+  it("hides must-have factory options on the paste-two-VINs path", () => {
+    const src = fs.readFileSync(path.join(process.cwd(), "components/BiddingWizard.tsx"), "utf8");
+    const start = src.indexOf("STEP 2:");
+    const end = src.indexOf("STEP 3:");
+    const step2 = src.slice(start, end);
+    assert.match(
+      step2,
+      /findLotsMode && fordStickerStatus === "released" && fordFilterableOptions\.length > 0/
+    );
+    assert.match(step2, /FORD_OTHER_LOTS_MODE_PASTE/);
+    assert.match(src, /!findLotsMode \|\| fordStickerStatus !== "released"/);
+  });
+
   it("other-lots card VIN links the listings VDP in a new tab, or is plain text with no invented URL", () => {
     const src = fs.readFileSync(path.join(process.cwd(), "components/BiddingWizard.tsx"), "utf8");
     const start = src.indexOf("STEP 2:");
