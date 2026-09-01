@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { listActiveDealRequests } from "@/lib/dealsApi";
+import { isDealAcceptingResponses } from "@/lib/dealEngagementStore";
 import { fetchVehiclesFromBox, fetchFacetsFromBox, fetchVehicleByVinFromBox } from "@/lib/lightsailClient";
 import { calculateDistanceMiles } from "@/lib/otdCalculator";
 import type { DealerInboundRequest } from "@/lib/types";
@@ -48,6 +49,7 @@ export async function GET() {
 
   const matched: DealerInboundRequest[] = [];
   for (const req of activeRequests) {
+    if (!(await isDealAcceptingResponses(req.id))) continue;
     const brandInfo = carriedBrands.find((b) => b.brand === req.referenceBrandCode);
     if (!brandInfo) continue;
     // Direct offer (firm_offer): only the rooftop that actually has this VIN.
@@ -89,7 +91,7 @@ export async function GET() {
       targetOtdPrice: req.targetOtdPrice,
       targetDiscountPercent: req.targetDiscountPercent,
       paymentMethod: req.paymentMethod,
-      tradeIn: req.tradeIn as any,
+      tradeIn: req.tradeIn as DealerInboundRequest["tradeIn"],
       buyerComment: req.buyerComment,
       createdAt: req.createdAt,
       expiresAt: req.expiresAt,

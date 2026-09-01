@@ -1064,6 +1064,8 @@ describe("shopper-facing factory option copy", () => {
     assert.match(dealerInbox, /req\.strategy === "firm_offer"/);
     assert.match(dealsRoute, /export async function GET/);
     assert.match(dealsRoute, /listDealRequestsForBuyer/);
+    assert.match(dealsRoute, /seedDealInvites/);
+    assert.match(dealsRoute, /decorateDealRequestJson/);
   });
 
   it("shows must-have factory options after a Ford import — no hunt in the wizard", () => {

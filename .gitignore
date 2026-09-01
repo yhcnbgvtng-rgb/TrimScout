@@ -9,3 +9,4 @@ build
 .env*
 !.env.example
 data/lightsail_inventory.backup.json
+data/deal-engagement.json

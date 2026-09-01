@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { getDealRequest, listBidsForRequest, submitDealerBid, DealsApiError, type DealBidRecord } from "@/lib/dealsApi";
+import { isDealAcceptingResponses, recordDealerRespond } from "@/lib/dealEngagementStore";
 import { fetchVehiclesFromBox, fetchVehicleByVinFromBox } from "@/lib/lightsailClient";
 import { calculateDistanceMiles } from "@/lib/otdCalculator";
 
@@ -64,6 +65,9 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   if (dealRequest.status !== "active") {
     return NextResponse.json({ error: "This request is no longer accepting bids." }, { status: 409 });
   }
+  if (!(await isDealAcceptingResponses(id))) {
+    return NextResponse.json({ error: "This offer is closed for new dealer responses." }, { status: 409 });
+  }
 
   const body = await req.json().catch(() => null);
   if (!body?.matchedVin) {
@@ -125,6 +129,12 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       salesRepName: body.salesRepName,
       salesRepTitle: body.salesRepTitle,
       salesRepPhone: body.salesRepPhone,
+    });
+    await recordDealerRespond({
+      dealRequestId: id,
+      dealerName: user.dealerName,
+      dealerState: dealerState || undefined,
+      dealerCity: dealerCity || undefined,
     });
     return NextResponse.json({ bid });
   } catch (err) {

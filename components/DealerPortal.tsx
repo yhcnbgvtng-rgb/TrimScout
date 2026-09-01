@@ -91,6 +91,16 @@ export const DealerPortal: React.FC<DealerPortalProps> = ({
     if (!currentUser.dealerName) return;
     refreshInboundRequests();
     refreshMyBids();
+    if (typeof window === "undefined") return;
+    const token = new URLSearchParams(window.location.search).get("invite");
+    if (!token) return;
+    fetch("/api/dealer-invite/view", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token }),
+    }).catch(() => {
+      // Best-effort; inbox still loads.
+    });
   }, [currentUser.dealerName]);
 
   // Trade-In Photo Lightbox Modal State
@@ -140,6 +150,13 @@ export const DealerPortal: React.FC<DealerPortalProps> = ({
     setIsBidModalOpen(true);
     setBidSubmitError(null);
     setIsLoadingInventory(true);
+    fetch(`/api/deal-requests/${req.requestId}/view`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({}),
+    }).catch(() => {
+      // View tracking is best-effort; opening the offer still proceeds.
+    });
     fetch(`/api/dealer-inventory?brand=${encodeURIComponent(req.referenceBrandCode)}&make=${encodeURIComponent(req.referenceMake)}`)
       .then((res) => (res.ok ? res.json() : { vehicles: [] }))
       .then((json) => {

@@ -254,5 +254,12 @@ export function mapDealRequestJson(
     expiresAt: asString(dr.expiresAt) || existing?.expiresAt || "",
     status: dr.status === "locked" || dr.status === "expired" ? dr.status : "active",
     directOffer: Boolean(directOffer),
+    dealerEngagement: Array.isArray(dr.dealerEngagement)
+      ? (dr.dealerEngagement as BiddingRequest["dealerEngagement"])
+      : existing?.dealerEngagement,
+    offerClock:
+      dr.offerClock && typeof dr.offerClock === "object" && !Array.isArray(dr.offerClock)
+        ? (dr.offerClock as BiddingRequest["offerClock"])
+        : existing?.offerClock,
   };
 }

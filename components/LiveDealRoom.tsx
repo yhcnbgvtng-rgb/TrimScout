@@ -1,14 +1,14 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { BiddingRequest, DealerBid } from "../lib/types";
+import { BiddingRequest, DealerBid, OfferCloseClockView } from "../lib/types";
 import { formatCurrency, formatPercent } from "../lib/otdCalculator";
 import { formatDealStructures } from "../lib/dealStructure";
 import { reviewTargetFromVehicle } from "../lib/fordCompetitionUi";
 import { offerPathLabel } from "../lib/shopperDeal";
 import { DealVehiclesSummary } from "./DealVehiclesSummary";
+import { DealerEngagementChips, OfferCloseClockCard } from "./DealEngagementPanel";
 import {
-  Clock,
   ShieldCheck,
   Trophy,
   FileText,
@@ -29,18 +29,6 @@ interface LiveDealRoomProps {
   pollBids?: boolean;
 }
 
-function formatCountdown(expiresAt: string): string | null {
-  const target = new Date(expiresAt).getTime();
-  if (Number.isNaN(target)) return null;
-  const remainingMs = target - Date.now();
-  if (remainingMs <= 0) return "00h : 00m : 00s";
-  const totalSeconds = Math.floor(remainingMs / 1000);
-  const hours = Math.floor(totalSeconds / 3600);
-  const minutes = Math.floor((totalSeconds % 3600) / 60);
-  const seconds = totalSeconds % 60;
-  return `${String(hours).padStart(2, "0")}h : ${String(minutes).padStart(2, "0")}m : ${String(seconds).padStart(2, "0")}s`;
-}
-
 export const LiveDealRoom: React.FC<LiveDealRoomProps> = ({
   request,
   bids,
@@ -51,7 +39,8 @@ export const LiveDealRoom: React.FC<LiveDealRoomProps> = ({
   const [isTradeInModalOpen, setIsTradeInModalOpen] = useState(false);
   const bidsForRequest = bids.filter((b) => b.dealRequestId === request.id);
   const [liveBids, setLiveBids] = useState<DealerBid[]>(() => (pollBids ? [] : bidsForRequest));
-  const [countdownLabel, setCountdownLabel] = useState<string | null>(() => formatCountdown(request.expiresAt));
+  const [countdownClock, setCountdownClock] = useState<OfferCloseClockView | undefined>(request.offerClock);
+  const [liveDealers, setLiveDealers] = useState(request.dealerEngagement);
   const reviewTarget = reviewTargetFromVehicle(request.targetVehicle);
   const paymentLabel = formatDealStructures(request.dealStructurePreferences?.requestedStructures || []);
   const pathLabel = offerPathLabel(request.directOffer);
@@ -61,25 +50,40 @@ export const LiveDealRoom: React.FC<LiveDealRoomProps> = ({
     if (!pollBids) setLiveBids(bids.filter((b) => b.dealRequestId === request.id));
   }, [bids, pollBids, request.id]);
 
-  // Real flow: poll the box for real competing bids every ~9s.
+  useEffect(() => {
+    setCountdownClock(request.offerClock);
+    setLiveDealers(request.dealerEngagement);
+  }, [request.offerClock, request.dealerEngagement, request.id]);
+
+  // Real flow: poll bids + engagement every ~9s.
   useEffect(() => {
     if (!pollBids) return;
     let cancelled = false;
     const poll = async () => {
       try {
-        const res = await fetch(`/api/deal-requests/${request.id}/bids`);
-        if (!res.ok) return;
-        const json = await res.json();
-        if (cancelled) return;
-        const mapped: DealerBid[] = (json.bids || []).map((b: any) => ({
-          ...b,
-          dealerCity: b.dealerCity || "",
-          dealerState: b.dealerState || "",
-          distanceMiles: b.distanceMiles || 0,
-          matchedVehicleSpec: b.matchedVehicleSpec || "",
-          matchedVehicleImageUrl: b.matchedVehicleImageUrl || "",
-        }));
-        setLiveBids(mapped);
+        const [bidsRes, engagementRes] = await Promise.all([
+          fetch(`/api/deal-requests/${request.id}/bids`),
+          fetch(`/api/deal-requests/${request.id}/engagement`),
+        ]);
+        if (bidsRes.ok) {
+          const json = await bidsRes.json();
+          if (cancelled) return;
+          const mapped: DealerBid[] = (json.bids || []).map((b: DealerBid & { dealerCity?: string; dealerState?: string; distanceMiles?: number; matchedVehicleSpec?: string; matchedVehicleImageUrl?: string }) => ({
+            ...b,
+            dealerCity: b.dealerCity || "",
+            dealerState: b.dealerState || "",
+            distanceMiles: b.distanceMiles || 0,
+            matchedVehicleSpec: b.matchedVehicleSpec || "",
+            matchedVehicleImageUrl: b.matchedVehicleImageUrl || "",
+          }));
+          setLiveBids(mapped);
+        }
+        if (engagementRes.ok) {
+          const json = await engagementRes.json();
+          if (cancelled) return;
+          if (json.offerClock) setCountdownClock(json.offerClock);
+          if (Array.isArray(json.dealers)) setLiveDealers(json.dealers);
+        }
       } catch {
         // Silent — next tick retries; a transient miss isn't worth an error banner.
       }
@@ -91,17 +95,6 @@ export const LiveDealRoom: React.FC<LiveDealRoomProps> = ({
       clearInterval(interval);
     };
   }, [pollBids, request.id]);
-
-  // Real countdown, re-rendered every second from request.expiresAt — not
-  // local incrementing state. The mock demo request's expiresAt is a
-  // non-date placeholder string ("48 Hours"); formatCountdown returns null
-  // for that and we just show it as-is.
-  useEffect(() => {
-    const tick = () => setCountdownLabel(formatCountdown(request.expiresAt));
-    tick();
-    const interval = setInterval(tick, 1000);
-    return () => clearInterval(interval);
-  }, [request.expiresAt]);
 
   const sortedBids = [...liveBids].sort((a, b) => {
     if (sortBy === "discount") {
@@ -197,20 +190,18 @@ export const LiveDealRoom: React.FC<LiveDealRoomProps> = ({
             </p>
           </div>
 
-          <div className="flex items-center gap-3 rounded-xl border border-border bg-black/60 px-4 py-2.5 shadow-inner">
-            <Clock className="h-5 w-5 text-emerald-400" />
-            <div>
-              <span className="text-[10px] uppercase font-bold text-ink-faint">Time Remaining</span>
-              <div className="font-mono text-lg font-bold text-white tracking-wider">
-                {countdownLabel || request.expiresAt}
-              </div>
-            </div>
-          </div>
+          <OfferCloseClockCard
+            clock={countdownClock}
+            dealRequestId={request.id}
+            onUpdated={setCountdownClock}
+          />
         </div>
       </div>
 
       {/* Vehicles in this deal */}
       <DealVehiclesSummary request={request} compareHref="/compare" />
+
+      <DealerEngagementChips dealers={liveDealers} />
 
       {/* Trade-In Vehicle Appraisal Bar */}
       {request.tradeIn && request.tradeIn.hasTradeIn && (

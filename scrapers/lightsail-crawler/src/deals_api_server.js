@@ -313,7 +313,7 @@ async function handleCreateDealRequest(req, res) {
         reference_trim, reference_price, reference_msrp, reference_image_url, target_otd_price, target_discount_percent,
         payment_method, deal_structure_json, trade_in_json, buyer_zip, buyer_state, search_radius_miles, same_state_only,
         buyer_comment, status, expires_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', NOW() + INTERVAL 48 HOUR)`,
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', NOW() + INTERVAL 90 DAY)`,
     [
       buyerUserId,
       strategy,
@@ -370,6 +370,50 @@ async function handleListDealRequests(req, res, query) {
   const where = clauses.length ? `WHERE ${clauses.join(" AND ")}` : "";
   const [rows] = await pool.query(`SELECT * FROM deal_requests ${where} ORDER BY created_at DESC LIMIT 500`, params);
   sendJson(res, 200, { dealRequests: rows.map(publicDealRequest) });
+}
+
+async function handleExpireDealRequest(req, res, id) {
+  const pool = getPool();
+  const [rows] = await pool.query("SELECT * FROM deal_requests WHERE id = ?", [id]);
+  if (rows.length === 0) return sendJson(res, 404, { error: "Deal request not found" });
+  if (rows[0].status === "active") {
+    await pool.query("UPDATE deal_requests SET status = 'expired' WHERE id = ? AND status = 'active'", [id]);
+  }
+  const [updated] = await pool.query("SELECT * FROM deal_requests WHERE id = ?", [id]);
+  sendJson(res, 200, { dealRequest: publicDealRequest(updated[0]) });
+}
+
+const ENGAGEMENT_PATH = path.resolve(process.cwd(), "data", "deal-engagement.json");
+
+function loadEngagementBlob() {
+  try {
+    const parsed = JSON.parse(fs.readFileSync(ENGAGEMENT_PATH, "utf8"));
+    return {
+      tokens: parsed?.tokens && typeof parsed.tokens === "object" ? parsed.tokens : {},
+      deals: parsed?.deals && typeof parsed.deals === "object" ? parsed.deals : {},
+    };
+  } catch {
+    return { tokens: {}, deals: {} };
+  }
+}
+
+function saveEngagementBlob(data) {
+  fs.mkdirSync(path.dirname(ENGAGEMENT_PATH), { recursive: true });
+  fs.writeFileSync(ENGAGEMENT_PATH, JSON.stringify(data));
+}
+
+async function handleGetEngagementBlob(req, res) {
+  sendJson(res, 200, loadEngagementBlob());
+}
+
+async function handlePutEngagementBlob(req, res) {
+  const body = await readBody(req);
+  if (!body || typeof body !== "object") return badRequest(res, "Invalid engagement payload");
+  saveEngagementBlob({
+    tokens: body.tokens && typeof body.tokens === "object" ? body.tokens : {},
+    deals: body.deals && typeof body.deals === "object" ? body.deals : {},
+  });
+  sendJson(res, 200, { ok: true });
 }
 
 // ---------------------------------------------------------------------
@@ -612,6 +656,17 @@ const server = http.createServer((req, res) => {
   if (req.method === "GET" && reqIdMatch) {
     return run(handleGetDealRequest, Number(reqIdMatch[1]));
   }
+  const expireMatch = pathname.match(/^\/api\/deal-requests\/(\d+)\/expire$/);
+  if (req.method === "POST" && expireMatch) {
+    return run(handleExpireDealRequest, Number(expireMatch[1]));
+  }
+
+  if (req.method === "GET" && pathname === "/api/deal-engagement") {
+    return run(handleGetEngagementBlob);
+  }
+  if (req.method === "PUT" && pathname === "/api/deal-engagement") {
+    return run(handlePutEngagementBlob);
+  }
 
   // dealer-scoped
   if (req.method === "GET" && pathname === "/api/dealer-bids") {
@@ -632,6 +687,9 @@ server.listen(PORT, () => {
   console.log(`  POST /api/deal-requests`);
   console.log(`  GET  /api/deal-requests?status=&buyerUserId=`);
   console.log(`  GET  /api/deal-requests/:id`);
+  console.log(`  POST /api/deal-requests/:id/expire`);
+  console.log(`  GET  /api/deal-engagement`);
+  console.log(`  PUT  /api/deal-engagement`);
   console.log(`  POST /api/deal-requests/:id/bids`);
   console.log(`  GET  /api/deal-requests/:id/bids`);
   console.log(`  GET  /api/deal-requests/:id/bids/:bidId`);

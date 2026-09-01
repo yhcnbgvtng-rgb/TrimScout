@@ -1,12 +1,13 @@
 "use client";
 
 import React, { useState } from "react";
-import { UserProfile, BiddingRequest, DealerBid, LockedDeal, Vehicle } from "../lib/types";
+import { UserProfile, BiddingRequest, DealerBid, LockedDeal, Vehicle, OfferCloseClockView } from "../lib/types";
 import { formatCurrency, formatPercent } from "../lib/otdCalculator";
 import { formatDealStructures } from "../lib/dealStructure";
 import { reviewTargetFromVehicle } from "../lib/fordCompetitionUi";
 import { offerPathLabel } from "../lib/shopperDeal";
 import { DealVehiclesSummary } from "./DealVehiclesSummary";
+import { DealerEngagementChips, OfferCloseClockCard } from "./DealEngagementPanel";
 import {
   ShieldCheck,
   Zap,
@@ -54,8 +55,9 @@ export const DealTrackerDashboard: React.FC<DealTrackerDashboardProps> = ({
   onRemoveSavedVehicle,
 }) => {
   const [activeTab, setActiveTab] = useState<"active_bids" | "locked_deals" | "saved_cars" | "history">("active_bids");
+  const [clockById, setClockById] = useState<Record<string, OfferCloseClockView>>({});
 
-  const activeRequests = requests.filter((r) => r.status === "active");
+  const activeRequests = requests.filter((r) => r.status === "active" || r.status === "expired");
   const topBid = bids.length > 0 ? bids[0] : null;
 
   return (
@@ -300,21 +302,20 @@ export const DealTrackerDashboard: React.FC<DealTrackerDashboardProps> = ({
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-3">
-                    <div className="text-right">
-                      <div className="text-[10px] uppercase font-bold text-ink-faint flex items-center gap-1 justify-end">
-                        <Clock className="h-3 w-3 text-amber-400" /> Auction Countdown
-                      </div>
-                      <div className="font-mono font-bold text-amber-400 text-xs">
-                        {req.expiresAt} Remaining
-                      </div>
-                    </div>
+                  <div className="flex items-center gap-3 w-full sm:w-auto">
+                    <OfferCloseClockCard
+                      clock={clockById[req.id] || req.offerClock}
+                      dealRequestId={req.id}
+                      onUpdated={(next) => setClockById((prev) => ({ ...prev, [req.id]: next }))}
+                    />
                   </div>
                 </div>
 
                 {/* Body Content */}
                 <div className="p-6 space-y-6">
                   <DealVehiclesSummary request={req} compareHref="/compare" />
+
+                  <DealerEngagementChips dealers={req.dealerEngagement} />
 
                   {/* Top Bid Announcement Card */}
                   {(() => {

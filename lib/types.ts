@@ -151,6 +151,32 @@ export interface BiddingRequest {
   directOffer?: boolean;
   /** Other lots riding in this request (0–2). Never padded with invented inventory. */
   otherLots?: Vehicle[];
+  /** Per-dealer click / view / respond — honest empty until a real event. */
+  dealerEngagement?: DealerEngagementStatus[];
+  /** 48h running-time close clock; idle until the first dealer views. */
+  offerClock?: OfferCloseClockView;
+}
+
+export interface DealerEngagementStatus {
+  dealerKey: string;
+  dealerName: string;
+  dealerState: string;
+  clicked: boolean;
+  viewed: boolean;
+  responded: boolean;
+  knownRooftop: boolean;
+}
+
+export interface OfferCloseClockView {
+  status: "idle" | "running" | "paused" | "closed";
+  remainingMs: number;
+  allottedRunningMs: number;
+  timeZone: string;
+  startedAt: string | null;
+  closedAt: string | null;
+  paused: boolean;
+  pauseReason: "weekend" | "holiday" | "weekend_and_holiday" | null;
+  resumeAt: string | null;
 }
 
 // A dealer's inbox view of one real active buyer request — masked (per the
