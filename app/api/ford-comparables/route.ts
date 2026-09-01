@@ -34,7 +34,7 @@ export async function POST(request: Request) {
       matches: [],
       dropped: [],
       hasListingsKey: hasListingsApiKey(),
-      note: "Enter a 5-digit ZIP and a search radius in miles to see two sticker-matched lots in range.",
+      note: "Enter a 5-digit ZIP and a search radius in miles to see two matching lots in range.",
     });
   }
 

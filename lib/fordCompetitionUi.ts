@@ -1,22 +1,43 @@
 /**
- * Copy for the two Increase Competition slots when they are not filled.
+ * Shopper-facing copy for other lots in the offer and must-have filters.
  * Kept free of listings/sticker I/O so the wizard can import it on the client.
  */
 
 export const FORD_COMPETITION_NEED_LOCATION =
   "Enter ZIP and radius above to fill these two slots with the nearest matching lots from two dealers when possible.";
 
-export const FORD_COMPETITION_LOADING = "Reading Ford stickers…";
+export const FORD_COMPETITION_LOADING = "Finding matching lots…";
 
 export const FORD_MUST_HAVE_HEADING = "Must-have factory options";
 
 export const FORD_MUST_HAVE_HELP =
-  "Every box starts unchecked. Comparables must have every ticked line — including color if you tick it.";
+  "Check only the options you require. Unchecked options are ignored — TrimScout will not search for them.";
 
 export const FORD_COMPETITION_FACTORY_OPTIONS = "Factory options";
 
 export const FORD_COMPETITION_FACTORY_OPTIONS_UNAVAILABLE =
   "Factory options could not be read for this VIN.";
+
+export const FORD_OTHER_LOTS_HEADING = "Other lots in this offer";
+
+export const FORD_OTHER_LOTS_HELP =
+  "These two vehicles ride with your favorite in the same request so more dealers can respond.";
+
+export const FORD_OTHER_LOTS_HELP_FIND =
+  "We'll suggest two lots from different dealers after ZIP and radius. You can still paste your own.";
+
+export const FORD_OTHER_LOTS_HELP_PASTE =
+  "Paste two VINs or listing links. We will not search for other lots.";
+
+export const FORD_OTHER_LOTS_MODE_FIND = "Find matching lots for me";
+
+export const FORD_OTHER_LOTS_MODE_PASTE = "I already have two vehicles to include";
+
+export const FORD_BUILD_SHEET_LINK = "Factory build";
+
+export const FORD_EMPTY_LOTS = "No matching lots in range.";
+
+export type OtherLotsMode = "find" | "paste";
 
 export interface FactoryOptionDisplay {
   code: string | null;
@@ -62,7 +83,7 @@ export function fordCompetitionEmptyCopy(opts: {
   if (opts.error) {
     return { kind: "error", message: opts.error };
   }
-  const message = (opts.note || "").trim() || "No sticker-confirmed lots in range.";
+  const message = (opts.note || "").trim() || FORD_EMPTY_LOTS;
   return { kind: "empty", message };
 }
 
@@ -80,6 +101,12 @@ export function advertisedOrStickerPrice(
   return { amount: null, source: "unconfirmed" };
 }
 
+/** Shopper-facing price source. Internal `sticker` facts display as MSRP. */
+export function shopperPriceSourceLabel(source: "listing" | "sticker" | "unconfirmed"): string {
+  if (source === "sticker") return "MSRP";
+  return source;
+}
+
 export function formatPriceAmount(amount: number | null | undefined): string {
   if (amount == null || amount <= 0) return "unconfirmed";
   return new Intl.NumberFormat("en-US", {
@@ -91,4 +118,12 @@ export function formatPriceAmount(amount: number | null | undefined): string {
 
 export function autoFillCompetitionSlots<T>(matches: T[]): [T | null, T | null] {
   return [matches[0] ?? null, matches[1] ?? null];
+}
+
+/** Listing VDP only — never invent a URL, never Ford Direct window-sticker PDFs. */
+export function listingVdpHref(url: string | null | undefined): string | null {
+  const trimmed = (url || "").trim();
+  if (!/^https?:\/\//i.test(trimmed)) return null;
+  if (/windowsticker\.forddirect\.com|forddirect\.com\/windowsticker/i.test(trimmed)) return null;
+  return trimmed;
 }
