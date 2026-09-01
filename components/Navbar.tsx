@@ -24,8 +24,8 @@ import {
 interface NavbarProps {
   user: UserProfile | null;
   activeDealCount: number;
-  currentView: "lightsail_analytics" | "bid_program" | "deal_room" | "dealer_portal" | "dealer_analytics" | "track_deals" | "signup" | "admin" | "search";
-  onToggleView: (view: "lightsail_analytics" | "bid_program" | "deal_room" | "dealer_portal" | "dealer_analytics" | "track_deals" | "signup" | "admin" | "search") => void;
+  currentView: "bid_program" | "deal_room" | "dealer_portal" | "dealer_analytics" | "track_deals" | "signup" | "admin";
+  onToggleView: (view: "bid_program" | "deal_room" | "dealer_portal" | "dealer_analytics" | "track_deals" | "signup" | "admin") => void;
   onOpenAuthModal: () => void;
   onLogout: () => void;
 }
@@ -54,11 +54,10 @@ export const Navbar: React.FC<NavbarProps> = ({
   }, []);
 
   const navLinks: {
-    id: "lightsail_analytics" | "dealer_analytics" | "bid_program";
+    id: "dealer_analytics" | "bid_program";
     label: string;
     badge?: string | number;
   }[] = [
-    { id: "lightsail_analytics", label: "Market Intelligence", badge: "LIVE" },
     { id: "dealer_analytics", label: "AI Sales Analytics" },
     { id: "bid_program", label: "How It Works" },
   ];
@@ -69,7 +68,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         {/* Brand Logo */}
         <div
           className="flex items-center gap-2.5 cursor-pointer select-none group"
-          onClick={() => onToggleView("lightsail_analytics")}
+          onClick={() => onToggleView("bid_program")}
         >
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500 text-black shadow-sm group-hover:scale-105 transition-transform">
             <Compass className="h-4.5 w-4.5 stroke-[2.5]" />
