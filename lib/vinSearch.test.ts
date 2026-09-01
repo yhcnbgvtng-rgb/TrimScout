@@ -26,6 +26,7 @@ import {
   fordCompetitionEmptyCopy,
   formatFactoryOptionLine,
   formatPriceAmount,
+  listingVdpHref,
   shopperPriceSourceLabel,
 } from "./fordCompetitionUi";
 import { resolveListingsProvider } from "./listingsProvider";
@@ -612,6 +613,13 @@ describe("shopper-facing factory option copy", () => {
     assert.equal(shopperPriceSourceLabel("sticker"), "MSRP");
     assert.equal(shopperPriceSourceLabel("listing"), "listing");
     assert.equal(shopperPriceSourceLabel("unconfirmed"), "unconfirmed");
+    assert.equal(listingVdpHref("https://www.example.com/ford/vdp-a"), "https://www.example.com/ford/vdp-a");
+    assert.equal(listingVdpHref("  https://dealer.example/inventory?vin=1FTFW3LD7TFB08996  "), "https://dealer.example/inventory?vin=1FTFW3LD7TFB08996");
+    assert.equal(listingVdpHref(null), null);
+    assert.equal(listingVdpHref(""), null);
+    assert.equal(listingVdpHref("1FTFW3LD7TFB08996"), null);
+    assert.equal(listingVdpHref("https://www.windowsticker.forddirect.com/windowsticker.pdf?vin=1FTFW3LD7TFB08996"), null);
+    assert.equal(listingVdpHref("https://www.windowsticker.forddirect.com/windowsticker.pdf"), null);
     assert.equal(
       formatFactoryOptionLine({ code: "800A", description: "EQUIPMENT GROUP 800A" }),
       "EQUIPMENT GROUP 800A"
@@ -660,6 +668,23 @@ describe("shopper-facing factory option copy", () => {
     assert.match(src, /findLotsMode \|\| fordStickerStatus !== "released"/);
     assert.match(src, /\/api\/ford-comparables/);
     assert.match(FORD_MUST_HAVE_HELP, /Unchecked options are ignored/);
+  });
+
+  it("other-lots card VIN links the listings VDP in a new tab, or is plain text with no invented URL", () => {
+    const src = fs.readFileSync(path.join(process.cwd(), "components/BiddingWizard.tsx"), "utf8");
+    const start = src.indexOf("STEP 2:");
+    const end = src.indexOf("STEP 3:");
+    const step2 = src.slice(start, end);
+    assert.match(step2, /listingVdpHref/);
+    assert.match(step2, /matchedVehicle\.vin/);
+    assert.match(step2, /target="_blank"/);
+    assert.match(step2, /rel="noopener noreferrer"/);
+    assert.doesNotMatch(step2, /oemBuildSheetUrl/);
+    assert.doesNotMatch(step2, /windowsticker\.forddirect/);
+    const battlefield = listingVdpHref(null);
+    const shorkey = listingVdpHref("https://www.example.com/ford/vdp-a");
+    assert.equal(battlefield, null);
+    assert.equal(shorkey, "https://www.example.com/ford/vdp-a");
   });
 
   it("shopper-facing hunt notes never say sticker", () => {

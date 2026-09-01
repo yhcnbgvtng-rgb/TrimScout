@@ -119,3 +119,11 @@ export function formatPriceAmount(amount: number | null | undefined): string {
 export function autoFillCompetitionSlots<T>(matches: T[]): [T | null, T | null] {
   return [matches[0] ?? null, matches[1] ?? null];
 }
+
+/** Listing VDP only — never invent a URL, never Ford Direct window-sticker PDFs. */
+export function listingVdpHref(url: string | null | undefined): string | null {
+  const trimmed = (url || "").trim();
+  if (!/^https?:\/\//i.test(trimmed)) return null;
+  if (/windowsticker\.forddirect\.com|forddirect\.com\/windowsticker/i.test(trimmed)) return null;
+  return trimmed;
+}

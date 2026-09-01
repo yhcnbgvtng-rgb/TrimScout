@@ -32,6 +32,7 @@ import {
   fordCompetitionEmptyCopy,
   formatFactoryOptionLine,
   formatPriceAmount,
+  listingVdpHref,
   shopperPriceSourceLabel,
   type FactoryOptionDisplay,
   type OtherLotsMode,
@@ -1442,7 +1443,25 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                                             return `${formatPriceAmount(shown.amount)} ${shopperPriceSourceLabel(shown.source)}`;
                                           })()}
                                           {" · "}
-                                          <span className="font-mono">{matchedVehicle.vin}</span>
+                                          {(() => {
+                                            const vdpHref = listingVdpHref(
+                                              matchedVehicle.dealerUrl ||
+                                                suggestion?.dealerUrl ||
+                                                secondaryUrls[idx]
+                                            );
+                                            return vdpHref ? (
+                                              <a
+                                                href={vdpHref}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="font-mono text-emerald-400 hover:underline"
+                                              >
+                                                {matchedVehicle.vin}
+                                              </a>
+                                            ) : (
+                                              <span className="font-mono">{matchedVehicle.vin}</span>
+                                            );
+                                          })()}
                                         </span>
                                         <CompetitionFactoryOptions
                                           suggestion={suggestion}
