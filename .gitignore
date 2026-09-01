@@ -7,4 +7,5 @@ build
 .env*.local
 .vercel
 .env*
+!.env.example
 data/lightsail_inventory.backup.json

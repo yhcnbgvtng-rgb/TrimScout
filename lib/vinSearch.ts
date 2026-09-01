@@ -1,10 +1,11 @@
 /**
  * Coarse similar-car search + Ford-sticker must-have filter.
  *
- * Listings APIs (Auto.dev / MarketCheck) can filter year/make/model/trim/
- * engine/color/zip. They cannot filter Ultimate / BlueCruise / keypad.
- * We take the first 25–50 candidate VINs, fetch each Ford sticker, and
- * DROP any VIN missing a must-have option line.
+ * Listings APIs (MarketCheck preferred, Auto.dev fallback) can filter
+ * year/make/model/zip/radius. This hunt does not send a trim filter —
+ * they cannot filter Ultimate / BlueCruise / keypad anyway. We take the
+ * first 25–50 candidate VINs, fetch each Ford sticker, and DROP any VIN
+ * missing a must-have option line.
  *
  * Without a listings API key, demo comparables use bundled sticker fixtures
  * for the known Explorer Tremor example VINs (no live PDF round-trip, so the
@@ -28,8 +29,15 @@ import {
   stickerHasMustHave,
   type FordSticker,
 } from "./fordSticker";
-import { serverSecret } from "./serverSecret";
+import {
+  hasListingsApiKey,
+  resolveListingsProvider,
+  type ListingsProvider,
+} from "./listingsProvider";
 import type { Vehicle } from "./types";
+
+export { hasListingsApiKey, resolveListingsProvider };
+export type { ListingsProvider };
 
 export const MAX_STICKER_CANDIDATES = 50;
 export const MAX_FORD_RECS = 2;
@@ -93,7 +101,6 @@ export function composeEmptyHuntNote(opts: {
   return parts.join(" ");
 }
 
-export type ListingsProvider = "auto.dev" | "marketcheck" | "demo";
 export type PriceFact = "listing" | "sticker" | "unconfirmed";
 
 export interface ListingCandidate {
@@ -316,17 +323,14 @@ function asFinitePrice(value: unknown): number | null {
   return null;
 }
 
-function listingsProvider(): { provider: ListingsProvider; key: string | null } {
-  const autoDev = serverSecret("AUTO_DEV_API_KEY");
-  if (autoDev) return { provider: "auto.dev", key: autoDev };
-  const marketcheck = serverSecret("MARKETCHECK_API_KEY");
-  if (marketcheck) return { provider: "marketcheck", key: marketcheck };
-  return { provider: "demo", key: null };
-}
-
-/** True iff a listings API key is configured. Never returns key material. */
-export function hasListingsApiKey(): boolean {
-  return Boolean(serverSecret("AUTO_DEV_API_KEY") || serverSecret("MARKETCHECK_API_KEY"));
+/** MarketCheck dealer.latitude / longitude are documented as strings. */
+function asFiniteCoord(value: unknown): number | undefined {
+  if (typeof value === "number" && Number.isFinite(value)) return value;
+  if (typeof value === "string" && value.trim()) {
+    const n = Number.parseFloat(value);
+    if (Number.isFinite(n)) return n;
+  }
+  return undefined;
 }
 
 function huntResult(partial: Omit<FordSearchResult, "hasListingsKey">): FordSearchResult {
@@ -346,10 +350,45 @@ function parseRetryAfterSeconds(header: string | null): number | null {
   return Math.max(0, Math.ceil((when - Date.now()) / 1000));
 }
 
-function listingsHttpFailureNote(label: string, status: number, retryAfter: string | null): string {
-  const base = `${label} listings HTTP ${status}`;
-  if (status !== 429) return base;
-  const seconds = parseRetryAfterSeconds(retryAfter);
+function sanitizeListingsNote(raw: string): string {
+  return raw
+    .replace(/Bearer\s+\S+/gi, "Bearer [redacted]")
+    .replace(/api[_-]?key[=:]\s*\S+/gi, "api_key=[redacted]")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+/** Pull MarketCheck `{ code, message }` / `{ message }` (or Auto.dev `error`) out of an error body. */
+function providerMessageFromBody(bodyText: string): string | null {
+  const trimmed = bodyText.trim();
+  if (!trimmed) return null;
+  try {
+    const parsed = JSON.parse(trimmed) as Record<string, unknown>;
+    for (const key of ["message", "error", "detail"]) {
+      const value = parsed[key];
+      if (typeof value === "string" && value.trim()) {
+        return sanitizeListingsNote(value).slice(0, 160);
+      }
+    }
+  } catch {
+    if (trimmed.startsWith("<")) return null;
+    return sanitizeListingsNote(trimmed).slice(0, 160);
+  }
+  return null;
+}
+
+async function listingsHttpFailureNote(label: string, res: Response): Promise<string> {
+  let bodyText = "";
+  try {
+    bodyText = await res.text();
+  } catch {
+    bodyText = "";
+  }
+  const providerMessage = providerMessageFromBody(bodyText);
+  let base = `${label} listings HTTP ${res.status}`;
+  if (providerMessage) base += `: ${providerMessage}`;
+  if (res.status !== 429) return base;
+  const seconds = parseRetryAfterSeconds(res.headers.get("Retry-After"));
   if (seconds != null) return `${base}. Rate limited; retry after ${seconds} seconds.`;
   return `${base}. Rate limited; try again later.`;
 }
@@ -357,7 +396,7 @@ function listingsHttpFailureNote(label: string, status: number, retryAfter: stri
 /** Short error for the hunt note. Never includes Authorization or key material. */
 function shortListingsError(err: unknown, label: string): string {
   const raw = err instanceof Error ? err.message : "unknown error";
-  const cleaned = raw.replace(/Bearer\s+\S+/gi, "Bearer [redacted]").replace(/\s+/g, " ").trim().slice(0, 180);
+  const cleaned = sanitizeListingsNote(raw).slice(0, 180);
   if (/HTTP \d+/.test(cleaned) || /parse error/i.test(cleaned) || /rate limited/i.test(cleaned)) {
     return cleaned;
   }
@@ -393,7 +432,7 @@ async function searchAutoDev(
     cache: "no-store",
   });
   if (!res.ok) {
-    throw new Error(listingsHttpFailureNote("Auto.dev", res.status, res.headers.get("Retry-After")));
+    throw new Error(await listingsHttpFailureNote("Auto.dev", res));
   }
   let payload: unknown;
   try {
@@ -436,31 +475,41 @@ async function searchAutoDev(
   return out;
 }
 
+/**
+ * One GET /v2/search/car/active per hunt.
+ * Do not persist this response — MarketCheck developer ToS (v2) forbids
+ * caching listings beyond what is needed to serve a single end-user request.
+ * Transient in-memory data for this request is fine. Ford sticker PDFs are
+ * fetched from Ford Direct and may still be cached.
+ */
 async function searchMarketCheck(
   key: string,
   q: {
     year?: number;
     make: string;
     model?: string;
-    trim?: string;
     zip: string;
     radiusMiles: number;
   }
 ): Promise<ListingCandidate[]> {
   const url = new URL("https://api.marketcheck.com/v2/search/car/active");
   url.searchParams.set("api_key", key);
+  url.searchParams.set("append_api_key", "false");
   if (q.year) url.searchParams.set("year", String(q.year));
   url.searchParams.set("make", q.make);
   if (q.model) url.searchParams.set("model", q.model);
-  if (q.trim) url.searchParams.set("trim", q.trim);
+  // Coarse hunt: no trim. Ford sticker matching is downstream.
   url.searchParams.set("car_type", "new");
   url.searchParams.set("zip", q.zip);
+  // Pass the user radius as-is. Do not clamp to the free-tier 100-mile cap —
+  // the owner wants MarketCheck's own rejection (HTTP + message) if the plan
+  // cannot serve a 500-mile hunt.
   url.searchParams.set("radius", String(q.radiusMiles));
   url.searchParams.set("rows", "50");
 
   const res = await fetch(url, { headers: { Accept: "application/json" }, cache: "no-store" });
   if (!res.ok) {
-    throw new Error(listingsHttpFailureNote("MarketCheck", res.status, res.headers.get("Retry-After")));
+    throw new Error(await listingsHttpFailureNote("MarketCheck", res));
   }
   let payload: unknown;
   try {
@@ -477,24 +526,32 @@ async function searchMarketCheck(
   const out: ListingCandidate[] = [];
   for (const row of rows) {
     const r = row as Record<string, unknown>;
-    const dealer = (r.dealer as Record<string, unknown>) || {};
-    const build = (r.build as Record<string, unknown>) || {};
+    const dealer =
+      r.dealer && typeof r.dealer === "object" ? (r.dealer as Record<string, unknown>) : {};
+    const build =
+      r.build && typeof r.build === "object" ? (r.build as Record<string, unknown>) : {};
     const vin = String(r.vin || "").toUpperCase();
     if (vin.length !== 17) continue;
+    const year =
+      typeof build.year === "number"
+        ? build.year
+        : typeof r.year === "number"
+          ? r.year
+          : undefined;
     out.push({
       vin,
-      year: typeof r.year === "number" ? r.year : typeof build.year === "number" ? build.year : undefined,
-      make: String(r.make || build.make || q.make),
-      model: String(r.model || build.model || q.model),
-      trim: String(r.trim || build.trim || q.trim || ""),
+      year,
+      make: String(build.make || r.make || q.make),
+      model: String(build.model || r.model || q.model || ""),
+      trim: String(build.trim || r.trim || ""),
       dealerName: String(dealer.name || "Unknown dealer"),
       city: String(dealer.city || ""),
       state: String(dealer.state || ""),
       zip: dealer.zip ? String(dealer.zip) : undefined,
       dealerUrl: typeof r.vdp_url === "string" ? r.vdp_url : null,
       listingPrice: asFinitePrice(r.price),
-      lat: typeof dealer.latitude === "number" ? dealer.latitude : undefined,
-      lng: typeof dealer.longitude === "number" ? dealer.longitude : undefined,
+      lat: asFiniteCoord(dealer.latitude),
+      lng: asFiniteCoord(dealer.longitude),
       exteriorColor: typeof r.exterior_color === "string" ? r.exterior_color : undefined,
     });
   }
@@ -514,7 +571,7 @@ export async function searchCoarseListings(q: {
   note: string;
   listingsError?: boolean;
 }> {
-  const { provider, key } = listingsProvider();
+  const { provider, key } = resolveListingsProvider();
   if (provider === "auto.dev" && key) {
     try {
       const listings = await searchAutoDev(key, q);
@@ -650,7 +707,6 @@ export async function findSimilarFordVehicles(opts: {
       year: subject.year && subject.year >= 1990 && subject.year <= 2035 ? subject.year : undefined,
       make: subject.make || "Ford",
       model: subject.model,
-      trim: subject.trim,
       zip,
       radiusMiles,
     });
