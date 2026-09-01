@@ -37,6 +37,8 @@ import {
   FORD_LISTINGS_LOAD_FAILED,
   FORD_LISTINGS_RADIUS_CAP,
   FORD_LISTINGS_RATE_LIMIT,
+  listingDealerId,
+  selectCompetitionSlots,
 } from "./fordCompetitionUi";
 import {
   hasListingsApiKey,
@@ -45,6 +47,13 @@ import {
 } from "./listingsProvider";
 import type { Vehicle } from "./types";
 
+export {
+  dealerIdentity,
+  listingDealerId,
+  sameRooftop,
+  selectCompetitionSlots,
+} from "./fordCompetitionUi";
+export type { CompetitionLotIdentity } from "./fordCompetitionUi";
 export { hasListingsApiKey, resolveListingsProvider };
 export type { ListingsProvider };
 
@@ -348,53 +357,6 @@ function asFiniteCoord(value: unknown): number | undefined {
     if (Number.isFinite(n)) return n;
   }
   return undefined;
-}
-
-/** Stable listings-provider dealer id when present (MarketCheck `dealer.id`, etc.). */
-export function listingDealerId(...candidates: unknown[]): string | undefined {
-  for (const value of candidates) {
-    if (typeof value === "number" && Number.isFinite(value)) return String(value);
-    if (typeof value === "string" && value.trim()) return value.trim();
-  }
-  return undefined;
-}
-
-function normalizeDealerToken(value?: string): string {
-  return (value || "").toLowerCase().replace(/[^a-z0-9]+/g, "");
-}
-
-/**
- * Stable rooftop identity for Increase Competition.
- * Prefer the listings dealer id; otherwise normalized name + city/state/zip.
- */
-export function dealerIdentity(lot: {
-  dealerId?: string | null;
-  dealerName?: string;
-  city?: string;
-  state?: string;
-  zip?: string;
-}): string {
-  const id = listingDealerId(lot.dealerId);
-  if (id) return `id:${id}`;
-  const name = normalizeDealerToken(lot.dealerName);
-  const rooftop = [lot.city, lot.state, lot.zip].map(normalizeDealerToken).filter(Boolean).join("|");
-  return `name:${name}|${rooftop}`;
-}
-
-/**
- * Slot 1 = nearest sticker-matched lot. Slot 2 = nearest lot from a different
- * dealer when one exists; otherwise the next-nearest lot from the same rooftop.
- * Does not invent dealers or pad with demo inventory.
- */
-export function selectCompetitionSlots<T extends Parameters<typeof dealerIdentity>[0]>(
-  rankedMatches: T[]
-): T[] {
-  if (rankedMatches.length <= 1) return rankedMatches.slice();
-  const first = rankedMatches[0];
-  const firstDealer = dealerIdentity(first);
-  const other = rankedMatches.find((lot, index) => index > 0 && dealerIdentity(lot) !== firstDealer);
-  if (other) return [first, other];
-  return rankedMatches.slice(0, MAX_FORD_RECS);
 }
 
 function huntResult(partial: Omit<FordSearchResult, "hasListingsKey">): FordSearchResult {

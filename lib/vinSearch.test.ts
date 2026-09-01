@@ -47,6 +47,7 @@ import {
   isUsableHuntLocation,
   listingDealerId,
   rankFordMatches,
+  sameRooftop,
   searchCoarseListings,
   selectCompetitionSlots,
   stickerFromDemoFixture,
@@ -253,16 +254,66 @@ describe("vinSearch rank + must-have filter", () => {
     );
   });
 
-  it("keeps two lots from the only dealer instead of inventing a second rooftop", () => {
+  it("returns one card when the only rooftop has two twins — does not invent a second dealer", () => {
     const a1 = { ...baseCard("A1"), dealerId: "23", dealerName: "Route 23 Auto Mall Ford", distanceMiles: 4 };
     const a2 = { ...baseCard("A2"), dealerId: "23", dealerName: "Route 23 Auto Mall Ford", distanceMiles: 5 };
     assert.deepEqual(
       selectCompetitionSlots(rankFordMatches([a2, a1])).map((m) => m.vin),
-      ["A1", "A2"]
+      ["A1"]
     );
+    assert.equal(autoFillCompetitionSlots(rankFordMatches([a2, a1]))[1], null);
     assert.deepEqual(
       selectCompetitionSlots([{ ...a1 }]).map((m) => m.vin),
       ["A1"]
+    );
+  });
+
+  it("treats different listings dealerIds with the same name and city as one rooftop", () => {
+    const a1 = {
+      ...baseCard("A1"),
+      dealerId: "123",
+      dealerName: "Route 23 Auto Mall Ford",
+      city: "Butler",
+      state: "NJ",
+      zip: "07405",
+      distanceMiles: 4,
+    };
+    const a2 = {
+      ...baseCard("A2"),
+      dealerId: "456",
+      dealerName: "Route 23 Auto Mall Ford",
+      city: "Butler",
+      state: "NJ",
+      zip: "07405",
+      distanceMiles: 5,
+    };
+    const b1 = {
+      ...baseCard("B1"),
+      dealerId: "88",
+      dealerName: "Mahwah Ford",
+      city: "Mahwah",
+      state: "NJ",
+      zip: "07430",
+      distanceMiles: 18,
+    };
+    assert.equal(dealerIdentity(a1), dealerIdentity(a2));
+    assert.ok(sameRooftop(a1, a2));
+    assert.notEqual(dealerIdentity(a1), dealerIdentity(b1));
+    assert.equal(sameRooftop(a1, b1), false);
+    assert.deepEqual(
+      selectCompetitionSlots(rankFordMatches([a1, a2, b1])).map((m) => m.vin),
+      ["A1", "B1"],
+      "slot 2 must skip the Route 23 twin even when listings dealerIds differ"
+    );
+    assert.deepEqual(
+      autoFillCompetitionSlots(rankFordMatches([a1, a2, b1])).map((m) => m?.vin),
+      ["A1", "B1"],
+      "wizard auto-fill uses API rooftop slots, not first-two of a longer same-lot list"
+    );
+    assert.deepEqual(
+      selectCompetitionSlots(rankFordMatches([a1, a2])).map((m) => m.vin),
+      ["A1"],
+      "no other rooftop → one match only; leave slot 2 empty"
     );
   });
 
@@ -270,10 +321,33 @@ describe("vinSearch rank + must-have filter", () => {
     const a1 = { ...baseCard("A1"), dealerId: "23", dealerName: "Route 23 Auto Mall Ford", distanceMiles: 4 };
     const a2 = { ...baseCard("A2"), dealerId: "23", dealerName: "Route 23 Ford", distanceMiles: 5 };
     const b1 = { ...baseCard("B1"), dealerId: "88", dealerName: "Mahwah Ford", distanceMiles: 18 };
-    assert.equal(dealerIdentity(a1), dealerIdentity(a2));
-    assert.notEqual(dealerIdentity(a1), dealerIdentity(b1));
+    assert.ok(sameRooftop(a1, a2), "matching dealerId groups one store even if names differ");
+    assert.equal(sameRooftop(a1, b1), false);
     assert.deepEqual(
       selectCompetitionSlots(rankFordMatches([a1, a2, b1])).map((m) => m.vin),
+      ["A1", "B1"]
+    );
+  });
+
+  it("two different rooftops fill both slots with different identities", () => {
+    const a1 = {
+      ...baseCard("A1"),
+      dealerId: "23",
+      dealerName: "Route 23 Auto Mall Ford",
+      city: "Butler",
+      distanceMiles: 4,
+    };
+    const b1 = {
+      ...baseCard("B1"),
+      dealerId: "88",
+      dealerName: "All American Ford of Paramus",
+      city: "Paramus",
+      distanceMiles: 12,
+    };
+    assert.equal(sameRooftop(a1, b1), false);
+    assert.notEqual(dealerIdentity(a1), dealerIdentity(b1));
+    assert.deepEqual(
+      selectCompetitionSlots(rankFordMatches([a1, b1])).map((m) => m.vin),
       ["A1", "B1"]
     );
   });
@@ -311,6 +385,34 @@ describe("vinSearch rank + must-have filter", () => {
     );
     assert.equal(listingDealerId(1018922, "  "), "1018922");
     assert.equal(listingDealerId(undefined, "", "mc-9"), "mc-9");
+  });
+
+  it("same name and listing website host are one rooftop when city is missing", () => {
+    const a1 = {
+      ...baseCard("A1"),
+      dealerId: "123",
+      dealerName: "Route 23 Auto Mall Ford",
+      city: "",
+      state: "",
+      zip: "",
+      dealerUrl: "https://www.route23automall.com/inventory/a",
+      distanceMiles: 4,
+    };
+    const a2 = {
+      ...baseCard("A2"),
+      dealerId: "456",
+      dealerName: "Route 23 Auto Mall Ford",
+      city: "",
+      state: "",
+      zip: "",
+      dealerUrl: "https://www.route23automall.com/inventory/b",
+      distanceMiles: 5,
+    };
+    assert.ok(sameRooftop(a1, a2));
+    assert.deepEqual(
+      selectCompetitionSlots(rankFordMatches([a1, a2])).map((m) => m.vin),
+      ["A1"]
+    );
   });
 
   it("fixture hunt still returns Shorkey + Battlefield only among the demo VINs when radius allows", async () => {
@@ -541,7 +643,7 @@ describe("Increase Competition prefers two dealers among sticker matches", () =>
     assert.equal(slot1?.vin, PARAMUS_STX);
   });
 
-  it("only Route 23 in the matched set → still returns that rooftop, no demo padding", async () => {
+  it("only Route 23 in the matched set → one card for that rooftop, no demo padding", async () => {
     const subject = releasedF150Sticker(F150_SUBJECT);
     const route23 = {
       dealerId: "1018922",
@@ -571,15 +673,125 @@ describe("Increase Competition prefers two dealers among sticker matches", () =>
       fetchSticker: async (vin) => stickers[vin],
     });
 
-    assert.equal(result.matches.length, 2);
-    assert.ok(result.matches.every((m) => m.dealerName === "Route 23 Auto Mall Ford"));
-    assert.ok(result.matches.every((m) => m.dealerId === "1018922"));
-    assert.deepEqual(
-      result.matches.map((m) => m.vin).sort(),
-      [ROUTE23_STX_A, ROUTE23_STX_B].sort()
-    );
+    assert.equal(result.matches.length, 1);
+    assert.equal(result.matches[0].dealerName, "Route 23 Auto Mall Ford");
+    assert.equal(result.matches[0].dealerId, "1018922");
+    assert.ok([ROUTE23_STX_A, ROUTE23_STX_B].includes(result.matches[0].vin));
+    assert.equal(autoFillCompetitionSlots(result.matches)[1], null);
     assert.ok(!result.matches.some((m) => DEMO_COMPARABLE_LISTINGS.some((d) => d.vin === m.vin)));
     assert.doesNotMatch(result.note, /Explorer Tremor only/i);
+  });
+
+  it("two Route 23 VINs with different dealerIds and no other rooftop → one match", async () => {
+    const subject = releasedF150Sticker(F150_SUBJECT);
+    const listings = [
+      f150HuntListing({
+        vin: ROUTE23_STX_A,
+        dealerId: "1018922",
+        dealerName: "Route 23 Auto Mall Ford",
+        city: "Butler",
+        state: "NJ",
+        zip: "07405",
+        lat: 40.927,
+        lng: -74.341,
+      }),
+      f150HuntListing({
+        vin: ROUTE23_STX_B,
+        dealerId: "2044551",
+        dealerName: "Route 23 Auto Mall Ford",
+        city: "Butler",
+        state: "NJ",
+        zip: "07405",
+        lat: 40.927,
+        lng: -74.341,
+      }),
+    ];
+    const stickers: Record<string, ReturnType<typeof releasedF150Sticker>> = {
+      [ROUTE23_STX_A]: releasedF150Sticker(ROUTE23_STX_A),
+      [ROUTE23_STX_B]: releasedF150Sticker(ROUTE23_STX_B),
+    };
+
+    const result = await findSimilarFordVehicles({
+      subjectVin: F150_SUBJECT,
+      subject,
+      mustHaveLines: [],
+      zip: "07405",
+      radiusMiles: 100,
+      listings,
+      fetchSticker: async (vin) => stickers[vin],
+    });
+
+    assert.equal(result.matches.length, 1, "same name+city is one rooftop despite different dealerIds");
+    assert.equal(result.matches[0].dealerName, "Route 23 Auto Mall Ford");
+    assert.ok([ROUTE23_STX_A, ROUTE23_STX_B].includes(result.matches[0].vin));
+    assert.equal(autoFillCompetitionSlots(result.matches)[1], null);
+  });
+
+  it("07405 F-150 hunt: two Route 23 lots with per-listing dealerIds plus Paramus → Route 23 then Paramus", async () => {
+    const subject = {
+      ...releasedF150Sticker(F150_SUBJECT),
+      vin: F150_SUBJECT,
+    };
+    const listings = [
+      f150HuntListing({
+        vin: ROUTE23_STX_A,
+        dealerId: "1018922",
+        dealerName: "Route 23 Auto Mall Ford",
+        city: "Butler",
+        state: "NJ",
+        zip: "07405",
+        lat: 40.927,
+        lng: -74.341,
+        listingPrice: 48990,
+      }),
+      f150HuntListing({
+        vin: ROUTE23_STX_B,
+        dealerId: "998877",
+        dealerName: "Route 23 Auto Mall Ford",
+        city: "Butler",
+        state: "NJ",
+        zip: "07405",
+        lat: 40.927,
+        lng: -74.341,
+        listingPrice: 49250,
+      }),
+      f150HuntListing({
+        vin: PARAMUS_STX,
+        dealerId: "2044551",
+        dealerName: "All American Ford of Paramus",
+        city: "Paramus",
+        state: "NJ",
+        zip: "07652",
+        lat: 40.944,
+        lng: -74.075,
+        listingPrice: 47990,
+      }),
+    ];
+    const stickers: Record<string, ReturnType<typeof releasedF150Sticker>> = {
+      [ROUTE23_STX_A]: releasedF150Sticker(ROUTE23_STX_A),
+      [ROUTE23_STX_B]: releasedF150Sticker(ROUTE23_STX_B),
+      [PARAMUS_STX]: releasedF150Sticker(PARAMUS_STX),
+    };
+
+    const result = await findSimilarFordVehicles({
+      subjectVin: F150_SUBJECT,
+      subject,
+      mustHaveLines: [],
+      zip: "07405",
+      radiusMiles: 100,
+      listings,
+      fetchSticker: async (vin) => stickers[vin],
+    });
+
+    assert.equal(result.matches.length, 2);
+    assert.equal(result.matches[0].dealerName, "Route 23 Auto Mall Ford");
+    assert.equal(result.matches[1].vin, PARAMUS_STX);
+    assert.equal(result.matches[1].dealerName, "All American Ford of Paramus");
+    assert.ok(sameRooftop(result.matches[0], listings[0]));
+    assert.equal(sameRooftop(result.matches[0], result.matches[1]), false);
+    const [slot0, slot1] = autoFillCompetitionSlots(result.matches);
+    assert.equal(slot0?.dealerName, "Route 23 Auto Mall Ford");
+    assert.equal(slot1?.vin, PARAMUS_STX);
   });
 
   it("a single sticker-matched rooftop returns one slot and does not pad with Explorers", async () => {
