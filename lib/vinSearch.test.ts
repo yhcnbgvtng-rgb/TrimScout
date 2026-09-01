@@ -805,6 +805,10 @@ describe("shopper-facing factory option copy", () => {
     assert.match(wizard, /\/api\/deal-requests/);
     assert.match(wizard, /brandCodeFromMake/);
     assert.match(wizard, /directOffer: directOfferMode/);
+    assert.match(wizard, /shopperDealStructurePayload/);
+    assert.match(wizard, /mapDealRequestJson/);
+    assert.match(page, /mapDealRequestJson/);
+    assert.match(page, /requests=\{shopperRequests\}/);
     assert.match(tracker, /req\.directOffer/);
     assert.match(tracker, /b\.dealRequestId === req\.id/);
     assert.match(dealerInbox, /fetchVehicleByVinFromBox/);
@@ -886,8 +890,9 @@ describe("shopper-facing factory option copy", () => {
     const stickerTest = fs.readFileSync(path.join(import.meta.dirname, "fordSticker.test.ts"), "utf8");
     const dealStructureTest = fs.readFileSync(path.join(import.meta.dirname, "dealStructure.test.ts"), "utf8");
     const gmStickerTest = fs.readFileSync(path.join(import.meta.dirname, "gmSticker.test.ts"), "utf8");
+    const shopperDealTest = fs.readFileSync(path.join(import.meta.dirname, "shopperDeal.test.ts"), "utf8");
     const guardSrc = fs.readFileSync(path.join(import.meta.dirname, "testdata/blockLiveHttp.ts"), "utf8");
-    for (const src of [vinSearchTest, stickerTest, dealStructureTest, gmStickerTest]) {
+    for (const src of [vinSearchTest, stickerTest, dealStructureTest, gmStickerTest, shopperDealTest]) {
       assert.match(src, /blockLiveHttp/);
       assert.doesNotMatch(src, /getFordSticker\(/);
       assert.doesNotMatch(src, /confirmFordMustHaves\(/);

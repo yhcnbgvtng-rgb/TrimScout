@@ -3,6 +3,9 @@
 import React, { useState, useEffect } from "react";
 import { BiddingRequest, DealerBid } from "../lib/types";
 import { formatCurrency, formatPercent } from "../lib/otdCalculator";
+import { formatDealStructures } from "../lib/dealStructure";
+import { reviewTargetFromVehicle } from "../lib/fordCompetitionUi";
+import { offerPathLabel } from "../lib/shopperDeal";
 import {
   Clock,
   ShieldCheck,
@@ -45,13 +48,17 @@ export const LiveDealRoom: React.FC<LiveDealRoomProps> = ({
 }) => {
   const [sortBy, setSortBy] = useState<"discount" | "quoted">("discount");
   const [isTradeInModalOpen, setIsTradeInModalOpen] = useState(false);
-  const [liveBids, setLiveBids] = useState<DealerBid[]>(bids);
+  const bidsForRequest = bids.filter((b) => b.dealRequestId === request.id);
+  const [liveBids, setLiveBids] = useState<DealerBid[]>(() => (pollBids ? [] : bidsForRequest));
   const [countdownLabel, setCountdownLabel] = useState<string | null>(() => formatCountdown(request.expiresAt));
+  const reviewTarget = reviewTargetFromVehicle(request.targetVehicle);
+  const paymentLabel = formatDealStructures(request.dealStructurePreferences?.requestedStructures || []);
+  const pathLabel = offerPathLabel(request.directOffer);
 
-  // Non-real flow: just mirror whatever bids the parent passes in.
+  // Non-real flow: just mirror whatever bids the parent passes in for this request.
   useEffect(() => {
-    if (!pollBids) setLiveBids(bids);
-  }, [bids, pollBids]);
+    if (!pollBids) setLiveBids(bids.filter((b) => b.dealRequestId === request.id));
+  }, [bids, pollBids, request.id]);
 
   // Real flow: poll the box for real competing bids every ~9s.
   useEffect(() => {
@@ -123,11 +130,69 @@ export const LiveDealRoom: React.FC<LiveDealRoomProps> = ({
             </div>
 
             <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
-              Deal Room: {request.targetVehicle ? `${request.targetVehicle.year} ${request.targetVehicle.make} ${request.targetVehicle.model}` : `${request.flexibleCriteria?.make} ${request.flexibleCriteria?.model}`}
+              Deal Room{reviewTarget?.title ? `: ${reviewTarget.title}` : ""}
             </h1>
+            {reviewTarget?.vin ? (
+              <p className="mt-1 text-xs text-ink-muted">
+                VIN:{" "}
+                {reviewTarget.vdpHref ? (
+                  <a
+                    href={reviewTarget.vdpHref}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-mono text-emerald-400 hover:underline"
+                  >
+                    {reviewTarget.vin}
+                  </a>
+                ) : (
+                  <span className="font-mono text-ink-light">{reviewTarget.vin}</span>
+                )}
+              </p>
+            ) : null}
+            {reviewTarget?.dealerName ? (
+              <p className="mt-0.5 text-xs text-ink-light">{reviewTarget.dealerName}</p>
+            ) : null}
+            {reviewTarget?.locationLine ? (
+              <p className="text-xs text-ink-muted">{reviewTarget.locationLine}</p>
+            ) : null}
 
             <p className="mt-1 text-xs text-ink-muted">
-              Strategy: <strong className="text-emerald-400">{request.strategy === "flexible_discount" ? "Find your car based on Make and Model" : request.strategy === "exact_auction" ? "Find your car based on must have specs" : "Firm Target Offer"}</strong> • Payment: <span className="uppercase text-white font-semibold">{request.paymentMethod}</span> • Radius: <span className="text-white font-semibold">{request.searchRadiusMiles} Miles{request.sameStateOnly ? ` (${request.buyerState || "your state"} only)` : ""}</span>
+              {pathLabel}
+              {paymentLabel ? (
+                <>
+                  {" "}
+                  • Payment: <span className="text-white font-semibold">{paymentLabel}</span>
+                </>
+              ) : null}
+              {typeof request.targetOtdPrice === "number" && request.targetOtdPrice > 0 ? (
+                <>
+                  {" "}
+                  • Target:{" "}
+                  <span className="text-white font-semibold font-mono">{formatCurrency(request.targetOtdPrice)}</span>
+                </>
+              ) : null}
+              {request.searchRadiusMiles ? (
+                <>
+                  {" "}
+                  • Radius:{" "}
+                  <span className="text-white font-semibold">
+                    {request.searchRadiusMiles} Miles
+                    {request.sameStateOnly ? ` (${request.buyerState || "your state"} only)` : ""}
+                  </span>
+                </>
+              ) : null}
+              {request.flexibleCriteria?.mustHavePackages?.length ? (
+                <>
+                  {" "}
+                  • Must-haves:{" "}
+                  <span className="text-white font-semibold">
+                    {request.flexibleCriteria.mustHavePackages.slice(0, 3).join(", ")}
+                    {request.flexibleCriteria.mustHavePackages.length > 3
+                      ? ` +${request.flexibleCriteria.mustHavePackages.length - 3} more`
+                      : ""}
+                  </span>
+                </>
+              ) : null}
             </p>
           </div>
 
