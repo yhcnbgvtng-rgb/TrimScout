@@ -3,6 +3,7 @@ export const revalidate = 0;
 export const runtime = "nodejs";
 
 import { NextResponse } from "next/server";
+import { FORD_LISTINGS_LOAD_FAILED } from "@/lib/fordCompetitionUi";
 import { getFordSticker, isFordOrLincolnVin } from "@/lib/fordSticker";
 import { findSimilarFordVehicles, hasListingsApiKey, isUsableHuntLocation } from "@/lib/vinSearch";
 
@@ -55,6 +56,15 @@ export async function POST(request: Request) {
     });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Comparable search failed";
-    return NextResponse.json({ error: message }, { status: 502 });
+    console.error("ford-comparables failed:", message);
+    return NextResponse.json(
+      {
+        error: FORD_LISTINGS_LOAD_FAILED,
+        note: FORD_LISTINGS_LOAD_FAILED,
+        matches: [],
+        dropped: [],
+      },
+      { status: 502 }
+    );
   }
 }

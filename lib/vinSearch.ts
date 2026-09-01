@@ -11,7 +11,8 @@
  * for the known Explorer Tremor example VINs (no live PDF round-trip, so the
  * hunt cannot hang). Other models get an empty result plus an Explorer-only note.
  * If a listings key is configured, never fall back to that demo pool — return
- * the live provider with empty listings and a short HTTP/error note instead.
+ * the live provider with empty listings and a generic shopper-facing note.
+ * Provider name, HTTP status, and raw provider messages stay in server logs.
  */
 
 import fs from "node:fs";
@@ -32,6 +33,11 @@ import {
   type FordFactoryOptionLine,
   type FordSticker,
 } from "./fordSticker";
+import {
+  FORD_LISTINGS_LOAD_FAILED,
+  FORD_LISTINGS_RADIUS_CAP,
+  FORD_LISTINGS_RATE_LIMIT,
+} from "./fordCompetitionUi";
 import {
   hasListingsApiKey,
   resolveListingsProvider,
@@ -68,9 +74,9 @@ export function demoListingsNote(model?: string): string {
   if (matched.length === 0) {
     return `Demo listings are Explorer Tremor only and do not apply to ${
       model || "this vehicle"
-    }. Other lots were not added. Set AUTO_DEV_API_KEY or MARKETCHECK_API_KEY for live same-model search.`;
+    }. Other lots were not added.`;
   }
-  return "No listings API key configured. Demo comparables use known Explorer Tremor VINs plus factory build data. Set AUTO_DEV_API_KEY or MARKETCHECK_API_KEY for live same-model search.";
+  return "No listings API key configured. Demo comparables use known Explorer Tremor VINs plus factory build data.";
 }
 
 export function composeEmptyHuntNote(opts: {
@@ -164,6 +170,8 @@ export interface FordSearchDropped {
 export interface FordSearchResult {
   provider: ListingsProvider;
   note: string;
+  /** True when the listings provider failed; shopper `note` is generic. */
+  listingsError?: boolean;
   needsLocation?: boolean;
   originZip?: string;
   radiusMiles?: number;
@@ -414,7 +422,7 @@ function sanitizeListingsNote(raw: string): string {
     .trim();
 }
 
-/** Pull MarketCheck `{ code, message }` / `{ message }` (or Auto.dev `error`) out of an error body. */
+/** Pull MarketCheck `{ code, message }` / `{ message }` (or Auto.dev `error`) out of an error body — logs only. */
 function providerMessageFromBody(bodyText: string): string | null {
   const trimmed = bodyText.trim();
   if (!trimmed) return null;
@@ -433,7 +441,25 @@ function providerMessageFromBody(bodyText: string): string | null {
   return null;
 }
 
-async function listingsHttpFailureNote(label: string, res: Response): Promise<string> {
+function shopperNoteForListingsHttp(status: number, providerMessage: string | null): string {
+  if (status === 429) return FORD_LISTINGS_RATE_LIMIT;
+  if (status === 422) return FORD_LISTINGS_RADIUS_CAP;
+  if ((status === 400 || status === 403) && providerMessage && /radius/i.test(providerMessage)) {
+    return FORD_LISTINGS_RADIUS_CAP;
+  }
+  return FORD_LISTINGS_LOAD_FAILED;
+}
+
+class ListingsProviderError extends Error {
+  shopperNote: string;
+  constructor(logDetail: string, shopperNote: string) {
+    super(logDetail);
+    this.name = "ListingsProviderError";
+    this.shopperNote = shopperNote;
+  }
+}
+
+async function listingsHttpFailure(label: string, res: Response): Promise<ListingsProviderError> {
   let bodyText = "";
   try {
     bodyText = await res.text();
@@ -441,22 +467,27 @@ async function listingsHttpFailureNote(label: string, res: Response): Promise<st
     bodyText = "";
   }
   const providerMessage = providerMessageFromBody(bodyText);
-  let base = `${label} listings HTTP ${res.status}`;
-  if (providerMessage) base += `: ${providerMessage}`;
-  if (res.status !== 429) return base;
-  const seconds = parseRetryAfterSeconds(res.headers.get("Retry-After"));
-  if (seconds != null) return `${base}. Rate limited; retry after ${seconds} seconds.`;
-  return `${base}. Rate limited; try again later.`;
+  let logDetail = `${label} listings HTTP ${res.status}`;
+  if (providerMessage) logDetail += `: ${providerMessage}`;
+  if (res.status === 429) {
+    const seconds = parseRetryAfterSeconds(res.headers.get("Retry-After"));
+    if (seconds != null) logDetail += `. Rate limited; retry after ${seconds} seconds.`;
+    else logDetail += ". Rate limited; try again later.";
+  }
+  return new ListingsProviderError(
+    sanitizeListingsNote(logDetail),
+    shopperNoteForListingsHttp(res.status, providerMessage)
+  );
 }
 
-/** Short error for the hunt note. Never includes Authorization or key material. */
-function shortListingsError(err: unknown, label: string): string {
+function shopperNoteFromListingsError(err: unknown): string {
+  if (err instanceof ListingsProviderError) return err.shopperNote;
+  return FORD_LISTINGS_LOAD_FAILED;
+}
+
+function listingsErrorLogDetail(err: unknown, label: string): string {
   const raw = err instanceof Error ? err.message : "unknown error";
-  const cleaned = sanitizeListingsNote(raw).slice(0, 180);
-  if (/HTTP \d+/.test(cleaned) || /parse error/i.test(cleaned) || /rate limited/i.test(cleaned)) {
-    return cleaned;
-  }
-  return `${label} listings failed`;
+  return sanitizeListingsNote(raw).slice(0, 220) || `${label} listings failed`;
 }
 
 async function searchAutoDev(
@@ -488,13 +519,13 @@ async function searchAutoDev(
     cache: "no-store",
   });
   if (!res.ok) {
-    throw new Error(await listingsHttpFailureNote("Auto.dev", res));
+    throw await listingsHttpFailure("Auto.dev", res);
   }
   let payload: unknown;
   try {
     payload = await res.json();
   } catch {
-    throw new Error("Auto.dev listings parse error");
+    throw new ListingsProviderError("Auto.dev listings parse error", FORD_LISTINGS_LOAD_FAILED);
   }
   const rows: unknown[] = Array.isArray(payload)
     ? payload
@@ -559,20 +590,19 @@ async function searchMarketCheck(
   url.searchParams.set("car_type", "new");
   url.searchParams.set("zip", q.zip);
   // Pass the user radius as-is. Do not clamp to the free-tier 100-mile cap —
-  // the owner wants MarketCheck's own rejection (HTTP + message) if the plan
-  // cannot serve a 500-mile hunt.
+  // log MarketCheck's rejection (HTTP + message) and return a generic shopper note.
   url.searchParams.set("radius", String(q.radiusMiles));
   url.searchParams.set("rows", "50");
 
   const res = await fetch(url, { headers: { Accept: "application/json" }, cache: "no-store" });
   if (!res.ok) {
-    throw new Error(await listingsHttpFailureNote("MarketCheck", res));
+    throw await listingsHttpFailure("MarketCheck", res);
   }
   let payload: unknown;
   try {
     payload = await res.json();
   } catch {
-    throw new Error("MarketCheck listings parse error");
+    throw new ListingsProviderError("MarketCheck listings parse error", FORD_LISTINGS_LOAD_FAILED);
   }
   const rows: unknown[] =
     payload &&
@@ -636,12 +666,17 @@ export async function searchCoarseListings(q: {
       return {
         provider,
         listings,
-        note: "Live listings from Auto.dev; factory options come only from the factory build.",
+        note: "Factory options come only from the factory build.",
       };
     } catch (err) {
-      const note = shortListingsError(err, "Auto.dev");
-      console.error("Auto.dev listings failed:", note);
-      return { provider: "auto.dev", listings: [], note, listingsError: true };
+      const logDetail = listingsErrorLogDetail(err, "Auto.dev");
+      console.error("Auto.dev listings failed:", logDetail);
+      return {
+        provider: "auto.dev",
+        listings: [],
+        note: shopperNoteFromListingsError(err),
+        listingsError: true,
+      };
     }
   }
   if (provider === "marketcheck" && key) {
@@ -650,12 +685,17 @@ export async function searchCoarseListings(q: {
       return {
         provider: "marketcheck",
         listings,
-        note: "Live listings from MarketCheck; factory options come only from the factory build.",
+        note: "Factory options come only from the factory build.",
       };
     } catch (err) {
-      const note = shortListingsError(err, "MarketCheck");
-      console.error("MarketCheck listings failed:", note);
-      return { provider: "marketcheck", listings: [], note, listingsError: true };
+      const logDetail = listingsErrorLogDetail(err, "MarketCheck");
+      console.error("MarketCheck listings failed:", logDetail);
+      return {
+        provider: "marketcheck",
+        listings: [],
+        note: shopperNoteFromListingsError(err),
+        listingsError: true,
+      };
     }
   }
   return {
@@ -775,6 +815,7 @@ export async function findSimilarFordVehicles(opts: {
       return huntResult({
         provider,
         note,
+        listingsError: true,
         originZip: zip,
         radiusMiles,
         candidatesConsidered: 0,
