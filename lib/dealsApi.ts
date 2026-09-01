@@ -231,6 +231,14 @@ export async function listActiveDealRequests(): Promise<DealRequestRecord[]> {
   return json.dealRequests as DealRequestRecord[];
 }
 
+export async function listDealRequestsForBuyer(buyerUserId: string): Promise<DealRequestRecord[]> {
+  const json = await request(
+    "GET",
+    `/api/deal-requests?status=active&buyerUserId=${encodeURIComponent(buyerUserId)}`
+  );
+  return json.dealRequests as DealRequestRecord[];
+}
+
 export async function submitDealerBid(
   dealRequestId: string,
   input: Record<string, unknown>

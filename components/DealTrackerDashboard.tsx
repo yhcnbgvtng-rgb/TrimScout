@@ -253,18 +253,18 @@ export const DealTrackerDashboard: React.FC<DealTrackerDashboardProps> = ({
                     <div>
                       <div className="flex items-center gap-2">
                         <h3 className="font-extrabold text-white text-base">
-                          {req.flexibleCriteria
-                            ? `${req.flexibleCriteria.make} ${req.flexibleCriteria.model} (${req.flexibleCriteria.trims.join(", ")})`
-                            : req.targetVehicle
+                          {req.targetVehicle
                             ? `${req.targetVehicle.year} ${req.targetVehicle.make} ${req.targetVehicle.model} ${req.targetVehicle.trim}`
+                            : req.flexibleCriteria
+                            ? `${req.flexibleCriteria.make} ${req.flexibleCriteria.model} (${req.flexibleCriteria.trims.join(", ")})`
                             : "Custom Bidding Request"}
                         </h3>
                         <span className="flex items-center gap-1 rounded-full bg-emerald-500/20 px-2.5 py-0.5 text-[10px] font-extrabold text-emerald-400 border border-emerald-500/30 uppercase">
-                          <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" /> Live Auction
+                          <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" /> {req.directOffer ? "Direct offer" : "Live Auction"}
                         </span>
                       </div>
                       <p className="text-xs text-ink-muted mt-0.5">
-                        Strategy: <span className="text-ink-light capitalize font-semibold">{req.strategy.replace("_", " ")}</span> • Search Radius: <span className="text-ink-light font-semibold">{req.searchRadiusMiles} miles</span> • Buyer Zip: <span className="text-ink-light font-mono font-semibold">{req.buyerZip}</span>
+                        {req.directOffer ? "Direct offer" : "Multi-dealer prices"} • Search Radius: <span className="text-ink-light font-semibold">{req.searchRadiusMiles} miles</span> • Buyer Zip: <span className="text-ink-light font-mono font-semibold">{req.buyerZip}</span>
                       </p>
                     </div>
                   </div>
@@ -284,23 +284,35 @@ export const DealTrackerDashboard: React.FC<DealTrackerDashboardProps> = ({
                 {/* Body Content */}
                 <div className="p-6 space-y-6">
                   {/* Top Bid Announcement Card */}
-                  {topBid ? (
+                  {(() => {
+                    const bidsForReq = bids.filter((b) => b.dealRequestId === req.id);
+                    const leading = bidsForReq[0] || null;
+                    if (!leading) {
+                      return (
+                    <div className="rounded-xl border border-border bg-surface-elevated p-4 text-xs text-ink-muted">
+                      {req.directOffer
+                        ? `Waiting for ${req.targetVehicle?.location.dealerName || "this dealer"} to review your offer.`
+                        : "Waiting for dealerships in your area to transmit their first out-the-door bids..."}
+                    </div>
+                      );
+                    }
+                    return (
                     <div className="rounded-xl border border-emerald-500/40 bg-gradient-to-r from-emerald-950/40 via-surface-elevated to-surface-elevated p-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                       <div className="space-y-1.5">
                         <div className="flex items-center gap-2">
                           <span className="rounded bg-emerald-500 text-black px-2 py-0.5 text-[10px] font-black uppercase tracking-wider">
-                            #1 Leading Dealership Bid
+                            {req.directOffer ? "Dealer response" : "#1 Leading Dealership Bid"}
                           </span>
-                          <span className="text-xs font-bold text-white">{topBid.dealerName}</span>
-                          <span className="text-xs text-ink-muted">({topBid.distanceMiles} mi away)</span>
+                          <span className="text-xs font-bold text-white">{leading.dealerName}</span>
+                          <span className="text-xs text-ink-muted">({leading.distanceMiles} mi away)</span>
                         </div>
 
                         <div className="text-sm font-bold text-ink-light">
-                          {topBid.matchedVehicleTitle} • <span className="text-ink-muted text-xs">{topBid.matchedVehicleSpec}</span>
+                          {leading.matchedVehicleTitle} • <span className="text-ink-muted text-xs">{leading.matchedVehicleSpec}</span>
                         </div>
 
                         <p className="text-xs text-emerald-400 italic">
-                          &ldquo;{topBid.notes}&rdquo;
+                          &ldquo;{leading.notes}&rdquo;
                         </p>
                       </div>
 
@@ -309,10 +321,10 @@ export const DealTrackerDashboard: React.FC<DealTrackerDashboardProps> = ({
                         <div className="text-right">
                           <span className="text-[10px] uppercase font-bold text-ink-faint">Out-The-Door Price</span>
                           <div className="text-2xl font-black text-white font-mono">
-                            {formatCurrency(topBid.totalOtdPrice)}
+                            {formatCurrency(leading.totalOtdPrice)}
                           </div>
                           <div className="text-[11px] text-emerald-400 font-semibold flex items-center justify-end gap-1">
-                            <TrendingDown className="h-3 w-3" /> Save {formatCurrency(topBid.dealerDiscountDollars)} ({topBid.dealerDiscountPercent}% OFF)
+                            <TrendingDown className="h-3 w-3" /> Save {formatCurrency(leading.dealerDiscountDollars)} ({leading.dealerDiscountPercent}% OFF)
                           </div>
                         </div>
 
@@ -320,16 +332,13 @@ export const DealTrackerDashboard: React.FC<DealTrackerDashboardProps> = ({
                           onClick={() => onOpenLiveDealRoom(req)}
                           className="flex items-center gap-1.5 rounded-xl bg-emerald-500 px-4 py-2.5 text-xs font-black text-black hover:bg-emerald-400 transition-all shadow-md shadow-emerald-500/20 active:scale-95"
                         >
-                          <span>Open Live Deal Room</span>
+                          <span>{req.directOffer ? "View offer" : "Open Live Deal Room"}</span>
                           <ArrowRight className="h-3.5 w-3.5 stroke-[2.5]" />
                         </button>
                       </div>
                     </div>
-                  ) : (
-                    <div className="rounded-xl border border-border bg-surface-elevated p-4 text-xs text-ink-muted">
-                      Waiting for dealerships in your area to transmit their first out-the-door bids...
-                    </div>
-                  )}
+                    );
+                  })()}
 
                   {/* Criteria Tags */}
                   {req.flexibleCriteria && (
@@ -364,14 +373,18 @@ export const DealTrackerDashboard: React.FC<DealTrackerDashboardProps> = ({
                 <div className="flex items-center justify-between border-t border-border bg-surface-elevated px-6 py-3.5 text-xs">
                   <div className="flex items-center gap-2 text-ink-muted">
                     <Building2 className="h-4 w-4 text-emerald-400" />
-                    <span><strong>{bids.length} dealerships</strong> currently active in your deal room</span>
+                    <span>
+                      {req.directOffer
+                        ? (req.targetVehicle?.location.dealerName || "This dealer")
+                        : <><strong>{bids.filter((b) => b.dealRequestId === req.id).length} dealerships</strong> currently active in your deal room</>}
+                    </span>
                   </div>
 
                   <button
                     onClick={() => onOpenLiveDealRoom(req)}
                     className="flex items-center gap-1 text-emerald-400 hover:text-emerald-300 font-bold"
                   >
-                    <span>View all {bids.length} competing offers</span>
+                    <span>{req.directOffer ? "View offer" : `View all ${bids.filter((b) => b.dealRequestId === req.id).length} competing offers`}</span>
                     <ChevronRight className="h-4 w-4" />
                   </button>
                 </div>

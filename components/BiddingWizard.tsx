@@ -11,7 +11,7 @@ import {
 } from "../lib/dealStructure";
 import { formatCurrency, getEstimatedTaxRate } from "../lib/otdCalculator";
 import { findContactInfo } from "../lib/piiFilter";
-import { MOCK_POPULAR_PACKAGES, SAMPLE_TRADE_IN_VEHICLE } from "../lib/mockData";
+import { SAMPLE_TRADE_IN_VEHICLE } from "../lib/mockData";
 import { decodeVin, SAMPLE_TEST_VINS, DecodedVehicle } from "../lib/vinDecoder";
 import {
   FORD_BUILD_SHEET_LINK,
@@ -37,7 +37,7 @@ import {
   type FactoryOptionDisplay,
   type OtherLotsMode,
 } from "../lib/fordCompetitionUi";
-import { isFordOrLincolnVin, isGmVin, pastedVinCandidate } from "../lib/oemWmi";
+import { brandCodeFromMake, isFordOrLincolnVin, isGmVin, pastedVinCandidate } from "../lib/oemWmi";
 import {
   acceptImportedVehicle,
   factoryBuildFailedError,
@@ -55,7 +55,6 @@ import {
   Search,
   CircleCheck as CheckCircle2,
   Percent,
-  RefreshCw,
   DollarSign,
   Car,
   MapPin,
@@ -371,6 +370,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   // and send a single, anonymized offer straight to the favorite vehicle's
   // dealer instead (only offered when no secondary vehicles are attached).
   const [directOfferMode, setDirectOfferMode] = useState(false);
+  const [offerPath, setOfferPath] = useState<"direct" | "auction" | null>(null);
 
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(preselectedVehicle || null);
 
@@ -479,6 +479,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   const goNext = () => {
     if (step === 1 && requestedStructures.length === 0) return;
     if (step === 2 && !vehicleImported) return;
+    if (step === 3 && !offerPath) return;
     if (step === 1 && lockVehicleSelection) {
       setStep(3);
     } else {
@@ -488,9 +489,6 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   const goBack = () => {
     if (step === 3 && lockVehicleSelection) {
       setStep(1);
-    } else if (step === 4 && directOfferMode) {
-      setDirectOfferMode(false);
-      setStep(2);
     } else {
       setStep(step - 1);
     }
@@ -859,10 +857,16 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
         })
       : null;
 
-  const handleSubmitDirectOffer = () => {
-    setStrategy("firm_offer");
+  const chooseDirectOffer = () => {
+    setOfferPath("direct");
     setDirectOfferMode(true);
-    setStep(4); // skip the strategy-choice step — it's implicitly decided
+    setStrategy("firm_offer");
+  };
+
+  const chooseMultiDealer = () => {
+    setOfferPath("auction");
+    setDirectOfferMode(false);
+    setStrategy("exact_auction");
   };
 
   if (!isOpen) return null;
@@ -911,14 +915,6 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     }
   };
 
-  const togglePackage = (pkgName: string) => {
-    if (mustHavePackages.includes(pkgName)) {
-      setMustHavePackages(mustHavePackages.filter((p) => p !== pkgName));
-    } else {
-      setMustHavePackages([...mustHavePackages, pkgName]);
-    }
-  };
-
   const toggleFordMustHave = (name: string) => {
     setMustHavePackages((prev) =>
       prev.includes(name) ? prev.filter((p) => p !== name) : [...prev, name]
@@ -956,118 +952,125 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
         }
       : undefined;
 
+  const launchStrategy: BiddingStrategy =
+    directOfferMode || offerPath === "direct" ? "firm_offer" : "exact_auction";
+
+  const buildBiddingRequest = (overrides: Partial<BiddingRequest> = {}): BiddingRequest => ({
+    id: `req-${Date.now()}`,
+    strategy: launchStrategy,
+    targetVin: selectedVehicle?.vin,
+    targetVehicle: selectedVehicle || undefined,
+    flexibleCriteria: {
+      make,
+      model,
+      trims: selectedTrims,
+      minMsrp: selectedVehicle ? Math.round(selectedVehicle.msrp * 0.9) : 45000,
+      maxMsrp: selectedVehicle ? Math.round(selectedVehicle.msrp * 1.1) : 65000,
+      mustHavePackages,
+      preferredColors: [],
+      dealbreakers: [],
+      allowedStatuses: ["on_lot", "in_transit"],
+    },
+    tradeIn: buildTradeIn(),
+    buyerComment: dealComment.trim() || undefined,
+    targetOtdPrice: launchStrategy === "firm_offer" ? targetOtdPrice : undefined,
+    paymentMethod,
+    dealStructurePreferences: {
+      requestedStructures,
+      financeTermMonths: financeTerm,
+      downPayment,
+      leaseMileagePerYear: leaseMileage,
+      leaseTermMonths: leaseTerm,
+    },
+    buyerZip,
+    searchRadiusMiles: searchRadius,
+    sameStateOnly,
+    createdAt: "Just now",
+    expiresAt: "48 Hours",
+    status: "active",
+    directOffer: directOfferMode,
+    ...overrides,
+  });
+
   const handleLaunchDeal = async () => {
     if (dealCommentContactWarning) {
       setSubmitError(`Your comment appears to contain ${dealCommentContactWarning} — remove it before submitting.`);
       return;
     }
-    if (lockVehicleSelection) {
-      if (!currentUser) {
-        onClose();
-        onRequireLogin?.();
-        return;
-      }
-      if (!selectedVehicle) return;
-      setIsSubmittingReal(true);
-      setSubmitError(null);
-      try {
-        const res = await fetch("/api/deal-requests", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            strategy,
-            referenceBrandCode,
-            referenceVin: selectedVehicle.vin,
-            referenceYear: selectedVehicle.year,
-            referenceMake: selectedVehicle.make,
-            referenceModel: selectedVehicle.model,
-            referenceTrim: selectedVehicle.trim,
-            referencePrice: selectedVehicle.dealerPrice,
-            referenceMsrp: selectedVehicle.msrp,
-            referenceImageUrl: selectedVehicle.imageUrl,
-            targetOtdPrice: strategy === "firm_offer" ? targetOtdPrice : undefined,
-            targetDiscountPercent: strategy === "flexible_discount" ? targetDiscountPercent : undefined,
-            paymentMethod,
-            dealStructure: {
-              requestedStructures,
-              financeTermMonths: financeTerm,
-              downPayment,
-              leaseMileagePerYear: leaseMileage,
-              leaseTermMonths: leaseTerm,
-            },
-            tradeIn: buildTradeIn(),
-            buyerZip,
-            searchRadiusMiles: searchRadius,
-            sameStateOnly,
-            buyerComment: dealComment.trim() || undefined,
-          }),
-        });
-        const json = await res.json();
-        if (!res.ok) throw new Error(json.error || "Could not submit your request.");
+    if (!currentUser) {
+      onClose();
+      onRequireLogin?.();
+      return;
+    }
+    if (!selectedVehicle) return;
 
+    setIsSubmittingReal(true);
+    setSubmitError(null);
+    let persisted = false;
+    try {
+      const res = await fetch("/api/deal-requests", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          strategy: launchStrategy,
+          referenceBrandCode: referenceBrandCode || brandCodeFromMake(selectedVehicle.make),
+          referenceVin: selectedVehicle.vin,
+          referenceYear: selectedVehicle.year,
+          referenceMake: selectedVehicle.make,
+          referenceModel: selectedVehicle.model,
+          referenceTrim: selectedVehicle.trim,
+          referencePrice: selectedVehicle.dealerPrice,
+          referenceMsrp: selectedVehicle.msrp,
+          referenceImageUrl: selectedVehicle.imageUrl,
+          targetOtdPrice: launchStrategy === "firm_offer" ? targetOtdPrice : undefined,
+          paymentMethod,
+          dealStructure: {
+            requestedStructures,
+            financeTermMonths: financeTerm,
+            downPayment,
+            leaseMileagePerYear: leaseMileage,
+            leaseTermMonths: leaseTerm,
+          },
+          tradeIn: buildTradeIn(),
+          buyerZip,
+          searchRadiusMiles: searchRadius,
+          sameStateOnly,
+          buyerComment: dealComment.trim() || undefined,
+        }),
+      });
+      const json = await res.json().catch(() => ({}));
+      if (res.ok && json.dealRequest) {
         const dr = json.dealRequest;
-        const newRequest: BiddingRequest = {
+        const newRequest = buildBiddingRequest({
           id: dr.id,
           strategy: dr.strategy,
           targetVin: dr.referenceVin,
-          targetVehicle: selectedVehicle,
           paymentMethod: dr.paymentMethod,
           buyerZip: dr.buyerZip,
           buyerState: dr.buyerState,
           searchRadiusMiles: dr.searchRadiusMiles,
           sameStateOnly: dr.sameStateOnly,
-          tradeIn: buildTradeIn(),
           buyerComment: dr.buyerComment ?? undefined,
           createdAt: dr.createdAt,
           expiresAt: dr.expiresAt,
           status: dr.status,
-        };
+          directOffer: directOfferMode,
+        });
         onRealBidRequestCreated?.(newRequest);
         setCreatedDealId(dr.id);
-      } catch (e) {
-        setSubmitError(e instanceof Error ? e.message : "Could not submit your request.");
-      } finally {
-        setIsSubmittingReal(false);
+        persisted = true;
+      } else if (res.status !== 401 && res.status !== 502 && res.status !== 503) {
+        setSubmitError(json.error || "Could not submit your request.");
+        return;
       }
-      return;
+    } catch {
+      // Deals backend unreachable — still land the request in My Deal Tracker locally.
+    } finally {
+      setIsSubmittingReal(false);
     }
+    if (persisted) return;
 
-    const newRequest: BiddingRequest = {
-      id: `req-${Date.now()}`,
-      strategy,
-      targetVin: selectedVehicle?.vin,
-      targetVehicle: selectedVehicle || undefined,
-      flexibleCriteria: {
-        make,
-        model,
-        trims: selectedTrims,
-        minMsrp: selectedVehicle ? Math.round(selectedVehicle.msrp * 0.9) : 45000,
-        maxMsrp: selectedVehicle ? Math.round(selectedVehicle.msrp * 1.1) : 65000,
-        mustHavePackages,
-        preferredColors: ["Mineral Grey", "Black Sapphire", "Brooklyn Grey"],
-        dealbreakers: ["Red Interior"],
-        allowedStatuses: ["on_lot", "in_transit"],
-      },
-      tradeIn: buildTradeIn(),
-      buyerComment: dealComment.trim() || undefined,
-      targetOtdPrice: strategy === "firm_offer" ? targetOtdPrice : undefined,
-      targetDiscountPercent: strategy === "flexible_discount" ? targetDiscountPercent : undefined,
-      paymentMethod,
-      dealStructurePreferences: {
-        requestedStructures,
-        financeTermMonths: financeTerm,
-        downPayment,
-        leaseMileagePerYear: leaseMileage,
-        leaseTermMonths: leaseTerm,
-      },
-      buyerZip,
-      searchRadiusMiles: searchRadius,
-      createdAt: "Just now",
-      expiresAt: "48 Hours",
-      status: "active",
-    };
-
-    onSubmitBidRequest(newRequest);
+    onSubmitBidRequest(buildBiddingRequest());
     onClose();
   };
 
@@ -1631,163 +1634,48 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                     )}
                   </div>
                   )}
-
-                  {/* DIRECT OFFER SHORTCUT: only one car, skip the auction */}
-                  {!hasCompetition && (
-                    <div className="rounded-xl border border-border bg-surface p-3.5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                      <div className="flex items-center gap-2.5">
-                        <Handshake className="h-5 w-5 text-emerald-400 shrink-0" />
-                        <div>
-                          <div className="text-xs font-bold text-white">Only want this one car?</div>
-                          <p className="text-[11px] text-ink-muted">
-                            Skip the multi-dealer auction — send {selectedVehicle.location.dealerName} a reasonable, anonymized offer directly for their review.
-                          </p>
-                        </div>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={handleSubmitDirectOffer}
-                        className="shrink-0 rounded-lg border border-emerald-500/50 bg-emerald-500/10 px-3.5 py-2 text-xs font-bold text-emerald-400 hover:bg-emerald-500/20 transition-all"
-                      >
-                        Submit Direct Offer →
-                      </button>
-                    </div>
-                  )}
                 </div>
               )}
             </div>
           )}
 
           {/* ========================================================================= */}
-          {/* STEP 3: CHOOSE STRATEGY                                                   */}
+          {/* STEP 3: DIRECT OFFER OR MULTI-DEALER                                      */}
           {/* ========================================================================= */}
           {step === 3 && (
-            <div className="space-y-4">
-              <div>
-                <h3 className="text-sm font-bold text-white uppercase tracking-wider text-emerald-400">
-                  Step 3: Choose Your Bidding Strategy
-                </h3>
-                <p className="text-xs text-ink-muted mt-0.5">
-                  Selected Car: <strong className="text-white">{selectedVehicle ? `${selectedVehicle.year} ${selectedVehicle.make} ${selectedVehicle.model} ${selectedVehicle.trim}` : `${make} ${model}`}</strong>
-                </p>
-              </div>
-
+            <div className="space-y-3">
+              <h3 className="text-sm font-bold text-white uppercase tracking-wider text-emerald-400">
+                Step 3
+              </h3>
               <div className="grid grid-cols-1 gap-3">
-                {/* Strategy 1: Find your car based on Make and Model */}
-                <div
-                  onClick={() => setStrategy("flexible_discount")}
-                  className={`cursor-pointer rounded-xl border p-4 transition-all ${
-                    strategy === "flexible_discount"
+                <button
+                  type="button"
+                  onClick={chooseDirectOffer}
+                  className={`rounded-xl border p-4 text-left transition-all ${
+                    offerPath === "direct"
                       ? "border-emerald-500 bg-emerald-500/10 shadow-md ring-1 ring-emerald-500"
                       : "border-border bg-surface-elevated hover:border-border-strong"
                   }`}
                 >
                   <div className="flex items-center gap-2">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500 text-black font-bold shrink-0">
-                      <Percent className="h-4 w-4 stroke-[2.5]" />
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <h4 className="font-bold text-white text-sm">Find your car based on Make and Model</h4>
-                        <span className="rounded bg-emerald-500/20 px-2 py-0.5 text-[10px] font-extrabold text-emerald-400 border border-emerald-500/30">
-                          RECOMMENDED
-                        </span>
-                      </div>
-                      <p className="text-xs text-ink-muted mt-1">
-                        Select your make and model with must-have options. Dealers attach matching in-stock & in-transit units and compete on <strong>highest % discount from MSRP</strong>.
-                      </p>
-                    </div>
+                    <Handshake className="h-5 w-5 text-emerald-400 shrink-0" />
+                    <span className="font-bold text-white text-sm">Offer this dealer directly</span>
                   </div>
-                </div>
-
-                {/* Strategy 2: Find your car based on must have specs */}
-                <div
-                  onClick={() => setStrategy("exact_auction")}
-                  className={`cursor-pointer rounded-xl border p-4 transition-all ${
-                    strategy === "exact_auction"
+                </button>
+                <button
+                  type="button"
+                  onClick={chooseMultiDealer}
+                  className={`rounded-xl border p-4 text-left transition-all ${
+                    offerPath === "auction"
                       ? "border-emerald-500 bg-emerald-500/10 shadow-md ring-1 ring-emerald-500"
                       : "border-border bg-surface-elevated hover:border-border-strong"
                   }`}
                 >
                   <div className="flex items-center gap-2">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/20 text-blue-400 font-bold shrink-0">
-                      <RefreshCw className="h-4 w-4 stroke-[2.5]" />
-                    </div>
-                    <div>
-                      <h4 className="font-bold text-white text-sm">Find your car based on must have specs</h4>
-                      <p className="text-xs text-ink-muted mt-1">
-                        Dealers battle over 48 hours with their <strong>lowest Out-The-Door (OTD) price</strong> on your required build or exact VIN.
-                      </p>
-                    </div>
+                    <Zap className="h-5 w-5 text-emerald-400 shrink-0" />
+                    <span className="font-bold text-white text-sm">Get prices from other dealers</span>
                   </div>
-                </div>
-
-                {/* Strategy 3: Firm Target Offer */}
-                <div
-                  onClick={() => setStrategy("firm_offer")}
-                  className={`cursor-pointer rounded-xl border p-4 transition-all ${
-                    strategy === "firm_offer"
-                      ? "border-emerald-500 bg-emerald-500/10 shadow-md ring-1 ring-emerald-500"
-                      : "border-border bg-surface-elevated hover:border-border-strong"
-                  }`}
-                >
-                  <div className="flex items-center gap-2">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500/20 text-amber-400 font-bold shrink-0">
-                      <DollarSign className="h-4 w-4 stroke-[2.5]" />
-                    </div>
-                    <div>
-                      <h4 className="font-bold text-white text-sm">Firm Buyer Target Offer</h4>
-                      <p className="text-xs text-ink-muted mt-1">
-                        Set a firm buy-it-now price (e.g. <i>"$48,500 OTD"</i>). The first dealer to accept locks the sale immediately.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Must-Have Option Packages Selection */}
-              <div className="space-y-2 pt-3 border-t border-border/50">
-                {fordStickerStatus === "released" && fordFilterableOptions.length > 0 ? (
-                  <>
-                    <label className="text-xs font-semibold text-ink-light">{FORD_MUST_HAVE_HEADING}</label>
-                    <p className="text-[10px] text-ink-faint">Same list as Step 2. Ticked lines are hard filters.</p>
-                    <FactoryMustHavePicker
-                      options={fordFilterableOptions}
-                      checked={mustHavePackages}
-                      onToggle={toggleFordMustHave}
-                    />
-                  </>
-                ) : (
-                  <>
-                    <label className="text-xs font-semibold text-ink-light">
-                      Confirm Must-Have Factory Packages:
-                    </label>
-                    <div className="grid grid-cols-2 gap-2">
-                      {MOCK_POPULAR_PACKAGES.map((pkg) => {
-                        const isChecked = mustHavePackages.includes(pkg.name);
-                        return (
-                          <div
-                            key={pkg.name}
-                            onClick={() => togglePackage(pkg.name)}
-                            className={`flex items-center gap-2 rounded-lg border p-2 text-xs cursor-pointer transition-all ${
-                              isChecked
-                                ? "border-emerald-500 bg-emerald-500/10 text-emerald-300 font-semibold"
-                                : "border-border bg-surface-elevated text-ink-muted hover:border-border-strong"
-                            }`}
-                          >
-                            <input
-                              type="checkbox"
-                              checked={isChecked}
-                              onChange={() => {}}
-                              className="rounded border-border text-emerald-500 focus:ring-0"
-                            />
-                            <span className="truncate">{pkg.name}</span>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </>
-                )}
+                </button>
               </div>
             </div>
           )}
@@ -2257,11 +2145,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                 <div className="flex justify-between border-b border-border/50 pb-2">
                   <span className="text-ink-muted">Bidding Strategy:</span>
                   <span className="text-emerald-400 font-bold">
-                    {strategy === "flexible_discount"
-                      ? "Find your car based on Make and Model"
-                      : strategy === "exact_auction"
-                      ? "Find your car based on must have specs"
-                      : "Firm Target Offer"}
+                    {directOfferMode ? "Offer this dealer directly" : "Get prices from other dealers"}
                   </span>
                 </div>
 
@@ -2365,7 +2249,8 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                 onClick={goNext}
                 disabled={
                   (step === 1 && requestedStructures.length === 0) ||
-                  (step === 2 && !vehicleImported)
+                  (step === 2 && !vehicleImported) ||
+                  (step === 3 && !offerPath)
                 }
                 className="flex items-center gap-1.5 rounded-lg bg-emerald-500 px-5 py-2 text-xs font-bold text-black hover:bg-emerald-400 transition-all shadow-md shadow-emerald-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
               >

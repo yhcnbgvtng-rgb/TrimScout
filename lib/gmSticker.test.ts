@@ -13,7 +13,7 @@ import {
   preferredFactoryBuildEndpoint,
   vehicleVinMatchesPaste,
 } from "./pasteImport";
-import { isFordOrLincolnVin, isGmVin, looksLikeGmPaste } from "./oemWmi";
+import { brandCodeFromMake, isFordOrLincolnVin, isGmVin, looksLikeGmPaste } from "./oemWmi";
 import {
   classifyGmFetchBody,
   clearGmStickerMemoryCache,
@@ -65,6 +65,14 @@ describe("GM WMI routing", () => {
     assert.equal(isGmVin(FORD_SUBJECT), false);
     assert.equal(isFordOrLincolnVin(SUBJECT), false);
     assert.equal(isFordOrLincolnVin(PAUL_CHEVY_VIN), false);
+  });
+
+  it("maps shopper make names onto deal-request brand codes", () => {
+    assert.equal(brandCodeFromMake("Ford"), "ford");
+    assert.equal(brandCodeFromMake("Lincoln"), "ford");
+    assert.equal(brandCodeFromMake("Chevrolet"), "chevrolet");
+    assert.equal(brandCodeFromMake("GMC"), "chevrolet");
+    assert.equal(brandCodeFromMake("Porsche"), "porsche");
   });
 
   it("includes related GM brands that share the CWS build URL", () => {
