@@ -33,6 +33,44 @@ export interface FordOptionLine {
   source: "sticker";
 }
 
+/** Shopper-facing factory option as printed on the Ford build (no invented lines). */
+export interface FordFactoryOptionLine {
+  /** Distinct Ford code when the printed line has one (e.g. 800A); never guessed. */
+  code: string | null;
+  description: string;
+  price: number | null;
+  isPackageChild: boolean;
+}
+
+/**
+ * Pull a printed Ford option code when the line already has one.
+ * Does not invent codes for description-only lines.
+ */
+export function factoryOptionCode(name: string): string | null {
+  const trimmed = (name || "").trim();
+  if (!trimmed) return null;
+  const group = trimmed.match(/EQUIPMENT GROUP\s+([A-Z0-9]{3,6})\b/i);
+  if (group) return group[1].toUpperCase();
+  const leading = trimmed.match(/^([A-Z0-9]{3,5})\s+\S/);
+  if (leading && /[A-Z]/i.test(leading[1]) && /\d/.test(leading[1])) {
+    return leading[1].toUpperCase();
+  }
+  return null;
+}
+
+/** Optional-equipment lines from a released sticker, including package children. */
+export function factoryOptionBreakout(sticker: FordSticker): FordFactoryOptionLine[] {
+  if (sticker.status !== "released") return [];
+  return sticker.options
+    .filter((o) => !o.isStandard)
+    .map((o) => ({
+      code: factoryOptionCode(o.name),
+      description: o.name,
+      price: o.price,
+      isPackageChild: o.isPackageChild,
+    }));
+}
+
 export interface FordSoldTo {
   name?: string;
   address?: string;
@@ -731,6 +769,15 @@ export function filterableFactoryOptions(sticker: FordSticker): FordOptionLine[]
     (o) => !o.isStandard && !isStandardKeylessLine(o.name) && !o.isPackageChild
   );
   return [...stickerColorOptionLines(sticker), ...opts];
+}
+
+export function filterableFactoryOptionBreakout(sticker: FordSticker): FordFactoryOptionLine[] {
+  return filterableFactoryOptions(sticker).map((o) => ({
+    code: factoryOptionCode(o.name),
+    description: o.name,
+    price: o.price,
+    isPackageChild: o.isPackageChild,
+  }));
 }
 
 function cachePath(vin: string): string {

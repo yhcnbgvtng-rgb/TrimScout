@@ -12,6 +12,8 @@ import {
   extractVin,
   extractVinFromDealerPage,
   extractAdvertisedListingPrice,
+  factoryOptionBreakout,
+  factoryOptionCode,
   filterableFactoryOptions,
   getFordSticker,
   isFordOrLincolnVin,
@@ -240,6 +242,30 @@ describe("Ford sticker parse — 2026 Bronco Sport Big Bend 3FMCR9BN8TRE94740", 
     assert.equal(stickerHasMustHave(s, colorLine), true);
     const shorkey = parseFordStickerText(SHORKEY, loadFixture(SHORKEY));
     assert.equal(stickerHasMustHave(shorkey, colorLine), false);
+  });
+});
+
+describe("factory option codes and breakout", () => {
+  it("reads a printed equipment-group code and does not invent codes", () => {
+    assert.equal(factoryOptionCode("EQUIPMENT GROUP 800A"), "800A");
+    assert.equal(factoryOptionCode("67C ULTIMATE PACKAGE"), "67C");
+    assert.equal(factoryOptionCode("Ultimate Package"), null);
+    assert.equal(factoryOptionCode("Exterior color: Oxford White"), null);
+  });
+
+  it("lists every optional-equipment line from the Shorkey sticker, including children", () => {
+    const s = parseFordStickerText(SHORKEY, loadFixture(SHORKEY));
+    const lines = factoryOptionBreakout(s);
+    const descriptions = lines.map((o) => o.description);
+    assert.ok(lines.length > 8, `expected a full build list, got ${descriptions.join(" | ")}`);
+    assert.ok(descriptions.includes("Ultimate Package"));
+    assert.ok(descriptions.includes("Keyless Entry Keypad"));
+    assert.ok(descriptions.some((d) => /BLUECRUISE/i.test(d)));
+    assert.ok(descriptions.some((d) => /MOONROOF/i.test(d)));
+    assert.ok(lines.some((o) => o.isPackageChild));
+    assert.equal(lines.find((o) => /EQUIPMENT GROUP/i.test(o.description))?.code, "800A");
+    assert.ok(!descriptions.some((d) => /KEYLESS ENTRY W/i.test(d) && /PUSH START/i.test(d)));
+    assert.ok(!JSON.stringify(lines).includes("Fuel Economy"));
   });
 });
 
