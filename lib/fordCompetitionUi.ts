@@ -37,6 +37,25 @@ export const FORD_BUILD_SHEET_LINK = "Factory build";
 
 export const FORD_EMPTY_LOTS = "No matching lots in range.";
 
+export const FORD_LISTINGS_LOAD_FAILED = "Couldn't load nearby lots. Try again in a bit.";
+
+export const FORD_LISTINGS_RADIUS_CAP = "That search radius is wider than this plan allows.";
+
+export const FORD_LISTINGS_RATE_LIMIT = "Too many searches right now. Try again shortly.";
+
+const LISTINGS_VENDOR_LEAK = /marketcheck|auto\.dev|autodev|auto_dev|auto-dev/i;
+
+/** Rewrite vendor names, HTTP status, or raw provider text before shopper UI. */
+export function sanitizeShopperListingsCopy(raw: string): string {
+  const message = raw.replace(/\s+/g, " ").trim();
+  if (!message) return FORD_LISTINGS_LOAD_FAILED;
+  const leaksVendorOrStatus = LISTINGS_VENDOR_LEAK.test(message) || /HTTP\s+\d+/.test(message);
+  if (!leaksVendorOrStatus) return message;
+  if (/radius/i.test(message)) return FORD_LISTINGS_RADIUS_CAP;
+  if (/429|rate limit|quota|too many searches/i.test(message)) return FORD_LISTINGS_RATE_LIMIT;
+  return FORD_LISTINGS_LOAD_FAILED;
+}
+
 export type OtherLotsMode = "find" | "paste";
 
 export interface FactoryOptionDisplay {
@@ -81,9 +100,9 @@ export function fordCompetitionEmptyCopy(opts: {
     return { kind: "loading", message: FORD_COMPETITION_LOADING };
   }
   if (opts.error) {
-    return { kind: "error", message: opts.error };
+    return { kind: "error", message: sanitizeShopperListingsCopy(opts.error) };
   }
-  const message = (opts.note || "").trim() || FORD_EMPTY_LOTS;
+  const message = sanitizeShopperListingsCopy((opts.note || "").trim() || FORD_EMPTY_LOTS);
   return { kind: "empty", message };
 }
 

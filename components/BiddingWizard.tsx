@@ -19,6 +19,7 @@ import {
   FORD_COMPETITION_FACTORY_OPTIONS_UNAVAILABLE,
   FORD_COMPETITION_LOADING,
   FORD_COMPETITION_NEED_LOCATION,
+  FORD_LISTINGS_LOAD_FAILED,
   FORD_MUST_HAVE_HEADING,
   FORD_MUST_HAVE_HELP,
   FORD_OTHER_LOTS_HEADING,
@@ -34,6 +35,7 @@ import {
   formatPriceAmount,
   listingVdpHref,
   reviewTargetFromVehicle,
+  sanitizeShopperListingsCopy,
   shopperPriceSourceLabel,
   type FactoryOptionDisplay,
   type OtherLotsMode,
@@ -551,28 +553,34 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
         const json = await res.json().catch(() => ({}));
         if (cancelled) return;
         if (!res.ok || json.error) {
-          const message =
-            typeof json.error === "string" && json.error.trim()
-              ? json.error
-              : `Could not load similar lots (${res.status || "network error"}).`;
+          const raw =
+            (typeof json.note === "string" && json.note.trim()) ||
+            (typeof json.error === "string" && json.error.trim()) ||
+            FORD_LISTINGS_LOAD_FAILED;
+          const message = sanitizeShopperListingsCopy(raw);
           setFordSuggestions([]);
           setFordDroppedCount(0);
           setFordHuntError(message);
           setFordSearchNote(message);
           return;
         }
-        setFordHuntError(null);
+        const huntNote = typeof json.note === "string" ? json.note : null;
+        const listingsFailed = Boolean(json.listingsError);
+        setFordHuntError(
+          listingsFailed
+            ? sanitizeShopperListingsCopy(huntNote || FORD_LISTINGS_LOAD_FAILED)
+            : null
+        );
         setFordSuggestions(json.matches || []);
-        setFordSearchNote(json.note || null);
+        setFordSearchNote(huntNote);
         setFordDroppedCount(Array.isArray(json.dropped) ? json.dropped.length : 0);
       })
-      .catch((err: unknown) => {
+      .catch(() => {
         if (cancelled) return;
-        const message = err instanceof Error ? err.message : "Could not load similar lots.";
         setFordSuggestions([]);
         setFordDroppedCount(0);
-        setFordHuntError(message);
-        setFordSearchNote(message);
+        setFordHuntError(FORD_LISTINGS_LOAD_FAILED);
+        setFordSearchNote(FORD_LISTINGS_LOAD_FAILED);
       })
       .finally(() => {
         if (!cancelled) setIsLoadingFordSuggestions(false);

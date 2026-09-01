@@ -13,6 +13,9 @@ import {
   FORD_COMPETITION_LOADING,
   FORD_COMPETITION_NEED_LOCATION,
   FORD_EMPTY_LOTS,
+  FORD_LISTINGS_LOAD_FAILED,
+  FORD_LISTINGS_RADIUS_CAP,
+  FORD_LISTINGS_RATE_LIMIT,
   FORD_MUST_HAVE_HEADING,
   FORD_MUST_HAVE_HELP,
   FORD_OTHER_LOTS_HEADING,
@@ -28,6 +31,7 @@ import {
   formatPriceAmount,
   listingVdpHref,
   reviewTargetFromVehicle,
+  sanitizeShopperListingsCopy,
   shopperPriceSourceLabel,
 } from "./fordCompetitionUi";
 import { resolveListingsProvider } from "./listingsProvider";
@@ -63,6 +67,26 @@ const F150_SUBJECT = "1FTFW3LD7TFB08996";
 
 function loadFixture(vin: string): string {
   return fs.readFileSync(path.join(FIXTURE_DIR, `${vin}.txt`), "utf8");
+}
+
+function assertShopperCopyHidesVendor(text: string) {
+  assert.doesNotMatch(text, /marketcheck/i);
+  assert.doesNotMatch(text, /auto\.dev/i);
+  assert.doesNotMatch(text, /\bautodev\b/i);
+  assert.doesNotMatch(text, /HTTP\s+\d+/);
+}
+
+async function withCapturedConsoleError<T>(fn: () => Promise<T>): Promise<{ value: T; logs: string }> {
+  const chunks: string[] = [];
+  const orig = console.error;
+  console.error = (...args: unknown[]) => {
+    chunks.push(args.map((a) => (typeof a === "string" ? a : String(a))).join(" "));
+  };
+  try {
+    return { value: await fn(), logs: chunks.join("\n") };
+  } finally {
+    console.error = orig;
+  }
 }
 
 function baseCard(vin: string): FordMatchCard {
@@ -672,6 +696,13 @@ describe("shopper-facing factory option copy", () => {
     assert.match(src, /useState<OtherLotsMode>\("find"\)/);
     assert.match(src, /findLotsMode \|\| factoryBuildOem !== "ford" \|\| fordStickerStatus !== "released"/);
     assert.match(src, /\/api\/ford-comparables/);
+    assert.match(src, /FORD_LISTINGS_LOAD_FAILED/);
+    assert.match(src, /sanitizeShopperListingsCopy/);
+    assert.match(src, /json\.listingsError/);
+    assert.doesNotMatch(src, /Could not load similar lots/);
+    assert.doesNotMatch(src, /MarketCheck/);
+    assert.doesNotMatch(src, /Auto\.dev/);
+    assert.doesNotMatch(src, /json\.provider/);
     assert.match(src, /\/api\/gm-sticker/);
     assert.doesNotMatch(src, /applyMockParse/);
     assert.doesNotMatch(src, /vehicles\[0\]/);
@@ -866,9 +897,11 @@ describe("shopper-facing factory option copy", () => {
     assert.match(parseFn, /isGmVin/);
   });
 
-  it("shopper-facing hunt notes never say sticker", () => {
+  it("shopper-facing hunt notes never say sticker, MarketCheck, or Auto.dev", () => {
     assert.doesNotMatch(demoListingsNote("Bronco Sport"), /sticker|stocker|increase competition/i);
     assert.doesNotMatch(demoListingsNote("Explorer"), /sticker|stocker|increase competition/i);
+    assertShopperCopyHidesVendor(demoListingsNote("Bronco Sport"));
+    assertShopperCopyHidesVendor(demoListingsNote("Explorer"));
     const note = composeEmptyHuntNote({
       zip: "07405",
       radiusMiles: 100,
@@ -883,6 +916,19 @@ describe("shopper-facing factory option copy", () => {
     });
     assert.doesNotMatch(note, /sticker|stocker/i);
     assert.match(note, /factory build/);
+    assertShopperCopyHidesVendor(note);
+    assert.equal(
+      sanitizeShopperListingsCopy("MarketCheck listings HTTP 503: upstream unavailable"),
+      FORD_LISTINGS_LOAD_FAILED
+    );
+    assert.equal(
+      sanitizeShopperListingsCopy("MarketCheck listings HTTP 400: radius exceeds package limit of 100 miles"),
+      FORD_LISTINGS_RADIUS_CAP
+    );
+    assert.equal(
+      sanitizeShopperListingsCopy("Auto.dev listings HTTP 429: rate limited. Retry after 30 seconds."),
+      FORD_LISTINGS_RATE_LIMIT
+    );
   });
 
   it("tests never call live MarketCheck, Auto.dev, Ford Direct, or production comparables", async () => {
@@ -959,12 +1005,48 @@ describe("Increase Competition slots are the hunt result", () => {
     const copy = fordCompetitionEmptyCopy({
       huntReady: true,
       loading: false,
-      error: "Could not load similar lots (502).",
+      error: FORD_LISTINGS_LOAD_FAILED,
       note: null,
       matchCount: 0,
     });
     assert.equal(copy?.kind, "error");
-    assert.match(copy!.message, /502/);
+    assert.equal(copy!.message, FORD_LISTINGS_LOAD_FAILED);
+    assertShopperCopyHidesVendor(copy!.message);
+  });
+
+  it("rewrites vendor HTTP notes before shopper empty states", () => {
+    const copy503 = fordCompetitionEmptyCopy({
+      huntReady: true,
+      loading: false,
+      error: "MarketCheck listings HTTP 503: upstream unavailable",
+      note: null,
+      matchCount: 0,
+    });
+    assert.equal(copy503?.kind, "error");
+    assert.equal(copy503?.message, FORD_LISTINGS_LOAD_FAILED);
+    assertShopperCopyHidesVendor(copy503!.message);
+
+    const copyRadius = fordCompetitionEmptyCopy({
+      huntReady: true,
+      loading: false,
+      error: null,
+      note: "MarketCheck listings HTTP 400: radius exceeds package limit of 100 miles",
+      matchCount: 0,
+    });
+    assert.equal(copyRadius?.kind, "empty");
+    assert.equal(copyRadius?.message, FORD_LISTINGS_RADIUS_CAP);
+    assertShopperCopyHidesVendor(copyRadius!.message);
+
+    const copy429 = fordCompetitionEmptyCopy({
+      huntReady: true,
+      loading: false,
+      error: "Auto.dev listings HTTP 429: rate limited. Retry after 30 seconds.",
+      note: null,
+      matchCount: 0,
+    });
+    assert.equal(copy429?.kind, "error");
+    assert.equal(copy429?.message, FORD_LISTINGS_RATE_LIMIT);
+    assertShopperCopyHidesVendor(copy429!.message);
   });
 
   it("demo Explorer 07405+500 auto-fills Battlefield then Shorkey without a listings API key", async () => {
@@ -1103,6 +1185,7 @@ describe("Increase Competition slots are the hunt result", () => {
       assert.equal(result.stickersFetched, 0);
       assert.match(result.note, /Explorer Tremor only/i);
       assert.doesNotMatch(result.note, /1FMWK8JC7TGB81309/);
+      assertShopperCopyHidesVendor(result.note);
       const copy = fordCompetitionEmptyCopy({
         huntReady: true,
         loading: false,
@@ -1114,6 +1197,7 @@ describe("Increase Competition slots are the hunt result", () => {
       assert.equal(copy?.kind, "empty");
       assert.match(copy!.message, /Explorer Tremor only/i);
       assert.equal(copy!.message, result.note);
+      assertShopperCopyHidesVendor(copy!.message);
     } finally {
       if (prevA !== undefined) process.env["AUTO_DEV_API_KEY"] = prevA;
       else delete process.env["AUTO_DEV_API_KEY"];
@@ -1153,6 +1237,9 @@ describe("listings secrets are read from Node env, not webpack-stripped process.
     assert.doesNotMatch(vinSearchSrc, /redis|@vercel\/kv|upstash/i);
     assert.match(vinSearchSrc, /api\.marketcheck\.com\/v2\/search\/car\/active/);
     assert.match(routeSrc, /hasListingsKey/);
+    assert.match(routeSrc, /FORD_LISTINGS_LOAD_FAILED/);
+    assert.match(routeSrc, /console\.error\("ford-comparables failed:/);
+    assert.doesNotMatch(routeSrc, /error: message/);
     assert.doesNotMatch(routeSrc, /NEXT_PUBLIC_/);
   });
 
@@ -1218,7 +1305,8 @@ describe("listings secrets are read from Node env, not webpack-stripped process.
       assert.equal(result.provider, "auto.dev");
       assert.equal(autoDevCalls, 1);
       assert.equal(hasListingsApiKey(), true);
-      assert.match(result.note, /Auto\.dev/);
+      assert.match(result.note, /factory options/i);
+      assertShopperCopyHidesVendor(result.note);
     } finally {
       globalThis.fetch = origFetch;
       if (prevA !== undefined) env["AUTO_DEV_API_KEY"] = prevA;
@@ -1270,7 +1358,8 @@ describe("listings secrets are read from Node env, not webpack-stripped process.
       assert.equal(result.provider, "marketcheck");
       assert.equal(marketcheckCalls, 1);
       assert.equal(hasListingsApiKey(), true);
-      assert.match(result.note, /MarketCheck/);
+      assert.match(result.note, /factory options/i);
+      assertShopperCopyHidesVendor(result.note);
     } finally {
       globalThis.fetch = origFetch;
       if (prevA !== undefined) env["AUTO_DEV_API_KEY"] = prevA;
@@ -1310,7 +1399,7 @@ describe("listings API failure never falls back to Explorer demo", () => {
     }
   });
 
-  it("Auto.dev HTTP 429 returns provider auto.dev, empty listings, and Retry-After seconds — not Explorer demo", async () => {
+  it("Auto.dev HTTP 429 returns provider auto.dev, empty listings, and a generic rate-limit note — not Explorer demo", async () => {
     const prevA = env["AUTO_DEV_API_KEY"];
     const prevM = env["MARKETCHECK_API_KEY"];
     const prevP = env["LISTINGS_PROVIDER"];
@@ -1331,45 +1420,53 @@ describe("listings API failure never falls back to Explorer demo", () => {
       });
     }) as typeof fetch;
     try {
-      const coarse = await searchCoarseListings({
-        year: 2026,
-        make: "Ford",
-        model: "F-150",
-        trim: "Raptor R",
-        zip: "07405",
-        radiusMiles: 500,
-      });
+      const { value: coarse, logs: coarseLogs } = await withCapturedConsoleError(() =>
+        searchCoarseListings({
+          year: 2026,
+          make: "Ford",
+          model: "F-150",
+          trim: "Raptor R",
+          zip: "07405",
+          radiusMiles: 500,
+        })
+      );
       assert.equal(coarse.provider, "auto.dev");
       assert.deepEqual(coarse.listings, []);
       assert.equal(coarse.listingsError, true);
-      assert.match(coarse.note, /HTTP 429/);
-      assert.match(coarse.note, /30 seconds/);
+      assert.equal(coarse.note, FORD_LISTINGS_RATE_LIMIT);
+      assertShopperCopyHidesVendor(coarse.note);
       assert.doesNotMatch(coarse.note, /Explorer Tremor only/i);
       assert.doesNotMatch(coarse.note, /runtime-test-auto-dev/);
       assert.doesNotMatch(coarse.note, /Bearer/i);
+      assert.match(coarseLogs, /Auto\.dev listings HTTP 429/);
+      assert.match(coarseLogs, /30 seconds/);
       assert.equal(autoDevCalls, 1);
 
       const bronco = parseFordStickerText(
         "3FMCR9BN8TRE94740",
         fs.readFileSync(path.join(FIXTURE_DIR, "3FMCR9BN8TRE94740.txt"), "utf8")
       );
-      const hunt = await findSimilarFordVehicles({
-        subjectVin: bronco.vin,
-        subject: bronco,
-        mustHaveLines: [],
-        zip: "07405",
-        radiusMiles: 500,
-      });
+      const { value: hunt, logs: huntLogs } = await withCapturedConsoleError(() =>
+        findSimilarFordVehicles({
+          subjectVin: bronco.vin,
+          subject: bronco,
+          mustHaveLines: [],
+          zip: "07405",
+          radiusMiles: 500,
+        })
+      );
       assert.equal(hunt.provider, "auto.dev");
       assert.equal(hunt.hasListingsKey, true);
+      assert.equal(hunt.listingsError, true);
       assert.equal(hunt.matches.length, 0);
       assert.equal(hunt.candidatesConsidered, 0);
       assert.equal(hunt.stickersFetched, 0);
-      assert.match(hunt.note, /HTTP 429/);
-      assert.match(hunt.note, /30 seconds/);
+      assert.equal(hunt.note, FORD_LISTINGS_RATE_LIMIT);
+      assertShopperCopyHidesVendor(hunt.note);
       assert.doesNotMatch(hunt.note, /Explorer Tremor only/i);
       assert.doesNotMatch(hunt.note, /Demo listings/i);
       assert.doesNotMatch(hunt.note, /runtime-test-auto-dev/);
+      assert.match(huntLogs, /Auto\.dev listings HTTP 429/);
       assert.equal(autoDevCalls, 2, "one Auto.dev request per hunt, no retry loop");
     } finally {
       globalThis.fetch = origFetch;
@@ -1599,7 +1696,8 @@ describe("listings provider selection prefers MarketCheck", () => {
       assert.equal(result.matches[0].listingPrice, 55990);
       assert.equal(result.matches[0].listingPriceSource, "listing");
       assert.equal(result.dropped.find((d) => d.vin === MALL_OF_GEORGIA)?.reason, "missing_must_have");
-      assert.match(result.note, /MarketCheck|factory options/i);
+      assert.match(result.note, /factory options/i);
+      assertShopperCopyHidesVendor(result.note);
     } finally {
       globalThis.fetch = origFetch;
       if (prevA !== undefined) env["AUTO_DEV_API_KEY"] = prevA;
@@ -1611,7 +1709,7 @@ describe("listings provider selection prefers MarketCheck", () => {
     }
   });
 
-  it("MarketCheck HTTP 400 surfaces status + provider message and does not fall back to demo lots", async () => {
+  it("MarketCheck HTTP 400 returns a generic radius-cap note and does not fall back to demo lots", async () => {
     const prevA = env["AUTO_DEV_API_KEY"];
     const prevM = env["MARKETCHECK_API_KEY"];
     const prevP = env["LISTINGS_PROVIDER"];
@@ -1633,42 +1731,50 @@ describe("listings provider selection prefers MarketCheck", () => {
       );
     }) as typeof fetch;
     try {
-      const coarse = await searchCoarseListings({
-        year: 2026,
-        make: "Ford",
-        model: "F-150",
-        trim: "Raptor R",
-        zip: "07405",
-        radiusMiles: 500,
-      });
+      const { value: coarse, logs: coarseLogs } = await withCapturedConsoleError(() =>
+        searchCoarseListings({
+          year: 2026,
+          make: "Ford",
+          model: "F-150",
+          trim: "Raptor R",
+          zip: "07405",
+          radiusMiles: 500,
+        })
+      );
       assert.equal(coarse.provider, "marketcheck");
       assert.deepEqual(coarse.listings, []);
       assert.equal(coarse.listingsError, true);
-      assert.match(coarse.note, /HTTP 400/);
-      assert.match(coarse.note, /radius exceeds package limit of 100 miles/);
+      assert.equal(coarse.note, FORD_LISTINGS_RADIUS_CAP);
+      assertShopperCopyHidesVendor(coarse.note);
       assert.doesNotMatch(coarse.note, /Explorer Tremor only/i);
       assert.doesNotMatch(coarse.note, /runtime-test-marketcheck/);
+      assert.match(coarseLogs, /MarketCheck listings HTTP 400/);
+      assert.match(coarseLogs, /radius exceeds package limit of 100 miles/);
 
       const bronco = parseFordStickerText(
         "3FMCR9BN8TRE94740",
         fs.readFileSync(path.join(FIXTURE_DIR, "3FMCR9BN8TRE94740.txt"), "utf8")
       );
-      const hunt = await findSimilarFordVehicles({
-        subjectVin: bronco.vin,
-        subject: bronco,
-        mustHaveLines: [],
-        zip: "07405",
-        radiusMiles: 500,
-      });
+      const { value: hunt, logs: huntLogs } = await withCapturedConsoleError(() =>
+        findSimilarFordVehicles({
+          subjectVin: bronco.vin,
+          subject: bronco,
+          mustHaveLines: [],
+          zip: "07405",
+          radiusMiles: 500,
+        })
+      );
       assert.equal(hunt.provider, "marketcheck");
       assert.equal(hunt.hasListingsKey, true);
+      assert.equal(hunt.listingsError, true);
       assert.equal(hunt.matches.length, 0);
       assert.equal(hunt.candidatesConsidered, 0);
       assert.equal(hunt.stickersFetched, 0);
-      assert.match(hunt.note, /HTTP 400/);
-      assert.match(hunt.note, /radius exceeds package limit of 100 miles/);
+      assert.equal(hunt.note, FORD_LISTINGS_RADIUS_CAP);
+      assertShopperCopyHidesVendor(hunt.note);
       assert.doesNotMatch(hunt.note, /Explorer Tremor only/i);
       assert.doesNotMatch(hunt.note, /Demo listings/i);
+      assert.match(huntLogs, /MarketCheck listings HTTP 400/);
       assert.equal(marketcheckCalls, 2, "one MarketCheck request per hunt, no retry or clamp");
     } finally {
       globalThis.fetch = origFetch;
@@ -1681,7 +1787,7 @@ describe("listings provider selection prefers MarketCheck", () => {
     }
   });
 
-  it("MarketCheck HTTP 429 includes provider message and Retry-After seconds", async () => {
+  it("MarketCheck HTTP 429 returns a generic rate-limit note; logs keep provider message and Retry-After", async () => {
     const prevA = env["AUTO_DEV_API_KEY"];
     const prevM = env["MARKETCHECK_API_KEY"];
     const prevP = env["LISTINGS_PROVIDER"];
@@ -1696,19 +1802,167 @@ describe("listings provider selection prefers MarketCheck", () => {
       });
     }) as typeof fetch;
     try {
-      const coarse = await searchCoarseListings({
-        make: "Ford",
-        model: "F-150",
-        zip: "07405",
-        radiusMiles: 500,
-      });
+      const { value: coarse, logs } = await withCapturedConsoleError(() =>
+        searchCoarseListings({
+          make: "Ford",
+          model: "F-150",
+          zip: "07405",
+          radiusMiles: 500,
+        })
+      );
       assert.equal(coarse.provider, "marketcheck");
       assert.equal(coarse.listingsError, true);
-      assert.match(coarse.note, /HTTP 429/);
-      assert.match(coarse.note, /Monthly API quota exhausted/);
-      assert.match(coarse.note, /86400 seconds/);
+      assert.equal(coarse.note, FORD_LISTINGS_RATE_LIMIT);
+      assertShopperCopyHidesVendor(coarse.note);
       assert.doesNotMatch(coarse.note, /runtime-test-marketcheck/);
       assert.doesNotMatch(coarse.note, /Explorer Tremor only/i);
+      assert.match(logs, /MarketCheck listings HTTP 429/);
+      assert.match(logs, /Monthly API quota exhausted/);
+      assert.match(logs, /86400 seconds/);
+    } finally {
+      globalThis.fetch = origFetch;
+      if (prevA !== undefined) env["AUTO_DEV_API_KEY"] = prevA;
+      else delete env["AUTO_DEV_API_KEY"];
+      if (prevM !== undefined) env["MARKETCHECK_API_KEY"] = prevM;
+      else delete env["MARKETCHECK_API_KEY"];
+      if (prevP !== undefined) env["LISTINGS_PROVIDER"] = prevP;
+      else delete env["LISTINGS_PROVIDER"];
+    }
+  });
+
+  it("MarketCheck HTTP 503 returns a generic load-failed note and does not fall back to demo lots", async () => {
+    const prevA = env["AUTO_DEV_API_KEY"];
+    const prevM = env["MARKETCHECK_API_KEY"];
+    const prevP = env["LISTINGS_PROVIDER"];
+    delete env["AUTO_DEV_API_KEY"];
+    delete env["LISTINGS_PROVIDER"];
+    env["MARKETCHECK_API_KEY"] = "runtime-test-marketcheck";
+    const origFetch = globalThis.fetch;
+    let marketcheckCalls = 0;
+    globalThis.fetch = (async () => {
+      marketcheckCalls += 1;
+      return new Response(JSON.stringify({ message: "upstream unavailable" }), {
+        status: 503,
+        headers: { "Content-Type": "application/json" },
+      });
+    }) as typeof fetch;
+    try {
+      const { value: coarse, logs: coarseLogs } = await withCapturedConsoleError(() =>
+        searchCoarseListings({
+          make: "Ford",
+          model: "F-150",
+          zip: "07405",
+          radiusMiles: 500,
+        })
+      );
+      assert.equal(coarse.provider, "marketcheck");
+      assert.deepEqual(coarse.listings, []);
+      assert.equal(coarse.listingsError, true);
+      assert.equal(coarse.note, FORD_LISTINGS_LOAD_FAILED);
+      assertShopperCopyHidesVendor(coarse.note);
+      assert.doesNotMatch(coarse.note, /Explorer Tremor only/i);
+      assert.match(coarseLogs, /MarketCheck listings HTTP 503/);
+      assert.match(coarseLogs, /upstream unavailable/);
+
+      const bronco = parseFordStickerText(
+        "3FMCR9BN8TRE94740",
+        fs.readFileSync(path.join(FIXTURE_DIR, "3FMCR9BN8TRE94740.txt"), "utf8")
+      );
+      const { value: hunt } = await withCapturedConsoleError(() =>
+        findSimilarFordVehicles({
+          subjectVin: bronco.vin,
+          subject: bronco,
+          mustHaveLines: [],
+          zip: "07405",
+          radiusMiles: 500,
+        })
+      );
+      assert.equal(hunt.provider, "marketcheck");
+      assert.equal(hunt.listingsError, true);
+      assert.equal(hunt.matches.length, 0);
+      assert.equal(hunt.note, FORD_LISTINGS_LOAD_FAILED);
+      assertShopperCopyHidesVendor(hunt.note);
+      assert.doesNotMatch(hunt.note, /Demo listings/i);
+      assert.equal(marketcheckCalls, 2, "one MarketCheck request per hunt, no retry or clamp");
+    } finally {
+      globalThis.fetch = origFetch;
+      if (prevA !== undefined) env["AUTO_DEV_API_KEY"] = prevA;
+      else delete env["AUTO_DEV_API_KEY"];
+      if (prevM !== undefined) env["MARKETCHECK_API_KEY"] = prevM;
+      else delete env["MARKETCHECK_API_KEY"];
+      if (prevP !== undefined) env["LISTINGS_PROVIDER"] = prevP;
+      else delete env["LISTINGS_PROVIDER"];
+    }
+  });
+
+  it("MarketCheck HTTP 422 returns the radius-cap note without clamping", async () => {
+    const prevA = env["AUTO_DEV_API_KEY"];
+    const prevM = env["MARKETCHECK_API_KEY"];
+    const prevP = env["LISTINGS_PROVIDER"];
+    delete env["AUTO_DEV_API_KEY"];
+    delete env["LISTINGS_PROVIDER"];
+    env["MARKETCHECK_API_KEY"] = "runtime-test-marketcheck";
+    const origFetch = globalThis.fetch;
+    globalThis.fetch = (async (input: RequestInfo | URL) => {
+      const parsed = new URL(String(input));
+      assert.equal(parsed.searchParams.get("radius"), "500");
+      return new Response(JSON.stringify({ message: "unprocessable" }), {
+        status: 422,
+        headers: { "Content-Type": "application/json" },
+      });
+    }) as typeof fetch;
+    try {
+      const { value: coarse, logs } = await withCapturedConsoleError(() =>
+        searchCoarseListings({
+          make: "Ford",
+          model: "Explorer",
+          zip: "07405",
+          radiusMiles: 500,
+        })
+      );
+      assert.equal(coarse.provider, "marketcheck");
+      assert.equal(coarse.listingsError, true);
+      assert.deepEqual(coarse.listings, []);
+      assert.equal(coarse.note, FORD_LISTINGS_RADIUS_CAP);
+      assertShopperCopyHidesVendor(coarse.note);
+      assert.match(logs, /MarketCheck listings HTTP 422/);
+    } finally {
+      globalThis.fetch = origFetch;
+      if (prevA !== undefined) env["AUTO_DEV_API_KEY"] = prevA;
+      else delete env["AUTO_DEV_API_KEY"];
+      if (prevM !== undefined) env["MARKETCHECK_API_KEY"] = prevM;
+      else delete env["MARKETCHECK_API_KEY"];
+      if (prevP !== undefined) env["LISTINGS_PROVIDER"] = prevP;
+      else delete env["LISTINGS_PROVIDER"];
+    }
+  });
+
+  it("listings network failure returns a generic load-failed note, not the fetch error", async () => {
+    const prevA = env["AUTO_DEV_API_KEY"];
+    const prevM = env["MARKETCHECK_API_KEY"];
+    const prevP = env["LISTINGS_PROVIDER"];
+    delete env["AUTO_DEV_API_KEY"];
+    delete env["LISTINGS_PROVIDER"];
+    env["MARKETCHECK_API_KEY"] = "runtime-test-marketcheck";
+    const origFetch = globalThis.fetch;
+    globalThis.fetch = (async () => {
+      throw new TypeError("fetch failed");
+    }) as typeof fetch;
+    try {
+      const { value: coarse, logs } = await withCapturedConsoleError(() =>
+        searchCoarseListings({
+          make: "Ford",
+          model: "Explorer",
+          zip: "07405",
+          radiusMiles: 100,
+        })
+      );
+      assert.equal(coarse.provider, "marketcheck");
+      assert.equal(coarse.listingsError, true);
+      assert.deepEqual(coarse.listings, []);
+      assert.equal(coarse.note, FORD_LISTINGS_LOAD_FAILED);
+      assertShopperCopyHidesVendor(coarse.note);
+      assert.match(logs, /fetch failed/);
     } finally {
       globalThis.fetch = origFetch;
       if (prevA !== undefined) env["AUTO_DEV_API_KEY"] = prevA;
