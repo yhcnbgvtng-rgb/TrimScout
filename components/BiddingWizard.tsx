@@ -863,10 +863,12 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                     onToggle={toggleFordMustHave}
                   />
                   <p className="text-[10px] text-ink-faint">
-                    Must-haves filter matching lots on the compare page. Dealer ads are not proof.
+                    Must-haves are saved with this deal. Dealer ads are not proof.
                   </p>
                 </div>
               )}
+            </div>
+          )}
 
           {/* ========================================================================= */}
           {/* STEP 3: DIRECT OFFER OR MULTI-DEALER                                      */}
