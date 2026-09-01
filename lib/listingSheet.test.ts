@@ -313,7 +313,7 @@ describe("listing-facts route and compare page copy", () => {
     assert.match(view, /formatPriceHistoryLine/);
     assert.doesNotMatch(view, /vs prior/);
     const termsAt = view.indexOf("Terms for this VIN");
-    const factoryAt = view.indexOf("FORD_COMPETITION_FACTORY_OPTIONS");
+    const factoryAt = view.indexOf("{FORD_COMPETITION_FACTORY_OPTIONS}");
     const listingAt = view.indexOf("Listing details");
     assert.ok(termsAt >= 0 && factoryAt > termsAt && listingAt > termsAt);
     assert.doesNotMatch(view, /call dealer/i);

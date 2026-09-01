@@ -521,7 +521,6 @@ function VehicleOfferColumn({
             <p className="text-[11px] text-ink-muted">{LISTING_DETAILS_UNAVAILABLE}</p>
           )}
         </div>
-
       </div>
     </section>
   );
