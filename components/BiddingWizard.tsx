@@ -10,7 +10,7 @@ import {
   paymentMethodFromStructures,
   toggleDealStructure,
 } from "../lib/dealStructure";
-import { formatCurrency, getEstimatedTaxRate } from "../lib/otdCalculator";
+import { formatCurrency } from "../lib/otdCalculator";
 import { findContactInfo } from "../lib/piiFilter";
 import { SAMPLE_TRADE_IN_VEHICLE } from "../lib/mockData";
 import { decodeVin, SAMPLE_TEST_VINS, DecodedVehicle } from "../lib/vinDecoder";
@@ -66,8 +66,6 @@ import {
   ArrowLeft,
   Search,
   CircleCheck as CheckCircle2,
-  Percent,
-  DollarSign,
   Car,
   MapPin,
   Camera,
@@ -350,7 +348,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
 }) => {
   const router = useRouter();
   const [step, setStep] = useState<number>(1);
-  const [strategy, setStrategy] = useState<BiddingStrategy>(initialStrategy);
+  const [, setStrategy] = useState<BiddingStrategy>(initialStrategy);
 
   const [dealerUrlInput, setDealerUrlInput] = useState<string>("");
   const [isParsingLink, setIsParsingLink] = useState<boolean>(false);
@@ -440,23 +438,20 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   // Step 1: independently checked cash / finance / lease (at least one required)
   const [requestedStructures, setRequestedStructures] = useState<DealStructureMethod[]>(["cash"]);
   const paymentMethod = paymentMethodFromStructures(requestedStructures);
-  const wantsFinance = requestedStructures.includes("finance");
-  const wantsLease = requestedStructures.includes("lease");
-  const [financeTerm, setFinanceTerm] = useState<number>(60);
-  const [downPayment, setDownPayment] = useState<number>(5000);
-  const [leaseMileage, setLeaseMileage] = useState<number>(12000);
-  const [leaseTerm, setLeaseTerm] = useState<number>(36);
+  const financeTerm = 60;
+  const downPayment = 5000;
+  const leaseMileage = 12000;
+  const leaseTerm = 36;
 
   // Financial & Geographic fields
   const [targetOtdPrice, setTargetOtdPrice] = useState<number>(52000);
-  const [targetDiscountPercent, setTargetDiscountPercent] = useState<number>(8.5);
   const [buyerZip, setBuyerZip] = useState<string>("94107");
   const [searchRadius, setSearchRadius] = useState<number>(100);
-  const [sameStateOnly, setSameStateOnly] = useState<boolean>(true);
+  const sameStateOnly = true;
   const [isSubmittingReal, setIsSubmittingReal] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
-  // Step 6: optional free-text note to the dealer. Real-time-checked for
+  // Step 5: optional free-text note to the dealer. Real-time-checked for
   // contact info (email/phone/link/handle) — the masked-identity system
   // only holds if a buyer can't just paste it in here; server-side
   // (app/api/deal-requests and the box) re-checks authoritatively.
@@ -485,7 +480,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     }
   }, [preselectedVehicle, lockVehicleSelection]);
 
-  const TOTAL_STEPS = 6;
+  const TOTAL_STEPS = 5;
   // Step 2 Continue is blocked until Import Car actually loaded a vehicle.
   // Typing a VIN/URL, or merely arriving on this step, is not enough.
   const vehicleImported = Boolean(parseSuccessMsg && selectedVehicle);
@@ -926,8 +921,6 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
       </div>
     );
   }
-
-  const estimatedTaxPercent = (getEstimatedTaxRate(buyerZip) * 100).toFixed(2);
 
   const toggleTrim = (trim: string) => {
     if (selectedTrims.includes(trim)) {
@@ -2007,187 +2000,13 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
           )}
 
           {/* ========================================================================= */}
-          {/* STEP 5: DEAL STRUCTURE & FINANCIAL TERMS                                  */}
+          {/* STEP 5: REVIEW & BROADCAST                                                */}
           {/* ========================================================================= */}
           {step === 5 && (
             <div className="space-y-4">
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <h3 className="text-sm font-bold text-white uppercase tracking-wider text-emerald-400">
-                    Step 5: Set Your Deal Parameters
-                  </h3>
-                  <p className="text-xs text-ink-muted mt-0.5">
-                    Fine-tune the terms dealers will bid against.
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setStep(1)}
-                  className="shrink-0 rounded-lg border border-border bg-surface-elevated px-2.5 py-1 text-[10px] font-bold text-ink-muted hover:text-white hover:border-border-strong transition-colors"
-                >
-                  {formatDealStructures(requestedStructures) || "Payment methods"} · Change
-                </button>
-              </div>
-
-              {/* Deal Structure Parameters Box */}
-              {(wantsFinance || wantsLease) && (
-                <div className="rounded-xl border border-border bg-surface-elevated p-3.5 space-y-3">
-                  <div className="text-[11px] font-bold text-ink-light uppercase tracking-wider flex items-center justify-between border-b border-border/50 pb-2">
-                    <span>Customize Finance & Lease Guidelines:</span>
-                    <span className="text-emerald-400 font-mono text-[10px]">Dealers will calculate exact terms</span>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    {/* Down Payment */}
-                    <div className="space-y-1">
-                      <label className="text-[11px] font-semibold text-ink-muted">Cash Down Payment:</label>
-                      <div className="relative">
-                        <DollarSign className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-ink-faint" />
-                        <input
-                          type="number"
-                          value={downPayment}
-                          onChange={(e) => setDownPayment(Number(e.target.value))}
-                          className="w-full rounded-lg border border-border bg-background py-1.5 pl-7 pr-2 text-xs font-mono text-white focus:border-emerald-500 focus:outline-none"
-                        />
-                      </div>
-                    </div>
-
-                    {/* Finance Term */}
-                    {wantsFinance && (
-                      <div className="space-y-1">
-                        <label className="text-[11px] font-semibold text-ink-muted">Finance Loan Term:</label>
-                        <select
-                          value={financeTerm}
-                          onChange={(e) => setFinanceTerm(Number(e.target.value))}
-                          className="w-full rounded-lg border border-border bg-background py-1.5 px-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
-                        >
-                          <option value={36}>36 Months</option>
-                          <option value={48}>48 Months</option>
-                          <option value={60}>60 Months (Standard)</option>
-                          <option value={72}>72 Months</option>
-                        </select>
-                      </div>
-                    )}
-
-                    {/* Lease Mileage */}
-                    {wantsLease && (
-                      <div className="space-y-1">
-                        <label className="text-[11px] font-semibold text-ink-muted">Annual Lease Mileage:</label>
-                        <select
-                          value={leaseMileage}
-                          onChange={(e) => setLeaseMileage(Number(e.target.value))}
-                          className="w-full rounded-lg border border-border bg-background py-1.5 px-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
-                        >
-                          <option value={10000}>10,000 mi / year</option>
-                          <option value={12000}>12,000 mi / year (Standard)</option>
-                          <option value={15000}>15,000 mi / year</option>
-                        </select>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* Target Price or Discount */}
-              {strategy === "firm_offer" && (
-                <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-ink-light">
-                    Your Firm Target Out-The-Door (OTD) Offer:
-                  </label>
-                  <div className="relative">
-                    <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-ink-faint" />
-                    <input
-                      type="number"
-                      value={targetOtdPrice}
-                      onChange={(e) => setTargetOtdPrice(Number(e.target.value))}
-                      className="w-full rounded-xl border border-border bg-background py-2.5 pl-9 pr-4 text-sm text-white focus:border-emerald-500 focus:outline-none"
-                    />
-                  </div>
-                  <p className="text-[11px] text-ink-faint">
-                    Includes all vehicle costs, {estimatedTaxPercent}% sales tax, registration, and doc fees.
-                  </p>
-                </div>
-              )}
-
-              {strategy === "flexible_discount" && (
-                <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-ink-light">
-                    Target Discount from MSRP:
-                  </label>
-                  <div className="relative">
-                    <Percent className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-ink-faint" />
-                    <input
-                      type="number"
-                      step="0.5"
-                      value={targetDiscountPercent}
-                      onChange={(e) => setTargetDiscountPercent(Number(e.target.value))}
-                      className="w-full rounded-xl border border-border bg-background py-2.5 pl-9 pr-4 text-sm text-white focus:border-emerald-500 focus:outline-none"
-                    />
-                  </div>
-                  <p className="text-[11px] text-ink-faint">
-                    Dealers will compete to beat this discount percentage across all matching inventory.
-                  </p>
-                </div>
-              )}
-
-              {/* Zip & Radius */}
-              <div className="grid grid-cols-2 gap-3 pt-2 border-t border-border/50">
-                <div className="space-y-1">
-                  <label className="text-xs font-semibold text-ink-light">Buyer Zip Code:</label>
-                  <input
-                    type="text"
-                    value={buyerZip}
-                    onChange={(e) => setBuyerZip(e.target.value)}
-                    className="w-full rounded-xl border border-border bg-background py-2 px-3 text-sm text-white focus:border-emerald-500 focus:outline-none font-mono"
-                  />
-                  <span className="text-[10px] text-emerald-400 font-medium">
-                    Est. Tax Rate: {estimatedTaxPercent}%
-                  </span>
-                </div>
-
-                <div className="space-y-1">
-                  <label className="text-xs font-semibold text-ink-light">Dealer Radius:</label>
-                  <select
-                    value={searchRadius}
-                    onChange={(e) => setSearchRadius(Number(e.target.value))}
-                    className="w-full rounded-xl border border-border bg-background py-2 px-3 text-sm text-white focus:border-emerald-500 focus:outline-none"
-                  >
-                    <option value={50}>50 Miles (Local)</option>
-                    <option value={100}>100 Miles (Recommended)</option>
-                    <option value={250}>250 Miles</option>
-                    <option value={500}>500 Miles (Statewide)</option>
-                    <option value={2000}>Nationwide</option>
-                  </select>
-                </div>
-              </div>
-
-              {lockVehicleSelection && (
-                <label className="flex items-center justify-between gap-3 rounded-xl border border-border bg-background p-3 cursor-pointer">
-                  <div>
-                    <div className="text-xs font-semibold text-ink-light">Prefer dealers in my state</div>
-                    <p className="text-[10px] text-ink-faint">
-                      On by default — turn off to also see dealers in other states within your radius.
-                    </p>
-                  </div>
-                  <input
-                    type="checkbox"
-                    checked={sameStateOnly}
-                    onChange={(e) => setSameStateOnly(e.target.checked)}
-                    className="h-4 w-4 rounded border-border bg-surface-elevated text-emerald-500 focus:ring-emerald-500/20"
-                  />
-                </label>
-              )}
-            </div>
-          )}
-
-          {/* ========================================================================= */}
-          {/* STEP 6: REVIEW & BROADCAST                                                */}
-          {/* ========================================================================= */}
-          {step === 6 && (
-            <div className="space-y-4">
               <div>
                 <h3 className="text-sm font-bold text-white uppercase tracking-wider text-emerald-400">
-                  Step 6: Review & Privacy Shield
+                  Step 5: Review & Privacy Shield
                 </h3>
                 <p className="text-xs text-ink-muted mt-0.5">
                   {directOfferMode

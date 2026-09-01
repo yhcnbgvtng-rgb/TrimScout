@@ -1,5 +1,5 @@
 /**
- * Client-side deal snapshot for the post-Step-6 compare page.
+ * Client-side deal snapshot for the post-Step-5 compare page.
  * Favorite + up to two other lots. Never pads with demo inventory.
  */
 

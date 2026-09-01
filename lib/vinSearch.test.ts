@@ -1017,7 +1017,7 @@ describe("shopper-facing factory option copy", () => {
     );
 
     const src = fs.readFileSync(path.join(process.cwd(), "components/BiddingWizard.tsx"), "utf8");
-    const start = src.indexOf("STEP 6:");
+    const start = src.indexOf("STEP 5: REVIEW");
     const end = src.indexOf("Footer Navigation");
     assert.ok(start >= 0 && end > start);
     const step6 = src.slice(start, end);

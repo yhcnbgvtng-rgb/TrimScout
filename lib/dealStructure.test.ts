@@ -69,7 +69,7 @@ describe("BiddingWizard step 1 payment checkboxes", () => {
       src,
       /disabled=\{\s*\(step === 1 && requestedStructures\.length === 0\) \|\|/
     );
-    assert.match(src, /wantsFinance \|\| wantsLease/);
+    assert.match(src, /financeTermMonths: financeTerm/);
     assert.match(src, /formatDealStructures\(requestedStructures\)/);
   });
 });

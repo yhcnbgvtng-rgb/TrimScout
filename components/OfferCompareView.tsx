@@ -72,11 +72,12 @@ function milesLabel(miles: number | undefined, zip: string): string | null {
   return `${miles} mi from ${zip.trim()}`;
 }
 
-function formatSignedPrice(amount: number): string {
-  const abs = formatPriceAmount(Math.abs(amount));
-  if (amount > 0) return `+${abs} vs prior`;
-  if (amount < 0) return `−${abs} vs prior`;
-  return "No change vs prior";
+function formatPriceHistoryLine(entry: { date: string; price: number; change: number | null }): string {
+  const price = formatPriceAmount(entry.price);
+  if (entry.change == null || entry.change === 0) return `${entry.date}  ${price}`;
+  const abs = formatPriceAmount(Math.abs(entry.change));
+  if (entry.change > 0) return `${entry.date}  ${price}  (+${abs})`;
+  return `${entry.date}  ${price}  (−${abs})`;
 }
 
 function moneyInput(value: number, onChange: (n: number) => void, label: string) {
@@ -142,6 +143,7 @@ export const OfferCompareView: React.FC = () => {
             advertisedPrice: null,
             msrp: null,
             priceChange: null,
+            priceHistory: [],
             daysOnMarket: null,
             daysOnMarketActive: null,
             firstSeen: null,
@@ -216,7 +218,7 @@ export const OfferCompareView: React.FC = () => {
         </div>
         <h1 className="text-xl font-black text-white">No vehicles in this deal</h1>
         <p className="text-xs text-ink-muted">
-          Finish Step 6 of Launch Dealership Bidding Hunt to compare the imported favorite and any other lots.
+          Finish Step 5 of Launch Dealership Bidding Hunt to compare the imported favorite and any other lots.
         </p>
         <Link
           href="/"
@@ -380,44 +382,6 @@ function VehicleOfferColumn({
       </div>
 
       <div className="px-4 py-3 space-y-3 flex-1">
-        <div>
-          <div className="text-[10px] font-semibold uppercase tracking-wider text-ink-faint">
-            {FORD_COMPETITION_FACTORY_OPTIONS}
-          </div>
-          {options.length === 0 ? (
-            <p className="text-[11px] text-ink-muted mt-1">{FORD_COMPETITION_FACTORY_OPTIONS_UNAVAILABLE}</p>
-          ) : (
-            <ul className="mt-1 max-h-36 overflow-y-auto space-y-0.5">
-              {options.map((opt, i) => (
-                <li
-                  key={`${opt.code || ""}-${opt.description}-${i}`}
-                  className={`text-[11px] leading-snug text-ink-light ${opt.isPackageChild ? "pl-3 text-ink-muted" : ""}`}
-                >
-                  {formatFactoryOptionLine(opt)}
-                  {opt.price != null && opt.price > 0 ? (
-                    <span className="text-ink-faint"> · {formatCurrency(opt.price)}</span>
-                  ) : null}
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-
-        <div className="rounded-xl border border-border bg-background p-3 space-y-1.5">
-          <div className="text-[10px] font-semibold uppercase tracking-wider text-ink-faint">Listing details</div>
-          {listingLoading && !sheet ? (
-            <p className="text-[11px] text-ink-muted flex items-center gap-1.5">
-              <Loader2 className="h-3 w-3 animate-spin" /> Loading listing details…
-            </p>
-          ) : listingNote ? (
-            <p className="text-[11px] text-ink-muted">{listingNote}</p>
-          ) : sheet?.available ? (
-            <ListingFacts sheet={sheet} />
-          ) : (
-            <p className="text-[11px] text-ink-muted">{LISTING_DETAILS_UNAVAILABLE}</p>
-          )}
-        </div>
-
         <div className="space-y-3">
           <div className="text-[10px] font-semibold uppercase tracking-wider text-ink-faint">
             Terms for this VIN
@@ -519,6 +483,45 @@ function VehicleOfferColumn({
             </div>
           ) : null}
         </div>
+
+        <div>
+          <div className="text-[10px] font-semibold uppercase tracking-wider text-ink-faint">
+            {FORD_COMPETITION_FACTORY_OPTIONS}
+          </div>
+          {options.length === 0 ? (
+            <p className="text-[11px] text-ink-muted mt-1">{FORD_COMPETITION_FACTORY_OPTIONS_UNAVAILABLE}</p>
+          ) : (
+            <ul className="mt-1 max-h-36 overflow-y-auto space-y-0.5">
+              {options.map((opt, i) => (
+                <li
+                  key={`${opt.code || ""}-${opt.description}-${i}`}
+                  className={`text-[11px] leading-snug text-ink-light ${opt.isPackageChild ? "pl-3 text-ink-muted" : ""}`}
+                >
+                  {formatFactoryOptionLine(opt)}
+                  {opt.price != null && opt.price > 0 ? (
+                    <span className="text-ink-faint"> · {formatCurrency(opt.price)}</span>
+                  ) : null}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+
+        <div className="rounded-xl border border-border bg-background p-3 space-y-1.5">
+          <div className="text-[10px] font-semibold uppercase tracking-wider text-ink-faint">Listing details</div>
+          {listingLoading && !sheet ? (
+            <p className="text-[11px] text-ink-muted flex items-center gap-1.5">
+              <Loader2 className="h-3 w-3 animate-spin" /> Loading listing details…
+            </p>
+          ) : listingNote ? (
+            <p className="text-[11px] text-ink-muted">{listingNote}</p>
+          ) : sheet?.available ? (
+            <ListingFacts sheet={sheet} />
+          ) : (
+            <p className="text-[11px] text-ink-muted">{LISTING_DETAILS_UNAVAILABLE}</p>
+          )}
+        </div>
+
       </div>
     </section>
   );
@@ -528,9 +531,6 @@ function ListingFacts({ sheet }: { sheet: ShopperListingSheet }) {
   const facts: Array<{ label: string; value: React.ReactNode }> = [];
   if (sheet.advertisedPrice) facts.push({ label: "Advertised price", value: formatPriceAmount(sheet.advertisedPrice) });
   if (sheet.msrp) facts.push({ label: "MSRP", value: formatPriceAmount(sheet.msrp) });
-  if (sheet.priceChange != null && sheet.priceChange !== 0) {
-    facts.push({ label: "Price change", value: formatSignedPrice(sheet.priceChange) });
-  }
   if (sheet.daysOnMarket != null) facts.push({ label: "Days on market", value: String(sheet.daysOnMarket) });
   if (sheet.daysOnMarketActive != null) {
     facts.push({ label: "Days on market (active)", value: String(sheet.daysOnMarketActive) });
@@ -573,6 +573,18 @@ function ListingFacts({ sheet }: { sheet: ShopperListingSheet }) {
           </div>
         ))}
       </dl>
+      {sheet.priceHistory && sheet.priceHistory.length > 0 ? (
+        <div className="pt-1">
+          <div className="text-[10px] font-semibold uppercase tracking-wider text-ink-faint">Price history</div>
+          <ul className="mt-1 space-y-0.5">
+            {sheet.priceHistory.map((entry) => (
+              <li key={`${entry.date}-${entry.price}`} className="text-[11px] font-mono text-ink-light">
+                {formatPriceHistoryLine(entry)}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
       {sheet.vdpUrl ? (
         <a
           href={sheet.vdpUrl}

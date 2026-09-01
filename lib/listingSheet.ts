@@ -1,5 +1,5 @@
 /**
- * Live per-VIN listing facts for the post-Step-6 compare page.
+ * Live per-VIN listing facts for the post-Step-5 compare page.
  *
  * MarketCheck ToS: query live on this request. Do not cache, warehouse, or
  * store raw listing payloads. Transient in-memory for this request is fine.
@@ -19,6 +19,16 @@ export const MARKETCHECK_SHOPPER_ATTRIBUTION = "Data powered by MarketCheck";
 
 export const MAX_LISTING_SHEET_VINS = 3;
 
+/** Most recent distinct prices shown on a compare column. */
+export const MAX_SHOPPER_PRICE_HISTORY = 10;
+
+export interface ShopperPriceHistoryEntry {
+  date: string;
+  price: number;
+  /** Delta vs the previous distinct price; null on the first row. */
+  change: number | null;
+}
+
 export interface ShopperListingSheet {
   vin: string;
   available: boolean;
@@ -27,6 +37,7 @@ export interface ShopperListingSheet {
   advertisedPrice: number | null;
   msrp: number | null;
   priceChange: number | null;
+  priceHistory: ShopperPriceHistoryEntry[];
   daysOnMarket: number | null;
   daysOnMarketActive: number | null;
   firstSeen: string | null;
@@ -72,6 +83,7 @@ function emptySheet(vin: string, note: string): ShopperListingSheet {
     advertisedPrice: null,
     msrp: null,
     priceChange: null,
+    priceHistory: [],
     daysOnMarket: null,
     daysOnMarketActive: null,
     firstSeen: null,
@@ -177,20 +189,110 @@ function listingIdFrom(row: Record<string, unknown>): string | null {
   return null;
 }
 
-function historyPrices(payload: unknown): number[] {
+function historyListingRows(payload: unknown): unknown[] {
   const root = record(payload);
-  const rows = Array.isArray(root?.listings)
-    ? root!.listings
-    : Array.isArray(payload)
-      ? payload
-      : [];
+  if (Array.isArray(root?.listings)) return root!.listings;
+  if (Array.isArray(payload)) return payload;
+  return [];
+}
+
+function historyPrices(payload: unknown): number[] {
   const prices: number[] = [];
-  for (const row of rows) {
+  for (const row of historyListingRows(payload)) {
     const rec = record(row);
     const price = asPositivePrice(rec?.price);
     if (price) prices.push(price);
   }
   return prices;
+}
+
+function snapshotSortMs(rec: Record<string, unknown>, date: string): number {
+  for (const key of ["first_seen_at", "last_seen_at", "scraped_at", "ref_price_dt"]) {
+    const value = rec[key];
+    if (typeof value === "number" && Number.isFinite(value)) {
+      const ms = value > 1e12 ? value : value * 1000;
+      if (!Number.isNaN(new Date(ms).getTime())) return ms;
+    }
+    if (typeof value === "string" && value.trim()) {
+      const d = new Date(value);
+      if (!Number.isNaN(d.getTime())) return d.getTime();
+    }
+  }
+  const fromDate = Date.parse(`${date}T00:00:00Z`);
+  return Number.isFinite(fromDate) ? fromDate : 0;
+}
+
+function snapshotFromHistoryRow(
+  rec: Record<string, unknown> | null
+): { price: number; date: string; sortMs: number } | null {
+  if (!rec) return null;
+  const price = asPositivePrice(rec.price);
+  if (!price) return null;
+  const date =
+    formatSeenAt(rec.first_seen_at_date) ||
+    formatSeenAt(rec.first_seen_at) ||
+    formatSeenAt(rec.last_seen_at_date) ||
+    formatSeenAt(rec.last_seen_at) ||
+    formatSeenAt(rec.scraped_at_date) ||
+    formatSeenAt(rec.scraped_at) ||
+    formatSeenAt(rec.ref_price_dt);
+  if (!date) return null;
+  return { price, date, sortMs: snapshotSortMs(rec, date) };
+}
+
+function publicPriceHistory(entries: ShopperPriceHistoryEntry[] | undefined): ShopperPriceHistoryEntry[] {
+  if (!Array.isArray(entries) || entries.length === 0) return [];
+  const out: ShopperPriceHistoryEntry[] = [];
+  for (const entry of entries) {
+    if (!entry || typeof entry.date !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(entry.date)) continue;
+    if (typeof entry.price !== "number" || !Number.isFinite(entry.price) || entry.price <= 0) continue;
+    const change =
+      entry.change == null || typeof entry.change !== "number" || !Number.isFinite(entry.change)
+        ? null
+        : entry.change;
+    out.push({ date: entry.date, price: entry.price, change });
+    if (out.length >= MAX_SHOPPER_PRICE_HISTORY) break;
+  }
+  return out;
+}
+
+/**
+ * Dated shopper price history from VIN history snapshots (and optional
+ * listing-detail ref_price). Consecutive identical prices are dropped.
+ * Chronological (oldest first); capped to the most recent distinct prices.
+ */
+export function mapShopperPriceHistory(history: unknown, listingDetail?: unknown): ShopperPriceHistoryEntry[] {
+  const rows: Array<{ price: number; date: string; sortMs: number; idx: number }> = [];
+  for (const row of historyListingRows(history)) {
+    const snap = snapshotFromHistoryRow(record(row));
+    if (snap) rows.push({ ...snap, idx: rows.length });
+  }
+  const detail = record(listingDetail);
+  if (detail) {
+    const refPrice = asPositivePrice(detail.ref_price);
+    const refDate = formatSeenAt(detail.ref_price_dt);
+    if (refPrice && refDate) {
+      rows.push({
+        price: refPrice,
+        date: refDate,
+        sortMs: snapshotSortMs({ ref_price_dt: detail.ref_price_dt }, refDate),
+        idx: rows.length,
+      });
+    }
+  }
+  rows.sort((a, b) => a.sortMs - b.sortMs || a.idx - b.idx);
+  const deduped: Array<{ price: number; date: string }> = [];
+  for (const row of rows) {
+    const last = deduped[deduped.length - 1];
+    if (last && last.price === row.price) continue;
+    deduped.push({ price: row.price, date: row.date });
+  }
+  const withChange: ShopperPriceHistoryEntry[] = deduped.map((row, i) => ({
+    date: row.date,
+    price: row.price,
+    change: i === 0 ? null : row.price - deduped[i - 1].price,
+  }));
+  return withChange.slice(-MAX_SHOPPER_PRICE_HISTORY);
 }
 
 function priceChangeVsPrior(
@@ -250,6 +352,7 @@ export function shopperSheetFromMarketCheckPayloads(opts: {
     advertisedPrice,
     msrp,
     priceChange: priceChangeVsPrior(advertisedPrice, row.price_change, historyPrices(opts.history)),
+    priceHistory: mapShopperPriceHistory(opts.history, opts.listingDetail),
     daysOnMarket: asNonNegativeInt(row.dom),
     daysOnMarketActive: asNonNegativeInt(row.dom_active),
     firstSeen,
@@ -382,6 +485,7 @@ export function publicListingSheets(sheets: ShopperListingSheet[]): ShopperListi
     advertisedPrice: sheet.advertisedPrice,
     msrp: sheet.msrp,
     priceChange: sheet.priceChange,
+    priceHistory: publicPriceHistory(sheet.priceHistory),
     daysOnMarket: sheet.daysOnMarket,
     daysOnMarketActive: sheet.daysOnMarketActive,
     firstSeen: sheet.firstSeen,
