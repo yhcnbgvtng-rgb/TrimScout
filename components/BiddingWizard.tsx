@@ -14,18 +14,27 @@ import { findContactInfo } from "../lib/piiFilter";
 import { MOCK_POPULAR_PACKAGES, SAMPLE_TRADE_IN_VEHICLE } from "../lib/mockData";
 import { decodeVin, SAMPLE_TEST_VINS, DecodedVehicle } from "../lib/vinDecoder";
 import {
+  FORD_BUILD_SHEET_LINK,
   FORD_COMPETITION_FACTORY_OPTIONS,
   FORD_COMPETITION_FACTORY_OPTIONS_UNAVAILABLE,
   FORD_COMPETITION_LOADING,
   FORD_COMPETITION_NEED_LOCATION,
   FORD_MUST_HAVE_HEADING,
   FORD_MUST_HAVE_HELP,
+  FORD_OTHER_LOTS_HEADING,
+  FORD_OTHER_LOTS_HELP,
+  FORD_OTHER_LOTS_HELP_FIND,
+  FORD_OTHER_LOTS_HELP_PASTE,
+  FORD_OTHER_LOTS_MODE_FIND,
+  FORD_OTHER_LOTS_MODE_PASTE,
   advertisedOrStickerPrice,
   autoFillCompetitionSlots,
   fordCompetitionEmptyCopy,
   formatFactoryOptionLine,
   formatPriceAmount,
+  shopperPriceSourceLabel,
   type FactoryOptionDisplay,
+  type OtherLotsMode,
 } from "../lib/fordCompetitionUi";
 import {
   X,
@@ -334,6 +343,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   const [fordDroppedCount, setFordDroppedCount] = useState(0);
   const [huntZip, setHuntZip] = useState("");
   const [huntRadius, setHuntRadius] = useState("");
+  const [otherLotsMode, setOtherLotsMode] = useState<OtherLotsMode>("find");
 
   // Step 2: up to 2 optional secondary vehicle links, to widen competition
   // beyond just the favorite pick.
@@ -473,12 +483,23 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   };
 
   const huntReady = /^\d{5}$/.test(huntZip.trim()) && Number(huntRadius) > 0;
+  const findLotsMode = otherLotsMode === "find";
 
-  // Ford sticker-confirmed lots for the Increase Competition slots.
+  const selectOtherLotsMode = (mode: OtherLotsMode) => {
+    if (mode === otherLotsMode) return;
+    setOtherLotsMode(mode);
+    if (mode === "paste") {
+      setSecondaryVehicles([null, null]);
+      setSecondaryUrls(["", ""]);
+    }
+  };
+
+  // Matching lots for the two "other lots" slots on the find path only.
   // Warehouse /api/comparable-vehicles is intentionally NOT the source of
   // truth for Ford factory options. ZIP + radius are required user input.
+  // Paste-own mode must not call /api/ford-comparables.
   useEffect(() => {
-    if (fordStickerStatus !== "released" || !selectedVehicle?.vin) {
+    if (!findLotsMode || fordStickerStatus !== "released" || !selectedVehicle?.vin) {
       setFordSuggestions([]);
       setFordHuntError(null);
       setFordSearchNote(null);
@@ -544,6 +565,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
       cancelled = true;
     };
   }, [
+    findLotsMode,
     fordStickerStatus,
     selectedVehicle?.vin,
     mustHavePackages,
@@ -554,6 +576,11 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   ]);
 
   useEffect(() => {
+    if (!findLotsMode) {
+      setAiSuggestions([]);
+      setIsLoadingAiSuggestions(false);
+      return;
+    }
     if (!selectedVehicle || fordStickerStatus === "released") return;
     if (!buyerZip || buyerZip.trim().length < 5) {
       setAiSuggestions([]);
@@ -583,19 +610,19 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     return () => {
       cancelled = true;
     };
-  }, [fordStickerStatus, selectedVehicle?.vin, selectedVehicle?.make, selectedVehicle?.model, buyerZip]);
+  }, [findLotsMode, fordStickerStatus, selectedVehicle?.vin, selectedVehicle?.make, selectedVehicle?.model, buyerZip]);
 
-  // One path: when hunt results update, the two slots ARE the nearest match
-  // plus the nearest different dealer (including lots with no dealerUrl).
+  // Find path only: the two slots ARE the nearest match plus the nearest
+  // different dealer (including lots with no dealerUrl). Paste-own never auto-fills.
   useEffect(() => {
-    if (fordStickerStatus !== "released") return;
+    if (!findLotsMode || fordStickerStatus !== "released") return;
     const [first, second] = autoFillCompetitionSlots(fordSuggestions);
     setSecondaryVehicles([
       first ? fordSuggestionToVehicle(first) : null,
       second ? fordSuggestionToVehicle(second) : null,
     ]);
     setSecondaryUrls([first?.dealerUrl || "", second?.dealerUrl || ""]);
-  }, [fordSuggestions, fordStickerStatus]);
+  }, [findLotsMode, fordSuggestions, fordStickerStatus]);
 
   const applyMockParse = (raw: string) => {
     const url = raw.toLowerCase();
@@ -619,7 +646,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
       setTargetOtdPrice(Math.round(matched.msrp * 0.92));
       setIsParsingLink(false);
       setParseSuccessMsg(
-        `✓ Decoded Window Sticker from ${matched.location.dealerName}! (VIN: ${matched.vin} • ${formatCurrency(matched.msrp)} MSRP)`
+        `VIN ${matched.vin} · ${matched.location.dealerName} · MSRP ${formatCurrency(matched.msrp)}`
       );
     }, 700);
   };
@@ -665,7 +692,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
       }
 
       if (!res.ok) {
-        setParseError(json.error || "Could not read the Ford window sticker. Paste the 17-character VIN if you have it.");
+        setParseError(json.error || "Could not read the factory build. Paste the 17-character VIN if you have it.");
         setIsParsingLink(false);
         return;
       }
@@ -674,7 +701,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
         setFordStickerStatus("unreleased");
         setFordPdfUrl(json.pdfUrl || json.sticker?.pdfUrl || null);
         setParseError(
-          "The Ford window sticker has not yet been released. Dealer ad copy is not proof — status is unconfirmed."
+          "The factory build has not yet been released. Dealer ad copy is not proof — status is unconfirmed."
         );
         setIsParsingLink(false);
         return;
@@ -682,7 +709,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
 
       const matched = json.vehicle as Vehicle | null;
       if (!matched) {
-        setParseError("Ford returned a sticker we could not parse.");
+        setParseError("Ford returned a build we could not parse.");
         setIsParsingLink(false);
         return;
       }
@@ -700,7 +727,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
         setTargetOtdPrice(Math.round(json.sticker.msrp * 0.92));
       }
       setParseSuccessMsg(
-        `Ford window sticker (sticker) · VIN ${matched.vin}${
+        `VIN ${matched.vin}${
           json.sticker?.msrp ? ` · MSRP ${formatStickerMsrp(json.sticker.msrp)}` : ""
         }`
       );
@@ -775,7 +802,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   };
 
   const hasCompetition = secondaryVehicles.some((v) => !!v);
-  const huntLocationMissing = fordStickerStatus === "released" && !huntReady;
+  const huntLocationMissing = findLotsMode && fordStickerStatus === "released" && !huntReady;
   const fordEmptySlots =
     fordStickerStatus === "released"
       ? fordCompetitionEmptyCopy({
@@ -1086,7 +1113,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                             huntLocationMissing ? "text-amber-300" : "text-ink-faint"
                           }`}
                         >
-                          Your ZIP (required)
+                          Your ZIP{findLotsMode ? " (required)" : ""}
                         </span>
                         <div className="relative">
                           <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-emerald-400" />
@@ -1118,7 +1145,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                             huntLocationMissing ? "text-amber-300" : "text-ink-faint"
                           }`}
                         >
-                          Radius miles (required)
+                          Radius miles{findLotsMode ? " (required)" : ""}
                         </span>
                         <input
                           type="text"
@@ -1171,7 +1198,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                         {isParsingLink ? (
                           <>
                             <Loader2 className="h-4 w-4 animate-spin" />
-                            <span>Decoding Window Sticker...</span>
+                            <span>Importing…</span>
                           </>
                         ) : (
                           <>
@@ -1205,7 +1232,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                             className="flex items-center gap-1 text-[10px] font-bold text-emerald-300 hover:text-white"
                           >
                             <FileText className="h-3.5 w-3.5" />
-                            Ford sticker PDF
+                            {FORD_BUILD_SHEET_LINK}
                           </a>
                         )}
                       </div>
@@ -1232,9 +1259,6 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                             ).slice(0, 8).map((p, i) => (
                               <span key={i} className="rounded bg-surface-elevated px-1.5 py-0.2 text-[10px] text-ink-light border border-border">
                                 {p}
-                                {fordStickerStatus === "released" && (
-                                  <span className="ml-1 text-[9px] uppercase text-emerald-400/80">sticker</span>
-                                )}
                               </span>
                             ))}
                           </div>
@@ -1254,14 +1278,13 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                                 <>
                                   {hasListing && selectedVehicle.msrp > 0 && (
                                     <div className="text-[11px] text-ink-muted">
-                                      MSRP {formatStickerMsrp(selectedVehicle.msrp)}{" "}
-                                      <span className="uppercase text-[9px] text-ink-faint">sticker</span>
+                                      MSRP {formatStickerMsrp(selectedVehicle.msrp)}
                                     </div>
                                   )}
                                   <div className="text-base font-black text-white">
                                     {formatPriceAmount(shown.amount)}{" "}
                                     <span className="uppercase text-[9px] font-bold text-ink-faint">
-                                      {shown.source}
+                                      {shopperPriceSourceLabel(shown.source)}
                                     </span>
                                   </div>
                                 </>
@@ -1284,6 +1307,31 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
               {/* Once a favorite is locked in, offer to widen the field */}
               {selectedVehicle && (
                 <div className="space-y-5 pt-4 border-t border-border/50">
+                  <div className="space-y-1">
+                    <span className="text-xs font-semibold text-ink-light">Other lots</span>
+                    <div className="flex flex-wrap items-center gap-x-5 gap-y-1.5">
+                      {(
+                        [
+                          { id: "find" as const, label: FORD_OTHER_LOTS_MODE_FIND },
+                          { id: "paste" as const, label: FORD_OTHER_LOTS_MODE_PASTE },
+                        ]
+                      ).map((opt) => (
+                        <label key={opt.id} className="flex items-center gap-2 py-0.5 text-xs cursor-pointer">
+                          <input
+                            type="radio"
+                            name="otherLotsMode"
+                            checked={otherLotsMode === opt.id}
+                            onChange={() => selectOtherLotsMode(opt.id)}
+                            className="h-3.5 w-3.5 shrink-0 border-border text-emerald-500 focus:ring-0"
+                          />
+                          <span className={otherLotsMode === opt.id ? "text-white" : "text-ink-light"}>
+                            {opt.label}
+                          </span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+
                   {fordStickerStatus === "released" && fordFilterableOptions.length > 0 && (
                     <div className="space-y-1">
                       <h4 className="text-xs font-bold text-white uppercase tracking-wider">
@@ -1297,17 +1345,16 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                       />
                     </div>
                   )}
-                  {/* INCREASE COMPETITION: the two slots ARE the hunt result */}
+                  {/* Other lots: hunt auto-fill on the find path; two paste fields on the paste path */}
                   <div className="space-y-2.5">
                     <div>
                       <h4 className="text-xs font-bold text-white uppercase tracking-wider">
-                        Increase Competition <span className="text-ink-faint font-normal normal-case">(optional)</span>
+                        {FORD_OTHER_LOTS_HEADING}{" "}
+                        <span className="text-ink-faint font-normal normal-case">(optional)</span>
                       </h4>
                       <p className="text-[11px] text-ink-muted mt-0.5">
-                        Up to 2 more lots you&apos;d also accept — more dealers means more pressure on price.
-                        {fordStickerStatus === "released" && (
-                          <> The nearest matching lot and the nearest lot from a different dealer fill these slots after ZIP and radius.</>
-                        )}
+                        {FORD_OTHER_LOTS_HELP}{" "}
+                        {findLotsMode ? FORD_OTHER_LOTS_HELP_FIND : FORD_OTHER_LOTS_HELP_PASTE}
                       </p>
                       {huntLocationMissing && (
                         <p className="text-[11px] text-amber-300 mt-1">
@@ -1316,12 +1363,12 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                       )}
                     </div>
 
-                    {fordStickerStatus === "released" && fordEmptySlots?.kind === "loading" ? (
+                    {findLotsMode && fordStickerStatus === "released" && fordEmptySlots?.kind === "loading" ? (
                       <div className="flex items-center gap-2 rounded-xl border border-border bg-surface-elevated px-3 py-4">
                         <Loader2 className="h-4 w-4 animate-spin text-emerald-400" />
                         <span className="text-xs text-ink-muted">{FORD_COMPETITION_LOADING}</span>
                       </div>
-                    ) : fordStickerStatus === "released" && fordEmptySlots && !hasCompetition ? (
+                    ) : findLotsMode && fordStickerStatus === "released" && fordEmptySlots && !hasCompetition ? (
                       <>
                         <div
                           className={`rounded-xl border px-3 py-3 text-xs leading-relaxed ${
@@ -1392,7 +1439,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                                               matchedVehicle.dealerPrice,
                                               matchedVehicle.msrp
                                             );
-                                            return `${formatPriceAmount(shown.amount)} ${shown.source}`;
+                                            return `${formatPriceAmount(shown.amount)} ${shopperPriceSourceLabel(shown.source)}`;
                                           })()}
                                           {" · "}
                                           <span className="font-mono">{matchedVehicle.vin}</span>
@@ -1446,7 +1493,8 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                             </div>
                           );
                         })}
-                        {fordStickerStatus !== "released" &&
+                        {findLotsMode &&
+                          fordStickerStatus !== "released" &&
                           !hasCompetition &&
                           aiSuggestions.length > 0 && (
                             <button
@@ -1460,16 +1508,16 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                           )}
                       </>
                     )}
-                    {fordStickerStatus === "released" && (
+                    {findLotsMode && fordStickerStatus === "released" && (
                       <p className="text-[10px] text-ink-faint">
-                        Must-haves are hard-filtered from each lot&apos;s Ford window sticker. Dealer ads are not
+                        Must-haves filter matching lots from each factory build. Dealer ads are not
                         proof. Distance is from your ZIP
                         {huntReady ? ` (${huntZip} · ${huntRadius} mi)` : ""}.
                       </p>
                     )}
                   </div>
 
-                  {fordStickerStatus === "released" ? null : (
+                  {fordStickerStatus === "released" || !findLotsMode ? null : (
                   <div className="rounded-xl border border-border bg-surface-elevated p-3.5 space-y-3">
                     <div className="flex items-center justify-between gap-2">
                       <div className="flex items-center gap-2 text-xs font-bold text-white">

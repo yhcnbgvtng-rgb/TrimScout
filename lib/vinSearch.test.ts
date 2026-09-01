@@ -7,22 +7,33 @@ import { describe, it } from "node:test";
 import { parseFordStickerText } from "./fordSticker";
 import { serverSecret } from "./serverSecret";
 import {
+  FORD_BUILD_SHEET_LINK,
   FORD_COMPETITION_FACTORY_OPTIONS,
   FORD_COMPETITION_FACTORY_OPTIONS_UNAVAILABLE,
   FORD_COMPETITION_LOADING,
   FORD_COMPETITION_NEED_LOCATION,
+  FORD_EMPTY_LOTS,
   FORD_MUST_HAVE_HEADING,
   FORD_MUST_HAVE_HELP,
+  FORD_OTHER_LOTS_HEADING,
+  FORD_OTHER_LOTS_HELP,
+  FORD_OTHER_LOTS_HELP_FIND,
+  FORD_OTHER_LOTS_HELP_PASTE,
+  FORD_OTHER_LOTS_MODE_FIND,
+  FORD_OTHER_LOTS_MODE_PASTE,
   advertisedOrStickerPrice,
   autoFillCompetitionSlots,
   fordCompetitionEmptyCopy,
   formatFactoryOptionLine,
   formatPriceAmount,
+  shopperPriceSourceLabel,
 } from "./fordCompetitionUi";
 import { resolveListingsProvider } from "./listingsProvider";
 import {
   DEMO_COMPARABLE_LISTINGS,
+  composeEmptyHuntNote,
   dealerIdentity,
+  demoListingsNote,
   findSimilarFordVehicles,
   fordMatchToVehicle,
   formatListingPrice,
@@ -583,9 +594,24 @@ describe("shopper-facing factory option copy", () => {
       FORD_MUST_HAVE_HELP,
       FORD_COMPETITION_FACTORY_OPTIONS,
       FORD_COMPETITION_FACTORY_OPTIONS_UNAVAILABLE,
+      FORD_COMPETITION_LOADING,
+      FORD_COMPETITION_NEED_LOCATION,
+      FORD_EMPTY_LOTS,
+      FORD_OTHER_LOTS_HEADING,
+      FORD_OTHER_LOTS_HELP,
+      FORD_OTHER_LOTS_HELP_FIND,
+      FORD_OTHER_LOTS_HELP_PASTE,
+      FORD_OTHER_LOTS_MODE_FIND,
+      FORD_OTHER_LOTS_MODE_PASTE,
+      FORD_BUILD_SHEET_LINK,
     ]) {
-      assert.doesNotMatch(copy, /sticker/i);
+      assert.doesNotMatch(copy, /sticker|stocker/i);
+      assert.doesNotMatch(copy, /increase competition/i);
     }
+    assert.match(FORD_MUST_HAVE_HELP, /Check only the options you require/i);
+    assert.equal(shopperPriceSourceLabel("sticker"), "MSRP");
+    assert.equal(shopperPriceSourceLabel("listing"), "listing");
+    assert.equal(shopperPriceSourceLabel("unconfirmed"), "unconfirmed");
     assert.equal(
       formatFactoryOptionLine({ code: "800A", description: "EQUIPMENT GROUP 800A" }),
       "EQUIPMENT GROUP 800A"
@@ -610,6 +636,49 @@ describe("shopper-facing factory option copy", () => {
     assert.match(src, /FORD_MUST_HAVE_HEADING/);
     assert.match(src, /FORD_MUST_HAVE_HELP/);
     assert.match(src, /FORD_COMPETITION_FACTORY_OPTIONS_UNAVAILABLE/);
+  });
+
+  it("step 2 preview and other-lots copy never say sticker or Increase Competition", () => {
+    const src = fs.readFileSync(path.join(process.cwd(), "components/BiddingWizard.tsx"), "utf8");
+    const start = src.indexOf("STEP 2:");
+    const end = src.indexOf("STEP 3:");
+    assert.ok(start >= 0 && end > start);
+    const step2 = src.slice(start, end);
+    assert.doesNotMatch(step2, /window sticker/i);
+    assert.doesNotMatch(step2, /Increase Competition/);
+    assert.doesNotMatch(step2, /consider other vehicles to include in the offer package/i);
+    assert.doesNotMatch(step2, /Ford sticker PDF/);
+    assert.doesNotMatch(step2, /Decoding Window Sticker/);
+    assert.doesNotMatch(step2, />sticker</);
+    assert.match(step2, /FORD_BUILD_SHEET_LINK/);
+    assert.match(step2, /shopperPriceSourceLabel/);
+    assert.match(step2, /FORD_OTHER_LOTS_HEADING/);
+    assert.match(step2, /FORD_OTHER_LOTS_MODE_FIND/);
+    assert.match(step2, /FORD_OTHER_LOTS_MODE_PASTE/);
+    assert.match(step2, /type="radio"/);
+    assert.match(src, /useState<OtherLotsMode>\("find"\)/);
+    assert.match(src, /findLotsMode \|\| fordStickerStatus !== "released"/);
+    assert.match(src, /\/api\/ford-comparables/);
+    assert.match(FORD_MUST_HAVE_HELP, /Unchecked options are ignored/);
+  });
+
+  it("shopper-facing hunt notes never say sticker", () => {
+    assert.doesNotMatch(demoListingsNote("Bronco Sport"), /sticker|stocker|increase competition/i);
+    assert.doesNotMatch(demoListingsNote("Explorer"), /sticker|stocker|increase competition/i);
+    const note = composeEmptyHuntNote({
+      zip: "07405",
+      radiusMiles: 100,
+      provider: "marketcheck",
+      existingNote: "",
+      dropped: [
+        { vin: "A", reason: "outside_radius" },
+        { vin: "B", reason: "missing_must_have" },
+      ],
+      subjectModel: "Explorer",
+      candidateCount: 2,
+    });
+    assert.doesNotMatch(note, /sticker|stocker/i);
+    assert.match(note, /factory build/);
   });
 
   it("tests never call live MarketCheck, Auto.dev, Ford Direct, or production comparables", async () => {

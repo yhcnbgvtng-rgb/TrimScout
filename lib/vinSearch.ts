@@ -68,9 +68,9 @@ export function demoListingsNote(model?: string): string {
   if (matched.length === 0) {
     return `Demo listings are Explorer Tremor only and do not apply to ${
       model || "this vehicle"
-    }. Increase Competition was left empty. Set AUTO_DEV_API_KEY or MARKETCHECK_API_KEY for live same-model search.`;
+    }. Other lots were not added. Set AUTO_DEV_API_KEY or MARKETCHECK_API_KEY for live same-model search.`;
   }
-  return "No listings API key configured. Demo comparables use known Explorer Tremor VINs plus live Ford Direct stickers. Set AUTO_DEV_API_KEY or MARKETCHECK_API_KEY for live same-model search.";
+  return "No listings API key configured. Demo comparables use known Explorer Tremor VINs plus factory build data. Set AUTO_DEV_API_KEY or MARKETCHECK_API_KEY for live same-model search.";
 }
 
 export function composeEmptyHuntNote(opts: {
@@ -88,16 +88,16 @@ export function composeEmptyHuntNote(opts: {
   const outside = opts.dropped.filter((d) => d.reason === "outside_radius").length;
   const missing = opts.dropped.filter((d) => d.reason === "missing_must_have").length;
   const parts = [
-    `No sticker-confirmed matches within ${opts.radiusMiles} miles of ${opts.zip}. Farther lots are not shown.`,
+    `No matching lots within ${opts.radiusMiles} miles of ${opts.zip}. Farther lots are not shown.`,
   ];
   if (outside > 0) {
     parts.push(
-      `${outside} sticker-confirmed lot${outside === 1 ? " was" : "s were"} outside your radius.`
+      `${outside} matching lot${outside === 1 ? " was" : "s were"} outside your radius.`
     );
   }
   if (missing > 0) {
     parts.push(
-      `${missing} lot${missing === 1 ? " was" : "s were"} dropped because a must-have was missing from the sticker.`
+      `${missing} lot${missing === 1 ? " was" : "s were"} dropped because a must-have was missing from the factory build.`
     );
   }
   if (opts.existingNote) parts.push(opts.existingNote);
@@ -636,7 +636,7 @@ export async function searchCoarseListings(q: {
       return {
         provider,
         listings,
-        note: "Live listings from Auto.dev; factory options come only from the Ford window sticker.",
+        note: "Live listings from Auto.dev; factory options come only from the factory build.",
       };
     } catch (err) {
       const note = shortListingsError(err, "Auto.dev");
@@ -650,7 +650,7 @@ export async function searchCoarseListings(q: {
       return {
         provider: "marketcheck",
         listings,
-        note: "Live listings from MarketCheck; factory options come only from the Ford window sticker.",
+        note: "Live listings from MarketCheck; factory options come only from the factory build.",
       };
     } catch (err) {
       const note = shortListingsError(err, "MarketCheck");
@@ -744,7 +744,7 @@ export async function findSimilarFordVehicles(opts: {
   if (!isUsableHuntLocation(zip, radius)) {
     return huntResult({
       provider: "demo",
-      note: "Enter a 5-digit ZIP and a search radius in miles to see two sticker-matched lots in range.",
+      note: "Enter a 5-digit ZIP and a search radius in miles to see two matching lots in range.",
       needsLocation: true,
       candidatesConsidered: 0,
       stickersFetched: 0,
