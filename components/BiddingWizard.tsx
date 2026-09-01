@@ -33,6 +33,7 @@ import {
   formatFactoryOptionLine,
   formatPriceAmount,
   listingVdpHref,
+  reviewTargetFromVehicle,
   shopperPriceSourceLabel,
   type FactoryOptionDisplay,
   type OtherLotsMode,
@@ -473,6 +474,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   // Step 2 Continue is blocked until Import Car actually loaded a vehicle.
   // Typing a VIN/URL, or merely arriving on this step, is not enough.
   const vehicleImported = Boolean(parseSuccessMsg && selectedVehicle);
+  const reviewTarget = reviewTargetFromVehicle(selectedVehicle);
   // Step 2 (vehicle selection) is skipped when a real vehicle is already
   // locked in — the payment-method question (step 1) still always shows
   // first, so the skip happens on navigation, not on mount.
@@ -2135,11 +2137,42 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
 
               {/* Summary Box */}
               <div className="rounded-xl border border-border bg-surface-elevated p-4 space-y-2 text-xs">
-                <div className="flex justify-between border-b border-border/50 pb-2">
-                  <span className="text-ink-muted">Target Vehicle:</span>
-                  <span className="text-white font-bold">
-                    {selectedVehicle ? `${selectedVehicle.year} ${selectedVehicle.make} ${selectedVehicle.model} ${selectedVehicle.trim}` : `${make} ${model}`}
-                  </span>
+                <div className="flex justify-between items-start gap-3 border-b border-border/50 pb-2">
+                  <span className="text-ink-muted shrink-0">Target Vehicle:</span>
+                  {reviewTarget ? (
+                    <div className="text-right min-w-0 space-y-0.5">
+                      {reviewTarget.title ? (
+                        <div className="text-white font-bold">{reviewTarget.title}</div>
+                      ) : (
+                        <div className="text-ink-muted">Vehicle details unavailable</div>
+                      )}
+                      {reviewTarget.vin ? (
+                        <div className="text-[11px] text-ink-muted">
+                          VIN:{" "}
+                          {reviewTarget.vdpHref ? (
+                            <a
+                              href={reviewTarget.vdpHref}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="font-mono text-emerald-400 hover:underline"
+                            >
+                              {reviewTarget.vin}
+                            </a>
+                          ) : (
+                            <span className="font-mono text-ink-light">{reviewTarget.vin}</span>
+                          )}
+                        </div>
+                      ) : null}
+                      {reviewTarget.dealerName ? (
+                        <div className="text-[11px] text-ink-light">{reviewTarget.dealerName}</div>
+                      ) : null}
+                      {reviewTarget.locationLine ? (
+                        <div className="text-[11px] text-ink-muted">{reviewTarget.locationLine}</div>
+                      ) : null}
+                    </div>
+                  ) : (
+                    <span className="text-ink-muted">No imported vehicle</span>
+                  )}
                 </div>
 
                 <div className="flex justify-between border-b border-border/50 pb-2">
