@@ -2,6 +2,9 @@ import type { DealStructureMethod, PaymentMethod } from "./types";
 
 export const DEAL_STRUCTURE_METHODS: readonly DealStructureMethod[] = ["cash", "finance", "lease"];
 
+export const FINANCE_TERM_MONTHS = [36, 48, 60, 72] as const;
+export const LEASE_TERM_MONTHS = [24, 36, 39, 48] as const;
+
 export const DEAL_STRUCTURE_LABELS: Record<DealStructureMethod, string> = {
   cash: "Cash",
   finance: "Finance",

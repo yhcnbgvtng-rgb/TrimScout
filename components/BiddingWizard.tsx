@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Vehicle, BiddingStrategy, BiddingRequest, TradeInVehicle, TradeInPhoto, UserProfile, type DealStructureMethod } from "../lib/types";
 import {
   DEAL_STRUCTURE_LABELS,
@@ -50,6 +51,13 @@ import {
   type FactoryBuildOem,
 } from "../lib/pasteImport";
 import { shopperDealStructurePayload, mapDealRequestJson } from "../lib/shopperDeal";
+import { defaultTermsForVehicles } from "../lib/dealTerms";
+import {
+  buildOfferCompareSnapshot,
+  collectDealVehicles,
+  saveOfferCompareSnapshot,
+  upsertShopperRequest,
+} from "../lib/offerCompare";
 import {
   X,
   ShieldCheck,
@@ -88,6 +96,7 @@ interface FordSuggestionCard {
   dealerName: string;
   city: string;
   state: string;
+  zip?: string;
   distanceMiles: number | null;
   listingPrice: number | null;
   listingPriceSource: "listing" | "sticker" | "unconfirmed";
@@ -238,6 +247,7 @@ function fordSuggestionToVehicle(s: FordSuggestionCard): Vehicle {
       dealerName: s.dealerName,
       city: s.city,
       state: s.state,
+      zip: s.zip,
       distanceMiles: s.distanceMiles || 0,
     },
     packages: (s.factoryOptions || [])
@@ -338,6 +348,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   onRequireLogin,
   onRealBidRequestCreated,
 }) => {
+  const router = useRouter();
   const [step, setStep] = useState<number>(1);
   const [strategy, setStrategy] = useState<BiddingStrategy>(initialStrategy);
 
@@ -968,11 +979,25 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   const launchStrategy: BiddingStrategy =
     directOfferMode || offerPath === "direct" ? "firm_offer" : "exact_auction";
 
+  const dealVehicles = collectDealVehicles(selectedVehicle, secondaryVehicles);
+  const favoriteVin = (selectedVehicle?.vin || "").trim().toUpperCase();
+  const otherLotsForDeal = dealVehicles.filter((v) => v.vin !== favoriteVin);
+
+  const vehicleTermsForDeal = defaultTermsForVehicles(dealVehicles, {
+      requestedStructures,
+      financeTermMonths: financeTerm,
+      downPayment,
+      leaseMileagePerYear: leaseMileage,
+      leaseTermMonths: leaseTerm,
+    }
+  );
+
   const buildBiddingRequest = (overrides: Partial<BiddingRequest> = {}): BiddingRequest => ({
     id: `req-${Date.now()}`,
     strategy: launchStrategy,
     targetVin: selectedVehicle?.vin,
     targetVehicle: selectedVehicle || undefined,
+    otherLots: otherLotsForDeal,
     flexibleCriteria: {
       make: selectedVehicle?.make || "",
       model: selectedVehicle?.model || "",
@@ -994,6 +1019,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
       downPayment,
       leaseMileagePerYear: leaseMileage,
       leaseTermMonths: leaseTerm,
+      vehicleTerms: vehicleTermsForDeal,
     },
     buyerZip,
     searchRadiusMiles: searchRadius,
@@ -1004,6 +1030,24 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     directOffer: directOfferMode,
     ...overrides,
   });
+
+  const openComparePage = (request: BiddingRequest) => {
+    const snapshot = buildOfferCompareSnapshot({
+      request,
+      favorite: selectedVehicle,
+      otherLots: secondaryVehicles,
+      buyerZip,
+      requestedStructures,
+    });
+    if (snapshot) {
+      saveOfferCompareSnapshot(snapshot);
+      upsertShopperRequest(snapshot.request);
+    } else {
+      upsertShopperRequest(request);
+    }
+    onClose();
+    router.push("/compare");
+  };
 
   const handleLaunchDeal = async () => {
     if (dealCommentContactWarning) {
@@ -1019,7 +1063,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
 
     setIsSubmittingReal(true);
     setSubmitError(null);
-    let persisted = false;
+    let launched: BiddingRequest | null = null;
     try {
       const res = await fetch("/api/deal-requests", {
         method: "POST",
@@ -1046,6 +1090,8 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
             directOffer: directOfferMode,
             vehicle: selectedVehicle,
             mustHavePackages,
+            otherLots: otherLotsForDeal,
+            vehicleTerms: vehicleTermsForDeal,
           }),
           tradeIn: buildTradeIn(),
           buyerZip,
@@ -1073,23 +1119,22 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
           status: dr.status === "locked" || dr.status === "expired" ? dr.status : "active",
           directOffer: directOfferMode,
         });
-        const newRequest = mapDealRequestJson(dr, local);
-        onRealBidRequestCreated?.(newRequest);
-        setCreatedDealId(String(dr.id));
-        persisted = true;
+        launched = mapDealRequestJson(dr, local);
+        onRealBidRequestCreated?.(launched);
       } else if (res.status !== 401 && res.status !== 502 && res.status !== 503) {
         setSubmitError(json.error || "Could not submit your request.");
         return;
       }
     } catch {
-      // Deals backend unreachable — still land the request in My Deal Tracker locally.
+      // Deals backend unreachable — still open the compare page with the local snapshot.
     } finally {
       setIsSubmittingReal(false);
     }
-    if (persisted) return;
-
-    onSubmitBidRequest(buildBiddingRequest());
-    onClose();
+    if (!launched) {
+      launched = buildBiddingRequest();
+      onSubmitBidRequest(launched);
+    }
+    openComparePage(launched);
   };
 
   return (

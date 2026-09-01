@@ -6,6 +6,7 @@ import { formatCurrency, formatPercent } from "../lib/otdCalculator";
 import { formatDealStructures } from "../lib/dealStructure";
 import { reviewTargetFromVehicle } from "../lib/fordCompetitionUi";
 import { offerPathLabel } from "../lib/shopperDeal";
+import { DealVehiclesSummary } from "./DealVehiclesSummary";
 import {
   Clock,
   ShieldCheck,
@@ -207,6 +208,9 @@ export const LiveDealRoom: React.FC<LiveDealRoomProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Vehicles in this deal */}
+      <DealVehiclesSummary request={request} compareHref="/compare" />
 
       {/* Trade-In Vehicle Appraisal Bar */}
       {request.tradeIn && request.tradeIn.hasTradeIn && (

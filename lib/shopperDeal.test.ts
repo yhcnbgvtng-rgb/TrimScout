@@ -44,6 +44,52 @@ describe("shopper deal snapshot persists onto the deal request", () => {
     assert.equal(payload.dealerZip, "76541");
     assert.equal(payload.dealerUrl, "https://www.example.com/ford/vdp-a");
     assert.deepEqual(payload.mustHavePackages, ["Ultimate Package"]);
+    assert.equal("otherLots" in payload, false);
+  });
+
+  it("stores other lots and per-VIN terms when present — never pads a third car", () => {
+    const other = {
+      id: "ford-1FMWK8JC7TGB81309",
+      vin: "1FMWK8JC7TGB81309",
+      year: 2026,
+      make: "Ford",
+      model: "Explorer",
+      trim: "Tremor",
+      bodyType: "",
+      engine: "",
+      drivetrain: "",
+      transmission: "",
+      exteriorColor: "",
+      interiorColor: "",
+      msrp: 0,
+      dealerPrice: 58372,
+      daysOnLot: 0,
+      status: "on_lot" as const,
+      location: { dealerName: "Jim Shorkey Ford", city: "White Oak", state: "PA", zip: "15131", distanceMiles: 80 },
+      packages: [],
+      options: [],
+      imageUrl: "",
+      mileage: 0,
+    };
+    const payload = shopperDealStructurePayload({
+      requestedStructures: ["cash"],
+      financeTermMonths: 60,
+      downPayment: 0,
+      leaseMileagePerYear: 12000,
+      leaseTermMonths: 36,
+      directOffer: false,
+      vehicle: importedVehicle,
+      mustHavePackages: [],
+      otherLots: [other],
+      vehicleTerms: [
+        { vin: SUBJECT, cash: { offerPrice: 61200 } },
+        { vin: other.vin, cash: { offerPrice: 58372 } },
+      ],
+    });
+    assert.equal(Array.isArray(payload.otherLots), true);
+    assert.equal((payload.otherLots as unknown[]).length, 1);
+    assert.equal((payload.vehicleTerms as { vin: string }[])[0].vin, SUBJECT);
+    assert.equal((payload.vehicleTerms as { cash: { offerPrice: number } }[])[1].cash.offerPrice, 58372);
   });
 
   it("omits dealer fields when the imported vehicle has none — never invents a rooftop", () => {
@@ -84,6 +130,18 @@ describe("shopper deal snapshot persists onto the deal request", () => {
         dealerZip: "76541",
         dealerUrl: "https://www.example.com/ford/vdp-a",
         mustHavePackages: ["Ultimate Package"],
+        otherLots: [
+          {
+            vin: "1FMWK8JC7TGB81309",
+            year: 2026,
+            make: "Ford",
+            model: "Explorer",
+            trim: "Tremor",
+            dealerPrice: 58372,
+            location: { dealerName: "Jim Shorkey Ford", city: "White Oak", state: "PA" },
+          },
+        ],
+        vehicleTerms: [{ vin: SUBJECT, cash: { offerPrice: 60000 } }],
       },
       tradeIn: { hasTradeIn: true, year: 2020, make: "Honda", model: "CR-V", trim: "EX", mileage: 42000, condition: "good" },
       buyerZip: "76541",
@@ -111,6 +169,9 @@ describe("shopper deal snapshot persists onto the deal request", () => {
     assert.equal(review?.vdpHref, "https://www.example.com/ford/vdp-a");
     assert.notEqual(review?.title, "BMW 3 Series");
     assert.doesNotMatch(review?.title || "", /Porsche/i);
+    assert.equal(mapped.otherLots?.length, 1);
+    assert.equal(mapped.otherLots?.[0].vin, "1FMWK8JC7TGB81309");
+    assert.equal(mapped.dealStructurePreferences?.vehicleTerms?.[0].cash?.offerPrice, 60000);
   });
 
   it("does not invent a BMW/Porsche or dealer when the API row has no vehicle", () => {
@@ -137,6 +198,7 @@ describe("Live Deal Room and tracker render the mapped imported deal", () => {
     const wizard = fs.readFileSync(path.join(process.cwd(), "components/BiddingWizard.tsx"), "utf8");
     assert.match(wizard, /shopperDealStructurePayload/);
     assert.match(wizard, /mapDealRequestJson\(dr, local\)/);
+    assert.match(wizard, /router\.push\("\/compare"\)/);
     assert.match(wizard, /directOffer: directOfferMode/);
     assert.match(wizard, /useState<boolean>\(false\)/);
     assert.match(wizard, /make: selectedVehicle\?\.make \|\| ""/);
@@ -162,6 +224,7 @@ describe("Live Deal Room and tracker render the mapped imported deal", () => {
     assert.match(src, /offerPathLabel\(request\.directOffer\)/);
     assert.match(src, /formatDealStructures/);
     assert.match(src, /request\.targetOtdPrice/);
+    assert.match(src, /DealVehiclesSummary/);
     assert.match(src, /b\.dealRequestId === request\.id/);
     assert.doesNotMatch(src, /flexibleCriteria\?\.make\} \$\{request\.flexibleCriteria\?\.model/);
     assert.doesNotMatch(src, /Find your car based on Make and Model/);
@@ -173,6 +236,7 @@ describe("Live Deal Room and tracker render the mapped imported deal", () => {
     assert.match(src, /reviewTargetFromVehicle\(req\.targetVehicle\)/);
     assert.match(src, /reviewTarget\?\.vin/);
     assert.match(src, /offerPathLabel\(req\.directOffer\)/);
+    assert.match(src, /DealVehiclesSummary/);
     assert.doesNotMatch(src, /flexibleCriteria\.make\} \$\{req\.flexibleCriteria\.model/);
     assert.doesNotMatch(src, /\$24\.5k - \$26\.8k/);
     assert.doesNotMatch(src, /BMW 3 Series/);

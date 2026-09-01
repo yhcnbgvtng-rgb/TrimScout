@@ -43,6 +43,8 @@ export const FORD_LISTINGS_RADIUS_CAP = "That search radius is wider than this p
 
 export const FORD_LISTINGS_RATE_LIMIT = "Too many searches right now. Try again shortly.";
 
+export const LISTING_DETAILS_UNAVAILABLE = "Listing details unavailable";
+
 const LISTINGS_VENDOR_LEAK = /marketcheck|auto\.dev|autodev|auto_dev|auto-dev/i;
 
 /** Rewrite vendor names, HTTP status, or raw provider text before shopper UI. */
