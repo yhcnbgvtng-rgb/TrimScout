@@ -133,3 +133,67 @@ export function listingVdpHref(url: string | null | undefined): string | null {
   }
   return trimmed;
 }
+
+export interface ReviewTargetVehicleFields {
+  year?: number | null;
+  make?: string | null;
+  model?: string | null;
+  trim?: string | null;
+  vin?: string | null;
+  dealerUrl?: string | null;
+  location?: {
+    dealerName?: string | null;
+    city?: string | null;
+    state?: string | null;
+    zip?: string | null;
+  } | null;
+}
+
+export interface ReviewTargetVehicle {
+  title: string | null;
+  vin: string | null;
+  vdpHref: string | null;
+  dealerName: string | null;
+  locationLine: string | null;
+}
+
+export function formatReviewVehicleTitle(vehicle: ReviewTargetVehicleFields): string | null {
+  const year = typeof vehicle.year === "number" && vehicle.year > 0 ? String(vehicle.year) : "";
+  const parts = [year, vehicle.make, vehicle.model, vehicle.trim]
+    .map((part) => (part || "").trim())
+    .filter(Boolean);
+  return parts.length ? parts.join(" ") : null;
+}
+
+export function formatReviewVehicleLocation(
+  location: ReviewTargetVehicleFields["location"]
+): { dealerName: string | null; locationLine: string | null } {
+  const dealerName = (location?.dealerName || "").trim() || null;
+  const city = (location?.city || "").trim();
+  const state = (location?.state || "").trim();
+  const zip = (location?.zip || "").trim();
+  const cityState = [city, state].filter(Boolean).join(", ");
+  const locationLine = [cityState, zip].filter(Boolean).join(" ") || null;
+  return { dealerName, locationLine };
+}
+
+/**
+ * Step 6 Target Vehicle: imported car only. Never leftover make/model defaults
+ * (BMW 3 Series) and never an invented dealer when location is blank.
+ */
+export function reviewTargetFromVehicle(
+  vehicle: ReviewTargetVehicleFields | null | undefined
+): ReviewTargetVehicle | null {
+  if (!vehicle) return null;
+  const title = formatReviewVehicleTitle(vehicle);
+  const vin = (vehicle.vin || "").trim().toUpperCase() || null;
+  const { dealerName, locationLine } = formatReviewVehicleLocation(vehicle.location);
+  if (!title && !vin) return null;
+  return {
+    title,
+    vin,
+    vdpHref: listingVdpHref(vehicle.dealerUrl),
+    dealerName,
+    locationLine,
+  };
+}

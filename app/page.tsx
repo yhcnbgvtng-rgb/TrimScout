@@ -5,9 +5,10 @@ export const dynamic = "force-dynamic";
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useSession, signOut as authSignOut } from "next-auth/react";
-import { Vehicle, BiddingRequest, DealerBid, LockedDeal, UserProfile, PaymentMethod } from "../lib/types";
+import { Vehicle, BiddingRequest, DealerBid, LockedDeal, UserProfile } from "../lib/types";
 import { MOCK_VEHICLES, INITIAL_DEMO_BIDS, SAMPLE_TRADE_IN_VEHICLE, DEMO_BUYER_USER } from "../lib/mockData";
 import { fetchLiveInventory } from "../lib/inventoryConnector";
+import { mapDealRequestJson } from "../lib/shopperDeal";
 import { Navbar } from "../components/Navbar";
 import { BidProgramIntro } from "../components/BidProgramIntro";
 import { BiddingWizard } from "../components/BiddingWizard";
@@ -23,54 +24,6 @@ import { DealerAnalytics } from "../components/DealerAnalytics";
 
 function isPersistedDealId(id: string): boolean {
   return /^\d+$/.test(id);
-}
-
-function mapDealRequestJson(dr: Record<string, unknown>, existing?: BiddingRequest): BiddingRequest {
-  const vin = String(dr.referenceVin || existing?.targetVin || "");
-  const make = String(dr.referenceMake || existing?.targetVehicle?.make || "");
-  const model = String(dr.referenceModel || existing?.targetVehicle?.model || "");
-  return {
-    id: String(dr.id),
-    strategy: (dr.strategy as BiddingRequest["strategy"]) || "exact_auction",
-    targetVin: vin,
-    targetVehicle: existing?.targetVehicle || {
-      id: vin,
-      vin,
-      year: Number(dr.referenceYear) || 0,
-      make,
-      model,
-      trim: String(dr.referenceTrim || ""),
-      bodyType: "",
-      engine: "",
-      drivetrain: "",
-      transmission: "",
-      exteriorColor: "",
-      interiorColor: "",
-      msrp: Number(dr.referenceMsrp) || 0,
-      dealerPrice: Number(dr.referencePrice) || 0,
-      daysOnLot: 0,
-      status: "on_lot",
-      location: { dealerName: "", city: "", state: "", distanceMiles: 0 },
-      packages: [],
-      options: [],
-      imageUrl: String(dr.referenceImageUrl || ""),
-      mileage: 0,
-    },
-    targetOtdPrice: typeof dr.targetOtdPrice === "number" ? dr.targetOtdPrice : existing?.targetOtdPrice,
-    targetDiscountPercent:
-      typeof dr.targetDiscountPercent === "number" ? dr.targetDiscountPercent : existing?.targetDiscountPercent,
-    paymentMethod: (dr.paymentMethod as PaymentMethod) || existing?.paymentMethod || "cash",
-    buyerZip: String(dr.buyerZip || existing?.buyerZip || ""),
-    buyerState: String(dr.buyerState || existing?.buyerState || ""),
-    searchRadiusMiles: Number(dr.searchRadiusMiles) || existing?.searchRadiusMiles || 100,
-    sameStateOnly: dr.sameStateOnly !== false,
-    tradeIn: existing?.tradeIn,
-    buyerComment: typeof dr.buyerComment === "string" ? dr.buyerComment : existing?.buyerComment,
-    createdAt: String(dr.createdAt || existing?.createdAt || ""),
-    expiresAt: String(dr.expiresAt || existing?.expiresAt || ""),
-    status: dr.status === "locked" || dr.status === "expired" ? dr.status : "active",
-    directOffer: existing?.directOffer ?? dr.strategy === "firm_offer",
-  };
 }
 
 export default function Home() {
@@ -493,7 +446,7 @@ export default function Home() {
         currentUser ? (
           <DealTrackerDashboard
             user={currentUser}
-            requests={shopperRequests.length > 0 ? shopperRequests : [activeRequest]}
+            requests={shopperRequests}
             bids={bids}
             lockedDeal={lockedDeal}
             savedVehicles={savedVehiclesList}
@@ -541,7 +494,7 @@ export default function Home() {
       {currentView === "deal_room" && (
         <LiveDealRoom
           request={activeRequest}
-          bids={bids}
+          bids={bids.filter((b) => b.dealRequestId === activeRequest.id)}
           onInspectFee={handleInspectFee}
           pollBids={isPersistedDealId(activeRequest.id)}
         />

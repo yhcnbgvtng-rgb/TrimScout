@@ -3,6 +3,9 @@
 import React, { useState } from "react";
 import { UserProfile, BiddingRequest, DealerBid, LockedDeal, Vehicle } from "../lib/types";
 import { formatCurrency, formatPercent } from "../lib/otdCalculator";
+import { formatDealStructures } from "../lib/dealStructure";
+import { reviewTargetFromVehicle } from "../lib/fordCompetitionUi";
+import { offerPathLabel } from "../lib/shopperDeal";
 import {
   ShieldCheck,
   Zap,
@@ -239,7 +242,10 @@ export const DealTrackerDashboard: React.FC<DealTrackerDashboardProps> = ({
               </button>
             </div>
           ) : (
-            activeRequests.map((req) => (
+            activeRequests.map((req) => {
+              const reviewTarget = reviewTargetFromVehicle(req.targetVehicle);
+              const paymentLabel = formatDealStructures(req.dealStructurePreferences?.requestedStructures || []);
+              return (
               <div
                 key={req.id}
                 className="rounded-2xl border border-border bg-surface shadow-xl overflow-hidden hover:border-emerald-500/40 transition-all"
@@ -253,18 +259,42 @@ export const DealTrackerDashboard: React.FC<DealTrackerDashboardProps> = ({
                     <div>
                       <div className="flex items-center gap-2">
                         <h3 className="font-extrabold text-white text-base">
-                          {req.targetVehicle
-                            ? `${req.targetVehicle.year} ${req.targetVehicle.make} ${req.targetVehicle.model} ${req.targetVehicle.trim}`
-                            : req.flexibleCriteria
-                            ? `${req.flexibleCriteria.make} ${req.flexibleCriteria.model} (${req.flexibleCriteria.trims.join(", ")})`
-                            : "Custom Bidding Request"}
+                          {reviewTarget?.title || "Imported vehicle unavailable"}
                         </h3>
                         <span className="flex items-center gap-1 rounded-full bg-emerald-500/20 px-2.5 py-0.5 text-[10px] font-extrabold text-emerald-400 border border-emerald-500/30 uppercase">
                           <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" /> {req.directOffer ? "Direct offer" : "Live Auction"}
                         </span>
                       </div>
+                      {reviewTarget?.vin ? (
+                        <p className="text-xs text-ink-muted mt-0.5 font-mono">
+                          VIN: {reviewTarget.vin}
+                        </p>
+                      ) : null}
+                      {reviewTarget?.dealerName || reviewTarget?.locationLine ? (
+                        <p className="text-xs text-ink-light">
+                          {[reviewTarget.dealerName, reviewTarget.locationLine].filter(Boolean).join(" · ")}
+                        </p>
+                      ) : null}
                       <p className="text-xs text-ink-muted mt-0.5">
-                        {req.directOffer ? "Direct offer" : "Multi-dealer prices"} • Search Radius: <span className="text-ink-light font-semibold">{req.searchRadiusMiles} miles</span> • Buyer Zip: <span className="text-ink-light font-mono font-semibold">{req.buyerZip}</span>
+                        {offerPathLabel(req.directOffer)}
+                        {paymentLabel ? ` • ${paymentLabel}` : ""}
+                        {typeof req.targetOtdPrice === "number" && req.targetOtdPrice > 0
+                          ? ` • Target ${formatCurrency(req.targetOtdPrice)}`
+                          : ""}
+                        {req.searchRadiusMiles ? (
+                          <>
+                            {" "}
+                            • Search Radius:{" "}
+                            <span className="text-ink-light font-semibold">{req.searchRadiusMiles} miles</span>
+                          </>
+                        ) : null}
+                        {req.buyerZip ? (
+                          <>
+                            {" "}
+                            • Buyer Zip:{" "}
+                            <span className="text-ink-light font-mono font-semibold">{req.buyerZip}</span>
+                          </>
+                        ) : null}
                       </p>
                     </div>
                   </div>
@@ -361,7 +391,11 @@ export const DealTrackerDashboard: React.FC<DealTrackerDashboardProps> = ({
                         <span className="text-[10px] uppercase font-bold text-ink-faint">Trade-In Inclusion</span>
                         <div className="font-semibold text-white">
                           {req.tradeIn?.hasTradeIn
-                            ? `${req.tradeIn.year} ${req.tradeIn.make} ${req.tradeIn.model} (Valued $24.5k - $26.8k)`
+                            ? `${req.tradeIn.year} ${req.tradeIn.make} ${req.tradeIn.model}${
+                                req.tradeIn.estimatedValueMin > 0 && req.tradeIn.estimatedValueMax > 0
+                                  ? ` (${formatCurrency(req.tradeIn.estimatedValueMin)} – ${formatCurrency(req.tradeIn.estimatedValueMax)})`
+                                  : ""
+                              }`
                             : "No Trade-In Attached"}
                         </div>
                       </div>
@@ -389,7 +423,8 @@ export const DealTrackerDashboard: React.FC<DealTrackerDashboardProps> = ({
                   </button>
                 </div>
               </div>
-            ))
+              );
+            })
           )}
         </div>
       )}

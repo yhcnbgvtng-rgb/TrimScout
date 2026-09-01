@@ -33,6 +33,7 @@ import {
   formatFactoryOptionLine,
   formatPriceAmount,
   listingVdpHref,
+  reviewTargetFromVehicle,
   shopperPriceSourceLabel,
   type FactoryOptionDisplay,
   type OtherLotsMode,
@@ -46,6 +47,7 @@ import {
   preferredFactoryBuildEndpoint,
   type FactoryBuildOem,
 } from "../lib/pasteImport";
+import { shopperDealStructurePayload, mapDealRequestJson } from "../lib/shopperDeal";
 import {
   X,
   ShieldCheck,
@@ -381,7 +383,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   const [mustHavePackages, setMustHavePackages] = useState<string[]>(["M Sport Package", "Premium Package"]);
 
   // Trade-In Evaluation & Photo Upload State
-  const [hasTradeIn, setHasTradeIn] = useState<boolean>(true);
+  const [hasTradeIn, setHasTradeIn] = useState<boolean>(false);
   const [tradeInYear, setTradeInYear] = useState<number>(2022);
   const [tradeInMake, setTradeInMake] = useState<string>("Audi");
   const [tradeInModel, setTradeInModel] = useState<string>("A4");
@@ -473,6 +475,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   // Step 2 Continue is blocked until Import Car actually loaded a vehicle.
   // Typing a VIN/URL, or merely arriving on this step, is not enough.
   const vehicleImported = Boolean(parseSuccessMsg && selectedVehicle);
+  const reviewTarget = reviewTargetFromVehicle(selectedVehicle);
   // Step 2 (vehicle selection) is skipped when a real vehicle is already
   // locked in — the payment-method question (step 1) still always shows
   // first, so the skip happens on navigation, not on mount.
@@ -961,11 +964,11 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     targetVin: selectedVehicle?.vin,
     targetVehicle: selectedVehicle || undefined,
     flexibleCriteria: {
-      make,
-      model,
-      trims: selectedTrims,
-      minMsrp: selectedVehicle ? Math.round(selectedVehicle.msrp * 0.9) : 45000,
-      maxMsrp: selectedVehicle ? Math.round(selectedVehicle.msrp * 1.1) : 65000,
+      make: selectedVehicle?.make || "",
+      model: selectedVehicle?.model || "",
+      trims: selectedVehicle?.trim ? [selectedVehicle.trim] : [],
+      minMsrp: selectedVehicle ? Math.round(selectedVehicle.msrp * 0.9) : undefined,
+      maxMsrp: selectedVehicle ? Math.round(selectedVehicle.msrp * 1.1) : undefined,
       mustHavePackages,
       preferredColors: [],
       dealbreakers: [],
@@ -1024,13 +1027,16 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
           referenceImageUrl: selectedVehicle.imageUrl,
           targetOtdPrice: launchStrategy === "firm_offer" ? targetOtdPrice : undefined,
           paymentMethod,
-          dealStructure: {
+          dealStructure: shopperDealStructurePayload({
             requestedStructures,
             financeTermMonths: financeTerm,
             downPayment,
             leaseMileagePerYear: leaseMileage,
             leaseTermMonths: leaseTerm,
-          },
+            directOffer: directOfferMode,
+            vehicle: selectedVehicle,
+            mustHavePackages,
+          }),
           tradeIn: buildTradeIn(),
           buyerZip,
           searchRadiusMiles: searchRadius,
@@ -1040,24 +1046,26 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
       });
       const json = await res.json().catch(() => ({}));
       if (res.ok && json.dealRequest) {
-        const dr = json.dealRequest;
-        const newRequest = buildBiddingRequest({
-          id: dr.id,
-          strategy: dr.strategy,
-          targetVin: dr.referenceVin,
-          paymentMethod: dr.paymentMethod,
-          buyerZip: dr.buyerZip,
-          buyerState: dr.buyerState,
-          searchRadiusMiles: dr.searchRadiusMiles,
-          sameStateOnly: dr.sameStateOnly,
-          buyerComment: dr.buyerComment ?? undefined,
-          createdAt: dr.createdAt,
-          expiresAt: dr.expiresAt,
-          status: dr.status,
+        const dr = json.dealRequest as Record<string, unknown>;
+        const local = buildBiddingRequest({
+          id: String(dr.id),
+          strategy: (dr.strategy as BiddingRequest["strategy"]) || launchStrategy,
+          targetVin: typeof dr.referenceVin === "string" ? dr.referenceVin : selectedVehicle.vin,
+          paymentMethod: (dr.paymentMethod as BiddingRequest["paymentMethod"]) || paymentMethod,
+          buyerZip: typeof dr.buyerZip === "string" ? dr.buyerZip : buyerZip,
+          buyerState: typeof dr.buyerState === "string" ? dr.buyerState : undefined,
+          searchRadiusMiles:
+            typeof dr.searchRadiusMiles === "number" ? dr.searchRadiusMiles : searchRadius,
+          sameStateOnly: dr.sameStateOnly !== false,
+          buyerComment: typeof dr.buyerComment === "string" ? dr.buyerComment : undefined,
+          createdAt: typeof dr.createdAt === "string" ? dr.createdAt : "Just now",
+          expiresAt: typeof dr.expiresAt === "string" ? dr.expiresAt : "48 Hours",
+          status: dr.status === "locked" || dr.status === "expired" ? dr.status : "active",
           directOffer: directOfferMode,
         });
+        const newRequest = mapDealRequestJson(dr, local);
         onRealBidRequestCreated?.(newRequest);
-        setCreatedDealId(dr.id);
+        setCreatedDealId(String(dr.id));
         persisted = true;
       } else if (res.status !== 401 && res.status !== 502 && res.status !== 503) {
         setSubmitError(json.error || "Could not submit your request.");
@@ -2135,11 +2143,42 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
 
               {/* Summary Box */}
               <div className="rounded-xl border border-border bg-surface-elevated p-4 space-y-2 text-xs">
-                <div className="flex justify-between border-b border-border/50 pb-2">
-                  <span className="text-ink-muted">Target Vehicle:</span>
-                  <span className="text-white font-bold">
-                    {selectedVehicle ? `${selectedVehicle.year} ${selectedVehicle.make} ${selectedVehicle.model} ${selectedVehicle.trim}` : `${make} ${model}`}
-                  </span>
+                <div className="flex justify-between items-start gap-3 border-b border-border/50 pb-2">
+                  <span className="text-ink-muted shrink-0">Target Vehicle:</span>
+                  {reviewTarget ? (
+                    <div className="text-right min-w-0 space-y-0.5">
+                      {reviewTarget.title ? (
+                        <div className="text-white font-bold">{reviewTarget.title}</div>
+                      ) : (
+                        <div className="text-ink-muted">Vehicle details unavailable</div>
+                      )}
+                      {reviewTarget.vin ? (
+                        <div className="text-[11px] text-ink-muted">
+                          VIN:{" "}
+                          {reviewTarget.vdpHref ? (
+                            <a
+                              href={reviewTarget.vdpHref}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="font-mono text-emerald-400 hover:underline"
+                            >
+                              {reviewTarget.vin}
+                            </a>
+                          ) : (
+                            <span className="font-mono text-ink-light">{reviewTarget.vin}</span>
+                          )}
+                        </div>
+                      ) : null}
+                      {reviewTarget.dealerName ? (
+                        <div className="text-[11px] text-ink-light">{reviewTarget.dealerName}</div>
+                      ) : null}
+                      {reviewTarget.locationLine ? (
+                        <div className="text-[11px] text-ink-muted">{reviewTarget.locationLine}</div>
+                      ) : null}
+                    </div>
+                  ) : (
+                    <span className="text-ink-muted">No imported vehicle</span>
+                  )}
                 </div>
 
                 <div className="flex justify-between border-b border-border/50 pb-2">

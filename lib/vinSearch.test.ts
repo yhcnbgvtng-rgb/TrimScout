@@ -27,6 +27,7 @@ import {
   formatFactoryOptionLine,
   formatPriceAmount,
   listingVdpHref,
+  reviewTargetFromVehicle,
   shopperPriceSourceLabel,
 } from "./fordCompetitionUi";
 import { resolveListingsProvider } from "./listingsProvider";
@@ -715,6 +716,82 @@ describe("shopper-facing factory option copy", () => {
     assert.doesNotMatch(src, /handleSubmitDirectOffer/);
   });
 
+  it("step 6 review shows the imported vehicle, VIN, and dealer — never a leftover BMW", () => {
+    const imported = reviewTargetFromVehicle({
+      year: 2026,
+      make: "Ford",
+      model: "Explorer",
+      trim: "ST",
+      vin: "1FMWK8JCXTGB47204",
+      dealerUrl: "https://www.example.com/ford/vdp-a",
+      location: {
+        dealerName: "Battlefield Ford",
+        city: "Killeen",
+        state: "TX",
+        zip: "76541",
+      },
+    });
+    assert.equal(imported?.title, "2026 Ford Explorer ST");
+    assert.equal(imported?.vin, "1FMWK8JCXTGB47204");
+    assert.equal(imported?.vdpHref, "https://www.example.com/ford/vdp-a");
+    assert.equal(imported?.dealerName, "Battlefield Ford");
+    assert.equal(imported?.locationLine, "Killeen, TX 76541");
+
+    const noVdp = reviewTargetFromVehicle({
+      year: 2025,
+      make: "Chevrolet",
+      model: "Silverado",
+      trim: "LT",
+      vin: "2GC4KREY7T1167690",
+      dealerUrl: null,
+      location: { dealerName: "Paul Chevrolet", city: "Freehold", state: "NJ" },
+    });
+    assert.equal(noVdp?.title, "2025 Chevrolet Silverado LT");
+    assert.equal(noVdp?.vin, "2GC4KREY7T1167690");
+    assert.equal(noVdp?.vdpHref, null);
+    assert.equal(noVdp?.dealerName, "Paul Chevrolet");
+    assert.equal(noVdp?.locationLine, "Freehold, NJ");
+
+    const missingDealer = reviewTargetFromVehicle({
+      year: 2026,
+      make: "Ford",
+      model: "F-150",
+      trim: "XLT",
+      vin: "1FTFW3LD7TFB08996",
+      location: { dealerName: "", city: "", state: "", zip: "" },
+    });
+    assert.equal(missingDealer?.title, "2026 Ford F-150 XLT");
+    assert.equal(missingDealer?.vin, "1FTFW3LD7TFB08996");
+    assert.equal(missingDealer?.dealerName, null);
+    assert.equal(missingDealer?.locationLine, null);
+
+    assert.equal(reviewTargetFromVehicle(null), null);
+    assert.equal(reviewTargetFromVehicle({ year: 0, make: "", model: "", trim: "", vin: "" }), null);
+    assert.notEqual(reviewTargetFromVehicle(null)?.title, "BMW 3 Series");
+    assert.equal(
+      listingVdpHref("https://www.windowsticker.forddirect.com/windowsticker.pdf?vin=1FMWK8JCXTGB47204"),
+      null
+    );
+
+    const src = fs.readFileSync(path.join(process.cwd(), "components/BiddingWizard.tsx"), "utf8");
+    const start = src.indexOf("STEP 6:");
+    const end = src.indexOf("Footer Navigation");
+    assert.ok(start >= 0 && end > start);
+    const step6 = src.slice(start, end);
+    assert.match(src, /reviewTargetFromVehicle\(selectedVehicle\)/);
+    assert.match(step6, /reviewTarget\.title/);
+    assert.match(step6, /reviewTarget\.vin/);
+    assert.match(step6, /reviewTarget\.vdpHref/);
+    assert.match(step6, /reviewTarget\.dealerName/);
+    assert.match(step6, /reviewTarget\.locationLine/);
+    assert.match(step6, /No imported vehicle/);
+    assert.match(step6, /target="_blank"/);
+    assert.match(step6, /rel="noopener noreferrer"/);
+    assert.doesNotMatch(step6, /\$\{make\} \$\{model\}/);
+    assert.doesNotMatch(step6, /BMW 3 Series/);
+    assert.doesNotMatch(step6, /330i M Sport/);
+  });
+
   it("wizard submit lands in My Deal Tracker without inventing BMW bids", () => {
     const page = fs.readFileSync(path.join(process.cwd(), "app/page.tsx"), "utf8");
     const wizard = fs.readFileSync(path.join(process.cwd(), "components/BiddingWizard.tsx"), "utf8");
@@ -728,6 +805,10 @@ describe("shopper-facing factory option copy", () => {
     assert.match(wizard, /\/api\/deal-requests/);
     assert.match(wizard, /brandCodeFromMake/);
     assert.match(wizard, /directOffer: directOfferMode/);
+    assert.match(wizard, /shopperDealStructurePayload/);
+    assert.match(wizard, /mapDealRequestJson/);
+    assert.match(page, /mapDealRequestJson/);
+    assert.match(page, /requests=\{shopperRequests\}/);
     assert.match(tracker, /req\.directOffer/);
     assert.match(tracker, /b\.dealRequestId === req\.id/);
     assert.match(dealerInbox, /fetchVehicleByVinFromBox/);
@@ -809,8 +890,9 @@ describe("shopper-facing factory option copy", () => {
     const stickerTest = fs.readFileSync(path.join(import.meta.dirname, "fordSticker.test.ts"), "utf8");
     const dealStructureTest = fs.readFileSync(path.join(import.meta.dirname, "dealStructure.test.ts"), "utf8");
     const gmStickerTest = fs.readFileSync(path.join(import.meta.dirname, "gmSticker.test.ts"), "utf8");
+    const shopperDealTest = fs.readFileSync(path.join(import.meta.dirname, "shopperDeal.test.ts"), "utf8");
     const guardSrc = fs.readFileSync(path.join(import.meta.dirname, "testdata/blockLiveHttp.ts"), "utf8");
-    for (const src of [vinSearchTest, stickerTest, dealStructureTest, gmStickerTest]) {
+    for (const src of [vinSearchTest, stickerTest, dealStructureTest, gmStickerTest, shopperDealTest]) {
       assert.match(src, /blockLiveHttp/);
       assert.doesNotMatch(src, /getFordSticker\(/);
       assert.doesNotMatch(src, /confirmFordMustHaves\(/);
