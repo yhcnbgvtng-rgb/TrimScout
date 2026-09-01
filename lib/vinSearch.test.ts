@@ -1,30 +1,40 @@
+import { guardedFetch, LIVE_HTTP_BLOCKLIST } from "./testdata/blockLiveHttp";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import { env } from "node:process";
 import { describe, it } from "node:test";
-import { getFordSticker, parseFordStickerText } from "./fordSticker";
+import { parseFordStickerText } from "./fordSticker";
 import { serverSecret } from "./serverSecret";
 import {
+  FORD_COMPETITION_FACTORY_OPTIONS,
+  FORD_COMPETITION_FACTORY_OPTIONS_UNAVAILABLE,
   FORD_COMPETITION_LOADING,
   FORD_COMPETITION_NEED_LOCATION,
+  FORD_MUST_HAVE_HEADING,
+  FORD_MUST_HAVE_HELP,
   advertisedOrStickerPrice,
   autoFillCompetitionSlots,
   fordCompetitionEmptyCopy,
+  formatFactoryOptionLine,
   formatPriceAmount,
 } from "./fordCompetitionUi";
 import { resolveListingsProvider } from "./listingsProvider";
 import {
   DEMO_COMPARABLE_LISTINGS,
+  dealerIdentity,
   findSimilarFordVehicles,
   fordMatchToVehicle,
   formatListingPrice,
   hasListingsApiKey,
   isUsableHuntLocation,
+  listingDealerId,
   rankFordMatches,
   searchCoarseListings,
+  selectCompetitionSlots,
   stickerFromDemoFixture,
   type FordMatchCard,
+  type ListingCandidate,
 } from "./vinSearch";
 
 const FIXTURE_DIR = path.join(import.meta.dirname, "testdata", "ford-stickers");
@@ -33,9 +43,35 @@ const SHORKEY = "1FMWK8JC7TGB81309";
 const BATTLEFIELD = "1FMWK8JC1TGB69561";
 const MALL_OF_GEORGIA = "1FMWK8JC7TGA20216";
 const DECOY_23 = "1FMUK8JH8TGB25138";
+const ROUTE23_STX_A = "1FTEW2L56TFB33029";
+const ROUTE23_STX_B = "1FTEW2LP7TFB90258";
+const PARAMUS_STX = "1FTFW3L89TFB11111";
+const F150_SUBJECT = "1FTFW3LD7TFB08996";
 
 function loadFixture(vin: string): string {
   return fs.readFileSync(path.join(FIXTURE_DIR, `${vin}.txt`), "utf8");
+}
+
+function baseCard(vin: string): FordMatchCard {
+  return {
+    vin,
+    dealerName: "A",
+    city: "Butler",
+    state: "NJ",
+    zip: "07405",
+    distanceMiles: 20,
+    listingPrice: 60000,
+    listingPriceSource: "listing",
+    msrp: 62000,
+    msrpSource: "sticker",
+    dealerUrl: null,
+    pdfUrl: "",
+    matchedMustHaves: ["Ultimate Package"],
+    matchedNiceToHaves: [],
+    stickerStatus: "released",
+    factoryOptions: [],
+    factoryOptionsStatus: "unavailable",
+  };
 }
 
 describe("vinSearch rank + must-have filter", () => {
@@ -134,26 +170,9 @@ describe("vinSearch rank + must-have filter", () => {
   });
 
   it("ranks nearest first even if a farther lot is cheaper or has more niceties", () => {
-    const base: FordMatchCard = {
-      vin: "A",
-      dealerName: "A",
-      city: "X",
-      state: "NJ",
-      distanceMiles: 20,
-      listingPrice: 60000,
-      listingPriceSource: "listing",
-      msrp: 62000,
-      msrpSource: "sticker",
-      dealerUrl: null,
-      pdfUrl: "",
-      matchedMustHaves: ["Ultimate Package"],
-      matchedNiceToHaves: [],
-      stickerStatus: "released",
-    };
-    const near = { ...base, vin: "NEAR", distanceMiles: 20, listingPrice: 60000, matchedNiceToHaves: [] };
+    const near = { ...baseCard("NEAR"), distanceMiles: 20, listingPrice: 60000, matchedNiceToHaves: [] };
     const farCheapNice = {
-      ...base,
-      vin: "FAR",
+      ...baseCard("FAR"),
       dealerName: "FAR",
       distanceMiles: 80,
       listingPrice: 40000,
@@ -165,8 +184,100 @@ describe("vinSearch rank + must-have filter", () => {
     );
   });
 
-  it("live Ford Direct hunt still returns Shorkey + Battlefield only among the demo VINs when radius allows", async () => {
-    const subject = await getFordSticker(SUBJECT);
+  it("selects the nearest lot, then the nearest lot from a different dealer", () => {
+    const aNear = {
+      ...baseCard("A1"),
+      dealerId: "23",
+      dealerName: "Route 23 Auto Mall Ford",
+      distanceMiles: 4,
+    };
+    const aNearerTwin = {
+      ...baseCard("A2"),
+      dealerId: "23",
+      dealerName: "Route 23 Auto Mall Ford",
+      distanceMiles: 5,
+    };
+    const bFarther = {
+      ...baseCard("B1"),
+      dealerId: "88",
+      dealerName: "All American Ford of Paramus",
+      city: "Paramus",
+      distanceMiles: 12,
+    };
+    const ranked = rankFordMatches([bFarther, aNearerTwin, aNear]);
+    assert.deepEqual(
+      ranked.map((m) => m.vin),
+      ["A1", "A2", "B1"]
+    );
+    assert.deepEqual(
+      selectCompetitionSlots(ranked).map((m) => m.vin),
+      ["A1", "B1"],
+      "slot 2 must skip the second Route 23 lot when another dealer matched"
+    );
+  });
+
+  it("keeps two lots from the only dealer instead of inventing a second rooftop", () => {
+    const a1 = { ...baseCard("A1"), dealerId: "23", dealerName: "Route 23 Auto Mall Ford", distanceMiles: 4 };
+    const a2 = { ...baseCard("A2"), dealerId: "23", dealerName: "Route 23 Auto Mall Ford", distanceMiles: 5 };
+    assert.deepEqual(
+      selectCompetitionSlots(rankFordMatches([a2, a1])).map((m) => m.vin),
+      ["A1", "A2"]
+    );
+    assert.deepEqual(
+      selectCompetitionSlots([{ ...a1 }]).map((m) => m.vin),
+      ["A1"]
+    );
+  });
+
+  it("treats the same dealer id as one rooftop even when names differ slightly", () => {
+    const a1 = { ...baseCard("A1"), dealerId: "23", dealerName: "Route 23 Auto Mall Ford", distanceMiles: 4 };
+    const a2 = { ...baseCard("A2"), dealerId: "23", dealerName: "Route 23 Ford", distanceMiles: 5 };
+    const b1 = { ...baseCard("B1"), dealerId: "88", dealerName: "Mahwah Ford", distanceMiles: 18 };
+    assert.equal(dealerIdentity(a1), dealerIdentity(a2));
+    assert.notEqual(dealerIdentity(a1), dealerIdentity(b1));
+    assert.deepEqual(
+      selectCompetitionSlots(rankFordMatches([a1, a2, b1])).map((m) => m.vin),
+      ["A1", "B1"]
+    );
+  });
+
+  it("falls back to normalized name + rooftop when no dealer id is present", () => {
+    const a1 = {
+      ...baseCard("A1"),
+      dealerName: "Route 23 Auto Mall Ford",
+      city: "Butler",
+      state: "NJ",
+      zip: "07405",
+      distanceMiles: 3,
+    };
+    const a2 = {
+      ...baseCard("A2"),
+      dealerName: "route-23 auto mall ford",
+      city: "Butler",
+      state: "NJ",
+      zip: "07405",
+      distanceMiles: 4,
+    };
+    const otherRooftop = {
+      ...baseCard("C1"),
+      dealerName: "Route 23 Auto Mall Ford",
+      city: "Wayne",
+      state: "NJ",
+      zip: "07470",
+      distanceMiles: 9,
+    };
+    assert.equal(dealerIdentity(a1), dealerIdentity(a2));
+    assert.notEqual(dealerIdentity(a1), dealerIdentity(otherRooftop));
+    assert.deepEqual(
+      selectCompetitionSlots(rankFordMatches([a1, a2, otherRooftop])).map((m) => m.vin),
+      ["A1", "C1"]
+    );
+    assert.equal(listingDealerId(1018922, "  "), "1018922");
+    assert.equal(listingDealerId(undefined, "", "mc-9"), "mc-9");
+  });
+
+  it("fixture hunt still returns Shorkey + Battlefield only among the demo VINs when radius allows", async () => {
+    const subject = parseFordStickerText(SUBJECT, loadFixture(SUBJECT));
     const result = await findSimilarFordVehicles({
       subjectVin: SUBJECT,
       subject,
@@ -174,6 +285,7 @@ describe("vinSearch rank + must-have filter", () => {
       zip: "07405",
       radiusMiles: 500,
       listings: DEMO_COMPARABLE_LISTINGS,
+      fetchSticker: async (vin) => parseFordStickerText(vin, loadFixture(vin)),
     });
     const matchVins = result.matches.map((m) => m.vin);
     assert.ok(matchVins.includes(SHORKEY));
@@ -289,6 +401,252 @@ describe("vinSearch rank + must-have filter", () => {
   });
 });
 
+function releasedF150Sticker(vin: string) {
+  return {
+    vin,
+    status: "released" as const,
+    year: 2026,
+    make: "Ford",
+    model: "F-150",
+    trim: "STX",
+    msrp: 52110,
+    basePrice: 43000,
+    optionsPrice: 7000,
+    destination: 2110,
+    options: [],
+    standardEquipment: [],
+    rawText: "",
+    pdfUrl: "",
+    fetchedAt: "2026-01-01T00:00:00.000Z",
+  };
+}
+
+function f150HuntListing(partial: Partial<ListingCandidate> & { vin: string }): ListingCandidate {
+  return {
+    year: 2026,
+    make: "Ford",
+    model: "F-150",
+    trim: "STX",
+    listingPrice: 48990,
+    ...partial,
+  };
+}
+
+describe("Increase Competition prefers two dealers among sticker matches", () => {
+  it("07405 F-150 hunt: two Route 23 lots plus a farther Paramus match → slots are Route 23 and Paramus", async () => {
+    const subject = {
+      ...releasedF150Sticker(F150_SUBJECT),
+      vin: F150_SUBJECT,
+    };
+    const route23 = {
+      dealerId: "1018922",
+      dealerName: "Route 23 Auto Mall Ford",
+      city: "Butler",
+      state: "NJ",
+      zip: "07405",
+      lat: 40.927,
+      lng: -74.341,
+    };
+    const listings = [
+      f150HuntListing({ vin: ROUTE23_STX_A, ...route23, listingPrice: 48990 }),
+      f150HuntListing({ vin: ROUTE23_STX_B, ...route23, listingPrice: 49250 }),
+      f150HuntListing({
+        vin: PARAMUS_STX,
+        dealerId: "2044551",
+        dealerName: "All American Ford of Paramus",
+        city: "Paramus",
+        state: "NJ",
+        zip: "07652",
+        lat: 40.944,
+        lng: -74.075,
+        listingPrice: 47990,
+      }),
+    ];
+    const stickers: Record<string, ReturnType<typeof releasedF150Sticker>> = {
+      [ROUTE23_STX_A]: releasedF150Sticker(ROUTE23_STX_A),
+      [ROUTE23_STX_B]: releasedF150Sticker(ROUTE23_STX_B),
+      [PARAMUS_STX]: releasedF150Sticker(PARAMUS_STX),
+    };
+
+    const result = await findSimilarFordVehicles({
+      subjectVin: F150_SUBJECT,
+      subject,
+      mustHaveLines: [],
+      zip: "07405",
+      radiusMiles: 100,
+      listings,
+      fetchSticker: async (vin) => stickers[vin],
+    });
+
+    assert.equal(result.matches.length, 2);
+    assert.equal(result.matches[0].dealerName, "Route 23 Auto Mall Ford");
+    assert.ok(
+      [ROUTE23_STX_A, ROUTE23_STX_B].includes(result.matches[0].vin),
+      "slot 1 is the nearest Route 23 lot"
+    );
+    assert.equal(result.matches[1].vin, PARAMUS_STX);
+    assert.equal(result.matches[1].dealerName, "All American Ford of Paramus");
+    assert.notEqual(result.matches[0].dealerId, result.matches[1].dealerId);
+    assert.ok(
+      (result.matches[0].distanceMiles ?? Infinity) <= (result.matches[1].distanceMiles ?? Infinity)
+    );
+    assert.ok(
+      result.matches.every((m) => m.distanceMiles != null && m.distanceMiles <= 100),
+      "must not expand the user radius"
+    );
+    assert.equal(
+      result.matches.filter((m) => m.dealerName === "Route 23 Auto Mall Ford").length,
+      1,
+      "two Route 23 STXs must not occupy both slots when Paramus also sticker-matched"
+    );
+    const [slot0, slot1] = autoFillCompetitionSlots(result.matches);
+    assert.equal(slot0?.dealerName, "Route 23 Auto Mall Ford");
+    assert.equal(slot1?.vin, PARAMUS_STX);
+  });
+
+  it("only Route 23 in the matched set → still returns that rooftop, no demo padding", async () => {
+    const subject = releasedF150Sticker(F150_SUBJECT);
+    const route23 = {
+      dealerId: "1018922",
+      dealerName: "Route 23 Auto Mall Ford",
+      city: "Butler",
+      state: "NJ",
+      zip: "07405",
+      lat: 40.927,
+      lng: -74.341,
+    };
+    const listings = [
+      f150HuntListing({ vin: ROUTE23_STX_A, ...route23 }),
+      f150HuntListing({ vin: ROUTE23_STX_B, ...route23 }),
+    ];
+    const stickers: Record<string, ReturnType<typeof releasedF150Sticker>> = {
+      [ROUTE23_STX_A]: releasedF150Sticker(ROUTE23_STX_A),
+      [ROUTE23_STX_B]: releasedF150Sticker(ROUTE23_STX_B),
+    };
+
+    const result = await findSimilarFordVehicles({
+      subjectVin: F150_SUBJECT,
+      subject,
+      mustHaveLines: [],
+      zip: "07405",
+      radiusMiles: 100,
+      listings,
+      fetchSticker: async (vin) => stickers[vin],
+    });
+
+    assert.equal(result.matches.length, 2);
+    assert.ok(result.matches.every((m) => m.dealerName === "Route 23 Auto Mall Ford"));
+    assert.ok(result.matches.every((m) => m.dealerId === "1018922"));
+    assert.deepEqual(
+      result.matches.map((m) => m.vin).sort(),
+      [ROUTE23_STX_A, ROUTE23_STX_B].sort()
+    );
+    assert.ok(!result.matches.some((m) => DEMO_COMPARABLE_LISTINGS.some((d) => d.vin === m.vin)));
+    assert.doesNotMatch(result.note, /Explorer Tremor only/i);
+  });
+
+  it("a single sticker-matched rooftop returns one slot and does not pad with Explorers", async () => {
+    const subject = releasedF150Sticker(F150_SUBJECT);
+    const result = await findSimilarFordVehicles({
+      subjectVin: F150_SUBJECT,
+      subject,
+      mustHaveLines: [],
+      zip: "07405",
+      radiusMiles: 100,
+      listings: [
+        f150HuntListing({
+          vin: ROUTE23_STX_A,
+          dealerId: "1018922",
+          dealerName: "Route 23 Auto Mall Ford",
+          city: "Butler",
+          state: "NJ",
+          zip: "07405",
+          lat: 40.927,
+          lng: -74.341,
+        }),
+      ],
+      fetchSticker: async (vin) => releasedF150Sticker(vin),
+    });
+    assert.equal(result.matches.length, 1);
+    assert.equal(result.matches[0].vin, ROUTE23_STX_A);
+    assert.equal(autoFillCompetitionSlots(result.matches)[1], null);
+    assert.ok(!result.matches.some((m) => m.vin === SHORKEY || m.vin === BATTLEFIELD));
+    assert.equal(result.matches[0].factoryOptionsStatus, "unavailable");
+    assert.deepEqual(result.matches[0].factoryOptions, []);
+  });
+});
+
+describe("shopper-facing factory option copy", () => {
+  it("must-have picker and competition breakout copy never say sticker", () => {
+    for (const copy of [
+      FORD_MUST_HAVE_HEADING,
+      FORD_MUST_HAVE_HELP,
+      FORD_COMPETITION_FACTORY_OPTIONS,
+      FORD_COMPETITION_FACTORY_OPTIONS_UNAVAILABLE,
+    ]) {
+      assert.doesNotMatch(copy, /sticker/i);
+    }
+    assert.equal(
+      formatFactoryOptionLine({ code: "800A", description: "EQUIPMENT GROUP 800A" }),
+      "EQUIPMENT GROUP 800A"
+    );
+    assert.equal(
+      formatFactoryOptionLine({ code: "67C", description: "Ultimate Package" }),
+      "67C  Ultimate Package"
+    );
+    assert.equal(formatFactoryOptionLine({ code: null, description: "Keyless Entry Keypad" }), "Keyless Entry Keypad");
+  });
+
+  it("must-have picker is checkbox plus text with no bordered cards or sticker label", () => {
+    const src = fs.readFileSync(path.join(process.cwd(), "components/BiddingWizard.tsx"), "utf8");
+    const start = src.indexOf("function FactoryMustHavePicker");
+    const end = src.indexOf("function competitionFactoryLines");
+    assert.ok(start >= 0 && end > start);
+    const picker = src.slice(start, end);
+    assert.match(picker, /type="checkbox"/);
+    assert.doesNotMatch(picker, /sticker/i);
+    assert.doesNotMatch(picker, /rounded-lg border/);
+    assert.doesNotMatch(picker, /bg-surface-elevated/);
+    assert.match(src, /FORD_MUST_HAVE_HEADING/);
+    assert.match(src, /FORD_MUST_HAVE_HELP/);
+    assert.match(src, /FORD_COMPETITION_FACTORY_OPTIONS_UNAVAILABLE/);
+  });
+
+  it("tests never call live MarketCheck, Auto.dev, Ford Direct, or production comparables", async () => {
+    const vinSearchTest = fs.readFileSync(path.join(import.meta.dirname, "vinSearch.test.ts"), "utf8");
+    const stickerTest = fs.readFileSync(path.join(import.meta.dirname, "fordSticker.test.ts"), "utf8");
+    const guardSrc = fs.readFileSync(path.join(import.meta.dirname, "testdata/blockLiveHttp.ts"), "utf8");
+    for (const src of [vinSearchTest, stickerTest]) {
+      assert.match(src, /blockLiveHttp/);
+      assert.doesNotMatch(src, /getFordSticker\(/);
+      assert.doesNotMatch(src, /confirmFordMustHaves\(/);
+      assert.doesNotMatch(src, /fetch\([^)]*trim-scout\.vercel\.app/);
+      assert.doesNotMatch(src, /\bcurl\b[\s\S]{0,120}trim-scout\.vercel\.app/);
+    }
+    assert.ok(guardSrc.includes("forddirect"));
+    assert.ok(guardSrc.includes("marketcheck"));
+    assert.ok(guardSrc.includes("auto.dev") || guardSrc.includes("auto\\.dev"));
+    assert.ok(guardSrc.includes("trim-scout"));
+    assert.equal(LIVE_HTTP_BLOCKLIST.test("https://www.windowsticker.forddirect.com/windowsticker.pdf?vin=X"), true);
+    assert.equal(LIVE_HTTP_BLOCKLIST.test("https://api.marketcheck.com/v2/search/car/active"), true);
+    assert.equal(LIVE_HTTP_BLOCKLIST.test("https://api.auto.dev/listings"), true);
+    assert.equal(LIVE_HTTP_BLOCKLIST.test("https://trim-scout.vercel.app/api/ford-comparables"), true);
+    assert.equal(LIVE_HTTP_BLOCKLIST.test("https://example.com/ford/vdp"), false);
+    await assert.rejects(
+      () => guardedFetch("https://www.windowsticker.forddirect.com/windowsticker.pdf?vin=1FTFW3LD7TFB08996"),
+      /must mock HTTP/
+    );
+    await assert.rejects(
+      () => guardedFetch("https://api.marketcheck.com/v2/search/car/active"),
+      /must mock HTTP/
+    );
+    await assert.rejects(
+      () => guardedFetch("https://trim-scout.vercel.app/api/ford-comparables"),
+      /must mock HTTP/
+    );
+  });
+});
+
 describe("Increase Competition slots are the hunt result", () => {
   it("no zip → slots explain, no fake cars", () => {
     const copy = fordCompetitionEmptyCopy({
@@ -354,6 +712,12 @@ describe("Increase Competition slots are the hunt result", () => {
       assert.match(second!.dealerName, /Shorkey/i);
       assert.equal(second?.listingPrice, 58372);
       assert.equal(second?.listingPriceSource, "listing");
+      assert.equal(first?.factoryOptionsStatus, "ok");
+      assert.equal(second?.factoryOptionsStatus, "ok");
+      assert.ok((first?.factoryOptions.length || 0) > (first?.matchedMustHaves.length || 0));
+      assert.ok(first?.factoryOptions.some((o) => /Ultimate Package/i.test(o.description)));
+      assert.ok(first?.factoryOptions.some((o) => o.isPackageChild));
+      assert.ok(!first?.factoryOptions.some((o) => /Fuel Economy/i.test(o.description)));
       assert.equal(first?.listingPrice, null);
       assert.equal(advertisedOrStickerPrice(first?.listingPrice, first?.msrp).source, "sticker");
       assert.ok((first?.msrp || 0) > 0);
@@ -890,6 +1254,7 @@ describe("listings provider selection prefers MarketCheck", () => {
               exterior_color: "Star White",
               build: { year: 2026, make: "Ford", model: "Explorer", trim: "Tremor" },
               dealer: {
+                id: 44001,
                 name: "Battlefield Ford",
                 city: "Culpeper",
                 state: "VA",
@@ -905,6 +1270,7 @@ describe("listings provider selection prefers MarketCheck", () => {
                 "https://www.jimshorkey.com/new-Pittsburgh-2026-Ford-Explorer-Tremor+Ultimate+Package-1FMWK8JC7TGB81309",
               build: { year: 2026, make: "Ford", model: "Explorer", trim: "Tremor" },
               dealer: {
+                id: 44002,
                 name: "Jim Shorkey Ford",
                 city: "White Oak",
                 state: "PA",
@@ -946,6 +1312,8 @@ describe("listings provider selection prefers MarketCheck", () => {
       assert.equal(result.matches.length, 2);
       assert.equal(result.matches[0].vin, BATTLEFIELD);
       assert.equal(result.matches[1].vin, SHORKEY);
+      assert.equal(result.matches[0].dealerId, "44001");
+      assert.equal(result.matches[1].dealerId, "44002");
       assert.equal(result.matches[0].listingPrice, 55990);
       assert.equal(result.matches[0].listingPriceSource, "listing");
       assert.equal(result.dropped.find((d) => d.vin === MALL_OF_GEORGIA)?.reason, "missing_must_have");

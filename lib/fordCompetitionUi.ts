@@ -4,9 +4,38 @@
  */
 
 export const FORD_COMPETITION_NEED_LOCATION =
-  "Enter ZIP and radius above to fill these two slots with the nearest sticker-matched lots.";
+  "Enter ZIP and radius above to fill these two slots with the nearest matching lots from two dealers when possible.";
 
 export const FORD_COMPETITION_LOADING = "Reading Ford stickers…";
+
+export const FORD_MUST_HAVE_HEADING = "Must-have factory options";
+
+export const FORD_MUST_HAVE_HELP =
+  "Every box starts unchecked. Comparables must have every ticked line — including color if you tick it.";
+
+export const FORD_COMPETITION_FACTORY_OPTIONS = "Factory options";
+
+export const FORD_COMPETITION_FACTORY_OPTIONS_UNAVAILABLE =
+  "Factory options could not be read for this VIN.";
+
+export interface FactoryOptionDisplay {
+  code: string | null;
+  description: string;
+  price?: number | null;
+  isPackageChild?: boolean;
+}
+
+/** Code + description as the build prints them; do not invent a code. */
+export function formatFactoryOptionLine(opt: FactoryOptionDisplay): string {
+  const description = (opt.description || "").replace(/\s+/g, " ").trim();
+  const code = (opt.code || "").trim();
+  if (!code) return description;
+  const escaped = code.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  if (description && !new RegExp(`\\b${escaped}\\b`, "i").test(description)) {
+    return `${code}  ${description}`;
+  }
+  return description || code;
+}
 
 export type FordCompetitionEmptyKind = "need_location" | "loading" | "error" | "empty";
 

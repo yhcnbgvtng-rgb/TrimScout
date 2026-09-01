@@ -1,9 +1,9 @@
+import "./testdata/blockLiveHttp";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import { describe, it } from "node:test";
 import {
-  confirmFordMustHaves,
   confirmFordMustHavesFromSticker,
   DEMO_SUBJECT_VIN,
   defaultMustHaveLines,
@@ -12,8 +12,9 @@ import {
   extractVin,
   extractVinFromDealerPage,
   extractAdvertisedListingPrice,
+  factoryOptionBreakout,
+  factoryOptionCode,
   filterableFactoryOptions,
-  getFordSticker,
   isFordOrLincolnVin,
   isKeypadIntent,
   isKeypadLine,
@@ -243,6 +244,30 @@ describe("Ford sticker parse — 2026 Bronco Sport Big Bend 3FMCR9BN8TRE94740", 
   });
 });
 
+describe("factory option codes and breakout", () => {
+  it("reads a printed equipment-group code and does not invent codes", () => {
+    assert.equal(factoryOptionCode("EQUIPMENT GROUP 800A"), "800A");
+    assert.equal(factoryOptionCode("67C ULTIMATE PACKAGE"), "67C");
+    assert.equal(factoryOptionCode("Ultimate Package"), null);
+    assert.equal(factoryOptionCode("Exterior color: Oxford White"), null);
+  });
+
+  it("lists every optional-equipment line from the Shorkey sticker, including children", () => {
+    const s = parseFordStickerText(SHORKEY, loadFixture(SHORKEY));
+    const lines = factoryOptionBreakout(s);
+    const descriptions = lines.map((o) => o.description);
+    assert.ok(lines.length > 8, `expected a full build list, got ${descriptions.join(" | ")}`);
+    assert.ok(descriptions.includes("Ultimate Package"));
+    assert.ok(descriptions.includes("Keyless Entry Keypad"));
+    assert.ok(descriptions.some((d) => /BLUECRUISE/i.test(d)));
+    assert.ok(descriptions.some((d) => /MOONROOF/i.test(d)));
+    assert.ok(lines.some((o) => o.isPackageChild));
+    assert.equal(lines.find((o) => /EQUIPMENT GROUP/i.test(o.description))?.code, "800A");
+    assert.ok(!descriptions.some((d) => /KEYLESS ENTRY W/i.test(d) && /PUSH START/i.test(d)));
+    assert.ok(!JSON.stringify(lines).includes("Fuel Economy"));
+  });
+});
+
 describe("must-have checkboxes start unchecked", () => {
   it("Explorer does not default Ultimate, keypad, or color", () => {
     const s = parseFordStickerText(SUBJECT, loadFixture(SUBJECT));
@@ -257,22 +282,28 @@ describe("must-have checkboxes start unchecked", () => {
   });
 });
 
-describe("live Ford Direct confirmFordMustHaves (network)", () => {
-  it("subject VIN still has Ultimate + keypad on Ford Direct", async () => {
-    const check = await confirmFordMustHaves(SUBJECT, ["Ultimate Package", "Keyless Entry Keypad"]);
+describe("fixture confirmFordMustHavesFromSticker (no live HTTP)", () => {
+  it("subject VIN fixture has Ultimate + keypad", () => {
+    const check = confirmFordMustHavesFromSticker(
+      parseFordStickerText(SUBJECT, loadFixture(SUBJECT)),
+      ["Ultimate Package", "Keyless Entry Keypad"]
+    );
     assert.equal(check.status, "released");
     assert.equal(check.pass, true);
   });
 
-  it("Mall of Georgia still fails keypad on a live Ford PDF", async () => {
-    const check = await confirmFordMustHaves(MALL_OF_GEORGIA, ["Ultimate Package", "Keyless Entry Keypad"]);
+  it("Mall of Georgia fixture fails keypad", () => {
+    const check = confirmFordMustHavesFromSticker(
+      parseFordStickerText(MALL_OF_GEORGIA, loadFixture(MALL_OF_GEORGIA)),
+      ["Ultimate Package", "Keyless Entry Keypad"]
+    );
     assert.equal(check.status, "released");
     assert.equal(check.pass, false);
     assert.ok(check.missing.includes("Keyless Entry Keypad"));
   });
 
-  it("Bronco Sport VIN decodes as Big Bend from Ford Direct", async () => {
-    const s = await getFordSticker(BRONCO);
+  it("Bronco Sport fixture decodes as Big Bend", () => {
+    const s = parseFordStickerText(BRONCO, loadFixture(BRONCO));
     assert.equal(s.status, "released");
     assert.equal(s.model, "Bronco Sport");
     assert.equal(s.trim, "Big Bend");
