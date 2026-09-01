@@ -5,12 +5,42 @@ export type BiddingStrategy = "exact_auction" | "firm_offer" | "flexible_discoun
 export type DealStructureMethod = "cash" | "finance" | "lease";
 export type PaymentMethod = "all_three" | DealStructureMethod;
 
+export interface CashDealTerms {
+  offerPrice: number;
+}
+
+export interface FinanceDealTerms {
+  sellingPrice: number;
+  downPayment: number;
+  termMonths: number;
+  aprPercent: number;
+}
+
+export interface LeaseDealTerms {
+  capCost: number;
+  dueAtSigning: number;
+  termMonths: number;
+  milesPerYear: number;
+  moneyFactor: number;
+  residualPercent: number;
+}
+
+/** Independent cash / finance / lease inputs for one VIN. Never copy onto another vehicle. */
+export interface VehicleDealTerms {
+  vin: string;
+  cash?: CashDealTerms;
+  finance?: FinanceDealTerms;
+  lease?: LeaseDealTerms;
+}
+
 export interface DealStructurePreferences {
   requestedStructures: DealStructureMethod[];
   financeTermMonths?: number;
   downPayment?: number;
   leaseMileagePerYear?: number;
   leaseTermMonths?: number;
+  /** Per-VIN deal terms from the post-Step-6 compare page. */
+  vehicleTerms?: VehicleDealTerms[];
 }
 
 export interface Option {
@@ -119,6 +149,8 @@ export interface BiddingRequest {
   status: "active" | "locked" | "expired";
   // Set when Step 3 chose a one-dealer offer instead of the reverse auction.
   directOffer?: boolean;
+  /** Other lots riding in this request (0–2). Never padded with invented inventory. */
+  otherLots?: Vehicle[];
 }
 
 // A dealer's inbox view of one real active buyer request — masked (per the

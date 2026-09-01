@@ -9,6 +9,7 @@ import { Vehicle, BiddingRequest, DealerBid, LockedDeal, UserProfile } from "../
 import { MOCK_VEHICLES, INITIAL_DEMO_BIDS, SAMPLE_TRADE_IN_VEHICLE, DEMO_BUYER_USER } from "../lib/mockData";
 import { fetchLiveInventory } from "../lib/inventoryConnector";
 import { mapDealRequestJson } from "../lib/shopperDeal";
+import { consumeLandingView, loadShopperRequests, upsertShopperRequest } from "../lib/offerCompare";
 import { Navbar } from "../components/Navbar";
 import { BidProgramIntro } from "../components/BidProgramIntro";
 import { BiddingWizard } from "../components/BiddingWizard";
@@ -106,6 +107,13 @@ export default function Home() {
       } catch (e) {
         console.error("Failed to load user from localStorage:", e);
       }
+      const storedRequests = loadShopperRequests();
+      if (storedRequests.length > 0) {
+        setShopperRequests(storedRequests);
+        setActiveRequest(storedRequests[0]);
+      }
+      const landing = consumeLandingView();
+      if (landing) setCurrentView(landing);
     }
     handleSyncLiveInventory("94107", 25, undefined, undefined, 500);
   }, []);
@@ -313,7 +321,7 @@ export default function Home() {
   const rememberShopperRequest = (request: BiddingRequest) => {
     setShopperRequests((prev) => [request, ...prev.filter((r) => r.id !== request.id)]);
     setActiveRequest(request);
-    setCurrentView("track_deals");
+    upsertShopperRequest(request);
   };
 
   const handleRealBidRequestCreated = (request: BiddingRequest) => {

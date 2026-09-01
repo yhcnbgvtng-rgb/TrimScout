@@ -10,9 +10,12 @@ import type {
   PaymentMethod,
   TradeInVehicle,
   Vehicle,
+  VehicleDealTerms,
 } from "./types";
 import { DEAL_STRUCTURE_METHODS } from "./dealStructure";
+import { parseVehicleTermsList } from "./dealTerms";
 import { listingVdpHref } from "./fordCompetitionUi";
+import { deserializeDealVehicle, serializeDealVehicle } from "./offerCompare";
 
 export function offerPathLabel(directOffer: boolean | undefined): string {
   return directOffer ? "Offer this dealer directly" : "Get prices from other dealers";
@@ -74,6 +77,8 @@ export function shopperDealStructurePayload(opts: {
   directOffer: boolean;
   vehicle: Pick<Vehicle, "dealerUrl"> & { location?: Vehicle["location"] };
   mustHavePackages: string[];
+  otherLots?: Vehicle[];
+  vehicleTerms?: VehicleDealTerms[];
 }): Record<string, unknown> {
   const loc = opts.vehicle.location;
   const dealerName = (loc?.dealerName || "").trim();
@@ -81,6 +86,11 @@ export function shopperDealStructurePayload(opts: {
   const dealerState = (loc?.state || "").trim();
   const dealerZip = (loc?.zip || "").trim();
   const dealerUrl = listingVdpHref(opts.vehicle.dealerUrl) || undefined;
+  const otherLots = (opts.otherLots || [])
+    .map(serializeDealVehicle)
+    .filter((lot) => typeof lot.vin === "string" && String(lot.vin).length === 17)
+    .slice(0, 2);
+  const vehicleTerms = parseVehicleTermsList(opts.vehicleTerms);
   return {
     requestedStructures: opts.requestedStructures,
     financeTermMonths: opts.financeTermMonths,
@@ -94,6 +104,8 @@ export function shopperDealStructurePayload(opts: {
     ...(dealerState ? { dealerState } : {}),
     ...(dealerZip ? { dealerZip } : {}),
     ...(dealerUrl ? { dealerUrl } : {}),
+    ...(otherLots.length ? { otherLots } : {}),
+    ...(vehicleTerms.length ? { vehicleTerms } : {}),
   };
 }
 
@@ -218,7 +230,20 @@ export function mapDealRequestJson(
         asNumber(ds.leaseMileagePerYear) ?? existing?.dealStructurePreferences?.leaseMileagePerYear,
       leaseTermMonths:
         asNumber(ds.leaseTermMonths) ?? existing?.dealStructurePreferences?.leaseTermMonths,
+      vehicleTerms: (() => {
+        const mapped = parseVehicleTermsList(ds.vehicleTerms);
+        return mapped.length ? mapped : existing?.dealStructurePreferences?.vehicleTerms;
+      })(),
     },
+    otherLots: (() => {
+      if (Array.isArray(ds.otherLots)) {
+        return ds.otherLots
+          .map(deserializeDealVehicle)
+          .filter((v): v is Vehicle => Boolean(v))
+          .slice(0, 2);
+      }
+      return existing?.otherLots;
+    })(),
     buyerZip: asString(dr.buyerZip) || existing?.buyerZip || "",
     buyerState: asString(dr.buyerState) || existing?.buyerState || "",
     searchRadiusMiles: asNumber(dr.searchRadiusMiles) || existing?.searchRadiusMiles || 100,

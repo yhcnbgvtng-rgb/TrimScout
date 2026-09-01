@@ -1149,8 +1149,11 @@ describe("shopper-facing factory option copy", () => {
     const dealStructureTest = fs.readFileSync(path.join(import.meta.dirname, "dealStructure.test.ts"), "utf8");
     const gmStickerTest = fs.readFileSync(path.join(import.meta.dirname, "gmSticker.test.ts"), "utf8");
     const shopperDealTest = fs.readFileSync(path.join(import.meta.dirname, "shopperDeal.test.ts"), "utf8");
+    const dealTermsTest = fs.readFileSync(path.join(import.meta.dirname, "dealTerms.test.ts"), "utf8");
+    const listingSheetTest = fs.readFileSync(path.join(import.meta.dirname, "listingSheet.test.ts"), "utf8");
+    const offerCompareTest = fs.readFileSync(path.join(import.meta.dirname, "offerCompare.test.ts"), "utf8");
     const guardSrc = fs.readFileSync(path.join(import.meta.dirname, "testdata/blockLiveHttp.ts"), "utf8");
-    for (const src of [vinSearchTest, stickerTest, dealStructureTest, gmStickerTest, shopperDealTest]) {
+    for (const src of [vinSearchTest, stickerTest, dealStructureTest, gmStickerTest, shopperDealTest, dealTermsTest, listingSheetTest, offerCompareTest]) {
       assert.match(src, /blockLiveHttp/);
       assert.doesNotMatch(src, /getFordSticker\(/);
       assert.doesNotMatch(src, /confirmFordMustHaves\(/);

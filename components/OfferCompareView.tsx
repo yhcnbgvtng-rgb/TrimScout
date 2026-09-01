@@ -1,0 +1,591 @@
+"use client";
+
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import {
+  Car,
+  LoaderCircle as Loader2,
+  MapPin,
+  Phone,
+} from "lucide-react";
+import {
+  FORD_COMPETITION_FACTORY_OPTIONS,
+  FORD_COMPETITION_FACTORY_OPTIONS_UNAVAILABLE,
+  FORD_LISTINGS_LOAD_FAILED,
+  LISTING_DETAILS_UNAVAILABLE,
+  advertisedOrStickerPrice,
+  formatFactoryOptionLine,
+  formatPriceAmount,
+  listingVdpHref,
+  sanitizeShopperListingsCopy,
+  shopperPriceSourceLabel,
+  type FactoryOptionDisplay,
+} from "../lib/fordCompetitionUi";
+import {
+  DEAL_STRUCTURE_LABELS,
+  FINANCE_TERM_MONTHS,
+  LEASE_TERM_MONTHS,
+  formatDealStructures,
+} from "../lib/dealStructure";
+import {
+  estimatedFinanceMonthly,
+  estimatedLeaseMonthly,
+  replaceVehicleTerms,
+  roundEstimateDollars,
+  termsForVin,
+} from "../lib/dealTerms";
+import {
+  applyVehicleTermsToSnapshot,
+  loadOfferCompareSnapshot,
+  saveOfferCompareSnapshot,
+  setLandingView,
+  upsertShopperRequest,
+  type OfferCompareSnapshot,
+  type OfferCompareVehicle,
+} from "../lib/offerCompare";
+import type { ShopperListingSheet } from "../lib/listingSheet";
+import type { DealStructureMethod, Vehicle, VehicleDealTerms } from "../lib/types";
+import { formatCurrency } from "../lib/otdCalculator";
+
+function factoryLines(vehicle: Vehicle): FactoryOptionDisplay[] {
+  if (vehicle.options && vehicle.options.length > 0) {
+    return vehicle.options.map((o) => ({
+      code: o.code || null,
+      description: o.name,
+      price: o.price,
+      isPackageChild: o.category === "standalone",
+    }));
+  }
+  return (vehicle.packages || []).map((name) => ({ code: null, description: name }));
+}
+
+function columnAdvertised(vehicle: Vehicle, sheet: ShopperListingSheet | undefined) {
+  if (sheet?.available && sheet.advertisedPrice && sheet.advertisedPrice > 0) {
+    return { amount: sheet.advertisedPrice, source: "listing" as const };
+  }
+  return advertisedOrStickerPrice(vehicle.dealerPrice, vehicle.msrp);
+}
+
+function milesLabel(miles: number | undefined, zip: string): string | null {
+  if (miles == null || miles <= 0 || !/^\d{5}$/.test(zip.trim())) return null;
+  return `${miles} mi from ${zip.trim()}`;
+}
+
+function formatSignedPrice(amount: number): string {
+  const abs = formatPriceAmount(Math.abs(amount));
+  if (amount > 0) return `+${abs} vs prior`;
+  if (amount < 0) return `−${abs} vs prior`;
+  return "No change vs prior";
+}
+
+function moneyInput(value: number, onChange: (n: number) => void, label: string) {
+  return (
+    <label className="block space-y-1">
+      <span className="text-[10px] font-semibold uppercase tracking-wider text-ink-faint">{label}</span>
+      <input
+        type="number"
+        min={0}
+        value={Number.isFinite(value) ? value : 0}
+        onChange={(e) => onChange(Number(e.target.value) || 0)}
+        className="w-full rounded-lg border border-border bg-background py-1.5 px-2 text-xs font-mono text-white focus:border-emerald-500 focus:outline-none"
+      />
+    </label>
+  );
+}
+
+export const OfferCompareView: React.FC = () => {
+  const router = useRouter();
+  const [snapshot, setSnapshot] = useState<OfferCompareSnapshot | null>(null);
+  const [loaded, setLoaded] = useState(false);
+  const [sheets, setSheets] = useState<Record<string, ShopperListingSheet>>({});
+  const [listingStatus, setListingStatus] = useState<"idle" | "loading" | "ready">("idle");
+
+  useEffect(() => {
+    const next = loadOfferCompareSnapshot();
+    setSnapshot(next);
+    setLoaded(true);
+  }, []);
+
+  const vins = useMemo(
+    () => (snapshot?.vehicles || []).map((col) => col.vehicle.vin).filter((vin) => vin.length === 17),
+    [snapshot]
+  );
+
+  useEffect(() => {
+    if (vins.length === 0) return;
+    let cancelled = false;
+    setListingStatus("loading");
+    fetch("/api/listing-facts", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ vins }),
+    })
+      .then(async (res) => {
+        const json = await res.json().catch(() => ({}));
+        if (cancelled) return;
+        const rows = Array.isArray(json.sheets) ? (json.sheets as ShopperListingSheet[]) : [];
+        const byVin: Record<string, ShopperListingSheet> = {};
+        for (const row of rows) {
+          if (row?.vin) byVin[row.vin.toUpperCase()] = row;
+        }
+        setSheets(byVin);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        const byVin: Record<string, ShopperListingSheet> = {};
+        for (const vin of vins) {
+          byVin[vin] = {
+            vin,
+            available: false,
+            attribution: null,
+            advertisedPrice: null,
+            msrp: null,
+            priceChange: null,
+            daysOnMarket: null,
+            daysOnMarketActive: null,
+            firstSeen: null,
+            lastSeen: null,
+            stockNumber: null,
+            inventoryType: null,
+            exteriorColor: null,
+            interiorColor: null,
+            mileage: null,
+            dealerName: null,
+            dealerStreet: null,
+            dealerCity: null,
+            dealerState: null,
+            dealerZip: null,
+            dealerPhone: null,
+            vdpUrl: null,
+            inTransit: null,
+            photoUrl: null,
+            note: FORD_LISTINGS_LOAD_FAILED,
+          };
+        }
+        setSheets(byVin);
+      })
+      .finally(() => {
+        if (!cancelled) setListingStatus("ready");
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [vins.join("|")]);
+
+  const persist = useCallback((next: OfferCompareSnapshot) => {
+    setSnapshot(next);
+    saveOfferCompareSnapshot(next);
+    upsertShopperRequest(next.request);
+  }, []);
+
+  const updateTerms = useCallback(
+    (nextTerms: VehicleDealTerms) => {
+      if (!snapshot) return;
+      const merged = replaceVehicleTerms(
+        snapshot.request.dealStructurePreferences?.vehicleTerms || [],
+        nextTerms
+      );
+      persist(applyVehicleTermsToSnapshot(snapshot, merged));
+    },
+    [persist, snapshot]
+  );
+
+  const goToTracker = () => {
+    if (snapshot) {
+      saveOfferCompareSnapshot(snapshot);
+      upsertShopperRequest(snapshot.request);
+    }
+    setLandingView("track_deals");
+    router.push("/");
+  };
+
+  if (!loaded) {
+    return (
+      <div className="flex items-center justify-center py-24 text-ink-muted text-sm">
+        <Loader2 className="h-5 w-5 animate-spin mr-2" /> Loading offer…
+      </div>
+    );
+  }
+
+  if (!snapshot || snapshot.vehicles.length === 0) {
+    return (
+      <div className="mx-auto max-w-lg px-4 py-16 text-center space-y-4">
+        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-400">
+          <Car className="h-7 w-7" />
+        </div>
+        <h1 className="text-xl font-black text-white">No vehicles in this deal</h1>
+        <p className="text-xs text-ink-muted">
+          Finish Step 6 of Launch Dealership Bidding Hunt to compare the imported favorite and any other lots.
+        </p>
+        <Link
+          href="/"
+          className="inline-flex rounded-xl bg-emerald-500 px-5 py-2.5 text-xs font-extrabold text-black hover:bg-emerald-400"
+        >
+          Start a bidding hunt
+        </Link>
+      </div>
+    );
+  }
+
+  const colClass =
+    snapshot.vehicles.length === 1
+      ? "grid-cols-1 max-w-xl mx-auto"
+      : snapshot.vehicles.length === 2
+        ? "grid-cols-1 md:grid-cols-2"
+        : "grid-cols-1 md:grid-cols-2 xl:grid-cols-3";
+
+  return (
+    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
+        <div>
+          <p className="text-[11px] font-bold uppercase tracking-wider text-emerald-400">Offer terms</p>
+          <h1 className="text-2xl font-black text-white tracking-tight">Compare vehicles in this deal</h1>
+          <p className="text-xs text-ink-muted mt-1">
+            {formatDealStructures(snapshot.requestedStructures) || "Deal structure"}
+            {snapshot.buyerZip ? ` · Buyer ZIP ${snapshot.buyerZip}` : ""}
+            {snapshot.request.id ? ` · Deal #${snapshot.request.id}` : ""}
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={goToTracker}
+          className="rounded-xl bg-emerald-500 px-4 py-2.5 text-xs font-extrabold text-black hover:bg-emerald-400 shadow-md shadow-emerald-500/20"
+        >
+          Continue to My Deal Tracker
+        </button>
+      </div>
+
+      <div className={`grid gap-4 ${colClass}`}>
+        {snapshot.vehicles.map((column) => (
+          <VehicleOfferColumn
+            key={column.vehicle.vin}
+            column={column}
+            buyerZip={snapshot.buyerZip}
+            requested={snapshot.requestedStructures}
+            terms={termsForVin(snapshot.request.dealStructurePreferences?.vehicleTerms, column.vehicle.vin)}
+            sheet={sheets[column.vehicle.vin.toUpperCase()]}
+            listingLoading={listingStatus === "loading"}
+            onChangeTerms={updateTerms}
+          />
+        ))}
+      </div>
+    </div>
+  );
+};
+
+function VehicleOfferColumn({
+  column,
+  buyerZip,
+  requested,
+  terms,
+  sheet,
+  listingLoading,
+  onChangeTerms,
+}: {
+  column: OfferCompareVehicle;
+  buyerZip: string;
+  requested: DealStructureMethod[];
+  terms: VehicleDealTerms | undefined;
+  sheet: ShopperListingSheet | undefined;
+  listingLoading: boolean;
+  onChangeTerms: (next: VehicleDealTerms) => void;
+}) {
+  const vehicle = column.vehicle;
+  const reviewPrice = columnAdvertised(vehicle, sheet);
+  const vdp = listingVdpHref(sheet?.vdpUrl) || listingVdpHref(vehicle.dealerUrl);
+  const loc = vehicle.location;
+  const cityStateZip = [ [loc?.city, loc?.state].filter(Boolean).join(", "), loc?.zip ].filter(Boolean).join(" ");
+  const distance = milesLabel(loc?.distanceMiles, buyerZip);
+  const options = factoryLines(vehicle);
+  const listingNote = sheet && !sheet.available
+    ? sanitizeShopperListingsCopy(sheet.note || LISTING_DETAILS_UNAVAILABLE)
+    : null;
+
+  const patch = (partial: Partial<VehicleDealTerms>) => {
+    onChangeTerms({
+      vin: vehicle.vin.toUpperCase(),
+      cash: terms?.cash,
+      finance: terms?.finance,
+      lease: terms?.lease,
+      ...partial,
+    });
+  };
+
+  const financeEst = terms?.finance
+    ? roundEstimateDollars(
+        estimatedFinanceMonthly(
+          terms.finance.sellingPrice,
+          terms.finance.downPayment,
+          terms.finance.termMonths,
+          terms.finance.aprPercent
+        )
+      )
+    : null;
+  const leaseEst = terms?.lease
+    ? roundEstimateDollars(
+        estimatedLeaseMonthly(
+          terms.lease.capCost,
+          terms.lease.residualPercent,
+          terms.lease.termMonths,
+          terms.lease.moneyFactor
+        )
+      )
+    : null;
+
+  return (
+    <section className="rounded-2xl border border-border bg-surface shadow-xl overflow-hidden flex flex-col">
+      <div className="border-b border-border bg-surface-elevated px-4 py-3">
+        <div className="text-[10px] font-bold uppercase tracking-wider text-emerald-400">{column.label}</div>
+        <h2 className="text-base font-black text-white mt-0.5">
+          {[vehicle.year > 0 ? vehicle.year : null, vehicle.make, vehicle.model, vehicle.trim]
+            .filter(Boolean)
+            .join(" ") || "Imported vehicle"}
+        </h2>
+        {vehicle.vin ? (
+          <p className="text-[11px] text-ink-muted mt-0.5">
+            VIN:{" "}
+            {vdp ? (
+              <a href={vdp} target="_blank" rel="noopener noreferrer" className="font-mono text-emerald-400 hover:underline">
+                {vehicle.vin}
+              </a>
+            ) : (
+              <span className="font-mono text-ink-light">{vehicle.vin}</span>
+            )}
+          </p>
+        ) : null}
+        {loc?.dealerName ? (
+          <p className="text-xs text-ink-light mt-1 flex items-start gap-1.5">
+            <MapPin className="h-3.5 w-3.5 mt-0.5 shrink-0 text-ink-faint" />
+            <span>
+              {loc.dealerName}
+              {cityStateZip ? <span className="text-ink-muted"> · {cityStateZip}</span> : null}
+              {distance ? <span className="text-ink-muted"> · {distance}</span> : null}
+            </span>
+          </p>
+        ) : cityStateZip ? (
+          <p className="text-xs text-ink-muted mt-1">{cityStateZip}{distance ? ` · ${distance}` : ""}</p>
+        ) : null}
+        <div className="mt-2">
+          <div className="text-lg font-black text-white">
+            {formatPriceAmount(reviewPrice.amount)}{" "}
+            <span className="uppercase text-[9px] font-bold text-ink-faint">
+              {shopperPriceSourceLabel(reviewPrice.source)}
+            </span>
+          </div>
+          {reviewPrice.source === "listing" && vehicle.msrp > 0 ? (
+            <div className="text-[11px] text-ink-muted">MSRP {formatPriceAmount(vehicle.msrp)}</div>
+          ) : null}
+        </div>
+      </div>
+
+      <div className="px-4 py-3 space-y-3 flex-1">
+        <div>
+          <div className="text-[10px] font-semibold uppercase tracking-wider text-ink-faint">
+            {FORD_COMPETITION_FACTORY_OPTIONS}
+          </div>
+          {options.length === 0 ? (
+            <p className="text-[11px] text-ink-muted mt-1">{FORD_COMPETITION_FACTORY_OPTIONS_UNAVAILABLE}</p>
+          ) : (
+            <ul className="mt-1 max-h-36 overflow-y-auto space-y-0.5">
+              {options.map((opt, i) => (
+                <li
+                  key={`${opt.code || ""}-${opt.description}-${i}`}
+                  className={`text-[11px] leading-snug text-ink-light ${opt.isPackageChild ? "pl-3 text-ink-muted" : ""}`}
+                >
+                  {formatFactoryOptionLine(opt)}
+                  {opt.price != null && opt.price > 0 ? (
+                    <span className="text-ink-faint"> · {formatCurrency(opt.price)}</span>
+                  ) : null}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+
+        <div className="rounded-xl border border-border bg-background p-3 space-y-1.5">
+          <div className="text-[10px] font-semibold uppercase tracking-wider text-ink-faint">Listing details</div>
+          {listingLoading && !sheet ? (
+            <p className="text-[11px] text-ink-muted flex items-center gap-1.5">
+              <Loader2 className="h-3 w-3 animate-spin" /> Loading listing details…
+            </p>
+          ) : listingNote ? (
+            <p className="text-[11px] text-ink-muted">{listingNote}</p>
+          ) : sheet?.available ? (
+            <ListingFacts sheet={sheet} />
+          ) : (
+            <p className="text-[11px] text-ink-muted">{LISTING_DETAILS_UNAVAILABLE}</p>
+          )}
+        </div>
+
+        <div className="space-y-3">
+          <div className="text-[10px] font-semibold uppercase tracking-wider text-ink-faint">
+            Terms for this VIN
+          </div>
+          {requested.includes("cash") && terms?.cash ? (
+            <div className="rounded-xl border border-border bg-background p-3 space-y-2">
+              <div className="text-[11px] font-bold text-white">{DEAL_STRUCTURE_LABELS.cash}</div>
+              {moneyInput(terms.cash.offerPrice, (offerPrice) => patch({ cash: { offerPrice } }), "Offer price")}
+            </div>
+          ) : null}
+          {requested.includes("finance") && terms?.finance ? (
+            <div className="rounded-xl border border-border bg-background p-3 space-y-2">
+              <div className="text-[11px] font-bold text-white">{DEAL_STRUCTURE_LABELS.finance}</div>
+              {moneyInput(terms.finance.sellingPrice, (sellingPrice) => patch({ finance: { ...terms.finance!, sellingPrice } }), "Selling price")}
+              {moneyInput(terms.finance.downPayment, (downPayment) => patch({ finance: { ...terms.finance!, downPayment } }), "Down payment")}
+              <label className="block space-y-1">
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-ink-faint">Term</span>
+                <select
+                  value={terms.finance.termMonths}
+                  onChange={(e) => patch({ finance: { ...terms.finance!, termMonths: Number(e.target.value) } })}
+                  className="w-full rounded-lg border border-border bg-background py-1.5 px-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
+                >
+                  {FINANCE_TERM_MONTHS.map((m) => (
+                    <option key={m} value={m}>{m} months</option>
+                  ))}
+                </select>
+              </label>
+              <label className="block space-y-1">
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-ink-faint">APR %</span>
+                <input
+                  type="number"
+                  min={0}
+                  step="0.1"
+                  value={terms.finance.aprPercent}
+                  onChange={(e) => patch({ finance: { ...terms.finance!, aprPercent: Number(e.target.value) || 0 } })}
+                  className="w-full rounded-lg border border-border bg-background py-1.5 px-2 text-xs font-mono text-white focus:border-emerald-500 focus:outline-none"
+                />
+              </label>
+              <p className="text-[11px] text-emerald-400 font-semibold">
+                Estimated monthly: {financeEst != null ? formatPriceAmount(financeEst) : "—"}
+              </p>
+              <p className="text-[10px] text-ink-faint">Estimate only — not a dealer quote.</p>
+            </div>
+          ) : null}
+          {requested.includes("lease") && terms?.lease ? (
+            <div className="rounded-xl border border-border bg-background p-3 space-y-2">
+              <div className="text-[11px] font-bold text-white">{DEAL_STRUCTURE_LABELS.lease}</div>
+              {moneyInput(terms.lease.capCost, (capCost) => patch({ lease: { ...terms.lease!, capCost } }), "Cap cost")}
+              {moneyInput(terms.lease.dueAtSigning, (dueAtSigning) => patch({ lease: { ...terms.lease!, dueAtSigning } }), "Due at signing")}
+              <label className="block space-y-1">
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-ink-faint">Term</span>
+                <select
+                  value={terms.lease.termMonths}
+                  onChange={(e) => patch({ lease: { ...terms.lease!, termMonths: Number(e.target.value) } })}
+                  className="w-full rounded-lg border border-border bg-background py-1.5 px-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
+                >
+                  {LEASE_TERM_MONTHS.map((m) => (
+                    <option key={m} value={m}>{m} months</option>
+                  ))}
+                </select>
+              </label>
+              <label className="block space-y-1">
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-ink-faint">Miles / year</span>
+                <input
+                  type="number"
+                  min={0}
+                  value={terms.lease.milesPerYear}
+                  onChange={(e) => patch({ lease: { ...terms.lease!, milesPerYear: Number(e.target.value) || 0 } })}
+                  className="w-full rounded-lg border border-border bg-background py-1.5 px-2 text-xs font-mono text-white focus:border-emerald-500 focus:outline-none"
+                />
+              </label>
+              <label className="block space-y-1">
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-ink-faint">Money factor</span>
+                <input
+                  type="number"
+                  min={0}
+                  step="0.0001"
+                  value={terms.lease.moneyFactor}
+                  onChange={(e) => patch({ lease: { ...terms.lease!, moneyFactor: Number(e.target.value) || 0 } })}
+                  className="w-full rounded-lg border border-border bg-background py-1.5 px-2 text-xs font-mono text-white focus:border-emerald-500 focus:outline-none"
+                />
+              </label>
+              <label className="block space-y-1">
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-ink-faint">Residual %</span>
+                <input
+                  type="number"
+                  min={0}
+                  max={100}
+                  step="0.5"
+                  value={terms.lease.residualPercent}
+                  onChange={(e) => patch({ lease: { ...terms.lease!, residualPercent: Number(e.target.value) || 0 } })}
+                  className="w-full rounded-lg border border-border bg-background py-1.5 px-2 text-xs font-mono text-white focus:border-emerald-500 focus:outline-none"
+                />
+              </label>
+              <p className="text-[11px] text-emerald-400 font-semibold">
+                Estimated monthly: {leaseEst != null ? formatPriceAmount(leaseEst) : "—"}
+              </p>
+              <p className="text-[10px] text-ink-faint">Estimate only — not a dealer quote.</p>
+            </div>
+          ) : null}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ListingFacts({ sheet }: { sheet: ShopperListingSheet }) {
+  const facts: Array<{ label: string; value: React.ReactNode }> = [];
+  if (sheet.advertisedPrice) facts.push({ label: "Advertised price", value: formatPriceAmount(sheet.advertisedPrice) });
+  if (sheet.msrp) facts.push({ label: "MSRP", value: formatPriceAmount(sheet.msrp) });
+  if (sheet.priceChange != null && sheet.priceChange !== 0) {
+    facts.push({ label: "Price change", value: formatSignedPrice(sheet.priceChange) });
+  }
+  if (sheet.daysOnMarket != null) facts.push({ label: "Days on market", value: String(sheet.daysOnMarket) });
+  if (sheet.daysOnMarketActive != null) {
+    facts.push({ label: "Days on market (active)", value: String(sheet.daysOnMarketActive) });
+  }
+  if (sheet.firstSeen) facts.push({ label: "First seen", value: sheet.firstSeen });
+  if (sheet.lastSeen) facts.push({ label: "Last seen", value: sheet.lastSeen });
+  if (sheet.stockNumber) facts.push({ label: "Stock #", value: sheet.stockNumber });
+  if (sheet.inventoryType) facts.push({ label: "Inventory", value: sheet.inventoryType });
+  if (sheet.exteriorColor) facts.push({ label: "Exterior", value: sheet.exteriorColor });
+  if (sheet.interiorColor) facts.push({ label: "Interior", value: sheet.interiorColor });
+  if (sheet.mileage != null) facts.push({ label: "Mileage", value: `${sheet.mileage.toLocaleString()} mi` });
+  if (sheet.inTransit) facts.push({ label: "Status", value: "In transit" });
+  const dealerLine = [sheet.dealerStreet, [sheet.dealerCity, sheet.dealerState].filter(Boolean).join(", "), sheet.dealerZip]
+    .filter(Boolean)
+    .join(", ");
+  if (sheet.dealerName) facts.push({ label: "Dealer", value: sheet.dealerName });
+  if (dealerLine) facts.push({ label: "Address", value: dealerLine });
+  if (sheet.dealerPhone) {
+    facts.push({
+      label: "Phone",
+      value: (
+        <span className="inline-flex items-center gap-1">
+          <Phone className="h-3 w-3" /> {sheet.dealerPhone}
+        </span>
+      ),
+    });
+  }
+
+  return (
+    <div className="space-y-2">
+      {sheet.photoUrl ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={sheet.photoUrl} alt="" className="w-full h-28 object-cover rounded-lg border border-border" />
+      ) : null}
+      <dl className="grid grid-cols-1 gap-1">
+        {facts.map((fact) => (
+          <div key={fact.label} className="flex justify-between gap-2 text-[11px]">
+            <dt className="text-ink-faint shrink-0">{fact.label}</dt>
+            <dd className="text-ink-light text-right">{fact.value}</dd>
+          </div>
+        ))}
+      </dl>
+      {sheet.vdpUrl ? (
+        <a
+          href={sheet.vdpUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-[11px] text-emerald-400 hover:underline"
+        >
+          Dealer listing
+        </a>
+      ) : null}
+      {sheet.attribution ? (
+        <p className="text-[10px] text-ink-faint pt-1">{sheet.attribution}</p>
+      ) : null}
+    </div>
+  );
+}

@@ -6,6 +6,7 @@ import { formatCurrency, formatPercent } from "../lib/otdCalculator";
 import { formatDealStructures } from "../lib/dealStructure";
 import { reviewTargetFromVehicle } from "../lib/fordCompetitionUi";
 import { offerPathLabel } from "../lib/shopperDeal";
+import { DealVehiclesSummary } from "./DealVehiclesSummary";
 import {
   ShieldCheck,
   Zap,
@@ -313,6 +314,8 @@ export const DealTrackerDashboard: React.FC<DealTrackerDashboardProps> = ({
 
                 {/* Body Content */}
                 <div className="p-6 space-y-6">
+                  <DealVehiclesSummary request={req} compareHref="/compare" />
+
                   {/* Top Bid Announcement Card */}
                   {(() => {
                     const bidsForReq = bids.filter((b) => b.dealRequestId === req.id);
