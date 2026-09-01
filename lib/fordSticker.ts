@@ -13,6 +13,9 @@
 
 import fs from "fs";
 import path from "path";
+import { isFordOrLincolnVin } from "./oemWmi";
+
+export { isFordOrLincolnVin };
 
 export const FORD_STICKER_PDF_URL =
   "https://www.windowsticker.forddirect.com/windowsticker.pdf";
@@ -325,15 +328,6 @@ export function looksLikeFordOrLincolnPaste(paste: string): boolean {
 export function isExplicitNonFordDemoPaste(paste: string): boolean {
   if (looksLikeFordOrLincolnPaste(paste)) return false;
   return NON_FORD_DEMO_HINT.test(paste);
-}
-
-export function isFordOrLincolnVin(vin: string): boolean {
-  const u = vin.trim().toUpperCase();
-  if (u.length !== 17) return false;
-  const wmi = u.slice(0, 3);
-  if (/^[123]F/.test(u)) return true;
-  if (["1LN", "5LM", "2LM", "3LN", "1L1", "5L1"].includes(wmi)) return true;
-  return false;
 }
 
 /**

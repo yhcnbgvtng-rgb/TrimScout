@@ -1,12 +1,12 @@
 /**
  * Install first in every test file. Blocks live quota hosts even if a test
- * forgets to mock fetch. Owner-only: MarketCheck / Auto.dev / Ford Direct /
+ * forgets to mock fetch. Owner-only: MarketCheck / Auto.dev / Ford Direct / GM CWS /
  * production comparables must not be called from CI or agent test runs.
  */
 import { before } from "node:test";
 
 export const LIVE_HTTP_BLOCKLIST =
-  /windowsticker\.forddirect\.com|api\.marketcheck\.com|api\.auto\.dev|trim-scout\.vercel\.app/i;
+  /windowsticker\.forddirect\.com|cws\.gm\.com|api\.marketcheck\.com|api\.auto\.dev|trim-scout\.vercel\.app/i;
 
 export function assertNotLiveHttpUrl(url: string): void {
   if (LIVE_HTTP_BLOCKLIST.test(url)) {

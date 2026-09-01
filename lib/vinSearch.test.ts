@@ -621,6 +621,10 @@ describe("shopper-facing factory option copy", () => {
     assert.equal(listingVdpHref("https://www.windowsticker.forddirect.com/windowsticker.pdf?vin=1FTFW3LD7TFB08996"), null);
     assert.equal(listingVdpHref("https://www.windowsticker.forddirect.com/windowsticker.pdf"), null);
     assert.equal(
+      listingVdpHref("https://cws.gm.com/vs-cws/vehshop/v2/vehicle/windowsticker?vin=2GC4KREY7T1167690"),
+      null
+    );
+    assert.equal(
       formatFactoryOptionLine({ code: "800A", description: "EQUIPMENT GROUP 800A" }),
       "EQUIPMENT GROUP 800A"
     );
@@ -665,8 +669,11 @@ describe("shopper-facing factory option copy", () => {
     assert.match(step2, /FORD_OTHER_LOTS_MODE_PASTE/);
     assert.match(step2, /type="radio"/);
     assert.match(src, /useState<OtherLotsMode>\("find"\)/);
-    assert.match(src, /findLotsMode \|\| fordStickerStatus !== "released"/);
+    assert.match(src, /findLotsMode \|\| factoryBuildOem !== "ford" \|\| fordStickerStatus !== "released"/);
     assert.match(src, /\/api\/ford-comparables/);
+    assert.match(src, /\/api\/gm-sticker/);
+    assert.doesNotMatch(src, /applyMockParse/);
+    assert.doesNotMatch(src, /vehicles\[0\]/);
     assert.match(FORD_MUST_HAVE_HELP, /Unchecked options are ignored/);
   });
 
@@ -685,6 +692,25 @@ describe("shopper-facing factory option copy", () => {
     const shorkey = listingVdpHref("https://www.example.com/ford/vdp-a");
     assert.equal(battlefield, null);
     assert.equal(shorkey, "https://www.example.com/ford/vdp-a");
+  });
+
+  it("pasting Chevy VIN 2GC4KREY7T1167690 never yields a Porsche or mock catalog VIN", () => {
+    const src = fs.readFileSync(path.join(process.cwd(), "components/BiddingWizard.tsx"), "utf8");
+    assert.doesNotMatch(src, /applyMockParse/);
+    assert.doesNotMatch(src, /vehicles\[0\]/);
+    assert.doesNotMatch(src, /WP0AB2A98SS160032/);
+    assert.match(src, /acceptImportedVehicle/);
+    assert.match(src, /factoryBuildUnavailableError/);
+    assert.match(src, /preferredFactoryBuildEndpoint/);
+    assert.match(src, /\/api\/gm-sticker/);
+    assert.match(src, /setSelectedVehicle\(null\)/);
+    const parseStart = src.indexOf("const handleParseDealerUrl");
+    const parseEnd = src.indexOf("const handleParseSecondaryUrl");
+    assert.ok(parseStart >= 0 && parseEnd > parseStart);
+    const parseFn = src.slice(parseStart, parseEnd);
+    assert.doesNotMatch(parseFn, /porsche/i);
+    assert.doesNotMatch(parseFn, /MOCK_VEHICLES/);
+    assert.match(parseFn, /isGmVin/);
   });
 
   it("shopper-facing hunt notes never say sticker", () => {
@@ -710,8 +736,9 @@ describe("shopper-facing factory option copy", () => {
     const vinSearchTest = fs.readFileSync(path.join(import.meta.dirname, "vinSearch.test.ts"), "utf8");
     const stickerTest = fs.readFileSync(path.join(import.meta.dirname, "fordSticker.test.ts"), "utf8");
     const dealStructureTest = fs.readFileSync(path.join(import.meta.dirname, "dealStructure.test.ts"), "utf8");
+    const gmStickerTest = fs.readFileSync(path.join(import.meta.dirname, "gmSticker.test.ts"), "utf8");
     const guardSrc = fs.readFileSync(path.join(import.meta.dirname, "testdata/blockLiveHttp.ts"), "utf8");
-    for (const src of [vinSearchTest, stickerTest, dealStructureTest]) {
+    for (const src of [vinSearchTest, stickerTest, dealStructureTest, gmStickerTest]) {
       assert.match(src, /blockLiveHttp/);
       assert.doesNotMatch(src, /getFordSticker\(/);
       assert.doesNotMatch(src, /confirmFordMustHaves\(/);
@@ -719,16 +746,22 @@ describe("shopper-facing factory option copy", () => {
       assert.doesNotMatch(src, /\bcurl\b[\s\S]{0,120}trim-scout\.vercel\.app/);
     }
     assert.ok(guardSrc.includes("forddirect"));
+    assert.ok(guardSrc.includes("cws.gm.com") || guardSrc.includes("cws\\.gm"));
     assert.ok(guardSrc.includes("marketcheck"));
     assert.ok(guardSrc.includes("auto.dev") || guardSrc.includes("auto\\.dev"));
     assert.ok(guardSrc.includes("trim-scout"));
     assert.equal(LIVE_HTTP_BLOCKLIST.test("https://www.windowsticker.forddirect.com/windowsticker.pdf?vin=X"), true);
+    assert.equal(LIVE_HTTP_BLOCKLIST.test("https://cws.gm.com/vs-cws/vehshop/v2/vehicle/windowsticker?vin=2GC4KREY7T1167690"), true);
     assert.equal(LIVE_HTTP_BLOCKLIST.test("https://api.marketcheck.com/v2/search/car/active"), true);
     assert.equal(LIVE_HTTP_BLOCKLIST.test("https://api.auto.dev/listings"), true);
     assert.equal(LIVE_HTTP_BLOCKLIST.test("https://trim-scout.vercel.app/api/ford-comparables"), true);
     assert.equal(LIVE_HTTP_BLOCKLIST.test("https://example.com/ford/vdp"), false);
     await assert.rejects(
       () => guardedFetch("https://www.windowsticker.forddirect.com/windowsticker.pdf?vin=1FTFW3LD7TFB08996"),
+      /must mock HTTP/
+    );
+    await assert.rejects(
+      () => guardedFetch("https://cws.gm.com/vs-cws/vehshop/v2/vehicle/windowsticker?vin=2GC4KREY7T1167690"),
       /must mock HTTP/
     );
     await assert.rejects(

@@ -124,6 +124,12 @@ export function autoFillCompetitionSlots<T>(matches: T[]): [T | null, T | null] 
 export function listingVdpHref(url: string | null | undefined): string | null {
   const trimmed = (url || "").trim();
   if (!/^https?:\/\//i.test(trimmed)) return null;
-  if (/windowsticker\.forddirect\.com|forddirect\.com\/windowsticker/i.test(trimmed)) return null;
+  if (
+    /windowsticker\.forddirect\.com|forddirect\.com\/windowsticker|cws\.gm\.com/i.test(
+      trimmed
+    )
+  ) {
+    return null;
+  }
   return trimmed;
 }
