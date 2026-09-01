@@ -1372,7 +1372,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                     </div>
                   </div>
 
-                  {fordStickerStatus === "released" && fordFilterableOptions.length > 0 && (
+                  {findLotsMode && fordStickerStatus === "released" && fordFilterableOptions.length > 0 && (
                     <div className="space-y-1">
                       <h4 className="text-xs font-bold text-white uppercase tracking-wider">
                         {FORD_MUST_HAVE_HEADING}
