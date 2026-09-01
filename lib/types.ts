@@ -117,6 +117,8 @@ export interface BiddingRequest {
   createdAt: string;
   expiresAt: string;
   status: "active" | "locked" | "expired";
+  // Set when Step 3 chose a one-dealer offer instead of the reverse auction.
+  directOffer?: boolean;
 }
 
 // A dealer's inbox view of one real active buyer request — masked (per the

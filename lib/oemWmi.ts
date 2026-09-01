@@ -72,6 +72,26 @@ export function looksLikeGmPaste(paste: string): boolean {
   return !!(vin && isGmVin(vin));
 }
 
+/** Maps a shopper-facing make onto the inventory brand code used by deal-requests. */
+export function brandCodeFromMake(make: string): string {
+  const m = (make || "").trim().toLowerCase();
+  if (m.includes("ford") || m.includes("lincoln")) return "ford";
+  if (
+    m.includes("chevrolet") ||
+    m.includes("chevy") ||
+    m.includes("gmc") ||
+    m.includes("cadillac") ||
+    m.includes("buick")
+  ) {
+    return "chevrolet";
+  }
+  if (m.includes("porsche")) return "porsche";
+  if (m.includes("acura")) return "acura";
+  if (m.includes("audi")) return "audi";
+  if (m.includes("mclaren")) return "mclaren";
+  return m.replace(/[^a-z0-9]+/g, "") || "ford";
+}
+
 export function looksLikeFordPaste(paste: string): boolean {
   const raw = (paste || "").trim();
   if (!raw) return false;

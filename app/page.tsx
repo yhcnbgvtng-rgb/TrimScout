@@ -5,9 +5,8 @@ export const dynamic = "force-dynamic";
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useSession, signOut as authSignOut } from "next-auth/react";
-import { Vehicle, BiddingRequest, DealerBid, LockedDeal, UserProfile } from "../lib/types";
+import { Vehicle, BiddingRequest, DealerBid, LockedDeal, UserProfile, PaymentMethod } from "../lib/types";
 import { MOCK_VEHICLES, INITIAL_DEMO_BIDS, SAMPLE_TRADE_IN_VEHICLE, DEMO_BUYER_USER } from "../lib/mockData";
-import { calculateOtd } from "../lib/otdCalculator";
 import { fetchLiveInventory } from "../lib/inventoryConnector";
 import { Navbar } from "../components/Navbar";
 import { BidProgramIntro } from "../components/BidProgramIntro";
@@ -21,6 +20,58 @@ import { DealTrackerDashboard } from "../components/DealTrackerDashboard";
 import { SignupView } from "../components/SignupView";
 import { AdminPortal } from "../components/AdminPortal";
 import { DealerAnalytics } from "../components/DealerAnalytics";
+
+function isPersistedDealId(id: string): boolean {
+  return /^\d+$/.test(id);
+}
+
+function mapDealRequestJson(dr: Record<string, unknown>, existing?: BiddingRequest): BiddingRequest {
+  const vin = String(dr.referenceVin || existing?.targetVin || "");
+  const make = String(dr.referenceMake || existing?.targetVehicle?.make || "");
+  const model = String(dr.referenceModel || existing?.targetVehicle?.model || "");
+  return {
+    id: String(dr.id),
+    strategy: (dr.strategy as BiddingRequest["strategy"]) || "exact_auction",
+    targetVin: vin,
+    targetVehicle: existing?.targetVehicle || {
+      id: vin,
+      vin,
+      year: Number(dr.referenceYear) || 0,
+      make,
+      model,
+      trim: String(dr.referenceTrim || ""),
+      bodyType: "",
+      engine: "",
+      drivetrain: "",
+      transmission: "",
+      exteriorColor: "",
+      interiorColor: "",
+      msrp: Number(dr.referenceMsrp) || 0,
+      dealerPrice: Number(dr.referencePrice) || 0,
+      daysOnLot: 0,
+      status: "on_lot",
+      location: { dealerName: "", city: "", state: "", distanceMiles: 0 },
+      packages: [],
+      options: [],
+      imageUrl: String(dr.referenceImageUrl || ""),
+      mileage: 0,
+    },
+    targetOtdPrice: typeof dr.targetOtdPrice === "number" ? dr.targetOtdPrice : existing?.targetOtdPrice,
+    targetDiscountPercent:
+      typeof dr.targetDiscountPercent === "number" ? dr.targetDiscountPercent : existing?.targetDiscountPercent,
+    paymentMethod: (dr.paymentMethod as PaymentMethod) || existing?.paymentMethod || "cash",
+    buyerZip: String(dr.buyerZip || existing?.buyerZip || ""),
+    buyerState: String(dr.buyerState || existing?.buyerState || ""),
+    searchRadiusMiles: Number(dr.searchRadiusMiles) || existing?.searchRadiusMiles || 100,
+    sameStateOnly: dr.sameStateOnly !== false,
+    tradeIn: existing?.tradeIn,
+    buyerComment: typeof dr.buyerComment === "string" ? dr.buyerComment : existing?.buyerComment,
+    createdAt: String(dr.createdAt || existing?.createdAt || ""),
+    expiresAt: String(dr.expiresAt || existing?.expiresAt || ""),
+    status: dr.status === "locked" || dr.status === "expired" ? dr.status : "active",
+    directOffer: existing?.directOffer ?? dr.strategy === "firm_offer",
+  };
+}
 
 export default function Home() {
   const [vehicles, setVehicles] = useState<Vehicle[]>(MOCK_VEHICLES);
@@ -83,6 +134,7 @@ export default function Home() {
   });
 
   const [bids, setBids] = useState<DealerBid[]>(INITIAL_DEMO_BIDS);
+  const [shopperRequests, setShopperRequests] = useState<BiddingRequest[]>([]);
 
   // Modals state
   const [inspectedBid, setInspectedBid] = useState<DealerBid | null>(null);
@@ -146,6 +198,72 @@ export default function Home() {
     }
     prevSessionStatusRef.current = sessionStatus;
   }, [session, sessionStatus]);
+
+  const persistedShopperIds = shopperRequests.map((r) => r.id).filter(isPersistedDealId).join(",");
+
+  useEffect(() => {
+    if (currentView !== "track_deals") return;
+    if (!currentUser || currentUser.role !== "buyer") return;
+    let cancelled = false;
+
+    const loadRequests = async () => {
+      try {
+        const res = await fetch("/api/deal-requests");
+        if (!res.ok) return;
+        const json = await res.json();
+        const rows = Array.isArray(json.dealRequests) ? json.dealRequests : [];
+        if (cancelled || rows.length === 0) return;
+        setShopperRequests((prev) => {
+          const byId = new Map(prev.map((r) => [r.id, r]));
+          for (const row of rows) {
+            const mapped = mapDealRequestJson(row as Record<string, unknown>, byId.get(String((row as { id?: string }).id)));
+            byId.set(mapped.id, mapped);
+          }
+          return Array.from(byId.values());
+        });
+      } catch {
+        // Local tracker rows from this session still show if the box is down.
+      }
+    };
+
+    const loadBids = async () => {
+      const ids = persistedShopperIds.split(",").filter(Boolean);
+      if (ids.length === 0) return;
+      const collected: DealerBid[] = [];
+      for (const id of ids) {
+        try {
+          const res = await fetch(`/api/deal-requests/${id}/bids`);
+          if (!res.ok) continue;
+          const json = await res.json();
+          for (const b of json.bids || []) {
+            collected.push({
+              ...b,
+              dealerCity: b.dealerCity || "",
+              dealerState: b.dealerState || "",
+              distanceMiles: b.distanceMiles || 0,
+              matchedVehicleSpec: b.matchedVehicleSpec || "",
+              matchedVehicleImageUrl: b.matchedVehicleImageUrl || "",
+            });
+          }
+        } catch {
+          // Next poll retries.
+        }
+      }
+      if (cancelled || collected.length === 0) return;
+      setBids((prev) => {
+        const keep = prev.filter((b) => !ids.includes(b.dealRequestId));
+        return [...keep, ...collected];
+      });
+    };
+
+    loadRequests();
+    loadBids();
+    const interval = setInterval(loadBids, 9000);
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+    };
+  }, [currentView, currentUser, persistedShopperIds]);
 
   const handleLogout = () => {
     setCurrentUser(null);
@@ -239,88 +357,18 @@ export default function Home() {
     setIsWizardOpen(true);
   };
 
-  const handleRealBidRequestCreated = (request: BiddingRequest) => {
+  const rememberShopperRequest = (request: BiddingRequest) => {
+    setShopperRequests((prev) => [request, ...prev.filter((r) => r.id !== request.id)]);
     setActiveRequest(request);
-    setCurrentView("deal_room");
+    setCurrentView("track_deals");
+  };
+
+  const handleRealBidRequestCreated = (request: BiddingRequest) => {
+    rememberShopperRequest(request);
   };
 
   const handleSubmitBidRequest = (newRequest: BiddingRequest) => {
-    setActiveRequest(newRequest);
-    setCurrentView("deal_room");
-
-    if (newRequest.targetVehicle) {
-      const v = newRequest.targetVehicle;
-      const otd1 = calculateOtd({ msrp: v.msrp, discountPercent: 8.5, rebates: 1000, zipCode: newRequest.buyerZip });
-      const otd2 = calculateOtd({ msrp: v.msrp, discountPercent: 7.2, rebates: 1000, zipCode: newRequest.buyerZip });
-
-      setBids([
-        {
-          id: `bid-${Date.now()}-1`,
-          dealRequestId: newRequest.id,
-          dealerName: "BMW of San Rafael",
-          dealerCity: "San Rafael",
-          dealerState: "CA",
-          distanceMiles: 14,
-          matchedVin: v.vin,
-          matchedVehicleTitle: `${v.year} ${v.make} ${v.model} ${v.trim}`,
-          matchedVehicleSpec: v.packages.join(" • "),
-          matchedVehicleImageUrl: v.imageUrl,
-          vehicleStatus: (v.status === "in_production" ? "order_allocation" : v.status === "sold" ? "on_lot" : v.status),
-          msrp: otd1.msrp,
-          dealerDiscountDollars: otd1.discountDollars,
-          dealerDiscountPercent: otd1.discountPercent,
-          manufacturerRebates: otd1.rebates,
-          sellingPrice: otd1.sellingPrice,
-          salesTax: otd1.salesTax,
-          dmvFees: otd1.dmvFees,
-          docFee: otd1.docFee,
-          dealerAccessories: otd1.accessories,
-          totalOtdPrice: otd1.totalOtdPrice,
-          quotedOtdPrice: otd1.quotedOtdPrice,
-          notes: "Vehicle in stock on showroom floor. Verified $0 add-ons.",
-          rank: 1,
-          createdAt: "Just now",
-          isTopDeal: true,
-          salesRep: {
-            name: "Marcus Vance",
-            title: "Sales Director",
-            phone: "(415) 555-0199",
-          },
-        },
-        {
-          id: `bid-${Date.now()}-2`,
-          dealRequestId: newRequest.id,
-          dealerName: "Peter Pan BMW",
-          dealerCity: "San Mateo",
-          dealerState: "CA",
-          distanceMiles: 19,
-          matchedVin: "WBA33AY09RF611293",
-          matchedVehicleTitle: `${v.year} ${v.make} ${v.model} ${v.trim}`,
-          matchedVehicleSpec: "Brooklyn Grey • Shadowline • Premium Pkg",
-          matchedVehicleImageUrl: v.imageUrl,
-          vehicleStatus: "in_transit",
-          msrp: otd2.msrp,
-          dealerDiscountDollars: otd2.discountDollars,
-          dealerDiscountPercent: otd2.discountPercent,
-          manufacturerRebates: otd2.rebates,
-          sellingPrice: otd2.sellingPrice,
-          salesTax: otd2.salesTax,
-          dmvFees: otd2.dmvFees,
-          docFee: otd2.docFee,
-          dealerAccessories: otd2.accessories,
-          totalOtdPrice: otd2.totalOtdPrice,
-          quotedOtdPrice: otd2.quotedOtdPrice,
-          notes: "In transit allocation arriving within 5 days. Ready to lock in.",
-          rank: 2,
-          createdAt: "3m ago",
-          salesRep: {
-            name: "Elena Rostova",
-            title: "Client Advisor",
-            phone: "(650) 555-0142",
-          },
-        },
-      ]);
-    }
+    rememberShopperRequest(newRequest);
   };
 
   const handleInspectFee = (bid: DealerBid) => {
@@ -445,11 +493,14 @@ export default function Home() {
         currentUser ? (
           <DealTrackerDashboard
             user={currentUser}
-            requests={[activeRequest]}
+            requests={shopperRequests.length > 0 ? shopperRequests : [activeRequest]}
             bids={bids}
             lockedDeal={lockedDeal}
             savedVehicles={savedVehiclesList}
-            onOpenLiveDealRoom={() => setCurrentView("deal_room")}
+            onOpenLiveDealRoom={(request) => {
+              setActiveRequest(request);
+              setCurrentView("deal_room");
+            }}
             onOpenVoucherModal={(deal) => {
               setLockedDeal(deal);
               setIsVoucherModalOpen(true);
@@ -492,7 +543,7 @@ export default function Home() {
           request={activeRequest}
           bids={bids}
           onInspectFee={handleInspectFee}
-          pollBids={false}
+          pollBids={isPersistedDealId(activeRequest.id)}
         />
       )}
 

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { listActiveDealRequests } from "@/lib/dealsApi";
-import { fetchVehiclesFromBox, fetchFacetsFromBox } from "@/lib/lightsailClient";
+import { fetchVehiclesFromBox, fetchFacetsFromBox, fetchVehicleByVinFromBox } from "@/lib/lightsailClient";
 import { calculateDistanceMiles } from "@/lib/otdCalculator";
 import type { DealerInboundRequest } from "@/lib/types";
 
@@ -50,7 +50,14 @@ export async function GET() {
   for (const req of activeRequests) {
     const brandInfo = carriedBrands.find((b) => b.brand === req.referenceBrandCode);
     if (!brandInfo) continue;
-    if (!brandInfo.models.has(req.referenceModel)) continue;
+    // Direct offer (firm_offer): only the rooftop that actually has this VIN.
+    // Reverse-auction requests still match by model + radius as before.
+    if (req.strategy === "firm_offer") {
+      const vinRecord = await fetchVehicleByVinFromBox(req.referenceVin);
+      if (!vinRecord || vinRecord.dealer_name !== user.dealerName) continue;
+    } else if (!brandInfo.models.has(req.referenceModel)) {
+      continue;
+    }
 
     let distanceMiles = 0;
     if (brandInfo.dealerLat && brandInfo.dealerLng) {
@@ -60,9 +67,9 @@ export async function GET() {
         lat: brandInfo.dealerLat,
         lng: brandInfo.dealerLng,
       });
-      if (distanceMiles > req.searchRadiusMiles) continue;
+      if (req.strategy !== "firm_offer" && distanceMiles > req.searchRadiusMiles) continue;
     }
-    if (req.sameStateOnly && brandInfo.dealerState && brandInfo.dealerState !== req.buyerState) continue;
+    if (req.strategy !== "firm_offer" && req.sameStateOnly && brandInfo.dealerState && brandInfo.dealerState !== req.buyerState) continue;
 
     matched.push({
       requestId: req.id,

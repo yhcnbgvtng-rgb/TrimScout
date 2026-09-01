@@ -65,7 +65,10 @@ describe("BiddingWizard step 1 payment checkboxes", () => {
     assert.match(src, /requestedStructures,/);
     assert.match(src, /dealStructurePreferences:\s*\{\s*requestedStructures,/);
     assert.match(src, /step === 1 && requestedStructures\.length === 0/);
-    assert.match(src, /disabled=\{step === 1 && requestedStructures\.length === 0\}/);
+    assert.match(
+      src,
+      /disabled=\{\s*\(step === 1 && requestedStructures\.length === 0\) \|\|/
+    );
     assert.match(src, /wantsFinance \|\| wantsLease/);
     assert.match(src, /formatDealStructures\(requestedStructures\)/);
   });

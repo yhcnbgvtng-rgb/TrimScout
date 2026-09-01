@@ -677,6 +677,65 @@ describe("shopper-facing factory option copy", () => {
     assert.match(FORD_MUST_HAVE_HELP, /Unchecked options are ignored/);
   });
 
+  it("step 2 has no Lock This Car control; footer Continue waits for a successful Import Car", () => {
+    const src = fs.readFileSync(path.join(process.cwd(), "components/BiddingWizard.tsx"), "utf8");
+    const start = src.indexOf("STEP 2:");
+    const end = src.indexOf("STEP 3:");
+    assert.ok(start >= 0 && end > start);
+    const step2 = src.slice(start, end);
+    assert.doesNotMatch(src, /Lock This Car/);
+    assert.doesNotMatch(step2, /onClick=\{\(\) => setStep\(3\)\}/);
+    assert.match(src, /const vehicleImported = Boolean\(parseSuccessMsg && selectedVehicle\)/);
+    assert.match(src, /if \(step === 2 && !vehicleImported\) return;/);
+    assert.match(src, /step === 2 && !vehicleImported/);
+    assert.match(step2, /Import a car to continue/);
+    assert.match(step2, /Import Car →/);
+  });
+
+  it("step 3 is only a direct offer vs multi-dealer choice", () => {
+    const src = fs.readFileSync(path.join(process.cwd(), "components/BiddingWizard.tsx"), "utf8");
+    const start = src.indexOf("STEP 3:");
+    const end = src.indexOf("STEP 4:");
+    assert.ok(start >= 0 && end > start);
+    const step3 = src.slice(start, end);
+    assert.match(step3, /Offer this dealer directly/);
+    assert.match(step3, /Get prices from other dealers/);
+    assert.match(src, /chooseDirectOffer/);
+    assert.match(src, /chooseMultiDealer/);
+    assert.match(src, /setDirectOfferMode\(true\)/);
+    assert.match(src, /setStrategy\("exact_auction"\)/);
+    assert.match(src, /step === 3 && !offerPath/);
+    assert.doesNotMatch(step3, /Find your car based on Make and Model/);
+    assert.doesNotMatch(step3, /Find your car based on must have specs/);
+    assert.doesNotMatch(step3, /Firm Buyer Target Offer/);
+    assert.doesNotMatch(step3, /MOCK_POPULAR_PACKAGES/);
+    assert.doesNotMatch(step3, /FORD_MUST_HAVE_HEADING/);
+    assert.doesNotMatch(step3, /RECOMMENDED/);
+    assert.doesNotMatch(src, /Lock This Car/);
+    assert.doesNotMatch(src, /handleSubmitDirectOffer/);
+  });
+
+  it("wizard submit lands in My Deal Tracker without inventing BMW bids", () => {
+    const page = fs.readFileSync(path.join(process.cwd(), "app/page.tsx"), "utf8");
+    const wizard = fs.readFileSync(path.join(process.cwd(), "components/BiddingWizard.tsx"), "utf8");
+    const tracker = fs.readFileSync(path.join(process.cwd(), "components/DealTrackerDashboard.tsx"), "utf8");
+    const dealerInbox = fs.readFileSync(path.join(process.cwd(), "app/api/dealer-requests/route.ts"), "utf8");
+    const dealsRoute = fs.readFileSync(path.join(process.cwd(), "app/api/deal-requests/route.ts"), "utf8");
+    assert.match(page, /setCurrentView\("track_deals"\)/);
+    assert.match(page, /rememberShopperRequest/);
+    assert.doesNotMatch(page, /BMW of San Rafael/);
+    assert.doesNotMatch(page, /Peter Pan BMW/);
+    assert.match(wizard, /\/api\/deal-requests/);
+    assert.match(wizard, /brandCodeFromMake/);
+    assert.match(wizard, /directOffer: directOfferMode/);
+    assert.match(tracker, /req\.directOffer/);
+    assert.match(tracker, /b\.dealRequestId === req\.id/);
+    assert.match(dealerInbox, /fetchVehicleByVinFromBox/);
+    assert.match(dealerInbox, /req\.strategy === "firm_offer"/);
+    assert.match(dealsRoute, /export async function GET/);
+    assert.match(dealsRoute, /listDealRequestsForBuyer/);
+  });
+
   it("hides must-have factory options on the paste-two-VINs path", () => {
     const src = fs.readFileSync(path.join(process.cwd(), "components/BiddingWizard.tsx"), "utf8");
     const start = src.indexOf("STEP 2:");
@@ -687,7 +746,7 @@ describe("shopper-facing factory option copy", () => {
       /findLotsMode && fordStickerStatus === "released" && fordFilterableOptions\.length > 0/
     );
     assert.match(step2, /FORD_OTHER_LOTS_MODE_PASTE/);
-    assert.match(src, /!findLotsMode \|\| fordStickerStatus !== "released"/);
+    assert.match(src, /!findLotsMode \|\| factoryBuildOem !== "ford" \|\| fordStickerStatus !== "released"/);
   });
 
   it("other-lots card VIN links the listings VDP in a new tab, or is plain text with no invented URL", () => {

@@ -1,8 +1,23 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
-import { createDealRequest, DealsApiError } from "@/lib/dealsApi";
+import { createDealRequest, listDealRequestsForBuyer, DealsApiError } from "@/lib/dealsApi";
 import { getZipCoordinates } from "@/lib/otdCalculator";
 import { findContactInfo } from "@/lib/piiFilter";
+
+export async function GET() {
+  const session = await auth();
+  if (!session?.user?.id || (session.user as any).role !== "buyer") {
+    return NextResponse.json({ error: "You must be signed in as a buyer." }, { status: 401 });
+  }
+
+  try {
+    const dealRequests = await listDealRequestsForBuyer(session.user.id as string);
+    return NextResponse.json({ dealRequests });
+  } catch (err) {
+    const message = err instanceof DealsApiError ? err.message : "Could not load your deals.";
+    return NextResponse.json({ error: message }, { status: 502 });
+  }
+}
 
 export async function POST(req: Request) {
   const session = await auth();
