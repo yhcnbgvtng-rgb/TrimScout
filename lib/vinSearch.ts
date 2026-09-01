@@ -21,12 +21,15 @@ import {
   confirmFordMustHavesFromSticker,
   engineFamilyFromVin,
   extractVinFromDealerPage,
+  factoryOptionBreakout,
+  factoryOptionCode,
   fordStickerPdfUrl,
   getFordSticker,
   isStandardKeylessLine,
   parseFordStickerText,
   shouldExcludeByEnginePrefix,
   stickerHasMustHave,
+  type FordFactoryOptionLine,
   type FordSticker,
 } from "./fordSticker";
 import {
@@ -109,6 +112,8 @@ export interface ListingCandidate {
   make?: string;
   model?: string;
   trim?: string;
+  /** MarketCheck dealer.id (or equivalent) when the listings provider supplies one. */
+  dealerId?: string;
   dealerName?: string;
   city?: string;
   state?: string;
@@ -128,6 +133,7 @@ export interface FordMatchCard {
   trim?: string;
   engine?: string;
   exteriorColor?: string;
+  dealerId?: string;
   dealerName: string;
   city: string;
   state: string;
@@ -142,6 +148,9 @@ export interface FordMatchCard {
   matchedMustHaves: string[];
   matchedNiceToHaves: string[];
   stickerStatus: FordSticker["status"];
+  /** Full optional-equipment list from this VIN's Ford sticker. Never invented. */
+  factoryOptions: FordFactoryOptionLine[];
+  factoryOptionsStatus: "ok" | "unavailable";
 }
 
 export interface FordSearchDropped {
@@ -333,6 +342,53 @@ function asFiniteCoord(value: unknown): number | undefined {
   return undefined;
 }
 
+/** Stable listings-provider dealer id when present (MarketCheck `dealer.id`, etc.). */
+export function listingDealerId(...candidates: unknown[]): string | undefined {
+  for (const value of candidates) {
+    if (typeof value === "number" && Number.isFinite(value)) return String(value);
+    if (typeof value === "string" && value.trim()) return value.trim();
+  }
+  return undefined;
+}
+
+function normalizeDealerToken(value?: string): string {
+  return (value || "").toLowerCase().replace(/[^a-z0-9]+/g, "");
+}
+
+/**
+ * Stable rooftop identity for Increase Competition.
+ * Prefer the listings dealer id; otherwise normalized name + city/state/zip.
+ */
+export function dealerIdentity(lot: {
+  dealerId?: string | null;
+  dealerName?: string;
+  city?: string;
+  state?: string;
+  zip?: string;
+}): string {
+  const id = listingDealerId(lot.dealerId);
+  if (id) return `id:${id}`;
+  const name = normalizeDealerToken(lot.dealerName);
+  const rooftop = [lot.city, lot.state, lot.zip].map(normalizeDealerToken).filter(Boolean).join("|");
+  return `name:${name}|${rooftop}`;
+}
+
+/**
+ * Slot 1 = nearest sticker-matched lot. Slot 2 = nearest lot from a different
+ * dealer when one exists; otherwise the next-nearest lot from the same rooftop.
+ * Does not invent dealers or pad with demo inventory.
+ */
+export function selectCompetitionSlots<T extends Parameters<typeof dealerIdentity>[0]>(
+  rankedMatches: T[]
+): T[] {
+  if (rankedMatches.length <= 1) return rankedMatches.slice();
+  const first = rankedMatches[0];
+  const firstDealer = dealerIdentity(first);
+  const other = rankedMatches.find((lot, index) => index > 0 && dealerIdentity(lot) !== firstDealer);
+  if (other) return [first, other];
+  return rankedMatches.slice(0, MAX_FORD_RECS);
+}
+
 function huntResult(partial: Omit<FordSearchResult, "hasListingsKey">): FordSearchResult {
   return { ...partial, hasListingsKey: hasListingsApiKey() };
 }
@@ -461,6 +517,7 @@ async function searchAutoDev(
       make: typeof vehicle.make === "string" ? vehicle.make : q.make,
       model: typeof vehicle.model === "string" ? vehicle.model : q.model,
       trim: typeof vehicle.trim === "string" ? vehicle.trim : q.trim,
+      dealerId: listingDealerId(retail.dealerId, retail.dealer_id, r.dealerId, r.dealer_id),
       dealerName: String(retail.dealer || retail.dealerName || r.dealerName || "Unknown dealer"),
       city: String(retail.city || r.city || ""),
       state: String(retail.state || r.state || ""),
@@ -544,6 +601,7 @@ async function searchMarketCheck(
       make: String(build.make || r.make || q.make),
       model: String(build.model || r.model || q.model || ""),
       trim: String(build.trim || r.trim || ""),
+      dealerId: listingDealerId(dealer.id, dealer.dealer_id, r.dealer_id, r.dealerId),
       dealerName: String(dealer.name || "Unknown dealer"),
       city: String(dealer.city || ""),
       state: String(dealer.state || ""),
@@ -792,6 +850,7 @@ export async function findSimilarFordVehicles(opts: {
         return;
       }
       const matchedNice = niceHaves.filter((line) => stickerHasMustHave(sticker, line));
+      const factoryOptions = factoryOptionBreakout(sticker);
       const dealer = {
         city: listing.city || sticker.dealerSoldTo?.city || "",
         state: listing.state || sticker.dealerSoldTo?.state || "",
@@ -819,6 +878,7 @@ export async function findSimilarFordVehicles(opts: {
         trim: sticker.trim || listing.trim,
         engine: sticker.engine,
         exteriorColor: sticker.exteriorColor || listing.exteriorColor,
+        dealerId: listing.dealerId,
         dealerName: listing.dealerName || sticker.dealerSoldTo?.name || "Unknown dealer",
         city: dealer.city,
         state: dealer.state,
@@ -833,6 +893,8 @@ export async function findSimilarFordVehicles(opts: {
         matchedMustHaves: check.matched,
         matchedNiceToHaves: matchedNice,
         stickerStatus: sticker.status,
+        factoryOptions,
+        factoryOptionsStatus: factoryOptions.length > 0 ? "ok" : "unavailable",
       });
     } catch {
       dropped.push({ vin: listing.vin, reason: "sticker_error", dealerName: listing.dealerName });
@@ -840,7 +902,7 @@ export async function findSimilarFordVehicles(opts: {
   });
 
   const ranked = await enrichMatchListingPrices(
-    rankFordMatches(matches).slice(0, MAX_FORD_RECS),
+    selectCompetitionSlots(rankFordMatches(matches)),
     opts.fetchVdpPrice
   );
   if (ranked.length === 0) {
@@ -893,12 +955,14 @@ export function fordMatchToVehicle(match: FordMatchCard): Vehicle {
       zip: match.zip,
       distanceMiles: match.distanceMiles || 0,
     },
-    packages: [...match.matchedMustHaves, ...match.matchedNiceToHaves],
-    options: match.matchedMustHaves.map((name) => ({
-      code: name,
-      name,
-      price: 0,
-      category: "package" as const,
+    packages: match.factoryOptions
+      .filter((o) => !o.isPackageChild)
+      .map((o) => o.description),
+    options: match.factoryOptions.map((o) => ({
+      code: o.code || "",
+      name: o.description,
+      price: o.price || 0,
+      category: o.isPackageChild ? ("standalone" as const) : ("package" as const),
     })),
     imageUrl: "",
     mileage: 0,
@@ -943,7 +1007,7 @@ export function stickerToVehicle(
     options: sticker.options
       .filter((o) => !o.isStandard)
       .map((o) => ({
-        code: o.name,
+        code: factoryOptionCode(o.name) || "",
         name: o.name,
         price: o.price || 0,
         category: o.isPackageChild ? ("standalone" as const) : ("package" as const),

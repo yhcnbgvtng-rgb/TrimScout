@@ -1,18 +1,31 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Vehicle, BiddingStrategy, PaymentMethod, BiddingRequest, TradeInVehicle, TradeInPhoto, UserProfile } from "../lib/types";
+import { Vehicle, BiddingStrategy, BiddingRequest, TradeInVehicle, TradeInPhoto, UserProfile, type DealStructureMethod } from "../lib/types";
+import {
+  DEAL_STRUCTURE_LABELS,
+  DEAL_STRUCTURE_METHODS,
+  formatDealStructures,
+  paymentMethodFromStructures,
+  toggleDealStructure,
+} from "../lib/dealStructure";
 import { formatCurrency, getEstimatedTaxRate } from "../lib/otdCalculator";
 import { findContactInfo } from "../lib/piiFilter";
 import { MOCK_POPULAR_PACKAGES, SAMPLE_TRADE_IN_VEHICLE } from "../lib/mockData";
 import { decodeVin, SAMPLE_TEST_VINS, DecodedVehicle } from "../lib/vinDecoder";
 import {
+  FORD_COMPETITION_FACTORY_OPTIONS,
+  FORD_COMPETITION_FACTORY_OPTIONS_UNAVAILABLE,
   FORD_COMPETITION_LOADING,
   FORD_COMPETITION_NEED_LOCATION,
+  FORD_MUST_HAVE_HEADING,
+  FORD_MUST_HAVE_HELP,
   advertisedOrStickerPrice,
   autoFillCompetitionSlots,
   fordCompetitionEmptyCopy,
+  formatFactoryOptionLine,
   formatPriceAmount,
+  type FactoryOptionDisplay,
 } from "../lib/fordCompetitionUi";
 import {
   X,
@@ -36,10 +49,6 @@ import {
   Link2,
   Globe,
   LoaderCircle as Loader2,
-  Layers,
-  Coins,
-  CreditCard,
-  KeyRound,
   Plus,
   Handshake,
   FileText
@@ -65,6 +74,16 @@ interface FordSuggestionCard {
   pdfUrl: string;
   matchedMustHaves: string[];
   matchedNiceToHaves: string[];
+  factoryOptions?: FactoryOptionDisplay[];
+  factoryOptionsStatus?: "ok" | "unavailable";
+}
+
+interface FilterableFactoryOption {
+  name: string;
+  code?: string | null;
+  description?: string;
+  price: number | null;
+  isPackageChild?: boolean;
 }
 
 function formatStickerMsrp(amount: number | null | undefined): string {
@@ -74,6 +93,103 @@ function formatStickerMsrp(amount: number | null | undefined): string {
 function milesFromUserZip(miles: number | null | undefined, zip: string): string | null {
   if (miles == null || !/^\d{5}$/.test(zip.trim())) return null;
   return `${miles} mi from ${zip.trim()}`;
+}
+
+function FactoryMustHavePicker({
+  options,
+  checked,
+  onToggle,
+}: {
+  options: FilterableFactoryOption[];
+  checked: string[];
+  onToggle: (name: string) => void;
+}) {
+  return (
+    <div className="max-h-56 overflow-y-auto">
+      {options.map((opt) => {
+        const isChecked = checked.includes(opt.name);
+        const line = formatFactoryOptionLine({
+          code: opt.code ?? null,
+          description: opt.description || opt.name,
+        });
+        return (
+          <label key={opt.name} className="flex items-start gap-2 py-0.5 text-xs cursor-pointer">
+            <input
+              type="checkbox"
+              checked={isChecked}
+              onChange={() => onToggle(opt.name)}
+              className="mt-0.5 h-3.5 w-3.5 shrink-0 rounded border-border text-emerald-500 focus:ring-0"
+            />
+            <span className={`leading-snug ${isChecked ? "text-white" : "text-ink-light"}`}>
+              {line}
+              {opt.price != null && opt.price > 0 ? (
+                <span className="text-ink-faint"> · {formatCurrency(opt.price)}</span>
+              ) : null}
+            </span>
+          </label>
+        );
+      })}
+    </div>
+  );
+}
+
+function competitionFactoryLines(
+  suggestion: FordSuggestionCard | null,
+  vehicle: Vehicle
+): { status: "ok" | "unavailable"; lines: FactoryOptionDisplay[] } {
+  if (suggestion?.factoryOptionsStatus === "unavailable") {
+    return { status: "unavailable", lines: [] };
+  }
+  if (suggestion?.factoryOptions && suggestion.factoryOptions.length > 0) {
+    return { status: "ok", lines: suggestion.factoryOptions };
+  }
+  if (vehicle.options && vehicle.options.length > 0) {
+    return {
+      status: "ok",
+      lines: vehicle.options.map((o) => ({
+        code: o.code || null,
+        description: o.name,
+        price: o.price,
+        isPackageChild: o.category === "standalone",
+      })),
+    };
+  }
+  return { status: "unavailable", lines: [] };
+}
+
+function CompetitionFactoryOptions({
+  suggestion,
+  vehicle,
+}: {
+  suggestion: FordSuggestionCard | null;
+  vehicle: Vehicle;
+}) {
+  const { status, lines } = competitionFactoryLines(suggestion, vehicle);
+  if (status === "unavailable") {
+    return (
+      <p className="text-[11px] text-ink-muted mt-1.5">{FORD_COMPETITION_FACTORY_OPTIONS_UNAVAILABLE}</p>
+    );
+  }
+  return (
+    <div className="mt-1.5">
+      <div className="text-[10px] font-semibold uppercase tracking-wider text-ink-faint">
+        {FORD_COMPETITION_FACTORY_OPTIONS}
+      </div>
+      <ul className="mt-0.5 max-h-40 overflow-y-auto space-y-0.5">
+        {lines.map((opt, i) => (
+          <li
+            key={`${opt.code || ""}-${opt.description}-${i}`}
+            className={`text-[11px] leading-snug text-ink-light ${opt.isPackageChild ? "pl-3 text-ink-muted" : ""}`}
+          >
+            {formatFactoryOptionLine(opt)}
+            {opt.price != null && opt.price > 0 ? (
+              <span className="text-ink-faint"> · {formatCurrency(opt.price)}</span>
+            ) : null}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
 }
 
 function fordSuggestionToVehicle(s: FordSuggestionCard): Vehicle {
@@ -101,12 +217,14 @@ function fordSuggestionToVehicle(s: FordSuggestionCard): Vehicle {
       state: s.state,
       distanceMiles: s.distanceMiles || 0,
     },
-    packages: [...s.matchedMustHaves, ...s.matchedNiceToHaves],
-    options: s.matchedMustHaves.map((name) => ({
-      code: name,
-      name,
-      price: 0,
-      category: "package" as const,
+    packages: (s.factoryOptions || [])
+      .filter((o) => !o.isPackageChild)
+      .map((o) => o.description),
+    options: (s.factoryOptions || []).map((o) => ({
+      code: o.code || "",
+      name: o.description,
+      price: o.price || 0,
+      category: o.isPackageChild ? ("standalone" as const) : ("package" as const),
     })),
     imageUrl: "",
     mileage: 0,
@@ -209,9 +327,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   const [parseError, setParseError] = useState<string | null>(null);
   const [fordStickerStatus, setFordStickerStatus] = useState<"released" | "unreleased" | "error" | null>(null);
   const [fordPdfUrl, setFordPdfUrl] = useState<string | null>(null);
-  const [fordFilterableOptions, setFordFilterableOptions] = useState<
-    { name: string; price: number | null; isPackageChild: boolean }[]
-  >([]);
+  const [fordFilterableOptions, setFordFilterableOptions] = useState<FilterableFactoryOption[]>([]);
   const [niceToHavePackages, setNiceToHavePackages] = useState<string[]>([]);
   const [fordSuggestions, setFordSuggestions] = useState<FordSuggestionCard[]>([]);
   const [isLoadingFordSuggestions, setIsLoadingFordSuggestions] = useState(false);
@@ -289,8 +405,11 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     }
   };
 
-  // Step 4: Deal Structuring Fields (All 3 / Cash / Finance / Lease)
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("cash");
+  // Step 1: independently checked cash / finance / lease (at least one required)
+  const [requestedStructures, setRequestedStructures] = useState<DealStructureMethod[]>(["cash"]);
+  const paymentMethod = paymentMethodFromStructures(requestedStructures);
+  const wantsFinance = requestedStructures.includes("finance");
+  const wantsLease = requestedStructures.includes("lease");
   const [financeTerm, setFinanceTerm] = useState<number>(60);
   const [downPayment, setDownPayment] = useState<number>(5000);
   const [leaseMileage, setLeaseMileage] = useState<number>(12000);
@@ -340,6 +459,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   // locked in — the payment-method question (step 1) still always shows
   // first, so the skip happens on navigation, not on mount.
   const goNext = () => {
+    if (step === 1 && requestedStructures.length === 0) return;
     if (step === 1 && lockVehicleSelection) {
       setStep(3);
     } else {
@@ -470,8 +590,8 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     };
   }, [fordStickerStatus, selectedVehicle?.vin, selectedVehicle?.make, selectedVehicle?.model, buyerZip]);
 
-  // One path: when hunt results update, the two slots ARE those two nearest
-  // matches (including lots with no dealerUrl). No extra click.
+  // One path: when hunt results update, the two slots ARE the nearest match
+  // plus the nearest different dealer (including lots with no dealerUrl).
   useEffect(() => {
     if (fordStickerStatus !== "released") return;
     const [first, second] = autoFillCompetitionSlots(fordSuggestions);
@@ -826,7 +946,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
             targetDiscountPercent: strategy === "flexible_discount" ? targetDiscountPercent : undefined,
             paymentMethod,
             dealStructure: {
-              requestedStructures: paymentMethod === "all_three" ? ["cash", "finance", "lease"] : [paymentMethod],
+              requestedStructures,
               financeTermMonths: financeTerm,
               downPayment,
               leaseMileagePerYear: leaseMileage,
@@ -891,10 +1011,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
       targetDiscountPercent: strategy === "flexible_discount" ? targetDiscountPercent : undefined,
       paymentMethod,
       dealStructurePreferences: {
-        requestedStructures:
-          paymentMethod === "all_three"
-            ? ["cash", "finance", "lease"]
-            : [paymentMethod],
+        requestedStructures,
         financeTermMonths: financeTerm,
         downPayment,
         leaseMileagePerYear: leaseMileage,
@@ -949,40 +1066,28 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                 </p>
               </div>
 
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-                {(
-                  [
-                    { id: "cash", label: "Cash", icon: Coins },
-                    { id: "finance", label: "Finance", icon: CreditCard },
-                    { id: "lease", label: "Lease", icon: KeyRound },
-                    { id: "all_three", label: "Show Me All 3", icon: Layers },
-                  ] as const
-                ).map((opt) => {
-                  const Icon = opt.icon;
-                  const isSelected = paymentMethod === opt.id;
+              <div className="flex flex-wrap items-center gap-x-5 gap-y-1.5">
+                <span className="text-xs font-semibold text-ink-light">Payment methods</span>
+                {DEAL_STRUCTURE_METHODS.map((id) => {
+                  const isChecked = requestedStructures.includes(id);
                   return (
-                    <button
-                      type="button"
-                      key={opt.id}
-                      onClick={() => setPaymentMethod(opt.id)}
-                      className={`flex flex-col items-center justify-center gap-2 rounded-xl border p-4 text-center transition-all ${
-                        isSelected
-                          ? "border-emerald-500 bg-emerald-500/10 shadow-md ring-1 ring-emerald-500"
-                          : "border-border bg-surface-elevated hover:border-border-strong"
-                      }`}
-                    >
-                      <div
-                        className={`flex h-9 w-9 items-center justify-center rounded-xl ${
-                          isSelected ? "bg-emerald-500 text-black" : "bg-background text-ink-muted"
-                        }`}
-                      >
-                        <Icon className="h-4.5 w-4.5 stroke-[2.5]" />
-                      </div>
-                      <span className="text-xs font-bold text-white leading-tight">{opt.label}</span>
-                    </button>
+                    <label key={id} className="flex items-center gap-2 py-0.5 text-xs cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={isChecked}
+                        onChange={() => setRequestedStructures((current) => toggleDealStructure(current, id))}
+                        className="h-3.5 w-3.5 shrink-0 rounded border-border text-emerald-500 focus:ring-0"
+                      />
+                      <span className={isChecked ? "text-white" : "text-ink-light"}>
+                        {DEAL_STRUCTURE_LABELS[id]}
+                      </span>
+                    </label>
                   );
                 })}
               </div>
+              {requestedStructures.length === 0 && (
+                <p className="text-[11px] text-rose-400">Select at least one payment method to continue.</p>
+              )}
             </div>
           )}
 
@@ -1306,42 +1411,16 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
               {selectedVehicle && (
                 <div className="space-y-5 pt-4 border-t border-border/50">
                   {fordStickerStatus === "released" && fordFilterableOptions.length > 0 && (
-                    <div className="space-y-2">
+                    <div className="space-y-1">
                       <h4 className="text-xs font-bold text-white uppercase tracking-wider">
-                        Must-have factory options
+                        {FORD_MUST_HAVE_HEADING}
                       </h4>
-                      <p className="text-[11px] text-ink-muted">
-                        From this Ford window sticker. Every box starts unchecked. Comparables must have every ticked line on their own released sticker — including color if you tick it.
-                      </p>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 max-h-56 overflow-y-auto pr-1">
-                        {fordFilterableOptions.map((opt) => {
-                          const isChecked = mustHavePackages.includes(opt.name);
-                          return (
-                            <label
-                              key={opt.name}
-                              className={`flex items-start gap-2 rounded-lg border p-2 text-xs cursor-pointer transition-all ${
-                                isChecked
-                                  ? "border-emerald-500 bg-emerald-500/10 text-emerald-300 font-semibold"
-                                  : "border-border bg-surface-elevated text-ink-muted hover:border-border-strong"
-                              }`}
-                            >
-                              <input
-                                type="checkbox"
-                                checked={isChecked}
-                                onChange={() => toggleFordMustHave(opt.name)}
-                                className="mt-0.5 rounded border-border text-emerald-500 focus:ring-0"
-                              />
-                              <span className="min-w-0">
-                                <span className="block truncate text-white">{opt.name}</span>
-                                <span className="text-[9px] uppercase text-emerald-400/80">sticker</span>
-                                {opt.price != null && opt.price > 0 ? (
-                                  <span className="text-ink-faint"> · {formatCurrency(opt.price)}</span>
-                                ) : null}
-                              </span>
-                            </label>
-                          );
-                        })}
-                      </div>
+                      <p className="text-[11px] text-ink-muted">{FORD_MUST_HAVE_HELP}</p>
+                      <FactoryMustHavePicker
+                        options={fordFilterableOptions}
+                        checked={mustHavePackages}
+                        onToggle={toggleFordMustHave}
+                      />
                     </div>
                   )}
                   {/* INCREASE COMPETITION: the two slots ARE the hunt result */}
@@ -1353,7 +1432,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                       <p className="text-[11px] text-ink-muted mt-0.5">
                         Up to 2 more lots you&apos;d also accept — more dealers means more pressure on price.
                         {fordStickerStatus === "released" && (
-                          <> The two nearest sticker-matched lots fill these slots automatically after ZIP and radius.</>
+                          <> The nearest matching lot and the nearest lot from a different dealer fill these slots after ZIP and radius.</>
                         )}
                       </p>
                       {huntLocationMissing && (
@@ -1411,46 +1490,53 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                       <>
                         {[0, 1].map((idx) => {
                           const matchedVehicle = secondaryVehicles[idx];
+                          const suggestion = autoFillCompetitionSlots(fordSuggestions)[idx];
                           return (
                             <div key={idx} className="space-y-1.5">
                               {matchedVehicle ? (
-                                <div className="flex items-center justify-between gap-2 rounded-xl border border-emerald-500/40 bg-emerald-500/10 px-3 py-2.5">
-                                  <div className="flex items-center gap-2 min-w-0">
-                                    <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" />
-                                    <div className="min-w-0">
-                                      <span className="text-xs font-bold text-white truncate block">
-                                        {matchedVehicle.year} {matchedVehicle.make} {matchedVehicle.model}{" "}
-                                        {matchedVehicle.trim}
-                                      </span>
-                                      <span className="text-[11px] text-ink-muted">
-                                        {matchedVehicle.location.dealerName}
-                                        {matchedVehicle.location.city ? ` · ${matchedVehicle.location.city}` : ""}
-                                        {matchedVehicle.location.state
-                                          ? `, ${matchedVehicle.location.state}`
-                                          : ""}
-                                        {milesFromUserZip(matchedVehicle.location.distanceMiles, huntZip)
-                                          ? ` · ${milesFromUserZip(matchedVehicle.location.distanceMiles, huntZip)}`
-                                          : ""}
-                                        {" · "}
-                                        {(() => {
-                                          const shown = advertisedOrStickerPrice(
-                                            matchedVehicle.dealerPrice,
-                                            matchedVehicle.msrp
-                                          );
-                                          return `${formatPriceAmount(shown.amount)} ${shown.source}`;
-                                        })()}
-                                        {" · "}
-                                        <span className="font-mono">{matchedVehicle.vin}</span>
-                                      </span>
+                                <div className="rounded-xl border border-emerald-500/40 bg-emerald-500/10 px-3 py-2.5">
+                                  <div className="flex items-start justify-between gap-2">
+                                    <div className="flex items-start gap-2 min-w-0">
+                                      <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0 mt-0.5" />
+                                      <div className="min-w-0">
+                                        <span className="text-xs font-bold text-white truncate block">
+                                          {matchedVehicle.year} {matchedVehicle.make} {matchedVehicle.model}{" "}
+                                          {matchedVehicle.trim}
+                                        </span>
+                                        <span className="text-[11px] text-ink-muted">
+                                          {matchedVehicle.location.dealerName}
+                                          {matchedVehicle.location.city ? ` · ${matchedVehicle.location.city}` : ""}
+                                          {matchedVehicle.location.state
+                                            ? `, ${matchedVehicle.location.state}`
+                                            : ""}
+                                          {milesFromUserZip(matchedVehicle.location.distanceMiles, huntZip)
+                                            ? ` · ${milesFromUserZip(matchedVehicle.location.distanceMiles, huntZip)}`
+                                            : ""}
+                                          {" · "}
+                                          {(() => {
+                                            const shown = advertisedOrStickerPrice(
+                                              matchedVehicle.dealerPrice,
+                                              matchedVehicle.msrp
+                                            );
+                                            return `${formatPriceAmount(shown.amount)} ${shown.source}`;
+                                          })()}
+                                          {" · "}
+                                          <span className="font-mono">{matchedVehicle.vin}</span>
+                                        </span>
+                                        <CompetitionFactoryOptions
+                                          suggestion={suggestion}
+                                          vehicle={matchedVehicle}
+                                        />
+                                      </div>
                                     </div>
+                                    <button
+                                      type="button"
+                                      onClick={() => handleRemoveSecondary(idx)}
+                                      className="shrink-0 rounded-lg p-1.5 text-ink-muted hover:bg-border hover:text-white transition-colors"
+                                    >
+                                      <Trash2 className="h-3.5 w-3.5" />
+                                    </button>
                                   </div>
-                                  <button
-                                    type="button"
-                                    onClick={() => handleRemoveSecondary(idx)}
-                                    className="shrink-0 rounded-lg p-1.5 text-ink-muted hover:bg-border hover:text-white transition-colors"
-                                  >
-                                    <Trash2 className="h-3.5 w-3.5" />
-                                  </button>
                                 </div>
                               ) : (
                                 <div className="flex gap-2">
@@ -1685,41 +1771,13 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
               <div className="space-y-2 pt-3 border-t border-border/50">
                 {fordStickerStatus === "released" && fordFilterableOptions.length > 0 ? (
                   <>
-                    <label className="text-xs font-semibold text-ink-light">
-                      Must-have factory options (Ford sticker):
-                    </label>
-                    <p className="text-[10px] text-ink-faint">
-                      Same list as Step 2. Ticked lines are hard filters.
-                    </p>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 max-h-56 overflow-y-auto pr-1">
-                      {fordFilterableOptions.map((opt) => {
-                        const isChecked = mustHavePackages.includes(opt.name);
-                        return (
-                          <label
-                            key={opt.name}
-                            className={`flex items-start gap-2 rounded-lg border p-2 text-xs cursor-pointer transition-all ${
-                              isChecked
-                                ? "border-emerald-500 bg-emerald-500/10 text-emerald-300 font-semibold"
-                                : "border-border bg-surface-elevated text-ink-muted hover:border-border-strong"
-                            }`}
-                          >
-                            <input
-                              type="checkbox"
-                              checked={isChecked}
-                              onChange={() => toggleFordMustHave(opt.name)}
-                              className="mt-0.5 rounded border-border text-emerald-500 focus:ring-0"
-                            />
-                            <span className="min-w-0">
-                              <span className="block truncate text-white">{opt.name}</span>
-                              <span className="text-[9px] uppercase text-emerald-400/80">sticker</span>
-                              {opt.price != null && opt.price > 0 ? (
-                                <span className="text-ink-faint"> · {formatCurrency(opt.price)}</span>
-                              ) : null}
-                            </span>
-                          </label>
-                        );
-                      })}
-                    </div>
+                    <label className="text-xs font-semibold text-ink-light">{FORD_MUST_HAVE_HEADING}</label>
+                    <p className="text-[10px] text-ink-faint">Same list as Step 2. Ticked lines are hard filters.</p>
+                    <FactoryMustHavePicker
+                      options={fordFilterableOptions}
+                      checked={mustHavePackages}
+                      onToggle={toggleFordMustHave}
+                    />
                   </>
                 ) : (
                   <>
@@ -2038,19 +2096,12 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                   onClick={() => setStep(1)}
                   className="shrink-0 rounded-lg border border-border bg-surface-elevated px-2.5 py-1 text-[10px] font-bold text-ink-muted hover:text-white hover:border-border-strong transition-colors"
                 >
-                  {paymentMethod === "all_three"
-                    ? "Cash + Finance + Lease"
-                    : paymentMethod === "cash"
-                    ? "Cash Only"
-                    : paymentMethod === "finance"
-                    ? "Finance Only"
-                    : "Lease Only"}{" "}
-                  · Change
+                  {formatDealStructures(requestedStructures) || "Payment methods"} · Change
                 </button>
               </div>
 
               {/* Deal Structure Parameters Box */}
-              {(paymentMethod === "all_three" || paymentMethod === "finance" || paymentMethod === "lease") && (
+              {(wantsFinance || wantsLease) && (
                 <div className="rounded-xl border border-border bg-surface-elevated p-3.5 space-y-3">
                   <div className="text-[11px] font-bold text-ink-light uppercase tracking-wider flex items-center justify-between border-b border-border/50 pb-2">
                     <span>Customize Finance & Lease Guidelines:</span>
@@ -2073,7 +2124,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                     </div>
 
                     {/* Finance Term */}
-                    {(paymentMethod === "all_three" || paymentMethod === "finance") && (
+                    {wantsFinance && (
                       <div className="space-y-1">
                         <label className="text-[11px] font-semibold text-ink-muted">Finance Loan Term:</label>
                         <select
@@ -2090,7 +2141,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                     )}
 
                     {/* Lease Mileage */}
-                    {(paymentMethod === "all_three" || paymentMethod === "lease") && (
+                    {wantsLease && (
                       <div className="space-y-1">
                         <label className="text-[11px] font-semibold text-ink-muted">Annual Lease Mileage:</label>
                         <select
@@ -2256,13 +2307,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                 <div className="flex justify-between border-b border-border/50 pb-2">
                   <span className="text-ink-muted">Deal Structure:</span>
                   <span className="text-white font-semibold text-right">
-                    {paymentMethod === "all_three"
-                      ? "All 3 Structures (Cash, 60-mo Finance, 36-mo Lease)"
-                      : paymentMethod === "cash"
-                      ? "Cash Out-The-Door Only"
-                      : paymentMethod === "finance"
-                      ? `${financeTerm}-Month Finance (${formatCurrency(downPayment)} Down)`
-                      : `36-Month Lease (${leaseMileage.toLocaleString()} mi/yr)`}
+                    {formatDealStructures(requestedStructures)}
                   </span>
                 </div>
 
@@ -2340,7 +2385,8 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
             {step < TOTAL_STEPS ? (
               <button
                 onClick={goNext}
-                className="flex items-center gap-1.5 rounded-lg bg-emerald-500 px-5 py-2 text-xs font-bold text-black hover:bg-emerald-400 transition-all shadow-md shadow-emerald-500/20"
+                disabled={step === 1 && requestedStructures.length === 0}
+                className="flex items-center gap-1.5 rounded-lg bg-emerald-500 px-5 py-2 text-xs font-bold text-black hover:bg-emerald-400 transition-all shadow-md shadow-emerald-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Continue <ArrowRight className="h-4 w-4" />
               </button>

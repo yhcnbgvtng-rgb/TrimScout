@@ -6,7 +6,7 @@ import { NextResponse } from "next/server";
 import {
   defaultMustHaveLines,
   defaultNiceToHaveLines,
-  filterableFactoryOptions,
+  filterableFactoryOptionBreakout,
   getFordSticker,
   isExplicitNonFordDemoPaste,
   isFordOrLincolnVin,
@@ -98,8 +98,10 @@ async function lookup(opts: { vin?: string; paste?: string; pasteUrl: string | n
       listingPrice,
       mustHaveLines,
       niceToHaveLines,
-      filterableOptions: filterableFactoryOptions(sticker).map((o) => ({
-        name: o.name,
+      filterableOptions: filterableFactoryOptionBreakout(sticker).map((o) => ({
+        name: o.description,
+        code: o.code,
+        description: o.description,
         price: o.price,
         isPackageChild: o.isPackageChild,
         source: "sticker" as const,

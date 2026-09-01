@@ -2,10 +2,11 @@ export type VehicleStatus = "on_lot" | "in_transit" | "in_production" | "order_a
 
 export type BiddingStrategy = "exact_auction" | "firm_offer" | "flexible_discount";
 
-export type PaymentMethod = "all_three" | "cash" | "finance" | "lease";
+export type DealStructureMethod = "cash" | "finance" | "lease";
+export type PaymentMethod = "all_three" | DealStructureMethod;
 
 export interface DealStructurePreferences {
-  requestedStructures: ("cash" | "finance" | "lease")[];
+  requestedStructures: DealStructureMethod[];
   financeTermMonths?: number;
   downPayment?: number;
   leaseMileagePerYear?: number;
