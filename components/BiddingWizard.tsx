@@ -37,6 +37,15 @@ import {
   type FactoryOptionDisplay,
   type OtherLotsMode,
 } from "../lib/fordCompetitionUi";
+import { isFordOrLincolnVin, isGmVin, pastedVinCandidate } from "../lib/oemWmi";
+import {
+  acceptImportedVehicle,
+  factoryBuildFailedError,
+  factoryBuildUnavailableError,
+  factoryBuildUnreleasedError,
+  preferredFactoryBuildEndpoint,
+  type FactoryBuildOem,
+} from "../lib/pasteImport";
 import {
   X,
   ShieldCheck,
@@ -316,7 +325,6 @@ interface BiddingWizardProps {
 export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   isOpen,
   onClose,
-  vehicles,
   preselectedVehicle,
   initialStrategy = "flexible_discount",
   onSubmitBidRequest,
@@ -333,6 +341,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   const [isParsingLink, setIsParsingLink] = useState<boolean>(false);
   const [parseSuccessMsg, setParseSuccessMsg] = useState<string | null>(null);
   const [parseError, setParseError] = useState<string | null>(null);
+  const [factoryBuildOem, setFactoryBuildOem] = useState<FactoryBuildOem | null>(null);
   const [fordStickerStatus, setFordStickerStatus] = useState<"released" | "unreleased" | "error" | null>(null);
   const [fordPdfUrl, setFordPdfUrl] = useState<string | null>(null);
   const [fordFilterableOptions, setFordFilterableOptions] = useState<FilterableFactoryOption[]>([]);
@@ -485,6 +494,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
 
   const huntReady = /^\d{5}$/.test(huntZip.trim()) && Number(huntRadius) > 0;
   const findLotsMode = otherLotsMode === "find";
+  const fordHuntActive = factoryBuildOem === "ford" && fordStickerStatus === "released";
 
   const selectOtherLotsMode = (mode: OtherLotsMode) => {
     if (mode === otherLotsMode) return;
@@ -500,7 +510,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   // truth for Ford factory options. ZIP + radius are required user input.
   // Paste-own mode must not call /api/ford-comparables.
   useEffect(() => {
-    if (!findLotsMode || fordStickerStatus !== "released" || !selectedVehicle?.vin) {
+    if (!findLotsMode || factoryBuildOem !== "ford" || fordStickerStatus !== "released" || !selectedVehicle?.vin) {
       setFordSuggestions([]);
       setFordHuntError(null);
       setFordSearchNote(null);
@@ -567,6 +577,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     };
   }, [
     findLotsMode,
+    factoryBuildOem,
     fordStickerStatus,
     selectedVehicle?.vin,
     mustHavePackages,
@@ -616,40 +627,76 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   // Find path only: the two slots ARE the nearest match plus the nearest
   // different dealer (including lots with no dealerUrl). Paste-own never auto-fills.
   useEffect(() => {
-    if (!findLotsMode || fordStickerStatus !== "released") return;
+    if (!findLotsMode || factoryBuildOem !== "ford" || fordStickerStatus !== "released") return;
     const [first, second] = autoFillCompetitionSlots(fordSuggestions);
     setSecondaryVehicles([
       first ? fordSuggestionToVehicle(first) : null,
       second ? fordSuggestionToVehicle(second) : null,
     ]);
     setSecondaryUrls([first?.dealerUrl || "", second?.dealerUrl || ""]);
-  }, [findLotsMode, fordSuggestions, fordStickerStatus]);
+  }, [findLotsMode, factoryBuildOem, fordSuggestions, fordStickerStatus]);
 
-  const applyMockParse = (raw: string) => {
-    const url = raw.toLowerCase();
-    setTimeout(() => {
-      const matched =
-        vehicles.find((v) => {
-          if (url.includes(v.vin.toLowerCase())) return true;
-          if (url.includes("porsche") && v.make === "Porsche") return true;
-          if (url.includes("toyota") && v.make === "Toyota") return true;
-          if (url.includes("mercedes") && v.make === "Mercedes-Benz") return true;
-          if (url.includes("bmw") && v.make === "BMW") return true;
-          if (url.includes(v.make.toLowerCase())) return true;
-          return false;
-        }) || vehicles[0];
+  const applyFactoryBuildJson = (
+    json: Record<string, unknown>,
+    ok: boolean,
+    oem: FactoryBuildOem,
+    pastedVin: string | null
+  ) => {
+    const sticker = json.sticker as { status?: string; pdfUrl?: string; msrp?: number } | undefined;
+    const responseVin =
+      (typeof json.vin === "string" && json.vin.trim().toUpperCase()) || pastedVin || null;
 
-      setSelectedVehicle(matched);
-      setMake(matched.make);
-      setModel(matched.model);
-      setSelectedTrims([matched.trim]);
-      setMustHavePackages(matched.packages);
-      setTargetOtdPrice(Math.round(matched.msrp * 0.92));
-      setIsParsingLink(false);
-      setParseSuccessMsg(
-        `VIN ${matched.vin} · ${matched.location.dealerName} · MSRP ${formatCurrency(matched.msrp)}`
+    if (!ok) {
+      setParseError(
+        factoryBuildFailedError(
+          responseVin,
+          typeof json.error === "string" ? json.error : undefined
+        )
       );
-    }, 700);
+      setIsParsingLink(false);
+      return;
+    }
+
+    if (sticker?.status === "unreleased") {
+      setFactoryBuildOem(oem);
+      setFordStickerStatus("unreleased");
+      setFordPdfUrl((typeof json.pdfUrl === "string" && json.pdfUrl) || sticker?.pdfUrl || null);
+      setParseError(factoryBuildUnreleasedError(responseVin));
+      setIsParsingLink(false);
+      return;
+    }
+
+    const matched = acceptImportedVehicle(json.vehicle as Vehicle | null, responseVin);
+    if (!matched) {
+      setParseError(
+        factoryBuildFailedError(
+          responseVin,
+          typeof json.error === "string" ? json.error : undefined
+        )
+      );
+      setIsParsingLink(false);
+      return;
+    }
+
+    setSelectedVehicle(matched);
+    setMake(matched.make);
+    setModel(matched.model);
+    setSelectedTrims([matched.trim]);
+    setMustHavePackages(Array.isArray(json.mustHaveLines) ? (json.mustHaveLines as string[]) : []);
+    setNiceToHavePackages(Array.isArray(json.niceToHaveLines) ? (json.niceToHaveLines as string[]) : []);
+    setFordFilterableOptions((json.filterableOptions as FilterableFactoryOption[]) || []);
+    setFactoryBuildOem(oem);
+    setFordStickerStatus("released");
+    setFordPdfUrl(
+      (typeof json.pdfUrl === "string" && json.pdfUrl) || matched.oemBuildSheetUrl || null
+    );
+    if (typeof sticker?.msrp === "number" && sticker.msrp > 0) {
+      setTargetOtdPrice(Math.round(sticker.msrp * 0.92));
+    }
+    setParseSuccessMsg(
+      `VIN ${matched.vin}${sticker?.msrp ? ` · MSRP ${formatStickerMsrp(sticker.msrp)}` : ""}`
+    );
+    setIsParsingLink(false);
   };
 
   const handleParseDealerUrl = async (urlToParse?: string) => {
@@ -659,6 +706,8 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     setIsParsingLink(true);
     setParseSuccessMsg(null);
     setParseError(null);
+    setSelectedVehicle(null);
+    setFactoryBuildOem(null);
     setFordStickerStatus(null);
     setFordPdfUrl(null);
     setFordSuggestions([]);
@@ -669,70 +718,66 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     setSecondaryUrls(["", ""]);
     setFordHuntError(null);
 
+    const pastedVin = pastedVinCandidate(raw);
+
     try {
-      const res = await fetch("/api/ford-sticker", {
+      const endpoint = preferredFactoryBuildEndpoint(raw) || "/api/ford-sticker";
+      const res = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ paste: raw }),
       });
-      const json = await res.json().catch(() => ({}));
+      const json = (await res.json().catch(() => ({}))) as Record<string, unknown>;
+      const jsonVin =
+        typeof json.vin === "string" ? json.vin.trim().toUpperCase() : pastedVin;
 
-      const looksFord = /ford|lincoln|forddirect/i.test(raw);
-      if (json.needsVin || json.dealerBlocked || (looksFord && (json.handled === false || json.notFord))) {
+      if (json.needsVin || json.dealerBlocked) {
         setParseError(
-          json.error ||
+          (typeof json.error === "string" && json.error) ||
             "Could not read a VIN from that page. Paste the 17-character VIN."
         );
         setIsParsingLink(false);
         return;
       }
 
-      if (json.notFord && json.handled === false) {
-        applyMockParse(raw);
-        return;
-      }
-
-      if (!res.ok) {
-        setParseError(json.error || "Could not read the factory build. Paste the 17-character VIN if you have it.");
+      if (endpoint === "/api/ford-sticker" && json.notFord && json.handled === false) {
+        if (jsonVin && isGmVin(jsonVin)) {
+          const gmRes = await fetch("/api/gm-sticker", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ paste: raw, vin: jsonVin }),
+          });
+          const gmJson = (await gmRes.json().catch(() => ({}))) as Record<string, unknown>;
+          applyFactoryBuildJson(gmJson, gmRes.ok, "gm", jsonVin);
+          return;
+        }
+        setParseError(factoryBuildUnavailableError(jsonVin || pastedVin));
         setIsParsingLink(false);
         return;
       }
 
-      if (json.sticker?.status === "unreleased") {
-        setFordStickerStatus("unreleased");
-        setFordPdfUrl(json.pdfUrl || json.sticker?.pdfUrl || null);
-        setParseError(
-          "The factory build has not yet been released. Dealer ad copy is not proof — status is unconfirmed."
-        );
+      if (endpoint === "/api/gm-sticker" && json.notGm && json.handled === false) {
+        if (jsonVin && isFordOrLincolnVin(jsonVin)) {
+          const fordRes = await fetch("/api/ford-sticker", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ paste: raw, vin: jsonVin }),
+          });
+          const fordJson = (await fordRes.json().catch(() => ({}))) as Record<string, unknown>;
+          applyFactoryBuildJson(fordJson, fordRes.ok, "ford", jsonVin);
+          return;
+        }
+        setParseError(factoryBuildUnavailableError(jsonVin || pastedVin));
         setIsParsingLink(false);
         return;
       }
 
-      const matched = json.vehicle as Vehicle | null;
-      if (!matched) {
-        setParseError("Ford returned a build we could not parse.");
-        setIsParsingLink(false);
-        return;
-      }
-
-      setSelectedVehicle(matched);
-      setMake(matched.make);
-      setModel(matched.model);
-      setSelectedTrims([matched.trim]);
-      setMustHavePackages(Array.isArray(json.mustHaveLines) ? json.mustHaveLines : []);
-      setNiceToHavePackages(json.niceToHaveLines || []);
-      setFordFilterableOptions(json.filterableOptions || []);
-      setFordStickerStatus("released");
-      setFordPdfUrl(json.pdfUrl || matched.oemBuildSheetUrl || null);
-      if (typeof json.sticker?.msrp === "number" && json.sticker.msrp > 0) {
-        setTargetOtdPrice(Math.round(json.sticker.msrp * 0.92));
-      }
-      setParseSuccessMsg(
-        `VIN ${matched.vin}${
-          json.sticker?.msrp ? ` · MSRP ${formatStickerMsrp(json.sticker.msrp)}` : ""
-        }`
+      applyFactoryBuildJson(
+        json,
+        res.ok,
+        endpoint === "/api/gm-sticker" ? "gm" : "ford",
+        jsonVin || pastedVin
       );
-      setIsParsingLink(false);
     } catch (err: unknown) {
       setParseError(err instanceof Error ? err.message : "Lookup failed");
       setIsParsingLink(false);
@@ -744,29 +789,24 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     if (!raw) return;
     setIsParsingSecondary((prev) => prev.map((v, i) => (i === idx ? true : v)));
     try {
-      const res = await fetch("/api/ford-sticker", {
+      const endpoint = preferredFactoryBuildEndpoint(raw) || "/api/ford-sticker";
+      let res = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ paste: raw }),
       });
-      const json = await res.json().catch(() => ({}));
-      if (json.handled && json.vehicle) {
-        setSecondaryVehicles((prev) => prev.map((v, i) => (i === idx ? json.vehicle : v)));
-        return;
+      let json = (await res.json().catch(() => ({}))) as Record<string, unknown>;
+      if (endpoint === "/api/ford-sticker" && json.notFord && typeof json.vin === "string" && isGmVin(json.vin)) {
+        res = await fetch("/api/gm-sticker", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ paste: raw, vin: json.vin }),
+        });
+        json = (await res.json().catch(() => ({}))) as Record<string, unknown>;
       }
-      const looksFord = /ford|lincoln|forddirect/i.test(raw);
-      if (looksFord || json.needsVin || json.dealerBlocked) {
-        return;
-      }
-      const url = raw.toLowerCase();
-      const matched =
-        vehicles.find((v) => url.includes(v.vin.toLowerCase()) || url.includes(v.make.toLowerCase())) || null;
-      setSecondaryVehicles((prev) => prev.map((v, i) => (i === idx ? matched : v)));
-    } catch {
-      if (!/ford|lincoln|forddirect/i.test(raw)) {
-        const url = raw.toLowerCase();
-        const matched =
-          vehicles.find((v) => url.includes(v.vin.toLowerCase()) || url.includes(v.make.toLowerCase())) || null;
+      const pastedVin = pastedVinCandidate(raw) || (typeof json.vin === "string" ? json.vin : null);
+      const matched = acceptImportedVehicle(json.vehicle as Vehicle | null, pastedVin);
+      if (matched) {
         setSecondaryVehicles((prev) => prev.map((v, i) => (i === idx ? matched : v)));
       }
     } finally {
@@ -803,10 +843,9 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   };
 
   const hasCompetition = secondaryVehicles.some((v) => !!v);
-  const huntLocationMissing = findLotsMode && fordStickerStatus === "released" && !huntReady;
-  const fordEmptySlots =
-    fordStickerStatus === "released"
-      ? fordCompetitionEmptyCopy({
+  const huntLocationMissing = findLotsMode && fordHuntActive && !huntReady;
+  const fordEmptySlots = fordHuntActive
+    ? fordCompetitionEmptyCopy({
           huntReady,
           loading: isLoadingFordSuggestions,
           error: fordHuntError,
@@ -1527,7 +1566,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                           )}
                       </>
                     )}
-                    {findLotsMode && fordStickerStatus === "released" && (
+                    {findLotsMode && fordHuntActive && (
                       <p className="text-[10px] text-ink-faint">
                         Must-haves filter matching lots from each factory build. Dealer ads are not
                         proof. Distance is from your ZIP

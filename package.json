@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test": "tsx --test lib/fordSticker.test.ts lib/vinSearch.test.ts lib/dealStructure.test.ts"
+    "test": "tsx --test lib/fordSticker.test.ts lib/vinSearch.test.ts lib/dealStructure.test.ts lib/gmSticker.test.ts"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
