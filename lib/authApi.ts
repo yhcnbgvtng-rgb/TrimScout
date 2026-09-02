@@ -39,6 +39,37 @@ export class AuthApiError extends Error {
   }
 }
 
+async function getJson<T>(path: string): Promise<T> {
+  if (!API_KEY) {
+    throw new AuthApiError("Auth backend is not configured (missing LIGHTSAIL_API_KEY)", 500);
+  }
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), DEFAULT_TIMEOUT_MS);
+  let res: Response;
+  try {
+    res = await fetch(`http://${LIGHTSAIL_HOST}:${AUTH_API_PORT}${path}`, {
+      headers: { "X-Trimscout-Api-Key": API_KEY },
+      signal: controller.signal,
+      cache: "no-store",
+    });
+  } catch (err) {
+    throw new AuthApiError(
+      err instanceof Error && err.name === "AbortError" ? "Auth request timed out" : "Could not reach auth service",
+      503
+    );
+  } finally {
+    clearTimeout(timeoutId);
+  }
+  let json: any = null;
+  try {
+    json = await res.json();
+  } catch {}
+  if (!res.ok) {
+    throw new AuthApiError(json?.error || `Auth request failed (${res.status})`, res.status);
+  }
+  return json as T;
+}
+
 async function postJson(path: string, body: unknown): Promise<AuthUser> {
   if (!API_KEY) {
     throw new AuthApiError("Auth backend is not configured (missing LIGHTSAIL_API_KEY)", 500);
@@ -104,4 +135,60 @@ export async function oauthUpsert(input: {
   avatarUrl?: string;
 }): Promise<AuthUser> {
   return postJson("/api/auth/oauth-upsert", input);
+}
+
+// Raw POST helper for admin endpoints whose response shape isn't
+// `{ user: AuthUser }` — postJson() above unwraps to just that, which
+// doesn't fit a bare `{ ok: true }` acknowledgement.
+async function rawPost(path: string, body: unknown): Promise<any> {
+  if (!API_KEY) {
+    throw new AuthApiError("Auth backend is not configured (missing LIGHTSAIL_API_KEY)", 500);
+  }
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), DEFAULT_TIMEOUT_MS);
+  let res: Response;
+  try {
+    res = await fetch(`http://${LIGHTSAIL_HOST}:${AUTH_API_PORT}${path}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "X-Trimscout-Api-Key": API_KEY },
+      body: JSON.stringify(body),
+      signal: controller.signal,
+      cache: "no-store",
+    });
+  } catch (err) {
+    throw new AuthApiError(
+      err instanceof Error && err.name === "AbortError" ? "Auth request timed out" : "Could not reach auth service",
+      503
+    );
+  } finally {
+    clearTimeout(timeoutId);
+  }
+  let json: any = null;
+  try {
+    json = await res.json();
+  } catch {}
+  if (!res.ok) {
+    throw new AuthApiError(json?.error || `Auth request failed (${res.status})`, res.status);
+  }
+  return json;
+}
+
+// Full account listing for the admin portal's account-management table.
+export async function listUsers(): Promise<AuthUser[]> {
+  const json = await getJson<{ users: AuthUser[] }>("/api/auth/users");
+  return json.users;
+}
+
+// Admin-initiated password reset. Callers must have already verified the
+// requesting session has role='admin' — see app/api/admin/reset-password.
+export async function adminResetPassword(email: string, newPassword: string): Promise<void> {
+  await rawPost("/api/auth/admin-reset-password", { email, newPassword });
+}
+
+export async function adminSetStatus(
+  email: string,
+  status: "active" | "suspended" | "pending_verification"
+): Promise<AuthUser> {
+  const json = await rawPost("/api/auth/admin-set-status", { email, status });
+  return json.user as AuthUser;
 }
