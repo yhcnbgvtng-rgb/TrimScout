@@ -262,10 +262,10 @@ export const DealerAnalytics: React.FC<DealerAnalyticsProps> = ({ user }) => {
       {!isLoading && !error && data && !data.hasData && (
         <div className="rounded-2xl border border-border bg-surface p-8 text-center space-y-2">
           <Package className="h-8 w-8 text-ink-faint mx-auto" />
-          <p className="text-sm text-white font-bold">No live inventory found for "{data.dealerName}" yet.</p>
+          <p className="text-sm text-white font-bold">No live inventory found for "{data.dealerName}".</p>
           <p className="text-xs text-ink-muted max-w-md mx-auto">
-            This dashboard reads real crawled inventory data. If your dealership was recently added, its brand's
-            nationwide crawl may not have reached it yet — check back once that finishes.
+            This dashboard reads real inventory data, and none is on file for your dealership right now. If you
+            believe this is wrong, reach out to support rather than assuming it will resolve on its own.
           </p>
         </div>
       )}

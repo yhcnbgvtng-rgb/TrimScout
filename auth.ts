@@ -14,10 +14,18 @@
 // has an 'apple' value reserved if this changes later, but nothing in the
 // app currently offers it.
 
-import NextAuth from "next-auth";
+import NextAuth, { CredentialsSignin } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import Google from "next-auth/providers/google";
-import { verifyCredentials, oauthUpsert, type AuthUser } from "./lib/authApi";
+import { verifyCredentials, oauthUpsert, AuthApiError, type AuthUser } from "./lib/authApi";
+
+// Thrown instead of returning null when the auth backend itself couldn't be
+// reached (vs. genuinely wrong credentials) — signIn(..., {redirect:false})
+// surfaces `code` as `result.error`, letting the UI show "service is down"
+// instead of a misleading "wrong password" for what's actually an outage.
+export class AuthServiceUnavailableError extends CredentialsSignin {
+  code = "auth_service_unavailable";
+}
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   session: { strategy: "jwt" },
@@ -48,10 +56,17 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             zipCode: user.zipCode,
             dealerName: user.dealerName,
           };
-        } catch {
-          // Wrong password / unknown email / suspended account — Auth.js
-          // treats a null return as "invalid credentials" uniformly, which
-          // is the right behavior here (never reveal *why* sign-in failed).
+        } catch (err) {
+          // A real rejection from the auth backend (wrong password, unknown
+          // email, suspended account) still returns null uniformly — Auth.js
+          // treats that as "invalid credentials", which is the right call
+          // here (never reveal *why* sign-in failed for a real account
+          // lookup). But if the backend itself couldn't be reached at all
+          // (network failure, timeout, or missing config — status 500/503),
+          // that's not the user's fault and shouldn't look like a typo.
+          if (err instanceof AuthApiError && (err.status === 503 || err.status === 500)) {
+            throw new AuthServiceUnavailableError();
+          }
           return null;
         }
       },

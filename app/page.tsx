@@ -44,6 +44,7 @@ export default function Home() {
   // DEMO_BUYER_USER, which silently auto-logged in every visitor).
   const [currentUser, setCurrentUser] = useState<UserProfile | null>(null);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [authModalError, setAuthModalError] = useState<string | null>(null);
   const { data: session, status: sessionStatus } = useSession();
   const [savedVehicleIds, setSavedVehicleIds] = useState<string[]>(["veh-1", "veh-4"]);
 
@@ -181,7 +182,7 @@ export default function Home() {
         const res = await fetch("/api/deal-requests");
         if (!res.ok) return;
         const json = await res.json();
-        const rows = Array.isArray(json.dealRequests) ? json.dealRequests : [];
+        const rows: Record<string, unknown>[] = Array.isArray(json.dealRequests) ? json.dealRequests : [];
         if (cancelled || rows.length === 0) return;
         setShopperRequests((prev) => {
           const byId = new Map(prev.map((r) => [r.id, r]));
@@ -369,6 +370,25 @@ export default function Home() {
     setLockedDeal(deal);
     setIsVoucherModalOpen(true);
   };
+
+  // Auth.js redirects here with ?error=... when a sign-in attempt fails
+  // server-side (e.g. Google OAuth completes its consent screen but the
+  // account upsert fails) — this used to go completely unread, so a buyer
+  // would finish a real Google login round-trip and land back on the
+  // homepage with no explanation at all.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    const error = params.get("error");
+    if (!error) return;
+    window.history.replaceState({}, "", window.location.pathname);
+    setAuthModalError(
+      error === "auth_service_unavailable"
+        ? "Sign-in is temporarily unavailable. Please try again shortly."
+        : "Sign-in failed. Please try again."
+    );
+    setIsAuthModalOpen(true);
+  }, []);
 
   // After a buyer completes payment on Stripe's hosted checkout, they're
   // redirected back here with ?checkout=success&dealId=... in the URL. The
@@ -640,7 +660,11 @@ export default function Home() {
       {/* Authentication Modal */}
       <AuthModal
         isOpen={isAuthModalOpen}
-        onClose={() => setIsAuthModalOpen(false)}
+        onClose={() => {
+          setIsAuthModalOpen(false);
+          setAuthModalError(null);
+        }}
+        initialError={authModalError}
       />
     </main>
   );

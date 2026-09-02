@@ -26,11 +26,20 @@ export async function POST(req: Request) {
     const checkoutSession = event.data.object as Stripe.Checkout.Session;
     const dealId = checkoutSession.metadata?.dealId;
     if (dealId) {
-      await markDealPaid(dealId, {
-        stripeCheckoutSessionId: checkoutSession.id,
-        stripePaymentIntentId:
-          typeof checkoutSession.payment_intent === "string" ? checkoutSession.payment_intent : null,
-      });
+      try {
+        await markDealPaid(dealId, {
+          stripeCheckoutSessionId: checkoutSession.id,
+          stripePaymentIntentId:
+            typeof checkoutSession.payment_intent === "string" ? checkoutSession.payment_intent : null,
+        });
+      } catch (err) {
+        // A real payment succeeded on Stripe's side and can't be recorded
+        // here — log clearly and return 500 so Stripe retries this webhook
+        // on its own schedule, rather than letting an unhandled throw
+        // produce an unclear response with no record of what happened.
+        console.error(`markDealPaid failed for deal ${dealId}:`, err);
+        return NextResponse.json({ error: "Could not record payment; will retry." }, { status: 500 });
+      }
     }
   }
 

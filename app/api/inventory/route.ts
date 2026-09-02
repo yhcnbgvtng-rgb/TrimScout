@@ -205,10 +205,10 @@ export async function GET(request: Request) {
   const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
   const limit = Math.min(1000, Math.max(10, parseInt(searchParams.get("limit") || "250", 10)));
   const provider = searchParams.get("provider") || "autodev";
-  const apiKey =
-    searchParams.get("apiKey") ||
-    serverSecret("AUTO_DEV_API_KEY") ||
-    "sk_ad_Xc5T6i3mwxFF1X8x_WbFNl5a";
+  // Server-side only — never accept a key from the client. This used to
+  // fall back to a hardcoded live key that shipped in the client bundle
+  // and was echoed in plaintext on every request's URL.
+  const apiKey = serverSecret("AUTO_DEV_API_KEY");
 
   const userCoords = getZipCoordinates(zip);
 
@@ -270,8 +270,8 @@ export async function GET(request: Request) {
     }
 
     // 2. MARKETCHECK LIVE AUTOMOTIVE INVENTORY API
-    if (provider === "marketcheck" || (apiKey && (apiKey.startsWith("mc_") || apiKey.includes("marketcheck")))) {
-      const mcKey = apiKey || serverSecret("MARKETCHECK_API_KEY") || "";
+    if (provider === "marketcheck") {
+      const mcKey = serverSecret("MARKETCHECK_API_KEY") || "";
       if (mcKey) {
         try {
           const mcUrl = new URL("https://mc-api.marketcheck.com/v2/search/car/active");
@@ -820,7 +820,11 @@ export async function GET(request: Request) {
     return NextResponse.json({
       success: true,
       provider: "smart_feed",
-      isLiveApi: true,
+      // This tier always starts from MOCK_VEHICLES (see `baseList` above)
+      // and layers in synthetic vehicles (fabricated VINs/dealer names) for
+      // several makes on top of whatever real cached/scraped data is
+      // available — it's never purely live, so it shouldn't claim to be.
+      isLiveApi: false,
       totalFound: radiusFiltered.length,
       zip,
       radius,

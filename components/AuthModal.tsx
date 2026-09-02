@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
 import {
@@ -32,11 +32,17 @@ const GoogleIcon = () => (
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
+  // Pre-fills the error banner on open — used to surface a failed OAuth
+  // round-trip (Google consent completed, but the sign-in itself failed
+  // server-side) instead of silently bouncing the user back to a blank
+  // homepage with no explanation.
+  initialError?: string | null;
 }
 
 export const AuthModal: React.FC<AuthModalProps> = ({
   isOpen,
   onClose,
+  initialError,
 }) => {
   const [tab, setTab] = useState<"signin" | "signup">("signin");
   const [role, setRole] = useState<"buyer" | "dealer">("buyer");
@@ -53,6 +59,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const [formError, setFormError] = useState<string | null>(null);
   const [oauthLoading, setOauthLoading] = useState<"google" | null>(null);
 
+  useEffect(() => {
+    if (isOpen && initialError) setFormError(initialError);
+  }, [isOpen, initialError]);
+
   if (!isOpen) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -63,7 +73,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       if (tab === "signin") {
         const result = await signIn("credentials", { email, password, redirect: false });
         if (result?.error) {
-          setFormError("Incorrect email or password.");
+          setFormError(
+            result.error === "auth_service_unavailable"
+              ? "Sign-in is temporarily unavailable. Please try again shortly."
+              : "Incorrect email or password."
+          );
           return;
         }
         // page.tsx's session-sync effect picks up currentUser from here —

@@ -14,7 +14,8 @@ import {
   FileText,
   Lock,
   Camera,
-  Eye
+  Eye,
+  AlertTriangle
 } from "lucide-react";
 
 interface LiveDealRoomProps {
@@ -41,6 +42,7 @@ export const LiveDealRoom: React.FC<LiveDealRoomProps> = ({
   const [liveBids, setLiveBids] = useState<DealerBid[]>(() => (pollBids ? [] : bidsForRequest));
   const [countdownClock, setCountdownClock] = useState<OfferCloseClockView | undefined>(request.offerClock);
   const [liveDealers, setLiveDealers] = useState(request.dealerEngagement);
+  const [pollTrouble, setPollTrouble] = useState(false);
   const reviewTarget = reviewTargetFromVehicle(request.targetVehicle);
   const paymentLabel = formatDealStructures(request.dealStructurePreferences?.requestedStructures || []);
   const pathLabel = offerPathLabel(request.directOffer);
@@ -59,6 +61,7 @@ export const LiveDealRoom: React.FC<LiveDealRoomProps> = ({
   useEffect(() => {
     if (!pollBids) return;
     let cancelled = false;
+    let consecutiveFailures = 0;
     const poll = async () => {
       try {
         const [bidsRes, engagementRes] = await Promise.all([
@@ -77,6 +80,10 @@ export const LiveDealRoom: React.FC<LiveDealRoomProps> = ({
             matchedVehicleImageUrl: b.matchedVehicleImageUrl || "",
           }));
           setLiveBids(mapped);
+          consecutiveFailures = 0;
+          setPollTrouble(false);
+        } else {
+          throw new Error(`bids poll failed (${bidsRes.status})`);
         }
         if (engagementRes.ok) {
           const json = await engagementRes.json();
@@ -85,7 +92,14 @@ export const LiveDealRoom: React.FC<LiveDealRoomProps> = ({
           if (Array.isArray(json.dealers)) setLiveDealers(json.dealers);
         }
       } catch {
-        // Silent — next tick retries; a transient miss isn't worth an error banner.
+        // A single miss isn't worth alarming anyone — transient blips
+        // happen. But this box has been dead before for extended periods,
+        // where every single poll fails identically forever; after a few
+        // in a row, say so instead of silently freezing on stale data with
+        // no indication anything is wrong.
+        if (cancelled) return;
+        consecutiveFailures += 1;
+        if (consecutiveFailures >= 3) setPollTrouble(true);
       }
     };
     poll();
@@ -237,6 +251,12 @@ export const LiveDealRoom: React.FC<LiveDealRoomProps> = ({
 
       {/* Leaderboard */}
       <div className="space-y-4">
+        {pollBids && pollTrouble && (
+          <div className="flex items-center gap-2 rounded-xl border border-amber-500/40 bg-amber-950/20 px-4 py-2.5 text-xs text-amber-300">
+            <AlertTriangle className="h-4 w-4 shrink-0" />
+            <span>Having trouble reaching the server — what you see below may be out of date. Still retrying.</span>
+          </div>
+        )}
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-3">
           <div className="flex items-center gap-2">
             <Trophy className="h-4 w-4 text-emerald-400" />
@@ -272,7 +292,7 @@ export const LiveDealRoom: React.FC<LiveDealRoomProps> = ({
 
         {sortedBids.length === 0 && (
           <div className="rounded-2xl border border-border bg-surface p-10 text-center text-sm text-ink-muted">
-            No dealer bids yet — certified dealers matching this vehicle are being notified. Check back shortly.
+            No dealer bids yet — dealers matching this vehicle are being notified. Check back shortly.
           </div>
         )}
 
@@ -408,7 +428,7 @@ export const LiveDealRoom: React.FC<LiveDealRoomProps> = ({
           <div>
             <h4 className="font-bold text-white">Transparent Transaction Policy</h4>
             <p className="text-[11px] text-ink-muted mt-0.5 leading-relaxed">
-              Every dealer in the TrimScout network is certified. Dealer identity, contact info, and VIN stay hidden until you lock in a deal — all doc fees are legally capped, and unwanted dealer add-ons are strictly forbidden.
+              Dealer identity, contact info, and VIN stay hidden until you lock in a deal — all doc fees are legally capped, and unwanted dealer add-ons are strictly forbidden.
             </p>
           </div>
         </div>
@@ -463,7 +483,7 @@ export const LiveDealRoom: React.FC<LiveDealRoomProps> = ({
               </div>
 
               <div className="rounded-xl border border-blue-500/30 bg-blue-950/20 p-3 text-[11px] text-ink-light">
-                <strong className="text-blue-400">Transmitted to Dealers:</strong> Certified dealerships review these photos to formulate binding trade-in allowances on your leaderboard bids.
+                <strong className="text-blue-400">Transmitted to Dealers:</strong> Dealers review these photos to formulate binding trade-in allowances on your leaderboard bids.
               </div>
             </div>
 

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { fetchVehiclesFromBox, fetchFacetsFromBox, type BoxVehicle } from "@/lib/lightsailClient";
+import { auth } from "@/auth";
+import { fetchVehiclesFromBox, fetchFacetsFromBox, fetchBoxHealth, type BoxVehicle } from "@/lib/lightsailClient";
 
 // Every brand this pipeline currently tracks. The box's vehicle API is
 // scoped to one brand per call (no cross-brand query exists), and a
@@ -21,10 +22,38 @@ const STALE_DAYS_ON_LOT_THRESHOLD = 45;
 export const maxDuration = 30;
 
 export async function GET(req: Request) {
-  const { searchParams } = new URL(req.url);
-  const dealerName = searchParams.get("dealerName");
+  const session = await auth();
+  const user = session?.user as any;
+  if (!user?.id || user.role !== "dealer") {
+    return NextResponse.json({ error: "You must be signed in as a dealer." }, { status: 401 });
+  }
+  // Always the session's own dealership — a dealerName query param, if
+  // present, is ignored. This used to trust whatever name was passed in,
+  // which let anyone pull any dealership's live inventory and pricing by
+  // guessing a name.
+  const dealerName = user.dealerName;
   if (!dealerName) {
-    return NextResponse.json({ error: "dealerName is required" }, { status: 400 });
+    return NextResponse.json({
+      dealerName: null,
+      brands: [],
+      hasData: false,
+      stats: { totalActive: 0, priceDrops: 0, newArrivals: 0, staleCount: 0, avgDaysOnLot: 0 },
+      modelMix: [],
+      agingInventory: [],
+      recentPriceDrops: [],
+    });
+  }
+
+  // Same reachability check as app/api/dealer-requests/route.ts — every
+  // per-brand vehicle lookup below collapses "genuinely zero inventory" and
+  // "the data source is unreachable" to the same null, so without this a
+  // real outage rendered as a confident "no data yet" instead of an error.
+  const health = await fetchBoxHealth();
+  if (!health) {
+    return NextResponse.json(
+      { error: "Could not reach the inventory service — try again shortly." },
+      { status: 502 }
+    );
   }
 
   const perBrand = await Promise.all(

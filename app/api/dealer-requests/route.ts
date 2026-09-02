@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
-import { listActiveDealRequests } from "@/lib/dealsApi";
+import { listActiveDealRequests, DealsApiError } from "@/lib/dealsApi";
 import { isDealAcceptingResponses } from "@/lib/dealEngagementStore";
-import { fetchVehiclesFromBox, fetchFacetsFromBox, fetchVehicleByVinFromBox } from "@/lib/lightsailClient";
+import { fetchVehiclesFromBox, fetchFacetsFromBox, fetchVehicleByVinFromBox, fetchBoxHealth } from "@/lib/lightsailClient";
 import { calculateDistanceMiles } from "@/lib/otdCalculator";
 import type { DealerInboundRequest } from "@/lib/types";
 
@@ -19,6 +19,20 @@ export async function GET() {
   }
   if (!user.dealerName) {
     return NextResponse.json({ requests: [] });
+  }
+
+  // Cheap, dedicated reachability check before anything else. Every
+  // per-brand vehicle lookup below collapses "genuinely zero inventory" and
+  // "the box is unreachable" to the same `null` — without this, a real
+  // outage looked identical to "no requests match your inventory" (a
+  // confident, wrong answer with no error). This is a real check, not a
+  // decorative one: skip straight to a 502 if it fails.
+  const health = await fetchBoxHealth();
+  if (!health) {
+    return NextResponse.json(
+      { error: "Could not reach the inventory service — try again shortly." },
+      { status: 502 }
+    );
   }
 
   // Which brands does this dealer actually carry, and where are they —
@@ -45,7 +59,13 @@ export async function GET() {
     return NextResponse.json({ requests: [] });
   }
 
-  const activeRequests = await listActiveDealRequests();
+  let activeRequests;
+  try {
+    activeRequests = await listActiveDealRequests();
+  } catch (err) {
+    const message = err instanceof DealsApiError ? err.message : "Could not load buyer requests.";
+    return NextResponse.json({ error: message }, { status: 502 });
+  }
 
   const matched: DealerInboundRequest[] = [];
   for (const req of activeRequests) {
@@ -91,7 +111,7 @@ export async function GET() {
       targetOtdPrice: req.targetOtdPrice,
       targetDiscountPercent: req.targetDiscountPercent,
       paymentMethod: req.paymentMethod,
-      tradeIn: req.tradeIn as DealerInboundRequest["tradeIn"],
+      tradeIn: req.tradeIn as unknown as DealerInboundRequest["tradeIn"],
       buyerComment: req.buyerComment,
       createdAt: req.createdAt,
       expiresAt: req.expiresAt,
