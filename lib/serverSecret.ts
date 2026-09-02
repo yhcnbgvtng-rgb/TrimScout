@@ -10,9 +10,6 @@ import { env } from "node:process";
  * env allowlist / DefinePlugin. These keys stay server-only.
  */
 export function serverSecret(name: string): string {
-  if (name === "AUTO_DEV_API_KEY") {
-    return String(env.AUTO_DEV_API_KEY || process.env.AUTO_DEV_API_KEY || "").trim();
-  }
   if (name === "MARKETCHECK_API_KEY") {
     return String(env.MARKETCHECK_API_KEY || process.env.MARKETCHECK_API_KEY || "").trim();
   }

@@ -1,8 +1,8 @@
 /**
  * Coarse similar-car search + Ford-sticker must-have filter.
  *
- * Listings APIs (MarketCheck preferred, Auto.dev fallback) can filter
- * year/make/model/zip/radius. This hunt does not send a trim filter —
+ * Listings API (MarketCheck) can filter year/make/model/zip/radius. This
+ * hunt does not send a trim filter —
  * they cannot filter Ultimate / BlueCruise / keypad anyway. We take the
  * first 25–50 candidate VINs, fetch each Ford sticker, and DROP any VIN
  * missing a must-have option line.
@@ -188,7 +188,7 @@ export interface FordSearchResult {
   stickersFetched: number;
   matches: FordMatchCard[];
   dropped: FordSearchDropped[];
-  /** True iff AUTO_DEV_API_KEY or MARKETCHECK_API_KEY is non-empty after trim. Boolean only. */
+  /** True iff MARKETCHECK_API_KEY is non-empty after trim. Boolean only. */
   hasListingsKey: boolean;
 }
 
@@ -384,7 +384,7 @@ function sanitizeListingsNote(raw: string): string {
     .trim();
 }
 
-/** Pull MarketCheck `{ code, message }` / `{ message }` (or Auto.dev `error`) out of an error body — logs only. */
+/** Pull MarketCheck `{ code, message }` / `{ message }` out of an error body — logs only. */
 function providerMessageFromBody(bodyText: string): string | null {
   const trimmed = bodyText.trim();
   if (!trimmed) return null;
@@ -450,79 +450,6 @@ function shopperNoteFromListingsError(err: unknown): string {
 function listingsErrorLogDetail(err: unknown, label: string): string {
   const raw = err instanceof Error ? err.message : "unknown error";
   return sanitizeListingsNote(raw).slice(0, 220) || `${label} listings failed`;
-}
-
-async function searchAutoDev(
-  key: string,
-  q: {
-    year?: number;
-    make: string;
-    model?: string;
-    trim?: string;
-    zip: string;
-    radiusMiles: number;
-  }
-): Promise<ListingCandidate[]> {
-  const url = new URL("https://api.auto.dev/listings");
-  url.searchParams.set("vehicle.make", q.make);
-  if (q.model) url.searchParams.set("vehicle.model", q.model);
-  if (q.year) url.searchParams.set("vehicle.year", String(q.year));
-  url.searchParams.set("zip", q.zip);
-  url.searchParams.set("distance", String(q.radiusMiles));
-  url.searchParams.set("retailListing.used", "false");
-  url.searchParams.set("includeUnpriced", "true");
-  url.searchParams.set("limit", "50");
-
-  const res = await fetch(url, {
-    headers: {
-      Authorization: `Bearer ${key}`,
-      Accept: "application/json",
-    },
-    cache: "no-store",
-  });
-  if (!res.ok) {
-    throw await listingsHttpFailure("Auto.dev", res);
-  }
-  let payload: unknown;
-  try {
-    payload = await res.json();
-  } catch {
-    throw new ListingsProviderError("Auto.dev listings parse error", FORD_LISTINGS_LOAD_FAILED);
-  }
-  const rows: unknown[] = Array.isArray(payload)
-    ? payload
-    : payload &&
-        typeof payload === "object" &&
-        Array.isArray((payload as { data?: unknown }).data)
-      ? ((payload as { data: unknown[] }).data)
-      : [];
-  const out: ListingCandidate[] = [];
-  for (const row of rows) {
-    const r = row as Record<string, unknown>;
-    const vehicle = (r.vehicle as Record<string, unknown>) || {};
-    const retail = (r.retailListing as Record<string, unknown>) || {};
-    const vin = String(r.vin || vehicle.vin || "").toUpperCase();
-    if (vin.length !== 17) continue;
-    const loc = Array.isArray(r.location) ? (r.location as number[]) : [];
-    out.push({
-      vin,
-      year: typeof vehicle.year === "number" ? vehicle.year : undefined,
-      make: typeof vehicle.make === "string" ? vehicle.make : q.make,
-      model: typeof vehicle.model === "string" ? vehicle.model : q.model,
-      trim: typeof vehicle.trim === "string" ? vehicle.trim : q.trim,
-      dealerId: listingDealerId(retail.dealerId, retail.dealer_id, r.dealerId, r.dealer_id),
-      dealerName: String(retail.dealer || retail.dealerName || r.dealerName || "Unknown dealer"),
-      city: String(retail.city || r.city || ""),
-      state: String(retail.state || r.state || ""),
-      zip: retail.zip ? String(retail.zip) : undefined,
-      dealerUrl: typeof retail.vdp === "string" ? retail.vdp : typeof retail.url === "string" ? retail.url : null,
-      listingPrice: asFinitePrice(retail.price) ?? asFinitePrice(r.price),
-      lng: typeof loc[0] === "number" ? loc[0] : undefined,
-      lat: typeof loc[1] === "number" ? loc[1] : undefined,
-      exteriorColor: typeof vehicle.color === "string" ? vehicle.color : undefined,
-    });
-  }
-  return out;
 }
 
 /**
@@ -622,25 +549,6 @@ export async function searchCoarseListings(q: {
   listingsError?: boolean;
 }> {
   const { provider, key } = resolveListingsProvider();
-  if (provider === "auto.dev" && key) {
-    try {
-      const listings = await searchAutoDev(key, q);
-      return {
-        provider,
-        listings,
-        note: "Factory options come only from the factory build.",
-      };
-    } catch (err) {
-      const logDetail = listingsErrorLogDetail(err, "Auto.dev");
-      console.error("Auto.dev listings failed:", logDetail);
-      return {
-        provider: "auto.dev",
-        listings: [],
-        note: shopperNoteFromListingsError(err),
-        listingsError: true,
-      };
-    }
-  }
   if (provider === "marketcheck" && key) {
     try {
       const listings = await searchMarketCheck(key, q);

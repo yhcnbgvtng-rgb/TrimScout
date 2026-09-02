@@ -9,13 +9,13 @@ export interface InventoryFetchOptions {
   maxPrice?: number;
   page?: number;
   limit?: number;
-  provider?: "autodev" | "marketcheck" | "smart_feed";
+  provider?: "marketcheck" | "smart_feed";
   apiKey?: string;
 }
 
 export interface InventoryFeedResponse {
   success: boolean;
-  provider: "autodev" | "marketcheck" | "smart_feed";
+  provider: "marketcheck" | "smart_feed";
   isLiveApi: boolean;
   totalFound: number;
   page?: number;
@@ -33,26 +33,26 @@ const STORAGE_KEY = "trimscout_inventory_connector_config";
 // env-configured key (see serverSecret.ts). A key never belongs in the
 // client bundle or in a request the browser can see.
 export function getConnectorConfig(): {
-  provider: "autodev" | "marketcheck" | "smart_feed";
+  provider: "marketcheck" | "smart_feed";
   apiKey: string;
 } {
   if (typeof window === "undefined") {
-    return { provider: "autodev", apiKey: "" };
+    return { provider: "smart_feed", apiKey: "" };
   }
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
-      return { provider: parsed.provider || "autodev", apiKey: "" };
+      return { provider: parsed.provider || "smart_feed", apiKey: "" };
     }
   } catch (e) {
     console.error("Failed to load connector config:", e);
   }
-  return { provider: "autodev", apiKey: "" };
+  return { provider: "smart_feed", apiKey: "" };
 }
 
 export function saveConnectorConfig(config: {
-  provider: "autodev" | "marketcheck" | "smart_feed";
+  provider: "marketcheck" | "smart_feed";
   apiKey: string;
 }) {
   if (typeof window !== "undefined") {
