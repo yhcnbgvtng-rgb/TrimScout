@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
   Building2,
@@ -16,8 +16,10 @@ import {
   Phone,
   Mail,
   MapPin,
+  Upload,
 } from "lucide-react";
-import type { Dealership, DealershipInput } from "@/lib/dealershipsApi";
+import type { Dealership, DealershipInput, BulkUpsertResult } from "@/lib/dealershipsApi";
+import { parseDealershipCsv, type DealershipCsvParseResult } from "@/lib/dealershipCsv";
 
 const EMPTY_FORM: DealershipInput = {
   dealerName: "",
@@ -43,6 +45,14 @@ export default function DealershipsClient() {
   const [form, setForm] = useState<DealershipInput>(EMPTY_FORM);
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+
+  const [isUploadOpen, setIsUploadOpen] = useState(false);
+  const [csvFileName, setCsvFileName] = useState<string | null>(null);
+  const [csvPreview, setCsvPreview] = useState<DealershipCsvParseResult | null>(null);
+  const [csvParseError, setCsvParseError] = useState<string | null>(null);
+  const [uploadSubmitting, setUploadSubmitting] = useState(false);
+  const [uploadResult, setUploadResult] = useState<BulkUpsertResult | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const showToast = (msg: string) => {
     setSuccessToast(msg);
@@ -73,6 +83,53 @@ export default function DealershipsClient() {
     setForm(EMPTY_FORM);
     setFormError(null);
     setIsFormOpen(true);
+  };
+
+  const openUpload = () => {
+    setCsvFileName(null);
+    setCsvPreview(null);
+    setCsvParseError(null);
+    setUploadResult(null);
+    setIsUploadOpen(true);
+  };
+
+  const handleFileSelected = async (file: File) => {
+    setCsvFileName(file.name);
+    setCsvParseError(null);
+    setCsvPreview(null);
+    setUploadResult(null);
+    try {
+      const text = await file.text();
+      const parsed = parseDealershipCsv(text);
+      if (parsed.rows.length === 0) {
+        setCsvParseError("No rows with a recognizable dealer name were found in this file.");
+        return;
+      }
+      setCsvPreview(parsed);
+    } catch {
+      setCsvParseError("Could not read that file. Make sure it's a CSV export from your spreadsheet.");
+    }
+  };
+
+  const handleConfirmUpload = async () => {
+    if (!csvPreview || csvPreview.rows.length === 0) return;
+    setUploadSubmitting(true);
+    try {
+      const res = await fetch("/api/admin/dealerships/bulk", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ dealerships: csvPreview.rows }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "Import failed");
+      setUploadResult(json as BulkUpsertResult);
+      showToast(`Imported ${json.created + json.updated} dealerships.`);
+      load();
+    } catch (err) {
+      setCsvParseError(err instanceof Error ? err.message : "Import failed");
+    } finally {
+      setUploadSubmitting(false);
+    }
   };
 
   const openEdit = (d: Dealership) => {
@@ -174,13 +231,22 @@ export default function DealershipsClient() {
               <p className="text-xs text-ink-muted">Manually maintained directory of dealership contact info</p>
             </div>
           </div>
-          <button
-            onClick={openCreate}
-            className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 px-3.5 py-2 text-xs font-black text-black shadow-md shadow-emerald-500/20 transition-all cursor-pointer"
-          >
-            <Plus className="h-3.5 w-3.5" />
-            <span>Add Dealership</span>
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={openUpload}
+              className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-surface-elevated hover:bg-surface px-3.5 py-2 text-xs font-bold text-ink-light hover:text-white transition-all shadow-sm"
+            >
+              <Upload className="h-3.5 w-3.5 text-emerald-400" />
+              <span>Upload Spreadsheet</span>
+            </button>
+            <button
+              onClick={openCreate}
+              className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 px-3.5 py-2 text-xs font-black text-black shadow-md shadow-emerald-500/20 transition-all cursor-pointer"
+            >
+              <Plus className="h-3.5 w-3.5" />
+              <span>Add Dealership</span>
+            </button>
+          </div>
         </div>
 
         <div className="rounded-3xl border border-border-strong bg-surface p-6 shadow-2xl space-y-5">
@@ -405,6 +471,134 @@ export default function DealershipsClient() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {isUploadOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4 overflow-y-auto">
+          <div className="relative w-full max-w-2xl rounded-3xl border border-border-strong bg-surface p-6 sm:p-8 shadow-2xl space-y-5 animate-fadeIn my-8">
+            <div className="flex items-center justify-between border-b border-border pb-4">
+              <div>
+                <h3 className="text-sm font-bold text-white">Upload Contact Spreadsheet</h3>
+                <p className="text-[11px] text-ink-muted mt-0.5">
+                  Any manufacturer's dealer-contact export (CSV) — matched by column name, not a fixed format.
+                </p>
+              </div>
+              <button onClick={() => setIsUploadOpen(false)} className="text-ink-muted hover:text-white p-1 rounded-lg">
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="space-y-4 text-xs">
+              <div
+                className="rounded-xl border border-dashed border-border bg-background p-5 text-center cursor-pointer hover:border-emerald-500/60 transition-all"
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".csv,text/csv"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) handleFileSelected(file);
+                    e.target.value = "";
+                  }}
+                />
+                <Upload className="h-6 w-6 mx-auto text-emerald-400 mb-2" />
+                <p className="text-ink-light font-semibold">
+                  {csvFileName ? csvFileName : "Click to choose a CSV file"}
+                </p>
+                <p className="text-[10.5px] text-ink-faint mt-1">
+                  Columns recognized: Dealer Name, Address, City, State, Zip, Phone, GM/Contact Name, GM/Contact Email, Notes
+                </p>
+              </div>
+
+              {csvParseError && (
+                <div className="rounded-xl border border-rose-500/60 bg-rose-950/60 p-3 text-rose-200 flex items-center gap-2">
+                  <AlertTriangle className="h-4 w-4 text-rose-400 shrink-0" />
+                  <span>{csvParseError}</span>
+                </div>
+              )}
+
+              {csvPreview && !uploadResult && (
+                <div className="space-y-3">
+                  <div className="rounded-xl border border-emerald-500/30 bg-emerald-950/20 p-3 text-emerald-200">
+                    Found <strong>{csvPreview.rows.length}</strong> dealership
+                    {csvPreview.rows.length === 1 ? "" : "s"} to import
+                    {csvPreview.skippedRows > 0 ? `, skipped ${csvPreview.skippedRows} row(s) with no dealer name` : ""}.
+                    Matching by dealer name — existing dealerships will be updated, new ones created.
+                  </div>
+                  {csvPreview.unrecognizedColumns.length > 0 && (
+                    <div className="rounded-xl border border-border bg-background p-3 text-ink-muted">
+                      Ignored columns (no match): {csvPreview.unrecognizedColumns.join(", ")}
+                    </div>
+                  )}
+                  <div className="overflow-x-auto rounded-xl border border-border max-h-52 overflow-y-auto">
+                    <table className="w-full text-left text-[11px]">
+                      <thead className="border-b border-border bg-surface-elevated text-[9.5px] uppercase font-bold text-ink-faint sticky top-0">
+                        <tr>
+                          <th className="py-2 px-3">Dealer</th>
+                          <th className="py-2 px-3">City/State</th>
+                          <th className="py-2 px-3">Contact</th>
+                          <th className="py-2 px-3">Email</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-border/60">
+                        {csvPreview.rows.slice(0, 8).map((row, i) => (
+                          <tr key={i}>
+                            <td className="py-1.5 px-3 text-white font-semibold">{row.dealerName}</td>
+                            <td className="py-1.5 px-3 text-ink-muted">
+                              {[row.city, row.state].filter(Boolean).join(", ")}
+                            </td>
+                            <td className="py-1.5 px-3 text-ink-muted">{row.contactName || "—"}</td>
+                            <td className="py-1.5 px-3 text-ink-muted font-mono">{row.contactEmail || "—"}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                  {csvPreview.rows.length > 8 && (
+                    <p className="text-[10.5px] text-ink-faint">…and {csvPreview.rows.length - 8} more.</p>
+                  )}
+                </div>
+              )}
+
+              {uploadResult && (
+                <div className="rounded-xl border border-emerald-500/40 bg-emerald-950/30 p-3 text-emerald-200 flex items-center gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" />
+                  <span>
+                    Done — {uploadResult.created} created, {uploadResult.updated} updated
+                    {uploadResult.skipped > 0 ? `, ${uploadResult.skipped} skipped` : ""}.
+                  </span>
+                </div>
+              )}
+
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-border">
+                <button
+                  type="button"
+                  onClick={() => setIsUploadOpen(false)}
+                  className="rounded-xl border border-border px-4 py-2 text-xs font-bold text-ink-muted hover:text-white"
+                >
+                  {uploadResult ? "Close" : "Cancel"}
+                </button>
+                {!uploadResult && (
+                  <button
+                    type="button"
+                    disabled={!csvPreview || csvPreview.rows.length === 0 || uploadSubmitting}
+                    onClick={handleConfirmUpload}
+                    className="rounded-xl bg-emerald-500 hover:bg-emerald-400 disabled:opacity-60 px-5 py-2 text-xs font-black text-black shadow-md shadow-emerald-500/20"
+                  >
+                    {uploadSubmitting
+                      ? "Importing…"
+                      : csvPreview
+                      ? `Import ${csvPreview.rows.length} Dealership${csvPreview.rows.length === 1 ? "" : "s"}`
+                      : "Import"}
+                  </button>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       )}

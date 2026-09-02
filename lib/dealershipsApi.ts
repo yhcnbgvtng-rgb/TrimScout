@@ -91,3 +91,15 @@ export async function updateDealership(id: string, input: DealershipInput): Prom
 export async function deleteDealership(id: string): Promise<void> {
   await request(`/api/dealerships/${id}`, { method: "DELETE" });
 }
+
+export interface BulkUpsertResult {
+  created: number;
+  updated: number;
+  skipped: number;
+  total: number;
+}
+
+/** Upserts many rows at once, matched by dealer name — safe to re-run with an updated spreadsheet. */
+export async function bulkUpsertDealerships(rows: Partial<DealershipInput>[]): Promise<BulkUpsertResult> {
+  return request("/api/dealerships/bulk", { method: "POST", body: JSON.stringify({ dealerships: rows }) });
+}
