@@ -1,10 +1,9 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { signOut } from "next-auth/react";
+import Link from "next/link";
+import { signOut, useSession } from "next-auth/react";
 import { UserProfile } from "../lib/types";
-import { INITIAL_ALL_ACCOUNTS, DEMO_ADMIN_USER } from "../lib/mockData";
-import { CrawlHistoryDashboard } from "./CrawlHistoryDashboard";
 import {
   ShieldAlert,
   ShieldCheck,
@@ -15,11 +14,9 @@ import {
   Filter,
   UserCheck,
   UserX,
-  Pencil as Edit3,
-  Trash2,
+  KeyRound,
   LogOut,
   Download,
-  Plus,
   X,
   CircleCheck as CheckCircle2,
   TriangleAlert as AlertTriangle,
@@ -30,7 +27,8 @@ import {
   Eye,
   Copy,
   Check,
-  ExternalLink
+  ExternalLink,
+  Loader2
 } from "lucide-react";
 
 interface AdminPortalProps {
@@ -42,47 +40,46 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
   onImpersonateUser,
   onExitAdmin,
 }) => {
-  // Accounts Data State
-  const [accounts, setAccounts] = useState<UserProfile[]>(() => {
-    if (typeof window !== "undefined") {
-      try {
-        const saved = localStorage.getItem("trimscout_admin_accounts");
-        return saved ? JSON.parse(saved) : INITIAL_ALL_ACCOUNTS;
-      } catch {
-        return INITIAL_ALL_ACCOUNTS;
-      }
-    }
-    return INITIAL_ALL_ACCOUNTS;
-  });
+  const { data: session } = useSession();
 
-  // Sync accounts to localStorage
-  const saveAccounts = (newAccounts: UserProfile[]) => {
-    setAccounts(newAccounts);
-    if (typeof window !== "undefined") {
-      try {
-        localStorage.setItem("trimscout_admin_accounts", JSON.stringify(newAccounts));
-      } catch {}
+  // Accounts Data State — fetched from the real users table, not mock data.
+  const [accounts, setAccounts] = useState<UserProfile[]>([]);
+  const [accountsLoading, setAccountsLoading] = useState(true);
+  const [accountsError, setAccountsError] = useState<string | null>(null);
+
+  const loadAccounts = async () => {
+    setAccountsLoading(true);
+    setAccountsError(null);
+    try {
+      const res = await fetch("/api/admin/users");
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "Failed to load accounts");
+      const mapped: UserProfile[] = (json.users as any[]).map((u) => ({
+        ...u,
+        savedVehicleIds: [],
+      }));
+      setAccounts(mapped);
+    } catch (err) {
+      setAccountsError(err instanceof Error ? err.message : "Failed to load accounts");
+    } finally {
+      setAccountsLoading(false);
     }
   };
+
+  useEffect(() => {
+    loadAccounts();
+  }, []);
 
   // Filter & Search State
   const [searchQuery, setSearchQuery] = useState("");
   const [roleFilter, setRoleFilter] = useState<"all" | "buyer" | "dealer" | "admin" | "suspended">("all");
-  const [activeTab, setActiveTab] = useState<"accounts" | "telemetry" | "logs">("accounts");
 
   // Modal States
-  const [editingUser, setEditingUser] = useState<UserProfile | null>(null);
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [resetPasswordUser, setResetPasswordUser] = useState<UserProfile | null>(null);
+  const [resetPasswordValue, setResetPasswordValue] = useState("");
+  const [resetPasswordSubmitting, setResetPasswordSubmitting] = useState(false);
+  const [resetPasswordError, setResetPasswordError] = useState<string | null>(null);
   const [successToast, setSuccessToast] = useState<string | null>(null);
-
-  // New User Form State
-  const [newName, setNewName] = useState("");
-  const [newEmail, setNewEmail] = useState("");
-  const [newRole, setNewRole] = useState<"buyer" | "dealer" | "admin">("buyer");
-  const [newPhone, setNewPhone] = useState("(415) 555-0100");
-  const [newZip, setNewZip] = useState("94107");
-  const [newDealerName, setNewDealerName] = useState("BMW of San Rafael");
 
   const showToast = (msg: string) => {
     setSuccessToast(msg);
@@ -93,72 +90,57 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
     signOut({ redirect: false }).then(onExitAdmin);
   };
 
-  // Account Management Actions
-  const handleToggleSuspend = (id: string) => {
-    const updated = accounts.map((acc) => {
-      if (acc.id === id) {
-        const newStatus: "active" | "suspended" = acc.status === "suspended" ? "active" : "suspended";
-        return { ...acc, status: newStatus };
-      }
-      return acc;
-    });
-    saveAccounts(updated);
-    showToast("User account status updated.");
+  // Account Management Actions — these call the real auth backend; the
+  // account list refetches after each mutation so the table never drifts
+  // from the database.
+  const handleToggleSuspend = async (acc: UserProfile) => {
+    const newStatus: "active" | "suspended" = acc.status === "suspended" ? "active" : "suspended";
+    try {
+      const res = await fetch("/api/admin/status", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: acc.email, status: newStatus }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "Failed to update status");
+      setAccounts((prev) => prev.map((a) => (a.id === acc.id ? { ...a, status: newStatus } : a)));
+      showToast(newStatus === "suspended" ? "Account suspended." : "Account reactivated.");
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : "Failed to update status.");
+    }
   };
 
-  const handleDeleteUser = (id: string) => {
-    if (id === DEMO_ADMIN_USER.id) {
-      alert("Master Administrator account cannot be deleted.");
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!resetPasswordUser) return;
+    if (resetPasswordValue.length < 8) {
+      setResetPasswordError("Password must be at least 8 characters.");
       return;
     }
-    if (confirm("Are you sure you want to permanently delete this user account?")) {
-      const updated = accounts.filter((acc) => acc.id !== id);
-      saveAccounts(updated);
-      showToast("User account deleted successfully.");
+    setResetPasswordSubmitting(true);
+    setResetPasswordError(null);
+    try {
+      const res = await fetch("/api/admin/reset-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: resetPasswordUser.email, newPassword: resetPasswordValue }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "Failed to reset password");
+      showToast(`Password reset for ${resetPasswordUser.email}.`);
+      setResetPasswordUser(null);
+      setResetPasswordValue("");
+    } catch (err) {
+      setResetPasswordError(err instanceof Error ? err.message : "Failed to reset password.");
+    } finally {
+      setResetPasswordSubmitting(false);
     }
   };
 
-  const handleSaveEditUser = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!editingUser) return;
-    const updated = accounts.map((acc) => (acc.id === editingUser.id ? editingUser : acc));
-    saveAccounts(updated);
-    setEditingUser(null);
-    showToast("Account changes saved successfully.");
-  };
-
-  const handleCreateNewUser = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newEmail || !newName) return;
-
-    const created: UserProfile = {
-      id: `user-${Date.now()}`,
-      name: newName,
-      email: newEmail,
-      role: newRole,
-      phone: newPhone,
-      zipCode: newZip,
-      status: "active",
-      createdAt: new Date().toISOString().split("T")[0],
-      lastLogin: "Never",
-      buyerAlias: newRole === "buyer" ? `Buyer #CA-${Math.floor(1000 + Math.random() * 9000)}` : undefined,
-      dealerName: newRole === "dealer" ? newDealerName : undefined,
-      savedVehicleIds: [],
-    };
-
-    saveAccounts([created, ...accounts]);
-    setIsCreateModalOpen(false);
-    // Reset Form
-    setNewName("");
-    setNewEmail("");
-    showToast(`Created new ${newRole} account for ${newName}.`);
-  };
-
-  const copyToClipboard = (text: string, id: string) => {
-    navigator.clipboard.writeText(text);
-    setCopiedId(id);
-    setTimeout(() => setCopiedId(null), 2000);
-    showToast("User ID copied to clipboard.");
+  const generatePassword = () => {
+    const bytes = new Uint8Array(10);
+    crypto.getRandomValues(bytes);
+    setResetPasswordValue(Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("").slice(0, 16));
   };
 
   const handleExportAccounts = () => {
@@ -225,13 +207,13 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
         </div>
 
         <div className="flex items-center gap-2 flex-wrap">
-          <button
-            onClick={() => setIsCreateModalOpen(true)}
+          <Link
+            href="/admin/dealerships"
             className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 px-3.5 py-2 text-xs font-black text-black shadow-md shadow-emerald-500/20 transition-all cursor-pointer"
           >
-            <Plus className="h-3.5 w-3.5" />
-            <span>Create New User</span>
-          </button>
+            <Building2 className="h-3.5 w-3.5" />
+            <span>Dealership Contacts</span>
+          </Link>
 
           <button
             onClick={handleExportAccounts}
@@ -258,8 +240,6 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
           </button>
         </div>
       </div>
-
-      <CrawlHistoryDashboard />
 
       {/* Platform Telemetry Metric Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
@@ -375,7 +355,22 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
               </tr>
             </thead>
             <tbody className="divide-y divide-border/60">
-              {filteredAccounts.length > 0 ? (
+              {accountsLoading ? (
+                <tr>
+                  <td colSpan={6} className="py-8 text-center text-ink-muted">
+                    <div className="flex items-center justify-center gap-2">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <span>Loading accounts…</span>
+                    </div>
+                  </td>
+                </tr>
+              ) : accountsError ? (
+                <tr>
+                  <td colSpan={6} className="py-8 text-center text-rose-400">
+                    {accountsError}
+                  </td>
+                </tr>
+              ) : filteredAccounts.length > 0 ? (
                 filteredAccounts.map((acc) => {
                   const isSuspended = acc.status === "suspended";
                   return (
@@ -396,7 +391,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                           <div className="space-y-0.5 min-w-0 truncate">
                             <div className="font-bold text-white flex items-center gap-1.5">
                               <span className="truncate">{acc.name}</span>
-                              {acc.id === DEMO_ADMIN_USER.id && (
+                              {session?.user?.email && acc.email === session.user.email && (
                                 <span className="rounded bg-rose-500/20 px-1 py-0.2 text-[8px] font-black text-rose-400">
                                   YOU
                                 </span>
@@ -479,20 +474,24 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                             <span>Impersonate</span>
                           </button>
 
-                          {/* Edit User */}
+                          {/* Reset Password */}
                           <button
                             type="button"
-                            onClick={() => setEditingUser(acc)}
+                            onClick={() => {
+                              setResetPasswordUser(acc);
+                              setResetPasswordValue("");
+                              setResetPasswordError(null);
+                            }}
                             className="p-1.5 rounded-lg border border-border bg-surface-elevated hover:text-white text-ink-muted hover:border-border-strong transition-all"
-                            title="Edit Account Details"
+                            title="Reset Password"
                           >
-                            <Edit3 className="h-3.5 w-3.5" />
+                            <KeyRound className="h-3.5 w-3.5" />
                           </button>
 
                           {/* Suspend / Unsuspend */}
                           <button
                             type="button"
-                            onClick={() => handleToggleSuspend(acc.id)}
+                            onClick={() => handleToggleSuspend(acc)}
                             className={`p-1.5 rounded-lg border transition-all ${
                               isSuspended
                                 ? "border-emerald-500/40 bg-emerald-950/30 text-emerald-400 hover:bg-emerald-900/40"
@@ -502,18 +501,6 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                           >
                             {isSuspended ? <UserCheck className="h-3.5 w-3.5" /> : <UserX className="h-3.5 w-3.5" />}
                           </button>
-
-                          {/* Delete User */}
-                          {acc.id !== DEMO_ADMIN_USER.id && (
-                            <button
-                              type="button"
-                              onClick={() => handleDeleteUser(acc.id)}
-                              className="p-1.5 rounded-lg border border-border hover:border-rose-500/60 bg-surface-elevated hover:bg-rose-950/40 text-ink-faint hover:text-rose-400 transition-all"
-                              title="Delete Account"
-                            >
-                              <Trash2 className="h-3.5 w-3.5" />
-                            </button>
-                          )}
                         </div>
                       </td>
                     </tr>
@@ -532,283 +519,76 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
       </div>
 
       {/* --------------------------------------------- */}
-      {/* MODAL: EDIT USER ACCOUNT */}
+      {/* MODAL: RESET PASSWORD */}
       {/* --------------------------------------------- */}
-      {editingUser && (
+      {resetPasswordUser && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4 overflow-y-auto">
-          <div className="relative w-full max-w-lg rounded-3xl border border-border-strong bg-surface p-6 sm:p-8 shadow-2xl space-y-6 animate-fadeIn my-8">
+          <div className="relative w-full max-w-md rounded-3xl border border-border-strong bg-surface p-6 sm:p-8 shadow-2xl space-y-6 animate-fadeIn my-8">
             <div className="flex items-center justify-between border-b border-border pb-4">
               <div className="flex items-center gap-2.5">
                 <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-500/20 text-emerald-400">
-                  <Edit3 className="h-5 w-5" />
+                  <KeyRound className="h-5 w-5" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold text-white">Edit Account: {editingUser.name}</h3>
-                  <p className="text-[11px] text-ink-muted font-mono">{editingUser.id}</p>
+                  <h3 className="text-sm font-bold text-white">Reset Password</h3>
+                  <p className="text-[11px] text-ink-muted font-mono">{resetPasswordUser.email}</p>
                 </div>
               </div>
               <button
-                onClick={() => setEditingUser(null)}
+                onClick={() => setResetPasswordUser(null)}
                 className="text-ink-muted hover:text-white p-1 rounded-lg"
               >
                 <X className="h-5 w-5" />
               </button>
             </div>
 
-            <form onSubmit={handleSaveEditUser} className="space-y-4 text-xs">
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold uppercase text-ink-faint">Full Name</label>
-                  <input
-                    type="text"
-                    required
-                    value={editingUser.name}
-                    onChange={(e) => setEditingUser({ ...editingUser, name: e.target.value })}
-                    className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-white focus:border-emerald-500 focus:outline-none"
-                  />
-                </div>
-
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold uppercase text-ink-faint">Email Address</label>
-                  <input
-                    type="email"
-                    required
-                    value={editingUser.email}
-                    onChange={(e) => setEditingUser({ ...editingUser, email: e.target.value })}
-                    className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-white focus:border-emerald-500 focus:outline-none"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold uppercase text-ink-faint">Account Role</label>
-                  <select
-                    value={editingUser.role}
-                    onChange={(e) => setEditingUser({ ...editingUser, role: e.target.value as any })}
-                    className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-white focus:border-emerald-500 focus:outline-none"
-                  >
-                    <option value="buyer">Car Buyer</option>
-                    <option value="dealer">Franchise Dealer</option>
-                    <option value="admin">Administrator</option>
-                  </select>
-                </div>
-
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold uppercase text-ink-faint">Account Status</label>
-                  <select
-                    value={editingUser.status || "active"}
-                    onChange={(e) => setEditingUser({ ...editingUser, status: e.target.value as any })}
-                    className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-white focus:border-emerald-500 focus:outline-none"
-                  >
-                    <option value="active">Active</option>
-                    <option value="suspended">Suspended / Banned</option>
-                    <option value="pending_verification">Pending Verification</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold uppercase text-ink-faint">Zip Code</label>
-                  <input
-                    type="text"
-                    maxLength={5}
-                    value={editingUser.zipCode}
-                    onChange={(e) => setEditingUser({ ...editingUser, zipCode: e.target.value })}
-                    className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-white font-mono focus:border-emerald-500 focus:outline-none"
-                  />
-                </div>
-
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold uppercase text-ink-faint">Phone</label>
-                  <input
-                    type="text"
-                    value={editingUser.phone}
-                    onChange={(e) => setEditingUser({ ...editingUser, phone: e.target.value })}
-                    className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-white focus:border-emerald-500 focus:outline-none"
-                  />
-                </div>
-              </div>
-
-              {editingUser.role === "dealer" && (
-                <div className="space-y-1 animate-fadeIn">
-                  <label className="text-[10px] font-bold uppercase text-ink-faint">Dealership Rooftop</label>
-                  <input
-                    type="text"
-                    value={editingUser.dealerName || ""}
-                    onChange={(e) => setEditingUser({ ...editingUser, dealerName: e.target.value })}
-                    className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-white focus:border-emerald-500 focus:outline-none"
-                  />
+            <form onSubmit={handleResetPassword} className="space-y-4 text-xs">
+              {resetPasswordError && (
+                <div className="rounded-xl border border-rose-500/60 bg-rose-950/60 p-3 text-xs text-rose-200 flex items-center gap-2">
+                  <AlertTriangle className="h-4 w-4 text-rose-400 shrink-0" />
+                  <span>{resetPasswordError}</span>
                 </div>
               )}
 
-              {editingUser.role === "buyer" && (
-                <div className="space-y-1 animate-fadeIn">
-                  <label className="text-[10px] font-bold uppercase text-ink-faint">Buyer Shield Alias</label>
-                  <input
-                    type="text"
-                    value={editingUser.buyerAlias || ""}
-                    onChange={(e) => setEditingUser({ ...editingUser, buyerAlias: e.target.value })}
-                    className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-emerald-400 font-mono focus:border-emerald-500 focus:outline-none"
-                  />
-                </div>
-              )}
-
-              <div className="flex items-center justify-end gap-2 pt-3 border-t border-border">
-                <button
-                  type="button"
-                  onClick={() => setEditingUser(null)}
-                  className="rounded-xl border border-border px-4 py-2 text-xs font-bold text-ink-muted hover:text-white"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="rounded-xl bg-emerald-500 hover:bg-emerald-400 px-5 py-2 text-xs font-black text-black shadow-md shadow-emerald-500/20"
-                >
-                  Save Changes
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* --------------------------------------------- */}
-      {/* MODAL: CREATE NEW USER */}
-      {/* --------------------------------------------- */}
-      {isCreateModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4 overflow-y-auto">
-          <div className="relative w-full max-w-lg rounded-3xl border border-border-strong bg-surface p-6 sm:p-8 shadow-2xl space-y-6 animate-fadeIn my-8">
-            <div className="flex items-center justify-between border-b border-border pb-4">
-              <div className="flex items-center gap-2.5">
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-500/20 text-emerald-400">
-                  <Plus className="h-5 w-5" />
-                </div>
-                <div>
-                  <h3 className="text-sm font-bold text-white">Create New Platform User</h3>
-                  <p className="text-[11px] text-ink-muted">Add buyer, franchise dealer, or admin account</p>
-                </div>
-              </div>
-              <button
-                onClick={() => setIsCreateModalOpen(false)}
-                className="text-ink-muted hover:text-white p-1 rounded-lg"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-
-            <form onSubmit={handleCreateNewUser} className="space-y-4 text-xs">
               <div className="space-y-1">
-                <label className="text-[10px] font-bold uppercase text-ink-faint">Account Role</label>
-                <div className="grid grid-cols-3 gap-1 p-1 rounded-xl bg-surface-elevated border border-border">
-                  <button
-                    type="button"
-                    onClick={() => setNewRole("buyer")}
-                    className={`py-1.5 rounded-lg text-xs font-bold transition-all ${
-                      newRole === "buyer" ? "bg-emerald-500 text-black font-black" : "text-ink-muted"
-                    }`}
-                  >
-                    Buyer
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setNewRole("dealer")}
-                    className={`py-1.5 rounded-lg text-xs font-bold transition-all ${
-                      newRole === "dealer" ? "bg-emerald-500 text-black font-black" : "text-ink-muted"
-                    }`}
-                  >
-                    Dealer Partner
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setNewRole("admin")}
-                    className={`py-1.5 rounded-lg text-xs font-bold transition-all ${
-                      newRole === "admin" ? "bg-rose-500 text-white font-black" : "text-ink-muted"
-                    }`}
-                  >
-                    Admin
-                  </button>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold uppercase text-ink-faint">Full Name</label>
+                <label className="text-[10px] font-bold uppercase text-ink-faint">New Password</label>
+                <div className="flex gap-2">
                   <input
                     type="text"
                     required
-                    value={newName}
-                    onChange={(e) => setNewName(e.target.value)}
-                    placeholder="e.g. Jordan Mitchell"
-                    className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-white focus:border-emerald-500 focus:outline-none"
+                    minLength={8}
+                    value={resetPasswordValue}
+                    onChange={(e) => setResetPasswordValue(e.target.value)}
+                    placeholder="At least 8 characters"
+                    className="flex-1 rounded-xl border border-border bg-surface-elevated px-3 py-2 text-white font-mono focus:border-emerald-500 focus:outline-none"
                   />
+                  <button
+                    type="button"
+                    onClick={generatePassword}
+                    className="rounded-xl border border-border bg-surface-elevated hover:bg-surface px-3 py-2 text-[10.5px] font-bold text-ink-light hover:text-white transition-all shrink-0"
+                  >
+                    Generate
+                  </button>
                 </div>
-
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold uppercase text-ink-faint">Email Address</label>
-                  <input
-                    type="email"
-                    required
-                    value={newEmail}
-                    onChange={(e) => setNewEmail(e.target.value)}
-                    placeholder="jordan@example.com"
-                    className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-white focus:border-emerald-500 focus:outline-none"
-                  />
-                </div>
-              </div>
-
-              {newRole === "dealer" && (
-                <div className="space-y-1 animate-fadeIn">
-                  <label className="text-[10px] font-bold uppercase text-ink-faint">Dealership Name</label>
-                  <input
-                    type="text"
-                    required
-                    value={newDealerName}
-                    onChange={(e) => setNewDealerName(e.target.value)}
-                    placeholder="e.g. Stevens Creek Chevrolet"
-                    className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-white focus:border-emerald-500 focus:outline-none"
-                  />
-                </div>
-              )}
-
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold uppercase text-ink-faint">Zip Code</label>
-                  <input
-                    type="text"
-                    maxLength={5}
-                    value={newZip}
-                    onChange={(e) => setNewZip(e.target.value)}
-                    className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-white font-mono focus:border-emerald-500 focus:outline-none"
-                  />
-                </div>
-
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold uppercase text-ink-faint">Phone Number</label>
-                  <input
-                    type="text"
-                    value={newPhone}
-                    onChange={(e) => setNewPhone(e.target.value)}
-                    className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-white focus:border-emerald-500 focus:outline-none"
-                  />
-                </div>
+                <p className="text-[10.5px] text-ink-faint">
+                  The user will need this password to sign back in — share it with them directly.
+                </p>
               </div>
 
               <div className="flex items-center justify-end gap-2 pt-3 border-t border-border">
                 <button
                   type="button"
-                  onClick={() => setIsCreateModalOpen(false)}
+                  onClick={() => setResetPasswordUser(null)}
                   className="rounded-xl border border-border px-4 py-2 text-xs font-bold text-ink-muted hover:text-white"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="rounded-xl bg-emerald-500 hover:bg-emerald-400 px-5 py-2 text-xs font-black text-black shadow-md shadow-emerald-500/20 cursor-pointer"
+                  disabled={resetPasswordSubmitting}
+                  className="rounded-xl bg-emerald-500 hover:bg-emerald-400 disabled:opacity-60 px-5 py-2 text-xs font-black text-black shadow-md shadow-emerald-500/20"
                 >
-                  Create Account
+                  {resetPasswordSubmitting ? "Resetting…" : "Reset Password"}
                 </button>
               </div>
             </form>

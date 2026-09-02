@@ -191,6 +191,139 @@ async function handleVerifyCredentials(req, res) {
   sendJson(res, 200, { user: publicUser(row) });
 }
 
+// GET /api/auth/users — full account listing for the admin portal's
+// account-management table. Every field except password_hash, same shape
+// as publicUser() elsewhere in this file.
+async function handleListUsers(req, res) {
+  const pool = getPool();
+  const [rows] = await pool.query("SELECT * FROM users ORDER BY created_at DESC");
+  sendJson(res, 200, { users: rows.map(publicUser) });
+}
+
+// POST /api/auth/admin-reset-password — admin-initiated password reset.
+// Trust boundary: the Next.js route calling this has already checked the
+// caller's own session has role='admin' before ever making this request;
+// this server only re-checks the shared API key like every other route.
+async function handleAdminResetPassword(req, res) {
+  const body = await readBody(req);
+  const email = (body.email || "").trim().toLowerCase();
+  const newPassword = body.newPassword || "";
+  if (!EMAIL_RE.test(email)) return badRequest(res, "Invalid email address");
+  if (newPassword.length < 8) return badRequest(res, "Password must be at least 8 characters");
+
+  const pool = getPool();
+  const [rows] = await pool.query("SELECT id FROM users WHERE email = ?", [email]);
+  if (rows.length === 0) return sendJson(res, 404, { error: "No account with that email" });
+
+  const passwordHash = await bcrypt.hash(newPassword, 12);
+  await pool.query("UPDATE users SET password_hash = ? WHERE id = ?", [passwordHash, rows[0].id]);
+  sendJson(res, 200, { ok: true });
+}
+
+// POST /api/auth/admin-set-status — admin suspend/reactivate toggle, since
+// verify-credentials already enforces status !== 'active' at sign-in.
+async function handleAdminSetStatus(req, res) {
+  const body = await readBody(req);
+  const email = (body.email || "").trim().toLowerCase();
+  const status = body.status;
+  if (!["active", "suspended", "pending_verification"].includes(status)) {
+    return badRequest(res, "Invalid status");
+  }
+  const pool = getPool();
+  const [result] = await pool.query("UPDATE users SET status = ? WHERE email = ?", [status, email]);
+  if (result.affectedRows === 0) return sendJson(res, 404, { error: "No account with that email" });
+  const [rows] = await pool.query("SELECT * FROM users WHERE email = ?", [email]);
+  sendJson(res, 200, { user: publicUser(rows[0]) });
+}
+
+function publicDealership(row) {
+  if (!row) return null;
+  return {
+    id: String(row.id),
+    dealerName: row.dealer_name,
+    address: row.address,
+    city: row.city,
+    state: row.state,
+    zipCode: row.zip_code,
+    phone: row.phone,
+    contactName: row.contact_name,
+    contactEmail: row.contact_email,
+    notes: row.notes,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
+}
+
+// GET /api/dealerships — full directory listing.
+async function handleListDealerships(req, res) {
+  const pool = getPool();
+  const [rows] = await pool.query("SELECT * FROM dealership_contacts ORDER BY dealer_name ASC");
+  sendJson(res, 200, { dealerships: rows.map(publicDealership) });
+}
+
+// POST /api/dealerships — create.
+async function handleCreateDealership(req, res) {
+  const body = await readBody(req);
+  const dealerName = (body.dealerName || "").trim();
+  if (!dealerName) return badRequest(res, "dealerName is required");
+
+  const pool = getPool();
+  const [result] = await pool.query(
+    `INSERT INTO dealership_contacts (dealer_name, address, city, state, zip_code, phone, contact_name, contact_email, notes)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [
+      dealerName,
+      body.address || null,
+      body.city || null,
+      body.state || null,
+      body.zipCode || null,
+      body.phone || null,
+      body.contactName || null,
+      body.contactEmail || null,
+      body.notes || null,
+    ]
+  );
+  const [rows] = await pool.query("SELECT * FROM dealership_contacts WHERE id = ?", [result.insertId]);
+  sendJson(res, 201, { dealership: publicDealership(rows[0]) });
+}
+
+// PUT /api/dealerships/:id — update.
+async function handleUpdateDealership(req, res, id) {
+  const body = await readBody(req);
+  const pool = getPool();
+  const [existing] = await pool.query("SELECT id FROM dealership_contacts WHERE id = ?", [id]);
+  if (existing.length === 0) return sendJson(res, 404, { error: "Dealership not found" });
+
+  await pool.query(
+    `UPDATE dealership_contacts SET
+       dealer_name = ?, address = ?, city = ?, state = ?, zip_code = ?,
+       phone = ?, contact_name = ?, contact_email = ?, notes = ?
+     WHERE id = ?`,
+    [
+      (body.dealerName || "").trim(),
+      body.address || null,
+      body.city || null,
+      body.state || null,
+      body.zipCode || null,
+      body.phone || null,
+      body.contactName || null,
+      body.contactEmail || null,
+      body.notes || null,
+      id,
+    ]
+  );
+  const [rows] = await pool.query("SELECT * FROM dealership_contacts WHERE id = ?", [id]);
+  sendJson(res, 200, { dealership: publicDealership(rows[0]) });
+}
+
+// DELETE /api/dealerships/:id
+async function handleDeleteDealership(req, res, id) {
+  const pool = getPool();
+  const [result] = await pool.query("DELETE FROM dealership_contacts WHERE id = ?", [id]);
+  if (result.affectedRows === 0) return sendJson(res, 404, { error: "Dealership not found" });
+  sendJson(res, 200, { ok: true });
+}
+
 // POST /api/auth/oauth-upsert — called from Auth.js's signIn callback for
 // Google/Apple. Finds an existing user by (provider, providerAccountId)
 // first, then by email (to link a new provider onto an existing
@@ -275,6 +408,28 @@ const server = http.createServer((req, res) => {
   if (req.method === "POST" && pathname === "/api/auth/oauth-upsert") {
     return run(handleOAuthUpsert);
   }
+  if (req.method === "GET" && pathname === "/api/auth/users") {
+    return run(handleListUsers);
+  }
+  if (req.method === "POST" && pathname === "/api/auth/admin-reset-password") {
+    return run(handleAdminResetPassword);
+  }
+  if (req.method === "POST" && pathname === "/api/auth/admin-set-status") {
+    return run(handleAdminSetStatus);
+  }
+  if (req.method === "GET" && pathname === "/api/dealerships") {
+    return run(handleListDealerships);
+  }
+  if (req.method === "POST" && pathname === "/api/dealerships") {
+    return run(handleCreateDealership);
+  }
+  const dealershipMatch = pathname.match(/^\/api\/dealerships\/(\d+)$/);
+  if (dealershipMatch && req.method === "PUT") {
+    return run((request, response) => handleUpdateDealership(request, response, dealershipMatch[1]));
+  }
+  if (dealershipMatch && req.method === "DELETE") {
+    return run((request, response) => handleDeleteDealership(request, response, dealershipMatch[1]));
+  }
 
   sendJson(res, 404, { error: "Not found" });
 });
@@ -284,6 +439,13 @@ server.listen(PORT, () => {
   console.log(`  POST /api/auth/signup`);
   console.log(`  POST /api/auth/verify-credentials`);
   console.log(`  POST /api/auth/oauth-upsert`);
+  console.log(`  GET  /api/auth/users`);
+  console.log(`  POST /api/auth/admin-reset-password`);
+  console.log(`  POST /api/auth/admin-set-status`);
+  console.log(`  GET  /api/dealerships`);
+  console.log(`  POST /api/dealerships`);
+  console.log(`  PUT  /api/dealerships/:id`);
+  console.log(`  DELETE /api/dealerships/:id`);
   console.log(`  GET  /health`);
   console.log(`All routes require header X-Trimscout-Api-Key.`);
 });
