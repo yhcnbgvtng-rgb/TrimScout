@@ -8,6 +8,7 @@ import {
   collectDealVehicles,
   parseOfferCompareSnapshot,
   snapshotVehiclesFromDeal,
+  sortCompareColumns,
   vehicleForCompareRole,
 } from "./offerCompare";
 import type { BiddingRequest, Vehicle } from "./types";
@@ -167,5 +168,78 @@ describe("offer compare snapshot", () => {
       }),
       null
     );
+  });
+});
+
+describe("compare column sorting", () => {
+  const cols = [
+    { role: "favorite" as const, vin: "AAAAAAAAAAAAAAAAA" },
+    { role: "other_lot_1" as const, vin: "BBBBBBBBBBBBBBBBB" },
+    { role: "other_lot_2" as const, vin: "CCCCCCCCCCCCCCCCC" },
+  ];
+
+  it("leaves order untouched in default mode", () => {
+    const out = sortCompareColumns(cols, "default", {});
+    assert.deepEqual(out.map((c) => c.role), ["favorite", "other_lot_1", "other_lot_2"]);
+  });
+
+  it("sorts other lots by days on market, most first, favorite pinned", () => {
+    const out = sortCompareColumns(cols, "days_on_market", {
+      AAAAAAAAAAAAAAAAA: { daysOnMarket: 999 },
+      BBBBBBBBBBBBBBBBB: { daysOnMarket: 10 },
+      CCCCCCCCCCCCCCCCC: { daysOnMarket: 80 },
+    });
+    // Favorite stays first even though its 999 is the highest value.
+    assert.deepEqual(out.map((c) => c.role), ["favorite", "other_lot_2", "other_lot_1"]);
+  });
+
+  it("falls back to daysOnMarketActive when daysOnMarket is null", () => {
+    const out = sortCompareColumns(cols, "days_on_market", {
+      BBBBBBBBBBBBBBBBB: { daysOnMarket: null, daysOnMarketActive: 60 },
+      CCCCCCCCCCCCCCCCC: { daysOnMarket: 5 },
+    });
+    assert.deepEqual(out.map((c) => c.role), ["favorite", "other_lot_1", "other_lot_2"]);
+  });
+
+  it("sorts by number of price cuts, most first", () => {
+    const out = sortCompareColumns(cols, "price_cuts", {
+      BBBBBBBBBBBBBBBBB: { priceCuts: 1 },
+      CCCCCCCCCCCCCCCCC: { priceCuts: 4 },
+    });
+    assert.deepEqual(out.map((c) => c.role), ["favorite", "other_lot_2", "other_lot_1"]);
+  });
+
+  it("sinks lots with no listing data to the end instead of treating them as zero", () => {
+    const out = sortCompareColumns(cols, "days_on_market", {
+      // other_lot_1 has no sheet at all; other_lot_2 has a real 3.
+      CCCCCCCCCCCCCCCCC: { daysOnMarket: 3 },
+    });
+    assert.deepEqual(out.map((c) => c.role), ["favorite", "other_lot_2", "other_lot_1"]);
+  });
+
+  it("treats an empty slot (null vin) as unknown, not zero", () => {
+    const withEmpty = [
+      { role: "favorite" as const, vin: "AAAAAAAAAAAAAAAAA" },
+      { role: "other_lot_1" as const, vin: null },
+      { role: "other_lot_2" as const, vin: "CCCCCCCCCCCCCCCCC" },
+    ];
+    const out = sortCompareColumns(withEmpty, "price_cuts", {
+      CCCCCCCCCCCCCCCCC: { priceCuts: 0 },
+    });
+    // A real lot with zero cuts still outranks an empty slot.
+    assert.deepEqual(out.map((c) => c.role), ["favorite", "other_lot_2", "other_lot_1"]);
+  });
+
+  it("matches VINs case-insensitively", () => {
+    const out = sortCompareColumns(
+      [
+        { role: "favorite" as const, vin: "AAAAAAAAAAAAAAAAA" },
+        { role: "other_lot_1" as const, vin: "bbbbbbbbbbbbbbbbb" },
+        { role: "other_lot_2" as const, vin: "CCCCCCCCCCCCCCCCC" },
+      ],
+      "days_on_market",
+      { BBBBBBBBBBBBBBBBB: { daysOnMarket: 90 }, CCCCCCCCCCCCCCCCC: { daysOnMarket: 2 } }
+    );
+    assert.deepEqual(out.map((c) => c.role), ["favorite", "other_lot_1", "other_lot_2"]);
   });
 });

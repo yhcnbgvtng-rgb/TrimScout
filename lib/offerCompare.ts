@@ -179,6 +179,55 @@ export function snapshotVehiclesFromDeal(
   return out;
 }
 
+export type CompareSortMode = "default" | "days_on_market" | "price_cuts";
+
+/** Just what the sort needs from a listing sheet, so this stays testable. */
+export interface CompareSortMetrics {
+  daysOnMarket?: number | null;
+  daysOnMarketActive?: number | null;
+  priceCuts?: number | null;
+}
+
+/**
+ * Order the compare columns. The favorite is always pinned first — it's the
+ * car the buyer actually chose, and the other lots exist to be measured
+ * against it. Only the competing lots reorder.
+ *
+ * Both metrics come from listing sheets already fetched for these VINs, so
+ * sorting never costs an additional upstream call.
+ *
+ * Lots with no listing data sort last rather than as zero: a missing value
+ * is "unknown", and treating it as 0 would rank it as the freshest listing
+ * / the one never discounted, floating unknowns above real data.
+ */
+export function sortCompareColumns<T extends { role: OfferVehicleRole; vin: string | null }>(
+  entries: T[],
+  mode: CompareSortMode,
+  metricsByVin: Record<string, CompareSortMetrics | undefined>
+): T[] {
+  if (mode === "default") return entries;
+  const favorites = entries.filter((e) => e.role === "favorite");
+  const others = entries.filter((e) => e.role !== "favorite");
+
+  const valueOf = (entry: T): number | null => {
+    const vin = entry.vin ? entry.vin.toUpperCase() : null;
+    const m = vin ? metricsByVin[vin] : undefined;
+    if (!m) return null;
+    if (mode === "days_on_market") return m.daysOnMarket ?? m.daysOnMarketActive ?? null;
+    return m.priceCuts ?? null;
+  };
+
+  const sorted = [...others].sort((a, b) => {
+    const aVal = valueOf(a);
+    const bVal = valueOf(b);
+    if (aVal == null && bVal == null) return 0;
+    if (aVal == null) return 1;
+    if (bVal == null) return -1;
+    return bVal - aVal; // most days on market / most price cuts first
+  });
+  return [...favorites, ...sorted];
+}
+
 export function vehicleForCompareRole(
   snapshot: OfferCompareSnapshot,
   role: OfferVehicleRole
