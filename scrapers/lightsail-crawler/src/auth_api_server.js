@@ -93,7 +93,7 @@ function readBody(req) {
     let data = "";
     req.on("data", (chunk) => {
       data += chunk;
-      if (data.length > 1_000_000) {
+      if (data.length > 5_000_000) {
         reject(new Error("Body too large"));
         req.destroy();
       }
@@ -261,6 +261,63 @@ async function handleListDealerships(req, res) {
   sendJson(res, 200, { dealerships: rows.map(publicDealership) });
 }
 
+// POST /api/dealerships/bulk — upsert many rows at once, matched by dealer
+// name (case-insensitive). Meant for a manufacturer-contact-crawl export
+// (any manufacturer, not just one) uploaded as a spreadsheet — re-uploading
+// the same or an updated file is safe and just refreshes matching rows.
+async function handleBulkUpsertDealerships(req, res) {
+  const body = await readBody(req);
+  const list = Array.isArray(body.dealerships) ? body.dealerships : [];
+  if (list.length === 0) return badRequest(res, "dealerships must be a non-empty array");
+  if (list.length > 10000) return badRequest(res, "Too many rows in one upload (max 10,000)");
+
+  const pool = getPool();
+  let created = 0;
+  let updated = 0;
+  let skipped = 0;
+
+  for (const row of list) {
+    const dealerName = (row.dealerName || "").trim();
+    if (!dealerName) {
+      skipped++;
+      continue;
+    }
+    const fields = [
+      row.address || null,
+      row.city || null,
+      row.state || null,
+      row.zipCode || null,
+      row.phone || null,
+      row.contactName || null,
+      row.contactEmail || null,
+      row.notes || null,
+    ];
+    const [existing] = await pool.query(
+      "SELECT id FROM dealership_contacts WHERE LOWER(dealer_name) = LOWER(?) LIMIT 1",
+      [dealerName]
+    );
+    if (existing.length > 0) {
+      await pool.query(
+        `UPDATE dealership_contacts SET
+           dealer_name = ?, address = ?, city = ?, state = ?, zip_code = ?,
+           phone = ?, contact_name = ?, contact_email = ?, notes = ?
+         WHERE id = ?`,
+        [dealerName, ...fields, existing[0].id]
+      );
+      updated++;
+    } else {
+      await pool.query(
+        `INSERT INTO dealership_contacts (dealer_name, address, city, state, zip_code, phone, contact_name, contact_email, notes)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [dealerName, ...fields]
+      );
+      created++;
+    }
+  }
+
+  sendJson(res, 200, { created, updated, skipped, total: list.length });
+}
+
 // POST /api/dealerships — create.
 async function handleCreateDealership(req, res) {
   const body = await readBody(req);
@@ -423,6 +480,9 @@ const server = http.createServer((req, res) => {
   if (req.method === "POST" && pathname === "/api/dealerships") {
     return run(handleCreateDealership);
   }
+  if (req.method === "POST" && pathname === "/api/dealerships/bulk") {
+    return run(handleBulkUpsertDealerships);
+  }
   const dealershipMatch = pathname.match(/^\/api\/dealerships\/(\d+)$/);
   if (dealershipMatch && req.method === "PUT") {
     return run((request, response) => handleUpdateDealership(request, response, dealershipMatch[1]));
@@ -444,6 +504,7 @@ server.listen(PORT, () => {
   console.log(`  POST /api/auth/admin-set-status`);
   console.log(`  GET  /api/dealerships`);
   console.log(`  POST /api/dealerships`);
+  console.log(`  POST /api/dealerships/bulk`);
   console.log(`  PUT  /api/dealerships/:id`);
   console.log(`  DELETE /api/dealerships/:id`);
   console.log(`  GET  /health`);
