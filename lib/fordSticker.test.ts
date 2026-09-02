@@ -420,3 +420,44 @@ describe("advertised listing price from VDP HTML", () => {
     assert.equal(extractAdvertisedListingPrice(namedDealer), 38250);
   });
 });
+
+describe("factory discounts on the sticker", () => {
+  // Real 2026 F-150 STX whose Monroney carries factory discounts:
+  //   BASE PRICE              51,070.00
+  //   TOTAL OPTIONS/OTHER        950.00
+  //   DESTINATION & DELIVERY   2,795.00
+  //   TOTAL BEFORE DISCOUNTS  54,815.00   <- base + options + destination
+  //   STX LOW DISCOUNT        -2,000.00
+  //   STX 2.7L DISCOUNT       -1,000.00
+  //   TOTAL SAVINGS           -3,000.00
+  //   TOTAL MSRP              51,815.00   <- what Ford actually charges
+  const DISCOUNTED = "1FTEW2LP6TKE14711";
+
+  it("uses Ford's printed TOTAL MSRP, not the pre-discount subtotal", () => {
+    const s = parseFordStickerText(DISCOUNTED, loadFixture(DISCOUNTED));
+    assert.equal(s.msrp, 51815);
+    // Guard the regression directly: 54,815 is the "TOTAL BEFORE DISCOUNTS"
+    // line and was what this parser previously reported.
+    assert.notEqual(s.msrp, 54815);
+  });
+
+  it("still parses the component prices that make up the pre-discount subtotal", () => {
+    const s = parseFordStickerText(DISCOUNTED, loadFixture(DISCOUNTED));
+    assert.equal(s.basePrice, 51070);
+    assert.equal(s.optionsPrice, 950);
+    assert.equal(s.destination, 2795);
+    // Proves the two figures genuinely diverge, so the assertion above is
+    // meaningful rather than coincidentally equal.
+    assert.equal(
+      (s.basePrice ?? 0) + (s.optionsPrice ?? 0) + (s.destination ?? 0),
+      54815
+    );
+  });
+
+  it("leaves an undiscounted sticker on its subtotal, which equals its printed MSRP", () => {
+    const s = parseFordStickerText(SUBJECT, loadFixture(SUBJECT));
+    assert.equal(s.msrp, 64705);
+    assert.equal((s.basePrice ?? 0) + (s.optionsPrice ?? 0) + (s.destination ?? 0), 64705);
+  });
+});
+

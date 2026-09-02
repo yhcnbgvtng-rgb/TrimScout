@@ -123,7 +123,12 @@ const VIN_CHAR_RE = /[A-HJ-NPR-Z0-9]{17}/gi;
 const VIN_RE = /\b[A-HJ-NPR-Z0-9]{17}\b/gi;
 const MEMORY_CACHE = new Map<string, FordSticker>();
 const CACHE_DIR = path.join("/tmp", "trimscout-ford-stickers");
-const PARSER_VERSION = 3;
+// Bump whenever parsing changes in a way that makes previously-cached
+// results wrong — cache entries written under an older version are ignored
+// and re-parsed. v4: MSRP now prefers Ford's printed TOTAL MSRP over the
+// pre-discount base+options+destination subtotal, so every sticker cached
+// under v3 for a discounted vehicle holds an overstated MSRP.
+const PARSER_VERSION = 4;
 const BROWSER_UA =
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36";
 const NON_FORD_DEMO_HINT = /\b(bmw|porsche|toyota|mercedes|mini|audi|volkswagen|vw)\b/i;
@@ -564,17 +569,22 @@ export function parseFordStickerText(vin: string, text: string): FordSticker {
   const dest = text.match(/DESTINATION\s*(?:&\s*)?DELIVERY\s*\$?\s*([\d,]+(?:\.\d{2})?)/i);
   if (dest) sticker.destination = parseMoney(dest[1]);
 
-  if (
-    sticker.basePrice != null &&
-    sticker.optionsPrice != null &&
-    sticker.destination != null
-  ) {
-    sticker.msrp = Math.round((sticker.basePrice + sticker.optionsPrice + sticker.destination) * 100) / 100;
-  }
+  // base + options + destination is only the PRE-discount subtotal. On a
+  // sticker carrying factory discounts it is literally the "TOTAL BEFORE
+  // DISCOUNTS" line, sitting above lines like "STX LOW DISCOUNT -2,000.00"
+  // and "TOTAL SAVINGS -3,000.00". Ford then prints the real, post-discount
+  // figure as TOTAL MSRP. Real case (1FTEW2LP6TKE14711): the subtotal is
+  // $54,815 and the printed TOTAL MSRP is $51,815 — using the subtotal
+  // overstated the sticker price of that truck by the full $3,000.
+  const computedSubtotal =
+    sticker.basePrice != null && sticker.optionsPrice != null && sticker.destination != null
+      ? Math.round((sticker.basePrice + sticker.optionsPrice + sticker.destination) * 100) / 100
+      : null;
 
   const totalMsrpIdx = text.search(/TOTAL MSRP/i);
   const includedIdx = text.search(/INCLUDED ON THIS VEHICLE/i);
-  if (sticker.msrp == null && totalMsrpIdx >= 0) {
+  let printedMsrp: number | null = null;
+  if (totalMsrpIdx >= 0) {
     const window = text.slice(
       totalMsrpIdx,
       includedIdx > totalMsrpIdx ? includedIdx : totalMsrpIdx + 800
@@ -582,7 +592,18 @@ export function parseFordStickerText(vin: string, text: string): FordSticker {
     const dollars = [...window.matchAll(/\$\s*([\d,]+(?:\.\d{2})?)/g)]
       .map((m) => parseMoney(m[1]))
       .filter((n): n is number => n != null && n >= 20000);
-    if (dollars.length > 0) sticker.msrp = dollars[dollars.length - 1];
+    if (dollars.length > 0) printedMsrp = dollars[dollars.length - 1];
+  }
+
+  // Prefer Ford's printed number. Discounts only ever reduce, so a printed
+  // value ABOVE the subtotal means the printed one was mis-parsed (grabbed
+  // some other dollar figure) — fall back to the subtotal there. Both
+  // branches resolve to the lower of the two, which is the safe direction
+  // for a buyer-facing tool: never quote a sticker price higher than Ford's.
+  if (printedMsrp != null && (computedSubtotal == null || printedMsrp <= computedSubtotal)) {
+    sticker.msrp = printedMsrp;
+  } else {
+    sticker.msrp = computedSubtotal ?? printedMsrp;
   }
 
   const msrpBlock = totalMsrpIdx >= 0 ? text.slice(totalMsrpIdx, totalMsrpIdx + 500) : "";
