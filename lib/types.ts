@@ -18,11 +18,21 @@ export interface FinanceDealTerms {
 
 export interface LeaseDealTerms {
   capCost: number;
+  /** Cap cost reduction (down payment) applied before computing the payment. */
   dueAtSigning: number;
   termMonths: number;
   milesPerYear: number;
   moneyFactor: number;
   residualPercent: number;
+  /** Manufacturer/dealer incentives — reduce the cap cost like a rebate. */
+  rebates?: number;
+  /** Bank/acquisition fee — rolled into the cap cost. */
+  acquisitionFee?: number;
+  /** Due at lease end, not at signing — informational only. */
+  dispositionFee?: number;
+  salesTaxPercent?: number;
+  /** "monthly" taxes each payment (most states); "upfront" taxes the cap cost at signing. */
+  taxMethod?: "monthly" | "upfront";
 }
 
 /** Independent cash / finance / lease inputs for one VIN. Never copy onto another vehicle. */

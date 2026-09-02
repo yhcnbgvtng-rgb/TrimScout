@@ -31,11 +31,12 @@ import {
   formatDealStructures,
 } from "../lib/dealStructure";
 import {
+  calculateLeaseHackrEstimate,
   estimatedFinanceMonthly,
-  estimatedLeaseMonthly,
   replaceVehicleTerms,
   roundEstimateDollars,
   termsForVin,
+  LEASE_TAX_METHODS,
 } from "../lib/dealTerms";
 import {
   COMPARE_COLUMN_ROLES,
@@ -456,16 +457,9 @@ function VehicleOfferColumn({
         )
       )
     : null;
-  const leaseEst = terms?.lease
-    ? roundEstimateDollars(
-        estimatedLeaseMonthly(
-          terms.lease.capCost,
-          terms.lease.residualPercent,
-          terms.lease.termMonths,
-          terms.lease.moneyFactor
-        )
-      )
-    : null;
+  const leaseEstimate = terms?.lease ? calculateLeaseHackrEstimate(terms.lease) : null;
+  const leaseEst = roundEstimateDollars(leaseEstimate?.totalMonthly ?? null);
+  const leaseDueAtSigningEst = roundEstimateDollars(leaseEstimate?.estimatedDueAtSigning ?? null);
 
   return (
     <section className={`rounded-2xl bg-surface shadow-xl overflow-hidden flex flex-col ${highlighted ? "border-2 border-emerald-500" : "border border-border"}`}>
@@ -560,56 +554,92 @@ function VehicleOfferColumn({
           ) : null}
           {requested.includes("lease") && terms?.lease ? (
             <div className="rounded-xl border border-border bg-background p-3 space-y-2">
-              <div className="text-[11px] font-bold text-white">{DEAL_STRUCTURE_LABELS.lease}</div>
-              {moneyInput(terms.lease.capCost, (capCost) => patch({ lease: { ...terms.lease!, capCost } }), "Cap cost")}
-              {moneyInput(terms.lease.dueAtSigning, (dueAtSigning) => patch({ lease: { ...terms.lease!, dueAtSigning } }), "Due at signing")}
-              <label className="block space-y-1">
-                <span className="text-[10px] font-semibold uppercase tracking-wider text-ink-faint">Term</span>
-                <select
-                  value={terms.lease.termMonths}
-                  onChange={(e) => patch({ lease: { ...terms.lease!, termMonths: Number(e.target.value) } })}
-                  className="w-full rounded-lg border border-border bg-background py-1.5 px-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
-                >
-                  {LEASE_TERM_MONTHS.map((m) => (
-                    <option key={m} value={m}>{m} months</option>
-                  ))}
-                </select>
-              </label>
-              <label className="block space-y-1">
-                <span className="text-[10px] font-semibold uppercase tracking-wider text-ink-faint">Miles / year</span>
-                <input
-                  type="number"
-                  min={0}
-                  value={terms.lease.milesPerYear}
-                  onChange={(e) => patch({ lease: { ...terms.lease!, milesPerYear: Number(e.target.value) || 0 } })}
-                  className="w-full rounded-lg border border-border bg-background py-1.5 px-2 text-xs font-mono text-white focus:border-emerald-500 focus:outline-none"
-                />
-              </label>
-              <label className="block space-y-1">
-                <span className="text-[10px] font-semibold uppercase tracking-wider text-ink-faint">Money factor</span>
-                <input
-                  type="number"
-                  min={0}
-                  step="0.0001"
-                  value={terms.lease.moneyFactor}
-                  onChange={(e) => patch({ lease: { ...terms.lease!, moneyFactor: Number(e.target.value) || 0 } })}
-                  className="w-full rounded-lg border border-border bg-background py-1.5 px-2 text-xs font-mono text-white focus:border-emerald-500 focus:outline-none"
-                />
-              </label>
-              <label className="block space-y-1">
-                <span className="text-[10px] font-semibold uppercase tracking-wider text-ink-faint">Residual %</span>
-                <input
-                  type="number"
-                  min={0}
-                  max={100}
-                  step="0.5"
-                  value={terms.lease.residualPercent}
-                  onChange={(e) => patch({ lease: { ...terms.lease!, residualPercent: Number(e.target.value) || 0 } })}
-                  className="w-full rounded-lg border border-border bg-background py-1.5 px-2 text-xs font-mono text-white focus:border-emerald-500 focus:outline-none"
-                />
-              </label>
+              <div className="text-[11px] font-bold text-white">{DEAL_STRUCTURE_LABELS.lease} — LeaseHackr-style</div>
+              {moneyInput(terms.lease.capCost, (capCost) => patch({ lease: { ...terms.lease!, capCost } }), "Gross cap cost (negotiated price)")}
+              {moneyInput(terms.lease.rebates ?? 0, (rebates) => patch({ lease: { ...terms.lease!, rebates } }), "Rebates / incentives")}
+              {moneyInput(terms.lease.dueAtSigning, (dueAtSigning) => patch({ lease: { ...terms.lease!, dueAtSigning } }), "Cap cost reduction (down payment)")}
+              {moneyInput(terms.lease.acquisitionFee ?? 0, (acquisitionFee) => patch({ lease: { ...terms.lease!, acquisitionFee } }), "Acquisition fee (rolled into cap cost)")}
+              <div className="grid grid-cols-2 gap-2">
+                <label className="block space-y-1">
+                  <span className="text-[10px] font-semibold uppercase tracking-wider text-ink-faint">Term</span>
+                  <select
+                    value={terms.lease.termMonths}
+                    onChange={(e) => patch({ lease: { ...terms.lease!, termMonths: Number(e.target.value) } })}
+                    className="w-full rounded-lg border border-border bg-background py-1.5 px-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
+                  >
+                    {LEASE_TERM_MONTHS.map((m) => (
+                      <option key={m} value={m}>{m} months</option>
+                    ))}
+                  </select>
+                </label>
+                <label className="block space-y-1">
+                  <span className="text-[10px] font-semibold uppercase tracking-wider text-ink-faint">Miles / year</span>
+                  <input
+                    type="number"
+                    min={0}
+                    value={terms.lease.milesPerYear}
+                    onChange={(e) => patch({ lease: { ...terms.lease!, milesPerYear: Number(e.target.value) || 0 } })}
+                    className="w-full rounded-lg border border-border bg-background py-1.5 px-2 text-xs font-mono text-white focus:border-emerald-500 focus:outline-none"
+                  />
+                </label>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <label className="block space-y-1">
+                  <span className="text-[10px] font-semibold uppercase tracking-wider text-ink-faint">Money factor</span>
+                  <input
+                    type="number"
+                    min={0}
+                    step="0.0001"
+                    value={terms.lease.moneyFactor}
+                    onChange={(e) => patch({ lease: { ...terms.lease!, moneyFactor: Number(e.target.value) || 0 } })}
+                    className="w-full rounded-lg border border-border bg-background py-1.5 px-2 text-xs font-mono text-white focus:border-emerald-500 focus:outline-none"
+                  />
+                </label>
+                <label className="block space-y-1">
+                  <span className="text-[10px] font-semibold uppercase tracking-wider text-ink-faint">Residual %</span>
+                  <input
+                    type="number"
+                    min={0}
+                    max={100}
+                    step="0.5"
+                    value={terms.lease.residualPercent}
+                    onChange={(e) => patch({ lease: { ...terms.lease!, residualPercent: Number(e.target.value) || 0 } })}
+                    className="w-full rounded-lg border border-border bg-background py-1.5 px-2 text-xs font-mono text-white focus:border-emerald-500 focus:outline-none"
+                  />
+                </label>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <label className="block space-y-1">
+                  <span className="text-[10px] font-semibold uppercase tracking-wider text-ink-faint">Sales tax %</span>
+                  <input
+                    type="number"
+                    min={0}
+                    max={20}
+                    step="0.1"
+                    value={terms.lease.salesTaxPercent ?? 0}
+                    onChange={(e) => patch({ lease: { ...terms.lease!, salesTaxPercent: Number(e.target.value) || 0 } })}
+                    className="w-full rounded-lg border border-border bg-background py-1.5 px-2 text-xs font-mono text-white focus:border-emerald-500 focus:outline-none"
+                  />
+                </label>
+                <label className="block space-y-1">
+                  <span className="text-[10px] font-semibold uppercase tracking-wider text-ink-faint">Tax method</span>
+                  <select
+                    value={terms.lease.taxMethod ?? "monthly"}
+                    onChange={(e) => patch({ lease: { ...terms.lease!, taxMethod: e.target.value as "monthly" | "upfront" } })}
+                    className="w-full rounded-lg border border-border bg-background py-1.5 px-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
+                  >
+                    {LEASE_TAX_METHODS.map((m) => (
+                      <option key={m} value={m}>{m === "monthly" ? "Monthly payment" : "Upfront on cap cost"}</option>
+                    ))}
+                  </select>
+                </label>
+              </div>
+              {moneyInput(terms.lease.dispositionFee ?? 0, (dispositionFee) => patch({ lease: { ...terms.lease!, dispositionFee } }), "Disposition fee (due at lease end)")}
               <p className="text-[11px] text-emerald-400 font-semibold">
                 Estimated monthly: {leaseEst != null ? formatPriceAmount(leaseEst) : "—"}
+              </p>
+              <p className="text-[11px] text-emerald-400 font-semibold">
+                Est. due at signing: {leaseDueAtSigningEst != null ? formatPriceAmount(leaseDueAtSigningEst) : "—"}
               </p>
               <p className="text-[10px] text-ink-faint">Estimate only — not a dealer quote.</p>
             </div>

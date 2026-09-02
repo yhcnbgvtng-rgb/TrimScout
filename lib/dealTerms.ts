@@ -18,6 +18,11 @@ import type {
 export const DEFAULT_FINANCE_APR_PERCENT = 6.9;
 export const DEFAULT_LEASE_MONEY_FACTOR = 0.0025;
 export const DEFAULT_LEASE_RESIDUAL_PERCENT = 55;
+export const DEFAULT_LEASE_ACQUISITION_FEE = 895;
+export const DEFAULT_LEASE_DISPOSITION_FEE = 395;
+export const DEFAULT_LEASE_SALES_TAX_PERCENT = 8;
+export const LEASE_TAX_METHODS = ["monthly", "upfront"] as const;
+export type LeaseTaxMethod = (typeof LEASE_TAX_METHODS)[number];
 
 export function advertisedPriceForTerms(vehicle: Pick<Vehicle, "dealerPrice" | "msrp">): number | null {
   return advertisedOrStickerPrice(vehicle.dealerPrice, vehicle.msrp).amount;
@@ -66,6 +71,61 @@ export function estimatedLeaseMonthly(
   return depreciation + rentCharge;
 }
 
+export interface LeaseHackrEstimate {
+  /** Cap cost after rebates, acquisition fee, and cap cost reduction. */
+  netCapCost: number;
+  residualValue: number;
+  depreciationFee: number;
+  rentCharge: number;
+  /** Depreciation + rent charge, before tax. */
+  baseMonthly: number;
+  monthlyTax: number;
+  /** What the payment actually is, tax included when taxed monthly. */
+  totalMonthly: number;
+  /** Tax paid upfront instead of monthly, when taxMethod is "upfront". */
+  upfrontTax: number;
+  /** Cap cost reduction + first month's payment + any upfront tax. */
+  estimatedDueAtSigning: number;
+}
+
+/**
+ * LeaseHackr-style breakdown: rolls the acquisition fee into cap cost, nets
+ * out rebates and any cap cost reduction, then applies sales tax either to
+ * each monthly payment (most states) or once upfront on the cap cost.
+ */
+export function calculateLeaseHackrEstimate(lease: LeaseDealTerms): LeaseHackrEstimate | null {
+  const rebates = lease.rebates ?? 0;
+  const acquisitionFee = lease.acquisitionFee ?? DEFAULT_LEASE_ACQUISITION_FEE;
+  const capCostReduction = lease.dueAtSigning || 0;
+  const taxRate = (lease.salesTaxPercent ?? DEFAULT_LEASE_SALES_TAX_PERCENT) / 100;
+  const taxMethod: LeaseTaxMethod = lease.taxMethod === "upfront" ? "upfront" : "monthly";
+
+  const netCapCost = lease.capCost - capCostReduction + acquisitionFee - rebates;
+  const baseMonthly = estimatedLeaseMonthly(netCapCost, lease.residualPercent, lease.termMonths, lease.moneyFactor);
+  if (baseMonthly == null) return null;
+
+  const residualValue = netCapCost * (lease.residualPercent / 100);
+  const depreciationFee = (netCapCost - residualValue) / lease.termMonths;
+  const rentCharge = (netCapCost + residualValue) * lease.moneyFactor;
+
+  const monthlyTax = taxMethod === "monthly" ? baseMonthly * taxRate : 0;
+  const totalMonthly = baseMonthly + monthlyTax;
+  const upfrontTax = taxMethod === "upfront" ? netCapCost * taxRate : 0;
+  const estimatedDueAtSigning = capCostReduction + totalMonthly + upfrontTax;
+
+  return {
+    netCapCost,
+    residualValue,
+    depreciationFee,
+    rentCharge,
+    baseMonthly,
+    monthlyTax,
+    totalMonthly,
+    upfrontTax,
+    estimatedDueAtSigning,
+  };
+}
+
 export function roundEstimateDollars(amount: number | null): number | null {
   if (amount == null || !Number.isFinite(amount) || amount < 0) return null;
   return Math.round(amount);
@@ -111,6 +171,11 @@ export function parseVehicleDealTerms(raw: unknown): VehicleDealTerms | null {
       milesPerYear: asPositiveNumber(leaseRaw.milesPerYear) ?? 12000,
       moneyFactor: asPositiveNumber(leaseRaw.moneyFactor) ?? DEFAULT_LEASE_MONEY_FACTOR,
       residualPercent: asPositiveNumber(leaseRaw.residualPercent) ?? DEFAULT_LEASE_RESIDUAL_PERCENT,
+      rebates: asPositiveNumber(leaseRaw.rebates) ?? 0,
+      acquisitionFee: asPositiveNumber(leaseRaw.acquisitionFee) ?? DEFAULT_LEASE_ACQUISITION_FEE,
+      dispositionFee: asPositiveNumber(leaseRaw.dispositionFee) ?? DEFAULT_LEASE_DISPOSITION_FEE,
+      salesTaxPercent: asPositiveNumber(leaseRaw.salesTaxPercent) ?? DEFAULT_LEASE_SALES_TAX_PERCENT,
+      taxMethod: leaseRaw.taxMethod === "upfront" ? "upfront" : "monthly",
     };
   })();
 
@@ -161,6 +226,11 @@ export function defaultVehicleDealTerms(
       milesPerYear: prefs.leaseMileagePerYear ?? 12000,
       moneyFactor: DEFAULT_LEASE_MONEY_FACTOR,
       residualPercent: DEFAULT_LEASE_RESIDUAL_PERCENT,
+      rebates: 0,
+      acquisitionFee: DEFAULT_LEASE_ACQUISITION_FEE,
+      dispositionFee: DEFAULT_LEASE_DISPOSITION_FEE,
+      salesTaxPercent: DEFAULT_LEASE_SALES_TAX_PERCENT,
+      taxMethod: "monthly",
     };
   }
   return terms;
@@ -246,14 +316,7 @@ export function summarizeVehicleTerms(
     );
   }
   if (requested.includes("lease") && terms.lease) {
-    const monthly = roundEstimateDollars(
-      estimatedLeaseMonthly(
-        terms.lease.capCost,
-        terms.lease.residualPercent,
-        terms.lease.termMonths,
-        terms.lease.moneyFactor
-      )
-    );
+    const monthly = roundEstimateDollars(calculateLeaseHackrEstimate(terms.lease)?.totalMonthly ?? null);
     lines.push(
       `Lease ${terms.lease.termMonths} mo` + (monthly != null ? ` · est. ${formatUsd(monthly)}/mo` : "")
     );
