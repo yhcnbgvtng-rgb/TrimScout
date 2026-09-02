@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
   DEFAULT_FINANCE_APR_PERCENT,
+  calculateLeaseHackrEstimate,
   defaultTermsForVehicles,
   estimatedFinanceMonthly,
   estimatedLeaseMonthly,
@@ -10,7 +11,7 @@ import {
   replaceVehicleTerms,
   roundEstimateDollars,
 } from "./dealTerms";
-import type { Vehicle } from "./types";
+import type { LeaseDealTerms, Vehicle } from "./types";
 
 function car(vin: string, price: number, msrp: number): Pick<Vehicle, "vin" | "dealerPrice" | "msrp"> {
   return { vin, dealerPrice: price, msrp };
@@ -62,5 +63,54 @@ describe("per-VIN deal terms", () => {
     const merged = mergeVehicleTerms([favorite, other], existing, { requestedStructures: ["cash"] });
     assert.equal(merged[0].cash?.offerPrice, 11111);
     assert.equal(merged[1].cash?.offerPrice, 50000);
+  });
+});
+
+function lease(overrides: Partial<LeaseDealTerms> = {}): LeaseDealTerms {
+  return {
+    capCost: 50000,
+    dueAtSigning: 0,
+    termMonths: 36,
+    milesPerYear: 12000,
+    moneyFactor: 0.0025,
+    residualPercent: 55,
+    rebates: 0,
+    acquisitionFee: 895,
+    dispositionFee: 395,
+    salesTaxPercent: 8,
+    taxMethod: "monthly",
+    ...overrides,
+  };
+}
+
+describe("LeaseHackr-style lease estimate", () => {
+  it("rolls the acquisition fee into cap cost and taxes the monthly payment by default", () => {
+    const est = calculateLeaseHackrEstimate(lease());
+    assert.ok(est);
+    assert.equal(est.netCapCost, 50895);
+    assert.equal(Math.round(est.baseMonthly), 833);
+    assert.equal(Math.round(est.totalMonthly), 900);
+    assert.equal(est.upfrontTax, 0);
+    assert.equal(Math.round(est.estimatedDueAtSigning), 900);
+  });
+
+  it("taxes the cap cost upfront instead of the monthly payment when requested", () => {
+    const est = calculateLeaseHackrEstimate(lease({ taxMethod: "upfront" }));
+    assert.ok(est);
+    assert.equal(Math.round(est.totalMonthly), 833);
+    assert.equal(Math.round(est.upfrontTax), 4072);
+    assert.equal(Math.round(est.estimatedDueAtSigning), 4905);
+  });
+
+  it("cap cost reduction and rebates both reduce net cap cost, lowering the payment", () => {
+    const est = calculateLeaseHackrEstimate(lease({ dueAtSigning: 3000, rebates: 1000 }));
+    assert.ok(est);
+    assert.equal(est.netCapCost, 46895);
+    assert.equal(Math.round(est.totalMonthly), 829);
+    assert.equal(Math.round(est.estimatedDueAtSigning), 3829);
+  });
+
+  it("returns null when the underlying lease math can't produce a payment", () => {
+    assert.equal(calculateLeaseHackrEstimate(lease({ capCost: 0, acquisitionFee: 0 })), null);
   });
 });
