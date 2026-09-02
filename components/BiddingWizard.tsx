@@ -1371,10 +1371,10 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                 {isSubmittingReal
                   ? directOfferMode
                     ? "Sending…"
-                    : "Broadcasting…"
+                    : "Building…"
                   : directOfferMode
                   ? "Send Direct Offer"
-                  : "Broadcast Deal Request"}
+                  : "Build Competitive Offers"}
               </button>
             )}
           </div>
