@@ -71,7 +71,7 @@ export function estimatedLeaseMonthly(
   return depreciation + rentCharge;
 }
 
-export interface LeaseHackrEstimate {
+export interface LeaseEstimate {
   /** Cap cost after rebates, acquisition fee, and cap cost reduction. */
   netCapCost: number;
   residualValue: number;
@@ -89,11 +89,11 @@ export interface LeaseHackrEstimate {
 }
 
 /**
- * LeaseHackr-style breakdown: rolls the acquisition fee into cap cost, nets
+ * Detailed lease breakdown: rolls the acquisition fee into cap cost, nets
  * out rebates and any cap cost reduction, then applies sales tax either to
  * each monthly payment (most states) or once upfront on the cap cost.
  */
-export function calculateLeaseHackrEstimate(lease: LeaseDealTerms): LeaseHackrEstimate | null {
+export function calculateLeaseEstimate(lease: LeaseDealTerms): LeaseEstimate | null {
   const rebates = lease.rebates ?? 0;
   const acquisitionFee = lease.acquisitionFee ?? DEFAULT_LEASE_ACQUISITION_FEE;
   const capCostReduction = lease.dueAtSigning || 0;
@@ -316,7 +316,7 @@ export function summarizeVehicleTerms(
     );
   }
   if (requested.includes("lease") && terms.lease) {
-    const monthly = roundEstimateDollars(calculateLeaseHackrEstimate(terms.lease)?.totalMonthly ?? null);
+    const monthly = roundEstimateDollars(calculateLeaseEstimate(terms.lease)?.totalMonthly ?? null);
     lines.push(
       `Lease ${terms.lease.termMonths} mo` + (monthly != null ? ` · est. ${formatUsd(monthly)}/mo` : "")
     );

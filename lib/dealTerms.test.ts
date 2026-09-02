@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
   DEFAULT_FINANCE_APR_PERCENT,
-  calculateLeaseHackrEstimate,
+  calculateLeaseEstimate,
   defaultTermsForVehicles,
   estimatedFinanceMonthly,
   estimatedLeaseMonthly,
@@ -83,9 +83,9 @@ function lease(overrides: Partial<LeaseDealTerms> = {}): LeaseDealTerms {
   };
 }
 
-describe("LeaseHackr-style lease estimate", () => {
+describe("detailed lease estimate", () => {
   it("rolls the acquisition fee into cap cost and taxes the monthly payment by default", () => {
-    const est = calculateLeaseHackrEstimate(lease());
+    const est = calculateLeaseEstimate(lease());
     assert.ok(est);
     assert.equal(est.netCapCost, 50895);
     assert.equal(Math.round(est.baseMonthly), 833);
@@ -95,7 +95,7 @@ describe("LeaseHackr-style lease estimate", () => {
   });
 
   it("taxes the cap cost upfront instead of the monthly payment when requested", () => {
-    const est = calculateLeaseHackrEstimate(lease({ taxMethod: "upfront" }));
+    const est = calculateLeaseEstimate(lease({ taxMethod: "upfront" }));
     assert.ok(est);
     assert.equal(Math.round(est.totalMonthly), 833);
     assert.equal(Math.round(est.upfrontTax), 4072);
@@ -103,7 +103,7 @@ describe("LeaseHackr-style lease estimate", () => {
   });
 
   it("cap cost reduction and rebates both reduce net cap cost, lowering the payment", () => {
-    const est = calculateLeaseHackrEstimate(lease({ dueAtSigning: 3000, rebates: 1000 }));
+    const est = calculateLeaseEstimate(lease({ dueAtSigning: 3000, rebates: 1000 }));
     assert.ok(est);
     assert.equal(est.netCapCost, 46895);
     assert.equal(Math.round(est.totalMonthly), 829);
@@ -111,6 +111,6 @@ describe("LeaseHackr-style lease estimate", () => {
   });
 
   it("returns null when the underlying lease math can't produce a payment", () => {
-    assert.equal(calculateLeaseHackrEstimate(lease({ capCost: 0, acquisitionFee: 0 })), null);
+    assert.equal(calculateLeaseEstimate(lease({ capCost: 0, acquisitionFee: 0 })), null);
   });
 });
