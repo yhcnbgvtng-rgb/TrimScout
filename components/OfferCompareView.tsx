@@ -31,7 +31,7 @@ import {
   formatDealStructures,
 } from "../lib/dealStructure";
 import {
-  calculateLeaseHackrEstimate,
+  calculateLeaseEstimate,
   estimatedFinanceMonthly,
   replaceVehicleTerms,
   roundEstimateDollars,
@@ -457,7 +457,7 @@ function VehicleOfferColumn({
         )
       )
     : null;
-  const leaseEstimate = terms?.lease ? calculateLeaseHackrEstimate(terms.lease) : null;
+  const leaseEstimate = terms?.lease ? calculateLeaseEstimate(terms.lease) : null;
   const leaseEst = roundEstimateDollars(leaseEstimate?.totalMonthly ?? null);
   const leaseDueAtSigningEst = roundEstimateDollars(leaseEstimate?.estimatedDueAtSigning ?? null);
 
@@ -554,7 +554,7 @@ function VehicleOfferColumn({
           ) : null}
           {requested.includes("lease") && terms?.lease ? (
             <div className="rounded-xl border border-border bg-background p-3 space-y-2">
-              <div className="text-[11px] font-bold text-white">{DEAL_STRUCTURE_LABELS.lease} — LeaseHackr-style</div>
+              <div className="text-[11px] font-bold text-white">{DEAL_STRUCTURE_LABELS.lease}</div>
               {moneyInput(terms.lease.capCost, (capCost) => patch({ lease: { ...terms.lease!, capCost } }), "Gross cap cost (negotiated price)")}
               {moneyInput(terms.lease.rebates ?? 0, (rebates) => patch({ lease: { ...terms.lease!, rebates } }), "Rebates / incentives")}
               {moneyInput(terms.lease.dueAtSigning, (dueAtSigning) => patch({ lease: { ...terms.lease!, dueAtSigning } }), "Cap cost reduction (down payment)")}
