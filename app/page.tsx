@@ -21,7 +21,6 @@ import { AuthModal } from "../components/AuthModal";
 import { DealTrackerDashboard } from "../components/DealTrackerDashboard";
 import { SignupView } from "../components/SignupView";
 import { AdminPortal } from "../components/AdminPortal";
-import { DealerAnalytics } from "../components/DealerAnalytics";
 
 function isPersistedDealId(id: string): boolean {
   return /^\d+$/.test(id);
@@ -29,7 +28,7 @@ function isPersistedDealId(id: string): boolean {
 
 export default function Home() {
   const [vehicles, setVehicles] = useState<Vehicle[]>(MOCK_VEHICLES);
-  const [currentView, setCurrentView] = useState<"bid_program" | "deal_room" | "dealer_portal" | "dealer_analytics" | "track_deals" | "signup" | "admin">("bid_program");
+  const [currentView, setCurrentView] = useState<"bid_program" | "deal_room" | "dealer_portal" | "track_deals" | "signup" | "admin">("bid_program");
   const [isImpersonating, setIsImpersonating] = useState<boolean>(() => {
     if (typeof window !== "undefined") {
       return localStorage.getItem("trimscout_impersonating") !== null;
@@ -157,12 +156,7 @@ export default function Home() {
       const isFreshSignIn = prevSessionStatusRef.current === "unauthenticated";
       if (isFreshSignIn && lastSyncedUserIdRef.current !== su.id) {
         lastSyncedUserIdRef.current = su.id;
-        const params = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
-        if (params?.get("open") === "dealer_inbox" && su.role === "dealer") {
-          setCurrentView("dealer_portal");
-        } else {
-          setCurrentView(su.role === "dealer" ? "dealer_analytics" : "track_deals");
-        }
+        setCurrentView(su.role === "dealer" ? "dealer_portal" : "track_deals");
       } else {
         lastSyncedUserIdRef.current = su.id;
       }
@@ -542,22 +536,6 @@ export default function Home() {
           onInspectFee={handleInspectFee}
           pollBids={isPersistedDealId(activeRequest.id)}
         />
-      )}
-
-      {/* View: AI Sales Analytics — the new default landing view for dealers
-          on login, real inventory data (see app/api/dealer-analytics). */}
-      {currentView === "dealer_analytics" && currentUser && (
-        <div className="animate-fadeIn">
-          <DealerAnalytics user={currentUser} />
-          <div className="max-w-6xl mx-auto px-4 pb-8">
-            <button
-              onClick={() => setCurrentView("dealer_portal")}
-              className="text-xs text-ink-muted hover:text-emerald-400 transition-colors"
-            >
-              Manage active bids & deals →
-            </button>
-          </div>
-        </div>
       )}
 
       {/* View 4: Dealer Partner Portal (Dealer Sales Manager View) */}

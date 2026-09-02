@@ -24,8 +24,8 @@ import {
 interface NavbarProps {
   user: UserProfile | null;
   activeDealCount: number;
-  currentView: "bid_program" | "deal_room" | "dealer_portal" | "dealer_analytics" | "track_deals" | "signup" | "admin";
-  onToggleView: (view: "bid_program" | "deal_room" | "dealer_portal" | "dealer_analytics" | "track_deals" | "signup" | "admin") => void;
+  currentView: "bid_program" | "deal_room" | "dealer_portal" | "track_deals" | "signup" | "admin";
+  onToggleView: (view: "bid_program" | "deal_room" | "dealer_portal" | "track_deals" | "signup" | "admin") => void;
   onOpenAuthModal: () => void;
   onLogout: () => void;
 }
@@ -54,11 +54,10 @@ export const Navbar: React.FC<NavbarProps> = ({
   }, []);
 
   const navLinks: {
-    id: "dealer_analytics" | "bid_program";
+    id: "bid_program";
     label: string;
     badge?: string | number;
   }[] = [
-    { id: "dealer_analytics", label: "AI Sales Analytics" },
     { id: "bid_program", label: "How It Works" },
   ];
 

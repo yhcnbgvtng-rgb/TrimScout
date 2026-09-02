@@ -6,9 +6,8 @@ import { fetchVehiclesFromBox, fetchFacetsFromBox, fetchVehicleByVinFromBox, fet
 import { calculateDistanceMiles } from "@/lib/otdCalculator";
 import type { DealerInboundRequest } from "@/lib/types";
 
-// Every brand this pipeline currently tracks — same list DealerAnalytics
-// already uses to discover which brand(s) a dealer's real inventory
-// actually carries.
+// Every brand this pipeline currently tracks, used to discover which
+// brand(s) a dealer's real inventory actually carries.
 const BRAND_CODES = ["porsche", "ford", "chevrolet", "acura", "audi", "mclaren"];
 
 export async function GET() {
@@ -35,8 +34,7 @@ export async function GET() {
     );
   }
 
-  // Which brands does this dealer actually carry, and where are they —
-  // exact pattern app/api/dealer-analytics/route.ts already uses.
+  // Which brands does this dealer actually carry, and where are they.
   const perBrand = await Promise.all(
     BRAND_CODES.map(async (brand) => {
       const vehiclesRes = await fetchVehiclesFromBox({ brand, dealer: user.dealerName, pageSize: 1 });
