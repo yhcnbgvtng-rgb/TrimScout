@@ -1,14 +1,14 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { signOut } from "next-auth/react";
 import { UserProfile } from "../lib/types";
 import { INITIAL_ALL_ACCOUNTS, DEMO_ADMIN_USER } from "../lib/mockData";
 import { CrawlHistoryDashboard } from "./CrawlHistoryDashboard";
+import { DealerCrawlLogDashboard } from "./DealerCrawlLogDashboard";
 import {
   ShieldAlert,
   ShieldCheck,
-  Lock,
-  KeyRound,
   Users,
   Building2,
   User,
@@ -18,9 +18,7 @@ import {
   UserX,
   Pencil as Edit3,
   Trash2,
-  ArrowRight,
   LogOut,
-  Sparkles,
   Download,
   Plus,
   X,
@@ -45,18 +43,6 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
   onImpersonateUser,
   onExitAdmin,
 }) => {
-  // Authentication State
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
-    if (typeof window !== "undefined") {
-      return localStorage.getItem("trimscout_admin_auth") === "true";
-    }
-    return false;
-  });
-
-  const [adminKeyInput, setAdminKeyInput] = useState("");
-  const [adminEmailInput, setAdminEmailInput] = useState("admin@trimscout.com");
-  const [authError, setAuthError] = useState("");
-
   // Accounts Data State
   const [accounts, setAccounts] = useState<UserProfile[]>(() => {
     if (typeof window !== "undefined") {
@@ -104,33 +90,8 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
     setTimeout(() => setSuccessToast(null), 3000);
   };
 
-  // Handle Admin Passcode Login
-  const handleAdminLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    const cleanKey = adminKeyInput.trim();
-    if (
-      cleanKey === "admin2026" ||
-      cleanKey === "TRIMSCOUT_SUPERADMIN" ||
-      cleanKey === "admin" ||
-      cleanKey.toLowerCase() === "trimscout" ||
-      (adminEmailInput === "admin@trimscout.com" && cleanKey.length >= 4)
-    ) {
-      setIsAuthenticated(true);
-      setAuthError("");
-      if (typeof window !== "undefined") {
-        localStorage.setItem("trimscout_admin_auth", "true");
-      }
-      showToast("🔐 Superuser clearance verified. Welcome to Admin Command Center.");
-    } else {
-      setAuthError("Invalid Master Security Passcode. Access denied.");
-    }
-  };
-
   const handleAdminLogout = () => {
-    setIsAuthenticated(false);
-    if (typeof window !== "undefined") {
-      localStorage.removeItem("trimscout_admin_auth");
-    }
+    signOut({ redirect: false }).then(onExitAdmin);
   };
 
   // Account Management Actions
@@ -235,119 +196,6 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
   const totalDealers = accounts.filter((a) => a.role === "dealer").length;
   const totalSuspended = accounts.filter((a) => a.status === "suspended").length;
 
-  // ----------------------------------------------------
-  // UN-AUTHENTICATED: SECRET ADMIN LOGIN GATE
-  // ----------------------------------------------------
-  if (!isAuthenticated) {
-    return (
-      <div className="min-h-[85vh] flex items-center justify-center px-4 py-12">
-        <div className="w-full max-w-md rounded-3xl border border-rose-500/40 bg-surface p-8 shadow-2xl space-y-6 relative overflow-hidden backdrop-blur-xl animate-fadeIn">
-          {/* Top secret badge */}
-          <div className="flex items-center justify-between border-b border-border/80 pb-4">
-            <div className="flex items-center gap-2.5">
-              <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-rose-500/20 text-rose-400 border border-rose-500/30">
-                <ShieldAlert className="h-5 w-5" />
-              </div>
-              <div>
-                <h2 className="text-sm font-black text-white uppercase tracking-wider">Secret Admin Portal</h2>
-                <p className="text-[10.5px] text-ink-muted">Master Platform Controller</p>
-              </div>
-            </div>
-            <button
-              onClick={onExitAdmin}
-              className="text-ink-muted hover:text-white p-1 rounded-lg hover:bg-surface-elevated text-xs transition-colors"
-            >
-              <X className="h-4 w-4" />
-            </button>
-          </div>
-
-          <div className="rounded-2xl border border-rose-500/30 bg-rose-950/20 p-3.5 space-y-1 text-xs text-rose-300">
-            <div className="flex items-center gap-1.5 font-bold">
-              <Lock className="h-3.5 w-3.5" />
-              <span>Restricted Clearance Required</span>
-            </div>
-            <p className="text-[11px] text-rose-300/80 leading-relaxed">
-              This portal allows superuser administration across all Buyer, Dealership, and System accounts. Unauthorized attempts are logged.
-            </p>
-          </div>
-
-          {authError && (
-            <div className="rounded-xl border border-rose-500/60 bg-rose-950/60 p-3 text-xs text-rose-200 flex items-center gap-2 animate-fadeIn">
-              <AlertTriangle className="h-4 w-4 text-rose-400 shrink-0" />
-              <span>{authError}</span>
-            </div>
-          )}
-
-          <form onSubmit={handleAdminLogin} className="space-y-4 text-xs">
-            <div className="space-y-1.5">
-              <label className="text-[10px] font-bold uppercase text-ink-faint">Admin Identity Email</label>
-              <div className="relative">
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-ink-faint" />
-                <input
-                  type="email"
-                  required
-                  value={adminEmailInput}
-                  onChange={(e) => setAdminEmailInput(e.target.value)}
-                  placeholder="admin@trimscout.com"
-                  className="w-full rounded-xl border border-border bg-surface-elevated pl-9 pr-3.5 py-2.5 text-white placeholder-ink-faint text-xs focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500 transition-all font-mono"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-1.5">
-              <div className="flex items-center justify-between">
-                <label className="text-[10px] font-bold uppercase text-ink-faint">Master Security Passcode</label>
-                <span className="text-[10px] text-rose-400 font-mono">Level-5 Clearance</span>
-              </div>
-              <div className="relative">
-                <KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-rose-400" />
-                <input
-                  type="password"
-                  required
-                  autoFocus
-                  value={adminKeyInput}
-                  onChange={(e) => setAdminKeyInput(e.target.value)}
-                  placeholder="Enter passcode (e.g. admin2026)"
-                  className="w-full rounded-xl border border-border bg-surface-elevated pl-9 pr-3.5 py-2.5 text-white placeholder-ink-faint text-xs focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500 transition-all font-mono"
-                />
-              </div>
-            </div>
-
-            <button
-              type="submit"
-              className="w-full rounded-2xl bg-rose-500 hover:bg-rose-400 py-3 px-4 text-xs font-black text-black shadow-lg shadow-rose-500/25 transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95"
-            >
-              <ShieldCheck className="h-4 w-4 fill-black" />
-              <span>Authenticate & Enter Admin Command</span>
-              <ArrowRight className="h-4 w-4" />
-            </button>
-          </form>
-
-          {/* Master 1-Click Bypass Demo */}
-          <div className="pt-2 border-t border-border/80 text-center">
-            <button
-              type="button"
-              onClick={() => {
-                setAdminKeyInput("admin2026");
-                setIsAuthenticated(true);
-                if (typeof window !== "undefined") {
-                  localStorage.setItem("trimscout_admin_auth", "true");
-                }
-              }}
-              className="inline-flex items-center gap-1.5 text-[11px] font-extrabold text-emerald-400 hover:text-emerald-300 transition-colors"
-            >
-              <Sparkles className="h-3 w-3" />
-              <span>One-Click Superuser Demo Access</span>
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // ----------------------------------------------------
-  // AUTHENTICATED: ADMIN COMMAND CENTER
-  // ----------------------------------------------------
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 space-y-6 animate-fadeIn">
       {/* Toast Notification */}
@@ -413,6 +261,8 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
       </div>
 
       <CrawlHistoryDashboard />
+
+      <DealerCrawlLogDashboard />
 
       {/* Platform Telemetry Metric Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
