@@ -21,7 +21,6 @@ import { AuthModal } from "../components/AuthModal";
 import { DealTrackerDashboard } from "../components/DealTrackerDashboard";
 import { SignupView } from "../components/SignupView";
 import { AdminPortal } from "../components/AdminPortal";
-import { DealerAnalytics } from "../components/DealerAnalytics";
 
 function isPersistedDealId(id: string): boolean {
   return /^\d+$/.test(id);
@@ -29,7 +28,7 @@ function isPersistedDealId(id: string): boolean {
 
 export default function Home() {
   const [vehicles, setVehicles] = useState<Vehicle[]>(MOCK_VEHICLES);
-  const [currentView, setCurrentView] = useState<"bid_program" | "deal_room" | "dealer_portal" | "dealer_analytics" | "track_deals" | "signup" | "admin">("bid_program");
+  const [currentView, setCurrentView] = useState<"bid_program" | "deal_room" | "dealer_portal" | "track_deals" | "signup" | "admin">("bid_program");
   const [isImpersonating, setIsImpersonating] = useState<boolean>(() => {
     if (typeof window !== "undefined") {
       return localStorage.getItem("trimscout_impersonating") !== null;
@@ -44,6 +43,7 @@ export default function Home() {
   // DEMO_BUYER_USER, which silently auto-logged in every visitor).
   const [currentUser, setCurrentUser] = useState<UserProfile | null>(null);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [authModalError, setAuthModalError] = useState<string | null>(null);
   const { data: session, status: sessionStatus } = useSession();
   const [savedVehicleIds, setSavedVehicleIds] = useState<string[]>(["veh-1", "veh-4"]);
 
@@ -156,12 +156,7 @@ export default function Home() {
       const isFreshSignIn = prevSessionStatusRef.current === "unauthenticated";
       if (isFreshSignIn && lastSyncedUserIdRef.current !== su.id) {
         lastSyncedUserIdRef.current = su.id;
-        const params = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
-        if (params?.get("open") === "dealer_inbox" && su.role === "dealer") {
-          setCurrentView("dealer_portal");
-        } else {
-          setCurrentView(su.role === "dealer" ? "dealer_analytics" : "track_deals");
-        }
+        setCurrentView(su.role === "dealer" ? "dealer_portal" : "track_deals");
       } else {
         lastSyncedUserIdRef.current = su.id;
       }
@@ -181,7 +176,7 @@ export default function Home() {
         const res = await fetch("/api/deal-requests");
         if (!res.ok) return;
         const json = await res.json();
-        const rows = Array.isArray(json.dealRequests) ? json.dealRequests : [];
+        const rows: Record<string, unknown>[] = Array.isArray(json.dealRequests) ? json.dealRequests : [];
         if (cancelled || rows.length === 0) return;
         setShopperRequests((prev) => {
           const byId = new Map(prev.map((r) => [r.id, r]));
@@ -370,6 +365,25 @@ export default function Home() {
     setIsVoucherModalOpen(true);
   };
 
+  // Auth.js redirects here with ?error=... when a sign-in attempt fails
+  // server-side (e.g. Google OAuth completes its consent screen but the
+  // account upsert fails) — this used to go completely unread, so a buyer
+  // would finish a real Google login round-trip and land back on the
+  // homepage with no explanation at all.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    const error = params.get("error");
+    if (!error) return;
+    window.history.replaceState({}, "", window.location.pathname);
+    setAuthModalError(
+      error === "auth_service_unavailable"
+        ? "Sign-in is temporarily unavailable. Please try again shortly."
+        : "Sign-in failed. Please try again."
+    );
+    setIsAuthModalOpen(true);
+  }, []);
+
   // After a buyer completes payment on Stripe's hosted checkout, they're
   // redirected back here with ?checkout=success&dealId=... in the URL. The
   // SPA has remounted at that point (Stripe Checkout is a real navigation
@@ -524,22 +538,6 @@ export default function Home() {
         />
       )}
 
-      {/* View: AI Sales Analytics — the new default landing view for dealers
-          on login, real inventory data (see app/api/dealer-analytics). */}
-      {currentView === "dealer_analytics" && currentUser && (
-        <div className="animate-fadeIn">
-          <DealerAnalytics user={currentUser} />
-          <div className="max-w-6xl mx-auto px-4 pb-8">
-            <button
-              onClick={() => setCurrentView("dealer_portal")}
-              className="text-xs text-ink-muted hover:text-emerald-400 transition-colors"
-            >
-              Manage active bids & deals →
-            </button>
-          </div>
-        </div>
-      )}
-
       {/* View 4: Dealer Partner Portal (Dealer Sales Manager View) */}
       {currentView === "dealer_portal" && (
         currentUser?.role === "dealer" ? (
@@ -640,7 +638,11 @@ export default function Home() {
       {/* Authentication Modal */}
       <AuthModal
         isOpen={isAuthModalOpen}
-        onClose={() => setIsAuthModalOpen(false)}
+        onClose={() => {
+          setIsAuthModalOpen(false);
+          setAuthModalError(null);
+        }}
+        initialError={authModalError}
       />
     </main>
   );

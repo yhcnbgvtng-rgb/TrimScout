@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
-import { listWonDealsForDealer } from "@/lib/dealsApi";
+import { listWonDealsForDealer, DealsApiError } from "@/lib/dealsApi";
 
 export async function GET() {
   const session = await auth();
@@ -9,6 +9,11 @@ export async function GET() {
     return NextResponse.json({ error: "You must be signed in as a dealer." }, { status: 401 });
   }
 
-  const wonDeals = await listWonDealsForDealer(user.id);
-  return NextResponse.json({ wonDeals });
+  try {
+    const wonDeals = await listWonDealsForDealer(user.id);
+    return NextResponse.json({ wonDeals });
+  } catch (err) {
+    const message = err instanceof DealsApiError ? err.message : "Could not load your won deals.";
+    return NextResponse.json({ error: message }, { status: 502 });
+  }
 }

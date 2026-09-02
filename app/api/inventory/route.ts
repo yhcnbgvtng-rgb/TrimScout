@@ -72,7 +72,7 @@ const VEHICLE_TEMPLATES: Record<string, {
   },
 };
 
-// Helper parsers for Auto.dev live DMS payload
+// Helper parsers for live DMS payloads (MarketCheck, dealer scrapers)
 function parsePrice(raw: any, fallback: number = 45000): number {
   if (typeof raw === "number" && !isNaN(raw)) return raw;
   if (typeof raw === "string") {
@@ -204,11 +204,7 @@ export async function GET(request: Request) {
   const maxPrice = parseInt(searchParams.get("maxPrice") || "250000", 10);
   const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
   const limit = Math.min(1000, Math.max(10, parseInt(searchParams.get("limit") || "250", 10)));
-  const provider = searchParams.get("provider") || "autodev";
-  const apiKey =
-    searchParams.get("apiKey") ||
-    serverSecret("AUTO_DEV_API_KEY") ||
-    "sk_ad_Xc5T6i3mwxFF1X8x_WbFNl5a";
+  const provider = searchParams.get("provider") || "marketcheck";
 
   const userCoords = getZipCoordinates(zip);
 
@@ -270,8 +266,8 @@ export async function GET(request: Request) {
     }
 
     // 2. MARKETCHECK LIVE AUTOMOTIVE INVENTORY API
-    if (provider === "marketcheck" || (apiKey && (apiKey.startsWith("mc_") || apiKey.includes("marketcheck")))) {
-      const mcKey = apiKey || serverSecret("MARKETCHECK_API_KEY") || "";
+    if (provider === "marketcheck") {
+      const mcKey = serverSecret("MARKETCHECK_API_KEY") || "";
       if (mcKey) {
         try {
           const mcUrl = new URL("https://mc-api.marketcheck.com/v2/search/car/active");
@@ -389,247 +385,7 @@ export async function GET(request: Request) {
       }
     }
 
-    // 3. AUTO.DEV 100% REAL LIVE DEALERSHIP INVENTORY API (Multi-Page Parallel Stream)
-    if (apiKey) {
-      try {
-        const pageSize = 100;
-        const totalPagesNeeded = Math.min(10, Math.ceil(limit / pageSize)); // Fetch up to 1,000 vehicles in parallel
-        const startPage = page;
-
-        // Smart Query Mapper for Auto.dev
-        const lowerQ = (rawQuery || "").toLowerCase().trim();
-        let autoDevMake = make !== "All" ? make : undefined;
-        let autoDevModel: string | undefined = undefined;
-
-        if (!autoDevMake) {
-          if (lowerQ.includes("porsche")) {
-            autoDevMake = "Porsche";
-          } else if (lowerQ.includes("911")) {
-            autoDevMake = "Porsche";
-            autoDevModel = "911";
-          } else if (lowerQ.includes("cayman") || lowerQ.includes("718")) {
-            autoDevMake = "Porsche";
-            autoDevModel = "718 Cayman";
-          } else if (lowerQ.includes("taycan")) {
-            autoDevMake = "Porsche";
-            autoDevModel = "Taycan";
-          } else if (lowerQ.includes("macan")) {
-            autoDevMake = "Porsche";
-            autoDevModel = "Macan";
-          } else if (lowerQ.includes("cayenne")) {
-            autoDevMake = "Porsche";
-            autoDevModel = "Cayenne";
-          } else if (lowerQ.includes("bmw")) {
-            autoDevMake = "BMW";
-          } else if (lowerQ.includes("toyota")) {
-            autoDevMake = "Toyota";
-          } else if (lowerQ.includes("ford")) {
-            autoDevMake = "Ford";
-          } else if (lowerQ.includes("honda")) {
-            autoDevMake = "Honda";
-          } else if (lowerQ.includes("audi")) {
-            autoDevMake = "Audi";
-          } else if (lowerQ.includes("corvette")) {
-            autoDevMake = "Chevrolet";
-            autoDevModel = "Corvette";
-          }
-        }
-
-        const pagePromises = Array.from({ length: totalPagesNeeded }, (_, i) => {
-          const targetPage = startPage + i;
-          const autoDevUrl = new URL("https://api.auto.dev/api/listings");
-          if (autoDevMake) autoDevUrl.searchParams.set("make", autoDevMake);
-          if (autoDevModel) autoDevUrl.searchParams.set("model", autoDevModel);
-          if (zip) autoDevUrl.searchParams.set("zip", zip);
-          if (radius && radius < 3000) autoDevUrl.searchParams.set("distance", radius.toString());
-          if (minPrice > 0) autoDevUrl.searchParams.set("price_min", minPrice.toString());
-          if (maxPrice < 350000) autoDevUrl.searchParams.set("price_max", maxPrice.toString());
-          autoDevUrl.searchParams.set("page", targetPage.toString());
-          autoDevUrl.searchParams.set("limit", pageSize.toString());
-
-          return fetch(autoDevUrl.toString(), {
-            headers: {
-              Accept: "application/json",
-              Authorization: `Bearer ${apiKey}`,
-            },
-            cache: "no-store",
-          }).then(async (res) => {
-            if (res.ok) return res.json();
-            return null;
-          }).catch(() => null);
-        });
-
-        const settledResponses = await Promise.all(pagePromises);
-        const allRecords: any[] = [];
-        let totalCount = 0;
-
-        for (const data of settledResponses) {
-          if (data) {
-            if (data.totalCount && data.totalCount > totalCount) {
-              totalCount = data.totalCount;
-            }
-            const records = data.records || data.data || [];
-            if (Array.isArray(records)) {
-              allRecords.push(...records);
-            }
-          }
-        }
-
-        if (allRecords.length > 0) {
-          // Deduplicate by VIN
-          const seenVins = new Set<string>();
-          const uniqueRecords = allRecords.filter((item: any) => {
-            const vin = item.vin || item.id;
-            if (!vin || seenVins.has(vin)) return false;
-            seenVins.add(vin);
-            return true;
-          });
-
-          let liveVehicles: Vehicle[] = uniqueRecords.slice(0, limit).map((item: any, idx: number) => {
-            const lat = item.lat || item.dealer?.latitude || userCoords.lat;
-            const lng = item.lon || item.lng || item.dealer?.longitude || userCoords.lng;
-            const dist = calculateDistanceMiles(zip, {
-              city: item.city || item.dealer?.city || userCoords.city,
-              state: item.state || item.dealer?.state || userCoords.state,
-              lat,
-              lng,
-            });
-
-            const msrp = parsePrice(item.price, 45000);
-            const dealerPrice = parsePrice(item.dealerPrice || item.price, msrp);
-            const dealerFees = item.feeTax?.dealerFees || [];
-            const options = dealerFees.map((fee: any, fIdx: number) => ({
-              code: `FEE-${fIdx + 1}`,
-              name: fee.name || "Dealer Fee",
-              price: typeof fee.amount === "number" ? fee.amount : 0,
-              category: "fee" as const,
-            }));
-
-            const bodyTypeRaw = (item.bodyType || item.bodyStyle || "Sedan").toLowerCase();
-            const bodyType = bodyTypeRaw.includes("truck") || bodyTypeRaw.includes("pickup")
-              ? "Truck"
-              : bodyTypeRaw.includes("suv")
-              ? "SUV"
-              : bodyTypeRaw.includes("coupe")
-              ? "Coupe"
-              : bodyTypeRaw.includes("convertible")
-              ? "Convertible"
-              : "Sedan";
-
-            const dealerNameClean = item.dealerName || item.dealer?.name || `${item.make || "Certified"} Franchise Dealer`;
-            const dealerUrl = resolveDirectDealerUrl(
-              dealerNameClean,
-              item.make || "Vehicle",
-              item.vin || "",
-              item.clickoffUrl || item.vdpUrl || item.vdp_url,
-              item.dealer?.website || item.dealerWebsite,
-              item.year,
-              item.model
-            );
-
-            return {
-              id: item.id ? String(item.id) : (item.vin || `live-${idx}`),
-              vin: item.vin || `1FTFW1ED5PFA${Math.floor(10000 + Math.random() * 90000)}`,
-              year: item.year || 2025,
-              make: item.make || "Vehicle",
-              model: item.model || "",
-              trim: item.trim || "Standard",
-              bodyType,
-              engine: item.engine || "Factory Engine",
-              drivetrain: item.drivetrain || "AWD",
-              transmission: item.transmission || "Automatic",
-              exteriorColor: item.displayColor || item.exteriorColor || "Factory Exterior",
-              interiorColor: item.interiorColor || "Standard Interior",
-              msrp,
-              dealerPrice,
-              daysOnLot: calculateDaysOnLot(item.createdAt),
-              status: "on_lot",
-              condition: (item.isCpo || item.cpo || String(item.condition || "").toLowerCase().includes("cpo") || String(item.type || "").toLowerCase().includes("cpo") || String(item.title || "").toLowerCase().includes("certified"))
-                ? "cpo"
-                : (item.isNew === false || String(item.condition || "").toLowerCase().includes("used") || String(item.type || "").toLowerCase().includes("used") || parseMileage(item.mileage) > 500)
-                ? "used"
-                : "new",
-              location: {
-                dealerName: item.dealerName || item.dealer?.name || `${item.make || "Certified"} Franchise Dealer`,
-                city: item.city || item.dealer?.city || userCoords.city,
-                state: item.state || item.dealer?.state || userCoords.state,
-                zip: item.zip || item.dealer?.zip || zip,
-                distanceMiles: Math.round(dist),
-                lat,
-                lng,
-              },
-              packages: ["Verified Live Lot Posting", "Factory Option Sheet"],
-              options,
-              imageUrl: item.primaryPhotoUrl || item.photoUrls?.[0] || "https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=1200&q=80",
-              mileage: parseMileage(item.mileage),
-              dealerUrl,
-            };
-          });
-
-          // Always enrich with Dedicated Porsche Finder Scraper Feed
-          try {
-            const pRes = await scrapePorscheInventory({
-              query: rawQuery,
-              model: rawQuery,
-              zip,
-              radiusMiles: radius,
-            });
-            if (pRes && pRes.vehicles.length > 0) {
-              pRes.vehicles.forEach((pv) => {
-                if (!liveVehicles.some((lv) => lv.vin === pv.vin)) {
-                  liveVehicles.unshift(pv);
-                }
-              });
-            }
-          } catch (e) {
-            console.error("Porsche scraper enrichment failed:", e);
-          }
-
-          // If user specifically requested Porsche or a Porsche model, strictly filter
-          if (
-            make.toLowerCase().includes("porsche") ||
-            lowerQ.includes("porsche") ||
-            lowerQ.includes("911") ||
-            lowerQ.includes("cayman") ||
-            lowerQ.includes("taycan") ||
-            lowerQ.includes("macan") ||
-            lowerQ.includes("cayenne")
-          ) {
-            liveVehicles = liveVehicles.filter((v) => {
-              const str = `${v.make} ${v.model} ${v.trim}`.toLowerCase();
-              if (lowerQ.includes("911")) return str.includes("911") || str.includes("carrera") || str.includes("targa") || str.includes("gt3");
-              if (lowerQ.includes("cayman") || lowerQ.includes("718")) return str.includes("cayman") || str.includes("718");
-              if (lowerQ.includes("taycan")) return str.includes("taycan");
-              if (lowerQ.includes("macan")) return str.includes("macan");
-              if (lowerQ.includes("cayenne")) return str.includes("cayenne");
-              if (make.toLowerCase().includes("porsche") || lowerQ.includes("porsche")) {
-                return v.make.toLowerCase().includes("porsche");
-              }
-              return true;
-            });
-          }
-
-          const finalTotalCount = Math.max(totalCount, liveVehicles.length);
-          return NextResponse.json({
-            success: true,
-            provider: "autodev",
-            isLiveApi: true,
-            totalFound: finalTotalCount,
-            page,
-            limit,
-            hasMore: (startPage * pageSize) < finalTotalCount,
-            zip,
-            radius,
-            query: rawQuery,
-            data: liveVehicles,
-          });
-        }
-      } catch (err) {
-        console.error("Auto.dev fetch failed, falling back to smart dealer catalog:", err);
-      }
-    }
-
-    // 2. UNIFIED 4-ENGINE SCRAPERS & LIVE AWS LIGHTSAIL INVENTORY
+    // 3. UNIFIED SCRAPERS & CACHED INVENTORY DATA
     let baseList = [...MOCK_VEHICLES];
 
     // Ingest Ground-Truth AWS Lightsail Porsche Dataset (778+ vehicles)
@@ -820,7 +576,11 @@ export async function GET(request: Request) {
     return NextResponse.json({
       success: true,
       provider: "smart_feed",
-      isLiveApi: true,
+      // This tier always starts from MOCK_VEHICLES (see `baseList` above)
+      // and layers in synthetic vehicles (fabricated VINs/dealer names) for
+      // several makes on top of whatever real cached/scraped data is
+      // available — it's never purely live, so it shouldn't claim to be.
+      isLiveApi: false,
       totalFound: radiusFiltered.length,
       zip,
       radius,

@@ -9,13 +9,13 @@ export interface InventoryFetchOptions {
   maxPrice?: number;
   page?: number;
   limit?: number;
-  provider?: "autodev" | "marketcheck" | "smart_feed";
+  provider?: "marketcheck" | "smart_feed";
   apiKey?: string;
 }
 
 export interface InventoryFeedResponse {
   success: boolean;
-  provider: "autodev" | "marketcheck" | "smart_feed";
+  provider: "marketcheck" | "smart_feed";
   isLiveApi: boolean;
   totalFound: number;
   page?: number;
@@ -28,32 +28,31 @@ export interface InventoryFeedResponse {
 }
 
 const STORAGE_KEY = "trimscout_inventory_connector_config";
-const DEFAULT_AUTO_DEV_KEY = "sk_ad_Xc5T6i3mwxFF1X8x_WbFNl5a";
 
+// apiKey is no longer read/stored here — the server always uses its own
+// env-configured key (see serverSecret.ts). A key never belongs in the
+// client bundle or in a request the browser can see.
 export function getConnectorConfig(): {
-  provider: "autodev" | "marketcheck" | "smart_feed";
+  provider: "marketcheck" | "smart_feed";
   apiKey: string;
 } {
   if (typeof window === "undefined") {
-    return { provider: "autodev", apiKey: DEFAULT_AUTO_DEV_KEY };
+    return { provider: "smart_feed", apiKey: "" };
   }
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
-      return {
-        provider: parsed.provider || "autodev",
-        apiKey: parsed.apiKey || DEFAULT_AUTO_DEV_KEY,
-      };
+      return { provider: parsed.provider || "smart_feed", apiKey: "" };
     }
   } catch (e) {
     console.error("Failed to load connector config:", e);
   }
-  return { provider: "autodev", apiKey: DEFAULT_AUTO_DEV_KEY };
+  return { provider: "smart_feed", apiKey: "" };
 }
 
 export function saveConnectorConfig(config: {
-  provider: "autodev" | "marketcheck" | "smart_feed";
+  provider: "marketcheck" | "smart_feed";
   apiKey: string;
 }) {
   if (typeof window !== "undefined") {
@@ -70,7 +69,6 @@ export async function fetchLiveInventory(
 ): Promise<InventoryFeedResponse> {
   const config = getConnectorConfig();
   const provider = options.provider || config.provider || "smart_feed";
-  const apiKey = options.apiKey || config.apiKey || "";
 
   const baseUrl = typeof window !== "undefined" && window.location?.origin ? window.location.origin : "http://localhost:3000";
   const url = new URL("/api/inventory", baseUrl);
@@ -83,7 +81,6 @@ export async function fetchLiveInventory(
   if (options.page) url.searchParams.set("page", options.page.toString());
   if (options.limit) url.searchParams.set("limit", options.limit.toString());
   url.searchParams.set("provider", provider);
-  if (apiKey) url.searchParams.set("apiKey", apiKey);
 
   const res = await fetch(url.toString());
   if (!res.ok) {

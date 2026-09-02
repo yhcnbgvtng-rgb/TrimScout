@@ -71,7 +71,7 @@ export interface PorscheStickerResponse {
 }
 
 // AI / Regex Option Parser that takes any raw build sheet text or finder payload
-export function parseOptionsFromText(rawText: string): PorscheOptionItem[] {
+function parseOptionsFromText(rawText: string): PorscheOptionItem[] {
   const options: PorscheOptionItem[] = [];
   const lines = rawText.split("\n");
 

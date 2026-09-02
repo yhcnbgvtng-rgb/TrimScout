@@ -46,8 +46,11 @@ import {
   loadOfferCompareSnapshot,
   saveOfferCompareSnapshot,
   setLandingView,
+  sortCompareColumns,
   upsertShopperRequest,
   vehicleForCompareRole,
+  type CompareSortMetrics,
+  type CompareSortMode,
   type OfferCompareSnapshot,
   type OfferCompareVehicle,
 } from "../lib/offerCompare";
@@ -140,6 +143,7 @@ export const OfferCompareView: React.FC = () => {
   const [loaded, setLoaded] = useState(false);
   const [sheets, setSheets] = useState<Record<string, ShopperListingSheet>>({});
   const [listingStatus, setListingStatus] = useState<"idle" | "loading" | "ready">("idle");
+  const [compareSort, setCompareSort] = useState<CompareSortMode>("default");
   const [slotPaste, setSlotPaste] = useState<Record<1 | 2, string>>({ 1: "", 2: "" });
   const [slotError, setSlotError] = useState<Record<1 | 2, string | null>>({ 1: null, 2: null });
   const [importingSlot, setImportingSlot] = useState<1 | 2 | null>(null);
@@ -160,15 +164,25 @@ export const OfferCompareView: React.FC = () => {
   );
   const vinKey = importedVins.join(",");
 
+  // Only ever fetch VINs we don't already have a sheet for, and merge rather
+  // than replace. Each VIN costs 2-3 upstream listings-provider calls (active
+  // search + price history + listing detail), so the old "refetch every VIN
+  // whenever the VIN set changes" behavior meant adding one competitor
+  // re-bought sheets for all three columns — ~9 calls to learn about one car.
   useEffect(() => {
     if (!vinKey) return;
     const vins = vinKey.split(",").filter((vin) => vin.length === 17);
+    const missing = vins.filter((vin) => !sheets[vin]);
+    if (missing.length === 0) {
+      setListingStatus("ready");
+      return;
+    }
     let cancelled = false;
     setListingStatus("loading");
     fetch("/api/listing-facts", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ vins }),
+      body: JSON.stringify({ vins: missing }),
     })
       .then(async (res) => {
         const json = await res.json().catch(() => ({}));
@@ -178,15 +192,15 @@ export const OfferCompareView: React.FC = () => {
         for (const row of rows) {
           if (row?.vin) byVin[row.vin.toUpperCase()] = row;
         }
-        setSheets(byVin);
+        setSheets((prev) => ({ ...prev, ...byVin }));
       })
       .catch(() => {
         if (cancelled) return;
         const byVin: Record<string, ShopperListingSheet> = {};
-        for (const vin of vins) {
+        for (const vin of missing) {
           byVin[vin] = unavailableSheet(vin, FORD_LISTINGS_LOAD_FAILED);
         }
-        setSheets(byVin);
+        setSheets((prev) => ({ ...prev, ...byVin }));
       })
       .finally(() => {
         if (!cancelled) setListingStatus("ready");
@@ -194,6 +208,10 @@ export const OfferCompareView: React.FC = () => {
     return () => {
       cancelled = true;
     };
+    // `sheets` is deliberately not a dependency — it's read to skip VINs we
+    // already have, and including it would re-run this effect on every fetch
+    // it completes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [vinKey]);
 
   const persist = useCallback((next: OfferCompareSnapshot) => {
@@ -277,10 +295,31 @@ export const OfferCompareView: React.FC = () => {
     );
   }
 
-  const columns = COMPARE_COLUMN_ROLES.map((role) => ({
+  const baseColumns = COMPARE_COLUMN_ROLES.map((role) => ({
     role,
     column: vehicleForCompareRole(snapshot, role),
   }));
+
+  // Sort logic lives in lib/offerCompare.ts so it's unit-testable — this
+  // environment has no listings key, so the reordering can't be exercised
+  // against live sheets in the browser.
+  const sortMetrics: Record<string, CompareSortMetrics | undefined> = {};
+  for (const [vin, sheet] of Object.entries(sheets)) {
+    sortMetrics[vin] = {
+      daysOnMarket: sheet.daysOnMarket,
+      daysOnMarketActive: sheet.daysOnMarketActive,
+      priceCuts: sheet.priceHistory.length,
+    };
+  }
+  const columns = sortCompareColumns(
+    baseColumns.map((c) => ({ ...c, vin: c.column?.vehicle.vin ?? null })),
+    compareSort,
+    sortMetrics
+  );
+
+  const sortableLots = baseColumns.filter(
+    (c) => c.role !== "favorite" && c.column?.vehicle.vin
+  ).length;
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 space-y-6">
@@ -294,13 +333,29 @@ export const OfferCompareView: React.FC = () => {
             {snapshot.request.id ? ` · Deal #${snapshot.request.id}` : ""}
           </p>
         </div>
-        <button
-          type="button"
-          onClick={goToTracker}
-          className="rounded-xl bg-emerald-500 px-4 py-2.5 text-xs font-extrabold text-black hover:bg-emerald-400 shadow-md shadow-emerald-500/20"
-        >
-          Continue to My Deal Tracker
-        </button>
+        <div className="flex items-center gap-3">
+          {sortableLots > 1 ? (
+            <label className="flex items-center gap-2 text-[11px] text-ink-muted">
+              <span className="font-bold uppercase tracking-wider">Sort lots</span>
+              <select
+                value={compareSort}
+                onChange={(e) => setCompareSort(e.target.value as CompareSortMode)}
+                className="rounded-lg border border-border bg-surface-elevated px-2.5 py-1.5 text-xs text-white focus:border-emerald-500 focus:outline-none"
+              >
+                <option value="default">As added</option>
+                <option value="days_on_market">Longest on market</option>
+                <option value="price_cuts">Most price cuts</option>
+              </select>
+            </label>
+          ) : null}
+          <button
+            type="button"
+            onClick={goToTracker}
+            className="rounded-xl bg-emerald-500 px-4 py-2.5 text-xs font-extrabold text-black hover:bg-emerald-400 shadow-md shadow-emerald-500/20"
+          >
+            Continue to My Deal Tracker
+          </button>
+        </div>
       </div>
 
       <div className="grid gap-4 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">

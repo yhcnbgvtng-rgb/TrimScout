@@ -6,11 +6,8 @@ import {
   Zap,
   House as Home,
   CircleCheck as CheckCircle2,
-  Percent,
-  RefreshCw,
-  DollarSign,
+  Handshake,
   ArrowRight,
-  Sparkles,
   Truck,
   PhoneOff,
   Clock
@@ -29,11 +26,6 @@ export const BidProgramIntro: React.FC<BidProgramIntroProps> = ({
     <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6 lg:px-8 space-y-16 animate-fadeIn">
       {/* HERO SECTION */}
       <div className="text-center space-y-6 max-w-3xl mx-auto pt-4">
-        <div className="inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-950/30 px-4 py-1.5 text-xs font-bold text-emerald-400 shadow-sm">
-          <Sparkles className="h-3.5 w-3.5" />
-          <span>The TrimScout Reverse Bidding Program</span>
-        </div>
-
         <h1 className="text-3xl sm:text-5xl font-black text-white tracking-tight leading-tight">
           Never Step Foot in a Dealership Again. <br />
           <span className="bg-gradient-to-r from-emerald-400 via-teal-300 to-emerald-400 bg-clip-text text-transparent">
@@ -42,7 +34,7 @@ export const BidProgramIntro: React.FC<BidProgramIntroProps> = ({
         </h1>
 
         <p className="text-sm sm:text-base text-ink-muted leading-relaxed max-w-2xl mx-auto font-normal">
-          Skip the pressure room and get the real price. Set your exact vehicle spec, get certified dealerships to respond directly with transparent Out-The-Door offers, and let us check the paperwork before you sign.
+          Skip the pressure room and get the real price. Send your offer straight to the dealer who has the car, get a transparent Out-The-Door response, and let us check the paperwork before you sign.
         </p>
 
         {/* Hero CTA */}
@@ -77,7 +69,7 @@ export const BidProgramIntro: React.FC<BidProgramIntroProps> = ({
             </div>
             <h3 className="text-lg font-bold text-white">Dealers Respond With Real Offers</h3>
             <p className="text-xs text-ink-muted leading-relaxed">
-              Set your spec once. Certified dealerships respond directly with transparent Out-The-Door pricing — no dealership visits, no sales calls. This is what the rest of this page walks through.
+              Send your offer once. The dealer responds directly with transparent Out-The-Door pricing — no dealership visits, no sales calls. This is what the rest of this page walks through.
             </p>
           </div>
 
@@ -127,55 +119,42 @@ export const BidProgramIntro: React.FC<BidProgramIntroProps> = ({
           </div>
           <h3 className="text-lg font-bold text-white">Dealers Respond to You</h3>
           <p className="text-xs text-ink-muted leading-relaxed">
-            Instead of you contacting dealerships individually, certified dealerships in your area receive your deal request and respond directly with their best price and discount.
+            Instead of you calling dealerships one by one, your offer goes straight to the dealer with your car — or, if you'd rather widen the field, to others nearby too.
           </p>
         </div>
       </div>
 
-      {/* 3 STRATEGIES */}
+      {/* 2 PATHS */}
       <div className="space-y-6">
         <div className="text-center space-y-1">
-          <h2 className="text-xl sm:text-2xl font-black text-white">Choose Your Bidding Strategy</h2>
-          <p className="text-xs text-ink-muted">Three flexible ways to get dealers responding with their best price.</p>
+          <h2 className="text-xl sm:text-2xl font-black text-white">Two Ways to Send Your Offer</h2>
+          <p className="text-xs text-ink-muted">You&apos;ve found the car. Choose how you want to make your move.</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="rounded-2xl border-2 border-emerald-500 bg-surface p-5 space-y-3 relative overflow-hidden">
             <div className="rounded bg-emerald-500 text-black px-2 py-0.5 text-[10px] font-black uppercase tracking-wider w-fit">
-              ULTIMATE FLEXIBILITY
+              STRAIGHT TO THE DEALER
             </div>
             <div className="flex items-center gap-2 font-extrabold text-white text-base">
-              <Percent className="h-5 w-5 text-emerald-400" />
-              <h3>Ultimate Flexibility</h3>
+              <Handshake className="h-5 w-5 text-emerald-400" />
+              <h3>Offer This Dealer Directly</h3>
             </div>
             <p className="text-xs text-ink-muted leading-relaxed">
-              If you&apos;re not picky about the spec, let TrimScout help source a great deal among dealers in your area.
+              Send your Out-The-Door offer straight to the dealer who has the car — no competing bids, just a real number for them to accept.
             </p>
           </div>
 
           <div className="rounded-2xl border border-border bg-surface p-5 space-y-3">
             <div className="rounded bg-blue-500/20 text-blue-400 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider w-fit border border-blue-500/30">
-              EXACT BUILD
+              WIDEN THE FIELD
             </div>
             <div className="flex items-center gap-2 font-extrabold text-white text-base">
-              <RefreshCw className="h-5 w-5 text-blue-400" />
-              <h3>Find your car based on must have specs</h3>
+              <Zap className="h-5 w-5 text-blue-400" />
+              <h3>Get Prices From Other Dealers</h3>
             </div>
             <p className="text-xs text-ink-muted leading-relaxed">
-              Have non-negotiable options or targeting a specific build? Dealers respond with their lowest total Out-The-Door price over a 48-hour window.
-            </p>
-          </div>
-
-          <div className="rounded-2xl border border-border bg-surface p-5 space-y-3">
-            <div className="rounded bg-amber-500/20 text-amber-400 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider w-fit border border-amber-500/30">
-              INSTANT BUY
-            </div>
-            <div className="flex items-center gap-2 font-extrabold text-white text-base">
-              <DollarSign className="h-5 w-5 text-amber-400" />
-              <h3>Firm Target Offer</h3>
-            </div>
-            <p className="text-xs text-ink-muted leading-relaxed">
-              Have a firm budget? Submit your target price (e.g. <i>$48,500 OTD</i>). The first dealer to accept wins your business immediately.
+              Want more than one number to compare? Let other dealers respond with their best price on the same car too.
             </p>
           </div>
         </div>

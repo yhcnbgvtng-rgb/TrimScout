@@ -30,17 +30,21 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
   }
 
   const { id } = await params;
-  const dealRequest = await getDealRequest(id);
-  if (!dealRequest) {
-    return NextResponse.json({ error: "Request not found" }, { status: 404 });
+  try {
+    const dealRequest = await getDealRequest(id);
+    if (!dealRequest) {
+      return NextResponse.json({ error: "Request not found" }, { status: 404 });
+    }
+    if (dealRequest.buyerUserId !== session.user.id) {
+      return NextResponse.json({ error: "Not authorized to view this request" }, { status: 403 });
+    }
+    const bids = await listBidsForRequest(id);
+    const masked = bids.map((bid, i) => (bid.status === "accepted" ? bid : maskBid(bid, i)));
+    return NextResponse.json({ bids: masked, requestStatus: dealRequest.status, expiresAt: dealRequest.expiresAt });
+  } catch (err) {
+    const message = err instanceof DealsApiError ? err.message : "Could not load bids for this request.";
+    return NextResponse.json({ error: message }, { status: 502 });
   }
-  if (dealRequest.buyerUserId !== session.user.id) {
-    return NextResponse.json({ error: "Not authorized to view this request" }, { status: 403 });
-  }
-
-  const bids = await listBidsForRequest(id);
-  const masked = bids.map((bid, i) => (bid.status === "accepted" ? bid : maskBid(bid, i)));
-  return NextResponse.json({ bids: masked, requestStatus: dealRequest.status, expiresAt: dealRequest.expiresAt });
 }
 
 // POST — dealer submits/updates a bid. Real buyer contact never appears
@@ -58,7 +62,13 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   }
 
   const { id } = await params;
-  const dealRequest = await getDealRequest(id);
+  let dealRequest;
+  try {
+    dealRequest = await getDealRequest(id);
+  } catch (err) {
+    const message = err instanceof DealsApiError ? err.message : "Could not load this request.";
+    return NextResponse.json({ error: message }, { status: 502 });
+  }
   if (!dealRequest) {
     return NextResponse.json({ error: "Request not found" }, { status: 404 });
   }

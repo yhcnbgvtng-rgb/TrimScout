@@ -10,7 +10,7 @@ import {
   paymentMethodFromStructures,
   toggleDealStructure,
 } from "../lib/dealStructure";
-import { formatCurrency } from "../lib/otdCalculator";
+import { formatCurrency, getZipCoordinates } from "../lib/otdCalculator";
 import { findContactInfo } from "../lib/piiFilter";
 import { SAMPLE_TRADE_IN_VEHICLE } from "../lib/mockData";
 import { decodeVin, SAMPLE_TEST_VINS, DecodedVehicle } from "../lib/vinDecoder";
@@ -1224,6 +1224,17 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                       {reviewTarget.locationLine ? (
                         <div className="text-[11px] text-ink-muted">{reviewTarget.locationLine}</div>
                       ) : null}
+                      {/* The window sticker's "SOLD TO" dealer is who the
+                          factory originally shipped this VIN to — it's printed
+                          at build time and never updates. If the vehicle was
+                          dealer-traded or is advertised elsewhere now, this is
+                          not where it currently sits, so don't present it as
+                          the vehicle's location. */}
+                      {factoryBuildOem && reviewTarget.dealerName ? (
+                        <div className="text-[10px] text-ink-faint italic">
+                          Dealer the factory shipped it to — may not be where it&apos;s listed now
+                        </div>
+                      ) : null}
                     </div>
                   ) : (
                     <span className="text-ink-muted">No imported vehicle</span>
@@ -1263,7 +1274,9 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
 
                 <div className="flex justify-between">
                   <span className="text-ink-muted">Assigned Buyer Alias:</span>
-                  <span className="text-emerald-400 font-mono font-bold">Buyer #CA-4921</span>
+                  <span className="text-emerald-400 font-mono font-bold">
+                    {/^\d{5}$/.test(buyerZip) ? `Buyer #${getZipCoordinates(buyerZip).state}` : "Buyer"}
+                  </span>
                 </div>
               </div>
 

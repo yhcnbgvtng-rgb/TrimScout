@@ -60,6 +60,7 @@ export const DealerPortal: React.FC<DealerPortalProps> = ({
 
   const [myBids, setMyBids] = useState<DealerBid[]>([]);
   const [isLoadingBids, setIsLoadingBids] = useState(true);
+  const [bidsError, setBidsError] = useState<string | null>(null);
 
   // The buyer's locked deal is only relevant to THIS dealer if their own
   // real dealer name matches who actually won it — a buyer's LockedDeal
@@ -81,9 +82,14 @@ export const DealerPortal: React.FC<DealerPortalProps> = ({
 
   const refreshMyBids = () => {
     setIsLoadingBids(true);
+    setBidsError(null);
     fetch("/api/dealer-bids")
-      .then((res) => (res.ok ? res.json() : { bids: [] }))
+      .then((res) => {
+        if (!res.ok) throw new Error(`Request failed (${res.status})`);
+        return res.json();
+      })
       .then((json) => setMyBids(json.bids || []))
+      .catch((e) => setBidsError(e.message || "Could not load your bids."))
       .finally(() => setIsLoadingBids(false));
   };
 
@@ -229,7 +235,7 @@ export const DealerPortal: React.FC<DealerPortalProps> = ({
             <div className="flex items-center gap-2">
               <h1 className="text-xl sm:text-2xl font-black text-white">Dealer Partner Portal</h1>
               <span className="rounded-md bg-emerald-500/10 px-2 py-0.5 text-xs font-bold text-emerald-400 border border-emerald-500/20 flex items-center gap-1">
-                <CheckCircle2 className="h-3 w-3" /> Verified Partner
+                <CheckCircle2 className="h-3 w-3" /> Dealer Account
               </span>
             </div>
             <p className="text-xs text-ink-muted mt-0.5">
@@ -499,7 +505,13 @@ export const DealerPortal: React.FC<DealerPortalProps> = ({
             </div>
           )}
 
-          {!isLoadingBids && myBids.length === 0 && (
+          {!isLoadingBids && bidsError && (
+            <div className="rounded-2xl border border-rose-500/40 bg-rose-950/20 p-6 text-sm text-rose-300">
+              {bidsError}
+            </div>
+          )}
+
+          {!isLoadingBids && !bidsError && myBids.length === 0 && (
             <div className="rounded-2xl border border-border bg-surface p-8 text-center text-sm text-ink-muted">
               You haven't submitted any bids yet.
             </div>
@@ -520,7 +532,7 @@ export const DealerPortal: React.FC<DealerPortalProps> = ({
                     <div className="flex items-center gap-2">
                       {bid.rank === 1 ? (
                         <span className="rounded-md bg-emerald-500 px-2 py-0.5 text-xs font-black text-black flex items-center gap-1">
-                          👑 #1 TOP WINNING DEAL
+                          ✓ Best Offer Submitted
                         </span>
                       ) : (
                         <span className="rounded-md bg-amber-500/20 px-2 py-0.5 text-xs font-bold text-amber-400 border border-amber-500/30">
