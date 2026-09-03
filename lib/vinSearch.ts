@@ -138,6 +138,17 @@ export interface ListingCandidate {
   lat?: number;
   lng?: number;
   exteriorColor?: string;
+  /** Days the listing has been active, straight off the search row — no extra call. */
+  daysOnMarket?: number | null;
+  /**
+   * Signed dollar delta from the listing provider's own "has this price
+   * moved" field on the same search row (negative = a cut). This is a free
+   * proxy for motivation, not a true count of how many times the price has
+   * changed — that requires a separate per-VIN history call and is only
+   * worth spending on a vehicle the buyer has actually chosen to look at
+   * (see enrichMatchListingPrices's sibling in the compare-page flow).
+   */
+  priceChangeHint?: number | null;
 }
 
 export interface FordMatchCard {
@@ -166,6 +177,10 @@ export interface FordMatchCard {
   /** Full optional-equipment list from this VIN's Ford sticker. Never invented. */
   factoryOptions: FordFactoryOptionLine[];
   factoryOptionsStatus: "ok" | "unavailable";
+  /** Days the listing has been active, straight off the search row — no extra call. */
+  daysOnMarket: number | null;
+  /** Free proxy for motivation from the same search row; not a true price-change count. */
+  priceChangeHint: number | null;
 }
 
 export interface FordSearchDropped {
@@ -349,6 +364,21 @@ function asFinitePrice(value: unknown): number | null {
   return null;
 }
 
+function asFiniteNumber(value: unknown): number | null {
+  if (typeof value === "number" && Number.isFinite(value)) return value;
+  if (typeof value === "string" && value.trim()) {
+    const n = Number.parseFloat(value.replace(/[$,]/g, ""));
+    if (Number.isFinite(n)) return n;
+  }
+  return null;
+}
+
+function asNonNegativeInt(value: unknown): number | null {
+  const n = asFiniteNumber(value);
+  if (n == null || n < 0) return null;
+  return Math.round(n);
+}
+
 /** MarketCheck dealer.latitude / longitude are documented as strings. */
 function asFiniteCoord(value: unknown): number | undefined {
   if (typeof value === "number" && Number.isFinite(value)) return value;
@@ -530,6 +560,8 @@ async function searchMarketCheck(
       lat: asFiniteCoord(dealer.latitude),
       lng: asFiniteCoord(dealer.longitude),
       exteriorColor: typeof r.exterior_color === "string" ? r.exterior_color : undefined,
+      daysOnMarket: asNonNegativeInt(r.dom),
+      priceChangeHint: asFiniteNumber(r.price_change),
     });
   }
   return out;
@@ -575,8 +607,21 @@ export async function searchCoarseListings(q: {
   };
 }
 
+/**
+ * Ranks by free "dealer motivation" signals already on the search row — a real
+ * price cut first, then more days on market, falling back to distance. No
+ * history call is made to produce this order.
+ */
 export function rankFordMatches(matches: FordMatchCard[]): FordMatchCard[] {
   return [...matches].sort((a, b) => {
+    const aCut = typeof a.priceChangeHint === "number" && a.priceChangeHint < 0;
+    const bCut = typeof b.priceChangeHint === "number" && b.priceChangeHint < 0;
+    if (aCut !== bCut) return aCut ? -1 : 1;
+
+    const aDom = a.daysOnMarket ?? -1;
+    const bDom = b.daysOnMarket ?? -1;
+    if (aDom !== bDom) return bDom - aDom;
+
     const aDist = a.distanceMiles ?? Number.POSITIVE_INFINITY;
     const bDist = b.distanceMiles ?? Number.POSITIVE_INFINITY;
     if (aDist !== bDist) return aDist - bDist;
@@ -806,6 +851,8 @@ export async function findSimilarFordVehicles(opts: {
         stickerStatus: sticker.status,
         factoryOptions,
         factoryOptionsStatus: factoryOptions.length > 0 ? "ok" : "unavailable",
+        daysOnMarket: listing.daysOnMarket ?? null,
+        priceChangeHint: listing.priceChangeHint ?? null,
       });
     } catch {
       dropped.push({ vin: listing.vin, reason: "sticker_error", dealerName: listing.dealerName });

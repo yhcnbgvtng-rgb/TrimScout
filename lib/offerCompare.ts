@@ -274,6 +274,77 @@ export function assignCompetitorLot(
   return { ok: true, snapshot: next };
 }
 
+/** Shape of one item in /api/ford-comparables's `matches` — a subset of FordMatchCard. */
+export interface ComparableSuggestion {
+  vin: string;
+  year?: number;
+  make?: string;
+  model?: string;
+  trim?: string;
+  engine?: string;
+  exteriorColor?: string;
+  dealerName: string;
+  city: string;
+  state: string;
+  zip?: string;
+  distanceMiles: number | null;
+  listingPrice: number | null;
+  msrp: number | null;
+  dealerUrl: string | null;
+  pdfUrl: string;
+  factoryOptions: Array<{
+    code: string | null;
+    description: string;
+    price: number | null;
+    isPackageChild: boolean;
+  }>;
+  /** Days the listing has been active, free off the search row. */
+  daysOnMarket: number | null;
+  /** Free proxy for motivation; negative means a price cut. Not a true count. */
+  priceChangeHint: number | null;
+}
+
+/** Mirrors vinSearch.ts's fordMatchToVehicle, kept client-safe here (vinSearch.ts is server-only). */
+export function vehicleFromComparableSuggestion(match: ComparableSuggestion): Vehicle {
+  return {
+    id: `ford-${match.vin}`,
+    vin: match.vin,
+    year: match.year || 0,
+    make: match.make || "Ford",
+    model: match.model || "",
+    trim: match.trim || "",
+    bodyType: "SUV",
+    engine: match.engine || "",
+    drivetrain: "",
+    transmission: "",
+    exteriorColor: match.exteriorColor || "",
+    interiorColor: "",
+    msrp: match.msrp || 0,
+    dealerPrice: match.listingPrice || 0,
+    daysOnLot: 0,
+    status: "on_lot",
+    condition: "new",
+    location: {
+      dealerName: match.dealerName,
+      city: match.city,
+      state: match.state,
+      zip: match.zip,
+      distanceMiles: match.distanceMiles || 0,
+    },
+    packages: match.factoryOptions.filter((o) => !o.isPackageChild).map((o) => o.description),
+    options: match.factoryOptions.map((o) => ({
+      code: o.code || "",
+      name: o.description,
+      price: o.price || 0,
+      category: o.isPackageChild ? ("standalone" as const) : ("package" as const),
+    })),
+    imageUrl: "",
+    mileage: 0,
+    dealerUrl: match.dealerUrl || undefined,
+    oemBuildSheetUrl: match.pdfUrl,
+  };
+}
+
 export function buildOfferCompareSnapshot(opts: {
   request: BiddingRequest;
   favorite: Vehicle | null | undefined;

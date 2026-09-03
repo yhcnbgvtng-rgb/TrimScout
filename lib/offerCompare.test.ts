@@ -10,6 +10,8 @@ import {
   snapshotVehiclesFromDeal,
   sortCompareColumns,
   vehicleForCompareRole,
+  vehicleFromComparableSuggestion,
+  type ComparableSuggestion,
 } from "./offerCompare";
 import type { BiddingRequest, Vehicle } from "./types";
 
@@ -241,5 +243,84 @@ describe("compare column sorting", () => {
       { BBBBBBBBBBBBBBBBB: { daysOnMarket: 90 }, CCCCCCCCCCCCCCCCC: { daysOnMarket: 2 } }
     );
     assert.deepEqual(out.map((c) => c.role), ["favorite", "other_lot_1", "other_lot_2"]);
+  });
+});
+
+describe("comparable-vehicle suggestion to Vehicle", () => {
+  function suggestion(partial: Partial<ComparableSuggestion> & Pick<ComparableSuggestion, "vin">): ComparableSuggestion {
+    return {
+      dealerName: "Battlefield Ford",
+      city: "Culpeper",
+      state: "VA",
+      distanceMiles: 40,
+      listingPrice: 55990,
+      msrp: 62000,
+      dealerUrl: null,
+      pdfUrl: "https://www.windowsticker.forddirect.com/windowsticker.pdf?vin=" + partial.vin,
+      factoryOptions: [],
+      daysOnMarket: null,
+      priceChangeHint: null,
+      ...partial,
+    };
+  }
+
+  it("assigns straight into an empty competitor slot, same as a manual paste", () => {
+    const request: BiddingRequest = {
+      id: "deal-1",
+      paymentMethod: "cash",
+      buyerZip: "07405",
+      searchRadiusMiles: 500,
+      strategy: "exact_auction",
+      createdAt: "",
+      expiresAt: "",
+      status: "active",
+    };
+    const favorite = vehicle({ vin: "1FMWK8JCXTGB47204" });
+    const snapshot = buildOfferCompareSnapshot({
+      request,
+      favorite,
+      otherLots: [null, null],
+      buyerZip: "07405",
+      requestedStructures: ["cash"],
+    });
+    assert.ok(snapshot);
+    const match = suggestion({
+      vin: "1FMWK8JC1TGB69561",
+      dealerName: "Battlefield Ford",
+      distanceMiles: 40,
+      daysOnMarket: 12,
+      priceChangeHint: -900,
+    });
+    const assigned = assignCompetitorLot(snapshot!, 1, vehicleFromComparableSuggestion(match));
+    assert.equal(assigned.ok, true);
+    if (assigned.ok) {
+      const lot = vehicleForCompareRole(assigned.snapshot, "other_lot_1")?.vehicle;
+      assert.equal(lot?.vin, match.vin);
+      assert.equal(lot?.location.dealerName, "Battlefield Ford");
+      assert.equal(lot?.location.distanceMiles, 40);
+      assert.equal(lot?.msrp, 62000);
+      assert.equal(lot?.dealerPrice, 55990);
+    }
+  });
+
+  it("carries factory options into packages/options, and falls back to Ford/0/on_lot for missing fields", () => {
+    const match = suggestion({
+      vin: "1FTEW2LP6TKE14711",
+      factoryOptions: [
+        { code: "STX", description: "STX Appearance Package", price: 1995, isPackageChild: false },
+        { code: null, description: "Tailgate Step", price: null, isPackageChild: true },
+      ],
+      listingPrice: null,
+      msrp: null,
+    });
+    const veh = vehicleFromComparableSuggestion(match);
+    assert.equal(veh.make, "Ford");
+    assert.equal(veh.msrp, 0);
+    assert.equal(veh.dealerPrice, 0);
+    assert.equal(veh.status, "on_lot");
+    assert.deepEqual(veh.packages, ["STX Appearance Package"]);
+    assert.equal(veh.options.length, 2);
+    assert.equal(veh.options[0].category, "package");
+    assert.equal(veh.options[1].category, "standalone");
   });
 });

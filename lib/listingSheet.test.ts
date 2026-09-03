@@ -325,11 +325,16 @@ describe("listing-facts route and compare page copy", () => {
     assert.doesNotMatch(view, /Auto\.dev/);
     assert.doesNotMatch(view, /Finding matching lots/);
     assert.match(view, /\/api\/listing-facts/);
-    assert.doesNotMatch(view, /\/api\/ford-comparables/);
+    // The compare page is the one legitimate caller of the free comparable-
+    // vehicle search — it must call the route, but never the expensive hunt
+    // or a persisted deal-search endpoint.
+    assert.match(view, /\/api\/ford-comparables/);
     assert.doesNotMatch(view, /\/api\/compare-deal/);
     assert.doesNotMatch(view, /findSimilarFordVehicles/);
     assert.match(view, /importPastedFactoryVehicle/);
     assert.match(view, /assignCompetitorLot/);
+    assert.match(view, /vehicleFromComparableSuggestion/);
+    assert.match(view, /Find comparable vehicles/);
     assert.match(view, /border-2 border-emerald-500/);
     assert.match(view, /grid-cols-1 md:grid-cols-2 xl:grid-cols-3/);
     assert.match(view, /COMPARE_COLUMN_ROLES/);
