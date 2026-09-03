@@ -567,6 +567,11 @@ function VehicleOfferColumn({
           <div className="text-[10px] font-semibold uppercase tracking-wider text-ink-faint">
             Terms for this VIN
           </div>
+          <p className="text-[10px] text-ink-faint">
+            These prices cover the vehicle and dealer fees only. Registration fees and
+            taxes are calculated after the deal is accepted. A trade-in, if you have
+            one, is handled as a separate step.
+          </p>
           {requested.includes("cash") && terms?.cash ? (
             <div className="rounded-xl border border-border bg-background p-3 space-y-2">
               <div className="text-[11px] font-bold text-white">{DEAL_STRUCTURE_LABELS.cash}</div>
