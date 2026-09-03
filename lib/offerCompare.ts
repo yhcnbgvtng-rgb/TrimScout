@@ -7,6 +7,7 @@ import type { BiddingRequest, DealStructureMethod, Option, Vehicle, VehicleDealT
 import { DEAL_STRUCTURE_METHODS } from "./dealStructure";
 import { listingVdpHref } from "./fordCompetitionUi";
 import { defaultTermsForVehicles, mergeVehicleTerms, parseVehicleTermsList } from "./dealTerms";
+import { isFordOrLincolnVin, isGmVin } from "./oemWmi";
 
 export const OFFER_COMPARE_STORAGE_KEY = "trimscout_offer_compare";
 export const SHOPPER_REQUESTS_STORAGE_KEY = "trimscout_shopper_requests";
@@ -274,7 +275,7 @@ export function assignCompetitorLot(
   return { ok: true, snapshot: next };
 }
 
-/** Shape of one item in /api/ford-comparables's `matches` — a subset of FordMatchCard. */
+/** Shape of one item in /api/ford-comparables's or /api/gm-comparables's `matches`. */
 export interface ComparableSuggestion {
   vin: string;
   year?: number;
@@ -306,14 +307,15 @@ export interface ComparableSuggestion {
 
 /** Mirrors vinSearch.ts's fordMatchToVehicle, kept client-safe here (vinSearch.ts is server-only). */
 export function vehicleFromComparableSuggestion(match: ComparableSuggestion): Vehicle {
+  const gm = isGmVin(match.vin);
   return {
-    id: `ford-${match.vin}`,
+    id: `vehicle-${match.vin}`,
     vin: match.vin,
     year: match.year || 0,
-    make: match.make || "Ford",
+    make: match.make || (gm ? "Chevrolet" : "Ford"),
     model: match.model || "",
     trim: match.trim || "",
-    bodyType: "SUV",
+    bodyType: gm ? "Truck" : "SUV",
     engine: match.engine || "",
     drivetrain: "",
     transmission: "",
@@ -343,6 +345,15 @@ export function vehicleFromComparableSuggestion(match: ComparableSuggestion): Ve
     dealerUrl: match.dealerUrl || undefined,
     oemBuildSheetUrl: match.pdfUrl,
   };
+}
+
+/** Which comparable-vehicle search endpoint a favorite's VIN supports, if any. */
+export function comparablesEndpointForVin(
+  vin: string
+): "/api/ford-comparables" | "/api/gm-comparables" | null {
+  if (isGmVin(vin)) return "/api/gm-comparables";
+  if (isFordOrLincolnVin(vin)) return "/api/ford-comparables";
+  return null;
 }
 
 export function buildOfferCompareSnapshot(opts: {

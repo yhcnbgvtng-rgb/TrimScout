@@ -390,9 +390,10 @@ describe("listing-facts route and compare page copy", () => {
     assert.doesNotMatch(view, /Finding matching lots/);
     assert.match(view, /\/api\/listing-facts/);
     // The compare page is the one legitimate caller of the free comparable-
-    // vehicle search — it must call the route, but never the expensive hunt
-    // or a persisted deal-search endpoint.
-    assert.match(view, /\/api\/ford-comparables/);
+    // vehicle search — it dispatches to the Ford or GM route by the
+    // favorite's VIN, but never the expensive hunt or a persisted
+    // deal-search endpoint.
+    assert.match(view, /comparablesEndpointForVin/);
     assert.doesNotMatch(view, /\/api\/compare-deal/);
     assert.doesNotMatch(view, /findSimilarFordVehicles/);
     assert.match(view, /importPastedFactoryVehicle/);

@@ -19,6 +19,7 @@ import {
   normalizeForMatch,
   parseColorMustHave,
   parseMoney,
+  type FordFactoryOptionLine,
 } from "./fordSticker";
 import { isGmVin, looksLikeGmPaste } from "./oemWmi";
 import type { CurrentDealerLookup } from "./listingSheet";
@@ -477,6 +478,19 @@ export function defaultNiceToHaveLines(sticker: GmSticker, mustHaves: string[]):
 export function filterableFactoryOptions(sticker: GmSticker): GmOptionLine[] {
   const opts = sticker.options.filter((o) => !o.isStandard && !o.isPackageChild);
   return [...stickerColorOptionLines(sticker), ...opts];
+}
+
+/** Optional-equipment lines from a released sticker, including package children. */
+export function gmFactoryOptionBreakout(sticker: GmSticker): FordFactoryOptionLine[] {
+  if (sticker.status !== "released") return [];
+  return sticker.options
+    .filter((o) => !o.isStandard)
+    .map((o) => ({
+      code: o.rpo || null,
+      description: o.name,
+      price: o.price,
+      isPackageChild: o.isPackageChild,
+    }));
 }
 
 function cacheJsonPath(vin: string): string {

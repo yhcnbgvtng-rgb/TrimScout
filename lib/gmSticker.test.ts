@@ -22,6 +22,7 @@ import {
   defaultMustHaveLines,
   filterableFactoryOptions,
   getGmSticker,
+  gmFactoryOptionBreakout,
   gmStickerPdfUrl,
   gmStickerToVehicle,
   isMultiFlexLine,
@@ -152,6 +153,26 @@ describe("GM factory-build parse is not Ford's layout", () => {
     assert.ok(names.includes("Super Cruise"));
     assert.ok(names.some((n) => /^Exterior color:/i.test(n)));
     assert.deepEqual(defaultMustHaveLines(sticker), []);
+  });
+
+  it("gmFactoryOptionBreakout mirrors Ford's shopper-facing shape (code/description/price/isPackageChild)", () => {
+    const breakout = gmFactoryOptionBreakout(sticker);
+    assert.ok(breakout.length > 0);
+    for (const line of breakout) {
+      assert.ok("code" in line && "description" in line && "price" in line && "isPackageChild" in line);
+    }
+    const names = breakout.map((o) => o.description);
+    assert.ok(names.includes("Z71 Off-Road Package"));
+    assert.ok(names.includes("Multi-Flex Tailgate"));
+    assert.ok(names.includes("Super Cruise"));
+    // rpo becomes code, never invented
+    const withRpo = breakout.find((o) => o.description === "Z71 Off-Road Package");
+    assert.ok(withRpo?.code === null || typeof withRpo?.code === "string");
+  });
+
+  it("gmFactoryOptionBreakout is empty for an unreleased sticker", () => {
+    const s = parseGmStickerText(UNRELEASED, loadFixture(UNRELEASED));
+    assert.deepEqual(gmFactoryOptionBreakout(s), []);
   });
 });
 

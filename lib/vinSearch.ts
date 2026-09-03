@@ -89,17 +89,19 @@ export function demoListingsNote(model?: string): string {
   return "No listings API key configured. Demo comparables use known Explorer Tremor VINs plus factory build data.";
 }
 
-export function composeEmptyHuntNote(opts: {
+export function composeEmptyHuntNote<D extends { reason: string }>(opts: {
   zip: string;
   radiusMiles: number;
   provider: ListingsProvider;
   existingNote: string;
-  dropped: FordSearchDropped[];
+  dropped: D[];
   subjectModel?: string;
   candidateCount: number;
+  /** Defaults to the Ford Explorer-demo note; GM's hunt passes its own. */
+  demoNoteForModel?: (model?: string) => string;
 }): string {
   if (opts.provider === "demo" && opts.candidateCount === 0) {
-    return demoListingsNote(opts.subjectModel);
+    return (opts.demoNoteForModel || demoListingsNote)(opts.subjectModel);
   }
   const outside = opts.dropped.filter((d) => d.reason === "outside_radius").length;
   const missing = opts.dropped.filter((d) => d.reason === "missing_must_have").length;
@@ -568,14 +570,21 @@ async function searchMarketCheck(
   return out;
 }
 
-export async function searchCoarseListings(q: {
-  year?: number;
-  make: string;
-  model?: string;
-  trim?: string;
-  zip: string;
-  radiusMiles: number;
-}): Promise<{
+export async function searchCoarseListings(
+  q: {
+    year?: number;
+    make: string;
+    model?: string;
+    trim?: string;
+    zip: string;
+    radiusMiles: number;
+  },
+  /** Defaults to the Ford Explorer demo pool; GM's hunt passes its own. */
+  demo?: {
+    listingsForModel: (model?: string) => ListingCandidate[];
+    noteForModel: (model?: string) => string;
+  }
+): Promise<{
   provider: ListingsProvider;
   listings: ListingCandidate[];
   note: string;
@@ -601,19 +610,24 @@ export async function searchCoarseListings(q: {
       };
     }
   }
+  const listingsForModel = demo?.listingsForModel || demoListingsForModel;
+  const noteForModel = demo?.noteForModel || demoListingsNote;
   return {
     provider: "demo",
-    listings: demoListingsForModel(q.model),
-    note: demoListingsNote(q.model),
+    listings: listingsForModel(q.model),
+    note: noteForModel(q.model),
   };
 }
 
 /**
  * Ranks by free "dealer motivation" signals already on the search row — a real
  * price cut first, then more days on market, falling back to distance. No
- * history call is made to produce this order.
+ * history call is made to produce this order. Generic over any match-card
+ * shape (Ford or GM) carrying these fields — the name is historical.
  */
-export function rankFordMatches(matches: FordMatchCard[]): FordMatchCard[] {
+export function rankFordMatches<
+  T extends { priceChangeHint?: number | null; daysOnMarket?: number | null; distanceMiles: number | null; vin: string }
+>(matches: T[]): T[] {
   return [...matches].sort((a, b) => {
     const aCut = typeof a.priceChangeHint === "number" && a.priceChangeHint < 0;
     const bCut = typeof b.priceChangeHint === "number" && b.priceChangeHint < 0;
@@ -636,13 +650,13 @@ function asPositivePrice(n: number | null | undefined): number | null {
 
 /**
  * Comp price: listings API if present; else that lot's VDP sale price; else
- * leave null so the UI shows Ford sticker TOTAL MSRP. Never "call dealer".
- * Only the ranked slots are fetched — not the full candidate list.
+ * leave null so the UI shows the factory sticker's total price. Never "call
+ * dealer". Only the ranked slots are fetched — not the full candidate list.
+ * Generic over any match-card shape (Ford or GM) — the name is historical.
  */
-export async function enrichMatchListingPrices(
-  matches: FordMatchCard[],
-  fetchVdpPrice?: (url: string) => Promise<number | null>
-): Promise<FordMatchCard[]> {
+export async function enrichMatchListingPrices<
+  T extends { listingPrice: number | null; listingPriceSource: PriceFact; dealerUrl: string | null }
+>(matches: T[], fetchVdpPrice?: (url: string) => Promise<number | null>): Promise<T[]> {
   return Promise.all(
     matches.map(async (match) => {
       const fromApi = asPositivePrice(match.listingPrice);
@@ -669,7 +683,7 @@ export async function enrichMatchListingPrices(
   );
 }
 
-async function mapPool<T, R>(items: T[], limit: number, fn: (item: T) => Promise<R>): Promise<R[]> {
+export async function mapPool<T, R>(items: T[], limit: number, fn: (item: T) => Promise<R>): Promise<R[]> {
   const results: R[] = [];
   let i = 0;
   async function worker() {
