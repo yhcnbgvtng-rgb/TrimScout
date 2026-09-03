@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   Car,
+  Check,
   Globe,
   LoaderCircle as Loader2,
   MapPin,
@@ -43,9 +44,11 @@ import {
   ROLE_LABELS,
   applyVehicleTermsToSnapshot,
   assignCompetitorLot,
+  isSharedFactoryOption,
   loadOfferCompareSnapshot,
   saveOfferCompareSnapshot,
   setLandingView,
+  sharedFactoryOptionKeys,
   sortCompareColumns,
   upsertShopperRequest,
   vehicleForCompareRole,
@@ -321,6 +324,13 @@ export const OfferCompareView: React.FC = () => {
     (c) => c.role !== "favorite" && c.column?.vehicle.vin
   ).length;
 
+  const sharedOptions = sharedFactoryOptionKeys(
+    baseColumns
+      .map((c) => c.column)
+      .filter((column): column is OfferCompareVehicle => column != null)
+      .map((column) => factoryLines(column.vehicle))
+  );
+
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
@@ -372,6 +382,7 @@ export const OfferCompareView: React.FC = () => {
                 sheet={sheets[column.vehicle.vin.toUpperCase()]}
                 listingLoading={listingStatus === "loading"}
                 onChangeTerms={updateTerms}
+                sharedOptions={sharedOptions}
               />
             );
           }
@@ -471,6 +482,7 @@ function VehicleOfferColumn({
   sheet,
   listingLoading,
   onChangeTerms,
+  sharedOptions,
 }: {
   column: OfferCompareVehicle;
   highlighted?: boolean;
@@ -480,6 +492,7 @@ function VehicleOfferColumn({
   sheet: ShopperListingSheet | undefined;
   listingLoading: boolean;
   onChangeTerms: (next: VehicleDealTerms) => void;
+  sharedOptions: Set<string>;
 }) {
   const vehicle = column.vehicle;
   const reviewPrice = columnAdvertised(vehicle, sheet);
@@ -702,24 +715,39 @@ function VehicleOfferColumn({
         </div>
 
         <div>
-          <div className="text-[10px] font-semibold uppercase tracking-wider text-ink-faint">
-            {FORD_COMPETITION_FACTORY_OPTIONS}
+          <div className="flex items-baseline justify-between gap-2">
+            <div className="text-[10px] font-semibold uppercase tracking-wider text-ink-faint">
+              {FORD_COMPETITION_FACTORY_OPTIONS}
+            </div>
+            {sharedOptions.size > 0 ? (
+              <div className="flex items-center gap-1 text-[10px] text-emerald-400">
+                <Check className="h-3 w-3" /> on another car
+              </div>
+            ) : null}
           </div>
           {options.length === 0 ? (
             <p className="text-[11px] text-ink-muted mt-1">{FORD_COMPETITION_FACTORY_OPTIONS_UNAVAILABLE}</p>
           ) : (
             <ul className="mt-1 max-h-36 overflow-y-auto space-y-0.5">
-              {options.map((opt, i) => (
-                <li
-                  key={`${opt.code || ""}-${opt.description}-${i}`}
-                  className={`text-[11px] leading-snug text-ink-light ${opt.isPackageChild ? "pl-3 text-ink-muted" : ""}`}
-                >
-                  {formatFactoryOptionLine(opt)}
-                  {opt.price != null && opt.price > 0 ? (
-                    <span className="text-ink-faint"> · {formatCurrency(opt.price)}</span>
-                  ) : null}
-                </li>
-              ))}
+              {options.map((opt, i) => {
+                const shared = isSharedFactoryOption(opt.description, sharedOptions);
+                return (
+                  <li
+                    key={`${opt.code || ""}-${opt.description}-${i}`}
+                    className={`text-[11px] leading-snug rounded px-1 -mx-1 flex items-start gap-1 ${
+                      opt.isPackageChild ? "pl-3 text-ink-muted" : "text-ink-light"
+                    } ${shared ? "bg-emerald-500/10 text-emerald-200" : ""}`}
+                  >
+                    {shared ? <Check className="h-3 w-3 mt-0.5 shrink-0 text-emerald-400" /> : null}
+                    <span>
+                      {formatFactoryOptionLine(opt)}
+                      {opt.price != null && opt.price > 0 ? (
+                        <span className="text-ink-faint"> · {formatCurrency(opt.price)}</span>
+                      ) : null}
+                    </span>
+                  </li>
+                );
+              })}
             </ul>
           )}
         </div>

@@ -228,6 +228,40 @@ export function sortCompareColumns<T extends { role: OfferVehicleRole; vin: stri
   return [...favorites, ...sorted];
 }
 
+function normalizeFactoryOptionText(description: string): string {
+  return description.trim().toLowerCase().replace(/\s+/g, " ");
+}
+
+/**
+ * Which factory-option descriptions (normalized) appear on more than one of
+ * the compared vehicles — used to highlight equipment two or more cars in a
+ * deal actually share. Exact text match only, never a fuzzy "similar option"
+ * guess: "3.73 Electronic Lock RR Axle" only matches the same text elsewhere.
+ */
+export function sharedFactoryOptionKeys(
+  optionLists: Array<Array<{ description: string }>>
+): Set<string> {
+  const counts = new Map<string, number>();
+  for (const options of optionLists) {
+    const seen = new Set<string>();
+    for (const opt of options) {
+      const key = normalizeFactoryOptionText(opt.description);
+      if (!key || seen.has(key)) continue;
+      seen.add(key);
+      counts.set(key, (counts.get(key) || 0) + 1);
+    }
+  }
+  const shared = new Set<string>();
+  for (const [key, count] of counts) {
+    if (count > 1) shared.add(key);
+  }
+  return shared;
+}
+
+export function isSharedFactoryOption(description: string, shared: Set<string>): boolean {
+  return shared.has(normalizeFactoryOptionText(description));
+}
+
 export function vehicleForCompareRole(
   snapshot: OfferCompareSnapshot,
   role: OfferVehicleRole

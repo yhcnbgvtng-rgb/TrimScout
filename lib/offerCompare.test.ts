@@ -6,7 +6,9 @@ import {
   assignCompetitorLot,
   buildOfferCompareSnapshot,
   collectDealVehicles,
+  isSharedFactoryOption,
   parseOfferCompareSnapshot,
+  sharedFactoryOptionKeys,
   snapshotVehiclesFromDeal,
   sortCompareColumns,
   vehicleForCompareRole,
@@ -241,5 +243,40 @@ describe("compare column sorting", () => {
       { BBBBBBBBBBBBBBBBB: { daysOnMarket: 90 }, CCCCCCCCCCCCCCCCC: { daysOnMarket: 2 } }
     );
     assert.deepEqual(out.map((c) => c.role), ["favorite", "other_lot_1", "other_lot_2"]);
+  });
+});
+
+describe("shared factory options across compared cars", () => {
+  it("flags a description that appears on two or more cars, not one that's unique to a single car", () => {
+    const favorite = [{ description: "3.73 Electronic Lock RR Axle" }, { description: "STX Series" }];
+    const lot1 = [{ description: "3.73 ELECTRONIC LOCK RR AXLE" }, { description: "Trailer Tow Package" }];
+    const lot2 = [{ description: "Trailer Tow Package" }];
+    const shared = sharedFactoryOptionKeys([favorite, lot1, lot2]);
+    assert.equal(isSharedFactoryOption("3.73 Electronic Lock RR Axle", shared), true, "case/whitespace-insensitive match across two cars");
+    assert.equal(isSharedFactoryOption("Trailer Tow Package", shared), true, "shared by lot1 and lot2");
+    assert.equal(isSharedFactoryOption("STX Series", shared), false, "only on one car — not shared");
+  });
+
+  it("flags nothing when only one car is present, or when no descriptions overlap", () => {
+    const oneCarOnly = sharedFactoryOptionKeys([[{ description: "STX Series" }]]);
+    assert.equal(oneCarOnly.size, 0);
+
+    const noOverlap = sharedFactoryOptionKeys([
+      [{ description: "STX Series" }],
+      [{ description: "Trailer Tow Package" }],
+    ]);
+    assert.equal(noOverlap.size, 0);
+  });
+
+  it("counts a description once per car, so it doesn't fake a match from duplicates within a single car's list", () => {
+    const oneCarDuplicated = sharedFactoryOptionKeys([
+      [{ description: "STX Series" }, { description: "STX Series" }],
+    ]);
+    assert.equal(isSharedFactoryOption("STX Series", oneCarDuplicated), false);
+  });
+
+  it("ignores blank descriptions", () => {
+    const shared = sharedFactoryOptionKeys([[{ description: "" }], [{ description: "  " }]]);
+    assert.equal(shared.size, 0);
   });
 });
