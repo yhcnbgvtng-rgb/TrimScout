@@ -498,6 +498,7 @@ async function searchMarketCheck(
     year?: number;
     make: string;
     model?: string;
+    trim?: string;
     zip: string;
     radiusMiles: number;
   }
@@ -508,7 +509,12 @@ async function searchMarketCheck(
   if (q.year) url.searchParams.set("year", String(q.year));
   url.searchParams.set("make", q.make);
   if (q.model) url.searchParams.set("model", q.model);
-  // Coarse hunt: no trim. Ford sticker matching is downstream.
+  // Ford's hunt deliberately omits trim — its must-have packages (Ultimate,
+  // BlueCruise, keypad) don't map cleanly to a single trim name, so Ford
+  // sticker matching downstream is the real filter. GM's hunt passes trim
+  // when the caller has one — a GM trim (LT, RST, Z71...) is itself the
+  // spec the buyer is comparing against, not just an optional add-on.
+  if (q.trim) url.searchParams.set("trim", q.trim);
   url.searchParams.set("car_type", "new");
   url.searchParams.set("zip", q.zip);
   // Pass the user radius as-is. Do not clamp to the free-tier 100-mile cap —
