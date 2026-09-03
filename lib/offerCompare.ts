@@ -7,7 +7,7 @@ import type { BiddingRequest, DealStructureMethod, Option, Vehicle, VehicleDealT
 import { DEAL_STRUCTURE_METHODS } from "./dealStructure";
 import { listingVdpHref } from "./fordCompetitionUi";
 import { defaultTermsForVehicles, mergeVehicleTerms, parseVehicleTermsList } from "./dealTerms";
-import { isFordOrLincolnVin, isGmVin, isStellantisVin } from "./oemWmi";
+import { isFordOrLincolnVin, isGenesisVin, isGmVin, isStellantisVin } from "./oemWmi";
 
 export const OFFER_COMPARE_STORAGE_KEY = "trimscout_offer_compare";
 export const SHOPPER_REQUESTS_STORAGE_KEY = "trimscout_shopper_requests";
@@ -309,19 +309,23 @@ export interface ComparableSuggestion {
 export function vehicleFromComparableSuggestion(match: ComparableSuggestion): Vehicle {
   const gm = isGmVin(match.vin);
   const stellantis = !gm && isStellantisVin(match.vin);
+  const genesis = !gm && !stellantis && isGenesisVin(match.vin);
   // Stellantis can't reuse Ford's SUV / GM's Truck guess: Chrysler, Dodge,
   // Jeep, and Ram share the same WMI ranges, so the VIN alone can't tell a
-  // Wrangler from a Ram 1500. match.make/model are already correctly parsed
-  // from the sticker text upstream — never invent a bodyType/make guess here
-  // instead.
+  // Wrangler from a Ram 1500. Genesis's WMI *does* identify the brand
+  // unambiguously, so "Genesis" is a safe make fallback — but it still spans
+  // sedans (G70/G80/G90) and SUVs (GV60/GV70/GV80), so bodyType stays
+  // unguessed for the same reason as Stellantis. match.make/model are
+  // already correctly parsed from the sticker text upstream — never invent a
+  // bodyType/make guess here instead.
   return {
     id: `vehicle-${match.vin}`,
     vin: match.vin,
     year: match.year || 0,
-    make: match.make || (gm ? "Chevrolet" : stellantis ? "" : "Ford"),
+    make: match.make || (gm ? "Chevrolet" : stellantis ? "" : genesis ? "Genesis" : "Ford"),
     model: match.model || "",
     trim: match.trim || "",
-    bodyType: gm ? "Truck" : stellantis ? "" : "SUV",
+    bodyType: gm ? "Truck" : stellantis || genesis ? "" : "SUV",
     engine: match.engine || "",
     drivetrain: "",
     transmission: "",
@@ -356,10 +360,16 @@ export function vehicleFromComparableSuggestion(match: ComparableSuggestion): Ve
 /** Which comparable-vehicle search endpoint a favorite's VIN supports, if any. */
 export function comparablesEndpointForVin(
   vin: string
-): "/api/ford-comparables" | "/api/gm-comparables" | "/api/stellantis-comparables" | null {
+):
+  | "/api/ford-comparables"
+  | "/api/gm-comparables"
+  | "/api/stellantis-comparables"
+  | "/api/genesis-comparables"
+  | null {
   if (isGmVin(vin)) return "/api/gm-comparables";
   if (isFordOrLincolnVin(vin)) return "/api/ford-comparables";
   if (isStellantisVin(vin)) return "/api/stellantis-comparables";
+  if (isGenesisVin(vin)) return "/api/genesis-comparables";
   return null;
 }
 
