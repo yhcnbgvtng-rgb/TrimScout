@@ -270,10 +270,14 @@ export const OfferCompareView: React.FC = () => {
   // ranking/display costs nothing extra. Only fires on the buyer's click.
   const findComparableVehicles = useCallback(async () => {
     if (!snapshot) return;
-    const favoriteVin = vehicleForCompareRole(snapshot, "favorite")?.vehicle.vin;
+    const favoriteVehicle = vehicleForCompareRole(snapshot, "favorite")?.vehicle;
+    const favoriteVin = favoriteVehicle?.vin;
     if (!favoriteVin) return;
     const endpoint = comparablesEndpointForVin(favoriteVin);
     if (!endpoint) return;
+    const subjectListingPrice = favoriteVehicle
+      ? advertisedOrStickerPrice(favoriteVehicle.dealerPrice, favoriteVehicle.msrp).amount
+      : null;
     setSuggestionsLoading(true);
     setSuggestionsError(null);
     try {
@@ -286,6 +290,7 @@ export const OfferCompareView: React.FC = () => {
           niceToHaveLines: snapshot.niceToHaveLines,
           zip: snapshot.buyerZip,
           radiusMiles: snapshot.searchRadiusMiles,
+          subjectListingPrice,
         }),
       });
       const json = await res.json().catch(() => ({}));
