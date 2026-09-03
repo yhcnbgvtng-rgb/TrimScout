@@ -476,6 +476,57 @@ export async function fetchShopperListingSheets(
   );
 }
 
+export interface CurrentDealerLookup {
+  dealerName: string;
+  dealerStreet: string | null;
+  dealerCity: string;
+  dealerState: string;
+  dealerZip: string | null;
+  dealerPhone: string | null;
+  vdpUrl: string | null;
+}
+
+/**
+ * Who currently has this VIN listed, straight off one search-only MarketCheck
+ * call — never the history or listing-detail calls, since only dealer
+ * identity is needed here. Used at VIN-import time so the vehicle's dealer is
+ * the one actually advertising it, not the factory's ship-to dealer on the
+ * window sticker (which never updates after a car changes hands). Never
+ * throws — a MarketCheck failure must not block a sticker import.
+ */
+export async function currentDealerForVin(
+  vin: string,
+  opts?: { fetchImpl?: typeof fetch; apiKey?: string | null }
+): Promise<CurrentDealerLookup | null> {
+  const cleanVin = vin.trim().toUpperCase();
+  if (cleanVin.length !== 17) return null;
+  const key = opts?.apiKey !== undefined ? opts.apiKey : serverSecret("MARKETCHECK_API_KEY");
+  if (!key) return null;
+  const fetchImpl = opts?.fetchImpl || fetch;
+
+  try {
+    const searchUrl = marketcheckUrl("/v2/search/car/active", key, { vin: cleanVin });
+    const searchRes = await marketcheckGet(fetchImpl, searchUrl);
+    if (!searchRes.ok) return null;
+    const row = record(firstSearchListing(searchRes.payload));
+    if (!row) return null;
+    const dealer = record(row.dealer) || {};
+    const dealerName = asTrimmed(dealer.name);
+    if (!dealerName) return null;
+    return {
+      dealerName,
+      dealerStreet: asTrimmed(dealer.street) || asTrimmed(dealer.address),
+      dealerCity: asTrimmed(dealer.city) || "",
+      dealerState: asTrimmed(dealer.state) || "",
+      dealerZip: asTrimmed(dealer.zip),
+      dealerPhone: dealerPhone(dealer.phone),
+      vdpUrl: listingVdpHref(asTrimmed(row.vdp_url)),
+    };
+  } catch {
+    return null;
+  }
+}
+
 /** Drop any accidental raw-provider keys before JSON goes to the browser. */
 export function publicListingSheets(sheets: ShopperListingSheet[]): ShopperListingSheet[] {
   return sheets.map((sheet) => ({

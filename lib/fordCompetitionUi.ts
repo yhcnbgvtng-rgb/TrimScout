@@ -266,6 +266,7 @@ export interface ReviewTargetVehicleFields {
     city?: string | null;
     state?: string | null;
     zip?: string | null;
+    dealerConfirmed?: boolean | null;
   } | null;
 }
 
@@ -275,6 +276,7 @@ export interface ReviewTargetVehicle {
   vdpHref: string | null;
   dealerName: string | null;
   locationLine: string | null;
+  dealerConfirmed: boolean;
 }
 
 export function formatReviewVehicleTitle(vehicle: ReviewTargetVehicleFields): string | null {
@@ -287,14 +289,14 @@ export function formatReviewVehicleTitle(vehicle: ReviewTargetVehicleFields): st
 
 export function formatReviewVehicleLocation(
   location: ReviewTargetVehicleFields["location"]
-): { dealerName: string | null; locationLine: string | null } {
+): { dealerName: string | null; locationLine: string | null; dealerConfirmed: boolean } {
   const dealerName = (location?.dealerName || "").trim() || null;
   const city = (location?.city || "").trim();
   const state = (location?.state || "").trim();
   const zip = (location?.zip || "").trim();
   const cityState = [city, state].filter(Boolean).join(", ");
   const locationLine = [cityState, zip].filter(Boolean).join(" ") || null;
-  return { dealerName, locationLine };
+  return { dealerName, locationLine, dealerConfirmed: !!location?.dealerConfirmed };
 }
 
 /**
@@ -307,7 +309,7 @@ export function reviewTargetFromVehicle(
   if (!vehicle) return null;
   const title = formatReviewVehicleTitle(vehicle);
   const vin = (vehicle.vin || "").trim().toUpperCase() || null;
-  const { dealerName, locationLine } = formatReviewVehicleLocation(vehicle.location);
+  const { dealerName, locationLine, dealerConfirmed } = formatReviewVehicleLocation(vehicle.location);
   if (!title && !vin) return null;
   return {
     title,
@@ -315,5 +317,6 @@ export function reviewTargetFromVehicle(
     vdpHref: listingVdpHref(vehicle.dealerUrl),
     dealerName,
     locationLine,
+    dealerConfirmed,
   };
 }

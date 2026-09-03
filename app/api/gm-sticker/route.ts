@@ -14,6 +14,7 @@ import {
   looksLikeGmPaste,
 } from "@/lib/gmSticker";
 import { factoryBuildFailedError, factoryBuildUnavailableError } from "@/lib/pasteImport";
+import { currentDealerForVin } from "@/lib/listingSheet";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -92,7 +93,10 @@ async function lookup(opts: { vin?: string; paste?: string; pasteUrl: string | n
   }
 
   try {
-    const sticker = await getGmSticker(vin);
+    const [sticker, currentDealer] = await Promise.all([
+      getGmSticker(vin),
+      currentDealerForVin(vin),
+    ]);
     const listingUrl =
       opts.pasteUrl && /^https?:\/\//i.test(opts.pasteUrl) ? opts.pasteUrl.trim() : null;
     const mustHaveLines = defaultMustHaveLines(sticker);
@@ -100,7 +104,7 @@ async function lookup(opts: { vin?: string; paste?: string; pasteUrl: string | n
     const listingPrice = resolved.listingPrice && resolved.listingPrice > 0 ? resolved.listingPrice : null;
     const vehicle =
       sticker.status === "released" && sticker.vin === vin
-        ? gmStickerToVehicle(sticker, listingUrl, listingPrice)
+        ? gmStickerToVehicle(sticker, listingUrl, listingPrice, currentDealer)
         : null;
     if (vehicle && vehicle.vin !== vin) {
       return vinPasteError(factoryBuildFailedError(vin), { vin });

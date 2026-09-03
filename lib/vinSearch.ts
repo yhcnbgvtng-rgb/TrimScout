@@ -45,6 +45,7 @@ import {
   resolveListingsProvider,
   type ListingsProvider,
 } from "./listingsProvider";
+import type { CurrentDealerLookup } from "./listingSheet";
 import type { Vehicle } from "./types";
 
 export {
@@ -885,7 +886,8 @@ export function fordMatchToVehicle(match: FordMatchCard): Vehicle {
 export function stickerToVehicle(
   sticker: FordSticker,
   listingUrl?: string | null,
-  listingPrice?: number | null
+  listingPrice?: number | null,
+  currentDealer?: CurrentDealerLookup | null
 ): Vehicle {
   return {
     id: `ford-${sticker.vin}`,
@@ -905,13 +907,23 @@ export function stickerToVehicle(
     daysOnLot: 0,
     status: "on_lot",
     condition: "new",
-    location: {
-      dealerName: sticker.dealerSoldTo?.name || "Ford dealer",
-      city: sticker.dealerSoldTo?.city || "",
-      state: sticker.dealerSoldTo?.state || "",
-      zip: sticker.dealerSoldTo?.zip,
-      distanceMiles: 0,
-    },
+    location: currentDealer
+      ? {
+          dealerName: currentDealer.dealerName,
+          city: currentDealer.dealerCity,
+          state: currentDealer.dealerState,
+          zip: currentDealer.dealerZip || undefined,
+          distanceMiles: 0,
+          dealerConfirmed: true,
+        }
+      : {
+          dealerName: sticker.dealerSoldTo?.name || "Ford dealer",
+          city: sticker.dealerSoldTo?.city || "",
+          state: sticker.dealerSoldTo?.state || "",
+          zip: sticker.dealerSoldTo?.zip,
+          distanceMiles: 0,
+          dealerConfirmed: false,
+        },
     packages: sticker.options
       .filter((o) => !o.isStandard && !o.isPackageChild)
       .map((o) => o.name),
@@ -925,7 +937,7 @@ export function stickerToVehicle(
       })),
     imageUrl: "",
     mileage: 0,
-    dealerUrl: listingUrl || undefined,
+    dealerUrl: listingUrl || currentDealer?.vdpUrl || undefined,
     oemBuildSheetUrl: sticker.pdfUrl,
   };
 }

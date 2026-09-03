@@ -1224,13 +1224,15 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                       {reviewTarget.locationLine ? (
                         <div className="text-[11px] text-ink-muted">{reviewTarget.locationLine}</div>
                       ) : null}
-                      {/* The window sticker's "SOLD TO" dealer is who the
-                          factory originally shipped this VIN to — it's printed
-                          at build time and never updates. If the vehicle was
-                          dealer-traded or is advertised elsewhere now, this is
-                          not where it currently sits, so don't present it as
-                          the vehicle's location. */}
-                      {factoryBuildOem && reviewTarget.dealerName ? (
+                      {/* dealerName is only confirmed-current when it came from
+                          a live listing lookup. Otherwise it fell back to the
+                          window sticker's "SOLD TO" dealer — who the factory
+                          originally shipped this VIN to, printed at build time
+                          and never updated. If the vehicle was dealer-traded or
+                          is advertised elsewhere now, that's not where it
+                          currently sits, so say so instead of presenting it as
+                          confirmed. */}
+                      {factoryBuildOem && reviewTarget.dealerName && !reviewTarget.dealerConfirmed ? (
                         <div className="text-[10px] text-ink-faint italic">
                           Dealer the factory shipped it to — may not be where it&apos;s listed now
                         </div>

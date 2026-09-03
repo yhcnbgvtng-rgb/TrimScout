@@ -51,6 +51,7 @@ import {
   searchCoarseListings,
   selectCompetitionSlots,
   stickerFromDemoFixture,
+  stickerToVehicle,
   type FordMatchCard,
   type ListingCandidate,
 } from "./vinSearch";
@@ -978,6 +979,7 @@ describe("shopper-facing factory option copy", () => {
         city: "Killeen",
         state: "TX",
         zip: "76541",
+        dealerConfirmed: true,
       },
     });
     assert.equal(imported?.title, "2026 Ford Explorer ST");
@@ -985,6 +987,7 @@ describe("shopper-facing factory option copy", () => {
     assert.equal(imported?.vdpHref, "https://www.example.com/ford/vdp-a");
     assert.equal(imported?.dealerName, "Battlefield Ford");
     assert.equal(imported?.locationLine, "Killeen, TX 76541");
+    assert.equal(imported?.dealerConfirmed, true);
 
     const noVdp = reviewTargetFromVehicle({
       year: 2025,
@@ -1000,6 +1003,7 @@ describe("shopper-facing factory option copy", () => {
     assert.equal(noVdp?.vdpHref, null);
     assert.equal(noVdp?.dealerName, "Paul Chevrolet");
     assert.equal(noVdp?.locationLine, "Freehold, NJ");
+    assert.equal(noVdp?.dealerConfirmed, false, "unconfirmed unless the location says so");
 
     const missingDealer = reviewTargetFromVehicle({
       year: 2026,
@@ -1033,12 +1037,65 @@ describe("shopper-facing factory option copy", () => {
     assert.match(step6, /reviewTarget\.vdpHref/);
     assert.match(step6, /reviewTarget\.dealerName/);
     assert.match(step6, /reviewTarget\.locationLine/);
+    // The "may not be where it's listed now" caption must only show when the
+    // dealer is genuinely unconfirmed (sticker fallback) — not on every
+    // factory import, now that a live listing lookup can confirm the real one.
+    assert.match(step6, /!reviewTarget\.dealerConfirmed/);
     assert.match(step6, /No imported vehicle/);
     assert.match(step6, /target="_blank"/);
     assert.match(step6, /rel="noopener noreferrer"/);
     assert.doesNotMatch(step6, /\$\{make\} \$\{model\}/);
     assert.doesNotMatch(step6, /BMW 3 Series/);
     assert.doesNotMatch(step6, /330i M Sport/);
+  });
+
+  it("stickerToVehicle prefers the live current dealer over the sticker's factory ship-to dealer", () => {
+    const sticker = parseFordStickerText(SUBJECT, loadFixture(SUBJECT));
+    assert.equal(sticker.dealerSoldTo?.name, "Route 23 Auto Mall, LLC", "fixture sanity check");
+
+    const withoutLiveDealer = stickerToVehicle(sticker, null, null, null);
+    assert.equal(withoutLiveDealer.location.dealerName, "Route 23 Auto Mall, LLC");
+    assert.equal(withoutLiveDealer.location.city, "Butler");
+    assert.equal(withoutLiveDealer.location.state, "NJ");
+    assert.equal(withoutLiveDealer.location.dealerConfirmed, false);
+
+    const liveDealer = {
+      dealerName: "Jim Shorkey Ford",
+      dealerStreet: "100 Main St",
+      dealerCity: "White Oak",
+      dealerState: "PA",
+      dealerZip: "15131",
+      dealerPhone: "412-555-0100",
+      vdpUrl: "https://www.jimshorkey.com/vdp",
+    };
+    const withLiveDealer = stickerToVehicle(sticker, null, null, liveDealer);
+    assert.equal(withLiveDealer.location.dealerName, "Jim Shorkey Ford");
+    assert.equal(withLiveDealer.location.city, "White Oak");
+    assert.equal(withLiveDealer.location.state, "PA");
+    assert.equal(withLiveDealer.location.zip, "15131");
+    assert.equal(withLiveDealer.location.dealerConfirmed, true);
+    assert.equal(withLiveDealer.dealerUrl, "https://www.jimshorkey.com/vdp", "falls back to the live VDP when no pasted URL");
+
+    const pastedUrlWins = stickerToVehicle(
+      sticker,
+      "https://www.example.com/pasted-vdp",
+      null,
+      liveDealer
+    );
+    assert.equal(
+      pastedUrlWins.dealerUrl,
+      "https://www.example.com/pasted-vdp",
+      "the shopper's own pasted URL still wins over a live-lookup VDP"
+    );
+  });
+
+  it("app/api/ford-sticker and app/api/gm-sticker call currentDealerForVin so the imported vehicle carries the real advertising dealer", () => {
+    const fordRoute = fs.readFileSync(path.join(process.cwd(), "app/api/ford-sticker/route.ts"), "utf8");
+    assert.match(fordRoute, /currentDealerForVin/);
+    assert.match(fordRoute, /stickerToVehicle\(sticker, listingUrl, listingPrice, currentDealer\)/);
+    const gmRoute = fs.readFileSync(path.join(process.cwd(), "app/api/gm-sticker/route.ts"), "utf8");
+    assert.match(gmRoute, /currentDealerForVin/);
+    assert.match(gmRoute, /gmStickerToVehicle\(sticker, listingUrl, listingPrice, currentDealer\)/);
   });
 
   it("wizard submit lands in My Deal Tracker without inventing BMW bids", () => {

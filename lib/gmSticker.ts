@@ -21,6 +21,7 @@ import {
   parseMoney,
 } from "./fordSticker";
 import { isGmVin, looksLikeGmPaste } from "./oemWmi";
+import type { CurrentDealerLookup } from "./listingSheet";
 import type { Vehicle } from "./types";
 
 export { isGmVin, looksLikeGmPaste };
@@ -636,7 +637,8 @@ export async function getGmSticker(vin: string): Promise<GmSticker> {
 export function gmStickerToVehicle(
   sticker: GmSticker,
   listingUrl?: string | null,
-  listingPrice?: number | null
+  listingPrice?: number | null,
+  currentDealer?: CurrentDealerLookup | null
 ): Vehicle {
   return {
     id: `gm-${sticker.vin}`,
@@ -656,13 +658,23 @@ export function gmStickerToVehicle(
     daysOnLot: 0,
     status: "on_lot",
     condition: "new",
-    location: {
-      dealerName: sticker.dealerSoldTo?.name || "Chevrolet dealer",
-      city: sticker.dealerSoldTo?.city || "",
-      state: sticker.dealerSoldTo?.state || "",
-      zip: sticker.dealerSoldTo?.zip,
-      distanceMiles: 0,
-    },
+    location: currentDealer
+      ? {
+          dealerName: currentDealer.dealerName,
+          city: currentDealer.dealerCity,
+          state: currentDealer.dealerState,
+          zip: currentDealer.dealerZip || undefined,
+          distanceMiles: 0,
+          dealerConfirmed: true,
+        }
+      : {
+          dealerName: sticker.dealerSoldTo?.name || "Chevrolet dealer",
+          city: sticker.dealerSoldTo?.city || "",
+          state: sticker.dealerSoldTo?.state || "",
+          zip: sticker.dealerSoldTo?.zip,
+          distanceMiles: 0,
+          dealerConfirmed: false,
+        },
     packages: sticker.options.filter((o) => !o.isStandard && !o.isPackageChild).map((o) => o.name),
     options: sticker.options
       .filter((o) => !o.isStandard)
@@ -674,7 +686,7 @@ export function gmStickerToVehicle(
       })),
     imageUrl: "",
     mileage: 0,
-    dealerUrl: listingUrl || undefined,
+    dealerUrl: listingUrl || currentDealer?.vdpUrl || undefined,
     oemBuildSheetUrl: sticker.pdfUrl,
   };
 }

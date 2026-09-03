@@ -88,6 +88,8 @@ export interface Vehicle {
     distanceMiles: number;
     lat?: number;
     lng?: number;
+    /** True when dealerName came from a live listing lookup, not a factory ship-to dealer. */
+    dealerConfirmed?: boolean;
   };
   packages: string[];
   options: Option[];
