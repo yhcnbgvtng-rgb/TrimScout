@@ -48,6 +48,19 @@ export function isStellantisVin(vin: string): boolean {
   ].includes(wmi);
 }
 
+/**
+ * Genesis: KMG/KMT/KMU (Ulsan, Korea) and 5NM (Hyundai Motor Manufacturing
+ * Alabama). Unlike Stellantis, the WMI reliably identifies the brand on its
+ * own — Genesis doesn't share these ranges with Hyundai's own passenger-car
+ * WMIs (KMH).
+ */
+export function isGenesisVin(vin: string): boolean {
+  const u = vin.trim().toUpperCase();
+  if (u.length !== 17) return false;
+  const wmi = u.slice(0, 3);
+  return ["KMG", "KMT", "KMU", "5NM"].includes(wmi);
+}
+
 export function pastedVinCandidate(raw: string): string | null {
   const m = (raw || "").trim().toUpperCase().match(/\b[A-HJ-NPR-Z0-9]{17}\b/);
   return m ? m[0] : null;
@@ -125,6 +138,28 @@ export function looksLikeStellantisPaste(paste: string): boolean {
   }
   const vin = pastedVinCandidate(raw);
   return !!(vin && isStellantisVin(vin));
+}
+
+export function looksLikeGenesisPaste(paste: string): boolean {
+  const raw = (paste || "").trim();
+  if (!raw) return false;
+  if (/^https?:\/\//i.test(raw)) {
+    try {
+      const u = new URL(raw);
+      const hay = `${u.hostname} ${u.pathname} ${u.search}`.toLowerCase();
+      if (hay.includes("genesis.com")) {
+        return true;
+      }
+    } catch {
+      /* ignore invalid URL */
+    }
+  }
+  const lower = raw.toLowerCase();
+  if (/\bgenesis\b/.test(lower)) {
+    return true;
+  }
+  const vin = pastedVinCandidate(raw);
+  return !!(vin && isGenesisVin(vin));
 }
 
 /** Maps a shopper-facing make onto the inventory brand code used by deal-requests. */
