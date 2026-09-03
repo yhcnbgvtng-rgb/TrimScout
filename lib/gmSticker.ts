@@ -87,7 +87,7 @@ export interface MustHaveCheck {
 
 const MEMORY_CACHE = new Map<string, GmSticker>();
 const CACHE_DIR = path.join("/tmp", "trimscout-gm-stickers");
-const PARSER_VERSION = 1;
+const PARSER_VERSION = 2;
 const BROWSER_UA =
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36";
 
@@ -277,7 +277,17 @@ export function parseGmStickerText(vin: string, text: string): GmSticker {
     const trimLine = text.match(
       /^\s*(WT|CUSTOM|LT|RST|LTZ|HIGH COUNTRY|TRAIL BOSS|ZR2|LS|PREMIER|ACTIV|Z71)\b/im
     );
-    if (trimLine) sticker.trim = titleTrim(trimLine[1]);
+    if (trimLine) {
+      sticker.trim = titleTrim(trimLine[1]);
+    } else {
+      // Newer sticker template prints "{YEAR} SILVERADO {SERIES} {CAB} {TRIM}"
+      // as one headline line — pull the trailing known trim word from it.
+      const headlineLine = text.match(/^.*\b20\d{2}\s+SILVERADO\b.*$/im);
+      const trailingTrim = headlineLine?.[0].match(
+        /\b(WT|CUSTOM|LT|RST|LTZ|HIGH COUNTRY|TRAIL BOSS|ZR2|LS|PREMIER|ACTIV|Z71)\s*$/i
+      );
+      if (trailingTrim) sticker.trim = titleTrim(trailingTrim[1]);
+    }
   }
 
   const drive = text.match(/\b(4WD|AWD|RWD|2WD|FWD|4X4|4X2)\b/i);
@@ -298,10 +308,12 @@ export function parseGmStickerText(vin: string, text: string): GmSticker {
   );
   if (engineLine) sticker.engine = engineLine[1].replace(/\s+/g, " ").trim();
 
-  const transLine = text.match(/(\d+-SPEED[^\n]{0,40}(?:AUTOMATIC|TRANSMISSION)[^\n]*)/i);
+  const transLine =
+    text.match(/(\d+-SPEED[^\n]{0,40}(?:AUTOMATIC|TRANSMISSION)[^\n]*)/i) ||
+    text.match(/TRANSMISSION\s*[:\-]?\s*(\d+-SPEED[^\n]{0,40})/i);
   if (transLine) sticker.transmission = transLine[1].replace(/\s+/g, " ").trim();
 
-  const base = text.match(/BASE PRICE\s*\$?\s*([\d,]+(?:\.\d{2})?)/i);
+  const base = text.match(/(?:BASE PRICE|STANDARD VEHICLE PRICE)\s*\$?\s*([\d,]+(?:\.\d{2})?)/i);
   if (base) sticker.basePrice = parseMoney(base[1]);
   const opts =
     text.match(/TOTAL OPTIONS\s*\$?\s*([\d,]+(?:\.\d{2})?)/i) ||
@@ -310,7 +322,9 @@ export function parseGmStickerText(vin: string, text: string): GmSticker {
   const dest = text.match(/DESTINATION(?:\s+FREIGHT)?(?:\s+CHARGE)?\s*\$?\s*([\d,]+(?:\.\d{2})?)/i);
   if (dest) sticker.destination = parseMoney(dest[1]);
 
-  const totalVehicle = text.match(/TOTAL VEHICLE PRICE\s*\$?\s*([\d,]+(?:\.\d{2})?)/i);
+  // A trailing footnote marker (e.g. "TOTAL VEHICLE PRICE* $58,185.00") sits
+  // between the label and the amount on some sticker templates.
+  const totalVehicle = text.match(/TOTAL VEHICLE PRICE\s*\*?\s*\$?\s*([\d,]+(?:\.\d{2})?)/i);
   if (totalVehicle) sticker.msrp = parseMoney(totalVehicle[1]);
   if (
     sticker.msrp == null &&
