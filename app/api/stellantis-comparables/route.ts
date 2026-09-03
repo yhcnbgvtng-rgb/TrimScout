@@ -28,6 +28,8 @@ export async function POST(request: Request) {
     : [];
   const zip = String(body?.zip || "").trim();
   const radiusMiles = Number(body?.radiusMiles);
+  const rawSubjectPrice = Number(body?.subjectListingPrice);
+  const subjectListingPrice = Number.isFinite(rawSubjectPrice) && rawSubjectPrice > 0 ? rawSubjectPrice : undefined;
 
   if (!isUsableHuntLocation(zip, radiusMiles)) {
     return NextResponse.json({
@@ -49,6 +51,7 @@ export async function POST(request: Request) {
       niceToHaveLines,
       zip,
       radiusMiles,
+      subjectListingPrice,
     });
     return NextResponse.json({
       success: true,

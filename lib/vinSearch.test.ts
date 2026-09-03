@@ -225,14 +225,14 @@ describe("vinSearch rank + must-have filter", () => {
     );
   });
 
-  it("ranks a real price cut ahead of more days on market, and days on market ahead of distance", () => {
+  it("ranks more days on market ahead of a real price cut, and a price cut ahead of distance", () => {
     const staleFar = { ...baseCard("STALE_FAR"), distanceMiles: 90, daysOnMarket: 120, priceChangeHint: null };
     const freshCut = { ...baseCard("FRESH_CUT"), distanceMiles: 10, daysOnMarket: 5, priceChangeHint: -1500 };
     const freshNear = { ...baseCard("FRESH_NEAR"), distanceMiles: 5, daysOnMarket: 5, priceChangeHint: null };
     assert.deepEqual(
       rankFordMatches([staleFar, freshNear, freshCut]).map((m) => m.vin),
-      ["FRESH_CUT", "STALE_FAR", "FRESH_NEAR"],
-      "a real cut wins first, then more days on market, then nearest"
+      ["STALE_FAR", "FRESH_CUT", "FRESH_NEAR"],
+      "the most days on market wins outright; among the tied-DOM remainder, a real cut beats nearest"
     );
   });
 
@@ -243,6 +243,51 @@ describe("vinSearch rank + must-have filter", () => {
       rankFordMatches([priceRose, noChange]).map((m) => m.vin),
       ["FLAT", "ROSE"],
       "same days on market, so nearest wins — a price increase must not rank as a cut"
+    );
+  });
+
+  it("within a price-cut tie on days on market, a deeper cut outranks a shallower one", () => {
+    const deepCut = { ...baseCard("DEEP"), distanceMiles: 50, daysOnMarket: 10, priceChangeHint: -3000 };
+    const shallowCut = { ...baseCard("SHALLOW"), distanceMiles: 5, daysOnMarket: 10, priceChangeHint: -200 };
+    assert.deepEqual(
+      rankFordMatches([shallowCut, deepCut]).map((m) => m.vin),
+      ["DEEP", "SHALLOW"],
+      "same days on market — the deeper (more negative) cut is the stronger activity signal, even though it's farther"
+    );
+  });
+
+  it("boosts a listing priced just under the subject's own listing price ahead of one priced far under or at/above it", () => {
+    const subjectListingPrice = 50000;
+    const slightlyUnder = { ...baseCard("SLIGHT"), distanceMiles: 50, listingPrice: 48000 };
+    const farUnder = { ...baseCard("BARGAIN"), distanceMiles: 5, listingPrice: 30000 };
+    const atOrAbove = { ...baseCard("PRICEY"), distanceMiles: 1, listingPrice: 51000 };
+    assert.deepEqual(
+      rankFordMatches([atOrAbove, farUnder, slightlyUnder], subjectListingPrice).map((m) => m.vin),
+      ["SLIGHT", "BARGAIN", "PRICEY"],
+      "closest-under-price wins the price-band tier over a deeper discount or an at/above-price listing, even though both of the others are nearer"
+    );
+  });
+
+  it("never drops a candidate for being at/above the subject's price or having an unknown price — a boost, not a filter", () => {
+    const subjectListingPrice = 50000;
+    const unknownPrice = { ...baseCard("UNKNOWN"), distanceMiles: 5, listingPrice: null };
+    const above = { ...baseCard("ABOVE"), distanceMiles: 50, listingPrice: 55000 };
+    const ranked = rankFordMatches([above, unknownPrice], subjectListingPrice);
+    assert.equal(ranked.length, 2, "both candidates are kept — price band is a sort boost only");
+  });
+
+  it("subjectListingPrice is optional — omitting it (or a non-positive value) leaves ranking unaffected by price band", () => {
+    const near = { ...baseCard("NEAR"), distanceMiles: 5, listingPrice: 60000 };
+    const far = { ...baseCard("FAR"), distanceMiles: 50, listingPrice: 10000 };
+    assert.deepEqual(
+      rankFordMatches([far, near]).map((m) => m.vin),
+      ["NEAR", "FAR"],
+      "with no subject price, distance still decides — a much cheaper farther lot must not jump ahead"
+    );
+    assert.deepEqual(
+      rankFordMatches([far, near], 0).map((m) => m.vin),
+      ["NEAR", "FAR"],
+      "a non-positive subject price is treated the same as absent"
     );
   });
 
@@ -271,6 +316,33 @@ describe("vinSearch rank + must-have filter", () => {
     assert.equal(shorkey?.priceChangeHint, -750);
     assert.equal(battlefield?.daysOnMarket, 3);
     assert.equal(battlefield?.priceChangeHint, null);
+  });
+
+  it("findSimilarFordVehicles threads subjectListingPrice through to the final ranking", async () => {
+    const subject = parseFordStickerText(SUBJECT, loadFixture(SUBJECT));
+    // Same days-on-market and no price-change hint on either side, so only
+    // the price-band tier (SHORKEY confirmed under $60k, BATTLEFIELD's price
+    // unconfirmed) decides.
+    const listings: ListingCandidate[] = DEMO_COMPARABLE_LISTINGS.map((l) =>
+      l.vin === SHORKEY || l.vin === BATTLEFIELD
+        ? { ...l, daysOnMarket: 10, priceChangeHint: null }
+        : l
+    );
+    const result = await findSimilarFordVehicles({
+      subjectVin: SUBJECT,
+      subject,
+      mustHaveLines: ["Ultimate Package", "Keyless Entry Keypad"],
+      zip: "07405",
+      radiusMiles: 500,
+      listings,
+      subjectListingPrice: 60000,
+      fetchSticker: async (vin) => parseFordStickerText(vin, loadFixture(vin)),
+    });
+    assert.deepEqual(
+      result.matches.map((m) => m.vin),
+      [SHORKEY, BATTLEFIELD],
+      "SHORKEY's confirmed $58,372 listing (just under the $60k subject price) outranks BATTLEFIELD's unconfirmed price"
+    );
   });
 
   it("selects the nearest lot, then the nearest lot from a different dealer", () => {

@@ -620,22 +620,56 @@ export async function searchCoarseListings(
 }
 
 /**
- * Ranks by free "dealer motivation" signals already on the search row — a real
- * price cut first, then more days on market, falling back to distance. No
+ * Ranks by free "dealer motivation" signals already on the search row — most
+ * days on market first, then a real price cut (a deeper cut ahead of a
+ * shallower one — the closest free proxy for "changes price often" this data
+ * supports; a positive move is never treated as a cut), then how close a
+ * listing sits just under the subject's own listing price (a sort boost,
+ * never a filter — an at/above-price or unpriced listing just falls back to
+ * the remaining tiebreakers instead of being dropped), then distance. No
  * history call is made to produce this order. Generic over any match-card
- * shape (Ford or GM) carrying these fields — the name is historical.
+ * shape (Ford, GM, or Stellantis) carrying these fields — the name is
+ * historical.
  */
 export function rankFordMatches<
-  T extends { priceChangeHint?: number | null; daysOnMarket?: number | null; distanceMiles: number | null; vin: string }
->(matches: T[]): T[] {
-  return [...matches].sort((a, b) => {
-    const aCut = typeof a.priceChangeHint === "number" && a.priceChangeHint < 0;
-    const bCut = typeof b.priceChangeHint === "number" && b.priceChangeHint < 0;
-    if (aCut !== bCut) return aCut ? -1 : 1;
+  T extends {
+    priceChangeHint?: number | null;
+    daysOnMarket?: number | null;
+    distanceMiles: number | null;
+    listingPrice?: number | null;
+    vin: string;
+  }
+>(matches: T[], subjectListingPrice?: number | null): T[] {
+  const subjectPrice =
+    typeof subjectListingPrice === "number" && subjectListingPrice > 0 ? subjectListingPrice : null;
 
+  // [0, gap] when confirmed under the subject's price (smaller gap — closer
+  // to, but still under, the subject's price — sorts first); [1, 0] for
+  // everything else (unknown price, or at/above the subject's price).
+  function priceBandRank(price: number | null | undefined): [number, number] {
+    if (!subjectPrice || typeof price !== "number" || price <= 0 || price >= subjectPrice) {
+      return [1, 0];
+    }
+    return [0, subjectPrice - price];
+  }
+
+  return [...matches].sort((a, b) => {
     const aDom = a.daysOnMarket ?? -1;
     const bDom = b.daysOnMarket ?? -1;
     if (aDom !== bDom) return bDom - aDom;
+
+    const aCut = typeof a.priceChangeHint === "number" && a.priceChangeHint < 0;
+    const bCut = typeof b.priceChangeHint === "number" && b.priceChangeHint < 0;
+    if (aCut !== bCut) return aCut ? -1 : 1;
+    if (aCut && bCut) {
+      const depthDiff = (a.priceChangeHint as number) - (b.priceChangeHint as number);
+      if (depthDiff !== 0) return depthDiff; // more negative (deeper cut) sorts first
+    }
+
+    const [aBand, aGap] = priceBandRank(a.listingPrice);
+    const [bBand, bGap] = priceBandRank(b.listingPrice);
+    if (aBand !== bBand) return aBand - bBand;
+    if (aBand === 0 && aGap !== bGap) return aGap - bGap;
 
     const aDist = a.distanceMiles ?? Number.POSITIVE_INFINITY;
     const bDist = b.distanceMiles ?? Number.POSITIVE_INFINITY;
@@ -708,6 +742,8 @@ export async function findSimilarFordVehicles(opts: {
   fetchSticker?: (vin: string) => Promise<FordSticker>;
   /** Optional VDP price fetch for tests; production uses extractVinFromDealerPage. */
   fetchVdpPrice?: (url: string) => Promise<number | null>;
+  /** The favorite vehicle's own listing price, if known — ranks a comparable that sits just under it ahead of one that doesn't. A boost, never a filter. */
+  subjectListingPrice?: number | null;
 }): Promise<FordSearchResult> {
   const zip = (opts.zip || "").trim();
   const radius = opts.radiusMiles;
@@ -875,7 +911,7 @@ export async function findSimilarFordVehicles(opts: {
   });
 
   const ranked = await enrichMatchListingPrices(
-    selectCompetitionSlots(rankFordMatches(matches)),
+    selectCompetitionSlots(rankFordMatches(matches, opts.subjectListingPrice)),
     opts.fetchVdpPrice
   );
   if (ranked.length === 0) {

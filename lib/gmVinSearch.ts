@@ -225,6 +225,8 @@ export async function findSimilarGmVehicles(opts: {
   listings?: ListingCandidate[];
   fetchSticker?: (vin: string) => Promise<GmSticker>;
   fetchVdpPrice?: (url: string) => Promise<number | null>;
+  /** The favorite vehicle's own listing price, if known — ranks a comparable that sits just under it ahead of one that doesn't. A boost, never a filter. */
+  subjectListingPrice?: number | null;
 }): Promise<GmSearchResult> {
   const zip = (opts.zip || "").trim();
   const radius = opts.radiusMiles;
@@ -377,7 +379,7 @@ export async function findSimilarGmVehicles(opts: {
   });
 
   const ranked = await enrichMatchListingPrices(
-    selectCompetitionSlots(rankFordMatches(matches)),
+    selectCompetitionSlots(rankFordMatches(matches, opts.subjectListingPrice)),
     opts.fetchVdpPrice
   );
   if (ranked.length === 0) {
