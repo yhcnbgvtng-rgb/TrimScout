@@ -44,6 +44,7 @@ import {
   ROLE_LABELS,
   applyVehicleTermsToSnapshot,
   assignCompetitorLot,
+  comparablesEndpointForVin,
   loadOfferCompareSnapshot,
   saveOfferCompareSnapshot,
   setLandingView,
@@ -271,10 +272,12 @@ export const OfferCompareView: React.FC = () => {
     if (!snapshot) return;
     const favoriteVin = vehicleForCompareRole(snapshot, "favorite")?.vehicle.vin;
     if (!favoriteVin) return;
+    const endpoint = comparablesEndpointForVin(favoriteVin);
+    if (!endpoint) return;
     setSuggestionsLoading(true);
     setSuggestionsError(null);
     try {
-      const res = await fetch("/api/ford-comparables", {
+      const res = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -383,6 +386,8 @@ export const OfferCompareView: React.FC = () => {
   const availableSuggestions = (suggestions || []).filter(
     (m) => !usedVins.has(m.vin.toUpperCase())
   );
+  const favoriteVin = vehicleForCompareRole(snapshot, "favorite")?.vehicle.vin;
+  const canFindComparable = !!favoriteVin && comparablesEndpointForVin(favoriteVin) != null;
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 space-y-6">
@@ -452,6 +457,7 @@ export const OfferCompareView: React.FC = () => {
                 setSlotError((prev) => ({ ...prev, [slot]: null }));
               }}
               onImport={() => void importCompetitor(slot)}
+              canFindComparable={canFindComparable}
               suggestions={availableSuggestions}
               suggestionsFetched={suggestions !== null}
               suggestionsLoading={suggestionsLoading}
@@ -474,6 +480,7 @@ function CompetitorPasteSlot({
   importing,
   onPasteChange,
   onImport,
+  canFindComparable,
   suggestions,
   suggestionsFetched,
   suggestionsLoading,
@@ -488,6 +495,7 @@ function CompetitorPasteSlot({
   importing: boolean;
   onPasteChange: (value: string) => void;
   onImport: () => void;
+  canFindComparable: boolean;
   suggestions: ComparableSuggestion[];
   suggestionsFetched: boolean;
   suggestionsLoading: boolean;
@@ -539,6 +547,7 @@ function CompetitorPasteSlot({
         </div>
         {error ? <p className="text-[11px] text-amber-200">{error}</p> : null}
 
+        {canFindComparable ? (
         <div className="pt-2 mt-2 border-t border-border/60 space-y-2">
           <button
             type="button"
@@ -596,6 +605,7 @@ function CompetitorPasteSlot({
             </ul>
           ) : null}
         </div>
+        ) : null}
       </div>
     </section>
   );

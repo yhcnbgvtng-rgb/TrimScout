@@ -6,6 +6,7 @@ import {
   assignCompetitorLot,
   buildOfferCompareSnapshot,
   collectDealVehicles,
+  comparablesEndpointForVin,
   parseOfferCompareSnapshot,
   snapshotVehiclesFromDeal,
   sortCompareColumns,
@@ -322,5 +323,40 @@ describe("comparable-vehicle suggestion to Vehicle", () => {
     assert.equal(veh.options.length, 2);
     assert.equal(veh.options[0].category, "package");
     assert.equal(veh.options[1].category, "standalone");
+  });
+
+  it("a GM VIN gets a Truck bodyType and a Chevrolet fallback make, never Ford's SUV/Ford defaults", () => {
+    const match = suggestion({
+      vin: "1GCUKDED8TZ200011",
+      make: undefined,
+      dealerName: "Ditschman Flemington Chevrolet",
+    });
+    const veh = vehicleFromComparableSuggestion(match);
+    assert.equal(veh.bodyType, "Truck");
+    assert.equal(veh.make, "Chevrolet");
+    assert.equal(veh.id, "vehicle-1GCUKDED8TZ200011");
+  });
+
+  it("a Ford VIN still gets the SUV bodyType and never a GM default", () => {
+    const match = suggestion({ vin: "1FMWK8JC1TGB69561", make: undefined });
+    const veh = vehicleFromComparableSuggestion(match);
+    assert.equal(veh.bodyType, "SUV");
+    assert.equal(veh.make, "Ford");
+  });
+});
+
+describe("comparablesEndpointForVin", () => {
+  it("routes a Ford/Lincoln VIN to /api/ford-comparables", () => {
+    assert.equal(comparablesEndpointForVin("1FMWK8JCXTGB47204"), "/api/ford-comparables");
+    assert.equal(comparablesEndpointForVin("5LMWK8JCXTGB47204"), "/api/ford-comparables");
+  });
+
+  it("routes a GM VIN to /api/gm-comparables", () => {
+    assert.equal(comparablesEndpointForVin("1GCUKDED8TZ200011"), "/api/gm-comparables");
+    assert.equal(comparablesEndpointForVin("1G6UKDED8TZ200011"), "/api/gm-comparables");
+  });
+
+  it("returns null for an unsupported OEM instead of guessing", () => {
+    assert.equal(comparablesEndpointForVin("WP0AB2A98SS160032"), null);
   });
 });
