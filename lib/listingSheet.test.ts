@@ -11,6 +11,7 @@ import {
 import {
   MARKETCHECK_SHOPPER_ATTRIBUTION,
   MAX_SHOPPER_PRICE_HISTORY,
+  currentDealerForVin,
   fetchShopperListingSheets,
   mapShopperPriceHistory,
   normalizeListingVins,
@@ -279,6 +280,69 @@ describe("fetchShopperListingSheets mocks HTTP", () => {
     const sheets = await fetchShopperListingSheets([FAVORITE], { apiKey: "test-key", fetchImpl });
     assert.equal(sheets[0].note, LISTING_DETAILS_UNAVAILABLE);
     assert.equal(sheets[0].attribution, null);
+  });
+});
+
+describe("currentDealerForVin — who currently has this VIN listed", () => {
+  it("makes exactly one search-only call and returns the live dealer, never history or listing detail", async () => {
+    const urls: string[] = [];
+    const fetchImpl = (async (input: RequestInfo | URL) => {
+      const url = String(input);
+      urls.push(url);
+      const parsed = new URL(url);
+      if (parsed.pathname === "/v2/search/car/active") {
+        assert.equal(parsed.searchParams.get("vin"), OTHER);
+        return new Response(JSON.stringify({ listings: [listingPayload(OTHER)] }), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+      throw new Error(`unexpected URL ${url}`);
+    }) as typeof fetch;
+
+    const dealer = await currentDealerForVin(OTHER, { apiKey: "test-key", fetchImpl });
+    assert.equal(urls.length, 1, "exactly one call — no history, no listing detail");
+    assert.ok(urls[0].includes("/v2/search/car/active"));
+    assert.equal(dealer?.dealerName, "Jim Shorkey Ford");
+    assert.equal(dealer?.dealerStreet, "123 Dealer Rd");
+    assert.equal(dealer?.dealerCity, "White Oak");
+    assert.equal(dealer?.dealerState, "PA");
+    assert.equal(dealer?.dealerZip, "15131");
+    assert.equal(dealer?.dealerPhone, "412-555-0100");
+    assert.equal(dealer?.vdpUrl, "https://www.jimshorkey.com/new-ford/" + OTHER);
+  });
+
+  it("returns null without a key, without a listing, or on a non-17-char VIN — never throws", async () => {
+    let calls = 0;
+    const countingFetch = (async () => {
+      calls += 1;
+      throw new Error("should not fetch");
+    }) as typeof fetch;
+    assert.equal(await currentDealerForVin(OTHER, { apiKey: null, fetchImpl: countingFetch }), null);
+    assert.equal(calls, 0, "no key means no call at all");
+
+    const emptyFetch = (async () =>
+      new Response(JSON.stringify({ num_found: 0, listings: [] }), { status: 200 })) as typeof fetch;
+    assert.equal(await currentDealerForVin(OTHER, { apiKey: "test-key", fetchImpl: emptyFetch }), null);
+
+    const failFetch = (async () => new Response("nope", { status: 503 })) as typeof fetch;
+    assert.equal(await currentDealerForVin(OTHER, { apiKey: "test-key", fetchImpl: failFetch }), null);
+
+    assert.equal(await currentDealerForVin("short", { apiKey: "test-key", fetchImpl: countingFetch }), null);
+
+    const throwingFetch = (async () => {
+      throw new Error("network down");
+    }) as typeof fetch;
+    assert.equal(await currentDealerForVin(OTHER, { apiKey: "test-key", fetchImpl: throwingFetch }), null);
+  });
+
+  it("treats a listing with no dealer name as a miss, not a partial result", async () => {
+    const fetchImpl = (async () =>
+      new Response(
+        JSON.stringify({ listings: [{ ...listingPayload(OTHER), dealer: { city: "White Oak" } }] }),
+        { status: 200, headers: { "Content-Type": "application/json" } }
+      )) as typeof fetch;
+    assert.equal(await currentDealerForVin(OTHER, { apiKey: "test-key", fetchImpl }), null);
   });
 });
 

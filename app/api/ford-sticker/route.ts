@@ -14,6 +14,7 @@ import {
   resolvePasteVin,
 } from "@/lib/fordSticker";
 import { stickerToVehicle } from "@/lib/vinSearch";
+import { currentDealerForVin } from "@/lib/listingSheet";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -83,7 +84,10 @@ async function lookup(opts: { vin?: string; paste?: string; pasteUrl: string | n
   }
 
   try {
-    const sticker = await getFordSticker(vin);
+    const [sticker, currentDealer] = await Promise.all([
+      getFordSticker(vin),
+      currentDealerForVin(vin),
+    ]);
     const listingUrl =
       opts.pasteUrl && /^https?:\/\//i.test(opts.pasteUrl) ? opts.pasteUrl.trim() : null;
     const mustHaveLines = defaultMustHaveLines(sticker);
@@ -94,7 +98,9 @@ async function lookup(opts: { vin?: string; paste?: string; pasteUrl: string | n
       vin,
       sticker,
       vehicle:
-        sticker.status === "released" ? stickerToVehicle(sticker, listingUrl, listingPrice) : null,
+        sticker.status === "released"
+          ? stickerToVehicle(sticker, listingUrl, listingPrice, currentDealer)
+          : null,
       listingPrice,
       mustHaveLines,
       niceToHaveLines,

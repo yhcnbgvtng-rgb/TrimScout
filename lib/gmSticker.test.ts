@@ -121,6 +121,30 @@ describe("GM factory-build parse is not Ford's layout", () => {
     assert.equal(sticker.dealerSoldTo?.state, "NJ");
   });
 
+  it("gmStickerToVehicle prefers the live current dealer over the sticker's factory ship-to dealer", () => {
+    const withoutLiveDealer = gmStickerToVehicle(sticker, null, null, null);
+    assert.equal(withoutLiveDealer.location.dealerName, "Ditschman Flemington Chevrolet");
+    assert.equal(withoutLiveDealer.location.city, "Flemington");
+    assert.equal(withoutLiveDealer.location.state, "NJ");
+    assert.equal(withoutLiveDealer.location.dealerConfirmed, false);
+
+    const liveDealer = {
+      dealerName: "Allentown Chevrolet",
+      dealerStreet: "1 Main St",
+      dealerCity: "Allentown",
+      dealerState: "PA",
+      dealerZip: "18101",
+      dealerPhone: "610-555-0100",
+      vdpUrl: "https://www.allentownchevy.example/vdp",
+    };
+    const withLiveDealer = gmStickerToVehicle(sticker, null, null, liveDealer);
+    assert.equal(withLiveDealer.location.dealerName, "Allentown Chevrolet");
+    assert.equal(withLiveDealer.location.city, "Allentown");
+    assert.equal(withLiveDealer.location.state, "PA");
+    assert.equal(withLiveDealer.location.dealerConfirmed, true);
+    assert.equal(withLiveDealer.dealerUrl, "https://www.allentownchevy.example/vdp");
+  });
+
   it("keeps must-have boxes unchecked and lists factory options plus color", () => {
     const names = filterableFactoryOptions(sticker).map((o) => o.name);
     assert.ok(names.includes("Z71 Off-Road Package"));
