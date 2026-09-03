@@ -110,6 +110,8 @@ function baseCard(vin: string): FordMatchCard {
     stickerStatus: "released",
     factoryOptions: [],
     factoryOptionsStatus: "unavailable",
+    daysOnMarket: null,
+    priceChangeHint: null,
   };
 }
 
@@ -221,6 +223,54 @@ describe("vinSearch rank + must-have filter", () => {
       rankFordMatches([farCheapNice, near]).map((m) => m.vin),
       ["NEAR", "FAR"]
     );
+  });
+
+  it("ranks a real price cut ahead of more days on market, and days on market ahead of distance", () => {
+    const staleFar = { ...baseCard("STALE_FAR"), distanceMiles: 90, daysOnMarket: 120, priceChangeHint: null };
+    const freshCut = { ...baseCard("FRESH_CUT"), distanceMiles: 10, daysOnMarket: 5, priceChangeHint: -1500 };
+    const freshNear = { ...baseCard("FRESH_NEAR"), distanceMiles: 5, daysOnMarket: 5, priceChangeHint: null };
+    assert.deepEqual(
+      rankFordMatches([staleFar, freshNear, freshCut]).map((m) => m.vin),
+      ["FRESH_CUT", "STALE_FAR", "FRESH_NEAR"],
+      "a real cut wins first, then more days on market, then nearest"
+    );
+  });
+
+  it("does not treat a positive price move (an increase) as a motivating cut", () => {
+    const priceRose = { ...baseCard("ROSE"), distanceMiles: 50, daysOnMarket: 10, priceChangeHint: 500 };
+    const noChange = { ...baseCard("FLAT"), distanceMiles: 5, daysOnMarket: 10, priceChangeHint: null };
+    assert.deepEqual(
+      rankFordMatches([priceRose, noChange]).map((m) => m.vin),
+      ["FLAT", "ROSE"],
+      "same days on market, so nearest wins — a price increase must not rank as a cut"
+    );
+  });
+
+  it("carries days-on-market and the price-change hint from the free search row into the match", async () => {
+    const subject = parseFordStickerText(SUBJECT, loadFixture(SUBJECT));
+    const listings: ListingCandidate[] = DEMO_COMPARABLE_LISTINGS.map((l) =>
+      l.vin === SHORKEY
+        ? { ...l, daysOnMarket: 42, priceChangeHint: -750 }
+        : l.vin === BATTLEFIELD
+          ? { ...l, daysOnMarket: 3, priceChangeHint: null }
+          : l
+    );
+    const result = await findSimilarFordVehicles({
+      subjectVin: SUBJECT,
+      subject,
+      mustHaveLines: ["Ultimate Package", "Keyless Entry Keypad"],
+      niceToHaveLines: ["BlueCruise"],
+      zip: "07405",
+      radiusMiles: 500,
+      listings,
+      fetchSticker: async (vin) => parseFordStickerText(vin, loadFixture(vin)),
+    });
+    const shorkey = result.matches.find((m) => m.vin === SHORKEY);
+    const battlefield = result.matches.find((m) => m.vin === BATTLEFIELD);
+    assert.equal(shorkey?.daysOnMarket, 42);
+    assert.equal(shorkey?.priceChangeHint, -750);
+    assert.equal(battlefield?.daysOnMarket, 3);
+    assert.equal(battlefield?.priceChangeHint, null);
   });
 
   it("selects the nearest lot, then the nearest lot from a different dealer", () => {
@@ -912,7 +962,7 @@ describe("shopper-facing factory option copy", () => {
     assert.doesNotMatch(src, /\/api\/ford-comparables/);
     assert.doesNotMatch(src, /\/api\/comparable-vehicles/);
     const compare = fs.readFileSync(path.join(process.cwd(), "components/OfferCompareView.tsx"), "utf8");
-    assert.doesNotMatch(compare, /\/api\/ford-comparables/);
+    assert.match(compare, /\/api\/ford-comparables/);
     assert.doesNotMatch(compare, /\/api\/compare-deal/);
     assert.match(compare, /\/api\/listing-facts/);
     assert.match(compare, /importPastedFactoryVehicle/);
@@ -1806,6 +1856,7 @@ describe("listings provider selection", () => {
               price: 55990,
               vdp_url: null,
               exterior_color: "Star White",
+              dom: 3,
               build: { year: 2026, make: "Ford", model: "Explorer", trim: "Tremor" },
               dealer: {
                 id: 44001,
@@ -1822,6 +1873,8 @@ describe("listings provider selection", () => {
               price: 58372,
               vdp_url:
                 "https://www.jimshorkey.com/new-Pittsburgh-2026-Ford-Explorer-Tremor+Ultimate+Package-1FMWK8JC7TGB81309",
+              dom: 42,
+              price_change: -750,
               build: { year: 2026, make: "Ford", model: "Explorer", trim: "Tremor" },
               dealer: {
                 id: 44002,
@@ -1864,12 +1917,16 @@ describe("listings provider selection", () => {
       assert.equal(result.provider, "marketcheck");
       assert.equal(result.hasListingsKey, true);
       assert.equal(result.matches.length, 2);
-      assert.equal(result.matches[0].vin, BATTLEFIELD);
-      assert.equal(result.matches[1].vin, SHORKEY);
-      assert.equal(result.matches[0].dealerId, "44001");
-      assert.equal(result.matches[1].dealerId, "44002");
-      assert.equal(result.matches[0].listingPrice, 55990);
-      assert.equal(result.matches[0].listingPriceSource, "listing");
+      assert.equal(result.matches[0].vin, SHORKEY, "Shorkey's real price cut outranks Battlefield's nearness");
+      assert.equal(result.matches[1].vin, BATTLEFIELD);
+      assert.equal(result.matches[0].dealerId, "44002");
+      assert.equal(result.matches[1].dealerId, "44001");
+      assert.equal(result.matches[0].daysOnMarket, 42);
+      assert.equal(result.matches[0].priceChangeHint, -750);
+      assert.equal(result.matches[1].daysOnMarket, 3);
+      assert.equal(result.matches[1].priceChangeHint, null);
+      assert.equal(result.matches[1].listingPrice, 55990);
+      assert.equal(result.matches[1].listingPriceSource, "listing");
       assert.equal(result.dropped.find((d) => d.vin === MALL_OF_GEORGIA)?.reason, "missing_must_have");
       assert.match(result.note, /factory options/i);
       assertShopperCopyHidesVendor(result.note);

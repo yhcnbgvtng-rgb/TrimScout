@@ -9,6 +9,7 @@ import {
   LoaderCircle as Loader2,
   MapPin,
   Phone,
+  Search,
   Zap,
 } from "lucide-react";
 import {
@@ -49,8 +50,10 @@ import {
   sortCompareColumns,
   upsertShopperRequest,
   vehicleForCompareRole,
+  vehicleFromComparableSuggestion,
   type CompareSortMetrics,
   type CompareSortMode,
+  type ComparableSuggestion,
   type OfferCompareSnapshot,
   type OfferCompareVehicle,
 } from "../lib/offerCompare";
@@ -147,6 +150,9 @@ export const OfferCompareView: React.FC = () => {
   const [slotPaste, setSlotPaste] = useState<Record<1 | 2, string>>({ 1: "", 2: "" });
   const [slotError, setSlotError] = useState<Record<1 | 2, string | null>>({ 1: null, 2: null });
   const [importingSlot, setImportingSlot] = useState<1 | 2 | null>(null);
+  const [suggestions, setSuggestions] = useState<ComparableSuggestion[] | null>(null);
+  const [suggestionsLoading, setSuggestionsLoading] = useState(false);
+  const [suggestionsError, setSuggestionsError] = useState<string | null>(null);
 
   useEffect(() => {
     const next = loadOfferCompareSnapshot();
@@ -258,6 +264,58 @@ export const OfferCompareView: React.FC = () => {
     [persist, slotPaste, snapshot]
   );
 
+  // One search call, however many suggestions come back — days-on-market and
+  // the price-change hint ride along on that same free search row, so
+  // ranking/display costs nothing extra. Only fires on the buyer's click.
+  const findComparableVehicles = useCallback(async () => {
+    if (!snapshot) return;
+    const favoriteVin = vehicleForCompareRole(snapshot, "favorite")?.vehicle.vin;
+    if (!favoriteVin) return;
+    setSuggestionsLoading(true);
+    setSuggestionsError(null);
+    try {
+      const res = await fetch("/api/ford-comparables", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          subjectVin: favoriteVin,
+          mustHaveLines: snapshot.mustHaveLines,
+          niceToHaveLines: snapshot.niceToHaveLines,
+          zip: snapshot.buyerZip,
+          radiusMiles: snapshot.searchRadiusMiles,
+        }),
+      });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok || json?.error) {
+        setSuggestions([]);
+        setSuggestionsError(
+          typeof json?.error === "string" ? json.error : FORD_LISTINGS_LOAD_FAILED
+        );
+        return;
+      }
+      setSuggestions(Array.isArray(json.matches) ? (json.matches as ComparableSuggestion[]) : []);
+    } catch {
+      setSuggestions([]);
+      setSuggestionsError(FORD_LISTINGS_LOAD_FAILED);
+    } finally {
+      setSuggestionsLoading(false);
+    }
+  }, [snapshot]);
+
+  const addSuggestion = useCallback(
+    (slot: 1 | 2, match: ComparableSuggestion) => {
+      if (!snapshot) return;
+      const assigned = assignCompetitorLot(snapshot, slot, vehicleFromComparableSuggestion(match));
+      if (!assigned.ok) {
+        setSlotError((prev) => ({ ...prev, [slot]: assigned.error }));
+        return;
+      }
+      persist(assigned.snapshot);
+      setSuggestions((prev) => (prev ? prev.filter((m) => m.vin !== match.vin) : prev));
+    },
+    [persist, snapshot]
+  );
+
   const goToTracker = () => {
     if (snapshot) {
       saveOfferCompareSnapshot(snapshot);
@@ -320,6 +378,11 @@ export const OfferCompareView: React.FC = () => {
   const sortableLots = baseColumns.filter(
     (c) => c.role !== "favorite" && c.column?.vehicle.vin
   ).length;
+
+  const usedVins = new Set(importedVins);
+  const availableSuggestions = (suggestions || []).filter(
+    (m) => !usedVins.has(m.vin.toUpperCase())
+  );
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 space-y-6">
@@ -389,6 +452,12 @@ export const OfferCompareView: React.FC = () => {
                 setSlotError((prev) => ({ ...prev, [slot]: null }));
               }}
               onImport={() => void importCompetitor(slot)}
+              suggestions={availableSuggestions}
+              suggestionsFetched={suggestions !== null}
+              suggestionsLoading={suggestionsLoading}
+              suggestionsError={suggestionsError}
+              onFindComparable={() => void findComparableVehicles()}
+              onAddSuggestion={(match) => addSuggestion(slot, match)}
             />
           );
         })}
@@ -405,6 +474,12 @@ function CompetitorPasteSlot({
   importing,
   onPasteChange,
   onImport,
+  suggestions,
+  suggestionsFetched,
+  suggestionsLoading,
+  suggestionsError,
+  onFindComparable,
+  onAddSuggestion,
 }: {
   slot: 1 | 2;
   label: string;
@@ -413,6 +488,12 @@ function CompetitorPasteSlot({
   importing: boolean;
   onPasteChange: (value: string) => void;
   onImport: () => void;
+  suggestions: ComparableSuggestion[];
+  suggestionsFetched: boolean;
+  suggestionsLoading: boolean;
+  suggestionsError: string | null;
+  onFindComparable: () => void;
+  onAddSuggestion: (match: ComparableSuggestion) => void;
 }) {
   return (
     <section className="rounded-2xl border border-dashed border-border bg-surface shadow-xl overflow-hidden flex flex-col min-h-[240px]">
@@ -457,6 +538,64 @@ function CompetitorPasteSlot({
           </button>
         </div>
         {error ? <p className="text-[11px] text-amber-200">{error}</p> : null}
+
+        <div className="pt-2 mt-2 border-t border-border/60 space-y-2">
+          <button
+            type="button"
+            onClick={onFindComparable}
+            disabled={suggestionsLoading}
+            className="w-full rounded-xl border border-border bg-background px-3 py-2 text-[11px] font-bold text-emerald-300 hover:border-emerald-500 hover:text-emerald-200 transition-all flex items-center justify-center gap-1.5 disabled:opacity-50"
+          >
+            {suggestionsLoading ? (
+              <>
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                Searching…
+              </>
+            ) : (
+              <>
+                <Search className="h-3.5 w-3.5" />
+                Find comparable vehicles
+              </>
+            )}
+          </button>
+          {suggestionsError ? <p className="text-[11px] text-amber-200">{suggestionsError}</p> : null}
+          {suggestionsFetched && !suggestionsLoading && !suggestionsError && suggestions.length === 0 ? (
+            <p className="text-[11px] text-ink-muted">No comparable vehicles found nearby.</p>
+          ) : null}
+          {suggestions.length > 0 ? (
+            <ul className="space-y-1.5">
+              {suggestions.map((match) => (
+                <li
+                  key={match.vin}
+                  className="rounded-lg border border-border bg-background px-2.5 py-2 flex items-center justify-between gap-2"
+                >
+                  <div className="min-w-0">
+                    <p className="text-[11px] font-bold text-white truncate">{match.dealerName}</p>
+                    <p className="text-[10px] text-ink-muted truncate">
+                      {[match.city, match.state].filter(Boolean).join(", ")}
+                      {match.distanceMiles != null ? ` · ${match.distanceMiles} mi` : ""}
+                    </p>
+                    {match.daysOnMarket != null || (typeof match.priceChangeHint === "number" && match.priceChangeHint < 0) ? (
+                      <p className="text-[10px] text-ink-faint mt-0.5 flex items-center gap-1.5">
+                        {match.daysOnMarket != null ? <span>{match.daysOnMarket}d on market</span> : null}
+                        {typeof match.priceChangeHint === "number" && match.priceChangeHint < 0 ? (
+                          <span className="text-emerald-400 font-semibold">price cut</span>
+                        ) : null}
+                      </p>
+                    ) : null}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => onAddSuggestion(match)}
+                    className="shrink-0 rounded-lg bg-emerald-500/90 px-2.5 py-1.5 text-[10px] font-extrabold text-black hover:bg-emerald-400"
+                  >
+                    Add
+                  </button>
+                </li>
+              ))}
+            </ul>
+          ) : null}
+        </div>
       </div>
     </section>
   );
