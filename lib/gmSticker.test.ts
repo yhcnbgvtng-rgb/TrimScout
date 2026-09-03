@@ -406,3 +406,47 @@ describe("paste import never substitutes a catalog VIN", () => {
     }
   });
 });
+
+describe("newer GM sticker template — labeled header, footnoted total, trailing trim", () => {
+  // Real sticker text fetched live from GM's CWS service (VIN swapped for a
+  // fixture VIN). GM has since reissued the original test VIN's sticker in
+  // this newer format — "TRANSMISSION: 10-SPEED AUTO" (label before value,
+  // reversed from the older template), "STANDARD VEHICLE PRICE" instead of
+  // "BASE PRICE", "TOTAL VEHICLE PRICE* $X" with a footnote marker before
+  // the amount, and the trim word trailing the year/model headline instead
+  // of on its own line. All four previously fell through to null/undefined.
+  const NEWER_TEMPLATE = "1GCUKDED4TZ200066";
+
+  it("parses trim from the trailing word of the headline line", () => {
+    const s = parseGmStickerText(NEWER_TEMPLATE, loadFixture(NEWER_TEMPLATE));
+    assert.equal(s.year, 2026);
+    assert.equal(s.model, "Silverado 1500");
+    assert.equal(s.trim, "LT");
+  });
+
+  it("parses a label-before-value transmission line, not the country-of-origin TRANSMISSION: line", () => {
+    const s = parseGmStickerText(NEWER_TEMPLATE, loadFixture(NEWER_TEMPLATE));
+    assert.match(s.transmission || "", /10-SPEED AUTO/i);
+    assert.doesNotMatch(s.transmission || "", /UNITED STATES/i);
+  });
+
+  it("parses STANDARD VEHICLE PRICE as basePrice and the footnoted TOTAL VEHICLE PRICE* as msrp", () => {
+    const s = parseGmStickerText(NEWER_TEMPLATE, loadFixture(NEWER_TEMPLATE));
+    assert.equal(s.basePrice, 53600);
+    assert.equal(s.optionsPrice, 1990);
+    assert.equal(s.destination, 2595);
+    assert.equal(s.msrp, 58185);
+    assert.equal(
+      Math.round((s.basePrice! + s.optionsPrice! + s.destination!) * 100) / 100,
+      s.msrp,
+      "sanity check: the parsed total actually equals base + options + destination"
+    );
+  });
+
+  it("still parses exterior/interior color and engine from the labeled header", () => {
+    const s = parseGmStickerText(NEWER_TEMPLATE, loadFixture(NEWER_TEMPLATE));
+    assert.equal(s.exteriorColor, "Riptide Blue Metallic");
+    assert.equal(s.interiorColor, "Jet Black");
+    assert.match(s.engine || "", /5\.3L ECOTEC3 V8/i);
+  });
+});
