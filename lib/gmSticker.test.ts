@@ -449,4 +449,49 @@ describe("newer GM sticker template — labeled header, footnoted total, trailin
     assert.equal(s.interiorColor, "Jet Black");
     assert.match(s.engine || "", /5\.3L ECOTEC3 V8/i);
   });
+
+  it("parses the options list under the new 'OPTIONS INSTALLED BY THE MANUFACTURER' header, not the old 'OPTIONAL EQUIPMENT' one", () => {
+    const s = parseGmStickerText(NEWER_TEMPLATE, loadFixture(NEWER_TEMPLATE));
+    // Was empty before the fix: the old parser only recognized "OPTIONAL
+    // EQUIPMENT" as the section start, which this template never prints.
+    assert.ok(s.options.length > 0, "options must not come back empty for this template");
+    const names = s.options.map((o) => o.name);
+    assert.ok(names.some((n) => /RIPTIDE BLUE METALLIC/i.test(n)));
+    const paintOption = s.options.find((o) => /RIPTIDE BLUE METALLIC/i.test(o.name));
+    assert.equal(paintOption?.price, 395);
+    // The instructional header lines themselves must never appear as options.
+    assert.ok(!names.some((n) => /OPTIONS INSTALLED BY THE MANUFACTURER/i.test(n)));
+    assert.ok(!names.some((n) => /^STANDARD EQUIPMENT SHOWN/i.test(n)));
+    // The trailing price-summary lines must not leak in as fake options.
+    assert.ok(!names.some((n) => /^TOTAL (OPTIONS|VEHICLE)/i.test(n)));
+  });
+
+  it("breaks out a priced option (a paint upcharge here) for the must-have checklist — same section-boundary bug the user hit on a wheels option", () => {
+    // Confirmed live against the exact VIN the user reported
+    // (1GCPKKEKXTZ461947): its "20\" ALUMINUM WHEELS W/ GRAZEN 800.00" line
+    // was silently dropped by the same bug this fixture exercises — the
+    // options section never got sliced out at all, so nothing after the
+    // header showed up as a must-have option, priced or not.
+    const s = parseGmStickerText(NEWER_TEMPLATE, loadFixture(NEWER_TEMPLATE));
+    const breakout = gmFactoryOptionBreakout(s);
+    assert.ok(breakout.length > 0);
+    const paint = breakout.find((o) => /RIPTIDE BLUE METALLIC/i.test(o.description));
+    assert.equal(paint?.price, 395);
+    assert.ok(breakout.some((o) => /ALUMINUM WHEELS/i.test(o.description)));
+  });
+
+  it("the exact VIN reported by the user (1GCPKKEKXTZ461947): $800 wheels shows up, price is confirmed, not 'unconfirmed'", () => {
+    const vin = "1GCPKKEKXTZ461947";
+    const s = parseGmStickerText(vin, loadFixture(vin));
+    assert.equal(s.status, "released");
+    assert.equal(s.trim, "LT");
+    assert.equal(s.basePrice, 51000);
+    assert.equal(s.optionsPrice, 800);
+    assert.equal(s.destination, 2795);
+    assert.equal(s.msrp, 54595, "msrp must be a real number, not null/'unconfirmed'");
+    const breakout = gmFactoryOptionBreakout(s);
+    const wheels = breakout.find((o) => /ALUMINUM WHEELS/i.test(o.description));
+    assert.ok(wheels, "the 20\" aluminum wheels option must appear in the must-have checklist");
+    assert.equal(wheels?.price, 800);
+  });
 });

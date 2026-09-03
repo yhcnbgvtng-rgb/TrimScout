@@ -87,7 +87,7 @@ export interface MustHaveCheck {
 
 const MEMORY_CACHE = new Map<string, GmSticker>();
 const CACHE_DIR = path.join("/tmp", "trimscout-gm-stickers");
-const PARSER_VERSION = 2;
+const PARSER_VERSION = 3;
 const BROWSER_UA =
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36";
 
@@ -349,12 +349,18 @@ export function parseGmStickerText(vin: string, text: string): GmSticker {
     };
   }
 
+  // Newer sticker template labels this section "OPTIONS & PRICING" /
+  // "OPTIONS INSTALLED BY THE MANUFACTURER (MAY REPLACE\nSTANDARD EQUIPMENT
+  // SHOWN)" instead of "OPTIONAL EQUIPMENT" — that instructional line's own
+  // "STANDARD EQUIPMENT" text must not be mistaken for the (unrelated)
+  // standard-equipment section header used elsewhere as an end marker.
   const optionalBlock = sliceSection(
     text,
-    /OPTIONAL EQUIPMENT/i,
-    /MANUFACTURER'?S SUGGESTED RETAIL PRICE|BASE PRICE|STANDARD EQUIPMENT|EPA |FUEL ECONOMY|WARRANTY\b/i
+    /OPTIONAL EQUIPMENT|OPTIONS INSTALLED BY THE MANUFACTURER/i,
+    /MANUFACTURER'?S SUGGESTED RETAIL PRICE|BASE PRICE|STANDARD EQUIPMENT(?!\s+SHOWN\))|EPA |FUEL ECONOMY|WARRANTY\b|TOTAL (?:OPTIONS|VEHICLE)\b/i
   );
-  const skipHeaders = /^(OPTIONAL EQUIPMENT(?:\s+AND\s+PACKAGES)?|ADDITIONAL EQUIPMENT|PACKAGES|OPTIONS)$/i;
+  const skipHeaders =
+    /^(OPTIONAL EQUIPMENT(?:\s+AND\s+PACKAGES)?|ADDITIONAL EQUIPMENT|PACKAGES|OPTIONS|OPTIONS\s*&\s*PRICING|OPTIONS INSTALLED BY THE MANUFACTURER\s*\(MAY REPLACE|STANDARD EQUIPMENT SHOWN\)?)$/i;
   for (const line of optionalBlock
     .split("\n")
     .map((l) => l.trim())
@@ -419,8 +425,8 @@ export function stickerHasMustHave(sticker: GmSticker, query: string): boolean {
   if (sticker.engine && optionMatchesQuery(sticker.engine, query)) return true;
   const optional = sliceSection(
     sticker.rawText,
-    /OPTIONAL EQUIPMENT/i,
-    /MANUFACTURER'?S SUGGESTED RETAIL PRICE|BASE PRICE|STANDARD EQUIPMENT/i
+    /OPTIONAL EQUIPMENT|OPTIONS INSTALLED BY THE MANUFACTURER/i,
+    /MANUFACTURER'?S SUGGESTED RETAIL PRICE|BASE PRICE|STANDARD EQUIPMENT(?!\s+SHOWN\))|TOTAL (?:OPTIONS|VEHICLE)\b/i
   );
   if (/SUPER\s*CRUISE/i.test(query)) return /SUPER\s*CRUISE/i.test(optional);
   if (/MULTI\s*-?\s*FLEX/i.test(query)) return /MULTI\s*-?\s*FLEX/i.test(optional);
