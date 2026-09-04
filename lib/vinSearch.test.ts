@@ -1011,24 +1011,26 @@ describe("shopper-facing factory option copy", () => {
     assert.match(compare, /FORD_COMPETITION_FACTORY_OPTIONS_UNAVAILABLE/);
   });
 
-  it("step 2 preview and other-lots copy never say sticker or Increase Competition", () => {
+  it("step 1 preview and other-lots copy never say sticker or Increase Competition", () => {
     const src = fs.readFileSync(path.join(process.cwd(), "components/BiddingWizard.tsx"), "utf8");
-    const start = src.indexOf("STEP 2:");
-    const end = src.indexOf("STEP 3:");
+    // The vehicle-import preview used to live in its own step 2; it's now
+    // part of merged step 1.
+    const start = src.indexOf("STEP 1: PAYMENT, VEHICLE & TRADE-IN FLAG");
+    const end = src.indexOf("STEP 2: DIRECT OFFER");
     assert.ok(start >= 0 && end > start);
-    const step2 = src.slice(start, end);
-    assert.doesNotMatch(step2, /window sticker/i);
-    assert.doesNotMatch(step2, /Increase Competition/);
-    assert.doesNotMatch(step2, /consider other vehicles to include in the offer package/i);
-    assert.doesNotMatch(step2, /Ford sticker PDF/);
-    assert.doesNotMatch(step2, /Decoding Window Sticker/);
-    assert.doesNotMatch(step2, />sticker</);
-    assert.match(step2, /FORD_BUILD_SHEET_LINK/);
-    assert.match(step2, /shopperPriceSourceLabel/);
-    assert.doesNotMatch(step2, /FORD_OTHER_LOTS_HEADING/);
-    assert.doesNotMatch(step2, /FORD_OTHER_LOTS_MODE_FIND/);
-    assert.doesNotMatch(step2, /FORD_OTHER_LOTS_MODE_PASTE/);
-    assert.doesNotMatch(step2, /type="radio"/);
+    const step1 = src.slice(start, end);
+    assert.doesNotMatch(step1, /window sticker/i);
+    assert.doesNotMatch(step1, /Increase Competition/);
+    assert.doesNotMatch(step1, /consider other vehicles to include in the offer package/i);
+    assert.doesNotMatch(step1, /Ford sticker PDF/);
+    assert.doesNotMatch(step1, /Decoding Window Sticker/);
+    assert.doesNotMatch(step1, />sticker</);
+    assert.match(step1, /FORD_BUILD_SHEET_LINK/);
+    assert.match(step1, /shopperPriceSourceLabel/);
+    assert.doesNotMatch(step1, /FORD_OTHER_LOTS_HEADING/);
+    assert.doesNotMatch(step1, /FORD_OTHER_LOTS_MODE_FIND/);
+    assert.doesNotMatch(step1, /FORD_OTHER_LOTS_MODE_PASTE/);
+    assert.doesNotMatch(step1, /type="radio"/);
     assert.doesNotMatch(src, /useState<OtherLotsMode>/);
     assert.doesNotMatch(src, /findLotsMode/);
     assert.doesNotMatch(src, /\/api\/ford-comparables/);
@@ -1050,45 +1052,63 @@ describe("shopper-facing factory option copy", () => {
     assert.match(FORD_MUST_HAVE_HELP, /Unchecked options are ignored/);
   });
 
-  it("step 2 has no Lock This Car control; footer Continue waits for a successful Import Car", () => {
+  it("step 1 has no Lock This Car control; footer Continue waits for a successful Import Car", () => {
     const src = fs.readFileSync(path.join(process.cwd(), "components/BiddingWizard.tsx"), "utf8");
-    const start = src.indexOf("STEP 2:");
-    const end = src.indexOf("STEP 3:");
+    // Vehicle selection used to be its own step 2; it's now merged into
+    // step 1 alongside payment method and the trade-in toggle.
+    const start = src.indexOf("STEP 1: PAYMENT, VEHICLE & TRADE-IN FLAG");
+    const end = src.indexOf("STEP 2: DIRECT OFFER");
     assert.ok(start >= 0 && end > start);
-    const step2 = src.slice(start, end);
+    const step1 = src.slice(start, end);
     assert.doesNotMatch(src, /Lock This Car/);
-    assert.doesNotMatch(step2, /onClick=\{\(\) => setStep\(3\)\}/);
-    assert.match(src, /const vehicleImported = Boolean\(parseSuccessMsg && selectedVehicle\)/);
-    assert.match(src, /if \(step === 2 && !vehicleImported\) return;/);
-    assert.match(src, /step === 2 && !vehicleImported/);
-    assert.match(step2, /Import a car to continue/);
-    assert.match(step2, /Import Car →/);
+    assert.doesNotMatch(step1, /onClick=\{\(\) => setStep\(3\)\}/);
+    assert.match(src, /const vehicleImported = Boolean\(lockVehicleSelection \|\| \(parseSuccessMsg && selectedVehicle\)\)/);
+    assert.match(src, /if \(step === 1 && \(requestedStructures\.length === 0 \|\| !vehicleImported\)\) return;/);
+    assert.match(step1, /Import a car to continue/);
+    assert.match(step1, /Import Car →/);
   });
 
-  it("step 3 is only a direct offer vs multi-dealer choice", () => {
+  it("step 2 is only a direct offer vs multi-dealer choice", () => {
     const src = fs.readFileSync(path.join(process.cwd(), "components/BiddingWizard.tsx"), "utf8");
-    const start = src.indexOf("STEP 3:");
-    const end = src.indexOf("STEP 4:");
+    // Direct-offer/multi-dealer used to be step 3; it's now step 2 since
+    // payment+vehicle merged into one step and the trade-in step was
+    // deleted (trade-in is now just a toggle at the bottom of step 1).
+    const start = src.indexOf("STEP 2: DIRECT OFFER");
+    const end = src.indexOf("STEP 3: REVIEW");
     assert.ok(start >= 0 && end > start);
-    const step3 = src.slice(start, end);
-    assert.match(step3, /Offer this dealer directly/);
-    assert.match(step3, /Get prices from other dealers/);
+    const step2 = src.slice(start, end);
+    assert.match(step2, /Offer this dealer directly/);
+    assert.match(step2, /Get prices from other dealers/);
     assert.match(src, /chooseDirectOffer/);
     assert.match(src, /chooseMultiDealer/);
     assert.match(src, /setDirectOfferMode\(true\)/);
     assert.match(src, /setStrategy\("exact_auction"\)/);
-    assert.match(src, /step === 3 && !offerPath/);
-    assert.doesNotMatch(step3, /Find your car based on Make and Model/);
-    assert.doesNotMatch(step3, /Find your car based on must have specs/);
-    assert.doesNotMatch(step3, /Firm Buyer Target Offer/);
-    assert.doesNotMatch(step3, /MOCK_POPULAR_PACKAGES/);
-    assert.doesNotMatch(step3, /FORD_MUST_HAVE_HEADING/);
-    assert.doesNotMatch(step3, /RECOMMENDED/);
+    assert.match(src, /step === 2 && !offerPath/);
+    assert.doesNotMatch(step2, /Find your car based on Make and Model/);
+    assert.doesNotMatch(step2, /Find your car based on must have specs/);
+    assert.doesNotMatch(step2, /Firm Buyer Target Offer/);
+    assert.doesNotMatch(step2, /MOCK_POPULAR_PACKAGES/);
+    assert.doesNotMatch(step2, /FORD_MUST_HAVE_HEADING/);
+    assert.doesNotMatch(step2, /RECOMMENDED/);
     assert.doesNotMatch(src, /Lock This Car/);
     assert.doesNotMatch(src, /handleSubmitDirectOffer/);
   });
 
-  it("step 6 review shows the imported vehicle, VIN, and dealer — never a leftover BMW", () => {
+  it("step 1's trade-in toggle only shows a note, no photo/appraisal collection", () => {
+    const src = fs.readFileSync(path.join(process.cwd(), "components/BiddingWizard.tsx"), "utf8");
+    const start = src.indexOf("STEP 1: PAYMENT, VEHICLE & TRADE-IN FLAG");
+    const end = src.indexOf("STEP 2: DIRECT OFFER");
+    const step1 = src.slice(start, end);
+    assert.match(step1, /Do you have a trade-in\?/);
+    assert.match(step1, /trade-in will be handled after the selling price has been reached/i);
+    assert.doesNotMatch(src, /Trade-In Vehicle & Photo Appraisal/);
+    assert.doesNotMatch(src, /Submit Trade-In Photos/);
+    assert.doesNotMatch(src, /Live VIN Decoder \(NHTSA Database\)/);
+    assert.doesNotMatch(src, /Estimated Trade-In Range/);
+    assert.doesNotMatch(src, /\$24,500/);
+  });
+
+  it("step 3 review shows the imported vehicle, VIN, and dealer — never a leftover BMW", () => {
     const imported = reviewTargetFromVehicle({
       year: 2026,
       make: "Ford",
@@ -1149,26 +1169,26 @@ describe("shopper-facing factory option copy", () => {
     );
 
     const src = fs.readFileSync(path.join(process.cwd(), "components/BiddingWizard.tsx"), "utf8");
-    const start = src.indexOf("STEP 5: REVIEW");
+    const start = src.indexOf("STEP 3: REVIEW");
     const end = src.indexOf("Footer Navigation");
     assert.ok(start >= 0 && end > start);
-    const step6 = src.slice(start, end);
+    const step3 = src.slice(start, end);
     assert.match(src, /reviewTargetFromVehicle\(selectedVehicle\)/);
-    assert.match(step6, /reviewTarget\.title/);
-    assert.match(step6, /reviewTarget\.vin/);
-    assert.match(step6, /reviewTarget\.vdpHref/);
-    assert.match(step6, /reviewTarget\.dealerName/);
-    assert.match(step6, /reviewTarget\.locationLine/);
+    assert.match(step3, /reviewTarget\.title/);
+    assert.match(step3, /reviewTarget\.vin/);
+    assert.match(step3, /reviewTarget\.vdpHref/);
+    assert.match(step3, /reviewTarget\.dealerName/);
+    assert.match(step3, /reviewTarget\.locationLine/);
     // The "may not be where it's listed now" caption must only show when the
     // dealer is genuinely unconfirmed (sticker fallback) — not on every
     // factory import, now that a live listing lookup can confirm the real one.
-    assert.match(step6, /!reviewTarget\.dealerConfirmed/);
-    assert.match(step6, /No imported vehicle/);
-    assert.match(step6, /target="_blank"/);
-    assert.match(step6, /rel="noopener noreferrer"/);
-    assert.doesNotMatch(step6, /\$\{make\} \$\{model\}/);
-    assert.doesNotMatch(step6, /BMW 3 Series/);
-    assert.doesNotMatch(step6, /330i M Sport/);
+    assert.match(step3, /!reviewTarget\.dealerConfirmed/);
+    assert.match(step3, /No imported vehicle/);
+    assert.match(step3, /target="_blank"/);
+    assert.match(step3, /rel="noopener noreferrer"/);
+    assert.doesNotMatch(step3, /\$\{make\} \$\{model\}/);
+    assert.doesNotMatch(step3, /BMW 3 Series/);
+    assert.doesNotMatch(step3, /330i M Sport/);
   });
 
   it("stickerToVehicle prefers the live current dealer over the sticker's factory ship-to dealer", () => {
@@ -1249,15 +1269,15 @@ describe("shopper-facing factory option copy", () => {
 
   it("shows must-have factory options after a Ford import — no hunt in the wizard", () => {
     const src = fs.readFileSync(path.join(process.cwd(), "components/BiddingWizard.tsx"), "utf8");
-    const start = src.indexOf("STEP 2:");
-    const end = src.indexOf("STEP 3:");
-    const step2 = src.slice(start, end);
+    const start = src.indexOf("STEP 1: PAYMENT, VEHICLE & TRADE-IN FLAG");
+    const end = src.indexOf("STEP 2: DIRECT OFFER");
+    const step1 = src.slice(start, end);
     assert.match(
-      step2,
+      step1,
       /fordStickerStatus === "released" && fordFilterableOptions\.length > 0/
     );
-    assert.doesNotMatch(step2, /findLotsMode/);
-    assert.doesNotMatch(step2, /FORD_OTHER_LOTS_MODE_PASTE/);
+    assert.doesNotMatch(step1, /findLotsMode/);
+    assert.doesNotMatch(step1, /FORD_OTHER_LOTS_MODE_PASTE/);
     assert.doesNotMatch(src, /\/api\/ford-comparables/);
   });
 

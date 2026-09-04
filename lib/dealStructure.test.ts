@@ -40,8 +40,10 @@ describe("deal structure multi-select", () => {
 
 describe("BiddingWizard step 1 payment checkboxes", () => {
   const src = fs.readFileSync(path.join(process.cwd(), "components/BiddingWizard.tsx"), "utf8");
-  const step1Start = src.indexOf("STEP 1: PAYMENT METHOD");
-  const step1End = src.indexOf("STEP 2:");
+  // Payment method was its own step; it's now merged into step 1 alongside
+  // vehicle selection and the trade-in toggle.
+  const step1Start = src.indexOf("STEP 1: PAYMENT, VEHICLE & TRADE-IN FLAG");
+  const step1End = src.indexOf("STEP 2: DIRECT OFFER");
   const step1 = src.slice(step1Start, step1End);
 
   it("is a compact checkbox row for Cash, Finance, and Lease", () => {
@@ -64,10 +66,10 @@ describe("BiddingWizard step 1 payment checkboxes", () => {
   it("maps requestedStructures as the checked array and requires at least one to Continue", () => {
     assert.match(src, /requestedStructures,/);
     assert.match(src, /dealStructurePreferences:\s*\{\s*requestedStructures,/);
-    assert.match(src, /step === 1 && requestedStructures\.length === 0/);
+    assert.match(src, /step === 1 && \(requestedStructures\.length === 0 \|\| !vehicleImported\)/);
     assert.match(
       src,
-      /disabled=\{\s*\(step === 1 && requestedStructures\.length === 0\) \|\|/
+      /disabled=\{\s*\(step === 1 && \(requestedStructures\.length === 0 \|\| !vehicleImported\)\) \|\|/
     );
     assert.match(src, /financeTermMonths: financeTerm/);
     assert.match(src, /formatDealStructures\(requestedStructures\)/);

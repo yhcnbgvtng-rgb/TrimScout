@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Vehicle, BiddingStrategy, BiddingRequest, TradeInVehicle, TradeInPhoto, UserProfile, type DealStructureMethod } from "../lib/types";
+import { Vehicle, BiddingStrategy, BiddingRequest, UserProfile, type DealStructureMethod } from "../lib/types";
 import {
   DEAL_STRUCTURE_LABELS,
   DEAL_STRUCTURE_METHODS,
@@ -12,8 +12,6 @@ import {
 } from "../lib/dealStructure";
 import { formatCurrency, getZipCoordinates } from "../lib/otdCalculator";
 import { findContactInfo } from "../lib/piiFilter";
-import { SAMPLE_TRADE_IN_VEHICLE } from "../lib/mockData";
-import { decodeVin, SAMPLE_TEST_VINS, DecodedVehicle } from "../lib/vinDecoder";
 import {
   FORD_BUILD_SHEET_LINK,
   FORD_MUST_HAVE_HEADING,
@@ -44,15 +42,8 @@ import {
   Zap,
   ArrowRight,
   ArrowLeft,
-  Search,
   CircleCheck as CheckCircle2,
-  Car,
   MapPin,
-  Camera,
-  CloudUpload as UploadCloud,
-  Trash2,
-  Image as ImageIcon,
-  Sparkles,
   Globe,
   LoaderCircle as Loader2,
   Handshake,
@@ -163,46 +154,10 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   const [selectedTrims, setSelectedTrims] = useState<string[]>(["330i M Sport", "330i xDrive"]);
   const [mustHavePackages, setMustHavePackages] = useState<string[]>(["M Sport Package", "Premium Package"]);
 
-  // Trade-In Evaluation & Photo Upload State
+  // Trade-in is now just a yes/no flag collected here — the actual
+  // appraisal (value, photos, condition) happens later, once a selling
+  // price is agreed with the dealer (see the note shown when this is on).
   const [hasTradeIn, setHasTradeIn] = useState<boolean>(false);
-  const [tradeInYear, setTradeInYear] = useState<number>(2022);
-  const [tradeInMake, setTradeInMake] = useState<string>("Audi");
-  const [tradeInModel, setTradeInModel] = useState<string>("A4");
-  const [tradeInTrim, setTradeInTrim] = useState<string>("45 TFSI Quattro Premium Plus");
-  const [tradeInMileage, setTradeInMileage] = useState<number>(28450);
-  const [tradeInVin, setTradeInVin] = useState<string>("WAUZZAF42NA091482");
-  const [tradeInCondition, setTradeInCondition] = useState<"excellent" | "very_good" | "good" | "fair">("very_good");
-  const [tradeInPhotos, setTradeInPhotos] = useState<TradeInPhoto[]>(SAMPLE_TRADE_IN_VEHICLE.photos);
-
-  // Live NHTSA VIN Decoder State
-  const [isDecodingVin, setIsDecodingVin] = useState<boolean>(false);
-  const [decodedVinResult, setDecodedVinResult] = useState<DecodedVehicle | null>(null);
-  const [vinLookupError, setVinLookupError] = useState<string | null>(null);
-
-  const handleDecodeVin = async (vinToDecode: string) => {
-    const cleanVin = (vinToDecode || "").trim().toUpperCase();
-    if (cleanVin.length !== 17) {
-      setVinLookupError("Please enter a full 17-character VIN");
-      return;
-    }
-    setVinLookupError(null);
-    setIsDecodingVin(true);
-    try {
-      const data = await decodeVin(cleanVin);
-      if (data) {
-        setDecodedVinResult(data);
-        setTradeInVin(data.vin);
-        if (data.year) setTradeInYear(data.year);
-        if (data.make) setTradeInMake(data.make);
-        if (data.model) setTradeInModel(data.model);
-        if (data.trim) setTradeInTrim(data.trim);
-      }
-    } catch (err: any) {
-      setVinLookupError(err.message || "Failed to decode VIN from NHTSA database");
-    } finally {
-      setIsDecodingVin(false);
-    }
-  };
 
   // Step 1: independently checked cash / finance / lease (at least one required)
   const [requestedStructures, setRequestedStructures] = useState<DealStructureMethod[]>(["cash"]);
@@ -243,36 +198,26 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
       setSelectedTrims([preselectedVehicle.trim]);
       setMustHavePackages(preselectedVehicle.packages);
       setTargetOtdPrice(Math.round(preselectedVehicle.msrp * 0.92));
-      // Vehicle selection (step 2) is skipped via goNext/goBack below — the
-      // payment-method question (step 1) still shows first for every flow,
-      // real-vehicle or not, so we don't jump away from it here.
     }
   }, [preselectedVehicle, lockVehicleSelection]);
 
-  const TOTAL_STEPS = 5;
-  // Step 2 Continue is blocked until Import Car actually loaded a vehicle.
+  // 3 steps total: (1) payment + vehicle + trade-in flag, (2) direct offer
+  // vs. multi-dealer, (3) review & broadcast. Payment and vehicle selection
+  // used to be separate steps and are now merged into step 1.
+  const TOTAL_STEPS = 3;
+  // Step 1's Continue is blocked until Import Car actually loaded a
+  // vehicle — unless a real vehicle was already locked in via
+  // lockVehicleSelection, in which case there's nothing to import.
   // Typing a VIN/URL, or merely arriving on this step, is not enough.
-  const vehicleImported = Boolean(parseSuccessMsg && selectedVehicle);
+  const vehicleImported = Boolean(lockVehicleSelection || (parseSuccessMsg && selectedVehicle));
   const reviewTarget = reviewTargetFromVehicle(selectedVehicle);
-  // Step 2 (vehicle selection) is skipped when a real vehicle is already
-  // locked in — the payment-method question (step 1) still always shows
-  // first, so the skip happens on navigation, not on mount.
   const goNext = () => {
-    if (step === 1 && requestedStructures.length === 0) return;
-    if (step === 2 && !vehicleImported) return;
-    if (step === 3 && !offerPath) return;
-    if (step === 1 && lockVehicleSelection) {
-      setStep(3);
-    } else {
-      setStep(step + 1);
-    }
+    if (step === 1 && (requestedStructures.length === 0 || !vehicleImported)) return;
+    if (step === 2 && !offerPath) return;
+    setStep(step + 1);
   };
   const goBack = () => {
-    if (step === 3 && lockVehicleSelection) {
-      setStep(1);
-    } else {
-      setStep(step - 1);
-    }
+    setStep(step - 1);
   };
 
   const huntReady = /^\d{5}$/.test(huntZip.trim()) && Number(huntRadius) > 0;
@@ -387,36 +332,6 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     setNiceToHavePackages((prev) => prev.filter((p) => p !== name));
   };
 
-  const handleRemovePhoto = (photoId: string) => {
-    setTradeInPhotos(tradeInPhotos.filter((p) => p.id !== photoId));
-  };
-
-  const handleAddSamplePhoto = (angle: TradeInPhoto["angle"], label: string, imageUrl: string) => {
-    const existing = tradeInPhotos.find((p) => p.angle === angle);
-    if (existing) {
-      setTradeInPhotos(tradeInPhotos.map((p) => (p.angle === angle ? { ...p, imageUrl } : p)));
-    } else {
-      setTradeInPhotos([...tradeInPhotos, { id: `tp-${Date.now()}`, angle, label, imageUrl }]);
-    }
-  };
-
-  const buildTradeIn = (): TradeInVehicle | undefined =>
-    hasTradeIn
-      ? {
-          hasTradeIn: true,
-          year: tradeInYear,
-          make: tradeInMake,
-          model: tradeInModel,
-          trim: tradeInTrim,
-          mileage: tradeInMileage,
-          vin: tradeInVin,
-          condition: tradeInCondition,
-          estimatedValueMin: 24500,
-          estimatedValueMax: 26800,
-          photos: tradeInPhotos,
-        }
-      : undefined;
-
   const launchStrategy: BiddingStrategy =
     directOfferMode || offerPath === "direct" ? "firm_offer" : "exact_auction";
 
@@ -449,7 +364,12 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
       dealbreakers: [],
       allowedStatuses: ["on_lot", "in_transit"],
     },
-    tradeIn: buildTradeIn(),
+    // Trade-in detail (value, photos, condition) is no longer collected in
+    // this wizard — it's handled after a selling price is agreed with the
+    // dealer, per the note shown when the trade-in toggle is on. Sending a
+    // fabricated placeholder object here would show up as real data to a
+    // dealer downstream, so this stays unset regardless of hasTradeIn.
+    tradeIn: undefined,
     buyerComment: dealComment.trim() || undefined,
     targetOtdPrice: launchStrategy === "firm_offer" ? targetOtdPrice : undefined,
     paymentMethod,
@@ -536,7 +456,9 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
             otherLots: otherLotsForDeal,
             vehicleTerms: vehicleTermsForDeal,
           }),
-          tradeIn: buildTradeIn(),
+          // See the comment on buildBiddingRequest's tradeIn field — no
+          // longer collected here.
+          tradeIn: undefined,
           buyerZip,
           searchRadiusMiles: searchRadius,
           sameStateOnly,
@@ -605,16 +527,17 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
         {/* Wizard Body */}
         <div className="p-6 space-y-6 max-h-[70vh] overflow-y-auto">
           {/* ========================================================================= */}
-          {/* STEP 1: PAYMENT METHOD — CASH, FINANCE, OR LEASE                          */}
+          {/* STEP 1: PAYMENT, VEHICLE & TRADE-IN FLAG                                   */}
           {/* ========================================================================= */}
           {step === 1 && (
-            <div className="space-y-4">
+            <div className="space-y-5">
               <div>
                 <h3 className="text-sm font-bold text-white uppercase tracking-wider text-emerald-400">
-                  Step 1: How Are You Paying?
+                  Step 1: How Are You Paying &amp; What Do You Want?
                 </h3>
                 <p className="text-xs text-ink-muted mt-0.5">
-                  This shapes every offer dealers send you — we'll ask for the details next.
+                  Payment shapes every offer dealers send you. Then pick the car — paste a dealer listing
+                  URL or a 17-character VIN.
                 </p>
               </div>
 
@@ -640,22 +563,6 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
               {requestedStructures.length === 0 && (
                 <p className="text-[11px] text-rose-400">Select at least one payment method to continue.</p>
               )}
-            </div>
-          )}
-
-          {/* ========================================================================= */}
-          {/* STEP 2: SELECT THE TARGET VEHICLE                                         */}
-          {/* ========================================================================= */}
-          {step === 2 && (
-            <div className="space-y-5">
-              <div>
-                <h3 className="text-sm font-bold text-white uppercase tracking-wider text-emerald-400">
-                  Step 2: Pick Your Favorite Car
-                </h3>
-                <p className="text-xs text-ink-muted mt-0.5">
-                  This is the one you actually want — paste a dealer listing URL or a 17-character VIN.
-                </p>
-              </div>
 
               <div className="space-y-4">
                   <div className="space-y-2">
@@ -867,16 +774,41 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                   </p>
                 </div>
               )}
+
+              <div className="pt-4 border-t border-border/50">
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-xs font-semibold text-ink-light">Do you have a trade-in?</span>
+                  <button
+                    type="button"
+                    onClick={() => setHasTradeIn(!hasTradeIn)}
+                    aria-pressed={hasTradeIn}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                      hasTradeIn ? "bg-emerald-500" : "bg-border"
+                    }`}
+                  >
+                    <span
+                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                        hasTradeIn ? "translate-x-6" : "translate-x-1"
+                      }`}
+                    />
+                  </button>
+                </div>
+                {hasTradeIn && (
+                  <p className="text-[11px] text-ink-muted mt-2">
+                    Your trade-in will be handled after the selling price has been reached.
+                  </p>
+                )}
+              </div>
             </div>
           )}
 
           {/* ========================================================================= */}
-          {/* STEP 3: DIRECT OFFER OR MULTI-DEALER                                      */}
+          {/* STEP 2: DIRECT OFFER OR MULTI-DEALER                                      */}
           {/* ========================================================================= */}
-          {step === 3 && (
+          {step === 2 && (
             <div className="space-y-3">
               <h3 className="text-sm font-bold text-white uppercase tracking-wider text-emerald-400">
-                Step 3
+                Step 2
               </h3>
               <div className="grid grid-cols-1 gap-3">
                 <button
@@ -912,276 +844,13 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
           )}
 
           {/* ========================================================================= */}
-          {/* STEP 4: TRADE-IN EVALUATION & PHOTO UPLOAD                                */}
+          {/* STEP 3: REVIEW & BROADCAST                                                */}
           {/* ========================================================================= */}
-          {step === 4 && (
-            <div className="space-y-5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-sm font-bold text-white uppercase tracking-wider text-emerald-400">
-                    Step 4: Trade-In Vehicle & Photo Appraisal
-                  </h3>
-                  <p className="text-xs text-ink-muted mt-0.5">
-                    Dealers submit firm, binding trade-in allowances when photos are attached.
-                  </p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-ink-muted font-medium">Have a trade-in?</span>
-                  <button
-                    type="button"
-                    onClick={() => setHasTradeIn(!hasTradeIn)}
-                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                      hasTradeIn ? "bg-emerald-500" : "bg-border"
-                    }`}
-                  >
-                    <span
-                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                        hasTradeIn ? "translate-x-6" : "translate-x-1"
-                      }`}
-                    />
-                  </button>
-                </div>
-              </div>
-
-              {hasTradeIn ? (
-                <div className="space-y-4">
-                  {/* Live NHTSA VIN Lookup Tool */}
-                  <div className="rounded-xl border border-emerald-500/30 bg-surface-elevated p-3.5 space-y-2.5">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-400">
-                        <Sparkles className="h-4 w-4" />
-                        <span>Live VIN Decoder (NHTSA Database)</span>
-                      </div>
-                      <span className="text-[10px] text-ink-muted">Auto-populates verified factory specs</span>
-                    </div>
-
-                    <div className="flex gap-2">
-                      <input
-                        type="text"
-                        maxLength={17}
-                        placeholder="Paste 17-digit VIN (e.g. WAUZZAF42NA091482)..."
-                        value={tradeInVin}
-                        onChange={(e) => setTradeInVin(e.target.value.toUpperCase())}
-                        className="flex-1 rounded-lg border border-border bg-background py-1.5 px-3 text-xs font-mono uppercase text-white placeholder-ink-faint focus:border-emerald-500 focus:outline-none"
-                      />
-                      <button
-                        type="button"
-                        disabled={isDecodingVin || tradeInVin.length !== 17}
-                        onClick={() => handleDecodeVin(tradeInVin)}
-                        className="flex items-center gap-1.5 rounded-lg bg-emerald-500 px-3 py-1.5 text-xs font-bold text-black hover:bg-emerald-400 disabled:opacity-50 transition-all shrink-0"
-                      >
-                        {isDecodingVin ? (
-                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                        ) : (
-                          <Search className="h-3.5 w-3.5" />
-                        )}
-                        <span>Decode VIN</span>
-                      </button>
-                    </div>
-
-                    {/* Quick Test VIN Pills */}
-                    <div className="flex flex-wrap items-center gap-1.5 text-[10px]">
-                      <span className="text-ink-faint">Try sample VINs:</span>
-                      {SAMPLE_TEST_VINS.map((t) => (
-                        <button
-                          key={t.vin}
-                          type="button"
-                          onClick={() => {
-                            setTradeInVin(t.vin);
-                            handleDecodeVin(t.vin);
-                          }}
-                          className="rounded bg-surface px-2 py-0.5 text-ink-muted hover:text-white hover:bg-border transition-colors font-mono border border-border"
-                        >
-                          {t.label}
-                        </button>
-                      ))}
-                    </div>
-
-                    {/* Decoded Spec Badge */}
-                    {decodedVinResult && (
-                      <div className="rounded-lg bg-emerald-500/10 border border-emerald-500/30 p-2.5 text-xs space-y-1 animate-fadeIn">
-                        <div className="flex items-center gap-1.5 text-emerald-400 font-bold text-[11px]">
-                          <CheckCircle2 className="h-3.5 w-3.5" />
-                          <span>NHTSA Verified: {decodedVinResult.year} {decodedVinResult.make} {decodedVinResult.model} {decodedVinResult.trim || ""}</span>
-                        </div>
-                        <div className="text-[10px] text-ink-muted flex flex-wrap gap-2">
-                          {decodedVinResult.displacementL && <span>Engine: {decodedVinResult.displacementL}</span>}
-                          {decodedVinResult.driveType && <span>• Drivetrain: {decodedVinResult.driveType}</span>}
-                          {decodedVinResult.bodyClass && <span>• Body: {decodedVinResult.bodyClass}</span>}
-                          {decodedVinResult.plantCountry && <span>• Plant: {decodedVinResult.plantCountry}</span>}
-                        </div>
-                      </div>
-                    )}
-
-                    {vinLookupError && (
-                      <p className="text-[11px] text-rose-400">{vinLookupError}</p>
-                    )}
-                  </div>
-
-                  {/* Vehicle Spec Grid */}
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
-                    <div className="space-y-1">
-                      <label className="text-[11px] font-bold text-ink-light uppercase">Year & Make:</label>
-                      <div className="grid grid-cols-2 gap-1">
-                        <input
-                          type="number"
-                          value={tradeInYear}
-                          onChange={(e) => setTradeInYear(Number(e.target.value))}
-                          className="rounded-lg border border-border bg-background py-1.5 px-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
-                        />
-                        <input
-                          type="text"
-                          value={tradeInMake}
-                          onChange={(e) => setTradeInMake(e.target.value)}
-                          className="rounded-lg border border-border bg-background py-1.5 px-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="space-y-1">
-                      <label className="text-[11px] font-bold text-ink-light uppercase">Model & Trim:</label>
-                      <input
-                        type="text"
-                        value={`${tradeInModel} ${tradeInTrim}`}
-                        onChange={(e) => {
-                          const parts = e.target.value.split(" ");
-                          setTradeInModel(parts[0] || "");
-                          setTradeInTrim(parts.slice(1).join(" ") || "");
-                        }}
-                        className="w-full rounded-lg border border-border bg-background py-1.5 px-2.5 text-xs text-white focus:border-emerald-500 focus:outline-none"
-                      />
-                    </div>
-
-                    <div className="space-y-1 col-span-2 sm:col-span-1">
-                      <label className="text-[11px] font-bold text-ink-light uppercase">Mileage:</label>
-                      <input
-                        type="number"
-                        value={tradeInMileage}
-                        onChange={(e) => setTradeInMileage(Number(e.target.value))}
-                        className="w-full rounded-lg border border-border bg-background py-1.5 px-2.5 text-xs text-white focus:border-emerald-500 focus:outline-none font-mono"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Condition & KBB Valuation Estimate Badge */}
-                  <div className="rounded-xl border border-emerald-500/30 bg-emerald-950/20 p-3.5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                    <div className="space-y-0.5">
-                      <div className="text-[10px] uppercase font-bold text-emerald-400 flex items-center gap-1">
-                        <Sparkles className="h-3 w-3" /> Estimated Trade-In Range
-                      </div>
-                      <div className="text-xl font-black text-white font-mono">
-                        $24,500 – $26,800
-                      </div>
-                      <p className="text-[10px] text-ink-muted">
-                        Dealer bids will compete with confirmed cash values reducing your taxable price.
-                      </p>
-                    </div>
-
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-xs text-ink-muted">Condition:</span>
-                      <select
-                        value={tradeInCondition}
-                        onChange={(e: any) => setTradeInCondition(e.target.value)}
-                        className="rounded-lg border border-border bg-surface py-1.5 px-2 text-xs font-bold text-white focus:border-emerald-500 focus:outline-none"
-                      >
-                        <option value="excellent">Excellent (Showroom)</option>
-                        <option value="very_good">Very Good (Clean)</option>
-                        <option value="good">Good (Normal Wear)</option>
-                        <option value="fair">Fair (Needs Work)</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  {/* Photo Submission Section */}
-                  <div className="space-y-2.5 pt-1">
-                    <div className="flex items-center justify-between">
-                      <label className="text-[11px] font-bold text-ink-light uppercase tracking-wider flex items-center gap-1.5">
-                        <Camera className="h-3.5 w-3.5 text-emerald-400" />
-                        <span>Submit Trade-In Photos ({tradeInPhotos.length} Attached):</span>
-                      </label>
-                      <button
-                        type="button"
-                        onClick={() => setTradeInPhotos(SAMPLE_TRADE_IN_VEHICLE.photos)}
-                        className="text-[10px] font-bold text-emerald-400 hover:text-emerald-300 flex items-center gap-1"
-                      >
-                        <Sparkles className="h-3 w-3" /> Reset Sample Photos
-                      </button>
-                    </div>
-
-                    {/* Photo Grid Preview */}
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-                      {tradeInPhotos.map((photo) => (
-                        <div
-                          key={photo.id}
-                          className="group relative rounded-xl border border-border bg-surface-elevated overflow-hidden shadow-sm"
-                        >
-                          <img
-                            src={photo.imageUrl}
-                            alt={photo.label}
-                            className="h-24 w-full object-cover group-hover:scale-105 transition-transform duration-300"
-                          />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex flex-col justify-between p-1.5">
-                            <button
-                              type="button"
-                              onClick={() => handleRemovePhoto(photo.id)}
-                              className="self-end rounded-md bg-black/60 p-1 text-red-400 hover:bg-red-500 hover:text-white transition-colors"
-                            >
-                              <Trash2 className="h-3 w-3" />
-                            </button>
-                            <span className="text-[9px] font-bold text-white truncate drop-shadow">
-                              {photo.label}
-                            </span>
-                          </div>
-                        </div>
-                      ))}
-
-                      {/* Add Photo Slot Button */}
-                      <button
-                        type="button"
-                        onClick={() =>
-                          handleAddSamplePhoto(
-                            "damage_cosmetic",
-                            "Additional Angle",
-                            "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=800&q=80"
-                          )
-                        }
-                        className="flex flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed border-border hover:border-emerald-500 bg-background/50 h-24 p-2 text-ink-muted hover:text-white transition-all cursor-pointer"
-                      >
-                        <UploadCloud className="h-5 w-5 text-emerald-400" />
-                        <span className="text-[10px] font-bold text-center">Add Photo</span>
-                      </button>
-                    </div>
-
-                    {/* Photo Angle Helper Checklist */}
-                    <div className="rounded-lg bg-surface p-2.5 text-[11px] text-ink-muted flex flex-wrap items-center justify-between gap-2 border border-border/50">
-                      <span className="font-semibold text-white">Recommended angles:</span>
-                      <span className="flex items-center gap-1 text-emerald-400">✓ Front 3/4</span>
-                      <span className="flex items-center gap-1 text-emerald-400">✓ Rear 3/4</span>
-                      <span className="flex items-center gap-1 text-emerald-400">✓ Dashboard / Odometer</span>
-                      <span className="flex items-center gap-1 text-emerald-400">✓ Tires</span>
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <div className="rounded-xl border border-border bg-surface-elevated p-8 text-center space-y-2">
-                  <Car className="h-8 w-8 text-ink-muted mx-auto" />
-                  <div className="text-sm font-bold text-white">No Trade-In Vehicle Selected</div>
-                  <p className="text-xs text-ink-muted max-w-sm mx-auto">
-                    You can proceed without a trade-in, or toggle the switch above to add your car and photos for instant dealer equity offers.
-                  </p>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* ========================================================================= */}
-          {/* STEP 5: REVIEW & BROADCAST                                                */}
-          {/* ========================================================================= */}
-          {step === 5 && (
+          {step === 3 && (
             <div className="space-y-4">
               <div>
                 <h3 className="text-sm font-bold text-white uppercase tracking-wider text-emerald-400">
-                  Step 5: Review & Privacy Shield
+                  Step 3: Review & Privacy Shield
                 </h3>
                 <p className="text-xs text-ink-muted mt-0.5">
                   {directOfferMode
@@ -1252,10 +921,9 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
 
                 {hasTradeIn && (
                   <div className="flex justify-between border-b border-border/50 pb-2">
-                    <span className="text-ink-muted">Trade-In Vehicle:</span>
-                    <span className="text-emerald-400 font-medium flex items-center gap-1">
-                      <Camera className="h-3 w-3" />
-                      {tradeInYear} {tradeInMake} {tradeInModel} ({tradeInPhotos.length} Photos Attached)
+                    <span className="text-ink-muted">Trade-In:</span>
+                    <span className="text-emerald-400 font-medium">
+                      Yes — handled after the selling price is set
                     </span>
                   </div>
                 )}
@@ -1351,9 +1019,8 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
               <button
                 onClick={goNext}
                 disabled={
-                  (step === 1 && requestedStructures.length === 0) ||
-                  (step === 2 && !vehicleImported) ||
-                  (step === 3 && !offerPath)
+                  (step === 1 && (requestedStructures.length === 0 || !vehicleImported)) ||
+                  (step === 2 && !offerPath)
                 }
                 className="flex items-center gap-1.5 rounded-lg bg-emerald-500 px-5 py-2 text-xs font-bold text-black hover:bg-emerald-400 transition-all shadow-md shadow-emerald-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
               >
