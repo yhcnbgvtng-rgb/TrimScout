@@ -9,6 +9,7 @@ import {
   ShieldCheck,
   Users,
   Building2,
+  BarChart3,
   User,
   Search,
   Filter,
@@ -213,6 +214,14 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
           >
             <Building2 className="h-3.5 w-3.5" />
             <span>Dealership Contacts</span>
+          </Link>
+
+          <Link
+            href="/admin/analytics"
+            className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-surface-elevated hover:bg-surface px-3.5 py-2 text-xs font-bold text-ink-light hover:text-white transition-all shadow-sm"
+          >
+            <BarChart3 className="h-3.5 w-3.5" />
+            <span>Site Analytics</span>
           </Link>
 
           <button
