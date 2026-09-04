@@ -944,6 +944,111 @@ export async function findSimilarFordVehicles(opts: {
   });
 }
 
+export interface GenericMatchCard {
+  vin: string;
+  year?: number;
+  make?: string;
+  model?: string;
+  trim?: string;
+  exteriorColor?: string;
+  dealerName: string;
+  city: string;
+  state: string;
+  zip?: string;
+  distanceMiles: number | null;
+  listingPrice: number | null;
+  dealerUrl: string | null;
+  daysOnMarket: number | null;
+  priceChangeHint: number | null;
+}
+
+export interface GenericSearchResult {
+  provider: ListingsProvider;
+  note: string;
+  needsLocation?: boolean;
+  listingsError?: boolean;
+  candidatesConsidered: number;
+  matches: GenericMatchCard[];
+}
+
+/**
+ * Nearby-listings search with no factory sticker involved at all — the
+ * fallback for a brand with no digital-window-sticker pipeline (or a sticker
+ * that failed to parse), so there is nothing to fetch a must-have
+ * confirmation from. Matches by year/make/model off the live listings row
+ * only; never pads with invented inventory the way the demo sticker pools do
+ * for their own supported brand.
+ */
+export async function findComparableListingsByMakeModel(opts: {
+  subjectVin?: string;
+  year?: number;
+  make: string;
+  model: string;
+  zip: string;
+  radiusMiles: number;
+}): Promise<GenericSearchResult> {
+  const zip = (opts.zip || "").trim();
+  const make = opts.make.trim();
+  const model = opts.model.trim();
+  if (!isUsableHuntLocation(zip, opts.radiusMiles) || !make || !model) {
+    return {
+      provider: "demo",
+      note: "Enter the vehicle's make and model plus a 5-digit ZIP and search radius to see nearby listings.",
+      needsLocation: true,
+      candidatesConsidered: 0,
+      matches: [],
+    };
+  }
+  const radiusMiles = opts.radiusMiles;
+
+  const searched = await searchCoarseListings(
+    { year: opts.year && opts.year >= 1990 && opts.year <= 2035 ? opts.year : undefined, make, model, zip, radiusMiles },
+    { listingsForModel: () => [], noteForModel: () => "No listings API key configured. Nearby-listings search needs a live listings provider." }
+  );
+  if (searched.listingsError) {
+    return { provider: searched.provider, note: searched.note, listingsError: true, candidatesConsidered: 0, matches: [] };
+  }
+
+  const subjectVin = (opts.subjectVin || "").toUpperCase();
+  const candidates = searched.listings.filter(
+    (l) => listingMatchesSubjectModel(l, model) && l.vin.toUpperCase() !== subjectVin
+  );
+
+  const cards: GenericMatchCard[] = [];
+  for (const listing of candidates) {
+    const dealer = { city: listing.city || "", state: listing.state || "", lat: listing.lat, lng: listing.lng };
+    const distanceMiles = dealer.city || dealer.state || dealer.lat ? calculateDistanceMiles(zip, dealer) : null;
+    if (distanceMiles == null || distanceMiles > radiusMiles) continue;
+    cards.push({
+      vin: listing.vin,
+      year: listing.year,
+      make: listing.make || make,
+      model: listing.model || model,
+      trim: listing.trim,
+      exteriorColor: listing.exteriorColor,
+      dealerName: listing.dealerName || "Unknown dealer",
+      city: dealer.city,
+      state: dealer.state,
+      zip: listing.zip,
+      distanceMiles,
+      listingPrice: listing.listingPrice,
+      dealerUrl: listing.dealerUrl || null,
+      daysOnMarket: listing.daysOnMarket ?? null,
+      priceChangeHint: listing.priceChangeHint ?? null,
+    });
+  }
+
+  const ranked = selectCompetitionSlots(rankFordMatches(cards));
+  const note =
+    searched.provider === "demo"
+      ? "No listings API key configured. Nearby-listings search needs a live listings provider."
+      : ranked.length > 0
+        ? "Factory options aren't available for this brand yet — confirm equipment on the dealer listing before adding."
+        : `No ${make} ${model} listings found within ${radiusMiles} miles of ${zip}.`;
+
+  return { provider: searched.provider, note, candidatesConsidered: candidates.length, matches: ranked };
+}
+
 export function fordMatchToVehicle(match: FordMatchCard): Vehicle {
   return {
     id: `ford-${match.vin}`,

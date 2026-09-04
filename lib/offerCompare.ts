@@ -326,8 +326,10 @@ export interface ComparableSuggestion {
   listingPrice: number | null;
   msrp: number | null;
   dealerUrl: string | null;
-  pdfUrl: string;
-  factoryOptions: Array<{
+  /** Absent for a match found via the sticker-less make/model search (no digital window sticker to link to). */
+  pdfUrl?: string;
+  /** Absent for a match found via the sticker-less make/model search — nothing to filter, unverified. */
+  factoryOptions?: Array<{
     code: string | null;
     description: string;
     price: number | null;
@@ -377,8 +379,8 @@ export function vehicleFromComparableSuggestion(match: ComparableSuggestion): Ve
       zip: match.zip,
       distanceMiles: match.distanceMiles || 0,
     },
-    packages: match.factoryOptions.filter((o) => !o.isPackageChild).map((o) => o.description),
-    options: match.factoryOptions.map((o) => ({
+    packages: (match.factoryOptions || []).filter((o) => !o.isPackageChild).map((o) => o.description),
+    options: (match.factoryOptions || []).map((o) => ({
       code: o.code || "",
       name: o.description,
       price: o.price || 0,
@@ -387,7 +389,7 @@ export function vehicleFromComparableSuggestion(match: ComparableSuggestion): Ve
     imageUrl: "",
     mileage: 0,
     dealerUrl: match.dealerUrl || undefined,
-    oemBuildSheetUrl: match.pdfUrl,
+    oemBuildSheetUrl: match.pdfUrl || undefined,
   };
 }
 

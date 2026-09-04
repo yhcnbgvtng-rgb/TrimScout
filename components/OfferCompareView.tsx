@@ -157,6 +157,15 @@ export const OfferCompareView: React.FC = () => {
   const [suggestions, setSuggestions] = useState<ComparableSuggestion[] | null>(null);
   const [suggestionsLoading, setSuggestionsLoading] = useState(false);
   const [suggestionsError, setSuggestionsError] = useState<string | null>(null);
+  // Sticker-less fallback: nearby listings by make/model alone, for a brand
+  // with no digital-window-sticker pipeline (or a sticker that never
+  // parsed) — or as a wider net once the sticker-backed search above comes
+  // back empty.
+  const [manualSuggestions, setManualSuggestions] = useState<ComparableSuggestion[] | null>(null);
+  const [manualSuggestionsLoading, setManualSuggestionsLoading] = useState(false);
+  const [manualSuggestionsError, setManualSuggestionsError] = useState<string | null>(null);
+  const [showCriteria, setShowCriteria] = useState(false);
+  const [radiusDraft, setRadiusDraft] = useState<string | null>(null);
 
   useEffect(() => {
     const next = loadOfferCompareSnapshot();
@@ -313,6 +322,46 @@ export const OfferCompareView: React.FC = () => {
     }
   }, [snapshot]);
 
+  // No sticker involved — works for any brand, including one with no
+  // digital-window-sticker pipeline (or a favorite whose sticker never
+  // parsed), and for a favorite added through the flexible-criteria path
+  // with no VIN at all. Matches on year/make/model only.
+  const findManualComparableVehicles = useCallback(async () => {
+    if (!snapshot) return;
+    const favoriteVehicle = vehicleForCompareRole(snapshot, "favorite")?.vehicle;
+    if (!favoriteVehicle?.make || !favoriteVehicle?.model) return;
+    setManualSuggestionsLoading(true);
+    setManualSuggestionsError(null);
+    try {
+      const res = await fetch("/api/manual-comparables", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          subjectVin: favoriteVehicle.vin,
+          year: favoriteVehicle.year,
+          make: favoriteVehicle.make,
+          model: favoriteVehicle.model,
+          zip: snapshot.buyerZip,
+          radiusMiles: snapshot.searchRadiusMiles,
+        }),
+      });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok || json?.error) {
+        setManualSuggestions([]);
+        setManualSuggestionsError(
+          typeof json?.error === "string" ? json.error : FORD_LISTINGS_LOAD_FAILED
+        );
+        return;
+      }
+      setManualSuggestions(Array.isArray(json.matches) ? (json.matches as ComparableSuggestion[]) : []);
+    } catch {
+      setManualSuggestions([]);
+      setManualSuggestionsError(FORD_LISTINGS_LOAD_FAILED);
+    } finally {
+      setManualSuggestionsLoading(false);
+    }
+  }, [snapshot]);
+
   const addSuggestion = useCallback(
     (slot: 1 | 2, match: ComparableSuggestion) => {
       if (!snapshot) return;
@@ -323,9 +372,35 @@ export const OfferCompareView: React.FC = () => {
       }
       persist(assigned.snapshot);
       setSuggestions((prev) => (prev ? prev.filter((m) => m.vin !== match.vin) : prev));
+      setManualSuggestions((prev) => (prev ? prev.filter((m) => m.vin !== match.vin) : prev));
     },
     [persist, snapshot]
   );
+
+  const removeMustHave = useCallback(
+    (line: string) => {
+      if (!snapshot) return;
+      persist({ ...snapshot, mustHaveLines: snapshot.mustHaveLines.filter((l) => l !== line) });
+    },
+    [persist, snapshot]
+  );
+
+  const removeNiceToHave = useCallback(
+    (line: string) => {
+      if (!snapshot) return;
+      persist({ ...snapshot, niceToHaveLines: snapshot.niceToHaveLines.filter((l) => l !== line) });
+    },
+    [persist, snapshot]
+  );
+
+  const commitRadius = useCallback(() => {
+    if (!snapshot || radiusDraft == null) return;
+    const parsed = Number(radiusDraft);
+    if (Number.isFinite(parsed) && parsed > 0) {
+      persist({ ...snapshot, searchRadiusMiles: parsed });
+    }
+    setRadiusDraft(null);
+  }, [persist, snapshot, radiusDraft]);
 
   const goToTracker = () => {
     if (snapshot) {
@@ -401,8 +476,19 @@ export const OfferCompareView: React.FC = () => {
   const availableSuggestions = (suggestions || []).filter(
     (m) => !usedVins.has(m.vin.toUpperCase())
   );
-  const favoriteVin = vehicleForCompareRole(snapshot, "favorite")?.vehicle.vin;
+  const availableManualSuggestions = (manualSuggestions || []).filter(
+    (m) => !usedVins.has(m.vin.toUpperCase())
+  );
+  const favoriteVehicle = vehicleForCompareRole(snapshot, "favorite")?.vehicle;
+  const favoriteVin = favoriteVehicle?.vin;
   const canFindComparable = !!favoriteVin && comparablesEndpointForVin(favoriteVin) != null;
+  const canFindManualComparable = !!favoriteVehicle?.make && !!favoriteVehicle?.model;
+  const emptySlotsRemain = sortableLots < 2;
+  // A dead-end search is the moment loosening the criteria actually helps —
+  // surface the editor right there instead of making the buyer go dig for it.
+  const hadEmptyResult =
+    (suggestions !== null && availableSuggestions.length === 0 && !suggestionsLoading) ||
+    (manualSuggestions !== null && availableManualSuggestions.length === 0 && !manualSuggestionsLoading);
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 space-y-6">
@@ -440,6 +526,26 @@ export const OfferCompareView: React.FC = () => {
           </button>
         </div>
       </div>
+
+      {emptySlotsRemain && (snapshot.mustHaveLines.length > 0 || snapshot.niceToHaveLines.length > 0 || hadEmptyResult) ? (
+        <SearchCriteriaPanel
+          open={showCriteria || hadEmptyResult}
+          onToggle={() => setShowCriteria((v) => !v)}
+          mustHaveLines={snapshot.mustHaveLines}
+          niceToHaveLines={snapshot.niceToHaveLines}
+          radiusMiles={radiusDraft ?? String(snapshot.searchRadiusMiles)}
+          buyerZip={snapshot.buyerZip}
+          dismissedResult={hadEmptyResult}
+          onRemoveMustHave={removeMustHave}
+          onRemoveNiceToHave={removeNiceToHave}
+          onRadiusChange={setRadiusDraft}
+          onRadiusCommit={commitRadius}
+          onSearchAgain={() => {
+            if (canFindComparable) void findComparableVehicles();
+            if (canFindManualComparable) void findManualComparableVehicles();
+          }}
+        />
+      ) : null}
 
       <div className="grid gap-4 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
         {columns.map(({ role, column }) => {
@@ -479,6 +585,12 @@ export const OfferCompareView: React.FC = () => {
               suggestionsLoading={suggestionsLoading}
               suggestionsError={suggestionsError}
               onFindComparable={() => void findComparableVehicles()}
+              canFindManualComparable={canFindManualComparable}
+              manualSuggestions={availableManualSuggestions}
+              manualSuggestionsFetched={manualSuggestions !== null}
+              manualSuggestionsLoading={manualSuggestionsLoading}
+              manualSuggestionsError={manualSuggestionsError}
+              onFindManualComparable={() => void findManualComparableVehicles()}
               onAddSuggestion={(match) => addSuggestion(slot, match)}
             />
           );
@@ -487,6 +599,49 @@ export const OfferCompareView: React.FC = () => {
     </div>
   );
 };
+
+function SuggestionMatchList({
+  suggestions,
+  onAddSuggestion,
+}: {
+  suggestions: ComparableSuggestion[];
+  onAddSuggestion: (match: ComparableSuggestion) => void;
+}) {
+  if (suggestions.length === 0) return null;
+  return (
+    <ul className="space-y-1.5">
+      {suggestions.map((match) => (
+        <li
+          key={match.vin}
+          className="rounded-lg border border-border bg-background px-2.5 py-2 flex items-center justify-between gap-2"
+        >
+          <div className="min-w-0">
+            <p className="text-[11px] font-bold text-white truncate">{match.dealerName}</p>
+            <p className="text-[10px] text-ink-muted truncate">
+              {[match.city, match.state].filter(Boolean).join(", ")}
+              {match.distanceMiles != null ? ` · ${match.distanceMiles} mi` : ""}
+            </p>
+            {match.daysOnMarket != null || (typeof match.priceChangeHint === "number" && match.priceChangeHint < 0) ? (
+              <p className="text-[10px] text-ink-faint mt-0.5 flex items-center gap-1.5">
+                {match.daysOnMarket != null ? <span>{match.daysOnMarket}d on market</span> : null}
+                {typeof match.priceChangeHint === "number" && match.priceChangeHint < 0 ? (
+                  <span className="text-emerald-400 font-semibold">price cut</span>
+                ) : null}
+              </p>
+            ) : null}
+          </div>
+          <button
+            type="button"
+            onClick={() => onAddSuggestion(match)}
+            className="shrink-0 rounded-lg bg-emerald-500/90 px-2.5 py-1.5 text-[10px] font-extrabold text-black hover:bg-emerald-400"
+          >
+            Add
+          </button>
+        </li>
+      ))}
+    </ul>
+  );
+}
 
 function CompetitorPasteSlot({
   slot,
@@ -502,6 +657,12 @@ function CompetitorPasteSlot({
   suggestionsLoading,
   suggestionsError,
   onFindComparable,
+  canFindManualComparable,
+  manualSuggestions,
+  manualSuggestionsFetched,
+  manualSuggestionsLoading,
+  manualSuggestionsError,
+  onFindManualComparable,
   onAddSuggestion,
 }: {
   slot: 1 | 2;
@@ -517,6 +678,12 @@ function CompetitorPasteSlot({
   suggestionsLoading: boolean;
   suggestionsError: string | null;
   onFindComparable: () => void;
+  canFindManualComparable: boolean;
+  manualSuggestions: ComparableSuggestion[];
+  manualSuggestionsFetched: boolean;
+  manualSuggestionsLoading: boolean;
+  manualSuggestionsError: string | null;
+  onFindManualComparable: () => void;
   onAddSuggestion: (match: ComparableSuggestion) => void;
 }) {
   return (
@@ -587,42 +754,168 @@ function CompetitorPasteSlot({
           {suggestionsFetched && !suggestionsLoading && !suggestionsError && suggestions.length === 0 ? (
             <p className="text-[11px] text-ink-muted">No comparable vehicles found nearby.</p>
           ) : null}
-          {suggestions.length > 0 ? (
-            <ul className="space-y-1.5">
-              {suggestions.map((match) => (
-                <li
-                  key={match.vin}
-                  className="rounded-lg border border-border bg-background px-2.5 py-2 flex items-center justify-between gap-2"
-                >
-                  <div className="min-w-0">
-                    <p className="text-[11px] font-bold text-white truncate">{match.dealerName}</p>
-                    <p className="text-[10px] text-ink-muted truncate">
-                      {[match.city, match.state].filter(Boolean).join(", ")}
-                      {match.distanceMiles != null ? ` · ${match.distanceMiles} mi` : ""}
-                    </p>
-                    {match.daysOnMarket != null || (typeof match.priceChangeHint === "number" && match.priceChangeHint < 0) ? (
-                      <p className="text-[10px] text-ink-faint mt-0.5 flex items-center gap-1.5">
-                        {match.daysOnMarket != null ? <span>{match.daysOnMarket}d on market</span> : null}
-                        {typeof match.priceChangeHint === "number" && match.priceChangeHint < 0 ? (
-                          <span className="text-emerald-400 font-semibold">price cut</span>
-                        ) : null}
-                      </p>
-                    ) : null}
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => onAddSuggestion(match)}
-                    className="shrink-0 rounded-lg bg-emerald-500/90 px-2.5 py-1.5 text-[10px] font-extrabold text-black hover:bg-emerald-400"
-                  >
-                    Add
-                  </button>
-                </li>
-              ))}
-            </ul>
+          <SuggestionMatchList suggestions={suggestions} onAddSuggestion={onAddSuggestion} />
+        </div>
+        ) : null}
+
+        {canFindManualComparable ? (
+        <div className="pt-2 mt-2 border-t border-border/60 space-y-2">
+          {!canFindComparable ? (
+            <p className="text-[11px] text-ink-muted">
+              No factory build lookup for this brand yet — search live listings by make &amp; model instead.
+            </p>
           ) : null}
+          <button
+            type="button"
+            onClick={onFindManualComparable}
+            disabled={manualSuggestionsLoading}
+            className="w-full rounded-xl border border-border bg-background px-3 py-2 text-[11px] font-bold text-emerald-300 hover:border-emerald-500 hover:text-emerald-200 transition-all flex items-center justify-center gap-1.5 disabled:opacity-50"
+          >
+            {manualSuggestionsLoading ? (
+              <>
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                Searching…
+              </>
+            ) : (
+              <>
+                <Search className="h-3.5 w-3.5" />
+                {canFindComparable ? "Search all nearby listings" : "Search nearby listings"}
+              </>
+            )}
+          </button>
+          {manualSuggestionsError ? <p className="text-[11px] text-amber-200">{manualSuggestionsError}</p> : null}
+          {manualSuggestionsFetched && !manualSuggestionsLoading && !manualSuggestionsError && manualSuggestions.length === 0 ? (
+            <p className="text-[11px] text-ink-muted">No nearby listings found.</p>
+          ) : null}
+          <SuggestionMatchList suggestions={manualSuggestions} onAddSuggestion={onAddSuggestion} />
         </div>
         ) : null}
       </div>
+    </section>
+  );
+}
+
+function SearchCriteriaPanel({
+  open,
+  onToggle,
+  mustHaveLines,
+  niceToHaveLines,
+  radiusMiles,
+  buyerZip,
+  dismissedResult,
+  onRemoveMustHave,
+  onRemoveNiceToHave,
+  onRadiusChange,
+  onRadiusCommit,
+  onSearchAgain,
+}: {
+  open: boolean;
+  onToggle: () => void;
+  mustHaveLines: string[];
+  niceToHaveLines: string[];
+  radiusMiles: string;
+  buyerZip: string;
+  dismissedResult: boolean;
+  onRemoveMustHave: (line: string) => void;
+  onRemoveNiceToHave: (line: string) => void;
+  onRadiusChange: (value: string) => void;
+  onRadiusCommit: () => void;
+  onSearchAgain: () => void;
+}) {
+  return (
+    <section className="rounded-2xl border border-border bg-surface shadow-lg overflow-hidden">
+      <button
+        type="button"
+        onClick={onToggle}
+        className="w-full flex items-center justify-between gap-3 px-4 py-3 text-left"
+      >
+        <div>
+          <div className="text-[10px] font-bold uppercase tracking-wider text-ink-faint">Search criteria</div>
+          <h2 className="text-sm font-black text-white mt-0.5">
+            {dismissedResult ? "No competitive cars found — loosen your criteria" : "Must-haves, nice-to-haves & radius"}
+          </h2>
+        </div>
+        <span className="text-[11px] font-bold text-emerald-300 shrink-0">{open ? "Hide" : "Edit"}</span>
+      </button>
+      {open ? (
+        <div className="border-t border-border px-4 py-3 space-y-3">
+          {mustHaveLines.length > 0 ? (
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-wider text-ink-faint mb-1.5">
+                Must-haves (removing one widens the search)
+              </p>
+              <div className="flex flex-wrap gap-1.5">
+                {mustHaveLines.map((line) => (
+                  <span
+                    key={line}
+                    className="inline-flex items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-[10px] font-bold text-emerald-300"
+                  >
+                    {line}
+                    <button
+                      type="button"
+                      onClick={() => onRemoveMustHave(line)}
+                      aria-label={`Remove must-have ${line}`}
+                      className="text-emerald-300 hover:text-white"
+                    >
+                      ×
+                    </button>
+                  </span>
+                ))}
+              </div>
+            </div>
+          ) : null}
+          {niceToHaveLines.length > 0 ? (
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-wider text-ink-faint mb-1.5">Nice-to-haves</p>
+              <div className="flex flex-wrap gap-1.5">
+                {niceToHaveLines.map((line) => (
+                  <span
+                    key={line}
+                    className="inline-flex items-center gap-1 rounded-full border border-border-strong bg-surface-elevated px-2 py-0.5 text-[10px] font-bold text-ink-light"
+                  >
+                    {line}
+                    <button
+                      type="button"
+                      onClick={() => onRemoveNiceToHave(line)}
+                      aria-label={`Remove nice-to-have ${line}`}
+                      className="text-ink-muted hover:text-white"
+                    >
+                      ×
+                    </button>
+                  </span>
+                ))}
+              </div>
+            </div>
+          ) : null}
+          {mustHaveLines.length === 0 && niceToHaveLines.length === 0 ? (
+            <p className="text-[11px] text-ink-muted">No must-haves set — try widening your search radius instead.</p>
+          ) : null}
+          <div className="flex items-end gap-3">
+            <label className="block space-y-1">
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-ink-faint">Radius (mi)</span>
+              <input
+                type="number"
+                min={1}
+                value={radiusMiles}
+                onChange={(e) => onRadiusChange(e.target.value)}
+                onBlur={onRadiusCommit}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") onRadiusCommit();
+                }}
+                className="w-24 rounded-lg border border-border bg-background py-1.5 px-2 text-xs font-mono text-white focus:border-emerald-500 focus:outline-none"
+              />
+            </label>
+            <span className="text-[11px] text-ink-muted pb-1.5">from {buyerZip || "your ZIP"}</span>
+            <button
+              type="button"
+              onClick={onSearchAgain}
+              className="ml-auto rounded-xl bg-emerald-500 px-4 py-2 text-xs font-extrabold text-black hover:bg-emerald-400 shadow-md"
+            >
+              Search again
+            </button>
+          </div>
+        </div>
+      ) : null}
     </section>
   );
 }
