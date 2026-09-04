@@ -80,6 +80,8 @@ describe("porscheBuildFromMarketCheck", () => {
     assert.equal(byCode["3FU"].name, "Panoramic Roof System");
     assert.equal(byCode["3FU"].price, null, "known name, unknown price stays null — never 0");
     assert.equal(build.dealer.name, "Paul Miller Porsche");
+    assert.equal(build.exteriorColor, "White", 'the feed\'s doubled order code "0q0q" is named, not shown raw');
+    assert.equal(build.interiorColor, "Black");
     assert.equal(build.vdpUrl, SEARCH_ROW.vdp_url);
     assert.match(build.note || "", /Prices are shown only where/);
   });

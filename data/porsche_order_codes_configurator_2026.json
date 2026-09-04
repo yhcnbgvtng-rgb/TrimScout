@@ -1,0 +1,571 @@
+{
+ "0E": {
+  "name": "Chromite Black Metallic",
+  "alts": [],
+  "models": [
+   "9YAAI1",
+   "9YACT1",
+   "9YBAI1",
+   "9YBCT1",
+   "X1AAA1",
+   "X1ACD1"
+  ]
+ },
+ "0L": {
+  "name": "Carmine Red",
+  "alts": [],
+  "models": [
+   "95BAN1",
+   "95BBW1",
+   "992142",
+   "9921S2",
+   "992342",
+   "9925S2",
+   "992642",
+   "9YAAI1",
+   "9YACT1",
+   "9YBAI1",
+   "9YBCT1",
+   "XABAA1",
+   "XABFD1",
+   "Y1AAI1",
+   "Y1ADK1",
+   "YAAAA1",
+   "YAADG1",
+   "YAAFH1"
+  ]
+ },
+ "0Q": {
+  "name": "White",
+  "alts": [],
+  "models": [
+   "95BAN1",
+   "95BBW1",
+   "992142",
+   "9921S2",
+   "992342",
+   "9925S2",
+   "992642",
+   "992812",
+   "992892",
+   "9YAAI1",
+   "9YACT1",
+   "9YBAI1",
+   "9YBCT1",
+   "X1AAA1",
+   "X1ACD1",
+   "XABAA1",
+   "XABFD1",
+   "Y1AAI1",
+   "Y1ADK1",
+   "Y1AFT1",
+   "YAAAA1",
+   "YAADG1",
+   "YAAFH1"
+  ]
+ },
+ "0T": {
+  "name": "Pale Blue Metallic",
+  "alts": [],
+  "models": [
+   "X1AAA1",
+   "X1ACD1",
+   "Y1AAI1",
+   "Y1ADK1",
+   "Y1AFT1"
+  ]
+ },
+ "0UB": {
+  "name": "Paint to Sample",
+  "alts": [],
+  "models": [
+   "95BAN1",
+   "95BBW1",
+   "992142",
+   "9921S2",
+   "992342",
+   "9925S2",
+   "992642",
+   "992812",
+   "992892",
+   "X1AAA1",
+   "X1ACD1",
+   "XABAA1",
+   "XABFD1",
+   "Y1AAI1",
+   "Y1ADK1",
+   "Y1AFT1",
+   "YAAAA1",
+   "YAADG1",
+   "YAAFH1"
+  ]
+ },
+ "0UD": {
+  "name": "Paint to Sample Plus",
+  "alts": [],
+  "models": [
+   "992142",
+   "9921S2",
+   "992342",
+   "9925S2",
+   "992642",
+   "992812",
+   "992892",
+   "Y1AAI1",
+   "Y1ADK1",
+   "Y1AFT1"
+  ]
+ },
+ "0W": {
+  "name": "Madeira Gold Metallic",
+  "alts": [],
+  "models": [
+   "X1AAA1",
+   "X1ACD1",
+   "YAAAA1",
+   "YAADG1",
+   "YAAFH1"
+  ]
+ },
+ "1A": {
+  "name": "Gentian Blue Metallic",
+  "alts": [],
+  "models": [
+   "95BAN1",
+   "95BBW1",
+   "992142",
+   "9921S2",
+   "992342",
+   "9925S2",
+   "992642",
+   "992812",
+   "992892",
+   "XABAA1",
+   "XABFD1",
+   "Y1AAI1",
+   "Y1ADK1",
+   "YAAAA1",
+   "YAADG1",
+   "YAAFH1"
+  ]
+ },
+ "1H": {
+  "name": "Vanadium Grey Metallic",
+  "alts": [],
+  "models": [
+   "992142",
+   "9921S2",
+   "992342",
+   "9925S2",
+   "992642",
+   "992812",
+   "9YAAI1",
+   "9YACT1",
+   "9YBAI1",
+   "9YBCT1",
+   "X1AAA1",
+   "X1ACD1"
+  ]
+ },
+ "1I": {
+  "name": "Frozen Berry Metallic",
+  "alts": [],
+  "models": [
+   "Y1AAI1",
+   "Y1ADK1"
+  ]
+ },
+ "2H": {
+  "name": "Volcano Grey Metallic",
+  "alts": [],
+  "models": [
+   "95BAN1",
+   "95BBW1",
+   "XABAA1",
+   "XABFD1",
+   "Y1AAI1",
+   "Y1ADK1",
+   "Y1AFT1",
+   "YAAAA1",
+   "YAADG1",
+   "YAAFH1"
+  ]
+ },
+ "2M": {
+  "name": "Slate Grey Neo",
+  "alts": [],
+  "models": [
+   "992142",
+   "9921S2",
+   "992342",
+   "9925S2",
+   "992642",
+   "992812",
+   "992892",
+   "X1AAA1",
+   "X1ACD1",
+   "XABAA1",
+   "XABFD1",
+   "Y1AAI1",
+   "Y1ADK1",
+   "YAAAA1",
+   "YAADG1",
+   "YAAFH1"
+  ]
+ },
+ "2T": {
+  "name": "Jet Black Metallic",
+  "alts": [],
+  "models": [
+   "95BAN1",
+   "95BBW1",
+   "992142",
+   "9921S2",
+   "992342",
+   "9925S2",
+   "992642",
+   "992812",
+   "XABAA1",
+   "XABFD1",
+   "Y1AAI1",
+   "Y1ADK1",
+   "YAAAA1",
+   "YAADG1",
+   "YAAFH1"
+  ]
+ },
+ "2Y": {
+  "name": "Carrara White Metallic",
+  "alts": [],
+  "models": [
+   "95BAN1",
+   "95BBW1",
+   "9YAAI1",
+   "9YACT1",
+   "9YBAI1",
+   "9YBCT1",
+   "X1AAA1",
+   "X1ACD1",
+   "YAAAA1",
+   "YAADG1",
+   "YAAFH1"
+  ]
+ },
+ "3H": {
+  "name": "Chalk",
+  "alts": [],
+  "models": [
+   "95BAN1",
+   "95BBW1",
+   "992142",
+   "9921S2",
+   "992342",
+   "9925S2",
+   "992642",
+   "9YAAI1",
+   "9YACT1",
+   "9YBAI1",
+   "9YBCT1",
+   "XABAA1",
+   "XABFD1",
+   "Y1AAI1",
+   "Y1ADK1",
+   "YAAAA1",
+   "YAADG1",
+   "YAAFH1"
+  ]
+ },
+ "3I": {
+  "name": "Python Green",
+  "alts": [],
+  "models": [
+   "95BBW1"
+  ]
+ },
+ "5L": {
+  "name": "Mystic Green Metallic",
+  "alts": [],
+  "models": [
+   "X1AAA1",
+   "X1ACD1"
+  ]
+ },
+ "6M": {
+  "name": "Provence",
+  "alts": [],
+  "models": [
+   "992142",
+   "9921S2",
+   "992342",
+   "9925S2",
+   "992642",
+   "XABAA1",
+   "XABFD1",
+   "Y1AAI1",
+   "Y1ADK1",
+   "YAAAA1",
+   "YAADG1",
+   "YAAFH1"
+  ]
+ },
+ "7F": {
+  "name": "Monteverde Metallic",
+  "alts": [],
+  "models": [
+   "X1AAA1",
+   "X1ACD1"
+  ]
+ },
+ "89": {
+  "name": "Paint to Sample",
+  "alts": [],
+  "models": []
+ },
+ "8J": {
+  "name": "Purple Sky Metallic",
+  "alts": [],
+  "models": [
+   "Y1AAI1",
+   "Y1ADK1",
+   "Y1AFT1"
+  ]
+ },
+ "9W": {
+  "name": "Napali Blue Metallic",
+  "alts": [],
+  "models": [
+   "X1AAA1",
+   "X1ACD1"
+  ]
+ },
+ "A1": {
+  "name": "Black",
+  "alts": [],
+  "models": [
+   "95BAN1",
+   "95BBW1",
+   "992142",
+   "9921S2",
+   "992342",
+   "9925S2",
+   "992642",
+   "992812",
+   "992892",
+   "XABAA1",
+   "XABFD1",
+   "Y1AAI1",
+   "Y1ADK1",
+   "Y1AFT1",
+   "YAAAA1",
+   "YAADG1",
+   "YAAFH1"
+  ]
+ },
+ "D0": {
+  "name": "Frozen Blue Metallic",
+  "alts": [],
+  "models": [
+   "XABAA1",
+   "XABFD1",
+   "Y1AAI1",
+   "Y1ADK1"
+  ]
+ },
+ "D6": {
+  "name": "Algarve Blue Metallic",
+  "alts": [],
+  "models": [
+   "9YAAI1",
+   "9YACT1",
+   "9YBAI1",
+   "9YBCT1",
+   "X1AAA1",
+   "X1ACD1"
+  ]
+ },
+ "D9": {
+  "name": "Cartagena Yellow Metallic",
+  "alts": [],
+  "models": [
+   "992142",
+   "9921S2",
+   "992342",
+   "9925S2",
+   "992642",
+   "992812"
+  ]
+ },
+ "F0": {
+  "name": "Dolomite Silver Metallic",
+  "alts": [],
+  "models": [
+   "95BAN1",
+   "95BBW1",
+   "9YAAI1",
+   "9YACT1",
+   "9YBAI1",
+   "9YBCT1",
+   "X1AAA1",
+   "X1ACD1",
+   "XABAA1",
+   "XABFD1",
+   "Y1AAI1",
+   "Y1ADK1",
+   "YAAAA1",
+   "YAADG1",
+   "YAAFH1"
+  ]
+ },
+ "G1": {
+  "name": "Guards Red",
+  "alts": [],
+  "models": [
+   "992142",
+   "9921S2",
+   "992342",
+   "9925S2",
+   "992642",
+   "992812",
+   "992892"
+  ]
+ },
+ "G7": {
+  "name": "Ice Grey Metallic",
+  "alts": [],
+  "models": [
+   "992142",
+   "9921S2",
+   "992342",
+   "9925S2",
+   "992642",
+   "992812",
+   "992892",
+   "XABAA1",
+   "XABFD1",
+   "Y1AAI1",
+   "Y1ADK1",
+   "YAAAA1",
+   "YAADG1",
+   "YAAFH1"
+  ]
+ },
+ "G9": {
+  "name": "Shade Green Metallic",
+  "alts": [],
+  "models": [
+   "992142",
+   "9921S2",
+   "992342",
+   "9925S2",
+   "992642",
+   "Y1AAI1",
+   "Y1ADK1",
+   "Y1AFT1"
+  ]
+ },
+ "I7": {
+  "name": "Copper Ruby Metallic",
+  "alts": [],
+  "models": [
+   "95BAN1",
+   "95BBW1"
+  ]
+ },
+ "N4": {
+  "name": "Oak Green Metallic Neo",
+  "alts": [],
+  "models": [
+   "992142",
+   "9921S2",
+   "992342",
+   "9925S2",
+   "992642",
+   "992812",
+   "992892",
+   "X1AAA1",
+   "X1ACD1",
+   "XABAA1",
+   "XABFD1",
+   "Y1AAI1",
+   "Y1ADK1",
+   "YAAAA1",
+   "YAADG1",
+   "YAAFH1"
+  ]
+ },
+ "O1": {
+  "name": "Lugano Blue",
+  "alts": [],
+  "models": [
+   "992142",
+   "9921S2",
+   "992342",
+   "9925S2",
+   "992642",
+   "992812",
+   "992892",
+   "XABAA1",
+   "XABFD1",
+   "YAAAA1",
+   "YAADG1",
+   "YAAFH1"
+  ]
+ },
+ "R7": {
+  "name": "Neptune Blue",
+  "alts": [],
+  "models": [
+   "Y1AAI1",
+   "Y1ADK1"
+  ]
+ },
+ "SY7": {
+  "name": "Paint to Sample",
+  "alts": [],
+  "models": [
+   "9YAAI1",
+   "9YACT1",
+   "9YBAI1",
+   "9YBCT1"
+  ]
+ },
+ "U0": {
+  "name": "Arctic Grey",
+  "alts": [],
+  "models": [
+   "9YAAI1",
+   "9YACT1",
+   "9YBAI1",
+   "9YBCT1"
+  ]
+ },
+ "U2": {
+  "name": "GT Silver Metallic",
+  "alts": [],
+  "models": [
+   "992142",
+   "9921S2",
+   "992342",
+   "9925S2",
+   "992642",
+   "992812",
+   "992892"
+  ]
+ },
+ "U4": {
+  "name": "Aventurine Green Metallic",
+  "alts": [],
+  "models": [
+   "992142",
+   "9921S2",
+   "992342",
+   "9925S2",
+   "992642",
+   "XABAA1",
+   "XABFD1",
+   "YAAAA1",
+   "YAADG1",
+   "YAAFH1"
+  ]
+ }
+}

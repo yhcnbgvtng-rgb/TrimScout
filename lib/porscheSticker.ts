@@ -10,6 +10,7 @@
  */
 
 import { isPorscheVin, looksLikePorschePaste } from "./oemWmi";
+import { porscheExteriorColorName } from "./porscheColors";
 import {
   buildFromMarketCheck,
   buildToVehicle,
@@ -78,6 +79,8 @@ export const PORSCHE_MAKE: ListingFeedMake = {
   label: "Porsche",
   isVin: isPorscheVin,
   catalog: PORSCHE_OPTION_CODES,
+  // The feed carries the paint as a doubled order code ("0Q0Q") — name it.
+  exteriorColorName: (raw) => porscheExteriorColorName(raw) || raw,
 };
 
 /** Name for a code the catalog doesn't know yet — honest, not invented. */

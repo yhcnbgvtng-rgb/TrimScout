@@ -99,6 +99,11 @@ export interface ListingFeedMake {
   label: string;
   isVin: (vin: string) => boolean;
   catalog: Record<string, OptionCodeEntry>;
+  /**
+   * The feed's raw exterior color → the name a shopper recognizes (Porsche
+   * sends its paint as a doubled order code, "0Q0Q"). Absent = pass through.
+   */
+  exteriorColorName?: (raw: string) => string;
 }
 
 type Rec = Record<string, unknown>;
@@ -120,6 +125,10 @@ function num(value: unknown): number | null {
     return Number.isFinite(n) && n > 0 ? Math.round(n) : null;
   }
   return null;
+}
+
+function namedExteriorColor(make: Pick<ListingFeedMake, "exteriorColorName">, raw: string | null): string | null {
+  return raw && make.exteriorColorName ? make.exteriorColorName(raw) : raw;
 }
 
 function normalizeCode(raw: unknown): string | null {
@@ -238,7 +247,7 @@ export function unknownCodeName(makeLabel: string, code: string): string {
 
 /** Pure parser: MarketCheck search row + listing detail → build. Exported for tests. */
 export function buildFromMarketCheck(
-  make: Pick<ListingFeedMake, "label" | "catalog">,
+  make: Pick<ListingFeedMake, "label" | "catalog" | "exteriorColorName">,
   vin: string,
   searchRow: unknown,
   listingDetail: unknown
@@ -325,7 +334,7 @@ export function buildFromMarketCheck(
     trim: str(build.trim) || str(build.version),
     msrp: num(detail.msrp) ?? num(row.msrp),
     listingPrice: num(detail.price) ?? num(row.price),
-    exteriorColor: str(detail.exterior_color) || str(row.exterior_color),
+    exteriorColor: namedExteriorColor(make, str(detail.exterior_color) || str(row.exterior_color)),
     interiorColor: str(detail.interior_color) || str(row.interior_color),
     engine: str(build.engine),
     transmission: str(build.transmission),

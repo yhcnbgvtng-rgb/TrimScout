@@ -66,6 +66,20 @@ describe("listing sheet mapping", () => {
     );
   });
 
+  it("names a Porsche's doubled paint code, and leaves every other make's color alone", () => {
+    const porsche = "WP1AA2A53TLB07942";
+    const sheet = shopperSheetFromMarketCheckPayloads({
+      vin: porsche,
+      searchListing: { ...listingPayload(porsche), exterior_color: "0q0q" },
+    });
+    assert.equal(sheet.exteriorColor, "White");
+    const ford = shopperSheetFromMarketCheckPayloads({
+      vin: OTHER,
+      searchListing: { ...listingPayload(OTHER), exterior_color: "0q0q" },
+    });
+    assert.equal(ford.exteriorColor, "0q0q");
+  });
+
   it("maps shopper-useful fields and omits internal ids, data_source, and dealer email", () => {
     const sheet = shopperSheetFromMarketCheckPayloads({
       vin: OTHER,

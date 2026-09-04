@@ -1,0 +1,631 @@
+paint_code,all_codes,name,german_name,family,finish,years,pts_only,hex
+,,Casablanca Beige,Casablanca Beige,beige,solid,1978-1984,no,#C29257
+L1X,5Q / L1X,Cashmere Beige Metallic,Kaschmir Beige Metallic,beige,metallic,2019-present,no,#D7D8C8
+Y59,Y59,Desert Beige Metallic,wüstenbeigemetallic,beige,metallic,,no,#EADBAF
+Z1U,Z1U,Diamond Beige Metallic,Diamantbeige Metallic,beige,metallic,,yes,#d5ccbd
+M1W,M1W,Jarama Beige,jaramabeige,beige,solid,,no,#AD9A7B
+2Y7,2Y7,Jarama Beige Metallic,Jaramabeige Metallic,beige,metallic,2003-2010,no,#B5A68E
+M1T,M1T,Luxor Beige Metallic,luxorbeigemetallic,beige,metallic,,no,#7B694B
+,,Pongee Beige Metallic,pongeebeigemetallic,beige,metallic,,no,#A49463
+1Z5,1Z5,Prosecco Metallic,Prosecco Metallic,beige,metallic,2003-2007,no,#C4B99A
+Y1R,Y1R,Sand Beige Metallic,Sandbeige Metallic,beige,metallic,,yes,#f3d9b2
+527,527,Sand Grey,sandgrau,beige,solid,,no,#DEDEDD
+Z1W,Z1W,Siam Beige Metallic,Siambeige Metallic,beige,metallic,,yes,#aaa49c
+C9Z,C9Z / Z4,Basalt Black Metallic,Basaltschwarz Metallic,black,metallic,2012-present,no,#3f3d4a
+LO41,041 / 1010 / 5701 / 6013 / 6213 / 6413 / 6609 / 700 / 719 / 741 / 747 / LO41,Black,Schwarz,black,solid,1983-1990,no,#000000
+LM9Y,708 / 738 / 744 / 746 / LM9Y,Black Metallic,Schwarz Metallic,black,metallic,1982-1982,no,#100E0E
+744,744 / 746,Black Metallic (744),Schwarz Perlcolor,black,metallic,,no,#1A1A1A
+Y70,Y70,Black Pearl,schwarzeperle,black,pearl,,no,#0C0403
+LY9B,LY9B,Brilliant Black,Brillantschwarz,black,solid,1991-1991,no,#0E0403
+7C3,7C3,Carbon Black Metallic,Carbonschwarz Metallic,black,metallic,,yes,#323749
+Z9X,Z9X,Cherry Black Metallic,Kirschschwarz Metallic,black,metallic,,yes,#060603
+,,Chromite Black Metallic,Chromitschwarz Metallic,black,metallic,2024-present,no,#1C1C1C
+Y74,Y74,Diamond Black Metallic,Diamantschwarz Metallic,black,metallic,,yes,#383a43
+7GS,7GS,Grey Black,Grauschwarz,black,solid,,yes,#313743
+Y8X,Y8X,Havana Black Metallic,Havanaschwarz Metallic,black,metallic,,yes,#3d3a3b
+C9X,2T / C9X / W08,Jet Black Metallic,Jetschwarz Metallic,black,metallic,2005-present,no,#323137
+Y9X,Y9X,Mamba Black Metallic,Mambaschwarz Metallic,black,metallic,,yes,#393b44
+LM9V,LM9V,Mocha Black,Moccaschwarz,black,solid,1979-1982,no,#3F3E3A
+LY9V,LY9V,Montego Black Metallic,Montegoschwarz Metallic,black,metallic,1983-1984,no,#1B1818
+Z9Z,Z9Z,Panther Black Metallic,Pantherschwarz Metallic,black,metallic,,yes,#453d44
+LY9Z,LY9Z,Panthero Metallic,Panthero Metallic,black,metallic,1990-1991,no,#373737
+L03C,L03C,Rallye Black,rallyeschwarz,black,solid,,no,#080101
+LY9Y,LY9Y,Satin Black Metallic,Satinschwarz Metallic,black,metallic,1987-1988,no,#363636
+Z5Z,Z5Z,89 Atoll Blue Metallic,Atollblau Metallic,blue,metallic,,yes,#2888b5
+LM5N,37U / 3C8 / LM5N / Z5Q,89 Cobalt Blue Metallic,Cobaltblau Metallic,blue,metallic,1991-1991,no,#154a97
+X5E,X5E,89 Cosmos Blue Metallic,Kosmosblau Metallic,blue,metallic,,yes,#1e394a
+X5R,X5R,89 Moonshine Blue Metallic,Mondscheinblau Metallic,blue,metallic,,yes,#3d4b5b
+Z5E,Z5E,89 Mugello Blue Metallic,Mugelloblau Metallic,blue,metallic,,yes,#334779
+Z7R,Z7R,89 Northern Lights Blue Metallic,Nordlichtblau Metallic,blue,metallic,,yes,#4c5158
+V5X,V5X,89 Triton Blue Metallic,Tritonblau Metallic,blue,metallic,,yes,#526268
+Z16,Z16,914 Olympic Blue,914 Olympblau,blue,solid,,yes,#48C7E8
+3C8,3C8,944 Cobalt Blue Metallic,944cobaltbluemetallic,blue,metallic,,yes,#1f2956
+354,354,Acid Blue,Acidblau,blue,solid,,no,#0E5DCE
+509,509,Adria Blue Metallic,Adriablau,blue,metallic,,no,#8ba4c6
+327,327 / L50E,Adriatic Blue,Adriablau,blue,solid,1971-1971,no,#154a97
+6003,6003 / Y31,Aetna Blue,Ätnablau,blue,solid,1960-1961,no,#74A1AD
+6608,6608,Aga Blue,Agablau,blue,solid,1965-1967,no,#2C415E
+L96B,L96B,Alaska Blue Metallic,Alaskametallic,blue,metallic,,no,#13657D
+325,325,Albert Blue,Albertblau,blue,solid,,no,#0D3872
+J5L,D6 / J5L,Algarve Blue Metallic,Algarveblau Metallic,blue,metallic,2023-present,no,#16537E
+L97B,L97B,Ancona Blue Metallic,Anconablau,blue,metallic,,no,#4573E5
+M5R,M5R,Aqua Blue Metallic,Aquablau Metallic,blue,metallic,2008-2012,no,#093DB4
+5707,5707,Aquamarine Blue,Aquamarinblau,blue,solid,1957-1959,no,#093379
+305,305 / 5WB,Arrow Blue,Arrowblau,blue,solid,,no,#0265BD
+X5F,X5F,Ascari Blue Metallic,Ascariblau Metallic,blue,metallic,,yes,#14529B
+5ZA,5ZA,Azure Blue 356,Azurblau 356,blue,solid,2024-present,yes,#2e3a4c
+LY5D,LY5D,Azurite Blue,Azuritblau,blue,solid,1987-1988,no,#113868
+,,Azzuro Thetys Metallic,Azzuro Thetys Metallic,blue,metallic,2021-present,yes,#B1CEE3
+99F,99F,Bahama Blue Metallic,Bahamablau Metallic,blue,metallic,1977-1978,no,#215AA8
+SIE,5IE / 6212 / 6412 / SIE,Bali Blue,Baliblau,blue,solid,,yes,#1F3D87
+2D494WBL,2D494WBL,Beryll-Metallic,beryllmetallic,blue,metallic,,no,#3BCAC8
+M5E,4A / M5E,Biscay Blue Metallic,Biskayablau Metallic,blue,metallic,,no,#3F4F5B
+324,324 / 334,Blue Metallic,Blau-met.,blue,metallic,,no,#2A66A3
+3AS,3AR / 3AS,Blue Turquoise,Blautürkis,blue,solid,,no,#0088DF
+V5Z,V5Z,Brilliant Turquoise Metallic,Brillanttürkis Metallic,blue,metallic,,yes,#1b4e5f
+W60,W60,Club Blau,Club Blau,blue,solid,2021-present,yes,#0075E1
+LY5B,LY5B,Copenhagen Blue,Kopenhagenblau,blue,solid,1983-1986,no,#161D29
+320,320,Crystal Blue,Kristallblau,blue,solid,1970-1971,no,#009CB0
+3C7,347 / 351 / 3C7,Dark Blue,Dunkelblau,blue,solid,,no,#153754
+M5X,M5X,Dark Blue Metallic,Dunkelblau Metallic,blue,metallic,,yes,#2B3D49
+Z5D,Z5D,Dark Night Blue Metallic,Dunkelnachtblau Metallic,blue,metallic,,yes,#31344a
+Y96,Y96,Dark Sapphire Metallic,Dunkelsaphir Metallic,blue,metallic,,yes,#160E5D
+A5G,A5G,Dark Sea Blue,Dunkelseeblau,blue,solid,,yes,#101537
+Z24,Z24,Deep Blue Metallic,Tiefblau Metallic,blue,metallic,,no,#181A28
+LM5U,697 / LM5U,Diamond Blue Metallic,Diamantblau Metallic,blue,metallic,1988-1988,no,#8F9095
+LM5P,37B / LM5P,Dove Blue Metallic,Taubenblau Metallic,blue,metallic,1989-1990,no,#6E93C9
+25K,25H / 25K,Dragonfly Turquoise Met.,Libelltürkis Metallic,blue,metallic,,no,#40B5AD
+M5Q,M5Q,Eisblau (Ice Blue),Eisblau,blue,solid,,no,#68677E
+3E5,3E5,Estoril Blue Metallic,Estorilblau Metallic,blue,metallic,,no,#4570A1
+W41,5FK / W41,Fountain Blue Metallic,Fontänenblau Metallic,blue,metallic,,no,#bcc9d9
+K5J,D0 / K5J,Frozen Blue Metallic,Frozenblau Metallic,blue,metallic,2023-present,no,#86C5F0
+8610,8610 / 8686,Gemini Metallic (914),Geminimetallic,blue,metallic,,no,#5B7B9A
+M5D,1A / M5D / W96,Gentian Blue Metallic,Enzianblau Metallic,blue,metallic,2017-present,no,#002B6C
+32Z,32Z,Glacier Blue,Gletscherblau,blue,solid,,no,#95BBCB
+LY5U,LY5U,Glacier Metallic,Gletscher Metallic,blue,metallic,1989-1991,no,#C5D9DD
+326,326,Glaze Blue,Glasurblau,blue,solid,,no,#0090DF
+6603,6603 / W91,Golf Blue,Golfblau,blue,solid,1965-1967,no,#334970
+M5G,A7 / M5G,Graphite Blue Metallic,Graphitblau Metallic,blue,metallic,2017-2021,no,#607E96
+X5N,X5N,Grey Blue Metallic,Graublau Metallic,blue,metallic,,yes,#545d65
+328,328,Gulf Blue,Gulfblau,blue,solid,,no,#91BFDA
+019,019 / 12S / 2GO,Gulf Orange,Gulforange,blue,solid,,no,#FF8C2F
+LA5Y,LA5Y,Helios Blue Metallic,Heliosblau Metallic,blue,metallic,1980-1980,no,#1A3A5A
+37X,37X / 38T,Horizon Blue Metallic,Horizontblau Metallic,blue,metallic,,no,#5C7B9D
+Z23,Z23,Ice Blue Metallic,Eisblau Metallic,blue,metallic,,no,#7A9BB6
+,,Ipanema Blue,Ipanemablau,blue,metallic,2021-present,yes,#16ADC8
+3S2,3S2,Ipanema Blue Metallic,Ipanemablau Metallic,blue,metallic,,yes,#16ADC8
+33P,33P / 39N / 39V,Iris Blue Metallic,Irisblau Perlcolor,blue,metallic,,no,#373d78
+L50C,L50C,Laguna Blue,Lagunablau,blue,solid,,no,#5DCEF2
+3A8,3A8 / 3A9,Lapis Blue Metallic,Lapisblau Metallic,blue,metallic,,no,#003DA5
+LM5Z,30T / LM5Z,Light Blue Metallic,Hellblau Metallic,blue,metallic,1982-1982,no,#9CC0CC
+3R7,3R7,Liquid Metal Chrome Blue,Flüssigmetall-Chromblau,blue,special,,no,#A3B4C7
+,,Lugano Blue,Luganoblau,blue,solid,2025-present,no,#0060E8
+W50,W50,Manaus Blue,Manausblau,blue,solid,,yes,#04285A
+L96M,L96M,Marathon Blue Metallic,Marathonmetallic,blue,metallic,,no,#687C88
+3A9,3A9,Marine Blue,Marinblau,blue,solid,2003-2007,no,#4C5167
+35V,35V,Marine Blue Metallic,Marineblau-met.,blue,metallic,,no,#4C5167
+LM5A,38B / 5MB / LM5A,Maritime Blue,Maritimblau,blue,solid,1991-1991,no,#354a9b
+LY5A,LY5A,Mauritius Blue,Mauritiusblau,blue,solid,1981-1982,no,#122C4A
+5703,5703 / Z54,Meissen Blue,Meißenblau,blue,solid,1957-1959,no,#8ba4b0
+8410,8410 / 8484,Metallic Blue (914),Blaumetallic,blue,metallic,,no,#2C4F8A
+336,336,Mexico Blue,Mexikoblau,blue,solid,1972-1973,yes,#00ACEC
+M5C,J5 / M5C / M5W,Miami Blue,Miamiblau,blue,solid,2016-present,yes,#1BBFE8
+37W,37W / 39C,Midnight Blue Metallic,Nachtblau Perlcolor,blue,metallic,,no,#0B1F3C
+39C,39C / 37W,Midnight Blue Pearl,Nachtblau Pearl,blue,pearl,1991-2018,no,#191970
+304,304,Minerva Blue Metallic,Minervablau,blue,metallic,,no,#2782CD
+LA5D,LA5D,Monaco Blue,Monacoblau,blue,solid,1980-1981,no,#5D81B3
+G5D,G5D / I5,Montego Blue Metallic,Montegoblau Metallic,blue,metallic,2023-present,no,#043A60
+4OS,4OS,Moon Gem,Moon Gem,blue,solid,2024-present,yes,#D6CED9
+C5M,C5M / C7,Moonlight Blue Metallic,Mondscheinblau Metallic,blue,metallic,2023-present,no,#272A47
+5NY,5NY,Nashy Blue,Nashy Blue,blue,solid,2024-present,yes,#45719B
+LY5Z,LY5Z,Nautic Metallic,Nautic Metallic,blue,metallic,1987-1988,no,#032342
+,,Neptune Blue,Neptunblau,blue,solid,2024-present,no,#00599A
+M5X,39C / M5X,Night Blue Metallic,Nachtblau Metallic,blue,metallic,2010-2019,no,#061F44
+Z5M,Z5M,Nogaro Blue Metallic,Nogaroblau Metallic,blue,metallic,,yes,#2e4a9c
+3AZ,3AY / 3AZ,Ocean Blue Metallic,Oceanblau Metallic,blue,metallic,,no,#29496d
+L51P,L51P,Olympic Blue,Olympiablau,blue,solid,,no,#48C7E8
+6203,6203 / Z77,Oslo Blue,Oslobalau,blue,solid,1962-1963,no,#037CBF
+6803,6803,Ossi Blue,Ossiblau,blue,solid,1968-1969,no,#326BF3
+31G,31G,Pacific Blue Metallic,Pazifikblau-met.,blue,metallic,,no,#375975
+Q83,Q83,Palace Blue Metallic,Palastblau Metallic,blue,metallic,,yes,#2c3a5b
+,,Pale Blue Metallic,Hellblau Metallic,blue,metallic,2024-present,no,#424e5a
+,,Pantone 296C,Pantone 296C,blue,solid,2021-present,yes,#003B5C
+321,321,Pastel Blue,Pastellblau,blue,solid,1970-1971,no,#2B71B3
+376,376 / X5Z,Petrol Blue Metallic,Petrolblau-met.,blue,metallic,,no,#344A60
+Z79,Z79,Polar Blue Metallic,Polarblau Metallic,blue,metallic,,no,#828896
+33X,33X,Prussian Blue Metallic,Preußischblau-met.,blue,metallic,,no,#122A57
+M5B,M0 / M5B,Pure Blue,Reines Blau,blue,solid,,no,#0257CD
+3AG,39E / 3AG,Riviera Blue,rivierablue,blue,solid,1994-1998,yes,#2d8bc5
+6012,6012,Royal Blue,Königsblau,blue,solid,1960-1961,no,#0B5E98
+,,Royal Blue Metallic,Königsblau Metallic,blue,metallic,,no,#284059
+,,San Marino Blue,San Marinoblau,blue,solid,2021-present,yes,#010392
+W87,W87,San Marino Blue Metallic,San Marinoblau Metallic,blue,metallic,,yes,#010392
+Z5K,Z5K,Santorin Blue Metallic,Santorinblau Metallic,blue,metallic,,yes,#1f3263
+38W,38W,Sapphire Blue Metallic,Saphirblau Metallic,blue,metallic,1995-2005,no,#3a8fe6
+LY5V,LY5V,Sapphire Metallic,Saphir Metallic,blue,metallic,1983-1986,no,#BEBEBE
+X5Q,X5Q,Scuba Blue Metallic,Scubablau Metallic,blue,metallic,,yes,#234071
+329,329,Sea Blue,Seeblau,blue,solid,,no,#212288
+Y5Q,Y5Q,Sepang Blue Metallic,Sepangblau Metallic,blue,metallic,,yes,#355699
+D5C,D5C / D7,Shark Blue,Haiblau,blue,solid,2022-present,no,#2391E4
+,,Sholar Blue,Sholarblau,blue,solid,,no,#043CAD
+R5G,R5G,Shore Blue,Shore Blue,blue,solid,2021-present,yes,#9ABBCD
+6403,6403,Sky Blue,Emailblau,blue,solid,1964-1965,no,#4297C8
+661,661,Slate Blue Metallic,Schieferblau-met.,blue,metallic,,no,#A3AEBE
+5S0,5S0,South Sea Blue Metalic,Südseeblau Metallic,blue,solid,,no,#4481b6
+R602,R602,Speedster Blue,Speedsterblau,blue,solid,,no,#1368B3
+631,631,Steel Blue Metallic,Stahlblau Metallic,blue,metallic,,no,#54647F
+37C,37C,Tahoe Blue Metallic,Tahoeblau Metallic,blue,metallic,1992-1992,no,#2987C8
+340,21M / 340,Turquoise,Türkis,blue,solid,1970-1971,no,#72C7CE
+5TD,5TD,Turquoise Blue,Türkisblau,blue,solid,,yes,#0E81C9
+LM5M,L25C / L25D / LM5M,Turquoise Metallic,Türkis Metallic,blue,metallic,1992-1992,no,#02567C
+25D,25C / 25D,Turquoise Metallic (993),Türkis Perlcolor,blue,metallic,,no,#00ACC1
+R5013,6827 / R5013,Ultra Blue,Ultrablau,blue,solid,,no,#193276
+X5L,X5L,Utopia Blue Metallic,Utopiablau Metallic,blue,metallic,,yes,#688097
+36P,36P,Venezia Blue Metallic,Veneziablau-met,blue,metallic,,no,#3F4550
+3AF,37E / 3AF,Violet Blue Metallic,Veilchenblau Metallic,blue,metallic,,no,#A478C6
+Z12,5VL / Z12,Voodoo Blue,Voodoo Blue,blue,solid,2018-present,yes,#295ca2
+Z91,Z91,X Blue,X Blue,blue,solid,2021-present,yes,#333638
+M5S,M5S,Yachting Blue Metallic,Yachtblau Metallic,blue,metallic,2017-2023,no,#69778f
+3AX,3AW / 3AX,Zenith Blue Metallic,Zenitblau Metallic,blue,metallic,,no,#3B406B
+Y8W,Y8W,89 Jazz Brown Metallic,Jazzbraun Metallic,brown,metallic,,yes,#6c5644
+Y8R,Y8R,89 Soho Brown Metallic,Sohobraun Metallic,brown,metallic,,yes,#7c7872
+LY1Y,LY1Y,Almond Beige Metallic,Mandelbeige Metallic,brown,metallic,1987-1988,no,#C4A570
+M8S,M8S,Anthracite Brown Metallic,Anthrazitbraun Metallic,brown,metallic,,yes,#574B41
+548,548,Apricot Beige,Apricotbeige,brown,solid,,no,#D4A76A
+Y8S,Y8S,Argus Brown Metallic,Argusbraun Metallic,brown,metallic,,yes,#857a73
+E6,E6,Auburn Metallic,Rotbraun metallic,brown,metallic,,no,#8A2B21
+523,523,Bamboo Beige,Bambusbeige,brown,solid,,no,#501012
+LY1Z,LY1Z,Bamboo Metallic,Bambus Metallic,brown,metallic,1989-1990,no,#D6CCBB
+Y8U,Y8U,Beluga Brown Metallic,Belugabraun Metallic,brown,metallic,,yes,#5f5049
+408,408,Bitter Chocolate,Cockneybraun,brown,solid,,no,#612B19
+432,432,Brown Copper Diamond,Braunkupferdiamant,brown,solid,,no,#745330
+Y40,Y40,Brown Metallic,braunmetallic,brown,metallic,,no,#5C4836
+M3S,M3S / W5,Burgundy Pearl,burgunderperle,brown,pearl,,no,#482A2A
+524,524,Caramel,Burnusbraun,brown,solid,,no,#E40707
+499,499,Ceramic Beige,Keramikbeige,brown,solid,,no,#DEB28A
+H8Z,H8Z,Chestnut Brown Metallic,Kastanienbraun Metallic,brown,metallic,,yes,#86766a
+6837,6837 / 80342,Coffee (Cocoa) Brown,kaffeebraun,brown,solid,,no,#412810
+M8Q,M8Q,Coffee Beige Metallic,kaffeebeigemetallic,brown,metallic,,no,#DFCCB1
+9MU,9MU,Coffee Black,Kaffeeschwarz,brown,solid,,yes,#3c3733
+L86A,L86A,Cognac Brown,Cognacbraun,brown,solid,1978-1978,no,#5B3722
+40L,40L,Cognac Brown Metallic,Cognacbraun Metallic,brown,metallic,,no,#5B3722
+,,Cognac Metallic,Cognac Metallic,brown,metallic,2021-present,yes,#8B736A
+LA1M,LA1M,Colorado Beige,Coloradobeige,brown,solid,1981-1981,no,#C4A870
+443,443,Copper Brown Metallic,Braunkupferdiamant,brown,metallic,,no,#745330
+95F,95F,Copper Metallic,Kupfer Metallic,brown,metallic,1977-1978,no,#C96022
+40D,40D / Z8X,Espresso Brown Metallic,Espressobraun-met.,brown,metallic,,no,#422F25
+LD6A,LD6A,Havana Brown,Havannabraun,brown,solid,1981-1982,no,#5C3317
+Y8Y,Y8Y,Ipanema Brown Metallic,Ipanemabraun Metallic,brown,metallic,,yes,#b26b30
+Y8Z,Y8Z,Java Brown Metallic,Javabraun Metallic,brown,metallic,,yes,#745f51
+LA1Y,LA1Y,Kalahari Beige Metallic,Kalaharibeige Metallic,brown,metallic,1985-1986,no,#D5D4B6
+LM1V,966 / LM1V,Light Bronze Metallic,Hellbronze Metallic,brown,metallic,1983-1984,no,#A59B92
+M8W,M8W,Macadamia Metallic,Macadamia Metallic,brown,metallic,2008-2012,no,#3D2A24
+LB8Z,LB8Z,Mahogany Brown Metallic,Mahagonibraun Metallic,brown,metallic,1985-1986,no,#512F10
+M8S,M8S / M8Y,Mahogany Metallic,Mahagoni Metallic,brown,metallic,2014-2020,no,#3C0608
+LE1M,LE1M,Mexico Beige,Mexicobeige,brown,solid,1979-1980,no,#E8D3AB
+451,451,Mocha Brown,Moccabraun,brown,solid,,no,#3F3E3A
+492,492 / L492,Muscat Brown Metallic,Muskatbraun Metallic,brown,metallic,1985-1986,no,#3E3122
+LM8V,40B / LM8V,Nougat Brown Metallic,Nougatbraun Metallic,brown,metallic,1987-1988,no,#876A56
+492,492,Nutmeg Brown Metallic,Muskatbraun-met.,brown,metallic,,no,#61330C
+LM1N,536 / LM1N,Pastel Beige,Pastellbeige,brown,solid,1985-1986,no,#FAF6EB
+M8R,3L / M8R,Ristretto Brown Metallic,ristrettobraunmetallic,brown,metallic,,no,#6C4D3E
+474,474,Rosewood Metallic,Palisander-met.,brown,metallic,,no,#694E4E
+LY8V,LY8V,Sable Brown Metallic,Zobelbraun Metallic,brown,metallic,1983-1984,no,#7E7266
+Q84,Q84,Saddle Brown Metallic,Sattelbraun Metallic,brown,metallic,,yes,#393131
+6607,6607,Sandbeige,Sandbeige,brown,solid,1965-1969,no,#D8C193
+LY4V,LY4V,Saturn Metallic,Saturn Metallic,brown,metallic,1982-1982,no,#893E36
+415,415,Sepia Brown,Sepiabraun,brown,solid,,no,#905508
+436,436,Sienna Metallic,Diamantsahara,brown,metallic,,no,#D6432B
+Z8W,Z8W,Teak Brown Metallic,Teakbraun Metallic,brown,metallic,,yes,#6d5f55
+5409,5409,Terra Cotta,terrakotta,brown,solid,,no,#A6744E
+L98Y,L98Y,Titian Metallic,Tizian Metallic,brown,metallic,1976-1976,no,#A05020
+464,464,Tobacco Metallic,Tabak-met.,brown,metallic,,no,#775A39
+6411,6411,Togo Brown,Togobraun,brown,solid,1964-1965,no,#3C1F0C
+M8X,J3 / M8X,Topaz Brown Metallic,topasbraun metallic,brown,metallic,,no,#807968
+M8P,M8P,Truffle Brown Metallic,trüffelbraunmet,brown,metallic,,no,#4C3931
+40X,40W / 40X,Vesuvio Metallic,Vesuvio Perlcolor,brown,metallic,,no,#554351
+442,442,Byzantine Gold,byzantinischesgold,gold,solid,,no,#D08645
+Z52,Z52,Gold Bronze Metallic,Gold Bronze,gold,metallic,2021-present,yes,#D0C8A8
+6828,62165 / 6828,Golden Green,goldgrün,gold,solid,,no,#85AC5B
+17656,17656,Lido Gold,lidogold,gold,solid,,no,#DCF1B7
+,,Lime Gold Metallic,Limegold Metallic,gold,metallic,2007-2012,no,#AA9B80
+,,Madeira Gold Metallic,Madeiragold Metallic,gold,metallic,2024-present,no,#B8860B
+1D4,1D4 / M2Z,Nordic Gold Metallic,Nordgold Metallic,gold,metallic,2008-2010,no,#EB8723
+X6P,X6P,89 Avalon Green Metallic,Avalongrün Metallic,green,metallic,,yes,#4e5d66
+6A7,2M8 / 6A7,Acid Green,Acidgrün,green,solid,2018-present,yes,#D4EC53
+6TN,6TN,Amazonas Green Metallic,Amazonasgrün Metallic,green,metallic,,yes,#244e65
+260,260,Apple Green,Daphnegrün,green,solid,,no,#A1D434
+60A,60A,Arlo Green Metallic,Arlogrün Metallic,green,metallic,,yes,#2c525c
+6IL,6IL,Ashley Green,Ashleygrün,green,solid,,yes,#618653
+6RY,6RY,Audrain Green Metallic,Audraingrün Metallic,green,metallic,,yes,#3b6955
+6AU,5712 / 6AU,Auratium Green,Auratiumgrün,green,metallic,1957-1959,no,#4e6b53
+39S,39R / 39S,Aventura Green Metallic,Aventuragrün Perlcolor,green,metallic,,no,#3CB371
+M6T,K6 / L39R / M6T / U4,Aventurine Green Metallic,Aventuringrün Metallic,green,metallic,2019-present,no,#51514f
+Z6R,Z6R,Avocado Green Metallic,Avocadogrün Metallic,green,metallic,,yes,#355041
+K6A,K6A,Barnato Green,Barnatogrün,green,metallic,2024-present,yes,#313a3a
+253,253,Birch Green,Birkengrün,green,solid,1974-present,yes,#DBFF4E
+247,247 / 2A7,Black Olive,Schwarzoliv,green,solid,,yes,#434A3A
+22B,22B,Brewster Green,Brewstergrün,green,solid,2021-present,yes,#06371C
+611,611 / GB0,British Racing Green,British Racing Green,green,solid,2021-present,yes,#05520E
+895,895,British Racing Green Metallic,British Racing Green Metallic,green,metallic,,yes,#2e5b53
+62163,62163,Bush (Leaf) Green,buschgruen,green,solid,,no,#83B78C
+218,218,Bush Green,Buschgrün,green,solid,,no,Solid
+X6T,X6T,Camouflage Green Metallic,Tarngrün Metallic,green,metallic,,yes,#5c696c
+L99Y,L99Y,Colibri Green Metallic,Colibrigrün Metallic,green,metallic,1978-1979,no,#456136
+222,222,Conda Green,Condagrün,green,solid,1970-1971,no,#12A663
+Y21,Y21,Connaught Green,connaughtgreen,green,solid,,no,#0C4820
+LM6Y,33N / 3P / A6W / LM6Y,Crystal Green Metallic,Kristallgrün Metallic,green,metallic,1985-1986,no,#91A499
+M6X,M6X,Dark Olive Metallic,Dunkeloliv Metallic,green,metallic,2005-2010,no,#414F4F
+M6W,M6W,Dark Teal Metallic,Lagogrün Metallic,green,metallic,,no,#153A36
+Z6E,Z6E,Deep Green Metallic,Tiefgrün Metallic,green,metallic,,yes,#344943
+6JE,6JE,Eberle Green,Eberle Grün,green,solid,2024-present,yes,#016838
+264,264 / 26G,Emerald Green Met.,Vipergründiamant,green,solid,,no,#367d69
+24C,24C,Essmann Green,Essmanngrün,green,solid,2023-present,yes,#4D7A4B
+699,699,Felsengruen Metallic,Felsengrün Metallic,green,metallic,,yes,#A9B3AE
+273,273,Fern Green,Farngrün,green,solid,,no,#42C098
+22E,22E,Fir Green Metallic,Tannengrün Metallic,green,metallic,,no,#083B1F
+6FN,5705 / 6005 / 6FN,Fjord Green,Fjordgrün,green,solid,,yes,#024642
+2B4,2B4,Forest Green Metallic,Tannengrün Metallic,green,metallic,2005-2009,no,#083B1F
+Z6P,Z6P,Gomera Metallic,Gomera Metallic,green,metallic,,yes,#094F4E
+Z6X,Q82 / Z6X,Goodwood Green Metallic,Goodwoodgrün Metallic,green,metallic,,yes,#0B3C06
+2D8,2D8,Green,Grün,green,solid,,yes,#04D767
+224,224,Green Metallic,Grün-met.,green,metallic,,no,#37884D
+220,220,Green Turquoise,Türkisgrün,green,solid,1970-1971,no,#1C5E4A
+137,137,Green Yellow,Gelbgrün,green,solid,,yes,#90DF7A
+266,266,Ice Green Metallic,Silbergründiamant,green,metallic,,no,#79918E
+6606,213 / 6406 / 6606 / L22E / Y79,Irish Green,irishgreen,green,solid,1965-1973,yes,#0B430E
+5405,5405,Jade Green Metallic,jadegrünmetallic,green,metallic,,no,#404233
+Y6W,Y6W,Java Green Metallic,Javagrün Metallic,green,metallic,,yes,#aedf5a
+Z6H,Z6H,Jet Green Metallic,Jetgrün Metallic,green,metallic,,yes,#005150
+2A1,2A1 / 2A2,Jungle Green Metallic,Dschungelgrün Metallic,green,metallic,,no,#1B4D3E
+,,Kelly Green,ViperGrün,green,solid,,no,#628351
+35Y,35Y,Lagoon Green Metallic,Lagunengrün-met.,green,metallic,,no,#6B858E
+LA6V,LA6V,Lhasa Metallic,Lhasa Metallic,green,metallic,1982-1982,no,#2A4A4A
+253,227 / 253,Light Green,lightgreen,green,solid,,no,#B3DD14
+275,275,Light Green Metallic,Lindgrün-met.,green,metallic,,no,#828E60
+Q82,Q82,Light Oak Green Metallic,Helleichengrün Metallic,green,metallic,,yes,#757566
+227,227,Lighter Green,Hellgrün,green,solid,1970-present,yes,#36b98b
+226,137 / 226,Lime Green,Gelbgrün,green,solid,,no,#B0EA55
+226,226,Linden Green,Lindengrün,green,solid,,yes,#D1D027
+,,Lizard Green,Eidechsengrün,green,solid,2018-present,yes,#01B520
+2B5,2B5,Malachite Green Metallic,Malachitgrün Metallic,green,metallic,,yes,#39483C
+96Y,96Y,Malachite Metallic,Malachit Metallic,green,metallic,1977-1977,no,#02567C
+M6S,M6S,Mamba Green Metallic,mambagruen metallic,green,metallic,,no,#52B844
+62109,62109 / 6852,Metallic Dark Green,metallischesdunkelgrün,green,metallic,,no,#3D7153
+221,221 / 8310 / 8383,Metallic Green,Grünmetallic,green,metallic,1971-1971,no,#37884D
+22A,20A / 22A / 22R,Mint Green,Mintgrün,green,solid,,no,#6FBE90
+,,Mint Green (Dark),Minzgrün (Dunkel),green,solid,,no,#5F9590
+Q85,Q85,Morning Dew Green Metallic,Morgentaugrün Metallic,green,metallic,,yes,#B2D2D4
+LM6V,20C / LM6V,Moss Green Metallic,Moosgrün Metallic,green,metallic,1983-1983,no,#0F4210
+22C,22C,Murano Green,Muranogrün,green,solid,,no,#13747D
+L6H,L6H,Nato Olive,natoolive,green,solid,,yes,#5A5B4B
+LY6Y,LY6Y,Nile Green Metallic,Nilgrün Metallic,green,metallic,1987-1988,no,#1E391A
+22L,22L / 23G / 265 / 60K,Oak Green Metallic,Oakgrün Metallic,green,metallic,,no,#344829
+M6Y,M6Y,Oak Green Metallic Neo,Eichengrün Metallic Neo,green,metallic,2023-present,no,#192D26
+J3,J3,Ocean Jade Metallic,OzeanJade Metallic,green,metallic,,no,#009DA8
+414,414,Olive,Olive,green,solid,,no,#B68426
+274,274 / 60G,Olive Green,Olivgrün,green,solid,,no,#6E8E4E
+2M4,2M4,Olive Green Metallic,Olivgrün Metallic,green,metallic,2008-2010,no,#4C5636
+M6D,M6D,Olive Neo,Eichegrün Neo,green,solid,2026-present,no,#36452B
+LD6V,LD6V,Onyx Metallic,Onyx Metallic,green,metallic,1980-1981,no,#4A4B45
+,,Oxley Green,Oxleygrün,green,solid,,no,#93DFB9
+L95K,L95K,Palma Green Metallic,Palmagrün Metallic,green,metallic,,no,#2E8A53
+2S1,2S1,Peridot Metallic,Peridot Metallic,green,metallic,,yes,#8AA748
+22G,22G / J1 / PRO,Porsche Racing Green Metallic,Porsche Racinggrün Metallic,green,metallic,,yes,#264C38
+Y56,Y56,Pure Green,Purgrün,green,solid,,yes,#06A72C
+M6J,M6J,Python Green,Pythongrün,green,metallic,2019-present,no,#00CE68
+,,Python Green Chromaflair,Pythongrün Chromaflair,green,special,,no,#8AAA6A
+6QG,6QG,Quercus Verde,Quercus Verde,green,solid,,yes,#3d4536
+510,510,Radium Green,Radiumgrün,green,solid,,no,#BBD1CA
+2A2,2A2,Rainforest (Jungle) Green Metallic,Regenwald (Dschungel) Grün,green,metallic,,no,#21645E
+,,Rainforest Green Metallic,Regenwaldgrün Metallic,green,metallic,2000-2004,no,#2D4F2B
+L65K,L65K,Ravenna Green,Ravennagrün,green,solid,,no,#B0BB0F
+95E,95E,Reseda Green Metallic,Resedagrün Metallic,green,metallic,1977-1978,no,#D4E595
+699,699,Rock Green Metallic,Felsengrün-met.,green,metallic,,no,#5A6163
+Z20,Z20,Rolex Green,Rolexgrün,green,solid,,no,#195E1F
+,,Sea Foam Green Metallic,Sea Foam Gruen Metallic,green,metallic,,no,#4D6666
+62164,62164,Sea Green,Meeresgrün,green,solid,,no,#6BAFA4
+M6P,M6P,Shade Green,Shade-Grün,green,metallic,2022-present,no,#91A8B0
+,,Shade Green Metallic,Schattengrün Metallic,green,metallic,,no,#91A8B0
+22S,217 / 22S / 22T,Signal Green,signalgreen,green,solid,1970-1975,yes,#04E47B
+250,250,Silver Green Diamond,Silbergründiamant,green,solid,,no,#79918E
+6210,6210 / Z33,Smyrna Green,Smyrnagrün,green,solid,1962-1963,no,#35786F
+L63Z,L63Z,Spanish Green,Spanischgrün,green,solid,1976-1976,no,#4A6741
+258,258,Speedway Green,Speedwaygrün,green,solid,,no,#50E051
+LB6A,LB6A,Sunda Green,Sundagrün,green,solid,1981-1981,no,#4A7A4A
+X6C,X6C,Tactic Green Metallic,Taktikgrün Metallic,green,metallic,,yes,#676048
+Z33,Z33,Teal Blue Metallic,Blaugrün Metallic,green,metallic,,no,#1F3B71
+Y20,Y20,Tourmaline (Turmalin) Green Metallic,Turmalingrün,green,metallic,,no,#218F9E
+R6016,R6016,Turkey Green,Türkeigrün,green,solid,,no,#57CFA9
+P6G,P6G,Underberg Green,Underberggrün,green,solid,2021-present,yes,#2D4636
+611,611,Verde British Racing Green,Verde BRG,green,solid,2024-present,yes,#004225
+6VZ,6VZ,Verde Zeltweg Metallic,Verde Zeltweg Metallic,green,metallic,2024-present,yes,#1E3A1E
+225,225 / L22P,Viper Green,vipergreen,green,solid,1972-1973,yes,#4CDB59
+249,249,Viper Green Diamond,Vipergründiamant,green,solid,,no,#4CDB59
+L96N,L96N,Viper Green Metallic,Vipergrün Metallic,green,metallic,1976-1976,no,#45B961
+L63K,L63K / Y83,Willow Green,Weidengrün,green,solid,,no,#A8D061
+23I,23I / 24M / 2B6,Wimbledon Green Metallic,,green,metallic,1989-1994,no,#397377
+L64K,L64K,Zambesi Green,Sambesigrün,green,solid,,no,#1E8550
+,,Zambezi Green,Zambesigrün,green,solid,1973-present,yes,#4B5320
+X7R,X7R,89 Monsoon Grey Metallic,Monsungrau Metallic,grey,metallic,,yes,#aeb3b8
+X7P,X7P,89 Tornado Grey Metallic,Tornadograu Metallic,grey,metallic,2021-present,yes,#c6c9d2
+M7S,M7S / N0,Agate Grey Metallic,Achatgrau Metallic,grey,metallic,2011-present,no,#898785
+Z58,M7W / Z58,Alex Grey,Alexgrau,grey,solid,2021-present,yes,#B2B2B2
+,,Anthracite Metallic,anthrazit-metallic,grey,metallic,,no,#5F5B5B
+5607,5607,Aquamarine Metallic,Aquamarin Metallic,grey,metallic,,no,#6880A0
+M7K,M7K / U0 / Z93,Arctic Grey,Arktisgrau,grey,solid,2022-present,no,#516174
+Z7W,Z7W,Arrow Grey Metallic,Arrowgrau Metallic,grey,metallic,,yes,#92989e
+M7X,M7X,Atlas Grey Metallic,Atlasgrau Metallic,grey,metallic,2005-2010,no,#535353
+Y39,Y39,Azure Metallic,Azur Metallic,grey,metallic,,no,#3C81D2
+,,Azurro California,Azzuro Kalifornien,grey,solid,,no,#315C81
+622,622,Beige Grey,Beigegrau,grey,solid,,no,#DEDECC
+M9Z,M9Z,Carbon Grey Metallic,Carbongrau Metallic,grey,metallic,2021-present,yes,#666062
+A9W,A9W,Carbon Steel Grey Metallic,Carbonstahlgrau Metallic,grey,metallic,2021-present,yes,#6e7985
+502,502,Cashmere Beige,Kaschmirbeige,grey,solid,,no,#F3D196
+Z1T,Z1T,Cashmere Grey Metallic,Kaschmir Grau Metallic,grey,metallic,,yes,#b2a7a4
+456,456,China Grey,Chinagrau,grey,solid,2021-present,yes,#BDBDBD
+M7B,M7B / W30,Crayon,Kreide,grey,solid,2019-present,no,#C8C0B8
+Z7H,M7W / Z7H,Dark Meteor Grey Metallic,Dunkel Meteorgrau Metallic,grey,metallic,,yes,#9e9d9f
+LY7V,LY7V / Z65,Dolomite Grey Metallic,Dolomitgrau Metallic,grey,metallic,1979-1979,no,#6E6964
+6410,6410 / W07,Dolphin Grey,Delphingrau,grey,solid,1964-1965,no,#91A1A8
+61H,61H,Fashion Grey,Fashion Grau,grey,solid,1990-present,yes,#8B8B83
+LY7A,LY7A,Gaboon Grey,Gabungrau,grey,solid,1982-1982,no,#E9E9E5
+LZ7Z,LZ7Z,Gemini Grey Metallic,Geminigrau Metallic,grey,metallic,1983-1984,no,#9AA3A9
+9G5,9G5,Geyser Grey,geysergrau,grey,solid,,no,#D7D4C8
+Y7F,9G5 / Y7F,Geyser Grey Metallic,Geysergrau Metallic,grey,metallic,2014-present,yes,#C7BEA2
+711,711 / 7II,Goodman Grey,Goodmangrau,grey,solid,,yes,#656a6b
+7B2,7B2,Graphite Grey,Graphitgrau,grey,solid,2014-present,yes,#454341
+Z63,Z63,Graphite Grey Metallic,graphitgrau-metallic,grey,metallic,,no,#758286
+LB7V,LB7V,Graphite Metallic,Graphit Metallic,grey,metallic,1985-1986,no,#46494F
+Y99,Y99,Grigio Campovolo,Grigio Campovolo,grey,solid,2021-present,yes,#D0D0D0
+W49,W49,Grigio Granito Metallic,Grigio Granito Metallic,grey,metallic,,yes,#36343E
+Z69,Z69,Grigio Telesto,Grigio Telesto,grey,metallic,2021-present,yes,#404A51
+7GG,7GG,Grigio Telesto Metallic,Grigio Telesto Metallic,grey,metallic,,yes,#404A51
+,,Hellbronze Metallic,hellbronze,grey,metallic,,no,#C4B18E
+Y09,Y09,Hellelfenbein,hellelfenbein,grey,solid,,no,#E9E8C2
+6207,6007 / 6207,Heron Grey (1963),Reihergrau,grey,solid,1962-1963,no,#E9E9E4
+M7N,G7 / M7N,Ice Grey Metallic,Eisgrau Metallic,grey,metallic,2019-present,no,#D9D9D9
+U1V9,U1V9,LE Bumble Bee,Would you like to upload pictures for this color? Click Here,grey,solid,,no,#060603
+U2V9,U2V9,LE Creamsicle,lecreamsicle,grey,solid,,no,#FDF9D4
+Z7L,Z7L,Lava Grey Metallic,Lavagrau Metallic,grey,metallic,,yes,#373737
+Y62,Y62,Light Oxford Grey,Helloxfordgrau,grey,solid,2021-present,yes,#A9A9A9
+55,55,Linen Grey Metallic,leinenmetallic,grey,metallic,,no,#E8D9C2
+673,673,Marble Grey,Marmorgrau,grey,solid,,no,#E6E6E3
+N/A,N/A,Medium Grey,mittelgrau,grey,solid,,no,#565C5D
+6A6,6A6 / 6A7,Meridian Metallic,Meridian Metallic,grey,metallic,,no,#C6C2B4
+M7W,M7W,Meteor Grey Metallic,Meteorgrau Metallic,grey,metallic,2005-2012,no,#989a9b
+LY7Z,961 / LY7Z,Meteor Metallic,Meteor Metallic,grey,metallic,1982-1982,no,#524348
+Special,Order / Special,Mirage Metallic,champagne metallic,grey,metallic,,no,#CFC6B8
+7MG,7MG,Mode Grau,Mode Grau,grey,solid,,yes,#CDD0D1
+,,Mystic Stone Metallic,,grey,metallic,,no,#9BBEB0
+Y7C,Y7C,Nardo Grey,Nardograu,grey,solid,2021-present,yes,#636671
+Z7X,Z7X,Nimbus Grey Metallic,Nimbusgrau Metallic,grey,metallic,,yes,#6D7175
+Y1P,Y1P,North Dakota Grey Metallic,North Dakota Grau Metallic,grey,metallic,,yes,#8e887c
+463,463,Opal Metallic,Opal-met.,grey,metallic,,no,#C2B377
+C1Y,C1Y,Palladium Metallic,Palladium Metallic,grey,metallic,2021-present,yes,#C3B9B3
+W65,W65,Parliament Grey Metallic,Parlamentgrau Metallic,grey,metallic,2021-present,yes,#616161
+5407,5407,Pearl Grey,perlgrau,grey,pearl,,no,#E3E4E9
+LM8U,655 / LM8U,Pewter Metallic,Platin Metallic,grey,metallic,1982-1984,no,#D2D6D7
+,,Pink Pig,rosaschwein,grey,solid,,no,#C36782
+,,Prosecco,prosecco,grey,solid,,no,#D7C5B5
+662,662 / Y7G,Quartz Grey Metallic,Rauchquarz-met.,grey,metallic,,no,#5C5E58
+,,Quartzite Grey Metallic,Quartzitgrau Metallic,grey,metallic,2018-present,no,#393F3F
+W86,W86,Rosso Scuderia,scuderia-rot,grey,solid,,no,#E12C2C
+516,516,Sahara Beige,Saharabeige,grey,solid,,no,#FEEAAC
+6B4,6B4 / 6B5,Seal Grey Metallic,Sealgrau Metallic,grey,metallic,,no,#5B6777
+,,Skopos grey,,grey,solid,,no,#7D7568
+6801,6001 / 615 / 6201 / 6401 / 6601 / 6801 / Y97,Slate Grey,Schiefergrau,grey,solid,1968-1969,no,#707070
+615,615,Slate Grey 6601,slategrey6601,grey,solid,,yes,#4b4c49
+Y97,Y97,Slate Grey 7015,slategrey7015,grey,solid,,yes,#606168
+,,Slate Grey Neo,Schiefergrau Neo,grey,solid,2022-present,no,#414750
+22D,22D / 23F,Slate Metallic,Schiefer Metallic,grey,metallic,,no,#707070
+L63A,63A / L63A,Sport Classic Grey,Sport Classic Grau,grey,solid,,yes,#969e9d
+5710,5710 / Z67,Stone Grey,Steingrau,grey,solid,1957-1959,no,#8C9587
+LY7U,693 / 7SG / LY7U,Stone Grey Metallic,Steingrau Metallic,grey,metallic,1985-1989,no,#AFAAB2
+Y7F,Y7F,Suzuka Grey Metallic,Suzukagrau Metallic,grey,metallic,,yes,#c4c8cb
+X7H,X7H,Terra Grey Metallic,Terragrau Metallic,grey,metallic,,yes,#A0A0A0
+LY7P,LY7P,Titan Metallic,Titan Metallic,grey,metallic,1990-1991,no,#4C4949
+D7Z,D7Z,Titanium,titanium metallic,grey,solid,,no,#505050
+,,Titanium Metallic,Titan Metallic,grey,metallic,2003-2010,no,#6E6E6E
+M8U,M8U,Umbra,umbra,grey,solid,,no,#9E8573
+M8U,M8U / R7,Umbra Metallic,umbrametallic,grey,metallic,,no,#CECCCC
+PTS,PTS,Urban Bamboo ChromaFlair,bambuschromaflair,grey,special,,no,#A2A590
+M7V,M7V,Vanadium Grey Metallic,Vanadiumgrau Metallic,grey,metallic,2025-present,no,#A5ADB3
+X7J,X7J,Vesuvius Grey Metallic,Vesuvgrau Metallic,grey,metallic,,yes,#6D6C65
+M7R,M7R,Volcano Grey Metallic,Vulkangrau Metallic,grey,metallic,2024-present,no,#434343
+620,620,White Grey,Weißgrau,grey,solid,1970-1971,no,#C8C4BC
+L0E2,L0E2 / C5,Arancio Boreallis,Nördliches Polarlicht,orange,,,no,#FBA400
+018,018 / M2A,Blood Orange,Blutorange,orange,solid,,no,#F85505
+107,107 / L21E,Continental Orange,Continentalorange,orange,solid,,no,#EF4D0F
+M2B,M2B / Y37,Lava Orange,Lavaorange,orange,solid,2017-present,no,#FF4200
+L20C,L20C,Nepal Orange,nepalorange,orange,solid,,no,#F4650F
+156,156 / 5711,Orange,Orange,orange,solid,,no,#FFA500
+L999,L999,Orange Pearl,orangefarbeneperle,orange,pearl,,no,#EE450F
+,,Papaya Metallic,Papaya Metallic,orange,metallic,2024-present,no,#F45D00
+Z17,Z17,Pastel Orange,Pastellenorange,orange,solid,,yes,#E55D01
+,,Pure Orange,Reinorange,orange,solid,,no,#EE6F13
+,,Salmon Metallic,salmonmetallic,orange,metallic,,no,#991D12
+22I,22I,Sean Peach,Sean Peach,orange,solid,2024-present,yes,#FFCBA4
+116,116 / 2SW / L20E,Signal Orange,signalorange,orange,solid,1970-1975,yes,#FF8A00
+6809,018 / 6809 / L20D,Tangerine,Blutorange,orange,solid,1968-1972,no,#FF5E28
+,,Azure Blue,,other,solid,,no,#888888
+406,406,Comet Diamond,Cometdiamant,other,solid,,no,#BF925A
+360,360,Coppa Florio,Cappaflorio,other,solid,,no,#B4E2F7
+335,330 / 335,Gemini Metallic (335),Gemini-met.,other,metallic,,no,#65ADE4
+,,Kasbek Green,,other,solid,,no,#888888
+,,Palm Green,,other,solid,,no,#387024
+,,Pine Green Metallic,,other,metallic,,no,#888888
+3AH,39D / 3AH,Amaranth Violet,Amarantviolett,purple,solid,,no,#764283
+LY4A,LY4A,Amethyst,Amethyst,purple,solid,1980-1980,no,#300519
+38A,38A / 83K / M4Z,Amethyst Metallic,Amethyst Perlcolor,purple,metallic,,no,#300519
+M4Z,M4Z / N6,Amethyst Pearl,amethyst perlcolor,purple,pearl,,no,#82617C
+025,025 / 4AI,Aubergine,Aubergine,purple,solid,,no,#67083E
+Y80,Y80,Aubergine Metallic,aubergine-metallic,purple,metallic,,no,#430C25
+341,341 / 601,Lilac,Flieder,purple,solid,,no,#5D3F6C
+,,Marsalla Metallic,Marsallarot-Metallic,purple,metallic,,no,#C97DBA
+Z3W,Z3W,Merlin Purple Metallic,Merlin Violett Metallic,purple,metallic,,yes,#533C67
+,,Provence,Provence,purple,solid,2024-present,no,#94859C
+M4W,M4W,Purple Sky Metallic,Purpurhimmel Metallic,purple,metallic,2024-present,no,#5a567a
+,,Purpurite Metallic,,purple,metallic,,no,#645d87
+M4W,M4A / M4W,Ultraviolet,Ultraviolett,purple,metallic,2018-present,yes,#61416B
+Q87,Q87,Velvet Purple Metallic,Samtviolett Metallic,purple,metallic,,yes,#352547
+24Z,24Z / Z4Z,Venetian Violet Metallic,Venezianisch Violett Metallic,purple,metallic,,yes,#3b2c50
+3AE,39G / 3AE,Viola Metallic,Viola Perlcolor,purple,metallic,,no,#5B0A91
+W85,4VN / W85,Viola Purple Metallic,Viola Violett Metallic,purple,metallic,,yes,#9181c3
+3C5,3C4 / 3C5,Violet Chromaflair,Violettchromaflair,purple,special,,no,#B08893
+Y3F,Y3F,Absolute Red,Absolutrot,red,solid,2022-present,yes,#CC0000
+,,Almandin Red Metallic,Almandinrot Metallic,red,metallic,1977-1981,no,#6B1F2F
+8L1,8L1 / L6,Amaranth Red Metallic,amarantrotmetallic,red,metallic,,no,#77242E
+Z8N,Z8N,Andorra Red Metallic,Andorrarot Metallic,red,metallic,,yes,#5a3132
+84R,84R / 84S,Arena Red Metallic,Arenarot Metallic,red,metallic,1997-2000,no,#7C0A25
+022,022 / 117,Bahia Red,Bahiarot,red,solid,,no,#E50201
+32A,32A,Brocade Red,Brokatrot,red,solid,1977-1977,no,#550707
+017,017 / 6808,Burgundy Red,Burgundrot,red,solid,1970-1972,no,#801D2B
+Z3K,Z3K,Burgundy Red Metallic,Burgundrot Metallic,red,metallic,,yes,#270c10
+M3C,0L / M3C,Carmine Red,Karminrot,red,solid,2012-present,no,#940000
+M3W,M3W,Carmon Red Metallic,Carmonarot Metallic,red,metallic,2005-2008,no,#8B1934
+80D,80D,Cassis Red Metallic,Cassisrot-met.,red,metallic,,no,#CAAEB6
+R0,R0,Cherry Metallic,kirschmetallic,red,metallic,,no,#4F0909
+80F,80F,Cherry Red,Cherryrot,red,solid,,no,#C22246
+M8N,I7 / M8N,Copper Ruby Metallic,Kupferrubin Metallic,red,metallic,2022-present,no,#3A0915
+82H,82H,Coral Red Metallic,Korallenrot Metallic,red,metallic,,no,#E93635
+LZ3T,LZ3T,Cyclamen Red Pearl,Zyclamrot Perlcolor,red,pearl,1990-1991,no,#5C072B
+C3U,C3U,Dark Burgundy Metallic,Dunkelburgund Metallic,red,metallic,,yes,#453c3f
+74,74 / GCN,Fire Red,feuerrot,red,solid,,no,#AE0E1D
+LY4Z,LY4Z,Flamingo Metallic,Flamingo Metallic,red,metallic,1987-1987,no,#C2BDB7
+YO8,YO8,Frozen Berry Metallic,Frozenbeere Metallic,red,metallic,2024-present,no,#B892B6
+G1,G1 / M3E,GTS Red,GTSred,red,solid,2008-2010,no,#AA0001
+LA3B,LA3B,Gambia Red,Gambiarot,red,solid,1982-1982,no,#B63344
+LM3Y,822 / LM3Y / Z3F,Garnet Red Metallic,Granatrot Metallic,red,metallic,1985-1986,no,#8F1C1A
+LM3A,027 / 80K / 84A / LM3A / Y39,Guards Red,Indischrot,red,solid,1982-1991,no,#FF0000
+,,Imperial Red,Imperialrot,red,solid,,no,#FF0000
+8M5,8M5 / L4,Impulse Red Metallic,impulsrotmetallic,red,metallic,,no,#C4201E
+LA3V,LA3V,Indiana Red Metallic,Indianarot Metallic,red,metallic,1979-1981,no,#B74646
+811,811,Kiln Red Metallic,Ziegelrot-met.,red,metallic,,no,#C03B25
+023,023,Light Red,Hellrot,red,solid,1971-1971,no,#ED1A1A
+009,009,Magenta,Karminrot,red,solid,,no,#F23996
+L30C,L30C,Malaga Red,Malagarot,red,solid,1978-1980,no,#B82319
+LY3E,LY3E,Mallow Red,Malvenrot,red,solid,1987-1987,no,#9C0100
+LY3Y,LY3V / LY3Y,Maraschino Red Metallic,,red,metallic,1987-1988,no,#6A2727
+L87Z,L87Z,Maroon,Maroon,red,solid,1976-1976,no,#721617
+L31B,L31B,Mars Red,Marsrot,red,solid,1976-1978,no,#F22E2F
+020,020,Metallic Dark Red,Dunkelrot Metallic,red,metallic,1965-1967,no,#990A33
+021,021 / 8110 / 8181,Metallic Red,Rotmetallic,red,metallic,1971-1971,no,#E01313
+1A8,1A8 / 1A9,Orange Red Pearl,Orangerot Perlcolor,red,pearl,,no,#D9411C
+8A3,8A3 / 8A4,Orient Red Metallic,Orientrot Metallic,red,metallic,,no,#AD2D2C
+042,042,Peru Red,Perurot,red,solid,,no,#B0311F
+L32K,L32K,Phoenix Red,Phönixrot,red,solid,,no,#F63C17
+Z3H,Z3H,Piedmont Red Metallic,Piemontrot Metallic,red,metallic,,yes,#651f24
+6802,6602 / 6802,Polo Red,,red,solid,1965-1969,no,#F72C2D
+5602,5602,Polyantha Red,polyantharot,red,solid,,no,#8B0E0F
+LP3G,LP3G,Pure Red,reinsert,red,solid,,no,#C81111
+Y81,Y81,Racing Red,Rennrot,red,solid,2021-present,yes,#A61F1E
+83E,83E / 83Y,Raspberry Metallic,Himbeerrot Metallic,red,metallic,,no,#8E2344
+A7,A7 / L82E,Raspberry Red Metallic,himbeerrotmetallic,red,metallic,,no,#D05755
+M3T,E6 / M3T,Red Brown Metallic,rotbraun-metallic,red,metallic,,no,#682E36
+L97D,L97D,Red Metallic,rotmetallic,red,metallic,,no,#D11211
+,,Rhodamine Red metallic,,red,metallic,,no,#AA0038
+M3X,M3X,Rubin Red,rubinrot,red,solid,,no,#A01432
+015,015 / 5702 / 6002 / 6202 / 6402,Ruby Red,Rubinrot,red,solid,1965-1967,no,#C12120
+LM3V,810 / LM3V / M3X,Ruby Red Metallic,rubyredmetallic,red,metallic,,no,#AB2A2A
+4SR,4SR,Ruby Star,Ruby Star,red,metallic,,yes,#D70769
+M4B,M4B / N2,Ruby Star Neo,Sternrubin Neo,red,solid,2022-present,no,#C90F7B
+82S,82S,Rubystone Red,Rubinsteinrot,red,solid,1992-1995,no,#9C2745
+036,036,Salmon Diamond,Lachsdiamant,red,solid,,no,Metallic
+L31M,L31M,Scarlet Red,rot,red,solid,,no,#E12F1C
+Z3C,Z3C,Seville Red Metallic,Sevillarot Metallic,red,metallic,,yes,#493133
+Y4S,Y4S,Shiraz Red Metallic,Shirazrot Metallic,red,metallic,,yes,#5f3a42
+LD3V,LD3V,Siena Red Metallic,Sienarot Metallic,red,metallic,1983-1983,no,#761A01
+016,016 / 6011 / 6211 / 6407,Signal Red,,red,solid,1960-1973,no,#F21717
+LM3B,82N / LM3B,Star Ruby,Sternrubin,red,solid,1991-1991,no,#8B1A1A
+024,024,Strawberry,Fraise,red,solid,,no,#F12751
+524,524,Strawberry Red,Erdbeerrot,red,,1951-1953,no,#B01E0E
+W10,W10,Superior Red Metallic,Superior Rot Metallic,red,metallic,2021-present,yes,#1E0606
+LA3Y,LA3Y,Surinam Metallic,Surinam Metallic,red,metallic,1982-1982,no,#961111
+5402,5402,Turkish Red,türkischrot,red,solid,,no,#780605
+LM3U,81L / LM3U,Velvet Red Metallic,,red,metallic,,no,#CA1642
+LY3B,LY3B,Venus Red,Venusrot,red,solid,1980-1981,no,#A52A2A
+895,895,Wine Red Metallic,Weinrot-met.,red,metallic,,no,#C02D16
+92M,92E / 92M,964 Polar Silver Metallic,Polarsilber Metallic,silver,metallic,1992-1998,no,#C0C0C0
+92U,92E / 92T / 92U,Arctic Silver Metallic,Arktissilber Metallic,silver,metallic,,no,#E1E1E1
+N/A,N/A,Aztec Silver,aztekischessilber,silver,solid,,no,#DEDCDA
+7SD,7SD,Centenaire Silver,Centenaire Silber,silver,metallic,,yes,#D7D7D7
+X7W,X7W,Classic Silver Metallic,Klassik Silber Metallic,silver,metallic,,yes,#ECE9E9
+LY7T,A7W / LY7T,Crystal Silver Metallic,Kristallsilber Metallic,silver,metallic,1990-1991,no,#E9E9E7
+X1Y,X1Y,Cuvée Silver Metallic,Cuvée Silber Metallic,silver,metallic,,yes,#e4e1d9
+L97A,L97A,Diamond Silver Metallic,Diamantsilber Metallic,silver,metallic,1976-1980,no,#D3D3D3
+M7P,M7P / Z96,Dolomite Silver Metallic,Dolomitsilber Metallic,silver,metallic,2019-present,no,#CFD8E1
+505,505,Fish Silver Grey,fischsilbergrau,silver,solid,,no,#AABECF
+7FF,7FF,Fish Silver Grey Metallic,Fischsilbergrau Metallic,silver,metallic,,yes,#C8C8C8
+LM7Z,LM7Z,GT Silver,gtsilber,silver,solid,,no,#EFF0F0
+M7Z,M7Z / U2,GT Silver Metallic,GT-Silber Metallic,silver,metallic,2003-present,no,#E0E0E0
+,,Inari Silver,inarisilbermetallic,silver,solid,,no,#BED7C8
+L94A,L94A,Inari Silver Metallic,Inarisilber Metallic,silver,metallic,1980-1981,no,#B8C4B8
+9S8,9S8,Liquid Metal Silver,flüssigesmetallsilber,silver,solid,,no,#D9D9D9
+555,554 / 555,Palladio Metallic,Paladio Perlcolor,silver,metallic,,no,#8E8E8E
+944,944,Platinum Diamond,Platindiamant,silver,solid,,no,#79725C
+,,Platinum Metallic,Platin Metallic,silver,metallic,1980-1989,no,#79725C
+,,Platinum Silver Metallic,Platinsilber Metallic,silver,metallic,2011-2012,no,#AEAFA2
+,,Rhodium Silver Metallic,Rhodiumsilber Metallic,silver,metallic,2014-2020,no,#E9E8E8
+81K,81K,Salmon Silver Metallic,Lachssilber Metallic,silver,metallic,,no,#A9694E
+924,5406 / 5706 / 6006 / 6206 / 8010 / 8080 / 924 / 925 / 936 / 980,Silver Metallic,Silbermetallic,silver,metallic,1971-1971,no,#E9E9E9
+L,L / M3Z,Silver Rose,silberrossa,silver,solid,,no,#F6E7E7
+Z97,Z97,Titanium Silver Metallic,titansilbermetallic,silver,metallic,,no,#DBDBDB
+LY7Y,LY7Y,Zermatt Silver Metallic,Zermattsilber Metallic,silver,metallic,1983-1989,no,#7A7A7A
+956,956,Zinc Metallic,Zinn-met.,silver,metallic,,no,#D2D6D7
+L90E,L90E,Alpine White,Alpinweiß,white,solid,1982-1991,no,#F6F6F6
+L91Z,L91Z,Atlas White,Atlasweiß,white,solid,1976-1976,no,#F0EDE4
+9A2,9A2 / 9A3,Biarritz White,Biarritzweiß,white,solid,,no,#F9F7F7
+B9A,B9A,Carrara White,Carraweiß,white,solid,2005-2012,no,#EAEAEA
+S9R,2Y / S9R / Z98,Carrara White Metallic,Carraraweiß Metallic,white,metallic,2019-present,no,#FFFFFF
+M9A,3H / M9A,Chalk,Kreide,white,solid,2017-present,no,#E1DEDE
+182,182,Chiffon White,Chiffonweiß,white,solid,,no,#F0EFE3
+51A,51A,Creme White,cremeweiß,white,solid,,no,#EDDDC5
+Z55,Z55,Elfenbein,Elfenbein,white,solid,,yes,#e1d19f
+5713,3AT / 3AU / 5713,Glacier White,Firnweiß,white,solid,,no,#F8F8FF
+L3AU,L3AU,Glacier White (Modern),glasurweiß,white,solid,,no,#F9F9F9
+908,908 / 92R,Grand Prix White,Grand-Prix-Weiß,white,solid,1963-1998,no,#FBFFFF
+132,132 / 5704 / 6004 / 6204,Ivory,,white,solid,1955-1968,no,#E2E2D7
+9A3,9A3,Ivory White,Elfenbeinweiß,white,solid,2003-2007,no,#F9F7F7
+6604,131 / 6404 / 6604,Light Ivory,Hell Elfenbein,white,solid,1965-1969,no,#F0F0F0
+60M,60M,Linen,Leinen,white,solid,,no,#F3F3D7
+LM1U,550 / LM1U,Linen Metallic,Leinen Metallic,white,metallic,1989-1989,no,#F3F3D7
+0K1,0K1 / C9A,Oryx White Metallic,Oryxweiß Perlmutteffekt,white,metallic,,no,#F5F7F8
+0K1,0K1 / 0R,Oryx White Pearl,weißeoryx-perle,white,pearl,,no,#F2F2F2
+LOA9,LOA9,Pearl White Metallic,Perlglanzweiß Metallic,white,metallic,1987-1987,no,#F2F2EE
+L90A,L90A,Polar White,Polarweiß,white,solid,1977-1977,no,#F1F5F6
+Z99,Z99,Pure White,Purweiß,white,solid,,yes,#FFFFFF
+,,Sand White,Sandweiß,white,solid,2003-2010,no,#F6F4F4
+C9A,0Q / C9A,White,Weiss,white,solid,2012-present,no,#FFFFFF
+Y30,Y30,Atacama Yellow,Atacamagelb,yellow,solid,,yes,#e0a126
+6605,110 / 117 / 6605 / Z14,Bahama Yellow,bahamayellow,yellow,solid,1965-1969,no,#F2A504
+L11D,L11D,Berber Yellow,berbergelb,yellow,solid,,no,#DEC429
+139,139,Blossom Yellow,Blütengelb,yellow,solid,,no,Solid
+11V,11V,Cadmium Yellow,Cadmiumgelb,yellow,solid,,no,#FFC72C
+115,115,Canary Yellow,Zitronengelb,yellow,solid,1971-1971,no,#F5E000
+,,Cartagena Yellow Metallic,Cartagenagelb,yellow,metallic,,no,#EAF57B
+,,Cartagena Yellow Metallic,Cartagena-Gelb Metallic,yellow,metallic,2025-present,no,#DAA520
+111,111 / 6205 / 6405,Champagne Yellow (1963),Champagnergelb,yellow,solid,1962-1963,no,#F5E494
+L13M,L13M,Chrome Yellow,Saturngelb,yellow,solid,,no,#F5F20F
+L99A,L99A,Chrome Yellow Metallic,Saturngelb Metallic,yellow,metallic,,no,#878C02
+6010,6010,Condor Yellow,Condorgelb,yellow,solid,1960-1961,no,#F7EE92
+1C1,1C1,Faience Yellow,Fayencegelb,yellow,solid,,no,#ECC445
+10L,10L,Ferrari Yellow,cadmiumgelb,yellow,solid,,no,#E1BE3F
+133,133 / 140 / 8810 / 8888,Gold Metallic (133),Gold-met.,yellow,metallic,,no,#D8A700
+M1P,5G / M1P,Golden Yellow Metallic,goldgelbmetallic,yellow,metallic,,no,#E7B01A
+Y18,Y18,Imola Yellow,imola-gelb,yellow,solid,,no,#FBDB41
+10W,10W,Lemon Yellow,Limonengelb,yellow,solid,,no,#E7F668
+117,117,Light Yellow,Hellgelb,yellow,solid,1970-1977,no,#E5D36B
+LM1A,LM1A,Lime Yellow,Limonengelb,yellow,solid,1987-1987,no,#C8D200
+062,062,Pale Yellow,hellgelb,yellow,solid,,no,#F9FFC9
+LY1L,LY1L,Pasadena Yellow,Pasadenagelb,yellow,solid,1983-1984,no,#FFE599
+12M,12C / 12L / 12M,Pastel Yellow,Pastellgelb,yellow,solid,,no,#FFF4A7
+1S1,1S1 / P3,Racing Yellow,Racinggelb,yellow,solid,2015-present,no,#F5D11F
+Z16A,L10A / Z16A,Rallye Yellow,Rallyegelb,yellow,solid,1976-1978,no,#FFD700
+7N,7N,Saffron Yellow Metallic,safrangelb metallic,yellow,metallic,,no,#F3C948
+M1C,M1C,Sand Yellow,sandgelb,yellow,solid,,no,#FFD053
+114,114 / 1YH / L12E,Signal Yellow,signalgelb,yellow,solid,1968-1981,yes,#FFC600
+12H,12G / 12H / 1SG,Speed Yellow,Speedgelb,yellow,solid,,no,#FFDE02
+L13K,L13K,Summer Yellow,Sonnengelb,yellow,solid,,no,#F6DA33
+106,106,Talbot Yellow,Talbotgelb,yellow,solid,,no,#FFD955
+539,539,White Gold Metallic,Weißgold-met.,yellow,metallic,,no,#CBBAA8

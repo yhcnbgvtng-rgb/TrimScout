@@ -13,6 +13,7 @@ import {
   listingVdpHref,
   sanitizeShopperListingsCopy,
 } from "./fordCompetitionUi";
+import { exteriorColorNameFor } from "./porscheColors";
 import { serverSecret } from "./serverSecret";
 
 export const MARKETCHECK_SHOPPER_ATTRIBUTION = "Data powered by MarketCheck";
@@ -359,7 +360,8 @@ export function shopperSheetFromMarketCheckPayloads(opts: {
     lastSeen,
     stockNumber: asTrimmed(row.stock_no) || asTrimmed(row.stock),
     inventoryType,
-    exteriorColor: asTrimmed(row.exterior_color),
+    // A Porsche feed says "0q0q" where a shopper needs "White".
+    exteriorColor: exteriorColorNameFor({ vin }, asTrimmed(row.exterior_color)),
     interiorColor: asTrimmed(row.interior_color),
     mileage,
     dealerName: asTrimmed(dealer.name),

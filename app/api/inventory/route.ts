@@ -5,6 +5,7 @@ import { Vehicle } from "@/lib/types";
 import { MOCK_VEHICLES } from "@/lib/mockData";
 import { calculateDistanceMiles, getZipCoordinates } from "@/lib/otdCalculator";
 import { runUnifiedScrapers, scrapePorscheInventory } from "@/lib/scrapers";
+import { exteriorColorNameFor } from "@/lib/porscheColors";
 import { serverSecret } from "@/lib/serverSecret";
 
 export const dynamic = "force-dynamic";
@@ -340,7 +341,11 @@ export async function GET(request: Request) {
                   engine: build.engine || item.engine || "Factory Engine",
                   drivetrain: build.drivetrain || "AWD",
                   transmission: build.transmission || "Automatic",
-                  exteriorColor: item.exterior_color || build.exterior_color || "Factory Exterior",
+                  exteriorColor:
+                    exteriorColorNameFor(
+                      { vin: item.vin, make: build.make || item.make },
+                      item.exterior_color || build.exterior_color
+                    ) || "Factory Exterior",
                   interiorColor: item.interior_color || build.interior_color || "Standard Interior",
                   msrp,
                   dealerPrice,
@@ -408,7 +413,7 @@ export async function GET(request: Request) {
             engine: c.engine || "3.0L Twin-Turbo Boxer 6",
             drivetrain: "AWD",
             transmission: c.transmission || "PDK 8-Speed",
-            exteriorColor: c.exteriorColor || "Factory Paint",
+            exteriorColor: exteriorColorNameFor({ vin: c.vin, make: c.make || "Porsche" }, c.exteriorColor) || "Factory Paint",
             interiorColor: c.interiorColor || "Black Leather",
             msrp: c.msrp || c.price || 150000,
             dealerPrice: c.price || 150000,
