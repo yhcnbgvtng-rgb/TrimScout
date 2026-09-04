@@ -9,6 +9,7 @@ import {
   comparablesEndpointForVin,
   isSharedFactoryOption,
   parseOfferCompareSnapshot,
+  replaceCompetitorLots,
   sharedFactoryOptionKeys,
   snapshotVehiclesFromDeal,
   sortCompareColumns,
@@ -395,5 +396,37 @@ describe("comparablesEndpointForVin", () => {
 
   it("returns null for an unsupported OEM instead of guessing", () => {
     assert.equal(comparablesEndpointForVin("WP0AB2A98SS160032"), null);
+  });
+});
+
+describe("replaceCompetitorLots", () => {
+  const favorite = { vin: "1FMWK8JCXTGB47204", year: 2026, make: "Ford", model: "Explorer", trim: "ST", msrp: 60000, dealerPrice: 0 } as unknown as import("./types").Vehicle;
+  const lotA = { ...favorite, vin: "1FMWK8JC7TGB81309", trim: "Tremor" } as import("./types").Vehicle;
+  const lotB = { ...favorite, vin: "1FMWK8JC1TGB69561", trim: "Platinum" } as import("./types").Vehicle;
+  const base = buildOfferCompareSnapshot({
+    request: { id: "req-1", strategy: "exact_auction", paymentMethod: "cash", buyerZip: "07405", searchRadiusMiles: 100, createdAt: "", expiresAt: "", status: "active" } as unknown as import("./types").BiddingRequest,
+    favorite,
+    otherLots: [],
+    buyerZip: "07405",
+    requestedStructures: ["cash"],
+    searchRadiusMiles: 100,
+  })!;
+
+  it("mirrors the buyer's picks into other_lot_1/2 and request.otherLots, in order", () => {
+    const next = replaceCompetitorLots(base, [lotA, lotB])!;
+    assert.equal(vehicleForCompareRole(next, "other_lot_1")?.vehicle.vin, lotA.vin);
+    assert.equal(vehicleForCompareRole(next, "other_lot_2")?.vehicle.vin, lotB.vin);
+    assert.deepEqual((next.request.otherLots || []).map((v) => v.vin), [lotA.vin, lotB.vin]);
+    const fewer = replaceCompetitorLots(next, [lotB])!;
+    assert.equal(vehicleForCompareRole(fewer, "other_lot_1")?.vehicle.vin, lotB.vin);
+    assert.equal(vehicleForCompareRole(fewer, "other_lot_2"), null);
+    const none = replaceCompetitorLots(fewer, [])!;
+    assert.equal(none.vehicles.length, 1, "favorite only");
+  });
+
+  it("never lets the favorite, a duplicate, or a third vehicle in", () => {
+    const next = replaceCompetitorLots(base, [favorite, lotA, lotA, lotB, { ...lotB, vin: "1FMWK8JC7TGA20216" } as import("./types").Vehicle])!;
+    assert.deepEqual(next.vehicles.map((c) => c.role), ["favorite", "other_lot_1", "other_lot_2"]);
+    assert.deepEqual(next.vehicles.map((c) => c.vehicle.vin), [favorite.vin, lotA.vin, lotB.vin]);
   });
 });

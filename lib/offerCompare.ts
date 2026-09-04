@@ -309,6 +309,39 @@ export function assignCompetitorLot(
   return { ok: true, snapshot: next };
 }
 
+/**
+ * Replace both competitor lots at once with the buyer's current picks (at
+ * most two; the favorite and duplicates are skipped). The compare page's
+ * checkbox flow calls this on every toggle so the deal always mirrors what's
+ * checked — nothing is ever half-applied across two slot writes.
+ */
+export function replaceCompetitorLots(
+  snapshot: OfferCompareSnapshot,
+  lots: Array<Vehicle | null | undefined>
+): OfferCompareSnapshot | null {
+  const favorite = vehicleForCompareRole(snapshot, "favorite")?.vehicle;
+  const favVin = (favorite?.vin || "").trim().toUpperCase();
+  const seen = new Set<string>(favVin ? [favVin] : []);
+  const clean: Vehicle[] = [];
+  for (const lot of lots) {
+    const vin = (lot?.vin || "").trim().toUpperCase();
+    if (!lot || vin.length !== 17 || seen.has(vin)) continue;
+    seen.add(vin);
+    clean.push({ ...lot, vin });
+    if (clean.length === 2) break;
+  }
+  return buildOfferCompareSnapshot({
+    request: snapshot.request,
+    favorite,
+    otherLots: [clean[0] ?? null, clean[1] ?? null],
+    buyerZip: snapshot.buyerZip,
+    requestedStructures: snapshot.requestedStructures,
+    mustHaveLines: snapshot.mustHaveLines,
+    niceToHaveLines: snapshot.niceToHaveLines,
+    searchRadiusMiles: snapshot.searchRadiusMiles,
+  });
+}
+
 /** Shape of one item in /api/ford-comparables's or /api/gm-comparables's `matches`. */
 export interface ComparableSuggestion {
   vin: string;
