@@ -17,12 +17,24 @@ export function isFordOrLincolnVin(vin: string): boolean {
  * Canada / Mexico GM: 2G* / 3G* (e.g. 2GC Chevrolet).
  * Related GM brands that share cws.gm.com builds: Buick 1G4, Cadillac 1G6,
  * GMC 1GT/1GK/1GB, Chevy van 1GA.
+ *
+ * GM also builds current models outside North America under WMIs the
+ * `[123]G` pattern above doesn't reach — each confirmed live against a real
+ * VIN, not assumed: Cadillac Escalade/Lyriq (1GY, US-built but a distinct
+ * block from 1G6), Buick Enclave (5GA, a separate US block), Buick Encore GX
+ * (KL4, GM Korea) and Buick Envision (LRB, GM China/SAIC-GM). Only the
+ * exact confirmed codes are listed here, not a broad "KL"/"L" prefix, since
+ * those ranges are shared with unrelated automakers in Korea/China.
  */
 export function isGmVin(vin: string): boolean {
   const u = vin.trim().toUpperCase();
   if (u.length !== 17) return false;
   const wmi = u.slice(0, 3);
-  if (["1G1", "1GC", "1GN", "1GA", "1GB", "1GT", "1GK", "1G4", "1G6"].includes(wmi)) {
+  if (
+    ["1G1", "1GC", "1GN", "1GA", "1GB", "1GT", "1GK", "1G4", "1G6", "1GY", "5GA", "KL4", "LRB"].includes(
+      wmi
+    )
+  ) {
     return true;
   }
   if (/^[23]G/.test(u)) return true;
