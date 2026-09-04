@@ -420,7 +420,7 @@ async function handlePutEngagementBlob(req, res) {
 // deal_bids
 // ---------------------------------------------------------------------
 
-function publicDealBid(row, rank) {
+function publicDealBid(row, rank, leadingDiscountPercent = null) {
   if (!row) return null;
   const totalOtdPrice = Number(row.total_otd_price);
   const salesTax = Number(row.sales_tax);
@@ -460,19 +460,31 @@ function publicDealBid(row, rank) {
     isTopDeal: rank === 1,
     status: row.status,
     salesRep: row.sales_rep_name ? { name: row.sales_rep_name, title: row.sales_rep_title, phone: row.sales_rep_phone } : null,
+    // The current best dealer_discount_percent across every active bid on
+    // this same request, regardless of who holds it — never the other
+    // dealer's name/city/VIN, just the one number a dealer needs to know
+    // what to beat. Equals this bid's own dealerDiscountPercent when rank
+    // is 1. Null only when leadingDiscountPercent wasn't computed by the
+    // caller (single-bid lookups that don't need it).
+    leadingDiscountPercent,
   };
 }
 
+// Ascending by the tax/DMV-excluded quoted price (lowest wins) — not
+// stored, computed here every read so it can never drift from the
+// underlying columns. Shared by every place that needs "who's winning"
+// for a set of bids on one request.
+function sortByQuotedPrice(rows) {
+  return rows
+    .map((r) => ({ row: r, quoted: Number(r.total_otd_price) - Number(r.sales_tax) - Number(r.dmv_fees) }))
+    .sort((a, b) => a.quoted - b.quoted)
+    .map((entry) => entry.row);
+}
+
 function rankBidRows(rows) {
-  // Rank by the tax/DMV-excluded quoted price, ascending (lowest wins) —
-  // not stored, computed here every read so it can never drift from the
-  // underlying columns.
-  const withQuoted = rows.map((r) => ({
-    row: r,
-    quoted: Number(r.total_otd_price) - Number(r.sales_tax) - Number(r.dmv_fees),
-  }));
-  withQuoted.sort((a, b) => a.quoted - b.quoted);
-  return withQuoted.map((entry, idx) => publicDealBid(entry.row, idx + 1));
+  const sorted = sortByQuotedPrice(rows);
+  const leadingDiscountPercent = sorted.length > 0 ? Number(sorted[0].dealer_discount_percent) : null;
+  return sorted.map((row, idx) => publicDealBid(row, idx + 1, leadingDiscountPercent));
 }
 
 async function handleSubmitBid(req, res, dealRequestId) {
@@ -536,6 +548,29 @@ async function handleListBidsForRequest(req, res, dealRequestId) {
   sendJson(res, 200, { bids: rankBidRows(rows) });
 }
 
+// GET /api/deal-requests/:id/market — a deliberately thin aggregate, not a
+// list of bids: the current best dealer_discount_percent on this request
+// and how many dealers have bid, nothing else. Lets a dealer who hasn't bid
+// yet (or is deciding whether to revise) see what they're up against
+// without exposing any other dealer's identity, VIN, or price breakdown —
+// safe to expose to the dealer-matching route for every inbound request,
+// unlike handleListBidsForRequest's full unmasked rows.
+async function handleGetRequestMarket(req, res, dealRequestId) {
+  const pool = getPool();
+  const [rows] = await pool.query(
+    "SELECT dealer_discount_percent, total_otd_price, sales_tax, dmv_fees FROM deal_bids WHERE deal_request_id = ? AND status != 'withdrawn'",
+    [dealRequestId]
+  );
+  if (rows.length === 0) {
+    return sendJson(res, 200, { leadingDiscountPercent: null, bidCount: 0 });
+  }
+  const [leader] = sortByQuotedPrice(rows);
+  sendJson(res, 200, {
+    leadingDiscountPercent: Number(leader.dealer_discount_percent),
+    bidCount: rows.length,
+  });
+}
+
 // GET /api/deal-requests/:id/bids/:bidId — single bid, full/unmasked.
 // Server-to-server only, used by checkout/create-session to fetch
 // authoritative bid data rather than trusting whatever the browser sent.
@@ -554,24 +589,38 @@ async function handleListBidsForDealer(req, res, query) {
   if (!Number.isFinite(dealerUserId) || dealerUserId <= 0) return badRequest(res, "Invalid dealerUserId");
 
   const pool = getPool();
-  const [rows] = await pool.query(
+  const [myRows] = await pool.query(
     "SELECT * FROM deal_bids WHERE dealer_user_id = ? AND status != 'withdrawn' ORDER BY created_at DESC",
     [dealerUserId]
   );
-  // Rank each bid within its own request (not globally across requests).
+  if (myRows.length === 0) return sendJson(res, 200, { bids: [] });
+
+  // A dealer's true rank/leadingDiscountPercent depend on every dealer's
+  // bid on the same request, not just this dealer's own row — the previous
+  // version grouped `myRows` (already filtered to this dealer) before
+  // ranking, so a dealer was only ever ranked against their own single bid
+  // and `rank` came back 1 almost every time regardless of real standing.
+  // Fetch each relevant request's full bid set (server-to-server, same
+  // trust boundary as handleListBidsForRequest) and rank each one for real.
+  const requestIds = [...new Set(myRows.map((r) => r.deal_request_id))];
+  const placeholders = requestIds.map(() => "?").join(", ");
+  const [allRows] = await pool.query(
+    `SELECT * FROM deal_bids WHERE deal_request_id IN (${placeholders}) AND status != 'withdrawn'`,
+    requestIds
+  );
   const byRequest = new Map();
-  for (const r of rows) {
+  for (const r of allRows) {
     const key = r.deal_request_id;
     if (!byRequest.has(key)) byRequest.set(key, []);
     byRequest.get(key).push(r);
   }
-  const rankById = new Map();
+  const rankedById = new Map();
   for (const [, group] of byRequest) {
-    const ranked = rankBidRows(group);
-    ranked.forEach((b) => rankById.set(b.id, b.rank));
+    for (const b of rankBidRows(group)) rankedById.set(b.id, b);
   }
-  const bids = rows
-    .map((r) => publicDealBid(r, rankById.get(String(r.id)) || 1))
+
+  const bids = myRows
+    .map((r) => rankedById.get(String(r.id)) || publicDealBid(r, null))
     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
   sendJson(res, 200, { bids });
 }
@@ -652,6 +701,10 @@ const server = http.createServer((req, res) => {
   if (req.method === "GET" && singleBidMatch) {
     return run(handleGetSingleBid, Number(singleBidMatch[1]), Number(singleBidMatch[2]));
   }
+  const reqMarketMatch = pathname.match(/^\/api\/deal-requests\/(\d+)\/market$/);
+  if (req.method === "GET" && reqMarketMatch) {
+    return run(handleGetRequestMarket, Number(reqMarketMatch[1]));
+  }
   const reqIdMatch = pathname.match(/^\/api\/deal-requests\/(\d+)$/);
   if (req.method === "GET" && reqIdMatch) {
     return run(handleGetDealRequest, Number(reqIdMatch[1]));
@@ -693,6 +746,7 @@ server.listen(PORT, () => {
   console.log(`  POST /api/deal-requests/:id/bids`);
   console.log(`  GET  /api/deal-requests/:id/bids`);
   console.log(`  GET  /api/deal-requests/:id/bids/:bidId`);
+  console.log(`  GET  /api/deal-requests/:id/market`);
   console.log(`  GET  /api/dealer-bids?dealerUserId=`);
   console.log(`  GET  /api/dealer-won-deals?dealerUserId=`);
   console.log(`  GET  /health`);

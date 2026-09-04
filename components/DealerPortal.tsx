@@ -6,6 +6,7 @@ import { formatCurrency, calculateOtd } from "../lib/otdCalculator";
 import {
   Building2,
   TrendingUp,
+  TrendingDown,
   Zap,
   CircleCheck as CheckCircle2,
   Clock,
@@ -170,6 +171,24 @@ export const DealerPortal: React.FC<DealerPortalProps> = ({
         setSelectedVehicleVin(json.vehicles?.[0]?.vin || "");
       })
       .finally(() => setIsLoadingInventory(false));
+  };
+
+  // "Revise your offer" from the Active Bids tab needs the real inbound
+  // request (referenceBrandCode/referenceMake drive the inventory fetch
+  // above) — a DealerBid alone doesn't carry those fields. A request the
+  // dealer already bid on still appears in inboundRequests (matching
+  // doesn't exclude already-bid requests, since resubmitting is the same
+  // ON DUPLICATE KEY UPDATE path as a first bid), so look it up there
+  // rather than fabricate a partial object.
+  const handleReviseBid = (dealRequestId: string) => {
+    const req = inboundRequests.find((r) => r.requestId === dealRequestId);
+    if (req) {
+      handleOpenBidModal(req);
+    } else {
+      // Request no longer matches/active — nothing to pre-fill from, so
+      // just surface the inbound list instead of opening a broken modal.
+      setActiveTab("leads");
+    }
   };
 
   const handleTransmitBid = async () => {
@@ -473,6 +492,25 @@ export const DealerPortal: React.FC<DealerPortalProps> = ({
                       </div>
                     </div>
 
+                    {typeof req.bidCount === "number" && (
+                      <div className="space-y-0.5">
+                        <div className="text-[11px] font-semibold text-ink-muted uppercase">Market So Far</div>
+                        {req.bidCount > 0 ? (
+                          <>
+                            <div className="text-xl font-black text-emerald-400 flex items-center gap-1.5 lg:justify-end">
+                              <Percent className="h-4 w-4" />
+                              <span>{req.leadingDiscountPercent}% off MSRP</span>
+                            </div>
+                            <div className="text-[11px] text-ink-faint">
+                              Best of {req.bidCount} dealer{req.bidCount === 1 ? "" : "s"} bidding — no names shown
+                            </div>
+                          </>
+                        ) : (
+                          <div className="text-sm font-bold text-amber-400">Be the first to bid</div>
+                        )}
+                      </div>
+                    )}
+
                     <button
                       onClick={() => handleOpenBidModal(req)}
                       className="rounded-xl bg-emerald-500 px-6 py-3 font-extrabold text-xs text-black hover:bg-emerald-400 transition-all shadow-lg shadow-emerald-500/20 flex items-center gap-2 active:scale-95"
@@ -567,6 +605,23 @@ export const DealerPortal: React.FC<DealerPortalProps> = ({
                     </div>
                   </div>
                 </div>
+
+                {bid.rank !== 1 && typeof bid.leadingDiscountPercent === "number" && (
+                  <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-rose-500/25 bg-rose-950/15 px-4 py-2.5">
+                    <span className="flex items-center gap-2 text-xs text-rose-300">
+                      <TrendingDown className="h-3.5 w-3.5 shrink-0" />
+                      The current best offer on this request is{" "}
+                      <strong className="text-white font-mono">{bid.leadingDiscountPercent}% off MSRP</strong>
+                      {" "}— no dealer names are shown, just the number to beat.
+                    </span>
+                    <button
+                      onClick={() => handleReviseBid(bid.dealRequestId)}
+                      className="rounded-lg bg-emerald-500 px-3.5 py-1.5 text-[11px] font-extrabold text-black hover:bg-emerald-400 transition-all active:scale-95 shrink-0"
+                    >
+                      Revise your offer
+                    </button>
+                  </div>
+                )}
               </div>
             ))}
           </div>
