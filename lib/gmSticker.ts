@@ -176,11 +176,14 @@ function parseOptionPriceTail(line: string): { name: string; rpo?: string; price
   return splitRpoName(trimmed, null);
 }
 
+// Does not attempt to peel a leading RPO code off the name: a "2-4 uppercase
+// letters + whitespace" heuristic here misfired on ordinary English words
+// that happen to start an all-caps option line (e.g. "REAR CAMERA MIRROR"
+// -> name "CAMERA MIRROR" + fabricated rpo "REAR") on every real fixture
+// checked, and no test anywhere asserted a correct .rpo value — there was
+// no verified case this ever helped. The `rpo` field stays on the type for
+// a real, verified source later.
 function splitRpoName(name: string, price: number | null): { name: string; rpo?: string; price: number | null } {
-  const rpo = name.match(/^([A-Z]{2,4}[0-9]?)\s{1,}(.+)$/);
-  if (rpo && rpo[1].length <= 4 && /[A-Z]/.test(rpo[1]) && /[A-Z]/.test(rpo[2])) {
-    return { name: rpo[2].trim(), rpo: rpo[1], price };
-  }
   return { name: name.trim(), price };
 }
 
@@ -191,6 +194,11 @@ function titleOption(name: string): string {
   if (isSuperCruiseLine(trimmed)) return "Super Cruise";
   return trimmed;
 }
+
+/** Short alphanumeric Cadillac nameplates that titleCase would otherwise
+ * mangle (e.g. "CT5" -> "Ct5") — preserved verbatim, same reasoning as
+ * titleTrim's preserved trim-code list below. */
+const UPPERCASE_MODEL_CODES = ["CT4", "CT5", "CT6", "XT4", "XT5", "XT6"];
 
 function parseModelAndTrim(rest: string): { model: string; trim?: string } {
   const modelParts = rest.replace(/\s+/g, " ").trim().split(/\s+/);
@@ -212,11 +220,35 @@ function parseModelAndTrim(rest: string): { model: string; trim?: string } {
       trim: modelParts.slice(2).join(" ") || undefined,
     };
   }
+  const firstUpper = (modelParts[0] || "").toUpperCase();
+  if (UPPERCASE_MODEL_CODES.includes(firstUpper)) {
+    return {
+      model: firstUpper,
+      trim: modelParts.slice(1).join(" ") || undefined,
+    };
+  }
   return {
     model: titleCase(modelParts[0] || ""),
     trim: modelParts.slice(1).join(" ") || undefined,
   };
 }
+
+/**
+ * Other current GM nameplates for the "newer template" fallback below
+ * (Silverado already has its own dedicated branch, untouched). Only
+ * SILVERADO and CT5 are fixture-confirmed live; the rest are current,
+ * publicly-documented GM nameplates added the same incremental-discovery
+ * way the Stellantis/Genesis nameplate lists were built — extend as real
+ * fixtures surface gaps.
+ */
+const OTHER_GM_NAMEPLATES = [
+  "SIERRA",
+  "SUBURBAN", "TAHOE", "TRAVERSE", "TRAILBLAZER", "TRAX", "EQUINOX", "BLAZER", "COLORADO",
+  "CAMARO", "CORVETTE", "MALIBU",
+  "YUKON", "ACADIA", "TERRAIN", "CANYON",
+  "ENCLAVE", "ENCORE", "ENVISION", "ENVISTA",
+  "ESCALADE", "LYRIQ", "OPTIQ", "VISTIQ", "CELESTIQ", "CT4", "CT5", "CT6", "XT4", "XT5", "XT6",
+];
 
 export function parseGmStickerText(vin: string, text: string): GmSticker {
   const cleanVin = vin.trim().toUpperCase();
@@ -270,6 +302,20 @@ export function parseGmStickerText(vin: string, text: string): GmSticker {
     if (yearOnly) {
       sticker.year = Number.parseInt(yearOnly[1], 10);
       sticker.model = yearOnly[2] ? `Silverado ${yearOnly[2].toUpperCase()}` : "Silverado 1500";
+    } else {
+      // Same "newer template drops the brand word" shape as Silverado's
+      // fallback above, generalized to the rest of the current GM lineup —
+      // confirmed live against a real Cadillac CT5 sticker, which uses this
+      // same template.
+      const nameplateAlt = OTHER_GM_NAMEPLATES.join("|");
+      const yearNameplate = text.match(new RegExp(`\\b(20\\d{2})\\s+(${nameplateAlt})\\b([^\\n]*)`, "i"));
+      if (yearNameplate) {
+        sticker.year = Number.parseInt(yearNameplate[1], 10);
+        const restOfLine = yearNameplate[3].replace(/\s+EXTERIOR\b.*$/i, "").trim();
+        const parsed = parseModelAndTrim(`${yearNameplate[2].toUpperCase()} ${restOfLine}`.trim());
+        sticker.model = parsed.model;
+        sticker.trim = parsed.trim;
+      }
     }
   }
   if (sticker.trim) sticker.trim = titleTrim(sticker.trim);
@@ -361,12 +407,42 @@ export function parseGmStickerText(vin: string, text: string): GmSticker {
   );
   const skipHeaders =
     /^(OPTIONAL EQUIPMENT(?:\s+AND\s+PACKAGES)?|ADDITIONAL EQUIPMENT|PACKAGES|OPTIONS|OPTIONS\s*&\s*PRICING|OPTIONS INSTALLED BY THE MANUFACTURER\s*\(MAY REPLACE|STANDARD EQUIPMENT SHOWN\)?)$/i;
-  for (const line of optionalBlock
+  const optionLines = optionalBlock
     .split("\n")
     .map((l) => l.trim())
-    .filter(Boolean)) {
-    if (skipHeaders.test(line)) continue;
-    if (/^VIN\b/i.test(line)) continue;
+    .filter(Boolean)
+    .filter((l) => !skipHeaders.test(l) && !/^VIN\b/i.test(l));
+
+  // A single bulleted item can wrap across two physical lines in the PDF
+  // extraction, with no bullet on the continuation (e.g. "• MIRRORS,
+  // OUTSIDE HEATED POWER" then "ADJUSTABLE, POWER-FOLDING" on its own line)
+  // — confirmed on a real Cadillac CT5 sticker. Join an unbulleted line onto
+  // the immediately preceding bulleted line only when BOTH lack a price: a
+  // priced bullet is already a complete item, and a following unbulleted
+  // line that itself carries a price is a new standalone/package-header
+  // item, not wrapped text — confirmed on the same real fixture, e.g. a
+  // bulleted, unpriced "SURROUND VISION RECORDER" is immediately followed
+  // by the unrelated, separately-priced "ULTRAVIEW SUNROOF 1,450.00"; only
+  // an unpriced continuation (no digits at all) is safe to fuse.
+  const joinedLines: string[] = [];
+  for (const raw of optionLines) {
+    const bulleted = raw.startsWith("•");
+    if (bulleted || joinedLines.length === 0) {
+      joinedLines.push(raw);
+      continue;
+    }
+    const prev = joinedLines[joinedLines.length - 1];
+    const prevBulleted = prev.startsWith("•");
+    const prevPriced = parseOptionPriceTail(prev.replace(/^•\s*/, "")).price != null;
+    const rawHasPrice = parseOptionPriceTail(raw).price != null;
+    if (prevBulleted && !prevPriced && !rawHasPrice) {
+      joinedLines[joinedLines.length - 1] = prev + " " + raw;
+    } else {
+      joinedLines.push(raw);
+    }
+  }
+
+  for (const line of joinedLines) {
     const isChild = line.startsWith(".") || line.startsWith("- ");
     const parsed = parseOptionPriceTail(line.replace(/^[-•]\s*/, ""));
     if (!parsed.name || parsed.name.length < 3) continue;
@@ -383,7 +459,14 @@ export function parseGmStickerText(vin: string, text: string): GmSticker {
   const standardBlock = sliceSection(
     text,
     /STANDARD EQUIPMENT/i,
-    /OPTIONAL EQUIPMENT|MANUFACTURER'?S SUGGESTED RETAIL PRICE|WARRANTY\b|EPA /i
+    // "WARRANTY" deliberately excluded here — real sticker body copy says
+    // "...LIMITED WARRANTY..." inside the legitimate OWNER BENEFITS
+    // subsection near the very top of standard equipment, so a bare
+    // WARRANTY\b end marker truncated the block almost immediately
+    // (confirmed on a real Cadillac CT5 sticker, and on two existing
+    // Silverado fixtures using this same newer template). The remaining
+    // markers are reliable, later boundaries on every real fixture checked.
+    /OPTIONAL EQUIPMENT|MANUFACTURER'?S SUGGESTED RETAIL PRICE|EPA /i
   );
   sticker.standardEquipment = standardBlock
     .split("\n")

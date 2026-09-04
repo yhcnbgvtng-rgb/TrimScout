@@ -494,4 +494,81 @@ describe("newer GM sticker template — labeled header, footnoted total, trailin
     assert.ok(wheels, "the 20\" aluminum wheels option must appear in the must-have checklist");
     assert.equal(wheels?.price, 800);
   });
+
+  it("standardEquipment is not truncated by real body copy mentioning 'WARRANTY' — confirmed the old bare WARRANTY\\b end marker cut this block short on both real fixtures using this template", () => {
+    const s = parseGmStickerText(NEWER_TEMPLATE, loadFixture(NEWER_TEMPLATE));
+    assert.ok(
+      s.standardEquipment.length > 20,
+      `expected a real standard-equipment list, got only ${s.standardEquipment.length} lines`
+    );
+  });
+});
+
+describe("Cadillac on the newer GM sticker template (real CT5 fixture — same template as the two Silverados above, no brand word before the model)", () => {
+  const CT5 = "1G6DN5RK1R0104159";
+
+  it("reads a released 2024 Cadillac CT5 Premium Luxury — brand already worked, year/model/trim did not until this fixture surfaced the gap", () => {
+    const s = parseGmStickerText(CT5, loadFixture(CT5));
+    assert.equal(s.status, "released");
+    assert.equal(s.make, "Cadillac");
+    assert.equal(s.year, 2024);
+    assert.equal(s.model, "CT5", "a short alphanumeric nameplate like CT5 must not be title-cased into 'Ct5'");
+    assert.equal(s.trim, "Premium Luxury");
+  });
+
+  it("prices reconcile: basePrice + optionsPrice + destination === msrp", () => {
+    const s = parseGmStickerText(CT5, loadFixture(CT5));
+    assert.equal(s.basePrice, 42895);
+    assert.equal(s.optionsPrice, 7515);
+    assert.equal(s.destination, 1395);
+    assert.equal(s.msrp, 51805);
+    assert.equal(
+      Math.round((s.basePrice! + s.optionsPrice! + s.destination!) * 100) / 100,
+      s.msrp,
+      "sanity check: the parsed total actually equals base + options + destination"
+    );
+  });
+
+  it("parses real priced options without corrupting unrelated adjacent lines into each other", () => {
+    const s = parseGmStickerText(CT5, loadFixture(CT5));
+    const byName = (re: RegExp) => s.options.find((o) => re.test(o.name));
+    assert.equal(byName(/^PARKING PACKAGE:?$/i)?.price, 1790);
+    assert.equal(byName(/^ULTRAVIEW SUNROOF$/i)?.price, 1450);
+    assert.equal(byName(/^NAVIGATION AND BOSE PREMIUM$/i)?.price, 1350);
+    assert.equal(byName(/^RADIANT RED TINTCOAT$/i)?.price, 1225, "the paint charge must not get fused onto the preceding Bose speaker description");
+    assert.equal(byName(/^TECHNOLOGY PACKAGE:?$/i)?.price, 1100);
+    assert.equal(byName(/^LIGHTING PACKAGE:?$/i)?.price, 600);
+    const sumOfPriced = s.options.reduce((sum, o) => sum + (o.price || 0), 0);
+    assert.equal(sumOfPriced, s.optionsPrice, "every real priced line must be captured exactly once, with no double-counting from bad joins");
+  });
+
+  it("no longer fabricates an rpo code from an ordinary word starting a line (e.g. 'REAR CAMERA MIRROR')", () => {
+    const s = parseGmStickerText(CT5, loadFixture(CT5));
+    const cameraMirror = s.options.find((o) => /CAMERA MIRROR/i.test(o.name));
+    assert.equal(cameraMirror?.name, "REAR CAMERA MIRROR");
+    assert.equal(cameraMirror?.rpo, undefined);
+  });
+
+  it("joins a PDF-wrapped bulleted continuation into one option instead of a bogus standalone fragment", () => {
+    const s = parseGmStickerText(CT5, loadFixture(CT5));
+    const names = s.options.map((o) => o.name);
+    assert.ok(names.some((n) => /Automatic Parking Assist With Braking/i.test(n)));
+    assert.ok(!names.includes("Braking"), "the wrapped continuation must not appear as its own bogus option");
+  });
+
+  it("standardEquipment is a real list, not the ~6-line truncation the WARRANTY-in-body-copy bug produced", () => {
+    const s = parseGmStickerText(CT5, loadFixture(CT5));
+    assert.ok(s.standardEquipment.length > 20, `expected a real standard-equipment list, got only ${s.standardEquipment.length} lines`);
+    assert.ok(s.standardEquipment.some((l) => /ADAPTIVE CRUISE CONTROL/i.test(l)), "must reach past the OWNER BENEFITS subsection into PERFORMANCE/LUXURY & CONVENIENCE");
+  });
+
+  it("gmStickerToVehicle produces a usable Vehicle — never year 0 / blank model for a brand GM already routes correctly", () => {
+    const s = parseGmStickerText(CT5, loadFixture(CT5));
+    const vehicle = gmStickerToVehicle(s, null, null, null);
+    assert.equal(vehicle.make, "Cadillac");
+    assert.equal(vehicle.year, 2024);
+    assert.equal(vehicle.model, "CT5");
+    assert.equal(vehicle.trim, "Premium Luxury");
+    assert.equal(vehicle.msrp, 51805);
+  });
 });
