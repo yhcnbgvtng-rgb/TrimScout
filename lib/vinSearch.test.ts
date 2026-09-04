@@ -1034,7 +1034,7 @@ describe("shopper-facing factory option copy", () => {
     assert.doesNotMatch(src, /\/api\/ford-comparables/);
     assert.doesNotMatch(src, /\/api\/comparable-vehicles/);
     const compare = fs.readFileSync(path.join(process.cwd(), "components/OfferCompareView.tsx"), "utf8");
-    assert.match(compare, /comparablesEndpointForVin/);
+    assert.match(compare, /\/api\/manual-comparables/);
     assert.doesNotMatch(compare, /\/api\/compare-deal/);
     assert.match(compare, /\/api\/listing-facts/);
     assert.match(compare, /importPastedFactoryVehicle/);

@@ -5,10 +5,10 @@ export const runtime = "nodejs";
 import { NextResponse } from "next/server";
 import { findComparableListingsByMakeModel } from "@/lib/vinSearch";
 
-// Sticker-less fallback: search live listings by year/make/model only, for a
-// brand with no digital window-sticker pipeline (or a subject whose sticker
-// never parsed). No must-have filtering — there is no sticker to confirm
-// them against.
+// The compare page's one and only comparable-vehicle search: a single
+// MarketCheck call by year/make/model/trim, full result set returned. Trim
+// is the must-have proxy — no per-VIN factory-sticker fetch here, so no
+// brand-specific pipeline is needed and this works for every make.
 export async function POST(request: Request) {
   const body = await request.json().catch(() => ({}));
   const make = String(body?.make || "").trim();
@@ -18,18 +18,15 @@ export async function POST(request: Request) {
   }
   const rawYear = Number(body?.year);
   const year = Number.isFinite(rawYear) && rawYear > 0 ? rawYear : undefined;
+  const rawTrim = typeof body?.trim === "string" ? body.trim.trim() : "";
+  const trim = rawTrim || undefined;
   const zip = String(body?.zip || "").trim();
   const radiusMiles = Number(body?.radiusMiles);
   const subjectVin = String(body?.subjectVin || "").trim();
 
   try {
-    const result = await findComparableListingsByMakeModel({ subjectVin, year, make, model, zip, radiusMiles });
-    // Shaped to match ComparableSuggestion (lib/offerCompare.ts) so the
-    // compare page can reuse the same "Add" flow as the sticker-backed hunts
-    // — just with msrp/factoryOptions/pdfUrl left unset (nothing to fetch
-    // them from without a sticker).
-    const matches = result.matches.map((m) => ({ ...m, msrp: null as number | null }));
-    return NextResponse.json({ success: true, ...result, matches });
+    const result = await findComparableListingsByMakeModel({ subjectVin, year, make, model, trim, zip, radiusMiles });
+    return NextResponse.json({ success: true, ...result });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Comparable search failed";
     console.error("manual-comparables failed:", message);
