@@ -7,21 +7,24 @@ import {
   isFordOrLincolnVin,
   isGenesisVin,
   isGmVin,
+  isPorscheVin,
   isStellantisVin,
   looksLikeFordPaste,
   looksLikeGenesisPaste,
   looksLikeGmPaste,
+  looksLikePorschePaste,
   looksLikeStellantisPaste,
   pastedVinCandidate,
 } from "./oemWmi";
 import type { Vehicle } from "./types";
 
-export type FactoryBuildOem = "ford" | "gm" | "stellantis" | "genesis";
+export type FactoryBuildOem = "ford" | "gm" | "stellantis" | "genesis" | "porsche";
 export type FactoryBuildEndpoint =
   | "/api/ford-sticker"
   | "/api/gm-sticker"
   | "/api/stellantis-sticker"
-  | "/api/genesis-sticker";
+  | "/api/genesis-sticker"
+  | "/api/porsche-sticker";
 
 export const PAUL_CHEVY_VIN = "2GC4KREY7T1167690";
 export const MOCK_CATALOG_PORSCHE_VIN = "WP0AB2A98SS160032";
@@ -34,30 +37,34 @@ export const MOCK_CATALOG_PORSCHE_VIN = "WP0AB2A98SS160032";
  * plausibly match more than one (should not happen in practice — the WMI
  * ranges and paste keywords don't overlap across Ford/GM/Stellantis).
  */
-const OEM_ORDER: FactoryBuildOem[] = ["gm", "ford", "stellantis", "genesis"];
+const OEM_ORDER: FactoryBuildOem[] = ["gm", "ford", "stellantis", "genesis", "porsche"];
 const OEM_ENDPOINT: Record<FactoryBuildOem, FactoryBuildEndpoint> = {
   gm: "/api/gm-sticker",
   ford: "/api/ford-sticker",
   stellantis: "/api/stellantis-sticker",
   genesis: "/api/genesis-sticker",
+  porsche: "/api/porsche-sticker",
 };
 const OEM_BY_ENDPOINT: Record<FactoryBuildEndpoint, FactoryBuildOem> = {
   "/api/gm-sticker": "gm",
   "/api/ford-sticker": "ford",
   "/api/stellantis-sticker": "stellantis",
   "/api/genesis-sticker": "genesis",
+  "/api/porsche-sticker": "porsche",
 };
 const VIN_IS_OEM: Record<FactoryBuildOem, (vin: string) => boolean> = {
   gm: isGmVin,
   ford: isFordOrLincolnVin,
   stellantis: isStellantisVin,
   genesis: isGenesisVin,
+  porsche: isPorscheVin,
 };
 const PASTE_LOOKS_LIKE_OEM: Record<FactoryBuildOem, (paste: string) => boolean> = {
   gm: looksLikeGmPaste,
   ford: looksLikeFordPaste,
   stellantis: looksLikeStellantisPaste,
   genesis: looksLikeGenesisPaste,
+  porsche: looksLikePorschePaste,
 };
 
 /** True when some *other* OEM's paste heuristic also matches — a conflicting
@@ -264,7 +271,8 @@ export async function importPastedFactoryVehicle(
       (triedOem === "ford" && json.notFord) ||
       (triedOem === "gm" && json.notGm) ||
       (triedOem === "stellantis" && json.notStellantis) ||
-      (triedOem === "genesis" && json.notGenesis);
+      (triedOem === "genesis" && json.notGenesis) ||
+      (triedOem === "porsche" && json.notPorsche);
     if (notThisOem && json.handled === false) {
       const retryEndpoint = jsonVin ? endpointForVin(jsonVin) : null;
       if (retryEndpoint && retryEndpoint !== endpoint) {

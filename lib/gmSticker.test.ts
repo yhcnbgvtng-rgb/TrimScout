@@ -361,7 +361,9 @@ describe("paste import never substitutes a catalog VIN", () => {
   it("routes Paul's Chevy VIN to /api/gm-sticker", () => {
     assert.equal(preferredFactoryBuildEndpoint(PAUL_CHEVY_VIN), "/api/gm-sticker");
     assert.equal(preferredFactoryBuildEndpoint(FORD_SUBJECT), "/api/ford-sticker");
-    assert.equal(preferredFactoryBuildEndpoint("WP0AB2A98SS160032"), null);
+    // A Porsche VIN routes to Porsche's own route — never to GM's, and never
+    // the other way around (the catalog-substitution guard below still holds).
+    assert.equal(preferredFactoryBuildEndpoint("WP0AB2A98SS160032"), "/api/porsche-sticker");
   });
 
   it("rejects a Porsche catalog vehicle when the shopper pasted a Chevy VIN", () => {

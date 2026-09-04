@@ -72,7 +72,8 @@ describe("Stellantis WMI routing", () => {
     assert.equal(preferredFactoryBuildEndpoint(JEEP_WRANGLER), "/api/stellantis-sticker");
     assert.equal(preferredFactoryBuildEndpoint(RAM_1500), "/api/stellantis-sticker");
     assert.equal(preferredFactoryBuildEndpoint(FORD_SUBJECT), "/api/ford-sticker");
-    assert.equal(preferredFactoryBuildEndpoint("WP0AB2A98SS160032"), null);
+    // Porsche has its own (listing-feed-backed) route now — see lib/porscheSticker.ts.
+    assert.equal(preferredFactoryBuildEndpoint("WP0AB2A98SS160032"), "/api/porsche-sticker");
   });
 });
 

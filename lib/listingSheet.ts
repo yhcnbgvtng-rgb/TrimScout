@@ -398,7 +398,7 @@ function shopperNoteForStatus(status: number): string {
   return FORD_LISTINGS_LOAD_FAILED;
 }
 
-async function marketcheckGet(
+export async function marketcheckGet(
   fetchImpl: typeof fetch,
   url: URL
 ): Promise<{ ok: true; payload: unknown } | { ok: false; note: string; empty: boolean }> {
@@ -415,7 +415,7 @@ async function marketcheckGet(
   }
 }
 
-function marketcheckUrl(path: string, key: string, query?: Record<string, string>): URL {
+export function marketcheckUrl(path: string, key: string, query?: Record<string, string>): URL {
   const url = new URL(`https://api.marketcheck.com${path}`);
   url.searchParams.set("api_key", key);
   url.searchParams.set("append_api_key", "false");
