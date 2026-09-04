@@ -73,6 +73,34 @@ export function isGenesisVin(vin: string): boolean {
   return ["KMG", "KMT", "KMU", "5NM"].includes(wmi);
 }
 
+/**
+ * Porsche: WP0 (911 / 718 / Taycan / Panamera — Zuffenhausen & Leipzig) and
+ * WP1 (Macan / Cayenne SUVs). Porsche doesn't share these with any other
+ * VW-group brand, so the WMI alone identifies the make.
+ */
+export function isPorscheVin(vin: string): boolean {
+  const u = vin.trim().toUpperCase();
+  if (u.length !== 17) return false;
+  return ["WP0", "WP1"].includes(u.slice(0, 3));
+}
+
+export function looksLikePorschePaste(paste: string): boolean {
+  const raw = (paste || "").trim();
+  if (!raw) return false;
+  if (/^https?:\/\//i.test(raw)) {
+    try {
+      const u = new URL(raw);
+      const hay = `${u.hostname} ${u.pathname} ${u.search}`.toLowerCase();
+      if (hay.includes("porsche")) return true;
+    } catch {
+      /* ignore invalid URL */
+    }
+  }
+  if (/\bporsche\b/i.test(raw)) return true;
+  const vin = pastedVinCandidate(raw);
+  return !!(vin && isPorscheVin(vin));
+}
+
 export function pastedVinCandidate(raw: string): string | null {
   const m = (raw || "").trim().toUpperCase().match(/\b[A-HJ-NPR-Z0-9]{17}\b/);
   return m ? m[0] : null;

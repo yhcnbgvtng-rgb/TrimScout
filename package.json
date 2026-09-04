@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test": "tsx --test lib/fordSticker.test.ts lib/vinSearch.test.ts lib/gmVinSearch.test.ts lib/stellantisVinSearch.test.ts lib/genesisVinSearch.test.ts lib/dealStructure.test.ts lib/gmSticker.test.ts lib/stellantisSticker.test.ts lib/genesisSticker.test.ts lib/shopperDeal.test.ts lib/dealTerms.test.ts lib/listingSheet.test.ts lib/offerCompare.test.ts lib/offerCloseClock.test.ts lib/dealEngagement.test.ts lib/dealershipCsv.test.ts"
+    "test": "tsx --test lib/fordSticker.test.ts lib/vinSearch.test.ts lib/gmVinSearch.test.ts lib/stellantisVinSearch.test.ts lib/genesisVinSearch.test.ts lib/dealStructure.test.ts lib/gmSticker.test.ts lib/stellantisSticker.test.ts lib/genesisSticker.test.ts lib/porscheSticker.test.ts lib/shopperDeal.test.ts lib/dealTerms.test.ts lib/listingSheet.test.ts lib/offerCompare.test.ts lib/offerCloseClock.test.ts lib/dealEngagement.test.ts lib/dealershipCsv.test.ts"
   },
   "dependencies": {
     "@vercel/analytics": "^2.0.1",

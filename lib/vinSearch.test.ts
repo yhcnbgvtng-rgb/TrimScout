@@ -1324,7 +1324,9 @@ describe("shopper-facing factory option copy", () => {
     const helperStart = pasteImport.indexOf("export async function importPastedFactoryVehicle");
     assert.ok(helperStart >= 0);
     const helperFn = pasteImport.slice(helperStart);
-    assert.doesNotMatch(helperFn, /porsche/i);
+    // "porsche" may appear only as the OEM routing token (its own real
+    // route now exists) — never as a mock/catalog fallback.
+    assert.doesNotMatch(helperFn.replace(/notPorsche|"porsche"/g, ""), /porsche/i);
     assert.doesNotMatch(helperFn, /MOCK_VEHICLES/);
     assert.doesNotMatch(helperFn, /MOCK_CATALOG_PORSCHE_VIN/);
   });

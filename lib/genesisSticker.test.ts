@@ -70,7 +70,8 @@ describe("Genesis WMI routing", () => {
     assert.equal(preferredFactoryBuildEndpoint(G90), "/api/genesis-sticker");
     assert.equal(preferredFactoryBuildEndpoint(G80), "/api/genesis-sticker");
     assert.equal(preferredFactoryBuildEndpoint(FORD_SUBJECT), "/api/ford-sticker");
-    assert.equal(preferredFactoryBuildEndpoint("WP0AB2A98SS160032"), null);
+    // Porsche has its own (listing-feed-backed) route now — see lib/porscheSticker.ts.
+    assert.equal(preferredFactoryBuildEndpoint("WP0AB2A98SS160032"), "/api/porsche-sticker");
   });
 });
 
