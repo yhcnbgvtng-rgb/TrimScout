@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
-import { listActiveDealRequests, DealsApiError } from "@/lib/dealsApi";
+import { listActiveDealRequests, getRequestMarket, DealsApiError } from "@/lib/dealsApi";
 import { isDealAcceptingResponses } from "@/lib/dealEngagementStore";
 import { fetchVehiclesFromBox, fetchFacetsFromBox, fetchVehicleByVinFromBox, fetchBoxHealth } from "@/lib/lightsailClient";
 import { calculateDistanceMiles } from "@/lib/otdCalculator";
@@ -115,6 +115,24 @@ export async function GET() {
       expiresAt: req.expiresAt,
     });
   }
+
+  // One aggregate call per matched request, in parallel — never a
+  // competing dealer's identity/VIN/price, just the current best discount%
+  // and how many dealers have bid, so this dealer knows the market before
+  // (or instead of) submitting a bid blind. A failed lookup for one request
+  // must not blank out the others.
+  await Promise.all(
+    matched.map(async (m) => {
+      try {
+        const market = await getRequestMarket(m.requestId);
+        m.leadingDiscountPercent = market.leadingDiscountPercent;
+        m.bidCount = market.bidCount;
+      } catch {
+        m.leadingDiscountPercent = null;
+        m.bidCount = undefined;
+      }
+    })
+  );
 
   return NextResponse.json({ requests: matched });
 }

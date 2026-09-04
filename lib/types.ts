@@ -216,6 +216,12 @@ export interface DealerInboundRequest {
   buyerComment?: string | null;
   createdAt: string;
   expiresAt: string;
+  /** Current best dealerDiscountPercent among dealers who've already bid on
+   * this request — null when nobody has bid yet. Never a competing
+   * dealer's identity, just the number to beat before this dealer bids. */
+  leadingDiscountPercent?: number | null;
+  /** How many dealers have an active bid in on this request right now. */
+  bidCount?: number;
 }
 
 export interface DealerBid {
@@ -262,6 +268,11 @@ export interface DealerBid {
     title: string;
     phone: string;
   };
+  // The best dealerDiscountPercent across every active bid on this same
+  // request, regardless of who holds it — never a competing dealer's name,
+  // city, or price, just the one number this dealer needs to know what to
+  // beat. Equals this bid's own dealerDiscountPercent when rank is 1.
+  leadingDiscountPercent?: number | null;
 }
 
 export interface LockedDeal {

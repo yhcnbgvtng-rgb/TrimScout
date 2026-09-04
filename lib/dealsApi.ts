@@ -177,6 +177,12 @@ export interface DealBidRecord {
   isTopDeal: boolean;
   status: "active" | "accepted" | "expired" | "withdrawn";
   salesRep: { name: string; title: string; phone: string } | null;
+  leadingDiscountPercent: number | null;
+}
+
+export interface RequestMarket {
+  leadingDiscountPercent: number | null;
+  bidCount: number;
 }
 
 export interface DealerWonDeal {
@@ -254,6 +260,15 @@ export async function submitDealerBid(
 export async function listBidsForRequest(dealRequestId: string): Promise<DealBidRecord[]> {
   const json = await request("GET", `/api/deal-requests/${dealRequestId}/bids`);
   return json.bids as DealBidRecord[];
+}
+
+// A thin aggregate — the current best dealerDiscountPercent on this request
+// and how many dealers have bid, never any bid's identity/VIN/price detail
+// — safe to call once per inbound request the dealer-matching route lists,
+// unlike listBidsForRequest's full unmasked rows.
+export async function getRequestMarket(dealRequestId: string): Promise<RequestMarket> {
+  const json = await request("GET", `/api/deal-requests/${dealRequestId}/market`);
+  return { leadingDiscountPercent: json.leadingDiscountPercent, bidCount: json.bidCount };
 }
 
 // Server-to-server only — full/unmasked single bid, used by
