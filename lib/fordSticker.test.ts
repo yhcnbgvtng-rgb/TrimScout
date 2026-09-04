@@ -244,6 +244,28 @@ describe("Ford sticker parse — 2026 Bronco Sport Big Bend 3FMCR9BN8TRE94740", 
   });
 });
 
+describe("Ford sticker parse — dealer stamp block ahead of VEHICLE DESCRIPTION 3FMCR9BN8SRF62209", () => {
+  const VIN = "3FMCR9BN8SRF62209";
+  it("reads the real 2025 Big Bend, not the dealer order code as the year", () => {
+    // Real live fixture: the dealer's stamp block reads "...SK211 2083 UTC U
+    // W NY CERTCERTCERT TRD RAMPBUMPCAMPBOOKEXFLROTABATT..." ahead of
+    // VEHICLE DESCRIPTION — "2083" is an order/stock code, not a model
+    // year, but it matches the same \d{4} shape. Before the fix this got
+    // captured as the year and the greedy match swallowed everything up to
+    // the real "2025 BIG BEND 4X4 EXTERIOR" line as one garbled "model".
+    const s = parseFordStickerText(VIN, loadFixture(VIN));
+    assert.equal(s.status, "released");
+    assert.equal(s.year, 2025);
+    assert.equal(s.model, "Bronco Sport");
+    assert.equal(s.trim, "Big Bend");
+    assert.equal((s.drivetrain || "").toUpperCase(), "4X4");
+    assert.match(s.exteriorColor || "", /Eruption Green/i);
+    assert.equal(s.basePrice, 31695);
+    assert.equal(s.optionsPrice, 2290);
+    assert.equal(s.destination, 1995);
+  });
+});
+
 describe("factory option codes and breakout", () => {
   it("reads a printed equipment-group code and does not invent codes", () => {
     assert.equal(factoryOptionCode("EQUIPMENT GROUP 800A"), "800A");
