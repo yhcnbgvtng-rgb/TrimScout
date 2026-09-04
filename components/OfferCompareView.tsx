@@ -6,9 +6,11 @@ import { useRouter } from "next/navigation";
 import {
   Car,
   Check,
+  ChevronDown,
   LoaderCircle as Loader2,
   MapPin,
   Phone,
+  X,
 } from "lucide-react";
 import {
   FORD_COMPETITION_FACTORY_OPTIONS,
@@ -41,11 +43,13 @@ import {
   applyVehicleTermsToSnapshot,
   isSharedFactoryOption,
   loadOfferCompareSnapshot,
+  replaceCompetitorLots,
   saveOfferCompareSnapshot,
   setLandingView,
   sharedFactoryOptionKeys,
   upsertShopperRequest,
   vehicleForCompareRole,
+  vehicleFromComparableSuggestion,
   type ComparableSuggestion,
   type OfferCompareSnapshot,
   type OfferCompareVehicle,
@@ -138,12 +142,11 @@ export const OfferCompareView: React.FC = () => {
   const [loaded, setLoaded] = useState(false);
   const [sheets, setSheets] = useState<Record<string, ShopperListingSheet>>({});
   const [listingStatus, setListingStatus] = useState<"idle" | "loading" | "ready">("idle");
-  // The competing vehicles: the full result set from one live listings
-  // search (year/make/model/zip/radius) — never capped, never re-queried per
-  // candidate, and never persisted. Every match IS a competitor; there's
-  // nothing to pick. Kept in memory only, fetched fresh each visit — the
-  // listings provider's terms forbid storing results beyond serving the
-  // request that asked for them.
+  // The full result set from one live listings search (year/make/model/zip/
+  // radius) — never capped, never re-queried per candidate. The list itself
+  // is kept in memory only and fetched fresh each visit (the listings
+  // provider's terms forbid storing results beyond serving the request);
+  // only the two vehicles the buyer checks are written into the deal.
   const [candidates, setCandidates] = useState<ComparableSuggestion[] | null>(null);
   const [candidatesLoading, setCandidatesLoading] = useState(false);
   const [candidatesError, setCandidatesError] = useState<string | null>(null);
@@ -153,6 +156,7 @@ export const OfferCompareView: React.FC = () => {
   const inFlightSignatureRef = useRef<string | null>(null);
   const [showCriteria, setShowCriteria] = useState(false);
   const [radiusDraft, setRadiusDraft] = useState<string | null>(null);
+  const [showFavoriteDetails, setShowFavoriteDetails] = useState(false);
 
   useEffect(() => {
     const next = loadOfferCompareSnapshot();
@@ -313,10 +317,49 @@ export const OfferCompareView: React.FC = () => {
   }, [favoriteVehicle, candidatesLoading, candidatesFetchedFor, searchSignature, findComparableVehicles]);
 
   // The favorite itself can come back in its own search — it's not its own
-  // competitor.
+  // competitor. Checked competitors stay in the list, checked.
+  const favoriteVin = (favoriteVehicle?.vin || "").toUpperCase();
   const competingVehicles = useMemo(
-    () => (candidates || []).filter((m) => !importedVins.includes(m.vin.toUpperCase())),
-    [candidates, importedVins]
+    () => (candidates || []).filter((m) => m.vin.toUpperCase() !== favoriteVin),
+    [candidates, favoriteVin]
+  );
+
+  // The two lots the buyer has checked, as persisted in the deal — so a
+  // reload (or the tracker) sees the same picks, and a pick whose listing
+  // has since vanished from the search still shows as chosen.
+  const selectedLots = useMemo(
+    () =>
+      (["other_lot_1", "other_lot_2"] as const)
+        .map((role) => (snapshot ? vehicleForCompareRole(snapshot, role) : null))
+        .filter((col): col is OfferCompareVehicle => col != null),
+    [snapshot]
+  );
+  const selectedVins = useMemo(() => selectedLots.map((col) => col.vehicle.vin.toUpperCase()), [selectedLots]);
+
+  const toggleCompetitor = useCallback(
+    (match: ComparableSuggestion) => {
+      if (!snapshot) return;
+      const vin = match.vin.toUpperCase();
+      const current = selectedLots.map((col) => col.vehicle);
+      const next = selectedVins.includes(vin)
+        ? current.filter((v) => v.vin.toUpperCase() !== vin)
+        : current.length >= 2
+          ? current
+          : [...current, vehicleFromComparableSuggestion(match)];
+      const rebuilt = replaceCompetitorLots(snapshot, next);
+      if (rebuilt) persist(rebuilt);
+    },
+    [snapshot, selectedLots, selectedVins, persist]
+  );
+
+  const removeCompetitor = useCallback(
+    (vin: string) => {
+      if (!snapshot) return;
+      const next = selectedLots.map((col) => col.vehicle).filter((v) => v.vin.toUpperCase() !== vin.toUpperCase());
+      const rebuilt = replaceCompetitorLots(snapshot, next);
+      if (rebuilt) persist(rebuilt);
+    },
+    [snapshot, selectedLots, persist]
   );
 
   const removeMustHave = useCallback(
@@ -420,19 +463,85 @@ export const OfferCompareView: React.FC = () => {
       </div>
 
       {favoriteColumn ? (
-        <VehicleOfferColumn
-          column={favoriteColumn}
-          highlighted
-          wide
-          buyerZip={snapshot.buyerZip}
-          requested={snapshot.requestedStructures}
-          terms={termsForVin(snapshot.request.dealStructurePreferences?.vehicleTerms, favoriteColumn.vehicle.vin)}
-          sheet={sheets[favoriteColumn.vehicle.vin.toUpperCase()]}
-          listingLoading={listingStatus === "loading"}
-          onChangeTerms={updateTerms}
-          sharedOptions={sharedOptions}
-        />
+        <div className="space-y-3">
+          <VehicleHeroCard
+            label="Your favorite"
+            vehicle={favoriteColumn.vehicle}
+            sheet={sheets[favoriteColumn.vehicle.vin.toUpperCase()]}
+            buyerZip={snapshot.buyerZip}
+            accent="favorite"
+            trailing={
+              <button
+                type="button"
+                onClick={() => setShowFavoriteDetails((v) => !v)}
+                aria-expanded={showFavoriteDetails}
+                className="inline-flex items-center gap-1 rounded-lg border border-border bg-background px-2.5 py-1.5 text-[11px] font-bold text-emerald-300 hover:border-emerald-500 hover:text-emerald-200 transition-all"
+              >
+                Deal terms &amp; factory options
+                <ChevronDown className={`h-3.5 w-3.5 transition-transform ${showFavoriteDetails ? "rotate-180" : ""}`} />
+              </button>
+            }
+          />
+          {showFavoriteDetails ? (
+            <VehicleOfferColumn
+              column={favoriteColumn}
+              highlighted
+              wide
+              buyerZip={snapshot.buyerZip}
+              requested={snapshot.requestedStructures}
+              terms={termsForVin(snapshot.request.dealStructurePreferences?.vehicleTerms, favoriteColumn.vehicle.vin)}
+              sheet={sheets[favoriteColumn.vehicle.vin.toUpperCase()]}
+              listingLoading={listingStatus === "loading"}
+              onChangeTerms={updateTerms}
+              sharedOptions={sharedOptions}
+            />
+          ) : null}
+        </div>
       ) : null}
+
+      <section className="space-y-2">
+        <div className="flex items-baseline justify-between gap-3 px-1">
+          <h2 className="text-[11px] font-bold uppercase tracking-wider text-ink-faint">
+            Competing vehicles in this deal
+          </h2>
+          <span className="text-[11px] font-semibold text-ink-muted">{selectedLots.length} of 2 chosen</span>
+        </div>
+        <div className="grid gap-3 grid-cols-1 md:grid-cols-2">
+          {[0, 1].map((slotIndex) => {
+            const col = selectedLots[slotIndex];
+            if (!col) {
+              return (
+                <div
+                  key={`empty-${slotIndex}`}
+                  className="flex items-center justify-center rounded-2xl border border-dashed border-border bg-surface/40 px-4 py-6 text-[11px] text-ink-faint"
+                >
+                  Check a vehicle below to make it competitor {slotIndex + 1}
+                </div>
+              );
+            }
+            return (
+              <VehicleHeroCard
+                key={col.vehicle.vin}
+                label={`Competitor ${slotIndex + 1}`}
+                vehicle={col.vehicle}
+                sheet={sheets[col.vehicle.vin.toUpperCase()]}
+                buyerZip={snapshot.buyerZip}
+                accent="competitor"
+                trailing={
+                  <button
+                    type="button"
+                    onClick={() => removeCompetitor(col.vehicle.vin)}
+                    aria-label={`Remove competitor ${col.vehicle.vin}`}
+                    className="rounded-lg p-1.5 text-ink-muted hover:bg-border hover:text-white transition-colors"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                }
+              />
+            );
+          })}
+        </div>
+      </section>
 
       <SearchCriteriaPanel
         open={showCriteria}
@@ -457,12 +566,90 @@ export const OfferCompareView: React.FC = () => {
         fetched={candidates !== null}
         vehicles={competingVehicles}
         radiusMiles={snapshot.searchRadiusMiles}
+        selectedVins={selectedVins}
+        maxSelectable={2}
+        onToggle={toggleCompetitor}
         hadEmptyResult={hadEmptyResult}
         onEditCriteria={() => setShowCriteria(true)}
       />
     </div>
   );
 };
+
+/**
+ * Compact vehicle card: thumbnail (from the live listing when we have one),
+ * identity, dealer, price. The favorite and the two chosen competitors all
+ * use it, so the top of the page reads as one set.
+ */
+function VehicleHeroCard({
+  label,
+  vehicle,
+  sheet,
+  buyerZip,
+  accent,
+  trailing,
+}: {
+  label: string;
+  vehicle: Vehicle;
+  sheet: ShopperListingSheet | undefined;
+  buyerZip: string;
+  accent: "favorite" | "competitor";
+  trailing?: React.ReactNode;
+}) {
+  const price = columnAdvertised(vehicle, sheet);
+  const vdp = listingVdpHref(sheet?.vdpUrl) || listingVdpHref(vehicle.dealerUrl);
+  const title = [vehicle.year > 0 ? vehicle.year : null, vehicle.make, vehicle.model, vehicle.trim]
+    .filter(Boolean)
+    .join(" ");
+  const loc = vehicle.location;
+  const where = [loc?.dealerName, [loc?.city, loc?.state].filter(Boolean).join(", ")].filter(Boolean).join(" · ");
+  const distance = milesLabel(loc?.distanceMiles, buyerZip);
+  const photo = sheet?.photoUrl || vehicle.imageUrl || null;
+  const isFavorite = accent === "favorite";
+  return (
+    <section
+      className={`flex items-center gap-4 rounded-2xl bg-surface px-4 py-3 shadow-lg ${
+        isFavorite ? "border-2 border-emerald-500/70" : "border border-border"
+      }`}
+    >
+      <div className="h-16 w-24 shrink-0 overflow-hidden rounded-xl bg-surface-elevated flex items-center justify-center">
+        {photo ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={photo} alt={title} className="h-full w-full object-cover" />
+        ) : (
+          <Car className="h-6 w-6 text-ink-faint" />
+        )}
+      </div>
+      <div className="min-w-0 flex-1">
+        <div className={`text-[10px] font-bold uppercase tracking-wider ${isFavorite ? "text-emerald-400" : "text-ink-faint"}`}>
+          {label}
+        </div>
+        <h2 className="truncate text-base font-black text-white">{title || "Imported vehicle"}</h2>
+        <p className="truncate text-[11px] text-ink-muted">
+          {vdp ? (
+            <a href={vdp} target="_blank" rel="noopener noreferrer" className="font-mono text-emerald-400 hover:underline">
+              {vehicle.vin}
+            </a>
+          ) : (
+            <span className="font-mono">{vehicle.vin}</span>
+          )}
+          {where ? ` · ${where}` : ""}
+          {distance ? ` · ${distance}` : ""}
+        </p>
+      </div>
+      <div className="shrink-0 text-right">
+        <div className="text-lg font-black text-white leading-tight">
+          {formatPriceAmount(price.amount)}{" "}
+          <span className="uppercase text-[9px] font-bold text-ink-faint">{shopperPriceSourceLabel(price.source)}</span>
+        </div>
+        {price.source === "listing" && vehicle.msrp > 0 ? (
+          <div className="text-[11px] text-ink-muted">MSRP {formatPriceAmount(vehicle.msrp)}</div>
+        ) : null}
+      </div>
+      {trailing ? <div className="shrink-0">{trailing}</div> : null}
+    </section>
+  );
+}
 
 function CompetingVehiclesPanel({
   loading,
@@ -471,6 +658,9 @@ function CompetingVehiclesPanel({
   fetched,
   vehicles,
   radiusMiles,
+  selectedVins,
+  maxSelectable,
+  onToggle,
   hadEmptyResult,
   onEditCriteria,
 }: {
@@ -480,27 +670,40 @@ function CompetingVehiclesPanel({
   fetched: boolean;
   vehicles: ComparableSuggestion[];
   radiusMiles: number;
+  selectedVins: string[];
+  maxSelectable: number;
+  onToggle: (match: ComparableSuggestion) => void;
   hadEmptyResult: boolean;
   onEditCriteria: () => void;
 }) {
+  const full = selectedVins.length >= maxSelectable;
   return (
     <section className="rounded-3xl border border-border-strong bg-surface shadow-2xl overflow-hidden">
-      <div className="border-b border-border bg-surface-elevated px-5 py-3.5">
-        <div className="text-[10px] font-bold uppercase tracking-wider text-ink-faint">
-          One search · every match
+      <div className="border-b border-border bg-surface-elevated px-5 py-3.5 flex items-start justify-between gap-3">
+        <div>
+          <div className="text-[10px] font-bold uppercase tracking-wider text-ink-faint">
+            One search · every match
+          </div>
+          <h2 className="text-base font-black text-white mt-0.5">
+            Competing vehicles
+            {fetched && !loading && vehicles.length > 0 ? (
+              <span className="ml-2 text-ink-muted font-semibold text-sm">
+                {vehicles.length} within {radiusMiles} mi
+              </span>
+            ) : null}
+          </h2>
+          <p className="text-[11px] text-ink-muted mt-0.5">
+            Check {maxSelectable} to put them in your deal. Every same-model listing on the market right now —
+            longest on the market first, then lowest price.
+          </p>
         </div>
-        <h2 className="text-base font-black text-white mt-0.5">
-          Competing vehicles
-          {fetched && !loading && vehicles.length > 0 ? (
-            <span className="ml-2 text-ink-muted font-semibold text-sm">
-              {vehicles.length} within {radiusMiles} mi
-            </span>
-          ) : null}
-        </h2>
-        <p className="text-[11px] text-ink-muted mt-0.5">
-          Every same-model listing the market has right now — sorted by longest on the market, then lowest
-          price.
-        </p>
+        <span
+          className={`shrink-0 rounded-full px-2.5 py-1 text-[10px] font-bold ${
+            full ? "bg-emerald-500/15 text-emerald-300 border border-emerald-500/30" : "bg-surface text-ink-muted border border-border"
+          }`}
+        >
+          {selectedVins.length} of {maxSelectable} chosen
+        </span>
       </div>
 
       <div className="px-5 py-4">
@@ -529,6 +732,7 @@ function CompetingVehiclesPanel({
             <table className="w-full text-left">
               <thead>
                 <tr className="text-[10px] font-bold uppercase tracking-wider text-ink-faint">
+                  <th className="w-8 py-1.5"></th>
                   <th className="py-1.5 pr-3">Vehicle</th>
                   <th className="py-1.5 pr-3">Dealer</th>
                   <th className="py-1.5 pr-3">Distance</th>
@@ -540,8 +744,25 @@ function CompetingVehiclesPanel({
                 {vehicles.map((match) => {
                   const title = [match.year, match.make, match.model, match.trim].filter(Boolean).join(" ");
                   const vdp = listingVdpHref(match.dealerUrl);
+                  const checked = selectedVins.includes(match.vin.toUpperCase());
+                  const disabled = !checked && full;
                   return (
-                    <tr key={match.vin} className="border-t border-border/60 text-xs">
+                    <tr
+                      key={match.vin}
+                      className={`border-t border-border/60 text-xs transition-colors ${
+                        checked ? "bg-emerald-500/5" : disabled ? "opacity-40" : "hover:bg-surface-elevated/60"
+                      }`}
+                    >
+                      <td className="py-2 pr-1">
+                        <input
+                          type="checkbox"
+                          checked={checked}
+                          disabled={disabled}
+                          onChange={() => onToggle(match)}
+                          aria-label={`${checked ? "Remove" : "Choose"} ${title} as a competing vehicle`}
+                          className="h-4 w-4 rounded border-border bg-background text-emerald-500 focus:ring-0 disabled:cursor-not-allowed"
+                        />
+                      </td>
                       <td className="py-2 pr-3 font-bold text-white whitespace-nowrap">
                         {vdp ? (
                           <a

@@ -400,14 +400,18 @@ describe("listing-facts route and compare page copy", () => {
     assert.match(view, /\/api\/manual-comparables/);
     assert.doesNotMatch(view, /\/api\/compare-deal/);
     assert.doesNotMatch(view, /findSimilarFordVehicles/);
-    // Every result of the one search is a competing vehicle — there are no
-    // slots to fill, nothing to pick, and nothing pasted in by hand. The
-    // list is also never persisted (listings-provider terms).
+    // The one search's full result set is the competing-vehicles list; the
+    // buyer checks two of them and those two are written into the deal
+    // (replaceCompetitorLots), so the tracker sees the same picks. Nothing
+    // is pasted in by hand, and the list itself is never persisted
+    // (listings-provider terms) — only the two chosen vehicles are.
     assert.match(view, /Competing vehicles/);
     assert.match(view, /CompetingVehiclesPanel/);
-    assert.doesNotMatch(view, /type="checkbox"/);
-    assert.doesNotMatch(view, /Select up to/);
-    assert.doesNotMatch(view, /assignCompetitorLot/);
+    assert.match(view, /type="checkbox"/);
+    assert.match(view, /replaceCompetitorLots/);
+    assert.match(view, /vehicleFromComparableSuggestion/);
+    assert.match(view, /VehicleHeroCard/);
+    assert.match(view, /Deal terms &amp; factory options/);
     assert.doesNotMatch(view, /importPastedFactoryVehicle/);
     assert.doesNotMatch(view, /Already know one\?/);
     assert.doesNotMatch(view, /saveOfferCompareSnapshot\([^)]*candidates/);
