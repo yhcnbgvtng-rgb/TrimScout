@@ -1641,7 +1641,17 @@ describe("listings secrets are read from Node env, not webpack-stripped process.
       assert.doesNotMatch(src, /process\.env\.MARKETCHECK_API_KEY/);
     }
     assert.doesNotMatch(vinSearchSrc, /searchParams\.set\(["']vehicle\.trim["']/);
-    assert.doesNotMatch(vinSearchSrc, /searchParams\.set\(["']trim["']/);
+    // Trim is opt-in, sent only when a caller supplies one — GM's hunt does
+    // (a GM trim is the spec itself), Ford's never does (Ultimate/BlueCruise/
+    // keypad don't map to one trim name, so Ford sticker matching downstream
+    // is the real filter). Confirm the guard is conditional, and that
+    // findSimilarFordVehicles's own call site still never populates it.
+    assert.match(vinSearchSrc, /if \(q\.trim\) url\.searchParams\.set\(["']trim["']/);
+    const fordHuntCallSite = vinSearchSrc.slice(
+      vinSearchSrc.indexOf("const searched = await searchCoarseListings({"),
+      vinSearchSrc.indexOf("});", vinSearchSrc.indexOf("const searched = await searchCoarseListings({"))
+    );
+    assert.doesNotMatch(fordHuntCallSite, /trim:/);
     assert.doesNotMatch(vinSearchSrc, /Math\.min\([^)]*100/);
     assert.doesNotMatch(vinSearchSrc, /redis|@vercel\/kv|upstash/i);
     assert.match(vinSearchSrc, /api\.marketcheck\.com\/v2\/search\/car\/active/);
@@ -1689,7 +1699,7 @@ describe("listings secrets are read from Node env, not webpack-stripped process.
       assert.equal(parsed.searchParams.get("radius"), "500", "must not clamp the user radius");
       assert.equal(parsed.searchParams.get("car_type"), "new");
       assert.equal(parsed.searchParams.get("rows"), "50");
-      assert.equal(parsed.searchParams.has("trim"), false);
+      assert.equal(parsed.searchParams.get("trim"), "Raptor R", "trim flows through when the caller supplies one");
       marketcheckCalls += 1;
       return new Response(JSON.stringify({ num_found: 0, listings: [] }), {
         status: 200,

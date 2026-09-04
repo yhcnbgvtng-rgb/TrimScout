@@ -105,6 +105,24 @@ function normalizeModelName(s?: string): string {
   return (s || "").toLowerCase().replace(/[^a-z0-9]+/g, "");
 }
 
+function normalizeTrimName(s?: string): string {
+  return (s || "").toLowerCase().replace(/[^a-z0-9]+/g, "");
+}
+
+/**
+ * Unlike Ford's hunt, GM's does compare trim: a GM trim (LT, RST, Z71...) is
+ * itself the spec a buyer is comparing against, not just an optional add-on
+ * a factory-sticker must-have could independently confirm. Missing trim data
+ * on either side passes rather than excludes — never drop a real candidate
+ * just because a field wasn't populated.
+ */
+function listingMatchesSubjectTrim(listing: { trim?: string }, subjectTrim?: string): boolean {
+  const want = normalizeTrimName(subjectTrim);
+  const got = normalizeTrimName(listing.trim);
+  if (!want || !got) return true;
+  return want === got;
+}
+
 /** Real GM sticker fixtures already used for must-have-matching tests in gmSticker.test.ts. */
 export const DEMO_GM_COMPARABLE_LISTINGS: ListingCandidate[] = [
   {
@@ -255,6 +273,7 @@ export async function findSimilarGmVehicles(opts: {
         year: subject.year && subject.year >= 1990 && subject.year <= 2035 ? subject.year : undefined,
         make: subject.make || "Chevrolet",
         model: subject.model,
+        trim: subject.trim,
         zip,
         radiusMiles,
       },
@@ -281,7 +300,9 @@ export async function findSimilarGmVehicles(opts: {
     note = "Using provided candidate list.";
   }
 
-  listings = (listings || []).filter((l) => listingMatchesSubjectModel(l, subject.model));
+  listings = (listings || [])
+    .filter((l) => listingMatchesSubjectModel(l, subject.model))
+    .filter((l) => listingMatchesSubjectTrim(l, subject.trim));
   if (listings.length === 0 && provider === "demo") {
     return gmHuntResult({
       provider: "demo",

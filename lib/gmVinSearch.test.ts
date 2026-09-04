@@ -2,6 +2,7 @@ import "./testdata/blockLiveHttp";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
+import { env } from "node:process";
 import { describe, it } from "node:test";
 import { parseGmStickerText } from "./gmSticker";
 import {
@@ -124,5 +125,66 @@ describe("gmVinSearch rank + must-have filter", () => {
   it("still requires a usable hunt location — shared helper, not duplicated logic", () => {
     assert.equal(isUsableHuntLocation("08822", 50), true);
     assert.equal(isUsableHuntLocation("08822", 0), false);
+  });
+
+  it("sends the subject's trim to MarketCheck — a buyer comparing an LT should not see RST suggestions", async () => {
+    const prevA = env["AUTO_DEV_API_KEY"];
+    const prevM = env["MARKETCHECK_API_KEY"];
+    const prevP = env["LISTINGS_PROVIDER"];
+    delete env["AUTO_DEV_API_KEY"];
+    delete env["LISTINGS_PROVIDER"];
+    env["MARKETCHECK_API_KEY"] = "runtime-test-marketcheck";
+    const origFetch = globalThis.fetch;
+    let sawTrimParam: string | null = null;
+    globalThis.fetch = (async (input: RequestInfo | URL) => {
+      const parsed = new URL(String(input));
+      sawTrimParam = parsed.searchParams.get("trim");
+      return new Response(JSON.stringify({ num_found: 0, listings: [] }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    }) as typeof fetch;
+    try {
+      const subject = parseGmStickerText(SUBJECT, loadFixture(SUBJECT));
+      await findSimilarGmVehicles({
+        subjectVin: SUBJECT,
+        subject,
+        mustHaveLines: [],
+        zip: "07405",
+        radiusMiles: 500,
+        fetchSticker: async (vin) => parseGmStickerText(vin, loadFixture(vin)),
+      });
+      assert.equal(sawTrimParam, subject.trim);
+      assert.equal(sawTrimParam, "LT");
+    } finally {
+      globalThis.fetch = origFetch;
+      if (prevA !== undefined) env["AUTO_DEV_API_KEY"] = prevA;
+      else delete env["AUTO_DEV_API_KEY"];
+      if (prevM !== undefined) env["MARKETCHECK_API_KEY"] = prevM;
+      else delete env["MARKETCHECK_API_KEY"];
+      if (prevP !== undefined) env["LISTINGS_PROVIDER"] = prevP;
+      else delete env["LISTINGS_PROVIDER"];
+    }
+  });
+
+  it("filters out a different-trim candidate even if it slips through the search, but keeps one with no trim data rather than guessing", async () => {
+    const subject = parseGmStickerText(SUBJECT, loadFixture(SUBJECT));
+    assert.equal(subject.trim, "LT");
+    const rstTwin = { ...DEMO_GM_COMPARABLE_LISTINGS[1], vin: "1GCUKDED3TZ200099", trim: "RST" };
+    const unknownTrim = { ...DEMO_GM_COMPARABLE_LISTINGS[0], vin: "1GCUKDED5TZ200088", trim: undefined };
+    const result = await findSimilarGmVehicles({
+      subjectVin: SUBJECT,
+      subject,
+      mustHaveLines: [],
+      zip: "07405",
+      radiusMiles: 500,
+      listings: [...DEMO_GM_COMPARABLE_LISTINGS, rstTwin, unknownTrim],
+      fetchSticker: async (vin) => parseGmStickerText(vin, loadFixture(vin)),
+    });
+    const consideredVins = result.candidatesConsidered;
+    assert.ok(consideredVins < DEMO_GM_COMPARABLE_LISTINGS.length + 2, "the RST twin must be dropped before sticker-fetch");
+    // Flemington/Allentown (LT) and the no-trim-data listing all still count
+    // as candidates; only the RST twin is excluded by trim.
+    assert.equal(consideredVins, DEMO_GM_COMPARABLE_LISTINGS.length + 1);
   });
 });
