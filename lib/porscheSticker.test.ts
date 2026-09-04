@@ -143,7 +143,8 @@ describe("porscheBuildToVehicle + wizard lines", () => {
     const nice = defaultNiceToHaveLines(build, ["Surround View"]);
     assert.ok(nice.includes("Premium Package Plus"));
     assert.ok(!nice.includes("Surround View"), "already a must-have");
-    assert.ok(!nice.includes("Panoramic Sun/Moonroof"), "uncoded features are not default nice-to-haves");
+    assert.ok(nice.includes("Panoramic Sun/Moonroof"), "typed-Optional features are nice-to-haves too");
+    assert.ok(!nice.includes("Navigation System"), "plain dealer equipment lines are not default nice-to-haves");
   });
 });
 
