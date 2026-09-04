@@ -110,6 +110,8 @@ function baseCard(vin: string): FordMatchCard {
     stickerStatus: "released",
     factoryOptions: [],
     factoryOptionsStatus: "unavailable",
+    daysOnMarket: null,
+    priceChangeHint: null,
   };
 }
 
@@ -220,6 +222,126 @@ describe("vinSearch rank + must-have filter", () => {
     assert.deepEqual(
       rankFordMatches([farCheapNice, near]).map((m) => m.vin),
       ["NEAR", "FAR"]
+    );
+  });
+
+  it("ranks more days on market ahead of a real price cut, and a price cut ahead of distance", () => {
+    const staleFar = { ...baseCard("STALE_FAR"), distanceMiles: 90, daysOnMarket: 120, priceChangeHint: null };
+    const freshCut = { ...baseCard("FRESH_CUT"), distanceMiles: 10, daysOnMarket: 5, priceChangeHint: -1500 };
+    const freshNear = { ...baseCard("FRESH_NEAR"), distanceMiles: 5, daysOnMarket: 5, priceChangeHint: null };
+    assert.deepEqual(
+      rankFordMatches([staleFar, freshNear, freshCut]).map((m) => m.vin),
+      ["STALE_FAR", "FRESH_CUT", "FRESH_NEAR"],
+      "the most days on market wins outright; among the tied-DOM remainder, a real cut beats nearest"
+    );
+  });
+
+  it("does not treat a positive price move (an increase) as a motivating cut", () => {
+    const priceRose = { ...baseCard("ROSE"), distanceMiles: 50, daysOnMarket: 10, priceChangeHint: 500 };
+    const noChange = { ...baseCard("FLAT"), distanceMiles: 5, daysOnMarket: 10, priceChangeHint: null };
+    assert.deepEqual(
+      rankFordMatches([priceRose, noChange]).map((m) => m.vin),
+      ["FLAT", "ROSE"],
+      "same days on market, so nearest wins — a price increase must not rank as a cut"
+    );
+  });
+
+  it("within a price-cut tie on days on market, a deeper cut outranks a shallower one", () => {
+    const deepCut = { ...baseCard("DEEP"), distanceMiles: 50, daysOnMarket: 10, priceChangeHint: -3000 };
+    const shallowCut = { ...baseCard("SHALLOW"), distanceMiles: 5, daysOnMarket: 10, priceChangeHint: -200 };
+    assert.deepEqual(
+      rankFordMatches([shallowCut, deepCut]).map((m) => m.vin),
+      ["DEEP", "SHALLOW"],
+      "same days on market — the deeper (more negative) cut is the stronger activity signal, even though it's farther"
+    );
+  });
+
+  it("boosts a listing priced just under the subject's own listing price ahead of one priced far under or at/above it", () => {
+    const subjectListingPrice = 50000;
+    const slightlyUnder = { ...baseCard("SLIGHT"), distanceMiles: 50, listingPrice: 48000 };
+    const farUnder = { ...baseCard("BARGAIN"), distanceMiles: 5, listingPrice: 30000 };
+    const atOrAbove = { ...baseCard("PRICEY"), distanceMiles: 1, listingPrice: 51000 };
+    assert.deepEqual(
+      rankFordMatches([atOrAbove, farUnder, slightlyUnder], subjectListingPrice).map((m) => m.vin),
+      ["SLIGHT", "BARGAIN", "PRICEY"],
+      "closest-under-price wins the price-band tier over a deeper discount or an at/above-price listing, even though both of the others are nearer"
+    );
+  });
+
+  it("never drops a candidate for being at/above the subject's price or having an unknown price — a boost, not a filter", () => {
+    const subjectListingPrice = 50000;
+    const unknownPrice = { ...baseCard("UNKNOWN"), distanceMiles: 5, listingPrice: null };
+    const above = { ...baseCard("ABOVE"), distanceMiles: 50, listingPrice: 55000 };
+    const ranked = rankFordMatches([above, unknownPrice], subjectListingPrice);
+    assert.equal(ranked.length, 2, "both candidates are kept — price band is a sort boost only");
+  });
+
+  it("subjectListingPrice is optional — omitting it (or a non-positive value) leaves ranking unaffected by price band", () => {
+    const near = { ...baseCard("NEAR"), distanceMiles: 5, listingPrice: 60000 };
+    const far = { ...baseCard("FAR"), distanceMiles: 50, listingPrice: 10000 };
+    assert.deepEqual(
+      rankFordMatches([far, near]).map((m) => m.vin),
+      ["NEAR", "FAR"],
+      "with no subject price, distance still decides — a much cheaper farther lot must not jump ahead"
+    );
+    assert.deepEqual(
+      rankFordMatches([far, near], 0).map((m) => m.vin),
+      ["NEAR", "FAR"],
+      "a non-positive subject price is treated the same as absent"
+    );
+  });
+
+  it("carries days-on-market and the price-change hint from the free search row into the match", async () => {
+    const subject = parseFordStickerText(SUBJECT, loadFixture(SUBJECT));
+    const listings: ListingCandidate[] = DEMO_COMPARABLE_LISTINGS.map((l) =>
+      l.vin === SHORKEY
+        ? { ...l, daysOnMarket: 42, priceChangeHint: -750 }
+        : l.vin === BATTLEFIELD
+          ? { ...l, daysOnMarket: 3, priceChangeHint: null }
+          : l
+    );
+    const result = await findSimilarFordVehicles({
+      subjectVin: SUBJECT,
+      subject,
+      mustHaveLines: ["Ultimate Package", "Keyless Entry Keypad"],
+      niceToHaveLines: ["BlueCruise"],
+      zip: "07405",
+      radiusMiles: 500,
+      listings,
+      fetchSticker: async (vin) => parseFordStickerText(vin, loadFixture(vin)),
+    });
+    const shorkey = result.matches.find((m) => m.vin === SHORKEY);
+    const battlefield = result.matches.find((m) => m.vin === BATTLEFIELD);
+    assert.equal(shorkey?.daysOnMarket, 42);
+    assert.equal(shorkey?.priceChangeHint, -750);
+    assert.equal(battlefield?.daysOnMarket, 3);
+    assert.equal(battlefield?.priceChangeHint, null);
+  });
+
+  it("findSimilarFordVehicles threads subjectListingPrice through to the final ranking", async () => {
+    const subject = parseFordStickerText(SUBJECT, loadFixture(SUBJECT));
+    // Same days-on-market and no price-change hint on either side, so only
+    // the price-band tier (SHORKEY confirmed under $60k, BATTLEFIELD's price
+    // unconfirmed) decides.
+    const listings: ListingCandidate[] = DEMO_COMPARABLE_LISTINGS.map((l) =>
+      l.vin === SHORKEY || l.vin === BATTLEFIELD
+        ? { ...l, daysOnMarket: 10, priceChangeHint: null }
+        : l
+    );
+    const result = await findSimilarFordVehicles({
+      subjectVin: SUBJECT,
+      subject,
+      mustHaveLines: ["Ultimate Package", "Keyless Entry Keypad"],
+      zip: "07405",
+      radiusMiles: 500,
+      listings,
+      subjectListingPrice: 60000,
+      fetchSticker: async (vin) => parseFordStickerText(vin, loadFixture(vin)),
+    });
+    assert.deepEqual(
+      result.matches.map((m) => m.vin),
+      [SHORKEY, BATTLEFIELD],
+      "SHORKEY's confirmed $58,372 listing (just under the $60k subject price) outranks BATTLEFIELD's unconfirmed price"
     );
   });
 
@@ -912,7 +1034,7 @@ describe("shopper-facing factory option copy", () => {
     assert.doesNotMatch(src, /\/api\/ford-comparables/);
     assert.doesNotMatch(src, /\/api\/comparable-vehicles/);
     const compare = fs.readFileSync(path.join(process.cwd(), "components/OfferCompareView.tsx"), "utf8");
-    assert.doesNotMatch(compare, /\/api\/ford-comparables/);
+    assert.match(compare, /comparablesEndpointForVin/);
     assert.doesNotMatch(compare, /\/api\/compare-deal/);
     assert.match(compare, /\/api\/listing-facts/);
     assert.match(compare, /importPastedFactoryVehicle/);
@@ -1519,7 +1641,17 @@ describe("listings secrets are read from Node env, not webpack-stripped process.
       assert.doesNotMatch(src, /process\.env\.MARKETCHECK_API_KEY/);
     }
     assert.doesNotMatch(vinSearchSrc, /searchParams\.set\(["']vehicle\.trim["']/);
-    assert.doesNotMatch(vinSearchSrc, /searchParams\.set\(["']trim["']/);
+    // Trim is opt-in, sent only when a caller supplies one — GM's hunt does
+    // (a GM trim is the spec itself), Ford's never does (Ultimate/BlueCruise/
+    // keypad don't map to one trim name, so Ford sticker matching downstream
+    // is the real filter). Confirm the guard is conditional, and that
+    // findSimilarFordVehicles's own call site still never populates it.
+    assert.match(vinSearchSrc, /if \(q\.trim\) url\.searchParams\.set\(["']trim["']/);
+    const fordHuntCallSite = vinSearchSrc.slice(
+      vinSearchSrc.indexOf("const searched = await searchCoarseListings({"),
+      vinSearchSrc.indexOf("});", vinSearchSrc.indexOf("const searched = await searchCoarseListings({"))
+    );
+    assert.doesNotMatch(fordHuntCallSite, /trim:/);
     assert.doesNotMatch(vinSearchSrc, /Math\.min\([^)]*100/);
     assert.doesNotMatch(vinSearchSrc, /redis|@vercel\/kv|upstash/i);
     assert.match(vinSearchSrc, /api\.marketcheck\.com\/v2\/search\/car\/active/);
@@ -1567,7 +1699,7 @@ describe("listings secrets are read from Node env, not webpack-stripped process.
       assert.equal(parsed.searchParams.get("radius"), "500", "must not clamp the user radius");
       assert.equal(parsed.searchParams.get("car_type"), "new");
       assert.equal(parsed.searchParams.get("rows"), "50");
-      assert.equal(parsed.searchParams.has("trim"), false);
+      assert.equal(parsed.searchParams.get("trim"), "Raptor R", "trim flows through when the caller supplies one");
       marketcheckCalls += 1;
       return new Response(JSON.stringify({ num_found: 0, listings: [] }), {
         status: 200,
@@ -1806,6 +1938,7 @@ describe("listings provider selection", () => {
               price: 55990,
               vdp_url: null,
               exterior_color: "Star White",
+              dom: 3,
               build: { year: 2026, make: "Ford", model: "Explorer", trim: "Tremor" },
               dealer: {
                 id: 44001,
@@ -1822,6 +1955,8 @@ describe("listings provider selection", () => {
               price: 58372,
               vdp_url:
                 "https://www.jimshorkey.com/new-Pittsburgh-2026-Ford-Explorer-Tremor+Ultimate+Package-1FMWK8JC7TGB81309",
+              dom: 42,
+              price_change: -750,
               build: { year: 2026, make: "Ford", model: "Explorer", trim: "Tremor" },
               dealer: {
                 id: 44002,
@@ -1864,12 +1999,16 @@ describe("listings provider selection", () => {
       assert.equal(result.provider, "marketcheck");
       assert.equal(result.hasListingsKey, true);
       assert.equal(result.matches.length, 2);
-      assert.equal(result.matches[0].vin, BATTLEFIELD);
-      assert.equal(result.matches[1].vin, SHORKEY);
-      assert.equal(result.matches[0].dealerId, "44001");
-      assert.equal(result.matches[1].dealerId, "44002");
-      assert.equal(result.matches[0].listingPrice, 55990);
-      assert.equal(result.matches[0].listingPriceSource, "listing");
+      assert.equal(result.matches[0].vin, SHORKEY, "Shorkey's real price cut outranks Battlefield's nearness");
+      assert.equal(result.matches[1].vin, BATTLEFIELD);
+      assert.equal(result.matches[0].dealerId, "44002");
+      assert.equal(result.matches[1].dealerId, "44001");
+      assert.equal(result.matches[0].daysOnMarket, 42);
+      assert.equal(result.matches[0].priceChangeHint, -750);
+      assert.equal(result.matches[1].daysOnMarket, 3);
+      assert.equal(result.matches[1].priceChangeHint, null);
+      assert.equal(result.matches[1].listingPrice, 55990);
+      assert.equal(result.matches[1].listingPriceSource, "listing");
       assert.equal(result.dropped.find((d) => d.vin === MALL_OF_GEORGIA)?.reason, "missing_must_have");
       assert.match(result.note, /factory options/i);
       assertShopperCopyHidesVendor(result.note);

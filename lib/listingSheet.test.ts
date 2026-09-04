@@ -370,6 +370,9 @@ describe("listing-facts route and compare page copy", () => {
     assert.match(view, /FORD_LISTINGS_LOAD_FAILED/);
     assert.match(view, /sheet\.attribution/);
     assert.match(view, /Terms for this VIN/);
+    assert.match(view, /vehicle and dealer fees only/);
+    assert.match(view, /Registration fees and[\s\S]*taxes are calculated after the deal is accepted/);
+    assert.match(view, /trade-in[\s\S]{0,80}separate step/i);
     assert.match(view, /Estimated monthly/);
     assert.match(view, /Estimate only/);
     assert.match(view, /FORD_COMPETITION_FACTORY_OPTIONS/);
@@ -391,11 +394,17 @@ describe("listing-facts route and compare page copy", () => {
     assert.doesNotMatch(view, /Auto\.dev/);
     assert.doesNotMatch(view, /Finding matching lots/);
     assert.match(view, /\/api\/listing-facts/);
-    assert.doesNotMatch(view, /\/api\/ford-comparables/);
+    // The compare page is the one legitimate caller of the free comparable-
+    // vehicle search — it dispatches to the Ford or GM route by the
+    // favorite's VIN, but never the expensive hunt or a persisted
+    // deal-search endpoint.
+    assert.match(view, /comparablesEndpointForVin/);
     assert.doesNotMatch(view, /\/api\/compare-deal/);
     assert.doesNotMatch(view, /findSimilarFordVehicles/);
     assert.match(view, /importPastedFactoryVehicle/);
     assert.match(view, /assignCompetitorLot/);
+    assert.match(view, /vehicleFromComparableSuggestion/);
+    assert.match(view, /Find comparable vehicles/);
     assert.match(view, /border-2 border-emerald-500/);
     assert.match(view, /grid-cols-1 md:grid-cols-2 xl:grid-cols-3/);
     assert.match(view, /COMPARE_COLUMN_ROLES/);

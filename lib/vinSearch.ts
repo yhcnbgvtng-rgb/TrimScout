@@ -89,17 +89,19 @@ export function demoListingsNote(model?: string): string {
   return "No listings API key configured. Demo comparables use known Explorer Tremor VINs plus factory build data.";
 }
 
-export function composeEmptyHuntNote(opts: {
+export function composeEmptyHuntNote<D extends { reason: string }>(opts: {
   zip: string;
   radiusMiles: number;
   provider: ListingsProvider;
   existingNote: string;
-  dropped: FordSearchDropped[];
+  dropped: D[];
   subjectModel?: string;
   candidateCount: number;
+  /** Defaults to the Ford Explorer-demo note; GM's hunt passes its own. */
+  demoNoteForModel?: (model?: string) => string;
 }): string {
   if (opts.provider === "demo" && opts.candidateCount === 0) {
-    return demoListingsNote(opts.subjectModel);
+    return (opts.demoNoteForModel || demoListingsNote)(opts.subjectModel);
   }
   const outside = opts.dropped.filter((d) => d.reason === "outside_radius").length;
   const missing = opts.dropped.filter((d) => d.reason === "missing_must_have").length;
@@ -139,6 +141,17 @@ export interface ListingCandidate {
   lat?: number;
   lng?: number;
   exteriorColor?: string;
+  /** Days the listing has been active, straight off the search row — no extra call. */
+  daysOnMarket?: number | null;
+  /**
+   * Signed dollar delta from the listing provider's own "has this price
+   * moved" field on the same search row (negative = a cut). This is a free
+   * proxy for motivation, not a true count of how many times the price has
+   * changed — that requires a separate per-VIN history call and is only
+   * worth spending on a vehicle the buyer has actually chosen to look at
+   * (see enrichMatchListingPrices's sibling in the compare-page flow).
+   */
+  priceChangeHint?: number | null;
 }
 
 export interface FordMatchCard {
@@ -167,6 +180,10 @@ export interface FordMatchCard {
   /** Full optional-equipment list from this VIN's Ford sticker. Never invented. */
   factoryOptions: FordFactoryOptionLine[];
   factoryOptionsStatus: "ok" | "unavailable";
+  /** Days the listing has been active, straight off the search row — no extra call. */
+  daysOnMarket: number | null;
+  /** Free proxy for motivation from the same search row; not a true price-change count. */
+  priceChangeHint: number | null;
 }
 
 export interface FordSearchDropped {
@@ -350,6 +367,21 @@ function asFinitePrice(value: unknown): number | null {
   return null;
 }
 
+function asFiniteNumber(value: unknown): number | null {
+  if (typeof value === "number" && Number.isFinite(value)) return value;
+  if (typeof value === "string" && value.trim()) {
+    const n = Number.parseFloat(value.replace(/[$,]/g, ""));
+    if (Number.isFinite(n)) return n;
+  }
+  return null;
+}
+
+function asNonNegativeInt(value: unknown): number | null {
+  const n = asFiniteNumber(value);
+  if (n == null || n < 0) return null;
+  return Math.round(n);
+}
+
 /** MarketCheck dealer.latitude / longitude are documented as strings. */
 function asFiniteCoord(value: unknown): number | undefined {
   if (typeof value === "number" && Number.isFinite(value)) return value;
@@ -466,6 +498,7 @@ async function searchMarketCheck(
     year?: number;
     make: string;
     model?: string;
+    trim?: string;
     zip: string;
     radiusMiles: number;
   }
@@ -476,7 +509,12 @@ async function searchMarketCheck(
   if (q.year) url.searchParams.set("year", String(q.year));
   url.searchParams.set("make", q.make);
   if (q.model) url.searchParams.set("model", q.model);
-  // Coarse hunt: no trim. Ford sticker matching is downstream.
+  // Ford's hunt deliberately omits trim — its must-have packages (Ultimate,
+  // BlueCruise, keypad) don't map cleanly to a single trim name, so Ford
+  // sticker matching downstream is the real filter. GM's hunt passes trim
+  // when the caller has one — a GM trim (LT, RST, Z71...) is itself the
+  // spec the buyer is comparing against, not just an optional add-on.
+  if (q.trim) url.searchParams.set("trim", q.trim);
   url.searchParams.set("car_type", "new");
   url.searchParams.set("zip", q.zip);
   // Pass the user radius as-is. Do not clamp to the free-tier 100-mile cap —
@@ -531,19 +569,28 @@ async function searchMarketCheck(
       lat: asFiniteCoord(dealer.latitude),
       lng: asFiniteCoord(dealer.longitude),
       exteriorColor: typeof r.exterior_color === "string" ? r.exterior_color : undefined,
+      daysOnMarket: asNonNegativeInt(r.dom),
+      priceChangeHint: asFiniteNumber(r.price_change),
     });
   }
   return out;
 }
 
-export async function searchCoarseListings(q: {
-  year?: number;
-  make: string;
-  model?: string;
-  trim?: string;
-  zip: string;
-  radiusMiles: number;
-}): Promise<{
+export async function searchCoarseListings(
+  q: {
+    year?: number;
+    make: string;
+    model?: string;
+    trim?: string;
+    zip: string;
+    radiusMiles: number;
+  },
+  /** Defaults to the Ford Explorer demo pool; GM's hunt passes its own. */
+  demo?: {
+    listingsForModel: (model?: string) => ListingCandidate[];
+    noteForModel: (model?: string) => string;
+  }
+): Promise<{
   provider: ListingsProvider;
   listings: ListingCandidate[];
   note: string;
@@ -569,15 +616,67 @@ export async function searchCoarseListings(q: {
       };
     }
   }
+  const listingsForModel = demo?.listingsForModel || demoListingsForModel;
+  const noteForModel = demo?.noteForModel || demoListingsNote;
   return {
     provider: "demo",
-    listings: demoListingsForModel(q.model),
-    note: demoListingsNote(q.model),
+    listings: listingsForModel(q.model),
+    note: noteForModel(q.model),
   };
 }
 
-export function rankFordMatches(matches: FordMatchCard[]): FordMatchCard[] {
+/**
+ * Ranks by free "dealer motivation" signals already on the search row — most
+ * days on market first, then a real price cut (a deeper cut ahead of a
+ * shallower one — the closest free proxy for "changes price often" this data
+ * supports; a positive move is never treated as a cut), then how close a
+ * listing sits just under the subject's own listing price (a sort boost,
+ * never a filter — an at/above-price or unpriced listing just falls back to
+ * the remaining tiebreakers instead of being dropped), then distance. No
+ * history call is made to produce this order. Generic over any match-card
+ * shape (Ford, GM, or Stellantis) carrying these fields — the name is
+ * historical.
+ */
+export function rankFordMatches<
+  T extends {
+    priceChangeHint?: number | null;
+    daysOnMarket?: number | null;
+    distanceMiles: number | null;
+    listingPrice?: number | null;
+    vin: string;
+  }
+>(matches: T[], subjectListingPrice?: number | null): T[] {
+  const subjectPrice =
+    typeof subjectListingPrice === "number" && subjectListingPrice > 0 ? subjectListingPrice : null;
+
+  // [0, gap] when confirmed under the subject's price (smaller gap — closer
+  // to, but still under, the subject's price — sorts first); [1, 0] for
+  // everything else (unknown price, or at/above the subject's price).
+  function priceBandRank(price: number | null | undefined): [number, number] {
+    if (!subjectPrice || typeof price !== "number" || price <= 0 || price >= subjectPrice) {
+      return [1, 0];
+    }
+    return [0, subjectPrice - price];
+  }
+
   return [...matches].sort((a, b) => {
+    const aDom = a.daysOnMarket ?? -1;
+    const bDom = b.daysOnMarket ?? -1;
+    if (aDom !== bDom) return bDom - aDom;
+
+    const aCut = typeof a.priceChangeHint === "number" && a.priceChangeHint < 0;
+    const bCut = typeof b.priceChangeHint === "number" && b.priceChangeHint < 0;
+    if (aCut !== bCut) return aCut ? -1 : 1;
+    if (aCut && bCut) {
+      const depthDiff = (a.priceChangeHint as number) - (b.priceChangeHint as number);
+      if (depthDiff !== 0) return depthDiff; // more negative (deeper cut) sorts first
+    }
+
+    const [aBand, aGap] = priceBandRank(a.listingPrice);
+    const [bBand, bGap] = priceBandRank(b.listingPrice);
+    if (aBand !== bBand) return aBand - bBand;
+    if (aBand === 0 && aGap !== bGap) return aGap - bGap;
+
     const aDist = a.distanceMiles ?? Number.POSITIVE_INFINITY;
     const bDist = b.distanceMiles ?? Number.POSITIVE_INFINITY;
     if (aDist !== bDist) return aDist - bDist;
@@ -591,13 +690,13 @@ function asPositivePrice(n: number | null | undefined): number | null {
 
 /**
  * Comp price: listings API if present; else that lot's VDP sale price; else
- * leave null so the UI shows Ford sticker TOTAL MSRP. Never "call dealer".
- * Only the ranked slots are fetched — not the full candidate list.
+ * leave null so the UI shows the factory sticker's total price. Never "call
+ * dealer". Only the ranked slots are fetched — not the full candidate list.
+ * Generic over any match-card shape (Ford or GM) — the name is historical.
  */
-export async function enrichMatchListingPrices(
-  matches: FordMatchCard[],
-  fetchVdpPrice?: (url: string) => Promise<number | null>
-): Promise<FordMatchCard[]> {
+export async function enrichMatchListingPrices<
+  T extends { listingPrice: number | null; listingPriceSource: PriceFact; dealerUrl: string | null }
+>(matches: T[], fetchVdpPrice?: (url: string) => Promise<number | null>): Promise<T[]> {
   return Promise.all(
     matches.map(async (match) => {
       const fromApi = asPositivePrice(match.listingPrice);
@@ -624,7 +723,7 @@ export async function enrichMatchListingPrices(
   );
 }
 
-async function mapPool<T, R>(items: T[], limit: number, fn: (item: T) => Promise<R>): Promise<R[]> {
+export async function mapPool<T, R>(items: T[], limit: number, fn: (item: T) => Promise<R>): Promise<R[]> {
   const results: R[] = [];
   let i = 0;
   async function worker() {
@@ -649,6 +748,8 @@ export async function findSimilarFordVehicles(opts: {
   fetchSticker?: (vin: string) => Promise<FordSticker>;
   /** Optional VDP price fetch for tests; production uses extractVinFromDealerPage. */
   fetchVdpPrice?: (url: string) => Promise<number | null>;
+  /** The favorite vehicle's own listing price, if known — ranks a comparable that sits just under it ahead of one that doesn't. A boost, never a filter. */
+  subjectListingPrice?: number | null;
 }): Promise<FordSearchResult> {
   const zip = (opts.zip || "").trim();
   const radius = opts.radiusMiles;
@@ -807,6 +908,8 @@ export async function findSimilarFordVehicles(opts: {
         stickerStatus: sticker.status,
         factoryOptions,
         factoryOptionsStatus: factoryOptions.length > 0 ? "ok" : "unavailable",
+        daysOnMarket: listing.daysOnMarket ?? null,
+        priceChangeHint: listing.priceChangeHint ?? null,
       });
     } catch {
       dropped.push({ vin: listing.vin, reason: "sticker_error", dealerName: listing.dealerName });
@@ -814,7 +917,7 @@ export async function findSimilarFordVehicles(opts: {
   });
 
   const ranked = await enrichMatchListingPrices(
-    selectCompetitionSlots(rankFordMatches(matches)),
+    selectCompetitionSlots(rankFordMatches(matches, opts.subjectListingPrice)),
     opts.fetchVdpPrice
   );
   if (ranked.length === 0) {

@@ -7,6 +7,7 @@ import type { BiddingRequest, DealStructureMethod, Option, Vehicle, VehicleDealT
 import { DEAL_STRUCTURE_METHODS } from "./dealStructure";
 import { listingVdpHref } from "./fordCompetitionUi";
 import { defaultTermsForVehicles, mergeVehicleTerms, parseVehicleTermsList } from "./dealTerms";
+import { isFordOrLincolnVin, isGenesisVin, isGmVin, isStellantisVin } from "./oemWmi";
 
 export const OFFER_COMPARE_STORAGE_KEY = "trimscout_offer_compare";
 export const SHOPPER_REQUESTS_STORAGE_KEY = "trimscout_shopper_requests";
@@ -306,6 +307,104 @@ export function assignCompetitorLot(
   });
   if (!next) return { ok: false, error: "Could not add that vehicle." };
   return { ok: true, snapshot: next };
+}
+
+/** Shape of one item in /api/ford-comparables's or /api/gm-comparables's `matches`. */
+export interface ComparableSuggestion {
+  vin: string;
+  year?: number;
+  make?: string;
+  model?: string;
+  trim?: string;
+  engine?: string;
+  exteriorColor?: string;
+  dealerName: string;
+  city: string;
+  state: string;
+  zip?: string;
+  distanceMiles: number | null;
+  listingPrice: number | null;
+  msrp: number | null;
+  dealerUrl: string | null;
+  pdfUrl: string;
+  factoryOptions: Array<{
+    code: string | null;
+    description: string;
+    price: number | null;
+    isPackageChild: boolean;
+  }>;
+  /** Days the listing has been active, free off the search row. */
+  daysOnMarket: number | null;
+  /** Free proxy for motivation; negative means a price cut. Not a true count. */
+  priceChangeHint: number | null;
+}
+
+/** Mirrors vinSearch.ts's fordMatchToVehicle, kept client-safe here (vinSearch.ts is server-only). */
+export function vehicleFromComparableSuggestion(match: ComparableSuggestion): Vehicle {
+  const gm = isGmVin(match.vin);
+  const stellantis = !gm && isStellantisVin(match.vin);
+  const genesis = !gm && !stellantis && isGenesisVin(match.vin);
+  // Stellantis can't reuse Ford's SUV / GM's Truck guess: Chrysler, Dodge,
+  // Jeep, and Ram share the same WMI ranges, so the VIN alone can't tell a
+  // Wrangler from a Ram 1500. Genesis's WMI *does* identify the brand
+  // unambiguously, so "Genesis" is a safe make fallback — but it still spans
+  // sedans (G70/G80/G90) and SUVs (GV60/GV70/GV80), so bodyType stays
+  // unguessed for the same reason as Stellantis. match.make/model are
+  // already correctly parsed from the sticker text upstream — never invent a
+  // bodyType/make guess here instead.
+  return {
+    id: `vehicle-${match.vin}`,
+    vin: match.vin,
+    year: match.year || 0,
+    make: match.make || (gm ? "Chevrolet" : stellantis ? "" : genesis ? "Genesis" : "Ford"),
+    model: match.model || "",
+    trim: match.trim || "",
+    bodyType: gm ? "Truck" : stellantis || genesis ? "" : "SUV",
+    engine: match.engine || "",
+    drivetrain: "",
+    transmission: "",
+    exteriorColor: match.exteriorColor || "",
+    interiorColor: "",
+    msrp: match.msrp || 0,
+    dealerPrice: match.listingPrice || 0,
+    daysOnLot: 0,
+    status: "on_lot",
+    condition: "new",
+    location: {
+      dealerName: match.dealerName,
+      city: match.city,
+      state: match.state,
+      zip: match.zip,
+      distanceMiles: match.distanceMiles || 0,
+    },
+    packages: match.factoryOptions.filter((o) => !o.isPackageChild).map((o) => o.description),
+    options: match.factoryOptions.map((o) => ({
+      code: o.code || "",
+      name: o.description,
+      price: o.price || 0,
+      category: o.isPackageChild ? ("standalone" as const) : ("package" as const),
+    })),
+    imageUrl: "",
+    mileage: 0,
+    dealerUrl: match.dealerUrl || undefined,
+    oemBuildSheetUrl: match.pdfUrl,
+  };
+}
+
+/** Which comparable-vehicle search endpoint a favorite's VIN supports, if any. */
+export function comparablesEndpointForVin(
+  vin: string
+):
+  | "/api/ford-comparables"
+  | "/api/gm-comparables"
+  | "/api/stellantis-comparables"
+  | "/api/genesis-comparables"
+  | null {
+  if (isGmVin(vin)) return "/api/gm-comparables";
+  if (isFordOrLincolnVin(vin)) return "/api/ford-comparables";
+  if (isStellantisVin(vin)) return "/api/stellantis-comparables";
+  if (isGenesisVin(vin)) return "/api/genesis-comparables";
+  return null;
 }
 
 export function buildOfferCompareSnapshot(opts: {

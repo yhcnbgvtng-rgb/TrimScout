@@ -22,6 +22,7 @@ import {
   defaultMustHaveLines,
   filterableFactoryOptions,
   getGmSticker,
+  gmFactoryOptionBreakout,
   gmStickerPdfUrl,
   gmStickerToVehicle,
   isMultiFlexLine,
@@ -152,6 +153,26 @@ describe("GM factory-build parse is not Ford's layout", () => {
     assert.ok(names.includes("Super Cruise"));
     assert.ok(names.some((n) => /^Exterior color:/i.test(n)));
     assert.deepEqual(defaultMustHaveLines(sticker), []);
+  });
+
+  it("gmFactoryOptionBreakout mirrors Ford's shopper-facing shape (code/description/price/isPackageChild)", () => {
+    const breakout = gmFactoryOptionBreakout(sticker);
+    assert.ok(breakout.length > 0);
+    for (const line of breakout) {
+      assert.ok("code" in line && "description" in line && "price" in line && "isPackageChild" in line);
+    }
+    const names = breakout.map((o) => o.description);
+    assert.ok(names.includes("Z71 Off-Road Package"));
+    assert.ok(names.includes("Multi-Flex Tailgate"));
+    assert.ok(names.includes("Super Cruise"));
+    // rpo becomes code, never invented
+    const withRpo = breakout.find((o) => o.description === "Z71 Off-Road Package");
+    assert.ok(withRpo?.code === null || typeof withRpo?.code === "string");
+  });
+
+  it("gmFactoryOptionBreakout is empty for an unreleased sticker", () => {
+    const s = parseGmStickerText(UNRELEASED, loadFixture(UNRELEASED));
+    assert.deepEqual(gmFactoryOptionBreakout(s), []);
   });
 });
 
@@ -383,5 +404,94 @@ describe("paste import never substitutes a catalog VIN", () => {
       assert.equal(result.vehicle.vin, PAUL_CHEVY_VIN);
       assert.equal(result.oem, "gm");
     }
+  });
+});
+
+describe("newer GM sticker template — labeled header, footnoted total, trailing trim", () => {
+  // Real sticker text fetched live from GM's CWS service (VIN swapped for a
+  // fixture VIN). GM has since reissued the original test VIN's sticker in
+  // this newer format — "TRANSMISSION: 10-SPEED AUTO" (label before value,
+  // reversed from the older template), "STANDARD VEHICLE PRICE" instead of
+  // "BASE PRICE", "TOTAL VEHICLE PRICE* $X" with a footnote marker before
+  // the amount, and the trim word trailing the year/model headline instead
+  // of on its own line. All four previously fell through to null/undefined.
+  const NEWER_TEMPLATE = "1GCUKDED4TZ200066";
+
+  it("parses trim from the trailing word of the headline line", () => {
+    const s = parseGmStickerText(NEWER_TEMPLATE, loadFixture(NEWER_TEMPLATE));
+    assert.equal(s.year, 2026);
+    assert.equal(s.model, "Silverado 1500");
+    assert.equal(s.trim, "LT");
+  });
+
+  it("parses a label-before-value transmission line, not the country-of-origin TRANSMISSION: line", () => {
+    const s = parseGmStickerText(NEWER_TEMPLATE, loadFixture(NEWER_TEMPLATE));
+    assert.match(s.transmission || "", /10-SPEED AUTO/i);
+    assert.doesNotMatch(s.transmission || "", /UNITED STATES/i);
+  });
+
+  it("parses STANDARD VEHICLE PRICE as basePrice and the footnoted TOTAL VEHICLE PRICE* as msrp", () => {
+    const s = parseGmStickerText(NEWER_TEMPLATE, loadFixture(NEWER_TEMPLATE));
+    assert.equal(s.basePrice, 53600);
+    assert.equal(s.optionsPrice, 1990);
+    assert.equal(s.destination, 2595);
+    assert.equal(s.msrp, 58185);
+    assert.equal(
+      Math.round((s.basePrice! + s.optionsPrice! + s.destination!) * 100) / 100,
+      s.msrp,
+      "sanity check: the parsed total actually equals base + options + destination"
+    );
+  });
+
+  it("still parses exterior/interior color and engine from the labeled header", () => {
+    const s = parseGmStickerText(NEWER_TEMPLATE, loadFixture(NEWER_TEMPLATE));
+    assert.equal(s.exteriorColor, "Riptide Blue Metallic");
+    assert.equal(s.interiorColor, "Jet Black");
+    assert.match(s.engine || "", /5\.3L ECOTEC3 V8/i);
+  });
+
+  it("parses the options list under the new 'OPTIONS INSTALLED BY THE MANUFACTURER' header, not the old 'OPTIONAL EQUIPMENT' one", () => {
+    const s = parseGmStickerText(NEWER_TEMPLATE, loadFixture(NEWER_TEMPLATE));
+    // Was empty before the fix: the old parser only recognized "OPTIONAL
+    // EQUIPMENT" as the section start, which this template never prints.
+    assert.ok(s.options.length > 0, "options must not come back empty for this template");
+    const names = s.options.map((o) => o.name);
+    assert.ok(names.some((n) => /RIPTIDE BLUE METALLIC/i.test(n)));
+    const paintOption = s.options.find((o) => /RIPTIDE BLUE METALLIC/i.test(o.name));
+    assert.equal(paintOption?.price, 395);
+    // The instructional header lines themselves must never appear as options.
+    assert.ok(!names.some((n) => /OPTIONS INSTALLED BY THE MANUFACTURER/i.test(n)));
+    assert.ok(!names.some((n) => /^STANDARD EQUIPMENT SHOWN/i.test(n)));
+    // The trailing price-summary lines must not leak in as fake options.
+    assert.ok(!names.some((n) => /^TOTAL (OPTIONS|VEHICLE)/i.test(n)));
+  });
+
+  it("breaks out a priced option (a paint upcharge here) for the must-have checklist — same section-boundary bug the user hit on a wheels option", () => {
+    // Confirmed live against the exact VIN the user reported
+    // (1GCPKKEKXTZ461947): its "20\" ALUMINUM WHEELS W/ GRAZEN 800.00" line
+    // was silently dropped by the same bug this fixture exercises — the
+    // options section never got sliced out at all, so nothing after the
+    // header showed up as a must-have option, priced or not.
+    const s = parseGmStickerText(NEWER_TEMPLATE, loadFixture(NEWER_TEMPLATE));
+    const breakout = gmFactoryOptionBreakout(s);
+    assert.ok(breakout.length > 0);
+    const paint = breakout.find((o) => /RIPTIDE BLUE METALLIC/i.test(o.description));
+    assert.equal(paint?.price, 395);
+    assert.ok(breakout.some((o) => /ALUMINUM WHEELS/i.test(o.description)));
+  });
+
+  it("the exact VIN reported by the user (1GCPKKEKXTZ461947): $800 wheels shows up, price is confirmed, not 'unconfirmed'", () => {
+    const vin = "1GCPKKEKXTZ461947";
+    const s = parseGmStickerText(vin, loadFixture(vin));
+    assert.equal(s.status, "released");
+    assert.equal(s.trim, "LT");
+    assert.equal(s.basePrice, 51000);
+    assert.equal(s.optionsPrice, 800);
+    assert.equal(s.destination, 2795);
+    assert.equal(s.msrp, 54595, "msrp must be a real number, not null/'unconfirmed'");
+    const breakout = gmFactoryOptionBreakout(s);
+    const wheels = breakout.find((o) => /ALUMINUM WHEELS/i.test(o.description));
+    assert.ok(wheels, "the 20\" aluminum wheels option must appear in the must-have checklist");
+    assert.equal(wheels?.price, 800);
   });
 });

@@ -19,6 +19,7 @@ import {
   normalizeForMatch,
   parseColorMustHave,
   parseMoney,
+  type FordFactoryOptionLine,
 } from "./fordSticker";
 import { isGmVin, looksLikeGmPaste } from "./oemWmi";
 import type { CurrentDealerLookup } from "./listingSheet";
@@ -86,7 +87,7 @@ export interface MustHaveCheck {
 
 const MEMORY_CACHE = new Map<string, GmSticker>();
 const CACHE_DIR = path.join("/tmp", "trimscout-gm-stickers");
-const PARSER_VERSION = 1;
+const PARSER_VERSION = 3;
 const BROWSER_UA =
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36";
 
@@ -276,7 +277,17 @@ export function parseGmStickerText(vin: string, text: string): GmSticker {
     const trimLine = text.match(
       /^\s*(WT|CUSTOM|LT|RST|LTZ|HIGH COUNTRY|TRAIL BOSS|ZR2|LS|PREMIER|ACTIV|Z71)\b/im
     );
-    if (trimLine) sticker.trim = titleTrim(trimLine[1]);
+    if (trimLine) {
+      sticker.trim = titleTrim(trimLine[1]);
+    } else {
+      // Newer sticker template prints "{YEAR} SILVERADO {SERIES} {CAB} {TRIM}"
+      // as one headline line — pull the trailing known trim word from it.
+      const headlineLine = text.match(/^.*\b20\d{2}\s+SILVERADO\b.*$/im);
+      const trailingTrim = headlineLine?.[0].match(
+        /\b(WT|CUSTOM|LT|RST|LTZ|HIGH COUNTRY|TRAIL BOSS|ZR2|LS|PREMIER|ACTIV|Z71)\s*$/i
+      );
+      if (trailingTrim) sticker.trim = titleTrim(trailingTrim[1]);
+    }
   }
 
   const drive = text.match(/\b(4WD|AWD|RWD|2WD|FWD|4X4|4X2)\b/i);
@@ -297,10 +308,12 @@ export function parseGmStickerText(vin: string, text: string): GmSticker {
   );
   if (engineLine) sticker.engine = engineLine[1].replace(/\s+/g, " ").trim();
 
-  const transLine = text.match(/(\d+-SPEED[^\n]{0,40}(?:AUTOMATIC|TRANSMISSION)[^\n]*)/i);
+  const transLine =
+    text.match(/(\d+-SPEED[^\n]{0,40}(?:AUTOMATIC|TRANSMISSION)[^\n]*)/i) ||
+    text.match(/TRANSMISSION\s*[:\-]?\s*(\d+-SPEED[^\n]{0,40})/i);
   if (transLine) sticker.transmission = transLine[1].replace(/\s+/g, " ").trim();
 
-  const base = text.match(/BASE PRICE\s*\$?\s*([\d,]+(?:\.\d{2})?)/i);
+  const base = text.match(/(?:BASE PRICE|STANDARD VEHICLE PRICE)\s*\$?\s*([\d,]+(?:\.\d{2})?)/i);
   if (base) sticker.basePrice = parseMoney(base[1]);
   const opts =
     text.match(/TOTAL OPTIONS\s*\$?\s*([\d,]+(?:\.\d{2})?)/i) ||
@@ -309,7 +322,9 @@ export function parseGmStickerText(vin: string, text: string): GmSticker {
   const dest = text.match(/DESTINATION(?:\s+FREIGHT)?(?:\s+CHARGE)?\s*\$?\s*([\d,]+(?:\.\d{2})?)/i);
   if (dest) sticker.destination = parseMoney(dest[1]);
 
-  const totalVehicle = text.match(/TOTAL VEHICLE PRICE\s*\$?\s*([\d,]+(?:\.\d{2})?)/i);
+  // A trailing footnote marker (e.g. "TOTAL VEHICLE PRICE* $58,185.00") sits
+  // between the label and the amount on some sticker templates.
+  const totalVehicle = text.match(/TOTAL VEHICLE PRICE\s*\*?\s*\$?\s*([\d,]+(?:\.\d{2})?)/i);
   if (totalVehicle) sticker.msrp = parseMoney(totalVehicle[1]);
   if (
     sticker.msrp == null &&
@@ -334,12 +349,18 @@ export function parseGmStickerText(vin: string, text: string): GmSticker {
     };
   }
 
+  // Newer sticker template labels this section "OPTIONS & PRICING" /
+  // "OPTIONS INSTALLED BY THE MANUFACTURER (MAY REPLACE\nSTANDARD EQUIPMENT
+  // SHOWN)" instead of "OPTIONAL EQUIPMENT" — that instructional line's own
+  // "STANDARD EQUIPMENT" text must not be mistaken for the (unrelated)
+  // standard-equipment section header used elsewhere as an end marker.
   const optionalBlock = sliceSection(
     text,
-    /OPTIONAL EQUIPMENT/i,
-    /MANUFACTURER'?S SUGGESTED RETAIL PRICE|BASE PRICE|STANDARD EQUIPMENT|EPA |FUEL ECONOMY|WARRANTY\b/i
+    /OPTIONAL EQUIPMENT|OPTIONS INSTALLED BY THE MANUFACTURER/i,
+    /MANUFACTURER'?S SUGGESTED RETAIL PRICE|BASE PRICE|STANDARD EQUIPMENT(?!\s+SHOWN\))|EPA |FUEL ECONOMY|WARRANTY\b|TOTAL (?:OPTIONS|VEHICLE)\b/i
   );
-  const skipHeaders = /^(OPTIONAL EQUIPMENT(?:\s+AND\s+PACKAGES)?|ADDITIONAL EQUIPMENT|PACKAGES|OPTIONS)$/i;
+  const skipHeaders =
+    /^(OPTIONAL EQUIPMENT(?:\s+AND\s+PACKAGES)?|ADDITIONAL EQUIPMENT|PACKAGES|OPTIONS|OPTIONS\s*&\s*PRICING|OPTIONS INSTALLED BY THE MANUFACTURER\s*\(MAY REPLACE|STANDARD EQUIPMENT SHOWN\)?)$/i;
   for (const line of optionalBlock
     .split("\n")
     .map((l) => l.trim())
@@ -404,8 +425,8 @@ export function stickerHasMustHave(sticker: GmSticker, query: string): boolean {
   if (sticker.engine && optionMatchesQuery(sticker.engine, query)) return true;
   const optional = sliceSection(
     sticker.rawText,
-    /OPTIONAL EQUIPMENT/i,
-    /MANUFACTURER'?S SUGGESTED RETAIL PRICE|BASE PRICE|STANDARD EQUIPMENT/i
+    /OPTIONAL EQUIPMENT|OPTIONS INSTALLED BY THE MANUFACTURER/i,
+    /MANUFACTURER'?S SUGGESTED RETAIL PRICE|BASE PRICE|STANDARD EQUIPMENT(?!\s+SHOWN\))|TOTAL (?:OPTIONS|VEHICLE)\b/i
   );
   if (/SUPER\s*CRUISE/i.test(query)) return /SUPER\s*CRUISE/i.test(optional);
   if (/MULTI\s*-?\s*FLEX/i.test(query)) return /MULTI\s*-?\s*FLEX/i.test(optional);
@@ -477,6 +498,19 @@ export function defaultNiceToHaveLines(sticker: GmSticker, mustHaves: string[]):
 export function filterableFactoryOptions(sticker: GmSticker): GmOptionLine[] {
   const opts = sticker.options.filter((o) => !o.isStandard && !o.isPackageChild);
   return [...stickerColorOptionLines(sticker), ...opts];
+}
+
+/** Optional-equipment lines from a released sticker, including package children. */
+export function gmFactoryOptionBreakout(sticker: GmSticker): FordFactoryOptionLine[] {
+  if (sticker.status !== "released") return [];
+  return sticker.options
+    .filter((o) => !o.isStandard)
+    .map((o) => ({
+      code: o.rpo || null,
+      description: o.name,
+      price: o.price,
+      isPackageChild: o.isPackageChild,
+    }));
 }
 
 function cacheJsonPath(vin: string): string {
