@@ -954,18 +954,6 @@ export interface ComparableSearchResult {
   matches: ComparableSuggestion[];
 }
 
-function normalizeTrimToken(s?: string): string {
-  return (s || "").toLowerCase().replace(/[^a-z0-9]+/g, "");
-}
-
-/** Soft-fails-open when either side is missing trim data — only a real mismatch drops a candidate. */
-export function listingMatchesSubjectTrim(listing: { trim?: string }, subjectTrim?: string): boolean {
-  const want = normalizeTrimToken(subjectTrim);
-  const got = normalizeTrimToken(listing.trim);
-  if (!want || !got) return true;
-  return want === got;
-}
-
 /** Highest days-on-market first, then lowest advertised price, then VIN for a stable order. */
 export function sortByDaysOnMarketThenPrice<
   T extends { daysOnMarket?: number | null; listingPrice?: number | null; vin: string }
@@ -982,22 +970,21 @@ export function sortByDaysOnMarketThenPrice<
 }
 
 /**
- * One MarketCheck search call (year/make/model/trim/zip/radius), full
- * result set returned — no per-VIN factory-sticker fetch, no capping to a
- * couple of slots. Trim is the must-have proxy MarketCheck can actually
- * filter on (confirmed with MarketCheck directly — their search has no
- * generic factory-option filter); real option-level verification happens
- * only once the buyer actually selects a candidate, via that vehicle's own
- * sticker, not for the whole list up front. Never pads with invented
- * inventory the way the demo sticker pools do for their own supported
- * brand.
+ * One MarketCheck search call (year/make/model/zip/radius), full result set
+ * returned — no per-VIN factory-sticker fetch, no capping to a couple of
+ * slots, and no trim filtering (the search provider's trim param only
+ * accepts a short canonical value and silently zeroes the whole result for
+ * anything else — see the comment inside). Real option-level must-have
+ * verification happens only once the buyer actually selects a candidate,
+ * via that vehicle's own sticker, not for the whole list up front. Never
+ * pads with invented inventory the way the demo sticker pools do for their
+ * own supported brand.
  */
 export async function findComparableListingsByMakeModel(opts: {
   subjectVin?: string;
   year?: number;
   make: string;
   model: string;
-  trim?: string;
   zip: string;
   radiusMiles: number;
 }): Promise<ComparableSearchResult> {
@@ -1015,12 +1002,22 @@ export async function findComparableListingsByMakeModel(opts: {
   }
   const radiusMiles = opts.radiusMiles;
 
+  // Trim is deliberately NOT sent to the search provider's own query param,
+  // and not filtered on client-side either — confirmed live that the
+  // provider's trim filter expects a short, canonical value (e.g. "LT")
+  // and returns zero raw rows for anything else, including the more
+  // descriptive trim strings real sticker-parsed vehicles often carry
+  // (e.g. "LT Standard Box Crew Cab 4WD" instead of just "LT"). That's a
+  // silent, total false-negative on a real search area with plenty of
+  // matches — confirmed by testing the exact same year/make/model/zip/
+  // radius with and without that trim string. Each listing's own trim is
+  // still shown per row; the buyer can judge fit visually, same as they
+  // would on any other listings site.
   const searched = await searchCoarseListings(
     {
       year: opts.year && opts.year >= 1990 && opts.year <= 2035 ? opts.year : undefined,
       make,
       model,
-      trim: opts.trim,
       zip,
       radiusMiles,
     },
@@ -1032,10 +1029,7 @@ export async function findComparableListingsByMakeModel(opts: {
 
   const subjectVin = (opts.subjectVin || "").toUpperCase();
   const candidates = searched.listings.filter(
-    (l) =>
-      listingMatchesSubjectModel(l, model) &&
-      listingMatchesSubjectTrim(l, opts.trim) &&
-      l.vin.toUpperCase() !== subjectVin
+    (l) => listingMatchesSubjectModel(l, model) && l.vin.toUpperCase() !== subjectVin
   );
 
   const cards: ComparableSuggestion[] = [];
