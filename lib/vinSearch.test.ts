@@ -40,6 +40,7 @@ import {
   composeEmptyHuntNote,
   dealerIdentity,
   demoListingsNote,
+  findComparableListingsByMakeModel,
   findSimilarFordVehicles,
   fordMatchToVehicle,
   formatListingPrice,
@@ -50,6 +51,7 @@ import {
   sameRooftop,
   searchCoarseListings,
   selectCompetitionSlots,
+  sortByDaysOnMarketThenPrice,
   stickerFromDemoFixture,
   stickerToVehicle,
   type FordMatchCard,
@@ -1729,6 +1731,128 @@ describe("listings secrets are read from Node env, not webpack-stripped process.
       if (prevP !== undefined) env["LISTINGS_PROVIDER"] = prevP;
       else delete env["LISTINGS_PROVIDER"];
     }
+  });
+});
+
+describe("findComparableListingsByMakeModel — the compare page's one search call", () => {
+  function withMarketCheckKey<T>(fn: () => Promise<T>): Promise<T> {
+    const prevM = env["MARKETCHECK_API_KEY"];
+    const prevP = env["LISTINGS_PROVIDER"];
+    delete env["LISTINGS_PROVIDER"];
+    env["MARKETCHECK_API_KEY"] = "runtime-test-marketcheck";
+    return fn().finally(() => {
+      if (prevM !== undefined) env["MARKETCHECK_API_KEY"] = prevM;
+      else delete env["MARKETCHECK_API_KEY"];
+      if (prevP !== undefined) env["LISTINGS_PROVIDER"] = prevP;
+      else delete env["LISTINGS_PROVIDER"];
+    });
+  }
+
+  it("never sends a trim query param — confirmed live that a non-canonical trim string makes the provider return zero raw rows even when real matches exist", async () => {
+    await withMarketCheckKey(async () => {
+      const origFetch = globalThis.fetch;
+      let sawTrimParam = false;
+      globalThis.fetch = (async (input: RequestInfo | URL) => {
+        const parsed = new URL(String(input));
+        sawTrimParam = parsed.searchParams.has("trim");
+        return new Response(
+          JSON.stringify({
+            num_found: 1,
+            listings: [
+              {
+                vin: "1GCUKDED8TZ200099",
+                build: { year: 2026, make: "Chevrolet", model: "Silverado 1500", trim: "LT" },
+                dealer: { name: "Test Chevrolet", city: "Burbank", state: "CA", latitude: "34.18", longitude: "-118.30" },
+                price: 47270,
+                dom: 30,
+              },
+            ],
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } }
+        );
+      }) as typeof fetch;
+      try {
+        const result = await findComparableListingsByMakeModel({
+          year: 2026,
+          make: "Chevrolet",
+          model: "Silverado 1500",
+          zip: "90210",
+          radiusMiles: 100,
+        });
+        assert.equal(sawTrimParam, false);
+        assert.equal(result.matches.length, 1);
+        assert.equal(result.matches[0].vin, "1GCUKDED8TZ200099");
+      } finally {
+        globalThis.fetch = origFetch;
+      }
+    });
+  });
+
+  it("sorts by highest days-on-market first, then lowest price", async () => {
+    await withMarketCheckKey(async () => {
+      const origFetch = globalThis.fetch;
+      globalThis.fetch = (async () =>
+        new Response(
+          JSON.stringify({
+            num_found: 3,
+            listings: [
+              { vin: "1GCUKDED8TZ200001", build: { year: 2026, make: "Chevrolet", model: "Silverado 1500" }, dealer: { city: "Burbank", state: "CA", latitude: "34.18", longitude: "-118.30" }, price: 50000, dom: 10 },
+              { vin: "1GCUKDED8TZ200002", build: { year: 2026, make: "Chevrolet", model: "Silverado 1500" }, dealer: { city: "Burbank", state: "CA", latitude: "34.18", longitude: "-118.30" }, price: 40000, dom: 30 },
+              { vin: "1GCUKDED8TZ200003", build: { year: 2026, make: "Chevrolet", model: "Silverado 1500" }, dealer: { city: "Burbank", state: "CA", latitude: "34.18", longitude: "-118.30" }, price: 35000, dom: 30 },
+            ],
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } }
+        )) as typeof fetch;
+      try {
+        const result = await findComparableListingsByMakeModel({
+          year: 2026,
+          make: "Chevrolet",
+          model: "Silverado 1500",
+          zip: "90210",
+          radiusMiles: 100,
+        });
+        assert.deepEqual(
+          result.matches.map((m) => m.vin),
+          ["1GCUKDED8TZ200003", "1GCUKDED8TZ200002", "1GCUKDED8TZ200001"]
+        );
+      } finally {
+        globalThis.fetch = origFetch;
+      }
+    });
+  });
+
+  it("surfaces the provider's real note (e.g. a plan radius cap) instead of a generic empty-state string", async () => {
+    await withMarketCheckKey(async () => {
+      const origFetch = globalThis.fetch;
+      globalThis.fetch = (async () =>
+        new Response(JSON.stringify({ error: "radius too wide for plan" }), {
+          status: 422,
+          headers: { "Content-Type": "application/json" },
+        })) as typeof fetch;
+      try {
+        const result = await findComparableListingsByMakeModel({
+          year: 2026,
+          make: "Chevrolet",
+          model: "Silverado 1500",
+          zip: "90210",
+          radiusMiles: 500,
+        });
+        assert.equal(result.matches.length, 0);
+        assert.match(result.note, /radius/i);
+      } finally {
+        globalThis.fetch = origFetch;
+      }
+    });
+  });
+});
+
+describe("sortByDaysOnMarketThenPrice", () => {
+  it("unpriced/unknown-DOM rows sort last, not crash", () => {
+    const sorted = sortByDaysOnMarketThenPrice([
+      { vin: "B", daysOnMarket: null, listingPrice: null },
+      { vin: "A", daysOnMarket: 10, listingPrice: 100 },
+    ]);
+    assert.deepEqual(sorted.map((m) => m.vin), ["A", "B"]);
   });
 });
 

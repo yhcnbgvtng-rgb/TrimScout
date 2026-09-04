@@ -159,6 +159,7 @@ export const OfferCompareView: React.FC = () => {
   const [candidates, setCandidates] = useState<ComparableSuggestion[] | null>(null);
   const [candidatesLoading, setCandidatesLoading] = useState(false);
   const [candidatesError, setCandidatesError] = useState<string | null>(null);
+  const [candidatesNote, setCandidatesNote] = useState<string | null>(null);
   const [candidatesFetchedFor, setCandidatesFetchedFor] = useState<string | null>(null);
   const [selectedVins, setSelectedVins] = useState<string[]>([]);
   // Synchronous in-flight guard (a ref, not state) — see findComparableVehicles.
@@ -304,10 +305,9 @@ export const OfferCompareView: React.FC = () => {
     [persist, slotPaste, snapshot]
   );
 
-  // One listings search call — year/make/model/trim/zip/radius — full result
-  // set kept, no per-VIN sticker fetch to verify must-haves and no capping
-  // down to a couple of slots. Trim is the must-have proxy the search
-  // provider can actually filter on. inFlightSignatureRef is checked and set
+  // One listings search call — year/make/model/zip/radius — full result set
+  // kept, no per-VIN sticker fetch to verify must-haves and no capping down
+  // to a couple of slots. inFlightSignatureRef is checked and set
   // synchronously (a ref, not state) so a StrictMode double-effect-invoke —
   // or any other back-to-back re-render before the loading state commits —
   // can never fire this twice for the same search.
@@ -326,7 +326,6 @@ export const OfferCompareView: React.FC = () => {
           year: favoriteVehicle.year,
           make: favoriteVehicle.make,
           model: favoriteVehicle.model,
-          trim: favoriteVehicle.trim,
           zip: snapshot?.buyerZip,
           radiusMiles: snapshot?.searchRadiusMiles,
         }),
@@ -338,6 +337,11 @@ export const OfferCompareView: React.FC = () => {
         return;
       }
       setCandidates(Array.isArray(json.matches) ? (json.matches as ComparableSuggestion[]) : []);
+      // Carries real diagnostic text even on a clean 200 with zero matches
+      // (e.g. "That search radius is wider than this plan allows.") — a
+      // buyer staring at an empty list deserves the real reason, not a
+      // guess.
+      setCandidatesNote(typeof json?.note === "string" ? json.note : null);
     } catch {
       setCandidates([]);
       setCandidatesError(FORD_LISTINGS_LOAD_FAILED);
@@ -564,6 +568,7 @@ export const OfferCompareView: React.FC = () => {
         <CandidateListPanel
           loading={candidatesLoading}
           error={candidatesError}
+          note={candidatesNote}
           fetched={candidates !== null}
           candidates={availableCandidates}
           selectedVins={selectedVins}
@@ -684,6 +689,7 @@ function CompetitorPasteSlot({
 function CandidateListPanel({
   loading,
   error,
+  note,
   fetched,
   candidates,
   selectedVins,
@@ -695,6 +701,7 @@ function CandidateListPanel({
 }: {
   loading: boolean;
   error: string | null;
+  note: string | null;
   fetched: boolean;
   candidates: ComparableSuggestion[];
   selectedVins: string[];
@@ -739,7 +746,7 @@ function CandidateListPanel({
           <p className="text-[11px] text-amber-200 py-2">{error}</p>
         ) : fetched && candidates.length === 0 ? (
           <div className="text-center py-6 space-y-2">
-            <p className="text-xs text-ink-muted">No competing vehicles found nearby.</p>
+            <p className="text-xs text-ink-muted">{note || "No competing vehicles found nearby."}</p>
             {hadEmptyResult ? (
               <button
                 type="button"
