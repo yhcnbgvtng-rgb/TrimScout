@@ -46,6 +46,7 @@ import {
   type ListingsProvider,
 } from "./listingsProvider";
 import type { CurrentDealerLookup } from "./listingSheet";
+import type { ComparableSuggestion } from "./offerCompare";
 import type { Vehicle } from "./types";
 
 export {
@@ -944,49 +945,62 @@ export async function findSimilarFordVehicles(opts: {
   });
 }
 
-export interface GenericMatchCard {
-  vin: string;
-  year?: number;
-  make?: string;
-  model?: string;
-  trim?: string;
-  exteriorColor?: string;
-  dealerName: string;
-  city: string;
-  state: string;
-  zip?: string;
-  distanceMiles: number | null;
-  listingPrice: number | null;
-  dealerUrl: string | null;
-  daysOnMarket: number | null;
-  priceChangeHint: number | null;
-}
-
-export interface GenericSearchResult {
+export interface ComparableSearchResult {
   provider: ListingsProvider;
   note: string;
   needsLocation?: boolean;
   listingsError?: boolean;
   candidatesConsidered: number;
-  matches: GenericMatchCard[];
+  matches: ComparableSuggestion[];
+}
+
+function normalizeTrimToken(s?: string): string {
+  return (s || "").toLowerCase().replace(/[^a-z0-9]+/g, "");
+}
+
+/** Soft-fails-open when either side is missing trim data — only a real mismatch drops a candidate. */
+export function listingMatchesSubjectTrim(listing: { trim?: string }, subjectTrim?: string): boolean {
+  const want = normalizeTrimToken(subjectTrim);
+  const got = normalizeTrimToken(listing.trim);
+  if (!want || !got) return true;
+  return want === got;
+}
+
+/** Highest days-on-market first, then lowest advertised price, then VIN for a stable order. */
+export function sortByDaysOnMarketThenPrice<
+  T extends { daysOnMarket?: number | null; listingPrice?: number | null; vin: string }
+>(matches: T[]): T[] {
+  return [...matches].sort((a, b) => {
+    const aDom = a.daysOnMarket ?? -1;
+    const bDom = b.daysOnMarket ?? -1;
+    if (aDom !== bDom) return bDom - aDom;
+    const aPrice = typeof a.listingPrice === "number" && a.listingPrice > 0 ? a.listingPrice : Number.POSITIVE_INFINITY;
+    const bPrice = typeof b.listingPrice === "number" && b.listingPrice > 0 ? b.listingPrice : Number.POSITIVE_INFINITY;
+    if (aPrice !== bPrice) return aPrice - bPrice;
+    return a.vin.localeCompare(b.vin);
+  });
 }
 
 /**
- * Nearby-listings search with no factory sticker involved at all — the
- * fallback for a brand with no digital-window-sticker pipeline (or a sticker
- * that failed to parse), so there is nothing to fetch a must-have
- * confirmation from. Matches by year/make/model off the live listings row
- * only; never pads with invented inventory the way the demo sticker pools do
- * for their own supported brand.
+ * One MarketCheck search call (year/make/model/trim/zip/radius), full
+ * result set returned — no per-VIN factory-sticker fetch, no capping to a
+ * couple of slots. Trim is the must-have proxy MarketCheck can actually
+ * filter on (confirmed with MarketCheck directly — their search has no
+ * generic factory-option filter); real option-level verification happens
+ * only once the buyer actually selects a candidate, via that vehicle's own
+ * sticker, not for the whole list up front. Never pads with invented
+ * inventory the way the demo sticker pools do for their own supported
+ * brand.
  */
 export async function findComparableListingsByMakeModel(opts: {
   subjectVin?: string;
   year?: number;
   make: string;
   model: string;
+  trim?: string;
   zip: string;
   radiusMiles: number;
-}): Promise<GenericSearchResult> {
+}): Promise<ComparableSearchResult> {
   const zip = (opts.zip || "").trim();
   const make = opts.make.trim();
   const model = opts.model.trim();
@@ -1002,7 +1016,14 @@ export async function findComparableListingsByMakeModel(opts: {
   const radiusMiles = opts.radiusMiles;
 
   const searched = await searchCoarseListings(
-    { year: opts.year && opts.year >= 1990 && opts.year <= 2035 ? opts.year : undefined, make, model, zip, radiusMiles },
+    {
+      year: opts.year && opts.year >= 1990 && opts.year <= 2035 ? opts.year : undefined,
+      make,
+      model,
+      trim: opts.trim,
+      zip,
+      radiusMiles,
+    },
     { listingsForModel: () => [], noteForModel: () => "No listings API key configured. Nearby-listings search needs a live listings provider." }
   );
   if (searched.listingsError) {
@@ -1011,10 +1032,13 @@ export async function findComparableListingsByMakeModel(opts: {
 
   const subjectVin = (opts.subjectVin || "").toUpperCase();
   const candidates = searched.listings.filter(
-    (l) => listingMatchesSubjectModel(l, model) && l.vin.toUpperCase() !== subjectVin
+    (l) =>
+      listingMatchesSubjectModel(l, model) &&
+      listingMatchesSubjectTrim(l, opts.trim) &&
+      l.vin.toUpperCase() !== subjectVin
   );
 
-  const cards: GenericMatchCard[] = [];
+  const cards: ComparableSuggestion[] = [];
   for (const listing of candidates) {
     const dealer = { city: listing.city || "", state: listing.state || "", lat: listing.lat, lng: listing.lng };
     const distanceMiles = dealer.city || dealer.state || dealer.lat ? calculateDistanceMiles(zip, dealer) : null;
@@ -1032,18 +1056,19 @@ export async function findComparableListingsByMakeModel(opts: {
       zip: listing.zip,
       distanceMiles,
       listingPrice: listing.listingPrice,
+      msrp: null,
       dealerUrl: listing.dealerUrl || null,
       daysOnMarket: listing.daysOnMarket ?? null,
       priceChangeHint: listing.priceChangeHint ?? null,
     });
   }
 
-  const ranked = selectCompetitionSlots(rankFordMatches(cards));
+  const ranked = sortByDaysOnMarketThenPrice(cards);
   const note =
     searched.provider === "demo"
       ? "No listings API key configured. Nearby-listings search needs a live listings provider."
       : ranked.length > 0
-        ? "Factory options aren't available for this brand yet — confirm equipment on the dealer listing before adding."
+        ? "Factory options aren't verified for these yet — confirm equipment on the dealer listing before adding."
         : `No ${make} ${model} listings found within ${radiusMiles} miles of ${zip}.`;
 
   return { provider: searched.provider, note, candidatesConsidered: candidates.length, matches: ranked };

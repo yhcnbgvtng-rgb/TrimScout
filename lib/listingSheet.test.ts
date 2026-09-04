@@ -394,21 +394,20 @@ describe("listing-facts route and compare page copy", () => {
     assert.doesNotMatch(view, /Auto\.dev/);
     assert.doesNotMatch(view, /Finding matching lots/);
     assert.match(view, /\/api\/listing-facts/);
-    // The compare page is the one legitimate caller of the free comparable-
-    // vehicle search — it dispatches to the Ford or GM route by the
-    // favorite's VIN, but never the expensive hunt or a persisted
-    // deal-search endpoint.
-    assert.match(view, /comparablesEndpointForVin/);
+    // The compare page's one comparable-vehicle search call — by year/make/
+    // model/trim, no per-VIN sticker fetch — never the expensive per-OEM
+    // hunt or a persisted deal-search endpoint.
+    assert.match(view, /\/api\/manual-comparables/);
     assert.doesNotMatch(view, /\/api\/compare-deal/);
     assert.doesNotMatch(view, /findSimilarFordVehicles/);
     assert.match(view, /importPastedFactoryVehicle/);
     assert.match(view, /assignCompetitorLot/);
     assert.match(view, /vehicleFromComparableSuggestion/);
-    assert.match(view, /Find comparable vehicles/);
+    assert.match(view, /competing vehicle/);
     assert.match(view, /border-2 border-emerald-500/);
-    assert.match(view, /grid-cols-1 md:grid-cols-2 xl:grid-cols-3/);
+    assert.match(view, /grid-cols-1 md:grid-cols-2/);
     assert.match(view, /COMPARE_COLUMN_ROLES/);
-    assert.match(view, /Add a competitor/);
+    assert.match(view, /Already know one\?/);
     assert.match(view, /Paste a VIN or dealer listing URL/);
     assert.match(wizard, /router\.push\("\/compare"\)/);
     assert.match(wizard, /buildOfferCompareSnapshot/);
