@@ -400,15 +400,18 @@ describe("listing-facts route and compare page copy", () => {
     assert.match(view, /\/api\/manual-comparables/);
     assert.doesNotMatch(view, /\/api\/compare-deal/);
     assert.doesNotMatch(view, /findSimilarFordVehicles/);
-    assert.match(view, /importPastedFactoryVehicle/);
-    assert.match(view, /assignCompetitorLot/);
-    assert.match(view, /vehicleFromComparableSuggestion/);
-    assert.match(view, /competing vehicle/);
+    // Every result of the one search is a competing vehicle — there are no
+    // slots to fill, nothing to pick, and nothing pasted in by hand. The
+    // list is also never persisted (listings-provider terms).
+    assert.match(view, /Competing vehicles/);
+    assert.match(view, /CompetingVehiclesPanel/);
+    assert.doesNotMatch(view, /type="checkbox"/);
+    assert.doesNotMatch(view, /Select up to/);
+    assert.doesNotMatch(view, /assignCompetitorLot/);
+    assert.doesNotMatch(view, /importPastedFactoryVehicle/);
+    assert.doesNotMatch(view, /Already know one\?/);
+    assert.doesNotMatch(view, /saveOfferCompareSnapshot\([^)]*candidates/);
     assert.match(view, /border-2 border-emerald-500/);
-    assert.match(view, /grid-cols-1 md:grid-cols-2/);
-    assert.match(view, /COMPARE_COLUMN_ROLES/);
-    assert.match(view, /Already know one\?/);
-    assert.match(view, /Paste a VIN or dealer listing URL/);
     assert.match(wizard, /router\.push\("\/compare"\)/);
     assert.match(wizard, /buildOfferCompareSnapshot/);
     assert.match(wizard, /otherLots: otherLotsForDeal/);

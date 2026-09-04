@@ -6,11 +6,9 @@ import { useRouter } from "next/navigation";
 import {
   Car,
   Check,
-  Globe,
   LoaderCircle as Loader2,
   MapPin,
   Phone,
-  Zap,
 } from "lucide-react";
 import {
   FORD_COMPETITION_FACTORY_OPTIONS,
@@ -40,26 +38,18 @@ import {
   LEASE_TAX_METHODS,
 } from "../lib/dealTerms";
 import {
-  COMPARE_COLUMN_ROLES,
-  ROLE_LABELS,
   applyVehicleTermsToSnapshot,
-  assignCompetitorLot,
   isSharedFactoryOption,
   loadOfferCompareSnapshot,
   saveOfferCompareSnapshot,
   setLandingView,
   sharedFactoryOptionKeys,
-  sortCompareColumns,
   upsertShopperRequest,
   vehicleForCompareRole,
-  vehicleFromComparableSuggestion,
-  type CompareSortMetrics,
-  type CompareSortMode,
   type ComparableSuggestion,
   type OfferCompareSnapshot,
   type OfferCompareVehicle,
 } from "../lib/offerCompare";
-import { importPastedFactoryVehicle } from "../lib/pasteImport";
 import type { ShopperListingSheet } from "../lib/listingSheet";
 import type { DealStructureMethod, Vehicle, VehicleDealTerms } from "../lib/types";
 import { formatCurrency } from "../lib/otdCalculator";
@@ -148,20 +138,17 @@ export const OfferCompareView: React.FC = () => {
   const [loaded, setLoaded] = useState(false);
   const [sheets, setSheets] = useState<Record<string, ShopperListingSheet>>({});
   const [listingStatus, setListingStatus] = useState<"idle" | "loading" | "ready">("idle");
-  const [compareSort, setCompareSort] = useState<CompareSortMode>("default");
-  const [slotPaste, setSlotPaste] = useState<Record<1 | 2, string>>({ 1: "", 2: "" });
-  const [slotError, setSlotError] = useState<Record<1 | 2, string | null>>({ 1: null, 2: null });
-  const [importingSlot, setImportingSlot] = useState<1 | 2 | null>(null);
-  // The full result set from one live listings search (year/make/model/trim/
-  // zip/radius) — never capped, never re-queried per candidate. Trim is the
-  // must-have proxy; real option-level verification happens only once a
-  // candidate is actually selected.
+  // The competing vehicles: the full result set from one live listings
+  // search (year/make/model/zip/radius) — never capped, never re-queried per
+  // candidate, and never persisted. Every match IS a competitor; there's
+  // nothing to pick. Kept in memory only, fetched fresh each visit — the
+  // listings provider's terms forbid storing results beyond serving the
+  // request that asked for them.
   const [candidates, setCandidates] = useState<ComparableSuggestion[] | null>(null);
   const [candidatesLoading, setCandidatesLoading] = useState(false);
   const [candidatesError, setCandidatesError] = useState<string | null>(null);
   const [candidatesNote, setCandidatesNote] = useState<string | null>(null);
   const [candidatesFetchedFor, setCandidatesFetchedFor] = useState<string | null>(null);
-  const [selectedVins, setSelectedVins] = useState<string[]>([]);
   // Synchronous in-flight guard (a ref, not state) — see findComparableVehicles.
   const inFlightSignatureRef = useRef<string | null>(null);
   const [showCriteria, setShowCriteria] = useState(false);
@@ -184,21 +171,10 @@ export const OfferCompareView: React.FC = () => {
   const vinKey = importedVins.join(",");
 
   const favoriteVehicle = snapshot ? vehicleForCompareRole(snapshot, "favorite")?.vehicle : undefined;
-  const emptySlots = useMemo<(1 | 2)[]>(() => {
-    const filled = new Set(
-      (snapshot?.vehicles || []).map((col) => col.role).filter((r) => r !== "favorite")
-    );
-    const slots: (1 | 2)[] = [];
-    if (!filled.has("other_lot_1")) slots.push(1);
-    if (!filled.has("other_lot_2")) slots.push(2);
-    return slots;
-  }, [snapshot]);
-  const sortableLots = 2 - emptySlots.length;
 
   // One search call per distinct favorite + criteria combination — never
   // re-fires just because state re-rendered, and re-fires on its own once
-  // the buyer removes a must-have or widens the radius from the criteria
-  // panel (see onSearchAgain).
+  // the buyer widens the radius from the criteria panel (see onSearchAgain).
   const searchSignature = favoriteVehicle
     ? [
         favoriteVehicle.vin,
@@ -211,11 +187,12 @@ export const OfferCompareView: React.FC = () => {
       ].join("|")
     : null;
 
-  // Only ever fetch VINs we don't already have a sheet for, and merge rather
-  // than replace. Each VIN costs 2-3 upstream listings-provider calls (active
-  // search + price history + listing detail), so the old "refetch every VIN
-  // whenever the VIN set changes" behavior meant adding one competitor
-  // re-bought sheets for all three columns — ~9 calls to learn about one car.
+  // Listing facts (price history, days on market) for the favorite only —
+  // never for the competing-vehicles list. Each VIN costs 2-3 upstream
+  // listings-provider calls (active search + price history + listing
+  // detail); the competitors already carry days-on-market and price off the
+  // one search row, so they need nothing extra. Only ever fetch VINs we
+  // don't already have a sheet for, and merge rather than replace.
   useEffect(() => {
     if (!vinKey) return;
     const vins = vinKey.split(",").filter((vin) => vin.length === 17);
@@ -279,38 +256,12 @@ export const OfferCompareView: React.FC = () => {
     [persist, snapshot]
   );
 
-  const importCompetitor = useCallback(
-    async (slot: 1 | 2) => {
-      if (!snapshot) return;
-      const paste = slotPaste[slot].trim();
-      if (!paste) return;
-      setImportingSlot(slot);
-      setSlotError((prev) => ({ ...prev, [slot]: null }));
-      const result = await importPastedFactoryVehicle(paste);
-      if (!result.ok) {
-        setSlotError((prev) => ({ ...prev, [slot]: result.error }));
-        setImportingSlot(null);
-        return;
-      }
-      const assigned = assignCompetitorLot(snapshot, slot, result.vehicle);
-      if (!assigned.ok) {
-        setSlotError((prev) => ({ ...prev, [slot]: assigned.error }));
-        setImportingSlot(null);
-        return;
-      }
-      persist(assigned.snapshot);
-      setSlotPaste((prev) => ({ ...prev, [slot]: "" }));
-      setImportingSlot(null);
-    },
-    [persist, slotPaste, snapshot]
-  );
-
   // One listings search call — year/make/model/zip/radius — full result set
-  // kept, no per-VIN sticker fetch to verify must-haves and no capping down
-  // to a couple of slots. inFlightSignatureRef is checked and set
-  // synchronously (a ref, not state) so a StrictMode double-effect-invoke —
-  // or any other back-to-back re-render before the loading state commits —
-  // can never fire this twice for the same search.
+  // kept, no per-VIN sticker fetch to verify must-haves, no capping.
+  // inFlightSignatureRef is checked and set synchronously (a ref, not state)
+  // so a StrictMode double-effect-invoke — or any other back-to-back
+  // re-render before the loading state commits — can never fire this twice
+  // for the same search.
   const findComparableVehicles = useCallback(async () => {
     if (!favoriteVehicle) return;
     if (inFlightSignatureRef.current === searchSignature) return;
@@ -348,55 +299,25 @@ export const OfferCompareView: React.FC = () => {
     } finally {
       setCandidatesLoading(false);
       setCandidatesFetchedFor(searchSignature);
-      setSelectedVins([]);
       inFlightSignatureRef.current = null;
     }
   }, [favoriteVehicle, snapshot?.buyerZip, snapshot?.searchRadiusMiles, searchSignature]);
 
-  // Auto-runs once the favorite + criteria are known and there's still a
-  // slot to fill — this is the one call, not something the buyer has to
-  // think to trigger. Re-runs on its own when the criteria panel changes
-  // must-haves or radius (searchSignature changes).
+  // Auto-runs once the favorite + criteria are known — this is the one call,
+  // not something the buyer has to think to trigger. Re-runs on its own when
+  // the criteria panel changes the radius (searchSignature changes).
   useEffect(() => {
-    if (!favoriteVehicle || emptySlots.length === 0) return;
+    if (!favoriteVehicle) return;
     if (candidatesLoading || candidatesFetchedFor === searchSignature) return;
     void findComparableVehicles();
-  }, [favoriteVehicle, emptySlots.length, candidatesLoading, candidatesFetchedFor, searchSignature, findComparableVehicles]);
+  }, [favoriteVehicle, candidatesLoading, candidatesFetchedFor, searchSignature, findComparableVehicles]);
 
-  const availableCandidates = useMemo(
+  // The favorite itself can come back in its own search — it's not its own
+  // competitor.
+  const competingVehicles = useMemo(
     () => (candidates || []).filter((m) => !importedVins.includes(m.vin.toUpperCase())),
     [candidates, importedVins]
   );
-
-  const toggleSelected = useCallback(
-    (vin: string) => {
-      setSelectedVins((prev) => {
-        if (prev.includes(vin)) return prev.filter((v) => v !== vin);
-        if (prev.length >= emptySlots.length) return prev;
-        return [...prev, vin];
-      });
-    },
-    [emptySlots.length]
-  );
-
-  const confirmSelection = useCallback(() => {
-    if (!snapshot || selectedVins.length === 0) return;
-    let working = snapshot;
-    for (let i = 0; i < selectedVins.length && i < emptySlots.length; i++) {
-      const match = availableCandidates.find((m) => m.vin === selectedVins[i]);
-      if (!match) continue;
-      const assigned = assignCompetitorLot(working, emptySlots[i], vehicleFromComparableSuggestion(match));
-      if (!assigned.ok) {
-        setSlotError((prev) => ({ ...prev, [emptySlots[i]]: assigned.error }));
-        continue;
-      }
-      working = assigned.snapshot;
-    }
-    persist(working);
-    setSelectedVins([]);
-    setCandidates(null);
-    setCandidatesFetchedFor(null);
-  }, [snapshot, selectedVins, emptySlots, availableCandidates, persist]);
 
   const removeMustHave = useCallback(
     (line: string) => {
@@ -448,7 +369,7 @@ export const OfferCompareView: React.FC = () => {
         </div>
         <h1 className="text-xl font-black text-white">No vehicles in this deal</h1>
         <p className="text-xs text-ink-muted">
-          Finish Step 5 of Launch Dealership Bidding Hunt to compare the imported favorite. You can paste two competitor VINs on this page.
+          Finish Launch Dealership Bidding Hunt to compare the imported favorite. Competing vehicles load here automatically from the live market.
         </p>
         <Link
           href="/"
@@ -460,39 +381,20 @@ export const OfferCompareView: React.FC = () => {
     );
   }
 
-  const baseColumns = COMPARE_COLUMN_ROLES.filter((role) => role !== "favorite").map((role) => ({
-    role,
-    column: vehicleForCompareRole(snapshot, role),
-  }));
-
-  // Sort logic lives in lib/offerCompare.ts so it's unit-testable — this
-  // environment has no listings key, so the reordering can't be exercised
-  // against live sheets in the browser.
-  const sortMetrics: Record<string, CompareSortMetrics | undefined> = {};
-  for (const [vin, sheet] of Object.entries(sheets)) {
-    sortMetrics[vin] = {
-      daysOnMarket: sheet.daysOnMarket,
-      daysOnMarketActive: sheet.daysOnMarketActive,
-      priceCuts: sheet.priceHistory.length,
-    };
-  }
-  const columns = sortCompareColumns(
-    baseColumns.map((c) => ({ ...c, vin: c.column?.vehicle.vin ?? null })),
-    compareSort,
-    sortMetrics
-  );
-
   const favoriteColumn = vehicleForCompareRole(snapshot, "favorite");
+  // Competitors aren't sticker-backed, so there's no second factory-option
+  // list to find overlap against — this is the favorite alone, which yields
+  // no shared keys. Kept on the shared helper so the "on another car" marker
+  // lights up on its own if a sticker-backed competitor list ever returns.
   const sharedOptions = sharedFactoryOptionKeys(
-    [favoriteColumn, ...baseColumns.map((c) => c.column)]
+    [favoriteColumn]
       .filter((column): column is OfferCompareVehicle => column != null)
       .map((column) => factoryLines(column.vehicle))
   );
 
-  const emptySlotsRemain = emptySlots.length > 0;
-  // A dead-end search is the moment loosening the radius actually helps —
+  // A dead-end search is the moment widening the radius actually helps —
   // surface the editor right there instead of making the buyer go dig for it.
-  const hadEmptyResult = candidates !== null && availableCandidates.length === 0 && !candidatesLoading;
+  const hadEmptyResult = candidates !== null && competingVehicles.length === 0 && !candidatesLoading;
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 space-y-6">
@@ -507,20 +409,6 @@ export const OfferCompareView: React.FC = () => {
           </p>
         </div>
         <div className="flex items-center gap-3">
-          {sortableLots > 1 ? (
-            <label className="flex items-center gap-2 text-[11px] text-ink-muted">
-              <span className="font-bold uppercase tracking-wider">Sort lots</span>
-              <select
-                value={compareSort}
-                onChange={(e) => setCompareSort(e.target.value as CompareSortMode)}
-                className="rounded-lg border border-border bg-surface-elevated px-2.5 py-1.5 text-xs text-white focus:border-emerald-500 focus:outline-none"
-              >
-                <option value="default">As added</option>
-                <option value="days_on_market">Longest on market</option>
-                <option value="price_cuts">Most price cuts</option>
-              </select>
-            </label>
-          ) : null}
           <button
             type="button"
             onClick={goToTracker}
@@ -546,156 +434,43 @@ export const OfferCompareView: React.FC = () => {
         />
       ) : null}
 
-      {emptySlotsRemain && (snapshot.mustHaveLines.length > 0 || snapshot.niceToHaveLines.length > 0) ? (
-        <SearchCriteriaPanel
-          open={showCriteria}
-          onToggle={() => setShowCriteria((v) => !v)}
-          mustHaveLines={snapshot.mustHaveLines}
-          niceToHaveLines={snapshot.niceToHaveLines}
-          radiusMiles={radiusDraft ?? String(snapshot.searchRadiusMiles)}
-          buyerZip={snapshot.buyerZip}
-          onRemoveMustHave={removeMustHave}
-          onRemoveNiceToHave={removeNiceToHave}
-          onRadiusChange={setRadiusDraft}
-          onRadiusCommit={commitRadius}
-          onSearchAgain={() => {
-            setCandidatesFetchedFor(null);
-          }}
-        />
-      ) : null}
+      <SearchCriteriaPanel
+        open={showCriteria}
+        onToggle={() => setShowCriteria((v) => !v)}
+        mustHaveLines={snapshot.mustHaveLines}
+        niceToHaveLines={snapshot.niceToHaveLines}
+        radiusMiles={radiusDraft ?? String(snapshot.searchRadiusMiles)}
+        buyerZip={snapshot.buyerZip}
+        onRemoveMustHave={removeMustHave}
+        onRemoveNiceToHave={removeNiceToHave}
+        onRadiusChange={setRadiusDraft}
+        onRadiusCommit={commitRadius}
+        onSearchAgain={() => {
+          setCandidatesFetchedFor(null);
+        }}
+      />
 
-      {emptySlotsRemain ? (
-        <CandidateListPanel
-          loading={candidatesLoading}
-          error={candidatesError}
-          note={candidatesNote}
-          fetched={candidates !== null}
-          candidates={availableCandidates}
-          selectedVins={selectedVins}
-          maxSelectable={emptySlots.length}
-          onToggle={toggleSelected}
-          onConfirm={confirmSelection}
-          hadEmptyResult={hadEmptyResult}
-          onEditCriteria={() => setShowCriteria(true)}
-        />
-      ) : null}
-
-      {baseColumns.some((c) => c.column) || emptySlotsRemain ? (
-        <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
-          {columns.map(({ role, column }) => {
-            if (column) {
-              return (
-                <VehicleOfferColumn
-                  key={column.vehicle.vin}
-                  column={column}
-                  buyerZip={snapshot.buyerZip}
-                  requested={snapshot.requestedStructures}
-                  terms={termsForVin(snapshot.request.dealStructurePreferences?.vehicleTerms, column.vehicle.vin)}
-                  sheet={sheets[column.vehicle.vin.toUpperCase()]}
-                  listingLoading={listingStatus === "loading"}
-                  onChangeTerms={updateTerms}
-                  sharedOptions={sharedOptions}
-                />
-              );
-            }
-            const slot: 1 | 2 = role === "other_lot_1" ? 1 : 2;
-            return (
-              <CompetitorPasteSlot
-                key={role}
-                slot={slot}
-                label={ROLE_LABELS[role]}
-                paste={slotPaste[slot]}
-                error={slotError[slot]}
-                importing={importingSlot === slot}
-                onPasteChange={(value) => {
-                  setSlotPaste((prev) => ({ ...prev, [slot]: value }));
-                  setSlotError((prev) => ({ ...prev, [slot]: null }));
-                }}
-                onImport={() => void importCompetitor(slot)}
-              />
-            );
-          })}
-        </div>
-      ) : null}
+      <CompetingVehiclesPanel
+        loading={candidatesLoading}
+        error={candidatesError}
+        note={candidatesNote}
+        fetched={candidates !== null}
+        vehicles={competingVehicles}
+        radiusMiles={snapshot.searchRadiusMiles}
+        hadEmptyResult={hadEmptyResult}
+        onEditCriteria={() => setShowCriteria(true)}
+      />
     </div>
   );
 };
 
-function CompetitorPasteSlot({
-  slot,
-  label,
-  paste,
-  error,
-  importing,
-  onPasteChange,
-  onImport,
-}: {
-  slot: 1 | 2;
-  label: string;
-  paste: string;
-  error: string | null;
-  importing: boolean;
-  onPasteChange: (value: string) => void;
-  onImport: () => void;
-}) {
-  return (
-    <section className="rounded-2xl border border-dashed border-border bg-surface shadow-xl overflow-hidden flex flex-col">
-      <div className="border-b border-border bg-surface-elevated px-4 py-3">
-        <div className="text-[10px] font-bold uppercase tracking-wider text-ink-faint">{label}</div>
-        <h2 className="text-base font-black text-white mt-0.5">Already know one?</h2>
-        <p className="text-[11px] text-ink-muted mt-0.5">Paste a VIN or dealer listing URL instead.</p>
-      </div>
-      <div className="px-4 py-3 space-y-2">
-        <div className="flex flex-col gap-2">
-          <div className="relative">
-            <Globe className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-emerald-400" />
-            <input
-              type="text"
-              value={paste}
-              onChange={(e) => onPasteChange(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") onImport();
-              }}
-              placeholder="17-character VIN or dealer listing URL"
-              aria-label={`Competitor ${slot} VIN or dealer URL`}
-              className="w-full rounded-xl border border-border bg-background py-2 pl-9 pr-3 text-xs text-white placeholder-ink-faint focus:border-emerald-500 focus:outline-none font-mono"
-            />
-          </div>
-          <button
-            type="button"
-            onClick={onImport}
-            disabled={importing || !paste.trim()}
-            className="rounded-xl bg-emerald-500 px-4 py-2 text-xs font-extrabold text-black hover:bg-emerald-400 transition-all shadow-md flex items-center justify-center gap-1.5 disabled:opacity-50"
-          >
-            {importing ? (
-              <>
-                <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                Importing…
-              </>
-            ) : (
-              <>
-                <Zap className="h-3.5 w-3.5 fill-black" />
-                Import
-              </>
-            )}
-          </button>
-        </div>
-        {error ? <p className="text-[11px] text-amber-200">{error}</p> : null}
-      </div>
-    </section>
-  );
-}
-
-function CandidateListPanel({
+function CompetingVehiclesPanel({
   loading,
   error,
   note,
   fetched,
-  candidates,
-  selectedVins,
-  maxSelectable,
-  onToggle,
-  onConfirm,
+  vehicles,
+  radiusMiles,
   hadEmptyResult,
   onEditCriteria,
 }: {
@@ -703,37 +478,29 @@ function CandidateListPanel({
   error: string | null;
   note: string | null;
   fetched: boolean;
-  candidates: ComparableSuggestion[];
-  selectedVins: string[];
-  maxSelectable: number;
-  onToggle: (vin: string) => void;
-  onConfirm: () => void;
+  vehicles: ComparableSuggestion[];
+  radiusMiles: number;
   hadEmptyResult: boolean;
   onEditCriteria: () => void;
 }) {
   return (
     <section className="rounded-3xl border border-border-strong bg-surface shadow-2xl overflow-hidden">
-      <div className="border-b border-border bg-surface-elevated px-5 py-3.5 flex items-center justify-between gap-3">
-        <div>
-          <div className="text-[10px] font-bold uppercase tracking-wider text-ink-faint">
-            One search · every match
-          </div>
-          <h2 className="text-base font-black text-white mt-0.5">
-            Select {maxSelectable === 1 ? "1 competing vehicle" : "up to 2 competing vehicles"}
-          </h2>
-          <p className="text-[11px] text-ink-muted mt-0.5">
-            Sorted by longest on the market, then lowest price.
-          </p>
+      <div className="border-b border-border bg-surface-elevated px-5 py-3.5">
+        <div className="text-[10px] font-bold uppercase tracking-wider text-ink-faint">
+          One search · every match
         </div>
-        {selectedVins.length > 0 ? (
-          <button
-            type="button"
-            onClick={onConfirm}
-            className="shrink-0 rounded-xl bg-emerald-500 px-4 py-2 text-xs font-extrabold text-black hover:bg-emerald-400 shadow-md shadow-emerald-500/20"
-          >
-            Add {selectedVins.length} selected
-          </button>
-        ) : null}
+        <h2 className="text-base font-black text-white mt-0.5">
+          Competing vehicles
+          {fetched && !loading && vehicles.length > 0 ? (
+            <span className="ml-2 text-ink-muted font-semibold text-sm">
+              {vehicles.length} within {radiusMiles} mi
+            </span>
+          ) : null}
+        </h2>
+        <p className="text-[11px] text-ink-muted mt-0.5">
+          Every same-model listing the market has right now — sorted by longest on the market, then lowest
+          price.
+        </p>
       </div>
 
       <div className="px-5 py-4">
@@ -744,7 +511,7 @@ function CandidateListPanel({
           </div>
         ) : error ? (
           <p className="text-[11px] text-amber-200 py-2">{error}</p>
-        ) : fetched && candidates.length === 0 ? (
+        ) : fetched && vehicles.length === 0 ? (
           <div className="text-center py-6 space-y-2">
             <p className="text-xs text-ink-muted">{note || "No competing vehicles found nearby."}</p>
             {hadEmptyResult ? (
@@ -753,7 +520,7 @@ function CandidateListPanel({
                 onClick={onEditCriteria}
                 className="text-[11px] font-bold text-emerald-300 hover:text-emerald-200 underline"
               >
-                Loosen your search criteria
+                Widen your search radius
               </button>
             ) : null}
           </div>
@@ -762,7 +529,6 @@ function CandidateListPanel({
             <table className="w-full text-left">
               <thead>
                 <tr className="text-[10px] font-bold uppercase tracking-wider text-ink-faint">
-                  <th className="w-8 py-1.5"></th>
                   <th className="py-1.5 pr-3">Vehicle</th>
                   <th className="py-1.5 pr-3">Dealer</th>
                   <th className="py-1.5 pr-3">Distance</th>
@@ -771,26 +537,25 @@ function CandidateListPanel({
                 </tr>
               </thead>
               <tbody>
-                {candidates.map((match) => {
-                  const checked = selectedVins.includes(match.vin);
-                  const disabled = !checked && selectedVins.length >= maxSelectable;
+                {vehicles.map((match) => {
+                  const title = [match.year, match.make, match.model, match.trim].filter(Boolean).join(" ");
+                  const vdp = listingVdpHref(match.dealerUrl);
                   return (
-                    <tr
-                      key={match.vin}
-                      className={`border-t border-border/60 text-xs ${disabled ? "opacity-40" : ""}`}
-                    >
-                      <td className="py-2">
-                        <input
-                          type="checkbox"
-                          checked={checked}
-                          disabled={disabled}
-                          onChange={() => onToggle(match.vin)}
-                          aria-label={`Select ${match.year || ""} ${match.make || ""} ${match.model || ""}`.trim()}
-                          className="h-3.5 w-3.5 rounded border-border text-emerald-500 focus:ring-0"
-                        />
-                      </td>
+                    <tr key={match.vin} className="border-t border-border/60 text-xs">
                       <td className="py-2 pr-3 font-bold text-white whitespace-nowrap">
-                        {[match.year, match.make, match.model, match.trim].filter(Boolean).join(" ")}
+                        {vdp ? (
+                          <a
+                            href={vdp}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="hover:text-emerald-300 hover:underline"
+                          >
+                            {title}
+                          </a>
+                        ) : (
+                          title
+                        )}
+                        <span className="block font-mono font-normal text-[10px] text-ink-faint">{match.vin}</span>
                       </td>
                       <td className="py-2 pr-3 text-ink-muted truncate max-w-[180px]">{match.dealerName}</td>
                       <td className="py-2 pr-3 text-ink-muted whitespace-nowrap">
@@ -859,8 +624,8 @@ function SearchCriteriaPanel({
       {open ? (
         <div className="border-t border-border px-4 py-3 space-y-3">
           <p className="text-[11px] text-ink-muted">
-            The search below matches by trim, not by these lines — widen the radius to see more, or verify
-            equipment on a vehicle after you select it.
+            Competing vehicles are matched by year, make, and model — these lines don&apos;t filter them.
+            Widen the radius to see more, and verify equipment on the dealer listing.
           </p>
           {mustHaveLines.length > 0 ? (
             <div>

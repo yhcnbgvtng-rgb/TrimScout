@@ -1041,7 +1041,6 @@ describe("shopper-facing factory option copy", () => {
     assert.match(compare, /\/api\/manual-comparables/);
     assert.doesNotMatch(compare, /\/api\/compare-deal/);
     assert.match(compare, /\/api\/listing-facts/);
-    assert.match(compare, /importPastedFactoryVehicle/);
     assert.match(compare, /FORD_LISTINGS_LOAD_FAILED/);
     assert.match(compare, /sanitizeShopperListingsCopy/);
     assert.doesNotMatch(src, /Could not load similar lots/);
@@ -1311,7 +1310,10 @@ describe("shopper-facing factory option copy", () => {
     assert.match(pasteImport, /\/api\/gm-sticker/);
     assert.match(pasteImport, /isGmVin/);
     assert.match(src, /setSelectedVehicle\(null\)/);
-    assert.match(compare, /importPastedFactoryVehicle/);
+    // The compare page no longer pastes anything — its competitors come from
+    // the one live search — so the only thing to hold it to is: no mock
+    // catalog path either.
+    assert.doesNotMatch(compare, /applyMockParse|MOCK_VEHICLES/);
     const parseStart = src.indexOf("const handleParseDealerUrl");
     const parseEnd = src.indexOf("const chooseDirectOffer");
     assert.ok(parseStart >= 0 && parseEnd > parseStart);
