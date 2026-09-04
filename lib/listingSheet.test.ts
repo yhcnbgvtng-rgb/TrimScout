@@ -376,6 +376,8 @@ describe("listing-facts route and compare page copy", () => {
     assert.match(view, /Estimated monthly/);
     assert.match(view, /Estimate only/);
     assert.match(view, /FORD_COMPETITION_FACTORY_OPTIONS/);
+    assert.match(view, /sharedFactoryOptionKeys/);
+    assert.match(view, /isSharedFactoryOption/);
     assert.match(view, /Price history/);
     assert.match(view, /formatPriceHistoryLine/);
     assert.doesNotMatch(view, /vs prior/);
