@@ -153,6 +153,14 @@ function titleTrim(s: string): string {
   return titleCase(s);
 }
 
+/** Preserve GMC as an acronym — generic titleCase would mangle it into "Gmc"
+ * (confirmed on a real GMC Hummer EV sticker). */
+function titleMake(s: string): string {
+  const u = s.trim().toUpperCase();
+  if (u === "GMC") return "GMC";
+  return titleCase(s);
+}
+
 function sliceSection(text: string, startRe: RegExp, endRe: RegExp): string {
   const start = text.search(startRe);
   if (start < 0) return "";
@@ -169,9 +177,14 @@ function parseOptionPriceTail(line: string): { name: string; rpo?: string; price
   const trimmed = line.replace(/^\s+/, "").replace(/\s+/g, " ").trim();
   const noCharge = trimmed.match(/^(.*)\s+NO CHARGE\s*$/i);
   if (noCharge) return splitRpoName(noCharge[1].trim(), 0);
-  const priced = trimmed.match(/^(.*?)(?:\s+\$?\s*([\d]{1,3}(?:,\d{3})*(?:\.\d{2})?))\s*$/);
-  if (priced && parseMoney(priced[2]) != null) {
-    return splitRpoName(priced[1].trim(), parseMoney(priced[2]));
+  // A credit line prints its amount with a leading "-" (e.g. "CREDIT - NOT
+  // EQUIPPED WITH 2ND ROW EXPRESS-UP WINDOW CONTROL -50.00", confirmed on a
+  // real Cadillac Escalade sticker) — without the optional "-" this simply
+  // failed to match, silently dropping the credit instead of subtracting it.
+  const priced = trimmed.match(/^(.*?)(?:\s+(-)?\$?\s*([\d]{1,3}(?:,\d{3})*(?:\.\d{2})?))\s*$/);
+  if (priced && parseMoney(priced[3]) != null) {
+    const amount = parseMoney(priced[3])!;
+    return splitRpoName(priced[1].trim(), priced[2] ? -amount : amount);
   }
   return splitRpoName(trimmed, null);
 }
@@ -214,9 +227,9 @@ function parseModelAndTrim(rest: string): { model: string; trim?: string } {
       trim: modelParts.slice(2).join(" ") || undefined,
     };
   }
-  if (modelParts.length >= 2 && /SPORT/i.test(modelParts[1])) {
+  if (/^HUMMER$/i.test(modelParts[0]) && /^EV$/i.test(modelParts[1] || "")) {
     return {
-      model: titleCase(`${modelParts[0]} ${modelParts[1]}`),
+      model: "Hummer EV",
       trim: modelParts.slice(2).join(" ") || undefined,
     };
   }
@@ -245,6 +258,13 @@ const OTHER_GM_NAMEPLATES = [
   "SIERRA",
   "SUBURBAN", "TAHOE", "TRAVERSE", "TRAILBLAZER", "TRAX", "EQUINOX", "BLAZER", "COLORADO",
   "CAMARO", "CORVETTE", "MALIBU",
+  // "HUMMER EV" must come before the bare brand word could ever conflict —
+  // there's no plain "HUMMER" nameplate on the current GMC lineup, only the
+  // EV sub-brand, confirmed live on a real 2024 HUMMER EV SUV sticker
+  // (headline: "2024 HUMMER EV SUV EDITION 1", no GMC/brand word at all —
+  // the parsed make only survived by luck, from a "www.gmc.com" link
+  // elsewhere on the same page).
+  "HUMMER EV",
   "YUKON", "ACADIA", "TERRAIN", "CANYON",
   "ENCLAVE", "ENCORE", "ENVISION", "ENVISTA",
   "ESCALADE", "LYRIQ", "OPTIQ", "VISTIQ", "CELESTIQ", "CT4", "CT5", "CT6", "XT4", "XT5", "XT6",
@@ -276,7 +296,7 @@ export function parseGmStickerText(vin: string, text: string): GmSticker {
   const sticker: GmSticker = {
     vin: cleanVin,
     status: "released",
-    make: makeMatch ? titleCase(makeMatch[1]) : "Chevrolet",
+    make: makeMatch ? titleMake(makeMatch[1]) : "Chevrolet",
     msrp: null,
     basePrice: null,
     optionsPrice: null,
@@ -293,7 +313,7 @@ export function parseGmStickerText(vin: string, text: string): GmSticker {
   );
   if (headline) {
     sticker.year = Number.parseInt(headline[1], 10);
-    sticker.make = titleCase(headline[2]);
+    sticker.make = titleMake(headline[2]);
     const parsed = parseModelAndTrim(headline[3]);
     sticker.model = parsed.model;
     sticker.trim = parsed.trim;

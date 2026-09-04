@@ -83,6 +83,14 @@ describe("GM WMI routing", () => {
     assert.equal(isGmVin("1G4ZP5SS0HU123456"), true);
   });
 
+  it("recognizes GM's non-North-American WMI blocks for current models — each confirmed against a real VIN (Cadillac Escalade/Lyriq, Buick Enclave/Encore GX/Envision)", () => {
+    assert.equal(isGmVin("1GYS4BKLXRR139717"), true, "Cadillac Escalade (1GY)");
+    assert.equal(isGmVin("1GYKPTRKXRZ116206"), true, "Cadillac Lyriq (1GY)");
+    assert.equal(isGmVin("5GAEVAKW9RJ101917"), true, "Buick Enclave (5GA)");
+    assert.equal(isGmVin("KL4AMBS20RB006959"), true, "Buick Encore GX, GM Korea (KL4)");
+    assert.equal(isGmVin("LRBFZPE49RD017775"), true, "Buick Envision, GM China/SAIC-GM (LRB)");
+  });
+
   it("recognizes Chevy / GM paste and CWS URLs", () => {
     assert.equal(looksLikeGmPaste(SUBJECT), true);
     assert.equal(looksLikeGmPaste(PAUL_CHEVY_VIN), true);
@@ -570,5 +578,108 @@ describe("Cadillac on the newer GM sticker template (real CT5 fixture — same t
     assert.equal(vehicle.model, "CT5");
     assert.equal(vehicle.trim, "Premium Luxury");
     assert.equal(vehicle.msrp, 51805);
+  });
+});
+
+describe("all four GM brands, confirmed live on real fixtures (Chevrolet already covered above; GMC's Sierra/Acadia/Yukon share 1GK with the Hummer EV sub-brand, tested separately below since its own nameplate needed a dedicated fix)", () => {
+  const ESCALADE = "1GYS4BKLXRR139717";
+  const LYRIQ = "1GYKPTRKXRZ116206";
+  const ENCLAVE = "5GAEVAKW9RJ101917";
+  const ENCORE_GX = "KL4AMBS20RB006959";
+  const ENVISION = "LRBFZPE49RD017775";
+  const HUMMER_EV = "1GKB0RDC6RU100924";
+
+  it("Cadillac Escalade (1GY WMI, previously unrecognized) parses correctly, including a negative CREDIT line item", () => {
+    const s = parseGmStickerText(ESCALADE, loadFixture(ESCALADE));
+    assert.equal(s.status, "released");
+    assert.equal(s.make, "Cadillac");
+    assert.equal(s.year, 2024);
+    assert.equal(s.model, "Escalade");
+    assert.equal(s.basePrice, 96195);
+    assert.equal(s.destination, 1995);
+    assert.equal(s.msrp, 99365);
+    // "CREDIT - NOT EQUIPPED WITH 2ND ROW EXPRESS-UP WINDOW CONTROL -50.00"
+    // — the leading "-" on the amount previously failed to parse at all,
+    // silently dropping the credit instead of subtracting it.
+    const credit = s.options.find((o) => /CREDIT/i.test(o.name));
+    assert.equal(credit?.price, -50);
+    const sumOfPriced = s.options.reduce((sum, o) => sum + (o.price || 0), 0);
+    assert.equal(sumOfPriced, s.optionsPrice, "the negative credit must be subtracted, not dropped");
+  });
+
+  it("Cadillac Lyriq (1GY WMI, the EV) parses model/trim correctly — 'Sport' must not get absorbed into the model name", () => {
+    const s = parseGmStickerText(LYRIQ, loadFixture(LYRIQ));
+    assert.equal(s.status, "released");
+    assert.equal(s.make, "Cadillac");
+    assert.equal(s.model, "Lyriq", "not 'Lyriq Sport' — Sport is part of the trim, not the model");
+    assert.equal(s.trim, "Sport 1");
+    assert.equal(
+      Math.round((s.basePrice! + s.optionsPrice! + s.destination!) * 100) / 100,
+      s.msrp
+    );
+  });
+
+  it("Buick Enclave (5GA WMI, previously unrecognized) parses correctly", () => {
+    const s = parseGmStickerText(ENCLAVE, loadFixture(ENCLAVE));
+    assert.equal(s.status, "released");
+    assert.equal(s.make, "Buick");
+    assert.equal(s.model, "Enclave");
+    assert.match(s.trim || "", /Essence/i);
+    assert.equal(
+      Math.round((s.basePrice! + s.optionsPrice! + s.destination!) * 100) / 100,
+      s.msrp
+    );
+  });
+
+  it("Buick Encore GX (KL4 WMI, GM Korea — previously unrecognized) parses correctly", () => {
+    const s = parseGmStickerText(ENCORE_GX, loadFixture(ENCORE_GX));
+    assert.equal(s.status, "released");
+    assert.equal(s.make, "Buick");
+    assert.match(s.model || "", /Encore/i);
+    assert.equal(
+      Math.round((s.basePrice! + s.optionsPrice! + s.destination!) * 100) / 100,
+      s.msrp
+    );
+  });
+
+  it("Buick Envision (LRB WMI, GM China/SAIC-GM — previously unrecognized) parses model/trim correctly — 'Sport' must not get absorbed into the model name here either", () => {
+    const s = parseGmStickerText(ENVISION, loadFixture(ENVISION));
+    assert.equal(s.status, "released");
+    assert.equal(s.make, "Buick");
+    assert.equal(s.model, "Envision", "not 'Envision Sport' — Sport Touring (ST) is the trim");
+    assert.match(s.trim || "", /Sport Touring/i);
+    assert.equal(
+      Math.round((s.basePrice! + s.optionsPrice! + s.destination!) * 100) / 100,
+      s.msrp
+    );
+  });
+
+  it("GMC Hummer EV (1GK WMI — already routed correctly, but year/model/trim silently failed until 'HUMMER EV' was added as a recognized nameplate)", () => {
+    const s = parseGmStickerText(HUMMER_EV, loadFixture(HUMMER_EV));
+    assert.equal(s.status, "released");
+    // Before the fix, `make` only survived by luck (a "www.gmc.com" link
+    // elsewhere in the text, unrelated to the actual headline parse) and
+    // came back title-cased wrong as "Gmc" — both are asserted here.
+    assert.equal(s.make, "GMC", "GMC is an acronym — must not get mangled into 'Gmc'");
+    assert.equal(s.year, 2024);
+    assert.equal(s.model, "Hummer EV", "not just 'Hummer' — EV is part of the nameplate, not the trim");
+    assert.equal(
+      Math.round((s.basePrice! + s.optionsPrice! + s.destination!) * 100) / 100,
+      s.msrp
+    );
+  });
+
+  it("every real fixture's priced options sum to exactly the sticker's own optionsPrice — the strongest available check against silent option-parsing corruption", () => {
+    for (const vin of [ESCALADE, LYRIQ, ENCLAVE, ENCORE_GX, ENVISION, HUMMER_EV, "1G6DN5RK1R0104159"]) {
+      const s = parseGmStickerText(vin, loadFixture(vin));
+      const sumOfPriced = s.options.reduce((sum, o) => sum + (o.price || 0), 0);
+      assert.equal(sumOfPriced, s.optionsPrice, `${vin}: sum of priced options must equal optionsPrice exactly`);
+    }
+  });
+
+  it("comparablesEndpointForVin-equivalent routing: isGmVin is true for every brand's WMI, so all of them reach /api/gm-sticker and /api/gm-comparables with no other code changes needed", () => {
+    for (const vin of [ESCALADE, LYRIQ, ENCLAVE, ENCORE_GX, ENVISION, HUMMER_EV]) {
+      assert.equal(isGmVin(vin), true, vin);
+    }
   });
 });
