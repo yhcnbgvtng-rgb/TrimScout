@@ -451,4 +451,24 @@ describe("competitorMatchPercent", () => {
     assert.equal(competitorMatchPercent(mustHaves, { trim: "Lariat", exteriorColor: "Oxford White" }), 50);
     assert.equal(competitorMatchPercent(mustHaves, { trim: "STX", exteriorColor: "Oxford White" }), 0);
   });
+
+  it("falls back to the favorite's own trim when there are no explicit must-haves", () => {
+    // Real report: a Honda Accord LX favorite showed SE/Hybrid Sport/Hybrid
+    // Touring as competitors with no signal they weren't LX — Honda's
+    // factory-option feed has no "LX SERIES" line the way Ford's does, so
+    // there was never a checkbox to make LX a must-have in the first place.
+    assert.equal(competitorMatchPercent([], { trim: "LX" }, "LX"), 100);
+    assert.equal(competitorMatchPercent([], { trim: "SE" }, "LX"), 0);
+    assert.equal(competitorMatchPercent([], { trim: "Hybrid Sport" }, "LX"), 0);
+    assert.equal(competitorMatchPercent([], { trim: "Hybrid Touring" }, "LX"), 0);
+    // Still null with neither an explicit must-have nor a known favorite trim.
+    assert.equal(competitorMatchPercent([], { trim: "SE" }), null);
+  });
+
+  it("folds the favorite's trim into an explicit checklist rather than replacing it", () => {
+    const withColorOnly = competitorMatchPercent(["Eruption Green Metallic"], { trim: "STX", exteriorColor: "Oxford White" }, "Lariat");
+    assert.equal(withColorOnly, 0, "matches neither the color must-have nor the implicit Lariat trim");
+    const trimOnlyHit = competitorMatchPercent(["Eruption Green Metallic"], { trim: "Lariat", exteriorColor: "Oxford White" }, "Lariat");
+    assert.equal(trimOnlyHit, 50, "1 of 2: hits the implicit trim, misses the explicit color must-have");
+  });
 });
