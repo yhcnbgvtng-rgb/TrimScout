@@ -162,6 +162,194 @@ export function looksLikeHondaPaste(paste: string): boolean {
   return !!(vin && isHondaVin(vin));
 }
 
+/**
+ * Nissan (+ Infiniti), confirmed live 2026-09-05 by pulling real active
+ * listings and reading their actual VIN prefixes (not assumed from general
+ * VIN-decoding references): 5N1 (Smyrna/Canton SUVs — also the block
+ * Infiniti's US-built QX60/QX50 ride on), 3N1 (Aguascalientes, Mexico —
+ * Versa/Sentra), 1N6 (Titan/Frontier), JN8 / JN1 (Japan-built), 1N4
+ * (Altima/Maxima). Infiniti shares 5N1/JN8 with Nissan rather than having
+ * its own distinct block in the US-market sample pulled.
+ */
+export function isNissanVin(vin: string): boolean {
+  const u = vin.trim().toUpperCase();
+  if (u.length !== 17) return false;
+  return ["5N1", "3N1", "1N6", "JN8", "1N4", "JN1"].includes(u.slice(0, 3));
+}
+
+export function looksLikeNissanPaste(paste: string): boolean {
+  if (pasteMentions(paste, /nissan|infiniti/, /\b(nissan|infiniti)\b/i)) return true;
+  const vin = pastedVinCandidate(paste);
+  return !!(vin && isNissanVin(vin));
+}
+
+/**
+ * Hyundai, confirmed live 2026-09-05: KM8 (dominant — Alabama/Korea SUVs),
+ * KMH (Korea cars). Deliberately excludes 5NM — that WMI showed up in a
+ * real Hyundai-brand sample too, but Genesis (built at the same Alabama
+ * plant) already claims 5NM exclusively above and got there first; the two
+ * brands are genuinely ambiguous on that one prefix, and Genesis has an
+ * actual factory-sticker pipeline riding on it, so a 5NM VIN keeps routing
+ * there rather than to Hyundai's listing-feed engine.
+ */
+export function isHyundaiVin(vin: string): boolean {
+  const u = vin.trim().toUpperCase();
+  if (u.length !== 17) return false;
+  return ["KM8", "KMH"].includes(u.slice(0, 3));
+}
+
+export function looksLikeHyundaiPaste(paste: string): boolean {
+  if (pasteMentions(paste, /hyundai/, /\bhyundai\b/i)) return true;
+  const vin = pastedVinCandidate(paste);
+  return !!(vin && isHyundaiVin(vin));
+}
+
+/**
+ * Kia, confirmed live 2026-09-05: KND (dominant, Korea), 5XY / 5XX
+ * (Georgia), 3KP (Mexico), 7YA (Georgia EV6/EV9 block seen in the sample).
+ */
+export function isKiaVin(vin: string): boolean {
+  const u = vin.trim().toUpperCase();
+  if (u.length !== 17) return false;
+  return ["KND", "5XY", "3KP", "7YA", "5XX"].includes(u.slice(0, 3));
+}
+
+export function looksLikeKiaPaste(paste: string): boolean {
+  if (pasteMentions(paste, /\bkia\b/, /\bkia\b/i)) return true;
+  const vin = pastedVinCandidate(paste);
+  return !!(vin && isKiaVin(vin));
+}
+
+/** Subaru, confirmed live 2026-09-05: 4S4 (Indiana, dominant), JF2 / JF1 (Japan). */
+export function isSubaruVin(vin: string): boolean {
+  const u = vin.trim().toUpperCase();
+  if (u.length !== 17) return false;
+  return ["4S4", "JF2", "JF1"].includes(u.slice(0, 3));
+}
+
+export function looksLikeSubaruPaste(paste: string): boolean {
+  if (pasteMentions(paste, /subaru/, /\bsubaru\b/i)) return true;
+  const vin = pastedVinCandidate(paste);
+  return !!(vin && isSubaruVin(vin));
+}
+
+/** Mazda, confirmed live 2026-09-05: 7MM (Alabama, dominant), JM1 / JM3 (Japan), 3MV (Mexico). */
+export function isMazdaVin(vin: string): boolean {
+  const u = vin.trim().toUpperCase();
+  if (u.length !== 17) return false;
+  return ["7MM", "JM1", "JM3", "3MV"].includes(u.slice(0, 3));
+}
+
+export function looksLikeMazdaPaste(paste: string): boolean {
+  if (pasteMentions(paste, /mazda/, /\bmazda\b/i)) return true;
+  const vin = pastedVinCandidate(paste);
+  return !!(vin && isMazdaVin(vin));
+}
+
+/**
+ * Volkswagen, confirmed live 2026-09-05: 3VV / 3VW (Mexico, dominant), 1V2
+ * (Tennessee — Atlas/ID.4), WVW (Germany). Audi is VW Group but a
+ * genuinely separate WMI block (WA1/WAU below), not folded in here.
+ */
+export function isVolkswagenVin(vin: string): boolean {
+  const u = vin.trim().toUpperCase();
+  if (u.length !== 17) return false;
+  return ["3VV", "3VW", "1V2", "WVW"].includes(u.slice(0, 3));
+}
+
+export function looksLikeVolkswagenPaste(paste: string): boolean {
+  if (pasteMentions(paste, /volkswagen|\bvw\b/, /\bvolkswagen\b|\bvw\b/i)) return true;
+  const vin = pastedVinCandidate(paste);
+  return !!(vin && isVolkswagenVin(vin));
+}
+
+/** Audi, confirmed live 2026-09-05: WA1 (dominant), WAU — both Germany-built. */
+export function isAudiVin(vin: string): boolean {
+  const u = vin.trim().toUpperCase();
+  if (u.length !== 17) return false;
+  return ["WA1", "WAU"].includes(u.slice(0, 3));
+}
+
+export function looksLikeAudiPaste(paste: string): boolean {
+  if (pasteMentions(paste, /audi/, /\baudi\b/i)) return true;
+  const vin = pastedVinCandidate(paste);
+  return !!(vin && isAudiVin(vin));
+}
+
+/**
+ * BMW, confirmed live 2026-09-05: 5UX (Spartanburg SC, dominant), WBA / WBS
+ * / WBX / WB5 (Germany), 3MW (Mexico), 5YM (Spartanburg, seen separately
+ * from 5UX in the sample). MINI is BMW-owned but rides on a wholly separate
+ * WMI block (WMZ/WMW below), so it gets its own detector, not this one.
+ */
+export function isBmwVin(vin: string): boolean {
+  const u = vin.trim().toUpperCase();
+  if (u.length !== 17) return false;
+  return ["5UX", "WBA", "WBS", "3MW", "5YM", "WBX", "WB5"].includes(u.slice(0, 3));
+}
+
+export function looksLikeBmwPaste(paste: string): boolean {
+  if (pasteMentions(paste, /\bbmw\b/, /\bbmw\b/i)) return true;
+  const vin = pastedVinCandidate(paste);
+  return !!(vin && isBmwVin(vin));
+}
+
+/** MINI, confirmed live 2026-09-05: WMZ (dominant), WMW — both Germany/UK-built, a separate block from BMW's. */
+export function isMiniVin(vin: string): boolean {
+  const u = vin.trim().toUpperCase();
+  if (u.length !== 17) return false;
+  return ["WMZ", "WMW"].includes(u.slice(0, 3));
+}
+
+export function looksLikeMiniPaste(paste: string): boolean {
+  if (pasteMentions(paste, /\bmini\b/, /\bmini\b/i)) return true;
+  const vin = pastedVinCandidate(paste);
+  return !!(vin && isMiniVin(vin));
+}
+
+/**
+ * Mercedes-Benz, confirmed live 2026-09-05: W1N (Germany SUVs, dominant),
+ * 4JG (Tuscaloosa AL), W1K / W1Y (Germany sedans/coupes), WDC / WDD
+ * (Germany, seen in the sample).
+ */
+export function isMercedesVin(vin: string): boolean {
+  const u = vin.trim().toUpperCase();
+  if (u.length !== 17) return false;
+  return ["W1N", "4JG", "W1K", "W1Y", "WDC", "WDD"].includes(u.slice(0, 3));
+}
+
+export function looksLikeMercedesPaste(paste: string): boolean {
+  if (pasteMentions(paste, /mercedes/, /\bmercedes(-|\s)?benz\b|\bmercedes\b/i)) return true;
+  const vin = pastedVinCandidate(paste);
+  return !!(vin && isMercedesVin(vin));
+}
+
+/** Volvo, confirmed live 2026-09-05: YV4 (dominant, Sweden/China), 7JD (South Carolina), LVY (China). */
+export function isVolvoVin(vin: string): boolean {
+  const u = vin.trim().toUpperCase();
+  if (u.length !== 17) return false;
+  return ["YV4", "7JD", "LVY"].includes(u.slice(0, 3));
+}
+
+export function looksLikeVolvoPaste(paste: string): boolean {
+  if (pasteMentions(paste, /volvo/, /\bvolvo\b/i)) return true;
+  const vin = pastedVinCandidate(paste);
+  return !!(vin && isVolvoVin(vin));
+}
+
+/** Mitsubishi, confirmed live 2026-09-05: JA4 (dominant, Japan), ML3 (Thailand), JA3 (Japan). */
+export function isMitsubishiVin(vin: string): boolean {
+  const u = vin.trim().toUpperCase();
+  if (u.length !== 17) return false;
+  return ["JA4", "ML3", "JA3"].includes(u.slice(0, 3));
+}
+
+export function looksLikeMitsubishiPaste(paste: string): boolean {
+  if (pasteMentions(paste, /mitsubishi/, /\bmitsubishi\b/i)) return true;
+  const vin = pastedVinCandidate(paste);
+  return !!(vin && isMitsubishiVin(vin));
+}
+
 export function pastedVinCandidate(raw: string): string | null {
   const m = (raw || "").trim().toUpperCase().match(/\b[A-HJ-NPR-Z0-9]{17}\b/);
   return m ? m[0] : null;
