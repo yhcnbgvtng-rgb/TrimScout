@@ -567,7 +567,11 @@ async function searchMarketCheck(
       state: String(dealer.state || ""),
       zip: dealer.zip ? String(dealer.zip) : undefined,
       dealerUrl: typeof r.vdp_url === "string" ? r.vdp_url : null,
-      listingPrice: asFinitePrice(r.price),
+      // Some new-inventory rows carry no dealer-disclosed price at all —
+      // only MarketCheck's own "ref_price" (its MSRP-derived estimate; on
+      // a real case this matched the Ford sticker's own computed MSRP to
+      // the dollar). Fall back to it rather than showing no price.
+      listingPrice: asFinitePrice(r.price) ?? asFinitePrice(r.ref_price),
       lat: asFiniteCoord(dealer.latitude),
       lng: asFiniteCoord(dealer.longitude),
       exteriorColor:

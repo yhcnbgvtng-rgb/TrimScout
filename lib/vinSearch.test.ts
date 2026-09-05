@@ -1812,6 +1812,45 @@ describe("findComparableListingsByMakeModel — the compare page's one search ca
     });
   });
 
+  it("falls back to MarketCheck's ref_price when a new-inventory row discloses no price", async () => {
+    // Real live case (1FTEW2LP6TKD21476): MarketCheck's row had no "price"
+    // field at all, only "ref_price": 51370 — which matched the Ford
+    // sticker's own computed MSRP to the dollar. Before this fix the
+    // vehicle showed no price on the compare page at all.
+    await withMarketCheckKey(async () => {
+      const origFetch = globalThis.fetch;
+      globalThis.fetch = (async () =>
+        new Response(
+          JSON.stringify({
+            num_found: 1,
+            listings: [
+              {
+                vin: "1FTEW2LP6TKD21476",
+                build: { year: 2026, make: "Ford", model: "F-150", trim: "STX" },
+                dealer: { name: "Family Ford Inc.", city: "Netcong", state: "NJ", latitude: "40.90", longitude: "-74.70" },
+                ref_price: 51370,
+                dom: 274,
+              },
+            ],
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } }
+        )) as typeof fetch;
+      try {
+        const result = await findComparableListingsByMakeModel({
+          year: 2026,
+          make: "Ford",
+          model: "F-150",
+          zip: "07857",
+          radiusMiles: 100,
+        });
+        assert.equal(result.matches.length, 1);
+        assert.equal(result.matches[0].listingPrice, 51370);
+      } finally {
+        globalThis.fetch = origFetch;
+      }
+    });
+  });
+
   it("sorts by highest days-on-market first, then lowest price", async () => {
     await withMarketCheckKey(async () => {
       const origFetch = globalThis.fetch;

@@ -8,6 +8,7 @@ import {
   collectDealVehicles,
   comparablesEndpointForVin,
   isSharedFactoryOption,
+  competitorMatchPercent,
   parseOfferCompareSnapshot,
   replaceCompetitorLots,
   sharedFactoryOptionKeys,
@@ -428,5 +429,26 @@ describe("replaceCompetitorLots", () => {
     const next = replaceCompetitorLots(base, [favorite, lotA, lotA, lotB, { ...lotB, vin: "1FMWK8JC7TGA20216" } as import("./types").Vehicle])!;
     assert.deepEqual(next.vehicles.map((c) => c.role), ["favorite", "other_lot_1", "other_lot_2"]);
     assert.deepEqual(next.vehicles.map((c) => c.vehicle.vin), [favorite.vin, lotA.vin, lotB.vin]);
+  });
+});
+
+describe("competitorMatchPercent", () => {
+  it("returns null with no must-haves — an empty checklist is not a match", () => {
+    assert.equal(competitorMatchPercent([], { trim: "Lariat" }), null);
+  });
+
+  it("scores a Lariat must-have against Lariat and STX trims", () => {
+    assert.equal(competitorMatchPercent(["Lariat Series"], { trim: "Lariat" }), 100);
+    assert.equal(competitorMatchPercent(["Lariat Series"], { trim: "STX" }), 0);
+  });
+
+  it("also credits an exterior-color must-have, and averages across several", () => {
+    const mustHaves = ["Lariat Series", "Eruption Green Metallic"];
+    assert.equal(
+      competitorMatchPercent(mustHaves, { trim: "Lariat", exteriorColor: "Eruption Green Metallic" }),
+      100
+    );
+    assert.equal(competitorMatchPercent(mustHaves, { trim: "Lariat", exteriorColor: "Oxford White" }), 50);
+    assert.equal(competitorMatchPercent(mustHaves, { trim: "STX", exteriorColor: "Oxford White" }), 0);
   });
 });

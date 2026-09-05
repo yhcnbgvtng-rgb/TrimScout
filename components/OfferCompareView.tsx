@@ -41,6 +41,7 @@ import {
 } from "../lib/dealTerms";
 import {
   applyVehicleTermsToSnapshot,
+  competitorMatchPercent,
   isSharedFactoryOption,
   loadOfferCompareSnapshot,
   replaceCompetitorLots,
@@ -566,6 +567,7 @@ export const OfferCompareView: React.FC = () => {
         fetched={candidates !== null}
         vehicles={competingVehicles}
         radiusMiles={snapshot.searchRadiusMiles}
+        mustHaveLines={snapshot.mustHaveLines}
         selectedVins={selectedVins}
         maxSelectable={2}
         onToggle={toggleCompetitor}
@@ -658,6 +660,7 @@ function CompetingVehiclesPanel({
   fetched,
   vehicles,
   radiusMiles,
+  mustHaveLines,
   selectedVins,
   maxSelectable,
   onToggle,
@@ -670,6 +673,7 @@ function CompetingVehiclesPanel({
   fetched: boolean;
   vehicles: ComparableSuggestion[];
   radiusMiles: number;
+  mustHaveLines: string[];
   selectedVins: string[];
   maxSelectable: number;
   onToggle: (match: ComparableSuggestion) => void;
@@ -734,6 +738,7 @@ function CompetingVehiclesPanel({
                 <tr className="text-[10px] font-bold uppercase tracking-wider text-ink-faint">
                   <th className="w-8 py-1.5"></th>
                   <th className="py-1.5 pr-3">Vehicle</th>
+                  {mustHaveLines.length > 0 ? <th className="py-1.5 pr-3">Match</th> : null}
                   <th className="py-1.5 pr-3">Dealer</th>
                   <th className="py-1.5 pr-3">Distance</th>
                   <th className="py-1.5 pr-3">Days on market</th>
@@ -746,6 +751,7 @@ function CompetingVehiclesPanel({
                   const vdp = listingVdpHref(match.dealerUrl);
                   const checked = selectedVins.includes(match.vin.toUpperCase());
                   const disabled = !checked && full;
+                  const matchPercent = competitorMatchPercent(mustHaveLines, match);
                   return (
                     <tr
                       key={match.vin}
@@ -778,6 +784,25 @@ function CompetingVehiclesPanel({
                         )}
                         <span className="block font-mono font-normal text-[10px] text-ink-faint">{match.vin}</span>
                       </td>
+                      {mustHaveLines.length > 0 ? (
+                        <td className="py-2 pr-3">
+                          {matchPercent != null ? (
+                            <span
+                              className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold ${
+                                matchPercent >= 80
+                                  ? "bg-emerald-500/15 text-emerald-300 border border-emerald-500/30"
+                                  : matchPercent >= 40
+                                    ? "bg-amber-500/15 text-amber-300 border border-amber-500/30"
+                                    : "bg-surface-elevated text-ink-muted border border-border"
+                              }`}
+                            >
+                              {matchPercent}% match
+                            </span>
+                          ) : (
+                            "—"
+                          )}
+                        </td>
+                      ) : null}
                       <td className="py-2 pr-3 text-ink-muted truncate max-w-[180px]">{match.dealerName}</td>
                       <td className="py-2 pr-3 text-ink-muted whitespace-nowrap">
                         {[match.city, match.state].filter(Boolean).join(", ")}
