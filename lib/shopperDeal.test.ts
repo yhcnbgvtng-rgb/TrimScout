@@ -130,6 +130,7 @@ describe("shopper deal snapshot persists onto the deal request", () => {
         dealerZip: "76541",
         dealerUrl: "https://www.example.com/ford/vdp-a",
         mustHavePackages: ["Ultimate Package"],
+        financingSource: "buyer_own",
         otherLots: [
           {
             vin: "1FMWK8JC7TGB81309",
@@ -172,6 +173,35 @@ describe("shopper deal snapshot persists onto the deal request", () => {
     assert.equal(mapped.otherLots?.length, 1);
     assert.equal(mapped.otherLots?.[0].vin, "1FMWK8JC7TGB81309");
     assert.equal(mapped.dealStructurePreferences?.vehicleTerms?.[0].cash?.offerPrice, 60000);
+    assert.equal(mapped.dealStructurePreferences?.financingSource, "buyer_own");
+  });
+
+  it("only sends financingSource on the wire when finance is actually requested", () => {
+    const withFinance = shopperDealStructurePayload({
+      requestedStructures: ["cash", "finance"],
+      financeTermMonths: 60,
+      downPayment: 5000,
+      financingSource: "dealer",
+      leaseMileagePerYear: 12000,
+      leaseTermMonths: 36,
+      directOffer: true,
+      vehicle: importedVehicle,
+      mustHavePackages: [],
+    });
+    assert.equal(withFinance.financingSource, "dealer");
+
+    const cashOnly = shopperDealStructurePayload({
+      requestedStructures: ["cash"],
+      financeTermMonths: 60,
+      downPayment: 0,
+      financingSource: "buyer_own",
+      leaseMileagePerYear: 12000,
+      leaseTermMonths: 36,
+      directOffer: true,
+      vehicle: importedVehicle,
+      mustHavePackages: [],
+    });
+    assert.equal("financingSource" in cashOnly, false, "a cash-only deal has no financing source to report");
   });
 
   it("does not invent a BMW/Porsche or dealer when the API row has no vehicle", () => {

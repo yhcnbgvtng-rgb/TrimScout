@@ -1032,7 +1032,6 @@ describe("shopper-facing factory option copy", () => {
     assert.doesNotMatch(step1, /FORD_OTHER_LOTS_HEADING/);
     assert.doesNotMatch(step1, /FORD_OTHER_LOTS_MODE_FIND/);
     assert.doesNotMatch(step1, /FORD_OTHER_LOTS_MODE_PASTE/);
-    assert.doesNotMatch(step1, /type="radio"/);
     assert.doesNotMatch(src, /useState<OtherLotsMode>/);
     assert.doesNotMatch(src, /findLotsMode/);
     assert.doesNotMatch(src, /\/api\/ford-comparables/);
@@ -1064,7 +1063,7 @@ describe("shopper-facing factory option copy", () => {
     assert.doesNotMatch(src, /Lock This Car/);
     assert.doesNotMatch(step1, /onClick=\{\(\) => setStep\(3\)\}/);
     assert.match(src, /const vehicleImported = Boolean\(lockVehicleSelection \|\| \(parseSuccessMsg && selectedVehicle\)\)/);
-    assert.match(src, /if \(step === 1 && \(requestedStructures\.length === 0 \|\| !vehicleImported\)\) return;/);
+    assert.match(src, /if \(step === 1 && \(requestedStructures\.length === 0 \|\| !vehicleImported \|\| financingSourceMissing\)\) return;/);
     assert.match(step1, /Import a car to continue/);
     assert.match(step1, /Import Car →/);
   });

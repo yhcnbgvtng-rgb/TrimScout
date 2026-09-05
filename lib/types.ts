@@ -47,6 +47,8 @@ export interface DealStructurePreferences {
   requestedStructures: DealStructureMethod[];
   financeTermMonths?: number;
   downPayment?: number;
+  /** Only meaningful when requestedStructures includes "finance". */
+  financingSource?: "buyer_own" | "dealer";
   leaseMileagePerYear?: number;
   leaseTermMonths?: number;
   /** Per-VIN deal terms from the post-Step-5 compare page. */
