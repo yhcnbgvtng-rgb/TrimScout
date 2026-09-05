@@ -499,7 +499,16 @@ export function parseFordStickerText(vin: string, text: string): FordSticker {
   const descModel = modelFromVehicleDescription(text);
   if (descModel) sticker.model = descModel;
 
-  const headline = text.match(
+  // Some dealers' stamp block (order/stock numbers, e.g. "SK211 2083 UTC...")
+  // sits above VEHICLE DESCRIPTION and can itself look like a model year.
+  // Search from that anchor on so the greedy match below can't swallow the
+  // stamp block, the VIN/stock echo, and the real year in between as one
+  // giant "model" — confirmed live on a real Bronco Sport sticker with a
+  // "2083" order code ahead of the true "2025 BIG BEND 4X4 EXTERIOR" line.
+  const descIndex = text.search(/VEHICLE DESCRIPTION/i);
+  const searchText = descIndex >= 0 ? text.slice(descIndex) : text;
+
+  const headline = searchText.match(
     /\b(20\d{2})\s+([A-Z][A-Z0-9\-]+(?:\s+[A-Z0-9\-]+)*)\s+(4WD|AWD|RWD|2WD|FWD|4X4|4X2)\s+EXTERIOR/i
   );
   if (headline) {
@@ -517,7 +526,7 @@ export function parseFordStickerText(vin: string, text: string): FordSticker {
       sticker.model = parts.join(" ") || ymm;
     }
   } else {
-    const loose = text.match(/\b(20\d{2})\s+EXPLORER\s+(\S+)/i);
+    const loose = searchText.match(/\b(20\d{2})\s+EXPLORER\s+(\S+)/i);
     if (loose) {
       sticker.year = Number.parseInt(loose[1], 10);
       sticker.model = sticker.model || "Explorer";

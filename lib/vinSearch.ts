@@ -46,6 +46,7 @@ import {
   type ListingsProvider,
 } from "./listingsProvider";
 import type { CurrentDealerLookup } from "./listingSheet";
+import { exteriorColorNameFor } from "./porscheColors";
 import type { ComparableSuggestion } from "./offerCompare";
 import type { Vehicle } from "./types";
 
@@ -569,7 +570,11 @@ async function searchMarketCheck(
       listingPrice: asFinitePrice(r.price),
       lat: asFiniteCoord(dealer.latitude),
       lng: asFiniteCoord(dealer.longitude),
-      exteriorColor: typeof r.exterior_color === "string" ? r.exterior_color : undefined,
+      exteriorColor:
+        exteriorColorNameFor(
+          { vin, make: String(build.make || r.make || q.make) },
+          typeof r.exterior_color === "string" ? r.exterior_color : null
+        ) ?? undefined,
       daysOnMarket: asNonNegativeInt(r.dom),
       priceChangeHint: asFiniteNumber(r.price_change),
     });

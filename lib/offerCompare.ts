@@ -8,6 +8,7 @@ import { DEAL_STRUCTURE_METHODS } from "./dealStructure";
 import { listingVdpHref } from "./fordCompetitionUi";
 import { defaultTermsForVehicles, mergeVehicleTerms, parseVehicleTermsList } from "./dealTerms";
 import { isFordOrLincolnVin, isGenesisVin, isGmVin, isStellantisVin } from "./oemWmi";
+import { exteriorColorNameFor } from "./porscheColors";
 
 export const OFFER_COMPARE_STORAGE_KEY = "trimscout_offer_compare";
 export const SHOPPER_REQUESTS_STORAGE_KEY = "trimscout_shopper_requests";
@@ -132,7 +133,8 @@ export function deserializeDealVehicle(raw: unknown): Vehicle | null {
     engine: asString(row.engine),
     drivetrain: asString(row.drivetrain),
     transmission: asString(row.transmission),
-    exteriorColor: asString(row.exteriorColor),
+    // Deals saved before Porsche codes were named may still hold "0q0q".
+    exteriorColor: exteriorColorNameFor({ vin, make }, asString(row.exteriorColor)) || "",
     interiorColor: asString(row.interiorColor),
     msrp: asNumber(row.msrp) || 0,
     dealerPrice: asNumber(row.dealerPrice) || 0,
@@ -398,7 +400,7 @@ export function vehicleFromComparableSuggestion(match: ComparableSuggestion): Ve
     engine: match.engine || "",
     drivetrain: "",
     transmission: "",
-    exteriorColor: match.exteriorColor || "",
+    exteriorColor: exteriorColorNameFor({ vin: match.vin, make: match.make }, match.exteriorColor) || "",
     interiorColor: "",
     msrp: match.msrp || 0,
     dealerPrice: match.listingPrice || 0,
