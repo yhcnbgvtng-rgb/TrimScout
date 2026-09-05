@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Vehicle, BiddingStrategy, BiddingRequest, UserProfile, type DealStructureMethod } from "../lib/types";
+import { Vehicle, BiddingStrategy, BiddingRequest, UserProfile, type DealStructureMethod, type TradeInVehicle } from "../lib/types";
 import {
   DEAL_STRUCTURE_LABELS,
   DEAL_STRUCTURE_METHODS,
@@ -158,6 +158,15 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   // appraisal (value, photos, condition) happens later, once a selling
   // price is agreed with the dealer (see the note shown when this is on).
   const [hasTradeIn, setHasTradeIn] = useState<boolean>(false);
+  const [financingSource, setFinancingSource] = useState<"buyer_own" | "dealer" | null>(null);
+
+  // The flag itself is real and worth sending — the Deal Tracker shows and
+  // lets the buyer toggle it after the fact. Every detail field beyond the
+  // flag stays honestly empty/zero rather than a fabricated value, since
+  // that appraisal genuinely hasn't happened yet.
+  const tradeInForRequest: TradeInVehicle | undefined = hasTradeIn
+    ? { hasTradeIn: true, year: 0, make: "", model: "", trim: "", mileage: 0, condition: "good", estimatedValueMin: 0, estimatedValueMax: 0, photos: [] }
+    : undefined;
 
   // Step 1: independently checked cash / finance / lease (at least one required)
   const [requestedStructures, setRequestedStructures] = useState<DealStructureMethod[]>(["cash"]);
@@ -210,9 +219,10 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   // lockVehicleSelection, in which case there's nothing to import.
   // Typing a VIN/URL, or merely arriving on this step, is not enough.
   const vehicleImported = Boolean(lockVehicleSelection || (parseSuccessMsg && selectedVehicle));
+  const financingSourceMissing = requestedStructures.includes("finance") && financingSource == null;
   const reviewTarget = reviewTargetFromVehicle(selectedVehicle);
   const goNext = () => {
-    if (step === 1 && (requestedStructures.length === 0 || !vehicleImported)) return;
+    if (step === 1 && (requestedStructures.length === 0 || !vehicleImported || financingSourceMissing)) return;
     if (step === 2 && !offerPath) return;
     setStep(step + 1);
   };
@@ -364,12 +374,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
       dealbreakers: [],
       allowedStatuses: ["on_lot", "in_transit"],
     },
-    // Trade-in detail (value, photos, condition) is no longer collected in
-    // this wizard — it's handled after a selling price is agreed with the
-    // dealer, per the note shown when the trade-in toggle is on. Sending a
-    // fabricated placeholder object here would show up as real data to a
-    // dealer downstream, so this stays unset regardless of hasTradeIn.
-    tradeIn: undefined,
+    tradeIn: tradeInForRequest,
     buyerComment: dealComment.trim() || undefined,
     targetOtdPrice: launchStrategy === "firm_offer" ? targetOtdPrice : undefined,
     paymentMethod,
@@ -377,6 +382,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
       requestedStructures,
       financeTermMonths: financeTerm,
       downPayment,
+      ...(requestedStructures.includes("finance") && financingSource ? { financingSource } : {}),
       leaseMileagePerYear: leaseMileage,
       leaseTermMonths: leaseTerm,
       vehicleTerms: vehicleTermsForDeal,
@@ -448,6 +454,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
             requestedStructures,
             financeTermMonths: financeTerm,
             downPayment,
+            financingSource: financingSource || undefined,
             leaseMileagePerYear: leaseMileage,
             leaseTermMonths: leaseTerm,
             directOffer: directOfferMode,
@@ -456,9 +463,9 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
             otherLots: otherLotsForDeal,
             vehicleTerms: vehicleTermsForDeal,
           }),
-          // See the comment on buildBiddingRequest's tradeIn field — no
-          // longer collected here.
-          tradeIn: undefined,
+          // See tradeInForRequest above — the flag only, honestly empty
+          // detail fields, no appraisal fabricated.
+          tradeIn: tradeInForRequest,
           buyerZip,
           searchRadiusMiles: searchRadius,
           sameStateOnly,
@@ -562,6 +569,59 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
               </div>
               {requestedStructures.length === 0 && (
                 <p className="text-[11px] text-rose-400">Select at least one payment method to continue.</p>
+              )}
+
+              {requestedStructures.includes("finance") && (
+                <div className="rounded-xl border border-border bg-surface-elevated p-3.5 space-y-2">
+                  <span className="text-xs font-semibold text-ink-light">Who's financing this?</span>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <label
+                      className={`flex items-start gap-2 rounded-lg border px-3 py-2 text-xs cursor-pointer transition-colors ${
+                        financingSource === "buyer_own"
+                          ? "border-emerald-500 bg-emerald-500/10"
+                          : "border-border hover:border-border-strong"
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="financingSource"
+                        checked={financingSource === "buyer_own"}
+                        onChange={() => setFinancingSource("buyer_own")}
+                        className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-500 focus:ring-0"
+                      />
+                      <span>
+                        <span className="block font-semibold text-white">I'll bring my own financing</span>
+                        <span className="block text-ink-muted text-[11px] mt-0.5">
+                          A bank or credit union pre-approval — dealers quote you an out-the-door price only.
+                        </span>
+                      </span>
+                    </label>
+                    <label
+                      className={`flex items-start gap-2 rounded-lg border px-3 py-2 text-xs cursor-pointer transition-colors ${
+                        financingSource === "dealer"
+                          ? "border-emerald-500 bg-emerald-500/10"
+                          : "border-border hover:border-border-strong"
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="financingSource"
+                        checked={financingSource === "dealer"}
+                        onChange={() => setFinancingSource("dealer")}
+                        className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-500 focus:ring-0"
+                      />
+                      <span>
+                        <span className="block font-semibold text-white">Use the dealer's financing</span>
+                        <span className="block text-amber-400 text-[11px] mt-0.5">
+                          Not recommended — dealer financing often costs more than a bank or credit union rate you arrange yourself.
+                        </span>
+                      </span>
+                    </label>
+                  </div>
+                  {financingSource == null && (
+                    <p className="text-[11px] text-rose-400">Pick a financing source to continue.</p>
+                  )}
+                </div>
               )}
 
               <div className="space-y-4">
@@ -1019,7 +1079,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
               <button
                 onClick={goNext}
                 disabled={
-                  (step === 1 && (requestedStructures.length === 0 || !vehicleImported)) ||
+                  (step === 1 && (requestedStructures.length === 0 || !vehicleImported || financingSourceMissing)) ||
                   (step === 2 && !offerPath)
                 }
                 className="flex items-center gap-1.5 rounded-lg bg-emerald-500 px-5 py-2 text-xs font-bold text-black hover:bg-emerald-400 transition-all shadow-md shadow-emerald-500/20 disabled:opacity-50 disabled:cursor-not-allowed"

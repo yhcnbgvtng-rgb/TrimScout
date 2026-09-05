@@ -66,10 +66,10 @@ describe("BiddingWizard step 1 payment checkboxes", () => {
   it("maps requestedStructures as the checked array and requires at least one to Continue", () => {
     assert.match(src, /requestedStructures,/);
     assert.match(src, /dealStructurePreferences:\s*\{\s*requestedStructures,/);
-    assert.match(src, /step === 1 && \(requestedStructures\.length === 0 \|\| !vehicleImported\)/);
+    assert.match(src, /step === 1 && \(requestedStructures\.length === 0 \|\| !vehicleImported \|\| financingSourceMissing\)/);
     assert.match(
       src,
-      /disabled=\{\s*\(step === 1 && \(requestedStructures\.length === 0 \|\| !vehicleImported\)\) \|\|/
+      /disabled=\{\s*\(step === 1 && \(requestedStructures\.length === 0 \|\| !vehicleImported \|\| financingSourceMissing\)\) \|\|/
     );
     assert.match(src, /financeTermMonths: financeTerm/);
     assert.match(src, /formatDealStructures\(requestedStructures\)/);

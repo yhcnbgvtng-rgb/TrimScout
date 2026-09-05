@@ -72,6 +72,7 @@ export function shopperDealStructurePayload(opts: {
   requestedStructures: DealStructureMethod[];
   financeTermMonths: number;
   downPayment: number;
+  financingSource?: "buyer_own" | "dealer";
   leaseMileagePerYear: number;
   leaseTermMonths: number;
   directOffer: boolean;
@@ -95,6 +96,9 @@ export function shopperDealStructurePayload(opts: {
     requestedStructures: opts.requestedStructures,
     financeTermMonths: opts.financeTermMonths,
     downPayment: opts.downPayment,
+    ...(opts.requestedStructures.includes("finance") && opts.financingSource
+      ? { financingSource: opts.financingSource }
+      : {}),
     leaseMileagePerYear: opts.leaseMileagePerYear,
     leaseTermMonths: opts.leaseTermMonths,
     directOffer: opts.directOffer,
@@ -226,6 +230,12 @@ export function mapDealRequestJson(
       financeTermMonths:
         asNumber(ds.financeTermMonths) ?? existing?.dealStructurePreferences?.financeTermMonths,
       downPayment: asNumber(ds.downPayment) ?? existing?.dealStructurePreferences?.downPayment,
+      financingSource:
+        ((): "buyer_own" | "dealer" | undefined => {
+          const raw = asString(ds.financingSource);
+          if (raw === "buyer_own" || raw === "dealer") return raw;
+          return existing?.dealStructurePreferences?.financingSource;
+        })(),
       leaseMileagePerYear:
         asNumber(ds.leaseMileagePerYear) ?? existing?.dealStructurePreferences?.leaseMileagePerYear,
       leaseTermMonths:

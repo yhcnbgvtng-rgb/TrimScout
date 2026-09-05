@@ -45,7 +45,6 @@ export default function Home() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authModalError, setAuthModalError] = useState<string | null>(null);
   const { data: session, status: sessionStatus } = useSession();
-  const [savedVehicleIds, setSavedVehicleIds] = useState<string[]>(["veh-1", "veh-4"]);
 
   // Live Inventory Connector State & Pagination
   const [isSyncingInventory, setIsSyncingInventory] = useState(false);
@@ -319,11 +318,6 @@ export default function Home() {
   };
 
   // Handlers
-  const handleSelectForBid = (vehicle: Vehicle) => {
-    setPreselectedVehicle(vehicle);
-    setIsWizardOpen(true);
-  };
-
   const handleOpenFlexibleWizard = () => {
     setPreselectedVehicle(null);
     setIsWizardOpen(true);
@@ -333,6 +327,42 @@ export default function Home() {
     setShopperRequests((prev) => [request, ...prev.filter((r) => r.id !== request.id)]);
     setActiveRequest(request);
     upsertShopperRequest(request);
+  };
+
+  // Flips just the yes/no flag on an existing request — never touches
+  // activeRequest, since toggling trade-in on one deal in the tracker
+  // shouldn't silently redirect Live Deal Room to it. Detail fields (value,
+  // photos, condition) stay whatever they already were / honestly empty —
+  // that appraisal still happens after a selling price is agreed.
+  const handleToggleTradeIn = (requestId: string, hasTradeIn: boolean) => {
+    setShopperRequests((prev) =>
+      prev.map((r) => {
+        if (r.id !== requestId) return r;
+        const updated: BiddingRequest = {
+          ...r,
+          tradeIn: hasTradeIn
+            ? {
+                ...(r.tradeIn || {
+                  year: 0,
+                  make: "",
+                  model: "",
+                  trim: "",
+                  mileage: 0,
+                  condition: "good",
+                  estimatedValueMin: 0,
+                  estimatedValueMax: 0,
+                  photos: [],
+                }),
+                hasTradeIn: true,
+              }
+            : r.tradeIn
+              ? { ...r.tradeIn, hasTradeIn: false }
+              : undefined,
+        };
+        upsertShopperRequest(updated);
+        return updated;
+      })
+    );
   };
 
   const handleRealBidRequestCreated = (request: BiddingRequest) => {
@@ -441,8 +471,6 @@ export default function Home() {
     }
   };
 
-  const savedVehiclesList = vehicles.filter((v) => savedVehicleIds.includes(v.id));
-
   return (
     <main className="min-h-screen bg-background text-foreground">
       {/* Navigation Header */}
@@ -486,19 +514,12 @@ export default function Home() {
             user={currentUser}
             requests={shopperRequests}
             bids={bids}
-            lockedDeal={lockedDeal}
-            savedVehicles={savedVehiclesList}
             onOpenLiveDealRoom={(request) => {
               setActiveRequest(request);
               setCurrentView("deal_room");
             }}
-            onOpenVoucherModal={(deal) => {
-              setLockedDeal(deal);
-              setIsVoucherModalOpen(true);
-            }}
             onStartNewBid={handleOpenFlexibleWizard}
-            onInspectSavedVehicle={handleSelectForBid}
-            onRemoveSavedVehicle={(id) => setSavedVehicleIds((prev) => prev.filter((vId) => vId !== id))}
+            onToggleTradeIn={handleToggleTradeIn}
           />
         ) : (
           <div className="mx-auto max-w-2xl px-4 py-16 text-center space-y-6">
@@ -599,7 +620,9 @@ export default function Home() {
 
       {/* Site Footer */}
       <footer className="border-t border-border/60 mt-12 py-6 text-center text-xs text-ink-faint">
-        <p>© 2026 TrimScout Inc. Built for transparent, reverse-bid automotive transactions.</p>
+        {currentView !== "track_deals" && (
+          <p>© 2026 TrimScout Inc. Built for transparent, reverse-bid automotive transactions.</p>
+        )}
         <p className="mt-2 flex items-center justify-center gap-4">
           <Link href="/terms" className="hover:text-white transition-colors">Terms of Use</Link>
           <span className="text-border-strong">•</span>
