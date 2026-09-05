@@ -16,5 +16,11 @@ export function serverSecret(name: string): string {
   if (name === "LISTINGS_PROVIDER") {
     return String(env.LISTINGS_PROVIDER || process.env.LISTINGS_PROVIDER || "").trim();
   }
+  if (name === "LIGHTSAIL_API_KEY") {
+    return String(env.LIGHTSAIL_API_KEY || process.env.LIGHTSAIL_API_KEY || "").trim();
+  }
+  if (name === "RESEND_API_KEY") {
+    return String(env.RESEND_API_KEY || process.env.RESEND_API_KEY || "").trim();
+  }
   return String(env[name] ?? "").trim();
 }

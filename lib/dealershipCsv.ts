@@ -95,7 +95,15 @@ export function parseCsvTable(text: string): string[][] {
 }
 
 export function parseDealershipCsv(text: string): DealershipCsvParseResult {
-  const table = parseCsvTable(text);
+  return rowsFromTable(parseCsvTable(text));
+}
+
+/**
+ * Same header-alias mapping as parseDealershipCsv, but for a table already
+ * split into cells — shared with lib/dealershipXlsx.ts, which reads an
+ * .xlsx sheet into the same string[][] shape instead of parsing CSV text.
+ */
+export function rowsFromTable(table: string[][]): DealershipCsvParseResult {
   if (table.length === 0) return { rows: [], skippedRows: 0, unrecognizedColumns: [] };
 
   const headerRow = table[0].map(normalizeHeader);

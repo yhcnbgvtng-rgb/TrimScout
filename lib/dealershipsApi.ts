@@ -7,9 +7,9 @@
 // and firewall rule for this little surface area.
 
 import { LIGHTSAIL_HOST } from "./lightsailClient";
+import { serverSecret } from "./serverSecret";
 
 const AUTH_API_PORT = 3003;
-const API_KEY = process.env.LIGHTSAIL_API_KEY;
 const DEFAULT_TIMEOUT_MS = 8000;
 
 export interface Dealership {
@@ -36,7 +36,8 @@ export class DealershipsApiError extends Error {
 }
 
 async function request(path: string, init?: RequestInit): Promise<any> {
-  if (!API_KEY) {
+  const apiKey = serverSecret("LIGHTSAIL_API_KEY");
+  if (!apiKey) {
     throw new DealershipsApiError("Dealerships backend is not configured (missing LIGHTSAIL_API_KEY)", 500);
   }
   const controller = new AbortController();
@@ -47,7 +48,7 @@ async function request(path: string, init?: RequestInit): Promise<any> {
       ...init,
       headers: {
         "Content-Type": "application/json",
-        "X-Trimscout-Api-Key": API_KEY,
+        "X-Trimscout-Api-Key": apiKey,
         ...(init?.headers || {}),
       },
       signal: controller.signal,
