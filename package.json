@@ -7,13 +7,14 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test": "tsx --test lib/fordSticker.test.ts lib/vinSearch.test.ts lib/gmVinSearch.test.ts lib/stellantisVinSearch.test.ts lib/genesisVinSearch.test.ts lib/dealStructure.test.ts lib/gmSticker.test.ts lib/stellantisSticker.test.ts lib/genesisSticker.test.ts lib/porscheSticker.test.ts lib/porscheColors.test.ts lib/listingFeedBuild.test.ts lib/shopperDeal.test.ts lib/dealTerms.test.ts lib/listingSheet.test.ts lib/offerCompare.test.ts lib/offerCloseClock.test.ts lib/dealEngagement.test.ts lib/dealershipCsv.test.ts lib/oemWmi.test.ts"
+    "test": "tsx --test lib/fordSticker.test.ts lib/vinSearch.test.ts lib/gmVinSearch.test.ts lib/stellantisVinSearch.test.ts lib/genesisVinSearch.test.ts lib/dealStructure.test.ts lib/gmSticker.test.ts lib/stellantisSticker.test.ts lib/genesisSticker.test.ts lib/porscheSticker.test.ts lib/porscheColors.test.ts lib/listingFeedBuild.test.ts lib/shopperDeal.test.ts lib/dealTerms.test.ts lib/listingSheet.test.ts lib/offerCompare.test.ts lib/offerCloseClock.test.ts lib/dealEngagement.test.ts lib/dealershipCsv.test.ts lib/dealershipXlsx.test.ts lib/dealerEmail.test.ts lib/oemWmi.test.ts"
   },
   "dependencies": {
     "@vercel/analytics": "^2.0.1",
     "@vercel/speed-insights": "^2.0.0",
     "bcryptjs": "^3.0.3",
     "clsx": "^2.1.1",
+    "exceljs": "^4.4.0",
     "lucide-react": "^0.475.0",
     "mysql2": "^3.24.2",
     "next": "^15.2.1",
@@ -21,6 +22,7 @@
     "pdfjs-dist": "^6.3.289",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "resend": "^6.26.0",
     "stripe": "^22.6.0",
     "tailwind-merge": "^3.0.1",
     "unpdf": "^1.8.1"

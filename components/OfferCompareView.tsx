@@ -568,6 +568,7 @@ export const OfferCompareView: React.FC = () => {
         vehicles={competingVehicles}
         radiusMiles={snapshot.searchRadiusMiles}
         mustHaveLines={snapshot.mustHaveLines}
+        favoriteTrim={favoriteVehicle?.trim}
         selectedVins={selectedVins}
         maxSelectable={2}
         onToggle={toggleCompetitor}
@@ -661,6 +662,7 @@ function CompetingVehiclesPanel({
   vehicles,
   radiusMiles,
   mustHaveLines,
+  favoriteTrim,
   selectedVins,
   maxSelectable,
   onToggle,
@@ -674,6 +676,7 @@ function CompetingVehiclesPanel({
   vehicles: ComparableSuggestion[];
   radiusMiles: number;
   mustHaveLines: string[];
+  favoriteTrim?: string;
   selectedVins: string[];
   maxSelectable: number;
   onToggle: (match: ComparableSuggestion) => void;
@@ -681,6 +684,7 @@ function CompetingVehiclesPanel({
   onEditCriteria: () => void;
 }) {
   const full = selectedVins.length >= maxSelectable;
+  const showMatchColumn = mustHaveLines.length > 0 || Boolean(favoriteTrim?.trim());
   return (
     <section className="rounded-3xl border border-border-strong bg-surface shadow-2xl overflow-hidden">
       <div className="border-b border-border bg-surface-elevated px-5 py-3.5 flex items-start justify-between gap-3">
@@ -738,7 +742,7 @@ function CompetingVehiclesPanel({
                 <tr className="text-[10px] font-bold uppercase tracking-wider text-ink-faint">
                   <th className="w-8 py-1.5"></th>
                   <th className="py-1.5 pr-3">Vehicle</th>
-                  {mustHaveLines.length > 0 ? <th className="py-1.5 pr-3">Match</th> : null}
+                  {showMatchColumn ? <th className="py-1.5 pr-3">Match</th> : null}
                   <th className="py-1.5 pr-3">Dealer</th>
                   <th className="py-1.5 pr-3">Distance</th>
                   <th className="py-1.5 pr-3">Days on market</th>
@@ -751,7 +755,7 @@ function CompetingVehiclesPanel({
                   const vdp = listingVdpHref(match.dealerUrl);
                   const checked = selectedVins.includes(match.vin.toUpperCase());
                   const disabled = !checked && full;
-                  const matchPercent = competitorMatchPercent(mustHaveLines, match);
+                  const matchPercent = competitorMatchPercent(mustHaveLines, match, favoriteTrim);
                   return (
                     <tr
                       key={match.vin}
@@ -784,7 +788,7 @@ function CompetingVehiclesPanel({
                         )}
                         <span className="block font-mono font-normal text-[10px] text-ink-faint">{match.vin}</span>
                       </td>
-                      {mustHaveLines.length > 0 ? (
+                      {showMatchColumn ? (
                         <td className="py-2 pr-3">
                           {matchPercent != null ? (
                             <span

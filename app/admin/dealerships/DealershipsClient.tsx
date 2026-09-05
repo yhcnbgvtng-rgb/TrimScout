@@ -98,16 +98,34 @@ export default function DealershipsClient() {
     setCsvParseError(null);
     setCsvPreview(null);
     setUploadResult(null);
+    const isXlsx =
+      file.name.toLowerCase().endsWith(".xlsx") ||
+      file.type === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
     try {
-      const text = await file.text();
-      const parsed = parseDealershipCsv(text);
+      let parsed: DealershipCsvParseResult;
+      if (isXlsx) {
+        // .xlsx parsing needs the `exceljs` package, which isn't meant for
+        // a browser bundle — send the raw file to a server route instead of
+        // parsing it here, same result shape either way.
+        const body = new FormData();
+        body.append("file", file);
+        const res = await fetch("/api/admin/dealerships/parse-xlsx", { method: "POST", body });
+        const json = await res.json();
+        if (!res.ok) throw new Error(json.error || "Could not read that file.");
+        parsed = json as DealershipCsvParseResult;
+      } else {
+        const text = await file.text();
+        parsed = parseDealershipCsv(text);
+      }
       if (parsed.rows.length === 0) {
         setCsvParseError("No rows with a recognizable dealer name were found in this file.");
         return;
       }
       setCsvPreview(parsed);
-    } catch {
-      setCsvParseError("Could not read that file. Make sure it's a CSV export from your spreadsheet.");
+    } catch (err) {
+      setCsvParseError(
+        err instanceof Error ? err.message : "Could not read that file. Make sure it's a CSV or Excel export from your spreadsheet."
+      );
     }
   };
 
@@ -482,7 +500,7 @@ export default function DealershipsClient() {
               <div>
                 <h3 className="text-sm font-bold text-white">Upload Contact Spreadsheet</h3>
                 <p className="text-[11px] text-ink-muted mt-0.5">
-                  Any manufacturer's dealer-contact export (CSV) — matched by column name, not a fixed format.
+                  Any manufacturer's dealer-contact export (CSV or Excel .xlsx) — matched by column name, not a fixed format.
                 </p>
               </div>
               <button onClick={() => setIsUploadOpen(false)} className="text-ink-muted hover:text-white p-1 rounded-lg">
@@ -498,7 +516,7 @@ export default function DealershipsClient() {
                 <input
                   ref={fileInputRef}
                   type="file"
-                  accept=".csv,text/csv"
+                  accept=".csv,text/csv,.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                   className="hidden"
                   onChange={(e) => {
                     const file = e.target.files?.[0];
@@ -508,7 +526,7 @@ export default function DealershipsClient() {
                 />
                 <Upload className="h-6 w-6 mx-auto text-emerald-400 mb-2" />
                 <p className="text-ink-light font-semibold">
-                  {csvFileName ? csvFileName : "Click to choose a CSV file"}
+                  {csvFileName ? csvFileName : "Click to choose a CSV or Excel file"}
                 </p>
                 <p className="text-[10.5px] text-ink-faint mt-1">
                   Columns recognized: Dealer Name, Address, City, State, Zip, Phone, GM/Contact Name, GM/Contact Email, Notes

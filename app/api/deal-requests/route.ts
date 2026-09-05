@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
 import { auth } from "@/auth";
 import { createDealRequest, listDealRequestsForBuyer, DealsApiError } from "@/lib/dealsApi";
 import { getZipCoordinates } from "@/lib/otdCalculator";
@@ -6,6 +6,7 @@ import { findContactInfo } from "@/lib/piiFilter";
 import { invitedDealersFromVehicles, primaryDealTimeZone } from "@/lib/dealEngagement";
 import { decorateDealRequestJson, seedDealInvites } from "@/lib/dealEngagementStore";
 import { mapDealRequestJson } from "@/lib/shopperDeal";
+import { notifyDealersOfNewOffer } from "@/lib/dealerEmail";
 
 export async function GET() {
   const session = await auth();
@@ -80,6 +81,15 @@ export async function POST(req: Request) {
       dealRequest.id,
       seeds,
       primaryDealTimeZone(mapped.targetVehicle, dealRequest.buyerState)
+    );
+    // Runs after the response is sent, but Vercel keeps the function alive
+    // until it settles — unlike a bare un-awaited promise, which can be
+    // frozen mid-flight once the response goes out. Never let a
+    // notification failure fail the buyer's own submission.
+    after(() =>
+      notifyDealersOfNewOffer(mapped).catch((err) =>
+        console.error("notifyDealersOfNewOffer failed:", err instanceof Error ? err.message : err)
+      )
     );
     const decorated = await decorateDealRequestJson({ ...dealRequest } as unknown as Record<string, unknown>);
     return NextResponse.json({ dealRequest: decorated });
