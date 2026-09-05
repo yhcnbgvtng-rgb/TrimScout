@@ -428,6 +428,44 @@ export function vehicleFromComparableSuggestion(match: ComparableSuggestion): Ve
   };
 }
 
+function normalizeForCompetitorMatch(s: string): string {
+  return s
+    .toUpperCase()
+    .replace(/[®™]/g, "")
+    .replace(/[^A-Z0-9]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+/**
+ * How well one competing listing matches the buyer's must-haves, using only
+ * fields the one search call already returns (trim, exterior color) — never
+ * a per-VIN sticker fetch just to score a row. A must-have line is "hit"
+ * when it and the candidate's trim, or it and the candidate's color, share
+ * a normalized substring in either direction — e.g. a "Lariat Series"
+ * must-have hits a candidate whose trim is "Lariat", and misses one whose
+ * trim is "STX". Returns null when there are no must-haves to score against
+ * (nothing to show), not 100 — an empty checklist isn't a perfect match.
+ */
+export function competitorMatchPercent(
+  mustHaveLines: string[],
+  candidate: { trim?: string | null; exteriorColor?: string | null }
+): number | null {
+  const lines = mustHaveLines.map((l) => l.trim()).filter(Boolean);
+  if (lines.length === 0) return null;
+  const trimNorm = normalizeForCompetitorMatch(candidate.trim || "");
+  const colorNorm = normalizeForCompetitorMatch(candidate.exteriorColor || "");
+  let hits = 0;
+  for (const line of lines) {
+    const norm = normalizeForCompetitorMatch(line).replace(/\bSERIES\b/g, "").trim();
+    if (!norm) continue;
+    const trimHit = trimNorm.length > 0 && (norm.includes(trimNorm) || trimNorm.includes(norm));
+    const colorHit = !trimHit && colorNorm.length > 0 && (norm.includes(colorNorm) || colorNorm.includes(norm));
+    if (trimHit || colorHit) hits++;
+  }
+  return Math.round((hits / lines.length) * 100);
+}
+
 /** Which comparable-vehicle search endpoint a favorite's VIN supports, if any. */
 export function comparablesEndpointForVin(
   vin: string
