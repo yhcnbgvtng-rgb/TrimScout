@@ -4,25 +4,68 @@
  */
 
 import {
+  isAudiVin,
+  isBmwVin,
   isFordOrLincolnVin,
   isGenesisVin,
   isGmVin,
   isHondaVin,
+  isHyundaiVin,
+  isKiaVin,
+  isMazdaVin,
+  isMercedesVin,
+  isMiniVin,
+  isMitsubishiVin,
+  isNissanVin,
   isPorscheVin,
   isStellantisVin,
+  isSubaruVin,
   isToyotaVin,
+  isVolkswagenVin,
+  isVolvoVin,
+  looksLikeAudiPaste,
+  looksLikeBmwPaste,
   looksLikeFordPaste,
   looksLikeGenesisPaste,
   looksLikeGmPaste,
   looksLikeHondaPaste,
+  looksLikeHyundaiPaste,
+  looksLikeKiaPaste,
+  looksLikeMazdaPaste,
+  looksLikeMercedesPaste,
+  looksLikeMiniPaste,
+  looksLikeMitsubishiPaste,
+  looksLikeNissanPaste,
   looksLikePorschePaste,
   looksLikeStellantisPaste,
+  looksLikeSubaruPaste,
   looksLikeToyotaPaste,
+  looksLikeVolkswagenPaste,
+  looksLikeVolvoPaste,
   pastedVinCandidate,
 } from "./oemWmi";
 import type { Vehicle } from "./types";
 
-export type FactoryBuildOem = "ford" | "gm" | "stellantis" | "genesis" | "porsche" | "toyota" | "honda";
+export type FactoryBuildOem =
+  | "ford"
+  | "gm"
+  | "stellantis"
+  | "genesis"
+  | "porsche"
+  | "toyota"
+  | "honda"
+  | "nissan"
+  | "hyundai"
+  | "kia"
+  | "subaru"
+  | "mazda"
+  | "volkswagen"
+  | "audi"
+  | "bmw"
+  | "mini"
+  | "mercedes"
+  | "volvo"
+  | "mitsubishi";
 export type FactoryBuildEndpoint =
   | "/api/ford-sticker"
   | "/api/gm-sticker"
@@ -30,7 +73,19 @@ export type FactoryBuildEndpoint =
   | "/api/genesis-sticker"
   | "/api/porsche-sticker"
   | "/api/toyota-sticker"
-  | "/api/honda-sticker";
+  | "/api/honda-sticker"
+  | "/api/nissan-sticker"
+  | "/api/hyundai-sticker"
+  | "/api/kia-sticker"
+  | "/api/subaru-sticker"
+  | "/api/mazda-sticker"
+  | "/api/volkswagen-sticker"
+  | "/api/audi-sticker"
+  | "/api/bmw-sticker"
+  | "/api/mini-sticker"
+  | "/api/mercedes-sticker"
+  | "/api/volvo-sticker"
+  | "/api/mitsubishi-sticker";
 
 export const PAUL_CHEVY_VIN = "2GC4KREY7T1167690";
 export const MOCK_CATALOG_PORSCHE_VIN = "WP0AB2A98SS160032";
@@ -41,9 +96,31 @@ export const MOCK_CATALOG_PORSCHE_VIN = "WP0AB2A98SS160032";
  * the cross-fallback retry to any number of OEMs without hardcoding pairwise
  * branches. Order matters only as a tie-break when a VIN or paste text could
  * plausibly match more than one (should not happen in practice — the WMI
- * ranges and paste keywords don't overlap across Ford/GM/Stellantis).
+ * ranges and paste keywords don't overlap across OEMs; the one confirmed
+ * near-collision, Genesis/Hyundai both touching WMI 5NM, is resolved inside
+ * isHyundaiVin itself by excluding that prefix, not by ordering here).
  */
-const OEM_ORDER: FactoryBuildOem[] = ["gm", "ford", "stellantis", "genesis", "porsche", "toyota", "honda"];
+const OEM_ORDER: FactoryBuildOem[] = [
+  "gm",
+  "ford",
+  "stellantis",
+  "genesis",
+  "porsche",
+  "toyota",
+  "honda",
+  "nissan",
+  "hyundai",
+  "kia",
+  "subaru",
+  "mazda",
+  "volkswagen",
+  "audi",
+  "bmw",
+  "mini",
+  "mercedes",
+  "volvo",
+  "mitsubishi",
+];
 const OEM_ENDPOINT: Record<FactoryBuildOem, FactoryBuildEndpoint> = {
   gm: "/api/gm-sticker",
   ford: "/api/ford-sticker",
@@ -52,6 +129,18 @@ const OEM_ENDPOINT: Record<FactoryBuildOem, FactoryBuildEndpoint> = {
   porsche: "/api/porsche-sticker",
   toyota: "/api/toyota-sticker",
   honda: "/api/honda-sticker",
+  nissan: "/api/nissan-sticker",
+  hyundai: "/api/hyundai-sticker",
+  kia: "/api/kia-sticker",
+  subaru: "/api/subaru-sticker",
+  mazda: "/api/mazda-sticker",
+  volkswagen: "/api/volkswagen-sticker",
+  audi: "/api/audi-sticker",
+  bmw: "/api/bmw-sticker",
+  mini: "/api/mini-sticker",
+  mercedes: "/api/mercedes-sticker",
+  volvo: "/api/volvo-sticker",
+  mitsubishi: "/api/mitsubishi-sticker",
 };
 const OEM_BY_ENDPOINT: Record<FactoryBuildEndpoint, FactoryBuildOem> = {
   "/api/gm-sticker": "gm",
@@ -61,6 +150,18 @@ const OEM_BY_ENDPOINT: Record<FactoryBuildEndpoint, FactoryBuildOem> = {
   "/api/porsche-sticker": "porsche",
   "/api/toyota-sticker": "toyota",
   "/api/honda-sticker": "honda",
+  "/api/nissan-sticker": "nissan",
+  "/api/hyundai-sticker": "hyundai",
+  "/api/kia-sticker": "kia",
+  "/api/subaru-sticker": "subaru",
+  "/api/mazda-sticker": "mazda",
+  "/api/volkswagen-sticker": "volkswagen",
+  "/api/audi-sticker": "audi",
+  "/api/bmw-sticker": "bmw",
+  "/api/mini-sticker": "mini",
+  "/api/mercedes-sticker": "mercedes",
+  "/api/volvo-sticker": "volvo",
+  "/api/mitsubishi-sticker": "mitsubishi",
 };
 const VIN_IS_OEM: Record<FactoryBuildOem, (vin: string) => boolean> = {
   gm: isGmVin,
@@ -70,6 +171,18 @@ const VIN_IS_OEM: Record<FactoryBuildOem, (vin: string) => boolean> = {
   porsche: isPorscheVin,
   toyota: isToyotaVin,
   honda: isHondaVin,
+  nissan: isNissanVin,
+  hyundai: isHyundaiVin,
+  kia: isKiaVin,
+  subaru: isSubaruVin,
+  mazda: isMazdaVin,
+  volkswagen: isVolkswagenVin,
+  audi: isAudiVin,
+  bmw: isBmwVin,
+  mini: isMiniVin,
+  mercedes: isMercedesVin,
+  volvo: isVolvoVin,
+  mitsubishi: isMitsubishiVin,
 };
 const PASTE_LOOKS_LIKE_OEM: Record<FactoryBuildOem, (paste: string) => boolean> = {
   gm: looksLikeGmPaste,
@@ -79,6 +192,40 @@ const PASTE_LOOKS_LIKE_OEM: Record<FactoryBuildOem, (paste: string) => boolean> 
   porsche: looksLikePorschePaste,
   toyota: looksLikeToyotaPaste,
   honda: looksLikeHondaPaste,
+  nissan: looksLikeNissanPaste,
+  hyundai: looksLikeHyundaiPaste,
+  kia: looksLikeKiaPaste,
+  subaru: looksLikeSubaruPaste,
+  mazda: looksLikeMazdaPaste,
+  volkswagen: looksLikeVolkswagenPaste,
+  audi: looksLikeAudiPaste,
+  bmw: looksLikeBmwPaste,
+  mini: looksLikeMiniPaste,
+  mercedes: looksLikeMercedesPaste,
+  volvo: looksLikeVolvoPaste,
+  mitsubishi: looksLikeMitsubishiPaste,
+};
+/** e.g. "notPorsche" — the flag a listing-feed route uses to signal "not my VIN", so pasteImport falls through to another OEM. PDF-sticker OEMs (Ford/GM/Stellantis/Genesis) use the same shape. */
+const NOT_FLAG: Record<FactoryBuildOem, string> = {
+  gm: "notGm",
+  ford: "notFord",
+  stellantis: "notStellantis",
+  genesis: "notGenesis",
+  porsche: "notPorsche",
+  toyota: "notToyota",
+  honda: "notHonda",
+  nissan: "notNissan",
+  hyundai: "notHyundai",
+  kia: "notKia",
+  subaru: "notSubaru",
+  mazda: "notMazda",
+  volkswagen: "notVolkswagen",
+  audi: "notAudi",
+  bmw: "notBmw",
+  mini: "notMini",
+  mercedes: "notMercedes",
+  volvo: "notVolvo",
+  mitsubishi: "notMitsubishi",
 };
 
 /** True when some *other* OEM's paste heuristic also matches — a conflicting
@@ -281,14 +428,7 @@ export async function importPastedFactoryVehicle(
     }
 
     const triedOem = OEM_BY_ENDPOINT[endpoint];
-    const notThisOem =
-      (triedOem === "ford" && json.notFord) ||
-      (triedOem === "gm" && json.notGm) ||
-      (triedOem === "stellantis" && json.notStellantis) ||
-      (triedOem === "genesis" && json.notGenesis) ||
-      (triedOem === "porsche" && json.notPorsche) ||
-      (triedOem === "toyota" && json.notToyota) ||
-      (triedOem === "honda" && json.notHonda);
+    const notThisOem = Boolean(json[NOT_FLAG[triedOem]]);
     if (notThisOem && json.handled === false) {
       const retryEndpoint = jsonVin ? endpointForVin(jsonVin) : null;
       if (retryEndpoint && retryEndpoint !== endpoint) {
