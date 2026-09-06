@@ -383,6 +383,41 @@ async function handleExpireDealRequest(req, res, id) {
   sendJson(res, 200, { dealRequest: publicDealRequest(updated[0]) });
 }
 
+// POST /api/deal-requests/:id/negotiation — server-to-server only (the
+// Next.js negotiate route calls this after lib/negotiationPolicy.ts has
+// already decided the action; this endpoint just persists the result, it
+// never makes a pricing decision itself). Writes the buyer's next target
+// OTD (only ever moving toward walk-away, per the policy) and appends one
+// move to dealStructure.negotiation.moves — never overwrites prior moves.
+async function handleUpdateDealRequestNegotiation(req, res, id) {
+  const body = await readBody(req);
+  const pool = getPool();
+  const [rows] = await pool.query("SELECT * FROM deal_requests WHERE id = ?", [id]);
+  if (rows.length === 0) return sendJson(res, 404, { error: "Deal request not found" });
+
+  const existing = publicDealRequest(rows[0]);
+  const dealStructure = existing.dealStructure && typeof existing.dealStructure === "object" ? existing.dealStructure : {};
+  const negotiation = dealStructure.negotiation && typeof dealStructure.negotiation === "object" ? dealStructure.negotiation : { moves: [] };
+  const moves = Array.isArray(negotiation.moves) ? negotiation.moves : [];
+
+  if (body.move && typeof body.move === "object") {
+    moves.push(body.move);
+  }
+
+  const nextDealStructure = { ...dealStructure, negotiation: { ...negotiation, moves } };
+  const nextTargetOtd =
+    typeof body.nextTargetOtd === "number" && Number.isFinite(body.nextTargetOtd)
+      ? body.nextTargetOtd
+      : existing.targetOtdPrice;
+
+  await pool.query(
+    "UPDATE deal_requests SET target_otd_price = ?, deal_structure_json = ? WHERE id = ?",
+    [nextTargetOtd, JSON.stringify(nextDealStructure), id]
+  );
+  const [updated] = await pool.query("SELECT * FROM deal_requests WHERE id = ?", [id]);
+  sendJson(res, 200, { dealRequest: publicDealRequest(updated[0]) });
+}
+
 const ENGAGEMENT_PATH = path.resolve(process.cwd(), "data", "deal-engagement.json");
 
 function loadEngagementBlob() {
@@ -713,6 +748,10 @@ const server = http.createServer((req, res) => {
   if (req.method === "POST" && expireMatch) {
     return run(handleExpireDealRequest, Number(expireMatch[1]));
   }
+  const negotiationMatch = pathname.match(/^\/api\/deal-requests\/(\d+)\/negotiation$/);
+  if (req.method === "POST" && negotiationMatch) {
+    return run(handleUpdateDealRequestNegotiation, Number(negotiationMatch[1]));
+  }
 
   if (req.method === "GET" && pathname === "/api/deal-engagement") {
     return run(handleGetEngagementBlob);
@@ -741,6 +780,7 @@ server.listen(PORT, () => {
   console.log(`  GET  /api/deal-requests?status=&buyerUserId=`);
   console.log(`  GET  /api/deal-requests/:id`);
   console.log(`  POST /api/deal-requests/:id/expire`);
+  console.log(`  POST /api/deal-requests/:id/negotiation`);
   console.log(`  GET  /api/deal-engagement`);
   console.log(`  PUT  /api/deal-engagement`);
   console.log(`  POST /api/deal-requests/:id/bids`);

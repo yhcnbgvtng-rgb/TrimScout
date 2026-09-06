@@ -245,6 +245,32 @@ export async function listDealRequestsForBuyer(buyerUserId: string): Promise<Dea
   return json.dealRequests as DealRequestRecord[];
 }
 
+export interface NegotiationMove {
+  at: string;
+  bidId: string;
+  dealerName: string;
+  action: string;
+  bidOtd: number;
+  nextTargetOtd: number | null;
+  message: string;
+  reason: string;
+  allowAutoAccept: boolean;
+}
+
+/**
+ * Persists one negotiation move and the buyer's updated target OTD (if the
+ * decision moved it). The decision itself is made entirely in
+ * lib/negotiationPolicy.ts before this is ever called — this function only
+ * writes the result, never computes one.
+ */
+export async function updateDealRequestNegotiation(
+  id: string,
+  input: { nextTargetOtd?: number | null; move?: NegotiationMove }
+): Promise<DealRequestRecord> {
+  const json = await request("POST", `/api/deal-requests/${id}/negotiation`, input);
+  return json.dealRequest as DealRequestRecord;
+}
+
 export async function expireDealRequest(id: string): Promise<void> {
   await request("POST", `/api/deal-requests/${id}/expire`);
 }
