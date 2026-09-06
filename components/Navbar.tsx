@@ -18,7 +18,8 @@ import {
   Layers,
   UserPlus,
   ShieldAlert,
-  Presentation
+  Presentation,
+  Bot
 } from "lucide-react";
 
 interface NavbarProps {
@@ -165,6 +166,15 @@ export const Navbar: React.FC<NavbarProps> = ({
                     <Presentation className="h-4 w-4" />
                     <span>Live Deal Room</span>
                   </button>
+
+                  <Link
+                    href="/negotiator"
+                    onClick={() => setIsUserMenuOpen(false)}
+                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-ink-light hover:bg-emerald-500/10 hover:text-emerald-400 font-medium transition-colors text-left"
+                  >
+                    <Bot className="h-4 w-4" />
+                    <span>AI Negotiator Assistant</span>
+                  </Link>
 
                   <button
                     onClick={() => {
