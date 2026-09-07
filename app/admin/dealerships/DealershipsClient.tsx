@@ -322,6 +322,14 @@ export default function DealershipsClient() {
                         {d.contactEmail && (
                           <div className="flex items-center gap-1 text-ink-muted font-mono"><Mail className="h-3 w-3" />{d.contactEmail}</div>
                         )}
+                        {d.emailOptOut && (
+                          <span
+                            className="mt-1 inline-flex items-center rounded-full border border-amber-500/40 bg-amber-500/10 px-1.5 py-0.5 text-[9.5px] font-bold uppercase text-amber-400"
+                            title="This dealer clicked unsubscribe on an offer-notification email — do not email them."
+                          >
+                            Unsubscribed
+                          </span>
+                        )}
                       </td>
                       <td className="py-3.5 px-4 text-[11px] text-ink-muted max-w-[220px] truncate">{d.notes}</td>
                       <td className="py-3.5 px-4 text-right">

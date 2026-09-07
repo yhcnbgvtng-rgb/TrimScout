@@ -23,6 +23,8 @@ export interface Dealership {
   contactName: string | null;
   contactEmail: string | null;
   notes: string | null;
+  /** Set only via the public unsubscribe link — never reset by a CSV/xlsx re-import or a manual edit. */
+  emailOptOut: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -77,7 +79,7 @@ export async function listDealerships(): Promise<Dealership[]> {
   return json.dealerships;
 }
 
-export type DealershipInput = Omit<Dealership, "id" | "createdAt" | "updatedAt">;
+export type DealershipInput = Omit<Dealership, "id" | "createdAt" | "updatedAt" | "emailOptOut">;
 
 export async function createDealership(input: DealershipInput): Promise<Dealership> {
   const json = await request("/api/dealerships", { method: "POST", body: JSON.stringify(input) });
@@ -91,6 +93,12 @@ export async function updateDealership(id: string, input: DealershipInput): Prom
 
 export async function deleteDealership(id: string): Promise<void> {
   await request(`/api/dealerships/${id}`, { method: "DELETE" });
+}
+
+/** One-directional — a dealer opting out via the unsubscribe link. No "opt back in" here on purpose. */
+export async function setDealershipEmailOptOut(id: string): Promise<Dealership> {
+  const json = await request(`/api/dealerships/${id}/opt-out`, { method: "POST" });
+  return json.dealership;
 }
 
 export interface BulkUpsertResult {

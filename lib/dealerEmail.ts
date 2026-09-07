@@ -20,6 +20,7 @@ import { invitedDealersFromVehicles, normalizeDealerKey, type InvitedDealerSeed 
 import { reviewTargetFromVehicle } from "./fordCompetitionUi";
 import { formatDealStructures } from "./dealStructure";
 import { serverSecret } from "./serverSecret";
+import { unsubscribeUrlFor } from "./dealerUnsubscribe";
 import type { BiddingRequest } from "./types";
 
 export const SAFE_MODE_RECIPIENT = "pausmi@outlook.com";
@@ -38,6 +39,8 @@ export interface DealerEmailResult {
   error?: string;
 }
 
+const UNSUBSCRIBED_ERROR = "dealer unsubscribed";
+
 function escapeHtml(s: string): string {
   const map: Record<string, string> = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" };
   return s.replace(/[&<>"']/g, (c) => map[c]);
@@ -52,19 +55,18 @@ async function loadDealerships(): Promise<Dealership[]> {
   }
 }
 
-function findContactEmail(dealerships: Dealership[], seed: InvitedDealerSeed): string | null {
+function findDealershipMatch(dealerships: Dealership[], seed: InvitedDealerSeed): Dealership | null {
   const key = normalizeDealerKey(seed.dealerName);
   const matches = dealerships.filter((d) => normalizeDealerKey(d.dealerName) === key);
   const byState = matches.find((d) => (d.state || "").trim().toUpperCase() === seed.dealerState.toUpperCase());
-  const match = byState || matches[0];
-  const email = match?.contactEmail?.trim();
-  return email || null;
+  return byState || matches[0] || null;
 }
 
 export function buildOfferEmail(
   seed: InvitedDealerSeed,
   resolvedContactEmail: string | null,
-  request: BiddingRequest
+  request: BiddingRequest,
+  unsubscribeUrl: string | null
 ): { subject: string; html: string } {
   const target = reviewTargetFromVehicle(request.targetVehicle);
   const vehicleLine = target?.title || "a vehicle";
@@ -91,6 +93,13 @@ export function buildOfferEmail(
   }.</p>
   <p>Payment: ${escapeHtml(paymentLabel)}<br/>${escapeHtml(otdLine)}</p>
   <p style="color:#666;font-size:12px;">Deal request ID: ${escapeHtml(request.id)}</p>
+  ${
+    unsubscribeUrl
+      ? `<p style="color:#999;font-size:11px;border-top:1px solid #e5e5e5;padding-top:10px;margin-top:16px;">
+           Don't want emails like this about buyer offers? <a href="${escapeHtml(unsubscribeUrl)}">Unsubscribe</a>.
+         </p>`
+      : ""
+  }
 </div>`.trim();
   return { subject, html };
 }
@@ -128,8 +137,16 @@ export async function notifyDealersOfNewOffer(request: BiddingRequest): Promise<
   const dealerships = await loadDealerships();
   const results: DealerEmailResult[] = [];
   for (const seed of seeds) {
-    const resolvedContactEmail = findContactEmail(dealerships, seed);
-    const { subject, html } = buildOfferEmail(seed, resolvedContactEmail, request);
+    const match = findDealershipMatch(dealerships, seed);
+    const resolvedContactEmail = match?.contactEmail?.trim() || null;
+
+    if (match?.emailOptOut) {
+      results.push({ dealerName: seed.dealerName, sent: false, resolvedContactEmail, error: UNSUBSCRIBED_ERROR });
+      continue;
+    }
+
+    const unsubscribeUrl = match ? unsubscribeUrlFor(match.id) : null;
+    const { subject, html } = buildOfferEmail(seed, resolvedContactEmail, request, unsubscribeUrl);
     try {
       const sent = await sendViaResend(subject, html);
       results.push({
