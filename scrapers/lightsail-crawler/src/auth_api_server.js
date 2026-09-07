@@ -236,6 +236,25 @@ async function handleAdminSetStatus(req, res) {
   sendJson(res, 200, { user: publicUser(rows[0]) });
 }
 
+// POST /api/auth/admin-set-dealer-name — admin assigns/changes which real
+// dealership a dealer-role account represents. Only meaningful for
+// role = 'dealer' accounts (that's the identity dealer-portal routes match
+// inventory/bids against), but doesn't hard-require it server-side in case
+// an admin is fixing up a role assignment at the same time.
+async function handleAdminSetDealerName(req, res) {
+  const body = await readBody(req);
+  const email = (body.email || "").trim().toLowerCase();
+  const dealerName = (body.dealerName || "").trim();
+  if (!EMAIL_RE.test(email)) return badRequest(res, "Invalid email address");
+  if (!dealerName) return badRequest(res, "dealerName is required");
+
+  const pool = getPool();
+  const [result] = await pool.query("UPDATE users SET dealer_name = ? WHERE email = ?", [dealerName, email]);
+  if (result.affectedRows === 0) return sendJson(res, 404, { error: "No account with that email" });
+  const [rows] = await pool.query("SELECT * FROM users WHERE email = ?", [email]);
+  sendJson(res, 200, { user: publicUser(rows[0]) });
+}
+
 function publicDealership(row) {
   if (!row) return null;
   return {
@@ -473,6 +492,9 @@ const server = http.createServer((req, res) => {
   }
   if (req.method === "POST" && pathname === "/api/auth/admin-set-status") {
     return run(handleAdminSetStatus);
+  }
+  if (req.method === "POST" && pathname === "/api/auth/admin-set-dealer-name") {
+    return run(handleAdminSetDealerName);
   }
   if (req.method === "GET" && pathname === "/api/dealerships") {
     return run(handleListDealerships);

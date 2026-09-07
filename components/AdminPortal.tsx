@@ -80,6 +80,11 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
   const [resetPasswordValue, setResetPasswordValue] = useState("");
   const [resetPasswordSubmitting, setResetPasswordSubmitting] = useState(false);
   const [resetPasswordError, setResetPasswordError] = useState<string | null>(null);
+
+  const [dealerNameUser, setDealerNameUser] = useState<UserProfile | null>(null);
+  const [dealerNameValue, setDealerNameValue] = useState("");
+  const [dealerNameSubmitting, setDealerNameSubmitting] = useState(false);
+  const [dealerNameError, setDealerNameError] = useState<string | null>(null);
   const [successToast, setSuccessToast] = useState<string | null>(null);
 
   const showToast = (msg: string) => {
@@ -135,6 +140,36 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
       setResetPasswordError(err instanceof Error ? err.message : "Failed to reset password.");
     } finally {
       setResetPasswordSubmitting(false);
+    }
+  };
+
+  const handleSetDealerName = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!dealerNameUser) return;
+    if (!dealerNameValue.trim()) {
+      setDealerNameError("Dealer name is required.");
+      return;
+    }
+    setDealerNameSubmitting(true);
+    setDealerNameError(null);
+    try {
+      const res = await fetch("/api/admin/dealer-name", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: dealerNameUser.email, dealerName: dealerNameValue.trim() }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "Failed to assign dealer");
+      setAccounts((prev) =>
+        prev.map((a) => (a.id === dealerNameUser.id ? { ...a, dealerName: dealerNameValue.trim() } : a))
+      );
+      showToast(`${dealerNameUser.email} assigned to ${dealerNameValue.trim()}.`);
+      setDealerNameUser(null);
+      setDealerNameValue("");
+    } catch (err) {
+      setDealerNameError(err instanceof Error ? err.message : "Failed to assign dealer");
+    } finally {
+      setDealerNameSubmitting(false);
     }
   };
 
@@ -497,6 +532,22 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                             <KeyRound className="h-3.5 w-3.5" />
                           </button>
 
+                          {/* Assign Dealer (dealer accounts only) */}
+                          {acc.role === "dealer" && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setDealerNameUser(acc);
+                                setDealerNameValue(acc.dealerName || "");
+                                setDealerNameError(null);
+                              }}
+                              className="p-1.5 rounded-lg border border-border bg-surface-elevated hover:text-white text-ink-muted hover:border-border-strong transition-all"
+                              title="Assign Dealership"
+                            >
+                              <Building2 className="h-3.5 w-3.5" />
+                            </button>
+                          )}
+
                           {/* Suspend / Unsuspend */}
                           <button
                             type="button"
@@ -598,6 +649,75 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                   className="rounded-xl bg-emerald-500 hover:bg-emerald-400 disabled:opacity-60 px-5 py-2 text-xs font-black text-black shadow-md shadow-emerald-500/20"
                 >
                   {resetPasswordSubmitting ? "Resetting…" : "Reset Password"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* --------------------------------------------- */}
+      {/* MODAL: ASSIGN DEALERSHIP */}
+      {/* --------------------------------------------- */}
+      {dealerNameUser && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4 overflow-y-auto">
+          <div className="relative w-full max-w-md rounded-3xl border border-border-strong bg-surface p-6 sm:p-8 shadow-2xl space-y-6 animate-fadeIn my-8">
+            <div className="flex items-center justify-between border-b border-border pb-4">
+              <div className="flex items-center gap-2.5">
+                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-500/20 text-emerald-400">
+                  <Building2 className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-white">Assign Dealership</h3>
+                  <p className="text-[11px] text-ink-muted font-mono">{dealerNameUser.email}</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setDealerNameUser(null)}
+                className="text-ink-muted hover:text-white p-1 rounded-lg"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSetDealerName} className="space-y-4 text-xs">
+              {dealerNameError && (
+                <div className="rounded-xl border border-rose-500/60 bg-rose-950/60 p-3 text-xs text-rose-200 flex items-center gap-2">
+                  <AlertTriangle className="h-4 w-4 text-rose-400 shrink-0" />
+                  <span>{dealerNameError}</span>
+                </div>
+              )}
+
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold uppercase text-ink-faint">Dealership Name</label>
+                <input
+                  type="text"
+                  required
+                  value={dealerNameValue}
+                  onChange={(e) => setDealerNameValue(e.target.value)}
+                  placeholder="Exact name as it appears in inventory, e.g. Family Ford Inc."
+                  className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-white font-mono focus:border-emerald-500 focus:outline-none"
+                />
+                <p className="text-[10.5px] text-ink-faint">
+                  Must match the dealer name in the inventory feed exactly — this is what dealer-portal routes
+                  match this account's bids and VIN lookups against.
+                </p>
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-border">
+                <button
+                  type="button"
+                  onClick={() => setDealerNameUser(null)}
+                  className="rounded-xl border border-border px-4 py-2 text-xs font-bold text-ink-muted hover:text-white"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={dealerNameSubmitting}
+                  className="rounded-xl bg-emerald-500 hover:bg-emerald-400 disabled:opacity-60 px-5 py-2 text-xs font-black text-black shadow-md shadow-emerald-500/20"
+                >
+                  {dealerNameSubmitting ? "Saving…" : "Assign Dealership"}
                 </button>
               </div>
             </form>

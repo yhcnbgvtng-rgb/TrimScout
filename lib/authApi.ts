@@ -192,3 +192,8 @@ export async function adminSetStatus(
   const json = await rawPost("/api/auth/admin-set-status", { email, status });
   return json.user as AuthUser;
 }
+
+export async function adminSetDealerName(email: string, dealerName: string): Promise<AuthUser> {
+  const json = await rawPost("/api/auth/admin-set-dealer-name", { email, dealerName });
+  return json.user as AuthUser;
+}
