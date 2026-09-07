@@ -207,6 +207,20 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
       setSelectedTrims([preselectedVehicle.trim]);
       setMustHavePackages(preselectedVehicle.packages);
       setTargetOtdPrice(Math.round(preselectedVehicle.msrp * 0.92));
+      // Mirrors handleParseDealerUrl's success state — a preselected vehicle
+      // (e.g. from the factory-match flow) already has a confirmed build, so
+      // Step 1's "already imported" preview and must-have picker should show
+      // immediately instead of leaving the paste-a-VIN box stuck open.
+      setParseSuccessMsg(`${preselectedVehicle.year} ${preselectedVehicle.make} ${preselectedVehicle.trim} — confirmed`);
+      setFordStickerStatus("released");
+      setFordFilterableOptions(
+        preselectedVehicle.options.map((o) => ({
+          name: o.name,
+          code: o.code,
+          description: o.name,
+          price: o.price,
+        }))
+      );
     }
   }, [preselectedVehicle, lockVehicleSelection]);
 

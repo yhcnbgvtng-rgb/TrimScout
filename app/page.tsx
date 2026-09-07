@@ -12,6 +12,7 @@ import { mapDealRequestJson } from "../lib/shopperDeal";
 import { consumeLandingView, loadShopperRequests, upsertShopperRequest } from "../lib/offerCompare";
 import { Navbar } from "../components/Navbar";
 import { BidProgramIntro } from "../components/BidProgramIntro";
+import { FactoryMatchFlow } from "../components/FactoryMatchFlow";
 import { BiddingWizard } from "../components/BiddingWizard";
 import { LiveDealRoom } from "../components/LiveDealRoom";
 import { DealerPortal } from "../components/DealerPortal";
@@ -28,7 +29,7 @@ function isPersistedDealId(id: string): boolean {
 
 export default function Home() {
   const [vehicles, setVehicles] = useState<Vehicle[]>(MOCK_VEHICLES);
-  const [currentView, setCurrentView] = useState<"bid_program" | "deal_room" | "dealer_portal" | "track_deals" | "signup" | "admin">("bid_program");
+  const [currentView, setCurrentView] = useState<"bid_program" | "factory_match" | "deal_room" | "dealer_portal" | "track_deals" | "signup" | "admin">("bid_program");
   const [isImpersonating, setIsImpersonating] = useState<boolean>(() => {
     if (typeof window !== "undefined") {
       return localStorage.getItem("trimscout_impersonating") !== null;
@@ -323,6 +324,14 @@ export default function Home() {
     setIsWizardOpen(true);
   };
 
+  // From the factory-option match flow: the buyer already picked a specific
+  // matched (or closest-match) car, so the wizard opens straight past its
+  // own paste-a-VIN step with that car's real must-haves pre-filled.
+  const handleRequestQuoteForVehicle = (vehicle: Vehicle) => {
+    setPreselectedVehicle(vehicle);
+    setIsWizardOpen(true);
+  };
+
   const rememberShopperRequest = (request: BiddingRequest) => {
     setShopperRequests((prev) => [request, ...prev.filter((r) => r.id !== request.id)]);
     setActiveRequest(request);
@@ -544,8 +553,16 @@ export default function Home() {
       {/* View 2: Reverse Bidding Program Intro Page */}
       {currentView === "bid_program" && (
         <BidProgramIntro
-          onStartWizard={handleOpenFlexibleWizard}
+          onStartWizard={() => setCurrentView("factory_match")}
           onViewDemoDealRoom={() => setCurrentView("deal_room")}
+        />
+      )}
+
+      {currentView === "factory_match" && (
+        <FactoryMatchFlow
+          onRequestQuote={handleRequestQuoteForVehicle}
+          onSearchInstead={handleOpenFlexibleWizard}
+          onBack={() => setCurrentView("bid_program")}
         />
       )}
 
