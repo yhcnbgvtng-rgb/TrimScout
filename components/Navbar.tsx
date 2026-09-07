@@ -25,8 +25,8 @@ import {
 interface NavbarProps {
   user: UserProfile | null;
   activeDealCount: number;
-  currentView: "bid_program" | "deal_room" | "dealer_portal" | "track_deals" | "signup" | "admin";
-  onToggleView: (view: "bid_program" | "deal_room" | "dealer_portal" | "track_deals" | "signup" | "admin") => void;
+  currentView: "bid_program" | "factory_match" | "deal_room" | "dealer_portal" | "track_deals" | "signup" | "admin";
+  onToggleView: (view: "bid_program" | "factory_match" | "deal_room" | "dealer_portal" | "track_deals" | "signup" | "admin") => void;
   onOpenAuthModal: () => void;
   onLogout: () => void;
 }
