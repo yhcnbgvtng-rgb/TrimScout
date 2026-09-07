@@ -768,6 +768,376 @@ async function handleDealerWonDeals(req, res, query) {
   });
 }
 
+// ---------------------------------------------------------------------
+// RFQs — "invite dealers to quote" experiment. Deliberately NOT a
+// bidding/auction platform: the vehicle (VIN/stock) and must-haves are
+// frozen at creation from a full-match shortlist (see lib/rfq.ts), a buyer
+// invites at most RFQ_MAX_INVITES dealers on that SAME car, each dealer
+// quotes once via a structured intake (an ops-relayed email reply for now
+// — no dealer portal in this pass), and the buyer picks or walks. No
+// countdown, no ranking, no binding SLA — those belong to
+// deal_requests/deal_bids, not here.
+//
+// Four tables:
+//   rfq_requests — the frozen spec + lifecycle status.
+//   rfq_invites  — one row per invited dealer; status tracks whether they
+//                  quoted, declined (with a reason), or the invite expired.
+//   rfq_quotes   — one row per submitted quote, 1:1 with the invite that
+//                  produced it.
+//   rfq_events   — an append-only log of rfq_invited / quote_received /
+//                  quote_incomplete / buyer_picked / buyer_walked /
+//                  desk_declined, each with its full payload. No
+//                  aggregation endpoint on top of it — response rate,
+//                  spec integrity, quote completeness, buyer pick rate,
+//                  and time-to-first-quote are scored offline by querying
+//                  this table directly (see lib/rfqLogic.ts for the pure
+//                  functions that do that math).
+// ---------------------------------------------------------------------
+
+const RFQ_MAX_INVITES = 3;
+
+function publicRfqQuote(row) {
+  if (!row) return null;
+  return {
+    id: String(row.id),
+    inviteId: String(row.invite_id),
+    dealerName: row.dealer_name,
+    price: Number(row.price),
+    fees: typeof row.fees_json === "string" ? JSON.parse(row.fees_json) : row.fees_json || [],
+    totalOtdPrice: Number(row.total_otd_price),
+    vin: row.vin,
+    stockNumber: row.stock_number,
+    expiresAt: row.expires_at,
+    submittedAt: row.submitted_at,
+    mustHaveAcknowledgement: Boolean(row.must_have_acknowledgement),
+    notes: row.notes,
+  };
+}
+
+function publicRfqInvite(row, quoteRow) {
+  return {
+    id: String(row.id),
+    dealerName: row.dealer_name,
+    dealerContactEmail: row.dealer_contact_email,
+    status: row.status,
+    declineReason: row.decline_reason,
+    invitedAt: row.invited_at,
+    respondedAt: row.responded_at,
+    quote: publicRfqQuote(quoteRow),
+  };
+}
+
+function publicRfqRequest(row, invites) {
+  if (!row) return null;
+  return {
+    id: String(row.id),
+    buyerUserId: String(row.buyer_user_id),
+    vin: row.vin,
+    stockNumber: row.stock_number,
+    vehicleYear: row.vehicle_year,
+    vehicleMake: row.vehicle_make,
+    vehicleModel: row.vehicle_model,
+    vehicleTrim: row.vehicle_trim,
+    mustHaves: typeof row.must_haves_json === "string" ? JSON.parse(row.must_haves_json) : row.must_haves_json,
+    invites,
+    status: row.status,
+    pickedQuoteId: row.picked_quote_id ? String(row.picked_quote_id) : null,
+    createdAt: row.created_at,
+  };
+}
+
+async function loadRfqInvitesWithQuotes(pool, rfqId) {
+  const [inviteRows] = await pool.query(
+    "SELECT * FROM rfq_invites WHERE rfq_id = ? ORDER BY invited_at ASC",
+    [rfqId]
+  );
+  if (inviteRows.length === 0) return [];
+  const inviteIds = inviteRows.map((r) => r.id);
+  const placeholders = inviteIds.map(() => "?").join(", ");
+  const [quoteRows] = await pool.query(
+    `SELECT * FROM rfq_quotes WHERE invite_id IN (${placeholders})`,
+    inviteIds
+  );
+  const quoteByInvite = new Map(quoteRows.map((q) => [q.invite_id, q]));
+  return inviteRows.map((r) => publicRfqInvite(r, quoteByInvite.get(r.id) || null));
+}
+
+// POST /api/rfqs — freezes a full-match vehicle + its confirmed must-haves
+// into a new RFQ. The caller (Next.js route) is responsible for having
+// actually verified this was a full match before calling here — this
+// server has no opinion on where mustHaves came from, only that they're
+// non-empty (an RFQ with zero must-haves recorded is never valid).
+async function handleCreateRfq(req, res) {
+  const body = await readBody(req);
+  const buyerUserId = (body.buyerUserId || "").toString().trim();
+  const vin = (body.vin || "").trim().toUpperCase();
+  const stockNumber = body.stockNumber ? String(body.stockNumber).trim() : null;
+  const vehicleYear = Number(body.vehicleYear);
+  const vehicleMake = (body.vehicleMake || "").trim();
+  const vehicleModel = (body.vehicleModel || "").trim();
+  const vehicleTrim = (body.vehicleTrim || "").trim();
+  const mustHaves = Array.isArray(body.mustHaves) ? body.mustHaves : [];
+
+  if (!buyerUserId) return badRequest(res, "buyerUserId is required");
+  if (!vin) return badRequest(res, "vin is required");
+  if (!Number.isFinite(vehicleYear) || vehicleYear <= 0) return badRequest(res, "Invalid vehicleYear");
+  if (!vehicleMake || !vehicleModel || !vehicleTrim) return badRequest(res, "vehicleMake, vehicleModel, and vehicleTrim are required");
+  if (mustHaves.length === 0) return badRequest(res, "mustHaves must be non-empty — an RFQ needs at least one locked must-have");
+  if (!mustHaves.every((m) => m && m.code && m.name && m.status === "hit")) {
+    return badRequest(res, "Every mustHave must be a confirmed hit — never freeze an unconfirmed or missed option into an RFQ");
+  }
+
+  const pool = getPool();
+  const [result] = await pool.query(
+    `INSERT INTO rfq_requests (buyer_user_id, vin, stock_number, vehicle_year, vehicle_make, vehicle_model, vehicle_trim, must_haves_json, status)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'collecting')`,
+    [buyerUserId, vin, stockNumber, vehicleYear, vehicleMake, vehicleModel, vehicleTrim, JSON.stringify(mustHaves)]
+  );
+  const [rows] = await pool.query("SELECT * FROM rfq_requests WHERE id = ?", [result.insertId]);
+  sendJson(res, 201, { rfq: publicRfqRequest(rows[0], []) });
+}
+
+async function handleGetRfq(req, res, id) {
+  const pool = getPool();
+  const [rows] = await pool.query("SELECT * FROM rfq_requests WHERE id = ?", [id]);
+  if (rows.length === 0) return sendJson(res, 404, { error: "RFQ not found" });
+  const invites = await loadRfqInvitesWithQuotes(pool, id);
+  sendJson(res, 200, { rfq: publicRfqRequest(rows[0], invites) });
+}
+
+async function handleListRfqs(req, res, query) {
+  const buyerUserId = (query.get("buyerUserId") || "").trim();
+  if (!buyerUserId) return badRequest(res, "buyerUserId is required");
+  const pool = getPool();
+  const [rows] = await pool.query(
+    "SELECT * FROM rfq_requests WHERE buyer_user_id = ? ORDER BY created_at DESC",
+    [buyerUserId]
+  );
+  const rfqs = [];
+  for (const row of rows) {
+    const invites = await loadRfqInvitesWithQuotes(pool, row.id);
+    rfqs.push(publicRfqRequest(row, invites));
+  }
+  sendJson(res, 200, { rfqs });
+}
+
+// POST /api/rfqs/:id/invites — adds one dealer invite. Enforced here too
+// (not just client-side): an RFQ never grows past RFQ_MAX_INVITES active
+// (non-declined/expired) invites — this is an RFQ, not an open spray.
+async function handleCreateRfqInvite(req, res, rfqId) {
+  const body = await readBody(req);
+  const dealerName = (body.dealerName || "").trim();
+  const dealerContactEmail = body.dealerContactEmail ? String(body.dealerContactEmail).trim() : null;
+  if (!dealerName) return badRequest(res, "dealerName is required");
+
+  const pool = getPool();
+  const [rfqRows] = await pool.query("SELECT * FROM rfq_requests WHERE id = ?", [rfqId]);
+  if (rfqRows.length === 0) return sendJson(res, 404, { error: "RFQ not found" });
+
+  const [activeRows] = await pool.query(
+    "SELECT COUNT(*) AS n FROM rfq_invites WHERE rfq_id = ? AND status NOT IN ('declined', 'expired')",
+    [rfqId]
+  );
+  if (activeRows[0].n >= RFQ_MAX_INVITES) {
+    return badRequest(res, `An RFQ can invite at most ${RFQ_MAX_INVITES} dealers`);
+  }
+
+  const [result] = await pool.query(
+    `INSERT INTO rfq_invites (rfq_id, dealer_name, dealer_contact_email, status)
+     VALUES (?, ?, ?, 'invited')`,
+    [rfqId, dealerName, dealerContactEmail]
+  );
+  const mustHaves = typeof rfqRows[0].must_haves_json === "string" ? JSON.parse(rfqRows[0].must_haves_json) : rfqRows[0].must_haves_json;
+  await logRfqEvent(pool, rfqId, "rfq_invited", {
+    dealerName,
+    vin: rfqRows[0].vin,
+    stockNumber: rfqRows[0].stock_number,
+    mustHaves,
+  });
+  const [rows] = await pool.query("SELECT * FROM rfq_invites WHERE id = ?", [result.insertId]);
+  sendJson(res, 201, { invite: publicRfqInvite(rows[0], null) });
+}
+
+// POST /api/rfqs/:id/invites/:inviteId/decline
+async function handleDeclineRfqInvite(req, res, rfqId, inviteId) {
+  const body = await readBody(req);
+  const declineReason = body.declineReason;
+  const validReasons = ["soft_lead", "wrong_car", "options_mismatch", "other"];
+  if (!validReasons.includes(declineReason)) return badRequest(res, "Invalid declineReason");
+
+  const pool = getPool();
+  const [rfqRows] = await pool.query("SELECT * FROM rfq_requests WHERE id = ?", [rfqId]);
+  if (rfqRows.length === 0) return sendJson(res, 404, { error: "RFQ not found" });
+
+  const [result] = await pool.query(
+    `UPDATE rfq_invites SET status = 'declined', decline_reason = ?, responded_at = NOW()
+     WHERE id = ? AND rfq_id = ? AND status = 'invited'`,
+    [declineReason, inviteId, rfqId]
+  );
+  if (result.affectedRows === 0) return sendJson(res, 404, { error: "Invite not found or already responded to" });
+
+  const mustHaves = typeof rfqRows[0].must_haves_json === "string" ? JSON.parse(rfqRows[0].must_haves_json) : rfqRows[0].must_haves_json;
+  await logRfqEvent(pool, rfqId, "desk_declined", {
+    vin: rfqRows[0].vin,
+    stockNumber: rfqRows[0].stock_number,
+    mustHaves,
+    declineReason,
+  });
+
+  const [rows] = await pool.query("SELECT * FROM rfq_invites WHERE id = ?", [inviteId]);
+  sendJson(res, 200, { invite: publicRfqInvite(rows[0], null) });
+}
+
+// POST /api/rfqs/:id/invites/:inviteId/quotes — the one structured-intake
+// endpoint every dealer quote goes through, whether a dealer fills it in
+// themselves or ops relays it from an email/phone call. Every field
+// required here is a field the instrumentation's "quote completeness"
+// metric checks for, so there's no path to a quote missing one.
+async function handleSubmitRfqQuote(req, res, rfqId, inviteId) {
+  const body = await readBody(req);
+  const price = Number(body.price);
+  const fees = Array.isArray(body.fees) ? body.fees : [];
+  const vin = (body.vin || "").trim().toUpperCase();
+  const stockNumber = body.stockNumber ? String(body.stockNumber).trim() : null;
+  const expiresAt = body.expiresAt;
+  const mustHaveAcknowledgement = Boolean(body.mustHaveAcknowledgement);
+  const notes = body.notes ? String(body.notes).trim() : null;
+
+  const pool = getPool();
+  const [rfqRows] = await pool.query("SELECT * FROM rfq_requests WHERE id = ?", [rfqId]);
+  if (rfqRows.length === 0) return sendJson(res, 404, { error: "RFQ not found" });
+  const mustHaves = typeof rfqRows[0].must_haves_json === "string" ? JSON.parse(rfqRows[0].must_haves_json) : rfqRows[0].must_haves_json;
+
+  // Required fields (price, itemized fees, VIN/stock, expiry) are a hard
+  // gate, not a soft completeness score — an incomplete submission is
+  // logged (so "how often do we get incomplete quotes back" is
+  // measurable) and rejected, never stored as a real quote.
+  const missing = [];
+  if (!Number.isFinite(price) || price <= 0) missing.push("price");
+  if (!fees.every((f) => f && typeof f.label === "string" && Number.isFinite(Number(f.amount)))) missing.push("fees");
+  if (!vin) missing.push("vin");
+  if (!expiresAt || Number.isNaN(new Date(expiresAt).getTime())) missing.push("expiresAt");
+  if (!mustHaveAcknowledgement) missing.push("mustHaveAcknowledgement");
+  if (missing.length > 0) {
+    await logRfqEvent(pool, rfqId, "quote_incomplete", {
+      vin: rfqRows[0].vin,
+      stockNumber: rfqRows[0].stock_number,
+      mustHaves,
+      missingFields: missing,
+    });
+    return badRequest(res, `Quote is missing required fields: ${missing.join(", ")}`);
+  }
+
+  const [inviteRows] = await pool.query(
+    "SELECT * FROM rfq_invites WHERE id = ? AND rfq_id = ?",
+    [inviteId, rfqId]
+  );
+  if (inviteRows.length === 0) return sendJson(res, 404, { error: "Invite not found" });
+  if (inviteRows[0].status !== "invited") {
+    return badRequest(res, `This invite already has a response (${inviteRows[0].status})`);
+  }
+
+  const feesTotal = fees.reduce((sum, f) => sum + Number(f.amount), 0);
+  const totalOtdPrice = price + feesTotal;
+
+  const conn = await pool.getConnection();
+  let quoteId;
+  try {
+    await conn.beginTransaction();
+    const [result] = await conn.query(
+      `INSERT INTO rfq_quotes (rfq_id, invite_id, dealer_name, price, fees_json, total_otd_price, vin, stock_number, expires_at, must_have_acknowledgement, notes)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [rfqId, inviteId, inviteRows[0].dealer_name, price, JSON.stringify(fees), totalOtdPrice, vin, stockNumber, new Date(expiresAt), mustHaveAcknowledgement, notes]
+    );
+    quoteId = result.insertId;
+    await conn.query(
+      "UPDATE rfq_invites SET status = 'quoted', responded_at = NOW() WHERE id = ?",
+      [inviteId]
+    );
+    await conn.commit();
+  } catch (err) {
+    await conn.rollback();
+    throw err;
+  } finally {
+    conn.release();
+  }
+
+  await logRfqEvent(pool, rfqId, "quote_received", {
+    vin: rfqRows[0].vin,
+    stockNumber: rfqRows[0].stock_number,
+    mustHaves,
+    quoteVin: vin,
+    quoteStockNumber: stockNumber,
+    totalOtdPrice,
+  });
+
+  const [quoteRows] = await pool.query("SELECT * FROM rfq_quotes WHERE id = ?", [quoteId]);
+  sendJson(res, 201, { quote: publicRfqQuote(quoteRows[0]) });
+}
+
+// POST /api/rfqs/:id/pick — buyer picks one quote. Never touches price or
+// re-verifies anything (that's the existing deal-sheet Verify feature's
+// job on a later, separate object) — this just records the buyer's choice.
+async function handlePickRfqQuote(req, res, rfqId) {
+  const body = await readBody(req);
+  const quoteId = Number(body.quoteId);
+  if (!Number.isFinite(quoteId) || quoteId <= 0) return badRequest(res, "Invalid quoteId");
+
+  const pool = getPool();
+  const [quoteRows] = await pool.query("SELECT id FROM rfq_quotes WHERE id = ? AND rfq_id = ?", [quoteId, rfqId]);
+  if (quoteRows.length === 0) return sendJson(res, 404, { error: "Quote not found on this RFQ" });
+
+  const [result] = await pool.query(
+    "UPDATE rfq_requests SET status = 'picked', picked_quote_id = ? WHERE id = ? AND status = 'collecting'",
+    [quoteId, rfqId]
+  );
+  if (result.affectedRows === 0) return badRequest(res, "This RFQ is no longer open to pick a quote on");
+  const [rows] = await pool.query("SELECT * FROM rfq_requests WHERE id = ?", [rfqId]);
+  const mustHaves = typeof rows[0].must_haves_json === "string" ? JSON.parse(rows[0].must_haves_json) : rows[0].must_haves_json;
+  await logRfqEvent(pool, rfqId, "buyer_picked", {
+    vin: rows[0].vin,
+    stockNumber: rows[0].stock_number,
+    mustHaves,
+    pickedQuoteId: quoteId,
+  });
+  const invites = await loadRfqInvitesWithQuotes(pool, rfqId);
+  sendJson(res, 200, { rfq: publicRfqRequest(rows[0], invites) });
+}
+
+// POST /api/rfqs/:id/walk — buyer walks away without picking anyone.
+async function handleWalkAwayFromRfq(req, res, rfqId) {
+  const pool = getPool();
+  const [result] = await pool.query(
+    "UPDATE rfq_requests SET status = 'walked' WHERE id = ? AND status = 'collecting'",
+    [rfqId]
+  );
+  if (result.affectedRows === 0) return sendJson(res, 404, { error: "RFQ not found or already resolved" });
+  const [rows] = await pool.query("SELECT * FROM rfq_requests WHERE id = ?", [rfqId]);
+  const mustHaves = typeof rows[0].must_haves_json === "string" ? JSON.parse(rows[0].must_haves_json) : rows[0].must_haves_json;
+  await logRfqEvent(pool, rfqId, "buyer_walked", {
+    vin: rows[0].vin,
+    stockNumber: rows[0].stock_number,
+    mustHaves,
+  });
+  const invites = await loadRfqInvitesWithQuotes(pool, rfqId);
+  sendJson(res, 200, { rfq: publicRfqRequest(rows[0], invites) });
+}
+
+// Events only — no dashboard, no aggregation endpoint. Every named event
+// (rfq_invited, quote_received, quote_incomplete, buyer_picked,
+// buyer_walked, desk_declined) is written verbatim to rfq_events with its
+// full payload (VIN/stock, the locked must-haves, and a decline reason
+// when relevant). Scoring — response rate, spec integrity, quote
+// completeness, buyer pick rate, time-to-first-quote — happens offline,
+// by querying this table directly; see lib/rfqLogic.ts for the pure
+// functions that turn raw rows like these into those numbers.
+async function logRfqEvent(pool, rfqId, eventType, payload) {
+  await pool.query(
+    "INSERT INTO rfq_events (rfq_id, event_type, payload_json) VALUES (?, ?, ?)",
+    [rfqId, eventType, JSON.stringify(payload)]
+  );
+}
+
 const server = http.createServer((req, res) => {
   if (!requireAuth(req, res)) return;
 
@@ -859,6 +1229,38 @@ const server = http.createServer((req, res) => {
     return run(handleDealerWonDeals, url.searchParams);
   }
 
+  // RFQs ("invite dealers to quote" experiment — not an auction)
+  if (req.method === "POST" && pathname === "/api/rfqs") {
+    return run(handleCreateRfq);
+  }
+  if (req.method === "GET" && pathname === "/api/rfqs") {
+    return run(handleListRfqs, url.searchParams);
+  }
+  const rfqIdMatch = pathname.match(/^\/api\/rfqs\/(\d+)$/);
+  if (req.method === "GET" && rfqIdMatch) {
+    return run(handleGetRfq, Number(rfqIdMatch[1]));
+  }
+  const rfqInvitesMatch = pathname.match(/^\/api\/rfqs\/(\d+)\/invites$/);
+  if (req.method === "POST" && rfqInvitesMatch) {
+    return run(handleCreateRfqInvite, Number(rfqInvitesMatch[1]));
+  }
+  const rfqInviteDeclineMatch = pathname.match(/^\/api\/rfqs\/(\d+)\/invites\/(\d+)\/decline$/);
+  if (req.method === "POST" && rfqInviteDeclineMatch) {
+    return run(handleDeclineRfqInvite, Number(rfqInviteDeclineMatch[1]), Number(rfqInviteDeclineMatch[2]));
+  }
+  const rfqInviteQuotesMatch = pathname.match(/^\/api\/rfqs\/(\d+)\/invites\/(\d+)\/quotes$/);
+  if (req.method === "POST" && rfqInviteQuotesMatch) {
+    return run(handleSubmitRfqQuote, Number(rfqInviteQuotesMatch[1]), Number(rfqInviteQuotesMatch[2]));
+  }
+  const rfqPickMatch = pathname.match(/^\/api\/rfqs\/(\d+)\/pick$/);
+  if (req.method === "POST" && rfqPickMatch) {
+    return run(handlePickRfqQuote, Number(rfqPickMatch[1]));
+  }
+  const rfqWalkMatch = pathname.match(/^\/api\/rfqs\/(\d+)\/walk$/);
+  if (req.method === "POST" && rfqWalkMatch) {
+    return run(handleWalkAwayFromRfq, Number(rfqWalkMatch[1]));
+  }
+
   sendJson(res, 404, { error: "Not found" });
 });
 
@@ -883,6 +1285,15 @@ server.listen(PORT, () => {
   console.log(`  GET  /api/deal-requests/:id/market`);
   console.log(`  GET  /api/dealer-bids?dealerUserId=`);
   console.log(`  GET  /api/dealer-won-deals?dealerUserId=`);
+  console.log(`  POST /api/rfqs`);
+  console.log(`  GET  /api/rfqs?buyerUserId=`);
+  console.log(`  GET  /api/rfqs/:id`);
+  console.log(`  POST /api/rfqs/:id/invites`);
+  console.log(`  POST /api/rfqs/:id/invites/:inviteId/decline`);
+  console.log(`  POST /api/rfqs/:id/invites/:inviteId/quotes`);
+  console.log(`  POST /api/rfqs/:id/pick`);
+  console.log(`  POST /api/rfqs/:id/walk`);
+  console.log(`  (rfq_events logs rfq_invited/quote_received/quote_incomplete/buyer_picked/buyer_walked/desk_declined — no read endpoint; query the table directly)`);
   console.log(`  GET  /health`);
   console.log(`All routes require header X-Trimscout-Api-Key.`);
 });

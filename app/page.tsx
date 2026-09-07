@@ -563,6 +563,8 @@ export default function Home() {
           onRequestQuote={handleRequestQuoteForVehicle}
           onSearchInstead={handleOpenFlexibleWizard}
           onBack={() => setCurrentView("bid_program")}
+          currentUser={currentUser}
+          onRequireLogin={() => setIsAuthModalOpen(true)}
         />
       )}
 
