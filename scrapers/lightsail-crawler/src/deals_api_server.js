@@ -94,12 +94,12 @@ function requireAuth(req, res) {
   return true;
 }
 
-function readBody(req) {
+function readBody(req, maxBytes = 1_000_000) {
   return new Promise((resolve, reject) => {
     let data = "";
     req.on("data", (chunk) => {
       data += chunk;
-      if (data.length > 1_000_000) {
+      if (data.length > maxBytes) {
         reject(new Error("Body too large"));
         req.destroy();
       }
@@ -136,6 +136,13 @@ function publicDeal(row) {
     status: row.status,
     stripeCheckoutSessionId: row.stripe_checkout_session_id,
     stripePaymentIntentId: row.stripe_payment_intent_id,
+    paperworkStatus: row.paperwork_status || "pending_dealer_upload",
+    contractFileName: row.contract_file_name || null,
+    paperworkUploadedAt: row.paperwork_uploaded_at || null,
+    verification:
+      typeof row.verification_json === "string"
+        ? JSON.parse(row.verification_json)
+        : row.verification_json || null,
     createdAt: row.created_at,
     paidAt: row.paid_at,
   };
@@ -225,6 +232,68 @@ async function handleMarkPaid(req, res, id) {
 
   const [updated] = await pool.query("SELECT * FROM deals WHERE id = ?", [id]);
   sendJson(res, 200, { deal: publicDeal(updated[0]) });
+}
+
+// POST /api/deals/:id/contract — dealer uploads the sales contract for a
+// deal they won. Stores the file inline (base64) alongside the deal row
+// rather than a separate object-storage service — contracts here are a
+// few hundred KB to a couple MB, and this keeps them backed up with the
+// rest of the deal record instead of a second system to manage.
+// The 15 MB cap admits a base64-inflated ~11 MB PDF.
+async function handleUploadContract(req, res, id) {
+  const body = await readBody(req, 15_000_000);
+  const fileName = (body.fileName || "").trim();
+  const contentBase64 = body.contentBase64 || "";
+  if (!fileName) return badRequest(res, "fileName is required");
+  if (!contentBase64) return badRequest(res, "contentBase64 is required");
+
+  const pool = getPool();
+  const [existing] = await pool.query("SELECT id FROM deals WHERE id = ?", [id]);
+  if (existing.length === 0) return sendJson(res, 404, { error: "Deal not found" });
+
+  await pool.query(
+    `UPDATE deals SET
+       contract_file_name = ?, contract_pdf_base64 = ?, paperwork_status = 'uploaded',
+       paperwork_uploaded_at = NOW(), verification_json = NULL
+     WHERE id = ?`,
+    [fileName, contentBase64, id]
+  );
+  const [rows] = await pool.query("SELECT * FROM deals WHERE id = ?", [id]);
+  sendJson(res, 200, { deal: publicDeal(rows[0]) });
+}
+
+// GET /api/deals/:id/contract — server-to-server only, returns the stored
+// file so it can be re-read for AI verification or handed to the buyer as
+// a download. Never exposed straight to a browser (no auth on the file
+// bytes beyond the shared API key every route here already requires).
+async function handleGetContractFile(req, res, id) {
+  const pool = getPool();
+  const [rows] = await pool.query(
+    "SELECT contract_file_name, contract_pdf_base64 FROM deals WHERE id = ?",
+    [id]
+  );
+  if (rows.length === 0) return sendJson(res, 404, { error: "Deal not found" });
+  if (!rows[0].contract_pdf_base64) return sendJson(res, 404, { error: "No contract uploaded for this deal" });
+  sendJson(res, 200, { fileName: rows[0].contract_file_name, contentBase64: rows[0].contract_pdf_base64 });
+}
+
+// POST /api/deals/:id/verification — persists the AI verification result
+// computed by lib/contractVerification.ts. This server never runs the
+// check itself — it only stores whatever result the caller already
+// decided, same boundary as /negotiation on deal_requests.
+async function handleSaveVerification(req, res, id) {
+  const body = await readBody(req);
+  if (!body.verification || typeof body.verification !== "object") {
+    return badRequest(res, "verification is required");
+  }
+  const pool = getPool();
+  const [result] = await pool.query("UPDATE deals SET verification_json = ? WHERE id = ?", [
+    JSON.stringify(body.verification),
+    id,
+  ]);
+  if (result.affectedRows === 0) return sendJson(res, 404, { error: "Deal not found" });
+  const [rows] = await pool.query("SELECT * FROM deals WHERE id = ?", [id]);
+  sendJson(res, 200, { deal: publicDeal(rows[0]) });
 }
 
 // ---------------------------------------------------------------------
@@ -669,11 +738,18 @@ async function handleDealerWonDeals(req, res, query) {
   if (!Number.isFinite(dealerUserId) || dealerUserId <= 0) return badRequest(res, "Invalid dealerUserId");
 
   const pool = getPool();
+  // LEFT JOIN deals: a bid can be 'accepted' (the mark-paid cascade sets
+  // that) slightly before/without a deals row in edge cases, so this must
+  // not drop the won bid just because the deal row lookup comes back
+  // empty — the dealer should still see they won, just without a deal id
+  // to upload paperwork against yet.
   const [rows] = await pool.query(
-    `SELECT db.*, u.name AS buyer_name, u.email AS buyer_email, u.phone AS buyer_phone
+    `SELECT db.*, u.name AS buyer_name, u.email AS buyer_email, u.phone AS buyer_phone,
+            d.id AS deal_id, d.paperwork_status, d.contract_file_name, d.verification_json
      FROM deal_bids db
      JOIN deal_requests dr ON dr.id = db.deal_request_id
      JOIN users u ON u.id = dr.buyer_user_id
+     LEFT JOIN deals d ON d.bid_id = db.id
      WHERE db.dealer_user_id = ? AND db.status = 'accepted'
      ORDER BY db.created_at DESC`,
     [dealerUserId]
@@ -684,6 +760,10 @@ async function handleDealerWonDeals(req, res, query) {
       buyerName: r.buyer_name,
       buyerEmail: r.buyer_email,
       buyerPhone: r.buyer_phone,
+      dealId: r.deal_id ? String(r.deal_id) : null,
+      paperworkStatus: r.paperwork_status || "pending_dealer_upload",
+      contractFileName: r.contract_file_name || null,
+      verification: typeof r.verification_json === "string" ? JSON.parse(r.verification_json) : r.verification_json || null,
     })),
   });
 }
@@ -716,6 +796,17 @@ const server = http.createServer((req, res) => {
   const markPaidMatch = pathname.match(/^\/api\/deals\/(\d+)\/mark-paid$/);
   if (req.method === "POST" && markPaidMatch) {
     return run(handleMarkPaid, Number(markPaidMatch[1]));
+  }
+  const contractMatch = pathname.match(/^\/api\/deals\/(\d+)\/contract$/);
+  if (req.method === "POST" && contractMatch) {
+    return run(handleUploadContract, Number(contractMatch[1]));
+  }
+  if (req.method === "GET" && contractMatch) {
+    return run(handleGetContractFile, Number(contractMatch[1]));
+  }
+  const verificationMatch = pathname.match(/^\/api\/deals\/(\d+)\/verification$/);
+  if (req.method === "POST" && verificationMatch) {
+    return run(handleSaveVerification, Number(verificationMatch[1]));
   }
 
   // deal_requests
@@ -776,6 +867,9 @@ server.listen(PORT, () => {
   console.log(`  POST /api/deals`);
   console.log(`  GET  /api/deals/:id`);
   console.log(`  POST /api/deals/:id/mark-paid`);
+  console.log(`  POST /api/deals/:id/contract`);
+  console.log(`  GET  /api/deals/:id/contract`);
+  console.log(`  POST /api/deals/:id/verification`);
   console.log(`  POST /api/deal-requests`);
   console.log(`  GET  /api/deal-requests?status=&buyerUserId=`);
   console.log(`  GET  /api/deal-requests/:id`);

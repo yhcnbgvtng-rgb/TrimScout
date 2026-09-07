@@ -9,9 +9,10 @@
 // not silently degrade the way a stale-inventory read can.
 
 import { LIGHTSAIL_HOST } from "./lightsailClient";
+import { serverSecret } from "./serverSecret";
+import type { ContractVerificationResult } from "./contractVerification";
 
 const DEALS_API_PORT = 3004;
-const API_KEY = process.env.LIGHTSAIL_API_KEY;
 const DEFAULT_TIMEOUT_MS = 8000;
 
 export interface DealRecord {
@@ -26,6 +27,10 @@ export interface DealRecord {
   status: "pending_payment" | "paid" | "expired" | "cancelled";
   stripeCheckoutSessionId: string | null;
   stripePaymentIntentId: string | null;
+  paperworkStatus: "pending_dealer_upload" | "uploaded";
+  contractFileName: string | null;
+  paperworkUploadedAt: string | null;
+  verification: ContractVerificationResult | null;
   createdAt: string;
   paidAt: string | null;
 }
@@ -39,7 +44,8 @@ export class DealsApiError extends Error {
 }
 
 async function request(method: "GET" | "POST", path: string, body?: unknown): Promise<any> {
-  if (!API_KEY) {
+  const apiKey = serverSecret("LIGHTSAIL_API_KEY");
+  if (!apiKey) {
     throw new DealsApiError("Deals backend is not configured (missing LIGHTSAIL_API_KEY)", 500);
   }
 
@@ -51,7 +57,7 @@ async function request(method: "GET" | "POST", path: string, body?: unknown): Pr
       method,
       headers: {
         "Content-Type": "application/json",
-        "X-Trimscout-Api-Key": API_KEY,
+        "X-Trimscout-Api-Key": apiKey,
       },
       body: body !== undefined ? JSON.stringify(body) : undefined,
       signal: controller.signal,
@@ -108,6 +114,36 @@ export async function markDealPaid(
   input: { stripeCheckoutSessionId: string; stripePaymentIntentId: string | null }
 ): Promise<DealRecord> {
   const json = await request("POST", `/api/deals/${dealId}/mark-paid`, input);
+  return json.deal as DealRecord;
+}
+
+/** Dealer uploads the sales contract for a deal they won. Clears any prior verification — a new upload needs a fresh check. */
+export async function uploadDealContract(
+  dealId: string,
+  input: { fileName: string; contentBase64: string }
+): Promise<DealRecord> {
+  const json = await request("POST", `/api/deals/${dealId}/contract`, input);
+  return json.deal as DealRecord;
+}
+
+export async function getDealContractFile(
+  dealId: string
+): Promise<{ fileName: string; contentBase64: string } | null> {
+  try {
+    const json = await request("GET", `/api/deals/${dealId}/contract`);
+    return { fileName: json.fileName, contentBase64: json.contentBase64 };
+  } catch (err) {
+    if (err instanceof DealsApiError && err.status === 404) return null;
+    throw err;
+  }
+}
+
+/** Persists an already-computed verification result — this call never runs the check itself. */
+export async function saveDealVerification(
+  dealId: string,
+  verification: ContractVerificationResult
+): Promise<DealRecord> {
+  const json = await request("POST", `/api/deals/${dealId}/verification`, { verification });
   return json.deal as DealRecord;
 }
 
@@ -190,6 +226,11 @@ export interface DealerWonDeal {
   buyerName: string;
   buyerEmail: string;
   buyerPhone: string | null;
+  /** Null in the rare window between a bid being accepted and its deals row existing — nothing to upload paperwork against yet. */
+  dealId: string | null;
+  paperworkStatus: "pending_dealer_upload" | "uploaded";
+  contractFileName: string | null;
+  verification: ContractVerificationResult | null;
 }
 
 export async function createDealRequest(input: {
