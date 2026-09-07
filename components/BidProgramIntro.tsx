@@ -15,11 +15,14 @@ import {
 
 interface BidProgramIntroProps {
   onStartWizard: () => void;
+  /** Secondary path: the must-have-options picker over the curated seed inventory (see FactoryMatchFlow). */
+  onStartMatchFlow?: () => void;
   onViewDemoDealRoom: () => void;
 }
 
 export const BidProgramIntro: React.FC<BidProgramIntroProps> = ({
   onStartWizard,
+  onStartMatchFlow,
   onViewDemoDealRoom,
 }) => {
   return (
@@ -27,28 +30,35 @@ export const BidProgramIntro: React.FC<BidProgramIntroProps> = ({
       {/* HERO SECTION */}
       <div className="text-center space-y-6 max-w-3xl mx-auto pt-4">
         <h1 className="text-3xl sm:text-5xl font-black text-white tracking-tight leading-tight">
-          Match Your Must-Have Options. <br />
+          Paste Your VIN. <br />
           <span className="bg-gradient-to-r from-emerald-400 via-teal-300 to-emerald-400 bg-clip-text text-transparent">
-            Request a Real Quote.
+            Get a Real Quote Request Moving.
           </span>
         </h1>
 
         <p className="text-sm sm:text-base text-ink-muted leading-relaxed max-w-2xl mx-auto font-normal">
-          Tell us the trim, factory packages, and color you actually want. We match your must-haves against
-          inventory we&apos;ve verified those options on, show you an honest shortlist, and send your quote
-          request to the dealer who has it.
+          Give us the exact car — a VIN or a dealer listing link — and we&apos;ll read its real factory build, show
+          you exactly what&apos;s on it, and send your quote request to the dealer who has it.
         </p>
 
         {/* Hero CTA */}
-        <div className="flex items-center justify-center pt-2">
+        <div className="flex flex-col items-center justify-center gap-3 pt-2">
           <button
             onClick={onStartWizard}
             className="flex items-center gap-2 rounded-xl bg-emerald-500 px-8 py-3.5 font-extrabold text-sm text-black hover:bg-emerald-400 transition-all shadow-xl shadow-emerald-500/20 active:scale-95"
           >
             <Zap className="h-4 w-4 fill-black" />
-            <span>Start Your Match</span>
+            <span>Structure Your Deal</span>
             <ArrowRight className="h-4 w-4 stroke-[2.5]" />
           </button>
+          {onStartMatchFlow && (
+            <button
+              onClick={onStartMatchFlow}
+              className="text-xs font-semibold text-ink-muted hover:text-white transition-colors underline underline-offset-4 decoration-border"
+            >
+              Don&apos;t have a VIN yet? Match by factory options instead →
+            </button>
+          )}
         </div>
       </div>
 
@@ -198,10 +208,10 @@ export const BidProgramIntro: React.FC<BidProgramIntroProps> = ({
       {/* FINAL LAUNCHPAD */}
       <div className="rounded-3xl border border-emerald-500/40 bg-gradient-to-r from-surface via-surface-elevated to-surface p-8 text-center space-y-5 shadow-2xl relative overflow-hidden">
         <div className="max-w-xl mx-auto space-y-2">
-          <h2 className="text-2xl sm:text-3xl font-black text-white">Ready to Find Your Match?</h2>
+          <h2 className="text-2xl sm:text-3xl font-black text-white">Ready to Get a Real Quote?</h2>
           <p className="text-xs sm:text-sm text-ink-muted">
-            Tell us your must-have options — takes about 2 minutes. We&apos;ll match you against verified
-            inventory and get your quote request moving today.
+            Paste a VIN or dealer link — takes about 2 minutes. We&apos;ll read the real build and get your quote
+            request moving today.
           </p>
         </div>
 
@@ -210,7 +220,7 @@ export const BidProgramIntro: React.FC<BidProgramIntroProps> = ({
           className="inline-flex items-center gap-2 rounded-xl bg-emerald-500 px-8 py-3.5 font-extrabold text-sm text-black hover:bg-emerald-400 transition-all shadow-xl shadow-emerald-500/20 active:scale-95"
         >
           <Zap className="h-4 w-4 fill-black" />
-          <span>Start Your Match</span>
+          <span>Structure Your Deal</span>
           <ArrowRight className="h-4 w-4 stroke-[2.5]" />
         </button>
       </div>
