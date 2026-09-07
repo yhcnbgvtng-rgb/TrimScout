@@ -8,21 +8,25 @@ import {
   ChevronDown,
   ChevronUp,
   SendHorizontal,
+  Users,
   ArrowLeft,
   Search,
 } from "lucide-react";
-import type { Vehicle } from "../lib/types";
+import type { UserProfile, Vehicle } from "../lib/types";
 import type { MatchableVehicle } from "../lib/optionsProvider";
 import { seedOptionsProvider, SEED_SOURCE_LABEL } from "../lib/seedOptionsProvider";
 import { buildOptionCatalog, matchVehicle, rankMatches, type VehicleMatchResult } from "../lib/optionsMatch";
 import { formatFactoryOptionLine } from "../lib/fordCompetitionUi";
 import { formatCurrency } from "../lib/otdCalculator";
+import { RfqInviteDraft } from "./RfqInviteDraft";
 
 interface FactoryMatchFlowProps {
   onRequestQuote: (vehicle: Vehicle) => void;
   /** "I don't see my car here" escape hatch back to the paste-your-own-VIN flow. */
   onSearchInstead: () => void;
   onBack: () => void;
+  currentUser?: UserProfile | null;
+  onRequireLogin?: () => void;
 }
 
 function OptionCheckList({
@@ -56,7 +60,15 @@ function OptionCheckList({
   );
 }
 
-function MatchCard({ result, onRequestQuote }: { result: VehicleMatchResult; onRequestQuote: (v: Vehicle) => void }) {
+function MatchCard({
+  result,
+  onRequestQuote,
+  onInviteToQuote,
+}: {
+  result: VehicleMatchResult;
+  onRequestQuote: (v: Vehicle) => void;
+  onInviteToQuote?: (result: VehicleMatchResult) => void;
+}) {
   const v = result.vehicle;
   return (
     <div className={`rounded-2xl border p-4 space-y-3 bg-surface ${result.isFullMatch ? "border-emerald-500/60" : "border-border"}`}>
@@ -87,22 +99,39 @@ function MatchCard({ result, onRequestQuote }: { result: VehicleMatchResult; onR
         ))}
       </div>
 
-      <button
-        onClick={() => onRequestQuote(v)}
-        className="w-full flex items-center justify-center gap-2 rounded-lg bg-emerald-500 px-4 py-2 text-xs font-extrabold text-black hover:bg-emerald-400 transition-all"
-      >
-        <SendHorizontal className="h-3.5 w-3.5" />
-        Request quote
-      </button>
+      {result.isFullMatch && onInviteToQuote ? (
+        <button
+          onClick={() => onInviteToQuote(result)}
+          className="w-full flex items-center justify-center gap-2 rounded-lg bg-emerald-500 px-4 py-2 text-xs font-extrabold text-black hover:bg-emerald-400 transition-all"
+        >
+          <Users className="h-3.5 w-3.5" />
+          Invite Dealers to Quote
+        </button>
+      ) : (
+        <button
+          onClick={() => onRequestQuote(v)}
+          className="w-full flex items-center justify-center gap-2 rounded-lg bg-emerald-500 px-4 py-2 text-xs font-extrabold text-black hover:bg-emerald-400 transition-all"
+        >
+          <SendHorizontal className="h-3.5 w-3.5" />
+          Request quote
+        </button>
+      )}
     </div>
   );
 }
 
-export const FactoryMatchFlow: React.FC<FactoryMatchFlowProps> = ({ onRequestQuote, onSearchInstead, onBack }) => {
+export const FactoryMatchFlow: React.FC<FactoryMatchFlowProps> = ({
+  onRequestQuote,
+  onSearchInstead,
+  onBack,
+  currentUser,
+  onRequireLogin,
+}) => {
   const [inventory, setInventory] = useState<MatchableVehicle[] | null>(null);
   const [mustHaveCodes, setMustHaveCodes] = useState<string[]>([]);
   const [niceToHaveCodes, setNiceToHaveCodes] = useState<string[]>([]);
   const [showNiceToHave, setShowNiceToHave] = useState(false);
+  const [inviteDraftFor, setInviteDraftFor] = useState<VehicleMatchResult | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -132,6 +161,17 @@ export const FactoryMatchFlow: React.FC<FactoryMatchFlowProps> = ({ onRequestQuo
 
   const fullMatches = ranked.filter((r) => r.isFullMatch);
   const closest = ranked.filter((r) => !r.isFullMatch).slice(0, 3);
+
+  if (inviteDraftFor) {
+    return (
+      <RfqInviteDraft
+        result={inviteDraftFor}
+        currentUser={currentUser}
+        onRequireLogin={onRequireLogin}
+        onCancel={() => setInviteDraftFor(null)}
+      />
+    );
+  }
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6 lg:px-8 space-y-8 animate-fadeIn">
@@ -199,7 +239,7 @@ export const FactoryMatchFlow: React.FC<FactoryMatchFlowProps> = ({ onRequestQuo
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {fullMatches.map((r) => (
-                <MatchCard key={r.vehicle.id} result={r} onRequestQuote={onRequestQuote} />
+                <MatchCard key={r.vehicle.id} result={r} onRequestQuote={onRequestQuote} onInviteToQuote={setInviteDraftFor} />
               ))}
             </div>
           </>
