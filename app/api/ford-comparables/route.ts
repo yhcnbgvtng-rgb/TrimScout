@@ -6,6 +6,7 @@ import { NextResponse } from "next/server";
 import { FORD_LISTINGS_LOAD_FAILED } from "@/lib/fordCompetitionUi";
 import { getFordSticker, isFordOrLincolnVin } from "@/lib/fordSticker";
 import { findSimilarFordVehicles, hasListingsApiKey, isUsableHuntLocation } from "@/lib/vinSearch";
+import { guardPaidDecode } from "@/lib/apiSpendGuard";
 
 export async function POST(request: Request) {
   const body = await request.json().catch(() => ({}));
@@ -39,6 +40,11 @@ export async function POST(request: Request) {
       hasListingsKey: hasListingsApiKey(),
       note: "Enter a 5-digit ZIP and a search radius in miles to see two matching lots in range.",
     });
+  }
+
+  const blocked = guardPaidDecode({ kind: "ford_comparables", request });
+  if (blocked) {
+    return NextResponse.json({ error: blocked.message, matches: [], dropped: [] }, { status: blocked.status });
   }
 
   try {

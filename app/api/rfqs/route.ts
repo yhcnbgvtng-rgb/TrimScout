@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { createRfq, listRfqsForBuyer, RfqApiError } from "@/lib/rfqApi";
 import { isFullyLockedSpec } from "@/lib/rfqLogic";
+import { recordQuoteRequest } from "@/lib/apiSpendGuard";
 
 export async function GET() {
   const session = await auth();
@@ -49,6 +50,7 @@ export async function POST(req: Request) {
       vehicleTrim: body.vehicleTrim,
       mustHaves: body.mustHaves,
     });
+    recordQuoteRequest();
     return NextResponse.json({ rfq });
   } catch (err) {
     const message = err instanceof RfqApiError ? err.message : "Could not create your request.";

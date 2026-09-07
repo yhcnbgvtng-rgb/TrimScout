@@ -16,6 +16,7 @@ import {
   type ListingFeedMake,
 } from "./listingFeedBuild";
 import { factoryBuildFailedError, factoryBuildUnavailableError } from "./pasteImport";
+import { guardPaidDecode, isPaidVinDecodeEnabled } from "./apiSpendGuard";
 
 export interface ListingFeedRouteConfig {
   make: ListingFeedMake;
@@ -40,7 +41,7 @@ function vinPasteError(message: string, extra?: { dealerBlocked?: boolean; vin?:
 export function createListingFeedStickerHandlers(config: ListingFeedRouteConfig) {
   const { make, looksLikePaste, notFlag } = config;
 
-  async function lookup(opts: { vin?: string; paste?: string; pasteUrl: string | null }) {
+  async function lookup(opts: { vin?: string; paste?: string; pasteUrl: string | null; request: Request }) {
     const paste = opts.paste || "";
     const makeish = looksLikePaste(paste) || looksLikePaste(opts.vin || "");
     const forcedVin = opts.vin && opts.vin.trim().length === 17 ? opts.vin.trim().toUpperCase() : "";
@@ -73,6 +74,36 @@ export function createListingFeedStickerHandlers(config: ListingFeedRouteConfig)
         return vinPasteError(`Could not read a ${make.label} VIN from that page. Paste the 17-character VIN.`, { vin });
       }
       return NextResponse.json({ handled: false, [notFlag]: true, vin, error: factoryBuildUnavailableError(vin) });
+    }
+
+    // Paid VIN/options decode — off by default (see lib/apiSpendGuard.ts).
+    // This is a deliberate kill switch, not a bug: flip
+    // PAID_VIN_DECODE_ENABLED=true only once the seed shortlist's honesty
+    // checks are green.
+    if (!isPaidVinDecodeEnabled()) {
+      return NextResponse.json(
+        {
+          error: `${make.label} factory-option lookup is temporarily unavailable.`,
+          handled: true,
+          needsVin: false,
+          vin,
+          sticker: { status: "error", pdfUrl: null, msrp: null },
+        },
+        { status: 503 }
+      );
+    }
+    const blocked = guardPaidDecode({ kind: `listing_feed_sticker_${make.key}`, request: opts.request });
+    if (blocked) {
+      return NextResponse.json(
+        {
+          error: blocked.message,
+          handled: true,
+          needsVin: false,
+          vin,
+          sticker: { status: "error", pdfUrl: null, msrp: null },
+        },
+        { status: blocked.status }
+      );
     }
 
     try {
@@ -121,14 +152,14 @@ export function createListingFeedStickerHandlers(config: ListingFeedRouteConfig)
     if (!vin) {
       return NextResponse.json({ error: "vin is required" }, { status: 400 });
     }
-    return lookup({ vin, paste: vin, pasteUrl: null });
+    return lookup({ vin, paste: vin, pasteUrl: null, request });
   }
 
   async function POST(request: Request) {
     const body = await request.json().catch(() => ({}));
     const paste = typeof body?.paste === "string" ? body.paste : "";
     const vinArg = typeof body?.vin === "string" ? body.vin : "";
-    return lookup({ vin: vinArg, paste, pasteUrl: paste });
+    return lookup({ vin: vinArg, paste, pasteUrl: paste, request });
   }
 
   return { GET, POST };

@@ -7,6 +7,7 @@ import { invitedDealersFromVehicles, primaryDealTimeZone } from "@/lib/dealEngag
 import { decorateDealRequestJson, seedDealInvites } from "@/lib/dealEngagementStore";
 import { mapDealRequestJson } from "@/lib/shopperDeal";
 import { notifyDealersOfNewOffer } from "@/lib/dealerEmail";
+import { recordQuoteRequest } from "@/lib/apiSpendGuard";
 
 export async function GET() {
   const session = await auth();
@@ -75,6 +76,7 @@ export async function POST(req: Request) {
       sameStateOnly: body.sameStateOnly !== false,
       buyerComment: buyerComment || undefined,
     });
+    recordQuoteRequest();
     const mapped = mapDealRequestJson(dealRequest as unknown as Record<string, unknown>);
     const seeds = invitedDealersFromVehicles(mapped.targetVehicle, mapped.otherLots);
     await seedDealInvites(

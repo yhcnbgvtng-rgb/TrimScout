@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { createRfqInvite, getRfq, RfqApiError } from "@/lib/rfqApi";
+import { guardPerDeskCap } from "@/lib/apiSpendGuard";
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
@@ -12,6 +13,16 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   const dealerName = typeof body?.dealerName === "string" ? body.dealerName.trim() : "";
   if (!dealerName) {
     return NextResponse.json({ error: "A dealer name is required." }, { status: 400 });
+  }
+
+  // Per-desk cap: independent of the per-IP limit in middleware.ts — this
+  // catches the same dealer being named across many different RFQs/buyers,
+  // which an IP-keyed bucket can't see.
+  if (!guardPerDeskCap(dealerName)) {
+    return NextResponse.json(
+      { error: `${dealerName} has already received the maximum number of requests for today. Try again tomorrow.` },
+      { status: 429 }
+    );
   }
 
   try {
