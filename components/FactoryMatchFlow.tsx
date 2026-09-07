@@ -138,6 +138,9 @@ export const FactoryMatchFlow: React.FC<FactoryMatchFlowProps> = ({
     seedOptionsProvider.listMatchableVehicles().then((vehicles) => {
       if (!cancelled) setInventory(vehicles);
     });
+    // Fire-and-forget — logged separately from paid_decode so seed-tier
+    // usage never gets conflated with paid vendor spend in the logs.
+    fetch("/api/events/seed-match", { method: "POST" }).catch(() => {});
     return () => {
       cancelled = true;
     };

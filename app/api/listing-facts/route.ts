@@ -9,6 +9,7 @@ import {
   normalizeListingVins,
   publicListingSheets,
 } from "@/lib/listingSheet";
+import { guardPaidDecode } from "@/lib/apiSpendGuard";
 
 /**
  * Live per-VIN listing facts for the compare page.
@@ -20,6 +21,11 @@ export async function POST(request: Request) {
   const vins = normalizeListingVins(body?.vins);
   if (vins.length === 0) {
     return NextResponse.json({ sheets: [] });
+  }
+
+  const blocked = guardPaidDecode({ kind: "listing_facts", request });
+  if (blocked) {
+    return NextResponse.json({ error: blocked.message, sheets: [] }, { status: blocked.status });
   }
 
   try {

@@ -7,6 +7,7 @@ import { calculateDistanceMiles, getZipCoordinates } from "@/lib/otdCalculator";
 import { runUnifiedScrapers, scrapePorscheInventory } from "@/lib/scrapers";
 import { exteriorColorNameFor } from "@/lib/porscheColors";
 import { serverSecret } from "@/lib/serverSecret";
+import { guardPaidDecode } from "@/lib/apiSpendGuard";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -266,10 +267,16 @@ export async function GET(request: Request) {
       }
     }
 
-    // 2. MARKETCHECK LIVE AUTOMOTIVE INVENTORY API
+    // 2. MARKETCHECK LIVE AUTOMOTIVE INVENTORY API — gated: rate-limited
+    // and budget-capped, since unlike the seed/smart_feed tier below this
+    // one costs real money per call. Falls through to smart_feed on a
+    // block, same as it already does on a missing key or a failed call —
+    // this endpoint should never dead-end a browser that just got
+    // rate-limited on the paid tier.
     if (provider === "marketcheck") {
       const mcKey = serverSecret("MARKETCHECK_API_KEY") || "";
-      if (mcKey) {
+      const blocked = mcKey ? guardPaidDecode({ kind: "inventory_marketcheck", request }) : null;
+      if (mcKey && !blocked) {
         try {
           const mcUrl = new URL("https://mc-api.marketcheck.com/v2/search/car/active");
           mcUrl.searchParams.set("api_key", mcKey);
