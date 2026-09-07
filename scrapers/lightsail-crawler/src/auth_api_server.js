@@ -268,9 +268,24 @@ function publicDealership(row) {
     contactName: row.contact_name,
     contactEmail: row.contact_email,
     notes: row.notes,
+    emailOptOut: Boolean(row.email_opt_out),
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
+}
+
+// POST /api/dealerships/:id/opt-out — a dealer clicked the unsubscribe link
+// in an offer-notification email. Server-to-server only (the public
+// unsubscribe link hits a Next.js route, which verifies the link's HMAC
+// token itself before ever calling this) — deliberately one-directional,
+// no "opt back in" here, since re-subscribing isn't something a stray
+// forwarded link should be able to do.
+async function handleSetDealershipOptOut(req, res, id) {
+  const pool = getPool();
+  const [result] = await pool.query("UPDATE dealership_contacts SET email_opt_out = 1 WHERE id = ?", [id]);
+  if (result.affectedRows === 0) return sendJson(res, 404, { error: "Dealership not found" });
+  const [rows] = await pool.query("SELECT * FROM dealership_contacts WHERE id = ?", [id]);
+  sendJson(res, 200, { dealership: publicDealership(rows[0]) });
 }
 
 // GET /api/dealerships — full directory listing.
@@ -511,6 +526,10 @@ const server = http.createServer((req, res) => {
   }
   if (dealershipMatch && req.method === "DELETE") {
     return run((request, response) => handleDeleteDealership(request, response, dealershipMatch[1]));
+  }
+  const optOutMatch = pathname.match(/^\/api\/dealerships\/(\d+)\/opt-out$/);
+  if (optOutMatch && req.method === "POST") {
+    return run((request, response) => handleSetDealershipOptOut(request, response, optOutMatch[1]));
   }
 
   sendJson(res, 404, { error: "Not found" });

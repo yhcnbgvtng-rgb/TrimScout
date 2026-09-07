@@ -77,7 +77,8 @@ describe("buildOfferEmail", () => {
     const { subject, html } = buildOfferEmail(
       { dealerName: "Battlefield Ford", dealerState: "VA", dealerCity: "Culpeper", knownRooftop: true },
       "real-gm@battlefieldford.com",
-      request
+      request,
+      null
     );
     assert.match(subject, /Battlefield Ford/);
     assert.match(html, /Battlefield Ford/);
@@ -90,9 +91,29 @@ describe("buildOfferEmail", () => {
     const { html } = buildOfferEmail(
       { dealerName: "Some Rooftop", dealerState: "TX", knownRooftop: true },
       null,
-      request
+      request,
+      null
     );
     assert.match(html, /none found in the dealership directory/);
+  });
+
+  it("includes an unsubscribe link when one is given, and nothing when there isn't", () => {
+    const withLink = buildOfferEmail(
+      { dealerName: "Some Rooftop", dealerState: "TX", knownRooftop: true },
+      null,
+      request,
+      "https://www.trimscout.com/api/dealer-unsubscribe?id=1&token=abc"
+    );
+    assert.match(withLink.html, /Unsubscribe/);
+    assert.match(withLink.html, /dealer-unsubscribe\?id=1&amp;token=abc/);
+
+    const withoutLink = buildOfferEmail(
+      { dealerName: "Some Rooftop", dealerState: "TX", knownRooftop: true },
+      null,
+      request,
+      null
+    );
+    assert.doesNotMatch(withoutLink.html, /Unsubscribe/);
   });
 });
 
@@ -161,6 +182,63 @@ describe("notifyDealersOfNewOffer — safety override", () => {
         assert.ok(!allTo.includes("definitely-real@jimshorkeyford.com"));
         assert.ok(results.every((r) => r.sent === true));
         assert.equal(results.find((r) => r.dealerName === "Battlefield Ford")?.resolvedContactEmail, "real-gm@battlefieldford.com");
+      } finally {
+        globalThis.fetch = origFetch;
+      }
+    });
+  });
+
+  it("never emails a dealer who opted out, but still emails the other invited dealer on the same deal", async () => {
+    await withEnv({ LIGHTSAIL_API_KEY: "test-key", RESEND_API_KEY: "test-resend-key" }, async () => {
+      const origFetch = globalThis.fetch;
+      const resendCalls: Array<{ subject: string; html: string }> = [];
+      globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+        const url = String(input);
+        if (url.includes("/api/dealerships")) {
+          return new Response(
+            JSON.stringify({
+              dealerships: [
+                {
+                  id: "1",
+                  dealerName: "Battlefield Ford",
+                  city: "Culpeper",
+                  state: "VA",
+                  contactEmail: "real-gm@battlefieldford.com",
+                  emailOptOut: true,
+                },
+                {
+                  id: "2",
+                  dealerName: "Jim Shorkey Ford",
+                  city: "White Oak",
+                  state: "PA",
+                  contactEmail: "definitely-real@jimshorkeyford.com",
+                  emailOptOut: false,
+                },
+              ],
+            }),
+            { status: 200, headers: { "Content-Type": "application/json" } }
+          );
+        }
+        if (url === "https://api.resend.com/emails") {
+          const body = JSON.parse(String(init?.body || "{}"));
+          resendCalls.push({ subject: body.subject, html: body.html });
+          return new Response(JSON.stringify({ id: "email_1" }), { status: 200 });
+        }
+        throw new Error(`Unexpected fetch to ${url}`);
+      }) as typeof fetch;
+
+      try {
+        const results = await notifyDealersOfNewOffer(request);
+        assert.equal(results.length, 2);
+        const optedOut = results.find((r) => r.dealerName === "Battlefield Ford");
+        assert.equal(optedOut?.sent, false);
+        assert.equal(optedOut?.error, "dealer unsubscribed");
+        const other = results.find((r) => r.dealerName === "Jim Shorkey Ford");
+        assert.equal(other?.sent, true);
+        // Only the non-opted-out dealer's email actually went to Resend.
+        assert.equal(resendCalls.length, 1);
+        assert.match(resendCalls[0].subject, /Jim Shorkey Ford/);
+        assert.match(resendCalls[0].html, /dealer-unsubscribe\?id=2&amp;token=/);
       } finally {
         globalThis.fetch = origFetch;
       }
