@@ -553,7 +553,8 @@ export default function Home() {
       {/* View 2: Reverse Bidding Program Intro Page */}
       {currentView === "bid_program" && (
         <BidProgramIntro
-          onStartWizard={() => setCurrentView("factory_match")}
+          onStartWizard={handleOpenFlexibleWizard}
+          onStartMatchFlow={() => setCurrentView("factory_match")}
           onViewDemoDealRoom={() => setCurrentView("deal_room")}
         />
       )}
