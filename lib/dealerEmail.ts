@@ -21,6 +21,7 @@ import { reviewTargetFromVehicle } from "./fordCompetitionUi";
 import { formatDealStructures } from "./dealStructure";
 import { serverSecret } from "./serverSecret";
 import { unsubscribeUrlFor } from "./dealerUnsubscribe";
+import { dealerSignupInviteUrl } from "./dealerSignupInvite";
 import type { BiddingRequest } from "./types";
 
 export const SAFE_MODE_RECIPIENT = "pausmi@outlook.com";
@@ -66,7 +67,9 @@ export function buildOfferEmail(
   seed: InvitedDealerSeed,
   resolvedContactEmail: string | null,
   request: BiddingRequest,
-  unsubscribeUrl: string | null
+  unsubscribeUrl: string | null,
+  /** Only ever set when the dealer matched a real dealership_contacts row — an unmatched dealer has no directory id to build the invite from. */
+  signupUrl: string | null
 ): { subject: string; html: string } {
   const target = reviewTargetFromVehicle(request.targetVehicle);
   const vehicleLine = target?.title || "a vehicle";
@@ -93,6 +96,14 @@ export function buildOfferEmail(
   }.</p>
   <p>Payment: ${escapeHtml(paymentLabel)}<br/>${escapeHtml(otdLine)}</p>
   <p style="color:#666;font-size:12px;">Deal request ID: ${escapeHtml(request.id)}</p>
+  ${
+    signupUrl
+      ? `<p style="margin:20px 0 4px;">
+           <a href="${escapeHtml(signupUrl)}" style="background:#111;color:#fff;padding:10px 18px;border-radius:6px;text-decoration:none;font-weight:bold;display:inline-block;">Sign In / Sign Up to Respond</a>
+         </p>
+         <p style="color:#666;font-size:12px;">Create your free TrimScout dealer account — it's pre-filled for ${escapeHtml(seed.dealerName)} — to see this request and send back your best price.</p>`
+      : ""
+  }
   ${
     unsubscribeUrl
       ? `<p style="color:#999;font-size:11px;border-top:1px solid #e5e5e5;padding-top:10px;margin-top:16px;">
@@ -146,7 +157,8 @@ export async function notifyDealersOfNewOffer(request: BiddingRequest): Promise<
     }
 
     const unsubscribeUrl = match ? unsubscribeUrlFor(match.id) : null;
-    const { subject, html } = buildOfferEmail(seed, resolvedContactEmail, request, unsubscribeUrl);
+    const signupUrl = match ? dealerSignupInviteUrl(match.id) : null;
+    const { subject, html } = buildOfferEmail(seed, resolvedContactEmail, request, unsubscribeUrl, signupUrl);
     try {
       const sent = await sendViaResend(subject, html);
       results.push({
