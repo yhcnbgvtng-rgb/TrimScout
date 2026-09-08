@@ -7,7 +7,7 @@ import { calculateDistanceMiles, getZipCoordinates } from "@/lib/otdCalculator";
 import { runUnifiedScrapers, scrapePorscheInventory } from "@/lib/scrapers";
 import { exteriorColorNameFor } from "@/lib/porscheColors";
 import { serverSecret } from "@/lib/serverSecret";
-import { guardPaidDecode } from "@/lib/apiSpendGuard";
+import { guardPaidDecode, MARKETCHECK_CALL_COST_USD } from "@/lib/apiSpendGuard";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -275,7 +275,9 @@ export async function GET(request: Request) {
     // rate-limited on the paid tier.
     if (provider === "marketcheck") {
       const mcKey = serverSecret("MARKETCHECK_API_KEY") || "";
-      const blocked = mcKey ? guardPaidDecode({ kind: "inventory_marketcheck", request }) : null;
+      const blocked = mcKey
+        ? guardPaidDecode({ kind: "inventory_marketcheck", request, estCostUsd: MARKETCHECK_CALL_COST_USD.search })
+        : null;
       if (mcKey && !blocked) {
         try {
           const mcUrl = new URL("https://mc-api.marketcheck.com/v2/search/car/active");

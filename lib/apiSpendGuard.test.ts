@@ -95,6 +95,24 @@ describe("guardPaidDecode — daily budget kill switch", () => {
       assert.ok(blocked);
     });
   });
+
+  it("fails closed by default — an unset budget blocks everything rather than guessing a number", () => {
+    withEnv({ PAID_DECODE_DAILY_BUDGET_USD: undefined }, () => {
+      const blocked = guardPaidDecode({ kind: "test", request: reqFrom("6.6.6.6") });
+      assert.ok(blocked);
+      assert.equal(blocked?.status, 429);
+    });
+  });
+
+  it("an explicit per-call estCostUsd overrides the flat default, for routes that fan out to multiple vendor calls", () => {
+    withEnv({ PAID_DECODE_DAILY_BUDGET_USD: "0.02", PAID_DECODE_PER_IP_LIMIT: "1000" }, () => {
+      // One "listing-facts for 2 VINs" request costs 2 * (0.002+0.006+0.002) = 0.02 — exactly the budget.
+      const first = guardPaidDecode({ kind: "listing_facts", request: reqFrom("7.7.7.7"), estCostUsd: 0.02 });
+      assert.equal(first, null);
+      const second = guardPaidDecode({ kind: "listing_facts", request: reqFrom("7.7.7.8"), estCostUsd: 0.02 });
+      assert.ok(second);
+    });
+  });
 });
 
 describe("guardPerDeskCap", () => {

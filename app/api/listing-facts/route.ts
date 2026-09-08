@@ -9,7 +9,7 @@ import {
   normalizeListingVins,
   publicListingSheets,
 } from "@/lib/listingSheet";
-import { guardPaidDecode } from "@/lib/apiSpendGuard";
+import { guardPaidDecode, MARKETCHECK_CALL_COST_USD } from "@/lib/apiSpendGuard";
 
 /**
  * Live per-VIN listing facts for the compare page.
@@ -23,7 +23,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ sheets: [] });
   }
 
-  const blocked = guardPaidDecode({ kind: "listing_facts", request });
+  // fetchShopperListingSheets fires up to 3 real MarketCheck calls PER VIN
+  // (search + history, always; a conditional listing-detail call if a
+  // listing id resolves) — charge the worst case (all 3 fire) per VIN
+  // rather than a flat per-request estimate, since this route can cost up
+  // to `vins.length * 3` real vendor calls in one POST.
+  const costPerVin = MARKETCHECK_CALL_COST_USD.search + MARKETCHECK_CALL_COST_USD.history + MARKETCHECK_CALL_COST_USD.listingDetail;
+  const blocked = guardPaidDecode({ kind: "listing_facts", request, estCostUsd: vins.length * costPerVin });
   if (blocked) {
     return NextResponse.json({ error: blocked.message, sheets: [] }, { status: blocked.status });
   }

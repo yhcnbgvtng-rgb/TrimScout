@@ -7,7 +7,7 @@ import { FORD_LISTINGS_LOAD_FAILED } from "@/lib/fordCompetitionUi";
 import { getGmSticker, isGmVin } from "@/lib/gmSticker";
 import { findSimilarGmVehicles } from "@/lib/gmVinSearch";
 import { hasListingsApiKey, isUsableHuntLocation } from "@/lib/vinSearch";
-import { guardPaidDecode } from "@/lib/apiSpendGuard";
+import { guardPaidDecode, MARKETCHECK_CALL_COST_USD } from "@/lib/apiSpendGuard";
 
 export async function POST(request: Request) {
   const body = await request.json().catch(() => ({}));
@@ -43,7 +43,7 @@ export async function POST(request: Request) {
     });
   }
 
-  const blocked = guardPaidDecode({ kind: "gm_comparables", request });
+  const blocked = guardPaidDecode({ kind: "gm_comparables", request, estCostUsd: MARKETCHECK_CALL_COST_USD.search });
   if (blocked) {
     return NextResponse.json({ error: blocked.message, matches: [], dropped: [] }, { status: blocked.status });
   }

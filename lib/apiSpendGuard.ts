@@ -99,16 +99,39 @@ function currentDailySpend(): DailySpend {
 }
 
 function dailyBudgetUsd(): number {
-  return numEnv("PAID_DECODE_DAILY_BUDGET_USD", 15);
+  // No safe default exists here — this is a real dollar ceiling on a real
+  // vendor contract, and only the account holder can say what they're
+  // willing to spend per day. Until PAID_DECODE_DAILY_BUDGET_USD is set,
+  // default to 0 (block everything) rather than guess a number that could
+  // either surprise-bill someone or silently allow more than they meant.
+  return numEnv("PAID_DECODE_DAILY_BUDGET_USD", 0);
 }
 
+// ---------------------------------------------------------------------
+// Real per-call MarketCheck pricing (published rate card, confirmed
+// 2026-09-08 at marketcheck.com/apis/pricing — "data fees" charged in
+// addition to the monthly plan fee, on every call regardless of plan
+// tier). Each call site below reports its own actual call composition
+// via `estCostUsd` rather than one flat guess, since TrimScout's real
+// costs span a 3x range depending on which endpoint fires:
+//   /v2/search/car/active   -> "Inventory Search API"  -> $0.002/call
+//   /v2/history/car/:vin    -> "VIN History API"        -> $0.006/call
+//   /v2/listing/car/:id     -> not a separately published line item;
+//                              treated as Inventory-Search-equivalent
+//                              ($0.002) — confirm with MarketCheck's
+//                              account console if exact precision matters
+// A caller that doesn't know its own composition falls back to
+// PAID_DECODE_EST_COST_USD, defaulted to the cheapest real rate ($0.002)
+// rather than an invented number.
+// ---------------------------------------------------------------------
+export const MARKETCHECK_CALL_COST_USD = {
+  search: 0.002,
+  history: 0.006,
+  listingDetail: 0.002,
+} as const;
+
 function estCostPerCallUsd(): number {
-  // MarketCheck doesn't hand back real-time per-call billing here, so this
-  // is a flat, deliberately conservative estimate — tune via env once
-  // real invoice data is available. Overestimating trips the kill switch
-  // earlier (safer); underestimating lets real spend run ahead of this
-  // counter, which is exactly the failure mode a real cost API would fix.
-  return numEnv("PAID_DECODE_EST_COST_USD", 0.05);
+  return numEnv("PAID_DECODE_EST_COST_USD", MARKETCHECK_CALL_COST_USD.search);
 }
 
 // ---------------------------------------------------------------------
@@ -174,7 +197,18 @@ export interface PaidDecodeGuardResult {
   message: string;
 }
 
-export function guardPaidDecode(opts: { kind: string; request: Request }): PaidDecodeGuardResult | null {
+export function guardPaidDecode(opts: {
+  kind: string;
+  request: Request;
+  /**
+   * The real cost of THIS call, in dollars — e.g. a listing-facts request
+   * for 3 VINs (search + history + listing-detail each) should pass
+   * `3 * (MARKETCHECK_CALL_COST_USD.search + .history + .listingDetail)`,
+   * not the single-call default. Omit only when the call site really is
+   * exactly one vendor request at the default rate.
+   */
+  estCostUsd?: number;
+}): PaidDecodeGuardResult | null {
   const now = Date.now();
   const ip = clientIpFromHeaders(opts.request.headers);
 
@@ -192,9 +226,9 @@ export function guardPaidDecode(opts: { kind: string; request: Request }): PaidD
     return { allowed: false, status: 429, message: "Too many requests. Please wait a moment and try again." };
   }
 
-  // Allowed — charge the estimate and log the real call now, since the
-  // caller is about to make it.
-  const cost = estCostPerCallUsd();
+  // Allowed — charge the real cost and log the call now, since the caller
+  // is about to make it.
+  const cost = opts.estCostUsd ?? estCostPerCallUsd();
   spend.totalUsd += cost;
   spend.callCount += 1;
   recent.paidDecodeTimestamps.push(now);
