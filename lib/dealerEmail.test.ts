@@ -78,6 +78,7 @@ describe("buildOfferEmail", () => {
       { dealerName: "Battlefield Ford", dealerState: "VA", dealerCity: "Culpeper", knownRooftop: true },
       "real-gm@battlefieldford.com",
       request,
+      null,
       null
     );
     assert.match(subject, /Battlefield Ford/);
@@ -92,6 +93,7 @@ describe("buildOfferEmail", () => {
       { dealerName: "Some Rooftop", dealerState: "TX", knownRooftop: true },
       null,
       request,
+      null,
       null
     );
     assert.match(html, /none found in the dealership directory/);
@@ -102,7 +104,8 @@ describe("buildOfferEmail", () => {
       { dealerName: "Some Rooftop", dealerState: "TX", knownRooftop: true },
       null,
       request,
-      "https://www.trimscout.com/api/dealer-unsubscribe?id=1&token=abc"
+      "https://www.trimscout.com/api/dealer-unsubscribe?id=1&token=abc",
+      null
     );
     assert.match(withLink.html, /Unsubscribe/);
     assert.match(withLink.html, /dealer-unsubscribe\?id=1&amp;token=abc/);
@@ -111,9 +114,32 @@ describe("buildOfferEmail", () => {
       { dealerName: "Some Rooftop", dealerState: "TX", knownRooftop: true },
       null,
       request,
+      null,
       null
     );
     assert.doesNotMatch(withoutLink.html, /Unsubscribe/);
+  });
+
+  it("includes a sign in/sign up CTA when a signup URL is given (a matched dealership), and nothing when there isn't", () => {
+    const withSignup = buildOfferEmail(
+      { dealerName: "Battlefield Ford", dealerState: "VA", knownRooftop: true },
+      null,
+      request,
+      null,
+      "https://www.trimscout.com/signup?dealerId=1&dealerToken=abc"
+    );
+    assert.match(withSignup.html, /Sign In \/ Sign Up to Respond/);
+    assert.match(withSignup.html, /signup\?dealerId=1&amp;dealerToken=abc/);
+    assert.match(withSignup.html, /pre-filled for Battlefield Ford/);
+
+    const withoutSignup = buildOfferEmail(
+      { dealerName: "Battlefield Ford", dealerState: "VA", knownRooftop: true },
+      null,
+      request,
+      null,
+      null
+    );
+    assert.doesNotMatch(withoutSignup.html, /Sign In \/ Sign Up/);
   });
 });
 
@@ -182,6 +208,44 @@ describe("notifyDealersOfNewOffer — safety override", () => {
         assert.ok(!allTo.includes("definitely-real@jimshorkeyford.com"));
         assert.ok(results.every((r) => r.sent === true));
         assert.equal(results.find((r) => r.dealerName === "Battlefield Ford")?.resolvedContactEmail, "real-gm@battlefieldford.com");
+      } finally {
+        globalThis.fetch = origFetch;
+      }
+    });
+  });
+
+  it("includes a working, dealership-specific signup-invite link for a matched dealer", async () => {
+    await withEnv({ LIGHTSAIL_API_KEY: "test-key", RESEND_API_KEY: "test-resend-key" }, async () => {
+      const origFetch = globalThis.fetch;
+      const resendCalls: Array<{ html: string }> = [];
+      globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+        const url = String(input);
+        if (url.includes("/api/dealerships")) {
+          return new Response(
+            JSON.stringify({
+              dealerships: [
+                { id: "1", dealerName: "Battlefield Ford", city: "Culpeper", state: "VA", contactEmail: "real-gm@battlefieldford.com" },
+                { id: "2", dealerName: "Jim Shorkey Ford", city: "White Oak", state: "PA", contactEmail: "definitely-real@jimshorkeyford.com" },
+              ],
+            }),
+            { status: 200, headers: { "Content-Type": "application/json" } }
+          );
+        }
+        if (url === "https://api.resend.com/emails") {
+          const body = JSON.parse(String(init?.body || "{}"));
+          resendCalls.push({ html: body.html });
+          return new Response(JSON.stringify({ id: "email_1" }), { status: 200 });
+        }
+        throw new Error(`Unexpected fetch to ${url}`);
+      }) as typeof fetch;
+
+      try {
+        await notifyDealersOfNewOffer(request);
+        assert.equal(resendCalls.length, 2);
+        for (const call of resendCalls) {
+          assert.match(call.html, /Sign In \/ Sign Up to Respond/);
+          assert.match(call.html, /\/signup\?dealerId=(1|2)&amp;dealerToken=[0-9a-f]{64}/);
+        }
       } finally {
         globalThis.fetch = origFetch;
       }
