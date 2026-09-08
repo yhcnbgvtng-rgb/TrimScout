@@ -17,6 +17,7 @@ import {
   Mail,
   MapPin,
   Upload,
+  Link2,
 } from "lucide-react";
 import type { Dealership, DealershipInput, BulkUpsertResult } from "@/lib/dealershipsApi";
 import { parseDealershipCsv, type DealershipCsvParseResult } from "@/lib/dealershipCsv";
@@ -206,6 +207,18 @@ export default function DealershipsClient() {
     }
   };
 
+  const handleCopySignupLink = async (d: Dealership) => {
+    try {
+      const res = await fetch(`/api/admin/dealerships/${d.id}/signup-invite`);
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "Failed to generate the invite link");
+      await navigator.clipboard.writeText(json.url);
+      showToast(`Signup link copied — pre-fills "${d.dealerName}" for whoever opens it.`);
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : "Failed to generate the invite link");
+    }
+  };
+
   const filtered = dealerships.filter((d) => {
     if (!searchQuery.trim()) return true;
     const q = searchQuery.toLowerCase();
@@ -334,6 +347,14 @@ export default function DealershipsClient() {
                       <td className="py-3.5 px-4 text-[11px] text-ink-muted max-w-[220px] truncate">{d.notes}</td>
                       <td className="py-3.5 px-4 text-right">
                         <div className="flex items-center justify-end gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() => handleCopySignupLink(d)}
+                            className="p-1.5 rounded-lg border border-border bg-surface-elevated hover:text-white text-ink-muted hover:border-border-strong transition-all"
+                            title="Copy signup link — pre-fills this dealership's name"
+                          >
+                            <Link2 className="h-3.5 w-3.5" />
+                          </button>
                           <button
                             type="button"
                             onClick={() => openEdit(d)}

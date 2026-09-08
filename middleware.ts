@@ -69,6 +69,9 @@ const RULES: { match: (path: string) => boolean; limit: number; windowMs: number
   { match: (p) => p.startsWith("/api/checkout/"), limit: 10, windowMs: 60_000 },
   { match: (p) => p.startsWith("/api/deal-requests"), limit: 20, windowMs: 60_000 },
   { match: (p) => p.startsWith("/api/rfqs"), limit: 20, windowMs: 60_000 },
+  // Unauthenticated by design (an invited dealer has no account yet), so
+  // gated here against token-guessing the same way /api/auth/signup is.
+  { match: (p) => p === "/api/dealer-signup-invite", limit: 20, windowMs: 60_000 },
 ];
 
 export function middleware(req: NextRequest) {
@@ -88,5 +91,11 @@ export function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/api/auth/:path*", "/api/checkout/:path*", "/api/deal-requests/:path*", "/api/rfqs/:path*"],
+  matcher: [
+    "/api/auth/:path*",
+    "/api/checkout/:path*",
+    "/api/deal-requests/:path*",
+    "/api/rfqs/:path*",
+    "/api/dealer-signup-invite",
+  ],
 };
