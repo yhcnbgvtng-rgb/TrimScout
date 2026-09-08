@@ -123,6 +123,17 @@ describe("listing sheet mapping", () => {
     assert.match(json, /Data powered by MarketCheck/);
   });
 
+  it("falls back to the search row's photo when the listing-detail row has none — the compare-page 'photo doesn't load' bug", () => {
+    const withoutMedia: Record<string, unknown> = { ...listingPayload(OTHER) };
+    delete withoutMedia.media;
+    const sheet = shopperSheetFromMarketCheckPayloads({
+      vin: OTHER,
+      searchListing: listingPayload(OTHER),
+      listingDetail: withoutMedia,
+    });
+    assert.equal(sheet.photoUrl, "https://cdn.example.com/car.jpg");
+  });
+
   it("empty listing is generic unavailable with no vendor name or attribution", () => {
     const sheet = shopperSheetFromMarketCheckPayloads({ vin: FAVORITE, searchListing: null });
     assert.equal(sheet.available, false);

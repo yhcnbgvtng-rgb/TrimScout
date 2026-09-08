@@ -326,7 +326,16 @@ export function shopperSheetFromMarketCheckPayloads(opts: {
   if (!row) return emptySheet(vin, LISTING_DETAILS_UNAVAILABLE);
 
   const dealer = record(row.dealer) || {};
-  const media = record(row.media);
+  // Photos specifically fall back to the search row's media, not just
+  // detail's: `row` prefers the /v2/listing/car/:id detail response
+  // wholesale when one was fetched, but that endpoint doesn't reliably
+  // carry the same `media.photo_links` shape the /v2/search/car/active
+  // response does — when detail lacks it, the search row's photo (which
+  // did resolve) was being silently dropped instead of used. This was the
+  // "main photo doesn't load" bug on the compare page for any real
+  // (non-seed) imported vehicle, since those have no imageUrl of their
+  // own and depend entirely on this photo resolving.
+  const media = record(row.media) || record(search?.media);
   const extra = record(row.extra);
   const advertisedPrice = asPositivePrice(row.price) ?? asPositivePrice(row.asking_price);
   const msrp = asPositivePrice(row.msrp);
