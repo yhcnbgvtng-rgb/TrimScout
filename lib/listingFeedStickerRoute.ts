@@ -16,7 +16,7 @@ import {
   type ListingFeedMake,
 } from "./listingFeedBuild";
 import { factoryBuildFailedError, factoryBuildUnavailableError } from "./pasteImport";
-import { guardPaidDecode, isPaidVinDecodeEnabled } from "./apiSpendGuard";
+import { guardPaidDecode, isPaidVinDecodeEnabled, MARKETCHECK_CALL_COST_USD } from "./apiSpendGuard";
 
 export interface ListingFeedRouteConfig {
   make: ListingFeedMake;
@@ -92,7 +92,13 @@ export function createListingFeedStickerHandlers(config: ListingFeedRouteConfig)
         { status: 503 }
       );
     }
-    const blocked = guardPaidDecode({ kind: `listing_feed_sticker_${make.key}`, request: opts.request });
+    // getListingFeedBuild fires 1-2 real MarketCheck calls per VIN (search,
+    // plus a conditional listing-detail call) — charge the worst case.
+    const blocked = guardPaidDecode({
+      kind: `listing_feed_sticker_${make.key}`,
+      request: opts.request,
+      estCostUsd: MARKETCHECK_CALL_COST_USD.search + MARKETCHECK_CALL_COST_USD.listingDetail,
+    });
     if (blocked) {
       return NextResponse.json(
         {

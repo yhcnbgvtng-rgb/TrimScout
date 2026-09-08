@@ -15,6 +15,7 @@ import {
 } from "@/lib/genesisSticker";
 import { factoryBuildFailedError, factoryBuildUnavailableError } from "@/lib/pasteImport";
 import { currentDealerForVin } from "@/lib/listingSheet";
+import { guardPaidDecode, MARKETCHECK_CALL_COST_USD } from "@/lib/apiSpendGuard";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -22,14 +23,14 @@ export async function GET(request: Request) {
   if (!vin) {
     return NextResponse.json({ error: "vin is required" }, { status: 400 });
   }
-  return lookup({ vin, paste: vin, pasteUrl: null });
+  return lookup({ vin, paste: vin, pasteUrl: null, request });
 }
 
 export async function POST(request: Request) {
   const body = await request.json().catch(() => ({}));
   const paste = typeof body?.paste === "string" ? body.paste : "";
   const vinArg = typeof body?.vin === "string" ? body.vin : "";
-  return lookup({ vin: vinArg, paste, pasteUrl: paste });
+  return lookup({ vin: vinArg, paste, pasteUrl: paste, request });
 }
 
 function vinPasteError(message: string, extra?: { dealerBlocked?: boolean; vin?: string | null }) {
@@ -45,7 +46,7 @@ function vinPasteError(message: string, extra?: { dealerBlocked?: boolean; vin?:
   );
 }
 
-async function lookup(opts: { vin?: string; paste?: string; pasteUrl: string | null }) {
+async function lookup(opts: { vin?: string; paste?: string; pasteUrl: string | null; request: Request }) {
   const paste = opts.paste || "";
   const genesisish = looksLikeGenesisPaste(paste) || looksLikeGenesisPaste(opts.vin || "");
   const forcedVin = opts.vin && opts.vin.trim().length === 17 ? opts.vin.trim().toUpperCase() : "";
@@ -90,9 +91,18 @@ async function lookup(opts: { vin?: string; paste?: string; pasteUrl: string | n
   }
 
   try {
+    // The window-sticker fetch itself is free (official Genesis PDF).
+    // currentDealerForVin is the one real MarketCheck call in this route —
+    // gated the same as every other paid call; when blocked, degrade to
+    // "current dealer unknown" rather than failing the free sticker lookup.
+    const dealerBlocked = guardPaidDecode({
+      kind: "genesis_current_dealer",
+      request: opts.request,
+      estCostUsd: MARKETCHECK_CALL_COST_USD.search,
+    });
     const [sticker, currentDealer] = await Promise.all([
       getGenesisSticker(vin),
-      currentDealerForVin(vin),
+      dealerBlocked ? Promise.resolve(null) : currentDealerForVin(vin),
     ]);
     const listingUrl =
       opts.pasteUrl && /^https?:\/\//i.test(opts.pasteUrl) ? opts.pasteUrl.trim() : null;

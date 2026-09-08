@@ -6,7 +6,7 @@ import { NextResponse } from "next/server";
 import { FORD_LISTINGS_LOAD_FAILED } from "@/lib/fordCompetitionUi";
 import { getFordSticker, isFordOrLincolnVin } from "@/lib/fordSticker";
 import { findSimilarFordVehicles, hasListingsApiKey, isUsableHuntLocation } from "@/lib/vinSearch";
-import { guardPaidDecode } from "@/lib/apiSpendGuard";
+import { guardPaidDecode, MARKETCHECK_CALL_COST_USD } from "@/lib/apiSpendGuard";
 
 export async function POST(request: Request) {
   const body = await request.json().catch(() => ({}));
@@ -42,7 +42,7 @@ export async function POST(request: Request) {
     });
   }
 
-  const blocked = guardPaidDecode({ kind: "ford_comparables", request });
+  const blocked = guardPaidDecode({ kind: "ford_comparables", request, estCostUsd: MARKETCHECK_CALL_COST_USD.search });
   if (blocked) {
     return NextResponse.json({ error: blocked.message, matches: [], dropped: [] }, { status: blocked.status });
   }

@@ -4,7 +4,7 @@ export const runtime = "nodejs";
 
 import { NextResponse } from "next/server";
 import { findComparableListingsByMakeModel } from "@/lib/vinSearch";
-import { guardPaidDecode } from "@/lib/apiSpendGuard";
+import { guardPaidDecode, MARKETCHECK_CALL_COST_USD } from "@/lib/apiSpendGuard";
 
 // The compare page's one and only comparable-vehicle search: a single
 // MarketCheck call by year/make/model/zip/radius, full result set returned
@@ -24,7 +24,7 @@ export async function POST(request: Request) {
   const radiusMiles = Number(body?.radiusMiles);
   const subjectVin = String(body?.subjectVin || "").trim();
 
-  const blocked = guardPaidDecode({ kind: "manual_comparables", request });
+  const blocked = guardPaidDecode({ kind: "manual_comparables", request, estCostUsd: MARKETCHECK_CALL_COST_USD.search });
   if (blocked) {
     return NextResponse.json({ error: blocked.message, matches: [] }, { status: blocked.status });
   }
