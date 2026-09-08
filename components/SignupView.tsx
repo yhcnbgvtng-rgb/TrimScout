@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
 import {
   Compass,
@@ -20,7 +21,8 @@ import {
   ChevronRight,
   TrendingDown,
   Shield,
-  FileCheck
+  FileCheck,
+  BadgeCheck
 } from "lucide-react";
 
 interface SignupViewProps {
@@ -32,13 +34,16 @@ export const SignupView: React.FC<SignupViewProps> = ({
   onSuccess,
   onNavigateHome,
 }) => {
+  const searchParams = useSearchParams();
   const [role, setRole] = useState<"buyer" | "dealer">("buyer");
-  
+
   // Form fields
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [phone, setPhone] = useState("");
   const [zipCode, setZipCode] = useState("94107");
   const [dealerName, setDealerName] = useState("");
@@ -47,10 +52,58 @@ export const SignupView: React.FC<SignupViewProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
+  // Dealer signup invite (?dealerId=&dealerToken= from an admin-generated
+  // link) — when it resolves, the dealership name is pulled from the
+  // invite itself and the field is locked, so an invited dealer can't
+  // fat-finger or spoof a different dealership's name. Any dealer who
+  // isn't responding to an invite (no link, or the link fails to
+  // resolve) falls straight back to today's manual, editable field.
+  const [dealerInviteId, setDealerInviteId] = useState<string | null>(null);
+  const [dealerInviteToken, setDealerInviteToken] = useState<string | null>(null);
+  const [inviteStatus, setInviteStatus] = useState<"checking" | "valid" | "none">("none");
+  const [inviteError, setInviteError] = useState("");
+
+  useEffect(() => {
+    const id = searchParams.get("dealerId");
+    const token = searchParams.get("dealerToken");
+    if (!id || !token) return;
+
+    setRole("dealer");
+    setInviteStatus("checking");
+    let cancelled = false;
+    fetch(`/api/dealer-signup-invite?dealerId=${encodeURIComponent(id)}&dealerToken=${encodeURIComponent(token)}`)
+      .then(async (res) => {
+        const json = await res.json().catch(() => ({}));
+        if (cancelled) return;
+        if (!res.ok || !json.dealerName) {
+          setInviteStatus("none");
+          setInviteError(json.error || "This invite link is invalid or has expired. You can still sign up manually below.");
+          return;
+        }
+        setDealerInviteId(id);
+        setDealerInviteToken(token);
+        setDealerName(json.dealerName);
+        setInviteStatus("valid");
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setInviteStatus("none");
+        setInviteError("Could not verify this invite link. You can still sign up manually below.");
+      });
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password) {
       setErrorMsg("Please provide an email and password to create your account.");
+      return;
+    }
+    if (password !== confirmPassword) {
+      setErrorMsg("Passwords don't match — check and re-enter them.");
       return;
     }
     if (!agreeTerms) {
@@ -73,6 +126,8 @@ export const SignupView: React.FC<SignupViewProps> = ({
           phone: phone || undefined,
           zipCode: zipCode || undefined,
           dealerName: role === "dealer" ? dealerName : undefined,
+          dealerInviteId: role === "dealer" ? dealerInviteId || undefined : undefined,
+          dealerInviteToken: role === "dealer" ? dealerInviteToken || undefined : undefined,
         }),
       });
       const json = await res.json();
@@ -168,8 +223,9 @@ export const SignupView: React.FC<SignupViewProps> = ({
               <div className="grid grid-cols-2 p-1 rounded-2xl bg-surface-elevated border border-border gap-1">
                 <button
                   type="button"
+                  disabled={inviteStatus === "valid"}
                   onClick={() => setRole("buyer")}
-                  className={`flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-bold transition-all ${
+                  className={`flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-bold transition-all disabled:opacity-40 disabled:cursor-not-allowed ${
                     role === "buyer"
                       ? "bg-emerald-500 text-black shadow-md shadow-emerald-500/20 font-black"
                       : "text-ink-muted hover:text-white"
@@ -181,8 +237,9 @@ export const SignupView: React.FC<SignupViewProps> = ({
 
                 <button
                   type="button"
+                  disabled={inviteStatus === "valid"}
                   onClick={() => setRole("dealer")}
-                  className={`flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-bold transition-all ${
+                  className={`flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-bold transition-all disabled:opacity-40 disabled:cursor-not-allowed ${
                     role === "dealer"
                       ? "bg-emerald-500 text-black shadow-md shadow-emerald-500/20 font-black"
                       : "text-ink-muted hover:text-white"
@@ -193,6 +250,28 @@ export const SignupView: React.FC<SignupViewProps> = ({
                 </button>
               </div>
             </div>
+
+            {/* Dealer invite banner */}
+            {inviteStatus === "checking" && (
+              <div className="rounded-xl border border-border bg-surface-elevated p-3 text-xs text-ink-muted flex items-center gap-2">
+                <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-ink-faint border-t-transparent" />
+                <span>Checking your invite link…</span>
+              </div>
+            )}
+            {inviteStatus === "valid" && (
+              <div className="rounded-xl border border-emerald-500/40 bg-emerald-950/30 p-3 text-xs text-emerald-300 flex items-center gap-2 animate-fadeIn">
+                <BadgeCheck className="h-4 w-4 text-emerald-400 shrink-0" />
+                <span>
+                  You&apos;re signing up as <strong className="text-white">{dealerName}</strong> — invited by TrimScout.
+                </span>
+              </div>
+            )}
+            {inviteStatus === "none" && inviteError && (
+              <div className="rounded-xl border border-amber-500/40 bg-amber-950/30 p-3 text-xs text-amber-200 flex items-center gap-2 animate-fadeIn">
+                <ShieldCheck className="h-4 w-4 text-amber-400 shrink-0" />
+                <span>{inviteError}</span>
+              </div>
+            )}
 
             {/* Error Message display */}
             {errorMsg && (
@@ -242,7 +321,7 @@ export const SignupView: React.FC<SignupViewProps> = ({
                 </div>
               </div>
 
-              {/* Password & Zip Code */}
+              {/* Password & Confirm Password */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {/* Password */}
                 <div className="space-y-1.5">
@@ -254,6 +333,7 @@ export const SignupView: React.FC<SignupViewProps> = ({
                     <input
                       type={showPassword ? "text" : "password"}
                       required
+                      minLength={8}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="Minimum 8 characters"
@@ -269,23 +349,57 @@ export const SignupView: React.FC<SignupViewProps> = ({
                   </div>
                 </div>
 
-                {/* Zip Code for Local Tax & DMV calculation */}
+                {/* Confirm Password */}
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-bold uppercase text-ink-faint">
-                    {role === "buyer" ? "Buyer Zip Code (For Tax Calculation)" : "Dealership Zip Code"}
+                    Confirm Password
                   </label>
                   <div className="relative">
-                    <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-emerald-400" />
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-ink-faint" />
                     <input
-                      type="text"
-                      maxLength={5}
+                      type={showConfirmPassword ? "text" : "password"}
                       required
-                      value={zipCode}
-                      onChange={(e) => setZipCode(e.target.value.replace(/\D/g, ""))}
-                      placeholder="94107"
-                      className="w-full rounded-xl border border-border bg-surface-elevated pl-9 pr-3.5 py-2.5 text-white placeholder-ink-faint text-xs font-mono focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 transition-all"
+                      minLength={8}
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      placeholder="Re-enter your password"
+                      aria-invalid={confirmPassword.length > 0 && confirmPassword !== password}
+                      className={`w-full rounded-xl border bg-surface-elevated pl-9 pr-9 py-2.5 text-white placeholder-ink-faint text-xs focus:outline-none focus:ring-1 transition-all ${
+                        confirmPassword.length > 0 && confirmPassword !== password
+                          ? "border-rose-500 focus:border-rose-500 focus:ring-rose-500"
+                          : "border-border focus:border-emerald-500 focus:ring-emerald-500"
+                      }`}
                     />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-faint hover:text-white"
+                    >
+                      {showConfirmPassword ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+                    </button>
                   </div>
+                  {confirmPassword.length > 0 && confirmPassword !== password && (
+                    <p className="text-[10px] text-rose-400">Passwords don&apos;t match.</p>
+                  )}
+                </div>
+              </div>
+
+              {/* Zip Code for Local Tax & DMV calculation */}
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-bold uppercase text-ink-faint">
+                  {role === "buyer" ? "Buyer Zip Code (For Tax Calculation)" : "Dealership Zip Code"}
+                </label>
+                <div className="relative">
+                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-emerald-400" />
+                  <input
+                    type="text"
+                    maxLength={5}
+                    required
+                    value={zipCode}
+                    onChange={(e) => setZipCode(e.target.value.replace(/\D/g, ""))}
+                    placeholder="94107"
+                    className="w-full rounded-xl border border-border bg-surface-elevated pl-9 pr-3.5 py-2.5 text-white placeholder-ink-faint text-xs font-mono focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 transition-all"
+                  />
                 </div>
               </div>
 
@@ -295,16 +409,18 @@ export const SignupView: React.FC<SignupViewProps> = ({
                   <div className="space-y-1.5">
                     <label className="text-[10px] font-bold uppercase text-ink-faint">
                       Franchise Dealership Name
+                      {inviteStatus === "valid" && <span className="text-emerald-400 normal-case font-semibold"> · from your invite</span>}
                     </label>
                     <div className="relative">
                       <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-ink-faint" />
                       <input
                         type="text"
                         required
+                        disabled={inviteStatus === "valid"}
                         value={dealerName}
                         onChange={(e) => setDealerName(e.target.value)}
                         placeholder="e.g. BMW of San Rafael"
-                        className="w-full rounded-xl border border-border bg-surface-elevated pl-9 pr-3.5 py-2.5 text-white placeholder-ink-faint text-xs focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 transition-all"
+                        className="w-full rounded-xl border border-border bg-surface-elevated pl-9 pr-3.5 py-2.5 text-white placeholder-ink-faint text-xs focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 transition-all disabled:opacity-70 disabled:cursor-not-allowed"
                       />
                     </div>
                   </div>

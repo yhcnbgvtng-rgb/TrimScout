@@ -2,7 +2,7 @@
 
 export const dynamic = "force-dynamic";
 
-import React from "react";
+import React, { Suspense } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -43,7 +43,9 @@ export default function SignupPage() {
 
       {/* Main Signup Form Content */}
       <main className="flex-1 flex items-center justify-center">
-        <SignupView onSuccess={() => router.push("/")} onNavigateHome={() => router.push("/")} />
+        <Suspense fallback={null}>
+          <SignupView onSuccess={() => router.push("/")} onNavigateHome={() => router.push("/")} />
+        </Suspense>
       </main>
 
       {/* Footer */}
