@@ -112,6 +112,71 @@ interface BiddingWizardProps {
   onRealBidRequestCreated?: (request: BiddingRequest) => void;
 }
 
+/** One alternate-vehicle slot in Step 1 — resolved via the same real factory-build import as the primary VIN. */
+function AlternateVinField({
+  label,
+  value,
+  onChange,
+  onImport,
+  vehicle,
+  error,
+  parsing,
+  onRemove,
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  onImport: () => void;
+  vehicle: Vehicle | null;
+  error: string | null;
+  parsing: boolean;
+  onRemove: () => void;
+}) {
+  if (vehicle) {
+    return (
+      <div className="flex items-center justify-between gap-2 rounded-xl border border-emerald-500/40 bg-emerald-500/5 px-3 py-2.5">
+        <div className="min-w-0">
+          <p className="text-[10px] font-bold uppercase text-emerald-400">{label} — added</p>
+          <p className="text-xs text-white font-semibold truncate">
+            {vehicle.year} {vehicle.make} {vehicle.model} {vehicle.trim}
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={onRemove}
+          aria-label={`Remove ${label.toLowerCase()}`}
+          className="shrink-0 text-ink-muted hover:text-rose-400 transition-colors"
+        >
+          <X className="h-4 w-4" />
+        </button>
+      </div>
+    );
+  }
+  return (
+    <div className="space-y-1">
+      <span className="text-[10px] font-bold uppercase text-ink-faint">{label} (optional)</span>
+      <div className="flex gap-2">
+        <input
+          type="text"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder="17-character VIN or dealer listing URL"
+          className="w-full rounded-lg border border-border bg-background py-2 px-3 text-xs text-white placeholder-ink-faint focus:border-emerald-500 focus:outline-none font-mono"
+        />
+        <button
+          type="button"
+          onClick={onImport}
+          disabled={parsing || !value.trim()}
+          className="rounded-lg border border-border px-3.5 py-2 text-[11px] font-bold text-ink-light hover:border-emerald-500 hover:text-white transition-all disabled:opacity-50 shrink-0"
+        >
+          {parsing ? "Adding…" : "Add"}
+        </button>
+      </div>
+      {error && <p className="text-[10px] text-rose-400">{error}</p>}
+    </div>
+  );
+}
+
 export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   isOpen,
   onClose,
@@ -139,6 +204,21 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   const [niceToHavePackages, setNiceToHavePackages] = useState<string[]>([]);
   const [huntZip, setHuntZip] = useState("");
   const [huntRadius, setHuntRadius] = useState("");
+
+  // Up to 2 alternate vehicles to ride along with the primary in the same
+  // offer (see lib/offerCompare.ts's collectDealVehicles, which already
+  // caps a deal at 3 vehicles total — this just finally feeds it real
+  // ones instead of the hardcoded empty array the wizard used before).
+  // Each resolves through the same real factory-build import as the
+  // primary, so the compare page can show real specs/photos for them too.
+  const [altVin1, setAltVin1] = useState("");
+  const [altVehicle1, setAltVehicle1] = useState<Vehicle | null>(null);
+  const [altParsing1, setAltParsing1] = useState(false);
+  const [altError1, setAltError1] = useState<string | null>(null);
+  const [altVin2, setAltVin2] = useState("");
+  const [altVehicle2, setAltVehicle2] = useState<Vehicle | null>(null);
+  const [altParsing2, setAltParsing2] = useState(false);
+  const [altError2, setAltError2] = useState<string | null>(null);
 
   // Set when the buyer explicitly chooses to skip the multi-dealer auction
   // and send a single, anonymized offer straight to the favorite vehicle's
@@ -293,6 +373,49 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     setIsParsingLink(false);
   };
 
+  // Resolves an alternate VIN/link through the same real import used for
+  // the primary vehicle — never a lighter/fake lookup — but never touches
+  // the primary's own state (must-haves, selected trim, etc.).
+  const handleParseAlt1 = async () => {
+    const raw = altVin1.trim();
+    if (!raw) return;
+    setAltParsing1(true);
+    setAltError1(null);
+    const result = await importPastedFactoryVehicle(raw);
+    if (!result.ok) {
+      setAltError1(result.error);
+      setAltParsing1(false);
+      return;
+    }
+    setAltVehicle1(result.vehicle);
+    setAltParsing1(false);
+  };
+  const removeAlt1 = () => {
+    setAltVehicle1(null);
+    setAltVin1("");
+    setAltError1(null);
+  };
+
+  const handleParseAlt2 = async () => {
+    const raw = altVin2.trim();
+    if (!raw) return;
+    setAltParsing2(true);
+    setAltError2(null);
+    const result = await importPastedFactoryVehicle(raw);
+    if (!result.ok) {
+      setAltError2(result.error);
+      setAltParsing2(false);
+      return;
+    }
+    setAltVehicle2(result.vehicle);
+    setAltParsing2(false);
+  };
+  const removeAlt2 = () => {
+    setAltVehicle2(null);
+    setAltVin2("");
+    setAltError2(null);
+  };
+
   const chooseDirectOffer = () => {
     setOfferPath("direct");
     setDirectOfferMode(true);
@@ -360,7 +483,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     directOfferMode || offerPath === "direct" ? "firm_offer" : "exact_auction";
 
   const dealVehicles = collectDealVehicles(selectedVehicle, []);
-  const otherLotsForDeal: Vehicle[] = [];
+  const otherLotsForDeal: Vehicle[] = [altVehicle1, altVehicle2].filter((v): v is Vehicle => v != null);
 
   const vehicleTermsForDeal = defaultTermsForVehicles(dealVehicles, {
       requestedStructures,
@@ -415,7 +538,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     const snapshot = buildOfferCompareSnapshot({
       request,
       favorite: selectedVehicle,
-      otherLots: [],
+      otherLots: otherLotsForDeal,
       buyerZip,
       requestedStructures,
       mustHaveLines: mustHavePackages,
@@ -562,24 +685,29 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                 </p>
               </div>
 
-              <div className="flex flex-wrap items-center gap-x-5 gap-y-1.5">
+              <div className="space-y-1.5">
                 <span className="text-xs font-semibold text-ink-light">Payment methods</span>
-                {DEAL_STRUCTURE_METHODS.map((id) => {
-                  const isChecked = requestedStructures.includes(id);
-                  return (
-                    <label key={id} className="flex items-center gap-2 py-0.5 text-xs cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={isChecked}
-                        onChange={() => setRequestedStructures((current) => toggleDealStructure(current, id))}
-                        className="h-3.5 w-3.5 shrink-0 rounded border-border text-emerald-500 focus:ring-0"
-                      />
-                      <span className={isChecked ? "text-white" : "text-ink-light"}>
+                <div className="grid grid-cols-3 gap-2">
+                  {DEAL_STRUCTURE_METHODS.map((id) => {
+                    const isChecked = requestedStructures.includes(id);
+                    return (
+                      <button
+                        key={id}
+                        type="button"
+                        aria-pressed={isChecked}
+                        onClick={() => setRequestedStructures((current) => toggleDealStructure(current, id))}
+                        className={`flex items-center justify-center gap-1.5 rounded-xl border px-3 py-2.5 text-xs font-bold transition-all ${
+                          isChecked
+                            ? "border-emerald-500 bg-emerald-500/10 text-white"
+                            : "border-border text-ink-light hover:border-border-strong"
+                        }`}
+                      >
+                        {isChecked && <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 shrink-0" />}
                         {DEAL_STRUCTURE_LABELS[id]}
-                      </span>
-                    </label>
-                  );
-                })}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
               {requestedStructures.length === 0 && (
                 <p className="text-[11px] text-rose-400">Select at least one payment method to continue.</p>
@@ -679,22 +807,23 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                             huntLocationMissing ? "text-amber-300" : "text-ink-faint"
                           }`}
                         >
-                          Radius miles (required)
+                          Radius miles (required, 100 mi max)
                         </span>
                         <input
                           type="text"
                           inputMode="numeric"
                           value={huntRadius}
                           onChange={(e) => {
-                            const next = e.target.value.replace(/\D/g, "").slice(0, 4);
-                            setHuntRadius(next);
-                            const n = Number(next);
+                            const digits = e.target.value.replace(/\D/g, "").slice(0, 3);
+                            const clamped = digits === "" ? "" : String(Math.min(100, Number(digits)));
+                            setHuntRadius(clamped);
+                            const n = Number(clamped);
                             if (Number.isFinite(n) && n > 0) setSearchRadius(n);
                           }}
-                          placeholder="e.g. 100"
+                          placeholder="up to 100"
                           aria-required="true"
                           aria-invalid={huntLocationMissing}
-                          aria-label="Search radius in miles"
+                          aria-label="Search radius in miles, maximum 100"
                           autoComplete="off"
                           className={`w-full rounded-xl border bg-background py-2 px-3 text-xs text-white placeholder-ink-faint focus:border-emerald-500 focus:outline-none font-mono ${
                             huntLocationMissing
@@ -705,11 +834,11 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                       </label>
                     </div>
                     <p className="text-[10px] text-ink-faint">
-                      ZIP and radius are saved with this deal. They do not search listings.
+                      ZIP and radius are saved with this deal. They do not search listings. Radius is capped at 100 miles.
                     </p>
 
                     <label className="text-[11px] font-bold text-ink-light uppercase flex items-center justify-between pt-2">
-                      <span>Paste a dealer VDP URL or 17-character VIN:</span>
+                      <span>Primary vehicle (required) — dealer VDP URL or 17-character VIN:</span>
                     </label>
 
                     <div className="flex flex-col sm:flex-row gap-2">
@@ -752,6 +881,32 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                     {!vehicleImported && !isParsingLink && (
                       <p className="text-[11px] text-rose-400">Import a car to continue.</p>
                     )}
+
+                    <div className="space-y-2 pt-1">
+                      <p className="text-[10px] text-ink-faint">
+                        Add up to 2 similar vehicles to include in the same offer — dealers can quote on any of the three.
+                      </p>
+                      <AlternateVinField
+                        label="Alternate vehicle 1"
+                        value={altVin1}
+                        onChange={setAltVin1}
+                        onImport={handleParseAlt1}
+                        vehicle={altVehicle1}
+                        error={altError1}
+                        parsing={altParsing1}
+                        onRemove={removeAlt1}
+                      />
+                      <AlternateVinField
+                        label="Alternate vehicle 2"
+                        value={altVin2}
+                        onChange={setAltVin2}
+                        onImport={handleParseAlt2}
+                        vehicle={altVehicle2}
+                        error={altError2}
+                        parsing={altParsing2}
+                        onRemove={removeAlt2}
+                      />
+                    </div>
 
                   {/* Decoded Vehicle Preview Box */}
                   {parseSuccessMsg && selectedVehicle && (
