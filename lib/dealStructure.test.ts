@@ -46,9 +46,9 @@ describe("BiddingWizard step 1 payment checkboxes", () => {
   const step1End = src.indexOf("STEP 2: DIRECT OFFER");
   const step1 = src.slice(step1Start, step1End);
 
-  it("is a compact checkbox row for Cash, Finance, and Lease", () => {
+  it("is a clean toggle-chip row for Cash, Finance, and Lease", () => {
     assert.ok(step1Start >= 0 && step1End > step1Start);
-    assert.match(step1, /type="checkbox"/);
+    assert.match(step1, /aria-pressed=\{isChecked\}/);
     assert.match(step1, /DEAL_STRUCTURE_LABELS/);
     assert.match(step1, /toggleDealStructure/);
     assert.doesNotMatch(step1, /grid-cols-2 sm:grid-cols-4/);
