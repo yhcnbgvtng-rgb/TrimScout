@@ -70,8 +70,27 @@ export function emptyEngagementStore(): EngagementStoreData {
   return { tokens: {}, deals: {} };
 }
 
+// Trailing corporate-suffix tokens only — never a meaningful difference
+// between two dealers, just formatting noise between three data sources
+// that were never going to agree byte-for-byte (a factory window
+// sticker's ship-to name, MarketCheck's own dealer field, and a
+// manually-entered dealership_contacts row). Deliberately does NOT strip
+// city/location qualifiers ("of Morristown", "of Springfield") — that's
+// usually the one thing that actually distinguishes sibling rooftops
+// under the same dealer group, and fuzzy-matching that away risks
+// conflating two different real dealers (wrong opt-out honored, wrong
+// invite link sent). Exact-after-normalization, not fuzzy, on purpose.
+const DEALER_NAME_SUFFIX = /\s+(inc|incorporated|llc|corp|corporation|co|ltd)$/;
+
 export function normalizeDealerKey(name: string): string {
-  return name.trim().toLowerCase().replace(/\s+/g, " ");
+  const punctuationNormalized = name
+    .trim()
+    .toLowerCase()
+    .replace(/&/g, "and")
+    .replace(/[.,]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+  return punctuationNormalized.replace(DEALER_NAME_SUFFIX, "");
 }
 
 export function newInviteToken(): string {

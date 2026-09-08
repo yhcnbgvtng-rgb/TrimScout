@@ -9,6 +9,7 @@ import {
   applyView,
   emptyEngagementStore,
   invitedDealersFromVehicles,
+  normalizeDealerKey,
   snapshotDealEngagement,
 } from "./dealEngagement";
 import { OFFER_CLOCK_EXTEND_MS, OFFER_CLOCK_RUNNING_MS } from "./offerCloseClock";
@@ -128,5 +129,39 @@ describe("engagement events are honest", () => {
     applyExtend(store, "42", now);
     const snap = snapshotDealEngagement(store.deals["42"], now);
     assert.equal(snap.clock.allottedRunningMs, OFFER_CLOCK_RUNNING_MS + OFFER_CLOCK_EXTEND_MS);
+  });
+});
+
+describe("normalizeDealerKey — exact-after-normalization, never fuzzy", () => {
+  it("is case- and whitespace-insensitive", () => {
+    assert.equal(normalizeDealerKey("Nielsen Ford"), normalizeDealerKey("  nielsen   FORD  "));
+  });
+
+  it("treats common corporate-suffix formatting as identical", () => {
+    const base = normalizeDealerKey("Nielsen Ford of Morristown");
+    assert.equal(normalizeDealerKey("Nielsen Ford of Morristown, Inc."), base);
+    assert.equal(normalizeDealerKey("Nielsen Ford of Morristown Inc"), base);
+    assert.equal(normalizeDealerKey("Nielsen Ford of Morristown, LLC"), base);
+    assert.equal(normalizeDealerKey("Nielsen Ford of Morristown Corp."), base);
+    assert.equal(normalizeDealerKey("Nielsen Ford of Morristown Co."), base);
+    assert.equal(normalizeDealerKey("Nielsen Ford of Morristown Ltd"), base);
+  });
+
+  it("treats an ampersand the same as 'and'", () => {
+    assert.equal(normalizeDealerKey("Smith & Sons Ford"), normalizeDealerKey("Smith and Sons Ford"));
+  });
+
+  it("never merges two different sibling rooftops in the same dealer group — location qualifiers are preserved on purpose", () => {
+    assert.notEqual(
+      normalizeDealerKey("Nielsen Ford of Morristown, Inc."),
+      normalizeDealerKey("Nielsen Ford of Springfield, Inc.")
+    );
+  });
+
+  it("known limitation: a truncated suffix like the real 'In' seen on some Ford window stickers is NOT treated as 'Inc' — deliberately conservative rather than guessing", () => {
+    assert.notEqual(
+      normalizeDealerKey("Nielsen Ford of Morristown, In"),
+      normalizeDealerKey("Nielsen Ford of Morristown, Inc.")
+    );
   });
 });
