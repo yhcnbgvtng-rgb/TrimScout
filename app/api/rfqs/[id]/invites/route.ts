@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
-import { createRfqInvite, getRfq, RfqApiError } from "@/lib/rfqApi";
+import { createRfqInvite, getRfq, listRfqsForBuyer, RfqApiError } from "@/lib/rfqApi";
 import { guardPerDeskCap } from "@/lib/apiSpendGuard";
+import { buyerRfqStrikeCount, canInviteMore, reputationInviteCap } from "@/lib/rfqLogic";
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
@@ -31,6 +32,20 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     if (rfq.buyerUserId !== session.user.id) {
       return NextResponse.json({ error: "This request belongs to a different buyer." }, { status: 403 });
     }
+
+    // Desk-confirmation cap, enforced server-side (previously only checked
+    // client-side in RfqInviteDraft.tsx). Reputation-aware: a buyer with
+    // repeated ghost/cancel-after-quote outcomes gets a reduced cap instead
+    // of the flat RFQ_MAX_INVITES — "slow their invites," not a hard ban.
+    const history = await listRfqsForBuyer(rfq.buyerUserId);
+    const maxInvites = reputationInviteCap(buyerRfqStrikeCount(history, Date.now()));
+    if (!canInviteMore(rfq.invites, maxInvites)) {
+      return NextResponse.json(
+        { error: "You've reached the invite limit for this request." },
+        { status: 400 }
+      );
+    }
+
     const invite = await createRfqInvite(id, {
       dealerName,
       dealerContactEmail: body?.dealerContactEmail || null,

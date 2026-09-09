@@ -19,12 +19,15 @@ function activeInviteCount(invites: Pick<RfqInvite, "status">[]): number {
   return invites.filter((i) => i.status !== "declined" && i.status !== "expired").length;
 }
 
-export function canInviteMore(invites: Pick<RfqInvite, "status">[]): boolean {
-  return activeInviteCount(invites) < RFQ_MAX_INVITES;
+export function canInviteMore(invites: Pick<RfqInvite, "status">[], maxInvites: number = RFQ_MAX_INVITES): boolean {
+  return activeInviteCount(invites) < maxInvites;
 }
 
-export function remainingInviteSlots(invites: Pick<RfqInvite, "status">[]): number {
-  return Math.max(0, RFQ_MAX_INVITES - activeInviteCount(invites));
+export function remainingInviteSlots(
+  invites: Pick<RfqInvite, "status">[],
+  maxInvites: number = RFQ_MAX_INVITES
+): number {
+  return Math.max(0, maxInvites - activeInviteCount(invites));
 }
 
 /** Spec integrity: does this quote actually reference the locked car, not a substitute? */
@@ -92,4 +95,68 @@ export function firstQuoteFor(rfq: Pick<RfqRequest, "invites">): RfqQuote | null
   return quotes.reduce((earliest, q) =>
     new Date(q.submittedAt).getTime() < new Date(earliest.submittedAt).getTime() ? q : earliest
   );
+}
+
+// ---------------------------------------------------------------------------
+// Quality/anti-abuse gates: one active RFQ at a time, a light reputation
+// system that slows (never fully blocks) a buyer's invite cap after repeated
+// no-shows, and a reachable-email check before a pick is finalized. Derived
+// entirely from data the box already returns — no new columns/tables.
+// ---------------------------------------------------------------------------
+
+/** True once any of the buyer's RFQs is still open — gates a second RFQ. */
+export function hasActiveRfq(rfqs: Pick<RfqRequest, "status">[]): boolean {
+  return rfqs.some((r) => r.status === "collecting");
+}
+
+/** A quoted RFQ left uncollected this long reads as abandoned, not merely slow. */
+export const RFQ_GHOST_STALE_DAYS = 7;
+
+export type RfqOutcome = "ghosted" | "cancelled_after_quote" | "completed" | "walked_early" | "in_progress";
+
+/**
+ * Classifies one finished-or-in-flight RFQ for reputation purposes. Only
+ * "ghosted" (got real quotes, never picked or walked, gone stale) and
+ * "cancelled_after_quote" (saw real numbers, walked instead of picking) are
+ * strikes — walking away with zero quotes is a normal, healthy outcome
+ * (the buyer didn't waste anyone's time) and must never count against them.
+ */
+export function classifyRfqOutcome(rfq: Pick<RfqRequest, "status" | "invites">, nowMs: number): RfqOutcome {
+  if (rfq.status === "picked") return "completed";
+
+  const quotes = rfq.invites.map((i) => i.quote).filter((q): q is RfqQuote => q != null);
+  const hasQuote = quotes.length > 0;
+
+  if (rfq.status === "walked") {
+    return hasQuote ? "cancelled_after_quote" : "walked_early";
+  }
+
+  // Still "collecting"
+  if (!hasQuote) return "in_progress";
+  const latestQuoteMs = Math.max(...quotes.map((q) => new Date(q.submittedAt).getTime()));
+  const staleMs = RFQ_GHOST_STALE_DAYS * 86_400_000;
+  return nowMs - latestQuoteMs > staleMs ? "ghosted" : "in_progress";
+}
+
+/** Count of strike-worthy outcomes across a buyer's RFQ history. */
+export function buyerRfqStrikeCount(rfqs: Pick<RfqRequest, "status" | "invites">[], nowMs: number): number {
+  return rfqs.filter((r) => {
+    const outcome = classifyRfqOutcome(r, nowMs);
+    return outcome === "ghosted" || outcome === "cancelled_after_quote";
+  }).length;
+}
+
+/** At/above this many strikes, a buyer's invite cap is reduced — "slow their invites," never a hard ban. */
+export const RFQ_REPUTATION_STRIKE_THRESHOLD = 2;
+export const RFQ_REPUTATION_REDUCED_CAP = 1;
+
+export function reputationInviteCap(strikeCount: number): number {
+  return strikeCount >= RFQ_REPUTATION_STRIKE_THRESHOLD ? RFQ_REPUTATION_REDUCED_CAP : RFQ_MAX_INVITES;
+}
+
+const EMAIL_SHAPE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+/** Cheap format check, not a mailbox-existence check — the real gate is that email is required at signup; this only catches the edge cases (legacy/OAuth accounts) where it might be missing or malformed. */
+export function isReachableEmail(email: string | null | undefined): boolean {
+  return typeof email === "string" && EMAIL_SHAPE.test(email.trim());
 }

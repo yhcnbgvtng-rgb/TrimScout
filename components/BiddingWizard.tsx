@@ -13,6 +13,8 @@ import {
 import { formatCurrency, getZipCoordinates } from "../lib/otdCalculator";
 import { findContactInfo } from "../lib/piiFilter";
 import { formatDealerResponsivenessLabel, type DealerResponsivenessStats } from "../lib/dealerResponsiveness";
+import { formatTypicalOtdLabel, type TypicalOtdStats } from "../lib/typicalOtd";
+import { discountRealismWarning } from "../lib/discountRealism";
 import {
   FORD_BUILD_SHEET_LINK,
   FORD_MUST_HAVE_HEADING,
@@ -348,6 +350,31 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
       cancelled = true;
     };
   }, [reviewTarget?.dealerName]);
+
+  // Market context for the buyer's own target price — real, computed from
+  // actual bid history, never a fabricated industry number. Shown as
+  // information only, not a floor the buyer must beat.
+  const [typicalOtd, setTypicalOtd] = useState<TypicalOtdStats | null>(null);
+  useEffect(() => {
+    const make = selectedVehicle?.make;
+    const model = selectedVehicle?.model;
+    if (!make || !model) {
+      setTypicalOtd(null);
+      return;
+    }
+    let cancelled = false;
+    fetch(`/api/typical-otd?make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((json) => {
+        if (!cancelled && json) setTypicalOtd(json);
+      })
+      .catch(() => {
+        // Purely a nice-to-have — a failed lookup just shows nothing.
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedVehicle?.make, selectedVehicle?.model]);
 
   const goNext = () => {
     if (step === 1 && (requestedStructures.length === 0 || !vehicleImported || financingSourceMissing)) return;
@@ -1184,6 +1211,19 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                     <p className="text-[11px] text-ink-faint">
                       We&apos;ll send this to the dealer as your firm target — they can accept it or counter if they can&apos;t meet it.
                     </p>
+                    {formatTypicalOtdLabel(typicalOtd) ? (
+                      <p className="text-[11px] text-ink-muted">
+                        {formatTypicalOtdLabel(typicalOtd)} — for context only, not a floor you have to beat.
+                      </p>
+                    ) : null}
+                    {selectedVehicle?.msrp
+                      ? (() => {
+                          const warning = discountRealismWarning(selectedVehicle.msrp, targetOtdPrice);
+                          return warning ? (
+                            <p className="text-[11px] text-amber-400">{warning}</p>
+                          ) : null;
+                        })()
+                      : null}
                   </div>
                 )}
               </div>

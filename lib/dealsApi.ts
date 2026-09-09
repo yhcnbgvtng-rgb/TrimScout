@@ -12,6 +12,7 @@ import { LIGHTSAIL_HOST } from "./lightsailClient";
 import { serverSecret } from "./serverSecret";
 import type { ContractVerificationResult } from "./contractVerification";
 import type { DealerResponsivenessStats } from "./dealerResponsiveness";
+import type { TypicalOtdStats } from "./typicalOtd";
 
 const DEALS_API_PORT = 3004;
 const DEFAULT_TIMEOUT_MS = 8000;
@@ -366,6 +367,14 @@ export async function listBidsForDealer(dealerUserId: string): Promise<DealBidRe
 export async function getDealerResponsiveness(dealerName: string): Promise<DealerResponsivenessStats> {
   const json = await request("GET", `/api/dealer-responsiveness?dealerName=${encodeURIComponent(dealerName)}`);
   return { dealerName: json.dealerName, bidCount: json.bidCount, avgResponseHours: json.avgResponseHours };
+}
+
+export async function getTypicalOtd(make: string, model: string): Promise<TypicalOtdStats> {
+  const json = await request(
+    "GET",
+    `/api/typical-otd?make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}`
+  );
+  return { make: json.make, model: json.model, sampleSize: json.sampleSize, avgDiscountPercent: json.avgDiscountPercent };
 }
 
 export async function listWonDealsForDealer(dealerUserId: string): Promise<DealerWonDeal[]> {

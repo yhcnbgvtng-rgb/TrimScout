@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { createRfq, listRfqsForBuyer, RfqApiError } from "@/lib/rfqApi";
-import { isFullyLockedSpec } from "@/lib/rfqLogic";
+import { hasActiveRfq, isFullyLockedSpec } from "@/lib/rfqLogic";
 import { recordQuoteRequest } from "@/lib/apiSpendGuard";
 
 export async function GET() {
@@ -40,6 +40,17 @@ export async function POST(req: Request) {
   }
 
   try {
+    // Rate limit: one active RFQ at a time — no spray. The buyer must
+    // finish (pick) or walk away from the current one before starting
+    // another.
+    const existing = await listRfqsForBuyer(session.user.id as string);
+    if (hasActiveRfq(existing)) {
+      return NextResponse.json(
+        { error: "You already have an active request — finish or walk away from it before starting another." },
+        { status: 400 }
+      );
+    }
+
     const rfq = await createRfq({
       buyerUserId: session.user.id as string,
       vin: body.vin,
