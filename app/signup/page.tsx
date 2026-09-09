@@ -2,7 +2,7 @@
 
 export const dynamic = "force-dynamic";
 
-import React, { Suspense } from "react";
+import React, { Suspense, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -10,9 +10,11 @@ import {
   ChevronRight
 } from "lucide-react";
 import { SignupView } from "@/components/SignupView";
+import { AuthModal } from "@/components/AuthModal";
 
 export default function SignupPage() {
   const router = useRouter();
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col justify-between selection:bg-emerald-500 selection:text-black">
@@ -30,13 +32,14 @@ export default function SignupPage() {
 
           <div className="flex items-center gap-3">
             <span className="text-xs text-ink-muted hidden sm:inline">Already have an account?</span>
-            <Link
-              href="/"
+            <button
+              type="button"
+              onClick={() => setIsAuthModalOpen(true)}
               className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-surface-elevated hover:bg-surface hover:border-border-strong px-4 py-2 text-xs font-bold text-white transition-all shadow-sm"
             >
-              <span>Sign In / Return Home</span>
+              <span>Sign In</span>
               <ChevronRight className="h-3.5 w-3.5 text-emerald-400" />
-            </Link>
+            </button>
           </div>
         </div>
       </header>
@@ -52,6 +55,12 @@ export default function SignupPage() {
       <footer className="border-t border-border/60 py-6 text-center text-xs text-ink-faint">
         <p>© 2026 TrimScout Inc. Built for honest option matches and real dealer quotes.</p>
       </footer>
+
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        onSignedIn={() => router.push("/")}
+      />
     </div>
   );
 }
