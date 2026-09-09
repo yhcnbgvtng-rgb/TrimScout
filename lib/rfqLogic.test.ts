@@ -1,19 +1,25 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
+  buyerRfqStrikeCount,
   canInviteMore,
+  classifyRfqOutcome,
   dealerHandoffText,
   dealerResponseRate,
   firstQuoteFor,
   freezeMustHaves,
+  hasActiveRfq,
   isFullyLockedSpec,
   isQuoteComplete,
+  isReachableEmail,
   quoteMatchesLockedSpec,
   remainingInviteSlots,
+  reputationInviteCap,
   timeToFirstQuoteHours,
   totalOtdFromFees,
 } from "./rfqLogic";
-import type { RfqInvite, RfqMustHave, RfqQuote, RfqSpec } from "./rfq";
+import { RFQ_MAX_INVITES } from "./rfq";
+import type { RfqInvite, RfqMustHave, RfqQuote, RfqRequest, RfqSpec } from "./rfq";
 
 function spec(overrides: Partial<RfqSpec> = {}): RfqSpec {
   return {
@@ -191,5 +197,106 @@ describe("firstQuoteFor", () => {
     const late = quote({ id: "late", submittedAt: "2026-11-05T00:00:00.000Z" });
     const rfq = { invites: [invite({ id: "1", quote: late }), invite({ id: "2", quote: early })] };
     assert.equal(firstQuoteFor(rfq)?.id, "early");
+  });
+});
+
+describe("canInviteMore / remainingInviteSlots with a reduced cap", () => {
+  it("respects a custom maxInvites instead of the flat RFQ_MAX_INVITES", () => {
+    const invites = [invite({ id: "1" })];
+    assert.equal(canInviteMore(invites, 1), false);
+    assert.equal(remainingInviteSlots(invites, 1), 0);
+    // Default still behaves exactly as before when no cap is passed.
+    assert.equal(canInviteMore(invites), true);
+    assert.equal(remainingInviteSlots(invites), RFQ_MAX_INVITES - 1);
+  });
+});
+
+describe("hasActiveRfq", () => {
+  it("is true with any collecting RFQ", () => {
+    assert.equal(hasActiveRfq([{ status: "picked" }, { status: "collecting" }]), true);
+  });
+
+  it("is false when every RFQ is finished", () => {
+    assert.equal(hasActiveRfq([{ status: "picked" }, { status: "walked" }]), false);
+  });
+
+  it("is false with no RFQs at all", () => {
+    assert.equal(hasActiveRfq([]), false);
+  });
+});
+
+describe("classifyRfqOutcome", () => {
+  const now = new Date("2026-11-20T00:00:00.000Z").getTime();
+
+  it("a picked RFQ is completed", () => {
+    const rfq: Pick<RfqRequest, "status" | "invites"> = { status: "picked", invites: [invite({ quote: quote() })] };
+    assert.equal(classifyRfqOutcome(rfq, now), "completed");
+  });
+
+  it("walking away with zero quotes is walked_early — never a strike", () => {
+    const rfq: Pick<RfqRequest, "status" | "invites"> = { status: "walked", invites: [invite({ quote: null })] };
+    assert.equal(classifyRfqOutcome(rfq, now), "walked_early");
+  });
+
+  it("walking away after seeing a real quote is cancelled_after_quote", () => {
+    const rfq: Pick<RfqRequest, "status" | "invites"> = { status: "walked", invites: [invite({ quote: quote() })] };
+    assert.equal(classifyRfqOutcome(rfq, now), "cancelled_after_quote");
+  });
+
+  it("still collecting with no quotes yet is in_progress, not ghosted", () => {
+    const rfq: Pick<RfqRequest, "status" | "invites"> = { status: "collecting", invites: [invite({ quote: null })] };
+    assert.equal(classifyRfqOutcome(rfq, now), "in_progress");
+  });
+
+  it("a fresh quote sitting uncollected is in_progress", () => {
+    const fresh = quote({ submittedAt: "2026-11-19T00:00:00.000Z" });
+    const rfq: Pick<RfqRequest, "status" | "invites"> = { status: "collecting", invites: [invite({ quote: fresh })] };
+    assert.equal(classifyRfqOutcome(rfq, now), "in_progress");
+  });
+
+  it("a quote left uncollected past the stale window is ghosted", () => {
+    const stale = quote({ submittedAt: "2026-11-01T00:00:00.000Z" });
+    const rfq: Pick<RfqRequest, "status" | "invites"> = { status: "collecting", invites: [invite({ quote: stale })] };
+    assert.equal(classifyRfqOutcome(rfq, now), "ghosted");
+  });
+});
+
+describe("buyerRfqStrikeCount / reputationInviteCap", () => {
+  const now = new Date("2026-11-20T00:00:00.000Z").getTime();
+  const ghosted: Pick<RfqRequest, "status" | "invites"> = {
+    status: "collecting",
+    invites: [invite({ quote: quote({ submittedAt: "2026-11-01T00:00:00.000Z" }) })],
+  };
+  const cancelled: Pick<RfqRequest, "status" | "invites"> = {
+    status: "walked",
+    invites: [invite({ quote: quote() })],
+  };
+  const completed: Pick<RfqRequest, "status" | "invites"> = { status: "picked", invites: [invite({ quote: quote() })] };
+  const walkedEarly: Pick<RfqRequest, "status" | "invites"> = { status: "walked", invites: [invite({ quote: null })] };
+
+  it("only counts ghosted and cancelled_after_quote outcomes", () => {
+    assert.equal(buyerRfqStrikeCount([ghosted, cancelled, completed, walkedEarly], now), 2);
+    assert.equal(buyerRfqStrikeCount([completed, walkedEarly], now), 0);
+  });
+
+  it("keeps the normal invite cap below the strike threshold, reduces it at/above", () => {
+    assert.equal(reputationInviteCap(0), RFQ_MAX_INVITES);
+    assert.equal(reputationInviteCap(1), RFQ_MAX_INVITES);
+    assert.equal(reputationInviteCap(2), 1);
+    assert.equal(reputationInviteCap(5), 1);
+  });
+});
+
+describe("isReachableEmail", () => {
+  it("accepts a well-formed email", () => {
+    assert.equal(isReachableEmail("buyer@example.com"), true);
+  });
+
+  it("rejects empty, missing, or malformed values", () => {
+    assert.equal(isReachableEmail(""), false);
+    assert.equal(isReachableEmail(null), false);
+    assert.equal(isReachableEmail(undefined), false);
+    assert.equal(isReachableEmail("not-an-email"), false);
+    assert.equal(isReachableEmail("missing-domain@"), false);
   });
 });

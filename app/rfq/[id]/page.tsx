@@ -350,6 +350,7 @@ export default function RfqWorkspacePage() {
 
   const [rfq, setRfq] = useState<RfqRequest | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [pickError, setPickError] = useState<string | null>(null);
   const [picking, setPicking] = useState(false);
   const [walking, setWalking] = useState(false);
 
@@ -369,13 +370,18 @@ export default function RfqWorkspacePage() {
 
   const handlePick = async (quoteId: string) => {
     setPicking(true);
+    setPickError(null);
     const res = await fetch(`/api/rfqs/${rfqId}/pick`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ quoteId }),
     });
     const json = await res.json();
-    if (res.ok) setRfq(json.rfq);
+    if (res.ok) {
+      setRfq(json.rfq);
+    } else {
+      setPickError(json.error || "Could not record your pick.");
+    }
     setPicking(false);
   };
 
@@ -456,6 +462,12 @@ export default function RfqWorkspacePage() {
           </>
         )}
       </div>
+
+      {pickError && (
+        <div className="rounded-xl border border-amber-500/40 bg-amber-950/30 px-3 py-2 text-[11px] text-amber-200">
+          {pickError}
+        </div>
+      )}
 
       {quotedInvites.length > 0 && (
         <div className="space-y-3">

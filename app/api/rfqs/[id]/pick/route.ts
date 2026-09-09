@@ -1,11 +1,18 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { getRfq, pickRfqQuote, RfqApiError } from "@/lib/rfqApi";
+import { isReachableEmail } from "@/lib/rfqLogic";
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "You must be signed in." }, { status: 401 });
+  }
+  if (!isReachableEmail(session.user.email)) {
+    return NextResponse.json(
+      { error: "Add a reachable email to your account before accepting a quote." },
+      { status: 400 }
+    );
   }
   const { id } = await params;
   const body = await req.json().catch(() => null);
