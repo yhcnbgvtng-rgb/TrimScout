@@ -129,7 +129,12 @@ async function loadStore(): Promise<EngagementStoreData> {
 }
 
 async function saveStore(data: EngagementStoreData): Promise<void> {
-  writeLocal(data);
+  try {
+    writeLocal(data);
+  } catch {
+    // Vercel's deployed filesystem is read-only outside /tmp — fine as
+    // long as the box is configured below as the real, shared store.
+  }
   if (dealsApiConfigured()) await pushRemote(data);
 }
 
