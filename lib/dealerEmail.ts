@@ -25,7 +25,7 @@ import {
 import { reviewTargetFromVehicle } from "./fordCompetitionUi";
 import { formatDealStructures } from "./dealStructure";
 import { serverSecret } from "./serverSecret";
-import { unsubscribeUrlFor } from "./dealerUnsubscribe";
+import { unsubscribeUrlFor, DEALER_EMAIL_BASE_URL } from "./dealerUnsubscribe";
 import { dealerSignupInviteUrl } from "./dealerSignupInvite";
 import type { BiddingRequest } from "./types";
 
@@ -94,7 +94,16 @@ export function buildOfferEmail(
 
     <tr>
       <td style="padding:24px 32px;border-bottom:1px solid #e2e8f0;">
-        <span style="font-size:18px;font-weight:800;color:#0f172a;letter-spacing:-0.02em;">Trim<span style="color:#059669;">Scout</span></span>
+        <table role="presentation" cellpadding="0" cellspacing="0">
+          <tr>
+            <td style="padding-right:8px;vertical-align:middle;">
+              <img src="${DEALER_EMAIL_BASE_URL}/scoutmark.png" width="28" height="28" alt="TrimScout" style="display:block;border-radius:6px;" />
+            </td>
+            <td style="vertical-align:middle;">
+              <span style="font-size:18px;font-weight:800;color:#0f172a;letter-spacing:-0.02em;">Trim<span style="color:#059669;">Scout</span></span>
+            </td>
+          </tr>
+        </table>
       </td>
     </tr>
 

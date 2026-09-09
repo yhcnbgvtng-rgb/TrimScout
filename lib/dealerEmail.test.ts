@@ -88,6 +88,17 @@ describe("buildOfferEmail", () => {
     assert.doesNotMatch(subject, /real-gm@battlefieldford\.com/);
   });
 
+  it("includes the TrimScout logo as an absolute, publicly-hosted URL — email clients can't resolve a relative path", () => {
+    const { html } = buildOfferEmail(
+      { dealerName: "Battlefield Ford", dealerState: "VA", dealerCity: "Culpeper", knownRooftop: true },
+      null,
+      request,
+      null,
+      null
+    );
+    assert.match(html, /<img src="https:\/\/[^"]+\/scoutmark\.png"/);
+  });
+
   it("says no contact on file rather than inventing one", () => {
     const { html } = buildOfferEmail(
       { dealerName: "Some Rooftop", dealerState: "TX", knownRooftop: true },
