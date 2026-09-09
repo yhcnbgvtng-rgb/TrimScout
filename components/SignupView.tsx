@@ -43,8 +43,8 @@ export const SignupView: React.FC<SignupViewProps> = ({
   const [phone, setPhone] = useState("");
   const [zipCode, setZipCode] = useState("94107");
   const [dealerName, setDealerName] = useState("");
-  const [dealerTitle, setDealerTitle] = useState("Sales Manager");
-  const [agreeTerms, setAgreeTerms] = useState(true);
+  const [dealerTitle, setDealerTitle] = useState("");
+  const [agreeTerms, setAgreeTerms] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
@@ -79,6 +79,12 @@ export const SignupView: React.FC<SignupViewProps> = ({
         setDealerInviteId(id);
         setDealerInviteToken(token);
         setDealerName(json.dealerName);
+        // Contact name/email are pre-filled from the directory as a
+        // convenience, but stay editable — unlike dealerName, these aren't
+        // locked, since the person signing up is the authority on their
+        // own name and email, not the on-file record.
+        if (json.contactName) setName(json.contactName);
+        if (json.contactEmail) setEmail(json.contactEmail);
         setInviteStatus("valid");
       })
       .catch(() => {

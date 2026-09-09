@@ -32,7 +32,7 @@ export default function ComparePage() {
         <OfferCompareView />
       </main>
       <footer className="border-t border-border/60 py-6 text-center text-xs text-ink-faint">
-        <p>© 2026 TrimScout Inc. Built for transparent, reverse-bid automotive transactions.</p>
+        <p>© 2026 TrimScout Inc. Must-have options. Verified matches. Real quotes.</p>
       </footer>
     </div>
   );
