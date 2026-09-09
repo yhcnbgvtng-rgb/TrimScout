@@ -259,6 +259,13 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
 
   // Financial & Geographic fields
   const [targetOtdPrice, setTargetOtdPrice] = useState<number>(52000);
+  // Who sets the price: the dealer quotes their own best OTD (blind bid, no
+  // targetOtdPrice sent), or the buyer names a firm target the dealer can
+  // accept or counter. Defaults follow chooseDirectOffer/chooseMultiDealer
+  // below — direct offers used to always send targetOtdPrice silently, and
+  // the auction path never did; this just makes that choice visible and
+  // buyer-editable instead of flipping the previous defaults.
+  const [pricingChoice, setPricingChoice] = useState<"dealer_names" | "buyer_names">("dealer_names");
   const [buyerZip, setBuyerZip] = useState<string>("94107");
   const [searchRadius, setSearchRadius] = useState<number>(100);
   const sameStateOnly = true;
@@ -447,12 +454,14 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     setOfferPath("direct");
     setDirectOfferMode(true);
     setStrategy("firm_offer");
+    setPricingChoice("buyer_names");
   };
 
   const chooseMultiDealer = () => {
     setOfferPath("auction");
     setDirectOfferMode(false);
     setStrategy("exact_auction");
+    setPricingChoice("dealer_names");
   };
 
   if (!isOpen) return null;
@@ -540,7 +549,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     },
     tradeIn: tradeInForRequest,
     buyerComment: dealComment.trim() || undefined,
-    targetOtdPrice: launchStrategy === "firm_offer" ? targetOtdPrice : undefined,
+    targetOtdPrice: pricingChoice === "buyer_names" ? targetOtdPrice : undefined,
     paymentMethod,
     dealStructurePreferences: {
       requestedStructures,
@@ -587,6 +596,10 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
       setSubmitError(`Your comment appears to contain ${dealCommentContactWarning} — remove it before submitting.`);
       return;
     }
+    if (pricingChoice === "buyer_names" && !(targetOtdPrice > 0)) {
+      setSubmitError("Enter your target out-the-door price, or switch to letting the dealer name their price.");
+      return;
+    }
     if (!currentUser) {
       onClose();
       onRequireLogin?.();
@@ -612,7 +625,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
           referencePrice: selectedVehicle.dealerPrice,
           referenceMsrp: selectedVehicle.msrp,
           referenceImageUrl: selectedVehicle.imageUrl,
-          targetOtdPrice: launchStrategy === "firm_offer" ? targetOtdPrice : undefined,
+          targetOtdPrice: pricingChoice === "buyer_names" ? targetOtdPrice : undefined,
           paymentMethod,
           dealStructure: shopperDealStructurePayload({
             requestedStructures,
@@ -1115,6 +1128,66 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                 </p>
               </div>
 
+              {/* Pricing — who names the price: the dealer quotes their own
+                  best OTD (blind), or the buyer sets a firm target the
+                  dealer can accept or counter. */}
+              <div className="space-y-2">
+                <label className="text-xs font-semibold text-ink-light">Pricing</label>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setPricingChoice("dealer_names")}
+                    className={`text-left rounded-xl border p-3 transition-all ${
+                      pricingChoice === "dealer_names"
+                        ? "border-emerald-500 bg-emerald-500/10"
+                        : "border-border bg-surface-elevated hover:border-border-strong"
+                    }`}
+                  >
+                    <div className={`text-xs font-bold ${pricingChoice === "dealer_names" ? "text-emerald-400" : "text-white"}`}>
+                      Dealer Names Price
+                    </div>
+                    <div className="text-[10.5px] text-ink-faint mt-0.5">They quote their best out-the-door price</div>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPricingChoice("buyer_names")}
+                    className={`text-left rounded-xl border p-3 transition-all ${
+                      pricingChoice === "buyer_names"
+                        ? "border-emerald-500 bg-emerald-500/10"
+                        : "border-border bg-surface-elevated hover:border-border-strong"
+                    }`}
+                  >
+                    <div className={`text-xs font-bold ${pricingChoice === "buyer_names" ? "text-emerald-400" : "text-white"}`}>
+                      I&apos;ll Set My Price
+                    </div>
+                    <div className="text-[10.5px] text-ink-faint mt-0.5">Offer a firm target OTD price</div>
+                  </button>
+                </div>
+
+                {pricingChoice === "buyer_names" && (
+                  <div className="rounded-xl border border-border bg-background p-3 space-y-1.5">
+                    <label className="text-[10px] uppercase font-bold text-ink-faint">Your Target Out-The-Door Price</label>
+                    <div className="relative">
+                      <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-faint text-xs font-bold">$</span>
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        value={targetOtdPrice > 0 ? targetOtdPrice.toLocaleString("en-US") : ""}
+                        onChange={(e) => {
+                          const digits = e.target.value.replace(/\D/g, "").slice(0, 7);
+                          setTargetOtdPrice(digits ? Number(digits) : 0);
+                        }}
+                        placeholder="52,000"
+                        className="w-full rounded-xl border border-border bg-surface-elevated py-2 pl-6 pr-3 text-sm font-bold text-white placeholder-ink-faint focus:border-emerald-500 focus:outline-none font-mono"
+                      />
+                    </div>
+                    <p className="text-[11px] text-ink-faint">
+                      We&apos;ll send this to the dealer as your firm target — they can accept it or counter if they can&apos;t meet it.
+                    </p>
+                  </div>
+                )}
+              </div>
+
               {/* Summary Box */}
               <div className="rounded-xl border border-border bg-surface-elevated p-4 space-y-2 text-xs">
                 <div className="flex justify-between items-start gap-3 border-b border-border/50 pb-2">
@@ -1181,6 +1254,15 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                   <span className="text-ink-muted">Bidding Strategy:</span>
                   <span className="text-emerald-400 font-bold">
                     {directOfferMode ? "Offer this dealer directly" : "Get prices from other dealers"}
+                  </span>
+                </div>
+
+                <div className="flex justify-between border-b border-border/50 pb-2">
+                  <span className="text-ink-muted">Pricing:</span>
+                  <span className="text-emerald-400 font-bold text-right">
+                    {pricingChoice === "buyer_names"
+                      ? `You set the price — $${targetOtdPrice.toLocaleString("en-US")}`
+                      : "Dealer names their price"}
                   </span>
                 </div>
 
@@ -1252,7 +1334,10 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                 <div>
                   <div className="font-bold text-emerald-400">How This Works</div>
                   <p className="text-[11px] text-ink-muted mt-0.5 leading-relaxed">
-                    We send the dealer your Out-The-Door price request first — vehicle, taxes, fees, everything. Once you and the dealer finalize that price together, we'll work through any trade-in value from there.
+                    {pricingChoice === "buyer_names"
+                      ? "We send the dealer your target Out-The-Door price — vehicle, taxes, fees, everything. They can accept it or counter if they can't meet it."
+                      : "We ask the dealer to quote their own Out-The-Door price — vehicle, taxes, fees, everything — so you can see their best number."}{" "}
+                    Once you and the dealer finalize that price together, we&apos;ll work through any trade-in value from there.
                   </p>
                 </div>
               </div>
