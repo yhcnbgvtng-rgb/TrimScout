@@ -269,7 +269,9 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   const [pricingChoice, setPricingChoice] = useState<"dealer_names" | "buyer_names">("dealer_names");
   const [buyerZip, setBuyerZip] = useState<string>("94107");
   const [searchRadius, setSearchRadius] = useState<number>(100);
-  const sameStateOnly = true;
+  // Checked by default — buyer can uncheck to widen the match to any state
+  // within the radius, per Step 1's location controls.
+  const [sameStateOnly, setSameStateOnly] = useState<boolean>(true);
   const [isSubmittingReal, setIsSubmittingReal] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
@@ -916,6 +918,21 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                     <p className="text-[10px] text-ink-faint">
                       ZIP and radius are saved with this deal. They do not search listings. Radius is capped at 100 miles.
                     </p>
+
+                    <label className="flex items-start gap-2 py-0.5 text-xs cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={sameStateOnly}
+                        onChange={(e) => setSameStateOnly(e.target.checked)}
+                        className="mt-0.5 h-3.5 w-3.5 shrink-0 rounded border-border text-emerald-500 focus:ring-0"
+                      />
+                      <span className="leading-snug text-ink-light">
+                        Keep results within my state
+                        <span className="block text-[10px] text-ink-faint">
+                          Uncheck to widen the match to any state within the radius
+                        </span>
+                      </span>
+                    </label>
 
                     <label className="text-[11px] font-bold text-ink-light uppercase flex items-center justify-between pt-2">
                       <span>Primary vehicle (required) — dealer VDP URL or 17-character VIN:</span>
