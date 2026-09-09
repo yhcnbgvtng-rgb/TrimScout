@@ -294,7 +294,7 @@ export const DealerPortal: React.FC<DealerPortalProps> = ({
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-xl sm:text-2xl font-black text-white">Dealer Partner Portal</h1>
+              <h1 className="text-xl sm:text-2xl font-black text-white">Dealer Portal</h1>
               <span className="rounded-md bg-emerald-500/10 px-2 py-0.5 text-xs font-bold text-emerald-400 border border-emerald-500/20 flex items-center gap-1">
                 <CheckCircle2 className="h-3 w-3" /> Dealer Account
               </span>

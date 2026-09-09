@@ -14,14 +14,10 @@ import {
   Phone,
   MapPin,
   ArrowRight,
-  Sparkles,
   Zap,
   Eye,
   EyeOff,
   ChevronRight,
-  TrendingDown,
-  Shield,
-  FileCheck,
   BadgeCheck
 } from "lucide-react";
 
@@ -123,8 +119,8 @@ export const SignupView: React.FC<SignupViewProps> = ({
           password,
           name: name || email.split("@")[0],
           role,
-          phone: phone || undefined,
-          zipCode: zipCode || undefined,
+          phone: role === "buyer" ? phone || undefined : undefined,
+          zipCode: role === "buyer" ? zipCode || undefined : undefined,
           dealerName: role === "dealer" ? dealerName : undefined,
           dealerInviteId: role === "dealer" ? dealerInviteId || undefined : undefined,
           dealerInviteToken: role === "dealer" ? dealerInviteToken || undefined : undefined,
@@ -151,69 +147,11 @@ export const SignupView: React.FC<SignupViewProps> = ({
   };
 
   return (
-    <div className="w-full max-w-6xl mx-auto px-4 py-8 sm:py-12 lg:px-8">
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-        {/* Left Column: Value Proposition & Social Proof */}
-        <div className="lg:col-span-5 space-y-6">
-          <div className="inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-950/40 px-3 py-1 text-xs font-extrabold text-emerald-400">
-            <Sparkles className="h-3.5 w-3.5 animate-pulse" />
-            <span>Join 45,000+ Car Buyers & Franchise Dealers</span>
-          </div>
-
-          <div className="space-y-3">
-            <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight leading-tight">
-              Get Dealers to Compete For Your Business.
-            </h1>
-            <p className="text-sm text-ink-muted leading-relaxed">
-              Create your free TrimScout account to unlock anonymous reverse bidding, certified out-the-door price guarantees, and factory build sheet access.
-            </p>
-          </div>
-
-          {/* Key Platform Pillars */}
-          <div className="space-y-3.5 pt-2">
-            <div className="flex items-start gap-3 rounded-2xl border border-border/70 bg-surface/60 p-3.5 transition-all hover:border-emerald-500/40">
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                <Shield className="h-5 w-5" />
-              </div>
-              <div className="space-y-0.5">
-                <h3 className="text-xs font-bold text-white">100% Anonymous Buyer Shield</h3>
-                <p className="text-[11px] text-ink-muted">
-                  Dealers never see your phone or email. They compete with transparent price counters, not spam calls.
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-3 rounded-2xl border border-border/70 bg-surface/60 p-3.5 transition-all hover:border-emerald-500/40">
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue-500/10 text-blue-400 border border-blue-500/20">
-                <TrendingDown className="h-5 w-5" />
-              </div>
-              <div className="space-y-0.5">
-                <h3 className="text-xs font-bold text-white">Certified Out-The-Door Guarantee</h3>
-                <p className="text-[11px] text-ink-muted">
-                  Exact itemized taxes, DMV fees, and zero hidden add-ons locked in writing before you visit the showroom.
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-3 rounded-2xl border border-border/70 bg-surface/60 p-3.5 transition-all hover:border-emerald-500/40">
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/20">
-                <FileCheck className="h-5 w-5" />
-              </div>
-              <div className="space-y-0.5">
-                <h3 className="text-xs font-bold text-white">3.6M+ Live Dealership Allocations</h3>
-                <p className="text-[11px] text-ink-muted">
-                  Search on-lot and in-transit factory allocations across every major franchise brand nationwide.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Right Column: Signup Card Form */}
-        <div className="lg:col-span-7">
-          <div className="rounded-3xl border border-border-strong bg-surface p-6 sm:p-8 shadow-2xl space-y-6 relative overflow-hidden backdrop-blur-xl">
-            {/* Background accent glow */}
-            <div className="absolute top-0 right-0 -mt-8 -mr-8 h-40 w-40 rounded-full bg-emerald-500/10 blur-3xl pointer-events-none" />
+    <div className="w-full max-w-xl mx-auto px-4 py-8 sm:py-12 lg:px-8">
+      <div>
+        <div className="rounded-3xl border border-border-strong bg-surface p-6 sm:p-8 shadow-2xl space-y-6 relative overflow-hidden backdrop-blur-xl">
+          {/* Background accent glow */}
+          <div className="absolute top-0 right-0 -mt-8 -mr-8 h-40 w-40 rounded-full bg-emerald-500/10 blur-3xl pointer-events-none" />
 
             {/* Role Switcher Tabs */}
             <div className="space-y-2">
@@ -246,7 +184,7 @@ export const SignupView: React.FC<SignupViewProps> = ({
                   }`}
                 >
                   <Building2 className="h-4 w-4" />
-                  <span>Dealer Partner Portal</span>
+                  <span>Dealer Portal</span>
                 </button>
               </div>
             </div>
@@ -384,24 +322,28 @@ export const SignupView: React.FC<SignupViewProps> = ({
                 </div>
               </div>
 
-              {/* Zip Code for Local Tax & DMV calculation */}
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-bold uppercase text-ink-faint">
-                  {role === "buyer" ? "Buyer Zip Code (For Tax Calculation)" : "Dealership Zip Code"}
-                </label>
-                <div className="relative">
-                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-emerald-400" />
-                  <input
-                    type="text"
-                    maxLength={5}
-                    required
-                    value={zipCode}
-                    onChange={(e) => setZipCode(e.target.value.replace(/\D/g, ""))}
-                    placeholder="94107"
-                    className="w-full rounded-xl border border-border bg-surface-elevated pl-9 pr-3.5 py-2.5 text-white placeholder-ink-faint text-xs font-mono focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 transition-all"
-                  />
+              {/* Zip Code for Local Tax & DMV calculation — buyer only; a
+                  dealer's zip already lives on their dealership_contacts
+                  record, no need to ask again at signup. */}
+              {role === "buyer" && (
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold uppercase text-ink-faint">
+                    Buyer Zip Code (For Tax Calculation)
+                  </label>
+                  <div className="relative">
+                    <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-emerald-400" />
+                    <input
+                      type="text"
+                      maxLength={5}
+                      required
+                      value={zipCode}
+                      onChange={(e) => setZipCode(e.target.value.replace(/\D/g, ""))}
+                      placeholder="94107"
+                      className="w-full rounded-xl border border-border bg-surface-elevated pl-9 pr-3.5 py-2.5 text-white placeholder-ink-faint text-xs font-mono focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 transition-all"
+                    />
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* Dealership Specific Fields */}
               {role === "dealer" && (
@@ -440,25 +382,28 @@ export const SignupView: React.FC<SignupViewProps> = ({
                 </div>
               )}
 
-              {/* Phone (Optional) */}
-              <div className="space-y-1.5">
-                <div className="flex items-center justify-between">
-                  <label className="text-[10px] font-bold uppercase text-ink-faint">
-                    Phone Number (Optional - For Real-time SMS Deal Alerts)
-                  </label>
-                  <span className="text-[10px] text-ink-faint">Protected & Encrypted</span>
+              {/* Phone (Optional) — buyer only; a dealer's phone already
+                  lives on their dealership_contacts record. */}
+              {role === "buyer" && (
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <label className="text-[10px] font-bold uppercase text-ink-faint">
+                      Phone Number (Optional - For Real-time SMS Deal Alerts)
+                    </label>
+                    <span className="text-[10px] text-ink-faint">Protected & Encrypted</span>
+                  </div>
+                  <div className="relative">
+                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-ink-faint" />
+                    <input
+                      type="tel"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      placeholder="(415) 555-0199"
+                      className="w-full rounded-xl border border-border bg-surface-elevated pl-9 pr-3.5 py-2.5 text-white placeholder-ink-faint text-xs focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 transition-all"
+                    />
+                  </div>
                 </div>
-                <div className="relative">
-                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-ink-faint" />
-                  <input
-                    type="tel"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    placeholder="(415) 555-0199"
-                    className="w-full rounded-xl border border-border bg-surface-elevated pl-9 pr-3.5 py-2.5 text-white placeholder-ink-faint text-xs focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 transition-all"
-                  />
-                </div>
-              </div>
+              )}
 
               {/* Terms of Service Checkbox */}
               <label className="flex items-start gap-2.5 pt-2 cursor-pointer select-none">
@@ -496,6 +441,5 @@ export const SignupView: React.FC<SignupViewProps> = ({
           </div>
         </div>
       </div>
-    </div>
   );
 };
