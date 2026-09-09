@@ -6,7 +6,6 @@ import Script from "next/script";
 import { useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
 import {
-  Compass,
   ShieldCheck,
   Building2,
   User,

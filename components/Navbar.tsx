@@ -4,7 +4,6 @@ import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { UserProfile } from "../lib/types";
 import {
-  Compass,
   Zap,
   Menu,
   X,
@@ -70,9 +69,12 @@ export const Navbar: React.FC<NavbarProps> = ({
           className="flex items-center gap-2.5 cursor-pointer select-none group"
           onClick={() => onToggleView("bid_program")}
         >
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500 text-black shadow-sm group-hover:scale-105 transition-transform">
-            <Compass className="h-4.5 w-4.5 stroke-[2.5]" />
-          </div>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/scoutmark.png"
+            alt="TrimScout"
+            className="h-8 w-8 rounded-lg shadow-sm group-hover:scale-105 transition-transform"
+          />
           <span className="font-extrabold text-lg tracking-tight text-white flex items-center">
             Trim<span className="text-emerald-400">Scout</span>
           </span>
