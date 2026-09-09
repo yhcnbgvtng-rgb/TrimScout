@@ -579,7 +579,7 @@ export default function Home() {
         />
       )}
 
-      {/* View 4: Dealer Partner Portal (Dealer Sales Manager View) */}
+      {/* View 4: Dealer Portal (Dealer Sales Manager View) */}
       {currentView === "dealer_portal" && (
         currentUser?.role === "dealer" ? (
           <DealerPortal
