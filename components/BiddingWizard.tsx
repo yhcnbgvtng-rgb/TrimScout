@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { Vehicle, BiddingStrategy, BiddingRequest, UserProfile, type DealStructureMethod, type TradeInVehicle } from "../lib/types";
 import {
   DEAL_STRUCTURE_LABELS,
-  DEAL_STRUCTURE_METHODS,
   formatDealStructures,
   paymentMethodFromStructures,
   toggleDealStructure,
@@ -755,7 +754,11 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
               <div className="space-y-1.5">
                 <span className="text-xs font-semibold text-ink-light">Payment methods</span>
                 <div className="grid grid-cols-3 gap-2">
-                  {DEAL_STRUCTURE_METHODS.map((id) => {
+                  {/* Display order only (Finance, Lease, Cash) — the
+                      underlying DEAL_STRUCTURE_METHODS order stays
+                      Cash/Finance/Lease since formatDealStructures and
+                      paymentMethodFromStructures rely on it elsewhere. */}
+                  {(["finance", "lease", "cash"] as const).map((id) => {
                     const isChecked = requestedStructures.includes(id);
                     return (
                       <button
