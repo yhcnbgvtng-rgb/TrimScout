@@ -47,6 +47,7 @@ export const SignupView: React.FC<SignupViewProps> = ({
   const [agreeTerms, setAgreeTerms] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
+  const [pendingApproval, setPendingApproval] = useState(false);
 
   // Dealer signup invite (?dealerId=&dealerToken= from an admin-generated
   // link) — when it resolves, the dealership name is pulled from the
@@ -137,6 +138,13 @@ export const SignupView: React.FC<SignupViewProps> = ({
         setErrorMsg(json.error || "Could not create your account.");
         return;
       }
+      if (json.status === "pending_verification") {
+        // Uninvited dealer signup — the account exists but can't sign in
+        // yet (the box rejects any non-'active' status), so there's no
+        // session to establish. Show the pending state instead of trying.
+        setPendingApproval(true);
+        return;
+      }
       // The signup route already signs the new user in server-side; make
       // sure the client's session state reflects it (same pattern as
       // AuthModal's real signup flow) so the caller's onSuccess navigation
@@ -159,6 +167,26 @@ export const SignupView: React.FC<SignupViewProps> = ({
           {/* Background accent glow */}
           <div className="absolute top-0 right-0 -mt-8 -mr-8 h-40 w-40 rounded-full bg-emerald-500/10 blur-3xl pointer-events-none" />
 
+          {pendingApproval ? (
+            <div className="text-center space-y-4 py-6">
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                <BadgeCheck className="h-7 w-7" />
+              </div>
+              <div className="space-y-1.5">
+                <h2 className="text-lg font-black text-white">Account Created — Pending Approval</h2>
+                <p className="text-xs text-ink-muted leading-relaxed max-w-sm mx-auto">
+                  Your dealer account for <strong className="text-white">{dealerName}</strong> has been created, but a TrimScout admin needs to review and approve it before you can sign in. We'll let you know once it's approved.
+                </p>
+              </div>
+              <Link
+                href="/"
+                className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-surface-elevated hover:bg-surface px-4 py-2 text-xs font-bold text-ink-light hover:text-white transition-all"
+              >
+                <span>Return Home</span>
+              </Link>
+            </div>
+          ) : (
+            <>
             {/* Role Switcher Tabs */}
             <div className="space-y-2">
               <label className="text-[10px] uppercase font-bold text-ink-faint tracking-wider">
@@ -444,6 +472,8 @@ export const SignupView: React.FC<SignupViewProps> = ({
                 )}
               </button>
             </form>
+            </>
+          )}
           </div>
         </div>
       </div>

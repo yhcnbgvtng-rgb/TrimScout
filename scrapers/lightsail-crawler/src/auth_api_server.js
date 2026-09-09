@@ -144,14 +144,21 @@ async function handleSignup(req, res) {
   const [existing] = await pool.query("SELECT id FROM users WHERE email = ?", [email]);
   if (existing.length > 0) return sendJson(res, 409, { error: "An account with this email already exists" });
 
+  // The Next.js caller decides status (it's the layer that knows whether a
+  // dealer signup came through a verified admin invite or not) — this
+  // server trusts it the same way it trusts everything else from that
+  // caller, gated only by the shared API key. Defaults to 'active' so
+  // buyer signups (and anything that omits it) behave exactly as before.
+  const status = ["active", "suspended", "pending_verification"].includes(body.status) ? body.status : "active";
+
   const passwordHash = await bcrypt.hash(password, 12);
   const conn = await pool.getConnection();
   try {
     await conn.beginTransaction();
     const [result] = await conn.query(
-      `INSERT INTO users (email, password_hash, name, role, phone, zip_code, dealer_name, last_login_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, NOW())`,
-      [email, passwordHash, name, role, body.phone || null, body.zipCode || null, role === "dealer" ? body.dealerName || null : null]
+      `INSERT INTO users (email, password_hash, name, role, phone, zip_code, dealer_name, status, last_login_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
+      [email, passwordHash, name, role, body.phone || null, body.zipCode || null, role === "dealer" ? body.dealerName || null : null, status]
     );
     const userId = result.insertId;
     await conn.query(

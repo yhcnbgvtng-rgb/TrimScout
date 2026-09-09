@@ -29,7 +29,8 @@ import {
   Copy,
   Check,
   ExternalLink,
-  Loader2
+  Loader2,
+  Clock
 } from "lucide-react";
 
 interface AdminPortalProps {
@@ -73,7 +74,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
 
   // Filter & Search State
   const [searchQuery, setSearchQuery] = useState("");
-  const [roleFilter, setRoleFilter] = useState<"all" | "buyer" | "dealer" | "admin" | "suspended">("all");
+  const [roleFilter, setRoleFilter] = useState<"all" | "buyer" | "dealer" | "admin" | "suspended" | "pending">("all");
 
   // Modal States
   const [resetPasswordUser, setResetPasswordUser] = useState<UserProfile | null>(null);
@@ -113,6 +114,25 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
       showToast(newStatus === "suspended" ? "Account suspended." : "Account reactivated.");
     } catch (err) {
       showToast(err instanceof Error ? err.message : "Failed to update status.");
+    }
+  };
+
+  // Approves an uninvited dealer signup — flips pending_verification to
+  // active so they can sign in. Rejecting one is just the existing suspend
+  // action below; there's no separate "rejected" status.
+  const handleApproveDealer = async (acc: UserProfile) => {
+    try {
+      const res = await fetch("/api/admin/status", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: acc.email, status: "active" }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "Failed to approve account");
+      setAccounts((prev) => prev.map((a) => (a.id === acc.id ? { ...a, status: "active" } : a)));
+      showToast(`${acc.dealerName || acc.email} approved.`);
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : "Failed to approve account.");
     }
   };
 
@@ -196,6 +216,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
     if (roleFilter === "dealer" && acc.role !== "dealer") return false;
     if (roleFilter === "admin" && acc.role !== "admin") return false;
     if (roleFilter === "suspended" && acc.status !== "suspended") return false;
+    if (roleFilter === "pending" && acc.status !== "pending_verification") return false;
 
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
@@ -212,6 +233,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
   const totalBuyers = accounts.filter((a) => a.role === "buyer").length;
   const totalDealers = accounts.filter((a) => a.role === "dealer").length;
   const totalSuspended = accounts.filter((a) => a.status === "suspended").length;
+  const totalPending = accounts.filter((a) => a.status === "pending_verification").length;
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 space-y-6 animate-fadeIn">
@@ -286,7 +308,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
       </div>
 
       {/* Platform Telemetry Metric Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
         <div className="rounded-2xl border border-border/80 bg-surface p-4 space-y-1 shadow-sm">
           <div className="flex items-center justify-between text-xs text-ink-muted">
             <span>Total Accounts</span>
@@ -313,6 +335,21 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
           <div className="text-2xl font-black text-white">{totalDealers}</div>
           <div className="text-[10.5px] text-purple-400 font-medium">Verified Franchise</div>
         </div>
+
+        <button
+          type="button"
+          onClick={() => setRoleFilter(roleFilter === "pending" ? "all" : "pending")}
+          className={`text-left rounded-2xl border p-4 space-y-1 shadow-sm transition-all ${
+            totalPending > 0 ? "border-amber-500/40 bg-amber-950/10 hover:bg-amber-950/20" : "border-border/80 bg-surface"
+          }`}
+        >
+          <div className="flex items-center justify-between text-xs text-ink-muted">
+            <span>Pending Approval</span>
+            <UserCheck className="h-4 w-4 text-amber-400" />
+          </div>
+          <div className={`text-2xl font-black ${totalPending > 0 ? "text-amber-400" : "text-white"}`}>{totalPending}</div>
+          <div className="text-[10.5px] text-ink-muted">Uninvited dealer signups</div>
+        </button>
 
         <div className="rounded-2xl border border-border/80 bg-surface p-4 space-y-1 shadow-sm">
           <div className="flex items-center justify-between text-xs text-ink-muted">
@@ -370,6 +407,14 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
             >
               Suspended ({totalSuspended})
             </button>
+            <button
+              onClick={() => setRoleFilter("pending")}
+              className={`px-3 py-1.5 rounded-xl transition-all ${
+                roleFilter === "pending" ? "bg-amber-500 text-black font-black" : "text-ink-muted hover:text-white"
+              }`}
+            >
+              Pending ({totalPending})
+            </button>
           </div>
 
           {/* Search Bar */}
@@ -417,11 +462,12 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
               ) : filteredAccounts.length > 0 ? (
                 filteredAccounts.map((acc) => {
                   const isSuspended = acc.status === "suspended";
+                  const isPending = acc.status === "pending_verification";
                   return (
                     <tr
                       key={acc.id}
                       className={`hover:bg-surface-elevated/70 transition-colors ${
-                        isSuspended ? "bg-rose-950/10 opacity-75" : ""
+                        isSuspended ? "bg-rose-950/10 opacity-75" : isPending ? "bg-amber-950/10" : ""
                       }`}
                     >
                       {/* Name & Email */}
@@ -490,6 +536,11 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                             <UserX className="h-3 w-3" />
                             SUSPENDED
                           </span>
+                        ) : isPending ? (
+                          <span className="inline-flex items-center gap-1 rounded bg-amber-950/60 px-2 py-0.5 text-[10px] font-extrabold text-amber-400 border border-amber-500/40">
+                            <Clock className="h-3 w-3" />
+                            PENDING APPROVAL
+                          </span>
                         ) : (
                           <span className="inline-flex items-center gap-1 rounded bg-emerald-950/60 px-2 py-0.5 text-[10px] font-extrabold text-emerald-400 border border-emerald-500/30">
                             <UserCheck className="h-3 w-3" />
@@ -548,6 +599,19 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                             </button>
                           )}
 
+                          {/* Approve (pending dealer signups only) */}
+                          {isPending && (
+                            <button
+                              type="button"
+                              onClick={() => handleApproveDealer(acc)}
+                              className="inline-flex items-center gap-1 rounded-lg bg-amber-500/20 hover:bg-amber-500 hover:text-black text-amber-400 px-2.5 py-1 text-[10.5px] font-bold border border-amber-500/40 transition-all cursor-pointer shadow-sm"
+                              title={`Approve ${acc.dealerName || acc.email}`}
+                            >
+                              <UserCheck className="h-3 w-3" />
+                              <span>Approve</span>
+                            </button>
+                          )}
+
                           {/* Suspend / Unsuspend */}
                           <button
                             type="button"
@@ -557,7 +621,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                                 ? "border-emerald-500/40 bg-emerald-950/30 text-emerald-400 hover:bg-emerald-900/40"
                                 : "border-rose-500/30 bg-rose-950/20 text-rose-400 hover:bg-rose-900/30"
                             }`}
-                            title={isSuspended ? "Re-activate Account" : "Suspend Account"}
+                            title={isSuspended ? "Re-activate Account" : isPending ? "Reject (suspend) Account" : "Suspend Account"}
                           >
                             {isSuspended ? <UserCheck className="h-3.5 w-3.5" /> : <UserX className="h-3.5 w-3.5" />}
                           </button>
