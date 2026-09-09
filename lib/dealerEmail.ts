@@ -79,43 +79,120 @@ export function buildOfferEmail(
   const target = reviewTargetFromVehicle(request.targetVehicle);
   const vehicleLine = target?.title || "a vehicle";
   const paymentLabel = formatDealStructures(request.dealStructurePreferences?.requestedStructures || []) || "Not specified";
-  const otdLine =
-    typeof request.targetOtdPrice === "number" && request.targetOtdPrice > 0
-      ? `Target out-the-door price: $${request.targetOtdPrice.toLocaleString("en-US")}`
-      : "No fixed target price — open reverse auction.";
+  const hasTargetOtd = typeof request.targetOtdPrice === "number" && request.targetOtdPrice > 0;
+  const otdLine = hasTargetOtd
+    ? `$${request.targetOtdPrice!.toLocaleString("en-US")}`
+    : "No fixed target — open reverse auction";
 
   const subject = `[SAFE MODE] New buyer offer for ${seed.dealerName} — ${vehicleLine}`;
+  const photo = request.targetVehicle?.imageUrl || null;
+  const dealerLocationLine = [seed.dealerCity, seed.dealerState].filter(Boolean).join(", ");
+
   const html = `
-<div style="font-family:sans-serif;font-size:14px;color:#111;line-height:1.5;">
-  <p style="background:#fff3cd;border:1px solid #ffe69c;padding:10px 14px;border-radius:6px;">
-    <strong>SAFE MODE:</strong> this notification was redirected here instead of the dealer, per site-owner override.<br/>
-    Intended dealer: <strong>${escapeHtml(seed.dealerName)}</strong>${
-      seed.dealerCity || seed.dealerState
-        ? ` (${escapeHtml([seed.dealerCity, seed.dealerState].filter(Boolean).join(", "))})`
+<div style="background:#f1f5f9;padding:32px 16px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;margin:0 auto;background:#ffffff;border-radius:16px;overflow:hidden;border:1px solid #e2e8f0;">
+
+    <tr>
+      <td style="padding:24px 32px;border-bottom:1px solid #e2e8f0;">
+        <span style="font-size:18px;font-weight:800;color:#0f172a;letter-spacing:-0.02em;">Trim<span style="color:#059669;">Scout</span></span>
+      </td>
+    </tr>
+
+    <tr>
+      <td style="padding:24px 32px 0;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#fffbeb;border:1px solid #fde68a;border-radius:10px;">
+          <tr>
+            <td style="padding:12px 16px;font-size:12px;line-height:1.6;color:#78350f;">
+              <strong>SAFE MODE:</strong> this notification was redirected here instead of the dealer, per site-owner override.<br/>
+              Intended dealer: <strong>${escapeHtml(seed.dealerName)}</strong>${
+                dealerLocationLine ? ` (${escapeHtml(dealerLocationLine)})` : ""
+              }<br/>
+              Contact on file: ${resolvedContactEmail ? escapeHtml(resolvedContactEmail) : "<em>none found in the dealership directory</em>"}
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr>
+      <td style="padding:28px 32px 4px;">
+        <h1 style="margin:0;font-size:20px;font-weight:800;color:#0f172a;letter-spacing:-0.01em;">New buyer offer</h1>
+        <p style="margin:6px 0 0;font-size:14px;color:#64748b;">A buyer wants to move forward on this vehicle at ${escapeHtml(seed.dealerName)}.</p>
+      </td>
+    </tr>
+
+    <tr>
+      <td style="padding:20px 32px 0;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;">
+          <tr>
+            ${
+              photo
+                ? `<td width="96" style="padding:16px 0 16px 16px;vertical-align:top;">
+                     <img src="${escapeHtml(photo)}" width="80" height="60" alt="" style="display:block;width:80px;height:60px;border-radius:8px;object-fit:cover;background:#e2e8f0;" />
+                   </td>`
+                : ""
+            }
+            <td style="padding:16px;vertical-align:top;">
+              <div style="font-size:15px;font-weight:700;color:#0f172a;">${escapeHtml(vehicleLine)}</div>
+              ${target?.vin ? `<div style="margin-top:2px;font-size:12px;color:#64748b;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;">VIN ${escapeHtml(target.vin)}</div>` : ""}
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr>
+      <td style="padding:16px 32px 0;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+          <tr>
+            <td style="padding:8px 0;font-size:13px;color:#64748b;border-bottom:1px solid #f1f5f9;">Payment</td>
+            <td style="padding:8px 0;font-size:13px;color:#0f172a;font-weight:600;text-align:right;border-bottom:1px solid #f1f5f9;">${escapeHtml(paymentLabel)}</td>
+          </tr>
+          <tr>
+            <td style="padding:8px 0;font-size:13px;color:#64748b;">${hasTargetOtd ? "Target out-the-door price" : "Pricing"}</td>
+            <td style="padding:8px 0;font-size:14px;color:#059669;font-weight:800;text-align:right;">${escapeHtml(otdLine)}</td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+
+    ${
+      signupUrl
+        ? `<tr>
+             <td style="padding:24px 32px 4px;">
+               <table role="presentation" cellpadding="0" cellspacing="0">
+                 <tr>
+                   <td style="border-radius:10px;background:#059669;">
+                     <a href="${escapeHtml(signupUrl)}" style="display:inline-block;padding:12px 24px;font-size:14px;font-weight:700;color:#ffffff;text-decoration:none;">Sign In / Sign Up to Respond</a>
+                   </td>
+                 </tr>
+               </table>
+             </td>
+           </tr>
+           <tr>
+             <td style="padding:10px 32px 0;">
+               <p style="margin:0;font-size:12px;color:#94a3b8;">Create your free TrimScout dealer account — it's pre-filled for ${escapeHtml(seed.dealerName)} — to see this request and send back your best price.</p>
+             </td>
+           </tr>`
         : ""
-    }<br/>
-    Contact on file: ${resolvedContactEmail ? escapeHtml(resolvedContactEmail) : "<em>none found in the dealership directory</em>"}
-  </p>
-  <p>A buyer submitted a new offer for <strong>${escapeHtml(vehicleLine)}</strong>${
-    target?.vin ? ` (VIN ${escapeHtml(target.vin)})` : ""
-  }.</p>
-  <p>Payment: ${escapeHtml(paymentLabel)}<br/>${escapeHtml(otdLine)}</p>
-  <p style="color:#666;font-size:12px;">Deal request ID: ${escapeHtml(request.id)}</p>
-  ${
-    signupUrl
-      ? `<p style="margin:20px 0 4px;">
-           <a href="${escapeHtml(signupUrl)}" style="background:#111;color:#fff;padding:10px 18px;border-radius:6px;text-decoration:none;font-weight:bold;display:inline-block;">Sign In / Sign Up to Respond</a>
-         </p>
-         <p style="color:#666;font-size:12px;">Create your free TrimScout dealer account — it's pre-filled for ${escapeHtml(seed.dealerName)} — to see this request and send back your best price.</p>`
-      : ""
-  }
-  ${
-    unsubscribeUrl
-      ? `<p style="color:#999;font-size:11px;border-top:1px solid #e5e5e5;padding-top:10px;margin-top:16px;">
-           Don't want emails like this about buyer offers? <a href="${escapeHtml(unsubscribeUrl)}">Unsubscribe</a>.
-         </p>`
-      : ""
-  }
+    }
+
+    <tr>
+      <td style="padding:28px 32px 24px;">
+        <p style="margin:0;font-size:11px;color:#94a3b8;">Deal request ID: ${escapeHtml(request.id)}</p>
+      </td>
+    </tr>
+
+    ${
+      unsubscribeUrl
+        ? `<tr>
+             <td style="padding:16px 32px 24px;border-top:1px solid #e2e8f0;">
+               <p style="margin:0;font-size:11px;color:#94a3b8;">Don't want emails like this about buyer offers? <a href="${escapeHtml(unsubscribeUrl)}" style="color:#64748b;">Unsubscribe</a>.</p>
+             </td>
+           </tr>`
+        : ""
+    }
+  </table>
 </div>`.trim();
   return { subject, html };
 }
