@@ -15,14 +15,11 @@ import {
 
 interface BidProgramIntroProps {
   onStartWizard: () => void;
-  /** Secondary path: the must-have-options picker over the curated seed inventory (see FactoryMatchFlow). */
-  onStartMatchFlow?: () => void;
   onViewDemoDealRoom: () => void;
 }
 
 export const BidProgramIntro: React.FC<BidProgramIntroProps> = ({
   onStartWizard,
-  onStartMatchFlow,
   onViewDemoDealRoom,
 }) => {
   return (
@@ -51,14 +48,6 @@ export const BidProgramIntro: React.FC<BidProgramIntroProps> = ({
             <span>Structure Your Deal</span>
             <ArrowRight className="h-4 w-4 stroke-[2.5]" />
           </button>
-          {onStartMatchFlow && (
-            <button
-              onClick={onStartMatchFlow}
-              className="text-xs font-semibold text-ink-muted hover:text-white transition-colors underline underline-offset-4 decoration-border"
-            >
-              Don&apos;t have a VIN yet? Match by factory options instead →
-            </button>
-          )}
         </div>
       </div>
 
