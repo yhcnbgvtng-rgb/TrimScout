@@ -37,8 +37,8 @@ export const BidProgramIntro: React.FC<BidProgramIntroProps> = ({
         </h1>
 
         <p className="text-sm sm:text-base text-ink-muted leading-relaxed max-w-2xl mx-auto font-normal">
-          Give us the exact car — a VIN or a dealer listing link — and we&apos;ll read its real factory build, show
-          you exactly what&apos;s on it, and send your quote request to the dealer who has it.
+          Paste a VIN or dealer link. We&apos;ll pull the real factory build, confirm exactly what&apos;s on it, and
+          send your quote request to the dealer — without giving them your name, number, or email.
         </p>
 
         {/* Hero CTA */}
