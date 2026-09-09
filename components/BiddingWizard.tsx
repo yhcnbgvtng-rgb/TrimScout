@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Vehicle, BiddingStrategy, BiddingRequest, UserProfile, type DealStructureMethod, type TradeInVehicle } from "../lib/types";
+import { Vehicle, BiddingStrategy, BiddingRequest, UserProfile, type DealStructureMethod, type PurchaseTimeline, type TradeInVehicle } from "../lib/types";
 import {
   DEAL_STRUCTURE_LABELS,
   DEAL_STRUCTURE_METHODS,
@@ -278,6 +278,10 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   // (app/api/deal-requests and the box) re-checks authoritatively.
   const [dealComment, setDealComment] = useState("");
   const dealCommentContactWarning = findContactInfo(dealComment);
+
+  // Step 3: how soon the buyer wants to close — round-trips through the
+  // existing deal_structure_json blob, no new column needed.
+  const [purchaseTimeline, setPurchaseTimeline] = useState<PurchaseTimeline | "">("");
 
   // Real deal_requests.id, shown as a confirmation once a real submission
   // (broadcast or direct offer) succeeds.
@@ -559,6 +563,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
       leaseMileagePerYear: leaseMileage,
       leaseTermMonths: leaseTerm,
       vehicleTerms: vehicleTermsForDeal,
+      purchaseTimeline: purchaseTimeline || undefined,
     },
     buyerZip,
     searchRadiusMiles: searchRadius,
@@ -600,6 +605,10 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
       setSubmitError("Enter your target out-the-door price, or switch to letting the dealer name their price.");
       return;
     }
+    if (!purchaseTimeline) {
+      setSubmitError("Select your purchase timeline.");
+      return;
+    }
     if (!currentUser) {
       onClose();
       onRequireLogin?.();
@@ -639,6 +648,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
             mustHavePackages,
             otherLots: otherLotsForDeal,
             vehicleTerms: vehicleTermsForDeal,
+            purchaseTimeline: purchaseTimeline || undefined,
           }),
           // See tradeInForRequest above — the flag only, honestly empty
           // detail fields, no appraisal fabricated.
@@ -1295,6 +1305,25 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                     {/^\d{5}$/.test(buyerZip) ? `Buyer #${getZipCoordinates(buyerZip).state}` : "Buyer"}
                   </span>
                 </div>
+              </div>
+
+              {/* Purchase Timeline */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-ink-light">Purchase Timeline</label>
+                <select
+                  value={purchaseTimeline}
+                  onChange={(e) => setPurchaseTimeline(e.target.value as PurchaseTimeline)}
+                  className={`w-full rounded-xl border bg-background py-2.5 px-3.5 text-xs text-white focus:outline-none ${
+                    purchaseTimeline ? "border-border focus:border-emerald-500" : "border-amber-500/50 focus:border-amber-500"
+                  }`}
+                >
+                  <option value="" disabled>
+                    When are you looking to buy?
+                  </option>
+                  <option value="asap">ASAP</option>
+                  <option value="this_week">This Week</option>
+                  <option value="this_month">This Month</option>
+                </select>
               </div>
 
               {/* Buyer Comment — scrubbed of contact info before it ever leaves the browser */}

@@ -8,6 +8,7 @@ import type {
   BiddingRequest,
   DealStructureMethod,
   PaymentMethod,
+  PurchaseTimeline,
   TradeInVehicle,
   Vehicle,
   VehicleDealTerms,
@@ -80,6 +81,7 @@ export function shopperDealStructurePayload(opts: {
   mustHavePackages: string[];
   otherLots?: Vehicle[];
   vehicleTerms?: VehicleDealTerms[];
+  purchaseTimeline?: PurchaseTimeline;
 }): Record<string, unknown> {
   const loc = opts.vehicle.location;
   const dealerName = (loc?.dealerName || "").trim();
@@ -110,7 +112,12 @@ export function shopperDealStructurePayload(opts: {
     ...(dealerUrl ? { dealerUrl } : {}),
     ...(otherLots.length ? { otherLots } : {}),
     ...(vehicleTerms.length ? { vehicleTerms } : {}),
+    ...(opts.purchaseTimeline ? { purchaseTimeline: opts.purchaseTimeline } : {}),
   };
+}
+
+function asPurchaseTimeline(value: unknown): PurchaseTimeline | undefined {
+  return value === "asap" || value === "this_week" || value === "this_month" ? value : undefined;
 }
 
 function mapTradeIn(raw: unknown, existing?: TradeInVehicle): TradeInVehicle | undefined {
@@ -240,6 +247,8 @@ export function mapDealRequestJson(
         asNumber(ds.leaseMileagePerYear) ?? existing?.dealStructurePreferences?.leaseMileagePerYear,
       leaseTermMonths:
         asNumber(ds.leaseTermMonths) ?? existing?.dealStructurePreferences?.leaseTermMonths,
+      purchaseTimeline:
+        asPurchaseTimeline(ds.purchaseTimeline) ?? existing?.dealStructurePreferences?.purchaseTimeline,
       vehicleTerms: (() => {
         const mapped = parseVehicleTermsList(ds.vehicleTerms);
         return mapped.length ? mapped : existing?.dealStructurePreferences?.vehicleTerms;
