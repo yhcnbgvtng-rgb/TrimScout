@@ -27,7 +27,9 @@ import {
   Image as ImageIcon,
   DollarSign,
   Loader2,
-  MessageSquare
+  MessageSquare,
+  Car,
+  Info
 } from "lucide-react";
 
 interface DealerInventoryOption {
@@ -472,15 +474,26 @@ export const DealerPortal: React.FC<DealerPortalProps> = ({
                       </span>
                     </div>
 
-                    <div>
-                      <h3 className="text-lg font-black text-white">
-                        {req.referenceYear} {req.referenceMake} {req.referenceModel} {req.referenceTrim}
-                      </h3>
-                      <p className="text-xs text-ink-muted mt-0.5">
-                        Strategy: <strong className="text-emerald-400">
-                          {req.strategy === "flexible_discount" ? "Flexible Discount" : req.strategy === "exact_auction" ? "Exact Match Auction" : "Firm Target Offer"}
-                        </strong>
-                      </p>
+                    <div className="flex items-center gap-3">
+                      <div className="h-14 w-20 shrink-0 overflow-hidden rounded-xl bg-surface-elevated border border-border flex items-center justify-center">
+                        {req.referenceImageUrl ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={req.referenceImageUrl} alt="" className="h-full w-full object-cover" />
+                        ) : (
+                          <Car className="h-6 w-6 text-ink-faint" />
+                        )}
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-black text-white">
+                          {req.referenceYear} {req.referenceMake} {req.referenceModel} {req.referenceTrim}
+                        </h3>
+                        <p className="text-xs text-ink-muted mt-0.5">
+                          {req.referenceMsrp ? <>MSRP {formatCurrency(req.referenceMsrp)} · </> : null}
+                          Strategy: <strong className="text-emerald-400">
+                            {req.strategy === "flexible_discount" ? "Flexible Discount" : req.strategy === "exact_auction" ? "Exact Match Auction" : "Firm Target Offer"}
+                          </strong>
+                        </p>
+                      </div>
                     </div>
 
                     {req.tradeIn && req.tradeIn.hasTradeIn && (
@@ -530,6 +543,12 @@ export const DealerPortal: React.FC<DealerPortalProps> = ({
                           ? formatCurrency(req.targetOtdPrice)
                           : "Best OTD Bid"}
                       </div>
+                      {req.targetOtdPrice ? (
+                        <div className="flex items-start gap-1 text-[10px] text-ink-faint lg:justify-end max-w-[220px]">
+                          <Info className="h-3 w-3 shrink-0 mt-0.5" />
+                          <span>Includes vehicle price &amp; fees — excludes sales tax and registration, added at the buyer's exact location when the deal is signed.</span>
+                        </div>
+                      ) : null}
                     </div>
 
                     {typeof req.bidCount === "number" && (
@@ -1015,6 +1034,44 @@ export const DealerPortal: React.FC<DealerPortalProps> = ({
             </div>
 
             <div className="p-6 space-y-5 max-h-[70vh] overflow-y-auto text-xs">
+              <div className="rounded-xl border border-border bg-surface-elevated p-3.5 flex items-center gap-3.5">
+                <div className="h-14 w-20 shrink-0 overflow-hidden rounded-xl bg-background border border-border flex items-center justify-center">
+                  {selectedRequest.referenceImageUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={selectedRequest.referenceImageUrl} alt="" className="h-full w-full object-cover" />
+                  ) : (
+                    <Car className="h-6 w-6 text-ink-faint" />
+                  )}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="text-[10px] font-bold text-ink-muted uppercase tracking-wide">The Vehicle This Buyer Wants</div>
+                  <div className="text-sm font-black text-white truncate">
+                    {selectedRequest.referenceYear} {selectedRequest.referenceMake} {selectedRequest.referenceModel} {selectedRequest.referenceTrim}
+                  </div>
+                  <div className="text-[11px] text-ink-muted font-mono truncate">
+                    VIN {selectedRequest.referenceVin}
+                    {selectedRequest.referenceMsrp ? ` · MSRP ${formatCurrency(selectedRequest.referenceMsrp)}` : ""}
+                  </div>
+                </div>
+                {selectedRequest.targetOtdPrice ? (
+                  <div className="shrink-0 text-right">
+                    <div className="text-[10px] font-bold text-ink-muted uppercase tracking-wide">Buyer's Target OTD</div>
+                    <div className="text-base font-black text-emerald-400">{formatCurrency(selectedRequest.targetOtdPrice)}</div>
+                  </div>
+                ) : null}
+              </div>
+
+              {selectedRequest.targetOtdPrice ? (
+                <div className="rounded-xl border border-blue-500/30 bg-blue-950/20 p-3 flex items-start gap-2 text-[11px] text-ink-light leading-relaxed">
+                  <Info className="h-3.5 w-3.5 text-blue-400 shrink-0 mt-0.5" />
+                  <span>
+                    <strong className="text-blue-400">How the buyer got this number:</strong> their target OTD price is the vehicle's selling price plus dealer fees and any rebates —
+                    it does <strong>not</strong> include sales tax or vehicle registration/DMV fees. Those are calculated from the buyer's exact address and added on top once a deal is signed,
+                    so your counter-offer should be priced the same way.
+                  </span>
+                </div>
+              ) : null}
+
               <div className="space-y-1.5">
                 <label className="font-bold text-ink-light uppercase text-[11px]">
                   1. Select Unit From Your Dealership Inventory:
