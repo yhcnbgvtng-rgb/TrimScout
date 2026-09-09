@@ -553,7 +553,6 @@ export default function Home() {
       {currentView === "bid_program" && (
         <BidProgramIntro
           onStartWizard={handleOpenFlexibleWizard}
-          onStartMatchFlow={() => setCurrentView("factory_match")}
           onViewDemoDealRoom={() => setCurrentView("deal_room")}
         />
       )}
