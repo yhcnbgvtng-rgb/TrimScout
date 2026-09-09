@@ -5,6 +5,8 @@ export type BiddingStrategy = "exact_auction" | "firm_offer" | "flexible_discoun
 export type DealStructureMethod = "cash" | "finance" | "lease";
 export type PaymentMethod = "all_three" | DealStructureMethod;
 
+export type PurchaseTimeline = "asap" | "this_week" | "this_month";
+
 export interface CashDealTerms {
   offerPrice: number;
 }
@@ -53,6 +55,8 @@ export interface DealStructurePreferences {
   leaseTermMonths?: number;
   /** Per-VIN deal terms from the post-Step-5 compare page. */
   vehicleTerms?: VehicleDealTerms[];
+  /** When the buyer wants to close — collected at wizard Step 3. */
+  purchaseTimeline?: PurchaseTimeline;
 }
 
 export interface Option {

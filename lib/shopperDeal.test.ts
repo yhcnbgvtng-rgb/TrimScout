@@ -176,6 +176,47 @@ describe("shopper deal snapshot persists onto the deal request", () => {
     assert.equal(mapped.dealStructurePreferences?.financingSource, "buyer_own");
   });
 
+  it("round-trips purchaseTimeline through the dealStructure JSON blob, and rejects garbage values", () => {
+    const payload = shopperDealStructurePayload({
+      requestedStructures: ["cash"],
+      financeTermMonths: 60,
+      downPayment: 5000,
+      leaseMileagePerYear: 12000,
+      leaseTermMonths: 36,
+      directOffer: false,
+      vehicle: importedVehicle,
+      mustHavePackages: [],
+      purchaseTimeline: "this_week",
+    });
+    assert.equal(payload.purchaseTimeline, "this_week");
+
+    const mapped = mapDealRequestJson({
+      id: "43",
+      strategy: "exact_auction",
+      dealStructure: payload,
+    });
+    assert.equal(mapped.dealStructurePreferences?.purchaseTimeline, "this_week");
+
+    const withoutTimeline = shopperDealStructurePayload({
+      requestedStructures: ["cash"],
+      financeTermMonths: 60,
+      downPayment: 5000,
+      leaseMileagePerYear: 12000,
+      leaseTermMonths: 36,
+      directOffer: false,
+      vehicle: importedVehicle,
+      mustHavePackages: [],
+    });
+    assert.equal("purchaseTimeline" in withoutTimeline, false);
+
+    const mappedGarbage = mapDealRequestJson({
+      id: "44",
+      strategy: "exact_auction",
+      dealStructure: { ...payload, purchaseTimeline: "next_year" },
+    });
+    assert.equal(mappedGarbage.dealStructurePreferences?.purchaseTimeline, undefined);
+  });
+
   it("only sends financingSource on the wire when finance is actually requested", () => {
     const withFinance = shopperDealStructurePayload({
       requestedStructures: ["cash", "finance"],
