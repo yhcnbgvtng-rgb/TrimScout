@@ -133,11 +133,20 @@ export const Navbar: React.FC<NavbarProps> = ({
                   <div className="px-3 py-2 border-b border-border/80 space-y-0.5">
                     <div className="font-bold text-white truncate">{user.name}</div>
                     <div className="text-[11px] text-ink-muted truncate">{user.email}</div>
+                    {user.zipCode && (
+                      <div className="text-[11px] text-ink-muted">
+                        Zip: <span className="text-ink-light font-semibold">{user.zipCode}</span>
+                      </div>
+                    )}
                     {user.buyerAlias && (
                       <div className="text-[10px] text-emerald-400 font-mono pt-0.5">
                         {user.buyerAlias}
                       </div>
                     )}
+                    <div className="flex items-center gap-1.5 text-[10px] text-emerald-400 font-semibold pt-1">
+                      <ShieldCheck className="h-3 w-3" />
+                      <span>Privacy Shield active</span>
+                    </div>
                   </div>
 
                   <button
@@ -241,7 +250,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             className="flex items-center gap-1.5 rounded-xl bg-emerald-500 px-3.5 py-1.5 text-xs font-extrabold text-black hover:bg-emerald-400 transition-all shadow-sm active:scale-95"
           >
             <Zap className="h-3.5 w-3.5 fill-black" />
-            <span className="hidden sm:inline">Bid Out a Deal</span>
+            <span className="hidden sm:inline">Structure a Deal</span>
             <span className="sm:hidden">Bid</span>
           </button>
 

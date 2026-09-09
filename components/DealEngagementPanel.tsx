@@ -104,10 +104,16 @@ export function OfferCloseClockCard({
   clock,
   dealRequestId,
   onUpdated,
+  compact = false,
 }: {
   clock: OfferCloseClockView | undefined;
   dealRequestId: string;
   onUpdated?: (next: OfferCloseClockView) => void;
+  /** Renders just the remaining time + an extend link, no border/box and no
+   * repeated "Offer close clock" label — for callers (like the Deal Tracker
+   * hero card) that already show a single unified status elsewhere and just
+   * need the live countdown as a supporting detail. */
+  compact?: boolean;
 }) {
   const [nowMs, setNowMs] = useState(() => Date.now());
   const [pending, setPending] = useState(false);
@@ -147,6 +153,29 @@ export function OfferCloseClockCard({
   const pauseLabel = pauseReasonLabel(live?.pauseReason || null);
   const resumeLabel = formatResume(live?.resumeAt || null, live?.timeZone || "America/New_York");
   const canExtend = Boolean(live) && status !== "closed" && /^\d+$/.test(dealRequestId);
+
+  if (compact) {
+    // Idle and closed are already covered by the caller's own status text —
+    // only surface something here when there's a live countdown to show.
+    if (status !== "running" && status !== "paused") return null;
+    return (
+      <span className="inline-flex items-center gap-1.5 text-ink-faint font-mono">
+        <span>·</span>
+        <span>{status === "paused" && pauseLabel ? pauseLabel : `${remaining} left`}</span>
+        {canExtend ? (
+          <button
+            type="button"
+            onClick={handleExtend}
+            disabled={pending}
+            className="font-sans font-bold text-amber-400 hover:text-amber-300 disabled:opacity-50"
+          >
+            {pending ? "Extending…" : "Extend +24h"}
+          </button>
+        ) : null}
+        {error ? <span className="font-sans text-rose-300">{error}</span> : null}
+      </span>
+    );
+  }
 
   return (
     <div className="rounded-xl border border-border bg-black/40 px-4 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
