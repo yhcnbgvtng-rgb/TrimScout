@@ -769,6 +769,47 @@ async function handleDealerWonDeals(req, res, query) {
 }
 
 // ---------------------------------------------------------------------
+// dealer responsiveness — real, computed from actual bid timing, never
+// fabricated. Shown to a buyer next to a dealer's name while building an
+// offer, so they know what to expect before they send it.
+// ---------------------------------------------------------------------
+
+// GET /api/dealer-responsiveness?dealerName= — public-facing aggregate
+// only (bid count + average response time), no dealer/buyer identity
+// beyond the name the caller already supplied. dealer_name here is always
+// the bidding dealer's own account name (set server-side from their
+// session at bid time, never client-supplied), so this is an exact match
+// against dealership_contacts' canonical name — no fuzzy matching needed.
+//
+// Known nuance: a dealer revising an existing bid updates deal_bids'
+// created_at (see handleSubmitBid's ON DUPLICATE KEY UPDATE), so a revised
+// bid's response time reflects the revision, not the original response.
+// Acceptable for now — there's no historical data at all yet for this to
+// matter in practice.
+async function handleGetDealerResponsiveness(req, res, query) {
+  const dealerName = (query.get("dealerName") || "").trim();
+  if (!dealerName) return badRequest(res, "dealerName is required");
+
+  const pool = getPool();
+  const [rows] = await pool.query(
+    `SELECT
+       COUNT(*) AS bid_count,
+       AVG(TIMESTAMPDIFF(SECOND, dr.created_at, db.created_at)) AS avg_response_seconds
+     FROM deal_bids db
+     JOIN deal_requests dr ON dr.id = db.deal_request_id
+     WHERE db.dealer_name = ? AND db.status != 'withdrawn'`,
+    [dealerName]
+  );
+  const row = rows[0];
+  const bidCount = Number(row?.bid_count || 0);
+  sendJson(res, 200, {
+    dealerName,
+    bidCount,
+    avgResponseHours: bidCount > 0 && row.avg_response_seconds !== null ? Number(row.avg_response_seconds) / 3600 : null,
+  });
+}
+
+// ---------------------------------------------------------------------
 // RFQs — "invite dealers to quote" experiment. Deliberately NOT a
 // bidding/auction platform: the vehicle (VIN/stock) and must-haves are
 // frozen at creation from a full-match shortlist (see lib/rfq.ts), a buyer
@@ -1228,6 +1269,9 @@ const server = http.createServer((req, res) => {
   if (req.method === "GET" && pathname === "/api/dealer-won-deals") {
     return run(handleDealerWonDeals, url.searchParams);
   }
+  if (req.method === "GET" && pathname === "/api/dealer-responsiveness") {
+    return run(handleGetDealerResponsiveness, url.searchParams);
+  }
 
   // RFQs ("invite dealers to quote" experiment — not an auction)
   if (req.method === "POST" && pathname === "/api/rfqs") {
@@ -1285,6 +1329,7 @@ server.listen(PORT, () => {
   console.log(`  GET  /api/deal-requests/:id/market`);
   console.log(`  GET  /api/dealer-bids?dealerUserId=`);
   console.log(`  GET  /api/dealer-won-deals?dealerUserId=`);
+  console.log(`  GET  /api/dealer-responsiveness?dealerName=`);
   console.log(`  POST /api/rfqs`);
   console.log(`  GET  /api/rfqs?buyerUserId=`);
   console.log(`  GET  /api/rfqs/:id`);
