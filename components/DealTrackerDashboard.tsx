@@ -1,15 +1,15 @@
 "use client";
 
 import React, { useState } from "react";
-import { UserProfile, BiddingRequest, DealerBid, OfferCloseClockView } from "../lib/types";
+import { BiddingRequest, DealerBid, OfferCloseClockView } from "../lib/types";
 import { formatCurrency } from "../lib/otdCalculator";
 import { formatDealStructures } from "../lib/dealStructure";
 import { reviewTargetFromVehicle } from "../lib/fordCompetitionUi";
 import { offerPathLabel } from "../lib/shopperDeal";
+import { evaluateOfferClock } from "../lib/offerCloseClock";
 import { DealVehiclesSummary } from "./DealVehiclesSummary";
 import { DealerEngagementChips, OfferCloseClockCard } from "./DealEngagementPanel";
 import {
-  ShieldCheck,
   Zap,
   Building2,
   ChevronRight,
@@ -19,7 +19,6 @@ import {
 } from "lucide-react";
 
 interface DealTrackerDashboardProps {
-  user: UserProfile;
   requests: BiddingRequest[];
   bids: DealerBid[];
   onOpenLiveDealRoom: (request: BiddingRequest) => void;
@@ -27,8 +26,11 @@ interface DealTrackerDashboardProps {
   onToggleTradeIn: (requestId: string, hasTradeIn: boolean) => void;
 }
 
+// One deal is the hero here — the buyer's own profile, privacy status, and
+// zip now live in the header account menu (see Navbar.tsx) instead of a
+// competing card at the top of this page. Stats that used to sit in two
+// empty tiles are now a single thin strip inside the deal card itself.
 export const DealTrackerDashboard: React.FC<DealTrackerDashboardProps> = ({
-  user,
   requests,
   bids,
   onOpenLiveDealRoom,
@@ -36,215 +38,155 @@ export const DealTrackerDashboard: React.FC<DealTrackerDashboardProps> = ({
   onToggleTradeIn,
 }) => {
   const [clockById, setClockById] = useState<Record<string, OfferCloseClockView>>({});
+  const [termsOpenById, setTermsOpenById] = useState<Record<string, boolean>>({});
 
   const activeRequests = requests.filter((r) => r.status === "active" || r.status === "expired");
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 space-y-8 animate-fadeIn">
-      {/* Account Profile & Summary Strip */}
-      <div className="rounded-2xl border border-border-strong bg-gradient-to-r from-surface via-surface-elevated to-surface p-6 sm:p-8 shadow-xl relative overflow-hidden">
-        <div className="flex items-start sm:items-center gap-4 relative z-10">
-          <div className="relative">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={user.avatarUrl || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80"}
-              alt={user.name}
-              className="h-16 w-16 rounded-2xl object-cover border-2 border-emerald-500/50 shadow-lg"
-            />
-            <div className="absolute -bottom-1.5 -right-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500 text-xs font-black text-black">
-              ✓
-            </div>
+    <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6 lg:px-8 space-y-8 animate-fadeIn">
+      {activeRequests.length === 0 ? (
+        <div className="rounded-2xl border border-dashed border-border bg-surface p-12 text-center space-y-4">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-400">
+            <Car className="h-7 w-7" />
           </div>
-
           <div className="space-y-1">
-            <div className="flex flex-wrap items-center gap-2.5">
-              <h1 className="text-xl sm:text-2xl font-black text-white">{user.name}</h1>
-              {user.buyerAlias && (
-                <span className="rounded-full bg-surface px-2.5 py-0.5 text-xs font-mono font-bold text-ink-light border border-border">
-                  {user.buyerAlias}
-                </span>
-              )}
-            </div>
-            <div className="flex flex-wrap items-center gap-4 text-xs text-ink-muted">
-              <span>Email: <strong className="text-ink-light">{user.email}</strong></span>
-              <span>•</span>
-              <span>Zip: <strong className="text-ink-light">{user.zipCode}</strong></span>
-              <span>•</span>
-              <span>Phone: <strong className="text-ink-light">{user.phone}</strong></span>
-            </div>
+            <h3 className="text-base font-bold text-white">No Active Deal Yet</h3>
+            <p className="text-xs text-ink-muted max-w-md mx-auto">
+              You don&apos;t have an active deal request running right now. Choose a car to let dealerships compete for your business.
+            </p>
           </div>
+          <button
+            onClick={onStartNewBid}
+            className="inline-flex items-center gap-2 rounded-xl bg-emerald-500 px-5 py-2.5 text-xs font-black text-black hover:bg-emerald-400 shadow-md shadow-emerald-500/20 transition-all"
+          >
+            <Zap className="h-4 w-4 fill-black" /> Structure Your Deal
+          </button>
         </div>
-
-        {/* Privacy Protection Banner */}
-        <div className="mt-6 pt-5 border-t border-border/60 flex flex-wrap items-center justify-between gap-3 text-xs text-ink-muted">
-          <div className="flex items-center gap-2 text-emerald-400 font-semibold">
-            <ShieldCheck className="h-4 w-4" />
-            <span>TrimScout Privacy Shield Active: Dealerships only see your Buyer Alias until a deal is locked.</span>
-          </div>
-          <div className="font-mono text-[11px] text-ink-faint">
-            Session ID: #TS-{user.id.slice(-6)}
-          </div>
-        </div>
-      </div>
-
-      {/* Metrics Highlights Bar */}
-      <div className="grid grid-cols-2 gap-4">
-        <div className="rounded-2xl border border-border bg-surface p-4 space-y-1">
-          <div className="text-[11px] font-bold uppercase tracking-wider text-ink-faint">Active Bidding Requests</div>
-          <div className="text-2xl sm:text-3xl font-black text-emerald-400 font-mono">
-            {activeRequests.length}
-          </div>
-          <p className="text-[10px] text-ink-muted">Competing across network</p>
-        </div>
-
-        <div className="rounded-2xl border border-border bg-surface p-4 space-y-1">
-          <div className="text-[11px] font-bold uppercase tracking-wider text-ink-faint">Dealers Competing</div>
-          <div className="text-2xl sm:text-3xl font-black text-blue-400 font-mono">
-            {bids.length}
-          </div>
-          <p className="text-[10px] text-ink-muted">Total itemized bids received</p>
-        </div>
-      </div>
-
-      {/* Active Bidding Requests */}
-      <div className="space-y-6">
-        {activeRequests.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-border bg-surface p-12 text-center space-y-4">
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-400">
-              <Car className="h-7 w-7" />
-            </div>
-            <div className="space-y-1">
-              <h3 className="text-base font-bold text-white">No Active Bidding Requests</h3>
-              <p className="text-xs text-ink-muted max-w-md mx-auto">
-                You don’t have any active reverse bidding auctions running right now. Choose a car to let dealerships compete for your business.
-              </p>
-            </div>
-            <button
-              onClick={onStartNewBid}
-              className="inline-flex items-center gap-2 rounded-xl bg-emerald-500 px-5 py-2.5 text-xs font-black text-black hover:bg-emerald-400 shadow-md shadow-emerald-500/20 transition-all"
-            >
-              <Zap className="h-4 w-4" /> Start a Bidding Request
-            </button>
-          </div>
-        ) : (
-          activeRequests.map((req) => {
+      ) : (
+        <div className="space-y-8">
+          {activeRequests.map((req) => {
             const reviewTarget = reviewTargetFromVehicle(req.targetVehicle);
             const paymentLabel = formatDealStructures(req.dealStructurePreferences?.requestedStructures || []);
             const hasTradeIn = Boolean(req.tradeIn?.hasTradeIn);
+            const bidsForReq = bids.filter((b) => b.dealRequestId === req.id);
+            const leading = bidsForReq[0] || null;
+            const clock = clockById[req.id] || req.offerClock;
+            const clockStatus = clock
+              ? evaluateOfferClock({
+                  startedAt: clock.startedAt,
+                  allottedRunningMs: clock.allottedRunningMs,
+                  closedAt: clock.closedAt,
+                  timeZone: clock.timeZone,
+                  now: Date.now(),
+                }).status
+              : "idle";
+            const isClosed = clockStatus === "closed";
+            const dealerCount =
+              req.dealerEngagement?.length ?? (req.directOffer && reviewTarget?.dealerName ? 1 : 0);
+
+            // One status only — not a badge, a waiting box, and a clock all
+            // saying different things. Closed beats everything; a leading
+            // bid means the deal is actively live; otherwise we're waiting.
+            const waitingLabel = req.directOffer
+              ? `Waiting for ${reviewTarget?.dealerName || "this dealer"} to respond`
+              : "Waiting for first dealer OTD";
+            const statusLabel = isClosed ? "Closed" : leading ? "LIVE" : waitingLabel;
+            const statusTone = isClosed ? "closed" : leading ? "live" : "waiting";
+
+            const termsOpen = termsOpenById[req.id] ?? false;
+            const mustHaves = req.flexibleCriteria?.mustHavePackages || [];
+            const mustHaveSummary =
+              mustHaves.length > 2
+                ? `${mustHaves.slice(0, 2).join(", ")} +${mustHaves.length - 2} more`
+                : mustHaves.join(", ") || "Any";
+            const discountSummary = req.targetDiscountPercent ? `${req.targetDiscountPercent}% off MSRP` : "Market best";
+            const tradeInSummary = hasTradeIn
+              ? req.tradeIn && req.tradeIn.year > 0
+                ? `${req.tradeIn.year} ${req.tradeIn.make} ${req.tradeIn.model}`
+                : "Attached"
+              : "None";
+
             return (
               <div
                 key={req.id}
-                className="rounded-2xl border border-border bg-surface shadow-xl overflow-hidden hover:border-emerald-500/40 transition-all"
+                className="rounded-2xl border border-border bg-surface shadow-xl overflow-hidden"
               >
-                {/* Request Header Banner */}
-                <div className="border-b border-border bg-surface-elevated px-6 py-4 flex flex-wrap items-center justify-between gap-4">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/20 text-emerald-400">
-                      <Zap className="h-5 w-5 fill-emerald-400" />
+                {/* Header — title, then the one status strip (replaces the
+                    old badge + two stat tiles + separate waiting text). */}
+                <div className="px-6 sm:px-8 py-6 space-y-4">
+                  <div className="flex items-start gap-3">
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-400">
+                      <Car className="h-5.5 w-5.5" />
                     </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <h3 className="font-extrabold text-white text-base">
-                          {reviewTarget?.title || "Imported vehicle unavailable"}
-                        </h3>
-                        <span className="flex items-center gap-1 rounded-full bg-emerald-500/20 px-2.5 py-0.5 text-[10px] font-extrabold text-emerald-400 border border-emerald-500/30 uppercase">
-                          <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" /> {req.directOffer ? "Direct offer" : "Live Auction"}
-                        </span>
-                      </div>
-                      {reviewTarget?.vin ? (
-                        <p className="text-xs text-ink-muted mt-0.5 font-mono">
-                          VIN: {reviewTarget.vin}
-                        </p>
-                      ) : null}
-                      {reviewTarget?.dealerName || reviewTarget?.locationLine ? (
-                        <p className="text-xs text-ink-light">
-                          {[reviewTarget.dealerName, reviewTarget.locationLine].filter(Boolean).join(" · ")}
-                        </p>
-                      ) : null}
-                      <p className="text-xs text-ink-muted mt-0.5">
-                        {offerPathLabel(req.directOffer)}
-                        {paymentLabel ? ` • ${paymentLabel}` : ""}
-                        {typeof req.targetOtdPrice === "number" && req.targetOtdPrice > 0
-                          ? ` • Target ${formatCurrency(req.targetOtdPrice)}`
-                          : ""}
-                        {req.searchRadiusMiles ? (
-                          <>
-                            {" "}
-                            • Search Radius:{" "}
-                            <span className="text-ink-light font-semibold">{req.searchRadiusMiles} miles</span>
-                          </>
-                        ) : null}
-                        {req.buyerZip ? (
-                          <>
-                            {" "}
-                            • Buyer Zip:{" "}
-                            <span className="text-ink-light font-mono font-semibold">{req.buyerZip}</span>
-                          </>
-                        ) : null}
+                    <div className="min-w-0">
+                      <h2 className="text-lg font-extrabold text-white truncate">
+                        {reviewTarget?.title || "Imported vehicle unavailable"}
+                      </h2>
+                      <p className="text-xs text-ink-muted mt-0.5 truncate">
+                        {reviewTarget?.vin ? <span className="font-mono">{reviewTarget.vin}</span> : null}
+                        {reviewTarget?.dealerName ? ` · ${reviewTarget.dealerName}` : ""}
                       </p>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-3 w-full sm:w-auto">
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1.5 text-xs pl-14">
+                    <span className="text-ink-muted">{activeRequests.length} request{activeRequests.length === 1 ? "" : "s"}</span>
+                    <span className="text-ink-faint">·</span>
+                    <span className="text-ink-muted">{dealerCount} dealer{dealerCount === 1 ? "" : "s"}</span>
+                    <span className="text-ink-faint">·</span>
+                    {statusTone === "live" ? (
+                      <span className="inline-flex items-center gap-1.5 font-bold text-emerald-400">
+                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                        LIVE
+                      </span>
+                    ) : (
+                      <span className={statusTone === "closed" ? "text-ink-faint font-semibold" : "text-ink-muted"}>
+                        {statusLabel}
+                      </span>
+                    )}
                     <OfferCloseClockCard
-                      clock={clockById[req.id] || req.offerClock}
+                      compact
+                      clock={clock}
                       dealRequestId={req.id}
                       onUpdated={(next) => setClockById((prev) => ({ ...prev, [req.id]: next }))}
                     />
                   </div>
                 </div>
 
-                {/* Body Content */}
-                <div className="p-6 space-y-6">
-                  <DealVehiclesSummary request={req} compareHref="/compare" />
+                {/* Body */}
+                <div className="px-6 sm:px-8 pb-6 space-y-5">
+                  <DealVehiclesSummary request={req} compareHref="/compare" hidePrimary />
 
                   <DealerEngagementChips dealers={req.dealerEngagement} />
 
-                  {/* Top Bid Announcement Card */}
-                  {(() => {
-                    const bidsForReq = bids.filter((b) => b.dealRequestId === req.id);
-                    const leading = bidsForReq[0] || null;
-                    if (!leading) {
-                      return (
-                    <div className="rounded-xl border border-border bg-surface-elevated p-4 text-xs text-ink-muted">
-                      {req.directOffer
-                        ? `Waiting for ${req.targetVehicle?.location.dealerName || "this dealer"} to review your offer.`
-                        : "Waiting for dealerships in your area to transmit their first out-the-door bids..."}
-                    </div>
-                      );
-                    }
-                    return (
-                    <div className="rounded-xl border border-emerald-500/40 bg-gradient-to-r from-emerald-950/40 via-surface-elevated to-surface-elevated p-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                      <div className="space-y-1.5">
-                        <div className="flex items-center gap-2">
+                  {leading ? (
+                    <div className="rounded-xl border border-emerald-500/40 bg-emerald-950/20 p-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                      <div className="space-y-1.5 min-w-0">
+                        <div className="flex flex-wrap items-center gap-2">
                           <span className="rounded bg-emerald-500 text-black px-2 py-0.5 text-[10px] font-black uppercase tracking-wider">
-                            {req.directOffer ? "Dealer response" : "#1 Leading Dealership Bid"}
+                            {req.directOffer ? "Dealer response" : "Leading bid"}
                           </span>
                           <span className="text-xs font-bold text-white">{leading.dealerName}</span>
                           <span className="text-xs text-ink-muted">({leading.distanceMiles} mi away)</span>
                         </div>
-
                         <div className="text-sm font-bold text-ink-light">
-                          {leading.matchedVehicleTitle} • <span className="text-ink-muted text-xs">{leading.matchedVehicleSpec}</span>
+                          {leading.matchedVehicleTitle} <span className="text-ink-muted text-xs font-normal">{leading.matchedVehicleSpec}</span>
                         </div>
-
-                        <p className="text-xs text-emerald-400 italic">
-                          &ldquo;{leading.notes}&rdquo;
-                        </p>
+                        {leading.notes ? (
+                          <p className="text-xs text-ink-muted italic">&ldquo;{leading.notes}&rdquo;</p>
+                        ) : null}
                       </div>
 
-                      {/* Pricing Box */}
-                      <div className="flex items-center gap-4 bg-background/80 border border-border p-3.5 rounded-xl">
+                      <div className="flex items-center gap-4 shrink-0">
                         <div className="text-right">
-                          <span className="text-[10px] uppercase font-bold text-ink-faint">Out-The-Door Price</span>
+                          <div className="text-[10px] uppercase font-bold text-ink-faint">Out-the-door</div>
                           <div className="text-2xl font-black text-white font-mono">
                             {formatCurrency(leading.totalOtdPrice)}
                           </div>
                           <div className="text-[11px] text-emerald-400 font-semibold flex items-center justify-end gap-1">
-                            <TrendingDown className="h-3 w-3" /> Save {formatCurrency(leading.dealerDiscountDollars)} ({leading.dealerDiscountPercent}% OFF)
+                            <TrendingDown className="h-3 w-3" /> Save {formatCurrency(leading.dealerDiscountDollars)} ({leading.dealerDiscountPercent}%)
                           </div>
                         </div>
-
                         <button
                           onClick={() => onOpenLiveDealRoom(req)}
                           className="flex items-center gap-1.5 rounded-xl bg-emerald-500 px-4 py-2.5 text-xs font-black text-black hover:bg-emerald-400 transition-all shadow-md shadow-emerald-500/20 active:scale-95"
@@ -254,85 +196,111 @@ export const DealTrackerDashboard: React.FC<DealTrackerDashboardProps> = ({
                         </button>
                       </div>
                     </div>
-                    );
-                  })()}
+                  ) : null}
 
-                  {/* Criteria Tags */}
+                  <p className="text-xs text-ink-muted">
+                    {offerPathLabel(req.directOffer)}
+                    {paymentLabel ? ` · ${paymentLabel}` : ""}
+                    {typeof req.targetOtdPrice === "number" && req.targetOtdPrice > 0
+                      ? ` · Target ${formatCurrency(req.targetOtdPrice)}`
+                      : ""}
+                    {req.searchRadiusMiles ? ` · ${req.searchRadiusMiles} mi radius` : ""}
+                    {req.buyerZip ? ` · Zip ${req.buyerZip}` : ""}
+                  </p>
+
+                  {/* Deal terms — must-haves, discount preference, and
+                      trade-in used to be three sibling cards; now one row
+                      that expands for the one control that's actually
+                      editable (trade-in). */}
                   {req.flexibleCriteria && (
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
-                      <div className="rounded-xl border border-border bg-surface-elevated p-3 space-y-1">
-                        <span className="text-[10px] uppercase font-bold text-ink-faint">Must-Have Packages</span>
-                        <div className="font-semibold text-white">
-                          {req.flexibleCriteria.mustHavePackages.join(", ") || "Any"}
-                        </div>
-                      </div>
+                    <div className="rounded-xl border border-border bg-surface-elevated px-4 py-3">
+                      <button
+                        type="button"
+                        onClick={() => setTermsOpenById((prev) => ({ ...prev, [req.id]: !termsOpen }))}
+                        className="w-full flex items-center justify-between gap-3 text-left"
+                      >
+                        <span className="text-xs text-ink-muted truncate">
+                          <span className="text-[10px] uppercase font-bold text-ink-faint tracking-wider mr-2">Deal terms</span>
+                          {mustHaveSummary} · {discountSummary} · Trade-in: {tradeInSummary}
+                        </span>
+                        <span className="text-xs font-bold text-emerald-400 shrink-0">
+                          {termsOpen ? "Done" : "Edit"}
+                        </span>
+                      </button>
 
-                      <div className="rounded-xl border border-border bg-surface-elevated p-3 space-y-1">
-                        <span className="text-[10px] uppercase font-bold text-ink-faint">Target Discount Range</span>
-                        <div className="font-semibold text-emerald-400 font-mono">
-                          {req.targetDiscountPercent ? `${req.targetDiscountPercent}% Off MSRP` : "Market Best"}
-                        </div>
-                      </div>
-
-                      <div className="rounded-xl border border-border bg-surface-elevated p-3 space-y-1.5">
-                        <div className="flex items-center justify-between gap-2">
-                          <span className="text-[10px] uppercase font-bold text-ink-faint">Trade-In Inclusion</span>
-                          <button
-                            type="button"
-                            onClick={() => onToggleTradeIn(req.id, !hasTradeIn)}
-                            aria-pressed={hasTradeIn}
-                            aria-label={hasTradeIn ? "Remove trade-in from this deal" : "Attach a trade-in to this deal"}
-                            className={`relative h-5 w-9 shrink-0 rounded-full transition-colors ${
-                              hasTradeIn ? "bg-emerald-500" : "bg-border"
-                            }`}
-                          >
-                            <span
-                              className={`absolute top-0.5 h-4 w-4 rounded-full bg-white transition-transform ${
-                                hasTradeIn ? "translate-x-4" : "translate-x-0.5"
+                      {termsOpen && (
+                        <div className="mt-4 pt-4 border-t border-border/60 space-y-4 text-xs">
+                          <div>
+                            <span className="text-[10px] uppercase font-bold text-ink-faint tracking-wider">Must-have packages</span>
+                            <div className="text-white font-semibold mt-1">{mustHaves.join(", ") || "Any"}</div>
+                          </div>
+                          <div>
+                            <span className="text-[10px] uppercase font-bold text-ink-faint tracking-wider">Target discount</span>
+                            <div className="text-white font-semibold mt-1">{discountSummary}</div>
+                          </div>
+                          <div className="flex items-center justify-between gap-3">
+                            <div>
+                              <span className="text-[10px] uppercase font-bold text-ink-faint tracking-wider">Trade-in</span>
+                              <div className="text-white font-semibold mt-1">
+                                {hasTradeIn
+                                  ? req.tradeIn && req.tradeIn.year > 0
+                                    ? `${req.tradeIn.year} ${req.tradeIn.make} ${req.tradeIn.model}${
+                                        req.tradeIn.estimatedValueMin > 0 && req.tradeIn.estimatedValueMax > 0
+                                          ? ` (${formatCurrency(req.tradeIn.estimatedValueMin)} – ${formatCurrency(req.tradeIn.estimatedValueMax)})`
+                                          : ""
+                                      }`
+                                    : "Trade-in attached"
+                                  : "No trade-in attached"}
+                              </div>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => onToggleTradeIn(req.id, !hasTradeIn)}
+                              aria-pressed={hasTradeIn}
+                              aria-label={hasTradeIn ? "Remove trade-in from this deal" : "Attach a trade-in to this deal"}
+                              className={`relative h-5 w-9 shrink-0 rounded-full transition-colors ${
+                                hasTradeIn ? "bg-emerald-500" : "bg-border"
                               }`}
-                            />
-                          </button>
+                            >
+                              <span
+                                className={`absolute top-0.5 h-4 w-4 rounded-full bg-white transition-transform ${
+                                  hasTradeIn ? "translate-x-4" : "translate-x-0.5"
+                                }`}
+                              />
+                            </button>
+                          </div>
                         </div>
-                        <div className="font-semibold text-white">
-                          {hasTradeIn
-                            ? req.tradeIn && req.tradeIn.year > 0
-                              ? `${req.tradeIn.year} ${req.tradeIn.make} ${req.tradeIn.model}${
-                                  req.tradeIn.estimatedValueMin > 0 && req.tradeIn.estimatedValueMax > 0
-                                    ? ` (${formatCurrency(req.tradeIn.estimatedValueMin)} – ${formatCurrency(req.tradeIn.estimatedValueMax)})`
-                                    : ""
-                                }`
-                              : "Trade-in attached"
-                            : "No Trade-In Attached"}
-                        </div>
-                      </div>
+                      )}
                     </div>
                   )}
                 </div>
 
-                {/* Footer Controls */}
-                <div className="flex items-center justify-between border-t border-border bg-surface-elevated px-6 py-3.5 text-xs">
+                {/* Footer — one next action only */}
+                <div className="flex items-center justify-between border-t border-border/60 px-6 sm:px-8 py-4 text-xs">
                   <div className="flex items-center gap-2 text-ink-muted">
-                    <Building2 className="h-4 w-4 text-emerald-400" />
+                    <Building2 className="h-4 w-4 text-ink-faint" />
                     <span>
                       {req.directOffer
                         ? (req.targetVehicle?.location.dealerName || "This dealer")
-                        : <><strong>{bids.filter((b) => b.dealRequestId === req.id).length} dealerships</strong> currently active in your deal room</>}
+                        : <>{bidsForReq.length} dealership{bidsForReq.length === 1 ? "" : "s"} active in your deal room</>}
                     </span>
                   </div>
 
-                  <button
-                    onClick={() => onOpenLiveDealRoom(req)}
-                    className="flex items-center gap-1 text-emerald-400 hover:text-emerald-300 font-bold"
-                  >
-                    <span>{req.directOffer ? "View offer" : `View all ${bids.filter((b) => b.dealRequestId === req.id).length} competing offers`}</span>
-                    <ChevronRight className="h-4 w-4" />
-                  </button>
+                  {!leading && (
+                    <button
+                      onClick={() => onOpenLiveDealRoom(req)}
+                      className="flex items-center gap-1 text-emerald-400 hover:text-emerald-300 font-bold"
+                    >
+                      <span>{req.directOffer ? "View offer" : "Open Live Deal Room"}</span>
+                      <ChevronRight className="h-4 w-4" />
+                    </button>
+                  )}
                 </div>
               </div>
             );
-          })
-        )}
-      </div>
+          })}
+        </div>
+      )}
     </div>
   );
 };

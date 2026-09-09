@@ -520,7 +520,6 @@ export default function Home() {
       {currentView === "track_deals" && (
         currentUser ? (
           <DealTrackerDashboard
-            user={currentUser}
             requests={shopperRequests}
             bids={bids}
             onOpenLiveDealRoom={(request) => {
