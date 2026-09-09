@@ -8,12 +8,8 @@ import {
   LogIn,
   UserPlus,
   ShieldCheck,
-  Building2,
-  User,
   Mail,
   Lock,
-  Phone,
-  MapPin,
   Loader2,
   AlertCircle,
 } from "lucide-react";
@@ -37,23 +33,27 @@ interface AuthModalProps {
   // server-side) instead of silently bouncing the user back to a blank
   // homepage with no explanation.
   initialError?: string | null;
+  // Fired right before onClose, only after a real, successful
+  // credentials sign-in — lets a caller (e.g. the /signup page) navigate
+  // somewhere useful post-login without having to guess why the modal
+  // closed (a plain cancel calls onClose alone).
+  onSignedIn?: () => void;
 }
 
+// Sign-in only. This used to also have an inline "Sign Up" tab with its
+// own account-creation form, but that duplicated (and had quietly drifted
+// out of sync with) components/SignupView.tsx — no dealer-invite
+// awareness, no Turnstile bot-check, a hardcoded dealer-name placeholder,
+// none of the pending-approval handling. SignupView is the one real
+// signup surface now; this modal just links to it.
 export const AuthModal: React.FC<AuthModalProps> = ({
   isOpen,
   onClose,
   initialError,
+  onSignedIn,
 }) => {
-  const [tab, setTab] = useState<"signin" | "signup">("signin");
-  const [role, setRole] = useState<"buyer" | "dealer">("buyer");
-
-  // Form fields
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [zipCode, setZipCode] = useState("94107");
-  const [dealerName, setDealerName] = useState("BMW of San Rafael");
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
@@ -70,36 +70,18 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     setFormError(null);
     setIsSubmitting(true);
     try {
-      if (tab === "signin") {
-        const result = await signIn("credentials", { email, password, redirect: false });
-        if (result?.error) {
-          setFormError(
-            result.error === "auth_service_unavailable"
-              ? "Sign-in is temporarily unavailable. Please try again shortly."
-              : "Incorrect email or password."
-          );
-          return;
-        }
-        // page.tsx's session-sync effect picks up currentUser from here —
-        // nothing further to do but close the modal.
-        onClose();
+      const result = await signIn("credentials", { email, password, redirect: false });
+      if (result?.error) {
+        setFormError(
+          result.error === "auth_service_unavailable"
+            ? "Sign-in is temporarily unavailable. Please try again shortly."
+            : "Incorrect email or password."
+        );
         return;
       }
-
-      // tab === "signup"
-      const res = await fetch("/api/auth/signup", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password, name, role, phone, zipCode, dealerName: role === "dealer" ? dealerName : undefined }),
-      });
-      const json = await res.json();
-      if (!res.ok) {
-        setFormError(json.error || "Could not create your account.");
-        return;
-      }
-      // The signup route already signs the new user in server-side; make
-      // sure the client's session state reflects it.
-      await signIn("credentials", { email, password, redirect: false });
+      // page.tsx's session-sync effect picks up currentUser from here —
+      // nothing further to do but close the modal.
+      onSignedIn?.();
       onClose();
     } finally {
       setIsSubmitting(false);
@@ -123,7 +105,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               <ShieldCheck className="h-5 w-5" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-white">TrimScout Account</h2>
+              <h2 className="text-base font-bold text-white">Sign In to TrimScout</h2>
               <p className="text-xs text-ink-muted">Access your live deal room & track bids</p>
             </div>
           </div>
@@ -135,131 +117,35 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           </button>
         </div>
 
-        {/* Tab Selection */}
-        <div className="grid grid-cols-2 border-b border-border bg-surface-elevated/50 p-1.5 gap-1 text-xs font-semibold">
-          <button
-            onClick={() => setTab("signin")}
-            className={`flex items-center justify-center gap-1.5 py-2 rounded-lg transition-all ${
-              tab === "signin"
-                ? "bg-surface-elevated text-white font-bold border border-border"
-                : "text-ink-muted hover:text-white"
-            }`}
-          >
-            <LogIn className="h-3.5 w-3.5" />
-            <span>Sign In</span>
-          </button>
-
-          <button
-            onClick={() => setTab("signup")}
-            className={`flex items-center justify-center gap-1.5 py-2 rounded-lg transition-all ${
-              tab === "signup"
-                ? "bg-surface-elevated text-white font-bold border border-border"
-                : "text-ink-muted hover:text-white"
-            }`}
-          >
-            <UserPlus className="h-3.5 w-3.5" />
-            <span>Sign Up</span>
-          </button>
-        </div>
-
-        {/* Tab Content */}
         <div className="p-6">
-            <div className="space-y-4">
-              {/* OAuth */}
-              <div className="space-y-2">
-                <button
-                  type="button"
-                  onClick={() => handleOAuth("google")}
-                  disabled={oauthLoading !== null}
-                  className="w-full flex items-center justify-center gap-2.5 rounded-xl border border-border bg-white py-2.5 text-xs font-bold text-gray-800 hover:bg-gray-50 transition-all disabled:opacity-50 disabled:cursor-wait"
-                >
-                  {oauthLoading === "google" ? <Loader2 className="h-4 w-4 animate-spin" /> : <GoogleIcon />}
-                  <span>Continue with Google</span>
-                </button>
-              </div>
+          <div className="space-y-4">
+            {/* OAuth */}
+            <div className="space-y-2">
+              <button
+                type="button"
+                onClick={() => handleOAuth("google")}
+                disabled={oauthLoading !== null}
+                className="w-full flex items-center justify-center gap-2.5 rounded-xl border border-border bg-white py-2.5 text-xs font-bold text-gray-800 hover:bg-gray-50 transition-all disabled:opacity-50 disabled:cursor-wait"
+              >
+                {oauthLoading === "google" ? <Loader2 className="h-4 w-4 animate-spin" /> : <GoogleIcon />}
+                <span>Continue with Google</span>
+              </button>
+            </div>
 
-              <div className="flex items-center gap-3">
-                <div className="h-px flex-1 bg-border" />
-                <span className="text-[10px] uppercase font-bold text-ink-faint">Or with email</span>
-                <div className="h-px flex-1 bg-border" />
-              </div>
+            <div className="flex items-center gap-3">
+              <div className="h-px flex-1 bg-border" />
+              <span className="text-[10px] uppercase font-bold text-ink-faint">Or with email</span>
+              <div className="h-px flex-1 bg-border" />
+            </div>
 
-              {formError && (
-                <div className="flex items-start gap-2 rounded-xl border border-rose-500/40 bg-rose-950/20 p-3 text-[11px] text-rose-300">
-                  <AlertCircle className="h-3.5 w-3.5 shrink-0 mt-0.5" />
-                  <span>{formError}</span>
-                </div>
-              )}
+            {formError && (
+              <div className="flex items-start gap-2 rounded-xl border border-rose-500/40 bg-rose-950/20 p-3 text-[11px] text-rose-300">
+                <AlertCircle className="h-3.5 w-3.5 shrink-0 mt-0.5" />
+                <span>{formError}</span>
+              </div>
+            )}
 
             <form onSubmit={handleSubmit} className="space-y-4 text-xs">
-              {/* Role Toggle */}
-              <div className="space-y-1.5">
-                <label className="text-[10px] uppercase font-bold text-ink-faint">Account Type</label>
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setRole("buyer")}
-                    className={`flex items-center justify-center gap-2 py-2 px-3 rounded-xl border text-xs font-bold transition-all ${
-                      role === "buyer"
-                        ? "border-emerald-500 bg-emerald-500/10 text-emerald-400"
-                        : "border-border bg-surface-elevated text-ink-muted hover:text-white"
-                    }`}
-                  >
-                    <User className="h-3.5 w-3.5" />
-                    <span>Car Buyer</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setRole("dealer")}
-                    className={`flex items-center justify-center gap-2 py-2 px-3 rounded-xl border text-xs font-bold transition-all ${
-                      role === "dealer"
-                        ? "border-blue-500 bg-blue-500/10 text-blue-400"
-                        : "border-border bg-surface-elevated text-ink-muted hover:text-white"
-                    }`}
-                  >
-                    <Building2 className="h-3.5 w-3.5" />
-                    <span>Dealer Partner</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* Name (for sign up) */}
-              {tab === "signup" && (
-                <div className="space-y-1">
-                  <label className="text-[10px] uppercase font-bold text-ink-faint">Full Name</label>
-                  <div className="relative">
-                    <User className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-ink-faint" />
-                    <input
-                      type="text"
-                      required
-                      placeholder={role === "buyer" ? "e.g. Alex Rivera" : "e.g. Marcus Vance"}
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      className="w-full rounded-xl border border-border bg-background py-2 pl-9 pr-3 text-xs text-white placeholder:text-ink-faint focus:border-emerald-500 focus:outline-none"
-                    />
-                  </div>
-                </div>
-              )}
-
-              {/* Dealership Name if dealer */}
-              {role === "dealer" && (
-                <div className="space-y-1">
-                  <label className="text-[10px] uppercase font-bold text-ink-faint">Dealership Name</label>
-                  <div className="relative">
-                    <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-ink-faint" />
-                    <input
-                      type="text"
-                      required
-                      placeholder="e.g. BMW of San Rafael"
-                      value={dealerName}
-                      onChange={(e) => setDealerName(e.target.value)}
-                      className="w-full rounded-xl border border-border bg-background py-2 pl-9 pr-3 text-xs text-white placeholder:text-ink-faint focus:border-emerald-500 focus:outline-none"
-                    />
-                  </div>
-                </div>
-              )}
-
               {/* Email */}
               <div className="space-y-1">
                 <label className="text-[10px] uppercase font-bold text-ink-faint">Email Address</label>
@@ -292,40 +178,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 </div>
               </div>
 
-              {/* Zip Code & Phone for Sign Up */}
-              {tab === "signup" && (
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="space-y-1">
-                    <label className="text-[10px] uppercase font-bold text-ink-faint">Buyer Zip</label>
-                    <div className="relative">
-                      <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-ink-faint" />
-                      <input
-                        type="text"
-                        maxLength={5}
-                        placeholder="94107"
-                        value={zipCode}
-                        onChange={(e) => setZipCode(e.target.value)}
-                        className="w-full rounded-xl border border-border bg-background py-2 pl-9 pr-3 text-xs text-white placeholder:text-ink-faint focus:border-emerald-500 focus:outline-none"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="text-[10px] uppercase font-bold text-ink-faint">Mobile Phone</label>
-                    <div className="relative">
-                      <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-ink-faint" />
-                      <input
-                        type="tel"
-                        placeholder="(555) 000-0000"
-                        value={phone}
-                        onChange={(e) => setPhone(e.target.value)}
-                        className="w-full rounded-xl border border-border bg-background py-2 pl-9 pr-3 text-xs text-white placeholder:text-ink-faint focus:border-emerald-500 focus:outline-none"
-                      />
-                    </div>
-                  </div>
-                </div>
-              )}
-
               {/* Submit Button */}
               <button
                 type="submit"
@@ -334,15 +186,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               >
                 {isSubmitting ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
-                ) : tab === "signin" ? (
+                ) : (
                   <>
                     <LogIn className="h-4 w-4" />
                     <span>Sign In to TrimScout</span>
-                  </>
-                ) : (
-                  <>
-                    <UserPlus className="h-4 w-4" />
-                    <span>Create Free Account</span>
                   </>
                 )}
               </button>
@@ -351,13 +198,16 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 <Link
                   href="/signup"
                   onClick={onClose}
-                  className="text-[11px] text-ink-muted hover:text-emerald-400 transition-colors"
+                  className="text-[11px] text-ink-muted hover:text-emerald-400 transition-colors inline-flex items-center gap-1"
                 >
-                  Need a full registration? <strong className="text-white underline">Open Dedicated Signup Page →</strong>
+                  <UserPlus className="h-3 w-3" />
+                  <span>
+                    New here? <strong className="text-white underline">Create a free account →</strong>
+                  </span>
                 </Link>
               </div>
             </form>
-            </div>
+          </div>
         </div>
       </div>
     </div>
