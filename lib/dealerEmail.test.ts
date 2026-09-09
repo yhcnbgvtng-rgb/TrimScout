@@ -369,4 +369,64 @@ describe("notifyDealersOfNewOffer — safety override", () => {
     const results = await notifyDealersOfNewOffer(bare);
     assert.deepEqual(results, []);
   });
+
+  it("warns when an unmatched dealer name looks like the confirmed Ford sticker truncation, but not for an ordinary unmatched name", async () => {
+    await withEnv({ LIGHTSAIL_API_KEY: "test-key", RESEND_API_KEY: "test-resend-key" }, async () => {
+      const origFetch = globalThis.fetch;
+      const origWarn = console.warn;
+      const warnings: string[] = [];
+      console.warn = ((msg?: unknown) => {
+        warnings.push(String(msg));
+      }) as typeof console.warn;
+      globalThis.fetch = (async (input: RequestInfo | URL) => {
+        const url = String(input);
+        if (url.includes("/api/dealerships")) {
+          return new Response(JSON.stringify({ dealerships: [] }), {
+            status: 200,
+            headers: { "Content-Type": "application/json" },
+          });
+        }
+        if (url === "https://api.resend.com/emails") {
+          return new Response(JSON.stringify({ id: "email_1" }), { status: 200 });
+        }
+        throw new Error(`Unexpected fetch to ${url}`);
+      }) as typeof fetch;
+
+      try {
+        const truncatedNameRequest: BiddingRequest = {
+          ...request,
+          targetVehicle: vehicle({
+            vin: favorite.vin,
+            location: {
+              dealerName: "Nielsen Ford of Morristown, In",
+              city: "Morristown",
+              state: "NJ",
+              distanceMiles: 0,
+            },
+          }),
+          otherLots: [],
+        };
+        await notifyDealersOfNewOffer(truncatedNameRequest);
+        assert.ok(
+          warnings.some((w) => w.includes("Nielsen Ford of Morristown, In") && w.includes("truncated")),
+          "expected a truncation warning for the suspicious name"
+        );
+
+        warnings.length = 0;
+        const ordinaryUnmatchedRequest: BiddingRequest = {
+          ...request,
+          targetVehicle: vehicle({
+            vin: favorite.vin,
+            location: { dealerName: "Some Rooftop Nobody Has On File", city: "Austin", state: "TX", distanceMiles: 0 },
+          }),
+          otherLots: [],
+        };
+        await notifyDealersOfNewOffer(ordinaryUnmatchedRequest);
+        assert.equal(warnings.length, 0, "an ordinary unmatched name should not trigger the truncation warning");
+      } finally {
+        globalThis.fetch = origFetch;
+        console.warn = origWarn;
+      }
+    });
+  });
 });

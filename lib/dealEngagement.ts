@@ -70,8 +70,50 @@ export function emptyEngagementStore(): EngagementStoreData {
   return { tokens: {}, deals: {} };
 }
 
+// Trailing corporate-suffix tokens only — never a meaningful difference
+// between two dealers, just formatting noise between three data sources
+// that were never going to agree byte-for-byte (a factory window
+// sticker's ship-to name, MarketCheck's own dealer field, and a
+// manually-entered dealership_contacts row). Deliberately does NOT strip
+// city/location qualifiers ("of Morristown", "of Springfield") — that's
+// usually the one thing that actually distinguishes sibling rooftops
+// under the same dealer group, and fuzzy-matching that away risks
+// conflating two different real dealers (wrong opt-out honored, wrong
+// invite link sent). Exact-after-normalization, not fuzzy, on purpose.
+const DEALER_NAME_SUFFIX = /\s+(inc|incorporated|llc|corp|corporation|co|ltd)$/;
+
 export function normalizeDealerKey(name: string): string {
-  return name.trim().toLowerCase().replace(/\s+/g, " ");
+  const punctuationNormalized = name
+    .trim()
+    .toLowerCase()
+    .replace(/&/g, "and")
+    .replace(/[.,]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+  return punctuationNormalized.replace(DEALER_NAME_SUFFIX, "");
+}
+
+// Confirmed live on a real Ford window sticker: "Nielsen Ford of
+// Morristown, Inc." comes back as "Nielsen Ford of Morristown, In" —
+// exactly 30 characters, cut off mid-suffix. That's a fixed-width
+// dealer-name field on Ford's side clipping the string, not a parsing bug
+// on ours — so there's no general fix that reconstructs the original
+// name from an arbitrary truncation point. This is just a heads-up
+// signal: a name landing in the same suspicious length range, ending in
+// a short (1-2 letter) trailing token that isn't already one of the
+// recognized corporate suffixes above, is worth a human glancing at
+// rather than silently missing a dealership_contacts match forever.
+const TRUNCATION_SUSPECT_LENGTH: [min: number, max: number] = [28, 32];
+const RECOGNIZED_SUFFIX_WORDS = new Set(["inc", "incorporated", "llc", "corp", "corporation", "co", "ltd"]);
+
+export function looksLikeTruncatedDealerName(name: string): boolean {
+  const trimmed = name.trim();
+  if (trimmed.length < TRUNCATION_SUSPECT_LENGTH[0] || trimmed.length > TRUNCATION_SUSPECT_LENGTH[1]) {
+    return false;
+  }
+  const lastWord = (trimmed.split(/\s+/).pop() || "").replace(/[.,]/g, "").toLowerCase();
+  if (!lastWord || lastWord.length > 2 || !/^[a-z]+$/.test(lastWord)) return false;
+  return !RECOGNIZED_SUFFIX_WORDS.has(lastWord);
 }
 
 export function newInviteToken(): string {

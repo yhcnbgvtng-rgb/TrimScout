@@ -16,7 +16,12 @@
  */
 
 import { listDealerships, type Dealership } from "./dealershipsApi";
-import { invitedDealersFromVehicles, normalizeDealerKey, type InvitedDealerSeed } from "./dealEngagement";
+import {
+  invitedDealersFromVehicles,
+  looksLikeTruncatedDealerName,
+  normalizeDealerKey,
+  type InvitedDealerSeed,
+} from "./dealEngagement";
 import { reviewTargetFromVehicle } from "./fordCompetitionUi";
 import { formatDealStructures } from "./dealStructure";
 import { serverSecret } from "./serverSecret";
@@ -150,6 +155,20 @@ export async function notifyDealersOfNewOffer(request: BiddingRequest): Promise<
   for (const seed of seeds) {
     const match = findDealershipMatch(dealerships, seed);
     const resolvedContactEmail = match?.contactEmail?.trim() || null;
+
+    // Not an error — a legitimately unmatched dealer (no directory entry
+    // yet) is normal and common. This is specifically for the case a
+    // real match likely exists but the name doesn't line up because the
+    // source data itself got clipped by a fixed-width field somewhere
+    // upstream (confirmed on a real Ford sticker — see
+    // looksLikeTruncatedDealerName's own comment). A quiet log line so a
+    // human can go fix the contact record, instead of this failing the
+    // same way forever with nothing to notice it by.
+    if (!match && looksLikeTruncatedDealerName(seed.dealerName)) {
+      console.warn(
+        `dealerEmail: "${seed.dealerName}" didn't match any dealership_contacts row and looks like it may be truncated (length ${seed.dealerName.trim().length}) — check the source data and the contact record's exact name.`
+      );
+    }
 
     if (match?.emailOptOut) {
       results.push({ dealerName: seed.dealerName, sent: false, resolvedContactEmail, error: UNSUBSCRIBED_ERROR });
