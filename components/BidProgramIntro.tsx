@@ -32,7 +32,7 @@ export const BidProgramIntro: React.FC<BidProgramIntroProps> = ({
         <h1 className="text-3xl sm:text-5xl font-black text-white tracking-tight leading-tight">
           Paste Your VIN. <br />
           <span className="bg-gradient-to-r from-emerald-400 via-teal-300 to-emerald-400 bg-clip-text text-transparent">
-            Get a Real Quote Request Moving.
+            No Calls. No Spam. Just Quotes.
           </span>
         </h1>
 
