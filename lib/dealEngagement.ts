@@ -80,7 +80,19 @@ export function emptyEngagementStore(): EngagementStoreData {
 // under the same dealer group, and fuzzy-matching that away risks
 // conflating two different real dealers (wrong opt-out honored, wrong
 // invite link sent). Exact-after-normalization, not fuzzy, on purpose.
-const DEALER_NAME_SUFFIX = /\s+(inc|incorporated|llc|corp|corporation|co|ltd)$/;
+//
+// "in" is here deliberately, not a typo for "inc": confirmed live that
+// Ford's own window-sticker system truncates the ship-to dealer name at a
+// fixed 30 characters, which lands mid-suffix for "..., Inc." and produces
+// "..., In" — every time, for every dealer whose name+suffix crosses that
+// boundary, not just one. The canonical name a real dealer account is
+// registered under always comes from dealership_contacts (pre-filled from
+// the signup invite and locked, never hand-typed), so the window-sticker
+// name is the only side that's ever wrong here — reconciling "in" to the
+// full suffix fixes every dealer hitting this truncation, not just one.
+// A dealer name genuinely ending in the standalone word "in" is not a
+// realistic collision.
+const DEALER_NAME_SUFFIX = /\s+(inc|incorporated|llc|corp|corporation|co|ltd|in)$/;
 
 export function normalizeDealerKey(name: string): string {
   const punctuationNormalized = name
@@ -93,18 +105,15 @@ export function normalizeDealerKey(name: string): string {
   return punctuationNormalized.replace(DEALER_NAME_SUFFIX, "");
 }
 
-// Confirmed live on a real Ford window sticker: "Nielsen Ford of
-// Morristown, Inc." comes back as "Nielsen Ford of Morristown, In" —
-// exactly 30 characters, cut off mid-suffix. That's a fixed-width
-// dealer-name field on Ford's side clipping the string, not a parsing bug
-// on ours — so there's no general fix that reconstructs the original
-// name from an arbitrary truncation point. This is just a heads-up
-// signal: a name landing in the same suspicious length range, ending in
-// a short (1-2 letter) trailing token that isn't already one of the
-// recognized corporate suffixes above, is worth a human glancing at
-// rather than silently missing a dealership_contacts match forever.
+// The confirmed "Inc." -> "In" truncation is now handled directly above
+// (DEALER_NAME_SUFFIX includes "in"), so this is only a heads-up signal
+// for OTHER truncation shapes we haven't confirmed/handled yet: a name
+// landing in the same suspicious length range, ending in a short (1-2
+// letter) trailing token that isn't already one of the recognized
+// suffixes, is worth a human glancing at rather than silently missing a
+// dealership_contacts match forever.
 const TRUNCATION_SUSPECT_LENGTH: [min: number, max: number] = [28, 32];
-const RECOGNIZED_SUFFIX_WORDS = new Set(["inc", "incorporated", "llc", "corp", "corporation", "co", "ltd"]);
+const RECOGNIZED_SUFFIX_WORDS = new Set(["inc", "incorporated", "llc", "corp", "corporation", "co", "ltd", "in"]);
 
 export function looksLikeTruncatedDealerName(name: string): boolean {
   const trimmed = name.trim();

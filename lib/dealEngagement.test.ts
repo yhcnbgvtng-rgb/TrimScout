@@ -159,17 +159,17 @@ describe("normalizeDealerKey — exact-after-normalization, never fuzzy", () => 
     );
   });
 
-  it("known limitation: a truncated suffix like the real 'In' seen on some Ford window stickers is NOT treated as 'Inc' — deliberately conservative rather than guessing", () => {
-    assert.notEqual(
+  it("treats the confirmed Ford sticker truncation ('In' from 'Inc.') as the same suffix — the canonical name a dealer account is registered under always comes from dealership_contacts, never the window sticker, so reconciling the truncated side is safe", () => {
+    assert.equal(
       normalizeDealerKey("Nielsen Ford of Morristown, In"),
       normalizeDealerKey("Nielsen Ford of Morristown, Inc.")
     );
   });
 });
 
-describe("looksLikeTruncatedDealerName — a heads-up signal, not a fix", () => {
-  it("flags the real, confirmed Ford sticker truncation", () => {
-    assert.equal(looksLikeTruncatedDealerName("Nielsen Ford of Morristown, In"), true);
+describe("looksLikeTruncatedDealerName — a heads-up signal for truncation shapes we haven't confirmed/handled yet", () => {
+  it("no longer flags the 'Inc.' -> 'In' truncation — normalizeDealerKey now reconciles it directly", () => {
+    assert.equal(looksLikeTruncatedDealerName("Nielsen Ford of Morristown, In"), false);
   });
 
   it("does not flag an ordinary, untruncated name of the same rough length", () => {

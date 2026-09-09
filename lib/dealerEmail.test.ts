@@ -370,7 +370,7 @@ describe("notifyDealersOfNewOffer — safety override", () => {
     assert.deepEqual(results, []);
   });
 
-  it("warns when an unmatched dealer name looks like the confirmed Ford sticker truncation, but not for an ordinary unmatched name", async () => {
+  it("warns when an unmatched dealer name looks like an unhandled truncation shape, but not for an ordinary unmatched name", async () => {
     await withEnv({ LIGHTSAIL_API_KEY: "test-key", RESEND_API_KEY: "test-resend-key" }, async () => {
       const origFetch = globalThis.fetch;
       const origWarn = console.warn;
@@ -393,13 +393,18 @@ describe("notifyDealersOfNewOffer — safety override", () => {
       }) as typeof fetch;
 
       try {
+        // "In" from "Inc." is now reconciled directly by normalizeDealerKey
+        // (see lib/dealEngagement.ts) rather than merely flagged, so this
+        // exercises a still-unhandled truncation shape instead (a
+        // hypothetical "LLC" cut to "LL") to keep the diagnostic itself
+        // covered.
         const truncatedNameRequest: BiddingRequest = {
           ...request,
           targetVehicle: vehicle({
             vin: favorite.vin,
             location: {
-              dealerName: "Nielsen Ford of Morristown, In",
-              city: "Morristown",
+              dealerName: "Example Ford of Somewhere, LL",
+              city: "Somewhere",
               state: "NJ",
               distanceMiles: 0,
             },
@@ -408,7 +413,7 @@ describe("notifyDealersOfNewOffer — safety override", () => {
         };
         await notifyDealersOfNewOffer(truncatedNameRequest);
         assert.ok(
-          warnings.some((w) => w.includes("Nielsen Ford of Morristown, In") && w.includes("truncated")),
+          warnings.some((w) => w.includes("Example Ford of Somewhere, LL") && w.includes("truncated")),
           "expected a truncation warning for the suspicious name"
         );
 
