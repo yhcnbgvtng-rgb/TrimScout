@@ -641,7 +641,7 @@ export default function Home() {
       {/* Site Footer */}
       <footer className="border-t border-border/60 mt-12 py-6 text-center text-xs text-ink-faint">
         {currentView !== "track_deals" && (
-          <p>© 2026 TrimScout Inc. Must-have options. Verified matches. Real quotes.</p>
+          <p>© 2026 TrimScout Inc. Built for honest option matches and real dealer quotes.</p>
         )}
         <p className="mt-2 flex items-center justify-center gap-4">
           <Link href="/terms" className="hover:text-white transition-colors">Terms of Use</Link>
