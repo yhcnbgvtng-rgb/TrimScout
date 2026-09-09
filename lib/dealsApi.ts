@@ -11,6 +11,7 @@
 import { LIGHTSAIL_HOST } from "./lightsailClient";
 import { serverSecret } from "./serverSecret";
 import type { ContractVerificationResult } from "./contractVerification";
+import type { DealerResponsivenessStats } from "./dealerResponsiveness";
 
 const DEALS_API_PORT = 3004;
 const DEFAULT_TIMEOUT_MS = 8000;
@@ -354,6 +355,17 @@ export async function getSingleBid(dealRequestId: string, bidId: string): Promis
 export async function listBidsForDealer(dealerUserId: string): Promise<DealBidRecord[]> {
   const json = await request("GET", `/api/dealer-bids?dealerUserId=${dealerUserId}`);
   return json.bids as DealBidRecord[];
+}
+
+// Real, computed from actual deal_bids/deal_requests timing — never a
+// fabricated "usually responds within..." default. Shown to a buyer next
+// to a dealer's name while building an offer (called from
+// app/api/dealer-responsiveness/route.ts). The type lives in
+// lib/dealerResponsiveness.ts so client components can share it without
+// pulling in this file's server-only env/secrets.
+export async function getDealerResponsiveness(dealerName: string): Promise<DealerResponsivenessStats> {
+  const json = await request("GET", `/api/dealer-responsiveness?dealerName=${encodeURIComponent(dealerName)}`);
+  return { dealerName: json.dealerName, bidCount: json.bidCount, avgResponseHours: json.avgResponseHours };
 }
 
 export async function listWonDealsForDealer(dealerUserId: string): Promise<DealerWonDeal[]> {

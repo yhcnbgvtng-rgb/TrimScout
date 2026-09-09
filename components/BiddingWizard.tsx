@@ -12,6 +12,7 @@ import {
 } from "../lib/dealStructure";
 import { formatCurrency, getZipCoordinates } from "../lib/otdCalculator";
 import { findContactInfo } from "../lib/piiFilter";
+import { formatDealerResponsivenessLabel, type DealerResponsivenessStats } from "../lib/dealerResponsiveness";
 import {
   FORD_BUILD_SHEET_LINK,
   FORD_MUST_HAVE_HEADING,
@@ -315,6 +316,32 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   const vehicleImported = Boolean(lockVehicleSelection || (parseSuccessMsg && selectedVehicle));
   const financingSourceMissing = requestedStructures.includes("finance") && financingSource == null;
   const reviewTarget = reviewTargetFromVehicle(selectedVehicle);
+
+  // Real dealer responsiveness — computed from actual bid timing on the
+  // box, never a fabricated "usually responds within..." default. Fetched
+  // as soon as the dealer name is known (not gated to step 3) so it's
+  // ready by the time the buyer reaches the review screen.
+  const [dealerResponsiveness, setDealerResponsiveness] = useState<DealerResponsivenessStats | null>(null);
+  useEffect(() => {
+    const dealerName = reviewTarget?.dealerName;
+    if (!dealerName) {
+      setDealerResponsiveness(null);
+      return;
+    }
+    let cancelled = false;
+    fetch(`/api/dealer-responsiveness?dealerName=${encodeURIComponent(dealerName)}`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((json) => {
+        if (!cancelled && json) setDealerResponsiveness(json);
+      })
+      .catch(() => {
+        // Purely a nice-to-have — a failed lookup just shows nothing.
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [reviewTarget?.dealerName]);
+
   const goNext = () => {
     if (step === 1 && (requestedStructures.length === 0 || !vehicleImported || financingSourceMissing)) return;
     if (step === 2 && !offerPath) return;
@@ -1118,6 +1145,15 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                       ) : null}
                       {reviewTarget.dealerName ? (
                         <div className="text-[11px] text-ink-light">{reviewTarget.dealerName}</div>
+                      ) : null}
+                      {reviewTarget.dealerName && formatDealerResponsivenessLabel(dealerResponsiveness) ? (
+                        <div
+                          className={`text-[10.5px] font-medium ${
+                            dealerResponsiveness?.bidCount ? "text-emerald-400" : "text-ink-faint"
+                          }`}
+                        >
+                          {formatDealerResponsivenessLabel(dealerResponsiveness)}
+                        </div>
                       ) : null}
                       {reviewTarget.locationLine ? (
                         <div className="text-[11px] text-ink-muted">{reviewTarget.locationLine}</div>
