@@ -24,6 +24,7 @@ export async function POST(req: Request) {
   // valid invite present just falls through to the manual-entry value,
   // same as before this existed.
   let resolvedDealerName = dealerName;
+  let isVerifiedDealerInvite = false;
   if (role === "dealer" && dealerInviteId && dealerInviteToken) {
     if (!verifyDealerSignupInviteToken(String(dealerInviteId), String(dealerInviteToken))) {
       return NextResponse.json({ error: "This dealer invite link is invalid or has expired." }, { status: 400 });
@@ -34,7 +35,17 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "This dealer invite link is invalid or has expired." }, { status: 400 });
     }
     resolvedDealerName = invited.dealerName;
+    isVerifiedDealerInvite = true;
   }
+
+  // A dealer signing up WITHOUT a verified admin invite could be anyone
+  // claiming to be that dealership — nothing has checked they actually
+  // work there. Land them in pending_verification (the box's login check
+  // already rejects any non-'active' status with 403) until an admin
+  // reviews and approves them from /admin. An invited dealer already went
+  // through that check when the admin generated their invite, so they go
+  // straight to active, same as a buyer always has.
+  const accountStatus = role === "dealer" && !isVerifiedDealerInvite ? "pending_verification" : "active";
 
   try {
     await signup({
@@ -45,11 +56,18 @@ export async function POST(req: Request) {
       phone,
       zipCode,
       dealerName: resolvedDealerName,
+      status: accountStatus,
     });
   } catch (err) {
     const status = err instanceof AuthApiError ? err.status : 500;
     const message = err instanceof AuthApiError ? err.message : "Signup failed";
     return NextResponse.json({ error: message }, { status });
+  }
+
+  if (accountStatus === "pending_verification") {
+    // Don't attempt to sign in — verify-credentials would just reject a
+    // non-'active' account, and there's no session to hand back yet.
+    return NextResponse.json({ success: true, status: accountStatus });
   }
 
   // Signing the user in server-side (not just creating the row) so the
@@ -62,5 +80,5 @@ export async function POST(req: Request) {
     // fails for some reason; the user can still sign in manually.
   }
 
-  return NextResponse.json({ success: true });
+  return NextResponse.json({ success: true, status: accountStatus });
 }

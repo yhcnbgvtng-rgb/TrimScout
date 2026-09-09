@@ -119,6 +119,10 @@ export async function signup(input: {
   phone?: string;
   zipCode?: string;
   dealerName?: string;
+  /** Omit for the default ("active"). A dealer signing up without a
+   * verified admin invite should be created "pending_verification" so
+   * they can't sign in until an admin approves them. */
+  status?: "active" | "suspended" | "pending_verification";
 }): Promise<AuthUser> {
   return postJson("/api/auth/signup", input);
 }
