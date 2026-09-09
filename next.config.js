@@ -37,11 +37,16 @@ const nextConfig = {
             key: "Content-Security-Policy",
             value: [
               "default-src 'self'",
-              "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+              // challenges.cloudflare.com: Turnstile's widget script (bot
+              // protection on signup, components/SignupView.tsx) — it also
+              // renders its actual challenge in an iframe from the same
+              // origin, hence frame-src below too.
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://challenges.cloudflare.com",
               "style-src 'self' 'unsafe-inline'",
               "img-src 'self' data: https:",
               "font-src 'self' data:",
               "connect-src 'self' https:",
+              "frame-src https://challenges.cloudflare.com",
               "frame-ancestors 'none'",
             ].join("; "),
           },

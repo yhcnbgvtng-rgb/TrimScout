@@ -3,6 +3,8 @@ import { signup, AuthApiError } from "@/lib/authApi";
 import { signIn } from "@/auth";
 import { verifyDealerSignupInviteToken } from "@/lib/dealerSignupInvite";
 import { listDealerships } from "@/lib/dealershipsApi";
+import { verifyTurnstileToken } from "@/lib/turnstile";
+import { clientIpFromHeaders } from "@/lib/clientIp";
 
 export async function POST(req: Request) {
   let body: any;
@@ -12,9 +14,15 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
   }
 
-  const { email, password, name, role, phone, zipCode, dealerName, dealerInviteId, dealerInviteToken } = body || {};
+  const { email, password, name, role, phone, zipCode, dealerName, dealerInviteId, dealerInviteToken, turnstileToken } =
+    body || {};
   if (!email || !password || !name) {
     return NextResponse.json({ error: "Email, password, and name are required" }, { status: 400 });
+  }
+
+  const turnstileOk = await verifyTurnstileToken(turnstileToken, clientIpFromHeaders(req.headers));
+  if (!turnstileOk) {
+    return NextResponse.json({ error: "Verification check failed — please try again." }, { status: 400 });
   }
 
   // A dealer signing up from a valid invite link gets the dealership's

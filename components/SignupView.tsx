@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import Script from "next/script";
 import { useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
 import {
@@ -60,6 +61,34 @@ export const SignupView: React.FC<SignupViewProps> = ({
   const [inviteStatus, setInviteStatus] = useState<"checking" | "valid" | "none">("none");
   const [inviteError, setInviteError] = useState("");
 
+  // Cloudflare Turnstile — bot protection on account creation. Rendered via
+  // the explicit JS API (not the auto-rendering `.cf-turnstile` div) so it
+  // survives the role-switcher re-renders without losing/duplicating the
+  // widget. Verified again server-side in /api/auth/signup — a client-side
+  // token check alone means nothing to a bot that just skips the browser
+  // and POSTs directly.
+  const turnstileContainerRef = useRef<HTMLDivElement>(null);
+  const turnstileWidgetId = useRef<string | null>(null);
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const [turnstileScriptReady, setTurnstileScriptReady] = useState(false);
+
+  const renderTurnstileWidget = () => {
+    const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
+    const w = typeof window !== "undefined" ? (window as any) : null;
+    if (!w?.turnstile || !turnstileContainerRef.current || !siteKey || turnstileWidgetId.current) return;
+    turnstileWidgetId.current = w.turnstile.render(turnstileContainerRef.current, {
+      sitekey: siteKey,
+      callback: (token: string) => setTurnstileToken(token),
+      "expired-callback": () => setTurnstileToken(null),
+      "error-callback": () => setTurnstileToken(null),
+    });
+  };
+
+  useEffect(() => {
+    if (turnstileScriptReady) renderTurnstileWidget();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [turnstileScriptReady]);
+
   useEffect(() => {
     const id = searchParams.get("dealerId");
     const token = searchParams.get("dealerToken");
@@ -113,6 +142,10 @@ export const SignupView: React.FC<SignupViewProps> = ({
       setErrorMsg("Please accept the terms of service to proceed.");
       return;
     }
+    if (!turnstileToken) {
+      setErrorMsg("Please complete the verification check below.");
+      return;
+    }
 
     setIsLoading(true);
     setErrorMsg("");
@@ -131,11 +164,16 @@ export const SignupView: React.FC<SignupViewProps> = ({
           dealerName: role === "dealer" ? dealerName : undefined,
           dealerInviteId: role === "dealer" ? dealerInviteId || undefined : undefined,
           dealerInviteToken: role === "dealer" ? dealerInviteToken || undefined : undefined,
+          turnstileToken,
         }),
       });
       const json = await res.json();
       if (!res.ok) {
         setErrorMsg(json.error || "Could not create your account.");
+        // A Turnstile token is single-use — reset so a retry gets a fresh one.
+        const w = typeof window !== "undefined" ? (window as any) : null;
+        if (w?.turnstile && turnstileWidgetId.current) w.turnstile.reset(turnstileWidgetId.current);
+        setTurnstileToken(null);
         return;
       }
       if (json.status === "pending_verification") {
@@ -162,6 +200,14 @@ export const SignupView: React.FC<SignupViewProps> = ({
 
   return (
     <div className="w-full max-w-xl mx-auto px-4 py-8 sm:py-12 lg:px-8">
+      {process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY && (
+        <Script
+          src="https://challenges.cloudflare.com/turnstile/v0/api.js"
+          async
+          defer
+          onReady={() => setTurnstileScriptReady(true)}
+        />
+      )}
       <div>
         <div className="rounded-3xl border border-border-strong bg-surface p-6 sm:p-8 shadow-2xl space-y-6 relative overflow-hidden backdrop-blur-xl">
           {/* Background accent glow */}
@@ -451,6 +497,14 @@ export const SignupView: React.FC<SignupViewProps> = ({
                   I agree to TrimScout's <span className="text-white underline">Terms of Service</span> and <span className="text-white underline">Privacy Policy</span>. I understand my contact info is shielded from dealers until I accept a certified deal voucher.
                 </span>
               </label>
+
+              {/* Bot-protection challenge — renders via the explicit JS API
+                  in the useEffect above once the script loads. */}
+              {process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY && (
+                <div className="flex justify-center pt-1">
+                  <div ref={turnstileContainerRef} />
+                </div>
+              )}
 
               {/* Submit Button */}
               <button
