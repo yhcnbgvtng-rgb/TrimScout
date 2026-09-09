@@ -93,6 +93,29 @@ export function normalizeDealerKey(name: string): string {
   return punctuationNormalized.replace(DEALER_NAME_SUFFIX, "");
 }
 
+// Confirmed live on a real Ford window sticker: "Nielsen Ford of
+// Morristown, Inc." comes back as "Nielsen Ford of Morristown, In" —
+// exactly 30 characters, cut off mid-suffix. That's a fixed-width
+// dealer-name field on Ford's side clipping the string, not a parsing bug
+// on ours — so there's no general fix that reconstructs the original
+// name from an arbitrary truncation point. This is just a heads-up
+// signal: a name landing in the same suspicious length range, ending in
+// a short (1-2 letter) trailing token that isn't already one of the
+// recognized corporate suffixes above, is worth a human glancing at
+// rather than silently missing a dealership_contacts match forever.
+const TRUNCATION_SUSPECT_LENGTH: [min: number, max: number] = [28, 32];
+const RECOGNIZED_SUFFIX_WORDS = new Set(["inc", "incorporated", "llc", "corp", "corporation", "co", "ltd"]);
+
+export function looksLikeTruncatedDealerName(name: string): boolean {
+  const trimmed = name.trim();
+  if (trimmed.length < TRUNCATION_SUSPECT_LENGTH[0] || trimmed.length > TRUNCATION_SUSPECT_LENGTH[1]) {
+    return false;
+  }
+  const lastWord = (trimmed.split(/\s+/).pop() || "").replace(/[.,]/g, "").toLowerCase();
+  if (!lastWord || lastWord.length > 2 || !/^[a-z]+$/.test(lastWord)) return false;
+  return !RECOGNIZED_SUFFIX_WORDS.has(lastWord);
+}
+
 export function newInviteToken(): string {
   return randomBytes(24).toString("base64url");
 }
