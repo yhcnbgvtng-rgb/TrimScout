@@ -455,7 +455,7 @@ describe("listing-facts route and compare page copy", () => {
     assert.doesNotMatch(wizard, /Buyer Zip Code/);
     assert.doesNotMatch(wizard, /Dealer Radius/);
     assert.doesNotMatch(wizard, /\/api\/ford-comparables/);
-    assert.match(wizard, /does not search listings/);
+    assert.match(wizard, /Sets which dealers can see this request/);
     assert.doesNotMatch(wizard, /STEP 6:/);
   });
 

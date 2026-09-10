@@ -353,7 +353,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   // Single source of the step's short label — shown once in the header
   // subtitle, not repeated as a "Step N:" prefix inside each step's own
   // heading below.
-  const STEP_LABELS = ["Payment & Vehicle", "Offer Path", "Review & Send"];
+  const STEP_LABELS = ["Payment & Vehicle", "Dealers & Location", "Review & Send"];
   // Step 1's Continue is blocked until Import Car actually loaded a
   // vehicle — unless a real vehicle was already locked in via
   // lockVehicleSelection, in which case there's nothing to import.
@@ -414,7 +414,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
 
   const goNext = () => {
     if (step === 1 && (requestedStructures.length === 0 || !vehicleImported || financingSourceMissing)) return;
-    if (step === 2 && !offerPath) return;
+    if (step === 2 && (!offerPath || step2LocationMissing)) return;
     setStep(step + 1);
   };
   const goBack = () => {
@@ -428,6 +428,10 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   // and the disabled Continue button already say what's needed.
   const huntLocationInvalid =
     huntLocationMissing && (huntZip.trim() !== "" || huntRadius.trim() !== "");
+  // Location only decides anything on the multi-dealer path — /api/dealer-requests
+  // skips the distance and same-state filters entirely for a direct (firm_offer)
+  // request, so don't hold that path up for a ZIP it will never use.
+  const step2LocationMissing = offerPath === "auction" && huntLocationMissing;
 
   const handleParseDealerUrl = async (urlToParse?: string) => {
     const raw = (urlToParse || dealerUrlInput).trim();
@@ -797,7 +801,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                 hint="Payment shapes every offer dealers send you — pick all that apply."
                 className="pb-6"
               >
-                <div className="grid grid-cols-3 gap-2">
+                <div className="flex flex-wrap gap-2">
                   {/* Display order only (Finance, Lease, Cash) — the
                       underlying DEAL_STRUCTURE_METHODS order stays
                       Cash/Finance/Lease since formatDealStructures and
@@ -810,13 +814,13 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                         type="button"
                         aria-pressed={isChecked}
                         onClick={() => setRequestedStructures((current) => toggleDealStructure(current, id))}
-                        className={`flex items-center justify-center gap-1.5 rounded-xl border px-3 py-2.5 text-xs font-bold transition-all ${
+                        className={`flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-[11px] font-bold transition-all ${
                           isChecked
                             ? "border-emerald-500 bg-emerald-500/10 text-white"
                             : "border-border text-ink-light hover:border-border-strong"
                         }`}
                       >
-                        {isChecked && <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 shrink-0" />}
+                        {isChecked && <CheckCircle2 className="h-3 w-3 text-emerald-400 shrink-0" />}
                         {DEAL_STRUCTURE_LABELS[id]}
                       </button>
                     );
@@ -879,96 +883,6 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                     )}
                   </div>
                 )}
-              </WizardSection>
-
-              {/* ---------------------------------------------------------- */}
-              {/* Location                                                    */}
-              {/* ---------------------------------------------------------- */}
-              <WizardSection
-                title="Location"
-                hint="Saved with this deal — it does not search listings. Radius is capped at 100 miles."
-                className="py-6"
-              >
-                <div className="grid grid-cols-2 gap-2">
-                  <label className="space-y-1">
-                    <span
-                      className={`text-[10px] font-bold uppercase ${
-                        huntLocationInvalid ? "text-amber-300" : "text-ink-faint"
-                      }`}
-                    >
-                      Your ZIP (required)
-                    </span>
-                    <div className="relative">
-                      <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-emerald-400" />
-                      <input
-                        type="text"
-                        inputMode="numeric"
-                        maxLength={5}
-                        value={huntZip}
-                        onChange={(e) => {
-                          const next = e.target.value.replace(/\D/g, "").slice(0, 5);
-                          setHuntZip(next);
-                          if (next.length === 5) setBuyerZip(next);
-                        }}
-                        placeholder="e.g. 07405"
-                        aria-required="true"
-                        aria-invalid={huntLocationInvalid}
-                        autoComplete="off"
-                        className={`w-full rounded-xl border bg-background py-2 pl-9 pr-3 text-xs text-white placeholder-ink-faint focus:border-emerald-500 focus:outline-none font-mono ${
-                          huntLocationInvalid
-                            ? "border-amber-500 ring-1 ring-amber-500/40"
-                            : "border-border"
-                        }`}
-                      />
-                    </div>
-                  </label>
-                  <label className="space-y-1">
-                    <span
-                      className={`text-[10px] font-bold uppercase ${
-                        huntLocationInvalid ? "text-amber-300" : "text-ink-faint"
-                      }`}
-                    >
-                      Radius miles (required, 100 mi max)
-                    </span>
-                    <input
-                      type="text"
-                      inputMode="numeric"
-                      value={huntRadius}
-                      onChange={(e) => {
-                        const digits = e.target.value.replace(/\D/g, "").slice(0, 3);
-                        const clamped = digits === "" ? "" : String(Math.min(100, Number(digits)));
-                        setHuntRadius(clamped);
-                        const n = Number(clamped);
-                        if (Number.isFinite(n) && n > 0) setSearchRadius(n);
-                      }}
-                      placeholder="up to 100"
-                      aria-required="true"
-                      aria-invalid={huntLocationInvalid}
-                      aria-label="Search radius in miles, maximum 100"
-                      autoComplete="off"
-                      className={`w-full rounded-xl border bg-background py-2 px-3 text-xs text-white placeholder-ink-faint focus:border-emerald-500 focus:outline-none font-mono ${
-                        huntLocationInvalid
-                          ? "border-amber-500 ring-1 ring-amber-500/40"
-                          : "border-border"
-                      }`}
-                    />
-                  </label>
-                </div>
-
-                <label className="flex items-start gap-2 text-xs cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={sameStateOnly}
-                    onChange={(e) => setSameStateOnly(e.target.checked)}
-                    className="mt-0.5 h-3.5 w-3.5 shrink-0 rounded border-border text-emerald-500 focus:ring-0"
-                  />
-                  <span className="leading-snug text-ink-light">
-                    Keep results within my state
-                    <span className="block text-[10px] text-ink-faint">
-                      Uncheck to widen the match to any state within the radius
-                    </span>
-                  </span>
-                </label>
               </WizardSection>
 
               {/* ---------------------------------------------------------- */}
@@ -1200,10 +1114,12 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
           {/* STEP 2: DIRECT OFFER OR MULTI-DEALER                                      */}
           {/* ========================================================================= */}
           {step === 2 && (
-            <div className="space-y-3">
-              <h3 className="text-sm font-bold text-white uppercase tracking-wider text-emerald-400">
-                Who Gets This Offer?
-              </h3>
+            <div className="divide-y divide-border/50">
+              <WizardSection
+                title="Who gets this offer"
+                hint="Send it to the dealer holding this car, or open it to other dealers nearby."
+                className="pb-6"
+              >
               <div className="grid grid-cols-1 gap-3">
                 <button
                   type="button"
@@ -1234,6 +1150,99 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                   </div>
                 </button>
               </div>
+              </WizardSection>
+
+              {/* ---------------------------------------------------------- */}
+              {/* Location — only the multi-dealer path uses it               */}
+              {/* ---------------------------------------------------------- */}
+              {offerPath === "auction" && (
+              <WizardSection
+                title="Where to look"
+                hint="Sets which dealers can see this request. Radius is capped at 100 miles."
+                className="pt-6"
+              >
+                <div className="grid grid-cols-2 gap-2">
+                  <label className="space-y-1">
+                    <span
+                      className={`text-[10px] font-bold uppercase ${
+                        huntLocationInvalid ? "text-amber-300" : "text-ink-faint"
+                      }`}
+                    >
+                      Your ZIP (required)
+                    </span>
+                    <div className="relative">
+                      <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-emerald-400" />
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        maxLength={5}
+                        value={huntZip}
+                        onChange={(e) => {
+                          const next = e.target.value.replace(/\D/g, "").slice(0, 5);
+                          setHuntZip(next);
+                          if (next.length === 5) setBuyerZip(next);
+                        }}
+                        placeholder="e.g. 07405"
+                        aria-required="true"
+                        aria-invalid={huntLocationInvalid}
+                        autoComplete="off"
+                        className={`w-full rounded-xl border bg-background py-2 pl-9 pr-3 text-xs text-white placeholder-ink-faint focus:border-emerald-500 focus:outline-none font-mono ${
+                          huntLocationInvalid
+                            ? "border-amber-500 ring-1 ring-amber-500/40"
+                            : "border-border"
+                        }`}
+                      />
+                    </div>
+                  </label>
+                  <label className="space-y-1">
+                    <span
+                      className={`text-[10px] font-bold uppercase ${
+                        huntLocationInvalid ? "text-amber-300" : "text-ink-faint"
+                      }`}
+                    >
+                      Radius miles (required, 100 mi max)
+                    </span>
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      value={huntRadius}
+                      onChange={(e) => {
+                        const digits = e.target.value.replace(/\D/g, "").slice(0, 3);
+                        const clamped = digits === "" ? "" : String(Math.min(100, Number(digits)));
+                        setHuntRadius(clamped);
+                        const n = Number(clamped);
+                        if (Number.isFinite(n) && n > 0) setSearchRadius(n);
+                      }}
+                      placeholder="up to 100"
+                      aria-required="true"
+                      aria-invalid={huntLocationInvalid}
+                      aria-label="Search radius in miles, maximum 100"
+                      autoComplete="off"
+                      className={`w-full rounded-xl border bg-background py-2 px-3 text-xs text-white placeholder-ink-faint focus:border-emerald-500 focus:outline-none font-mono ${
+                        huntLocationInvalid
+                          ? "border-amber-500 ring-1 ring-amber-500/40"
+                          : "border-border"
+                      }`}
+                    />
+                  </label>
+                </div>
+
+                <label className="flex items-start gap-2 text-xs cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={sameStateOnly}
+                    onChange={(e) => setSameStateOnly(e.target.checked)}
+                    className="mt-0.5 h-3.5 w-3.5 shrink-0 rounded border-border text-emerald-500 focus:ring-0"
+                  />
+                  <span className="leading-snug text-ink-light">
+                    Keep results within my state
+                    <span className="block text-[10px] text-ink-faint">
+                      Uncheck to widen the match to any state within the radius
+                    </span>
+                  </span>
+                </label>
+              </WizardSection>
+              )}
             </div>
           )}
 
@@ -1527,7 +1536,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                 onClick={goNext}
                 disabled={
                   (step === 1 && (requestedStructures.length === 0 || !vehicleImported || financingSourceMissing)) ||
-                  (step === 2 && !offerPath)
+                  (step === 2 && (!offerPath || step2LocationMissing))
                 }
                 className="flex items-center gap-1.5 rounded-lg bg-emerald-500 px-5 py-2 text-xs font-bold text-black hover:bg-emerald-400 transition-all shadow-md shadow-emerald-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
               >

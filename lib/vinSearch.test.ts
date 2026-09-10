@@ -1083,7 +1083,11 @@ describe("shopper-facing factory option copy", () => {
     assert.match(src, /chooseMultiDealer/);
     assert.match(src, /setDirectOfferMode\(true\)/);
     assert.match(src, /setStrategy\("exact_auction"\)/);
-    assert.match(src, /step === 2 && !offerPath/);
+    assert.match(src, /step === 2 && \(!offerPath \|\| step2LocationMissing\)/);
+    // Location moved out of step 1 and onto the multi-dealer path only —
+    // a direct offer never uses the buyer ZIP for matching.
+    assert.match(step2, /offerPath === "auction" && \(/);
+    assert.match(step2, /Your ZIP \(required\)/);
     assert.doesNotMatch(step2, /Find your car based on Make and Model/);
     assert.doesNotMatch(step2, /Find your car based on must have specs/);
     assert.doesNotMatch(step2, /Firm Buyer Target Offer/);
