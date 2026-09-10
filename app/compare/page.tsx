@@ -34,7 +34,7 @@ export default function ComparePage() {
         <OfferCompareView />
       </main>
       <footer className="border-t border-border/60 py-6 text-center text-xs text-ink-faint">
-        <p>© 2026 TrimScout Inc. Built for honest option matches and real dealer quotes.</p>
+        <p>© 2026 LyDar Enterprises LLC. Built for honest option matches and real dealer quotes.</p>
       </footer>
     </div>
   );

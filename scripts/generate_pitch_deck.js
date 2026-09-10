@@ -7,7 +7,7 @@ async function generatePitchDeck() {
 
   pptx.layout = "LAYOUT_16x9";
   pptx.author = "TrimScout Team";
-  pptx.company = "TrimScout Inc.";
+  pptx.company = "LyDar Enterprises LLC";
   pptx.title = "TrimScout Business Case & Investor Pitch Deck";
   pptx.subject = "The Reverse-Bidding Marketplace for New & In-Transit Automobiles";
 
@@ -61,7 +61,7 @@ async function generatePitchDeck() {
     });
 
     // Footer
-    slide.addText("TrimScout Inc. • Confidential Pitch Deck • 2026", {
+    slide.addText("LyDar Enterprises LLC • Confidential Pitch Deck • 2026", {
       x: 0.8,
       y: 7.0,
       w: 8.0,
