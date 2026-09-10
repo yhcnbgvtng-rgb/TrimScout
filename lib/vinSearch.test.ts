@@ -1065,7 +1065,7 @@ describe("shopper-facing factory option copy", () => {
     assert.match(src, /const vehicleImported = Boolean\(lockVehicleSelection \|\| \(parseSuccessMsg && selectedVehicle\)\)/);
     assert.match(src, /if \(step === 1 && \(requestedStructures\.length === 0 \|\| !vehicleImported \|\| financingSourceMissing \|\| !purchaseTimeline\)\) return;/);
     assert.match(step1, /One car is required to continue/);
-    assert.match(step1, /Import Car →/);
+    assert.match(step1, /handleParseDealerUrl\(\)/);
   });
 
   it("step 2 is only a direct offer vs multi-dealer choice", () => {

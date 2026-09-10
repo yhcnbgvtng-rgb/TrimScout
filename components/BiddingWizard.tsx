@@ -139,6 +139,9 @@ interface BiddingWizardProps {
 }
 
 /** One alternate-vehicle slot in Step 1 — resolved via the same real factory-build import as the primary VIN. */
+/** Placeholder shared by the primary and alternate vehicle boxes. */
+const VEHICLE_INPUT_PLACEHOLDER = "Dealership link to exact vehicle";
+
 function AlternateVinField({
   label,
   value,
@@ -186,8 +189,8 @@ function AlternateVinField({
           type="text"
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          placeholder="17-character VIN or dealer listing URL"
-          className="w-full rounded-lg border border-border bg-background py-2 px-3 text-xs text-white placeholder-ink-faint focus:border-emerald-500 focus:outline-none font-mono"
+          placeholder={VEHICLE_INPUT_PLACEHOLDER}
+          className="w-full rounded-lg border border-border bg-background py-2 px-3 text-[11px] text-ink-light placeholder-ink-faint focus:border-emerald-500 focus:outline-none"
         />
         <button
           type="button"
@@ -833,10 +836,10 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
 
                 {requestedStructures.includes("finance") && (
                   <div className="rounded-xl border border-border bg-surface-elevated p-3.5 space-y-2">
-                    <span className="text-xs font-semibold text-ink-light">Who&apos;s financing this?</span>
+                    <span className="text-[11px] font-semibold text-ink-light">Who&apos;s financing this?</span>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                       <label
-                        className={`flex items-start gap-2 rounded-lg border px-3 py-2 text-xs cursor-pointer transition-colors ${
+                        className={`flex items-start gap-2 rounded-lg border px-3 py-2 text-[11px] cursor-pointer transition-colors ${
                           financingSource === "buyer_own"
                             ? "border-emerald-500 bg-emerald-500/10"
                             : "border-border hover:border-border-strong"
@@ -850,14 +853,14 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                           className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-500 focus:ring-0"
                         />
                         <span>
-                          <span className="block font-semibold text-white">I&apos;ll bring my own financing</span>
+                          <span className="block font-semibold text-ink-light">I&apos;ll bring my own financing</span>
                           <span className="block text-ink-muted text-[11px] mt-0.5">
                             A bank or credit union pre-approval — dealers quote you an out-the-door price only.
                           </span>
                         </span>
                       </label>
                       <label
-                        className={`flex items-start gap-2 rounded-lg border px-3 py-2 text-xs cursor-pointer transition-colors ${
+                        className={`flex items-start gap-2 rounded-lg border px-3 py-2 text-[11px] cursor-pointer transition-colors ${
                           financingSource === "dealer"
                             ? "border-emerald-500 bg-emerald-500/10"
                             : "border-border hover:border-border-strong"
@@ -871,7 +874,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                           className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-500 focus:ring-0"
                         />
                         <span>
-                          <span className="block font-semibold text-white">Use the dealer&apos;s financing</span>
+                          <span className="block font-semibold text-ink-light">Use the dealer&apos;s financing</span>
                           <span className="block text-amber-400 text-[11px] mt-0.5">
                             Not recommended — dealer financing often costs more than a bank or credit union rate you arrange yourself.
                           </span>
@@ -884,14 +887,14 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                   </div>
                 )}
 
-                <label className="block space-y-1.5">
-                  <span className="text-xs text-ink-light">
+                <label className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5">
+                  <span className="text-[11px] text-ink-light">
                     When will you be ready to complete the transaction?
                   </span>
                   <select
                     value={purchaseTimeline}
                     onChange={(e) => setPurchaseTimeline(e.target.value as PurchaseTimeline)}
-                    className="w-full rounded-lg border border-border bg-background py-2 px-3 text-xs text-white focus:border-emerald-500 focus:outline-none"
+                    className="rounded-lg border border-border bg-background py-1.5 px-2.5 text-[11px] text-ink-light focus:border-emerald-500 focus:outline-none"
                   >
                     <option value="" disabled>
                       Select a timeline
@@ -908,37 +911,27 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
               {/* ---------------------------------------------------------- */}
               <WizardSection
                 title="Vehicle"
-                hint="Paste a dealer listing URL or a 17-character VIN. One car is required to continue."
+                hint="Paste the dealership link to the exact vehicle, or its 17-character VIN. One car is required to continue."
                 className="py-6"
               >
-                <div className="flex flex-col sm:flex-row gap-2">
+                <div className="flex gap-2">
                   <div className="relative flex-1">
-                    <Globe className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-emerald-400" />
+                    <Globe className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-emerald-400" />
                     <input
                       type="text"
                       value={dealerUrlInput}
                       onChange={(e) => setDealerUrlInput(e.target.value)}
-                      placeholder="17-character VIN or dealer listing URL"
-                      className="w-full rounded-xl border border-border bg-background py-2.5 pl-10 pr-3 text-xs text-white placeholder-ink-faint focus:border-emerald-500 focus:outline-none font-mono"
+                      placeholder={VEHICLE_INPUT_PLACEHOLDER}
+                      className="w-full rounded-lg border border-border bg-background py-2 pl-9 pr-3 text-[11px] text-ink-light placeholder-ink-faint focus:border-emerald-500 focus:outline-none"
                     />
                   </div>
                   <button
                     type="button"
                     onClick={() => handleParseDealerUrl()}
                     disabled={isParsingLink || !dealerUrlInput.trim()}
-                    className="rounded-xl bg-emerald-500 px-5 py-2.5 text-xs font-extrabold text-black hover:bg-emerald-400 transition-all shadow-md flex items-center justify-center gap-1.5 shrink-0 disabled:opacity-50 active:scale-95"
+                    className="rounded-lg border border-border px-3.5 py-2 text-[11px] font-bold text-ink-light hover:border-emerald-500 hover:text-white transition-all disabled:opacity-50 shrink-0"
                   >
-                    {isParsingLink ? (
-                      <>
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                        <span>Importing…</span>
-                      </>
-                    ) : (
-                      <>
-                        <Zap className="h-4 w-4 fill-black" />
-                        <span>Import Car →</span>
-                      </>
-                    )}
+                    {isParsingLink ? "Adding…" : "Add"}
                   </button>
                 </div>
 
@@ -1087,7 +1080,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                   <button
                     type="button"
                     onClick={() => setShowAlternates(true)}
-                    className="text-[11px] font-bold text-emerald-400 hover:text-emerald-300 transition-colors"
+                    className="text-[11px] font-bold text-ink-light hover:text-white transition-colors"
                   >
                     + Add additional vehicles to the offer package
                   </button>
@@ -1099,7 +1092,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
               {/* ---------------------------------------------------------- */}
               <WizardSection title="Trade-in" className="pt-6">
                 <div className="flex items-center justify-between gap-3">
-                  <span className="text-xs text-ink-light">I have a vehicle to trade in</span>
+                  <span className="text-[11px] text-ink-light">I have a vehicle to trade in</span>
                   <button
                     type="button"
                     onClick={() => setHasTradeIn(!hasTradeIn)}
