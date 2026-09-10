@@ -774,7 +774,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
               <Zap className="h-4 w-4 fill-emerald-400" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-white">Configure Offer</h2>
+              <h2 className="text-base font-bold text-white">Configure Offer Package</h2>
               <p className="text-xs text-ink-muted">Step {step} of {TOTAL_STEPS} • {STEP_LABELS[step - 1]}</p>
             </div>
           </div>
@@ -890,7 +890,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
               {/* ---------------------------------------------------------- */}
               <WizardSection
                 title="Vehicle"
-                hint="Paste a dealer listing URL or a 17-character VIN."
+                hint="Paste a dealer listing URL or a 17-character VIN. One car is required to continue."
                 className="py-6"
               >
                 <div className="flex flex-col sm:flex-row gap-2">
@@ -928,9 +928,6 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                   <div className="rounded-xl border border-amber-500/40 bg-amber-950/30 px-3 py-2 text-[11px] text-amber-200">
                     {parseError}
                   </div>
-                )}
-                {!vehicleImported && !isParsingLink && (
-                  <p className="text-[11px] text-ink-muted">Import a car to continue.</p>
                 )}
 
                 {/* Decoded vehicle preview — sits directly under the import
@@ -1074,7 +1071,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                     onClick={() => setShowAlternates(true)}
                     className="text-[11px] font-bold text-emerald-400 hover:text-emerald-300 transition-colors"
                   >
-                    + Add up to 2 similar vehicles (optional)
+                    + Add additional vehicles to the offer package
                   </button>
                 )}
               </WizardSection>
@@ -1102,8 +1099,8 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                   </button>
                 </div>
                 {hasTradeIn && (
-                  <p className="text-[11px] text-ink-muted">
-                    Your trade-in will be handled after the selling price has been reached.
+                  <p className="rounded-lg border border-border bg-surface-elevated px-3 py-2 text-[11px] leading-snug text-ink-light">
+                    Your trade-in will be handled after we finalize the price of the new car.
                   </p>
                 )}
               </WizardSection>

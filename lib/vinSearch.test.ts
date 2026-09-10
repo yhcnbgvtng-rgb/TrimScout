@@ -1064,7 +1064,7 @@ describe("shopper-facing factory option copy", () => {
     assert.doesNotMatch(step1, /onClick=\{\(\) => setStep\(3\)\}/);
     assert.match(src, /const vehicleImported = Boolean\(lockVehicleSelection \|\| \(parseSuccessMsg && selectedVehicle\)\)/);
     assert.match(src, /if \(step === 1 && \(requestedStructures\.length === 0 \|\| !vehicleImported \|\| financingSourceMissing\)\) return;/);
-    assert.match(step1, /Import a car to continue/);
+    assert.match(step1, /One car is required to continue/);
     assert.match(step1, /Import Car →/);
   });
 
@@ -1104,7 +1104,7 @@ describe("shopper-facing factory option copy", () => {
     const end = src.indexOf("STEP 2: DIRECT OFFER");
     const step1 = src.slice(start, end);
     assert.match(step1, /I have a vehicle to trade in/);
-    assert.match(step1, /trade-in will be handled after the selling price has been reached/i);
+    assert.match(step1, /trade-in will be handled after we finalize the price of the new car/i);
     assert.doesNotMatch(src, /Trade-In Vehicle & Photo Appraisal/);
     assert.doesNotMatch(src, /Submit Trade-In Photos/);
     assert.doesNotMatch(src, /Live VIN Decoder \(NHTSA Database\)/);
