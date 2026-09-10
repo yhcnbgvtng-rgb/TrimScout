@@ -1097,7 +1097,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                   <button
                     type="button"
                     onClick={() => setShowAlternates(true)}
-                    className="text-[11px] font-bold text-ink-light hover:text-white transition-colors"
+                    className="text-[11px] font-bold text-emerald-400 hover:text-emerald-300 transition-colors"
                   >
                     + Add additional vehicles to the offer package
                   </button>
