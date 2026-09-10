@@ -16,6 +16,7 @@ import path from "path";
 import dns from "dns/promises";
 import net from "net";
 import { isFordOrLincolnVin } from "./oemWmi";
+import { extractDealerIdentity, type DealerPageIdentity } from "./dealerPageIdentity";
 
 export { isFordOrLincolnVin };
 
@@ -959,6 +960,8 @@ export type DealerPageVinResult = {
   blocked: boolean;
   httpStatus?: number;
   listingPrice?: number | null;
+  /** Who the page says is selling it — free, since the HTML is fetched anyway. */
+  dealer?: DealerPageIdentity;
 };
 
 export type PasteVinResolution = {
@@ -966,6 +969,7 @@ export type PasteVinResolution = {
   dealerBlocked: boolean;
   source: "paste" | "dealer_page" | "none";
   listingPrice?: number | null;
+  dealer?: DealerPageIdentity;
 };
 
 function asVehiclePrice(n: number): number | null {
@@ -1137,10 +1141,11 @@ export async function extractVinFromDealerPage(url: string): Promise<DealerPageV
     const html = await res.text().catch(() => "");
     const listingPrice = extractAdvertisedListingPrice(html);
     const vin = extractVin(html);
+    const dealer = extractDealerIdentity(html);
     const denied = /access denied|akamai|errors\.edgesuite|reference\s+#/i.test(html);
-    if (vin) return { vin, blocked: false, httpStatus: res.status, listingPrice };
-    if (!res.ok || denied) return { vin: null, blocked: true, httpStatus: res.status, listingPrice };
-    return { vin: null, blocked: false, httpStatus: res.status, listingPrice };
+    if (vin) return { vin, blocked: false, httpStatus: res.status, listingPrice, dealer };
+    if (!res.ok || denied) return { vin: null, blocked: true, httpStatus: res.status, listingPrice, dealer };
+    return { vin: null, blocked: false, httpStatus: res.status, listingPrice, dealer };
   } catch {
     return { vin: null, blocked: true, listingPrice: null };
   }
@@ -1169,6 +1174,7 @@ export async function resolvePasteVin(paste: string): Promise<PasteVinResolution
         dealerBlocked: false,
         source: page.vin ? "dealer_page" : "paste",
         listingPrice: page.listingPrice ?? null,
+        dealer: page.dealer,
       };
     }
     return {
@@ -1176,6 +1182,7 @@ export async function resolvePasteVin(paste: string): Promise<PasteVinResolution
       dealerBlocked: page.blocked,
       source: "none",
       listingPrice: page.listingPrice ?? null,
+      dealer: page.dealer,
     };
   }
   if (direct) {

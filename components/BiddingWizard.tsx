@@ -554,7 +554,9 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     setNiceToHavePackages(result.niceToHaveLines);
     setFordFilterableOptions(result.filterableOptions);
     setFactoryBuildOem(result.oem);
-    setFordStickerStatus("released");
+    // Only a real factory build unlocks the must-have picker; a free-decode
+    // import has no option list to choose from.
+    setFordStickerStatus(result.factoryBuildUnavailable ? "unreleased" : "released");
     setFordPdfUrl(result.pdfUrl);
     if (result.msrp && result.msrp > 0) {
       setTargetOtdPrice(Math.round(result.msrp * 0.92));
