@@ -124,6 +124,8 @@ export default function DisclaimerPage() {
           <Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link>
           <span className="text-border-strong">•</span>
           <Link href="/disclaimer" className="hover:text-white transition-colors">Disclaimer</Link>
+          <span className="text-border-strong">•</span>
+          <Link href="/contact" className="hover:text-white transition-colors">Contact</Link>
         </p>
       </footer>
     </div>
