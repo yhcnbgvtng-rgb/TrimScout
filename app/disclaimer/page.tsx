@@ -38,6 +38,12 @@ export default function DisclaimerPage() {
           </div>
 
           <div className="space-y-6 text-sm text-ink-light leading-relaxed">
+            <p>
+              TrimScout is an online platform operated by LyDar Enterprises LLC (&quot;TrimScout,&quot;
+              &quot;we,&quot; &quot;us,&quot; or &quot;our&quot;). References to TrimScout throughout this page
+              refer to LyDar Enterprises LLC.
+            </p>
+
             <section className="space-y-1.5">
               <h2 className="text-sm font-bold text-white">Not a Dealer or Broker</h2>
               <p>
@@ -111,7 +117,7 @@ export default function DisclaimerPage() {
       </main>
 
       <footer className="border-t border-border/60 py-6 text-center text-xs text-ink-faint">
-        <p>© 2026 TrimScout Inc. Built for honest option matches and real dealer quotes.</p>
+        <p>© 2026 LyDar Enterprises LLC. Built for honest option matches and real dealer quotes.</p>
         <p className="mt-2 flex items-center justify-center gap-4">
           <Link href="/terms" className="hover:text-white transition-colors">Terms of Use</Link>
           <span className="text-border-strong">•</span>
