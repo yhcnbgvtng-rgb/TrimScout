@@ -10,7 +10,7 @@ import {
   toggleDealStructure,
 } from "../lib/dealStructure";
 import { formatCurrency, getZipCoordinates } from "../lib/otdCalculator";
-import { outOfStateVehicles, formatOutOfStateWarning } from "../lib/sameStateCheck";
+import { outOfStateVehicles, formatOutOfStateWarning, isResolvedState } from "../lib/sameStateCheck";
 import { findContactInfo } from "../lib/piiFilter";
 import { formatDealerResponsivenessLabel, type DealerResponsivenessStats } from "../lib/dealerResponsiveness";
 import { formatTypicalOtdLabel, type TypicalOtdStats } from "../lib/typicalOtd";
@@ -441,6 +441,10 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   // holding the imported car — so a checked box plus an out-of-state listing
   // would hide the request from the dealer who actually has the vehicle.
   const buyerStateFromZip = huntReady ? getZipCoordinates(huntZip.trim()).state : "";
+  // The alias dealers see is "Buyer #<state>". A ZIP that isn't five digits, or
+  // that getZipCoordinates can't place, has no state to show — fall back to the
+  // bare "Buyer" rather than advertising "Buyer #USA" or defaulting to CA.
+  const buyerAliasState = /^\d{5}$/.test(buyerZip) ? getZipCoordinates(buyerZip).state : "";
   const sameStateConflicts = sameStateOnly
     ? outOfStateVehicles(buyerStateFromZip, [selectedVehicle, altVehicle1, altVehicle2])
     : [];
@@ -1474,7 +1478,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                 <div className="flex justify-between">
                   <span className="text-ink-muted">Assigned Buyer Alias:</span>
                   <span className="text-emerald-400 font-mono font-bold">
-                    {/^\d{5}$/.test(buyerZip) ? `Buyer #${getZipCoordinates(buyerZip).state}` : "Buyer"}
+                    {isResolvedState(buyerAliasState) ? `Buyer #${buyerAliasState}` : "Buyer"}
                   </span>
                 </div>
               </div>

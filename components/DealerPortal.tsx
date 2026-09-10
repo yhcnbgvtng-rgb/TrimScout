@@ -464,7 +464,7 @@ export const DealerPortal: React.FC<DealerPortalProps> = ({
                         {req.buyerAlias}
                       </span>
                       <span className="rounded-md bg-surface-elevated px-2 py-0.5 text-xs font-semibold text-ink-light border border-border flex items-center gap-1">
-                        <MapPin className="h-3 w-3 text-emerald-400" /> {req.buyerState} ({req.distanceMiles} mi away)
+                        <MapPin className="h-3 w-3 text-emerald-400" /> {req.buyerState ? `${req.buyerState} ` : ""}({req.distanceMiles} mi away)
                       </span>
                       <span className="rounded-md bg-blue-500/20 px-2 py-0.5 text-xs font-bold text-blue-400 border border-blue-500/30 flex items-center gap-1">
                         <Clock className="h-3 w-3" /> Expires {new Date(req.expiresAt).toLocaleString()}

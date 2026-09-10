@@ -5,6 +5,7 @@ import {
   isResolvedState,
   outOfStateVehicles,
   formatOutOfStateWarning,
+  sameStateGateExcludes,
   type SameStateVehicle,
 } from "./sameStateCheck";
 
@@ -98,5 +99,50 @@ describe("formatOutOfStateWarning", () => {
       { vin: "VIN2", label: "b", dealerName: "B", state: "NY" },
     ]);
     assert.match(msg, /2 of the cars you added are at a dealership in NY and PA/);
+  });
+});
+
+describe("sameStateGateExcludes", () => {
+  it("excludes a dealer whose state differs from the buyer's", () => {
+    assert.equal(sameStateGateExcludes("NJ", "PA"), true);
+  });
+
+  it("keeps a dealer in the buyer's own state, whatever the casing", () => {
+    assert.equal(sameStateGateExcludes("NJ", "NJ"), false);
+    assert.equal(sameStateGateExcludes("nj", "NJ"), false);
+    assert.equal(sameStateGateExcludes("NJ", " nj "), false);
+  });
+
+  it("stands down entirely when the buyer's ZIP mapped to no state", () => {
+    // The bug this guards: a buyer in Ohio, the Carolinas, Tennessee or any
+    // other region outside getZipCoordinates' range table used to carry the
+    // "USA" sentinel. A raw !== comparison matched no dealer anywhere, so
+    // their reverse-auction request reached zero rooftops with no explanation.
+    assert.equal(sameStateGateExcludes(UNRESOLVED_STATE, "OH"), false);
+    assert.equal(sameStateGateExcludes("", "OH"), false);
+    assert.equal(sameStateGateExcludes(null, "OH"), false);
+    assert.equal(sameStateGateExcludes(undefined, "OH"), false);
+  });
+
+  it("stands down when the dealer has no state on file", () => {
+    assert.equal(sameStateGateExcludes("NJ", ""), false);
+    assert.equal(sameStateGateExcludes("NJ", null), false);
+    assert.equal(sameStateGateExcludes("NJ", UNRESOLVED_STATE), false);
+  });
+
+  it("agrees with outOfStateVehicles on the same buyer/dealer pair", () => {
+    // The wizard warns with one and the dealer feed filters with the other;
+    // if they ever disagreed, a buyer would be warned about an exclusion that
+    // didn't happen, or excluded with no warning at all.
+    for (const [buyer, dealer] of [
+      ["NJ", "PA"],
+      ["NJ", "NJ"],
+      [UNRESOLVED_STATE, "PA"],
+      ["NJ", UNRESOLVED_STATE],
+      ["", "PA"],
+    ] as const) {
+      const warned = outOfStateVehicles(buyer, [vehicle("VIN1", dealer)]).length > 0;
+      assert.equal(sameStateGateExcludes(buyer, dealer), warned, `${buyer} vs ${dealer}`);
+    }
   });
 });
