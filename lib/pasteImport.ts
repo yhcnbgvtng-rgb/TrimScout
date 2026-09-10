@@ -320,6 +320,12 @@ export type PasteImportSuccess = {
   mustHaveLines: string[];
   niceToHaveLines: string[];
   filterableOptions: FactoryFilterableOption[];
+  /**
+   * The import succeeded but there is no factory build behind it — the vehicle
+   * came from a free VIN decode plus the listing page. Callers should not offer
+   * must-have option matching on it, but the car itself is real.
+   */
+  factoryBuildUnavailable?: boolean;
 };
 
 export type PasteImportFailure = {
@@ -354,7 +360,14 @@ function interpretFactoryBuildJson(
     };
   }
 
-  if (sticker?.status === "unreleased") {
+  const matched = acceptImportedVehicle(json.vehicle as Vehicle | null, responseVin);
+
+  // "unreleased" means there's no factory build to show. For an OEM sticker
+  // that's a dead end — there is no vehicle either. For the free-decode path it
+  // isn't: the route still returns a real car from the VIN and the listing page,
+  // and only the option list is missing. So this fails the import only when
+  // nothing came back with it.
+  if (sticker?.status === "unreleased" && !matched) {
     return {
       ok: false,
       error: factoryBuildUnreleasedError(responseVin),
@@ -364,7 +377,6 @@ function interpretFactoryBuildJson(
     };
   }
 
-  const matched = acceptImportedVehicle(json.vehicle as Vehicle | null, responseVin);
   if (!matched) {
     return {
       ok: false,
@@ -390,6 +402,7 @@ function interpretFactoryBuildJson(
     filterableOptions: Array.isArray(json.filterableOptions)
       ? (json.filterableOptions as FactoryFilterableOption[])
       : [],
+    factoryBuildUnavailable: sticker?.status === "unreleased",
   };
 }
 
