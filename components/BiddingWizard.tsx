@@ -323,6 +323,10 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   // vs. multi-dealer, (3) review & broadcast. Payment and vehicle selection
   // used to be separate steps and are now merged into step 1.
   const TOTAL_STEPS = 3;
+  // Single source of the step's short label — shown once in the header
+  // subtitle, not repeated as a "Step N:" prefix inside each step's own
+  // heading below.
+  const STEP_LABELS = ["Payment & Vehicle", "Offer Path", "Review & Send"];
   // Step 1's Continue is blocked until Import Car actually loaded a
   // vehicle — unless a real vehicle was already locked in via
   // lockVehicleSelection, in which case there's nothing to import.
@@ -734,8 +738,8 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
               <Zap className="h-4 w-4 fill-emerald-400" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-white">Launch Dealership Bidding Hunt</h2>
-              <p className="text-xs text-ink-muted">Step {step} of {TOTAL_STEPS} • Dealer Reverse Auction</p>
+              <h2 className="text-base font-bold text-white">Configure Offer</h2>
+              <p className="text-xs text-ink-muted">Step {step} of {TOTAL_STEPS} • {STEP_LABELS[step - 1]}</p>
             </div>
           </div>
           <button
@@ -755,7 +759,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
             <div className="space-y-5">
               <div>
                 <h3 className="text-sm font-bold text-white uppercase tracking-wider text-emerald-400">
-                  Step 1: How Are You Paying &amp; What Do You Want?
+                  How Are You Paying &amp; What Do You Want?
                 </h3>
                 <p className="text-xs text-ink-muted mt-0.5">
                   Payment shapes every offer dealers send you. Then pick the car — paste a dealer listing
@@ -1134,7 +1138,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
           {step === 2 && (
             <div className="space-y-3">
               <h3 className="text-sm font-bold text-white uppercase tracking-wider text-emerald-400">
-                Step 2
+                Who Gets This Offer?
               </h3>
               <div className="grid grid-cols-1 gap-3">
                 <button
@@ -1176,7 +1180,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
             <div className="space-y-4">
               <div>
                 <h3 className="text-sm font-bold text-white uppercase tracking-wider text-emerald-400">
-                  Step 3: Review & Privacy Shield
+                  Review & Privacy Shield
                 </h3>
                 <p className="text-xs text-ink-muted mt-0.5">
                   {directOfferMode
