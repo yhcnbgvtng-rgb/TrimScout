@@ -1099,7 +1099,7 @@ describe("shopper-facing factory option copy", () => {
     const start = src.indexOf("STEP 1: PAYMENT, VEHICLE & TRADE-IN FLAG");
     const end = src.indexOf("STEP 2: DIRECT OFFER");
     const step1 = src.slice(start, end);
-    assert.match(step1, /Do you have a trade-in\?/);
+    assert.match(step1, /I have a vehicle to trade in/);
     assert.match(step1, /trade-in will be handled after the selling price has been reached/i);
     assert.doesNotMatch(src, /Trade-In Vehicle & Photo Appraisal/);
     assert.doesNotMatch(src, /Submit Trade-In Photos/);

@@ -45,6 +45,7 @@ import {
   ArrowRight,
   ArrowLeft,
   CircleCheck as CheckCircle2,
+  ChevronDown,
   MapPin,
   Globe,
   LoaderCircle as Loader2,
@@ -93,6 +94,29 @@ function FactoryMustHavePicker({
         );
       })}
     </div>
+  );
+}
+
+/** One labeled group inside a wizard step — keeps every section's heading, hint, and spacing identical. */
+function WizardSection({
+  title,
+  hint,
+  className = "",
+  children,
+}: {
+  title: string;
+  hint?: string;
+  className?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className={`space-y-3 ${className}`}>
+      <div>
+        <h4 className="text-[11px] font-bold uppercase tracking-wider text-ink-faint">{title}</h4>
+        {hint ? <p className="text-[11px] text-ink-muted mt-0.5 leading-snug">{hint}</p> : null}
+      </div>
+      {children}
+    </section>
   );
 }
 
@@ -206,6 +230,9 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   const [niceToHavePackages, setNiceToHavePackages] = useState<string[]>([]);
   const [huntZip, setHuntZip] = useState("");
   const [huntRadius, setHuntRadius] = useState("");
+  // Alternate vehicles are optional, so Step 1 keeps them behind a link
+  // until asked for — or auto-reveals them once one is actually imported.
+  const [showAlternates, setShowAlternates] = useState(false);
 
   // Up to 2 alternate vehicles to ride along with the primary in the same
   // offer (see lib/offerCompare.ts's collectDealVehicles, which already
@@ -396,6 +423,11 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
 
   const huntReady = /^\d{5}$/.test(huntZip.trim()) && Number(huntRadius) > 0;
   const huntLocationMissing = !huntReady;
+  // Only paint location as a problem once the buyer has started filling it in —
+  // an untouched form shouldn't open in an error state. The "(required)" labels
+  // and the disabled Continue button already say what's needed.
+  const huntLocationInvalid =
+    huntLocationMissing && (huntZip.trim() !== "" || huntRadius.trim() !== "");
 
   const handleParseDealerUrl = async (urlToParse?: string) => {
     const raw = (urlToParse || dealerUrlInput).trim();
@@ -756,19 +788,15 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
           {/* STEP 1: PAYMENT, VEHICLE & TRADE-IN FLAG                                   */}
           {/* ========================================================================= */}
           {step === 1 && (
-            <div className="space-y-5">
-              <div>
-                <h3 className="text-sm font-bold text-white uppercase tracking-wider text-emerald-400">
-                  How Are You Paying &amp; What Do You Want?
-                </h3>
-                <p className="text-xs text-ink-muted mt-0.5">
-                  Payment shapes every offer dealers send you. Then pick the car — paste a dealer listing
-                  URL or a 17-character VIN.
-                </p>
-              </div>
-
-              <div className="space-y-1.5">
-                <span className="text-xs font-semibold text-ink-light">Payment methods</span>
+            <div className="divide-y divide-border/50">
+              {/* ---------------------------------------------------------- */}
+              {/* Payment                                                     */}
+              {/* ---------------------------------------------------------- */}
+              <WizardSection
+                title="Payment"
+                hint="Payment shapes every offer dealers send you — pick all that apply."
+                className="pb-6"
+              >
                 <div className="grid grid-cols-3 gap-2">
                   {/* Display order only (Finance, Lease, Cash) — the
                       underlying DEAL_STRUCTURE_METHODS order stays
@@ -794,325 +822,361 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                     );
                   })}
                 </div>
-              </div>
-              {requestedStructures.length === 0 && (
-                <p className="text-[11px] text-rose-400">Select at least one payment method to continue.</p>
-              )}
 
-              {requestedStructures.includes("finance") && (
-                <div className="rounded-xl border border-border bg-surface-elevated p-3.5 space-y-2">
-                  <span className="text-xs font-semibold text-ink-light">Who's financing this?</span>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    <label
-                      className={`flex items-start gap-2 rounded-lg border px-3 py-2 text-xs cursor-pointer transition-colors ${
-                        financingSource === "buyer_own"
-                          ? "border-emerald-500 bg-emerald-500/10"
-                          : "border-border hover:border-border-strong"
-                      }`}
-                    >
-                      <input
-                        type="radio"
-                        name="financingSource"
-                        checked={financingSource === "buyer_own"}
-                        onChange={() => setFinancingSource("buyer_own")}
-                        className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-500 focus:ring-0"
-                      />
-                      <span>
-                        <span className="block font-semibold text-white">I'll bring my own financing</span>
-                        <span className="block text-ink-muted text-[11px] mt-0.5">
-                          A bank or credit union pre-approval — dealers quote you an out-the-door price only.
-                        </span>
-                      </span>
-                    </label>
-                    <label
-                      className={`flex items-start gap-2 rounded-lg border px-3 py-2 text-xs cursor-pointer transition-colors ${
-                        financingSource === "dealer"
-                          ? "border-emerald-500 bg-emerald-500/10"
-                          : "border-border hover:border-border-strong"
-                      }`}
-                    >
-                      <input
-                        type="radio"
-                        name="financingSource"
-                        checked={financingSource === "dealer"}
-                        onChange={() => setFinancingSource("dealer")}
-                        className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-500 focus:ring-0"
-                      />
-                      <span>
-                        <span className="block font-semibold text-white">Use the dealer's financing</span>
-                        <span className="block text-amber-400 text-[11px] mt-0.5">
-                          Not recommended — dealer financing often costs more than a bank or credit union rate you arrange yourself.
-                        </span>
-                      </span>
-                    </label>
-                  </div>
-                  {financingSource == null && (
-                    <p className="text-[11px] text-rose-400">Pick a financing source to continue.</p>
-                  )}
-                </div>
-              )}
+                {requestedStructures.length === 0 && (
+                  <p className="text-[11px] text-rose-400">Select at least one payment method to continue.</p>
+                )}
 
-              <div className="space-y-4">
-                  <div className="space-y-2">
-                    <div className="grid grid-cols-2 gap-2">
-                      <label className="space-y-1">
-                        <span
-                          className={`text-[10px] font-bold uppercase ${
-                            huntLocationMissing ? "text-amber-300" : "text-ink-faint"
-                          }`}
-                        >
-                          Your ZIP (required)
-                        </span>
-                        <div className="relative">
-                          <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-emerald-400" />
-                          <input
-                            type="text"
-                            inputMode="numeric"
-                            maxLength={5}
-                            value={huntZip}
-                            onChange={(e) => {
-                              const next = e.target.value.replace(/\D/g, "").slice(0, 5);
-                              setHuntZip(next);
-                              if (next.length === 5) setBuyerZip(next);
-                            }}
-                            placeholder="e.g. 07405"
-                            aria-required="true"
-                            aria-invalid={huntLocationMissing}
-                            autoComplete="off"
-                            className={`w-full rounded-xl border bg-background py-2 pl-9 pr-3 text-xs text-white placeholder-ink-faint focus:border-emerald-500 focus:outline-none font-mono ${
-                              huntLocationMissing
-                                ? "border-amber-500 ring-1 ring-amber-500/40"
-                                : "border-border"
-                            }`}
-                          />
-                        </div>
-                      </label>
-                      <label className="space-y-1">
-                        <span
-                          className={`text-[10px] font-bold uppercase ${
-                            huntLocationMissing ? "text-amber-300" : "text-ink-faint"
-                          }`}
-                        >
-                          Radius miles (required, 100 mi max)
-                        </span>
-                        <input
-                          type="text"
-                          inputMode="numeric"
-                          value={huntRadius}
-                          onChange={(e) => {
-                            const digits = e.target.value.replace(/\D/g, "").slice(0, 3);
-                            const clamped = digits === "" ? "" : String(Math.min(100, Number(digits)));
-                            setHuntRadius(clamped);
-                            const n = Number(clamped);
-                            if (Number.isFinite(n) && n > 0) setSearchRadius(n);
-                          }}
-                          placeholder="up to 100"
-                          aria-required="true"
-                          aria-invalid={huntLocationMissing}
-                          aria-label="Search radius in miles, maximum 100"
-                          autoComplete="off"
-                          className={`w-full rounded-xl border bg-background py-2 px-3 text-xs text-white placeholder-ink-faint focus:border-emerald-500 focus:outline-none font-mono ${
-                            huntLocationMissing
-                              ? "border-amber-500 ring-1 ring-amber-500/40"
-                              : "border-border"
-                          }`}
-                        />
-                      </label>
-                    </div>
-                    <p className="text-[10px] text-ink-faint">
-                      ZIP and radius are saved with this deal. They do not search listings. Radius is capped at 100 miles.
-                    </p>
-
-                    <label className="flex items-start gap-2 py-0.5 text-xs cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={sameStateOnly}
-                        onChange={(e) => setSameStateOnly(e.target.checked)}
-                        className="mt-0.5 h-3.5 w-3.5 shrink-0 rounded border-border text-emerald-500 focus:ring-0"
-                      />
-                      <span className="leading-snug text-ink-light">
-                        Keep results within my state
-                        <span className="block text-[10px] text-ink-faint">
-                          Uncheck to widen the match to any state within the radius
-                        </span>
-                      </span>
-                    </label>
-
-                    <label className="text-[11px] font-bold text-ink-light uppercase flex items-center justify-between pt-2">
-                      <span>Primary vehicle (required) — dealer VDP URL or 17-character VIN:</span>
-                    </label>
-
-                    <div className="flex flex-col sm:flex-row gap-2">
-                      <div className="relative flex-1">
-                        <Globe className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-emerald-400" />
-                        <input
-                          type="text"
-                          value={dealerUrlInput}
-                          onChange={(e) => setDealerUrlInput(e.target.value)}
-                          placeholder="17-character VIN or dealer listing URL"
-                          className="w-full rounded-xl border border-border bg-background py-2.5 pl-10 pr-3 text-xs text-white placeholder-ink-faint focus:border-emerald-500 focus:outline-none font-mono"
-                        />
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => handleParseDealerUrl()}
-                        disabled={isParsingLink || !dealerUrlInput.trim()}
-                        className="rounded-xl bg-emerald-500 px-5 py-2.5 text-xs font-extrabold text-black hover:bg-emerald-400 transition-all shadow-md flex items-center justify-center gap-1.5 shrink-0 disabled:opacity-50 active:scale-95"
+                {requestedStructures.includes("finance") && (
+                  <div className="rounded-xl border border-border bg-surface-elevated p-3.5 space-y-2">
+                    <span className="text-xs font-semibold text-ink-light">Who&apos;s financing this?</span>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      <label
+                        className={`flex items-start gap-2 rounded-lg border px-3 py-2 text-xs cursor-pointer transition-colors ${
+                          financingSource === "buyer_own"
+                            ? "border-emerald-500 bg-emerald-500/10"
+                            : "border-border hover:border-border-strong"
+                        }`}
                       >
-                        {isParsingLink ? (
-                          <>
-                            <Loader2 className="h-4 w-4 animate-spin" />
-                            <span>Importing…</span>
-                          </>
-                        ) : (
-                          <>
-                            <Zap className="h-4 w-4 fill-black" />
-                            <span>Import Car →</span>
-                          </>
-                        )}
-                      </button>
+                        <input
+                          type="radio"
+                          name="financingSource"
+                          checked={financingSource === "buyer_own"}
+                          onChange={() => setFinancingSource("buyer_own")}
+                          className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-500 focus:ring-0"
+                        />
+                        <span>
+                          <span className="block font-semibold text-white">I&apos;ll bring my own financing</span>
+                          <span className="block text-ink-muted text-[11px] mt-0.5">
+                            A bank or credit union pre-approval — dealers quote you an out-the-door price only.
+                          </span>
+                        </span>
+                      </label>
+                      <label
+                        className={`flex items-start gap-2 rounded-lg border px-3 py-2 text-xs cursor-pointer transition-colors ${
+                          financingSource === "dealer"
+                            ? "border-emerald-500 bg-emerald-500/10"
+                            : "border-border hover:border-border-strong"
+                        }`}
+                      >
+                        <input
+                          type="radio"
+                          name="financingSource"
+                          checked={financingSource === "dealer"}
+                          onChange={() => setFinancingSource("dealer")}
+                          className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-500 focus:ring-0"
+                        />
+                        <span>
+                          <span className="block font-semibold text-white">Use the dealer&apos;s financing</span>
+                          <span className="block text-amber-400 text-[11px] mt-0.5">
+                            Not recommended — dealer financing often costs more than a bank or credit union rate you arrange yourself.
+                          </span>
+                        </span>
+                      </label>
+                    </div>
+                    {financingSource == null && (
+                      <p className="text-[11px] text-rose-400">Pick a financing source to continue.</p>
+                    )}
+                  </div>
+                )}
+              </WizardSection>
+
+              {/* ---------------------------------------------------------- */}
+              {/* Location                                                    */}
+              {/* ---------------------------------------------------------- */}
+              <WizardSection
+                title="Location"
+                hint="Saved with this deal — it does not search listings. Radius is capped at 100 miles."
+                className="py-6"
+              >
+                <div className="grid grid-cols-2 gap-2">
+                  <label className="space-y-1">
+                    <span
+                      className={`text-[10px] font-bold uppercase ${
+                        huntLocationInvalid ? "text-amber-300" : "text-ink-faint"
+                      }`}
+                    >
+                      Your ZIP (required)
+                    </span>
+                    <div className="relative">
+                      <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-emerald-400" />
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        maxLength={5}
+                        value={huntZip}
+                        onChange={(e) => {
+                          const next = e.target.value.replace(/\D/g, "").slice(0, 5);
+                          setHuntZip(next);
+                          if (next.length === 5) setBuyerZip(next);
+                        }}
+                        placeholder="e.g. 07405"
+                        aria-required="true"
+                        aria-invalid={huntLocationInvalid}
+                        autoComplete="off"
+                        className={`w-full rounded-xl border bg-background py-2 pl-9 pr-3 text-xs text-white placeholder-ink-faint focus:border-emerald-500 focus:outline-none font-mono ${
+                          huntLocationInvalid
+                            ? "border-amber-500 ring-1 ring-amber-500/40"
+                            : "border-border"
+                        }`}
+                      />
+                    </div>
+                  </label>
+                  <label className="space-y-1">
+                    <span
+                      className={`text-[10px] font-bold uppercase ${
+                        huntLocationInvalid ? "text-amber-300" : "text-ink-faint"
+                      }`}
+                    >
+                      Radius miles (required, 100 mi max)
+                    </span>
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      value={huntRadius}
+                      onChange={(e) => {
+                        const digits = e.target.value.replace(/\D/g, "").slice(0, 3);
+                        const clamped = digits === "" ? "" : String(Math.min(100, Number(digits)));
+                        setHuntRadius(clamped);
+                        const n = Number(clamped);
+                        if (Number.isFinite(n) && n > 0) setSearchRadius(n);
+                      }}
+                      placeholder="up to 100"
+                      aria-required="true"
+                      aria-invalid={huntLocationInvalid}
+                      aria-label="Search radius in miles, maximum 100"
+                      autoComplete="off"
+                      className={`w-full rounded-xl border bg-background py-2 px-3 text-xs text-white placeholder-ink-faint focus:border-emerald-500 focus:outline-none font-mono ${
+                        huntLocationInvalid
+                          ? "border-amber-500 ring-1 ring-amber-500/40"
+                          : "border-border"
+                      }`}
+                    />
+                  </label>
+                </div>
+
+                <label className="flex items-start gap-2 text-xs cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={sameStateOnly}
+                    onChange={(e) => setSameStateOnly(e.target.checked)}
+                    className="mt-0.5 h-3.5 w-3.5 shrink-0 rounded border-border text-emerald-500 focus:ring-0"
+                  />
+                  <span className="leading-snug text-ink-light">
+                    Keep results within my state
+                    <span className="block text-[10px] text-ink-faint">
+                      Uncheck to widen the match to any state within the radius
+                    </span>
+                  </span>
+                </label>
+              </WizardSection>
+
+              {/* ---------------------------------------------------------- */}
+              {/* Vehicle                                                     */}
+              {/* ---------------------------------------------------------- */}
+              <WizardSection
+                title="Vehicle"
+                hint="Paste a dealer listing URL or a 17-character VIN."
+                className="py-6"
+              >
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <div className="relative flex-1">
+                    <Globe className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-emerald-400" />
+                    <input
+                      type="text"
+                      value={dealerUrlInput}
+                      onChange={(e) => setDealerUrlInput(e.target.value)}
+                      placeholder="17-character VIN or dealer listing URL"
+                      className="w-full rounded-xl border border-border bg-background py-2.5 pl-10 pr-3 text-xs text-white placeholder-ink-faint focus:border-emerald-500 focus:outline-none font-mono"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => handleParseDealerUrl()}
+                    disabled={isParsingLink || !dealerUrlInput.trim()}
+                    className="rounded-xl bg-emerald-500 px-5 py-2.5 text-xs font-extrabold text-black hover:bg-emerald-400 transition-all shadow-md flex items-center justify-center gap-1.5 shrink-0 disabled:opacity-50 active:scale-95"
+                  >
+                    {isParsingLink ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        <span>Importing…</span>
+                      </>
+                    ) : (
+                      <>
+                        <Zap className="h-4 w-4 fill-black" />
+                        <span>Import Car →</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+
+                {parseError && (
+                  <div className="rounded-xl border border-amber-500/40 bg-amber-950/30 px-3 py-2 text-[11px] text-amber-200">
+                    {parseError}
+                  </div>
+                )}
+                {!vehicleImported && !isParsingLink && (
+                  <p className="text-[11px] text-ink-muted">Import a car to continue.</p>
+                )}
+
+                {/* Decoded vehicle preview — sits directly under the import
+                    box so the buyer confirms what they got before touching
+                    must-haves or alternates. */}
+                {parseSuccessMsg && selectedVehicle && (
+                  <div className="rounded-2xl border-2 border-emerald-500/60 bg-gradient-to-r from-emerald-950/40 via-surface to-surface p-4 space-y-3 shadow-lg animate-fadeIn">
+                    <div className="flex items-center justify-between gap-2 text-xs font-bold text-emerald-400">
+                      <span className="flex items-center gap-2">
+                        <CheckCircle2 className="h-4 w-4 text-emerald-400" />
+                        <span>{parseSuccessMsg}</span>
+                      </span>
+                      {fordPdfUrl && (
+                        <a
+                          href={fordPdfUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="flex items-center gap-1 text-[10px] font-bold text-emerald-300 hover:text-white"
+                        >
+                          <FileText className="h-3.5 w-3.5" />
+                          {FORD_BUILD_SHEET_LINK}
+                        </a>
+                      )}
+                    </div>
+
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-t border-border/50 pt-3">
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <span className="rounded bg-emerald-500 text-black px-1.5 py-0.2 text-[10px] font-black">
+                            {selectedVehicle.year} {selectedVehicle.make}
+                          </span>
+                          <span className="font-extrabold text-white text-sm">
+                            {selectedVehicle.model} <span className="text-emerald-400">{selectedVehicle.trim}</span>
+                          </span>
+                        </div>
+                        <p className="text-xs text-ink-muted">
+                          VIN: <span className="font-mono text-ink-light">{selectedVehicle.vin}</span>
+                          {selectedVehicle.engine ? ` • ${selectedVehicle.engine}` : ""}
+                          {selectedVehicle.exteriorColor ? ` • ${selectedVehicle.exteriorColor}` : ""}
+                        </p>
+                        <div className="flex flex-wrap gap-1 pt-0.5">
+                          {(fordFilterableOptions.length > 0
+                            ? fordFilterableOptions.filter((o) => !o.isPackageChild).map((o) => o.name)
+                            : selectedVehicle.packages
+                          ).slice(0, 8).map((p, i) => (
+                            <span key={i} className="rounded bg-surface-elevated px-1.5 py-0.2 text-[10px] text-ink-light border border-border">
+                              {p}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="sm:text-right shrink-0">
+                        {(() => {
+                          const shown = advertisedOrStickerPrice(
+                            selectedVehicle.dealerPrice,
+                            selectedVehicle.msrp
+                          );
+                          const hasListing =
+                            typeof selectedVehicle.dealerPrice === "number" &&
+                            selectedVehicle.dealerPrice > 0;
+                          return (
+                            <>
+                              {hasListing && selectedVehicle.msrp > 0 && (
+                                <div className="text-[11px] text-ink-muted">
+                                  MSRP {formatStickerMsrp(selectedVehicle.msrp)}
+                                </div>
+                              )}
+                              <div className="text-base font-black text-white">
+                                {formatPriceAmount(shown.amount)}{" "}
+                                <span className="uppercase text-[9px] font-bold text-ink-faint">
+                                  {shopperPriceSourceLabel(shown.source)}
+                                </span>
+                              </div>
+                            </>
+                          );
+                        })()}
+                      </div>
                     </div>
                   </div>
+                )}
 
-                    {parseError && (
-                      <div className="rounded-xl border border-amber-500/40 bg-amber-950/30 px-3 py-2 text-[11px] text-amber-200">
-                        {parseError}
-                      </div>
-                    )}
-                    {!vehicleImported && !isParsingLink && (
-                      <p className="text-[11px] text-rose-400">Import a car to continue.</p>
-                    )}
-
-                    <div className="space-y-2 pt-1">
-                      <p className="text-[10px] text-ink-faint">
-                        Add up to 2 similar vehicles to include in the same offer — dealers can quote on any of the three.
-                      </p>
-                      <AlternateVinField
-                        label="Alternate vehicle 1"
-                        value={altVin1}
-                        onChange={setAltVin1}
-                        onImport={handleParseAlt1}
-                        vehicle={altVehicle1}
-                        error={altError1}
-                        parsing={altParsing1}
-                        onRemove={removeAlt1}
-                      />
-                      <AlternateVinField
-                        label="Alternate vehicle 2"
-                        value={altVin2}
-                        onChange={setAltVin2}
-                        onImport={handleParseAlt2}
-                        vehicle={altVehicle2}
-                        error={altError2}
-                        parsing={altParsing2}
-                        onRemove={removeAlt2}
-                      />
-                    </div>
-
-                  {/* Decoded Vehicle Preview Box */}
-                  {parseSuccessMsg && selectedVehicle && (
-                    <div className="rounded-2xl border-2 border-emerald-500/60 bg-gradient-to-r from-emerald-950/40 via-surface to-surface p-4 space-y-3 shadow-lg animate-fadeIn">
-                      <div className="flex items-center justify-between gap-2 text-xs font-bold text-emerald-400">
-                        <span className="flex items-center gap-2">
-                          <CheckCircle2 className="h-4 w-4 text-emerald-400" />
-                          <span>{parseSuccessMsg}</span>
+                {/* Must-haves collapse behind a one-line summary — the full
+                    option list is long enough to bury everything else. */}
+                {selectedVehicle && fordStickerStatus === "released" && fordFilterableOptions.length > 0 && (
+                  <details className="group rounded-xl border border-border bg-surface-elevated">
+                    <summary className="cursor-pointer list-none px-3.5 py-2.5 flex items-center justify-between gap-2">
+                      <span className="text-xs font-semibold text-white">
+                        {FORD_MUST_HAVE_HEADING}
+                        <span className="ml-2 text-[11px] font-normal text-ink-muted">
+                          {mustHavePackages.length} of {fordFilterableOptions.length} selected
                         </span>
-                        {fordPdfUrl && (
-                          <a
-                            href={fordPdfUrl}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="flex items-center gap-1 text-[10px] font-bold text-emerald-300 hover:text-white"
-                          >
-                            <FileText className="h-3.5 w-3.5" />
-                            {FORD_BUILD_SHEET_LINK}
-                          </a>
-                        )}
-                      </div>
-
-                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-t border-border/50 pt-3">
-                        <div className="space-y-1">
-                          <div className="flex items-center gap-2">
-                            <span className="rounded bg-emerald-500 text-black px-1.5 py-0.2 text-[10px] font-black">
-                              {selectedVehicle.year} {selectedVehicle.make}
-                            </span>
-                            <span className="font-extrabold text-white text-sm">
-                              {selectedVehicle.model} <span className="text-emerald-400">{selectedVehicle.trim}</span>
-                            </span>
-                          </div>
-                          <p className="text-xs text-ink-muted">
-                            VIN: <span className="font-mono text-ink-light">{selectedVehicle.vin}</span>
-                            {selectedVehicle.engine ? ` • ${selectedVehicle.engine}` : ""}
-                            {selectedVehicle.exteriorColor ? ` • ${selectedVehicle.exteriorColor}` : ""}
-                          </p>
-                          <div className="flex flex-wrap gap-1 pt-0.5">
-                            {(fordFilterableOptions.length > 0
-                              ? fordFilterableOptions.filter((o) => !o.isPackageChild).map((o) => o.name)
-                              : selectedVehicle.packages
-                            ).slice(0, 8).map((p, i) => (
-                              <span key={i} className="rounded bg-surface-elevated px-1.5 py-0.2 text-[10px] text-ink-light border border-border">
-                                {p}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-
-                        <div className="sm:text-right shrink-0">
-                          {(() => {
-                            const shown = advertisedOrStickerPrice(
-                              selectedVehicle.dealerPrice,
-                              selectedVehicle.msrp
-                            );
-                            const hasListing =
-                              typeof selectedVehicle.dealerPrice === "number" &&
-                              selectedVehicle.dealerPrice > 0;
-                            return (
-                              <>
-                                {hasListing && selectedVehicle.msrp > 0 && (
-                                  <div className="text-[11px] text-ink-muted">
-                                    MSRP {formatStickerMsrp(selectedVehicle.msrp)}
-                                  </div>
-                                )}
-                                <div className="text-base font-black text-white">
-                                  {formatPriceAmount(shown.amount)}{" "}
-                                  <span className="uppercase text-[9px] font-bold text-ink-faint">
-                                    {shopperPriceSourceLabel(shown.source)}
-                                  </span>
-                                </div>
-                              </>
-                            );
-                          })()}
-                        </div>
-                      </div>
+                      </span>
+                      <ChevronDown className="h-3.5 w-3.5 shrink-0 text-ink-faint transition-transform group-open:rotate-180" />
+                    </summary>
+                    <div className="border-t border-border/60 px-3.5 py-3 space-y-2">
+                      <p className="text-[11px] text-ink-muted">{FORD_MUST_HAVE_HELP}</p>
+                      <FactoryMustHavePicker
+                        options={fordFilterableOptions}
+                        checked={mustHavePackages}
+                        onToggle={toggleFordMustHave}
+                      />
+                      <p className="text-[10px] text-ink-faint">
+                        Must-haves are saved with this deal. Dealer ads are not proof.
+                      </p>
                     </div>
-                  )}
-                </div>
+                  </details>
+                )}
 
-              {selectedVehicle && fordStickerStatus === "released" && fordFilterableOptions.length > 0 && (
-                <div className="space-y-1 pt-4 border-t border-border/50">
-                  <h4 className="text-xs font-bold text-white uppercase tracking-wider">
-                    {FORD_MUST_HAVE_HEADING}
-                  </h4>
-                  <p className="text-[11px] text-ink-muted">{FORD_MUST_HAVE_HELP}</p>
-                  <FactoryMustHavePicker
-                    options={fordFilterableOptions}
-                    checked={mustHavePackages}
-                    onToggle={toggleFordMustHave}
-                  />
-                  <p className="text-[10px] text-ink-faint">
-                    Must-haves are saved with this deal. Dealer ads are not proof.
-                  </p>
-                </div>
-              )}
+                {/* Alternates stay behind a link until asked for, or until
+                    one is actually imported. */}
+                {showAlternates || altVehicle1 || altVehicle2 ? (
+                  <div className="space-y-2">
+                    <p className="text-[10px] text-ink-faint">
+                      Up to 2 similar vehicles — dealers can quote on any of the three.
+                    </p>
+                    <AlternateVinField
+                      label="Alternate vehicle 1"
+                      value={altVin1}
+                      onChange={setAltVin1}
+                      onImport={handleParseAlt1}
+                      vehicle={altVehicle1}
+                      error={altError1}
+                      parsing={altParsing1}
+                      onRemove={removeAlt1}
+                    />
+                    <AlternateVinField
+                      label="Alternate vehicle 2"
+                      value={altVin2}
+                      onChange={setAltVin2}
+                      onImport={handleParseAlt2}
+                      vehicle={altVehicle2}
+                      error={altError2}
+                      parsing={altParsing2}
+                      onRemove={removeAlt2}
+                    />
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setShowAlternates(true)}
+                    className="text-[11px] font-bold text-emerald-400 hover:text-emerald-300 transition-colors"
+                  >
+                    + Add up to 2 similar vehicles (optional)
+                  </button>
+                )}
+              </WizardSection>
 
-              <div className="pt-4 border-t border-border/50">
+              {/* ---------------------------------------------------------- */}
+              {/* Trade-in                                                    */}
+              {/* ---------------------------------------------------------- */}
+              <WizardSection title="Trade-in" className="pt-6">
                 <div className="flex items-center justify-between gap-3">
-                  <span className="text-xs font-semibold text-ink-light">Do you have a trade-in?</span>
+                  <span className="text-xs text-ink-light">I have a vehicle to trade in</span>
                   <button
                     type="button"
                     onClick={() => setHasTradeIn(!hasTradeIn)}
                     aria-pressed={hasTradeIn}
-                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                    aria-label="I have a vehicle to trade in"
+                    className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors ${
                       hasTradeIn ? "bg-emerald-500" : "bg-border"
                     }`}
                   >
@@ -1124,11 +1188,11 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                   </button>
                 </div>
                 {hasTradeIn && (
-                  <p className="text-[11px] text-ink-muted mt-2">
+                  <p className="text-[11px] text-ink-muted">
                     Your trade-in will be handled after the selling price has been reached.
                   </p>
                 )}
-              </div>
+              </WizardSection>
             </div>
           )}
 
