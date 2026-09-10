@@ -413,7 +413,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   }, [selectedVehicle?.make, selectedVehicle?.model]);
 
   const goNext = () => {
-    if (step === 1 && (requestedStructures.length === 0 || !vehicleImported || financingSourceMissing)) return;
+    if (step === 1 && (requestedStructures.length === 0 || !vehicleImported || financingSourceMissing || !purchaseTimeline)) return;
     if (step === 2 && (!offerPath || step2LocationMissing)) return;
     setStep(step + 1);
   };
@@ -883,6 +883,24 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                     )}
                   </div>
                 )}
+
+                <label className="block space-y-1.5">
+                  <span className="text-xs text-ink-light">
+                    When will you be ready to complete the transaction?
+                  </span>
+                  <select
+                    value={purchaseTimeline}
+                    onChange={(e) => setPurchaseTimeline(e.target.value as PurchaseTimeline)}
+                    className="w-full rounded-lg border border-border bg-background py-2 px-3 text-xs text-white focus:border-emerald-500 focus:outline-none"
+                  >
+                    <option value="" disabled>
+                      Select a timeline
+                    </option>
+                    <option value="asap">ASAP</option>
+                    <option value="this_week">Within the week</option>
+                    <option value="this_month">Within the month</option>
+                  </select>
+                </label>
               </WizardSection>
 
               {/* ---------------------------------------------------------- */}
@@ -1441,25 +1459,6 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                 </div>
               </div>
 
-              {/* Purchase Timeline */}
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-ink-light">Purchase Timeline</label>
-                <select
-                  value={purchaseTimeline}
-                  onChange={(e) => setPurchaseTimeline(e.target.value as PurchaseTimeline)}
-                  className={`w-full rounded-xl border bg-background py-2.5 px-3.5 text-xs text-white focus:outline-none ${
-                    purchaseTimeline ? "border-border focus:border-emerald-500" : "border-amber-500/50 focus:border-amber-500"
-                  }`}
-                >
-                  <option value="" disabled>
-                    When are you looking to buy?
-                  </option>
-                  <option value="asap">ASAP</option>
-                  <option value="this_week">This Week</option>
-                  <option value="this_month">This Month</option>
-                </select>
-              </div>
-
               {/* Buyer Comment — scrubbed of contact info before it ever leaves the browser */}
               <div className="space-y-1.5">
                 <label className="text-xs font-semibold text-ink-light flex items-center justify-between">
@@ -1532,7 +1531,11 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
               <button
                 onClick={goNext}
                 disabled={
-                  (step === 1 && (requestedStructures.length === 0 || !vehicleImported || financingSourceMissing)) ||
+                  (step === 1 &&
+                    (requestedStructures.length === 0 ||
+                      !vehicleImported ||
+                      financingSourceMissing ||
+                      !purchaseTimeline)) ||
                   (step === 2 && (!offerPath || step2LocationMissing))
                 }
                 className="flex items-center gap-1.5 rounded-lg bg-emerald-500 px-5 py-2 text-xs font-bold text-black hover:bg-emerald-400 transition-all shadow-md shadow-emerald-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
