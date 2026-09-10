@@ -905,7 +905,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                 )}
 
                 <label className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5">
-                  <span className="text-[11px] text-ink-light">
+                  <span className="text-[11px] text-ink-muted">
                     When will you be ready to complete the transaction?
                   </span>
                   <select
@@ -1102,6 +1102,35 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                     + Add additional vehicles to the offer package
                   </button>
                 )}
+
+                <label className="flex items-start gap-2 pt-1 text-[11px] cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={sameStateOnly}
+                    onChange={(e) => setSameStateOnly(e.target.checked)}
+                    className="mt-0.5 h-3.5 w-3.5 shrink-0 rounded border-border text-emerald-500 focus:ring-0"
+                  />
+                  <span className="leading-snug text-ink-muted">
+                    Only send this to dealerships in my state
+                    <span className="block text-[10px] text-ink-faint">
+                      Uncheck to include dealerships in other states within the radius
+                    </span>
+                  </span>
+                </label>
+
+                {sameStateWarning && (
+                  <div className="rounded-lg border border-amber-500/40 bg-amber-950/30 px-3 py-2 space-y-1.5">
+                    <p className="text-[11px] leading-snug text-amber-200">{sameStateWarning}</p>
+                    <ul className="space-y-0.5">
+                      {sameStateConflicts.map((v) => (
+                        <li key={v.vin} className="text-[10px] text-amber-200/80">
+                          {v.label}
+                          {v.dealerName ? ` — ${v.dealerName}` : ""} ({v.state})
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </WizardSection>
 
               {/* ---------------------------------------------------------- */}
@@ -1109,7 +1138,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
               {/* ---------------------------------------------------------- */}
               <WizardSection title="Trade-in" className="pt-6">
                 <div className="flex items-center justify-between gap-3">
-                  <span className="text-[11px] text-ink-light">I have a vehicle to trade in</span>
+                  <span className="text-[11px] text-ink-muted">I have a vehicle to trade in</span>
                   <button
                     type="button"
                     onClick={() => setHasTradeIn(!hasTradeIn)}
@@ -1251,21 +1280,6 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                     />
                   </label>
                 </div>
-
-                <label className="flex items-start gap-2 text-xs cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={sameStateOnly}
-                    onChange={(e) => setSameStateOnly(e.target.checked)}
-                    className="mt-0.5 h-3.5 w-3.5 shrink-0 rounded border-border text-emerald-500 focus:ring-0"
-                  />
-                  <span className="leading-snug text-ink-light">
-                    Keep results within my state
-                    <span className="block text-[10px] text-ink-faint">
-                      Uncheck to widen the match to any state within the radius
-                    </span>
-                  </span>
-                </label>
 
                 {sameStateWarning && (
                   <div className="rounded-lg border border-amber-500/40 bg-amber-950/30 px-3 py-2 space-y-1.5">
