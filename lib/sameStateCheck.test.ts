@@ -89,6 +89,7 @@ describe("formatOutOfStateWarning", () => {
       { vin: "VIN1", label: "2026 Ford Explorer ST", dealerName: "Keystone Ford", state: "PA" },
     ]);
     assert.match(msg, /The car you added is at a dealership in PA, not NJ/);
+    assert.match(msg, /Only send this to dealerships in my state/);
     assert.match(msg, /won't see this request/);
     assert.match(msg, /Uncheck it to include them/);
   });

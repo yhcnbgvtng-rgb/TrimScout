@@ -95,8 +95,8 @@ export function formatOutOfStateWarning(
       : `${outOfState.length} of the cars you added are`;
   return (
     `${subject} at a dealership in ${statesLabel}, not ${buyerState.toUpperCase()}. ` +
-    `While "Keep results within my state" is on, those dealers won't see this request. ` +
-    `Uncheck it to include them.`
+    `While "Only send this to dealerships in my state" is checked, those dealers ` +
+    `won't see this request. Uncheck it to include them.`
   );
 }
 
