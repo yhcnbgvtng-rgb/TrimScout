@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { extractDealerIdentity, EMPTY_DEALER_IDENTITY } from "./dealerPageIdentity";
+import { extractDealerIdentity, isBlockPage, EMPTY_DEALER_IDENTITY } from "./dealerPageIdentity";
 
 function ldBlock(json: unknown): string {
   return `<script type="application/ld+json">${JSON.stringify(json)}</script>`;
@@ -110,5 +110,62 @@ describe("extractDealerIdentity — nothing to find", () => {
   it("rejects names too short or absurdly long to be real", () => {
     assert.equal(extractDealerIdentity(`<title>BM</title>`).name, null);
     assert.equal(extractDealerIdentity(`<title>${"x".repeat(200)}</title>`).name, null);
+  });
+});
+
+describe("bot-shield and error pages", () => {
+  // The exact page a buyer was shown as their "dealership" on 2026-09-10.
+  const CLOUDFLARE_CHALLENGE = `<!DOCTYPE html><html><head>
+    <title>Attention Required! | Cloudflare</title>
+    <meta property="og:site_name" content="Cloudflare">
+    </head><body><div id="cf-wrapper">Please complete the security check to access www.example-bmw.com</div>
+    <script src="/cdn-cgi/challenge-platform/h/b/orchestrate/jsch/v1"></script></body></html>`;
+
+  it("never turns a Cloudflare challenge into a dealership", () => {
+    assert.equal(isBlockPage(CLOUDFLARE_CHALLENGE), true);
+    assert.deepEqual(extractDealerIdentity(CLOUDFLARE_CHALLENGE), EMPTY_DEALER_IDENTITY);
+  });
+
+  it("recognises the other common shields and error pages", () => {
+    for (const html of [
+      `<title>Just a moment...</title>`,
+      `<title>Access Denied</title><p>You don't have permission to access this resource.</p>`,
+      `<html><body>Reference #18.4f2a1b3c.1694000000.abc123 errors.edgesuite.net</body></html>`,
+      `<title>403 Forbidden</title>`,
+      `<script src="https://client.px-cloud.net/PX1234/main.min.js"></script><div id="px-captcha"></div>`,
+      `<script src="https://ct.captcha-delivery.com/c.js"></script>`,
+      `<title>Request blocked</title>`,
+    ]) {
+      assert.equal(isBlockPage(html), true, html.slice(0, 60));
+    }
+  });
+
+  it("treats a 403, 429 or 503 as blocked regardless of body", () => {
+    assert.equal(isBlockPage("<title>BMW of Manhattan</title>", 403), true);
+    assert.equal(isBlockPage("<title>BMW of Manhattan</title>", 429), true);
+    assert.equal(isBlockPage("<title>BMW of Manhattan</title>", 503), true);
+    assert.equal(isBlockPage("<title>BMW of Manhattan</title>", 200), false);
+  });
+
+  it("does not flag an ordinary listing page", () => {
+    const html = `<title>2026 BMW X5 xDrive40i | BMW of Manhattan</title>
+      <script type="application/ld+json">{"@type":"AutoDealer","name":"BMW of Manhattan"}</script>
+      <p>Stock #B12345. Contact us for a security check on financing.</p>`;
+    assert.equal(isBlockPage(html, 200), false);
+    assert.equal(extractDealerIdentity(html, 200).name, "BMW of Manhattan");
+  });
+
+  it("refuses shield-flavoured names even when block detection is bypassed", () => {
+    // Defence in depth: a name that reads as an error page is never a dealer.
+    for (const name of [
+      "Attention Required! | Cloudflare",
+      "Access Denied",
+      "Just a moment",
+      "Error 1020",
+      "Security Check",
+    ]) {
+      const html = `<meta property="og:site_name" content="${name}">`;
+      assert.equal(extractDealerIdentity(html).name, null, name);
+    }
   });
 });
