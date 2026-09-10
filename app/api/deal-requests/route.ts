@@ -2,6 +2,7 @@ import { NextResponse, after } from "next/server";
 import { auth } from "@/auth";
 import { createDealRequest, listDealRequestsForBuyer, DealsApiError } from "@/lib/dealsApi";
 import { getZipCoordinates } from "@/lib/otdCalculator";
+import { isResolvedState } from "@/lib/sameStateCheck";
 import { findContactInfo } from "@/lib/piiFilter";
 import { invitedDealersFromVehicles, primaryDealTimeZone } from "@/lib/dealEngagement";
 import { decorateDealRequestJson, seedDealInvites } from "@/lib/dealEngagementStore";
@@ -50,7 +51,13 @@ export async function POST(req: Request) {
     );
   }
 
-  const buyerState = getZipCoordinates(body.buyerZip).state;
+  // Store "" rather than getZipCoordinates' UNRESOLVED_STATE sentinel when the
+  // ZIP can't be mapped. Everything downstream — the same-state dealer gate,
+  // the "Buyer #XX" alias, the deal-room copy — reads an empty string as
+  // "unknown" and degrades gracefully; "USA" reads as a state that nothing can
+  // ever match.
+  const zipState = getZipCoordinates(body.buyerZip).state;
+  const buyerState = isResolvedState(zipState) ? zipState : "";
 
   try {
     const dealRequest = await createDealRequest({

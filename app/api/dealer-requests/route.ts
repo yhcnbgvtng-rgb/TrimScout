@@ -4,6 +4,7 @@ import { listActiveDealRequests, getRequestMarket, DealsApiError } from "@/lib/d
 import { isDealAcceptingResponses } from "@/lib/dealEngagementStore";
 import { fetchVehiclesFromBox, fetchFacetsFromBox, fetchVehicleByVinFromBox, fetchBoxHealth } from "@/lib/lightsailClient";
 import { calculateDistanceMiles } from "@/lib/otdCalculator";
+import { sameStateGateExcludes } from "@/lib/sameStateCheck";
 import type { DealerInboundRequest } from "@/lib/types";
 
 // Every brand this pipeline currently tracks, used to discover which
@@ -89,7 +90,16 @@ export async function GET() {
       });
       if (req.strategy !== "firm_offer" && distanceMiles > req.searchRadiusMiles) continue;
     }
-    if (req.strategy !== "firm_offer" && req.sameStateOnly && brandInfo.dealerState && brandInfo.dealerState !== req.buyerState) continue;
+    // sameStateGateExcludes only excludes on a state mismatch it can prove.
+    // A buyer whose ZIP prefix isn't in getZipCoordinates' range table carries
+    // the UNRESOLVED_STATE sentinel, which matches no real dealer state — a
+    // raw !== comparison would drop their request from every dealer's feed.
+    if (
+      req.strategy !== "firm_offer" &&
+      req.sameStateOnly &&
+      sameStateGateExcludes(req.buyerState, brandInfo.dealerState)
+    )
+      continue;
 
     matched.push({
       requestId: req.id,

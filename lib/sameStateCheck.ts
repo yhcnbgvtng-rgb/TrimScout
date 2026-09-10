@@ -99,3 +99,26 @@ export function formatOutOfStateWarning(
     `Uncheck it to include them.`
   );
 }
+
+/**
+ * The server-side half of the same-state gate: should this dealer be excluded
+ * from a reverse-auction request because they're outside the buyer's state?
+ *
+ * Only a *provable* mismatch excludes. If the buyer's ZIP didn't map to a real
+ * state (getZipCoordinates hands back UNRESOLVED_STATE for every prefix outside
+ * its range table — Ohio, the Carolinas, Tennessee, Minnesota and many more),
+ * or the dealer has no state on file, there is nothing to compare and the gate
+ * has to stand down. Comparing the sentinel instead would match no dealer at
+ * all, silently hiding the request from every rooftop in the country while the
+ * buyer sees an empty bid list and no explanation.
+ *
+ * Mirrors outOfStateVehicles' "never guess" rule so the wizard's warning and
+ * the dealer feed can't disagree about who is in range.
+ */
+export function sameStateGateExcludes(
+  buyerState: string | null | undefined,
+  dealerState: string | null | undefined
+): boolean {
+  if (!isResolvedState(buyerState) || !isResolvedState(dealerState)) return false;
+  return (buyerState || "").trim().toUpperCase() !== (dealerState || "").trim().toUpperCase();
+}

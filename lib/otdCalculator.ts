@@ -37,41 +37,6 @@ export interface ZipLocation {
   taxRate: number;
 }
 
-// Exact 5-Digit ZIP coordinate resolver
-export function getZipCoordinates(zipCode: string): ZipLocation {
-  const clean = zipCode.replace(/\D/g, "");
-  if (!clean) {
-    return { lat: 37.7690, lng: -122.3950, city: "San Francisco", state: "CA", taxRate: 0.08625 };
-  }
-
-  // 1. Check exact 5-digit dictionary lookup first
-  if (EXACT_ZIP_LOOKUP[clean]) {
-    return EXACT_ZIP_LOOKUP[clean];
-  }
-
-  // 2. High-precision interpolation for any other 5-digit US ZIP Code
-  const num = parseInt(clean.padEnd(5, "0"), 10);
-  const prefix3 = parseInt(clean.slice(0, 3).padEnd(3, "0"), 10);
-
-  // Dynamic state/city approximation by prefix ranges
-  if (prefix3 >= 10 && prefix3 <= 27) return { lat: 42.3601 + (num % 100) * 0.01, lng: -71.0589 - (num % 50) * 0.01, city: "Massachusetts Metro", state: "MA", taxRate: 0.0625 };
-  if (prefix3 >= 70 && prefix3 <= 89) return { lat: 40.7357 + (num % 100) * 0.01, lng: -74.1724 - (num % 50) * 0.01, city: "New Jersey Metro", state: "NJ", taxRate: 0.06625 };
-  if (prefix3 >= 100 && prefix3 <= 149) return { lat: 40.7128 + (num % 100) * 0.01, lng: -74.0060 - (num % 50) * 0.01, city: "New York Metro", state: "NY", taxRate: 0.08875 };
-  if (prefix3 >= 150 && prefix3 <= 196) return { lat: 39.9526 + (num % 100) * 0.01, lng: -75.1652 - (num % 50) * 0.01, city: "Pennsylvania Metro", state: "PA", taxRate: 0.08 };
-  if (prefix3 >= 300 && prefix3 <= 319) return { lat: 33.7490 + (num % 100) * 0.01, lng: -84.3880 - (num % 50) * 0.01, city: "Georgia Metro", state: "GA", taxRate: 0.089 };
-  if (prefix3 >= 320 && prefix3 <= 349) return { lat: 25.7617 + (num % 100) * 0.01, lng: -80.1918 - (num % 50) * 0.01, city: "Florida Metro", state: "FL", taxRate: 0.07 };
-  if (prefix3 >= 480 && prefix3 <= 499) return { lat: 42.3314 + (num % 100) * 0.01, lng: -83.0458 - (num % 50) * 0.01, city: "Michigan Metro", state: "MI", taxRate: 0.06 };
-  if (prefix3 >= 600 && prefix3 <= 629) return { lat: 41.8781 + (num % 100) * 0.01, lng: -87.6298 - (num % 50) * 0.01, city: "Illinois Metro", state: "IL", taxRate: 0.0875 };
-  if (prefix3 >= 750 && prefix3 <= 799) return { lat: 32.7767 + (num % 100) * 0.01, lng: -96.7970 - (num % 50) * 0.01, city: "Texas Metro", state: "TX", taxRate: 0.0825 };
-  if (prefix3 >= 800 && prefix3 <= 816) return { lat: 39.7392 + (num % 100) * 0.01, lng: -104.9903 - (num % 50) * 0.01, city: "Colorado Metro", state: "CO", taxRate: 0.0881 };
-  if (prefix3 >= 850 && prefix3 <= 865) return { lat: 33.4484 + (num % 100) * 0.01, lng: -112.0740 - (num % 50) * 0.01, city: "Arizona Metro", state: "AZ", taxRate: 0.086 };
-  if (prefix3 >= 900 && prefix3 <= 935) return { lat: 34.0522 + (num % 100) * 0.01, lng: -118.2437 - (num % 50) * 0.01, city: "SoCal Metro", state: "CA", taxRate: 0.095 };
-  if (prefix3 >= 936 && prefix3 <= 961) return { lat: 37.7749 + (num % 100) * 0.01, lng: -122.4194 - (num % 50) * 0.01, city: "NorCal Metro", state: "CA", taxRate: 0.08625 };
-  if (prefix3 >= 980 && prefix3 <= 994) return { lat: 47.6062 + (num % 100) * 0.01, lng: -122.3321 - (num % 50) * 0.01, city: "Washington Metro", state: "WA", taxRate: 0.1025 };
-
-  return { lat: 37.7749, lng: -122.4194, city: "US Location", state: "USA", taxRate: 0.08 };
-}
-
 // 50-state + DC centroids (approximate geographic center of each state).
 // Used as the fallback when a dealer's city isn't one of the ~20 hardcoded
 // major-metro names below — every dealer reliably has a real 2-letter state
@@ -108,6 +73,109 @@ export const STATE_CENTROIDS: Record<string, { lat: number; lng: number }> = {
   WI: { lat: 44.268543, lng: -89.616508 }, WY: { lat: 42.755966, lng: -107.30249 },
   DC: { lat: 38.897438, lng: -77.026817 },
 };
+
+// USPS ZIP3 prefix -> state, covering every prefix the Postal Service assigns
+// to a US state or DC. The metro rules above stay in front of this table
+// because they carry real metro coordinates and locally-accurate tax rates;
+// this fills in the ~35 states they never covered. Before it existed, a buyer
+// in Ohio, North Carolina, Tennessee, Minnesota (and most of the country)
+// resolved to state "USA" at San Francisco's coordinates, which both excluded
+// them from the same-state dealer gate and made every distance and radius
+// calculation nonsense.
+//
+// Ranges are compared against the numeric 3-digit prefix, so leading zeros are
+// already stripped (ZIP 07030 -> 70). Prefixes USPS leaves unassigned, and the
+// military/territory blocks (AA/AE/AP, PR, VI, GU), are deliberately absent —
+// those have no state to match a dealer against and still fall through.
+const ZIP3_STATE_RANGES: ReadonlyArray<readonly [number, number, string]> = [
+  [5, 5, "NY"], [10, 27, "MA"], [28, 29, "RI"], [30, 38, "NH"], [39, 49, "ME"],
+  [50, 59, "VT"], [60, 69, "CT"], [70, 89, "NJ"], [100, 149, "NY"],
+  [150, 196, "PA"], [197, 199, "DE"], [200, 200, "DC"], [201, 201, "VA"],
+  [202, 205, "DC"], [206, 212, "MD"], [214, 219, "MD"], [220, 246, "VA"],
+  [247, 268, "WV"], [270, 289, "NC"], [290, 299, "SC"], [300, 319, "GA"],
+  [320, 339, "FL"], [341, 342, "FL"], [344, 344, "FL"], [346, 347, "FL"],
+  [349, 349, "FL"], [350, 369, "AL"], [370, 385, "TN"], [386, 397, "MS"],
+  [398, 399, "GA"], [400, 427, "KY"], [430, 459, "OH"], [460, 479, "IN"],
+  [480, 499, "MI"], [500, 528, "IA"], [530, 549, "WI"], [550, 567, "MN"],
+  [569, 569, "DC"], [570, 577, "SD"], [580, 588, "ND"], [590, 599, "MT"],
+  [600, 629, "IL"], [630, 658, "MO"], [660, 679, "KS"], [680, 693, "NE"],
+  [700, 714, "LA"], [716, 729, "AR"], [730, 732, "OK"], [733, 733, "TX"],
+  [734, 749, "OK"], [750, 799, "TX"], [800, 816, "CO"], [820, 831, "WY"],
+  [832, 838, "ID"], [840, 847, "UT"], [850, 865, "AZ"], [870, 884, "NM"],
+  [885, 885, "TX"], [889, 898, "NV"], [900, 961, "CA"], [967, 968, "HI"],
+  [970, 979, "OR"], [980, 994, "WA"], [995, 999, "AK"],
+];
+
+// Approximate combined state + average local sales tax, used only for the
+// state-level fallback above. Same order of precision as the hardcoded metro
+// rates — an estimate the buyer can override, not a tax engine. The four
+// no-sales-tax states are genuinely 0, which is more accurate than the old
+// blanket 8% every unmapped ZIP used to get.
+const STATE_TAX_RATES: Record<string, number> = {
+  AL: 0.0925, AK: 0.0176, AZ: 0.0840, AR: 0.0945, CA: 0.0882, CO: 0.0777,
+  CT: 0.0635, DC: 0.0600, DE: 0, FL: 0.0700, GA: 0.0738, HI: 0.0450,
+  ID: 0.0603, IL: 0.0886, IN: 0.0700, IA: 0.0694, KS: 0.0870, KY: 0.0600,
+  LA: 0.0956, ME: 0.0550, MD: 0.0600, MA: 0.0625, MI: 0.0600, MN: 0.0810,
+  MS: 0.0706, MO: 0.0839, MT: 0, NE: 0.0697, NV: 0.0823, NH: 0,
+  NJ: 0.06625, NM: 0.0778, NY: 0.0853, NC: 0.0700, ND: 0.0704, OH: 0.0724,
+  OK: 0.0899, OR: 0, PA: 0.0634, RI: 0.0700, SC: 0.0750, SD: 0.0644,
+  TN: 0.0955, TX: 0.0820, UT: 0.0736, VT: 0.0636, VA: 0.0577, WA: 0.0938,
+  WV: 0.0657, WI: 0.0570, WY: 0.0544,
+};
+
+// Exact 5-Digit ZIP coordinate resolver
+export function getZipCoordinates(zipCode: string): ZipLocation {
+  const clean = zipCode.replace(/\D/g, "");
+  if (!clean) {
+    return { lat: 37.7690, lng: -122.3950, city: "San Francisco", state: "CA", taxRate: 0.08625 };
+  }
+
+  // 1. Check exact 5-digit dictionary lookup first
+  if (EXACT_ZIP_LOOKUP[clean]) {
+    return EXACT_ZIP_LOOKUP[clean];
+  }
+
+  // 2. High-precision interpolation for any other 5-digit US ZIP Code
+  const num = parseInt(clean.padEnd(5, "0"), 10);
+  const prefix3 = parseInt(clean.slice(0, 3).padEnd(3, "0"), 10);
+
+  // Dynamic state/city approximation by prefix ranges
+  if (prefix3 >= 10 && prefix3 <= 27) return { lat: 42.3601 + (num % 100) * 0.01, lng: -71.0589 - (num % 50) * 0.01, city: "Massachusetts Metro", state: "MA", taxRate: 0.0625 };
+  if (prefix3 >= 70 && prefix3 <= 89) return { lat: 40.7357 + (num % 100) * 0.01, lng: -74.1724 - (num % 50) * 0.01, city: "New Jersey Metro", state: "NJ", taxRate: 0.06625 };
+  if (prefix3 >= 100 && prefix3 <= 149) return { lat: 40.7128 + (num % 100) * 0.01, lng: -74.0060 - (num % 50) * 0.01, city: "New York Metro", state: "NY", taxRate: 0.08875 };
+  if (prefix3 >= 150 && prefix3 <= 196) return { lat: 39.9526 + (num % 100) * 0.01, lng: -75.1652 - (num % 50) * 0.01, city: "Pennsylvania Metro", state: "PA", taxRate: 0.08 };
+  if (prefix3 >= 300 && prefix3 <= 319) return { lat: 33.7490 + (num % 100) * 0.01, lng: -84.3880 - (num % 50) * 0.01, city: "Georgia Metro", state: "GA", taxRate: 0.089 };
+  if (prefix3 >= 320 && prefix3 <= 349) return { lat: 25.7617 + (num % 100) * 0.01, lng: -80.1918 - (num % 50) * 0.01, city: "Florida Metro", state: "FL", taxRate: 0.07 };
+  if (prefix3 >= 480 && prefix3 <= 499) return { lat: 42.3314 + (num % 100) * 0.01, lng: -83.0458 - (num % 50) * 0.01, city: "Michigan Metro", state: "MI", taxRate: 0.06 };
+  if (prefix3 >= 600 && prefix3 <= 629) return { lat: 41.8781 + (num % 100) * 0.01, lng: -87.6298 - (num % 50) * 0.01, city: "Illinois Metro", state: "IL", taxRate: 0.0875 };
+  if (prefix3 >= 750 && prefix3 <= 799) return { lat: 32.7767 + (num % 100) * 0.01, lng: -96.7970 - (num % 50) * 0.01, city: "Texas Metro", state: "TX", taxRate: 0.0825 };
+  if (prefix3 >= 800 && prefix3 <= 816) return { lat: 39.7392 + (num % 100) * 0.01, lng: -104.9903 - (num % 50) * 0.01, city: "Colorado Metro", state: "CO", taxRate: 0.0881 };
+  if (prefix3 >= 850 && prefix3 <= 865) return { lat: 33.4484 + (num % 100) * 0.01, lng: -112.0740 - (num % 50) * 0.01, city: "Arizona Metro", state: "AZ", taxRate: 0.086 };
+  if (prefix3 >= 900 && prefix3 <= 935) return { lat: 34.0522 + (num % 100) * 0.01, lng: -118.2437 - (num % 50) * 0.01, city: "SoCal Metro", state: "CA", taxRate: 0.095 };
+  if (prefix3 >= 936 && prefix3 <= 961) return { lat: 37.7749 + (num % 100) * 0.01, lng: -122.4194 - (num % 50) * 0.01, city: "NorCal Metro", state: "CA", taxRate: 0.08625 };
+  if (prefix3 >= 980 && prefix3 <= 994) return { lat: 47.6062 + (num % 100) * 0.01, lng: -122.3321 - (num % 50) * 0.01, city: "Washington Metro", state: "WA", taxRate: 0.1025 };
+
+  // 3. State-level fallback for every other assigned US prefix, so the buyer
+  //    at least lands in the right state at its centroid rather than in
+  //    San Francisco under the "USA" sentinel.
+  for (const [lo, hi, state] of ZIP3_STATE_RANGES) {
+    if (prefix3 < lo || prefix3 > hi) continue;
+    const centroid = STATE_CENTROIDS[state];
+    if (!centroid) break;
+    return {
+      lat: centroid.lat,
+      lng: centroid.lng,
+      city: `${state} Area`,
+      state,
+      taxRate: STATE_TAX_RATES[state] ?? 0.08,
+    };
+  }
+
+  // 4. Genuinely unplaceable: an unassigned prefix, or a military/territory
+  //    block with no state. UNRESOLVED_STATE ("USA") is the sentinel callers
+  //    test with isResolvedState() — never compare it against a real state.
+  return { lat: 37.7749, lng: -122.4194, city: "US Location", state: "USA", taxRate: 0.08 };
+}
 
 // Calculate exact Haversine Distance in Miles between user ZIP and dealer location
 export function calculateDistanceMiles(

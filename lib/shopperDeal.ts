@@ -17,6 +17,7 @@ import { DEAL_STRUCTURE_METHODS } from "./dealStructure";
 import { parseVehicleTermsList } from "./dealTerms";
 import { listingVdpHref } from "./fordCompetitionUi";
 import { deserializeDealVehicle, serializeDealVehicle } from "./offerCompare";
+import { isResolvedState } from "./sameStateCheck";
 
 export function offerPathLabel(directOffer: boolean | undefined): string {
   return directOffer ? "Offer this dealer directly" : "Get prices from other dealers";
@@ -264,7 +265,13 @@ export function mapDealRequestJson(
       return existing?.otherLots;
     })(),
     buyerZip: asString(dr.buyerZip) || existing?.buyerZip || "",
-    buyerState: asString(dr.buyerState) || existing?.buyerState || "",
+    // Rows written before the API stopped persisting the UNRESOLVED_STATE
+    // sentinel still carry "USA". Normalize it to "" on the way in so old and
+    // new deal requests behave identically everywhere downstream.
+    buyerState: (() => {
+      const raw = asString(dr.buyerState) || existing?.buyerState || "";
+      return isResolvedState(raw) ? raw : "";
+    })(),
     searchRadiusMiles: asNumber(dr.searchRadiusMiles) || existing?.searchRadiusMiles || 100,
     sameStateOnly: dr.sameStateOnly !== false,
     tradeIn: mapTradeIn(dr.tradeIn, existing?.tradeIn),
