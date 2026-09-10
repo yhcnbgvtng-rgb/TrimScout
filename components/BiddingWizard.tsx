@@ -11,6 +11,7 @@ import {
 } from "../lib/dealStructure";
 import { formatCurrency, getZipCoordinates } from "../lib/otdCalculator";
 import { outOfStateVehicles, formatOutOfStateWarning, isResolvedState } from "../lib/sameStateCheck";
+import { isPlausibleDealerEmail, type DealerContactStatus } from "../lib/dealerContactLookup";
 import { findContactInfo } from "../lib/piiFilter";
 import { formatDealerResponsivenessLabel, type DealerResponsivenessStats } from "../lib/dealerResponsiveness";
 import { formatTypicalOtdLabel, type TypicalOtdStats } from "../lib/typicalOtd";
@@ -371,12 +372,65 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   // the buyer guessing. Same formatter as step 3's review, so the name, the
   // location line and the not-confirmed caveat all read identically.
   const importedDealerships = [selectedVehicle, altVehicle1, altVehicle2]
-    .map((vehicle) => reviewTargetFromVehicle(vehicle))
-    .filter((target): target is NonNullable<typeof target> => Boolean(target?.dealerName))
+    .map((vehicle) => {
+      const target = reviewTargetFromVehicle(vehicle);
+      const dealerName = target?.dealerName?.trim();
+      if (!target || !dealerName) return null;
+      // Carry the raw state through too — the contact directory matches on name
+      // plus state, since a chain can repeat one name across several of them.
+      return { ...target, dealerName, state: (vehicle?.location?.state || "").trim().toUpperCase() };
+    })
+    .filter((target): target is NonNullable<typeof target> => Boolean(target))
     .filter(
       (target, index, all) =>
         all.findIndex((other) => other.dealerName === target.dealerName) === index
     );
+
+  // Whether each dealership is reachable. Looked up as soon as the vehicles are
+  // known, so step 2 can say up front which dealers we have no way to email
+  // instead of the buyer finding out after the offer has gone out.
+  const [dealerContacts, setDealerContacts] = useState<Record<string, DealerContactStatus>>({});
+  // Sales-adviser addresses the buyer supplied for dealerships we have none for.
+  const [buyerDealerEmails, setBuyerDealerEmails] = useState<Record<string, string>>({});
+
+  // A primitive key, so the effect re-runs when the dealerships actually change
+  // rather than on every render that rebuilds the array above.
+  const dealerLookupKey = importedDealerships.map((d) => `${d.dealerName}|${d.state}`).join("~~");
+
+  useEffect(() => {
+    const dealers = dealerLookupKey
+      ? dealerLookupKey.split("~~").map((entry) => {
+          const [dealerName, state] = entry.split("|");
+          return { dealerName, state };
+        })
+      : [];
+    if (dealers.length === 0) {
+      setDealerContacts({});
+      return;
+    }
+    let cancelled = false;
+    fetch("/api/dealer-contact", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ dealers }),
+    })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((json) => {
+        if (cancelled || !json?.results) return;
+        const next: Record<string, DealerContactStatus> = {};
+        for (const result of json.results as DealerContactStatus[]) {
+          next[result.dealerName] = result;
+        }
+        setDealerContacts(next);
+      })
+      .catch(() => {
+        // Silent — the panel stays on "Checking" and the offer is never blocked
+        // on a directory that didn't answer.
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [dealerLookupKey]);
 
   // Real dealer responsiveness — computed from actual bid timing on the
   // box, never a fabricated "usually responds within..." default. Fetched
@@ -528,6 +582,22 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     setAltVehicle1(result.vehicle);
     setAltParsing1(false);
   };
+  // Lets the buyer swap the primary car out for a different VDP without
+  // reopening the wizard. Clears everything the parse populated, so a stale
+  // sticker, option list or price can't survive into the next import.
+  const clearImportedVehicle = () => {
+    setSelectedVehicle(null);
+    setParseSuccessMsg(null);
+    setParseError(null);
+    setDealerUrlInput("");
+    setFordPdfUrl(null);
+    setFordStickerStatus(null);
+    setFordFilterableOptions([]);
+    setFactoryBuildOem(null);
+    setMustHavePackages([]);
+    setNiceToHavePackages([]);
+  };
+
   const removeAlt1 = () => {
     setAltVehicle1(null);
     setAltVin1("");
@@ -749,6 +819,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
             otherLots: otherLotsForDeal,
             vehicleTerms: vehicleTermsForDeal,
             purchaseTimeline: purchaseTimeline || undefined,
+            buyerProvidedDealerEmails: buyerDealerEmails,
           }),
           // See tradeInForRequest above — the flag only, honestly empty
           // detail fields, no appraisal fabricated.
@@ -970,83 +1041,57 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                   </div>
                 )}
 
-                {/* Decoded vehicle preview — sits directly under the import
-                    box so the buyer confirms what they got before touching
-                    must-haves or alternates. */}
+                {/* One confirmation line, not a spec sheet. Enough for the
+                    buyer to catch a wrong VIN before continuing; the full
+                    build stays one click away on the factory sheet. */}
                 {parseSuccessMsg && selectedVehicle && (
-                  <div className="rounded-2xl border-2 border-emerald-500/60 bg-gradient-to-r from-emerald-950/40 via-surface to-surface p-4 space-y-3 shadow-lg animate-fadeIn">
-                    <div className="flex items-center justify-between gap-2 text-xs font-bold text-emerald-400">
-                      <span className="flex items-center gap-2">
-                        <CheckCircle2 className="h-4 w-4 text-emerald-400" />
-                        <span>{parseSuccessMsg}</span>
+                  <div className="flex items-center justify-between gap-3 rounded-lg border border-emerald-500/40 bg-emerald-500/5 px-3 py-2 animate-fadeIn">
+                    <span className="flex min-w-0 items-center gap-2">
+                      <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-400" />
+                      <span className="truncate text-[11px] text-ink-light">
+                        {[selectedVehicle.year, selectedVehicle.make, selectedVehicle.model, selectedVehicle.trim]
+                          .filter(Boolean)
+                          .join(" ")}
+                        {(() => {
+                          // Same price and source label the review step uses —
+                          // the dealer's advertised price when there is one,
+                          // MSRP when there isn't, never one dressed as the other.
+                          const shown = advertisedOrStickerPrice(
+                            selectedVehicle.dealerPrice,
+                            selectedVehicle.msrp
+                          );
+                          if (!shown.amount || shown.amount <= 0) return null;
+                          return (
+                            <span className="text-ink-muted">
+                              {" · "}
+                              {formatPriceAmount(shown.amount)}{" "}
+                              {shopperPriceSourceLabel(shown.source)}
+                            </span>
+                          );
+                        })()}
                       </span>
+                    </span>
+                    <span className="flex shrink-0 items-center gap-3">
                       {fordPdfUrl && (
                         <a
                           href={fordPdfUrl}
                           target="_blank"
                           rel="noreferrer"
-                          className="flex items-center gap-1 text-[10px] font-bold text-emerald-300 hover:text-white"
+                          className="flex items-center gap-1 text-[10px] font-bold text-emerald-400 hover:text-emerald-300"
                         >
-                          <FileText className="h-3.5 w-3.5" />
+                          <FileText className="h-3 w-3" />
                           {FORD_BUILD_SHEET_LINK}
                         </a>
                       )}
-                    </div>
-
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-t border-border/50 pt-3">
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-2">
-                          <span className="rounded bg-emerald-500 text-black px-1.5 py-0.2 text-[10px] font-black">
-                            {selectedVehicle.year} {selectedVehicle.make}
-                          </span>
-                          <span className="font-extrabold text-white text-sm">
-                            {selectedVehicle.model} <span className="text-emerald-400">{selectedVehicle.trim}</span>
-                          </span>
-                        </div>
-                        <p className="text-xs text-ink-muted">
-                          VIN: <span className="font-mono text-ink-light">{selectedVehicle.vin}</span>
-                          {selectedVehicle.engine ? ` • ${selectedVehicle.engine}` : ""}
-                          {selectedVehicle.exteriorColor ? ` • ${selectedVehicle.exteriorColor}` : ""}
-                        </p>
-                        <div className="flex flex-wrap gap-1 pt-0.5">
-                          {(fordFilterableOptions.length > 0
-                            ? fordFilterableOptions.filter((o) => !o.isPackageChild).map((o) => o.name)
-                            : selectedVehicle.packages
-                          ).slice(0, 8).map((p, i) => (
-                            <span key={i} className="rounded bg-surface-elevated px-1.5 py-0.2 text-[10px] text-ink-light border border-border">
-                              {p}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-
-                      <div className="sm:text-right shrink-0">
-                        {(() => {
-                          const shown = advertisedOrStickerPrice(
-                            selectedVehicle.dealerPrice,
-                            selectedVehicle.msrp
-                          );
-                          const hasListing =
-                            typeof selectedVehicle.dealerPrice === "number" &&
-                            selectedVehicle.dealerPrice > 0;
-                          return (
-                            <>
-                              {hasListing && selectedVehicle.msrp > 0 && (
-                                <div className="text-[11px] text-ink-muted">
-                                  MSRP {formatStickerMsrp(selectedVehicle.msrp)}
-                                </div>
-                              )}
-                              <div className="text-base font-black text-white">
-                                {formatPriceAmount(shown.amount)}{" "}
-                                <span className="uppercase text-[9px] font-bold text-ink-faint">
-                                  {shopperPriceSourceLabel(shown.source)}
-                                </span>
-                              </div>
-                            </>
-                          );
-                        })()}
-                      </div>
-                    </div>
+                      <button
+                        type="button"
+                        onClick={clearImportedVehicle}
+                        aria-label="Remove this vehicle"
+                        className="text-ink-muted transition-colors hover:text-rose-400"
+                      >
+                        <X className="h-3.5 w-3.5" />
+                      </button>
+                    </span>
                   </div>
                 )}
 
@@ -1208,32 +1253,6 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                         : "Offer this dealership directly"}
                     </span>
                   </div>
-                  {importedDealerships.length > 0 ? (
-                    <ul className="mt-2.5 space-y-1.5 border-t border-border/60 pt-2.5">
-                      {importedDealerships.map((dealer) => (
-                        <li key={dealer.dealerName}>
-                          <div className="text-[11px] font-semibold text-ink-light">
-                            {dealer.dealerName}
-                          </div>
-                          {dealer.locationLine ? (
-                            <div className="text-[10px] text-ink-muted">{dealer.locationLine}</div>
-                          ) : null}
-                          {dealer.title ? (
-                            <div className="text-[10px] text-ink-faint">{dealer.title}</div>
-                          ) : null}
-                          {factoryBuildOem && !dealer.dealerConfirmed ? (
-                            <div className="text-[10px] italic text-ink-faint">
-                              Dealer the factory shipped it to — may not be where it&apos;s listed now
-                            </div>
-                          ) : null}
-                        </li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <p className="mt-2.5 border-t border-border/60 pt-2.5 text-[10px] text-ink-faint">
-                      We couldn&apos;t identify the dealership for this listing.
-                    </p>
-                  )}
                 </button>
                 <button
                   type="button"
@@ -1250,6 +1269,123 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                   </div>
                 </button>
               </div>
+
+              {/* How the competition actually works, stated where the buyer
+                  picks a path — that's the moment the rules start to matter. */}
+              <div className="rounded-lg border border-border bg-surface-elevated px-3 py-2.5 space-y-1">
+                <p className="text-[11px] font-semibold text-ink-light">How dealers compete</p>
+                <p className="text-[11px] leading-snug text-ink-muted">
+                  Dealers quote an out-the-door price covering the vehicle and their
+                  own fees — registration and sales tax are excluded, and calculated
+                  for your address once you accept. Each dealer sees the best offer so
+                  far as a percentage off MSRP, never a name, so they know the number
+                  to beat without knowing who set it.
+                </p>
+              </div>
+              </WizardSection>
+
+              {/* ---------------------------------------------------------- */}
+              {/* The dealerships behind the imported cars, and whether we    */}
+              {/* can actually reach them                                     */}
+              {/* ---------------------------------------------------------- */}
+              <WizardSection
+                title="Dealerships in this package"
+                hint="Where each car sits, and whether we have a way to send them your request."
+                className="py-6"
+              >
+                {importedDealerships.length === 0 ? (
+                  <p className="text-[11px] text-ink-muted">
+                    We couldn&apos;t identify a dealership for the cars you added.
+                  </p>
+                ) : (
+                  <ul className="space-y-2">
+                    {importedDealerships.map((dealer) => {
+                      const contact = dealerContacts[dealer.dealerName];
+                      const typed = buyerDealerEmails[dealer.dealerName] || "";
+                      const supplied = isPlausibleDealerEmail(typed);
+                      const reachable = Boolean(contact?.hasEmail && !contact?.emailOptOut);
+                      return (
+                        <li
+                          key={dealer.dealerName}
+                          className="rounded-lg border border-border bg-surface-elevated px-3 py-2.5 space-y-1"
+                        >
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="min-w-0">
+                              <div className="text-[11px] font-semibold text-ink-light">
+                                {dealer.dealerName}
+                              </div>
+                              <div className="text-[10px] text-ink-muted">
+                                {contact?.addressLine || dealer.locationLine || "Address not on file"}
+                              </div>
+                              {dealer.title ? (
+                                <div className="text-[10px] text-ink-faint">{dealer.title}</div>
+                              ) : null}
+                              {factoryBuildOem && !dealer.dealerConfirmed ? (
+                                <div className="text-[10px] italic text-ink-faint">
+                                  Dealer the factory shipped it to — may not be where it&apos;s listed now
+                                </div>
+                              ) : null}
+                            </div>
+                            <span
+                              className={`shrink-0 rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide ${
+                                !contact
+                                  ? "bg-border text-ink-muted"
+                                  : reachable || supplied
+                                    ? "bg-emerald-500/15 text-emerald-300"
+                                    : "bg-amber-500/15 text-amber-300"
+                              }`}
+                            >
+                              {!contact
+                                ? "Checking"
+                                : reachable
+                                  ? "Email on file"
+                                  : supplied
+                                    ? "Email added"
+                                    : "No email"}
+                            </span>
+                          </div>
+
+                          {contact && !reachable && (
+                            <div className="space-y-1.5 border-t border-border/60 pt-2">
+                              <p className="text-[10px] leading-snug text-amber-200">
+                                {contact.emailOptOut
+                                  ? "This dealership asked us to stop emailing them. If you have a sales adviser there, add their address — otherwise add a different vehicle."
+                                  : "We don't have an email on file for this dealership. If you have one for your sales adviser, add it below — otherwise paste a different vehicle's link in step 1."}
+                              </p>
+                              <input
+                                type="email"
+                                inputMode="email"
+                                autoComplete="off"
+                                value={typed}
+                                onChange={(e) =>
+                                  setBuyerDealerEmails((current) => ({
+                                    ...current,
+                                    [dealer.dealerName]: e.target.value,
+                                  }))
+                                }
+                                placeholder="Sales adviser email (optional)"
+                                aria-label={`Sales adviser email for ${dealer.dealerName}`}
+                                className="w-full rounded-lg border border-border bg-background px-3 py-1.5 text-[11px] text-ink-light placeholder-ink-faint focus:border-emerald-500 focus:outline-none"
+                              />
+                              {typed.trim() !== "" && !supplied && (
+                                <p className="text-[10px] text-rose-400">
+                                  That doesn&apos;t look like an email address.
+                                </p>
+                              )}
+                              <button
+                                type="button"
+                                onClick={() => setStep(1)}
+                                className="text-[10px] font-bold text-emerald-400 transition-colors hover:text-emerald-300"
+                              >
+                                Add a different vehicle instead →
+                              </button>
+                            </div>
+                          )}
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
               </WizardSection>
 
               {/* ---------------------------------------------------------- */}

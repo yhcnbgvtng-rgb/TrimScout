@@ -190,6 +190,40 @@ describe("shopper deal snapshot persists onto the deal request", () => {
     });
     assert.equal(payload.purchaseTimeline, "this_week");
 
+    // Buyer-supplied sales-adviser addresses ride along with the deal, but only
+    // the ones that are actually email-shaped.
+    const withEmails = shopperDealStructurePayload({
+      requestedStructures: ["cash"],
+      financeTermMonths: 60,
+      downPayment: 5000,
+      leaseMileagePerYear: 12000,
+      leaseTermMonths: 36,
+      directOffer: false,
+      vehicle: importedVehicle,
+      mustHavePackages: [],
+      buyerProvidedDealerEmails: {
+        "Route 23 Auto Mall": "  sales@route23.example  ",
+        "Half Typed Motors": "sales@",
+        "  ": "orphan@example.com",
+      },
+    });
+    assert.deepEqual(withEmails.buyerProvidedDealerEmails, {
+      "Route 23 Auto Mall": "sales@route23.example",
+    });
+
+    const noUsableEmails = shopperDealStructurePayload({
+      requestedStructures: ["cash"],
+      financeTermMonths: 60,
+      downPayment: 5000,
+      leaseMileagePerYear: 12000,
+      leaseTermMonths: 36,
+      directOffer: false,
+      vehicle: importedVehicle,
+      mustHavePackages: [],
+      buyerProvidedDealerEmails: { "Half Typed Motors": "not-an-email" },
+    });
+    assert.equal("buyerProvidedDealerEmails" in noUsableEmails, false);
+
     const mapped = mapDealRequestJson({
       id: "43",
       strategy: "exact_auction",

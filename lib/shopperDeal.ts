@@ -18,6 +18,7 @@ import { parseVehicleTermsList } from "./dealTerms";
 import { listingVdpHref } from "./fordCompetitionUi";
 import { deserializeDealVehicle, serializeDealVehicle } from "./offerCompare";
 import { isResolvedState } from "./sameStateCheck";
+import { isPlausibleDealerEmail } from "./dealerContactLookup";
 
 export function offerPathLabel(directOffer: boolean | undefined): string {
   return directOffer ? "Offer this dealer directly" : "Get prices from other dealers";
@@ -83,6 +84,13 @@ export function shopperDealStructurePayload(opts: {
   otherLots?: Vehicle[];
   vehicleTerms?: VehicleDealTerms[];
   purchaseTimeline?: PurchaseTimeline;
+  /**
+   * Sales-adviser addresses the buyer typed in for dealerships the contact
+   * directory has none for. Unverified third-party contact data: carried with
+   * the deal for follow-up, deliberately kept out of the dealership directory,
+   * and never treated as a confirmed contact.
+   */
+  buyerProvidedDealerEmails?: Record<string, string>;
 }): Record<string, unknown> {
   const loc = opts.vehicle.location;
   const dealerName = (loc?.dealerName || "").trim();
@@ -95,6 +103,7 @@ export function shopperDealStructurePayload(opts: {
     .filter((lot) => typeof lot.vin === "string" && String(lot.vin).length === 17)
     .slice(0, 2);
   const vehicleTerms = parseVehicleTermsList(opts.vehicleTerms);
+  const buyerProvidedDealerEmails = sanitizeBuyerDealerEmails(opts.buyerProvidedDealerEmails);
   return {
     requestedStructures: opts.requestedStructures,
     financeTermMonths: opts.financeTermMonths,
@@ -114,7 +123,27 @@ export function shopperDealStructurePayload(opts: {
     ...(otherLots.length ? { otherLots } : {}),
     ...(vehicleTerms.length ? { vehicleTerms } : {}),
     ...(opts.purchaseTimeline ? { purchaseTimeline: opts.purchaseTimeline } : {}),
+    ...(buyerProvidedDealerEmails ? { buyerProvidedDealerEmails } : {}),
   };
+}
+
+/**
+ * Keeps only entries that are actually a dealer name mapped to something
+ * email-shaped, and drops the map entirely when nothing survives — so a
+ * half-typed address can't ride along into the stored deal.
+ */
+function sanitizeBuyerDealerEmails(
+  input: Record<string, string> | undefined
+): Record<string, string> | undefined {
+  if (!input) return undefined;
+  const clean: Record<string, string> = {};
+  for (const [dealerName, email] of Object.entries(input)) {
+    const name = (dealerName || "").trim();
+    const address = (email || "").trim();
+    if (!name || !isPlausibleDealerEmail(address)) continue;
+    clean[name] = address;
+  }
+  return Object.keys(clean).length > 0 ? clean : undefined;
 }
 
 function asPurchaseTimeline(value: unknown): PurchaseTimeline | undefined {
