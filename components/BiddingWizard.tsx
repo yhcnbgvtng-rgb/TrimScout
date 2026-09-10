@@ -413,7 +413,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   }, [selectedVehicle?.make, selectedVehicle?.model]);
 
   const goNext = () => {
-    if (step === 1 && (requestedStructures.length === 0 || !vehicleImported || financingSourceMissing)) return;
+    if (step === 1 && (requestedStructures.length === 0 || !vehicleImported || financingSourceMissing || !purchaseTimeline)) return;
     if (step === 2 && (!offerPath || step2LocationMissing)) return;
     setStep(step + 1);
   };
@@ -774,7 +774,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
               <Zap className="h-4 w-4 fill-emerald-400" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-white">Configure Offer</h2>
+              <h2 className="text-base font-bold text-white">Configure Offer Package</h2>
               <p className="text-xs text-ink-muted">Step {step} of {TOTAL_STEPS} • {STEP_LABELS[step - 1]}</p>
             </div>
           </div>
@@ -883,6 +883,24 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                     )}
                   </div>
                 )}
+
+                <label className="block space-y-1.5">
+                  <span className="text-xs text-ink-light">
+                    When will you be ready to complete the transaction?
+                  </span>
+                  <select
+                    value={purchaseTimeline}
+                    onChange={(e) => setPurchaseTimeline(e.target.value as PurchaseTimeline)}
+                    className="w-full rounded-lg border border-border bg-background py-2 px-3 text-xs text-white focus:border-emerald-500 focus:outline-none"
+                  >
+                    <option value="" disabled>
+                      Select a timeline
+                    </option>
+                    <option value="asap">ASAP</option>
+                    <option value="this_week">Within the week</option>
+                    <option value="this_month">Within the month</option>
+                  </select>
+                </label>
               </WizardSection>
 
               {/* ---------------------------------------------------------- */}
@@ -890,7 +908,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
               {/* ---------------------------------------------------------- */}
               <WizardSection
                 title="Vehicle"
-                hint="Paste a dealer listing URL or a 17-character VIN."
+                hint="Paste a dealer listing URL or a 17-character VIN. One car is required to continue."
                 className="py-6"
               >
                 <div className="flex flex-col sm:flex-row gap-2">
@@ -928,9 +946,6 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                   <div className="rounded-xl border border-amber-500/40 bg-amber-950/30 px-3 py-2 text-[11px] text-amber-200">
                     {parseError}
                   </div>
-                )}
-                {!vehicleImported && !isParsingLink && (
-                  <p className="text-[11px] text-ink-muted">Import a car to continue.</p>
                 )}
 
                 {/* Decoded vehicle preview — sits directly under the import
@@ -1074,7 +1089,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                     onClick={() => setShowAlternates(true)}
                     className="text-[11px] font-bold text-emerald-400 hover:text-emerald-300 transition-colors"
                   >
-                    + Add up to 2 similar vehicles (optional)
+                    + Add additional vehicles to the offer package
                   </button>
                 )}
               </WizardSection>
@@ -1102,8 +1117,8 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                   </button>
                 </div>
                 {hasTradeIn && (
-                  <p className="text-[11px] text-ink-muted">
-                    Your trade-in will be handled after the selling price has been reached.
+                  <p className="rounded-lg border border-border bg-surface-elevated px-3 py-2 text-[11px] leading-snug text-ink-light">
+                    Your trade-in will be handled after we finalize the price of the new car.
                   </p>
                 )}
               </WizardSection>
@@ -1444,25 +1459,6 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                 </div>
               </div>
 
-              {/* Purchase Timeline */}
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-ink-light">Purchase Timeline</label>
-                <select
-                  value={purchaseTimeline}
-                  onChange={(e) => setPurchaseTimeline(e.target.value as PurchaseTimeline)}
-                  className={`w-full rounded-xl border bg-background py-2.5 px-3.5 text-xs text-white focus:outline-none ${
-                    purchaseTimeline ? "border-border focus:border-emerald-500" : "border-amber-500/50 focus:border-amber-500"
-                  }`}
-                >
-                  <option value="" disabled>
-                    When are you looking to buy?
-                  </option>
-                  <option value="asap">ASAP</option>
-                  <option value="this_week">This Week</option>
-                  <option value="this_month">This Month</option>
-                </select>
-              </div>
-
               {/* Buyer Comment — scrubbed of contact info before it ever leaves the browser */}
               <div className="space-y-1.5">
                 <label className="text-xs font-semibold text-ink-light flex items-center justify-between">
@@ -1535,7 +1531,11 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
               <button
                 onClick={goNext}
                 disabled={
-                  (step === 1 && (requestedStructures.length === 0 || !vehicleImported || financingSourceMissing)) ||
+                  (step === 1 &&
+                    (requestedStructures.length === 0 ||
+                      !vehicleImported ||
+                      financingSourceMissing ||
+                      !purchaseTimeline)) ||
                   (step === 2 && (!offerPath || step2LocationMissing))
                 }
                 className="flex items-center gap-1.5 rounded-lg bg-emerald-500 px-5 py-2 text-xs font-bold text-black hover:bg-emerald-400 transition-all shadow-md shadow-emerald-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
