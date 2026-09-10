@@ -366,6 +366,18 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   const financingSourceMissing = requestedStructures.includes("finance") && financingSource == null;
   const reviewTarget = reviewTargetFromVehicle(selectedVehicle);
 
+  // Step 2 asks "who gets this offer", so it has to name the dealerships the
+  // imported vehicles actually sit at rather than say "this dealer" and leave
+  // the buyer guessing. Same formatter as step 3's review, so the name, the
+  // location line and the not-confirmed caveat all read identically.
+  const importedDealerships = [selectedVehicle, altVehicle1, altVehicle2]
+    .map((vehicle) => reviewTargetFromVehicle(vehicle))
+    .filter((target): target is NonNullable<typeof target> => Boolean(target?.dealerName))
+    .filter(
+      (target, index, all) =>
+        all.findIndex((other) => other.dealerName === target.dealerName) === index
+    );
+
   // Real dealer responsiveness — computed from actual bid timing on the
   // box, never a fabricated "usually responds within..." default. Fetched
   // as soon as the dealer name is known (not gated to step 3) so it's
@@ -1171,7 +1183,11 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
             <div className="divide-y divide-border/50">
               <WizardSection
                 title="Who gets this offer"
-                hint="Send it to the dealer holding this car, or open it to other dealers nearby."
+                hint={
+                  importedDealerships.length > 1
+                    ? "Send it to the dealerships holding your cars, or open it to other dealers nearby."
+                    : "Send it to the dealership holding your car, or open it to other dealers nearby."
+                }
                 className="pb-6"
               >
               <div className="grid grid-cols-1 gap-3">
@@ -1186,8 +1202,38 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                 >
                   <div className="flex items-center gap-2">
                     <Handshake className="h-5 w-5 text-emerald-400 shrink-0" />
-                    <span className="font-bold text-white text-sm">Offer this dealer directly</span>
+                    <span className="font-bold text-white text-sm">
+                      {importedDealerships.length > 1
+                        ? `Offer these ${importedDealerships.length} dealerships directly`
+                        : "Offer this dealership directly"}
+                    </span>
                   </div>
+                  {importedDealerships.length > 0 ? (
+                    <ul className="mt-2.5 space-y-1.5 border-t border-border/60 pt-2.5">
+                      {importedDealerships.map((dealer) => (
+                        <li key={dealer.dealerName}>
+                          <div className="text-[11px] font-semibold text-ink-light">
+                            {dealer.dealerName}
+                          </div>
+                          {dealer.locationLine ? (
+                            <div className="text-[10px] text-ink-muted">{dealer.locationLine}</div>
+                          ) : null}
+                          {dealer.title ? (
+                            <div className="text-[10px] text-ink-faint">{dealer.title}</div>
+                          ) : null}
+                          {factoryBuildOem && !dealer.dealerConfirmed ? (
+                            <div className="text-[10px] italic text-ink-faint">
+                              Dealer the factory shipped it to — may not be where it&apos;s listed now
+                            </div>
+                          ) : null}
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="mt-2.5 border-t border-border/60 pt-2.5 text-[10px] text-ink-faint">
+                      We couldn&apos;t identify the dealership for this listing.
+                    </p>
+                  )}
                 </button>
                 <button
                   type="button"

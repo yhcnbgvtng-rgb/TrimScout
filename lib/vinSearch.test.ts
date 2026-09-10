@@ -1077,7 +1077,10 @@ describe("shopper-facing factory option copy", () => {
     const end = src.indexOf("STEP 3: REVIEW");
     assert.ok(start >= 0 && end > start);
     const step2 = src.slice(start, end);
-    assert.match(step2, /Offer this dealer directly/);
+    assert.match(step2, /Offer this dealership directly/);
+    // Step 2 names the dealerships behind the imported vehicles rather
+    // than referring to an unnamed "this dealer".
+    assert.match(step2, /importedDealerships/);
     assert.match(step2, /Get prices from other dealers/);
     assert.match(src, /chooseDirectOffer/);
     assert.match(src, /chooseMultiDealer/);
