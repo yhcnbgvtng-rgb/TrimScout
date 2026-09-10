@@ -1083,7 +1083,7 @@ describe("shopper-facing factory option copy", () => {
     assert.match(src, /chooseMultiDealer/);
     assert.match(src, /setDirectOfferMode\(true\)/);
     assert.match(src, /setStrategy\("exact_auction"\)/);
-    assert.match(src, /step === 2 && \(!offerPath \|\| step2LocationMissing\)/);
+    assert.match(src, /step === 2 && \(!offerPath \|\| step2LocationMissing \|\| sameStateWarning\)/);
     // Location moved out of step 1 and onto the multi-dealer path only —
     // a direct offer never uses the buyer ZIP for matching.
     assert.match(step2, /offerPath === "auction" && \(/);

@@ -10,6 +10,7 @@ import {
   toggleDealStructure,
 } from "../lib/dealStructure";
 import { formatCurrency, getZipCoordinates } from "../lib/otdCalculator";
+import { outOfStateVehicles, formatOutOfStateWarning } from "../lib/sameStateCheck";
 import { findContactInfo } from "../lib/piiFilter";
 import { formatDealerResponsivenessLabel, type DealerResponsivenessStats } from "../lib/dealerResponsiveness";
 import { formatTypicalOtdLabel, type TypicalOtdStats } from "../lib/typicalOtd";
@@ -417,7 +418,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
 
   const goNext = () => {
     if (step === 1 && (requestedStructures.length === 0 || !vehicleImported || financingSourceMissing || !purchaseTimeline)) return;
-    if (step === 2 && (!offerPath || step2LocationMissing)) return;
+    if (step === 2 && (!offerPath || step2LocationMissing || sameStateWarning)) return;
     setStep(step + 1);
   };
   const goBack = () => {
@@ -435,6 +436,18 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   // skips the distance and same-state filters entirely for a direct (firm_offer)
   // request, so don't hold that path up for a ZIP it will never use.
   const step2LocationMissing = offerPath === "auction" && huntLocationMissing;
+
+  // Same-state applies to every dealer on an auction request, including the one
+  // holding the imported car — so a checked box plus an out-of-state listing
+  // would hide the request from the dealer who actually has the vehicle.
+  const buyerStateFromZip = huntReady ? getZipCoordinates(huntZip.trim()).state : "";
+  const sameStateConflicts = sameStateOnly
+    ? outOfStateVehicles(buyerStateFromZip, [selectedVehicle, altVehicle1, altVehicle2])
+    : [];
+  const sameStateWarning =
+    offerPath === "auction" && sameStateConflicts.length > 0
+      ? formatOutOfStateWarning(buyerStateFromZip, sameStateConflicts)
+      : "";
 
   const handleParseDealerUrl = async (urlToParse?: string) => {
     const raw = (urlToParse || dealerUrlInput).trim();
@@ -1249,6 +1262,20 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                     </span>
                   </span>
                 </label>
+
+                {sameStateWarning && (
+                  <div className="rounded-lg border border-amber-500/40 bg-amber-950/30 px-3 py-2 space-y-1.5">
+                    <p className="text-[11px] leading-snug text-amber-200">{sameStateWarning}</p>
+                    <ul className="space-y-0.5">
+                      {sameStateConflicts.map((v) => (
+                        <li key={v.vin} className="text-[10px] text-amber-200/80">
+                          {v.label}
+                          {v.dealerName ? ` — ${v.dealerName}` : ""} ({v.state})
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </WizardSection>
               )}
             </div>
@@ -1529,7 +1556,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                       !vehicleImported ||
                       financingSourceMissing ||
                       !purchaseTimeline)) ||
-                  (step === 2 && (!offerPath || step2LocationMissing))
+                  (step === 2 && (!offerPath || step2LocationMissing || Boolean(sameStateWarning)))
                 }
                 className="flex items-center gap-1.5 rounded-lg bg-emerald-500 px-5 py-2 text-xs font-bold text-black hover:bg-emerald-400 transition-all shadow-md shadow-emerald-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
               >
