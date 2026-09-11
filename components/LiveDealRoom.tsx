@@ -12,14 +12,16 @@ import {
   ShieldCheck,
   Trophy,
   FileText,
-  Lock,
   Camera,
   Eye,
-  AlertTriangle
+  AlertTriangle,
+  CircleCheck as CheckCircle2
 } from "lucide-react";
 
 interface LiveDealRoomProps {
   request: BiddingRequest;
+  /** The signed-in buyer's masked alias — what dealers see. */
+  buyerAlias?: string;
   bids: DealerBid[];
   onInspectFee: (bid: DealerBid) => void;
   // True only for the real reverse-auction flow (a real vehicle the buyer
@@ -35,6 +37,7 @@ export const LiveDealRoom: React.FC<LiveDealRoomProps> = ({
   bids,
   onInspectFee,
   pollBids,
+  buyerAlias: buyerAliasProp,
 }) => {
   const [sortBy, setSortBy] = useState<"discount" | "quoted">("discount");
   const [isTradeInModalOpen, setIsTradeInModalOpen] = useState(false);
@@ -117,20 +120,23 @@ export const LiveDealRoom: React.FC<LiveDealRoomProps> = ({
     return a.quotedOtdPrice - b.quotedOtdPrice;
   });
 
-  const buyerAlias = request.buyerState ? `Buyer #${request.buyerState}` : "Buyer";
+  // The same per-buyer alias the dealer sees; passed in from the session.
+  const buyerAlias = buyerAliasProp || "Buyer";
+  const quoteCount = liveBids.length;
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 space-y-6">
-      {/* War Room Header & Timer */}
+      {/* Quote room header */}
       <div className="rounded-2xl border-2 border-emerald-500/40 bg-gradient-to-r from-surface via-surface-elevated to-surface p-6 shadow-2xl relative overflow-hidden">
         <div className="absolute -right-10 -top-10 h-48 w-48 rounded-full bg-emerald-500/10 blur-3xl pointer-events-none" />
 
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 relative z-10">
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <span className="flex h-2.5 w-2.5 rounded-full bg-emerald-400 animate-ping" />
               <span className="rounded-md bg-emerald-500/10 px-2 py-0.5 text-xs font-bold uppercase tracking-wider text-emerald-400 border border-emerald-500/20">
-                LIVE BIDDING IN PROGRESS
+                {quoteCount === 0
+                  ? "Waiting on dealer quotes"
+                  : `${quoteCount} quote${quoteCount === 1 ? "" : "s"} in`}
               </span>
               <span className="rounded-md bg-black/50 px-2 py-0.5 text-xs font-medium text-ink-muted border border-border">
                 Masked Alias: <strong className="text-white font-mono">{buyerAlias}</strong>
@@ -138,7 +144,7 @@ export const LiveDealRoom: React.FC<LiveDealRoomProps> = ({
             </div>
 
             <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
-              Deal Room{reviewTarget?.title ? `: ${reviewTarget.title}` : ""}
+              Quote Room{reviewTarget?.title ? `: ${reviewTarget.title}` : ""}
             </h1>
             {reviewTarget?.vin ? (
               <p className="mt-1 text-xs text-ink-muted">
@@ -261,12 +267,12 @@ export const LiveDealRoom: React.FC<LiveDealRoomProps> = ({
           <div className="flex items-center gap-2">
             <Trophy className="h-4 w-4 text-emerald-400" />
             <h2 className="text-sm font-bold text-white uppercase tracking-wider">
-              Ranked Dealer Offers ({sortedBids.length})
+              Dealer Quotes ({sortedBids.length})
             </h2>
           </div>
 
           <div className="flex items-center gap-2 text-xs">
-            <span className="text-ink-muted font-medium">Sort Leaderboard By:</span>
+            <span className="text-ink-muted font-medium">Sort by:</span>
             <button
               onClick={() => setSortBy("discount")}
               className={`rounded-lg px-2.5 py-1 font-semibold transition-all ${
@@ -275,7 +281,7 @@ export const LiveDealRoom: React.FC<LiveDealRoomProps> = ({
                   : "border border-border bg-surface text-ink-muted hover:text-white"
               }`}
             >
-              🔥 % Discount off MSRP
+              % off MSRP
             </button>
             <button
               onClick={() => setSortBy("quoted")}
@@ -285,14 +291,14 @@ export const LiveDealRoom: React.FC<LiveDealRoomProps> = ({
                   : "border border-border bg-surface text-ink-muted hover:text-white"
               }`}
             >
-              💲 Lowest Quoted Price
+              Lowest quote
             </button>
           </div>
         </div>
 
         {sortedBids.length === 0 && (
           <div className="rounded-2xl border border-border bg-surface p-10 text-center text-sm text-ink-muted">
-            No dealer bids yet — dealers matching this vehicle are being notified. Check back shortly.
+            No quotes yet. The dealers on your request have been notified and reply on their own time — we&apos;ll show each one here as it comes in.
           </div>
         )}
 
@@ -414,7 +420,7 @@ export const LiveDealRoom: React.FC<LiveDealRoomProps> = ({
                         : "border border-emerald-500/40 bg-emerald-500/10 text-emerald-300 hover:bg-emerald-500 hover:text-black"
                     }`}
                   >
-                    <Lock className="h-3.5 w-3.5" /> Accept This Deal & Lock OTD Price
+                    <CheckCircle2 className="h-3.5 w-3.5" /> Pick this quote
                   </button>
                 </div>
               </div>
@@ -428,7 +434,7 @@ export const LiveDealRoom: React.FC<LiveDealRoomProps> = ({
           <div>
             <h4 className="font-bold text-white">Transparent Transaction Policy</h4>
             <p className="text-[11px] text-ink-muted mt-0.5 leading-relaxed">
-              Dealer identity, contact info, and VIN stay hidden until you lock in a deal — all doc fees are legally capped, and unwanted dealer add-ons are strictly forbidden.
+              Your name, email, and phone stay masked until you pick a quote. Dealer doc fees are capped by state law, and quotes must be free of undisclosed add-ons.
             </p>
           </div>
         </div>

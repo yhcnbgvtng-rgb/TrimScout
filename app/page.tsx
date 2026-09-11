@@ -7,7 +7,7 @@ import { formatBuyerAlias } from "@/lib/buyerAlias";
 import Link from "next/link";
 import { useSession, signOut as authSignOut } from "next-auth/react";
 import { Vehicle, BiddingRequest, DealerBid, LockedDeal, UserProfile } from "../lib/types";
-import { MOCK_VEHICLES, INITIAL_DEMO_BIDS, SAMPLE_TRADE_IN_VEHICLE, DEMO_BUYER_USER } from "../lib/mockData";
+import { MOCK_VEHICLES } from "../lib/mockData";
 import { fetchLiveInventory } from "../lib/inventoryConnector";
 import { mapDealRequestJson } from "../lib/shopperDeal";
 import { consumeLandingView, loadShopperRequests, upsertShopperRequest } from "../lib/offerCompare";
@@ -63,32 +63,15 @@ export default function Home() {
   const [isWizardOpen, setIsWizardOpen] = useState(false);
   const [preselectedVehicle, setPreselectedVehicle] = useState<Vehicle | null>(null);
 
-  // Active Bidding Request state
-  const [activeRequest, setActiveRequest] = useState<BiddingRequest>({
-    id: "req-demo-1",
-    strategy: "flexible_discount",
-    flexibleCriteria: {
-      make: "BMW",
-      model: "3 Series",
-      trims: ["330i M Sport", "330i xDrive"],
-      minMsrp: 48000,
-      maxMsrp: 58000,
-      mustHavePackages: ["M Sport Package", "Premium Package"],
-      preferredColors: ["Mineral Grey", "Brooklyn Grey"],
-      dealbreakers: ["Red Interior"],
-      allowedStatuses: ["on_lot", "in_transit"],
-    },
-    targetDiscountPercent: 8.5,
-    paymentMethod: "finance",
-    buyerZip: "94107",
-    searchRadiusMiles: 150,
-    tradeIn: SAMPLE_TRADE_IN_VEHICLE,
-    createdAt: "10 mins ago",
-    expiresAt: "48 Hours",
-    status: "active",
-  });
+  // The quote request currently open in the quote room. Null until the buyer
+  // opens one from the tracker — there is no demo request. A BMW fixture used
+  // to sit here (and a set of demo quotes below), so a signed-in buyer with no
+  // requests saw "No Active Deal Yet" on the tracker while the navbar counted
+  // one active deal and the room, if reached, showed a car they never asked
+  // about.
+  const [activeRequest, setActiveRequest] = useState<BiddingRequest | null>(null);
 
-  const [bids, setBids] = useState<DealerBid[]>(INITIAL_DEMO_BIDS);
+  const [bids, setBids] = useState<DealerBid[]>([]);
   const [shopperRequests, setShopperRequests] = useState<BiddingRequest[]>([]);
 
   // Modals state
@@ -188,6 +171,7 @@ export default function Home() {
           return Array.from(byId.values());
         });
         setActiveRequest((prev) => {
+          if (!prev) return prev;
           const match = rows.find((row) => String((row as { id?: string }).id) === prev.id);
           return match ? mapDealRequestJson(match as Record<string, unknown>, prev) : prev;
         });
@@ -486,7 +470,7 @@ export default function Home() {
       {/* Navigation Header */}
       <Navbar
         user={currentUser}
-        activeDealCount={bids.length > 0 ? 1 : 0}
+        activeDealCount={shopperRequests.filter((r) => r.status === "active").length}
         currentView={currentView}
         onToggleView={setCurrentView}
         onOpenAuthModal={() => setIsAuthModalOpen(true)}
@@ -533,9 +517,9 @@ export default function Home() {
         ) : (
           <div className="mx-auto max-w-2xl px-4 py-16 text-center space-y-6">
             <div className="rounded-2xl border border-border bg-surface p-8 space-y-4 shadow-xl">
-              <h2 className="text-xl font-black text-white">Sign In to Track Your Car Deals</h2>
+              <h2 className="text-xl font-black text-white">Sign in to see your quotes</h2>
               <p className="text-xs text-ink-muted max-w-md mx-auto">
-                Log in to your TrimScout account to monitor live reverse bidding, download your locked out-the-door vouchers, and access saved vehicles.
+                Log in to your TrimScout account to see the quotes dealers have sent, compare them, and download any Deal Certificates.
               </p>
               <button
                 onClick={() => setIsAuthModalOpen(true)}
@@ -568,13 +552,14 @@ export default function Home() {
         />
       )}
 
-      {/* View 3: Live Deal Room (Buyer View) */}
-      {currentView === "deal_room" && (
+      {/* View 3: Quote Room (Buyer View) — only ever a real request. */}
+      {currentView === "deal_room" && activeRequest && (
         <LiveDealRoom
           request={activeRequest}
           bids={bids.filter((b) => b.dealRequestId === activeRequest.id)}
           onInspectFee={handleInspectFee}
           pollBids={isPersistedDealId(activeRequest.id)}
+          buyerAlias={currentUser?.buyerAlias}
         />
       )}
 

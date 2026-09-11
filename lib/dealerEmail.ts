@@ -82,9 +82,9 @@ export function buildOfferEmail(
   const hasTargetOtd = typeof request.targetOtdPrice === "number" && request.targetOtdPrice > 0;
   const otdLine = hasTargetOtd
     ? `$${request.targetOtdPrice!.toLocaleString("en-US")}`
-    : "No fixed target — open reverse auction";
+    : "No fixed target — quote your best out-the-door price";
 
-  const subject = `[SAFE MODE] New buyer offer for ${seed.dealerName} — ${vehicleLine}`;
+  const subject = `[SAFE MODE] New quote request for ${seed.dealerName} — ${vehicleLine}`;
   const photo = request.targetVehicle?.imageUrl || null;
   const dealerLocationLine = [seed.dealerCity, seed.dealerState].filter(Boolean).join(", ");
 
@@ -125,7 +125,7 @@ export function buildOfferEmail(
 
     <tr>
       <td style="padding:28px 32px 4px;">
-        <h1 style="margin:0;font-size:20px;font-weight:800;color:#0f172a;letter-spacing:-0.01em;">New buyer offer</h1>
+        <h1 style="margin:0;font-size:20px;font-weight:800;color:#0f172a;letter-spacing:-0.01em;">New quote request</h1>
         <p style="margin:6px 0 0;font-size:14px;color:#64748b;">A buyer wants to move forward on this vehicle at ${escapeHtml(seed.dealerName)}.</p>
       </td>
     </tr>
@@ -196,7 +196,7 @@ export function buildOfferEmail(
       unsubscribeUrl
         ? `<tr>
              <td style="padding:16px 32px 24px;border-top:1px solid #e2e8f0;">
-               <p style="margin:0;font-size:11px;color:#94a3b8;">Don't want emails like this about buyer offers? <a href="${escapeHtml(unsubscribeUrl)}" style="color:#64748b;">Unsubscribe</a>.</p>
+               <p style="margin:0;font-size:11px;color:#94a3b8;">Don't want emails like this about quote requests? <a href="${escapeHtml(unsubscribeUrl)}" style="color:#64748b;">Unsubscribe</a>.</p>
              </td>
            </tr>`
         : ""

@@ -137,12 +137,12 @@ export function OfferCloseClockCard({
       });
       const json = await res.json().catch(() => ({}));
       if (!res.ok) {
-        setError(typeof json.error === "string" ? json.error : "Could not extend the offer clock.");
+        setError(typeof json.error === "string" ? json.error : "Could not extend the response window.");
         return;
       }
       if (json.offerClock) onUpdated?.(json.offerClock as OfferCloseClockView);
     } catch {
-      setError("Could not extend the offer clock.");
+      setError("Could not extend the response window.");
     } finally {
       setPending(false);
     }
@@ -161,7 +161,7 @@ export function OfferCloseClockCard({
     return (
       <span className="inline-flex items-center gap-1.5 text-ink-faint font-mono">
         <span>·</span>
-        <span>{status === "paused" && pauseLabel ? pauseLabel : `${remaining} left`}</span>
+        <span>{status === "paused" && pauseLabel ? pauseLabel : `${remaining} left for dealers to reply`}</span>
         {canExtend ? (
           <button
             type="button"
@@ -180,27 +180,29 @@ export function OfferCloseClockCard({
   return (
     <div className="rounded-xl border border-border bg-black/40 px-4 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
       <div className="flex items-start gap-3">
-        <Clock className={`h-5 w-5 mt-0.5 ${status === "closed" ? "text-ink-faint" : "text-amber-400"}`} />
+        <Clock className={`h-5 w-5 mt-0.5 ${status === "closed" ? "text-ink-faint" : "text-ink-muted"}`} />
         <div>
           <div className="text-[10px] uppercase font-bold text-ink-faint tracking-wider">
             {status === "idle"
-              ? "Offer close clock"
+              ? "Dealer response window"
               : status === "paused"
-                ? "Offer close clock · paused"
+                ? "Dealer response window · paused"
                 : status === "closed"
-                  ? "Offer closed"
-                  : "Offer close clock"}
+                  ? "Response window closed"
+                  : "Dealer response window"}
           </div>
           {status === "idle" ? (
             <div className="text-xs text-ink-light mt-0.5">
-              Starts when the first dealer views this offer · 48 running hours
+              Dealers have 48 business hours to reply, starting when the first one opens your request
             </div>
           ) : status === "closed" ? (
             <div className="text-xs text-ink-muted mt-0.5">
-              Closed for new dealer responses. Existing bids stay visible.
+              Closed to new quotes. The quotes you received stay here, and you can still pick one or walk away.
             </div>
           ) : (
-            <div className="font-mono text-lg font-bold text-white tracking-wider mt-0.5">{remaining}</div>
+            <div className="mt-0.5 text-xs text-ink-light">
+              <span className="font-mono font-bold text-white">{remaining}</span> left for dealers to reply
+            </div>
           )}
           {status === "paused" && pauseLabel ? (
             <div className="flex items-center gap-1 text-[11px] text-amber-300 mt-1">

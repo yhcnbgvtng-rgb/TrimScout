@@ -430,7 +430,7 @@ describe("listing-facts route and compare page copy", () => {
     // (replaceCompetitorLots), so the tracker sees the same picks. Nothing
     // is pasted in by hand, and the list itself is never persisted
     // (listings-provider terms) — only the two chosen vehicles are.
-    assert.match(view, /Competing vehicles/);
+    assert.match(view, /Comparable vehicles/);
     assert.match(view, /CompetingVehiclesPanel/);
     assert.match(view, /type="checkbox"/);
     assert.match(view, /replaceCompetitorLots/);
