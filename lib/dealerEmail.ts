@@ -226,6 +226,16 @@ async function sendViaResend(subject: string, html: string): Promise<boolean> {
 }
 
 /**
+ * Sends one quote-request invite. Same SAFE MODE sender as every dealer
+ * email — see the header — so it lands at SAFE_MODE_RECIPIENT until that
+ * override is lifted. Returns true only when Resend accepted the message;
+ * the caller marks the invite "sent" on that, never before.
+ */
+export async function sendQuoteInviteEmail(subject: string, html: string): Promise<boolean> {
+  return sendViaResend(subject, html);
+}
+
+/**
  * Notifies every dealer invited on this deal (the favorite's dealer plus
  * any other lots') that a buyer submitted an offer. One email per dealer,
  * each naming that dealer — but per the safety override above, every send

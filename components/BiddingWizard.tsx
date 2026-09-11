@@ -13,6 +13,17 @@ import { formatCurrency, getZipCoordinates } from "../lib/otdCalculator";
 import { outOfStateVehicles, formatOutOfStateWarning } from "../lib/sameStateCheck";
 import { isPlausibleDealerEmail, type DealerContactStatus } from "../lib/dealerContactLookup";
 import { formatBuyerAlias } from "../lib/buyerAlias";
+import {
+  NON_BINDING_COPY,
+  DESK_ROLE_LABELS,
+  MAX_PACKAGE_LINKS,
+  INVITE_STAGE_LABELS,
+  inviteStage,
+  type DealerLinkPaste,
+  type QuoteInviteStage,
+} from "../lib/quotePackage";
+import type { PublicDesk } from "../app/api/quote-desks/route";
+import type { RfqInvite } from "../lib/rfq";
 import { newDealReference } from "../lib/dealReference";
 import { findContactInfo } from "../lib/piiFilter";
 import { formatDealerResponsivenessLabel, type DealerResponsivenessStats } from "../lib/dealerResponsiveness";
@@ -419,6 +430,16 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   // Sales-adviser addresses the buyer supplied for dealerships we have none for.
   const [buyerDealerEmails, setBuyerDealerEmails] = useState<Record<string, string>>({});
 
+  // The v1 core loop's confirm step: who, by name, each quote request goes
+  // to. Looked up with the contacts; the buyer confirms (or unticks) each.
+  const [quoteDesks, setQuoteDesks] = useState<Record<string, PublicDesk>>({});
+  const [confirmedDesks, setConfirmedDesks] = useState<Record<string, boolean>>({});
+  // What came back from sending: one row per desk, with its audit stage.
+  const [sentPackage, setSentPackage] = useState<{
+    rfqId: string;
+    rows: Array<{ dealerName: string; stage: QuoteInviteStage | "blocked"; message?: string }>;
+  } | null>(null);
+
   // A primitive key, so the effect re-runs when the dealerships actually change
   // rather than on every render that rebuilds the array above.
   const dealerLookupKey = importedDealerships.map((d) => `${d.dealerName}|${d.state}`).join("~~");
@@ -429,6 +450,13 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   // competition framed and doesn't have to pick "offer this dealer directly"
   // for a request that goes to several.
   const competeAmongImported = importedDealerships.length >= 2;
+  // On the direct path the request only goes to confirmed, unblocked desks —
+  // every count the buyer sees from step 3 on should be that, not the number
+  // of cars pasted.
+  const confirmedDeskCount = importedDealerships.filter(
+    (d) => confirmedDesks[d.dealerName] && !quoteDesks[d.dealerName]?.blockedReason
+  ).length;
+  const sendToCount = directOfferMode ? confirmedDeskCount : importedDealerships.length;
   useEffect(() => {
     if (step === 2 && offerPath === null && competeAmongImported) {
       chooseDirectOffer();
@@ -463,6 +491,25 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
           next[result.dealerName] = result;
         }
         setDealerContacts(next);
+      })
+      .catch(() => {});
+    fetch("/api/quote-desks", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ dealers }),
+    })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((json) => {
+        if (cancelled || !json?.desks) return;
+        const next: Record<string, PublicDesk> = {};
+        const confirmed: Record<string, boolean> = {};
+        for (const desk of json.desks as PublicDesk[]) {
+          next[desk.dealerName] = desk;
+          // Ticked by default when there's a named person to send to.
+          confirmed[desk.dealerName] = !desk.blockedReason;
+        }
+        setQuoteDesks(next);
+        setConfirmedDesks((current) => ({ ...confirmed, ...current }));
       })
       .catch(() => {
         // Silent — the panel stays on "Checking" and the offer is never blocked
@@ -689,6 +736,66 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
 
   if (!isOpen) return null;
 
+  if (sentPackage) {
+    const sentCount = sentPackage.rows.filter((r) => r.stage !== "blocked").length;
+    const stageTone = (stage: QuoteInviteStage | "blocked") =>
+      stage === "blocked"
+        ? "bg-amber-500/15 text-amber-300"
+        : stage === "queued"
+          ? "bg-border text-ink-muted"
+          : "bg-emerald-500/15 text-emerald-300";
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4">
+        <div className="relative w-full max-w-md rounded-2xl border border-emerald-500/40 bg-surface shadow-2xl p-6 space-y-4 animate-fadeIn">
+          <div className="text-center">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-400">
+              <CheckCircle2 className="h-7 w-7" />
+            </div>
+            <h2 className="mt-3 text-lg font-black text-white">
+              {sentCount === 0 ? "Nothing was sent" : `Quote request sent to ${sentCount} desk${sentCount === 1 ? "" : "s"}`}
+            </h2>
+            <p className="mt-1 text-xs text-ink-muted">
+              Each desk replies on its own time. We&apos;ll show every quote as it comes in — pick one, or walk away.
+            </p>
+          </div>
+          <ul className="space-y-1.5">
+            {sentPackage.rows.map((row) => (
+              <li key={row.dealerName} className="flex items-start justify-between gap-3 rounded-lg border border-border bg-surface-elevated px-3 py-2">
+                <div className="min-w-0">
+                  <div className="text-[11px] font-semibold text-ink-light">{row.dealerName}</div>
+                  {row.message ? <div className="text-[10px] leading-snug text-ink-muted">{row.message}</div> : null}
+                </div>
+                <span className={`shrink-0 rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide ${stageTone(row.stage)}`}>
+                  {row.stage === "blocked" ? "Not sent" : INVITE_STAGE_LABELS[row.stage]}
+                </span>
+              </li>
+            ))}
+          </ul>
+          <div className="rounded-xl border border-border bg-surface-elevated py-3 text-center">
+            <div className="text-[10px] font-bold text-ink-faint uppercase tracking-wider">Quote request</div>
+            <div className="text-xl font-mono font-black text-emerald-400">{dealReference}</div>
+            <div className="mt-0.5 text-[10px] font-mono text-ink-faint">ref #{sentPackage.rfqId}</div>
+          </div>
+          <p className="text-[10px] leading-snug text-ink-faint">{NON_BINDING_COPY}</p>
+          <div className="flex gap-2">
+            <a
+              href={`/rfq/${sentPackage.rfqId}`}
+              className="flex-1 rounded-xl border border-border py-2.5 text-center text-xs font-bold text-ink-light hover:text-white hover:border-border-strong transition-colors"
+            >
+              Track this request
+            </a>
+            <button
+              onClick={onClose}
+              className="flex-1 rounded-xl bg-emerald-500 py-2.5 text-xs font-extrabold text-black hover:bg-emerald-400 transition-all active:scale-95"
+            >
+              Done
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (createdDealId) {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4">
@@ -825,6 +932,92 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     router.push("/compare");
   };
 
+  const sendQuoteRequestPackage = async () => {
+    if (!selectedVehicle) return;
+    const vehicles = [selectedVehicle, altVehicle1, altVehicle2].filter((v): v is Vehicle => Boolean(v)).slice(0, MAX_PACKAGE_LINKS);
+    const pastes: DealerLinkPaste[] = vehicles.map((v) => ({
+      raw: v.dealerUrl || v.vin,
+      kind: v.dealerUrl ? "url" : "vin",
+      vin: v.vin,
+      year: v.year,
+      make: v.make,
+      model: v.model,
+      trim: v.trim,
+      dealerName: v.location?.dealerName?.trim() || null,
+      dealerState: v.location?.state?.trim().toUpperCase() || null,
+      vdpUrl: v.dealerUrl || null,
+      listingPrice: v.dealerPrice > 0 ? v.dealerPrice : null,
+      buildConfidence: v.buildConfidence || "dealer_listing_only",
+      resolvedAt: new Date().toISOString(),
+    }));
+    const toSend = pastes.filter((p) => p.dealerName && confirmedDesks[p.dealerName] && !quoteDesks[p.dealerName]?.blockedReason);
+    if (toSend.length === 0) {
+      setSubmitError("Tick at least one dealership with a named sales contact to send the request.");
+      return;
+    }
+
+    setIsSubmittingReal(true);
+    setSubmitError(null);
+    try {
+      const primary = pastes[0];
+      const res = await fetch("/api/rfqs", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          packageKind: "links",
+          vin: primary.vin,
+          vehicleYear: primary.year,
+          vehicleMake: primary.make,
+          vehicleModel: primary.model,
+          vehicleTrim: primary.trim,
+          stockNumber: null,
+          linkPastes: pastes,
+          dealReference,
+        }),
+      });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok || !json.rfq?.id) {
+        setSubmitError(json.error || "Could not create your quote request.");
+        return;
+      }
+      const rfqId = String(json.rfq.id);
+
+      // Invites go one at a time so a per-desk or sister-store block on one
+      // never blocks the others, and each row reports its own outcome.
+      const rows: Array<{ dealerName: string; stage: QuoteInviteStage | "blocked"; message?: string }> = [];
+      for (const paste of pastes) {
+        const name = paste.dealerName || "";
+        if (!name || !toSend.includes(paste)) {
+          rows.push({ dealerName: name || paste.vin, stage: "blocked", message: quoteDesks[name]?.blockedMessage || "Not sent." });
+          continue;
+        }
+        const r = await fetch(`/api/rfqs/${rfqId}/invites`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            dealerName: name,
+            dealerState: paste.dealerState,
+            buyerProvidedEmail: buyerDealerEmails[name] || undefined,
+            requestedStructures,
+            purchaseTimelineLabel:
+              purchaseTimeline === "asap" ? "ASAP" : purchaseTimeline === "this_week" ? "Within the week" : purchaseTimeline === "this_month" ? "Within the month" : null,
+          }),
+        });
+        const j = await r.json().catch(() => ({}));
+        if (r.ok && j.invite) {
+          rows.push({ dealerName: name, stage: inviteStage(j.invite as RfqInvite) });
+        } else {
+          rows.push({ dealerName: name, stage: "blocked", message: j.error || "Could not send." });
+        }
+      }
+      setSentPackage({ rfqId, rows });
+    } catch {
+      setSubmitError("Couldn't reach the server. Your request wasn't sent — try again.");
+    } finally {
+      setIsSubmittingReal(false);
+    }
+  };
+
   const handleLaunchDeal = async () => {
     if (dealCommentContactWarning) {
       setSubmitError(`Your comment appears to contain ${dealCommentContactWarning} — remove it before submitting.`);
@@ -844,6 +1037,14 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
       return;
     }
     if (!selectedVehicle) return;
+
+    // The v1 core loop. A direct request becomes a Quote Request Package:
+    // one RFQ of kind "links", one invite per confirmed desk, each sent as it
+    // is created. Nothing here is a bid, and there is no target price.
+    if (directOfferMode) {
+      await sendQuoteRequestPackage();
+      return;
+    }
 
     setIsSubmittingReal(true);
     setSubmitError(null);
@@ -1411,8 +1612,12 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
               {/* can actually reach them                                     */}
               {/* ---------------------------------------------------------- */}
               <WizardSection
-                title="Dealerships in this request"
-                hint="Where each car sits, and whether we have a way to send them your request."
+                title={directOfferMode ? "Confirm who gets it" : "Dealerships in this request"}
+                hint={
+                  directOfferMode
+                    ? "Each request goes to a named person at the dealership — never a shared inbox. Untick anyone you'd rather leave out."
+                    : "Where each car sits, and whether we have a way to send them your request."
+                }
                 className="py-6"
               >
                 {importedDealerships.length === 0 ? (
@@ -1432,6 +1637,19 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                           className="rounded-lg border border-border bg-surface-elevated px-3 py-2.5 space-y-1"
                         >
                           <div className="flex items-start justify-between gap-3">
+                            <div className="flex min-w-0 items-start gap-2">
+                              {directOfferMode && (
+                                <input
+                                  type="checkbox"
+                                  aria-label={`Send a quote request to ${dealer.dealerName}`}
+                                  checked={Boolean(confirmedDesks[dealer.dealerName]) && !quoteDesks[dealer.dealerName]?.blockedReason}
+                                  disabled={!quoteDesks[dealer.dealerName] || Boolean(quoteDesks[dealer.dealerName]?.blockedReason)}
+                                  onChange={(e) =>
+                                    setConfirmedDesks((current) => ({ ...current, [dealer.dealerName]: e.target.checked }))
+                                  }
+                                  className="mt-0.5 h-3.5 w-3.5 shrink-0 rounded border-border text-emerald-500 focus:ring-0 disabled:opacity-40"
+                                />
+                              )}
                             <div className="min-w-0">
                               <div className="text-[11px] font-semibold text-ink-light">
                                 {dealer.dealerName}
@@ -1439,6 +1657,20 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                               <div className="text-[10px] text-ink-muted">
                                 {contact?.addressLine || dealer.locationLine || "Address not on file"}
                               </div>
+                              {directOfferMode && (() => {
+                                const desk = quoteDesks[dealer.dealerName];
+                                if (!desk) return <div className="text-[10px] text-ink-faint">Looking up the sales desk…</div>;
+                                if (desk.knownNamed && !desk.blockedReason) {
+                                  return (
+                                    <div className="text-[10px] text-ink-light">
+                                      To: <span className="font-semibold">{desk.contactName}</span>
+                                      {desk.role ? <span className="text-ink-muted"> · {DESK_ROLE_LABELS[desk.role]}</span> : null}
+                                      {desk.emailMasked ? <span className="font-mono text-ink-muted"> · {desk.emailMasked}</span> : null}
+                                    </div>
+                                  );
+                                }
+                                return null;
+                              })()}
                               {dealer.title ? (
                                 <div className="text-[10px] text-ink-faint">{dealer.title}</div>
                               ) : null}
@@ -1447,6 +1679,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                                   Dealer the factory shipped it to — may not be where it&apos;s listed now
                                 </div>
                               ) : null}
+                            </div>
                             </div>
                             <span
                               className={`shrink-0 rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide ${
@@ -1457,22 +1690,29 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                                     : "bg-amber-500/15 text-amber-300"
                               }`}
                             >
-                              {!contact
-                                ? "Checking"
-                                : reachable
-                                  ? "Email on file"
-                                  : supplied
-                                    ? "Email added"
-                                    : "No email"}
+                              {(() => {
+                                const desk = directOfferMode ? quoteDesks[dealer.dealerName] : undefined;
+                                if (directOfferMode) {
+                                  if (!desk) return "Checking";
+                                  if (!desk.blockedReason) return "Named contact";
+                                  if (supplied) return "Adviser added";
+                                  return desk.blockedReason === "dealer_opted_out" ? "Opted out" : "No sales contact";
+                                }
+                                return !contact ? "Checking" : reachable ? "Email on file" : supplied ? "Email added" : "No email";
+                              })()}
                             </span>
                           </div>
 
-                          {contact && !reachable && (
+                          {(directOfferMode
+                            ? Boolean(quoteDesks[dealer.dealerName]?.blockedReason)
+                            : Boolean(contact && !reachable)) && (
                             <div className="space-y-1.5 border-t border-border/60 pt-2">
                               <p className="text-[10px] leading-snug text-amber-200">
-                                {contact.emailOptOut
-                                  ? "This dealership asked us to stop emailing them. If you have a sales adviser there, add their address — otherwise add a different vehicle."
-                                  : "We don't have an email on file for this dealership. If you have one for your sales adviser, add it below — otherwise paste a different vehicle's link in step 1."}
+                                {directOfferMode
+                                  ? `${quoteDesks[dealer.dealerName]?.blockedMessage || ""} If you have a sales adviser's own address there, add it below — otherwise paste a different vehicle's link in step 1.`
+                                  : contact?.emailOptOut
+                                    ? "This dealership asked us to stop emailing them. If you have a sales adviser there, add their address — otherwise add a different vehicle."
+                                    : "We don't have an email on file for this dealership. If you have one for your sales adviser, add it below — otherwise paste a different vehicle's link in step 1."}
                               </p>
                               <input
                                 type="email"
@@ -1614,17 +1854,23 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                 </h3>
                 <p className="text-xs text-ink-muted mt-0.5">
                   {directOfferMode && competeAmongImported
-                    ? `Sending an anonymized quote request to ${importedDealerships.length} dealerships — your identity stays masked until you pick a quote.`
+                    ? `Sending an anonymized quote request to ${sendToCount} dealership${sendToCount === 1 ? "" : "s"} — your identity stays masked until you pick a quote.`
                     : directOfferMode
                       ? `Sending an anonymized quote request to ${selectedVehicle?.location.dealerName ?? "the dealer"} — your identity stays masked until you pick their quote.`
                       : "Your personal identity is 100% masked to prevent annoying dealer sales calls."}
                 </p>
               </div>
 
-              {/* Pricing — who names the price: the dealer quotes their own
-                  best OTD (blind), or the buyer sets a firm target the
-                  dealer can accept or counter. */}
-              <div className="space-y-2">
+              {/* On a quote request there is no buyer target price — the desk
+                  quotes its own number, full stop. The pricing choice only
+                  exists on the open-to-other-dealers path. */}
+              {directOfferMode && (
+                <div className="rounded-lg border border-border bg-surface-elevated px-3 py-2.5 space-y-1">
+                  <p className="text-[11px] font-semibold text-ink-light">A request, not a bid</p>
+                  <p className="text-[11px] leading-snug text-ink-muted">{NON_BINDING_COPY} Each desk replies with its own out-the-door number; you compare them and pick one, or walk away.</p>
+                </div>
+              )}
+              <div className={`space-y-2 ${directOfferMode ? "hidden" : ""}`}>
                 <label className="text-xs font-semibold text-ink-light">Pricing</label>
                 <div className="grid grid-cols-2 gap-2">
                   <button
@@ -1773,15 +2019,23 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                                     <div className="flex items-start justify-between gap-2">
                                       <span className="font-semibold text-ink-light">{target.dealerName}</span>
                                       <span
-                                        className={`shrink-0 rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide ${
-                                          !contact
-                                            ? "bg-border text-ink-muted"
-                                            : reachable || supplied
-                                              ? "bg-emerald-500/15 text-emerald-300"
-                                              : "bg-amber-500/15 text-amber-300"
-                                        }`}
+                                        className={`shrink-0 rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide ${(() => {
+                                          const ok = directOfferMode
+                                            ? Boolean(target?.dealerName && quoteDesks[target.dealerName] && !quoteDesks[target.dealerName]?.blockedReason && confirmedDesks[target.dealerName])
+                                            : reachable || supplied;
+                                          const pending = directOfferMode ? !(target?.dealerName && quoteDesks[target.dealerName]) : !contact;
+                                          return pending ? "bg-border text-ink-muted" : ok ? "bg-emerald-500/15 text-emerald-300" : "bg-amber-500/15 text-amber-300";
+                                        })()}`}
                                       >
-                                        {!contact ? "Checking" : reachable ? "Email on file" : supplied ? "Email added" : "No email"}
+                                        {(() => {
+                                          if (directOfferMode) {
+                                            const desk = target?.dealerName ? quoteDesks[target.dealerName] : undefined;
+                                            if (!desk) return "Checking";
+                                            if (!desk.blockedReason) return confirmedDesks[target!.dealerName!] ? "Named contact" : "Not sending";
+                                            return supplied ? "Adviser added" : "No sales contact";
+                                          }
+                                          return !contact ? "Checking" : reachable ? "Email on file" : supplied ? "Email added" : "No email";
+                                        })()}
                                       </span>
                                     </div>
                                     <div className="text-ink-muted">
@@ -1822,7 +2076,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                   <span className="text-emerald-400 font-bold text-right">
                     {directOfferMode
                       ? competeAmongImported
-                        ? `${importedDealerships.length} dealerships in this request`
+                        ? `${sendToCount} of ${importedDealerships.length} dealerships confirmed`
                         : "This dealership only"
                       : "This dealership and others nearby"}
                   </span>
@@ -1976,7 +2230,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                     : "Sending…"
                   : directOfferMode
                   ? competeAmongImported
-                    ? `Request quotes from ${importedDealerships.length} dealerships`
+                    ? `Request quotes from ${sendToCount} dealership${sendToCount === 1 ? "" : "s"}`
                     : "Request a quote"
                   : "Request quotes"}
               </button>

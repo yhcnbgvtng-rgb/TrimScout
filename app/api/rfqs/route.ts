@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { createRfq, listRfqsForBuyer, RfqApiError } from "@/lib/rfqApi";
 import { hasActiveRfq, isFullyLockedSpec } from "@/lib/rfqLogic";
+import { MAX_PACKAGE_LINKS } from "@/lib/quotePackage";
 import { recordQuoteRequest } from "@/lib/apiSpendGuard";
 
 export async function GET() {
@@ -26,17 +27,26 @@ export async function POST(req: Request) {
   }
 
   const body = await req.json().catch(() => null);
-  if (!body?.vin || !body?.vehicleMake || !body?.vehicleModel || !body?.vehicleTrim) {
+  const packageKind: "match" | "links" = body?.packageKind === "links" ? "links" : "match";
+  if (!body?.vin || !body?.vehicleMake || !body?.vehicleModel || (packageKind === "match" && !body?.vehicleTrim)) {
     return NextResponse.json({ error: "A specific matched vehicle is required." }, { status: 400 });
   }
-  // The hard gate, enforced server-side too: an RFQ can only ever be
-  // created from a full match — every must-have confirmed hit. A soft
-  // shortlist or an unverified option never reaches here.
-  if (!Array.isArray(body.mustHaves) || !isFullyLockedSpec(body.mustHaves)) {
-    return NextResponse.json(
-      { error: "This vehicle doesn't hit every must-have — an RFQ can only be sent from a full match." },
-      { status: 400 }
-    );
+  // Two kinds of package. "match" is the factory-option flow, and keeps its
+  // hard gate: every must-have a confirmed hit. "links" is the v1 core loop
+  // — the buyer pasted dealer listings; there is no option match to gate
+  // on, and no target price anywhere in it.
+  if (packageKind === "match") {
+    if (!Array.isArray(body.mustHaves) || !isFullyLockedSpec(body.mustHaves)) {
+      return NextResponse.json(
+        { error: "This vehicle doesn't hit every must-have — an RFQ can only be sent from a full match." },
+        { status: 400 }
+      );
+    }
+  } else {
+    const pastes = Array.isArray(body.linkPastes) ? body.linkPastes : [];
+    if (pastes.length === 0 || pastes.length > MAX_PACKAGE_LINKS) {
+      return NextResponse.json({ error: `A quote request holds 1 to ${MAX_PACKAGE_LINKS} vehicles.` }, { status: 400 });
+    }
   }
 
   try {
@@ -58,8 +68,11 @@ export async function POST(req: Request) {
       vehicleYear: body.vehicleYear,
       vehicleMake: body.vehicleMake,
       vehicleModel: body.vehicleModel,
-      vehicleTrim: body.vehicleTrim,
-      mustHaves: body.mustHaves,
+      vehicleTrim: body.vehicleTrim || "",
+      mustHaves: packageKind === "match" ? body.mustHaves : [],
+      packageKind,
+      linkPastes: packageKind === "links" ? body.linkPastes : undefined,
+      dealReference: typeof body.dealReference === "string" ? body.dealReference : null,
     });
     recordQuoteRequest();
     return NextResponse.json({ rfq });

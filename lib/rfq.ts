@@ -58,6 +58,17 @@ export interface RfqInvite {
   invitedAt: string;
   respondedAt: string | null;
   quote: RfqQuote | null;
+  /** The named person this went to. Email is masked before it reaches the buyer. */
+  desk?: { contactName: string; role: string; emailMasked: string; source: "directory" | "buyer" } | null;
+  /** The car this desk is quoting — a link package has one per invite. */
+  vehicle?: { vin: string; year: number; make: string; model: string; trim: string; vdpUrl: string | null } | null;
+  /** Delivery leg of the audit trail: queued → sent → viewed. */
+  deliveryStatus?: "queued" | "sent" | "viewed";
+  queuedAt?: string | null;
+  sentAt?: string | null;
+  viewedAt?: string | null;
+  /** Server-to-server only; stripped before any response to a browser. */
+  viewToken?: string | null;
 }
 
 export interface RfqSpec {
@@ -77,6 +88,12 @@ export interface RfqRequest extends RfqSpec {
   status: RfqStatus;
   pickedQuoteId: string | null;
   createdAt: string;
+  /** "match" = the factory-option match flow; "links" = the v1 core loop, pasted dealer links. */
+  packageKind?: "match" | "links";
+  /** What the buyer pasted and how each resolved — only on a "links" package. */
+  linkPastes?: Array<Record<string, unknown>>;
+  /** The TS-XXXXXX number the buyer saw on the review screen. */
+  dealReference?: string | null;
 }
 
 // Logged verbatim to rfq_events on the box — no read endpoint, no
@@ -85,6 +102,9 @@ export interface RfqRequest extends RfqSpec {
 // table directly; lib/rfqLogic.ts has the pure functions for that math.
 export type RfqEventType =
   | "rfq_invited"
+  | "invite_queued"
+  | "invite_sent"
+  | "invite_viewed"
   | "quote_received"
   | "quote_incomplete"
   | "buyer_picked"
