@@ -46,10 +46,10 @@ export interface DealerContactStatus {
  * Same rule dealerEmail.ts sends by: normalized name, preferring the row in the
  * vehicle's own state when a chain shares a name across states.
  */
-export function matchDirectoryDealership(
-  directory: DirectoryDealership[],
+export function matchDirectoryDealership<T extends DirectoryDealership>(
+  directory: T[],
   query: DealerContactQuery
-): DirectoryDealership | null {
+): T | null {
   const key = normalizeDealerKey(query.dealerName || "");
   if (!key) return null;
   const matches = directory.filter((d) => normalizeDealerKey(d.dealerName || "") === key);

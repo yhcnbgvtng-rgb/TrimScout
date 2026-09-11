@@ -68,6 +68,9 @@ export async function createRfq(input: {
   vehicleModel: string;
   vehicleTrim: string;
   mustHaves: { code: string; name: string; status: "hit" }[];
+  packageKind?: "match" | "links";
+  linkPastes?: Array<Record<string, unknown>>;
+  dealReference?: string | null;
 }): Promise<RfqRequest> {
   const json = await request("POST", "/api/rfqs", input);
   return json.rfq as RfqRequest;
@@ -90,10 +93,36 @@ export async function listRfqsForBuyer(buyerUserId: string): Promise<RfqRequest[
 
 export async function createRfqInvite(
   rfqId: string,
-  input: { dealerName: string; dealerContactEmail?: string | null }
+  input: {
+    dealerName: string;
+    dealerContactEmail?: string | null;
+    desk?: { contactName: string; role: string; emailMasked: string; source: "directory" | "buyer" };
+    vehicle?: { vin: string; year: number; make: string; model: string; trim: string; vdpUrl: string | null };
+  }
 ): Promise<RfqInvite> {
   const json = await request("POST", `/api/rfqs/${rfqId}/invites`, input);
   return json.invite as RfqInvite;
+}
+
+/** Advances an invite's delivery leg. The box logs the matching audit event. */
+export async function markRfqInviteDelivery(
+  rfqId: string,
+  inviteId: string,
+  status: "sent" | "viewed"
+): Promise<RfqInvite> {
+  const json = await request("POST", `/api/rfqs/${rfqId}/invites/${inviteId}/delivery`, { status });
+  return json.invite as RfqInvite;
+}
+
+/** Resolves a tracked-link token to its invite, for the "viewed" event. */
+export async function getRfqInviteByViewToken(token: string): Promise<{ rfqId: string; invite: RfqInvite } | null> {
+  try {
+    const json = await request("GET", `/api/rfq-invites/by-token/${encodeURIComponent(token)}`);
+    return { rfqId: String(json.rfqId), invite: json.invite as RfqInvite };
+  } catch (err) {
+    if (err instanceof RfqApiError && err.status === 404) return null;
+    throw err;
+  }
 }
 
 export async function declineRfqInvite(

@@ -16,6 +16,7 @@ import {
 import type { RfqDeclineReason, RfqInvite, RfqRequest } from "@/lib/rfq";
 import { RFQ_DECLINE_REASON_LABELS } from "@/lib/rfq";
 import { isQuoteComplete, quoteMatchesLockedSpec } from "@/lib/rfqLogic";
+import { inviteStage, DESK_ROLE_LABELS, NON_BINDING_COPY } from "@/lib/quotePackage";
 import { formatFactoryOptionLine } from "@/lib/fordCompetitionUi";
 import { formatCurrency } from "@/lib/otdCalculator";
 
@@ -253,19 +254,41 @@ function InviteRow({ invite, rfq, onAction }: { invite: RfqInvite; rfq: RfqReque
     }
   };
 
+  const stage = inviteStage(invite);
   const statusChip = {
-    invited: { label: "Waiting to hear back", cls: "bg-amber-500/15 text-amber-300 border-amber-500/30" },
+    queued: { label: "Queued", cls: "bg-border text-ink-muted border-border" },
+    sent: { label: "Sent", cls: "bg-amber-500/15 text-amber-300 border-amber-500/30" },
+    viewed: { label: "Opened by dealer", cls: "bg-amber-500/15 text-amber-300 border-amber-500/30" },
     quoted: { label: "Quoted", cls: "bg-emerald-500/15 text-emerald-300 border-emerald-500/30" },
     declined: { label: "Declined", cls: "bg-rose-500/15 text-rose-300 border-rose-500/30" },
     expired: { label: "Expired", cls: "bg-border text-ink-muted border-border" },
-  }[invite.status];
+  }[stage];
+  const audit = [
+    invite.queuedAt ? `queued ${new Date(invite.queuedAt).toLocaleString()}` : null,
+    invite.sentAt ? `sent ${new Date(invite.sentAt).toLocaleString()}` : null,
+    invite.viewedAt ? `opened ${new Date(invite.viewedAt).toLocaleString()}` : null,
+    invite.respondedAt ? `replied ${new Date(invite.respondedAt).toLocaleString()}` : null,
+  ].filter(Boolean);
 
   return (
     <div className="rounded-xl border border-border bg-surface p-4 space-y-3">
       <div className="flex items-center justify-between gap-3">
-        <div>
+        <div className="min-w-0">
           <div className="text-sm font-bold text-white">{invite.dealerName}</div>
-          {invite.dealerContactEmail && <div className="text-[11px] text-ink-muted">{invite.dealerContactEmail}</div>}
+          {invite.desk ? (
+            <div className="text-[11px] text-ink-muted">
+              {invite.desk.contactName}
+              {invite.desk.role ? ` · ${(DESK_ROLE_LABELS as Record<string, string>)[invite.desk.role] || invite.desk.role}` : ""}
+              {invite.desk.emailMasked ? <span className="font-mono"> · {invite.desk.emailMasked}</span> : null}
+            </div>
+          ) : null}
+          {invite.vehicle ? (
+            <div className="text-[11px] text-ink-faint">
+              {[invite.vehicle.year, invite.vehicle.make, invite.vehicle.model, invite.vehicle.trim].filter(Boolean).join(" ")}
+              <span className="font-mono"> · {invite.vehicle.vin}</span>
+            </div>
+          ) : null}
+          {audit.length > 0 ? <div className="text-[10px] text-ink-faint">{audit.join(" · ")}</div> : null}
         </div>
         <span className={`rounded px-2 py-0.5 text-[10px] font-bold uppercase border ${statusChip.cls}`}>{statusChip.label}</span>
       </div>
@@ -426,15 +449,27 @@ export default function RfqWorkspacePage() {
         </p>
       </div>
 
-      <div className="rounded-2xl border border-border bg-surface p-5 space-y-2">
-        <p className="text-[11px] font-bold text-ink-light uppercase tracking-wide">Locked must-haves</p>
-        {rfq.mustHaves.map((m) => (
-          <div key={m.code} className="flex items-start gap-1.5 text-[11px] text-white">
-            <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 shrink-0 mt-0.5" />
-            <span>{formatFactoryOptionLine({ code: m.code, description: m.name })}</span>
-          </div>
-        ))}
-      </div>
+      {rfq.packageKind === "links" ? (
+        <div className="rounded-2xl border border-border bg-surface p-5 space-y-2">
+          <p className="text-[11px] font-bold text-ink-light uppercase tracking-wide">
+            Quote request{rfq.dealReference ? ` · ${rfq.dealReference}` : ""}
+          </p>
+          <p className="text-[11px] leading-snug text-ink-muted">{NON_BINDING_COPY}</p>
+          <p className="text-[11px] text-ink-faint">
+            {(rfq.linkPastes || []).length} vehicle{(rfq.linkPastes || []).length === 1 ? "" : "s"} in this request — each desk quotes its own car.
+          </p>
+        </div>
+      ) : (
+        <div className="rounded-2xl border border-border bg-surface p-5 space-y-2">
+          <p className="text-[11px] font-bold text-ink-light uppercase tracking-wide">Locked must-haves</p>
+          {rfq.mustHaves.map((m) => (
+            <div key={m.code} className="flex items-start gap-1.5 text-[11px] text-white">
+              <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 shrink-0 mt-0.5" />
+              <span>{formatFactoryOptionLine({ code: m.code, description: m.name })}</span>
+            </div>
+          ))}
+        </div>
+      )}
 
       {rfq.status === "picked" && (
         <div className="rounded-2xl border border-emerald-500/60 bg-emerald-950/20 p-5 text-center">
