@@ -19,6 +19,7 @@ import { listingVdpHref } from "./fordCompetitionUi";
 import { deserializeDealVehicle, serializeDealVehicle } from "./offerCompare";
 import { isResolvedState } from "./sameStateCheck";
 import { isPlausibleDealerEmail } from "./dealerContactLookup";
+import { normalizeDealReference } from "./dealReference";
 
 export function offerPathLabel(directOffer: boolean | undefined): string {
   return directOffer ? "Offer this dealer directly" : "Get prices from other dealers";
@@ -91,6 +92,8 @@ export function shopperDealStructurePayload(opts: {
    * and never treated as a confirmed contact.
    */
   buyerProvidedDealerEmails?: Record<string, string>;
+  /** The TS-XXXXXX number the buyer saw on the review screen. */
+  dealReference?: string;
 }): Record<string, unknown> {
   const loc = opts.vehicle.location;
   const dealerName = (loc?.dealerName || "").trim();
@@ -104,6 +107,7 @@ export function shopperDealStructurePayload(opts: {
     .slice(0, 2);
   const vehicleTerms = parseVehicleTermsList(opts.vehicleTerms);
   const buyerProvidedDealerEmails = sanitizeBuyerDealerEmails(opts.buyerProvidedDealerEmails);
+  const dealReference = normalizeDealReference(opts.dealReference);
   return {
     requestedStructures: opts.requestedStructures,
     financeTermMonths: opts.financeTermMonths,
@@ -124,6 +128,7 @@ export function shopperDealStructurePayload(opts: {
     ...(vehicleTerms.length ? { vehicleTerms } : {}),
     ...(opts.purchaseTimeline ? { purchaseTimeline: opts.purchaseTimeline } : {}),
     ...(buyerProvidedDealerEmails ? { buyerProvidedDealerEmails } : {}),
+    ...(dealReference ? { dealReference } : {}),
   };
 }
 
@@ -279,6 +284,8 @@ export function mapDealRequestJson(
         asNumber(ds.leaseTermMonths) ?? existing?.dealStructurePreferences?.leaseTermMonths,
       purchaseTimeline:
         asPurchaseTimeline(ds.purchaseTimeline) ?? existing?.dealStructurePreferences?.purchaseTimeline,
+      dealReference:
+        normalizeDealReference(ds.dealReference) ?? existing?.dealStructurePreferences?.dealReference,
       vehicleTerms: (() => {
         const mapped = parseVehicleTermsList(ds.vehicleTerms);
         return mapped.length ? mapped : existing?.dealStructurePreferences?.vehicleTerms;

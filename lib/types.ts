@@ -57,6 +57,8 @@ export interface DealStructurePreferences {
   vehicleTerms?: VehicleDealTerms[];
   /** When the buyer wants to close — collected at wizard Step 3. */
   purchaseTimeline?: PurchaseTimeline;
+  /** "TS-XXXXXX" — the individual deal number shown from the review step on. */
+  dealReference?: string;
 }
 
 export interface Option {
