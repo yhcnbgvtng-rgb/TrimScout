@@ -2,7 +2,8 @@
 
 import React from "react";
 import { LockedDeal } from "../lib/types";
-import { formatCurrency } from "../lib/otdCalculator";
+import { formatCurrency, getEstimatedTaxRate, getStateTaxRate } from "../lib/otdCalculator";
+import { TradeInRevisedOtd } from "./TradeInRevisedOtd";
 import {
   X,
   CircleCheck as CheckCircle2,
@@ -11,21 +12,84 @@ import {
   Download,
   Phone,
   Calendar,
-  Clock
+  Clock,
+  Car
 } from "lucide-react";
 
 interface VoucherModalProps {
   deal: LockedDeal | null;
   isOpen: boolean;
   onClose: () => void;
+  /** Opens the trade-in step. Only shown when the buyer said they have one. */
+  onAddTradeIn?: () => void;
 }
 
 export const VoucherModal: React.FC<VoucherModalProps> = ({
   deal,
   isOpen,
   onClose,
+  onAddTradeIn,
 }) => {
   if (!isOpen || !deal) return null;
+
+  // The trade-in card has three states: not sent yet (the call to action),
+  // sent and waiting on the dealer, and priced (the revised numbers).
+  const tradeInCard = deal.hasTradeIn ? (
+    deal.tradeInAppraisal && deal.tradeIn ? (
+      <div className="rounded-xl border border-emerald-500/40 bg-emerald-950/20 p-4 space-y-2">
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-400">
+            <Car className="h-4 w-4" /> Your trade-in is priced
+          </div>
+          <span className="font-mono text-sm font-black text-white">{formatCurrency(deal.tradeInAppraisal.allowance)}</span>
+        </div>
+        <p className="text-[11px] text-ink-muted">
+          {[deal.tradeIn.year, deal.tradeIn.make, deal.tradeIn.model].join(" ")} · allowance from {deal.winningBid.dealerName}
+          {deal.tradeInAppraisal.notes ? <> · &quot;{deal.tradeInAppraisal.notes}&quot;</> : null}
+        </p>
+        <div className="border-t border-border/50 pt-2">
+          <TradeInRevisedOtd
+            input={{
+              quotedOtdPrice: deal.winningBid.quotedOtdPrice,
+              taxRate: deal.buyerZip && /^\d{5}$/.test(deal.buyerZip) ? getEstimatedTaxRate(deal.buyerZip) : getStateTaxRate(deal.buyerState),
+              registrationState: deal.buyerState,
+              appraisal: { allowance: deal.tradeInAppraisal.allowance, loanPayoff: deal.tradeInAppraisal.loanPayoff },
+            }}
+          />
+        </div>
+      </div>
+    ) : deal.tradeIn ? (
+      <div className="rounded-xl border border-blue-500/30 bg-blue-950/20 p-3.5 space-y-1">
+        <div className="flex items-center gap-1.5 text-xs font-bold text-blue-300">
+          <Clock className="h-4 w-4" /> Trade-in sent — waiting on {deal.winningBid.dealerName}
+        </div>
+        <p className="text-[11px] text-ink-muted">
+          {[deal.tradeIn.year, deal.tradeIn.make, deal.tradeIn.model].join(" ")}, {deal.tradeIn.mileage.toLocaleString("en-US")} mi,{" "}
+          {deal.tradeIn.photos.length} photo{deal.tradeIn.photos.length === 1 ? "" : "s"}. We&apos;ll show your revised tax and
+          registration as soon as they price it.
+        </p>
+      </div>
+    ) : (
+      <div className="rounded-xl border border-amber-500/40 bg-amber-950/20 p-3.5 space-y-2">
+        <div className="flex items-center gap-1.5 text-xs font-bold text-amber-300">
+          <Car className="h-4 w-4" /> Next: price your trade-in
+        </div>
+        <p className="text-[11px] text-ink-muted">
+          The price above is for the new car alone. Send {deal.winningBid.dealerName} a few photos and the basics, and
+          they&apos;ll come back with an allowance — then we&apos;ll show your revised sales tax and registration.
+        </p>
+        {onAddTradeIn && (
+          <button
+            type="button"
+            onClick={onAddTradeIn}
+            className="rounded-xl bg-amber-400 px-4 py-2 text-xs font-extrabold text-black hover:bg-amber-300 transition-all active:scale-95"
+          >
+            Add photos & details →
+          </button>
+        )}
+      </div>
+    )
+  ) : null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4 overflow-y-auto">
@@ -91,6 +155,8 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
               </div>
             </div>
           </div>
+
+          {tradeInCard}
 
           {/* Live Paperwork Status & Dispatch Tracker */}
           <div className={`rounded-xl border p-3.5 space-y-1.5 ${

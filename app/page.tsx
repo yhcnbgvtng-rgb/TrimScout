@@ -19,6 +19,7 @@ import { LiveDealRoom } from "../components/LiveDealRoom";
 import { DealerPortal } from "../components/DealerPortal";
 import { FeeBreakdownModal } from "../components/FeeBreakdownModal";
 import { VoucherModal } from "../components/VoucherModal";
+import { TradeInSubmissionModal } from "../components/TradeInSubmissionModal";
 import { AuthModal } from "../components/AuthModal";
 import { DealTrackerDashboard } from "../components/DealTrackerDashboard";
 import { SignupView } from "../components/SignupView";
@@ -376,7 +377,11 @@ export default function Home() {
   // verification effect below) — certificateId comes from the deals table
   // on the box, not generated client-side, since it's now a real paid
   // record rather than a demo placeholder.
-  const finalizeLockedDeal = (certificateId: string, bid: DealerBid) => {
+  const finalizeLockedDeal = (
+    certificateId: string,
+    bid: DealerBid,
+    extra: Partial<LockedDeal> = {}
+  ) => {
     const deal: LockedDeal = {
       certificateId,
       winningBid: bid,
@@ -384,10 +389,16 @@ export default function Home() {
       expiresAt: "5 Business Days",
       paperworkStatus: "pending_dealer_upload",
       deliveryMethod: "driveway_delivery",
+      ...extra,
     };
     setLockedDeal(deal);
     setIsVoucherModalOpen(true);
   };
+
+  // The trade-in step: offered on the voucher right after payment when the
+  // buyer said they have one, and again from the voucher any time until
+  // it's been sent.
+  const [isTradeInModalOpen, setIsTradeInModalOpen] = useState(false);
 
   // Auth.js redirects here with ?error=... when a sign-in attempt fails
   // server-side (e.g. Google OAuth completes its consent screen but the
@@ -431,7 +442,14 @@ export default function Home() {
         const json = await res.json();
         if (cancelled) return;
         if (res.ok && json.deal?.status === "paid") {
-          finalizeLockedDeal(json.deal.certificateId, json.deal.winningBid as DealerBid);
+          finalizeLockedDeal(json.deal.certificateId, json.deal.winningBid as DealerBid, {
+            dealId: String(json.deal.id),
+            hasTradeIn: Boolean(json.hasTradeIn),
+            tradeIn: json.deal.tradeIn ?? null,
+            tradeInAppraisal: json.deal.tradeInAppraisal ?? null,
+            buyerState: json.buyerState ?? null,
+            buyerZip: json.buyerZip ?? null,
+          });
           return;
         }
         // The Stripe webhook can land a beat after the redirect — retry
@@ -664,7 +682,21 @@ export default function Home() {
         deal={lockedDeal}
         isOpen={isVoucherModalOpen}
         onClose={() => setIsVoucherModalOpen(false)}
+        onAddTradeIn={() => setIsTradeInModalOpen(true)}
       />
+
+      {lockedDeal?.dealId && (
+        <TradeInSubmissionModal
+          isOpen={isTradeInModalOpen}
+          dealId={lockedDeal.dealId}
+          dealerName={lockedDeal.winningBid.dealerName}
+          onClose={() => setIsTradeInModalOpen(false)}
+          onSubmitted={(tradeIn) => {
+            setLockedDeal((current) => (current ? { ...current, tradeIn, tradeInAppraisal: null } : current));
+            setIsTradeInModalOpen(false);
+          }}
+        />
+      )}
 
       {/* Authentication Modal */}
       <AuthModal

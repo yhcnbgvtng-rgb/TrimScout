@@ -136,6 +136,44 @@ export interface TradeInPhoto {
   imageUrl: string;
 }
 
+/** The angles a buyer is asked for, in the order they're asked. */
+export const TRADE_IN_PHOTO_ANGLES: ReadonlyArray<{ angle: TradeInPhoto["angle"]; label: string; hint: string }> = [
+  { angle: "front_angle", label: "Front three-quarter", hint: "Front and driver's side in one shot" },
+  { angle: "rear_angle", label: "Rear three-quarter", hint: "Rear and passenger side" },
+  { angle: "interior_odometer", label: "Odometer", hint: "Dash with the car on, mileage readable" },
+  { angle: "tires_wheels", label: "Tires and wheels", hint: "One wheel up close" },
+  { angle: "damage_cosmetic", label: "Any damage", hint: "Dents, scratches, curb rash — or skip if none" },
+];
+
+/**
+ * What the buyer submits about their trade-in once an offer is accepted.
+ * Photos are stored as data URLs (client-compressed JPEG) on the deal row, the
+ * same way the sales contract is — no separate object store.
+ */
+export interface TradeInSubmission {
+  year: number;
+  make: string;
+  model: string;
+  trim: string;
+  mileage: number;
+  vin?: string;
+  condition: TradeInVehicle["condition"];
+  loanPayoff: number;
+  notes?: string;
+  photos: TradeInPhoto[];
+  submittedAt: string;
+}
+
+/** The dealer's answer. */
+export interface TradeInAppraisalRecord {
+  allowance: number;
+  /** What the dealer will pay off on the buyer's behalf, taken from the allowance. */
+  loanPayoff: number;
+  notes?: string;
+  appraisedAt: string;
+  appraisedBy: string;
+}
+
 export interface TradeInVehicle {
   hasTradeIn: boolean;
   year: number;
@@ -307,6 +345,15 @@ export interface LockedDeal {
   uploadedAt?: string;
   deliveryMethod?: "driveway_delivery" | "express_pickup";
   deliveryScheduledDate?: string;
+  /** The deals-table id, for the trade-in and paperwork routes. */
+  dealId?: string;
+  /** Whether the buyer told us on step 1 that they have a car to trade. */
+  hasTradeIn?: boolean;
+  tradeIn?: TradeInSubmission | null;
+  tradeInAppraisal?: TradeInAppraisalRecord | null;
+  /** The buyer's registration state and ZIP, for the revised tax estimate. */
+  buyerState?: string | null;
+  buyerZip?: string | null;
 }
 
 export interface UserProfile {

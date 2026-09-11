@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { UserProfile, DealerBid, LockedDeal, TradeInVehicle, DealerInboundRequest } from "../lib/types";
 import type { DealerWonDeal } from "../lib/dealsApi";
 import type { ContractVerificationResult } from "../lib/contractVerification";
+import { TradeInAppraisalPanel } from "./TradeInAppraisalPanel";
 import { formatCurrency, calculateOtd } from "../lib/otdCalculator";
 import {
   Building2,
@@ -902,6 +903,23 @@ export const DealerPortal: React.FC<DealerPortalProps> = ({
                   bid — never the other way around. Pricing decisions always come from the bid on file, never from
                   the AI's read of the document.
                 </p>
+
+                {/* The buyer's trade-in, once they've sent it. Priced here;
+                    the preview is the exact breakdown the buyer will see. */}
+                {wd.tradeIn && (
+                  <TradeInAppraisalPanel
+                    dealId={dealId}
+                    tradeIn={wd.tradeIn}
+                    appraisal={wd.tradeInAppraisal}
+                    quotedOtdPrice={wd.bid.quotedOtdPrice}
+                    buyerState={wd.buyerState}
+                    onAppraised={(appraisal) =>
+                      setRealWonDeals((current) =>
+                        current.map((d) => (d.dealId === dealId ? { ...d, tradeInAppraisal: appraisal } : d))
+                      )
+                    }
+                  />
+                )}
               </div>
             );
           })}

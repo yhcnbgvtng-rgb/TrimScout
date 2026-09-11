@@ -265,6 +265,16 @@ export function getStatesWithinRadius(zipCode: string, radiusMiles: number): str
   return matches;
 }
 
+/**
+ * The combined sales-tax rate for a state alone, for when the buyer's ZIP is
+ * withheld (the dealer-facing trade-in preview) but their state is known.
+ * Falls back to the same 8% the ZIP path uses for an unmapped region.
+ */
+export function getStateTaxRate(state: string | null | undefined): number {
+  const code = (state || "").trim().toUpperCase();
+  return STATE_TAX_RATES[code] ?? 0.08;
+}
+
 export function getEstimatedTaxRate(zipCode: string = "94107"): number {
   return getZipCoordinates(zipCode).taxRate;
 }
