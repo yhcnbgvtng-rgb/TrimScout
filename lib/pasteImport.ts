@@ -44,7 +44,7 @@ import {
   looksLikeVolvoPaste,
   pastedVinCandidate,
 } from "./oemWmi";
-import type { Vehicle } from "./types";
+import type { Vehicle, BuildConfidence } from "./types";
 
 export type FactoryBuildOem =
   | "ford"
@@ -244,6 +244,83 @@ function endpointForVin(vin: string): FactoryBuildEndpoint | null {
   return null;
 }
 
+/** The most a package holds: one primary and two alternates. */
+export const MAX_PACKAGE_VEHICLES = 3;
+
+/**
+ * Hosts that are never a dealer's vehicle page. Not a security list — the
+ * server has its own SSRF guard — just the places people paste by mistake,
+ * so they get "that's not a listing" instead of "couldn't read a VIN".
+ */
+const NON_LISTING_HOSTS = [
+  "google.com", "google.", "bing.com", "duckduckgo.com",
+  "facebook.com", "instagram.com", "tiktok.com", "youtube.com", "youtu.be",
+  "twitter.com", "x.com", "reddit.com", "linkedin.com", "pinterest.com",
+  "wikipedia.org", "amazon.com", "ebay.com", "craigslist.org",
+  "apple.com", "microsoft.com", "netflix.com",
+];
+
+export type PasteKind =
+  | { kind: "vin"; vin: string }
+  | { kind: "url"; url: URL }
+  | { kind: "invalid"; reason: "invalid_input" | "unsupported_host"; error: string };
+
+export function classifyPaste(raw: string): PasteKind {
+  const trimmed = (raw || "").trim();
+  if (!trimmed) {
+    return { kind: "invalid", reason: "invalid_input", error: "Paste a 17-character VIN or the link to a dealer's vehicle page." };
+  }
+  const vin = pastedVinCandidate(trimmed);
+  if (vin && trimmed.length <= 24 && /^[A-HJ-NPR-Z0-9\s-]*$/i.test(trimmed)) {
+    return { kind: "vin", vin };
+  }
+  if (/^https?:\/\//i.test(trimmed) || /^[a-z0-9.-]+\.[a-z]{2,}(\/|$)/i.test(trimmed)) {
+    let url: URL;
+    try {
+      url = new URL(/^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`);
+    } catch {
+      return { kind: "invalid", reason: "invalid_input", error: "That link isn't a valid web address. Copy it again from the browser's address bar." };
+    }
+    if (url.protocol !== "http:" && url.protocol !== "https:") {
+      return { kind: "invalid", reason: "invalid_input", error: "That link isn't a valid web address. Copy it again from the browser's address bar." };
+    }
+    const host = url.hostname.toLowerCase().replace(/^www\./, "");
+    if (NON_LISTING_HOSTS.some((h) => host === h || host.endsWith(`.${h}`) || (h.endsWith(".") && host.startsWith(h)))) {
+      return {
+        kind: "invalid",
+        reason: "unsupported_host",
+        error: `${host} isn't a dealer listing. Open the car's page on the dealership's own website and paste that link, or paste the 17-character VIN.`,
+      };
+    }
+    return { kind: "url", url };
+  }
+  if (vin) return { kind: "vin", vin };
+  return {
+    kind: "invalid",
+    reason: "invalid_input",
+    error: "That's not a VIN or a link. Paste the 17-character VIN, or the link to the car's page on the dealer's site.",
+  };
+}
+
+/** True when this VIN is already in the package. */
+export function isDuplicateVehicle(vin: string | null | undefined, existing: Array<{ vin?: string } | null | undefined>): boolean {
+  const want = (vin || "").trim().toUpperCase();
+  if (want.length !== 17) return false;
+  return existing.some((v) => (v?.vin || "").trim().toUpperCase() === want);
+}
+
+/**
+ * Turns a server-side error message into a reason. The routes predate the
+ * reason codes and only speak in prose, so this reads the prose.
+ */
+function reasonFromServerError(message: string, json: Record<string, unknown>): PasteImportFailureReason {
+  if (json.dealerBlocked) return "blocked";
+  if (/blocked/i.test(message)) return "blocked";
+  if (/could not (read|find) a .*vin|17-character vin/i.test(message)) return "no_vin";
+  if (/doesn't check out|check digit|couldn't read enough/i.test(message)) return "not_found";
+  return "not_found";
+}
+
 export function factoryBuildUnavailableError(vin: string | null | undefined): string {
   const named = (vin || "").trim().toUpperCase();
   if (named.length === 17) {
@@ -315,6 +392,17 @@ export function acceptImportedVehicle<T extends { vin?: string }>(
   return vehicle;
 }
 
+/**
+ * A vehicle the buyer can actually be shown. "0 Ford F-150" — a released
+ * sticker whose year the parser missed — used to sail through
+ * acceptImportedVehicle because only the VIN was checked.
+ */
+export function hasUsableVehicleBasics(vehicle: { year?: number; make?: string } | null | undefined): boolean {
+  if (!vehicle) return false;
+  const year = Number(vehicle.year);
+  return Number.isInteger(year) && year >= 1980 && year <= new Date().getFullYear() + 2 && Boolean((vehicle.make || "").trim());
+}
+
 export type FactoryFilterableOption = {
   name: string;
   code?: string | null;
@@ -338,11 +426,37 @@ export type PasteImportSuccess = {
    * must-have option matching on it, but the car itself is real.
    */
   factoryBuildUnavailable?: boolean;
+  /** "verified_factory" when a real sticker/build sheet was read; otherwise "dealer_listing_only". */
+  buildConfidence: BuildConfidence;
 };
+
+/**
+ * Why a paste didn't produce a vehicle. Every failure carries one, so the
+ * UI can say what actually went wrong instead of a generic "couldn't read".
+ *
+ *   invalid_input    — not a VIN and not a URL
+ *   unsupported_host — a URL to something that isn't a dealer listing
+ *   blocked          — the dealer site refused our fetch
+ *   no_vin           — page fetched, no VIN on it or in the URL
+ *   not_found        — VIN read, but no vehicle could be built from it
+ *   parse_failed     — a vehicle came back missing the basics (year/make)
+ *   duplicate        — already in the package
+ *   network          — the lookup itself failed
+ */
+export type PasteImportFailureReason =
+  | "invalid_input"
+  | "unsupported_host"
+  | "blocked"
+  | "no_vin"
+  | "not_found"
+  | "parse_failed"
+  | "duplicate"
+  | "network";
 
 export type PasteImportFailure = {
   ok: false;
   error: string;
+  reason: PasteImportFailureReason;
   unreleased?: boolean;
   oem?: FactoryBuildOem;
   pdfUrl?: string | null;
@@ -359,29 +473,32 @@ function interpretFactoryBuildJson(
   const sticker = json.sticker as { status?: string; pdfUrl?: string; msrp?: number } | undefined;
   const responseVin =
     (typeof json.vin === "string" && json.vin.trim().toUpperCase()) || pastedVin || null;
+  // An unreleased sticker's pdfUrl is the address we *tried*, not a document
+  // — offering it as "Factory build" on an unconfirmed car sends the buyer to
+  // a "not yet released" page. Only a released sticker has a sheet to link.
   const pdfUrl =
-    (typeof json.pdfUrl === "string" && json.pdfUrl) || sticker?.pdfUrl || null;
+    (typeof json.pdfUrl === "string" && json.pdfUrl) ||
+    (sticker?.status === "released" ? sticker.pdfUrl : null) ||
+    null;
 
   if (!ok) {
+    const serverError = typeof json.error === "string" ? json.error : "";
     return {
       ok: false,
-      error: factoryBuildFailedError(
-        responseVin,
-        typeof json.error === "string" ? json.error : undefined
-      ),
+      reason: reasonFromServerError(serverError, json),
+      error: factoryBuildFailedError(responseVin, serverError || undefined),
     };
   }
 
   const matched = acceptImportedVehicle(json.vehicle as Vehicle | null, responseVin);
 
-  // "unreleased" means there's no factory build to show. For an OEM sticker
-  // that's a dead end — there is no vehicle either. For the free-decode path it
-  // isn't: the route still returns a real car from the VIN and the listing page,
-  // and only the option list is missing. So this fails the import only when
-  // nothing came back with it.
+  // Every route now returns a vehicle when it has a VIN — an unreleased
+  // sticker imports on the free path rather than as vehicle: null. So an
+  // unreleased status with no vehicle means the free path itself failed.
   if (sticker?.status === "unreleased" && !matched) {
     return {
       ok: false,
+      reason: "not_found",
       error: factoryBuildUnreleasedError(responseVin),
       unreleased: true,
       oem,
@@ -392,6 +509,7 @@ function interpretFactoryBuildJson(
   if (!matched) {
     return {
       ok: false,
+      reason: "not_found",
       error: factoryBuildFailedError(
         responseVin,
         typeof json.error === "string" ? json.error : undefined
@@ -399,9 +517,27 @@ function interpretFactoryBuildJson(
     };
   }
 
+  // A vehicle with no year or make is a parser miss, not a car — never show
+  // "0 Ford F-150" as though it were one.
+  if (!hasUsableVehicleBasics(matched)) {
+    return {
+      ok: false,
+      reason: "parse_failed",
+      error: `We found VIN ${matched.vin} but couldn't read the vehicle's details from that page. Paste the 17-character VIN by itself, or try the listing's main page.`,
+    };
+  }
+
+  const buildConfidence: BuildConfidence =
+    json.buildConfidence === "verified_factory"
+      ? "verified_factory"
+      : json.buildConfidence === "dealer_listing_only" || sticker?.status === "unreleased"
+        ? "dealer_listing_only"
+        : matched.buildConfidence || "verified_factory";
+
   return {
     ok: true,
-    vehicle: matched,
+    vehicle: { ...matched, buildConfidence },
+    buildConfidence,
     oem,
     pdfUrl: pdfUrl || matched.oemBuildSheetUrl || null,
     msrp: typeof sticker?.msrp === "number" && sticker.msrp > 0 ? sticker.msrp : null,
@@ -424,13 +560,24 @@ function interpretFactoryBuildJson(
  */
 export async function importPastedFactoryVehicle(
   paste: string,
-  fetchImpl: typeof fetch = fetch
+  fetchImpl: typeof fetch = fetch,
+  options: { existingVehicles?: Array<{ vin?: string } | null | undefined> } = {}
 ): Promise<PasteImportResult> {
   const raw = paste.trim();
-  if (!raw) {
-    return { ok: false, error: "Paste a 17-character VIN or dealer listing URL." };
+
+  // Say what's wrong before spending a network round-trip on it.
+  const kind = classifyPaste(raw);
+  if (kind.kind === "invalid") {
+    return { ok: false, reason: kind.reason, error: kind.error };
   }
   const pastedVin = pastedVinCandidate(raw);
+  if (options.existingVehicles && isDuplicateVehicle(pastedVin, options.existingVehicles)) {
+    return {
+      ok: false,
+      reason: "duplicate",
+      error: `VIN ${pastedVin} is already in your package. Paste a different vehicle.`,
+    };
+  }
 
   try {
     const endpoint = preferredFactoryBuildEndpoint(raw) || "/api/ford-sticker";
@@ -444,11 +591,20 @@ export async function importPastedFactoryVehicle(
       typeof json.vin === "string" ? json.vin.trim().toUpperCase() : pastedVin;
 
     if (json.needsVin || json.dealerBlocked) {
+      const message =
+        (typeof json.error === "string" && json.error) ||
+        "Could not read a VIN from that page. Paste the 17-character VIN.";
+      return { ok: false, reason: reasonFromServerError(message, json), error: message };
+    }
+
+    // A URL with no VIN in it only reveals its VIN once the first route has
+    // read the page — so the duplicate check has to run again here, before
+    // any retry spends a second round-trip on a car already in the package.
+    if (jsonVin && options.existingVehicles && isDuplicateVehicle(jsonVin, options.existingVehicles)) {
       return {
         ok: false,
-        error:
-          (typeof json.error === "string" && json.error) ||
-          "Could not read a VIN from that page. Paste the 17-character VIN.",
+        reason: "duplicate",
+        error: `VIN ${jsonVin} is already in your package. Paste a different vehicle.`,
       };
     }
 
@@ -465,11 +621,11 @@ export async function importPastedFactoryVehicle(
         const retryJson = (await retryRes.json().catch(() => ({}))) as Record<string, unknown>;
         return interpretFactoryBuildJson(retryJson, retryRes.ok, OEM_BY_ENDPOINT[retryEndpoint], jsonVin);
       }
-      return { ok: false, error: factoryBuildUnavailableError(jsonVin || pastedVin) };
+      return { ok: false, reason: "not_found", error: factoryBuildUnavailableError(jsonVin || pastedVin) };
     }
 
     return interpretFactoryBuildJson(json, res.ok, triedOem, jsonVin || pastedVin);
   } catch (err: unknown) {
-    return { ok: false, error: err instanceof Error ? err.message : "Lookup failed" };
+    return { ok: false, reason: "network", error: err instanceof Error ? err.message : "Lookup failed" };
   }
 }

@@ -1,5 +1,8 @@
 import { importPastedFactoryVehicle } from "../../lib/pasteImport";
-import { extractVinFromDealerPage } from "../../lib/fordSticker";
-const url = process.argv[2] || "https://www.loubachrodtbmw.com/new-Rockford-2026-BMW-X3-30+xDrive-5UX53GP01T9190742";
-const page = await extractVinFromDealerPage(url);
-console.log("page fetch:", JSON.stringify({ status: page.httpStatus, blocked: page.blocked, vin: page.vin, price: page.listingPrice, dealer: page.dealer }));
+const url = process.argv[2];
+if (!url) { console.error("usage: npx tsx scripts/probes/one-url.mts <url-or-vin>"); process.exit(1); }
+const localFetch: typeof fetch = (input, init) =>
+  fetch(typeof input === "string" && input.startsWith("/") ? "http://localhost:3000" + input : input, init);
+const r: any = await importPastedFactoryVehicle(url, localFetch);
+if (!r.ok) { console.log("FAIL:", r.reason ?? "(no reason)", "—", r.error); }
+else { const v = r.vehicle; console.log(`OK: "${[v.year, v.make, v.model, v.trim].filter(Boolean).join(" ")}" vin=${v.vin} dealer=${v.location?.dealerName || "(none)"} confidence=${r.buildConfidence}`); }

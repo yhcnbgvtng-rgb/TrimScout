@@ -241,7 +241,12 @@ describe("importPastedFactoryVehicle for a Porsche VIN", () => {
       if (url === "/api/porsche-sticker") {
         return new Response(JSON.stringify({ handled: false, notPorsche: true, vin: fordVin }), { status: 200 });
       }
-      return new Response(JSON.stringify({ handled: true, vin: fordVin, sticker: { status: "released" }, vehicle: { vin: fordVin } }), { status: 200 });
+      // A real route never returns a bare { vin } — the import now refuses a
+      // vehicle with no year or make (that's how "0 Ford F-150" shipped).
+      return new Response(
+        JSON.stringify({ handled: true, vin: fordVin, sticker: { status: "released" }, vehicle: { vin: fordVin, year: 2026, make: "Ford", model: "Explorer" } }),
+        { status: 200 }
+      );
     }) as typeof fetch;
     const result = await importPastedFactoryVehicle(fordVin, fetchImpl);
     assert.equal(hits[0], "/api/ford-sticker", "Ford VIN never goes to Porsche in the first place");

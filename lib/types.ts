@@ -106,7 +106,16 @@ export interface Vehicle {
   dealerUrl?: string;
   porscheCode?: string;
   oemBuildSheetUrl?: string;
+  /**
+   * How much we can vouch for the build. "verified_factory" means a real
+   * window sticker or factory build sheet was read; "dealer_listing_only"
+   * means the car came from a VIN decode and the dealer's page, with no
+   * option list we've checked.
+   */
+  buildConfidence?: BuildConfidence;
 }
+
+export type BuildConfidence = "verified_factory" | "dealer_listing_only";
 
 export interface FlexibleCriteria {
   make: string;

@@ -17,8 +17,7 @@ import {
 } from "./listingFeedBuild";
 import { factoryBuildFailedError, factoryBuildUnavailableError } from "./pasteImport";
 import { guardPaidDecode, isPaidVinDecodeEnabled, MARKETCHECK_CALL_COST_USD } from "./apiSpendGuard";
-import { decodeVinFromNhtsa } from "./vinDecoder";
-import { freeVinImportVehicle, isUsableFreeImport, hasVinIntegrityError } from "./freeVinImport";
+import { buildFreeImport } from "./freeVinImportServer";
 import type { DealerPageIdentity } from "./dealerPageIdentity";
 
 export interface ListingFeedRouteConfig {
@@ -44,52 +43,15 @@ function vinPasteError(message: string, extra?: { dealerBlocked?: boolean; vin?:
 export function createListingFeedStickerHandlers(config: ListingFeedRouteConfig) {
   const { make, looksLikePaste, notFlag } = config;
 
-  /**
-   * A vehicle built from only free sources: the VIN read off the pasted page,
-   * NHTSA's public decoder, the dealership the page names about itself, and its
-   * advertised price. No factory option list, so must-haves aren't offered —
-   * but the car and its dealership still reach the offer package, which is the
-   * part the buyer actually needs.
-   */
+  /** See lib/freeVinImportServer.ts — shared with the window-sticker routes. */
   async function freeImportResponse(
     vin: string,
     pasteUrl: string | null,
     resolved: { listingPrice?: number | null; dealer?: DealerPageIdentity }
   ) {
-    const listingUrl = pasteUrl && /^https?:\/\//i.test(pasteUrl) ? pasteUrl.trim() : null;
-    const decoded = await decodeVinFromNhtsa(vin).catch(() => null);
-    const vehicle = freeVinImportVehicle({
-      vin,
-      decoded,
-      dealer: resolved.dealer,
-      listingPrice: resolved.listingPrice ?? null,
-      listingUrl,
-      fallbackMake: make.label,
-    });
-
-    if (!isUsableFreeImport(vehicle, decoded)) {
-      return vinPasteError(
-        hasVinIntegrityError(decoded)
-          ? `That VIN doesn't check out — ${vin} fails its own check digit, so it isn't a valid ${make.label} VIN. Copy it again from the listing.`
-          : `We couldn't read enough about that ${make.label} to add it. Check the VIN and try again.`,
-        { vin }
-      );
-    }
-
-    return NextResponse.json({
-      handled: true,
-      vin,
-      // "unreleased" is the shared contract's way of saying there is no factory
-      // build to show, and the wizard already hides the must-have picker on it.
-      // Deliberately carries no `error`: the import succeeded.
-      sticker: { status: "unreleased", pdfUrl: null, msrp: null, source: "free_decode" },
-      vehicle,
-      listingPrice: vehicle.dealerPrice > 0 ? vehicle.dealerPrice : null,
-      mustHaveLines: [],
-      niceToHaveLines: [],
-      filterableOptions: [],
-      pdfUrl: null,
-    });
+    const free = await buildFreeImport({ vin, pasteUrl, source: resolved, makeLabel: make.label });
+    if (!free.ok) return vinPasteError(free.error, { vin });
+    return NextResponse.json(free.payload);
   }
 
   async function lookup(opts: { vin?: string; paste?: string; pasteUrl: string | null; request: Request }) {
@@ -191,7 +153,8 @@ export function createListingFeedStickerHandlers(config: ListingFeedRouteConfig)
         // for these makes — status "released" means the live build was found.
         sticker: { status: "released", pdfUrl: null, msrp: build.msrp, source: "dealer_listing_feed" },
         build,
-        vehicle: buildToVehicle(make.key, build, listingUrl),
+        vehicle: { ...buildToVehicle(make.key, build, listingUrl), buildConfidence: "verified_factory" as const },
+        buildConfidence: "verified_factory",
         listingPrice,
         mustHaveLines,
         niceToHaveLines,
