@@ -45,7 +45,7 @@ export const BidProgramIntro: React.FC<BidProgramIntroProps> = ({
             className="flex items-center gap-2 rounded-xl bg-emerald-500 px-8 py-3.5 font-extrabold text-sm text-black hover:bg-emerald-400 transition-all shadow-xl shadow-emerald-500/20 active:scale-95"
           >
             <Zap className="h-4 w-4 fill-black" />
-            <span>Structure Your Deal</span>
+            <span>Request a Quote</span>
             <ArrowRight className="h-4 w-4 stroke-[2.5]" />
           </button>
         </div>
@@ -159,14 +159,27 @@ export const BidProgramIntro: React.FC<BidProgramIntroProps> = ({
           <p className="text-xs text-ink-muted">No hidden fees. No percentage cut of your savings.</p>
         </div>
 
-        <div className="rounded-2xl border-2 border-emerald-500 bg-surface p-5 space-y-2 max-w-xl mx-auto text-center">
-          <div className="flex items-center justify-center gap-2 text-sm font-extrabold text-white">
-            <CheckCircle2 className="h-4 w-4 text-emerald-400" />
-            <span>Matching and requesting a quote is free.</span>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-3xl mx-auto">
+          <div className="rounded-2xl border-2 border-emerald-500 bg-surface p-5 space-y-2 text-center">
+            <div className="flex items-center justify-center gap-2 text-sm font-extrabold text-white">
+              <CheckCircle2 className="h-4 w-4 text-emerald-400" />
+              <span>Requesting and comparing quotes is free.</span>
+            </div>
+            <p className="text-xs text-ink-muted leading-relaxed">
+              No cost to identify the car, send the request, or see every quote that comes back. Take the best one
+              straight to the dealer if you like — nothing owed to us.
+            </p>
           </div>
-          <p className="text-xs text-ink-muted leading-relaxed">
-            No cost to build your shortlist or send a request. We&apos;ll be upfront here the moment that changes.
-          </p>
+          <div className="rounded-2xl border border-border bg-surface p-5 space-y-2 text-center">
+            <div className="flex items-center justify-center gap-2 text-sm font-extrabold text-white">
+              <span>Deal Certificate — $299, optional</span>
+            </div>
+            <p className="text-xs text-ink-muted leading-relaxed">
+              If you pick a quote through TrimScout, a flat fee holds the dealer to that out-the-door price and
+              unlocks your voucher, paperwork verification, and trade-in appraisal. Shown before you pay, never
+              a percentage of your savings.
+            </p>
+          </div>
         </div>
       </div>
 
@@ -209,7 +222,7 @@ export const BidProgramIntro: React.FC<BidProgramIntroProps> = ({
           className="inline-flex items-center gap-2 rounded-xl bg-emerald-500 px-8 py-3.5 font-extrabold text-sm text-black hover:bg-emerald-400 transition-all shadow-xl shadow-emerald-500/20 active:scale-95"
         >
           <Zap className="h-4 w-4 fill-black" />
-          <span>Structure Your Deal</span>
+          <span>Request a Quote</span>
           <ArrowRight className="h-4 w-4 stroke-[2.5]" />
         </button>
       </div>

@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { DealerBid, UserProfile } from "../lib/types";
 import { formatCurrency, formatPercent } from "../lib/otdCalculator";
-import { PLATFORM_FEE_CENTS } from "../lib/pricing";
+import { PLATFORM_FEE_CENTS, DEAL_CERTIFICATE_NAME } from "../lib/pricing";
 import {
   X,
   ShieldCheck,
@@ -78,7 +78,7 @@ export const FeeBreakdownModal: React.FC<FeeBreakdownModalProps> = ({
               <FileText className="h-4 w-4" />
             </div>
             <div>
-              <h2 className="text-sm font-bold text-white">Itemized Out-The-Door (OTD) Invoice</h2>
+              <h2 className="text-sm font-bold text-white">This quote, itemized</h2>
               <p className="text-xs text-ink-muted">
                 {bid.dealerName}
                 {bid.matchedVin && ` • VIN #${bid.matchedVin.slice(-6)}`}
@@ -180,18 +180,24 @@ export const FeeBreakdownModal: React.FC<FeeBreakdownModalProps> = ({
             <span>Protected by TrimScout $500 Price Protection Policy against dealer markup.</span>
           </div>
 
-          {/* Platform Fee — separate from the OTD price above, which is paid
-              to the dealer directly at signing/delivery. */}
-          <div className="rounded-xl border border-border bg-surface-elevated p-3 space-y-1">
-            <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold text-white">TrimScout Deal Lock-In Fee</span>
+          {/* The one paid step, stated as a separate product so it can't read
+              as a condition of the free quote. Everything above is the dealer's
+              number, paid to the dealer; this is TrimScout's, paid to TrimScout. */}
+          <div className="rounded-xl border border-emerald-500/40 bg-emerald-950/20 p-3.5 space-y-1.5">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <div className="text-[10px] font-bold uppercase tracking-wide text-emerald-400">Optional paid step</div>
+                <div className="text-xs font-bold text-white">{DEAL_CERTIFICATE_NAME}</div>
+              </div>
               <span className="font-mono font-bold text-white text-sm">
-                {formatCurrency(PLATFORM_FEE_CENTS / 100)}
+                {formatCurrency(PLATFORM_FEE_CENTS / 100)} flat
               </span>
             </div>
-            <p className="text-[10px] text-ink-faint leading-relaxed">
-              Charged now to lock this price with {bid.dealerName} and hold them to it. Paid to TrimScout, separate
-              from the vehicle price/taxes/fees above, which are paid to the dealer at signing.
+            <p className="text-[11px] text-ink-muted leading-relaxed">
+              Requesting and comparing quotes is free, and you can take this quote to {bid.dealerName} yourself at no
+              charge. Picking it through TrimScout buys the Deal Certificate: it holds {bid.dealerName} to the
+              out-the-door price above, and unlocks your voucher, paperwork verification, and trade-in appraisal.
+              Paid to TrimScout — separate from the vehicle price, taxes, and fees, which go to the dealer at signing.
             </p>
           </div>
 
@@ -209,7 +215,7 @@ export const FeeBreakdownModal: React.FC<FeeBreakdownModalProps> = ({
             disabled={isSubmitting}
             className="rounded-lg border border-border px-4 py-2 text-xs font-semibold text-ink-light hover:bg-border transition-colors disabled:opacity-50"
           >
-            Close
+            Not now
           </button>
           <button
             onClick={handleLockIn}
@@ -222,7 +228,7 @@ export const FeeBreakdownModal: React.FC<FeeBreakdownModalProps> = ({
               </>
             ) : (
               <>
-                <Lock className="h-3.5 w-3.5" /> Lock In This Deal — Pay {formatCurrency(PLATFORM_FEE_CENTS / 100)}
+                <Lock className="h-3.5 w-3.5" /> Get the Deal Certificate — {formatCurrency(PLATFORM_FEE_CENTS / 100)}
               </>
             )}
           </button>

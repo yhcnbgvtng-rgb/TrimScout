@@ -50,16 +50,16 @@ export const DealTrackerDashboard: React.FC<DealTrackerDashboardProps> = ({
             <Car className="h-7 w-7" />
           </div>
           <div className="space-y-1">
-            <h3 className="text-base font-bold text-white">No Active Deal Yet</h3>
+            <h3 className="text-base font-bold text-white">No quote requests yet</h3>
             <p className="text-xs text-ink-muted max-w-md mx-auto">
-              You don&apos;t have an active deal request running right now. Choose a car to let dealerships compete for your business.
+              Paste a dealer&apos;s listing for the car you want and we&apos;ll send the dealership an anonymized quote request. Quotes show up here.
             </p>
           </div>
           <button
             onClick={onStartNewBid}
             className="inline-flex items-center gap-2 rounded-xl bg-emerald-500 px-5 py-2.5 text-xs font-black text-black hover:bg-emerald-400 shadow-md shadow-emerald-500/20 transition-all"
           >
-            <Zap className="h-4 w-4 fill-black" /> Structure Your Deal
+            <Zap className="h-4 w-4 fill-black" /> Request a quote
           </button>
         </div>
       ) : (
@@ -88,9 +88,9 @@ export const DealTrackerDashboard: React.FC<DealTrackerDashboardProps> = ({
             // saying different things. Closed beats everything; a leading
             // bid means the deal is actively live; otherwise we're waiting.
             const waitingLabel = req.directOffer
-              ? `Waiting for ${reviewTarget?.dealerName || "this dealer"} to respond`
-              : "Waiting for first dealer OTD";
-            const statusLabel = isClosed ? "Closed" : leading ? "LIVE" : waitingLabel;
+              ? `Waiting on ${reviewTarget?.dealerName || "the dealer"} to quote`
+              : "Waiting on dealer quotes";
+            const statusLabel = isClosed ? "Closed" : leading ? "Quotes in" : waitingLabel;
             const statusTone = isClosed ? "closed" : leading ? "live" : "waiting";
 
             const termsOpen = termsOpenById[req.id] ?? false;
@@ -135,10 +135,7 @@ export const DealTrackerDashboard: React.FC<DealTrackerDashboardProps> = ({
                     <span className="text-ink-muted">{dealerCount} dealer{dealerCount === 1 ? "" : "s"}</span>
                     <span className="text-ink-faint">·</span>
                     {statusTone === "live" ? (
-                      <span className="inline-flex items-center gap-1.5 font-bold text-emerald-400">
-                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                        LIVE
-                      </span>
+                      <span className="font-bold text-emerald-400">{statusLabel}</span>
                     ) : (
                       <span className={statusTone === "closed" ? "text-ink-faint font-semibold" : "text-ink-muted"}>
                         {statusLabel}
@@ -191,7 +188,7 @@ export const DealTrackerDashboard: React.FC<DealTrackerDashboardProps> = ({
                           onClick={() => onOpenLiveDealRoom(req)}
                           className="flex items-center gap-1.5 rounded-xl bg-emerald-500 px-4 py-2.5 text-xs font-black text-black hover:bg-emerald-400 transition-all shadow-md shadow-emerald-500/20 active:scale-95"
                         >
-                          <span>{req.directOffer ? "View offer" : "Open Live Deal Room"}</span>
+                          <span>{req.directOffer ? "View quote" : "Compare quotes"}</span>
                           <ArrowRight className="h-3.5 w-3.5 stroke-[2.5]" />
                         </button>
                       </div>
@@ -291,7 +288,7 @@ export const DealTrackerDashboard: React.FC<DealTrackerDashboardProps> = ({
                       onClick={() => onOpenLiveDealRoom(req)}
                       className="flex items-center gap-1 text-emerald-400 hover:text-emerald-300 font-bold"
                     >
-                      <span>{req.directOffer ? "View offer" : "Open Live Deal Room"}</span>
+                      <span>{req.directOffer ? "View quote" : "Compare quotes"}</span>
                       <ChevronRight className="h-4 w-4" />
                     </button>
                   )}

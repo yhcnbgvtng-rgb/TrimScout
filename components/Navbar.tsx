@@ -107,7 +107,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           })}
         </nav>
 
-        {/* Right Actions: User Profile / Login Button + Bid Out CTA */}
+        {/* Right Actions: User Profile / Login Button + Request a Quote CTA */}
         <div className="flex items-center gap-2.5">
           {/* User Profile Pill / Login Trigger */}
           {user ? (
@@ -175,7 +175,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                     className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-ink-light hover:bg-emerald-500/10 hover:text-emerald-400 font-medium transition-colors text-left"
                   >
                     <Presentation className="h-4 w-4" />
-                    <span>Live Deal Room</span>
+                    <span>Quote Room</span>
                   </button>
 
                   <Link
@@ -252,8 +252,8 @@ export const Navbar: React.FC<NavbarProps> = ({
             className="flex items-center gap-1.5 rounded-xl bg-emerald-500 px-3.5 py-1.5 text-xs font-extrabold text-black hover:bg-emerald-400 transition-all shadow-sm active:scale-95"
           >
             <Zap className="h-3.5 w-3.5 fill-black" />
-            <span className="hidden sm:inline">Structure a Deal</span>
-            <span className="sm:hidden">Bid</span>
+            <span className="hidden sm:inline">Request a Quote</span>
+            <span className="sm:hidden">Quote</span>
           </button>
 
           {/* Mobile Menu Toggle */}

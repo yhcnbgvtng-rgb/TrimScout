@@ -413,13 +413,13 @@ export const OfferCompareView: React.FC = () => {
         </div>
         <h1 className="text-xl font-black text-white">No vehicles in this deal</h1>
         <p className="text-xs text-ink-muted">
-          Finish Launch Dealership Bidding Hunt to compare the imported favorite. Competing vehicles load here automatically from the live market.
+          Finish your quote request to compare the imported favorite. Comparable vehicles load here automatically from the live market.
         </p>
         <Link
           href="/"
           className="inline-flex rounded-xl bg-emerald-500 px-5 py-2.5 text-xs font-extrabold text-black hover:bg-emerald-400"
         >
-          Start a bidding hunt
+          Start a quote request
         </Link>
       </div>
     );
@@ -503,7 +503,7 @@ export const OfferCompareView: React.FC = () => {
       <section className="space-y-2">
         <div className="flex items-baseline justify-between gap-3 px-1">
           <h2 className="text-[11px] font-bold uppercase tracking-wider text-ink-faint">
-            Competing vehicles in this deal
+            Comparable vehicles in this request
           </h2>
           <span className="text-[11px] font-semibold text-ink-muted">{selectedLots.length} of 2 chosen</span>
         </div>
@@ -693,7 +693,7 @@ function CompetingVehiclesPanel({
             One search · every match
           </div>
           <h2 className="text-base font-black text-white mt-0.5">
-            Competing vehicles
+            Comparable vehicles
             {fetched && !loading && vehicles.length > 0 ? (
               <span className="ml-2 text-ink-muted font-semibold text-sm">
                 {vehicles.length} within {radiusMiles} mi
@@ -769,7 +769,7 @@ function CompetingVehiclesPanel({
                           checked={checked}
                           disabled={disabled}
                           onChange={() => onToggle(match)}
-                          aria-label={`${checked ? "Remove" : "Choose"} ${title} as a competing vehicle`}
+                          aria-label={`${checked ? "Remove" : "Choose"} ${title} as a comparable vehicle`}
                           className="h-4 w-4 rounded border-border bg-background text-emerald-500 focus:ring-0 disabled:cursor-not-allowed"
                         />
                       </td>
@@ -874,7 +874,7 @@ function SearchCriteriaPanel({
       {open ? (
         <div className="border-t border-border px-4 py-3 space-y-3">
           <p className="text-[11px] text-ink-muted">
-            Competing vehicles are matched by year, make, and model — these lines don&apos;t filter them.
+            Comparable vehicles are matched by year, make, and model — these lines don&apos;t filter them.
             Widen the radius to see more, and verify equipment on the dealer listing.
           </p>
           {mustHaveLines.length > 0 ? (

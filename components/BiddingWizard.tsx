@@ -700,16 +700,16 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
             <h2 className="text-lg font-black text-white">
               {directOfferMode
                 ? competeAmongImported
-                  ? "Your Dealerships Are Competing"
-                  : "Your Direct Offer Has Been Sent"
-                : "Your Deal Request Is Live"}
+                  ? "Your quote request is out"
+                  : "Your quote request has been sent"
+                : "Your quote request is out"}
             </h2>
             <p className="text-xs text-ink-muted mt-1">
               {directOfferMode && competeAmongImported
-                ? `${importedDealerships.length} dealerships will review your anonymized request and bid against each other.`
+                ? `${importedDealerships.length} dealerships have your anonymized request. Each replies with a quote on its own time.`
                 : directOfferMode
-                  ? `${selectedVehicle?.location.dealerName ?? "The dealer"} will review your anonymized offer and respond.`
-                  : "Certified dealers in your area are now reviewing your request."}
+                  ? `${selectedVehicle?.location.dealerName ?? "The dealer"} has your anonymized request and will reply with a quote.`
+                  : "Dealers near you have your anonymized request and reply with quotes on their own time."}
             </p>
           </div>
           {/* The same number the buyer saw on the review screen. The backend's
@@ -937,7 +937,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
               <Zap className="h-4 w-4 fill-emerald-400" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-white">Configure Offer Package</h2>
+              <h2 className="text-base font-bold text-white">Configure Quote Request</h2>
               <p className="text-xs text-ink-muted">Step {step} of {TOTAL_STEPS} • {STEP_LABELS[step - 1]}</p>
             </div>
           </div>
@@ -961,7 +961,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
               {/* ---------------------------------------------------------- */}
               <WizardSection
                 title="Payment"
-                hint="Payment shapes every offer dealers send you — pick all that apply."
+                hint="Payment shapes every quote dealers send you — pick all that apply."
                 className="pb-6"
               >
                 <div className="flex flex-wrap gap-2">
@@ -1277,7 +1277,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                     onClick={() => setShowAlternates(true)}
                     className="text-[11px] font-bold text-emerald-400 hover:text-emerald-300 transition-colors"
                   >
-                    + Add additional vehicles to the offer package
+                    + Add additional vehicles to the quote request
                   </button>
                 )}
 
@@ -1348,10 +1348,10 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
           {step === 2 && (
             <div className="divide-y divide-border/50">
               <WizardSection
-                title="Who gets this offer"
+                title="Who gets this quote request"
                 hint={
                   competeAmongImported
-                    ? "Your dealerships bid against each other on your cars, or open it to other dealers nearby too."
+                    ? "Each dealership quotes its own car separately, or open the request to other dealers nearby too."
                     : "Send it to the dealership holding your car, or open it to other dealers nearby."
                 }
                 className="pb-6"
@@ -1370,8 +1370,8 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                     <Handshake className="h-5 w-5 text-emerald-400 shrink-0" />
                     <span className="font-bold text-white text-sm">
                       {competeAmongImported
-                        ? `Have these ${importedDealerships.length} dealerships compete`
-                        : "Offer this dealership directly"}
+                        ? `Request quotes from these ${importedDealerships.length} dealerships`
+                        : "Request a quote from this dealership"}
                     </span>
                   </div>
                 </button>
@@ -1386,7 +1386,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                 >
                   <div className="flex items-center gap-2">
                     <Zap className="h-5 w-5 text-emerald-400 shrink-0" />
-                    <span className="font-bold text-white text-sm">Get prices from other dealers</span>
+                    <span className="font-bold text-white text-sm">Also request quotes from other dealers nearby</span>
                   </div>
                 </button>
               </div>
@@ -1394,13 +1394,14 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
               {/* How the competition actually works, stated where the buyer
                   picks a path — that's the moment the rules start to matter. */}
               <div className="rounded-lg border border-border bg-surface-elevated px-3 py-2.5 space-y-1">
-                <p className="text-[11px] font-semibold text-ink-light">How dealers compete</p>
+                <p className="text-[11px] font-semibold text-ink-light">How dealer quotes work</p>
                 <p className="text-[11px] leading-snug text-ink-muted">
-                  Dealers quote an out-the-door price covering the vehicle and their
-                  own fees — registration and sales tax are excluded, and calculated
-                  for your address once you accept. Each dealer sees the best offer so
-                  far as a percentage off MSRP, never a name, so they know the number
-                  to beat without knowing who set it.
+                  Each dealer sends an out-the-door quote covering the vehicle and their
+                  own fees — registration and sales tax are excluded, and calculated for
+                  your address once you pick one. A quote is a request, not a bid: dealers
+                  reply on their own time, and you can pick one or walk away. So you get
+                  a real number rather than a first guess, each dealer can see the best
+                  quote so far as a percentage off MSRP — never who sent it.
                 </p>
               </div>
               </WizardSection>
@@ -1410,7 +1411,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
               {/* can actually reach them                                     */}
               {/* ---------------------------------------------------------- */}
               <WizardSection
-                title="Dealerships in this package"
+                title="Dealerships in this request"
                 hint="Where each car sits, and whether we have a way to send them your request."
                 className="py-6"
               >
@@ -1613,9 +1614,9 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                 </h3>
                 <p className="text-xs text-ink-muted mt-0.5">
                   {directOfferMode && competeAmongImported
-                    ? `Sending an anonymized request to ${importedDealerships.length} dealerships to bid against each other — your identity stays masked until you accept one.`
+                    ? `Sending an anonymized quote request to ${importedDealerships.length} dealerships — your identity stays masked until you pick a quote.`
                     : directOfferMode
-                      ? `Sending a direct, anonymized offer to ${selectedVehicle?.location.dealerName ?? "the dealer"} — your identity stays masked until they accept.`
+                      ? `Sending an anonymized quote request to ${selectedVehicle?.location.dealerName ?? "the dealer"} — your identity stays masked until you pick their quote.`
                       : "Your personal identity is 100% masked to prevent annoying dealer sales calls."}
                 </p>
               </div>
@@ -1652,7 +1653,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                     <div className={`text-xs font-bold ${pricingChoice === "buyer_names" ? "text-emerald-400" : "text-white"}`}>
                       I&apos;ll Set My Price
                     </div>
-                    <div className="text-[10.5px] text-ink-faint mt-0.5">Offer a firm target OTD price</div>
+                    <div className="text-[10.5px] text-ink-faint mt-0.5">Set a firm target OTD price</div>
                   </button>
                 </div>
 
@@ -1716,7 +1717,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                 return (
                   <div className="rounded-xl border border-border bg-surface-elevated overflow-hidden">
                     <div className="border-b border-border/60 px-4 py-2 text-[11px] font-bold uppercase tracking-wider text-ink-faint">
-                      {cols === 1 ? "Vehicle in this package" : `${cols} vehicles in this package`}
+                      {cols === 1 ? "Vehicle in this request" : `${cols} vehicles in this request`}
                     </div>
                     <div className="overflow-x-auto">
                       <div
@@ -1817,13 +1818,13 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
               {/* Summary Box */}
               <div className="rounded-xl border border-border bg-surface-elevated p-4 space-y-2 text-xs">
                 <div className="flex justify-between border-b border-border/50 pb-2">
-                  <span className="text-ink-muted">Bidding Strategy:</span>
+                  <span className="text-ink-muted">Quotes from:</span>
                   <span className="text-emerald-400 font-bold text-right">
                     {directOfferMode
                       ? competeAmongImported
-                        ? `${importedDealerships.length} dealerships compete`
-                        : "Offer this dealership directly"
-                      : "Get prices from other dealers"}
+                        ? `${importedDealerships.length} dealerships in this request`
+                        : "This dealership only"
+                      : "This dealership and others nearby"}
                   </span>
                 </div>
 
@@ -1972,12 +1973,12 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                 {isSubmittingReal
                   ? directOfferMode
                     ? "Sending…"
-                    : "Building…"
+                    : "Sending…"
                   : directOfferMode
                   ? competeAmongImported
-                    ? `Send to ${importedDealerships.length} Dealerships`
-                    : "Send Direct Offer"
-                  : "Build Competitive Offers"}
+                    ? `Request quotes from ${importedDealerships.length} dealerships`
+                    : "Request a quote"
+                  : "Request quotes"}
               </button>
             )}
           </div>

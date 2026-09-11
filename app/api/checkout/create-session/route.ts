@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { auth } from "@/auth";
 import { createDeal, getSingleBid, DealsApiError } from "@/lib/dealsApi";
-import { PLATFORM_FEE_CENTS } from "@/lib/pricing";
+import { PLATFORM_FEE_CENTS, DEAL_CERTIFICATE_NAME } from "@/lib/pricing";
 import type { DealerBid } from "@/lib/types";
 
 export async function POST(req: Request) {
@@ -107,7 +107,7 @@ export async function POST(req: Request) {
         price_data: {
           currency: "usd",
           product_data: {
-            name: "TrimScout Deal Lock-In Fee",
+            name: DEAL_CERTIFICATE_NAME,
             description: `${winningBid.matchedVehicleTitle} via ${winningBid.dealerName}`,
           },
           unit_amount: PLATFORM_FEE_CENTS,
