@@ -190,6 +190,37 @@ describe("shopper deal snapshot persists onto the deal request", () => {
     });
     assert.equal(payload.purchaseTimeline, "this_week");
 
+    // The deal number round-trips, and only in the shape we mint.
+    const withRef = shopperDealStructurePayload({
+      requestedStructures: ["cash"],
+      financeTermMonths: 60,
+      downPayment: 5000,
+      leaseMileagePerYear: 12000,
+      leaseTermMonths: 36,
+      directOffer: false,
+      vehicle: importedVehicle,
+      mustHavePackages: [],
+      dealReference: "ts-k7m3q2",
+    });
+    assert.equal(withRef.dealReference, "TS-K7M3Q2");
+    assert.equal(
+      mapDealRequestJson({ id: "44", strategy: "exact_auction", dealStructure: withRef })
+        .dealStructurePreferences?.dealReference,
+      "TS-K7M3Q2"
+    );
+    const badRef = shopperDealStructurePayload({
+      requestedStructures: ["cash"],
+      financeTermMonths: 60,
+      downPayment: 5000,
+      leaseMileagePerYear: 12000,
+      leaseTermMonths: 36,
+      directOffer: false,
+      vehicle: importedVehicle,
+      mustHavePackages: [],
+      dealReference: "not-a-reference",
+    });
+    assert.equal("dealReference" in badRef, false);
+
     // Buyer-supplied sales-adviser addresses ride along with the deal, but only
     // the ones that are actually email-shaped.
     const withEmails = shopperDealStructurePayload({

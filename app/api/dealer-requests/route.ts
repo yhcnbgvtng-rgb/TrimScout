@@ -5,6 +5,8 @@ import { isDealAcceptingResponses } from "@/lib/dealEngagementStore";
 import { fetchVehiclesFromBox, fetchFacetsFromBox, fetchVehicleByVinFromBox, fetchBoxHealth } from "@/lib/lightsailClient";
 import { calculateDistanceMiles } from "@/lib/otdCalculator";
 import { sameStateGateExcludes } from "@/lib/sameStateCheck";
+import { isFirmOfferRecipient } from "@/lib/dealerName";
+import { formatBuyerAlias } from "@/lib/buyerAlias";
 import type { DealerInboundRequest } from "@/lib/types";
 
 // Every brand this pipeline currently tracks, used to discover which
@@ -71,11 +73,18 @@ export async function GET() {
     if (!(await isDealAcceptingResponses(req.id))) continue;
     const brandInfo = carriedBrands.find((b) => b.brand === req.referenceBrandCode);
     if (!brandInfo) continue;
-    // Direct offer (firm_offer): only the rooftop that actually has this VIN.
+    // Direct offer (firm_offer): only the rooftops the buyer's cars sit at.
+    // The request itself names them — the primary vehicle's dealer plus each
+    // alternate's — so match on those first. The box-inventory VIN lookup
+    // stays as a second route in, but it only ever knew the primary VIN and
+    // only for makes the crawl carries, which is why a second dealership (or
+    // any free-imported make) used to see nothing.
     // Reverse-auction requests still match by model + radius as before.
     if (req.strategy === "firm_offer") {
-      const vinRecord = await fetchVehicleByVinFromBox(req.referenceVin);
-      if (!vinRecord || vinRecord.dealer_name !== user.dealerName) continue;
+      if (!isFirmOfferRecipient(user.dealerName, req.dealStructure)) {
+        const vinRecord = await fetchVehicleByVinFromBox(req.referenceVin);
+        if (!vinRecord || vinRecord.dealer_name !== user.dealerName) continue;
+      }
     } else if (!brandInfo.models.has(req.referenceModel)) {
       continue;
     }
@@ -103,7 +112,7 @@ export async function GET() {
 
     matched.push({
       requestId: req.id,
-      buyerAlias: `Buyer #${req.buyerUserId}`,
+      buyerAlias: formatBuyerAlias(req.buyerUserId),
       buyerState: req.buyerState,
       distanceMiles: Math.round(distanceMiles),
       strategy: req.strategy,

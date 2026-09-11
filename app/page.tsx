@@ -3,6 +3,7 @@
 export const dynamic = "force-dynamic";
 
 import React, { useState, useEffect } from "react";
+import { formatBuyerAlias } from "@/lib/buyerAlias";
 import Link from "next/link";
 import { useSession, signOut as authSignOut } from "next-auth/react";
 import { Vehicle, BiddingRequest, DealerBid, LockedDeal, UserProfile } from "../lib/types";
@@ -150,7 +151,7 @@ export default function Home() {
         zipCode: su.zipCode || "94107",
         dealerName: su.dealerName || undefined,
         avatarUrl: su.image || undefined,
-        buyerAlias: su.role === "buyer" ? `Buyer #${su.id}` : undefined,
+        buyerAlias: su.role === "buyer" ? formatBuyerAlias(su.id) : undefined,
         savedVehicleIds: [],
       });
       const isFreshSignIn = prevSessionStatusRef.current === "unauthenticated";

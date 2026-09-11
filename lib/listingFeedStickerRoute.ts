@@ -6,7 +6,7 @@
  */
 
 import { NextResponse } from "next/server";
-import { isExplicitNonFordDemoPaste, resolvePasteVin } from "./fordSticker";
+import { isExplicitNonFordDemoPaste, looksLikeUrl, resolvePasteVin } from "./fordSticker";
 import {
   buildToVehicle,
   defaultMustHaveLines,
@@ -96,9 +96,27 @@ export function createListingFeedStickerHandlers(config: ListingFeedRouteConfig)
     const paste = opts.paste || "";
     const makeish = looksLikePaste(paste) || looksLikePaste(opts.vin || "");
     const forcedVin = opts.vin && opts.vin.trim().length === 17 ? opts.vin.trim().toUpperCase() : "";
+    // A forced VIN arrives on the cross-OEM retry: another make's route read
+    // the page, found a VIN that wasn't its own, and handed it here. The VIN
+    // is settled, but the page is still where the dealership and the
+    // advertised price live — so a pasted URL is still fetched. Skipping it
+    // meant every retried import landed with no dealer, which on step 2 read
+    // as a package with one dealership when the buyer had added two.
+    const pageResolution =
+      forcedVin && looksLikeUrl(paste)
+        ? await resolvePasteVin(paste)
+        : forcedVin
+          ? null
+          : await resolvePasteVin(paste);
     const resolved = forcedVin
-      ? { vin: forcedVin, dealerBlocked: false, source: "paste" as const, listingPrice: null as number | null }
-      : await resolvePasteVin(paste);
+      ? {
+          vin: forcedVin,
+          dealerBlocked: false,
+          source: "paste" as const,
+          listingPrice: pageResolution?.listingPrice ?? null,
+          dealer: pageResolution?.dealer,
+        }
+      : pageResolution!;
 
     let vin = resolved.vin;
     if (vin && makeish && !make.isVin(vin)) {

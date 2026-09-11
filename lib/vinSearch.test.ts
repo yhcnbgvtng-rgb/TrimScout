@@ -1181,15 +1181,18 @@ describe("shopper-facing factory option copy", () => {
     assert.ok(start >= 0 && end > start);
     const step3 = src.slice(start, end);
     assert.match(src, /reviewTargetFromVehicle\(selectedVehicle\)/);
-    assert.match(step3, /reviewTarget\.title/);
-    assert.match(step3, /reviewTarget\.vin/);
-    assert.match(step3, /reviewTarget\.vdpHref/);
-    assert.match(step3, /reviewTarget\.dealerName/);
-    assert.match(step3, /reviewTarget\.locationLine/);
+    // Step 3 reviews every vehicle in the package side by side — primary and
+    // both alternates — each through the same reviewTargetFromVehicle formatter.
+    assert.match(step3, /\[selectedVehicle, altVehicle1, altVehicle2\]/);
+    assert.match(step3, /reviewTargetFromVehicle\(vehicle\)/);
+    assert.match(step3, /target\?\.title/);
+    assert.match(step3, /target\?\.vdpHref/);
+    assert.match(step3, /target\?\.dealerName/);
+    assert.match(step3, /target\.locationLine/);
     // The "may not be where it's listed now" caption must only show when the
     // dealer is genuinely unconfirmed (sticker fallback) — not on every
     // factory import, now that a live listing lookup can confirm the real one.
-    assert.match(step3, /!reviewTarget\.dealerConfirmed/);
+    assert.match(step3, /!target\.dealerConfirmed/);
     assert.match(step3, /No imported vehicle/);
     assert.match(step3, /target="_blank"/);
     assert.match(step3, /rel="noopener noreferrer"/);

@@ -10,8 +10,10 @@ import {
   toggleDealStructure,
 } from "../lib/dealStructure";
 import { formatCurrency, getZipCoordinates } from "../lib/otdCalculator";
-import { outOfStateVehicles, formatOutOfStateWarning, isResolvedState } from "../lib/sameStateCheck";
+import { outOfStateVehicles, formatOutOfStateWarning } from "../lib/sameStateCheck";
 import { isPlausibleDealerEmail, type DealerContactStatus } from "../lib/dealerContactLookup";
+import { formatBuyerAlias } from "../lib/buyerAlias";
+import { newDealReference } from "../lib/dealReference";
 import { findContactInfo } from "../lib/piiFilter";
 import { formatDealerResponsivenessLabel, type DealerResponsivenessStats } from "../lib/dealerResponsiveness";
 import { formatTypicalOtdLabel, type TypicalOtdStats } from "../lib/typicalOtd";
@@ -304,6 +306,9 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   // Checked by default — buyer can uncheck to widen the match to any state
   // within the radius, per Step 1's location controls.
   const [sameStateOnly, setSameStateOnly] = useState<boolean>(true);
+  // Minted once when the wizard mounts; the same number on the review screen,
+  // in the stored deal, and on the confirmation.
+  const [dealReference] = useState<string>(() => newDealReference());
   const [isSubmittingReal, setIsSubmittingReal] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
@@ -396,6 +401,21 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   // A primitive key, so the effect re-runs when the dealerships actually change
   // rather than on every render that rebuilds the array above.
   const dealerLookupKey = importedDealerships.map((d) => `${d.dealerName}|${d.state}`).join("~~");
+
+  // With two or more dealerships in the package the direct path *is* the
+  // competition — each rooftop bids against the others on the buyer's own
+  // cars. Preselect it once, on reaching step 2, so the buyer sees the
+  // competition framed and doesn't have to pick "offer this dealer directly"
+  // for a request that goes to several.
+  const competeAmongImported = importedDealerships.length >= 2;
+  useEffect(() => {
+    if (step === 2 && offerPath === null && competeAmongImported) {
+      chooseDirectOffer();
+    }
+    // chooseDirectOffer is a stable closure over setters; listing it would
+    // re-run this on every render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step, offerPath, competeAmongImported]);
 
   useEffect(() => {
     const dealers = dealerLookupKey
@@ -507,10 +527,6 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   // holding the imported car — so a checked box plus an out-of-state listing
   // would hide the request from the dealer who actually has the vehicle.
   const buyerStateFromZip = huntReady ? getZipCoordinates(huntZip.trim()).state : "";
-  // The alias dealers see is "Buyer #<state>". A ZIP that isn't five digits, or
-  // that getZipCoordinates can't place, has no state to show — fall back to the
-  // bare "Buyer" rather than advertising "Buyer #USA" or defaulting to CA.
-  const buyerAliasState = /^\d{5}$/.test(buyerZip) ? getZipCoordinates(buyerZip).state : "";
   const sameStateConflicts = sameStateOnly
     ? outOfStateVehicles(buyerStateFromZip, [selectedVehicle, altVehicle1, altVehicle2])
     : [];
@@ -630,7 +646,6 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     setOfferPath("direct");
     setDirectOfferMode(true);
     setStrategy("firm_offer");
-    setPricingChoice("buyer_names");
   };
 
   const chooseMultiDealer = () => {
@@ -651,17 +666,27 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
           </div>
           <div>
             <h2 className="text-lg font-black text-white">
-              {directOfferMode ? "Your Direct Offer Has Been Sent" : "Your Deal Request Is Live"}
+              {directOfferMode
+                ? competeAmongImported
+                  ? "Your Dealerships Are Competing"
+                  : "Your Direct Offer Has Been Sent"
+                : "Your Deal Request Is Live"}
             </h2>
             <p className="text-xs text-ink-muted mt-1">
-              {directOfferMode
-                ? `${selectedVehicle?.location.dealerName ?? "The dealer"} will review your anonymized offer and respond.`
-                : "Certified dealers in your area are now reviewing your request."}
+              {directOfferMode && competeAmongImported
+                ? `${importedDealerships.length} dealerships will review your anonymized request and bid against each other.`
+                : directOfferMode
+                  ? `${selectedVehicle?.location.dealerName ?? "The dealer"} will review your anonymized offer and respond.`
+                  : "Certified dealers in your area are now reviewing your request."}
             </p>
           </div>
+          {/* The same number the buyer saw on the review screen. The backend's
+              own id is kept alongside for support, smaller, since a buyer
+              quoting "TS-K7M3Q2" and one quoting "#118" must both be findable. */}
           <div className="rounded-xl border border-border bg-surface-elevated py-3">
             <div className="text-[10px] font-bold text-ink-faint uppercase tracking-wider">Deal Number</div>
-            <div className="text-2xl font-mono font-black text-emerald-400">#{createdDealId}</div>
+            <div className="text-2xl font-mono font-black text-emerald-400">{dealReference}</div>
+            <div className="mt-0.5 text-[10px] font-mono text-ink-faint">ref #{createdDealId}</div>
           </div>
           <button
             onClick={handleCloseConfirmation}
@@ -822,6 +847,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
             vehicleTerms: vehicleTermsForDeal,
             purchaseTimeline: purchaseTimeline || undefined,
             buyerProvidedDealerEmails: buyerDealerEmails,
+            dealReference,
           }),
           // See tradeInForRequest above — the flag only, honestly empty
           // detail fields, no appraisal fabricated.
@@ -1231,8 +1257,8 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
               <WizardSection
                 title="Who gets this offer"
                 hint={
-                  importedDealerships.length > 1
-                    ? "Send it to the dealerships holding your cars, or open it to other dealers nearby."
+                  competeAmongImported
+                    ? "Your dealerships bid against each other on your cars, or open it to other dealers nearby too."
                     : "Send it to the dealership holding your car, or open it to other dealers nearby."
                 }
                 className="pb-6"
@@ -1250,8 +1276,8 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                   <div className="flex items-center gap-2">
                     <Handshake className="h-5 w-5 text-emerald-400 shrink-0" />
                     <span className="font-bold text-white text-sm">
-                      {importedDealerships.length > 1
-                        ? `Offer these ${importedDealerships.length} dealerships directly`
+                      {competeAmongImported
+                        ? `Have these ${importedDealerships.length} dealerships compete`
                         : "Offer this dealership directly"}
                     </span>
                   </div>
@@ -1493,9 +1519,11 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                   Review & Privacy Shield
                 </h3>
                 <p className="text-xs text-ink-muted mt-0.5">
-                  {directOfferMode
-                    ? `Sending a direct, anonymized offer to ${selectedVehicle?.location.dealerName ?? "the dealer"} — your identity stays masked until they accept.`
-                    : "Your personal identity is 100% masked to prevent annoying dealer sales calls."}
+                  {directOfferMode && competeAmongImported
+                    ? `Sending an anonymized request to ${importedDealerships.length} dealerships to bid against each other — your identity stays masked until you accept one.`
+                    : directOfferMode
+                      ? `Sending a direct, anonymized offer to ${selectedVehicle?.location.dealerName ?? "the dealer"} — your identity stays masked until they accept.`
+                      : "Your personal identity is 100% masked to prevent annoying dealer sales calls."}
                 </p>
               </div>
 
@@ -1572,72 +1600,137 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                 )}
               </div>
 
+              {/* Every vehicle in the package, side by side — the buyer is
+                  about to send all of them, so all of them get reviewed. */}
+              {(() => {
+                const packageVehicles = [selectedVehicle, altVehicle1, altVehicle2]
+                  .filter((v): v is Vehicle => Boolean(v))
+                  .map((vehicle, index) => ({
+                    vehicle,
+                    target: reviewTargetFromVehicle(vehicle),
+                    contact: vehicle.location?.dealerName ? dealerContacts[vehicle.location.dealerName.trim()] : undefined,
+                    typedEmail: vehicle.location?.dealerName ? buyerDealerEmails[vehicle.location.dealerName.trim()] || "" : "",
+                    isPrimary: index === 0,
+                  }));
+                if (packageVehicles.length === 0) {
+                  return (
+                    <div className="rounded-xl border border-border bg-surface-elevated p-4 text-xs text-ink-muted">
+                      No imported vehicle
+                    </div>
+                  );
+                }
+                const cols = packageVehicles.length;
+                return (
+                  <div className="rounded-xl border border-border bg-surface-elevated overflow-hidden">
+                    <div className="border-b border-border/60 px-4 py-2 text-[11px] font-bold uppercase tracking-wider text-ink-faint">
+                      {cols === 1 ? "Vehicle in this package" : `${cols} vehicles in this package`}
+                    </div>
+                    <div className="overflow-x-auto">
+                      <div
+                        className="grid divide-x divide-border/60"
+                        style={{ gridTemplateColumns: `repeat(${cols}, minmax(200px, 1fr))` }}
+                      >
+                        {packageVehicles.map(({ vehicle, target, contact, typedEmail, isPrimary }) => {
+                          const price = advertisedOrStickerPrice(vehicle.dealerPrice, vehicle.msrp);
+                          const reachable = Boolean(contact?.hasEmail && !contact?.emailOptOut);
+                          const supplied = isPlausibleDealerEmail(typedEmail);
+                          return (
+                            <div key={vehicle.vin} className="space-y-2 px-4 py-3 text-xs">
+                              <div>
+                                <div className="text-[10px] font-bold uppercase tracking-wide text-ink-faint">
+                                  {isPrimary ? "Primary" : "Alternate"}
+                                </div>
+                                <div className="font-bold text-white">
+                                  {target?.title || "Vehicle details unavailable"}
+                                </div>
+                              </div>
+
+                              <div className="space-y-0.5 text-[11px]">
+                                <div className="text-ink-muted">
+                                  VIN{" "}
+                                  {target?.vdpHref ? (
+                                    <a
+                                      href={target.vdpHref}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="font-mono text-emerald-400 hover:underline"
+                                    >
+                                      {vehicle.vin}
+                                    </a>
+                                  ) : (
+                                    <span className="font-mono text-ink-light">{vehicle.vin}</span>
+                                  )}
+                                </div>
+                                {price.amount && price.amount > 0 ? (
+                                  <div className="text-ink-light">
+                                    {formatPriceAmount(price.amount)}{" "}
+                                    <span className="text-[9px] font-bold uppercase text-ink-faint">
+                                      {shopperPriceSourceLabel(price.source)}
+                                    </span>
+                                  </div>
+                                ) : (
+                                  <div className="text-ink-faint">No price shown</div>
+                                )}
+                              </div>
+
+                              <div className="space-y-0.5 border-t border-border/50 pt-2 text-[11px]">
+                                {target?.dealerName ? (
+                                  <>
+                                    <div className="flex items-start justify-between gap-2">
+                                      <span className="font-semibold text-ink-light">{target.dealerName}</span>
+                                      <span
+                                        className={`shrink-0 rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide ${
+                                          !contact
+                                            ? "bg-border text-ink-muted"
+                                            : reachable || supplied
+                                              ? "bg-emerald-500/15 text-emerald-300"
+                                              : "bg-amber-500/15 text-amber-300"
+                                        }`}
+                                      >
+                                        {!contact ? "Checking" : reachable ? "Email on file" : supplied ? "Email added" : "No email"}
+                                      </span>
+                                    </div>
+                                    <div className="text-ink-muted">
+                                      {contact?.addressLine || target.locationLine || "Address not on file"}
+                                    </div>
+                                    {isPrimary && formatDealerResponsivenessLabel(dealerResponsiveness) ? (
+                                      <div
+                                        className={`text-[10.5px] font-medium ${
+                                          dealerResponsiveness?.bidCount ? "text-emerald-400" : "text-ink-faint"
+                                        }`}
+                                      >
+                                        {formatDealerResponsivenessLabel(dealerResponsiveness)}
+                                      </div>
+                                    ) : null}
+                                    {factoryBuildOem && isPrimary && !target.dealerConfirmed ? (
+                                      <div className="text-[10px] italic text-ink-faint">
+                                        Dealer the factory shipped it to — may not be where it&apos;s listed now
+                                      </div>
+                                    ) : null}
+                                  </>
+                                ) : (
+                                  <div className="text-ink-faint">Dealership not identified</div>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
+
               {/* Summary Box */}
               <div className="rounded-xl border border-border bg-surface-elevated p-4 space-y-2 text-xs">
-                <div className="flex justify-between items-start gap-3 border-b border-border/50 pb-2">
-                  <span className="text-ink-muted shrink-0">Target Vehicle:</span>
-                  {reviewTarget ? (
-                    <div className="text-right min-w-0 space-y-0.5">
-                      {reviewTarget.title ? (
-                        <div className="text-white font-bold">{reviewTarget.title}</div>
-                      ) : (
-                        <div className="text-ink-muted">Vehicle details unavailable</div>
-                      )}
-                      {reviewTarget.vin ? (
-                        <div className="text-[11px] text-ink-muted">
-                          VIN:{" "}
-                          {reviewTarget.vdpHref ? (
-                            <a
-                              href={reviewTarget.vdpHref}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="font-mono text-emerald-400 hover:underline"
-                            >
-                              {reviewTarget.vin}
-                            </a>
-                          ) : (
-                            <span className="font-mono text-ink-light">{reviewTarget.vin}</span>
-                          )}
-                        </div>
-                      ) : null}
-                      {reviewTarget.dealerName ? (
-                        <div className="text-[11px] text-ink-light">{reviewTarget.dealerName}</div>
-                      ) : null}
-                      {reviewTarget.dealerName && formatDealerResponsivenessLabel(dealerResponsiveness) ? (
-                        <div
-                          className={`text-[10.5px] font-medium ${
-                            dealerResponsiveness?.bidCount ? "text-emerald-400" : "text-ink-faint"
-                          }`}
-                        >
-                          {formatDealerResponsivenessLabel(dealerResponsiveness)}
-                        </div>
-                      ) : null}
-                      {reviewTarget.locationLine ? (
-                        <div className="text-[11px] text-ink-muted">{reviewTarget.locationLine}</div>
-                      ) : null}
-                      {/* dealerName is only confirmed-current when it came from
-                          a live listing lookup. Otherwise it fell back to the
-                          window sticker's "SOLD TO" dealer — who the factory
-                          originally shipped this VIN to, printed at build time
-                          and never updated. If the vehicle was dealer-traded or
-                          is advertised elsewhere now, that's not where it
-                          currently sits, so say so instead of presenting it as
-                          confirmed. */}
-                      {factoryBuildOem && reviewTarget.dealerName && !reviewTarget.dealerConfirmed ? (
-                        <div className="text-[10px] text-ink-faint italic">
-                          Dealer the factory shipped it to — may not be where it&apos;s listed now
-                        </div>
-                      ) : null}
-                    </div>
-                  ) : (
-                    <span className="text-ink-muted">No imported vehicle</span>
-                  )}
-                </div>
-
                 <div className="flex justify-between border-b border-border/50 pb-2">
                   <span className="text-ink-muted">Bidding Strategy:</span>
-                  <span className="text-emerald-400 font-bold">
-                    {directOfferMode ? "Offer this dealer directly" : "Get prices from other dealers"}
+                  <span className="text-emerald-400 font-bold text-right">
+                    {directOfferMode
+                      ? competeAmongImported
+                        ? `${importedDealerships.length} dealerships compete`
+                        : "Offer this dealership directly"
+                      : "Get prices from other dealers"}
                   </span>
                 </div>
 
@@ -1659,12 +1752,14 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                   </div>
                 )}
 
-                <div className="flex justify-between border-b border-border/50 pb-2">
-                  <span className="text-ink-muted">Must-Have Packages:</span>
-                  <span className="text-emerald-400 font-medium text-right">
-                    {mustHavePackages.slice(0, 3).join(", ")}{mustHavePackages.length > 3 ? ` +${mustHavePackages.length - 3} more` : ""}
-                  </span>
-                </div>
+                {mustHavePackages.length > 0 && (
+                  <div className="flex justify-between border-b border-border/50 pb-2">
+                    <span className="text-ink-muted">Must-Have Packages:</span>
+                    <span className="text-emerald-400 font-medium text-right">
+                      {mustHavePackages.slice(0, 3).join(", ")}{mustHavePackages.length > 3 ? ` +${mustHavePackages.length - 3} more` : ""}
+                    </span>
+                  </div>
+                )}
 
                 <div className="flex justify-between border-b border-border/50 pb-2">
                   <span className="text-ink-muted">Deal Structure:</span>
@@ -1673,10 +1768,16 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                   </span>
                 </div>
 
+                <div className="flex justify-between border-b border-border/50 pb-2">
+                  <span className="text-ink-muted">Deal #:</span>
+                  <span className="text-white font-mono font-bold">{dealReference}</span>
+                </div>
+
                 <div className="flex justify-between">
-                  <span className="text-ink-muted">Assigned Buyer Alias:</span>
+                  <span className="text-ink-muted">Your alias to dealers:</span>
                   <span className="text-emerald-400 font-mono font-bold">
-                    {isResolvedState(buyerAliasState) ? `Buyer #${buyerAliasState}` : "Buyer"}
+                    {formatBuyerAlias(currentUser?.id)}
+                    {!currentUser ? <span className="ml-1 font-sans font-normal text-[10px] text-ink-faint">(assigned at sign-in)</span> : null}
                   </span>
                 </div>
               </div>
@@ -1780,7 +1881,9 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                     ? "Sending…"
                     : "Building…"
                   : directOfferMode
-                  ? "Send Direct Offer"
+                  ? competeAmongImported
+                    ? `Send to ${importedDealerships.length} Dealerships`
+                    : "Send Direct Offer"
                   : "Build Competitive Offers"}
               </button>
             )}

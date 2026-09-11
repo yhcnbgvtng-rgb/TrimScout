@@ -50,3 +50,43 @@ export function looksLikeTruncatedDealerName(name: string): boolean {
   if (!lastWord || lastWord.length > 2 || !/^[a-z]+$/.test(lastWord)) return false;
   return !RECOGNIZED_SUFFIX_WORDS.has(lastWord);
 }
+
+/**
+ * Every dealership named on a deal request's stored structure — the primary
+ * vehicle's rooftop plus each alternate's — as normalized match keys.
+ *
+ * A direct (firm_offer) request is meant for exactly the dealerships holding
+ * the buyer's cars. The dealer feed used to decide that by looking the primary
+ * VIN up in the box's crawled inventory, which had two holes: alternates were
+ * never checked, so a second dealership never saw the request at all; and a
+ * VIN the crawl doesn't carry (any free-imported make) matched nobody, so
+ * even the primary dealer saw nothing. The names on the request itself are
+ * what the buyer actually chose to send to.
+ */
+export function firmOfferDealerKeys(dealStructure: Record<string, unknown> | null | undefined): Set<string> {
+  const keys = new Set<string>();
+  const add = (name: unknown) => {
+    if (typeof name !== "string") return;
+    const key = normalizeDealerKey(name);
+    if (key) keys.add(key);
+  };
+  if (!dealStructure) return keys;
+  add(dealStructure.dealerName);
+  const lots = dealStructure.otherLots;
+  if (Array.isArray(lots)) {
+    for (const lot of lots) {
+      const location = (lot as { location?: { dealerName?: unknown } } | null)?.location;
+      add(location?.dealerName);
+    }
+  }
+  return keys;
+}
+
+/** True when this dealer is one of the rooftops a direct request was addressed to. */
+export function isFirmOfferRecipient(
+  dealerName: string | null | undefined,
+  dealStructure: Record<string, unknown> | null | undefined
+): boolean {
+  const key = normalizeDealerKey(dealerName || "");
+  return Boolean(key) && firmOfferDealerKeys(dealStructure).has(key);
+}
