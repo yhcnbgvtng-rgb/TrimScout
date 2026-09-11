@@ -26,6 +26,44 @@ export const EMPTY_DEALER_IDENTITY: DealerPageIdentity = {
   source: null,
 };
 
+/**
+ * Signatures of the pages a bot-shield serves instead of the listing. A
+ * server-side fetch of a dealer VDP regularly lands on one of these, and a
+ * challenge page has a perfectly good <title> — "Attention Required! |
+ * Cloudflare" was shown to a buyer as the name of their dealership before this
+ * existed. Nothing on such a page is about the car or the seller.
+ */
+const BLOCK_PAGE_SIGNATURES = [
+  /attention required!?\s*\|\s*cloudflare/i,
+  /cf-browser-verification|cf-challenge|challenge-platform|cf_chl_/i,
+  /just a moment\.{0,3}<\/title>/i,
+  /<title>[^<]*\b(access denied|forbidden|request blocked|error \d{3})\b[^<]*<\/title>/i,
+  /errors\.edgesuite\.net|akamai/i,
+  /reference\s+#\s*[0-9a-f.]+/i,
+  /perimeterx|_pxhd|px-captcha/i,
+  /datadome|dd\.js|captcha-delivery/i,
+  /incapsula|_incap_/i,
+  /distil_r_captcha|distilnetworks/i,
+];
+
+/** True when the HTML is a bot-shield or error page rather than the listing. */
+export function isBlockPage(html: string, httpStatus?: number): boolean {
+  if (typeof httpStatus === "number" && (httpStatus === 403 || httpStatus === 429 || httpStatus === 503)) {
+    return true;
+  }
+  if (!html) return false;
+  const head = html.slice(0, 20_000);
+  return BLOCK_PAGE_SIGNATURES.some((re) => re.test(head));
+}
+
+/**
+ * Names that a block or error page would produce — refused even if the block
+ * detection above somehow missed the page. Defence in depth for the one field
+ * a buyer will read as "this is my dealer".
+ */
+const NON_DEALER_NAMES =
+  /\b(cloudflare|akamai|attention required|access denied|forbidden|just a moment|error|not found|captcha|verification|security check|blocked|unavailable)\b/i;
+
 const DEALER_TYPES = new Set([
   "autodealer",
   "automotivebusiness",
@@ -52,6 +90,7 @@ function cleanName(raw: unknown): string | null {
   if (name.length < 3 || name.length > 80) return null;
   // A page title that's really the car, not the seller.
   if (/^\d{4}\s/.test(name)) return null;
+  if (NON_DEALER_NAMES.test(name)) return null;
   return name;
 }
 
@@ -136,8 +175,10 @@ function metaContent(html: string, property: string): string | null {
   return null;
 }
 
-export function extractDealerIdentity(html: string): DealerPageIdentity {
+export function extractDealerIdentity(html: string, httpStatus?: number): DealerPageIdentity {
   if (!html) return EMPTY_DEALER_IDENTITY;
+  // A challenge page names Cloudflare, not the dealership.
+  if (isBlockPage(html, httpStatus)) return EMPTY_DEALER_IDENTITY;
 
   const fromJsonLd = identityFromJsonLd(html);
   if (fromJsonLd) return fromJsonLd;

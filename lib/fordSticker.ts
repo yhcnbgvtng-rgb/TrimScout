@@ -16,7 +16,12 @@ import path from "path";
 import dns from "dns/promises";
 import net from "net";
 import { isFordOrLincolnVin } from "./oemWmi";
-import { extractDealerIdentity, type DealerPageIdentity } from "./dealerPageIdentity";
+import {
+  extractDealerIdentity,
+  isBlockPage,
+  EMPTY_DEALER_IDENTITY,
+  type DealerPageIdentity,
+} from "./dealerPageIdentity";
 
 export { isFordOrLincolnVin };
 
@@ -132,6 +137,27 @@ const CACHE_DIR = path.join("/tmp", "trimscout-ford-stickers");
 const PARSER_VERSION = 4;
 const BROWSER_UA =
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36";
+
+// What a real Chrome tab sends when a person clicks a link to a dealer page.
+// Dealer sites sit behind bot shields that key on the Sec-Fetch-* and
+// client-hint headers as much as on the User-Agent; a request carrying only
+// Accept + UA is exactly the shape they 403. Same finding as the Ford and
+// Chevrolet dealer crawls, where adding these headers was the whole fix.
+const BROWSER_NAVIGATION_HEADERS: Record<string, string> = {
+  "User-Agent": BROWSER_UA,
+  Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
+  "Accept-Language": "en-US,en;q=0.9",
+  "Accept-Encoding": "gzip, deflate, br",
+  "Cache-Control": "max-age=0",
+  "Upgrade-Insecure-Requests": "1",
+  "Sec-Fetch-Site": "none",
+  "Sec-Fetch-Mode": "navigate",
+  "Sec-Fetch-User": "?1",
+  "Sec-Fetch-Dest": "document",
+  "Sec-CH-UA": '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"',
+  "Sec-CH-UA-Mobile": "?0",
+  "Sec-CH-UA-Platform": '"Windows"',
+};
 const NON_FORD_DEMO_HINT = /\b(bmw|porsche|toyota|mercedes|mini|audi|volkswagen|vw)\b/i;
 
 const UNRELEASED_PATTERNS = [
@@ -1129,22 +1155,21 @@ export async function extractVinFromDealerPage(url: string): Promise<DealerPageV
   try {
     await assertSafeExternalUrl(url);
     const res = await fetch(url, {
-      headers: {
-        Accept: "text/html,application/xhtml+xml;q=0.9,*/*;q=0.8",
-        "Accept-Language": "en-US,en;q=0.9",
-        "User-Agent": BROWSER_UA,
-      },
+      headers: BROWSER_NAVIGATION_HEADERS,
       cache: "no-store",
       redirect: "follow",
       signal: AbortSignal.timeout(8000),
     });
     const html = await res.text().catch(() => "");
-    const listingPrice = extractAdvertisedListingPrice(html);
-    const vin = extractVin(html);
-    const dealer = extractDealerIdentity(html);
-    const denied = /access denied|akamai|errors\.edgesuite|reference\s+#/i.test(html);
+    // Decide whether this is the listing or a bot-shield page *before* reading
+    // anything off it. A Cloudflare challenge has a VIN-free body and a title
+    // that is not a dealership, and every extractor below must see none of it.
+    const blockedPage = isBlockPage(html, res.status);
+    const listingPrice = blockedPage ? null : extractAdvertisedListingPrice(html);
+    const vin = blockedPage ? null : extractVin(html);
+    const dealer = blockedPage ? EMPTY_DEALER_IDENTITY : extractDealerIdentity(html, res.status);
     if (vin) return { vin, blocked: false, httpStatus: res.status, listingPrice, dealer };
-    if (!res.ok || denied) return { vin: null, blocked: true, httpStatus: res.status, listingPrice, dealer };
+    if (!res.ok || blockedPage) return { vin: null, blocked: true, httpStatus: res.status, listingPrice, dealer };
     return { vin: null, blocked: false, httpStatus: res.status, listingPrice, dealer };
   } catch {
     return { vin: null, blocked: true, listingPrice: null };
