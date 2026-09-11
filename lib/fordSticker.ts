@@ -395,13 +395,20 @@ export function looksLikeFordOrLincolnPaste(paste: string): boolean {
     try {
       const u = new URL(raw);
       const hay = `${u.hostname} ${u.pathname} ${u.search}`.toLowerCase();
-      if (hay.includes("ford") || hay.includes("lincoln") || hay.includes("forddirect")) return true;
+      // Token-start match only. A bare substring test matched "ford" inside
+      // Rockford, Hartford, Bradford, Stanford, Medford, Milford, Oxford and
+      // Waterford — every one of them a dealer city — and mis-routed those
+      // listings to the Ford sticker route regardless of the car's actual VIN.
+      if (/(?<![a-z])(ford|lincoln)/.test(hay)) return true;
     } catch {
       /* ignore invalid URL */
     }
   }
   const lower = raw.toLowerCase();
-  if (lower.includes("ford") || lower.includes("lincoln") || lower.includes("windowsticker")) return true;
+  // Same token-start rule as the URL branch — this fallback runs for URLs too,
+  // and a plain substring test here re-matched "rockford" after the branch
+  // above had correctly declined it.
+  if (/(?<![a-z])(ford|lincoln)/.test(lower) || lower.includes("windowsticker")) return true;
   const vin = extractVin(raw);
   return !!(vin && isFordOrLincolnVin(vin));
 }
