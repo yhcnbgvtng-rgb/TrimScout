@@ -11,6 +11,7 @@
 import { LIGHTSAIL_HOST } from "./lightsailClient";
 import { serverSecret } from "./serverSecret";
 import type { ContractVerificationResult } from "./contractVerification";
+import type { TradeInSubmission, TradeInAppraisalRecord } from "./types";
 import type { DealerResponsivenessStats } from "./dealerResponsiveness";
 import type { TypicalOtdStats } from "./typicalOtd";
 
@@ -23,6 +24,7 @@ export interface DealRecord {
   buyerUserId: string;
   dealerName: string;
   matchedVin: string;
+  dealRequestId?: string | null;
   totalOtdPrice: number;
   platformFeeCents: number;
   winningBid: Record<string, unknown>;
@@ -33,6 +35,10 @@ export interface DealRecord {
   contractFileName: string | null;
   paperworkUploadedAt: string | null;
   verification: ContractVerificationResult | null;
+  /** Buyer's trade-in details and photos, once submitted. */
+  tradeIn: TradeInSubmission | null;
+  /** The dealer's allowance for it, once given. */
+  tradeInAppraisal: TradeInAppraisalRecord | null;
   createdAt: string;
   paidAt: string | null;
 }
@@ -140,6 +146,21 @@ export async function getDealContractFile(
   }
 }
 
+/** Buyer submits their trade-in for the dealer to price. Replaces any earlier submission. */
+export async function submitDealTradeIn(dealId: string, tradeIn: TradeInSubmission): Promise<DealRecord> {
+  const json = await request("POST", `/api/deals/${dealId}/trade-in`, { tradeIn });
+  return json.deal as DealRecord;
+}
+
+/** Dealer prices the trade-in. Replaces any earlier appraisal. */
+export async function appraiseDealTradeIn(
+  dealId: string,
+  appraisal: TradeInAppraisalRecord
+): Promise<DealRecord> {
+  const json = await request("POST", `/api/deals/${dealId}/trade-in/appraisal`, { appraisal });
+  return json.deal as DealRecord;
+}
+
 /** Persists an already-computed verification result — this call never runs the check itself. */
 export async function saveDealVerification(
   dealId: string,
@@ -233,6 +254,10 @@ export interface DealerWonDeal {
   paperworkStatus: "pending_dealer_upload" | "uploaded";
   contractFileName: string | null;
   verification: ContractVerificationResult | null;
+  tradeIn: TradeInSubmission | null;
+  tradeInAppraisal: TradeInAppraisalRecord | null;
+  /** For the trade-in tax preview — the buyer's state, never their ZIP. */
+  buyerState: string | null;
 }
 
 export async function createDealRequest(input: {

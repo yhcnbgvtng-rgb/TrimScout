@@ -236,6 +236,43 @@ export async function sendQuoteInviteEmail(subject: string, html: string): Promi
 }
 
 /**
+ * Tells the winning dealer a buyer's trade-in details and photos are waiting
+ * in their portal. Goes through the same SAFE MODE sender as every other
+ * dealer email — see the header — so it lands at SAFE_MODE_RECIPIENT until
+ * that override is lifted. Never throws; a missed nudge must not fail the
+ * buyer's submission, which is already saved.
+ */
+export async function notifyDealerOfTradeIn(input: {
+  dealerName: string;
+  dealId: string;
+  certificateId: string;
+  vehicleTitle: string;
+  tradeInTitle: string;
+  mileage: number;
+  photoCount: number;
+}): Promise<boolean> {
+  const subject = `Trade-in to price on deal ${input.certificateId} — ${input.tradeInTitle}`;
+  const html = `
+    <div style="font-family:-apple-system,Segoe UI,Roboto,sans-serif;max-width:560px;margin:0 auto;color:#0f172a">
+      <p style="font-size:15px">Hi ${escapeHtml(input.dealerName)},</p>
+      <p>The buyer on <strong>${escapeHtml(input.vehicleTitle)}</strong> (deal ${escapeHtml(input.certificateId)})
+      has sent their trade-in for you to price:</p>
+      <p style="font-size:16px;font-weight:700;margin:12px 0">${escapeHtml(input.tradeInTitle)}
+      <span style="font-weight:400;color:#64748b"> · ${input.mileage.toLocaleString("en-US")} mi · ${input.photoCount} photo${input.photoCount === 1 ? "" : "s"}</span></p>
+      <p>Open the <a href="${DEALER_EMAIL_BASE_URL}/?tab=locked_deals" style="color:#059669;font-weight:600">Won Deals</a>
+      tab in your TrimScout portal to see the photos and enter an allowance. The buyer sees your number, and their
+      revised tax and registration, as soon as you save it.</p>
+      <p style="font-size:12px;color:#64748b;margin-top:24px">Deal ref #${escapeHtml(input.dealId)}</p>
+    </div>`;
+  try {
+    return await sendViaResend(subject, html);
+  } catch (err) {
+    console.error(`dealerEmail: trade-in nudge failed for ${input.dealerName} —`, err instanceof Error ? err.message : err);
+    return false;
+  }
+}
+
+/**
  * Notifies every dealer invited on this deal (the favorite's dealer plus
  * any other lots') that a buyer submitted an offer. One email per dealer,
  * each naming that dealer — but per the safety override above, every send
