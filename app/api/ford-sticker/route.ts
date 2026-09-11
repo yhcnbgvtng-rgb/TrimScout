@@ -16,6 +16,7 @@ import {
 import { stickerToVehicle } from "@/lib/vinSearch";
 import { currentDealerForVin } from "@/lib/listingSheet";
 import { guardPaidDecode, MARKETCHECK_CALL_COST_USD } from "@/lib/apiSpendGuard";
+import { buildFreeImport, fillMissingYear } from "@/lib/freeVinImportServer";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -104,14 +105,32 @@ async function lookup(opts: { vin?: string; paste?: string; pasteUrl: string | n
     const mustHaveLines = defaultMustHaveLines(sticker);
     const niceToHaveLines = defaultNiceToHaveLines(sticker, mustHaveLines);
     const listingPrice = resolved.listingPrice && resolved.listingPrice > 0 ? resolved.listingPrice : null;
+
+    // No released sticker — the car is still real. Import it on the free
+    // path (NHTSA + the listing page) flagged dealer-listing-only, instead
+    // of returning vehicle: null and dead-ending the buyer.
+    if (sticker.status !== "released") {
+      const free = await buildFreeImport({
+        vin,
+        pasteUrl: opts.pasteUrl,
+        source: resolved,
+        makeLabel: "Ford",
+        sticker: sticker as unknown as Record<string, unknown>,
+      });
+      if (!free.ok) return vinPasteError(free.error);
+      return NextResponse.json(free.payload);
+    }
+
+    // A released sticker the parser only half-read (no year) must not ship
+    // as "0 Ford F-150" — fill the year from the VIN.
+    const vehicle = await fillMissingYear(stickerToVehicle(sticker, listingUrl, listingPrice, currentDealer));
+    vehicle.buildConfidence = "verified_factory";
     return NextResponse.json({
       handled: true,
       vin,
       sticker,
-      vehicle:
-        sticker.status === "released"
-          ? stickerToVehicle(sticker, listingUrl, listingPrice, currentDealer)
-          : null,
+      vehicle,
+      buildConfidence: "verified_factory",
       listingPrice,
       mustHaveLines,
       niceToHaveLines,

@@ -167,11 +167,32 @@ function AlternateVinField({
 }) {
   if (vehicle) {
     return (
-      <div className="flex items-center justify-between gap-2 rounded-xl border border-emerald-500/40 bg-emerald-500/5 px-3 py-2.5">
+      <div
+        className={`flex items-center justify-between gap-2 rounded-xl border px-3 py-2.5 ${
+          vehicle.buildConfidence === "dealer_listing_only"
+            ? "border-amber-500/40 bg-amber-500/5"
+            : "border-emerald-500/40 bg-emerald-500/5"
+        }`}
+      >
         <div className="min-w-0">
-          <p className="text-[10px] font-bold uppercase text-emerald-400">{label} — added</p>
+          <p className="flex items-center gap-2 text-[10px] font-bold uppercase text-emerald-400">
+            {label} — added
+            <span
+              className={`rounded px-1.5 py-0.5 text-[9px] tracking-wide ${
+                vehicle.buildConfidence === "dealer_listing_only"
+                  ? "bg-amber-500/15 text-amber-300"
+                  : "bg-emerald-500/15 text-emerald-300"
+              }`}
+            >
+              {vehicle.buildConfidence === "dealer_listing_only" ? "Unconfirmed build" : "Factory verified"}
+            </span>
+          </p>
           <p className="text-xs text-white font-semibold truncate">
-            {vehicle.year} {vehicle.make} {vehicle.model} {vehicle.trim}
+            {[vehicle.year, vehicle.make, vehicle.model, vehicle.trim].filter(Boolean).join(" ")}
+          </p>
+          <p className="truncate text-[10px] text-ink-muted">
+            <span className="font-mono">{vehicle.vin}</span>
+            {vehicle.location?.dealerName ? <> · {vehicle.location.dealerName}</> : null}
           </p>
         </div>
         <button
@@ -550,7 +571,9 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     setNiceToHavePackages([]);
     setMustHavePackages([]);
 
-    const result = await importPastedFactoryVehicle(raw);
+    const result = await importPastedFactoryVehicle(raw, fetch, {
+      existingVehicles: [altVehicle1, altVehicle2],
+    });
     if (!result.ok) {
       if (result.unreleased) {
         setFactoryBuildOem(result.oem ?? null);
@@ -591,7 +614,9 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     if (!raw) return;
     setAltParsing1(true);
     setAltError1(null);
-    const result = await importPastedFactoryVehicle(raw);
+    const result = await importPastedFactoryVehicle(raw, fetch, {
+      existingVehicles: [selectedVehicle, altVehicle2],
+    });
     if (!result.ok) {
       setAltError1(result.error);
       setAltParsing1(false);
@@ -627,7 +652,9 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     if (!raw) return;
     setAltParsing2(true);
     setAltError2(null);
-    const result = await importPastedFactoryVehicle(raw);
+    const result = await importPastedFactoryVehicle(raw, fetch, {
+      existingVehicles: [selectedVehicle, altVehicle1],
+    });
     if (!result.ok) {
       setAltError2(result.error);
       setAltParsing2(false);
@@ -641,6 +668,11 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     setAltVin2("");
     setAltError2(null);
   };
+
+  // Every import call passes the package so a duplicate VIN is refused
+  // before a network round-trip — whether pasted as a VIN or resolved from a
+  // URL. MAX_PACKAGE_VEHICLES is the primary plus the two alternate slots.
+  const packageVehicles = () => [selectedVehicle, altVehicle1, altVehicle2];
 
   const chooseDirectOffer = () => {
     setOfferPath("direct");
@@ -1064,8 +1096,18 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                 </div>
 
                 {parseError && (
-                  <div className="rounded-xl border border-amber-500/40 bg-amber-950/30 px-3 py-2 text-[11px] text-amber-200">
-                    {parseError}
+                  <div className="flex items-start justify-between gap-3 rounded-xl border border-amber-500/40 bg-amber-950/30 px-3 py-2 text-[11px] text-amber-200">
+                    <span className="leading-snug">{parseError}</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setParseError(null);
+                        setDealerUrlInput("");
+                      }}
+                      className="shrink-0 text-[10px] font-bold uppercase tracking-wide text-amber-300 hover:text-white"
+                    >
+                      Clear
+                    </button>
                   </div>
                 )}
 
@@ -1073,10 +1115,21 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                     buyer to catch a wrong VIN before continuing; the full
                     build stays one click away on the factory sheet. */}
                 {parseSuccessMsg && selectedVehicle && (
-                  <div className="flex items-center justify-between gap-3 rounded-lg border border-emerald-500/40 bg-emerald-500/5 px-3 py-2 animate-fadeIn">
+                  <div
+                    className={`flex items-center justify-between gap-3 rounded-lg border px-3 py-2 animate-fadeIn ${
+                      selectedVehicle.buildConfidence === "dealer_listing_only"
+                        ? "border-amber-500/40 bg-amber-500/5"
+                        : "border-emerald-500/40 bg-emerald-500/5"
+                    }`}
+                  >
                     <span className="flex min-w-0 items-center gap-2">
-                      <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-400" />
-                      <span className="truncate text-[11px] text-ink-light">
+                      <CheckCircle2
+                        className={`h-4 w-4 shrink-0 ${
+                          selectedVehicle.buildConfidence === "dealer_listing_only" ? "text-amber-400" : "text-emerald-400"
+                        }`}
+                      />
+                      <span className="min-w-0 text-[11px] text-ink-light">
+                        <span className="block truncate">
                         {[selectedVehicle.year, selectedVehicle.make, selectedVehicle.model, selectedVehicle.trim]
                           .filter(Boolean)
                           .join(" ")}
@@ -1097,9 +1150,41 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                             </span>
                           );
                         })()}
+                        </span>
+                        {/* VIN and the dealer rooftop — or, failing a name, the
+                            site the link came from — so the buyer can confirm
+                            this is the car and the store they meant. */}
+                        <span className="block truncate text-[10px] text-ink-muted">
+                          <span className="font-mono">{selectedVehicle.vin}</span>
+                          {(() => {
+                            const dealer = selectedVehicle.location?.dealerName?.trim();
+                            let host = "";
+                            try {
+                              host = selectedVehicle.dealerUrl ? new URL(selectedVehicle.dealerUrl).hostname.replace(/^www\./, "") : "";
+                            } catch {
+                              host = "";
+                            }
+                            const where = dealer || host;
+                            return where ? <> · {where}</> : null;
+                          })()}
+                        </span>
                       </span>
                     </span>
                     <span className="flex shrink-0 items-center gap-3">
+                      <span
+                        className={`rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide ${
+                          selectedVehicle.buildConfidence === "dealer_listing_only"
+                            ? "bg-amber-500/15 text-amber-300"
+                            : "bg-emerald-500/15 text-emerald-300"
+                        }`}
+                        title={
+                          selectedVehicle.buildConfidence === "dealer_listing_only"
+                            ? "No factory build sheet was available — details come from the VIN and the dealer's listing."
+                            : "Read from the manufacturer's official factory build sheet."
+                        }
+                      >
+                        {selectedVehicle.buildConfidence === "dealer_listing_only" ? "Unconfirmed build" : "Factory verified"}
+                      </span>
                       {fordPdfUrl && (
                         <a
                           href={fordPdfUrl}
@@ -1121,6 +1206,14 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                       </button>
                     </span>
                   </div>
+                )}
+
+                {parseSuccessMsg && selectedVehicle?.buildConfidence === "dealer_listing_only" && (
+                  <p className="rounded-lg border border-amber-500/30 bg-amber-950/20 px-3 py-2 text-[11px] leading-snug text-amber-200">
+                    <strong className="font-bold">Unconfirmed build — dealer listing only.</strong> No factory build sheet
+                    is available for this VIN yet, so the details above come from the VIN and the dealer&apos;s page, and
+                    must-have options can&apos;t be matched. You can continue with it, or remove it and try another link.
+                  </p>
                 )}
 
                 {/* Must-haves collapse behind a one-line summary — the full

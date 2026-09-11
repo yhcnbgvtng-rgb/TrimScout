@@ -16,6 +16,7 @@ import {
 import { factoryBuildFailedError, factoryBuildUnavailableError } from "@/lib/pasteImport";
 import { currentDealerForVin } from "@/lib/listingSheet";
 import { guardPaidDecode, MARKETCHECK_CALL_COST_USD } from "@/lib/apiSpendGuard";
+import { buildFreeImport, fillMissingYear } from "@/lib/freeVinImportServer";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -112,11 +113,25 @@ async function lookup(opts: { vin?: string; paste?: string; pasteUrl: string | n
     const mustHaveLines = defaultMustHaveLines(sticker);
     const niceToHaveLines = defaultNiceToHaveLines(sticker, mustHaveLines);
     const listingPrice = resolved.listingPrice && resolved.listingPrice > 0 ? resolved.listingPrice : null;
-    const vehicle =
-      sticker.status === "released" && sticker.vin === vin
-        ? stellantisStickerToVehicle(sticker, listingUrl, listingPrice, currentDealer)
-        : null;
-    if (vehicle && vehicle.vin !== vin) {
+    // No released sticker — the car is still real. Import it on the free
+    // path (NHTSA + the listing page) flagged dealer-listing-only, instead
+    // of returning vehicle: null and dead-ending the buyer.
+    if (!(sticker.status === "released" && sticker.vin === vin)) {
+      const free = await buildFreeImport({
+        vin,
+        pasteUrl: opts.pasteUrl,
+        source: resolved,
+        makeLabel: "Stellantis",
+        sticker: sticker as unknown as Record<string, unknown>,
+      });
+      if (!free.ok) return vinPasteError(free.error, { vin });
+      return NextResponse.json(free.payload);
+    }
+    // A released sticker the parser only half-read (no year) must not ship
+    // as "0 Stellantis …" — fill the year from the VIN.
+    const vehicle = await fillMissingYear(stellantisStickerToVehicle(sticker, listingUrl, listingPrice, currentDealer));
+    vehicle.buildConfidence = "verified_factory";
+    if (vehicle.vin !== vin) {
       return vinPasteError(factoryBuildFailedError(vin), { vin });
     }
     return NextResponse.json({
@@ -124,6 +139,7 @@ async function lookup(opts: { vin?: string; paste?: string; pasteUrl: string | n
       vin,
       sticker,
       vehicle,
+      buildConfidence: "verified_factory",
       listingPrice,
       mustHaveLines,
       niceToHaveLines,
