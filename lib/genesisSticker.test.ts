@@ -73,6 +73,27 @@ describe("Genesis WMI routing", () => {
     // Porsche has its own (listing-feed-backed) route now — see lib/porscheSticker.ts.
     assert.equal(preferredFactoryBuildEndpoint("WP0AB2A98SS160032"), "/api/porsche-sticker");
   });
+
+  it("lets an unambiguous VIN outrank a text guess about the paste", () => {
+    // The WMI is manufacturer-assigned; "the URL mentions ford" is a guess.
+    // Before this, the guess could veto the VIN: a BMW at a Rockford dealer
+    // "conflicted" with the Ford heuristic and fell through to the Ford route.
+    assert.equal(
+      preferredFactoryBuildEndpoint(
+        "https://www.loubachrodtbmw.com/new-Rockford-2026-BMW-X3-30+xDrive-5UX53GP01T9190742"
+      ),
+      "/api/bmw-sticker"
+    );
+    // Even with the brand word spelled out as a standalone token, the VIN wins.
+    assert.equal(
+      preferredFactoryBuildEndpoint("ford dealer listing 5UX53GP01T9190742"),
+      "/api/bmw-sticker"
+    );
+    assert.equal(
+      preferredFactoryBuildEndpoint(`bmw of somewhere ${FORD_SUBJECT}`),
+      "/api/ford-sticker"
+    );
+  });
 });
 
 describe("Genesis factory-build parse — real G90 sticker (no separate trim printed)", () => {

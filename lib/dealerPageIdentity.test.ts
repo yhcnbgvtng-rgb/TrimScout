@@ -169,3 +169,67 @@ describe("bot-shield and error pages", () => {
     }
   });
 });
+
+describe("extractDealerIdentity — template conventions", () => {
+  // Real markup from loubachrodtbmw.com (2026-09-10), which has JSON-LD for the
+  // vehicle but no seller node, an og:site_name-free head, and a title that
+  // leads with the model year.
+  const BACHRODT = `<title>2026 BMW X3 30 xDrive Rockford IL | Janesville Beloit Belvidere Illinois 5UX53GP01T9190742</title>
+    <meta name="description" content="Research the 2026 BMW X3 30 xDrive in Rockford, IL at Bachrodt BMW. View pictures, specs, and pricing on our huge selection of vehicles. 5UX53GP01T9190742">
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"Vehicle","name":"2026 BMW X3 30 xDrive","manufacturer":{"name":"BMW","@type":"Organization"},"vehicleIdentificationNumber":"5UX53GP01T9190742"}</script>
+    <img class="img-responsive" src="/static/dealer-10851/logo.png" title="Bachrodt BMW" alt="Bachrodt BMW Rockford, IL">
+    <li class="dealerName"><h3><span class="hidden-sm">Welcome to</span> Bachrodt BMW</h3></li>`;
+
+  it("reads the rooftop from a dealerName element and borrows city/state from the logo", () => {
+    const identity = extractDealerIdentity(BACHRODT, 200);
+    assert.equal(identity.name, "Bachrodt BMW");
+    assert.equal(identity.source, "dealer_name_element");
+    assert.equal(identity.city, "Rockford");
+    assert.equal(identity.state, "IL");
+  });
+
+  it("does not report the manufacturer Organization as the dealer", () => {
+    // The Vehicle's manufacturer is an Organization named "BMW". Without the
+    // dealerName element it must fall through, never return "BMW".
+    const html = `<script type="application/ld+json">{"@type":"Vehicle","manufacturer":{"@type":"Organization","name":"BMW"}}</script>`;
+    assert.equal(extractDealerIdentity(html).name, null);
+  });
+
+  it("still accepts an Organization reached through the seller relation", () => {
+    const html = `<script type="application/ld+json">{"@type":"Vehicle","offers":{"@type":"Offer","seller":{"@type":"Organization","name":"Open Road BMW"}}}</script>`;
+    assert.equal(extractDealerIdentity(html).name, "Open Road BMW");
+  });
+
+  it("falls back to the logo alt, keeping the whole name when it can't be split from the city", () => {
+    // "Prestige Volvo Cars East Hanover" may genuinely be the dealer's name —
+    // there's no safe place to cut it. Only the ", NJ" is certain.
+    const html = `<img src="/img/site-logo.png" alt="Prestige Volvo Cars East Hanover, NJ">`;
+    const identity = extractDealerIdentity(html);
+    assert.equal(identity.name, "Prestige Volvo Cars East Hanover");
+    assert.equal(identity.city, null);
+    assert.equal(identity.state, "NJ");
+    assert.equal(identity.source, "logo");
+  });
+
+  it("splits city and state off a logo alt when the title names the dealer", () => {
+    const html = `<img src="/static/dealer-1/logo.png" title="Bachrodt BMW" alt="Bachrodt BMW Rockford, IL">`;
+    const identity = extractDealerIdentity(html);
+    assert.equal(identity.name, "Bachrodt BMW");
+    assert.equal(identity.city, "Rockford");
+    assert.equal(identity.state, "IL");
+  });
+
+  it("falls back to the meta description's 'at <dealer>' phrasing", () => {
+    const html = `<meta property="og:description" content="Check out this 2026 Toyota RAV4 XLE in Hartford, CT at Hoffman Toyota. Call today.">`;
+    const identity = extractDealerIdentity(html);
+    assert.equal(identity.name, "Hoffman Toyota");
+    assert.equal(identity.city, "Hartford");
+    assert.equal(identity.state, "CT");
+    assert.equal(identity.source, "meta_description");
+  });
+
+  it("ignores logo images that are not the site logo", () => {
+    const html = `<img src="/img/bmw-brand.png" alt="BMW">`;
+    assert.equal(extractDealerIdentity(html).name, null);
+  });
+});

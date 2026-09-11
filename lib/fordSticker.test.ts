@@ -81,6 +81,35 @@ describe("VIN extract / Ford identity", () => {
     assert.equal(looksLikeFordOrLincolnPaste(ROUTE23_BRONCO_URL), true);
   });
 
+  it("does not mistake a city ending in -ford for the Ford brand", () => {
+    // Each of these is a real dealer city. Substring-matching "ford" routed
+    // their non-Ford listings to the Ford sticker route, which refused the VIN.
+    for (const url of [
+      "https://www.loubachrodtbmw.com/new-Rockford-2026-BMW-X3-30+xDrive-5UX53GP01T9190742",
+      "https://www.hartfordtoyota.example/new/Toyota/2026-Toyota-RAV4.htm",
+      "https://www.bradfordhonda.example/inventory/new",
+      "https://www.stanfordmercedes.example/vdp/123",
+      "https://www.medfordsubaru.example/new-vehicles/",
+      "https://www.milfordnissan.example/new/",
+      "https://www.oxfordbmw.example/inventory",
+      "https://www.waterfordkia.example/new",
+    ]) {
+      assert.equal(looksLikeFordOrLincolnPaste(url), false, url);
+    }
+  });
+
+  it("still recognises Ford and Lincoln when they start a token", () => {
+    for (const url of [
+      "https://www.ford.com/inventory/",
+      "https://www.fordofwayne.example/new/",
+      "https://shop.example.com/ford/2026-bronco",
+      "https://www.lincolnofmorristown.example/new/",
+      "https://www.route23ford.example/new/?q=1",
+    ]) {
+      assert.equal(looksLikeFordOrLincolnPaste(url), true, url);
+    }
+  });
+
   it("prefers the real VIN over an AWS instance id that appears first in the HTML", () => {
     const html = `<!-- i-0cf3d43ca21f9c687-us-east-1-bot1 -->
       <meta property="og:description" content="2026 Ford Bronco Sport Big Bend VIN ${BRONCO}" />

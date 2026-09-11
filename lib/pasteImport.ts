@@ -272,8 +272,20 @@ export function factoryBuildUnreleasedError(vin: string | null | undefined): str
 export function preferredFactoryBuildEndpoint(paste: string): FactoryBuildEndpoint | null {
   const vin = pastedVinCandidate(paste);
   if (vin) {
-    for (const oem of OEM_ORDER) {
-      if (VIN_IS_OEM[oem](vin) && !otherOemLooksLikeToo(paste, oem)) return OEM_ENDPOINT[oem];
+    // A VIN's WMI is assigned by the manufacturer — when it names exactly one
+    // OEM, that's the answer, and no guess made from the surrounding text gets
+    // to veto it. The text heuristics used to be allowed to: a BMW listing at
+    // a dealer in Rockford, IL tripped the Ford heuristic on "rockford", the
+    // two "conflicted", and the paste fell through to the Ford route, which
+    // refused the BMW VIN. Same failure for Hartford, Bradford, Stanford,
+    // Medford, Milford, Oxford, Waterford — and any dealer with a city like
+    // that in its URL.
+    const byVin = OEM_ORDER.filter((oem) => VIN_IS_OEM[oem](vin));
+    if (byVin.length === 1) return OEM_ENDPOINT[byVin[0]];
+    // Two OEMs claim this WMI (shouldn't happen, but don't guess): let the
+    // paste text break the tie, and only accept an unambiguous one.
+    for (const oem of byVin) {
+      if (!otherOemLooksLikeToo(paste, oem)) return OEM_ENDPOINT[oem];
     }
   }
   for (const oem of OEM_ORDER) {
