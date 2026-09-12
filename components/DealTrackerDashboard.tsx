@@ -152,7 +152,7 @@ export const DealTrackerDashboard: React.FC<DealTrackerDashboardProps> = ({
 
                 {/* Body */}
                 <div className="px-6 sm:px-8 pb-6 space-y-5">
-                  <DealVehiclesSummary request={req} compareHref="/compare" hidePrimary />
+                  <DealVehiclesSummary request={req} hidePrimary />
 
                   <DealerEngagementChips dealers={req.dealerEngagement} />
 

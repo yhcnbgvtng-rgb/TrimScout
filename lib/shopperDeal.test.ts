@@ -334,7 +334,8 @@ describe("Live Deal Room and tracker render the mapped imported deal", () => {
     const wizard = fs.readFileSync(path.join(process.cwd(), "components/BiddingWizard.tsx"), "utf8");
     assert.match(wizard, /shopperDealStructurePayload/);
     assert.match(wizard, /mapDealRequestJson\(dr, local\)/);
-    assert.match(wizard, /router\.push\("\/compare"\)/);
+    // v1: no market comparables page — the wizard stays on the tracker after submit.
+    assert.doesNotMatch(wizard, /router\.push\("\/compare"\)/);
     assert.match(wizard, /directOffer: directOfferMode/);
     assert.match(wizard, /useState<boolean>\(false\)/);
     assert.match(wizard, /make: selectedVehicle\?\.make \|\| ""/);

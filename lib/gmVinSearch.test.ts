@@ -134,6 +134,7 @@ describe("gmVinSearch rank + must-have filter", () => {
     delete env["AUTO_DEV_API_KEY"];
     delete env["LISTINGS_PROVIDER"];
     env["MARKETCHECK_API_KEY"] = "runtime-test-marketcheck";
+    env["MARKETCHECK_ENABLED"] = "true";
     const origFetch = globalThis.fetch;
     let sawTrimParam: string | null = null;
     globalThis.fetch = (async (input: RequestInfo | URL) => {
@@ -162,6 +163,7 @@ describe("gmVinSearch rank + must-have filter", () => {
       else delete env["AUTO_DEV_API_KEY"];
       if (prevM !== undefined) env["MARKETCHECK_API_KEY"] = prevM;
       else delete env["MARKETCHECK_API_KEY"];
+      delete env["MARKETCHECK_ENABLED"];
       if (prevP !== undefined) env["LISTINGS_PROVIDER"] = prevP;
       else delete env["LISTINGS_PROVIDER"];
     }

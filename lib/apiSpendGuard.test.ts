@@ -8,6 +8,7 @@ import {
   recordQuoteRequest,
   resetSpendGuardStateForTests,
 } from "./apiSpendGuard";
+import { serverSecret } from "./serverSecret";
 
 function reqFrom(ip: string): Request {
   return new Request("http://localhost/api/test", { headers: { "x-forwarded-for": ip } });
@@ -52,9 +53,31 @@ describe("isPaidVinDecodeEnabled", () => {
   });
 });
 
+describe("guardPaidDecode — v1 has no MarketCheck", () => {
+  it("blocks every paid call unless MARKETCHECK_ENABLED is set, whatever the budget says", () => {
+    withEnv({ MARKETCHECK_ENABLED: undefined, PAID_DECODE_DAILY_BUDGET_USD: "1000", PAID_DECODE_PER_IP_LIMIT: "1000" }, () => {
+      const blocked = guardPaidDecode({ kind: "test", request: reqFrom("7.7.7.7") });
+      assert.ok(blocked);
+      assert.match(blocked!.message, /not part of this release/);
+    });
+    withEnv({ MARKETCHECK_ENABLED: "false", PAID_DECODE_DAILY_BUDGET_USD: "1000" }, () => {
+      assert.ok(guardPaidDecode({ kind: "test", request: reqFrom("7.7.7.8") }));
+    });
+  });
+
+  it("withholds the API key from every caller while the vendor is off", () => {
+    withEnv({ MARKETCHECK_ENABLED: undefined, MARKETCHECK_API_KEY: "k-should-not-leak" }, () => {
+      assert.equal(serverSecret("MARKETCHECK_API_KEY"), "");
+    });
+    withEnv({ MARKETCHECK_ENABLED: "true", MARKETCHECK_API_KEY: "k-visible" }, () => {
+      assert.equal(serverSecret("MARKETCHECK_API_KEY"), "k-visible");
+    });
+  });
+});
+
 describe("guardPaidDecode — per-IP rate limit", () => {
   it("allows calls under the limit and blocks once exceeded", () => {
-    withEnv({ PAID_DECODE_PER_IP_LIMIT: "3", PAID_DECODE_WINDOW_MS: "60000", PAID_DECODE_DAILY_BUDGET_USD: "1000" }, () => {
+    withEnv({ MARKETCHECK_ENABLED: "true", PAID_DECODE_PER_IP_LIMIT: "3", PAID_DECODE_WINDOW_MS: "60000", PAID_DECODE_DAILY_BUDGET_USD: "1000" }, () => {
       const req = reqFrom("1.2.3.4");
       assert.equal(guardPaidDecode({ kind: "test", request: req }), null);
       assert.equal(guardPaidDecode({ kind: "test", request: req }), null);
@@ -66,7 +89,7 @@ describe("guardPaidDecode — per-IP rate limit", () => {
   });
 
   it("tracks separate IPs independently", () => {
-    withEnv({ PAID_DECODE_PER_IP_LIMIT: "1", PAID_DECODE_WINDOW_MS: "60000", PAID_DECODE_DAILY_BUDGET_USD: "1000" }, () => {
+    withEnv({ MARKETCHECK_ENABLED: "true", PAID_DECODE_PER_IP_LIMIT: "1", PAID_DECODE_WINDOW_MS: "60000", PAID_DECODE_DAILY_BUDGET_USD: "1000" }, () => {
       assert.equal(guardPaidDecode({ kind: "test", request: reqFrom("1.1.1.1") }), null);
       assert.equal(guardPaidDecode({ kind: "test", request: reqFrom("2.2.2.2") }), null);
       assert.ok(guardPaidDecode({ kind: "test", request: reqFrom("1.1.1.1") }));
@@ -77,7 +100,7 @@ describe("guardPaidDecode — per-IP rate limit", () => {
 describe("guardPaidDecode — daily budget kill switch", () => {
   it("blocks once the estimated daily spend reaches the budget, before any vendor call", () => {
     withEnv(
-      { PAID_DECODE_DAILY_BUDGET_USD: "0.10", PAID_DECODE_EST_COST_USD: "0.05", PAID_DECODE_PER_IP_LIMIT: "1000" },
+      { MARKETCHECK_ENABLED: "true", PAID_DECODE_DAILY_BUDGET_USD: "0.10", PAID_DECODE_EST_COST_USD: "0.05", PAID_DECODE_PER_IP_LIMIT: "1000" },
       () => {
         assert.equal(guardPaidDecode({ kind: "test", request: reqFrom("9.9.9.1") }), null);
         assert.equal(guardPaidDecode({ kind: "test", request: reqFrom("9.9.9.2") }), null);
@@ -105,7 +128,7 @@ describe("guardPaidDecode — daily budget kill switch", () => {
   });
 
   it("an explicit per-call estCostUsd overrides the flat default, for routes that fan out to multiple vendor calls", () => {
-    withEnv({ PAID_DECODE_DAILY_BUDGET_USD: "0.02", PAID_DECODE_PER_IP_LIMIT: "1000" }, () => {
+    withEnv({ MARKETCHECK_ENABLED: "true", PAID_DECODE_DAILY_BUDGET_USD: "0.02", PAID_DECODE_PER_IP_LIMIT: "1000" }, () => {
       // One "listing-facts for 2 VINs" request costs 2 * (0.002+0.006+0.002) = 0.02 — exactly the budget.
       const first = guardPaidDecode({ kind: "listing_facts", request: reqFrom("7.7.7.7"), estCostUsd: 0.02 });
       assert.equal(first, null);

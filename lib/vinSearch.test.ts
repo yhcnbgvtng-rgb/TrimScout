@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import { env } from "node:process";
-import { describe, it } from "node:test";
+import { describe, it, before, after } from "node:test";
 import { parseFordStickerText } from "./fordSticker";
 import { serverSecret } from "./serverSecret";
 import {
@@ -57,6 +57,20 @@ import {
   type FordMatchCard,
   type ListingCandidate,
 } from "./vinSearch";
+
+// These tests exercise the MarketCheck path on purpose. v1 ships with the
+// vendor off (serverSecret withholds the key unless MARKETCHECK_ENABLED is
+// set), so opt this file in; the default-off behaviour is covered in
+// apiSpendGuard.test.ts.
+let prevMarketCheckEnabled: string | undefined;
+before(() => {
+  prevMarketCheckEnabled = env.MARKETCHECK_ENABLED;
+  env.MARKETCHECK_ENABLED = "true";
+});
+after(() => {
+  if (prevMarketCheckEnabled === undefined) delete env.MARKETCHECK_ENABLED;
+  else env.MARKETCHECK_ENABLED = prevMarketCheckEnabled;
+});
 
 const FIXTURE_DIR = path.join(import.meta.dirname, "testdata", "ford-stickers");
 const SUBJECT = "1FMWK8JCXTGB47204";

@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { Vehicle, BiddingStrategy, BiddingRequest, UserProfile, type DealStructureMethod, type PurchaseTimeline, type TradeInVehicle } from "../lib/types";
 import {
   DEAL_STRUCTURE_LABELS,
@@ -528,7 +527,6 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   onRequireLogin,
   onRealBidRequestCreated,
 }) => {
-  const router = useRouter();
   const [step, setStep] = useState<number>(1);
   const [, setStrategy] = useState<BiddingStrategy>(initialStrategy);
 
@@ -1304,8 +1302,9 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     } else {
       upsertShopperRequest(request);
     }
+    // v1 has no market-comparables page to land on; the tracker (which the
+    // page switches to on submit) is where the request lives now.
     onClose();
-    router.push("/compare");
   };
 
   const sendQuoteRequestPackage = async () => {

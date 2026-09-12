@@ -7,16 +7,8 @@
 
 import { NextResponse } from "next/server";
 import { isExplicitNonFordDemoPaste, looksLikeUrl } from "./fordSticker";
-import {
-  buildToVehicle,
-  defaultMustHaveLines,
-  defaultNiceToHaveLines,
-  filterableFactoryOptions,
-  getListingFeedBuild,
-  type ListingFeedMake,
-} from "./listingFeedBuild";
-import { factoryBuildFailedError, factoryBuildUnavailableError } from "./pasteImport";
-import { guardPaidDecode, isPaidVinDecodeEnabled, MARKETCHECK_CALL_COST_USD } from "./apiSpendGuard";
+import { type ListingFeedMake } from "./listingFeedBuild";
+import { factoryBuildUnavailableError } from "./pasteImport";
 import { buildFreeImport } from "./freeVinImportServer";
 import type { DealerPageIdentity } from "./dealerPageIdentity";
 import { blockedDealerPayload, resolveRoutePaste } from "./pasteResolutionServer";
@@ -102,66 +94,10 @@ export function createListingFeedStickerHandlers(config: ListingFeedRouteConfig)
       return NextResponse.json({ handled: false, [notFlag]: true, vin, error: factoryBuildUnavailableError(vin) });
     }
 
-    // Paid VIN/options decode — off by default (see lib/apiSpendGuard.ts).
-    // This is a deliberate kill switch, not a bug: flip
-    // PAID_VIN_DECODE_ENABLED=true only once the seed shortlist's honesty
-    // checks are green.
-    if (!isPaidVinDecodeEnabled()) {
-      return freeImportResponse(vin, opts.pasteUrl, resolved);
-    }
-    // getListingFeedBuild fires 1-2 real MarketCheck calls per VIN (search,
-    // plus a conditional listing-detail call) — charge the worst case.
-    const blocked = guardPaidDecode({
-      kind: `listing_feed_sticker_${make.key}`,
-      request: opts.request,
-      estCostUsd: MARKETCHECK_CALL_COST_USD.search + MARKETCHECK_CALL_COST_USD.listingDetail,
-    });
-    if (blocked) {
-      // Over the daily budget, but the free signals cost nothing — same
-      // degraded-but-usable import rather than a dead end for the buyer.
-      return freeImportResponse(vin, opts.pasteUrl, resolved);
-    }
-
-    try {
-      const build = await getListingFeedBuild(make, vin);
-      const listingUrl = opts.pasteUrl && /^https?:\/\//i.test(opts.pasteUrl) ? opts.pasteUrl.trim() : null;
-      if (build.status !== "found") {
-        return NextResponse.json(
-          {
-            handled: true,
-            vin,
-            sticker: { status: build.status === "not_found" ? "unreleased" : "error", pdfUrl: null, msrp: null },
-            vehicle: null,
-            error: build.note || factoryBuildFailedError(vin),
-          },
-          { status: build.status === "not_found" ? 200 : 502 }
-        );
-      }
-      const mustHaveLines = defaultMustHaveLines(build);
-      const niceToHaveLines = defaultNiceToHaveLines(build, mustHaveLines);
-      const listingPrice =
-        build.listingPrice || (resolved.listingPrice && resolved.listingPrice > 0 ? resolved.listingPrice : null);
-      return NextResponse.json({
-        handled: true,
-        vin,
-        // "sticker" keeps the shared paste-import contract; there is no PDF
-        // for these makes — status "released" means the live build was found.
-        sticker: { status: "released", pdfUrl: null, msrp: build.msrp, source: "dealer_listing_feed" },
-        build,
-        vehicle: { ...buildToVehicle(make.key, build, listingUrl), buildConfidence: "verified_factory" as const },
-        buildConfidence: "verified_factory",
-        listingPrice,
-        mustHaveLines,
-        niceToHaveLines,
-        filterableOptions: filterableFactoryOptions(build).map((o) => ({ ...o, source: "listing" as const })),
-        pdfUrl: null,
-        note: build.note,
-        pageUnread: Boolean(resolved.pageBlocked),
-      });
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : factoryBuildFailedError(vin);
-      return NextResponse.json({ error: message, handled: true, needsVin: false, vin }, { status: 502 });
-    }
+    // v1: no MarketCheck. The free import (NHTSA facts + the link's
+    // dealership) is the whole answer for these makes; the listing-feed
+    // build in lib/listingFeedBuild.ts stays for a later metered release.
+    return freeImportResponse(vin, opts.pasteUrl, resolved);
   }
 
   async function GET(request: Request) {

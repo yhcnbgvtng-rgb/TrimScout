@@ -9,8 +9,20 @@ import { env } from "node:process";
  * Static `process.env.NAME` fallbacks keep listings key names on Next's
  * env allowlist / DefinePlugin. These keys stay server-only.
  */
+/**
+ * v1 ships with no MarketCheck integration. The key is withheld from every
+ * caller unless MARKETCHECK_ENABLED=true is set explicitly, so a stray
+ * budget or provider setting can never turn paid calls on by itself — each
+ * fetcher already treats "no key" as unavailable.
+ */
+export function isMarketCheckEnabled(): boolean {
+  const raw = String(env.MARKETCHECK_ENABLED || process.env.MARKETCHECK_ENABLED || "").trim();
+  return /^(1|true|yes|on)$/i.test(raw);
+}
+
 export function serverSecret(name: string): string {
   if (name === "MARKETCHECK_API_KEY") {
+    if (!isMarketCheckEnabled()) return "";
     return String(env.MARKETCHECK_API_KEY || process.env.MARKETCHECK_API_KEY || "").trim();
   }
   if (name === "LISTINGS_PROVIDER") {
