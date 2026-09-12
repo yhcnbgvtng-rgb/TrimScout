@@ -20,6 +20,7 @@
 // A durable fix needs a shared store (Vercel KV / Upstash Redis) — noted
 // in README.md as a deliberate follow-up, not done here.
 import { env } from "node:process";
+import { isMarketCheckEnabled } from "./serverSecret";
 import { clientIpFromHeaders } from "./clientIp";
 
 function numEnv(name: string, fallback: number): number {
@@ -197,6 +198,9 @@ export interface PaidDecodeGuardResult {
   message: string;
 }
 
+/** Fails closed for the whole vendor when MarketCheck is off for the release (see serverSecret.ts). */
+const MARKETCHECK_OFF_MESSAGE = "Market data is not part of this release.";
+
 export function guardPaidDecode(opts: {
   kind: string;
   request: Request;
@@ -211,6 +215,11 @@ export function guardPaidDecode(opts: {
 }): PaidDecodeGuardResult | null {
   const now = Date.now();
   const ip = clientIpFromHeaders(opts.request.headers);
+
+  if (!isMarketCheckEnabled()) {
+    logSpendEvent("paid_decode_blocked", { reason: "marketcheck_disabled", kind: opts.kind, ip });
+    return { allowed: false, status: 429, message: MARKETCHECK_OFF_MESSAGE };
+  }
 
   const spend = currentDailySpend();
   const budget = dailyBudgetUsd();

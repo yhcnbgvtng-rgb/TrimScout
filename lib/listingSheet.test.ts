@@ -2,7 +2,8 @@ import "./testdata/blockLiveHttp";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
-import { describe, it } from "node:test";
+import { describe, it, before, after } from "node:test";
+import { env } from "node:process";
 import {
   LISTING_DETAILS_UNAVAILABLE,
   FORD_LISTINGS_LOAD_FAILED,
@@ -18,6 +19,20 @@ import {
   publicListingSheets,
   shopperSheetFromMarketCheckPayloads,
 } from "./listingSheet";
+
+// These tests exercise the MarketCheck path on purpose. v1 ships with the
+// vendor off (serverSecret withholds the key unless MARKETCHECK_ENABLED is
+// set), so opt this file in; the default-off behaviour is covered in
+// apiSpendGuard.test.ts.
+let prevMarketCheckEnabled: string | undefined;
+before(() => {
+  prevMarketCheckEnabled = env.MARKETCHECK_ENABLED;
+  env.MARKETCHECK_ENABLED = "true";
+});
+after(() => {
+  if (prevMarketCheckEnabled === undefined) delete env.MARKETCHECK_ENABLED;
+  else env.MARKETCHECK_ENABLED = prevMarketCheckEnabled;
+});
 
 const FAVORITE = "1FMWK8JCXTGB47204";
 const OTHER = "1FMWK8JC7TGB81309";
@@ -441,7 +456,8 @@ describe("listing-facts route and compare page copy", () => {
     assert.doesNotMatch(view, /Already know one\?/);
     assert.doesNotMatch(view, /saveOfferCompareSnapshot\([^)]*candidates/);
     assert.match(view, /border-2 border-emerald-500/);
-    assert.match(wizard, /router\.push\("\/compare"\)/);
+    // v1: no market comparables — the wizard never routes to /compare.
+    assert.doesNotMatch(wizard, /router\.push\("\/compare"\)/);
     assert.match(wizard, /buildOfferCompareSnapshot/);
     assert.match(wizard, /otherLots: otherLotsForDeal/);
     assert.match(wizard, /vehicleTerms: vehicleTermsForDeal/);

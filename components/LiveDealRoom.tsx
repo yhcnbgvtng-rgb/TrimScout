@@ -219,7 +219,7 @@ export const LiveDealRoom: React.FC<LiveDealRoomProps> = ({
       </div>
 
       {/* Vehicles in this deal */}
-      <DealVehiclesSummary request={request} compareHref="/compare" />
+      <DealVehiclesSummary request={request} />
 
       <DealerEngagementChips dealers={liveDealers} />
 
