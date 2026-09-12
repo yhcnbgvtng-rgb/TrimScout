@@ -52,7 +52,7 @@ export const DealTrackerDashboard: React.FC<DealTrackerDashboardProps> = ({
           <div className="space-y-1">
             <h3 className="text-base font-bold text-white">No quote requests yet</h3>
             <p className="text-xs text-ink-muted max-w-md mx-auto">
-              Paste a dealer&apos;s listing for the car you want and we&apos;ll send the dealership an anonymized quote request. Quotes show up here.
+              Paste a dealer&apos;s listing for the car you want and we&apos;ll send the dealership a quote request. Quotes show up here.
             </p>
           </div>
           <button
