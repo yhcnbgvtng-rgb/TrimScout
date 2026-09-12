@@ -9,7 +9,8 @@ import {
   toggleDealStructure,
 } from "../lib/dealStructure";
 import { formatCurrency, getZipCoordinates } from "../lib/otdCalculator";
-import { outOfStateVehicles, formatOutOfStateWarning } from "../lib/sameStateCheck";
+import { outOfStateVehicles, formatOutOfStateWarning, stateGatePlan, formatExpandNudge } from "../lib/sameStateCheck";
+import { diffVsPrimary, mustHaveHeadline, mustHaveReport, type MustHaveRef } from "../lib/alternateCompare";
 import { isPlausibleDealerEmail, type DealerContactStatus } from "../lib/dealerContactLookup";
 import { formatBuyerAlias } from "../lib/buyerAlias";
 import {
@@ -470,6 +471,8 @@ function AlternateVinField({
   parsing,
   onRemove,
   onChangeDealer,
+  primary,
+  mustHaves,
 }: {
   label: string;
   value: string;
@@ -480,16 +483,22 @@ function AlternateVinField({
   parsing: boolean;
   onRemove: () => void;
   onChangeDealer?: () => void;
+  /** The favorite and the buyer's must-haves — what the alternate is measured against. */
+  primary?: Vehicle | null;
+  mustHaves?: MustHaveRef[];
 }) {
   if (vehicle) {
+    const report = primary ? mustHaveReport(mustHaves || [], vehicle) : null;
+    const chips = primary ? diffVsPrimary(primary, vehicle, mustHaves || []) : [];
     return (
       <div
-        className={`flex items-center justify-between gap-2 rounded-xl border px-3 py-2.5 ${
+        className={`rounded-xl border px-3 py-2.5 ${
           vehicle.buildConfidence === "dealer_listing_only"
             ? "border-amber-500/40 bg-amber-500/5"
             : "border-emerald-500/40 bg-emerald-500/5"
         }`}
       >
+        <div className="flex items-center justify-between gap-2">
         <div className="min-w-0">
           <p className="flex items-center gap-2 text-[10px] font-bold uppercase text-emerald-400">
             {label} — added
@@ -540,6 +549,50 @@ function AlternateVinField({
         >
           <X className="h-4 w-4" />
         </button>
+        </div>
+        {report ? (
+          <div className="mt-2 space-y-1 border-t border-border/60 pt-2" data-testid="alternate-compare">
+            <p
+              className={`text-[11px] font-bold ${
+                report.kind === "scored"
+                  ? report.missing.length === 0
+                    ? "text-emerald-300"
+                    : "text-amber-200"
+                  : "text-ink-muted"
+              }`}
+            >
+              {mustHaveHeadline(report)}
+              {report.kind === "scored" ? <span className="font-normal text-ink-faint"> vs your favorite</span> : null}
+            </p>
+            {report.kind === "scored" && report.total > 1 ? (
+              <div className="flex flex-wrap gap-1">
+                {report.hits.map((h) => (
+                  <span
+                    key={h.name}
+                    className={`rounded px-1.5 py-0.5 text-[10px] ${
+                      h.present ? "bg-emerald-500/15 text-emerald-300" : "bg-amber-500/20 text-amber-200 line-through decoration-amber-400/70"
+                    }`}
+                  >
+                    {h.present ? "✓ " : "✕ "}
+                    {h.name}
+                  </span>
+                ))}
+              </div>
+            ) : null}
+            {chips.length > 0 ? (
+              <p className="text-[10px] leading-snug text-ink-muted">
+                {chips.map((c, i) => (
+                  <span key={`${c.kind}-${c.text}`}>
+                    {i > 0 ? " · " : ""}
+                    <span className={c.kind === "missing" ? "text-amber-300" : c.kind === "different" ? "text-ink-light" : c.kind === "extra" ? "text-sky-300" : ""}>
+                      {c.text}
+                    </span>
+                  </span>
+                ))}
+              </p>
+            ) : null}
+          </div>
+        ) : null}
       </div>
     );
   }
@@ -785,8 +838,24 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   // On the direct path the request only goes to confirmed, unblocked desks —
   // every count the buyer sees from step 3 on should be that, not the number
   // of cars pasted.
+  // "Only send this to dealerships in my state" gates who receives the
+  // package. It only ever holds back desks it can prove are elsewhere, and
+  // when that would leave the package short it offers the expand — the
+  // buyer is never left with an empty send path.
+  const buyerStateFromZip = /^\d{5}$/.test(huntZip.trim()) ? getZipCoordinates(huntZip.trim()).state : "";
+  const gatePlan = stateGatePlan(
+    buyerStateFromZip,
+    importedDealerships.map((d) => ({
+      dealerName: d.dealerName,
+      state: d.state,
+      contactReady: Boolean(quoteDesks[d.dealerName]?.knownNamed && !quoteDesks[d.dealerName]?.blockedReason),
+    })),
+    sameStateOnly
+  );
+  const excludedByState = new Set(gatePlan.active ? gatePlan.excludedReady.map((d) => d.dealerName) : []);
+  const expandNudge = directOfferMode ? formatExpandNudge(gatePlan) : "";
   const confirmedDeskCount = importedDealerships.filter(
-    (d) => confirmedDesks[d.dealerName] && !quoteDesks[d.dealerName]?.blockedReason
+    (d) => confirmedDesks[d.dealerName] && !quoteDesks[d.dealerName]?.blockedReason && !excludedByState.has(d.dealerName)
   ).length;
   const sendToCount = directOfferMode ? confirmedDeskCount : importedDealerships.length;
   useEffect(() => {
@@ -926,7 +995,6 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   // Same-state applies to every dealer on an auction request, including the one
   // holding the imported car — so a checked box plus an out-of-state listing
   // would hide the request from the dealer who actually has the vehicle.
-  const buyerStateFromZip = huntReady ? getZipCoordinates(huntZip.trim()).state : "";
   const sameStateConflicts = sameStateOnly
     ? outOfStateVehicles(buyerStateFromZip, [selectedVehicle, altVehicle1, altVehicle2])
     : [];
@@ -1285,6 +1353,13 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     }
   };
 
+  // The buyer's picks, with the favorite's factory codes attached so an
+  // alternate that spells an option differently still scores by code.
+  const selectedMustHaveRefs: MustHaveRef[] = mustHavePackages.map((name) => ({
+    name,
+    code: fordFilterableOptions.find((o) => o.name === name)?.code || null,
+  }));
+
   const toggleFordMustHave = (name: string) => {
     setMustHavePackages((prev) =>
       prev.includes(name) ? prev.filter((p) => p !== name) : [...prev, name]
@@ -1387,7 +1462,9 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
       buildConfidence: v.buildConfidence || "dealer_listing_only",
       resolvedAt: new Date().toISOString(),
     }));
-    const toSend = pastes.filter((p) => p.dealerName && confirmedDesks[p.dealerName] && !quoteDesks[p.dealerName]?.blockedReason);
+    const toSend = pastes.filter(
+      (p) => p.dealerName && confirmedDesks[p.dealerName] && !quoteDesks[p.dealerName]?.blockedReason && !excludedByState.has(p.dealerName)
+    );
     if (toSend.length === 0) {
       setSubmitError("Tick at least one dealership with a named sales contact to send the request.");
       return;
@@ -1908,6 +1985,8 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                       parsing={altParsing1}
                       onRemove={removeAlt1}
                       onChangeDealer={() => changeDealerFor("alt1")}
+                      primary={selectedVehicle}
+                      mustHaves={selectedMustHaveRefs}
                     />
                     {pendingLink?.slot === "alt1" && pendingLink.kind === "link" && (
                       <LinkConfirmPanel pending={pendingLink} busy={linkBusy} error={linkError} zipHint={buyerZipHint} onConfirm={confirmLink} onCancel={cancelPendingLink} />
@@ -1928,6 +2007,8 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                       parsing={altParsing2}
                       onRemove={removeAlt2}
                       onChangeDealer={() => changeDealerFor("alt2")}
+                      primary={selectedVehicle}
+                      mustHaves={selectedMustHaveRefs}
                     />
                     {pendingLink?.slot === "alt2" && pendingLink.kind === "link" && (
                       <LinkConfirmPanel pending={pendingLink} busy={linkBusy} error={linkError} zipHint={buyerZipHint} onConfirm={confirmLink} onCancel={cancelPendingLink} />
@@ -1949,20 +2030,41 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                   </button>
                 )}
 
-                <label className="flex items-start gap-2 pt-1 text-[11px] cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={sameStateOnly}
-                    onChange={(e) => setSameStateOnly(e.target.checked)}
-                    className="mt-0.5 h-3.5 w-3.5 shrink-0 rounded border-border text-emerald-500 focus:ring-0"
-                  />
-                  <span className="leading-snug text-ink-muted">
-                    Only send this to dealerships in my state
-                    <span className="block text-[10px] text-ink-faint">
-                      Uncheck to include dealerships in other states within the radius
+                <div className="flex flex-wrap items-start justify-between gap-2 pt-1">
+                  <label className="flex items-start gap-2 text-[11px] cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={sameStateOnly}
+                      onChange={(e) => setSameStateOnly(e.target.checked)}
+                      className="mt-0.5 h-3.5 w-3.5 shrink-0 rounded border-border text-emerald-500 focus:ring-0"
+                    />
+                    <span className="leading-snug text-ink-muted">
+                      Only send this to dealerships in my state
+                      <span className="block text-[10px] text-ink-faint">
+                        Uncheck to include dealerships in other states within the radius
+                      </span>
                     </span>
-                  </span>
-                </label>
+                  </label>
+                  {sameStateOnly ? (
+                    <label className="flex items-center gap-1.5 text-[10px] text-ink-faint">
+                      Your ZIP
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        maxLength={5}
+                        value={huntZip}
+                        onChange={(e) => {
+                          const next = e.target.value.replace(/\D/g, "").slice(0, 5);
+                          setHuntZip(next);
+                          if (next.length === 5) setBuyerZip(next);
+                        }}
+                        placeholder="07405"
+                        aria-label="Your ZIP, for the same-state filter"
+                        className="w-16 rounded-md border border-border bg-background px-2 py-1 font-mono text-[10px] text-ink-light placeholder-ink-faint focus:border-emerald-500 focus:outline-none"
+                      />
+                    </label>
+                  ) : null}
+                </div>
 
                 {sameStateWarning && (
                   <div className="rounded-lg border border-amber-500/40 bg-amber-950/30 px-3 py-2 space-y-1.5">
@@ -2087,6 +2189,24 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                 }
                 className="py-6"
               >
+                {expandNudge ? (
+                  <div className="mb-2 flex flex-wrap items-center justify-between gap-2 rounded-lg border border-amber-500/40 bg-amber-950/30 px-3 py-2">
+                    <p className="text-[11px] leading-snug text-amber-200">{expandNudge}</p>
+                    <button
+                      type="button"
+                      onClick={() => setSameStateOnly(false)}
+                      className="shrink-0 rounded-lg bg-amber-400 px-3 py-1.5 text-[11px] font-black text-black hover:bg-amber-300 transition-all"
+                    >
+                      Include dealerships in other states
+                    </button>
+                  </div>
+                ) : null}
+                {directOfferMode && gatePlan.active && !expandNudge && excludedByState.size > 0 ? (
+                  <p className="mb-2 text-[10px] text-ink-faint">
+                    Keeping this in {gatePlan.buyerState}: {excludedByState.size} dealership{excludedByState.size === 1 ? "" : "s"} in{" "}
+                    {gatePlan.excludedStates.join(", ")} left out by your same-state setting.
+                  </p>
+                ) : null}
                 {importedDealerships.length === 0 ? (
                   <p className="text-[11px] text-ink-muted">
                     We couldn&apos;t identify a dealership for the cars you added.
@@ -2098,6 +2218,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                       const typed = buyerDealerEmails[dealer.dealerName] || "";
                       const supplied = isPlausibleDealerEmail(typed);
                       const reachable = Boolean(contact?.hasEmail && !contact?.emailOptOut);
+                      const heldByState = excludedByState.has(dealer.dealerName);
                       return (
                         <li
                           key={dealer.dealerName}
@@ -2109,8 +2230,8 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                                 <input
                                   type="checkbox"
                                   aria-label={`Send a quote request to ${dealer.dealerName}`}
-                                  checked={Boolean(confirmedDesks[dealer.dealerName]) && !quoteDesks[dealer.dealerName]?.blockedReason}
-                                  disabled={!quoteDesks[dealer.dealerName] || Boolean(quoteDesks[dealer.dealerName]?.blockedReason)}
+                                  checked={Boolean(confirmedDesks[dealer.dealerName]) && !quoteDesks[dealer.dealerName]?.blockedReason && !heldByState}
+                                  disabled={!quoteDesks[dealer.dealerName] || Boolean(quoteDesks[dealer.dealerName]?.blockedReason) || heldByState}
                                   onChange={(e) =>
                                     setConfirmedDesks((current) => ({ ...current, [dealer.dealerName]: e.target.checked }))
                                   }
@@ -2161,6 +2282,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                                 const desk = directOfferMode ? quoteDesks[dealer.dealerName] : undefined;
                                 if (directOfferMode) {
                                   if (!desk) return "Checking";
+                                  if (heldByState) return `Outside ${gatePlan.buyerState}`;
                                   if (!desk.blockedReason) return "Named contact";
                                   if (supplied) return "Adviser added";
                                   return desk.blockedReason === "dealer_opted_out" ? "Opted out" : "No sales contact";

@@ -122,3 +122,69 @@ export function sameStateGateExcludes(
   if (!isResolvedState(buyerState) || !isResolvedState(dealerState)) return false;
   return (buyerState || "").trim().toUpperCase() !== (dealerState || "").trim().toUpperCase();
 }
+
+// ---------------------------------------------------------------------------
+// The quote-package gate. "Only send this to dealerships in my state" decides
+// which of the package's desks receive the request — nothing else. It never
+// dead-ends: when it would leave the package short, the plan says so and
+// names the states that would fill it, so the UI can offer to expand.
+// ---------------------------------------------------------------------------
+
+export interface GateDesk {
+  dealerName: string;
+  state: string | null | undefined;
+  /** A named, non-generic, not-opted-out contact — the only kind that can receive a quote request. */
+  contactReady: boolean;
+}
+
+export interface StateGatePlan {
+  /** Whether the gate is actually deciding anything (on, and the buyer's state is known). */
+  active: boolean;
+  buyerState: string | null;
+  inStateReady: GateDesk[];
+  /** Ready desks the gate is holding back. */
+  excludedReady: GateDesk[];
+  /** States of the held-back ready desks, sorted. */
+  excludedStates: string[];
+  /** True when the in-state ready desks can't fill the package and some held-back desk could. */
+  shouldOfferExpand: boolean;
+  /** True when nothing in-state can receive the request at all. */
+  emptyInState: boolean;
+}
+
+export function stateGatePlan(
+  buyerState: string | null | undefined,
+  desks: GateDesk[],
+  sameStateOnly: boolean,
+  packageSize = 3
+): StateGatePlan {
+  const ready = desks.filter((d) => d.contactReady);
+  const active = sameStateOnly && isResolvedState(buyerState);
+  const buyer = active ? (buyerState || "").trim().toUpperCase() : null;
+  if (!active) {
+    return { active: false, buyerState: null, inStateReady: ready, excludedReady: [], excludedStates: [], shouldOfferExpand: false, emptyInState: ready.length === 0 };
+  }
+  const inStateReady = ready.filter((d) => !sameStateGateExcludes(buyer, d.state));
+  const excludedReady = ready.filter((d) => sameStateGateExcludes(buyer, d.state));
+  const excludedStates = [...new Set(excludedReady.map((d) => (d.state || "").trim().toUpperCase()))].sort();
+  const want = Math.min(packageSize, ready.length);
+  return {
+    active: true,
+    buyerState: buyer,
+    inStateReady,
+    excludedReady,
+    excludedStates,
+    shouldOfferExpand: excludedReady.length > 0 && inStateReady.length < want,
+    emptyInState: inStateReady.length === 0,
+  };
+}
+
+export function formatExpandNudge(plan: StateGatePlan): string {
+  if (!plan.shouldOfferExpand) return "";
+  const n = plan.excludedReady.length;
+  const states = plan.excludedStates;
+  const where = states.length === 1 ? states[0] : `${states.slice(0, -1).join(", ")} and ${states[states.length - 1]}`;
+  const have = plan.inStateReady.length;
+  const lead = have === 0 ? `None of your dealerships with a sales contact are in ${plan.buyerState}.` : `Only ${have} of your dealerships with a sales contact ${have === 1 ? "is" : "are"} in ${plan.buyerState}.`;
+  return `${lead} ${n} more ${n === 1 ? "is" : "are"} in ${where}. Include dealerships in other states to send to ${n === 1 ? "it" : "them"} too.`;
+}
