@@ -6,7 +6,7 @@
  */
 
 import { NextResponse } from "next/server";
-import { isExplicitNonFordDemoPaste, looksLikeUrl, resolvePasteVin } from "./fordSticker";
+import { isExplicitNonFordDemoPaste, looksLikeUrl } from "./fordSticker";
 import {
   buildToVehicle,
   defaultMustHaveLines,
@@ -19,6 +19,7 @@ import { factoryBuildFailedError, factoryBuildUnavailableError } from "./pasteIm
 import { guardPaidDecode, isPaidVinDecodeEnabled, MARKETCHECK_CALL_COST_USD } from "./apiSpendGuard";
 import { buildFreeImport } from "./freeVinImportServer";
 import type { DealerPageIdentity } from "./dealerPageIdentity";
+import { blockedDealerPayload, resolveRoutePaste } from "./pasteResolutionServer";
 
 export interface ListingFeedRouteConfig {
   make: ListingFeedMake;
@@ -27,7 +28,10 @@ export interface ListingFeedRouteConfig {
   notFlag: string;
 }
 
-function vinPasteError(message: string, extra?: { dealerBlocked?: boolean; vin?: string | null }) {
+function vinPasteError(
+  message: string,
+  extra?: { dealerBlocked?: boolean; vin?: string | null; dealer?: DealerPageIdentity; listingUrl?: string | null }
+) {
   return NextResponse.json(
     {
       error: message,
@@ -35,10 +39,17 @@ function vinPasteError(message: string, extra?: { dealerBlocked?: boolean; vin?:
       needsVin: true,
       dealerBlocked: !!extra?.dealerBlocked,
       vin: extra?.vin || undefined,
+      // When the page refused us but the hostname named the store, say so:
+      // the wizard can open the listing for the buyer with the rooftop
+      // already identified, and only ask them for the VIN.
+      dealer: blockedDealerPayload(extra?.dealer),
+      listingUrl: extra?.listingUrl || undefined,
     },
     { status: 422 }
   );
 }
+
+
 
 export function createListingFeedStickerHandlers(config: ListingFeedRouteConfig) {
   const { make, looksLikePaste, notFlag } = config;
@@ -58,27 +69,7 @@ export function createListingFeedStickerHandlers(config: ListingFeedRouteConfig)
     const paste = opts.paste || "";
     const makeish = looksLikePaste(paste) || looksLikePaste(opts.vin || "");
     const forcedVin = opts.vin && opts.vin.trim().length === 17 ? opts.vin.trim().toUpperCase() : "";
-    // A forced VIN arrives on the cross-OEM retry: another make's route read
-    // the page, found a VIN that wasn't its own, and handed it here. The VIN
-    // is settled, but the page is still where the dealership and the
-    // advertised price live — so a pasted URL is still fetched. Skipping it
-    // meant every retried import landed with no dealer, which on step 2 read
-    // as a package with one dealership when the buyer had added two.
-    const pageResolution =
-      forcedVin && looksLikeUrl(paste)
-        ? await resolvePasteVin(paste)
-        : forcedVin
-          ? null
-          : await resolvePasteVin(paste);
-    const resolved = forcedVin
-      ? {
-          vin: forcedVin,
-          dealerBlocked: false,
-          source: "paste" as const,
-          listingPrice: pageResolution?.listingPrice ?? null,
-          dealer: pageResolution?.dealer,
-        }
-      : pageResolution!;
+    const resolved = await resolveRoutePaste(paste, forcedVin);
 
     let vin = resolved.vin;
     if (vin && makeish && !make.isVin(vin)) {
@@ -94,7 +85,11 @@ export function createListingFeedStickerHandlers(config: ListingFeedRouteConfig)
           resolved.dealerBlocked
             ? "That dealer site blocked the VIN lookup. Paste the 17-character VIN from the listing."
             : "Could not read a VIN from that page. Paste the 17-character VIN.",
-          { dealerBlocked: resolved.dealerBlocked }
+          {
+            dealerBlocked: resolved.dealerBlocked,
+            dealer: resolved.dealer,
+            listingUrl: looksLikeUrl(paste) ? paste.trim() : null,
+          }
         );
       }
       return vinPasteError("Could not find a 17-character VIN in that paste.");
@@ -161,6 +156,7 @@ export function createListingFeedStickerHandlers(config: ListingFeedRouteConfig)
         filterableOptions: filterableFactoryOptions(build).map((o) => ({ ...o, source: "listing" as const })),
         pdfUrl: null,
         note: build.note,
+        pageUnread: Boolean(resolved.pageBlocked),
       });
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : factoryBuildFailedError(vin);

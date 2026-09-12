@@ -42,8 +42,10 @@ import {
 import { brandCodeFromMake } from "../lib/oemWmi";
 import {
   importPastedFactoryVehicle,
+  type BlockedListingDealer,
   type FactoryBuildOem,
   type FactoryFilterableOption,
+  type PasteImportSuccess,
 } from "../lib/pasteImport";
 import { shopperDealStructurePayload, mapDealRequestJson } from "../lib/shopperDeal";
 import { defaultTermsForVehicles } from "../lib/dealTerms";
@@ -65,7 +67,8 @@ import {
   Globe,
   LoaderCircle as Loader2,
   Handshake,
-  FileText
+  FileText,
+  ExternalLink,
 } from "lucide-react";
 
 type FilterableFactoryOption = FactoryFilterableOption;
@@ -156,6 +159,162 @@ interface BiddingWizardProps {
 /** One alternate-vehicle slot in Step 1 — resolved via the same real factory-build import as the primary VIN. */
 /** Placeholder shared by the primary and alternate vehicle boxes. */
 const VEHICLE_INPUT_PLACEHOLDER = "Dealership link to exact vehicle";
+
+/** Which Step 1 box a blocked-page confirmation belongs to. */
+type VehicleSlot = "primary" | "alt1" | "alt2";
+
+/**
+ * The dealer's site refused our fetch, but the link still told us the VIN
+ * and the hostname told us the store. We don't scrape around a bot shield;
+ * we show what the link says and let the buyer be the one who looks.
+ */
+type PendingListingConfirm =
+  | { kind: "confirm_vehicle"; slot: VehicleSlot; paste: string; result: PasteImportSuccess }
+  | {
+      kind: "needs_vin";
+      slot: VehicleSlot;
+      paste: string;
+      listingUrl: string;
+      dealer: BlockedListingDealer | null;
+    };
+
+function dealerLine(d: { name: string; city: string | null; state: string | null } | null | undefined): string {
+  if (!d?.name) return "";
+  const where = [d.city, d.state].filter(Boolean).join(", ");
+  return where ? `${d.name} · ${where}` : d.name;
+}
+
+function OpenToConfirmPanel({
+  pending,
+  onConfirm,
+  onReject,
+}: {
+  pending: Extract<PendingListingConfirm, { kind: "confirm_vehicle" }>;
+  onConfirm: () => void;
+  onReject: () => void;
+}) {
+  const v = pending.result.vehicle;
+  const dealer = v.location?.dealerName
+    ? { name: v.location.dealerName, city: v.location.city || null, state: v.location.state || null }
+    : null;
+  const listingUrl = v.dealerUrl || pending.paste;
+  const verified = v.buildConfidence === "verified_factory";
+  return (
+    <div className="space-y-2.5 rounded-xl border border-sky-500/40 bg-sky-950/20 px-3.5 py-3 text-[11px] animate-fadeIn">
+      <p className="font-bold text-sky-200">
+        We couldn&apos;t read the dealer&apos;s page, but here&apos;s what the link tells us:
+      </p>
+      <div className="space-y-0.5 text-ink-light">
+        <p className="text-xs font-semibold text-white">
+          {[v.year, v.make, v.model, v.trim].filter(Boolean).join(" ")}
+        </p>
+        <p className="text-[10px] text-ink-muted">
+          VIN <span className="font-mono">{v.vin}</span>
+          {" · "}
+          <span className={verified ? "text-emerald-300" : "text-amber-300"}>
+            {verified ? "Factory build sheet read" : "Unconfirmed build — factory decode only"}
+          </span>
+        </p>
+        <p className="text-[10px] text-ink-muted">
+          {dealer ? dealerLine(dealer) : "Dealership not on file for this site"}
+        </p>
+      </div>
+      <a
+        href={listingUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="inline-flex items-center gap-1.5 rounded-lg border border-sky-500/50 px-3 py-1.5 text-[11px] font-bold text-sky-200 hover:border-sky-400 hover:text-white transition-all"
+      >
+        <ExternalLink className="h-3 w-3" />
+        Open the listing
+      </a>
+      <p className="text-[10px] text-ink-faint leading-snug">
+        Opens in a new tab — you&apos;ll see it as a normal visitor. Check it&apos;s the vehicle you meant, then come back.
+      </p>
+      <div className="flex gap-2 pt-0.5">
+        <button
+          type="button"
+          onClick={onConfirm}
+          className="rounded-lg bg-emerald-500 px-3.5 py-1.5 text-[11px] font-black text-black hover:bg-emerald-400 transition-all"
+        >
+          Yes, this is the vehicle
+        </button>
+        <button
+          type="button"
+          onClick={onReject}
+          className="rounded-lg border border-border px-3.5 py-1.5 text-[11px] font-bold text-ink-light hover:border-rose-500 hover:text-white transition-all"
+        >
+          No, wrong vehicle
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function NeedsVinPanel({
+  pending,
+  busy,
+  error,
+  onSubmitVin,
+  onCancel,
+}: {
+  pending: Extract<PendingListingConfirm, { kind: "needs_vin" }>;
+  busy: boolean;
+  error: string | null;
+  onSubmitVin: (vin: string) => void;
+  onCancel: () => void;
+}) {
+  const [vin, setVin] = useState("");
+  const clean = vin.trim().toUpperCase();
+  return (
+    <div className="space-y-2.5 rounded-xl border border-sky-500/40 bg-sky-950/20 px-3.5 py-3 text-[11px] animate-fadeIn">
+      <p className="font-bold text-sky-200">
+        {pending.dealer
+          ? `We couldn't read ${pending.dealer.name}'s page, and this link doesn't carry the VIN.`
+          : "We couldn't read the dealer's page, and this link doesn't carry the VIN."}
+      </p>
+      {pending.dealer ? <p className="text-[10px] text-ink-muted">{dealerLine(pending.dealer)}</p> : null}
+      <a
+        href={pending.listingUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="inline-flex items-center gap-1.5 rounded-lg border border-sky-500/50 px-3 py-1.5 text-[11px] font-bold text-sky-200 hover:border-sky-400 hover:text-white transition-all"
+      >
+        <ExternalLink className="h-3 w-3" />
+        Open the listing
+      </a>
+      <p className="text-[10px] text-ink-faint leading-snug">
+        Copy the 17-character VIN from the listing and paste it here. We&apos;ll keep the dealership from the link.
+      </p>
+      <div className="flex gap-2">
+        <input
+          type="text"
+          value={vin}
+          onChange={(e) => setVin(e.target.value)}
+          placeholder="17-character VIN"
+          maxLength={17}
+          className="w-full rounded-lg border border-border bg-background py-2 px-3 font-mono text-[11px] uppercase text-ink-light placeholder-ink-faint focus:border-emerald-500 focus:outline-none"
+        />
+        <button
+          type="button"
+          onClick={() => onSubmitVin(clean)}
+          disabled={busy || clean.length !== 17}
+          className="shrink-0 rounded-lg bg-emerald-500 px-3.5 py-2 text-[11px] font-black text-black hover:bg-emerald-400 transition-all disabled:opacity-50"
+        >
+          {busy ? "Adding…" : "Add"}
+        </button>
+        <button
+          type="button"
+          onClick={onCancel}
+          className="shrink-0 rounded-lg border border-border px-3 py-2 text-[11px] font-bold text-ink-light hover:text-white transition-all"
+        >
+          Cancel
+        </button>
+      </div>
+      {error && <p className="text-[10px] text-rose-400">{error}</p>}
+    </div>
+  );
+}
 
 function AlternateVinField({
   label,
@@ -287,6 +446,8 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   const [altVehicle2, setAltVehicle2] = useState<Vehicle | null>(null);
   const [altParsing2, setAltParsing2] = useState(false);
   const [altError2, setAltError2] = useState<string | null>(null);
+  // A blocked dealer page waiting on the buyer's own eyes — one at a time.
+  const [pendingConfirm, setPendingConfirm] = useState<PendingListingConfirm | null>(null);
 
   // Set when the buyer explicitly chooses to skip the multi-dealer auction
   // and send a single, anonymized offer straight to the favorite vehicle's
@@ -603,7 +764,35 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
       ? formatOutOfStateWarning(buyerStateFromZip, sameStateConflicts)
       : "";
 
-  const handleParseDealerUrl = async (urlToParse?: string) => {
+  /**
+   * A blocked page with the store known from the link: don't add the car,
+   * hand it to the buyer to look at. Returns true when the result was
+   * parked on a panel instead of committed.
+   */
+  const parkIfPageUnread = (
+    slot: VehicleSlot,
+    paste: string,
+    result: Awaited<ReturnType<typeof importPastedFactoryVehicle>>
+  ): boolean => {
+    if (result.ok) {
+      if (!result.pageUnread) return false;
+      setPendingConfirm({ kind: "confirm_vehicle", slot, paste, result });
+      return true;
+    }
+    if (result.reason === "blocked" && result.listingUrl) {
+      setPendingConfirm({
+        kind: "needs_vin",
+        slot,
+        paste,
+        listingUrl: result.listingUrl,
+        dealer: result.dealer ?? null,
+      });
+      return true;
+    }
+    return false;
+  };
+
+  const handleParseDealerUrl = async (urlToParse?: string, suppliedVin?: string) => {
     const raw = (urlToParse || dealerUrlInput).trim();
     if (!raw) return;
 
@@ -620,7 +809,12 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
 
     const result = await importPastedFactoryVehicle(raw, fetch, {
       existingVehicles: [altVehicle1, altVehicle2],
+      vin: suppliedVin,
     });
+    if (parkIfPageUnread("primary", raw, result)) {
+      setIsParsingLink(false);
+      return;
+    }
     if (!result.ok) {
       if (result.unreleased) {
         setFactoryBuildOem(result.oem ?? null);
@@ -632,6 +826,12 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
       return;
     }
 
+    commitPrimaryImport(result);
+    setIsParsingLink(false);
+  };
+
+  const commitPrimaryImport = (result: PasteImportSuccess) => {
+    setPendingConfirm(null);
     setSelectedVehicle(result.vehicle);
     setMake(result.vehicle.make);
     setModel(result.vehicle.model);
@@ -650,25 +850,64 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     setParseSuccessMsg(
       `VIN ${result.vehicle.vin}${result.msrp ? ` · MSRP ${formatStickerMsrp(result.msrp)}` : ""}`
     );
-    setIsParsingLink(false);
+  };
+
+  /** The buyer looked at the listing and said yes: commit to whichever slot asked. */
+  const confirmPendingVehicle = () => {
+    if (!pendingConfirm || pendingConfirm.kind !== "confirm_vehicle") return;
+    const result: PasteImportSuccess = {
+      ...pendingConfirm.result,
+      vehicle: { ...pendingConfirm.result.vehicle, buyerConfirmed: true },
+    };
+    if (pendingConfirm.slot === "primary") commitPrimaryImport(result);
+    else if (pendingConfirm.slot === "alt1") setAltVehicle1(result.vehicle);
+    else setAltVehicle2(result.vehicle);
+    setPendingConfirm(null);
+  };
+
+  const rejectPendingVehicle = () => {
+    if (!pendingConfirm) return;
+    if (pendingConfirm.slot === "primary") setDealerUrlInput("");
+    else if (pendingConfirm.slot === "alt1") setAltVin1("");
+    else setAltVin2("");
+    setPendingConfirm(null);
+  };
+
+  /** The buyer read the VIN off a page we couldn't: re-run the import with it, same link. */
+  const submitPendingVin = async (vin: string) => {
+    if (!pendingConfirm || pendingConfirm.kind !== "needs_vin") return;
+    const { slot, paste } = pendingConfirm;
+    if (slot === "primary") {
+      await handleParseDealerUrl(paste, vin);
+    } else if (slot === "alt1") {
+      await handleParseAlt1(vin);
+    } else {
+      await handleParseAlt2(vin);
+    }
   };
 
   // Resolves an alternate VIN/link through the same real import used for
   // the primary vehicle — never a lighter/fake lookup — but never touches
   // the primary's own state (must-haves, selected trim, etc.).
-  const handleParseAlt1 = async () => {
+  const handleParseAlt1 = async (suppliedVin?: string) => {
     const raw = altVin1.trim();
     if (!raw) return;
     setAltParsing1(true);
     setAltError1(null);
     const result = await importPastedFactoryVehicle(raw, fetch, {
       existingVehicles: [selectedVehicle, altVehicle2],
+      vin: suppliedVin,
     });
+    if (parkIfPageUnread("alt1", raw, result)) {
+      setAltParsing1(false);
+      return;
+    }
     if (!result.ok) {
       setAltError1(result.error);
       setAltParsing1(false);
       return;
     }
+    setPendingConfirm(null);
     setAltVehicle1(result.vehicle);
     setAltParsing1(false);
   };
@@ -676,6 +915,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   // reopening the wizard. Clears everything the parse populated, so a stale
   // sticker, option list or price can't survive into the next import.
   const clearImportedVehicle = () => {
+    setPendingConfirm(null);
     setSelectedVehicle(null);
     setParseSuccessMsg(null);
     setParseError(null);
@@ -694,19 +934,25 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     setAltError1(null);
   };
 
-  const handleParseAlt2 = async () => {
+  const handleParseAlt2 = async (suppliedVin?: string) => {
     const raw = altVin2.trim();
     if (!raw) return;
     setAltParsing2(true);
     setAltError2(null);
     const result = await importPastedFactoryVehicle(raw, fetch, {
       existingVehicles: [selectedVehicle, altVehicle1],
+      vin: suppliedVin,
     });
+    if (parkIfPageUnread("alt2", raw, result)) {
+      setAltParsing2(false);
+      return;
+    }
     if (!result.ok) {
       setAltError2(result.error);
       setAltParsing2(false);
       return;
     }
+    setPendingConfirm(null);
     setAltVehicle2(result.vehicle);
     setAltParsing2(false);
   };
@@ -1296,7 +1542,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                   </button>
                 </div>
 
-                {parseError && (
+                {parseError && !pendingConfirm && (
                   <div className="flex items-start justify-between gap-3 rounded-xl border border-amber-500/40 bg-amber-950/30 px-3 py-2 text-[11px] text-amber-200">
                     <span className="leading-snug">{parseError}</span>
                     <button
@@ -1310,6 +1556,19 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                       Clear
                     </button>
                   </div>
+                )}
+
+                {pendingConfirm?.slot === "primary" && pendingConfirm.kind === "confirm_vehicle" && (
+                  <OpenToConfirmPanel pending={pendingConfirm} onConfirm={confirmPendingVehicle} onReject={rejectPendingVehicle} />
+                )}
+                {pendingConfirm?.slot === "primary" && pendingConfirm.kind === "needs_vin" && (
+                  <NeedsVinPanel
+                    pending={pendingConfirm}
+                    busy={isParsingLink}
+                    error={parseError}
+                    onSubmitVin={submitPendingVin}
+                    onCancel={rejectPendingVehicle}
+                  />
                 )}
 
                 {/* One confirmation line, not a spec sheet. Enough for the
@@ -1368,6 +1627,9 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                             const where = dealer || host;
                             return where ? <> · {where}</> : null;
                           })()}
+                          {selectedVehicle.buyerConfirmed ? (
+                            <span className="text-sky-300"> · listing confirmed by you</span>
+                          ) : null}
                         </span>
                       </span>
                     </span>
@@ -1411,9 +1673,11 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
 
                 {parseSuccessMsg && selectedVehicle?.buildConfidence === "dealer_listing_only" && (
                   <p className="rounded-lg border border-amber-500/30 bg-amber-950/20 px-3 py-2 text-[11px] leading-snug text-amber-200">
-                    <strong className="font-bold">Unconfirmed build — dealer listing only.</strong> No factory build sheet
-                    is available for this VIN yet, so the details above come from the VIN and the dealer&apos;s page, and
-                    must-have options can&apos;t be matched. You can continue with it, or remove it and try another link.
+                    <strong className="font-bold">Unconfirmed build — dealer listing only.</strong>{" "}
+                    {selectedVehicle.buyerConfirmed
+                      ? "The dealer's page wouldn't let us read it, so the details above come from the VIN alone and you confirmed the listing yourself. Must-have options can't be matched."
+                      : "No factory build sheet is available for this VIN yet, so the details above come from the VIN and the dealer's page, and must-have options can't be matched."}{" "}
+                    You can continue with it, or remove it and try another link.
                   </p>
                 )}
 
@@ -1455,22 +1719,46 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                       label="Alternate vehicle 1"
                       value={altVin1}
                       onChange={setAltVin1}
-                      onImport={handleParseAlt1}
+                      onImport={() => handleParseAlt1()}
                       vehicle={altVehicle1}
                       error={altError1}
                       parsing={altParsing1}
                       onRemove={removeAlt1}
                     />
+                    {pendingConfirm?.slot === "alt1" && pendingConfirm.kind === "confirm_vehicle" && (
+                      <OpenToConfirmPanel pending={pendingConfirm} onConfirm={confirmPendingVehicle} onReject={rejectPendingVehicle} />
+                    )}
+                    {pendingConfirm?.slot === "alt1" && pendingConfirm.kind === "needs_vin" && (
+                      <NeedsVinPanel
+                        pending={pendingConfirm}
+                        busy={altParsing1}
+                        error={null}
+                        onSubmitVin={submitPendingVin}
+                        onCancel={rejectPendingVehicle}
+                      />
+                    )}
                     <AlternateVinField
                       label="Alternate vehicle 2"
                       value={altVin2}
                       onChange={setAltVin2}
-                      onImport={handleParseAlt2}
+                      onImport={() => handleParseAlt2()}
                       vehicle={altVehicle2}
                       error={altError2}
                       parsing={altParsing2}
                       onRemove={removeAlt2}
                     />
+                    {pendingConfirm?.slot === "alt2" && pendingConfirm.kind === "confirm_vehicle" && (
+                      <OpenToConfirmPanel pending={pendingConfirm} onConfirm={confirmPendingVehicle} onReject={rejectPendingVehicle} />
+                    )}
+                    {pendingConfirm?.slot === "alt2" && pendingConfirm.kind === "needs_vin" && (
+                      <NeedsVinPanel
+                        pending={pendingConfirm}
+                        busy={altParsing2}
+                        error={null}
+                        onSubmitVin={submitPendingVin}
+                        onCancel={rejectPendingVehicle}
+                      />
+                    )}
                   </div>
                 ) : (
                   <button

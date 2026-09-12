@@ -3,7 +3,8 @@ export const revalidate = 0;
 export const runtime = "nodejs";
 
 import { NextResponse } from "next/server";
-import { isExplicitNonFordDemoPaste, resolvePasteVin } from "@/lib/fordSticker";
+import type { DealerPageIdentity } from "@/lib/dealerPageIdentity";
+import { isExplicitNonFordDemoPaste, looksLikeUrl } from "@/lib/fordSticker";
 import {
   defaultMustHaveLines,
   defaultNiceToHaveLines,
@@ -17,6 +18,7 @@ import { factoryBuildFailedError, factoryBuildUnavailableError } from "@/lib/pas
 import { currentDealerForVin } from "@/lib/listingSheet";
 import { guardPaidDecode, MARKETCHECK_CALL_COST_USD } from "@/lib/apiSpendGuard";
 import { buildFreeImport, fillMissingYear } from "@/lib/freeVinImportServer";
+import { blockedDealerPayload, listingDealerLookup, resolveRoutePaste } from "@/lib/pasteResolutionServer";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -34,13 +36,18 @@ export async function POST(request: Request) {
   return lookup({ vin: vinArg, paste, pasteUrl: paste, request });
 }
 
-function vinPasteError(message: string, extra?: { dealerBlocked?: boolean; vin?: string | null }) {
+function vinPasteError(
+  message: string,
+  extra?: { dealerBlocked?: boolean; vin?: string | null; dealer?: DealerPageIdentity; listingUrl?: string | null }
+) {
   return NextResponse.json(
     {
       error: message,
       handled: true,
       needsVin: true,
       dealerBlocked: !!extra?.dealerBlocked,
+      dealer: blockedDealerPayload(extra?.dealer),
+      listingUrl: extra?.listingUrl || undefined,
       vin: extra?.vin || undefined,
     },
     { status: 422 }
@@ -51,9 +58,7 @@ async function lookup(opts: { vin?: string; paste?: string; pasteUrl: string | n
   const paste = opts.paste || "";
   const stellantisish = looksLikeStellantisPaste(paste) || looksLikeStellantisPaste(opts.vin || "");
   const forcedVin = opts.vin && opts.vin.trim().length === 17 ? opts.vin.trim().toUpperCase() : "";
-  const resolved = forcedVin
-    ? { vin: forcedVin, dealerBlocked: false, source: "paste" as const, listingPrice: null as number | null }
-    : await resolvePasteVin(paste);
+  const resolved = await resolveRoutePaste(paste, forcedVin);
 
   let vin = resolved.vin;
   if (vin && stellantisish && !isStellantisVin(vin)) {
@@ -73,7 +78,11 @@ async function lookup(opts: { vin?: string; paste?: string; pasteUrl: string | n
         resolved.dealerBlocked
           ? "That dealer site blocked the VIN lookup. Paste the 17-character VIN from the listing."
           : "Could not read a VIN from that page. Paste the 17-character VIN.",
-        { dealerBlocked: resolved.dealerBlocked }
+        {
+          dealerBlocked: resolved.dealerBlocked,
+          dealer: resolved.dealer,
+          listingUrl: looksLikeUrl(paste) ? paste.trim() : null,
+        }
       );
     }
     return vinPasteError("Could not find a 17-character VIN in that paste.");
@@ -129,7 +138,7 @@ async function lookup(opts: { vin?: string; paste?: string; pasteUrl: string | n
     }
     // A released sticker the parser only half-read (no year) must not ship
     // as "0 Stellantis …" — fill the year from the VIN.
-    const vehicle = await fillMissingYear(stellantisStickerToVehicle(sticker, listingUrl, listingPrice, currentDealer));
+    const vehicle = await fillMissingYear(stellantisStickerToVehicle(sticker, listingUrl, listingPrice, currentDealer ?? listingDealerLookup(resolved, listingUrl)));
     vehicle.buildConfidence = "verified_factory";
     if (vehicle.vin !== vin) {
       return vinPasteError(factoryBuildFailedError(vin), { vin });
@@ -141,6 +150,7 @@ async function lookup(opts: { vin?: string; paste?: string; pasteUrl: string | n
       vehicle,
       buildConfidence: "verified_factory",
       listingPrice,
+      pageUnread: Boolean(resolved.pageBlocked),
       mustHaveLines,
       niceToHaveLines,
       filterableOptions: filterableFactoryOptions(sticker).map((o) => ({

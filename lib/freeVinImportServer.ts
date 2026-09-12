@@ -20,6 +20,8 @@ import type { Vehicle } from "./types";
 export interface FreeImportSource {
   listingPrice?: number | null;
   dealer?: DealerPageIdentity;
+  /** The listing page was never read — the buyer has to confirm the car by eye. */
+  pageBlocked?: boolean;
 }
 
 export type FreeImportOutcome =
@@ -76,6 +78,7 @@ export async function buildFreeImport(input: {
       niceToHaveLines: [],
       filterableOptions: [],
       pdfUrl: null,
+      pageUnread: Boolean(source.pageBlocked),
     },
   };
 }

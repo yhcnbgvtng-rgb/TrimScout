@@ -3,6 +3,7 @@ export const revalidate = 0;
 export const runtime = "nodejs";
 
 import { NextResponse } from "next/server";
+import type { DealerPageIdentity } from "@/lib/dealerPageIdentity";
 import {
   defaultMustHaveLines,
   defaultNiceToHaveLines,
@@ -11,12 +12,13 @@ import {
   isExplicitNonFordDemoPaste,
   isFordOrLincolnVin,
   looksLikeFordOrLincolnPaste,
-  resolvePasteVin,
+  looksLikeUrl,
 } from "@/lib/fordSticker";
 import { stickerToVehicle } from "@/lib/vinSearch";
 import { currentDealerForVin } from "@/lib/listingSheet";
 import { guardPaidDecode, MARKETCHECK_CALL_COST_USD } from "@/lib/apiSpendGuard";
 import { buildFreeImport, fillMissingYear } from "@/lib/freeVinImportServer";
+import { blockedDealerPayload, listingDealerLookup, resolveRoutePaste } from "@/lib/pasteResolutionServer";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -34,13 +36,18 @@ export async function POST(request: Request) {
   return lookup({ vin: vinArg, paste, pasteUrl: paste, request });
 }
 
-function vinPasteError(message: string, extra?: { dealerBlocked?: boolean }) {
+function vinPasteError(
+  message: string,
+  extra?: { dealerBlocked?: boolean; vin?: string | null; dealer?: DealerPageIdentity; listingUrl?: string | null }
+) {
   return NextResponse.json(
     {
       error: message,
       handled: true,
       needsVin: true,
       dealerBlocked: !!extra?.dealerBlocked,
+      dealer: blockedDealerPayload(extra?.dealer),
+      listingUrl: extra?.listingUrl || undefined,
     },
     { status: 422 }
   );
@@ -50,9 +57,7 @@ async function lookup(opts: { vin?: string; paste?: string; pasteUrl: string | n
   const paste = opts.paste || "";
   const fordish = looksLikeFordOrLincolnPaste(paste) || looksLikeFordOrLincolnPaste(opts.vin || "");
   const forcedVin = opts.vin && opts.vin.trim().length === 17 ? opts.vin.trim().toUpperCase() : "";
-  const resolved = forcedVin
-    ? { vin: forcedVin, dealerBlocked: false, source: "paste" as const }
-    : await resolvePasteVin(paste);
+  const resolved = await resolveRoutePaste(paste, forcedVin);
 
   let vin = resolved.vin;
   if (vin && fordish && !isFordOrLincolnVin(vin)) {
@@ -68,7 +73,11 @@ async function lookup(opts: { vin?: string; paste?: string; pasteUrl: string | n
         resolved.dealerBlocked
           ? "That dealer site blocked the VIN lookup. Paste the 17-character VIN from the listing."
           : "Could not read a VIN from that page. Paste the 17-character VIN.",
-        { dealerBlocked: resolved.dealerBlocked }
+        {
+          dealerBlocked: resolved.dealerBlocked,
+          dealer: resolved.dealer,
+          listingUrl: looksLikeUrl(paste) ? paste.trim() : null,
+        }
       );
     }
     return vinPasteError("Could not find a 17-character VIN in that paste.");
@@ -123,7 +132,7 @@ async function lookup(opts: { vin?: string; paste?: string; pasteUrl: string | n
 
     // A released sticker the parser only half-read (no year) must not ship
     // as "0 Ford F-150" — fill the year from the VIN.
-    const vehicle = await fillMissingYear(stickerToVehicle(sticker, listingUrl, listingPrice, currentDealer));
+    const vehicle = await fillMissingYear(stickerToVehicle(sticker, listingUrl, listingPrice, currentDealer ?? listingDealerLookup(resolved, listingUrl)));
     vehicle.buildConfidence = "verified_factory";
     return NextResponse.json({
       handled: true,
@@ -132,6 +141,7 @@ async function lookup(opts: { vin?: string; paste?: string; pasteUrl: string | n
       vehicle,
       buildConfidence: "verified_factory",
       listingPrice,
+      pageUnread: Boolean(resolved.pageBlocked),
       mustHaveLines,
       niceToHaveLines,
       filterableOptions: filterableFactoryOptionBreakout(sticker).map((o) => ({

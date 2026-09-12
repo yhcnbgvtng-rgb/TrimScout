@@ -22,6 +22,8 @@ import {
   EMPTY_DEALER_IDENTITY,
   type DealerPageIdentity,
 } from "./dealerPageIdentity";
+import { identityFromDealership, matchDealershipByUrl, type DomainIndexableDealership } from "./dealerDomainLookup";
+import { dealerDirectoryOrEmpty } from "./dealerDirectoryCache";
 
 export { isFordOrLincolnVin };
 
@@ -999,11 +1001,43 @@ export type DealerPageVinResult = {
 
 export type PasteVinResolution = {
   vin: string | null;
+  /** No VIN could be had at all, and the page refusing us is why. */
   dealerBlocked: boolean;
+  /**
+   * The listing page itself was never read (bot shield, 403, challenge).
+   * Set even when the VIN came from the URL and the dealer from the
+   * directory — the buyer, not us, has to be the one who looked at the car.
+   */
+  pageBlocked?: boolean;
   source: "paste" | "dealer_page" | "none";
   listingPrice?: number | null;
   dealer?: DealerPageIdentity;
 };
+
+/** Test seam: the directory the domain lookup reads. Production pulls the cached box directory. */
+export type PasteVinResolveDeps = {
+  directory?: () => Promise<DomainIndexableDealership[]>;
+};
+
+/**
+ * The rooftop behind a listing link, from the directory, when the page
+ * couldn't name it — or named it in a spelling the directory doesn't carry.
+ * The directory's spelling is what the quote-desk lookup matches on, so
+ * once the domain resolves it is the name to use: a page that says
+ * "Bachrodt BMW" and a directory row that says "Lou Bachrodt BMW" are the
+ * same store, and only one of those spellings reaches a named contact.
+ */
+async function dealerFromListingDomain(
+  url: string,
+  pageDealer: DealerPageIdentity | undefined,
+  deps: PasteVinResolveDeps
+): Promise<DealerPageIdentity | undefined> {
+  const rows: DomainIndexableDealership[] = await (deps.directory ? deps.directory() : dealerDirectoryOrEmpty());
+  if (rows.length === 0) return pageDealer;
+  const row = matchDealershipByUrl(rows, url, { state: pageDealer?.state || null });
+  if (!row) return pageDealer;
+  return identityFromDealership(row);
+}
 
 function asVehiclePrice(n: number): number | null {
   if (!Number.isFinite(n) || n < 8000 || n > 250000) return null;
@@ -1188,10 +1222,13 @@ export async function resolveVinFromPaste(paste: string): Promise<string | null>
   return resolved.vin;
 }
 
-export async function resolvePasteVin(paste: string): Promise<PasteVinResolution> {
+export async function resolvePasteVin(paste: string, deps: PasteVinResolveDeps = {}): Promise<PasteVinResolution> {
   const direct = extractVin(paste);
   if (looksLikeUrl(paste)) {
-    const page = await extractVinFromDealerPage(paste.trim());
+    const url = paste.trim();
+    const page = await extractVinFromDealerPage(url);
+    // The hostname names the store whether or not the page let us in.
+    const dealer = await dealerFromListingDomain(url, page.dealer, deps);
     let vin = page.vin;
     if (!vin && direct) {
       if (looksLikeFordOrLincolnPaste(paste) && !isFordOrLincolnVin(direct)) {
@@ -1204,17 +1241,19 @@ export async function resolvePasteVin(paste: string): Promise<PasteVinResolution
       return {
         vin,
         dealerBlocked: false,
+        pageBlocked: page.blocked,
         source: page.vin ? "dealer_page" : "paste",
         listingPrice: page.listingPrice ?? null,
-        dealer: page.dealer,
+        dealer,
       };
     }
     return {
       vin: null,
       dealerBlocked: page.blocked,
+      pageBlocked: page.blocked,
       source: "none",
       listingPrice: page.listingPrice ?? null,
-      dealer: page.dealer,
+      dealer,
     };
   }
   if (direct) {
