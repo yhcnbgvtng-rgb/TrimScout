@@ -34,15 +34,16 @@ def rep(old, new, count=1):
     assert n == count, f"expected exactly {count} match, found {n}:\n{old[:120]}"
     s = s.replace(old, new)
 
-# 1. public shape
+# 1. public shape — the live mapper has no emailOptOut line (that field never
+#    shipped to this box), so anchor on notes → createdAt, which both have.
 rep('''    contactEmail: row.contact_email,
     notes: row.notes,
-    emailOptOut: Boolean(row.email_opt_out),''',
+    createdAt: row.created_at,''',
 '''    contactEmail: row.contact_email,
     notes: row.notes,
     website: row.website || null,
     domains: parseDomains(row.domains_json),
-    emailOptOut: Boolean(row.email_opt_out),''')
+    createdAt: row.created_at,''')
 
 # helpers + column ensure, placed right before publicDealership
 rep('''function publicDealership(row) {''',
