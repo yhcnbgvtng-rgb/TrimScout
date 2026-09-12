@@ -9,6 +9,7 @@ import type { CurrentDealerLookup } from "./listingSheet";
 import type { Vehicle } from "./types";
 import { crossReferenceStickerDealer, type StickerSoldTo } from "./dealerSearch";
 import { dealerDirectoryOrEmpty } from "./dealerDirectoryCache";
+import { inventoryDealerForVin } from "./inventoryVinLookup";
 
 /**
  * A forced VIN arrives on the cross-OEM retry: another make's route read
@@ -60,65 +61,80 @@ export function blockedDealerPayload(dealer: DealerPageIdentity | undefined) {
 }
 
 /**
- * Settle a sticker-built vehicle's dealership without any paid lookup, in
- * order of how much each source can be trusted:
+ * Settle a sticker-built vehicle's dealership without any paid lookup.
+ * The VIN comes first, the link only as a fallback, and nothing is
+ * invented:
  *
- *   1. the listing page named the store (or the link's hostname did — see
- *      resolvePasteVin), which is where the car is advertised right now;
- *   2. the window sticker's sold-to block, cross-referenced against the
- *      directory so it carries the directory's spelling and address — the
- *      store the factory shipped to, which is usually but not always where
- *      it sits today, hence dealerConfirmed: false;
- *   3. nothing. The sticker→vehicle mappers fill in placeholders like
- *      "Ford dealer" when they have no sold-to; those are not rooftops and
- *      must never reach the confirm step, so the location is blanked.
+ *   1. our own inventory crawl last saw this VIN at a rooftop
+ *      (lib/inventoryVinLookup.ts) — cross-referenced against the
+ *      directory so it carries the directory's spelling and address;
+ *   2. the window sticker's sold-to block, cross-referenced the same way —
+ *      the store the factory shipped to, usually but not always where it
+ *      sits today, hence dealerConfirmed: false;
+ *   3. only if the VIN yielded nothing: the store the pasted link's
+ *      hostname resolved to (resolvePasteVin). A VIN-resolved dealer is
+ *      never overwritten by a link-derived one;
+ *   4. nothing — location blanked, dealerSource "unknown", so the UI can
+ *      say "dealer not found". The sticker→vehicle mappers' placeholders
+ *      ("Ford dealer") never ship.
  */
 export async function resolveVehicleDealer(
   vehicle: Vehicle,
   resolved: { dealer?: DealerPageIdentity },
   soldTo: StickerSoldTo | null | undefined
 ): Promise<Vehicle> {
+  const rows = await dealerDirectoryOrEmpty();
+
+  const seen = inventoryDealerForVin(vehicle.vin);
+  if (seen?.dealerName) {
+    const row = crossReferenceStickerDealer(rows, { name: seen.dealerName, city: seen.city, state: seen.state });
+    return withDealer(vehicle, {
+      dealerName: row ? row.dealerName : seen.dealerName,
+      city: (row ? row.city : seen.city) || "",
+      state: ((row ? row.state : seen.state) || "").toUpperCase(),
+      zip: row?.zipCode || undefined,
+      dealerConfirmed: true,
+      dealerSource: "inventory",
+    });
+  }
+
+  if (soldTo?.name?.trim()) {
+    const row = crossReferenceStickerDealer(rows, soldTo);
+    return withDealer(vehicle, {
+      dealerName: row ? row.dealerName : soldTo.name.trim(),
+      city: (row ? row.city : soldTo.city) || "",
+      state: ((row ? row.state : soldTo.state) || "").toUpperCase(),
+      zip: (row ? row.zipCode : soldTo.zip) || undefined,
+      dealerConfirmed: false,
+      dealerSource: "window_sticker",
+    });
+  }
+
   const listing = resolved.dealer;
   if (listing?.name) {
-    return {
-      ...vehicle,
-      location: {
-        ...vehicle.location,
-        dealerName: listing.name,
-        city: listing.city || "",
-        state: listing.state || "",
-        zip: listing.zip || undefined,
-        dealerConfirmed: true,
-        dealerSource: listing.source === "directory_domain" ? "listing_domain" : "listing_page",
-      },
-    };
+    return withDealer(vehicle, {
+      dealerName: listing.name,
+      city: listing.city || "",
+      state: listing.state || "",
+      zip: listing.zip || undefined,
+      dealerConfirmed: true,
+      dealerSource: listing.source === "directory_domain" ? "listing_domain" : "listing_page",
+    });
   }
-  if (soldTo?.name?.trim()) {
-    const rows = await dealerDirectoryOrEmpty();
-    const row = crossReferenceStickerDealer(rows, soldTo);
-    return {
-      ...vehicle,
-      location: {
-        ...vehicle.location,
-        dealerName: row ? row.dealerName : soldTo.name.trim(),
-        city: (row ? row.city : soldTo.city) || "",
-        state: ((row ? row.state : soldTo.state) || "").toUpperCase(),
-        zip: (row ? row.zipCode : soldTo.zip) || undefined,
-        dealerConfirmed: false,
-        dealerSource: "window_sticker",
-      },
-    };
-  }
-  return {
-    ...vehicle,
-    location: {
-      ...vehicle.location,
-      dealerName: "",
-      city: "",
-      state: "",
-      zip: undefined,
-      dealerConfirmed: false,
-      dealerSource: "unknown",
-    },
-  };
+
+  return withDealer(vehicle, {
+    dealerName: "",
+    city: "",
+    state: "",
+    zip: undefined,
+    dealerConfirmed: false,
+    dealerSource: "unknown",
+  });
+}
+
+function withDealer(
+  vehicle: Vehicle,
+  dealer: Pick<Vehicle["location"], "dealerName" | "city" | "state" | "zip" | "dealerConfirmed" | "dealerSource">
+): Vehicle {
+  return { ...vehicle, location: { ...vehicle.location, ...dealer } };
 }

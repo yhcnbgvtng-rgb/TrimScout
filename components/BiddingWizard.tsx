@@ -32,11 +32,8 @@ import {
   FORD_BUILD_SHEET_LINK,
   FORD_MUST_HAVE_HEADING,
   FORD_MUST_HAVE_HELP,
-  advertisedOrStickerPrice,
   formatFactoryOptionLine,
-  formatPriceAmount,
   reviewTargetFromVehicle,
-  shopperPriceSourceLabel,
 } from "../lib/fordCompetitionUi";
 import { brandCodeFromMake } from "../lib/oemWmi";
 import {
@@ -48,7 +45,9 @@ import {
 } from "../lib/pasteImport";
 import {
   attachLinkToVehicle,
+  dealerSourceLabel,
   deskLocationLine,
+  hasVinResolvedDealer,
   isPlausibleVin,
   resolveVdpLink,
   searchDealers,
@@ -81,9 +80,6 @@ import {
 
 type FilterableFactoryOption = FactoryFilterableOption;
 
-function formatStickerMsrp(amount: number | null | undefined): string {
-  return formatPriceAmount(amount);
-}
 
 function FactoryMustHavePicker({
   options,
@@ -177,7 +173,13 @@ type VehicleSlot = "primary" | "alt1" | "alt2";
  * text (or the buyer), and the car is then built from the VIN alone.
  */
 type PendingLink =
-  | { kind: "link"; slot: VehicleSlot; resolution: Extract<LinkResolution, { ok: true }> }
+  | {
+      kind: "link";
+      slot: VehicleSlot;
+      resolution: Extract<LinkResolution, { ok: true }>;
+      /** Built from the URL's VIN while the panel opened, so the store the VIN names is known before the buyer confirms. */
+      prebuilt: PasteImportSuccess | null;
+    }
   | { kind: "pick_dealer"; slot: VehicleSlot };
 
 function deskLine(d: DeskMatch | null | undefined): string {
@@ -281,9 +283,11 @@ function DealerPicker({
 }
 
 /**
- * Paste → match → VIN → confirm. Shows the desk the hostname resolved to
- * ("We'll send this to …") with Change; opens the picker only when the
- * match is missing, ambiguous, or the buyer says it's the wrong store.
+ * Paste → match → VIN → confirm. The dealership is settled from the VIN
+ * first (our inventory, then the window sticker); the link's hostname is
+ * only the fallback, and neither overwrites the other silently. When both
+ * come up empty the panel says so instead of inventing a store — the
+ * picker is there for the buyer, not for us to guess with.
  */
 function LinkConfirmPanel({
   pending,
@@ -295,20 +299,39 @@ function LinkConfirmPanel({
   pending: Extract<PendingLink, { kind: "link" }>;
   busy: boolean;
   error: string | null;
-  onConfirm: (choice: { vin: string; price: number | null; desk: DeskMatch | null; deskSource: "listing_domain" | "buyer_picked" }) => void;
+  onConfirm: (choice: { vin: string; desk: DeskMatch | null; deskSource: "listing_domain" | "buyer_picked" }) => void;
   onCancel: () => void;
 }) {
   const r = pending.resolution;
   const [vin, setVin] = useState(r.vinFromUrl || "");
-  const [price, setPrice] = useState("");
-  const [desk, setDesk] = useState<DeskMatch | null>(r.desk);
-  const [deskSource, setDeskSource] = useState<"listing_domain" | "buyer_picked">(r.desk ? "listing_domain" : "buyer_picked");
-  const [picking, setPicking] = useState(!r.desk);
   const cleanVin = vin.trim().toUpperCase();
-  const priceNumber = price ? Number(price.replace(/[^0-9.]/g, "")) : null;
+  // What the VIN itself said about the store — only valid for the VIN it was built for.
+  const vinDealer =
+    pending.prebuilt && pending.prebuilt.vehicle.vin === cleanVin && hasVinResolvedDealer(pending.prebuilt.vehicle)
+      ? pending.prebuilt.vehicle.location
+      : null;
+  const [picked, setPicked] = useState<DeskMatch | null>(null);
+  const [picking, setPicking] = useState(false);
+  const linkDesk = r.desk;
+  const shown: { name: string; where: string; note: string; tone: "vin" | "link" | "picked" } | null = picked
+    ? { name: picked.dealerName, where: deskLocationLine(picked), note: "picked by you", tone: "picked" }
+    : vinDealer
+      ? {
+          name: vinDealer.dealerName,
+          where: [vinDealer.city, vinDealer.state].filter(Boolean).join(", "),
+          note: dealerSourceLabel(vinDealer.dealerSource),
+          tone: "vin",
+        }
+      : linkDesk
+        ? { name: linkDesk.dealerName, where: deskLocationLine(linkDesk), note: "from the listing link", tone: "link" }
+        : null;
+  const contactNote = picked
+    ? picked.knownNamed
+    : shown?.tone === "link" && linkDesk
+      ? linkDesk.knownNamed
+      : null;
   const pick = (d: DeskMatch) => {
-    setDesk(d);
-    setDeskSource("buyer_picked");
+    setPicked(d);
     setPicking(false);
   };
   return (
@@ -328,39 +351,38 @@ function LinkConfirmPanel({
 
       <div className="space-y-1">
         <label className="block text-[10px] font-bold uppercase tracking-wide text-ink-faint">
-          VIN {r.vinFromUrl ? <span className="font-normal normal-case text-ink-muted">— read from the link, check it matches the page</span> : <span className="font-normal normal-case text-ink-muted">— copy it from the listing</span>}
+          VIN{" "}
+          {r.vinFromUrl ? (
+            <span className="font-normal normal-case text-ink-muted">— read from the link, check it matches the page</span>
+          ) : (
+            <span className="font-normal normal-case text-ink-muted">— copy it from the listing</span>
+          )}
         </label>
-        <div className="flex gap-2">
-          <input
-            type="text"
-            value={vin}
-            onChange={(e) => setVin(e.target.value)}
-            placeholder="17-character VIN"
-            maxLength={17}
-            className="w-full rounded-lg border border-border bg-background py-2 px-3 font-mono text-[11px] uppercase text-ink-light placeholder-ink-faint focus:border-emerald-500 focus:outline-none"
-          />
-          <input
-            type="text"
-            inputMode="numeric"
-            value={price}
-            onChange={(e) => setPrice(e.target.value)}
-            placeholder="Advertised price (optional)"
-            className="w-44 shrink-0 rounded-lg border border-border bg-background py-2 px-3 text-[11px] text-ink-light placeholder-ink-faint focus:border-emerald-500 focus:outline-none"
-          />
-        </div>
+        <input
+          type="text"
+          value={vin}
+          onChange={(e) => setVin(e.target.value)}
+          placeholder="17-character VIN"
+          maxLength={17}
+          className="w-full rounded-lg border border-border bg-background py-2 px-3 font-mono text-[11px] uppercase text-ink-light placeholder-ink-faint focus:border-emerald-500 focus:outline-none"
+        />
       </div>
 
       <div className="space-y-1.5">
         <p className="text-[10px] font-bold uppercase tracking-wide text-ink-faint">Dealership</p>
-        {desk && !picking ? (
+        {shown && !picking ? (
           <div className="flex items-center justify-between gap-3 rounded-lg border border-border bg-background px-3 py-2">
             <span className="min-w-0">
               <span className="block truncate text-[11px] text-ink-light">
-                We&apos;ll send this to <span className="font-semibold text-white">{desk.dealerName}</span>
-                {deskLocationLine(desk) ? <span className="text-ink-muted"> · {deskLocationLine(desk)}</span> : null}
+                We&apos;ll send this to <span className="font-semibold text-white">{shown.name}</span>
+                {shown.where ? <span className="text-ink-muted"> · {shown.where}</span> : null}
               </span>
-              <span className={`block text-[10px] ${desk.knownNamed ? "text-emerald-300" : "text-amber-300"}`}>
-                {desk.knownNamed ? "Sales contact on file" : "No named sales contact on file yet"}
+              <span className="block text-[10px] text-ink-muted">
+                <span className={shown.tone === "vin" ? "text-emerald-300" : shown.tone === "picked" ? "text-sky-300" : "text-amber-300"}>
+                  {shown.note}
+                </span>
+                {contactNote === true ? <span className="text-emerald-300"> · sales contact on file</span> : null}
+                {contactNote === false ? <span className="text-amber-300"> · no named sales contact on file yet</span> : null}
               </span>
             </span>
             <button
@@ -373,18 +395,25 @@ function LinkConfirmPanel({
           </div>
         ) : (
           <div className="space-y-1.5">
-            <p className="text-[10px] text-amber-200">
-              {r.candidates.length > 1
-                ? "That site is shared by more than one store — pick yours."
-                : desk
-                  ? "Pick the right store."
-                  : "We couldn't match that site — pick your dealer."}
-            </p>
+            {!shown ? (
+              <div className="rounded-lg border border-amber-500/40 bg-amber-950/20 px-3 py-2">
+                <p className="text-[11px] font-bold text-amber-200">Dealer not found</p>
+                <p className="text-[10px] leading-snug text-amber-200/90">
+                  {cleanVin.length === 17
+                    ? "Neither this VIN nor that site matched a dealership on file. Pick the store below, or add the car without one."
+                    : "That site isn't a dealership on file. Enter the VIN, or pick the store below."}
+                </p>
+              </div>
+            ) : (
+              <p className="text-[10px] text-amber-200">
+                {r.candidates.length > 1 ? "That site is shared by more than one store — pick yours." : "Pick the right store."}
+              </p>
+            )}
             <DealerPicker
               candidates={r.candidates}
               suggestedQuery={r.suggestedQuery}
               onPick={pick}
-              onCancel={desk ? () => setPicking(false) : undefined}
+              onCancel={shown ? () => setPicking(false) : undefined}
             />
           </div>
         )}
@@ -398,11 +427,17 @@ function LinkConfirmPanel({
       <div className="flex items-center gap-2">
         <button
           type="button"
-          onClick={() => onConfirm({ vin: cleanVin, price: priceNumber, desk, deskSource })}
+          onClick={() =>
+            onConfirm(
+              picked
+                ? { vin: cleanVin, desk: picked, deskSource: "buyer_picked" }
+                : { vin: cleanVin, desk: linkDesk, deskSource: "listing_domain" }
+            )
+          }
           disabled={busy || !isPlausibleVin(cleanVin)}
           className="rounded-lg bg-emerald-500 px-3.5 py-1.5 text-[11px] font-black text-black hover:bg-emerald-400 transition-all disabled:opacity-50"
         >
-          {busy ? "Adding…" : desk ? "Confirm & add" : "Add without a dealership"}
+          {busy ? "Adding…" : shown ? "Confirm & add" : "Add without a dealership"}
         </button>
         <button
           type="button"
@@ -465,10 +500,20 @@ function AlternateVinField({
           </p>
           <p className="truncate text-[10px] text-ink-muted">
             <span className="font-mono">{vehicle.vin}</span>
-            {vehicle.location?.dealerName ? <> · {vehicle.location.dealerName}</> : null}
-            {vehicle.location?.dealerSource === "window_sticker" ? (
-              <span className="text-amber-300/90"> · from the factory sticker</span>
-            ) : null}
+            {vehicle.location?.dealerName ? (
+              <>
+                {" · "}
+                {vehicle.location.dealerName}
+                {dealerSourceLabel(vehicle.location.dealerSource) ? (
+                  <span className={vehicle.location.dealerSource === "window_sticker" ? "text-amber-300/90" : "text-ink-faint"}>
+                    {" "}
+                    ({dealerSourceLabel(vehicle.location.dealerSource)})
+                  </span>
+                ) : null}
+              </>
+            ) : (
+              <span className="font-bold text-amber-300"> · Dealer not found</span>
+            )}
             {onChangeDealer ? (
               <>
                 {" · "}
@@ -884,6 +929,9 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
    * then park it on the confirm panel for the VIN and the store. Returns
    * true when the paste was a link (and so is now waiting on the buyer).
    */
+  const slotVehicles = (slot: VehicleSlot) =>
+    slot === "primary" ? [altVehicle1, altVehicle2] : slot === "alt1" ? [selectedVehicle, altVehicle2] : [selectedVehicle, altVehicle1];
+
   const parkLink = async (slot: VehicleSlot, raw: string): Promise<boolean> => {
     if (classifyPaste(raw).kind !== "url") return false;
     setLinkError(null);
@@ -895,20 +943,27 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
       setPendingLink(null);
       return true;
     }
-    setPendingLink({ kind: "link", slot, resolution });
+    // Settle the store from the VIN before the buyer sees the panel — the
+    // link only gets a say when the VIN has none.
+    let prebuilt: PasteImportSuccess | null = null;
+    if (resolution.vinFromUrl) {
+      const built = await importPastedFactoryVehicle(resolution.vinFromUrl, fetch, { existingVehicles: slotVehicles(slot) });
+      if (built.ok) prebuilt = built;
+    }
+    setPendingLink({ kind: "link", slot, resolution, prebuilt });
     return true;
   };
 
-  const slotVehicles = (slot: VehicleSlot) =>
-    slot === "primary" ? [altVehicle1, altVehicle2] : slot === "alt1" ? [selectedVehicle, altVehicle2] : [selectedVehicle, altVehicle1];
-
   /** The buyer confirmed VIN + store: build from the VIN alone and commit to the slot that asked. */
-  const confirmLink = async (choice: { vin: string; price: number | null; desk: DeskMatch | null; deskSource: "listing_domain" | "buyer_picked" }) => {
+  const confirmLink = async (choice: { vin: string; desk: DeskMatch | null; deskSource: "listing_domain" | "buyer_picked" }) => {
     if (!pendingLink || pendingLink.kind !== "link") return;
-    const { slot, resolution } = pendingLink;
+    const { slot, resolution, prebuilt } = pendingLink;
     setLinkBusy(true);
     setLinkError(null);
-    const result = await importPastedFactoryVehicle(choice.vin, fetch, { existingVehicles: slotVehicles(slot) });
+    const result =
+      prebuilt && prebuilt.vehicle.vin === choice.vin
+        ? prebuilt
+        : await importPastedFactoryVehicle(choice.vin, fetch, { existingVehicles: slotVehicles(slot) });
     if (!result.ok) {
       setLinkError(result.error);
       setLinkBusy(false);
@@ -916,7 +971,6 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     }
     const vehicle = attachLinkToVehicle(result.vehicle, {
       url: resolution.url,
-      price: choice.price,
       desk: choice.desk,
       deskSource: choice.deskSource,
     });
@@ -1017,9 +1071,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     if (result.msrp && result.msrp > 0) {
       setTargetOtdPrice(Math.round(result.msrp * 0.92));
     }
-    setParseSuccessMsg(
-      `VIN ${result.vehicle.vin}${result.msrp ? ` · MSRP ${formatStickerMsrp(result.msrp)}` : ""}`
-    );
+    setParseSuccessMsg(`VIN ${result.vehicle.vin}`);
   };
 
   // Resolves an alternate VIN/link through the same real import used for
@@ -1321,7 +1373,6 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
       dealerName: v.location?.dealerName?.trim() || null,
       dealerState: v.location?.state?.trim().toUpperCase() || null,
       vdpUrl: v.dealerUrl || null,
-      listingPrice: v.dealerPrice > 0 ? v.dealerPrice : null,
       buildConfidence: v.buildConfidence || "dealer_listing_only",
       resolvedAt: new Date().toISOString(),
     }));
@@ -1719,43 +1770,27 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                         {[selectedVehicle.year, selectedVehicle.make, selectedVehicle.model, selectedVehicle.trim]
                           .filter(Boolean)
                           .join(" ")}
-                        {(() => {
-                          // Same price and source label the review step uses —
-                          // the dealer's advertised price when there is one,
-                          // MSRP when there isn't, never one dressed as the other.
-                          const shown = advertisedOrStickerPrice(
-                            selectedVehicle.dealerPrice,
-                            selectedVehicle.msrp
-                          );
-                          if (!shown.amount || shown.amount <= 0) return null;
-                          return (
-                            <span className="text-ink-muted">
-                              {" · "}
-                              {formatPriceAmount(shown.amount)}{" "}
-                              {shopperPriceSourceLabel(shown.source)}
-                            </span>
-                          );
-                        })()}
                         </span>
                         {/* VIN and the dealer rooftop — or, failing a name, the
                             site the link came from — so the buyer can confirm
                             this is the car and the store they meant. */}
                         <span className="block truncate text-[10px] text-ink-muted">
                           <span className="font-mono">{selectedVehicle.vin}</span>
-                          {(() => {
-                            const dealer = selectedVehicle.location?.dealerName?.trim();
-                            let host = "";
-                            try {
-                              host = selectedVehicle.dealerUrl ? new URL(selectedVehicle.dealerUrl).hostname.replace(/^www\./, "") : "";
-                            } catch {
-                              host = "";
-                            }
-                            const where = dealer || host;
-                            return where ? <> · {where}</> : null;
-                          })()}
-                          {selectedVehicle.location?.dealerSource === "window_sticker" ? (
-                            <span className="text-amber-300/90"> · from the factory sticker, may have moved</span>
-                          ) : null}
+                          {selectedVehicle.location?.dealerName?.trim() ? (
+                            <>
+                              {" · "}
+                              {selectedVehicle.location.dealerName.trim()}
+                              {dealerSourceLabel(selectedVehicle.location.dealerSource) ? (
+                                <span className={selectedVehicle.location.dealerSource === "window_sticker" ? "text-amber-300/90" : "text-ink-faint"}>
+                                  {" "}
+                                  ({dealerSourceLabel(selectedVehicle.location.dealerSource)}
+                                  {selectedVehicle.location.dealerSource === "window_sticker" ? ", may have moved" : ""})
+                                </span>
+                              ) : null}
+                            </>
+                          ) : (
+                            <span className="font-bold text-amber-300"> · Dealer not found</span>
+                          )}
                           {selectedVehicle.buyerConfirmed ? (
                             <span className="text-sky-300"> · confirmed by you</span>
                           ) : null}
@@ -2392,7 +2427,6 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                         style={{ gridTemplateColumns: `repeat(${cols}, minmax(200px, 1fr))` }}
                       >
                         {packageVehicles.map(({ vehicle, target, contact, typedEmail, isPrimary }) => {
-                          const price = advertisedOrStickerPrice(vehicle.dealerPrice, vehicle.msrp);
                           const reachable = Boolean(contact?.hasEmail && !contact?.emailOptOut);
                           const supplied = isPlausibleDealerEmail(typedEmail);
                           return (
@@ -2422,16 +2456,6 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                                     <span className="font-mono text-ink-light">{vehicle.vin}</span>
                                   )}
                                 </div>
-                                {price.amount && price.amount > 0 ? (
-                                  <div className="text-ink-light">
-                                    {formatPriceAmount(price.amount)}{" "}
-                                    <span className="text-[9px] font-bold uppercase text-ink-faint">
-                                      {shopperPriceSourceLabel(price.source)}
-                                    </span>
-                                  </div>
-                                ) : (
-                                  <div className="text-ink-faint">No price shown</div>
-                                )}
                               </div>
 
                               <div className="space-y-0.5 border-t border-border/50 pt-2 text-[11px]">

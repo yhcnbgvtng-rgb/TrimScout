@@ -176,7 +176,6 @@ export interface DealerLinkPaste {
   dealerName: string | null;
   dealerState: string | null;
   vdpUrl: string | null;
-  listingPrice: number | null;
   buildConfidence: BuildConfidence;
   resolvedAt: string;
 }

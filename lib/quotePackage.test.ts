@@ -41,7 +41,6 @@ function paste(over: Partial<DealerLinkPaste> = {}): DealerLinkPaste {
     dealerName: "Route 23 Auto Mall",
     dealerState: "NJ",
     vdpUrl: "https://www.example.com/vdp/1",
-    listingPrice: null,
     buildConfidence: "verified_factory",
     resolvedAt: "2026-09-11T00:00:00.000Z",
     ...over,
