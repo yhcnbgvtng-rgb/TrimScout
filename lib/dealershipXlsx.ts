@@ -9,7 +9,12 @@
  */
 
 import ExcelJS from "exceljs";
-import { rowsFromTable, type DealershipCsvParseResult } from "./dealershipCsv";
+import {
+  rowsFromTable,
+  dealershipsToTable,
+  type DealershipCsvParseResult,
+  type ExportableDealership,
+} from "./dealershipCsv";
 
 function cellToString(value: ExcelJS.CellValue): string {
   if (value == null) return "";
@@ -40,4 +45,21 @@ export async function parseDealershipXlsxBuffer(buffer: Buffer): Promise<Dealers
     table.push(values.slice(1).map(cellToString));
   });
   return rowsFromTable(table);
+}
+
+/** The whole directory as one sheet — same columns as the CSV export, so either file re-uploads. */
+export async function buildDealershipXlsxBuffer(dealerships: ExportableDealership[]): Promise<Buffer> {
+  const workbook = new ExcelJS.Workbook();
+  const sheet = workbook.addWorksheet("Dealership Contacts");
+  const [header, ...rows] = dealershipsToTable(dealerships);
+  sheet.addRow(header).font = { bold: true };
+  rows.forEach((row) => sheet.addRow(row));
+  sheet.columns.forEach((col, i) => {
+    // Wide enough to read without opening every cell; capped so a long note
+    // doesn't stretch a column across the screen.
+    const longest = Math.max(header[i].length, ...rows.map((r) => (r[i] || "").length));
+    col.width = Math.min(60, Math.max(10, longest + 2));
+  });
+  sheet.views = [{ state: "frozen", ySplit: 1 }];
+  return Buffer.from(await workbook.xlsx.writeBuffer());
 }

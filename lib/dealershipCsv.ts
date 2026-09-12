@@ -138,3 +138,78 @@ export function rowsFromTable(table: string[][]): DealershipCsvParseResult {
 
   return { rows, skippedRows, unrecognizedColumns };
 }
+
+// ---------------------------------------------------------------------------
+// Export — the inverse of the parser above. Headers are chosen so the file
+// re-uploads cleanly: every data column is a recognized alias, and the two
+// read-only columns (opt-out, updated) land in unrecognizedColumns rather
+// than silently overwriting anything. Opt-out in particular must never be
+// settable from a spreadsheet — it only moves via the unsubscribe link.
+// ---------------------------------------------------------------------------
+
+export interface ExportableDealership {
+  dealerName: string;
+  address: string | null;
+  city: string | null;
+  state: string | null;
+  zipCode: string | null;
+  phone: string | null;
+  contactName: string | null;
+  contactEmail: string | null;
+  notes: string | null;
+  emailOptOut: boolean;
+  updatedAt: string;
+}
+
+export const DEALERSHIP_EXPORT_HEADERS = [
+  "Dealer Name",
+  "Address",
+  "City",
+  "State",
+  "Zip",
+  "Phone",
+  "Contact Name",
+  "Contact Email",
+  "Notes",
+  "Email Opt-Out",
+  "Updated",
+] as const;
+
+/** Header row + one row per dealership, as strings — shared by the CSV and xlsx writers. */
+export function dealershipsToTable(dealerships: ExportableDealership[]): string[][] {
+  const rows = dealerships.map((d) => [
+    d.dealerName || "",
+    d.address || "",
+    d.city || "",
+    d.state || "",
+    d.zipCode || "",
+    d.phone || "",
+    d.contactName || "",
+    d.contactEmail || "",
+    d.notes || "",
+    d.emailOptOut ? "yes" : "",
+    d.updatedAt || "",
+  ]);
+  return [[...DEALERSHIP_EXPORT_HEADERS], ...rows];
+}
+
+function csvCell(value: string): string {
+  // RFC4180: quote when the cell holds a comma, quote, or line break; double
+  // embedded quotes. Also quote leading =/+/-/@ so a spreadsheet app doesn't
+  // treat a pasted note as a formula.
+  const needsQuote = /[",\r\n]/.test(value) || /^[=+\-@]/.test(value);
+  return needsQuote ? `"${value.replace(/"/g, '""')}"` : value;
+}
+
+export function tableToCsv(table: string[][]): string {
+  return table.map((row) => row.map(csvCell).join(",")).join("\r\n") + "\r\n";
+}
+
+export function dealershipsToCsv(dealerships: ExportableDealership[]): string {
+  return tableToCsv(dealershipsToTable(dealerships));
+}
+
+/** `trimscout-dealership-contacts-2026-09-12.csv` — dated so re-downloads don't clobber each other. */
+export function dealershipExportFilename(format: "csv" | "xlsx", now: Date = new Date()): string {
+  return `trimscout-dealership-contacts-${now.toISOString().slice(0, 10)}.${format}`;
+}

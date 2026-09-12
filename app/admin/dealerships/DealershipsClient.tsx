@@ -17,6 +17,8 @@ import {
   Mail,
   MapPin,
   Upload,
+  Download,
+  ChevronDown,
   Link2,
 } from "lucide-react";
 import type { Dealership, DealershipInput, BulkUpsertResult } from "@/lib/dealershipsApi";
@@ -48,6 +50,8 @@ export default function DealershipsClient() {
   const [formError, setFormError] = useState<string | null>(null);
 
   const [isUploadOpen, setIsUploadOpen] = useState(false);
+  const [isDownloadOpen, setIsDownloadOpen] = useState(false);
+  const downloadMenuRef = useRef<HTMLDivElement | null>(null);
   const [csvFileName, setCsvFileName] = useState<string | null>(null);
   const [csvPreview, setCsvPreview] = useState<DealershipCsvParseResult | null>(null);
   const [csvParseError, setCsvParseError] = useState<string | null>(null);
@@ -85,6 +89,15 @@ export default function DealershipsClient() {
     setFormError(null);
     setIsFormOpen(true);
   };
+
+  useEffect(() => {
+    if (!isDownloadOpen) return;
+    const onClick = (e: MouseEvent) => {
+      if (!downloadMenuRef.current?.contains(e.target as Node)) setIsDownloadOpen(false);
+    };
+    document.addEventListener("mousedown", onClick);
+    return () => document.removeEventListener("mousedown", onClick);
+  }, [isDownloadOpen]);
 
   const openUpload = () => {
     setCsvFileName(null);
@@ -263,6 +276,45 @@ export default function DealershipsClient() {
             </div>
           </div>
           <div className="flex items-center gap-2">
+            <div className="relative" ref={downloadMenuRef}>
+              <button
+                type="button"
+                onClick={() => setIsDownloadOpen((v) => !v)}
+                disabled={loading || dealerships.length === 0}
+                aria-haspopup="menu"
+                aria-expanded={isDownloadOpen}
+                className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-surface-elevated hover:bg-surface px-3.5 py-2 text-xs font-bold text-ink-light hover:text-white transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Download className="h-3.5 w-3.5 text-emerald-400" />
+                <span>Download All ({dealerships.length.toLocaleString()})</span>
+                <ChevronDown className="h-3 w-3 text-ink-faint" />
+              </button>
+              {isDownloadOpen && (
+                <div
+                  role="menu"
+                  className="absolute right-0 mt-1.5 w-56 rounded-xl border border-border bg-surface-elevated shadow-2xl p-1 z-20 animate-fadeIn"
+                >
+                  <a
+                    role="menuitem"
+                    href="/api/admin/dealerships/export?format=csv"
+                    onClick={() => setIsDownloadOpen(false)}
+                    className="block rounded-lg px-3 py-2 text-xs text-ink-light hover:bg-surface hover:text-white"
+                  >
+                    <span className="font-bold">CSV</span>
+                    <span className="block text-[10px] text-ink-faint">Opens anywhere; re-uploads as-is</span>
+                  </a>
+                  <a
+                    role="menuitem"
+                    href="/api/admin/dealerships/export?format=xlsx"
+                    onClick={() => setIsDownloadOpen(false)}
+                    className="block rounded-lg px-3 py-2 text-xs text-ink-light hover:bg-surface hover:text-white"
+                  >
+                    <span className="font-bold">Excel (.xlsx)</span>
+                    <span className="block text-[10px] text-ink-faint">Bold header, frozen row, sized columns</span>
+                  </a>
+                </div>
+              )}
+            </div>
             <button
               onClick={openUpload}
               className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-surface-elevated hover:bg-surface px-3.5 py-2 text-xs font-bold text-ink-light hover:text-white transition-all shadow-sm"
