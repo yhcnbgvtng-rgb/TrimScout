@@ -19,6 +19,16 @@ const { contactDomains, contactWebsite } = await import("../lib/deskResolve");
 const { resolveHostRedirect } = await import("../lib/hostRedirect");
 
 const write = process.argv.includes("--write");
+
+/**
+ * Hosts a lapsed dealer domain tends to land on — parking pages, survey
+ * funnels, registrars. Never an alias: a paste on one of these is not a
+ * vehicle page at that store.
+ */
+const JUNK_HOSTS = /(^|\.)(survey-smiles|surveysmiles|godaddy|hugedomains|sedo|sedoparking|dan|afternic|namecheap|parkingcrew|bodis|above|domainmarket|buydomains|undeveloped|squadhelp|wixsite|weebly|blogspot|google|facebook|youtube|bing|yahoo)\.(com|net|org|io)$/i;
+export function isJunkAliasHost(host: string): boolean {
+  return JUNK_HOSTS.test((host || "").toLowerCase());
+}
 const onlyMissing = process.argv.includes("--only-missing");
 const CONCURRENCY = 24;
 
@@ -45,8 +55,10 @@ async function worker() {
       failed++;
       continue;
     }
-    const after = Array.from(new Set([...before, ...chain]));
-    if (chain.length > 1) redirected++;
+    const landed = chain.filter((h) => !isJunkAliasHost(h));
+    if (landed.length !== chain.length) console.log(`${row.dealerName} (${row.state}): ${chain.join(" → ")}  ← junk landing, not aliased`);
+    const after = Array.from(new Set([...before, ...landed]));
+    if (landed.length > 1) redirected++;
     if (after.length === before.length && (row.domains || []).length === before.length) continue;
     changed++;
     if (chain.length > 1) console.log(`${row.dealerName} (${row.state}): ${chain.join(" → ")}`);

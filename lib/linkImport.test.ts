@@ -137,3 +137,35 @@ describe("hasVinResolvedDealer / dealerSourceLabel", () => {
     assert.equal(dealerSourceLabel("unknown"), "");
   });
 });
+
+// ---------------------------------------------------------------------------
+// Wizard wiring: the factory build shows whenever the VIN built, whether or
+// not a dealership matched — the sticker is never gated on the desk.
+// ---------------------------------------------------------------------------
+import fs from "node:fs";
+import path from "node:path";
+
+describe("confirm panel — sticker independent of dealer", () => {
+  const wizard = fs.readFileSync(path.join(process.cwd(), "components/BiddingWizard.tsx"), "utf8");
+  const panel = wizard.slice(wizard.indexOf("function LinkConfirmPanel("), wizard.indexOf("\n}\n", wizard.indexOf("function LinkConfirmPanel(")));
+
+  it("renders the build block from the pre-built VIN alone, ahead of the dealership block", () => {
+    const buildIdx = panel.indexOf('data-testid="link-confirm-build"');
+    const dealerIdx = panel.indexOf(">Dealership</p>");
+    assert.ok(buildIdx > 0 && dealerIdx > buildIdx, "build block precedes the dealership block");
+    // Its guard is the build itself — not `shown`, `desk` or `picked`.
+    const guard = panel.slice(panel.lastIndexOf("{build ? (", buildIdx), buildIdx);
+    assert.doesNotMatch(guard, /shown|linkDesk|picked|vinDealer/);
+  });
+
+  it("shows Factory verified and the build-sheet link when the record is real", () => {
+    assert.match(panel, /build\.buildConfidence === "verified_factory" \? "Factory verified"/);
+    assert.match(panel, /build\.pdfUrl \?/);
+    assert.match(panel, /FORD_BUILD_SHEET_LINK/);
+  });
+
+  it("keeps the not-found path and 'Add without a dealership' below it, unblocked", () => {
+    assert.match(panel, /Dealer not found/);
+    assert.match(panel, /Add without a dealership/);
+  });
+});
