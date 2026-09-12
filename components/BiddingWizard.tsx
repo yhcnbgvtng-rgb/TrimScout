@@ -313,6 +313,10 @@ function LinkConfirmPanel({
     pending.prebuilt && pending.prebuilt.vehicle.vin === cleanVin && hasVinResolvedDealer(pending.prebuilt.vehicle)
       ? pending.prebuilt.vehicle.location
       : null;
+  // The factory record for this VIN, shown the moment it's built — it does
+  // not depend on the dealership resolving. A buyer can confirm the car
+  // while still picking (or skipping) the store.
+  const build = pending.prebuilt && pending.prebuilt.vehicle.vin === cleanVin ? pending.prebuilt : null;
   const [picked, setPicked] = useState<DeskMatch | null>(null);
   const [picking, setPicking] = useState(false);
   const linkDesk = r.desk;
@@ -375,6 +379,42 @@ function LinkConfirmPanel({
           className="w-full rounded-lg border border-border bg-background py-2 px-3 font-mono text-[11px] uppercase text-ink-light placeholder-ink-faint focus:border-emerald-500 focus:outline-none"
         />
       </div>
+
+      {build ? (
+        <div className="space-y-1" data-testid="link-confirm-build">
+          <p className="text-[10px] font-bold uppercase tracking-wide text-ink-faint">Vehicle</p>
+          <div className="flex items-center justify-between gap-3 rounded-lg border border-border bg-background px-3 py-2">
+            <span className="min-w-0">
+              <span className="block truncate text-[11px] font-semibold text-white">
+                {[build.vehicle.year, build.vehicle.make, build.vehicle.model, build.vehicle.trim].filter(Boolean).join(" ")}
+              </span>
+              <span className="block truncate text-[10px] text-ink-muted">
+                {[build.vehicle.exteriorColor, build.vehicle.drivetrain].filter(Boolean).join(" · ") || "Factory record read"}
+              </span>
+            </span>
+            <span className="flex shrink-0 items-center gap-2">
+              <span
+                className={`rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide ${
+                  build.buildConfidence === "verified_factory" ? "bg-emerald-500/15 text-emerald-300" : "bg-amber-500/15 text-amber-300"
+                }`}
+              >
+                {build.buildConfidence === "verified_factory" ? "Factory verified" : "Unconfirmed build"}
+              </span>
+              {build.pdfUrl ? (
+                <a
+                  href={build.pdfUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center gap-1 text-[10px] font-bold text-emerald-400 hover:text-emerald-300"
+                >
+                  <FileText className="h-3 w-3" />
+                  {FORD_BUILD_SHEET_LINK}
+                </a>
+              ) : null}
+            </span>
+          </div>
+        </div>
+      ) : null}
 
       <div className="space-y-1.5">
         <p className="text-[10px] font-bold uppercase tracking-wide text-ink-faint">Dealership</p>

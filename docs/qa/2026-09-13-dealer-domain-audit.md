@@ -1,0 +1,187 @@
+# Dealer directory domain audit — 2026-09-13
+
+Why: pasting `schumacherchevroletdenville.com` gave *Dealer not found* although Schumacher Chevrolet of Denville was on file — the row had no website ("No website in the locator data; not crawled"), so the domain join never fired. Same class of gap as Freedom Ford before redirect aliases.
+
+## Totals
+
+| | |
+|---|---|
+| Directory rows | 11543 |
+| Desks with no website / domains before | **112** |
+| Recovered from our own inventory crawl's VDP hosts | 0 |
+| Recovered by verified name-based guess (homepage 200 + names the store + the brand) | **1** |
+| Existing desks that gained inventory VDP hosts as aliases | 0 |
+| Candidate host found but bot-shielded (unverified, NOT written) | 15 |
+| Unresolved (no candidate answered) | 96 |
+| Desks with no website / domains after | **111** |
+| Email hygiene fixes | 0 |
+
+Verified guesses only bind when the host contains a word that is neither the brand nor the city and the live homepage answers 200 naming both that word and the brand — `bakercity.com` / `marysville.com`-style city sites were rejected by that rule.
+
+## Must-fix row
+
+- **Schumacher Chevrolet of Denville** (Denville, NJ 07834): website `https://www.schumacherchevroletdenville.com/`, domains `[schumacherchevroletdenville.com]`, email `agarcia@schumacherdenville.com` (was `.com.com`). Production `/api/desk-resolve` on the Tahoe VDP → `unique · alias_host · knownNamed`.
+- **Freedom Ford (Iselin, NJ)** non-regression: still `unique · alias_host`.
+- **NJ**: no Chevrolet/Ford rooftop on file in NJ is left without a domain.
+
+## Redirect-alias pass after the backfill
+
+- 10,413 sites re-checked (every desk with ≤1 domain): 2 more redirect off their domain, both aliased.
+- **Junk-landing filter added** to `scripts/backfill-dealer-domains.mts`: lapsed dealer domains that land on survey funnels / parking / registrars are never aliased. 3 existing `survey-smiles.com` aliases removed (Balise Honda of North Attleboro MA, BMW of Minnetonka MN, Shelor Chevrolet VA).
+
+## Email hygiene
+
+
+## Remaining gaps by brand / state (top 25)
+
+| Brand / State | Desks |
+|---|---|
+| Chevrolet / MI | 7 |
+| Chevrolet / PA | 5 |
+| Chevrolet / SD | 4 |
+| GMC / TX | 4 |
+| GMC / OH | 3 |
+| Ford / NY | 3 |
+| Honda / CA | 3 |
+| GMC / MI | 3 |
+| Chevrolet / OH | 2 |
+| Chevrolet / MN | 2 |
+| other / CA | 2 |
+| GMC / MD | 2 |
+| GMC / IN | 2 |
+| Honda / MD | 2 |
+| GMC / MS | 2 |
+| GMC / OK | 2 |
+| Chevrolet / KS | 2 |
+| other / NY | 2 |
+| other / IA | 2 |
+| GMC / IL | 2 |
+| Chevrolet / VA | 2 |
+| other / LA | 1 |
+| GMC / WI | 1 |
+| GMC / FL | 1 |
+| Chrysler / GA | 1 |
+
+## Bot-shielded candidates — plausible host found, homepage could not be read (not written; confirm by hand)
+
+- Geaux CDJR Denham Springs (Denham Springs, LA) → geauxcdjrdenhamsprings.com (bot-shielded, unverified)
+- Fritz Chevrolet, INC. (Clear Lake, SD) → fritzchevy.com (bot-shielded, unverified)
+- Greg Sweet Chevrolet, INC. (Conneaut, OH) → gregsweetchevrolet.com (bot-shielded, unverified)
+- Quinlan'S Equipment, INC. (Antigo, WI) → quinlansequipment.com (bot-shielded, unverified)
+- Sam Boswell Buick GMC Mt. Dora (Mount Dora, FL) → samboswellbuickgmcmtdora.com (bot-shielded, unverified)
+- Spitzer Buick GMC Parma (Parma, OH) → spitzerbuickgmcparma.com (bot-shielded, unverified)
+- Spitzer Buick GMC (Findlay, OH) → spitzerbuickgmc.com (bot-shielded, unverified)
+- Berger Chevrolet, INC. (Grand Rapids, MI) → bergerchevrolet.com (bot-shielded, unverified)
+- Cleveland Chevrolet, INC. (Canby, MN) → cleveland.com (bot-shielded, unverified)
+- Tom's Truck Center (Santa Fe Springs, CA) → tomstruckcenter.com (bot-shielded, unverified)
+- River City Chrysler Dodge Jeep Ram (Bainbridge, GA) → rivercity.com (bot-shielded, unverified)
+- Woodhouse Honda (Grand Island, NE) → woodhousehonda.com (bot-shielded, unverified)
+- Freedom Chevrolet, INC. (Virden, IL) → freedomchevy.com (bot-shielded, unverified)
+- Sundance Chevrolet, INC. (Grand Ledge, MI) → sundancechevrolet.com (bot-shielded, unverified)
+- Todd Wenzel Chevrolet, INC. (Hudsonville, MI) → toddwenzelchevrolet.com (bot-shielded, unverified)
+
+## Unresolved — no candidate host answered
+
+- Acura Marysville (Marysville, OH)
+- Baker City Chrysler Dodge Jeep Ram (Baker City, OR)
+- Bowie Chrysler Dodge Jeep Ram (Bowie, MD)
+- Burley GMC (Burley, ID)
+- Chevrolet of Hastings (Hastings, MN)
+- Anderson Buick GMC of Abingdon (Abingdon, MD)
+- Auto Exchange Chevrolet GMC (Sullivan, IN)
+- Brown Daub Chevrolet of Nazareth (Nazareth, PA)
+- Blumhardt Chevrolet, Incorporated (Ellendale, ND)
+- Dave Hahler Auto (Webster, SD)
+- Dublin Acura (Dublin, CA)
+- Apple Honda Service Center (Catonsville, MD)
+- Ed Martin Buick GMC of Anderson (Anderson, IN)
+- Capital Honda of Salisbury (Salisbury, NC)
+- Firelands Chevrolet of Vermilion (Vermilion, OH)
+- FordTest Dealer (null, null)
+- Franks Chevrolet-Gmc, LLC (Kosciusko, MS)
+- Dorsey-Jones GMC (El Reno, OK)
+- Countryside Motors, L.l.c. (Wellington, KS)
+- Egglefield Bros., Inc. (Ray Brook, NY) (Ray Brook, NY)
+- Gabrielli Ford Trk Sls & Serv (Medford, NY)
+- Freedom Buick GMC By Ed Morse (Greenville, TX)
+- GENESIS OF KALAMAZOO (KALAMAZOO, MI)
+- Dave Hallman Chevrolet, INC. (Erie, PA)
+- Graff Chevrolet-Okemos, INC. (Okemos, MI)
+- Grinnell Motors (Grinnell, IA)
+- Group 1 Toyota Certified Capital Plaza (Greater Landover, MD)
+- Group 1 Toyota Southwest Houston (Houston, TX)
+- Applegate Chevrolet Company (Flint, MI)
+- Holler Honda Service Center (Winter Park, FL)
+- Honda Carland Service Center (Alpharetta, GA)
+- Honda of El Cajon Service Center (Santee, CA)
+- Honda of Gladstone (Gladstone, OR)
+- Hondru Chevrolet of E-Town (Elizabethtown, PA)
+- Advantage Buick GMC (Hodgkins, IL)
+- Jonny Dodge-Chry-Jeep (Neligh, NE)
+- Joe Bullard Thomasville Chevrolet GMC, INC. (Thomasville, AL)
+- Glass Capital Chrysler Dodge Jeep Ram (Dunkirk, IN)
+- Dutch Miller Honda of Ashland (Ashland, KY)
+- Kelly Motor Corp. (Perry, NY)
+- Kerry Toyota Service Center (Covington, KY)
+- Keller Motors Inc (Perryville, MO)
+- Knowlton Ford Inc. (Woodsfield, OH)
+- Lambs Chevrolet & Implement, INC. (Onida, SD)
+- Lancaster Honda (Lancaster, CA)
+- Lewis Chevrolet of Liberal (Liberal, KS)
+- Katahdin Motors, INC. (Millinocket, ME)
+- Ken Ganley Buick GMC (Sandusky, OH)
+- Matthews Chevrolet of Peckville (Peckville, PA)
+- Maddox Motor Company (Sidney, NE)
+- Maus Acura of North Tampa (Tampa, FL)
+- Mercedes-Benz of Ponce (Ponce, PR)
+- Moran Buick GMC of Sterling Heights (Sterling Heights, MI)
+- Nemaha Valley Motors Inc (Seneca, KS)
+- Nemaha Valley Motors, INC. (Seneca, KS)
+- Motor Mile Chevrolet Buick (Radford, VA)
+- Ocean Honda of Hanover Service Center (Weymouth, MA)
+- Pat Clemons Chrysler Plymouth Dodge (Boone, IA)
+- Lexington Park Chevrolet Buick GMC (California, MD)
+- Pena Bender Chrysler Dodge Jeep Ram (Clovis, NM)
+- Pena Bender Honda (Clovis, NM)
+- Nielsen Motors (Humboldt, IA)
+- Mandal Automotive Group, INC. (Diberville, MS)
+- Price GMC (Karnes City, TX)
+- Jensen'S, INC. (Fairview, OK)
+- Romeo Ford of Saratoga, LLC - Service Satellite (Saratoga Springs, NY)
+- Salem Motor Mile Chevrolet (Salem, VA)
+- San Franciso Honda Service Center Marina (San Francisco, CA)
+- Scholfield Honda Service Center (Wichita, KS)
+- Rockwell Ford (Stuttgart, AR)
+- Preston's Chrysler Dodge Jeep Ram (Barre, VT)
+- Shore Motor Company (Clarinda, IA)
+- Shottenkirk Honda Huntsville Service Ctr (Huntsville, AL)
+- Countryside Ford (McDonough, GA)
+- Shaheen Chevrolet, INC. (Lansing, MI)
+- Sparta Chevrolet, INC. (Sparta, MI)
+- Southwest Truck Sales (El Paso, TX)
+- Sport Honda Service Center (Silver Spring, MD)
+- St Marys Chrysler Dodge Jeep Inc (Saint Marys, OH)
+- Starks Ford of Queens (11433) (Jamaica, NY)
+- Klick-Lewis, INC. (Palmyra, PA)
+- Taylor Buick GMC (Taylor, MI)
+- The Johnson Motors Corporation (Safford, AZ)
+- Hillside Honda Service Annex (Jamaica, NY)
+- Transwest Truck Center (Fontana, CA)
+- Tyndall Motors, INC. (Tyndall, SD)
+- Pikeland Motors, INC. (Pittsfield, IL)
+- Zimbrick Honda Service Center (Madison, WI)
+- Shroyer Motor Company (Big Spring, TX)
+- Stateline Chevrolet GMC (Iron River, MI)
+- Tim Short CDJR of Middlesboro (Middlesboro, KY)
+- Toliver Buick GMC (Mount Pleasant, TX)
+- Wegner Auto Company, INC. (Pierre, SD)
+- Cannon Acura (Montgomery, AL)
+- West Knoxville Chrysler Dodge Jeep Ram (Knoxville, TN)
+- St. Louis Chrysler Dodge Jeep Ram (Bridgeton, MO)
+
+## Verified guesses written
+
+- Schumacher Chevrolet of Denville (NJ) → schumacherchevroletdenville.com
+
+## Inventory VDP hosts added as aliases
+
