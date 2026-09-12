@@ -1241,17 +1241,18 @@ describe("shopper-facing factory option copy", () => {
     );
   });
 
-  it("app/api/ford-sticker and app/api/gm-sticker carry the real advertising dealer: the paid lookup, else the listing's own store", () => {
-    // The paid current-dealer lookup is budget-gated (off in prod), so the
-    // store whose page the buyer pasted — read from the page, or from the
-    // link's hostname when the page is bot-shielded — must be the fallback,
-    // never the sticker's factory ship-to dealer alone.
-    const fordRoute = fs.readFileSync(path.join(process.cwd(), "app/api/ford-sticker/route.ts"), "utf8");
-    assert.match(fordRoute, /currentDealerForVin/);
-    assert.match(fordRoute, /stickerToVehicle\(sticker, listingUrl, listingPrice, currentDealer \?\? listingDealerLookup\(resolved, listingUrl\)\)/);
-    const gmRoute = fs.readFileSync(path.join(process.cwd(), "app/api/gm-sticker/route.ts"), "utf8");
-    assert.match(gmRoute, /currentDealerForVin/);
-    assert.match(gmRoute, /gmStickerToVehicle\(sticker, listingUrl, listingPrice, currentDealer \?\? listingDealerLookup\(resolved, listingUrl\)\)/);
+  it("app/api/ford-sticker and app/api/gm-sticker settle the dealer without any paid lookup", () => {
+    // No MarketCheck current-dealer call: the store comes from the listing
+    // (its hostname against the contacts on file) or the window sticker's
+    // sold-to block cross-referenced against the same directory — see
+    // resolveVehicleDealer. The mappers' placeholder names never ship.
+    for (const route of ["app/api/ford-sticker/route.ts", "app/api/gm-sticker/route.ts", "app/api/stellantis-sticker/route.ts", "app/api/genesis-sticker/route.ts"]) {
+      const src = fs.readFileSync(path.join(process.cwd(), route), "utf8");
+      assert.doesNotMatch(src, /currentDealerForVin/, route);
+      assert.doesNotMatch(src, /guardPaidDecode/, route);
+      assert.match(src, /resolveVehicleDealer\(/, route);
+      assert.match(src, /sticker\.dealerSoldTo/, route);
+    }
   });
 
   it("wizard submit lands in My Deal Tracker without inventing BMW bids", () => {

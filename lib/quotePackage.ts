@@ -65,6 +65,10 @@ const PUBLIC_EMAIL_DOMAINS = new Set([
   "me.com", "live.com", "msn.com", "comcast.net", "att.net", "verizon.net", "protonmail.com",
 ]);
 
+export function isPublicEmailDomain(domain: string): boolean {
+  return PUBLIC_EMAIL_DOMAINS.has((domain || "").trim().toLowerCase());
+}
+
 export function emailDomainOf(email: string | null | undefined): string {
   const at = (email || "").trim().toLowerCase().lastIndexOf("@");
   return at > 0 ? (email || "").trim().toLowerCase().slice(at + 1) : "";

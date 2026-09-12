@@ -15,10 +15,8 @@ import {
   looksLikeGmPaste,
 } from "@/lib/gmSticker";
 import { factoryBuildFailedError, factoryBuildUnavailableError } from "@/lib/pasteImport";
-import { currentDealerForVin } from "@/lib/listingSheet";
-import { guardPaidDecode, MARKETCHECK_CALL_COST_USD } from "@/lib/apiSpendGuard";
 import { buildFreeImport, fillMissingYear } from "@/lib/freeVinImportServer";
-import { blockedDealerPayload, listingDealerLookup, resolveRoutePaste } from "@/lib/pasteResolutionServer";
+import { blockedDealerPayload, resolveRoutePaste, resolveVehicleDealer } from "@/lib/pasteResolutionServer";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -104,19 +102,11 @@ async function lookup(opts: { vin?: string; paste?: string; pasteUrl: string | n
   }
 
   try {
-    // The window-sticker fetch itself is free (official GM CWS PDF).
-    // currentDealerForVin is the one real MarketCheck call in this route —
-    // gated the same as every other paid call; when blocked, degrade to
-    // "current dealer unknown" rather than failing the free sticker lookup.
-    const dealerBlocked = guardPaidDecode({
-      kind: "gm_current_dealer",
-      request: opts.request,
-      estCostUsd: MARKETCHECK_CALL_COST_USD.search,
-    });
-    const [sticker, currentDealer] = await Promise.all([
-      getGmSticker(vin),
-      dealerBlocked ? Promise.resolve(null) : currentDealerForVin(vin),
-    ]);
+    // The window sticker is the official OEM document and free to read.
+    // No paid current-dealer lookup: the dealership is settled from the
+    // listing (page or hostname) or the sticker's own sold-to block —
+    // see resolveVehicleDealer.
+    const sticker = await getGmSticker(vin);
     const listingUrl =
       opts.pasteUrl && /^https?:\/\//i.test(opts.pasteUrl) ? opts.pasteUrl.trim() : null;
     const mustHaveLines = defaultMustHaveLines(sticker);
@@ -138,7 +128,11 @@ async function lookup(opts: { vin?: string; paste?: string; pasteUrl: string | n
     }
     // A released sticker the parser only half-read (no year) must not ship
     // as "0 GM …" — fill the year from the VIN.
-    const vehicle = await fillMissingYear(gmStickerToVehicle(sticker, listingUrl, listingPrice, currentDealer ?? listingDealerLookup(resolved, listingUrl)));
+    const vehicle = await resolveVehicleDealer(
+      await fillMissingYear(gmStickerToVehicle(sticker, listingUrl, listingPrice, null)),
+      resolved,
+      sticker.dealerSoldTo
+    );
     vehicle.buildConfidence = "verified_factory";
     if (vehicle.vin !== vin) {
       return vinPasteError(factoryBuildFailedError(vin), { vin });

@@ -1191,6 +1191,9 @@ export function extractAdvertisedListingPrice(html: string): number | null {
  * Fetch a user-pasted dealer VDP once to pull a VIN (and advertised price)
  * out of the HTML. Not a warehouse crawl — one URL the user just handed us.
  * If the dealer 403s but HTML is still returned, we still parse VIN/price.
+ *
+ * NOT ON ANY REQUEST PATH. The buyer flow never fetches a pasted vehicle
+ * page (see resolvePasteVin); this remains for scripts/probes only.
  */
 export async function extractVinFromDealerPage(url: string): Promise<DealerPageVinResult> {
   try {
@@ -1222,39 +1225,30 @@ export async function resolveVinFromPaste(paste: string): Promise<string | null>
   return resolved.vin;
 }
 
+/**
+ * What a paste tells us on its own. A pasted link is never requested: the
+ * VIN comes from the URL text when it carries one (most dealer platforms
+ * put it in the path) and otherwise the buyer confirms it; the dealership
+ * comes from the link's hostname against the contacts on file. Dealer
+ * sites sit behind Cloudflare, and the buyer's browser is the only thing
+ * that should visit them — so there is no code path here that fetches the
+ * page for enrichment. (extractVinFromDealerPage still exists for the
+ * offline probe scripts; no route calls it.)
+ */
 export async function resolvePasteVin(paste: string, deps: PasteVinResolveDeps = {}): Promise<PasteVinResolution> {
   const direct = extractVin(paste);
   if (looksLikeUrl(paste)) {
     const url = paste.trim();
-    const page = await extractVinFromDealerPage(url);
-    // The hostname names the store whether or not the page let us in.
-    const dealer = await dealerFromListingDomain(url, page.dealer, deps);
-    let vin = page.vin;
-    if (!vin && direct) {
-      if (looksLikeFordOrLincolnPaste(paste) && !isFordOrLincolnVin(direct)) {
-        vin = null;
-      } else {
-        vin = direct;
-      }
+    const dealer = await dealerFromListingDomain(url, undefined, deps);
+    let vin = direct;
+    if (vin && looksLikeFordOrLincolnPaste(paste) && !isFordOrLincolnVin(vin)) {
+      vin = null;
     }
-    if (vin) {
-      return {
-        vin,
-        dealerBlocked: false,
-        pageBlocked: page.blocked,
-        source: page.vin ? "dealer_page" : "paste",
-        listingPrice: page.listingPrice ?? null,
-        dealer,
-      };
-    }
-    return {
-      vin: null,
-      dealerBlocked: page.blocked,
-      pageBlocked: page.blocked,
-      source: "none",
-      listingPrice: page.listingPrice ?? null,
-      dealer,
-    };
+    // pageBlocked is true by construction: the page was never read, so the
+    // buyer, not us, is the one who looked at the car.
+    return vin
+      ? { vin, dealerBlocked: false, pageBlocked: true, source: "paste", listingPrice: null, dealer }
+      : { vin: null, dealerBlocked: true, pageBlocked: true, source: "none", listingPrice: null, dealer };
   }
   if (direct) {
     return { vin: direct, dealerBlocked: false, source: "paste", listingPrice: null };

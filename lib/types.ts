@@ -98,6 +98,15 @@ export interface Vehicle {
     lng?: number;
     /** True when dealerName came from a live listing lookup, not a factory ship-to dealer. */
     dealerConfirmed?: boolean;
+    /**
+     * Where the name came from, most to least certain: the listing page
+     * itself, the listing link's hostname matched to the directory, the
+     * factory window sticker's sold-to block (the store the car shipped
+     * to — may have been traded since), or nowhere.
+     */
+    dealerSource?: DealerSource;
+    /** The contact-directory row this rooftop is, when one was bound. */
+    deskId?: string;
   };
   packages: string[];
   options: Option[];
@@ -122,6 +131,8 @@ export interface Vehicle {
 }
 
 export type BuildConfidence = "verified_factory" | "dealer_listing_only";
+
+export type DealerSource = "listing_page" | "listing_domain" | "window_sticker" | "buyer_picked" | "unknown";
 
 export interface FlexibleCriteria {
   make: string;
