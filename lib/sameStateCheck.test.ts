@@ -147,3 +147,59 @@ describe("sameStateGateExcludes", () => {
     }
   });
 });
+
+// ---------------------------------------------------------------------------
+// The quote-package gate (v1): keep the package in-state when it can be, and
+// offer to expand — never dead-end — when it can't.
+// ---------------------------------------------------------------------------
+import { formatExpandNudge, stateGatePlan } from "./sameStateCheck";
+
+const desk = (dealerName: string, state: string, contactReady = true) => ({ dealerName, state, contactReady });
+
+describe("stateGatePlan", () => {
+  it("(2) with enough in-state contact-ready desks the package stays in-state and no nudge appears", () => {
+    const plan = stateGatePlan("NJ", [desk("Freedom Ford", "NJ"), desk("Route 23 Ford", "NJ"), desk("Paul Miller BMW", "NJ")], true);
+    assert.equal(plan.active, true);
+    assert.equal(plan.inStateReady.length, 3);
+    assert.equal(plan.shouldOfferExpand, false);
+    assert.equal(formatExpandNudge(plan), "");
+  });
+
+  it("(3) with too few in-state ready desks it offers to expand, naming the states — never an empty package", () => {
+    const plan = stateGatePlan("NJ", [desk("Freedom Ford", "NJ"), desk("Koons Ford", "MD"), desk("Cochran Ford", "PA")], true);
+    assert.equal(plan.inStateReady.length, 1);
+    assert.equal(plan.excludedReady.length, 2);
+    assert.deepEqual(plan.excludedStates, ["MD", "PA"]);
+    assert.equal(plan.shouldOfferExpand, true);
+    assert.equal(plan.emptyInState, false);
+    assert.match(formatExpandNudge(plan), /Only 1 of your dealerships .* in NJ\. 2 more are in MD and PA\./);
+  });
+
+  it("with nothing in-state it says none, and still offers the expand", () => {
+    const plan = stateGatePlan("NJ", [desk("Koons Ford", "MD")], true);
+    assert.equal(plan.emptyInState, true);
+    assert.equal(plan.shouldOfferExpand, true);
+    assert.match(formatExpandNudge(plan), /^None of your dealerships/);
+  });
+
+  it("desks without a contact never count either way — the contact_ready rule holds", () => {
+    const plan = stateGatePlan("NJ", [desk("No Contact NJ", "NJ", false), desk("Koons Ford", "MD")], true);
+    assert.equal(plan.inStateReady.length, 0);
+    assert.equal(plan.excludedReady.length, 1);
+    assert.equal(plan.shouldOfferExpand, true);
+  });
+
+  it("stands down (no exclusions) when the box is unchecked or the buyer's state is unknown", () => {
+    const desks = [desk("Freedom Ford", "NJ"), desk("Koons Ford", "MD")];
+    for (const plan of [stateGatePlan("NJ", desks, false), stateGatePlan("USA", desks, true), stateGatePlan(null, desks, true)]) {
+      assert.equal(plan.active, false);
+      assert.equal(plan.inStateReady.length, 2);
+      assert.equal(plan.shouldOfferExpand, false);
+    }
+  });
+
+  it("a desk with an unknown state is kept, not excluded on a guess", () => {
+    const plan = stateGatePlan("NJ", [desk("Mystery Motors", ""), desk("Freedom Ford", "NJ")], true);
+    assert.equal(plan.inStateReady.length, 2);
+  });
+});
