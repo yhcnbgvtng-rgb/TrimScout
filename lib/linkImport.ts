@@ -25,8 +25,8 @@ export type LinkResolution =
       desk: DeskMatch | null;
       /** Several rooftops share the site — offered as the picker's first choices. */
       candidates: DeskMatch[];
-      /** A search-box seed from the site name when nothing matched. Never binds. */
-      suggestedQuery: string | null;
+      /** How the desk was found — "redirect" means the site's old host led to a store on file. */
+      via: string | null;
       degraded: boolean;
     }
   | { ok: false; error: string };
@@ -55,13 +55,14 @@ export async function resolveVdpLink(url: string, fetchImpl: typeof fetch = fetc
       degraded: Boolean(json.degraded),
     };
     if (r.status === "unique") {
-      return { ...base, host: r.host, desk: r.desk, candidates: [], suggestedQuery: null };
+      return { ...base, host: r.host, desk: r.desk, candidates: [], via: r.via };
     }
     if (r.status === "ambiguous") {
-      return { ...base, host: r.host, desk: null, candidates: r.candidates, suggestedQuery: null };
+      return { ...base, host: r.host, desk: null, candidates: r.candidates, via: null };
     }
     if (r.status === "none") {
-      return { ...base, host: r.host, desk: null, candidates: [], suggestedQuery: r.suggestedQuery };
+      // No search seed from the hostname: "freedomfordusa" is not a dealer name.
+      return { ...base, host: r.host, desk: null, candidates: [], via: null };
     }
     return { ok: false, error: "That doesn't look like a link to a vehicle page." };
   } catch (err) {

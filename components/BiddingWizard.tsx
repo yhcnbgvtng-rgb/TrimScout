@@ -191,17 +191,18 @@ function deskLine(d: DeskMatch | null | undefined): string {
 /** Search-by-name-and-ZIP over the contacts on file. Path/slug words only ever seed the box. */
 function DealerPicker({
   candidates,
-  suggestedQuery,
+  zipHint,
   onPick,
   onCancel,
 }: {
   candidates: DeskMatch[];
-  suggestedQuery: string | null;
+  /** The buyer's ZIP when known — narrows the search by state. The name box always starts empty. */
+  zipHint?: string | null;
   onPick: (desk: DeskMatch) => void;
   onCancel?: () => void;
 }) {
-  const [q, setQ] = useState(suggestedQuery || "");
-  const [zip, setZip] = useState("");
+  const [q, setQ] = useState("");
+  const [zip, setZip] = useState(zipHint && /^\d{5}$/.test(zipHint) ? zipHint : "");
   const [results, setResults] = useState<DeskMatch[]>(candidates);
   const [searching, setSearching] = useState(false);
   const [searched, setSearched] = useState(false);
@@ -293,12 +294,14 @@ function LinkConfirmPanel({
   pending,
   busy,
   error,
+  zipHint,
   onConfirm,
   onCancel,
 }: {
   pending: Extract<PendingLink, { kind: "link" }>;
   busy: boolean;
   error: string | null;
+  zipHint?: string | null;
   onConfirm: (choice: { vin: string; desk: DeskMatch | null; deskSource: "listing_domain" | "buyer_picked" }) => void;
   onCancel: () => void;
 }) {
@@ -323,7 +326,12 @@ function LinkConfirmPanel({
           tone: "vin",
         }
       : linkDesk
-        ? { name: linkDesk.dealerName, where: deskLocationLine(linkDesk), note: "from the listing link", tone: "link" }
+        ? {
+            name: linkDesk.dealerName,
+            where: deskLocationLine(linkDesk),
+            note: r.via === "redirect" ? "from the listing link (the site's former address is on file)" : "from the listing link",
+            tone: "link",
+          }
         : null;
   const contactNote = picked
     ? picked.knownNamed
@@ -400,8 +408,8 @@ function LinkConfirmPanel({
                 <p className="text-[11px] font-bold text-amber-200">Dealer not found</p>
                 <p className="text-[10px] leading-snug text-amber-200/90">
                   {cleanVin.length === 17
-                    ? "Neither this VIN nor that site matched a dealership on file. Pick the store below, or add the car without one."
-                    : "That site isn't a dealership on file. Enter the VIN, or pick the store below."}
+                    ? `We couldn't match ${r.host} to a store on file, and the factory record for this VIN names none. Search for the dealership by name below, or add the car without one.`
+                    : `We couldn't match ${r.host} to a store on file. Enter the VIN, or search for the dealership by name below.`}
                 </p>
               </div>
             ) : (
@@ -411,7 +419,7 @@ function LinkConfirmPanel({
             )}
             <DealerPicker
               candidates={r.candidates}
-              suggestedQuery={r.suggestedQuery}
+              zipHint={zipHint}
               onPick={pick}
               onCancel={shown ? () => setPicking(false) : undefined}
             />
@@ -655,6 +663,9 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   // buyer-editable instead of flipping the previous defaults.
   const [pricingChoice, setPricingChoice] = useState<"dealer_names" | "buyer_names">("dealer_names");
   const [buyerZip, setBuyerZip] = useState<string>("94107");
+  // The picker's ZIP assist — only a ZIP the buyer actually entered, never the default.
+  const buyerZipHint =
+    buyerZip && buyerZip !== "94107" && /^\d{5}$/.test(buyerZip) ? buyerZip : huntZip && /^\d{5}$/.test(huntZip) ? huntZip : null;
   const [searchRadius, setSearchRadius] = useState<number>(100);
   // Checked by default — buyer can uncheck to widen the match to any state
   // within the radius, per Step 1's location controls.
@@ -1739,12 +1750,12 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                 )}
 
                 {pendingLink?.slot === "primary" && pendingLink.kind === "link" && (
-                  <LinkConfirmPanel pending={pendingLink} busy={linkBusy} error={linkError} onConfirm={confirmLink} onCancel={cancelPendingLink} />
+                  <LinkConfirmPanel pending={pendingLink} busy={linkBusy} error={linkError} zipHint={buyerZipHint} onConfirm={confirmLink} onCancel={cancelPendingLink} />
                 )}
                 {pendingLink?.slot === "primary" && pendingLink.kind === "pick_dealer" && (
                   <div className="space-y-1.5 rounded-xl border border-sky-500/40 bg-sky-950/20 px-3.5 py-3 text-[11px] animate-fadeIn">
                     <p className="font-bold text-sky-200">Which dealership has this car?</p>
-                    <DealerPicker candidates={[]} suggestedQuery={null} onPick={applyPickedDealer} onCancel={cancelPendingLink} />
+                    <DealerPicker candidates={[]} zipHint={buyerZipHint} onPick={applyPickedDealer} onCancel={cancelPendingLink} />
                   </div>
                 )}
 
@@ -1899,12 +1910,12 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                       onChangeDealer={() => changeDealerFor("alt1")}
                     />
                     {pendingLink?.slot === "alt1" && pendingLink.kind === "link" && (
-                      <LinkConfirmPanel pending={pendingLink} busy={linkBusy} error={linkError} onConfirm={confirmLink} onCancel={cancelPendingLink} />
+                      <LinkConfirmPanel pending={pendingLink} busy={linkBusy} error={linkError} zipHint={buyerZipHint} onConfirm={confirmLink} onCancel={cancelPendingLink} />
                     )}
                     {pendingLink?.slot === "alt1" && pendingLink.kind === "pick_dealer" && (
                       <div className="space-y-1.5 rounded-xl border border-sky-500/40 bg-sky-950/20 px-3.5 py-3 text-[11px] animate-fadeIn">
                         <p className="font-bold text-sky-200">Which dealership has this car?</p>
-                        <DealerPicker candidates={[]} suggestedQuery={null} onPick={applyPickedDealer} onCancel={cancelPendingLink} />
+                        <DealerPicker candidates={[]} zipHint={buyerZipHint} onPick={applyPickedDealer} onCancel={cancelPendingLink} />
                       </div>
                     )}
                     <AlternateVinField
@@ -1919,12 +1930,12 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                       onChangeDealer={() => changeDealerFor("alt2")}
                     />
                     {pendingLink?.slot === "alt2" && pendingLink.kind === "link" && (
-                      <LinkConfirmPanel pending={pendingLink} busy={linkBusy} error={linkError} onConfirm={confirmLink} onCancel={cancelPendingLink} />
+                      <LinkConfirmPanel pending={pendingLink} busy={linkBusy} error={linkError} zipHint={buyerZipHint} onConfirm={confirmLink} onCancel={cancelPendingLink} />
                     )}
                     {pendingLink?.slot === "alt2" && pendingLink.kind === "pick_dealer" && (
                       <div className="space-y-1.5 rounded-xl border border-sky-500/40 bg-sky-950/20 px-3.5 py-3 text-[11px] animate-fadeIn">
                         <p className="font-bold text-sky-200">Which dealership has this car?</p>
-                        <DealerPicker candidates={[]} suggestedQuery={null} onPick={applyPickedDealer} onCancel={cancelPendingLink} />
+                        <DealerPicker candidates={[]} zipHint={buyerZipHint} onPick={applyPickedDealer} onCancel={cancelPendingLink} />
                       </div>
                     )}
                   </div>

@@ -13,7 +13,7 @@
  *
  * One confident hit binds the desk. Zero, or more than one, hands the buyer
  * a picker — a wrong rooftop would get a quote request for a car it never
- * had. The URL's path or slug is never a key; at most it seeds the picker.
+ * had. The URL's path or slug is never a key and never seeds a name search.
  */
 
 import { normalizeDomain } from "./dealerDomainLookup";
@@ -29,10 +29,10 @@ export interface DeskContact {
   contactEmail: string | null;
   emailOptOut: boolean;
   notes: string | null;
-  /** Canonical website. Not a column yet — derived from notes when absent (see contactWebsite). */
+  /** Canonical website (column); derived from the crawl's "Website:" note when the column is empty. */
   website?: string | null;
-  /** Extra hostnames that map to this desk (vanity URLs, Dealer.com hosts). */
-  hostAliases?: string[] | null;
+  /** Registrable hosts that map to this desk: the website's own, vanity domains, the host a redirect lands on. */
+  domains?: string[] | null;
 }
 
 /** What the buyer is shown for a matched desk. Deliberately no email address. */
@@ -47,13 +47,13 @@ export interface DeskMatch {
   emailOptOut: boolean;
 }
 
-export type DeskMatchVia = "alias_host" | "website" | "alias_domain" | "email_domain";
+export type DeskMatchVia = "alias_host" | "website" | "alias_domain" | "email_domain" | "redirect";
 
 export type DeskResolution =
   | { status: "invalid" }
-  | { status: "unique"; desk: DeskMatch; via: DeskMatchVia; host: string }
+  | { status: "unique"; desk: DeskMatch; via: DeskMatchVia; host: string; /** Set when a redirect alias made the match — worth persisting on the desk. */ aliasHosts?: string[] }
   | { status: "ambiguous"; candidates: DeskMatch[]; host: string }
-  | { status: "none"; host: string; suggestedQuery: string | null };
+  | { status: "none"; host: string };
 
 /** Subdomains dealer platforms put in front of inventory pages; none of them identify a different store. */
 const INVENTORY_SUBDOMAINS = new Set([
@@ -109,6 +109,19 @@ export function contactWebsite(contact: DeskContact): string | null {
   return (contact.website || "").trim() || websiteFromContactNotes(contact.notes);
 }
 
+/** Every registrable domain that identifies this desk: the website's host plus domains[]. Lowercase, no www. */
+export function contactDomains(contact: DeskContact): string[] {
+  const out = new Set<string>();
+  const site = contactWebsite(contact);
+  const siteHost = site ? normalizeDealerHost(site) : null;
+  if (siteHost) out.add(siteHost.registrable);
+  for (const d of contact.domains || []) {
+    const n = normalizeDealerHost(d);
+    if (n) out.add(n.registrable);
+  }
+  return Array.from(out);
+}
+
 interface DeskIndex {
   byAliasHost: Map<string, DeskContact[]>;
   byWebsiteDomain: Map<string, DeskContact[]>;
@@ -138,7 +151,7 @@ export function indexDeskContacts(contacts: DeskContact[]): DeskIndex {
     const site = contactWebsite(row);
     const siteHost = site ? normalizeDealerHost(site) : null;
     push(index.byWebsiteDomain, siteHost?.registrable ?? null, row);
-    for (const alias of row.hostAliases || []) {
+    for (const alias of row.domains || []) {
       const a = normalizeDealerHost(alias);
       if (!a) continue;
       push(index.byAliasHost, a.host, row);
@@ -163,12 +176,6 @@ export function deskMatchFromContact(row: DeskContact, knownNamed: boolean): Des
     knownNamed,
     emailOptOut: Boolean(row.emailOptOut),
   };
-}
-
-/** A hint for the picker's search box, from the site name only — never used to bind. */
-export function suggestedQueryFromHost(registrable: string): string | null {
-  const label = registrable.split(".")[0] || "";
-  return label.length >= 4 ? label : null;
 }
 
 function dedupe(rows: DeskContact[]): DeskContact[] {
@@ -207,5 +214,117 @@ export function resolveDeskFromVdpUrl(
       candidates: unique.map((r) => deskMatchFromContact(r, knownNamedOf(r))),
     };
   }
-  return { status: "none", host: norm.host, suggestedQuery: suggestedQueryFromHost(norm.registrable) };
+  return { status: "none", host: norm.host };
+}
+
+/**
+ * The full match order for a pasted link, including the redirect step:
+ * exact domain keys first; if nothing hits, follow the pasted origin's
+ * redirects (a store that moved from freedomfordnj.com to
+ * freedomfordusa.com) and match the final host too. `followRedirect` is
+ * injected so the pure part stays testable; the route passes
+ * lib/hostRedirect.ts. The URL's path/slug is never a key, and no name
+ * search is seeded from the hostname.
+ */
+export async function resolveDeskWithRedirect(
+  url: string,
+  contacts: DeskContact[],
+  knownNamedOf: (row: DeskContact) => boolean,
+  followRedirect: (host: string) => Promise<{ finalRegistrable: string | null; chain: string[] }>
+): Promise<DeskResolution> {
+  const direct = resolveDeskFromVdpUrl(url, contacts, knownNamedOf);
+  if (direct.status !== "none") return direct;
+  const pasted = registrableDomain(direct.host) || "";
+
+  // (a) The pasted origin itself redirects somewhere on file.
+  let hop: { finalRegistrable: string | null; chain: string[] } = { finalRegistrable: null, chain: [] };
+  try {
+    hop = await followRedirect(direct.host);
+  } catch {
+    /* treated as "does not redirect" */
+  }
+  const seen = new Set<string>([pasted]);
+  for (const reg of hop.chain) {
+    if (!reg || seen.has(reg)) continue;
+    seen.add(reg);
+    const again = resolveDeskFromVdpUrl(`https://${reg}/`, contacts, knownNamedOf);
+    if (again.status === "unique") {
+      return { ...again, via: "redirect", host: direct.host, aliasHosts: Array.from(seen).filter(Boolean) };
+    }
+    if (again.status === "ambiguous") return { ...again, host: direct.host };
+  }
+
+  // (b) A site on file redirects TO the pasted host — the store moved
+  // domains after the crawl (freedomfordnj.com → freedomfordusa.com). Only
+  // the few desks whose domain shares a real stem with the pasted one are
+  // asked, and only an actual redirect landing on the pasted host binds.
+  const landed: DeskContact[] = [];
+  const landedVia = new Map<string, string>();
+  for (const { row, domain } of similarHostCandidates(contacts, pasted)) {
+    // Ask the site as recorded when it's this domain (keeps "www."); the
+    // resolver still falls back to www./http on its own.
+    const site = contactWebsite(row);
+    const siteHost = site ? normalizeDealerHost(site) : null;
+    const ask = siteHost && siteHost.registrable === domain ? new URL(/^https?:/i.test(site!) ? site! : `https://${site}`).hostname : domain;
+    let chain: string[] = [];
+    try {
+      chain = (await followRedirect(ask)).chain;
+    } catch {
+      continue;
+    }
+    if (chain.includes(pasted) && !landed.some((r) => r.id === row.id)) {
+      landed.push(row);
+      landedVia.set(row.id, domain);
+    }
+  }
+  if (landed.length === 1) {
+    const row = landed[0];
+    return {
+      status: "unique",
+      via: "redirect",
+      host: direct.host,
+      desk: deskMatchFromContact(row, knownNamedOf(row)),
+      aliasHosts: [landedVia.get(row.id) || "", pasted].filter(Boolean),
+    };
+  }
+  if (landed.length > 1) {
+    return { status: "ambiguous", host: direct.host, candidates: landed.map((r) => deskMatchFromContact(r, knownNamedOf(r))) };
+  }
+  return direct;
+}
+
+const MAX_SIMILAR_CANDIDATES = 5;
+
+function hostLabel(registrable: string): string {
+  return registrable.split(".")[0] || "";
+}
+
+function commonPrefixLength(a: string, b: string): number {
+  let i = 0;
+  while (i < a.length && i < b.length && a[i] === b[i]) i++;
+  return i;
+}
+
+/**
+ * Desks whose domain label is a near-stem of the pasted one — a long shared
+ * prefix ("freedomford" in freedomfordnj / freedomfordusa). This only
+ * chooses which sites to ASK about redirects; it never binds by itself.
+ */
+export function similarHostCandidates(
+  contacts: DeskContact[],
+  pastedRegistrable: string
+): Array<{ row: DeskContact; domain: string; shared: number }> {
+  const target = hostLabel(pastedRegistrable);
+  if (target.length < 6) return [];
+  const out: Array<{ row: DeskContact; domain: string; shared: number }> = [];
+  for (const row of contacts) {
+    for (const domain of contactDomains(row)) {
+      if (domain === pastedRegistrable) continue;
+      const label = hostLabel(domain);
+      const shared = commonPrefixLength(label, target);
+      const needed = Math.max(8, Math.ceil(Math.min(label.length, target.length) * 0.7));
+      if (shared >= needed) out.push({ row, domain, shared });
+    }
+  }
+  return out.sort((a, b) => b.shared - a.shared).slice(0, MAX_SIMILAR_CANDIDATES);
 }

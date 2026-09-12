@@ -38,13 +38,14 @@ describe("resolveVdpLink", () => {
     assert.equal(r.candidates.length, 2);
     assert.equal(r.vinFromUrl, null);
   });
-  it("passes through 'none' with the picker seed", async () => {
-    const { impl } = fakeFetch({ "/api/desk-resolve": { json: { status: "none", host: "zephyr.example", suggestedQuery: "zephyr" } } });
+  it("passes through 'none' with no desk and no search seed", async () => {
+    const { impl } = fakeFetch({ "/api/desk-resolve": { json: { status: "none", host: "zephyr.example" } } });
     const r = await resolveVdpLink("https://zephyr.example/vdp/1", impl);
     assert.equal(r.ok, true);
     if (!r.ok) return;
     assert.equal(r.desk, null);
-    assert.equal(r.suggestedQuery, "zephyr");
+    assert.deepEqual(r.candidates, []);
+    assert.equal("suggestedQuery" in r, false);
   });
   it("reports a rejected paste as an error", async () => {
     const { impl } = fakeFetch({ "/api/desk-resolve": { status: 422, json: { status: "invalid", error: "Not a vehicle page." } } });
