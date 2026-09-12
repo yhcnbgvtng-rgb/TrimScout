@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import ExcelJS from "exceljs";
-import { parseDealershipXlsxBuffer } from "./dealershipXlsx";
+import { buildDealershipXlsxBuffer, parseDealershipXlsxBuffer } from "./dealershipXlsx";
+import type { ExportableDealership } from "./dealershipCsv";
 
 async function buildWorkbookBuffer(rows: string[][]): Promise<Buffer> {
   const workbook = new ExcelJS.Workbook();
@@ -79,5 +80,45 @@ describe("parseDealershipXlsxBuffer", () => {
     const buffer = Buffer.from(await workbook.xlsx.writeBuffer());
     const parsed = await parseDealershipXlsxBuffer(buffer);
     assert.deepEqual(parsed, { rows: [], skippedRows: 0, unrecognizedColumns: [] });
+  });
+});
+
+describe("buildDealershipXlsxBuffer", () => {
+  it("writes a workbook the xlsx importer reads back field-for-field", async () => {
+    const rows: ExportableDealership[] = [
+      {
+        dealerName: "Route 23 Auto Mall",
+        address: "1301 Route 23 S",
+        city: "Butler",
+        state: "NJ",
+        zipCode: "07405",
+        phone: "(973) 555-0100",
+        contactName: "Dana Reyes",
+        contactEmail: "dreyes@route23automall.com",
+        notes: null,
+        emailOptOut: false,
+        updatedAt: "2026-09-12T00:00:00.000Z",
+      },
+    ];
+    const parsed = await parseDealershipXlsxBuffer(await buildDealershipXlsxBuffer(rows));
+    assert.equal(parsed.skippedRows, 0);
+    assert.deepEqual(parsed.unrecognizedColumns, ["email opt-out", "updated"]);
+    assert.deepEqual(parsed.rows, [
+      {
+        dealerName: "Route 23 Auto Mall",
+        address: "1301 Route 23 S",
+        city: "Butler",
+        state: "NJ",
+        zipCode: "07405",
+        phone: "(973) 555-0100",
+        contactName: "Dana Reyes",
+        contactEmail: "dreyes@route23automall.com",
+      },
+    ]);
+  });
+
+  it("handles an empty directory without throwing", async () => {
+    const parsed = await parseDealershipXlsxBuffer(await buildDealershipXlsxBuffer([]));
+    assert.deepEqual(parsed.rows, []);
   });
 });
