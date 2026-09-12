@@ -132,7 +132,14 @@ export interface Vehicle {
 
 export type BuildConfidence = "verified_factory" | "dealer_listing_only";
 
-export type DealerSource = "listing_page" | "listing_domain" | "window_sticker" | "buyer_picked" | "unknown";
+/**
+ * Where a vehicle's dealership came from, in precedence order. The two
+ * VIN-derived sources ("inventory", "window_sticker") always outrank the
+ * link-derived ones; "buyer_picked" is the buyer's own explicit choice.
+ */
+export type DealerSource = "inventory" | "window_sticker" | "listing_page" | "listing_domain" | "buyer_picked" | "unknown";
+
+export const VIN_DERIVED_DEALER_SOURCES: ReadonlySet<DealerSource> = new Set<DealerSource>(["inventory", "window_sticker"]);
 
 export interface FlexibleCriteria {
   make: string;

@@ -10,7 +10,7 @@
 
 import type { DeskMatch, DeskResolution } from "./deskResolve";
 import { pastedVinCandidate } from "./oemWmi";
-import type { DealerSource, Vehicle } from "./types";
+import { VIN_DERIVED_DEALER_SOURCES, type DealerSource, type Vehicle } from "./types";
 
 export type { DeskMatch } from "./deskResolve";
 
@@ -91,33 +91,56 @@ export function deskLocationLine(d: Pick<DeskMatch, "city" | "state"> | null | u
   return [d?.city, d?.state].filter(Boolean).join(", ");
 }
 
+/** True when the vehicle's dealership came from the VIN itself (inventory sighting or window sticker). */
+export function hasVinResolvedDealer(vehicle: Pick<Vehicle, "location">): boolean {
+  const loc = vehicle.location;
+  return Boolean(loc?.dealerName?.trim()) && Boolean(loc?.dealerSource && VIN_DERIVED_DEALER_SOURCES.has(loc.dealerSource));
+}
+
+export function dealerSourceLabel(source: DealerSource | undefined): string {
+  switch (source) {
+    case "inventory":
+      return "matched from the VIN";
+    case "window_sticker":
+      return "from the factory window sticker";
+    case "listing_domain":
+    case "listing_page":
+      return "from the listing link";
+    case "buyer_picked":
+      return "picked by you";
+    default:
+      return "";
+  }
+}
+
 /**
- * Stamp a VIN-built vehicle with what the link and the buyer settled: the
- * page it lives on, the advertised price the buyer read off it (if any),
- * and the desk. The build itself is untouched — a person's confirmation
- * never upgrades buildConfidence.
+ * Stamp a VIN-built vehicle with the link it lives on and, only if the VIN
+ * itself didn't name a dealership, the desk the link (or the buyer)
+ * settled on. A VIN-resolved dealer is never overwritten by a link-derived
+ * one; the buyer's own explicit pick is the one exception. No price is
+ * carried — the quote request never shows the buyer an advertised number.
  */
 export function attachLinkToVehicle(
   vehicle: Vehicle,
-  link: { url: string; price?: number | null; desk: DeskMatch | null; deskSource: Extract<DealerSource, "listing_domain" | "buyer_picked"> }
+  link: { url: string; desk: DeskMatch | null; deskSource: Extract<DealerSource, "listing_domain" | "buyer_picked"> }
 ): Vehicle {
-  const price = link.price && link.price > 0 ? Math.round(link.price) : 0;
-  const location = link.desk
-    ? {
-        ...vehicle.location,
-        dealerName: link.desk.dealerName,
-        city: link.desk.city || "",
-        state: link.desk.state || "",
-        zip: link.desk.zip || undefined,
-        dealerConfirmed: true,
-        dealerSource: link.deskSource,
-        deskId: link.desk.deskId,
-      }
-    : vehicle.location;
+  const keepVinDealer = hasVinResolvedDealer(vehicle) && link.deskSource !== "buyer_picked";
+  const location =
+    link.desk && !keepVinDealer
+      ? {
+          ...vehicle.location,
+          dealerName: link.desk.dealerName,
+          city: link.desk.city || "",
+          state: link.desk.state || "",
+          zip: link.desk.zip || undefined,
+          dealerConfirmed: true,
+          dealerSource: link.deskSource,
+          deskId: link.desk.deskId,
+        }
+      : vehicle.location;
   return {
     ...vehicle,
     dealerUrl: link.url,
-    dealerPrice: price || vehicle.dealerPrice,
     location,
     buyerConfirmed: true,
   };

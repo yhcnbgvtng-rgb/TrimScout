@@ -1042,7 +1042,9 @@ describe("shopper-facing factory option copy", () => {
     assert.doesNotMatch(step1, /Decoding Window Sticker/);
     assert.doesNotMatch(step1, />sticker</);
     assert.match(step1, /FORD_BUILD_SHEET_LINK/);
-    assert.match(step1, /shopperPriceSourceLabel/);
+    // No advertised / listing price in the buyer flow: the step 1 row names
+    // the car, the VIN and the dealership, never a number.
+    assert.doesNotMatch(step1, /shopperPriceSourceLabel|advertisedOrStickerPrice|Advertised price/);
     assert.doesNotMatch(step1, /FORD_OTHER_LOTS_HEADING/);
     assert.doesNotMatch(step1, /FORD_OTHER_LOTS_MODE_FIND/);
     assert.doesNotMatch(step1, /FORD_OTHER_LOTS_MODE_PASTE/);
