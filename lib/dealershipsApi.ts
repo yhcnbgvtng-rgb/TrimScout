@@ -23,6 +23,14 @@ export interface Dealership {
   contactName: string | null;
   contactEmail: string | null;
   notes: string | null;
+  /** Primary URL. Backfilled from the crawl's "Website:" note where the column is empty. */
+  website: string | null;
+  /**
+   * Registrable hosts that map to this desk — lowercase, no "www." — the
+   * website's own host plus every alias seen (vanity domains, the final
+   * host after a redirect). What a pasted vehicle-page link is matched on.
+   */
+  domains: string[];
   /** Set only via the public unsubscribe link — never reset by a CSV/xlsx re-import or a manual edit. */
   emailOptOut: boolean;
   createdAt: string;
@@ -74,21 +82,31 @@ async function request(path: string, init?: RequestInit): Promise<any> {
   return json;
 }
 
+/** Rows from a box that predates the website/domains columns still parse; the fields just come back empty. */
+function normalizeDealership(raw: Record<string, unknown>): Dealership {
+  const domains = Array.isArray(raw.domains) ? raw.domains.map((d) => String(d || "").trim().toLowerCase()).filter(Boolean) : [];
+  return {
+    ...(raw as unknown as Dealership),
+    website: typeof raw.website === "string" && raw.website.trim() ? raw.website.trim() : null,
+    domains: Array.from(new Set(domains)),
+  };
+}
+
 export async function listDealerships(): Promise<Dealership[]> {
   const json = await request("/api/dealerships");
-  return json.dealerships;
+  return (json.dealerships as Record<string, unknown>[]).map(normalizeDealership);
 }
 
 export type DealershipInput = Omit<Dealership, "id" | "createdAt" | "updatedAt" | "emailOptOut">;
 
 export async function createDealership(input: DealershipInput): Promise<Dealership> {
   const json = await request("/api/dealerships", { method: "POST", body: JSON.stringify(input) });
-  return json.dealership;
+  return normalizeDealership(json.dealership);
 }
 
 export async function updateDealership(id: string, input: DealershipInput): Promise<Dealership> {
   const json = await request(`/api/dealerships/${id}`, { method: "PUT", body: JSON.stringify(input) });
-  return json.dealership;
+  return normalizeDealership(json.dealership);
 }
 
 export async function deleteDealership(id: string): Promise<void> {
@@ -98,7 +116,7 @@ export async function deleteDealership(id: string): Promise<void> {
 /** One-directional — a dealer opting out via the unsubscribe link. No "opt back in" here on purpose. */
 export async function setDealershipEmailOptOut(id: string): Promise<Dealership> {
   const json = await request(`/api/dealerships/${id}/opt-out`, { method: "POST" });
-  return json.dealership;
+  return normalizeDealership(json.dealership);
 }
 
 export interface BulkUpsertResult {

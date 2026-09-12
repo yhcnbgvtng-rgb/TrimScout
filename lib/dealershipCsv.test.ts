@@ -145,9 +145,19 @@ describe("dealership export", () => {
     const result = parseDealershipCsv(dealershipsToCsv(EXPORT_FIXTURE));
     assert.deepEqual(result.unrecognizedColumns, ["email opt-out", "updated"]);
     const table = dealershipsToTable(EXPORT_FIXTURE);
-    assert.equal(table[1][9], "");
-    assert.equal(table[2][9], "yes");
-    assert.equal(table[2][10], "2026-09-11T09:30:00.000Z");
+    // Website and Domains sit between Contact Email and Notes; opt-out and updated are last.
+    assert.equal(table[0][8], "Website");
+    assert.equal(table[0][9], "Domains");
+    assert.equal(table[1][11], "");
+    assert.equal(table[2][11], "yes");
+    assert.equal(table[2][12], "2026-09-11T09:30:00.000Z");
+  });
+
+  it("round-trips website and domains, splitting the sheet's list on semicolons", () => {
+    const withSite = [{ ...EXPORT_FIXTURE[0], website: "https://www.loubachrodtbmw.com/", domains: ["loubachrodtbmw.com", "bachrodtbmw.com"] }];
+    const result = parseDealershipCsv(dealershipsToCsv(withSite));
+    assert.equal(result.rows[0].website, "https://www.loubachrodtbmw.com/");
+    assert.deepEqual(result.rows[0].domains, ["loubachrodtbmw.com", "bachrodtbmw.com"]);
   });
 
   it("quotes commas, quotes, newlines and formula-looking cells", () => {

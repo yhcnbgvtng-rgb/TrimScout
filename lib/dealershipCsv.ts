@@ -15,6 +15,9 @@ export interface ParsedDealershipRow {
   contactName?: string;
   contactEmail?: string;
   notes?: string;
+  website?: string;
+  /** Split on ; | or whitespace in the sheet; normalized downstream. */
+  domains?: string[];
 }
 
 export interface DealershipCsvParseResult {
@@ -25,7 +28,7 @@ export interface DealershipCsvParseResult {
   unrecognizedColumns: string[];
 }
 
-const HEADER_ALIASES: Record<keyof ParsedDealershipRow, string[]> = {
+const HEADER_ALIASES: Record<Exclude<keyof ParsedDealershipRow, "domains"> | "domains", string[]> = {
   dealerName: ["dealer name", "dealername", "dealer", "name", "rooftop", "dealership"],
   address: ["address", "street", "street address"],
   city: ["city"],
@@ -35,6 +38,8 @@ const HEADER_ALIASES: Record<keyof ParsedDealershipRow, string[]> = {
   contactName: ["gm name", "general manager", "gm", "manager name", "manager", "contact name", "contact"],
   contactEmail: ["gm email", "manager email", "contact email", "email"],
   notes: ["notes", "note", "comments", "comment"],
+  website: ["website", "web site", "url", "site", "dealer website", "dealer url"],
+  domains: ["domains", "domain", "domain aliases", "hosts", "host aliases"],
 };
 
 function normalizeHeader(h: string): string {
@@ -127,7 +132,12 @@ export function rowsFromTable(table: string[][]): DealershipCsvParseResult {
       const field = fieldForColumn[i];
       if (!field) return;
       const value = cell.trim();
-      if (value) record[field] = value;
+      if (!value) return;
+      if (field === "domains") {
+        record.domains = value.split(/[;|,\s]+/).map((d) => d.trim().toLowerCase()).filter(Boolean);
+      } else {
+        record[field] = value;
+      }
     });
     if (!record.dealerName) {
       skippedRows++;
@@ -157,6 +167,8 @@ export interface ExportableDealership {
   contactName: string | null;
   contactEmail: string | null;
   notes: string | null;
+  website?: string | null;
+  domains?: string[] | null;
   emailOptOut: boolean;
   updatedAt: string;
 }
@@ -170,6 +182,8 @@ export const DEALERSHIP_EXPORT_HEADERS = [
   "Phone",
   "Contact Name",
   "Contact Email",
+  "Website",
+  "Domains",
   "Notes",
   "Email Opt-Out",
   "Updated",
@@ -186,6 +200,8 @@ export function dealershipsToTable(dealerships: ExportableDealership[]): string[
     d.phone || "",
     d.contactName || "",
     d.contactEmail || "",
+    d.website || "",
+    (d.domains || []).join("; "),
     d.notes || "",
     d.emailOptOut ? "yes" : "",
     d.updatedAt || "",

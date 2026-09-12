@@ -18,8 +18,10 @@ export interface DomainIndexableDealership {
   state: string | null;
   zipCode: string | null;
   notes: string | null;
-  /** Not a column yet — honored when it exists so a future migration is a no-op here. */
+  /** Canonical website (column); the crawl's "Website:" note is the fallback. */
   website?: string | null;
+  /** Registrable hosts that also map here (vanity domains, redirect targets). */
+  domains?: string[] | null;
 }
 
 /** "https://www.loubachrodtbmw.com/new-..." → "loubachrodtbmw.com". Null for a non-URL. */
@@ -53,6 +55,18 @@ export function dealershipDomain(row: DomainIndexableDealership): string | null 
   return site ? hostnameFromUrl(site) : null;
 }
 
+/** Every host key for a row: the website's, plus domains[]. */
+export function dealershipDomains(row: DomainIndexableDealership): string[] {
+  const out = new Set<string>();
+  const primary = dealershipDomain(row);
+  if (primary) out.add(primary);
+  for (const d of row.domains || []) {
+    const n = hostnameFromUrl(d);
+    if (n) out.add(n);
+  }
+  return Array.from(out);
+}
+
 /**
  * Candidate keys for a listing host, most specific first. A dealer that
  * publishes its inventory on "inventory.example.com" is still example.com;
@@ -78,11 +92,11 @@ export function indexDealershipsByDomain<T extends DomainIndexableDealership>(ro
   if (hit) return hit as Map<string, T[]>;
   const index = new Map<string, T[]>();
   for (const row of rows) {
-    const domain = dealershipDomain(row);
-    if (!domain) continue;
-    const list = index.get(domain);
-    if (list) list.push(row);
-    else index.set(domain, [row]);
+    for (const domain of dealershipDomains(row)) {
+      const list = index.get(domain);
+      if (list) list.push(row);
+      else index.set(domain, [row]);
+    }
   }
   INDEX_CACHE.set(rows, index);
   return index;

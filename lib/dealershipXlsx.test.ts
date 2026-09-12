@@ -56,7 +56,9 @@ describe("parseDealershipXlsxBuffer", () => {
     assert.equal(parsed.rows[1].dealerName, "Battlefield Ford");
     assert.equal(parsed.rows[1].contactName, "Jane Doe");
     assert.equal(parsed.rows[1].contactEmail, "jane@battlefieldford.com");
-    assert.ok(parsed.unrecognizedColumns.includes("website"));
+    // Website is a first-class field now; Contact Title still isn't.
+    assert.equal(parsed.rows[1].website, "https://www.battlefieldford.com");
+    assert.ok(!parsed.unrecognizedColumns.includes("website"));
     assert.ok(parsed.unrecognizedColumns.includes("contact title"));
     assert.ok(parsed.unrecognizedColumns.includes("contact source url"));
     assert.equal(parsed.skippedRows, 0);
