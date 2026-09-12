@@ -302,6 +302,13 @@ function websiteFromNotes(notes) {
   const m = String(notes || "").match(/\bWebsite:\s*(https?:\/\/[^\s|]+)/i);
   return m ? m[1] : null;
 }
+// Set only via the public unsubscribe link — never by an import or an edit.
+let dealerOptOutColumnEnsured = false;
+async function ensureDealerOptOutColumn(pool) {
+  if (dealerOptOutColumnEnsured) return;
+  await pool.query("ALTER TABLE dealership_contacts ADD COLUMN IF NOT EXISTS email_opt_out TINYINT(1) NOT NULL DEFAULT 0");
+  dealerOptOutColumnEnsured = true;
+}
 let dealerDomainColumnsEnsured = false;
 async function ensureDealerDomainColumns(pool) {
   if (dealerDomainColumnsEnsured) return;
@@ -368,6 +375,7 @@ async function handleSetDealershipOptOut(req, res, id) {
 async function handleListDealerships(req, res) {
   const pool = getPool();
   await ensureDealerDomainColumns(pool);
+  await ensureDealerOptOutColumn(pool);
   const [rows] = await pool.query("SELECT * FROM dealership_contacts ORDER BY dealer_name ASC");
   sendJson(res, 200, { dealerships: rows.map(publicDealership) });
 }
