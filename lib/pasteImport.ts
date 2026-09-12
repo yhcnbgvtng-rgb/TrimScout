@@ -309,6 +309,16 @@ export function isDuplicateVehicle(vin: string | null | undefined, existing: Arr
   return existing.some((v) => (v?.vin || "").trim().toUpperCase() === want);
 }
 
+function blockedDealerFromJson(json: Record<string, unknown>): BlockedListingDealer | undefined {
+  const d = json.dealer as Record<string, unknown> | undefined;
+  if (!d || typeof d.name !== "string" || !d.name.trim()) return undefined;
+  return {
+    name: d.name.trim(),
+    city: typeof d.city === "string" && d.city ? d.city : null,
+    state: typeof d.state === "string" && d.state ? d.state : null,
+  };
+}
+
 /**
  * Turns a server-side error message into a reason. The routes predate the
  * reason codes and only speak in prose, so this reads the prose.
@@ -428,6 +438,12 @@ export type PasteImportSuccess = {
   factoryBuildUnavailable?: boolean;
   /** "verified_factory" when a real sticker/build sheet was read; otherwise "dealer_listing_only". */
   buildConfidence: BuildConfidence;
+  /**
+   * The listing page refused us (Cloudflare and friends); the VIN came from
+   * the link and the dealer from the link's hostname. The UI must not add
+   * the car silently — it opens the listing and asks the buyer to confirm.
+   */
+  pageUnread?: boolean;
 };
 
 /**
@@ -453,6 +469,9 @@ export type PasteImportFailureReason =
   | "duplicate"
   | "network";
 
+/** The store a blocked link belongs to, when the hostname resolved it. */
+export type BlockedListingDealer = { name: string; city: string | null; state: string | null };
+
 export type PasteImportFailure = {
   ok: false;
   error: string;
@@ -460,6 +479,13 @@ export type PasteImportFailure = {
   unreleased?: boolean;
   oem?: FactoryBuildOem;
   pdfUrl?: string | null;
+  /**
+   * On "blocked": we know the dealership even though the page kept the
+   * VIN from us. The UI opens the listing for the buyer and asks for the
+   * VIN with the store already named, instead of a bare "paste the VIN".
+   */
+  dealer?: BlockedListingDealer;
+  listingUrl?: string;
 };
 
 export type PasteImportResult = PasteImportSuccess | PasteImportFailure;
@@ -538,6 +564,7 @@ function interpretFactoryBuildJson(
     ok: true,
     vehicle: { ...matched, buildConfidence },
     buildConfidence,
+    pageUnread: json.pageUnread === true,
     oem,
     pdfUrl: pdfUrl || matched.oemBuildSheetUrl || null,
     msrp: typeof sticker?.msrp === "number" && sticker.msrp > 0 ? sticker.msrp : null,
@@ -561,16 +588,31 @@ function interpretFactoryBuildJson(
 export async function importPastedFactoryVehicle(
   paste: string,
   fetchImpl: typeof fetch = fetch,
-  options: { existingVehicles?: Array<{ vin?: string } | null | undefined> } = {}
+  options: {
+    existingVehicles?: Array<{ vin?: string } | null | undefined>;
+    /**
+     * A VIN the buyer read off a listing we couldn't: sent alongside the
+     * link so the route keeps the link's dealership and skips the page.
+     */
+    vin?: string;
+  } = {}
 ): Promise<PasteImportResult> {
   const raw = paste.trim();
+  const suppliedVin = (options.vin || "").trim().toUpperCase();
 
   // Say what's wrong before spending a network round-trip on it.
   const kind = classifyPaste(raw);
   if (kind.kind === "invalid") {
     return { ok: false, reason: kind.reason, error: kind.error };
   }
-  const pastedVin = pastedVinCandidate(raw);
+  if (suppliedVin && !/^[A-HJ-NPR-Z0-9]{17}$/.test(suppliedVin)) {
+    return {
+      ok: false,
+      reason: "invalid_input",
+      error: "A VIN is 17 letters and digits, with no I, O or Q. Copy it again from the listing.",
+    };
+  }
+  const pastedVin = suppliedVin || pastedVinCandidate(raw);
   if (options.existingVehicles && isDuplicateVehicle(pastedVin, options.existingVehicles)) {
     return {
       ok: false,
@@ -580,11 +622,13 @@ export async function importPastedFactoryVehicle(
   }
 
   try {
-    const endpoint = preferredFactoryBuildEndpoint(raw) || "/api/ford-sticker";
+    // A supplied VIN settles the make outright — no guessing from the URL.
+    const endpoint =
+      (suppliedVin ? endpointForVin(suppliedVin) : null) || preferredFactoryBuildEndpoint(raw) || "/api/ford-sticker";
     const res = await fetchImpl(endpoint, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ paste: raw }),
+      body: JSON.stringify(suppliedVin ? { paste: raw, vin: suppliedVin } : { paste: raw }),
     });
     const json = (await res.json().catch(() => ({}))) as Record<string, unknown>;
     const jsonVin =
@@ -594,7 +638,13 @@ export async function importPastedFactoryVehicle(
       const message =
         (typeof json.error === "string" && json.error) ||
         "Could not read a VIN from that page. Paste the 17-character VIN.";
-      return { ok: false, reason: reasonFromServerError(message, json), error: message };
+      return {
+        ok: false,
+        reason: reasonFromServerError(message, json),
+        error: message,
+        dealer: blockedDealerFromJson(json),
+        listingUrl: typeof json.listingUrl === "string" && json.listingUrl ? json.listingUrl : undefined,
+      };
     }
 
     // A URL with no VIN in it only reveals its VIN once the first route has

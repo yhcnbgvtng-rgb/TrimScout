@@ -163,6 +163,109 @@ describe("importPastedFactoryVehicle — bad URL", () => {
     assert.equal(r.ok, false);
     if (r.ok) return;
     assert.equal(r.reason, "blocked");
+    assert.equal(r.dealer, undefined);
+    assert.equal(r.listingUrl, undefined);
+  });
+});
+
+describe("importPastedFactoryVehicle — open to confirm (bot-shielded page)", () => {
+  const url = "https://www.paulmillerbmw.com/new/BMW/2026-BMW-X5-12345.htm";
+
+  it("carries the store and the link when the page kept the VIN from us", async () => {
+    const { impl } = fakeFetch({
+      "/api/bmw-sticker": {
+        status: 422,
+        json: {
+          error: "That dealer site blocked the VIN lookup. Paste the 17-character VIN from the listing.",
+          handled: true,
+          needsVin: true,
+          dealerBlocked: true,
+          dealer: { name: "Paul Miller BMW", city: "Wayne", state: "NJ" },
+          listingUrl: url,
+        },
+      },
+    });
+    const r = await importPastedFactoryVehicle(url, impl);
+    assert.equal(r.ok, false);
+    if (r.ok) return;
+    assert.equal(r.reason, "blocked");
+    assert.deepEqual(r.dealer, { name: "Paul Miller BMW", city: "Wayne", state: "NJ" });
+    assert.equal(r.listingUrl, url);
+  });
+
+  it("flags a vehicle built without the page as pageUnread so the UI asks the buyer", async () => {
+    const { impl } = fakeFetch({
+      "/api/bmw-sticker": {
+        json: {
+          handled: true,
+          vin: BMW_VIN,
+          sticker: { status: "unreleased", pdfUrl: null, msrp: null, source: "free_decode" },
+          buildConfidence: "dealer_listing_only",
+          vehicle: { vin: BMW_VIN, year: 2022, make: "BMW", model: "X5", trim: "xDrive45e", location: { dealerName: "Paul Miller BMW", city: "Wayne", state: "NJ" }, options: [], packages: [], dealerUrl: url },
+          mustHaveLines: [],
+          niceToHaveLines: [],
+          filterableOptions: [],
+          pdfUrl: null,
+          pageUnread: true,
+        },
+      },
+    });
+    const r = await importPastedFactoryVehicle(`https://www.paulmillerbmw.com/new-Wayne-2022-BMW-X5-${BMW_VIN}`, impl);
+    assert.equal(r.ok, true);
+    if (!r.ok) return;
+    assert.equal(r.pageUnread, true);
+    assert.equal(r.vehicle.location.dealerName, "Paul Miller BMW");
+    assert.equal(r.buildConfidence, "dealer_listing_only");
+  });
+
+  it("a normally-read page is not pageUnread", async () => {
+    const { impl } = fakeFetch({ "/api/ford-sticker": { json: releasedFord() } });
+    const r = await importPastedFactoryVehicle(FORD_VIN, impl);
+    assert.equal(r.ok, true);
+    if (!r.ok) return;
+    assert.equal(r.pageUnread, false);
+  });
+
+  it("sends a buyer-supplied VIN with the same link, routed by the VIN's make", async () => {
+    const { impl, calls } = fakeFetch({
+      "/api/bmw-sticker": {
+        json: {
+          handled: true,
+          vin: BMW_VIN,
+          sticker: { status: "unreleased", pdfUrl: null, msrp: null, source: "free_decode" },
+          buildConfidence: "dealer_listing_only",
+          vehicle: { vin: BMW_VIN, year: 2022, make: "BMW", model: "X5", trim: "xDrive45e", location: { dealerName: "Paul Miller BMW", city: "Wayne", state: "NJ" }, options: [], packages: [] },
+          mustHaveLines: [],
+          niceToHaveLines: [],
+          filterableOptions: [],
+          pdfUrl: null,
+          pageUnread: true,
+        },
+      },
+    });
+    const r = await importPastedFactoryVehicle(url, impl, { vin: BMW_VIN.toLowerCase() });
+    assert.equal(r.ok, true);
+    // The URL alone says nothing about the make; the VIN decides the route.
+    assert.equal(calls[0].url, "/api/bmw-sticker");
+    assert.deepEqual(calls[0].body, { paste: url, vin: BMW_VIN });
+  });
+
+  it("refuses a malformed buyer-supplied VIN before any network call", async () => {
+    const { impl, calls } = fakeFetch({});
+    const r = await importPastedFactoryVehicle(url, impl, { vin: "5UXTA6C08N9K1928O" });
+    assert.equal(r.ok, false);
+    if (r.ok) return;
+    assert.equal(r.reason, "invalid_input");
+    assert.equal(calls.length, 0);
+  });
+
+  it("still refuses a duplicate when the VIN was supplied by the buyer", async () => {
+    const { impl, calls } = fakeFetch({});
+    const r = await importPastedFactoryVehicle(url, impl, { vin: BMW_VIN, existingVehicles: [{ vin: BMW_VIN }] });
+    assert.equal(r.ok, false);
+    if (r.ok) return;
+    assert.equal(r.reason, "duplicate");
+    assert.equal(calls.length, 0);
   });
 });
 

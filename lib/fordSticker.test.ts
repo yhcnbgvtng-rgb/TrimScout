@@ -11,6 +11,7 @@ import {
   exteriorColorMustHaveName,
   extractVin,
   extractVinFromDealerPage,
+  resolvePasteVin,
   extractAdvertisedListingPrice,
   factoryOptionBreakout,
   factoryOptionCode,
@@ -156,6 +157,72 @@ describe("VIN extract / Ford identity", () => {
       const page = await extractVinFromDealerPage(ROUTE23_BRONCO_URL);
       assert.equal(page.blocked, false);
       assert.equal(page.vin, BRONCO);
+    } finally {
+      globalThis.fetch = orig;
+    }
+  });
+});
+
+describe("resolvePasteVin — dealer from the link's hostname", () => {
+  const directory = async () => [
+    { dealerName: "Route 23 Auto Mall", city: "Butler", state: "NJ", zipCode: "07405", notes: "Website: https://www.23ford.com/" },
+  ];
+  const VIN_IN_URL = `https://www.23ford.com/new-Butler-2026-Ford-Bronco-Sport-${BRONCO}`;
+
+  it("names the store from the directory when the page is blocked and the VIN is in the URL", async () => {
+    const orig = globalThis.fetch;
+    globalThis.fetch = (async () =>
+      new Response("<title>Attention Required! | Cloudflare</title>", { status: 403 })) as typeof fetch;
+    try {
+      const r = await resolvePasteVin(VIN_IN_URL, { directory });
+      assert.equal(r.vin, BRONCO);
+      assert.equal(r.source, "paste");
+      assert.equal(r.dealerBlocked, false, "the VIN was had, so the buyer is not asked for it");
+      assert.equal(r.pageBlocked, true, "but the page was never read");
+      assert.equal(r.dealer?.name, "Route 23 Auto Mall");
+      assert.equal(r.dealer?.state, "NJ");
+      assert.equal(r.dealer?.source, "directory_domain");
+    } finally {
+      globalThis.fetch = orig;
+    }
+  });
+
+  it("still names the store when the page is blocked and there is no VIN anywhere", async () => {
+    const orig = globalThis.fetch;
+    globalThis.fetch = (async () => new Response("Access Denied", { status: 403 })) as typeof fetch;
+    try {
+      const r = await resolvePasteVin(ROUTE23_BRONCO_URL, { directory });
+      assert.equal(r.vin, null);
+      assert.equal(r.dealerBlocked, true);
+      assert.equal(r.pageBlocked, true);
+      assert.equal(r.dealer?.name, "Route 23 Auto Mall");
+    } finally {
+      globalThis.fetch = orig;
+    }
+  });
+
+  it("prefers the directory's spelling over the page's when the domain matches", async () => {
+    const html = `<script type="application/ld+json">{"@type":"AutoDealer","name":"Route Twenty-Three Auto Mall","vehicleIdentificationNumber":"${BRONCO}"}</script>`;
+    const orig = globalThis.fetch;
+    globalThis.fetch = (async () => new Response(html, { status: 200 })) as typeof fetch;
+    try {
+      const r = await resolvePasteVin(ROUTE23_BRONCO_URL, { directory });
+      assert.equal(r.vin, BRONCO);
+      assert.equal(r.pageBlocked, false);
+      assert.equal(r.dealer?.name, "Route 23 Auto Mall", "the spelling the quote-desk lookup matches on");
+    } finally {
+      globalThis.fetch = orig;
+    }
+  });
+
+  it("keeps the page's dealer when the hostname is not in the directory", async () => {
+    const html = `<script type="application/ld+json">{"@type":"AutoDealer","name":"Route 23 Auto Mall","vehicleIdentificationNumber":"${BRONCO}"}</script>`;
+    const orig = globalThis.fetch;
+    globalThis.fetch = (async () => new Response(html, { status: 200 })) as typeof fetch;
+    try {
+      const r = await resolvePasteVin(ROUTE23_BRONCO_URL, { directory: async () => [] });
+      assert.equal(r.dealer?.name, "Route 23 Auto Mall");
+      assert.equal(r.dealer?.source, "json_ld");
     } finally {
       globalThis.fetch = orig;
     }

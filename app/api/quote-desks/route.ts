@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { listDealerships } from "@/lib/dealershipsApi";
+import type { Dealership } from "@/lib/dealershipsApi";
+import { cachedDealerDirectory } from "@/lib/dealerDirectoryCache";
 import { matchDirectoryDealership } from "@/lib/dealerContactLookup";
 import { deskFromDealership, maskEmail, INVITE_BLOCK_MESSAGES, type DealerDesk } from "@/lib/quotePackage";
 
@@ -8,15 +9,6 @@ import { deskFromDealership, maskEmail, INVITE_BLOCK_MESSAGES, type DealerDesk }
 // A rooftop with no named person comes back blocked, with the reason.
 
 const MAX = 3;
-const TTL_MS = 60_000;
-let cache: { rows: Awaited<ReturnType<typeof listDealerships>>; at: number } | null = null;
-
-async function directory() {
-  if (cache && Date.now() - cache.at < TTL_MS) return cache.rows;
-  const rows = await listDealerships();
-  cache = { rows, at: Date.now() };
-  return rows;
-}
 
 export interface PublicDesk {
   dealerName: string;
@@ -46,10 +38,10 @@ export async function POST(req: Request) {
     .slice(0, MAX);
   if (dealers.length === 0) return NextResponse.json({ desks: [] });
 
-  let rows: Awaited<ReturnType<typeof listDealerships>> = [];
+  let rows: Dealership[] = [];
   let degraded = false;
   try {
-    rows = await directory();
+    rows = await cachedDealerDirectory();
   } catch {
     degraded = true;
   }

@@ -113,6 +113,12 @@ export interface Vehicle {
    * option list we've checked.
    */
   buildConfidence?: BuildConfidence;
+  /**
+   * The dealer's page was never read (bot shield), so the buyer opened the
+   * listing themselves and vouched that this VIN at this store is the car.
+   * Never upgrades buildConfidence — a person's glance is not a build sheet.
+   */
+  buyerConfirmed?: boolean;
 }
 
 export type BuildConfidence = "verified_factory" | "dealer_listing_only";

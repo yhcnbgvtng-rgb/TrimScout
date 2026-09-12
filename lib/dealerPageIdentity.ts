@@ -15,7 +15,16 @@ export interface DealerPageIdentity {
   state: string | null;
   zip: string | null;
   /** Which layer produced the name — useful for judging how much to trust it. */
-  source: "json_ld" | "og_site_name" | "dealer_name_element" | "logo" | "meta_description" | "title" | null;
+  source:
+    | "json_ld"
+    | "og_site_name"
+    | "dealer_name_element"
+    | "logo"
+    | "meta_description"
+    | "title"
+    /** Not read off the page at all — the link's hostname matched a directory rooftop. */
+    | "directory_domain"
+    | null;
 }
 
 export const EMPTY_DEALER_IDENTITY: DealerPageIdentity = {
