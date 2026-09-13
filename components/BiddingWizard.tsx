@@ -7,7 +7,8 @@ import {
   paymentMethodFromStructures,
 } from "../lib/dealStructure";
 import { formatCurrency, getZipCoordinates } from "../lib/otdCalculator";
-import { outOfStateVehicles, formatOutOfStateWarning, stateGatePlan, formatExpandNudge } from "../lib/sameStateCheck";
+import { outOfStateVehicles, formatOutOfStateWarning, formatExpandNudge } from "../lib/sameStateCheck";
+import { planDeskSelection } from "../lib/deskSelection";
 import { diffVsPrimary, mustHaveHeadline, mustHaveReport, type MustHaveRef } from "../lib/alternateCompare";
 import { DEFAULT_LEASE_TERM, LEASE_MILES, LEASE_NON_BINDING_COPY, LEASE_TERMS, type LeaseMiles, type LeaseTerm } from "../lib/leaseQuote";
 import { isPlausibleDealerEmail, type DealerContactStatus } from "../lib/dealerContactLookup";
@@ -897,22 +898,21 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   // end (an "Outside NJ" row that can't be ticked and a Continue that never
   // enables). The gate only decides about the other dealerships.
   const primaryDealerName = reviewTarget?.dealerName?.trim() || "";
-  const gatePlan = stateGatePlan(
-    buyerStateFromZip,
-    importedDealerships.map((d) => ({
-      dealerName: d.dealerName,
-      state: d.state,
-      contactReady: Boolean(quoteDesks[d.dealerName]?.knownNamed && !quoteDesks[d.dealerName]?.blockedReason),
-      primary: Boolean(primaryDealerName) && d.dealerName === primaryDealerName,
-    })),
-    sameStateOnly
-  );
+  // Selectable / ticked / held, per desk, plus whether Continue is live —
+  // one pure plan (lib/deskSelection) so the checkbox, the count, the send
+  // list and the review badge can't disagree, and the auto-tick doesn't
+  // wait on any state the lookup sets later.
+  const deskPlan = planDeskSelection({
+    buyerState: buyerStateFromZip,
+    sameStateOnly,
+    primaryDealerName,
+    desks: importedDealerships.map((d) => ({ dealerName: d.dealerName, state: d.state, desk: quoteDesks[d.dealerName] })),
+    confirmed: confirmedDesks,
+  });
+  const gatePlan = deskPlan.gate;
   const excludedByState = new Set(gatePlan.active ? gatePlan.excludedReady.map((d) => d.dealerName) : []);
-  const keptOutOfState = new Set(gatePlan.active ? gatePlan.primaryOutOfState.map((d) => d.dealerName) : []);
   const expandNudge = directOfferMode ? formatExpandNudge(gatePlan) : "";
-  const confirmedDeskCount = importedDealerships.filter(
-    (d) => confirmedDesks[d.dealerName] && !quoteDesks[d.dealerName]?.blockedReason && !excludedByState.has(d.dealerName)
-  ).length;
+  const confirmedDeskCount = deskPlan.sendTo.length;
   const sendToCount = directOfferMode ? confirmedDeskCount : importedDealerships.length;
   useEffect(() => {
     if (step === 3 && offerPath === null && competeAmongImported) {
@@ -1534,7 +1534,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
       resolvedAt: new Date().toISOString(),
     }));
     const toSend = pastes.filter(
-      (p) => p.dealerName && confirmedDesks[p.dealerName] && !quoteDesks[p.dealerName]?.blockedReason && !excludedByState.has(p.dealerName)
+      (p) => p.dealerName && deskPlan.rows[p.dealerName]?.checked
     );
     if (toSend.length === 0) {
       setSubmitError("Tick at least one dealership with a named sales contact to send the request.");
@@ -2348,7 +2348,8 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                       const typed = buyerDealerEmails[dealer.dealerName] || "";
                       const supplied = isPlausibleDealerEmail(typed);
                       const reachable = Boolean(contact?.hasEmail && !contact?.emailOptOut);
-                      const heldByState = excludedByState.has(dealer.dealerName);
+                      const row = deskPlan.rows[dealer.dealerName];
+                      const heldByState = Boolean(row?.heldByState);
                       return (
                         <li
                           key={dealer.dealerName}
@@ -2360,8 +2361,8 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                                 <input
                                   type="checkbox"
                                   aria-label={`Send a quote request to ${dealer.dealerName}`}
-                                  checked={Boolean(confirmedDesks[dealer.dealerName]) && !quoteDesks[dealer.dealerName]?.blockedReason && !heldByState}
-                                  disabled={!quoteDesks[dealer.dealerName] || Boolean(quoteDesks[dealer.dealerName]?.blockedReason) || heldByState}
+                                  checked={Boolean(row?.checked)}
+                                  disabled={!row?.selectable}
                                   onChange={(e) =>
                                     setConfirmedDesks((current) => ({ ...current, [dealer.dealerName]: e.target.checked }))
                                   }
@@ -2389,7 +2390,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                                 }
                                 return null;
                               })()}
-                              {directOfferMode && keptOutOfState.has(dealer.dealerName) ? (
+                              {directOfferMode && row?.keptOutOfState ? (
                                 <div className="text-[10px] text-ink-faint">
                                   Outside {gatePlan.buyerState} — kept in because it lists your car.
                                 </div>
@@ -2418,7 +2419,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                                 if (directOfferMode) {
                                   if (!desk) return "Checking";
                                   if (heldByState) return `Outside ${gatePlan.buyerState}`;
-                                  if (!desk.blockedReason && keptOutOfState.has(dealer.dealerName)) return "Listing dealer";
+                                  if (!desk.blockedReason && row?.keptOutOfState) return "Listing dealer";
                                   if (!desk.blockedReason) return "Named contact";
                                   if (supplied) return "Adviser added";
                                   return desk.blockedReason === "dealer_opted_out" ? "Opted out" : "No sales contact";
@@ -2735,7 +2736,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                                       <span
                                         className={`shrink-0 rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide ${(() => {
                                           const ok = directOfferMode
-                                            ? Boolean(target?.dealerName && quoteDesks[target.dealerName] && !quoteDesks[target.dealerName]?.blockedReason && confirmedDesks[target.dealerName])
+                                            ? Boolean(target?.dealerName && deskPlan.rows[target.dealerName]?.checked)
                                             : reachable || supplied;
                                           const pending = directOfferMode ? !(target?.dealerName && quoteDesks[target.dealerName]) : !contact;
                                           return pending ? "bg-border text-ink-muted" : ok ? "bg-emerald-500/15 text-emerald-300" : "bg-amber-500/15 text-amber-300";
@@ -2745,7 +2746,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                                           if (directOfferMode) {
                                             const desk = target?.dealerName ? quoteDesks[target.dealerName] : undefined;
                                             if (!desk) return "Checking";
-                                            if (!desk.blockedReason) return confirmedDesks[target!.dealerName!] ? "Named contact" : "Not sending";
+                                            if (!desk.blockedReason) return deskPlan.rows[target!.dealerName!]?.checked ? "Named contact" : "Not sending";
                                             return supplied ? "Adviser added" : "No sales contact";
                                           }
                                           return !contact ? "Checking" : reachable ? "Email on file" : supplied ? "Email added" : "No email";
