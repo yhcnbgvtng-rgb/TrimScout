@@ -681,6 +681,19 @@ export function clearGmStickerMemoryCache(): void {
   MEMORY_CACHE.clear();
 }
 
+/** Test-only: forget one VIN entirely (memory + disk), so a stubbed HTTP path is the only source. */
+export function forgetGmStickerForTests(vin: string): void {
+  const key = vin.trim().toUpperCase();
+  MEMORY_CACHE.delete(key);
+  for (const p of [cacheJsonPath(key), cachePdfPath(key)]) {
+    try {
+      fs.unlinkSync(p);
+    } catch {
+      /* not cached */
+    }
+  }
+}
+
 async function extractPdfText(bytes: Uint8Array): Promise<string> {
   const { extractText } = await import("unpdf");
   const result = await extractText(bytes, { mergePages: true });
@@ -701,21 +714,92 @@ export function gmStickerFromFetchedBytes(
   return { kind };
 }
 
+/** One attempt's evidence — logged on every attempt so an empty body is explainable after the fact. */
+export interface GmFetchDiagnostic {
+  attempt: number;
+  status: number | null;
+  finalUrl: string | null;
+  contentType: string | null;
+  bytes: number;
+  /** First bytes as text ("%PDF-1.4", "{\"errorCode\":1001", "<html…") — the shape, never the whole body. */
+  magic: string;
+  kind: GmFetchKind | "network_error";
+  error?: string;
+}
+
+/** Thrown when GM never handed us a usable body; carries what each attempt saw. */
+export class GmStickerUnavailableError extends Error {
+  readonly vin: string;
+  readonly kind: GmFetchKind | "network_error";
+  readonly attempts: GmFetchDiagnostic[];
+  constructor(vin: string, kind: GmFetchKind | "network_error", attempts: GmFetchDiagnostic[]) {
+    super(gmUnavailableMessage(vin, kind));
+    this.name = "GmStickerUnavailableError";
+    this.vin = vin;
+    this.kind = kind;
+    this.attempts = attempts;
+  }
+}
+
+/** Buyer-facing copy per failure shape — never "0 bytes", never "the VIN has no build". */
+export function gmUnavailableMessage(vin: string, kind: GmFetchKind | "network_error"): string {
+  switch (kind) {
+    case "html_denied":
+      return `GM's factory-sticker service blocked this request from our server (VIN ${vin}). The sticker exists; it's temporarily unavailable here.`;
+    case "empty":
+      return `GM's factory-sticker service returned no data for VIN ${vin} just now. That's a temporary hiccup on their side — the sticker itself is unaffected.`;
+    case "network_error":
+      return `We couldn't reach GM's factory-sticker service for VIN ${vin}. Temporary — try again in a moment.`;
+    default:
+      return `GM's factory-sticker service sent something we couldn't read for VIN ${vin}. Temporary — the sticker itself is unaffected.`;
+  }
+}
+
+const GM_FETCH_ATTEMPTS = 3;
+const GM_RETRY_DELAYS_MS = [400, 1200];
+
+/**
+ * GM's CDN occasionally answers a sticker request with HTTP 200 and an
+ * empty body (no Content-Type either way — it never sends one). One such
+ * response is not evidence of anything, so an empty, unreadable or
+ * bot-shield body is retried with a short backoff before it's reported,
+ * and every attempt is logged with status / final URL / bytes / magic.
+ */
 async function fetchGmStickerBytesHttp(
   vin: string
-): Promise<{ bytes: Uint8Array; contentType: string | null }> {
+): Promise<{ bytes: Uint8Array; contentType: string | null; attempts: GmFetchDiagnostic[] }> {
   const url = gmStickerPdfUrl(vin);
-  const res = await fetch(url, {
-    headers: {
-      Accept: "application/pdf,application/json;q=0.9,*/*;q=0.5",
-      "User-Agent": BROWSER_UA,
-      Referer: "https://www.chevrolet.com/",
-      Origin: "https://www.chevrolet.com",
-    },
-    cache: "no-store",
-  });
-  // Validity is by content. HTTP 200 can be a miss (JSON 1001) or a PDF.
-  return { bytes: new Uint8Array(await res.arrayBuffer()), contentType: res.headers.get("content-type") };
+  const attempts: GmFetchDiagnostic[] = [];
+  for (let i = 0; i < GM_FETCH_ATTEMPTS; i++) {
+    if (i > 0) await new Promise((r) => setTimeout(r, GM_RETRY_DELAYS_MS[i - 1] ?? 1500));
+    try {
+      const res = await fetch(url, {
+        headers: {
+          Accept: "application/pdf,application/json;q=0.9,*/*;q=0.5",
+          "User-Agent": BROWSER_UA,
+          Referer: "https://www.chevrolet.com/",
+          Origin: "https://www.chevrolet.com",
+        },
+        cache: "no-store",
+        signal: AbortSignal.timeout(15_000),
+      });
+      const bytes = new Uint8Array(await res.arrayBuffer());
+      const contentType = res.headers.get("content-type");
+      // Validity is by content. HTTP 200 can be a miss (JSON 1001), a PDF, an empty body, or an Akamai page.
+      const kind = classifyGmFetchBody(bytes, contentType);
+      const diag: GmFetchDiagnostic = { attempt: i + 1, status: res.status, finalUrl: res.url || url, contentType, bytes: bytes.length, magic: new TextDecoder().decode(bytes.slice(0, 24)).replace(/\s+/g, " "), kind };
+      attempts.push(diag);
+      console.log(`[gm-sticker] ${vin} attempt ${diag.attempt}: ${diag.status} ${diag.kind} ${diag.bytes}B ct=${diag.contentType} magic=${JSON.stringify(diag.magic)}`);
+      if (kind === "pdf" || kind === "text" || kind === "unreleased_json") return { bytes, contentType, attempts };
+      // empty / unknown / html_denied → retry
+    } catch (err) {
+      const diag: GmFetchDiagnostic = { attempt: i + 1, status: null, finalUrl: null, contentType: null, bytes: 0, magic: "", kind: "network_error", error: err instanceof Error ? err.message : String(err) };
+      attempts.push(diag);
+      console.log(`[gm-sticker] ${vin} attempt ${diag.attempt}: network error ${diag.error}`);
+    }
+  }
+  const last = attempts[attempts.length - 1];
+  throw new GmStickerUnavailableError(vin, last?.kind ?? "network_error", attempts);
 }
 
 export async function getGmSticker(vin: string): Promise<GmSticker> {
@@ -766,9 +850,8 @@ export async function getGmSticker(vin: string): Promise<GmSticker> {
     return sticker;
   }
 
-  throw new Error(
-    `Could not load a factory build for VIN ${cleanVin} (GM returned ${classified.kind}, ${http.bytes.length} bytes).`
-  );
+  // Every retry already failed to produce a readable body; say what GM did, not "0 bytes".
+  throw new GmStickerUnavailableError(cleanVin, classified.kind, http.attempts);
 }
 
 export function gmStickerToVehicle(

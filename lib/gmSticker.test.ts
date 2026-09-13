@@ -2,7 +2,7 @@ import "./testdata/blockLiveHttp";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
-import { describe, it } from "node:test";
+import { after, describe, it } from "node:test";
 import { exteriorColorMustHaveName } from "./fordSticker";
 import {
   PAUL_CHEVY_VIN,
@@ -683,5 +683,151 @@ describe("all four GM brands, confirmed live on real fixtures (Chevrolet already
     for (const vin of [ESCALADE, LYRIQ, ENCLAVE, ENCORE_GX, ENVISION, HUMMER_EV]) {
       assert.equal(isGmVin(vin), true, vin);
     }
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Empty-body resilience: GM's CDN sometimes answers 200 with nothing. One
+// such answer must be retried, never reported as "0 bytes", and never read
+// as "this VIN has no build".
+// ---------------------------------------------------------------------------
+import { clearGmStickerMemoryCache, forgetGmStickerForTests, getGmSticker, gmUnavailableMessage, GmStickerUnavailableError } from "./gmSticker";
+
+// A released sticker writes through to the on-disk cache, so each case gets
+// its own VIN — otherwise the next case would be served from cache instead
+// of the stubbed HTTP path. (Made-up VINs; only the shape matters here.)
+// Never a real VIN: a released sticker writes to the on-disk cache that the
+// dev server shares, and a stubbed build for a real car would be served to
+// a real buyer. These are synthetic.
+const FRESH_VIN = "1GTEST00000000001";
+const VIN_EMPTY3 = "1GTEST00000000002";
+const VIN_DENIED = "1GTEST00000000003";
+const VIN_NETWORK = "1GTEST00000000004";
+const VIN_NON_GM = "1FTEST00000000005";
+const FIXTURE = fs.readFileSync(path.join(process.cwd(), "lib/testdata/gm-stickers/1GCPYBEK4TZ300055.txt"), "utf8");
+const buildFor = (vin: string) => FIXTURE.replace(/1GCPYBEK4TZ300055/g, vin);
+const BUILD_TEXT = buildFor(FRESH_VIN);
+
+function scripted(bodies: Array<Uint8Array | string | Error>) {
+  const calls: string[] = [];
+  const impl = (async (input: RequestInfo | URL) => {
+    calls.push(String(input));
+    const next = bodies.shift();
+    if (next instanceof Error) throw next;
+    const bytes = typeof next === "string" ? new TextEncoder().encode(next) : next ?? new Uint8Array();
+    return new Response(bytes, { status: 200 });
+  }) as typeof fetch;
+  return { impl, calls };
+}
+
+describe("getGmSticker — empty bodies are retried, then reported plainly", () => {
+  const SYNTHETIC = [FRESH_VIN, VIN_EMPTY3, VIN_DENIED, VIN_NETWORK, VIN_NON_GM];
+  for (const v of SYNTHETIC) forgetGmStickerForTests(v);
+  after(() => {
+    for (const v of SYNTHETIC) forgetGmStickerForTests(v);
+  });
+
+  it("an empty 200 followed by the real build succeeds on the retry", async () => {
+    clearGmStickerMemoryCache();
+    const { impl, calls } = scripted([new Uint8Array(), BUILD_TEXT]);
+    const orig = globalThis.fetch;
+    globalThis.fetch = impl;
+    try {
+      const sticker = await getGmSticker(FRESH_VIN);
+      assert.equal(sticker.status, "released");
+      assert.equal(sticker.vin, FRESH_VIN);
+      assert.equal(calls.length, 2, "one retry after the empty body");
+      assert.ok(calls.every((u) => u.includes("cws.gm.com/vs-cws/vehshop/v2/vehicle/windowsticker?vin=" + FRESH_VIN)));
+    } finally {
+      globalThis.fetch = orig;
+      clearGmStickerMemoryCache();
+    }
+  });
+
+  it("three empties → a typed unavailability error with per-attempt diagnostics — never '0 bytes'", async () => {
+    clearGmStickerMemoryCache();
+    const { impl, calls } = scripted([new Uint8Array(), new Uint8Array(), new Uint8Array()]);
+    const orig = globalThis.fetch;
+    globalThis.fetch = impl;
+    try {
+      await assert.rejects(getGmSticker(VIN_EMPTY3), (err: unknown) => {
+        assert.ok(err instanceof GmStickerUnavailableError);
+        assert.equal(err.kind, "empty");
+        assert.equal(err.attempts.length, 3);
+        assert.deepEqual(err.attempts.map((a) => [a.status, a.bytes, a.kind]), [[200, 0, "empty"], [200, 0, "empty"], [200, 0, "empty"]]);
+        assert.doesNotMatch(err.message, /0 bytes|returned empty/);
+        assert.match(err.message, /returned no data .* temporary hiccup/);
+        return true;
+      });
+      assert.equal(calls.length, 3);
+    } finally {
+      globalThis.fetch = orig;
+      clearGmStickerMemoryCache();
+    }
+  });
+
+  it("an Akamai denial page is reported as blocked, not as a VIN with no build", async () => {
+    clearGmStickerMemoryCache();
+    const denied = "<html><head><title>Access Denied</title></head><body>errors.edgesuite.net</body></html>";
+    const { impl } = scripted([denied, denied, denied]);
+    const orig = globalThis.fetch;
+    globalThis.fetch = impl;
+    try {
+      await assert.rejects(getGmSticker(VIN_DENIED), (err: unknown) => {
+        assert.ok(err instanceof GmStickerUnavailableError);
+        assert.equal(err.kind, "html_denied");
+        assert.match(err.message, /blocked this request from our server/);
+        return true;
+      });
+    } finally {
+      globalThis.fetch = orig;
+      clearGmStickerMemoryCache();
+    }
+  });
+
+  it("a network failure then a build recovers; the copy names each failure shape", async () => {
+    clearGmStickerMemoryCache();
+    const { impl } = scripted([new Error("ECONNRESET"), buildFor(VIN_NETWORK)]);
+    const orig = globalThis.fetch;
+    globalThis.fetch = impl;
+    try {
+      const sticker = await getGmSticker(VIN_NETWORK);
+      assert.equal(sticker.status, "released");
+    } finally {
+      globalThis.fetch = orig;
+      clearGmStickerMemoryCache();
+    }
+    assert.match(gmUnavailableMessage("X", "network_error"), /couldn't reach GM/);
+    assert.match(gmUnavailableMessage("X", "unknown"), /couldn't read/);
+  });
+
+  it("GM's JSON 1001 for a non-GM VIN is still 'unreleased', never routed through the empty handling", async () => {
+    clearGmStickerMemoryCache();
+    const { impl, calls } = scripted(['{"errorCode":1001,"errorMessage":"Window Sticker not available"}']);
+    const orig = globalThis.fetch;
+    globalThis.fetch = impl;
+    try {
+      const sticker = await getGmSticker(VIN_NON_GM);
+      assert.equal(sticker.status, "unreleased");
+      assert.equal(calls.length, 1, "no retry on a definitive JSON answer");
+    } finally {
+      globalThis.fetch = orig;
+      clearGmStickerMemoryCache();
+    }
+  });
+});
+
+describe("sticker routes — a sticker failure falls back instead of dead-ending", () => {
+  it("all four OEM routes catch the sticker error and import on the free decode with stickerUnavailable", () => {
+    for (const route of ["app/api/gm-sticker/route.ts", "app/api/ford-sticker/route.ts", "app/api/stellantis-sticker/route.ts", "app/api/genesis-sticker/route.ts"]) {
+      const src = fs.readFileSync(path.join(process.cwd(), route), "utf8");
+      assert.match(src, /buildStickerUnavailableImport\(\{ vin, pasteUrl: opts\.pasteUrl, source: resolved/, route);
+      assert.match(src, /stickerUnavailable: \{ reason \}/, route);
+      assert.doesNotMatch(src, /Paste the 17-character VIN if you have it/, route);
+    }
+    const wizard = fs.readFileSync(path.join(process.cwd(), "components/BiddingWizard.tsx"), "utf8");
+    assert.match(wizard, /Sticker temporarily unavailable/);
+    assert.match(wizard, /Factory sticker temporarily unavailable\./);
+    assert.doesNotMatch(wizard, /0 bytes/);
   });
 });

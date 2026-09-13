@@ -365,3 +365,39 @@ describe("importPastedFactoryVehicle — never '0 Ford F-150'", () => {
     assert.equal(hasUsableVehicleBasics(null), false);
   });
 });
+
+describe("importPastedFactoryVehicle — factory sticker temporarily unavailable", () => {
+  it("imports the car on the free decode and carries the reason; never dead-ends, never says 'no build'", async () => {
+    const reason = "GM's factory-sticker service returned no data for VIN 1GNS6MKD2TR280381 just now. That's a temporary hiccup on their side — the sticker itself is unaffected.";
+    const { impl } = fakeFetch({
+      "/api/gm-sticker": {
+        json: {
+          handled: true,
+          vin: "1GNS6MKD2TR280381",
+          sticker: { status: "unavailable", pdfUrl: null, msrp: null, source: "sticker_unavailable" },
+          buildConfidence: "dealer_listing_only",
+          vehicle: { vin: "1GNS6MKD2TR280381", year: 2026, make: "Chevrolet", model: "Tahoe", trim: "LS", location: { dealerName: "Scott Chevrolet", city: "Allentown", state: "PA", dealerSource: "listing_domain" }, options: [], packages: [] },
+          mustHaveLines: [],
+          niceToHaveLines: [],
+          filterableOptions: [],
+          pdfUrl: null,
+          stickerUnavailable: { reason },
+          note: reason,
+        },
+      },
+    });
+    const r = await importPastedFactoryVehicle("1GNS6MKD2TR280381", impl);
+    assert.equal(r.ok, true);
+    if (!r.ok) return;
+    assert.equal(r.buildConfidence, "dealer_listing_only");
+    assert.equal(r.factoryBuildUnavailable, true);
+    assert.deepEqual(r.stickerUnavailable, { reason });
+    assert.equal(r.vehicle.location.dealerName, "Scott Chevrolet", "the desk match survives a sticker outage");
+  });
+
+  it("a normal verified import has no stickerUnavailable", async () => {
+    const { impl } = fakeFetch({ "/api/ford-sticker": { json: releasedFord() } });
+    const r = await importPastedFactoryVehicle(FORD_VIN, impl);
+    assert.equal(r.ok && r.stickerUnavailable, null);
+  });
+});

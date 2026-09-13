@@ -28,6 +28,26 @@ export type FreeImportOutcome =
   | { ok: true; payload: Record<string, unknown>; vehicle: Vehicle; decoded: DecodedVehicle | null }
   | { ok: false; error: string; vinIntegrity: boolean };
 
+/**
+ * The sticker fetch failed (GM/Ford/… edge hiccup, bot shield, network):
+ * the car is still real and the desk is still matched, so the buyer must
+ * not be dead-ended. Import on the free path (NHTSA facts) flagged
+ * dealer-listing-only, and say plainly that the factory sticker is
+ * temporarily unavailable — not that the VIN has no build.
+ */
+export async function buildStickerUnavailableImport(input: {
+  vin: string;
+  pasteUrl: string | null;
+  source: FreeImportSource;
+  makeLabel: string;
+  /** Buyer-facing reason from the OEM client (e.g. gmUnavailableMessage). */
+  reason: string;
+}): Promise<FreeImportOutcome> {
+  const free = await buildFreeImport({ ...input, sticker: { status: "unavailable", pdfUrl: null, msrp: null, source: "sticker_unavailable" } });
+  if (!free.ok) return free;
+  return { ...free, payload: { ...free.payload, stickerUnavailable: { reason: input.reason }, note: input.reason } };
+}
+
 export async function buildFreeImport(input: {
   vin: string;
   pasteUrl: string | null;

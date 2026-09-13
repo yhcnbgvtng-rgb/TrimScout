@@ -128,6 +128,8 @@ export interface Vehicle {
    * Never upgrades buildConfidence — a person's glance is not a build sheet.
    */
   buyerConfirmed?: boolean;
+  /** Set when the factory sticker service didn't answer — the build is a free decode, not "no build". */
+  stickerUnavailableReason?: string | null;
 }
 
 export type BuildConfidence = "verified_factory" | "dealer_listing_only";
