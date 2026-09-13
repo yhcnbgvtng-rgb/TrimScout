@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { LEASE_MILES, LEASE_TERMS, type LeaseRequestPrefs } from "@/lib/leaseQuote";
+import { LEASE_MILES, LEASE_TERMS, type LeaseRequestPrefs, normalizeMaxCashDue } from "@/lib/leaseQuote";
 import { auth } from "@/auth";
 import { createRfq, listRfqsForBuyer, RfqApiError } from "@/lib/rfqApi";
 import { hasActiveRfq, isFullyLockedSpec } from "@/lib/rfqLogic";
@@ -94,5 +94,9 @@ function parseLeasePrefs(raw: unknown): LeaseRequestPrefs | null {
   if (!(LEASE_TERMS as readonly number[]).includes(term) || !(LEASE_MILES as readonly number[]).includes(miles)) return null;
   const zip = typeof o.zip === "string" && /^\d{5}$/.test(o.zip) ? o.zip : "";
   const timeline = o.timeline === "asap" || o.timeline === "this_week" || o.timeline === "this_month" ? o.timeline : null;
-  return { termMonths: term as LeaseRequestPrefs["termMonths"], milesPerYear: miles as LeaseRequestPrefs["milesPerYear"], zip, timeline };
+  const prefs: LeaseRequestPrefs = { termMonths: term as LeaseRequestPrefs["termMonths"], milesPerYear: miles as LeaseRequestPrefs["milesPerYear"], zip, timeline };
+  // Optional cap on cash at pickup — stored only when the buyer set one.
+  const maxCash = normalizeMaxCashDue(o.maxCashDueAtSigning);
+  if (maxCash != null) prefs.maxCashDueAtSigning = maxCash;
+  return prefs;
 }

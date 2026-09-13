@@ -21,6 +21,33 @@ export interface LeaseRequestPrefs {
   /** Tax context only — never shared with the dealer beyond the state it implies. */
   zip: string;
   timeline?: LeaseTimeline | null;
+  /**
+   * The most the buyer wants to hand over at pickup — first month, fees and
+   * any down, all in. Optional; absent means no cap. A quote whose itemized
+   * due-at-signing lands above it is a counter, never silently accepted.
+   * Not the finance down payment, not a cash price.
+   */
+  maxCashDueAtSigning?: number | null;
+}
+
+/** Buyer-facing helper for the cap, shared by the wizard and the tests. */
+export const MAX_CASH_DUE_HELPER =
+  "Max you want to pay at pickup — first month, fees, and any down. Dealers itemize this in the lease calculator or mark a counter.";
+
+/** A finite, non-negative cap; anything else is "no cap". */
+export function normalizeMaxCashDue(raw: unknown): number | null {
+  const text = typeof raw === "string" ? raw.replace(/[$,\s]/g, "") : null;
+  if (text === "") return null;
+  const n = text != null ? Number(text) : typeof raw === "number" ? raw : NaN;
+  if (!Number.isFinite(n) || n < 0) return null;
+  return Math.round(n);
+}
+
+/** True when the buyer set a cap and the itemized due-at-signing total is above it. */
+export function overMaxCashDue(d: DueAtSigning | null | undefined, prefs: { maxCashDueAtSigning?: number | null }): boolean {
+  const cap = prefs.maxCashDueAtSigning;
+  if (cap == null || !d) return false;
+  return dueAtSigningTotal(d) > cap;
 }
 
 export interface LineItem {
@@ -102,7 +129,7 @@ const nonneg = (n: unknown) => typeof n === "number" && Number.isFinite(n) && n 
  */
 export function validateLeaseQuote(
   q: Partial<LeaseQuote>,
-  prefs: Pick<LeaseRequestPrefs, "termMonths" | "milesPerYear">,
+  prefs: Pick<LeaseRequestPrefs, "termMonths" | "milesPerYear"> & Partial<Pick<LeaseRequestPrefs, "maxCashDueAtSigning">>,
   vinOrStock: { vin?: string | null; stockNumber?: string | null },
   now: Date = new Date()
 ): LeaseValidation {
@@ -150,12 +177,22 @@ export function validateLeaseQuote(
     if (!q.counter?.counterOffer) errors.push(`Term/miles differ from the buyer's ${prefs.termMonths} mo / ${prefs.milesPerYear.toLocaleString()} mi — mark it as a counter-offer to submit.`);
     else if (!(q.counter.note || "").trim()) errors.push("A counter-offer needs a short note saying why.");
   }
+  // The buyer's cap on cash at pickup works like term/miles: land under it,
+  // or say plainly that this is a counter and why.
+  if (d && overMaxCashDue(d, prefs)) {
+    const cap = prefs.maxCashDueAtSigning!;
+    if (!q.counter?.counterOffer) errors.push(`Due at signing ($${dueAtSigningTotal(d).toLocaleString()}) is above the buyer's max of $${cap.toLocaleString()} — mark it as a counter-offer to submit.`);
+    else if (!(q.counter.note || "").trim()) errors.push("A counter-offer needs a short note saying why.");
+  }
   return { errors, warnings };
 }
 
-/** True when the quote's term or miles differ from what the buyer asked for. */
-export function isCounter(q: Pick<LeaseQuote, "termMonths" | "milesPerYear">, prefs: Pick<LeaseRequestPrefs, "termMonths" | "milesPerYear">): boolean {
-  return q.termMonths !== prefs.termMonths || q.milesPerYear !== prefs.milesPerYear;
+/** True when the quote's term or miles differ from what the buyer asked for, or its cash due is over the buyer's cap. */
+export function isCounter(
+  q: Pick<LeaseQuote, "termMonths" | "milesPerYear"> & Partial<Pick<LeaseQuote, "dueAtSigning">>,
+  prefs: Pick<LeaseRequestPrefs, "termMonths" | "milesPerYear"> & Partial<Pick<LeaseRequestPrefs, "maxCashDueAtSigning">>
+): boolean {
+  return q.termMonths !== prefs.termMonths || q.milesPerYear !== prefs.milesPerYear || overMaxCashDue(q.dueAtSigning, prefs);
 }
 
 export function isExpired(q: Pick<LeaseQuote, "expiresAt">, now: Date = new Date()): boolean {

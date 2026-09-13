@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { aprFromMoneyFactor, dueAtSigningTotal, isCounter, isExpired, termMilesLabel, type LeaseRequestPrefs } from "../lib/leaseQuote";
+import { aprFromMoneyFactor, dueAtSigningTotal, isCounter, isExpired, overMaxCashDue, termMilesLabel, type LeaseRequestPrefs } from "../lib/leaseQuote";
 import type { RfqInvite, RfqRequest } from "../lib/rfq";
 
 /**
@@ -48,9 +48,13 @@ export function LeaseCompareTable({
       label: "Due at signing",
       cell: (i) => {
         const d = i.quote!.lease!.dueAtSigning;
+        const over = overMaxCashDue(d, prefs);
         return (
           <details>
-            <summary className="cursor-pointer list-none font-bold text-white">{money(dueAtSigningTotal(d))}</summary>
+            <summary className={`cursor-pointer list-none font-bold ${over ? "text-amber-300" : "text-white"}`}>
+              {money(dueAtSigningTotal(d))}
+              {over ? <span className="block text-[10px] font-bold text-amber-300">Over your ${prefs.maxCashDueAtSigning!.toLocaleString()} max</span> : null}
+            </summary>
             <ul className="mt-1 space-y-0.5 text-[10px] text-ink-muted">
               <li>First month {money(d.firstMonth)}</li>
               <li>Acquisition fee {money(d.acquisitionFee)}</li>
