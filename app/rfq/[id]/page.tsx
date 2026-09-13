@@ -2,6 +2,7 @@
 
 import React, { useCallback, useEffect, useState } from "react";
 import { LeaseCompareTable } from "@/components/LeaseCompareTable";
+import { LeaseQuoteSheet } from "@/components/LeaseQuoteSheet";
 import { LEASE_NON_BINDING_COPY } from "@/lib/leaseQuote";
 import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
@@ -450,6 +451,8 @@ export default function RfqWorkspacePage() {
           <span className="font-mono">{rfq.vin}</span>
         </p>
       </div>
+
+      {rfq.leasePrefs ? <LeaseQuoteSheet rfq={rfq} /> : null}
 
       {rfq.packageKind === "links" ? (
         <div className="rounded-2xl border border-border bg-surface p-5 space-y-2">

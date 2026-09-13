@@ -169,6 +169,12 @@ interface BiddingWizardProps {
   /** A parked draft was found on mount and restored — open the wizard on it. */
   onDraftRestored?: () => void;
   onRealBidRequestCreated?: (request: BiddingRequest) => void;
+  /**
+   * A quote-request package went out to at least one desk. The host lands
+   * the buyer in My Deal Tracker on that deal; the wizard's own "sent"
+   * screen is only shown when nothing could be sent.
+   */
+  onQuoteRequestSent?: (sent: { rfqId: string; rows: Array<{ dealerName: string; sent: boolean; message?: string }> }) => void;
 }
 
 /** One alternate-vehicle slot in Step 1 — resolved via the same real factory-build import as the primary VIN. */
@@ -713,6 +719,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   onSwitchToBuyer,
   onDraftRestored,
   onRealBidRequestCreated,
+  onQuoteRequestSent,
 }) => {
   const [step, setStep] = useState<number>(1);
   const [, setStrategy] = useState<BiddingStrategy>(initialStrategy);
@@ -1841,6 +1848,13 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
         } else {
           rows.push({ dealerName: name, stage: "blocked", message: j.error || "Could not send." });
         }
+      }
+      const sentRows = rows.map((r) => ({ dealerName: r.dealerName, sent: r.stage !== "blocked", message: r.message }));
+      if (onQuoteRequestSent && sentRows.some((r) => r.sent)) {
+        // The deal is real on the box now — land in the tracker on it. A
+        // package where every desk was blocked stays here with the reasons.
+        onQuoteRequestSent({ rfqId, rows: sentRows });
+        return;
       }
       setSentPackage({ rfqId, rows });
     } catch {
