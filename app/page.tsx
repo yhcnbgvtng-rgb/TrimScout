@@ -141,7 +141,9 @@ export default function Home() {
       const isFreshSignIn = prevSessionStatusRef.current === "unauthenticated";
       if (isFreshSignIn && lastSyncedUserIdRef.current !== su.id) {
         lastSyncedUserIdRef.current = su.id;
-        setCurrentView(su.role === "dealer" ? "dealer_portal" : "track_deals");
+        // Signing in from inside the quote wizard returns the buyer to the
+        // step they were on — the page behind it stays where it was.
+        if (!isWizardOpen) setCurrentView(su.role === "dealer" ? "dealer_portal" : "track_deals");
       } else {
         lastSyncedUserIdRef.current = su.id;
       }
@@ -664,6 +666,19 @@ export default function Home() {
         preselectedVehicle={preselectedVehicle}
         currentUser={currentUser}
         onRequireLogin={() => setIsAuthModalOpen(true)}
+        onSwitchToBuyer={async () => {
+          // A dealer/admin session inside the buyer wizard: end it quietly
+          // and open sign-in over the still-open wizard. No redirect — the
+          // draft is React state and must not be unmounted.
+          try {
+            await authSignOut({ redirect: false });
+          } catch {
+            // already signed out, or a demo profile with no real session
+          }
+          setCurrentUser(null);
+          setIsAuthModalOpen(true);
+        }}
+        onDraftRestored={() => setIsWizardOpen(true)}
         onRealBidRequestCreated={handleRealBidRequestCreated}
         onSubmitBidRequest={handleSubmitBidRequest}
       />
