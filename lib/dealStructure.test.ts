@@ -76,13 +76,13 @@ describe("BiddingWizard — Step 1 is the vehicle step; Step 2 is quote setup", 
   });
 
   it("(3) the lease path feeds the lease calculator contract unchanged", () => {
-    assert.match(src, /leasePrefs:\s*quoteType === "lease"\s*\? \{\s*termMonths: leaseTerm \|\| null,\s*milesPerYear: leaseMiles \|\| null,\s*zip:/);
+    assert.match(src, /leasePrefs:\s*quoteType === "lease" && !isUsed\s*\? \{\s*termMonths: leaseTerm \|\| null,\s*milesPerYear: leaseMiles \|\| null,\s*zip:/);
   });
 
   it("(4) Continue into Step 2 needs the vehicle; out of Step 2 needs the type's required prefs; Step 3 needs ≥1 named desk", () => {
     assert.match(src, /if \(step === 1 && !vehicleImported\) return;/);
     assert.match(src, /if \(step === 2 && !quoteSetupComplete\) return;/);
-    assert.match(src, /quoteType === "lease"\s*\? Boolean\(leaseTerm && leaseMiles && zipOk\)/);
+    assert.match(src, /quoteType === "lease"\s*\? Boolean\(!isUsed && leaseTerm && leaseMiles && zipOk\)/);
     assert.match(src, /quoteType === "finance"\s*\? Boolean\(financeTerm && financeTerm > 0 && downPayment !== "" && Number\.isFinite\(downPaymentNumber\) && downPaymentNumber >= 0 && zipOk\)/);
     assert.match(src, /quoteType === "cash"\s*\? zipOk\s*: false/);
     assert.match(src, /step === 3 && directOfferMode && confirmedDeskCount === 0/);

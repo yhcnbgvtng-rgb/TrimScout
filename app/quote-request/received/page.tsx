@@ -11,6 +11,8 @@ import { counterSummary } from "../../../lib/buyerCounter";
 import type { BuyerCounter } from "../../../lib/rfq";
 import { MustConfirmList } from "../../../components/MustConfirmList";
 import type { MustConfirmItem } from "../../../lib/mustConfirm";
+import { UsedQuoteForm } from "../../../components/UsedQuoteForm";
+import type { QuotePrefs } from "../../../lib/usedQuote";
 
 // Where a dealer lands from the tracked link in a lease-quote-request
 // email. The calculator is the only reply path — a free-text "monthly"
@@ -21,6 +23,7 @@ type Context = {
   vehicle: { year?: number; make?: string; model?: string; trim?: string; exteriorColor?: string; drivetrain?: string } | null;
   dealerName: string;
   leasePrefs: LeaseRequestPrefs | null;
+  quotePrefs: QuotePrefs | null;
   inviteStatus: string;
   rfqStatus: string;
   dealReference: string | null;
@@ -82,7 +85,7 @@ function ReceivedBody() {
       <main className="flex-1">
         <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6 space-y-6">
           <div className="space-y-1">
-            <h1 className="text-2xl font-black text-white tracking-tight">Lease quote request</h1>
+            <h1 className="text-2xl font-black text-white tracking-tight">{ctx?.quotePrefs ? `${ctx.quotePrefs.quoteType === "finance" ? "Finance" : "Cash"} quote request` : "Lease quote request"}</h1>
             {title ? (
               <p className="text-sm text-ink-light">
                 For the <strong className="text-white">{title}</strong>
@@ -116,11 +119,15 @@ function ReceivedBody() {
           ) : done ? (
             <div className="rounded-2xl border border-emerald-500/40 bg-emerald-500/5 p-5 space-y-2 text-sm text-ink-light">
               <p className="font-bold text-white">Quote submitted. Thank you.</p>
-              <p>
-                The buyer sees your monthly, the itemized due at signing (
-                <span className="font-mono">${done.dueAtSigningTotal.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
-                ), cap cost, money factor, residual and term/miles side by side with any other quotes, and picks one or walks away.
-              </p>
+              {done.dueAtSigningTotal > 0 ? (
+                <p>
+                  The buyer sees your monthly, the itemized due at signing (
+                  <span className="font-mono">${done.dueAtSigningTotal.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                  ), cap cost, money factor, residual and term/miles side by side with any other quotes, and picks one or walks away.
+                </p>
+              ) : (
+                <p>The buyer sees your numbers line by line — with your answers to their must-confirm list — next to any other quotes, and picks one or walks away.</p>
+              )}
               {done.warnings.length ? (
                 <ul className="text-xs text-amber-200">
                   {done.warnings.map((w) => (
@@ -137,6 +144,17 @@ function ReceivedBody() {
             <p className="rounded-2xl border border-border bg-surface p-5 text-sm text-ink-light">
               This invite already has a response ({ctx.inviteStatus}). Nothing more to do.
             </p>
+          ) : ctx.quotePrefs ? (
+            <>
+              <div className="rounded-2xl border border-border bg-surface p-5 space-y-2 text-sm text-ink-light leading-relaxed">
+                <p>
+                  <strong className="text-white">Quote through the sheet below.</strong> Selling price, itemized fees and taxes, miles and a good-through date are required
+                  {ctx.quotePrefs.quoteType === "finance" ? "; the monthly is calculated from amount financed, APR and term — a monthly-only reply can't be submitted" : ""}. Every item on the buyer&apos;s must-confirm list needs an answer.
+                </p>
+                <p className="text-xs text-ink-muted border-t border-border/60 pt-3">This is a non-binding quote request — not an auction, not a bid, and no response deadline. The buyer compares and picks one, or walks away.</p>
+              </div>
+              <UsedQuoteForm token={token} vin={ctx.vin} stockNumber={ctx.stockNumber} prefs={ctx.quotePrefs} mustConfirm={ctx.mustConfirm} buyerMiles={ctx.buyerMiles} onSubmitted={(r) => setDone({ warnings: r.warnings, dueAtSigningTotal: 0 })} />
+            </>
           ) : !ctx.leasePrefs ? (
             <p className="rounded-2xl border border-amber-500/40 bg-amber-950/20 p-5 text-sm text-amber-200">
               This request has no lease preferences on file, so the calculator can&apos;t be used for it.

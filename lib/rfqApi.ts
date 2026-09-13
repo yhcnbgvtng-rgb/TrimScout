@@ -5,6 +5,7 @@
 import { LIGHTSAIL_HOST } from "./lightsailClient";
 import type { LeaseQuote, LeaseRequestPrefs } from "./leaseQuote";
 import type { BuyerCounter } from "./rfq";
+import type { QuotePrefs, UsedQuote } from "./usedQuote";
 import { serverSecret } from "./serverSecret";
 import type { RfqDeclineReason, RfqInvite, RfqQuoteFee, RfqRequest } from "./rfq";
 
@@ -74,6 +75,7 @@ export async function createRfq(input: {
   linkPastes?: Array<Record<string, unknown>>;
   dealReference?: string | null;
   leasePrefs?: LeaseRequestPrefs | null;
+  quotePrefs?: QuotePrefs | null;
 }): Promise<RfqRequest> {
   const json = await request("POST", "/api/rfqs", input);
   return json.rfq as RfqRequest;
@@ -168,6 +170,8 @@ export async function submitRfqQuote(
     notes?: string | null;
     /** The validated lease calculator; stored whole on the box. */
     lease?: LeaseQuote | null;
+    /** The validated used Finance / Cash sheet; stored whole on the box. */
+    used?: UsedQuote | null;
   }
 ): Promise<void> {
   // The box returns the created quote alone; callers that need the

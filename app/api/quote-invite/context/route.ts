@@ -33,6 +33,7 @@ export async function GET(req: Request) {
     vehicle: invite.vehicle || { year: rfq.vehicleYear, make: rfq.vehicleMake, model: rfq.vehicleModel, trim: rfq.vehicleTrim },
     dealerName: invite.dealerName,
     leasePrefs: rfq.leasePrefs || null,
+    quotePrefs: rfq.quotePrefs || null,
     inviteStatus: invite.status,
     rfqStatus: rfq.status,
     dealReference: rfq.dealReference || null,

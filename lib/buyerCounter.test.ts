@@ -86,7 +86,7 @@ describe("buyer counter — structured, scoped to one quote, a request not a bid
     assert.match(compare, />Buyer countered</);
     assert.match(compare, />Revised</);
     for (const f of ["components/BuyerCounterForm.tsx", "components/LeaseCompare.tsx", "lib/quoteInviteEmail.ts", "app/quote-request/received/page.tsx"]) {
-      assert.doesNotMatch(read(f).replace(/not a binding bid|not a bid/g, ""), /auction|bid[- ]out|bid war|\bbids?\b/i, f);
+      assert.doesNotMatch(read(f).replace(/not an auction, not a bid|not a binding bid|not a bid/g, ""), /auction|bid[- ]out|bid war|\bbids?\b/i, f);
     }
   });
 });

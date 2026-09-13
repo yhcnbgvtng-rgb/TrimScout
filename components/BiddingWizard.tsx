@@ -11,6 +11,7 @@ import { outOfStateVehicles, formatOutOfStateWarning, formatExpandNudge } from "
 import { planDeskSelection } from "../lib/deskSelection";
 import { CPO_BUILD_COPY, USED_BUILD_COPY, USED_VEHICLES_ENABLED, conditionBadge, detectUsedCondition, isUsedCondition, normalizeMiles, type UsedCondition } from "../lib/usedVehicle";
 import { DRIVETRAIN_ASKS, EMPTY_MUST_CONFIRM_DRAFT, MUST_CONFIRM_COPY, buildMustConfirmList, parseTags, type MustConfirmDraft } from "../lib/mustConfirm";
+import { USED_LEASE_COMING_SOON, type QuotePrefs } from "../lib/usedQuote";
 import { clearQuoteDraft, readQuoteDraft, saveQuoteDraft, wizardAuthState, type QuoteDraft } from "../lib/quoteDraft";
 import { diffVsPrimary, mustHaveHeadline, mustHaveReport, type MustHaveRef } from "../lib/alternateCompare";
 import { DEFAULT_LEASE_TERM, LEASE_MILES, LEASE_NON_BINDING_COPY, LEASE_TERMS, type LeaseMiles, type LeaseTerm } from "../lib/leaseQuote";
@@ -1256,7 +1257,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   const zipOk = /^\d{5}$/.test(huntZip.trim());
   const quoteSetupComplete =
     quoteType === "lease"
-      ? Boolean(leaseTerm && leaseMiles && zipOk)
+      ? Boolean(!isUsed && leaseTerm && leaseMiles && zipOk)
       : quoteType === "finance"
         ? Boolean(financeTerm && financeTerm > 0 && downPayment !== "" && Number.isFinite(downPaymentNumber) && downPaymentNumber >= 0 && zipOk)
         : quoteType === "cash"
@@ -1839,7 +1840,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
         body: JSON.stringify({
           packageKind: "links",
           leasePrefs:
-            quoteType === "lease"
+            quoteType === "lease" && !isUsed
               ? {
                   termMonths: leaseTerm || null,
                   milesPerYear: leaseMiles || null,
@@ -1847,6 +1848,13 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                   timeline: purchaseTimeline || null,
                 }
               : null,
+          // Used cars: the Finance / Cash ask the dealer sheet quotes against (+ the must-confirm list rides on the paste).
+          quotePrefs:
+            isUsed && quoteType === "finance"
+              ? ({ quoteType: "finance", finance: { termMonths: financeTerm || 60, downPayment: Math.max(0, Math.round(downPaymentNumber || 0)), creditBand: creditBand || null, zip: zipOk ? huntZip : "", timeline: purchaseTimeline || null } } satisfies QuotePrefs)
+              : isUsed && quoteType === "cash"
+                ? ({ quoteType: "cash", cash: { zip: zipOk ? huntZip : "", timeline: purchaseTimeline || null } } satisfies QuotePrefs)
+                : null,
           vin: primary.vin,
           vehicleYear: primary.year,
           vehicleMake: primary.make,
@@ -2531,20 +2539,28 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
             <div className="space-y-6 animate-fadeIn">
               <WizardSection title="How do you want to pay?" hint="Pick one. Dealers quote through the matching calculator.">
                 <div className="grid grid-cols-3 gap-2" role="radiogroup" aria-label="Quote type">
-                  {(["lease", "finance", "cash"] as const).map((id) => (
-                    <button
-                      key={id}
-                      type="button"
-                      role="radio"
-                      aria-checked={quoteType === id}
-                      onClick={() => setQuoteType(id)}
-                      className={`rounded-xl border px-3 py-3 text-xs font-bold transition-all ${
-                        quoteType === id ? "border-emerald-500 bg-emerald-500/10 text-white" : "border-border text-ink-light hover:border-border-strong"
-                      }`}
-                    >
-                      {DEAL_STRUCTURE_LABELS[id]}
-                    </button>
-                  ))}
+                  {(["lease", "finance", "cash"] as const).map((id) => {
+                    // Used cars quote as Finance or Cash in v1; the lease tile stays visible but off.
+                    const off = id === "lease" && isUsed;
+                    return (
+                      <button
+                        key={id}
+                        type="button"
+                        role="radio"
+                        aria-checked={quoteType === id}
+                        aria-disabled={off}
+                        disabled={off}
+                        title={off ? USED_LEASE_COMING_SOON : undefined}
+                        onClick={() => !off && setQuoteType(id)}
+                        className={`rounded-xl border px-3 py-3 text-xs font-bold transition-all ${
+                          off ? "cursor-not-allowed border-border/60 text-ink-faint" : quoteType === id ? "border-emerald-500 bg-emerald-500/10 text-white" : "border-border text-ink-light hover:border-border-strong"
+                        }`}
+                        data-testid={`quote-type-${id}`}
+                      >
+                        {off ? USED_LEASE_COMING_SOON : DEAL_STRUCTURE_LABELS[id]}
+                      </button>
+                    );
+                  })}
                 </div>
                 {!quoteType ? <p className="text-[11px] text-ink-faint">Choose lease, finance or cash to continue.</p> : null}
               </WizardSection>

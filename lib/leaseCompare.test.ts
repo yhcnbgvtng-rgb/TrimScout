@@ -94,7 +94,8 @@ describe("wiring — server attaches the analysis, the page renders it, lease de
     assert.match(page, /setLeaseCompare\(\(json\.leaseCompare as LeaseCompareData \| null\) \?\? null\)/);
     assert.match(page, /<LeaseCompare data=\{leaseCompare \|\| analyzeLeaseQuotes\(rfq\)!\}/);
     assert.match(page, /\{rfq\.leasePrefs && \(\s*<div className="space-y-3">\s*<h2[^>]*>Compare lease quotes/);
-    assert.match(page, /quotedInvites\.length > 0 && !rfq\.leasePrefs && \(/, "cash/finance keep their own compare");
+    assert.match(page, /quotedInvites\.length > 0 && !rfq\.leasePrefs && !rfq\.quotePrefs && \(/, "new cash/finance keep their own compare; used gets UsedCompare");
+    assert.match(page, /\{rfq\.quotePrefs && \([\s\S]*?<UsedCompare/);
   });
   it("the compare component: glance → same-column table (sticky dealer) → expand detail → Choose / Walk away; no inputs, no score, no price hero", () => {
     const c = read("components/LeaseCompare.tsx");
