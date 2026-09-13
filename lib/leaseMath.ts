@@ -107,3 +107,37 @@ export function effectiveMonthly(total: number | null, termMonths: number | null
   if (total == null || termMonths == null || termMonths <= 0) return null;
   return Math.round((total / termMonths) * 100) / 100;
 }
+
+// ---------------------------------------------------------------------------
+// Display formatting for the calculator inputs: what the dealer sees while
+// typing is "$75,000" / "53%" / "0.00250"; what's stored is the number.
+// ---------------------------------------------------------------------------
+
+/** "$75,000" for whole dollars, "$1,234.50" when there are cents; null for blank. */
+export function formatMoneyInput(raw: string | number | null | undefined): string {
+  const n = num(raw);
+  if (n == null) return "";
+  const hasCents = Math.round(n * 100) % 100 !== 0;
+  return `$${n.toLocaleString(undefined, { minimumFractionDigits: hasCents ? 2 : 0, maximumFractionDigits: 2 })}`;
+}
+
+/** "53%" / "58.5%"; null for blank. */
+export function formatPercentInput(raw: string | number | null | undefined): string {
+  const n = num(raw);
+  if (n == null) return "";
+  return `${n.toLocaleString(undefined, { maximumFractionDigits: 2 })}%`;
+}
+
+/** Money factors keep at least 5 decimals ("0.00250") — the precision dealers quote them at. */
+export function formatMoneyFactorInput(raw: string | number | null | undefined): string {
+  const n = num(raw);
+  if (n == null) return "";
+  const s = n.toFixed(Math.max(5, (String(raw ?? "").split(".")[1] || "").length));
+  return s;
+}
+
+/** Net capitalized cost the way a lease worksheet builds it: selling price − incentives + capitalized fees. */
+export function netCapFromWorksheet(args: { sellingPrice: number | null; incentivesTotal: number; capitalizedFees: number }): number | null {
+  if (args.sellingPrice == null || args.sellingPrice <= 0) return null;
+  return Math.round((args.sellingPrice - args.incentivesTotal + args.capitalizedFees) * 100) / 100;
+}

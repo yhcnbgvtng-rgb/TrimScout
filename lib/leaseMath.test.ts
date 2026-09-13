@@ -81,3 +81,55 @@ describe("wiring — lease deals record dealer quotes through the calculator she
     assert.match(route, /lease,\s*\}\);/);
   });
 });
+
+import { formatMoneyFactorInput, formatMoneyInput, formatPercentInput, netCapFromWorksheet } from "./leaseMath";
+
+describe("calculator input formatting — display with $ , % as you type, store the number", () => {
+  it("money: $ and commas, cents only when present, blank stays blank", () => {
+    assert.equal(formatMoneyInput("75000"), "$75,000");
+    assert.equal(formatMoneyInput("$1,234.5"), "$1,234.50");
+    assert.equal(formatMoneyInput(695), "$695");
+    assert.equal(formatMoneyInput(""), "");
+    assert.equal(formatMoneyInput("abc"), "");
+  });
+  it("percent and money factor", () => {
+    assert.equal(formatPercentInput("53"), "53%");
+    assert.equal(formatPercentInput("58.5"), "58.5%");
+    assert.equal(formatPercentInput(""), "");
+    assert.equal(formatMoneyFactorInput("0.0025"), "0.00250");
+    assert.equal(formatMoneyFactorInput("0.002250"), "0.002250");
+    assert.equal(formatMoneyFactorInput(""), "");
+  });
+  it("net cap from the worksheet ladder: selling price − incentives + capitalized fees; null without a price", () => {
+    assert.equal(netCapFromWorksheet({ sellingPrice: 70000, incentivesTotal: 1000, capitalizedFees: 695 }), 69695);
+    assert.equal(netCapFromWorksheet({ sellingPrice: null, incentivesTotal: 0, capitalizedFees: 0 }), null);
+  });
+});
+
+describe("dealer calculator — worksheet order, live formatting, residual autofill, honest tax line", () => {
+  const src = fs.readFileSync(path.join(process.cwd(), "components/LeaseCalculatorForm.tsx"), "utf8");
+  it("field order follows MSRP → selling price → incentives → net cap → term/miles → residual/MF → fees → tax → add-ons/expiry", () => {
+    const order = ['k: "msrp"', 'k: "sellingPrice"', "Incentives / rebates", 'k: "capCost"', "Term (months)", 'k: "residualPercent"', 'k: "residualAmount"', 'k: "moneyFactor"', 'k: "capReduction"', 'k: "acquisitionFee"', "Other fees at signing", 'k: "taxRatePercent"', "Add-ons", "Quote good through"];
+    let last = -1;
+    for (const needle of order) {
+      const at = src.indexOf(needle);
+      assert.ok(at > last, `${needle} out of order`);
+      last = at;
+    }
+    assert.match(src, /data-testid="buyer-prefs-banner"/);
+  });
+  it("residual $ autofills from MSRP × % (override allowed, drift warned); net cap derives from the ladder", () => {
+    assert.match(src, /residualAmountFrom\(msrp, residualPercent\)/);
+    assert.match(src, /num\(f\.residualAmount\) \?\? residualFromMsrp/);
+    assert.match(src, /doesn't match .* of MSRP/);
+    assert.match(src, /netCapFromWorksheet\(\{ sellingPrice, incentivesTotal, capitalizedFees \}\)/);
+    assert.match(src, /num\(f\.capCost\) \?\? derivedCap/);
+  });
+  it("money / percent / money-factor inputs format on blur and never seed $0; tax reads 'estimated at signing' instead of $0.00", () => {
+    assert.match(src, /formatMoneyInput|formatPercentInput|formatMoneyFactorInput/);
+    assert.doesNotMatch(src, /capReduction: "0"|dasCapReduction: "0"|placeholder="0\.00"/);
+    assert.match(src, /noTaxEstimate \? out\("Tax", d\.monthly != null \? "estimated at signing" : null\)/);
+    assert.match(src, /noTaxEstimate && !f\.taxesAtSigning \? "at signing"/);
+    assert.doesNotMatch(src, /leasehackr/i);
+  });
+});
