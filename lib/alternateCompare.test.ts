@@ -159,16 +159,17 @@ describe("wizard wiring — same-state gate + alternate comparison", () => {
   });
 
   it("(3) the send path and the confirmed count both honor the gate, and the nudge unchecks it", () => {
-    assert.match(wizard, /toSend = pastes\.filter\([\s\S]*?!excludedByState\.has\(p\.dealerName\)/);
-    assert.match(wizard, /confirmedDeskCount = importedDealerships\.filter\([\s\S]*?!excludedByState\.has\(d\.dealerName\)/);
+    assert.match(wizard, /toSend = pastes\.filter\([\s\S]*?deskPlan\.rows\[p\.dealerName\]\?\.checked/);
+    assert.match(wizard, /confirmedDeskCount = deskPlan\.sendTo\.length/);
     assert.match(wizard, /formatExpandNudge\(gatePlan\)/);
     assert.match(wizard, /onClick=\{\(\) => setSameStateOnly\(false\)\}/);
     assert.match(wizard, /Include dealerships in other states/);
   });
 
   it("the primary (listing) desk is flagged to the gate and stays tickable outside the buyer's state", () => {
-    assert.match(wizard, /primary: Boolean\(primaryDealerName\) && d\.dealerName === primaryDealerName/);
-    assert.match(wizard, /keptOutOfState = new Set\(gatePlan\.active \? gatePlan\.primaryOutOfState/);
+    assert.match(wizard, /planDeskSelection\(\{[\s\S]*?primaryDealerName,[\s\S]*?confirmed: confirmedDesks/);
+    assert.match(wizard, /checked=\{Boolean\(row\?\.checked\)\}/);
+    assert.match(wizard, /disabled=\{!row\?\.selectable\}/);
     assert.match(wizard, /kept in because it lists your car/);
     assert.match(wizard, /The dealership listing your car always stays in\./);
   });
