@@ -1054,6 +1054,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     quoteType,
     leaseTerm,
     leaseMiles,
+    leaseMaxDue,
     financeTerm,
     downPayment,
     creditBand,
@@ -1110,6 +1111,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     pick<DealStructureMethod | null>("quoteType", setQuoteType);
     pick<LeaseTerm>("leaseTerm", setLeaseTerm);
     pick<LeaseMiles | "">("leaseMiles", setLeaseMiles);
+    pick<string>("leaseMaxDue", setLeaseMaxDue);
     pick<number>("financeTerm", setFinanceTerm);
     pick<string>("downPayment", setDownPayment);
     pick<"" | "excellent" | "good" | "fair" | "rebuilding">("creditBand", setCreditBand);
