@@ -233,7 +233,7 @@ export function LeaseCalculatorForm({
               . The buyer will see it flagged.
             </span>
           </label>
-          <input type="text" value={f.counterNote} onChange={set("counterNote")} placeholder="Why — e.g. 39 mo carries a better residual this month" maxLength={300} className="w-full rounded-lg border border-border bg-background px-3 py-2 text-xs text-white placeholder-ink-faint focus:border-emerald-500 focus:outline-none" />
+          <input type="text" value={f.counterNote} onChange={set("counterNote")} placeholder={overCap && prefs.maxCashDueAtSigning != null ? "Why — e.g. the acquisition fee can't be rolled into the cap cost on this program" : "Why — e.g. 39 mo carries a better residual this month"} maxLength={300} className="w-full rounded-lg border border-border bg-background px-3 py-2 text-xs text-white placeholder-ink-faint focus:border-emerald-500 focus:outline-none" />
         </div>
       ) : null}
 
