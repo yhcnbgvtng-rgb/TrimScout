@@ -9,6 +9,7 @@ import {
 import { formatCurrency, getZipCoordinates } from "../lib/otdCalculator";
 import { outOfStateVehicles, formatOutOfStateWarning, formatExpandNudge } from "../lib/sameStateCheck";
 import { planDeskSelection } from "../lib/deskSelection";
+import { clearQuoteDraft, readQuoteDraft, saveQuoteDraft, wizardAuthState, type QuoteDraft } from "../lib/quoteDraft";
 import { diffVsPrimary, mustHaveHeadline, mustHaveReport, type MustHaveRef } from "../lib/alternateCompare";
 import { DEFAULT_LEASE_TERM, LEASE_MILES, LEASE_NON_BINDING_COPY, LEASE_TERMS, type LeaseMiles, type LeaseTerm } from "../lib/leaseQuote";
 import { isPlausibleDealerEmail, type DealerContactStatus } from "../lib/dealerContactLookup";
@@ -159,6 +160,14 @@ interface BiddingWizardProps {
   referenceBrandCode?: string;
   currentUser?: UserProfile | null;
   onRequireLogin?: () => void;
+  /**
+   * A dealer/admin session inside the buyer wizard: sign that session out
+   * and open sign-in, without touching the draft. Falls back to
+   * onRequireLogin when the host doesn't provide it.
+   */
+  onSwitchToBuyer?: () => void;
+  /** A parked draft was found on mount and restored — open the wizard on it. */
+  onDraftRestored?: () => void;
   onRealBidRequestCreated?: (request: BiddingRequest) => void;
 }
 
@@ -701,6 +710,8 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   referenceBrandCode,
   currentUser,
   onRequireLogin,
+  onSwitchToBuyer,
+  onDraftRestored,
   onRealBidRequestCreated,
 }) => {
   const [step, setStep] = useState<number>(1);
@@ -1007,6 +1018,119 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
       cancelled = true;
     };
   }, [dealerLookupKey]);
+
+  // -------------------------------------------------------------------
+  // Sign in / Sign up from inside the wizard. The auth modal stacks over
+  // this one and the React state stays put, so a credentials sign-in
+  // returns the buyer to the same step untouched. The paths that leave the
+  // page (Sign up, Google consent) park the draft in sessionStorage first
+  // and it's restored on the next mount — same step, same vehicle, same
+  // prefs and desks. Nothing is submitted on sign-in.
+  // -------------------------------------------------------------------
+  const draftState = (): Record<string, unknown> => ({
+    dealerUrlInput,
+    parseSuccessMsg,
+    selectedVehicle,
+    altVin1,
+    altVehicle1,
+    altVin2,
+    altVehicle2,
+    showAlternates,
+    factoryBuildOem,
+    fordStickerStatus,
+    fordPdfUrl,
+    fordFilterableOptions,
+    mustHavePackages,
+    niceToHavePackages,
+    selectedTrims,
+    make,
+    model,
+    sameStateOnly,
+    hasTradeIn,
+    quoteType,
+    leaseTerm,
+    leaseMiles,
+    financeTerm,
+    downPayment,
+    creditBand,
+    huntZip,
+    buyerZip,
+    purchaseTimeline,
+    offerPath,
+    directOfferMode,
+    confirmedDesks,
+    buyerDealerEmails,
+    dealComment,
+    pricingChoice,
+    targetOtdPrice,
+  });
+  const parkDraft = (reason: QuoteDraft["reason"]) => saveQuoteDraft({ step, reason, state: draftState() });
+  const openAuth = (reason: QuoteDraft["reason"]) => {
+    parkDraft(reason);
+    if (reason === "switch_account" && onSwitchToBuyer) onSwitchToBuyer();
+    else onRequireLogin?.();
+  };
+  const goSignUp = () => {
+    parkDraft("sign_up");
+    window.location.assign("/signup");
+  };
+  const authState = wizardAuthState(currentUser);
+
+  useEffect(() => {
+    const draft = readQuoteDraft();
+    if (!draft) return;
+    clearQuoteDraft();
+    const d = draft.state as Partial<ReturnType<typeof draftState>>;
+    const pick = <T,>(key: keyof ReturnType<typeof draftState>, set: (v: T) => void) => {
+      if (d[key] !== undefined) set(d[key] as T);
+    };
+    pick<string>("dealerUrlInput", setDealerUrlInput);
+    pick<string | null>("parseSuccessMsg", setParseSuccessMsg);
+    pick<Vehicle | null>("selectedVehicle", setSelectedVehicle);
+    pick<string>("altVin1", setAltVin1);
+    pick<Vehicle | null>("altVehicle1", setAltVehicle1);
+    pick<string>("altVin2", setAltVin2);
+    pick<Vehicle | null>("altVehicle2", setAltVehicle2);
+    pick<boolean>("showAlternates", setShowAlternates);
+    pick<FactoryBuildOem | null>("factoryBuildOem", setFactoryBuildOem);
+    pick<"released" | "unreleased" | "error" | null>("fordStickerStatus", setFordStickerStatus);
+    pick<string | null>("fordPdfUrl", setFordPdfUrl);
+    pick<FilterableFactoryOption[]>("fordFilterableOptions", setFordFilterableOptions);
+    pick<string[]>("mustHavePackages", setMustHavePackages);
+    pick<string[]>("niceToHavePackages", setNiceToHavePackages);
+    pick<string[]>("selectedTrims", setSelectedTrims);
+    pick<string>("make", setMake);
+    pick<string>("model", setModel);
+    pick<boolean>("sameStateOnly", setSameStateOnly);
+    pick<boolean>("hasTradeIn", setHasTradeIn);
+    pick<DealStructureMethod | null>("quoteType", setQuoteType);
+    pick<LeaseTerm>("leaseTerm", setLeaseTerm);
+    pick<LeaseMiles | "">("leaseMiles", setLeaseMiles);
+    pick<number>("financeTerm", setFinanceTerm);
+    pick<string>("downPayment", setDownPayment);
+    pick<"" | "excellent" | "good" | "fair" | "rebuilding">("creditBand", setCreditBand);
+    pick<string>("huntZip", setHuntZip);
+    pick<string>("buyerZip", setBuyerZip);
+    pick<PurchaseTimeline | "">("purchaseTimeline", setPurchaseTimeline);
+    pick<"direct" | "auction" | null>("offerPath", setOfferPath);
+    pick<boolean>("directOfferMode", setDirectOfferMode);
+    pick<Record<string, boolean>>("confirmedDesks", setConfirmedDesks);
+    pick<Record<string, string>>("buyerDealerEmails", setBuyerDealerEmails);
+    pick<string>("dealComment", setDealComment);
+    pick<"dealer_names" | "buyer_names">("pricingChoice", setPricingChoice);
+    pick<number>("targetOtdPrice", setTargetOtdPrice);
+    setStep(Math.min(Math.max(1, draft.step), TOTAL_STEPS));
+    onDraftRestored?.();
+    // Mount-only: the draft is a one-shot handoff.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  // A draft parked for an in-page (credentials) sign-in is never navigated
+  // away from, so nothing consumes it — drop it once a buyer is signed in
+  // or the wizard closes, or it would reopen a stale request on the next
+  // visit.
+  useEffect(() => {
+    if (currentUser?.role === "buyer" || !isOpen) clearQuoteDraft();
+  }, [currentUser?.role, isOpen]);
 
   // Real dealer responsiveness — computed from actual bid timing on the
   // box, never a fabricated "usually responds within..." default. Fetched
@@ -1685,8 +1809,15 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
       return;
     }
     if (!currentUser) {
-      onClose();
-      onRequireLogin?.();
+      // Stay put: the sign-in modal stacks over the wizard and the draft
+      // survives it. Closing here used to throw the whole request away.
+      setSubmitError("Sign in as a buyer to send this request — your vehicle, preferences and dealers stay as they are.");
+      openAuth("sign_in");
+      return;
+    }
+    if (currentUser.role !== "buyer") {
+      setSubmitError(`You're signed in as a ${currentUser.role}. Sign in as a buyer to send this request.`);
+      openAuth("switch_account");
       return;
     }
     if (!selectedVehicle) return;
@@ -1795,12 +1926,39 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
               <p className="text-xs text-ink-muted">Step {step} of {TOTAL_STEPS} • {STEP_LABELS[step - 1]}</p>
             </div>
           </div>
-          <button
-            onClick={onClose}
-            className="rounded-lg p-1.5 text-ink-muted hover:bg-border hover:text-white transition-colors"
-          >
-            <X className="h-5 w-5" />
-          </button>
+          <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+            {/* Discreet auth links on every step — muted text, never a second
+                primary button. Sign-in stacks over the wizard; the draft
+                survives every path. */}
+            <div className="flex items-center gap-2 whitespace-nowrap text-[11px] text-ink-muted" data-testid="wizard-auth">
+              {authState === "signed_out" ? (
+                <>
+                  <button type="button" onClick={() => openAuth("sign_in")} className="hover:text-white transition-colors">
+                    Sign in
+                  </button>
+                  <span className="text-border-strong">·</span>
+                  <button type="button" onClick={goSignUp} className="hover:text-white transition-colors">
+                    Sign up
+                  </button>
+                </>
+              ) : authState === "not_buyer" ? (
+                <button type="button" onClick={() => openAuth("switch_account")} className="hover:text-white transition-colors">
+                  Sign in as buyer
+                </button>
+              ) : (
+                <span className="hidden sm:inline truncate max-w-[140px] text-ink-faint" title={currentUser?.email || undefined}>
+                  {currentUser?.buyerAlias || currentUser?.name}
+                </span>
+              )}
+            </div>
+            <button
+              onClick={onClose}
+              aria-label="Close"
+              className="rounded-lg p-1.5 text-ink-muted hover:bg-border hover:text-white transition-colors"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
         </div>
 
         {/* Wizard Body */}
@@ -3022,6 +3180,26 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
           {submitError && (
             <div className="rounded-lg border border-rose-500/40 bg-rose-950/30 px-3 py-2 text-[11px] text-rose-300">
               {submitError}
+              {authState !== "buyer" ? (
+                <>
+                  {" "}
+                  <button
+                    type="button"
+                    onClick={() => openAuth(authState === "not_buyer" ? "switch_account" : "sign_in")}
+                    className="font-bold underline underline-offset-2 hover:text-white"
+                  >
+                    {authState === "not_buyer" ? "Sign in as buyer" : "Sign in"}
+                  </button>
+                  {authState === "signed_out" ? (
+                    <>
+                      {" · "}
+                      <button type="button" onClick={goSignUp} className="font-bold underline underline-offset-2 hover:text-white">
+                        Sign up
+                      </button>
+                    </>
+                  ) : null}
+                </>
+              ) : null}
             </div>
           )}
           <div className="flex items-center justify-between">
