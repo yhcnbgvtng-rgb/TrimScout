@@ -1,142 +1,162 @@
 /**
- * The one email a desk receives for a quote request package. Pure: builds
- * subject + HTML from the invite, the package, and the tracked link. Sending
- * goes through lib/dealerEmail.ts and its SAFE MODE override.
+ * The one email a desk receives for a quote request. Pure: builds subject +
+ * HTML from the invite, the package, and the tracked link. Sending goes
+ * through lib/dealerEmail.ts and its SAFE MODE override.
  *
- * What it must do: name the exact car and where it sits, say in plain words
- * that this is a request and not a bid, tell the desk how to answer (reply
- * with an out-the-door number), and carry the tracked link that marks the
- * invite "viewed" when opened. What it must never do: show the buyer's name,
- * email, phone or ZIP.
+ * One template for Cash, Lease and Finance — CTA first, one card, skinny
+ * footer. Only the pay line, the prefs row, the CTA label and the helper
+ * line change by quote type. The rooftop (name + location) is always named
+ * in the card and the footer so multi-rooftop groups know which store.
+ * What it must never do: show the buyer's name, email or phone. The buyer's
+ * ZIP appears as the area (tax context) — nothing finer than that.
  */
 
-import { NON_BINDING_COPY, DESK_ROLE_LABELS, type DeskRole } from "./quotePackage";
-import { LEASE_NON_BINDING_COPY, type LeaseRequestPrefs } from "./leaseQuote";
+import { DESK_ROLE_LABELS, type DeskRole } from "./quotePackage";
+import type { LeaseRequestPrefs } from "./leaseQuote";
 import { DEALER_EMAIL_BASE_URL } from "./dealerUnsubscribe";
+import { EXACT_ZIP_LOOKUP } from "./zipCoordinates";
+import { getZipCoordinates } from "./otdCalculator";
+
+export type QuoteEmailType = "cash" | "lease" | "finance";
 
 export interface QuoteInviteEmailInput {
+  quoteType: QuoteEmailType;
   dealerName: string;
   contactName: string;
   role: DeskRole | string;
-  vehicle: { year: number; make: string; model: string; trim: string; vin: string; vdpUrl: string | null };
-  buyerAlias: string;
+  /** Where the store is — from the dealer directory when we have it, else just the state. */
+  rooftop?: { city?: string | null; state?: string | null; address?: string | null } | null;
+  vehicle: { year: number; make: string; model: string; trim: string; vin: string; vdpUrl: string | null; imageUrl?: string | null };
   dealReference: string | null;
-  /** Tracked link — marks the invite viewed, then lands on the how-to-reply page. */
+  /** Tracked link — marks the invite viewed, then lands on the quote sheet. */
   viewUrl: string;
   unsubscribeUrl: string | null;
-  /** How the buyer wants to pay, as a label ("Cash", "Finance or Lease"). */
-  paymentLabel: string | null;
   purchaseTimelineLabel: string | null;
-  /**
-   * Lease-only flow: the buyer's term / miles / ZIP. When set, the email is
-   * the lease template — calculator checklist, the calculator link, and the
-   * plain non-binding line — never "reply with a price".
-   */
+  /** Buyer's ZIP — rendered as an area ("Butler, NJ (07405)"), never an address. */
+  buyerZip?: string | null;
   leasePrefs?: LeaseRequestPrefs | null;
-  /** Trim / drivetrain / color as known from the factory record. */
+  financePrefs?: { termMonths: number; downPayment: number; creditBand?: string | null } | null;
+  /** Kept for callers that still pass it; not rendered. */
+  buyerAlias?: string;
   vehicleFacts?: { drivetrain?: string | null; exteriorColor?: string | null } | null;
 }
 
-export const LEASE_CALCULATOR_FIELDS = [
-  "Cap cost",
-  "Residual % and residual amount",
-  "Money factor (we show the APR equivalent)",
-  "Term and miles/year — the buyer's, or mark a counter with a short note",
-  "Cap reduction",
-  "Monthly payment pre-tax (and with estimated tax, if you can)",
-  "Due at signing, itemized: first month, acquisition fee, cap reduction, taxes, other fees by name",
-  "Incentives and add-ons by name",
-  "Quote good-through date",
-] as const;
+export const QUOTE_EMAIL_COPY: Record<QuoteEmailType, { title: string; pay: string; cta: string; helper: string }> = {
+  cash: { title: "OTD quote request", pay: "Cash", cta: "Submit OTD quote", helper: "Include selling price, itemized fees, and a good-until date." },
+  lease: { title: "Lease quote request", pay: "Lease", cta: "Submit lease quote", helper: "Include cap cost, MF, residual, itemized due at signing, and a good-until date." },
+  finance: { title: "Finance quote request", pay: "Finance", cta: "Submit finance quote", helper: "Include selling price, APR, term, itemized due at signing, and a good-until date." },
+};
+
+/** Short legal line for the footer — the full non-binding text lives on the quote sheet. */
+export const QUOTE_EMAIL_LEGAL = "Non-binding quote request — not an auction, not a bid, no deadline on you.";
+
+const CREDIT_BAND_LABELS: Record<string, string> = { excellent: "Excellent", good: "Good", fair: "Fair", rebuilding: "Rebuilding" };
 
 function escapeHtml(s: string): string {
   const map: Record<string, string> = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" };
   return s.replace(/[&<>"']/g, (c) => map[c]);
 }
 
+/** "Butler, NJ (07405)" when the ZIP is in the exact table; "NJ (07405)" otherwise; null without a ZIP. */
+export function areaLabel(zip: string | null | undefined): string | null {
+  const clean = String(zip || "").replace(/\D/g, "").slice(0, 5);
+  if (clean.length !== 5) return null;
+  const exact = EXACT_ZIP_LOOKUP[clean];
+  if (exact) return `${exact.city}, ${exact.state} (${clean})`;
+  const approx = getZipCoordinates(clean);
+  return approx.state ? `${approx.state} (${clean})` : clean;
+}
+
+/** The one-line prefs row by type; null means omit the row (cash without buyer-set notes). */
+export function prefsLine(input: Pick<QuoteInviteEmailInput, "quoteType" | "leasePrefs" | "financePrefs">): string | null {
+  if (input.quoteType === "lease" && input.leasePrefs) {
+    return `${input.leasePrefs.termMonths} mo · ${input.leasePrefs.milesPerYear.toLocaleString()} mi/yr`;
+  }
+  if (input.quoteType === "finance" && input.financePrefs) {
+    const band = input.financePrefs.creditBand ? CREDIT_BAND_LABELS[input.financePrefs.creditBand] || input.financePrefs.creditBand : null;
+    return `${input.financePrefs.termMonths} mo · $${Math.round(input.financePrefs.downPayment).toLocaleString()} down${band ? ` · credit: ${band}` : ""}`;
+  }
+  return null;
+}
+
+function rooftopLine(input: QuoteInviteEmailInput): string {
+  const r = input.rooftop || {};
+  const loc = [r.city, r.state].filter(Boolean).join(", ");
+  return [input.dealerName, loc, r.address].filter(Boolean).map((x) => escapeHtml(String(x))).join(" · ");
+}
+
 /** Logo + wordmark at the top of every dealer email; the mark is served from the live site. */
 export function emailHeader(): string {
   const home = escapeHtml(DEALER_EMAIL_BASE_URL);
-  return `<a href="${home}" style="display:inline-flex;align-items:center;gap:10px;text-decoration:none;margin:0 0 18px"><img src="${home}/scoutmark.png" width="36" height="36" alt="TrimScout" style="display:block;width:36px;height:36px;border-radius:8px;border:0"><span style="font-family:-apple-system,Segoe UI,Roboto,sans-serif;font-size:20px;font-weight:800;letter-spacing:-0.02em;color:#0f172a">Trim<span style="color:#059669">Scout</span></span></a>`;
+  return `<a href="${home}" style="display:inline-flex;align-items:center;gap:10px;text-decoration:none;margin:0 0 22px"><img src="${home}/scoutmark.png" width="32" height="32" alt="TrimScout" style="display:block;width:32px;height:32px;border-radius:8px;border:0"><span style="font-family:-apple-system,Segoe UI,Roboto,sans-serif;font-size:19px;font-weight:800;letter-spacing:-0.02em;color:#0f172a"><span style="color:#059669">Trim</span>Scout</span></a>`;
 }
 
-/** Where a desk logs in (opens the sign-in modal) or signs up. Quotes go through the account, never by email reply. */
+/** Where a desk logs in (opens the sign-in modal) or signs up. */
 export function dealerAuthLinks(): { loginUrl: string; signupUrl: string } {
   return { loginUrl: `${DEALER_EMAIL_BASE_URL}/?login=1`, signupUrl: `${DEALER_EMAIL_BASE_URL}/signup` };
 }
 
-export function quoteInviteSubject(input: QuoteInviteEmailInput): string {
-  const car = [input.vehicle.year, input.vehicle.make, input.vehicle.model, input.vehicle.trim].filter(Boolean).join(" ");
-  if (input.leasePrefs) {
-    return `Lease quote request: ${car} (VIN …${input.vehicle.vin.slice(-6)}) — ${input.leasePrefs.termMonths} mo / ${input.leasePrefs.milesPerYear.toLocaleString()} mi`;
-  }
-  return `Quote request: ${car} (VIN …${input.vehicle.vin.slice(-6)}) — ${input.buyerAlias}`;
+function carName(v: QuoteInviteEmailInput["vehicle"]): string {
+  return [v.year, v.make, v.model, v.trim].filter(Boolean).join(" ");
 }
 
-/** The lease template: what's asked, the calculator checklist, the calculator link. Ops can relay it verbatim. */
-function leaseInviteHtml(input: QuoteInviteEmailInput, prefs: LeaseRequestPrefs): string {
-  const car = [input.vehicle.year, input.vehicle.make, input.vehicle.model, input.vehicle.trim].filter(Boolean).join(" ");
-  const roleLabel = (DESK_ROLE_LABELS as Record<string, string>)[input.role] || "Sales";
-  const firstName = input.contactName.split(/\s+/)[0] || input.contactName;
-  const facts = [input.vehicleFacts?.drivetrain, input.vehicleFacts?.exteriorColor].filter(Boolean).map((x) => escapeHtml(String(x))).join(" · ");
-  const timeline = input.purchaseTimelineLabel ? `<tr><td style="padding:6px 0;color:#64748b">Timeline</td><td style="padding:6px 0">${escapeHtml(input.purchaseTimelineLabel)}</td></tr>` : "";
-  return `
-  <div style="font-family:-apple-system,Segoe UI,Roboto,sans-serif;max-width:600px;margin:0 auto;color:#0f172a;line-height:1.5">
-    ${emailHeader()}
-    <p style="font-size:15px">Hi ${escapeHtml(firstName)},</p>
-    <p>A buyer on TrimScout is asking for a <strong>lease quote</strong> on a car in your inventory.</p>
-    <table style="border-collapse:collapse;width:100%;margin:12px 0;font-size:14px">
-      <tr><td style="padding:6px 0;color:#64748b;width:140px">Vehicle</td><td style="padding:6px 0;font-weight:700">${escapeHtml(car)}${facts ? `<br><span style="font-weight:400;color:#475569">${facts}</span>` : ""}</td></tr>
-      <tr><td style="padding:6px 0;color:#64748b">VIN</td><td style="padding:6px 0;font-family:ui-monospace,Menlo,monospace">${escapeHtml(input.vehicle.vin)}</td></tr>
-      <tr><td style="padding:6px 0;color:#64748b">Term</td><td style="padding:6px 0"><strong>${prefs.termMonths} months</strong></td></tr>
-      <tr><td style="padding:6px 0;color:#64748b">Miles / year</td><td style="padding:6px 0"><strong>${prefs.milesPerYear.toLocaleString()}</strong></td></tr>
-      ${prefs.zip ? `<tr><td style="padding:6px 0;color:#64748b">Buyer ZIP</td><td style="padding:6px 0">${escapeHtml(prefs.zip)} <span style="color:#94a3b8">(tax context)</span></td></tr>` : ""}
-      ${timeline}
-    </table>
-    <p><strong>To quote:</strong> use the lease calculator at the link below. Every field is required — a monthly-only reply can't be entered:</p>
-    <ul style="font-size:14px;margin:8px 0 12px 18px;padding:0">
-      ${LEASE_CALCULATOR_FIELDS.map((f) => `<li style="margin:2px 0">${escapeHtml(f)}</li>`).join("")}
-    </ul>
-    <p style="margin:18px 0">
-      <a href="${escapeHtml(input.viewUrl)}" style="display:inline-block;background:#059669;color:#fff;text-decoration:none;font-weight:700;padding:10px 18px;border-radius:8px">Open the lease calculator</a>
-    </p>
-    <p style="font-size:13px;color:#475569">If the link doesn't work for you, reply with those same fields and TrimScout will enter them for you. If you'd rather not quote this one, a one-line reply saying so lets the buyer move on.</p>
-    <p style="font-size:12px;color:#64748b;border-top:1px solid #e2e8f0;padding-top:12px;margin-top:20px">${escapeHtml(LEASE_NON_BINDING_COPY)}</p>
-    <p style="font-size:11px;color:#94a3b8">We pass messages between you and the buyer without sharing their email. Sent to ${escapeHtml(input.contactName)}, ${escapeHtml(roleLabel)} at ${escapeHtml(input.dealerName)}.${input.dealReference ? ` Reference ${escapeHtml(input.dealReference)}.` : ""}${input.unsubscribeUrl ? ` Don't want quote requests from TrimScout? <a href="${escapeHtml(input.unsubscribeUrl)}" style="color:#64748b">Unsubscribe</a>.` : ""}</p>
-  </div>`;
+export function quoteInviteTitle(input: QuoteInviteEmailInput): string {
+  const copy = QUOTE_EMAIL_COPY[input.quoteType];
+  const short = [input.vehicle.year, input.vehicle.model, input.vehicle.trim].filter(Boolean).join(" ");
+  const area = areaLabel(input.buyerZip ?? input.leasePrefs?.zip);
+  return [`${copy.title} — ${short}`, copy.pay, area].filter(Boolean).join(" · ");
+}
+
+export function quoteInviteSubject(input: QuoteInviteEmailInput): string {
+  return `${quoteInviteTitle(input)} · VIN …${input.vehicle.vin.slice(-6)}`;
 }
 
 export function quoteInviteHtml(input: QuoteInviteEmailInput): string {
-  if (input.leasePrefs) return leaseInviteHtml(input, input.leasePrefs);
-  const car = [input.vehicle.year, input.vehicle.make, input.vehicle.model, input.vehicle.trim].filter(Boolean).join(" ");
+  const copy = QUOTE_EMAIL_COPY[input.quoteType];
   const roleLabel = (DESK_ROLE_LABELS as Record<string, string>)[input.role] || "Sales";
   const firstName = input.contactName.split(/\s+/)[0] || input.contactName;
-  const listing = input.vehicle.vdpUrl
-    ? `<a href="${escapeHtml(input.vehicle.vdpUrl)}" style="color:#059669">your listing</a>`
-    : "your listing";
-  const auth = dealerAuthLinks();
+  const area = areaLabel(input.buyerZip ?? input.leasePrefs?.zip);
+  const prefs = prefsLine(input);
+  const view = escapeHtml(input.viewUrl);
+  const home = escapeHtml(DEALER_EMAIL_BASE_URL);
+  const row = (label: string, value: string) =>
+    `<tr><td style="padding:5px 0;color:#64748b;font-size:13px;width:88px;vertical-align:top">${label}</td><td style="padding:5px 0;color:#0f172a;font-size:14px;font-weight:600">${value}</td></tr>`;
+  const thumb = input.vehicle.imageUrl
+    ? `<td style="width:96px;padding-right:14px;vertical-align:top"><img src="${escapeHtml(input.vehicle.imageUrl)}" width="96" alt="" style="display:block;width:96px;height:auto;border-radius:8px;border:0"></td>`
+    : "";
+  const facts = [input.vehicleFacts?.drivetrain, input.vehicleFacts?.exteriorColor].filter(Boolean).map((x) => escapeHtml(String(x))).join(" · ");
 
   return `
-  <div style="font-family:-apple-system,Segoe UI,Roboto,sans-serif;max-width:600px;margin:0 auto;color:#0f172a;line-height:1.5">
+  <div style="font-family:-apple-system,Segoe UI,Roboto,sans-serif;max-width:600px;margin:0 auto;padding:8px 0;color:#0f172a;line-height:1.5">
     ${emailHeader()}
-    <p style="font-size:15px">Hi ${escapeHtml(firstName)},</p>
-    <p>A buyer on TrimScout would like an out-the-door quote on a car in your inventory:</p>
-    <table style="border-collapse:collapse;width:100%;margin:12px 0;font-size:14px">
-      <tr><td style="padding:6px 0;color:#64748b;width:120px">Vehicle</td><td style="padding:6px 0;font-weight:700">${escapeHtml(car)}</td></tr>
-      <tr><td style="padding:6px 0;color:#64748b">VIN</td><td style="padding:6px 0;font-family:ui-monospace,Menlo,monospace">${escapeHtml(input.vehicle.vin)}</td></tr>
-      <tr><td style="padding:6px 0;color:#64748b">Listing</td><td style="padding:6px 0">${listing}</td></tr>
-      ${input.paymentLabel ? `<tr><td style="padding:6px 0;color:#64748b">Paying by</td><td style="padding:6px 0">${escapeHtml(input.paymentLabel)}</td></tr>` : ""}
-      ${input.purchaseTimelineLabel ? `<tr><td style="padding:6px 0;color:#64748b">Timeline</td><td style="padding:6px 0">${escapeHtml(input.purchaseTimelineLabel)}</td></tr>` : ""}
-      <tr><td style="padding:6px 0;color:#64748b">Buyer</td><td style="padding:6px 0">${escapeHtml(input.buyerAlias)} <span style="color:#94a3b8">(identity masked until they pick a quote)</span></td></tr>
-    </table>
-    <p><strong>To quote:</strong> <a href="${escapeHtml(auth.loginUrl)}" style="color:#059669;font-weight:700">log in to TrimScout</a> — or <a href="${escapeHtml(auth.signupUrl)}" style="color:#059669;font-weight:700">sign up</a> if your store doesn't have an account yet. Quotes go through your account, not by replying to this email.</p>
-    <p style="margin:18px 0">
-      <a href="${escapeHtml(auth.loginUrl)}" style="display:inline-block;background:#059669;color:#fff;text-decoration:none;font-weight:700;padding:10px 18px;border-radius:8px">Log in to quote</a>
-      &nbsp;&nbsp;<a href="${escapeHtml(auth.signupUrl)}" style="display:inline-block;border:1px solid #059669;color:#059669;text-decoration:none;font-weight:700;padding:9px 18px;border-radius:8px">Sign up</a>
+    <h1 style="font-size:20px;line-height:1.3;font-weight:800;letter-spacing:-0.01em;margin:0 0 12px">${escapeHtml(quoteInviteTitle(input))}</h1>
+    <p style="font-size:15px;margin:0 0 20px">Hi ${escapeHtml(firstName)} — a buyer wants a <strong>${input.quoteType}</strong> quote on this unit. Submit in TrimScout — don&#39;t reply to this email.</p>
+    <p style="margin:0 0 24px">
+      <a href="${view}" style="display:inline-block;background:#059669;color:#ffffff;text-decoration:none;font-weight:700;font-size:15px;padding:12px 22px;border-radius:8px">${copy.cta}</a>
     </p>
-    <p style="font-size:13px;color:#475569"><a href="${escapeHtml(input.viewUrl)}" style="color:#64748b">See the request details</a></p>
-    <p style="font-size:12px;color:#64748b;border-top:1px solid #e2e8f0;padding-top:12px;margin-top:20px">${escapeHtml(NON_BINDING_COPY)}</p>
-    <p style="font-size:11px;color:#94a3b8">Sent to ${escapeHtml(input.contactName)}, ${escapeHtml(roleLabel)} at ${escapeHtml(input.dealerName)}.${input.dealReference ? ` Reference ${escapeHtml(input.dealReference)}.` : ""}${input.unsubscribeUrl ? ` Don't want quote requests from TrimScout? <a href="${escapeHtml(input.unsubscribeUrl)}" style="color:#64748b">Unsubscribe</a>.` : ""}</p>
+    <div style="border:1px solid #e2e8f0;border-radius:12px;padding:16px 18px">
+      <table role="presentation" style="border-collapse:collapse;width:100%"><tr>${thumb}<td style="vertical-align:top">
+        <div style="font-size:16px;font-weight:800">${escapeHtml(carName(input.vehicle))}</div>
+        ${facts ? `<div style="font-size:13px;color:#475569">${facts}</div>` : ""}
+        <div style="font-size:13px;color:#475569;font-family:ui-monospace,Menlo,monospace;margin-top:2px">VIN ${escapeHtml(input.vehicle.vin)}</div>
+        ${input.vehicle.vdpUrl ? `<div style="font-size:13px;margin-top:4px"><a href="${escapeHtml(input.vehicle.vdpUrl)}" style="color:#059669">Your listing</a></div>` : ""}
+      </td></tr></table>
+      <hr style="border:0;border-top:1px solid #e2e8f0;margin:14px 0">
+      <table role="presentation" style="border-collapse:collapse;width:100%">
+        ${row("Pay", copy.pay)}
+        ${prefs ? row("Prefs", escapeHtml(prefs)) : ""}
+        ${area ? row("Area", escapeHtml(area)) : ""}
+        ${input.purchaseTimelineLabel ? row("Timeline", escapeHtml(input.purchaseTimelineLabel)) : ""}
+        ${row("Rooftop", rooftopLine(input))}
+      </table>
+    </div>
+    <p style="font-size:13px;color:#475569;margin:14px 0 6px">${escapeHtml(copy.helper)}</p>
+    <p style="font-size:13px;margin:0 0 28px"><a href="${view}" style="color:#059669">View request details</a></p>
+    <p style="font-size:12px;color:#64748b;border-top:1px solid #e2e8f0;padding-top:12px;margin:0;line-height:1.7">
+      Sent to ${escapeHtml(input.contactName)}, ${escapeHtml(roleLabel)} · ${escapeHtml(input.dealerName)}${input.dealReference ? ` · ${escapeHtml(input.dealReference)}` : ""}<br>
+      ${input.unsubscribeUrl ? `<a href="${escapeHtml(input.unsubscribeUrl)}" style="color:#64748b">Unsubscribe this rooftop</a><br>` : ""}
+      ${escapeHtml(QUOTE_EMAIL_LEGAL)} <a href="${home}/terms" style="color:#64748b">Terms</a>
+    </p>
   </div>`;
 }
 

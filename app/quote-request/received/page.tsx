@@ -82,7 +82,7 @@ function ReceivedBody() {
       <main className="flex-1">
         <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6 space-y-6">
           <div className="space-y-1">
-            <h1 className="text-2xl font-black text-white tracking-tight">{ctx?.quotePrefs ? `${ctx.quotePrefs.quoteType === "finance" ? "Finance" : "Cash"} quote request` : "Lease quote request"}</h1>
+            <h1 className="text-2xl font-black text-white tracking-tight">{ctx?.quotePrefs ? `${ctx.quotePrefs.quoteType === "finance" ? "Finance" : "Cash"} quote request` : ctx?.leasePrefs ? "Lease quote request" : "Quote request"}</h1>
             {title ? (
               <p className="text-sm text-ink-light">
                 For the <strong className="text-white">{title}</strong>
@@ -146,9 +146,16 @@ function ReceivedBody() {
               <UsedQuoteForm token={token} vin={ctx.vin} stockNumber={ctx.stockNumber} prefs={ctx.quotePrefs} buyerMiles={ctx.buyerMiles} onSubmitted={(r) => setDone({ warnings: r.warnings, dueAtSigningTotal: 0 })} />
             </>
           ) : !ctx.leasePrefs ? (
-            <p className="rounded-2xl border border-amber-500/40 bg-amber-950/20 p-5 text-sm text-amber-200">
-              This request has no lease preferences on file, so the calculator can&apos;t be used for it.
-            </p>
+            <div className="rounded-2xl border border-border bg-surface p-5 space-y-3 text-sm text-ink-light" data-testid="login-to-quote">
+              <p>
+                <strong className="text-white">Submit this quote in TrimScout.</strong> Log in to your dealer account — or sign up if your store doesn&apos;t have one yet. Quotes don&apos;t go by email reply.
+              </p>
+              <p className="flex flex-wrap gap-2">
+                <a href="/?login=1" className="rounded-lg bg-emerald-500 px-4 py-2 text-xs font-extrabold text-black hover:bg-emerald-400">Log in to quote</a>
+                <a href="/signup" className="rounded-lg border border-emerald-500/60 px-4 py-2 text-xs font-bold text-emerald-300 hover:bg-emerald-500/10">Sign up</a>
+              </p>
+              <p className="text-xs text-ink-muted border-t border-border/60 pt-3">This is a non-binding quote request — not an auction, not a bid, and no response deadline.</p>
+            </div>
           ) : (
             <>
               {ctx.buyerCounter ? (

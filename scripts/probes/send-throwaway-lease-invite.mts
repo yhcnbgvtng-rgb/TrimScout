@@ -25,7 +25,7 @@ const input = {
   dealerName: "Smoke Test Desk", contactName: "Sam Smoke", role: "gsm",
   vehicle: { vin, year: 2026, make: "Chevrolet", model: "Tahoe", trim: "LS", vdpUrl: null },
   buyerAlias: formatBuyerAlias(rfq.buyerUserId), dealReference: rfq.dealReference || null, viewUrl, unsubscribeUrl: null,
-  paymentLabel: "Lease", purchaseTimelineLabel: "Within the month", leasePrefs: rfq.leasePrefs, vehicleFacts: { drivetrain: "4WD", exteriorColor: "Lakeshore Blue" },
+  quoteType: "lease", rooftop: { state: "NJ" }, purchaseTimelineLabel: "Within the month", leasePrefs: rfq.leasePrefs, vehicleFacts: { drivetrain: "4WD", exteriorColor: "Lakeshore Blue" },
 } as any;
 const ok = await sendQuoteInviteEmail(quoteInviteSubject(input), quoteInviteHtml(input));
 if (ok) await markRfqInviteDelivery(rfq.id, invite.id, "sent").catch(() => null);
