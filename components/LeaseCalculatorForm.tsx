@@ -5,6 +5,7 @@ import {
   aprFromMoneyFactor,
   coerceLeaseQuote,
   dueAtSigningTotal,
+  overMaxCashDue,
   validateLeaseQuote,
   LEASE_MILES,
   LEASE_TERMS,
@@ -85,7 +86,8 @@ export function LeaseCalculatorForm({
     [f, otherFees, incentives, addOns, counterOffer, noTaxEstimate]
   );
   const validation = useMemo(() => validateLeaseQuote(quote, prefs, { vin: f.vin, stockNumber: f.stockNumber }), [quote, prefs, f.vin, f.stockNumber]);
-  const differs = Number(f.termMonths) !== prefs.termMonths || Number(f.milesPerYear) !== prefs.milesPerYear;
+  const overCap = overMaxCashDue(quote.dueAtSigning, prefs);
+  const differs = Number(f.termMonths) !== prefs.termMonths || Number(f.milesPerYear) !== prefs.milesPerYear || overCap;
   const apr = Number(f.moneyFactor) > 0 ? aprFromMoneyFactor(Number(f.moneyFactor)) : null;
   const das = quote.dueAtSigning ? dueAtSigningTotal(quote.dueAtSigning) : 0;
 
@@ -174,6 +176,11 @@ export function LeaseCalculatorForm({
 
       <div className="rounded-xl border border-border/70 bg-surface-elevated px-3.5 py-3 text-xs text-ink-light">
         Buyer asked for <strong className="text-white">{prefs.termMonths} months · {prefs.milesPerYear.toLocaleString()} mi/yr</strong>
+        {prefs.maxCashDueAtSigning != null ? (
+          <>
+            {" "}· max <strong className="text-white">${prefs.maxCashDueAtSigning.toLocaleString()} due at signing</strong>
+          </>
+        ) : null}
         {prefs.zip ? <> · ZIP {prefs.zip} (tax context)</> : null}. Quote to that, or mark a counter below.
       </div>
 
@@ -219,7 +226,11 @@ export function LeaseCalculatorForm({
           <label className="flex items-start gap-2 text-xs text-amber-100">
             <input type="checkbox" checked={counterOffer} onChange={(e) => setCounterOffer(e.target.checked)} className="mt-0.5 h-3.5 w-3.5" />
             <span>
-              This is a <strong>counter-offer</strong> — the term or miles differ from what the buyer asked for ({prefs.termMonths} mo / {prefs.milesPerYear.toLocaleString()} mi). The buyer will see it flagged.
+              This is a <strong>counter-offer</strong> —{" "}
+              {overCap && prefs.maxCashDueAtSigning != null
+                ? `due at signing is above the buyer's max of $${prefs.maxCashDueAtSigning.toLocaleString()}`
+                : `the term or miles differ from what the buyer asked for (${prefs.termMonths} mo / ${prefs.milesPerYear.toLocaleString()} mi)`}
+              . The buyer will see it flagged.
             </span>
           </label>
           <input type="text" value={f.counterNote} onChange={set("counterNote")} placeholder="Why — e.g. 39 mo carries a better residual this month" maxLength={300} className="w-full rounded-lg border border-border bg-background px-3 py-2 text-xs text-white placeholder-ink-faint focus:border-emerald-500 focus:outline-none" />

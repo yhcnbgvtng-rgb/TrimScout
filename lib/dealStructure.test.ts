@@ -67,7 +67,7 @@ describe("BiddingWizard — Step 1 is the vehicle step; Step 2 is quote setup", 
   });
 
   it("(3) the lease path feeds the lease calculator contract unchanged", () => {
-    assert.match(src, /leasePrefs: quoteType === "lease" \? \{ termMonths: leaseTerm, milesPerYear: leaseMiles \|\| null, zip:/);
+    assert.match(src, /leasePrefs:\s*quoteType === "lease"\s*\? \{\s*termMonths: leaseTerm,\s*milesPerYear: leaseMiles \|\| null,\s*zip:/);
   });
 
   it("(4) Continue into Step 2 needs the vehicle; out of Step 2 needs the type's required prefs; Step 3 needs ≥1 named desk", () => {

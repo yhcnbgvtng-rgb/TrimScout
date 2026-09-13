@@ -77,6 +77,7 @@ function leaseInviteHtml(input: QuoteInviteEmailInput, prefs: LeaseRequestPrefs)
       <tr><td style="padding:6px 0;color:#64748b">VIN</td><td style="padding:6px 0;font-family:ui-monospace,Menlo,monospace">${escapeHtml(input.vehicle.vin)}</td></tr>
       <tr><td style="padding:6px 0;color:#64748b">Term</td><td style="padding:6px 0"><strong>${prefs.termMonths} months</strong></td></tr>
       <tr><td style="padding:6px 0;color:#64748b">Miles / year</td><td style="padding:6px 0"><strong>${prefs.milesPerYear.toLocaleString()}</strong></td></tr>
+      ${prefs.maxCashDueAtSigning != null ? `<tr><td style="padding:6px 0;color:#64748b">Max due at signing</td><td style="padding:6px 0"><strong>$${prefs.maxCashDueAtSigning.toLocaleString()}</strong> <span style="color:#94a3b8">(buyer's cap on cash at pickup — itemize under it, or mark a counter)</span></td></tr>` : ""}
       ${prefs.zip ? `<tr><td style="padding:6px 0;color:#64748b">Buyer ZIP</td><td style="padding:6px 0">${escapeHtml(prefs.zip)} <span style="color:#94a3b8">(tax context)</span></td></tr>` : ""}
       ${timeline}
     </table>
