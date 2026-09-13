@@ -141,7 +141,13 @@ describe("lease flow — copy and contact rules", () => {
 
   it("(1) invitees are the confirmed, unblocked named desks and nothing else; send requires ≥1", () => {
     const wizard = read("components/BiddingWizard.tsx");
-    assert.match(wizard, /toSend = pastes\.filter\([\s\S]*?!quoteDesks\[p\.dealerName\]\?\.blockedReason/);
+    // The send list reads the desk-selection plan, whose rows are only ever
+    // ticked when the desk has a named, unblocked contact.
+    assert.match(wizard, /toSend = pastes\.filter\([\s\S]*?deskPlan\.rows\[p\.dealerName\]\?\.checked/);
+    const plan = read("lib/deskSelection.ts");
+    assert.match(plan, /const hasContact = Boolean\(d\.desk && !d\.desk\.blockedReason\)/);
+    assert.match(plan, /const selectable = hasContact && !heldByState/);
+    assert.match(plan, /const checked = selectable && wanted/);
     assert.match(wizard, /Tick at least one dealership with a named sales contact to send the request/);
   });
 
