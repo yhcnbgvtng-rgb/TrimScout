@@ -94,6 +94,7 @@ describe("calculator input formatting — display with $ , % as you type, store 
   it("percent and money factor", () => {
     assert.equal(formatPercentInput("53"), "53%");
     assert.equal(formatPercentInput("58.5"), "58.5%");
+    assert.equal(formatPercentInput("6.625"), "6.625%", "NJ's rate keeps its third decimal");
     assert.equal(formatPercentInput(""), "");
     assert.equal(formatMoneyFactorInput("0.0025"), "0.00250");
     assert.equal(formatMoneyFactorInput("0.002250"), "0.002250");
@@ -128,6 +129,11 @@ describe("dealer calculator — worksheet order, live formatting, residual autof
     assert.match(src, /formatMoneyInput|formatPercentInput|formatMoneyFactorInput/);
     assert.doesNotMatch(src, /capReduction: "0"|dasCapReduction: "0"|placeholder="0\.00"/);
     assert.match(src, /noTaxEstimate \? out\("Tax", d\.monthly != null \? "estimated at signing" : null\)/);
+    // Doc fee: always on the sheet, description fixed, amount blank until typed; a long description + $ box per line.
+    assert.match(src, /useState<DraftItem\[\]>\(\[\{ name: "Doc fee", amount: "" \}\]\)/);
+    assert.match(src, /fixed: \["Doc fee"\]/);
+    assert.match(src, /grid-cols-\[1fr_140px_20px\]/);
+    assert.match(src, /Math\.round\(zipRate \* 100000\) \/ 1000/, "tax rate keeps three decimals (NJ 6.625%)");
     assert.match(src, /noTaxEstimate && !f\.taxesAtSigning \? "at signing"/);
     assert.doesNotMatch(src, /leasehackr/i);
   });

@@ -79,14 +79,17 @@ export function LeaseCalculatorForm({
     moneyFactor: "",
     capReduction: "",
     acquisitionFee: "",
-    taxRatePercent: zipRate != null ? String(Math.round(zipRate * 10000) / 100) : "",
+    // Three decimals: NJ is 6.625%, and rounding it to 6.63% would misstate the monthly.
+    taxRatePercent: zipRate != null ? String(Math.round(zipRate * 100000) / 1000) : "",
     taxesAtSigning: "",
     expiresAt: "",
     notes: "",
     counterNote: "",
   });
   const [incentives, setIncentives] = useState<DraftItem[]>([]);
-  const [otherFees, setOtherFees] = useState<DraftItem[]>([]);
+  // A doc fee is on every deal, so its line is always there — description
+  // set, amount blank until the dealer types it. It can't be removed.
+  const [otherFees, setOtherFees] = useState<DraftItem[]>([{ name: "Doc fee", amount: "" }]);
   const [addOns, setAddOns] = useState<DraftItem[]>([]);
   const [capitalizeAcq, setCapitalizeAcq] = useState(false);
   const [counterOffer, setCounterOffer] = useState(false);
@@ -206,27 +209,52 @@ export function LeaseCalculatorForm({
       </label>
     );
   };
-  const itemList = (o: { title: string; list: DraftItem[]; setList: React.Dispatch<React.SetStateAction<DraftItem[]>>; addLabel: string; placeholder: string; hint?: string }) => (
+  // Each line: a long description field and a dollar box. `fixed` lines
+  // (the doc fee) keep their description and can't be removed.
+  const itemList = (o: { title: string; list: DraftItem[]; setList: React.Dispatch<React.SetStateAction<DraftItem[]>>; addLabel: string; placeholder: string; hint?: string; fixed?: string[] }) => (
     <div className="space-y-1.5">
-      <span className={labelCls}>{o.title}</span>
-      {o.list.map((it, i) => (
-        <div key={i} className="flex gap-2">
-          <input type="text" value={it.name} onChange={(e) => o.setList((p) => p.map((x, j) => (j === i ? { ...x, name: e.target.value } : x)))} placeholder={o.placeholder} className={`${input} flex-1`} />
-          <input
-            type="text"
-            inputMode="decimal"
-            value={focused === (`item:${o.title}:${i}` as never) ? it.amount : formatMoneyInput(it.amount)}
-            onFocus={() => setFocused(`item:${o.title}:${i}` as never)}
-            onBlur={() => setFocused(null)}
-            onChange={(e) => o.setList((p) => p.map((x, j) => (j === i ? { ...x, amount: e.target.value } : x)))}
-            placeholder="Amount"
-            className={`${input} w-32 font-mono`}
-          />
-          <button type="button" onClick={() => o.setList((p) => p.filter((_, j) => j !== i))} className="text-ink-muted hover:text-rose-400" aria-label={`Remove ${o.title.toLowerCase()} line`}>
-            <Trash2 className="h-3.5 w-3.5" />
-          </button>
-        </div>
-      ))}
+      <div className="grid grid-cols-[1fr_140px_20px] gap-2">
+        <span className={labelCls}>{o.title}</span>
+        <span className={labelCls}>Amount</span>
+        <span />
+      </div>
+      {o.list.map((it, i) => {
+        const fixed = Boolean(o.fixed?.includes(it.name) && i < (o.fixed?.length ?? 0));
+        return (
+          <div key={i} className="grid grid-cols-[1fr_140px_20px] items-center gap-2">
+            <input
+              type="text"
+              value={it.name}
+              readOnly={fixed}
+              onChange={(e) => o.setList((p) => p.map((x, j) => (j === i ? { ...x, name: e.target.value } : x)))}
+              placeholder={o.placeholder}
+              aria-label={`${o.title} description`}
+              className={`${input} ${fixed ? "text-ink-light" : ""}`}
+            />
+            <span className="relative block">
+              <span className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-[11px] text-ink-faint">$</span>
+              <input
+                type="text"
+                inputMode="decimal"
+                value={focused === (`item:${o.title}:${i}` as never) ? it.amount : formatMoneyInput(it.amount).replace(/^\$/, "")}
+                onFocus={() => setFocused(`item:${o.title}:${i}` as never)}
+                onBlur={() => setFocused(null)}
+                onChange={(e) => o.setList((p) => p.map((x, j) => (j === i ? { ...x, amount: e.target.value } : x)))}
+                placeholder="0"
+                aria-label={`${it.name || o.title} amount`}
+                className={`${input} pl-6 font-mono`}
+              />
+            </span>
+            {fixed ? (
+              <span />
+            ) : (
+              <button type="button" onClick={() => o.setList((p) => p.filter((_, j) => j !== i))} className="text-ink-muted hover:text-rose-400" aria-label={`Remove ${o.title.toLowerCase()} line`}>
+                <Trash2 className="h-3.5 w-3.5" />
+              </button>
+            )}
+          </div>
+        );
+      })}
       <button type="button" onClick={() => o.setList((p) => [...p, { name: "", amount: "" }])} className="flex items-center gap-1 text-[11px] font-bold text-emerald-400 hover:text-emerald-300">
         <Plus className="h-3 w-3" /> {o.addLabel}
       </button>
@@ -270,7 +298,7 @@ export function LeaseCalculatorForm({
                 {field({ k: "msrp", title: "MSRP", hint: "Residual % is a share of this." })}
                 {field({ k: "sellingPrice", title: "Selling price", required: true, hint: d.msrp != null && d.sellingPrice != null && d.msrp > 0 ? `${money(d.msrp - d.sellingPrice)} (${Math.round(((d.msrp - d.sellingPrice) / d.msrp) * 1000) / 10}%) off MSRP` : "Before incentives." })}
               </div>
-              {itemList({ title: "Incentives / rebates", list: incentives, setList: setIncentives, addLabel: "Add incentive", placeholder: "e.g. Loyalty" })}
+              {itemList({ title: "Incentives / rebates", list: incentives, setList: setIncentives, addLabel: "Add incentive", placeholder: "Describe the incentive, e.g. Lease Cash or Loyalty" })}
               {field({
                 k: "capCost",
                 title: "Net cap cost",
@@ -336,7 +364,7 @@ export function LeaseCalculatorForm({
                   <span>Roll the acquisition fee into the cap cost (otherwise it&apos;s due at signing)</span>
                 </label>
               </div>
-              {itemList({ title: "Other fees at signing (itemized)", list: otherFees, setList: setOtherFees, addLabel: "Add fee", placeholder: "e.g. Doc fee", hint: "Each fee named — a single unlabeled lump can't be submitted." })}
+              {itemList({ title: "Fees at signing (itemized)", list: otherFees, setList: setOtherFees, addLabel: "Add another fee", placeholder: "Describe the fee, e.g. Registration & title", hint: "Doc fee is always listed — enter the amount. Every other fee needs a description; a single unlabeled lump can't be submitted.", fixed: ["Doc fee"] })}
             </>
           )}
 
@@ -359,7 +387,7 @@ export function LeaseCalculatorForm({
           {section(
             "8 · Add-ons, expiry & notes",
             <>
-              {itemList({ title: "Add-ons", list: addOns, setList: setAddOns, addLabel: "Add add-on", placeholder: "e.g. Wheel & tire", hint: "Optional. The buyer sees each line." })}
+              {itemList({ title: "Add-ons", list: addOns, setList: setAddOns, addLabel: "Add add-on", placeholder: "Describe the add-on, e.g. Wheel & tire protection", hint: "Optional. The buyer sees each line." })}
               <div className="grid grid-cols-2 gap-3">
                 <label className="space-y-1">
                   <span className={labelCls}>

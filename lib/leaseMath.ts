@@ -121,11 +121,11 @@ export function formatMoneyInput(raw: string | number | null | undefined): strin
   return `$${n.toLocaleString(undefined, { minimumFractionDigits: hasCents ? 2 : 0, maximumFractionDigits: 2 })}`;
 }
 
-/** "53%" / "58.5%"; null for blank. */
+/** "53%" / "58.5%" / "6.625%" — up to three decimals, so state tax rates like NJ's survive; null for blank. */
 export function formatPercentInput(raw: string | number | null | undefined): string {
   const n = num(raw);
   if (n == null) return "";
-  return `${n.toLocaleString(undefined, { maximumFractionDigits: 2 })}%`;
+  return `${n.toLocaleString(undefined, { maximumFractionDigits: 3 })}%`;
 }
 
 /** Money factors keep at least 5 decimals ("0.00250") — the precision dealers quote them at. */
