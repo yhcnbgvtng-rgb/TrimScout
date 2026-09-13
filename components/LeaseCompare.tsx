@@ -9,7 +9,7 @@ import { termMilesLabel } from "../lib/leaseQuote";
  * Deal page lease comparison: at a glance → one row per dealer in the same
  * columns → expand for the itemized detail → Choose / Walk away. Server-
  * computed eligibility (counters, expired, best) is rendered as given; no
- * composite score, no prose, no dealer-site price, lease deals only.
+ * composite rating, no prose, no dealer-site price, lease deals only.
  */
 export function LeaseCompare({
   data,
