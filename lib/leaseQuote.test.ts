@@ -187,8 +187,11 @@ describe("lease terms — 18 and 24 both offered, default stays 36", () => {
   });
 
   it("the request route accepts 18 as a lease term and still rejects terms outside the set", () => {
-    const src = fs.readFileSync(path.join(process.cwd(), "app/api/rfqs/route.ts"), "utf8");
+    // parseLeasePrefs (lib) is what both the create and the edit routes use.
+    const src = fs.readFileSync(path.join(process.cwd(), "lib/leaseQuote.ts"), "utf8");
     assert.match(src, /LEASE_TERMS as readonly number\[\]\)\.includes\(term\)/);
+    const createRoute = fs.readFileSync(path.join(process.cwd(), "app/api/rfqs/route.ts"), "utf8");
+    assert.match(createRoute, /parseLeasePrefs\(body\.leasePrefs\)/);
     const wizard = fs.readFileSync(path.join(process.cwd(), "components/BiddingWizard.tsx"), "utf8");
     assert.match(wizard, /LEASE_TERMS\.map\(\(t\) =>/);
     const calc = fs.readFileSync(path.join(process.cwd(), "components/LeaseCalculatorForm.tsx"), "utf8");
@@ -259,7 +262,9 @@ describe("wizard wiring — cash due at signing lives under Lease preferences on
 
   it("the value rides on leasePrefs only when set, and the route stores a finite non-negative number", () => {
     assert.match(wizard, /\.\.\.\(leaseMaxDueNumber != null \? \{ maxCashDueAtSigning: leaseMaxDueNumber \} : \{\}\)/);
-    assert.match(route, /normalizeMaxCashDue\(o\.maxCashDueAtSigning\)/);
-    assert.match(route, /if \(maxCash != null\) prefs\.maxCashDueAtSigning = maxCash/);
+    const lib = fs.readFileSync(path.join(process.cwd(), "lib/leaseQuote.ts"), "utf8");
+    assert.match(lib, /normalizeMaxCashDue\(o\.maxCashDueAtSigning\)/);
+    assert.match(lib, /if \(maxCash != null\) prefs\.maxCashDueAtSigning = maxCash/);
+    assert.match(route, /parseLeasePrefs\(body\.leasePrefs\)/);
   });
 });

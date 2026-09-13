@@ -30,6 +30,25 @@ export interface LeaseRequestPrefs {
   maxCashDueAtSigning?: number | null;
 }
 
+/**
+ * Only the terms and mileage bands the product offers; anything else is
+ * dropped, not guessed. Shared by the create and the edit routes so the
+ * sheet can't be saved with a value the calculator can't quote to.
+ */
+export function parseLeasePrefs(raw: unknown): LeaseRequestPrefs | null {
+  if (!raw || typeof raw !== "object") return null;
+  const o = raw as Record<string, unknown>;
+  const term = Number(o.termMonths);
+  const miles = Number(o.milesPerYear);
+  if (!(LEASE_TERMS as readonly number[]).includes(term) || !(LEASE_MILES as readonly number[]).includes(miles)) return null;
+  const zip = typeof o.zip === "string" && /^\d{5}$/.test(o.zip) ? o.zip : "";
+  const timeline = o.timeline === "asap" || o.timeline === "this_week" || o.timeline === "this_month" ? o.timeline : null;
+  const prefs: LeaseRequestPrefs = { termMonths: term as LeaseTerm, milesPerYear: miles as LeaseMiles, zip, timeline };
+  const maxCash = normalizeMaxCashDue(o.maxCashDueAtSigning);
+  if (maxCash != null) prefs.maxCashDueAtSigning = maxCash;
+  return prefs;
+}
+
 /** Buyer-facing helper for the cap, shared by the wizard and the tests. */
 export const MAX_CASH_DUE_HELPER =
   "Max you want to pay at pickup — first month, fees, and any down. Dealers itemize this in the lease calculator or mark a counter.";
