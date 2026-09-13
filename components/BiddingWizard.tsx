@@ -3,14 +3,12 @@
 import React, { useState, useEffect } from "react";
 import { Vehicle, BiddingStrategy, BiddingRequest, UserProfile, type DealStructureMethod, type PurchaseTimeline, type TradeInVehicle } from "../lib/types";
 import {
-  DEAL_STRUCTURE_LABELS,
-  formatDealStructures,
   paymentMethodFromStructures,
-  toggleDealStructure,
 } from "../lib/dealStructure";
 import { formatCurrency, getZipCoordinates } from "../lib/otdCalculator";
 import { outOfStateVehicles, formatOutOfStateWarning, stateGatePlan, formatExpandNudge } from "../lib/sameStateCheck";
 import { diffVsPrimary, mustHaveHeadline, mustHaveReport, type MustHaveRef } from "../lib/alternateCompare";
+import { DEFAULT_LEASE_TERM, LEASE_MILES, LEASE_NON_BINDING_COPY, LEASE_TERMS, type LeaseMiles, type LeaseTerm } from "../lib/leaseQuote";
 import { isPlausibleDealerEmail, type DealerContactStatus } from "../lib/dealerContactLookup";
 import { formatBuyerAlias } from "../lib/buyerAlias";
 import {
@@ -739,12 +737,17 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     : undefined;
 
   // Step 1: independently checked cash / finance / lease (at least one required)
-  const [requestedStructures, setRequestedStructures] = useState<DealStructureMethod[]>(["cash"]);
+  // Lease-only flow: the request is always a lease. The finance/cash
+  // structures stay in the model for older records, but the wizard no
+  // longer offers them.
+  const [requestedStructures, setRequestedStructures] = useState<DealStructureMethod[]>(["lease"]);
+  const [leaseTerm, setLeaseTerm] = useState<LeaseTerm>(DEFAULT_LEASE_TERM);
+  const [leaseMiles, setLeaseMiles] = useState<LeaseMiles | "">("");
   const paymentMethod = paymentMethodFromStructures(requestedStructures);
   const financeTerm = 60;
   const downPayment = 5000;
-  const leaseMileage = 12000;
-  const leaseTerm = 36;
+  // The buyer's real picks feed the older deal-structure payloads too.
+  const leaseMileage = leaseMiles || 12000;
 
   // Financial & Geographic fields
   const [targetOtdPrice, setTargetOtdPrice] = useState<number>(52000);
@@ -820,13 +823,12 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   // Single source of the step's short label — shown once in the header
   // subtitle, not repeated as a "Step N:" prefix inside each step's own
   // heading below.
-  const STEP_LABELS = ["Payment & Vehicle", "Dealers & Location", "Review & Send"];
+  const STEP_LABELS = ["Lease & Vehicle", "Dealers & Location", "Review & Send"];
   // Step 1's Continue is blocked until Import Car actually loaded a
   // vehicle — unless a real vehicle was already locked in via
   // lockVehicleSelection, in which case there's nothing to import.
   // Typing a VIN/URL, or merely arriving on this step, is not enough.
   const vehicleImported = Boolean(lockVehicleSelection || (parseSuccessMsg && selectedVehicle));
-  const financingSourceMissing = requestedStructures.includes("finance") && financingSource == null;
   const reviewTarget = reviewTargetFromVehicle(selectedVehicle);
 
   // Step 2 asks "who gets this offer", so it has to name the dealerships the
@@ -1012,7 +1014,9 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   }, [selectedVehicle?.make, selectedVehicle?.model]);
 
   const goNext = () => {
-    if (step === 1 && (requestedStructures.length === 0 || !vehicleImported || financingSourceMissing || !purchaseTimeline)) return;
+    if (step === 1 && (!vehicleImported || !leaseMiles || !leaseTerm)) return;
+    // Step 2 → 3: at least one desk with a named contact must be ticked.
+    if (step === 2 && directOfferMode && confirmedDeskCount === 0) return;
     if (step === 2 && (!offerPath || step2LocationMissing || sameStateWarning)) return;
     setStep(step + 1);
   };
@@ -1519,6 +1523,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           packageKind: "links",
+          leasePrefs: { termMonths: leaseTerm, milesPerYear: leaseMiles || null, zip: /^\d{5}$/.test(huntZip) ? huntZip : "", timeline: purchaseTimeline || null },
           vin: primary.vin,
           vehicleYear: primary.year,
           vehicleMake: primary.make,
@@ -1579,10 +1584,6 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     }
     if (pricingChoice === "buyer_names" && !(targetOtdPrice > 0)) {
       setSubmitError("Enter your target out-the-door price, or switch to letting the dealer name their price.");
-      return;
-    }
-    if (!purchaseTimeline) {
-      setSubmitError("Select your purchase timeline.");
       return;
     }
     if (!currentUser) {
@@ -1715,110 +1716,85 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
               {/* Payment                                                     */}
               {/* ---------------------------------------------------------- */}
               <WizardSection
-                title="Payment"
-                hint="Payment shapes every quote dealers send you — pick all that apply."
+                title="Lease preferences"
+                hint="Every dealer quotes to these through the lease calculator — or marks a counter."
                 className="pb-6"
               >
-                <div className="flex flex-wrap gap-2">
-                  {/* Display order only (Finance, Lease, Cash) — the
-                      underlying DEAL_STRUCTURE_METHODS order stays
-                      Cash/Finance/Lease since formatDealStructures and
-                      paymentMethodFromStructures rely on it elsewhere. */}
-                  {(["finance", "lease", "cash"] as const).map((id) => {
-                    const isChecked = requestedStructures.includes(id);
-                    return (
-                      <button
-                        key={id}
-                        type="button"
-                        aria-pressed={isChecked}
-                        onClick={() => setRequestedStructures((current) => toggleDealStructure(current, id))}
-                        className={`flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-[11px] font-bold transition-all ${
-                          isChecked
-                            ? "border-emerald-500 bg-emerald-500/10 text-white"
-                            : "border-border text-ink-light hover:border-border-strong"
-                        }`}
-                      >
-                        {isChecked && <CheckCircle2 className="h-3 w-3 text-emerald-400 shrink-0" />}
-                        {DEAL_STRUCTURE_LABELS[id]}
-                      </button>
-                    );
-                  })}
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  <div className="space-y-1">
+                    <span className="block text-[10px] font-bold uppercase tracking-wide text-ink-faint">Term</span>
+                    <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Lease term">
+                      {LEASE_TERMS.map((t) => (
+                        <button
+                          key={t}
+                          type="button"
+                          role="radio"
+                          aria-checked={leaseTerm === t}
+                          onClick={() => setLeaseTerm(t)}
+                          className={`rounded-lg border px-3 py-1.5 text-[11px] font-bold transition-all ${
+                            leaseTerm === t ? "border-emerald-500 bg-emerald-500/10 text-white" : "border-border text-ink-light hover:border-border-strong"
+                          }`}
+                        >
+                          {t} mo
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="space-y-1">
+                    <span className="block text-[10px] font-bold uppercase tracking-wide text-ink-faint">Miles per year</span>
+                    <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Miles per year">
+                      {LEASE_MILES.map((m) => (
+                        <button
+                          key={m}
+                          type="button"
+                          role="radio"
+                          aria-checked={leaseMiles === m}
+                          onClick={() => setLeaseMiles(m)}
+                          className={`rounded-lg border px-3 py-1.5 text-[11px] font-bold transition-all ${
+                            leaseMiles === m ? "border-emerald-500 bg-emerald-500/10 text-white" : "border-border text-ink-light hover:border-border-strong"
+                          }`}
+                        >
+                          {m.toLocaleString()}
+                        </button>
+                      ))}
+                    </div>
+                    {!leaseMiles ? <p className="text-[10px] text-ink-faint">Pick a mileage band to continue.</p> : null}
+                  </div>
                 </div>
 
-                {requestedStructures.length === 0 && (
-                  <p className="text-[11px] text-rose-400">Select at least one payment method to continue.</p>
-                )}
-
-                {requestedStructures.includes("finance") && (
-                  <div className="rounded-xl border border-border bg-surface-elevated p-3.5 space-y-2">
-                    <span className="text-[11px] font-semibold text-ink-light">Who&apos;s financing this?</span>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                      <label
-                        className={`flex items-start gap-2 rounded-lg border px-3 py-2 text-[11px] cursor-pointer transition-colors ${
-                          financingSource === "buyer_own"
-                            ? "border-emerald-500 bg-emerald-500/10"
-                            : "border-border hover:border-border-strong"
-                        }`}
-                      >
-                        <input
-                          type="radio"
-                          name="financingSource"
-                          checked={financingSource === "buyer_own"}
-                          onChange={() => setFinancingSource("buyer_own")}
-                          className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-500 focus:ring-0"
-                        />
-                        <span>
-                          <span className="block font-semibold text-ink-light">I&apos;ll bring my own financing</span>
-                          <span className="block text-ink-muted text-[11px] mt-0.5">
-                            A bank or credit union pre-approval — dealers quote you an out-the-door price only.
-                          </span>
-                        </span>
-                      </label>
-                      <label
-                        className={`flex items-start gap-2 rounded-lg border px-3 py-2 text-[11px] cursor-pointer transition-colors ${
-                          financingSource === "dealer"
-                            ? "border-emerald-500 bg-emerald-500/10"
-                            : "border-border hover:border-border-strong"
-                        }`}
-                      >
-                        <input
-                          type="radio"
-                          name="financingSource"
-                          checked={financingSource === "dealer"}
-                          onChange={() => setFinancingSource("dealer")}
-                          className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-500 focus:ring-0"
-                        />
-                        <span>
-                          <span className="block font-semibold text-ink-light">Use the dealer&apos;s financing</span>
-                          <span className="block text-amber-400 text-[11px] mt-0.5">
-                            Not recommended — dealer financing often costs more than a bank or credit union rate you arrange yourself.
-                          </span>
-                        </span>
-                      </label>
-                    </div>
-                    {financingSource == null && (
-                      <p className="text-[11px] text-rose-400">Pick a financing source to continue.</p>
-                    )}
-                  </div>
-                )}
-
-                <label className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5">
-                  <span className="text-[11px] text-ink-muted">
-                    When will you be ready to complete the transaction?
-                  </span>
-                  <select
-                    value={purchaseTimeline}
-                    onChange={(e) => setPurchaseTimeline(e.target.value as PurchaseTimeline)}
-                    className="rounded-lg border border-border bg-background py-1.5 px-2.5 text-[11px] text-ink-light focus:border-emerald-500 focus:outline-none"
-                  >
-                    <option value="" disabled>
-                      Select a timeline
-                    </option>
-                    <option value="asap">ASAP</option>
-                    <option value="this_week">Within the week</option>
-                    <option value="this_month">Within the month</option>
-                  </select>
-                </label>
+                <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5">
+                  <label className="flex items-center gap-2 text-[11px] text-ink-muted">
+                    Your ZIP
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      maxLength={5}
+                      value={huntZip}
+                      onChange={(e) => {
+                        const next = e.target.value.replace(/\D/g, "").slice(0, 5);
+                        setHuntZip(next);
+                        if (next.length === 5) setBuyerZip(next);
+                      }}
+                      placeholder="07405"
+                      aria-label="Your ZIP, for tax context"
+                      className="w-20 rounded-md border border-border bg-background px-2 py-1 font-mono text-[11px] text-ink-light placeholder-ink-faint focus:border-emerald-500 focus:outline-none"
+                    />
+                    <span className="text-[10px] text-ink-faint">tax context only</span>
+                  </label>
+                  <label className="flex items-center gap-2 text-[11px] text-ink-muted">
+                    Timeline <span className="text-[10px] text-ink-faint">(optional)</span>
+                    <select
+                      value={purchaseTimeline}
+                      onChange={(e) => setPurchaseTimeline(e.target.value as PurchaseTimeline)}
+                      className="rounded-lg border border-border bg-background py-1.5 px-2.5 text-[11px] text-ink-light focus:border-emerald-500 focus:outline-none"
+                    >
+                      <option value="">Not sure yet</option>
+                      <option value="asap">ASAP</option>
+                      <option value="this_week">Within the week</option>
+                      <option value="this_month">Within the month</option>
+                    </select>
+                  </label>
+                </div>
               </WizardSection>
 
               {/* ---------------------------------------------------------- */}
@@ -2085,24 +2061,8 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                       </span>
                     </span>
                   </label>
-                  {sameStateOnly ? (
-                    <label className="flex items-center gap-1.5 text-[10px] text-ink-faint">
-                      Your ZIP
-                      <input
-                        type="text"
-                        inputMode="numeric"
-                        maxLength={5}
-                        value={huntZip}
-                        onChange={(e) => {
-                          const next = e.target.value.replace(/\D/g, "").slice(0, 5);
-                          setHuntZip(next);
-                          if (next.length === 5) setBuyerZip(next);
-                        }}
-                        placeholder="07405"
-                        aria-label="Your ZIP, for the same-state filter"
-                        className="w-16 rounded-md border border-border bg-background px-2 py-1 font-mono text-[10px] text-ink-light placeholder-ink-faint focus:border-emerald-500 focus:outline-none"
-                      />
-                    </label>
+                  {sameStateOnly && !/^\d{5}$/.test(huntZip) ? (
+                    <span className="text-[10px] text-amber-300/90">Enter your ZIP above so we know your state.</span>
                   ) : null}
                 </div>
 
@@ -2204,14 +2164,13 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
               {/* How the competition actually works, stated where the buyer
                   picks a path — that's the moment the rules start to matter. */}
               <div className="rounded-lg border border-border bg-surface-elevated px-3 py-2.5 space-y-1">
-                <p className="text-[11px] font-semibold text-ink-light">How dealer quotes work</p>
+                <p className="text-[11px] font-semibold text-ink-light">How lease quotes work</p>
                 <p className="text-[11px] leading-snug text-ink-muted">
-                  Each dealer sends an out-the-door quote covering the vehicle and their
-                  own fees — registration and sales tax are excluded, and calculated for
-                  your address once you pick one. A quote is a request, not a bid: dealers
-                  reply on their own time, and you can pick one or walk away. So you get
-                  a real number rather than a first guess, each dealer can see the best
-                  quote so far as a percentage off MSRP — never who sent it.
+                  Each dealer replies through a lease calculator — monthly payment, due at
+                  signing itemized, cap cost, money factor and residual — for your term and
+                  miles, or marks a counter. A quote is a request, not a bid: dealers reply on
+                  their own time, there&apos;s no deadline on them, and you compare side by side
+                  and pick one or walk away. We pass messages without sharing your email.
                 </p>
               </div>
               </WizardSection>
@@ -2496,7 +2455,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
               {directOfferMode && (
                 <div className="rounded-lg border border-border bg-surface-elevated px-3 py-2.5 space-y-1">
                   <p className="text-[11px] font-semibold text-ink-light">A request, not a bid</p>
-                  <p className="text-[11px] leading-snug text-ink-muted">{NON_BINDING_COPY} Each desk replies with its own out-the-door number; you compare them and pick one, or walk away.</p>
+                  <p className="text-[11px] leading-snug text-ink-muted">{LEASE_NON_BINDING_COPY}</p>
                 </div>
               )}
               <div className={`space-y-2 ${directOfferMode ? "hidden" : ""}`}>
@@ -2701,11 +2660,16 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                 </div>
 
                 <div className="flex justify-between border-b border-border/50 pb-2">
-                  <span className="text-ink-muted">Pricing:</span>
+                  <span className="text-ink-muted">Lease:</span>
                   <span className="text-emerald-400 font-bold text-right">
-                    {pricingChoice === "buyer_names"
-                      ? `You set the price — $${targetOtdPrice.toLocaleString("en-US")}`
-                      : "Dealer names their price"}
+                    {leaseTerm} months · {leaseMiles ? leaseMiles.toLocaleString() : "—"} mi/yr
+                    {/^\d{5}$/.test(huntZip) ? <span className="block text-[10px] font-normal text-ink-muted">tax context: ZIP {huntZip}</span> : null}
+                  </span>
+                </div>
+                <div className="flex justify-between border-b border-border/50 pb-2">
+                  <span className="text-ink-muted">How dealers reply:</span>
+                  <span className="text-white font-semibold text-right">
+                    Through the lease calculator — monthly, due at signing itemized, cap cost, money factor, residual
                   </span>
                 </div>
 
@@ -2726,13 +2690,6 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                     </span>
                   </div>
                 )}
-
-                <div className="flex justify-between border-b border-border/50 pb-2">
-                  <span className="text-ink-muted">Deal Structure:</span>
-                  <span className="text-white font-semibold text-right">
-                    {formatDealStructures(requestedStructures)}
-                  </span>
-                </div>
 
                 <div className="flex justify-between border-b border-border/50 pb-2">
                   <span className="text-ink-muted">Deal #:</span>
@@ -2820,12 +2777,8 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
               <button
                 onClick={goNext}
                 disabled={
-                  (step === 1 &&
-                    (requestedStructures.length === 0 ||
-                      !vehicleImported ||
-                      financingSourceMissing ||
-                      !purchaseTimeline)) ||
-                  (step === 2 && (!offerPath || step2LocationMissing || Boolean(sameStateWarning)))
+                  (step === 1 && (!vehicleImported || !leaseMiles || !leaseTerm)) ||
+                  (step === 2 && (!offerPath || step2LocationMissing || Boolean(sameStateWarning) || (directOfferMode && confirmedDeskCount === 0)))
                 }
                 className="flex items-center gap-1.5 rounded-lg bg-emerald-500 px-5 py-2 text-xs font-bold text-black hover:bg-emerald-400 transition-all shadow-md shadow-emerald-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
               >

@@ -38,21 +38,19 @@ describe("deal structure multi-select", () => {
   });
 });
 
-describe("BiddingWizard step 1 payment checkboxes", () => {
+describe("BiddingWizard step 1 — lease-only preferences", () => {
   const src = fs.readFileSync(path.join(process.cwd(), "components/BiddingWizard.tsx"), "utf8");
-  // Payment method was its own step; it's now merged into step 1 alongside
-  // vehicle selection and the trade-in toggle.
   const step1Start = src.indexOf("STEP 1: PAYMENT, VEHICLE & TRADE-IN FLAG");
   const step1End = src.indexOf("STEP 2: DIRECT OFFER");
   const step1 = src.slice(step1Start, step1End);
 
-  it("is a clean toggle-chip row for Cash, Finance, and Lease", () => {
+  it("offers term 24|36|39|48 (default 36) and miles 7,500|10,000|12,000|15,000 — no payment-method chips", () => {
     assert.ok(step1Start >= 0 && step1End > step1Start);
-    assert.match(step1, /aria-pressed=\{isChecked\}/);
-    assert.match(step1, /DEAL_STRUCTURE_LABELS/);
-    assert.match(step1, /toggleDealStructure/);
-    assert.doesNotMatch(step1, /grid-cols-2 sm:grid-cols-4/);
-    assert.doesNotMatch(step1, /ring-1 ring-emerald-500/);
+    assert.match(step1, /LEASE_TERMS\.map/);
+    assert.match(step1, /LEASE_MILES\.map/);
+    assert.match(src, /useState<LeaseTerm>\(DEFAULT_LEASE_TERM\)/);
+    assert.match(src, /useState<DealStructureMethod\[\]>\(\["lease"\]\)/);
+    assert.doesNotMatch(step1, /DEAL_STRUCTURE_LABELS|toggleDealStructure|aria-pressed=\{isChecked\}/);
     assert.doesNotMatch(step1, /Coins|CreditCard|KeyRound|Layers/);
   });
 
@@ -63,15 +61,17 @@ describe("BiddingWizard step 1 payment checkboxes", () => {
     assert.doesNotMatch(step1, /Show Me All/);
   });
 
-  it("maps requestedStructures as the checked array and requires at least one to Continue", () => {
-    assert.match(src, /requestedStructures,/);
-    assert.match(src, /dealStructurePreferences:\s*\{\s*requestedStructures,/);
-    assert.match(src, /step === 1 &&\s*\(requestedStructures\.length === 0 \|\|\s*!vehicleImported \|\|\s*financingSourceMissing \|\|\s*!purchaseTimeline\)/);
-    assert.match(
-      src,
-      /disabled=\{\s*\(step === 1 &&\s*\(requestedStructures\.length === 0 \|\|\s*!vehicleImported \|\|\s*financingSourceMissing \|\|\s*!purchaseTimeline\)\) \|\|/
-    );
-    assert.match(src, /financeTermMonths: financeTerm/);
-    assert.match(src, /formatDealStructures\(requestedStructures\)/);
+  it("Continue needs vehicle + term + miles on step 1, and ≥1 ticked named desk on step 2; timeline is optional", () => {
+    assert.match(src, /step === 1 && \(!vehicleImported \|\| !leaseMiles \|\| !leaseTerm\)/);
+    assert.match(src, /step === 2 && directOfferMode && confirmedDeskCount === 0/);
+    assert.match(src, /directOfferMode && confirmedDeskCount === 0\)\)\)/);
+    assert.doesNotMatch(src, /Select your purchase timeline/);
+    assert.match(step1, /Timeline <span[^>]*>\(optional\)/);
+  });
+
+  it("the request carries the lease prefs and the old payloads still get the buyer's picks", () => {
+    assert.match(src, /leasePrefs: \{ termMonths: leaseTerm, milesPerYear: leaseMiles \|\| null, zip:/);
+    assert.match(src, /leaseTermMonths: leaseTerm/);
+    assert.match(src, /const leaseMileage = leaseMiles \|\| 12000/);
   });
 });

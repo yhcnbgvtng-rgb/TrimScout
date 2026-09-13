@@ -3,6 +3,7 @@
 // — see scrapers/lightsail-crawler/src/deals_api_server.js). Same
 // request/error pattern as lib/dealsApi.ts.
 import { LIGHTSAIL_HOST } from "./lightsailClient";
+import type { LeaseQuote, LeaseRequestPrefs } from "./leaseQuote";
 import { serverSecret } from "./serverSecret";
 import type { RfqDeclineReason, RfqInvite, RfqQuoteFee, RfqRequest } from "./rfq";
 
@@ -71,6 +72,7 @@ export async function createRfq(input: {
   packageKind?: "match" | "links";
   linkPastes?: Array<Record<string, unknown>>;
   dealReference?: string | null;
+  leasePrefs?: LeaseRequestPrefs | null;
 }): Promise<RfqRequest> {
   const json = await request("POST", "/api/rfqs", input);
   return json.rfq as RfqRequest;
@@ -145,6 +147,8 @@ export async function submitRfqQuote(
     expiresAt: string;
     mustHaveAcknowledgement: boolean;
     notes?: string | null;
+    /** The validated lease calculator; stored whole on the box. */
+    lease?: LeaseQuote | null;
   }
 ): Promise<void> {
   // The box returns the created quote alone; callers that need the

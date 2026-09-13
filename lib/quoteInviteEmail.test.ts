@@ -46,3 +46,33 @@ describe("quote invite email", () => {
     assert.match(html, /&lt;script&gt;/);
   });
 });
+
+describe("lease quote invite email", () => {
+  const lease = { ...input, leasePrefs: { termMonths: 36 as const, milesPerYear: 10000 as const, zip: "07405", timeline: "this_month" as const }, purchaseTimelineLabel: "Within the month", vehicleFacts: { drivetrain: "4X4", exteriorColor: "Cactus Gray" } };
+
+  it("subject and body carry the buyer's term / miles / ZIP and the vehicle facts", () => {
+    assert.match(quoteInviteSubject(lease), /^Lease quote request: .* — 36 mo \/ 10,000 mi$/);
+    const html = quoteInviteHtml(lease);
+    assert.match(html, /36 months/);
+    assert.match(html, /10,000/);
+    assert.match(html, /07405/);
+    assert.match(html, /4X4 · Cactus Gray/);
+    assert.match(html, /Within the month/);
+  });
+
+  it("lists every required calculator field and links the calculator — never 'reply with a price'", () => {
+    const html = quoteInviteHtml(lease);
+    for (const f of ["Cap cost", "Residual %", "Money factor", "Cap reduction", "Monthly payment pre-tax", "Due at signing, itemized", "Incentives and add-ons", "good-through"]) assert.match(html, new RegExp(f));
+    assert.match(html, /Open the lease calculator/);
+    assert.doesNotMatch(html, /out-the-door price/);
+    assert.match(html, /non-binding lease quote request — not an auction, not a bid/);
+  });
+
+  it("uses soft identity copy and no auction language", () => {
+    const html = quoteInviteHtml(lease);
+    assert.match(html, /without sharing their email/);
+    // The one permitted mention is the plain disclaimer itself.
+    assert.doesNotMatch(html.replace(/not an auction, not a bid/g, ""), /anonymous|auction|\bbid\b|reverse|lock-in|live/i);
+    assert.doesNotMatch(html, /pausmi|@outlook|buyer@/i);
+  });
+});

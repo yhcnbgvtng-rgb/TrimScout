@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { LEASE_MILES, LEASE_TERMS, type LeaseRequestPrefs } from "@/lib/leaseQuote";
 import { auth } from "@/auth";
 import { createRfq, listRfqsForBuyer, RfqApiError } from "@/lib/rfqApi";
 import { hasActiveRfq, isFullyLockedSpec } from "@/lib/rfqLogic";
@@ -73,6 +74,7 @@ export async function POST(req: Request) {
       packageKind,
       linkPastes: packageKind === "links" ? body.linkPastes : undefined,
       dealReference: typeof body.dealReference === "string" ? body.dealReference : null,
+      leasePrefs: parseLeasePrefs(body.leasePrefs),
     });
     recordQuoteRequest();
     return NextResponse.json({ rfq });
@@ -81,4 +83,16 @@ export async function POST(req: Request) {
     const status = err instanceof RfqApiError ? err.status : 502;
     return NextResponse.json({ error: message }, { status });
   }
+}
+
+/** Only the four terms and four mileage bands the product offers; anything else is dropped, not guessed. */
+function parseLeasePrefs(raw: unknown): LeaseRequestPrefs | null {
+  if (!raw || typeof raw !== "object") return null;
+  const o = raw as Record<string, unknown>;
+  const term = Number(o.termMonths);
+  const miles = Number(o.milesPerYear);
+  if (!(LEASE_TERMS as readonly number[]).includes(term) || !(LEASE_MILES as readonly number[]).includes(miles)) return null;
+  const zip = typeof o.zip === "string" && /^\d{5}$/.test(o.zip) ? o.zip : "";
+  const timeline = o.timeline === "asap" || o.timeline === "this_week" || o.timeline === "this_month" ? o.timeline : null;
+  return { termMonths: term as LeaseRequestPrefs["termMonths"], milesPerYear: miles as LeaseRequestPrefs["milesPerYear"], zip, timeline };
 }
