@@ -178,6 +178,11 @@ export interface DealerLinkPaste {
   vdpUrl: string | null;
   buildConfidence: BuildConfidence;
   resolvedAt: string;
+  /** "used" / "cpo" for a pre-owned car; absent = new. Never a factory build. */
+  condition?: "new" | "used" | "cpo";
+  /** Odometer the buyer typed (used only); the dealer confirms it. */
+  mileage?: number | null;
+  stockNumber?: string | null;
 }
 
 export const MAX_PACKAGE_LINKS = 3;

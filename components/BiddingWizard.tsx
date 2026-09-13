@@ -9,6 +9,7 @@ import {
 import { formatCurrency, getZipCoordinates } from "../lib/otdCalculator";
 import { outOfStateVehicles, formatOutOfStateWarning, formatExpandNudge } from "../lib/sameStateCheck";
 import { planDeskSelection } from "../lib/deskSelection";
+import { CPO_BUILD_COPY, USED_BUILD_COPY, USED_VEHICLES_ENABLED, conditionBadge, detectUsedCondition, isUsedCondition, normalizeMiles, type UsedCondition } from "../lib/usedVehicle";
 import { clearQuoteDraft, readQuoteDraft, saveQuoteDraft, wizardAuthState, type QuoteDraft } from "../lib/quoteDraft";
 import { diffVsPrimary, mustHaveHeadline, mustHaveReport, type MustHaveRef } from "../lib/alternateCompare";
 import { DEFAULT_LEASE_TERM, LEASE_MILES, LEASE_NON_BINDING_COPY, LEASE_TERMS, type LeaseMiles, type LeaseTerm } from "../lib/leaseQuote";
@@ -409,19 +410,22 @@ function LinkConfirmPanel({
                 {[build.vehicle.year, build.vehicle.make, build.vehicle.model, build.vehicle.trim].filter(Boolean).join(" ")}
               </span>
               <span className="block truncate text-[10px] text-ink-muted">
-                {build.stickerUnavailable
-                  ? "Factory sticker didn't come back from the manufacturer just now — details are a limited VIN decode. You can still confirm and continue."
-                  : [build.vehicle.exteriorColor, build.vehicle.drivetrain].filter(Boolean).join(" · ") || "Factory record read"}
+                {isUsedCondition(build.vehicle.condition)
+                  ? "Pre-owned — from the VIN; the dealer confirms miles, title and options. No factory sticker needed."
+                  : build.stickerUnavailable
+                    ? "Factory sticker didn't come back from the manufacturer just now — details are a limited VIN decode. You can still confirm and continue."
+                    : [build.vehicle.exteriorColor, build.vehicle.drivetrain].filter(Boolean).join(" · ") || "Factory record read"}
               </span>
             </span>
             <span className="flex shrink-0 items-center gap-2">
               <span
                 className={`rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide ${
-                  build.buildConfidence === "verified_factory" ? "bg-emerald-500/15 text-emerald-300" : "bg-amber-500/15 text-amber-300"
+                  isUsedCondition(build.vehicle.condition) ? "bg-sky-500/15 text-sky-300" : build.buildConfidence === "verified_factory" ? "bg-emerald-500/15 text-emerald-300" : "bg-amber-500/15 text-amber-300"
                 }`}
                 title={build.stickerUnavailable?.reason || undefined}
+                data-testid="confirm-build-badge"
               >
-                {build.buildConfidence === "verified_factory" ? "Factory verified" : build.stickerUnavailable ? "Sticker temporarily unavailable" : "Unconfirmed build"}
+                {conditionBadge(build.vehicle.condition) || (build.buildConfidence === "verified_factory" ? "Factory verified" : build.stickerUnavailable ? "Sticker temporarily unavailable" : "Unconfirmed build")}
               </span>
               {build.pdfUrl ? (
                 <a
@@ -514,8 +518,10 @@ function LinkConfirmPanel({
       </div>
 
       <p className="text-[10px] leading-snug text-ink-faint">
-        We don&apos;t read the dealer&apos;s page. The build comes from the factory record for this VIN; you&apos;re
-        vouching that this VIN at this store is the car.
+        We don&apos;t read the dealer&apos;s page.{" "}
+        {build && isUsedCondition(build.vehicle.condition)
+          ? "Year, make, model and trim come from the VIN; the dealer confirms miles, title and options when they quote. You're vouching that this VIN at this store is the car."
+          : "The build comes from the factory record for this VIN; you're vouching that this VIN at this store is the car."}
       </p>
 
       <div className="flex items-center gap-2">
@@ -738,6 +744,14 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   // Alternate vehicles are optional, so Step 1 keeps them behind a link
   // until asked for — or auto-reveals them once one is actually imported.
   const [showAlternates, setShowAlternates] = useState(false);
+  // New | Used. Default New; a pasted link that says used / pre-owned /
+  // certified flips it. Used goes to the VIN-only import (no sticker) and
+  // is a single-vehicle request — no same-build alternates.
+  const [vehicleCondition, setVehicleCondition] = useState<"new" | UsedCondition>("new");
+  const isUsed = isUsedCondition(vehicleCondition);
+  const usedOpt = isUsed ? { condition: vehicleCondition as UsedCondition } : {};
+  const [usedMiles, setUsedMiles] = useState("");
+  const [usedStock, setUsedStock] = useState("");
 
   // Up to 2 alternate vehicles to ride along with the primary in the same
   // offer (see lib/offerCompare.ts's collectDealVehicles, which already
@@ -859,6 +873,9 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
       return;
     }
     setStep(1);
+    setVehicleCondition("new");
+    setUsedMiles("");
+    setUsedStock("");
     setQuoteType(null);
     setLeaseTerm("");
     setLeaseMiles("");
@@ -1069,6 +1086,9 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     altVin2,
     altVehicle2,
     showAlternates,
+    vehicleCondition,
+    usedMiles,
+    usedStock,
     factoryBuildOem,
     fordStickerStatus,
     fordPdfUrl,
@@ -1125,6 +1145,9 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     pick<string>("altVin2", setAltVin2);
     pick<Vehicle | null>("altVehicle2", setAltVehicle2);
     pick<boolean>("showAlternates", setShowAlternates);
+    pick<"new" | UsedCondition>("vehicleCondition", setVehicleCondition);
+    pick<string>("usedMiles", setUsedMiles);
+    pick<string>("usedStock", setUsedStock);
     pick<FactoryBuildOem | null>("factoryBuildOem", setFactoryBuildOem);
     pick<"released" | "unreleased" | "error" | null>("fordStickerStatus", setFordStickerStatus);
     pick<string | null>("fordPdfUrl", setFordPdfUrl);
@@ -1275,6 +1298,17 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
 
   const parkLink = async (slot: VehicleSlot, raw: string): Promise<boolean> => {
     if (classifyPaste(raw).kind !== "url") return false;
+    // The link's own words decide used / CPO before anything is imported —
+    // and the import below must see that decision, not the stale state.
+    let cond: "new" | UsedCondition = vehicleCondition;
+    if (slot === "primary" && USED_VEHICLES_ENABLED) {
+      const detected = detectUsedCondition(raw);
+      if (detected) {
+        cond = detected;
+        setVehicleCondition(detected);
+      }
+    }
+    const importOpt = isUsedCondition(cond) ? { condition: cond } : {};
     setLinkError(null);
     let resolution = await resolveVdpLink(raw);
     // A directory that didn't answer is not "no such store". One quiet
@@ -1294,7 +1328,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     // link only gets a say when the VIN has none.
     let prebuilt: PasteImportSuccess | null = null;
     if (resolution.vinFromUrl) {
-      const built = await importPastedFactoryVehicle(resolution.vinFromUrl, fetch, { existingVehicles: slotVehicles(slot) });
+      const built = await importPastedFactoryVehicle(resolution.vinFromUrl, fetch, { existingVehicles: slotVehicles(slot), ...importOpt });
       if (built.ok) prebuilt = built;
     }
     setPendingLink({ kind: "link", slot, resolution, prebuilt });
@@ -1344,7 +1378,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     const result =
       prebuilt && prebuilt.vehicle.vin === choice.vin
         ? prebuilt
-        : await importPastedFactoryVehicle(choice.vin, fetch, { existingVehicles: slotVehicles(slot) });
+        : await importPastedFactoryVehicle(choice.vin, fetch, { existingVehicles: slotVehicles(slot), ...usedOpt });
     if (!result.ok) {
       setLinkError(result.error);
       setLinkBusy(false);
@@ -1418,6 +1452,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
 
     const result = await importPastedFactoryVehicle(raw, fetch, {
       existingVehicles: [altVehicle1, altVehicle2],
+      ...usedOpt,
     });
     if (!result.ok) {
       if (result.unreleased) {
@@ -1481,6 +1516,10 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   const clearImportedVehicle = () => {
     setPendingLink(null);
     setSelectedVehicle(null);
+    // Back to the default; the next link decides new / used on its own.
+    setVehicleCondition("new");
+    setUsedMiles("");
+    setUsedStock("");
     setParseSuccessMsg(null);
     setParseError(null);
     setDealerUrlInput("");
@@ -1768,6 +1807,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
       vdpUrl: v.dealerUrl || null,
       buildConfidence: v.buildConfidence || "dealer_listing_only",
       resolvedAt: new Date().toISOString(),
+      ...(isUsedCondition(v.condition) ? { condition: v.condition, mileage: normalizeMiles(usedMiles), stockNumber: usedStock.trim() || null } : {}),
     }));
     const toSend = pastes.filter(
       (p) => p.dealerName && deskPlan.rows[p.dealerName]?.checked
@@ -1800,7 +1840,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
           vehicleMake: primary.make,
           vehicleModel: primary.model,
           vehicleTrim: primary.trim,
-          stockNumber: null,
+          stockNumber: primary.stockNumber || null,
           linkPastes: pastes,
           dealReference,
         }),
@@ -2035,6 +2075,23 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                 hint="Paste the dealership link to the exact vehicle, or its 17-character VIN. One car is required to continue."
                 className="py-6"
               >
+                {USED_VEHICLES_ENABLED && !selectedVehicle ? (
+                  <div className="mb-2 flex items-center gap-2" role="radiogroup" aria-label="New or used">
+                    {(["new", "used"] as const).map((c) => (
+                      <button
+                        key={c}
+                        type="button"
+                        role="radio"
+                        aria-checked={c === "new" ? !isUsed : isUsed}
+                        onClick={() => setVehicleCondition(c)}
+                        className={`rounded-lg border px-3 py-1 text-[11px] font-bold transition-all ${(c === "new" ? !isUsed : isUsed) ? "border-emerald-500 bg-emerald-500/10 text-white" : "border-border text-ink-light hover:border-border-strong"}`}
+                      >
+                        {c === "new" ? "New" : "Used"}
+                      </button>
+                    ))}
+                    <span className="text-[10px] text-ink-faint">{isUsed ? "Used or certified pre-owned — no factory sticker needed." : "A used link flips this on its own."}</span>
+                  </div>
+                ) : null}
                 <div className="flex gap-2">
                   <div className="relative flex-1">
                     <Globe className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-emerald-400" />
@@ -2143,17 +2200,22 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                     <span className="flex shrink-0 items-center gap-3">
                       <span
                         className={`rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide ${
-                          selectedVehicle.buildConfidence === "dealer_listing_only"
-                            ? "bg-amber-500/15 text-amber-300"
-                            : "bg-emerald-500/15 text-emerald-300"
+                          isUsedCondition(selectedVehicle.condition)
+                            ? "bg-sky-500/15 text-sky-300"
+                            : selectedVehicle.buildConfidence === "dealer_listing_only"
+                              ? "bg-amber-500/15 text-amber-300"
+                              : "bg-emerald-500/15 text-emerald-300"
                         }`}
                         title={
-                          selectedVehicle.buildConfidence === "dealer_listing_only"
-                            ? "No factory build sheet was available — details come from the VIN and the dealer's listing."
-                            : "Read from the manufacturer's official factory build sheet."
+                          isUsedCondition(selectedVehicle.condition)
+                            ? "Pre-owned — details come from the VIN; the dealer confirms the rest."
+                            : selectedVehicle.buildConfidence === "dealer_listing_only"
+                              ? "No factory build sheet was available — details come from the VIN and the dealer's listing."
+                              : "Read from the manufacturer's official factory build sheet."
                         }
+                        data-testid="primary-build-badge"
                       >
-                        {selectedVehicle.buildConfidence === "dealer_listing_only" ? "Unconfirmed build" : "Factory verified"}
+                        {conditionBadge(selectedVehicle.condition) || (selectedVehicle.buildConfidence === "dealer_listing_only" ? "Unconfirmed build" : "Factory verified")}
                       </span>
                       {fordPdfUrl && (
                         <a
@@ -2205,7 +2267,12 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                   </div>
                 )}
 
-                {parseSuccessMsg && selectedVehicle?.buildConfidence === "dealer_listing_only" && (
+                {parseSuccessMsg && selectedVehicle && isUsedCondition(selectedVehicle.condition) && (
+                  <p className="rounded-lg border border-sky-500/30 bg-sky-950/20 px-3 py-2 text-[11px] leading-snug text-sky-200" data-testid="used-build-copy">
+                    {selectedVehicle.condition === "cpo" ? CPO_BUILD_COPY : USED_BUILD_COPY}
+                  </p>
+                )}
+                {parseSuccessMsg && selectedVehicle?.buildConfidence === "dealer_listing_only" && !isUsedCondition(selectedVehicle.condition) && (
                   <p className="rounded-lg border border-amber-500/30 bg-amber-950/20 px-3 py-2 text-[11px] leading-snug text-amber-200">
                     {selectedVehicle.stickerUnavailableReason ? (
                       <>
@@ -2262,7 +2329,24 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
 
                 {/* Alternates stay behind a link until asked for, or until
                     one is actually imported. */}
-                {showAlternates || altVehicle1 || altVehicle2 ? (
+                {isUsed ? (
+                  selectedVehicle ? (
+                    <div className="space-y-2 rounded-xl border border-border bg-surface-elevated px-3.5 py-3" data-testid="used-confirm-fields">
+                      <p className="text-[11px] font-semibold text-ink-light">Help the dealer confirm the car <span className="font-normal text-ink-faint">(optional)</span></p>
+                      <div className="grid grid-cols-2 gap-2">
+                        <label className="space-y-1">
+                          <span className="block text-[10px] font-bold uppercase tracking-wide text-ink-faint">Miles</span>
+                          <input type="text" inputMode="numeric" value={usedMiles} onChange={(e) => setUsedMiles(e.target.value.replace(/[^\d,]/g, ""))} placeholder="e.g. 34,512" aria-label="Miles" className="w-full rounded-lg border border-border bg-background px-2.5 py-1.5 font-mono text-[11px] text-ink-light placeholder-ink-faint focus:border-emerald-500 focus:outline-none" />
+                        </label>
+                        <label className="space-y-1">
+                          <span className="block text-[10px] font-bold uppercase tracking-wide text-ink-faint">Stock #</span>
+                          <input type="text" value={usedStock} onChange={(e) => setUsedStock(e.target.value)} placeholder="From the listing" aria-label="Stock number" className="w-full rounded-lg border border-border bg-background px-2.5 py-1.5 font-mono text-[11px] text-ink-light placeholder-ink-faint focus:border-emerald-500 focus:outline-none" />
+                        </label>
+                      </div>
+                      <p className="text-[10px] text-ink-faint">Used requests are one car at a time — the dealer quotes this VIN.</p>
+                    </div>
+                  ) : null
+                ) : showAlternates || altVehicle1 || altVehicle2 ? (
                   <div className="space-y-2">
                     <p className="text-[10px] text-ink-faint">
                       Up to 2 similar vehicles — dealers can quote on any of the three.
