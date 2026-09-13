@@ -424,7 +424,8 @@ export type FactoryFilterableOption = {
 export type PasteImportSuccess = {
   ok: true;
   vehicle: Vehicle;
-  oem: FactoryBuildOem;
+  /** Null for a used / CPO import — there is no factory build behind it. */
+  oem: FactoryBuildOem | null;
   pdfUrl: string | null;
   msrp: number | null;
   mustHaveLines: string[];
@@ -605,6 +606,11 @@ export async function importPastedFactoryVehicle(
      * link so the route keeps the link's dealership and skips the page.
      */
     vin?: string;
+    /**
+     * Used / certified pre-owned: import from the VIN alone (NHTSA) with the
+     * link's desk — no OEM sticker route, no factory build implied.
+     */
+    condition?: "used" | "cpo";
   } = {}
 ): Promise<PasteImportResult> {
   const raw = paste.trim();
@@ -632,6 +638,26 @@ export async function importPastedFactoryVehicle(
   }
 
   try {
+    // A used car never goes to a factory-sticker route.
+    if (options.condition) {
+      const res = await fetchImpl("/api/used-vin", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ paste: raw, vin: suppliedVin || undefined, condition: options.condition }),
+      });
+      const json = (await res.json().catch(() => ({}))) as Record<string, unknown>;
+      const jsonVin = typeof json.vin === "string" ? json.vin.trim().toUpperCase() : pastedVin;
+      if (json.needsVin || json.dealerBlocked) {
+        const message = (typeof json.error === "string" && json.error) || "Could not read a VIN from that page. Paste the 17-character VIN.";
+        return { ok: false, reason: reasonFromServerError(message, json), error: message, dealer: blockedDealerFromJson(json), listingUrl: typeof json.listingUrl === "string" && json.listingUrl ? json.listingUrl : undefined };
+      }
+      if (jsonVin && options.existingVehicles && isDuplicateVehicle(jsonVin, options.existingVehicles)) {
+        return { ok: false, reason: "duplicate", error: `VIN ${jsonVin} is already in your package. Paste a different vehicle.` };
+      }
+      const out = interpretFactoryBuildJson(json, res.ok, "gm", jsonVin || pastedVin);
+      if (!out.ok) return out;
+      return { ...out, oem: null, vehicle: { ...out.vehicle, condition: options.condition }, factoryBuildUnavailable: true, buildConfidence: "dealer_listing_only" };
+    }
     // A supplied VIN settles the make outright — no guessing from the URL.
     const endpoint =
       (suppliedVin ? endpointForVin(suppliedVin) : null) || preferredFactoryBuildEndpoint(raw) || "/api/ford-sticker";

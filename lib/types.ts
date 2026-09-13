@@ -112,6 +112,8 @@ export interface Vehicle {
   options: Option[];
   imageUrl: string;
   mileage: number;
+  /** Dealer stock number, when the buyer knows it (used cars). */
+  stockNumber?: string;
   dealerUrl?: string;
   porscheCode?: string;
   oemBuildSheetUrl?: string;
