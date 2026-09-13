@@ -66,6 +66,33 @@ describe("planDeskSelection — primary desk outside the buyer's state", () => {
     assert.equal(plan.canContinue, false);
   });
 
+  // The Freedom Ford (Iselin, NJ) case: directory has no named contact, the
+  // buyer types their adviser's address, the badge said "Adviser added" — and
+  // the checkbox stayed disabled with Continue dead.
+  it("a buyer-typed adviser address stands in for a missing contact: tickable, auto-ticked, Continue live", () => {
+    const freedom: SelectionDesk = { dealerName: "Freedom Ford (Iselin, NJ)", state: "NJ", desk: generic, buyerEmail: "jane.doe@freedomford.com" };
+    const plan = planDeskSelection({ buyerState: "NJ", sameStateOnly: true, primaryDealerName: freedom.dealerName, desks: [freedom], confirmed: {} });
+    const row = plan.rows[freedom.dealerName];
+    assert.equal(row.adviserAdded, true);
+    assert.equal(row.selectable, true);
+    assert.equal(row.checked, true);
+    assert.equal(plan.canContinue, true);
+  });
+
+  it("an adviser address never unlocks a shared inbox, a half-typed address, or an opted-out desk", () => {
+    const base = { buyerState: "NJ", sameStateOnly: true, primaryDealerName: "Freedom Ford", confirmed: {} };
+    for (const buyerEmail of ["sales@freedomford.com", "info@freedomford.com", "jane@freedomford", "jane"]) {
+      const plan = planDeskSelection({ ...base, desks: [{ dealerName: "Freedom Ford", state: "NJ", desk: generic, buyerEmail }] });
+      assert.equal(plan.rows["Freedom Ford"].selectable, false, buyerEmail);
+      assert.equal(plan.canContinue, false, buyerEmail);
+    }
+    const optedOut = planDeskSelection({
+      ...base,
+      desks: [{ dealerName: "Freedom Ford", state: "NJ", desk: { knownNamed: true, blockedReason: "dealer_opted_out" }, buyerEmail: "jane.doe@freedomford.com" }],
+    });
+    assert.equal(optedOut.rows["Freedom Ford"].selectable, false);
+  });
+
   it("while the lookup is still loading nothing is tickable and Continue waits", () => {
     const plan = nj([{ ...scott, desk: undefined }]);
     assert.equal(plan.rows["Scott Chevrolet"].selectable, false);
