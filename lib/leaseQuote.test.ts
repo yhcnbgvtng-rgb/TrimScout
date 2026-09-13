@@ -112,7 +112,7 @@ import path from "node:path";
 
 describe("lease flow — copy and contact rules", () => {
   const read = (p: string) => fs.readFileSync(path.join(process.cwd(), p), "utf8");
-  const buyerFiles = ["components/BiddingWizard.tsx", "app/rfq/[id]/page.tsx", "components/LeaseCompareTable.tsx", "app/quote-request/received/page.tsx", "components/LeaseCalculatorForm.tsx", "lib/quoteInviteEmail.ts", "lib/leaseQuote.ts"];
+  const buyerFiles = ["components/BiddingWizard.tsx", "app/rfq/[id]/page.tsx", "components/LeaseCompare.tsx", "app/quote-request/received/page.tsx", "components/LeaseCalculatorForm.tsx", "lib/quoteInviteEmail.ts", "lib/leaseQuote.ts"];
   // Only JSX text / string literals matter to a reader; strip comments and identifiers-in-code.
   const visibleText = (src: string) =>
     src
@@ -131,7 +131,7 @@ describe("lease flow — copy and contact rules", () => {
   });
 
   it("(7) no cleartext dealer email in the buyer compare — masked only — and no dealer-site price hero", () => {
-    const compare = read("components/LeaseCompareTable.tsx");
+    const compare = read("components/LeaseCompare.tsx");
     assert.match(compare, /emailMasked/);
     assert.doesNotMatch(compare, /dealerContactEmail|contactEmail\b/);
     const wizard = read("components/BiddingWizard.tsx");
@@ -159,11 +159,14 @@ describe("lease flow — copy and contact rules", () => {
 
   it("buyer waiting / empty states exist: no quotes yet, expired quote, no quote chosen", () => {
     const rfq = read("app/rfq/[id]/page.tsx");
-    assert.match(rfq, /No lease quotes yet/);
     assert.match(rfq, /No quote chosen/);
     assert.match(rfq, /You chose this quote/);
-    const compare = read("components/LeaseCompareTable.tsx");
-    assert.match(compare, /This quote has expired/);
+    // Lease deals: the compare section owns the waiting state (server copy
+    // "Waiting on N dealers…") and greys expired rows out of Choose.
+    const compare = read("components/LeaseCompare.tsx");
+    assert.match(compare, /data-testid="glance-none"/);
+    assert.match(compare, /r\.kind !== "expired" && r\.quoteId \? \([\s\S]*?Choose this quote/);
+    assert.match(read("lib/leaseCompare.ts"), /Waiting on \$\{waiting\.length\} dealer/);
   });
 });
 
@@ -221,7 +224,7 @@ describe("lease prefs — no payment cap anywhere", () => {
   it("no max-DAS field, type, copy or flag survives in the buyer UI, dealer calculator, compare, email, API types or admin desk", () => {
     const files = [
       "lib/leaseQuote.ts", "lib/rfqTracker.ts", "lib/quoteInviteEmail.ts", "components/BiddingWizard.tsx", "components/LeaseQuoteSheet.tsx",
-      "components/LeaseCalculatorForm.tsx", "components/LeaseCalculatorSheet.tsx", "components/LeaseCompareTable.tsx", "components/LeaseQuoteFormat.tsx",
+      "components/LeaseCalculatorForm.tsx", "components/LeaseCalculatorSheet.tsx", "components/LeaseCompare.tsx", "components/LeaseQuoteFormat.tsx",
       "app/admin/quote-requests/QuoteRequestsClient.tsx", "app/api/rfqs/route.ts", "app/api/rfqs/[id]/lease-prefs/route.ts",
     ];
     for (const f of files) assert.doesNotMatch(read(f), /maxCashDueAtSigning|maxDueAtSigning|overMaxCashDue|MAX_CASH_DUE|Cash due at signing|max due at signing|Over (your|the buyer's) \$/i, f);

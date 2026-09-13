@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { getRfq, RfqApiError } from "@/lib/rfqApi";
 import { publicRfqForBuyer } from "@/lib/rfq";
+import { analyzeLeaseQuotes } from "@/lib/leaseCompare";
 
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
@@ -18,7 +19,9 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
     if (rfq.buyerUserId !== session.user.id && !isAdmin) {
       return NextResponse.json({ error: "This request belongs to a different buyer." }, { status: 403 });
     }
-    return NextResponse.json({ rfq: publicRfqForBuyer(rfq) });
+    // The server decides counter / expired / best — the page renders it as given.
+    const pub = publicRfqForBuyer(rfq);
+    return NextResponse.json({ rfq: pub, leaseCompare: analyzeLeaseQuotes(pub) });
   } catch (err) {
     const message = err instanceof RfqApiError ? err.message : "Could not load this request.";
     const status = err instanceof RfqApiError ? err.status : 502;
