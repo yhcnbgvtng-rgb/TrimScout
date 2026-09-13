@@ -12,6 +12,7 @@
 
 import { NON_BINDING_COPY, DESK_ROLE_LABELS, type DeskRole } from "./quotePackage";
 import { LEASE_NON_BINDING_COPY, type LeaseRequestPrefs } from "./leaseQuote";
+import { DEALER_EMAIL_BASE_URL } from "./dealerUnsubscribe";
 
 export interface QuoteInviteEmailInput {
   dealerName: string;
@@ -53,6 +54,17 @@ function escapeHtml(s: string): string {
   return s.replace(/[&<>"']/g, (c) => map[c]);
 }
 
+/** Logo + wordmark at the top of every dealer email; the mark is served from the live site. */
+export function emailHeader(): string {
+  const home = escapeHtml(DEALER_EMAIL_BASE_URL);
+  return `<a href="${home}" style="display:inline-flex;align-items:center;gap:10px;text-decoration:none;margin:0 0 18px"><img src="${home}/scoutmark.png" width="36" height="36" alt="TrimScout" style="display:block;width:36px;height:36px;border-radius:8px;border:0"><span style="font-family:-apple-system,Segoe UI,Roboto,sans-serif;font-size:20px;font-weight:800;letter-spacing:-0.02em;color:#0f172a">Trim<span style="color:#059669">Scout</span></span></a>`;
+}
+
+/** Where a desk logs in (opens the sign-in modal) or signs up. Quotes go through the account, never by email reply. */
+export function dealerAuthLinks(): { loginUrl: string; signupUrl: string } {
+  return { loginUrl: `${DEALER_EMAIL_BASE_URL}/?login=1`, signupUrl: `${DEALER_EMAIL_BASE_URL}/signup` };
+}
+
 export function quoteInviteSubject(input: QuoteInviteEmailInput): string {
   const car = [input.vehicle.year, input.vehicle.make, input.vehicle.model, input.vehicle.trim].filter(Boolean).join(" ");
   if (input.leasePrefs) {
@@ -70,6 +82,7 @@ function leaseInviteHtml(input: QuoteInviteEmailInput, prefs: LeaseRequestPrefs)
   const timeline = input.purchaseTimelineLabel ? `<tr><td style="padding:6px 0;color:#64748b">Timeline</td><td style="padding:6px 0">${escapeHtml(input.purchaseTimelineLabel)}</td></tr>` : "";
   return `
   <div style="font-family:-apple-system,Segoe UI,Roboto,sans-serif;max-width:600px;margin:0 auto;color:#0f172a;line-height:1.5">
+    ${emailHeader()}
     <p style="font-size:15px">Hi ${escapeHtml(firstName)},</p>
     <p>A buyer on TrimScout is asking for a <strong>lease quote</strong> on a car in your inventory.</p>
     <table style="border-collapse:collapse;width:100%;margin:12px 0;font-size:14px">
@@ -101,9 +114,11 @@ export function quoteInviteHtml(input: QuoteInviteEmailInput): string {
   const listing = input.vehicle.vdpUrl
     ? `<a href="${escapeHtml(input.vehicle.vdpUrl)}" style="color:#059669">your listing</a>`
     : "your listing";
+  const auth = dealerAuthLinks();
 
   return `
   <div style="font-family:-apple-system,Segoe UI,Roboto,sans-serif;max-width:600px;margin:0 auto;color:#0f172a;line-height:1.5">
+    ${emailHeader()}
     <p style="font-size:15px">Hi ${escapeHtml(firstName)},</p>
     <p>A buyer on TrimScout would like an out-the-door quote on a car in your inventory:</p>
     <table style="border-collapse:collapse;width:100%;margin:12px 0;font-size:14px">
@@ -114,10 +129,12 @@ export function quoteInviteHtml(input: QuoteInviteEmailInput): string {
       ${input.purchaseTimelineLabel ? `<tr><td style="padding:6px 0;color:#64748b">Timeline</td><td style="padding:6px 0">${escapeHtml(input.purchaseTimelineLabel)}</td></tr>` : ""}
       <tr><td style="padding:6px 0;color:#64748b">Buyer</td><td style="padding:6px 0">${escapeHtml(input.buyerAlias)} <span style="color:#94a3b8">(identity masked until they pick a quote)</span></td></tr>
     </table>
-    <p><strong>To reply:</strong> just answer this email with your best out-the-door price — vehicle plus your dealer fees. Leave sales tax and registration out; they're calculated for the buyer's address once they choose. If you'd rather not quote this one, a one-line reply saying so is appreciated.</p>
+    <p><strong>To quote:</strong> <a href="${escapeHtml(auth.loginUrl)}" style="color:#059669;font-weight:700">log in to TrimScout</a> — or <a href="${escapeHtml(auth.signupUrl)}" style="color:#059669;font-weight:700">sign up</a> if your store doesn't have an account yet. Quotes go through your account, not by replying to this email.</p>
     <p style="margin:18px 0">
-      <a href="${escapeHtml(input.viewUrl)}" style="display:inline-block;background:#059669;color:#fff;text-decoration:none;font-weight:700;padding:10px 18px;border-radius:8px">See the request details</a>
+      <a href="${escapeHtml(auth.loginUrl)}" style="display:inline-block;background:#059669;color:#fff;text-decoration:none;font-weight:700;padding:10px 18px;border-radius:8px">Log in to quote</a>
+      &nbsp;&nbsp;<a href="${escapeHtml(auth.signupUrl)}" style="display:inline-block;border:1px solid #059669;color:#059669;text-decoration:none;font-weight:700;padding:9px 18px;border-radius:8px">Sign up</a>
     </p>
+    <p style="font-size:13px;color:#475569"><a href="${escapeHtml(input.viewUrl)}" style="color:#64748b">See the request details</a></p>
     <p style="font-size:12px;color:#64748b;border-top:1px solid #e2e8f0;padding-top:12px;margin-top:20px">${escapeHtml(NON_BINDING_COPY)}</p>
     <p style="font-size:11px;color:#94a3b8">Sent to ${escapeHtml(input.contactName)}, ${escapeHtml(roleLabel)} at ${escapeHtml(input.dealerName)}.${input.dealReference ? ` Reference ${escapeHtml(input.dealReference)}.` : ""}${input.unsubscribeUrl ? ` Don't want quote requests from TrimScout? <a href="${escapeHtml(input.unsubscribeUrl)}" style="color:#64748b">Unsubscribe</a>.` : ""}</p>
   </div>`;
@@ -149,6 +166,7 @@ export function buyerCounterHtml(input: BuyerCounterEmailInput): string {
   const firstName = input.contactName.split(/\s+/)[0] || input.contactName;
   return `
   <div style="font-family:-apple-system,Segoe UI,Roboto,sans-serif;max-width:600px;margin:0 auto;color:#0f172a;line-height:1.5">
+    ${emailHeader()}
     <p style="font-size:15px">Hi ${escapeHtml(firstName)},</p>
     <p>The buyer looked at your lease quote on the <strong>${escapeHtml(car)}</strong> (VIN ${escapeHtml(input.vehicle.vin)}${input.dealReference ? `, ref ${escapeHtml(input.dealReference)}` : ""}) and sent a counter.</p>
     <table style="border-collapse:collapse;width:100%;margin:12px 0;font-size:14px">
