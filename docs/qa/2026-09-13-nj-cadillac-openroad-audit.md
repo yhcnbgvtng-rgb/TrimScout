@@ -42,7 +42,11 @@ Re-ran the Mercedes-rebuild in-page extractor (`scripts/probes/browser-staff-ext
 
 Contact-ready now includes Crown, Gold Coast, Brogan, Cadillac of Mahwah, Bridgeton, Ciocca (AC), and four Open Road stores (Subaru, VW Bridgewater, Mazda Morristown, Volvo Edison). Open Road Cadillac of Morristown itself publishes no roster — still desk-only.
 
-### Written
+
+### Second pass — every older rooftop with a website but no contact
+Same crawl over the 1513 rooftops the earlier HTTP crawls had left desk-only: **60 now contact_ready** (mostly General Managers / General Sales Managers), 68 named without a personal mailbox (noted), 1385 with no roster. Full lists in `docs/qa/2026-09-13-staff-crawl-v2-b.json`.
+
+### Written (today's 45)
 - Atlantic Cadillac (NY) — Jarrett Rivera, Sales & Leasing Consultant — j…@aagny.net — https://www.atlanticcadillac.com/dealership/staff.htm
 - Bergey'S Cadillac (PA) — Dan Smith, General Manager — d…@bergeys.com — https://www.bergeyscadillac.com/dealership/staff.htm
 - Bomnin Cadillac Nanuet (NY) — Richard Ceballos, Sales Manager — r…@grandprizeauto.net — https://www.bomnincadillacnanuet.com/staff.aspx
