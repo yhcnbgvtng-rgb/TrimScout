@@ -31,7 +31,14 @@ export const GM_STICKER_PDF_URL =
   "https://cws.gm.com/vs-cws/vehshop/v2/vehicle/windowsticker";
 
 export type StickerStatus = "released" | "unreleased" | "error";
-export type GmFetchKind = "pdf" | "unreleased_json" | "empty" | "html_denied" | "text" | "unknown";
+/**
+ * `generating`: HTTP 200, Content-Type application/pdf, zero bytes. Seen live
+ * on 3GNAXPEG1VL131423 (2027 Equinox): the first ~2 s of requests for a VIN
+ * GM's CDN hasn't served yet come back exactly like this while the origin
+ * renders the sticker; the real PDF follows with no Content-Type at all. It
+ * is a "not yet", never a block and never "no data".
+ */
+export type GmFetchKind = "pdf" | "unreleased_json" | "empty" | "generating" | "html_denied" | "text" | "unknown";
 
 export interface GmOptionLine {
   name: string;
@@ -134,6 +141,7 @@ export function classifyGmFetchBody(bytes: Uint8Array, contentType?: string | nu
   const text = new TextDecoder().decode(bytes);
   if (UNRELEASED_PATTERNS.some((re) => re.test(text))) return "unreleased_json";
   if (looksLikeGmBuildText(text)) return "text";
+  if ((contentType || "").includes("pdf") && bytes.length === 0) return "generating";
   if (bytes.length === 0) return "empty";
   if (/access denied|errors\.edgesuite|akamai-grn/i.test(text)) return "html_denied";
   if (looksLikePdf(bytes)) return "pdf";
@@ -748,6 +756,8 @@ export function gmUnavailableMessage(vin: string, kind: GmFetchKind | "network_e
   switch (kind) {
     case "html_denied":
       return `GM's factory-sticker service blocked this request from our server (VIN ${vin}). The sticker exists; it's temporarily unavailable here.`;
+    case "generating":
+      return `GM is still generating the factory sticker for VIN ${vin} — it usually appears within a few seconds. Ask again in a moment.`;
     case "empty":
       return `GM's factory-sticker service answered our server with an empty response for VIN ${vin} — a block or hiccup on their side, not a missing sticker. Try again in a moment.`;
     case "network_error":
@@ -759,6 +769,8 @@ export function gmUnavailableMessage(vin: string, kind: GmFetchKind | "network_e
 
 const GM_FETCH_ATTEMPTS = 4;
 const GM_RETRY_DELAYS_MS = [500, 1500, 3000];
+/** One extra, longer wait when GM is visibly still rendering the PDF (see GmFetchKind "generating"). */
+const GM_GENERATING_EXTRA_DELAY_MS = 5000;
 
 /**
  * GM's edge answers the same VIN with a 150 KB PDF for a bare curl and, at
@@ -808,8 +820,15 @@ async function fetchGmStickerBytesHttp(
 ): Promise<{ bytes: Uint8Array; contentType: string | null; attempts: GmFetchDiagnostic[] }> {
   const url = gmStickerPdfUrl(vin);
   const attempts: GmFetchDiagnostic[] = [];
-  for (let i = 0; i < GM_FETCH_ATTEMPTS; i++) {
-    if (i > 0) await new Promise((r) => setTimeout(r, GM_RETRY_DELAYS_MS[i - 1] ?? 1500));
+  // A "generating" answer earns one more attempt after a longer pause —
+  // the sticker is on its way, and the buyer would rather wait 5 s than
+  // be told to come back.
+  let maxAttempts = GM_FETCH_ATTEMPTS;
+  for (let i = 0; i < maxAttempts; i++) {
+    if (i > 0) {
+      const generating = attempts[i - 1]?.kind === "generating" && i >= GM_FETCH_ATTEMPTS;
+      await new Promise((r) => setTimeout(r, generating ? GM_GENERATING_EXTRA_DELAY_MS : GM_RETRY_DELAYS_MS[i - 1] ?? 1500));
+    }
     const profile = GM_HEADER_PROFILES[i % GM_HEADER_PROFILES.length];
     try {
       const res = await fetch(url, {
@@ -825,7 +844,8 @@ async function fetchGmStickerBytesHttp(
       attempts.push(diag);
       console.log(`[gm-sticker] ${vin} attempt ${diag.attempt} (${profile.name}): ${diag.status} ${diag.kind} ${diag.bytes}B ct=${diag.contentType} magic=${JSON.stringify(diag.magic)}`);
       if (kind === "pdf" || kind === "text" || kind === "unreleased_json") return { bytes, contentType, attempts };
-      // empty / unknown / html_denied → retry with the next profile
+      if (kind === "generating" && i === GM_FETCH_ATTEMPTS - 1 && maxAttempts === GM_FETCH_ATTEMPTS) maxAttempts = GM_FETCH_ATTEMPTS + 1;
+      // empty / generating / unknown / html_denied → retry with the next profile
     } catch (err) {
       const diag: GmFetchDiagnostic = { attempt: i + 1, status: null, finalUrl: null, contentType: null, bytes: 0, magic: "", kind: "network_error", error: err instanceof Error ? err.message : String(err), profile: profile.name };
       attempts.push(diag);

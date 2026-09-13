@@ -263,7 +263,9 @@ describe("GM option matchers", () => {
 
 describe("GM fetch classification (mocked HTTP)", () => {
   it("classifies JSON 1001, empty bodies, and real-looking text by content not status", () => {
-    assert.equal(classifyGmFetchBody(new Uint8Array(), "application/pdf"), "empty");
+    // application/pdf with no body is GM still rendering — its own kind, retried longer.
+    assert.equal(classifyGmFetchBody(new Uint8Array(), "application/pdf"), "generating");
+    assert.equal(classifyGmFetchBody(new Uint8Array(), null), "empty");
     assert.equal(
       classifyGmFetchBody(
         new TextEncoder().encode(
@@ -705,11 +707,15 @@ const VIN_DENIED = "1GTEST00000000003";
 const VIN_NETWORK = "1GTEST00000000004";
 const VIN_NON_GM = "1FTEST00000000005";
 const VIN_PDF_ON_BARE = "1GTEST00000000006";
+const VIN_GENERATING = "1GTEST00000000007";
+const VIN_GENERATING_5 = "1GTEST00000000008";
 const FIXTURE = fs.readFileSync(path.join(process.cwd(), "lib/testdata/gm-stickers/1GCPYBEK4TZ300055.txt"), "utf8");
 const buildFor = (vin: string) => FIXTURE.replace(/1GCPYBEK4TZ300055/g, vin);
 const BUILD_TEXT = buildFor(FRESH_VIN);
 
-function scripted(bodies: Array<Uint8Array | string | Error>) {
+/** `{ pdfEmpty: true }` = GM's "still generating" answer: 200, Content-Type application/pdf, zero bytes. */
+type ScriptedBody = Uint8Array | string | Error | { pdfEmpty: true };
+function scripted(bodies: ScriptedBody[]) {
   const calls: string[] = [];
   const profiles: string[] = [];
   const impl = (async (input: RequestInfo | URL, init?: RequestInit) => {
@@ -718,7 +724,10 @@ function scripted(bodies: Array<Uint8Array | string | Error>) {
     profiles.push(h["Sec-Fetch-Mode"] ? "browser-nav" : h["Referer"] ? "browser" : "bare");
     const next = bodies.shift();
     if (next instanceof Error) throw next;
-    const bytes = typeof next === "string" ? new TextEncoder().encode(next) : next ?? new Uint8Array();
+    if (next && typeof next === "object" && "pdfEmpty" in next) {
+      return new Response(new ArrayBuffer(0), { status: 200, headers: { "content-type": "application/pdf" } });
+    }
+    const bytes = typeof next === "string" ? new TextEncoder().encode(next) : (next as Uint8Array | undefined) ?? new Uint8Array();
     // Copy into a plain ArrayBuffer: TS 5.7 types Uint8Array over ArrayBufferLike, which BodyInit rejects.
     return new Response(bytes.slice().buffer as ArrayBuffer, { status: 200 });
   }) as typeof fetch;
@@ -726,7 +735,7 @@ function scripted(bodies: Array<Uint8Array | string | Error>) {
 }
 
 describe("getGmSticker — empty bodies are retried, then reported plainly", () => {
-  const SYNTHETIC = [FRESH_VIN, VIN_EMPTY3, VIN_DENIED, VIN_NETWORK, VIN_NON_GM, VIN_PDF_ON_BARE];
+  const SYNTHETIC = [FRESH_VIN, VIN_EMPTY3, VIN_DENIED, VIN_NETWORK, VIN_NON_GM, VIN_PDF_ON_BARE, VIN_GENERATING, VIN_GENERATING_5];
   for (const v of SYNTHETIC) forgetGmStickerForTests(v);
   after(() => {
     for (const v of SYNTHETIC) forgetGmStickerForTests(v);
@@ -787,6 +796,49 @@ describe("getGmSticker — empty bodies are retried, then reported plainly", () 
       await getGmSticker(VIN_PDF_ON_BARE).catch(() => undefined); // parse of a fake PDF may fail; the fetch loop is what's under test
       assert.equal(calls.length, 2, "stopped as soon as a PDF body arrived");
       assert.deepEqual(profiles, ["browser", "bare"]);
+    } finally {
+      globalThis.fetch = orig;
+      clearGmStickerMemoryCache();
+    }
+  });
+
+  // Live capture, 3GNAXPEG1VL131423 (2027 Equinox), 2026-09-13: attempts 1–3
+  // were 200 / application/pdf / 0 B while GM rendered the sticker; the
+  // 152 KB PDF arrived on attempt 4. The client must read that as "not
+  // yet" and keep going, never as "no data".
+  it("200 + application/pdf + 0 bytes is 'generating': the loop waits it out and takes the PDF when it lands", async () => {
+    clearGmStickerMemoryCache();
+    const { classifyGmFetchBody } = await import("./gmSticker");
+    assert.equal(classifyGmFetchBody(new Uint8Array(), "application/pdf"), "generating");
+    assert.equal(classifyGmFetchBody(new Uint8Array(), null), "empty", "no Content-Type + no body is still the plain empty case");
+    const { impl, calls } = scripted([{ pdfEmpty: true }, { pdfEmpty: true }, { pdfEmpty: true }, buildFor(VIN_GENERATING)]);
+    const orig = globalThis.fetch;
+    globalThis.fetch = impl;
+    try {
+      const sticker = await getGmSticker(VIN_GENERATING);
+      assert.equal(sticker.status, "released");
+      assert.equal(calls.length, 4);
+    } finally {
+      globalThis.fetch = orig;
+      clearGmStickerMemoryCache();
+    }
+  });
+
+  it("four 'generating' answers earn one extra, longer attempt; five → a 'generating' error with 'still generating' copy", async () => {
+    clearGmStickerMemoryCache();
+    const { impl, calls } = scripted([{ pdfEmpty: true }, { pdfEmpty: true }, { pdfEmpty: true }, { pdfEmpty: true }, { pdfEmpty: true }]);
+    const orig = globalThis.fetch;
+    globalThis.fetch = impl;
+    try {
+      await assert.rejects(getGmSticker(VIN_GENERATING_5), (err: unknown) => {
+        assert.ok(err instanceof GmStickerUnavailableError);
+        assert.equal(err.kind, "generating");
+        assert.equal(err.attempts.length, 5, "one extra attempt beyond the usual four");
+        assert.match(err.message, /still generating the factory sticker .* Ask again in a moment/);
+        assert.doesNotMatch(err.message, /no data|blocked/);
+        return true;
+      });
+      assert.equal(calls.length, 5);
     } finally {
       globalThis.fetch = orig;
       clearGmStickerMemoryCache();

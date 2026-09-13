@@ -27,6 +27,21 @@ where noted.
 | G | Johnson Cadillac VDP `johnsoncadillacnj.com` + `1GYKPYRKXTZ312313` | ✅ browser: panel shows **Johnson Cadillac · Budd Lake, NJ · from the listing link · sales contact on file**, 2026 Cadillac Lyriq Signature Sport, FACTORY VERIFIED. |
 | H | Step 3 NJ 07405 + Scott PA primary | ✅ (PR #139/#140/#141, live) pre-checked, Listing dealer badge, Continue enabled, no yellow CTA. |
 
+## GM sticker — root cause caught live (3GNAXPEG1VL131423)
+
+Pasting a 2027 Equinox VIN GM's CDN had never served produced, from the new client's per-attempt log:
+
+```
+attempt 1 (browser):     200 empty 0B ct=application/pdf
+attempt 2 (bare):        200 empty 0B ct=application/pdf   +0.5 s
+attempt 3 (browser-nav): 200 empty 0B ct=application/pdf   +1.5 s
+attempt 4 (browser):     200 pdf 152480B ct=null           +3.0 s  ✅
+```
+
+A bare `curl` from a laptop got the same two 0-byte answers first, then the PDF on every later call. So the failure is **timing, not request shape**: for the first ~2 s after a never-seen VIN is asked for, GM's edge returns `200` + `Content-Type: application/pdf` + zero bytes while the origin renders the sticker. Real PDFs come back with *no* Content-Type at all — the `application/pdf` header on an empty body is the tell. The old client's three attempts fit inside that window (~1.6 s) and reported "no data".
+
+Client now classifies that shape as **`generating`**, waits it out (4 attempts over ~5 s, plus one extra 5 s attempt if every answer was `generating`), and if it still hasn't landed says *"GM is still generating the factory sticker … Ask again in a moment"* — with the inline "ask the manufacturer again" button. Unit tests replay the live capture (3 × generating → PDF) and the give-up path (5 × generating).
+
 ## GM sticker — three VINs
 
 All three (`1GNS6NKD5TR434507`, `1GYKPYRKXTZ312313`, `1GNS6MKD2TR280381`) return `released / verified_factory` on dev and on production at the time of retest. The empty-200 failure is intermittent on the app host and could not be reproduced from this machine (bare curl, browser headers, node fetch ×5 — all 150–172 KB PDFs). The profile rotation + longer backoff is the mitigation; per-attempt logs (`[gm-sticker] VIN attempt N (profile): status kind bytes ct magic`) will show which profile the edge accepts when it next happens. Unit tests cover: empty → retry succeeds on the next profile; four empties → typed `empty` error with rotated profiles and the new copy; Akamai denial; network error; unreleased JSON.
