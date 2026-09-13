@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { getRfq, RfqApiError } from "@/lib/rfqApi";
+import { publicRfqForBuyer } from "@/lib/rfq";
 
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
@@ -11,10 +12,13 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
   try {
     const rfq = await getRfq(id);
     if (!rfq) return NextResponse.json({ error: "RFQ not found." }, { status: 404 });
-    if (rfq.buyerUserId !== session.user.id) {
+    // The owner, or an admin (the all-requests desk opens any deal read-only;
+    // pick / walk / edits stay owner-only).
+    const isAdmin = (session.user as { role?: string }).role === "admin";
+    if (rfq.buyerUserId !== session.user.id && !isAdmin) {
       return NextResponse.json({ error: "This request belongs to a different buyer." }, { status: 403 });
     }
-    return NextResponse.json({ rfq });
+    return NextResponse.json({ rfq: publicRfqForBuyer(rfq) });
   } catch (err) {
     const message = err instanceof RfqApiError ? err.message : "Could not load this request.";
     const status = err instanceof RfqApiError ? err.status : 502;

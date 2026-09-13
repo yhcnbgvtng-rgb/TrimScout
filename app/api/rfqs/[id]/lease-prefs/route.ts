@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { getRfq, RfqApiError, updateRfqLeasePrefs } from "@/lib/rfqApi";
+import { publicRfqForBuyer } from "@/lib/rfq";
 import { parseLeasePrefs } from "@/lib/leaseQuote";
 
 // PATCH /api/rfqs/:id/lease-prefs { leasePrefs } — the buyer adjusting the
@@ -27,7 +28,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     }
     if (rfq.status !== "collecting") return NextResponse.json({ error: "This request is closed." }, { status: 409 });
     const updated = await updateRfqLeasePrefs(id, prefs);
-    return NextResponse.json({ rfq: updated });
+    return NextResponse.json({ rfq: publicRfqForBuyer(updated) });
   } catch (err) {
     if (err instanceof RfqApiError && err.status === 409) {
       return NextResponse.json({ error: "Locked — a dealer has viewed this request. New terms need a new quote request." }, { status: 409 });

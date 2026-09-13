@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { getRfq, RfqApiError, submitRfqQuote } from "@/lib/rfqApi";
+import { publicRfqForBuyer } from "@/lib/rfq";
 import { coerceLeaseQuote, validateLeaseQuote, type LeaseQuote } from "@/lib/leaseQuote";
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string; inviteId: string }> }) {
@@ -52,7 +53,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
         lease,
       });
       const refreshedLease = await getRfq(id);
-      return NextResponse.json({ rfq: refreshedLease, warnings: v.warnings });
+      return NextResponse.json({ rfq: refreshedLease ? publicRfqForBuyer(refreshedLease) : null, warnings: v.warnings });
     }
     await submitRfqQuote(id, inviteId, {
       price: Number(body.price),
@@ -64,7 +65,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       notes: body.notes ?? null,
     });
     const refreshed = await getRfq(id);
-    return NextResponse.json({ rfq: refreshed });
+    return NextResponse.json({ rfq: refreshed ? publicRfqForBuyer(refreshed) : null });
   } catch (err) {
     const message = err instanceof RfqApiError ? err.message : "Could not record this quote.";
     const status = err instanceof RfqApiError ? err.status : 502;
