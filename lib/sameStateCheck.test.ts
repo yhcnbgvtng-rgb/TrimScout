@@ -202,4 +202,33 @@ describe("stateGatePlan", () => {
     const plan = stateGatePlan("NJ", [desk("Mystery Motors", ""), desk("Freedom Ford", "NJ")], true);
     assert.equal(plan.inStateReady.length, 2);
   });
+
+  // The live dead-end: NJ buyer, Scott Chevrolet (Allentown, PA) is the only
+  // desk. The gate held the one rooftop that lists the car, so the row read
+  // OUTSIDE NJ, couldn't be ticked, and Continue never enabled.
+  it("never holds back the primary (listing) desk — alone it needs no expand click", () => {
+    const plan = stateGatePlan("NJ", [{ ...desk("Scott Chevrolet", "PA"), primary: true }], true);
+    assert.equal(plan.active, true);
+    assert.deepEqual(plan.excludedReady, []);
+    assert.equal(plan.primaryOutOfState.length, 1);
+    assert.equal(plan.shouldOfferExpand, false);
+    assert.equal(formatExpandNudge(plan), "");
+  });
+
+  it("gates the other out-of-state desks but not the primary, and the nudge says the listing dealer stays in", () => {
+    const plan = stateGatePlan("NJ", [{ ...desk("Scott Chevrolet", "PA"), primary: true }, desk("Koons Chevrolet", "MD"), desk("Malouf Chevrolet", "NJ")], true);
+    assert.deepEqual(plan.excludedReady.map((d) => d.dealerName), ["Koons Chevrolet"]);
+    assert.deepEqual(plan.primaryOutOfState.map((d) => d.dealerName), ["Scott Chevrolet"]);
+    assert.equal(plan.inStateReady.length, 1);
+    assert.equal(plan.shouldOfferExpand, true);
+    const nudge = formatExpandNudge(plan);
+    assert.match(nudge, /Scott Chevrolet \(PA\) lists your car, so it stays in\./);
+    assert.match(nudge, /1 more is in MD/);
+  });
+
+  it("a primary desk without a named contact still can't receive anything — the contact_ready rule wins", () => {
+    const plan = stateGatePlan("NJ", [{ ...desk("Scott Chevrolet", "PA", false), primary: true }], true);
+    assert.equal(plan.primaryOutOfState.length, 0);
+    assert.equal(plan.emptyInState, true);
+  });
 });
