@@ -3,6 +3,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { LeaseCompareTable } from "@/components/LeaseCompareTable";
 import { LeaseQuoteSheet } from "@/components/LeaseQuoteSheet";
+import { LeaseCalculatorSheet } from "@/components/LeaseCalculatorSheet";
 import { LEASE_NON_BINDING_COPY } from "@/lib/leaseQuote";
 import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
@@ -233,7 +234,10 @@ function DeclineForm({ onSubmit, onCancel }: { onSubmit: (reason: RfqDeclineReas
 function InviteRow({ invite, rfq, onAction }: { invite: RfqInvite; rfq: RfqRequest; onAction: () => void }) {
   const [mode, setMode] = useState<"idle" | "quote" | "decline">("idle");
 
-  const submitQuote = async (input: Parameters<React.ComponentProps<typeof QuoteIntakeForm>["onSubmit"]>[0]) => {
+  // Lease deals record the dealer's reply as the structured lease quote
+  // (same contract as the dealer's own calculator); cash/finance deals
+  // keep the price + fees form. Both post to the same route.
+  const submitQuote = async (input: Parameters<React.ComponentProps<typeof QuoteIntakeForm>["onSubmit"]>[0] | Parameters<React.ComponentProps<typeof LeaseCalculatorSheet>["onSubmit"]>[0]) => {
     const res = await fetch(`/api/rfqs/${rfq.id}/invites/${invite.id}/quotes`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -314,7 +318,10 @@ function InviteRow({ invite, rfq, onAction }: { invite: RfqInvite; rfq: RfqReque
           </button>
         </div>
       )}
-      {mode === "quote" && (
+      {mode === "quote" && rfq.leasePrefs && (
+        <LeaseCalculatorSheet prefs={rfq.leasePrefs} vin={invite.vehicle?.vin || rfq.vin} stockNumber={rfq.stockNumber} onSubmit={submitQuote} onCancel={() => setMode("idle")} />
+      )}
+      {mode === "quote" && !rfq.leasePrefs && (
         <QuoteIntakeForm rfqVin={rfq.vin} rfqStockNumber={rfq.stockNumber} onSubmit={submitQuote} onCancel={() => setMode("idle")} />
       )}
       {mode === "decline" && <DeclineForm onSubmit={submitDecline} onCancel={() => setMode("idle")} />}
