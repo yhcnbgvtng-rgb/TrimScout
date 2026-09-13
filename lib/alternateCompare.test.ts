@@ -166,6 +166,13 @@ describe("wizard wiring — same-state gate + alternate comparison", () => {
     assert.match(wizard, /Include dealerships in other states/);
   });
 
+  it("the primary (listing) desk is flagged to the gate and stays tickable outside the buyer's state", () => {
+    assert.match(wizard, /primary: Boolean\(primaryDealerName\) && d\.dealerName === primaryDealerName/);
+    assert.match(wizard, /keptOutOfState = new Set\(gatePlan\.active \? gatePlan\.primaryOutOfState/);
+    assert.match(wizard, /kept in because it lists your car/);
+    assert.match(wizard, /The dealership listing your car always stays in\./);
+  });
+
   it("(4) alternate cards lead with the must-have report and diff, never a sticker similarity %", () => {
     assert.match(wizard, /mustHaveHeadline\(report\)/);
     assert.match(wizard, /diffVsPrimary\(primary, vehicle, mustHaves/);

@@ -135,6 +135,13 @@ export interface GateDesk {
   state: string | null | undefined;
   /** A named, non-generic, not-opted-out contact — the only kind that can receive a quote request. */
   contactReady: boolean;
+  /**
+   * The rooftop the buyer's own car was matched to (VIN or pasted VDP). The
+   * gate never holds this desk back: it decides which *other* dealers get the
+   * request, and leaving out the one dealer that lists the car is a dead end,
+   * not a preference.
+   */
+  primary?: boolean;
 }
 
 export interface StateGatePlan {
@@ -142,7 +149,9 @@ export interface StateGatePlan {
   active: boolean;
   buyerState: string | null;
   inStateReady: GateDesk[];
-  /** Ready desks the gate is holding back. */
+  /** Primary (listing) desks outside the buyer's state that the gate keeps in anyway. */
+  primaryOutOfState: GateDesk[];
+  /** Ready desks the gate is holding back — never a primary desk. */
   excludedReady: GateDesk[];
   /** States of the held-back ready desks, sorted. */
   excludedStates: string[];
@@ -162,19 +171,23 @@ export function stateGatePlan(
   const active = sameStateOnly && isResolvedState(buyerState);
   const buyer = active ? (buyerState || "").trim().toUpperCase() : null;
   if (!active) {
-    return { active: false, buyerState: null, inStateReady: ready, excludedReady: [], excludedStates: [], shouldOfferExpand: false, emptyInState: ready.length === 0 };
+    return { active: false, buyerState: null, inStateReady: ready, primaryOutOfState: [], excludedReady: [], excludedStates: [], shouldOfferExpand: false, emptyInState: ready.length === 0 };
   }
   const inStateReady = ready.filter((d) => !sameStateGateExcludes(buyer, d.state));
-  const excludedReady = ready.filter((d) => sameStateGateExcludes(buyer, d.state));
+  const outOfState = ready.filter((d) => sameStateGateExcludes(buyer, d.state));
+  const primaryOutOfState = outOfState.filter((d) => d.primary);
+  const excludedReady = outOfState.filter((d) => !d.primary);
   const excludedStates = [...new Set(excludedReady.map((d) => (d.state || "").trim().toUpperCase()))].sort();
   const want = Math.min(packageSize, ready.length);
+  const kept = inStateReady.length + primaryOutOfState.length;
   return {
     active: true,
     buyerState: buyer,
     inStateReady,
+    primaryOutOfState,
     excludedReady,
     excludedStates,
-    shouldOfferExpand: excludedReady.length > 0 && inStateReady.length < want,
+    shouldOfferExpand: excludedReady.length > 0 && kept < want,
     emptyInState: inStateReady.length === 0,
   };
 }
@@ -186,5 +199,10 @@ export function formatExpandNudge(plan: StateGatePlan): string {
   const where = states.length === 1 ? states[0] : `${states.slice(0, -1).join(", ")} and ${states[states.length - 1]}`;
   const have = plan.inStateReady.length;
   const lead = have === 0 ? `None of your dealerships with a sales contact are in ${plan.buyerState}.` : `Only ${have} of your dealerships with a sales contact ${have === 1 ? "is" : "are"} in ${plan.buyerState}.`;
-  return `${lead} ${n} more ${n === 1 ? "is" : "are"} in ${where}. Include dealerships in other states to send to ${n === 1 ? "it" : "them"} too.`;
+  const primary = plan.primaryOutOfState;
+  const kept =
+    primary.length === 0
+      ? ""
+      : ` ${primary.map((d) => `${d.dealerName} (${(d.state || "").trim().toUpperCase()})`).join(" and ")} ${primary.length === 1 ? "lists" : "list"} your car, so ${primary.length === 1 ? "it stays" : "they stay"} in.`;
+  return `${lead}${kept} ${n} more ${n === 1 ? "is" : "are"} in ${where}. Include dealerships in other states to send to ${n === 1 ? "it" : "them"} too.`;
 }

@@ -892,16 +892,23 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   // when that would leave the package short it offers the expand — the
   // buyer is never left with an empty send path.
   const buyerStateFromZip = /^\d{5}$/.test(huntZip.trim()) ? getZipCoordinates(huntZip.trim()).state : "";
+  // The rooftop the buyer's own car resolved to is the one desk the gate may
+  // never hold back — with nothing else in the package it would be a dead
+  // end (an "Outside NJ" row that can't be ticked and a Continue that never
+  // enables). The gate only decides about the other dealerships.
+  const primaryDealerName = reviewTarget?.dealerName?.trim() || "";
   const gatePlan = stateGatePlan(
     buyerStateFromZip,
     importedDealerships.map((d) => ({
       dealerName: d.dealerName,
       state: d.state,
       contactReady: Boolean(quoteDesks[d.dealerName]?.knownNamed && !quoteDesks[d.dealerName]?.blockedReason),
+      primary: Boolean(primaryDealerName) && d.dealerName === primaryDealerName,
     })),
     sameStateOnly
   );
   const excludedByState = new Set(gatePlan.active ? gatePlan.excludedReady.map((d) => d.dealerName) : []);
+  const keptOutOfState = new Set(gatePlan.active ? gatePlan.primaryOutOfState.map((d) => d.dealerName) : []);
   const expandNudge = directOfferMode ? formatExpandNudge(gatePlan) : "";
   const confirmedDeskCount = importedDealerships.filter(
     (d) => confirmedDesks[d.dealerName] && !quoteDesks[d.dealerName]?.blockedReason && !excludedByState.has(d.dealerName)
@@ -2004,7 +2011,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                     <span className="leading-snug text-ink-muted">
                       Only send this to dealerships in my state
                       <span className="block text-[10px] text-ink-faint">
-                        Uncheck to include dealerships in other states within the radius
+                        Uncheck to include dealerships in other states within the radius. The dealership listing your car always stays in.
                       </span>
                     </span>
                   </label>
@@ -2382,6 +2389,11 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                                 }
                                 return null;
                               })()}
+                              {directOfferMode && keptOutOfState.has(dealer.dealerName) ? (
+                                <div className="text-[10px] text-ink-faint">
+                                  Outside {gatePlan.buyerState} — kept in because it lists your car.
+                                </div>
+                              ) : null}
                               {dealer.title ? (
                                 <div className="text-[10px] text-ink-faint">{dealer.title}</div>
                               ) : null}
@@ -2406,6 +2418,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                                 if (directOfferMode) {
                                   if (!desk) return "Checking";
                                   if (heldByState) return `Outside ${gatePlan.buyerState}`;
+                                  if (!desk.blockedReason && keptOutOfState.has(dealer.dealerName)) return "Listing dealer";
                                   if (!desk.blockedReason) return "Named contact";
                                   if (supplied) return "Adviser added";
                                   return desk.blockedReason === "dealer_opted_out" ? "Opted out" : "No sales contact";
