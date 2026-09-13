@@ -17,7 +17,7 @@ const { listDealerships, createDealership, updateDealership } = await import("..
 const { contactDomains, normalizeDealerHost } = await import("../lib/deskResolve");
 const { resolveHostRedirect } = await import("../lib/hostRedirect");
 const { crossReferenceStickerDealer } = await import("../lib/dealerSearch");
-const { isGenericMailbox, looksLikePersonName } = await import("../lib/quotePackage");
+const { isGenericMailbox } = await import("../lib/quotePackage");
 // playwright-core lives in the scratchpad install (not a project dependency); resolve it from there.
 const { chromium } = await import("/private/tmp/claude-501/-Users-paul-Claude---GitHub/63074dce-e7ba-4ac7-aa49-43ff06e4d5be/scratchpad/node_modules/playwright-core/index.mjs");
 
