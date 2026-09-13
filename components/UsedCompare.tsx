@@ -9,8 +9,8 @@ import { MustConfirmList } from "./MustConfirmList";
 import type { MustConfirmItem } from "../lib/mustConfirm";
 
 /**
- * Used-car compare — Finance or Cash column sets (never the lease MF /
- * residual grid). One row per dealer; best out-the-door (cash) or best
+ * Used-car compare — Finance or Cash column sets (never the lease
+ * grid). One row per dealer; best out-the-door (cash) or best
  * monthly (finance) highlighted among current, in-pref quotes; expired
  * greyed; waiting rows with dashes; checklist answers per row.
  */
