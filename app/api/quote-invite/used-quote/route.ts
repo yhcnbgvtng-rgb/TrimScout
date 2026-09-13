@@ -1,12 +1,10 @@
 // POST /api/quote-invite/used-quote { t, vin?, stockNumber?, quote } — a
 // dealer's used-car Finance / Cash sheet, submitted from their quote page
-// behind the invite token. Validated here (lib/usedQuote.ts) with the
-// buyer's must-confirm list before anything reaches the box.
+// behind the invite token. Validated here (lib/usedQuote.ts) before
+// anything reaches the box.
 import { NextResponse } from "next/server";
 import { getRfq, getRfqInviteByViewToken, submitRfqQuote } from "@/lib/rfqApi";
 import { validateUsedQuote, cashOutTheDoor, type UsedQuote } from "@/lib/usedQuote";
-import { parseMustConfirmAcks } from "@/lib/mustConfirm";
-import { rfqVehicles } from "@/lib/rfqTracker";
 
 export async function POST(req: Request) {
   const body = await req.json().catch(() => null);
@@ -21,8 +19,6 @@ export async function POST(req: Request) {
   if (!rfq.quotePrefs) return NextResponse.json({ error: "This request has no Finance / Cash ask on file." }, { status: 409 });
 
   const raw = (body?.quote || {}) as Record<string, unknown>;
-  const car = rfqVehicles(rfq).find((v) => v.vin === (found.invite.vehicle?.vin || rfq.vin)) || null;
-  const items = car?.mustConfirm || [];
   const vin = typeof body?.vin === "string" && body.vin.trim() ? body.vin.trim().toUpperCase() : rfq.vin;
   const stockNumber = typeof body?.stockNumber === "string" && body.stockNumber.trim() ? body.stockNumber.trim() : rfq.stockNumber;
   const num = (v: unknown) => (typeof v === "number" && Number.isFinite(v) ? v : typeof v === "string" && v.trim() !== "" && Number.isFinite(Number(v)) ? Number(v) : undefined);
@@ -33,7 +29,6 @@ export async function POST(req: Request) {
     miles: num(raw.miles),
     stockNumber,
     cpo: Boolean(raw.cpo),
-    checklist: parseMustConfirmAcks(raw.checklist, items),
     expiresAt: typeof raw.expiresAt === "string" ? raw.expiresAt : "",
     notes: typeof raw.notes === "string" && raw.notes.trim() ? raw.notes.trim().slice(0, 1000) : null,
   };
@@ -53,7 +48,7 @@ export async function POST(req: Request) {
           counter: { counterOffer: Boolean((raw.counter as Record<string, unknown> | undefined)?.counterOffer), note: String((raw.counter as Record<string, unknown> | undefined)?.note || "") },
         }
       : { ...base, kind: "cash" };
-  const v = validateUsedQuote(quote, rfq.quotePrefs, items, { vin, stockNumber });
+  const v = validateUsedQuote(quote, rfq.quotePrefs, { vin, stockNumber });
   if (v.errors.length) return NextResponse.json({ error: "Quote is incomplete.", errors: v.errors, warnings: v.warnings }, { status: 422 });
 
   const used = quote as UsedQuote;

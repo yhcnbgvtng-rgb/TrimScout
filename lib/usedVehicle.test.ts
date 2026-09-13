@@ -55,7 +55,7 @@ describe("wiring — used cars ride the same pipe without a factory build", () =
     assert.match(w, /data-testid="primary-build-badge"[\s\S]*?conditionBadge\(selectedVehicle\.condition\)/);
     assert.match(w, /data-testid="confirm-build-badge"[\s\S]*?conditionBadge\(build\.vehicle\.condition\)/);
     assert.match(w, /\{isUsed \? \(\s*selectedVehicle \? \(\s*<div[^>]*data-testid="used-confirm-fields"/);
-    assert.match(w, /isUsedCondition\(v\.condition\) \? \{ condition: v\.condition, mileage: normalizeMiles\(usedMiles\), stockNumber: usedStock\.trim\(\) \|\| null, mustConfirm: buildMustConfirmList\(mustConfirm\) \}/);
+    assert.match(w, /isUsedCondition\(v\.condition\) \? \{ condition: v\.condition, mileage: normalizeMiles\(usedMiles\), stockNumber: usedStock\.trim\(\) \|\| null \}/);
     assert.match(w, /setVehicleCondition\("new"\);/);
     // New-car path untouched: the OEM endpoint choice and the must-have picker are still there.
     assert.match(w, /FORD_MUST_HAVE_HEADING/);
