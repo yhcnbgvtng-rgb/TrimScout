@@ -19,7 +19,7 @@ import {
   Trash2,
   X as XIcon,
 } from "lucide-react";
-import type { RfqDeclineReason, RfqInvite, RfqRequest } from "@/lib/rfq";
+import type { BuyerCounter, RfqDeclineReason, RfqInvite, RfqRequest } from "@/lib/rfq";
 import { RFQ_DECLINE_REASON_LABELS } from "@/lib/rfq";
 import { isQuoteComplete, quoteMatchesLockedSpec } from "@/lib/rfqLogic";
 import { inviteStage, DESK_ROLE_LABELS, NON_BINDING_COPY } from "@/lib/quotePackage";
@@ -443,6 +443,20 @@ export default function RfqWorkspacePage() {
     setPicking(false);
   };
 
+  // Buyer counter to one desk: the box supersedes that quote and reopens
+  // the invite; the response carries the refreshed rfq.
+  const handleCounter = async (inviteId: string, counter: BuyerCounter) => {
+    const res = await fetch(`/api/rfqs/${rfqId}/invites/${inviteId}/counter`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ counter }),
+    });
+    const json = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(json.error || "Could not send your counter.");
+    setRfq(json.rfq);
+    setLeaseCompare(null);
+  };
+
   const handleWalk = async () => {
     setWalking(true);
     const res = await fetch(`/api/rfqs/${rfqId}/walk`, { method: "POST" });
@@ -550,7 +564,7 @@ export default function RfqWorkspacePage() {
           <p className="text-[11px] text-ink-muted">
             You asked for {rfq.leasePrefs.termMonths} months · {rfq.leasePrefs.milesPerYear.toLocaleString()} mi/yr. Counters on term or miles sit in their own block; expired quotes can&apos;t be chosen.
           </p>
-          <LeaseCompare data={leaseCompare || analyzeLeaseQuotes(rfq)!} collecting={rfq.status === "collecting"} onPick={handlePick} onWalk={handleWalk} busy={picking || walking} />
+          <LeaseCompare data={leaseCompare || analyzeLeaseQuotes(rfq)!} collecting={rfq.status === "collecting"} onPick={handlePick} onWalk={handleWalk} onCounter={handleCounter} busy={picking || walking} />
         </div>
       )}
 

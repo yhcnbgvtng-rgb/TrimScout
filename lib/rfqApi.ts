@@ -4,6 +4,7 @@
 // request/error pattern as lib/dealsApi.ts.
 import { LIGHTSAIL_HOST } from "./lightsailClient";
 import type { LeaseQuote, LeaseRequestPrefs } from "./leaseQuote";
+import type { BuyerCounter } from "./rfq";
 import { serverSecret } from "./serverSecret";
 import type { RfqDeclineReason, RfqInvite, RfqQuoteFee, RfqRequest } from "./rfq";
 
@@ -137,6 +138,12 @@ export async function getRfqInviteByViewToken(token: string): Promise<{ rfqId: s
     if (err instanceof RfqApiError && err.status === 404) return null;
     throw err;
   }
+}
+
+/** The buyer's counter to one desk's quote — the box supersedes the quote and reopens the invite. */
+export async function submitBuyerCounter(rfqId: string, inviteId: string, counter: BuyerCounter): Promise<RfqRequest> {
+  const json = await request("POST", `/api/rfqs/${rfqId}/invites/${inviteId}/buyer-counter`, { counter });
+  return json.rfq as RfqRequest;
 }
 
 export async function declineRfqInvite(

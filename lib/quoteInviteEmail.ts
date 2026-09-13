@@ -122,3 +122,42 @@ export function quoteInviteHtml(input: QuoteInviteEmailInput): string {
     <p style="font-size:11px;color:#94a3b8">Sent to ${escapeHtml(input.contactName)}, ${escapeHtml(roleLabel)} at ${escapeHtml(input.dealerName)}.${input.dealReference ? ` Reference ${escapeHtml(input.dealReference)}.` : ""}${input.unsubscribeUrl ? ` Don't want quote requests from TrimScout? <a href="${escapeHtml(input.unsubscribeUrl)}" style="color:#64748b">Unsubscribe</a>.` : ""}</p>
   </div>`;
 }
+
+// ---------------------------------------------------------------------------
+// Buyer counter → dealer. Same soft-identity rules; the calculator link is
+// the only reply path. A request, not a bid.
+// ---------------------------------------------------------------------------
+export interface BuyerCounterEmailInput {
+  dealerName: string;
+  contactName: string;
+  vehicle: { vin: string; year?: number; make?: string; model?: string; trim?: string; vdpUrl?: string | null };
+  dealReference: string | null;
+  /** "≤ $650/mo · ≤ $1,500 due at signing · 39 mo" */
+  summary: string;
+  note: string | null;
+  priorMonthly: number;
+  viewUrl: string;
+}
+
+export function buyerCounterSubject(input: BuyerCounterEmailInput): string {
+  const car = [input.vehicle.year, input.vehicle.make, input.vehicle.model, input.vehicle.trim].filter(Boolean).join(" ");
+  return `Buyer counter on your lease quote: ${car} (VIN …${input.vehicle.vin.slice(-6)})`;
+}
+
+export function buyerCounterHtml(input: BuyerCounterEmailInput): string {
+  const car = [input.vehicle.year, input.vehicle.make, input.vehicle.model, input.vehicle.trim].filter(Boolean).join(" ");
+  const firstName = input.contactName.split(/\s+/)[0] || input.contactName;
+  return `
+  <div style="font-family:-apple-system,Segoe UI,Roboto,sans-serif;max-width:600px;margin:0 auto;color:#0f172a;line-height:1.5">
+    <p style="font-size:15px">Hi ${escapeHtml(firstName)},</p>
+    <p>The buyer looked at your lease quote on the <strong>${escapeHtml(car)}</strong> (VIN ${escapeHtml(input.vehicle.vin)}${input.dealReference ? `, ref ${escapeHtml(input.dealReference)}` : ""}) and sent a counter.</p>
+    <table style="border-collapse:collapse;width:100%;margin:12px 0;font-size:14px">
+      <tr><td style="padding:6px 0;color:#64748b;width:160px">Your quote</td><td style="padding:6px 0">$${Math.round(input.priorMonthly).toLocaleString()}/mo (pre-tax)</td></tr>
+      <tr><td style="padding:6px 0;color:#64748b">Buyer is asking for</td><td style="padding:6px 0"><strong>${escapeHtml(input.summary)}</strong></td></tr>
+      ${input.note ? `<tr><td style="padding:6px 0;color:#64748b">Their note</td><td style="padding:6px 0">${escapeHtml(input.note)}</td></tr>` : ""}
+    </table>
+    <p><strong>To reply:</strong> open the calculator below — it's prefilled with your last quote — and submit a revised lease quote, or mark that you can't do better. This is a request, not a bid, and there's no deadline on you.</p>
+    <p style="margin:18px 0"><a href="${escapeHtml(input.viewUrl)}" style="background:#10b981;color:#000;font-weight:700;padding:10px 16px;border-radius:8px;text-decoration:none">Open the calculator</a></p>
+    <p style="font-size:12px;color:#64748b">We pass messages between you and the buyer without sharing their email. Replies come back through TrimScout.</p>
+  </div>`;
+}

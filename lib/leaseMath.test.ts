@@ -130,9 +130,10 @@ describe("dealer calculator — worksheet order, live formatting, residual autof
     assert.doesNotMatch(src, /capReduction: "0"|dasCapReduction: "0"|placeholder="0\.00"/);
     assert.match(src, /noTaxEstimate \? out\("Tax", d\.monthly != null \? "estimated at signing" : null\)/);
     // Doc fee: always on the sheet, description fixed, amount blank until typed; a long description + $ box per line.
-    assert.match(src, /useState<DraftItem\[\]>\(\[\{ name: "Doc fee", amount: "" \}\]\)/);
+    // Standing lines survive a prefill from a prior quote too.
+    assert.match(src, /\[\{ name: "Doc fee", amount: "" \}, \.\.\.seeded\]/);
     assert.match(src, /fixed: \["Doc fee"\]/);
-    assert.match(src, /useState<DraftItem\[\]>\(\[\{ name: "Lease cash \/ rebate", amount: "" \}\]\)/);
+    assert.match(src, /\[\{ name: "Lease cash \/ rebate", amount: "" \}, \.\.\.seeded\]/);
     assert.match(src, /fixed: \["Lease cash \/ rebate"\]/);
     assert.match(src, /grid-cols-\[1fr_140px_20px\]/);
     assert.match(src, /Math\.round\(zipRate \* 100000\) \/ 1000/, "tax rate keeps three decimals (NJ 6.625%)");

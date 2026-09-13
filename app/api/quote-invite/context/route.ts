@@ -16,8 +16,13 @@ export async function GET(req: Request) {
   if (found.invite.status === "invited") await markRfqInviteDelivery(found.rfqId, found.invite.id, "viewed").catch(() => null);
   const rfq = await getRfq(found.rfqId).catch(() => null);
   if (!rfq) return NextResponse.json({ error: "Quote request not found." }, { status: 404 });
-  const invite = found.invite;
+  // The by-token row is bare; the full rfq carries the buyer counter and
+  // the prior (superseded) quote the calculator should prefill from.
+  const invite = rfq.invites.find((i) => i.id === found.invite.id) || found.invite;
+  const priorQuote = invite.priorQuotes?.length ? invite.priorQuotes[invite.priorQuotes.length - 1] : null;
   return NextResponse.json({
+    buyerCounter: invite.buyerCounter || null,
+    priorLease: priorQuote?.lease || null,
     vin: rfq.vin,
     stockNumber: rfq.stockNumber,
     vehicle: invite.vehicle || { year: rfq.vehicleYear, make: rfq.vehicleMake, model: rfq.vehicleModel, trim: rfq.vehicleTrim },
