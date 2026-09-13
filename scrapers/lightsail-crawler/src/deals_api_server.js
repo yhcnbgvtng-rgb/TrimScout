@@ -27,6 +27,7 @@
 //   pm2 start src/deals_api_server.js --name trimscout-deals-api
 
 import http from "node:http";
+import { randomBytes } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import mysql from "mysql2/promise";
@@ -1033,7 +1034,7 @@ async function ensureQuotePackageColumns(pool) {
 }
 
 function newViewToken() {
-  return require("crypto").randomBytes(24).toString("base64url");
+  return randomBytes(24).toString("base64url");
 }
 
 function publicRfqRequest(row, invites) {
