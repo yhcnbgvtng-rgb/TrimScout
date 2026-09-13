@@ -12,8 +12,11 @@ describe("dealReference", () => {
   });
 
   it("does not repeat across a realistic burst", () => {
+    // 6 chars from a 32-symbol alphabet ≈ 1.07B ids; 2,000 draws collide about
+    // once in ~540 runs by the birthday bound. Allow one repeat so the test
+    // proves the generator is random and wide, not that the universe is kind.
     const seen = new Set(Array.from({ length: 2000 }, () => newDealReference()));
-    assert.equal(seen.size, 2000);
+    assert.ok(seen.size >= 1999, `${2000 - seen.size} repeats in 2,000 — generator is not drawing widely`);
   });
 
   it("accepts only its own shape when reading one back", () => {
