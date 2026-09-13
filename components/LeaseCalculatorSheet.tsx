@@ -76,7 +76,9 @@ export function LeaseCalculatorSheet({
     notes: "",
     counterNote: "",
   });
-  const [incentives, setIncentives] = useState<DraftItem[]>([]);
+  // Same shape as the fees: a standing first line for the manufacturer lease
+  // incentive (description set, amount blank, not removable).
+  const [incentives, setIncentives] = useState<DraftItem[]>([{ name: "Lease cash / rebate", amount: "" }]);
   const [otherFees, setOtherFees] = useState<DraftItem[]>([{ name: "Doc fee", amount: "" }]);
   const [addOns, setAddOns] = useState<DraftItem[]>([]);
   const [counterOffer, setCounterOffer] = useState(false);
@@ -210,7 +212,7 @@ export function LeaseCalculatorSheet({
               {field({ k: "capReduction", title: "Cap cost reduction / cash down" })}
               {field({ k: "acquisitionFee", title: "Acquisition fee" })}
             </div>
-            {itemList({ title: "Incentives / rebates", list: incentives, setList: setIncentives, addLabel: "Add incentive", placeholder: "e.g. Loyalty" })}
+            {itemList({ title: "Incentives / rebates", list: incentives, setList: setIncentives, addLabel: "Add another incentive", placeholder: "Describe the incentive, e.g. Loyalty or Conquest", fixed: ["Lease cash / rebate"] })}
             {itemList({ title: "Fees at signing (itemized)", list: otherFees, setList: setOtherFees, addLabel: "Add another fee", placeholder: "Describe the fee, e.g. Registration & title", fixed: ["Doc fee"] })}
             {itemList({ title: "Add-ons", list: addOns, setList: setAddOns, addLabel: "Add add-on", placeholder: "e.g. Wheel & tire" })}
           </section>

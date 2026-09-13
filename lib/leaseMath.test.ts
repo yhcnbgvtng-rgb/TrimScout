@@ -109,7 +109,7 @@ describe("calculator input formatting — display with $ , % as you type, store 
 describe("dealer calculator — worksheet order, live formatting, residual autofill, honest tax line", () => {
   const src = fs.readFileSync(path.join(process.cwd(), "components/LeaseCalculatorForm.tsx"), "utf8");
   it("field order follows MSRP → selling price → incentives → net cap → term/miles → residual/MF → fees → tax → add-ons/expiry", () => {
-    const order = ['k: "msrp"', 'k: "sellingPrice"', "Incentives / rebates", 'k: "capCost"', "Term (months)", 'k: "residualPercent"', 'k: "residualAmount"', 'k: "moneyFactor"', 'k: "capReduction"', 'k: "acquisitionFee"', "Other fees at signing", 'k: "taxRatePercent"', "Add-ons", "Quote good through"];
+    const order = ['k: "msrp"', 'k: "sellingPrice"', "Incentives / rebates", 'k: "capCost"', "Term (months)", 'k: "residualPercent"', 'k: "residualAmount"', 'k: "moneyFactor"', 'k: "capReduction"', 'k: "acquisitionFee"', "Fees at signing (itemized)", 'k: "taxRatePercent"', "Add-ons", "Quote good through"];
     let last = -1;
     for (const needle of order) {
       const at = src.indexOf(needle);
@@ -132,6 +132,8 @@ describe("dealer calculator — worksheet order, live formatting, residual autof
     // Doc fee: always on the sheet, description fixed, amount blank until typed; a long description + $ box per line.
     assert.match(src, /useState<DraftItem\[\]>\(\[\{ name: "Doc fee", amount: "" \}\]\)/);
     assert.match(src, /fixed: \["Doc fee"\]/);
+    assert.match(src, /useState<DraftItem\[\]>\(\[\{ name: "Lease cash \/ rebate", amount: "" \}\]\)/);
+    assert.match(src, /fixed: \["Lease cash \/ rebate"\]/);
     assert.match(src, /grid-cols-\[1fr_140px_20px\]/);
     assert.match(src, /Math\.round\(zipRate \* 100000\) \/ 1000/, "tax rate keeps three decimals (NJ 6.625%)");
     assert.match(src, /noTaxEstimate && !f\.taxesAtSigning \? "at signing"/);

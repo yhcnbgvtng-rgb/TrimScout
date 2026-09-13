@@ -86,7 +86,9 @@ export function LeaseCalculatorForm({
     notes: "",
     counterNote: "",
   });
-  const [incentives, setIncentives] = useState<DraftItem[]>([]);
+  // Same shape as the fees: a standing first line for the manufacturer lease
+  // incentive (description set, amount blank, not removable).
+  const [incentives, setIncentives] = useState<DraftItem[]>([{ name: "Lease cash / rebate", amount: "" }]);
   // A doc fee is on every deal, so its line is always there — description
   // set, amount blank until the dealer types it. It can't be removed.
   const [otherFees, setOtherFees] = useState<DraftItem[]>([{ name: "Doc fee", amount: "" }]);
@@ -298,7 +300,7 @@ export function LeaseCalculatorForm({
                 {field({ k: "msrp", title: "MSRP", hint: "Residual % is a share of this." })}
                 {field({ k: "sellingPrice", title: "Selling price", required: true, hint: d.msrp != null && d.sellingPrice != null && d.msrp > 0 ? `${money(d.msrp - d.sellingPrice)} (${Math.round(((d.msrp - d.sellingPrice) / d.msrp) * 1000) / 10}%) off MSRP` : "Before incentives." })}
               </div>
-              {itemList({ title: "Incentives / rebates", list: incentives, setList: setIncentives, addLabel: "Add incentive", placeholder: "Describe the incentive, e.g. Lease Cash or Loyalty" })}
+              {itemList({ title: "Incentives / rebates", list: incentives, setList: setIncentives, addLabel: "Add another incentive", placeholder: "Describe the incentive, e.g. Loyalty or Conquest", hint: "Lease cash is always listed — enter the amount, or leave it blank if there is none.", fixed: ["Lease cash / rebate"] })}
               {field({
                 k: "capCost",
                 title: "Net cap cost",
