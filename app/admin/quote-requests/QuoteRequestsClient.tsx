@@ -125,7 +125,7 @@ export default function QuoteRequestsClient() {
                     <p className="mt-1 text-sm font-semibold text-white">{rfqVehicleSummary(r)}</p>
                     <p className="text-[11px] text-ink-muted">
                       buyer <span className="font-mono">{r.buyerUserId}</span> · VIN <span className="font-mono">{r.vin}</span> · {relativeTime(r.createdAt)} · rfq #{r.id}
-                      {r.leasePrefs ? ` · ${r.leasePrefs.termMonths} mo · ${r.leasePrefs.milesPerYear.toLocaleString()} mi/yr${r.leasePrefs.zip ? ` · ZIP ${r.leasePrefs.zip}` : ""}${r.leasePrefs.maxCashDueAtSigning != null ? ` · max $${r.leasePrefs.maxCashDueAtSigning.toLocaleString()} DAS` : ""}` : ""}
+                      {r.leasePrefs ? ` · ${r.leasePrefs.termMonths} mo · ${r.leasePrefs.milesPerYear.toLocaleString()} mi/yr${r.leasePrefs.zip ? ` · ZIP ${r.leasePrefs.zip}` : ""}` : ""}
                     </p>
                   </div>
                   <Link href={`/rfq/${r.id}`} className="inline-flex shrink-0 items-center gap-1 rounded-lg border border-border px-3 py-1.5 text-[11px] font-bold text-ink-light hover:text-white">

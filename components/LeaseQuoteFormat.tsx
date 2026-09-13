@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { aprFromMoneyFactor, dueAtSigningTotal, isExpired, overMaxCashDue, termMilesLabel, type LeaseQuote, type LeaseRequestPrefs } from "../lib/leaseQuote";
+import { aprFromMoneyFactor, dueAtSigningTotal, isExpired, termMilesLabel, type LeaseQuote, type LeaseRequestPrefs } from "../lib/leaseQuote";
 
 export const AWAITING_DEALER_COPY = "Waiting on dealer — quote format below; numbers appear when they reply.";
 
@@ -19,7 +19,6 @@ export function LeaseQuoteFormat({ lease, prefs }: { lease: LeaseQuote | null | 
   // The term/miles row flags only term/miles; an over-cap due-at-signing is
   // called out on its own row, not blamed on the term.
   const counter = q ? q.termMonths !== prefs.termMonths || q.milesPerYear !== prefs.milesPerYear : false;
-  const overCap = q ? overMaxCashDue(q.dueAtSigning, prefs) : false;
   const expired = q ? isExpired(q) : false;
   const cell = (v: string | null, cls = "") => (v == null ? <span className="text-ink-faint">—</span> : <span className={cls}>{v}</span>);
   const rows: Array<{ label: string; value: React.ReactNode }> = [
@@ -29,10 +28,7 @@ export function LeaseQuoteFormat({ lease, prefs }: { lease: LeaseQuote | null | 
       label: "Due at signing",
       value: q ? (
         <details>
-          <summary className={`cursor-pointer list-none font-bold ${overCap ? "text-amber-300" : "text-white"}`}>
-            {money(dueAtSigningTotal(q.dueAtSigning), 2)}
-            {overCap && prefs.maxCashDueAtSigning != null ? <span className="block text-[10px] font-bold text-amber-300">Over your ${prefs.maxCashDueAtSigning.toLocaleString()} max</span> : null}
-          </summary>
+          <summary className="cursor-pointer list-none font-bold text-white">{money(dueAtSigningTotal(q.dueAtSigning), 2)}</summary>
           <ul className="mt-1 space-y-0.5 text-[10px] text-ink-muted tabular-nums">
             <li className="flex justify-between"><span>First month</span><span>{money(q.dueAtSigning.firstMonth, 2)}</span></li>
             <li className="flex justify-between"><span>Acquisition fee</span><span>{money(q.dueAtSigning.acquisitionFee, 2)}</span></li>

@@ -11,7 +11,7 @@ import { outOfStateVehicles, formatOutOfStateWarning, formatExpandNudge } from "
 import { planDeskSelection } from "../lib/deskSelection";
 import { clearQuoteDraft, readQuoteDraft, saveQuoteDraft, wizardAuthState, type QuoteDraft } from "../lib/quoteDraft";
 import { diffVsPrimary, mustHaveHeadline, mustHaveReport, type MustHaveRef } from "../lib/alternateCompare";
-import { DEFAULT_LEASE_TERM, LEASE_MILES, LEASE_NON_BINDING_COPY, LEASE_TERMS, MAX_CASH_DUE_HELPER, normalizeMaxCashDue, type LeaseMiles, type LeaseTerm } from "../lib/leaseQuote";
+import { DEFAULT_LEASE_TERM, LEASE_MILES, LEASE_NON_BINDING_COPY, LEASE_TERMS, type LeaseMiles, type LeaseTerm } from "../lib/leaseQuote";
 import { isPlausibleDealerEmail, type DealerContactStatus } from "../lib/dealerContactLookup";
 import { formatBuyerAlias } from "../lib/buyerAlias";
 import {
@@ -796,10 +796,6 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   // mileage band, no ZIP. Continue needs each of them picked on purpose.
   const [leaseTerm, setLeaseTerm] = useState<LeaseTerm | "">("");
   const [leaseMiles, setLeaseMiles] = useState<LeaseMiles | "">("");
-  // Optional cap on cash at pickup (lease only). Blank = no cap; never a
-  // gate on Continue. Distinct from the finance down payment.
-  const [leaseMaxDue, setLeaseMaxDue] = useState<string>("");
-  const leaseMaxDueNumber = normalizeMaxCashDue(leaseMaxDue);
   const [financeTerm, setFinanceTerm] = useState<number | "">("");
   const [downPayment, setDownPayment] = useState<string>("");
   const [creditBand, setCreditBand] = useState<"" | "excellent" | "good" | "fair" | "rebuilding">("");
@@ -866,7 +862,6 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     setQuoteType(null);
     setLeaseTerm("");
     setLeaseMiles("");
-    setLeaseMaxDue("");
     setFinanceTerm("");
     setDownPayment("");
     setCreditBand("");
@@ -1088,7 +1083,6 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     quoteType,
     leaseTerm,
     leaseMiles,
-    leaseMaxDue,
     financeTerm,
     downPayment,
     creditBand,
@@ -1145,7 +1139,6 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     pick<DealStructureMethod | null>("quoteType", setQuoteType);
     pick<LeaseTerm>("leaseTerm", setLeaseTerm);
     pick<LeaseMiles | "">("leaseMiles", setLeaseMiles);
-    pick<string>("leaseMaxDue", setLeaseMaxDue);
     pick<number>("financeTerm", setFinanceTerm);
     pick<string>("downPayment", setDownPayment);
     pick<"" | "excellent" | "good" | "fair" | "rebuilding">("creditBand", setCreditBand);
@@ -1800,8 +1793,6 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                   milesPerYear: leaseMiles || null,
                   zip: zipOk ? huntZip : "",
                   timeline: purchaseTimeline || null,
-                  // Only when the buyer set one — blank means no cap, and it's never sent for finance/cash.
-                  ...(leaseMaxDueNumber != null ? { maxCashDueAtSigning: leaseMaxDueNumber } : {}),
                 }
               : null,
           vin: primary.vin,
@@ -2469,24 +2460,6 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                       {!leaseMiles ? <p className="text-[10px] text-ink-faint">Pick a mileage band to continue.</p> : null}
                     </div>
                   </div>
-                  <label className="mt-3 block space-y-1">
-                    <span className="block text-[10px] font-bold uppercase tracking-wide text-ink-faint">
-                      Cash due at signing <span className="font-normal normal-case">(optional)</span>
-                    </span>
-                    <span className="relative block w-full sm:w-56">
-                      <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[11px] text-ink-faint">$</span>
-                      <input
-                        type="text"
-                        inputMode="numeric"
-                        value={leaseMaxDue}
-                        onChange={(e) => setLeaseMaxDue(e.target.value.replace(/[^\d,]/g, ""))}
-                        placeholder="No cap"
-                        aria-label="Cash due at signing, maximum"
-                        className="w-full rounded-lg border border-border bg-background py-2 pl-6 pr-3 font-mono text-[11px] text-ink-light placeholder-ink-faint focus:border-emerald-500 focus:outline-none"
-                      />
-                    </span>
-                    <span className="block text-[10px] leading-snug text-ink-faint">{MAX_CASH_DUE_HELPER}</span>
-                  </label>
                 </WizardSection>
               )}
 

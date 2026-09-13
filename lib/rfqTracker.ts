@@ -118,8 +118,6 @@ export function leaseSheetRows(prefs: LeaseRequestPrefs): Array<{ label: string;
   ];
   if (prefs.zip) rows.push({ label: "ZIP", value: `${prefs.zip} (tax context)` });
   if (prefs.timeline) rows.push({ label: "Timeline", value: LEASE_TIMELINE_LABELS[prefs.timeline] });
-  const cap = (prefs as { maxCashDueAtSigning?: number | null }).maxCashDueAtSigning;
-  if (typeof cap === "number" && Number.isFinite(cap)) rows.push({ label: "Max cash due at signing", value: `$${cap.toLocaleString()}` });
   return rows;
 }
 

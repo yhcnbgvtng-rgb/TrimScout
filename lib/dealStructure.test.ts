@@ -72,7 +72,7 @@ describe("BiddingWizard — Step 1 is the vehicle step; Step 2 is quote setup", 
     assert.doesNotMatch(step2, /Not sure yet/);
     assert.match(step2, /autoComplete="off"/);
     // …and a fresh open of the modal resets them, since the wizard stays mounted between opens.
-    assert.match(src, /if \(!isOpen\) return;[\s\S]*?setStep\(1\);\s*setQuoteType\(null\);\s*setLeaseTerm\(""\);\s*setLeaseMiles\(""\);\s*setLeaseMaxDue\(""\);\s*setFinanceTerm\(""\);[\s\S]*?setHuntZip\(""\);/);
+    assert.match(src, /if \(!isOpen\) return;[\s\S]*?setStep\(1\);\s*setQuoteType\(null\);\s*setLeaseTerm\(""\);\s*setLeaseMiles\(""\);\s*setFinanceTerm\(""\);[\s\S]*?setHuntZip\(""\);/);
   });
 
   it("(3) the lease path feeds the lease calculator contract unchanged", () => {

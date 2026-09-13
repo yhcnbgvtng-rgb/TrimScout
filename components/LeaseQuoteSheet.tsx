@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { CheckCircle2, Lock, Pencil } from "lucide-react";
 import type { RfqRequest } from "../lib/rfq";
-import { LEASE_MILES, LEASE_TERMS, MAX_CASH_DUE_HELPER, normalizeMaxCashDue, type LeaseMiles, type LeaseRequestPrefs, type LeaseTerm } from "../lib/leaseQuote";
+import { LEASE_MILES, LEASE_TERMS, type LeaseMiles, type LeaseRequestPrefs, type LeaseTerm } from "../lib/leaseQuote";
 import { LEASE_SHEET_RULES, LEASE_TIMELINE_LABELS, leaseSheetRows, rfqDealNumber, rfqVehicles, vehicleLine } from "../lib/rfqTracker";
 
 export const SHEET_UNLOCKED_COPY = "You can still adjust this lease request until a dealer opens it.";
@@ -129,13 +129,12 @@ export function LeaseQuoteSheet({ rfq, compact = false, onSaved }: { rfq: RfqReq
   );
 }
 
-/** Term · miles · ZIP · timeline · max cash due — the same choices as Step 2, saved through PATCH /api/rfqs/:id/lease-prefs. */
+/** Term · miles · ZIP · timeline — the same choices as Step 2, saved through PATCH /api/rfqs/:id/lease-prefs. */
 function LeasePrefsEditor({ rfq, prefs, onCancel, onSaved }: { rfq: RfqRequest; prefs: LeaseRequestPrefs; onCancel: () => void; onSaved: (rfq: RfqRequest) => void }) {
   const [term, setTerm] = useState<LeaseTerm>(prefs.termMonths);
   const [miles, setMiles] = useState<LeaseMiles>(prefs.milesPerYear);
   const [zip, setZip] = useState(prefs.zip || "");
   const [timeline, setTimeline] = useState<NonNullable<LeaseRequestPrefs["timeline"]> | "">(prefs.timeline || "");
-  const [maxDue, setMaxDue] = useState(prefs.maxCashDueAtSigning != null ? String(prefs.maxCashDueAtSigning) : "");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const zipOk = zip === "" || /^\d{5}$/.test(zip);
@@ -145,8 +144,7 @@ function LeasePrefsEditor({ rfq, prefs, onCancel, onSaved }: { rfq: RfqRequest; 
   const save = async () => {
     setSaving(true);
     setError(null);
-    const maxCash = normalizeMaxCashDue(maxDue);
-    const leasePrefs: LeaseRequestPrefs = { termMonths: term, milesPerYear: miles, zip, timeline: timeline || null, ...(maxCash != null ? { maxCashDueAtSigning: maxCash } : {}) };
+    const leasePrefs: LeaseRequestPrefs = { termMonths: term, milesPerYear: miles, zip, timeline: timeline || null };
     try {
       const res = await fetch(`/api/rfqs/${rfq.id}/lease-prefs`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ leasePrefs }) });
       const json = await res.json().catch(() => ({}));
@@ -190,14 +188,6 @@ function LeasePrefsEditor({ rfq, prefs, onCancel, onSaved }: { rfq: RfqRequest; 
               <option key={k} value={k}>{LEASE_TIMELINE_LABELS[k]}</option>
             ))}
           </select>
-        </label>
-        <label className="space-y-1 sm:col-span-2">
-          <span className={label}>Max cash due at signing (optional)</span>
-          <span className="relative block">
-            <span className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-[11px] text-ink-faint">$</span>
-            <input type="text" inputMode="numeric" value={maxDue} onChange={(e) => setMaxDue(e.target.value.replace(/[^\d,]/g, ""))} placeholder="No cap" className={`${input} pl-6 font-mono`} />
-          </span>
-          <span className="block text-[10px] text-ink-faint">{MAX_CASH_DUE_HELPER}</span>
         </label>
       </div>
       {error ? <p className="rounded-lg border border-rose-500/40 bg-rose-950/30 px-3 py-2 text-[11px] text-rose-300">{error}</p> : null}
