@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { LeaseCompareTable } from "@/components/LeaseCompareTable";
 import { LeaseQuoteSheet } from "@/components/LeaseQuoteSheet";
 import { LeaseCalculatorSheet } from "@/components/LeaseCalculatorSheet";
+import { LeaseQuoteFormat } from "@/components/LeaseQuoteFormat";
 import { LEASE_NON_BINDING_COPY } from "@/lib/leaseQuote";
 import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
@@ -302,7 +303,24 @@ function InviteRow({ invite, rfq, onAction }: { invite: RfqInvite; rfq: RfqReque
       {invite.status === "declined" && invite.declineReason && (
         <p className="text-[11px] text-ink-muted">Reason: {RFQ_DECLINE_REASON_LABELS[invite.declineReason]}</p>
       )}
-      {invite.status === "invited" && mode === "idle" && (
+      {/* Lease deals: the dealer fills the numbers through their calculator.
+          The buyer's card is the pricing format, read-only — blank while
+          waiting, populated once they reply. Logging a quote the dealer gave
+          by phone is a separate, explicit step, never the default. */}
+      {rfq.leasePrefs && mode !== "quote" && (invite.status === "invited" || invite.quote) ? (
+        <LeaseQuoteFormat lease={invite.quote?.lease} prefs={rfq.leasePrefs} />
+      ) : null}
+      {invite.status === "invited" && mode === "idle" && rfq.leasePrefs && (
+        <div className="flex flex-wrap items-center gap-3">
+          <button type="button" onClick={() => setMode("quote")} className="text-[11px] font-bold text-ink-muted underline underline-offset-2 hover:text-white">
+            Log a quote the dealer gave by phone or email
+          </button>
+          <button type="button" onClick={() => setMode("decline")} className="text-[11px] font-bold text-ink-muted underline underline-offset-2 hover:text-white">
+            Mark declined
+          </button>
+        </div>
+      )}
+      {invite.status === "invited" && mode === "idle" && !rfq.leasePrefs && (
         <div className="flex gap-2">
           <button
             onClick={() => setMode("quote")}
@@ -459,7 +477,7 @@ export default function RfqWorkspacePage() {
         </p>
       </div>
 
-      {rfq.leasePrefs ? <LeaseQuoteSheet rfq={rfq} /> : null}
+      {rfq.leasePrefs ? <LeaseQuoteSheet rfq={rfq} onSaved={setRfq} /> : null}
 
       {rfq.packageKind === "links" ? (
         <div className="rounded-2xl border border-border bg-surface p-5 space-y-2">

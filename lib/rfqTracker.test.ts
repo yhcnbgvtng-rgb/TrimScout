@@ -116,7 +116,7 @@ describe("wiring — send lands in My Deal Tracker; the deal page carries the sh
   });
 
   it("the deal page shows the Lease quote sheet for lease requests, above the compare; no auction copy", () => {
-    assert.match(detail, /\{rfq\.leasePrefs \? <LeaseQuoteSheet rfq=\{rfq\} \/> : null\}/);
+    assert.match(detail, /\{rfq\.leasePrefs \? <LeaseQuoteSheet rfq=\{rfq\} onSaved=\{setRfq\} \/> : null\}/);
     assert.match(detail, /LeaseCompareTable/);
     const sheet = read("components/LeaseQuoteSheet.tsx");
     assert.match(sheet, /LEASE_SHEET_RULES/);

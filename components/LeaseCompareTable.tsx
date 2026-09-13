@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { aprFromMoneyFactor, dueAtSigningTotal, isCounter, isExpired, overMaxCashDue, termMilesLabel, type LeaseRequestPrefs } from "../lib/leaseQuote";
+import { aprFromMoneyFactor, dueAtSigningTotal, isExpired, overMaxCashDue, termMilesLabel, type LeaseRequestPrefs } from "../lib/leaseQuote";
 import type { RfqInvite, RfqRequest } from "../lib/rfq";
 
 /**
@@ -92,7 +92,8 @@ export function LeaseCompareTable({
       label: "Term / miles",
       cell: (i) => {
         const l = i.quote!.lease!;
-        const counter = isCounter(l, prefs);
+        // Term/miles only here — an over-cap due-at-signing is flagged on its own row.
+        const counter = l.termMonths !== prefs.termMonths || l.milesPerYear !== prefs.milesPerYear;
         return (
           <>
             <span className={counter ? "font-bold text-amber-300" : ""}>{termMilesLabel(l.termMonths, l.milesPerYear)}</span>

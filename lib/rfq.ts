@@ -105,6 +105,12 @@ export interface RfqRequest extends RfqSpec {
   dealReference?: string | null;
   /** Lease-only flow: what the buyer asked for. Dealers must quote to it or mark a counter. */
   leasePrefs?: LeaseRequestPrefs | null;
+  /**
+   * Set the first time any invited dealer opens their quote link. From then
+   * on the lease quote sheet is frozen — new terms need a new request.
+   */
+  leaseSheetLockedAt?: string | null;
+  leaseSheetLockedByInviteId?: string | null;
 }
 
 // Logged verbatim to rfq_events on the box — no read endpoint, no

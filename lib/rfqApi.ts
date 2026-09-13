@@ -18,7 +18,7 @@ export class RfqApiError extends Error {
   }
 }
 
-async function request(method: "GET" | "POST", path: string, body?: unknown): Promise<any> {
+async function request(method: "GET" | "POST" | "PATCH", path: string, body?: unknown): Promise<any> {
   const apiKey = serverSecret("LIGHTSAIL_API_KEY");
   if (!apiKey) {
     throw new RfqApiError("RFQ backend is not configured (missing LIGHTSAIL_API_KEY)", 500);
@@ -86,6 +86,12 @@ export async function getRfq(id: string): Promise<RfqRequest | null> {
     if (err instanceof RfqApiError && err.status === 404) return null;
     throw err;
   }
+}
+
+/** Buyer adjusting the lease ask before any dealer has looked. The box answers 409 once locked. */
+export async function updateRfqLeasePrefs(rfqId: string, leasePrefs: LeaseRequestPrefs): Promise<RfqRequest> {
+  const json = await request("PATCH", `/api/rfqs/${rfqId}/lease-prefs`, { leasePrefs });
+  return json.rfq as RfqRequest;
 }
 
 export async function listRfqsForBuyer(buyerUserId: string): Promise<RfqRequest[]> {

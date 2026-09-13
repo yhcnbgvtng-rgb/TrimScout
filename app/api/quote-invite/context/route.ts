@@ -2,13 +2,18 @@
 // quote against: the vehicle, the buyer's lease prefs, and the invite's
 // state. Nothing about the buyer beyond term / miles / ZIP.
 import { NextResponse } from "next/server";
-import { getRfq, getRfqInviteByViewToken } from "@/lib/rfqApi";
+import { getRfq, getRfqInviteByViewToken, markRfqInviteDelivery } from "@/lib/rfqApi";
 
 export async function GET(req: Request) {
   const token = (new URL(req.url).searchParams.get("t") || "").trim();
   if (!/^[A-Za-z0-9_-]{8,80}$/.test(token)) return NextResponse.json({ error: "Invalid link." }, { status: 400 });
   const found = await getRfqInviteByViewToken(token).catch(() => null);
   if (!found) return NextResponse.json({ error: "This quote request link is no longer valid." }, { status: 404 });
+  // Loading the calculator IS the dealer viewing the request: mark it (the
+  // box moves delivery forward only, and locks the buyer's lease sheet the
+  // first time). Server-side, so a direct visit without the tracked
+  // redirect still counts.
+  if (found.invite.status === "invited") await markRfqInviteDelivery(found.rfqId, found.invite.id, "viewed").catch(() => null);
   const rfq = await getRfq(found.rfqId).catch(() => null);
   if (!rfq) return NextResponse.json({ error: "Quote request not found." }, { status: 404 });
   const invite = found.invite;

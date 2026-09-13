@@ -1020,6 +1020,8 @@ async function ensureQuotePackageColumns(pool) {
   await pool.query("ALTER TABLE rfq_requests ADD COLUMN IF NOT EXISTS link_pastes_json TEXT NULL");
   await pool.query("ALTER TABLE rfq_requests ADD COLUMN IF NOT EXISTS deal_reference VARCHAR(16) NULL");
   await pool.query("ALTER TABLE rfq_requests ADD COLUMN IF NOT EXISTS lease_prefs_json TEXT NULL");
+  await pool.query("ALTER TABLE rfq_requests ADD COLUMN IF NOT EXISTS lease_sheet_locked_at DATETIME NULL");
+  await pool.query("ALTER TABLE rfq_requests ADD COLUMN IF NOT EXISTS lease_sheet_locked_by_invite_id BIGINT NULL");
   await pool.query("ALTER TABLE rfq_quotes ADD COLUMN IF NOT EXISTS lease_json TEXT NULL");
   await pool.query("ALTER TABLE rfq_invites ADD COLUMN IF NOT EXISTS desk_json TEXT NULL");
   await pool.query("ALTER TABLE rfq_invites ADD COLUMN IF NOT EXISTS vehicle_json TEXT NULL");
@@ -1057,6 +1059,9 @@ function publicRfqRequest(row, invites) {
     linkPastes: parseJsonCol(row.link_pastes_json) || [],
     dealReference: row.deal_reference || null,
     leasePrefs: parseJsonCol(row.lease_prefs_json) || null,
+    // Frozen the first time a dealer opens their quote link; null while the buyer may still edit.
+    leaseSheetLockedAt: row.lease_sheet_locked_at || null,
+    leaseSheetLockedByInviteId: row.lease_sheet_locked_by_invite_id ? String(row.lease_sheet_locked_by_invite_id) : null,
   };
 }
 
@@ -1231,8 +1236,36 @@ async function handleRfqInviteDelivery(req, res, rfqId, inviteId) {
       dealerName: rows[0].dealer_name, inviteId, vin: null, stockNumber: null, mustHaves: [],
     });
   }
+  if (status === "viewed") {
+    // First dealer view freezes the buyer's lease quote sheet — the ask a
+    // dealer is looking at must not change under them. Only ever set once.
+    await pool.query(
+      "UPDATE rfq_requests SET lease_sheet_locked_at = NOW(), lease_sheet_locked_by_invite_id = ? WHERE id = ? AND lease_sheet_locked_at IS NULL",
+      [inviteId, rfqId]
+    );
+  }
   const [fresh] = await pool.query("SELECT * FROM rfq_invites WHERE id = ?", [inviteId]);
   sendJson(res, 200, { invite: publicRfqInvite(fresh[0], null) });
+}
+
+// PATCH /api/rfqs/:id/lease-prefs — { leasePrefs }. The buyer adjusting the
+// ask before any dealer has looked at it. 409 once the sheet is locked.
+async function handlePatchRfqLeasePrefs(req, res, rfqId) {
+  const body = await readBody(req);
+  const prefs = body.leasePrefs && typeof body.leasePrefs === "object" ? body.leasePrefs : null;
+  if (!prefs) return badRequest(res, "leasePrefs is required");
+  const pool = getPool();
+  await ensureQuotePackageColumns(pool);
+  const [rows] = await pool.query("SELECT * FROM rfq_requests WHERE id = ?", [rfqId]);
+  if (rows.length === 0) return sendJson(res, 404, { error: "RFQ not found" });
+  if (rows[0].lease_sheet_locked_at) {
+    return sendJson(res, 409, { error: "locked", lockedAt: rows[0].lease_sheet_locked_at, lockedByInviteId: rows[0].lease_sheet_locked_by_invite_id ? String(rows[0].lease_sheet_locked_by_invite_id) : null });
+  }
+  if (rows[0].status !== "collecting") return sendJson(res, 409, { error: "closed" });
+  await pool.query("UPDATE rfq_requests SET lease_prefs_json = ? WHERE id = ?", [JSON.stringify(prefs), rfqId]);
+  const [fresh] = await pool.query("SELECT * FROM rfq_requests WHERE id = ?", [rfqId]);
+  const invites = await loadRfqInvitesWithQuotes(pool, rfqId);
+  sendJson(res, 200, { rfq: publicRfqRequest(fresh[0], invites) });
 }
 
 // GET /api/rfq-invites/by-token/:token — resolves a tracked-link token.
@@ -1549,6 +1582,10 @@ const server = http.createServer((req, res) => {
   const rfqInviteDeliveryMatch = pathname.match(/^\/api\/rfqs\/(\d+)\/invites\/(\d+)\/delivery$/);
   if (req.method === "POST" && rfqInviteDeliveryMatch) {
     return run(handleRfqInviteDelivery, Number(rfqInviteDeliveryMatch[1]), Number(rfqInviteDeliveryMatch[2]));
+  }
+  const rfqLeasePrefsMatch = pathname.match(/^\/api\/rfqs\/(\d+)\/lease-prefs$/);
+  if (req.method === "PATCH" && rfqLeasePrefsMatch) {
+    return run(handlePatchRfqLeasePrefs, Number(rfqLeasePrefsMatch[1]));
   }
   const rfqInviteTokenMatch = pathname.match(/^\/api\/rfq-invites\/by-token\/([A-Za-z0-9_-]{8,80})$/);
   if (req.method === "GET" && rfqInviteTokenMatch) {
