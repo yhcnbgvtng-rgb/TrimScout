@@ -1032,7 +1032,7 @@ describe("shopper-facing factory option copy", () => {
     // The vehicle-import preview used to live in its own step 2; it's now
     // part of merged step 1.
     const start = src.indexOf("STEP 1: PAYMENT, VEHICLE & TRADE-IN FLAG");
-    const end = src.indexOf("STEP 2: DIRECT OFFER");
+    const end = src.indexOf("STEP 2: QUOTE SETUP");
     assert.ok(start >= 0 && end > start);
     const step1 = src.slice(start, end);
     assert.doesNotMatch(step1, /window sticker/i);
@@ -1073,14 +1073,14 @@ describe("shopper-facing factory option copy", () => {
     // Vehicle selection used to be its own step 2; it's now merged into
     // step 1 alongside payment method and the trade-in toggle.
     const start = src.indexOf("STEP 1: PAYMENT, VEHICLE & TRADE-IN FLAG");
-    const end = src.indexOf("STEP 2: DIRECT OFFER");
+    const end = src.indexOf("STEP 2: QUOTE SETUP");
     assert.ok(start >= 0 && end > start);
     const step1 = src.slice(start, end);
     assert.doesNotMatch(src, /Lock This Car/);
     assert.doesNotMatch(step1, /onClick=\{\(\) => setStep\(3\)\}/);
     assert.match(src, /const vehicleImported = Boolean\(lockVehicleSelection \|\| \(parseSuccessMsg && selectedVehicle\)\)/);
-    // Lease-only flow: Continue waits for the vehicle plus term and miles.
-    assert.match(src, /if \(step === 1 && \(!vehicleImported \|\| !leaseMiles \|\| !leaseTerm\)\) return;/);
+    // Step 1 is the vehicle step: Continue waits only for a loaded vehicle.
+    assert.match(src, /if \(step === 1 && !vehicleImported\) return;/);
     assert.match(step1, /One car is required to continue/);
     assert.match(step1, /handleParseDealerUrl\(\)/);
   });
@@ -1090,8 +1090,8 @@ describe("shopper-facing factory option copy", () => {
     // Direct-offer/multi-dealer used to be step 3; it's now step 2 since
     // payment+vehicle merged into one step and the trade-in step was
     // deleted (trade-in is now just a toggle at the bottom of step 1).
-    const start = src.indexOf("STEP 2: DIRECT OFFER");
-    const end = src.indexOf("STEP 3: REVIEW");
+    const start = src.indexOf("STEP 3: DIRECT OFFER");
+    const end = src.indexOf("STEP 4: REVIEW");
     assert.ok(start >= 0 && end > start);
     const step2 = src.slice(start, end);
     assert.match(step2, /Request a quote from this dealership/);
@@ -1103,7 +1103,7 @@ describe("shopper-facing factory option copy", () => {
     assert.match(src, /chooseMultiDealer/);
     assert.match(src, /setDirectOfferMode\(true\)/);
     assert.match(src, /setStrategy\("exact_auction"\)/);
-    assert.match(src, /step === 2 && \(!offerPath \|\| step2LocationMissing \|\| sameStateWarning\)/);
+    assert.match(src, /step === 3 && \(!offerPath \|\| step2LocationMissing \|\| sameStateWarning\)/);
     // Location moved out of step 1 and onto the multi-dealer path only —
     // a direct offer never uses the buyer ZIP for matching.
     assert.match(step2, /offerPath === "auction" && \(/);
@@ -1121,7 +1121,7 @@ describe("shopper-facing factory option copy", () => {
   it("step 1's trade-in toggle only shows a note, no photo/appraisal collection", () => {
     const src = fs.readFileSync(path.join(process.cwd(), "components/BiddingWizard.tsx"), "utf8");
     const start = src.indexOf("STEP 1: PAYMENT, VEHICLE & TRADE-IN FLAG");
-    const end = src.indexOf("STEP 2: DIRECT OFFER");
+    const end = src.indexOf("STEP 2: QUOTE SETUP");
     const step1 = src.slice(start, end);
     assert.match(step1, /I have a vehicle to trade in/);
     assert.match(step1, /trade-in will be handled after we finalize the price of the new car/i);
@@ -1193,7 +1193,7 @@ describe("shopper-facing factory option copy", () => {
     );
 
     const src = fs.readFileSync(path.join(process.cwd(), "components/BiddingWizard.tsx"), "utf8");
-    const start = src.indexOf("STEP 3: REVIEW");
+    const start = src.indexOf("STEP 4: REVIEW");
     const end = src.indexOf("Footer Navigation");
     assert.ok(start >= 0 && end > start);
     const step3 = src.slice(start, end);
@@ -1302,7 +1302,7 @@ describe("shopper-facing factory option copy", () => {
   it("shows must-have factory options after a Ford import — no hunt in the wizard", () => {
     const src = fs.readFileSync(path.join(process.cwd(), "components/BiddingWizard.tsx"), "utf8");
     const start = src.indexOf("STEP 1: PAYMENT, VEHICLE & TRADE-IN FLAG");
-    const end = src.indexOf("STEP 2: DIRECT OFFER");
+    const end = src.indexOf("STEP 2: QUOTE SETUP");
     const step1 = src.slice(start, end);
     assert.match(
       step1,

@@ -38,40 +38,50 @@ describe("deal structure multi-select", () => {
   });
 });
 
-describe("BiddingWizard step 1 — lease-only preferences", () => {
+describe("BiddingWizard — Step 1 is the vehicle step; Step 2 is quote setup", () => {
   const src = fs.readFileSync(path.join(process.cwd(), "components/BiddingWizard.tsx"), "utf8");
-  const step1Start = src.indexOf("STEP 1: PAYMENT, VEHICLE & TRADE-IN FLAG");
-  const step1End = src.indexOf("STEP 2: DIRECT OFFER");
-  const step1 = src.slice(step1Start, step1End);
+  const step1 = src.slice(src.indexOf("STEP 1: PAYMENT, VEHICLE & TRADE-IN FLAG"), src.indexOf("STEP 2: QUOTE SETUP"));
+  const step2 = src.slice(src.indexOf("STEP 2: QUOTE SETUP"), src.indexOf("STEP 3: DIRECT OFFER"));
 
-  it("offers term 24|36|39|48 (default 36) and miles 7,500|10,000|12,000|15,000 — no payment-method chips", () => {
-    assert.ok(step1Start >= 0 && step1End > step1Start);
-    assert.match(step1, /LEASE_TERMS\.map/);
-    assert.match(step1, /LEASE_MILES\.map/);
+  it("(1) Step 1 has the vehicle flow and no lease term/miles or payment chips", () => {
+    assert.ok(step1.length > 0 && step2.length > 0);
+    assert.match(step1, /One car is required to continue/);
+    assert.match(step1, /Only send this to dealerships in my state/);
+    assert.match(step1, /Add additional vehicles/);
+    assert.doesNotMatch(step1, /LEASE_TERMS\.map|LEASE_MILES\.map|Lease preferences|DEAL_STRUCTURE_LABELS|toggleDealStructure/);
+    assert.match(src, /STEP_LABELS = \["Vehicle", "Quote setup", "Dealers", "Review & Send"\]/);
+  });
+
+  it("(2) Step 2 offers Lease | Finance | Cash as equal options, none assumed, with type-specific prefs", () => {
+    assert.match(src, /useState<DealStructureMethod \| null>\(null\)/);
+    assert.match(step2, /\["lease", "finance", "cash"\] as const/);
+    assert.match(step2, /quoteType === "lease" && \(/);
+    assert.match(step2, /LEASE_TERMS\.map/);
+    assert.match(step2, /LEASE_MILES\.map/);
+    assert.match(step2, /quoteType === "finance" && \(/);
+    assert.match(step2, /Down payment/);
+    assert.match(step2, /Credit band/);
+    assert.match(step2, /No credit pull/);
+    assert.match(step2, /Timeline <span[^>]*>\(optional\)/);
     assert.match(src, /useState<LeaseTerm>\(DEFAULT_LEASE_TERM\)/);
-    assert.match(src, /useState<DealStructureMethod\[\]>\(\["lease"\]\)/);
-    assert.doesNotMatch(step1, /DEAL_STRUCTURE_LABELS|toggleDealStructure|aria-pressed=\{isChecked\}/);
-    assert.doesNotMatch(step1, /Coins|CreditCard|KeyRound|Layers/);
+  });
+
+  it("(3) the lease path feeds the lease calculator contract unchanged", () => {
+    assert.match(src, /leasePrefs: quoteType === "lease" \? \{ termMonths: leaseTerm, milesPerYear: leaseMiles \|\| null, zip:/);
+  });
+
+  it("(4) Continue into Step 2 needs the vehicle; out of Step 2 needs the type's required prefs; Step 3 needs ≥1 named desk", () => {
+    assert.match(src, /if \(step === 1 && !vehicleImported\) return;/);
+    assert.match(src, /if \(step === 2 && !quoteSetupComplete\) return;/);
+    assert.match(src, /quoteType === "lease"\s*\? Boolean\(leaseTerm && leaseMiles && zipOk\)/);
+    assert.match(src, /quoteType === "finance"\s*\? Boolean\(financeTerm > 0 && downPayment !== "" && Number\.isFinite\(downPaymentNumber\) && downPaymentNumber >= 0 && zipOk\)/);
+    assert.match(src, /quoteType === "cash"\s*\? zipOk\s*: false/);
+    assert.match(src, /step === 3 && directOfferMode && confirmedDeskCount === 0/);
+    assert.match(src, /TOTAL_STEPS = 4/);
   });
 
   it("has no All control or all_three id", () => {
     assert.doesNotMatch(src, /all_three/);
     assert.doesNotMatch(src, /Show Me All 3/);
-    assert.doesNotMatch(src, /All 3 Structures/);
-    assert.doesNotMatch(step1, /Show Me All/);
-  });
-
-  it("Continue needs vehicle + term + miles on step 1, and ≥1 ticked named desk on step 2; timeline is optional", () => {
-    assert.match(src, /step === 1 && \(!vehicleImported \|\| !leaseMiles \|\| !leaseTerm\)/);
-    assert.match(src, /step === 2 && directOfferMode && confirmedDeskCount === 0/);
-    assert.match(src, /directOfferMode && confirmedDeskCount === 0\)\)\)/);
-    assert.doesNotMatch(src, /Select your purchase timeline/);
-    assert.match(step1, /Timeline <span[^>]*>\(optional\)/);
-  });
-
-  it("the request carries the lease prefs and the old payloads still get the buyer's picks", () => {
-    assert.match(src, /leasePrefs: \{ termMonths: leaseTerm, milesPerYear: leaseMiles \|\| null, zip:/);
-    assert.match(src, /leaseTermMonths: leaseTerm/);
-    assert.match(src, /const leaseMileage = leaseMiles \|\| 12000/);
   });
 });
