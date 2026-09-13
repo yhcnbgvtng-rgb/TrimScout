@@ -6,6 +6,8 @@ import { analyzeLeaseQuotes, type LeaseCompare as LeaseCompareData } from "@/lib
 import { LeaseQuoteSheet } from "@/components/LeaseQuoteSheet";
 import { LeaseCalculatorSheet } from "@/components/LeaseCalculatorSheet";
 import { LeaseQuoteFormat } from "@/components/LeaseQuoteFormat";
+import { MustConfirmList } from "@/components/MustConfirmList";
+import { rfqVehicles } from "@/lib/rfqTracker";
 import { LEASE_NON_BINDING_COPY } from "@/lib/leaseQuote";
 import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
@@ -502,6 +504,22 @@ export default function RfqWorkspacePage() {
       </div>
 
       {rfq.leasePrefs ? <LeaseQuoteSheet rfq={rfq} onSaved={setRfq} /> : null}
+
+      {/* Used cars: the must-confirm checklist is the ask — no factory option match. */}
+      {rfqVehicles(rfq).filter((v) => v.condition !== "new").map((v) => (
+        <section key={v.vin} className="rounded-2xl border border-border bg-surface p-5 space-y-3" data-testid="used-ask-sheet">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h2 className="text-sm font-bold text-white">Used car — what the dealer confirms</h2>
+            <span className="rounded bg-sky-500/15 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-sky-300">{v.condition === "cpo" ? "CPO" : "USED"}</span>
+          </div>
+          <p className="text-[11px] text-ink-muted">
+            VIN <span className="font-mono">{v.vin}</span>
+            {v.mileage != null ? ` · ${v.mileage.toLocaleString()} miles (buyer-entered)` : ""}
+            {v.stockNumber ? ` · stock ${v.stockNumber}` : ""}
+          </p>
+          {v.mustConfirm.length ? <MustConfirmList items={v.mustConfirm} /> : <p className="text-[11px] text-ink-faint">Nothing to confirm — the dealer quotes the car as listed.</p>}
+        </section>
+      ))}
 
       {rfq.packageKind === "links" ? (
         <div className="rounded-2xl border border-border bg-surface p-5 space-y-2">

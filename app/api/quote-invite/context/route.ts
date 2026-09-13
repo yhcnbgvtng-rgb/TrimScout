@@ -3,6 +3,7 @@
 // state. Nothing about the buyer beyond term / miles / ZIP.
 import { NextResponse } from "next/server";
 import { getRfq, getRfqInviteByViewToken, markRfqInviteDelivery } from "@/lib/rfqApi";
+import { rfqVehicles } from "@/lib/rfqTracker";
 
 export async function GET(req: Request) {
   const token = (new URL(req.url).searchParams.get("t") || "").trim();
@@ -20,9 +21,13 @@ export async function GET(req: Request) {
   // the prior (superseded) quote the calculator should prefill from.
   const invite = rfq.invites.find((i) => i.id === found.invite.id) || found.invite;
   const priorQuote = invite.priorQuotes?.length ? invite.priorQuotes[invite.priorQuotes.length - 1] : null;
+  const usedCar = rfqVehicles(rfq).find((v) => v.vin === (invite.vehicle?.vin || rfq.vin) && v.condition !== "new") || null;
   return NextResponse.json({
     buyerCounter: invite.buyerCounter || null,
     priorLease: priorQuote?.lease || null,
+    condition: usedCar?.condition || "new",
+    buyerMiles: usedCar?.mileage ?? null,
+    mustConfirm: usedCar?.mustConfirm || [],
     vin: rfq.vin,
     stockNumber: rfq.stockNumber,
     vehicle: invite.vehicle || { year: rfq.vehicleYear, make: rfq.vehicleMake, model: rfq.vehicleModel, trim: rfq.vehicleTrim },

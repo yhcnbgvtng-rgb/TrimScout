@@ -9,6 +9,8 @@ import { LEASE_NON_BINDING_COPY, type LeaseQuote, type LeaseRequestPrefs } from 
 import { LeaseCalculatorForm } from "../../../components/LeaseCalculatorForm";
 import { counterSummary } from "../../../lib/buyerCounter";
 import type { BuyerCounter } from "../../../lib/rfq";
+import { MustConfirmList } from "../../../components/MustConfirmList";
+import type { MustConfirmItem } from "../../../lib/mustConfirm";
 
 // Where a dealer lands from the tracked link in a lease-quote-request
 // email. The calculator is the only reply path — a free-text "monthly"
@@ -25,6 +27,9 @@ type Context = {
   /** Set when the buyer countered this desk's last quote — the invite is open again for a revised one. */
   buyerCounter: BuyerCounter | null;
   priorLease: LeaseQuote | null;
+  condition: "new" | "used" | "cpo";
+  buyerMiles: number | null;
+  mustConfirm: MustConfirmItem[];
 };
 
 function ReceivedBody() {
@@ -88,6 +93,13 @@ function ReceivedBody() {
             ) : null}
           </div>
 
+          {ctx && ctx.condition !== "new" ? (
+            <div className="rounded-2xl border border-sky-500/30 bg-sky-950/20 p-5 space-y-2" data-testid="dealer-must-confirm">
+              <p className="text-sm font-bold text-white">{ctx.condition === "cpo" ? "Certified pre-owned" : "Used"} — the buyer asks you to confirm{ctx.buyerMiles != null ? ` (they noted ${ctx.buyerMiles.toLocaleString()} miles)` : ""}</p>
+              <MustConfirmList items={ctx.mustConfirm} compact />
+              <p className="text-[11px] text-sky-200/90">Each item is confirmed, or marked can&apos;t-confirm with a note, when you quote.</p>
+            </div>
+          ) : null}
           {!token ? (
             <p className="rounded-2xl border border-border bg-surface p-5 text-sm text-ink-light">
               Open this page from the link in your quote-request email — that link carries the request.
