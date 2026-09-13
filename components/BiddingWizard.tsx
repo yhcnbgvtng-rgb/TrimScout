@@ -299,6 +299,7 @@ function LinkConfirmPanel({
   zipHint,
   onConfirm,
   onCancel,
+  onRetry,
 }: {
   pending: Extract<PendingLink, { kind: "link" }>;
   busy: boolean;
@@ -306,6 +307,8 @@ function LinkConfirmPanel({
   zipHint?: string | null;
   onConfirm: (choice: { vin: string; desk: DeskMatch | null; deskSource: "listing_domain" | "buyer_picked" }) => void;
   onCancel: () => void;
+  /** Re-run the hostname match — offered when the directory itself didn't answer. */
+  onRetry?: () => void;
 }) {
   const r = pending.resolution;
   const [vin, setVin] = useState(r.vinFromUrl || "");
@@ -435,7 +438,9 @@ function LinkConfirmPanel({
                   {shown.note}
                 </span>
                 {contactNote === true ? <span className="text-emerald-300"> · sales contact on file</span> : null}
-                {contactNote === false ? <span className="text-amber-300"> · no named sales contact on file yet</span> : null}
+                {contactNote === false ? (
+                  <span className="text-amber-300"> · no named sales contact on file yet — you can add your sales adviser&apos;s email on the Dealers step</span>
+                ) : null}
               </span>
             </span>
             <button
@@ -448,7 +453,28 @@ function LinkConfirmPanel({
           </div>
         ) : (
           <div className="space-y-1.5">
-            {!shown ? (
+            {!shown && r.degraded ? (
+              // The directory didn't answer, so "not found" would be a
+              // guess. Say that, and offer the match again.
+              <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-amber-500/40 bg-amber-950/20 px-3 py-2">
+                <span className="min-w-0">
+                  <p className="text-[11px] font-bold text-amber-200">Couldn&apos;t check the dealer directory just now</p>
+                  <p className="text-[10px] leading-snug text-amber-200/90">
+                    {r.host} may well be on file — our directory didn&apos;t answer in time. Try the match again, or search by name below.
+                  </p>
+                </span>
+                {onRetry ? (
+                  <button
+                    type="button"
+                    onClick={onRetry}
+                    disabled={busy}
+                    className="shrink-0 rounded-lg bg-amber-400 px-3 py-1.5 text-[11px] font-black text-black hover:bg-amber-300 transition-all disabled:opacity-50"
+                  >
+                    Try the match again
+                  </button>
+                ) : null}
+              </div>
+            ) : !shown ? (
               <div className="rounded-lg border border-amber-500/40 bg-amber-950/20 px-3 py-2">
                 <p className="text-[11px] font-bold text-amber-200">Dealer not found</p>
                 <p className="text-[10px] leading-snug text-amber-200/90">
@@ -1091,7 +1117,13 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   const parkLink = async (slot: VehicleSlot, raw: string): Promise<boolean> => {
     if (classifyPaste(raw).kind !== "url") return false;
     setLinkError(null);
-    const resolution = await resolveVdpLink(raw);
+    let resolution = await resolveVdpLink(raw);
+    // A directory that didn't answer is not "no such store". One quiet
+    // retry before the buyer sees anything; the panel offers another.
+    if (resolution.ok && resolution.degraded && !resolution.desk && resolution.candidates.length === 0) {
+      await new Promise((r) => setTimeout(r, 1500));
+      resolution = await resolveVdpLink(raw);
+    }
     if (!resolution.ok) {
       if (slot === "primary") setParseError(resolution.error);
       else if (slot === "alt1") setAltError1(resolution.error);
@@ -1108,6 +1140,40 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     }
     setPendingLink({ kind: "link", slot, resolution, prebuilt });
     return true;
+  };
+
+  const retryPendingLink = async () => {
+    if (!pendingLink || pendingLink.kind !== "link") return;
+    setLinkBusy(true);
+    await parkLink(pendingLink.slot, pendingLink.resolution.url);
+    setLinkBusy(false);
+  };
+
+  /**
+   * The factory sticker didn't come back for the primary car. Ask the
+   * manufacturer again for the same VIN, keeping whatever dealership is
+   * already attached (the link's desk, or the buyer's pick) unless the VIN
+   * itself now names one — VIN first, as always.
+   */
+  const [stickerRetryBusy, setStickerRetryBusy] = useState(false);
+  const retryPrimarySticker = async () => {
+    if (!selectedVehicle?.vin) return;
+    setStickerRetryBusy(true);
+    const result = await importPastedFactoryVehicle(selectedVehicle.vin, fetch, { existingVehicles: [altVehicle1, altVehicle2] });
+    setStickerRetryBusy(false);
+    if (!result.ok) {
+      setParseError(result.error);
+      return;
+    }
+    const keepDealer = selectedVehicle.location?.dealerName && !hasVinResolvedDealer(result.vehicle);
+    const vehicle: Vehicle = {
+      ...result.vehicle,
+      dealerUrl: selectedVehicle.dealerUrl || result.vehicle.dealerUrl,
+      buyerConfirmed: selectedVehicle.buyerConfirmed,
+      location: keepDealer ? selectedVehicle.location : result.vehicle.location,
+      stickerUnavailableReason: result.stickerUnavailable?.reason || null,
+    };
+    commitPrimaryImport({ ...result, vehicle });
   };
 
   /** The buyer confirmed VIN + store: build from the VIN alone and commit to the slot that asked. */
@@ -1759,6 +1825,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                   <div className="relative flex-1">
                     <Globe className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-emerald-400" />
                     <input
+                      id="primary-link-input"
                       type="text"
                       value={dealerUrlInput}
                       onChange={(e) => setDealerUrlInput(e.target.value)}
@@ -1793,7 +1860,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                 )}
 
                 {pendingLink?.slot === "primary" && pendingLink.kind === "link" && (
-                  <LinkConfirmPanel pending={pendingLink} busy={linkBusy} error={linkError} zipHint={buyerZipHint} onConfirm={confirmLink} onCancel={cancelPendingLink} />
+                  <LinkConfirmPanel pending={pendingLink} busy={linkBusy} error={linkError} zipHint={buyerZipHint} onConfirm={confirmLink} onCancel={cancelPendingLink} onRetry={retryPendingLink} />
                 )}
                 {pendingLink?.slot === "primary" && pendingLink.kind === "pick_dealer" && (
                   <div className="space-y-1.5 rounded-xl border border-sky-500/40 bg-sky-950/20 px-3.5 py-3 text-[11px] animate-fadeIn">
@@ -1897,12 +1964,48 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                   </div>
                 )}
 
+                {parseSuccessMsg && selectedVehicle && !selectedVehicle.location?.dealerName?.trim() && (
+                  <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-sky-500/40 bg-sky-950/20 px-3 py-2">
+                    <span className="min-w-0">
+                      <p className="text-[11px] font-bold text-sky-200">No dealership attached yet</p>
+                      <p className="text-[10px] leading-snug text-sky-200/90">
+                        A VIN on its own doesn&apos;t say which store has the car. Paste the dealership&apos;s listing link to attach the store, or search for it by name.
+                      </p>
+                    </span>
+                    <span className="flex shrink-0 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => document.getElementById("primary-link-input")?.focus()}
+                        className="rounded-lg border border-sky-500/50 px-3 py-1.5 text-[11px] font-bold text-sky-200 hover:bg-sky-500/10 transition-all"
+                      >
+                        Paste the listing link
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => changeDealerFor("primary")}
+                        className="rounded-lg bg-sky-400 px-3 py-1.5 text-[11px] font-black text-black hover:bg-sky-300 transition-all"
+                      >
+                        Search by name
+                      </button>
+                    </span>
+                  </div>
+                )}
+
                 {parseSuccessMsg && selectedVehicle?.buildConfidence === "dealer_listing_only" && (
                   <p className="rounded-lg border border-amber-500/30 bg-amber-950/20 px-3 py-2 text-[11px] leading-snug text-amber-200">
                     {selectedVehicle.stickerUnavailableReason ? (
                       <>
                         <strong className="font-bold">Factory sticker temporarily unavailable.</strong> {selectedVehicle.stickerUnavailableReason}{" "}
-                        The details above are a limited VIN decode, not the factory option sheet, so must-have options can&apos;t be matched yet. You can continue — or remove the car and paste it again in a minute to pick up the sticker.
+                        The details above are a limited VIN decode, not the factory option sheet, so must-have options can&apos;t be matched yet. You can continue, or{" "}
+                        <button
+                          type="button"
+                          onClick={retryPrimarySticker}
+                          disabled={stickerRetryBusy}
+                          className="font-bold text-amber-100 underline underline-offset-2 hover:text-white disabled:opacity-60"
+                        >
+                          {stickerRetryBusy ? "asking the manufacturer again…" : "ask the manufacturer again"}
+                        </button>
+                        .
                       </>
                     ) : (
                       <>
@@ -1964,7 +2067,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                       mustHaves={selectedMustHaveRefs}
                     />
                     {pendingLink?.slot === "alt1" && pendingLink.kind === "link" && (
-                      <LinkConfirmPanel pending={pendingLink} busy={linkBusy} error={linkError} zipHint={buyerZipHint} onConfirm={confirmLink} onCancel={cancelPendingLink} />
+                      <LinkConfirmPanel pending={pendingLink} busy={linkBusy} error={linkError} zipHint={buyerZipHint} onConfirm={confirmLink} onCancel={cancelPendingLink} onRetry={retryPendingLink} />
                     )}
                     {pendingLink?.slot === "alt1" && pendingLink.kind === "pick_dealer" && (
                       <div className="space-y-1.5 rounded-xl border border-sky-500/40 bg-sky-950/20 px-3.5 py-3 text-[11px] animate-fadeIn">
@@ -1986,7 +2089,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                       mustHaves={selectedMustHaveRefs}
                     />
                     {pendingLink?.slot === "alt2" && pendingLink.kind === "link" && (
-                      <LinkConfirmPanel pending={pendingLink} busy={linkBusy} error={linkError} zipHint={buyerZipHint} onConfirm={confirmLink} onCancel={cancelPendingLink} />
+                      <LinkConfirmPanel pending={pendingLink} busy={linkBusy} error={linkError} zipHint={buyerZipHint} onConfirm={confirmLink} onCancel={cancelPendingLink} onRetry={retryPendingLink} />
                     )}
                     {pendingLink?.slot === "alt2" && pendingLink.kind === "pick_dealer" && (
                       <div className="space-y-1.5 rounded-xl border border-sky-500/40 bg-sky-950/20 px-3.5 py-3 text-[11px] animate-fadeIn">
@@ -2450,7 +2553,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                                 {directOfferMode && row?.adviserAdded
                                   ? "No sales contact on file for this dealership, so the request goes to the adviser address you added. It's ticked above — untick it to leave them out."
                                   : directOfferMode
-                                  ? `${quoteDesks[dealer.dealerName]?.blockedMessage || ""} If you have a sales adviser's own address there, add it below — otherwise paste a different vehicle's link in step 1.`
+                                  ? `${quoteDesks[dealer.dealerName]?.blockedMessage || ""} If you have a sales adviser's own address there, add it below. Otherwise choose "Also request quotes from other dealers nearby" above, or paste a different vehicle's link in step 1.`
                                   : contact?.emailOptOut
                                     ? "This dealership asked us to stop emailing them. If you have a sales adviser there, add their address — otherwise add a different vehicle."
                                     : "We don't have an email on file for this dealership. If you have one for your sales adviser, add it below — otherwise paste a different vehicle's link in step 1."}

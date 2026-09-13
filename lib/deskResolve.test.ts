@@ -25,6 +25,11 @@ const CONTACTS: DeskContact[] = [
   row({ id: "6", dealerName: "Gmail Motors", contactEmail: "bob@gmail.com" }),
   // A vanity host mapped by alias to a rooftop whose canonical site is elsewhere.
   row({ id: "7", dealerName: "Paul Miller BMW", city: "Wayne", state: "NJ", website: "https://www.paulmillerbmw.com/", domains: ["shop.pmbmw-wayne.net", "paulmillerbmwnj.com"] }),
+  // Scott: lists at scottcars.net, staff mail from scottcars.com — two rooftops share the mail domain.
+  row({ id: "8", dealerName: "Scott Chevrolet", city: "Allentown", state: "PA", website: "https://www.scottcars.net/", domains: ["scottcars.net"], contactEmail: "marcus@scottcars.com" }),
+  row({ id: "9", dealerName: "Scott Cadillac", city: "Allentown", state: "PA", website: "https://www.scottcadillac.net", domains: ["scottcadillac.net"], contactEmail: "marcus@scottcars.com" }),
+  // A dealer group's shared mail domain across many rooftops — never a store key.
+  ...Array.from({ length: 8 }, (_, i) => row({ id: `g${i}`, dealerName: `Group Rooftop ${i}`, website: `https://rooftop${i}.example/`, contactEmail: `gm${i}@biggroup.com` })),
 ];
 
 describe("normalizeDealerHost / registrableDomain", () => {
@@ -72,6 +77,22 @@ describe("resolveDeskFromVdpUrl", () => {
       assert.equal(r.via, "email_domain");
       assert.equal(r.desk.deskId, "5");
     }
+  });
+
+  it("a store with a site on file still keys on its staff mail domain — as the last tier, shared → pick", () => {
+    // scottcars.net is the site: exact alias hit, unique.
+    const net = resolveDeskFromVdpUrl("https://www.scottcars.net/inventory/new-2026-chevrolet-tahoe-1GNS6MKD2TR280381", CONTACTS);
+    assert.equal(net.status, "unique");
+    if (net.status === "unique") assert.equal(net.desk.deskId, "8");
+    // scottcars.com is only the mail domain, shared by Chevrolet + Cadillac: the buyer picks between the two.
+    const com = resolveDeskFromVdpUrl("https://www.scottcars.com/inventory/new-2026-chevrolet-tahoe-1GNS6MKD2TR280381", CONTACTS);
+    assert.equal(com.status, "ambiguous");
+    if (com.status === "ambiguous") assert.deepEqual(com.candidates.map((c) => c.deskId).sort(), ["8", "9"]);
+  });
+
+  it("a dealer group's mail domain shared by many rooftops is no key at all", () => {
+    const r = resolveDeskFromVdpUrl("https://www.biggroup.com/inventory/x", CONTACTS);
+    assert.equal(r.status, "none");
   });
 
   it("never keys on a consumer mailbox domain", () => {

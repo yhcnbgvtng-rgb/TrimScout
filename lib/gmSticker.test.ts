@@ -704,25 +704,29 @@ const VIN_EMPTY3 = "1GTEST00000000002";
 const VIN_DENIED = "1GTEST00000000003";
 const VIN_NETWORK = "1GTEST00000000004";
 const VIN_NON_GM = "1FTEST00000000005";
+const VIN_PDF_ON_BARE = "1GTEST00000000006";
 const FIXTURE = fs.readFileSync(path.join(process.cwd(), "lib/testdata/gm-stickers/1GCPYBEK4TZ300055.txt"), "utf8");
 const buildFor = (vin: string) => FIXTURE.replace(/1GCPYBEK4TZ300055/g, vin);
 const BUILD_TEXT = buildFor(FRESH_VIN);
 
 function scripted(bodies: Array<Uint8Array | string | Error>) {
   const calls: string[] = [];
-  const impl = (async (input: RequestInfo | URL) => {
+  const profiles: string[] = [];
+  const impl = (async (input: RequestInfo | URL, init?: RequestInit) => {
     calls.push(String(input));
+    const h = (init?.headers || {}) as Record<string, string>;
+    profiles.push(h["Sec-Fetch-Mode"] ? "browser-nav" : h["Referer"] ? "browser" : "bare");
     const next = bodies.shift();
     if (next instanceof Error) throw next;
     const bytes = typeof next === "string" ? new TextEncoder().encode(next) : next ?? new Uint8Array();
     // Copy into a plain ArrayBuffer: TS 5.7 types Uint8Array over ArrayBufferLike, which BodyInit rejects.
     return new Response(bytes.slice().buffer as ArrayBuffer, { status: 200 });
   }) as typeof fetch;
-  return { impl, calls };
+  return { impl, calls, profiles };
 }
 
 describe("getGmSticker — empty bodies are retried, then reported plainly", () => {
-  const SYNTHETIC = [FRESH_VIN, VIN_EMPTY3, VIN_DENIED, VIN_NETWORK, VIN_NON_GM];
+  const SYNTHETIC = [FRESH_VIN, VIN_EMPTY3, VIN_DENIED, VIN_NETWORK, VIN_NON_GM, VIN_PDF_ON_BARE];
   for (const v of SYNTHETIC) forgetGmStickerForTests(v);
   after(() => {
     for (const v of SYNTHETIC) forgetGmStickerForTests(v);
@@ -745,22 +749,44 @@ describe("getGmSticker — empty bodies are retried, then reported plainly", () 
     }
   });
 
-  it("three empties → a typed unavailability error with per-attempt diagnostics — never '0 bytes'", async () => {
+  it("every attempt empty → a typed unavailability error with per-attempt diagnostics — never '0 bytes' or 'no data'", async () => {
     clearGmStickerMemoryCache();
-    const { impl, calls } = scripted([new Uint8Array(), new Uint8Array(), new Uint8Array()]);
+    const { impl, calls, profiles } = scripted([new Uint8Array(), new Uint8Array(), new Uint8Array(), new Uint8Array()]);
     const orig = globalThis.fetch;
     globalThis.fetch = impl;
     try {
       await assert.rejects(getGmSticker(VIN_EMPTY3), (err: unknown) => {
         assert.ok(err instanceof GmStickerUnavailableError);
         assert.equal(err.kind, "empty");
-        assert.equal(err.attempts.length, 3);
-        assert.deepEqual(err.attempts.map((a) => [a.status, a.bytes, a.kind]), [[200, 0, "empty"], [200, 0, "empty"], [200, 0, "empty"]]);
-        assert.doesNotMatch(err.message, /0 bytes|returned empty/);
-        assert.match(err.message, /returned no data .* temporary hiccup/);
+        assert.equal(err.attempts.length, 4);
+        assert.deepEqual(err.attempts.map((a) => [a.status, a.bytes, a.kind]), [[200, 0, "empty"], [200, 0, "empty"], [200, 0, "empty"], [200, 0, "empty"]]);
+        assert.deepEqual(err.attempts.map((a) => a.profile), ["browser", "bare", "browser-nav", "browser"], "attempts rotate request profiles");
+        assert.doesNotMatch(err.message, /0 bytes|returned empty|no data/);
+        assert.match(err.message, /empty response .* block or hiccup on their side, not a missing sticker/);
         return true;
       });
-      assert.equal(calls.length, 3);
+      assert.equal(calls.length, 4);
+      assert.deepEqual(profiles, ["browser", "bare", "browser-nav", "browser"]);
+    } finally {
+      globalThis.fetch = orig;
+      clearGmStickerMemoryCache();
+    }
+  });
+
+  it("an empty browser-profile answer followed by a real PDF on the bare profile succeeds", async () => {
+    clearGmStickerMemoryCache();
+    const pdf = new TextEncoder().encode("%PDF-1.4\n" + "x".repeat(600));
+    // The PDF parser needs real text; a synthetic PDF only proves the fetch loop returns the bytes.
+    // classifyGmFetchBody must call it a PDF so the loop stops retrying on the bare profile.
+    const { classifyGmFetchBody } = await import("./gmSticker");
+    assert.equal(classifyGmFetchBody(pdf, null), "pdf");
+    const { impl, calls, profiles } = scripted([new Uint8Array(), pdf]);
+    const orig = globalThis.fetch;
+    globalThis.fetch = impl;
+    try {
+      await getGmSticker(VIN_PDF_ON_BARE).catch(() => undefined); // parse of a fake PDF may fail; the fetch loop is what's under test
+      assert.equal(calls.length, 2, "stopped as soon as a PDF body arrived");
+      assert.deepEqual(profiles, ["browser", "bare"]);
     } finally {
       globalThis.fetch = orig;
       clearGmStickerMemoryCache();
@@ -770,7 +796,7 @@ describe("getGmSticker — empty bodies are retried, then reported plainly", () 
   it("an Akamai denial page is reported as blocked, not as a VIN with no build", async () => {
     clearGmStickerMemoryCache();
     const denied = "<html><head><title>Access Denied</title></head><body>errors.edgesuite.net</body></html>";
-    const { impl } = scripted([denied, denied, denied]);
+    const { impl } = scripted([denied, denied, denied, denied]);
     const orig = globalThis.fetch;
     globalThis.fetch = impl;
     try {
