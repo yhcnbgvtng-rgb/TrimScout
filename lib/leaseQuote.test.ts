@@ -160,3 +160,32 @@ describe("lease flow — copy and contact rules", () => {
     assert.match(compare, /This quote has expired/);
   });
 });
+
+describe("lease terms — 18 and 24 both offered, default stays 36", () => {
+  it("the term set is 18 | 24 | 36 | 39 | 48 with 36 as the default", async () => {
+    const { LEASE_TERMS, DEFAULT_LEASE_TERM } = await import("./leaseQuote");
+    assert.deepEqual([...LEASE_TERMS], [18, 24, 36, 39, 48]);
+    assert.equal(DEFAULT_LEASE_TERM, 36);
+    const { LEASE_TERM_MONTHS } = await import("./dealStructure");
+    assert.deepEqual([...LEASE_TERM_MONTHS], [18, 24, 36, 39, 48], "the deal-term clamp must not round an 18 away");
+  });
+
+  it("an 18-month request is quoted at 18 with no counter; a 24 against it is a counter", () => {
+    const prefs18 = { termMonths: 18 as const, milesPerYear: 10000 as const };
+    const at18 = { ...good(), termMonths: 18 };
+    assert.deepEqual(validateLeaseQuote(at18, prefs18, { vin: "X" }, NOW).errors, []);
+    assert.equal(isCounter(at18, prefs18), false);
+    const at24 = { ...good(), termMonths: 24 };
+    assert.ok(validateLeaseQuote(at24, prefs18, { vin: "X" }, NOW).errors.some((e) => /counter-offer/.test(e)));
+    assert.equal(isCounter(at24, prefs18), true);
+  });
+
+  it("the request route accepts 18 as a lease term and still rejects terms outside the set", () => {
+    const src = fs.readFileSync(path.join(process.cwd(), "app/api/rfqs/route.ts"), "utf8");
+    assert.match(src, /LEASE_TERMS as readonly number\[\]\)\.includes\(term\)/);
+    const wizard = fs.readFileSync(path.join(process.cwd(), "components/BiddingWizard.tsx"), "utf8");
+    assert.match(wizard, /LEASE_TERMS\.map\(\(t\) =>/);
+    const calc = fs.readFileSync(path.join(process.cwd(), "components/LeaseCalculatorForm.tsx"), "utf8");
+    assert.match(calc, /LEASE_TERMS\.map\(\(t\) =>/);
+  });
+});

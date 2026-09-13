@@ -7,7 +7,7 @@
  * Pure: types, validation, derived numbers. No I/O.
  */
 
-export const LEASE_TERMS = [24, 36, 39, 48] as const;
+export const LEASE_TERMS = [18, 24, 36, 39, 48] as const;
 export type LeaseTerm = (typeof LEASE_TERMS)[number];
 export const LEASE_MILES = [7500, 10000, 12000, 15000] as const;
 export type LeaseMiles = (typeof LEASE_MILES)[number];
