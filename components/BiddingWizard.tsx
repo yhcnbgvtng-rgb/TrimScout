@@ -9,7 +9,7 @@ import {
 import { formatCurrency, getZipCoordinates } from "../lib/otdCalculator";
 import { outOfStateVehicles, formatOutOfStateWarning, formatExpandNudge } from "../lib/sameStateCheck";
 import { planDeskSelection } from "../lib/deskSelection";
-import { CPO_BUILD_COPY, USED_BUILD_COPY, USED_VEHICLES_ENABLED, conditionBadge, detectUsedCondition, isUsedCondition, normalizeMiles, type UsedCondition } from "../lib/usedVehicle";
+import { CPO_BUILD_COPY, USED_BUILD_COPY, USED_VEHICLES_ENABLED, conditionBadge, detectUsedCondition, isUsedCondition, type UsedCondition } from "../lib/usedVehicle";
 import type { QuotePrefs } from "../lib/usedQuote";
 import { clearQuoteDraft, readQuoteDraft, saveQuoteDraft, wizardAuthState, type QuoteDraft } from "../lib/quoteDraft";
 import { diffVsPrimary, mustHaveHeadline, mustHaveReport, type MustHaveRef } from "../lib/alternateCompare";
@@ -751,8 +751,6 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   const [vehicleCondition, setVehicleCondition] = useState<"new" | UsedCondition>("new");
   const isUsed = isUsedCondition(vehicleCondition);
   const usedOpt = isUsed ? { condition: vehicleCondition as UsedCondition } : {};
-  const [usedMiles, setUsedMiles] = useState("");
-  const [usedStock, setUsedStock] = useState("");
 
   // Up to 2 alternate vehicles to ride along with the primary in the same
   // offer (see lib/offerCompare.ts's collectDealVehicles, which already
@@ -875,8 +873,6 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     }
     setStep(1);
     setVehicleCondition("new");
-    setUsedMiles("");
-    setUsedStock("");
     setQuoteType(null);
     setLeaseTerm("");
     setLeaseMiles("");
@@ -1088,8 +1084,6 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     altVehicle2,
     showAlternates,
     vehicleCondition,
-    usedMiles,
-    usedStock,
     factoryBuildOem,
     fordStickerStatus,
     fordPdfUrl,
@@ -1147,8 +1141,6 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     pick<Vehicle | null>("altVehicle2", setAltVehicle2);
     pick<boolean>("showAlternates", setShowAlternates);
     pick<"new" | UsedCondition>("vehicleCondition", setVehicleCondition);
-    pick<string>("usedMiles", setUsedMiles);
-    pick<string>("usedStock", setUsedStock);
     pick<FactoryBuildOem | null>("factoryBuildOem", setFactoryBuildOem);
     pick<"released" | "unreleased" | "error" | null>("fordStickerStatus", setFordStickerStatus);
     pick<string | null>("fordPdfUrl", setFordPdfUrl);
@@ -1519,8 +1511,6 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     setSelectedVehicle(null);
     // Back to the default; the next link decides new / used on its own.
     setVehicleCondition("new");
-    setUsedMiles("");
-    setUsedStock("");
     setParseSuccessMsg(null);
     setParseError(null);
     setDealerUrlInput("");
@@ -1808,7 +1798,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
       vdpUrl: v.dealerUrl || null,
       buildConfidence: v.buildConfidence || "dealer_listing_only",
       resolvedAt: new Date().toISOString(),
-      ...(isUsedCondition(v.condition) ? { condition: v.condition, mileage: normalizeMiles(usedMiles), stockNumber: usedStock.trim() || null } : {}),
+      ...(isUsedCondition(v.condition) ? { condition: v.condition } : {}),
     }));
     const toSend = pastes.filter(
       (p) => p.dealerName && deskPlan.rows[p.dealerName]?.checked
@@ -2343,24 +2333,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
 
                 {/* Alternates stay behind a link until asked for, or until
                     one is actually imported. */}
-                {isUsed ? (
-                  selectedVehicle ? (
-                    <div className="space-y-2 rounded-xl border border-border bg-surface-elevated px-3.5 py-3" data-testid="used-confirm-fields">
-                      <p className="text-[11px] font-semibold text-ink-light">Help the dealer confirm the car <span className="font-normal text-ink-faint">(optional)</span></p>
-                      <div className="grid grid-cols-2 gap-2">
-                        <label className="space-y-1">
-                          <span className="block text-[10px] font-bold uppercase tracking-wide text-ink-faint">Miles</span>
-                          <input type="text" inputMode="numeric" value={usedMiles} onChange={(e) => setUsedMiles(e.target.value.replace(/[^\d,]/g, ""))} placeholder="e.g. 34,512" aria-label="Miles" className="w-full rounded-lg border border-border bg-background px-2.5 py-1.5 font-mono text-[11px] text-ink-light placeholder-ink-faint focus:border-emerald-500 focus:outline-none" />
-                        </label>
-                        <label className="space-y-1">
-                          <span className="block text-[10px] font-bold uppercase tracking-wide text-ink-faint">Stock #</span>
-                          <input type="text" value={usedStock} onChange={(e) => setUsedStock(e.target.value)} placeholder="From the listing" aria-label="Stock number" className="w-full rounded-lg border border-border bg-background px-2.5 py-1.5 font-mono text-[11px] text-ink-light placeholder-ink-faint focus:border-emerald-500 focus:outline-none" />
-                        </label>
-                      </div>
-                      <p className="text-[10px] text-ink-faint">Used requests are one car at a time — the dealer quotes this VIN.</p>
-                    </div>
-                  ) : null
-                ) : showAlternates || altVehicle1 || altVehicle2 ? (
+                {isUsed ? null : showAlternates || altVehicle1 || altVehicle2 ? (
                   <div className="space-y-2">
                     <p className="text-[10px] text-ink-faint">
                       Up to 2 similar vehicles — dealers can quote on any of the three.

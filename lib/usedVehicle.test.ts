@@ -48,14 +48,15 @@ describe("wiring — used cars ride the same pipe without a factory build", () =
     assert.match(p, /if \(options\.condition\) \{[\s\S]*?fetchImpl\("\/api\/used-vin"/);
     assert.match(p, /oem: null, vehicle: \{ \.\.\.out\.vehicle, condition: options\.condition \}, factoryBuildUnavailable: true, buildConfidence: "dealer_listing_only"/);
   });
-  it("Step 1: New | Used toggle (default New), a used link flips it, USED/CPO badges, no alternates / must-haves for used, miles + stock # confirm fields, condition on the payload", () => {
+  it("Step 1: New | Used toggle (default New), a used link flips it, USED/CPO badges, no alternates / must-haves / miles / stock fields for used, condition on the payload", () => {
     const w = read("components/BiddingWizard.tsx");
     assert.match(w, /useState<"new" \| UsedCondition>\("new"\)/);
     assert.match(w, /const detected = detectUsedCondition\(raw\);[\s\S]*?setVehicleCondition\(detected\)/);
     assert.match(w, /data-testid="primary-build-badge"[\s\S]*?conditionBadge\(selectedVehicle\.condition\)/);
     assert.match(w, /data-testid="confirm-build-badge"[\s\S]*?conditionBadge\(build\.vehicle\.condition\)/);
-    assert.match(w, /\{isUsed \? \(\s*selectedVehicle \? \(\s*<div[^>]*data-testid="used-confirm-fields"/);
-    assert.match(w, /isUsedCondition\(v\.condition\) \? \{ condition: v\.condition, mileage: normalizeMiles\(usedMiles\), stockNumber: usedStock\.trim\(\) \|\| null \}/);
+    assert.match(w, /\{isUsed \? null : showAlternates \|\| altVehicle1 \|\| altVehicle2 \? \(/);
+    assert.doesNotMatch(w, /used-confirm-fields|Help the dealer confirm the car|usedMiles|usedStock/, "no miles / stock # block on Used Step 1");
+    assert.match(w, /isUsedCondition\(v\.condition\) \? \{ condition: v\.condition \}/);
     assert.match(w, /setVehicleCondition\("new"\);/);
     // New-car path untouched: the OEM endpoint choice and the must-have picker are still there.
     assert.match(w, /FORD_MUST_HAVE_HEADING/);
