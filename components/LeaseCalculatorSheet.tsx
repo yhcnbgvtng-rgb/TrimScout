@@ -67,7 +67,8 @@ export function LeaseCalculatorSheet({
     residualPercent: "",
     residualAmount: "",
     moneyFactor: "",
-    taxRatePercent: zipRate != null ? String(Math.round(zipRate * 10000) / 100) : "",
+    // Three decimals: NJ is 6.625%, and rounding it to 6.63% would misstate the monthly.
+    taxRatePercent: zipRate != null ? String(Math.round(zipRate * 100000) / 1000) : "",
     taxesAtSigning: "",
     expiresAt: "",
     vin,
@@ -75,8 +76,10 @@ export function LeaseCalculatorSheet({
     notes: "",
     counterNote: "",
   });
-  const [incentives, setIncentives] = useState<DraftItem[]>([]);
-  const [otherFees, setOtherFees] = useState<DraftItem[]>([]);
+  // Same shape as the fees: a standing first line for the manufacturer lease
+  // incentive (description set, amount blank, not removable).
+  const [incentives, setIncentives] = useState<DraftItem[]>([{ name: "Lease cash / rebate", amount: "" }]);
+  const [otherFees, setOtherFees] = useState<DraftItem[]>([{ name: "Doc fee", amount: "" }]);
   const [addOns, setAddOns] = useState<DraftItem[]>([]);
   const [counterOffer, setCounterOffer] = useState(false);
   const [ack, setAck] = useState(false);
@@ -156,18 +159,30 @@ export function LeaseCalculatorSheet({
       {note ? <span className={hint}>{note}</span> : null}
     </label>
   );
-  const itemList = ({ title, list, setList, addLabel, placeholder }: { title: string; list: DraftItem[]; setList: React.Dispatch<React.SetStateAction<DraftItem[]>>; addLabel: string; placeholder: string }) => (
+  const itemList = ({ title, list, setList, addLabel, placeholder, fixed }: { title: string; list: DraftItem[]; setList: React.Dispatch<React.SetStateAction<DraftItem[]>>; addLabel: string; placeholder: string; fixed?: string[] }) => (
     <div className="space-y-1.5">
-      <span className={label}>{title}</span>
-      {list.map((it, i) => (
-        <div key={i} className="flex gap-2">
-          <input type="text" value={it.name} onChange={(e) => setList((p) => p.map((x, j) => (j === i ? { ...x, name: e.target.value } : x)))} placeholder={placeholder} className={`${input} flex-1`} />
-          <input type="text" inputMode="decimal" value={it.amount} onChange={(e) => setList((p) => p.map((x, j) => (j === i ? { ...x, amount: e.target.value } : x)))} placeholder="Amount" className={`${input} w-28`} />
-          <button type="button" onClick={() => setList((p) => p.filter((_, j) => j !== i))} className="text-ink-muted hover:text-rose-400" aria-label={`Remove ${title.toLowerCase()} line`}>
-            <Trash2 className="h-3.5 w-3.5" />
-          </button>
-        </div>
-      ))}
+      <div className="grid grid-cols-[1fr_140px_20px] gap-2">
+        <span className={label}>{title}</span>
+        <span className={label}>Amount</span>
+        <span />
+      </div>
+      {list.map((it, i) => {
+        const isFixed = Boolean(fixed?.includes(it.name) && i < (fixed?.length ?? 0));
+        return (
+          <div key={i} className="grid grid-cols-[1fr_140px_20px] items-center gap-2">
+            <input type="text" value={it.name} readOnly={isFixed} onChange={(e) => setList((p) => p.map((x, j) => (j === i ? { ...x, name: e.target.value } : x)))} placeholder={placeholder} aria-label={`${title} description`} className={input} />
+            <span className="relative block">
+              <span className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-[11px] text-ink-faint">$</span>
+              <input type="text" inputMode="decimal" value={it.amount} onChange={(e) => setList((p) => p.map((x, j) => (j === i ? { ...x, amount: e.target.value } : x)))} placeholder="0" aria-label={`${it.name || title} amount`} className={`${input} pl-6 font-mono`} />
+            </span>
+            {isFixed ? <span /> : (
+              <button type="button" onClick={() => setList((p) => p.filter((_, j) => j !== i))} className="text-ink-muted hover:text-rose-400" aria-label={`Remove ${title.toLowerCase()} line`}>
+                <Trash2 className="h-3.5 w-3.5" />
+              </button>
+            )}
+          </div>
+        );
+      })}
       <button type="button" onClick={() => setList((p) => [...p, { name: "", amount: "" }])} className="flex items-center gap-1 text-[11px] font-bold text-emerald-400 hover:text-emerald-300">
         <Plus className="h-3 w-3" /> {addLabel}
       </button>
@@ -197,8 +212,8 @@ export function LeaseCalculatorSheet({
               {field({ k: "capReduction", title: "Cap cost reduction / cash down" })}
               {field({ k: "acquisitionFee", title: "Acquisition fee" })}
             </div>
-            {itemList({ title: "Incentives / rebates", list: incentives, setList: setIncentives, addLabel: "Add incentive", placeholder: "e.g. Loyalty" })}
-            {itemList({ title: "Other fees at signing (itemized)", list: otherFees, setList: setOtherFees, addLabel: "Add fee", placeholder: "e.g. Doc fee" })}
+            {itemList({ title: "Incentives / rebates", list: incentives, setList: setIncentives, addLabel: "Add another incentive", placeholder: "Describe the incentive, e.g. Loyalty or Conquest", fixed: ["Lease cash / rebate"] })}
+            {itemList({ title: "Fees at signing (itemized)", list: otherFees, setList: setOtherFees, addLabel: "Add another fee", placeholder: "Describe the fee, e.g. Registration & title", fixed: ["Doc fee"] })}
             {itemList({ title: "Add-ons", list: addOns, setList: setAddOns, addLabel: "Add add-on", placeholder: "e.g. Wheel & tire" })}
           </section>
 
