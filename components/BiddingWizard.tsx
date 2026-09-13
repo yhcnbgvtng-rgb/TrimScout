@@ -10,6 +10,7 @@ import { formatCurrency, getZipCoordinates } from "../lib/otdCalculator";
 import { outOfStateVehicles, formatOutOfStateWarning, formatExpandNudge } from "../lib/sameStateCheck";
 import { planDeskSelection } from "../lib/deskSelection";
 import { CPO_BUILD_COPY, USED_BUILD_COPY, USED_VEHICLES_ENABLED, conditionBadge, detectUsedCondition, isUsedCondition, normalizeMiles, type UsedCondition } from "../lib/usedVehicle";
+import { DRIVETRAIN_ASKS, EMPTY_MUST_CONFIRM_DRAFT, MUST_CONFIRM_COPY, buildMustConfirmList, parseTags, type MustConfirmDraft } from "../lib/mustConfirm";
 import { clearQuoteDraft, readQuoteDraft, saveQuoteDraft, wizardAuthState, type QuoteDraft } from "../lib/quoteDraft";
 import { diffVsPrimary, mustHaveHeadline, mustHaveReport, type MustHaveRef } from "../lib/alternateCompare";
 import { DEFAULT_LEASE_TERM, LEASE_MILES, LEASE_NON_BINDING_COPY, LEASE_TERMS, type LeaseMiles, type LeaseTerm } from "../lib/leaseQuote";
@@ -752,6 +753,9 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   const usedOpt = isUsed ? { condition: vehicleCondition as UsedCondition } : {};
   const [usedMiles, setUsedMiles] = useState("");
   const [usedStock, setUsedStock] = useState("");
+  // Used: what the dealer must confirm — replaces factory must-have RPOs.
+  const [mustConfirm, setMustConfirm] = useState<MustConfirmDraft>(EMPTY_MUST_CONFIRM_DRAFT);
+  const [mustConfirmTagsText, setMustConfirmTagsText] = useState("");
 
   // Up to 2 alternate vehicles to ride along with the primary in the same
   // offer (see lib/offerCompare.ts's collectDealVehicles, which already
@@ -876,6 +880,8 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     setVehicleCondition("new");
     setUsedMiles("");
     setUsedStock("");
+    setMustConfirm(EMPTY_MUST_CONFIRM_DRAFT);
+    setMustConfirmTagsText("");
     setQuoteType(null);
     setLeaseTerm("");
     setLeaseMiles("");
@@ -1089,6 +1095,8 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     vehicleCondition,
     usedMiles,
     usedStock,
+    mustConfirm,
+    mustConfirmTagsText,
     factoryBuildOem,
     fordStickerStatus,
     fordPdfUrl,
@@ -1148,6 +1156,8 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     pick<"new" | UsedCondition>("vehicleCondition", setVehicleCondition);
     pick<string>("usedMiles", setUsedMiles);
     pick<string>("usedStock", setUsedStock);
+    pick<MustConfirmDraft>("mustConfirm", setMustConfirm);
+    pick<string>("mustConfirmTagsText", setMustConfirmTagsText);
     pick<FactoryBuildOem | null>("factoryBuildOem", setFactoryBuildOem);
     pick<"released" | "unreleased" | "error" | null>("fordStickerStatus", setFordStickerStatus);
     pick<string | null>("fordPdfUrl", setFordPdfUrl);
@@ -1520,6 +1530,8 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     setVehicleCondition("new");
     setUsedMiles("");
     setUsedStock("");
+    setMustConfirm(EMPTY_MUST_CONFIRM_DRAFT);
+    setMustConfirmTagsText("");
     setParseSuccessMsg(null);
     setParseError(null);
     setDealerUrlInput("");
@@ -1807,7 +1819,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
       vdpUrl: v.dealerUrl || null,
       buildConfidence: v.buildConfidence || "dealer_listing_only",
       resolvedAt: new Date().toISOString(),
-      ...(isUsedCondition(v.condition) ? { condition: v.condition, mileage: normalizeMiles(usedMiles), stockNumber: usedStock.trim() || null } : {}),
+      ...(isUsedCondition(v.condition) ? { condition: v.condition, mileage: normalizeMiles(usedMiles), stockNumber: usedStock.trim() || null, mustConfirm: buildMustConfirmList(mustConfirm) } : {}),
     }));
     const toSend = pastes.filter(
       (p) => p.dealerName && deskPlan.rows[p.dealerName]?.checked
@@ -2405,6 +2417,47 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                     + Add additional vehicles to the quote request
                   </button>
                 )}
+
+                {isUsed && selectedVehicle ? (
+                  <div className="space-y-2.5 rounded-xl border border-border bg-surface-elevated px-3.5 py-3" data-testid="must-confirm-editor">
+                    <div>
+                      <p className="text-[11px] font-semibold text-ink-light">What the dealer must confirm</p>
+                      <p className="text-[10px] text-ink-faint">{MUST_CONFIRM_COPY} Each item comes back confirmed, or marked &ldquo;can&apos;t confirm&rdquo; with a note.</p>
+                    </div>
+                    <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                      <label className="flex items-center gap-2 text-[11px] text-ink-light">
+                        <input type="checkbox" checked={mustConfirm.cleanTitle} onChange={(e) => setMustConfirm((m) => ({ ...m, cleanTitle: e.target.checked }))} className="h-3.5 w-3.5" />
+                        Clean title
+                      </label>
+                      <label className="flex items-center gap-2 text-[11px] text-ink-light">
+                        <input type="checkbox" checked={mustConfirm.cpoWarranty} onChange={(e) => setMustConfirm((m) => ({ ...m, cpoWarranty: e.target.checked }))} className="h-3.5 w-3.5" />
+                        CPO / remaining factory warranty
+                      </label>
+                      <label className="flex items-center gap-2 text-[11px] text-ink-light">
+                        <span className="whitespace-nowrap">Miles under</span>
+                        <input type="text" inputMode="numeric" value={mustConfirm.maxMiles} onChange={(e) => setMustConfirm((m) => ({ ...m, maxMiles: e.target.value.replace(/[^\d,]/g, "") }))} placeholder="e.g. 40,000" aria-label="Maximum miles" className="w-28 rounded-lg border border-border bg-background px-2.5 py-1.5 font-mono text-[11px] text-ink-light placeholder-ink-faint focus:border-emerald-500 focus:outline-none" />
+                      </label>
+                      <label className="flex items-center gap-2 text-[11px] text-ink-light">
+                        <span className="whitespace-nowrap">Drivetrain</span>
+                        <select value={mustConfirm.drivetrain} onChange={(e) => setMustConfirm((m) => ({ ...m, drivetrain: e.target.value as MustConfirmDraft["drivetrain"] }))} aria-label="Drivetrain to confirm" className="rounded-lg border border-border bg-background px-2.5 py-1.5 text-[11px] text-ink-light focus:border-emerald-500 focus:outline-none">
+                          <option value="">No preference</option>
+                          {DRIVETRAIN_ASKS.map((d) => (
+                            <option key={d} value={d}>{d}</option>
+                          ))}
+                        </select>
+                      </label>
+                    </div>
+                    <label className="block space-y-1">
+                      <span className="text-[11px] text-ink-light">Options to confirm <span className="text-[10px] text-ink-faint">(comma-separated, e.g. panoramic roof, tow package)</span></span>
+                      <input type="text" value={mustConfirmTagsText} onChange={(e) => { setMustConfirmTagsText(e.target.value); setMustConfirm((m) => ({ ...m, tags: parseTags(e.target.value) })); }} placeholder="panoramic roof, tow package" aria-label="Options to confirm" className="w-full rounded-lg border border-border bg-background px-2.5 py-1.5 text-[11px] text-ink-light placeholder-ink-faint focus:border-emerald-500 focus:outline-none" />
+                    </label>
+                    {buildMustConfirmList(mustConfirm).length ? (
+                      <p className="text-[10px] text-ink-muted">Dealer will confirm: {buildMustConfirmList(mustConfirm).map((i) => i.label).join(" · ")}</p>
+                    ) : (
+                      <p className="text-[10px] text-ink-faint">Nothing to confirm yet — the dealer quotes the car as listed.</p>
+                    )}
+                  </div>
+                ) : null}
 
                 <div className="flex flex-wrap items-start justify-between gap-2 pt-1">
                   <label className="flex items-start gap-2 text-[11px] cursor-pointer">

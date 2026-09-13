@@ -183,6 +183,8 @@ export interface DealerLinkPaste {
   /** Odometer the buyer typed (used only); the dealer confirms it. */
   mileage?: number | null;
   stockNumber?: string | null;
+  /** Used only: what the dealer must confirm (or say they can't) when quoting. */
+  mustConfirm?: Array<{ id: string; key: string; label: string; value?: string | number | null }>;
 }
 
 export const MAX_PACKAGE_LINKS = 3;
