@@ -56,6 +56,24 @@ export interface RfqQuote {
    * buyer's compare view reads this, never those.
    */
   lease?: LeaseQuote | null;
+  /** Set when the buyer countered and this version was replaced; kept for history. */
+  supersededAt?: string | null;
+}
+
+/**
+ * The buyer's scoped counter to one dealer's quote — structured fields
+ * only, never a free-text number. A request, not a bid: the dealer
+ * re-quotes through the calculator (or declines).
+ */
+export interface BuyerCounter {
+  /** The quote this answers (kept in priorQuotes once superseded). */
+  againstQuoteId: string;
+  targetMonthlyMax?: number | null;
+  maxCashDueAtSigning?: number | null;
+  termMonths?: number | null;
+  milesPerYear?: number | null;
+  note?: string | null;
+  sentAt: string;
 }
 
 export interface RfqInvite {
@@ -78,6 +96,11 @@ export interface RfqInvite {
   viewedAt?: string | null;
   /** Server-to-server only; stripped before any response to a browser. */
   viewToken?: string | null;
+  /** The buyer's open counter to this desk's last quote (invite reopened for a revised quote). */
+  buyerCounter?: BuyerCounter | null;
+  buyerCounterAt?: string | null;
+  /** Earlier versions of this desk's quote, superseded by a buyer counter. */
+  priorQuotes?: RfqQuote[];
 }
 
 export interface RfqSpec {
@@ -139,6 +162,7 @@ export type RfqEventType =
   | "quote_incomplete"
   | "buyer_picked"
   | "buyer_walked"
+  | "buyer_countered"
   | "desk_declined";
 
 export interface RfqEventPayload {

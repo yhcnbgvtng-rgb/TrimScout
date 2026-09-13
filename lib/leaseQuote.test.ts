@@ -165,7 +165,7 @@ describe("lease flow — copy and contact rules", () => {
     // "Waiting on N dealers…") and greys expired rows out of Choose.
     const compare = read("components/LeaseCompare.tsx");
     assert.match(compare, /data-testid="glance-none"/);
-    assert.match(compare, /r\.kind !== "expired" && r\.quoteId \? \([\s\S]*?Choose this quote/);
+    assert.match(compare, /\(r\.kind === "eligible" \|\| r\.kind === "counter"\) && r\.quoteId \? \([\s\S]*?Choose this quote/);
     assert.match(read("lib/leaseCompare.ts"), /Waiting on \$\{waiting\.length\} dealer/);
   });
 });

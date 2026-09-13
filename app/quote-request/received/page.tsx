@@ -5,8 +5,10 @@ export const dynamic = "force-dynamic";
 import React, { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { LEASE_NON_BINDING_COPY, type LeaseRequestPrefs } from "../../../lib/leaseQuote";
+import { LEASE_NON_BINDING_COPY, type LeaseQuote, type LeaseRequestPrefs } from "../../../lib/leaseQuote";
 import { LeaseCalculatorForm } from "../../../components/LeaseCalculatorForm";
+import { counterSummary } from "../../../lib/buyerCounter";
+import type { BuyerCounter } from "../../../lib/rfq";
 
 // Where a dealer lands from the tracked link in a lease-quote-request
 // email. The calculator is the only reply path — a free-text "monthly"
@@ -20,6 +22,9 @@ type Context = {
   inviteStatus: string;
   rfqStatus: string;
   dealReference: string | null;
+  /** Set when the buyer countered this desk's last quote — the invite is open again for a revised one. */
+  buyerCounter: BuyerCounter | null;
+  priorLease: LeaseQuote | null;
 };
 
 function ReceivedBody() {
@@ -29,6 +34,19 @@ function ReceivedBody() {
   const [ctx, setCtx] = useState<Context | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState<{ warnings: string[]; dueAtSigningTotal: number } | null>(null);
+  const [declined, setDeclined] = useState(false);
+  const [declining, setDeclining] = useState(false);
+
+  const decline = async () => {
+    setDeclining(true);
+    try {
+      const res = await fetch("/api/quote-invite/decline", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ t: token, reason: "other" }) });
+      if (res.ok) setDeclined(true);
+      else setError((await res.json().catch(() => ({}))).error || "Could not record that.");
+    } finally {
+      setDeclining(false);
+    }
+  };
 
   useEffect(() => {
     if (!token) return;
@@ -78,6 +96,11 @@ function ReceivedBody() {
             <p className="rounded-2xl border border-amber-500/40 bg-amber-950/20 p-5 text-sm text-amber-200">{error}</p>
           ) : !ctx ? (
             <p className="text-sm text-ink-muted">Loading the request…</p>
+          ) : declined ? (
+            <div className="rounded-2xl border border-border bg-surface p-5 space-y-1 text-sm text-ink-light">
+              <p className="font-bold text-white">Recorded — the buyer will see you couldn&apos;t go further on this one.</p>
+              <p className="text-xs text-ink-muted">Your earlier quote stays on their compare for reference. Thanks for looking.</p>
+            </div>
           ) : done ? (
             <div className="rounded-2xl border border-emerald-500/40 bg-emerald-500/5 p-5 space-y-2 text-sm text-ink-light">
               <p className="font-bold text-white">Quote submitted. Thank you.</p>
@@ -108,14 +131,38 @@ function ReceivedBody() {
             </p>
           ) : (
             <>
-              <div className="rounded-2xl border border-border bg-surface p-5 space-y-2 text-sm text-ink-light leading-relaxed">
-                <p>
-                  <strong className="text-white">Quote through the calculator below.</strong> Every field the buyer compares on is required —
-                  cap cost, residual, money factor, monthly, and due at signing itemized. A monthly-only reply can&apos;t be submitted.
-                </p>
-                <p className="text-xs text-ink-muted border-t border-border/60 pt-3">{LEASE_NON_BINDING_COPY}</p>
-              </div>
-              <LeaseCalculatorForm token={token} vin={ctx.vin} stockNumber={ctx.stockNumber} prefs={ctx.leasePrefs} onSubmitted={setDone} />
+              {ctx.buyerCounter ? (
+                <div className="rounded-2xl border border-amber-500/40 bg-amber-950/20 p-5 space-y-2 text-sm text-amber-100 leading-relaxed" data-testid="buyer-counter-panel">
+                  <p className="font-bold text-white">The buyer countered your quote.</p>
+                  <p>
+                    {ctx.priorLease ? <>Your quote: <strong>${Math.round(ctx.priorLease.monthlyPaymentPreTax).toLocaleString()}/mo</strong> · {ctx.priorLease.termMonths} mo · {ctx.priorLease.milesPerYear.toLocaleString()} mi/yr. </> : null}
+                    They&apos;re asking for <strong>{counterSummary(ctx.buyerCounter)}</strong>.
+                    {ctx.buyerCounter.note ? <> Their note: &ldquo;{ctx.buyerCounter.note}&rdquo;</> : null}
+                  </p>
+                  <p className="text-xs text-amber-200/90">
+                    The calculator below is prefilled with your last quote — revise and submit, or say you can&apos;t go further. A request, not a bid; no deadline on you.
+                  </p>
+                  <button type="button" onClick={decline} disabled={declining} className="rounded-lg border border-amber-500/40 px-3 py-1.5 text-xs font-bold text-amber-100 hover:bg-amber-500/10 disabled:opacity-50" data-testid="decline-counter">
+                    {declining ? "Recording…" : "I can't do better than my quote"}
+                  </button>
+                </div>
+              ) : (
+                <div className="rounded-2xl border border-border bg-surface p-5 space-y-2 text-sm text-ink-light leading-relaxed">
+                  <p>
+                    <strong className="text-white">Quote through the calculator below.</strong> Every field the buyer compares on is required —
+                    cap cost, residual, money factor, monthly, and due at signing itemized. A monthly-only reply can&apos;t be submitted.
+                  </p>
+                  <p className="text-xs text-ink-muted border-t border-border/60 pt-3">{LEASE_NON_BINDING_COPY}</p>
+                </div>
+              )}
+              <LeaseCalculatorForm
+                token={token}
+                vin={ctx.vin}
+                stockNumber={ctx.stockNumber}
+                prefs={ctx.buyerCounter ? { ...ctx.leasePrefs, termMonths: (ctx.buyerCounter.termMonths as LeaseRequestPrefs["termMonths"]) || ctx.leasePrefs.termMonths, milesPerYear: (ctx.buyerCounter.milesPerYear as LeaseRequestPrefs["milesPerYear"]) || ctx.leasePrefs.milesPerYear } : ctx.leasePrefs}
+                initial={ctx.priorLease}
+                onSubmitted={setDone}
+              />
             </>
           )}
           <p className="text-xs text-ink-faint">

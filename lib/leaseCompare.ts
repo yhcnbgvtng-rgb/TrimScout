@@ -10,9 +10,9 @@
  * numbers only.
  */
 import { aprFromMoneyFactor, dueAtSigningTotal, isCounter, isExpired, termMilesLabel, type LeaseQuote, type LeaseRequestPrefs } from "./leaseQuote";
-import type { RfqInvite, RfqRequest } from "./rfq";
+import type { BuyerCounter, RfqInvite, RfqQuote, RfqRequest } from "./rfq";
 
-export type LeaseRowKind = "eligible" | "counter" | "expired" | "waiting" | "declined";
+export type LeaseRowKind = "eligible" | "counter" | "expired" | "waiting" | "declined" | "countered";
 
 export interface LeaseCompareRow {
   inviteId: string;
@@ -33,6 +33,12 @@ export interface LeaseCompareRow {
   /** Auto math chips vs. the best eligible quote — derived from fields only. */
   chips: string[];
   picked: boolean;
+  /** The buyer's open counter on this desk (kind "countered"), or the one a revised quote answered. */
+  buyerCounter: BuyerCounter | null;
+  /** Earlier versions of this desk's quote (superseded by a buyer counter). */
+  priorQuotes: RfqQuote[];
+  /** True when the live quote is a revision after a buyer counter. */
+  revised: boolean;
 }
 
 export interface LeaseCompare {
@@ -74,6 +80,9 @@ function baseRow(invite: RfqInvite, rfq: RfqRequest): Omit<LeaseCompareRow, "kin
     bestDas: false,
     chips: [],
     picked: Boolean(invite.quote && rfq.pickedQuoteId === invite.quote.id),
+    buyerCounter: invite.buyerCounter ?? null,
+    priorQuotes: invite.priorQuotes ?? [],
+    revised: Boolean(invite.quote?.lease && invite.priorQuotes?.length),
   };
 }
 
@@ -84,6 +93,13 @@ export function analyzeLeaseQuotes(rfq: RfqRequest, now: Date = new Date()): Lea
   for (const invite of rfq.invites) {
     const lease = invite.quote?.lease ?? null;
     if (!lease) {
+      // A desk the buyer countered shows its last numbers, greyed, while
+      // the revised quote is pending — not a blank "waiting" row.
+      const prior = invite.buyerCounter && invite.status === "invited" ? invite.priorQuotes?.[invite.priorQuotes.length - 1]?.lease ?? null : null;
+      if (prior) {
+        rows.push({ ...baseRow(invite, rfq), kind: "countered", lease: prior, monthly: prior.monthlyPaymentPreTax, dueAtSigning: dueAtSigningTotal(prior.dueAtSigning), counterHow: null, counterNote: null, expiresAt: prior.expiresAt });
+        continue;
+      }
       rows.push({ ...baseRow(invite, rfq), kind: invite.status === "declined" ? "declined" : "waiting", monthly: null, dueAtSigning: null, counterHow: null, counterNote: null, expiresAt: null });
       continue;
     }
@@ -112,26 +128,31 @@ export function analyzeLeaseQuotes(rfq: RfqRequest, now: Date = new Date()): Lea
   for (const r of eligible) {
     // Monthly chip first, then due-at-signing — wins phrased as "less", losses as "more".
     const chips: string[] = [];
-    if (bestM && r === bestM && byMonthly[1]) chips.push(`${fmtMoney(byMonthly[1].monthly! - r.monthly!)}/mo less than ${byMonthly[1].dealerName}`);
-    if (bestM && r !== bestM) chips.push(`${fmtMoney(r.monthly! - bestM.monthly!)}/mo more than ${bestM.dealerName}`);
-    if (bestD && r === bestD && byDas[1]) chips.push(`${fmtMoney(byDas[1].dueAtSigning! - r.dueAtSigning!)} less at signing than ${byDas[1].dealerName}`);
-    if (bestD && r !== bestD) chips.push(`${fmtMoney(r.dueAtSigning! - bestD.dueAtSigning!)} more at signing than ${bestD.dealerName}`);
+    const diff = (a: number, b: number) => Math.round(a - b);
+    if (bestM && r === bestM && byMonthly[1] && diff(byMonthly[1].monthly!, r.monthly!) > 0) chips.push(`${fmtMoney(byMonthly[1].monthly! - r.monthly!)}/mo less than ${byMonthly[1].dealerName}`);
+    if (bestM && r !== bestM && diff(r.monthly!, bestM.monthly!) > 0) chips.push(`${fmtMoney(r.monthly! - bestM.monthly!)}/mo more than ${bestM.dealerName}`);
+    if (bestD && r === bestD && byDas[1] && diff(byDas[1].dueAtSigning!, r.dueAtSigning!) > 0) chips.push(`${fmtMoney(byDas[1].dueAtSigning! - r.dueAtSigning!)} less at signing than ${byDas[1].dealerName}`);
+    if (bestD && r !== bestD && diff(r.dueAtSigning!, bestD.dueAtSigning!) > 0) chips.push(`${fmtMoney(r.dueAtSigning! - bestD.dueAtSigning!)} more at signing than ${bestD.dealerName}`);
     r.chips = chips;
   }
   for (const r of rows) {
     if (r.kind === "counter" && r.counterHow) r.chips = [`Counters to ${r.counterHow}`];
     if (r.kind === "expired") r.chips = ["Expired — ask the dealer to re-quote"];
+    if (r.kind === "countered") r.chips = ["You countered — waiting on a revised quote"];
+    if (r.revised) r.chips = [`Revised after your counter (v${r.priorQuotes.length + 1})`, ...r.chips];
   }
 
   const counters = rows.filter((r) => r.kind === "counter");
   const expiredRows = rows.filter((r) => r.kind === "expired");
+  const countered = rows.filter((r) => r.kind === "countered");
   const waiting = rows.filter((r) => r.kind === "waiting");
   const declined = rows.filter((r) => r.kind === "declined");
-  const ordered = [...byMonthly, ...counters.sort((a, b) => a.monthly! - b.monthly!), ...expiredRows, ...waiting, ...declined];
+  const ordered = [...byMonthly, ...counters.sort((a, b) => a.monthly! - b.monthly!), ...countered, ...expiredRows, ...waiting, ...declined];
 
   const warn: string[] = [];
   if (counters.length) warn.push(`${counters.length} counter${counters.length === 1 ? "" : "s"} on term/miles`);
   if (expiredRows.length) warn.push(`${expiredRows.length} expired`);
+  if (countered.length) warn.push(`${countered.length} awaiting a revised quote after your counter`);
   const quoted = eligible.length + counters.length + expiredRows.length;
 
   return {
@@ -146,8 +167,10 @@ export function analyzeLeaseQuotes(rfq: RfqRequest, now: Date = new Date()): Lea
           ? null
           : quoted > 0
             ? `No quote matches your ${termMilesLabel(prefs.termMonths, prefs.milesPerYear)} yet — the ${counters.length ? "counters" : "quotes"} below differ from what you asked for.`
-            : `Waiting on ${waiting.length} dealer${waiting.length === 1 ? "" : "s"} — quotes appear here as they reply.`,
+            : countered.length
+              ? `You countered ${countered.length === 1 ? "a quote" : `${countered.length} quotes`} — revised numbers appear here when the dealer${countered.length === 1 ? "" : "s"} reply.`
+              : `Waiting on ${waiting.length} dealer${waiting.length === 1 ? "" : "s"} — quotes appear here as they reply.`,
     },
-    counts: { quoted, eligible: eligible.length, counters: counters.length, expired: expiredRows.length, waiting: waiting.length },
+    counts: { quoted, eligible: eligible.length, counters: counters.length, expired: expiredRows.length, waiting: waiting.length + countered.length },
   };
 }

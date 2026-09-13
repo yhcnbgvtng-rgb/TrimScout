@@ -57,42 +57,55 @@ export function LeaseCalculatorForm({
   vin,
   stockNumber,
   prefs,
+  initial = null,
   onSubmitted,
 }: {
   token: string;
   vin: string;
   stockNumber: string | null;
   prefs: LeaseRequestPrefs;
+  /** A prior quote to prefill from (the dealer revising after a buyer counter). */
+  initial?: LeaseQuote | null;
   onSubmitted: (result: { warnings: string[]; dueAtSigningTotal: number }) => void;
 }) {
   const zipRate = prefs.zip ? getZipCoordinates(prefs.zip).taxRate : null;
+  // Revising after a buyer counter: start from the last quote's numbers
+  // (cap cost as the selling price, residual / MF / fees / lines as they were).
+  const str = (n: number | null | undefined) => (n == null || !Number.isFinite(n) || n === 0 ? "" : String(n));
   const [f, setF] = useState<Draft>({
     vin,
     stockNumber: stockNumber || "",
     msrp: "",
-    sellingPrice: "",
+    sellingPrice: str(initial?.capCost),
     capCost: "",
     termMonths: String(prefs.termMonths),
     milesPerYear: String(prefs.milesPerYear),
-    residualPercent: "",
-    residualAmount: "",
-    moneyFactor: "",
-    capReduction: "",
-    acquisitionFee: "",
+    residualPercent: str(initial?.residualPercent),
+    residualAmount: str(initial?.residualAmount),
+    moneyFactor: str(initial?.moneyFactor),
+    capReduction: str(initial?.capReduction),
+    acquisitionFee: str(initial?.dueAtSigning.acquisitionFee),
     // Three decimals: NJ is 6.625%, and rounding it to 6.63% would misstate the monthly.
     taxRatePercent: zipRate != null ? String(Math.round(zipRate * 100000) / 1000) : "",
-    taxesAtSigning: "",
+    taxesAtSigning: str(initial?.dueAtSigning.taxes),
     expiresAt: "",
-    notes: "",
+    notes: initial?.notes || "",
     counterNote: "",
   });
+  const lines = (items: LineItem[] | undefined): DraftItem[] => (items || []).map((i) => ({ name: i.name, amount: String(i.amount) }));
   // Same shape as the fees: a standing first line for the manufacturer lease
   // incentive (description set, amount blank, not removable).
-  const [incentives, setIncentives] = useState<DraftItem[]>([{ name: "Lease cash / rebate", amount: "" }]);
+  const [incentives, setIncentives] = useState<DraftItem[]>(() => {
+    const seeded = lines(initial?.incentives);
+    return seeded.some((i) => i.name === "Lease cash / rebate") ? seeded : [{ name: "Lease cash / rebate", amount: "" }, ...seeded];
+  });
   // A doc fee is on every deal, so its line is always there — description
   // set, amount blank until the dealer types it. It can't be removed.
-  const [otherFees, setOtherFees] = useState<DraftItem[]>([{ name: "Doc fee", amount: "" }]);
-  const [addOns, setAddOns] = useState<DraftItem[]>([]);
+  const [otherFees, setOtherFees] = useState<DraftItem[]>(() => {
+    const seeded = lines(initial?.dueAtSigning.otherFees).map((i) => (/^doc fee$/i.test(i.name) ? { ...i, name: "Doc fee" } : i));
+    return seeded.some((i) => i.name === "Doc fee") ? seeded : [{ name: "Doc fee", amount: "" }, ...seeded];
+  });
+  const [addOns, setAddOns] = useState<DraftItem[]>(() => lines(initial?.addOns));
   const [capitalizeAcq, setCapitalizeAcq] = useState(false);
   const [counterOffer, setCounterOffer] = useState(false);
   const [noTaxEstimate, setNoTaxEstimate] = useState(false);
