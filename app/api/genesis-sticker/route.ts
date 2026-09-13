@@ -15,7 +15,7 @@ import {
   genesisStickerToVehicle,
 } from "@/lib/genesisSticker";
 import { factoryBuildFailedError, factoryBuildUnavailableError } from "@/lib/pasteImport";
-import { buildFreeImport, fillMissingYear } from "@/lib/freeVinImportServer";
+import { buildFreeImport, buildStickerUnavailableImport, fillMissingYear } from "@/lib/freeVinImportServer";
 import { blockedDealerPayload, resolveRoutePaste, resolveVehicleDealer } from "@/lib/pasteResolutionServer";
 
 export async function GET(request: Request) {
@@ -155,15 +155,14 @@ async function lookup(opts: { vin?: string; paste?: string; pasteUrl: string | n
       pdfUrl: sticker.pdfUrl,
     });
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : factoryBuildFailedError(vin);
-    return NextResponse.json(
-      {
-        error: message,
-        handled: true,
-        needsVin: false,
-        vin,
-      },
-      { status: 502 }
-    );
+    // The factory sticker didn't come back (edge hiccup, bot shield,
+    // network). The VIN is valid and the desk may already be matched, so
+    // fall back to the free decode and say the sticker is temporarily
+    // unavailable — the buyer can still confirm and continue.
+    const reason = err instanceof Error ? err.message : factoryBuildFailedError(vin);
+    console.log(`[genesis-sticker] ${vin} sticker unavailable → free import: ${reason}`);
+    const free = await buildStickerUnavailableImport({ vin, pasteUrl: opts.pasteUrl, source: resolved, makeLabel: "Genesis", reason }).catch(() => null);
+    if (free && free.ok) return NextResponse.json(free.payload);
+    return NextResponse.json({ error: reason, handled: true, needsVin: false, vin, stickerUnavailable: { reason } }, { status: 502 });
   }
 }

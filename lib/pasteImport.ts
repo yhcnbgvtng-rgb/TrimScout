@@ -444,6 +444,12 @@ export type PasteImportSuccess = {
    * the car silently — it opens the listing and asks the buyer to confirm.
    */
   pageUnread?: boolean;
+  /**
+   * The OEM sticker service didn't answer (edge hiccup / bot shield /
+   * network). The car imported on the free decode; the UI says the factory
+   * sticker is temporarily unavailable — never that the VIN has no build.
+   */
+  stickerUnavailable?: { reason: string } | null;
 };
 
 /**
@@ -556,7 +562,7 @@ function interpretFactoryBuildJson(
   const buildConfidence: BuildConfidence =
     json.buildConfidence === "verified_factory"
       ? "verified_factory"
-      : json.buildConfidence === "dealer_listing_only" || sticker?.status === "unreleased"
+      : json.buildConfidence === "dealer_listing_only" || sticker?.status === "unreleased" || sticker?.status === "unavailable"
         ? "dealer_listing_only"
         : matched.buildConfidence || "verified_factory";
 
@@ -565,6 +571,10 @@ function interpretFactoryBuildJson(
     vehicle: { ...matched, buildConfidence },
     buildConfidence,
     pageUnread: json.pageUnread === true,
+    stickerUnavailable:
+      json.stickerUnavailable && typeof (json.stickerUnavailable as { reason?: unknown }).reason === "string"
+        ? { reason: (json.stickerUnavailable as { reason: string }).reason }
+        : null,
     oem,
     pdfUrl: pdfUrl || matched.oemBuildSheetUrl || null,
     msrp: typeof sticker?.msrp === "number" && sticker.msrp > 0 ? sticker.msrp : null,
@@ -577,7 +587,7 @@ function interpretFactoryBuildJson(
     filterableOptions: Array.isArray(json.filterableOptions)
       ? (json.filterableOptions as FactoryFilterableOption[])
       : [],
-    factoryBuildUnavailable: sticker?.status === "unreleased",
+    factoryBuildUnavailable: sticker?.status === "unreleased" || sticker?.status === "unavailable",
   };
 }
 

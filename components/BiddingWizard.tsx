@@ -389,7 +389,9 @@ function LinkConfirmPanel({
                 {[build.vehicle.year, build.vehicle.make, build.vehicle.model, build.vehicle.trim].filter(Boolean).join(" ")}
               </span>
               <span className="block truncate text-[10px] text-ink-muted">
-                {[build.vehicle.exteriorColor, build.vehicle.drivetrain].filter(Boolean).join(" · ") || "Factory record read"}
+                {build.stickerUnavailable
+                  ? "Factory sticker didn't come back from the manufacturer just now — details are a limited VIN decode. You can still confirm and continue."
+                  : [build.vehicle.exteriorColor, build.vehicle.drivetrain].filter(Boolean).join(" · ") || "Factory record read"}
               </span>
             </span>
             <span className="flex shrink-0 items-center gap-2">
@@ -397,8 +399,9 @@ function LinkConfirmPanel({
                 className={`rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide ${
                   build.buildConfidence === "verified_factory" ? "bg-emerald-500/15 text-emerald-300" : "bg-amber-500/15 text-amber-300"
                 }`}
+                title={build.stickerUnavailable?.reason || undefined}
               >
-                {build.buildConfidence === "verified_factory" ? "Factory verified" : "Unconfirmed build"}
+                {build.buildConfidence === "verified_factory" ? "Factory verified" : build.stickerUnavailable ? "Sticker temporarily unavailable" : "Unconfirmed build"}
               </span>
               {build.pdfUrl ? (
                 <a
@@ -1110,11 +1113,10 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
       setLinkBusy(false);
       return;
     }
-    const vehicle = attachLinkToVehicle(result.vehicle, {
-      url: resolution.url,
-      desk: choice.desk,
-      deskSource: choice.deskSource,
-    });
+    const vehicle = attachLinkToVehicle(
+      { ...result.vehicle, stickerUnavailableReason: result.stickerUnavailable?.reason || null },
+      { url: resolution.url, desk: choice.desk, deskSource: choice.deskSource }
+    );
     const stamped: PasteImportSuccess = { ...result, vehicle };
     if (slot === "primary") commitPrimaryImport(stamped);
     else if (slot === "alt1") setAltVehicle1(vehicle);
@@ -1197,7 +1199,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
 
   const commitPrimaryImport = (result: PasteImportSuccess) => {
     setPendingLink(null);
-    setSelectedVehicle(result.vehicle);
+    setSelectedVehicle({ ...result.vehicle, stickerUnavailableReason: result.stickerUnavailable?.reason || result.vehicle.stickerUnavailableReason || null });
     setMake(result.vehicle.make);
     setModel(result.vehicle.model);
     setSelectedTrims([result.vehicle.trim]);
@@ -1885,11 +1887,20 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
 
                 {parseSuccessMsg && selectedVehicle?.buildConfidence === "dealer_listing_only" && (
                   <p className="rounded-lg border border-amber-500/30 bg-amber-950/20 px-3 py-2 text-[11px] leading-snug text-amber-200">
-                    <strong className="font-bold">Unconfirmed build — dealer listing only.</strong>{" "}
-                    {selectedVehicle.buyerConfirmed
-                      ? "We don't read dealer pages, and there's no factory build sheet for this VIN yet, so the details above come from the VIN alone. Must-have options can't be matched."
-                      : "No factory build sheet is available for this VIN yet, so the details above come from the VIN alone, and must-have options can't be matched."}{" "}
-                    You can continue with it, or remove it and try another link.
+                    {selectedVehicle.stickerUnavailableReason ? (
+                      <>
+                        <strong className="font-bold">Factory sticker temporarily unavailable.</strong> {selectedVehicle.stickerUnavailableReason}{" "}
+                        The details above are a limited VIN decode, not the factory option sheet, so must-have options can&apos;t be matched yet. You can continue — or remove the car and paste it again in a minute to pick up the sticker.
+                      </>
+                    ) : (
+                      <>
+                        <strong className="font-bold">Unconfirmed build — dealer listing only.</strong>{" "}
+                        {selectedVehicle.buyerConfirmed
+                          ? "We don't read dealer pages, and there's no factory build sheet for this VIN yet, so the details above come from the VIN alone. Must-have options can't be matched."
+                          : "No factory build sheet is available for this VIN yet, so the details above come from the VIN alone, and must-have options can't be matched."}{" "}
+                        You can continue with it, or remove it and try another link.
+                      </>
+                    )}
                   </p>
                 )}
 
