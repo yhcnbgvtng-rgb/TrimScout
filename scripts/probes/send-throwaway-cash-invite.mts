@@ -35,7 +35,7 @@ const input = {
   dealerName: "Smoke Cash Desk", contactName: "Sam Smoke", role: "gsm",
   vehicle: { vin, year: 2027, make: "Chevrolet", model: "Equinox", trim: "2LT", vdpUrl: null },
   buyerAlias: formatBuyerAlias(rfq.buyerUserId), dealReference: rfq.dealReference || null, viewUrl, unsubscribeUrl: null,
-  paymentLabel: "Cash", purchaseTimelineLabel: "Within the month", leasePrefs: null, vehicleFacts: { drivetrain: "AWD", exteriorColor: "Sterling Gray Metallic" },
+  quoteType: "cash", rooftop: { city: "Little Falls", state: "NJ", address: null }, buyerZip: "07405", purchaseTimelineLabel: "Within the month", leasePrefs: null, vehicleFacts: { drivetrain: "AWD", exteriorColor: "Sterling Gray Metallic" },
 } as any;
 const ok = await sendQuoteInviteEmail(quoteInviteSubject(input), quoteInviteHtml(input));
 if (ok) await markRfqInviteDelivery(rfq.id, invite.id, "sent").catch(() => null);

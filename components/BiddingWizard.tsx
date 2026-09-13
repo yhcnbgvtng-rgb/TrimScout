@@ -1879,6 +1879,12 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
             requestedStructures,
             purchaseTimelineLabel:
               purchaseTimeline === "asap" ? "ASAP" : purchaseTimeline === "this_week" ? "Within the week" : purchaseTimeline === "this_month" ? "Within the month" : null,
+            // For the dealer email's Area + Prefs rows (new-car finance/cash prefs aren't stored on the request).
+            buyerZip: zipOk ? huntZip : null,
+            financePrefs:
+              quoteType === "finance"
+                ? { termMonths: financeTerm || 60, downPayment: Math.max(0, Math.round(downPaymentNumber || 0)), creditBand: creditBand || null }
+                : null,
           }),
         });
         const j = await r.json().catch(() => ({}));

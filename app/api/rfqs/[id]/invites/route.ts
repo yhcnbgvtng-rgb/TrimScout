@@ -14,11 +14,10 @@ import {
   INVITE_BLOCK_MESSAGES,
   type DealerDesk,
 } from "@/lib/quotePackage";
-import { quoteInviteSubject, quoteInviteHtml } from "@/lib/quoteInviteEmail";
+import { quoteInviteSubject, quoteInviteHtml, type QuoteEmailType } from "@/lib/quoteInviteEmail";
 import { sendQuoteInviteEmail } from "@/lib/dealerEmail";
 import { unsubscribeUrlFor, DEALER_EMAIL_BASE_URL } from "@/lib/dealerUnsubscribe";
 import { formatBuyerAlias } from "@/lib/buyerAlias";
-import { formatDealStructures } from "@/lib/dealStructure";
 
 // The one send path. The buyer's confirm step names a dealership; this
 // route re-derives the desk from the contact directory itself — the
@@ -125,20 +124,41 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       const directoryRow = desk.source === "directory"
         ? matchDirectoryDealership(await listDealerships().catch(() => []), { dealerName, state: dealerState })
         : null;
+      // One template for Cash / Lease / Finance. The type comes from what the
+      // package stores (lease prefs, used quote prefs) before what the client
+      // says it asked for.
+      const requested = Array.isArray(body?.requestedStructures) ? String(body.requestedStructures[0] || "") : "";
+      const quoteType: QuoteEmailType = rfq.leasePrefs
+        ? "lease"
+        : rfq.quotePrefs?.quoteType === "finance" || requested === "finance"
+          ? "finance"
+          : "cash";
+      const bodyFinance = body?.financePrefs && typeof body.financePrefs === "object" ? body.financePrefs : null;
+      const financePrefs =
+        rfq.quotePrefs?.quoteType === "finance"
+          ? { termMonths: rfq.quotePrefs.finance.termMonths, downPayment: rfq.quotePrefs.finance.downPayment, creditBand: rfq.quotePrefs.finance.creditBand }
+          : bodyFinance && Number.isFinite(Number(bodyFinance.termMonths))
+            ? { termMonths: Number(bodyFinance.termMonths), downPayment: Math.max(0, Number(bodyFinance.downPayment) || 0), creditBand: typeof bodyFinance.creditBand === "string" ? bodyFinance.creditBand : null }
+            : null;
+      const storedZip = rfq.leasePrefs?.zip || (rfq.quotePrefs?.quoteType === "finance" ? rfq.quotePrefs.finance.zip : rfq.quotePrefs?.quoteType === "cash" ? rfq.quotePrefs.cash.zip : "");
+      const buyerZip = storedZip || (typeof body?.buyerZip === "string" ? body.buyerZip.replace(/\D/g, "").slice(0, 5) : "") || null;
       const emailInput = {
+        quoteType,
         dealerName,
         contactName: desk.contactName,
         role: desk.role,
+        rooftop: directoryRow
+          ? { city: directoryRow.city, state: directoryRow.state, address: directoryRow.address }
+          : { city: null, state: dealerState || null, address: null },
         vehicle,
         buyerAlias: formatBuyerAlias(rfq.buyerUserId),
         dealReference: rfq.dealReference || null,
         viewUrl,
         unsubscribeUrl: directoryRow ? unsubscribeUrlFor(directoryRow.id) : null,
-        paymentLabel: Array.isArray(body?.requestedStructures) ? formatDealStructures(body.requestedStructures) || null : null,
         purchaseTimelineLabel: typeof body?.purchaseTimelineLabel === "string" ? body.purchaseTimelineLabel : null,
-        // A lease request gets the lease template: term / miles / ZIP, the
-        // calculator checklist and link — never "reply with a price".
+        buyerZip,
         leasePrefs: rfq.leasePrefs || null,
+        financePrefs,
         vehicleFacts: body?.vehicleFacts && typeof body.vehicleFacts === "object" ? body.vehicleFacts : null,
       };
       const html = quoteInviteHtml(emailInput);
