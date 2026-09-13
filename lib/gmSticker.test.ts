@@ -691,7 +691,7 @@ describe("all four GM brands, confirmed live on real fixtures (Chevrolet already
 // such answer must be retried, never reported as "0 bytes", and never read
 // as "this VIN has no build".
 // ---------------------------------------------------------------------------
-import { clearGmStickerMemoryCache, forgetGmStickerForTests, getGmSticker, gmUnavailableMessage, GmStickerUnavailableError } from "./gmSticker";
+import { forgetGmStickerForTests, gmUnavailableMessage, GmStickerUnavailableError } from "./gmSticker";
 
 // A released sticker writes through to the on-disk cache, so each case gets
 // its own VIN — otherwise the next case would be served from cache instead
@@ -715,7 +715,8 @@ function scripted(bodies: Array<Uint8Array | string | Error>) {
     const next = bodies.shift();
     if (next instanceof Error) throw next;
     const bytes = typeof next === "string" ? new TextEncoder().encode(next) : next ?? new Uint8Array();
-    return new Response(bytes, { status: 200 });
+    // Copy into a plain ArrayBuffer: TS 5.7 types Uint8Array over ArrayBufferLike, which BodyInit rejects.
+    return new Response(bytes.slice().buffer as ArrayBuffer, { status: 200 });
   }) as typeof fetch;
   return { impl, calls };
 }
