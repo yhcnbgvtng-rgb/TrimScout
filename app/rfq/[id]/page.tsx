@@ -6,7 +6,6 @@ import { analyzeLeaseQuotes, type LeaseCompare as LeaseCompareData } from "@/lib
 import { LeaseQuoteSheet } from "@/components/LeaseQuoteSheet";
 import { LeaseCalculatorSheet } from "@/components/LeaseCalculatorSheet";
 import { LeaseQuoteFormat } from "@/components/LeaseQuoteFormat";
-import { MustConfirmList } from "@/components/MustConfirmList";
 import { UsedCompare } from "@/components/UsedCompare";
 import { rfqVehicles } from "@/lib/rfqTracker";
 import { LEASE_NON_BINDING_COPY } from "@/lib/leaseQuote";
@@ -325,7 +324,7 @@ function InviteRow({ invite, rfq, onAction }: { invite: RfqInvite; rfq: RfqReque
         </div>
       )}
       {rfq.quotePrefs && invite.status === "invited" && mode === "idle" ? (
-        <p className="text-[11px] text-ink-muted">Waiting on the dealer&apos;s {rfq.quotePrefs.quoteType} sheet — their numbers and must-confirm answers appear here and in the compare below.</p>
+        <p className="text-[11px] text-ink-muted">Waiting on the dealer&apos;s {rfq.quotePrefs.quoteType} sheet — their numbers appear here and in the compare below.</p>
       ) : null}
       {invite.status === "invited" && mode === "idle" && !rfq.leasePrefs && !rfq.quotePrefs && (
         <div className="flex gap-2">
@@ -509,11 +508,11 @@ export default function RfqWorkspacePage() {
 
       {rfq.leasePrefs ? <LeaseQuoteSheet rfq={rfq} onSaved={setRfq} /> : null}
 
-      {/* Used cars: the must-confirm checklist is the ask — no factory option match. */}
+      {/* Used cars: what the buyer told us about the car. */}
       {rfqVehicles(rfq).filter((v) => v.condition !== "new").map((v) => (
-        <section key={v.vin} className="rounded-2xl border border-border bg-surface p-5 space-y-3" data-testid="used-ask-sheet">
+        <section key={v.vin} className="rounded-2xl border border-border bg-surface p-5 space-y-2" data-testid="used-ask-sheet">
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <h2 className="text-sm font-bold text-white">Used car — what the dealer confirms</h2>
+            <h2 className="text-sm font-bold text-white">Used car</h2>
             <span className="rounded bg-sky-500/15 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-sky-300">{v.condition === "cpo" ? "CPO" : "USED"}</span>
           </div>
           <p className="text-[11px] text-ink-muted">
@@ -521,7 +520,6 @@ export default function RfqWorkspacePage() {
             {v.mileage != null ? ` · ${v.mileage.toLocaleString()} miles (buyer-entered)` : ""}
             {v.stockNumber ? ` · stock ${v.stockNumber}` : ""}
           </p>
-          {v.mustConfirm.length ? <MustConfirmList items={v.mustConfirm} /> : <p className="text-[11px] text-ink-faint">Nothing to confirm — the dealer quotes the car as listed.</p>}
         </section>
       ))}
 
@@ -598,7 +596,7 @@ export default function RfqWorkspacePage() {
               ? `You asked for ${rfq.quotePrefs.finance.termMonths} months · $${rfq.quotePrefs.finance.downPayment.toLocaleString()} down. Counters on term or down are flagged; expired quotes can't be chosen.`
               : "Out-the-door = selling price + itemized fees and taxes. Expired quotes can't be chosen."}
           </p>
-          <UsedCompare rfq={rfq} prefs={rfq.quotePrefs} mustConfirm={rfqVehicles(rfq)[0]?.mustConfirm || []} onPick={handlePick} onWalk={handleWalk} busy={picking || walking} />
+          <UsedCompare rfq={rfq} prefs={rfq.quotePrefs} onPick={handlePick} onWalk={handleWalk} busy={picking || walking} />
         </div>
       )}
 

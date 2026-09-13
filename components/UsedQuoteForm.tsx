@@ -5,18 +5,15 @@ import { Plus, Trash2 } from "lucide-react";
 import { FINANCE_TERMS, financeMonthly, validateUsedQuote, dueAtSigningSum, type CreditBand, type QuotePrefs, type UsedQuote } from "../lib/usedQuote";
 import { formatMoneyInput, formatPercentInput, num } from "../lib/leaseMath";
 import { getZipCoordinates } from "../lib/otdCalculator";
-import type { MustConfirmAck, MustConfirmItem } from "../lib/mustConfirm";
 
 /**
  * The dealer's used-car sheet — Cash or Finance, to match the buyer's ask.
  * Same discipline as the lease calculator: structured fields, itemized
- * due-at-signing (never a lump), a future expiry, and every must-confirm
- * item answered (confirmed, or can't-confirm with a note) before it can
- * be submitted. Monthly is computed from amount financed / APR / term —
+ * due-at-signing (never a lump) and a future expiry before it can be
+ * submitted. Monthly is computed from amount financed / APR / term —
  * there is no monthly-only entry. A request, not a bid.
  */
 type Item = { name: string; amount: string };
-type Ack = { status: "" | "confirmed" | "cannot_confirm"; note: string };
 
 const money = (n: number | null, digits = 0) => (n == null ? null : `$${n.toLocaleString(undefined, { minimumFractionDigits: digits, maximumFractionDigits: digits })}`);
 
@@ -25,7 +22,6 @@ export function UsedQuoteForm({
   vin,
   stockNumber,
   prefs,
-  mustConfirm,
   buyerMiles,
   onSubmitted,
 }: {
@@ -33,7 +29,6 @@ export function UsedQuoteForm({
   vin: string;
   stockNumber: string | null;
   prefs: QuotePrefs;
-  mustConfirm: MustConfirmItem[];
   buyerMiles: number | null;
   onSubmitted: (result: { warnings: string[] }) => void;
 }) {
@@ -63,7 +58,6 @@ export function UsedQuoteForm({
     { name: "Doc fee", amount: "" },
     { name: "Title & registration", amount: "" },
   ]);
-  const [acks, setAcks] = useState<Record<string, Ack>>({});
   const [focused, setFocused] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [touched, setTouched] = useState(false);
@@ -86,13 +80,9 @@ export function UsedQuoteForm({
     return { sellingPrice, items, dasTotal, down, trade, apr, term, amountFinanced, monthly, taxed, estTaxOnPrice, otd: sellingPrice != null ? Math.round((sellingPrice + dasTotal) * 100) / 100 : null };
   }, [f, fees, noTaxEstimate, zipRate]);
 
-  const ackList: MustConfirmAck[] = mustConfirm
-    .filter((it) => acks[it.id]?.status)
-    .map((it) => ({ id: it.id, status: acks[it.id].status as "confirmed" | "cannot_confirm", note: acks[it.id].note.trim() || null }));
-
   const quote: Partial<UsedQuote> =
     kind === "cash"
-      ? { kind: "cash", sellingPrice: d.sellingPrice ?? undefined, dueAtSigning: d.items, miles: num(f.miles) ?? undefined, stockNumber: f.stockNumber.trim() || null, cpo: f.cpo, checklist: ackList, expiresAt: f.expiresAt ? new Date(f.expiresAt + "T23:59:59").toISOString() : "", notes: f.notes.trim() || null }
+      ? { kind: "cash", sellingPrice: d.sellingPrice ?? undefined, dueAtSigning: d.items, miles: num(f.miles) ?? undefined, stockNumber: f.stockNumber.trim() || null, cpo: f.cpo, expiresAt: f.expiresAt ? new Date(f.expiresAt + "T23:59:59").toISOString() : "", notes: f.notes.trim() || null }
       : {
           kind: "finance",
           sellingPrice: d.sellingPrice ?? undefined,
@@ -100,7 +90,6 @@ export function UsedQuoteForm({
           miles: num(f.miles) ?? undefined,
           stockNumber: f.stockNumber.trim() || null,
           cpo: f.cpo,
-          checklist: ackList,
           expiresAt: f.expiresAt ? new Date(f.expiresAt + "T23:59:59").toISOString() : "",
           notes: f.notes.trim() || null,
           downPayment: d.down ?? undefined,
@@ -113,7 +102,7 @@ export function UsedQuoteForm({
           creditAssumption: f.creditAssumption,
           counter: { counterOffer, note: f.counterNote },
         };
-  const validation = useMemo(() => validateUsedQuote(quote, prefs, mustConfirm, { vin: f.vin, stockNumber: f.stockNumber }), [quote, prefs, mustConfirm, f.vin, f.stockNumber]);
+  const validation = useMemo(() => validateUsedQuote(quote, prefs, { vin: f.vin, stockNumber: f.stockNumber }), [quote, prefs, f.vin, f.stockNumber]);
   const differs = kind === "finance" && ((d.term != null && d.term !== prefs.finance.termMonths) || (d.down != null && Math.round(d.down) !== prefs.finance.downPayment));
 
   const submit = async () => {
@@ -244,28 +233,6 @@ export function UsedQuoteForm({
                 <span>Can&apos;t estimate tax on the monthly — the buyer sees &ldquo;tax estimated at signing&rdquo;</span>
               </label>
             ) : null}
-          </section>
-
-          <section className="space-y-2.5" data-testid="checklist-acks">
-            <h4 className="text-[10px] font-bold uppercase tracking-wider text-ink-faint">{kind === "finance" ? "5" : "4"} · Buyer&apos;s must-confirm list</h4>
-            {mustConfirm.length === 0 ? <p className={hintCls}>Nothing to confirm — quote the car as listed.</p> : null}
-            {mustConfirm.map((it) => {
-              const a = acks[it.id] || { status: "", note: "" };
-              return (
-                <div key={it.id} className="rounded-lg border border-border bg-background px-3 py-2 space-y-1.5">
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <span className="text-[11px] font-semibold text-white">{it.label}</span>
-                    <span className="flex gap-1.5">
-                      <button type="button" onClick={() => setAcks((p) => ({ ...p, [it.id]: { ...a, status: "confirmed" } }))} className={`rounded-lg border px-2.5 py-1 text-[10px] font-bold ${a.status === "confirmed" ? "border-emerald-500 bg-emerald-500/10 text-white" : "border-border text-ink-light hover:border-border-strong"}`} data-testid={`ack-confirm-${it.id}`}>Confirmed</button>
-                      <button type="button" onClick={() => setAcks((p) => ({ ...p, [it.id]: { ...a, status: "cannot_confirm" } }))} className={`rounded-lg border px-2.5 py-1 text-[10px] font-bold ${a.status === "cannot_confirm" ? "border-amber-500 bg-amber-500/10 text-white" : "border-border text-ink-light hover:border-border-strong"}`} data-testid={`ack-cannot-${it.id}`}>Can&apos;t confirm</button>
-                    </span>
-                  </div>
-                  {a.status === "cannot_confirm" ? (
-                    <input type="text" value={a.note} onChange={(e) => setAcks((p) => ({ ...p, [it.id]: { ...a, note: e.target.value } }))} maxLength={200} placeholder="Why — e.g. shows 41,200 on the odometer" className={input} aria-label={`Note for ${it.label}`} />
-                  ) : null}
-                </div>
-              );
-            })}
           </section>
 
           <section className="space-y-2.5">

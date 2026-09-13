@@ -27,7 +27,6 @@ export async function GET(req: Request) {
     priorLease: priorQuote?.lease || null,
     condition: usedCar?.condition || "new",
     buyerMiles: usedCar?.mileage ?? null,
-    mustConfirm: usedCar?.mustConfirm || [],
     vin: rfq.vin,
     stockNumber: rfq.stockNumber,
     vehicle: invite.vehicle || { year: rfq.vehicleYear, make: rfq.vehicleMake, model: rfq.vehicleModel, trim: rfq.vehicleTrim },

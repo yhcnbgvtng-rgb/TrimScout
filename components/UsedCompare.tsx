@@ -5,16 +5,14 @@ import { fmtMoney, fmtPct } from "../lib/leaseCompare";
 import { cashOutTheDoor, isFinanceCounter, type QuotePrefs, type UsedFinanceQuote, type UsedQuote } from "../lib/usedQuote";
 import { isExpired } from "../lib/leaseQuote";
 import type { RfqInvite, RfqRequest } from "../lib/rfq";
-import { MustConfirmList } from "./MustConfirmList";
-import type { MustConfirmItem } from "../lib/mustConfirm";
 
 /**
  * Used-car compare — Finance or Cash column sets (never the lease
  * grid). One row per dealer; best out-the-door (cash) or best
  * monthly (finance) highlighted among current, in-pref quotes; expired
- * greyed; waiting rows with dashes; checklist answers per row.
+ * greyed; waiting rows with dashes.
  */
-export function UsedCompare({ rfq, prefs, mustConfirm, onPick, onWalk, busy }: { rfq: RfqRequest; prefs: QuotePrefs; mustConfirm: MustConfirmItem[]; onPick: (quoteId: string) => void; onWalk: () => void; busy: boolean }) {
+export function UsedCompare({ rfq, prefs, onPick, onWalk, busy }: { rfq: RfqRequest; prefs: QuotePrefs; onPick: (quoteId: string) => void; onWalk: () => void; busy: boolean }) {
   const collecting = rfq.status === "collecting";
   const rows = rfq.invites.map((i) => ({ invite: i, used: i.quote?.used ?? null }));
   const live = rows.filter((r) => r.used && !isExpired({ expiresAt: r.used.expiresAt }));
@@ -60,7 +58,6 @@ export function UsedCompare({ rfq, prefs, mustConfirm, onPick, onWalk, busy }: {
               <th className="px-3 py-2.5">Selling price</th>
               <th className="px-3 py-2.5">Due at signing</th>
               <th className="px-3 py-2.5">Miles · CPO</th>
-              <th className="px-3 py-2.5">Must confirm</th>
               <th className="px-3 py-2.5">Expires</th>
               <th className="px-3 py-2.5">Status</th>
             </tr>
@@ -104,7 +101,6 @@ export function UsedCompare({ rfq, prefs, mustConfirm, onPick, onWalk, busy }: {
                     </details>
                   ) : "—")}
                   {cell(used ? <>{used.miles.toLocaleString()} mi{used.cpo ? <span className="block text-[10px] text-sky-300">CPO</span> : null}</> : "—")}
-                  {cell(used ? <MustConfirmList items={mustConfirm} acks={used.checklist} compact /> : "—")}
                   {cell(used ? new Date(used.expiresAt).toLocaleDateString() : "—", expired ? "text-rose-300" : "")}
                   <td className="px-3 py-2.5 align-top">
                     <div className="flex flex-col items-start gap-1.5">

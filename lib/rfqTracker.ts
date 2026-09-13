@@ -6,7 +6,6 @@
  */
 import type { LeaseRequestPrefs } from "./leaseQuote";
 import type { RfqRequest } from "./rfq";
-import { parseMustConfirmList, type MustConfirmItem } from "./mustConfirm";
 
 /** One pasted car as the package recorded it (rfq.linkPastes rows). */
 export interface RfqPasteVehicle {
@@ -22,7 +21,6 @@ export interface RfqPasteVehicle {
   condition: "new" | "used" | "cpo";
   mileage: number | null;
   stockNumber: string | null;
-  mustConfirm: MustConfirmItem[];
 }
 
 export function rfqVehicles(rfq: Pick<RfqRequest, "linkPastes" | "vin" | "vehicleYear" | "vehicleMake" | "vehicleModel" | "vehicleTrim">): RfqPasteVehicle[] {
@@ -47,7 +45,6 @@ export function rfqVehicles(rfq: Pick<RfqRequest, "linkPastes" | "vin" | "vehicl
         condition: p.condition === "used" || p.condition === "cpo" ? p.condition : "new",
         mileage: typeof p.mileage === "number" && Number.isFinite(p.mileage) ? p.mileage : null,
         stockNumber: typeof p.stockNumber === "string" && p.stockNumber ? p.stockNumber : null,
-        mustConfirm: parseMustConfirmList(p.mustConfirm),
       };
     })
     .filter((v): v is RfqPasteVehicle => v !== null);
@@ -67,7 +64,6 @@ export function rfqVehicles(rfq: Pick<RfqRequest, "linkPastes" | "vin" | "vehicl
       condition: "new",
       mileage: null,
       stockNumber: null,
-      mustConfirm: [],
     },
   ];
 }

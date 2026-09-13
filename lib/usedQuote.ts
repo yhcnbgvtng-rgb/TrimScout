@@ -2,11 +2,9 @@
  * Used-car quote types (v1: Finance and Cash — no used lease yet) and the
  * dealer sheets that quote against them. Same discipline as the lease
  * calculator: structured fields only, itemized due-at-signing (never one
- * unlabeled lump), a future expiry, and every must-confirm item answered.
- * A request, not a bid.
+ * unlabeled lump), and a future expiry. A request, not a bid.
  */
 import type { LeaseTimeline, LineItem } from "./leaseQuote";
-import { validateMustConfirmAcks, type MustConfirmAck, type MustConfirmItem } from "./mustConfirm";
 
 export type UsedQuoteType = "finance" | "cash";
 export const FINANCE_TERMS = [36, 48, 60, 72, 84] as const;
@@ -24,8 +22,6 @@ export interface CashPrefs {
   timeline?: LeaseTimeline | null;
 }
 export type QuotePrefs = { quoteType: "finance"; finance: FinancePrefs } | { quoteType: "cash"; cash: CashPrefs };
-
-export const USED_LEASE_COMING_SOON = "CPO lease — coming soon";
 
 /** Only the terms and bands the product offers; anything else is dropped, not guessed. */
 export function parseQuotePrefs(raw: unknown): QuotePrefs | null {
@@ -61,7 +57,6 @@ interface UsedQuoteBase {
   miles: number;
   stockNumber: string | null;
   cpo: boolean;
-  checklist: MustConfirmAck[];
   /** ISO timestamp; must be in the future when submitted. */
   expiresAt: string;
   notes?: string | null;
@@ -104,7 +99,6 @@ const LUMP_RE = /^(due|total|dueatsigning|das|down|other|misc|fees?|taxesandfees
 export function validateUsedQuote(
   q: Partial<UsedQuote>,
   prefs: QuotePrefs,
-  mustConfirm: MustConfirmItem[],
   vinOrStock: { vin?: string | null; stockNumber?: string | null },
   now: Date = new Date()
 ): { errors: string[]; warnings: string[] } {
@@ -124,7 +118,6 @@ export function validateUsedQuote(
   }
   if (!q.expiresAt || Number.isNaN(new Date(q.expiresAt).getTime())) errors.push("An expiry date is required.");
   else if (new Date(q.expiresAt).getTime() <= now.getTime()) errors.push("The expiry date must be in the future.");
-  errors.push(...validateMustConfirmAcks(mustConfirm, q.checklist));
 
   if (q.kind === "finance" && prefs.quoteType === "finance") {
     const f = q as Partial<UsedFinanceQuote>;
