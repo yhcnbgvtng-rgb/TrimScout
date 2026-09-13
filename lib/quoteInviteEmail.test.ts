@@ -20,12 +20,13 @@ describe("quote invite email", () => {
     assert.equal(quoteInviteSubject(input), "Quote request: 2026 BMW X3 30 xDrive (VIN …190742) — Buyer #K7M3Q");
   });
 
-  it("says request-not-bid and how to reply, and carries the tracked link", () => {
+  it("says request-not-bid, points the desk at log in / sign up (never 'reply to this email'), and carries the tracked link", () => {
     const html = quoteInviteHtml(input);
     assert.match(html, /request for a quote, not a bid/);
     assert.match(html, /either side can walk away/);
-    assert.match(html, /answer this email with your best out-the-door price/);
-    assert.match(html, /Leave sales tax and registration out/);
+    assert.doesNotMatch(html, /answer this email|reply with|out-the-door price/);
+    assert.match(html, /href="https:\/\/[^"]+\/\?login=1"[^>]*>Log in to quote</);
+    assert.match(html, /href="https:\/\/[^"]+\/signup"[^>]*>Sign up</);
     assert.match(html, /api\/quote-invite\/view\?t=tok123/);
     assert.match(html, /Hi Jane,/);
     assert.match(html, /Sales Manager at Bachrodt BMW/);
@@ -58,6 +59,13 @@ describe("lease quote invite email", () => {
     assert.match(html, /07405/);
     assert.match(html, /4X4 · Cactus Gray/);
     assert.match(html, /Within the month/);
+  });
+
+  it("every dealer email opens with the TrimScout logo + wordmark, linked home", () => {
+    for (const html of [quoteInviteHtml(input), quoteInviteHtml(lease)]) {
+      assert.match(html, /<img src="https:\/\/[^"]+\/scoutmark\.png"[^>]*alt="TrimScout"/);
+      assert.match(html, /Trim<span[^>]*>Scout<\/span>/);
+    }
   });
 
   it("lists every required calculator field and links the calculator — never 'reply with a price'", () => {

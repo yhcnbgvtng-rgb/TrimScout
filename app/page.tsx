@@ -450,6 +450,18 @@ export default function Home() {
     setIsAuthModalOpen(true);
   }, []);
 
+  // Dealer emails link to /?login=1 — open the sign-in modal and drop the
+  // param so a reload doesn't reopen it.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("login") !== "1") return;
+    params.delete("login");
+    const rest = params.toString();
+    window.history.replaceState({}, "", window.location.pathname + (rest ? `?${rest}` : ""));
+    setIsAuthModalOpen(true);
+  }, []);
+
   // After a buyer completes payment on Stripe's hosted checkout, they're
   // redirected back here with ?checkout=success&dealId=... in the URL. The
   // SPA has remounted at that point (Stripe Checkout is a real navigation
