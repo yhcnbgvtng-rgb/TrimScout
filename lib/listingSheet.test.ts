@@ -461,8 +461,8 @@ describe("listing-facts route and compare page copy", () => {
     assert.match(wizard, /buildOfferCompareSnapshot/);
     assert.match(wizard, /otherLots: otherLotsForDeal/);
     assert.match(wizard, /vehicleTerms: vehicleTermsForDeal/);
-    assert.match(wizard, /TOTAL_STEPS = 3/);
-    assert.match(wizard, /STEP 3: REVIEW/);
+    assert.match(wizard, /TOTAL_STEPS = 4/);
+    assert.match(wizard, /STEP 4: REVIEW/);
     assert.match(wizard, /Review & Privacy Shield/);
     assert.match(wizard, /huntZip/);
     assert.match(wizard, /Your ZIP/);
