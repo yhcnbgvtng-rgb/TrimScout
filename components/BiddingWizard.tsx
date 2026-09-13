@@ -19,6 +19,7 @@ import {
   MAX_PACKAGE_LINKS,
   INVITE_STAGE_LABELS,
   inviteStage,
+  maskEmail,
   type DealerLinkPaste,
   type QuoteInviteStage,
 } from "../lib/quotePackage";
@@ -906,7 +907,12 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     buyerState: buyerStateFromZip,
     sameStateOnly,
     primaryDealerName,
-    desks: importedDealerships.map((d) => ({ dealerName: d.dealerName, state: d.state, desk: quoteDesks[d.dealerName] })),
+    desks: importedDealerships.map((d) => ({
+      dealerName: d.dealerName,
+      state: d.state,
+      desk: quoteDesks[d.dealerName],
+      buyerEmail: buyerDealerEmails[d.dealerName],
+    })),
     confirmed: confirmedDesks,
   });
   const gatePlan = deskPlan.gate;
@@ -959,14 +965,13 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
       .then((json) => {
         if (cancelled || !json?.desks) return;
         const next: Record<string, PublicDesk> = {};
-        const confirmed: Record<string, boolean> = {};
         for (const desk of json.desks as PublicDesk[]) {
           next[desk.dealerName] = desk;
-          // Ticked by default when there's a named person to send to.
-          confirmed[desk.dealerName] = !desk.blockedReason;
         }
+        // No default ticks are seeded here: the desk-selection plan ticks
+        // any selectable desk the buyer hasn't touched, so a desk that only
+        // becomes selectable later (adviser address typed) ticks itself too.
         setQuoteDesks(next);
-        setConfirmedDesks((current) => ({ ...confirmed, ...current }));
       })
       .catch(() => {
         // Silent — the panel stays on "Checking" and the offer is never blocked
@@ -2388,6 +2393,14 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                                     </div>
                                   );
                                 }
+                                if (row?.adviserAdded) {
+                                  return (
+                                    <div className="text-[10px] text-ink-light">
+                                      To: <span className="font-semibold">your sales adviser</span>
+                                      <span className="font-mono text-ink-muted"> · {maskEmail(typed)}</span>
+                                    </div>
+                                  );
+                                }
                                 return null;
                               })()}
                               {directOfferMode && row?.keptOutOfState ? (
@@ -2433,8 +2446,10 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                             ? Boolean(quoteDesks[dealer.dealerName]?.blockedReason)
                             : Boolean(contact && !reachable)) && (
                             <div className="space-y-1.5 border-t border-border/60 pt-2">
-                              <p className="text-[10px] leading-snug text-amber-200">
-                                {directOfferMode
+                              <p className={`text-[10px] leading-snug ${row?.adviserAdded ? "text-ink-muted" : "text-amber-200"}`}>
+                                {directOfferMode && row?.adviserAdded
+                                  ? "No sales contact on file for this dealership, so the request goes to the adviser address you added. It's ticked above — untick it to leave them out."
+                                  : directOfferMode
                                   ? `${quoteDesks[dealer.dealerName]?.blockedMessage || ""} If you have a sales adviser's own address there, add it below — otherwise paste a different vehicle's link in step 1.`
                                   : contact?.emailOptOut
                                     ? "This dealership asked us to stop emailing them. If you have a sales adviser there, add their address — otherwise add a different vehicle."
@@ -2746,8 +2761,10 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                                           if (directOfferMode) {
                                             const desk = target?.dealerName ? quoteDesks[target.dealerName] : undefined;
                                             if (!desk) return "Checking";
-                                            if (!desk.blockedReason) return deskPlan.rows[target!.dealerName!]?.checked ? "Named contact" : "Not sending";
-                                            return supplied ? "Adviser added" : "No sales contact";
+                                            const ticked = deskPlan.rows[target!.dealerName!]?.checked;
+                                            if (!desk.blockedReason) return ticked ? "Named contact" : "Not sending";
+                                            if (supplied) return ticked ? "Adviser added" : "Not sending";
+                                            return "No sales contact";
                                           }
                                           return !contact ? "Checking" : reachable ? "Email on file" : supplied ? "Email added" : "No email";
                                         })()}
