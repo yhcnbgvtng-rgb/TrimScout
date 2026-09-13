@@ -1,7 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { BiddingRequest, DealerBid, OfferCloseClockView } from "../lib/types";
+import type { RfqRequest } from "../lib/rfq";
+import { relativeTime, rfqDealNumber, rfqQuoteTypeLabel, rfqTrackerStatus, rfqTrackerStatusLabel, rfqVehicleSummary } from "../lib/rfqTracker";
 import { formatCurrency } from "../lib/otdCalculator";
 import { formatDealStructures } from "../lib/dealStructure";
 import { reviewTargetFromVehicle } from "../lib/fordCompetitionUi";
@@ -18,9 +21,20 @@ import {
   Car,
 } from "lucide-react";
 
+/** Per-desk outcome of the send that just happened — shown once, on the new card. */
+export interface JustSentPackage {
+  rfqId: string;
+  rows: Array<{ dealerName: string; sent: boolean; message?: string }>;
+}
+
 interface DealTrackerDashboardProps {
   requests: BiddingRequest[];
   bids: DealerBid[];
+  /** Quote-request packages (the lease loop) — listed above the auction deals. */
+  quoteRequests?: RfqRequest[];
+  /** The deal to scroll to and highlight — set right after a send. */
+  focusRfqId?: string | null;
+  justSent?: JustSentPackage | null;
   onOpenLiveDealRoom: (request: BiddingRequest) => void;
   onStartNewBid: () => void;
   onToggleTradeIn: (requestId: string, hasTradeIn: boolean) => void;
@@ -33,6 +47,9 @@ interface DealTrackerDashboardProps {
 export const DealTrackerDashboard: React.FC<DealTrackerDashboardProps> = ({
   requests,
   bids,
+  quoteRequests = [],
+  focusRfqId = null,
+  justSent = null,
   onOpenLiveDealRoom,
   onStartNewBid,
   onToggleTradeIn,
@@ -41,10 +58,72 @@ export const DealTrackerDashboard: React.FC<DealTrackerDashboardProps> = ({
   const [termsOpenById, setTermsOpenById] = useState<Record<string, boolean>>({});
 
   const activeRequests = requests.filter((r) => r.status === "active" || r.status === "expired");
+  const focusRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    if (focusRfqId && focusRef.current) focusRef.current.scrollIntoView({ block: "center", behavior: "smooth" });
+  }, [focusRfqId, quoteRequests.length]);
+  const sortedQuoteRequests = [...quoteRequests].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6 lg:px-8 space-y-8 animate-fadeIn">
-      {activeRequests.length === 0 ? (
+      {sortedQuoteRequests.length > 0 ? (
+        <div className="space-y-3" data-testid="quote-requests">
+          <h2 className="text-sm font-bold text-white">Quote requests</h2>
+          {sortedQuoteRequests.map((rfq) => {
+            const status = rfqTrackerStatus(rfq);
+            const tone =
+              status === "quotes_in" ? "bg-emerald-500/15 text-emerald-300" : status === "awaiting" ? "bg-amber-500/15 text-amber-300" : "bg-border text-ink-muted";
+            const focused = rfq.id === focusRfqId;
+            const sent = justSent?.rfqId === rfq.id ? justSent : null;
+            return (
+              <div
+                key={rfq.id}
+                ref={focused ? focusRef : undefined}
+                className={`rounded-2xl border bg-surface p-5 space-y-3 ${focused ? "border-emerald-500/60 shadow-lg shadow-emerald-500/10" : "border-border"}`}
+                data-testid={focused ? "quote-request-focused" : undefined}
+              >
+                <div className="flex flex-wrap items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="font-mono text-sm font-black text-emerald-400">{rfqDealNumber(rfq)}</span>
+                      <span className="rounded bg-sky-500/15 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-sky-300">{rfqQuoteTypeLabel(rfq)}</span>
+                      <span className={`rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide ${tone}`}>{rfqTrackerStatusLabel(rfq)}</span>
+                    </div>
+                    <p className="mt-1 text-sm font-semibold text-white">{rfqVehicleSummary(rfq)}</p>
+                    <p className="text-[11px] text-ink-muted">
+                      {rfq.invites.length} desk{rfq.invites.length === 1 ? "" : "s"} invited · {relativeTime(rfq.createdAt)}
+                      {rfq.leasePrefs ? ` · ${rfq.leasePrefs.termMonths} mo · ${rfq.leasePrefs.milesPerYear.toLocaleString()} mi/yr` : ""}
+                    </p>
+                  </div>
+                  <Link
+                    href={`/rfq/${rfq.id}`}
+                    className="inline-flex shrink-0 items-center gap-1 rounded-xl border border-border px-3 py-2 text-xs font-bold text-ink-light hover:border-border-strong hover:text-white transition-colors"
+                  >
+                    Open <ChevronRight className="h-3.5 w-3.5" />
+                  </Link>
+                </div>
+                {sent ? (
+                  <div className="rounded-xl border border-emerald-500/40 bg-emerald-500/5 px-3 py-2 space-y-1">
+                    <p className="text-[11px] font-bold text-emerald-300">
+                      Sent to {sent.rows.filter((r) => r.sent).length} desk{sent.rows.filter((r) => r.sent).length === 1 ? "" : "s"} — each replies on its own time through the lease calculator.
+                    </p>
+                    <ul className="space-y-0.5">
+                      {sent.rows.map((r) => (
+                        <li key={r.dealerName} className="text-[10px] text-ink-muted">
+                          {r.sent ? "✓" : "–"} {r.dealerName}
+                          {!r.sent && r.message ? ` — ${r.message}` : ""}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ) : null}
+              </div>
+            );
+          })}
+        </div>
+      ) : null}
+
+      {activeRequests.length === 0 && sortedQuoteRequests.length > 0 ? null : activeRequests.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-border bg-surface p-12 text-center space-y-4">
           <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-400">
             <Car className="h-7 w-7" />

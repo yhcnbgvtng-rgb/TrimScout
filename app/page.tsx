@@ -21,7 +21,8 @@ import { FeeBreakdownModal } from "../components/FeeBreakdownModal";
 import { VoucherModal } from "../components/VoucherModal";
 import { TradeInSubmissionModal } from "../components/TradeInSubmissionModal";
 import { AuthModal } from "../components/AuthModal";
-import { DealTrackerDashboard } from "../components/DealTrackerDashboard";
+import { DealTrackerDashboard, type JustSentPackage } from "../components/DealTrackerDashboard";
+import type { RfqRequest } from "../lib/rfq";
 import { SignupView } from "../components/SignupView";
 import { AdminPortal } from "../components/AdminPortal";
 
@@ -152,6 +153,34 @@ export default function Home() {
   }, [session, sessionStatus]);
 
   const persistedShopperIds = shopperRequests.map((r) => r.id).filter(isPersistedDealId).join(",");
+
+  // Quote-request packages (the lease loop) live on the box under the
+  // buyer's account — listed in the tracker next to the auction deals, so a
+  // refresh or a re-login finds them again. Polled while the tracker is up.
+  const [quoteRequests, setQuoteRequests] = useState<RfqRequest[]>([]);
+  const [focusRfqId, setFocusRfqId] = useState<string | null>(null);
+  const [justSent, setJustSent] = useState<JustSentPackage | null>(null);
+  useEffect(() => {
+    if (currentView !== "track_deals") return;
+    if (!currentUser || currentUser.role !== "buyer") return;
+    let cancelled = false;
+    const load = async () => {
+      try {
+        const res = await fetch("/api/rfqs");
+        if (!res.ok) return;
+        const json = await res.json();
+        if (!cancelled && Array.isArray(json.rfqs)) setQuoteRequests(json.rfqs as RfqRequest[]);
+      } catch {
+        // Keep whatever was last loaded; the next poll retries.
+      }
+    };
+    load();
+    const interval = setInterval(load, 9000);
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+    };
+  }, [currentView, currentUser]);
 
   useEffect(() => {
     if (currentView !== "track_deals" && currentView !== "deal_room") return;
@@ -527,6 +556,9 @@ export default function Home() {
           <DealTrackerDashboard
             requests={shopperRequests}
             bids={bids}
+            quoteRequests={quoteRequests}
+            focusRfqId={focusRfqId}
+            justSent={justSent}
             onOpenLiveDealRoom={(request) => {
               setActiveRequest(request);
               setCurrentView("deal_room");
@@ -679,6 +711,13 @@ export default function Home() {
           setIsAuthModalOpen(true);
         }}
         onDraftRestored={() => setIsWizardOpen(true)}
+        onQuoteRequestSent={(sent) => {
+          // Land in My Deal Tracker on the deal that just went out.
+          setJustSent(sent);
+          setFocusRfqId(sent.rfqId);
+          setIsWizardOpen(false);
+          setCurrentView("track_deals");
+        }}
         onRealBidRequestCreated={handleRealBidRequestCreated}
         onSubmitBidRequest={handleSubmitBidRequest}
       />
