@@ -7,6 +7,7 @@ import { LeaseQuoteSheet } from "@/components/LeaseQuoteSheet";
 import { LeaseCalculatorSheet } from "@/components/LeaseCalculatorSheet";
 import { LeaseQuoteFormat } from "@/components/LeaseQuoteFormat";
 import { MustConfirmList } from "@/components/MustConfirmList";
+import { UsedCompare } from "@/components/UsedCompare";
 import { rfqVehicles } from "@/lib/rfqTracker";
 import { LEASE_NON_BINDING_COPY } from "@/lib/leaseQuote";
 import { useParams, useRouter } from "next/navigation";
@@ -323,7 +324,10 @@ function InviteRow({ invite, rfq, onAction }: { invite: RfqInvite; rfq: RfqReque
           </button>
         </div>
       )}
-      {invite.status === "invited" && mode === "idle" && !rfq.leasePrefs && (
+      {rfq.quotePrefs && invite.status === "invited" && mode === "idle" ? (
+        <p className="text-[11px] text-ink-muted">Waiting on the dealer&apos;s {rfq.quotePrefs.quoteType} sheet — their numbers and must-confirm answers appear here and in the compare below.</p>
+      ) : null}
+      {invite.status === "invited" && mode === "idle" && !rfq.leasePrefs && !rfq.quotePrefs && (
         <div className="flex gap-2">
           <button
             onClick={() => setMode("quote")}
@@ -586,7 +590,19 @@ export default function RfqWorkspacePage() {
         </div>
       )}
 
-      {quotedInvites.length > 0 && !rfq.leasePrefs && (
+      {rfq.quotePrefs && (
+        <div className="space-y-3">
+          <h2 className="text-sm font-bold text-white">Compare {rfq.quotePrefs.quoteType === "finance" ? "finance" : "cash"} quotes</h2>
+          <p className="text-[11px] text-ink-muted">
+            {rfq.quotePrefs.quoteType === "finance"
+              ? `You asked for ${rfq.quotePrefs.finance.termMonths} months · $${rfq.quotePrefs.finance.downPayment.toLocaleString()} down. Counters on term or down are flagged; expired quotes can't be chosen.`
+              : "Out-the-door = selling price + itemized fees and taxes. Expired quotes can't be chosen."}
+          </p>
+          <UsedCompare rfq={rfq} prefs={rfq.quotePrefs} mustConfirm={rfqVehicles(rfq)[0]?.mustConfirm || []} onPick={handlePick} onWalk={handleWalk} busy={picking || walking} />
+        </div>
+      )}
+
+      {quotedInvites.length > 0 && !rfq.leasePrefs && !rfq.quotePrefs && (
         <div className="space-y-3">
           <h2 className="text-sm font-bold text-white">Compare quotes</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -603,7 +619,7 @@ export default function RfqWorkspacePage() {
         </div>
       )}
 
-      {rfq.status === "collecting" && !rfq.leasePrefs && (
+      {rfq.status === "collecting" && !rfq.leasePrefs && !rfq.quotePrefs && (
         <button
           onClick={handleWalk}
           disabled={walking}
@@ -614,7 +630,7 @@ export default function RfqWorkspacePage() {
         </button>
       )}
 
-      {rfq.status === "collecting" && quotedInvites.length === 0 && !rfq.leasePrefs && (
+      {rfq.status === "collecting" && quotedInvites.length === 0 && !rfq.leasePrefs && !rfq.quotePrefs && (
         <div className="flex items-center gap-2 text-[11px] text-ink-faint">
           <Clock className="h-3.5 w-3.5" />
           {rfq.leasePrefs

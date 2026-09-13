@@ -105,8 +105,11 @@ export function rfqTrackerStatusLabel(rfq: Pick<RfqRequest, "status" | "invites"
   }
 }
 
-export function rfqQuoteTypeLabel(rfq: Pick<RfqRequest, "leasePrefs">): "Lease" | "Quote" {
-  return rfq.leasePrefs ? "Lease" : "Quote";
+export function rfqQuoteTypeLabel(rfq: Pick<RfqRequest, "leasePrefs" | "quotePrefs">): "Lease" | "Finance" | "Cash" | "Quote" {
+  if (rfq.leasePrefs) return "Lease";
+  if (rfq.quotePrefs?.quoteType === "finance") return "Finance";
+  if (rfq.quotePrefs?.quoteType === "cash") return "Cash";
+  return "Quote";
 }
 
 /** "TS-K7M3Q2", falling back to the row id so support can always find it. */

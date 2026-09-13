@@ -50,6 +50,6 @@ describe("lease sheet lock — editable until a dealer views, then frozen (box +
     assert.match(detail, /rfq\.leasePrefs && mode !== "quote" && \(invite\.status === "invited" \|\| invite\.quote\) \? \(\s*<LeaseQuoteFormat/);
     assert.match(detail, /Log a quote the dealer gave by phone or email/);
     // The green "Record Dealer's Quote" button is only the cash/finance path now.
-    assert.match(detail, /invite\.status === "invited" && mode === "idle" && !rfq\.leasePrefs && \([\s\S]*?Record Dealer&apos;s Quote/);
+    assert.match(detail, /invite\.status === "invited" && mode === "idle" && !rfq\.leasePrefs && !rfq\.quotePrefs && \([\s\S]*?Record Dealer&apos;s Quote/);
   });
 });

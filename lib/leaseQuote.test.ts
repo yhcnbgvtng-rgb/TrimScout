@@ -245,11 +245,11 @@ describe("wizard wiring — Step 2 lease prefs are term + miles + ZIP (+ timelin
     assert.match(leaseBlock, /LEASE_TERMS\.map/);
     assert.match(leaseBlock, /LEASE_MILES\.map/);
     assert.doesNotMatch(leaseBlock, /<input/);
-    assert.match(wizard, /quoteSetupComplete =\s*quoteType === "lease"\s*\? Boolean\(leaseTerm && leaseMiles && zipOk\)/);
+    assert.match(wizard, /quoteSetupComplete =\s*quoteType === "lease"\s*\? Boolean\(!isUsed && leaseTerm && leaseMiles && zipOk\)/);
   });
 
   it("the request payload carries exactly termMonths · milesPerYear · zip · timeline", () => {
-    assert.match(wizard, /leasePrefs:\s*quoteType === "lease"\s*\? \{\s*termMonths: leaseTerm \|\| null,\s*milesPerYear: leaseMiles \|\| null,\s*zip: zipOk \? huntZip : "",\s*timeline: purchaseTimeline \|\| null,\s*\}\s*: null,/);
+    assert.match(wizard, /leasePrefs:\s*quoteType === "lease" && !isUsed\s*\? \{\s*termMonths: leaseTerm \|\| null,\s*milesPerYear: leaseMiles \|\| null,\s*zip: zipOk \? huntZip : "",\s*timeline: purchaseTimeline \|\| null,\s*\}\s*: null,/);
     assert.match(route, /parseLeasePrefs\(body\.leasePrefs\)/);
   });
 });

@@ -979,6 +979,7 @@ function publicRfqQuote(row) {
     mustHaveAcknowledgement: Boolean(row.must_have_acknowledgement),
     notes: row.notes,
     lease: typeof row.lease_json === "string" ? JSON.parse(row.lease_json) : row.lease_json || null,
+    used: typeof row.used_json === "string" ? JSON.parse(row.used_json) : row.used_json || null,
     supersededAt: row.superseded_at || null,
   };
 }
@@ -1025,6 +1026,8 @@ async function ensureQuotePackageColumns(pool) {
   await pool.query("ALTER TABLE rfq_requests ADD COLUMN IF NOT EXISTS link_pastes_json TEXT NULL");
   await pool.query("ALTER TABLE rfq_requests ADD COLUMN IF NOT EXISTS deal_reference VARCHAR(16) NULL");
   await pool.query("ALTER TABLE rfq_requests ADD COLUMN IF NOT EXISTS lease_prefs_json TEXT NULL");
+  await pool.query("ALTER TABLE rfq_requests ADD COLUMN IF NOT EXISTS quote_prefs_json TEXT NULL");
+  await pool.query("ALTER TABLE rfq_quotes ADD COLUMN IF NOT EXISTS used_json TEXT NULL");
   await pool.query("ALTER TABLE rfq_requests ADD COLUMN IF NOT EXISTS lease_sheet_locked_at DATETIME NULL");
   await pool.query("ALTER TABLE rfq_requests ADD COLUMN IF NOT EXISTS lease_sheet_locked_by_invite_id BIGINT NULL");
   await pool.query("ALTER TABLE rfq_quotes ADD COLUMN IF NOT EXISTS lease_json TEXT NULL");
@@ -1067,6 +1070,8 @@ function publicRfqRequest(row, invites) {
     linkPastes: parseJsonCol(row.link_pastes_json) || [],
     dealReference: row.deal_reference || null,
     leasePrefs: parseJsonCol(row.lease_prefs_json) || null,
+    // Finance / cash ask (used cars); null on lease requests.
+    quotePrefs: parseJsonCol(row.quote_prefs_json) || null,
     // Frozen the first time a dealer opens their quote link; null while the buyer may still edit.
     leaseSheetLockedAt: row.lease_sheet_locked_at || null,
     leaseSheetLockedByInviteId: row.lease_sheet_locked_by_invite_id ? String(row.lease_sheet_locked_by_invite_id) : null,
@@ -1139,9 +1144,9 @@ async function handleCreateRfq(req, res) {
   const pool = getPool();
   await ensureQuotePackageColumns(pool);
   const [result] = await pool.query(
-    `INSERT INTO rfq_requests (buyer_user_id, vin, stock_number, vehicle_year, vehicle_make, vehicle_model, vehicle_trim, must_haves_json, status, package_kind, link_pastes_json, deal_reference, lease_prefs_json)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'collecting', ?, ?, ?, ?)`,
-    [buyerUserId, vin, stockNumber, vehicleYear, vehicleMake, vehicleModel, vehicleTrim, JSON.stringify(mustHaves), packageKind, linkPastes.length ? JSON.stringify(linkPastes) : null, dealReference, body.leasePrefs && typeof body.leasePrefs === "object" ? JSON.stringify(body.leasePrefs) : null]
+    `INSERT INTO rfq_requests (buyer_user_id, vin, stock_number, vehicle_year, vehicle_make, vehicle_model, vehicle_trim, must_haves_json, status, package_kind, link_pastes_json, deal_reference, lease_prefs_json, quote_prefs_json)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'collecting', ?, ?, ?, ?, ?)`,
+    [buyerUserId, vin, stockNumber, vehicleYear, vehicleMake, vehicleModel, vehicleTrim, JSON.stringify(mustHaves), packageKind, linkPastes.length ? JSON.stringify(linkPastes) : null, dealReference, body.leasePrefs && typeof body.leasePrefs === "object" ? JSON.stringify(body.leasePrefs) : null, body.quotePrefs && typeof body.quotePrefs === "object" ? JSON.stringify(body.quotePrefs) : null]
   );
   const [rows] = await pool.query("SELECT * FROM rfq_requests WHERE id = ?", [result.insertId]);
   sendJson(res, 201, { rfq: publicRfqRequest(rows[0], []) });
@@ -1385,6 +1390,7 @@ async function handleSubmitRfqQuote(req, res, rfqId, inviteId) {
   // it gets here; stored whole so the buyer's compare reads exactly what
   // the dealer entered.
   const leaseJson = body.lease && typeof body.lease === "object" ? JSON.stringify(body.lease) : null;
+  const usedJson = body.used && typeof body.used === "object" ? JSON.stringify(body.used) : null;
 
   const pool = getPool();
   await ensureQuotePackageColumns(pool);
@@ -1429,9 +1435,9 @@ async function handleSubmitRfqQuote(req, res, rfqId, inviteId) {
   try {
     await conn.beginTransaction();
     const [result] = await conn.query(
-      `INSERT INTO rfq_quotes (rfq_id, invite_id, dealer_name, price, fees_json, total_otd_price, vin, stock_number, expires_at, must_have_acknowledgement, notes, lease_json)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [rfqId, inviteId, inviteRows[0].dealer_name, price, JSON.stringify(fees), totalOtdPrice, vin, stockNumber, new Date(expiresAt), mustHaveAcknowledgement, notes, leaseJson]
+      `INSERT INTO rfq_quotes (rfq_id, invite_id, dealer_name, price, fees_json, total_otd_price, vin, stock_number, expires_at, must_have_acknowledgement, notes, lease_json, used_json)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [rfqId, inviteId, inviteRows[0].dealer_name, price, JSON.stringify(fees), totalOtdPrice, vin, stockNumber, new Date(expiresAt), mustHaveAcknowledgement, notes, leaseJson, usedJson]
     );
     quoteId = result.insertId;
     await conn.query(

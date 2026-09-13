@@ -11,6 +11,7 @@ export const RFQ_MAX_INVITES = 3;
 // list is the exhaustive confirmed set for that VIN, so absence there is a
 // real "miss", not an unknown.
 import type { LeaseQuote, LeaseRequestPrefs } from "./leaseQuote";
+import type { QuotePrefs, UsedQuote } from "./usedQuote";
 
 export type OptionMatchStatus = "hit" | "miss" | "unknown";
 
@@ -58,6 +59,8 @@ export interface RfqQuote {
   lease?: LeaseQuote | null;
   /** Set when the buyer countered and this version was replaced; kept for history. */
   supersededAt?: string | null;
+  /** The dealer's structured used-car Finance / Cash sheet (lib/usedQuote.ts). */
+  used?: UsedQuote | null;
 }
 
 /**
@@ -134,6 +137,8 @@ export interface RfqRequest extends RfqSpec {
    */
   leaseSheetLockedAt?: string | null;
   leaseSheetLockedByInviteId?: string | null;
+  /** Used-car Finance / Cash ask (never on a lease request). */
+  quotePrefs?: QuotePrefs | null;
 }
 
 /**

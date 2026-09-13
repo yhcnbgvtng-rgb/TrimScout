@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { parseLeasePrefs } from "@/lib/leaseQuote";
+import { parseQuotePrefs } from "@/lib/usedQuote";
 import { auth } from "@/auth";
 import { createRfq, listRfqsForBuyer, RfqApiError } from "@/lib/rfqApi";
 import { publicRfqForBuyer } from "@/lib/rfq";
@@ -49,6 +50,13 @@ export async function POST(req: Request) {
     if (pastes.length === 0 || pastes.length > MAX_PACKAGE_LINKS) {
       return NextResponse.json({ error: `A quote request holds 1 to ${MAX_PACKAGE_LINKS} vehicles.` }, { status: 400 });
     }
+    const used = pastes.some((p: { condition?: string }) => p?.condition === "used" || p?.condition === "cpo");
+    if (used && body.leasePrefs) {
+      return NextResponse.json({ error: "Used cars quote as Finance or Cash — a used lease isn't offered yet." }, { status: 400 });
+    }
+    if (used && !parseQuotePrefs(body.quotePrefs)) {
+      return NextResponse.json({ error: "Pick Finance or Cash, with a ZIP, for a used car." }, { status: 400 });
+    }
   }
 
   try {
@@ -76,6 +84,9 @@ export async function POST(req: Request) {
       linkPastes: packageKind === "links" ? body.linkPastes : undefined,
       dealReference: typeof body.dealReference === "string" ? body.dealReference : null,
       leasePrefs: parseLeasePrefs(body.leasePrefs),
+      // Used cars: Finance / Cash only. A lease ask on a used car is refused
+      // rather than silently dropped.
+      quotePrefs: parseQuotePrefs(body.quotePrefs),
     });
     recordQuoteRequest();
     return NextResponse.json({ rfq: publicRfqForBuyer(rfq) });
