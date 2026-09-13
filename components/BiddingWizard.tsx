@@ -785,13 +785,15 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   // request the calculators quote against.
   const [quoteType, setQuoteType] = useState<DealStructureMethod | null>(null);
   const requestedStructures: DealStructureMethod[] = quoteType ? [quoteType] : [];
-  const [leaseTerm, setLeaseTerm] = useState<LeaseTerm>(DEFAULT_LEASE_TERM);
+  // Nothing on Quote setup is chosen for the buyer: no term lit up, no
+  // mileage band, no ZIP. Continue needs each of them picked on purpose.
+  const [leaseTerm, setLeaseTerm] = useState<LeaseTerm | "">("");
   const [leaseMiles, setLeaseMiles] = useState<LeaseMiles | "">("");
   // Optional cap on cash at pickup (lease only). Blank = no cap; never a
   // gate on Continue. Distinct from the finance down payment.
   const [leaseMaxDue, setLeaseMaxDue] = useState<string>("");
   const leaseMaxDueNumber = normalizeMaxCashDue(leaseMaxDue);
-  const [financeTerm, setFinanceTerm] = useState<number>(60);
+  const [financeTerm, setFinanceTerm] = useState<number | "">("");
   const [downPayment, setDownPayment] = useState<string>("");
   const [creditBand, setCreditBand] = useState<"" | "excellent" | "good" | "fair" | "rebuilding">("");
   const paymentMethod = paymentMethodFromStructures(requestedStructures);
@@ -840,6 +842,31 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     setCreatedDealId(null);
     onClose();
   };
+
+  // The wizard stays mounted between opens, so without this the previous
+  // request's term / miles / ZIP would arrive already chosen on a fresh
+  // open. A draft restore (auth round-trip) sets state after this runs.
+  // A restore (e.g. the auth round-trip draft) sets this so the open that
+  // follows it keeps the restored state instead of wiping it.
+  const keepStateOnNextOpenRef = React.useRef(false);
+  useEffect(() => {
+    if (!isOpen) return;
+    if (keepStateOnNextOpenRef.current) {
+      keepStateOnNextOpenRef.current = false;
+      return;
+    }
+    setStep(1);
+    setQuoteType(null);
+    setLeaseTerm("");
+    setLeaseMiles("");
+    setLeaseMaxDue("");
+    setFinanceTerm("");
+    setDownPayment("");
+    setCreditBand("");
+    setHuntZip("");
+    setPurchaseTimeline("");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen]);
 
   useEffect(() => {
     if (preselectedVehicle) {
@@ -1126,6 +1153,8 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     pick<"dealer_names" | "buyer_names">("pricingChoice", setPricingChoice);
     pick<number>("targetOtdPrice", setTargetOtdPrice);
     setStep(Math.min(Math.max(1, draft.step), TOTAL_STEPS));
+    // The host opens the wizard on this; that open must not wipe what was just restored.
+    keepStateOnNextOpenRef.current = true;
     onDraftRestored?.();
     // Mount-only: the draft is a one-shot handoff.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -1196,7 +1225,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     quoteType === "lease"
       ? Boolean(leaseTerm && leaseMiles && zipOk)
       : quoteType === "finance"
-        ? Boolean(financeTerm > 0 && downPayment !== "" && Number.isFinite(downPaymentNumber) && downPaymentNumber >= 0 && zipOk)
+        ? Boolean(financeTerm && financeTerm > 0 && downPayment !== "" && Number.isFinite(downPaymentNumber) && downPaymentNumber >= 0 && zipOk)
         : quoteType === "cash"
           ? zipOk
           : false;
@@ -1645,12 +1674,18 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   const dealVehicles = collectDealVehicles(selectedVehicle, []);
   const otherLotsForDeal: Vehicle[] = [altVehicle1, altVehicle2].filter((v): v is Vehicle => v != null);
 
+  // The legacy deal-request payloads type terms as plain numbers. The
+  // buyer's own pick is what's sent whenever they made one (the RFQ path
+  // gates on it); these fallbacks only fill a structure the buyer didn't
+  // choose, e.g. the lease slot on a finance request.
+  const financeTermForDeal = financeTerm || 60;
+  const leaseTermForDeal = leaseTerm || DEFAULT_LEASE_TERM;
   const vehicleTermsForDeal = defaultTermsForVehicles(dealVehicles, {
       requestedStructures,
-      financeTermMonths: financeTerm,
+      financeTermMonths: financeTermForDeal,
       downPayment: downPaymentNumber,
       leaseMileagePerYear: leaseMileage,
-      leaseTermMonths: leaseTerm,
+      leaseTermMonths: leaseTermForDeal,
     }
   );
 
@@ -1677,11 +1712,11 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     paymentMethod,
     dealStructurePreferences: {
       requestedStructures,
-      financeTermMonths: financeTerm,
+      financeTermMonths: financeTermForDeal,
       downPayment: downPaymentNumber,
       ...(requestedStructures.includes("finance") && financingSource ? { financingSource } : {}),
       leaseMileagePerYear: leaseMileage,
-      leaseTermMonths: leaseTerm,
+      leaseTermMonths: leaseTermForDeal,
       vehicleTerms: vehicleTermsForDeal,
       purchaseTimeline: purchaseTimeline || undefined,
     },
@@ -1754,7 +1789,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
           leasePrefs:
             quoteType === "lease"
               ? {
-                  termMonths: leaseTerm,
+                  termMonths: leaseTerm || null,
                   milesPerYear: leaseMiles || null,
                   zip: zipOk ? huntZip : "",
                   timeline: purchaseTimeline || null,
@@ -1868,11 +1903,11 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
           paymentMethod,
           dealStructure: shopperDealStructurePayload({
             requestedStructures,
-            financeTermMonths: financeTerm,
+            financeTermMonths: financeTermForDeal,
             downPayment: downPaymentNumber,
             financingSource: financingSource || undefined,
             leaseMileagePerYear: leaseMileage,
-            leaseTermMonths: leaseTerm,
+            leaseTermMonths: leaseTermForDeal,
             directOffer: directOfferMode,
             vehicle: selectedVehicle,
             mustHavePackages,
@@ -2397,6 +2432,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                           </button>
                         ))}
                       </div>
+                      {!leaseTerm ? <p className="text-[10px] text-ink-faint">Pick a term to continue.</p> : null}
                     </div>
                     <div className="space-y-1">
                       <span className="block text-[10px] font-bold uppercase tracking-wide text-ink-faint">Miles per year</span>
@@ -2451,9 +2487,10 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                       <span className="block text-[10px] font-bold uppercase tracking-wide text-ink-faint">Term</span>
                       <select
                         value={financeTerm}
-                        onChange={(e) => setFinanceTerm(Number(e.target.value))}
+                        onChange={(e) => setFinanceTerm(e.target.value ? Number(e.target.value) : "")}
                         className="w-full rounded-lg border border-border bg-background py-2 px-3 text-[11px] text-ink-light focus:border-emerald-500 focus:outline-none"
                       >
+                        <option value="">Choose a term</option>
                         {[36, 48, 60, 72, 84].map((t) => (
                           <option key={t} value={t}>
                             {t} months
@@ -2519,7 +2556,8 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                           setHuntZip(next);
                           if (next.length === 5) setBuyerZip(next);
                         }}
-                        placeholder="07405"
+                        placeholder="ZIP"
+                        autoComplete="off"
                         aria-label="Your ZIP, for tax context"
                         className="w-20 rounded-md border border-border bg-background px-2 py-1 font-mono text-[11px] text-ink-light placeholder-ink-faint focus:border-emerald-500 focus:outline-none"
                       />
@@ -2531,7 +2569,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                         onChange={(e) => setPurchaseTimeline(e.target.value as PurchaseTimeline)}
                         className="rounded-lg border border-border bg-background py-1.5 px-2.5 text-[11px] text-ink-light focus:border-emerald-500 focus:outline-none"
                       >
-                        <option value="">Not sure yet</option>
+                        <option value="">Optional — pick if you know</option>
                         <option value="asap">ASAP</option>
                         <option value="this_week">Within the week</option>
                         <option value="this_month">Within the month</option>
