@@ -63,18 +63,27 @@ describe("BiddingWizard — Step 1 is the vehicle step; Step 2 is quote setup", 
     assert.match(step2, /Credit band/);
     assert.match(step2, /No credit pull/);
     assert.match(step2, /Timeline <span[^>]*>\(optional\)/);
-    assert.match(src, /useState<LeaseTerm>\(DEFAULT_LEASE_TERM\)/);
+    // Nothing pre-chosen on Quote setup: no term lit up, no miles, no ZIP, no finance term.
+    assert.match(src, /useState<LeaseTerm \| "">\(""\)/);
+    assert.match(src, /useState<LeaseMiles \| "">\(""\)/);
+    assert.match(src, /useState<number \| "">\(""\)/);
+    assert.match(src, /const \[huntZip, setHuntZip\] = useState\(""\)/);
+    assert.match(step2, /<option value="">Choose a term<\/option>/);
+    assert.doesNotMatch(step2, /Not sure yet/);
+    assert.match(step2, /autoComplete="off"/);
+    // …and a fresh open of the modal resets them, since the wizard stays mounted between opens.
+    assert.match(src, /if \(!isOpen\) return;[\s\S]*?setStep\(1\);\s*setQuoteType\(null\);\s*setLeaseTerm\(""\);\s*setLeaseMiles\(""\);\s*setLeaseMaxDue\(""\);\s*setFinanceTerm\(""\);[\s\S]*?setHuntZip\(""\);/);
   });
 
   it("(3) the lease path feeds the lease calculator contract unchanged", () => {
-    assert.match(src, /leasePrefs:\s*quoteType === "lease"\s*\? \{\s*termMonths: leaseTerm,\s*milesPerYear: leaseMiles \|\| null,\s*zip:/);
+    assert.match(src, /leasePrefs:\s*quoteType === "lease"\s*\? \{\s*termMonths: leaseTerm \|\| null,\s*milesPerYear: leaseMiles \|\| null,\s*zip:/);
   });
 
   it("(4) Continue into Step 2 needs the vehicle; out of Step 2 needs the type's required prefs; Step 3 needs ≥1 named desk", () => {
     assert.match(src, /if \(step === 1 && !vehicleImported\) return;/);
     assert.match(src, /if \(step === 2 && !quoteSetupComplete\) return;/);
     assert.match(src, /quoteType === "lease"\s*\? Boolean\(leaseTerm && leaseMiles && zipOk\)/);
-    assert.match(src, /quoteType === "finance"\s*\? Boolean\(financeTerm > 0 && downPayment !== "" && Number\.isFinite\(downPaymentNumber\) && downPaymentNumber >= 0 && zipOk\)/);
+    assert.match(src, /quoteType === "finance"\s*\? Boolean\(financeTerm && financeTerm > 0 && downPayment !== "" && Number\.isFinite\(downPaymentNumber\) && downPaymentNumber >= 0 && zipOk\)/);
     assert.match(src, /quoteType === "cash"\s*\? zipOk\s*: false/);
     assert.match(src, /step === 3 && directOfferMode && confirmedDeskCount === 0/);
     assert.match(src, /TOTAL_STEPS = 4/);
