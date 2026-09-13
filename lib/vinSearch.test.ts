@@ -1079,7 +1079,8 @@ describe("shopper-facing factory option copy", () => {
     assert.doesNotMatch(src, /Lock This Car/);
     assert.doesNotMatch(step1, /onClick=\{\(\) => setStep\(3\)\}/);
     assert.match(src, /const vehicleImported = Boolean\(lockVehicleSelection \|\| \(parseSuccessMsg && selectedVehicle\)\)/);
-    assert.match(src, /if \(step === 1 && \(requestedStructures\.length === 0 \|\| !vehicleImported \|\| financingSourceMissing \|\| !purchaseTimeline\)\) return;/);
+    // Lease-only flow: Continue waits for the vehicle plus term and miles.
+    assert.match(src, /if \(step === 1 && \(!vehicleImported \|\| !leaseMiles \|\| !leaseTerm\)\) return;/);
     assert.match(step1, /One car is required to continue/);
     assert.match(step1, /handleParseDealerUrl\(\)/);
   });

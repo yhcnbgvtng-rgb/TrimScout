@@ -125,7 +125,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       const directoryRow = desk.source === "directory"
         ? matchDirectoryDealership(await listDealerships().catch(() => []), { dealerName, state: dealerState })
         : null;
-      const html = quoteInviteHtml({
+      const emailInput = {
         dealerName,
         contactName: desk.contactName,
         role: desk.role,
@@ -136,12 +136,13 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
         unsubscribeUrl: directoryRow ? unsubscribeUrlFor(directoryRow.id) : null,
         paymentLabel: Array.isArray(body?.requestedStructures) ? formatDealStructures(body.requestedStructures) || null : null,
         purchaseTimelineLabel: typeof body?.purchaseTimelineLabel === "string" ? body.purchaseTimelineLabel : null,
-      });
-      const accepted = await sendQuoteInviteEmail(quoteInviteSubject({
-        dealerName, contactName: desk.contactName, role: desk.role, vehicle,
-        buyerAlias: formatBuyerAlias(rfq.buyerUserId), dealReference: rfq.dealReference || null,
-        viewUrl, unsubscribeUrl: null, paymentLabel: null, purchaseTimelineLabel: null,
-      }), html);
+        // A lease request gets the lease template: term / miles / ZIP, the
+        // calculator checklist and link — never "reply with a price".
+        leasePrefs: rfq.leasePrefs || null,
+        vehicleFacts: body?.vehicleFacts && typeof body.vehicleFacts === "object" ? body.vehicleFacts : null,
+      };
+      const html = quoteInviteHtml(emailInput);
+      const accepted = await sendQuoteInviteEmail(quoteInviteSubject(emailInput), html);
       if (accepted) {
         invite = await markRfqInviteDelivery(id, invite.id, "sent").catch(() => invite);
       }

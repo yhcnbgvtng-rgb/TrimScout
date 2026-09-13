@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useCallback, useEffect, useState } from "react";
+import { LeaseCompareTable } from "@/components/LeaseCompareTable";
+import { LEASE_NON_BINDING_COPY } from "@/lib/leaseQuote";
 import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import {
@@ -454,7 +456,7 @@ export default function RfqWorkspacePage() {
           <p className="text-[11px] font-bold text-ink-light uppercase tracking-wide">
             Quote request{rfq.dealReference ? ` · ${rfq.dealReference}` : ""}
           </p>
-          <p className="text-[11px] leading-snug text-ink-muted">{NON_BINDING_COPY}</p>
+          <p className="text-[11px] leading-snug text-ink-muted">{rfq.leasePrefs ? LEASE_NON_BINDING_COPY : NON_BINDING_COPY}</p>
           <p className="text-[11px] text-ink-faint">
             {(rfq.linkPastes || []).length} vehicle{(rfq.linkPastes || []).length === 1 ? "" : "s"} in this request — each desk quotes its own car.
           </p>
@@ -504,7 +506,17 @@ export default function RfqWorkspacePage() {
         </div>
       )}
 
-      {quotedInvites.length > 0 && (
+      {quotedInvites.length > 0 && rfq.leasePrefs && (
+        <div className="space-y-3">
+          <h2 className="text-sm font-bold text-white">Compare lease quotes</h2>
+          <p className="text-[11px] text-ink-muted">
+            You asked for {rfq.leasePrefs.termMonths} months · {rfq.leasePrefs.milesPerYear.toLocaleString()} mi/yr. Counters on term or miles are flagged; expired quotes can&apos;t be chosen.
+          </p>
+          <LeaseCompareTable rfq={rfq} prefs={rfq.leasePrefs} invites={quotedInvites} picking={picking} onPick={handlePick} />
+        </div>
+      )}
+
+      {quotedInvites.length > 0 && !rfq.leasePrefs && (
         <div className="space-y-3">
           <h2 className="text-sm font-bold text-white">Compare quotes</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -535,7 +547,9 @@ export default function RfqWorkspacePage() {
       {rfq.status === "collecting" && quotedInvites.length === 0 && (
         <div className="flex items-center gap-2 text-[11px] text-ink-faint">
           <Clock className="h-3.5 w-3.5" />
-          No quotes yet — check back after dealers respond, or record one above as it comes in.
+          {rfq.leasePrefs
+            ? "No lease quotes yet. Each dealer replies through the calculator on their own time — there's no deadline on them and nothing you need to do. We'll show quotes here as they come in."
+            : "No quotes yet — check back after dealers respond, or record one above as it comes in."}
         </div>
       )}
     </div>

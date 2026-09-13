@@ -977,6 +977,7 @@ function publicRfqQuote(row) {
     submittedAt: row.submitted_at,
     mustHaveAcknowledgement: Boolean(row.must_have_acknowledgement),
     notes: row.notes,
+    lease: typeof row.lease_json === "string" ? JSON.parse(row.lease_json) : row.lease_json || null,
   };
 }
 
@@ -1017,6 +1018,8 @@ async function ensureQuotePackageColumns(pool) {
   await pool.query("ALTER TABLE rfq_requests ADD COLUMN IF NOT EXISTS package_kind VARCHAR(16) NOT NULL DEFAULT 'match'");
   await pool.query("ALTER TABLE rfq_requests ADD COLUMN IF NOT EXISTS link_pastes_json TEXT NULL");
   await pool.query("ALTER TABLE rfq_requests ADD COLUMN IF NOT EXISTS deal_reference VARCHAR(16) NULL");
+  await pool.query("ALTER TABLE rfq_requests ADD COLUMN IF NOT EXISTS lease_prefs_json TEXT NULL");
+  await pool.query("ALTER TABLE rfq_quotes ADD COLUMN IF NOT EXISTS lease_json TEXT NULL");
   await pool.query("ALTER TABLE rfq_invites ADD COLUMN IF NOT EXISTS desk_json TEXT NULL");
   await pool.query("ALTER TABLE rfq_invites ADD COLUMN IF NOT EXISTS vehicle_json TEXT NULL");
   await pool.query("ALTER TABLE rfq_invites ADD COLUMN IF NOT EXISTS delivery_status VARCHAR(16) NOT NULL DEFAULT 'queued'");
@@ -1052,6 +1055,7 @@ function publicRfqRequest(row, invites) {
     packageKind: row.package_kind || "match",
     linkPastes: parseJsonCol(row.link_pastes_json) || [],
     dealReference: row.deal_reference || null,
+    leasePrefs: parseJsonCol(row.lease_prefs_json) || null,
   };
 }
 
@@ -1111,9 +1115,9 @@ async function handleCreateRfq(req, res) {
   const pool = getPool();
   await ensureQuotePackageColumns(pool);
   const [result] = await pool.query(
-    `INSERT INTO rfq_requests (buyer_user_id, vin, stock_number, vehicle_year, vehicle_make, vehicle_model, vehicle_trim, must_haves_json, status, package_kind, link_pastes_json, deal_reference)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'collecting', ?, ?, ?)`,
-    [buyerUserId, vin, stockNumber, vehicleYear, vehicleMake, vehicleModel, vehicleTrim, JSON.stringify(mustHaves), packageKind, linkPastes.length ? JSON.stringify(linkPastes) : null, dealReference]
+    `INSERT INTO rfq_requests (buyer_user_id, vin, stock_number, vehicle_year, vehicle_make, vehicle_model, vehicle_trim, must_haves_json, status, package_kind, link_pastes_json, deal_reference, lease_prefs_json)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'collecting', ?, ?, ?, ?)`,
+    [buyerUserId, vin, stockNumber, vehicleYear, vehicleMake, vehicleModel, vehicleTrim, JSON.stringify(mustHaves), packageKind, linkPastes.length ? JSON.stringify(linkPastes) : null, dealReference, body.leasePrefs && typeof body.leasePrefs === "object" ? JSON.stringify(body.leasePrefs) : null]
   );
   const [rows] = await pool.query("SELECT * FROM rfq_requests WHERE id = ?", [result.insertId]);
   sendJson(res, 201, { rfq: publicRfqRequest(rows[0], []) });
@@ -1283,8 +1287,13 @@ async function handleSubmitRfqQuote(req, res, rfqId, inviteId) {
   const expiresAt = body.expiresAt;
   const mustHaveAcknowledgement = Boolean(body.mustHaveAcknowledgement);
   const notes = body.notes ? String(body.notes).trim() : null;
+  // The structured lease calculator, validated by the Next.js route before
+  // it gets here; stored whole so the buyer's compare reads exactly what
+  // the dealer entered.
+  const leaseJson = body.lease && typeof body.lease === "object" ? JSON.stringify(body.lease) : null;
 
   const pool = getPool();
+  await ensureQuotePackageColumns(pool);
   const [rfqRows] = await pool.query("SELECT * FROM rfq_requests WHERE id = ?", [rfqId]);
   if (rfqRows.length === 0) return sendJson(res, 404, { error: "RFQ not found" });
   const mustHaves = typeof rfqRows[0].must_haves_json === "string" ? JSON.parse(rfqRows[0].must_haves_json) : rfqRows[0].must_haves_json;
@@ -1326,9 +1335,9 @@ async function handleSubmitRfqQuote(req, res, rfqId, inviteId) {
   try {
     await conn.beginTransaction();
     const [result] = await conn.query(
-      `INSERT INTO rfq_quotes (rfq_id, invite_id, dealer_name, price, fees_json, total_otd_price, vin, stock_number, expires_at, must_have_acknowledgement, notes)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [rfqId, inviteId, inviteRows[0].dealer_name, price, JSON.stringify(fees), totalOtdPrice, vin, stockNumber, new Date(expiresAt), mustHaveAcknowledgement, notes]
+      `INSERT INTO rfq_quotes (rfq_id, invite_id, dealer_name, price, fees_json, total_otd_price, vin, stock_number, expires_at, must_have_acknowledgement, notes, lease_json)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [rfqId, inviteId, inviteRows[0].dealer_name, price, JSON.stringify(fees), totalOtdPrice, vin, stockNumber, new Date(expiresAt), mustHaveAcknowledgement, notes, leaseJson]
     );
     quoteId = result.insertId;
     await conn.query(

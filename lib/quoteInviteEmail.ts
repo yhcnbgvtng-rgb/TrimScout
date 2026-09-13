@@ -11,6 +11,7 @@
  */
 
 import { NON_BINDING_COPY, DESK_ROLE_LABELS, type DeskRole } from "./quotePackage";
+import { LEASE_NON_BINDING_COPY, type LeaseRequestPrefs } from "./leaseQuote";
 
 export interface QuoteInviteEmailInput {
   dealerName: string;
@@ -25,7 +26,27 @@ export interface QuoteInviteEmailInput {
   /** How the buyer wants to pay, as a label ("Cash", "Finance or Lease"). */
   paymentLabel: string | null;
   purchaseTimelineLabel: string | null;
+  /**
+   * Lease-only flow: the buyer's term / miles / ZIP. When set, the email is
+   * the lease template — calculator checklist, the calculator link, and the
+   * plain non-binding line — never "reply with a price".
+   */
+  leasePrefs?: LeaseRequestPrefs | null;
+  /** Trim / drivetrain / color as known from the factory record. */
+  vehicleFacts?: { drivetrain?: string | null; exteriorColor?: string | null } | null;
 }
+
+export const LEASE_CALCULATOR_FIELDS = [
+  "Cap cost",
+  "Residual % and residual amount",
+  "Money factor (we show the APR equivalent)",
+  "Term and miles/year — the buyer's, or mark a counter with a short note",
+  "Cap reduction",
+  "Monthly payment pre-tax (and with estimated tax, if you can)",
+  "Due at signing, itemized: first month, acquisition fee, cap reduction, taxes, other fees by name",
+  "Incentives and add-ons by name",
+  "Quote good-through date",
+] as const;
 
 function escapeHtml(s: string): string {
   const map: Record<string, string> = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" };
@@ -34,10 +55,46 @@ function escapeHtml(s: string): string {
 
 export function quoteInviteSubject(input: QuoteInviteEmailInput): string {
   const car = [input.vehicle.year, input.vehicle.make, input.vehicle.model, input.vehicle.trim].filter(Boolean).join(" ");
+  if (input.leasePrefs) {
+    return `Lease quote request: ${car} (VIN …${input.vehicle.vin.slice(-6)}) — ${input.leasePrefs.termMonths} mo / ${input.leasePrefs.milesPerYear.toLocaleString()} mi`;
+  }
   return `Quote request: ${car} (VIN …${input.vehicle.vin.slice(-6)}) — ${input.buyerAlias}`;
 }
 
+/** The lease template: what's asked, the calculator checklist, the calculator link. Ops can relay it verbatim. */
+function leaseInviteHtml(input: QuoteInviteEmailInput, prefs: LeaseRequestPrefs): string {
+  const car = [input.vehicle.year, input.vehicle.make, input.vehicle.model, input.vehicle.trim].filter(Boolean).join(" ");
+  const roleLabel = (DESK_ROLE_LABELS as Record<string, string>)[input.role] || "Sales";
+  const firstName = input.contactName.split(/\s+/)[0] || input.contactName;
+  const facts = [input.vehicleFacts?.drivetrain, input.vehicleFacts?.exteriorColor].filter(Boolean).map((x) => escapeHtml(String(x))).join(" · ");
+  const timeline = input.purchaseTimelineLabel ? `<tr><td style="padding:6px 0;color:#64748b">Timeline</td><td style="padding:6px 0">${escapeHtml(input.purchaseTimelineLabel)}</td></tr>` : "";
+  return `
+  <div style="font-family:-apple-system,Segoe UI,Roboto,sans-serif;max-width:600px;margin:0 auto;color:#0f172a;line-height:1.5">
+    <p style="font-size:15px">Hi ${escapeHtml(firstName)},</p>
+    <p>A buyer on TrimScout is asking for a <strong>lease quote</strong> on a car in your inventory.</p>
+    <table style="border-collapse:collapse;width:100%;margin:12px 0;font-size:14px">
+      <tr><td style="padding:6px 0;color:#64748b;width:140px">Vehicle</td><td style="padding:6px 0;font-weight:700">${escapeHtml(car)}${facts ? `<br><span style="font-weight:400;color:#475569">${facts}</span>` : ""}</td></tr>
+      <tr><td style="padding:6px 0;color:#64748b">VIN</td><td style="padding:6px 0;font-family:ui-monospace,Menlo,monospace">${escapeHtml(input.vehicle.vin)}</td></tr>
+      <tr><td style="padding:6px 0;color:#64748b">Term</td><td style="padding:6px 0"><strong>${prefs.termMonths} months</strong></td></tr>
+      <tr><td style="padding:6px 0;color:#64748b">Miles / year</td><td style="padding:6px 0"><strong>${prefs.milesPerYear.toLocaleString()}</strong></td></tr>
+      ${prefs.zip ? `<tr><td style="padding:6px 0;color:#64748b">Buyer ZIP</td><td style="padding:6px 0">${escapeHtml(prefs.zip)} <span style="color:#94a3b8">(tax context)</span></td></tr>` : ""}
+      ${timeline}
+    </table>
+    <p><strong>To quote:</strong> use the lease calculator at the link below. Every field is required — a monthly-only reply can't be entered:</p>
+    <ul style="font-size:14px;margin:8px 0 12px 18px;padding:0">
+      ${LEASE_CALCULATOR_FIELDS.map((f) => `<li style="margin:2px 0">${escapeHtml(f)}</li>`).join("")}
+    </ul>
+    <p style="margin:18px 0">
+      <a href="${escapeHtml(input.viewUrl)}" style="display:inline-block;background:#059669;color:#fff;text-decoration:none;font-weight:700;padding:10px 18px;border-radius:8px">Open the lease calculator</a>
+    </p>
+    <p style="font-size:13px;color:#475569">If the link doesn't work for you, reply with those same fields and TrimScout will enter them for you. If you'd rather not quote this one, a one-line reply saying so lets the buyer move on.</p>
+    <p style="font-size:12px;color:#64748b;border-top:1px solid #e2e8f0;padding-top:12px;margin-top:20px">${escapeHtml(LEASE_NON_BINDING_COPY)}</p>
+    <p style="font-size:11px;color:#94a3b8">We pass messages between you and the buyer without sharing their email. Sent to ${escapeHtml(input.contactName)}, ${escapeHtml(roleLabel)} at ${escapeHtml(input.dealerName)}.${input.dealReference ? ` Reference ${escapeHtml(input.dealReference)}.` : ""}${input.unsubscribeUrl ? ` Don't want quote requests from TrimScout? <a href="${escapeHtml(input.unsubscribeUrl)}" style="color:#64748b">Unsubscribe</a>.` : ""}</p>
+  </div>`;
+}
+
 export function quoteInviteHtml(input: QuoteInviteEmailInput): string {
+  if (input.leasePrefs) return leaseInviteHtml(input, input.leasePrefs);
   const car = [input.vehicle.year, input.vehicle.make, input.vehicle.model, input.vehicle.trim].filter(Boolean).join(" ");
   const roleLabel = (DESK_ROLE_LABELS as Record<string, string>)[input.role] || "Sales";
   const firstName = input.contactName.split(/\s+/)[0] || input.contactName;

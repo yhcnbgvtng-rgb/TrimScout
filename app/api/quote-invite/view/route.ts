@@ -17,6 +17,8 @@ export async function GET(req: Request) {
         await markRfqInviteDelivery(found.rfqId, found.invite.id, "viewed").catch(() => null);
         const v = found.invite.vehicle;
         if (v) landing.searchParams.set("car", [v.year, v.make, v.model, v.trim].filter(Boolean).join(" "));
+        // The calculator on the landing page submits against this token.
+        landing.searchParams.set("t", token);
       }
     } catch {
       // A missed "viewed" mark must not break the dealer's landing.

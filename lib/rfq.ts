@@ -10,6 +10,8 @@ export const RFQ_MAX_INVITES = 3;
 // treated as a hit. The seed adapter never produces "unknown": its options
 // list is the exhaustive confirmed set for that VIN, so absence there is a
 // real "miss", not an unknown.
+import type { LeaseQuote, LeaseRequestPrefs } from "./leaseQuote";
+
 export type OptionMatchStatus = "hit" | "miss" | "unknown";
 
 export interface RfqMustHave {
@@ -47,6 +49,13 @@ export interface RfqQuote {
   submittedAt: string;
   mustHaveAcknowledgement: boolean;
   notes: string | null;
+  /**
+   * The structured lease calculator the dealer filled in (lib/leaseQuote.ts).
+   * When present, `price` mirrors monthlyPaymentPreTax and `fees` the
+   * due-at-signing lines so older readers still see a number — but the
+   * buyer's compare view reads this, never those.
+   */
+  lease?: LeaseQuote | null;
 }
 
 export interface RfqInvite {
@@ -94,6 +103,8 @@ export interface RfqRequest extends RfqSpec {
   linkPastes?: Array<Record<string, unknown>>;
   /** The TS-XXXXXX number the buyer saw on the review screen. */
   dealReference?: string | null;
+  /** Lease-only flow: what the buyer asked for. Dealers must quote to it or mark a counter. */
+  leasePrefs?: LeaseRequestPrefs | null;
 }
 
 // Logged verbatim to rfq_events on the box — no read endpoint, no
