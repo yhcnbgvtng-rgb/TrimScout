@@ -174,6 +174,15 @@ describe("wizard wiring — same-state gate + alternate comparison", () => {
     assert.match(wizard, /The dealership listing your car always stays in\./);
   });
 
+  it("overnight QA pack: VIN-only CTA, degraded-directory retry, and a sticker retry are all wired", () => {
+    assert.match(wizard, /No dealership attached yet/);
+    assert.match(wizard, /Paste the dealership&apos;s listing link to attach the store/);
+    assert.match(wizard, /Couldn&apos;t check the dealer directory just now/);
+    assert.match(wizard, /onRetry=\{retryPendingLink\}/);
+    assert.match(wizard, /ask the manufacturer again/);
+    assert.match(wizard, /const retryPrimarySticker = async/);
+  });
+
   it("(4) alternate cards lead with the must-have report and diff, never a sticker similarity %", () => {
     assert.match(wizard, /mustHaveHeadline\(report\)/);
     assert.match(wizard, /diffVsPrimary\(primary, vehicle, mustHaves/);

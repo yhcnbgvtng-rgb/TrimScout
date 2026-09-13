@@ -47,6 +47,9 @@ export interface DeskMatch {
   emailOptOut: boolean;
 }
 
+/** More rooftops than this on one mail domain is a group inbox pattern, not a store key. */
+export const MAX_EMAIL_DOMAIN_CANDIDATES = 6;
+
 export type DeskMatchVia = "alias_host" | "website" | "alias_domain" | "email_domain" | "redirect";
 
 export type DeskResolution =
@@ -157,10 +160,12 @@ export function indexDeskContacts(contacts: DeskContact[]): DeskIndex {
       push(index.byAliasHost, a.host, row);
       push(index.byAliasDomain, a.registrable, row);
     }
-    if (!site) {
-      const domain = emailDomainOf(row.contactEmail);
-      if (domain && !isPublicEmailDomain(domain)) push(index.byEmailDomain, registrableDomain(domain), row);
-    }
+    // The contact's own domain is a key too — even for a store with a site
+    // on file. Scott Chevrolet lists at scottcars.net but its people mail
+    // from scottcars.com; a link on the .com must still find the store.
+    // Lowest tier, so it never outranks a real domain hit.
+    const domain = emailDomainOf(row.contactEmail);
+    if (domain && !isPublicEmailDomain(domain)) push(index.byEmailDomain, registrableDomain(domain), row);
   }
   INDEX_CACHE.set(contacts, index);
   return index;
@@ -205,6 +210,9 @@ export function resolveDeskFromVdpUrl(
   for (const [via, rows] of tiers) {
     if (!rows || rows.length === 0) continue;
     const unique = dedupe(rows);
+    // A dealer group's shared mail domain names dozens of rooftops — that's
+    // not a match the buyer can pick from, so it counts as no key at all.
+    if (via === "email_domain" && unique.length > MAX_EMAIL_DOMAIN_CANDIDATES) continue;
     if (unique.length === 1) {
       return { status: "unique", via, host: norm.host, desk: deskMatchFromContact(unique[0], knownNamedOf(unique[0])) };
     }
