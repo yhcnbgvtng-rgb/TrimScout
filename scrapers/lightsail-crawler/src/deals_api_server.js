@@ -1140,13 +1140,18 @@ async function handleGetRfq(req, res, id) {
 
 async function handleListRfqs(req, res, query) {
   const buyerUserId = (query.get("buyerUserId") || "").trim();
-  if (!buyerUserId) return badRequest(res, "buyerUserId is required");
+  const all = query.get("all") === "1";
+  if (!buyerUserId && !all) return badRequest(res, "buyerUserId is required");
   const pool = getPool();
   await ensureQuotePackageColumns(pool);
-  const [rows] = await pool.query(
-    "SELECT * FROM rfq_requests WHERE buyer_user_id = ? ORDER BY created_at DESC",
-    [buyerUserId]
-  );
+  // all=1: the admin desk — every buyer's requests, newest first, capped.
+  const limit = Math.min(Math.max(Number(query.get("limit")) || 200, 1), 1000);
+  const [rows] = all
+    ? await pool.query("SELECT * FROM rfq_requests ORDER BY created_at DESC LIMIT ?", [limit])
+    : await pool.query(
+        "SELECT * FROM rfq_requests WHERE buyer_user_id = ? ORDER BY created_at DESC",
+        [buyerUserId]
+      );
   const rfqs = [];
   for (const row of rows) {
     const invites = await loadRfqInvitesWithQuotes(pool, row.id);

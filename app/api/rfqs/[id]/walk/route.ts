@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { getRfq, RfqApiError, walkAwayFromRfq } from "@/lib/rfqApi";
+import { publicRfqForBuyer } from "@/lib/rfq";
 
 export async function POST(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
@@ -16,7 +17,7 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
       return NextResponse.json({ error: "This request belongs to a different buyer." }, { status: 403 });
     }
     const rfq = await walkAwayFromRfq(id);
-    return NextResponse.json({ rfq });
+    return NextResponse.json({ rfq: publicRfqForBuyer(rfq) });
   } catch (err) {
     const message = err instanceof RfqApiError ? err.message : "Could not record that you walked away.";
     const status = err instanceof RfqApiError ? err.status : 502;

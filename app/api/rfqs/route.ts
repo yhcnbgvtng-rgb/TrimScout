@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { parseLeasePrefs } from "@/lib/leaseQuote";
 import { auth } from "@/auth";
 import { createRfq, listRfqsForBuyer, RfqApiError } from "@/lib/rfqApi";
+import { publicRfqForBuyer } from "@/lib/rfq";
 import { hasActiveRfq, isFullyLockedSpec } from "@/lib/rfqLogic";
 import { MAX_PACKAGE_LINKS } from "@/lib/quotePackage";
 import { recordQuoteRequest } from "@/lib/apiSpendGuard";
@@ -13,7 +14,7 @@ export async function GET() {
   }
   try {
     const rfqs = await listRfqsForBuyer(session.user.id as string);
-    return NextResponse.json({ rfqs });
+    return NextResponse.json({ rfqs: rfqs.map(publicRfqForBuyer) });
   } catch (err) {
     const message = err instanceof RfqApiError ? err.message : "Could not load your requests.";
     const status = err instanceof RfqApiError ? err.status : 502;
@@ -77,7 +78,7 @@ export async function POST(req: Request) {
       leasePrefs: parseLeasePrefs(body.leasePrefs),
     });
     recordQuoteRequest();
-    return NextResponse.json({ rfq });
+    return NextResponse.json({ rfq: publicRfqForBuyer(rfq) });
   } catch (err) {
     const message = err instanceof RfqApiError ? err.message : "Could not create your request.";
     const status = err instanceof RfqApiError ? err.status : 502;

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { getRfq, pickRfqQuote, RfqApiError } from "@/lib/rfqApi";
+import { publicRfqForBuyer } from "@/lib/rfq";
 import { isReachableEmail } from "@/lib/rfqLogic";
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -27,7 +28,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       return NextResponse.json({ error: "This request belongs to a different buyer." }, { status: 403 });
     }
     const rfq = await pickRfqQuote(id, body.quoteId);
-    return NextResponse.json({ rfq });
+    return NextResponse.json({ rfq: publicRfqForBuyer(rfq) });
   } catch (err) {
     const message = err instanceof RfqApiError ? err.message : "Could not record your pick.";
     const status = err instanceof RfqApiError ? err.status : 502;

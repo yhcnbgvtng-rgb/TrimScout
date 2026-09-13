@@ -94,6 +94,12 @@ export async function updateRfqLeasePrefs(rfqId: string, leasePrefs: LeaseReques
   return json.rfq as RfqRequest;
 }
 
+/** Every buyer's requests, newest first — the admin desk only. Raw rows (tokens included); the admin route decides what to expose. */
+export async function listAllRfqs(limit = 200): Promise<RfqRequest[]> {
+  const json = await request("GET", `/api/rfqs?all=1&limit=${limit}`);
+  return json.rfqs as RfqRequest[];
+}
+
 export async function listRfqsForBuyer(buyerUserId: string): Promise<RfqRequest[]> {
   const json = await request("GET", `/api/rfqs?buyerUserId=${encodeURIComponent(buyerUserId)}`);
   return json.rfqs as RfqRequest[];

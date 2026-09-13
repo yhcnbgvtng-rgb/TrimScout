@@ -113,6 +113,19 @@ export interface RfqRequest extends RfqSpec {
   leaseSheetLockedByInviteId?: string | null;
 }
 
+/**
+ * What a buyer's browser may see of a request: every invite minus the
+ * dealer's cleartext address and the tracked-link token. Masked contact
+ * (`desk.emailMasked`) stays. Every buyer-facing RFQ response goes through
+ * this — the box returns the raw row for server-to-server use.
+ */
+export function publicRfqForBuyer(rfq: RfqRequest): RfqRequest {
+  return {
+    ...rfq,
+    invites: rfq.invites.map(({ dealerContactEmail: _email, viewToken: _token, ...rest }) => ({ ...rest, dealerContactEmail: null })),
+  };
+}
+
 // Logged verbatim to rfq_events on the box — no read endpoint, no
 // dashboard. Scoring (response rate, spec integrity, quote completeness,
 // buyer pick rate, time-to-first-quote) happens offline by querying that
