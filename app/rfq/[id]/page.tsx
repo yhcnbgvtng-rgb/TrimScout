@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useCallback, useEffect, useState } from "react";
-import { LeaseCompareTable } from "@/components/LeaseCompareTable";
+import { LeaseCompare } from "@/components/LeaseCompare";
+import { analyzeLeaseQuotes, type LeaseCompare as LeaseCompareData } from "@/lib/leaseCompare";
 import { LeaseQuoteSheet } from "@/components/LeaseQuoteSheet";
 import { LeaseCalculatorSheet } from "@/components/LeaseCalculatorSheet";
 import { LeaseQuoteFormat } from "@/components/LeaseQuoteFormat";
@@ -400,6 +401,10 @@ export default function RfqWorkspacePage() {
   const { status: sessionStatus } = useSession();
 
   const [rfq, setRfq] = useState<RfqRequest | null>(null);
+  // Server-computed lease comparison (counter / expired / best). Pick and
+  // walk responses carry only the rfq, so the page recomputes from the same
+  // pure function until the next load.
+  const [leaseCompare, setLeaseCompare] = useState<LeaseCompareData | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [pickError, setPickError] = useState<string | null>(null);
   const [picking, setPicking] = useState(false);
@@ -413,6 +418,7 @@ export default function RfqWorkspacePage() {
       return;
     }
     setRfq(json.rfq);
+    setLeaseCompare((json.leaseCompare as LeaseCompareData | null) ?? null);
   }, [rfqId]);
 
   useEffect(() => {
@@ -430,6 +436,7 @@ export default function RfqWorkspacePage() {
     const json = await res.json();
     if (res.ok) {
       setRfq(json.rfq);
+      setLeaseCompare(null);
     } else {
       setPickError(json.error || "Could not record your pick.");
     }
@@ -440,7 +447,10 @@ export default function RfqWorkspacePage() {
     setWalking(true);
     const res = await fetch(`/api/rfqs/${rfqId}/walk`, { method: "POST" });
     const json = await res.json();
-    if (res.ok) setRfq(json.rfq);
+    if (res.ok) {
+      setRfq(json.rfq);
+      setLeaseCompare(null);
+    }
     setWalking(false);
   };
 
@@ -534,13 +544,13 @@ export default function RfqWorkspacePage() {
         </div>
       )}
 
-      {quotedInvites.length > 0 && rfq.leasePrefs && (
+      {rfq.leasePrefs && (
         <div className="space-y-3">
           <h2 className="text-sm font-bold text-white">Compare lease quotes</h2>
           <p className="text-[11px] text-ink-muted">
-            You asked for {rfq.leasePrefs.termMonths} months · {rfq.leasePrefs.milesPerYear.toLocaleString()} mi/yr. Counters on term or miles are flagged; expired quotes can&apos;t be chosen.
+            You asked for {rfq.leasePrefs.termMonths} months · {rfq.leasePrefs.milesPerYear.toLocaleString()} mi/yr. Counters on term or miles sit in their own block; expired quotes can&apos;t be chosen.
           </p>
-          <LeaseCompareTable rfq={rfq} prefs={rfq.leasePrefs} invites={quotedInvites} picking={picking} onPick={handlePick} />
+          <LeaseCompare data={leaseCompare || analyzeLeaseQuotes(rfq)!} collecting={rfq.status === "collecting"} onPick={handlePick} onWalk={handleWalk} busy={picking || walking} />
         </div>
       )}
 
@@ -561,7 +571,7 @@ export default function RfqWorkspacePage() {
         </div>
       )}
 
-      {rfq.status === "collecting" && (
+      {rfq.status === "collecting" && !rfq.leasePrefs && (
         <button
           onClick={handleWalk}
           disabled={walking}
@@ -572,7 +582,7 @@ export default function RfqWorkspacePage() {
         </button>
       )}
 
-      {rfq.status === "collecting" && quotedInvites.length === 0 && (
+      {rfq.status === "collecting" && quotedInvites.length === 0 && !rfq.leasePrefs && (
         <div className="flex items-center gap-2 text-[11px] text-ink-faint">
           <Clock className="h-3.5 w-3.5" />
           {rfq.leasePrefs
