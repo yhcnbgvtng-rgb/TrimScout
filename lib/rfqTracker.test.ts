@@ -64,18 +64,17 @@ describe("rfqTracker — what My Deal Tracker shows for a lease quote request", 
     assert.equal(rfqDealNumber(base({ dealReference: null })), "#118");
   });
 
-  it("the lease sheet rows are the buyer's Step 2 prefs, optional ones only when set; rules line is fixed", () => {
+  it("the lease sheet rows are the buyer's Step 2 prefs (term, miles, ZIP, timeline), optional ones only when set; rules line is fixed", () => {
     assert.deepEqual(leaseSheetRows(base().leasePrefs!), [
       { label: "Term", value: "36 months" },
       { label: "Miles / year", value: "10,000" },
       { label: "ZIP", value: "07405 (tax context)" },
       { label: "Timeline", value: "Within the month" },
     ]);
-    const withCap = { termMonths: 36 as const, milesPerYear: 10000 as const, zip: "", timeline: null, maxCashDueAtSigning: 2500 };
-    assert.deepEqual(leaseSheetRows(withCap), [
+    const bare = { termMonths: 36 as const, milesPerYear: 10000 as const, zip: "", timeline: null };
+    assert.deepEqual(leaseSheetRows(bare), [
       { label: "Term", value: "36 months" },
       { label: "Miles / year", value: "10,000" },
-      { label: "Max cash due at signing", value: "$2,500" },
     ]);
     assert.match(LEASE_SHEET_RULES, /lease calculator — or mark a counter\. Request, not a binding bid\./);
     assert.doesNotMatch(LEASE_SHEET_RULES, /auction/i);

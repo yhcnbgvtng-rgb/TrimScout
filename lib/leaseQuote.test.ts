@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { aprFromMoneyFactor, coerceLeaseQuote, dueAtSigningTotal, isCounter, isExpired, validateLeaseQuote, MAX_CASH_DUE_HELPER, normalizeMaxCashDue, overMaxCashDue, type LeaseQuote } from "./leaseQuote";
+import { aprFromMoneyFactor, coerceLeaseQuote, dueAtSigningTotal, isCounter, isExpired, parseLeasePrefs, validateLeaseQuote, type LeaseQuote } from "./leaseQuote";
 
 const NOW = new Date("2026-09-13T12:00:00Z");
 const PREFS = { termMonths: 36 as const, milesPerYear: 10000 as const };
@@ -200,71 +200,53 @@ describe("lease terms — 18 and 24 both offered, default stays 36", () => {
 });
 
 // ---------------------------------------------------------------------------
-// Cash due at signing — the buyer's optional cap on what they hand over at
-// pickup. Good() itemizes 652.50 + 0 + 0 + 120 + 299 = $1,071.50.
+// There is NO buyer cap on due at signing. A "quote under $X" is a reverse-
+// bid; v1 is a quote request: term + miles + ZIP (+ timeline), and the
+// dealer's due-at-signing is their output, compared after the fact.
 // ---------------------------------------------------------------------------
-describe("lease prefs — max cash due at signing", () => {
-  it("helper says what the number means: the buyer's max at pickup, not the dealer's line", () => {
-    assert.match(MAX_CASH_DUE_HELPER, /^Max you want to pay at pickup — first month, fees, and any down\./);
-    assert.match(MAX_CASH_DUE_HELPER, /Dealers itemize this in the lease calculator or mark a counter\./);
-    assert.doesNotMatch(MAX_CASH_DUE_HELPER, /down payment|purchase price|bid|auction/i);
+describe("lease prefs — no payment cap anywhere", () => {
+  const read = (f: string) => fs.readFileSync(path.join(process.cwd(), f), "utf8");
+
+  it("parseLeasePrefs keeps only term, miles, ZIP, timeline — a stray cap on the payload is dropped", () => {
+    const prefs = parseLeasePrefs({ termMonths: 36, milesPerYear: 10000, zip: "07405", timeline: "asap", maxCashDueAtSigning: 1500, maxDueAtSigning: 1500 });
+    assert.deepEqual(prefs, { termMonths: 36, milesPerYear: 10000, zip: "07405", timeline: "asap" });
   });
 
-  it("normalizes a typed amount; blank, junk or negative means no cap", () => {
-    assert.equal(normalizeMaxCashDue("2,500"), 2500);
-    assert.equal(normalizeMaxCashDue("$1999.60"), 2000);
-    assert.equal(normalizeMaxCashDue(0), 0);
-    for (const bad of ["", "   ", "abc", "-5", -1, NaN, null, undefined]) assert.equal(normalizeMaxCashDue(bad), null, String(bad));
-  });
-
-  it("no cap set → nothing changes: a good quote is not a counter", () => {
-    const q = good();
-    assert.equal(overMaxCashDue(q.dueAtSigning, { ...PREFS, maxCashDueAtSigning: null }), false);
+  it("a big due-at-signing is a plain quote, not a counter and not a validation error", () => {
+    const q = { ...good(), dueAtSigning: { firstMonth: 652.5, acquisitionFee: 995, capReduction: 5000, taxes: 400, otherFees: [{ name: "Doc fee", amount: 799 }] } };
     assert.equal(isCounter(q, PREFS), false);
     assert.deepEqual(validateLeaseQuote(q, PREFS, { vin: "X" }, NOW).errors, []);
   });
 
-  it("dealer total above the cap without a counter → blocked; with counter + note → allowed and flagged", () => {
-    const prefs = { ...PREFS, maxCashDueAtSigning: 1000 };
-    const q = good(); // $1,071.50 due
-    assert.equal(overMaxCashDue(q.dueAtSigning, prefs), true);
-    assert.equal(isCounter(q, prefs), true, "over the cap reads as a counter on compare");
-    const blocked = validateLeaseQuote(q, prefs, { vin: "X" }, NOW);
-    assert.ok(blocked.errors.some((e) => /above the buyer's max of \$1,000 — mark it as a counter-offer/.test(e)), blocked.errors.join(" | "));
-    const noNote = validateLeaseQuote({ ...q, counter: { counterOffer: true, note: "" } }, prefs, { vin: "X" }, NOW);
-    assert.ok(noNote.errors.some((e) => /needs a short note/.test(e)));
-    const ok = validateLeaseQuote({ ...q, counter: { counterOffer: true, note: "Acquisition fee can't be rolled in on this program" } }, prefs, { vin: "X" }, NOW);
-    assert.deepEqual(ok.errors, []);
+  it("no max-DAS field, type, copy or flag survives in the buyer UI, dealer calculator, compare, email, API types or admin desk", () => {
+    const files = [
+      "lib/leaseQuote.ts", "lib/rfqTracker.ts", "lib/quoteInviteEmail.ts", "components/BiddingWizard.tsx", "components/LeaseQuoteSheet.tsx",
+      "components/LeaseCalculatorForm.tsx", "components/LeaseCalculatorSheet.tsx", "components/LeaseCompareTable.tsx", "components/LeaseQuoteFormat.tsx",
+      "app/admin/quote-requests/QuoteRequestsClient.tsx", "app/api/rfqs/route.ts", "app/api/rfqs/[id]/lease-prefs/route.ts",
+    ];
+    for (const f of files) assert.doesNotMatch(read(f), /maxCashDueAtSigning|maxDueAtSigning|overMaxCashDue|MAX_CASH_DUE|Cash due at signing|max due at signing|Over (your|the buyer's) \$/i, f);
   });
 
-  it("dealer total at or under the cap is a plain quote", () => {
-    const prefs = { ...PREFS, maxCashDueAtSigning: 1072 };
-    const q = good();
-    assert.equal(overMaxCashDue(q.dueAtSigning, prefs), false);
-    assert.equal(isCounter(q, prefs), false);
-    assert.deepEqual(validateLeaseQuote(q, prefs, { vin: "X" }, NOW).errors, []);
+  it("dealer banner reads: term · miles · ZIP (tax context). Match that, or mark a counter below.", () => {
+    const calc = read("components/LeaseCalculatorForm.tsx");
+    assert.match(calc, /Buyer asked for <strong className="text-white">\{prefs\.termMonths\} months · \{prefs\.milesPerYear\.toLocaleString\(\)\} mi\/yr<\/strong>\s*\{prefs\.zip \? <> · ZIP \{prefs\.zip\} \(tax context\)<\/> : null\}\. Match that, or mark a counter below\./);
   });
 });
 
-describe("wizard wiring — cash due at signing lives under Lease preferences only", () => {
+describe("wizard wiring — Step 2 lease prefs are term + miles + ZIP (+ timeline) only", () => {
   const wizard = fs.readFileSync(path.join(process.cwd(), "components/BiddingWizard.tsx"), "utf8");
   const route = fs.readFileSync(path.join(process.cwd(), "app/api/rfqs/route.ts"), "utf8");
 
-  it("the field sits inside the lease block on Step 2, is optional, and doesn't gate Continue", () => {
+  it("the lease block has term + miles and nothing else to fill; Continue gates on type + term + miles + ZIP", () => {
     const leaseBlock = wizard.slice(wizard.indexOf('{quoteType === "lease" && ('), wizard.indexOf('{quoteType === "finance" && ('));
-    assert.match(leaseBlock, /Cash due at signing/);
-    assert.match(leaseBlock, /\{MAX_CASH_DUE_HELPER\}/);
-    assert.match(leaseBlock, /placeholder="No cap"/);
-    const financeBlock = wizard.slice(wizard.indexOf('{quoteType === "finance" && ('), wizard.indexOf("{quoteType ? ("));
-    assert.doesNotMatch(financeBlock, /Cash due at signing/);
+    assert.match(leaseBlock, /LEASE_TERMS\.map/);
+    assert.match(leaseBlock, /LEASE_MILES\.map/);
+    assert.doesNotMatch(leaseBlock, /<input/);
     assert.match(wizard, /quoteSetupComplete =\s*quoteType === "lease"\s*\? Boolean\(leaseTerm && leaseMiles && zipOk\)/);
   });
 
-  it("the value rides on leasePrefs only when set, and the route stores a finite non-negative number", () => {
-    assert.match(wizard, /\.\.\.\(leaseMaxDueNumber != null \? \{ maxCashDueAtSigning: leaseMaxDueNumber \} : \{\}\)/);
-    const lib = fs.readFileSync(path.join(process.cwd(), "lib/leaseQuote.ts"), "utf8");
-    assert.match(lib, /normalizeMaxCashDue\(o\.maxCashDueAtSigning\)/);
-    assert.match(lib, /if \(maxCash != null\) prefs\.maxCashDueAtSigning = maxCash/);
+  it("the request payload carries exactly termMonths · milesPerYear · zip · timeline", () => {
+    assert.match(wizard, /leasePrefs:\s*quoteType === "lease"\s*\? \{\s*termMonths: leaseTerm \|\| null,\s*milesPerYear: leaseMiles \|\| null,\s*zip: zipOk \? huntZip : "",\s*timeline: purchaseTimeline \|\| null,\s*\}\s*: null,/);
     assert.match(route, /parseLeasePrefs\(body\.leasePrefs\)/);
   });
 });

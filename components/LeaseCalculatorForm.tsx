@@ -2,7 +2,7 @@
 
 import React, { useMemo, useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
-import { overMaxCashDue, validateLeaseQuote, LEASE_MILES, LEASE_TERMS, type LeaseQuote, type LeaseRequestPrefs, type LineItem } from "../lib/leaseQuote";
+import { validateLeaseQuote, LEASE_MILES, LEASE_TERMS, type LeaseQuote, type LeaseRequestPrefs, type LineItem } from "../lib/leaseQuote";
 import {
   aprFromMf,
   dasTotal,
@@ -154,9 +154,7 @@ export function LeaseCalculatorForm({
   };
   const validation = useMemo(() => validateLeaseQuote(quote, prefs, { vin: f.vin, stockNumber: f.stockNumber }), [quote, prefs, f.vin, f.stockNumber]);
   const warnings = [...validation.warnings, ...(d.residualDrift ? [`Residual amount ${money(d.residualAmount)} doesn't match ${d.residualPercent}% of MSRP (${money(d.residualFromMsrp)}) — double-check which one is right.`] : [])];
-  const overCap = overMaxCashDue(d.das, prefs);
-  const termMilesDiffer = Number(f.termMonths) !== prefs.termMonths || Number(f.milesPerYear) !== prefs.milesPerYear;
-  const differs = termMilesDiffer || overCap;
+  const differs = Number(f.termMonths) !== prefs.termMonths || Number(f.milesPerYear) !== prefs.milesPerYear;
 
   const submit = async () => {
     setTouched(true);
@@ -259,12 +257,7 @@ export function LeaseCalculatorForm({
       {/* 2 — buyer prefs banner */}
       <div className="rounded-xl border border-border/70 bg-surface-elevated px-3.5 py-3 text-xs text-ink-light" data-testid="buyer-prefs-banner">
         Buyer asked for <strong className="text-white">{prefs.termMonths} months · {prefs.milesPerYear.toLocaleString()} mi/yr</strong>
-        {prefs.maxCashDueAtSigning != null ? (
-          <>
-            {" "}· max <strong className="text-white">${prefs.maxCashDueAtSigning.toLocaleString()} due at signing</strong>
-          </>
-        ) : null}
-        {prefs.zip ? <> · ZIP {prefs.zip} (tax context)</> : null}. Quote to that, or mark a counter below.
+        {prefs.zip ? <> · ZIP {prefs.zip} (tax context)</> : null}. Match that, or mark a counter below.
       </div>
 
       <div className="grid gap-5 lg:grid-cols-[1fr_260px]">
@@ -384,18 +377,14 @@ export function LeaseCalculatorForm({
                   <label className="flex items-start gap-2 text-xs text-amber-100">
                     <input type="checkbox" checked={counterOffer} onChange={(e) => setCounterOffer(e.target.checked)} className="mt-0.5 h-3.5 w-3.5" />
                     <span>
-                      This is a <strong>counter-offer</strong> —{" "}
-                      {overCap && prefs.maxCashDueAtSigning != null && !termMilesDiffer
-                        ? `due at signing is above the buyer's max of $${prefs.maxCashDueAtSigning.toLocaleString()}`
-                        : `the term or miles differ from what the buyer asked for (${prefs.termMonths} mo / ${prefs.milesPerYear.toLocaleString()} mi)${overCap && prefs.maxCashDueAtSigning != null ? `, and due at signing is above their $${prefs.maxCashDueAtSigning.toLocaleString()} max` : ""}`}
-                      . The buyer will see it flagged.
+                      This is a <strong>counter-offer</strong> — the term or miles differ from what the buyer asked for ({prefs.termMonths} mo / {prefs.milesPerYear.toLocaleString()} mi). The buyer will see it flagged.
                     </span>
                   </label>
                   <input
                     type="text"
                     value={f.counterNote}
                     onChange={set("counterNote")}
-                    placeholder={overCap && !termMilesDiffer ? "Why — e.g. the acquisition fee can't be rolled into the cap cost on this program" : "Why — e.g. 39 mo carries a better residual this month"}
+                    placeholder="Why — e.g. 39 mo carries a better residual this month"
                     maxLength={300}
                     className={input}
                   />
@@ -411,7 +400,7 @@ export function LeaseCalculatorForm({
           {out("Monthly (pre-tax)", money(d.monthly, 2), { strong: true })}
           {noTaxEstimate ? out("Tax", d.monthly != null ? "estimated at signing" : null) : out("Monthly with est. tax", money(d.taxed, 2))}
           <div className="border-t border-border/60 pt-2">
-            {out("Due at signing", money(d.dasTotal, 2), { strong: true, tone: overCap ? "text-amber-300" : undefined })}
+            {out("Due at signing", money(d.dasTotal, 2), { strong: true })}
             {d.das ? (
               <ul className="mt-1 space-y-0.5 text-[10px] text-ink-muted tabular-nums">
                 <li className="flex justify-between"><span>First month</span><span>{money(d.das.firstMonth, 2)}</span></li>
@@ -425,7 +414,6 @@ export function LeaseCalculatorForm({
             ) : (
               <p className="mt-1 text-[10px] text-ink-faint">Itemized once selling price, residual, money factor and term are in.</p>
             )}
-            {overCap && prefs.maxCashDueAtSigning != null ? <p className="mt-1 text-[10px] font-bold text-amber-300">Over the buyer&apos;s ${prefs.maxCashDueAtSigning.toLocaleString()} max</p> : null}
           </div>
           <div className="border-t border-border/60 pt-2 space-y-1">
             {out("Net cap cost", money(d.capCost))}

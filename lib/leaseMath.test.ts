@@ -69,7 +69,6 @@ describe("wiring — lease deals record dealer quotes through the calculator she
     assert.match(sheet, /msrp: "",\s*capCost: "",\s*capReduction: "",\s*acquisitionFee: "",\s*termMonths: "",\s*milesPerYear: "",\s*residualPercent: "",\s*residualAmount: "",\s*moneyFactor: ""/);
     assert.match(sheet, /expiresAt: "",/);
     assert.match(sheet, /validateLeaseQuote\(quote, prefs/);
-    assert.match(sheet, /overMaxCashDue\(d\.das, prefs\)/);
     assert.doesNotMatch(sheet, /leasehackr|LH score|auction|\bbid\b/i);
     // Render helpers, not nested components — inputs must keep focus while typing.
     assert.doesNotMatch(sheet, /<Field |<ItemList |<Out /);
