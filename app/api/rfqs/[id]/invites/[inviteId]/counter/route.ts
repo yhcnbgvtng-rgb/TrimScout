@@ -10,6 +10,7 @@ import { publicRfqForBuyer } from "@/lib/rfq";
 import { parseBuyerCounter, counterSummary } from "@/lib/buyerCounter";
 import { sendQuoteInviteEmail } from "@/lib/dealerEmail";
 import { buyerCounterHtml, buyerCounterSubject } from "@/lib/quoteInviteEmail";
+import { dealerReference } from "@/lib/dealerReference";
 import { DEALER_EMAIL_BASE_URL } from "@/lib/dealerUnsubscribe";
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string; inviteId: string }> }) {
@@ -41,7 +42,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
         dealerName: invite.dealerName,
         contactName: invite.desk.contactName,
         vehicle: invite.vehicle || { vin: rfq.vin, year: rfq.vehicleYear, make: rfq.vehicleMake, model: rfq.vehicleModel, trim: rfq.vehicleTrim, vdpUrl: null },
-        dealReference: rfq.dealReference || null,
+        dealReference: dealerReference(id, inviteId),
         summary: counterSummary(counter),
         note: counter.note ?? null,
         priorMonthly: invite.quote.lease.monthlyPaymentPreTax,

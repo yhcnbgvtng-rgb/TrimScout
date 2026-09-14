@@ -18,6 +18,7 @@ import { quoteInviteSubject, quoteInviteHtml, type QuoteEmailType } from "@/lib/
 import { sendQuoteInviteEmail } from "@/lib/dealerEmail";
 import { unsubscribeUrlFor, DEALER_EMAIL_BASE_URL } from "@/lib/dealerUnsubscribe";
 import { formatBuyerAlias } from "@/lib/buyerAlias";
+import { dealerReference } from "@/lib/dealerReference";
 
 // The one send path. The buyer's confirm step names a dealership; this
 // route re-derives the desk from the contact directory itself — the
@@ -152,7 +153,8 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
           : { city: null, state: dealerState || null, address: null },
         vehicle,
         buyerAlias: formatBuyerAlias(rfq.buyerUserId),
-        dealReference: rfq.dealReference || null,
+        // The dealer's own number for this request — never the buyer's TS- deal number.
+        dealReference: dealerReference(id, invite.id),
         viewUrl,
         unsubscribeUrl: directoryRow ? unsubscribeUrlFor(directoryRow.id) : null,
         purchaseTimelineLabel: typeof body?.purchaseTimelineLabel === "string" ? body.purchaseTimelineLabel : null,
