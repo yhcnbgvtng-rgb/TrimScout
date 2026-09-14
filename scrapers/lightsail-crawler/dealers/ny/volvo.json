@@ -1,0 +1,16 @@
+[
+  {
+    "id": "volvo-volvo-cars-manhattan",
+    "name": "Volvo Cars Manhattan",
+    "city": "New York",
+    "state": "NY",
+    "make": "Volvo",
+    "domain": "volvocarsmanhattan.com",
+    "sitemapUrl": "https://www.volvocarsmanhattan.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.volvocarsmanhattan.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://volvocarsmanhattan.com/",
+    "lat": null,
+    "lng": null,
+    "domainSource": "listing-verified"
+  }
+]

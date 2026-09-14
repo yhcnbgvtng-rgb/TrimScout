@@ -261,6 +261,9 @@ export async function ensureNjOpsSchema() {
     `ALTER TABLE dealers ADD COLUMN sales_email VARCHAR(255) NULL`,
     `ALTER TABLE dealers ADD COLUMN email_source_url VARCHAR(1024) NULL`,
     `ALTER TABLE dealers ADD COLUMN email_collected_at DATETIME NULL`,
+    `ALTER TABLE vehicles ADD COLUMN window_sticker_url VARCHAR(1024) NULL`,
+    `ALTER TABLE vehicles ADD COLUMN window_sticker_source VARCHAR(64) NULL`,
+    `ALTER TABLE vehicles ADD COLUMN window_sticker_collected_at DATETIME NULL`,
   ]) {
     try {
       await pool.query(ddl);
@@ -429,6 +432,7 @@ export async function syncInventoryToDatabase(brandId, records, { runId = null }
         'interior_color', 'mileage', 'price', 'old_price', 'price_diff', 'msrp', 'base_msrp',
         'total_options_price', 'url', 'image_url', 'status', 'change_type', 'first_seen_date',
         'last_seen_date', 'sold_date', 'days_on_lot', 'options_search_text', 'search_text',
+        'window_sticker_url', 'window_sticker_source', 'window_sticker_collected_at',
       ];
       const vPlaceholders = usable.map(() => `(${vCols.map(() => '?').join(',')})`).join(',');
       const vValues = [];
@@ -453,6 +457,9 @@ export async function syncInventoryToDatabase(brandId, records, { runId = null }
           r.changeType || 'UNCHANGED',
           r.firstSeen || r.lastSeen, r.lastSeen, r.soldDate || null,
           r.daysOnLot || 0, buildOptionsSearchText(r), buildSearchText(r),
+          truncate(r.windowStickerUrl, 1024),
+          truncate(r.windowStickerSource, 64),
+          toMysqlDatetime(r.windowStickerCollectedAt),
         );
       }
       const vSql = `INSERT INTO vehicles (${vCols.join(',')}) VALUES ${vPlaceholders}
@@ -468,7 +475,11 @@ export async function syncInventoryToDatabase(brandId, records, { runId = null }
           image_url = VALUES(image_url), status = VALUES(status), change_type = VALUES(change_type),
           last_seen_date = VALUES(last_seen_date), sold_date = VALUES(sold_date),
           days_on_lot = VALUES(days_on_lot), options_search_text = VALUES(options_search_text),
-          search_text = VALUES(search_text), updated_at = NOW()`;
+          search_text = VALUES(search_text),
+          window_sticker_url = COALESCE(VALUES(window_sticker_url), window_sticker_url),
+          window_sticker_source = COALESCE(VALUES(window_sticker_source), window_sticker_source),
+          window_sticker_collected_at = COALESCE(VALUES(window_sticker_collected_at), window_sticker_collected_at),
+          updated_at = NOW()`;
       // first_seen_date is deliberately NOT in the UPDATE clause — it must
       // never regress on a re-sync/backfill of the same vehicle; the
       // INSERT branch above still seeds it correctly for genuinely new rows.

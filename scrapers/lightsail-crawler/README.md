@@ -200,7 +200,10 @@ Refresh per-brand dealer files after editing `src/nj_dealer_seed.js`:
 
 ```bash
 npm run write-nj-dealers
+npm run write-ny-dealers   # NY from OEM locators / listings only — no brandofcity guesses
 ```
+
+Window sticker (Monroney) URLs on public VDPs are stored as `windowStickerUrl` / `windowStickerSource` / `windowStickerCollectedAt` (MariaDB `vehicles.window_sticker_url`). The PDF is not downloaded in this pass. Challenge pages are skipped.
 
 ### Daily crawl: price history + DOM
 

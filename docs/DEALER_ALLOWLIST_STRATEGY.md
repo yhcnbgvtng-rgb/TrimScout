@@ -44,6 +44,8 @@ Do not implement Akamai or CloudFront bypass, TLS impersonation, or cookie repla
 
 Honda / Toyota / Lexus locators are referenced elsewhere as successful scrapes but this package has no nationwide dump for those brands. Remaining `brandofcity.com` / `volvocars{city}.com` rows stay tagged `pattern-guess` until a locator file is added. Genesis / Stellantis locators stay out of the NJ crawl.
 
+NY lists live at `dealers/ny/<brand>.json` from the same Acura/Porsche dumps and listing hosts (`npm run write-ny-dealers`). No brandofcity guesses. Brands without an in-repo locator stay empty rather than invented.
+
 ## Probe order
 
 1. Sitemap  

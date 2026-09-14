@@ -25,6 +25,7 @@ import {
     loadDealerContacts,
     saveDealerContacts,
 } from './sales_email.js';
+import { applyWindowSticker } from './window_sticker.js';
 
 // One shared V8 context, reused for every vehicle's DDC dataLayer eval
 // (Strategy 1) instead of creating a fresh one per call via
@@ -1118,6 +1119,7 @@ for (let i = 0; i < dealers.length; i++) {
                         // gets the same cleanup. No-op for every other
                         // brand (see modelNormalizer.js's brand dispatcher).
                         vehicle = normalizeVehicleFields(brand.name, vehicle);
+                        applyWindowSticker(vehicle, html, url);
                         currentInventory.set(vehicle.vin, vehicle);
                         dealerCount++;
                         const prev = previousSnapshot[vehicle.vin];

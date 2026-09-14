@@ -18,6 +18,8 @@ import {
 import { classifyFetchResult, isBotProtected, isUncrawlable, pickProbeResult, detectWafVendor, summarizeBotRows, BOT_CLASSES } from '../src/bot_protection.js';
 import { looksLikeBrandCityGuess, applyVerifiedNjDomains, overlayKey } from '../src/nj_verified_domains.js';
 import { buildTablePdf, winAnsiSafe, buildSummaryBlocks } from '../src/pdf_table.js';
+import { extractWindowSticker, applyWindowSticker } from '../src/window_sticker.js';
+import { loadNyDealers, acceptNyDealer } from '../src/ny_policy.js';
 import { computeEta, emptyProgress, writeProgress, readProgress, renderProgressHtml } from '../src/progress.js';
 import { priceChangeVsYesterday, inventoryChangeTypeToPriceChangeType } from '../src/price_diff.js';
 import { captureVehicleDom, loadDomIndex, pruneDomBlobs, hashDom, extractVehicleDom } from '../src/dom_store.js';
@@ -288,6 +290,52 @@ describe('public sales email collect', () => {
       }
     );
     assert.equal(contact.salesEmail, 'info@exampledealer.com');
+  });
+});
+
+describe('window sticker capture (link only)', () => {
+  it('captures a public VDP sticker link and leaves a page without one null', () => {
+    const withLink = extractWindowSticker(
+      `<html><a href="/inventory/window-sticker.pdf" aria-label="View window sticker">Window Sticker</a></html>`,
+      'https://hudsontoyota.com/new/VIN.htm'
+    );
+    assert.equal(withLink.windowStickerUrl, 'https://hudsontoyota.com/inventory/window-sticker.pdf');
+    assert.equal(withLink.windowStickerSource, 'vdp_link');
+    assert.ok(withLink.windowStickerCollectedAt);
+
+    const none = extractWindowSticker('<html><p>No sticker here</p></html>', 'https://hudsontoyota.com/new/VIN.htm');
+    assert.equal(none.windowStickerUrl, null);
+    assert.equal(none.windowStickerSource, null);
+
+    const vehicle = applyWindowSticker({ vin: '4T1B11HK1SU000001' }, '<img alt="Window Sticker" src="/sticker/monroney.png">', 'https://example.com/vdp');
+    assert.match(vehicle.windowStickerUrl, /monroney/);
+    assert.equal(vehicle.windowStickerSource, 'vdp_image');
+  });
+
+  it('does not harvest stickers from challenge pages (same skip as the crawler)', () => {
+    const page = classifyFetchResult({
+      statusCode: 403,
+      headers: { server: 'cloudflare', 'cf-ray': 'x' },
+      body: '<a href="/window-sticker.pdf">Window Sticker</a>',
+    });
+    assert.equal(isBotProtected(page.classification), true);
+  });
+});
+
+describe('NY locator seed (no brandofcity guesses)', () => {
+  it('loads NY in-scope rooftops from OEM locators and listings only', () => {
+    assert.equal(acceptNyDealer({ name: 'Acura of Huntington', state: 'NY', make: 'Acura', domain: 'acuraofhuntington.com' }), true);
+    assert.equal(acceptNyDealer({ name: 'Open Road Acura of Wayne', state: 'NY', make: 'Acura', domain: 'openroadacura.com' }), false);
+    assert.equal(acceptNyDealer({ name: 'Route 1 Ford', state: 'NY', make: 'Ford', domain: 'route1ford.com' }), false);
+    const all = loadNyDealers({ cwd: CRAWLER_ROOT });
+    assert.ok(all.length > 0);
+    assert.ok(all.every((d) => d.state === 'NY'));
+    assert.ok(all.every((d) => isNjBrandIn(d.make)));
+    assert.ok(all.every((d) => !isMegadealerOrSuperstore(d)));
+    assert.ok(all.every((d) => d.domainSource === 'oem-locator' || d.domainSource === 'listing-verified'));
+    const acura = loadNyDealers({ cwd: CRAWLER_ROOT, brand: 'Acura' });
+    assert.ok(acura.length > 0);
+    assert.ok(acura.every((d) => d.make === 'Acura'));
   });
 });
 

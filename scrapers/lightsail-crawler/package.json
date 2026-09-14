@@ -11,6 +11,7 @@
     "dashboard": "node src/dashboard.js",
     "bot-report": "node scripts/dealer-bot-report.mjs",
     "write-nj-dealers": "node scripts/write-nj-dealer-files.mjs",
+    "write-ny-dealers": "node scripts/write-ny-dealer-files.mjs",
     "test": "node --test test/*.test.js"
   },
   "keywords": [

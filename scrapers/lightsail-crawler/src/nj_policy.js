@@ -110,7 +110,7 @@ function publicOrigin(host) {
   return `https://www.${host}`;
 }
 
-export function buildDealerRecord({ id, name, city, domain, make, lat = null, lng = null, sitemapUrl, inventorySitemapUrl, fallbackUrl }) {
+export function buildDealerRecord({ id, name, city, domain, make, state = 'NJ', lat = null, lng = null, sitemapUrl, inventorySitemapUrl, fallbackUrl }) {
   const host = String(domain || '')
     .replace(/^https?:\/\//i, '')
     .replace(/\/.*$/, '')
@@ -120,7 +120,7 @@ export function buildDealerRecord({ id, name, city, domain, make, lat = null, ln
     id: id || slugify(`${make || 'dealer'}-${name || host}`),
     name,
     city: city || null,
-    state: 'NJ',
+    state: String(state || 'NJ').toUpperCase(),
     make: canonicalBrandName(make) || make,
     domain: host,
     sitemapUrl: sitemapUrl || `${origin}/sitemap.xml`,
