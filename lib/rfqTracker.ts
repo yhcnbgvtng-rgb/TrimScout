@@ -80,6 +80,50 @@ export function rfqVehicleSummary(rfq: Parameters<typeof rfqVehicles>[0]): strin
   return vs.length > 1 ? `${first} + ${vs.length - 1} more` : first;
 }
 
+/**
+ * The one lifecycle strip at the top of every Deal Tracker card:
+ * Draft → In progress → Sent, awaiting dealer response → Walked away | Successful.
+ * "Draft" is a saved, unsent wizard draft (no request on the box yet);
+ * "In progress" is a request whose invites are still going out.
+ */
+export type RfqLifecycleStage = "draft" | "in_progress" | "awaiting" | "walked" | "successful";
+export const RFQ_LIFECYCLE: ReadonlyArray<{ id: RfqLifecycleStage; label: string }> = [
+  { id: "draft", label: "Draft" },
+  { id: "in_progress", label: "In progress" },
+  { id: "awaiting", label: "Sent — awaiting dealer response" },
+  { id: "walked", label: "Walked away" },
+  { id: "successful", label: "Successful" },
+];
+
+export function rfqLifecycleStage(rfq: Pick<RfqRequest, "status" | "invites">): RfqLifecycleStage {
+  if (rfq.status === "picked") return "successful";
+  if (rfq.status === "walked") return "walked";
+  const open = rfq.invites.filter((i) => i.status !== "declined" && i.status !== "expired");
+  if (open.length === 0) return "in_progress";
+  if (open.some((i) => i.status === "invited" && (i.deliveryStatus ?? "queued") === "queued")) return "in_progress";
+  return "awaiting";
+}
+
+/** One line under the strip: what's actually happening at this stage. */
+export function rfqLifecycleDetail(rfq: Pick<RfqRequest, "status" | "invites">): string {
+  const quotes = rfq.invites.filter((i) => i.quote).length;
+  const sent = rfq.invites.filter((i) => i.status !== "declined" && i.status !== "expired").length;
+  switch (rfqLifecycleStage(rfq)) {
+    case "draft":
+      return "Not sent yet — pick up where you left off.";
+    case "in_progress":
+      return sent === 0 ? "No dealer is on this request yet." : `Sending to ${sent} dealer${sent === 1 ? "" : "s"}…`;
+    case "awaiting":
+      return quotes === 0
+        ? `${sent} dealer${sent === 1 ? "" : "s"} have it — none has replied yet. They answer on their own time.`
+        : `${quotes} of ${sent} dealer${sent === 1 ? "" : "s"} replied — compare and pick one, or walk away.`;
+    case "walked":
+      return "You walked away from this request.";
+    case "successful":
+      return "You chose a quote — the dealer has your pick.";
+  }
+}
+
 export type RfqTrackerStatus = "awaiting" | "quotes_in" | "closed_picked" | "closed_walked";
 
 export function rfqTrackerStatus(rfq: Pick<RfqRequest, "status" | "invites">): RfqTrackerStatus {

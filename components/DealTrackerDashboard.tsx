@@ -4,7 +4,8 @@ import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { BiddingRequest, DealerBid, OfferCloseClockView } from "../lib/types";
 import type { RfqRequest } from "../lib/rfq";
-import { relativeTime, rfqDealNumber, rfqQuoteTypeLabel, rfqTrackerStatus, rfqTrackerStatusLabel, rfqVehicleSummary } from "../lib/rfqTracker";
+import { RFQ_LIFECYCLE, relativeTime, rfqDealNumber, rfqLifecycleDetail, rfqLifecycleStage, rfqQuoteTypeLabel, rfqTrackerStatus, rfqTrackerStatusLabel, rfqVehicleSummary, type RfqLifecycleStage } from "../lib/rfqTracker";
+import { readQuoteDraft } from "../lib/quoteDraft";
 import { formatCurrency } from "../lib/otdCalculator";
 import { formatDealStructures } from "../lib/dealStructure";
 import { reviewTargetFromVehicle } from "../lib/fordCompetitionUi";
@@ -40,6 +41,48 @@ interface DealTrackerDashboardProps {
   onToggleTradeIn: (requestId: string, hasTradeIn: boolean) => void;
 }
 
+/**
+ * The lifecycle strip at the top of a quote-request card: Draft → In
+ * progress → Sent, awaiting dealer response → Walked away | Successful.
+ * Reached stages are ticked, the current one is lit, the two endings sit
+ * side by side and only the one that happened lights up.
+ */
+export function QuoteStatusStrip({ stage, detail }: { stage: RfqLifecycleStage; detail: string }) {
+  const order = ["draft", "in_progress", "awaiting"] as const;
+  const idx = stage === "walked" || stage === "successful" ? 3 : order.indexOf(stage);
+  const node = (id: RfqLifecycleStage, label: string) => {
+    const ending = id === "walked" || id === "successful";
+    const pos = ending ? 3 : order.indexOf(id as (typeof order)[number]);
+    const isCurrent = id === stage;
+    const reached = pos < idx || isCurrent;
+    const tone = isCurrent
+      ? id === "walked" ? "bg-rose-500/15 text-rose-300 border-rose-500/50" : id === "successful" ? "bg-emerald-500 text-black border-emerald-500" : "bg-emerald-500/15 text-emerald-300 border-emerald-500/50"
+      : reached ? "bg-border/60 text-ink-light border-border" : "bg-transparent text-ink-faint border-border/60";
+    return (
+      <span key={id} className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-bold whitespace-nowrap ${tone}`} data-stage={id} aria-current={isCurrent ? "step" : undefined}>
+        {reached && !isCurrent && !ending ? "✓ " : ""}{label}
+      </span>
+    );
+  };
+  return (
+    <div className="space-y-1" data-testid="quote-status-strip" data-current={stage}>
+      <div className="flex flex-wrap items-center gap-1">
+        {RFQ_LIFECYCLE.filter((x) => x.id !== "walked" && x.id !== "successful").map((x, i) => (
+          <React.Fragment key={x.id}>
+            {i > 0 ? <span className="text-ink-faint">›</span> : null}
+            {node(x.id, x.label)}
+          </React.Fragment>
+        ))}
+        <span className="text-ink-faint">›</span>
+        {node("walked", "Walked away")}
+        <span className="text-[10px] text-ink-faint">or</span>
+        {node("successful", "Successful")}
+      </div>
+      <p className="text-[11px] text-ink-muted">{detail}</p>
+    </div>
+  );
+}
+
 // One deal is the hero here — the buyer's own profile, privacy status, and
 // zip now live in the header account menu (see Navbar.tsx) instead of a
 // competing card at the top of this page. Stats that used to sit in two
@@ -58,6 +101,18 @@ export const DealTrackerDashboard: React.FC<DealTrackerDashboardProps> = ({
   const [termsOpenById, setTermsOpenById] = useState<Record<string, boolean>>({});
 
   const activeRequests = requests.filter((r) => r.status === "active" || r.status === "expired");
+  // A saved, unsent wizard draft shows as its own "Draft" card at the top.
+  const [draftSummary, setDraftSummary] = useState<string | null>(null);
+  useEffect(() => {
+    try {
+      const d = readQuoteDraft();
+      if (!d) return;
+      const v = (d.state as { selectedVehicle?: { year?: number; make?: string; model?: string; trim?: string } | null }).selectedVehicle;
+      setDraftSummary(v ? [v.year, v.make, v.model, v.trim].filter(Boolean).join(" ") : "Quote request");
+    } catch {
+      /* no storage — no draft */
+    }
+  }, []);
   const focusRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
     if (focusRfqId && focusRef.current) focusRef.current.scrollIntoView({ block: "center", behavior: "smooth" });
@@ -66,9 +121,23 @@ export const DealTrackerDashboard: React.FC<DealTrackerDashboardProps> = ({
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6 lg:px-8 space-y-8 animate-fadeIn">
+      {draftSummary ? (
+        <div className="space-y-3" data-testid="quote-draft">
+          <h2 className="text-sm font-bold text-white">Quote requests</h2>
+          <div className="rounded-2xl border border-dashed border-border bg-surface p-5 space-y-3">
+            <QuoteStatusStrip stage="draft" detail="Not sent yet — pick up where you left off." />
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <p className="text-sm font-semibold text-white">{draftSummary}</p>
+              <button type="button" onClick={onStartNewBid} className="inline-flex items-center gap-1 rounded-xl bg-emerald-500 px-3 py-2 text-xs font-extrabold text-black hover:bg-emerald-400">
+                Resume <ChevronRight className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
       {sortedQuoteRequests.length > 0 ? (
         <div className="space-y-3" data-testid="quote-requests">
-          <h2 className="text-sm font-bold text-white">Quote requests</h2>
+          {!draftSummary ? <h2 className="text-sm font-bold text-white">Quote requests</h2> : null}
           {sortedQuoteRequests.map((rfq) => {
             const status = rfqTrackerStatus(rfq);
             const tone =
@@ -82,6 +151,7 @@ export const DealTrackerDashboard: React.FC<DealTrackerDashboardProps> = ({
                 className={`rounded-2xl border bg-surface p-5 space-y-3 ${focused ? "border-emerald-500/60 shadow-lg shadow-emerald-500/10" : "border-border"}`}
                 data-testid={focused ? "quote-request-focused" : undefined}
               >
+                <QuoteStatusStrip stage={rfqLifecycleStage(rfq)} detail={rfqLifecycleDetail(rfq)} />
                 <div className="flex flex-wrap items-start justify-between gap-2">
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
