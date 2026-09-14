@@ -32,27 +32,42 @@ describe("inventoryDealerForVin", () => {
   });
 });
 
-describe("resolveVehicleDealer — VIN first, link only as a fallback, never invented", () => {
-  it("1. an inventory sighting of the VIN wins over the sticker and the link", async () => {
+describe("resolveVehicleDealer — the store advertising the car first, the VIN only as a fallback, never invented", () => {
+  it("1. the link's store wins over the sticker's sold-to dealer; the ship-to store is kept as a note", async () => {
+    const v = await resolveVehicleDealer(vehicle(UNSEEN), { dealer: LINK }, { name: "Route 23 Auto Mall", city: "Butler", state: "NJ", zip: "07405" });
+    assert.equal(v.location.dealerSource, "listing_domain");
+    assert.equal(v.location.dealerName, "Paul Miller BMW");
+    assert.equal(v.location.dealerConfirmed, true);
+    assert.equal(v.location.factoryShipTo?.dealerName, "Route 23 Auto Mall");
+    assert.equal(v.location.factoryShipTo?.state, "NJ");
+  });
+
+  it("1b. the link's store wins over an inventory sighting too", async () => {
     const v = await resolveVehicleDealer(vehicle(SEEN), { dealer: LINK }, { name: "SOME OTHER FORD", state: "TX" });
+    assert.equal(v.location.dealerSource, "listing_domain");
+    assert.equal(v.location.dealerName, "Paul Miller BMW");
+    assert.ok(v.location.factoryShipTo?.dealerName, "the sighting's rooftop is the note");
+  });
+
+  it("1c. same store on both sides → no note", async () => {
+    const v = await resolveVehicleDealer(vehicle(UNSEEN), { dealer: LINK }, { name: "Paul Miller BMW Inc", city: "Wayne", state: "NJ" });
+    assert.equal(v.location.dealerName, "Paul Miller BMW");
+    assert.equal(v.location.factoryShipTo, null);
+  });
+
+  it("2. without a link store, an inventory sighting of the VIN wins over the sticker", async () => {
+    const v = await resolveVehicleDealer(vehicle(SEEN), {}, { name: "SOME OTHER FORD", state: "TX" });
     assert.equal(v.location.dealerSource, "inventory");
     assert.ok(v.location.dealerName, "the sighting's rooftop (or its directory spelling) is named");
     assert.equal(v.location.dealerConfirmed, true);
-    assert.notEqual(v.location.dealerName, "Paul Miller BMW");
     assert.notEqual(v.location.dealerName, "SOME OTHER FORD");
   });
 
-  it("2. the sticker's sold-to dealer wins over the link", async () => {
-    const v = await resolveVehicleDealer(vehicle(UNSEEN), { dealer: LINK }, { name: "Route 23 Auto Mall", city: "Butler", state: "NJ", zip: "07405" });
+  it("3. without a link store or a sighting, the sticker's sold-to dealer fills in — unconfirmed", async () => {
+    const v = await resolveVehicleDealer(vehicle(UNSEEN), {}, { name: "Route 23 Auto Mall", city: "Butler", state: "NJ", zip: "07405" });
     assert.equal(v.location.dealerSource, "window_sticker");
     assert.equal(v.location.dealerName, "Route 23 Auto Mall");
     assert.equal(v.location.dealerConfirmed, false, "a ship-to store may not be where the car sits now");
-  });
-
-  it("3. only with nothing from the VIN does the link's store fill in", async () => {
-    const v = await resolveVehicleDealer(vehicle(UNSEEN), { dealer: LINK }, undefined);
-    assert.equal(v.location.dealerSource, "listing_domain");
-    assert.equal(v.location.dealerName, "Paul Miller BMW");
   });
 
   it("4. with nothing anywhere, the dealer is blank — the mapper's placeholder never ships", async () => {

@@ -62,18 +62,19 @@ export function blockedDealerPayload(dealer: DealerPageIdentity | undefined) {
 
 /**
  * Settle a sticker-built vehicle's dealership without any paid lookup.
- * The VIN comes first, the link only as a fallback, and nothing is
- * invented:
+ * The store advertising the car comes first, the VIN only as a fallback,
+ * and nothing is invented:
  *
- *   1. our own inventory crawl last saw this VIN at a rooftop
+ *   1. the store the pasted link's hostname resolved to (resolvePasteVin)
+ *      — the dealership advertising the car on its own website is where
+ *      the request goes. A factory ship-to store that differs is kept on
+ *      the vehicle as factoryShipTo, a note, never the recipient;
+ *   2. our own inventory crawl last saw this VIN at a rooftop
  *      (lib/inventoryVinLookup.ts) — cross-referenced against the
  *      directory so it carries the directory's spelling and address;
- *   2. the window sticker's sold-to block, cross-referenced the same way —
+ *   3. the window sticker's sold-to block, cross-referenced the same way —
  *      the store the factory shipped to, usually but not always where it
  *      sits today, hence dealerConfirmed: false;
- *   3. only if the VIN yielded nothing: the store the pasted link's
- *      hostname resolved to (resolvePasteVin). A VIN-resolved dealer is
- *      never overwritten by a link-derived one;
  *   4. nothing — location blanked, dealerSource "unknown", so the UI can
  *      say "dealer not found". The sticker→vehicle mappers' placeholders
  *      ("Ford dealer") never ship.
@@ -84,8 +85,28 @@ export async function resolveVehicleDealer(
   soldTo: StickerSoldTo | null | undefined
 ): Promise<Vehicle> {
   const rows = await dealerDirectoryOrEmpty();
-
   const seen = inventoryDealerForVin(vehicle.vin);
+
+  const listing = resolved.dealer;
+  if (listing?.name) {
+    const origin = seen?.dealerName ? { name: seen.dealerName, city: seen.city, state: seen.state } : soldTo?.name?.trim() ? soldTo : null;
+    const originRow = origin ? crossReferenceStickerDealer(rows, origin) : null;
+    const originName = originRow ? originRow.dealerName : origin?.name?.trim() || "";
+    const factoryShipTo =
+      originName && !sameDealerName(originName, listing.name)
+        ? { dealerName: originName, city: (originRow ? originRow.city : origin?.city) || "", state: ((originRow ? originRow.state : origin?.state) || "").toUpperCase() }
+        : null;
+    return withDealer(vehicle, {
+      dealerName: listing.name,
+      city: listing.city || "",
+      state: listing.state || "",
+      zip: listing.zip || undefined,
+      dealerConfirmed: true,
+      dealerSource: listing.source === "directory_domain" ? "listing_domain" : "listing_page",
+      factoryShipTo,
+    });
+  }
+
   if (seen?.dealerName) {
     const row = crossReferenceStickerDealer(rows, { name: seen.dealerName, city: seen.city, state: seen.state });
     return withDealer(vehicle, {
@@ -110,18 +131,6 @@ export async function resolveVehicleDealer(
     });
   }
 
-  const listing = resolved.dealer;
-  if (listing?.name) {
-    return withDealer(vehicle, {
-      dealerName: listing.name,
-      city: listing.city || "",
-      state: listing.state || "",
-      zip: listing.zip || undefined,
-      dealerConfirmed: true,
-      dealerSource: listing.source === "directory_domain" ? "listing_domain" : "listing_page",
-    });
-  }
-
   return withDealer(vehicle, {
     dealerName: "",
     city: "",
@@ -132,9 +141,16 @@ export async function resolveVehicleDealer(
   });
 }
 
+/** "Crown Ford Inc" and "Crown Ford" are the same store; punctuation and suffixes don't count. */
+function sameDealerName(a: string, b: string | null | undefined): boolean {
+  const norm = (s: string) => s.toLowerCase().replace(/\b(inc|llc|ltd|co|corp|of)\b/g, "").replace(/[^a-z0-9]/g, "");
+  const x = norm(a), y = norm(b || "");
+  return Boolean(x && y) && (x === y || x.includes(y) || y.includes(x));
+}
+
 function withDealer(
   vehicle: Vehicle,
-  dealer: Pick<Vehicle["location"], "dealerName" | "city" | "state" | "zip" | "dealerConfirmed" | "dealerSource">
+  dealer: Pick<Vehicle["location"], "dealerName" | "city" | "state" | "zip" | "dealerConfirmed" | "dealerSource" | "factoryShipTo">
 ): Vehicle {
   return { ...vehicle, location: { ...vehicle.location, ...dealer } };
 }
