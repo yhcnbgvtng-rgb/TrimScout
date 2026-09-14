@@ -38,10 +38,12 @@ describe("deal structure multi-select", () => {
   });
 });
 
-describe("BiddingWizard — Step 1 is the vehicle step; Step 2 is quote setup", () => {
+describe("BiddingWizard — Step 1 vehicle; Step 2 payment only; Step 3 quote format (the locks, as a matrix)", () => {
   const src = fs.readFileSync(path.join(process.cwd(), "components/BiddingWizard.tsx"), "utf8");
-  const step1 = src.slice(src.indexOf("STEP 1: VEHICLE"), src.indexOf("STEP 2: QUOTE SETUP"));
-  const step2 = src.slice(src.indexOf("STEP 2: QUOTE SETUP"), src.indexOf("STEP 3: DIRECT OFFER"));
+  const step1 = src.slice(src.indexOf("STEP 1: VEHICLE"), src.indexOf("STEP 2: PAYMENT"));
+  const paymentStep = src.slice(src.indexOf("STEP 2: PAYMENT"), src.indexOf("STEP 3: QUOTE FORMAT"));
+  // The lock sections (term / down / band / ZIP…) live on Step 3 now.
+  const step2 = src.slice(src.indexOf("STEP 3: QUOTE FORMAT"), src.indexOf("STEP 4: DIRECT OFFER"));
 
   it("(1) Step 1 has the vehicle flow and no lease term/miles or payment chips", () => {
     assert.ok(step1.length > 0 && step2.length > 0);
@@ -53,12 +55,15 @@ describe("BiddingWizard — Step 1 is the vehicle step; Step 2 is quote setup", 
     assert.doesNotMatch(step1, /Add additional vehicles|showAlternates/, "the two alternate slots are always shown — no reveal link");
     assert.doesNotMatch(step1, /trade in|Trade-in/i, "no trade-in question on Step 1");
     assert.doesNotMatch(step1, /LEASE_TERMS\.map|LEASE_MILES\.map|Lease preferences|DEAL_STRUCTURE_LABELS|toggleDealStructure/);
-    assert.match(src, /STEP_LABELS = \["Vehicle", "Quote setup", "Dealers", "Review & Send"\]/);
+    assert.match(src, /STEP_LABELS = \["Vehicle", "Payment", "Quote format", "Dealers", "Review & Send"\]/);
   });
 
-  it("(2) Step 2 offers Lease | Finance | Cash as equal options, none assumed, with type-specific prefs", () => {
+  it("(2) Step 2 offers Lease | Finance | Cash as equal options, none assumed — and nothing else; Step 3 holds the type-specific locks", () => {
     assert.match(src, /useState<DealStructureMethod \| null>\(null\)/);
-    assert.match(step2, /\["lease", "finance", "cash"\] as const/);
+    assert.match(paymentStep, /\["lease", "finance", "cash"\] as const/);
+    assert.doesNotMatch(paymentStep, /LEASE_TERMS\.map|Down payment|Credit band|Your ZIP|missing-locks/, "payment step is the tiles only");
+    assert.match(step2, /<QuoteFormatMatrix quoteType=\{quoteType\} \/>/);
+    assert.match(step2, /data-testid="quote-format-step"/);
     assert.match(step2, /quoteType === "lease" && \(/);
     assert.match(step2, /LEASE_TERMS\.map/);
     assert.match(step2, /LEASE_MILES\.map/);
@@ -84,16 +89,18 @@ describe("BiddingWizard — Step 1 is the vehicle step; Step 2 is quote setup", 
     assert.match(src, /leasePrefs:\s*quoteType === "lease" && !isUsed\s*\? \{\s*termMonths: leaseTerm \|\| null,\s*milesPerYear: leaseMiles \|\| null,\s*zip:/);
   });
 
-  it("(4) Continue into Step 2 needs the vehicle; out of Step 2 needs the type's required prefs; Step 3 needs ≥1 named desk", () => {
+  it("(4) Continue into Step 2 needs the vehicle; out of Step 2 a payment method; out of Step 3 every lock; Step 4 needs ≥1 named desk", () => {
     assert.match(src, /if \(step === 1 && !vehicleImported\) return;/);
-    assert.match(src, /if \(step === 2 && !quoteSetupComplete\) return;/);
+    assert.match(src, /const paymentChosen = Boolean\(quoteType\) && !\(quoteType === "lease" && isUsed\);/);
+    assert.match(src, /if \(step === 2 && !paymentChosen\) return;/);
+    assert.match(src, /if \(step === 3 && !quoteSetupComplete\) return;/);
     // Every lock must be set: the gate is "nothing missing", and the empty state names what is.
     assert.match(src, /const quoteSetupComplete = Boolean\(quoteType\) && missingLocks\.length === 0 && !\(quoteType === "lease" && isUsed\);/);
     assert.match(src, /quoteType === "finance"\s*\? missingFinanceLocks\(\{ termMonths: financeTerm, downPayment, creditBand, zip: huntZip \}\)/);
     assert.match(src, /quoteType === "cash"\s*\? zipOk \? \[\] : \["ZIP"\]\s*: \[\]/);
     assert.match(step2, /data-testid="missing-locks"/);
-    assert.match(src, /step === 3 && directOfferMode && confirmedDeskCount === 0/);
-    assert.match(src, /TOTAL_STEPS = 4/);
+    assert.match(src, /step === 4 && directOfferMode && confirmedDeskCount === 0/);
+    assert.match(src, /TOTAL_STEPS = 5/);
   });
 
   it("has no All control or all_three id", () => {
