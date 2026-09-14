@@ -40,14 +40,17 @@ describe("deal structure multi-select", () => {
 
 describe("BiddingWizard — Step 1 is the vehicle step; Step 2 is quote setup", () => {
   const src = fs.readFileSync(path.join(process.cwd(), "components/BiddingWizard.tsx"), "utf8");
-  const step1 = src.slice(src.indexOf("STEP 1: PAYMENT, VEHICLE & TRADE-IN FLAG"), src.indexOf("STEP 2: QUOTE SETUP"));
+  const step1 = src.slice(src.indexOf("STEP 1: VEHICLE"), src.indexOf("STEP 2: QUOTE SETUP"));
   const step2 = src.slice(src.indexOf("STEP 2: QUOTE SETUP"), src.indexOf("STEP 3: DIRECT OFFER"));
 
   it("(1) Step 1 has the vehicle flow and no lease term/miles or payment chips", () => {
     assert.ok(step1.length > 0 && step2.length > 0);
     assert.match(step1, /One car is required to continue/);
     assert.match(step1, /Only send this to dealerships in my state/);
-    assert.match(step1, /Add additional vehicles/);
+    assert.match(step1, /label="Alternate vehicle 1"/);
+    assert.match(step1, /label="Alternate vehicle 2"/);
+    assert.doesNotMatch(step1, /Add additional vehicles|showAlternates/, "the two alternate slots are always shown — no reveal link");
+    assert.doesNotMatch(step1, /trade in|Trade-in/i, "no trade-in question on Step 1");
     assert.doesNotMatch(step1, /LEASE_TERMS\.map|LEASE_MILES\.map|Lease preferences|DEAL_STRUCTURE_LABELS|toggleDealStructure/);
     assert.match(src, /STEP_LABELS = \["Vehicle", "Quote setup", "Dealers", "Review & Send"\]/);
   });
