@@ -103,9 +103,9 @@ export const DealTrackerDashboard: React.FC<DealTrackerDashboardProps> = ({
                   </Link>
                 </div>
                 {sent ? (
-                  <div className="rounded-xl border border-emerald-500/40 bg-emerald-500/5 px-3 py-2 space-y-1">
-                    <p className="text-[11px] font-bold text-emerald-300">
-                      Sent to {sent.rows.filter((r) => r.sent).length} desk{sent.rows.filter((r) => r.sent).length === 1 ? "" : "s"} — each replies on its own time through the lease calculator.
+                  <div className="rounded-xl border border-amber-500/40 bg-amber-500/5 px-3 py-2 space-y-1">
+                    <p className="text-[11px] font-bold text-amber-300">
+                      Submitted to {sent.rows.filter((r) => r.sent).length} desk{sent.rows.filter((r) => r.sent).length === 1 ? "" : "s"} — pending review. Nothing reaches a dealer until we approve it; we&apos;ll email you once it&apos;s sent.
                     </p>
                     <ul className="space-y-0.5">
                       {sent.rows.map((r) => (

@@ -1588,7 +1588,9 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   if (!isOpen) return null;
 
   if (sentPackage) {
-    const sentCount = sentPackage.rows.filter((r) => r.stage !== "blocked").length;
+    // Every invite lands "queued" and stays there until an admin reviews the
+    // request and approves it — nothing here has reached a dealer yet.
+    const queuedCount = sentPackage.rows.filter((r) => r.stage !== "blocked").length;
     const stageTone = (stage: QuoteInviteStage | "blocked") =>
       stage === "blocked"
         ? "bg-amber-500/15 text-amber-300"
@@ -1603,10 +1605,10 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
               <CheckCircle2 className="h-7 w-7" />
             </div>
             <h2 className="mt-3 text-lg font-black text-white">
-              {sentCount === 0 ? "Nothing was sent" : `Quote request sent to ${sentCount} desk${sentCount === 1 ? "" : "s"}`}
+              {queuedCount === 0 ? "Nothing was submitted" : `Submitted to ${queuedCount} desk${queuedCount === 1 ? "" : "s"} — pending review`}
             </h2>
             <p className="mt-1 text-xs text-ink-muted">
-              Each desk replies on its own time. We&apos;ll show every quote as it comes in — pick one, or walk away.
+              We hold every request for a quick review before it reaches a dealer. We&apos;ll email you once it&apos;s approved and sent, then show every quote as it comes in — pick one, or walk away.
             </p>
           </div>
           <ul className="space-y-1.5">
