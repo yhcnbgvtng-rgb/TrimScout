@@ -71,6 +71,7 @@ describe("BiddingWizard — Step 1 vehicle; Step 2 payment only; Step 3 quote fo
     // Dealer on top, the car under it, then every dealer's return as a vertical equation.
     assert.match(src, /data-testid="format-dealer"[\s\S]*?data-testid="format-vehicle"[\s\S]*?data-testid="format-equation"/);
     assert.deepEqual(QUOTE_EQUATIONS.cash.lines.map((l) => `${l.op} ${l.label}`), ["+ Selling price", "+ Add-ons", "+ Mandatory fees", "+ Sales tax", "− Rebates / credits", "= Out the door"]);
+    assert.match(src, /\{quoteType !== "lease" \? \(\s*<div className="space-y-1\.5" data-testid="format-equation">/, "no equation block on a lease request");
     assert.doesNotMatch(src, /You lock<\/p>/, "the locks are asked once, in the fields below — not listed again");
     assert.match(step2, /data-testid="quote-format-step"/);
     assert.match(step2, /quoteType === "lease" && \(/);

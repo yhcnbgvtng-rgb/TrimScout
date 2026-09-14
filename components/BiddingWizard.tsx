@@ -166,7 +166,10 @@ function QuoteFormatMatrix({
           </p>
         </div>
       ) : null}
-      {/* 3 — what every dealer returns, as a vertical equation */}
+      {/* 3 — what every dealer returns, as a vertical equation. Cash and
+          finance only: a lease isn't an out-the-door sum, and its sheet is
+          spelled out by the lease calculator itself. */}
+      {quoteType !== "lease" ? (
       <div className="space-y-1.5" data-testid="format-equation">
         <p className="text-[10px] font-bold uppercase tracking-wide text-emerald-400">Every dealer returns {eq.returns}</p>
         <div className="space-y-1">
@@ -179,6 +182,7 @@ function QuoteFormatMatrix({
           ))}
         </div>
       </div>
+      ) : null}
     </div>
   );
 }
