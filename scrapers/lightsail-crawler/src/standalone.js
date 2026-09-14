@@ -19,6 +19,7 @@ import {
     pruneDomBlobs,
 } from './dom_store.js';
 import { inventoryChangeTypeToPriceChangeType } from './price_diff.js';
+import { mergeInventorySnapshot } from './inventory_merge.js';
 import {
     collectSalesEmail,
     applyContactToDealer,
@@ -1204,111 +1205,32 @@ console.log(`\n🎉 Nationwide Crawl Complete!`);
 console.log(`Total Active ${brand.name} Centers with Live Inventory: ${activeDealersCount}`);
 console.log(`Total Live Vehicles Tracked: ${currentInventory.size}`);
 
-// Compute Nationwide Diffs
-const updatedSnapshot = {};
-const priceDrops = [];
-const priceIncreases = [];
-const newArrivals = [];
-const soldVehicles = [];
-const allRecords = [];
+// Compute Nationwide Diffs — merged against the FULL shared snapshot
+// (every brand ever crawled into this data dir), but scoped so this run
+// only ever touches its own brand's dealers. See inventory_merge.js's
+// header comment for the cross-brand data-loss bug this fixes: without
+// that scoping, every other brand's active inventory got mislabeled
+// SOLD_OR_REMOVED on every run, and then dropped entirely two runs later.
+const { updatedSnapshot, allRecords, newArrivals, priceDrops, priceIncreases, soldVehicles } = mergeInventorySnapshot({
+    previousSnapshot,
+    currentInventory,
+    dealers,
+    failedDealerNames,
+    todayDate,
+    todayIso,
+    toPriceChangeType: inventoryChangeTypeToPriceChangeType,
+});
 
-for (const [vin, cur] of currentInventory.entries()) {
-    const prev = previousSnapshot[vin];
-    let changeType = 'UNCHANGED';
-    let priceDiff = 0;
-    let oldPrice = null;
-    let daysOnLot = 0;
-    let firstSeen = todayDate;
-    let priceHistory = [];
-
-    if (!prev) {
-        changeType = 'NEW_ARRIVAL';
-        daysOnLot = 0;
-        firstSeen = todayDate;
-        priceHistory = cur.price ? [{ date: todayDate, price: cur.price }] : [];
-        newArrivals.push(cur);
-    } else {
-        firstSeen = prev.firstSeen || todayDate;
-        priceHistory = prev.priceHistory || [];
-        const prevFirst = new Date(firstSeen).getTime();
-        const now = new Date(todayDate).getTime();
-        daysOnLot = Math.max(0, Math.floor((now - prevFirst) / (1000 * 60 * 60 * 24)));
-
-        if (cur.price && prev.price && cur.price !== prev.price) {
-            priceDiff = cur.price - prev.price;
-            oldPrice = prev.price;
-            priceHistory.push({ date: todayDate, price: cur.price });
-
-            if (priceDiff < 0) {
-                changeType = 'PRICE_DROP';
-                priceDrops.push({ ...cur, oldPrice, priceDiff, daysOnLot });
-            } else {
-                changeType = 'PRICE_INCREASE';
-                priceIncreases.push({ ...cur, oldPrice, priceDiff, daysOnLot });
-            }
-        }
-    }
-
-    const record = {
-        ...cur,
-        oldPrice,
-        priceDiff,
-        daysOnLot,
-        firstSeen,
-        lastSeen: todayDate,
-        changeType,
-        priceChangeType: inventoryChangeTypeToPriceChangeType(changeType),
-        priceHistory,
-        status: 'ACTIVE',
-        updatedAt: todayIso,
-    };
-
-    updatedSnapshot[vin] = record;
-    allRecords.push(record);
-}
-
-// Identify Sold / Removed Vehicles
-for (const [vin, prev] of Object.entries(previousSnapshot)) {
-    if (!currentInventory.has(vin) && prev.status === 'ACTIVE') {
-        // configDealerName is the crawl-loop dealer key (reliable even for
-        // shared-inventory dealer groups where the vehicle's own scraped
-        // dealerName differs — see the DDC extraction comment above); older
-        // records predate that field, so fall back to dealerName for those.
-        const dealerKey = prev.configDealerName || prev.dealerName;
-        if (failedDealerNames.has(dealerKey)) {
-            // This vehicle's dealer produced zero real evidence this run
-            // (bot-blocked, fetch failure, or extraction failure) — carry it
-            // forward unchanged instead of marking it sold. Worst case a
-            // genuinely-sold vehicle stays ACTIVE one extra day; the
-            // alternative (mass-marking a blocked dealer's whole active
-            // inventory SOLD, confirmed happening live) is far worse.
-            updatedSnapshot[vin] = prev;
-            allRecords.push(prev);
-            continue;
-        }
-
-        const soldRecord = {
-            ...prev,
-            status: 'SOLD_OR_REMOVED',
-            changeType: 'SOLD',
-            priceChangeType: 'SOLD',
-            soldDate: todayDate,
-            lastSeen: todayDate,
-            updatedAt: todayIso,
-        };
-        try {
-            await recordSoldDom({
-                vin,
-                date: todayDate,
-                yesterdayPrice: prev.price ?? null,
-                cwd: process.cwd(),
-                index: domIndex,
-            });
-        } catch {}
-        updatedSnapshot[vin] = soldRecord;
-        soldVehicles.push(soldRecord);
-        allRecords.push(soldRecord);
-    }
+for (const soldRecord of soldVehicles) {
+    try {
+        await recordSoldDom({
+            vin: soldRecord.vin,
+            date: todayDate,
+            yesterdayPrice: soldRecord.price ?? null,
+            cwd: process.cwd(),
+            index: domIndex,
+        });
+    } catch {}
 }
 
 // Persist Daily Changes & Latest Inventory Files
@@ -1355,7 +1277,11 @@ console.log('====================================================\n');
 // Automatically trigger enrichment pipeline on all captured inventory
 try {
     console.log('⚡ Triggering automatic spec enrichment pipeline...');
-    await runEnrichmentPipeline(Infinity, brand, { brandId: dbBrandId, runId: dbRunId });
+    // Only this run's own dealers' vehicles need enrichment — they're the
+    // ones just (re)crawled with fresh dealerListedOptions. Every other
+    // brand's already-enriched vehicles in the shared inventory file are
+    // left completely alone (see enricher.js's vinsToEnrich comment).
+    await runEnrichmentPipeline(Infinity, brand, { brandId: dbBrandId, runId: dbRunId }, Array.from(currentInventory.keys()));
 } catch (enrichErr) {
     console.error('Enrichment step warning:', enrichErr.message);
 }

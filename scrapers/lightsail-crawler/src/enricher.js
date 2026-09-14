@@ -2,9 +2,18 @@ import { gotScraping } from 'got-scraping';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
-const DATA_DIR = path.resolve(process.cwd(), 'data');
-const CACHE_PATH = path.join(DATA_DIR, 'enriched_cache.json');
-const INVENTORY_PATH = path.join(DATA_DIR, 'national_inventory_latest.json');
+// Computed fresh (not a module-level constant) so a test can chdir into a
+// scratch directory before calling runEnrichmentPipeline and get isolated
+// paths — process.cwd() never actually changes mid-run in production, so
+// this is behavior-preserving there.
+function getDataPaths() {
+  const dataDir = path.resolve(process.cwd(), 'data');
+  return {
+    dataDir,
+    cachePath: path.join(dataDir, 'enriched_cache.json'),
+    inventoryPath: path.join(dataDir, 'national_inventory_latest.json'),
+  };
+}
 
 // Canonical Porsche Base MSRP Reference Table
 export const PORSCHE_BASE_MSRP = {
@@ -179,10 +188,26 @@ export function resolveFactoryOptions(vehicle, brand) {
   };
 }
 
-export async function runEnrichmentPipeline(limit = Infinity, brand = null, dbRunContext = null) {
+// `vinsToEnrich` scopes the (potentially network-bound, always sequential)
+// per-vehicle work below to just the vehicles this invocation's caller
+// actually has fresh data for — e.g. standalone.js passes the VINs from
+// the brand/dealer crawl that just ran. Without this, every brand run
+// reprocessed the ENTIRE cumulative `national_inventory_latest.json`
+// (every brand/dealer ever crawled into that shared file), so a run's cost
+// grew with the whole file's size rather than with that run's own new
+// vehicles — confirmed live: Volvo (1 dealer) took 2m14s while Toyota (31
+// dealers, last in a 12-brand queue) took 29m30s, a blowup tracking queue
+// position/cumulative history size, not Toyota's own dealer count.
+// `null` (the default, and what the CLI entry point below uses) keeps the
+// original "enrich/backfill everything in the file" behavior, which is a
+// deliberately supported standalone use (see the SKIP_NHTSA_ENRICHMENT
+// comment above about backfilling missed specs without re-crawling).
+export async function runEnrichmentPipeline(limit = Infinity, brand = null, dbRunContext = null, vinsToEnrich = null) {
   console.log("====================================================");
-  console.log("⚡ STARTING ENHANCED VIN ENRICHMENT PIPELINE (ALL VEHICLES)");
+  console.log("⚡ STARTING ENHANCED VIN ENRICHMENT PIPELINE");
   console.log("====================================================");
+
+  const { cachePath: CACHE_PATH, inventoryPath: INVENTORY_PATH, dataDir: DATA_DIR } = getDataPaths();
 
   let rawInventory = [];
   try {
@@ -206,7 +231,12 @@ export async function runEnrichmentPipeline(limit = Infinity, brand = null, dbRu
 
   let enrichedCount = 0;
   let cacheHits = 0;
-  const targetVehicles = rawInventory.slice(0, limit);
+  const vinScope = vinsToEnrich ? new Set(vinsToEnrich) : null;
+  const scopedInventory = vinScope ? rawInventory.filter((v) => vinScope.has(v.vin)) : rawInventory;
+  const targetVehicles = scopedInventory.slice(0, limit);
+  if (vinScope) {
+    console.log(`Scoped to this run's ${vinScope.size} VIN(s): ${targetVehicles.length} matched in the inventory file.`);
+  }
 
   // Escape hatch for nationwide batch runs where the per-VIN NHTSA lookup
   // (sequential, one network round-trip at a time) is the dominant cost of
