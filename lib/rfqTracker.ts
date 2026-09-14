@@ -109,6 +109,20 @@ export function rfqQuoteTypeLabel(rfq: Pick<RfqRequest, "leasePrefs" | "quotePre
   return "Quote";
 }
 
+/** What each desk replies through, phrased to tack onto "...replies on its own time" — never names the lease calculator for a Cash/Finance ask. */
+export function sentReplyMechanism(rfq: Pick<RfqRequest, "leasePrefs" | "quotePrefs">): string {
+  switch (rfqQuoteTypeLabel(rfq)) {
+    case "Lease":
+      return " through the lease calculator";
+    case "Finance":
+      return " through the finance sheet";
+    case "Cash":
+      return " through the cash sheet";
+    default:
+      return "";
+  }
+}
+
 /** "TS-K7M3Q2", falling back to the row id so support can always find it. */
 export function rfqDealNumber(rfq: Pick<RfqRequest, "dealReference" | "id">): string {
   return rfq.dealReference?.trim() || `#${rfq.id}`;

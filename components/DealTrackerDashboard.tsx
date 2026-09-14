@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { BiddingRequest, DealerBid, OfferCloseClockView } from "../lib/types";
 import type { RfqRequest } from "../lib/rfq";
-import { relativeTime, rfqDealNumber, rfqQuoteTypeLabel, rfqTrackerStatus, rfqTrackerStatusLabel, rfqVehicleSummary } from "../lib/rfqTracker";
+import { relativeTime, rfqDealNumber, rfqQuoteTypeLabel, rfqTrackerStatus, rfqTrackerStatusLabel, rfqVehicleSummary, sentReplyMechanism } from "../lib/rfqTracker";
 import { formatCurrency } from "../lib/otdCalculator";
 import { formatDealStructures } from "../lib/dealStructure";
 import { reviewTargetFromVehicle } from "../lib/fordCompetitionUi";
@@ -105,7 +105,7 @@ export const DealTrackerDashboard: React.FC<DealTrackerDashboardProps> = ({
                 {sent ? (
                   <div className="rounded-xl border border-emerald-500/40 bg-emerald-500/5 px-3 py-2 space-y-1">
                     <p className="text-[11px] font-bold text-emerald-300">
-                      Sent to {sent.rows.filter((r) => r.sent).length} desk{sent.rows.filter((r) => r.sent).length === 1 ? "" : "s"} — each replies on its own time through the lease calculator.
+                      Sent to {sent.rows.filter((r) => r.sent).length} desk{sent.rows.filter((r) => r.sent).length === 1 ? "" : "s"} — each replies on its own time{sentReplyMechanism(rfq)}.
                     </p>
                     <ul className="space-y-0.5">
                       {sent.rows.map((r) => (
