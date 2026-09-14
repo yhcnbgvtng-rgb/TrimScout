@@ -10,10 +10,11 @@ import { formatCurrency, getZipCoordinates } from "../lib/otdCalculator";
 import { outOfStateVehicles, formatOutOfStateWarning, formatExpandNudge } from "../lib/sameStateCheck";
 import { planDeskSelection } from "../lib/deskSelection";
 import { CPO_BUILD_COPY, USED_BUILD_COPY, USED_VEHICLES_ENABLED, conditionBadge, detectUsedCondition, isUsedCondition, type UsedCondition } from "../lib/usedVehicle";
-import type { QuotePrefs } from "../lib/usedQuote";
+import { missingFinanceLocks, type QuotePrefs } from "../lib/usedQuote";
+import { CREDIT_BAND_COPY, CREDIT_BAND_LABELS, CREDIT_BANDS, type CreditBand } from "../lib/creditBand";
 import { clearQuoteDraft, readQuoteDraft, saveQuoteDraft, wizardAuthState, type QuoteDraft } from "../lib/quoteDraft";
 import { diffVsPrimary, mustHaveHeadline, mustHaveReport, type MustHaveRef } from "../lib/alternateCompare";
-import { DEFAULT_LEASE_TERM, LEASE_MILES, LEASE_NON_BINDING_COPY, LEASE_TERMS, type LeaseMiles, type LeaseTerm } from "../lib/leaseQuote";
+import { DEFAULT_LEASE_TERM, LEASE_DAS_INTENTS, LEASE_DAS_INTENT_LABELS, LEASE_MILES, LEASE_NON_BINDING_COPY, LEASE_TERMS, type LeaseDueAtSigningIntent, type LeaseMiles, type LeaseTerm } from "../lib/leaseQuote";
 import { isPlausibleDealerEmail, type DealerContactStatus } from "../lib/dealerContactLookup";
 import { formatBuyerAlias } from "../lib/buyerAlias";
 import {
@@ -811,7 +812,9 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   const [leaseMiles, setLeaseMiles] = useState<LeaseMiles | "">("");
   const [financeTerm, setFinanceTerm] = useState<number | "">("");
   const [downPayment, setDownPayment] = useState<string>("");
-  const [creditBand, setCreditBand] = useState<"" | "excellent" | "good" | "fair" | "rebuilding">("");
+  // Credit band is a lock on finance AND lease: every dealer quotes the same tier. Required before send.
+  const [creditBand, setCreditBand] = useState<"" | CreditBand>("");
+  const [leaseDasIntent, setLeaseDasIntent] = useState<"" | LeaseDueAtSigningIntent>("");
   const paymentMethod = paymentMethodFromStructures(requestedStructures);
   const downPaymentNumber = downPayment === "" ? 0 : Number(downPayment.replace(/[$,\s]/g, ""));
   // The buyer's real picks feed the older deal-structure payloads too.
@@ -879,6 +882,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     setFinanceTerm("");
     setDownPayment("");
     setCreditBand("");
+    setLeaseDasIntent("");
     setHuntZip("");
     setPurchaseTimeline("");
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -1098,6 +1102,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     quoteType,
     leaseTerm,
     leaseMiles,
+    leaseDasIntent,
     financeTerm,
     downPayment,
     creditBand,
@@ -1157,7 +1162,8 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     pick<LeaseMiles | "">("leaseMiles", setLeaseMiles);
     pick<number>("financeTerm", setFinanceTerm);
     pick<string>("downPayment", setDownPayment);
-    pick<"" | "excellent" | "good" | "fair" | "rebuilding">("creditBand", setCreditBand);
+    pick<"" | CreditBand>("creditBand", setCreditBand);
+    pick<"" | LeaseDueAtSigningIntent>("leaseDasIntent", setLeaseDasIntent);
     pick<string>("huntZip", setHuntZip);
     pick<string>("buyerZip", setBuyerZip);
     pick<PurchaseTimeline | "">("purchaseTimeline", setPurchaseTimeline);
@@ -1237,14 +1243,16 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   // calculator quotes against. ZIP is required for all three (tax context
   // and the same-state gate).
   const zipOk = /^\d{5}$/.test(huntZip.trim());
-  const quoteSetupComplete =
+  // Locks: what's still missing, in form order — Continue stays off and the empty state names them.
+  const missingLocks: string[] =
     quoteType === "lease"
-      ? Boolean(!isUsed && leaseTerm && leaseMiles && zipOk)
+      ? [...(leaseTerm ? [] : ["term"]), ...(leaseMiles ? [] : ["miles per year"]), ...(leaseDasIntent ? [] : ["due-at-signing intent"]), ...(creditBand ? [] : ["credit band"]), ...(zipOk ? [] : ["ZIP"])]
       : quoteType === "finance"
-        ? Boolean(financeTerm && financeTerm > 0 && downPayment !== "" && Number.isFinite(downPaymentNumber) && downPaymentNumber >= 0 && zipOk)
+        ? missingFinanceLocks({ termMonths: financeTerm, downPayment, creditBand, zip: huntZip })
         : quoteType === "cash"
-          ? zipOk
-          : false;
+          ? zipOk ? [] : ["ZIP"]
+          : [];
+  const quoteSetupComplete = Boolean(quoteType) && missingLocks.length === 0 && !(quoteType === "lease" && isUsed);
 
   const goNext = () => {
     if (step === 1 && !vehicleImported) return;
@@ -1824,13 +1832,15 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                   milesPerYear: leaseMiles || null,
                   zip: zipOk ? huntZip : "",
                   timeline: purchaseTimeline || null,
+                  creditBand: creditBand || null,
+                  dueAtSigningIntent: leaseDasIntent || null,
                 }
               : null,
-          // Used cars: the Finance / Cash ask the dealer sheet quotes against.
+          // Finance / Cash locks (new or used): what every dealer's sheet quotes against.
           quotePrefs:
-            isUsed && quoteType === "finance"
-              ? ({ quoteType: "finance", finance: { termMonths: financeTerm || 60, downPayment: Math.max(0, Math.round(downPaymentNumber || 0)), creditBand: creditBand || null, zip: zipOk ? huntZip : "", timeline: purchaseTimeline || null } } satisfies QuotePrefs)
-              : isUsed && quoteType === "cash"
+            quoteType === "finance" && creditBand
+              ? ({ quoteType: "finance", finance: { termMonths: financeTerm || 60, downPayment: Math.max(0, Math.round(downPaymentNumber || 0)), creditBand, zip: zipOk ? huntZip : "", timeline: purchaseTimeline || null } } satisfies QuotePrefs)
+              : quoteType === "cash"
                 ? ({ quoteType: "cash", cash: { zip: zipOk ? huntZip : "", timeline: purchaseTimeline || null } } satisfies QuotePrefs)
                 : null,
           vin: primary.vin,
@@ -2487,8 +2497,8 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
 
               {quoteType === "lease" && (
                 <WizardSection
-                  title="Lease preferences"
-                  hint="Every dealer quotes to these through the lease calculator — monthly, due at signing itemized, cap cost, money factor, residual — or marks a counter."
+                  title="Lease locks"
+                  hint="Every dealer quotes to these through the lease calculator — monthly, due at signing itemized, cap cost, money factor, residual, term and miles confirmed — so the quotes compare like for like."
                   className="pt-6"
                 >
                   <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -2532,14 +2542,44 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                       </div>
                       {!leaseMiles ? <p className="text-[10px] text-ink-faint">Pick a mileage band to continue.</p> : null}
                     </div>
+                    <label className="space-y-1">
+                      <span className="block text-[10px] font-bold uppercase tracking-wide text-ink-faint">Due at signing</span>
+                      <select
+                        value={leaseDasIntent}
+                        onChange={(e) => setLeaseDasIntent(e.target.value as "" | LeaseDueAtSigningIntent)}
+                        className="w-full rounded-lg border border-border bg-background py-2 px-3 text-[11px] text-ink-light focus:border-emerald-500 focus:outline-none"
+                        data-testid="lease-das-intent"
+                      >
+                        <option value="">Choose what you intend to pay up front</option>
+                        {LEASE_DAS_INTENTS.map((i) => (
+                          <option key={i} value={i}>{LEASE_DAS_INTENT_LABELS[i]}</option>
+                        ))}
+                      </select>
+                      <span className="block text-[10px] text-ink-faint">An intent, not a cap — dealers itemize what&apos;s actually due.</span>
+                    </label>
+                    <label className="space-y-1">
+                      <span className="block text-[10px] font-bold uppercase tracking-wide text-ink-faint">Credit band</span>
+                      <select
+                        value={creditBand}
+                        onChange={(e) => setCreditBand(e.target.value as "" | CreditBand)}
+                        className="w-full rounded-lg border border-border bg-background py-2 px-3 text-[11px] text-ink-light focus:border-emerald-500 focus:outline-none"
+                        data-testid="lease-credit-band"
+                      >
+                        <option value="">Choose your band</option>
+                        {CREDIT_BANDS.map((b) => (
+                          <option key={b} value={b}>{CREDIT_BAND_LABELS[b]}</option>
+                        ))}
+                      </select>
+                      <span className="block text-[10px] text-ink-faint">{CREDIT_BAND_COPY}</span>
+                    </label>
                   </div>
                 </WizardSection>
               )}
 
               {quoteType === "finance" && (
                 <WizardSection
-                  title="Finance preferences"
-                  hint="What the dealer's finance calculator quotes against. No credit pull — the band is your own estimate."
+                  title="Finance locks"
+                  hint="Every dealer quotes to exactly these — same term, same down, same credit band — so the sheets compare apples to apples."
                   className="pt-6"
                 >
                   <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
@@ -2559,7 +2599,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                       </select>
                     </label>
                     <label className="space-y-1">
-                      <span className="block text-[10px] font-bold uppercase tracking-wide text-ink-faint">Down payment</span>
+                      <span className="block text-[10px] font-bold uppercase tracking-wide text-ink-faint">Down payment ($)</span>
                       <input
                         type="text"
                         inputMode="decimal"
@@ -2574,20 +2614,19 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                       ) : null}
                     </label>
                     <label className="space-y-1">
-                      <span className="block text-[10px] font-bold uppercase tracking-wide text-ink-faint">
-                        Credit band <span className="font-normal normal-case">(optional)</span>
-                      </span>
+                      <span className="block text-[10px] font-bold uppercase tracking-wide text-ink-faint">Credit band</span>
                       <select
                         value={creditBand}
-                        onChange={(e) => setCreditBand(e.target.value as typeof creditBand)}
+                        onChange={(e) => setCreditBand(e.target.value as "" | CreditBand)}
                         className="w-full rounded-lg border border-border bg-background py-2 px-3 text-[11px] text-ink-light focus:border-emerald-500 focus:outline-none"
+                        data-testid="finance-credit-band"
                       >
-                        <option value="">Prefer not to say</option>
-                        <option value="excellent">Excellent (750+)</option>
-                        <option value="good">Good (700–749)</option>
-                        <option value="fair">Fair (650–699)</option>
-                        <option value="rebuilding">Rebuilding (under 650)</option>
+                        <option value="">Choose your band</option>
+                        {CREDIT_BANDS.map((b) => (
+                          <option key={b} value={b}>{CREDIT_BAND_LABELS[b]}</option>
+                        ))}
                       </select>
+                      <span className="block text-[10px] text-ink-faint">{CREDIT_BAND_COPY}</span>
                     </label>
                   </div>
                 </WizardSection>
@@ -2636,6 +2675,11 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                       </select>
                     </label>
                   </div>
+                  {missingLocks.length ? (
+                    <p className="mt-2 text-[11px] text-amber-300/90" data-testid="missing-locks">
+                      To continue, set your {missingLocks.length === 1 ? missingLocks[0] : `${missingLocks.slice(0, -1).join(", ")} and ${missingLocks[missingLocks.length - 1]}`} — dealers quote to these, so they can&apos;t be blank.
+                    </p>
+                  ) : null}
                 </WizardSection>
               ) : null}
             </div>
@@ -3211,7 +3255,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                   <span className="text-ink-muted">{quoteType === "lease" ? "Lease:" : quoteType === "finance" ? "Finance:" : "Paying:"}</span>
                   <span className="text-emerald-400 font-bold text-right">
                     {quoteType === "lease"
-                      ? `${leaseTerm} months · ${leaseMiles ? leaseMiles.toLocaleString() : "—"} mi/yr`
+                      ? `${leaseTerm} months · ${leaseMiles ? leaseMiles.toLocaleString() : "—"} mi/yr${creditBand ? ` · ${creditBand} credit` : ""}${leaseDasIntent === "first_month_only" ? " · first month + fees" : leaseDasIntent === "cash_down" ? " · money down" : ""}`
                       : quoteType === "finance"
                         ? `${financeTerm} months · $${downPaymentNumber.toLocaleString()} down${creditBand ? ` · ${creditBand} credit` : ""}`
                         : "Cash"}

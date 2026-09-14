@@ -70,7 +70,9 @@ export function areaLabel(zip: string | null | undefined): string | null {
 /** The one-line prefs row by type; null means omit the row (cash without buyer-set notes). */
 export function prefsLine(input: Pick<QuoteInviteEmailInput, "quoteType" | "leasePrefs" | "financePrefs">): string | null {
   if (input.quoteType === "lease" && input.leasePrefs) {
-    return `${input.leasePrefs.termMonths} mo · ${input.leasePrefs.milesPerYear.toLocaleString()} mi/yr`;
+    const band = input.leasePrefs.creditBand ? CREDIT_BAND_LABELS[input.leasePrefs.creditBand] : null;
+    const upFront = input.leasePrefs.dueAtSigningIntent === "first_month_only" ? "first month + fees up front" : input.leasePrefs.dueAtSigningIntent === "cash_down" ? "money down" : null;
+    return [`${input.leasePrefs.termMonths} mo · ${input.leasePrefs.milesPerYear.toLocaleString()} mi/yr`, upFront, band ? `credit: ${band}` : null].filter(Boolean).join(" · ");
   }
   if (input.quoteType === "finance" && input.financePrefs) {
     const band = input.financePrefs.creditBand ? CREDIT_BAND_LABELS[input.financePrefs.creditBand] || input.financePrefs.creditBand : null;

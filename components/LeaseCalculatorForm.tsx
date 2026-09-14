@@ -2,7 +2,8 @@
 
 import React, { useMemo, useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
-import { validateLeaseQuote, LEASE_MILES, LEASE_TERMS, type LeaseQuote, type LeaseRequestPrefs, type LineItem } from "../lib/leaseQuote";
+import { validateLeaseQuote, LEASE_MILES, LEASE_TERMS, type LeaseQuote, type LeaseRequestPrefs, type LineItem, LEASE_DAS_INTENT_LABELS } from "../lib/leaseQuote";
+import { CREDIT_BAND_LABELS } from "../lib/creditBand";
 import {
   aprFromMf,
   dasTotal,
@@ -299,7 +300,9 @@ export function LeaseCalculatorForm({
 
       {/* 2 — buyer prefs banner */}
       <div className="rounded-xl border border-border/70 bg-surface-elevated px-3.5 py-3 text-xs text-ink-light" data-testid="buyer-prefs-banner">
-        Buyer asked for <strong className="text-white">{prefs.termMonths} months · {prefs.milesPerYear.toLocaleString()} mi/yr</strong>
+        Buyer locked <strong className="text-white">{prefs.termMonths} months · {prefs.milesPerYear.toLocaleString()} mi/yr</strong>
+        {prefs.creditBand ? <> · <strong className="text-white">{CREDIT_BAND_LABELS[prefs.creditBand].toLowerCase()} credit</strong> (their own estimate — no pull)</> : null}
+        {prefs.dueAtSigningIntent ? <> · up front: {LEASE_DAS_INTENT_LABELS[prefs.dueAtSigningIntent].toLowerCase()}</> : null}
         {prefs.zip ? <> · ZIP {prefs.zip} (tax context)</> : null}. Match that, or mark a counter below.
       </div>
 

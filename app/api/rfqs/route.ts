@@ -57,6 +57,10 @@ export async function POST(req: Request) {
     if (used && !parseQuotePrefs(body.quotePrefs)) {
       return NextResponse.json({ error: "Pick Finance or Cash, with a ZIP, for a used car." }, { status: 400 });
     }
+    // A finance ask sent without its locks (term, down, credit band, ZIP) can't be quoted apples to apples.
+    if (body.quotePrefs && typeof body.quotePrefs === "object" && !parseQuotePrefs(body.quotePrefs)) {
+      return NextResponse.json({ error: "Finance requests need a term, down payment, credit band and ZIP before they can be sent." }, { status: 400 });
+    }
   }
 
   try {

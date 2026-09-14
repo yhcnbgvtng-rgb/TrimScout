@@ -210,9 +210,12 @@ describe("lease terms — 18 and 24 both offered, default stays 36", () => {
 describe("lease prefs — no payment cap anywhere", () => {
   const read = (f: string) => fs.readFileSync(path.join(process.cwd(), f), "utf8");
 
-  it("parseLeasePrefs keeps only term, miles, ZIP, timeline — a stray cap on the payload is dropped", () => {
+  it("parseLeasePrefs keeps term, miles, ZIP, timeline, credit band and due-at-signing intent — a stray cap on the payload is dropped", () => {
     const prefs = parseLeasePrefs({ termMonths: 36, milesPerYear: 10000, zip: "07405", timeline: "asap", maxCashDueAtSigning: 1500, maxDueAtSigning: 1500 });
-    assert.deepEqual(prefs, { termMonths: 36, milesPerYear: 10000, zip: "07405", timeline: "asap" });
+    assert.deepEqual(prefs, { termMonths: 36, milesPerYear: 10000, zip: "07405", timeline: "asap", creditBand: null, dueAtSigningIntent: null });
+    const locked = parseLeasePrefs({ termMonths: 36, milesPerYear: 10000, zip: "07405", creditBand: "good", dueAtSigningIntent: "first_month_only", maxCashDueAtSigning: 900 });
+    assert.deepEqual(locked, { termMonths: 36, milesPerYear: 10000, zip: "07405", timeline: null, creditBand: "good", dueAtSigningIntent: "first_month_only" });
+    assert.equal(parseLeasePrefs({ termMonths: 36, milesPerYear: 10000, zip: "07405", creditBand: "superprime", dueAtSigningIntent: "under_1000" })!.creditBand, null, "unknown values are dropped, not guessed");
   });
 
   it("a big due-at-signing is a plain quote, not a counter and not a validation error", () => {
@@ -230,26 +233,31 @@ describe("lease prefs — no payment cap anywhere", () => {
     for (const f of files) assert.doesNotMatch(read(f), /maxCashDueAtSigning|maxDueAtSigning|overMaxCashDue|MAX_CASH_DUE|Cash due at signing|max due at signing|Over (your|the buyer's) \$/i, f);
   });
 
-  it("dealer banner reads: term · miles · ZIP (tax context). Match that, or mark a counter below.", () => {
+  it("dealer banner reads: locked term · miles (· credit band · up-front intent) · ZIP (tax context). Match that, or mark a counter below.", () => {
     const calc = read("components/LeaseCalculatorForm.tsx");
-    assert.match(calc, /Buyer asked for <strong className="text-white">\{prefs\.termMonths\} months · \{prefs\.milesPerYear\.toLocaleString\(\)\} mi\/yr<\/strong>\s*\{prefs\.zip \? <> · ZIP \{prefs\.zip\} \(tax context\)<\/> : null\}\. Match that, or mark a counter below\./);
+    assert.match(calc, /Buyer locked <strong className="text-white">\{prefs\.termMonths\} months · \{prefs\.milesPerYear\.toLocaleString\(\)\} mi\/yr<\/strong>/);
+    assert.match(calc, /credit<\/strong> \(their own estimate — no pull\)/);
+    assert.match(calc, /\{prefs\.zip \? <> · ZIP \{prefs\.zip\} \(tax context\)<\/> : null\}\. Match that, or mark a counter below\./);
   });
 });
 
-describe("wizard wiring — Step 2 lease prefs are term + miles + ZIP (+ timeline) only", () => {
+describe("wizard wiring — Step 2 lease locks are term + miles + due-at-signing intent + credit band + ZIP (+ timeline)", () => {
   const wizard = fs.readFileSync(path.join(process.cwd(), "components/BiddingWizard.tsx"), "utf8");
   const route = fs.readFileSync(path.join(process.cwd(), "app/api/rfqs/route.ts"), "utf8");
 
-  it("the lease block has term + miles and nothing else to fill; Continue gates on type + term + miles + ZIP", () => {
+  it("the lease block has term + miles chips plus two selects (intent, band) and no free-text field; Continue gates on every lock", () => {
     const leaseBlock = wizard.slice(wizard.indexOf('{quoteType === "lease" && ('), wizard.indexOf('{quoteType === "finance" && ('));
     assert.match(leaseBlock, /LEASE_TERMS\.map/);
     assert.match(leaseBlock, /LEASE_MILES\.map/);
-    assert.doesNotMatch(leaseBlock, /<input/);
-    assert.match(wizard, /quoteSetupComplete =\s*quoteType === "lease"\s*\? Boolean\(!isUsed && leaseTerm && leaseMiles && zipOk\)/);
+    assert.match(leaseBlock, /LEASE_DAS_INTENTS\.map/);
+    assert.match(leaseBlock, /CREDIT_BANDS\.map/);
+    assert.doesNotMatch(leaseBlock, /<input/, "no number to type — an intent, not a cap");
+    assert.match(wizard, /quoteType === "lease"\s*\? \[\.\.\.\(leaseTerm \? \[\] : \["term"\]\), \.\.\.\(leaseMiles \? \[\] : \["miles per year"\]\), \.\.\.\(leaseDasIntent \? \[\] : \["due-at-signing intent"\]\), \.\.\.\(creditBand \? \[\] : \["credit band"\]\), \.\.\.\(zipOk \? \[\] : \["ZIP"\]\)\]/);
+    assert.match(wizard, /const quoteSetupComplete = Boolean\(quoteType\) && missingLocks\.length === 0 && !\(quoteType === "lease" && isUsed\);/);
   });
 
-  it("the request payload carries exactly termMonths · milesPerYear · zip · timeline", () => {
-    assert.match(wizard, /leasePrefs:\s*quoteType === "lease" && !isUsed\s*\? \{\s*termMonths: leaseTerm \|\| null,\s*milesPerYear: leaseMiles \|\| null,\s*zip: zipOk \? huntZip : "",\s*timeline: purchaseTimeline \|\| null,\s*\}\s*: null,/);
+  it("the request payload carries termMonths · milesPerYear · zip · timeline · creditBand · dueAtSigningIntent — no cap", () => {
+    assert.match(wizard, /leasePrefs:\s*quoteType === "lease" && !isUsed\s*\? \{\s*termMonths: leaseTerm \|\| null,\s*milesPerYear: leaseMiles \|\| null,\s*zip: zipOk \? huntZip : "",\s*timeline: purchaseTimeline \|\| null,\s*creditBand: creditBand \|\| null,\s*dueAtSigningIntent: leaseDasIntent \|\| null,\s*\}\s*: null,/);
     assert.match(route, /parseLeasePrefs\(body\.leasePrefs\)/);
   });
 });
