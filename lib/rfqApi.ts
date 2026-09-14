@@ -78,6 +78,8 @@ export async function createRfq(input: {
   quotePrefs?: QuotePrefs | null;
   /** The buyer's note to every quoting dealer — scrubbed of contact info before it gets here. */
   buyerNote?: string | null;
+  /** Whether the buyer said a trade-in is coming (handled after the OTD price; never in the quote). */
+  tradeInExpected?: boolean | null;
 }): Promise<RfqRequest> {
   const json = await request("POST", "/api/rfqs", input);
   return json.rfq as RfqRequest;

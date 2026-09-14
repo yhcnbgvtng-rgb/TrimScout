@@ -159,6 +159,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
         unsubscribeUrl: directoryRow ? unsubscribeUrlFor(directoryRow.id) : null,
         purchaseTimelineLabel: typeof body?.purchaseTimelineLabel === "string" ? body.purchaseTimelineLabel : null,
         buyerNote: rfq.buyerNote || null,
+        tradeInExpected: rfq.tradeInExpected ?? null,
         buyerZip,
         leasePrefs: rfq.leasePrefs || null,
         financePrefs,

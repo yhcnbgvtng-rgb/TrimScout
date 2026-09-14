@@ -100,6 +100,7 @@ export async function POST(req: Request) {
       // rather than silently dropped.
       quotePrefs: parseQuotePrefs(body.quotePrefs),
       buyerNote: buyerNote || null,
+      tradeInExpected: typeof body.tradeInExpected === "boolean" ? body.tradeInExpected : null,
     });
     recordQuoteRequest();
     return NextResponse.json({ rfq: publicRfqForBuyer(rfq) });

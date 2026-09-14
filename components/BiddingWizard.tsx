@@ -943,6 +943,8 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   // only holds if a buyer can't just paste it in here; server-side
   // (app/api/deal-requests and the box) re-checks authoritatively.
   const [dealComment, setDealComment] = useState("");
+  // Asked on Step 3: is a trade-in coming? Handled after the OTD price is agreed — never part of the quote.
+  const [tradeInExpected, setTradeInExpected] = useState<boolean | null>(null);
   const dealCommentContactWarning = findContactInfo(dealComment);
 
   // Step 3: how soon the buyer wants to close — round-trips through the
@@ -1193,6 +1195,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     confirmedDesks,
     buyerDealerEmails,
     dealComment,
+    tradeInExpected,
     pricingChoice,
     targetOtdPrice,
   });
@@ -1246,6 +1249,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     pick<Record<string, boolean>>("confirmedDesks", setConfirmedDesks);
     pick<Record<string, string>>("buyerDealerEmails", setBuyerDealerEmails);
     pick<string>("dealComment", setDealComment);
+    pick<boolean | null>("tradeInExpected", setTradeInExpected);
     pick<"dealer_names" | "buyer_names">("pricingChoice", setPricingChoice);
     pick<number>("targetOtdPrice", setTargetOtdPrice);
     setStep(Math.min(Math.max(1, draft.step), TOTAL_STEPS));
@@ -1333,7 +1337,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     if (step === 1 && !vehicleImported) return;
     if (step === 2 && !paymentChosen) return;
     // Step 3 → 4: every lock set, and at least one desk with a named contact (or an adviser address) ticked.
-    if (step === 3 && (!quoteSetupComplete || confirmedDeskCount === 0 || dealCommentContactWarning)) return;
+    if (step === 3 && (!quoteSetupComplete || confirmedDeskCount === 0 || dealCommentContactWarning || tradeInExpected === null)) return;
     setStep(step + 1);
   };
   const goBack = () => {
@@ -1839,6 +1843,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
           packageKind: "links",
           // Word for word to every quoting dealer (scrubbed of contact info first).
           buyerNote: dealComment.trim() || null,
+          tradeInExpected,
           leasePrefs:
             quoteType === "lease" && !isUsed
               ? {
@@ -2695,6 +2700,27 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                 </WizardSection>
               ) : null}
 
+              <WizardSection title="Trade-in" hint="Handled after an out-the-door price is agreed — it never changes the quote. We'll work with the dealer on any registration-fee and sales-tax changes it brings." className="pt-6">
+                <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Will a trade-in be coming in?" data-testid="trade-in-question">
+                  {([true, false] as const).map((v) => (
+                    <button
+                      key={String(v)}
+                      type="button"
+                      role="radio"
+                      aria-checked={tradeInExpected === v}
+                      onClick={() => setTradeInExpected(v)}
+                      className={`rounded-xl border px-4 py-2.5 text-xs font-bold transition-all ${
+                        tradeInExpected === v ? "border-emerald-500 bg-emerald-500/10 text-white" : "border-border text-ink-light hover:border-border-strong"
+                      }`}
+                      data-testid={v ? "trade-in-yes" : "trade-in-no"}
+                    >
+                      {v ? "Yes — I have a trade-in coming" : "No trade-in"}
+                    </button>
+                  ))}
+                </div>
+                {tradeInExpected === null ? <p className="mt-2 text-[11px] text-amber-300/90" data-testid="missing-trade-in">Tell us whether a trade-in is coming to continue.</p> : null}
+              </WizardSection>
+
               <WizardSection title="Note to the dealer" hint="Goes to every dealer quoting this request, word for word." className="pt-6">
               {/* Buyer note — scrubbed of contact info before it ever leaves the browser */}
               <div className="space-y-1.5" data-testid="dealer-note">
@@ -3069,7 +3095,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                 disabled={
                   (step === 1 && !vehicleImported) ||
                   (step === 2 && !paymentChosen) ||
-                  (step === 3 && (!quoteSetupComplete || confirmedDeskCount === 0 || Boolean(dealCommentContactWarning)))
+                  (step === 3 && (!quoteSetupComplete || confirmedDeskCount === 0 || Boolean(dealCommentContactWarning) || tradeInExpected === null))
                 }
                 className="flex items-center gap-1.5 rounded-lg bg-emerald-500 px-5 py-2 text-xs font-bold text-black hover:bg-emerald-400 transition-all shadow-md shadow-emerald-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
               >
