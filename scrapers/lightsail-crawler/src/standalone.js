@@ -1362,10 +1362,11 @@ if (dbRunId) {
         const { finishScrapeRun } = await import('./db.js');
         if (process.env.DB_HOST) {
             try {
-                const { upsertDomSnapshots } = await import('./db.js');
+                const { upsertDomSnapshots, upsertDealers } = await import('./db.js');
                 await upsertDomSnapshots(flattenDomIndex(domIndex).filter((r) => r.snapshotDate === todayDate));
+                if (dbBrandId) await upsertDealers(dbBrandId, dealers);
             } catch (domDbErr) {
-                console.error('DB DOM snapshot sync failed (non-fatal):', domDbErr.message);
+                console.error('DB DOM/dealer contact sync failed (non-fatal):', domDbErr.message);
             }
         }
         await finishScrapeRun(dbRunId, {

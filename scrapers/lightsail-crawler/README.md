@@ -194,7 +194,7 @@ node scripts/dealer-bot-report.mjs --brand=Toyota
 
 Writes `data/reports/dealer-bot-report-<brand>-<date>.{json,pdf}` and `dealer-bot-report-latest.{json,pdf}`. Table columns: brand, dealer name, domain, state, classification, HTTP status, sales email, notes. Excluded brands are refused.
 
-Public sales inboxes (`sales@`, `info@`, `internet@`, `bdc@`, …) are collected from homepage / contact / staff / about / mailto / schema.org only — no login, no WAF bypass, no third-party listings. Saved on the dealer record as `salesEmail`, `emailSourceUrl`, `collectedAt` (and `data/dealer_contacts.json`).
+Public sales inboxes (`sales@`, `info@`, `internet@`, `bdc@`, …) are collected from homepage / contact / staff / about / mailto / schema.org only — no login, no WAF bypass, no third-party listings. Saved on the dealer record as `salesEmail`, `emailSourceUrl`, `collectedAt` (`data/dealer_contacts.json` and MariaDB `dealers.sales_email` when configured). A labeled Internet Sales / BDC / Sales Manager address is kept as `secondaryEmail` when both exist.
 
 Refresh per-brand dealer files after editing `src/nj_dealer_seed.js`:
 

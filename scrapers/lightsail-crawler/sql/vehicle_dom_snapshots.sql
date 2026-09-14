@@ -16,3 +16,8 @@ CREATE TABLE IF NOT EXISTS vehicle_dom_snapshots (
   PRIMARY KEY (vin, snapshot_date),
   KEY idx_vehicle_dom_date (snapshot_date)
 );
+
+-- Public sales inbox on the dealer row (homepage/contact/staff/about only).
+ALTER TABLE dealers ADD COLUMN sales_email VARCHAR(255) NULL;
+ALTER TABLE dealers ADD COLUMN email_source_url VARCHAR(1024) NULL;
+ALTER TABLE dealers ADD COLUMN email_collected_at DATETIME NULL;

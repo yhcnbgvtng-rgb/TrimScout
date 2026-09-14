@@ -178,6 +178,7 @@ export async function upsertDealers(brandId, dealersArray) {
         'brand_id', 'external_id', 'name', 'domain', 'city', 'state',
         'latitude', 'longitude',
         'sitemap_url', 'inventory_sitemap_url', 'fallback_url',
+        'sales_email', 'email_source_url', 'email_collected_at',
       ];
       const placeholders = batch.map(() => `(${cols.map(() => '?').join(',')})`).join(',');
       const values = [];
@@ -195,6 +196,9 @@ export async function upsertDealers(brandId, dealersArray) {
           d.sitemapUrl || null,
           d.inventorySitemapUrl || null,
           d.fallbackUrl || null,
+          d.salesEmail ? String(d.salesEmail).slice(0, 255) : null,
+          d.emailSourceUrl ? String(d.emailSourceUrl).slice(0, 1024) : null,
+          toMysqlDatetime(d.collectedAt),
         );
       }
       const sql = `INSERT INTO dealers (${cols.join(',')}) VALUES ${placeholders}
@@ -205,7 +209,10 @@ export async function upsertDealers(brandId, dealersArray) {
           longitude = COALESCE(VALUES(longitude), longitude),
           sitemap_url = VALUES(sitemap_url),
           inventory_sitemap_url = VALUES(inventory_sitemap_url),
-          fallback_url = VALUES(fallback_url)`;
+          fallback_url = VALUES(fallback_url),
+          sales_email = COALESCE(VALUES(sales_email), sales_email),
+          email_source_url = COALESCE(VALUES(email_source_url), email_source_url),
+          email_collected_at = COALESCE(VALUES(email_collected_at), email_collected_at)`;
       await conn.query(sql, values);
     }
     await conn.commit();
@@ -249,6 +256,17 @@ export async function ensureNjOpsSchema() {
     await pool.query(`ALTER TABLE scrape_runs ADD COLUMN skipped_bot_protection INT DEFAULT 0`);
   } catch {
     // Column already exists (or this MariaDB is older / read-only) — non-fatal.
+  }
+  for (const ddl of [
+    `ALTER TABLE dealers ADD COLUMN sales_email VARCHAR(255) NULL`,
+    `ALTER TABLE dealers ADD COLUMN email_source_url VARCHAR(1024) NULL`,
+    `ALTER TABLE dealers ADD COLUMN email_collected_at DATETIME NULL`,
+  ]) {
+    try {
+      await pool.query(ddl);
+    } catch {
+      // already present
+    }
   }
 }
 
