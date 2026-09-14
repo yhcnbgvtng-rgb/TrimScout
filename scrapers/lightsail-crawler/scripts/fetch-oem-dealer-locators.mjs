@@ -299,14 +299,54 @@ async function fetchBmw() {
   ]);
 }
 
+// Found via real network capture (patchright, watching XHR/fetch while
+// driving the #zipcode field + submit button on find-a-dealer.html): the
+// widget calls a plain, unauthenticated JSON endpoint —
+// /bin/services/dealer-locator/getAllDealerByZip.json/<zip>/<count> — that
+// needs no browser at all once you know the path. Confirmed via plain curl
+// with the honest TrimScout-locator UA (200, real dealer JSON, no cookies
+// required). Each dealerDetailsObjects[] entry can carry separate
+// newVehicleSales/certifiedPreowned/service/ccrc arrays for the same
+// physical rooftop (service-only annex vs. the actual sales franchise) —
+// only newVehicleSales is an authorized new-car rooftop, so that's the
+// only one read here.
 async function fetchMini() {
-  // Correct locator path (the old dealer-locator.html guess 404s); it's the
-  // same BMW Group AEM widget as bmwusa.com and needs a real search
-  // interaction (no data fires until a location is submitted) — left
-  // detect-only pending that follow-up.
-  return tryBlocked('mini', 'https://www.miniusa.com/tools/shopping/find-a-dealer.html', [
-    'https://www.miniusa.com/tools/shopping/find-a-dealer.html',
-  ]);
+  const zips = NJ_NY_ZIPS;
+  const rows = [];
+  const pages = [];
+  for (const zip of zips) {
+    const url = `https://www.miniusa.com/bin/services/dealer-locator/getAllDealerByZip.json/${zip}/50?excludeServiceOnlyDealers=false&includeSatelliteDealers=true`;
+    const got = await fetchJson(url);
+    pages.push({ zip, status: got.status, ok: got.ok });
+    const objs = got.json?.dealerLocator?.dealerDetails?.dealerDetailsObjects || [];
+    for (const obj of objs) {
+      for (const d of obj.newVehicleSales || []) {
+        const addr = (d.address || [])[0] || {};
+        const state = String(addr.state || '').toUpperCase();
+        if (state !== 'NJ' && state !== 'NY') continue;
+        // MINI's own feed has at least one confirmed typo (dealerURL
+        // "www.mininyc" missing its .com — the paired SATELLITE record for
+        // the same rooftop has the correct "www.mininyc.com"). A host with
+        // no dot cannot be a real domain, so skip rather than write a
+        // guaranteed-dead URL.
+        if (!String(d.dealerURL || '').replace(/^https?:\/\//i, '').replace(/^www\./i, '').includes('.')) continue;
+        rows.push(row({
+          make: 'Mini',
+          name: d.dealerName,
+          city: addr.city,
+          state,
+          domain: d.dealerURL,
+          sourceUrl: url,
+        }));
+      }
+    }
+  }
+  return writeDump('mini', rows, {
+    locator: 'https://www.miniusa.com/tools/shopping/find-a-dealer.html',
+    note: 'Official MINI dealer-locator JSON API (getAllDealerByZip), found via network capture; plain fetch, no browser needed.',
+    pages,
+    blocked: pages.length > 0 && pages.every((p) => !p.ok),
+  });
 }
 
 // Kia's find-a-dealer result page is server-rendered per zip, but only after
@@ -398,20 +438,62 @@ async function fetchInfiniti() {
   // Correct locator path (the old dealer-locator.html guess 404s) — this one
   // loads fine (200) but is a Google-Places-autocomplete widget with no
   // discoverable JSON dealer API; a scripted zip submit didn't trigger one
-  // either. Left detect-only pending real form-automation work.
+  // either. Re-verified 2026-09-14 with a more thorough pass (full
+  // pac-target-input place selection via ArrowDown+Enter, then clicking
+  // every button whose class/text matched search/go/submit/find, including
+  // walking up from the input to find its icon-only sibling button) —
+  // still no dealer JSON surfaced. The page is a Next.js app
+  // (/nna-nci-dealer-locator/_next/...) with no relative /api/ path or
+  // external API host found in its JS bundles either (grepped all shipped
+  // chunks). Genuinely stuck pending real form-automation work, not a
+  // wrong-URL issue. Left detect-only.
   return tryBlocked('infiniti', 'https://www.infinitiusa.com/locate-infiniti-retailer.html', [
     'https://www.infinitiusa.com/locate-infiniti-retailer.html',
   ]);
 }
 
+// Found via real network capture (patchright, watching XHR/fetch on page
+// load — the widget geolocates and fires an initial search on its own, no
+// interaction needed to see the request shape): the ZIP autocomplete input
+// (id="zipcode-*", a Google Places pac-target-input, not itself an API)
+// drives a plain, unauthenticated JSON endpoint —
+// /services/dealers/distances/by/zipcode?zipcode=<zip>&count=<n>&type=Active
+// — confirmed via plain curl with the honest TrimScout-locator UA (200,
+// real dealer JSON, no session/cookie required). (Do not confuse this with
+// /services/dealers/services, which only returns the dealer-*type* filter
+// list used by the UI's checkboxes, not actual dealers.)
 async function fetchSubaru() {
-  // Loads fine (200) and auto-geolocates by IP, but the real ZIP input is
-  // inside a hidden panel a scripted fill couldn't reliably drive to a
-  // submitted search — no JSON API surfaced either. Left detect-only.
-  return tryBlocked('subaru', 'https://www.subaru.com/find-a-retailer.html', [
-    'https://www.subaru.com/find-a-retailer.html',
-    'https://www.subaru.com/services/dealers',
-  ]);
+  const zips = NJ_NY_ZIPS;
+  const rows = [];
+  const pages = [];
+  for (const zip of zips) {
+    const url = `https://www.subaru.com/services/dealers/distances/by/zipcode?zipcode=${zip}&count=50&type=Active`;
+    const got = await fetchJson(url);
+    pages.push({ zip, status: got.status, ok: got.ok });
+    for (const entry of Array.isArray(got.json) ? got.json : []) {
+      const d = entry.dealer;
+      if (!d) continue;
+      const addr = d.address || {};
+      const state = String(addr.state || '').toUpperCase();
+      if (state !== 'NJ' && state !== 'NY') continue;
+      rows.push(row({
+        make: 'Subaru',
+        name: d.name,
+        city: addr.city,
+        state,
+        domain: d.siteUrl,
+        lat: d.location?.latitude ?? null,
+        lng: d.location?.longitude ?? null,
+        sourceUrl: url,
+      }));
+    }
+  }
+  return writeDump('subaru', rows, {
+    locator: 'https://www.subaru.com/find-a-retailer.html',
+    note: 'Official Subaru dealer-distance JSON API (services/dealers/distances/by/zipcode), found via network capture; plain fetch, no browser needed.',
+    pages,
+    blocked: pages.length > 0 && pages.every((p) => !p.ok),
+  });
 }
 
 async function fetchMazda() {
