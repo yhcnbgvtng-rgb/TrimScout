@@ -107,6 +107,12 @@ export interface Vehicle {
     dealerSource?: DealerSource;
     /** The contact-directory row this rooftop is, when one was bound. */
     deskId?: string;
+    /**
+     * Where the factory shipped the car (window sticker sold-to / inventory
+     * sighting) when that differs from the store advertising it — kept as
+     * a note only; the advertising store is the one that gets the request.
+     */
+    factoryShipTo?: { dealerName: string; city: string; state: string } | null;
   };
   packages: string[];
   options: Option[];

@@ -106,7 +106,7 @@ export function dealerSourceLabel(source: DealerSource | undefined): string {
       return "from the factory window sticker";
     case "listing_domain":
     case "listing_page":
-      return "from the listing link";
+      return "advertising it on their website";
     case "buyer_picked":
       return "picked by you";
     default:
@@ -114,31 +114,43 @@ export function dealerSourceLabel(source: DealerSource | undefined): string {
   }
 }
 
+/** "Crown Ford Inc" and "Crown Ford" are the same store; punctuation and suffixes don't count. */
+export function sameDealerName(a: string | null | undefined, b: string | null | undefined): boolean {
+  const norm = (s: string) => s.toLowerCase().replace(/\b(inc|llc|ltd|co|corp|of)\b/g, "").replace(/[^a-z0-9]/g, "");
+  const x = norm(a || ""), y = norm(b || "");
+  return Boolean(x && y) && (x === y || x.includes(y) || y.includes(x));
+}
+
 /**
- * Stamp a VIN-built vehicle with the link it lives on and, only if the VIN
- * itself didn't name a dealership, the desk the link (or the buyer)
- * settled on. A VIN-resolved dealer is never overwritten by a link-derived
- * one; the buyer's own explicit pick is the one exception. No price is
+ * Stamp a VIN-built vehicle with the link it lives on and the desk the
+ * link (or the buyer) settled on. The dealership advertising the car on
+ * its own website is the one that gets the request — it beats a store the
+ * VIN named (window sticker sold-to, inventory sighting), which is where
+ * the factory shipped the car and is stale the moment it's dealer-traded.
+ * That store is kept as location.factoryShipTo, a note only. No price is
  * carried — the quote request never shows the buyer an advertised number.
  */
 export function attachLinkToVehicle(
   vehicle: Vehicle,
   link: { url: string; desk: DeskMatch | null; deskSource: Extract<DealerSource, "listing_domain" | "buyer_picked"> }
 ): Vehicle {
-  const keepVinDealer = hasVinResolvedDealer(vehicle) && link.deskSource !== "buyer_picked";
-  const location =
-    link.desk && !keepVinDealer
-      ? {
-          ...vehicle.location,
-          dealerName: link.desk.dealerName,
-          city: link.desk.city || "",
-          state: link.desk.state || "",
-          zip: link.desk.zip || undefined,
-          dealerConfirmed: true,
-          dealerSource: link.deskSource,
-          deskId: link.desk.deskId,
-        }
-      : vehicle.location;
+  const vinDealer = hasVinResolvedDealer(vehicle) ? vehicle.location : null;
+  const location = link.desk
+    ? {
+        ...vehicle.location,
+        dealerName: link.desk.dealerName,
+        city: link.desk.city || "",
+        state: link.desk.state || "",
+        zip: link.desk.zip || undefined,
+        dealerConfirmed: true,
+        dealerSource: link.deskSource,
+        deskId: link.desk.deskId,
+        factoryShipTo:
+          vinDealer && !sameDealerName(vinDealer.dealerName, link.desk.dealerName)
+            ? { dealerName: vinDealer.dealerName, city: vinDealer.city || "", state: vinDealer.state || "" }
+            : vehicle.location.factoryShipTo ?? null,
+      }
+    : vehicle.location;
   return {
     ...vehicle,
     dealerUrl: link.url,

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { attachLinkToVehicle, dealerSourceLabel, hasVinResolvedDealer, isPlausibleVin, resolveVdpLink, searchDealers, type DeskMatch } from "./linkImport";
+import { attachLinkToVehicle, dealerSourceLabel, hasVinResolvedDealer, isPlausibleVin, resolveVdpLink, sameDealerName, searchDealers, type DeskMatch } from "./linkImport";
 import type { Vehicle } from "./types";
 
 function fakeFetch(routes: Record<string, { status?: number; json: unknown }>) {
@@ -95,14 +95,24 @@ describe("attachLinkToVehicle", () => {
     assert.equal(v.dealerPrice, 0, "no advertised price is carried");
   });
 
-  it("never overwrites a VIN-resolved dealer with the link's", () => {
+  it("the store advertising the car (the link's site) beats a VIN-resolved dealer; the ship-to store is kept as a note", () => {
     for (const dealerSource of ["inventory", "window_sticker"] as const) {
-      const fromVin = { ...base, location: { ...base.location, dealerName: "Route 23 Auto Mall", state: "NJ", dealerSource } } as Vehicle;
+      const fromVin = { ...base, location: { ...base.location, dealerName: "Route 23 Auto Mall", city: "Butler", state: "NJ", dealerSource } } as Vehicle;
       const v = attachLinkToVehicle(fromVin, { url: URL_WITH_VIN, desk: DESK, deskSource: "listing_domain" });
-      assert.equal(v.location.dealerName, "Route 23 Auto Mall", dealerSource);
-      assert.equal(v.location.dealerSource, dealerSource);
+      assert.equal(v.location.dealerName, "Bachrodt BMW", dealerSource);
+      assert.equal(v.location.dealerSource, "listing_domain");
+      assert.deepEqual(v.location.factoryShipTo, { dealerName: "Route 23 Auto Mall", city: "Butler", state: "NJ" });
       assert.equal(v.dealerUrl, URL_WITH_VIN, "the link itself is still recorded");
     }
+  });
+
+  it("no ship-to note when the link's store is the same rooftop under a slightly different spelling", () => {
+    const fromVin = { ...base, location: { ...base.location, dealerName: "Bachrodt BMW Inc.", state: "IL", dealerSource: "window_sticker" } } as Vehicle;
+    const v = attachLinkToVehicle(fromVin, { url: URL_WITH_VIN, desk: DESK, deskSource: "listing_domain" });
+    assert.equal(v.location.dealerName, "Bachrodt BMW");
+    assert.equal(v.location.factoryShipTo, null);
+    assert.equal(sameDealerName("Crown Ford Inc", "Crown Ford"), true);
+    assert.equal(sameDealerName("Crown Ford", "Ford of Port Jefferson"), false);
   });
 
   it("lets the buyer's own explicit pick replace either", () => {
@@ -132,7 +142,7 @@ describe("hasVinResolvedDealer / dealerSourceLabel", () => {
   it("labels every source the buyer can see", () => {
     assert.equal(dealerSourceLabel("inventory"), "matched from the VIN");
     assert.equal(dealerSourceLabel("window_sticker"), "from the factory window sticker");
-    assert.equal(dealerSourceLabel("listing_domain"), "from the listing link");
+    assert.equal(dealerSourceLabel("listing_domain"), "advertising it on their website");
     assert.equal(dealerSourceLabel("buyer_picked"), "picked by you");
     assert.equal(dealerSourceLabel("unknown"), "");
   });

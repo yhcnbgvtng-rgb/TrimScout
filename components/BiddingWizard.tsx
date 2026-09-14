@@ -54,6 +54,7 @@ import {
   dealerSourceLabel,
   deskLocationLine,
   hasVinResolvedDealer,
+  sameDealerName,
   isPlausibleVin,
   resolveVdpLink,
   searchDealers,
@@ -343,23 +344,30 @@ function LinkConfirmPanel({
   const [picked, setPicked] = useState<DeskMatch | null>(null);
   const [picking, setPicking] = useState(false);
   const linkDesk = r.desk;
+  // The store advertising the car (the link's site) is the recipient; a
+  // factory ship-to store from the VIN is only the fallback when the link
+  // didn't resolve, and otherwise just a note under the store.
   const shown: { name: string; where: string; note: string; tone: "vin" | "link" | "picked" } | null = picked
     ? { name: picked.dealerName, where: deskLocationLine(picked), note: "picked by you", tone: "picked" }
-    : vinDealer
+    : linkDesk
       ? {
-          name: vinDealer.dealerName,
-          where: [vinDealer.city, vinDealer.state].filter(Boolean).join(", "),
-          note: dealerSourceLabel(vinDealer.dealerSource),
-          tone: "vin",
+          name: linkDesk.dealerName,
+          where: deskLocationLine(linkDesk),
+          note: r.via === "redirect" ? "from the listing link (the site's former address is on file)" : "advertising it on their website",
+          tone: "link",
         }
-      : linkDesk
+      : vinDealer
         ? {
-            name: linkDesk.dealerName,
-            where: deskLocationLine(linkDesk),
-            note: r.via === "redirect" ? "from the listing link (the site's former address is on file)" : "from the listing link",
-            tone: "link",
+            name: vinDealer.dealerName,
+            where: [vinDealer.city, vinDealer.state].filter(Boolean).join(", "),
+            note: dealerSourceLabel(vinDealer.dealerSource),
+            tone: "vin",
           }
         : null;
+  const shipToNote =
+    shown && shown.tone !== "vin" && vinDealer && !sameDealerName(vinDealer.dealerName, shown.name)
+      ? `Factory shipped it to ${vinDealer.dealerName}${[vinDealer.city, vinDealer.state].filter(Boolean).length ? ` (${[vinDealer.city, vinDealer.state].filter(Boolean).join(", ")})` : ""} — the request goes to the store listing it.`
+      : null;
   const contactNote = picked
     ? picked.knownNamed
     : shown?.tone === "link" && linkDesk
@@ -456,7 +464,7 @@ function LinkConfirmPanel({
                 {shown.where ? <span className="text-ink-muted"> · {shown.where}</span> : null}
               </span>
               <span className="block text-[10px] text-ink-muted">
-                <span className={shown.tone === "vin" ? "text-emerald-300" : shown.tone === "picked" ? "text-sky-300" : "text-amber-300"}>
+                <span className={shown.tone === "link" ? "text-emerald-300" : shown.tone === "picked" ? "text-sky-300" : "text-amber-300"}>
                   {shown.note}
                 </span>
                 {contactNote === true ? <span className="text-emerald-300"> · sales contact on file</span> : null}
@@ -464,6 +472,7 @@ function LinkConfirmPanel({
                   <span className="text-amber-300"> · no named sales contact on file yet — you can add your sales adviser&apos;s email on the Dealers step</span>
                 ) : null}
               </span>
+              {shipToNote ? <span className="block text-[10px] text-ink-faint" data-testid="ship-to-note">{shipToNote}</span> : null}
             </span>
             <button
               type="button"
@@ -2145,6 +2154,11 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                                   {" "}
                                   ({dealerSourceLabel(selectedVehicle.location.dealerSource)}
                                   {selectedVehicle.location.dealerSource === "window_sticker" ? ", may have moved" : ""})
+                                </span>
+                              ) : null}
+                              {selectedVehicle.location.factoryShipTo?.dealerName ? (
+                                <span className="text-ink-faint" data-testid="factory-ship-to">
+                                  {" · "}factory shipped to {selectedVehicle.location.factoryShipTo.dealerName}
                                 </span>
                               ) : null}
                             </>
