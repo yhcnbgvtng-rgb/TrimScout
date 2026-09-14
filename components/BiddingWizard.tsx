@@ -680,17 +680,21 @@ function AlternateVinField({
       </div>
     );
   }
+  // Same row as the primary VDP field: globe icon, full-width link/VIN input, Add.
   return (
-    <div className="flex flex-wrap items-center gap-2">
-      <span className="w-[5.5rem] shrink-0 text-[10px] font-bold uppercase text-ink-faint">{label}</span>
-      <div className="flex min-w-0 flex-1 gap-2">
-        <input
-          type="text"
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          placeholder={VEHICLE_INPUT_PLACEHOLDER}
-          className="w-full rounded-lg border border-border bg-background py-2 px-3 text-[11px] text-ink-light placeholder-ink-faint focus:border-emerald-500 focus:outline-none"
-        />
+    <div className="space-y-1">
+      <div className="flex gap-2">
+        <div className="relative flex-1">
+          <Globe className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-emerald-400" />
+          <input
+            type="text"
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            placeholder={`${label} — ${VEHICLE_INPUT_PLACEHOLDER} (optional)`}
+            aria-label={label}
+            className="w-full rounded-lg border border-border bg-background py-2 pl-9 pr-3 text-[11px] text-ink-light placeholder-ink-faint focus:border-emerald-500 focus:outline-none"
+          />
+        </div>
         <button
           type="button"
           onClick={onImport}
@@ -700,7 +704,7 @@ function AlternateVinField({
           {parsing ? "Adding…" : "Add"}
         </button>
       </div>
-      {error && <p className="basis-full text-[10px] text-rose-400">{error}</p>}
+      {error && <p className="text-[10px] text-rose-400">{error}</p>}
     </div>
   );
 }
@@ -2264,7 +2268,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                 {/* Two alternate slots, always visible on a new car — optional,
                     the buyer fills them in or doesn't. Used requests are one car. */}
                 {isUsed ? null : (
-                  <div className="space-y-1.5 rounded-xl border border-border/60 bg-surface-elevated/40 px-3 py-2.5" data-testid="alternate-vehicles">
+                  <div className="space-y-2" data-testid="alternate-vehicles">
                     <p className="text-[10px] text-ink-faint">
                       Optional: up to 2 similar vehicles — dealers can quote on any of the three.
                     </p>
