@@ -5,13 +5,13 @@
     "city": "Springfield",
     "state": "NJ",
     "make": "Toyota",
-    "domain": "autolandtoyota.com",
-    "sitemapUrl": "https://www.autolandtoyota.com/sitemap.xml",
-    "inventorySitemapUrl": "https://www.autolandtoyota.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://autolandtoyota.com/",
+    "domain": "1800toyotaland.com",
+    "sitemapUrl": "https://www.1800toyotaland.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.1800toyotaland.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://1800toyotaland.com/",
     "lat": null,
     "lng": null,
-    "domainSource": "curated"
+    "domainSource": "oem-locator"
   },
   {
     "id": "toyota-crestmont-toyota",
@@ -25,7 +25,7 @@
     "fallbackUrl": "https://crestmonttoyota.com/",
     "lat": null,
     "lng": null,
-    "domainSource": "curated"
+    "domainSource": "oem-locator"
   },
   {
     "id": "toyota-dayton-toyota",
@@ -39,7 +39,7 @@
     "fallbackUrl": "https://daytontoyota.com/",
     "lat": null,
     "lng": null,
-    "domainSource": "curated"
+    "domainSource": "oem-locator"
   },
   {
     "id": "toyota-dch-brunswick-toyota",
@@ -53,7 +53,7 @@
     "fallbackUrl": "https://dchbrunswicktoyota.com/",
     "lat": null,
     "lng": null,
-    "domainSource": "curated"
+    "domainSource": "oem-locator"
   },
   {
     "id": "toyota-dch-freehold-toyota",
@@ -67,12 +67,12 @@
     "fallbackUrl": "https://dchfreeholdtoyota.com/",
     "lat": null,
     "lng": null,
-    "domainSource": "curated"
+    "domainSource": "oem-locator"
   },
   {
     "id": "toyota-east-coast-toyota",
     "name": "East Coast Toyota",
-    "city": "Wood-Ridge",
+    "city": "Wood Ridge",
     "state": "NJ",
     "make": "Toyota",
     "domain": "eastcoasttoyota.com",
@@ -81,7 +81,7 @@
     "fallbackUrl": "https://eastcoasttoyota.com/",
     "lat": null,
     "lng": null,
-    "domainSource": "curated"
+    "domainSource": "oem-locator"
   },
   {
     "id": "toyota-empire-toyota-of-green-brook",
@@ -89,13 +89,13 @@
     "city": "Green Brook",
     "state": "NJ",
     "make": "Toyota",
-    "domain": "empiretoyotaofgreenbrook.com",
-    "sitemapUrl": "https://www.empiretoyotaofgreenbrook.com/sitemap.xml",
-    "inventorySitemapUrl": "https://www.empiretoyotaofgreenbrook.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://empiretoyotaofgreenbrook.com/",
+    "domain": "shopempiretoyotaofgreenbrook.com",
+    "sitemapUrl": "https://www.shopempiretoyotaofgreenbrook.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.shopempiretoyotaofgreenbrook.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://shopempiretoyotaofgreenbrook.com/",
     "lat": null,
     "lng": null,
-    "domainSource": "curated"
+    "domainSource": "oem-locator"
   },
   {
     "id": "toyota-fred-beans-toyota-of-flemington",
@@ -103,13 +103,13 @@
     "city": "Flemington",
     "state": "NJ",
     "make": "Toyota",
-    "domain": "fredbeanstoyotaofflemington.com",
-    "sitemapUrl": "https://www.fredbeanstoyotaofflemington.com/sitemap.xml",
-    "inventorySitemapUrl": "https://www.fredbeanstoyotaofflemington.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://fredbeanstoyotaofflemington.com/",
+    "domain": "fredbeanstoyota.com",
+    "sitemapUrl": "https://www.fredbeanstoyota.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.fredbeanstoyota.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://fredbeanstoyota.com/",
     "lat": null,
     "lng": null,
-    "domainSource": "curated"
+    "domainSource": "oem-locator"
   },
   {
     "id": "toyota-galaxy-toyota",
@@ -123,7 +123,7 @@
     "fallbackUrl": "https://galaxytoyota.net/",
     "lat": null,
     "lng": null,
-    "domainSource": "curated"
+    "domainSource": "oem-locator"
   },
   {
     "id": "toyota-gateway-toyota",
@@ -137,7 +137,7 @@
     "fallbackUrl": "https://gatewaytoyota.com/",
     "lat": null,
     "lng": null,
-    "domainSource": "curated"
+    "domainSource": "oem-locator"
   },
   {
     "id": "toyota-glen-motors",
@@ -145,13 +145,13 @@
     "city": "Fair Lawn",
     "state": "NJ",
     "make": "Toyota",
-    "domain": "glenmotors.com",
-    "sitemapUrl": "https://www.glenmotors.com/sitemap.xml",
-    "inventorySitemapUrl": "https://www.glenmotors.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://glenmotors.com/",
+    "domain": "glentoyota.com",
+    "sitemapUrl": "https://www.glentoyota.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.glentoyota.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://glentoyota.com/",
     "lat": null,
     "lng": null,
-    "domainSource": "curated"
+    "domainSource": "oem-locator"
   },
   {
     "id": "toyota-holman-toyota",
@@ -165,7 +165,7 @@
     "fallbackUrl": "https://holmantoyota.com/",
     "lat": null,
     "lng": null,
-    "domainSource": "curated"
+    "domainSource": "oem-locator"
   },
   {
     "id": "toyota-hudson-toyota",
@@ -179,7 +179,7 @@
     "fallbackUrl": "https://hudsontoyota.com/",
     "lat": null,
     "lng": null,
-    "domainSource": "curated"
+    "domainSource": "oem-locator"
   },
   {
     "id": "toyota-liberty-toyota",
@@ -193,7 +193,7 @@
     "fallbackUrl": "https://libertytoyota.com/",
     "lat": null,
     "lng": null,
-    "domainSource": "curated"
+    "domainSource": "oem-locator"
   },
   {
     "id": "toyota-parkway-toyota",
@@ -207,12 +207,12 @@
     "fallbackUrl": "https://parkwaytoyota.com/",
     "lat": null,
     "lng": null,
-    "domainSource": "curated"
+    "domainSource": "oem-locator"
   },
   {
-    "id": "toyota-paul-miller-toyota-of-west-caldwell",
-    "name": "Paul Miller Toyota of West Caldwell",
-    "city": "West Caldwell",
+    "id": "toyota-paul-miller-toyota",
+    "name": "Paul Miller Toyota",
+    "city": "Pine Brook",
     "state": "NJ",
     "make": "Toyota",
     "domain": "paulmillertoyota.com",
@@ -221,7 +221,7 @@
     "fallbackUrl": "https://paulmillertoyota.com/",
     "lat": null,
     "lng": null,
-    "domainSource": "curated"
+    "domainSource": "oem-locator"
   },
   {
     "id": "toyota-prestige-toyota-of-ramsey",
@@ -229,13 +229,13 @@
     "city": "Ramsey",
     "state": "NJ",
     "make": "Toyota",
-    "domain": "prestigestoyota.com",
-    "sitemapUrl": "https://www.prestigestoyota.com/sitemap.xml",
-    "inventorySitemapUrl": "https://www.prestigestoyota.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://prestigestoyota.com/",
+    "domain": "prestigetoyota.com",
+    "sitemapUrl": "https://www.prestigetoyota.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.prestigetoyota.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://prestigetoyota.com/",
     "lat": null,
     "lng": null,
-    "domainSource": "curated"
+    "domainSource": "oem-locator"
   },
   {
     "id": "toyota-route-22-toyota",
@@ -249,7 +249,7 @@
     "fallbackUrl": "https://route22toyota.com/",
     "lat": null,
     "lng": null,
-    "domainSource": "curated"
+    "domainSource": "oem-locator"
   },
   {
     "id": "toyota-sansone-toyota",
@@ -257,13 +257,13 @@
     "city": "Avenel",
     "state": "NJ",
     "make": "Toyota",
-    "domain": "66toyota.com",
-    "sitemapUrl": "https://www.66toyota.com/sitemap.xml",
-    "inventorySitemapUrl": "https://www.66toyota.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://66toyota.com/",
+    "domain": "sansonestoyota.com",
+    "sitemapUrl": "https://www.sansonestoyota.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.sansonestoyota.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://sansonestoyota.com/",
     "lat": null,
     "lng": null,
-    "domainSource": "curated"
+    "domainSource": "oem-locator"
   },
   {
     "id": "toyota-shore-toyota",
@@ -277,7 +277,7 @@
     "fallbackUrl": "https://shoretoyota.com/",
     "lat": null,
     "lng": null,
-    "domainSource": "curated"
+    "domainSource": "oem-locator"
   },
   {
     "id": "toyota-team-toyota-of-princeton",
@@ -285,13 +285,13 @@
     "city": "Lawrenceville",
     "state": "NJ",
     "make": "Toyota",
-    "domain": "teamtoyotaofprinceton.com",
-    "sitemapUrl": "https://www.teamtoyotaofprinceton.com/sitemap.xml",
-    "inventorySitemapUrl": "https://www.teamtoyotaofprinceton.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://teamtoyotaofprinceton.com/",
+    "domain": "teamtoyotaprinceton.com",
+    "sitemapUrl": "https://www.teamtoyotaprinceton.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.teamtoyotaprinceton.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://teamtoyotaprinceton.com/",
     "lat": null,
     "lng": null,
-    "domainSource": "curated"
+    "domainSource": "oem-locator"
   },
   {
     "id": "toyota-towne-toyota",
@@ -305,7 +305,7 @@
     "fallbackUrl": "https://townetoyota.com/",
     "lat": null,
     "lng": null,
-    "domainSource": "curated"
+    "domainSource": "oem-locator"
   },
   {
     "id": "toyota-toyota-of-hackensack",
@@ -319,7 +319,7 @@
     "fallbackUrl": "https://toyotaofhackensack.com/",
     "lat": null,
     "lng": null,
-    "domainSource": "pattern-guess"
+    "domainSource": "oem-locator"
   },
   {
     "id": "toyota-toyota-of-morristown",
@@ -333,7 +333,7 @@
     "fallbackUrl": "https://toyotaofmorristown.com/",
     "lat": null,
     "lng": null,
-    "domainSource": "pattern-guess"
+    "domainSource": "oem-locator"
   },
   {
     "id": "toyota-toyota-of-runnemede",
@@ -347,7 +347,7 @@
     "fallbackUrl": "https://toyotaofrunnemede.com/",
     "lat": null,
     "lng": null,
-    "domainSource": "pattern-guess"
+    "domainSource": "oem-locator"
   },
   {
     "id": "toyota-toyota-of-turnersville",
@@ -361,7 +361,7 @@
     "fallbackUrl": "https://toyotaofturnersville.com/",
     "lat": null,
     "lng": null,
-    "domainSource": "pattern-guess"
+    "domainSource": "oem-locator"
   },
   {
     "id": "toyota-toyota-of-vineland",
@@ -375,7 +375,7 @@
     "fallbackUrl": "https://toyotaofvineland.com/",
     "lat": null,
     "lng": null,
-    "domainSource": "pattern-guess"
+    "domainSource": "oem-locator"
   },
   {
     "id": "toyota-toyota-universe",
@@ -389,7 +389,7 @@
     "fallbackUrl": "https://toyotauniverse.com/",
     "lat": null,
     "lng": null,
-    "domainSource": "curated"
+    "domainSource": "oem-locator"
   },
   {
     "id": "toyota-toyota-world-of-clinton",
@@ -403,7 +403,7 @@
     "fallbackUrl": "https://toyotaworldclinton.com/",
     "lat": null,
     "lng": null,
-    "domainSource": "curated"
+    "domainSource": "oem-locator"
   },
   {
     "id": "toyota-toyota-world-of-lakewood",
@@ -411,13 +411,13 @@
     "city": "Lakewood",
     "state": "NJ",
     "make": "Toyota",
-    "domain": "toyotaworldlakewood.com",
-    "sitemapUrl": "https://www.toyotaworldlakewood.com/sitemap.xml",
-    "inventorySitemapUrl": "https://www.toyotaworldlakewood.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://toyotaworldlakewood.com/",
+    "domain": "lakewoodtoyota.com",
+    "sitemapUrl": "https://www.lakewoodtoyota.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.lakewoodtoyota.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://lakewoodtoyota.com/",
     "lat": null,
     "lng": null,
-    "domainSource": "curated"
+    "domainSource": "oem-locator"
   },
   {
     "id": "toyota-toyota-world-of-newton",
@@ -425,12 +425,12 @@
     "city": "Newton",
     "state": "NJ",
     "make": "Toyota",
-    "domain": "toyotaworldnewton.com",
-    "sitemapUrl": "https://www.toyotaworldnewton.com/sitemap.xml",
-    "inventorySitemapUrl": "https://www.toyotaworldnewton.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://toyotaworldnewton.com/",
+    "domain": "newtontoyota.com",
+    "sitemapUrl": "https://www.newtontoyota.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.newtontoyota.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://newtontoyota.com/",
     "lat": null,
     "lng": null,
-    "domainSource": "curated"
+    "domainSource": "oem-locator"
   }
 ]

@@ -1,5 +1,33 @@
 [
   {
+    "id": "mitsubishi-atlantic-city-mitsubishi",
+    "name": "Atlantic City Mitsubishi",
+    "city": "Pleasantville",
+    "state": "NJ",
+    "make": "Mitsubishi",
+    "domain": "acmitsubishi.com",
+    "sitemapUrl": "https://www.acmitsubishi.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.acmitsubishi.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://acmitsubishi.com/",
+    "lat": null,
+    "lng": null,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "mitsubishi-bell-mitsubishi",
+    "name": "Bell Mitsubishi",
+    "city": "Rahway",
+    "state": "NJ",
+    "make": "Mitsubishi",
+    "domain": "bellmitsubishi.com",
+    "sitemapUrl": "https://www.bellmitsubishi.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.bellmitsubishi.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://bellmitsubishi.com/",
+    "lat": null,
+    "lng": null,
+    "domainSource": "oem-locator"
+  },
+  {
     "id": "mitsubishi-cherry-hill-mitsubishi",
     "name": "Cherry Hill Mitsubishi",
     "city": "Cherry Hill",
@@ -11,7 +39,7 @@
     "fallbackUrl": "https://cherryhillmitsubishi.com/",
     "lat": null,
     "lng": null,
-    "domainSource": "curated"
+    "domainSource": "oem-locator"
   },
   {
     "id": "mitsubishi-freehold-mitsubishi",
@@ -25,48 +53,76 @@
     "fallbackUrl": "https://freeholdmitsubishi.com/",
     "lat": null,
     "lng": null,
-    "domainSource": "curated"
+    "domainSource": "oem-locator"
   },
   {
-    "id": "mitsubishi-hudson-mitsubishi",
-    "name": "Hudson Mitsubishi",
-    "city": "Jersey City",
+    "id": "mitsubishi-liccardi-mitsubishi",
+    "name": "Liccardi Mitsubishi",
+    "city": "Green Brook",
     "state": "NJ",
     "make": "Mitsubishi",
-    "domain": "hudsonmitsubishi.com",
-    "sitemapUrl": "https://www.hudsonmitsubishi.com/sitemap.xml",
-    "inventorySitemapUrl": "https://www.hudsonmitsubishi.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://hudsonmitsubishi.com/",
+    "domain": "liccardimitsubishi.com",
+    "sitemapUrl": "https://www.liccardimitsubishi.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.liccardimitsubishi.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://liccardimitsubishi.com/",
     "lat": null,
     "lng": null,
-    "domainSource": "curated"
+    "domainSource": "oem-locator"
   },
   {
-    "id": "mitsubishi-mitsubishi-of-turnersville",
-    "name": "Mitsubishi of Turnersville",
-    "city": "Turnersville",
+    "id": "mitsubishi-matt-blatt-mitsubishi",
+    "name": "Matt Blatt Mitsubishi",
+    "city": "Glassboro",
     "state": "NJ",
     "make": "Mitsubishi",
-    "domain": "mitsubishiturnersville.com",
-    "sitemapUrl": "https://www.mitsubishiturnersville.com/sitemap.xml",
-    "inventorySitemapUrl": "https://www.mitsubishiturnersville.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://mitsubishiturnersville.com/",
+    "domain": "mattblattmitsubishi.com",
+    "sitemapUrl": "https://www.mattblattmitsubishi.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.mattblattmitsubishi.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://mattblattmitsubishi.com/",
     "lat": null,
     "lng": null,
-    "domainSource": "curated"
+    "domainSource": "oem-locator"
   },
   {
-    "id": "mitsubishi-route-22-mitsubishi",
-    "name": "Route 22 Mitsubishi",
-    "city": "Hillside",
+    "id": "mitsubishi-route-17-mitsubishi",
+    "name": "Route 17 Mitsubishi",
+    "city": "Ramsey",
     "state": "NJ",
     "make": "Mitsubishi",
-    "domain": "route22mitsubishi.com",
-    "sitemapUrl": "https://www.route22mitsubishi.com/sitemap.xml",
-    "inventorySitemapUrl": "https://www.route22mitsubishi.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://route22mitsubishi.com/",
+    "domain": "route17mitsubishi.com",
+    "sitemapUrl": "https://www.route17mitsubishi.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.route17mitsubishi.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://route17mitsubishi.com/",
     "lat": null,
     "lng": null,
-    "domainSource": "curated"
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "mitsubishi-sansone-jr-s-66-mitsubishi",
+    "name": "Sansone Jr's 66 Mitsubishi",
+    "city": "Neptune",
+    "state": "NJ",
+    "make": "Mitsubishi",
+    "domain": "sansonejrs66mitsubishi.com",
+    "sitemapUrl": "https://www.sansonejrs66mitsubishi.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.sansonejrs66mitsubishi.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://sansonejrs66mitsubishi.com/",
+    "lat": null,
+    "lng": null,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "mitsubishi-toms-river-mitsubishi",
+    "name": "Toms River Mitsubishi",
+    "city": "Toms River",
+    "state": "NJ",
+    "make": "Mitsubishi",
+    "domain": "tomsrivermitsubishi.com",
+    "sitemapUrl": "https://www.tomsrivermitsubishi.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.tomsrivermitsubishi.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://tomsrivermitsubishi.com/",
+    "lat": null,
+    "lng": null,
+    "domainSource": "oem-locator"
   }
 ]

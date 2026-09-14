@@ -79,13 +79,36 @@ describe('NJ brand policy', () => {
     assert.ok(key);
     assert.equal(key.domain, 'keyacuraofatlanticcity.com');
     const bmw = loadNjDealers({ cwd: CRAWLER_ROOT, brand: 'BMW' });
-    const morristown = bmw.find((d) => /morristown/i.test(d.name));
-    assert.ok(morristown);
-    assert.equal(morristown.domain, 'morristownbmw.com');
+    const circle = bmw.find((d) => /circle bmw/i.test(d.name));
+    assert.ok(circle);
+    assert.equal(circle.domain, 'circlebmw.com');
     const porsche = loadNjDealers({ cwd: CRAWLER_ROOT, brand: 'Porsche' });
     const princeton = porsche.find((d) => /princeton/i.test(d.name));
     assert.ok(princeton);
     assert.equal(princeton.domain, 'princetonporsche.com');
+  });
+
+  it('keeps only locator or listing hosts and drops invented brandofcity templates', () => {
+    const all = loadNjDealers({ cwd: CRAWLER_ROOT });
+    const allowed = new Set(['oem-locator', 'listing-verified', 'curated-overlay']);
+    assert.ok(all.length > 20);
+    assert.ok(all.every((d) => allowed.has(d.domainSource)), 'every rooftop must have a verified source');
+    assert.ok(all.every((d) => d.domainSource !== 'pattern-guess'));
+    const hosts = new Set(all.map((d) => d.domain));
+    assert.equal(hosts.has('66toyota.com'), false);
+    assert.equal(hosts.has('mitsubishiturnersville.com'), false);
+    assert.equal(hosts.has('hudsonmitsubishi.com'), false);
+    assert.equal(hosts.has('route22mitsubishi.com'), false);
+    assert.equal(hosts.has('mazdaofmorristown.com'), false);
+    assert.equal(hosts.has('volvocarsmorristown.com'), false);
+    const toyota = all.find((d) => /sansone toyota/i.test(d.name));
+    assert.ok(toyota);
+    assert.equal(toyota.domain, 'sansonestoyota.com');
+    const mitsubishi = loadNjDealers({ cwd: CRAWLER_ROOT, brand: 'Mitsubishi' });
+    assert.ok(mitsubishi.length >= 8);
+    assert.ok(mitsubishi.every((d) => d.domainSource === 'oem-locator'));
+    assert.ok(mitsubishi.some((d) => d.domain === 'acmitsubishi.com'));
+    assert.ok(!mitsubishi.some((d) => /nielsen/i.test(d.name)));
   });
 });
 
@@ -374,9 +397,13 @@ describe('NY locator seed (no brandofcity guesses)', () => {
     assert.ok(acura.every((d) => d.make === 'Acura'));
     assert.ok(acura.every((d) => d.fallbackUrl.endsWith('/')));
     const toyota = loadNyDealers({ cwd: CRAWLER_ROOT, brand: 'Toyota' });
-    assert.equal(toyota.length, 0);
+    assert.ok(toyota.length > 10);
+    assert.ok(toyota.every((d) => d.domainSource === 'oem-locator'));
+    assert.ok(toyota.some((d) => d.domain === 'toyotaofmanhattan.com'));
+    const lexus = loadNyDealers({ cwd: CRAWLER_ROOT, brand: 'Lexus' });
+    assert.ok(lexus.length > 5);
     const honda = loadNyDealers({ cwd: CRAWLER_ROOT, brand: 'Honda' });
-    assert.equal(honda.length, 0);
+    assert.ok(honda.every((d) => d.domainSource !== 'pattern-guess'));
   });
 });
 

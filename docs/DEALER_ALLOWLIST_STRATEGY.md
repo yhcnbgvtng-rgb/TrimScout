@@ -40,11 +40,26 @@ Do not implement Akamai or CloudFront bypass, TLS impersonation, or cookie repla
 
 ## Domain list quality
 
-`src/nj_verified_domains.js` overlays hosts from in-repo OEM dumps (Acura locator `acura-dealers.json`, Porsche `dealers.json`), listing VDP hosts in `lib/verifiedVehicles.json`, and a small curated overlay (BMW of Morristown → `morristownbmw.com`, Porsche Princeton → `princetonporsche.com`, Key Acura → `keyacuraofatlanticcity.com`).
+Invented `brandofcity.com` / `volvocars{city}.com` hosts are **not** in the seed. `loadNjDealers` / `loadNyDealers` read official locator dumps only (`dealers/oem-dumps/`, in-repo Acura/Porsche files, listing VDPs). Refresh dumps with `npm run fetch-oem-locators` (detect-only — a 403 is recorded, never bypassed). Then `npm run write-nj-dealers` and `npm run write-ny-dealers`.
 
-Honda / Toyota / Lexus locators are referenced elsewhere as successful scrapes but this package has no nationwide dump for those brands. Remaining `brandofcity.com` / `volvocars{city}.com` rows stay tagged `pattern-guess` until a locator file is added. Genesis / Stellantis locators stay out of the NJ crawl.
+### Sources per IN brand
 
-NY lists live at `dealers/ny/<brand>.json` from the same Acura/Porsche dumps and listing hosts (`npm run write-ny-dealers`). No brandofcity guesses. Brands without an in-repo locator stay empty rather than invented.
+| Brand | Source | Notes |
+|---|---|---|
+| Acura | In-repo `acura-dealers.json` (official locator dump) | Live `acura.com` locator is Akamai 403 from some IPs — do not bypass. Overlay: Key Acura → `keyacuraofatlanticcity.com`. |
+| Porsche | In-repo `dealers.json` (official US Porsche Center directory) | Overlay: Porsche Princeton → `princetonporsche.com`. |
+| Lexus | Official `GET https://www.lexus.com/rest/lexus/dealers` | `dealerSiteUrl` from the OEM REST directory. |
+| Toyota | Official dealer-hub city pages `https://www.toyota.com/dealers/{state}/{city}/dealers/` | Parse `dealer-card` websites. Example: Sansone Toyota is `sansonestoyota.com`, not `66toyota.com`. |
+| Mercedes-Benz | Official `https://nafta-service.mbusa.com/api/dlrsrv/v1/dealers?zip=&distance=&filter=mbdealer` | Same API the MBUSA locator page calls. Open Road rows are dropped by the megadealer filter. Overlay: Paramus → `mercedesbenzparamus.com` when that rooftop exists. |
+| Mitsubishi | Official `https://www.mitsubishicars.com/dealers` Apollo cache | Skip Nielsen Parts Depot and non-Mitsubishi rows. |
+| BMW | Listing-verified VDPs in `lib/verifiedVehicles.json` | Live BMW localsearch timed out / unused. No invented `bmwof{city}` hosts. |
+| Audi | Listing-verified VDPs | Live Audi locator is 403. |
+| Volvo | Listing-verified VDPs | Live Volvo locator is 403. Overlay: Prestige Volvo → `prestigevolvo.com`. |
+| Honda, Kia, Nissan, Infiniti, Subaru, Mazda, Volkswagen, Mini | Official locators tried by `fetch-oem-locators` | Honda/Acura platform APIs return Akamai 403 from this agent IP. Other locators are JS shells with no public dealer JSON. Dumps stay empty rather than inventing hosts. Re-run the script on Lightsail if those APIs answer there. |
+
+OUT brands (Ford, GM, Stellantis, Hyundai/Genesis, EV startups) stay out even when a nationwide JSON exists in this repo.
+
+NY uses the same dumps (`dealers/ny/<brand>.json` via `npm run write-ny-dealers`). Cloudflare / Akamai / DataDome / Vercel on a **dealer site** remain detect-only skips after the host is real.
 
 ## Probe order
 

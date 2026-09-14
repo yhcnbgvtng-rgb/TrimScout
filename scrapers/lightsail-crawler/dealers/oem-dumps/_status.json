@@ -1,0 +1,474 @@
+{
+  "generatedAt": "2026-09-14T12:05:52.476Z",
+  "detectOnly": true,
+  "brands": [
+    {
+      "brand": "acura",
+      "dest": "dealers/oem-dumps/acura.json",
+      "count": 30,
+      "locator": "acura-dealers.json",
+      "note": "In-repo official locator dump (not re-fetched).",
+      "httpStatus": 200,
+      "blocked": false
+    },
+    {
+      "brand": "porsche",
+      "dest": "dealers/oem-dumps/porsche.json",
+      "count": 23,
+      "locator": "dealers.json",
+      "note": "In-repo official locator dump (not re-fetched).",
+      "httpStatus": 200,
+      "blocked": false
+    },
+    {
+      "brand": "lexus",
+      "dest": "dealers/oem-dumps/lexus.json",
+      "count": 28,
+      "locator": "https://www.lexus.com/rest/lexus/dealers",
+      "note": "Official Lexus REST dealer directory.",
+      "httpStatus": 200,
+      "blocked": false,
+      "nationwideCount": 246
+    },
+    {
+      "brand": "toyota",
+      "dest": "dealers/oem-dumps/toyota.json",
+      "count": 87,
+      "locator": "https://www.toyota.com/dealers/directory/",
+      "note": "Official Toyota dealer-hub city pages (dealer-card websites).",
+      "pages": [
+        {
+          "url": "https://www.toyota.com/dealers/new-jersey/avenel/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/new-jersey/cherry-hill/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/new-jersey/vineland/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/new-jersey/turnersville/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/new-jersey/mays-landing/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/new-york/brooklyn/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/new-york/buffalo/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/new-york/rochester/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/new-york/syracuse/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/new-york/albany/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/new-york/binghamton/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/new-york/yonkers/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/new-york/white-plains/dealers/",
+          "status": 200,
+          "ok": true
+        }
+      ],
+      "blocked": false
+    },
+    {
+      "brand": "mercedes-benz",
+      "dest": "dealers/oem-dumps/mercedes-benz.json",
+      "count": 32,
+      "locator": "https://www.mbusa.com/en/dealers",
+      "note": "Official MBUSA dealerLocatorService (zip + distance + mbdealer filter).",
+      "pages": [
+        {
+          "zip": "07004",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "07024",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "07030",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "07052",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "07701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "07739",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "07860",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "08034",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "08096",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "08234",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "08648",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "08807",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "08902",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "10001",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "10301",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "10451",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "10940",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "11201",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "11501",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "11743",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "12205",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "12601",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "13212",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "13501",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "13901",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "14221",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "14623",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "14850",
+          "status": 200,
+          "ok": true
+        }
+      ],
+      "blocked": false
+    },
+    {
+      "brand": "mitsubishi",
+      "dest": "dealers/oem-dumps/mitsubishi.json",
+      "count": 24,
+      "locator": "https://www.mitsubishicars.com/dealers",
+      "note": "Official Mitsubishi dealers page (embedded Apollo dealer cache).",
+      "httpStatus": 200,
+      "blocked": false
+    },
+    {
+      "brand": "honda",
+      "dest": "dealers/oem-dumps/honda.json",
+      "count": 0,
+      "locator": "https://automobiles.honda.com/tools/dealership-locator",
+      "note": "Official locator blocked or empty from this IP. Do not bypass. Re-run on Lightsail.",
+      "pages": [
+        {
+          "url": "https://automobiles.honda.com/tools/dealership-locator",
+          "status": 403,
+          "ok": false,
+          "error": null
+        },
+        {
+          "url": "https://automobiles.honda.com/platform/api/v1/dealer",
+          "status": 403,
+          "ok": false,
+          "error": null
+        }
+      ],
+      "blocked": true
+    },
+    {
+      "brand": "bmw",
+      "dest": "dealers/oem-dumps/bmw.json",
+      "count": 0,
+      "locator": "https://www.bmwusa.com/dealer-locator.html",
+      "note": "Official locator blocked or empty from this IP. Do not bypass. Re-run on Lightsail.",
+      "pages": [
+        {
+          "url": "https://www.bmwusa.com/dealer-locator.html",
+          "status": 200,
+          "ok": true,
+          "error": null
+        }
+      ],
+      "blocked": false
+    },
+    {
+      "brand": "mini",
+      "dest": "dealers/oem-dumps/mini.json",
+      "count": 0,
+      "locator": "https://www.miniusa.com/dealer-locator.html",
+      "note": "Official locator blocked or empty from this IP. Do not bypass. Re-run on Lightsail.",
+      "pages": [
+        {
+          "url": "https://www.miniusa.com/dealer-locator.html",
+          "status": 404,
+          "ok": false,
+          "error": null
+        },
+        {
+          "url": "https://www.miniusa.com/api/dealers",
+          "status": 404,
+          "ok": false,
+          "error": null
+        }
+      ],
+      "blocked": false
+    },
+    {
+      "brand": "kia",
+      "dest": "dealers/oem-dumps/kia.json",
+      "count": 0,
+      "locator": "https://www.kia.com/us/en/find-a-dealer",
+      "note": "Official locator blocked or empty from this IP. Do not bypass. Re-run on Lightsail.",
+      "pages": [
+        {
+          "url": "https://www.kia.com/us/en/find-a-dealer",
+          "status": 200,
+          "ok": true,
+          "error": null
+        },
+        {
+          "url": "https://www.kia.com/us/en/find-a-dealer/result?zipCode=07030",
+          "status": 200,
+          "ok": true,
+          "error": null
+        }
+      ],
+      "blocked": false
+    },
+    {
+      "brand": "nissan",
+      "dest": "dealers/oem-dumps/nissan.json",
+      "count": 0,
+      "locator": "https://www.nissanusa.com/dealer-locator.html",
+      "note": "Official locator blocked or empty from this IP. Do not bypass. Re-run on Lightsail.",
+      "pages": [
+        {
+          "url": "https://www.nissanusa.com/dealer-locator.html",
+          "status": 200,
+          "ok": true,
+          "error": null
+        }
+      ],
+      "blocked": false
+    },
+    {
+      "brand": "infiniti",
+      "dest": "dealers/oem-dumps/infiniti.json",
+      "count": 0,
+      "locator": "https://www.infinitiusa.com/dealer-locator.html",
+      "note": "Official locator blocked or empty from this IP. Do not bypass. Re-run on Lightsail.",
+      "pages": [
+        {
+          "url": "https://www.infinitiusa.com/dealer-locator.html",
+          "status": 404,
+          "ok": false,
+          "error": null
+        }
+      ],
+      "blocked": false
+    },
+    {
+      "brand": "subaru",
+      "dest": "dealers/oem-dumps/subaru.json",
+      "count": 0,
+      "locator": "https://www.subaru.com/find-a-retailer.html",
+      "note": "Official locator blocked or empty from this IP. Do not bypass. Re-run on Lightsail.",
+      "pages": [
+        {
+          "url": "https://www.subaru.com/find-a-retailer.html",
+          "status": 200,
+          "ok": true,
+          "error": null
+        },
+        {
+          "url": "https://www.subaru.com/services/dealers",
+          "status": 500,
+          "ok": false,
+          "error": null
+        }
+      ],
+      "blocked": false
+    },
+    {
+      "brand": "mazda",
+      "dest": "dealers/oem-dumps/mazda.json",
+      "count": 0,
+      "locator": "https://www.mazdausa.com/shopping-tools/find-a-dealer",
+      "note": "Official locator blocked or empty from this IP. Do not bypass. Re-run on Lightsail.",
+      "pages": [
+        {
+          "url": "https://www.mazdausa.com/shopping-tools/find-a-dealer",
+          "status": 404,
+          "ok": false,
+          "error": null
+        }
+      ],
+      "blocked": false
+    },
+    {
+      "brand": "volkswagen",
+      "dest": "dealers/oem-dumps/volkswagen.json",
+      "count": 0,
+      "locator": "https://www.vw.com/en/dealer-locator.html",
+      "note": "Official locator blocked or empty from this IP. Do not bypass. Re-run on Lightsail.",
+      "pages": [
+        {
+          "url": "https://www.vw.com/en/dealer-locator.html",
+          "status": 404,
+          "ok": false,
+          "error": null
+        }
+      ],
+      "blocked": false
+    },
+    {
+      "brand": "audi",
+      "dest": "dealers/oem-dumps/audi.json",
+      "count": 0,
+      "locator": "https://www.audiusa.com/us/web/en/dealer-locator.html",
+      "note": "Official locator blocked or empty from this IP. Do not bypass. Re-run on Lightsail.",
+      "pages": [
+        {
+          "url": "https://www.audiusa.com/us/web/en/dealer-locator.html",
+          "status": 403,
+          "ok": false,
+          "error": null
+        }
+      ],
+      "blocked": true
+    },
+    {
+      "brand": "volvo",
+      "dest": "dealers/oem-dumps/volvo.json",
+      "count": 0,
+      "locator": "https://www.volvocars.com/us/dealers/",
+      "note": "Official locator blocked or empty from this IP. Do not bypass. Re-run on Lightsail.",
+      "pages": [
+        {
+          "url": "https://www.volvocars.com/us/dealers/",
+          "status": 403,
+          "ok": false,
+          "error": null
+        },
+        {
+          "url": "https://www.volvocars.com/us/api/dealers",
+          "status": 403,
+          "ok": false,
+          "error": null
+        }
+      ],
+      "blocked": true
+    }
+  ]
+}

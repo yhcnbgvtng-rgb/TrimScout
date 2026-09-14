@@ -196,13 +196,17 @@ Writes `data/reports/dealer-bot-report-<brand>-<date>.{json,pdf}` and `dealer-bo
 
 Public sales inboxes (`sales@`, `info@`, `internet@`, `bdc@`, …) are collected during `standalone.js` from homepage / contact / staff / about / mailto / schema.org only — no login, no WAF bypass, no third-party listings. Saved on the dealer record as `salesEmail`, `emailSourceUrl`, `collectedAt` (`data/dealer_contacts.json` and MariaDB `dealers.sales_email` when configured). A labeled Internet Sales / BDC / Sales Manager address is kept as `secondaryEmail` when both exist. See `../../docs/DEALER_ALLOWLIST_STRATEGY.md` for HTTP_403 vs Cloudflare.
 
-Refresh per-brand dealer files after editing `src/nj_dealer_seed.js`:
+Refresh official locator dumps, then per-brand files. Do **not** invent `brandofcity.com` hosts; a 403 from Honda/Acura/etc. is recorded, not bypassed:
 
 ```bash
+npm run fetch-oem-locators   # writes dealers/oem-dumps/ from official brand locators
 npm run write-nj-dealers
-npm run write-ny-dealers   # NY from OEM locators / listings only — no brandofcity guesses
-# node scripts/dealer-bot-report.mjs --state=NY   # detect-only; run on Lightsail, not this VM
+npm run write-ny-dealers
+# node scripts/dealer-bot-report.mjs --state=NJ   # detect-only; run on Lightsail, not this VM
+# node scripts/dealer-bot-report.mjs --state=NY
 ```
+
+Sources per brand: `../../docs/DEALER_ALLOWLIST_STRATEGY.md`.
 
 Window sticker (Monroney) URLs on public VDPs are stored as `windowStickerUrl` / `windowStickerSource` / `collectedAt` (MariaDB `vehicles.window_sticker_url`). The PDF is not downloaded in this pass. Challenge pages are skipped.
 

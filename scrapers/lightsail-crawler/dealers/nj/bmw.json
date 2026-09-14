@@ -1,33 +1,5 @@
 [
   {
-    "id": "bmw-bmw-of-atlantic-city",
-    "name": "BMW of Atlantic City",
-    "city": "Egg Harbor Township",
-    "state": "NJ",
-    "make": "BMW",
-    "domain": "bmwofatlanticcity.com",
-    "sitemapUrl": "https://www.bmwofatlanticcity.com/sitemap.xml",
-    "inventorySitemapUrl": "https://www.bmwofatlanticcity.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://bmwofatlanticcity.com/",
-    "lat": null,
-    "lng": null,
-    "domainSource": "pattern-guess"
-  },
-  {
-    "id": "bmw-bmw-of-bloomfield",
-    "name": "BMW of Bloomfield",
-    "city": "Bloomfield",
-    "state": "NJ",
-    "make": "BMW",
-    "domain": "bmwofbloomfield.com",
-    "sitemapUrl": "https://www.bmwofbloomfield.com/sitemap.xml",
-    "inventorySitemapUrl": "https://www.bmwofbloomfield.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://bmwofbloomfield.com/",
-    "lat": null,
-    "lng": null,
-    "domainSource": "pattern-guess"
-  },
-  {
     "id": "bmw-bmw-of-freehold",
     "name": "BMW of Freehold",
     "city": "Freehold",
@@ -40,34 +12,6 @@
     "lat": null,
     "lng": null,
     "domainSource": "listing-verified"
-  },
-  {
-    "id": "bmw-bmw-of-morristown",
-    "name": "BMW of Morristown",
-    "city": "Morristown",
-    "state": "NJ",
-    "make": "BMW",
-    "domain": "morristownbmw.com",
-    "sitemapUrl": "https://www.morristownbmw.com/sitemap.xml",
-    "inventorySitemapUrl": "https://www.morristownbmw.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://morristownbmw.com/",
-    "lat": null,
-    "lng": null,
-    "domainSource": "curated-overlay"
-  },
-  {
-    "id": "bmw-bmw-of-ramsey",
-    "name": "BMW of Ramsey",
-    "city": "Ramsey",
-    "state": "NJ",
-    "make": "BMW",
-    "domain": "bmwoframsey.com",
-    "sitemapUrl": "https://www.bmwoframsey.com/sitemap.xml",
-    "inventorySitemapUrl": "https://www.bmwoframsey.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://bmwoframsey.com/",
-    "lat": null,
-    "lng": null,
-    "domainSource": "pattern-guess"
   },
   {
     "id": "bmw-bmw-of-springfield",
@@ -98,20 +42,6 @@
     "domainSource": "listing-verified"
   },
   {
-    "id": "bmw-bmw-of-turnersville",
-    "name": "BMW of Turnersville",
-    "city": "Turnersville",
-    "state": "NJ",
-    "make": "BMW",
-    "domain": "bmwturnersville.com",
-    "sitemapUrl": "https://www.bmwturnersville.com/sitemap.xml",
-    "inventorySitemapUrl": "https://www.bmwturnersville.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://bmwturnersville.com/",
-    "lat": null,
-    "lng": null,
-    "domainSource": "curated"
-  },
-  {
     "id": "bmw-circle-bmw",
     "name": "Circle BMW",
     "city": "Eatontown",
@@ -124,61 +54,5 @@
     "lat": null,
     "lng": null,
     "domainSource": "listing-verified"
-  },
-  {
-    "id": "bmw-flemington-bmw",
-    "name": "Flemington BMW",
-    "city": "Flemington",
-    "state": "NJ",
-    "make": "BMW",
-    "domain": "flemingtonbmw.com",
-    "sitemapUrl": "https://www.flemingtonbmw.com/sitemap.xml",
-    "inventorySitemapUrl": "https://www.flemingtonbmw.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://flemingtonbmw.com/",
-    "lat": null,
-    "lng": null,
-    "domainSource": "curated"
-  },
-  {
-    "id": "bmw-jmk-bmw",
-    "name": "JMK BMW",
-    "city": "Springfield",
-    "state": "NJ",
-    "make": "BMW",
-    "domain": "jmkbmw.com",
-    "sitemapUrl": "https://www.jmkbmw.com/sitemap.xml",
-    "inventorySitemapUrl": "https://www.jmkbmw.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://jmkbmw.com/",
-    "lat": null,
-    "lng": null,
-    "domainSource": "curated"
-  },
-  {
-    "id": "bmw-paul-miller-bmw",
-    "name": "Paul Miller BMW",
-    "city": "Parsippany",
-    "state": "NJ",
-    "make": "BMW",
-    "domain": "paulmillerbmw.com",
-    "sitemapUrl": "https://www.paulmillerbmw.com/sitemap.xml",
-    "inventorySitemapUrl": "https://www.paulmillerbmw.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://paulmillerbmw.com/",
-    "lat": null,
-    "lng": null,
-    "domainSource": "curated"
-  },
-  {
-    "id": "bmw-princeton-bmw",
-    "name": "Princeton BMW",
-    "city": "Lawrenceville",
-    "state": "NJ",
-    "make": "BMW",
-    "domain": "princetonbmw.com",
-    "sitemapUrl": "https://www.princetonbmw.com/sitemap.xml",
-    "inventorySitemapUrl": "https://www.princetonbmw.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://princetonbmw.com/",
-    "lat": null,
-    "lng": null,
-    "domainSource": "curated"
   }
 ]

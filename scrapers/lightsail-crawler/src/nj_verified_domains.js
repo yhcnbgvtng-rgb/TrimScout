@@ -1,17 +1,19 @@
-// Overlay verified NJ dealer hosts onto the curated seed.
+// Overlay verified dealer hosts (name → official website).
 //
-// Sources (already in this repo — no live OEM scrape from the report VM):
+// Sources:
+//   - dealers/oem-dumps/ via src/oem_locator.js (official locator fetch)
 //   - scrapers/lightsail-crawler/acura-dealers.json  (Acura locator dump)
 //   - scrapers/lightsail-crawler/dealers.json        (Porsche directory)
 //   - lib/verifiedVehicles.json                      (listing VDP hosts)
 //   - CURATED_OVERLAY                                (name→host corrections
-//     from in-repo audits, e.g. BMW of Morristown)
+//     from in-repo audits, e.g. Porsche Princeton)
 //
 // Genesis / Stellantis / Ford / GM locators exist elsewhere in the repo;
 // those brands stay OUT of the NJ crawl and are never read here.
 //
-// brandofcity.com / volvocars{city}.com hosts are tagged pattern-guess so
-// a DNS-dead invented domain is not mistaken for bot protection.
+// looksLikeBrandCityGuess() still flags brandofcity / volvocars{city}
+// templates. Those hosts are allowed only when an OEM locator or listing
+// published them — the invented seed is gone.
 
 import fs from 'node:fs';
 import path from 'node:path';

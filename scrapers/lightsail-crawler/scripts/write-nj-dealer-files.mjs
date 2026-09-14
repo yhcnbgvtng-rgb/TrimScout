@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-// Materialize dealers/nj/<brand>.json from the curated seed so cron can
-// point CRAWLER_DEALERS_FILE at one brand file.
+// Materialize dealers/nj/<brand>.json from OEM locator dumps / listings
+// so cron can point CRAWLER_DEALERS_FILE at one brand file.
 
 import fs from 'node:fs/promises';
 import path from 'node:path';

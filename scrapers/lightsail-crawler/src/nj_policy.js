@@ -5,10 +5,7 @@
 // Detecting bot protection is required; defeating it is forbidden — this
 // module only decides *who* is in scope, not how a site is fetched.
 
-import fs from 'node:fs';
-import path from 'node:path';
-import { NJ_DEALER_SEED } from './nj_dealer_seed.js';
-import { applyVerifiedNjDomains } from './nj_verified_domains.js';
+import { locatorRowsForState } from './oem_locator.js';
 
 export const NJ_BRANDS_IN = [
   'Toyota',
@@ -166,116 +163,35 @@ export function acceptNjDealer(dealer, { brand = null } = {}) {
   return true;
 }
 
-function readJsonArray(filePath) {
-  try {
-    const raw = fs.readFileSync(filePath, 'utf-8');
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
-}
-
-function dealerKey(d) {
-  return String(d.domain || d.id || d.name || '')
-    .toLowerCase()
-    .replace(/^www\./, '');
-}
-
-// Loads NJ-only, in-brand, single-franchise rooftops.
-// Prefer per-brand files under dealers/nj/; also merges leftover NJ rows
-// from the historical dealers.json / acura-dealers.json so Porsche and
-// Acura stay complete without duplicating those lists by hand.
+// Loads NJ-only, in-brand, single-franchise rooftops from OEM locator
+// dumps / in-repo official directories / listing-verified hosts.
+// Does not read the old invented brandofcity seed.
 export function loadNjDealers({ cwd = process.cwd(), brand = null } = {}) {
-  const root = path.resolve(cwd);
-  const njDir = path.join(root, 'dealers', 'nj');
-  const files = [];
-
-  if (brand) {
-    const canon = canonicalBrandName(brand);
-    const slug = (canon || brand).toLowerCase().replace(/[^a-z0-9]+/g, '-');
-    files.push(path.join(njDir, `${slug}.json`));
-  } else if (fs.existsSync(njDir)) {
-    for (const name of fs.readdirSync(njDir)) {
-      if (name.endsWith('.json')) files.push(path.join(njDir, name));
-    }
-  }
-
-  // Historical sources already in this package — NJ + allowed brand only.
-  files.push(path.join(root, 'dealers.json'));
-  files.push(path.join(root, 'acura-dealers.json'));
-
-  const seen = new Set();
+  if (brand && isNjBrandOut(brand)) return [];
   const out = [];
-
-  for (const raw of NJ_DEALER_SEED) {
+  const seenName = new Set();
+  const seenHost = new Set();
+  for (const raw of locatorRowsForState('NJ', { cwd })) {
+    const make = canonicalBrandName(raw.make);
     const dealer = {
       ...raw,
-      make: canonicalBrandName(raw.make) || raw.make,
-      state: raw.state || 'NJ',
+      make,
+      state: 'NJ',
     };
     if (!acceptNjDealer(dealer, { brand })) continue;
-    const key = dealerKey(dealer);
-    if (!key || seen.has(key)) continue;
-    seen.add(key);
-    out.push(buildDealerRecord(dealer));
+    const rec = buildDealerRecord(dealer);
+    rec.domainSource = raw.source || 'oem-locator';
+    const nameKey = `${String(rec.make).toLowerCase()}|${String(rec.name).toLowerCase()}`;
+    const hostKey = String(rec.domain || '').toLowerCase().replace(/^www\./, '');
+    if (seenName.has(nameKey) || seenHost.has(hostKey)) continue;
+    seenName.add(nameKey);
+    seenHost.add(hostKey);
+    out.push(rec);
   }
-
-  for (const file of files) {
-    for (const raw of readJsonArray(file)) {
-      const make = raw.make || inferMakeFromName(raw.name) || brand;
-      const dealer = {
-        ...raw,
-        make: canonicalBrandName(make) || make,
-        state: raw.state || 'NJ',
-      };
-      if (!acceptNjDealer(dealer, { brand })) continue;
-      const key = dealerKey(dealer);
-      if (!key || seen.has(key)) continue;
-      seen.add(key);
-      out.push(buildDealerRecord(dealer));
-    }
-  }
-
-  const applied = applyVerifiedNjDomains(out, { cwd: root });
-  const rebuilt = applied.dealers.map((d) => {
-    const rec = buildDealerRecord(d);
-    rec.domainSource = d.domainSource || 'curated';
-    if (d.previousDomain) rec.previousDomain = d.previousDomain;
-    return rec;
-  });
-
-  rebuilt.sort((a, b) => {
+  out.sort((a, b) => {
     const brandCmp = String(a.make).localeCompare(String(b.make));
     if (brandCmp !== 0) return brandCmp;
     return String(a.name).localeCompare(String(b.name));
   });
-
-  const seenAfter = new Set();
-  const deduped = [];
-  for (const rec of rebuilt) {
-    const nameKey = `name:${overlayNameKey(rec)}`;
-    const hostKey = `host:${dealerKey(rec)}`;
-    if (seenAfter.has(nameKey) || seenAfter.has(hostKey)) continue;
-    seenAfter.add(nameKey);
-    seenAfter.add(hostKey);
-    deduped.push(rec);
-  }
-  return deduped;
-}
-
-function overlayNameKey(d) {
-  return `${String(d.make || '').toLowerCase()}|${String(d.name || '').toLowerCase()}`;
-}
-
-function inferMakeFromName(name) {
-  if (!name) return null;
-  const hay = String(name);
-  const candidates = [...NJ_BRANDS_IN].sort((a, b) => b.length - a.length);
-  for (const brand of candidates) {
-    if (new RegExp(`\\b${brand.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i').test(hay)) {
-      return brand;
-    }
-  }
-  return null;
+  return out;
 }

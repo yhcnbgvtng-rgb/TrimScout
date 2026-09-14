@@ -9,8 +9,8 @@
     "sitemapUrl": "https://jackdaniels.porsche.com/sitemap.xml",
     "inventorySitemapUrl": "https://jackdaniels.porsche.com/sitemap-inventory.xml",
     "fallbackUrl": "https://jackdaniels.porsche.com/",
-    "lat": null,
-    "lng": null,
+    "lat": 41.0585352,
+    "lng": -74.0984769,
     "domainSource": "oem-locator"
   },
   {
@@ -23,9 +23,9 @@
     "sitemapUrl": "https://www.paulmillerporsche.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.paulmillerporsche.com/sitemap-inventory.xml",
     "fallbackUrl": "https://paulmillerporsche.com/",
-    "lat": null,
-    "lng": null,
-    "domainSource": "listing-verified"
+    "lat": 40.8578772,
+    "lng": -74.4259866,
+    "domainSource": "oem-locator"
   },
   {
     "id": "porsche-bridgewater",
@@ -37,8 +37,8 @@
     "sitemapUrl": "https://www.porschebridgewater.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschebridgewater.com/sitemap-inventory.xml",
     "fallbackUrl": "https://porschebridgewater.com/",
-    "lat": null,
-    "lng": null,
+    "lat": 40.5931225,
+    "lng": -74.604954,
     "domainSource": "oem-locator"
   },
   {
@@ -51,8 +51,8 @@
     "sitemapUrl": "https://www.porschecherryhill.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschecherryhill.com/sitemap-inventory.xml",
     "fallbackUrl": "https://porschecherryhill.com/",
-    "lat": null,
-    "lng": null,
+    "lat": 39.9348351,
+    "lng": -75.0307264,
     "domainSource": "oem-locator"
   },
   {
@@ -65,8 +65,8 @@
     "sitemapUrl": "https://www.porscheenglewood.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porscheenglewood.com/sitemap-inventory.xml",
     "fallbackUrl": "https://porscheenglewood.com/",
-    "lat": null,
-    "lng": null,
+    "lat": 40.8929329,
+    "lng": -73.9726508,
     "domainSource": "oem-locator"
   },
   {
@@ -79,9 +79,9 @@
     "sitemapUrl": "https://www.porscheflemington.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porscheflemington.com/sitemap-inventory.xml",
     "fallbackUrl": "https://porscheflemington.com/",
-    "lat": null,
-    "lng": null,
-    "domainSource": "listing-verified"
+    "lat": 40.5130953,
+    "lng": -74.8591333,
+    "domainSource": "oem-locator"
   },
   {
     "id": "porsche-millburn",
@@ -93,8 +93,8 @@
     "sitemapUrl": "https://www.porschemillburn.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschemillburn.com/sitemap-inventory.xml",
     "fallbackUrl": "https://porschemillburn.com/",
-    "lat": null,
-    "lng": null,
+    "lat": 40.7244443,
+    "lng": -74.3069069,
     "domainSource": "oem-locator"
   },
   {
@@ -107,8 +107,8 @@
     "sitemapUrl": "https://www.porschemonmouth.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschemonmouth.com/sitemap-inventory.xml",
     "fallbackUrl": "https://porschemonmouth.com/",
-    "lat": null,
-    "lng": null,
+    "lat": 40.2904235,
+    "lng": -74.0172558,
     "domainSource": "oem-locator"
   },
   {
@@ -121,8 +121,8 @@
     "sitemapUrl": "https://www.princetonporsche.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.princetonporsche.com/sitemap-inventory.xml",
     "fallbackUrl": "https://princetonporsche.com/",
-    "lat": null,
-    "lng": null,
+    "lat": 40.2973299,
+    "lng": -74.7296049,
     "domainSource": "curated-overlay"
   },
   {
@@ -135,8 +135,8 @@
     "sitemapUrl": "https://www.raycatenaporsche.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.raycatenaporsche.com/sitemap-inventory.xml",
     "fallbackUrl": "https://raycatenaporsche.com/",
-    "lat": null,
-    "lng": null,
+    "lat": 40.5005351,
+    "lng": -74.3983939,
     "domainSource": "oem-locator"
   }
 ]
