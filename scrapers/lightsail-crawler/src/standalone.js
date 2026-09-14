@@ -19,6 +19,12 @@ import {
     pruneDomBlobs,
 } from './dom_store.js';
 import { inventoryChangeTypeToPriceChangeType } from './price_diff.js';
+import {
+    collectSalesEmail,
+    applyContactToDealer,
+    loadDealerContacts,
+    saveDealerContacts,
+} from './sales_email.js';
 
 // One shared V8 context, reused for every vehicle's DDC dataLayer eval
 // (Strategy 1) instead of creating a fresh one per call via
@@ -798,6 +804,7 @@ const failedDealerNames = new Set();
 let activeDealersCount = 0;
 let erroredDealersCount = 0;
 let skippedBotProtection = 0;
+const dealerContacts = await loadDealerContacts();
 
 // A single pathological dealer (huge sitemap, a slow-failing site) should
 // never be able to stall the whole nationwide run — confirmed live
@@ -826,6 +833,37 @@ for (let i = 0; i < dealers.length; i++) {
         console.log(`${progress} 🛡️ SKIP ${dealer.name}: ${botProbe.classification}${botProbe.httpStatus ? ` (${botProbe.httpStatus})` : ''} — ${botProbe.notes || 'bot protection'} [${botProbe.url || dealer.domain}]`);
         await flushRunProgress();
         continue;
+    }
+
+    try {
+        const contact = await collectSalesEmail(dealer, {
+            getHtml: async (url) => {
+                try {
+                    const res = await safeFetch(url, 8000);
+                    return {
+                        statusCode: res.statusCode,
+                        headers: res.headers,
+                        body: res.body,
+                    };
+                } catch (error) {
+                    return { error };
+                }
+            },
+        });
+        applyContactToDealer(dealer, contact);
+        if (dealer.domain) {
+            dealerContacts[dealer.domain] = {
+                dealerName: dealer.name,
+                brand: dealer.make || brand.name,
+                ...contact,
+            };
+            await saveDealerContacts(dealerContacts);
+        }
+        if (contact.salesEmail) {
+            console.log(`${progress} ✉️ ${dealer.name} sales inbox: ${contact.salesEmail} (${contact.emailSourceUrl})`);
+        }
+    } catch (emailErr) {
+        console.error(`${progress} ✉️ Email collect failed for ${dealer.name}: ${emailErr.message}`);
     }
 
     let patchrightFallback = null;

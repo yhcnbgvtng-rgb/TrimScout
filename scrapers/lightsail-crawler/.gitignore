@@ -10,3 +10,5 @@ data/dom_blobs/
 data/dom_index.json
 data/dom_index.json.tmp
 data/reports/
+data/dealer_contacts.json
+data/dealer_contacts.json.tmp

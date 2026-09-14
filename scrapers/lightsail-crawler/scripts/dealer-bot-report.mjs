@@ -14,8 +14,14 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { loadNjDealers, isNjBrandOut } from '../src/nj_policy.js';
-import { probeDealer } from '../src/http_probe.js';
+import { probeDealer, probeUrl } from '../src/http_probe.js';
 import { buildTablePdf } from '../src/pdf_table.js';
+import {
+  collectSalesEmail,
+  applyContactToDealer,
+  loadDealerContacts,
+  saveDealerContacts,
+} from '../src/sales_email.js';
 
 const brandFilter = (process.argv.find((a) => a.startsWith('--brand=')) || '')
   .slice('--brand='.length) || process.env.CRAWLER_BRAND || null;
@@ -34,11 +40,26 @@ if (dealers.length === 0) {
 
 console.log(`Probing ${dealers.length} NJ rooftop(s)${brandFilter ? ` for ${brandFilter}` : ''} with a normal HTTP client (no bypass)...`);
 
+const dealerContacts = await loadDealerContacts(cwd);
 const rows = [];
 for (let i = 0; i < dealers.length; i++) {
   const d = dealers[i];
   process.stdout.write(`  [${i + 1}/${dealers.length}] ${d.make} · ${d.name} (${d.domain})... `);
   const result = await probeDealer(d);
+  let contact = { salesEmail: null, secondaryEmail: null, emailSourceUrl: null, collectedAt: null };
+  if (result.classification === 'NONE') {
+    contact = await collectSalesEmail(d, {
+      getHtml: async (url) => probeUrl(url),
+    });
+    applyContactToDealer(d, contact);
+    if (d.domain) {
+      dealerContacts[d.domain] = {
+        dealerName: d.name,
+        brand: d.make,
+        ...contact,
+      };
+    }
+  }
   const row = {
     brand: d.make,
     dealerName: d.name,
@@ -46,12 +67,15 @@ for (let i = 0; i < dealers.length; i++) {
     state: d.state || 'NJ',
     classification: result.classification,
     httpStatus: result.httpStatus,
+    salesEmail: contact.salesEmail || '',
     notes: result.notes || '',
     url: result.url || result.fetchedUrl || null,
+    emailSourceUrl: contact.emailSourceUrl || null,
   };
   rows.push(row);
-  console.log(`${row.classification}${row.httpStatus ? ` ${row.httpStatus}` : ''}`);
+  console.log(`${row.classification}${row.httpStatus ? ` ${row.httpStatus}` : ''}${row.salesEmail ? ` · ${row.salesEmail}` : ''}`);
 }
+await saveDealerContacts(dealerContacts, cwd);
 
 const generatedAt = new Date().toISOString();
 const summary = rows.reduce((acc, r) => {
@@ -92,9 +116,10 @@ const pdf = buildTablePdf({
     { key: 'dealerName', header: 'Dealer', width: 1.8 },
     { key: 'domain', header: 'Domain', width: 1.7 },
     { key: 'state', header: 'State', width: 0.6 },
-    { key: 'classification', header: 'Classification', width: 1.4 },
-    { key: 'httpStatus', header: 'HTTP', width: 0.6 },
-    { key: 'notes', header: 'Notes', width: 2.2 },
+    { key: 'classification', header: 'Classification', width: 1.3 },
+    { key: 'httpStatus', header: 'HTTP', width: 0.5 },
+    { key: 'salesEmail', header: 'Sales email', width: 1.6 },
+    { key: 'notes', header: 'Notes', width: 1.6 },
   ],
   rows,
 });

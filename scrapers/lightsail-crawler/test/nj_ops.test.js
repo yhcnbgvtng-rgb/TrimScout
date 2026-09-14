@@ -20,6 +20,12 @@ import { computeEta, emptyProgress, writeProgress, readProgress, renderProgressH
 import { priceChangeVsYesterday, inventoryChangeTypeToPriceChangeType } from '../src/price_diff.js';
 import { captureVehicleDom, loadDomIndex, pruneDomBlobs, hashDom, extractVehicleDom } from '../src/dom_store.js';
 import { buildTablePdf } from '../src/pdf_table.js';
+import {
+  extractEmailsFromHtml,
+  pickPreferredSalesEmails,
+  emailBelongsToDealer,
+  collectSalesEmail,
+} from '../src/sales_email.js';
 
 describe('NJ brand policy', () => {
   it('keeps in-scope brands and rejects the OUT list', () => {
@@ -167,6 +173,39 @@ describe('DOM snapshot store', () => {
     const index = await loadDomIndex(cwd);
     assert.ok(index.WP0AA2A59SL000001['2026-09-13']);
     assert.ok(index.WP0AA2A59SL000001['2026-09-14']);
+  });
+});
+
+describe('public sales email collect', () => {
+  it('prefers generic inboxes and keeps a labeled personal as secondary', () => {
+    const html = `
+      <a href="mailto:jane.doe@hudsontoyota.com">Jane Doe, Internet Sales</a>
+      <a href="mailto:sales@hudsontoyota.com">sales</a>
+      <span>cars.com help: help@cars.com</span>
+    `;
+    const found = extractEmailsFromHtml(html, { dealerHost: 'hudsontoyota.com' });
+    assert.ok(found.some((f) => f.email === 'sales@hudsontoyota.com'));
+    assert.ok(!found.some((f) => f.email.endsWith('@cars.com')));
+    const picked = pickPreferredSalesEmails(found);
+    assert.equal(picked.salesEmail, 'sales@hudsontoyota.com');
+    assert.equal(picked.secondaryEmail, 'jane.doe@hudsontoyota.com');
+    assert.equal(emailBelongsToDealer('sales@hudsontoyota.com', 'hudsontoyota.com'), true);
+    assert.equal(emailBelongsToDealer('sales@gmail.com', 'hudsontoyota.com'), false);
+  });
+
+  it('skips challenge pages and never follows third-party hosts', async () => {
+    const contact = await collectSalesEmail(
+      { domain: 'exampledealer.com', name: 'Example' },
+      {
+        getHtml: async (url) => {
+          if (url.includes('/contact')) {
+            return { statusCode: 403, headers: { server: 'cloudflare' }, body: 'Attention Required! Cloudflare' };
+          }
+          return { statusCode: 200, body: '<a href="mailto:info@exampledealer.com">info</a>' };
+        },
+      }
+    );
+    assert.equal(contact.salesEmail, 'info@exampledealer.com');
   });
 });
 
