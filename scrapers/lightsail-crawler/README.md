@@ -192,7 +192,7 @@ npm run bot-report                          # all in-scope NJ rooftops
 node scripts/dealer-bot-report.mjs --brand=Toyota
 ```
 
-Writes `data/reports/dealer-bot-report-<brand>-<date>.{json,pdf}` and `dealer-bot-report-latest.{json,pdf}`. PDF opens with a one-page summary (classification table, per-brand pass rates, ready-to-crawl NONE/200 list), then the rooftop table: OK (Y/N), brand, dealer, domain, class, WAF vendor, HTTP, notes. No sales-email column — inbox harvest is crawl-time only. Excluded brands are refused.
+Writes `data/reports/dealer-bot-report-<state>-<brand>-<date>.{json,pdf}` and `dealer-bot-report-<state>-latest.{json,pdf}` (state is always in the filename so running NJ then NY the same day never overwrites the other). PDF opens with a one-page summary (classification table, per-brand pass rates, ready-to-crawl NONE/200 list), then the rooftop table: OK (Y/N), brand, dealer, domain, class, WAF vendor, HTTP, notes. No sales-email column — inbox harvest is crawl-time only. Excluded brands are refused.
 
 Public sales inboxes (`sales@`, `info@`, `internet@`, `bdc@`, …) are collected during `standalone.js` from homepage / contact / staff / about / mailto / schema.org only — no login, no WAF bypass, no third-party listings. Saved on the dealer record as `salesEmail`, `emailSourceUrl`, `collectedAt` (`data/dealer_contacts.json` and MariaDB `dealers.sales_email` when configured). A labeled Internet Sales / BDC / Sales Manager address is kept as `secondaryEmail` when both exist. See `../../docs/DEALER_ALLOWLIST_STRATEGY.md` for HTTP_403 vs Cloudflare.
 
@@ -223,23 +223,35 @@ DOM capture (gzipped compact vehicle node, keyed by VIN+date):
 
 Challenge / WAF / captcha pages are **skipped and logged**. This package must not implement WAF/captcha/challenge bypass, fingerprint spoofing, or bot-protection evasion.
 
+`daysOnLot` ("days on market") is computed for every brand from each vehicle's `firstSeen`/current run date — see `inventory_merge.js` — and is carried in `national_inventory_latest.json`/`inventory_latest.json`/`snapshots/latest_snapshot.json`. It is unrelated to the DOM-snapshot feature two paragraphs up (`dom_store.js`/`data/dom_blobs/`), which is raw-HTML capture for scraping-audit purposes, not the days-on-market metric.
+
+`data/daily_changes/daily_changes_<date>.json` (see `daily_changes.js`) is keyed `states.<STATE>.brands.<BRAND>` — one slot per state/brand run that day, merged in rather than overwritten, so a multi-brand, multi-state day doesn't lose every brand but the last one. Each brand's slot carries a complete `priceChanges` list (date + old/new price + delta for every vehicle that changed price that run, not just a top-50 sample) alongside the existing bounded `topPriceDrops` convenience view.
+
+### Daily driver: NJ + NY, every brand, one job
+
+```bash
+cd scrapers/lightsail-crawler
+npm run daily-crawl   # node scripts/run-daily-crawl.mjs
+```
+
+For each state (NJ, then NY): regenerates `dealers/<state>/<brand>.json` from the OEM-locator dumps (`write-nj-dealers` / `write-ny-dealers` — standalone.js reads these static files, not the locator dumps directly, so they have to be refreshed every run or a locator fix/addition since the last run is silently missed), refreshes that state's bot-protection classification (`dealer-bot-report.mjs --state=<X>`), then loops `src/standalone.js` once per brand that had at least one `NONE`/200 dealer in that state's report (`CRAWLER_DEALERS_FILE`/`CRAWLER_BRAND`/`CRAWLER_STATE` env vars, same invocation shape as a manual run). One brand hanging or erroring is caught, logged, and skipped — it never stops the rest of the state or the other state.
+
+Per-brand console output goes to `logs/<state>-<brand>-<date>.log` (and `logs/<state>-write-dealers-<date>.log` / `logs/<state>-bot-report-<date>.log` for the two support steps); anything under `logs/` older than 30 days is deleted at the start of every run, so this doesn't accumulate forever. The structured, durable record of the whole run — every step's exit code/duration, which brands were skipped and why, and each brand's vehicle/price-change/sold counts pulled back out of that day's `daily_changes` file — is written to `data/daily_crawl_runs/summary_<date>.json` and `data/daily_crawl_runs/latest.json` and kept indefinitely (small JSON, not logs).
+
 ### Scheduler (staggered, one brand at a time)
 
 ~6–8 in-process page workers (`CRAWLER_CONCURRENCY`, default 8). Chromium is recycled every ~10 dealers (`CRAWLER_PATCHRIGHT_RECYCLE_AFTER`, default 10) if a browser is used for a non-challenge empty sitemap. On this NJ box set `CRAWLER_PATCHRIGHT_FALLBACK=false` so crawls stay HTTP-only.
 
-Example crontab (times are local to the box; leave a gap so two brands never overlap):
+The daily driver (previous section) already runs one brand at a time internally and never overlaps two brands, so the box's crontab only needs one line for the whole NJ+NY job:
 
 ```cron
 # Progress monitor (once at boot via systemd/pm2 is better than cron)
 @reboot cd /home/ubuntu/lightsail-crawler && node src/progress_server.js
 
-0  2 * * * cd /home/ubuntu/lightsail-crawler && CRAWLER_BRAND=Toyota CRAWLER_DEALERS_FILE=dealers/nj/toyota.json CRAWLER_CONCURRENCY=8 CRAWLER_PATCHRIGHT_FALLBACK=false node src/standalone.js >> logs/toyota.log 2>&1
-0  4 * * * cd /home/ubuntu/lightsail-crawler && CRAWLER_BRAND=Honda  CRAWLER_DEALERS_FILE=dealers/nj/honda.json  CRAWLER_CONCURRENCY=8 CRAWLER_PATCHRIGHT_FALLBACK=false node src/standalone.js >> logs/honda.log 2>&1
-0  6 * * * cd /home/ubuntu/lightsail-crawler && CRAWLER_BRAND=Lexus  CRAWLER_DEALERS_FILE=dealers/nj/lexus.json  CRAWLER_CONCURRENCY=8 CRAWLER_PATCHRIGHT_FALLBACK=false node src/standalone.js >> logs/lexus.log 2>&1
-# …continue one brand at a time through the IN list. Never run two brands concurrently.
-
-# Weekly bot-protection PDF (detect only)
-30 1 * * 0 cd /home/ubuntu/lightsail-crawler && node scripts/dealer-bot-report.mjs >> logs/bot-report.log 2>&1
+# NJ then NY, every brand: see "Daily driver" above. NJ took ~1h45m and NY
+# ~2h38m on 2026-09-14's manual run, so a 2am start comfortably finishes
+# (~4-5h total) well before anyone checks data that morning.
+0  2 * * * cd /home/ubuntu/lightsail-crawler && mkdir -p logs && node scripts/run-daily-crawl.mjs >> logs/run-all-$(date +\%F).log 2>&1
 ```
 
 ### Tests

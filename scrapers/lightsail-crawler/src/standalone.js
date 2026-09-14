@@ -20,6 +20,7 @@ import {
 } from './dom_store.js';
 import { inventoryChangeTypeToPriceChangeType } from './price_diff.js';
 import { mergeInventorySnapshot } from './inventory_merge.js';
+import { buildBrandChangeRecord, mergeDailyChangesDocument } from './daily_changes.js';
 import {
     collectSalesEmail,
     applyContactToDealer,
@@ -61,6 +62,11 @@ await fs.mkdir(CHANGES_DIR, { recursive: true });
 const dealersPath = path.resolve(process.cwd(), process.env.CRAWLER_DEALERS_FILE || 'dealers.json');
 const dealers = JSON.parse(await fs.readFile(dealersPath, 'utf-8'));
 const brand = getBrand(process.env.CRAWLER_BRAND || dealers[0]?.make || 'Porsche');
+// Which state's daily_changes slot this run's record belongs under (see
+// daily_changes.js) — inferred from the dealer file itself (every dealer
+// record built by nj_policy.js/ny_policy.js carries a `state`), with an
+// explicit CRAWLER_STATE override for dealer files that predate that field.
+const state = process.env.CRAWLER_STATE || dealers[0]?.state || 'UNKNOWN';
 const startedAt = new Date().toISOString();
 const PAGE_WORKERS = Number(process.env.CRAWLER_CONCURRENCY) || 8;
 
@@ -1234,27 +1240,47 @@ for (const soldRecord of soldVehicles) {
 }
 
 // Persist Daily Changes & Latest Inventory Files
-const dailySummary = {
-    date: todayDate,
-    timestamp: todayIso,
+//
+// This brand's slot in today's daily_changes_<date>.json — merged in
+// (read-modify-write), never a whole-file overwrite. See daily_changes.js's
+// header comment: overwriting here used to make every earlier brand run
+// today vanish from this file the moment the next brand finished.
+const brandChangeRecord = buildBrandChangeRecord({
+    brand: brand.name,
+    state,
+    todayDate,
+    todayIso,
     totalDealersConfigured: dealers.length,
     activeDealersCount,
-    stats: {
-        totalActiveInventory: currentInventory.size,
-        totalNewArrivals: newArrivals.length,
-        totalPriceDrops: priceDrops.length,
-        totalPriceIncreases: priceIncreases.length,
-        totalSoldOrRemoved: soldVehicles.length,
-        skippedForBotProtection: skippedBotProtection,
-    },
-    topPriceDrops: priceDrops.sort((a, b) => a.priceDiff - b.priceDiff).slice(0, 50),
-    dealerBreakdown: dealerStats,
-};
+    currentInventorySize: currentInventory.size,
+    newArrivals,
+    priceDrops,
+    priceIncreases,
+    soldVehicles,
+    dealerStats,
+    skippedForBotProtection: skippedBotProtection,
+});
+
+let existingChangesDoc = null;
+try {
+    existingChangesDoc = JSON.parse(await fs.readFile(path.join(CHANGES_DIR, `daily_changes_${todayDate}.json`), 'utf-8'));
+} catch {
+    // No file yet today (first brand of the day, or first day ever) — fine.
+}
+
+const dailyChangesDoc = mergeDailyChangesDocument({
+    existing: existingChangesDoc,
+    state,
+    brand: brand.name,
+    brandRecord: brandChangeRecord,
+    todayDate,
+    todayIso,
+});
 
 await fs.writeFile(LATEST_SNAPSHOT_PATH, JSON.stringify(updatedSnapshot, null, 2));
 await fs.writeFile(path.join(DATA_DIR, 'national_inventory_latest.json'), JSON.stringify(allRecords, null, 2));
 await fs.writeFile(path.join(DATA_DIR, 'inventory_latest.json'), JSON.stringify(allRecords, null, 2));
-await fs.writeFile(path.join(CHANGES_DIR, `daily_changes_${todayDate}.json`), JSON.stringify(dailySummary, null, 2));
+await fs.writeFile(path.join(CHANGES_DIR, `daily_changes_${todayDate}.json`), JSON.stringify(dailyChangesDoc, null, 2));
 
 try {
     await saveDomIndex(domIndex);

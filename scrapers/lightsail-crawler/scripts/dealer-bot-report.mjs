@@ -105,10 +105,15 @@ const outDir = path.resolve(cwd, 'data', 'reports');
 await fs.mkdir(outDir, { recursive: true });
 const stamp = generatedAt.slice(0, 10);
 const brandSlug = (brandFilter || 'all').toLowerCase().replace(/[^a-z0-9]+/g, '-');
-const jsonPath = path.join(outDir, `dealer-bot-report-${brandSlug}-${stamp}.json`);
-const pdfPath = path.join(outDir, `dealer-bot-report-${brandSlug}-${stamp}.pdf`);
-const latestJson = path.join(outDir, 'dealer-bot-report-latest.json');
-const latestPdf = path.join(outDir, 'dealer-bot-report-latest.pdf');
+const stateSlug = stateFilter.toLowerCase();
+// State is part of every filename — without it, running this for NJ then
+// NY on the same day (the daily driver's normal pattern) silently
+// overwrote NJ's report with NY's, since both used to share the exact
+// same "all"-brand, same-date filename.
+const jsonPath = path.join(outDir, `dealer-bot-report-${stateSlug}-${brandSlug}-${stamp}.json`);
+const pdfPath = path.join(outDir, `dealer-bot-report-${stateSlug}-${brandSlug}-${stamp}.pdf`);
+const latestJson = path.join(outDir, `dealer-bot-report-${stateSlug}-latest.json`);
+const latestPdf = path.join(outDir, `dealer-bot-report-${stateSlug}-latest.pdf`);
 
 await fs.writeFile(jsonPath, `${JSON.stringify(report, null, 2)}\n`);
 await fs.writeFile(latestJson, `${JSON.stringify(report, null, 2)}\n`);
