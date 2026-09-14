@@ -2,6 +2,7 @@
 // quote against: the vehicle, the buyer's lease prefs, and the invite's
 // state. Nothing about the buyer beyond term / miles / ZIP.
 import { NextResponse } from "next/server";
+import { dealerReference } from "@/lib/dealerReference";
 import { getRfq, getRfqInviteByViewToken, markRfqInviteDelivery } from "@/lib/rfqApi";
 import { rfqVehicles } from "@/lib/rfqTracker";
 
@@ -36,6 +37,7 @@ export async function GET(req: Request) {
     quotePrefs: rfq.quotePrefs || null,
     inviteStatus: invite.status,
     rfqStatus: rfq.status,
-    dealReference: rfq.dealReference || null,
+    // The dealer's own number for this request — never the buyer's TS- deal number.
+    dealReference: dealerReference(found.rfqId, found.invite.id),
   });
 }
