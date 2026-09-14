@@ -1,12 +1,19 @@
 import http from 'node:http';
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import { handleProgressRequest } from './progress.js';
 
 const PORT = 3000;
 const DATA_DIR = path.resolve(process.cwd(), 'data');
 
 const server = http.createServer(async (req, res) => {
     const url = new URL(req.url, `http://${req.headers.host}`);
+
+    // Live crawl progress (same JSON/HTML as progress_server.js on :3001)
+    if (url.pathname === '/progress' || url.pathname === '/progress.json' || url.pathname === '/status.json') {
+        const handled = await handleProgressRequest(req, res);
+        if (handled) return;
+    }
 
     // API: Export Full Inventory as CSV
     if (url.pathname === '/export.csv') {
@@ -135,6 +142,7 @@ const server = http.createServer(async (req, res) => {
             <p style="color: #64748b; font-size: 13px; margin-top: 4px;">Real-time inventory feed across all authorized US Porsche Centers</p>
         </div>
         <div style="display: flex; gap: 12px; align-items: center;">
+            <a href="/progress" class="btn" style="background:#38bdf8;">Live crawl progress</a>
             <a href="/export.csv" class="btn">📥 Export CSV (${inventory.length} Units)</a>
         </div>
     </div>

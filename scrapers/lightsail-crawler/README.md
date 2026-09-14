@@ -154,3 +154,87 @@ To automatically monitor changes every day without manual intervention:
 | `notifyWebhookUrl` | String | `""` | Optional webhook endpoint for daily summary alerts |
 | `maxConcurrency` | Integer | `10` | Number of simultaneous page requests |
 | `proxyConfiguration` | Object | `{ "useApifyProxy": false }` | Apify proxy settings |
+
+---
+
+## NJ Lightsail box (ubuntu@98.92.140.11)
+
+New Jersey–only inventory crawler. One brand per process. Authorized **single-franchise** rooftops only.
+
+**Brands IN:** Toyota, Lexus, Kia, Honda, Acura, Nissan, Infiniti, Subaru, Mazda, Volkswagen, Audi, BMW, Mercedes-Benz, Volvo, Porsche, Mini, Mitsubishi.
+
+**Brands OUT:** Ford, Lincoln, Chevy, GMC, Buick, Cadillac, Chrysler, Dodge, Jeep, Ram, Hyundai, Genesis, Tesla, Rivian, Lucid, Hummer.
+
+Skip megadealer multi-franchise groups (Open Road, AutoNation, …) and used superstores (CarMax, Carvana, …). Keep single-franchise authorized rooftops even when the parent company owns other desks (e.g. Paul Miller Porsche).
+
+### Live progress monitor
+
+Persisted to `data/run_progress.json` so a browser refresh does not lose counters.
+
+```bash
+cd scrapers/lightsail-crawler
+npm run progress
+# http://0.0.0.0:3001/           HTML status
+# http://0.0.0.0:3001/progress.json
+```
+
+Bind address is `0.0.0.0:3001` (`CRAWLER_PROGRESS_PORT` / `CRAWLER_PROGRESS_HOST` override). The inventory dashboard on `:3000` also serves `/progress` and `/progress.json`.
+
+Shows: current brand, dealers done/total, vehicles seen, price drops, new arrivals, skipped-for-bot-protection count, last error, startedAt, ETA.
+
+### Dealer bot-protection report (PDF + JSON)
+
+Normal `node:https` client only. **Detect and report — do not bypass.** Classifications: `NONE`, `CLOUDFLARE`, `VERCEL_CHECKPOINT`, `HTTP_403`, `HTTP_429`, `TIMEOUT`, `TLS`, `OTHER`.
+
+```bash
+cd scrapers/lightsail-crawler
+npm run bot-report                          # all in-scope NJ rooftops
+node scripts/dealer-bot-report.mjs --brand=Toyota
+```
+
+Writes `data/reports/dealer-bot-report-<brand>-<date>.{json,pdf}` and `dealer-bot-report-latest.{json,pdf}`. Table columns: brand, dealer name, domain, state, classification, HTTP status, notes. Excluded brands are refused.
+
+Refresh per-brand dealer files after editing `src/nj_dealer_seed.js`:
+
+```bash
+npm run write-nj-dealers
+```
+
+### Daily crawl: price history + DOM
+
+Each brand run still writes `priceHistory` / today-vs-yesterday diffs (`PRICE_DROP` / `PRICE_INCREASE` / `UNCHANGED` / `NEW` / `SOLD`; inventory records keep `NEW_ARRIVAL` as the existing changeType).
+
+DOM capture (gzipped compact vehicle node, keyed by VIN+date):
+
+- Blob path: `data/dom_blobs/<VIN>/<YYYY-MM-DD>.html.gz`
+- Hash + price index (kept indefinitely): `data/dom_index.json` and MariaDB `vehicle_dom_snapshots` when `DB_HOST` is set
+- If today's DOM hash matches yesterday's, only the hash is stored — the blob is not rewritten
+- Full HTML blobs are retained **7 days**; hashes and prices are kept indefinitely
+
+Challenge / WAF / captcha pages are **skipped and logged**. This package must not implement WAF/captcha/challenge bypass, fingerprint spoofing, or bot-protection evasion.
+
+### Scheduler (staggered, one brand at a time)
+
+~6–8 in-process page workers (`CRAWLER_CONCURRENCY`, default 8). Chromium is recycled every ~10 dealers (`CRAWLER_PATCHRIGHT_RECYCLE_AFTER`, default 10) if a browser is used for a non-challenge empty sitemap. On this NJ box set `CRAWLER_PATCHRIGHT_FALLBACK=false` so crawls stay HTTP-only.
+
+Example crontab (times are local to the box; leave a gap so two brands never overlap):
+
+```cron
+# Progress monitor (once at boot via systemd/pm2 is better than cron)
+@reboot cd /home/ubuntu/lightsail-crawler && node src/progress_server.js
+
+0  2 * * * cd /home/ubuntu/lightsail-crawler && CRAWLER_BRAND=Toyota CRAWLER_DEALERS_FILE=dealers/nj/toyota.json CRAWLER_CONCURRENCY=8 CRAWLER_PATCHRIGHT_FALLBACK=false node src/standalone.js >> logs/toyota.log 2>&1
+0  4 * * * cd /home/ubuntu/lightsail-crawler && CRAWLER_BRAND=Honda  CRAWLER_DEALERS_FILE=dealers/nj/honda.json  CRAWLER_CONCURRENCY=8 CRAWLER_PATCHRIGHT_FALLBACK=false node src/standalone.js >> logs/honda.log 2>&1
+0  6 * * * cd /home/ubuntu/lightsail-crawler && CRAWLER_BRAND=Lexus  CRAWLER_DEALERS_FILE=dealers/nj/lexus.json  CRAWLER_CONCURRENCY=8 CRAWLER_PATCHRIGHT_FALLBACK=false node src/standalone.js >> logs/lexus.log 2>&1
+# …continue one brand at a time through the IN list. Never run two brands concurrently.
+
+# Weekly bot-protection PDF (detect only)
+30 1 * * 0 cd /home/ubuntu/lightsail-crawler && node scripts/dealer-bot-report.mjs >> logs/bot-report.log 2>&1
+```
+
+### Tests
+
+```bash
+cd scrapers/lightsail-crawler
+npm test
+```

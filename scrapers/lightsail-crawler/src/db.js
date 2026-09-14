@@ -228,32 +228,108 @@ export async function startScrapeRun(brandId, dealersConfigured) {
   return result.insertId;
 }
 
+export async function ensureNjOpsSchema() {
+  const pool = getPool();
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS vehicle_dom_snapshots (
+      vin VARCHAR(17) NOT NULL,
+      snapshot_date DATE NOT NULL,
+      dom_hash CHAR(64) NULL,
+      price INT NULL,
+      old_price INT NULL,
+      price_diff INT NOT NULL DEFAULT 0,
+      price_change_type VARCHAR(32) NULL,
+      blob_stored TINYINT(1) NOT NULL DEFAULT 0,
+      created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      PRIMARY KEY (vin, snapshot_date),
+      KEY idx_vehicle_dom_date (snapshot_date)
+    )
+  `);
+  try {
+    await pool.query(`ALTER TABLE scrape_runs ADD COLUMN skipped_bot_protection INT DEFAULT 0`);
+  } catch {
+    // Column already exists (or this MariaDB is older / read-only) — non-fatal.
+  }
+}
+
+export async function upsertDomSnapshots(rows) {
+  if (!Array.isArray(rows) || rows.length === 0) return 0;
+  const pool = getPool();
+  let written = 0;
+  for (const batch of chunkArray(rows, CHUNK_SIZE)) {
+    const cols = [
+      'vin', 'snapshot_date', 'dom_hash', 'price', 'old_price', 'price_diff',
+      'price_change_type', 'blob_stored',
+    ];
+    const values = [];
+    for (const r of batch) {
+      if (!isValidVin(r.vin) || !r.snapshotDate) continue;
+      values.push(
+        r.vin.toUpperCase(),
+        r.snapshotDate,
+        r.hash ? String(r.hash).slice(0, 64) : null,
+        Number.isFinite(r.price) ? r.price : null,
+        Number.isFinite(r.oldPrice) ? r.oldPrice : null,
+        r.priceDiff || 0,
+        r.priceChangeType ? String(r.priceChangeType).slice(0, 32) : null,
+        r.blobStored ? 1 : 0,
+      );
+    }
+    const count = values.length / cols.length;
+    if (count === 0) continue;
+    const placeholders = Array.from({ length: count }, () => `(${cols.map(() => '?').join(',')})`).join(',');
+    await pool.query(
+      `INSERT INTO vehicle_dom_snapshots (${cols.join(',')}) VALUES ${placeholders}
+       ON DUPLICATE KEY UPDATE
+         dom_hash = VALUES(dom_hash), price = VALUES(price), old_price = VALUES(old_price),
+         price_diff = VALUES(price_diff), price_change_type = VALUES(price_change_type),
+         blob_stored = VALUES(blob_stored)`,
+      values
+    );
+    written += count;
+  }
+  return written;
+}
+
 export async function finishScrapeRun(runId, stats = {}, errorMessage = null) {
   if (!runId) return;
   const now = toMysqlDatetime(new Date());
-  await getPool().query(
-    `UPDATE scrape_runs SET
-       status = ?, finished_at = ?, dealers_active = ?, dealers_errored = ?,
-       total_vehicles = ?, new_arrivals = ?, price_drops = ?, price_increases = ?,
-       sold_or_removed = ?, error_summary = ?, failed_dealer_names = ?
-     WHERE id = ?`,
-    [
-      errorMessage ? 'FAILED' : 'COMPLETE',
-      now,
-      stats.dealersActive || 0,
-      stats.dealersErrored || 0,
-      stats.totalVehicles || 0,
-      stats.newArrivals || 0,
-      stats.priceDrops || 0,
-      stats.priceIncreases || 0,
-      stats.soldOrRemoved || 0,
-      errorMessage ? String(errorMessage).slice(0, 60000) : null,
-      Array.isArray(stats.failedDealerNames) && stats.failedDealerNames.length > 0
-        ? JSON.stringify(stats.failedDealerNames.slice(0, 500))
-        : null,
-      runId,
-    ]
-  );
+  const baseParams = [
+    errorMessage ? 'FAILED' : 'COMPLETE',
+    now,
+    stats.dealersActive || 0,
+    stats.dealersErrored || 0,
+    stats.totalVehicles || 0,
+    stats.newArrivals || 0,
+    stats.priceDrops || 0,
+    stats.priceIncreases || 0,
+    stats.soldOrRemoved || 0,
+    errorMessage ? String(errorMessage).slice(0, 60000) : null,
+    Array.isArray(stats.failedDealerNames) && stats.failedDealerNames.length > 0
+      ? JSON.stringify(stats.failedDealerNames.slice(0, 500))
+      : null,
+  ];
+  try {
+    await getPool().query(
+      `UPDATE scrape_runs SET
+         status = ?, finished_at = ?, dealers_active = ?, dealers_errored = ?,
+         total_vehicles = ?, new_arrivals = ?, price_drops = ?, price_increases = ?,
+         sold_or_removed = ?, error_summary = ?, failed_dealer_names = ?,
+         skipped_bot_protection = ?
+       WHERE id = ?`,
+      [...baseParams, stats.skippedBotProtection || 0, runId]
+    );
+  } catch (err) {
+    if (!/skipped_bot_protection|Unknown column/i.test(err.message || '')) throw err;
+    await getPool().query(
+      `UPDATE scrape_runs SET
+         status = ?, finished_at = ?, dealers_active = ?, dealers_errored = ?,
+         total_vehicles = ?, new_arrivals = ?, price_drops = ?, price_increases = ?,
+         sold_or_removed = ?, error_summary = ?, failed_dealer_names = ?
+       WHERE id = ?`,
+      [...baseParams, runId]
+    );
+  }
 }
 
 // syncInventoryToDatabase — the core write.

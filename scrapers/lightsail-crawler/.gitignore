@@ -4,3 +4,9 @@ storage
 .vscode
 .DS_Store
 data/checkpoint_raw_inventory.json
+data/run_progress.json
+data/run_progress.json.tmp
+data/dom_blobs/
+data/dom_index.json
+data/dom_index.json.tmp
+data/reports/

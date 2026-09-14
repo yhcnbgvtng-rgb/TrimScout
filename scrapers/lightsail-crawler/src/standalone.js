@@ -7,6 +7,18 @@ import zlib from 'node:zlib';
 import { runEnrichmentPipeline } from './enricher.js';
 import { getBrand } from './brands.js';
 import { normalizeVehicleFields } from './modelNormalizer.js';
+import { classifyFetchResult, isBotProtected } from './bot_protection.js';
+import { writeProgress, emptyProgress } from './progress.js';
+import { dealerProbeUrls } from './nj_policy.js';
+import {
+    loadDomIndex,
+    saveDomIndex,
+    captureVehicleDom,
+    recordSoldDom,
+    flattenDomIndex,
+    pruneDomBlobs,
+} from './dom_store.js';
+import { inventoryChangeTypeToPriceChangeType } from './price_diff.js';
 
 // One shared V8 context, reused for every vehicle's DDC dataLayer eval
 // (Strategy 1) instead of creating a fresh one per call via
@@ -41,11 +53,26 @@ await fs.mkdir(CHANGES_DIR, { recursive: true });
 const dealersPath = path.resolve(process.cwd(), process.env.CRAWLER_DEALERS_FILE || 'dealers.json');
 const dealers = JSON.parse(await fs.readFile(dealersPath, 'utf-8'));
 const brand = getBrand(process.env.CRAWLER_BRAND || dealers[0]?.make || 'Porsche');
+const startedAt = new Date().toISOString();
+const PAGE_WORKERS = Number(process.env.CRAWLER_CONCURRENCY) || 8;
 
 console.log('====================================================');
 console.log(`🏎️ ${brand.name.toUpperCase()} ALL-DEALERSHIP NATIONWIDE TRACKER`);
 console.log(`Total Authorized ${brand.name} Centers Configured: ${dealers.length}`);
+console.log(`Page workers: ${PAGE_WORKERS} (target 6–8) · Chromium recycle every ${Number(process.env.CRAWLER_PATCHRIGHT_RECYCLE_AFTER) || 10} dealers`);
+console.log('Challenge pages are skipped and logged — no WAF/captcha bypass.');
 console.log('====================================================\n');
+
+const runProgress = emptyProgress({
+    status: 'running',
+    currentBrand: brand.name,
+    dealersDone: 0,
+    dealersTotal: dealers.length,
+    startedAt,
+});
+await writeProgress(runProgress);
+
+let domIndex = await loadDomIndex();
 
 let previousSnapshot = {};
 try {
@@ -70,6 +97,7 @@ try {
     if (process.env.DB_HOST) {
         dbBrandId = await dbMod.upsertBrand(brand.name.toLowerCase(), brand.name);
         await dbMod.upsertDealers(dbBrandId, dealers);
+        await dbMod.ensureNjOpsSchema();
         dbRunId = await dbMod.startScrapeRun(dbBrandId, dealers.length);
         console.log(`💾 DB scrape_run started: id=${dbRunId} (brand_id=${dbBrandId})`);
     } else {
@@ -519,6 +547,39 @@ async function safeFetch(url, timeoutMs = 7000, patchrightPage = null) {
     ]);
 }
 
+// Detect-only probe. Uses the same HTTP client as the crawl so we classify
+// what the crawler itself would see. Never launches a browser, never
+// retries a challenge, never tries to "solve" it.
+async function probeDealerBotProtection(dealer) {
+    for (const url of dealerProbeUrls(dealer)) {
+        try {
+            const res = await safeFetch(url, 8000);
+            const cls = classifyFetchResult({
+                statusCode: res.statusCode,
+                headers: res.headers,
+                body: res.body,
+            });
+            if (isBotProtected(cls.classification)) return { ...cls, url };
+        } catch (error) {
+            const cls = classifyFetchResult({ error });
+            if (isBotProtected(cls.classification)) return { ...cls, url };
+        }
+    }
+    return { classification: 'NONE', httpStatus: 200, notes: '', url: null };
+}
+
+async function flushRunProgress(extra = {}) {
+    Object.assign(runProgress, extra, {
+        vehiclesSeen: currentInventory.size,
+        currentBrand: brand.name,
+    });
+    try {
+        await writeProgress(runProgress);
+    } catch (err) {
+        console.error(`⚠️ Progress write failed: ${err.message}`);
+    }
+}
+
 // Sitemap XML escapes reserved characters inside <loc> (e.g. a literal "+"
 // in a URL slug becomes "&#x2B;"), but that was never being decoded back —
 // every <loc> value was stored and used verbatim, so any URL containing an
@@ -736,6 +797,7 @@ const failedDealerNames = new Set();
 
 let activeDealersCount = 0;
 let erroredDealersCount = 0;
+let skippedBotProtection = 0;
 
 // A single pathological dealer (huge sitemap, a slow-failing site) should
 // never be able to stall the whole nationwide run — confirmed live
@@ -750,6 +812,21 @@ for (let i = 0; i < dealers.length; i++) {
     const dealer = dealers[i];
     const progress = `[${i + 1}/${dealers.length}]`;
     console.log(`${progress} 🏢 Crawling ${dealer.name} (${dealer.city}, ${dealer.state})...`);
+    runProgress.currentDealer = dealer.name;
+    await flushRunProgress();
+
+    const botProbe = await probeDealerBotProtection(dealer);
+    if (isBotProtected(botProbe.classification)) {
+        skippedBotProtection++;
+        failedDealerNames.add(dealer.name);
+        dealerStats[dealer.name] = 0;
+        runProgress.skippedForBotProtection = skippedBotProtection;
+        runProgress.dealersDone = i + 1;
+        runProgress.lastError = `${dealer.name}: ${botProbe.classification}${botProbe.httpStatus ? ` HTTP ${botProbe.httpStatus}` : ''} — skipped, no bypass`;
+        console.log(`${progress} 🛡️ SKIP ${dealer.name}: ${botProbe.classification}${botProbe.httpStatus ? ` (${botProbe.httpStatus})` : ''} — ${botProbe.notes || 'bot protection'} [${botProbe.url || dealer.domain}]`);
+        await flushRunProgress();
+        continue;
+    }
 
     let patchrightFallback = null;
     let dealerTimedOut = false;
@@ -764,13 +841,11 @@ for (let i = 0; i < dealers.length; i++) {
     try {
         let vehicleUrls = await resolveSitemapUrls(dealer, brand);
         if (vehicleUrls.length === 0 && process.env.CRAWLER_PATCHRIGHT_FALLBACK !== 'false') {
-            // Plain HTTP found nothing — before giving up on this dealer,
-            // try a real browser. Confirmed live this recovers real
-            // inventory for dealers behind Cloudflare's standard bot-fight
-            // challenge (see tryPatchrightFallback's header comment); a
-            // dealer that's genuinely empty or blocked by something
-            // patchright can't beat still correctly falls through to
-            // failedDealerNames below.
+            // Challenge / WAF pages were already skipped above. This fallback
+            // is only for a sitemap that came back empty without a detected
+            // challenge — it is not a captcha solver and must not be used as
+            // one. Set CRAWLER_PATCHRIGHT_FALLBACK=false on the NJ box if
+            // you want HTTP-only crawls.
             console.log(`${progress} 🛡️ No inventory URLs via plain HTTP for ${dealer.name} — trying patchright fallback...`);
             patchrightFallback = await tryPatchrightFallback(dealer, brand);
             if (patchrightFallback) {
@@ -801,6 +876,14 @@ for (let i = 0; i < dealers.length; i++) {
             try {
                 const res = await safeFetch(url, patchrightPage ? 15000 : 7000, patchrightPage);
                 const html = res.body;
+                const pageClass = classifyFetchResult({
+                    statusCode: res.statusCode,
+                    headers: res.headers,
+                    body: html,
+                });
+                if (isBotProtected(pageClass.classification)) {
+                    return;
+                }
                 let vehicle = null;
 
                 // Strategy 1: DDC DataLayer (Dealer.com)
@@ -992,6 +1075,19 @@ for (let i = 0; i < dealers.length; i++) {
                         vehicle = normalizeVehicleFields(brand.name, vehicle);
                         currentInventory.set(vehicle.vin, vehicle);
                         dealerCount++;
+                        const prev = previousSnapshot[vehicle.vin];
+                        try {
+                            await captureVehicleDom({
+                                vin: vehicle.vin,
+                                date: todayDate,
+                                html,
+                                price: vehicle.price,
+                                yesterdayPrice: prev?.price ?? null,
+                                isNew: !prev,
+                                cwd: process.cwd(),
+                                index: domIndex,
+                            });
+                        } catch {}
                     }
                 }
             } catch {}
@@ -1000,7 +1096,7 @@ for (let i = 0; i < dealers.length; i++) {
         if (patchrightFallback) {
             await pMapWithPages(vehicleUrls, extractOne, patchrightFallback.pages);
         } else {
-            await pMap(vehicleUrls, extractOne, Number(process.env.CRAWLER_CONCURRENCY) || 8);
+            await pMap(vehicleUrls, extractOne, PAGE_WORKERS);
         }
 
         dealerStats[dealer.name] = dealerCount;
@@ -1023,11 +1119,20 @@ for (let i = 0; i < dealers.length; i++) {
     } catch (err) {
         erroredDealersCount++;
         failedDealerNames.add(dealer.name);
+        runProgress.lastError = `${dealer.name}: ${err.message}`;
         console.error(`${progress} ❌ Error crawling ${dealer.name}: ${err.message}`);
     } finally {
         clearTimeout(dealerTimeoutHandle);
         if (patchrightFallback) {
             await patchrightFallback.context.close().catch(() => {});
+        }
+        runProgress.dealersDone = i + 1;
+        runProgress.skippedForBotProtection = skippedBotProtection;
+        await flushRunProgress();
+        try {
+            await saveDomIndex(domIndex);
+        } catch (domErr) {
+            console.error(`⚠️ DOM index write failed: ${domErr.message}`);
         }
     }
 
@@ -1105,6 +1210,7 @@ for (const [vin, cur] of currentInventory.entries()) {
         firstSeen,
         lastSeen: todayDate,
         changeType,
+        priceChangeType: inventoryChangeTypeToPriceChangeType(changeType),
         priceHistory,
         status: 'ACTIVE',
         updatedAt: todayIso,
@@ -1138,10 +1244,20 @@ for (const [vin, prev] of Object.entries(previousSnapshot)) {
             ...prev,
             status: 'SOLD_OR_REMOVED',
             changeType: 'SOLD',
+            priceChangeType: 'SOLD',
             soldDate: todayDate,
             lastSeen: todayDate,
             updatedAt: todayIso,
         };
+        try {
+            await recordSoldDom({
+                vin,
+                date: todayDate,
+                yesterdayPrice: prev.price ?? null,
+                cwd: process.cwd(),
+                index: domIndex,
+            });
+        } catch {}
         updatedSnapshot[vin] = soldRecord;
         soldVehicles.push(soldRecord);
         allRecords.push(soldRecord);
@@ -1160,6 +1276,7 @@ const dailySummary = {
         totalPriceDrops: priceDrops.length,
         totalPriceIncreases: priceIncreases.length,
         totalSoldOrRemoved: soldVehicles.length,
+        skippedForBotProtection: skippedBotProtection,
     },
     topPriceDrops: priceDrops.sort((a, b) => a.priceDiff - b.priceDiff).slice(0, 50),
     dealerBreakdown: dealerStats,
@@ -1170,12 +1287,21 @@ await fs.writeFile(path.join(DATA_DIR, 'national_inventory_latest.json'), JSON.s
 await fs.writeFile(path.join(DATA_DIR, 'inventory_latest.json'), JSON.stringify(allRecords, null, 2));
 await fs.writeFile(path.join(CHANGES_DIR, `daily_changes_${todayDate}.json`), JSON.stringify(dailySummary, null, 2));
 
+try {
+    await saveDomIndex(domIndex);
+    const pruned = await pruneDomBlobs({ today: todayDate });
+    console.log(`DOM snapshots: hashes kept indefinitely; pruned ${pruned.removed} blob(s) older than 7 days (cutoff ${pruned.cutoff}).`);
+} catch (domErr) {
+    console.error('DOM snapshot finalize warning:', domErr.message);
+}
+
 console.log('\n====================================================');
 console.log(`📊 NATIONWIDE PORSCHE MARKET SUMMARY (${todayDate})`);
 console.log(`Active Live Inventory:   ${currentInventory.size}`);
 console.log(`New Arrivals Today:     ${newArrivals.length}`);
 console.log(`Price Drops Today:      ${priceDrops.length}`);
 console.log(`Sold / Removed Today:   ${soldVehicles.length}`);
+console.log(`Skipped bot protection: ${skippedBotProtection}`);
 console.log(`Data Output:            ${DATA_DIR}`);
 console.log('====================================================\n');
 
@@ -1196,6 +1322,14 @@ try {
 if (dbRunId) {
     try {
         const { finishScrapeRun } = await import('./db.js');
+        if (process.env.DB_HOST) {
+            try {
+                const { upsertDomSnapshots } = await import('./db.js');
+                await upsertDomSnapshots(flattenDomIndex(domIndex).filter((r) => r.snapshotDate === todayDate));
+            } catch (domDbErr) {
+                console.error('DB DOM snapshot sync failed (non-fatal):', domDbErr.message);
+            }
+        }
         await finishScrapeRun(dbRunId, {
             dealersActive: activeDealersCount,
             dealersErrored: erroredDealersCount,
@@ -1204,6 +1338,7 @@ if (dbRunId) {
             priceDrops: priceDrops.length,
             priceIncreases: priceIncreases.length,
             soldOrRemoved: soldVehicles.length,
+            skippedBotProtection,
             failedDealerNames: Array.from(failedDealerNames),
         });
         console.log(`💾 DB scrape_run ${dbRunId} marked COMPLETE.`);
@@ -1226,4 +1361,14 @@ try {
 } catch {
     // db.js may never have been imported this run (DB_HOST unset) — fine.
 }
+
+await flushRunProgress({
+    status: 'complete',
+    currentDealer: null,
+    dealersDone: dealers.length,
+    priceDrops: priceDrops.length,
+    newArrivals: newArrivals.length,
+    skippedForBotProtection: skippedBotProtection,
+    finishedAt: new Date().toISOString(),
+});
 process.exit(0);

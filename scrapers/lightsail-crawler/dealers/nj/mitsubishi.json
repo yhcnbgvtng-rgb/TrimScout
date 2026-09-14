@@ -1,0 +1,67 @@
+[
+  {
+    "id": "mitsubishi-cherry-hill-mitsubishi",
+    "name": "Cherry Hill Mitsubishi",
+    "city": "Cherry Hill",
+    "state": "NJ",
+    "make": "Mitsubishi",
+    "domain": "cherryhillmitsubishi.com",
+    "sitemapUrl": "https://www.cherryhillmitsubishi.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.cherryhillmitsubishi.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://cherryhillmitsubishi.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "mitsubishi-freehold-mitsubishi",
+    "name": "Freehold Mitsubishi",
+    "city": "Freehold",
+    "state": "NJ",
+    "make": "Mitsubishi",
+    "domain": "freeholdmitsubishi.com",
+    "sitemapUrl": "https://www.freeholdmitsubishi.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.freeholdmitsubishi.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://freeholdmitsubishi.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "mitsubishi-hudson-mitsubishi",
+    "name": "Hudson Mitsubishi",
+    "city": "Jersey City",
+    "state": "NJ",
+    "make": "Mitsubishi",
+    "domain": "hudsonmitsubishi.com",
+    "sitemapUrl": "https://www.hudsonmitsubishi.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.hudsonmitsubishi.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://hudsonmitsubishi.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "mitsubishi-mitsubishi-of-turnersville",
+    "name": "Mitsubishi of Turnersville",
+    "city": "Turnersville",
+    "state": "NJ",
+    "make": "Mitsubishi",
+    "domain": "mitsubishiturnersville.com",
+    "sitemapUrl": "https://www.mitsubishiturnersville.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.mitsubishiturnersville.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://mitsubishiturnersville.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "mitsubishi-route-22-mitsubishi",
+    "name": "Route 22 Mitsubishi",
+    "city": "Hillside",
+    "state": "NJ",
+    "make": "Mitsubishi",
+    "domain": "route22mitsubishi.com",
+    "sitemapUrl": "https://www.route22mitsubishi.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.route22mitsubishi.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://route22mitsubishi.com/",
+    "lat": null,
+    "lng": null
+  }
+]

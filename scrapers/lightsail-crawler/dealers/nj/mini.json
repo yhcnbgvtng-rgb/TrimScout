@@ -1,0 +1,67 @@
+[
+  {
+    "id": "mini-circle-mini",
+    "name": "Circle MINI",
+    "city": "Eatontown",
+    "state": "NJ",
+    "make": "Mini",
+    "domain": "circlemini.com",
+    "sitemapUrl": "https://www.circlemini.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.circlemini.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://circlemini.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "mini-mini-of-flemington",
+    "name": "MINI of Flemington",
+    "city": "Flemington",
+    "state": "NJ",
+    "make": "Mini",
+    "domain": "miniflemington.com",
+    "sitemapUrl": "https://www.miniflemington.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.miniflemington.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://miniflemington.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "mini-mini-of-mount-laurel",
+    "name": "MINI of Mount Laurel",
+    "city": "Mount Laurel",
+    "state": "NJ",
+    "make": "Mini",
+    "domain": "miniofmountlaurel.com",
+    "sitemapUrl": "https://www.miniofmountlaurel.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.miniofmountlaurel.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://miniofmountlaurel.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "mini-mini-of-springfield",
+    "name": "MINI of Springfield",
+    "city": "Springfield",
+    "state": "NJ",
+    "make": "Mini",
+    "domain": "miniofspringfield.com",
+    "sitemapUrl": "https://www.miniofspringfield.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.miniofspringfield.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://miniofspringfield.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "mini-paul-miller-mini",
+    "name": "Paul Miller MINI",
+    "city": "Parsippany",
+    "state": "NJ",
+    "make": "Mini",
+    "domain": "paulmillermini.com",
+    "sitemapUrl": "https://www.paulmillermini.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.paulmillermini.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://paulmillermini.com/",
+    "lat": null,
+    "lng": null
+  }
+]
