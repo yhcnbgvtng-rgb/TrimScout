@@ -1,7 +1,7 @@
 #!/usr/bin/env node
-// NJ dealer bot-protection report.
+// Dealer bot-protection report (NJ by default; --state=NY uses locator seed).
 //
-// Fetches each configured in-scope NJ rooftop with a normal HTTP client
+// Fetches each configured in-scope rooftop with a normal HTTP client
 // (node:https — no got-scraping, no browser, no challenge solver).
 // Classifies NONE / CLOUDFLARE / VERCEL_CHECKPOINT / HTTP_403 / HTTP_429 /
 // DNS_DEAD / HTTP_404 / HTTP_5XX / CONN_RESET / TIMEOUT / TLS / OTHER.
@@ -11,31 +11,43 @@
 // Usage:
 //   node scripts/dealer-bot-report.mjs
 //   node scripts/dealer-bot-report.mjs --brand=Toyota
+//   node scripts/dealer-bot-report.mjs --state=NY
 //   CRAWLER_BRAND=Porsche node scripts/dealer-bot-report.mjs
 
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { loadNjDealers, isNjBrandOut } from '../src/nj_policy.js';
+import { loadNyDealers } from '../src/ny_policy.js';
 import { probeDealer } from '../src/http_probe.js';
 import { buildTablePdf, buildSummaryBlocks } from '../src/pdf_table.js';
 import { CLASSIFICATION_ORDER, summarizeBotRows } from '../src/bot_protection.js';
 
 const brandFilter = (process.argv.find((a) => a.startsWith('--brand=')) || '')
   .slice('--brand='.length) || process.env.CRAWLER_BRAND || null;
+const stateFilter = ((process.argv.find((a) => a.startsWith('--state=')) || '')
+  .slice('--state='.length) || process.env.CRAWLER_STATE || 'NJ')
+  .toUpperCase();
+
+if (stateFilter !== 'NJ' && stateFilter !== 'NY') {
+  console.error(`Unsupported state "${stateFilter}". Use NJ or NY.`);
+  process.exit(1);
+}
 
 if (brandFilter && isNjBrandOut(brandFilter)) {
-  console.error(`Refusing excluded brand "${brandFilter}". NJ crawler brands-out are not reported.`);
+  console.error(`Refusing excluded brand "${brandFilter}". Brands-out are not reported.`);
   process.exit(1);
 }
 
 const cwd = process.cwd();
-const dealers = loadNjDealers({ cwd, brand: brandFilter });
+const dealers = stateFilter === 'NY'
+  ? loadNyDealers({ cwd, brand: brandFilter })
+  : loadNjDealers({ cwd, brand: brandFilter });
 if (dealers.length === 0) {
-  console.error('No NJ in-scope dealers found. Check dealers/nj/*.json and src/nj_dealer_seed.js.');
+  console.error(`No ${stateFilter} in-scope dealers found. Check dealers/${stateFilter.toLowerCase()}/*.json.`);
   process.exit(1);
 }
 
-console.log(`Probing ${dealers.length} NJ rooftop(s)${brandFilter ? ` for ${brandFilter}` : ''} with a normal HTTP client (no bypass)...`);
+console.log(`Probing ${dealers.length} ${stateFilter} rooftop(s)${brandFilter ? ` for ${brandFilter}` : ''} with a normal HTTP client (no bypass)...`);
 
 const rows = [];
 for (let i = 0; i < dealers.length; i++) {
@@ -48,7 +60,7 @@ for (let i = 0; i < dealers.length; i++) {
     domain: d.domain,
     domainSource: d.domainSource || '',
     previousDomain: d.previousDomain || '',
-    state: d.state || 'NJ',
+    state: d.state || stateFilter,
     classification: result.classification,
     httpStatus: result.httpStatus,
     wafVendor: result.wafVendor || '',
@@ -68,6 +80,7 @@ for (const cls of CLASSIFICATION_ORDER) {
 
 const report = {
   generatedAt,
+  state: stateFilter,
   brandFilter: brandFilter || 'ALL_IN_SCOPE',
   dealerCount: rows.length,
   summary,
@@ -101,7 +114,7 @@ await fs.writeFile(jsonPath, `${JSON.stringify(report, null, 2)}\n`);
 await fs.writeFile(latestJson, `${JSON.stringify(report, null, 2)}\n`);
 
 const pdf = buildTablePdf({
-  title: 'NJ dealer bot-protection report',
+  title: `${stateFilter} dealer bot-protection report`,
   subtitle: `${generatedAt}  |  ${brandFilter || 'all in-scope brands'}  |  detect only, no WAF bypass  |  ${rows.length} rooftops`,
   summaryBlocks: buildSummaryBlocks({
     generatedAt,

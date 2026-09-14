@@ -8,7 +8,7 @@
     "domain": "porschealbany.com",
     "sitemapUrl": "https://www.porschealbany.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschealbany.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschealbany.com/sitemap.xml",
+    "fallbackUrl": "https://porschealbany.com/",
     "lat": 42.7444055,
     "lng": -73.761563,
     "domainSource": "oem-locator"
@@ -22,7 +22,7 @@
     "domain": "porschebrooklyn.com",
     "sitemapUrl": "https://www.porschebrooklyn.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschebrooklyn.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschebrooklyn.com/sitemap.xml",
+    "fallbackUrl": "https://porschebrooklyn.com/",
     "lat": 40.6526006,
     "lng": -73.9497211,
     "domainSource": "oem-locator"
@@ -36,7 +36,7 @@
     "domain": "porscheofbuffalo.com",
     "sitemapUrl": "https://www.porscheofbuffalo.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porscheofbuffalo.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porscheofbuffalo.com/sitemap.xml",
+    "fallbackUrl": "https://porscheofbuffalo.com/",
     "lat": 42.9637836,
     "lng": -78.7377258,
     "domainSource": "oem-locator"
@@ -50,7 +50,7 @@
     "domain": "porschegoldcoast.com",
     "sitemapUrl": "https://www.porschegoldcoast.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschegoldcoast.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschegoldcoast.com/sitemap.xml",
+    "fallbackUrl": "https://porschegoldcoast.com/",
     "lat": 40.7920441,
     "lng": -73.5398476,
     "domainSource": "oem-locator"
@@ -64,7 +64,7 @@
     "domain": "porschehuntington.com",
     "sitemapUrl": "https://www.porschehuntington.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschehuntington.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschehuntington.com/sitemap.xml",
+    "fallbackUrl": "https://porschehuntington.com/",
     "lat": 40.8534318,
     "lng": -73.4115091,
     "domainSource": "oem-locator"
@@ -78,7 +78,7 @@
     "domain": "porschelarchmont.com",
     "sitemapUrl": "https://www.porschelarchmont.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschelarchmont.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschelarchmont.com/sitemap.xml",
+    "fallbackUrl": "https://porschelarchmont.com/",
     "lat": 40.9278769,
     "lng": -73.7517983,
     "domainSource": "oem-locator"
@@ -92,7 +92,7 @@
     "domain": "porschemanhattan.com",
     "sitemapUrl": "https://www.porschemanhattan.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschemanhattan.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschemanhattan.com/sitemap.xml",
+    "fallbackUrl": "https://porschemanhattan.com/",
     "lat": 40.7127281,
     "lng": -74.0060152,
     "domainSource": "oem-locator"
@@ -106,7 +106,7 @@
     "domain": "porschemtkisco.com",
     "sitemapUrl": "https://www.porschemtkisco.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschemtkisco.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschemtkisco.com/sitemap.xml",
+    "fallbackUrl": "https://porschemtkisco.com/",
     "lat": 41.2042616,
     "lng": -73.7270761,
     "domainSource": "oem-locator"
@@ -120,7 +120,7 @@
     "domain": "porscherochester.com",
     "sitemapUrl": "https://www.porscherochester.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porscherochester.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porscherochester.com/sitemap.xml",
+    "fallbackUrl": "https://porscherochester.com/",
     "lat": 43.157285,
     "lng": -77.615214,
     "domainSource": "oem-locator"
@@ -134,7 +134,7 @@
     "domain": "porscheroslyn.com",
     "sitemapUrl": "https://www.porscheroslyn.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porscheroslyn.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porscheroslyn.com/sitemap.xml",
+    "fallbackUrl": "https://porscheroslyn.com/",
     "lat": 40.7998227,
     "lng": -73.6509621,
     "domainSource": "oem-locator"
@@ -148,7 +148,7 @@
     "domain": "porschesouthshore.com",
     "sitemapUrl": "https://www.porschesouthshore.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschesouthshore.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschesouthshore.com/sitemap.xml",
+    "fallbackUrl": "https://porschesouthshore.com/",
     "lat": 40.6576071,
     "lng": -73.5835826,
     "domainSource": "oem-locator"
@@ -162,7 +162,7 @@
     "domain": "porschesouthampton.com",
     "sitemapUrl": "https://www.porschesouthampton.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschesouthampton.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschesouthampton.com/sitemap.xml",
+    "fallbackUrl": "https://porschesouthampton.com/",
     "lat": 40.8842482,
     "lng": -72.3897131,
     "domainSource": "oem-locator"
@@ -176,7 +176,7 @@
     "domain": "porschesyracuse.com",
     "sitemapUrl": "https://www.porschesyracuse.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.porschesyracuse.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porschesyracuse.com/sitemap.xml",
+    "fallbackUrl": "https://porschesyracuse.com/",
     "lat": 43.0653446,
     "lng": -76.0785332,
     "domainSource": "oem-locator"

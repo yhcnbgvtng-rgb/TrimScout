@@ -201,6 +201,7 @@ Refresh per-brand dealer files after editing `src/nj_dealer_seed.js`:
 ```bash
 npm run write-nj-dealers
 npm run write-ny-dealers   # NY from OEM locators / listings only — no brandofcity guesses
+# node scripts/dealer-bot-report.mjs --state=NY   # detect-only; run on Lightsail, not this VM
 ```
 
 Window sticker (Monroney) URLs on public VDPs are stored as `windowStickerUrl` / `windowStickerSource` / `collectedAt` (MariaDB `vehicles.window_sticker_url`). The PDF is not downloaded in this pass. Challenge pages are skipped.

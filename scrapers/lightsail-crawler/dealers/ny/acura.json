@@ -8,7 +8,7 @@
     "domain": "acuraofbayshore.com",
     "sitemapUrl": "https://www.acuraofbayshore.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.acuraofbayshore.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://www.acuraofbayshore.com/sitemap.xml",
+    "fallbackUrl": "https://acuraofbayshore.com/",
     "lat": 40.738049,
     "lng": -73.23101,
     "domainSource": "oem-locator"
@@ -22,7 +22,7 @@
     "domain": "acuraofbedfordhills.com",
     "sitemapUrl": "https://www.acuraofbedfordhills.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.acuraofbedfordhills.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://www.acuraofbedfordhills.com/sitemap.xml",
+    "fallbackUrl": "https://acuraofbedfordhills.com/",
     "lat": 41.226349,
     "lng": -73.713387,
     "domainSource": "oem-locator"
@@ -36,7 +36,7 @@
     "domain": "acuraofbrooklyn.com",
     "sitemapUrl": "https://www.acuraofbrooklyn.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.acuraofbrooklyn.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://www.acuraofbrooklyn.com/sitemap.xml",
+    "fallbackUrl": "https://acuraofbrooklyn.com/",
     "lat": 40.617599,
     "lng": -73.945084,
     "domainSource": "oem-locator"
@@ -50,7 +50,7 @@
     "domain": "acuraofhuntington.com",
     "sitemapUrl": "https://www.acuraofhuntington.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.acuraofhuntington.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://www.acuraofhuntington.com/sitemap.xml",
+    "fallbackUrl": "https://acuraofhuntington.com/",
     "lat": 40.8283,
     "lng": -73.431099,
     "domainSource": "oem-locator"
@@ -64,7 +64,7 @@
     "domain": "acuraofrochester.com",
     "sitemapUrl": "https://www.acuraofrochester.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.acuraofrochester.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://www.acuraofrochester.com/sitemap.xml",
+    "fallbackUrl": "https://acuraofrochester.com/",
     "lat": 43.07502,
     "lng": -77.643692,
     "domainSource": "oem-locator"
@@ -76,9 +76,9 @@
     "state": "NY",
     "make": "Acura",
     "domain": "acuravalleystream.com",
-    "sitemapUrl": "https://acuravalleystream.com/sitemap.xml",
-    "inventorySitemapUrl": "https://acuravalleystream.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://acuravalleystream.com/sitemap.xml",
+    "sitemapUrl": "https://www.acuravalleystream.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.acuravalleystream.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://acuravalleystream.com/",
     "lat": 40.656845,
     "lng": -73.686699,
     "domainSource": "oem-locator"
@@ -90,9 +90,9 @@
     "state": "NY",
     "make": "Acura",
     "domain": "acuraofwappingersfalls.com",
-    "sitemapUrl": "https://acuraofwappingersfalls.com/sitemap.xml",
-    "inventorySitemapUrl": "https://acuraofwappingersfalls.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://acuraofwappingersfalls.com/sitemap.xml",
+    "sitemapUrl": "https://www.acuraofwappingersfalls.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.acuraofwappingersfalls.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://acuraofwappingersfalls.com/",
     "lat": 41.574799,
     "lng": -73.909302,
     "domainSource": "oem-locator"
@@ -106,7 +106,7 @@
     "domain": "acuraofwestchester.com",
     "sitemapUrl": "https://www.acuraofwestchester.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.acuraofwestchester.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://www.acuraofwestchester.com/sitemap.xml",
+    "fallbackUrl": "https://acuraofwestchester.com/",
     "lat": 40.92738,
     "lng": -73.7658,
     "domainSource": "oem-locator"
@@ -120,7 +120,7 @@
     "domain": "advantageacurany.com",
     "sitemapUrl": "https://www.advantageacurany.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.advantageacurany.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://www.advantageacurany.com/sitemap.xml",
+    "fallbackUrl": "https://advantageacurany.com/",
     "lat": 40.860989,
     "lng": -73.149551,
     "domainSource": "oem-locator"
@@ -134,7 +134,7 @@
     "domain": "crestacura.com",
     "sitemapUrl": "https://www.crestacura.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.crestacura.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://www.crestacura.com/sitemap.xml",
+    "fallbackUrl": "https://crestacura.com/",
     "lat": 43.053387,
     "lng": -76.164223,
     "domainSource": "oem-locator"
@@ -148,7 +148,7 @@
     "domain": "curryacura.com",
     "sitemapUrl": "https://www.curryacura.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.curryacura.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://www.curryacura.com/sitemap.xml",
+    "fallbackUrl": "https://curryacura.com/",
     "lat": 41.001411,
     "lng": -73.814598,
     "domainSource": "oem-locator"
@@ -162,7 +162,7 @@
     "domain": "friendlyacuraofmiddletown.com",
     "sitemapUrl": "https://www.friendlyacuraofmiddletown.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.friendlyacuraofmiddletown.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://www.friendlyacuraofmiddletown.com/sitemap.xml",
+    "fallbackUrl": "https://friendlyacuraofmiddletown.com/",
     "lat": 41.419327,
     "lng": -74.431084,
     "domainSource": "oem-locator"
@@ -176,7 +176,7 @@
     "domain": "islandacura.com",
     "sitemapUrl": "https://www.islandacura.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.islandacura.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://www.islandacura.com/sitemap.xml",
+    "fallbackUrl": "https://islandacura.com/",
     "lat": 40.67194,
     "lng": -73.506279,
     "domainSource": "oem-locator"
@@ -190,7 +190,7 @@
     "domain": "northeastacura.com",
     "sitemapUrl": "https://www.northeastacura.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.northeastacura.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://www.northeastacura.com/sitemap.xml",
+    "fallbackUrl": "https://northeastacura.com/",
     "lat": 42.764088,
     "lng": -73.755905,
     "domainSource": "oem-locator"
@@ -204,7 +204,7 @@
     "domain": "paragonacura.com",
     "sitemapUrl": "https://www.paragonacura.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.paragonacura.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://www.paragonacura.com/sitemap.xml",
+    "fallbackUrl": "https://paragonacura.com/",
     "lat": 40.753468,
     "lng": -73.904503,
     "domainSource": "oem-locator"
@@ -218,7 +218,7 @@
     "domain": "rallyeacura.com",
     "sitemapUrl": "https://www.rallyeacura.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.rallyeacura.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://www.rallyeacura.com/sitemap.xml",
+    "fallbackUrl": "https://rallyeacura.com/",
     "lat": 40.805149,
     "lng": -73.64035,
     "domainSource": "oem-locator"

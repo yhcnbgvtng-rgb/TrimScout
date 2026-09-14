@@ -82,7 +82,16 @@ function pushDealer(out, seen, raw, { make, source, brand }) {
   const key = dealerKey(dealer);
   if (seen.has(key)) return;
   seen.add(key);
-  const rec = buildDealerRecord(dealer);
+  const rec = buildDealerRecord({
+    id: dealer.id,
+    name: dealer.name,
+    city: dealer.city,
+    domain: host,
+    make: dealer.make,
+    state: 'NY',
+    lat: dealer.lat ?? null,
+    lng: dealer.lng ?? null,
+  });
   rec.domainSource = source;
   out.push(rec);
 }

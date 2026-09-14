@@ -372,6 +372,11 @@ describe('NY locator seed (no brandofcity guesses)', () => {
     const acura = loadNyDealers({ cwd: CRAWLER_ROOT, brand: 'Acura' });
     assert.ok(acura.length > 0);
     assert.ok(acura.every((d) => d.make === 'Acura'));
+    assert.ok(acura.every((d) => d.fallbackUrl.endsWith('/')));
+    const toyota = loadNyDealers({ cwd: CRAWLER_ROOT, brand: 'Toyota' });
+    assert.equal(toyota.length, 0);
+    const honda = loadNyDealers({ cwd: CRAWLER_ROOT, brand: 'Honda' });
+    assert.equal(honda.length, 0);
   });
 });
 
