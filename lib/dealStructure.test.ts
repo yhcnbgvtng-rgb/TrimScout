@@ -1,6 +1,7 @@
 import "./testdata/blockLiveHttp";
 import assert from "node:assert/strict";
 import fs from "node:fs";
+import { QUOTE_EQUATIONS } from "../components/BiddingWizard";
 import path from "node:path";
 import { describe, it } from "node:test";
 import {
@@ -62,7 +63,11 @@ describe("BiddingWizard — Step 1 vehicle; Step 2 payment only; Step 3 quote fo
     assert.match(src, /useState<DealStructureMethod \| null>\(null\)/);
     assert.match(paymentStep, /\["lease", "finance", "cash"\] as const/);
     assert.doesNotMatch(paymentStep, /LEASE_TERMS\.map|Down payment|Credit band|Your ZIP|missing-locks/, "payment step is the tiles only");
-    assert.match(step2, /<QuoteFormatMatrix quoteType=\{quoteType\} \/>/);
+    assert.match(step2, /<QuoteFormatMatrix quoteType=\{quoteType\} cars=\{\[selectedVehicle, altVehicle1, altVehicle2\]/);
+    // Dealer on top, the car under it, then every dealer's return as a vertical equation.
+    assert.match(src, /data-testid="format-dealer"[\s\S]*?data-testid="format-vehicle"[\s\S]*?data-testid="format-equation"/);
+    assert.deepEqual(QUOTE_EQUATIONS.cash.lines.map((l) => `${l.op} ${l.label}`), ["+ Selling price", "+ Add-ons", "+ Mandatory fees", "+ Sales tax", "− Rebates / credits", "= Out the door"]);
+    assert.doesNotMatch(src, /You lock<\/p>/, "the locks are asked once, in the fields below — not listed again");
     assert.match(step2, /data-testid="quote-format-step"/);
     assert.match(step2, /quoteType === "lease" && \(/);
     assert.match(step2, /LEASE_TERMS\.map/);

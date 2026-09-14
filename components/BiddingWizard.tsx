@@ -90,50 +90,104 @@ type FilterableFactoryOption = FactoryFilterableOption;
 
 
 /**
- * The quote format for the chosen payment method, as a matrix: what the
- * buyer locks on this step versus what every dealer's sheet must return
- * against those locks. Same shape for all three; only the cells change.
+ * The quote format for the chosen payment method: the store the request
+ * goes to, the car, then what every dealer returns — written as a vertical
+ * equation, one block per category with its sign. The buyer's own locks
+ * (term, down, band, ZIP…) are the fields under this, asked once.
  */
-export const QUOTE_FORMAT: Record<DealStructureMethod, { locks: string[]; dealer: string[] }> = {
-  lease: {
-    locks: ["Term", "Miles per year", "Due at signing (intent)", "Credit band", "ZIP"],
-    dealer: ["Monthly payment", "Due at signing, itemized", "Cap cost", "Money factor", "Residual", "Term & miles confirmed", "Quote good-until"],
+export type QuoteEquationLine = { op: "+" | "−" | "=" | "→"; label: string; note?: string };
+export const QUOTE_EQUATIONS: Record<DealStructureMethod, { returns: string; lines: QuoteEquationLine[] }> = {
+  cash: {
+    returns: "Out-the-door pricing",
+    lines: [
+      { op: "+", label: "Selling price" },
+      { op: "+", label: "Add-ons", note: "$0 or each one listed" },
+      { op: "+", label: "Mandatory fees", note: "doc, title & registration, each named" },
+      { op: "+", label: "Sales tax", note: "for your ZIP" },
+      { op: "−", label: "Rebates / credits", note: "each named" },
+      { op: "=", label: "Out the door", note: "what you compare" },
+    ],
   },
   finance: {
-    locks: ["Term", "Down payment", "Credit band", "ZIP"],
-    dealer: ["Selling price", "Fees, itemized", "Sales tax", "Amount financed", "APR", "Monthly payment", "Term & down = your locks", "Add-ons: $0 or each listed", "Quote good-until"],
+    returns: "Out-the-door pricing and the payment on your locks",
+    lines: [
+      { op: "+", label: "Selling price" },
+      { op: "+", label: "Add-ons", note: "$0 or each one listed" },
+      { op: "+", label: "Mandatory fees", note: "doc, title & registration, each named" },
+      { op: "+", label: "Sales tax", note: "for your ZIP" },
+      { op: "−", label: "Rebates / credits", note: "each named" },
+      { op: "−", label: "Down payment", note: "your lock" },
+      { op: "=", label: "Amount financed" },
+      { op: "→", label: "Monthly payment", note: "at the dealer's APR over your term" },
+    ],
   },
-  cash: {
-    locks: ["ZIP"],
-    dealer: ["Selling price", "Fees, itemized", "Sales tax", "Add-ons: $0 or each listed", "Out-the-door total", "Quote good-until"],
+  lease: {
+    returns: "The lease worked out on your term and miles",
+    lines: [
+      { op: "+", label: "Selling price" },
+      { op: "+", label: "Add-ons", note: "$0 or each one listed" },
+      { op: "−", label: "Rebates / credits", note: "each named" },
+      { op: "−", label: "Cap reduction", note: "if you put money down" },
+      { op: "=", label: "Cap cost" },
+      { op: "→", label: "Monthly payment", note: "money factor and residual shown" },
+      { op: "+", label: "Due at signing, itemized", note: "first month, acquisition, fees, taxes" },
+    ],
   },
 };
 
-function QuoteFormatMatrix({ quoteType }: { quoteType: DealStructureMethod }) {
-  const f = QUOTE_FORMAT[quoteType];
-  const cell = "rounded-lg border border-border/60 bg-background px-2.5 py-1.5 text-[11px] text-ink-light";
+function QuoteFormatMatrix({
+  quoteType,
+  cars,
+}: {
+  quoteType: DealStructureMethod;
+  cars: Vehicle[];
+}) {
+  const eq = QUOTE_EQUATIONS[quoteType];
+  const primary = cars[0] || null;
+  const stores = cars
+    .map((v) => v.location?.dealerName?.trim() ? { name: v.location.dealerName.trim(), where: [v.location.city, v.location.state].filter(Boolean).join(", ") } : null)
+    .filter((x, i, arr): x is { name: string; where: string } => Boolean(x) && arr.findIndex((y) => y?.name === x!.name) === i);
+  const opCls = (op: QuoteEquationLine["op"]) =>
+    op === "=" || op === "→" ? "bg-emerald-500 text-black" : op === "−" ? "bg-rose-500/20 text-rose-300" : "bg-border text-white";
   return (
-    <div className="rounded-xl border border-border bg-surface-elevated px-3.5 py-3 space-y-2" data-testid="quote-format-matrix">
-      <p className="text-xs font-semibold text-white">
-        {DEAL_STRUCTURE_LABELS[quoteType]} quote format
-        <span className="ml-2 text-[11px] font-normal text-ink-muted">every dealer fills in the same sheet against your locks</span>
-      </p>
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-        <div className="space-y-1.5">
-          <p className="text-[10px] font-bold uppercase tracking-wide text-emerald-400">You lock</p>
-          <div className="grid grid-cols-2 gap-1.5">
-            {f.locks.map((x) => (
-              <span key={x} className={`${cell} border-emerald-500/30`}>{x}</span>
-            ))}
-          </div>
+    <div className="space-y-3 rounded-xl border border-border bg-surface-elevated px-3.5 py-3" data-testid="quote-format-matrix">
+      {/* 1 — the store(s) the request goes to */}
+      <div data-testid="format-dealer">
+        <p className="text-[10px] font-bold uppercase tracking-wide text-ink-faint">Dealer</p>
+        {stores.length ? (
+          stores.map((d) => (
+            <p key={d.name} className="text-xs font-semibold text-white">
+              {d.name}
+              {d.where ? <span className="font-normal text-ink-muted"> · {d.where}</span> : null}
+            </p>
+          ))
+        ) : (
+          <p className="text-xs text-amber-300">Dealer not attached yet — you pick the store on the next step.</p>
+        )}
+      </div>
+      {/* 2 — the car */}
+      {primary ? (
+        <div data-testid="format-vehicle">
+          <p className="text-[10px] font-bold uppercase tracking-wide text-ink-faint">Vehicle</p>
+          <p className="text-xs font-semibold text-white">{[primary.year, primary.make, primary.model, primary.trim].filter(Boolean).join(" ")}</p>
+          <p className="text-[10px] text-ink-muted">
+            <span className="font-mono">{primary.vin}</span>
+            {[primary.exteriorColor, primary.drivetrain].filter(Boolean).length ? ` · ${[primary.exteriorColor, primary.drivetrain].filter(Boolean).join(" · ")}` : ""}
+            {cars.length > 1 ? ` · +${cars.length - 1} alternate${cars.length > 2 ? "s" : ""}` : ""}
+          </p>
         </div>
-        <div className="space-y-1.5">
-          <p className="text-[10px] font-bold uppercase tracking-wide text-ink-faint">Every dealer returns</p>
-          <div className="grid grid-cols-2 gap-1.5">
-            {f.dealer.map((x) => (
-              <span key={x} className={cell}>{x}</span>
-            ))}
-          </div>
+      ) : null}
+      {/* 3 — what every dealer returns, as a vertical equation */}
+      <div className="space-y-1.5" data-testid="format-equation">
+        <p className="text-[10px] font-bold uppercase tracking-wide text-emerald-400">Every dealer returns {eq.returns}</p>
+        <div className="space-y-1">
+          {eq.lines.map((l) => (
+            <div key={l.label} className={`flex items-center gap-2.5 rounded-lg border px-2.5 py-1.5 ${l.op === "=" || l.op === "→" ? "border-emerald-500/40 bg-emerald-500/5" : "border-border/60 bg-background"}`} data-op={l.op}>
+              <span className={`flex h-5 w-5 shrink-0 items-center justify-center rounded font-mono text-[11px] font-black ${opCls(l.op)}`}>{l.op}</span>
+              <span className={`text-[11px] ${l.op === "=" || l.op === "→" ? "font-bold text-white" : "text-ink-light"}`}>{l.label}</span>
+              {l.note ? <span className="ml-auto text-[10px] text-ink-faint">{l.note}</span> : null}
+            </div>
+          ))}
         </div>
       </div>
     </div>
@@ -2422,7 +2476,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
               payment method, plus the sheet they'll fill in against them.          */}
           {step === 3 && quoteType && (
             <div className="space-y-6 animate-fadeIn" data-testid="quote-format-step">
-              <QuoteFormatMatrix quoteType={quoteType} />
+              <QuoteFormatMatrix quoteType={quoteType} cars={[selectedVehicle, altVehicle1, altVehicle2].filter((v): v is Vehicle => Boolean(v))} />
               {quoteType === "lease" && (
                 <WizardSection
                   title="Your lease locks"
