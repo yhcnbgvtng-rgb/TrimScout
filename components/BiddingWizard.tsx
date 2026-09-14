@@ -89,6 +89,57 @@ import {
 type FilterableFactoryOption = FactoryFilterableOption;
 
 
+/**
+ * The quote format for the chosen payment method, as a matrix: what the
+ * buyer locks on this step versus what every dealer's sheet must return
+ * against those locks. Same shape for all three; only the cells change.
+ */
+export const QUOTE_FORMAT: Record<DealStructureMethod, { locks: string[]; dealer: string[] }> = {
+  lease: {
+    locks: ["Term", "Miles per year", "Due at signing (intent)", "Credit band", "ZIP"],
+    dealer: ["Monthly payment", "Due at signing, itemized", "Cap cost", "Money factor", "Residual", "Term & miles confirmed", "Quote good-until"],
+  },
+  finance: {
+    locks: ["Term", "Down payment", "Credit band", "ZIP"],
+    dealer: ["Selling price", "Fees, itemized", "Sales tax", "Amount financed", "APR", "Monthly payment", "Term & down = your locks", "Add-ons: $0 or each listed", "Quote good-until"],
+  },
+  cash: {
+    locks: ["ZIP"],
+    dealer: ["Selling price", "Fees, itemized", "Sales tax", "Add-ons: $0 or each listed", "Out-the-door total", "Quote good-until"],
+  },
+};
+
+function QuoteFormatMatrix({ quoteType }: { quoteType: DealStructureMethod }) {
+  const f = QUOTE_FORMAT[quoteType];
+  const cell = "rounded-lg border border-border/60 bg-background px-2.5 py-1.5 text-[11px] text-ink-light";
+  return (
+    <div className="rounded-xl border border-border bg-surface-elevated px-3.5 py-3 space-y-2" data-testid="quote-format-matrix">
+      <p className="text-xs font-semibold text-white">
+        {DEAL_STRUCTURE_LABELS[quoteType]} quote format
+        <span className="ml-2 text-[11px] font-normal text-ink-muted">every dealer fills in the same sheet against your locks</span>
+      </p>
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <div className="space-y-1.5">
+          <p className="text-[10px] font-bold uppercase tracking-wide text-emerald-400">You lock</p>
+          <div className="grid grid-cols-2 gap-1.5">
+            {f.locks.map((x) => (
+              <span key={x} className={`${cell} border-emerald-500/30`}>{x}</span>
+            ))}
+          </div>
+        </div>
+        <div className="space-y-1.5">
+          <p className="text-[10px] font-bold uppercase tracking-wide text-ink-faint">Every dealer returns</p>
+          <div className="grid grid-cols-2 gap-1.5">
+            {f.dealer.map((x) => (
+              <span key={x} className={cell}>{x}</span>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function FactoryMustHavePicker({
   options,
   checked,
@@ -913,14 +964,14 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     }
   }, [preselectedVehicle, lockVehicleSelection]);
 
-  // 3 steps total: (1) payment + vehicle + trade-in flag, (2) direct offer
-  // vs. multi-dealer, (3) review & broadcast. Payment and vehicle selection
-  // used to be separate steps and are now merged into step 1.
-  const TOTAL_STEPS = 4;
+  // 5 steps: (1) vehicle, (2) payment method, (3) quote format — the locks
+  // every dealer quotes to, laid out per payment method, (4) dealers,
+  // (5) review & send.
+  const TOTAL_STEPS = 5;
   // Single source of the step's short label — shown once in the header
   // subtitle, not repeated as a "Step N:" prefix inside each step's own
   // heading below.
-  const STEP_LABELS = ["Vehicle", "Quote setup", "Dealers", "Review & Send"];
+  const STEP_LABELS = ["Vehicle", "Payment", "Quote format", "Dealers", "Review & Send"];
   // Step 1's Continue is blocked until Import Car actually loaded a
   // vehicle — unless a real vehicle was already locked in via
   // lockVehicleSelection, in which case there's nothing to import.
@@ -1005,7 +1056,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   const confirmedDeskCount = deskPlan.sendTo.length;
   const sendToCount = directOfferMode ? confirmedDeskCount : importedDealerships.length;
   useEffect(() => {
-    if (step === 3 && offerPath === null && competeAmongImported) {
+    if (step === 4 && offerPath === null && competeAmongImported) {
       chooseDirectOffer();
     }
     // chooseDirectOffer is a stable closure over setters; listing it would
@@ -1245,12 +1296,14 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
           : [];
   const quoteSetupComplete = Boolean(quoteType) && missingLocks.length === 0 && !(quoteType === "lease" && isUsed);
 
+  const paymentChosen = Boolean(quoteType) && !(quoteType === "lease" && isUsed);
   const goNext = () => {
     if (step === 1 && !vehicleImported) return;
-    if (step === 2 && !quoteSetupComplete) return;
-    // Step 3 → 4: at least one desk with a named contact must be ticked.
-    if (step === 3 && directOfferMode && confirmedDeskCount === 0) return;
-    if (step === 3 && (!offerPath || step2LocationMissing || sameStateWarning)) return;
+    if (step === 2 && !paymentChosen) return;
+    if (step === 3 && !quoteSetupComplete) return;
+    // Step 4 → 5: at least one desk with a named contact must be ticked.
+    if (step === 4 && directOfferMode && confirmedDeskCount === 0) return;
+    if (step === 4 && (!offerPath || step2LocationMissing || sameStateWarning)) return;
     setStep(step + 1);
   };
   const goBack = () => {
@@ -2338,7 +2391,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
           )}
 
           {/* ========================================================================= */}
-          {/* STEP 2: QUOTE SETUP — what the dealer calculator quotes against         */}
+          {/* STEP 2: PAYMENT — lease, finance or cash; nothing else on this step    */}
           {step === 2 && (
             <div className="space-y-6 animate-fadeIn">
               <WizardSection title="How do you want to pay?" hint="Pick one. Dealers quote through the matching calculator.">
@@ -2362,10 +2415,17 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                 </div>
                 {!quoteType ? <p className="text-[11px] text-ink-faint">{isUsed ? "Choose finance or cash to continue." : "Choose lease, finance or cash to continue."}</p> : null}
               </WizardSection>
+            </div>
+          )}
 
+          {/* STEP 3: QUOTE FORMAT — the locks every dealer quotes to, laid out per
+              payment method, plus the sheet they'll fill in against them.          */}
+          {step === 3 && quoteType && (
+            <div className="space-y-6 animate-fadeIn" data-testid="quote-format-step">
+              <QuoteFormatMatrix quoteType={quoteType} />
               {quoteType === "lease" && (
                 <WizardSection
-                  title="Lease locks"
+                  title="Your lease locks"
                   hint="Every dealer quotes to these through the lease calculator — monthly, due at signing itemized, cap cost, money factor, residual, term and miles confirmed — so the quotes compare like for like."
                   className="pt-6"
                 >
@@ -2446,7 +2506,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
 
               {quoteType === "finance" && (
                 <WizardSection
-                  title="Finance locks"
+                  title="Your finance locks"
                   hint="Every dealer quotes to exactly these — same term, same down, same credit band — so the sheets compare apples to apples."
                   className="pt-6"
                 >
@@ -2553,9 +2613,9 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
             </div>
           )}
 
-          {/* STEP 3: DIRECT OFFER OR MULTI-DEALER                                      */}
+          {/* STEP 4: DIRECT OFFER OR MULTI-DEALER                                      */}
           {/* ========================================================================= */}
-          {step === 3 && (
+          {step === 4 && (
             <div className="divide-y divide-border/50">
               <WizardSection
                 title="Who gets this quote request"
@@ -2872,9 +2932,9 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
           )}
 
           {/* ========================================================================= */}
-          {/* STEP 4: REVIEW & BROADCAST                                                */}
+          {/* STEP 5: REVIEW & BROADCAST                                                */}
           {/* ========================================================================= */}
-          {step === 4 && (
+          {step === 5 && (
             <div className="space-y-4">
               <div>
                 <h3 className="text-sm font-bold text-white uppercase tracking-wider text-emerald-400">
@@ -3238,8 +3298,9 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                 onClick={goNext}
                 disabled={
                   (step === 1 && !vehicleImported) ||
-                  (step === 2 && !quoteSetupComplete) ||
-                  (step === 3 && (!offerPath || step2LocationMissing || Boolean(sameStateWarning) || (directOfferMode && confirmedDeskCount === 0)))
+                  (step === 2 && !paymentChosen) ||
+                  (step === 3 && !quoteSetupComplete) ||
+                  (step === 4 && (!offerPath || step2LocationMissing || Boolean(sameStateWarning) || (directOfferMode && confirmedDeskCount === 0)))
                 }
                 className="flex items-center gap-1.5 rounded-lg bg-emerald-500 px-5 py-2 text-xs font-bold text-black hover:bg-emerald-400 transition-all shadow-md shadow-emerald-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
               >
