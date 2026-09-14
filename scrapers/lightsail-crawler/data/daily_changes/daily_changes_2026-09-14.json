@@ -1,0 +1,21 @@
+{
+  "date": "2026-09-14",
+  "timestamp": "2026-09-14T18:18:20.404Z",
+  "totalDealersConfigured": 4,
+  "activeDealersCount": 3,
+  "stats": {
+    "totalActiveInventory": 510,
+    "totalNewArrivals": 510,
+    "totalPriceDrops": 0,
+    "totalPriceIncreases": 0,
+    "totalSoldOrRemoved": 3248,
+    "skippedForBotProtection": 1
+  },
+  "topPriceDrops": [],
+  "dealerBreakdown": {
+    "MINI of Edison": 126,
+    "MINI of Morristown": 164,
+    "MINI of Mt. Laurel": 0,
+    "MINI of Ramsey": 221
+  }
+}
