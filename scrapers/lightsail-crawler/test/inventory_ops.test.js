@@ -216,6 +216,109 @@ describe('mergeInventorySnapshot (bug 2: cross-brand accumulation)', () => {
 });
 
 // ---------------------------------------------------------------------
+// daysOnLot ("Days On Market"): must be computed for every brand (not a
+// Porsche-only vestige) and must actually increment day over day for a
+// vehicle that keeps showing up, rather than resetting to 0 on every run.
+// firstSeen is carried forward from the previous snapshot entry and
+// daysOnLot is (today - firstSeen) in whole days, so a vehicle crawled on
+// day 1 and still present on day 2/day 3 should show 1, then 2 — not 0
+// every time.
+// ---------------------------------------------------------------------
+describe('mergeInventorySnapshot (daysOnLot / days-on-market across brands and days)', () => {
+  it('starts a brand-new vehicle at daysOnLot 0 on the day it first appears', () => {
+    const result = mergeInventorySnapshot({
+      previousSnapshot: {},
+      currentInventory: new Map([['HON1', { vin: 'HON1', make: 'Honda', configDealerName: 'Honda of Somewhere', price: 25000 }]]),
+      dealers: [{ name: 'Honda of Somewhere' }],
+      failedDealerNames: new Set(),
+      todayDate: '2026-09-14',
+      todayIso: '2026-09-14T00:00:00.000Z',
+      toPriceChangeType: inventoryChangeTypeToPriceChangeType,
+    });
+    assert.equal(result.updatedSnapshot.HON1.daysOnLot, 0);
+    assert.equal(result.updatedSnapshot.HON1.firstSeen, '2026-09-14');
+  });
+
+  it('increments daysOnLot on each subsequent day the same vehicle is still seen, for every brand', () => {
+    let previousSnapshot = {};
+
+    // Day 1: Honda and Kia both first-seen the same day (two different
+    // brands, each crawled as its own standalone.js run).
+    let result = mergeInventorySnapshot({
+      previousSnapshot,
+      currentInventory: new Map([
+        ['HON1', { vin: 'HON1', make: 'Honda', configDealerName: 'Honda of Somewhere', price: 25000 }],
+      ]),
+      dealers: [{ name: 'Honda of Somewhere' }],
+      failedDealerNames: new Set(),
+      todayDate: '2026-09-14',
+      todayIso: '2026-09-14T00:00:00.000Z',
+      toPriceChangeType: inventoryChangeTypeToPriceChangeType,
+    });
+    previousSnapshot = result.updatedSnapshot;
+    result = mergeInventorySnapshot({
+      previousSnapshot,
+      currentInventory: new Map([
+        ['KIA1', { vin: 'KIA1', make: 'Kia', configDealerName: 'Kia of Somewhere', price: 20000 }],
+      ]),
+      dealers: [{ name: 'Kia of Somewhere' }],
+      failedDealerNames: new Set(),
+      todayDate: '2026-09-14',
+      todayIso: '2026-09-14T00:00:00.000Z',
+      toPriceChangeType: inventoryChangeTypeToPriceChangeType,
+    });
+    previousSnapshot = result.updatedSnapshot;
+    assert.equal(previousSnapshot.HON1.daysOnLot, 0);
+    assert.equal(previousSnapshot.KIA1.daysOnLot, 0);
+
+    // Day 2 (tomorrow): both brands crawled again, both vehicles still on
+    // the lot — daysOnLot must increment to 1 for both, not reset to 0.
+    result = mergeInventorySnapshot({
+      previousSnapshot,
+      currentInventory: new Map([
+        ['HON1', { vin: 'HON1', make: 'Honda', configDealerName: 'Honda of Somewhere', price: 25000 }],
+      ]),
+      dealers: [{ name: 'Honda of Somewhere' }],
+      failedDealerNames: new Set(),
+      todayDate: '2026-09-15',
+      todayIso: '2026-09-15T00:00:00.000Z',
+      toPriceChangeType: inventoryChangeTypeToPriceChangeType,
+    });
+    previousSnapshot = result.updatedSnapshot;
+    result = mergeInventorySnapshot({
+      previousSnapshot,
+      currentInventory: new Map([
+        ['KIA1', { vin: 'KIA1', make: 'Kia', configDealerName: 'Kia of Somewhere', price: 20000 }],
+      ]),
+      dealers: [{ name: 'Kia of Somewhere' }],
+      failedDealerNames: new Set(),
+      todayDate: '2026-09-15',
+      todayIso: '2026-09-15T00:00:00.000Z',
+      toPriceChangeType: inventoryChangeTypeToPriceChangeType,
+    });
+    previousSnapshot = result.updatedSnapshot;
+    assert.equal(previousSnapshot.HON1.daysOnLot, 1);
+    assert.equal(previousSnapshot.HON1.firstSeen, '2026-09-14'); // unchanged
+    assert.equal(previousSnapshot.KIA1.daysOnLot, 1);
+
+    // Day 4 (skips day 3, e.g. a missed cron run): daysOnLot reflects the
+    // real elapsed days since firstSeen, not the number of runs.
+    result = mergeInventorySnapshot({
+      previousSnapshot,
+      currentInventory: new Map([
+        ['HON1', { vin: 'HON1', make: 'Honda', configDealerName: 'Honda of Somewhere', price: 25000 }],
+      ]),
+      dealers: [{ name: 'Honda of Somewhere' }],
+      failedDealerNames: new Set(),
+      todayDate: '2026-09-18',
+      todayIso: '2026-09-18T00:00:00.000Z',
+      toPriceChangeType: inventoryChangeTypeToPriceChangeType,
+    });
+    assert.equal(result.updatedSnapshot.HON1.daysOnLot, 4);
+  });
+});
+
+// ---------------------------------------------------------------------
 // Bug 1: enrichment must only process the vehicles the current run
 // actually has fresh data for (vinsToEnrich), not the whole cumulative
 // national_inventory_latest.json. We isolate this in a scratch data/
