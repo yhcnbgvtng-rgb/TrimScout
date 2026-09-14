@@ -2,9 +2,12 @@ import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import {
   LEASE_SHEET_RULES,
+  isPendingApproval,
   leaseSheetRows,
+  pendingApprovalInvites,
   relativeTime,
   rfqDealNumber,
+  rfqNeedsApproval,
   rfqQuoteTypeLabel,
   rfqTrackerStatus,
   rfqTrackerStatusLabel,
@@ -87,6 +90,26 @@ describe("rfqTracker — what My Deal Tracker shows for a lease quote request", 
     assert.equal(relativeTime("2026-09-13T09:00:00Z", now), "3 h ago");
     assert.equal(relativeTime("2026-09-12T12:00:00Z", now), "Yesterday");
     assert.equal(relativeTime("garbage", now), "");
+  });
+});
+
+describe("admin approval checkpoint — an invite is pending exactly while it's still queued", () => {
+  it("isPendingApproval: true only for an invited, still-queued invite", () => {
+    assert.equal(isPendingApproval(invite({})), true, "no deliveryStatus at all defaults to queued");
+    assert.equal(isPendingApproval(invite({ deliveryStatus: "queued" })), true);
+    assert.equal(isPendingApproval(invite({ deliveryStatus: "sent" })), false);
+    assert.equal(isPendingApproval(invite({ deliveryStatus: "viewed" })), false);
+    assert.equal(isPendingApproval(invite({ status: "declined" })), false);
+    assert.equal(isPendingApproval(invite({ status: "expired" })), false);
+    assert.equal(isPendingApproval(invite({ status: "quoted", deliveryStatus: "sent" })), false);
+  });
+
+  it("pendingApprovalInvites / rfqNeedsApproval read the whole request", () => {
+    const rfq = base({ invites: [invite({ id: "i1" }), invite({ id: "i2", deliveryStatus: "sent" }), invite({ id: "i3", status: "declined" })] });
+    assert.deepEqual(pendingApprovalInvites(rfq).map((i) => i.id), ["i1"]);
+    assert.equal(rfqNeedsApproval(rfq), true);
+    assert.equal(rfqNeedsApproval(base({ invites: [invite({ id: "i2", deliveryStatus: "sent" })] })), false);
+    assert.equal(rfqNeedsApproval(base({ invites: [] })), false, "no invites yet is not pending anything");
   });
 });
 

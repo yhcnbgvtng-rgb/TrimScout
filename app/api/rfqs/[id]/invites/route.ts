@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
-import { createRfqInvite, getRfq, listRfqsForBuyer, markRfqInviteDelivery, RfqApiError } from "@/lib/rfqApi";
+import { createRfqInvite, getRfq, listRfqsForBuyer, RfqApiError } from "@/lib/rfqApi";
 import type { RfqInvite } from "@/lib/rfq";
 import { guardPerDeskCap } from "@/lib/apiSpendGuard";
 import { buyerRfqStrikeCount, canInviteMore, reputationInviteCap } from "@/lib/rfqLogic";
@@ -14,16 +14,16 @@ import {
   INVITE_BLOCK_MESSAGES,
   type DealerDesk,
 } from "@/lib/quotePackage";
-import { quoteInviteSubject, quoteInviteHtml, type QuoteEmailType } from "@/lib/quoteInviteEmail";
-import { sendQuoteInviteEmail } from "@/lib/dealerEmail";
-import { unsubscribeUrlFor, DEALER_EMAIL_BASE_URL } from "@/lib/dealerUnsubscribe";
-import { formatBuyerAlias } from "@/lib/buyerAlias";
 
-// The one send path. The buyer's confirm step names a dealership; this
-// route re-derives the desk from the contact directory itself — the
-// client never gets to supply the address we send to — applies every
-// cap, creates the invite (queued), sends the email, and marks it sent
-// only once Resend has accepted it. Each step is on the audit trail.
+// The buyer's confirm step names a dealership; this route re-derives the
+// desk from the contact directory itself — the client never gets to supply
+// the address we send to — applies every cap, and creates the invite.
+//
+// It used to also send the dealer email in this same request. It doesn't
+// anymore: every invite now lands and stays "queued" until an admin
+// reviews the request and approves it (lib/rfqAdminApproval.ts sends it
+// from there). This is the entire hold mechanism — "queued" already
+// existed as a delivery-status value, so nothing on the box changed.
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
   if (!session?.user?.id) {
@@ -115,59 +115,10 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       throw err;
     }
 
-    // --- Send, then mark sent. A send failure leaves the invite queued,
-    //     which is the truth, and the buyer sees "Queued" rather than a
-    //     "Sent" that never happened.
-    if (desk) {
-      const viewToken = invite.viewToken;
-      const viewUrl = `${DEALER_EMAIL_BASE_URL}/api/quote-invite/view?t=${encodeURIComponent(viewToken || "")}`;
-      const directoryRow = desk.source === "directory"
-        ? matchDirectoryDealership(await listDealerships().catch(() => []), { dealerName, state: dealerState })
-        : null;
-      // One template for Cash / Lease / Finance. The type comes from what the
-      // package stores (lease prefs, used quote prefs) before what the client
-      // says it asked for.
-      const requested = Array.isArray(body?.requestedStructures) ? String(body.requestedStructures[0] || "") : "";
-      const quoteType: QuoteEmailType = rfq.leasePrefs
-        ? "lease"
-        : rfq.quotePrefs?.quoteType === "finance" || requested === "finance"
-          ? "finance"
-          : "cash";
-      const bodyFinance = body?.financePrefs && typeof body.financePrefs === "object" ? body.financePrefs : null;
-      const financePrefs =
-        rfq.quotePrefs?.quoteType === "finance"
-          ? { termMonths: rfq.quotePrefs.finance.termMonths, downPayment: rfq.quotePrefs.finance.downPayment, creditBand: rfq.quotePrefs.finance.creditBand }
-          : bodyFinance && Number.isFinite(Number(bodyFinance.termMonths))
-            ? { termMonths: Number(bodyFinance.termMonths), downPayment: Math.max(0, Number(bodyFinance.downPayment) || 0), creditBand: typeof bodyFinance.creditBand === "string" ? bodyFinance.creditBand : null }
-            : null;
-      const storedZip = rfq.leasePrefs?.zip || (rfq.quotePrefs?.quoteType === "finance" ? rfq.quotePrefs.finance.zip : rfq.quotePrefs?.quoteType === "cash" ? rfq.quotePrefs.cash.zip : "");
-      const buyerZip = storedZip || (typeof body?.buyerZip === "string" ? body.buyerZip.replace(/\D/g, "").slice(0, 5) : "") || null;
-      const emailInput = {
-        quoteType,
-        dealerName,
-        contactName: desk.contactName,
-        role: desk.role,
-        rooftop: directoryRow
-          ? { city: directoryRow.city, state: directoryRow.state, address: directoryRow.address }
-          : { city: null, state: dealerState || null, address: null },
-        vehicle,
-        buyerAlias: formatBuyerAlias(rfq.buyerUserId),
-        dealReference: rfq.dealReference || null,
-        viewUrl,
-        unsubscribeUrl: directoryRow ? unsubscribeUrlFor(directoryRow.id) : null,
-        purchaseTimelineLabel: typeof body?.purchaseTimelineLabel === "string" ? body.purchaseTimelineLabel : null,
-        buyerNote: rfq.buyerNote || null,
-        buyerZip,
-        leasePrefs: rfq.leasePrefs || null,
-        financePrefs,
-        vehicleFacts: body?.vehicleFacts && typeof body.vehicleFacts === "object" ? body.vehicleFacts : null,
-      };
-      const html = quoteInviteHtml(emailInput);
-      const accepted = await sendQuoteInviteEmail(quoteInviteSubject(emailInput), html);
-      if (accepted) {
-        invite = await markRfqInviteDelivery(id, invite.id, "sent").catch(() => invite);
-      }
-    }
+    // --- Hold. The invite was just created "queued" on the box (its
+    //     default delivery status) and stays that way — nothing is sent
+    //     to the dealer until an admin approves this request. See
+    //     lib/rfqAdminApproval.ts for the send path.
 
     // Neither the desk's real address nor the tracked-link token leaves the server.
     const { dealerContactEmail: _hiddenEmail, viewToken: _hiddenToken, ...publicInvite } = invite;

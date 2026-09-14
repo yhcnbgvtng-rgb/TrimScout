@@ -6,7 +6,7 @@
  */
 import { LEASE_DAS_INTENT_LABELS, type LeaseRequestPrefs } from "./leaseQuote";
 import { CREDIT_BAND_LABELS } from "./creditBand";
-import type { RfqRequest } from "./rfq";
+import type { RfqInvite, RfqRequest } from "./rfq";
 
 /** One pasted car as the package recorded it (rfq.linkPastes rows). */
 export interface RfqPasteVehicle {
@@ -134,6 +134,30 @@ export function leaseSheetRows(prefs: LeaseRequestPrefs): Array<{ label: string;
   if (prefs.zip) rows.push({ label: "ZIP", value: `${prefs.zip} (tax context)` });
   if (prefs.timeline) rows.push({ label: "Timeline", value: LEASE_TIMELINE_LABELS[prefs.timeline] });
   return rows;
+}
+
+/**
+ * Admin approval checkpoint (the quote-request path only — never the
+ * separate deal-requests/auction path). Every invite the buyer's wizard
+ * creates lands "queued" on the box and stays there until an admin
+ * approves it; an invite is waiting on that review exactly when it's
+ * still `invited` and its delivery leg hasn't moved past "queued". Pure
+ * predicates only — the actual send lives in lib/rfqAdminApproval.ts,
+ * which is server-only (it talks to the box and Resend) and must never be
+ * imported from a client component; these stay here, in the module the
+ * admin UI already imports, specifically so it can check them safely.
+ */
+export function isPendingApproval(invite: Pick<RfqInvite, "status" | "deliveryStatus">): boolean {
+  return invite.status === "invited" && (invite.deliveryStatus || "queued") === "queued";
+}
+
+export function pendingApprovalInvites(rfq: Pick<RfqRequest, "invites">): RfqInvite[] {
+  return rfq.invites.filter(isPendingApproval);
+}
+
+/** True while any invite on the request is still sitting in the admin's queue. */
+export function rfqNeedsApproval(rfq: Pick<RfqRequest, "invites">): boolean {
+  return pendingApprovalInvites(rfq).length > 0;
 }
 
 /** "3 min ago" / "2 h ago" / "Yesterday" / a date — for the tracker card. */

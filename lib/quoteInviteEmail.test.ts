@@ -131,13 +131,21 @@ describe("quote-request email — one template for Cash / Lease / Finance", () =
   });
 });
 
-describe("wiring — the send route feeds the one template", () => {
+describe("wiring — the send path feeds the one template", () => {
   const read = (f: string) => fs.readFileSync(path.join(process.cwd(), f), "utf8");
-  it("quote type comes from stored prefs first (lease / used finance) then the client's ask; rooftop from the directory row; ZIP from stored prefs then the wizard", () => {
-    const r = read("app/api/rfqs/[id]/invites/route.ts");
-    assert.match(r, /const quoteType: QuoteEmailType = rfq\.leasePrefs\s*\? "lease"/);
-    assert.match(r, /rooftop: directoryRow\s*\? \{ city: directoryRow\.city, state: directoryRow\.state, address: directoryRow\.address \}/);
-    assert.match(r, /const buyerZip = storedZip \|\| \(typeof body\?\.buyerZip === "string"/);
+  it("quote type and ZIP come from the rfq's own stored prefs (lease / used finance/cash) — never from the original request body, which is gone by approval time; rooftop from the directory row", () => {
+    // Sending moved out of app/api/rfqs/[id]/invites/route.ts (which now
+    // only creates a queued invite — see its own comment) into
+    // lib/rfqAdminApproval.ts, the admin approval checkpoint's send path.
+    // Everything the email needs is derived from the persisted rfq/invite
+    // alone, since the buyer's original POST body no longer exists by the
+    // time an admin approves.
+    const invitesRoute = read("app/api/rfqs/[id]/invites/route.ts");
+    assert.doesNotMatch(invitesRoute, /sendQuoteInviteEmail|quoteInviteHtml|quoteInviteSubject/, "the invite-creation route must not send email itself");
+    const r = read("lib/rfqAdminApproval.ts");
+    assert.match(r, /const quoteType: QuoteEmailType = rfq\.leasePrefs \? "lease"/);
+    assert.match(r, /rooftop: directoryRow \? \{ city: directoryRow\.city, state: directoryRow\.state, address: directoryRow\.address \}/);
+    assert.match(r, /function buyerZipFor/);
     assert.doesNotMatch(r, /paymentLabel|formatDealStructures/);
   });
   it("wizard sends buyerZip + finance prefs with each invite; dealer landing for a new-car cash/finance request points at log in / sign up", () => {
