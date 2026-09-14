@@ -153,37 +153,35 @@ import path from "node:path";
 describe("wizard wiring — same-state gate + alternate comparison", () => {
   const wizard = fs.readFileSync(path.join(process.cwd(), "components/BiddingWizard.tsx"), "utf8");
 
-  it("(1) the same-state box defaults ON and keeps its radius subtext", () => {
-    assert.match(wizard, /const \[sameStateOnly, setSameStateOnly\] = useState<boolean>\(true\)/);
-    assert.match(wizard, /Uncheck to include dealerships in other states within the radius/);
+  it("(1) there is no same-state restriction — no checkbox, no expand nudge; the gate constant is off", () => {
+    assert.match(wizard, /const sameStateOnly = false;/);
+    assert.doesNotMatch(wizard, /Only send this to dealerships in my state|setSameStateOnly|formatExpandNudge|Include dealerships in other states|Uncheck to include dealerships/);
   });
 
-  it("(3) the send path and the confirmed count both honor the gate, and the nudge unchecks it", () => {
+  it("(3) the send path and the confirmed count both go through the desk plan", () => {
     assert.match(wizard, /toSend = pastes\.filter\([\s\S]*?deskPlan\.rows\[p\.dealerName\]\?\.checked/);
     assert.match(wizard, /confirmedDeskCount = deskPlan\.sendTo\.length/);
-    assert.match(wizard, /formatExpandNudge\(gatePlan\)/);
-    assert.match(wizard, /onClick=\{\(\) => setSameStateOnly\(false\)\}/);
-    assert.match(wizard, /Include dealerships in other states/);
   });
 
-  it("the primary (listing) desk is flagged to the gate and stays tickable outside the buyer's state", () => {
+  it("the primary (listing) desk is flagged to the plan and stays tickable", () => {
     assert.match(wizard, /planDeskSelection\(\{[\s\S]*?primaryDealerName,[\s\S]*?confirmed: confirmedDesks/);
     assert.match(wizard, /checked=\{Boolean\(row\?\.checked\)\}/);
     assert.match(wizard, /disabled=\{!row\?\.selectable\}/);
-    assert.match(wizard, /kept in because it lists your car/);
-    assert.match(wizard, /The dealership listing your car always stays in\./);
   });
 
-  it("overnight QA pack: VIN-only CTA, degraded-directory retry, and a sticker retry are all wired", () => {
+  it("overnight QA pack: VIN-only CTA and degraded-directory retry are wired; a missing sticker shows no warning and no retry", () => {
     assert.match(wizard, /No dealership attached yet/);
     assert.match(wizard, /Paste the dealership&apos;s listing link to attach the store/);
     assert.match(wizard, /Couldn&apos;t check the dealer directory just now/);
     assert.match(wizard, /onRetry=\{retryPendingLink\}/);
-    assert.match(wizard, /ask the manufacturer again/);
-    assert.match(wizard, /const retryPrimarySticker = async/);
+    assert.doesNotMatch(wizard, /ask the manufacturer again|retryPrimarySticker|Unconfirmed build|temporarily unavailable|dealer listing only/i);
+    // The build-sheet link still shows when the record is real.
+    assert.match(wizard, /\{fordPdfUrl && \(/);
+    assert.match(wizard, /"Factory verified"/);
   });
 
-  it("(4) alternate cards lead with the must-have report and diff, never a sticker similarity %", () => {
+  it("(4) alternate cards lead with the must-have report and diff, never a sticker similarity %; an unscorable report is simply not shown", () => {
+    assert.match(wizard, /const report = fullReport && fullReport\.kind === "scored" \? fullReport : null;/);
     assert.match(wizard, /mustHaveHeadline\(report\)/);
     assert.match(wizard, /diffVsPrimary\(primary, vehicle, mustHaves/);
     assert.doesNotMatch(wizard, /similarity|stickerMatchPercent|matchPercent/i);

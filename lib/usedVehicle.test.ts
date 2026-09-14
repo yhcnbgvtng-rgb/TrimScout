@@ -54,7 +54,7 @@ describe("wiring — used cars ride the same pipe without a factory build", () =
     assert.match(w, /const detected = detectUsedCondition\(raw\);[\s\S]*?setVehicleCondition\(detected\)/);
     assert.match(w, /data-testid="primary-build-badge"[\s\S]*?conditionBadge\(selectedVehicle\.condition\)/);
     assert.match(w, /data-testid="confirm-build-badge"[\s\S]*?conditionBadge\(build\.vehicle\.condition\)/);
-    assert.match(w, /\{isUsed \? null : \(\s*<div className="space-y-2">\s*<p[^>]*>\s*Optional: up to 2 similar vehicles/);
+    assert.match(w, /\{isUsed \? null : \(\s*<div [^>]*data-testid="alternate-vehicles">\s*<p[^>]*>\s*Optional: up to 2 similar vehicles/);
     assert.doesNotMatch(w, /used-confirm-fields|Help the dealer confirm the car|usedMiles|usedStock/, "no miles / stock # block on Used Step 1");
     assert.match(w, /isUsedCondition\(v\.condition\) \? \{ condition: v\.condition \}/);
     assert.match(w, /setVehicleCondition\("new"\);/);

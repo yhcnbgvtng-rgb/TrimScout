@@ -159,7 +159,9 @@ describe("confirm panel — sticker independent of dealer", () => {
   });
 
   it("shows Factory verified and the build-sheet link when the record is real", () => {
-    assert.match(panel, /build\.buildConfidence === "verified_factory" \? "Factory verified"/);
+    assert.match(panel, /build\.buildConfidence === "verified_factory" \? \(/);
+    assert.match(panel, /\|\| "Factory verified"/);
+    assert.doesNotMatch(panel, /Unconfirmed build|temporarily unavailable/);
     assert.match(panel, /build\.pdfUrl \?/);
     assert.match(panel, /FORD_BUILD_SHEET_LINK/);
   });

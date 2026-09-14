@@ -46,9 +46,10 @@ describe("BiddingWizard — Step 1 is the vehicle step; Step 2 is quote setup", 
   it("(1) Step 1 has the vehicle flow and no lease term/miles or payment chips", () => {
     assert.ok(step1.length > 0 && step2.length > 0);
     assert.match(step1, /One car is required to continue/);
-    assert.match(step1, /Only send this to dealerships in my state/);
-    assert.match(step1, /label="Alternate vehicle 1"/);
-    assert.match(step1, /label="Alternate vehicle 2"/);
+    assert.doesNotMatch(step1, /Only send this to dealerships in my state/);
+    assert.match(step1, /data-testid="alternate-vehicles"/);
+    assert.match(step1, /label="Alternate 1"/);
+    assert.match(step1, /label="Alternate 2"/);
     assert.doesNotMatch(step1, /Add additional vehicles|showAlternates/, "the two alternate slots are always shown — no reveal link");
     assert.doesNotMatch(step1, /trade in|Trade-in/i, "no trade-in question on Step 1");
     assert.doesNotMatch(step1, /LEASE_TERMS\.map|LEASE_MILES\.map|Lease preferences|DEAL_STRUCTURE_LABELS|toggleDealStructure/);
