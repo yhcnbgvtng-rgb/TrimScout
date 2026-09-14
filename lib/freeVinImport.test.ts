@@ -181,6 +181,26 @@ describe("freeVinImportVehicle", () => {
     assert.equal(isUsableFreeImport(vehicle, decodedBad), false);
   });
 
+  it("lets a failed check digit through when the listing page itself named the dealer", () => {
+    // The page is independent corroboration this is a real car at a real
+    // store — refusing outright over one bad character (a likely copy slip)
+    // is a worse outcome than importing it at reduced confidence.
+    const decodedBad = decoded({
+      errorText: "1 - Check Digit (9th position) does not calculate properly",
+    });
+    const vehicle = freeVinImportVehicle({
+      vin: VIN,
+      decoded: decodedBad,
+      dealer: { name: "BMW of Manhattan", city: "New York", state: "NY", zip: "10019", source: "json_ld" },
+      listingPrice: null,
+      listingUrl: null,
+      fallbackMake: "BMW",
+    });
+    assert.equal(vehicle.location.dealerConfirmed, true);
+    assert.equal(hasVinIntegrityError(decodedBad), true);
+    assert.equal(isUsableFreeImport(vehicle, decodedBad), true);
+  });
+
   it("refuses an auto-corrected VIN too", () => {
     for (const text of [
       "3 - VIN corrected, error in one position (assuming Check Digit is correct)",
