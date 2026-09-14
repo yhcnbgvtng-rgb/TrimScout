@@ -1,10 +1,11 @@
 // POST /api/quote-invite/used-quote { t, vin?, stockNumber?, quote } — a
-// dealer's used-car Finance / Cash sheet, submitted from their quote page
-// behind the invite token. Validated here (lib/usedQuote.ts) before
-// anything reaches the box.
+// dealer's Finance / Cash sheet (new or used car), submitted from their
+// quote page behind the invite token. Validated here (lib/usedQuote.ts)
+// against the buyer's locks before anything reaches the box.
 import { NextResponse } from "next/server";
 import { getRfq, getRfqInviteByViewToken, submitRfqQuote } from "@/lib/rfqApi";
 import { validateUsedQuote, cashOutTheDoor, type UsedQuote } from "@/lib/usedQuote";
+import { rfqVehicles } from "@/lib/rfqTracker";
 
 export async function POST(req: Request) {
   const body = await req.json().catch(() => null);
@@ -22,11 +23,16 @@ export async function POST(req: Request) {
   const vin = typeof body?.vin === "string" && body.vin.trim() ? body.vin.trim().toUpperCase() : rfq.vin;
   const stockNumber = typeof body?.stockNumber === "string" && body.stockNumber.trim() ? body.stockNumber.trim() : rfq.stockNumber;
   const num = (v: unknown) => (typeof v === "number" && Number.isFinite(v) ? v : typeof v === "string" && v.trim() !== "" && Number.isFinite(Number(v)) ? Number(v) : undefined);
-  const lines = Array.isArray(raw.dueAtSigning) ? (raw.dueAtSigning as Array<Record<string, unknown>>).map((l) => ({ name: String(l?.name || ""), amount: num(l?.amount) ?? NaN })) : undefined;
+  const toLines = (v: unknown) => (Array.isArray(v) ? (v as Array<Record<string, unknown>>).map((l) => ({ name: String(l?.name || ""), amount: num(l?.amount) ?? NaN })) : undefined);
+  const car = rfqVehicles(rfq).find((c) => c.vin === vin) || rfqVehicles(rfq)[0] || null;
+  const condition = car?.condition || "new";
   const base = {
     sellingPrice: num(raw.sellingPrice),
-    dueAtSigning: lines,
-    miles: num(raw.miles),
+    dueAtSigning: toLines(raw.dueAtSigning),
+    addOns: toLines(raw.addOns) ?? [],
+    noAddOns: Boolean(raw.noAddOns),
+    rebates: toLines(raw.rebates) ?? [],
+    miles: condition === "new" ? null : num(raw.miles) ?? undefined,
     stockNumber,
     cpo: Boolean(raw.cpo),
     expiresAt: typeof raw.expiresAt === "string" ? raw.expiresAt : "",
@@ -44,11 +50,10 @@ export async function POST(req: Request) {
           termMonths: num(raw.termMonths),
           monthlyPaymentPreTax: num(raw.monthlyPaymentPreTax),
           monthlyPaymentWithEstTax: num(raw.monthlyPaymentWithEstTax) ?? null,
-          creditAssumption: (["excellent", "good", "fair", "rebuilding", "unknown"].includes(String(raw.creditAssumption)) ? raw.creditAssumption : "unknown") as UsedQuote extends { creditAssumption: infer C } ? C : never,
-          counter: { counterOffer: Boolean((raw.counter as Record<string, unknown> | undefined)?.counterOffer), note: String((raw.counter as Record<string, unknown> | undefined)?.note || "") },
+          lenderName: typeof raw.lenderName === "string" && raw.lenderName.trim() ? raw.lenderName.trim().slice(0, 80) : null,
         }
       : { ...base, kind: "cash" };
-  const v = validateUsedQuote(quote, rfq.quotePrefs, { vin, stockNumber });
+  const v = validateUsedQuote(quote, rfq.quotePrefs, { vin, stockNumber, condition });
   if (v.errors.length) return NextResponse.json({ error: "Quote is incomplete.", errors: v.errors, warnings: v.warnings }, { status: 422 });
 
   const used = quote as UsedQuote;

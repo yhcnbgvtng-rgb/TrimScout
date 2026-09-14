@@ -61,7 +61,8 @@ describe("BiddingWizard — Step 1 is the vehicle step; Step 2 is quote setup", 
     assert.match(step2, /quoteType === "finance" && \(/);
     assert.match(step2, /Down payment/);
     assert.match(step2, /Credit band/);
-    assert.match(step2, /No credit pull/);
+    assert.match(step2, /CREDIT_BAND_COPY/);
+    assert.doesNotMatch(step2, /Prefer not to say|\(optional\)<\/span>\s*<\/span>\s*<select[^>]*value=\{creditBand\}/, "credit band is required");
     assert.match(step2, /Timeline <span[^>]*>\(optional\)/);
     // Nothing pre-chosen on Quote setup: no term lit up, no miles, no ZIP, no finance term.
     assert.match(src, /useState<LeaseTerm \| "">\(""\)/);
@@ -82,9 +83,11 @@ describe("BiddingWizard — Step 1 is the vehicle step; Step 2 is quote setup", 
   it("(4) Continue into Step 2 needs the vehicle; out of Step 2 needs the type's required prefs; Step 3 needs ≥1 named desk", () => {
     assert.match(src, /if \(step === 1 && !vehicleImported\) return;/);
     assert.match(src, /if \(step === 2 && !quoteSetupComplete\) return;/);
-    assert.match(src, /quoteType === "lease"\s*\? Boolean\(!isUsed && leaseTerm && leaseMiles && zipOk\)/);
-    assert.match(src, /quoteType === "finance"\s*\? Boolean\(financeTerm && financeTerm > 0 && downPayment !== "" && Number\.isFinite\(downPaymentNumber\) && downPaymentNumber >= 0 && zipOk\)/);
-    assert.match(src, /quoteType === "cash"\s*\? zipOk\s*: false/);
+    // Every lock must be set: the gate is "nothing missing", and the empty state names what is.
+    assert.match(src, /const quoteSetupComplete = Boolean\(quoteType\) && missingLocks\.length === 0 && !\(quoteType === "lease" && isUsed\);/);
+    assert.match(src, /quoteType === "finance"\s*\? missingFinanceLocks\(\{ termMonths: financeTerm, downPayment, creditBand, zip: huntZip \}\)/);
+    assert.match(src, /quoteType === "cash"\s*\? zipOk \? \[\] : \["ZIP"\]\s*: \[\]/);
+    assert.match(step2, /data-testid="missing-locks"/);
     assert.match(src, /step === 3 && directOfferMode && confirmedDeskCount === 0/);
     assert.match(src, /TOTAL_STEPS = 4/);
   });

@@ -4,7 +4,8 @@
  * card, the detail page and the tests all derive from these, so a deal can't
  * say "Awaiting quotes" on one screen and "Quotes in" on another.
  */
-import type { LeaseRequestPrefs } from "./leaseQuote";
+import { LEASE_DAS_INTENT_LABELS, type LeaseRequestPrefs } from "./leaseQuote";
+import { CREDIT_BAND_LABELS } from "./creditBand";
 import type { RfqRequest } from "./rfq";
 
 /** One pasted car as the package recorded it (rfq.linkPastes rows). */
@@ -128,6 +129,8 @@ export function leaseSheetRows(prefs: LeaseRequestPrefs): Array<{ label: string;
     { label: "Term", value: `${prefs.termMonths} months` },
     { label: "Miles / year", value: prefs.milesPerYear.toLocaleString() },
   ];
+  if (prefs.dueAtSigningIntent) rows.push({ label: "Due at signing", value: LEASE_DAS_INTENT_LABELS[prefs.dueAtSigningIntent] });
+  if (prefs.creditBand) rows.push({ label: "Credit band", value: CREDIT_BAND_LABELS[prefs.creditBand] });
   if (prefs.zip) rows.push({ label: "ZIP", value: `${prefs.zip} (tax context)` });
   if (prefs.timeline) rows.push({ label: "Timeline", value: LEASE_TIMELINE_LABELS[prefs.timeline] });
   return rows;

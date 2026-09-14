@@ -138,12 +138,12 @@ function ReceivedBody() {
             <>
               <div className="rounded-2xl border border-border bg-surface p-5 space-y-2 text-sm text-ink-light leading-relaxed">
                 <p>
-                  <strong className="text-white">Quote through the sheet below.</strong> Selling price, itemized fees and taxes, miles and a good-through date are required
-                  {ctx.quotePrefs.quoteType === "finance" ? "; the monthly is calculated from amount financed, APR and term — a monthly-only reply can't be submitted" : ""}.
+                  <strong className="text-white">Quote through the sheet below.</strong> Selling price, itemized fees with a sales-tax line, add-ons listed (or none), {ctx.condition === "new" ? "" : "miles, "}and a good-until date are required
+                  {ctx.quotePrefs.quoteType === "finance" ? "; term and down must equal the buyer's lock, and the monthly is calculated from amount financed, APR and term — a monthly-only reply can't be submitted" : ""}.
                 </p>
                 <p className="text-xs text-ink-muted border-t border-border/60 pt-3">This is a non-binding quote request — not an auction, not a bid, and no response deadline. The buyer compares and picks one, or walks away.</p>
               </div>
-              <UsedQuoteForm token={token} vin={ctx.vin} stockNumber={ctx.stockNumber} prefs={ctx.quotePrefs} buyerMiles={ctx.buyerMiles} onSubmitted={(r) => setDone({ warnings: r.warnings, dueAtSigningTotal: 0 })} />
+              <UsedQuoteForm token={token} vin={ctx.vin} stockNumber={ctx.stockNumber} prefs={ctx.quotePrefs} condition={ctx.condition} buyerMiles={ctx.buyerMiles} onSubmitted={(r) => setDone({ warnings: r.warnings, dueAtSigningTotal: 0 })} />
             </>
           ) : !ctx.leasePrefs ? (
             <div className="rounded-2xl border border-border bg-surface p-5 space-y-3 text-sm text-ink-light" data-testid="login-to-quote">

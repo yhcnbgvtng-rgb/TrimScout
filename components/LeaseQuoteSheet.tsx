@@ -3,7 +3,8 @@
 import React, { useState } from "react";
 import { CheckCircle2, Lock, Pencil } from "lucide-react";
 import type { RfqRequest } from "../lib/rfq";
-import { LEASE_MILES, LEASE_TERMS, type LeaseMiles, type LeaseRequestPrefs, type LeaseTerm } from "../lib/leaseQuote";
+import { LEASE_DAS_INTENTS, LEASE_DAS_INTENT_LABELS, LEASE_MILES, LEASE_TERMS, type LeaseDueAtSigningIntent, type LeaseMiles, type LeaseRequestPrefs, type LeaseTerm } from "../lib/leaseQuote";
+import { CREDIT_BANDS, CREDIT_BAND_COPY, CREDIT_BAND_LABELS, type CreditBand } from "../lib/creditBand";
 import { LEASE_SHEET_RULES, LEASE_TIMELINE_LABELS, leaseSheetRows, rfqDealNumber, rfqVehicles, vehicleLine } from "../lib/rfqTracker";
 
 export const SHEET_UNLOCKED_COPY = "You can still adjust this lease request until a dealer opens it.";
@@ -129,12 +130,14 @@ export function LeaseQuoteSheet({ rfq, compact = false, onSaved }: { rfq: RfqReq
   );
 }
 
-/** Term · miles · ZIP · timeline — the same choices as Step 2, saved through PATCH /api/rfqs/:id/lease-prefs. */
+/** Term · miles · due-at-signing intent · credit band · ZIP · timeline — the same locks as Step 2, saved through PATCH /api/rfqs/:id/lease-prefs. */
 function LeasePrefsEditor({ rfq, prefs, onCancel, onSaved }: { rfq: RfqRequest; prefs: LeaseRequestPrefs; onCancel: () => void; onSaved: (rfq: RfqRequest) => void }) {
   const [term, setTerm] = useState<LeaseTerm>(prefs.termMonths);
   const [miles, setMiles] = useState<LeaseMiles>(prefs.milesPerYear);
   const [zip, setZip] = useState(prefs.zip || "");
   const [timeline, setTimeline] = useState<NonNullable<LeaseRequestPrefs["timeline"]> | "">(prefs.timeline || "");
+  const [dasIntent, setDasIntent] = useState<"" | LeaseDueAtSigningIntent>(prefs.dueAtSigningIntent || "");
+  const [band, setBand] = useState<"" | CreditBand>(prefs.creditBand || "");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const zipOk = zip === "" || /^\d{5}$/.test(zip);
@@ -144,7 +147,7 @@ function LeasePrefsEditor({ rfq, prefs, onCancel, onSaved }: { rfq: RfqRequest; 
   const save = async () => {
     setSaving(true);
     setError(null);
-    const leasePrefs: LeaseRequestPrefs = { termMonths: term, milesPerYear: miles, zip, timeline: timeline || null };
+    const leasePrefs: LeaseRequestPrefs = { termMonths: term, milesPerYear: miles, zip, timeline: timeline || null, dueAtSigningIntent: dasIntent || null, creditBand: band || null };
     try {
       const res = await fetch(`/api/rfqs/${rfq.id}/lease-prefs`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ leasePrefs }) });
       const json = await res.json().catch(() => ({}));
@@ -177,6 +180,24 @@ function LeasePrefsEditor({ rfq, prefs, onCancel, onSaved }: { rfq: RfqRequest; 
           </select>
         </label>
         <label className="space-y-1">
+          <span className={label}>Due at signing</span>
+          <select value={dasIntent} onChange={(e) => setDasIntent(e.target.value as "" | LeaseDueAtSigningIntent)} className={input} data-testid="sheet-das-intent">
+            <option value="">Choose what you intend up front</option>
+            {LEASE_DAS_INTENTS.map((i) => (
+              <option key={i} value={i}>{LEASE_DAS_INTENT_LABELS[i]}</option>
+            ))}
+          </select>
+        </label>
+        <label className="space-y-1">
+          <span className={label}>Credit band</span>
+          <select value={band} onChange={(e) => setBand(e.target.value as "" | CreditBand)} className={input} data-testid="sheet-credit-band" title={CREDIT_BAND_COPY}>
+            <option value="">Choose your band</option>
+            {CREDIT_BANDS.map((b) => (
+              <option key={b} value={b}>{CREDIT_BAND_LABELS[b]}</option>
+            ))}
+          </select>
+        </label>
+        <label className="space-y-1">
           <span className={label}>ZIP (tax context)</span>
           <input type="text" inputMode="numeric" maxLength={5} value={zip} onChange={(e) => setZip(e.target.value.replace(/\D/g, "").slice(0, 5))} className={`${input} font-mono`} />
         </label>
@@ -192,7 +213,7 @@ function LeasePrefsEditor({ rfq, prefs, onCancel, onSaved }: { rfq: RfqRequest; 
       </div>
       {error ? <p className="rounded-lg border border-rose-500/40 bg-rose-950/30 px-3 py-2 text-[11px] text-rose-300">{error}</p> : null}
       <div className="flex gap-2">
-        <button type="button" onClick={save} disabled={saving || !zipOk} className="rounded-lg bg-emerald-500 px-4 py-2 text-xs font-extrabold text-black hover:bg-emerald-400 transition-all disabled:opacity-50">
+        <button type="button" onClick={save} disabled={saving || !zipOk || !dasIntent || !band} className="rounded-lg bg-emerald-500 px-4 py-2 text-xs font-extrabold text-black hover:bg-emerald-400 transition-all disabled:opacity-50">
           {saving ? "Saving…" : "Save changes"}
         </button>
         <button type="button" onClick={onCancel} className="rounded-lg border border-border px-4 py-2 text-xs font-bold text-ink-light hover:text-white">

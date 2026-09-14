@@ -6,6 +6,7 @@
  *
  * Pure: types, validation, derived numbers. No I/O.
  */
+import { parseCreditBand, type CreditBand } from "./creditBand";
 
 export const LEASE_TERMS = [18, 24, 36, 39, 48] as const;
 export type LeaseTerm = (typeof LEASE_TERMS)[number];
@@ -14,6 +15,14 @@ export type LeaseMiles = (typeof LEASE_MILES)[number];
 export const DEFAULT_LEASE_TERM: LeaseTerm = 36;
 export type LeaseTimeline = "asap" | "this_week" | "this_month";
 
+/** What the buyer intends to pay up front — a stated intent, not a number (a "quote under $X" would be a reverse-bid). */
+export type LeaseDueAtSigningIntent = "first_month_only" | "cash_down";
+export const LEASE_DAS_INTENTS: readonly LeaseDueAtSigningIntent[] = ["first_month_only", "cash_down"];
+export const LEASE_DAS_INTENT_LABELS: Record<LeaseDueAtSigningIntent, string> = {
+  first_month_only: "First month + fees only — no cap reduction",
+  cash_down: "I plan to put money down (cap reduction)",
+};
+
 /** What the buyer asked for. */
 export interface LeaseRequestPrefs {
   termMonths: LeaseTerm;
@@ -21,6 +30,9 @@ export interface LeaseRequestPrefs {
   /** Tax context only — never shared with the dealer beyond the state it implies. */
   zip: string;
   timeline?: LeaseTimeline | null;
+  /** Buyer locks (required on new requests; older requests may lack them). */
+  creditBand?: CreditBand | null;
+  dueAtSigningIntent?: LeaseDueAtSigningIntent | null;
 }
 
 /**
@@ -36,9 +48,12 @@ export function parseLeasePrefs(raw: unknown): LeaseRequestPrefs | null {
   if (!(LEASE_TERMS as readonly number[]).includes(term) || !(LEASE_MILES as readonly number[]).includes(miles)) return null;
   const zip = typeof o.zip === "string" && /^\d{5}$/.test(o.zip) ? o.zip : "";
   const timeline = o.timeline === "asap" || o.timeline === "this_week" || o.timeline === "this_month" ? o.timeline : null;
-  // Buyer prefs are only term + miles + ZIP (+ timeline). No payment cap:
-  // a "quote under $X" is a reverse-bid, and v1 is a quote request.
-  return { termMonths: term as LeaseTerm, milesPerYear: miles as LeaseMiles, zip, timeline };
+  // Buyer prefs are term + miles + ZIP + credit band + due-at-signing
+  // intent (+ timeline). No payment cap: a "quote under $X" is a
+  // reverse-bid, and v1 is a quote request.
+  const creditBand = parseCreditBand(o.creditBand);
+  const dueAtSigningIntent = (LEASE_DAS_INTENTS as readonly unknown[]).includes(o.dueAtSigningIntent) ? (o.dueAtSigningIntent as LeaseDueAtSigningIntent) : null;
+  return { termMonths: term as LeaseTerm, milesPerYear: miles as LeaseMiles, zip, timeline, creditBand, dueAtSigningIntent };
 }
 
 export interface LineItem {
