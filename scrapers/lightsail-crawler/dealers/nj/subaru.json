@@ -10,7 +10,8 @@
     "inventorySitemapUrl": "https://www.flemingtonsubaru.com/sitemap-inventory.xml",
     "fallbackUrl": "https://flemingtonsubaru.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   },
   {
     "id": "subaru-hudson-subaru",
@@ -23,7 +24,8 @@
     "inventorySitemapUrl": "https://www.hudsonsubaru.com/sitemap-inventory.xml",
     "fallbackUrl": "https://hudsonsubaru.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   },
   {
     "id": "subaru-liberty-subaru",
@@ -36,7 +38,8 @@
     "inventorySitemapUrl": "https://www.libertysubaru.com/sitemap-inventory.xml",
     "fallbackUrl": "https://libertysubaru.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   },
   {
     "id": "subaru-prestige-subaru",
@@ -49,7 +52,8 @@
     "inventorySitemapUrl": "https://www.prestigesubaru.com/sitemap-inventory.xml",
     "fallbackUrl": "https://prestigesubaru.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   },
   {
     "id": "subaru-subaru-of-atlantic-city",
@@ -62,7 +66,8 @@
     "inventorySitemapUrl": "https://www.subaruofatlanticcity.com/sitemap-inventory.xml",
     "fallbackUrl": "https://subaruofatlanticcity.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "pattern-guess"
   },
   {
     "id": "subaru-subaru-of-cherry-hill",
@@ -75,7 +80,8 @@
     "inventorySitemapUrl": "https://www.subaruofcherryhill.com/sitemap-inventory.xml",
     "fallbackUrl": "https://subaruofcherryhill.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "pattern-guess"
   },
   {
     "id": "subaru-subaru-of-englewood",
@@ -88,7 +94,8 @@
     "inventorySitemapUrl": "https://www.subaruofenglewood.com/sitemap-inventory.xml",
     "fallbackUrl": "https://subaruofenglewood.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "pattern-guess"
   },
   {
     "id": "subaru-subaru-of-morristown",
@@ -101,7 +108,8 @@
     "inventorySitemapUrl": "https://www.subaruofmorristown.com/sitemap-inventory.xml",
     "fallbackUrl": "https://subaruofmorristown.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "pattern-guess"
   },
   {
     "id": "subaru-subaru-of-ramsey",
@@ -114,7 +122,8 @@
     "inventorySitemapUrl": "https://www.subaruoframsey.com/sitemap-inventory.xml",
     "fallbackUrl": "https://subaruoframsey.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "pattern-guess"
   },
   {
     "id": "subaru-subaru-of-somerset",
@@ -127,7 +136,8 @@
     "inventorySitemapUrl": "https://www.subaruofsomerset.com/sitemap-inventory.xml",
     "fallbackUrl": "https://subaruofsomerset.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "pattern-guess"
   },
   {
     "id": "subaru-toms-river-subaru",
@@ -140,7 +150,8 @@
     "inventorySitemapUrl": "https://www.tomsriversubaru.com/sitemap-inventory.xml",
     "fallbackUrl": "https://tomsriversubaru.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   },
   {
     "id": "subaru-turnersville-subaru",
@@ -153,6 +164,7 @@
     "inventorySitemapUrl": "https://www.turnersvillesubaru.com/sitemap-inventory.xml",
     "fallbackUrl": "https://turnersvillesubaru.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   }
 ]

@@ -10,7 +10,8 @@
     "inventorySitemapUrl": "https://www.audiatlanticcity.com/sitemap-inventory.xml",
     "fallbackUrl": "https://audiatlanticcity.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   },
   {
     "id": "audi-audi-bridgewater",
@@ -23,7 +24,8 @@
     "inventorySitemapUrl": "https://www.audibridgewater.com/sitemap-inventory.xml",
     "fallbackUrl": "https://audibridgewater.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   },
   {
     "id": "audi-audi-cherry-hill",
@@ -36,7 +38,8 @@
     "inventorySitemapUrl": "https://www.audicherryhill.com/sitemap-inventory.xml",
     "fallbackUrl": "https://audicherryhill.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   },
   {
     "id": "audi-audi-englewood",
@@ -49,7 +52,8 @@
     "inventorySitemapUrl": "https://www.audienglewood.com/sitemap-inventory.xml",
     "fallbackUrl": "https://audienglewood.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   },
   {
     "id": "audi-audi-flemington",
@@ -62,7 +66,8 @@
     "inventorySitemapUrl": "https://www.audiflemington.com/sitemap-inventory.xml",
     "fallbackUrl": "https://audiflemington.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   },
   {
     "id": "audi-audi-princeton",
@@ -75,7 +80,8 @@
     "inventorySitemapUrl": "https://www.audiprinceton.com/sitemap-inventory.xml",
     "fallbackUrl": "https://audiprinceton.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   },
   {
     "id": "audi-audi-turnersville",
@@ -88,7 +94,8 @@
     "inventorySitemapUrl": "https://www.auditurnersville.com/sitemap-inventory.xml",
     "fallbackUrl": "https://auditurnersville.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "listing-verified"
   },
   {
     "id": "audi-dch-millburn-audi",
@@ -101,7 +108,8 @@
     "inventorySitemapUrl": "https://www.dchmillburnaudi.com/sitemap-inventory.xml",
     "fallbackUrl": "https://dchmillburnaudi.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   },
   {
     "id": "audi-jack-daniels-audi",
@@ -114,7 +122,8 @@
     "inventorySitemapUrl": "https://www.jackdanielsaudi.com/sitemap-inventory.xml",
     "fallbackUrl": "https://jackdanielsaudi.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   },
   {
     "id": "audi-ray-catena-audi",
@@ -127,6 +136,7 @@
     "inventorySitemapUrl": "https://www.raycatenaaudi.com/sitemap-inventory.xml",
     "fallbackUrl": "https://raycatenaaudi.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   }
 ]

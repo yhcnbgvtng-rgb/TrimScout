@@ -10,7 +10,8 @@
     "inventorySitemapUrl": "https://www.dchmillburnnissan.com/sitemap-inventory.xml",
     "fallbackUrl": "https://dchmillburnnissan.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   },
   {
     "id": "nissan-flemington-nissan",
@@ -23,7 +24,8 @@
     "inventorySitemapUrl": "https://www.flemingtonnissan.com/sitemap-inventory.xml",
     "fallbackUrl": "https://flemingtonnissan.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   },
   {
     "id": "nissan-freehold-nissan",
@@ -36,7 +38,8 @@
     "inventorySitemapUrl": "https://www.freeholdnissan.com/sitemap-inventory.xml",
     "fallbackUrl": "https://freeholdnissan.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   },
   {
     "id": "nissan-hudson-nissan",
@@ -49,7 +52,8 @@
     "inventorySitemapUrl": "https://www.hudsonnissan.com/sitemap-inventory.xml",
     "fallbackUrl": "https://hudsonnissan.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   },
   {
     "id": "nissan-nissan-of-atlantic-city",
@@ -62,7 +66,8 @@
     "inventorySitemapUrl": "https://www.nissanofatlanticcity.com/sitemap-inventory.xml",
     "fallbackUrl": "https://nissanofatlanticcity.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "pattern-guess"
   },
   {
     "id": "nissan-nissan-of-cherry-hill",
@@ -75,7 +80,8 @@
     "inventorySitemapUrl": "https://www.nissanofcherryhill.com/sitemap-inventory.xml",
     "fallbackUrl": "https://nissanofcherryhill.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "pattern-guess"
   },
   {
     "id": "nissan-nissan-of-eatontown",
@@ -88,7 +94,8 @@
     "inventorySitemapUrl": "https://www.nissanofeatontown.com/sitemap-inventory.xml",
     "fallbackUrl": "https://nissanofeatontown.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "pattern-guess"
   },
   {
     "id": "nissan-nissan-of-englewood",
@@ -101,7 +108,8 @@
     "inventorySitemapUrl": "https://www.nissanofenglewood.com/sitemap-inventory.xml",
     "fallbackUrl": "https://nissanofenglewood.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "pattern-guess"
   },
   {
     "id": "nissan-nissan-of-morristown",
@@ -114,7 +122,8 @@
     "inventorySitemapUrl": "https://www.nissanofmorristown.com/sitemap-inventory.xml",
     "fallbackUrl": "https://nissanofmorristown.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "pattern-guess"
   },
   {
     "id": "nissan-nissan-of-somerville",
@@ -127,7 +136,8 @@
     "inventorySitemapUrl": "https://www.nissanofsomerville.com/sitemap-inventory.xml",
     "fallbackUrl": "https://nissanofsomerville.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "pattern-guess"
   },
   {
     "id": "nissan-nissan-of-turnersville",
@@ -140,7 +150,8 @@
     "inventorySitemapUrl": "https://www.nissanofturnersville.com/sitemap-inventory.xml",
     "fallbackUrl": "https://nissanofturnersville.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "pattern-guess"
   },
   {
     "id": "nissan-route-22-nissan",
@@ -153,6 +164,7 @@
     "inventorySitemapUrl": "https://www.route22nissan.com/sitemap-inventory.xml",
     "fallbackUrl": "https://route22nissan.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   }
 ]

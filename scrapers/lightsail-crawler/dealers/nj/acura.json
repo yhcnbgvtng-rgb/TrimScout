@@ -10,7 +10,8 @@
     "inventorySitemapUrl": "https://www.acuraofocean.com/sitemap-inventory.xml",
     "fallbackUrl": "https://acuraofocean.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "oem-locator"
   },
   {
     "id": "acura-acura-of-ramsey",
@@ -23,7 +24,8 @@
     "inventorySitemapUrl": "https://www.ramseyacura.com/sitemap-inventory.xml",
     "fallbackUrl": "https://ramseyacura.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "oem-locator"
   },
   {
     "id": "acura-acura-turnersville",
@@ -36,7 +38,8 @@
     "inventorySitemapUrl": "https://www.acuraturnersville.com/sitemap-inventory.xml",
     "fallbackUrl": "https://acuraturnersville.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "oem-locator"
   },
   {
     "id": "acura-autosport-acura-of-denville",
@@ -49,7 +52,8 @@
     "inventorySitemapUrl": "https://www.acuraofdenville.com/sitemap-inventory.xml",
     "fallbackUrl": "https://acuraofdenville.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "oem-locator"
   },
   {
     "id": "acura-bill-vince-s-bridgewater-acura",
@@ -62,7 +66,8 @@
     "inventorySitemapUrl": "https://www.bridgewateracura.com/sitemap-inventory.xml",
     "fallbackUrl": "https://bridgewateracura.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "oem-locator"
   },
   {
     "id": "acura-clinton-acura",
@@ -75,7 +80,8 @@
     "inventorySitemapUrl": "https://www.clintonacura.com/sitemap-inventory.xml",
     "fallbackUrl": "https://clintonacura.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "oem-locator"
   },
   {
     "id": "acura-dch-montclair-acura",
@@ -88,7 +94,8 @@
     "inventorySitemapUrl": "https://www.dchmontclairacura.com/sitemap-inventory.xml",
     "fallbackUrl": "https://dchmontclairacura.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "oem-locator"
   },
   {
     "id": "acura-elite-acura",
@@ -101,7 +108,8 @@
     "inventorySitemapUrl": "https://www.eliteacura.com/sitemap-inventory.xml",
     "fallbackUrl": "https://eliteacura.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "oem-locator"
   },
   {
     "id": "acura-key-acura-of-atlantic-city",
@@ -109,25 +117,13 @@
     "city": "Egg Harbor Township",
     "state": "NJ",
     "make": "Acura",
-    "domain": "keyacura.com",
-    "sitemapUrl": "https://www.keyacura.com/sitemap.xml",
-    "inventorySitemapUrl": "https://www.keyacura.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://keyacura.com/",
-    "lat": null,
-    "lng": null
-  },
-  {
-    "id": "key-acura-of-atlantic-city",
-    "name": "Key Acura of Atlantic City",
-    "city": "Egg Harbor Twp",
-    "state": "NJ",
-    "make": "Acura",
     "domain": "keyacuraofatlanticcity.com",
     "sitemapUrl": "https://www.keyacuraofatlanticcity.com/sitemap.xml",
     "inventorySitemapUrl": "https://www.keyacuraofatlanticcity.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://www.keyacuraofatlanticcity.com/sitemap.xml",
-    "lat": 39.393539,
-    "lng": -74.558067
+    "fallbackUrl": "https://keyacuraofatlanticcity.com/",
+    "lat": null,
+    "lng": null,
+    "domainSource": "curated-overlay"
   },
   {
     "id": "acura-park-ave-acura",
@@ -140,7 +136,8 @@
     "inventorySitemapUrl": "https://www.parkaveacura.com/sitemap-inventory.xml",
     "fallbackUrl": "https://parkaveacura.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "oem-locator"
   },
   {
     "id": "acura-precision-acura-of-princeton",
@@ -153,7 +150,8 @@
     "inventorySitemapUrl": "https://www.precisionacura.com/sitemap-inventory.xml",
     "fallbackUrl": "https://precisionacura.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "oem-locator"
   },
   {
     "id": "acura-springfield-acura",
@@ -166,6 +164,7 @@
     "inventorySitemapUrl": "https://www.springfieldacura.com/sitemap-inventory.xml",
     "fallbackUrl": "https://springfieldacura.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "oem-locator"
   }
 ]

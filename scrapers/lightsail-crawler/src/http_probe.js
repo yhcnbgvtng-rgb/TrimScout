@@ -5,7 +5,7 @@
 
 import http from 'node:http';
 import https from 'node:https';
-import { classifyFetchResult, classifyFetchError } from './bot_protection.js';
+import { classifyFetchResult, classifyFetchError, pickProbeResult, decideProbeNext } from './bot_protection.js';
 
 const DEFAULT_TIMEOUT_MS = 12000;
 const MAX_REDIRECTS = 3;
@@ -70,26 +70,19 @@ export async function probeUrl(url, { timeoutMs = DEFAULT_TIMEOUT_MS, redirects 
   }
 }
 
-// Sitemap first, then homepage. The "worst" (non-NONE) classification wins
-// so a clean sitemap that 200s while the home is Cloudflare still reports
-// CLOUDFLARE. No second fetch is attempted once a challenge is seen.
+// Sitemap first, then homepage. A sitemap 404 is not "the dealer is 404" —
+// try `/` before classifying HTTP_404 / HTTP_5XX. Challenge / WAF / DNS /
+// TLS / reset stop immediately (detect only; no bypass, no extra retries
+// on a dead host).
 export async function probeDealer(dealer, { timeoutMs = DEFAULT_TIMEOUT_MS } = {}) {
   const { dealerProbeUrls } = await import('./nj_policy.js');
   const urls = dealerProbeUrls(dealer);
-  let best = {
-    classification: 'OTHER',
-    httpStatus: null,
-    notes: 'No probe URL',
-    url: null,
-  };
+  const results = [];
   for (const url of urls) {
     const result = await probeUrl(url, { timeoutMs });
-    if (result.classification === 'NONE') {
-      if (best.classification === 'OTHER' && !best.httpStatus) best = result;
-      else if (best.classification === 'NONE') best = result;
-      continue;
-    }
-    return result;
+    results.push(result);
+    const action = decideProbeNext(result);
+    if (action === 'accept' || action === 'stop') return result;
   }
-  return best;
+  return pickProbeResult(results);
 }

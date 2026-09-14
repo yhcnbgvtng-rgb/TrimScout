@@ -10,7 +10,8 @@
     "inventorySitemapUrl": "https://jackdaniels.porsche.com/sitemap-inventory.xml",
     "fallbackUrl": "https://jackdaniels.porsche.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "oem-locator"
   },
   {
     "id": "paul-miller-porsche",
@@ -23,7 +24,8 @@
     "inventorySitemapUrl": "https://www.paulmillerporsche.com/sitemap-inventory.xml",
     "fallbackUrl": "https://paulmillerporsche.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "listing-verified"
   },
   {
     "id": "porsche-bridgewater",
@@ -36,7 +38,8 @@
     "inventorySitemapUrl": "https://www.porschebridgewater.com/sitemap-inventory.xml",
     "fallbackUrl": "https://porschebridgewater.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "oem-locator"
   },
   {
     "id": "porsche-cherry-hill",
@@ -49,7 +52,8 @@
     "inventorySitemapUrl": "https://www.porschecherryhill.com/sitemap-inventory.xml",
     "fallbackUrl": "https://porschecherryhill.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "oem-locator"
   },
   {
     "id": "porsche-englewood",
@@ -62,7 +66,8 @@
     "inventorySitemapUrl": "https://www.porscheenglewood.com/sitemap-inventory.xml",
     "fallbackUrl": "https://porscheenglewood.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "oem-locator"
   },
   {
     "id": "porsche-flemington",
@@ -75,7 +80,8 @@
     "inventorySitemapUrl": "https://www.porscheflemington.com/sitemap-inventory.xml",
     "fallbackUrl": "https://porscheflemington.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "listing-verified"
   },
   {
     "id": "porsche-millburn",
@@ -88,7 +94,8 @@
     "inventorySitemapUrl": "https://www.porschemillburn.com/sitemap-inventory.xml",
     "fallbackUrl": "https://porschemillburn.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "oem-locator"
   },
   {
     "id": "porsche-monmouth",
@@ -101,7 +108,8 @@
     "inventorySitemapUrl": "https://www.porschemonmouth.com/sitemap-inventory.xml",
     "fallbackUrl": "https://porschemonmouth.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "oem-locator"
   },
   {
     "id": "porsche-princeton",
@@ -109,12 +117,13 @@
     "city": "Lawrenceville",
     "state": "NJ",
     "make": "Porsche",
-    "domain": "porscheprinceton.com",
-    "sitemapUrl": "https://www.porscheprinceton.com/sitemap.xml",
-    "inventorySitemapUrl": "https://www.porscheprinceton.com/sitemap-inventory.xml",
-    "fallbackUrl": "https://porscheprinceton.com/",
+    "domain": "princetonporsche.com",
+    "sitemapUrl": "https://www.princetonporsche.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.princetonporsche.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://princetonporsche.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated-overlay"
   },
   {
     "id": "ray-catena-porsche",
@@ -127,6 +136,7 @@
     "inventorySitemapUrl": "https://www.raycatenaporsche.com/sitemap-inventory.xml",
     "fallbackUrl": "https://raycatenaporsche.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "oem-locator"
   }
 ]

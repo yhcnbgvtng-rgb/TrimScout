@@ -10,7 +10,8 @@
     "inventorySitemapUrl": "https://www.flemingtonkia.com/sitemap-inventory.xml",
     "fallbackUrl": "https://flemingtonkia.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   },
   {
     "id": "kia-freehold-kia",
@@ -23,7 +24,8 @@
     "inventorySitemapUrl": "https://www.freeholdkia.com/sitemap-inventory.xml",
     "fallbackUrl": "https://freeholdkia.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   },
   {
     "id": "kia-hudson-kia",
@@ -36,7 +38,8 @@
     "inventorySitemapUrl": "https://www.hudsonkia.com/sitemap-inventory.xml",
     "fallbackUrl": "https://hudsonkia.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   },
   {
     "id": "kia-kia-of-atlantic-city",
@@ -49,7 +52,8 @@
     "inventorySitemapUrl": "https://www.kiaofatlanticcity.com/sitemap-inventory.xml",
     "fallbackUrl": "https://kiaofatlanticcity.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "pattern-guess"
   },
   {
     "id": "kia-kia-of-cherry-hill",
@@ -62,7 +66,8 @@
     "inventorySitemapUrl": "https://www.kiaofcherryhill.com/sitemap-inventory.xml",
     "fallbackUrl": "https://kiaofcherryhill.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "pattern-guess"
   },
   {
     "id": "kia-kia-of-englewood",
@@ -75,7 +80,8 @@
     "inventorySitemapUrl": "https://www.kiaofenglewood.com/sitemap-inventory.xml",
     "fallbackUrl": "https://kiaofenglewood.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "pattern-guess"
   },
   {
     "id": "kia-kia-of-hackensack",
@@ -88,7 +94,8 @@
     "inventorySitemapUrl": "https://www.kiaofhackensack.com/sitemap-inventory.xml",
     "fallbackUrl": "https://kiaofhackensack.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "pattern-guess"
   },
   {
     "id": "kia-kia-of-morristown",
@@ -101,7 +108,8 @@
     "inventorySitemapUrl": "https://www.kiaofmorristown.com/sitemap-inventory.xml",
     "fallbackUrl": "https://kiaofmorristown.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "pattern-guess"
   },
   {
     "id": "kia-kia-of-north-brunswick",
@@ -114,7 +122,8 @@
     "inventorySitemapUrl": "https://www.kiaofnorthbrunswick.com/sitemap-inventory.xml",
     "fallbackUrl": "https://kiaofnorthbrunswick.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "pattern-guess"
   },
   {
     "id": "kia-kia-of-toms-river",
@@ -127,7 +136,8 @@
     "inventorySitemapUrl": "https://www.kiaoftomsriver.com/sitemap-inventory.xml",
     "fallbackUrl": "https://kiaoftomsriver.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "pattern-guess"
   },
   {
     "id": "kia-route-46-kia",
@@ -140,7 +150,8 @@
     "inventorySitemapUrl": "https://www.route46kia.com/sitemap-inventory.xml",
     "fallbackUrl": "https://route46kia.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   },
   {
     "id": "kia-turnersville-kia",
@@ -153,6 +164,7 @@
     "inventorySitemapUrl": "https://www.turnersvillekia.com/sitemap-inventory.xml",
     "fallbackUrl": "https://turnersvillekia.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   }
 ]

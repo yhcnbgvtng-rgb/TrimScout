@@ -184,7 +184,7 @@ Shows: current brand, dealers done/total, vehicles seen, price drops, new arriva
 
 ### Dealer bot-protection report (PDF + JSON)
 
-Normal `node:https` client only. **Detect and report — do not bypass.** Classifications: `NONE`, `CLOUDFLARE`, `VERCEL_CHECKPOINT`, `HTTP_403`, `HTTP_429`, `TIMEOUT`, `TLS`, `OTHER`.
+Normal `node:https` client only. **Detect and report — do not bypass.** Classifications: `NONE`, `CLOUDFLARE`, `VERCEL_CHECKPOINT`, `HTTP_403`, `HTTP_429`, `DNS_DEAD`, `HTTP_404`, `HTTP_5XX`, `CONN_RESET`, `TIMEOUT`, `TLS`, `OTHER`. A sitemap 404 is retried against the homepage before `HTTP_404` is recorded. Challenge pages still stop the probe.
 
 ```bash
 cd scrapers/lightsail-crawler
@@ -192,9 +192,9 @@ npm run bot-report                          # all in-scope NJ rooftops
 node scripts/dealer-bot-report.mjs --brand=Toyota
 ```
 
-Writes `data/reports/dealer-bot-report-<brand>-<date>.{json,pdf}` and `dealer-bot-report-latest.{json,pdf}`. Table columns: brand, dealer name, domain, state, classification, HTTP status, sales email, notes. Excluded brands are refused.
+Writes `data/reports/dealer-bot-report-<brand>-<date>.{json,pdf}` and `dealer-bot-report-latest.{json,pdf}`. PDF opens with a one-page summary (classification table, per-brand pass rates, ready-to-crawl NONE/200 list), then the rooftop table: OK (Y/N), brand, dealer, domain, class, WAF vendor, HTTP, notes. No sales-email column — inbox harvest is crawl-time only. Excluded brands are refused.
 
-Public sales inboxes (`sales@`, `info@`, `internet@`, `bdc@`, …) are collected from homepage / contact / staff / about / mailto / schema.org only — no login, no WAF bypass, no third-party listings. Saved on the dealer record as `salesEmail`, `emailSourceUrl`, `collectedAt` (`data/dealer_contacts.json` and MariaDB `dealers.sales_email` when configured). A labeled Internet Sales / BDC / Sales Manager address is kept as `secondaryEmail` when both exist.
+Public sales inboxes (`sales@`, `info@`, `internet@`, `bdc@`, …) are collected during `standalone.js` from homepage / contact / staff / about / mailto / schema.org only — no login, no WAF bypass, no third-party listings. Saved on the dealer record as `salesEmail`, `emailSourceUrl`, `collectedAt` (`data/dealer_contacts.json` and MariaDB `dealers.sales_email` when configured). A labeled Internet Sales / BDC / Sales Manager address is kept as `secondaryEmail` when both exist. See `../../docs/DEALER_ALLOWLIST_STRATEGY.md` for HTTP_403 vs Cloudflare.
 
 Refresh per-brand dealer files after editing `src/nj_dealer_seed.js`:
 

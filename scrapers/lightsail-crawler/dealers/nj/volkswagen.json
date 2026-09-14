@@ -10,7 +10,8 @@
     "inventorySitemapUrl": "https://www.dchmillburnvw.com/sitemap-inventory.xml",
     "fallbackUrl": "https://dchmillburnvw.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   },
   {
     "id": "volkswagen-flemington-volkswagen",
@@ -23,7 +24,8 @@
     "inventorySitemapUrl": "https://www.flemingtonvw.com/sitemap-inventory.xml",
     "fallbackUrl": "https://flemingtonvw.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   },
   {
     "id": "volkswagen-hudson-volkswagen",
@@ -36,7 +38,8 @@
     "inventorySitemapUrl": "https://www.hudsonvw.com/sitemap-inventory.xml",
     "fallbackUrl": "https://hudsonvw.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   },
   {
     "id": "volkswagen-princeton-volkswagen",
@@ -49,7 +52,8 @@
     "inventorySitemapUrl": "https://www.princetonvw.com/sitemap-inventory.xml",
     "fallbackUrl": "https://princetonvw.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   },
   {
     "id": "volkswagen-volkswagen-of-atlantic-city",
@@ -62,7 +66,8 @@
     "inventorySitemapUrl": "https://www.vwatlanticcity.com/sitemap-inventory.xml",
     "fallbackUrl": "https://vwatlanticcity.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   },
   {
     "id": "volkswagen-volkswagen-of-freehold",
@@ -75,7 +80,8 @@
     "inventorySitemapUrl": "https://www.vwfreehold.com/sitemap-inventory.xml",
     "fallbackUrl": "https://vwfreehold.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   },
   {
     "id": "volkswagen-volkswagen-of-ridgefield-park",
@@ -88,7 +94,8 @@
     "inventorySitemapUrl": "https://www.vwridgefieldpark.com/sitemap-inventory.xml",
     "fallbackUrl": "https://vwridgefieldpark.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   },
   {
     "id": "volkswagen-volkswagen-of-springfield",
@@ -101,7 +108,8 @@
     "inventorySitemapUrl": "https://www.vwspringfieldnj.com/sitemap-inventory.xml",
     "fallbackUrl": "https://vwspringfieldnj.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   },
   {
     "id": "volkswagen-volkswagen-of-turnersville",
@@ -114,6 +122,7 @@
     "inventorySitemapUrl": "https://www.vwturnersville.com/sitemap-inventory.xml",
     "fallbackUrl": "https://vwturnersville.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   }
 ]

@@ -10,7 +10,8 @@
     "inventorySitemapUrl": "https://www.dchlexusoftenafly.com/sitemap-inventory.xml",
     "fallbackUrl": "https://dchlexusoftenafly.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   },
   {
     "id": "lexus-holman-lexus-of-maple-shade",
@@ -23,7 +24,8 @@
     "inventorySitemapUrl": "https://www.holmanlexus.com/sitemap-inventory.xml",
     "fallbackUrl": "https://holmanlexus.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   },
   {
     "id": "lexus-lexus-of-atlantic-city",
@@ -36,7 +38,8 @@
     "inventorySitemapUrl": "https://www.lexusofatlanticcity.com/sitemap-inventory.xml",
     "fallbackUrl": "https://lexusofatlanticcity.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "pattern-guess"
   },
   {
     "id": "lexus-lexus-of-bridgewater",
@@ -49,7 +52,8 @@
     "inventorySitemapUrl": "https://www.lexusofbridgewater.com/sitemap-inventory.xml",
     "fallbackUrl": "https://lexusofbridgewater.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "pattern-guess"
   },
   {
     "id": "lexus-lexus-of-cherry-hill",
@@ -62,7 +66,8 @@
     "inventorySitemapUrl": "https://www.lexusofcherryhill.com/sitemap-inventory.xml",
     "fallbackUrl": "https://lexusofcherryhill.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "pattern-guess"
   },
   {
     "id": "lexus-lexus-of-edison",
@@ -75,7 +80,8 @@
     "inventorySitemapUrl": "https://www.lexusofedison.com/sitemap-inventory.xml",
     "fallbackUrl": "https://lexusofedison.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "pattern-guess"
   },
   {
     "id": "lexus-lexus-of-englewood",
@@ -88,7 +94,8 @@
     "inventorySitemapUrl": "https://www.lexusofenglewood.com/sitemap-inventory.xml",
     "fallbackUrl": "https://lexusofenglewood.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "pattern-guess"
   },
   {
     "id": "lexus-lexus-of-freehold",
@@ -101,7 +108,8 @@
     "inventorySitemapUrl": "https://www.lexusoffreehold.com/sitemap-inventory.xml",
     "fallbackUrl": "https://lexusoffreehold.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "pattern-guess"
   },
   {
     "id": "lexus-lexus-of-route-17",
@@ -114,7 +122,8 @@
     "inventorySitemapUrl": "https://www.lexusofroute17.com/sitemap-inventory.xml",
     "fallbackUrl": "https://lexusofroute17.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "pattern-guess"
   },
   {
     "id": "lexus-lexus-of-route-23",
@@ -127,7 +136,8 @@
     "inventorySitemapUrl": "https://www.lexusofroute23.com/sitemap-inventory.xml",
     "fallbackUrl": "https://lexusofroute23.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "pattern-guess"
   },
   {
     "id": "lexus-prestige-lexus-of-ramsey",
@@ -140,7 +150,8 @@
     "inventorySitemapUrl": "https://www.prestigelexus.com/sitemap-inventory.xml",
     "fallbackUrl": "https://prestigelexus.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   },
   {
     "id": "lexus-ray-catena-lexus",
@@ -153,6 +164,7 @@
     "inventorySitemapUrl": "https://www.raycatenalexus.com/sitemap-inventory.xml",
     "fallbackUrl": "https://raycatenalexus.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   }
 ]

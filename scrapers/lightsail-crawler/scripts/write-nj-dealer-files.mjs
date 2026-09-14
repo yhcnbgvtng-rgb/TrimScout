@@ -15,5 +15,9 @@ for (const brand of NJ_BRANDS_IN) {
   const slug = canonicalBrandName(brand).toLowerCase().replace(/[^a-z0-9]+/g, '-');
   const dest = path.join(outDir, `${slug}.json`);
   await fs.writeFile(dest, `${JSON.stringify(dealers, null, 2)}\n`);
-  console.log(`wrote ${dest} (${dealers.length} rooftops)`);
+  const replaced = dealers.filter((d) => d.previousDomain);
+  console.log(`wrote ${dest} (${dealers.length} rooftops${replaced.length ? `, ${replaced.length} domain overlay(s)` : ''})`);
+  for (const d of replaced) {
+    console.log(`  ${d.name}: ${d.previousDomain} -> ${d.domain} (${d.domainSource})`);
+  }
 }

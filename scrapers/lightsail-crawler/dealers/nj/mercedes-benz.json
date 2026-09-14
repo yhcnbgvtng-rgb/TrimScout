@@ -10,7 +10,8 @@
     "inventorySitemapUrl": "https://www.cmcbenz.com/sitemap-inventory.xml",
     "fallbackUrl": "https://cmcbenz.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   },
   {
     "id": "mercedes-benz-mercedes-benz-of-atlantic-city",
@@ -23,7 +24,8 @@
     "inventorySitemapUrl": "https://www.mbatlanticcity.com/sitemap-inventory.xml",
     "fallbackUrl": "https://mbatlanticcity.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   },
   {
     "id": "mercedes-benz-mercedes-benz-of-bridgewater",
@@ -36,7 +38,8 @@
     "inventorySitemapUrl": "https://www.mercedesbenzofbridgewater.com/sitemap-inventory.xml",
     "fallbackUrl": "https://mercedesbenzofbridgewater.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "pattern-guess"
   },
   {
     "id": "mercedes-benz-mercedes-benz-of-cherry-hill",
@@ -49,7 +52,8 @@
     "inventorySitemapUrl": "https://www.mbcherryhill.com/sitemap-inventory.xml",
     "fallbackUrl": "https://mbcherryhill.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   },
   {
     "id": "mercedes-benz-mercedes-benz-of-fairfield",
@@ -62,7 +66,8 @@
     "inventorySitemapUrl": "https://www.mboffairfield.com/sitemap-inventory.xml",
     "fallbackUrl": "https://mboffairfield.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   },
   {
     "id": "mercedes-benz-mercedes-benz-of-flemington",
@@ -75,7 +80,8 @@
     "inventorySitemapUrl": "https://www.mbflemington.com/sitemap-inventory.xml",
     "fallbackUrl": "https://mbflemington.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   },
   {
     "id": "mercedes-benz-mercedes-benz-of-fort-lee",
@@ -88,7 +94,8 @@
     "inventorySitemapUrl": "https://www.mbofortlee.com/sitemap-inventory.xml",
     "fallbackUrl": "https://mbofortlee.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   },
   {
     "id": "mercedes-benz-mercedes-benz-of-newton",
@@ -101,7 +108,8 @@
     "inventorySitemapUrl": "https://www.mbofnewton.com/sitemap-inventory.xml",
     "fallbackUrl": "https://mbofnewton.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   },
   {
     "id": "mercedes-benz-mercedes-benz-of-princeton",
@@ -114,7 +122,8 @@
     "inventorySitemapUrl": "https://www.mbprinceton.com/sitemap-inventory.xml",
     "fallbackUrl": "https://mbprinceton.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   },
   {
     "id": "mercedes-benz-mercedes-benz-of-springfield",
@@ -127,7 +136,8 @@
     "inventorySitemapUrl": "https://www.mbofspringfield.com/sitemap-inventory.xml",
     "fallbackUrl": "https://mbofspringfield.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   },
   {
     "id": "mercedes-benz-ray-catena-mercedes-benz",
@@ -140,6 +150,7 @@
     "inventorySitemapUrl": "https://www.raycatenamb.com/sitemap-inventory.xml",
     "fallbackUrl": "https://raycatenamb.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   }
 ]

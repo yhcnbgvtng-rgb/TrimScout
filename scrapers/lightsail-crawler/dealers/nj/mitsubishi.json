@@ -10,7 +10,8 @@
     "inventorySitemapUrl": "https://www.cherryhillmitsubishi.com/sitemap-inventory.xml",
     "fallbackUrl": "https://cherryhillmitsubishi.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   },
   {
     "id": "mitsubishi-freehold-mitsubishi",
@@ -23,7 +24,8 @@
     "inventorySitemapUrl": "https://www.freeholdmitsubishi.com/sitemap-inventory.xml",
     "fallbackUrl": "https://freeholdmitsubishi.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   },
   {
     "id": "mitsubishi-hudson-mitsubishi",
@@ -36,7 +38,8 @@
     "inventorySitemapUrl": "https://www.hudsonmitsubishi.com/sitemap-inventory.xml",
     "fallbackUrl": "https://hudsonmitsubishi.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   },
   {
     "id": "mitsubishi-mitsubishi-of-turnersville",
@@ -49,7 +52,8 @@
     "inventorySitemapUrl": "https://www.mitsubishiturnersville.com/sitemap-inventory.xml",
     "fallbackUrl": "https://mitsubishiturnersville.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   },
   {
     "id": "mitsubishi-route-22-mitsubishi",
@@ -62,6 +66,7 @@
     "inventorySitemapUrl": "https://www.route22mitsubishi.com/sitemap-inventory.xml",
     "fallbackUrl": "https://route22mitsubishi.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   }
 ]

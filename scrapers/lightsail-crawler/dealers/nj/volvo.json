@@ -10,7 +10,8 @@
     "inventorySitemapUrl": "https://www.flemingtonvolvo.com/sitemap-inventory.xml",
     "fallbackUrl": "https://flemingtonvolvo.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   },
   {
     "id": "volvo-paul-miller-volvo",
@@ -23,7 +24,8 @@
     "inventorySitemapUrl": "https://www.paulmillervolvo.com/sitemap-inventory.xml",
     "fallbackUrl": "https://paulmillervolvo.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   },
   {
     "id": "volvo-volvo-cars-atlantic-city",
@@ -36,7 +38,8 @@
     "inventorySitemapUrl": "https://www.volvocarsatlanticcity.com/sitemap-inventory.xml",
     "fallbackUrl": "https://volvocarsatlanticcity.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "pattern-guess"
   },
   {
     "id": "volvo-volvo-cars-edison",
@@ -49,7 +52,8 @@
     "inventorySitemapUrl": "https://www.volvocarsedison.com/sitemap-inventory.xml",
     "fallbackUrl": "https://volvocarsedison.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "pattern-guess"
   },
   {
     "id": "volvo-volvo-cars-englewood",
@@ -62,7 +66,8 @@
     "inventorySitemapUrl": "https://www.volvocarsenglewood.com/sitemap-inventory.xml",
     "fallbackUrl": "https://volvocarsenglewood.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "pattern-guess"
   },
   {
     "id": "volvo-volvo-cars-morristown",
@@ -75,7 +80,8 @@
     "inventorySitemapUrl": "https://www.volvocarsmorristown.com/sitemap-inventory.xml",
     "fallbackUrl": "https://volvocarsmorristown.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "pattern-guess"
   },
   {
     "id": "volvo-volvo-cars-princeton",
@@ -88,6 +94,7 @@
     "inventorySitemapUrl": "https://www.volvocarsprinceton.com/sitemap-inventory.xml",
     "fallbackUrl": "https://volvocarsprinceton.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "pattern-guess"
   }
 ]

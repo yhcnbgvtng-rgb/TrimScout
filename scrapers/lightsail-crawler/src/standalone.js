@@ -7,7 +7,7 @@ import zlib from 'node:zlib';
 import { runEnrichmentPipeline } from './enricher.js';
 import { getBrand } from './brands.js';
 import { normalizeVehicleFields } from './modelNormalizer.js';
-import { classifyFetchResult, isBotProtected } from './bot_protection.js';
+import { classifyFetchResult, isBotProtected, isUncrawlable, decideProbeNext } from './bot_protection.js';
 import { writeProgress, emptyProgress } from './progress.js';
 import { dealerProbeUrls } from './nj_policy.js';
 import {
@@ -102,8 +102,8 @@ try {
     const dbMod = await import('./db.js');
     if (process.env.DB_HOST) {
         dbBrandId = await dbMod.upsertBrand(brand.name.toLowerCase(), brand.name);
-        await dbMod.upsertDealers(dbBrandId, dealers);
         await dbMod.ensureNjOpsSchema();
+        await dbMod.upsertDealers(dbBrandId, dealers);
         dbRunId = await dbMod.startScrapeRun(dbBrandId, dealers.length);
         console.log(`💾 DB scrape_run started: id=${dbRunId} (brand_id=${dbBrandId})`);
     } else {
@@ -557,21 +557,27 @@ async function safeFetch(url, timeoutMs = 7000, patchrightPage = null) {
 // what the crawler itself would see. Never launches a browser, never
 // retries a challenge, never tries to "solve" it.
 async function probeDealerBotProtection(dealer) {
+    let soft = null;
     for (const url of dealerProbeUrls(dealer)) {
+        let cls;
         try {
             const res = await safeFetch(url, 8000);
-            const cls = classifyFetchResult({
-                statusCode: res.statusCode,
-                headers: res.headers,
-                body: res.body,
-            });
-            if (isBotProtected(cls.classification)) return { ...cls, url };
+            cls = {
+                ...classifyFetchResult({
+                    statusCode: res.statusCode,
+                    headers: res.headers,
+                    body: res.body,
+                }),
+                url,
+            };
         } catch (error) {
-            const cls = classifyFetchResult({ error });
-            if (isBotProtected(cls.classification)) return { ...cls, url };
+            cls = { ...classifyFetchResult({ error }), url };
         }
+        const action = decideProbeNext(cls);
+        if (action === 'accept' || action === 'stop') return cls;
+        if (action === 'continue' && !soft) soft = cls;
     }
-    return { classification: 'NONE', httpStatus: 200, notes: '', url: null };
+    return soft || { classification: 'NONE', httpStatus: 200, notes: '', url: null };
 }
 
 async function flushRunProgress(extra = {}) {
@@ -823,14 +829,15 @@ for (let i = 0; i < dealers.length; i++) {
     await flushRunProgress();
 
     const botProbe = await probeDealerBotProtection(dealer);
-    if (isBotProtected(botProbe.classification)) {
-        skippedBotProtection++;
+    if (isUncrawlable(botProbe.classification)) {
+        if (isBotProtected(botProbe.classification)) skippedBotProtection++;
         failedDealerNames.add(dealer.name);
         dealerStats[dealer.name] = 0;
         runProgress.skippedForBotProtection = skippedBotProtection;
         runProgress.dealersDone = i + 1;
         runProgress.lastError = `${dealer.name}: ${botProbe.classification}${botProbe.httpStatus ? ` HTTP ${botProbe.httpStatus}` : ''} — skipped, no bypass`;
-        console.log(`${progress} 🛡️ SKIP ${dealer.name}: ${botProbe.classification}${botProbe.httpStatus ? ` (${botProbe.httpStatus})` : ''} — ${botProbe.notes || 'bot protection'} [${botProbe.url || dealer.domain}]`);
+        const kind = isBotProtected(botProbe.classification) ? 'bot protection' : 'uncrawlable';
+        console.log(`${progress} 🛡️ SKIP ${dealer.name}: ${botProbe.classification}${botProbe.httpStatus ? ` (${botProbe.httpStatus})` : ''} — ${botProbe.notes || kind} [${botProbe.url || dealer.domain}]`);
         await flushRunProgress();
         continue;
     }

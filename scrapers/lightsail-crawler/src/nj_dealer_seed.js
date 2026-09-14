@@ -15,7 +15,7 @@ export const NJ_DEALER_SEED = [
     { id: 'porsche-monmouth', name: 'Porsche Monmouth', city: 'West Long Branch', domain: 'porschemonmouth.com' },
     { id: 'porsche-cherry-hill', name: 'Porsche Cherry Hill', city: 'Cherry Hill', domain: 'porschecherryhill.com' },
     { id: 'ray-catena-porsche', name: 'Ray Catena Porsche', city: 'Edison', domain: 'raycatenaporsche.com' },
-    { id: 'porsche-princeton', name: 'Porsche Princeton', city: 'Lawrenceville', domain: 'porscheprinceton.com' },
+    { id: 'porsche-princeton', name: 'Porsche Princeton', city: 'Lawrenceville', domain: 'princetonporsche.com' },
     { id: 'porsche-bridgewater', name: 'Porsche Bridgewater', city: 'Bridgewater', domain: 'porschebridgewater.com' },
     { id: 'porsche-millburn', name: 'Porsche Millburn', city: 'Millburn', domain: 'porschemillburn.com' },
     { id: 'porsche-flemington', name: 'Porsche Flemington', city: 'Flemington', domain: 'porscheflemington.com' },
@@ -32,7 +32,7 @@ export const NJ_DEALER_SEED = [
     { name: 'Precision Acura of Princeton', city: 'Lawrenceville', domain: 'precisionacura.com' },
     { name: 'Elite Acura', city: 'Maple Shade', domain: 'eliteacura.com' },
     { name: 'Acura Turnersville', city: 'Turnersville', domain: 'acuraturnersville.com' },
-    { name: 'Key Acura of Atlantic City', city: 'Egg Harbor Township', domain: 'keyacura.com' },
+    { name: 'Key Acura of Atlantic City', city: 'Egg Harbor Township', domain: 'keyacuraofatlanticcity.com' },
   ]),
   ...rows('Toyota', [
     { name: 'Sansone Toyota', city: 'Avenel', domain: '66toyota.com' },
@@ -190,7 +190,7 @@ export const NJ_DEALER_SEED = [
   ]),
   ...rows('BMW', [
     { name: 'BMW of Springfield', city: 'Springfield', domain: 'bmwofspringfield.com' },
-    { name: 'BMW of Morristown', city: 'Morristown', domain: 'bmwofmorristown.com' },
+    { name: 'BMW of Morristown', city: 'Morristown', domain: 'morristownbmw.com' },
     { name: 'BMW of Bloomfield', city: 'Bloomfield', domain: 'bmwofbloomfield.com' },
     { name: 'BMW of Tenafly', city: 'Tenafly', domain: 'bmwoftenafly.com' },
     { name: 'BMW of Ramsey', city: 'Ramsey', domain: 'bmwoframsey.com' },

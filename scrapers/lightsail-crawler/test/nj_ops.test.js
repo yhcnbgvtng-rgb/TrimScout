@@ -15,11 +15,12 @@ import {
   canonicalBrandName,
   buildDealerRecord,
 } from '../src/nj_policy.js';
-import { classifyFetchResult, isBotProtected, BOT_CLASSES } from '../src/bot_protection.js';
+import { classifyFetchResult, isBotProtected, isUncrawlable, pickProbeResult, detectWafVendor, summarizeBotRows, BOT_CLASSES } from '../src/bot_protection.js';
+import { looksLikeBrandCityGuess, applyVerifiedNjDomains, overlayKey } from '../src/nj_verified_domains.js';
+import { buildTablePdf, winAnsiSafe, buildSummaryBlocks } from '../src/pdf_table.js';
 import { computeEta, emptyProgress, writeProgress, readProgress, renderProgressHtml } from '../src/progress.js';
 import { priceChangeVsYesterday, inventoryChangeTypeToPriceChangeType } from '../src/price_diff.js';
 import { captureVehicleDom, loadDomIndex, pruneDomBlobs, hashDom, extractVehicleDom } from '../src/dom_store.js';
-import { buildTablePdf } from '../src/pdf_table.js';
 import {
   extractEmailsFromHtml,
   pickPreferredSalesEmails,
@@ -71,6 +72,39 @@ describe('NJ brand policy', () => {
     const toyota = loadNjDealers({ cwd: CRAWLER_ROOT, brand: 'Toyota' });
     assert.ok(toyota.length > 0);
     assert.ok(toyota.every((d) => d.make === 'Toyota'));
+    const acura = loadNjDealers({ cwd: CRAWLER_ROOT, brand: 'Acura' });
+    const key = acura.find((d) => /key acura/i.test(d.name));
+    assert.ok(key);
+    assert.equal(key.domain, 'keyacuraofatlanticcity.com');
+    const bmw = loadNjDealers({ cwd: CRAWLER_ROOT, brand: 'BMW' });
+    const morristown = bmw.find((d) => /morristown/i.test(d.name));
+    assert.ok(morristown);
+    assert.equal(morristown.domain, 'morristownbmw.com');
+    const porsche = loadNjDealers({ cwd: CRAWLER_ROOT, brand: 'Porsche' });
+    const princeton = porsche.find((d) => /princeton/i.test(d.name));
+    assert.ok(princeton);
+    assert.equal(princeton.domain, 'princetonporsche.com');
+  });
+});
+
+describe('NJ domain quality', () => {
+  it('flags brandofcity / volvocars{city} templates and overlays verified hosts', () => {
+    assert.equal(looksLikeBrandCityGuess({ domain: 'mazdaofmorristown.com' }), true);
+    assert.equal(looksLikeBrandCityGuess({ domain: 'hondaofwatchung.com' }), true);
+    assert.equal(looksLikeBrandCityGuess({ domain: 'volvocarsmorristown.com' }), true);
+    assert.equal(looksLikeBrandCityGuess({ domain: 'hudsontoyota.com' }), false);
+    assert.equal(looksLikeBrandCityGuess({ domain: 'dchkayhonda.com' }), false);
+    assert.ok(overlayKey('Acura', 'Key Acura of Atlantic City').includes('key acura atlantic city'));
+
+    const { dealers, replacements } = applyVerifiedNjDomains([
+      { name: 'Key Acura of Atlantic City', make: 'Acura', domain: 'keyacura.com' },
+      { name: 'BMW of Morristown', make: 'BMW', domain: 'bmwofmorristown.com' },
+      { name: 'Hudson Toyota', make: 'Toyota', domain: 'hudsontoyota.com' },
+    ], { cwd: CRAWLER_ROOT });
+    assert.equal(dealers.find((d) => d.name.startsWith('Key')).domain, 'keyacuraofatlanticcity.com');
+    assert.equal(dealers.find((d) => d.name.startsWith('BMW')).domain, 'morristownbmw.com');
+    assert.equal(dealers.find((d) => d.name.startsWith('Hudson')).domain, 'hudsontoyota.com');
+    assert.ok(replacements.some((r) => r.to === 'keyacuraofatlanticcity.com'));
   });
 });
 
@@ -97,8 +131,56 @@ describe('bot-protection classification (detect only)', () => {
     assert.equal(classifyFetchResult({ error: new Error('Fetch timeout') }).classification, BOT_CLASSES.TIMEOUT);
     assert.equal(classifyFetchResult({ error: new Error('SSL routines:tls') }).classification, BOT_CLASSES.TLS);
     assert.equal(classifyFetchResult({ statusCode: 200, body: '<urlset></urlset>' }).classification, BOT_CLASSES.NONE);
+    assert.equal(classifyFetchResult({ statusCode: 404, body: 'not found' }).classification, BOT_CLASSES.HTTP_404);
+    assert.equal(classifyFetchResult({ statusCode: 503, body: 'unavailable' }).classification, BOT_CLASSES.HTTP_5XX);
+    const dnsErr = new Error('getaddrinfo ENOTFOUND mazdaofmorristown.com');
+    dnsErr.code = 'ENOTFOUND';
+    assert.equal(classifyFetchResult({ error: dnsErr }).classification, BOT_CLASSES.DNS_DEAD);
+    const resetErr = new Error('socket hang up');
+    resetErr.code = 'ECONNRESET';
+    assert.equal(classifyFetchResult({ error: resetErr }).classification, BOT_CLASSES.CONN_RESET);
     assert.equal(isBotProtected('CLOUDFLARE'), true);
     assert.equal(isBotProtected('NONE'), false);
+    assert.equal(isBotProtected('DNS_DEAD'), false);
+    assert.equal(isBotProtected('HTTP_404'), false);
+    assert.equal(isUncrawlable('DNS_DEAD'), true);
+    assert.equal(isUncrawlable('NONE'), false);
+    const cf403 = classifyFetchResult({
+      statusCode: 403,
+      headers: { server: 'CloudFront', 'x-amz-cf-id': 'abc', 'x-cache': 'Error from cloudfront' },
+      body: 'Forbidden',
+    });
+    assert.equal(cf403.classification, BOT_CLASSES.HTTP_403);
+    assert.equal(cf403.wafVendor, 'CloudFront');
+    assert.equal(detectWafVendor({ 'akamai-grn': '0.abc', 'x-akamai-age': '1' }, ''), 'Akamai');
+    assert.equal(detectWafVendor({ 'server-timing': 'ak_p; desc="1"' }, ''), 'Akamai');
+  });
+
+  it('tries homepage before classifying sitemap 404 and still stops on WAF', () => {
+    const after404 = pickProbeResult([
+      { classification: 'HTTP_404', httpStatus: 404, url: 'https://example.com/sitemap.xml' },
+      { classification: 'NONE', httpStatus: 200, url: 'https://example.com/' },
+    ]);
+    assert.equal(after404.classification, 'NONE');
+    assert.equal(after404.httpStatus, 200);
+
+    const still404 = pickProbeResult([
+      { classification: 'HTTP_404', httpStatus: 404, url: 'https://example.com/sitemap.xml' },
+      { classification: 'HTTP_404', httpStatus: 404, url: 'https://example.com/' },
+    ]);
+    assert.equal(still404.classification, 'HTTP_404');
+
+    const wafFirst = pickProbeResult([
+      { classification: 'CLOUDFLARE', httpStatus: 403, url: 'https://example.com/sitemap.xml' },
+      { classification: 'NONE', httpStatus: 200, url: 'https://example.com/' },
+    ]);
+    assert.equal(wafFirst.classification, 'CLOUDFLARE');
+
+    const dnsFirst = pickProbeResult([
+      { classification: 'DNS_DEAD', url: 'https://nope.example/sitemap.xml' },
+      { classification: 'NONE', httpStatus: 200, url: 'https://nope.example/' },
+    ]);
+    assert.equal(dnsFirst.classification, 'DNS_DEAD');
   });
 });
 
@@ -210,18 +292,40 @@ describe('public sales email collect', () => {
 });
 
 describe('PDF table + brand registry', () => {
-  it('emits a PDF header and resolves NJ in-scope brands', () => {
+  it('emits a WinAnsi-safe summary PDF without a sales-email column or checkmark glyph', () => {
+    assert.equal(winAnsiSafe('✓ ready — yes'), 'Y ready - yes');
+    const rows = [
+      { brand: 'Toyota', dealerName: 'Hudson Toyota', domain: 'hudsontoyota.com', classification: 'NONE', httpStatus: 200, ready: 'Y', notes: '✓' },
+      { brand: 'Mazda', dealerName: 'Mazda of Morristown', domain: 'mazdaofmorristown.com', classification: 'DNS_DEAD', httpStatus: null, ready: 'N', notes: '' },
+    ];
+    const { summary, brandRates, ready } = summarizeBotRows(rows);
     const buf = buildTablePdf({
       title: 'NJ dealer bot-protection report',
       subtitle: 'detect only',
+      summaryBlocks: buildSummaryBlocks({
+        generatedAt: '2026-09-14T02:52:48Z',
+        dealerCount: rows.length,
+        summary,
+        brandRates,
+        ready,
+      }),
       columns: [
+        { key: 'ready', header: 'OK' },
         { key: 'brand', header: 'Brand' },
         { key: 'dealerName', header: 'Dealer' },
-        { key: 'classification', header: 'Classification' },
+        { key: 'classification', header: 'Class' },
       ],
-      rows: [{ brand: 'Toyota', dealerName: 'Hudson Toyota', classification: 'NONE' }],
+      rows,
     });
-    assert.ok(buf.toString('latin1').includes('%PDF-1.4'));
+    const latin1 = buf.toString('latin1');
+    assert.ok(latin1.includes('%PDF-1.4'));
+    assert.ok(latin1.includes('Ready to crawl now'));
+    assert.ok(latin1.includes('DNS_DEAD'));
+    assert.ok(latin1.includes('Hudson Toyota'));
+    assert.ok(!latin1.includes('Sales email'));
+    assert.ok(!latin1.includes('salesEmail'));
+    assert.ok(!latin1.includes('✓'));
+    assert.ok(!latin1.includes('\u00E2'));
     assert.equal(canonicalBrandName('mercedes'), 'Mercedes-Benz');
     assert.equal(canonicalBrandName('Toyota'), 'Toyota');
   });

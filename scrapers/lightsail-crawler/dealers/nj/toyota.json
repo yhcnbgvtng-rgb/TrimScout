@@ -10,7 +10,8 @@
     "inventorySitemapUrl": "https://www.autolandtoyota.com/sitemap-inventory.xml",
     "fallbackUrl": "https://autolandtoyota.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   },
   {
     "id": "toyota-crestmont-toyota",
@@ -23,7 +24,8 @@
     "inventorySitemapUrl": "https://www.crestmonttoyota.com/sitemap-inventory.xml",
     "fallbackUrl": "https://crestmonttoyota.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   },
   {
     "id": "toyota-dayton-toyota",
@@ -36,7 +38,8 @@
     "inventorySitemapUrl": "https://www.daytontoyota.com/sitemap-inventory.xml",
     "fallbackUrl": "https://daytontoyota.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   },
   {
     "id": "toyota-dch-brunswick-toyota",
@@ -49,7 +52,8 @@
     "inventorySitemapUrl": "https://www.dchbrunswicktoyota.com/sitemap-inventory.xml",
     "fallbackUrl": "https://dchbrunswicktoyota.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   },
   {
     "id": "toyota-dch-freehold-toyota",
@@ -62,7 +66,8 @@
     "inventorySitemapUrl": "https://www.dchfreeholdtoyota.com/sitemap-inventory.xml",
     "fallbackUrl": "https://dchfreeholdtoyota.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   },
   {
     "id": "toyota-east-coast-toyota",
@@ -75,7 +80,8 @@
     "inventorySitemapUrl": "https://www.eastcoasttoyota.com/sitemap-inventory.xml",
     "fallbackUrl": "https://eastcoasttoyota.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   },
   {
     "id": "toyota-empire-toyota-of-green-brook",
@@ -88,7 +94,8 @@
     "inventorySitemapUrl": "https://www.empiretoyotaofgreenbrook.com/sitemap-inventory.xml",
     "fallbackUrl": "https://empiretoyotaofgreenbrook.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   },
   {
     "id": "toyota-fred-beans-toyota-of-flemington",
@@ -101,7 +108,8 @@
     "inventorySitemapUrl": "https://www.fredbeanstoyotaofflemington.com/sitemap-inventory.xml",
     "fallbackUrl": "https://fredbeanstoyotaofflemington.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   },
   {
     "id": "toyota-galaxy-toyota",
@@ -114,7 +122,8 @@
     "inventorySitemapUrl": "https://www.galaxytoyota.net/sitemap-inventory.xml",
     "fallbackUrl": "https://galaxytoyota.net/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   },
   {
     "id": "toyota-gateway-toyota",
@@ -127,7 +136,8 @@
     "inventorySitemapUrl": "https://www.gatewaytoyota.com/sitemap-inventory.xml",
     "fallbackUrl": "https://gatewaytoyota.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   },
   {
     "id": "toyota-glen-motors",
@@ -140,7 +150,8 @@
     "inventorySitemapUrl": "https://www.glenmotors.com/sitemap-inventory.xml",
     "fallbackUrl": "https://glenmotors.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   },
   {
     "id": "toyota-holman-toyota",
@@ -153,7 +164,8 @@
     "inventorySitemapUrl": "https://www.holmantoyota.com/sitemap-inventory.xml",
     "fallbackUrl": "https://holmantoyota.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   },
   {
     "id": "toyota-hudson-toyota",
@@ -166,7 +178,8 @@
     "inventorySitemapUrl": "https://www.hudsontoyota.com/sitemap-inventory.xml",
     "fallbackUrl": "https://hudsontoyota.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   },
   {
     "id": "toyota-liberty-toyota",
@@ -179,7 +192,8 @@
     "inventorySitemapUrl": "https://www.libertytoyota.com/sitemap-inventory.xml",
     "fallbackUrl": "https://libertytoyota.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   },
   {
     "id": "toyota-parkway-toyota",
@@ -192,7 +206,8 @@
     "inventorySitemapUrl": "https://www.parkwaytoyota.com/sitemap-inventory.xml",
     "fallbackUrl": "https://parkwaytoyota.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   },
   {
     "id": "toyota-paul-miller-toyota-of-west-caldwell",
@@ -205,7 +220,8 @@
     "inventorySitemapUrl": "https://www.paulmillertoyota.com/sitemap-inventory.xml",
     "fallbackUrl": "https://paulmillertoyota.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   },
   {
     "id": "toyota-prestige-toyota-of-ramsey",
@@ -218,7 +234,8 @@
     "inventorySitemapUrl": "https://www.prestigestoyota.com/sitemap-inventory.xml",
     "fallbackUrl": "https://prestigestoyota.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   },
   {
     "id": "toyota-route-22-toyota",
@@ -231,7 +248,8 @@
     "inventorySitemapUrl": "https://www.route22toyota.com/sitemap-inventory.xml",
     "fallbackUrl": "https://route22toyota.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   },
   {
     "id": "toyota-sansone-toyota",
@@ -244,7 +262,8 @@
     "inventorySitemapUrl": "https://www.66toyota.com/sitemap-inventory.xml",
     "fallbackUrl": "https://66toyota.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   },
   {
     "id": "toyota-shore-toyota",
@@ -257,7 +276,8 @@
     "inventorySitemapUrl": "https://www.shoretoyota.com/sitemap-inventory.xml",
     "fallbackUrl": "https://shoretoyota.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   },
   {
     "id": "toyota-team-toyota-of-princeton",
@@ -270,7 +290,8 @@
     "inventorySitemapUrl": "https://www.teamtoyotaofprinceton.com/sitemap-inventory.xml",
     "fallbackUrl": "https://teamtoyotaofprinceton.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   },
   {
     "id": "toyota-towne-toyota",
@@ -283,7 +304,8 @@
     "inventorySitemapUrl": "https://www.townetoyota.com/sitemap-inventory.xml",
     "fallbackUrl": "https://townetoyota.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   },
   {
     "id": "toyota-toyota-of-hackensack",
@@ -296,7 +318,8 @@
     "inventorySitemapUrl": "https://www.toyotaofhackensack.com/sitemap-inventory.xml",
     "fallbackUrl": "https://toyotaofhackensack.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "pattern-guess"
   },
   {
     "id": "toyota-toyota-of-morristown",
@@ -309,7 +332,8 @@
     "inventorySitemapUrl": "https://www.toyotaofmorristown.com/sitemap-inventory.xml",
     "fallbackUrl": "https://toyotaofmorristown.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "pattern-guess"
   },
   {
     "id": "toyota-toyota-of-runnemede",
@@ -322,7 +346,8 @@
     "inventorySitemapUrl": "https://www.toyotaofrunnemede.com/sitemap-inventory.xml",
     "fallbackUrl": "https://toyotaofrunnemede.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "pattern-guess"
   },
   {
     "id": "toyota-toyota-of-turnersville",
@@ -335,7 +360,8 @@
     "inventorySitemapUrl": "https://www.toyotaofturnersville.com/sitemap-inventory.xml",
     "fallbackUrl": "https://toyotaofturnersville.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "pattern-guess"
   },
   {
     "id": "toyota-toyota-of-vineland",
@@ -348,7 +374,8 @@
     "inventorySitemapUrl": "https://www.toyotaofvineland.com/sitemap-inventory.xml",
     "fallbackUrl": "https://toyotaofvineland.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "pattern-guess"
   },
   {
     "id": "toyota-toyota-universe",
@@ -361,7 +388,8 @@
     "inventorySitemapUrl": "https://www.toyotauniverse.com/sitemap-inventory.xml",
     "fallbackUrl": "https://toyotauniverse.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   },
   {
     "id": "toyota-toyota-world-of-clinton",
@@ -374,7 +402,8 @@
     "inventorySitemapUrl": "https://www.toyotaworldclinton.com/sitemap-inventory.xml",
     "fallbackUrl": "https://toyotaworldclinton.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   },
   {
     "id": "toyota-toyota-world-of-lakewood",
@@ -387,7 +416,8 @@
     "inventorySitemapUrl": "https://www.toyotaworldlakewood.com/sitemap-inventory.xml",
     "fallbackUrl": "https://toyotaworldlakewood.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   },
   {
     "id": "toyota-toyota-world-of-newton",
@@ -400,6 +430,7 @@
     "inventorySitemapUrl": "https://www.toyotaworldnewton.com/sitemap-inventory.xml",
     "fallbackUrl": "https://toyotaworldnewton.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   }
 ]

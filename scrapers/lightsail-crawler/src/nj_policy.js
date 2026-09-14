@@ -8,6 +8,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { NJ_DEALER_SEED } from './nj_dealer_seed.js';
+import { applyVerifiedNjDomains } from './nj_verified_domains.js';
 
 export const NJ_BRANDS_IN = [
   'Toyota',
@@ -235,11 +236,36 @@ export function loadNjDealers({ cwd = process.cwd(), brand = null } = {}) {
       out.push(buildDealerRecord(dealer));
     }
   }
-  return out.sort((a, b) => {
+
+  const applied = applyVerifiedNjDomains(out, { cwd: root });
+  const rebuilt = applied.dealers.map((d) => {
+    const rec = buildDealerRecord(d);
+    rec.domainSource = d.domainSource || 'curated';
+    if (d.previousDomain) rec.previousDomain = d.previousDomain;
+    return rec;
+  });
+
+  rebuilt.sort((a, b) => {
     const brandCmp = String(a.make).localeCompare(String(b.make));
     if (brandCmp !== 0) return brandCmp;
     return String(a.name).localeCompare(String(b.name));
   });
+
+  const seenAfter = new Set();
+  const deduped = [];
+  for (const rec of rebuilt) {
+    const nameKey = `name:${overlayNameKey(rec)}`;
+    const hostKey = `host:${dealerKey(rec)}`;
+    if (seenAfter.has(nameKey) || seenAfter.has(hostKey)) continue;
+    seenAfter.add(nameKey);
+    seenAfter.add(hostKey);
+    deduped.push(rec);
+  }
+  return deduped;
+}
+
+function overlayNameKey(d) {
+  return `${String(d.make || '').toLowerCase()}|${String(d.name || '').toLowerCase()}`;
 }
 
 function inferMakeFromName(name) {

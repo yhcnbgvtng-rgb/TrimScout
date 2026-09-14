@@ -4,7 +4,7 @@
 
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { classifyFetchResult, isBotProtected } from './bot_protection.js';
+import { classifyFetchResult } from './bot_protection.js';
 import { dealerHomeUrl } from './nj_policy.js';
 
 export const DEALER_CONTACTS_FILENAME = 'dealer_contacts.json';
@@ -182,7 +182,7 @@ export async function collectSalesEmail(dealer, { getHtml, now = new Date() } = 
       const page = await getHtml(url);
       if (!page) continue;
       classification = page.classification || classifyFetchResult(page).classification;
-      if (isBotProtected(classification)) continue;
+      if (classification !== 'NONE') continue;
       html = page.body || page.html || '';
     } catch {
       continue;

@@ -10,7 +10,8 @@
     "inventorySitemapUrl": "https://www.dchbrunswickhonda.com/sitemap-inventory.xml",
     "fallbackUrl": "https://dchbrunswickhonda.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   },
   {
     "id": "honda-dch-kay-honda",
@@ -23,7 +24,8 @@
     "inventorySitemapUrl": "https://www.dchkayhonda.com/sitemap-inventory.xml",
     "fallbackUrl": "https://dchkayhonda.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   },
   {
     "id": "honda-garden-state-honda",
@@ -36,7 +38,8 @@
     "inventorySitemapUrl": "https://www.gardenstatehonda.com/sitemap-inventory.xml",
     "fallbackUrl": "https://gardenstatehonda.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   },
   {
     "id": "honda-honda-of-atlantic-city",
@@ -49,7 +52,8 @@
     "inventorySitemapUrl": "https://www.hondaofatlanticcity.com/sitemap-inventory.xml",
     "fallbackUrl": "https://hondaofatlanticcity.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "pattern-guess"
   },
   {
     "id": "honda-honda-of-bridgewater",
@@ -62,7 +66,8 @@
     "inventorySitemapUrl": "https://www.hondaofbridgewater.com/sitemap-inventory.xml",
     "fallbackUrl": "https://hondaofbridgewater.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "pattern-guess"
   },
   {
     "id": "honda-honda-of-burlingame",
@@ -75,7 +80,8 @@
     "inventorySitemapUrl": "https://www.hondaofburlington.com/sitemap-inventory.xml",
     "fallbackUrl": "https://hondaofburlington.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "pattern-guess"
   },
   {
     "id": "honda-honda-of-freehold",
@@ -88,7 +94,8 @@
     "inventorySitemapUrl": "https://www.hondaoffreehold.com/sitemap-inventory.xml",
     "fallbackUrl": "https://hondaoffreehold.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "pattern-guess"
   },
   {
     "id": "honda-honda-of-morristown",
@@ -101,7 +108,8 @@
     "inventorySitemapUrl": "https://www.hondaofmorristown.com/sitemap-inventory.xml",
     "fallbackUrl": "https://hondaofmorristown.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "pattern-guess"
   },
   {
     "id": "honda-honda-of-princeton",
@@ -114,7 +122,8 @@
     "inventorySitemapUrl": "https://www.hondaofprinceton.com/sitemap-inventory.xml",
     "fallbackUrl": "https://hondaofprinceton.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "pattern-guess"
   },
   {
     "id": "honda-honda-of-princeton-junction",
@@ -127,7 +136,8 @@
     "inventorySitemapUrl": "https://www.hondalawrenceville.com/sitemap-inventory.xml",
     "fallbackUrl": "https://hondalawrenceville.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   },
   {
     "id": "honda-honda-of-toms-river",
@@ -140,7 +150,8 @@
     "inventorySitemapUrl": "https://www.hondaoftomsriver.com/sitemap-inventory.xml",
     "fallbackUrl": "https://hondaoftomsriver.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "pattern-guess"
   },
   {
     "id": "honda-honda-of-turnersville",
@@ -153,7 +164,8 @@
     "inventorySitemapUrl": "https://www.hondaturnersville.com/sitemap-inventory.xml",
     "fallbackUrl": "https://hondaturnersville.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   },
   {
     "id": "honda-honda-of-watchung",
@@ -166,7 +178,8 @@
     "inventorySitemapUrl": "https://www.hondaofwatchung.com/sitemap-inventory.xml",
     "fallbackUrl": "https://hondaofwatchung.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "pattern-guess"
   },
   {
     "id": "honda-honda-universe",
@@ -179,7 +192,8 @@
     "inventorySitemapUrl": "https://www.hondauniverse.com/sitemap-inventory.xml",
     "fallbackUrl": "https://hondauniverse.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   },
   {
     "id": "honda-mancini-honda",
@@ -192,7 +206,8 @@
     "inventorySitemapUrl": "https://www.mancinihonda.com/sitemap-inventory.xml",
     "fallbackUrl": "https://mancinihonda.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   },
   {
     "id": "honda-paul-miller-honda",
@@ -205,7 +220,8 @@
     "inventorySitemapUrl": "https://www.paulmillerhonda.com/sitemap-inventory.xml",
     "fallbackUrl": "https://paulmillerhonda.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   },
   {
     "id": "honda-quality-honda",
@@ -218,7 +234,8 @@
     "inventorySitemapUrl": "https://www.qualityhondanj.com/sitemap-inventory.xml",
     "fallbackUrl": "https://qualityhondanj.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   },
   {
     "id": "honda-route-22-honda",
@@ -231,7 +248,8 @@
     "inventorySitemapUrl": "https://www.route22honda.com/sitemap-inventory.xml",
     "fallbackUrl": "https://route22honda.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   },
   {
     "id": "honda-world-honda",
@@ -244,6 +262,7 @@
     "inventorySitemapUrl": "https://www.worldhondanewjersey.com/sitemap-inventory.xml",
     "fallbackUrl": "https://worldhondanewjersey.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   }
 ]

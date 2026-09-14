@@ -10,7 +10,8 @@
     "inventorySitemapUrl": "https://www.cherryhillmazda.com/sitemap-inventory.xml",
     "fallbackUrl": "https://cherryhillmazda.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   },
   {
     "id": "mazda-flemington-mazda",
@@ -23,7 +24,8 @@
     "inventorySitemapUrl": "https://www.flemingtonmazda.com/sitemap-inventory.xml",
     "fallbackUrl": "https://flemingtonmazda.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   },
   {
     "id": "mazda-freehold-mazda",
@@ -36,7 +38,8 @@
     "inventorySitemapUrl": "https://www.freeholdmazda.com/sitemap-inventory.xml",
     "fallbackUrl": "https://freeholdmazda.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   },
   {
     "id": "mazda-hudson-mazda",
@@ -49,7 +52,8 @@
     "inventorySitemapUrl": "https://www.hudsonmazda.com/sitemap-inventory.xml",
     "fallbackUrl": "https://hudsonmazda.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   },
   {
     "id": "mazda-mazda-of-atlantic-city",
@@ -62,7 +66,8 @@
     "inventorySitemapUrl": "https://www.mazdaofatlanticcity.com/sitemap-inventory.xml",
     "fallbackUrl": "https://mazdaofatlanticcity.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "pattern-guess"
   },
   {
     "id": "mazda-mazda-of-englewood",
@@ -75,7 +80,8 @@
     "inventorySitemapUrl": "https://www.mazdaofenglewood.com/sitemap-inventory.xml",
     "fallbackUrl": "https://mazdaofenglewood.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "pattern-guess"
   },
   {
     "id": "mazda-mazda-of-morristown",
@@ -88,7 +94,8 @@
     "inventorySitemapUrl": "https://www.mazdaofmorristown.com/sitemap-inventory.xml",
     "fallbackUrl": "https://mazdaofmorristown.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "pattern-guess"
   },
   {
     "id": "mazda-mazda-of-turnersville",
@@ -101,7 +108,8 @@
     "inventorySitemapUrl": "https://www.mazdaturnersville.com/sitemap-inventory.xml",
     "fallbackUrl": "https://mazdaturnersville.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   },
   {
     "id": "mazda-route-22-mazda",
@@ -114,6 +122,7 @@
     "inventorySitemapUrl": "https://www.route22mazda.com/sitemap-inventory.xml",
     "fallbackUrl": "https://route22mazda.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   }
 ]

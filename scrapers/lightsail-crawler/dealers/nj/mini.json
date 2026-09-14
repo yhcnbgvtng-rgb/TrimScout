@@ -10,7 +10,8 @@
     "inventorySitemapUrl": "https://www.circlemini.com/sitemap-inventory.xml",
     "fallbackUrl": "https://circlemini.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   },
   {
     "id": "mini-mini-of-flemington",
@@ -23,7 +24,8 @@
     "inventorySitemapUrl": "https://www.miniflemington.com/sitemap-inventory.xml",
     "fallbackUrl": "https://miniflemington.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   },
   {
     "id": "mini-mini-of-mount-laurel",
@@ -36,7 +38,8 @@
     "inventorySitemapUrl": "https://www.miniofmountlaurel.com/sitemap-inventory.xml",
     "fallbackUrl": "https://miniofmountlaurel.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "pattern-guess"
   },
   {
     "id": "mini-mini-of-springfield",
@@ -49,7 +52,8 @@
     "inventorySitemapUrl": "https://www.miniofspringfield.com/sitemap-inventory.xml",
     "fallbackUrl": "https://miniofspringfield.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "pattern-guess"
   },
   {
     "id": "mini-paul-miller-mini",
@@ -62,6 +66,7 @@
     "inventorySitemapUrl": "https://www.paulmillermini.com/sitemap-inventory.xml",
     "fallbackUrl": "https://paulmillermini.com/",
     "lat": null,
-    "lng": null
+    "lng": null,
+    "domainSource": "curated"
   }
 ]
