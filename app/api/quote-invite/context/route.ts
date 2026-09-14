@@ -22,13 +22,15 @@ export async function GET(req: Request) {
   // the prior (superseded) quote the calculator should prefill from.
   const invite = rfq.invites.find((i) => i.id === found.invite.id) || found.invite;
   const priorQuote = invite.priorQuotes?.length ? invite.priorQuotes[invite.priorQuotes.length - 1] : null;
-  const usedCar = rfqVehicles(rfq).find((v) => v.vin === (invite.vehicle?.vin || rfq.vin) && v.condition !== "new") || null;
+  const thisCar = rfqVehicles(rfq).find((v) => v.vin === (invite.vehicle?.vin || rfq.vin)) || null;
+  const usedCar = thisCar && thisCar.condition !== "new" ? thisCar : null;
   return NextResponse.json({
     buyerCounter: invite.buyerCounter || null,
     priorLease: priorQuote?.lease || null,
     condition: usedCar?.condition || "new",
     buyerMiles: usedCar?.mileage ?? null,
     buyerNote: rfq.buyerNote || null,
+    msrp: thisCar?.msrp ?? null,
     vin: rfq.vin,
     stockNumber: rfq.stockNumber,
     vehicle: invite.vehicle || { year: rfq.vehicleYear, make: rfq.vehicleMake, model: rfq.vehicleModel, trim: rfq.vehicleTrim },

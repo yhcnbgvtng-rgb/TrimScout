@@ -28,6 +28,7 @@ export function UsedQuoteForm({
   prefs,
   condition = "used",
   buyerMiles,
+  msrp,
   onSubmitted,
 }: {
   token: string;
@@ -36,6 +37,8 @@ export function UsedQuoteForm({
   prefs: QuotePrefs;
   condition?: "new" | "used" | "cpo";
   buyerMiles: number | null;
+  /** Sticker MSRP when known — prefills the sheet's MSRP field for the percent line. */
+  msrp?: number | null;
   onSubmitted: (result: { warnings: string[] }) => void;
 }) {
   const kind = prefs.quoteType;
@@ -56,6 +59,7 @@ export function UsedQuoteForm({
     apr: "",
     termMonths: kind === "finance" ? String(prefs.finance.termMonths) : "",
     lenderName: "",
+    msrp: msrp && msrp > 0 ? String(msrp) : "",
   });
   const [noTaxEstimate, setNoTaxEstimate] = useState(false);
   const [addOns, setAddOns] = useState<Item[]>([]);
@@ -92,7 +96,15 @@ export function UsedQuoteForm({
     const estTaxOnPrice = sellingPrice != null && zipRate != null ? Math.round(sellingPrice * zipRate) : null;
     const cashDue = down != null ? Math.round((down + dasTotal + addOnTotal - rebateTotal) * 100) / 100 : null;
     const otd = sellingPrice != null ? Math.round((sellingPrice + dasTotal + addOnTotal - rebateTotal) * 100) / 100 : null;
-    return { sellingPrice, items, addOnLines, rebateLines, dasTotal, addOnTotal, rebateTotal, down, trade, apr, term, amountFinanced, monthly, taxed, estTaxOnPrice, cashDue, otd };
+    // The equation's own lines: sales tax is the standing first line; every other fee is "mandatory fees".
+    const taxTotal = dueAtSigningSum(items.filter((i) => /tax/i.test(i.name)));
+    const mandatoryTotal = dasTotal - taxTotal;
+    const docFee = dueAtSigningSum(items.filter((i) => /\bdoc/i.test(i.name)));
+    // Price + add-ons + doc fee as a share of MSRP — the number that shows a "discount" eaten back by dealer charges.
+    const msrpNum = num(f.msrp);
+    const dealerAsk = sellingPrice != null ? Math.round((sellingPrice + addOnTotal + docFee) * 100) / 100 : null;
+    const pctOfMsrp = dealerAsk != null && msrpNum != null && msrpNum > 0 ? Math.round((dealerAsk / msrpNum) * 1000) / 10 : null;
+    return { sellingPrice, items, addOnLines, rebateLines, dasTotal, addOnTotal, rebateTotal, taxTotal, mandatoryTotal, docFee, msrp: msrpNum, dealerAsk, pctOfMsrp, down, trade, apr, term, amountFinanced, monthly, taxed, estTaxOnPrice, cashDue, otd };
   }, [f, fees, addOns, rebates, noTaxEstimate, zipRate]);
 
   const base = {
@@ -158,6 +170,30 @@ export function UsedQuoteForm({
       </label>
     );
   };
+  const opBadge = (op: "+" | "−" | "=") => (
+    <span className={`flex h-5 w-5 shrink-0 items-center justify-center rounded font-mono text-[11px] font-black ${op === "=" ? "bg-emerald-500 text-black" : op === "−" ? "bg-rose-500/20 text-rose-300" : "bg-border text-white"}`}>{op}</span>
+  );
+  /** One block of the vertical equation: sign badge, title, then its inputs. */
+  const eqBlock = (op: "+" | "−" | "=", title: string, testid: string, body: React.ReactNode, note?: React.ReactNode) => (
+    <section className={`space-y-2.5 rounded-xl border px-3.5 py-3 ${op === "=" ? "border-emerald-500/40 bg-emerald-500/5" : "border-border/60 bg-background"}`} data-testid={testid} data-op={op}>
+      <div className="flex items-center gap-2.5">
+        {opBadge(op)}
+        <h4 className={`text-[11px] font-bold ${op === "=" ? "text-white" : "text-ink-light"}`}>{title}</h4>
+        {note ? <span className="ml-auto text-[10px] text-ink-faint">{note}</span> : null}
+      </div>
+      {body}
+    </section>
+  );
+  const feeRow = (it: Item, i: number, list: Item[], setList: React.Dispatch<React.SetStateAction<Item[]>>, key: string, standing: boolean, placeholder = "0") => (
+    <div key={i} className="grid grid-cols-[1fr_140px_20px] items-center gap-2">
+      <input type="text" value={it.name} readOnly={standing} onChange={(e) => setList((p) => p.map((x, j) => (j === i ? { ...x, name: e.target.value } : x)))} placeholder="Describe the line" aria-label={`${key} description`} className={input} />
+      <span className="relative block">
+        <span className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-[11px] text-ink-faint">$</span>
+        <input type="text" inputMode="decimal" value={focused === `${key}:${i}` ? it.amount : formatMoneyInput(it.amount).replace(/^\$/, "")} onFocus={() => setFocused(`${key}:${i}`)} onBlur={() => setFocused(null)} onChange={(e) => setList((p) => p.map((x, j) => (j === i ? { ...x, amount: e.target.value } : x)))} placeholder={placeholder} aria-label={`${it.name || key} amount`} className={`${input} pl-6 font-mono`} />
+      </span>
+      {standing ? <span /> : <button type="button" onClick={() => setList((p) => p.filter((_, j) => j !== i))} className="text-ink-muted hover:text-rose-400" aria-label={`Remove ${key} line`}><Trash2 className="h-3.5 w-3.5" /></button>}
+    </div>
+  );
   const out = (title: string, value: string | null, strong = false) => (
     <div className="flex items-baseline justify-between gap-3">
       <span className="text-[11px] text-ink-muted">{title}</span>
@@ -192,6 +228,53 @@ export function UsedQuoteForm({
             </div>
           </section>
 
+          {kind === "cash" ? (
+            <div className="space-y-2" data-testid="cash-equation">
+              <p className="text-[10px] font-bold uppercase tracking-wide text-emerald-400">Out-the-door pricing — the same equation the buyer sees</p>
+              {eqBlock("+", "Selling price", "eq-selling-price", (
+                <div className="grid grid-cols-2 gap-3">
+                  {field({ k: "sellingPrice", title: "Selling price", required: true, hint: "Before fees and taxes." })}
+                  {field({ k: "msrp", title: "MSRP", hint: msrp && msrp > 0 ? "From the factory sticker." : "From the sticker — for the % of MSRP line." })}
+                </div>
+              ))}
+              {eqBlock("+", "Add-ons", "add-ons", (
+                <>
+                  <label className="flex items-start gap-2 text-[11px] text-ink-light">
+                    <input type="checkbox" checked={noAddOns} onChange={(e) => { setNoAddOns(e.target.checked); if (e.target.checked) setAddOns([]); }} className="mt-0.5 h-3.5 w-3.5" data-testid="no-add-ons" />
+                    <span>No add-ons — $0</span>
+                  </label>
+                  {!noAddOns ? (
+                    <>
+                      {addOns.map((it, i) => feeRow(it, i, addOns, setAddOns, "add-on", false))}
+                      <button type="button" onClick={() => setAddOns((p) => [...p, { name: "", amount: "" }])} className="flex items-center gap-1 text-[11px] font-bold text-emerald-400 hover:text-emerald-300"><Plus className="h-3 w-3" /> Add an add-on line</button>
+                    </>
+                  ) : null}
+                </>
+              ), "$0 or each one listed")}
+              {eqBlock("+", "Mandatory fees", "eq-mandatory-fees", (
+                <>
+                  {fees.map((it, i) => (i === 0 ? null : feeRow(it, i, fees, setFees, "fee", i < STANDING_FEES)))}
+                  <button type="button" onClick={() => setFees((p) => [...p, { name: "", amount: "" }])} className="flex items-center gap-1 text-[11px] font-bold text-emerald-400 hover:text-emerald-300"><Plus className="h-3 w-3" /> Add another fee</button>
+                </>
+              ), "doc, title & registration, each named")}
+              {eqBlock("+", "Sales tax", "eq-sales-tax", (
+                <>
+                  {feeRow(fees[0], 0, fees, setFees, "fee", true, d.estTaxOnPrice != null ? String(d.estTaxOnPrice) : "0")}
+                  <p className={hintCls}>For the buyer&apos;s ZIP {zip}{d.estTaxOnPrice != null ? ` — tax on the price at that rate ≈ ${money(d.estTaxOnPrice)}` : ""}. Required as its own line ($0 if none applies).</p>
+                </>
+              ), `for ZIP ${zip}`)}
+              {eqBlock("−", "Rebates / credits", "rebates", (
+                <>
+                  {rebates.map((it, i) => feeRow(it, i, rebates, setRebates, "rebate", false))}
+                  <button type="button" onClick={() => setRebates((p) => [...p, { name: "", amount: "" }])} className="flex items-center gap-1 text-[11px] font-bold text-emerald-400 hover:text-emerald-300"><Plus className="h-3 w-3" /> Add a rebate line</button>
+                </>
+              ), "each named")}
+              {eqBlock("=", "Out the door", "eq-out-the-door", (
+                <p className="text-lg font-extrabold tabular-nums text-white">{money(d.otd, 2) ?? <span className="text-ink-faint">—</span>}</p>
+              ), "what the buyer compares")}
+            </div>
+          ) : (
+            <>
           <section className="space-y-2.5">
             <h4 className="text-[10px] font-bold uppercase tracking-wider text-ink-faint">2 · Price</h4>
             <div className="grid grid-cols-2 gap-3">
@@ -294,6 +377,9 @@ export function UsedQuoteForm({
             <button type="button" onClick={() => setRebates((p) => [...p, { name: "", amount: "" }])} className="flex items-center gap-1 text-[11px] font-bold text-emerald-400 hover:text-emerald-300"><Plus className="h-3 w-3" /> Add a rebate line</button>
           </section>
 
+            </>
+          )}
+
           <section className="space-y-2.5">
             <h4 className="text-[10px] font-bold uppercase tracking-wider text-ink-faint">Quote details</h4>
             <div className="grid grid-cols-2 gap-3">
@@ -333,17 +419,24 @@ export function UsedQuoteForm({
               {out("Out the door", money(d.otd, 2), true)}
               <div className="border-t border-border/60 pt-2 space-y-1">
                 {out("Selling price", money(d.sellingPrice))}
-                {out("Fees & taxes", d.sellingPrice != null ? money(d.dasTotal) : null)}
-                {d.addOnTotal ? out("Add-ons", money(d.addOnTotal)) : null}
-                {d.rebateTotal ? out("Rebates", `−${money(d.rebateTotal)}`) : null}
+                {out("Add-ons", d.sellingPrice != null ? money(d.addOnTotal) : null)}
+                {out("Mandatory fees", d.sellingPrice != null ? money(d.mandatoryTotal) : null)}
+                {out("Sales tax", d.sellingPrice != null ? money(d.taxTotal) : null)}
+                {d.rebateTotal ? out("Rebates / credits", `−${money(d.rebateTotal)}`) : null}
+              </div>
+              <div className="border-t border-border/60 pt-2 space-y-1" data-testid="pct-of-msrp">
+                {out("Price + add-ons + doc fee", money(d.dealerAsk))}
+                {out("as % of MSRP", d.pctOfMsrp != null ? `${d.pctOfMsrp}%${d.msrp ? ` of ${money(d.msrp)}` : ""}` : d.dealerAsk != null ? "enter MSRP above" : null, d.pctOfMsrp != null)}
               </div>
             </>
           )}
-          <ul className="mt-1 space-y-0.5 text-[10px] text-ink-muted tabular-nums">
-            {d.items.map((x, i) => (
-              <li key={i} className="flex justify-between"><span>{x.name}</span><span>{money(x.amount, 2)}</span></li>
-            ))}
-          </ul>
+          {kind === "finance" ? (
+            <ul className="mt-1 space-y-0.5 text-[10px] text-ink-muted tabular-nums">
+              {d.items.map((x, i) => (
+                <li key={i} className="flex justify-between"><span>{x.name}</span><span>{money(x.amount, 2)}</span></li>
+              ))}
+            </ul>
+          ) : null}
         </aside>
       </div>
 

@@ -183,6 +183,8 @@ export interface DealerLinkPaste {
   /** Odometer the buyer typed (used only); the dealer confirms it. */
   mileage?: number | null;
   stockNumber?: string | null;
+  /** Factory MSRP from the sticker, when the build was verified — the dealer sheet's percent-of-MSRP line uses it. */
+  msrp?: number | null;
 }
 
 export const MAX_PACKAGE_LINKS = 3;

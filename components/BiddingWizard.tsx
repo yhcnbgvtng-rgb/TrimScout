@@ -1816,6 +1816,8 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
       vdpUrl: v.dealerUrl || null,
       buildConfidence: v.buildConfidence || "dealer_listing_only",
       resolvedAt: new Date().toISOString(),
+      // Sticker MSRP, only on a verified factory build — the dealer sheet shows price + add-ons + doc fee as a % of it.
+      msrp: v.buildConfidence === "verified_factory" && v.msrp > 0 ? v.msrp : null,
       ...(isUsedCondition(v.condition) ? { condition: v.condition } : {}),
     }));
     const toSend = pastes.filter(
