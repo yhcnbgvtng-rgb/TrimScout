@@ -745,7 +745,6 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   const [huntRadius, setHuntRadius] = useState("");
   // Alternate vehicles are optional, so Step 1 keeps them behind a link
   // until asked for — or auto-reveals them once one is actually imported.
-  const [showAlternates, setShowAlternates] = useState(false);
   // New | Used. Default New; a pasted link that says used / pre-owned /
   // certified flips it. Used goes to the VIN-only import (no sticker) and
   // is a single-vehicle request — no same-build alternates.
@@ -789,16 +788,11 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   // Trade-in is now just a yes/no flag collected here — the actual
   // appraisal (value, photos, condition) happens later, once a selling
   // price is agreed with the dealer (see the note shown when this is on).
-  const [hasTradeIn, setHasTradeIn] = useState<boolean>(false);
   const [financingSource, setFinancingSource] = useState<"buyer_own" | "dealer" | null>(null);
 
-  // The flag itself is real and worth sending — the Deal Tracker shows and
-  // lets the buyer toggle it after the fact. Every detail field beyond the
-  // flag stays honestly empty/zero rather than a fabricated value, since
-  // that appraisal genuinely hasn't happened yet.
-  const tradeInForRequest: TradeInVehicle | undefined = hasTradeIn
-    ? { hasTradeIn: true, year: 0, make: "", model: "", trim: "", mileage: 0, condition: "good", estimatedValueMin: 0, estimatedValueMax: 0, photos: [] }
-    : undefined;
+  // No trade-in question on the request — a trade is handled after the
+  // selling price is set, from the Deal Tracker.
+  const tradeInForRequest: TradeInVehicle | undefined = undefined;
 
   // Step 1: independently checked cash / finance / lease (at least one required)
   // The quote type is the buyer's explicit choice on the Quote-setup step —
@@ -1086,7 +1080,6 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     altVehicle1,
     altVin2,
     altVehicle2,
-    showAlternates,
     vehicleCondition,
     factoryBuildOem,
     fordStickerStatus,
@@ -1098,7 +1091,6 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     make,
     model,
     sameStateOnly,
-    hasTradeIn,
     quoteType,
     leaseTerm,
     leaseMiles,
@@ -1144,7 +1136,6 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     pick<Vehicle | null>("altVehicle1", setAltVehicle1);
     pick<string>("altVin2", setAltVin2);
     pick<Vehicle | null>("altVehicle2", setAltVehicle2);
-    pick<boolean>("showAlternates", setShowAlternates);
     pick<"new" | UsedCondition>("vehicleCondition", setVehicleCondition);
     pick<FactoryBuildOem | null>("factoryBuildOem", setFactoryBuildOem);
     pick<"released" | "unreleased" | "error" | null>("fordStickerStatus", setFordStickerStatus);
@@ -1156,7 +1147,6 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     pick<string>("make", setMake);
     pick<string>("model", setModel);
     pick<boolean>("sameStateOnly", setSameStateOnly);
-    pick<boolean>("hasTradeIn", setHasTradeIn);
     pick<DealStructureMethod | null>("quoteType", setQuoteType);
     pick<LeaseTerm>("leaseTerm", setLeaseTerm);
     pick<LeaseMiles | "">("leaseMiles", setLeaseMiles);
@@ -2074,7 +2064,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
         {/* Wizard Body */}
         <div className="p-6 space-y-6 max-h-[70vh] overflow-y-auto">
           {/* ========================================================================= */}
-          {/* STEP 1: PAYMENT, VEHICLE & TRADE-IN FLAG                                   */}
+          {/* STEP 1: VEHICLE (+ up to two optional alternates)                          */}
           {/* ========================================================================= */}
           {step === 1 && (
             <div className="divide-y divide-border/50">
@@ -2341,12 +2331,12 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                   </details>
                 )}
 
-                {/* Alternates stay behind a link until asked for, or until
-                    one is actually imported. */}
-                {isUsed ? null : showAlternates || altVehicle1 || altVehicle2 ? (
+                {/* Two alternate slots, always visible on a new car — optional,
+                    the buyer fills them in or doesn't. Used requests are one car. */}
+                {isUsed ? null : (
                   <div className="space-y-2">
                     <p className="text-[10px] text-ink-faint">
-                      Up to 2 similar vehicles — dealers can quote on any of the three.
+                      Optional: up to 2 similar vehicles — dealers can quote on any of the three.
                     </p>
                     <AlternateVinField
                       label="Alternate vehicle 1"
@@ -2393,14 +2383,6 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                       </div>
                     )}
                   </div>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() => setShowAlternates(true)}
-                    className="text-[11px] font-bold text-emerald-400 hover:text-emerald-300 transition-colors"
-                  >
-                    + Add additional vehicles to the quote request
-                  </button>
                 )}
 
                 <div className="flex flex-wrap items-start justify-between gap-2 pt-1">
@@ -2435,35 +2417,6 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                       ))}
                     </ul>
                   </div>
-                )}
-              </WizardSection>
-
-              {/* ---------------------------------------------------------- */}
-              {/* Trade-in                                                    */}
-              {/* ---------------------------------------------------------- */}
-              <WizardSection title="Trade-in" className="pt-6">
-                <div className="flex items-center justify-between gap-3">
-                  <span className="text-[11px] text-ink-muted">I have a vehicle to trade in</span>
-                  <button
-                    type="button"
-                    onClick={() => setHasTradeIn(!hasTradeIn)}
-                    aria-pressed={hasTradeIn}
-                    aria-label="I have a vehicle to trade in"
-                    className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors ${
-                      hasTradeIn ? "bg-emerald-500" : "bg-border"
-                    }`}
-                  >
-                    <span
-                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                        hasTradeIn ? "translate-x-6" : "translate-x-1"
-                      }`}
-                    />
-                  </button>
-                </div>
-                {hasTradeIn && (
-                  <p className="rounded-lg border border-border bg-surface-elevated px-3 py-2 text-[11px] leading-snug text-ink-light">
-                    Your trade-in will be handled after we finalize the price of the new car.
-                  </p>
                 )}
               </WizardSection>
             </div>
@@ -3271,14 +3224,6 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                   </span>
                 </div>
 
-                {hasTradeIn && (
-                  <div className="flex justify-between border-b border-border/50 pb-2">
-                    <span className="text-ink-muted">Trade-In:</span>
-                    <span className="text-emerald-400 font-medium">
-                      Yes — handled after the selling price is set
-                    </span>
-                  </div>
-                )}
 
                 {mustHavePackages.length > 0 && (
                   <div className="flex justify-between border-b border-border/50 pb-2">

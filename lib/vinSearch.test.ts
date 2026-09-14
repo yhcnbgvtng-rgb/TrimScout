@@ -1031,7 +1031,7 @@ describe("shopper-facing factory option copy", () => {
     const src = fs.readFileSync(path.join(process.cwd(), "components/BiddingWizard.tsx"), "utf8");
     // The vehicle-import preview used to live in its own step 2; it's now
     // part of merged step 1.
-    const start = src.indexOf("STEP 1: PAYMENT, VEHICLE & TRADE-IN FLAG");
+    const start = src.indexOf("STEP 1: VEHICLE");
     const end = src.indexOf("STEP 2: QUOTE SETUP");
     assert.ok(start >= 0 && end > start);
     const step1 = src.slice(start, end);
@@ -1072,7 +1072,7 @@ describe("shopper-facing factory option copy", () => {
     const src = fs.readFileSync(path.join(process.cwd(), "components/BiddingWizard.tsx"), "utf8");
     // Vehicle selection used to be its own step 2; it's now merged into
     // step 1 alongside payment method and the trade-in toggle.
-    const start = src.indexOf("STEP 1: PAYMENT, VEHICLE & TRADE-IN FLAG");
+    const start = src.indexOf("STEP 1: VEHICLE");
     const end = src.indexOf("STEP 2: QUOTE SETUP");
     assert.ok(start >= 0 && end > start);
     const step1 = src.slice(start, end);
@@ -1118,13 +1118,14 @@ describe("shopper-facing factory option copy", () => {
     assert.doesNotMatch(src, /handleSubmitDirectOffer/);
   });
 
-  it("step 1's trade-in toggle only shows a note, no photo/appraisal collection", () => {
+  it("step 1 has no trade-in question at all — no toggle, no photo/appraisal collection", () => {
     const src = fs.readFileSync(path.join(process.cwd(), "components/BiddingWizard.tsx"), "utf8");
-    const start = src.indexOf("STEP 1: PAYMENT, VEHICLE & TRADE-IN FLAG");
+    const start = src.indexOf("STEP 1: VEHICLE");
     const end = src.indexOf("STEP 2: QUOTE SETUP");
     const step1 = src.slice(start, end);
-    assert.match(step1, /I have a vehicle to trade in/);
-    assert.match(step1, /trade-in will be handled after we finalize the price of the new car/i);
+    assert.ok(start > 0 && end > start);
+    assert.doesNotMatch(step1, /I have a vehicle to trade in|hasTradeIn/);
+    assert.doesNotMatch(src, /trade-in will be handled after we finalize the price of the new car/i);
     assert.doesNotMatch(src, /Trade-In Vehicle & Photo Appraisal/);
     assert.doesNotMatch(src, /Submit Trade-In Photos/);
     assert.doesNotMatch(src, /Live VIN Decoder \(NHTSA Database\)/);
@@ -1301,7 +1302,7 @@ describe("shopper-facing factory option copy", () => {
 
   it("shows must-have factory options after a Ford import — no hunt in the wizard", () => {
     const src = fs.readFileSync(path.join(process.cwd(), "components/BiddingWizard.tsx"), "utf8");
-    const start = src.indexOf("STEP 1: PAYMENT, VEHICLE & TRADE-IN FLAG");
+    const start = src.indexOf("STEP 1: VEHICLE");
     const end = src.indexOf("STEP 2: QUOTE SETUP");
     const step1 = src.slice(start, end);
     assert.match(
