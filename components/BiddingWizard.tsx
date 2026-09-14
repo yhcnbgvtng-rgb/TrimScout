@@ -16,7 +16,6 @@ import { clearQuoteDraft, readQuoteDraft, saveQuoteDraft, wizardAuthState, type 
 import { diffVsPrimary, mustHaveHeadline, mustHaveReport, type MustHaveRef } from "../lib/alternateCompare";
 import { DEFAULT_LEASE_TERM, LEASE_DAS_INTENTS, LEASE_DAS_INTENT_LABELS, LEASE_MILES, LEASE_NON_BINDING_COPY, LEASE_TERMS, type LeaseDueAtSigningIntent, type LeaseMiles, type LeaseTerm } from "../lib/leaseQuote";
 import { isPlausibleDealerEmail, type DealerContactStatus } from "../lib/dealerContactLookup";
-import { formatBuyerAlias } from "../lib/buyerAlias";
 import {
   NON_BINDING_COPY,
   DESK_ROLE_LABELS,
@@ -82,6 +81,7 @@ import {
   LoaderCircle as Loader2,
   FileText,
   ExternalLink,
+  Car,
 } from "lucide-react";
 
 type FilterableFactoryOption = FactoryFilterableOption;
@@ -2964,15 +2964,6 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                     {zipOk ? <span className="block text-[10px] font-normal text-ink-muted">tax context: ZIP {huntZip}</span> : null}
                   </span>
                 </div>
-                <div className="flex justify-between border-b border-border/50 pb-2">
-                  <span className="text-ink-muted">How dealers reply:</span>
-                  <span className="text-white font-semibold text-right">
-                    {quoteType === "lease"
-                      ? "Through the lease calculator — monthly, due at signing itemized, cap cost, money factor, residual"
-                      : "With an out-the-door number — vehicle plus their fees; tax and registration calculated for your ZIP once you pick"}
-                  </span>
-                </div>
-
 
                 {mustHavePackages.length > 0 && (
                   <div className="flex justify-between border-b border-border/50 pb-2">
@@ -2983,17 +2974,9 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                   </div>
                 )}
 
-                <div className="flex justify-between border-b border-border/50 pb-2">
+                <div className="flex justify-between">
                   <span className="text-ink-muted">Deal #:</span>
                   <span className="text-white font-mono font-bold">{dealReference}</span>
-                </div>
-
-                <div className="flex justify-between">
-                  <span className="text-ink-muted">Your alias to dealers:</span>
-                  <span className="text-emerald-400 font-mono font-bold">
-                    {formatBuyerAlias(currentUser?.id)}
-                    {!currentUser ? <span className="ml-1 font-sans font-normal text-[10px] text-ink-faint">(assigned at sign-in)</span> : null}
-                  </span>
                 </div>
               </div>
 
@@ -3004,16 +2987,29 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                 </div>
               ) : null}
 
-              {/* How This Works Box */}
-              <div className="rounded-xl border border-emerald-500/30 bg-emerald-950/20 p-3 flex items-start gap-2.5 text-xs text-ink-light">
+              {/* How dealers reply — short, at the bottom */}
+              <div className="rounded-xl border border-emerald-500/30 bg-emerald-950/20 p-3 flex items-start gap-2.5 text-xs" data-testid="how-dealers-reply">
                 <ShieldCheck className="h-5 w-5 text-emerald-400 shrink-0 mt-0.5" />
-                <div>
-                  <div className="font-bold text-emerald-400">How This Works</div>
-                  <p className="text-[11px] text-ink-muted mt-0.5 leading-relaxed">
-                    {pricingChoice === "buyer_names"
-                      ? "We send the dealer your target Out-The-Door price — vehicle, taxes, fees, everything. They can accept it or counter if they can't meet it."
-                      : "We ask the dealer to quote their own Out-The-Door price — vehicle, taxes, fees, everything — so you can see their best number."}{" "}
-                    Once you and the dealer finalize that price together, we&apos;ll work through any trade-in value from there.
+                <div className="space-y-0.5">
+                  <div className="font-bold text-emerald-400">How dealers reply</div>
+                  <p className="text-[11px] leading-relaxed text-ink-light">
+                    {quoteType === "lease"
+                      ? "In TrimScout, on your term and miles: monthly, due at signing itemized, cap cost, money factor, residual."
+                      : quoteType === "finance"
+                        ? "In TrimScout, on your term, down and credit band: an itemized out-the-door price, APR and monthly."
+                        : "In TrimScout: an itemized out-the-door price — selling price, fees, tax, add-ons, rebates."}{" "}
+                    A quote request, not an offer — you compare and pick one, or walk away.
+                  </p>
+                </div>
+              </div>
+
+              {/* Trade-in — after the price, never part of it */}
+              <div className="rounded-xl border border-border bg-surface-elevated p-3 flex items-start gap-2.5 text-xs" data-testid="trade-in-after">
+                <Car className="h-5 w-5 text-ink-muted shrink-0 mt-0.5" />
+                <div className="space-y-0.5">
+                  <div className="font-bold text-white">Trade-in</div>
+                  <p className="text-[11px] leading-relaxed text-ink-light">
+                    Completed after an out-the-door price is agreed. We&apos;ll work with the dealer to calculate any changes in registration fees and sales tax.
                   </p>
                 </div>
               </div>
