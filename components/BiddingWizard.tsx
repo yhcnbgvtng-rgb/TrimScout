@@ -7,7 +7,7 @@ import {
   paymentMethodFromStructures,
 } from "../lib/dealStructure";
 import { formatCurrency, getZipCoordinates } from "../lib/otdCalculator";
-import { outOfStateVehicles, formatOutOfStateWarning, formatExpandNudge } from "../lib/sameStateCheck";
+import { outOfStateVehicles, formatOutOfStateWarning } from "../lib/sameStateCheck";
 import { planDeskSelection } from "../lib/deskSelection";
 import { CPO_BUILD_COPY, USED_BUILD_COPY, USED_VEHICLES_ENABLED, conditionBadge, detectUsedCondition, isUsedCondition, type UsedCondition } from "../lib/usedVehicle";
 import { missingFinanceLocks, type QuotePrefs } from "../lib/usedQuote";
@@ -420,15 +420,16 @@ function LinkConfirmPanel({
               </span>
             </span>
             <span className="flex shrink-0 items-center gap-2">
-              <span
-                className={`rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide ${
-                  isUsedCondition(build.vehicle.condition) ? "bg-sky-500/15 text-sky-300" : build.buildConfidence === "verified_factory" ? "bg-emerald-500/15 text-emerald-300" : "bg-amber-500/15 text-amber-300"
-                }`}
-                title={build.stickerUnavailable?.reason || undefined}
-                data-testid="confirm-build-badge"
-              >
-                {conditionBadge(build.vehicle.condition) || (build.buildConfidence === "verified_factory" ? "Factory verified" : build.stickerUnavailable ? "Sticker temporarily unavailable" : "Unconfirmed build")}
-              </span>
+              {isUsedCondition(build.vehicle.condition) || build.buildConfidence === "verified_factory" ? (
+                <span
+                  className={`rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide ${
+                    isUsedCondition(build.vehicle.condition) ? "bg-sky-500/15 text-sky-300" : "bg-emerald-500/15 text-emerald-300"
+                  }`}
+                  data-testid="confirm-build-badge"
+                >
+                  {conditionBadge(build.vehicle.condition) || "Factory verified"}
+                </span>
+              ) : null}
               {build.pdfUrl ? (
                 <a
                   href={build.pdfUrl}
@@ -581,29 +582,19 @@ function AlternateVinField({
   mustHaves?: MustHaveRef[];
 }) {
   if (vehicle) {
-    const report = primary ? mustHaveReport(mustHaves || [], vehicle) : null;
+    // Only a scored report is shown — "can't check, no factory record" is not a warning the buyer needs.
+    const fullReport = primary ? mustHaveReport(mustHaves || [], vehicle) : null;
+    const report = fullReport && fullReport.kind === "scored" ? fullReport : null;
     const chips = primary ? diffVsPrimary(primary, vehicle, mustHaves || []) : [];
     return (
-      <div
-        className={`rounded-xl border px-3 py-2.5 ${
-          vehicle.buildConfidence === "dealer_listing_only"
-            ? "border-amber-500/40 bg-amber-500/5"
-            : "border-emerald-500/40 bg-emerald-500/5"
-        }`}
-      >
+      <div className="rounded-xl border border-emerald-500/40 bg-emerald-500/5 px-3 py-2.5">
         <div className="flex items-center justify-between gap-2">
         <div className="min-w-0">
           <p className="flex items-center gap-2 text-[10px] font-bold uppercase text-emerald-400">
             {label} — added
-            <span
-              className={`rounded px-1.5 py-0.5 text-[9px] tracking-wide ${
-                vehicle.buildConfidence === "dealer_listing_only"
-                  ? "bg-amber-500/15 text-amber-300"
-                  : "bg-emerald-500/15 text-emerald-300"
-              }`}
-            >
-              {vehicle.buildConfidence === "dealer_listing_only" ? "Unconfirmed build" : "Factory verified"}
-            </span>
+            {vehicle.buildConfidence !== "dealer_listing_only" ? (
+              <span className="rounded bg-emerald-500/15 px-1.5 py-0.5 text-[9px] tracking-wide text-emerald-300">Factory verified</span>
+            ) : null}
           </p>
           <p className="text-xs text-white font-semibold truncate">
             {[vehicle.year, vehicle.make, vehicle.model, vehicle.trim].filter(Boolean).join(" ")}
@@ -690,9 +681,9 @@ function AlternateVinField({
     );
   }
   return (
-    <div className="space-y-1">
-      <span className="text-[10px] font-bold uppercase text-ink-faint">{label} (optional)</span>
-      <div className="flex gap-2">
+    <div className="flex flex-wrap items-center gap-2">
+      <span className="w-[5.5rem] shrink-0 text-[10px] font-bold uppercase text-ink-faint">{label}</span>
+      <div className="flex min-w-0 flex-1 gap-2">
         <input
           type="text"
           value={value}
@@ -709,7 +700,7 @@ function AlternateVinField({
           {parsing ? "Adding…" : "Add"}
         </button>
       </div>
-      {error && <p className="text-[10px] text-rose-400">{error}</p>}
+      {error && <p className="basis-full text-[10px] text-rose-400">{error}</p>}
     </div>
   );
 }
@@ -828,9 +819,10 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   const buyerZipHint =
     buyerZip && buyerZip !== "94107" && /^\d{5}$/.test(buyerZip) ? buyerZip : huntZip && /^\d{5}$/.test(huntZip) ? huntZip : null;
   const [searchRadius, setSearchRadius] = useState<number>(100);
-  // Checked by default — buyer can uncheck to widen the match to any state
-  // within the radius, per Step 1's location controls.
-  const [sameStateOnly, setSameStateOnly] = useState<boolean>(true);
+  // No same-state restriction: every dealer in radius is eligible. The gate
+  // plumbing stays so the listing dealer is always kept in, but it never
+  // holds a desk back.
+  const sameStateOnly = false;
   // Minted once when the wizard mounts; the same number on the review screen,
   // in the stored deal, and on the confirmation.
   const [dealReference] = useState<string>(() => newDealReference());
@@ -971,10 +963,8 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   // On the direct path the request only goes to confirmed, unblocked desks —
   // every count the buyer sees from step 3 on should be that, not the number
   // of cars pasted.
-  // "Only send this to dealerships in my state" gates who receives the
-  // package. It only ever holds back desks it can prove are elsewhere, and
-  // when that would leave the package short it offers the expand — the
-  // buyer is never left with an empty send path.
+  // There is no same-state restriction any more; the desk plan still runs
+  // (with the gate off) so the listing dealer is always kept in.
   const buyerStateFromZip = /^\d{5}$/.test(huntZip.trim()) ? getZipCoordinates(huntZip.trim()).state : "";
   // The rooftop the buyer's own car resolved to is the one desk the gate may
   // never hold back — with nothing else in the package it would be a dead
@@ -998,8 +988,6 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     confirmed: confirmedDesks,
   });
   const gatePlan = deskPlan.gate;
-  const excludedByState = new Set(gatePlan.active ? gatePlan.excludedReady.map((d) => d.dealerName) : []);
-  const expandNudge = directOfferMode ? formatExpandNudge(gatePlan) : "";
   const confirmedDeskCount = deskPlan.sendTo.length;
   const sendToCount = directOfferMode ? confirmedDeskCount : importedDealerships.length;
   useEffect(() => {
@@ -1146,7 +1134,6 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     pick<string[]>("selectedTrims", setSelectedTrims);
     pick<string>("make", setMake);
     pick<string>("model", setModel);
-    pick<boolean>("sameStateOnly", setSameStateOnly);
     pick<DealStructureMethod | null>("quoteType", setQuoteType);
     pick<LeaseTerm>("leaseTerm", setLeaseTerm);
     pick<LeaseMiles | "">("leaseMiles", setLeaseMiles);
@@ -1331,33 +1318,6 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     setLinkBusy(true);
     await parkLink(pendingLink.slot, pendingLink.resolution.url);
     setLinkBusy(false);
-  };
-
-  /**
-   * The factory sticker didn't come back for the primary car. Ask the
-   * manufacturer again for the same VIN, keeping whatever dealership is
-   * already attached (the link's desk, or the buyer's pick) unless the VIN
-   * itself now names one — VIN first, as always.
-   */
-  const [stickerRetryBusy, setStickerRetryBusy] = useState(false);
-  const retryPrimarySticker = async () => {
-    if (!selectedVehicle?.vin) return;
-    setStickerRetryBusy(true);
-    const result = await importPastedFactoryVehicle(selectedVehicle.vin, fetch, { existingVehicles: [altVehicle1, altVehicle2] });
-    setStickerRetryBusy(false);
-    if (!result.ok) {
-      setParseError(result.error);
-      return;
-    }
-    const keepDealer = selectedVehicle.location?.dealerName && !hasVinResolvedDealer(result.vehicle);
-    const vehicle: Vehicle = {
-      ...result.vehicle,
-      dealerUrl: selectedVehicle.dealerUrl || result.vehicle.dealerUrl,
-      buyerConfirmed: selectedVehicle.buyerConfirmed,
-      location: keepDealer ? selectedVehicle.location : result.vehicle.location,
-      stickerUnavailableReason: result.stickerUnavailable?.reason || null,
-    };
-    commitPrimaryImport({ ...result, vehicle });
   };
 
   /** The buyer confirmed VIN + store: build from the VIN alone and commit to the slot that asked. */
@@ -2202,25 +2162,23 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                       </span>
                     </span>
                     <span className="flex shrink-0 items-center gap-3">
-                      <span
-                        className={`rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide ${
-                          isUsedCondition(selectedVehicle.condition)
-                            ? "bg-sky-500/15 text-sky-300"
-                            : selectedVehicle.buildConfidence === "dealer_listing_only"
-                              ? "bg-amber-500/15 text-amber-300"
-                              : "bg-emerald-500/15 text-emerald-300"
-                        }`}
-                        title={
-                          isUsedCondition(selectedVehicle.condition)
-                            ? "Pre-owned — details come from the VIN; the dealer confirms the rest."
-                            : selectedVehicle.buildConfidence === "dealer_listing_only"
-                              ? "No factory build sheet was available — details come from the VIN and the dealer's listing."
+                      {/* A badge only when there's something to say: pre-owned, or a
+                          factory-verified build. No sticker → no badge, no warning. */}
+                      {isUsedCondition(selectedVehicle.condition) || selectedVehicle.buildConfidence !== "dealer_listing_only" ? (
+                        <span
+                          className={`rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide ${
+                            isUsedCondition(selectedVehicle.condition) ? "bg-sky-500/15 text-sky-300" : "bg-emerald-500/15 text-emerald-300"
+                          }`}
+                          title={
+                            isUsedCondition(selectedVehicle.condition)
+                              ? "Pre-owned — details come from the VIN; the dealer confirms the rest."
                               : "Read from the manufacturer's official factory build sheet."
-                        }
-                        data-testid="primary-build-badge"
-                      >
-                        {conditionBadge(selectedVehicle.condition) || (selectedVehicle.buildConfidence === "dealer_listing_only" ? "Unconfirmed build" : "Factory verified")}
-                      </span>
+                          }
+                          data-testid="primary-build-badge"
+                        >
+                          {conditionBadge(selectedVehicle.condition) || "Factory verified"}
+                        </span>
+                      ) : null}
                       {fordPdfUrl && (
                         <a
                           href={fordPdfUrl}
@@ -2276,34 +2234,6 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                     {selectedVehicle.condition === "cpo" ? CPO_BUILD_COPY : USED_BUILD_COPY}
                   </p>
                 )}
-                {parseSuccessMsg && selectedVehicle?.buildConfidence === "dealer_listing_only" && !isUsedCondition(selectedVehicle.condition) && (
-                  <p className="rounded-lg border border-amber-500/30 bg-amber-950/20 px-3 py-2 text-[11px] leading-snug text-amber-200">
-                    {selectedVehicle.stickerUnavailableReason ? (
-                      <>
-                        <strong className="font-bold">Factory sticker temporarily unavailable.</strong> {selectedVehicle.stickerUnavailableReason}{" "}
-                        The details above are a limited VIN decode, not the factory option sheet, so must-have options can&apos;t be matched yet. You can continue, or{" "}
-                        <button
-                          type="button"
-                          onClick={retryPrimarySticker}
-                          disabled={stickerRetryBusy}
-                          className="font-bold text-amber-100 underline underline-offset-2 hover:text-white disabled:opacity-60"
-                        >
-                          {stickerRetryBusy ? "asking the manufacturer again…" : "ask the manufacturer again"}
-                        </button>
-                        .
-                      </>
-                    ) : (
-                      <>
-                        <strong className="font-bold">Unconfirmed build — dealer listing only.</strong>{" "}
-                        {selectedVehicle.buyerConfirmed
-                          ? "We don't read dealer pages, and there's no factory build sheet for this VIN yet, so the details above come from the VIN alone. Must-have options can't be matched."
-                          : "No factory build sheet is available for this VIN yet, so the details above come from the VIN alone, and must-have options can't be matched."}{" "}
-                        You can continue with it, or remove it and try another link.
-                      </>
-                    )}
-                  </p>
-                )}
-
                 {/* Must-haves collapse behind a one-line summary — the full
                     option list is long enough to bury everything else. */}
                 {selectedVehicle && fordStickerStatus === "released" && fordFilterableOptions.length > 0 && (
@@ -2334,12 +2264,12 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                 {/* Two alternate slots, always visible on a new car — optional,
                     the buyer fills them in or doesn't. Used requests are one car. */}
                 {isUsed ? null : (
-                  <div className="space-y-2">
+                  <div className="space-y-1.5 rounded-xl border border-border/60 bg-surface-elevated/40 px-3 py-2.5" data-testid="alternate-vehicles">
                     <p className="text-[10px] text-ink-faint">
                       Optional: up to 2 similar vehicles — dealers can quote on any of the three.
                     </p>
                     <AlternateVinField
-                      label="Alternate vehicle 1"
+                      label="Alternate 1"
                       value={altVin1}
                       onChange={setAltVin1}
                       onImport={handleParseAlt1}
@@ -2361,7 +2291,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                       </div>
                     )}
                     <AlternateVinField
-                      label="Alternate vehicle 2"
+                      label="Alternate 2"
                       value={altVin2}
                       onChange={setAltVin2}
                       onImport={handleParseAlt2}
@@ -2382,40 +2312,6 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                         <DealerPicker candidates={[]} zipHint={buyerZipHint} onPick={applyPickedDealer} onCancel={cancelPendingLink} />
                       </div>
                     )}
-                  </div>
-                )}
-
-                <div className="flex flex-wrap items-start justify-between gap-2 pt-1">
-                  <label className="flex items-start gap-2 text-[11px] cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={sameStateOnly}
-                      onChange={(e) => setSameStateOnly(e.target.checked)}
-                      className="mt-0.5 h-3.5 w-3.5 shrink-0 rounded border-border text-emerald-500 focus:ring-0"
-                    />
-                    <span className="leading-snug text-ink-muted">
-                      Only send this to dealerships in my state
-                      <span className="block text-[10px] text-ink-faint">
-                        Uncheck to include dealerships in other states within the radius. The dealership listing your car always stays in.
-                      </span>
-                    </span>
-                  </label>
-                  {sameStateOnly && !zipOk ? (
-                    <span className="text-[10px] text-ink-faint">Your ZIP on the next step sets your state.</span>
-                  ) : null}
-                </div>
-
-                {sameStateWarning && (
-                  <div className="rounded-lg border border-amber-500/40 bg-amber-950/30 px-3 py-2 space-y-1.5">
-                    <p className="text-[11px] leading-snug text-amber-200">{sameStateWarning}</p>
-                    <ul className="space-y-0.5">
-                      {sameStateConflicts.map((v) => (
-                        <li key={v.vin} className="text-[10px] text-amber-200/80">
-                          {v.label}
-                          {v.dealerName ? ` — ${v.dealerName}` : ""} ({v.state})
-                        </li>
-                      ))}
-                    </ul>
                   </div>
                 )}
               </WizardSection>
@@ -2714,24 +2610,6 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                 }
                 className="py-6"
               >
-                {expandNudge ? (
-                  <div className="mb-2 flex flex-wrap items-center justify-between gap-2 rounded-lg border border-amber-500/40 bg-amber-950/30 px-3 py-2">
-                    <p className="text-[11px] leading-snug text-amber-200">{expandNudge}</p>
-                    <button
-                      type="button"
-                      onClick={() => setSameStateOnly(false)}
-                      className="shrink-0 rounded-lg bg-amber-400 px-3 py-1.5 text-[11px] font-black text-black hover:bg-amber-300 transition-all"
-                    >
-                      Include dealerships in other states
-                    </button>
-                  </div>
-                ) : null}
-                {directOfferMode && gatePlan.active && !expandNudge && excludedByState.size > 0 ? (
-                  <p className="mb-2 text-[10px] text-ink-faint">
-                    Keeping this in {gatePlan.buyerState}: {excludedByState.size} dealership{excludedByState.size === 1 ? "" : "s"} in{" "}
-                    {gatePlan.excludedStates.join(", ")} left out by your same-state setting.
-                  </p>
-                ) : null}
                 {importedDealerships.length === 0 ? (
                   <p className="text-[11px] text-ink-muted">
                     We couldn&apos;t identify a dealership for the cars you added.

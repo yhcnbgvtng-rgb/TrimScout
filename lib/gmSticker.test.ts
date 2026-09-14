@@ -904,9 +904,8 @@ describe("sticker routes — a sticker failure falls back instead of dead-ending
       assert.match(src, /stickerUnavailable: \{ reason \}/, route);
       assert.doesNotMatch(src, /Paste the 17-character VIN if you have it/, route);
     }
+    // The wizard never surfaces the failure: no badge, no warning, no retry — the car just imports.
     const wizard = fs.readFileSync(path.join(process.cwd(), "components/BiddingWizard.tsx"), "utf8");
-    assert.match(wizard, /Sticker temporarily unavailable/);
-    assert.match(wizard, /Factory sticker temporarily unavailable\./);
-    assert.doesNotMatch(wizard, /0 bytes/);
+    assert.doesNotMatch(wizard, /temporarily unavailable|Unconfirmed build|0 bytes/);
   });
 });
