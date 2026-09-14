@@ -10,6 +10,9 @@ import {
   rfqTrackerStatusLabel,
   rfqVehicleSummary,
   rfqVehicles,
+  RFQ_LIFECYCLE,
+  rfqLifecycleDetail,
+  rfqLifecycleStage,
 } from "./rfqTracker";
 import type { RfqInvite, RfqRequest } from "./rfq";
 
@@ -121,5 +124,36 @@ describe("wiring — send lands in My Deal Tracker; the deal page carries the sh
     assert.match(sheet, /LEASE_SHEET_RULES/);
     assert.match(sheet, /emailMasked/);
     assert.doesNotMatch(sheet, /dealerContactEmail|auction|bid\b/i);
+  });
+});
+
+describe("lifecycle strip — Draft → In progress → Sent, awaiting dealer response → Walked away | Successful", () => {
+  const inv = (over: Record<string, unknown>) => ({ id: "1", dealerName: "D", status: "invited", deliveryStatus: "sent", quote: null, ...over }) as unknown as RfqRequest["invites"][number];
+  const rfq = (over: Partial<RfqRequest>) => ({ status: "collecting", invites: [], ...over }) as unknown as RfqRequest;
+  it("stages", () => {
+    assert.equal(rfqLifecycleStage(rfq({ invites: [] })), "in_progress");
+    assert.equal(rfqLifecycleStage(rfq({ invites: [inv({ deliveryStatus: "queued" })] })), "in_progress");
+    assert.equal(rfqLifecycleStage(rfq({ invites: [inv({}), inv({ id: "2", deliveryStatus: "queued" })] })), "in_progress", "one still queued");
+    assert.equal(rfqLifecycleStage(rfq({ invites: [inv({})] })), "awaiting");
+    assert.equal(rfqLifecycleStage(rfq({ invites: [inv({ deliveryStatus: "viewed" })] })), "awaiting");
+    assert.equal(rfqLifecycleStage(rfq({ invites: [inv({ status: "quoted", quote: { id: "q" } })] })), "awaiting", "quotes in is still the sent stage — the buyer decides");
+    assert.equal(rfqLifecycleStage(rfq({ status: "walked", invites: [inv({})] })), "walked");
+    assert.equal(rfqLifecycleStage(rfq({ status: "picked", invites: [inv({ status: "quoted", quote: { id: "q" } })] })), "successful");
+  });
+  it("detail line names what's happening", () => {
+    assert.match(rfqLifecycleDetail(rfq({ invites: [inv({}), inv({ id: "2" })] })), /2 dealers have it — none has replied yet/);
+    assert.match(rfqLifecycleDetail(rfq({ invites: [inv({ status: "quoted", quote: { id: "q" } }), inv({ id: "2" })] })), /1 of 2 dealers replied — compare and pick one, or walk away/);
+    assert.match(rfqLifecycleDetail(rfq({ invites: [inv({ deliveryStatus: "queued" })] })), /Sending to 1 dealer…/);
+    assert.match(rfqLifecycleDetail(rfq({ status: "walked" })), /walked away/);
+    assert.match(rfqLifecycleDetail(rfq({ status: "picked" })), /chose a quote/);
+  });
+  it("labels, in order, are the five the buyer sees", () => {
+    assert.deepEqual(RFQ_LIFECYCLE.map((s) => s.label), ["Draft", "In progress", "Sent — awaiting dealer response", "Walked away", "Successful"]);
+  });
+  it("wiring: every tracker card opens with the strip; a saved draft gets its own card with Resume", () => {
+    const d = fs.readFileSync(path.join(process.cwd(), "components/DealTrackerDashboard.tsx"), "utf8");
+    assert.match(d, /<QuoteStatusStrip stage=\{rfqLifecycleStage\(rfq\)\} detail=\{rfqLifecycleDetail\(rfq\)\} \/>\s*<div className="flex flex-wrap items-start justify-between gap-2">/);
+    assert.match(d, /data-testid="quote-draft"[\s\S]*?<QuoteStatusStrip stage="draft"[\s\S]*?Resume/);
+    assert.match(d, /readQuoteDraft\(\)/);
   });
 });
