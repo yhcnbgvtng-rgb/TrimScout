@@ -27,14 +27,14 @@ export const BidProgramIntro: React.FC<BidProgramIntroProps> = ({
       {/* HERO SECTION */}
       <div className="text-center space-y-6 max-w-3xl mx-auto pt-4">
         <h1 className="text-3xl sm:text-5xl font-black text-white tracking-tight leading-tight">
-          Paste Your VIN. <br />
+          Paste Your Link. <br />
           <span className="bg-gradient-to-r from-emerald-400 via-teal-300 to-emerald-400 bg-clip-text text-transparent">
             No Calls. No Spam. Just Quotes.
           </span>
         </h1>
 
         <p className="text-sm sm:text-base text-ink-muted leading-relaxed max-w-2xl mx-auto font-normal">
-          Paste a VIN or dealer link. We&apos;ll pull the factory record for the VIN, you confirm the car and the store,
+          Paste the dealer&apos;s link to the car (or its VIN). We&apos;ll pull the factory record, you confirm the car and the store,
           and we send your quote request to the dealer through TrimScout.
         </p>
 
