@@ -1119,7 +1119,7 @@ for (let i = 0; i < dealers.length; i++) {
                         // gets the same cleanup. No-op for every other
                         // brand (see modelNormalizer.js's brand dispatcher).
                         vehicle = normalizeVehicleFields(brand.name, vehicle);
-                        applyWindowSticker(vehicle, html, url);
+                        applyWindowSticker(vehicle, html, url, { classification: pageClass.classification });
                         currentInventory.set(vehicle.vin, vehicle);
                         dealerCount++;
                         const prev = previousSnapshot[vehicle.vin];

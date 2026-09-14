@@ -203,7 +203,7 @@ npm run write-nj-dealers
 npm run write-ny-dealers   # NY from OEM locators / listings only — no brandofcity guesses
 ```
 
-Window sticker (Monroney) URLs on public VDPs are stored as `windowStickerUrl` / `windowStickerSource` / `windowStickerCollectedAt` (MariaDB `vehicles.window_sticker_url`). The PDF is not downloaded in this pass. Challenge pages are skipped.
+Window sticker (Monroney) URLs on public VDPs are stored as `windowStickerUrl` / `windowStickerSource` / `collectedAt` (MariaDB `vehicles.window_sticker_url`). The PDF is not downloaded in this pass. Challenge pages are skipped.
 
 ### Daily crawl: price history + DOM
 

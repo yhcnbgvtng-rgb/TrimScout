@@ -1,15 +1,28 @@
 // Public VDP window-sticker (Monroney) link capture.
 // Detect only — do not download or parse the PDF, do not bypass WAFs.
 
+import { isBotProtected } from './bot_protection.js';
+
 const LABEL_RE = /window\s*sticker|monroney|manufacturer\s*sticker|view\s+window\s+sticker/i;
 const HREF_HINT_RE = /window[-_]?sticker|monroney|sticker\.pdf|windowsticker/i;
 const IMG_HINT_RE = /window[-_]?sticker|monroney/i;
 
-function empty(now) {
+function empty() {
   return {
     windowStickerUrl: null,
     windowStickerSource: null,
-    windowStickerCollectedAt: now.toISOString(),
+    collectedAt: null,
+    windowStickerCollectedAt: null,
+  };
+}
+
+function found(url, source, now) {
+  const collectedAt = now.toISOString();
+  return {
+    windowStickerUrl: url,
+    windowStickerSource: source,
+    collectedAt,
+    windowStickerCollectedAt: collectedAt,
   };
 }
 
@@ -50,19 +63,19 @@ function fromJsonFields(html) {
 
 export function extractWindowSticker(html, pageUrl, { now = new Date() } = {}) {
   const collectedAt = now instanceof Date ? now : new Date(now);
-  if (!html || typeof html !== 'string') return empty(collectedAt);
+  if (!html || typeof html !== 'string') return empty();
 
   const jsonHit = fromJsonFields(html);
   if (jsonHit) {
     const url = resolveUrl(jsonHit.replace(/\\u0026/g, '&').replace(/\\+/g, ''), pageUrl);
     if (url) {
-      return {
-        windowStickerUrl: url,
-        windowStickerSource: /@type|application\/ld\+json/i.test(html.slice(Math.max(0, html.indexOf(jsonHit) - 200), html.indexOf(jsonHit)))
+      return found(
+        url,
+        /@type|application\/ld\+json/i.test(html.slice(Math.max(0, html.indexOf(jsonHit) - 200), html.indexOf(jsonHit)))
           ? 'vdp_jsonld'
           : 'vdp_datalayer',
-        windowStickerCollectedAt: collectedAt.toISOString(),
-      };
+        collectedAt
+      );
     }
   }
 
@@ -74,11 +87,7 @@ export function extractWindowSticker(html, pageUrl, { now = new Date() } = {}) {
     if (src && (HREF_HINT_RE.test(src) || (/\.pdf/i.test(src) && LABEL_RE.test(im[0])))) {
       const url = resolveUrl(src, pageUrl);
       if (url) {
-        return {
-          windowStickerUrl: url,
-          windowStickerSource: 'vdp_embed',
-          windowStickerCollectedAt: collectedAt.toISOString(),
-        };
+        return found(url, 'vdp_embed', collectedAt);
       }
     }
   }
@@ -94,11 +103,7 @@ export function extractWindowSticker(html, pageUrl, { now = new Date() } = {}) {
     if (href && (labeled || hinted)) {
       const url = resolveUrl(href, pageUrl);
       if (url) {
-        return {
-          windowStickerUrl: url,
-          windowStickerSource: 'vdp_link',
-          windowStickerCollectedAt: collectedAt.toISOString(),
-        };
+        return found(url, 'vdp_link', collectedAt);
       }
     }
   }
@@ -112,11 +117,7 @@ export function extractWindowSticker(html, pageUrl, { now = new Date() } = {}) {
     if (href && LABEL_RE.test(label)) {
       const url = resolveUrl(href, pageUrl);
       if (url) {
-        return {
-          windowStickerUrl: url,
-          windowStickerSource: 'vdp_link',
-          windowStickerCollectedAt: collectedAt.toISOString(),
-        };
+        return found(url, 'vdp_link', collectedAt);
       }
     }
   }
@@ -130,23 +131,30 @@ export function extractWindowSticker(html, pageUrl, { now = new Date() } = {}) {
     if (src && (IMG_HINT_RE.test(src) || LABEL_RE.test(label))) {
       const url = resolveUrl(src, pageUrl);
       if (url) {
-        return {
-          windowStickerUrl: url,
-          windowStickerSource: 'vdp_image',
-          windowStickerCollectedAt: collectedAt.toISOString(),
-        };
+        return found(url, 'vdp_image', collectedAt);
       }
     }
   }
 
-  return empty(collectedAt);
+  return empty();
+}
+
+export function captureWindowStickerFromPage({ html, pageUrl, classification, now } = {}) {
+  if (isBotProtected(classification)) return empty();
+  return extractWindowSticker(html, pageUrl, { now });
 }
 
 export function applyWindowSticker(vehicle, html, pageUrl, opts) {
   if (!vehicle) return vehicle;
-  const found = extractWindowSticker(html, pageUrl, opts);
-  vehicle.windowStickerUrl = found.windowStickerUrl;
-  vehicle.windowStickerSource = found.windowStickerSource;
-  vehicle.windowStickerCollectedAt = found.windowStickerCollectedAt;
+  const hit = captureWindowStickerFromPage({
+    html,
+    pageUrl,
+    classification: opts?.classification,
+    now: opts?.now,
+  });
+  vehicle.windowStickerUrl = hit.windowStickerUrl;
+  vehicle.windowStickerSource = hit.windowStickerSource;
+  vehicle.collectedAt = hit.collectedAt;
+  vehicle.windowStickerCollectedAt = hit.windowStickerCollectedAt;
   return vehicle;
 }

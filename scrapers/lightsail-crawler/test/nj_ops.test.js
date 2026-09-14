@@ -18,7 +18,7 @@ import {
 import { classifyFetchResult, isBotProtected, isUncrawlable, pickProbeResult, detectWafVendor, summarizeBotRows, BOT_CLASSES } from '../src/bot_protection.js';
 import { looksLikeBrandCityGuess, applyVerifiedNjDomains, overlayKey } from '../src/nj_verified_domains.js';
 import { buildTablePdf, winAnsiSafe, buildSummaryBlocks } from '../src/pdf_table.js';
-import { extractWindowSticker, applyWindowSticker } from '../src/window_sticker.js';
+import { extractWindowSticker, applyWindowSticker, captureWindowStickerFromPage } from '../src/window_sticker.js';
 import { loadNyDealers, acceptNyDealer } from '../src/ny_policy.js';
 import { computeEta, emptyProgress, writeProgress, readProgress, renderProgressHtml } from '../src/progress.js';
 import { priceChangeVsYesterday, inventoryChangeTypeToPriceChangeType } from '../src/price_diff.js';
@@ -301,24 +301,60 @@ describe('window sticker capture (link only)', () => {
     );
     assert.equal(withLink.windowStickerUrl, 'https://hudsontoyota.com/inventory/window-sticker.pdf');
     assert.equal(withLink.windowStickerSource, 'vdp_link');
-    assert.ok(withLink.windowStickerCollectedAt);
+    assert.ok(withLink.collectedAt);
+    assert.equal(withLink.collectedAt, withLink.windowStickerCollectedAt);
 
     const none = extractWindowSticker('<html><p>No sticker here</p></html>', 'https://hudsontoyota.com/new/VIN.htm');
     assert.equal(none.windowStickerUrl, null);
     assert.equal(none.windowStickerSource, null);
+    assert.equal(none.collectedAt, null);
+
+    const download = extractWindowSticker(
+      `<html><a href="/docs/monroney.pdf" download>Manufacturer sticker</a></html>`,
+      'https://example.com/vdp'
+    );
+    assert.match(download.windowStickerUrl, /monroney\.pdf$/);
+    assert.equal(download.windowStickerSource, 'vdp_link');
+
+    const embed = extractWindowSticker(
+      `<html><iframe src="https://cdn.example.com/windowsticker/WP0AA.pdf"></iframe></html>`,
+      'https://example.com/vdp'
+    );
+    assert.match(embed.windowStickerUrl, /windowsticker/);
+    assert.equal(embed.windowStickerSource, 'vdp_embed');
+
+    const layer = extractWindowSticker(
+      `<script>DDC.dataLayer["vehicles"] = [{"windowStickerUrl":"https://cdn.example.com/sticker.pdf"}];</script>`,
+      'https://example.com/vdp'
+    );
+    assert.equal(layer.windowStickerUrl, 'https://cdn.example.com/sticker.pdf');
+    assert.equal(layer.windowStickerSource, 'vdp_datalayer');
 
     const vehicle = applyWindowSticker({ vin: '4T1B11HK1SU000001' }, '<img alt="Window Sticker" src="/sticker/monroney.png">', 'https://example.com/vdp');
     assert.match(vehicle.windowStickerUrl, /monroney/);
     assert.equal(vehicle.windowStickerSource, 'vdp_image');
+    assert.ok(vehicle.collectedAt);
   });
 
   it('does not harvest stickers from challenge pages (same skip as the crawler)', () => {
+    const html = '<a href="/window-sticker.pdf">Window Sticker</a>';
     const page = classifyFetchResult({
       statusCode: 403,
       headers: { server: 'cloudflare', 'cf-ray': 'x' },
-      body: '<a href="/window-sticker.pdf">Window Sticker</a>',
+      body: html,
     });
     assert.equal(isBotProtected(page.classification), true);
+    const skipped = captureWindowStickerFromPage({
+      html,
+      pageUrl: 'https://example.com/vdp',
+      classification: page.classification,
+    });
+    assert.equal(skipped.windowStickerUrl, null);
+    assert.equal(skipped.windowStickerSource, null);
+    const contact = applyWindowSticker({ vin: 'WP0AA2A59SL000001' }, html, 'https://example.com/vdp', {
+      classification: page.classification,
+    });
+    assert.equal(contact.windowStickerUrl, null);
   });
 });
 

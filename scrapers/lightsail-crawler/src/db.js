@@ -459,7 +459,7 @@ export async function syncInventoryToDatabase(brandId, records, { runId = null }
           r.daysOnLot || 0, buildOptionsSearchText(r), buildSearchText(r),
           truncate(r.windowStickerUrl, 1024),
           truncate(r.windowStickerSource, 64),
-          toMysqlDatetime(r.windowStickerCollectedAt),
+          toMysqlDatetime(r.windowStickerCollectedAt || r.collectedAt),
         );
       }
       const vSql = `INSERT INTO vehicles (${vCols.join(',')}) VALUES ${vPlaceholders}
