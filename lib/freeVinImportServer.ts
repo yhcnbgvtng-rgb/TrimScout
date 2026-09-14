@@ -80,6 +80,14 @@ export async function buildFreeImport(input: {
     };
   }
 
+  // Reached only when isUsableFreeImport let a check-digit failure through
+  // because the listing page itself named this dealership — the page is
+  // corroborating a VIN that fails its own math. Say so rather than
+  // silently importing it as if nothing were off.
+  const vinIntegrityNote = hasVinIntegrityError(decoded)
+    ? `${vin} doesn't pass its own check digit, but ${vehicle.location.dealerName || "the dealer's listing"} confirms this car and store — added as unconfirmed. Double-check the VIN against the listing before you send.`
+    : null;
+
   return {
     ok: true,
     vehicle,
@@ -99,6 +107,7 @@ export async function buildFreeImport(input: {
       filterableOptions: [],
       pdfUrl: null,
       pageUnread: Boolean(source.pageBlocked),
+      vinIntegrityNote,
     },
   };
 }

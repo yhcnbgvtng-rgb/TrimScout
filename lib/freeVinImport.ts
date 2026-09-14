@@ -139,11 +139,18 @@ export function hasVinIntegrityError(decoded: DecodedVehicle | null): boolean {
 /**
  * True when the decode produced enough to show the buyer a real car. Model is
  * not required — NHTSA withholds it for some VINs, and "2024 BMW" plus the
- * dealership and the listing link is still a usable thing to send. A VIN that
- * fails its own check digit is refused outright, however confident the rest of
- * the decode looks.
+ * dealership and the listing link is still a usable thing to send.
+ *
+ * A VIN that fails its own check digit is refused outright — UNLESS the
+ * listing page itself named this dealership (`location.dealerConfirmed`),
+ * in which case the page is independent corroboration that this is a real
+ * car at a real store, not a mistyped or fabricated VIN. Blocking the buyer
+ * outright in that case (rather than importing at reduced confidence) turns
+ * a likely-real car into a dead end over what's often just an OCR/copy
+ * slip on one character. Without that page confirmation there's nothing to
+ * cross-check the VIN against, so the hard block stands.
  */
 export function isUsableFreeImport(vehicle: Vehicle, decoded?: DecodedVehicle | null): boolean {
-  if (hasVinIntegrityError(decoded ?? null)) return false;
+  if (hasVinIntegrityError(decoded ?? null) && !vehicle.location.dealerConfirmed) return false;
   return vehicle.vin.length === 17 && vehicle.year > 0 && Boolean(vehicle.make.trim());
 }
