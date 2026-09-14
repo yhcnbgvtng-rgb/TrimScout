@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-14T13:50:31.330Z",
+  "generatedAt": "2026-09-14T16:28:14.928Z",
   "detectOnly": true,
   "brands": [
     {
@@ -305,15 +305,149 @@
     {
       "brand": "mini",
       "dest": "dealers/oem-dumps/mini.json",
-      "count": 0,
+      "count": 11,
       "locator": "https://www.miniusa.com/tools/shopping/find-a-dealer.html",
-      "note": "Official locator blocked or empty from this IP. Do not bypass. Re-run on Lightsail.",
+      "note": "Official MINI dealer-locator JSON API (getAllDealerByZip), found via network capture; plain fetch, no browser needed.",
       "pages": [
         {
-          "url": "https://www.miniusa.com/tools/shopping/find-a-dealer.html",
+          "zip": "07004",
           "status": 200,
-          "ok": true,
-          "error": null
+          "ok": true
+        },
+        {
+          "zip": "07024",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "07030",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "07052",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "07701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "07739",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "07860",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "08034",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "08096",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "08234",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "08648",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "08807",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "08902",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "10001",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "10301",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "10451",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "10940",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "11201",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "11501",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "11743",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "12205",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "12601",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "13212",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "13501",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "13901",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "14221",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "14623",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "14850",
+          "status": 200,
+          "ok": true
         }
       ],
       "blocked": false
@@ -337,8 +471,9 @@
         },
         {
           "zip": "07030",
-          "status": 200,
-          "ok": true
+          "status": 0,
+          "ok": false,
+          "error": "page.goto: Timeout 20000ms exceeded.\nCall log:\n  - navigating to \"https://www.kia.com/us/en/find-a-dealer/result?zipCode=07030\", waiting until \"load\"\n"
         },
         {
           "zip": "07052",
@@ -503,21 +638,149 @@
     {
       "brand": "subaru",
       "dest": "dealers/oem-dumps/subaru.json",
-      "count": 0,
+      "count": 81,
       "locator": "https://www.subaru.com/find-a-retailer.html",
-      "note": "Official locator blocked or empty from this IP. Do not bypass. Re-run on Lightsail.",
+      "note": "Official Subaru dealer-distance JSON API (services/dealers/distances/by/zipcode), found via network capture; plain fetch, no browser needed.",
       "pages": [
         {
-          "url": "https://www.subaru.com/find-a-retailer.html",
+          "zip": "07004",
           "status": 200,
-          "ok": true,
-          "error": null
+          "ok": true
         },
         {
-          "url": "https://www.subaru.com/services/dealers",
-          "status": 500,
-          "ok": false,
-          "error": null
+          "zip": "07024",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "07030",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "07052",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "07701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "07739",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "07860",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "08034",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "08096",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "08234",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "08648",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "08807",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "08902",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "10001",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "10301",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "10451",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "10940",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "11201",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "11501",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "11743",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "12205",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "12601",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "13212",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "13501",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "13901",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "14221",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "14623",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "14850",
+          "status": 200,
+          "ok": true
         }
       ],
       "blocked": false
