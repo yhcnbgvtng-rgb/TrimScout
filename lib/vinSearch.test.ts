@@ -1085,29 +1085,19 @@ describe("shopper-facing factory option copy", () => {
     assert.match(step1, /handleParseDealerUrl\(\)/);
   });
 
-  it("step 2 is only a direct offer vs multi-dealer choice", () => {
+  it("there is no Dealers step: the dealer(s) and their sales contact sit on Step 3, one send path (the quote-request package)", () => {
     const src = fs.readFileSync(path.join(process.cwd(), "components/BiddingWizard.tsx"), "utf8");
-    // Direct-offer/multi-dealer used to be step 3; it's now step 2 since
-    // payment+vehicle merged into one step and the trade-in step was
-    // deleted (trade-in is now just a toggle at the bottom of step 1).
-    const start = src.indexOf("STEP 4: DIRECT OFFER");
-    const end = src.indexOf("STEP 5: REVIEW");
+    assert.equal(src.indexOf("STEP 4: DIRECT OFFER"), -1);
+    const start = src.indexOf("STEP 3: QUOTE FORMAT");
+    const end = src.indexOf("STEP 4: REVIEW");
     assert.ok(start >= 0 && end > start);
     const step2 = src.slice(start, end);
-    assert.match(step2, /Request a quote from this dealership/);
-    // Step 2 names the dealerships behind the imported vehicles rather
-    // than referring to an unnamed "this dealer".
-    assert.match(step2, /importedDealerships/);
-    assert.match(step2, /Also request quotes from other dealers nearby/);
-    assert.match(src, /chooseDirectOffer/);
-    assert.match(src, /chooseMultiDealer/);
-    assert.match(src, /setDirectOfferMode\(true\)/);
-    assert.match(src, /setStrategy\("exact_auction"\)/);
-    assert.match(src, /step === 4 && \(!offerPath \|\| step2LocationMissing \|\| sameStateWarning\)/);
-    // Location moved out of step 1 and onto the multi-dealer path only —
-    // a direct offer never uses the buyer ZIP for matching.
-    assert.match(step2, /offerPath === "auction" && \(/);
-    assert.match(step2, /Your ZIP \(required\)/);
+    assert.match(step2, /importedDealerships\.map\(\(dealer\) =>/);
+    assert.match(step2, /data-testid="contact-on-file"/);
+    assert.match(step2, /data-testid="add-adviser"/);
+    assert.match(step2, /data-testid="dealer-note"/);
+    assert.match(src, /const directOfferMode = true;/);
+    assert.doesNotMatch(src, /chooseMultiDealer|Also request quotes from other dealers nearby|exact_auction"\)/);
     assert.doesNotMatch(step2, /Find your car based on Make and Model/);
     assert.doesNotMatch(step2, /Find your car based on must have specs/);
     assert.doesNotMatch(step2, /Firm Buyer Target Offer/);
@@ -1194,7 +1184,7 @@ describe("shopper-facing factory option copy", () => {
     );
 
     const src = fs.readFileSync(path.join(process.cwd(), "components/BiddingWizard.tsx"), "utf8");
-    const start = src.indexOf("STEP 5: REVIEW");
+    const start = src.indexOf("STEP 4: REVIEW");
     const end = src.indexOf("Footer Navigation");
     assert.ok(start >= 0 && end > start);
     const step3 = src.slice(start, end);
@@ -1347,7 +1337,7 @@ describe("shopper-facing factory option copy", () => {
     // catalog path either.
     assert.doesNotMatch(compare, /applyMockParse|MOCK_VEHICLES/);
     const parseStart = src.indexOf("const handleParseDealerUrl");
-    const parseEnd = src.indexOf("const chooseDirectOffer");
+    const parseEnd = src.indexOf("if (!isOpen) return null;");
     assert.ok(parseStart >= 0 && parseEnd > parseStart);
     const parseFn = src.slice(parseStart, parseEnd);
     assert.doesNotMatch(parseFn, /porsche/i);

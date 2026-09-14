@@ -139,6 +139,8 @@ export interface RfqRequest extends RfqSpec {
   leaseSheetLockedByInviteId?: string | null;
   /** Used-car Finance / Cash ask (never on a lease request). */
   quotePrefs?: QuotePrefs | null;
+  /** The buyer's note to every quoting dealer, word for word (≤1000 chars, no contact info). */
+  buyerNote?: string | null;
 }
 
 /**

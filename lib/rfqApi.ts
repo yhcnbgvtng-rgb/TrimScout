@@ -76,6 +76,8 @@ export async function createRfq(input: {
   dealReference?: string | null;
   leasePrefs?: LeaseRequestPrefs | null;
   quotePrefs?: QuotePrefs | null;
+  /** The buyer's note to every quoting dealer — scrubbed of contact info before it gets here. */
+  buyerNote?: string | null;
 }): Promise<RfqRequest> {
   const json = await request("POST", "/api/rfqs", input);
   return json.rfq as RfqRequest;

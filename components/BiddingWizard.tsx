@@ -7,7 +7,6 @@ import {
   paymentMethodFromStructures,
 } from "../lib/dealStructure";
 import { formatCurrency, getZipCoordinates } from "../lib/otdCalculator";
-import { outOfStateVehicles, formatOutOfStateWarning } from "../lib/sameStateCheck";
 import { planDeskSelection } from "../lib/deskSelection";
 import { CPO_BUILD_COPY, USED_BUILD_COPY, USED_VEHICLES_ENABLED, conditionBadge, detectUsedCondition, isUsedCondition, type UsedCondition } from "../lib/usedVehicle";
 import { missingFinanceLocks, type QuotePrefs } from "../lib/usedQuote";
@@ -81,7 +80,6 @@ import {
   MapPin,
   Globe,
   LoaderCircle as Loader2,
-  Handshake,
   FileText,
   ExternalLink,
 } from "lucide-react";
@@ -138,32 +136,23 @@ export const QUOTE_EQUATIONS: Record<DealStructureMethod, { returns: string; lin
 function QuoteFormatMatrix({
   quoteType,
   cars,
+  dealerPanel,
 }: {
   quoteType: DealStructureMethod;
   cars: Vehicle[];
+  /** The dealer(s) and their sales contact — rendered by the wizard, which owns that state. */
+  dealerPanel: React.ReactNode;
 }) {
   const eq = QUOTE_EQUATIONS[quoteType];
   const primary = cars[0] || null;
-  const stores = cars
-    .map((v) => v.location?.dealerName?.trim() ? { name: v.location.dealerName.trim(), where: [v.location.city, v.location.state].filter(Boolean).join(", ") } : null)
-    .filter((x, i, arr): x is { name: string; where: string } => Boolean(x) && arr.findIndex((y) => y?.name === x!.name) === i);
   const opCls = (op: QuoteEquationLine["op"]) =>
     op === "=" || op === "→" ? "bg-emerald-500 text-black" : op === "−" ? "bg-rose-500/20 text-rose-300" : "bg-border text-white";
   return (
     <div className="space-y-3 rounded-xl border border-border bg-surface-elevated px-3.5 py-3" data-testid="quote-format-matrix">
-      {/* 1 — the store(s) the request goes to */}
+      {/* 1 — the store(s) the request goes to, with the sales contact */}
       <div data-testid="format-dealer">
         <p className="text-[10px] font-bold uppercase tracking-wide text-ink-faint">Dealer</p>
-        {stores.length ? (
-          stores.map((d) => (
-            <p key={d.name} className="text-xs font-semibold text-white">
-              {d.name}
-              {d.where ? <span className="font-normal text-ink-muted"> · {d.where}</span> : null}
-            </p>
-          ))
-        ) : (
-          <p className="text-xs text-amber-300">Dealer not attached yet — you pick the store on the next step.</p>
-        )}
+        {dealerPanel}
       </div>
       {/* 2 — the car */}
       {primary ? (
@@ -840,7 +829,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   onQuoteRequestSent,
 }) => {
   const [step, setStep] = useState<number>(1);
-  const [, setStrategy] = useState<BiddingStrategy>(initialStrategy);
+  const [, setStrategy] = useState<BiddingStrategy>("firm_offer");
 
   const [dealerUrlInput, setDealerUrlInput] = useState<string>("");
   const [isParsingLink, setIsParsingLink] = useState<boolean>(false);
@@ -852,7 +841,6 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   const [fordFilterableOptions, setFordFilterableOptions] = useState<FilterableFactoryOption[]>([]);
   const [niceToHavePackages, setNiceToHavePackages] = useState<string[]>([]);
   const [huntZip, setHuntZip] = useState("");
-  const [huntRadius, setHuntRadius] = useState("");
   // Alternate vehicles are optional, so Step 1 keeps them behind a link
   // until asked for — or auto-reveals them once one is actually imported.
   // New | Used. Default New; a pasted link that says used / pre-owned /
@@ -881,11 +869,11 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   const [linkBusy, setLinkBusy] = useState(false);
   const [linkError, setLinkError] = useState<string | null>(null);
 
-  // Set when the buyer explicitly chooses to skip the multi-dealer auction
-  // and send a single, anonymized offer straight to the favorite vehicle's
-  // dealer instead (only offered when no secondary vehicles are attached).
-  const [directOfferMode, setDirectOfferMode] = useState(false);
-  const [offerPath, setOfferPath] = useState<"direct" | "auction" | null>(null);
+  // There is one send path: the quote-request package to the desks behind
+  // the cars the buyer pasted (confirmed on the Quote format step). The old
+  // "other dealers nearby" auction path is gone with its step.
+  const directOfferMode = true;
+  const offerPath = "direct" as const;
 
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(preselectedVehicle || null);
 
@@ -928,10 +916,8 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   const [targetOtdPrice, setTargetOtdPrice] = useState<number>(52000);
   // Who sets the price: the dealer quotes their own best OTD (blind bid, no
   // targetOtdPrice sent), or the buyer names a firm target the dealer can
-  // accept or counter. Defaults follow chooseDirectOffer/chooseMultiDealer
-  // below — direct offers used to always send targetOtdPrice silently, and
-  // the auction path never did; this just makes that choice visible and
-  // buyer-editable instead of flipping the previous defaults.
+  // accept or counter. The quote-request package never sends a target —
+  // the dealer names the price.
   const [pricingChoice, setPricingChoice] = useState<"dealer_names" | "buyer_names">("dealer_names");
   const [buyerZip, setBuyerZip] = useState<string>("94107");
   // The picker's ZIP assist — only a ZIP the buyer actually entered, never the default.
@@ -1018,14 +1004,14 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     }
   }, [preselectedVehicle, lockVehicleSelection]);
 
-  // 5 steps: (1) vehicle, (2) payment method, (3) quote format — the locks
-  // every dealer quotes to, laid out per payment method, (4) dealers,
-  // (5) review & send.
-  const TOTAL_STEPS = 5;
+  // 4 steps: (1) vehicle, (2) payment method, (3) quote format — the
+  // dealer(s) and contact, the car, the locks every dealer quotes to and a
+  // note for them, (4) review & send.
+  const TOTAL_STEPS = 4;
   // Single source of the step's short label — shown once in the header
   // subtitle, not repeated as a "Step N:" prefix inside each step's own
   // heading below.
-  const STEP_LABELS = ["Vehicle", "Payment", "Quote format", "Dealers", "Review & Send"];
+  const STEP_LABELS = ["Vehicle", "Payment", "Quote format", "Review & Send"];
   // Step 1's Continue is blocked until Import Car actually loaded a
   // vehicle — unless a real vehicle was already locked in via
   // lockVehicleSelection, in which case there's nothing to import.
@@ -1109,14 +1095,6 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   const gatePlan = deskPlan.gate;
   const confirmedDeskCount = deskPlan.sendTo.length;
   const sendToCount = directOfferMode ? confirmedDeskCount : importedDealerships.length;
-  useEffect(() => {
-    if (step === 4 && offerPath === null && competeAmongImported) {
-      chooseDirectOffer();
-    }
-    // chooseDirectOffer is a stable closure over setters; listing it would
-    // re-run this on every render.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [step, offerPath, competeAmongImported]);
 
   useEffect(() => {
     const dealers = dealerLookupKey
@@ -1208,8 +1186,6 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     huntZip,
     buyerZip,
     purchaseTimeline,
-    offerPath,
-    directOfferMode,
     confirmedDesks,
     buyerDealerEmails,
     dealComment,
@@ -1263,8 +1239,6 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     pick<string>("huntZip", setHuntZip);
     pick<string>("buyerZip", setBuyerZip);
     pick<PurchaseTimeline | "">("purchaseTimeline", setPurchaseTimeline);
-    pick<"direct" | "auction" | null>("offerPath", setOfferPath);
-    pick<boolean>("directOfferMode", setDirectOfferMode);
     pick<Record<string, boolean>>("confirmedDesks", setConfirmedDesks);
     pick<Record<string, string>>("buyerDealerEmails", setBuyerDealerEmails);
     pick<string>("dealComment", setDealComment);
@@ -1354,38 +1328,13 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   const goNext = () => {
     if (step === 1 && !vehicleImported) return;
     if (step === 2 && !paymentChosen) return;
-    if (step === 3 && !quoteSetupComplete) return;
-    // Step 4 → 5: at least one desk with a named contact must be ticked.
-    if (step === 4 && directOfferMode && confirmedDeskCount === 0) return;
-    if (step === 4 && (!offerPath || step2LocationMissing || sameStateWarning)) return;
+    // Step 3 → 4: every lock set, and at least one desk with a named contact (or an adviser address) ticked.
+    if (step === 3 && (!quoteSetupComplete || confirmedDeskCount === 0 || dealCommentContactWarning)) return;
     setStep(step + 1);
   };
   const goBack = () => {
     setStep(step - 1);
   };
-
-  const huntReady = /^\d{5}$/.test(huntZip.trim()) && Number(huntRadius) > 0;
-  const huntLocationMissing = !huntReady;
-  // Only paint location as a problem once the buyer has started filling it in —
-  // an untouched form shouldn't open in an error state. The "(required)" labels
-  // and the disabled Continue button already say what's needed.
-  const huntLocationInvalid =
-    huntLocationMissing && (huntZip.trim() !== "" || huntRadius.trim() !== "");
-  // Location only decides anything on the multi-dealer path — /api/dealer-requests
-  // skips the distance and same-state filters entirely for a direct (firm_offer)
-  // request, so don't hold that path up for a ZIP it will never use.
-  const step2LocationMissing = offerPath === "auction" && huntLocationMissing;
-
-  // Same-state applies to every dealer on an auction request, including the one
-  // holding the imported car — so a checked box plus an out-of-state listing
-  // would hide the request from the dealer who actually has the vehicle.
-  const sameStateConflicts = sameStateOnly
-    ? outOfStateVehicles(buyerStateFromZip, [selectedVehicle, altVehicle1, altVehicle2])
-    : [];
-  const sameStateWarning =
-    offerPath === "auction" && sameStateConflicts.length > 0
-      ? formatOutOfStateWarning(buyerStateFromZip, sameStateConflicts)
-      : "";
 
   /**
    * A pasted link is never fetched. Resolve the desk from its hostname,
@@ -1636,19 +1585,6 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   // URL. MAX_PACKAGE_VEHICLES is the primary plus the two alternate slots.
   const packageVehicles = () => [selectedVehicle, altVehicle1, altVehicle2];
 
-  const chooseDirectOffer = () => {
-    setOfferPath("direct");
-    setDirectOfferMode(true);
-    setStrategy("firm_offer");
-  };
-
-  const chooseMultiDealer = () => {
-    setOfferPath("auction");
-    setDirectOfferMode(false);
-    setStrategy("exact_auction");
-    setPricingChoice("dealer_names");
-  };
-
   if (!isOpen) return null;
 
   if (sentPackage) {
@@ -1777,8 +1713,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     setNiceToHavePackages((prev) => prev.filter((p) => p !== name));
   };
 
-  const launchStrategy: BiddingStrategy =
-    directOfferMode || offerPath === "direct" ? "firm_offer" : "exact_auction";
+  const launchStrategy: BiddingStrategy = "firm_offer";
 
   const dealVehicles = collectDealVehicles(selectedVehicle, []);
   const otherLotsForDeal: Vehicle[] = [altVehicle1, altVehicle2].filter((v): v is Vehicle => v != null);
@@ -1896,6 +1831,8 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           packageKind: "links",
+          // Word for word to every quoting dealer (scrubbed of contact info first).
+          buyerNote: dealComment.trim() || null,
           leasePrefs:
             quoteType === "lease" && !isUsed
               ? {
@@ -2476,7 +2413,89 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
               payment method, plus the sheet they'll fill in against them.          */}
           {step === 3 && quoteType && (
             <div className="space-y-6 animate-fadeIn" data-testid="quote-format-step">
-              <QuoteFormatMatrix quoteType={quoteType} cars={[selectedVehicle, altVehicle1, altVehicle2].filter((v): v is Vehicle => Boolean(v))} />
+              <QuoteFormatMatrix
+                quoteType={quoteType}
+                cars={[selectedVehicle, altVehicle1, altVehicle2].filter((v): v is Vehicle => Boolean(v))}
+                dealerPanel={
+                  importedDealerships.length === 0 ? (
+                    <p className="text-xs text-amber-300">Dealer not attached yet — go back to step 1 and attach the store that lists the car.</p>
+                  ) : (
+                    <ul className="space-y-1.5" data-testid="dealer-contact-list">
+                      {importedDealerships.map((dealer) => {
+                        const desk = quoteDesks[dealer.dealerName];
+                        const contact = dealerContacts[dealer.dealerName];
+                        const typed = buyerDealerEmails[dealer.dealerName] || "";
+                        const supplied = isPlausibleDealerEmail(typed);
+                        const row = deskPlan.rows[dealer.dealerName];
+                        const onFile = Boolean(desk && desk.knownNamed && !desk.blockedReason);
+                        return (
+                          <li key={dealer.dealerName} className="space-y-1.5 rounded-lg border border-border bg-background px-3 py-2" data-testid="dealer-contact-row">
+                            <div className="flex items-start justify-between gap-3">
+                              <label className="flex min-w-0 items-start gap-2">
+                                <input
+                                  type="checkbox"
+                                  aria-label={`Send a quote request to ${dealer.dealerName}`}
+                                  checked={Boolean(row?.checked)}
+                                  disabled={!row?.selectable}
+                                  onChange={(e) => setConfirmedDesks((current) => ({ ...current, [dealer.dealerName]: e.target.checked }))}
+                                  className="mt-0.5 h-3.5 w-3.5 shrink-0 rounded border-border text-emerald-500 focus:ring-0 disabled:opacity-40"
+                                />
+                                <span className="min-w-0">
+                                  <span className="block text-xs font-semibold text-white">{dealer.dealerName}</span>
+                                  <span className="block text-[10px] text-ink-muted">{contact?.addressLine || dealer.locationLine || "Address not on file"}</span>
+                                </span>
+                              </label>
+                              {!desk ? (
+                                <span className="shrink-0 rounded-lg border border-border px-2.5 py-1 text-[10px] font-bold text-ink-muted">Checking…</span>
+                              ) : onFile ? (
+                                <span className="shrink-0 rounded-lg bg-emerald-500 px-2.5 py-1 text-[10px] font-extrabold text-black" data-testid="contact-on-file" title={`${desk.contactName}${desk.role ? ` · ${DESK_ROLE_LABELS[desk.role]}` : ""}`}>
+                                  ✓ Sales contact on file
+                                </span>
+                              ) : supplied ? (
+                                <span className="shrink-0 rounded-lg bg-emerald-500 px-2.5 py-1 text-[10px] font-extrabold text-black" data-testid="contact-added">
+                                  ✓ Adviser added
+                                </span>
+                              ) : (
+                                <span className="shrink-0 rounded-lg border border-amber-500/50 px-2.5 py-1 text-[10px] font-bold text-amber-300" data-testid="contact-missing">
+                                  {desk.blockedReason === "dealer_opted_out" ? "Opted out" : "No sales contact"}
+                                </span>
+                              )}
+                            </div>
+                            {desk && onFile ? (
+                              <p className="text-[10px] text-ink-light">
+                                To: <span className="font-semibold">{desk.contactName}</span>
+                                {desk.role ? <span className="text-ink-muted"> · {DESK_ROLE_LABELS[desk.role]}</span> : null}
+                                {desk.emailMasked ? <span className="font-mono text-ink-muted"> · {desk.emailMasked}</span> : null}
+                              </p>
+                            ) : desk ? (
+                              <div className="space-y-1" data-testid="add-adviser">
+                                <p className="text-[10px] leading-snug text-ink-muted">
+                                  {supplied
+                                    ? "The request goes to the adviser address you added."
+                                    : desk.blockedReason === "dealer_opted_out"
+                                      ? "This dealership asked us to stop emailing them. Add your own sales adviser's address to reach them."
+                                      : "We don't have a named sales contact for this store yet. Add your sales adviser's email and the request goes to them."}
+                                </p>
+                                <input
+                                  type="email"
+                                  inputMode="email"
+                                  autoComplete="off"
+                                  value={typed}
+                                  onChange={(e) => setBuyerDealerEmails((current) => ({ ...current, [dealer.dealerName]: e.target.value }))}
+                                  placeholder="Sales adviser email"
+                                  aria-label={`Sales adviser email for ${dealer.dealerName}`}
+                                  className="w-full rounded-lg border border-border bg-background px-3 py-1.5 text-[11px] text-ink-light placeholder-ink-faint focus:border-emerald-500 focus:outline-none"
+                                />
+                                {typed.trim() !== "" && !supplied ? <p className="text-[10px] text-rose-400">That doesn&apos;t look like an email address.</p> : null}
+                              </div>
+                            ) : null}
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  )
+                }
+              />
               {quoteType === "lease" && (
                 <WizardSection
                   title="Your lease locks"
@@ -2662,333 +2681,52 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                       To continue, set your {missingLocks.length === 1 ? missingLocks[0] : `${missingLocks.slice(0, -1).join(", ")} and ${missingLocks[missingLocks.length - 1]}`} — dealers quote to these, so they can&apos;t be blank.
                     </p>
                   ) : null}
+                  {confirmedDeskCount === 0 && importedDealerships.length > 0 ? (
+                    <p className="mt-2 text-[11px] text-amber-300/90" data-testid="missing-contact">
+                      No dealer can receive this yet — add a sales adviser&apos;s email under the dealer above, or tick a store with a contact on file.
+                    </p>
+                  ) : null}
                 </WizardSection>
               ) : null}
-            </div>
-          )}
 
-          {/* STEP 4: DIRECT OFFER OR MULTI-DEALER                                      */}
-          {/* ========================================================================= */}
-          {step === 4 && (
-            <div className="divide-y divide-border/50">
-              <WizardSection
-                title="Who gets this quote request"
-                hint={
-                  competeAmongImported
-                    ? "Each dealership quotes its own car separately, or open the request to other dealers nearby too."
-                    : "Send it to the dealership holding your car, or open it to other dealers nearby."
-                }
-                className="pb-6"
-              >
-              <div className="grid grid-cols-1 gap-3">
-                <button
-                  type="button"
-                  onClick={chooseDirectOffer}
-                  className={`rounded-xl border p-4 text-left transition-all ${
-                    offerPath === "direct"
-                      ? "border-emerald-500 bg-emerald-500/10 shadow-md ring-1 ring-emerald-500"
-                      : "border-border bg-surface-elevated hover:border-border-strong"
+              <WizardSection title="Note to the dealer" hint="Goes to every dealer quoting this request, word for word." className="pt-6">
+              {/* Buyer note — scrubbed of contact info before it ever leaves the browser */}
+              <div className="space-y-1.5" data-testid="dealer-note">
+                <label className="text-xs font-semibold text-ink-light flex items-center justify-between">
+                  <span>Comment for the dealer <span className="text-ink-faint font-normal">(optional)</span></span>
+                  <span className={`text-[10px] font-mono ${dealComment.length > 900 ? "text-amber-400" : "text-ink-faint"}`}>
+                    {dealComment.length}/1000
+                  </span>
+                </label>
+                <textarea
+                  value={dealComment}
+                  onChange={(e) => setDealComment(e.target.value.slice(0, 1000))}
+                  placeholder="e.g. Flexible on color, need delivery within 2 weeks, prior lease customer…"
+                  rows={3}
+                  className={`w-full rounded-xl border bg-background py-2.5 px-3.5 text-xs text-white placeholder-ink-faint focus:outline-none resize-none ${
+                    dealCommentContactWarning
+                      ? "border-rose-500 focus:border-rose-500"
+                      : "border-border focus:border-emerald-500"
                   }`}
-                >
-                  <div className="flex items-center gap-2">
-                    <Handshake className="h-5 w-5 text-emerald-400 shrink-0" />
-                    <span className="font-bold text-white text-sm">
-                      {competeAmongImported
-                        ? `Request quotes from these ${importedDealerships.length} dealerships`
-                        : "Request a quote from this dealership"}
-                    </span>
-                  </div>
-                </button>
-                <button
-                  type="button"
-                  onClick={chooseMultiDealer}
-                  className={`rounded-xl border p-4 text-left transition-all ${
-                    offerPath === "auction"
-                      ? "border-emerald-500 bg-emerald-500/10 shadow-md ring-1 ring-emerald-500"
-                      : "border-border bg-surface-elevated hover:border-border-strong"
-                  }`}
-                >
-                  <div className="flex items-center gap-2">
-                    <Zap className="h-5 w-5 text-emerald-400 shrink-0" />
-                    <span className="font-bold text-white text-sm">Also request quotes from other dealers nearby</span>
-                  </div>
-                </button>
-              </div>
-
-              {/* How the competition actually works, stated where the buyer
-                  picks a path — that's the moment the rules start to matter. */}
-              <div className="rounded-lg border border-border bg-surface-elevated px-3 py-2.5 space-y-1">
-                <p className="text-[11px] font-semibold text-ink-light">How {quoteType === "lease" ? "lease" : "dealer"} quotes work</p>
-                <p className="text-[11px] leading-snug text-ink-muted">
-                  {quoteType === "lease"
-                    ? "Each dealer replies through a lease calculator — monthly payment, due at signing itemized, cap cost, money factor and residual — for your term and miles, or marks a counter."
-                    : "Each dealer replies with an out-the-door number covering the vehicle and their own fees; tax and registration are calculated for your ZIP once you pick one."}{" "}
-                  A quote is a request, not a bid: dealers reply on their own time, there&apos;s no
-                  deadline on them, and you compare side by side and pick one or walk away. We pass
-                  messages without sharing your email.
-                </p>
-              </div>
-              </WizardSection>
-
-              {/* ---------------------------------------------------------- */}
-              {/* The dealerships behind the imported cars, and whether we    */}
-              {/* can actually reach them                                     */}
-              {/* ---------------------------------------------------------- */}
-              <WizardSection
-                title={directOfferMode ? "Confirm who gets it" : "Dealerships in this request"}
-                hint={
-                  directOfferMode
-                    ? "Each request goes to a named person at the dealership — never a shared inbox. Untick anyone you'd rather leave out."
-                    : "Where each car sits, and whether we have a way to send them your request."
-                }
-                className="py-6"
-              >
-                {importedDealerships.length === 0 ? (
-                  <p className="text-[11px] text-ink-muted">
-                    We couldn&apos;t identify a dealership for the cars you added.
+                />
+                {dealCommentContactWarning ? (
+                  <p className="text-[11px] text-rose-400 flex items-center gap-1.5">
+                    <ShieldCheck className="h-3 w-3 shrink-0" />
+                    Looks like your comment contains {dealCommentContactWarning} — remove it. Dealers only ever see your masked buyer ID here.
                   </p>
                 ) : (
-                  <ul className="space-y-2">
-                    {importedDealerships.map((dealer) => {
-                      const contact = dealerContacts[dealer.dealerName];
-                      const typed = buyerDealerEmails[dealer.dealerName] || "";
-                      const supplied = isPlausibleDealerEmail(typed);
-                      const reachable = Boolean(contact?.hasEmail && !contact?.emailOptOut);
-                      const row = deskPlan.rows[dealer.dealerName];
-                      const heldByState = Boolean(row?.heldByState);
-                      return (
-                        <li
-                          key={dealer.dealerName}
-                          className="rounded-lg border border-border bg-surface-elevated px-3 py-2.5 space-y-1"
-                        >
-                          <div className="flex items-start justify-between gap-3">
-                            <div className="flex min-w-0 items-start gap-2">
-                              {directOfferMode && (
-                                <input
-                                  type="checkbox"
-                                  aria-label={`Send a quote request to ${dealer.dealerName}`}
-                                  checked={Boolean(row?.checked)}
-                                  disabled={!row?.selectable}
-                                  onChange={(e) =>
-                                    setConfirmedDesks((current) => ({ ...current, [dealer.dealerName]: e.target.checked }))
-                                  }
-                                  className="mt-0.5 h-3.5 w-3.5 shrink-0 rounded border-border text-emerald-500 focus:ring-0 disabled:opacity-40"
-                                />
-                              )}
-                            <div className="min-w-0">
-                              <div className="text-[11px] font-semibold text-ink-light">
-                                {dealer.dealerName}
-                              </div>
-                              <div className="text-[10px] text-ink-muted">
-                                {contact?.addressLine || dealer.locationLine || "Address not on file"}
-                              </div>
-                              {directOfferMode && (() => {
-                                const desk = quoteDesks[dealer.dealerName];
-                                if (!desk) return <div className="text-[10px] text-ink-faint">Looking up the sales desk…</div>;
-                                if (desk.knownNamed && !desk.blockedReason) {
-                                  return (
-                                    <div className="text-[10px] text-ink-light">
-                                      To: <span className="font-semibold">{desk.contactName}</span>
-                                      {desk.role ? <span className="text-ink-muted"> · {DESK_ROLE_LABELS[desk.role]}</span> : null}
-                                      {desk.emailMasked ? <span className="font-mono text-ink-muted"> · {desk.emailMasked}</span> : null}
-                                    </div>
-                                  );
-                                }
-                                if (row?.adviserAdded) {
-                                  return (
-                                    <div className="text-[10px] text-ink-light">
-                                      To: <span className="font-semibold">your sales adviser</span>
-                                      <span className="font-mono text-ink-muted"> · {maskEmail(typed)}</span>
-                                    </div>
-                                  );
-                                }
-                                return null;
-                              })()}
-                              {directOfferMode && row?.keptOutOfState ? (
-                                <div className="text-[10px] text-ink-faint">
-                                  Outside {gatePlan.buyerState} — kept in because it lists your car.
-                                </div>
-                              ) : null}
-                              {dealer.title ? (
-                                <div className="text-[10px] text-ink-faint">{dealer.title}</div>
-                              ) : null}
-                              {factoryBuildOem && !dealer.dealerConfirmed ? (
-                                <div className="text-[10px] italic text-ink-faint">
-                                  Dealer the factory shipped it to — may not be where it&apos;s listed now
-                                </div>
-                              ) : null}
-                            </div>
-                            </div>
-                            <span
-                              className={`shrink-0 rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide ${
-                                !contact
-                                  ? "bg-border text-ink-muted"
-                                  : reachable || supplied
-                                    ? "bg-emerald-500/15 text-emerald-300"
-                                    : "bg-amber-500/15 text-amber-300"
-                              }`}
-                            >
-                              {(() => {
-                                const desk = directOfferMode ? quoteDesks[dealer.dealerName] : undefined;
-                                if (directOfferMode) {
-                                  if (!desk) return "Checking";
-                                  if (heldByState) return `Outside ${gatePlan.buyerState}`;
-                                  if (!desk.blockedReason && row?.keptOutOfState) return "Listing dealer";
-                                  if (!desk.blockedReason) return "Named contact";
-                                  if (supplied) return "Adviser added";
-                                  return desk.blockedReason === "dealer_opted_out" ? "Opted out" : "No sales contact";
-                                }
-                                return !contact ? "Checking" : reachable ? "Email on file" : supplied ? "Email added" : "No email";
-                              })()}
-                            </span>
-                          </div>
-
-                          {(directOfferMode
-                            ? Boolean(quoteDesks[dealer.dealerName]?.blockedReason)
-                            : Boolean(contact && !reachable)) && (
-                            <div className="space-y-1.5 border-t border-border/60 pt-2">
-                              <p className={`text-[10px] leading-snug ${row?.adviserAdded ? "text-ink-muted" : "text-amber-200"}`}>
-                                {directOfferMode && row?.adviserAdded
-                                  ? "No sales contact on file for this dealership, so the request goes to the adviser address you added. It's ticked above — untick it to leave them out."
-                                  : directOfferMode
-                                  ? `${quoteDesks[dealer.dealerName]?.blockedMessage || ""} If you have a sales adviser's own address there, add it below. Otherwise choose "Also request quotes from other dealers nearby" above, or paste a different vehicle's link in step 1.`
-                                  : contact?.emailOptOut
-                                    ? "This dealership asked us to stop emailing them. If you have a sales adviser there, add their address — otherwise add a different vehicle."
-                                    : "We don't have an email on file for this dealership. If you have one for your sales adviser, add it below — otherwise paste a different vehicle's link in step 1."}
-                              </p>
-                              <input
-                                type="email"
-                                inputMode="email"
-                                autoComplete="off"
-                                value={typed}
-                                onChange={(e) =>
-                                  setBuyerDealerEmails((current) => ({
-                                    ...current,
-                                    [dealer.dealerName]: e.target.value,
-                                  }))
-                                }
-                                placeholder="Sales adviser email (optional)"
-                                aria-label={`Sales adviser email for ${dealer.dealerName}`}
-                                className="w-full rounded-lg border border-border bg-background px-3 py-1.5 text-[11px] text-ink-light placeholder-ink-faint focus:border-emerald-500 focus:outline-none"
-                              />
-                              {typed.trim() !== "" && !supplied && (
-                                <p className="text-[10px] text-rose-400">
-                                  That doesn&apos;t look like an email address.
-                                </p>
-                              )}
-                              <button
-                                type="button"
-                                onClick={() => setStep(1)}
-                                className="text-[10px] font-bold text-emerald-400 transition-colors hover:text-emerald-300"
-                              >
-                                Add a different vehicle instead →
-                              </button>
-                            </div>
-                          )}
-                        </li>
-                      );
-                    })}
-                  </ul>
+                  <p className="text-[11px] text-ink-faint">
+                    Please don't include your name, email, phone number, or any links — dealers only see your masked buyer ID until you accept a deal. We automatically block emails, phone numbers, links, and handles.
+                  </p>
                 )}
+              </div>
               </WizardSection>
-
-              {/* ---------------------------------------------------------- */}
-              {/* Location — only the multi-dealer path uses it               */}
-              {/* ---------------------------------------------------------- */}
-              {offerPath === "auction" && (
-              <WizardSection
-                title="Where to look"
-                hint="Sets which dealers can see this request. Radius is capped at 100 miles."
-                className="pt-6"
-              >
-                <div className="grid grid-cols-2 gap-2">
-                  <label className="space-y-1">
-                    <span
-                      className={`text-[10px] font-bold uppercase ${
-                        huntLocationInvalid ? "text-amber-300" : "text-ink-faint"
-                      }`}
-                    >
-                      Your ZIP (required)
-                    </span>
-                    <div className="relative">
-                      <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-emerald-400" />
-                      <input
-                        type="text"
-                        inputMode="numeric"
-                        maxLength={5}
-                        value={huntZip}
-                        onChange={(e) => {
-                          const next = e.target.value.replace(/\D/g, "").slice(0, 5);
-                          setHuntZip(next);
-                          if (next.length === 5) setBuyerZip(next);
-                        }}
-                        placeholder="e.g. 07405"
-                        aria-required="true"
-                        aria-invalid={huntLocationInvalid}
-                        autoComplete="off"
-                        className={`w-full rounded-xl border bg-background py-2 pl-9 pr-3 text-xs text-white placeholder-ink-faint focus:border-emerald-500 focus:outline-none font-mono ${
-                          huntLocationInvalid
-                            ? "border-amber-500 ring-1 ring-amber-500/40"
-                            : "border-border"
-                        }`}
-                      />
-                    </div>
-                  </label>
-                  <label className="space-y-1">
-                    <span
-                      className={`text-[10px] font-bold uppercase ${
-                        huntLocationInvalid ? "text-amber-300" : "text-ink-faint"
-                      }`}
-                    >
-                      Radius miles (required, 100 mi max)
-                    </span>
-                    <input
-                      type="text"
-                      inputMode="numeric"
-                      value={huntRadius}
-                      onChange={(e) => {
-                        const digits = e.target.value.replace(/\D/g, "").slice(0, 3);
-                        const clamped = digits === "" ? "" : String(Math.min(100, Number(digits)));
-                        setHuntRadius(clamped);
-                        const n = Number(clamped);
-                        if (Number.isFinite(n) && n > 0) setSearchRadius(n);
-                      }}
-                      placeholder="up to 100"
-                      aria-required="true"
-                      aria-invalid={huntLocationInvalid}
-                      aria-label="Search radius in miles, maximum 100"
-                      autoComplete="off"
-                      className={`w-full rounded-xl border bg-background py-2 px-3 text-xs text-white placeholder-ink-faint focus:border-emerald-500 focus:outline-none font-mono ${
-                        huntLocationInvalid
-                          ? "border-amber-500 ring-1 ring-amber-500/40"
-                          : "border-border"
-                      }`}
-                    />
-                  </label>
-                </div>
-
-                {sameStateWarning && (
-                  <div className="rounded-lg border border-amber-500/40 bg-amber-950/30 px-3 py-2 space-y-1.5">
-                    <p className="text-[11px] leading-snug text-amber-200">{sameStateWarning}</p>
-                    <ul className="space-y-0.5">
-                      {sameStateConflicts.map((v) => (
-                        <li key={v.vin} className="text-[10px] text-amber-200/80">
-                          {v.label}
-                          {v.dealerName ? ` — ${v.dealerName}` : ""} ({v.state})
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </WizardSection>
-              )}
             </div>
           )}
 
+          {/* STEP 4: REVIEW & BROADCAST                                                */}
           {/* ========================================================================= */}
-          {/* STEP 5: REVIEW & BROADCAST                                                */}
-          {/* ========================================================================= */}
-          {step === 5 && (
+          {step === 4 && (
             <div className="space-y-4">
               <div>
                 <h3 className="text-sm font-bold text-white uppercase tracking-wider text-emerald-400">
@@ -3259,36 +2997,12 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                 </div>
               </div>
 
-              {/* Buyer Comment — scrubbed of contact info before it ever leaves the browser */}
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-ink-light flex items-center justify-between">
-                  <span>Add a Comment for the Dealer <span className="text-ink-faint font-normal">(optional)</span></span>
-                  <span className={`text-[10px] font-mono ${dealComment.length > 900 ? "text-amber-400" : "text-ink-faint"}`}>
-                    {dealComment.length}/1000
-                  </span>
-                </label>
-                <textarea
-                  value={dealComment}
-                  onChange={(e) => setDealComment(e.target.value.slice(0, 1000))}
-                  placeholder="e.g. Flexible on color, need delivery within 2 weeks, prior lease customer…"
-                  rows={3}
-                  className={`w-full rounded-xl border bg-background py-2.5 px-3.5 text-xs text-white placeholder-ink-faint focus:outline-none resize-none ${
-                    dealCommentContactWarning
-                      ? "border-rose-500 focus:border-rose-500"
-                      : "border-border focus:border-emerald-500"
-                  }`}
-                />
-                {dealCommentContactWarning ? (
-                  <p className="text-[11px] text-rose-400 flex items-center gap-1.5">
-                    <ShieldCheck className="h-3 w-3 shrink-0" />
-                    Looks like your comment contains {dealCommentContactWarning} — remove it. Dealers only ever see your masked buyer ID here.
-                  </p>
-                ) : (
-                  <p className="text-[11px] text-ink-faint">
-                    Please don't include your name, email, phone number, or any links — dealers only see your masked buyer ID until you accept a deal. We automatically block emails, phone numbers, links, and handles.
-                  </p>
-                )}
-              </div>
+              {dealComment.trim() ? (
+                <div className="rounded-xl border border-border bg-surface-elevated p-3 text-xs" data-testid="review-note">
+                  <p className="text-[10px] font-bold uppercase tracking-wide text-ink-faint">Your note to the dealer</p>
+                  <p className="mt-1 whitespace-pre-wrap text-ink-light">{dealComment.trim()}</p>
+                </div>
+              ) : null}
 
               {/* How This Works Box */}
               <div className="rounded-xl border border-emerald-500/30 bg-emerald-950/20 p-3 flex items-start gap-2.5 text-xs text-ink-light">
@@ -3353,8 +3067,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                 disabled={
                   (step === 1 && !vehicleImported) ||
                   (step === 2 && !paymentChosen) ||
-                  (step === 3 && !quoteSetupComplete) ||
-                  (step === 4 && (!offerPath || step2LocationMissing || Boolean(sameStateWarning) || (directOfferMode && confirmedDeskCount === 0)))
+                  (step === 3 && (!quoteSetupComplete || confirmedDeskCount === 0 || Boolean(dealCommentContactWarning)))
                 }
                 className="flex items-center gap-1.5 rounded-lg bg-emerald-500 px-5 py-2 text-xs font-bold text-black hover:bg-emerald-400 transition-all shadow-md shadow-emerald-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
               >

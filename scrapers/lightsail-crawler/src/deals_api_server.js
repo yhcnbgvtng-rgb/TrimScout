@@ -1027,6 +1027,7 @@ async function ensureQuotePackageColumns(pool) {
   await pool.query("ALTER TABLE rfq_requests ADD COLUMN IF NOT EXISTS deal_reference VARCHAR(16) NULL");
   await pool.query("ALTER TABLE rfq_requests ADD COLUMN IF NOT EXISTS lease_prefs_json TEXT NULL");
   await pool.query("ALTER TABLE rfq_requests ADD COLUMN IF NOT EXISTS quote_prefs_json TEXT NULL");
+  await pool.query("ALTER TABLE rfq_requests ADD COLUMN IF NOT EXISTS buyer_note VARCHAR(1000) NULL");
   await pool.query("ALTER TABLE rfq_quotes ADD COLUMN IF NOT EXISTS used_json TEXT NULL");
   await pool.query("ALTER TABLE rfq_requests ADD COLUMN IF NOT EXISTS lease_sheet_locked_at DATETIME NULL");
   await pool.query("ALTER TABLE rfq_requests ADD COLUMN IF NOT EXISTS lease_sheet_locked_by_invite_id BIGINT NULL");
@@ -1072,6 +1073,8 @@ function publicRfqRequest(row, invites) {
     leasePrefs: parseJsonCol(row.lease_prefs_json) || null,
     // Finance / cash ask (used cars); null on lease requests.
     quotePrefs: parseJsonCol(row.quote_prefs_json) || null,
+    // The buyer's note to every quoting dealer, word for word.
+    buyerNote: row.buyer_note || null,
     // Frozen the first time a dealer opens their quote link; null while the buyer may still edit.
     leaseSheetLockedAt: row.lease_sheet_locked_at || null,
     leaseSheetLockedByInviteId: row.lease_sheet_locked_by_invite_id ? String(row.lease_sheet_locked_by_invite_id) : null,
@@ -1126,6 +1129,7 @@ async function handleCreateRfq(req, res) {
   const packageKind = body.packageKind === "links" ? "links" : "match";
   const linkPastes = Array.isArray(body.linkPastes) ? body.linkPastes.slice(0, 3) : [];
   const dealReference = typeof body.dealReference === "string" && /^TS-[A-Z0-9]{6}$/.test(body.dealReference) ? body.dealReference : null;
+  const buyerNote = typeof body.buyerNote === "string" && body.buyerNote.trim() ? body.buyerNote.trim().slice(0, 1000) : null;
 
   if (!buyerUserId) return badRequest(res, "buyerUserId is required");
   if (!vin) return badRequest(res, "vin is required");
@@ -1144,9 +1148,9 @@ async function handleCreateRfq(req, res) {
   const pool = getPool();
   await ensureQuotePackageColumns(pool);
   const [result] = await pool.query(
-    `INSERT INTO rfq_requests (buyer_user_id, vin, stock_number, vehicle_year, vehicle_make, vehicle_model, vehicle_trim, must_haves_json, status, package_kind, link_pastes_json, deal_reference, lease_prefs_json, quote_prefs_json)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'collecting', ?, ?, ?, ?, ?)`,
-    [buyerUserId, vin, stockNumber, vehicleYear, vehicleMake, vehicleModel, vehicleTrim, JSON.stringify(mustHaves), packageKind, linkPastes.length ? JSON.stringify(linkPastes) : null, dealReference, body.leasePrefs && typeof body.leasePrefs === "object" ? JSON.stringify(body.leasePrefs) : null, body.quotePrefs && typeof body.quotePrefs === "object" ? JSON.stringify(body.quotePrefs) : null]
+    `INSERT INTO rfq_requests (buyer_user_id, vin, stock_number, vehicle_year, vehicle_make, vehicle_model, vehicle_trim, must_haves_json, status, package_kind, link_pastes_json, deal_reference, lease_prefs_json, quote_prefs_json, buyer_note)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'collecting', ?, ?, ?, ?, ?, ?)`,
+    [buyerUserId, vin, stockNumber, vehicleYear, vehicleMake, vehicleModel, vehicleTrim, JSON.stringify(mustHaves), packageKind, linkPastes.length ? JSON.stringify(linkPastes) : null, dealReference, body.leasePrefs && typeof body.leasePrefs === "object" ? JSON.stringify(body.leasePrefs) : null, body.quotePrefs && typeof body.quotePrefs === "object" ? JSON.stringify(body.quotePrefs) : null, buyerNote]
   );
   const [rows] = await pool.query("SELECT * FROM rfq_requests WHERE id = ?", [result.insertId]);
   sendJson(res, 201, { rfq: publicRfqRequest(rows[0], []) });
