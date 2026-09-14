@@ -1,1 +1,255 @@
-[]
+[
+  {
+    "make": "Kia",
+    "name": "Cherry Hill Kia",
+    "city": "Cherry Hill",
+    "state": "NJ",
+    "domain": "cherryhillkia.net",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.kia.com/us/en/find-a-dealer/result?zipCode=08034"
+  },
+  {
+    "make": "Kia",
+    "name": "Gateway Kia of North Brunswick",
+    "city": "North Brunswick",
+    "state": "NJ",
+    "domain": "kiabrunswick.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.kia.com/us/en/find-a-dealer/result?zipCode=08648"
+  },
+  {
+    "make": "Kia",
+    "name": "Global Kia of North Plainfield",
+    "city": "North Plainfield",
+    "state": "NJ",
+    "domain": "globalkiaofnorthplainfield.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.kia.com/us/en/find-a-dealer/result?zipCode=08807"
+  },
+  {
+    "make": "Kia",
+    "name": "Kia of Englewood",
+    "city": "Englewood",
+    "state": "NJ",
+    "domain": "kiaofenglewood.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.kia.com/us/en/find-a-dealer/result?zipCode=07024"
+  },
+  {
+    "make": "Kia",
+    "name": "Kia of Riverdale",
+    "city": "Riverdale",
+    "state": "NJ",
+    "domain": "kiaofriverdale.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.kia.com/us/en/find-a-dealer/result?zipCode=07004"
+  },
+  {
+    "make": "Kia",
+    "name": "Liberty Kia",
+    "city": "Ramsey",
+    "state": "NJ",
+    "domain": "libertykiaofnj.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.kia.com/us/en/find-a-dealer/result?zipCode=10940"
+  },
+  {
+    "make": "Kia",
+    "name": "Nielsen Kia of Newton",
+    "city": "Newton",
+    "state": "NJ",
+    "domain": "nielsenkiaofnewton.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.kia.com/us/en/find-a-dealer/result?zipCode=07860"
+  },
+  {
+    "make": "Kia",
+    "name": "Performance Kia of Denville",
+    "city": "Denville",
+    "state": "NJ",
+    "domain": "performancekiaofdenville.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.kia.com/us/en/find-a-dealer/result?zipCode=07004"
+  },
+  {
+    "make": "Kia",
+    "name": "Atlantic Kia",
+    "city": "West Islip",
+    "state": "NY",
+    "domain": "kiaatlantic.net",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.kia.com/us/en/find-a-dealer/result?zipCode=11743"
+  },
+  {
+    "make": "Kia",
+    "name": "Auto World Kia",
+    "city": "East Meadow",
+    "state": "NY",
+    "domain": "autoworldkia.net",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.kia.com/us/en/find-a-dealer/result?zipCode=11501"
+  },
+  {
+    "make": "Kia",
+    "name": "Destination Kia of Utica",
+    "city": "Yorkville",
+    "state": "NY",
+    "domain": "destinationkiaofutica.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.kia.com/us/en/find-a-dealer/result?zipCode=13212"
+  },
+  {
+    "make": "Kia",
+    "name": "Kia of East Syracuse",
+    "city": "East Syracuse",
+    "state": "NY",
+    "domain": "kiaofeastsyracuse.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.kia.com/us/en/find-a-dealer/result?zipCode=13212"
+  },
+  {
+    "make": "Kia",
+    "name": "Kia of Middletown",
+    "city": "New Hampton",
+    "state": "NY",
+    "domain": "kiaofmiddletown.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.kia.com/us/en/find-a-dealer/result?zipCode=10940"
+  },
+  {
+    "make": "Kia",
+    "name": "Matthews Kia",
+    "city": "Vestal",
+    "state": "NY",
+    "domain": "matthewskiany.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.kia.com/us/en/find-a-dealer/result?zipCode=13901"
+  },
+  {
+    "make": "Kia",
+    "name": "Matthews Kia of Clay",
+    "city": "Liverpool",
+    "state": "NY",
+    "domain": "matthewskiaofclay.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.kia.com/us/en/find-a-dealer/result?zipCode=13212"
+  },
+  {
+    "make": "Kia",
+    "name": "Matthews Kia of Greece",
+    "city": "Rochester",
+    "state": "NY",
+    "domain": "matthewskiaofgreece.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.kia.com/us/en/find-a-dealer/result?zipCode=14221"
+  },
+  {
+    "make": "Kia",
+    "name": "Matthews Kia of Schenectady",
+    "city": "Schenectady",
+    "state": "NY",
+    "domain": "matthewskiaofschenectady.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.kia.com/us/en/find-a-dealer/result?zipCode=12205"
+  },
+  {
+    "make": "Kia",
+    "name": "Northstar Kia",
+    "city": "Woodside",
+    "state": "NY",
+    "domain": "northstarkiany.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.kia.com/us/en/find-a-dealer/result?zipCode=07024"
+  },
+  {
+    "make": "Kia",
+    "name": "Plaza Kia",
+    "city": "Brooklyn",
+    "state": "NY",
+    "domain": "plazakiany.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.kia.com/us/en/find-a-dealer/result?zipCode=07030"
+  },
+  {
+    "make": "Kia",
+    "name": "Tasca Kia South Shore",
+    "city": "Copiague",
+    "state": "NY",
+    "domain": "tascakiasouthshore.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.kia.com/us/en/find-a-dealer/result?zipCode=11501"
+  },
+  {
+    "make": "Kia",
+    "name": "Vision Kia Canandaigua",
+    "city": "Canandaigua",
+    "state": "NY",
+    "domain": "visionkiacanandaigua.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.kia.com/us/en/find-a-dealer/result?zipCode=14623"
+  },
+  {
+    "make": "Kia",
+    "name": "Vision Kia East Rochester",
+    "city": "East Rochester",
+    "state": "NY",
+    "domain": "visionkiaeastrochester.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.kia.com/us/en/find-a-dealer/result?zipCode=14623"
+  },
+  {
+    "make": "Kia",
+    "name": "Williams Kia",
+    "city": "Elmira",
+    "state": "NY",
+    "domain": "williamskiaofelmira.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.kia.com/us/en/find-a-dealer/result?zipCode=13901"
+  }
+]

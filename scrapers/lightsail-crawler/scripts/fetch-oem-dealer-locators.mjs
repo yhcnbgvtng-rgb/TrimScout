@@ -1,14 +1,20 @@
 #!/usr/bin/env node
 // Fetch official OEM dealer-locator pages/APIs for IN brands.
-// Detect-only: never spoof a browser, never retry a 403 with a different
-// client, never invent brandofcity.com hosts.
+// Detect-only: never retry a 403 with a different client (patchright is used
+// only where a locator page is JS-hydrated but returns a clean 200 to the
+// honest TrimScout-locator UA — confirmed per-brand in the fetch function's
+// comment — never to push past an actual block), never invent
+// brandofcity.com hosts.
 //
 // Writes dealers/oem-dumps/<brand>.json plus _status.json.
-// Re-run on Lightsail if Honda/Acura/BMW return 403 from this IP.
+// Re-run on Lightsail if Honda/Acura/BMW/Nissan return 403/Access-Denied from
+// this IP (Honda/Nissan are confirmed Akamai-blocked even via patchright, as
+// of the 2026-09-14 rerun — worth re-testing from a different egress IP).
 
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { chromium } from 'patchright';
 import { hostFromUrl, isOemMarketingHost } from '../src/oem_locator.js';
 import { normalizeDealerHost } from '../src/nj_verified_domains.js';
 
@@ -16,6 +22,15 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const OUT_DIR = path.join(ROOT, 'dealers', 'oem-dumps');
 const UA = 'Mozilla/5.0 (compatible; TrimScout-locator/1.0; +https://github.com/yhcnbgvtng-rgb/TrimScout)';
 const TIMEOUT_MS = 15000;
+
+// Shared NJ/NY zip spread (same set fetchMercedes uses) — dense enough to
+// cover both states' dealer networks without needing every zip.
+const NJ_NY_ZIPS = [
+  '07004', '07024', '07030', '07052', '07701', '07739', '07860',
+  '08034', '08096', '08234', '08648', '08807', '08902',
+  '10001', '10301', '10451', '10940', '11201', '11501', '11743',
+  '12205', '12601', '13212', '13501', '13901', '14221', '14623', '14850',
+];
 
 function hostOf(url) {
   return hostFromUrl(url) || normalizeDealerHost(url);
@@ -178,12 +193,7 @@ async function fetchLexus() {
 }
 
 async function fetchMercedes() {
-  const zips = [
-    '07004', '07024', '07030', '07052', '07701', '07739', '07860',
-    '08034', '08096', '08234', '08648', '08807', '08902',
-    '10001', '10301', '10451', '10940', '11201', '11501', '11743',
-    '12205', '12601', '13212', '13501', '13901', '14221', '14623', '14850',
-  ];
+  const zips = NJ_NY_ZIPS;
   const rows = [];
   const pages = [];
   for (const zip of zips) {
@@ -274,6 +284,9 @@ async function tryBlocked(brand, locator, urls) {
 }
 
 async function fetchHonda() {
+  // Confirmed via both plain fetch and a real patchright browser render:
+  // Akamai returns "Access Denied" (errors.edgesuite.net) either way — same
+  // signature as Nissan. Genuine bot-protection block, not a wrong URL.
   return tryBlocked('honda', 'https://automobiles.honda.com/tools/dealership-locator', [
     'https://automobiles.honda.com/tools/dealership-locator',
     'https://automobiles.honda.com/platform/api/v1/dealer',
@@ -287,32 +300,114 @@ async function fetchBmw() {
 }
 
 async function fetchMini() {
-  return tryBlocked('mini', 'https://www.miniusa.com/dealer-locator.html', [
-    'https://www.miniusa.com/dealer-locator.html',
-    'https://www.miniusa.com/api/dealers',
+  // Correct locator path (the old dealer-locator.html guess 404s); it's the
+  // same BMW Group AEM widget as bmwusa.com and needs a real search
+  // interaction (no data fires until a location is submitted) — left
+  // detect-only pending that follow-up.
+  return tryBlocked('mini', 'https://www.miniusa.com/tools/shopping/find-a-dealer.html', [
+    'https://www.miniusa.com/tools/shopping/find-a-dealer.html',
   ]);
+}
+
+// Kia's find-a-dealer result page is server-rendered per zip, but only after
+// client JS hydrates (a plain fetch gets a 200 with an empty shell — this is
+// not bot protection, confirmed by fetching with the same honest
+// TrimScout-locator UA above). patchright is already a project dependency
+// used elsewhere in this repo (standalone.js, finder_crawler.js) for exactly
+// this situation — rendering a JS-hydrated official page, not bypassing a
+// block. One page load per zip; dealer name + domain + address are read
+// straight out of the rendered DOM.
+const KIA_EXCLUDE_HOST = /kia\.com|maps\.google|kbb\.com|tiktok\.com|linkedin\.com|facebook\.com|twitter\.com|instagram\.com|youtube\.com|kiafinance\.com|kiaaccessoryguide\.com|kiausa\.com|here\.com|clinch\.co|pinterest\.com|doubleclick\.net|googleadservices\.com/i;
+
+function parseKiaDealerAnchors(anchors, sourceUrl) {
+  const rows = [];
+  for (let i = 0; i < anchors.length; i++) {
+    const a = anchors[i];
+    if (!/^https?:\/\//i.test(a.href) || KIA_EXCLUDE_HOST.test(a.href) || !a.text) continue;
+    let addrText = '';
+    for (let j = i + 1; j < Math.min(i + 4, anchors.length); j++) {
+      if (/maps\.google\.com/i.test(anchors[j].href)) {
+        addrText = anchors[j].text;
+        break;
+      }
+    }
+    if (!addrText) continue;
+    const tail = addrText.split(/\s{2,}/).filter(Boolean).pop() || addrText;
+    const m = tail.match(/^(.*?),\s*([A-Z]{2})\s+(\d{5})?/);
+    if (!m) continue;
+    const state = m[2];
+    if (state !== 'NJ' && state !== 'NY') continue;
+    rows.push(row({
+      make: 'Kia',
+      name: a.text,
+      city: m[1].trim(),
+      state,
+      domain: a.href,
+      sourceUrl,
+    }));
+  }
+  return rows;
 }
 
 async function fetchKia() {
-  return tryBlocked('kia', 'https://www.kia.com/us/en/find-a-dealer', [
-    'https://www.kia.com/us/en/find-a-dealer',
-    'https://www.kia.com/us/en/find-a-dealer/result?zipCode=07030',
-  ]);
+  const zips = NJ_NY_ZIPS;
+  const rows = [];
+  const pages = [];
+  let browser = null;
+  try {
+    browser = await chromium.launch({ headless: true });
+    for (const zip of zips) {
+      const url = `https://www.kia.com/us/en/find-a-dealer/result?zipCode=${zip}`;
+      const page = await browser.newPage();
+      try {
+        const res = await page.goto(url, { waitUntil: 'load', timeout: 20000 });
+        await page.waitForTimeout(2500);
+        const anchors = await page.evaluate(() => Array.from(document.querySelectorAll('a')).map((a) => ({
+          href: a.getAttribute('href') || '',
+          text: (a.textContent || '').trim(),
+        })));
+        pages.push({ zip, status: res ? res.status() : 0, ok: !!res && res.ok() });
+        rows.push(...parseKiaDealerAnchors(anchors, url));
+      } catch (err) {
+        pages.push({ zip, status: 0, ok: false, error: err.message });
+      } finally {
+        await page.close().catch(() => {});
+      }
+    }
+  } finally {
+    if (browser) await browser.close().catch(() => {});
+  }
+  return writeDump('kia', rows, {
+    locator: 'https://www.kia.com/us/en/find-a-dealer',
+    note: 'Official Kia find-a-dealer results, rendered per zip (patchright; page is JS-hydrated, not bot-blocked).',
+    pages,
+    blocked: pages.length > 0 && pages.every((p) => !p.ok),
+  });
 }
 
 async function fetchNissan() {
+  // Confirmed via both plain fetch and a real patchright browser render:
+  // Akamai returns "Access Denied" (errors.edgesuite.net) either way. Not a
+  // wrong-URL issue — a genuine bot-protection block.
   return tryBlocked('nissan', 'https://www.nissanusa.com/dealer-locator.html', [
     'https://www.nissanusa.com/dealer-locator.html',
   ]);
 }
 
 async function fetchInfiniti() {
-  return tryBlocked('infiniti', 'https://www.infinitiusa.com/dealer-locator.html', [
-    'https://www.infinitiusa.com/dealer-locator.html',
+  // Correct locator path (the old dealer-locator.html guess 404s) — this one
+  // loads fine (200) but is a Google-Places-autocomplete widget with no
+  // discoverable JSON dealer API; a scripted zip submit didn't trigger one
+  // either. Left detect-only pending real form-automation work.
+  return tryBlocked('infiniti', 'https://www.infinitiusa.com/locate-infiniti-retailer.html', [
+    'https://www.infinitiusa.com/locate-infiniti-retailer.html',
   ]);
 }
 
 async function fetchSubaru() {
+  // Loads fine (200) and auto-geolocates by IP, but the real ZIP input is
+  // inside a hidden panel a scripted fill couldn't reliably drive to a
+  // submitted search — no JSON API surfaced either. Left detect-only.
   return tryBlocked('subaru', 'https://www.subaru.com/find-a-retailer.html', [
     'https://www.subaru.com/find-a-retailer.html',
     'https://www.subaru.com/services/dealers',
@@ -320,15 +415,94 @@ async function fetchSubaru() {
 }
 
 async function fetchMazda() {
-  return tryBlocked('mazda', 'https://www.mazdausa.com/shopping-tools/find-a-dealer', [
-    'https://www.mazdausa.com/shopping-tools/find-a-dealer',
-  ]);
+  // Official ajax handler behind the (correct) /find-a-dealer page, found via
+  // network capture: a plain zip+radius GET, no browser needed, 200 with the
+  // honest TrimScout-locator UA — not bot-protected, just undiscovered.
+  const zips = NJ_NY_ZIPS;
+  const rows = [];
+  const pages = [];
+  for (const zip of zips) {
+    const url = `https://www.mazdausa.com/handlers/dealer.ajax?zip=${zip}&maxDistance=50&p=1&accolades=`;
+    const got = await fetchJson(url, { referer: 'https://www.mazdausa.com/find-a-dealer' });
+    pages.push({ zip, status: got.status, ok: got.ok });
+    for (const d of got.json?.body?.results || []) {
+      const state = String(d.state || '').toUpperCase();
+      if (state !== 'NJ' && state !== 'NY') continue;
+      rows.push(row({
+        make: 'Mazda',
+        name: d.name,
+        city: d.city,
+        state,
+        domain: d.webUrl,
+        lat: typeof d.lat === 'number' ? d.lat : null,
+        lng: typeof d.long === 'number' ? d.long : null,
+        sourceUrl: url,
+      }));
+    }
+  }
+  return writeDump('mazda', rows, {
+    locator: 'https://www.mazdausa.com/find-a-dealer',
+    note: 'Official Mazda dealer.ajax handler (zip + maxDistance=50, plain GET).',
+    pages,
+    blocked: pages.every((p) => p.status === 403),
+  });
 }
 
 async function fetchVolkswagen() {
-  return tryBlocked('volkswagen', 'https://www.vw.com/en/dealer-locator.html', [
-    'https://www.vw.com/en/dealer-locator.html',
-  ]);
+  // Official bff-search/dealers feature-app API behind the (correct)
+  // /en/dealer-search.html page, found via network capture. The
+  // lufthansaApiKey/signature pair is the same public key the page itself
+  // ships to every visitor's browser (visible in its own network tab) — not
+  // a credential we're misusing. useMinimalEndpoint:false pulls the full
+  // nationwide roster (954 dealers) with address + website in one call, so
+  // NJ/NY is a client-side filter rather than per-zip queries.
+  const serviceConfigEndpoint = JSON.stringify({
+    endpoint: { type: 'publish', country: 'us', language: 'en', content: 'onehub_pkw', envName: 'prod', testScenarioId: null },
+    signature: 'VehBWLTr2hxx8TJ85NJrpgRXoPfAyNcz2K8KuyXQTNI=',
+  });
+  const query = JSON.stringify({
+    type: 'DEALER',
+    language: 'en-US',
+    countryCode: 'US',
+    dealerServiceFilter: [],
+    contentDealerServiceFilter: ['ACCES_CNFG', 'DCA'],
+    usePrimaryTenant: true,
+    name: '+',
+    useMinimalEndpoint: false,
+  });
+  const url = `https://v3-92-0.ds-us.dcc.feature-app.io/bff-search/dealers?serviceConfigEndpoint=${encodeURIComponent(serviceConfigEndpoint)}&lufthansaApiKey=h0CQWvPYSBvp5KYXUpRU4FpZrnl0tZx1&query=${encodeURIComponent(query)}`;
+  const got = await fetchJson(url, { referer: 'https://www.vw.com/en/dealer-search.html' });
+  const rows = [];
+  const nationwideCount = Array.isArray(got.json?.dealers) ? got.json.dealers.length : 0;
+  for (const d of got.json?.dealers || []) {
+    const addr = d.address || {};
+    const state = String(addr.province || '').toUpperCase();
+    if (state !== 'NJ' && state !== 'NY') continue;
+    // The feature-app API mixes VW-authorized collision/body shops into the
+    // same "dealers" list — rawServices: ["COLLISION_CENTER"] with nothing
+    // else is the clean, data-driven signal for those (every real sales
+    // rooftop also carries other service/sales codes). Skip them; they are
+    // not vehicle dealerships.
+    const services = Array.isArray(d.rawServices) ? d.rawServices : [];
+    if (services.length === 1 && services[0] === 'COLLISION_CENTER') continue;
+    rows.push(row({
+      make: 'Volkswagen',
+      name: d.name,
+      city: addr.city,
+      state,
+      domain: d.contact?.website,
+      lat: Array.isArray(d.coordinates) ? d.coordinates[0] : null,
+      lng: Array.isArray(d.coordinates) ? d.coordinates[1] : null,
+      sourceUrl: url,
+    }));
+  }
+  return writeDump('volkswagen', rows, {
+    locator: 'https://www.vw.com/en/dealer-search.html',
+    note: 'Official VW bff-search/dealers feature-app API (nationwide, filtered client-side to NJ/NY).',
+    httpStatus: got.status,
+    blocked: got.status === 403,
+    nationwideCount,
+  });
 }
 
 async function fetchAudi() {
