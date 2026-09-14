@@ -116,6 +116,14 @@ describe("quote-request email — one template for Cash / Lease / Finance", () =
     assert.doesNotMatch(stripped(html), /transparent quote|no add-ons/i, "no invented must-haves");
   });
 
+  it("carries the buyer's note as a 'Buyer says' row, escaped, only when there is one", () => {
+    assert.doesNotMatch(quoteInviteHtml(base), /Buyer says/);
+    const html = quoteInviteHtml({ ...base, buyerNote: "Flexible on color <b>bold</b>\nNeed it by the 30th" });
+    assert.match(html, />Buyer says<\/td>/);
+    assert.match(html, /Flexible on color &lt;b&gt;bold&lt;\/b&gt;/);
+    assert.match(html, /white-space:pre-wrap/);
+  });
+
   it("escapes what it interpolates", () => {
     const html = quoteInviteHtml({ ...base, dealerName: 'Evil <script>alert("x")</script> Motors' });
     assert.doesNotMatch(html, /<script>/);

@@ -7,6 +7,7 @@ import { publicRfqForBuyer } from "@/lib/rfq";
 import { hasActiveRfq, isFullyLockedSpec } from "@/lib/rfqLogic";
 import { MAX_PACKAGE_LINKS } from "@/lib/quotePackage";
 import { recordQuoteRequest } from "@/lib/apiSpendGuard";
+import { findContactInfo } from "@/lib/piiFilter";
 
 export async function GET() {
   const session = await auth();
@@ -63,6 +64,13 @@ export async function POST(req: Request) {
     }
   }
 
+  // The note goes to dealers word for word — never with the buyer's contact info in it.
+  const buyerNote = typeof body.buyerNote === "string" ? body.buyerNote.trim().slice(0, 1000) : "";
+  if (buyerNote) {
+    const found = findContactInfo(buyerNote);
+    if (found) return NextResponse.json({ error: `Your note appears to contain ${found} — remove it before sending.` }, { status: 400 });
+  }
+
   try {
     // Rate limit: one active RFQ at a time — no spray. The buyer must
     // finish (pick) or walk away from the current one before starting
@@ -91,6 +99,7 @@ export async function POST(req: Request) {
       // Used cars: Finance / Cash only. A lease ask on a used car is refused
       // rather than silently dropped.
       quotePrefs: parseQuotePrefs(body.quotePrefs),
+      buyerNote: buyerNote || null,
     });
     recordQuoteRequest();
     return NextResponse.json({ rfq: publicRfqForBuyer(rfq) });

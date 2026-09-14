@@ -36,6 +36,8 @@ export interface QuoteInviteEmailInput {
   buyerZip?: string | null;
   leasePrefs?: LeaseRequestPrefs | null;
   financePrefs?: { termMonths: number; downPayment: number; creditBand?: string | null } | null;
+  /** The buyer's note, word for word (already scrubbed of contact info). */
+  buyerNote?: string | null;
   /** Kept for callers that still pass it; not rendered. */
   buyerAlias?: string;
   vehicleFacts?: { drivetrain?: string | null; exteriorColor?: string | null } | null;
@@ -150,6 +152,7 @@ export function quoteInviteHtml(input: QuoteInviteEmailInput): string {
         ${area ? row("Area", escapeHtml(area)) : ""}
         ${input.purchaseTimelineLabel ? row("Timeline", escapeHtml(input.purchaseTimelineLabel)) : ""}
         ${row("Rooftop", rooftopLine(input))}
+        ${input.buyerNote ? row("Buyer says", `<span style="font-weight:400;white-space:pre-wrap">${escapeHtml(input.buyerNote)}</span>`) : ""}
       </table>
     </div>
     <p style="font-size:13px;color:#475569;margin:14px 0 6px">${escapeHtml(copy.helper)}</p>

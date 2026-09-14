@@ -30,7 +30,18 @@ type Context = {
   priorLease: LeaseQuote | null;
   condition: "new" | "used" | "cpo";
   buyerMiles: number | null;
+  /** The buyer's note, shown above whichever sheet applies. */
+  buyerNote: string | null;
 };
+
+function BuyerNote({ note }: { note: string }) {
+  return (
+    <div className="rounded-2xl border border-sky-500/30 bg-sky-950/20 p-5 text-sm text-sky-100" data-testid="buyer-note">
+      <p className="text-[10px] font-bold uppercase tracking-wide text-sky-300">From the buyer</p>
+      <p className="mt-1 whitespace-pre-wrap">{note}</p>
+    </div>
+  );
+}
 
 function ReceivedBody() {
   const params = useSearchParams();
@@ -136,6 +147,7 @@ function ReceivedBody() {
             </p>
           ) : ctx.quotePrefs ? (
             <>
+              {ctx.buyerNote ? <BuyerNote note={ctx.buyerNote} /> : null}
               <div className="rounded-2xl border border-border bg-surface p-5 space-y-2 text-sm text-ink-light leading-relaxed">
                 <p>
                   <strong className="text-white">Quote through the sheet below.</strong> Selling price, itemized fees with a sales-tax line, add-ons listed (or none), {ctx.condition === "new" ? "" : "miles, "}and a good-until date are required
@@ -158,6 +170,7 @@ function ReceivedBody() {
             </div>
           ) : (
             <>
+              {ctx.buyerNote ? <BuyerNote note={ctx.buyerNote} /> : null}
               {ctx.buyerCounter ? (
                 <div className="rounded-2xl border border-amber-500/40 bg-amber-950/20 p-5 space-y-2 text-sm text-amber-100 leading-relaxed" data-testid="buyer-counter-panel">
                   <p className="font-bold text-white">The buyer countered your quote.</p>

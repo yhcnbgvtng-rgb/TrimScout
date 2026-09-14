@@ -461,17 +461,17 @@ describe("listing-facts route and compare page copy", () => {
     assert.match(wizard, /buildOfferCompareSnapshot/);
     assert.match(wizard, /otherLots: otherLotsForDeal/);
     assert.match(wizard, /vehicleTerms: vehicleTermsForDeal/);
-    assert.match(wizard, /TOTAL_STEPS = 5/);
-    assert.match(wizard, /STEP 5: REVIEW/);
+    assert.match(wizard, /TOTAL_STEPS = 4/);
+    assert.match(wizard, /STEP 4: REVIEW/);
     assert.match(wizard, /Review & Privacy Shield/);
     assert.match(wizard, /huntZip/);
     assert.match(wizard, /Your ZIP/);
-    assert.match(wizard, /Radius miles/);
     assert.doesNotMatch(wizard, /Set Your Deal Parameters/);
     assert.doesNotMatch(wizard, /Buyer Zip Code/);
     assert.doesNotMatch(wizard, /Dealer Radius/);
     assert.doesNotMatch(wizard, /\/api\/ford-comparables/);
-    assert.match(wizard, /Sets which dealers can see this request/);
+    // The "other dealers nearby" radius search is gone with the Dealers step — one send path, the pasted cars' stores.
+    assert.doesNotMatch(wizard, /Sets which dealers can see this request|Radius miles/);
     assert.doesNotMatch(wizard, /STEP 6:/);
   });
 
