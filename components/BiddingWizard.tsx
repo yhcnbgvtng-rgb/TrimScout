@@ -11,6 +11,7 @@ import { outOfStateVehicles, formatOutOfStateWarning } from "../lib/sameStateChe
 import { planDeskSelection } from "../lib/deskSelection";
 import { CPO_BUILD_COPY, USED_BUILD_COPY, USED_VEHICLES_ENABLED, conditionBadge, detectUsedCondition, isUsedCondition, type UsedCondition } from "../lib/usedVehicle";
 import { missingFinanceLocks, type QuotePrefs } from "../lib/usedQuote";
+import { orderFactoryOptions } from "../lib/factoryOptionOrder";
 import { CREDIT_BAND_COPY, CREDIT_BAND_LABELS, CREDIT_BANDS, type CreditBand } from "../lib/creditBand";
 import { clearQuoteDraft, readQuoteDraft, saveQuoteDraft, wizardAuthState, type QuoteDraft } from "../lib/quoteDraft";
 import { diffVsPrimary, mustHaveHeadline, mustHaveReport, type MustHaveRef } from "../lib/alternateCompare";
@@ -99,7 +100,7 @@ function FactoryMustHavePicker({
 }) {
   return (
     <div className="max-h-56 overflow-y-auto">
-      {options.map((opt) => {
+      {orderFactoryOptions(options).map((opt) => {
         const isChecked = checked.includes(opt.name);
         const line = formatFactoryOptionLine({
           code: opt.code ?? null,
