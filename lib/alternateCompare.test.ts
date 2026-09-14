@@ -153,17 +153,15 @@ import path from "node:path";
 describe("wizard wiring — same-state gate + alternate comparison", () => {
   const wizard = fs.readFileSync(path.join(process.cwd(), "components/BiddingWizard.tsx"), "utf8");
 
-  it("(1) the same-state box defaults ON and keeps its radius subtext", () => {
-    assert.match(wizard, /const \[sameStateOnly, setSameStateOnly\] = useState<boolean>\(true\)/);
-    assert.match(wizard, /Uncheck to include dealerships in other states within the radius/);
+  it("(1) the same-state-only restriction was removed — every dealer in radius is eligible", () => {
+    assert.match(wizard, /const sameStateOnly = false;/);
+    assert.doesNotMatch(wizard, /Only send this to dealerships in my state/);
+    assert.doesNotMatch(wizard, /Include dealerships in other states/);
   });
 
-  it("(3) the send path and the confirmed count both honor the gate, and the nudge unchecks it", () => {
+  it("(3) the send path and the confirmed count both honor the gate", () => {
     assert.match(wizard, /toSend = pastes\.filter\([\s\S]*?deskPlan\.rows\[p\.dealerName\]\?\.checked/);
     assert.match(wizard, /confirmedDeskCount = deskPlan\.sendTo\.length/);
-    assert.match(wizard, /formatExpandNudge\(gatePlan\)/);
-    assert.match(wizard, /onClick=\{\(\) => setSameStateOnly\(false\)\}/);
-    assert.match(wizard, /Include dealerships in other states/);
   });
 
   it("the primary (listing) desk is flagged to the gate and stays tickable outside the buyer's state", () => {
@@ -171,7 +169,6 @@ describe("wizard wiring — same-state gate + alternate comparison", () => {
     assert.match(wizard, /checked=\{Boolean\(row\?\.checked\)\}/);
     assert.match(wizard, /disabled=\{!row\?\.selectable\}/);
     assert.match(wizard, /kept in because it lists your car/);
-    assert.match(wizard, /The dealership listing your car always stays in\./);
   });
 
   it("overnight QA pack: VIN-only CTA, degraded-directory retry, and a sticker retry are all wired", () => {

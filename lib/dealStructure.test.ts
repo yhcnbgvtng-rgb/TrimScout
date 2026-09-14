@@ -46,8 +46,9 @@ describe("BiddingWizard — Step 1 is the vehicle step; Step 2 is quote setup", 
   it("(1) Step 1 has the vehicle flow and no lease term/miles or payment chips", () => {
     assert.ok(step1.length > 0 && step2.length > 0);
     assert.match(step1, /One car is required to continue/);
-    assert.match(step1, /Only send this to dealerships in my state/);
     assert.match(step1, /Add additional vehicles/);
+    // The same-state-only checkbox was removed — every dealer in radius is eligible.
+    assert.doesNotMatch(step1, /Only send this to dealerships in my state/);
     assert.doesNotMatch(step1, /LEASE_TERMS\.map|LEASE_MILES\.map|Lease preferences|DEAL_STRUCTURE_LABELS|toggleDealStructure/);
     assert.match(src, /STEP_LABELS = \["Vehicle", "Quote setup", "Dealers", "Review & Send"\]/);
   });

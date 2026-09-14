@@ -7,7 +7,7 @@ import {
   paymentMethodFromStructures,
 } from "../lib/dealStructure";
 import { formatCurrency, getZipCoordinates } from "../lib/otdCalculator";
-import { outOfStateVehicles, formatOutOfStateWarning, formatExpandNudge } from "../lib/sameStateCheck";
+import { outOfStateVehicles, formatOutOfStateWarning } from "../lib/sameStateCheck";
 import { planDeskSelection } from "../lib/deskSelection";
 import { CPO_BUILD_COPY, USED_BUILD_COPY, USED_VEHICLES_ENABLED, conditionBadge, detectUsedCondition, isUsedCondition, type UsedCondition } from "../lib/usedVehicle";
 import { missingFinanceLocks, type QuotePrefs } from "../lib/usedQuote";
@@ -834,9 +834,10 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   const buyerZipHint =
     buyerZip && buyerZip !== "94107" && /^\d{5}$/.test(buyerZip) ? buyerZip : huntZip && /^\d{5}$/.test(huntZip) ? huntZip : null;
   const [searchRadius, setSearchRadius] = useState<number>(100);
-  // Checked by default — buyer can uncheck to widen the match to any state
-  // within the radius, per Step 1's location controls.
-  const [sameStateOnly, setSameStateOnly] = useState<boolean>(true);
+  // Same-state-only restriction removed — every dealer within the radius is
+  // eligible, not just ones in the buyer's own state. The dealer holding the
+  // listed car is still always kept in regardless (see gatePlan below).
+  const sameStateOnly = false;
   // Minted once when the wizard mounts; the same number on the review screen,
   // in the stored deal, and on the confirmation.
   const [dealReference] = useState<string>(() => newDealReference());
@@ -977,10 +978,9 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   // On the direct path the request only goes to confirmed, unblocked desks —
   // every count the buyer sees from step 3 on should be that, not the number
   // of cars pasted.
-  // "Only send this to dealerships in my state" gates who receives the
-  // package. It only ever holds back desks it can prove are elsewhere, and
-  // when that would leave the package short it offers the expand — the
-  // buyer is never left with an empty send path.
+  // The same-state-only restriction was removed — every dealer in radius is
+  // eligible. The gate below still exists to guarantee the dealer holding
+  // the listed car is never left out, even if it's outside the buyer's state.
   const buyerStateFromZip = /^\d{5}$/.test(huntZip.trim()) ? getZipCoordinates(huntZip.trim()).state : "";
   // The rooftop the buyer's own car resolved to is the one desk the gate may
   // never hold back — with nothing else in the package it would be a dead
@@ -1004,8 +1004,6 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     confirmed: confirmedDesks,
   });
   const gatePlan = deskPlan.gate;
-  const excludedByState = new Set(gatePlan.active ? gatePlan.excludedReady.map((d) => d.dealerName) : []);
-  const expandNudge = directOfferMode ? formatExpandNudge(gatePlan) : "";
   const confirmedDeskCount = deskPlan.sendTo.length;
   const sendToCount = directOfferMode ? confirmedDeskCount : importedDealerships.length;
   useEffect(() => {
@@ -1155,7 +1153,6 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     pick<string[]>("selectedTrims", setSelectedTrims);
     pick<string>("make", setMake);
     pick<string>("model", setModel);
-    pick<boolean>("sameStateOnly", setSameStateOnly);
     pick<boolean>("hasTradeIn", setHasTradeIn);
     pick<DealStructureMethod | null>("quoteType", setQuoteType);
     pick<LeaseTerm>("leaseTerm", setLeaseTerm);
@@ -2403,26 +2400,6 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                   </button>
                 )}
 
-                <div className="flex flex-wrap items-start justify-between gap-2 pt-1">
-                  <label className="flex items-start gap-2 text-[11px] cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={sameStateOnly}
-                      onChange={(e) => setSameStateOnly(e.target.checked)}
-                      className="mt-0.5 h-3.5 w-3.5 shrink-0 rounded border-border text-emerald-500 focus:ring-0"
-                    />
-                    <span className="leading-snug text-ink-muted">
-                      Only send this to dealerships in my state
-                      <span className="block text-[10px] text-ink-faint">
-                        Uncheck to include dealerships in other states within the radius. The dealership listing your car always stays in.
-                      </span>
-                    </span>
-                  </label>
-                  {sameStateOnly && !zipOk ? (
-                    <span className="text-[10px] text-ink-faint">Your ZIP on the next step sets your state.</span>
-                  ) : null}
-                </div>
-
                 {sameStateWarning && (
                   <div className="rounded-lg border border-amber-500/40 bg-amber-950/30 px-3 py-2 space-y-1.5">
                     <p className="text-[11px] leading-snug text-amber-200">{sameStateWarning}</p>
@@ -2761,24 +2738,6 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                 }
                 className="py-6"
               >
-                {expandNudge ? (
-                  <div className="mb-2 flex flex-wrap items-center justify-between gap-2 rounded-lg border border-amber-500/40 bg-amber-950/30 px-3 py-2">
-                    <p className="text-[11px] leading-snug text-amber-200">{expandNudge}</p>
-                    <button
-                      type="button"
-                      onClick={() => setSameStateOnly(false)}
-                      className="shrink-0 rounded-lg bg-amber-400 px-3 py-1.5 text-[11px] font-black text-black hover:bg-amber-300 transition-all"
-                    >
-                      Include dealerships in other states
-                    </button>
-                  </div>
-                ) : null}
-                {directOfferMode && gatePlan.active && !expandNudge && excludedByState.size > 0 ? (
-                  <p className="mb-2 text-[10px] text-ink-faint">
-                    Keeping this in {gatePlan.buyerState}: {excludedByState.size} dealership{excludedByState.size === 1 ? "" : "s"} in{" "}
-                    {gatePlan.excludedStates.join(", ")} left out by your same-state setting.
-                  </p>
-                ) : null}
                 {importedDealerships.length === 0 ? (
                   <p className="text-[11px] text-ink-muted">
                     We couldn&apos;t identify a dealership for the cars you added.
