@@ -30,6 +30,8 @@ for d in roster:
         contact_name, contact_email, title, source = ex["contact_name"], ex["contact_email"], ex["contact_title"], f"Source: {ex['source_url']}"; stats["staff_email"] += 1
     elif lead_email and not GENERIC.match(lead_email) and gm and email_matches(gm, lead_email):
         contact_name, contact_email, title, source = gm, lead_email, "General Manager", f"Source: {brand} dealer locator (GM + dealer email match)"; stats["locator_email"] += 1
+    elif lead_email and not GENERIC.match(lead_email) and ex.get("contact_name") and email_matches(ex["contact_name"], lead_email):
+        contact_name, contact_email, title, source = ex["contact_name"], lead_email, ex["contact_title"], f"Source: {ex['source_url']} (name) + {brand} dealer locator (email match)"; stats["locator_email"] += 1
     elif ex.get("contact_name"):
         contact_name, title, source = ex["contact_name"], ex["contact_title"], f"Source: {ex['source_url']} (no email published for this contact)"; stats["name_only"] += 1
     elif gm:
