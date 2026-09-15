@@ -229,16 +229,18 @@ Challenge / WAF / captcha pages are **skipped and logged**. This package must no
 
 **All calendar-date bucketing is the Eastern calendar date, not UTC.** `<date>` above (and in `firstSeen`/`lastSeen`/`soldDate`, DOM-blob retention, `run_date` in the MariaDB `scrape_runs` table, and every filename below) comes from `easternDateStamp()` in `src/date_utils.js`, never from `new Date().toISOString().slice(0,10)`. That distinction matters because `toISOString()` always returns a UTC instant regardless of the process's `TZ` — a run anywhere near midnight (UTC or Eastern; they're never simultaneous) would otherwise file itself under the wrong calendar day. Precise instants (`generatedAt`, `startedAt`/`endedAt`/`finishedAt`, `submittedAt`, `collectedAt`, `updatedAt`) are unaffected by this and correctly stay real UTC ISO instants — only *which day* something is filed under changes, never how precisely a moment itself is recorded.
 
-### Daily driver: NJ + NY + FL + GA, every brand, one job
+### Daily driver: NJ + NY + FL + GA + TX, every brand, one job
 
 ```bash
 cd scrapers/lightsail-crawler
 npm run daily-crawl   # node scripts/run-daily-crawl.mjs
 ```
 
-Runs once per state in `src/states.js`'s `SUPPORTED_STATES` (NJ, NY, FL, then GA as of 2026-09-15) — that array is the only place a state list should ever be hardcoded; nothing else in this driver, `dealer-bot-report.mjs`, or `standalone.js` special-cases a particular state. For each state, in order: regenerates `dealers/<state>/<brand>.json` from the OEM-locator dumps (`write-nj-dealers` / `write-ny-dealers` / `write-fl-dealer-files.mjs` / `write-ga-dealer-files.mjs` — standalone.js reads these static files, not the locator dumps directly, so they have to be refreshed every run or a locator fix/addition since the last run is silently missed), refreshes that state's bot-protection classification (`dealer-bot-report.mjs --state=<X>`), then loops `src/standalone.js` once per brand that had at least one `NONE`/200 dealer in that state's report (`CRAWLER_DEALERS_FILE`/`CRAWLER_BRAND`/`CRAWLER_STATE` env vars, same invocation shape as a manual run). One brand hanging or erroring is caught, logged, and skipped — it never stops the rest of the state or the others.
+Runs once per state in `src/states.js`'s `SUPPORTED_STATES` (NJ, NY, FL, GA, then TX as of 2026-09-15) — that array is the only place a state list should ever be hardcoded; nothing else in this driver, `dealer-bot-report.mjs`, or `standalone.js` special-cases a particular state. For each state, in order: regenerates `dealers/<state>/<brand>.json` from the OEM-locator dumps (`write-nj-dealers` / `write-ny-dealers` / `write-fl-dealer-files.mjs` / `write-ga-dealer-files.mjs` / `write-tx-dealer-files.mjs` — standalone.js reads these static files, not the locator dumps directly, so they have to be refreshed every run or a locator fix/addition since the last run is silently missed), refreshes that state's bot-protection classification (`dealer-bot-report.mjs --state=<X>`), then loops `src/standalone.js` once per brand that had at least one `NONE`/200 dealer in that state's report (`CRAWLER_DEALERS_FILE`/`CRAWLER_BRAND`/`CRAWLER_STATE` env vars, same invocation shape as a manual run). One brand hanging or erroring is caught, logged, and skipped — it never stops the rest of the state or the others.
 
 Adding GA (2026-09-15) surfaced a real bug in the shared OEM-locator dedup key (`src/oem_locator.js`), not something GA-specific: the map keyed rooftops by `make+name` only, with no state, so a dealer group that reuses the exact same trading name in two different states (confirmed real, distinct rooftops — "Kia Autosport" in Pensacola, FL and Columbus, GA; "Rick Case Kia" in Sunrise, FL and Duluth, GA) silently collapsed into one entry and dropped the other. Fixed by scoping the dedup key to `state|make+name` (`stateScopedKey()`); `applyCuratedOverlay()` was updated to match its state-less `CURATED_OVERLAY` entries by scanning make+name across all state-scoped entries instead of a single key lookup. This restored two previously-hidden rooftops in the already-live NJ/FL data too (Crown Acura, FL; Prestige Subaru, NJ) — additive only, nothing removed.
+
+Adding TX (2026-09-15) needed no further changes to that dedup fix or anything else in the pipeline — `standalone.js`, `dealer-bot-report.mjs`, and `run-daily-crawl.mjs` picked TX up purely from `src/states.js` plus the new `tx_policy.js`/`write-tx-dealer-files.mjs`/loader-registry entries, exactly as the generalization was meant to work. The same state-scoped dedup key immediately caught another real cross-state collision on the first TX fetch — "Five Star Subaru" is a genuinely distinct rooftop in both Oneonta, NY (`fivestarcars.com`) and Grapevine, TX (`subarugrapevine.net`) — confirming the fix generalizes to a 5th state, not just GA's original two. Texas's OEM-locator zip seeds (`TX_ZIPS` in `fetch-oem-dealer-locators.mjs`) use 20 points rather than GA's 16, split across every major metro (Dallas, Fort Worth, and Plano separately for DFW; Houston split into downtown/Woodlands/Sugar Land) plus far-flung regional hubs (El Paso, Lubbock, Amarillo, Midland, the Rio Grande Valley, Laredo) — a single zip's 50-120mi locator radius does not come close to covering a state this size. Audi and Volvo were re-verified fresh for TX, not assumed empty from the NJ/NY/FL/GA precedent: both still return Akamai's `errors.edgesuite.net` "Access Denied" page even through a real patchright browser render (not just a plain fetch), the same signature as the already-confirmed Honda/Nissan block — a genuine IP-level bot-protection wall, not a TX-specific or JS-hydration gap, so it was expected (and confirmed) to behave identically for TX.
 
 Per-brand console output goes to `logs/<state>-<brand>-<date>.log` (and `logs/<state>-write-dealers-<date>.log` / `logs/<state>-bot-report-<date>.log` for the two support steps); anything under `logs/` older than 30 days is deleted at the start of every run, so this doesn't accumulate forever. The structured, durable record of the whole run — every step's exit code/duration, which brands were skipped and why, and each brand's vehicle/price-change/sold counts pulled back out of that day's `daily_changes` file — is written to `data/daily_crawl_runs/summary_<date>.json` and `data/daily_crawl_runs/latest.json` and kept indefinitely (small JSON, not logs).
 
@@ -256,7 +258,7 @@ TZ=America/New_York
 # Progress monitor (once at boot via systemd/pm2 is better than cron)
 @reboot cd /home/ubuntu/lightsail-crawler && node src/progress_server.js
 
-# NJ, NY, FL, then GA, every brand: see "Daily driver" above. Safe to leave in
+# NJ, NY, FL, GA, then TX, every brand: see "Daily driver" above. Safe to leave in
 # place even if a previous run is still going (e.g. it ran long, or a
 # manual run is mid-crawl) — the driver's own PID-file lock (see "Daily
 # driver" above) makes an overlapping fire a clean no-op instead of a
@@ -290,6 +292,33 @@ TZ=America/New_York
 # runtime to this box's schedule from an estimate — wait for GA's first
 # real full run on the box and re-time this comment against that, the
 # same way the FL note above is still waiting on FL's real number.
+#
+# TX (added 2026-09-15, write-tx-dealer-files.mjs / src/tx_policy.js) is
+# TX's own escalation of the same lesson: 312 in-scope rooftops across
+# every brand with a working locator (Toyota 66, Volkswagen 45, Mazda 43,
+# Subaru 29, Mercedes-Benz 28, Kia 23, Mitsubishi 23, Lexus 15, Porsche
+# 17, Acura 14, Mini 8, BMW 1 — Honda/Nissan/Infiniti/Audi/Volvo stay
+# empty, same brand-wide dead ends as NJ/NY/FL/GA), 163 of which came back
+# NONE/200-ready on a live dealer-bot-report run. Real timing was only
+# measured for two brands, run from a worktree, not the box: Porsche (17
+# dealers) took 10m40s for 2,025 active vehicles (1,636 newly enriched,
+# 389 cache hits, ~0.32s/vehicle, ~119 vehicles/dealer); Mini (8 dealers,
+# 4 of them skipped by bot protection as the report predicted) took 3m25s
+# for 436 vehicles (all newly enriched, ~0.47s/vehicle, ~55 vehicles/
+# dealer already-crawled). Two brands, 25 dealers, 2,461 vehicles, ~14m
+# combined — and the per-dealer vehicle count already varies ~2x between
+# just these two brands, which is the clearest evidence yet that
+# enrichment time is driven by live vehicle count, not dealer count or
+# state size. Do not multiply either sample's per-dealer time by TX's
+# other ~146 ready rooftops (Toyota's 38 ready alone almost certainly
+# carries a materially different vehicle-count profile than Porsche's or
+# Mini's — untested here). Do NOT add TX's runtime to this box's schedule
+# from an estimate — that is a scheduling conversation for the user once
+# TX has a real full run's number, not something to project from a
+# two-brand sample. Note that TX alone (312 rooftops) already approaches
+# FL's dealer count, and adding it as a fifth state to a schedule where
+# NJ+NY+FL+GA already runs ~7h55m against an 11pm ET start needs the
+# user's own call on timing, not an assumption baked into this comment.
 0  21 * * * cd /home/ubuntu/lightsail-crawler && mkdir -p logs && node scripts/run-daily-crawl.mjs >> logs/run-all-$(date +\%F).log 2>&1
 ```
 

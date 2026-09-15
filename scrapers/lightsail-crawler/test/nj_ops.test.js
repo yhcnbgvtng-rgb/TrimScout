@@ -22,6 +22,7 @@ import { extractWindowSticker, applyWindowSticker, captureWindowStickerFromPage 
 import { loadNyDealers, acceptNyDealer } from '../src/ny_policy.js';
 import { loadFlDealers, acceptFlDealer } from '../src/fl_policy.js';
 import { loadGaDealers, acceptGaDealer } from '../src/ga_policy.js';
+import { loadTxDealers, acceptTxDealer } from '../src/tx_policy.js';
 import { SUPPORTED_STATES, isSupportedState } from '../src/states.js';
 import { computeEta, emptyProgress, writeProgress, readProgress, renderProgressHtml } from '../src/progress.js';
 import { priceChangeVsYesterday, inventoryChangeTypeToPriceChangeType } from '../src/price_diff.js';
@@ -411,12 +412,14 @@ describe('NY locator seed (no brandofcity guesses)', () => {
 });
 
 describe('state registry (src/states.js)', () => {
-  it('lists NJ, NY, FL, GA as supported and rejects anything else', () => {
-    assert.deepEqual(SUPPORTED_STATES, ['NJ', 'NY', 'FL', 'GA']);
+  it('lists NJ, NY, FL, GA, TX as supported and rejects anything else', () => {
+    assert.deepEqual(SUPPORTED_STATES, ['NJ', 'NY', 'FL', 'GA', 'TX']);
     assert.equal(isSupportedState('FL'), true);
     assert.equal(isSupportedState('fl'), true);
     assert.equal(isSupportedState('GA'), true);
     assert.equal(isSupportedState('ga'), true);
+    assert.equal(isSupportedState('TX'), true);
+    assert.equal(isSupportedState('tx'), true);
     assert.equal(isSupportedState(' NJ '), true);
     assert.equal(isSupportedState('CT'), false);
     assert.equal(isSupportedState(''), false);
@@ -554,6 +557,80 @@ describe('GA locator seed (no brandofcity guesses)', () => {
     assert.ok(gaAutosport, 'GA Kia Autosport (Columbus) must not be dropped by a cross-state dedup collision');
     assert.ok(flAutosport, 'FL Kia Autosport (Pensacola) must not be dropped by a cross-state dedup collision');
     assert.notEqual(gaAutosport.domain, flAutosport.domain);
+  });
+});
+
+describe('TX locator seed (no brandofcity guesses)', () => {
+  it('loads TX in-scope rooftops from OEM locators and listings only', () => {
+    assert.equal(acceptTxDealer({ name: 'Acura of Austin North', state: 'TX', make: 'Acura', domain: 'acuraofaustinnorth.com' }), true);
+    assert.equal(acceptTxDealer({ name: 'AutoNation Acura', state: 'TX', make: 'Acura', domain: 'autonationacura.com' }), false);
+    assert.equal(acceptTxDealer({ name: 'Rick Hendrick Chevrolet', state: 'TX', make: 'Chevrolet', domain: 'rickhendrickchevrolet.com' }), false);
+    assert.equal(acceptTxDealer({ name: 'Acura of Austin North', state: 'FL', make: 'Acura', domain: 'acuraofaustinnorth.com' }), false);
+
+    const all = loadTxDealers({ cwd: CRAWLER_ROOT });
+    assert.ok(all.length > 0);
+    assert.ok(all.every((d) => d.state === 'TX'));
+    assert.ok(all.every((d) => isNjBrandIn(d.make)));
+    assert.ok(all.every((d) => !isNjBrandOut(d.make)));
+    assert.ok(all.every((d) => !isMegadealerOrSuperstore(d)));
+    assert.ok(all.every((d) => ['oem-locator', 'listing-verified', 'curated-overlay'].includes(d.domainSource)), 'every rooftop must have a verified source');
+    assert.ok(all.every((d) => d.domainSource !== 'pattern-guess'));
+
+    // Acura and Porsche's TX rows come straight out of the existing
+    // nationwide in-repo locator dumps (acura-dealers.json / dealers.json),
+    // which already covered every state including TX before this branch —
+    // confirming loadTxDealers actually reaches that data, not just an
+    // empty seed.
+    const acura = loadTxDealers({ cwd: CRAWLER_ROOT, brand: 'Acura' });
+    assert.ok(acura.length > 5);
+    assert.ok(acura.every((d) => d.make === 'Acura'));
+    assert.ok(acura.every((d) => d.domainSource === 'oem-locator'));
+    const austinNorth = acura.find((d) => /acura of austin north/i.test(d.name));
+    assert.ok(austinNorth);
+    assert.equal(austinNorth.domain, 'acuraofaustinnorth.com');
+
+    const porsche = loadTxDealers({ cwd: CRAWLER_ROOT, brand: 'Porsche' });
+    assert.ok(porsche.length > 10);
+    assert.ok(porsche.every((d) => d.make === 'Porsche'));
+    const porscheAustin = porsche.find((d) => /porsche austin/i.test(d.name));
+    assert.ok(porscheAustin);
+    assert.equal(porscheAustin.domain, 'porscheaustin.com');
+
+    // A brand with no working locator (Honda/Nissan/Infiniti/Audi/Volvo,
+    // blocked for NJ/NY/FL/GA too) stays honestly empty for TX rather than
+    // inventing a host.
+    const honda = loadTxDealers({ cwd: CRAWLER_ROOT, brand: 'Honda' });
+    assert.equal(honda.length, 0);
+    const audi = loadTxDealers({ cwd: CRAWLER_ROOT, brand: 'Audi' });
+    assert.equal(audi.length, 0);
+    const volvo = loadTxDealers({ cwd: CRAWLER_ROOT, brand: 'Volvo' });
+    assert.equal(volvo.length, 0);
+
+    // Toyota/Subaru TX rows come from the live OEM-locator dumps this
+    // branch's fetch-oem-dealer-locators.mjs run added (real fetches
+    // against toyota.com's dealer-hub pages and subaru.com's dealer-
+    // distance API across 20 Texas metro/regional zip seeds, not invented
+    // brandofcity hosts).
+    const toyota = loadTxDealers({ cwd: CRAWLER_ROOT, brand: 'Toyota' });
+    assert.ok(toyota.length > 20);
+    assert.ok(toyota.every((d) => d.domainSource === 'oem-locator'));
+    const subaru = loadTxDealers({ cwd: CRAWLER_ROOT, brand: 'Subaru' });
+    assert.ok(subaru.length > 10);
+    assert.ok(subaru.some((d) => d.domain === 'austinsubaru.com'));
+
+    // Real same-name-different-state dealer group collision surfaced while
+    // adding TX (same class of bug the GA/FL "Kia Autosport" case above
+    // caught, confirming the state-scoped dedup key in src/oem_locator.js
+    // generalizes to a 5th state without a new special case): "Five Star
+    // Subaru" is a genuinely distinct rooftop in both Oneonta, NY and
+    // Grapevine, TX, and both must survive independently.
+    const txSubaru = loadTxDealers({ cwd: CRAWLER_ROOT, brand: 'Subaru' });
+    const nySubaru = loadNyDealers({ cwd: CRAWLER_ROOT, brand: 'Subaru' });
+    const txFiveStar = txSubaru.find((d) => /five star subaru/i.test(d.name));
+    const nyFiveStar = nySubaru.find((d) => /five star subaru/i.test(d.name));
+    assert.ok(txFiveStar, 'TX Five Star Subaru (Grapevine) must not be dropped by a cross-state dedup collision');
+    assert.ok(nyFiveStar, 'NY Five Star Subaru (Oneonta) must not be dropped by a cross-state dedup collision');
+    assert.notEqual(txFiveStar.domain, nyFiveStar.domain);
   });
 });
 

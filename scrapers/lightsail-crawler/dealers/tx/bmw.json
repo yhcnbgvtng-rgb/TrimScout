@@ -1,0 +1,16 @@
+[
+  {
+    "id": "bmw-bmw-of-san-antonio",
+    "name": "BMW of San Antonio",
+    "city": "San Antonio",
+    "state": "TX",
+    "make": "BMW",
+    "domain": "bmwofsanantonio.com",
+    "sitemapUrl": "https://www.bmwofsanantonio.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.bmwofsanantonio.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://bmwofsanantonio.com/",
+    "lat": null,
+    "lng": null,
+    "domainSource": "listing-verified"
+  }
+]
