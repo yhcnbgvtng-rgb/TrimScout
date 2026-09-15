@@ -410,6 +410,8 @@ export default function RfqWorkspacePage() {
   // walk responses carry only the rfq, so the page recomputes from the same
   // pure function until the next load.
   const [leaseCompare, setLeaseCompare] = useState<LeaseCompareData | null>(null);
+  // Factory stickers found on a later re-check (Hyundai lists before the label exists), by VIN.
+  const [stickerRecheck, setStickerRecheck] = useState<Record<string, { msrp: number | null; pdfUrl: string; make: string }>>({});
   const [loadError, setLoadError] = useState<string | null>(null);
   const [pickError, setPickError] = useState<string | null>(null);
   const [picking, setPicking] = useState(false);
@@ -424,6 +426,7 @@ export default function RfqWorkspacePage() {
     }
     setRfq(json.rfq);
     setLeaseCompare((json.leaseCompare as LeaseCompareData | null) ?? null);
+    setStickerRecheck((json.stickerRecheck as typeof stickerRecheck) || {});
   }, [rfqId]);
 
   useEffect(() => {
@@ -505,6 +508,14 @@ export default function RfqWorkspacePage() {
           <span className="font-mono">{rfq.vin}</span>
         </p>
       </div>
+
+      {Object.values(stickerRecheck).map((hit) => (
+        <p key={hit.pdfUrl} className="flex flex-wrap items-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/5 px-4 py-2.5 text-xs text-ink-light" data-testid="sticker-published">
+          <span className="rounded bg-emerald-500/15 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-emerald-300">Factory verified</span>
+          The factory window sticker for this {hit.make} has been published{hit.msrp ? <> — MSRP ${hit.msrp.toLocaleString()}</> : null}.
+          <a href={hit.pdfUrl} target="_blank" rel="noreferrer" className="font-bold text-emerald-400 hover:text-emerald-300">View sticker</a>
+        </p>
+      ))}
 
       {rfq.leasePrefs ? <LeaseQuoteSheet rfq={rfq} onSaved={setRfq} /> : null}
 

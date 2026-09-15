@@ -36,6 +36,8 @@ type Context = {
   msrp: number | null;
   /** Buyer said a trade-in is coming (handled after the OTD price). */
   tradeInExpected: boolean | null;
+  /** The factory window sticker, when it was found on a later re-check. */
+  factoryStickerUrl: string | null;
 };
 
 /** On every dealer sheet: the quote is the car alone — a trade comes after the OTD price is agreed. */
@@ -117,6 +119,7 @@ function ReceivedBody() {
                 {ctx?.vin ? <> · VIN <span className="font-mono">{ctx.vin}</span></> : null}
                 {ctx?.stockNumber ? <> · stock {ctx.stockNumber}</> : null}
                 {ctx?.dealReference ? <> · ref {ctx.dealReference}</> : null}
+                {ctx?.factoryStickerUrl ? <> · <a href={ctx.factoryStickerUrl} target="_blank" rel="noreferrer" className="font-bold text-emerald-400 hover:text-emerald-300" data-testid="factory-sticker-link">Factory window sticker</a></> : null}
               </p>
             ) : null}
           </div>
