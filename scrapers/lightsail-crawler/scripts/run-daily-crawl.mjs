@@ -4,7 +4,7 @@
 // Replaces the ad-hoc SSH shell loops used to run the first NJ and NY
 // crawls (2026-09-14) with one persistent, committed job that cron can
 // call unattended. Runs once per state in src/states.js#SUPPORTED_STATES
-// (NJ, NY, FL, then GA as of 2026-09-15). For each state, in order:
+// (NJ, NY, FL, GA, then TX as of 2026-09-15). For each state, in order:
 //
 //   1. Regenerate dealers/<state>/<brand>.json from the OEM-locator dumps
 //      (write-nj-dealer-files.mjs / write-ny-dealer-files.mjs). This is
@@ -65,6 +65,7 @@ export const WRITE_DEALER_SCRIPTS = {
   NY: 'write-ny-dealer-files.mjs',
   FL: 'write-fl-dealer-files.mjs',
   GA: 'write-ga-dealer-files.mjs',
+  TX: 'write-tx-dealer-files.mjs',
 };
 
 // Logs accumulate one file per (state, brand, day) forever otherwise —

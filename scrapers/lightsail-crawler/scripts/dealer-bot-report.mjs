@@ -14,6 +14,7 @@
 //   node scripts/dealer-bot-report.mjs --state=NY
 //   node scripts/dealer-bot-report.mjs --state=FL
 //   node scripts/dealer-bot-report.mjs --state=GA
+//   node scripts/dealer-bot-report.mjs --state=TX
 //   CRAWLER_BRAND=Porsche node scripts/dealer-bot-report.mjs
 
 import fs from 'node:fs/promises';
@@ -22,6 +23,7 @@ import { loadNjDealers, isNjBrandOut } from '../src/nj_policy.js';
 import { loadNyDealers } from '../src/ny_policy.js';
 import { loadFlDealers } from '../src/fl_policy.js';
 import { loadGaDealers } from '../src/ga_policy.js';
+import { loadTxDealers } from '../src/tx_policy.js';
 import { probeDealer } from '../src/http_probe.js';
 import { buildTablePdf, buildSummaryBlocks } from '../src/pdf_table.js';
 import { CLASSIFICATION_ORDER, summarizeBotRows } from '../src/bot_protection.js';
@@ -35,6 +37,7 @@ const STATE_DEALER_LOADERS = {
   NY: loadNyDealers,
   FL: loadFlDealers,
   GA: loadGaDealers,
+  TX: loadTxDealers,
 };
 
 const brandFilter = (process.argv.find((a) => a.startsWith('--brand=')) || '')
