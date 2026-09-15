@@ -28,7 +28,15 @@
 // Concurrency note: this assumes brand runs are serial, never concurrent —
 // the same assumption standalone.js's own README already documents
 // ("Never run two brands concurrently"). A read-modify-write here is not
-// safe against two processes writing the same date's file at once.
+// safe against two processes writing the same date's file at once. This is
+// exactly the failure mode the driver's PID-file lock (see
+// scripts/run-daily-crawl.mjs's acquireLock()) guards against at the
+// whole-run level — it stops a second `run-daily-crawl.mjs` invocation
+// (e.g. cron firing into a still-running manual run) from ever starting
+// brand processes concurrently with an already-running invocation's. It
+// does not by itself make concurrent writes to this file safe; it just
+// prevents the driver from ever creating that situation in the first
+// place.
 
 export function buildBrandChangeRecord({
   brand,

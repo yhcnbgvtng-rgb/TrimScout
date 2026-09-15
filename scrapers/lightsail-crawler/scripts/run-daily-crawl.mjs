@@ -43,6 +43,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { NJ_BRANDS_IN } from '../src/nj_policy.js';
 import { SUPPORTED_STATES } from '../src/states.js';
+import { easternDateStamp } from '../src/date_utils.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export const ROOT = path.resolve(__dirname, '..');
@@ -79,8 +80,21 @@ export const LOG_RETENTION_DAYS = 30;
 export const PER_BRAND_TIMEOUT_MS = 2 * 60 * 60 * 1000; // 2 hours
 const SUPPORT_STEP_TIMEOUT_MS = 30 * 60 * 1000; // write-dealers / bot-report
 
+// PID-file lock so a second invocation of this driver (e.g. cron firing
+// again while a manual run, or the previous day's run, is still going)
+// refuses to start instead of running concurrently against the same
+// shared data files (national_inventory_latest.json, daily_changes/,
+// bot-report outputs) — see acquireLock() below for the actual guard.
+export const LOCK_PATH = path.join(RUNS_DIR, 'driver.lock');
+
+// Calendar-date bucketing (report/log/summary filenames) uses the Eastern
+// calendar date, not UTC — see src/date_utils.js. A run that starts late
+// evening Eastern (already past midnight UTC) or early morning Eastern
+// (not yet past midnight UTC, depending on DST) must still file under the
+// same Eastern business day cron intended, not whichever UTC date happens
+// to be current at process start.
 function todayStamp() {
-  return new Date().toISOString().slice(0, 10);
+  return easternDateStamp();
 }
 
 export function slugify(s) {
@@ -118,6 +132,57 @@ export async function pruneOldLogs({ logsDir = LOGS_DIR, retentionDays = LOG_RET
     }
   }
   return { removed, checked };
+}
+
+// True if a process with this PID is still alive. EPERM means it exists
+// but is owned by another user (still alive); ESRCH (the common case for a
+// stale lock left by a crashed/killed run) means it is not.
+function isProcessAlive(pid) {
+  try {
+    process.kill(pid, 0);
+    return true;
+  } catch (err) {
+    return err.code === 'EPERM';
+  }
+}
+
+// Overlap guard: refuses to let a second invocation of this driver start
+// while a previous one is still running. Root cause this fixes: the
+// installed cron fired at its scheduled time while a manually-started run
+// of this same script was still mid-crawl, and with no guard both
+// processes ran concurrently against the same shared files
+// (national_inventory_latest.json, data/daily_changes/, bot-report
+// outputs) until a human noticed and killed the duplicate.
+//
+// A plain PID file, not flock: this driver is invoked as `node
+// scripts/run-daily-crawl.mjs` directly from cron (see README), so a
+// Node-side check here needs no crontab change and no wrapping shell
+// command. If the lock file's PID is no longer alive (a crash or kill -9
+// that skipped cleanup), it's treated as stale and silently reclaimed —
+// this only ever blocks a run when another run is genuinely still active.
+export async function acquireLock({ lockPath = LOCK_PATH, pid = process.pid } = {}) {
+  await fs.mkdir(path.dirname(lockPath), { recursive: true });
+  let existing = null;
+  try {
+    existing = JSON.parse(await fs.readFile(lockPath, 'utf-8'));
+  } catch {
+    existing = null;
+  }
+  if (existing && typeof existing.pid === 'number' && existing.pid !== pid && isProcessAlive(existing.pid)) {
+    return {
+      acquired: false,
+      reason: `another run (pid ${existing.pid}, started ${existing.startedAt}) is still active`,
+      existingPid: existing.pid,
+    };
+  }
+  await fs.writeFile(lockPath, JSON.stringify({ pid, startedAt: new Date().toISOString() }));
+  return { acquired: true, reclaimedStale: Boolean(existing) };
+}
+
+// Releases the lock. Safe to call even if the lock was never acquired (or
+// was already removed) — never throws, so it's safe to put in a `finally`.
+export async function releaseLock({ lockPath = LOCK_PATH } = {}) {
+  await fs.rm(lockPath, { force: true });
 }
 
 // Runs one child process to completion (or until timeoutMs elapses, at
@@ -368,43 +433,59 @@ export async function main() {
   await fs.mkdir(LOGS_DIR, { recursive: true });
   await fs.mkdir(RUNS_DIR, { recursive: true });
 
-  const date = todayStamp();
-  const startedAt = new Date().toISOString();
-  const pruneResult = await pruneOldLogs();
-  console.log(`[driver] log retention: removed ${pruneResult.removed} of ${pruneResult.checked} log file(s) older than ${LOG_RETENTION_DAYS} days.`);
-
-  const summary = {
-    date,
-    startedAt,
-    logRetention: { days: LOG_RETENTION_DAYS, ...pruneResult },
-    states: {},
-  };
-
-  for (const state of STATES) {
-    console.log(`[driver] ==== ${state}: starting ====`);
-    try {
-      summary.states[state] = await runState(state, date);
-    } catch (err) {
-      // A whole state blowing up (e.g. can't create dealers/<state>/ dir)
-      // must not stop the other state from running.
-      console.error(`[driver] ${state}: fatal error — ${err.stack || err.message}`);
-      summary.states[state] = { state, fatalError: err.message };
-    }
-    console.log(`[driver] ==== ${state}: done ====`);
+  // Overlap guard — see acquireLock()'s comment. A refused start is
+  // logged and exits cleanly (not an error): cron firing into an already-
+  // running job is an expected occasional occurrence, not a failure.
+  const lock = await acquireLock();
+  if (!lock.acquired) {
+    console.log(`[driver] skipping this run: ${lock.reason}`);
+    return { skipped: true, reason: lock.reason };
+  }
+  if (lock.reclaimedStale) {
+    console.log('[driver] reclaimed a stale lock file left by a run that is no longer alive.');
   }
 
-  summary.finishedAt = new Date().toISOString();
-  summary.durationMs = Date.parse(summary.finishedAt) - Date.parse(summary.startedAt);
-  summary.grandTotals = computeGrandTotals(summary.states);
+  try {
+    const date = todayStamp();
+    const startedAt = new Date().toISOString();
+    const pruneResult = await pruneOldLogs();
+    console.log(`[driver] log retention: removed ${pruneResult.removed} of ${pruneResult.checked} log file(s) older than ${LOG_RETENTION_DAYS} days.`);
 
-  const summaryPath = path.join(RUNS_DIR, `summary_${date}.json`);
-  await fs.writeFile(summaryPath, JSON.stringify(summary, null, 2));
-  await fs.writeFile(path.join(RUNS_DIR, 'latest.json'), JSON.stringify(summary, null, 2));
+    const summary = {
+      date,
+      startedAt,
+      logRetention: { days: LOG_RETENTION_DAYS, ...pruneResult },
+      states: {},
+    };
 
-  console.log(`[driver] summary written to ${summaryPath}`);
-  console.log(`[driver] grand totals: ${JSON.stringify(summary.grandTotals)}`);
+    for (const state of STATES) {
+      console.log(`[driver] ==== ${state}: starting ====`);
+      try {
+        summary.states[state] = await runState(state, date);
+      } catch (err) {
+        // A whole state blowing up (e.g. can't create dealers/<state>/ dir)
+        // must not stop the other state from running.
+        console.error(`[driver] ${state}: fatal error — ${err.stack || err.message}`);
+        summary.states[state] = { state, fatalError: err.message };
+      }
+      console.log(`[driver] ==== ${state}: done ====`);
+    }
 
-  return summary;
+    summary.finishedAt = new Date().toISOString();
+    summary.durationMs = Date.parse(summary.finishedAt) - Date.parse(summary.startedAt);
+    summary.grandTotals = computeGrandTotals(summary.states);
+
+    const summaryPath = path.join(RUNS_DIR, `summary_${date}.json`);
+    await fs.writeFile(summaryPath, JSON.stringify(summary, null, 2));
+    await fs.writeFile(path.join(RUNS_DIR, 'latest.json'), JSON.stringify(summary, null, 2));
+
+    console.log(`[driver] summary written to ${summaryPath}`);
+    console.log(`[driver] grand totals: ${JSON.stringify(summary.grandTotals)}`);
+
+    return summary;
+  } finally {
+    await releaseLock();
+  }
 }
 
 // Only run when invoked directly (`node scripts/run-daily-crawl.mjs`), not

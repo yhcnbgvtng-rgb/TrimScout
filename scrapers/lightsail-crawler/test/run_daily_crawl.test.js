@@ -9,6 +9,8 @@ import {
   pruneOldLogs,
   runStep,
   computeGrandTotals,
+  acquireLock,
+  releaseLock,
   LOG_RETENTION_DAYS,
   STATES,
   WRITE_DEALER_SCRIPTS,
@@ -135,6 +137,74 @@ describe('run-daily-crawl driver', () => {
       assert.equal(totals.brandsOk, 2);
       assert.equal(totals.brandsFailed, 1);
       assert.equal(totals.brandsSkipped, 1);
+    });
+  });
+
+  // ---------------------------------------------------------------------
+  // Overlap guard: root cause this fixes — the installed cron fired at its
+  // scheduled time while a manually-started run of this same driver was
+  // still mid-crawl, and with no guard both processes ran concurrently
+  // against the same shared files (national_inventory_latest.json,
+  // data/daily_changes/, bot-report outputs) until a human noticed and
+  // killed the duplicate.
+  // ---------------------------------------------------------------------
+  describe('acquireLock / releaseLock (overlap guard)', () => {
+    let tmpDir;
+    before(async () => {
+      tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'trimscout-lock-'));
+    });
+    after(async () => {
+      await fs.rm(tmpDir, { recursive: true, force: true });
+    });
+
+    it('acquires a fresh lock when none exists', async () => {
+      const lockPath = path.join(tmpDir, 'fresh', 'driver.lock');
+      const result = await acquireLock({ lockPath, pid: 111 });
+      assert.equal(result.acquired, true);
+      assert.equal(result.reclaimedStale, false);
+      const written = JSON.parse(await fs.readFile(lockPath, 'utf-8'));
+      assert.equal(written.pid, 111);
+      assert.ok(written.startedAt);
+    });
+
+    it('refuses to acquire while a lock held by a still-alive PID exists (the overlapping-cron scenario)', async () => {
+      const lockPath = path.join(tmpDir, 'held.lock');
+      // process.pid (this test process) is guaranteed to be alive.
+      const first = await acquireLock({ lockPath, pid: process.pid });
+      assert.equal(first.acquired, true);
+
+      const second = await acquireLock({ lockPath, pid: process.pid + 1 });
+      assert.equal(second.acquired, false);
+      assert.equal(second.existingPid, process.pid);
+      assert.match(second.reason, /still active/);
+
+      await releaseLock({ lockPath });
+    });
+
+    it('reclaims a stale lock left by a PID that is no longer running', async () => {
+      const lockPath = path.join(tmpDir, 'stale.lock');
+      // PID 999999 should not correspond to a live process in this sandbox.
+      await fs.writeFile(lockPath, JSON.stringify({ pid: 999999, startedAt: '2020-01-01T00:00:00.000Z' }));
+
+      const result = await acquireLock({ lockPath, pid: process.pid });
+      assert.equal(result.acquired, true);
+      assert.equal(result.reclaimedStale, true);
+    });
+
+    it('releaseLock is a no-op (never throws) when there is nothing to release', async () => {
+      const lockPath = path.join(tmpDir, 'never-created.lock');
+      await assert.doesNotReject(releaseLock({ lockPath }));
+    });
+
+    it('releaseLock actually removes the lock file so a later run can acquire it', async () => {
+      const lockPath = path.join(tmpDir, 'roundtrip.lock');
+      await acquireLock({ lockPath, pid: process.pid });
+      await releaseLock({ lockPath });
+      await assert.rejects(fs.access(lockPath));
+
+      const again = await acquireLock({ lockPath, pid: process.pid });
+      assert.equal(again.acquired, true);
+      await releaseLock({ lockPath });
     });
   });
 });

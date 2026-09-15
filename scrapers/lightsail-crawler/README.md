@@ -227,6 +227,8 @@ Challenge / WAF / captcha pages are **skipped and logged**. This package must no
 
 `data/daily_changes/daily_changes_<date>.json` (see `daily_changes.js`) is keyed `states.<STATE>.brands.<BRAND>` — one slot per state/brand run that day, merged in rather than overwritten, so a multi-brand, multi-state day doesn't lose every brand but the last one. Each brand's slot carries a complete `priceChanges` list (date + old/new price + delta for every vehicle that changed price that run, not just a top-50 sample) alongside the existing bounded `topPriceDrops` convenience view.
 
+**All calendar-date bucketing is the Eastern calendar date, not UTC.** `<date>` above (and in `firstSeen`/`lastSeen`/`soldDate`, DOM-blob retention, `run_date` in the MariaDB `scrape_runs` table, and every filename below) comes from `easternDateStamp()` in `src/date_utils.js`, never from `new Date().toISOString().slice(0,10)`. That distinction matters because `toISOString()` always returns a UTC instant regardless of the process's `TZ` — a run anywhere near midnight (UTC or Eastern; they're never simultaneous) would otherwise file itself under the wrong calendar day. Precise instants (`generatedAt`, `startedAt`/`endedAt`/`finishedAt`, `submittedAt`, `collectedAt`, `updatedAt`) are unaffected by this and correctly stay real UTC ISO instants — only *which day* something is filed under changes, never how precisely a moment itself is recorded.
+
 ### Daily driver: NJ + NY + FL, every brand, one job
 
 ```bash
@@ -238,17 +240,25 @@ Runs once per state in `src/states.js`'s `SUPPORTED_STATES` (NJ, NY, then FL as 
 
 Per-brand console output goes to `logs/<state>-<brand>-<date>.log` (and `logs/<state>-write-dealers-<date>.log` / `logs/<state>-bot-report-<date>.log` for the two support steps); anything under `logs/` older than 30 days is deleted at the start of every run, so this doesn't accumulate forever. The structured, durable record of the whole run — every step's exit code/duration, which brands were skipped and why, and each brand's vehicle/price-change/sold counts pulled back out of that day's `daily_changes` file — is written to `data/daily_crawl_runs/summary_<date>.json` and `data/daily_crawl_runs/latest.json` and kept indefinitely (small JSON, not logs).
 
+**Overlap guard:** `main()` takes a PID-file lock at `data/daily_crawl_runs/driver.lock` before doing anything else and releases it in a `finally` when the run ends. If cron fires while a previous invocation (manual or cron) is still running, the new process logs why and exits `0` immediately — it never runs concurrently against the shared data files, and it never errors loudly for what's an expected occasional occurrence. A lock file left behind by a run that crashed or was `kill -9`'d without cleanup is detected as stale (its PID is no longer alive) and silently reclaimed by the next run. This needs no crontab change — it's a plain Node-side check inside the script cron already calls directly.
+
 ### Scheduler (staggered, one brand at a time)
 
 ~6–8 in-process page workers (`CRAWLER_CONCURRENCY`, default 8). Chromium is recycled every ~10 dealers (`CRAWLER_PATCHRIGHT_RECYCLE_AFTER`, default 10) if a browser is used for a non-challenge empty sitemap. On this NJ box set `CRAWLER_PATCHRIGHT_FALLBACK=false` so crawls stay HTTP-only.
 
-The daily driver (previous section) already runs one brand at a time internally and never overlaps two brands, so the box's crontab only needs one line for the whole NJ+NY+FL job:
+The daily driver (previous section) already runs one brand at a time internally and never overlaps two brands, so the box's crontab only needs one job line for the whole NJ+NY+FL run — plus a `TZ=` line above it, which matters for two separate reasons: it's what makes the job *fire* at the intended Eastern wall-clock time regardless of the box's system timezone, and (easy to miss) it's also what makes the `$(date +\%F)` in the log-filename redirect below resolve to the Eastern calendar date rather than the box's system timezone's date — otherwise that one shell-level date could disagree with every Eastern-calendar-date filename the Node process itself writes (see "Daily driver" above):
 
 ```cron
+TZ=America/New_York
+
 # Progress monitor (once at boot via systemd/pm2 is better than cron)
 @reboot cd /home/ubuntu/lightsail-crawler && node src/progress_server.js
 
-# NJ, NY, then FL, every brand: see "Daily driver" above.
+# NJ, NY, then FL, every brand: see "Daily driver" above. Safe to leave in
+# place even if a previous run is still going (e.g. it ran long, or a
+# manual run is mid-crawl) — the driver's own PID-file lock (see "Daily
+# driver" above) makes an overlapping fire a clean no-op instead of a
+# second concurrent crawl against the same shared files.
 #
 # NJ took ~1h45m (168 in-scope dealers) and NY ~2h38m (275 dealers) on
 # 2026-09-14's manual run — both ~0.6 min/dealer. FL adds ~320 in-scope
