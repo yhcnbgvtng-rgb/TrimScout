@@ -17,9 +17,11 @@ needs the box.
 
 ## Caps (429 + Retry-After)
 
-Per instance (each serverless instance counts its own): RFQ create 5/IP/10 min,
-3/account/10 min, 120/min global; invites 12/IP, 9/account, 300/min; signup
-5/IP/10 min. Override with `RATE_<NAME>_LIMIT` / `RATE_<NAME>_WINDOW_MS`
+Per instance (each serverless instance counts its own): RFQ create 20/IP/10 min,
+12/account/10 min, 120/min global; invites 40/IP, 30/account, 300/min; signup
+5/IP/10 min. (Per-account caps were 3 / 9 at launch and locked a single buyer
+out mid-flow — the global caps are the spike guard, the per-client ones only
+stop one hammering client.) Override with `RATE_<NAME>_LIMIT` / `RATE_<NAME>_WINDOW_MS`
 (names in `lib/rateLimit.ts`). **Hard global ceilings live in Vercel Firewall
 → Rate Limiting** — add rules on `/api/rfqs*`, `/api/auth/*`, `/api/*-sticker`
 before a launch; that layer is fleet-wide and free of instance math.

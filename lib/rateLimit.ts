@@ -49,11 +49,14 @@ export function checkRateLimit(key: string, limit: number, windowMs: number, now
 /** The named limits, each overridable by env: RATE_<NAME>_LIMIT / RATE_<NAME>_WINDOW_MS. */
 export type RateLimitName = "rfq_create_ip" | "rfq_create_user" | "rfq_create_global" | "invite_send_ip" | "invite_send_user" | "invite_send_global" | "signup_ip" | "signup_global";
 const DEFAULTS: Record<RateLimitName, { limit: number; windowMs: number }> = {
-  rfq_create_ip: { limit: 5, windowMs: 10 * 60_000 },
-  rfq_create_user: { limit: 3, windowMs: 10 * 60_000 },
+  // Per-account / per-IP caps are sized for a real buyer iterating on a request (re-sending after edits,
+  // trying an alternate VIN) — 3 creates in 10 min locked out a single person mid-flow. The global caps
+  // are the spike guard; these only stop one client from hammering.
+  rfq_create_ip: { limit: 20, windowMs: 10 * 60_000 },
+  rfq_create_user: { limit: 12, windowMs: 10 * 60_000 },
   rfq_create_global: { limit: 120, windowMs: 60_000 },
-  invite_send_ip: { limit: 12, windowMs: 10 * 60_000 },
-  invite_send_user: { limit: 9, windowMs: 10 * 60_000 },
+  invite_send_ip: { limit: 40, windowMs: 10 * 60_000 },
+  invite_send_user: { limit: 30, windowMs: 10 * 60_000 },
   invite_send_global: { limit: 300, windowMs: 60_000 },
   signup_ip: { limit: 5, windowMs: 10 * 60_000 },
   signup_global: { limit: 200, windowMs: 60_000 },
@@ -74,8 +77,14 @@ export function firstTrippedLimit(checks: Array<{ name: RateLimitName; subject: 
   return null;
 }
 
-export function tooManyRequests(v: RateLimitVerdict, message = "Too many requests — please wait a moment and try again."): NextResponse {
-  return NextResponse.json({ error: message, retryAfterSec: v.retryAfterSec }, { status: 429, headers: { "Retry-After": String(v.retryAfterSec), "X-RateLimit-Limit": String(v.limit), "X-RateLimit-Remaining": String(v.remaining) } });
+/** Honest wait copy: minutes when the window is long, so "wait a moment" never sits next to "366s". */
+export function retryAfterLabel(sec: number): string {
+  return sec >= 90 ? `about ${Math.ceil(sec / 60)} min` : `about ${Math.max(1, sec)}s`;
+}
+
+export function tooManyRequests(v: RateLimitVerdict, message?: string): NextResponse {
+  const text = message ?? `That's ${v.limit} sends in a short window — the cap that keeps dealers from being flooded. Try again in ${retryAfterLabel(v.retryAfterSec)}.`;
+  return NextResponse.json({ error: text, retryAfterSec: v.retryAfterSec }, { status: 429, headers: { "Retry-After": String(v.retryAfterSec), "X-RateLimit-Limit": String(v.limit), "X-RateLimit-Remaining": String(v.remaining) } });
 }
 
 export function serviceBusy(retryAfterSec = 30, message = "We're lining up your quote — try again in a moment."): NextResponse {

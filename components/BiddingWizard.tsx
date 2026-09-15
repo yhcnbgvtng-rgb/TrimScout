@@ -1887,8 +1887,10 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
       });
       const json = await res.json().catch(() => ({}));
       if (!res.ok || !json.rfq?.id) {
-        const wait = res.headers.get("Retry-After");
-        setSubmitError(json.error ? `${json.error}${wait && (res.status === 429 || res.status === 503) ? ` (try again in ~${wait}s)` : ""}` : "Could not create your quote request.");
+        const wait = Number(res.headers.get("Retry-After") || 0);
+        const waitLabel = wait >= 90 ? `about ${Math.ceil(wait / 60)} min` : `about ${wait}s`;
+        const saysWhen = /try again in/i.test(json.error || "");
+        setSubmitError(json.error ? `${json.error}${wait && !saysWhen && (res.status === 429 || res.status === 503) ? ` (try again in ${waitLabel})` : ""}` : "Could not create your quote request.");
         return;
       }
       const rfqId = String(json.rfq.id);
