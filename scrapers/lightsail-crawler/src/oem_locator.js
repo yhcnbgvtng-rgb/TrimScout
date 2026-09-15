@@ -8,6 +8,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { normalizeDealerHost, overlayKey } from './nj_verified_domains.js';
+import { SUPPORTED_STATES } from './states.js';
 
 const SOURCE_RANK = Object.freeze({
   'curated-overlay': 4,
@@ -149,7 +150,7 @@ function loadListingVerified(repoRoot, map, state) {
     const loc = v.location || {};
     const st = String(loc.state || '').toUpperCase();
     if (state && st !== state) continue;
-    if (st !== 'NJ' && st !== 'NY') continue;
+    if (!SUPPORTED_STATES.includes(st)) continue;
     const host = hostFromUrl(v.dealerUrl);
     const name = loc.dealerName;
     if (!host || !name || !v.make) continue;
