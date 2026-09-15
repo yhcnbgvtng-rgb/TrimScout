@@ -5,6 +5,7 @@ import { NextResponse } from "next/server";
 import { dealerReference } from "@/lib/dealerReference";
 import { getRfq, getRfqInviteByViewToken, markRfqInviteDelivery } from "@/lib/rfqApi";
 import { rfqVehicles } from "@/lib/rfqTracker";
+import { recheckPendingStickers, type StickerRecheckHit } from "@/lib/stickerRecheck";
 
 export async function GET(req: Request) {
   const token = (new URL(req.url).searchParams.get("t") || "").trim();
@@ -23,6 +24,9 @@ export async function GET(req: Request) {
   const invite = rfq.invites.find((i) => i.id === found.invite.id) || found.invite;
   const priorQuote = invite.priorQuotes?.length ? invite.priorQuotes[invite.priorQuotes.length - 1] : null;
   const thisCar = rfqVehicles(rfq).find((v) => v.vin === (invite.vehicle?.vin || rfq.vin)) || null;
+  // A sticker that wasn't published when the request was made may be now — ask again, and hand the dealer its MSRP and PDF.
+  const rechecks: Record<string, StickerRecheckHit> = await recheckPendingStickers(rfq).catch(() => ({}));
+  const recheck = thisCar ? rechecks[thisCar.vin] || null : null;
   const usedCar = thisCar && thisCar.condition !== "new" ? thisCar : null;
   return NextResponse.json({
     buyerCounter: invite.buyerCounter || null,
@@ -31,7 +35,8 @@ export async function GET(req: Request) {
     buyerMiles: usedCar?.mileage ?? null,
     buyerNote: rfq.buyerNote || null,
     tradeInExpected: rfq.tradeInExpected ?? null,
-    msrp: thisCar?.msrp ?? null,
+    msrp: thisCar?.msrp ?? recheck?.msrp ?? null,
+    factoryStickerUrl: recheck?.pdfUrl || null,
     vin: rfq.vin,
     stockNumber: rfq.stockNumber,
     vehicle: invite.vehicle || { year: rfq.vehicleYear, make: rfq.vehicleMake, model: rfq.vehicleModel, trim: rfq.vehicleTrim },

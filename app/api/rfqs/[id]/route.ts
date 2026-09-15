@@ -3,6 +3,7 @@ import { auth } from "@/auth";
 import { getRfq, RfqApiError } from "@/lib/rfqApi";
 import { publicRfqForBuyer } from "@/lib/rfq";
 import { analyzeLeaseQuotes } from "@/lib/leaseCompare";
+import { recheckPendingStickers } from "@/lib/stickerRecheck";
 
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
@@ -21,7 +22,9 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
     }
     // The server decides counter / expired / best — the page renders it as given.
     const pub = publicRfqForBuyer(rfq);
-    return NextResponse.json({ rfq: pub, leaseCompare: analyzeLeaseQuotes(pub) });
+    // Pending factory stickers (Hyundai lists weeks before the label exists) are asked again on every open.
+    const stickerRecheck = await recheckPendingStickers(rfq).catch(() => ({}));
+    return NextResponse.json({ rfq: pub, leaseCompare: analyzeLeaseQuotes(pub), stickerRecheck });
   } catch (err) {
     const message = err instanceof RfqApiError ? err.message : "Could not load this request.";
     const status = err instanceof RfqApiError ? err.status : 502;
