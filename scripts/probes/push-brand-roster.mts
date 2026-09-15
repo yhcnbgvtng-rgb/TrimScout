@@ -8,9 +8,10 @@
  */
 import fs from "node:fs";
 const BRAND = process.argv[2];
-if (!BRAND) throw new Error("usage: npx tsx scripts/probes/push-brand-roster.mts <Brand>  (folder scrapers/dealer-rosters/<brand>/)");
+if (!BRAND) throw new Error("usage: npx tsx scripts/probes/push-brand-roster.mts <Brand> [folder]  (folder defaults to scrapers/dealer-rosters/<brand>/)");
+const FOLDER = process.argv[3] || BRAND.toLowerCase();
 import { listDealerships, bulkUpsertDealerships } from "../../lib/dealershipsApi";
-const rows = JSON.parse(fs.readFileSync(`scrapers/dealer-rosters/${BRAND.toLowerCase()}/upload_rows.json`, "utf8")) as Array<Record<string, unknown> & { dealerName: string; contactName: string; contactEmail: string; notes: string }>;
+const rows = JSON.parse(fs.readFileSync(`scrapers/dealer-rosters/${FOLDER}/upload_rows.json`, "utf8")) as Array<Record<string, unknown> & { dealerName: string; contactName: string; contactEmail: string; notes: string }>;
 const live = await listDealerships();
 const byName = new Map(live.map((d) => [d.dealerName.trim().toLowerCase(), d]));
 const payload = rows.map((r) => {

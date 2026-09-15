@@ -1,0 +1,2474 @@
+[
+ {
+  "dealer_name": "Audi Anchorage",
+  "status": "fetched",
+  "source_url": "https://www.audiofanchorage.com/en/about-us/",
+  "contact_name": "Chris Uranga",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Birmingham",
+  "status": "fetched",
+  "source_url": "https://www.audiofbirmingham.com/en/about-us/",
+  "contact_name": "Roberto Rodriguez",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Huntsville",
+  "status": "fetched",
+  "source_url": "https://www.audihuntsville.com/en/about-us/",
+  "contact_name": "Eric Hedges",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Mobile",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Montgomery",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Little Rock",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Arrowhead",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Chandler",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Gilbert",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi North Scottsdale",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Tucson",
+  "status": "fetched",
+  "source_url": "https://www.auditucson.com/en/about-us/",
+  "contact_name": "German Bojorquez",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Bakersfield",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Beverly Hills",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Burlingame",
+  "status": "fetched",
+  "source_url": "https://www.audiburlingame.com/en/about-us/",
+  "contact_name": "Charles Lazatin",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Calabasas",
+  "status": "fetched",
+  "source_url": "https://www.audicalabasas.com/en/about-us/",
+  "contact_name": "Ark Zakharyan",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Carlsbad",
+  "status": "fetched",
+  "source_url": "https://www.audicarlsbad.com/en/about-us/",
+  "contact_name": "Max Johnson",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Concord",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Downtown LA",
+  "status": "fetched",
+  "source_url": "https://www.audidtla.com/en/about-us/",
+  "contact_name": "Andy Maleki",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Elk Grove",
+  "status": "fetched",
+  "source_url": "https://www.audielkgrove.com/en/about-us/",
+  "contact_name": "Danny Connelly",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Escondido",
+  "status": "fetched",
+  "source_url": "https://www.audiescondido.com/dealership/staff.htm",
+  "contact_name": "Dhruv Barot",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Fletcher Jones",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Fremont",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Livermore",
+  "status": "fetched",
+  "source_url": "https://www.livermoreaudi.com/en/about-us/",
+  "contact_name": "Sam Zemaryalai",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Long Beach",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Marin",
+  "status": "fetched",
+  "source_url": "https://www.audimarin.com/en/about-us/",
+  "contact_name": "with our",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Mission Viejo",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Modesto",
+  "status": "fetched",
+  "source_url": "https://www.audimodesto.com/en/about-us/",
+  "contact_name": "Lei Russell",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Monterey Peninsula",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Napa Valley",
+  "status": "fetched",
+  "source_url": "https://www.audinapavalley.com/en/about-us/",
+  "contact_name": "Doreen Tan",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi North OC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Oakland",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Ontario",
+  "status": "fetched",
+  "source_url": "https://www.audiontario.com/en/about-us/",
+  "contact_name": "Chris Childs",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Oxnard",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Pacific",
+  "status": "fetched",
+  "source_url": "https://www.audipacific.com/en/about-us/",
+  "contact_name": "Steve Baldassano",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Palo Alto",
+  "status": "fetched",
+  "source_url": "https://www.audipaloalto.com/en/about-us/",
+  "contact_name": "Phil Ward",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Pasadena",
+  "status": "fetched",
+  "source_url": "https://www.audipasadena.com/en/about-us/",
+  "contact_name": "Ivan Lai",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Rancho Mirage",
+  "status": "fetched",
+  "source_url": "https://www.audiranchomirage.com/en/about-us/",
+  "contact_name": "with our",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Riverside",
+  "status": "fetched",
+  "source_url": "https://www.audiriverside.com/en/about-us/",
+  "contact_name": "John Scholz",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Rocklin",
+  "status": "fetched",
+  "source_url": "https://www.audirocklin.com/en/about-us/",
+  "contact_name": "Brandon Toll",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi San Diego",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi San Francisco",
+  "status": "fetched",
+  "source_url": "https://www.audisanfrancisco.com/en/about-us/",
+  "contact_name": "Robert Topalyan",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi San Jose",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Santa Barbara",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Santa Monica",
+  "status": "fetched",
+  "source_url": "https://www.audisantamonica.com/en/about-us/",
+  "contact_name": "Uttam Oli",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi South Coast",
+  "status": "fetched",
+  "source_url": "https://www.audisouthcoast.com/dealership/staff.htm",
+  "contact_name": "Paul Shin",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Temecula",
+  "status": "fetched",
+  "source_url": "https://www.auditemecula.com/en/about-us/",
+  "contact_name": "Moe Majed",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Valencia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Van Nuys",
+  "status": "fetched",
+  "source_url": "https://www.audivannuys.com/en/about-us/",
+  "contact_name": "Chris Pruitt",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi West Covina",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "McKenna Audi",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Niello Audi",
+  "status": "fetched",
+  "source_url": "https://www.nielloaudi.com/en/about-us/",
+  "contact_name": "Andrew Lyon",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Rusnak/Westlake Audi",
+  "status": "fetched",
+  "source_url": "https://www.audiwestlake.com/en/about-us/",
+  "contact_name": "Joe' Rojas",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Colorado Springs",
+  "status": "fetched",
+  "source_url": "https://www.audicoloradosprings.com/en/about-us/",
+  "contact_name": "Wil Harold",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Denver",
+  "status": "fetched",
+  "source_url": "https://www.audidenver.com/en/about-us/",
+  "contact_name": "Alexander Audi",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Flatirons",
+  "status": "fetched",
+  "source_url": "https://www.audiflatirons.com/en/about-us/",
+  "contact_name": "Heavrin Audi",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Fort Collins",
+  "status": "fetched",
+  "source_url": "https://www.audifortcollins.com/en/about-us/",
+  "contact_name": "Zach Gurley",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Glenwood Springs",
+  "status": "fetched",
+  "source_url": "https://www.audiglenwoodsprings.com/en/about-us/",
+  "contact_name": "Kelly Hooper",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Parker",
+  "status": "fetched",
+  "source_url": "https://www.audiparker.com/en/about-us/",
+  "contact_name": "Egolf Audi",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Prestige Imports",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Danbury",
+  "status": "fetched",
+  "source_url": "https://www.audidanbury.com/en/about-us/",
+  "contact_name": "most attentive",
+  "contact_title": "Sales Team",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Fairfield",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Greenwich",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi of Wallingford",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hoffman Audi",
+  "status": "fetched",
+  "source_url": "https://www.hoffmanaudiofhartford.com/en/about-us/",
+  "contact_name": "Jerrold Winful",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hoffman Audi of New London",
+  "status": "fetched",
+  "source_url": "https://www.hoffmanaudiofnewlondon.com/en/about-us/",
+  "contact_name": "Bruno Aparicio",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Valenti Audi",
+  "status": "fetched",
+  "source_url": "https://www.valentiaudi.com/en/about-us/",
+  "contact_name": "Charles Sarafian",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Wilmington",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Clearwater",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Coral Springs",
+  "status": "fetched",
+  "source_url": "https://www.audicoralsprings.com/en/about-us/",
+  "contact_name": "Clint Briggs",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Fort Lauderdale",
+  "status": "fetched",
+  "source_url": "https://www.audifortlauderdale.com/en/about-us/",
+  "contact_name": "Dan Bakerman",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Fort Myers",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Gainesville",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Jacksonville",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Lakeland",
+  "status": "fetched",
+  "source_url": "https://www.audilakeland.com/en/about-us/",
+  "contact_name": "Tom Brinkmann",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Melbourne",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Miami South",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Naples",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi North Miami",
+  "status": "fetched",
+  "source_url": "https://www.audinorthmiami.com/en/about-us/",
+  "contact_name": "Sal Lomeli",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi North Orlando",
+  "status": "fetched",
+  "source_url": "https://www.audinorthorlando.com/en/about-us/",
+  "contact_name": "Destin Dixon",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Orange Park",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Pembroke Pines",
+  "status": "fetched",
+  "source_url": "https://www.audipembrokepines.com/en/about-us/",
+  "contact_name": "Max Voytenkov",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Pensacola",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Sarasota",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi South Orlando",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Stuart",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Tampa",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Wesley Chapel",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi West Palm Beach",
+  "status": "fetched",
+  "source_url": "https://www.audiwpb.com/en/about-us/",
+  "contact_name": "Jake Wiseman",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "The Collection Audi",
+  "status": "fetched",
+  "source_url": "https://www.thecollectionaudimiami.com/en/about-us/",
+  "contact_name": "Michael Garilli",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Atlanta",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Augusta",
+  "status": "fetched",
+  "source_url": "https://www.audiaugusta.com/en/about-us/",
+  "contact_name": "Matthew Guzman",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Forsyth County",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Gwinnett",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Marietta",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi North Atlanta",
+  "status": "fetched",
+  "source_url": "https://www.audinorthatlanta.com/en/about-us/",
+  "contact_name": "Steve Lee",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi South Atlanta",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Honolulu",
+  "status": "fetched",
+  "source_url": "https://www.audihonolulu.com/en/about-us/",
+  "contact_name": "Michael Lofano",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Des Moines",
+  "status": "fetched",
+  "source_url": "https://www.audiofdesmoines.com/en/about-us/",
+  "contact_name": "George Meza",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Iowa City",
+  "status": "fetched",
+  "source_url": "https://www.carouseliowacityaudi.com/en/about-us/",
+  "contact_name": "Tor Nicklaus",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Quad Cities",
+  "status": "fetched",
+  "source_url": "https://www.quadcitiesaudi.com/en/about-us/",
+  "contact_name": "investment. As",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Boise",
+  "status": "fetched",
+  "source_url": "https://www.audiboise.com/en/about-us/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Bloomington Normal",
+  "status": "fetched",
+  "source_url": "https://www.audibn.com/en/about-us/",
+  "contact_name": "Mike Abood",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Chicago",
+  "status": "fetched",
+  "source_url": "https://www.audichicago.com/en/about-us/",
+  "contact_name": "Brandon Moore",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Exchange St. Charles",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Hoffman Estates",
+  "status": "fetched",
+  "source_url": "https://www.audihoffmanestates.com/en/about-us/",
+  "contact_name": "Brian Hall",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Loves Park",
+  "status": "fetched",
+  "source_url": "https://www.napletonaudi.com/en/about-us/",
+  "contact_name": "Geoff Feinblatt",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Morton Grove",
+  "status": "fetched",
+  "source_url": "https://www.audimortongrove.com/en/about-us/",
+  "contact_name": "Jose V.",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Naperville",
+  "status": "fetched",
+  "source_url": "https://www.napervilleaudi.com/en/about-us/",
+  "contact_name": "Isaac Stiegler",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Orland Park",
+  "status": "fetched",
+  "source_url": "https://www.orlandparkaudi.com/en/about-us/",
+  "contact_name": "Christopher Bard",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Peoria",
+  "status": "fetched",
+  "source_url": "https://www.audipeoria.com/en/about-us/",
+  "contact_name": "Malyk Parker",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Westmont",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Green Audi",
+  "status": "fetched",
+  "source_url": "https://www.greenaudi.com/en/about-us/",
+  "contact_name": "Mylas Copeland",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "The Audi Exchange",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Fort Wayne",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Indianapolis",
+  "status": "fetched",
+  "source_url": "https://www.audiindianapolis.com/en/about-us/",
+  "contact_name": "Rod Ingalls",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Lafayette",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Michiana",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Northwest Indiana",
+  "status": "fetched",
+  "source_url": "https://www.audinwindiana.com/en/about-us/",
+  "contact_name": "Chris McCarty",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "D-Patrick Audi",
+  "status": "fetched",
+  "source_url": "https://www.dpatrickaudi.com/en/about-us/",
+  "contact_name": "Tony Ricketts",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Royal Audi",
+  "status": "fetched",
+  "source_url": "https://www.royalaudi.com/en/about-us/",
+  "contact_name": "Jared Mann",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Shawnee Mission",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Wichita",
+  "status": "fetched",
+  "source_url": "https://www.audiwichita.com/en/about-us/",
+  "contact_name": "Bac Ta",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Lexington",
+  "status": "fetched",
+  "source_url": "https://www.audilexington.com/en/about-us/",
+  "contact_name": "Brandon Miller",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Louisville",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Baton Rouge",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Lafayette",
+  "status": "fetched",
+  "source_url": "https://www.audilafayettelouisiana.com/en/about-us/",
+  "contact_name": "Lonnie Sabbath",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi New Orleans",
+  "status": "fetched",
+  "source_url": "https://www.audineworleans.com/en/about-us/",
+  "contact_name": "Nickolas Underwood",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Shreveport",
+  "status": "fetched",
+  "source_url": "https://www.audishreveport.com/en/about-us/",
+  "contact_name": "Kenn Posey",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Brookline",
+  "status": "fetched",
+  "source_url": "https://www.audibrookline.com/en/about-us/",
+  "contact_name": "Reske Jr",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Burlington",
+  "status": "fetched",
+  "source_url": "https://www.audiburlington.com/en/about-us/",
+  "contact_name": "Adnan Sehovic",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Cape Cod",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Fall River",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Lenox",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Natick",
+  "status": "fetched",
+  "source_url": "https://www.audinatick.com/en/about-us/",
+  "contact_name": "Wunna Zeya",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Norwell",
+  "status": "fetched",
+  "source_url": "https://www.audinorwell.com/en/about-us/",
+  "contact_name": "William Tulloch",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Peabody",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Shrewsbury",
+  "status": "fetched",
+  "source_url": "https://www.audishrewsbury.com/en/about-us/",
+  "contact_name": "Ben Muenzberg",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi West Springfield",
+  "status": "fetched",
+  "source_url": "https://www.audiwestspringfield.com/en/about-us/",
+  "contact_name": "was named",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Westwood",
+  "status": "fetched",
+  "source_url": "https://www.audiwestwood.com/en/about-us/",
+  "contact_name": "Patrick Coffey",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Annapolis",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Bethesda",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Frederick",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Hunt Valley",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Owings Mills",
+  "status": "fetched",
+  "source_url": "https://www.audiowingsmills.com/en/about-us/",
+  "contact_name": "Dan Banicevic",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Rockville",
+  "status": "fetched",
+  "source_url": "https://www.audirockville.com/en/about-us/",
+  "contact_name": "Marcus Oh",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Silver Spring",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Falmouth",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Darling's Audi",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Thompson Audi",
+  "status": "fetched",
+  "source_url": "https://www.thompsonaudi.com/en/about-us/",
+  "contact_name": "Mark Thompson",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Ann Arbor",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Bay City",
+  "status": "fetched",
+  "source_url": "https://www.audibaycity.com/en/about-us/",
+  "contact_name": "Kelly Isbell",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Birmingham",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Grand Rapids",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Kalamazoo",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Lansing",
+  "status": "fetched",
+  "source_url": "https://www.audilansing.com/en/about-us/",
+  "contact_name": "Trisha Smith",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Muskegon",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Novi",
+  "status": "fetched",
+  "source_url": "https://www.audinovi.com/en/about-us/",
+  "contact_name": "Zach Lukenbill",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Petoskey",
+  "status": "fetched",
+  "source_url": "https://www.audipetoskey.com/en/about-us/",
+  "contact_name": "James Skop",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Rochester Hills",
+  "status": "fetched",
+  "source_url": "https://www.audirochesterhills.com/en/about-us/",
+  "contact_name": "Elie Daher",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Traverse City",
+  "status": "fetched",
+  "source_url": "https://www.auditraversecity.com/en/about-us/",
+  "contact_name": "Adam Handwerk",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Minneapolis",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Richfield",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Rochester",
+  "status": "fetched",
+  "source_url": "https://www.rochesteraudi.com/en/about-us/",
+  "contact_name": "Brad Johnson",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi St. Paul",
+  "status": "fetched",
+  "source_url": "https://www.audistpaul.com/en/about-us/",
+  "contact_name": "Lindsey Nelson",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Creve Coeur",
+  "status": "no_website",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Kansas City",
+  "status": "fetched",
+  "source_url": "https://www.audikansascity.com/en/about-us/",
+  "contact_name": "Sal Williams",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Kirkwood",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Springfield",
+  "status": "fetched",
+  "source_url": "https://www.audispringfield.com/en/about-us/",
+  "contact_name": "James Trimble",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi West County",
+  "status": "fetched",
+  "source_url": "https://www.audiwestcounty.com/en/about-us/",
+  "contact_name": "Casey Eldridge",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Jackson",
+  "status": "fetched",
+  "source_url": "https://www.audijackson.com/en/about-us/",
+  "contact_name": "Chad Nason",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Bozeman",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Asheville",
+  "status": "fetched",
+  "source_url": "https://www.audiasheville.com/en/about-us/",
+  "contact_name": "Rhett Blanchard",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Cape Fear",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Cary",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Charlotte",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Greensboro",
+  "status": "fetched",
+  "source_url": "https://www.audigreensboro.com/en/about-us/",
+  "contact_name": "Corey Johnson",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Greenville",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Northlake",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Raleigh",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Winston-Salem",
+  "status": "fetched",
+  "source_url": "https://www.audiwinstonsalem.com/en/about-us/",
+  "contact_name": "Scott Hooker",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Fargo",
+  "status": "fetched",
+  "source_url": "https://www.audifargo.com/en/about-us/",
+  "contact_name": "Jeff Richmond",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Omaha",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Nashua",
+  "status": "fetched",
+  "source_url": "https://www.audinashua.com/en/about-us/",
+  "contact_name": "Colby Pooler",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Stratham",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Bridgewater",
+  "status": "fetched",
+  "source_url": "https://www.audibridgewater.com/en/about-us/",
+  "contact_name": "Carlos Ortiz",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Cherry Hill",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Eatontown",
+  "status": "fetched",
+  "source_url": "https://www.audieatontown.com/dealership/staff.htm",
+  "contact_name": "Lou Shapiro",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Englewood",
+  "status": "fetched",
+  "source_url": "https://www.audienglewood.com/en/about-us/",
+  "contact_name": "Perisa Raicevic",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Flemington",
+  "status": "fetched",
+  "source_url": "https://www.audiflemington.com/en/about-us/",
+  "contact_name": "Kyle Mundhenk",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Freehold",
+  "status": "fetched",
+  "source_url": "https://www.audifreehold.com/en/about-us/",
+  "contact_name": "Joseph Scribellito",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Meadowlands",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Millburn",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Newton",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Paramus",
+  "status": "fetched",
+  "source_url": "https://www.audiparamus.com/en/about-us/",
+  "contact_name": "Christopher Cerda",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Princeton",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Turnersville",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi of Mendham",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bell Audi",
+  "status": "fetched",
+  "source_url": "https://www.bellaudi.com/en/about-us/",
+  "contact_name": "Ryan Schmidt",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Jack Daniels Audi of USR",
+  "status": "fetched",
+  "source_url": "https://www.jackdanielsusraudi.com/en/about-us/meet-our-staff/",
+  "contact_name": "Tal Vander",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Paul Miller Audi",
+  "status": "fetched",
+  "source_url": "https://www.paulmilleraudi.com/en/our-team/",
+  "contact_name": "Peter Costigan",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Albuquerque",
+  "status": "fetched",
+  "source_url": "https://www.audiabq.com/en/about-us/",
+  "contact_name": "Tom Bohlman",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Henderson",
+  "status": "fetched",
+  "source_url": "https://www.audihenderson.com/en/about-us/",
+  "contact_name": "Sal Odzakovic",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Las Vegas",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Reno Tahoe",
+  "status": "fetched",
+  "source_url": "https://www.audirenotahoe.com/en/about-us/",
+  "contact_name": "Randee Anderson",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Albany",
+  "status": "fetched",
+  "source_url": "https://www.audialbany.com/en/about-us/",
+  "contact_name": "Rik Woldring",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Brooklyn",
+  "status": "fetched",
+  "source_url": "https://www.audibrooklyn.com/en/about-us/",
+  "contact_name": "Moustafa Aly",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Buffalo",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Cicero",
+  "status": "fetched",
+  "source_url": "https://www.audicicero.com/en/about-us/",
+  "contact_name": "Joe Piazza",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Great Neck",
+  "status": "fetched",
+  "source_url": "https://www.audigreatneck.com/en/about-us/",
+  "contact_name": "Robert Rios",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Hawthorne",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Ithaca",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Lynbrook",
+  "status": "fetched",
+  "source_url": "https://www.audilynbrook.com/en/about-us/",
+  "contact_name": "Crystal Tiburcio",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Manhattan",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Massapequa",
+  "status": "fetched",
+  "source_url": "https://www.audimassapequa.com/en/about-us/",
+  "contact_name": "Jamie Murphy",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Mohegan Lake",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi New Rochelle",
+  "status": "fetched",
+  "source_url": "https://www.audinewrochelle.com/en/about-us/",
+  "contact_name": "Ivan Boros",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Nyack",
+  "status": "fetched",
+  "source_url": "https://www.audinyack.com/en/about-us/",
+  "contact_name": "Jason Juarez",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Queens",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Rochester",
+  "status": "fetched",
+  "source_url": "https://www.audirochester.com/en/about-us/",
+  "contact_name": "Patrick W.",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Southampton",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi of Huntington",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi of Smithtown",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Bedford",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Cincinnati East",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Columbus",
+  "status": "fetched",
+  "source_url": "https://www.audicolumbus.com/en/about-us/",
+  "contact_name": "Matt Kneeland",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Cuyahoga Falls",
+  "status": "fetched",
+  "source_url": "https://www.audicuyahogafalls.com/en/about-us/",
+  "contact_name": "Dave Flanagan",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Dayton",
+  "status": "fetched",
+  "source_url": "https://www.audidayton.com/en/about-us/",
+  "contact_name": "Costa Gomez",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Dublin",
+  "status": "fetched",
+  "source_url": "https://www.audidublin.com/en/about-us/",
+  "contact_name": "Childers Audi",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Mentor",
+  "status": "fetched",
+  "source_url": "https://www.audimentor.com/dealership/staff.htm",
+  "contact_name": "Mitch Maurer",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Middleburg Heights",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Sylvania",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "The Audi Connection",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Oklahoma City",
+  "status": "fetched",
+  "source_url": "https://www.audioklahomacity.com/en/about-us/",
+  "contact_name": "James Samples",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Tulsa",
+  "status": "fetched",
+  "source_url": "https://www.auditulsa.com/en/about-us/",
+  "contact_name": "John Hill",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Beaverton",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Bend",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Eugene",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Wilsonville",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Allentown",
+  "status": "fetched",
+  "source_url": "https://www.audiallentown.com/en/about-us/",
+  "contact_name": "Tom O'Donnell",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Devon",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Erie",
+  "status": "fetched",
+  "source_url": "https://www.audierie.com/en/about-us/",
+  "contact_name": "Jim Paulson",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Fort Washington",
+  "status": "fetched",
+  "source_url": "https://www.audifortwashington.com/en/about-us/",
+  "contact_name": "Ben Mears",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Lancaster",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Mechanicsburg",
+  "status": "fetched",
+  "source_url": "https://www.mechanicsburgaudipa.com/en/about-us/",
+  "contact_name": "Jon Yetter",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Pittsburgh",
+  "status": "fetched",
+  "source_url": "https://www.audipittsburgh.com/en/about-us/",
+  "contact_name": "Heyward Penn",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Reading",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Sewickley",
+  "status": "fetched",
+  "source_url": "https://www.audisewickley.com/en/about-us/",
+  "contact_name": "Mark Villella",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi State College",
+  "status": "fetched",
+  "source_url": "https://www.audistatecollege.com/en/about-us/",
+  "contact_name": "Wyatt Holden",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Warrington",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Washington",
+  "status": "fetched",
+  "source_url": "https://www.audiwashington.com/en/about-us/",
+  "contact_name": "Christopher Bourquin",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi West Chester",
+  "status": "fetched",
+  "source_url": "https://www.audiwestchester.com/en/about-us/",
+  "contact_name": "David Kazmierczak",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Wynnewood",
+  "status": "fetched",
+  "source_url": "https://www.audiwynnewood.com/en/about-us/",
+  "contact_name": "Parul Sharma",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Wyoming Valley",
+  "status": "fetched",
+  "source_url": "https://www.audiwyomingvalley.com/en/about-us/",
+  "contact_name": "Mitch Kotarski",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Fiore Audi",
+  "status": "fetched",
+  "source_url": "https://www.fioreaudi.com/en/about-us/",
+  "contact_name": "Kent Muir",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Warwick",
+  "status": "fetched",
+  "source_url": "https://www.audiwarwick.com/dealership/staff.htm",
+  "contact_name": "Jason Burley",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Charleston",
+  "status": "fetched",
+  "source_url": "https://www.audicharleston.com/en/about-us/",
+  "contact_name": "Jeff Kohn",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Columbia",
+  "status": "fetched",
+  "source_url": "https://www.audicolumbia.com/en/meet-the-staff/",
+  "contact_name": "Patrick Williams",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Greenville",
+  "status": "fetched",
+  "source_url": "https://www.audigreenville.com/en/about-us/",
+  "contact_name": "Digati Audi",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Hilton Head",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Sioux Falls",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Chattanooga",
+  "status": "fetched",
+  "source_url": "https://www.audichattanooga.com/en/about-us/",
+  "contact_name": "Shannon Harris",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Downtown Nashville",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Knoxville",
+  "status": "fetched",
+  "source_url": "https://www.audiknoxville.com/en/about-us/",
+  "contact_name": "Tyler Roberson",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Memphis",
+  "status": "fetched",
+  "source_url": "https://www.audimemphis.com/en/about-us/",
+  "contact_name": "Tom McNamara",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Nashville",
+  "status": "fetched",
+  "source_url": "https://www.audinashville.com/en/about-us/",
+  "contact_name": "Robert Hartman",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Central Houston",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Dallas",
+  "status": "fetched",
+  "source_url": "https://www.audidallas.com/en/about-us/",
+  "contact_name": "Thomas Hornsby",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Dominion",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi El Paso",
+  "status": "fetched",
+  "source_url": "https://www.audielpaso.com/en/about-us/",
+  "contact_name": "David Lujan",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Fort Worth",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Grapevine",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Lubbock",
+  "status": "fetched",
+  "source_url": "https://www.audilubbock.com/en/about-us/",
+  "contact_name": "Aaron Ward",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi McKinney",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi North Austin",
+  "status": "fetched",
+  "source_url": "https://www.audinorthaustin.com/en/about-us/",
+  "contact_name": "Louis Goodman",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi North Houston",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi North Park",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Plano",
+  "status": "fetched",
+  "source_url": "https://www.audiplano.com/en/about-us/",
+  "contact_name": "Neil Thompson",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi San Juan",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi South Austin",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Sugar Land",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi West Houston",
+  "status": "fetched",
+  "source_url": "https://www.audiwest.com/en/about-us/",
+  "contact_name": "Neil Mathew",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Layton",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Lehi",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Salt Lake City",
+  "status": "fetched",
+  "source_url": "https://www.audisaltlakecity.com/en/about-us/",
+  "contact_name": "Spencer Webb",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Arlington",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Chantilly",
+  "status": "fetched",
+  "source_url": "https://www.audichantilly.com/en/meet-our-staff/",
+  "contact_name": "Sai Mehta",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Charlottesville",
+  "status": "fetched",
+  "source_url": "https://www.audicharlottesville.com/en/about-us/",
+  "contact_name": "Katie Tonozzi",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Hampton",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Richmond",
+  "status": "fetched",
+  "source_url": "https://www.audirichmondva.com/en/about-us/",
+  "contact_name": "Brenton Evans",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Roanoke",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Tysons Corner",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Virginia Beach",
+  "status": "fetched",
+  "source_url": "https://www.audivirginiabeach.com/en/about-us/",
+  "contact_name": "Argo Ellis",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Rutland",
+  "status": "fetched",
+  "source_url": "https://www.audirutland.com/en/about-us/",
+  "contact_name": "Andrew Sammis",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi South Burlington",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Bellevue",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Bellingham",
+  "status": "fetched",
+  "source_url": "https://www.audibellingham.com/en/about-us/",
+  "contact_name": "Brian Reinstra",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Seattle",
+  "status": "fetched",
+  "source_url": "https://www.audiseattle.com/en/about-us/",
+  "contact_name": "Cory Pollock",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Spokane",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Tacoma",
+  "status": "fetched",
+  "source_url": "https://www.auditacoma.com/en/about-us/",
+  "contact_name": "Rob Kupper",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Tri-Cities",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Appleton",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Eau Claire",
+  "status": "fetched",
+  "source_url": "https://www.audieauclaire.com/en/about-us/",
+  "contact_name": "Drew Sonnentag",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi La Crosse",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Madison",
+  "status": "fetched",
+  "source_url": "https://www.zimbrickaudiofmadison.com/en/about-us/",
+  "contact_name": "Aaron Perkins",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Milwaukee",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi North Shore",
+  "status": "fetched",
+  "source_url": "https://www.audinorthshore.com/en/about-us/",
+  "contact_name": "Keith Dabbs",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Wausau",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Charleston",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Audi Clarksburg",
+  "status": "fetched",
+  "source_url": "https://www.audiclarksburg.com/en/about-us/",
+  "contact_name": "Jon Pajak",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ }
+]

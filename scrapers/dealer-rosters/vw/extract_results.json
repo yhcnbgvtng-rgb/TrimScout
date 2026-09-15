@@ -1,0 +1,7610 @@
+[
+ {
+  "dealer_name": "Swickard Volkswagen of Anchorage",
+  "status": "fetched",
+  "source_url": "https://www.volkswagenanchorage.com/staff",
+  "contact_name": "Jeff Swickard",
+  "contact_title": "Dealer Principal",
+  "contact_email": "JeffSwickard@swickard.com"
+ },
+ {
+  "dealer_name": "BMW of Mobile Collision Center",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Dothan Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.dothanvw.com/about-us/staff/",
+  "contact_name": "Vincent Somma",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hiley Volkswagen of Huntsville",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Jack Ingram VW of Montgomery",
+  "status": "fetched",
+  "source_url": "https://www.jackingramvolkswagen.com/dealership/staff.htm",
+  "contact_name": "John Ingram",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Long-Lewis Volkswagen of the Shoals",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Royal Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.gotoroyalvw.com/staff",
+  "contact_name": "Close Ed Murphy",
+  "contact_title": "General Sales Manager",
+  "contact_email": "emurphy@royalautomotive.net"
+ },
+ {
+  "dealer_name": "Serra Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.serravw.com/dealership/staff.htm",
+  "contact_name": "Vincent Lavender",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen of Daphne",
+  "status": "fetched",
+  "source_url": "https://www.vwofdaphne.com/staff",
+  "contact_name": "Craig Valenti",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen of Mobile",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bill White Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.billwhitevw.com/dealership/staff.htm",
+  "contact_name": "Michael Justice",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Crain Volkswagen of Fayetteville",
+  "status": "fetched",
+  "source_url": "https://www.crainvw.com/staff",
+  "contact_name": "Caleb Royal",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Everett Volkswagen of Rogers",
+  "status": "fetched",
+  "source_url": "https://www.everettvw.com/staff",
+  "contact_name": "Kevin Wilson",
+  "contact_title": "Executive Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "McLarty VW of North Little Rock",
+  "status": "fetched",
+  "source_url": "https://www.mclartyvw.com/about-us/staff/",
+  "contact_name": "Wes Thomas",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen of Little Rock",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Abra Auto Body Repair Peoria",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Berge Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.bergevw.com/meet-our-staff/",
+  "contact_name": "handed over.",
+  "contact_title": "Product Specialist",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Camelback Volkswagen",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Chapman Collision Tucson Palo Verde",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Chapman Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.chapman-vw.com/about-us/staff/",
+  "contact_name": "Jim Deschner",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Chapman Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.volkswagen-tucson.com/about-us/staff/",
+  "contact_name": "Diego Gonzalez",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ken Garff Volkswagen Gilbert",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Larry H Miller Collision Center",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Larry H. Miller Volkswagen Avondale",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Larry H. Miller Volkswagen Tucson",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lunde's Peoria Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.peoriavw.com/staff",
+  "contact_name": "Rick Doschadis",
+  "contact_title": "General Sales Manager",
+  "contact_email": "rickd@peoriavw.com"
+ },
+ {
+  "dealer_name": "Penske Automotive Coll Scottsdale",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Select Auto Body",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen North Scottsdale",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "AGC Collision Center",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "AGC Collision Center Valley",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "All City Auto Body Inc",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "All Foreign & Domestic Body Shop",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Amato's Auto Body",
+  "status": "fetched",
+  "source_url": "https://amatosautobody.com/our-team/",
+  "contact_name": "Carlos V.",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ariana Auto Body",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "AutoNation Volkswagen Carlsbad",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Automotive Collision Repair",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "B&S Hacienda Auto Body Dublin",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Barsotti's Body & Fender",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Beach Collision",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ben Clymer's The Body Shop",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Boardwalk VW of Redwood City",
+  "status": "fetched",
+  "source_url": "https://www.boardwalkvolkswagen.com/staff",
+  "contact_name": "David Daou",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CARSTAR Auto World Collision",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CARSTAR Douglas Auto Body",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Caliber - Anaheim",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Caliber Collision - Bakersfield",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Caliber Collision - Fairfield",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Caliber Collision - San Marcos Nort",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Caliber Collision Covina",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Caliber Collision National City",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Caliber Collision Pasadena",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Caliber Collision Riverside",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Caliber Collision Valencia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Capistrano Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.capovw.com/about-us/staff/",
+  "contact_name": "Kevin Dooris",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Capitol Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.capitolvw.com/meet-our-staff/",
+  "contact_name": "Arthur Fang",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Cardinale Volkswagen",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CardinaleWay Volkswagen",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Central Valley Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.centralvalleyvw.com/about-us/staff/",
+  "contact_name": "Alvarez Executive",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Chico Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.chicovolkswagen.com/staff",
+  "contact_name": "Joshua Meyer",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Coachella Valley Volkswagen",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Community Volkswagen of Santa Maria",
+  "status": "fetched",
+  "source_url": "https://www.communityvw.net/meet-our-staff/",
+  "contact_name": "ol Internet",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Covina Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.covinavolkswagen.com/about-us/staff/",
+  "contact_name": "Joshua Sarami",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Crash Champions",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Diamond Auto Body & Paint, Inc",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Diamond Hills Collision Center",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Dirito Bros Walnut Creek Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.diritovw.com/dealership/staff.htm",
+  "contact_name": "Jim Higgins",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Dublin Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.dublinvolkswagen.com/meet-our-staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Eli's Collision Repair-Los Angeles",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Eli's Collision Repair-South Bay",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Elk Grove Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.elkgrovevw.com/about-us/staff/",
+  "contact_name": "Danny Connelly",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "European Collision Center",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Excellence Collision Center",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Faith Quality Autobody",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "First Class Collision Center",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Fix Auto Oceanside",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Fix Auto Ventura",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Galpin VW of San Fernando Valley",
+  "status": "fetched",
+  "source_url": "https://www.galpinvolkswagenofthesanfernandovalley.com/about-us/staff/",
+  "contact_name": "Josh Bautista",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Gerber Collision & Glass-Menifee",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "German Auto Body",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Glendale Auto Body",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hansel Volkswagen of Santa Rosa",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Haws Auto Body Inc",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Herman Cook Volkswagen, Inc.",
+  "status": "fetched",
+  "source_url": "https://www.cookvw.com/staff/",
+  "contact_name": "Connor Cook",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Integrity Auto Collision Center",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kearny Mesa Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.kearnymesavolkswagen.com/staff/",
+  "contact_name": "Steven Tran",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Manufacturer Certified Collision Ce",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Mathews-Carlsen Body Works",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "McKenna Motors Cerritos",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Merced Volkswagen",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Mossy Volkswagen",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "National City Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.nationalcityvolkswagen.com/about-us/staff/",
+  "contact_name": "Jose Gomez",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "New Century Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.newcenturyvw.com/about-us/staff/",
+  "contact_name": "Sergio Rosas",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Niello Collision Center-Sacramento",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Niello Volkswagen",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Norm Reeves Collision Center",
+  "status": "fetched",
+  "source_url": "https://www.normreeveshondairvine.com/about-us/staff/",
+  "contact_name": "Tammy Weaver",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Norm Reeves Volkswagen Superstore",
+  "status": "fetched",
+  "source_url": "https://www.normreevesvw.com/about-us/staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "North Ranch Bodycraft-Thousand Oaks",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ontario Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.ontariovolkswagen.com/about-us/staff/",
+  "contact_name": "Earl Reed",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Pacific Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.pacificvolkswagen.com/meet-our-staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Paulee Body Shop",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Philip Thearle's Autowerks",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Premier Collision Center",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Prestige Auto Collision",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Puente Hills Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.vwpuentehills.com/about-puente-hills-volkswagen-in-city-of-industry-ca/staff/",
+  "contact_name": "Sergio Rosas",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Riverside Volkswagen",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Seidners Collision Center",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Serramonte Volkswagen",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Sterling Collision Center Tustin",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Stevens Creek Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.stevenscreekvw.com/about-us/staff/",
+  "contact_name": "Kip Erb",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Sunnyvale Volkswagen",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Superior Body Shop",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Team Volkswagen of Hayward",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Timmons Volkswagen of Long Beach",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Tracy Volkswagen",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Vacaville Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.vacavillevw.com/meet-our-staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ventura Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.venturavw.com/about-us/staff/",
+  "contact_name": "Conrad Wall",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen Bakersfield",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen Marin",
+  "status": "fetched",
+  "source_url": "https://www.vwmarin.com/staff",
+  "contact_name": "Joel Cambronero",
+  "contact_title": "Sales Manager",
+  "contact_email": "jcambronero@indigoautogroup.com"
+ },
+ {
+  "dealer_name": "Volkswagen Pasadena",
+  "status": "fetched",
+  "source_url": "https://www.volkswagenpasadena.com/dealership/staff.htm",
+  "contact_name": "Wally Baig",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen San Bernardino",
+  "status": "fetched",
+  "source_url": "https://www.vwsb.com/about-us/staff/",
+  "contact_name": "Ala Dababneh",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen San Francisco",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen South Coast",
+  "status": "fetched",
+  "source_url": "https://www.vwsouthcoast.com/about-us/staff/",
+  "contact_name": "Adham Darwish",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen Thousand Oaks",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen of Clovis",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen of Downtown LA",
+  "status": "fetched",
+  "source_url": "https://www.vwofdtla.com/dealership/staff.htm",
+  "contact_name": "Greg Yakoubian",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen of Fairfield",
+  "status": "fetched",
+  "source_url": "https://www.vwoffairfield.com/about-us/staff/",
+  "contact_name": "Doreen Tan",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen of Garden Grove",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen of Murrieta",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen of Oakland",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen of Santa Cruz",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Winn Volkswagen",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Winn Volkswagen of Woodland Hills",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "World Class Collision Jacks Bodywks",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bob Penkhus Volkswagen",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Boulder Bump Shop",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Caliber Brighton - North 18th",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Colorado Coach Auto Body",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ed Carroll Volkswagen",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Emich Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.emichvw.com/about-us/staff/",
+  "contact_name": "Paul Auerbach",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Emich Volkswagen of Boulder",
+  "status": "fetched",
+  "source_url": "https://www.emichvwofboulder.com/staff/",
+  "contact_name": "Wade Seymour",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Eurocars Collision Center",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Glenwood Springs Volkswagen",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Grand Junction Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.grandjunctionvolkswagen.com/dealership/staff.htm",
+  "contact_name": "Travis Brown",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Greeley Volkswagen",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hampden Auto Body",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Jewell Collision East",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Larry H. Miller Volkswagen Lakewood",
+  "status": "fetched",
+  "source_url": "https://www.lhmvw.com/dealership/staff.htm",
+  "contact_name": "Mike Isham",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "McDonald Collision Center",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "McDonald Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.mcdonaldvw.com/about-us-littleton-co/staff/",
+  "contact_name": "John Smoker",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Mike Maroone VW N Colorado Springs",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "O'Meara Volkswagen of Thornton",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ozzie's Body Shop",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Prestige Imports Collision Center",
+  "status": "fetched",
+  "source_url": "https://www.prestigeimports.net/staff/",
+  "contact_name": "Sean Farshchi",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Rickenbaugh Collision",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Tynan's Volkswagen, Inc.",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Airport Road AutoBody Inc.",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Central Volkswagen of Plainfield",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Crew Volkswagen of Plainville",
+  "status": "fetched",
+  "source_url": "https://www.crewvw.com/dealership/staff.htm",
+  "contact_name": "Steven Pasqualini",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Curran Volkswagen, Inc.",
+  "status": "fetched",
+  "source_url": "https://www.curranvw.net/dealership/staff.htm",
+  "contact_name": "Tom Backer",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Durable Radiator and Auto Body",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Executive Volkswagen of North Haven",
+  "status": "fetched",
+  "source_url": "https://www.executivevolkswagenofnorthhaven.com/about-us/staff/",
+  "contact_name": "Scott Brouard",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Gene Langan Volkswagen, Inc.",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Harte Volkswagen of Meriden",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lia Volkswagen of Enfield",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Mitchell Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.mitchellvw.com/dealership/staff.htm",
+  "contact_name": "Jeremy Pratt",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "North Haven Auto Body",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Pray Body Shop",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Prestige Volkswagen of Stamford",
+  "status": "fetched",
+  "source_url": "https://www.prestigevwct.com/dealership/staff.htm",
+  "contact_name": "Joseph Gerbino",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Turnpike Motors Autobody",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Valenti Motors, Inc.",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Vernon Volkswagen",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen Danbury",
+  "status": "fetched",
+  "source_url": "https://www.danburyvw.com/dealership/staff.htm",
+  "contact_name": "D-K Internet",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen of Hartford",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen of Old Saybrook",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen of Old Saybrook (sat.)",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Smith Volkswagen",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Winner Volkswagen of Dover",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Advance Auto Collision Center",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Auto Sport International",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bert Smith International",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bob Boast Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.boastvw.com/dealership/staff.htm",
+  "contact_name": "Justin Mocadlo",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CARSTAR Autobody Resurrection",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Caliber Collision - Jacksonville -M",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Capital Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.capitaleurocarsvw.com/staff",
+  "contact_name": "Crawford Atkins",
+  "contact_title": "General Manager",
+  "contact_email": "catkins@CrownCars.com"
+ },
+ {
+  "dealer_name": "Crash Champions",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Crash Champions",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Deel Volkswagen Coral Gables",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Diamante Part & Body Works",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Dimmitt Collision Center",
+  "status": "fetched",
+  "source_url": "https://www.dimmitt.com/staff",
+  "contact_name": "Tom Hardeman",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Doral Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.doralvw.com/staff",
+  "contact_name": "Alain Diaz",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "European Paint & Body",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "European Paint & Body II",
+  "status": "fetched",
+  "source_url": "https://europeanpaintandbody.com/meet-the-team/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Group 1 Volkswagen of Panama City",
+  "status": "fetched",
+  "source_url": "https://www.group1volkswagenofpanamacity.com/about-us/staff/",
+  "contact_name": "happy. Sincerely",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Guardian Collision",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Gunther Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.gunthervw.com/about-us/staff/",
+  "contact_name": "Juan Teran",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Gunther Volkswagen Clermont",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Gunther Volkswagen Daytona Beach",
+  "status": "fetched",
+  "source_url": "https://www.gunthervwdaytona.com/dealership/staff.htm",
+  "contact_name": "Nick Bellefroid",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Gunther Volkswagen Pompano Beach",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Gunther Volkswagen of Coconut Creek",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Gunther Volkswagen of Delray Beach",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hanania Collision Center",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hanania Volkswagen of Orange Park",
+  "status": "fetched",
+  "source_url": "https://www.hananiavw.com/about-us/staff/",
+  "contact_name": "Sabo Interim",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Imperio Auto Repair",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kuhn Volkswagen",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lakeland Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.lakelandvw.com/about-us/staff/",
+  "contact_name": "Jeff Arthur",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Leesburg Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.jenkinsvolkswagen.com/dealership/staff.htm",
+  "contact_name": "Paul Holley",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lokey Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.lokeyvw.com/about-us/staff/",
+  "contact_name": "Caleb Schweitzer",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Martin's Collision Center",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Mitchell Collision Repair Belleview",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Naples Premium Collision Center",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Napleton's Volkswagen of Orlando",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Napleton's Volkswagen of Sanford",
+  "status": "fetched",
+  "source_url": "https://www.sanfordvw.com/dealership/staff.htm",
+  "contact_name": "Charissa Henry",
+  "contact_title": "Internet Director",
+  "contact_email": "charissa.henry@napleton.com"
+ },
+ {
+  "dealer_name": "Norm Reeves VW Port Charlotte",
+  "status": "fetched",
+  "source_url": "https://www.charlottevw.com/about-us/staff/",
+  "contact_name": "Frank Milazzo",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "O'Steen Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.osteenvw.com/dealership/staff.htm",
+  "contact_name": "Sean K.",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Orlando Volkswagen North",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Orlando Volkswagen South",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Palmetto57 Volkswagen",
+  "status": "no_website",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Pete Moore Volkswagen of Pensacola",
+  "status": "fetched",
+  "source_url": "https://www.petemoorevolkswagen.com/dealer-info/staff/",
+  "contact_name": "Mike Kern",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Premier Collision of Sarasota",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Prestige Volkswagen of Melbourne",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Rick Case Collision Center",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Rick Case Volkswagen Weston",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Roslunds Paint & Paint Body Shop",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Schumacher Automotive, Inc.",
+  "status": "fetched",
+  "source_url": "https://www.vwofnorthpalmbeach.com/dealership/staff.htm",
+  "contact_name": "Wasek Executive",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Schumacher Collision",
+  "status": "fetched",
+  "source_url": "https://www.schumacherauto.com/dealership/staff.htm",
+  "contact_name": "Chad Giguere",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Schumacher Volkswagen, Inc.",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Step One VW Fort Walton Beach",
+  "status": "fetched",
+  "source_url": "https://www.volkswagenftwaltonbeach.com/meet-the-team/",
+  "contact_name": "John Barker",
+  "contact_title": "General Manager",
+  "contact_email": "jbarker@steponeauto.com"
+ },
+ {
+  "dealer_name": "Sunrise Volkswagen of Fort Pierce",
+  "status": "fetched",
+  "source_url": "https://www.sunrise-vw.com/about-us/staff/",
+  "contact_name": "Michael Eagle",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Sunset Volkswagen of Sarasota",
+  "status": "fetched",
+  "source_url": "https://www.sunsetvolkswagen.com/dealership/staff.htm",
+  "contact_name": "Craig McGregor",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Tom Bush Collision Center",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Tom Bush Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.tombushvw.com/staff",
+  "contact_name": "Mario Gocaj",
+  "contact_title": "Sales Manager",
+  "contact_email": "mario.gocaj@tombush.com"
+ },
+ {
+  "dealer_name": "Vista Collision Center",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen Brandon",
+  "status": "fetched",
+  "source_url": "https://www.vwbrandon.com/staff/",
+  "contact_name": "Terence Grawl",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen of Fort Myers",
+  "status": "fetched",
+  "source_url": "https://www.vwoffortmyers.com/dealership/staff.htm",
+  "contact_name": "Alex Menyhart",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen of Gainesville",
+  "status": "fetched",
+  "source_url": "https://www.vwofgainesville.com/about-us/staff/",
+  "contact_name": "Kenny Sims",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen of Naples",
+  "status": "fetched",
+  "source_url": "https://www.vwofnaples.com/meet-our-staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen of New Port Richey",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen of North Tampa",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen of Ocala",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen of Saint Augustine",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen of South Miami",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen of Wesley Chapel",
+  "status": "fetched",
+  "source_url": "https://www.vwofwc.com/meet-our-staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Wallace Volkswagen",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "West Delray Collision Center",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Windermere Collision Center",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "AutoNation Collision CTR Columbus",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "AutoNation VW Mall of Georgia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "AutoNation Volkswagen Columbus",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "AutoNation Volkswagen Savannah",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Classic Collision of Kennesaw",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Columbus Body Works",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Crash Champions",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Gerald Jones Volkswagen",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Heritage Volkswagen, Inc.",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hoover Volkswagen Lithia Springs",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Jim Ellis Collision Center",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Jim Ellis Volkswagen of Chamblee",
+  "status": "fetched",
+  "source_url": "https://www.jimellisvwatlanta.com/about-us/staff/",
+  "contact_name": "Boleman Executive",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Jim Ellis Volkswagen of Kennesaw",
+  "status": "fetched",
+  "source_url": "https://www.jimellisvolkswagenkennesaw.com/about-us/staff/",
+  "contact_name": "Boleman Executive",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kendrick Body & Paint",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lou Sobh Volkswagen of Athens",
+  "status": "fetched",
+  "source_url": "https://www.lousobhvw.com/about-us/staff/",
+  "contact_name": "LePage Internet",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Nalley Luxury Collision CTR-Roswell",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Nalley Volkswagen of Alpharetta",
+  "status": "fetched",
+  "source_url": "https://www.nalleyvw.com/dealership/staff.htm",
+  "contact_name": "Cory Russell",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "O'Steen Volkswagen of Valdosta",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Stone Mountain Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.stonemountainvw.com/about-us/staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen of Macon",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen of Marietta",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen of Warner Robins",
+  "status": "fetched",
+  "source_url": "https://www.vwofwarnerrobins.com/dealership/staff.htm",
+  "contact_name": "Brandon Newberry",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Honolulu Volkswagen",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Island Fender",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "KarMART Volkswagen of Maui",
+  "status": "fetched",
+  "source_url": "https://www.karmartmaui.com/staff",
+  "contact_name": "Brandon Campbell",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Tony Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.tonyvolkswagen.com/staff",
+  "contact_name": "Jeb Sheppard",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lithia Body & Paint Des Moines",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lithia Volkswagen of Des Moines",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "McGrath Volkswagen of Dubuque",
+  "status": "fetched",
+  "source_url": "https://www.mcgrathvwofdubuque.com/about-us/staff/",
+  "contact_name": "Kyawn Buchanan",
+  "contact_title": "Sales Consultant",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "McGrath Volkswagen of Marion",
+  "status": "fetched",
+  "source_url": "https://www.mcgrathvw.com/about-us/staff/",
+  "contact_name": "Collin Sleeper",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Pritchard Volkswagen of Mason City",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen Iowa City",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen of Quad Cities",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen of Sioux City",
+  "status": "fetched",
+  "source_url": "https://www.jensenvolkswagen.com/dealership/staff.htm",
+  "contact_name": "Annette Vlotho",
+  "contact_title": "General Manager",
+  "contact_email": "annette@jensenimports.com"
+ },
+ {
+  "dealer_name": "Witham Volkswagen of Cedar Falls",
+  "status": "fetched",
+  "source_url": "https://www.withamvw.com/dealership/staff.htm",
+  "contact_name": "Sebastian Hansen",
+  "contact_title": "General Sales Manager",
+  "contact_email": "sebastian@withamautosales.com"
+ },
+ {
+  "dealer_name": "Boise Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.volkswagenofboise.com/staff",
+  "contact_name": "Close Peter",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Post Falls Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.postfallsvw.com/dealership/staff.htm",
+  "contact_name": "Jonah Namson",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Teton Volkswagen",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Twin Falls Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.twinfallsvw.com/about-us/staff/",
+  "contact_name": "Braun Bivens",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "America's Auto Body",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Auffenberg Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.auffenbergvolkswagen.com/staff",
+  "contact_name": "Jay Rieger",
+  "contact_title": "Sales Consultant",
+  "contact_email": "JayRieger@dealerdelivery.net"
+ },
+ {
+  "dealer_name": "Autobarn Volkswagen of Countryside",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bill Jacobs Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.billjacobsvw.com/about-us/staff/",
+  "contact_name": "Me TJ Hendzel",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Birkholz Body Werks",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CDE Collision Center Tinley Park",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Caliber - O'Fallon-IL",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Castle Volkswagen of Downers Grove",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Castle Volkswagen of Schaumburg",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "City Volkswagen of Chicago",
+  "status": "fetched",
+  "source_url": "https://www.cityvwofchicago.com/about-us/staff/",
+  "contact_name": "Rob Kreiman",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "City Volkswagen of Evanston",
+  "status": "fetched",
+  "source_url": "https://www.cityvwofevanston.com/about-us/staff/",
+  "contact_name": "Ziggy Sierzputkowski",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Dixon Volkswagen",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Elgin Volkswagen",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Fix Auto Fox Valley Collision",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Fox Valley Volkswagen",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Fox Valley Volkswagen Crystal Lake",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Gold Coast Auto Body",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Green Volkswagen of Springfield",
+  "status": "fetched",
+  "source_url": "https://www.greenvw.com/dealership/staff.htm",
+  "contact_name": "Mylas Copeland",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Gurnee Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.gurneevw.com/staff",
+  "contact_name": "Dimitri Kametas",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hawk Volkswagen of Joliet",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Jennings Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.jennings-vw.com/about-us/staff/",
+  "contact_name": "David Turner",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Larry Roesch Volkswagen",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Liberty Import Center",
+  "status": "fetched",
+  "source_url": "https://www.libertyvw.com/dealership/staff.htm",
+  "contact_name": "Volkswagen Crew",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Liberty Imports Collision Center",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lou Bachrodt Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.loubachrodtvw.com/staff",
+  "contact_name": "Charlie Hansmeyer",
+  "contact_title": "General Manager",
+  "contact_email": "charlie.hansmeyer@bachrodt.com"
+ },
+ {
+  "dealer_name": "Muller Volkswagen",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Napleton's Volkswagen of Urbana",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "O'Hare Auto Body",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Precision Body Works",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Total Collision & PDR",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen of Bloomington Normal",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen of Downtown Chicago",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen of Marion",
+  "status": "fetched",
+  "source_url": "https://www.vwofmarion.com/about-us/staff/",
+  "contact_name": "Jennifer Briggs",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen of Oak Lawn",
+  "status": "fetched",
+  "source_url": "https://www.vwoaklawn.com/about-us/staff/",
+  "contact_name": "Alamawi Multi-Store",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen of Orland Park",
+  "status": "fetched",
+  "source_url": "https://www.vworland.com/about-us/staff/",
+  "contact_name": "Gleb Simanovich",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen of Palatine",
+  "status": "fetched",
+  "source_url": "https://www.vwofpalatine.com/about-us/staff/",
+  "contact_name": "Patrick Stern",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen of Peoria",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Wheel-Inn Body & Motorworks",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Andy Mohr Volkswagen of Avon",
+  "status": "fetched",
+  "source_url": "https://www.andymohrvw.com/staff",
+  "contact_name": "Garcia Master",
+  "contact_title": "Sales Consultant",
+  "contact_email": "jgarcia@andymohr.com"
+ },
+ {
+  "dealer_name": "City Volkswagen of Highland",
+  "status": "fetched",
+  "source_url": "https://www.cityvwofhighland.com/about-us/staff/",
+  "contact_name": "Clemente Garibay",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "D-Patrick Motoplex Certif Coll CTR",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "D-Patrick, Inc.",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Dreyer & Reinbold of Greenwood",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Gurley-Leep Volkswagen of Michiana",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lafayette Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.lafayettevwin.com/about-us/staff/",
+  "contact_name": "Connor Smith",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Royal Volkswagen of Bloomington",
+  "status": "fetched",
+  "source_url": "https://www.royaleastvw.com/dealership/staff.htm",
+  "contact_name": "Jared Mann",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Speedway Volkswagen of Indianapolis",
+  "status": "fetched",
+  "source_url": "https://www.speedwayvw.com/meet-our-staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Team Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.teamvw.com/about-us/staff/",
+  "contact_name": "Chris McCarty",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Tom Wood Collision Center",
+  "status": "fetched",
+  "source_url": "https://www.tomwoodcollision.com/about",
+  "contact_name": "Josh Piccione",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Tom Wood Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.tomwoodvolkswagen.com/dealership/staff.htm",
+  "contact_name": "Chris Neira",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Tom Wood Volkswagen of Noblesville",
+  "status": "fetched",
+  "source_url": "https://www.tomwoodvolkswagennoblesville.com/dealership/staff.htm",
+  "contact_name": "Markiss Stone",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen of Clarksville",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Vorderman Volkswagen",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bud Brown Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.budbrownvw.com/about-us/staff/",
+  "contact_name": "Pete Egeland",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Crown Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.crownmotorsvw.com/meet-our-staff/",
+  "contact_name": "priority. VW",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Don's Body Shop",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Eddy's Volkswagen of Wichita",
+  "status": "fetched",
+  "source_url": "https://www.eddysvolkswagenofwichita.com/about-us/staff/",
+  "contact_name": "Josh Trevitt",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen of Topeka",
+  "status": "fetched",
+  "source_url": "https://www.vwtopeka.com/about-us/staff/",
+  "contact_name": "Mike Reid",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bachman Collision Center",
+  "status": "fetched",
+  "source_url": "https://www.bachmanchevrolet.com/about-us/staff/",
+  "contact_name": "Bill Mattingly",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bachman Subaru-Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.bachmanvolkswagen.com/about-us/staff/",
+  "contact_name": "Henry Allen",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Don Jacobs Volkswagen",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kerry Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.kerryvw.com/meet-our-team.htm",
+  "contact_name": "search Search",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Neil Huffman Volkswagen",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bolton Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.boltonvw.com/dealership/staff.htm",
+  "contact_name": "Managing Partner",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "C&R Collision Repair",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Family Volkswagen of Bossier City",
+  "status": "fetched",
+  "source_url": "https://www.familyvwbossiercity.com/staff",
+  "contact_name": "David Durr",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Gerber Collision & Glass - NOLA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Premier Volkswagen of Harvey",
+  "status": "fetched",
+  "source_url": "https://www.premiervwharvey.com/about-us/staff/",
+  "contact_name": "Anthony Legeaux",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Southpoint Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.southpointvw.com/staff",
+  "contact_name": "Brad Beauvais",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Southwest Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.southwestvw.com/staff",
+  "contact_name": "Joshua Chou",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen of Mandeville",
+  "status": "fetched",
+  "source_url": "https://www.vwmandeville.com/dealership/staff.htm",
+  "contact_name": "ALONSO GOMEZ",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Walker Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.walkervw.com/dealership/staff.htm",
+  "contact_name": "Shade Ghanem",
+  "contact_title": "New Car Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Auto Engineering Body Works",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Boston Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.bostonvw.com/meet-our-staff/",
+  "contact_name": "and Moroccan",
+  "contact_title": "Sales Consultant",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Cape Auto Collision Center",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Central Autoworks DBA Central Auto",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Coastal Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.coastalvw.com/staff",
+  "contact_name": "Joe Letorney",
+  "contact_title": "General Sales Manager",
+  "contact_email": "jletorney@coastaldealerships.net"
+ },
+ {
+  "dealer_name": "Colonial Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.buycolonialvw.com/meet-our-staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Colonial Volkswagen of Medford",
+  "status": "fetched",
+  "source_url": "https://www.vwmedford.com/meet-our-staff/",
+  "contact_name": "IT TO RAY",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Commonwealth Volkswagen",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Fathers & Sons, Inc.",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Gervais Volkswagen of Lowell",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hogan & Van Auto Body",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hollis Auto Body",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kelly Collision Center",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kelly Volkswagen",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "King Collision Centers Pembroke",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Mastria Volkswagen of Raynham",
+  "status": "fetched",
+  "source_url": "https://www.mastriavw.com/about-us/staff/",
+  "contact_name": "Eric Moura",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Minuteman Volkswagen, Inc.",
+  "status": "fetched",
+  "source_url": "https://www.minutemanvw.com/dealership/staff.htm",
+  "contact_name": "Tim Pullo",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Northampton Volkswagen",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Nucar Volkswagen of Norwood",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Patrick Volkswagen Auburn",
+  "status": "fetched",
+  "source_url": "https://www.patrickvw.com/dealership/staff.htm",
+  "contact_name": "Jeff Moberg",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Quirk Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.quirkvw.com/about-us/meet-our-team/",
+  "contact_name": "Jason Thompson",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Silko Volkswagen of Easton",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "The Collision Center Coastal",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "TommyCar Collision",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Tracy Volkswagen, Inc.",
+  "status": "fetched",
+  "source_url": "https://www.tracyvw.com/dealership/staff.htm",
+  "contact_name": "Jim Helgerson",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen Fall River",
+  "status": "fetched",
+  "source_url": "https://www.vwfallriver.com/dealership/staff.htm",
+  "contact_name": "Rick Sullivan",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen Lenox",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen of North Attleboro, Inc.",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Wagner Certified Collision Center",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Wellesley Volkswagen, Incorporated",
+  "status": "fetched",
+  "source_url": "https://www.buywellesleyvw.com/meet-our-staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Antwerpen Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.antwerpenvw.com/meet-our-staff/",
+  "contact_name": "Cert Internet",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "AutoNation Collision CTR Baltimore",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Caliber Collision - Essex",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Criswell Collision Center",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Fitzgerald Volkswagen of Annapolis",
+  "status": "fetched",
+  "source_url": "https://www.fitzgeraldvolkswagen.com/staff",
+  "contact_name": "AJ Tucker",
+  "contact_title": "Sales Manager",
+  "contact_email": "Tuckera@fitzmall.com"
+ },
+ {
+  "dealer_name": "Fitzgerald Volkswagen of Frederick",
+  "status": "fetched",
+  "source_url": "https://www.fitzgeraldvwfrederick.com/staff",
+  "contact_name": "Andy Bingham",
+  "contact_title": "Sales Manager",
+  "contact_email": "binghama@fitzmall.com"
+ },
+ {
+  "dealer_name": "Heritage Catonsville Service Center",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Heritage Volkswagen Catonsville",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Heritage Volkswagen Parkville",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "King Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.vwking.com/staff",
+  "contact_name": "Terence Abraham",
+  "contact_title": "General Sales Manager",
+  "contact_email": "TAbraham@kingauto.com"
+ },
+ {
+  "dealer_name": "Ourisman Collision Center of Laurel",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ourisman Volkswagen of Bethesda",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ourisman Volkswagen of Laurel",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ourisman Volkswagen of Rockville",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ourisman Volkswagen of Waldorf",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ourisman of Rockville Collision CTR",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Pohanka Volkswagen of Salisbury",
+  "status": "no_website",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Pohanka Volkswagen ofRitchieStation",
+  "status": "no_website",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Sheehy Collision Center",
+  "status": "fetched",
+  "source_url": "https://www.sheehycollision.com/meet-our-staff",
+  "contact_name": "Anthony Schifano",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Sheehy Volkswagen Hagerstown",
+  "status": "fetched",
+  "source_url": "https://www.sheehyvwhagerstown.com/meet-our-staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen of Fallston",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Darling's Volkswagen of Bangor",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Jack Volkswagen of Saco",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Morong Falmouth Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.morongvw.com/about-us/staff/",
+  "contact_name": "Dave Hellin",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "O'Connor Volkswagen",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Prime Collision Center North",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Rowe Volkswagen",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Thompson Volkswagen, Inc.",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Betten Imports, Inc.",
+  "status": "fetched",
+  "source_url": "https://www.bettenvolkswagen.com/dealership/staff.htm",
+  "contact_name": "Greg Betten",
+  "contact_title": "Dealer Principal",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Cooper Body Shop",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Crown Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.crownvolkswagen.com/dealership/staff.htm",
+  "contact_name": "Phil Ophoff",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Fox Collision CTR-Rochester Hills",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Fox Volkswagen",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Gerber Collision & Glass-Ann Arbor",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Koenes Auto Body",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "LaFontaine Volkswagen Dearborn",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "LaFontaine Volkswagen of Livonia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Mike Savoie Volkswagen of Troy",
+  "status": "fetched",
+  "source_url": "https://www.mikesavoievw.com/staff",
+  "contact_name": "Jim Castiglione",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Moran Volkswagen of Sterling Height",
+  "status": "fetched",
+  "source_url": "https://www.moranvw.com/staff.aspx",
+  "contact_name": "Todd Andrus",
+  "contact_title": "General Manager",
+  "contact_email": "tandrus@moranautomotive.com"
+ },
+ {
+  "dealer_name": "My Volkswagen of Muskegon",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "My Volkswagen of North Grand Rapids",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Serra Volkswagen of Traverse City",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Suburban Collision of Troy",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Suburban VW of Farmington Hills",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Thelen  Volkswagen",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Thelen Auto Group Body Shop",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen Ann Arbor",
+  "status": "fetched",
+  "source_url": "https://www.vwannarbor.com/about-us/meet-our-team/",
+  "contact_name": "Ryan Rooney",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen Kalamazoo",
+  "status": "no_website",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen of Grand Blanc",
+  "status": "fetched",
+  "source_url": "https://www.volkswagenofgrandblanc.com/staff",
+  "contact_name": "Josh Gordon",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Williams Volkswagen, Inc.",
+  "status": "fetched",
+  "source_url": "https://www.williamsvolkswagen.com/staff.htm",
+  "contact_name": "Trisha Smith",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Abra Auto Body & Glass",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Dave Syverson VW of Albert Lea",
+  "status": "fetched",
+  "source_url": "https://www.davesyversonvolkswagen.com/staff",
+  "contact_name": "Katie Salisbury",
+  "contact_title": "Bdc Manager",
+  "contact_email": "katies@davesyverson.com"
+ },
+ {
+  "dealer_name": "Eich Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.eichvw.com/about-us/staff/",
+  "contact_name": "Courtney Picotte",
+  "contact_title": "Sales Consultant",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "LaMettry's Collision Maplewood",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Latuff Brothers Auto Body",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Luther Brookdale Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.lutherbrookdalevw.com/about-us-draft/staff/",
+  "contact_name": "Todd Earnest",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Luther Burnsville Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.burnsvillevw.com/about-us-draft/staff/",
+  "contact_name": "Tim Wilkins",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Luther Collision & Glass Brooklyn P",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Luther Collision Glass Bloomington",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Luther Collision Glass Plymouth",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Luther West Side Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.westsidevw.com/about-us-draft/staff/",
+  "contact_name": "Tami Willett",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Mankato Volkswagen",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Pearson Auto Body",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Raymond Auto Body",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Rochester Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.parkplacevw.com/about-us/staff/",
+  "contact_name": "Brad Johnson",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Schmelz Countryside Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.schmelzvw.com/staff",
+  "contact_name": "Ralph Ludden",
+  "contact_title": "Sales Consultant",
+  "contact_email": "ralphludden@gmail.com"
+ },
+ {
+  "dealer_name": "Volkswagen of Duluth",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen of Inver Grove",
+  "status": "fetched",
+  "source_url": "https://www.vwinvergrove.com/about-us/staff/",
+  "contact_name": "Travis Brown",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bommarito Collision Hazelwood",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bommarito Volkswagen St. Peters",
+  "status": "fetched",
+  "source_url": "https://www.bommaritovwstpeters.com/staff",
+  "contact_name": "Jason Nutt",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bommarito Volkswagen of Hazelwood",
+  "status": "fetched",
+  "source_url": "https://www.bommaritovwhazelwood.com/staff.aspx",
+  "contact_name": "Craig Whitfield",
+  "contact_title": "Sales Associate",
+  "contact_email": "cwhitfield@bommarito.net"
+ },
+ {
+  "dealer_name": "Hendrick Collision Center of Kansas",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Joe Machens Volkswagen of Columbia",
+  "status": "fetched",
+  "source_url": "https://www.joemachensvw.net/about-us/staff/",
+  "contact_name": "Jeremy Lester",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Molle Volkswagen",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Northtowne Volkswagen",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Schaefer Auto Body Center-Maplewood",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Spirirt West Motor Carriage",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Suntrup Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.suntrupvw.com/about-us/staff/",
+  "contact_name": "Beau Schwartz",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "The Dean Team of Ballwin",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "The Dean Team of Kirkwood",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen of Lee's Summit",
+  "status": "fetched",
+  "source_url": "https://www.vwleessummit.com/staff",
+  "contact_name": "Matt Ottosen",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen of Springfield",
+  "status": "fetched",
+  "source_url": "https://www.napletonvwspringfield.com/meet-our-staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Barnes Crossing Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.bcvolkswagenoftupelo.com/meet-our-staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Crash Champions - Flowood",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen Jackson",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen of South Mississippi",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kalispell Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.kalispellvolkswagen.com/about-us/staff/",
+  "contact_name": "Andrew Warner",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Missoula Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.missoulavw.com/staff",
+  "contact_name": "Brian Stanek",
+  "contact_title": "Sales Manager",
+  "contact_email": "brians@missoulavw.com"
+ },
+ {
+  "dealer_name": "Underriner Volkswagen of Billings",
+  "status": "fetched",
+  "source_url": "https://www.vwbillings.com/about-us/staff/",
+  "contact_name": "Scott Ostrum",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen of Bozeman",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Body Works Plus",
+  "status": "fetched",
+  "source_url": "http://bodyworksplus.com/our-team/",
+  "contact_name": "Chris Smith",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Caliber Coll Charlotte Independence",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Caliber Coll Charlotte-Tyvola Rd",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Caliber Collision Huntersville",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Caliber Collision Raleigh-Downtown",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Carolina Volkswagen",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Classic Volkswagen of Gastonia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Flow Luxury Paint & Body",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Flow Volkswagen of Asheville",
+  "status": "fetched",
+  "source_url": "https://www.flowvolkswagenasheville.com/staff",
+  "contact_name": "Rhett Blanchard",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Flow Volkswagen of Burlington",
+  "status": "fetched",
+  "source_url": "https://www.flowvolkswagenburlington.com/dealership/staff.htm",
+  "contact_name": "Jeremy Fullerton",
+  "contact_title": "Sales Manager",
+  "contact_email": "jfullerton@flowauto.com"
+ },
+ {
+  "dealer_name": "Flow Volkswagen of Durham",
+  "status": "fetched",
+  "source_url": "https://www.flowvolkswagendurham.com/staff",
+  "contact_name": "Said Raouz",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Flow Volkswagen of Greensboro",
+  "status": "fetched",
+  "source_url": "https://www.flowvolkswagengreensboro.com/staff",
+  "contact_name": "Marva Powell",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Flow Volkswagen of Wilmington",
+  "status": "fetched",
+  "source_url": "https://www.flowvolkswagenwilmington.com/staff",
+  "contact_name": "Carlos Lowe",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Flow Volkswagen of Winston-Salem",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hendrick Collision Center of Concor",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hendrick Volkswagen of Concord",
+  "status": "fetched",
+  "source_url": "https://www.hendrickvwofconcord.com/dealership/staff.htm",
+  "contact_name": "Phil Rundo",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Joe Pecheles Volkswagen, Inc.",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "K&M Collision",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Keffer Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.keffervw.com/staff",
+  "contact_name": "Gerald Bennett",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Leith Volkswagen of Cary",
+  "status": "fetched",
+  "source_url": "https://www.leithvwcary.com/dealership/staff.htm",
+  "contact_name": "Casey Braswell",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Leith Volkswagen of Raleigh",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Mark Ficken Collision Center",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Paramount Volkswagen of Hickory",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Port City Collision",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Relentless Collision - Cary",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Sport Durst VW of Jacksonville",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Sport Durst Volkswagen of Goldsboro",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Valley Auto World, Inc.",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen of South Charlotte",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen Fargo",
+  "status": "fetched",
+  "source_url": "https://www.valleyimportsvw.com/dealership/staff.htm",
+  "contact_name": "Jeff Richmond",
+  "contact_title": "General Manager",
+  "contact_email": "Jeff.Richmond@valleyimports.com"
+ },
+ {
+  "dealer_name": "Volkswagen of Bismarck",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Baxter Auto Body - West Dodge",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Baxter Volkswagen of La Vista",
+  "status": "fetched",
+  "source_url": "https://www.baxtervw.com/about-us/staff/",
+  "contact_name": "Alex VanAckeren",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Schworer Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.schworervolkswagen.com/about-us/staff/",
+  "contact_name": "Ryan Westfall",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "AutoFair Volkswagen of Nashua",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Noyes Volkswagen, Inc.",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Nucar Volkswagen of Tilton",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Portsmouth Autobody Center",
+  "status": "fetched",
+  "source_url": "https://www.portsmouthautobody.com/staff",
+  "contact_name": "Isaac Baietti",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Portsmouth Volkswagen",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Quirk Volkswagen NH",
+  "status": "fetched",
+  "source_url": "https://www.quirkvwnh.com/about-us/staff/",
+  "contact_name": "Joel Lombard",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Rochester Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.rochestervw.com/about-us/staff/",
+  "contact_name": "Will Stergis",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen of Lebanon",
+  "status": "fetched",
+  "source_url": "https://www.volkswagenoflebanon.com/about-us/staff/",
+  "contact_name": "Keith Higgs",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Atlantic Volkswagen",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Autotech Collision Service",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Burke Volkswagen of Cape May County",
+  "status": "fetched",
+  "source_url": "https://www.burkevw.com/staff",
+  "contact_name": "Congleton Internet",
+  "contact_title": "Sales Manager",
+  "contact_email": "christina.congleton@burkemotorgroup.com"
+ },
+ {
+  "dealer_name": "Burlington Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.burlingtonvw.com/meet-our-staff/",
+  "contact_name": "professional salesman",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Cherry Hill Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.cherryhillvw.com/about-us/staff/",
+  "contact_name": "Vince D.",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ciocca Volkswagen of Flemington",
+  "status": "fetched",
+  "source_url": "https://www.cioccavolkswagenofflemington.com/dealership/staff.htm",
+  "contact_name": "Vincent Scavone",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Collex Collision Experts",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "County Line Auto Body",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Crestmont Volkswagen",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Delta Collision",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Douglas Body Shop",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Douglas Volkswagen of Summit",
+  "status": "fetched",
+  "source_url": "https://www.douglasvw.com/about-us/staff/",
+  "contact_name": "Chet Puzio",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Exclusive Auto Collision Center",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Fanelli Brothers Auto Body & Repair",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Freehold Collision",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Gensinger Motors, Inc.",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hamilton Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.hamiltonvw.net/staff",
+  "contact_name": "John Brown",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Jack Daniels Volkswagen",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Joe Heidt Volkswagen of Ramsey",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "K&H Automotive",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lee's Garage",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lido Auto Body, Inc.",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Mountain View Auto Body",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Open Road Volkswagen of Bridgewater",
+  "status": "fetched",
+  "source_url": "https://www.openroadvwbridgewater.com/staff",
+  "contact_name": "Jonnathan Munoz",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Paul Miller VW of Bernardsville",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Performance Volkswagen of Lyndhurst",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Prestige Volkswagen",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Reydel Volkswagen of Edison",
+  "status": "fetched",
+  "source_url": "https://www.reydelvw.com/staff",
+  "contact_name": "Naveen Kotecha",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Reydel Volkswagen of Freehold",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Reydel Volkswagen of Linden",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ryan's Auto Body",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Shrewsbury Volkswagen",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Tom's Volkswagen of Union",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Toms River Volkswagen",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Trend Motors, Ltd.",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ultimate Collision",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen Princeton",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen World of Newton",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen of Salem County",
+  "status": "fetched",
+  "source_url": "https://www.volkswagenofsalemcounty.com/staff",
+  "contact_name": "Joseph Hernandez",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "World Volkswagen of Neptune",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Wreck-O-Mend AutoBody II",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Car Crafters Albuquerque-Montano Rd",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Fiesta Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.fiestavw.com/about-us/staff/",
+  "contact_name": "Derek Velasco",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Sisbarro Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.sisbarrovw.com/staff",
+  "contact_name": "Swindle Volkswagen",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "University Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.universityvolkswagen.com/staff",
+  "contact_name": "Bob Cockerham",
+  "contact_title": "General Manager",
+  "contact_email": "bob@abqvwmazda.com"
+ },
+ {
+  "dealer_name": "Volkswagen of Santa Fe",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "AW Collision",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "AutoNation Collision CTR Las Vegas",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "AutoNation Volkswagen Las Vegas",
+  "status": "fetched",
+  "source_url": "https://www.autonationvolkswagenlasvegas.com/dealership/staff.htm",
+  "contact_name": "Robin Valentine",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Centennial Volkswagen",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Findlay Volkswagen",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kaizen Collision Center - Las Vegas",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lithia Volkswagen of Reno",
+  "status": "fetched",
+  "source_url": "https://www.lithiarenovw.com/dealership/staff.htm",
+  "contact_name": "Huggins Assistant",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "AM Collision",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Art Auto Body",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Basil Volkswagen of Lockport",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bay Ridge Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.bayridgevolkswagen.com/about-us/staff/",
+  "contact_name": "Frank Cortes",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bayside Volkswagen",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bob Johnson Volkswagen of Rochester",
+  "status": "fetched",
+  "source_url": "https://www.bobjohnsonvolkswagen.com/meet-our-staff/",
+  "contact_name": "an outstanding",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bob Johnson Volkswagen of Watertown",
+  "status": "fetched",
+  "source_url": "https://www.bobjohnsonvw.com/staff",
+  "contact_name": "Neal Tyrrell",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bronxville Auto Collision",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Burdick Volkswagen",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Carstar Collision of Amherst",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Castle Collision Westbury",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Certified Collision of Long Island",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Clarkstown International Collision",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Collision Cnt At Driver's Village",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Cooley Motors Corp.",
+  "status": "fetched",
+  "source_url": "https://www.cooleyvw.com/about-us/staff/",
+  "contact_name": "Mike Brosch",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Depalo & Sons Auto Body",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "East Hills Volkswagen of Sayville",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Flower Hill Auto Body",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Frank and Son Auto Body",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Gabriel Sports Car Inc.",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Garvey Auto Body",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Garvey Volkswagen of Queensbury",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Gotham City Collision East",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Groben's Auto Body",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Highline Auto Body",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hudson Valley Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.hudsonvalleyvw.com/dealership/staff.htm",
+  "contact_name": "Eric Anderson",
+  "contact_title": "Sales Consultant",
+  "contact_email": "EricHughes@ThePremierCollection.com"
+ },
+ {
+  "dealer_name": "Ide Volkswagen of East Rochester",
+  "status": "fetched",
+  "source_url": "https://www.idevw.com/about-us/staff/",
+  "contact_name": "Evan Boyer",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Island Volkswagen",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Legend Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.legendvw.com/meet-our-staff/",
+  "contact_name": "from management",
+  "contact_title": "Sales Team",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "M&B Twins Collision",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Maguire Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.maguirevw.com/about-us/staff/",
+  "contact_name": "Bethany Divirgilio",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Matthews Volkswagen of Vestal",
+  "status": "fetched",
+  "source_url": "https://www.matthewsvw.com/dealership/staff.htm",
+  "contact_name": "Jim Morse",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Metro Auto Body, Inc",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Mid Island Collision",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Middletown Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.middletownvw.com/staff",
+  "contact_name": "Joseph Difonte",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Nemer Volkswagen",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Nemer Volkswagen of Colonie",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "North State Custom",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Northside Auto Body",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Northside Auto Body II, Inc",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Northtown Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.northtownvw.com/dealership/staff.htm",
+  "contact_name": "Matt Georger",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Nye Volkswagen of Rome",
+  "status": "fetched",
+  "source_url": "https://www.nyevwofrome.com/about-us/staff/",
+  "contact_name": "Mark Cioch",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Open Road Volkswagen of Manhattan",
+  "status": "fetched",
+  "source_url": "https://www.vwmanhattan.com/staff",
+  "contact_name": "Scott McCollum",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Paul's Auto Collision",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Platinum Volkswagen",
+  "status": "fetched",
+  "source_url": "https://platinumvw.com/about",
+  "contact_name": "Moses Quiroz",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Pristine Motorsports",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Prospect Auto Repair",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Riverhead Bay Volkswagen",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Romano Volkswagen of Fayetteville",
+  "status": "fetched",
+  "source_url": "https://www.romanovw.com/staff",
+  "contact_name": "Mike Fisher",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Romeo Collision Center of Kingston",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Romeo Volkswagen of Kingston",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "S&L Collision Center",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "S&T Auto Body Repair",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Sal's Auto Body",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Smithtown Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.volkswagenofsmithtown.com/staff",
+  "contact_name": "Adam Shifrin",
+  "contact_title": "Sales Consultant",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Steet Ponte Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.steetpontevw.com/staff",
+  "contact_name": "Edward Jandreau",
+  "contact_title": "General Manager",
+  "contact_email": "EdwardJandreau@steetpontevolkswagen.com"
+ },
+ {
+  "dealer_name": "Sunrise Volkswagen, Inc.",
+  "status": "fetched",
+  "source_url": "https://www.sunrisevolkswagen.com/about-us/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Tasca Volkswagen White Plains",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Teddy Volkswagen of Queens West",
+  "status": "no_website",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Teddy Volkswagen of the Bronx",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen Mohegan Lake",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen of Huntington",
+  "status": "fetched",
+  "source_url": "https://www.vwofhuntington.com/dealership/staff.htm",
+  "contact_name": "Shawn Baron",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen of Nanuet",
+  "status": "fetched",
+  "source_url": "https://www.vwnanuet.com/dealership/staff.htm",
+  "contact_name": "Edvard Cantave",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen of Orchard Park",
+  "status": "fetched",
+  "source_url": "https://www.vwoforchardpark.com/staff",
+  "contact_name": "Bob Luthi",
+  "contact_title": "Sales Manager",
+  "contact_email": "bluthi@vwofop.com"
+ },
+ {
+  "dealer_name": "Volkswagen of West Islip",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "West Herr Collision Center",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "West Herr Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.westherrvolkswagen.com/about-us/meet-the-staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Beechmont Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.beechmontvw.com/dealership/staff.htm",
+  "contact_name": "Joe Jenkins",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bill Marine VW of Springfield",
+  "status": "fetched",
+  "source_url": "https://www.billmarinevw.com/staff",
+  "contact_name": "Pascal Chevrette",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Brunswick Volkswagen",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Byers Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.columbusvw.com/about-us/staff/",
+  "contact_name": "Shane Fouch",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Camargo Cadillac",
+  "status": "fetched",
+  "source_url": "https://www.burdickused.com/dealership/staff.htm",
+  "contact_name": "Mike Ashby",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Classic Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.driveclassicvw.com/about-us/staff/",
+  "contact_name": "Joe Rusyniak",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "DCR Systems",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Diehl Volkswagen of Wooster",
+  "status": "fetched",
+  "source_url": "https://www.diehlvwofwooster.com/about-us/staff/",
+  "contact_name": "Bob McHue",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Evans Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.evansvolkswagen.com/staff",
+  "contact_name": "Scott Evans",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Fairfield Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.vwfairfield.com/dealership/staff.htm",
+  "contact_name": "Brian Frech",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Germain Volkswagen of Columbus",
+  "status": "fetched",
+  "source_url": "https://www.germainvwofcolumbus.com/about-us/staff/",
+  "contact_name": "Zachary LeTourneau",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Germain Volkswagen of Westerville",
+  "status": "fetched",
+  "source_url": "https://www.germainvwofwesterville.com/about-us/staff/",
+  "contact_name": "Dennis Cox",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Great Lakes Volkswagen of Canton",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Joseph Volkswagen of Cincinnati",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "K-Ceps Autobody",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kempthorn Collision Center",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ken Ganley VW Willoughby Hills",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ken Ganley Volkswagen Bedford",
+  "status": "fetched",
+  "source_url": "https://www.kenganleyvwbedford.com/",
+  "contact_name": "Career Opportunities",
+  "contact_title": "Sales Consultant",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ken Ganley Volkswagen North Olmsted",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kings Volkswagen",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Quality Body Shop",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Rife's Autobody - Grandview",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Spitzer Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.spitzervw.com/about-us/meet-our-staff/",
+  "contact_name": "Jason Eyman",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Sunset Motors Incorp",
+  "status": "fetched",
+  "source_url": "https://www.sunsetvw.com/dealership/staff.htm",
+  "contact_name": "Steve Lucas",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen of Akron",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen of Boardman",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen of Dublin",
+  "status": "fetched",
+  "source_url": "https://www.volkswagenofdublin.com/dealership/staff.htm",
+  "contact_name": "Mahmutalp Camalan",
+  "contact_title": "Sales Consultant",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen of Perrysburg",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen of Streetsboro",
+  "status": "fetched",
+  "source_url": "https://www.vwofstreetsboro.com/about-us/staff/",
+  "contact_name": "Travis Metzger",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "White-Allen Volkswagen",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bob Moore Collision Center",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bob Moore Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.bobmoorevolkswagen.com/about-us/staff/",
+  "contact_name": "Scott Hays",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Don Thornton Certified Collision",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Don Thornton Volkswagen of Tulsa",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Drexel Paint & Body Oklahoma City",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Fowler Volkswagen of Norman",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Oklahoma City Volkswagen",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Armstrong Volkswagen of Gladstone",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Beaverton Auto Paint & Body",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Dick Hannahs Volkswagen of Portland",
+  "status": "fetched",
+  "source_url": "https://www.vwofportland.com/about-us/staff/",
+  "contact_name": "Matthew Kim",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Herzog Meier Volkswagen",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Medford Volkswagen",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Precision Body & Paint of Beaverton",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Precision Body & Paint of Bend",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Tualatin Auto Body",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen Eugene",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen of Bend",
+  "status": "fetched",
+  "source_url": "https://www.kendallvwofbend.com/about-us/staff/",
+  "contact_name": "Deen Hydes",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen of McMinnville",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen of Salem",
+  "status": "fetched",
+  "source_url": "https://www.vwofsalem.com/dealership/staff.htm",
+  "contact_name": "Brandon Bodine",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Autohaus Lancaster Body Shop",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Autohaus Lancaster, Inc.",
+  "status": "fetched",
+  "source_url": "https://www.autohauslancastervw.com/about-us/staff/",
+  "contact_name": "Joe Dwyer",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Autohaus Lebanon Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.autohauslebanon.com/about-us/staff/",
+  "contact_name": "Kyle Mangan",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bergey's Volkswagen of Wilkes-Barre",
+  "status": "fetched",
+  "source_url": "https://www.bergeysvw.com/dealership/staff.htm",
+  "contact_name": "Shaun Leonard",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Body by Cochran Castle Shannon",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Body by Cochran Cranberry",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Brandywine Coachwork of West Cheste",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Carstar Fred Beans of Doylestown",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ciocca Collision Center",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ciocca Collision Center Williamspor",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ciocca Volkswagen of Allentown",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ciocca Volkswagen of State College",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Classic Coachwork Ambler",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Classic Coachwork Collegeville",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Classic Coachwork Main Line",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Cochran Volkswagen North Hills",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Cochran Volkswagen Pittsburgh",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Colonial Volkswagen, Inc.",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Diehl Volkswagen of Butler",
+  "status": "fetched",
+  "source_url": "https://www.diehlvw.com/about-us/staff/",
+  "contact_name": "Rich Grossman",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Faulkner COLL CTR Mechanicsburg",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Faulkner Volkswagen  Mechanicsburg",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Finish Line Collision",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Fiore Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.gofiorevw.com/staff",
+  "contact_name": "Kent Muir",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Fred Beans Volkswagen",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Fred Beans Volkswagen of Doylestown",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Garnet Volkswagen of West Chester",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Greensburg Collision Center",
+  "status": "fetched",
+  "source_url": "https://www.sendellvolkswagen.com/about-us/staff/",
+  "contact_name": "Kevin Markle",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hanover Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.hanover-vw.com/about-us/staff/",
+  "contact_name": "Jesse Lutz",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hawk Volkswagen of Monroeville",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "J. Bertolet, Inc.",
+  "status": "fetched",
+  "source_url": "https://www.jbertolet.com/staff",
+  "contact_name": "Andrew Vigoda",
+  "contact_title": "General Sales Manager",
+  "contact_email": "andrewvigoda@jbertolet.com"
+ },
+ {
+  "dealer_name": "Jack Metzer Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.metzervw.com/dealership/staff.htm",
+  "contact_name": "Robert Metzer",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Jeff D'Ambrosio Volkswagen",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kelly Volkswagen",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kilkeary's Auto Body Inc.",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Koch 33 Collision",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Koch 33 Volkswagen of Easton",
+  "status": "fetched",
+  "source_url": "https://www.koch33volkswagen.com/staff",
+  "contact_name": "Ted Cowell",
+  "contact_title": "General Sales Manager",
+  "contact_email": "tedc@koch33vwmazda.com"
+ },
+ {
+  "dealer_name": "MMCO Auto Body",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Main Line Collision",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "New Motors Volkswagen Erie",
+  "status": "fetched",
+  "source_url": "https://newmotorsvw.adviserly.com/list",
+  "contact_name": "Andrew Vollant",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "North Penn Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.northpennvw.com/about-us/staff/",
+  "contact_name": "Brian Lendzioszek",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Piazza Volkswagen of Ardmore",
+  "status": "fetched",
+  "source_url": "https://www.piazzavwardmore.com/dealership/staff.htm",
+  "contact_name": "Paul Mullen",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Piazza Volkswagen of Langhorne",
+  "status": "fetched",
+  "source_url": "https://www.piazzavwlanghorne.com/dealership/staff.htm",
+  "contact_name": "Jim Aubry",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Rob's Automotive & Collision Center",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Sendell Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.sendellvolkswagen.com/about-us/staff/",
+  "contact_name": "Kevin Markle",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Sutliff Volkswagen",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Thompson Collision Ctr & Body Shop",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Three Rivers Volkswagen",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen Reading",
+  "status": "fetched",
+  "source_url": "https://www.readingvw.com/dealership/staff.htm",
+  "contact_name": "Brandon Burkhart",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen of Moon Township",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen of Springfield",
+  "status": "fetched",
+  "source_url": "https://www.vwphilly.com/about-us/staff/",
+  "contact_name": "Chris Phillips",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Wynn Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.jimwynnvw.com/about-us/staff/",
+  "contact_name": "Pat Cook",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "York Volkswagen, Inc.",
+  "status": "fetched",
+  "source_url": "https://www.yorkvw.com/dealership/staff.htm",
+  "contact_name": "Nick Campagna",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Auto Service Auto Body",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Balise Collision Repair W Warwick",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Balise Collision Repair Warwick",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Balise Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.balisevolkswagenri.com/staff",
+  "contact_name": "Jack da Fonseca",
+  "contact_title": "General Manager",
+  "contact_email": "jdafonseca@baliseauto.com"
+ },
+ {
+  "dealer_name": "Choice Collision Center of Warren",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Reliable Collision Repair",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Scott Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.scottvw.com/about-us/staff/",
+  "contact_name": "James Mardenli",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Speedcraft Volkswagen",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "AutoNation Volkswagen Hilton Head",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Caliber Collision Greenville",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "East Coast VW of Myrtle Beach",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Low Country Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.lowcountryvw.com/dealership/staff.htm",
+  "contact_name": "Pax Howard",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "McDaniels Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.mcdanielsvw.com/dealership/staff.htm",
+  "contact_name": "Darrell Sheftall",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Midlands Volkswagen of Columbia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Peacock Collision Center",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Steve White Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.stevewhitevw.com/dealership/staff.htm",
+  "contact_name": "John Kull",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Steve White Volkswagen Spartanburg",
+  "status": "fetched",
+  "source_url": "https://www.spartanburgvw.com/staff",
+  "contact_name": "Mark Scully",
+  "contact_title": "General Manager",
+  "contact_email": "mscully@spartanburgvw.com"
+ },
+ {
+  "dealer_name": "Stokes Volkswagen",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen of Florence",
+  "status": "fetched",
+  "source_url": "https://www.mrvwofflorence.com/staff",
+  "contact_name": "Faisal Karim",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Graham Collision Center",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Liberty Volkswagen",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen Sioux Falls",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Abra Auto Body Repair Chattanooga",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Caliber - McMinnville",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Collision Craft",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Gossett Volkswagen",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Gossett Volkswagen of Germantown",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Harper Collision Center",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Harper Volkswagen of Knoxville",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "King Coll Repair & Tire-Knoxville",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "TriStar Collision LLC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Village Volkswagen of Chattanooga",
+  "status": "fetched",
+  "source_url": "https://www.villagevw.com/dealership/staff.htm",
+  "contact_name": "Shannon Harris",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen of Cool Springs",
+  "status": "fetched",
+  "source_url": "https://www.volkswagenofcoolsprings.com/meet-our-team.htm",
+  "contact_name": "Jacob Exum",
+  "contact_title": "General Manager",
+  "contact_email": "jacob.exum@carlockcars.com"
+ },
+ {
+  "dealer_name": "Volkswagen of Murfreesboro",
+  "status": "fetched",
+  "source_url": "https://www.volkswagenofmurfreesboro.com/dealership/staff.htm",
+  "contact_name": "Steve Katuzney",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen of North Nashville",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Wallace Collision Center & Repair",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Wallace Volkswagen of Bristol",
+  "status": "fetched",
+  "source_url": "https://www.wallacevw.com/staff",
+  "contact_name": "TC Baker",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Wallace Volkswagen of Johnson City",
+  "status": "fetched",
+  "source_url": "https://www.wallacevolkswagen.com/staff",
+  "contact_name": "Ron Vance",
+  "contact_title": "New Car Sales Manager",
+  "contact_email": "r_vance80@hotmail.com"
+ },
+ {
+  "dealer_name": "Wallace Volkswagen of Kingsport",
+  "status": "fetched",
+  "source_url": "https://www.wallacevolkswagenofkingsport.com/staff",
+  "contact_name": "ERIC POORE",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Wyatt Johnson VW of Clarksville",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Alamo Heights Collision Center",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ancira Collision Center",
+  "status": "fetched",
+  "source_url": "https://www.ancirachev.com/about-us/staff/",
+  "contact_name": "ZACHARY JACKSON",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ancira Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.anciravolkswagen.com/about-us/staff/",
+  "contact_name": "Carl Carper",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ancira Volkswagen of Laredo",
+  "status": "fetched",
+  "source_url": "https://www.vwlaredo.com/about-us/staff/",
+  "contact_name": "Werner Johnson",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Archer Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.archervw.com/staff",
+  "contact_name": "Matthew Collins",
+  "contact_title": "New Car Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "AutoNation Collision Center Addison",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "AutoNation Collision Center Plano",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Autobahn Motorcar Group",
+  "status": "fetched",
+  "source_url": "https://www.autobahnvw.com/about-us/staff/",
+  "contact_name": "Lee Volkswagen",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Autohaus K+H",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Autonation Collision North Richland",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Brandon Tomes VW of McKinney",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Caliber Collision - Temple IH-35",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Caliber Collision Austin-Onion Cree",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Caliber Collision Ft Worth Downtown",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Classic Collision North Frisco",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Clay Cooley Collision Center",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Clay Cooley VW of Park Cities",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Clay Cooley VW of Richardson",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Clay Cooley Volkswagen Lewisville",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "DeMontrond Automotive Group Inc.",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "DeMontrond Collision Center",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "DeMontrond Volkswagen of Conroe",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Eagle Collision Repair Center",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "East Dallas Volkswagen",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Factory Finish Coll CTR FT Worth",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Factory Finish Collision Center",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Family Volkswagen of Burleson",
+  "status": "fetched",
+  "source_url": "https://www.familyvwofburleson.com/staff",
+  "contact_name": "Brett Hamilton",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Garlyn Shelton Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.garlynsheltonvolkswagen.com/staff",
+  "contact_name": "Brian Duble",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Gorman-McCracken Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.gormanmccrackenvw.com/staff",
+  "contact_name": "DyShan Dunn",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Group 1 Collision Center",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Group 1 Volkswagen Alamo Heights",
+  "status": "fetched",
+  "source_url": "https://www.group1volkswagenalamoheights.com/about-us/staff/",
+  "contact_name": "Jesse Spencer",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Group 1 Volkswagen Hub City",
+  "status": "fetched",
+  "source_url": "https://www.group1volkswagenhubcity.com/about-us/staff/",
+  "contact_name": "Lane Sullivan",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hendrick Volkswagen Frisco",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Herb Easley Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.herbeasleyvw.com/dealership/staff.htm",
+  "contact_name": "John Cerda",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hewlett Collision Center",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hewlett Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.hewlettvw.com/staff",
+  "contact_name": "John Chauvin",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hiley Volkswagen of Arlington",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hoy Family Auto Body Shop",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hoy Volkswagen of El Paso",
+  "status": "fetched",
+  "source_url": "https://www.hoyvw.com/dealership/staff.htm",
+  "contact_name": "Agustin Candelas",
+  "contact_title": "General Sales Manager",
+  "contact_email": "acandelas@driveahoy.com"
+ },
+ {
+  "dealer_name": "Killeen Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.killeenvolkswagen.com/meet-our-staff/",
+  "contact_name": "Azrael is our",
+  "contact_title": "Sales Representative",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Magic Touch Paint and Body",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Meszaros Motor Sports",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Metropolitan Collision",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Momentum Collision Center - Houston",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Momentum Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.momentumvolkswagen.com/dealership/staff.htm",
+  "contact_name": "Joshua Silver",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Momentum West Collision Center",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "North Park Collision Center",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "North Park Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.northparkvw.com/about-us/staff/",
+  "contact_name": "Glen Fowler",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Onion Creek Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.onioncreekvw.com/staff",
+  "contact_name": "Mason Scott",
+  "contact_title": "New Car Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Orr Volkswagen of Texarkana",
+  "status": "fetched",
+  "source_url": "https://www.orrvw.com/meet-our-staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Patterson Volkswagen of Tyler",
+  "status": "fetched",
+  "source_url": "https://www.pattersonvwtyler.com/about-us/staff/",
+  "contact_name": "Ted Shoquist",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Payne Brownsville Volkswagen",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Payne Mission Volkswagen",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Principle Volkswagen Grapevine",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Purdy Volkswagen of Bryan",
+  "status": "fetched",
+  "source_url": "https://www.purdyvw.com/staff",
+  "contact_name": "Travis Greer",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "River Oaks Paint & Body Shop Kirby",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Rockwall County Volkswagen",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Rudolph Body and Paint",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Rudolph Volkswagen of El Paso",
+  "status": "fetched",
+  "source_url": "https://www.rudolphvw.com/about-us/staff/",
+  "contact_name": "Victor Rocha",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Southwest Collision Center",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Southwest Volkswagen of Weatherford",
+  "status": "fetched",
+  "source_url": "https://www.southwestvolkswagen.com/staff",
+  "contact_name": "John David",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Street Volkswagen of Amarillo",
+  "status": "fetched",
+  "source_url": "https://www.streetvw.com/staff",
+  "contact_name": "John Luciano",
+  "contact_title": "General Manager",
+  "contact_email": "john_luciano@streetvw.com"
+ },
+ {
+  "dealer_name": "Stuart's Paint and Body Grapevine",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "TBS The Body Shop",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Team Gillman Volkswagen of Kingwood",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Tomes Collision",
+  "status": "fetched",
+  "source_url": "https://www.bobtomesford.com/dealership/staff.htm",
+  "contact_name": "Zach French",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Uptown Automotive",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "V and V Body and Paint",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Vanguard Volkswagen of North Austin",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen Clear Lake",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen Cypress",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen of Abilene",
+  "status": "fetched",
+  "source_url": "https://www.volkswagenofabilene.com/dealership/staff.htm",
+  "contact_name": "Jason Pena",
+  "contact_title": "New Car Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen of Beaumont",
+  "status": "fetched",
+  "source_url": "https://www.vwbeaumont.com/staff",
+  "contact_name": "John Day",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen of Corpus Christi",
+  "status": "fetched",
+  "source_url": "https://www.vwofcc.com/staff",
+  "contact_name": "Jeremy Candler",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen of Midland-Odessa",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen of Waco",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "West Houston Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.westhoustonvw.com/about-us/staff/",
+  "contact_name": "STEVE PALMISANO",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Cascade Collision Repair of Orem",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Findlay Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.stgeorgevw.com/about-us/staff/",
+  "contact_name": "Berk Rowland",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Gerber Collision & Glass - Sandy",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Higgins Body & Paint",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ken Garff Body Shop - Ogden",
+  "status": "fetched",
+  "source_url": "https://www.kengarffhondariverdale.com/about-us/staff/",
+  "contact_name": "Marcus Lunt",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ken Garff Body Shop - Salt Lake",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ken Garff Chevrolet Body & Glass",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ken Garff Volkswagen",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ken Garff Volkswagen SouthTowne",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Murdock Volkswagen of Logan",
+  "status": "fetched",
+  "source_url": "https://www.murdockvw.com/about-us/staff/",
+  "contact_name": "Briar Bunderson",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Strong Volkswagen, Inc.",
+  "status": "fetched",
+  "source_url": "https://www.strongvw.com/meet-our-staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Unique Auto Body",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Unique Autobody West Jordan",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Young Collision Center",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Young Volkswagen of Layton",
+  "status": "fetched",
+  "source_url": "https://www.youngvolkswagen.com/dealership/staff.htm",
+  "contact_name": "Jared Heilmann",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Alexandria Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.alexandriavw.com/about-us/staff/",
+  "contact_name": "Aziz Kettani",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CMA's Valley Volkswagen",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Casey Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.caseyvolkswagen.com/about-us/staff/",
+  "contact_name": "Travis Wynn",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Chantilly Auto Body",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Checkered Flag Body Shop",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Checkered Flag Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.vw.checkeredflag.com/about-us/staff/",
+  "contact_name": "Adam Hamilton",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Crash Champions",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "D&V Autobody Masters",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Flow Volkswagen of Charlottesville",
+  "status": "fetched",
+  "source_url": "https://www.flowvolkswagencharlottesville.com/staff",
+  "contact_name": "Timothy Koval",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Karen Radley Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.karenradleyvw.com/meet-our-staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lindsay Collision Center - Manassas",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lindsay Volkswagen of Dulles",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lindsay Volkswagen of Manassas",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Loyalty Volkswagen",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Rosslyn Auto Body",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Safford VW of Fredericksburg",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Safford Volkswagen West Richmond",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Sheehy Volkswagen of Springfield",
+  "status": "fetched",
+  "source_url": "https://www.sheehyspringfieldvw.com/meet-our-staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Southern Team Volkswagen of Roanoke",
+  "status": "fetched",
+  "source_url": "https://www.southernteamvolkswagen.com/about-us/staff/",
+  "contact_name": "Ramirez Volkswagen",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Southern Volkswagen Greenbrier",
+  "status": "fetched",
+  "source_url": "https://www.southernvolkswagengreenbrier.com/about-us/staff/",
+  "contact_name": "Terrence Gregory",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Stohlman Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.stohlman-vw.com/meet-our-staff/",
+  "contact_name": "Marc Weinstein",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Terry Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.terryvolkswagen.com/dealership/staff.htm",
+  "contact_name": "Mark Dalton",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Tysons Corner Collision Center",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen of Winchester",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "West Broad Collision Center",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "West Broad Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.westbroadvw.com/dealership/staff.htm",
+  "contact_name": "Frank Barksdale",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Montpelier Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.montpeliervolkswagen.com/staff",
+  "contact_name": "Jason Trombley",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Shearer VW of South Burlington",
+  "status": "fetched",
+  "source_url": "https://www.shearervw.com/staff",
+  "contact_name": "Nick Zagres",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen of Manchester",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen of Rutland",
+  "status": "fetched",
+  "source_url": "https://www.rutlandvw.com/about-us/staff/",
+  "contact_name": "Andrew Sammis",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "AutoNation Volkswagen Spokane",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bud Clary Auburn Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.budclaryauburnvw.com/about-us/staff/",
+  "contact_name": "Hamid Musazey",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Campbell Volkswagen of Edmonds",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Carter Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.cartervw.com/meet-our-staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Collision Care Center",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Crash Champions",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Dick Hannah Vancouver Auto Body",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Dick Hannah Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.dickhannahvolkswagen.com/about-us/staff/",
+  "contact_name": "Cooper Peterson",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Exotic Motors Auto Rebuild",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Haselwood Volkswagen of Bremerton",
+  "status": "fetched",
+  "source_url": "https://www.haselwoodvolkswagen.com/dealership/staff.htm",
+  "contact_name": "Scott Heston",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Haury's Lake City Collision",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "KarMart Volkswagen",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "No. 1 Automotive Body Repair",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Overturf Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.overturfvw.com/dealership/staff.htm",
+  "contact_name": "Doug Overturf",
+  "contact_title": "Dealer Principal",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Rairdon's Volkswagen of Everett",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Steve Hahn Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.stevehahnvw.com/meet-our-staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "University Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.universityvw.com/staff",
+  "contact_name": "phanie Ngoun",
+  "contact_title": "Sales Manager",
+  "contact_email": "sngoun@uvwaudi.com"
+ },
+ {
+  "dealer_name": "Volkswagen of Bellingham",
+  "status": "fetched",
+  "source_url": "https://www.volkswagenofbellingham.com/staff",
+  "contact_name": "Jeff Swickard",
+  "contact_title": "Dealer Principal",
+  "contact_email": "jeffswickard@swickard.com"
+ },
+ {
+  "dealer_name": "Volkswagen of Kirkland",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen of Olympia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen of Puyallup",
+  "status": "fetched",
+  "source_url": "https://www.vwofpuyallup.com/dealership/staff.htm",
+  "contact_name": "Steve Renard",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen of Tacoma",
+  "status": "fetched",
+  "source_url": "https://www.larsonvolkswagen.com/meet-our-staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Wilder Volkswagen of Port Angeles",
+  "status": "fetched",
+  "source_url": "https://www.wildervw.com/meet-our-staff/",
+  "contact_name": "Wilder Auto",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bergstrom Body-Appleton Victory LN",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bergstrom Volkswagen Appleton",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bergstrom Volkswagen of Green Bay",
+  "status": "fetched",
+  "source_url": "https://www.volkswagengreenbay.com/staff/",
+  "contact_name": "Mark Babiarz",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bergstrom Volkswagen of Oshkosh",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Boucher Collision Repair Center - W",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Boucher Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.vwfranklin.com/about-us/staff/",
+  "contact_name": "Pat Easterlin",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ewald Volkswagen of Menomonee Falls",
+  "status": "fetched",
+  "source_url": "https://www.ewaldvw.com/staff",
+  "contact_name": "Steve Gliatis",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Frank Boucher VW of Janesville",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Frank Boucher Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.bouchervw.com/about-us/staff/",
+  "contact_name": "Brad Sawatske",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hall Collision Center",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hall Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.hallvw.com/about-hall-volkswagen/staff/",
+  "contact_name": "Jerry Schienebeck",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Stevens Point Volkswagen",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Van Horn Volkswagen Sheboygan",
+  "status": "fetched",
+  "source_url": "https://www.vhvolkswagensheboygan.com/staff",
+  "contact_name": "Beau Rauner",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen La Crosse",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen of Eau Claire",
+  "status": "fetched",
+  "source_url": "https://www.volkswagenofeauclaire.com/about-us/staff/",
+  "contact_name": "Drew Sonnentag",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen of Milwaukee North",
+  "status": "fetched",
+  "source_url": "https://www.vwofmilwaukeenorth.com/about-us/staff/",
+  "contact_name": "Evan Wirt",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen of Wausau",
+  "status": "fetched",
+  "source_url": "https://www.kocourekvw.com/dealership/staff.htm",
+  "contact_name": "Leadership Mike",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Zimbrick Body Shop - Stoughton Road",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Zimbrick Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.z-vw.com/staff",
+  "contact_name": "Dave Kreuser",
+  "contact_title": "General Manager",
+  "contact_email": "Dave.Kreuser@zimbrick.com"
+ },
+ {
+  "dealer_name": "Zimbrick Volkswagen of Madison",
+  "status": "fetched",
+  "source_url": "https://www.zimbrickvw.com/staff",
+  "contact_name": "Bill Fritz",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Crown Volkswagen of Wheeling",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Joe Holland Volkswagen",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Matheny Volkswagen of Parkersburg",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Moses Volkswagen of Huntington",
+  "status": "fetched",
+  "source_url": "https://www.mosesvolkswagen.com/staff",
+  "contact_name": "Jeff Frampton",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen Clarksburg",
+  "status": "fetched",
+  "source_url": "https://www.vwclarksburg.com/about-us/staff/",
+  "contact_name": "Jon Pajak",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Volkswagen Morgantown",
+  "status": "fetched",
+  "source_url": "https://www.vwmorgantown.com/about-us/staff/",
+  "contact_name": "Jon Pajak",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Fremont Volkswagen",
+  "status": "fetched",
+  "source_url": "https://www.fremontvwcasper.com/staff",
+  "contact_name": "Colbey Day",
+  "contact_title": "General Manager",
+  "contact_email": "cday@fremontmotors.com"
+ }
+]
