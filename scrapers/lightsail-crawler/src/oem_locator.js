@@ -100,6 +100,20 @@ export function isOemMarketingHost(host) {
   return OEM_SITE_HOSTS.has(h);
 }
 
+// Dedup key must include state: dealer groups routinely reuse the exact
+// same trading name in more than one state (confirmed 2026-09-15 adding
+// GA — "Kia Autosport" is a real, distinct rooftop in both Pensacola, FL
+// and Columbus, GA; "Rick Case Kia" likewise in Sunrise, FL and Duluth,
+// GA). A state-less key silently collapsed those into one entry and
+// dropped a real rooftop — state-scoping it is the actual fix, not a
+// per-state special case. applyCuratedOverlay() below still matches by
+// make+name alone (CURATED_OVERLAY entries don't carry a state), but that
+// scan now iterates every state-scoped entry rather than relying on this
+// key's shape.
+function stateScopedKey(make, name, state) {
+  return `${state}|${overlayKey(make, name)}`;
+}
+
 function remember(map, row, source) {
   const make = String(row.make || '').trim();
   const host = normalizeDealerHost(row.domain);
@@ -107,7 +121,7 @@ function remember(map, row, source) {
   const state = String(row.state || '').trim().toUpperCase();
   if (!make || !host || !name || !state) return;
   if (isOemMarketingHost(host)) return;
-  const key = overlayKey(make, name);
+  const key = stateScopedKey(make, name, state);
   const prev = map.get(key);
   const rank = SOURCE_RANK[source] || 0;
   if (prev && (SOURCE_RANK[prev.source] || 0) > rank) return;
@@ -166,10 +180,16 @@ function loadListingVerified(repoRoot, map, state) {
 
 function applyCuratedOverlay(map) {
   for (const row of CURATED_OVERLAY) {
-    const key = overlayKey(row.make, row.name);
-    const prev = map.get(key);
-    if (!prev) continue;
-    remember(map, { ...prev, domain: row.domain }, 'curated-overlay');
+    const wantKey = overlayKey(row.make, row.name);
+    // CURATED_OVERLAY entries carry no state (they're one-off host
+    // corrections, not new rooftops), so match by make+name across every
+    // state-scoped entry rather than a single map.get() — see
+    // stateScopedKey()'s comment above for why the map key itself is now
+    // state-scoped.
+    for (const prev of [...map.values()]) {
+      if (overlayKey(prev.make, prev.name) !== wantKey) continue;
+      remember(map, { ...prev, domain: row.domain }, 'curated-overlay');
+    }
   }
 }
 

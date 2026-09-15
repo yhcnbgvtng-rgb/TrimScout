@@ -210,6 +210,20 @@
     "domainSource": "oem-locator"
   },
   {
+    "id": "subaru-prestige-subaru",
+    "name": "Prestige Subaru",
+    "city": "Turnersville",
+    "state": "NJ",
+    "make": "Subaru",
+    "domain": "prestigesubarunj.com",
+    "sitemapUrl": "https://www.prestigesubarunj.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.prestigesubarunj.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://prestigesubarunj.com/",
+    "lat": 39.739019,
+    "lng": -75.043377,
+    "domainSource": "oem-locator"
+  },
+  {
     "id": "subaru-ramsey-subaru",
     "name": "Ramsey Subaru",
     "city": "Ramsey",

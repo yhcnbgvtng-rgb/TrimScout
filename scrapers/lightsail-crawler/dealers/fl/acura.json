@@ -84,6 +84,20 @@
     "domainSource": "oem-locator"
   },
   {
+    "id": "crown-acura",
+    "name": "Crown Acura",
+    "city": "Clearwater",
+    "state": "FL",
+    "make": "Acura",
+    "domain": "crownacura.com",
+    "sitemapUrl": "https://www.crownacura.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.crownacura.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://crownacura.com/",
+    "lat": 27.943705,
+    "lng": -82.73008,
+    "domainSource": "oem-locator"
+  },
+  {
     "id": "delray-acura",
     "name": "Delray Acura",
     "city": "Delray Beach",
