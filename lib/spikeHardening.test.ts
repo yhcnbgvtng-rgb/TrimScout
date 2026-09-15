@@ -42,8 +42,8 @@ describe("rate limits — 429 with Retry-After, never a 500", () => {
   it("named limits: per IP, per account, global — first trip wins; the response is 429 + Retry-After", async () => {
     resetRateLimitsForTests();
     let tripped = null;
-    for (let i = 0; i < 6 && !tripped; i++) tripped = firstTrippedLimit([{ name: "rfq_create_ip", subject: "1.2.3.4" }, { name: "rfq_create_user", subject: "u1" }, { name: "rfq_create_global", subject: "all" }], 5_000_000);
-    assert.ok(tripped, "the account limit (3 / 10 min) trips before the IP limit (5)");
+    for (let i = 0; i < 15 && !tripped; i++) tripped = firstTrippedLimit([{ name: "rfq_create_ip", subject: "1.2.3.4" }, { name: "rfq_create_user", subject: "u1" }, { name: "rfq_create_global", subject: "all" }], 5_000_000);
+    assert.ok(tripped, "the account limit (12 / 10 min) trips before the IP limit (20)");
     assert.equal(tripped!.name, "rfq_create_user");
     const res = tooManyRequests(tripped!);
     assert.equal(res.status, 429);
