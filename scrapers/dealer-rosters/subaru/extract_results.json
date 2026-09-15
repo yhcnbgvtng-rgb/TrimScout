@@ -1,0 +1,5154 @@
+[
+ {
+  "dealer_name": "Continental Subaru",
+  "status": "fetched",
+  "source_url": "https://www.continental-subaru.com/dealership/staff.htm",
+  "contact_name": "Julius Cumlat",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Juneau Subaru",
+  "status": "fetched",
+  "source_url": "https://www.juneausubaru.com/about-us/staff/",
+  "contact_name": "Mark Troupin",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kendall Subaru of Fairbanks",
+  "status": "fetched",
+  "source_url": "https://www.subarufairbanks.com/about-us/staff/",
+  "contact_name": "Robert Bernard",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hallmark Subaru",
+  "status": "fetched",
+  "source_url": "https://www.hallmarksubarubirmingham.com/dealership/staff.htm",
+  "contact_name": "Barry Terranova",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hendrick Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Landers McLarty Subaru",
+  "status": "fetched",
+  "source_url": "https://www.landersmclartysubaru.net/staff",
+  "contact_name": "Williams Jr",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Montgomery Subaru",
+  "status": "fetched",
+  "source_url": "https://www.montgomerysubaru.com/about-us/staff/",
+  "contact_name": "Tabor Cleberg",
+  "contact_title": "New Car Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Tameron Subaru",
+  "status": "fetched",
+  "source_url": "https://www.tameronsubaru.com/staff/",
+  "contact_name": "Tim Lee",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Adventure Subaru",
+  "status": "fetched",
+  "source_url": "https://www.adventuresubaru.com/dealership/staff.htm",
+  "contact_name": "J.D. Arnold",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Subaru of Little Rock",
+  "status": "fetched",
+  "source_url": "https://www.subaruoflittlerock.com/dealership/staff.htm",
+  "contact_name": "Landon Montgomery",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "AutoNation Subaru Scottsdale",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Camelback Subaru",
+  "status": "fetched",
+  "source_url": "https://www.camelbacksubaru.com/dealership/staff.htm",
+  "contact_name": "Rhett Hook",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Findlay Subaru Prescott",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Flagstaff Subaru",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Peoria Subaru",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Seventy-Seven Subaru",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Subaru Superstore of Chandler",
+  "status": "fetched",
+  "source_url": "https://www.subarusuperstore.com/about-us/staff/",
+  "contact_name": "Rob Daily",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Subaru Superstore of Surprise",
+  "status": "fetched",
+  "source_url": "https://www.subarusuperstorewest.com/about-us/staff/",
+  "contact_name": "Jerry Wood",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Tucson Subaru",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Albany Subaru",
+  "status": "fetched",
+  "source_url": "https://www.albanysubaru.com/about-us/meet-our-team/",
+  "contact_name": "Roberto Martinez",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "AutoNation Subaru Carlsbad",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "AutoNation Subaru Roseville",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Capitol Subaru",
+  "status": "fetched",
+  "source_url": "https://www.capitolsubarusj.com/about-us/staff/",
+  "contact_name": "Randy Guzman",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Cypress Coast Subaru",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "DCH Subaru of Riverside",
+  "status": "fetched",
+  "source_url": "https://www.dchsubaruofriverside.com/dealership/staff.htm",
+  "contact_name": "Thomas Edwards",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "DCH Subaru of Thousand Oaks",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Dalton Subaru National City",
+  "status": "fetched",
+  "source_url": "https://www.subarudalton.com/staff",
+  "contact_name": "Antonio Luna",
+  "contact_title": "General Manager",
+  "contact_email": "aluna@daltoncorp.com"
+ },
+ {
+  "dealer_name": "Diablo Subaru of Walnut Creek",
+  "status": "fetched",
+  "source_url": "https://www.diablosubaru.com/dealership/staff.htm",
+  "contact_name": "Mike Riise",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Downtown Subaru",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Elk Grove Subaru",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Fairfield Subaru",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Frank's Irvine Subaru",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Gold Rush Subaru",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hanlees Subaru",
+  "status": "fetched",
+  "source_url": "https://www.hanleesnapasubaru.com/about-us/staff/",
+  "contact_name": "Mike G.",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hansel Subaru",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hello Subaru of Temecula",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Jerry Seiner Subaru",
+  "status": "fetched",
+  "source_url": "https://www.jerryseinersubaru.com/about-us/staff/",
+  "contact_name": "Brenton Laughlin",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kearny Mesa Subaru",
+  "status": "fetched",
+  "source_url": "https://www.kearnymesasubaru.com/about-us/staff/",
+  "contact_name": "Jamey Watson",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ken Fowler Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kirby Subaru of Ventura",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lithia Subaru of Fresno",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Livermore Subaru",
+  "status": "fetched",
+  "source_url": "https://www.livermoresubaru.com/dealership/staff.htm",
+  "contact_name": "Carl Curry",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Maita Subaru",
+  "status": "fetched",
+  "source_url": "https://www.maitasubaru.com/dealership/staff.htm",
+  "contact_name": "Sam Cobb",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Marin Subaru",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "McCrea Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Modesto Subaru",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ocean Subaru of Fullerton",
+  "status": "fetched",
+  "source_url": "https://www.oceansubaruoc.com/about-us/meet-our-team/",
+  "contact_name": "David Monninger",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Palm Springs Subaru",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Premier Subaru of Fremont",
+  "status": "fetched",
+  "source_url": "https://www.premiersubaruoffremont.com/about-us/staff/",
+  "contact_name": "Robby Dempster",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Puente Hills Subaru",
+  "status": "fetched",
+  "source_url": "https://www.puentehillssubaru.com/staff",
+  "contact_name": "Carlos Cerna",
+  "contact_title": "Product Specialist",
+  "contact_email": "carlos@puentehillssubaru.com"
+ },
+ {
+  "dealer_name": "Putnam Subaru",
+  "status": "fetched",
+  "source_url": "https://www.putnamsubaruofburlingame.com/dealership/staff.htm",
+  "contact_name": "Kyle Holt",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Redding Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Sangera Subaru",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Santa Cruz Subaru",
+  "status": "fetched",
+  "source_url": "https://www.santacruzsubaru.com/about-us/staff/",
+  "contact_name": "Mark Halabi",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Santa Monica Subaru",
+  "status": "fetched",
+  "source_url": "https://www.santamonicasubaru.com/staff",
+  "contact_name": "Nunez Miron",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Serramonte Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Shingle Springs Subaru",
+  "status": "fetched",
+  "source_url": "https://www.shinglespringssubaru.com/meet-our-staff/",
+  "contact_name": "his face.",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Sierra Subaru of Monrovia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Spreen Subaru",
+  "status": "fetched",
+  "source_url": "https://www.spreensubaru.com/about-us/staff/",
+  "contact_name": "Edgar Gomez",
+  "contact_title": "Sales Consultant",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Stevens Creek Subaru",
+  "status": "fetched",
+  "source_url": "https://www.stevenscreeksubaru.com/staff",
+  "contact_name": "Kevin Akbarzadeh",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Subaru Orange Coast",
+  "status": "fetched",
+  "source_url": "https://www.subaruorangecoast.com/about-us/staff/",
+  "contact_name": "Megan Quezada",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Subaru Pacific",
+  "status": "fetched",
+  "source_url": "https://www.subarupacific.com/dealership/staff.htm",
+  "contact_name": "Chris Scott",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Subaru Sherman Oaks",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Subaru of Chico",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Subaru of Downtown Los Angeles",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Subaru of Glendale",
+  "status": "fetched",
+  "source_url": "https://www.subaruofglendale.net:443/meet-our-staff/",
+  "contact_name": "new people",
+  "contact_title": "Sales Associate",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Subaru of Hayward",
+  "status": "fetched",
+  "source_url": "https://www.subaruofhayward.com/dealership/staff.htm",
+  "contact_name": "Vlad Korzinin",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Subaru of Ontario",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Subaru of San Luis Obispo",
+  "status": "fetched",
+  "source_url": "https://www.subaruofsanluisobispo.com/meet-our-staff/",
+  "contact_name": "USED CAR",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Subaru of Sonora",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Summit Subaru El Cajon",
+  "status": "fetched",
+  "source_url": "https://summitsubaru.com/about",
+  "contact_name": "Rone Isho",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Sutherlin Subaru Huntington Beach",
+  "status": "fetched",
+  "source_url": "https://www.sutherlinsubaruhb.com/staff.aspx",
+  "contact_name": "Marco Saines",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Timmons Subaru",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Trust Antelope Valley Subaru",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "AutoNation Subaru Arapahoe",
+  "status": "fetched",
+  "source_url": "https://www.autonationsubaruarapahoe.com/dealership/staff.htm",
+  "contact_name": "Jay Anderson",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "AutoNation Subaru West",
+  "status": "fetched",
+  "source_url": "https://www.autonationsubaruwest.com/dealership/staff.htm",
+  "contact_name": "Dee Nielsen",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Autostar Subaru of Silverthorne",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Cook Subaru",
+  "status": "fetched",
+  "source_url": "https://www.cooksubaru.com/staff",
+  "contact_name": "Ian Woelfel",
+  "contact_title": "Sales Consultant",
+  "contact_email": "brian@cookchevrolet.com"
+ },
+ {
+  "dealer_name": "Dellenbach Subaru",
+  "status": "fetched",
+  "source_url": "https://www.dellenbachsubaru.com/staff",
+  "contact_name": "Rohs Internet",
+  "contact_title": "Sales Manager",
+  "contact_email": "KROHS@DELLENBACHMOTORS.CMDLR.COM"
+ },
+ {
+  "dealer_name": "Flatirons Subaru",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Flower Subaru",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Grand Junction Subaru",
+  "status": "fetched",
+  "source_url": "https://www.rockymtnsubaru.com/dealership/staff.htm",
+  "contact_name": "Andrew Martinez",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Groove Subaru",
+  "status": "fetched",
+  "source_url": "https://www.groovesubaru.com/meet-our-staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Heuberger Subaru",
+  "status": "fetched",
+  "source_url": "https://www.bestbuysubaru.com/about-us/staff/",
+  "contact_name": "Chris Kaminski",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Mike Shaw Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Mike Shaw Subaru Greeley",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Morehart Murphy Subaru",
+  "status": "fetched",
+  "source_url": "https://www.morehartmurphysubaru.com/dealership/staff.htm",
+  "contact_name": "Arnold Subaru",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Phil Long Glenwood Springs Subaru",
+  "status": "fetched",
+  "source_url": "https://www.gwsubaru.com/dealership/staff.htm",
+  "contact_name": "Christopher Hamlin",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Schomp Subaru",
+  "status": "fetched",
+  "source_url": "https://www.schompsubaru.co/staff/",
+  "contact_name": "Enrico Burrows",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Subaru of Loveland",
+  "status": "fetched",
+  "source_url": "https://www.subaruofloveland.com/dealership/staff.htm",
+  "contact_name": "Jonah Kunisch",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Subaru of Pueblo",
+  "status": "fetched",
+  "source_url": "https://www.subaruofpueblo.com/dealership/staff.htm",
+  "contact_name": "John Coleman",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Valley Subaru of Longmont",
+  "status": "fetched",
+  "source_url": "https://www.valleysubaru.com/staff",
+  "contact_name": "Nic Chuenchit",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bertera Subaru of Hartford",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Colonial Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Dan Perkins Subaru",
+  "status": "fetched",
+  "source_url": "https://www.danperkinssubaru.com/dealership/staff.htm",
+  "contact_name": "Mark Finch",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Garavel Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Gengras Subaru Torrington",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Holmgren Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Mitchell Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Premier Subaru",
+  "status": "fetched",
+  "source_url": "https://www.premiersubaru.com/dealership/staff.htm",
+  "contact_name": "Parker Pearlstein",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Premier Subaru Middlebury",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Quality Subaru",
+  "status": "fetched",
+  "source_url": "https://www.qualitysubaru.com/dealership/staff.htm",
+  "contact_name": "Mike Ward",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Reynolds' Subaru",
+  "status": "fetched",
+  "source_url": "https://www.reynoldssubaru.com/dealership/staff.htm",
+  "contact_name": "Nora A. Walters",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Schaller Subaru",
+  "status": "fetched",
+  "source_url": "https://www.schallersubaru.com/dealership/staff.htm",
+  "contact_name": "Mannix Jr",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Secor Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Subaru Stamford",
+  "status": "fetched",
+  "source_url": "https://www.stamfordsubaru.com/dealership/staff.htm",
+  "contact_name": "John Strazza",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Suburban Subaru",
+  "status": "fetched",
+  "source_url": "https://www.suburbansubaru.com/dealership/staff.htm",
+  "contact_name": "Lane Resnik",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Delaware Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ourisman Tri-State Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Winner Subaru",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Anderson Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bert Smith Subaru",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Coconut Creek Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Conley Subaru",
+  "status": "fetched",
+  "source_url": "https://www.conleysubaru.com/about-us/staff/",
+  "contact_name": "Steven Reisinger",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Dyer Subaru",
+  "status": "fetched",
+  "source_url": "https://www.dyersubaru.com/staff",
+  "contact_name": "Dylan Heiring",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Fitzgerald Countryside Subaru",
+  "status": "fetched",
+  "source_url": "https://www.fitzgeraldsubaru.com/staff",
+  "contact_name": "Selec Subaru",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hanania Subaru",
+  "status": "fetched",
+  "source_url": "https://www.hananiasubaru.com/staff",
+  "contact_name": "Martin Couch",
+  "contact_title": "General Sales Manager",
+  "contact_email": "martin.couch@subaruoforangepark.com"
+ },
+ {
+  "dealer_name": "Jenkins Subaru of Ocala",
+  "status": "fetched",
+  "source_url": "https://www.jenkinssubaruofocala.com/dealership/staff.htm",
+  "contact_name": "Salvatore Pistone",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "North Fort Lauderdale Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Opening Soon ---Doral Subaru",
+  "status": "no_website",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Proctor Subaru",
+  "status": "fetched",
+  "source_url": "https://www.proctorsubaru.com/about-us/staff/",
+  "contact_name": "community. Internet",
+  "contact_title": "Sales Consultant",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Sarasota Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Schumacher Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Schumacher Subaru of Delray",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Sport Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Sport Subaru South",
+  "status": "fetched",
+  "source_url": "https://www.sportsubarusouth.com/about-us/staff/",
+  "contact_name": "Josh Snell",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Step One Subaru Fort Walton Beach",
+  "status": "fetched",
+  "source_url": "https://www.subaruftwaltonbeach.com/meet-the-team/",
+  "contact_name": "Yago Luangraj",
+  "contact_title": "General Manager",
+  "contact_email": "yluangraj@steponeauto.com"
+ },
+ {
+  "dealer_name": "Subaru Lakeland",
+  "status": "fetched",
+  "source_url": "https://www.subarulakeland.com/about-us/staff/",
+  "contact_name": "Kuhlman Subaru",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Subaru North Orlando",
+  "status": "fetched",
+  "source_url": "https://www.subarunorthorlando.com/about-us/staff/",
+  "contact_name": "Shawn Zawatski",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Subaru South Tampa",
+  "status": "fetched",
+  "source_url": "https://www.subarusouthtampa.com/about-us/staff/",
+  "contact_name": "Pisandro Moncion",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Subaru of Daytona",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Subaru of Fort Myers",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Subaru of Gainesville",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Subaru of Jacksonville",
+  "status": "fetched",
+  "source_url": "https://www.subaruofjacksonville.com/meet-our-staff/",
+  "contact_name": "same to you.",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Subaru of Melbourne",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Subaru of Naples",
+  "status": "fetched",
+  "source_url": "https://www.devoesubaruofnaples.com/staff.aspx",
+  "contact_name": "John Shepherd",
+  "contact_title": "General Manager",
+  "contact_email": "jshepherd@devoeauto.com"
+ },
+ {
+  "dealer_name": "Subaru of North Miami",
+  "status": "fetched",
+  "source_url": "https://www.subaruofnorthmiami.com/staff.aspx",
+  "contact_name": "Jerry Joseph",
+  "contact_title": "Sales Representative",
+  "contact_email": "jerryjoseph@lithia.com"
+ },
+ {
+  "dealer_name": "Subaru of North Tampa",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Subaru of Pembroke Pines",
+  "status": "fetched",
+  "source_url": "https://www.subaruofpembrokepines.com/about-us/staff/",
+  "contact_name": "Eric Stampone",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Subaru of Port Richey",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Subaru of Wesley Chapel",
+  "status": "fetched",
+  "source_url": "https://www.subaruwesleychapel.com/meet-our-staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Villages Subaru",
+  "status": "fetched",
+  "source_url": "https://www.villagessubaru.com/dealership/staff.htm",
+  "contact_name": "Allison Stevens",
+  "contact_title": "Internet Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Chatham Subaru",
+  "status": "fetched",
+  "source_url": "https://www.cpsubaru.com/meet-our-staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Classic Subaru - Atlanta",
+  "status": "fetched",
+  "source_url": "https://www.classicsubaruofatlanta.com/dealership/staff.htm",
+  "contact_name": "Liam Bennett",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Gerald Jones Subaru",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Group 1 Subaru Rivertown",
+  "status": "fetched",
+  "source_url": "https://www.group1subarurivertown.com/about-us/staff/",
+  "contact_name": "Brady Murdock",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hughes Subaru",
+  "status": "fetched",
+  "source_url": "https://www.hughessubaru.com/about-us/staff/",
+  "contact_name": "Barry Weatherby",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "O'Steen Subaru of Valdosta",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Subaru of Decatur",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Subaru of Gwinnett",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Subaru of Kennesaw",
+  "status": "fetched",
+  "source_url": "https://www.subaruofkennesaw.com/dealership/staff.htm",
+  "contact_name": "Matt Frier",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Subaru of Macon",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Subaru of Newnan",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Troncalli Subaru",
+  "status": "fetched",
+  "source_url": "https://www.troncallisubaru.com/dealership/staff.htm",
+  "contact_name": "Judson Attaway",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "C & S Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Dave Wright Subaru",
+  "status": "fetched",
+  "source_url": "https://www.davewrightsubaru.com/meet-our-staff/",
+  "contact_name": "great price.",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Jensen Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ramsey Subaru of Des Moines",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Riley Subaru",
+  "status": "fetched",
+  "source_url": "https://www.rileysubaru.net/dealership/staff.htm",
+  "contact_name": "Ryan Vaassen",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Larry H. Miller Subaru Boise",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Parker Subaru",
+  "status": "fetched",
+  "source_url": "https://www.parkersubaru.com/about-us/staff/",
+  "contact_name": "four years",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Phil Meador Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Rogers Subaru",
+  "status": "fetched",
+  "source_url": "https://www.rogerssubaru.com/meet-our-staff/",
+  "contact_name": "the general",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Stateline Auto Ranch Subaru",
+  "status": "fetched",
+  "source_url": "https://www.statelineautoranchsubaru.com/about-us/staff/",
+  "contact_name": "Dillon McCurry",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Treasure Valley Subaru",
+  "status": "fetched",
+  "source_url": "https://www.tvsubaru.com/about-us/staff/",
+  "contact_name": "Rob Studebaker",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Twin Falls Subaru",
+  "status": "fetched",
+  "source_url": "https://twinfalls-subaru.com/about",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Wackerli Subaru",
+  "status": "fetched",
+  "source_url": "https://www.wackerlisubaru.com/staff",
+  "contact_name": "Alvin Diaz",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Berman Subaru of Chicago",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Brilliance Subaru",
+  "status": "fetched",
+  "source_url": "https://www.brilliancesubaru.com/dealership/staff.htm",
+  "contact_name": "Jim DaLuga",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Castle Subaru of McHenry",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Gerald Subaru",
+  "status": "fetched",
+  "source_url": "https://www.geraldsubarunaperville.com/meet-our-staff/",
+  "contact_name": "Love Promise.",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Gerald Subaru of North Aurora",
+  "status": "fetched",
+  "source_url": "https://www.geraldsubarunorthaurora.com/meet-our-staff/",
+  "contact_name": "CONTACT US",
+  "contact_title": "Sales Consultant",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Grand Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Green Subaru",
+  "status": "fetched",
+  "source_url": "https://www.greensubaruspringfield.com/dealership/staff.htm",
+  "contact_name": "Nadim Khan",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hawk Subaru",
+  "status": "fetched",
+  "source_url": "https://www.hawksubaru.com/dealership/staff.htm",
+  "contact_name": "Jim Muisenga",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "International Subaru",
+  "status": "fetched",
+  "source_url": "https://www.subaruoforlandpark.com/dealership/staff.htm",
+  "contact_name": "Tim Fisher",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Liberty Subaru",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Marion Subaru",
+  "status": "fetched",
+  "source_url": "https://www.marionsubaru.com/dealership/staff.htm",
+  "contact_name": "Gerard Bulber",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "McGrath Evanston Subaru",
+  "status": "fetched",
+  "source_url": "https://www.evanstonsubaru.com/meet-our-staff/",
+  "contact_name": "mcgrathevanstonsubaru.com General",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "McLaughlin Subaru",
+  "status": "fetched",
+  "source_url": "https://www.mclaughlinsubaru.com/dealership/staff.htm",
+  "contact_name": "Dave Calvert",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Muller Subaru",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Napleton Subaru",
+  "status": "fetched",
+  "source_url": "https://www.napletonsubaru.com/meet-our-staff/",
+  "contact_name": "College Basketball.",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Napleton's Palatine Subaru",
+  "status": "fetched",
+  "source_url": "https://www.palatinesubaru.com/about-us/staff/",
+  "contact_name": "Rick Boerman",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Napleton's Schaumburg Subaru",
+  "status": "fetched",
+  "source_url": "https://www.napletonsschaumburgsubaru.com/about-us/staff/",
+  "contact_name": "Jeff Calhoun",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Serra Subaru Champaign",
+  "status": "fetched",
+  "source_url": "https://www.serrasubaruchampaign.com/about-us/staff/",
+  "contact_name": "Gary Patrick",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Subaru Evergreen Park",
+  "status": "fetched",
+  "source_url": "https://subaruevergreenpark.com/about",
+  "contact_name": "Carlos Uribe",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Subaru of Bloomington Normal",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "The Autobarn Subaru of Countryside",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Uftring Subaru",
+  "status": "fetched",
+  "source_url": "https://www.subarupeoria.com/about-us/staff/",
+  "contact_name": "Randy Staser",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Castle Subaru",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Dreyer & Reinbold Subaru",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Gurley Leep Subaru",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Romain Subaru",
+  "status": "fetched",
+  "source_url": "https://www.romainsubaru.com/staff",
+  "contact_name": "Enrique Lopez",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Royal Subaru",
+  "status": "fetched",
+  "source_url": "https://www.royaleastsubaru.com/dealership/staff.htm",
+  "contact_name": "Jared Mann",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Speedway Subaru",
+  "status": "fetched",
+  "source_url": "https://www.speedwaysubaru.com/meet-our-staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Tom Wood Subaru",
+  "status": "fetched",
+  "source_url": "https://www.tomwoodsubaru.com/dealership/staff.htm",
+  "contact_name": "Scott Reckley",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Zeigler Subaru of Fort Wayne",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Zeigler Subaru of Lafayette",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Zeigler Subaru of Schererville",
+  "status": "fetched",
+  "source_url": "https://www.zeiglersubaruofschererville.com/dealership/staff.htm",
+  "contact_name": "Bryce Johannes",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Briggs Subaru of Topeka",
+  "status": "fetched",
+  "source_url": "https://www.briggssubarutopeka.com/staff",
+  "contact_name": "Shawn Cregan",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "McCarthy Subaru of Lawrence",
+  "status": "fetched",
+  "source_url": "https://www.mccarthysubaruoflawrence.com/meet-our-staff/",
+  "contact_name": "visit the",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Salina Subaru",
+  "status": "fetched",
+  "source_url": "https://www.salinasubaru.com/staff",
+  "contact_name": "Jayme Hoover",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Subaru of Olathe",
+  "status": "fetched",
+  "source_url": "https://www.subaruofolathe.com/about-us/staff/",
+  "contact_name": "Kevin Kight",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Subaru of Wichita",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bachman Subaru",
+  "status": "fetched",
+  "source_url": "https://www.bachmansubaru.net/about-us/staff/",
+  "contact_name": "Jeff Harmon",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Joseph Subaru",
+  "status": "fetched",
+  "source_url": "https://www.josephsubaru.com/dealership/staff.htm",
+  "contact_name": "Andy Held",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Neil Huffman Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Quantrell Subaru",
+  "status": "fetched",
+  "source_url": "https://www.quantrellsubaru.com/about-us/staff/",
+  "contact_name": "Brentley Jones",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Baldwin Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bryan Subaru",
+  "status": "fetched",
+  "source_url": "https://www.bryansubaru.com/dealership/staff.htm",
+  "contact_name": "Jeff Rein",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Giles Subaru",
+  "status": "fetched",
+  "source_url": "https://www.gilessubaru.com/dealership/staff.htm",
+  "contact_name": "Douglas Gillaspie",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Harvey Subaru",
+  "status": "fetched",
+  "source_url": "https://www.harveysubaru.com/about-us/staff/",
+  "contact_name": "Sarah Wise",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Subaru of Baton Rouge",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Atlantic Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "AutoFair Subaru",
+  "status": "fetched",
+  "source_url": "https://www.autofairsubaru.com/dealership/staff.htm",
+  "contact_name": "Tom D'Alessandro",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Balise Subaru of Hadley",
+  "status": "fetched",
+  "source_url": "https://www.balisesubaruhadley.com/dealership/staff.htm",
+  "contact_name": "David Hanks",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bertera Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Cityside Subaru",
+  "status": "fetched",
+  "source_url": "https://www.citysidesubaru.com/dealership/staff.htm",
+  "contact_name": "Glen Dalton",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Clay Subaru",
+  "status": "fetched",
+  "source_url": "https://www.claysubaru.com/dealership/staff.htm",
+  "contact_name": "DEPARTMENT Brian",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Copeland Subaru Hyannis",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Haddad Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Imperial Subaru",
+  "status": "fetched",
+  "source_url": "https://www.imperialsubaru.com/dealership/staff.htm",
+  "contact_name": "Matt D'Ambra",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ira Subaru",
+  "status": "fetched",
+  "source_url": "https://www.irasubaru.com/dealership/staff.htm",
+  "contact_name": "Jeff Lubas",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Long Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Mastria Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "McGovern Subaru of Acton",
+  "status": "fetched",
+  "source_url": "https://www.mcgovernsubaruofacton.com/dealership/staff.htm",
+  "contact_name": "Steve Suarez",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MetroWest Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "North End Subaru",
+  "status": "fetched",
+  "source_url": "https://www.northendsubaru.com/dealership/staff.htm",
+  "contact_name": "Jason Cote",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "North Reading Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Patrick Subaru",
+  "status": "fetched",
+  "source_url": "https://www.patrickssubaru.com/dealership/staff.htm",
+  "contact_name": "Todd Stalker",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Planet Subaru",
+  "status": "fetched",
+  "source_url": "https://www.planetsubaru.com/dealership/staff.htm",
+  "contact_name": "Chandler Internet",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Quirk Works Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Stateline Subaru",
+  "status": "fetched",
+  "source_url": "https://www.statelinesubaru.com/dealership/staff.htm",
+  "contact_name": "Michael Messina",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Subaru of Wakefield",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Annapolis Subaru",
+  "status": "fetched",
+  "source_url": "https://www.annapolissubaru.com/dealership/staff.htm",
+  "contact_name": "Billy Sadtler",
+  "contact_title": "General Manager",
+  "contact_email": "Billy@AnnapolisSubaru.com"
+ },
+ {
+  "dealer_name": "AutoNation Subaru Hunt Valley",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bel Air Subaru",
+  "status": "fetched",
+  "source_url": "https://www.belairsubaru.com/dealership/staff.htm",
+  "contact_name": "Larry Kropff",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Buchanan Subaru",
+  "status": "fetched",
+  "source_url": "https://www.buchanansubaru.com/meet-our-staff/",
+  "contact_name": "Goff the",
+  "contact_title": "Sales Representative",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Fitzgerald Subaru",
+  "status": "fetched",
+  "source_url": "https://www.fitzmallsubaru.com/staff",
+  "contact_name": "Zahra Subaru",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Fitzgerald Subaru of Gaithersburg",
+  "status": "fetched",
+  "source_url": "https://www.fitzgeraldsubarugaithersburg.com/staff",
+  "contact_name": "Teixeira Subaru",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Frederick Subaru",
+  "status": "fetched",
+  "source_url": "https://www.mdsubaru.com/staff",
+  "contact_name": "Rob Skora",
+  "contact_title": "General Manager",
+  "contact_email": "rskora@frederickmotor.com"
+ },
+ {
+  "dealer_name": "Gateway Subaru",
+  "status": "fetched",
+  "source_url": "https://www.gatewaysubaru.com/dealership/staff.htm",
+  "contact_name": "Don Scullen",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Herb Gordon Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Heritage Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Heritage Subaru Catonsville",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "IG Burton Subaru of Glen Burnie",
+  "status": "fetched",
+  "source_url": "https://www.igburtonsubaru.com/staff",
+  "contact_name": "Steven Cho",
+  "contact_title": "General Manager",
+  "contact_email": "scho@igburton.com"
+ },
+ {
+  "dealer_name": "Ourisman Subaru Waldorf",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Sheehy Subaru of Hagerstown",
+  "status": "fetched",
+  "source_url": "https://www.sheehysubaruhagerstown.com/about-us/staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Thomas Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bath Subaru",
+  "status": "fetched",
+  "source_url": "https://www.bathsubaru.com/dealership/staff.htm",
+  "contact_name": "Blake McElman",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Charlie's Subaru",
+  "status": "fetched",
+  "source_url": "https://www.charliessubaru.com/dealership/staff.htm",
+  "contact_name": "Jess Gagne",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Evergreen Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Pape Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Patriot Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Quirk Subaru of Bangor",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Stanley Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Fox Maple Hill Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Fox Marquette Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Fox Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Fox Subaru Macomb",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Glassman Subaru",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hodges Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "LaFontaine Subaru",
+  "status": "fetched",
+  "source_url": "https://www.lafontainesubaru.com/staff",
+  "contact_name": "Alexander Johnson",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "My Lakeshore Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Serra Subaru of Traverse City",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Subaru By-the-Bay",
+  "status": "fetched",
+  "source_url": "https://www.subarubythebay.com/dealership/staff.htm",
+  "contact_name": "Ryan Bremmeyr",
+  "contact_title": "Dealer Principal",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Subaru of Ann Arbor",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Subaru of Grand Blanc",
+  "status": "fetched",
+  "source_url": "https://subaruofgb.adviserly.com:443/list",
+  "contact_name": "Phillips Subaru",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Suburban Subaru of Troy",
+  "status": "fetched",
+  "source_url": "https://www.suburbansubarutroy.com/dealership/staff.htm",
+  "contact_name": "DUSTIN CICCARELLI",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Thelen Subaru",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Williams Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bloomington Subaru",
+  "status": "fetched",
+  "source_url": "https://bloomingtonsubaru.adviserly.com/list",
+  "contact_name": "Bryon Fagen",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Corwin Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Luther Miller Hill Subaru",
+  "status": "fetched",
+  "source_url": "https://www.millerhillsubaru.com/about-us/staff/",
+  "contact_name": "Chris Bark",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Luther St. Cloud Subaru",
+  "status": "fetched",
+  "source_url": "https://stcloudsubaru.adviserly.com/",
+  "contact_name": "Bobby Konnight",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Morrie's Brooklyn Park Subaru",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Morrie's Minnetonka Subaru",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "R & G Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Subaru of Rochester",
+  "status": "fetched",
+  "source_url": "https://www.penzsubaruofrochester.com/about-us/staff/",
+  "contact_name": "Caleb Toney",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Walser Subaru",
+  "status": "fetched",
+  "source_url": "https://www.walsersubaru.com/staff/",
+  "contact_name": "John Peterson",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Walser Subaru St. Paul",
+  "status": "fetched",
+  "source_url": "https://www.walsersubarustpaul.com/about-us/staff/",
+  "contact_name": "Dan Epp",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "White Bear Subaru",
+  "status": "fetched",
+  "source_url": "https://www.whitebearsubaru.com/about-us/staff/",
+  "contact_name": "Brad Knutson",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Dean Team Subaru",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Frank Fletcher Subaru",
+  "status": "fetched",
+  "source_url": "https://www.fletchersubaru.com/dealership/staff.htm",
+  "contact_name": "Josh Kirby",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lee's Summit Subaru",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lou Fusz Subaru - St Louis",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lou Fusz Subaru O'Fallon",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Reliable Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Subaru of Columbia",
+  "status": "fetched",
+  "source_url": "https://www.subaruofcolumbia.com/dealership/staff.htm",
+  "contact_name": "Trey Warren",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Sunset Hills Subaru",
+  "status": "fetched",
+  "source_url": "https://www.sunsethillssubaru.com/staff",
+  "contact_name": "Caleb Wagerman",
+  "contact_title": "General Sales Manager",
+  "contact_email": "Cwagerman@sunsethillssubaru.com"
+ },
+ {
+  "dealer_name": "Van Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Paul Moak Subaru",
+  "status": "fetched",
+  "source_url": "https://www.paulmoaksubaru.com/staff",
+  "contact_name": "John T. Scarbrough",
+  "contact_title": "General Manager",
+  "contact_email": "john@paulmoak.com"
+ },
+ {
+  "dealer_name": "Butte Subaru",
+  "status": "fetched",
+  "source_url": "https://www.buttesubaru.com/dealership/staff.htm",
+  "contact_name": "Noah Hurst",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Don K Subaru",
+  "status": "fetched",
+  "source_url": "https://www.donksubaru.com/dealership/staff.htm",
+  "contact_name": "Travis Squires",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Gallatin Subaru",
+  "status": "fetched",
+  "source_url": "https://www.gallatinsubaru.com/about-us/staff/",
+  "contact_name": "Sean Skelton",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Great Falls Subaru",
+  "status": "fetched",
+  "source_url": "https://www.greatfallssubaru.com/dealership/staff.htm",
+  "contact_name": "Brian Drewes",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Placer Subaru",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Rimrock Subaru",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Subaru of Missoula",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Capital Subaru of Greensboro",
+  "status": "fetched",
+  "source_url": "https://www.capitalsubarugreensboro.com/about-us/staff/",
+  "contact_name": "Rocco Perrelli",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Capital Subaru of Greenville",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Cross Creek Subaru",
+  "status": "fetched",
+  "source_url": "https://www.crosscreeksubaru.com/about-us/staff/",
+  "contact_name": "Dave Mason",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Flow Subaru",
+  "status": "fetched",
+  "source_url": "https://www.flowsubaruwinstonsalem.com/dealership/staff.htm",
+  "contact_name": "Scott Hooker",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Flow Subaru Burlington",
+  "status": "fetched",
+  "source_url": "https://www.flowsubaruburlington.com/staff",
+  "contact_name": "Scott Tolley",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Fred Anderson Subaru",
+  "status": "fetched",
+  "source_url": "https://www.fredandersonsubaru.com/dealership/staff.htm",
+  "contact_name": "Ryan Brown",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hendrick Subaru Southpoint",
+  "status": "fetched",
+  "source_url": "https://www.subarusouthpoint.com/dealership/staff.htm",
+  "contact_name": "Brad Woolley",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hunter Subaru",
+  "status": "fetched",
+  "source_url": "https://www.huntersubaru.com/about-us/meet-our-team/",
+  "contact_name": "manager and",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Jim Armstrong Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Johnson Subaru of Cary",
+  "status": "fetched",
+  "source_url": "https://www.johnsonsubaru.com/dealership/staff.htm",
+  "contact_name": "Jeremy Bridges",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Modern Subaru of Boone",
+  "status": "fetched",
+  "source_url": "https://www.modernsubaru.com/about-us/staff/",
+  "contact_name": "Guy Wade",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Parkway Subaru",
+  "status": "fetched",
+  "source_url": "https://www.parkwaysubaru.com/dealership/staff.htm",
+  "contact_name": "Jimmy Latham",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Randy Marion Subaru",
+  "status": "fetched",
+  "source_url": "https://www.randymarionsubaru.com/staff",
+  "contact_name": "Brian Fogarty",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Riverside Subaru",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Scenic Subaru",
+  "status": "fetched",
+  "source_url": "https://www.scenicsubaru.com/dealership/staff.htm",
+  "contact_name": "Justin Gough",
+  "contact_title": "Dealer Principal",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Southern States Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Sport Durst Subaru of Jacksonville",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Subaru Concord",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Subaru South Charlotte",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Tindol Subaru",
+  "status": "fetched",
+  "source_url": "https://www.tindolsubaru.com/staff",
+  "contact_name": "Robin Anderson",
+  "contact_title": "General Manager",
+  "contact_email": "robin.anderson@tindolsubaru.com"
+ },
+ {
+  "dealer_name": "Vann York Subaru",
+  "status": "fetched",
+  "source_url": "https://www.vannyorksubaru.com/staff",
+  "contact_name": "Zack Frame",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Williams Subaru",
+  "status": "fetched",
+  "source_url": "https://www.williamssubaru.com/dealership/staff.htm",
+  "contact_name": "Arielle Garcia",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Eide Subaru",
+  "status": "fetched",
+  "source_url": "https://www.eidesubaru.com/about-us/staff/",
+  "contact_name": "Jory Ditsworth",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Grand Forks Subaru",
+  "status": "fetched",
+  "source_url": "https://www.grandforkssubaru.com/staff",
+  "contact_name": "Kevin Hruska",
+  "contact_title": "Sales Manager",
+  "contact_email": "kevin@gfsubaru.com"
+ },
+ {
+  "dealer_name": "Baxter Subaru La Vista",
+  "status": "fetched",
+  "source_url": "https://www.baxtersubarulavista.com/about-us/staff/",
+  "contact_name": "Skaff Associate",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Baxter Subaru Omaha",
+  "status": "fetched",
+  "source_url": "https://www.baxtersubaruomaha.com/about-us/staff/",
+  "contact_name": "Michael Bennett",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "DuTeau Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Morrie's Bellevue Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Amherst Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Belknap Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Capital City Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Exeter Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Granite Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ira Subaru Manchester",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lundgren Subaru of Claremont",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "McGovern Subaru",
+  "status": "fetched",
+  "source_url": "https://www.mcgovernsubaru.com/dealership/staff.htm",
+  "contact_name": "Christian Morillo",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Profile Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Subaru of Keene",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Tri-City Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "All American Subaru of Old Bridge",
+  "status": "fetched",
+  "source_url": "https://www.allamericansubaru.com/staff",
+  "contact_name": "Jason Savino",
+  "contact_title": "Sales Manager",
+  "contact_email": "jason@aafordnj.com"
+ },
+ {
+  "dealer_name": "Burke Subaru",
+  "status": "fetched",
+  "source_url": "https://www.burkesubaru.com/staff",
+  "contact_name": "Congleton Internet",
+  "contact_title": "Sales Manager",
+  "contact_email": "christina.congleton@burkemotorgroup.com"
+ },
+ {
+  "dealer_name": "Ciocca Subaru of Ewing",
+  "status": "fetched",
+  "source_url": "https://www.cioccasubarunj.com/dealership/staff.htm",
+  "contact_name": "Michael Lettera",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ciocca Subaru of Flemington",
+  "status": "fetched",
+  "source_url": "https://www.cioccasubaruofflemington.com/dealership/staff.htm",
+  "contact_name": "Michael Castor",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ciocca Subaru of Pleasantville",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Circle Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Freehold Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Haldeman Subaru",
+  "status": "fetched",
+  "source_url": "https://www.haldemansubaru.com/dealership/staff.htm",
+  "contact_name": "Ken Ruch",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hudson Subaru",
+  "status": "fetched",
+  "source_url": "https://www.hudsonsubaru.com/staff",
+  "contact_name": "Gary Bregman",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lester Glenn Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Liberty Subaru",
+  "status": "fetched",
+  "source_url": "https://www.libertysubaru.com/dealership/staff.htm",
+  "contact_name": "Mike DeSilva",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lynnes Subaru",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Miller Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Open Road Subaru",
+  "status": "fetched",
+  "source_url": "https://www.openroadsubaru.com/staff",
+  "contact_name": "Harold Vargas",
+  "contact_title": "Sales Manager",
+  "contact_email": "harold.vargas@openroad.com"
+ },
+ {
+  "dealer_name": "Paul Miller Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Pine Belt Subaru",
+  "status": "fetched",
+  "source_url": "https://www.pinebeltsubaru.com/about-us/staff/",
+  "contact_name": "Michael Marquand",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Prestige Subaru",
+  "status": "fetched",
+  "source_url": "https://www.prestigesubarunj.com/dealership/staff.htm",
+  "contact_name": "Herrington Subaru",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "RK Subaru of Vineland",
+  "status": "fetched",
+  "source_url": "https://www.myrksubaru.com/about-us/staff/",
+  "contact_name": "John Luciano",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ramsey Subaru",
+  "status": "fetched",
+  "source_url": "https://www.ramseysubaru.net/dealership/staff.htm",
+  "contact_name": "Clayton Mantell",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Richard Lucas Subaru",
+  "status": "fetched",
+  "source_url": "https://www.subaruofwoodbridge.com/about-us/staff/",
+  "contact_name": "Greg Fahy",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Subaru World of Hackettstown",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Subaru World of Newton",
+  "status": "fetched",
+  "source_url": "https://www.subaruworldofnewton.com/staff",
+  "contact_name": "Anthony Emerick",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Subaru of Cherry Hill",
+  "status": "fetched",
+  "source_url": "https://www.subaruofcherryhill.com/dealership/staff.htm",
+  "contact_name": "John Daqui",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Subaru of Englewood",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Subaru of Morristown",
+  "status": "fetched",
+  "source_url": "https://www.subaruofmorristown.com/meet-our-staff/",
+  "contact_name": "Habla Espanol",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Victory Subaru",
+  "status": "fetched",
+  "source_url": "https://www.victorysubaru.com/staff",
+  "contact_name": "Chris Koptyra",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Wayne Subaru",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Fiesta Subaru",
+  "status": "fetched",
+  "source_url": "https://www.fiestasubaru.com/staff/",
+  "contact_name": "Sonny Aguirre",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Garcia Subaru North",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Subaru of Santa Fe",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Centennial Subaru",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lithia Reno Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Michael Hohl Subaru",
+  "status": "fetched",
+  "source_url": "https://www.michaelhohlsubaru.com/about-us/staff/",
+  "contact_name": "Ryon Walters",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Subaru of Las Vegas",
+  "status": "fetched",
+  "source_url": "https://www.subaruoflasvegas.com/about-us/staff/",
+  "contact_name": "Scott McCoy",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Barstow Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bay Ridge Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bill Kolb Jr. Subaru",
+  "status": "fetched",
+  "source_url": "https://www.bkcars.com/dealership/staff.htm",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bill Rapp Subaru",
+  "status": "fetched",
+  "source_url": "https://www.billrappsubaru.com/dealership/staff.htm",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bob Johnson Subaru Watertown",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Brewster Subaru",
+  "status": "fetched",
+  "source_url": "https://www.brewster-subaru.com/dealership/staff.htm",
+  "contact_name": "Nelson Demelo",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Capitaland Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Competition Subaru of Smithtown",
+  "status": "fetched",
+  "source_url": "https://www.competitionsubaru.com/about-us/staff/",
+  "contact_name": "Nino Tiburzi",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Curry Subaru",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Curry Subaru Kingston",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "DELLA Subaru of Plattsburgh",
+  "status": "fetched",
+  "source_url": "https://www.dellasubaru.com/staff",
+  "contact_name": "Mitch Danussi",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "East Hills Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "East Hills Subaru of Sayville",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Empire Subaru of Huntington",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Five Star Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Fox Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Goldstein Subaru",
+  "status": "fetched",
+  "source_url": "https://www.goldsteinsubaru.com/staff",
+  "contact_name": "Aaron Butler",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Grand Prix Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Gregoris Subaru",
+  "status": "fetched",
+  "source_url": "https://www.gregorissubaru.com/dealership/staff.htm",
+  "contact_name": "Richard DeGregoris",
+  "contact_title": "Dealer Principal",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hassett Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Island Subaru",
+  "status": "fetched",
+  "source_url": "https://www.myislandsubaru.com/dealership/staff.htm",
+  "contact_name": "Jakub Zebrowski",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Johnstons Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Koeppel Subaru",
+  "status": "fetched",
+  "source_url": "https://www.koeppelsubaru.com/dealership/staff.htm",
+  "contact_name": "Gino Masciangelo",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lacy Subaru",
+  "status": "fetched",
+  "source_url": "https://www.lacysubaru.com/staff/",
+  "contact_name": "Troy Lacy",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Maguire Subaru",
+  "status": "fetched",
+  "source_url": "https://www.maguiresubaru.com/about-us/staff/",
+  "contact_name": "Brian Theetge",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Matthews Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Mid-Hudson Subaru",
+  "status": "fetched",
+  "source_url": "https://www.midhudsonsubaru.com/staff",
+  "contact_name": "Macky Logronio",
+  "contact_title": "Sales Manager",
+  "contact_email": "MLOGRONIO@MIDHUDSONSUBARU.COM"
+ },
+ {
+  "dealer_name": "Milea Subaru",
+  "status": "fetched",
+  "source_url": "https://www.mileasubaru.com/dealership/staff.htm",
+  "contact_name": "Cetin Subaru",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "North Coast Subaru",
+  "status": "fetched",
+  "source_url": "https://www.northcoastsubaru.com/about-us/staff/",
+  "contact_name": "Eric Outcalt",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "North Country Subaru",
+  "status": "fetched",
+  "source_url": "https://www.northcountrysubaru.com/about-us/staff/",
+  "contact_name": "and bowling.",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Northtown Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Northtown Subaru Transit",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Parker Subaru Webster",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Prestige Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Riverhead Bay Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Romano Subaru",
+  "status": "fetched",
+  "source_url": "https://www.romanosubaru.com/staff",
+  "contact_name": "Rich Sagneri",
+  "contact_title": "General Manager",
+  "contact_email": "rsagneri@romanocars.com"
+ },
+ {
+  "dealer_name": "Romeo Subaru",
+  "status": "fetched",
+  "source_url": "https://www.romeosubaru.com/staff",
+  "contact_name": "Michael Crowley",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Royal Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ruge's Subaru",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Rye Subaru",
+  "status": "fetched",
+  "source_url": "https://www.ryesubaru.com/dealership/staff.htm",
+  "contact_name": "Louis Rivera",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Shults Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Simmons Rockwell Subaru",
+  "status": "fetched",
+  "source_url": "https://www.s-rsubaru.com/dealership/staff.htm",
+  "contact_name": "Billy Keels",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "South Shore Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Star Subaru",
+  "status": "fetched",
+  "source_url": "https://www.starsubaru.com/about-us/staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Subaru White Plains",
+  "status": "fetched",
+  "source_url": "https://www.subaruwhiteplains.com/dealership/staff.htm",
+  "contact_name": "Tracey Keith",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Subaru of Troy",
+  "status": "fetched",
+  "source_url": "https://www.subaruoftroy.com/about-us/staff/",
+  "contact_name": "Cullan Hanna",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Subaru of Utica",
+  "status": "fetched",
+  "source_url": "https://www.subaruofutica.com/staff",
+  "contact_name": "Kli La",
+  "contact_title": "Sales Representative",
+  "contact_email": "KliLa@lithia.com"
+ },
+ {
+  "dealer_name": "Tasca Subaru of Yonkers",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Van Bortel Subaru of Rochester",
+  "status": "fetched",
+  "source_url": "https://www.vanbortelsubaruofrochester.com/dealership/staff.htm",
+  "contact_name": "Vince Bovenzi",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Van Bortel Subaru of Victor",
+  "status": "fetched",
+  "source_url": "https://www.vanbortelsubaru.net/meet-our-staff-page.htm",
+  "contact_name": "John Moon",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "West Herr Subaru",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "West Herr Subaru of Lockport",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "West Herr Subaru of Rochester",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Zappone Subaru Norwich",
+  "status": "fetched",
+  "source_url": "https://www.zapponesubarunorwich.com/staff",
+  "contact_name": "Cassie Barrows",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Adventure Subaru",
+  "status": "fetched",
+  "source_url": "https://www.adventureneosubaru.com/dealership/staff.htm",
+  "contact_name": "Rob Lane",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Beechmont Subaru",
+  "status": "fetched",
+  "source_url": "https://www.beechmontsubaru.com/staff.htm",
+  "contact_name": "Joe Jenkins",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Boardman Subaru",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Brunswick Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Busam Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Byers Airport Subaru",
+  "status": "fetched",
+  "source_url": "https://www.columbussubaru.com/about-us-columbus/staff/",
+  "contact_name": "Shane Fouch",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Byers Dublin Subaru",
+  "status": "fetched",
+  "source_url": "https://www.byerssubarudublin.com/about-us/staff/",
+  "contact_name": "Greg Coby",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Cascade Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Diehl Subaru of Massillon",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Germain Subaru of Columbus",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Great Lakes Subaru",
+  "status": "fetched",
+  "source_url": "https://www.glakessubaru.com/staff",
+  "contact_name": "Davron Alimov",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Huebner Subaru",
+  "status": "fetched",
+  "source_url": "https://www.huebnersubaru.com/dealership/staff.htm",
+  "contact_name": "Josh Cole",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ken Ganley Subaru Bedford",
+  "status": "fetched",
+  "source_url": "https://www.kenganleysubarubedford.com/",
+  "contact_name": "Employment Opportunities",
+  "contact_title": "Sales Consultant",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ken Ganley Subaru North Olmsted",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ken Ganley Subaru Wickliffe",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Serra Subaru",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Subaru of Dayton",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Subaru of Kings Automall",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Wagner Subaru",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Yark Subaru",
+  "status": "fetched",
+  "source_url": "https://www.yarksubaru.com/dealership/staff.htm",
+  "contact_name": "Dave Thomas",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bob Moore Subaru",
+  "status": "fetched",
+  "source_url": "https://www.bobmooresubaru.com/staff/",
+  "contact_name": "Dylan West",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Cavender Subaru of Norman",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ferguson Subaru",
+  "status": "fetched",
+  "source_url": "https://www.fergusonsubaru.com/about-us/staff/",
+  "contact_name": "Zach Walker",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Armstrong Subaru",
+  "status": "fetched",
+  "source_url": "https://www.armstrongsubaru.com/staff.aspx",
+  "contact_name": "Devin Wilson",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Capitol Subaru of Salem",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Carr Subaru",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Gresham Subaru",
+  "status": "fetched",
+  "source_url": "https://www.greshamsubaru.com/about-us/staff/",
+  "contact_name": "Sean Connolly",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kendall Subaru",
+  "status": "fetched",
+  "source_url": "https://www.kendallsubaruonline.com/about-us/staff/",
+  "contact_name": "Phillip Mendonca",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Klamath Falls Subaru",
+  "status": "fetched",
+  "source_url": "https://www.klamathfallssubaru.com/dealership/staff.htm",
+  "contact_name": "Dylan Smith",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lithia Subaru - Oregon City",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Royal Moore Subaru",
+  "status": "fetched",
+  "source_url": "https://www.royalmooresubaru.net/staff",
+  "contact_name": "Brandon Kang",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Southern Oregon Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Subaru of Albany",
+  "status": "fetched",
+  "source_url": "https://www.subaruofalbany.com/about-us/staff/",
+  "contact_name": "Bobby Gibson",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Subaru of Bend",
+  "status": "fetched",
+  "source_url": "https://www.subaruofbend.com/about-us/staff/",
+  "contact_name": "Peter Sercia",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Subaru of Hermiston",
+  "status": "fetched",
+  "source_url": "https://www.subaruofhermiston.com/meet-our-staff/",
+  "contact_name": "with. My",
+  "contact_title": "Sales Professional",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Subaru of Portland",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Tonkin of the Gorge",
+  "status": "fetched",
+  "source_url": "https://www.tonkinsubaru.com/staff.aspx",
+  "contact_name": "Nima Behboodi",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Wilsonville Subaru",
+  "status": "fetched",
+  "source_url": "https://www.wilsonvillesubaru.com/about-us/staff/",
+  "contact_name": "Alan Anderson",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "#1 Cochran Subaru",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "#1 Cochran Subaru of Butler County",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "A & T Subaru",
+  "status": "fetched",
+  "source_url": "https://www.atsubaru.net/dealership/staff.htm",
+  "contact_name": "Joe Fost",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "A Crivelli Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Alexander Subaru",
+  "status": "fetched",
+  "source_url": "https://www.alexandersubaruinc.com/dealership/staff.htm",
+  "contact_name": "Jim Redos",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Baierl Subaru",
+  "status": "fetched",
+  "source_url": "https://www.baierlsubaru.com/dealership/staff.htm",
+  "contact_name": "Garrett Goss",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bergey's Subaru",
+  "status": "fetched",
+  "source_url": "https://www.bergeyssubaruhanover.com/dealership/staff.htm",
+  "contact_name": "Steve Wildasin",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Blaise Alexander Subaru of Lewistown",
+  "status": "fetched",
+  "source_url": "https://www.blaisesubarulewistown.com/dealership/staff.htm",
+  "contact_name": "Jason Renno",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bowser Subaru",
+  "status": "fetched",
+  "source_url": "https://www.bowsersubaru.com/staff",
+  "contact_name": "Dave Ross",
+  "contact_title": "General Sales Manager",
+  "contact_email": "dross@powerofbowser.com"
+ },
+ {
+  "dealer_name": "Budd Baer Subaru",
+  "status": "fetched",
+  "source_url": "https://www.buddbaersubaru.com/dealership/staff.htm",
+  "contact_name": "Gregg Cron",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ciocca Subaru of Allentown",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ciocca Subaru of Philadelphia",
+  "status": "fetched",
+  "source_url": "https://www.cioccasubaruofphiladelphia.com/dealership/staff.htm",
+  "contact_name": "Ryan Concord",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ciocca Subaru of York",
+  "status": "fetched",
+  "source_url": "https://www.cioccasubaruofyork.com/dealership/staff.htm",
+  "contact_name": "Doug Augburn",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Colonial Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Concordville Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Delaney Subaru",
+  "status": "fetched",
+  "source_url": "https://www.delaneysubaru.com/about-us/staff/",
+  "contact_name": "Barre Bell",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Driveway Subaru of Moon Township",
+  "status": "fetched",
+  "source_url": "https://www.drivewaysubarumoon.com/dealership/staff.htm",
+  "contact_name": "Anthony Vincent",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ed Shults Subaru",
+  "status": "fetched",
+  "source_url": "https://www.shultssubaruofwarren.com/dealership/staff.htm",
+  "contact_name": "Randy Elleman",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ertle Subaru",
+  "status": "fetched",
+  "source_url": "https://www.ertlesubaru.com/meet-our-staff/",
+  "contact_name": "the salesman.",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Fairway Subaru",
+  "status": "fetched",
+  "source_url": "https://www.fairwaysubaru.com/staff",
+  "contact_name": "Aaron Meijer",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Faulkner Subaru Easton",
+  "status": "fetched",
+  "source_url": "https://www.faulknersubarueaston.com/dealership/staff.htm",
+  "contact_name": "Steve Miller",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Faulkner Subaru Harrisburg",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Faulkner Subaru Mechanicsburg",
+  "status": "fetched",
+  "source_url": "https://www.faulknersubarumechanicsburg.com/faulkner-subaru-staff.htm",
+  "contact_name": "Andrew Bollinger",
+  "contact_title": "General Sales Manager",
+  "contact_email": "ABollinger@FaulknerSubaru.com"
+ },
+ {
+  "dealer_name": "Fred Beans Subaru",
+  "status": "fetched",
+  "source_url": "https://www.fredbeanssubaru.com/dealership/staff.htm",
+  "contact_name": "Todd Mock",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Glanzmann Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "John Kennedy Subaru",
+  "status": "fetched",
+  "source_url": "https://www.johnkennedysubaru.com/staff",
+  "contact_name": "Anthony Barone",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kenny Ross Subaru",
+  "status": "fetched",
+  "source_url": "https://www.kennyrosssubaru.com/about-us/staff/",
+  "contact_name": "Lauren Rosenbayger",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lancaster County Motors Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Minooka Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "New Motors Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Piazza Subaru of Limerick",
+  "status": "fetched",
+  "source_url": "https://www.piazzasubaru.com/dealership/staff.htm",
+  "contact_name": "Mike Hinkle",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Rafferty Subaru",
+  "status": "fetched",
+  "source_url": "https://www.raffertysubaru.com/dealership/staff.htm",
+  "contact_name": "Rafferty Jr",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Reedman Toll Subaru of Exton",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Reedman-Toll Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Sendell Subaru",
+  "status": "fetched",
+  "source_url": "https://www.sendellsubaru.com/about-us/staff/",
+  "contact_name": "Troutman Subaru",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Spangler Subaru",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Spitzer Subaru",
+  "status": "fetched",
+  "source_url": "https://www.spitzersubarudubois.com/about-us/staff/",
+  "contact_name": "Dave Senior",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Steve Moyer Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Stocker Subaru",
+  "status": "fetched",
+  "source_url": "https://www.stockersubaru.com/dealership/staff.htm",
+  "contact_name": "Cory Stocker",
+  "contact_title": "Dealer Principal",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Stuckey Subaru",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Subaru of South Hills",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Subaru of Wyoming Valley",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Thomas Subaru",
+  "status": "fetched",
+  "source_url": "https://www.bedfordsubaru.com/dealership/staff.htm",
+  "contact_name": "Nathan Weber",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "W & L Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Williams Subaru of Sayre",
+  "status": "fetched",
+  "source_url": "https://www.williamssubaruofsayre.com/meet-our-staff/",
+  "contact_name": "our Commercial",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Anchor Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Balise Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Valenti Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "AutoNation Subaru Hilton Head",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Crews Subaru of Charleston",
+  "status": "fetched",
+  "source_url": "https://www.charlestonsubaru.com/dealership/staff.htm",
+  "contact_name": "H. R. Hicks",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Fairway Subaru",
+  "status": "fetched",
+  "source_url": "https://www.fairwaysubarusc.com/dealership/staff.htm",
+  "contact_name": "Eric O'Reilly",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hadwin-White Subaru",
+  "status": "fetched",
+  "source_url": "https://www.hadwinwhitesubaru.com/about-us/",
+  "contact_name": "and became",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "McDaniels Subaru of Columbia",
+  "status": "fetched",
+  "source_url": "https://www.mcdanielssubaru.com/dealership/staff.htm",
+  "contact_name": "Angel Mestey",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Subaru of Spartanburg",
+  "status": "fetched",
+  "source_url": "https://www.subaruofspartanburg.com/staff",
+  "contact_name": "Heath McPherson",
+  "contact_title": "General Manager",
+  "contact_email": "HMcPherson@SpartanburgImports.com"
+ },
+ {
+  "dealer_name": "Courtesy Subaru",
+  "status": "fetched",
+  "source_url": "https://www.courtesysubaru.com/dealership/staff.htm",
+  "contact_name": "Travis Vesely",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Schulte Subaru",
+  "status": "fetched",
+  "source_url": "https://www.subaruofsiouxfalls.com/about-us/staff/",
+  "contact_name": "Jason Hanson",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Crown Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Darrell Waltrip Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Grayson Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Jim Keras Subaru",
+  "status": "fetched",
+  "source_url": "https://www.subarumemphis.com/staff",
+  "contact_name": "Ken Mills",
+  "contact_title": "General Sales Manager",
+  "contact_email": "kmills@jimkeras.com"
+ },
+ {
+  "dealer_name": "Jim Keras Subaru - Hacks Cross",
+  "status": "fetched",
+  "source_url": "https://www.subarumemphishackscross.com/staff",
+  "contact_name": "Tyler Benitone",
+  "contact_title": "General Manager",
+  "contact_email": "tbenitone@jimkeras.com"
+ },
+ {
+  "dealer_name": "Nashville Subaru",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Subaru of Gallatin",
+  "status": "fetched",
+  "source_url": "https://www.subaruofgallatin.com/staff",
+  "contact_name": "Jason Peebles",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Sutherlin Subaru",
+  "status": "fetched",
+  "source_url": "https://www.sutherlinsubaru.com/staff",
+  "contact_name": "Brandon Jordan",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Wallace Subaru - Johnson City",
+  "status": "fetched",
+  "source_url": "https://www.wallacesubarujohnsoncity.com/staff",
+  "contact_name": "Ron Vance",
+  "contact_title": "New Car Sales Manager",
+  "contact_email": "r_vance80@hotmail.com"
+ },
+ {
+  "dealer_name": "Wallace Subaru of Bristol",
+  "status": "fetched",
+  "source_url": "https://www.wallacesubaru.com/staff",
+  "contact_name": "Ron Vance",
+  "contact_title": "New Car Sales Manager",
+  "contact_email": "r_vance80@hotmail.com"
+ },
+ {
+  "dealer_name": "Wyatt Johnson Subaru",
+  "status": "fetched",
+  "source_url": "https://www.wyattjohnsonsubaru.com/staff",
+  "contact_name": "Perales Subaru",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Austin Subaru",
+  "status": "fetched",
+  "source_url": "https://www.austinsubaru.com/about-us/staff/",
+  "contact_name": "Eliel Ramirez",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bert Ogden Subaru",
+  "status": "fetched",
+  "source_url": "https://www.bertogdensubaru.com/about-us/staff/",
+  "contact_name": "Robert Gamez",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Brandon Tomes Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Brown Subaru",
+  "status": "fetched",
+  "source_url": "https://www.amarillosubaru.com/dealership/staff.htm",
+  "contact_name": "Mitch Steinmetz",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Cavender Subaru of Midland Odessa",
+  "status": "fetched",
+  "source_url": "https://www.cavendersubarumidlandodessa.com/dealership/staff.htm",
+  "contact_name": "Devin White",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "City Limits Subaru",
+  "status": "fetched",
+  "source_url": "https://www.citylimitssubaru.com/about-us/meet-our-team/",
+  "contact_name": "Jason Feuerberg",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Cleo Bay Subaru",
+  "status": "fetched",
+  "source_url": "https://www.cleobaysubaru.com/about-us/staff/",
+  "contact_name": "enjoyable process.",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Douglass Subaru",
+  "status": "fetched",
+  "source_url": "https://www.douglasssubaru.com/dealership/staff.htm",
+  "contact_name": "Gals Owner",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ewing Subaru of Plano",
+  "status": "fetched",
+  "source_url": "https://www.ewingsubaruofplano.com/staff/",
+  "contact_name": "Jose Chapa",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Five Star Subaru",
+  "status": "fetched",
+  "source_url": "https://www.subarugrapevine.net/about-us/staff/",
+  "contact_name": "Tony Hooman",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Gillman Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Gillman Subaru - Houston Southwest",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Group 1 Subaru El Paso",
+  "status": "fetched",
+  "source_url": "https://www.group1subaruelpaso.com/about-us/staff/",
+  "contact_name": "Matthew Valenzuela",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hicks Family Subaru",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hiley Subaru",
+  "status": "fetched",
+  "source_url": "https://www.hileysubaru.com/about-us/staff/",
+  "contact_name": "Abraham Escareno",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Huffines Subaru Corinth",
+  "status": "fetched",
+  "source_url": "https://www.huffinessubarucorinth.com/about-us/staff/",
+  "contact_name": "Robert Goodwin",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "JK Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Norm Reeves Subaru Superstore Rockwall",
+  "status": "fetched",
+  "source_url": "https://www.normreevessubarurockwall.com/about-us/staff/",
+  "contact_name": "Lionel Garcia",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "North Park Subaru",
+  "status": "fetched",
+  "source_url": "https://www.northparksubaru.net/dealership/staff.htm",
+  "contact_name": "Phil Larson",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "North Park Subaru Dominion",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Peltier Subaru",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Scoggin-Dickey Subaru",
+  "status": "fetched",
+  "source_url": "https://www.scoggindickeysubaru.com/dealership/staff.htm",
+  "contact_name": "Matt Patterson",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Sewell Subaru",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Sterling Subaru",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Subaru of Clear Lake",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Subaru of Georgetown",
+  "status": "fetched",
+  "source_url": "https://www.subaruofgeorgetown.com/about-us/staff/",
+  "contact_name": "Daniel Azel",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Superior Subaru of Houston",
+  "status": "fetched",
+  "source_url": "https://www.superiorsubaruofhouston.com/dealership/staff.htm",
+  "contact_name": "Mohammad Khan",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Team Gillman Subaru North",
+  "status": "fetched",
+  "source_url": "https://www.gillmansubarunorth.com/meet-our-staff/",
+  "contact_name": "Subaru VIP",
+  "contact_title": "Sales Specialist",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "West Houston Subaru",
+  "status": "fetched",
+  "source_url": "https://www.westhoustonsubaru.com/dealership/staff.htm",
+  "contact_name": "Gerald Johnson",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Doug Smith Subaru",
+  "status": "fetched",
+  "source_url": "https://www.dougsmithsubaru.com/dealership/staff.htm",
+  "contact_name": "Derek Schwendiman",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Findlay Subaru",
+  "status": "fetched",
+  "source_url": "https://www.findlaysubaru.com/meet-our-staff/",
+  "contact_name": "care of itself.",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Mark Miller Subaru",
+  "status": "fetched",
+  "source_url": "https://www.markmillersubarumidtown.com/staff.aspx",
+  "contact_name": "Ray Jalandoni",
+  "contact_title": "General Sales Manager",
+  "contact_email": "rayj@mmsubaru.com"
+ },
+ {
+  "dealer_name": "Mark Miller Subaru South Towne",
+  "status": "fetched",
+  "source_url": "https://www.markmillersubarusouthtowne.com/staff.aspx",
+  "contact_name": "Eric Engbert",
+  "contact_title": "General Sales Manager",
+  "contact_email": "erice@mmsubaru.com"
+ },
+ {
+  "dealer_name": "Nate Wade Subaru",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Young Subaru",
+  "status": "fetched",
+  "source_url": "https://www.youngsubaru.com/dealership/staff.htm",
+  "contact_name": "John Burgett",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Beyer Subaru of Alexandria",
+  "status": "fetched",
+  "source_url": "https://www.beyersubaru.com/dealership/staff.htm",
+  "contact_name": "Walter Johnson",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bob Wade Subaru",
+  "status": "fetched",
+  "source_url": "https://www.bobwadesubaru.com/dealership/staff.htm",
+  "contact_name": "Steve Gillette",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CMA's Colonial Subaru",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CMA's Subaru of Winchester",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CMA's Valley Subaru",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Casey Subaru",
+  "status": "fetched",
+  "source_url": "https://www.caseysubaru.com/staff/",
+  "contact_name": "Miles Casey",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Dulles Subaru",
+  "status": "fetched",
+  "source_url": "https://www.dullessubaru.com/staff",
+  "contact_name": "Darin Lowdermilk",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Farrish Subaru",
+  "status": "fetched",
+  "source_url": "https://www.farrishsubaru.com/meet-our-staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "First Team Subaru",
+  "status": "fetched",
+  "source_url": "https://www.firstteamsubarusuffolk.com/about-us/staff/",
+  "contact_name": "Sonny Leynes",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "First Team Subaru Norfolk",
+  "status": "fetched",
+  "source_url": "https://www.firstteamsubarunorfolk.com/about-us/staff/",
+  "contact_name": "Michael Deguzman",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Flow Subaru of Charlottesville",
+  "status": "fetched",
+  "source_url": "https://www.flowsubarucharlottesville.com/dealership/staff.htm",
+  "contact_name": "Doniell Desmond",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hyman Bros. Subaru",
+  "status": "fetched",
+  "source_url": "https://www.hymanbrossubaru.com/dealership/staff.htm",
+  "contact_name": "Robert Cooley",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Moore Subaru",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Motor Mile Subaru",
+  "status": "fetched",
+  "source_url": "https://www.motormilesubaru.com/dealership/staff.htm",
+  "contact_name": "George Newman",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Nelson Subaru",
+  "status": "fetched",
+  "source_url": "https://www.nelsonsubaru.com/about-us/staff/",
+  "contact_name": "Reece Roberts",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "R K Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Reynolds Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Safford Subaru Manassas",
+  "status": "fetched",
+  "source_url": "https://www.saffordsubarumanassas.com:443/meet-our-staff/",
+  "contact_name": "was our",
+  "contact_title": "Sales Consultant",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Sheehy Subaru",
+  "status": "fetched",
+  "source_url": "https://www.subaruofspringfield.com/meet-our-staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Sheehy Subaru of Fredericksburg",
+  "status": "fetched",
+  "source_url": "https://www.sheehysubarufredericksburg.com/meet-our-staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Southern Team Subaru",
+  "status": "fetched",
+  "source_url": "https://www.southernteamsubaru.com/about-us/staff/",
+  "contact_name": "Jason Porter",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Stohlman Subaru",
+  "status": "fetched",
+  "source_url": "https://www.stohlmansubaru.com/meet-our-staff/",
+  "contact_name": "and knowledgeable",
+  "contact_title": "Product Specialist",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Subaru of Sterling",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Terry Subaru",
+  "status": "fetched",
+  "source_url": "https://www.terrysubaru.com/dealership/staff.htm",
+  "contact_name": "Vice President",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "802 Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Brattleboro Subaru",
+  "status": "fetched",
+  "source_url": "https://www.brattleborosubaru.com/dealership/staff.htm",
+  "contact_name": "Luke Higley",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Burlington Subaru",
+  "status": "fetched",
+  "source_url": "https://www.burlingtonsubaru.com/dealership/staff.htm",
+  "contact_name": "Burgess Subaru",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Haddad Subaru of St. Albans",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lundgren Subaru of Bennington",
+  "status": "fetched",
+  "source_url": "https://www.lsubaru.com/dealership/staff.htm",
+  "contact_name": "Heather Pauquette",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Oliver Subaru of Rutland",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Saint J Subaru",
+  "status": "fetched",
+  "source_url": "https://www.saintjsubaru.com/dealership/staff.htm",
+  "contact_name": "Michael Huntington",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "White River Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "AutoNation Subaru Spokane Valley",
+  "status": "fetched",
+  "source_url": "https://www.autonationsubaruspokane.com/dealership/staff.htm",
+  "contact_name": "Matthew Dutton",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bud Clary Subaru",
+  "status": "fetched",
+  "source_url": "https://www.budclarysubaru.com/about-us/staff/",
+  "contact_name": "Martin Southwick",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Carter Subaru",
+  "status": "fetched",
+  "source_url": "https://www.cartersubarushoreline.com/meet-our-staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Carter Subaru Ballard",
+  "status": "fetched",
+  "source_url": "https://www.cartersubaruballard.com/meet-our-staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Cascade Subaru - Wenatchee",
+  "status": "fetched",
+  "source_url": "https://www.cascadesubaru.com/dealership/staff.htm",
+  "contact_name": "Justin Johnson",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Dewey Griffin Subaru",
+  "status": "fetched",
+  "source_url": "https://www.deweygriffinsubaru.com/meet-our-staff/",
+  "contact_name": "purchase experience.",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Dick Hannah Subaru",
+  "status": "fetched",
+  "source_url": "https://www.dickhannahsubaru.com/about-us/staff/",
+  "contact_name": "Kenny Nguyen",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Dwayne Lane's Skagit Subaru",
+  "status": "fetched",
+  "source_url": "https://www.dwaynelaneskagitsubaru.com:443/meet-our-staff/",
+  "contact_name": "lead by Jake",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Eastside Subaru",
+  "status": "fetched",
+  "source_url": "https://www.eastsidesubaru.com/dealership/staff.htm",
+  "contact_name": "Yura Gabriyelyan",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kendall Subaru of Marysville",
+  "status": "fetched",
+  "source_url": "https://www.kendallsubarumarysville.com/about-us/staff/",
+  "contact_name": "Eric Jorgensen",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Koenig Subaru",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "McCurley Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "McCurley Subaru of Yakima",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Michael's Subaru of Bellevue",
+  "status": "fetched",
+  "source_url": "https://www.michaelssubaru.com/dealership/staff.htm",
+  "contact_name": "Kelly Traynor",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Olympia Subaru",
+  "status": "fetched",
+  "source_url": "https://www.olympiasubaru.com/about-us/staff/",
+  "contact_name": "Dan Murphy",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Peninsula Subaru",
+  "status": "fetched",
+  "source_url": "https://www.peninsulasubaru.com/dealership/staff.htm",
+  "contact_name": "Steve Taylor",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Rairdon's Subaru of Auburn",
+  "status": "fetched",
+  "source_url": "https://www.subaruofauburn.com/about-us/staff/",
+  "contact_name": "Jay Lee",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Subaru of Puyallup",
+  "status": "fetched",
+  "source_url": "https://www.subaruofpuyallup.com/dealership/staff.htm",
+  "contact_name": "Chad Waterman",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Subaru of Spokane",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Tacoma Subaru",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Walker's Renton Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bergstrom Subaru",
+  "status": "fetched",
+  "source_url": "https://www.bergstromsubaruoshkosh.com/staff",
+  "contact_name": "Grant Kieler",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bergstrom Subaru - Green Bay",
+  "status": "fetched",
+  "source_url": "https://www.bergstromsubarugreenbay.com/staff",
+  "contact_name": "Craig Komp",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Dahl Subaru",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Dahl Subaru Sheboygan",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Don Miller Subaru East",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Don Miller Subaru West",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Gustman Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Janesville Subaru",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kocourek Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Morrie's Eau Claire Subaru",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Sommer's Subaru",
+  "status": "fetched",
+  "source_url": "https://www.sommerssubaru.com/staff",
+  "contact_name": "Alex Higgs",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Subaru City of Milwaukee",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Wilde Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Zeigler Subaru of Kenosha",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Cole Subaru",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Crown Subaru of Wheeling",
+  "status": "fetched",
+  "source_url": "https://www.crownsubaruwv.com/staff",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Dutch Miller Subaru",
+  "status": "fetched",
+  "source_url": "https://www.dutchmillersubaru.com/staff",
+  "contact_name": "Reece Miller",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Friendship Subaru of Beckley",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Jenkins Subaru",
+  "status": "fetched",
+  "source_url": "https://www.jenkinssubaruwv.com/staff",
+  "contact_name": "Patrick Campbell",
+  "contact_title": "Sales Manager",
+  "contact_email": "Patrick@jenkinswv.com"
+ },
+ {
+  "dealer_name": "Louis Thomas Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "River City Subaru",
+  "status": "fetched",
+  "source_url": "https://www.rivercitysubaru.com/staff",
+  "contact_name": "Nick Thomas",
+  "contact_title": "General Sales Manager",
+  "contact_email": "nick@rivercitysubaru.com"
+ },
+ {
+  "dealer_name": "Subaru of Morgantown",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Halladay Subaru",
+  "status": "fetched",
+  "source_url": "https://www.halladaysubaru.com/about-us/staff/",
+  "contact_name": "Carter Robertson",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Stone's Subaru",
+  "status": "fetched",
+  "source_url": "https://www.stonessubaru.com/meet-our-staff/",
+  "contact_name": "Group As our",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "White's Mountain Subaru",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ }
+]
