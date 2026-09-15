@@ -12,6 +12,11 @@ roster = json.load(open("roster_raw.json"))
 extracted = {r["dealer_name"]: r for r in json.load(open("extract_results.json"))}
 fetch = {json.loads(l)["dealer_name"]: json.loads(l) for l in open("fetch_results.jsonl")}
 
+NOT_A_PERSON = re.compile(r"\b(team|department|dept|desk|office|sales|manager|staff|internet|bdc|group|motors?|auto|automotive|dealership|hyundai|kia|subaru|mazda|volkswagen|vw|audi|volvo|mini|nissan|infiniti|cadillac|lincoln)\b", re.I)
+
+def looks_like_person(name):
+    return bool(name) and len(name.split()) >= 2 and not NOT_A_PERSON.search(name)
+
 def title_case(s):
     return re.sub(r"\b([a-z])", lambda m: m.group(1).upper(), (s or "").lower()).replace("'S", "'s")
 
@@ -30,7 +35,7 @@ for d in roster:
         contact_name, contact_email, title, source = ex["contact_name"], ex["contact_email"], ex["contact_title"], f"Source: {ex['source_url']}"; stats["staff_email"] += 1
     elif lead_email and not GENERIC.match(lead_email) and gm and email_matches(gm, lead_email):
         contact_name, contact_email, title, source = gm, lead_email, "General Manager", f"Source: {brand} dealer locator (GM + dealer email match)"; stats["locator_email"] += 1
-    elif lead_email and not GENERIC.match(lead_email) and ex.get("contact_name") and email_matches(ex["contact_name"], lead_email):
+    elif lead_email and not GENERIC.match(lead_email) and looks_like_person(ex.get("contact_name", "")) and email_matches(ex["contact_name"], lead_email):
         contact_name, contact_email, title, source = ex["contact_name"], lead_email, ex["contact_title"], f"Source: {ex['source_url']} (name) + {brand} dealer locator (email match)"; stats["locator_email"] += 1
     elif ex.get("contact_name"):
         contact_name, title, source = ex["contact_name"], ex["contact_title"], f"Source: {ex['source_url']} (no email published for this contact)"; stats["name_only"] += 1
