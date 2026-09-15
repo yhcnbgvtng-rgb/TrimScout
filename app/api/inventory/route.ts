@@ -8,6 +8,7 @@ import { runUnifiedScrapers, scrapePorscheInventory } from "@/lib/scrapers";
 import { exteriorColorNameFor } from "@/lib/porscheColors";
 import { serverSecret } from "@/lib/serverSecret";
 import { guardPaidDecode, MARKETCHECK_CALL_COST_USD } from "@/lib/apiSpendGuard";
+import { featureEnabled } from "@/lib/featureFlags";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -273,7 +274,9 @@ export async function GET(request: Request) {
     // block, same as it already does on a missing key or a failed call —
     // this endpoint should never dead-end a browser that just got
     // rate-limited on the paid tier.
-    if (provider === "marketcheck") {
+    // Public browse never reaches a paid/live provider unless the live-inventory
+    // switch is on (default off): the seed tier below answers, and it's CDN-cacheable.
+    if (provider === "marketcheck" && featureEnabled("liveInventory")) {
       const mcKey = serverSecret("MARKETCHECK_API_KEY") || "";
       const blocked = mcKey
         ? guardPaidDecode({ kind: "inventory_marketcheck", request, estCostUsd: MARKETCHECK_CALL_COST_USD.search })
@@ -590,6 +593,7 @@ export async function GET(request: Request) {
     return NextResponse.json({
       success: true,
       provider: "smart_feed",
+      liveInventory: featureEnabled("liveInventory"),
       // This tier always starts from MOCK_VEHICLES (see `baseList` above)
       // and layers in synthetic vehicles (fabricated VINs/dealer names) for
       // several makes on top of whatever real cached/scraped data is
@@ -600,6 +604,9 @@ export async function GET(request: Request) {
       radius,
       query: rawQuery,
       data: radiusFiltered,
+    }, {
+      // Seed browse fails open at the edge: cached five minutes, served stale for a day while the origin catches up.
+      headers: { "Cache-Control": "public, s-maxage=300, stale-while-revalidate=86400" },
     });
   } catch (error: any) {
     console.error("Inventory connector error:", error);

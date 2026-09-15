@@ -5,8 +5,14 @@ import { verifyDealerSignupInviteToken } from "@/lib/dealerSignupInvite";
 import { listDealerships } from "@/lib/dealershipsApi";
 import { verifyTurnstileToken } from "@/lib/turnstile";
 import { clientIpFromHeaders } from "@/lib/clientIp";
+import { firstTrippedLimit, tooManyRequests } from "@/lib/rateLimit";
 
 export async function POST(req: Request) {
+  const tripped = firstTrippedLimit([
+    { name: "signup_ip", subject: clientIpFromHeaders(req.headers) },
+    { name: "signup_global", subject: "all" },
+  ]);
+  if (tripped) return tooManyRequests(tripped, "Too many sign-up attempts — please wait a few minutes and try again.");
   let body: any;
   try {
     body = await req.json();

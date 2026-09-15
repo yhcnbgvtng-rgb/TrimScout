@@ -1,6 +1,6 @@
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
 import { auth } from "@/auth";
-import { createRfqInvite, getRfq, listRfqsForBuyer, markRfqInviteDelivery, RfqApiError } from "@/lib/rfqApi";
+import { createRfqInvite, getRfq, listRfqsForBuyer, RfqApiError } from "@/lib/rfqApi";
 import type { RfqInvite } from "@/lib/rfq";
 import { guardPerDeskCap } from "@/lib/apiSpendGuard";
 import { buyerRfqStrikeCount, canInviteMore, reputationInviteCap } from "@/lib/rfqLogic";
@@ -14,11 +14,11 @@ import {
   INVITE_BLOCK_MESSAGES,
   type DealerDesk,
 } from "@/lib/quotePackage";
-import { quoteInviteSubject, quoteInviteHtml, type QuoteEmailType } from "@/lib/quoteInviteEmail";
-import { sendQuoteInviteEmail } from "@/lib/dealerEmail";
-import { unsubscribeUrlFor, DEALER_EMAIL_BASE_URL } from "@/lib/dealerUnsubscribe";
-import { formatBuyerAlias } from "@/lib/buyerAlias";
-import { dealerReference } from "@/lib/dealerReference";
+import { featureEnabled, DEGRADE_COPY } from "@/lib/featureFlags";
+import { firstTrippedLimit, tooManyRequests } from "@/lib/rateLimit";
+import { clientIpFromHeaders } from "@/lib/clientIp";
+import { bump } from "@/lib/opsMetrics";
+import { sendQueuedInvite } from "@/lib/inviteOutbox";
 
 // The one send path. The buyer's confirm step names a dealership; this
 // route re-derives the desk from the contact directory itself — the
@@ -31,6 +31,18 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     return NextResponse.json({ error: "You must be signed in." }, { status: 401 });
   }
   const { id } = await params;
+  if (!featureEnabled("rfqSend")) {
+    return NextResponse.json({ error: DEGRADE_COPY.rfqSendOff, paused: true }, { status: 503, headers: { "Retry-After": "120" } });
+  }
+  const tripped = firstTrippedLimit([
+    { name: "invite_send_ip", subject: clientIpFromHeaders(req.headers) },
+    { name: "invite_send_user", subject: String(session.user.id) },
+    { name: "invite_send_global", subject: "all" },
+  ]);
+  if (tripped) {
+    bump("invite_429");
+    return tooManyRequests(tripped);
+  }
   const body = await req.json().catch(() => null);
   const dealerName = typeof body?.dealerName === "string" ? body.dealerName.trim() : "";
   const dealerState = typeof body?.dealerState === "string" ? body.dealerState.trim() : "";
@@ -116,65 +128,26 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       throw err;
     }
 
-    // --- Send, then mark sent. A send failure leaves the invite queued,
-    //     which is the truth, and the buyer sees "Queued" rather than a
-    //     "Sent" that never happened.
+    // --- The invite row is the queue entry. The buyer's request returns
+    //     now; the email is built from stored state and sent after the
+    //     response (or parked when the outbound switch is off), and
+    //     anything left "queued" is drained later — see lib/inviteOutbox.ts.
+    //     Nothing here awaits a mail provider, a dealer site, or a sticker.
+    bump("invite_queued");
+    const emailOn = featureEnabled("outboundDealerEmail");
     if (desk) {
-      const viewToken = invite.viewToken;
-      const viewUrl = `${DEALER_EMAIL_BASE_URL}/api/quote-invite/view?t=${encodeURIComponent(viewToken || "")}`;
-      const directoryRow = desk.source === "directory"
-        ? matchDirectoryDealership(await listDealerships().catch(() => []), { dealerName, state: dealerState })
-        : null;
-      // One template for Cash / Lease / Finance. The type comes from what the
-      // package stores (lease prefs, used quote prefs) before what the client
-      // says it asked for.
-      const requested = Array.isArray(body?.requestedStructures) ? String(body.requestedStructures[0] || "") : "";
-      const quoteType: QuoteEmailType = rfq.leasePrefs
-        ? "lease"
-        : rfq.quotePrefs?.quoteType === "finance" || requested === "finance"
-          ? "finance"
-          : "cash";
-      const bodyFinance = body?.financePrefs && typeof body.financePrefs === "object" ? body.financePrefs : null;
-      const financePrefs =
-        rfq.quotePrefs?.quoteType === "finance"
-          ? { termMonths: rfq.quotePrefs.finance.termMonths, downPayment: rfq.quotePrefs.finance.downPayment, creditBand: rfq.quotePrefs.finance.creditBand }
-          : bodyFinance && Number.isFinite(Number(bodyFinance.termMonths))
-            ? { termMonths: Number(bodyFinance.termMonths), downPayment: Math.max(0, Number(bodyFinance.downPayment) || 0), creditBand: typeof bodyFinance.creditBand === "string" ? bodyFinance.creditBand : null }
-            : null;
-      const storedZip = rfq.leasePrefs?.zip || (rfq.quotePrefs?.quoteType === "finance" ? rfq.quotePrefs.finance.zip : rfq.quotePrefs?.quoteType === "cash" ? rfq.quotePrefs.cash.zip : "");
-      const buyerZip = storedZip || (typeof body?.buyerZip === "string" ? body.buyerZip.replace(/\D/g, "").slice(0, 5) : "") || null;
-      const emailInput = {
-        quoteType,
-        dealerName,
-        contactName: desk.contactName,
-        role: desk.role,
-        rooftop: directoryRow
-          ? { city: directoryRow.city, state: directoryRow.state, address: directoryRow.address }
-          : { city: null, state: dealerState || null, address: null },
-        vehicle,
-        buyerAlias: formatBuyerAlias(rfq.buyerUserId),
-        // The dealer's own number for this request — never the buyer's TS- deal number.
-        dealReference: dealerReference(id, invite.id),
-        viewUrl,
-        unsubscribeUrl: directoryRow ? unsubscribeUrlFor(directoryRow.id) : null,
-        purchaseTimelineLabel: typeof body?.purchaseTimelineLabel === "string" ? body.purchaseTimelineLabel : null,
-        buyerNote: rfq.buyerNote || null,
-        tradeInExpected: rfq.tradeInExpected ?? null,
-        buyerZip,
-        leasePrefs: rfq.leasePrefs || null,
-        financePrefs,
-        vehicleFacts: body?.vehicleFacts && typeof body.vehicleFacts === "object" ? body.vehicleFacts : null,
-      };
-      const html = quoteInviteHtml(emailInput);
-      const accepted = await sendQuoteInviteEmail(quoteInviteSubject(emailInput), html);
-      if (accepted) {
-        invite = await markRfqInviteDelivery(id, invite.id, "sent").catch(() => invite);
-      }
+      const queuedInvite = invite;
+      after(async () => {
+        const fresh = await getRfq(id).catch(() => null);
+        if (!fresh) return;
+        const row = fresh.invites.find((i) => i.id === queuedInvite.id) || queuedInvite;
+        await sendQueuedInvite(fresh, { ...row, dealerContactEmail: row.dealerContactEmail ?? queuedInvite.dealerContactEmail, viewToken: row.viewToken ?? queuedInvite.viewToken });
+      });
     }
 
     // Neither the desk's real address nor the tracked-link token leaves the server.
     const { dealerContactEmail: _hiddenEmail, viewToken: _hiddenToken, ...publicInvite } = invite;
-    return NextResponse.json({ invite: publicInvite });
+    return NextResponse.json({ invite: publicInvite, queued: true, notice: emailOn ? DEGRADE_COPY.queued : DEGRADE_COPY.emailOff });
   } catch (err) {
     const message = err instanceof RfqApiError ? err.message : "Could not add this dealer.";
     const status = err instanceof RfqApiError ? err.status : 502;

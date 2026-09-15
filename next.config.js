@@ -26,6 +26,12 @@ const nextConfig = {
     // real value here: frame-ancestors/X-Frame-Options block clickjacking,
     // and this is the app's first CSP at all (previously none).
     return [
+      // Marketing / legal pages: CDN-cached, served stale while the origin
+      // revalidates — a traffic spike hits the edge, not the app.
+      {
+        source: "/(terms|privacy|disclaimer|contact)",
+        headers: [{ key: "Cache-Control", value: "public, s-maxage=600, stale-while-revalidate=86400" }],
+      },
       {
         source: "/:path*",
         headers: [

@@ -8,6 +8,10 @@ import { hasActiveRfq, isFullyLockedSpec } from "@/lib/rfqLogic";
 import { MAX_PACKAGE_LINKS } from "@/lib/quotePackage";
 import { recordQuoteRequest } from "@/lib/apiSpendGuard";
 import { findContactInfo } from "@/lib/piiFilter";
+import { featureEnabled, DEGRADE_COPY } from "@/lib/featureFlags";
+import { firstTrippedLimit, tooManyRequests } from "@/lib/rateLimit";
+import { clientIpFromHeaders } from "@/lib/clientIp";
+import { bump } from "@/lib/opsMetrics";
 
 export async function GET() {
   const session = await auth();
@@ -28,6 +32,21 @@ export async function POST(req: Request) {
   const session = await auth();
   if (!session?.user?.id || (session.user as any).role !== "buyer") {
     return NextResponse.json({ error: "You must be signed in as a buyer to send an RFQ." }, { status: 401 });
+  }
+  // Kill switch: an honest pause, never a 500 or a silent drop.
+  if (!featureEnabled("rfqSend")) {
+    bump("rfq_create_off");
+    return NextResponse.json({ error: DEGRADE_COPY.rfqSendOff, paused: true }, { status: 503, headers: { "Retry-After": "120" } });
+  }
+  // Hard caps per IP, per account and per instance-global — 429 + Retry-After.
+  const tripped = firstTrippedLimit([
+    { name: "rfq_create_ip", subject: clientIpFromHeaders(req.headers) },
+    { name: "rfq_create_user", subject: String(session.user.id) },
+    { name: "rfq_create_global", subject: "all" },
+  ]);
+  if (tripped) {
+    bump("rfq_create_429");
+    return tooManyRequests(tripped);
   }
 
   const body = await req.json().catch(() => null);
@@ -77,6 +96,14 @@ export async function POST(req: Request) {
     // another.
     const existing = await listRfqsForBuyer(session.user.id as string);
     if (hasActiveRfq(existing)) {
+      // Idempotent double-submit: the same buyer re-sending the same car
+      // (a retry, a double click, a refresh) gets the request that already
+      // exists — one row, not an error and not a second row.
+      const same = existing.find((r) => r.status === "collecting" && r.vin === String(body.vin || "").trim().toUpperCase());
+      if (same) {
+        bump("rfq_create_idempotent");
+        return NextResponse.json({ rfq: publicRfqForBuyer(same), idempotent: true });
+      }
       return NextResponse.json(
         { error: "You already have an active request — finish or walk away from it before starting another." },
         { status: 400 }
@@ -103,6 +130,7 @@ export async function POST(req: Request) {
       tradeInExpected: typeof body.tradeInExpected === "boolean" ? body.tradeInExpected : null,
     });
     recordQuoteRequest();
+    bump("rfq_create");
     return NextResponse.json({ rfq: publicRfqForBuyer(rfq) });
   } catch (err) {
     const message = err instanceof RfqApiError ? err.message : "Could not create your request.";

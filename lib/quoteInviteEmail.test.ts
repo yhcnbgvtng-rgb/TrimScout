@@ -139,12 +139,14 @@ describe("quote-request email — one template for Cash / Lease / Finance", () =
 
 describe("wiring — the send route feeds the one template", () => {
   const read = (f: string) => fs.readFileSync(path.join(process.cwd(), f), "utf8");
-  it("quote type comes from stored prefs first (lease / used finance) then the client's ask; rooftop from the directory row; ZIP from stored prefs then the wizard", () => {
+  it("the email is built from the stored request only (lib/inviteOutbox.ts): type from stored prefs, rooftop from the directory row, ZIP from stored prefs — never from the HTTP body", () => {
+    const o = read("lib/inviteOutbox.ts");
+    assert.match(o, /const quoteType: QuoteEmailType = rfq\.leasePrefs \? "lease" : rfq\.quotePrefs\?\.quoteType === "finance" \? "finance" : "cash";/);
+    assert.match(o, /rooftop: directoryRow \? \{ city: directoryRow\.city, state: directoryRow\.state, address: directoryRow\.address \}/);
+    assert.match(o, /buyerZip: rfq\.leasePrefs\?\.zip \|\|/);
+    assert.doesNotMatch(o, /body\?\.|req\.|paymentLabel|formatDealStructures/);
     const r = read("app/api/rfqs/[id]/invites/route.ts");
-    assert.match(r, /const quoteType: QuoteEmailType = rfq\.leasePrefs\s*\? "lease"/);
-    assert.match(r, /rooftop: directoryRow\s*\? \{ city: directoryRow\.city, state: directoryRow\.state, address: directoryRow\.address \}/);
-    assert.match(r, /const buyerZip = storedZip \|\| \(typeof body\?\.buyerZip === "string"/);
-    assert.doesNotMatch(r, /paymentLabel|formatDealStructures/);
+    assert.doesNotMatch(r, /quoteInviteHtml\(|paymentLabel|formatDealStructures/);
   });
   it("wizard sends buyerZip + finance prefs with each invite; dealer landing for a new-car cash/finance request points at log in / sign up", () => {
     const w = read("components/BiddingWizard.tsx");
