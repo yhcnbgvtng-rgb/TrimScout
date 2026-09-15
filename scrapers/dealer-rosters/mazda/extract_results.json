@@ -1,0 +1,4346 @@
+[
+ {
+  "dealer_name": "CONTINENTAL MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.continental-mazda.com/about-us/staff/",
+  "contact_name": "Julius Cumlat",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "DEAN MCCRARY MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HILEY MAZDA OF HUNTSVILLE",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MED CENTER MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.medcentermazda.com/about-us/staff/",
+  "contact_name": "Matt Clarkson",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "TUSCALOOSA MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.tuscaloosamazda.com/dealership/staff.htm",
+  "contact_name": "Mario Garner",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "COGSWELL MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.cogswellmazda.com/staff",
+  "contact_name": "Richard Roberts",
+  "contact_title": "General Sales Manager",
+  "contact_email": "rroberts@cogswellmotors.com"
+ },
+ {
+  "dealer_name": "MCLARTY MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.mclartymazda.com/about-us/staff/",
+  "contact_name": "Consultant Mo Elhouri",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SUPERIOR MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BERGE MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.bergemazda.com:443/meet-our-staff/",
+  "contact_name": "the scenery.",
+  "contact_title": "Product Specialist",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BILLALEXANDER FLIGHTLINE MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.flightlinemazda.com:443/about-us/meet-our-staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CARDINALEWAY MAZDA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CARDINALEWAY MAZDA AT PEORIA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CHAPMAN MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.chapmanmazda.com/about-us/staff/",
+  "contact_name": "George Salman",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "GALPIN MAZDA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HORNE MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.hornemazda.com:443/meet-our-team/",
+  "contact_name": "Ryan Deluca",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HORNE MAZDA AVONDALE",
+  "status": "fetched",
+  "source_url": "https://www.hornemazdaavondale.com:443/meet-our-team/",
+  "contact_name": "Dem Bussche",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "JIM CLICK MAZDA EASTSIDE",
+  "status": "fetched",
+  "source_url": "https://www.jimclickmazdaeast.com/staff",
+  "contact_name": "Jeff Ellingboe",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MARK MAZDA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "AUTONATION MAZDA CARLSBAD",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BAKERSFIELD MAZDA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BROWNING MAZDA CERRITOS",
+  "status": "fetched",
+  "source_url": "https://www.browningmazda.com/about-us/staff/",
+  "contact_name": "Ali Joumaa",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CAPISTRANO MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.capomazda.com/about-us/staff/",
+  "contact_name": "Tom Deering",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CAPITOL MAZDA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CARDINALE MAZDA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CARDINALEWAY MAZDA CORONA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CARUSO MAZDA OF LONG BEACH",
+  "status": "fetched",
+  "source_url": "https://www.carusomazda.com/about-us/staff/",
+  "contact_name": "Steven Suh",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CHICO MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.chicomazda.com/staff",
+  "contact_name": "Joshua Meyer",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CONCORD MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.concordmazda.com/about-us/staff/",
+  "contact_name": "Shaun Capaul",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CULVER CITY MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.culvercitymazda.com/about-us/staff/",
+  "contact_name": "Nesh Sekulic",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "DIAMOND MAZDA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "DUBLIN MAZDA",
+  "status": "no_website",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "FONTANA MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.fontanamazda.com:443/meet-our-staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "FREMONT MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.fremontmazda.com/dealership/staff.htm",
+  "contact_name": "Popal Karimi",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "FRESNO MAZDA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "GALPIN MAZDA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HANSEL MAZDA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HELLO MAZDA OF SAN DIEGO",
+  "status": "fetched",
+  "source_url": "https://www.hellomazdasandiego.com/about-us/staff/",
+  "contact_name": "Gavin Sankey",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HELLO MAZDA OF TEMECULA",
+  "status": "fetched",
+  "source_url": "https://www.hellomazdatemecula.com/about-us/staff/",
+  "contact_name": "Oscar Balley",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HUNTINGTON BEACH MAZDA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "KEN FOWLER MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MAITA MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.maitamazda.com/about-us/staff/",
+  "contact_name": "Alex Bayder",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MARIN MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.marinmazda.net/staff",
+  "contact_name": "Rami Al-Batniji",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MAZDA OF CLAREMONT",
+  "status": "fetched",
+  "source_url": "https://www.mazdaofclaremont.com/about-us/staff/",
+  "contact_name": "Amir Eizadkhah",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MAZDA OF ELK GROVE",
+  "status": "no_website",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MAZDA OF ESCONDIDO,A PENSKE AUTOMOTIVE DEALER",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MAZDA OF ORANGE",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MAZDA OF VACAVILLE",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MAZDA OF VALENCIA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MAZDA ROSEVILLE",
+  "status": "fetched",
+  "source_url": "https://www.mazdaroseville.com/about-us-dep/staff/",
+  "contact_name": "Steven Khuu",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MAZDA SAN FRANCISCO",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MAZDA THOUSAND OAKS",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MODESTO MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.modestomazda.com/about-us/staff/",
+  "contact_name": "Santos Executive",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "NEW CENTURY MAZDA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "OXNARD MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.oxnardmazda.com/about-us/staff/",
+  "contact_name": "Cesar Caceres",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "PALM SPRINGS MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.palmspringsmazda.com/about-us/staff/",
+  "contact_name": "Scott Simmers",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "PERRY MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "PUENTE HILLS MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.phmazda.com/about-us/staff/",
+  "contact_name": "Steven Sandoval",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "PUTNAM MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "RIVERSIDE MAZDA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SANTA MARIA MAZDA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SELMA MAZDA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SOUTH BAY MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.southbaymazda.com/about-us/staff/",
+  "contact_name": "Matthew Hibben",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SPREEN MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.spreenmazda.com/about-us/staff/",
+  "contact_name": "Matt Humphrey",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "STAR MAZDA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "STEVENS CREEK MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.stevenscreekmazda.com/about-us/staff/",
+  "contact_name": "Bomdad Pourabdollah",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "TEAM MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.vallejomazda.com/about-us/staff/",
+  "contact_name": "Jack Zhang",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "TEAM MAZDA OF EL CAJON",
+  "status": "fetched",
+  "source_url": "https://www.teammazdaofelcajon.com/about-us/staff/",
+  "contact_name": "Alex Reynoso",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "TRACY MAZDA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "TUSTIN MAZDA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "TUTTLE-CLICK MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.tuttleclickmazda.com/dealership/staff.htm",
+  "contact_name": "Emiliano Alejandro",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "VICTORVILLE MAZDA",
+  "status": "no_website",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "VICTORY MAZDA SAN LEANDRO",
+  "status": "fetched",
+  "source_url": "https://www.victorymazdasanleandro.com/about-us/meet-our-team/",
+  "contact_name": "Juan Camacho",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "WESTCOTT MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.westcottmazda.com/dealership/staff.htm",
+  "contact_name": "Elaster Internet",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "WHEELER MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.wheelermazda.com/staff",
+  "contact_name": "Sergio Robles",
+  "contact_title": "Sales Manager",
+  "contact_email": "srobles@wheelerautocenter.com"
+ },
+ {
+  "dealer_name": "2 MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.2mazda.com/about-us/staff/",
+  "contact_name": "Jeremy Moore",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "AUTONATION MAZDA ARAPAHOE",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BOB PENKHUS MAZDA AT POWERS",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BOB PENKHUS VOLVO MAZDA,INC.",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MCDONALD MAZDA NORTH",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MCDONALD MAZDA SOUTH",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MCDONALD MAZDA WEST",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SCHOMP MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.schompmazda.com/about-us/staff/",
+  "contact_name": "Ebenezer Djaleta",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SILL-TERHAR MOTORS,INC.",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CENTRAL MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "COLONIAL MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HAMDEN MAZDA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "LIBERTY MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.libertymazda.net/about-us/staff/",
+  "contact_name": "Jason Behan",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MANCHESTER MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.manchestermazda.com/about-us/staff/",
+  "contact_name": "Brandon Hansen",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MAZDA OF MILFORD",
+  "status": "fetched",
+  "source_url": "https://www.mazdaofmilford.com/staff",
+  "contact_name": "Julian Gangemi",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MODERN MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.modernmazda.com/about-us/staff/",
+  "contact_name": "Edward Shaker",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "RILEY MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.rileymazda.com/dealership/staff.htm",
+  "contact_name": "Curtis Riley",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "WHALING CITY MAZDA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HERTRICH CAPITOL MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.hertrichscapitol.com/dealership/staff.htm",
+  "contact_name": "JoBeth Nicholson",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MARTIN MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "NUCAR MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BONIFACE HIERS MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.bonifacehiersmazda.com:443/meet-our-staff/",
+  "contact_name": "Foundation Event.",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BRICKELL MAZDA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CLASSIC MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.classicmazda.com/staff",
+  "contact_name": "Sophia Justiz",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "COAST MAZDA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "COCONUT CREEK MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.coconutcreekmazda.com/aboutus/staff/",
+  "contact_name": "Tony Burba",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "COX MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.coxmazda.com/our-story/?staff",
+  "contact_name": "become the",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "DAYTONA MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "DELRAY MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.griecomazdadelray.com/about-us/",
+  "contact_name": "Group. As",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "DYER MAZDA OF VERO BEACH",
+  "status": "fetched",
+  "source_url": "https://www.dyermazda.com/staff",
+  "contact_name": "Dylan Heiring",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ED HOWARD MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.mazdaofsarasota.com/dealership/meet-our-staff.htm",
+  "contact_name": "Mike Hillman",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "FERMAN MAZDA OF BRANDON",
+  "status": "fetched",
+  "source_url": "https://www.fermanmazdaofbrandon.com/about-us/staff/",
+  "contact_name": "BRAXTON SIMMONS",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "GEM MAZDA OF TALLAHASSEE",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "GUNTHER MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.gunthermazda.com/about-us/staff/",
+  "contact_name": "Mike Neal",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HEADQUARTER MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.headquartermazda.com/about-us/staff/",
+  "contact_name": "Zen Tran",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "JENKINS MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.jenkinsmazda.com/dealership/staff.htm",
+  "contact_name": "Steven O'John",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "JOHN LEE MAZDA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MAZDA AT THE AVENUES",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MAZDA CITY OF ORANGE PARK",
+  "status": "fetched",
+  "source_url": "https://www.mazdacity.com/staff",
+  "contact_name": "Gene Viola",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MAZDA LAKELAND",
+  "status": "fetched",
+  "source_url": "https://www.mazdalakeland.com/staff",
+  "contact_name": "Mike Fountain",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MAZDA OF CLEARWATER",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MAZDA OF FORT MYERS",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MAZDA OF FORT WALTON BEACH",
+  "status": "fetched",
+  "source_url": "https://www.mazdafwb.com/about-us/staff/",
+  "contact_name": "Jeff Coleman",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MAZDA OF GAINESVILLE",
+  "status": "fetched",
+  "source_url": "https://www.mazdaofgainesville.com/about-us/staff/",
+  "contact_name": "Blake Rundle",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MAZDA OF NORTH MIAMI",
+  "status": "fetched",
+  "source_url": "https://www.mazdaofnorthmiami.com/about-us/staff/",
+  "contact_name": "Claudio Lerebours",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MAZDA OF PALM BEACH",
+  "status": "fetched",
+  "source_url": "https://www.mazdaofpalmbeach.com/about-us/staff/",
+  "contact_name": "David Oshry",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MAZDA OF PORT CHARLOTTE",
+  "status": "fetched",
+  "source_url": "https://www.mazdaofportcharlotte.com/staff",
+  "contact_name": "Stewart Haddix",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MAZDA OF ST. AUGUSTINE",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MAZDA OF WESLEY CHAPEL",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "NAPLES MAZDA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "OCEAN MAZDA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "OCEAN MAZDA WEST KENDALL",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SANDY SANSING MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SOUTHERN PALMS MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SPORT MAZDA NORTH",
+  "status": "fetched",
+  "source_url": "https://www.sportmazdanorthorlando.com/about-us/staff/",
+  "contact_name": "Troy Mealey",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SPORT MAZDA ORLANDO",
+  "status": "fetched",
+  "source_url": "https://www.sportmazdaorlando.com/about-us/staff/",
+  "contact_name": "Edwin Acevedo",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "TOM BUSH MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.tombushmazda.com/staff",
+  "contact_name": "Gino Manley",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "WALLACE MAZDA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "WESTSHORE MAZDA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ALM MAZDA MACON",
+  "status": "fetched",
+  "source_url": "https://www.almmazdamacon.com/about-us/staff/",
+  "contact_name": "William Gresham",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ALM MAZDA SOUTH",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BEAVER MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.beavermazda.com/staff/",
+  "contact_name": "Austin Beaver",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "GERALD JONES MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.geraldjonesmazda.com:443/meet-our-staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "JC LEWIS MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.jclewismazda.com/about-us/staff/",
+  "contact_name": "Joe Lewis",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "JIM ELLIS MAZDA OF MARIETTA",
+  "status": "fetched",
+  "source_url": "https://www.jimellismazdamarietta.com/about-us/staff/",
+  "contact_name": "Mike Boyd",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "JIM SHORKEY MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.jimshorkeymazda.com/staff",
+  "contact_name": "James Bilello",
+  "contact_title": "General Sales Manager",
+  "contact_email": "jamesbilello@jimshorkey.com"
+ },
+ {
+  "dealer_name": "KENNESAW MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MALL OF GEORGIA MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.mallofgamazda.com/about-us/staff/",
+  "contact_name": "Carly Vendemia",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "OCEAN MAZDA ROSWELL",
+  "status": "fetched",
+  "source_url": "https://www.oceanmazdaroswell.com/staff/",
+  "contact_name": "Victor Lopez",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "RICK CASE MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CUTTER MAZDA OF HONOLULU",
+  "status": "fetched",
+  "source_url": "https://www.cutterhonolulumazda.com/staff",
+  "contact_name": "Matt Wong",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CUTTER MAZDA OF WAIPAHU",
+  "status": "fetched",
+  "source_url": "https://www.cutterwaipahumazda.com/staff",
+  "contact_name": "Shane Lawrence",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "C&S CAR COMPANY MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.candsmazda.com/dealership/staff.htm",
+  "contact_name": "Scott Thurn",
+  "contact_title": "Internet Sales Manager",
+  "contact_email": "scott@candscarcompany.com"
+ },
+ {
+  "dealer_name": "CAROUSEL MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "DEERY BROTHERS MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.deerybrothers.com/meet-our-staff/",
+  "contact_name": "many years.",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "JENSEN MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.jensenmazda.com/dealership/staff.htm",
+  "contact_name": "Annette Vlotho",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "JUNGE MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "RAMSEY MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "DILLON MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "GOODE MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.goodemazda.com/about-us/staff/",
+  "contact_name": "Steve Long",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "TEAM MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.goteammazda.com/about-us/staff/",
+  "contact_name": "Grever is the",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ANDERSON MAZDA",
+  "status": "no_website",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "AUFFENBERG MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.auffenbergmazda.com/staff",
+  "contact_name": "BLAKE MERCURIO",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "AUTOBARN MAZDA OF EVANSTON",
+  "status": "fetched",
+  "source_url": "https://www.mazdaofchicagoland.com/about-us/staff/",
+  "contact_name": "BRADY SPIEHLER",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BIGGERS MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.biggersmazda.com/staff/",
+  "contact_name": "Marco Palacios",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CASTLE MAZDA DOWNERS GROVE",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "GREEN MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.greenmazda.com/dealership/staff.htm",
+  "contact_name": "Justin Liss",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HAWK MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "KC SUMMERS MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "KEY MAZDA",
+  "status": "no_website",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MAZDA OF CRYSTAL LAKE",
+  "status": "fetched",
+  "source_url": "https://www.mazdaofcrystallake.com:443/meet-our-staff/",
+  "contact_name": "wi po polsku",
+  "contact_title": "Sales Team",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MAZDA OF ORLAND PARK",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MCGRATH CITY MAZDA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "NAPLETON MAZDA OF LIBERTYVILLE",
+  "status": "fetched",
+  "source_url": "https://www.napletonmazdalibertyville.com/about-us/staff/",
+  "contact_name": "Napleton Salomone",
+  "contact_title": "Executive Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "NAPLETON MAZDA OF NAPERVILLE",
+  "status": "fetched",
+  "source_url": "https://www.napervillemazda.com/about-us/staff/",
+  "contact_name": "Anthony Storino",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "NAPLETON'S COUNTRYSIDE MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.napletonscountrysidemazda.com/about-us/staff/",
+  "contact_name": "Anthony Civito",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "NAPLETON'S ELMHURST MAZDA",
+  "status": "no_website",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "NAPLETON'S MAZDA OF URBANA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "NAPLETON'S OAK LAWN MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.oaklawnmazda.com/about-us/staff/",
+  "contact_name": "Don Smith",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "NAPLETON'S PALATINE MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.palatinemazda.com/about-us/staff/",
+  "contact_name": "Sevan Sayadian",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "NAPLETON'S SCHAUMBURG MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.schaumburgmazda.com/about-us/staff/",
+  "contact_name": "Jonathan Proano",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "OTTAWA MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SAM LEMAN MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.samlemanmazda.com/about-us/staff/",
+  "contact_name": "Josh Zakery",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SCHERER MAZDA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ART HILL MAZDA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BASNEY MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HUBLER MAZDA OF GREENWOOD",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "KENNEDY MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.kennedymazda.com:443/meet-our-staff/",
+  "contact_name": "and successful.",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "LOU FUSZ MAZDA OF EVANSVILLE",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "O'DANIEL MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "RAY SKILLMAN MAZDA WEST",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "RAY SKILLMAN NORTHEAST MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.rayskillmannortheastmazda.com/staff/",
+  "contact_name": "Cory Reber",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ROYAL SOUTH MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.royalsouthmazda.com:443/meet-our-staff/",
+  "contact_name": "ladder to become",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "TOM ROUSH MAZDA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "DAVIS-MOORE MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.davis-mooremazda.com/staff",
+  "contact_name": "Rick Schmeidler",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "TUMMINIA MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BRUCE WALTERS MAZDA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CHAMPION MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.owensboromazda.com/staff",
+  "contact_name": "Auto Group",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "KERRY MAZDA OF FLORENCE",
+  "status": "fetched",
+  "source_url": "https://www.kerrymazda.com/dealership/staff.htm",
+  "contact_name": "Justin Miley",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "NEIL HUFFMAN MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "OXMOOR MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.oxmoormazda.com/staff/",
+  "contact_name": "Matt Storm",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "PADUCAH MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.paducahmazda.com/staff",
+  "contact_name": "Mitch Hookham",
+  "contact_title": "Sales Consultant",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "PAUL MILLER MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.paulmillermazda.com/about-us/staff/",
+  "contact_name": "Stephen Emert",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "STUART POWELL MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ACADIANA MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.acadianamazda.com/staff",
+  "contact_name": "Stephan Boxie",
+  "contact_title": "Sales Manager",
+  "contact_email": "sboxie@acadianamazda.com"
+ },
+ {
+  "dealer_name": "BARKER MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.barkermazda.com/staff",
+  "contact_name": "Bobby Hayden",
+  "contact_title": "General Sales Manager",
+  "contact_email": "bhayden@terrebonnelincoln.com"
+ },
+ {
+  "dealer_name": "FAMILY MAZDA OF BOSSIER CITY",
+  "status": "fetched",
+  "source_url": "https://www.familymazdabossiercity.com/staff",
+  "contact_name": "David Durr",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "LEE EDWARDS MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.leeedwardsauto.com:443/meet-our-staff/",
+  "contact_name": "meeting with",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "PARETTI MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.parettimazda.com/about-us/staff/",
+  "contact_name": "Troy Lyle",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "PARETTI MAZDA OF COVINGTON",
+  "status": "fetched",
+  "source_url": "https://www.parettimazdaofcovington.com/about-us/staff/",
+  "contact_name": "Brady Hulsey",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "TEAM MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.teammazda.com/staff",
+  "contact_name": "Ricky Tullier",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "WALKER MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.walker-mazda.com/about-us/staff/",
+  "contact_name": "Stephanie Smith",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "495 MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.495mazda.com/staff",
+  "contact_name": "Sean Ghandchi",
+  "contact_title": "General Manager",
+  "contact_email": "Sean@495mazda.com"
+ },
+ {
+  "dealer_name": "ALDEN MAZDA",
+  "status": "no_website",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BALISE MAZDA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BERKSHIRE MAZDA & JIM SALVIE'S SIGNATURE SERIES",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "IRA MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.iramazda.com/about-us/staff/",
+  "contact_name": "Justin Lotter",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "LIBERTY MAZDA WAKEFIELD",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MASTRIA MAZDA",
+  "status": "no_website",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MAZDA CAPE COD",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "NORTH END MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "NORTH SHORE MAZDA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "PATRICK MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "QUIRK MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.quirkmazda.com/about-us/staff/",
+  "contact_name": "Thomas Pugsley",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SENTRY WEST MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.sentrymazda.com/staff",
+  "contact_name": "Rob Acheson",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "TASCA MAZDA SEEKONK",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "WELLESLEY MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "COOK MAZDA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "FITZGERALD MAZDA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "FITZGERALD MAZDA OF ANNAPOLIS",
+  "status": "fetched",
+  "source_url": "https://www.fitzmallmazdaannapolis.com/staff",
+  "contact_name": "Rob Ward",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "GAITHERSBURG MAZDA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HERITAGE MAZDA CATONSVILLE",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HERITAGE MAZDA OF BEL AIR",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HERITAGE MAZDA TOWSON",
+  "status": "no_website",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "KOONS MAZDA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "OURISMAN MAZDA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "OURISMAN MAZDA OF ROCKVILLE",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "PASSPORT MAZDA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "PRESTON MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.prestonmazda.com/staff",
+  "contact_name": "Selbe Hubbard",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "RICH MORTON MAZDA",
+  "status": "no_website",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SHEEHY MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.sheehymazda.com:443/about-us/staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "GOODWIN'S MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MORONG FALMOUTH MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.morongmazda.com/about-us/staff/",
+  "contact_name": "Dave Hellin",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "PAUL BLOUIN MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.paulblouinmazda.com:443/meet-our-staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "THOMPSON MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "VARNEY MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BORGMAN MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.borgmanmazda.com/staff",
+  "contact_name": "John Borgman",
+  "contact_title": "Dealer Principal",
+  "contact_email": "jborgman@borgmanfordmazda.com"
+ },
+ {
+  "dealer_name": "CRIPPEN MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CROWN MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "FOX MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "LAFONTAINE MAZDA OF KALAMAZOO",
+  "status": "fetched",
+  "source_url": "https://www.lafontainemazdakalamazoo.com/staff",
+  "contact_name": "Jeremy Trent",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "LAFONTAINE MAZDA OF LIVONIA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SERRA MAZDA BRIGHTON",
+  "status": "fetched",
+  "source_url": "https://serramazdabrighton.adviserly.com/list",
+  "contact_name": "Paulson Mazda",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SESI MAZDA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SIEMANS MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.siemansmazda.com/about-us/staff/",
+  "contact_name": "Bob Betker",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SUBURBAN MAZDA OF FARMINGTON H",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SUBURBAN MAZDA OF TROY",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "THELEN MAZDA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ALEXANDRIA MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.mazdaofalexandria.com/staff",
+  "contact_name": "Ross Wiegman",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "EICH MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.eichmazda.com/about-us/staff/",
+  "contact_name": "Conda Mazda",
+  "contact_title": "New Car Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "LUTHER BROOKDALE MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MORRIE'S INVER GROVE MAZDA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MORRIES MINNETONKA MAZDA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ROCHESTER MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.rochestermazda.com/staff",
+  "contact_name": "Adrian Hurtado",
+  "contact_title": "Sales Manager",
+  "contact_email": "adrian.hurtado@rochestermazda.com"
+ },
+ {
+  "dealer_name": "WALSER BURNSVILLE MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.walser-mazda.com/about-us/staff/",
+  "contact_name": "David Berwald",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "WALSER POLAR MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.walserpolarmazda.com/about-us/staff/",
+  "contact_name": "Bret Juedes",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BOMMARITO MAZDA OF WEST COUNTY",
+  "status": "fetched",
+  "source_url": "https://www.bommaritomazdawest.com/staff",
+  "contact_name": "Ryan Jackson",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BOMMARITO MAZDA SOUTH",
+  "status": "fetched",
+  "source_url": "https://www.bommaritomazdasouth.com/staff",
+  "contact_name": "Steve Hunter",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BOMMARITO MAZDA ST. PETERS",
+  "status": "fetched",
+  "source_url": "https://www.bommaritomazdastpeters.com/staff",
+  "contact_name": "Gotsch Mazda",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "JP SIDES MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "LOU FUSZ MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "LUTHER MAZDA OF KANSAS CITY",
+  "status": "fetched",
+  "source_url": "https://www.luthermazdaofkansascity.com/about-us/staff/",
+  "contact_name": "Derek Goshien",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "LUTHER MAZDA OF LEE'S SUMMIT",
+  "status": "fetched",
+  "source_url": "https://www.summitmazda.com/about-us-2/staff/",
+  "contact_name": "Derek Goshien",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MAZDA OF COLUMBIA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "NORTHTOWNE MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "RELIABLE MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "J. ALLEN MAZDA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MAZDA OF JACKSON",
+  "status": "fetched",
+  "source_url": "https://www.mazdaofjackson.com:443/meet-our-staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BOB SMITH MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "YOUNG MAZDA MISSOULA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BOB KING MAZDA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BROWN AND WOOD MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.greenvillemazda.com/staff",
+  "contact_name": "Duke General",
+  "contact_title": "Sales Manager",
+  "contact_email": "michaelduke@brownandwoodauto.com"
+ },
+ {
+  "dealer_name": "CAPITAL MAZDA OF CARY",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "FIELDS MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "FLOW MAZDA OF FAYETTEVILLE",
+  "status": "fetched",
+  "source_url": "https://www.flowmazdafayetteville.com/staff",
+  "contact_name": "Stephen Sergent",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "FLOW MAZDA OF GREENSBORO",
+  "status": "fetched",
+  "source_url": "https://www.flowmazdagreensboro.com/staff",
+  "contact_name": "Tanner Sterba",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "INDEPENDENCE MAZDA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "KEFFER MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.keffermazda.com/about-us/staff/",
+  "contact_name": "Ronnie Franklin",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MAZDA OF GASTONIA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MAZDA OF NEW BERN",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MAZDA OF SOUTH CHARLOTTE",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MEDLIN MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.medlinmazda.com/about-us/staff/",
+  "contact_name": "Chet Lyndon",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MODERN MAZDA OF BURLINGTON",
+  "status": "fetched",
+  "source_url": "https://www.modernmazdaofburlington.com/about-us/staff/",
+  "contact_name": "Kenneth Kernodle",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SOUTHERN STATES MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SPORT DURST MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SPORT DURST MAZDA OF GOLDSBORO",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "STEVENSON-HENDRICK MAZDA WILMI",
+  "status": "fetched",
+  "source_url": "https://www.stevensonhendrickmazda.com/about-us/staff/",
+  "contact_name": "Tracy Whitmire",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MAZDA OF FARGO",
+  "status": "fetched",
+  "source_url": "https://www.mazdaoffargo.com/staff",
+  "contact_name": "Wess Philome",
+  "contact_title": "General Sales Manager",
+  "contact_email": "wessp@kiaoffargo.com"
+ },
+ {
+  "dealer_name": "ANDERSON MAZDA OF LINCOLN",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SID DILLON MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.siddillonmazda.com/about-us/staff/",
+  "contact_name": "Rich Eyler",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "WOODHOUSE MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.woodhousemazda.com/about-us/staff/",
+  "contact_name": "Joe Sheridan",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "WOODHOUSE PLACE MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.woodhouseplacemazda.com/about-us/staff/",
+  "contact_name": "Brandon Roberts",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "AUTEX MAZDA OF KEENE",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "GRAPPONE MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.grapponemazda.com/about-us/staff/",
+  "contact_name": "Courtney Chagnon",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MCGEE MAZDA CLAREMONT",
+  "status": "fetched",
+  "source_url": "https://www.mazdaclaremont.com/dealership/staff.htm",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SEACOAST MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.seacoastmazda.com/staff",
+  "contact_name": "John Dunkle",
+  "contact_title": "General Sales Manager",
+  "contact_email": "John@seacoastmazda.com"
+ },
+ {
+  "dealer_name": "TULLEY MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.tulleymazda.com/about-us/staff/",
+  "contact_name": "Brasil Mazda",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "WERNER MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CHAPMAN MAZDA SALES",
+  "status": "fetched",
+  "source_url": "https://www.chapmanmazdanj.com/about-us/staff/",
+  "contact_name": "Donald Hood",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "EMPIRE MAZDA OF GREEN BROOK",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HAMILTON MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.hamiltonmazda.net:443/meet-our-staff/",
+  "contact_name": "David J. Brodtman",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "IRWIN MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.irwinmazda.com/staff",
+  "contact_name": "Jay Irwin",
+  "contact_title": "Sales Manager",
+  "contact_email": "jayi@irwincars.com"
+ },
+ {
+  "dealer_name": "LESTER GLENN MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MAPLE SHADE MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MAZDA OF LODI",
+  "status": "fetched",
+  "source_url": "https://www.mazdaoflodi.com/staff",
+  "contact_name": "Ana Wood",
+  "contact_title": "General Sales Manager",
+  "contact_email": "ana@mazdaoflodi.com"
+ },
+ {
+  "dealer_name": "OPEN ROAD MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.openroadmazdaofeastbrunswick.com/staff",
+  "contact_name": "Mark Rodrigo",
+  "contact_title": "Sales Consultant",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "OPEN ROAD MAZDA OF MORRISTOWN",
+  "status": "fetched",
+  "source_url": "https://www.openroadmazdaofmorristown.com/staff",
+  "contact_name": "Vladimir Nastelon",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "PERFORMANCE MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "PINE BELT MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.pinebeltmazda.com/about-us/staff/",
+  "contact_name": "Matt Clifton",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "RAMSEY MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SANSONE MAZDA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SCHWARTZ MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.schwartzmazda.com:443/meet-our-staff/",
+  "contact_name": "Yankees Fan",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "TURNERSVILLE MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "WAYNE MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CASA MAZDA OF LAS CRUCES",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "QUALITY MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.qualitymazdanm.com/about-us/staff/",
+  "contact_name": "White Mazda",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SANTA FE MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.santafemazda.com/about-us/staff/",
+  "contact_name": "Jose MIranda",
+  "contact_title": "Sales Representative",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "UNIVERSITY MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.mazdamarket.com/",
+  "contact_name": "directly to our",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CARDINALEWAY MAZDA LAS VEGAS",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "FINDLAY MAZDA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "JERRY SEINER MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "TOM DOLAN'S RENO MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BAY RIDGE MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.bayridgemazda.com/about-us/staff/",
+  "contact_name": "Dave Dann",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BOB JOHNSON MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.bobjohnsonmazda.com/staff",
+  "contact_name": "Jay Haas",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BRIGHT BAY MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.brightbaymazda.com/staff",
+  "contact_name": "Christian Galindo",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BURDICK MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.burdickmazda.com/dealership/staff.htm",
+  "contact_name": "MATT DAWSON",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "COOLEY MOTORS",
+  "status": "fetched",
+  "source_url": "https://www.cooleymazda.com/about-us/staff/",
+  "contact_name": "Mike Brosch",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "DELLA MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.dellamazda.com/staff",
+  "contact_name": "John Koerber",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "DEPAULA MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.depaulamazda.com/about-us/meet-our-staff/",
+  "contact_name": "Newell Executive",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "EMPIRE MAZDA OF HUNTINGTON",
+  "status": "fetched",
+  "source_url": "https://www.shopempiremazda.com/staff/",
+  "contact_name": "Mike F.",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "GARDEN CITY MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.gcmazda.com/about-us/staff/",
+  "contact_name": "Jack D.",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ISLAND MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "KOEPPEL MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MAZDA 112",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MAZDA OF NEW ROCHELLE",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MAZDA OF VALLEY STREAM",
+  "status": "fetched",
+  "source_url": "https://www.mazdaofvalleystream.com/dealership/staff.htm",
+  "contact_name": "Kevin Persaud",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MAZDA OF WEST RIDGE",
+  "status": "fetched",
+  "source_url": "https://www.mazdaofwestridge.com/about-us/staff/",
+  "contact_name": "Jesse Cicione",
+  "contact_title": "General Manager",
+  "contact_email": "jcicione@mazdaofwestridge.com"
+ },
+ {
+  "dealer_name": "MAZDA WHITE PLAINS",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MIDDLETOWN MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.middletownmazda.com/staff",
+  "contact_name": "Mike Gallagher",
+  "contact_title": "General Sales Manager",
+  "contact_email": "Mgallagher@middletownmazdavw.com"
+ },
+ {
+  "dealer_name": "NORTHTOWN MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "PALISADES MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "RIVERHEAD MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.riverheadmazda.com/dealership/staff.htm",
+  "contact_name": "Sonya Lucki",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ROMANO MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.romanomazda.com/staff",
+  "contact_name": "Ben Michalowski",
+  "contact_title": "Sales Consultant",
+  "contact_email": "benjamin@romanocars.com"
+ },
+ {
+  "dealer_name": "ROUTE 9 MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.route9mazda.com/staff",
+  "contact_name": "Anthony Bifolco",
+  "contact_title": "Sales Manager",
+  "contact_email": "ABifolco@route9mazda.com"
+ },
+ {
+  "dealer_name": "SMITH HAVEN MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "STEET PONTE MAZDA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "TASCA MAZDA YONKERS",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "TOWNE MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.townemazda.com/about-us/staff/",
+  "contact_name": "Tyler Piscitello",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "WANTAGH MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.wantaghmazda.com:443/testimonials/",
+  "contact_name": "and features.",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "WEST HERR MAZDA OF CANANDAIGUA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BASS MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.bassmazda.com/about-us/staff/",
+  "contact_name": "Andrew Hall",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BILL MARINE MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.billmarinemazda.com/staff.aspx",
+  "contact_name": "Pascal Chevrette",
+  "contact_title": "General Manager",
+  "contact_email": "pascalchevrette@billmarine.com"
+ },
+ {
+  "dealer_name": "BRUNSWICK MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BYERS MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CASCADE MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.cascademazda.com/staff",
+  "contact_name": "Dave Flanagan",
+  "contact_title": "General Sales Manager",
+  "contact_email": "daveflanagan@cascadeautogroup.com"
+ },
+ {
+  "dealer_name": "CLASSIC MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.driveclassicmazda.com/about-us/staff/",
+  "contact_name": "Mike Snyder",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CLASSIC MAZDA WESTSIDE",
+  "status": "fetched",
+  "source_url": "https://www.classicmazdawestside.com/about-us/staff/",
+  "contact_name": "Tony Skrtic",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "DOVER MAZDA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "GERMAIN MAZDA OF COLUMBUS",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "GERMAIN MAZDA WEST",
+  "status": "fetched",
+  "source_url": "https://www.germainmazdawest.com/about-us/staff/",
+  "contact_name": "Ashley Buzzelli",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "GREAT LAKES MAZDA OF CANTON",
+  "status": "no_website",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "JAKE SWEENEY MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "JAKE SWEENEY MAZDA WEST",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "JEFF SCHMITT MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "JEFF WYLER MAZDA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "KEN GANLEY MAZDA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "KINGS MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MAZDA DIRECT",
+  "status": "fetched",
+  "source_url": "https://www.mazdadirect.com/meet-our-staff/",
+  "contact_name": "Drives Us",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MAZDA OF BEDFORD",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MAZDA OF DAYTON",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MAZDA OF WOOSTER",
+  "status": "fetched",
+  "source_url": "https://www.mazdaofwooster.com/staff",
+  "contact_name": "MAZDA CERTIFIED",
+  "contact_title": "Sales Consultant",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "PRESTON MAZDA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SERRA MAZDA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "YARK MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BOB MOORE MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.bobmooremazda.com/staff/",
+  "contact_name": "David Turley",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "NELSON MAZDA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "NELSON MAZDA NORMAN",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SOUTHWEST MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.swmazda.com/staff",
+  "contact_name": "Justin Rogers",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BERNIE BISHOP MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HERZOG/MEIER MAZDA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "KENDALL MAZDA OF BEND",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "KIEFER MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.kiefermazda.com/about-us/staff/",
+  "contact_name": "Chris Walker",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MAZDA OF GLADSTONE",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MAZDA OF SALEM",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MCMINNVILLE MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ROYAL MOORE MAZDA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SUNWEST MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.sunwestmazda.com:443/meet-our-staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "TONKIN MAZDA OF PORTLAND",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "#1 COCHRAN MAZDA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "#1 COCHRAN MAZDA WEXFORD",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "AUTO EXPRESS MAZDA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BAGLIER MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.bagliermazda.com/staff",
+  "contact_name": "Chuck Nasiadka",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BERGEY'S MAZDA OF WILKES-BARRE",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BLAISE ALEXANDER MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BUDD BAER MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.buddbaermazda.com/dealership/staff.htm",
+  "contact_name": "Gregg Cron",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "COLONIAL MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.shopcolonialmazda.com/about-us/staff/",
+  "contact_name": "Mike Black",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "FAULKNER MAZDA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "FAULKNER MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.faulknermazdaharrisburg.com/staff",
+  "contact_name": "John Norris",
+  "contact_title": "General Manager",
+  "contact_email": "jnorris@faulknermazda.com"
+ },
+ {
+  "dealer_name": "FRED BEANS MAZDA OF ABINGTON",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "FRED BEANS MAZDA OF MECHANICSB",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HANOVER MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.hanovermazda.com/staff",
+  "contact_name": "Russell Baugher",
+  "contact_title": "General Manager",
+  "contact_email": "rbaugher@hanovermazda.com"
+ },
+ {
+  "dealer_name": "HAZLETON MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "JACK GIAMBALVO MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "JOHN KENNEDY MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.mazdaofconshohocken.com/staff",
+  "contact_name": "Pearil Mazda",
+  "contact_title": "General Sales Manager",
+  "contact_email": "ConshyMazdaSales@kennedyauto.com"
+ },
+ {
+  "dealer_name": "JOHN KENNEDY MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.mazdaofpottstown.com/staff",
+  "contact_name": "Jensen Mazda",
+  "contact_title": "General Sales Manager",
+  "contact_email": "PotMazdaSales@kennedyauto.com"
+ },
+ {
+  "dealer_name": "KELLY MAZDA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "KENNY ROSS MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.kennyrossmazda.com/about-us/staff/",
+  "contact_name": "Joseph Woleslagle",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "KOCH 33 MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.koch33mazda.com/staff",
+  "contact_name": "Ted Cowell",
+  "contact_title": "General Sales Manager",
+  "contact_email": "tedc@koch33vwmazda.com"
+ },
+ {
+  "dealer_name": "LANCASTER MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.lancastermazda.com/about-us/staff/",
+  "contact_name": "Price Corporate",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MOON TOWNSHIP MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MOYER MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MURRAY MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "NORTH PENN MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.northpennmazda.com/about-us/staff/",
+  "contact_name": "Tony Hamilton",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "PACIFICO MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "PERUZZI MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.peruzzimazda.com/staff",
+  "contact_name": "Tom Kay",
+  "contact_title": "General Sales Manager",
+  "contact_email": "tkay@peruzzi.com"
+ },
+ {
+  "dealer_name": "PIAZZA MAZDA OF READING",
+  "status": "fetched",
+  "source_url": "https://www.piazzamazdaofreading.com/dealership/staff.htm",
+  "contact_name": "Castro Assistant",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "PIAZZA MAZDA OF WEST CHESTER",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "RAY PRICE MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ROHRICH MAZDA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SCOTT MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.scottmazda.com/staff",
+  "contact_name": "Kyle Neith",
+  "contact_title": "General Sales Manager",
+  "contact_email": "kneith@scottcars.com"
+ },
+ {
+  "dealer_name": "SMAIL MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.smailmazda.com/about-us/staff/",
+  "contact_name": "Troy Smith",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "W&L MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "FLOOD MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.floodmazda.com/staff",
+  "contact_name": "Russell Cunha",
+  "contact_title": "General Manager",
+  "contact_email": "rcunha@floodauto.com"
+ },
+ {
+  "dealer_name": "TASCA MAZDA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BEACH MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.beachmazda.com/staff",
+  "contact_name": "STEPHEN PRINGLE",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MAZDA OF COLUMBIA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MAZDA OF GREENVILLE",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MAZDA OF SPARTANBURG",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MCKINNEY MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "STOKES MAZDA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BILLION MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.billionauto.com/staff",
+  "contact_name": "Frank Juliano",
+  "contact_title": "Sales Manager",
+  "contact_email": "frank.juliano@billionauto.com"
+ },
+ {
+  "dealer_name": "LIBERTY MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "GRAY EPPERSON MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.grayeppersonmazda.com/about-us/staff/",
+  "contact_name": "Billy West",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "INTEGRITY MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "JOHNSON CITY MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.johnsoncitymazda.com/staff",
+  "contact_name": "Allen Collier",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MAZDA OF KNOXVILLE",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "NELSON MAZDA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "NELSON MAZDA COOL SPRINGS",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "NORCROSS MAZDA OF MEMPHIS",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "WYATT JOHNSON MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.wyattjohnsonmazda.com/staff",
+  "contact_name": "Chris Collins",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BENSON'S AUTO GROUP MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.bensonsmazda.com/about-us/staff/",
+  "contact_name": "JEFF CUMMING",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BERT OGDEN MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.bertogdenedinburgmazda.com/about-us/staff/",
+  "contact_name": "Robert Gamez",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BERT OGDEN MISSION MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.bertogdenmissionmazda.com/about-us/staff/",
+  "contact_name": "Gilbert Aguilar",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CARDENAS MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.cardenasmazda.com:443/meet-our-staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CLASSIC MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CLAY COOLEY MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.cooleymazda.com/about-us/staff/",
+  "contact_name": "Mike Brosch",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "DEMONTROND MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.demontrondmazda.com:443/",
+  "contact_name": "pleasant experience.",
+  "contact_title": "Sales Associate",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "DOUGLASS MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.douglassmazdawaco.com/staff",
+  "contact_name": "Jeff Borkov",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "EL DORADO MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.eldoradomazda.com/about-us/staff/",
+  "contact_name": "Justin Griffin",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "GARLYN SHELTON MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.garlynsheltontemple.com/staff",
+  "contact_name": "Brian Duble",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "GORMAN MCCRACKEN MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.gormanmccrackenmazda.com/staff",
+  "contact_name": "DyShan Dunn",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "GREENWAY MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "GROUP 1 MAZDA DENTON",
+  "status": "fetched",
+  "source_url": "https://www.group1mazdadenton.com/about-us/staff/",
+  "contact_name": "Amos Bowen",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "GRUBBS MAZDA OF WICHITA FALLS",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "GULLO MAZDA OF CONROE",
+  "status": "fetched",
+  "source_url": "https://www.gullomazda.com/about-us/staff/",
+  "contact_name": "Corky Gullo",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HILEY MAZDA OF ARLINGTON",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HILEY MAZDA OF BURLESON",
+  "status": "fetched",
+  "source_url": "https://www.hileymazdaofburleson.com:443/meet-our-staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HILEY MAZDA OF FORT WORTH",
+  "status": "fetched",
+  "source_url": "https://www.hileymazdafortworth.com/about-us/staff/",
+  "contact_name": "Kip Gillmore",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HILEY MAZDA OF HURST",
+  "status": "fetched",
+  "source_url": "https://www.hileymazdahurst.com/about-us/staff/",
+  "contact_name": "JON OELTJEN",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "JEFF HAAS MAZDA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "JIM BASS MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "JOE MYERS MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.joemyersmazda.com/dealership/staff.htm",
+  "contact_name": "Sean Samuel",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "LAWRENCE HALL MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MAZDA OF AMARILLO",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MAZDA OF CORPUS CHRISTI",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MAZDA OF MIDLAND",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MAZDA SOUTH",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MEARS MAZDA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "METRO MAZDA MESQUITE",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "NORTH PARK MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "PARKWAY FAMILY MAZDA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "PURDY MAZDA OF BRYAN COLLEGE S",
+  "status": "fetched",
+  "source_url": "https://www.purdymazda.com/staff",
+  "contact_name": "Travis Greer",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ROGER BEASLEY MAZDA CENTRAL",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ROGER BEASLEY MAZDA GEORGETOWN",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ROGER BEASLEY MAZDA LEANDER",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "RUDOLPH MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.rudolphmazda.com/about-us/staff/",
+  "contact_name": "Juan Garcia",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "RUSSELL & SMITH MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.russellsmithmazda.com/staff",
+  "contact_name": "Chad Frank",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SAMES MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SKY MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "TEAM GILLMAN MAZDA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "TOWN NORTH MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "VELOCITY MAZDA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "VIVA MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.vivamazda.com/about-us/staff/",
+  "contact_name": "Ernesto Escobar",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "WORLD CAR MAZDA - NEW BRAUNFELS",
+  "status": "fetched",
+  "source_url": "https://www.worldcarmazdaonline.com:443/meet-our-staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "WORLD CAR MAZDA - SAN ANTONIO",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "WORLD CAR MAZDA NORTH",
+  "status": "fetched",
+  "source_url": "https://www.worldcarmazdanorth.com:443/meet-our-staff/",
+  "contact_name": "from the",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BOUNTIFUL MAZDA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "OREM MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.oremmazda.com/about-us/staff/",
+  "contact_name": "Victor Estrada",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "STEPHEN WADE MAZDA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "TIM DAHLE MAZDA MURRAY",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "TIM DAHLE MAZDA SOUTHTOWNE",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "YOUNG MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.youngmazdautah.com:443/meet-our-staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BERGLUND MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CAVALIER MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.cavaliermazda.com/staff",
+  "contact_name": "Haeusser Internet",
+  "contact_title": "Sales Director",
+  "contact_email": "lhaeusser@cavalierautogroup.com"
+ },
+ {
+  "dealer_name": "DOGWOOD MAZDA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "DUNCAN MAZDA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "FLOW MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.flowmazdacharlottesville.com/staff",
+  "contact_name": "Timothy Koval",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HALL MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "LUCKI MAZDA OF WOODBRIDGE",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "LYNCHBURG MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "NELSON MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.mazdasbynelson.com:443/meet-our-staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "PEARSON MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SAFFORD MAZDA ALEXANDRIA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SAFFORD MAZDA CHANTILLY",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SAFFORD MAZDA FAIRFAX",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SAFFORD MAZDA OF FREDERICKSBUR",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SAFFORD MAZDA STERLING",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SOUTHERN MAZDA NEWPORT NEWS",
+  "status": "fetched",
+  "source_url": "https://www.southernmazdanewportnews.com/about-us/staff/",
+  "contact_name": "Byron Reese",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "WHITTEN BROS. MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.whittenmazda.com:443/meet-our-staff/",
+  "contact_name": "now the",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MONTPELIER MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.montpeliermazda.com/staff",
+  "contact_name": "Stephanie Schartner",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SOUTH BURLINGTON MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.southburlingtonmazda.com/staff",
+  "contact_name": "CHRIS OLSEN",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ALAN WEBB MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.alanwebbmazda.com/staff",
+  "contact_name": "Ammar Njoum",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "DOUG'S LYNNWOOD MAZDA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "DWAYNE LANE'S SKAGIT MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.dwaynelaneskagitmazda.com:443/meet-our-staff/",
+  "contact_name": "with the",
+  "contact_title": "Sales Consultant",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "KNUDTSEN FOOTHILLS MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.knudtsenfoothillsmazda.com:443/meet-our-staff/",
+  "contact_name": "assisted by",
+  "contact_title": "Sales Associate",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "LEE JOHNSON MAZDA OF KIRKLAND",
+  "status": "fetched",
+  "source_url": "https://www.leejohnsonmazda.com:443/meet-our-staff/",
+  "contact_name": "appreciate the",
+  "contact_title": "Sales Team",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MAZDA OF EVERETT",
+  "status": "fetched",
+  "source_url": "https://www.mazdaofeverett.com:443/meet-our-staff/",
+  "contact_name": "Sheldon Mease",
+  "contact_title": "Sales Professional",
+  "contact_email": "skmease@yahoo.com"
+ },
+ {
+  "dealer_name": "MAZDA OF SEATTLE",
+  "status": "fetched",
+  "source_url": "https://www.mazdaofseattle.com:443/meet-our-staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MCCURLEY INTEGRITY MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "OLYMPIA MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "PUYALLUP MAZDA",
+  "status": "no_website",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SOUTH TACOMA MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.southtacomamazda.com:443/",
+  "contact_name": "the excellent",
+  "contact_title": "Sales Team",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "WALKER'S RENTON MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.rentonmazda.com:443/meet-our-staff/",
+  "contact_name": "and Vietnamese",
+  "contact_title": "Sales Associate",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "WEST HILLS MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BERGSTROM MAZDA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BERGSTROM MAZDA - GREEN BAY",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CHIPPEWA VALLEY MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.chippewavalleymazda.com/about-us/staff/",
+  "contact_name": "Clay Murray",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "DAHL MAZDA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "FRANK BOUCHER MAZDA RACINE",
+  "status": "fetched",
+  "source_url": "https://www.bouchermazda.com/about-us/staff/",
+  "contact_name": "Hani Harb",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "GORDIE BOUCHER MAZDA",
+  "status": "no_website",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HALL MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.hallmazdamilwaukee.com/about-us/staff/",
+  "contact_name": "Jerry Schienebeck",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HOLIDAY MAZDA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MENKE MAZDA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "RUSS DARROW GREENFIELD MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.russdarrowgreenfieldmazda.com/about-us2/meet-our-staff/",
+  "contact_name": "Nick Saidai",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "RUSS DARROW MAZDA OF MADISON",
+  "status": "fetched",
+  "source_url": "https://www.russdarrowmadisonmazda.com/about-us2/meet-our-staff/",
+  "contact_name": "Dylan Marshall",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "RUSS DARROW METRO MAZDA",
+  "status": "fetched",
+  "source_url": "https://www.russdarrowmazdaofmilwaukee.com/about-us2/meet-our-staff/",
+  "contact_name": "Winklepleck Corporate",
+  "contact_title": "Director Of Sales",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ASTORG MAZDA OF PARKERSBURG",
+  "status": "fetched",
+  "source_url": "https://www.astorgmazda.com/about-us/staff/",
+  "contact_name": "Eddie Price",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BRIDGEPORT MAZDA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "LESTER RAINES MAZDA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ }
+]
