@@ -35,6 +35,8 @@ import {
 } from "./genesisSticker";
 import type { CurrentDealerLookup } from "./listingSheet";
 import type { Vehicle } from "./types";
+import { featureEnabled } from "./featureFlags";
+import { bump } from "./opsMetrics";
 
 export { isHyundaiVin, looksLikeHyundaiPaste };
 export type HyundaiSticker = GenesisSticker;
@@ -164,7 +166,29 @@ function readPdfCache(vin: string): Uint8Array | null {
   try { const buf = fs.readFileSync(cachePdfPath(vin)); if (buf.length > 2000 && looksLikePdf(buf)) return new Uint8Array(buf); } catch { /* miss */ }
   return null;
 }
-export function clearHyundaiStickerMemoryCache(): void { MEMORY_CACHE.clear(); }
+export function clearHyundaiStickerMemoryCache(): void { MEMORY_CACHE.clear(); breakers.clear(); }
+
+// ---------------------------------------------------------------------------
+// Circuit breaker per sticker host: a 403/429 (bot wall, rate limit) opens
+// the circuit for a while so a traffic spike never turns into a hammering
+// of the host — VINs come back as "pending" without a fetch until it
+// half-opens. Per instance, like everything else here.
+// ---------------------------------------------------------------------------
+const BREAKER_OPEN_MS = 10 * 60 * 1000;
+const breakers = new Map<string, { openedAt: number; status: number }>();
+function hostOf(url: string): string { try { return new URL(url).host; } catch { return url; } }
+export function breakerOpen(url: string, now = Date.now()): boolean {
+  const b = breakers.get(hostOf(url));
+  if (!b) return false;
+  if (now - b.openedAt >= BREAKER_OPEN_MS) { breakers.delete(hostOf(url)); return false; }
+  return true;
+}
+function noteResponse(url: string, status: number, now = Date.now()): void {
+  if (status === 403 || status === 429) { breakers.set(hostOf(url), { openedAt: now, status }); bump("sticker_breaker_open"); }
+}
+export function stickerBreakerSnapshot(now = Date.now()): Array<{ host: string; status: number; openForSec: number }> {
+  return [...breakers.entries()].filter(([, b]) => now - b.openedAt < BREAKER_OPEN_MS).map(([host, b]) => ({ host, status: b.status, openForSec: Math.round((BREAKER_OPEN_MS - (now - b.openedAt)) / 1000) }));
+}
 
 function pendingSticker(vin: string, note: string): HyundaiSticker {
   return { vin, status: "unreleased", make: "Hyundai", msrp: null, basePrice: null, optionsPrice: null, destination: null, options: [], standardEquipment: [], rawText: "", pdfUrl: hyundaiDealerFireUrl(vin), fetchedAt: new Date().toISOString(), note };
@@ -182,8 +206,16 @@ export async function getHyundaiSticker(
   const cleanVin = vin.trim().toUpperCase();
   if (cleanVin.length !== 17) throw new Error("VIN must be exactly 17 characters");
   const cached = MEMORY_CACHE.get(cleanVin) || readDiskCache(cleanVin);
-  if (cached && cached.vin === cleanVin) return cached;
-  const get = deps.fetchImpl || fetchBytes;
+  if (cached && cached.vin === cleanVin) { bump("sticker_cache_hit"); return cached; }
+  // Network only when the switch is on and the host isn't walled right now.
+  const canFetch = (url: string) => featureEnabled("stickerFetch") && !breakerOpen(url);
+  const raw = deps.fetchImpl || fetchBytes;
+  const get: typeof fetchBytes = async (url, referer) => {
+    bump("sticker_fetch");
+    const r = await raw(url, referer);
+    noteResponse(url, r.status);
+    return r;
+  };
 
   const cachedPdf = readPdfCache(cleanVin);
   if (cachedPdf) {
@@ -192,7 +224,7 @@ export async function getHyundaiSticker(
   }
 
   // 1. DealerFire
-  const df = await get(hyundaiDealerFireUrl(cleanVin), "https://www.hyundaiusa.com/").catch(() => null);
+  const df = canFetch(hyundaiDealerFireUrl(cleanVin)) ? await get(hyundaiDealerFireUrl(cleanVin), "https://www.hyundaiusa.com/").catch(() => null) : null;
   const decoded = df ? decodeDealerFireBody(df.bytes) : { kind: "unknown" as const };
   if (decoded.kind === "pdf" && decoded.pdf) {
     const s = parseHyundaiStickerText(cleanVin, await extractPdfText(decoded.pdf));
@@ -200,19 +232,20 @@ export async function getHyundaiSticker(
   }
 
   // 2. Hyundai's own endpoint (usually walled)
-  const oem = await get(hyundaiOemStickerUrl(cleanVin), "https://www.hyundaiusa.com/").catch(() => null);
+  const oem = canFetch(hyundaiOemStickerUrl(cleanVin)) ? await get(hyundaiOemStickerUrl(cleanVin), "https://www.hyundaiusa.com/").catch(() => null) : null;
   if (oem && oem.status === 200 && looksLikePdf(oem.bytes)) {
     const s = parseHyundaiStickerText(cleanVin, await extractPdfText(oem.bytes), hyundaiOemStickerUrl(cleanVin));
     if (s.status === "released") { writePdfCache(cleanVin, oem.bytes); MEMORY_CACHE.set(cleanVin, s); writeDiskCache(s); return { ...s, source: "hyundai_oem" }; }
   }
 
   // 3. Shared Alabama WMI: it may be a Genesis.
-  if (isGenesisVin(cleanVin)) {
+  if (isGenesisVin(cleanVin) && featureEnabled("stickerFetch")) {
     const g = await (deps.genesis || getGenesisSticker)(cleanVin).catch(() => null);
     if (g && g.status === "released" && g.vin === cleanVin) { MEMORY_CACHE.set(cleanVin, g); return { ...g, source: "genesis" }; }
   }
 
-  return pendingSticker(cleanVin, decoded.kind === "not_found" ? HYUNDAI_STICKER_PENDING_COPY : `Factory window sticker not available right now (${decoded.kind}).`);
+  bump("sticker_pending");
+  return pendingSticker(cleanVin, decoded.kind === "not_found" || !featureEnabled("stickerFetch") || !df ? HYUNDAI_STICKER_PENDING_COPY : `Factory window sticker not available right now (${decoded.kind}).`);
 }
 
 export function hyundaiStickerToVehicle(sticker: HyundaiSticker, listingUrl?: string | null, listingPrice?: number | null, currentDealer?: CurrentDealerLookup | null): Vehicle {

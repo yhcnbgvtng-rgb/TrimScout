@@ -1,9 +1,10 @@
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
 import { auth } from "@/auth";
 import { getRfq, RfqApiError } from "@/lib/rfqApi";
 import { publicRfqForBuyer } from "@/lib/rfq";
 import { analyzeLeaseQuotes } from "@/lib/leaseCompare";
 import { recheckPendingStickers } from "@/lib/stickerRecheck";
+import { drainQueuedInvites, queuedInvitesOf } from "@/lib/inviteOutbox";
 
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
@@ -24,6 +25,10 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
     const pub = publicRfqForBuyer(rfq);
     // Pending factory stickers (Hyundai lists weeks before the label exists) are asked again on every open.
     const stickerRecheck = await recheckPendingStickers(rfq).catch(() => ({}));
+    // Anything still queued (a killed send, a provider blip, the switch having
+    // been off) goes out after this response — the buyer opening the deal is
+    // the retry, no cron required.
+    if (queuedInvitesOf(rfq).length) after(() => drainQueuedInvites([rfq]).catch(() => null));
     return NextResponse.json({ rfq: pub, leaseCompare: analyzeLeaseQuotes(pub), stickerRecheck });
   } catch (err) {
     const message = err instanceof RfqApiError ? err.message : "Could not load this request.";

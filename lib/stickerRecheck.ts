@@ -10,6 +10,7 @@
  * alongside it, and the MSRP / PDF link show up wherever the car does.
  */
 import { getHyundaiSticker, isHyundaiVin } from "./hyundaiSticker";
+import { featureEnabled } from "./featureFlags";
 import { rfqVehicles } from "./rfqTracker";
 import type { RfqRequest } from "./rfq";
 
@@ -38,6 +39,7 @@ export async function recheckPendingStickers(
   const get = deps.getSticker || getHyundaiSticker;
   const now = deps.now || Date.now;
   const out: Record<string, StickerRecheckHit> = {};
+  if (!featureEnabled("stickerFetch")) return out; // switch off → cache-only elsewhere, nothing re-asked here
   for (const v of rfqVehicles(rfq)) {
     if (!isStickerRecheckCandidate(v)) continue;
     const missedAt = lastMiss.get(v.vin);

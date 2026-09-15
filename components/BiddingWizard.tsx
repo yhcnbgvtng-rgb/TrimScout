@@ -939,6 +939,10 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   const [dealReference] = useState<string>(() => newDealReference());
   const [isSubmittingReal, setIsSubmittingReal] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  // The degrade banner hook: which conversion switches are on right now.
+  // Polled once per open; a paused send path disables Send with an honest
+  // line instead of a 503 surprise.
+  const [featureStatus, setFeatureStatus] = useState<{ rfqSend: boolean; outboundDealerEmail: boolean; banner: string | null }>({ rfqSend: true, outboundDealerEmail: true, banner: null });
 
   // Step 5: optional free-text note to the dealer. Real-time-checked for
   // contact info (email/phone/link/handle) — the masked-identity system
@@ -967,6 +971,13 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   // A restore (e.g. the auth round-trip draft) sets this so the open that
   // follows it keeps the restored state instead of wiping it.
   const keepStateOnNextOpenRef = React.useRef(false);
+  useEffect(() => {
+    if (!isOpen) return;
+    fetch("/api/status/features")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((j) => { if (j && typeof j.rfqSend === "boolean") setFeatureStatus(j); })
+      .catch(() => {});
+  }, [isOpen]);
   useEffect(() => {
     if (!isOpen) return;
     if (keepStateOnNextOpenRef.current) {
@@ -1876,7 +1887,8 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
       });
       const json = await res.json().catch(() => ({}));
       if (!res.ok || !json.rfq?.id) {
-        setSubmitError(json.error || "Could not create your quote request.");
+        const wait = res.headers.get("Retry-After");
+        setSubmitError(json.error ? `${json.error}${wait && (res.status === 429 || res.status === 503) ? ` (try again in ~${wait}s)` : ""}` : "Could not create your quote request.");
         return;
       }
       const rfqId = String(json.rfq.id);
@@ -2766,6 +2778,9 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
           {/* ========================================================================= */}
           {step === 4 && (
             <div className="space-y-4">
+              {featureStatus.banner ? (
+                <p className="rounded-xl border border-amber-500/40 bg-amber-950/20 px-3.5 py-2.5 text-xs text-amber-100" data-testid="degrade-banner">{featureStatus.banner}</p>
+              ) : null}
               <div>
                 <h3 className="text-sm font-bold text-white uppercase tracking-wider text-emerald-400">
                   Review & Privacy Shield
@@ -3110,7 +3125,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
             ) : (
               <button
                 onClick={handleLaunchDeal}
-                disabled={isSubmittingReal || !!dealCommentContactWarning}
+                disabled={isSubmittingReal || !!dealCommentContactWarning || !featureStatus.rfqSend}
                 className="flex items-center gap-2 rounded-lg bg-emerald-500 px-6 py-2.5 text-xs font-extrabold text-black hover:bg-emerald-400 transition-all shadow-lg shadow-emerald-500/20 active:scale-95 disabled:opacity-60"
               >
                 {isSubmittingReal ? (

@@ -16,7 +16,7 @@ describe("dealer-facing reference — never the buyer's number, different on eve
   });
   it("wiring: the dealer email, counter email and dealer page carry the dealer reference; the buyer's TS- number never reaches a dealer", () => {
     const read = (f: string) => fs.readFileSync(path.join(process.cwd(), f), "utf8");
-    for (const f of ["app/api/rfqs/[id]/invites/route.ts", "app/api/rfqs/[id]/invites/[inviteId]/counter/route.ts", "app/api/quote-invite/context/route.ts"]) {
+    for (const f of ["lib/inviteOutbox.ts", "app/api/rfqs/[id]/invites/[inviteId]/counter/route.ts", "app/api/quote-invite/context/route.ts"]) {
       const src = read(f);
       assert.match(src, /dealerReference\(/, f);
       assert.doesNotMatch(src, /dealReference: rfq\.dealReference/, `${f} must not hand the buyer's number to the dealer`);

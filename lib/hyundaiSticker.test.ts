@@ -87,9 +87,11 @@ describe("Hyundai factory sticker — fetch order and pending state", () => {
     assert.equal(s.status, "unreleased");
     assert.equal(s.note, HYUNDAI_STICKER_PENDING_COPY);
     assert.deepEqual(calls.map((u) => new URL(u).host), ["hyundai-sticker.dealerfire.com", "prevapp.hyundaiusa.com"], "strict order: DealerFire, then Hyundai's own endpoint; Genesis not asked for a KM8 VIN");
-    // A second call asks again — misses are the retry, never a cached "no".
+    // A second call asks DealerFire again — misses are the retry, never a
+    // cached "no". The OEM host answered 403, so its circuit is open and it
+    // is skipped this time (see spikeHardening.test.ts).
     await getHyundaiSticker("KM8RKES23TU000001", { fetchImpl });
-    assert.equal(calls.length, 4);
+    assert.equal(calls.length, 3);
   });
   it("a 5NM VIN with no Hyundai label falls through to Genesis's sticker host", async () => {
     clearHyundaiStickerMemoryCache();
