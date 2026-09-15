@@ -39,7 +39,7 @@ type Context = {
 };
 
 /** On every dealer sheet: the quote is the car alone — a trade comes after the OTD price is agreed. */
-export const DEALER_TRADE_IN_COPY = "Trade-ins are handled after an out-the-door price is agreed. Quote the car on its own — don't net a trade into these numbers; we'll work through any trade, and the registration-fee and sales-tax changes it brings, with you afterwards.";
+const DEALER_TRADE_IN_COPY = "Trade-ins are handled after an out-the-door price is agreed. Quote the car on its own — don't net a trade into these numbers; we'll work through any trade, and the registration-fee and sales-tax changes it brings, with you afterwards.";
 
 function TradeInNote({ expected }: { expected: boolean | null }) {
   return (
