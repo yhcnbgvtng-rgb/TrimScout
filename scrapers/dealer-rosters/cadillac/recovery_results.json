@@ -1,0 +1,2464 @@
+[
+ {
+  "id": "10829",
+  "dealerName": "#1 COCHRAN BUICK GMC",
+  "contactName": "Anthony Garono",
+  "website": "https://www.cochranbuickgmcyoungstown.com/",
+  "sourceUrl": "https://www.cochranbuickgmcyoungstown.com/about-us/staff/",
+  "status": "http_403"
+ },
+ {
+  "id": "16661",
+  "dealerName": "AL SERRA CADILLAC",
+  "contactName": "Burge Cadillac",
+  "website": "https://www.alserracadillac.com/",
+  "sourceUrl": "https://alserracadillac.adviserly.com/list",
+  "status": "no_emails_in_html",
+  "email": null,
+  "emailsSeen": 0
+ },
+ {
+  "id": "16471",
+  "dealerName": "ALEXANDER CADILLAC",
+  "contactName": "Katie Kemp",
+  "website": "https://www.alexander-cadillac.com/",
+  "sourceUrl": "https://www.alexander-cadillac.com/staff",
+  "status": "no_emails_in_html",
+  "email": null,
+  "emailsSeen": 0
+ },
+ {
+  "id": "16685",
+  "dealerName": "ALEXANDRIA CADILLAC",
+  "contactName": "Ross Weigman",
+  "website": "https://www.alexandria-cadillac.com/",
+  "sourceUrl": "https://www.alexandria-cadillac.com/staff",
+  "status": "matched",
+  "email": "ross@alexmotorco.com",
+  "emailsSeen": 10
+ },
+ {
+  "id": "16615",
+  "dealerName": "ALL AMERICAN CADILLAC",
+  "contactName": "JOE FOLCK",
+  "website": "https://www.munciecadillac.com/",
+  "sourceUrl": "https://www.munciecadillac.com/staff",
+  "status": "no_match",
+  "email": null,
+  "emailsSeen": 29
+ },
+ {
+  "id": "16662",
+  "dealerName": "ALLEN CADILLAC",
+  "contactName": "Nolan Kinchsular",
+  "website": "https://www.allencadillacmonroe.com/",
+  "sourceUrl": "https://www.allencadillacmonroe.com/staff",
+  "status": "matched",
+  "email": "nolank@allenofmonroe.com",
+  "emailsSeen": 40
+ },
+ {
+  "id": "16451",
+  "dealerName": "ALLEN TURNER CHEVROLET CADILLAC OF AUBURN",
+  "contactName": "Frankie Elliston",
+  "website": "https://www.allenturnercadillacofauburn.com/",
+  "sourceUrl": "https://www.allenturnercadillacofauburn.com/about-us/staff/",
+  "status": "http_403"
+ },
+ {
+  "id": "16464",
+  "dealerName": "ARROWHEAD CADILLAC",
+  "contactName": "MICHAEL MEEWES",
+  "website": "https://www.arrowheadcadillac.com/",
+  "sourceUrl": "https://www.arrowheadcadillac.com/dealership/staff.htm",
+  "status": "no_match",
+  "email": null,
+  "emailsSeen": 3
+ },
+ {
+  "id": "16473",
+  "dealerName": "AV CADILLAC",
+  "contactName": "Alex Shaw",
+  "website": "https://www.avcadillac.com/",
+  "sourceUrl": "https://www.avcadillac.com/about-us/staff/",
+  "status": "http_403"
+ },
+ {
+  "id": "16816",
+  "dealerName": "BACHMAN BERNARD CADILLAC",
+  "contactName": "Shaun Hinkle",
+  "website": "https://www.bachmanbernardcadillac.com/",
+  "sourceUrl": "https://www.bachmanbernardcadillac.com/staff",
+  "status": "no_emails_in_html",
+  "email": null,
+  "emailsSeen": 0
+ },
+ {
+  "id": "16803",
+  "dealerName": "BAKER CADILLAC OF CHARLESTON",
+  "contactName": "Allan Young",
+  "website": "https://www.bakercadillacofcharleston.com/",
+  "sourceUrl": "https://www.bakercadillacofcharleston.com/about-us/staff/",
+  "status": "no_match",
+  "email": null,
+  "emailsSeen": 1
+ },
+ {
+  "id": "16694",
+  "dealerName": "BALDWIN CHEVROLET, CADILLAC, INC.",
+  "contactName": "Tim Garner",
+  "website": "https://www.baldwincadillac.com/",
+  "sourceUrl": "https://www.baldwincadillac.com/staff",
+  "status": "matched",
+  "email": "tgarner2324@yahoo.com",
+  "emailsSeen": 18
+ },
+ {
+  "id": "10263",
+  "dealerName": "BARKER MOTOR COMPANY",
+  "contactName": "Misty Meads Yount",
+  "website": "https://www.barkermotorco.net/",
+  "sourceUrl": "https://www.barkermotorco.net/about-us/staff/",
+  "status": "no_match",
+  "email": null,
+  "emailsSeen": 1
+ },
+ {
+  "id": "16824",
+  "dealerName": "BAYER CADILLAC",
+  "contactName": "Rob Durham",
+  "website": "https://www.bayercadillac.com/",
+  "sourceUrl": "https://www.bayercadillac.com/about-us/staff/",
+  "status": "http_403"
+ },
+ {
+  "id": "16825",
+  "dealerName": "BAYWAY CADILLAC OF THE WOODLANDS",
+  "contactName": "Bill Baker",
+  "website": "https://www.baywaycadillacofthewoodlands.com/",
+  "sourceUrl": "https://www.baywaycadillacofthewoodlands.com/staff",
+  "status": "matched",
+  "email": "bbaker@baywaycadillac.com",
+  "emailsSeen": 38
+ },
+ {
+  "id": "16663",
+  "dealerName": "BELL CADILLAC, INC.",
+  "contactName": "Hank Soto",
+  "website": "https://www.bellcadillacofadrian.com/",
+  "sourceUrl": "https://www.bellcadillacofadrian.com/dealership/staff.htm",
+  "status": "matched",
+  "email": "hsoto@gregbell.com",
+  "emailsSeen": 9
+ },
+ {
+  "id": "16453",
+  "dealerName": "BENTLEY CADILLAC",
+  "contactName": "Matt Sanders",
+  "website": "https://www.bentleycadillac.com/",
+  "sourceUrl": "https://www.bentleycadillac.com/staff",
+  "status": "matched",
+  "email": "matt.sanders@bentleycadillac.com",
+  "emailsSeen": 4
+ },
+ {
+  "id": "16827",
+  "dealerName": "BERT OGDEN CADILLAC",
+  "contactName": "Jakob Waldbusser",
+  "website": "https://www.bertogdencadillac.com/",
+  "sourceUrl": "https://www.bertogdencadillac.com/about-us/staff/",
+  "status": "http_403"
+ },
+ {
+  "id": "16664",
+  "dealerName": "BETTEN CADILLAC",
+  "contactName": "HALL Cadillac",
+  "website": "https://www.bettencadillac.com/",
+  "sourceUrl": "https://www.bettencadillac.com/about-us/staff/",
+  "status": "http_403"
+ },
+ {
+  "id": "9156",
+  "dealerName": "BICAL AUTO MALL",
+  "contactName": "Jamil Quaiser",
+  "website": "https://www.bicalbuickgmc.com/",
+  "sourceUrl": "https://www.bicalcadillac.com/staff",
+  "status": "no_emails_in_html",
+  "email": null,
+  "emailsSeen": 0
+ },
+ {
+  "id": "16828",
+  "dealerName": "BIG STAR CADILLAC",
+  "contactName": "KEVIN SONNIER",
+  "website": "https://www.bigstarcadillac.com/",
+  "sourceUrl": "https://www.bigstarcadillac.com/about-us/staff/",
+  "status": "no_emails_in_html",
+  "email": null,
+  "emailsSeen": 0
+ },
+ {
+  "id": "16525",
+  "dealerName": "BILL CRAMER CADILLAC",
+  "contactName": "Kody Clemmons",
+  "website": "https://www.billcramercadillac.com/",
+  "sourceUrl": "https://www.billcramercadillac.com/about-us/staff/",
+  "status": "http_403"
+ },
+ {
+  "id": "16659",
+  "dealerName": "BILL DODGE CADILLAC",
+  "contactName": "Patrick Sullivan",
+  "website": "https://www.billdodgecadillac.com/",
+  "sourceUrl": "https://www.billdodgecadillac.com/staff",
+  "status": "matched",
+  "email": "patrick.sullivan@bdag.com",
+  "emailsSeen": 20
+ },
+ {
+  "id": "16517",
+  "dealerName": "BLASIUS CADILLAC",
+  "contactName": "STEVEN MORLEY",
+  "website": "https://www.blasiuscadillac.com/",
+  "sourceUrl": "https://www.blasiuscadillac.com/about-us/staff/",
+  "status": "no_match",
+  "email": null,
+  "emailsSeen": 1
+ },
+ {
+  "id": "16781",
+  "dealerName": "BOB MOORE CADILLAC",
+  "contactName": "Rick Sanders",
+  "website": "https://www.bobmoorecadillacokc.com/",
+  "sourceUrl": "https://www.bobmoorecadillacokc.com/about-us/staff/",
+  "status": "http_403"
+ },
+ {
+  "id": "16782",
+  "dealerName": "BOB MOORE CADILLAC OF NORMAN",
+  "contactName": "Rick Sanders",
+  "website": "https://www.bobmoorecadillacnorman.com/",
+  "sourceUrl": "https://www.bobmoorecadillacnorman.com/about-us/staff/",
+  "status": "no_emails_in_html",
+  "email": null,
+  "emailsSeen": 0
+ },
+ {
+  "id": "16804",
+  "dealerName": "BURNS CADILLAC",
+  "contactName": "DAVID PARKER",
+  "website": "https://www.burnscadillac.com/",
+  "sourceUrl": "https://www.burnscadillac.com/staff",
+  "status": "no_emails_in_html",
+  "email": null,
+  "emailsSeen": 0
+ },
+ {
+  "id": "16791",
+  "dealerName": "C. HARPER CADILLAC",
+  "contactName": "BILL FERGUSON",
+  "website": "https://www.charpercadillac.com/",
+  "sourceUrl": "https://www.charpercadillac.com/staff",
+  "status": "matched",
+  "email": "bferguson@charper.com",
+  "emailsSeen": 10
+ },
+ {
+  "id": "16696",
+  "dealerName": "CABLE DAHMER CADILLAC OF KANSAS CITY",
+  "contactName": "Terence Adams",
+  "website": "https://www.cabledahmercadillac.com/",
+  "sourceUrl": "https://www.cabledahmercadillac.com/staff",
+  "status": "no_emails_in_html",
+  "email": null,
+  "emailsSeen": 0
+ },
+ {
+  "id": "16528",
+  "dealerName": "CADILLAC LAKELAND",
+  "contactName": "Glen McGuire",
+  "website": "https://www.cadillaclakeland.com/",
+  "sourceUrl": "https://www.cadillaclakeland.com/about-us/staff/",
+  "status": "http_403"
+ },
+ {
+  "id": "16476",
+  "dealerName": "CADILLAC MARIN",
+  "contactName": "Victor Diaz",
+  "website": "https://www.cadillacmarin.com/",
+  "sourceUrl": "https://www.cadillacmarin.com/about-us/staff/",
+  "status": "no_match",
+  "email": null,
+  "emailsSeen": 5
+ },
+ {
+  "id": "11578",
+  "dealerName": "CADILLAC MOUNT KISCO",
+  "contactName": "Chad Harris",
+  "website": "https://www.cadillacmountkisco.com/",
+  "sourceUrl": "https://www.cadillacmountkisco.com/staff",
+  "status": "no_emails_in_html",
+  "email": null,
+  "emailsSeen": 0
+ },
+ {
+  "id": "16477",
+  "dealerName": "CADILLAC OF BEVERLY HILLS",
+  "contactName": "Fay Imanabadi",
+  "website": "https://www.cadillacbeverlyhills.com/",
+  "sourceUrl": "https://www.cadillacbeverlyhills.com/about-us/staff/",
+  "status": "no_match",
+  "email": null,
+  "emailsSeen": 1
+ },
+ {
+  "id": "16704",
+  "dealerName": "CADILLAC OF BILLINGS",
+  "contactName": "Kris Smith",
+  "website": "https://www.cadillacofbillings.com/",
+  "sourceUrl": "https://www.cadillacofbillings.com/staff",
+  "status": "matched",
+  "email": "ksmith@drivebillings.com",
+  "emailsSeen": 14
+ },
+ {
+  "id": "16478",
+  "dealerName": "CADILLAC OF CALABASAS",
+  "contactName": "Rick Bilgrien",
+  "website": "https://www.cadillacofcalabasas.com/",
+  "sourceUrl": "https://www.cadillacofcalabasas.com/about-us/staff/",
+  "status": "matched",
+  "email": "rick@cadillacofcalabasas.com",
+  "emailsSeen": 1
+ },
+ {
+  "id": "11567",
+  "dealerName": "CADILLAC OF ENGLEWOOD CLIFFS",
+  "contactName": "Hadi Aridi",
+  "website": "https://www.cadillacofenglewoodcliffs.com/",
+  "sourceUrl": "https://www.cadillacofenglewoodcliffs.com/about-us/staff/",
+  "status": "no_emails_in_html",
+  "email": null,
+  "emailsSeen": 0
+ },
+ {
+  "id": "16703",
+  "dealerName": "CADILLAC OF JACKSON",
+  "contactName": "Jason Brown",
+  "website": "https://www.cadillacofjacksonms.com/",
+  "sourceUrl": "https://www.cadillacofjacksonms.com/staff",
+  "status": "matched",
+  "email": "jbrown@cadillacofjacksonms.com",
+  "emailsSeen": 21
+ },
+ {
+  "id": "16817",
+  "dealerName": "CADILLAC OF KNOXVILLE, LLC",
+  "contactName": "Kenny Rivera",
+  "website": "https://www.cadillacofknoxville.com/",
+  "sourceUrl": "https://www.cadillacofknoxville.com/staff",
+  "status": "matched",
+  "email": "kenny@cadillacofknoxville.com",
+  "emailsSeen": 21
+ },
+ {
+  "id": "11564",
+  "dealerName": "CADILLAC OF MANHATTAN",
+  "contactName": "MANAGER SERVICE",
+  "website": "https://www.cadillacofmanhattan.com/",
+  "sourceUrl": "https://www.cadillacofmanhattan.com/dealership/staff.htm",
+  "status": "no_match",
+  "email": null,
+  "emailsSeen": 16
+ },
+ {
+  "id": "16818",
+  "dealerName": "CADILLAC OF MEMPHIS",
+  "contactName": "Jordan Echols",
+  "website": "https://www.cadillacofmemphis.com/",
+  "sourceUrl": "https://www.cadillacofmemphis.com/staff",
+  "status": "no_emails_in_html",
+  "email": null,
+  "emailsSeen": 0
+ },
+ {
+  "id": "16633",
+  "dealerName": "CADILLAC OF NEW ORLEANS",
+  "contactName": "Roberto Rocha",
+  "website": "https://www.neworleanscadillac.com/",
+  "sourceUrl": "https://www.neworleanscadillac.com/staff",
+  "status": "no_emails_in_html",
+  "email": null,
+  "emailsSeen": 0
+ },
+ {
+  "id": "16643",
+  "dealerName": "CADILLAC OF NORWOOD",
+  "contactName": "Alex Gomes",
+  "website": "https://www.cadillacnorwood.com/",
+  "sourceUrl": "https://www.cadillacnorwood.com/staff",
+  "status": "matched",
+  "email": "agomes@cadillacnorwood.com",
+  "emailsSeen": 14
+ },
+ {
+  "id": "16736",
+  "dealerName": "CADILLAC OF SANTA FE",
+  "contactName": "DAY CADILLAC",
+  "website": "https://www.cadillacofsantafe.com/",
+  "sourceUrl": "https://www.cadillacofsantafe.com/staff",
+  "status": "no_emails_in_html",
+  "email": null,
+  "emailsSeen": 0
+ },
+ {
+  "id": "16812",
+  "dealerName": "CADILLAC OF SIOUX FALLS",
+  "contactName": "ANDY KVERNMO",
+  "website": "https://www.cadillacofsiouxfalls.com/",
+  "sourceUrl": "https://www.cadillacofsiouxfalls.com/dealership/staff.htm",
+  "status": "no_match",
+  "email": null,
+  "emailsSeen": 4
+ },
+ {
+  "id": "16481",
+  "dealerName": "CADILLAC OF SOUTH SAN FRANCISCO",
+  "contactName": "Mustafa Oweida",
+  "website": "https://www.cadillacsouthsanfrancisco.com/",
+  "sourceUrl": "https://www.cadillacsouthsanfrancisco.com/staff",
+  "status": "no_match",
+  "email": null,
+  "emailsSeen": 13
+ },
+ {
+  "id": "11586",
+  "dealerName": "CADILLAC OF TURNERSVILLE",
+  "contactName": "Marsh Chambers",
+  "website": "https://www.cadillacofturnersville.com/",
+  "sourceUrl": "https://www.cadillacofturnersville.com/about-us/staff/",
+  "status": "http_403"
+ },
+ {
+  "id": "16634",
+  "dealerName": "CAJUN CADILLAC",
+  "contactName": "Dealer and",
+  "website": "https://www.cajun-cadillac.com/",
+  "sourceUrl": "https://www.cajun-cadillac.com/dealership/staff.htm",
+  "status": "no_match",
+  "email": null,
+  "emailsSeen": 1
+ },
+ {
+  "id": "16465",
+  "dealerName": "CASA CADILLAC OF PRESCOTT",
+  "contactName": "Omar Sanchez",
+  "website": "https://www.casacadillacofprescott.com/",
+  "sourceUrl": "https://www.casacadillacofprescott.com/staff",
+  "status": "no_emails_in_html",
+  "email": null,
+  "emailsSeen": 0
+ },
+ {
+  "id": "8515",
+  "dealerName": "CASTLE CHEVROLET OF MCHENRY",
+  "contactName": "Castle Cadillac Jerry",
+  "website": "https://www.castlecadillacmchenry.com/",
+  "sourceUrl": "https://www.castlechevymchenry.com/about-us/staff/",
+  "status": "http_403"
+ },
+ {
+  "id": "16830",
+  "dealerName": "CAVENDER CADILLAC COMPANY",
+  "contactName": "MATTHEW GOSSETT",
+  "website": "https://www.cavendercadillac.com/",
+  "sourceUrl": "https://www.cavendercadillac.com/about-us/staff/",
+  "status": "http_403"
+ },
+ {
+  "id": "16831",
+  "dealerName": "CAVENDER CADILLAC OF LUBBOCK",
+  "contactName": "Troy Tucker",
+  "website": "https://www.cavendercadillacoflubbock.com/",
+  "sourceUrl": "https://www.cavendercadillacoflubbock.com/dealership/staff.htm",
+  "status": "no_match",
+  "email": null,
+  "emailsSeen": 1
+ },
+ {
+  "id": "16832",
+  "dealerName": "CENTRAL HOUSTON CADILLAC",
+  "contactName": "Akash Hassan",
+  "website": "https://www.centralhoustoncadillac.com/",
+  "sourceUrl": "https://www.centralhoustoncadillac.com/dealership/staff.htm",
+  "status": "no_match",
+  "email": null,
+  "emailsSeen": 9
+ },
+ {
+  "id": "16820",
+  "dealerName": "CHAMPION CADILLAC",
+  "contactName": "Chris McCall",
+  "website": "https://www.championjccadillac.com/",
+  "sourceUrl": "https://www.championjccadillac.com/about-us/staff/",
+  "status": "no_emails_in_html",
+  "email": null,
+  "emailsSeen": 0
+ },
+ {
+  "id": "16711",
+  "dealerName": "CLARK CADILLAC",
+  "contactName": "Ian Longfellow",
+  "website": "https://www.clarkcadillac.com/",
+  "sourceUrl": "https://www.clarkcadillac.com/about-us_trashed/staff/",
+  "status": "http_403"
+ },
+ {
+  "id": "16835",
+  "dealerName": "CLASSIC CADILLAC GALVESTON",
+  "contactName": "Michael Graves",
+  "website": "https://www.classiccadillacgalveston.com/",
+  "sourceUrl": "https://www.classiccadillacgalveston.com/staff",
+  "status": "matched",
+  "email": "mgraves@classicgalveston.com",
+  "emailsSeen": 23
+ },
+ {
+  "id": "16836",
+  "dealerName": "CLASSIC CHEVROLET",
+  "contactName": "Todd Black",
+  "website": "https://www.classiccadillacdenison.com/",
+  "sourceUrl": "https://www.classiccadillacdenison.com/about-us/staff/",
+  "status": "no_emails_in_html",
+  "email": null,
+  "emailsSeen": 0
+ },
+ {
+  "id": "16877",
+  "dealerName": "CODY CADILLAC",
+  "contactName": "Josh Audet",
+  "website": "https://www.codycadillac.com/",
+  "sourceUrl": "https://www.codycadillac.com/staff",
+  "status": "matched",
+  "email": "jaudet@codychevrolet.com",
+  "emailsSeen": 16
+ },
+ {
+  "id": "16732",
+  "dealerName": "COLEMAN CADILLAC",
+  "contactName": "Guadarrama Executive",
+  "website": "https://www.colemancadillacnj.com/",
+  "sourceUrl": "https://www.colemancadillacnj.com/staff",
+  "status": "no_match",
+  "email": null,
+  "emailsSeen": 3
+ },
+ {
+  "id": "10882",
+  "dealerName": "COLONIAL MOTOR MART",
+  "contactName": "Mike Black",
+  "website": "https://www.shopcolonialcadillac.com/",
+  "sourceUrl": "https://www.shopcolonialgmc.com/about-us/staff/",
+  "status": "no_match",
+  "email": null,
+  "emailsSeen": 1
+ },
+ {
+  "id": "16739",
+  "dealerName": "CORWIN CADILLAC RENO",
+  "contactName": "Lance Dattilo",
+  "website": "https://www.corwincadillacreno.com/",
+  "sourceUrl": "https://www.corwincadillacreno.com/staff",
+  "status": "matched",
+  "email": "ldattilo@corwinauto.com",
+  "emailsSeen": 24
+ },
+ {
+  "id": "16762",
+  "dealerName": "COUGHLIN CADILLAC OF CIRCLEVILLE",
+  "contactName": "Doug Winland",
+  "website": "https://www.coughlincirclevillecadillac.com/",
+  "sourceUrl": "https://www.coughlincirclevillecadillac.com/staff",
+  "status": "no_emails_in_html",
+  "email": null,
+  "emailsSeen": 0
+ },
+ {
+  "id": "16635",
+  "dealerName": "COURTESY CADILLAC \u2013 Broussard",
+  "contactName": "Blake Chachere",
+  "website": "https://www.broussardcadillac.com/",
+  "sourceUrl": "https://www.broussardcadillac.com/staff",
+  "status": "matched",
+  "email": "bchachere@courtesy-group.com",
+  "emailsSeen": 19
+ },
+ {
+  "id": "16629",
+  "dealerName": "COURTESY CADILLAC \u2013 Louisville",
+  "contactName": "Blake Chachere",
+  "website": "https://www.courtesycadillac.net/",
+  "sourceUrl": "https://www.broussardcadillac.com/staff",
+  "status": "matched",
+  "email": "bchachere@courtesy-group.com",
+  "emailsSeen": 19
+ },
+ {
+  "id": "16838",
+  "dealerName": "COVERT CADILLAC",
+  "contactName": "Joseph III",
+  "website": "https://www.covertcadillac.com/",
+  "sourceUrl": "https://www.covertcadillac.com/about-us/staff/",
+  "status": "no_match",
+  "email": null,
+  "emailsSeen": 1
+ },
+ {
+  "id": "16839",
+  "dealerName": "COVERT CADILLAC WEST, INC",
+  "contactName": "John Yoon",
+  "website": "https://www.covertbeecavecadillac.com/",
+  "sourceUrl": "https://www.covertbeecavecadillac.com/about-us/staff/",
+  "status": "no_match",
+  "email": null,
+  "emailsSeen": 1
+ },
+ {
+  "id": "16894",
+  "dealerName": "CREST CADILLAC, INC.",
+  "contactName": "Juan Sandoval",
+  "website": "https://www.cadillacwisconsin.com/",
+  "sourceUrl": "https://www.cadillacwisconsin.com/dealership/staff.htm",
+  "status": "matched",
+  "email": "jsandoval@crestmotors.com",
+  "emailsSeen": 5
+ },
+ {
+  "id": "16764",
+  "dealerName": "CRESTMONT CADILLAC CORPORATION",
+  "contactName": "Chris Boger",
+  "website": "https://www.crestmontcadillac.com/",
+  "sourceUrl": "https://www.crestmontcadillac.com/about-us/staff/",
+  "status": "http_403"
+ },
+ {
+  "id": "16668",
+  "dealerName": "CROWN MOTORS, LTD.",
+  "contactName": "Derek Petroelje",
+  "website": "https://www.crownbuickmi.com/",
+  "sourceUrl": "https://www.crownbuickmi.com/dealership/staff.htm",
+  "status": "matched",
+  "email": "dpetroelje@crownmotors.com",
+  "emailsSeen": 41
+ },
+ {
+  "id": "16519",
+  "dealerName": "D'ADDARIO CADILLAC",
+  "contactName": "Kestenbaum GM",
+  "website": "https://www.daddariocadillac.com/",
+  "sourceUrl": "https://www.daddariocadillac.com/staff",
+  "status": "no_match",
+  "email": null,
+  "emailsSeen": 8
+ },
+ {
+  "id": "16746",
+  "dealerName": "D'ELLA CADILLAC",
+  "contactName": "Michael Tonks",
+  "website": "https://www.dellacadillac.com/",
+  "sourceUrl": "https://www.dellacadillac.com/staff",
+  "status": "matched",
+  "email": "mtonks@dellaauto.net",
+  "emailsSeen": 14
+ },
+ {
+  "id": "16747",
+  "dealerName": "DAVIDSON CADILLAC OF ROME",
+  "contactName": "Consultant CJ CRONK",
+  "website": "https://www.davidsoncadillac.com/",
+  "sourceUrl": "https://www.davidsoncadillac.com/staff",
+  "status": "no_match",
+  "email": null,
+  "emailsSeen": 21
+ },
+ {
+  "id": "16645",
+  "dealerName": "DIAMOND CADILLAC",
+  "contactName": "JON MASSAD",
+  "website": "https://www.choosediamondcadillac.com/",
+  "sourceUrl": "https://www.choosediamondcadillac.com/dealership/staff.htm",
+  "status": "matched",
+  "email": "jmassad@choosediamond.com",
+  "emailsSeen": 10
+ },
+ {
+  "id": "16793",
+  "dealerName": "DIEHL CADILLAC",
+  "contactName": "Oak Moser",
+  "website": "https://www.diehlcadillacgrovecity.com/",
+  "sourceUrl": "https://www.diehlcadillac.com/about-us/staff/",
+  "status": "no_emails_in_html",
+  "email": null,
+  "emailsSeen": 0
+ },
+ {
+  "id": "16784",
+  "dealerName": "DON THORNTON CADILLAC",
+  "contactName": "Corey Haas",
+  "website": "https://www.donthorntoncadillac.com/",
+  "sourceUrl": "https://www.donthorntoncadillac.com/dealership/staff.htm",
+  "status": "matched",
+  "email": "chaas@donthornton.com",
+  "emailsSeen": 39
+ },
+ {
+  "id": "16841",
+  "dealerName": "DONALSON CADILLAC",
+  "contactName": "Perry Jones",
+  "website": "https://www.donalsoncadillac.com/",
+  "sourceUrl": "https://www.donalsoncadillac.com/about-us/staff/",
+  "status": "no_match",
+  "email": null,
+  "emailsSeen": 1
+ },
+ {
+  "id": "10613",
+  "dealerName": "DOSSETT GMC CADILLAC, INC.",
+  "contactName": "Shaun Burt",
+  "website": "https://www.dossettcadillac.com/",
+  "sourceUrl": "https://www.dossettgmc.com/staff",
+  "status": "matched",
+  "email": "sburt@dossettauto.com",
+  "emailsSeen": 2
+ },
+ {
+  "id": "16487",
+  "dealerName": "DUBLIN CADILLAC",
+  "contactName": "Admir Besic",
+  "website": "https://www.dublincadillac.com/",
+  "sourceUrl": "https://www.dublincadillac.com/staff",
+  "status": "no_emails_in_html",
+  "email": null,
+  "emailsSeen": 0
+ },
+ {
+  "id": "16535",
+  "dealerName": "ED MORSE BAYVIEW CADILLAC",
+  "contactName": "Tony Giordano",
+  "website": "https://www.bayviewcadillac.com/",
+  "sourceUrl": "https://www.bayviewcadillac.com/staff",
+  "status": "matched",
+  "email": "tonygiordano@edmorse.com",
+  "emailsSeen": 36
+ },
+ {
+  "id": "16536",
+  "dealerName": "ED MORSE CADILLAC BRANDON",
+  "contactName": "Brandon Faiella",
+  "website": "https://www.edmorsecadillacbrandon.com/",
+  "sourceUrl": "https://www.edmorsecadillacbrandon.com/staff",
+  "status": "matched",
+  "email": "brandonfaiella@edmorse.com",
+  "emailsSeen": 41
+ },
+ {
+  "id": "16537",
+  "dealerName": "ED MORSE CADILLAC DELRAY",
+  "contactName": "Billy Haworth",
+  "website": "https://www.edmorsecadillacdelray.com/",
+  "sourceUrl": "https://www.edmorsecadillacdelray.com/staff",
+  "status": "matched",
+  "email": "billyhaworth@edmorse.com",
+  "emailsSeen": 31
+ },
+ {
+  "id": "16538",
+  "dealerName": "ED MORSE CADILLAC TAMPA",
+  "contactName": "Jim Gedra",
+  "website": "https://www.edmorsecadillactampa.com/",
+  "sourceUrl": "https://www.edmorsecadillactampa.com/staff",
+  "status": "matched",
+  "email": "jimgedra@edmorse.com",
+  "emailsSeen": 38
+ },
+ {
+  "id": "16697",
+  "dealerName": "ELCO CADILLAC",
+  "contactName": "Bill Pastor",
+  "website": "https://www.elcocadillac.com/",
+  "sourceUrl": "https://www.elcocadillac.com/staff",
+  "status": "no_emails_in_html",
+  "email": null,
+  "emailsSeen": 0
+ },
+ {
+  "id": "16748",
+  "dealerName": "EMPIRE CADILLAC OF LONG ISLAND CITY",
+  "contactName": "Hoppe Internet",
+  "website": "https://www.shopempirecadillacoflic.com/",
+  "sourceUrl": "https://www.shopempirecadillacoflic.com/staff",
+  "status": "no_match",
+  "email": null,
+  "emailsSeen": 19
+ },
+ {
+  "id": "16488",
+  "dealerName": "EPIC CADILLAC",
+  "contactName": "Joe Mesa",
+  "website": "https://www.epiccadillac.com/",
+  "sourceUrl": "https://www.epiccadillac.com/staff",
+  "status": "matched",
+  "email": "jmesa@pinnauto.com",
+  "emailsSeen": 25
+ },
+ {
+  "id": "16765",
+  "dealerName": "ESTLE CHEVROLET-CADILLAC, INC.",
+  "contactName": "Todd Bartley",
+  "website": "https://www.estlecadillac.com/",
+  "sourceUrl": "https://www.estlecadillac.com/about-us/staff/",
+  "status": "http_403"
+ },
+ {
+  "id": "16712",
+  "dealerName": "EVERETT CADILLAC",
+  "contactName": "Kamby Lewis",
+  "website": "https://www.hickorycadillac.com/",
+  "sourceUrl": "https://www.hickorycadillac.com/about-us/staff/",
+  "status": "no_match",
+  "email": null,
+  "emailsSeen": 1
+ },
+ {
+  "id": "16729",
+  "dealerName": "FAIRFIELD CADILLAC \u2013 KEENE",
+  "contactName": "Cody Swartz",
+  "website": "https://www.fairfieldscadillac.com/",
+  "sourceUrl": "https://www.fairfieldcadillac.com/staff",
+  "status": "matched",
+  "email": "cswartz@fairfieldautogroup.com",
+  "emailsSeen": 11
+ },
+ {
+  "id": "16794",
+  "dealerName": "FAIRFIELD CADILLAC \u2013 LEWISBURG",
+  "contactName": "Cody Swartz",
+  "website": "https://www.fairfieldcadillac.com/",
+  "sourceUrl": "https://www.fairfieldcadillac.com/staff",
+  "status": "matched",
+  "email": "cswartz@fairfieldautogroup.com",
+  "emailsSeen": 11
+ },
+ {
+  "id": "16539",
+  "dealerName": "FIELDS CADILLAC JACKSONVILLE",
+  "contactName": "Bryan Andrews",
+  "website": "https://www.fieldscadillacjacksonville.com/",
+  "sourceUrl": "https://www.fieldscadillacjacksonville.com/dealership/staff.htm",
+  "status": "matched",
+  "email": "bryan.andrews@fieldsauto.com",
+  "emailsSeen": 24
+ },
+ {
+  "id": "16540",
+  "dealerName": "FIELDS CADILLAC ST. AUGUSTINE",
+  "contactName": "Steve Vargas",
+  "website": "https://www.fieldscadillacstaugustine.com/",
+  "sourceUrl": "https://www.fieldscadillacstaugustine.com/dealership/staff.htm",
+  "status": "matched",
+  "email": "steve.vargas@fieldsauto.com",
+  "emailsSeen": 27
+ },
+ {
+  "id": "16740",
+  "dealerName": "FINDLAY CADILLAC",
+  "contactName": "Chris Preciado",
+  "website": "https://www.findlaycadillac.com/",
+  "sourceUrl": "https://www.findlaycadillac.com/about-us/staff/",
+  "status": "no_match",
+  "email": null,
+  "emailsSeen": 1
+ },
+ {
+  "id": "16651",
+  "dealerName": "FITZGERALD AUTO MALL",
+  "contactName": "Rod Ritter",
+  "website": "https://www.fitzgeraldcadillacannapolis.com/",
+  "sourceUrl": "https://www.fitzgeraldcadillacannapolis.com/staff",
+  "status": "no_emails_in_html",
+  "email": null,
+  "emailsSeen": 0
+ },
+ {
+  "id": "16566",
+  "dealerName": "FIVE STAR CADILLAC",
+  "contactName": "Andrew Manning",
+  "website": "https://www.fivestarcadillac.com/",
+  "sourceUrl": "https://www.fivestarcadillac.com/about-us/staff/",
+  "status": "no_emails_in_html",
+  "email": null,
+  "emailsSeen": 0
+ },
+ {
+  "id": "16713",
+  "dealerName": "FLOW CADILLAC",
+  "contactName": "Green Lillard",
+  "website": "https://www.flowcadillac.com/",
+  "sourceUrl": "https://www.flowcadillac.com/staff",
+  "status": "no_emails_in_html",
+  "email": null,
+  "emailsSeen": 0
+ },
+ {
+  "id": "16714",
+  "dealerName": "FLOW CADILLAC OF WILMINGTON",
+  "contactName": "Jason Wallace",
+  "website": "https://www.flowcadillacwilmington.com/",
+  "sourceUrl": "https://www.flowcadillacwilmington.com/staff",
+  "status": "no_emails_in_html",
+  "email": null,
+  "emailsSeen": 0
+ },
+ {
+  "id": "16766",
+  "dealerName": "FOSTER CADILLAC",
+  "contactName": "Eddie Reilly",
+  "website": "https://www.fostersandusky.com/",
+  "sourceUrl": "https://www.fostersandusky.com/dealership/staff.htm",
+  "status": "matched",
+  "email": "ereilly@fostersandusky.com",
+  "emailsSeen": 7
+ },
+ {
+  "id": "8219",
+  "dealerName": "FOUNDATION CHEVROLET",
+  "contactName": "Anthony Banno",
+  "website": "https://www.foundationcadillac.com/",
+  "sourceUrl": "https://www.foundationchevrolet.com/dealership/staff.htm",
+  "status": "http_403"
+ },
+ {
+  "id": "16895",
+  "dealerName": "FRANK BOUCHER CADILLAC",
+  "contactName": "Chris Tessmer",
+  "website": "https://www.racinecadillac.com/",
+  "sourceUrl": "https://www.racinecadillac.com/about-us/staff/",
+  "status": "http_403"
+ },
+ {
+  "id": "16749",
+  "dealerName": "GARBER RANDALL CADILLAC",
+  "contactName": "Sean Carroll",
+  "website": "https://www.garberrandallcadillac.com/",
+  "sourceUrl": "https://www.garberrandallcadillac.com/dealership/staff.htm",
+  "status": "matched",
+  "email": "scarroll@garberrandall.com",
+  "emailsSeen": 61
+ },
+ {
+  "id": "16844",
+  "dealerName": "GARLYN SHELTON CADILLAC",
+  "contactName": "Robert Fortner",
+  "website": "https://www.garlynsheltoncadillac.com/",
+  "sourceUrl": "https://www.garlynsheltoncadillac.com/staff",
+  "status": "no_match",
+  "email": null,
+  "emailsSeen": 10
+ },
+ {
+  "id": "16589",
+  "dealerName": "GEORGE GEE CADILLAC",
+  "contactName": "Rob Billick",
+  "website": "https://www.georgegeecadillac.com/",
+  "sourceUrl": "https://www.georgegeecadillac.com/about-us/staff/",
+  "status": "http_403"
+ },
+ {
+  "id": "16767",
+  "dealerName": "GERMAIN CADILLAC OF EASTON",
+  "contactName": "D'LACY STITH",
+  "website": "https://www.germaincadillacofeaston.com/",
+  "sourceUrl": "https://www.germaincadillacofeaston.com/about-us/staff/",
+  "status": "http_403"
+ },
+ {
+  "id": "16636",
+  "dealerName": "GERRY LANE CADILLAC",
+  "contactName": "Office CJ Patton",
+  "website": "https://www.gerrylanecadillac.com/",
+  "sourceUrl": "https://www.gerrylanecadillac.com/staff",
+  "status": "no_emails_in_html",
+  "email": null,
+  "emailsSeen": 0
+ },
+ {
+  "id": "16512",
+  "dealerName": "GHENT CADILLAC",
+  "contactName": "Erick Ghent",
+  "website": "https://www.ghentcadillac.com/",
+  "sourceUrl": "https://www.ghentcadillac.com/staff",
+  "status": "no_emails_in_html",
+  "email": null,
+  "emailsSeen": 0
+ },
+ {
+  "id": "16686",
+  "dealerName": "GILLELAND CADILLAC",
+  "contactName": "Travis Miller",
+  "website": "https://www.gillelandcadillac.com/",
+  "sourceUrl": "https://www.gillelandcadillac.com/staff",
+  "status": "no_match",
+  "email": null,
+  "emailsSeen": 4
+ },
+ {
+  "id": "16490",
+  "dealerName": "GILROY CADILLAC",
+  "contactName": "Scott Jobe",
+  "website": "https://www.gilroycadillac.com/",
+  "sourceUrl": "https://www.gilroycadillac.com/about-us/staff/",
+  "status": "no_match",
+  "email": null,
+  "emailsSeen": 1
+ },
+ {
+  "id": "10334",
+  "dealerName": "GURLEY-LEEP BUICK GMC",
+  "contactName": "Rocky Faragoi",
+  "website": "https://www.gurleyleepgmgiant.com/",
+  "sourceUrl": "https://www.gurleyleepgmgiant.com/about-us/staff/",
+  "status": "http_403"
+ },
+ {
+  "id": "11164",
+  "dealerName": "HALLADAY MOTORS",
+  "contactName": "Shawn Smith",
+  "website": "https://www.halladaycadillac.com/",
+  "sourceUrl": "https://www.halladaygmc.com/about-us/staff/",
+  "status": "no_emails_in_html",
+  "email": null,
+  "emailsSeen": 0
+ },
+ {
+  "id": "11090",
+  "dealerName": "HANDY BUICK-GMC-CADILLAC INC.",
+  "contactName": "Bud Handy",
+  "website": "https://www.handygmc.com/",
+  "sourceUrl": "https://www.handycadillac.com/dealership/staff.htm",
+  "status": "no_match",
+  "email": null,
+  "emailsSeen": 20
+ },
+ {
+  "id": "16671",
+  "dealerName": "HARVEY CADILLAC COMPANY",
+  "contactName": "Eldon Grosvenor",
+  "website": "https://www.harveycadillac.com/",
+  "sourceUrl": "https://www.harveycadillac.com/staff",
+  "status": "no_match",
+  "email": null,
+  "emailsSeen": 18
+ },
+ {
+  "id": "16567",
+  "dealerName": "HAYES CADILLAC",
+  "contactName": "Adam Ramey",
+  "website": "https://www.hayescadillac.com/",
+  "sourceUrl": "https://www.hayescadillac.com/dealership/staff.htm",
+  "status": "no_match",
+  "email": null,
+  "emailsSeen": 3
+ },
+ {
+  "id": "16896",
+  "dealerName": "HEISER CADILLAC",
+  "contactName": "brian crandall",
+  "website": "https://www.heisercadillac.com/",
+  "sourceUrl": "https://www.heisercadillac.com/about-us/staff/",
+  "status": "no_match",
+  "email": null,
+  "emailsSeen": 1
+ },
+ {
+  "id": "16718",
+  "dealerName": "HENDRICK CADILLAC SOUTHPOINT",
+  "contactName": "Tony Holmes",
+  "website": "https://www.hendrickcadillacsouthpoint.com/",
+  "sourceUrl": "https://www.hendrickcadillacsouthpoint.com/about-us/staff/",
+  "status": "http_403"
+ },
+ {
+  "id": "16716",
+  "dealerName": "HENDRICK CADILLAC \u2013 Cary",
+  "contactName": "Cadillac Monroe",
+  "website": "https://www.hendrickcadillaccary.com/",
+  "sourceUrl": "https://www.hendrickcadillacmonroe.com/about-us/",
+  "status": "http_403"
+ },
+ {
+  "id": "16717",
+  "dealerName": "HENDRICK CADILLAC \u2013 Monroe",
+  "contactName": "Cadillac Monroe",
+  "website": "https://www.hendrickcadillacmonroe.com/",
+  "sourceUrl": "https://www.hendrickcadillacmonroe.com/about-us/",
+  "status": "no_match",
+  "email": null,
+  "emailsSeen": 1
+ },
+ {
+  "id": "16647",
+  "dealerName": "HERB CHAMBERS CADILLAC OF LYNNFIELD",
+  "contactName": "Chornovas Jr",
+  "website": "https://www.herbchamberscadillacoflynnfield.com/",
+  "sourceUrl": "https://www.herbchamberscadillacoflynnfield.com/dealership/staff.htm",
+  "status": "no_match",
+  "email": null,
+  "emailsSeen": 2
+ },
+ {
+  "id": "16599",
+  "dealerName": "HERITAGE CADILLAC, INC. \u2013 Lombard",
+  "contactName": "CODY BAKR",
+  "website": "https://www.heritagecadillac.com/",
+  "sourceUrl": "https://www.heritagecadillac.com/dealership/staff.htm",
+  "status": "matched",
+  "email": "cbakr@heritagecadillac.com",
+  "emailsSeen": 18
+ },
+ {
+  "id": "16569",
+  "dealerName": "HERITAGE CADILLAC, INC. \u2013 Morrow",
+  "contactName": "CODY BAKR",
+  "website": "https://www.heritagecadillac.net/",
+  "sourceUrl": "https://www.heritagecadillac.com/dealership/staff.htm",
+  "status": "matched",
+  "email": "cbakr@heritagecadillac.com",
+  "emailsSeen": 18
+ },
+ {
+  "id": "16897",
+  "dealerName": "HOLIDAY CADILLAC",
+  "contactName": "Jaber VP",
+  "website": "https://www.holidaycadillac.com/",
+  "sourceUrl": "https://www.holidaycadillac.com/about-us/staff/",
+  "status": "http_403"
+ },
+ {
+  "id": "11580",
+  "dealerName": "HOLMAN CADILLAC",
+  "contactName": "Monica Stellwag",
+  "website": "https://www.holmancadillac.com/",
+  "sourceUrl": "https://www.holmancadillac.com/about-us/staff/",
+  "status": "http_403"
+ },
+ {
+  "id": "8051",
+  "dealerName": "HORNE AUTO CENTER, INC.",
+  "contactName": "Brian Willis",
+  "website": "https://www.horneauto.com/",
+  "sourceUrl": "https://www.horneauto.com/staff/",
+  "status": "no_emails_in_html",
+  "email": null,
+  "emailsSeen": 0
+ },
+ {
+  "id": "10758",
+  "dealerName": "HUDSON CADILLAC BUICK GMC",
+  "contactName": "Robert O'Connell",
+  "website": "https://www.hudsonbuickgmc.com/",
+  "sourceUrl": "https://www.hudsonbuickgmc.com/staff",
+  "status": "matched",
+  "email": "roconnell@hudsongm.com",
+  "emailsSeen": 16
+ },
+ {
+  "id": "16541",
+  "dealerName": "HUSTON CADILLAC",
+  "contactName": "Sean Monahan",
+  "website": "https://www.hustoncadillac.com/",
+  "sourceUrl": "https://www.hustoncadillac.com/staff",
+  "status": "no_emails_in_html",
+  "email": null,
+  "emailsSeen": 0
+ },
+ {
+  "id": "16570",
+  "dealerName": "HUTCHINSON CADILLAC",
+  "contactName": "GREGORY CLARK",
+  "website": "https://www.hutchinsoncadillac.com/",
+  "sourceUrl": "https://www.hutchinsoncadillac.com/about-us/staff/",
+  "status": "no_match",
+  "email": null,
+  "emailsSeen": 1
+ },
+ {
+  "id": "16821",
+  "dealerName": "INTEGRITY CADILLAC",
+  "contactName": "Nate Schipper",
+  "website": "https://www.integritycadillac.com/",
+  "sourceUrl": "https://www.integritycadillac.com/staff",
+  "status": "no_emails_in_html",
+  "email": null,
+  "emailsSeen": 0
+ },
+ {
+  "id": "16769",
+  "dealerName": "JEFF DRENNEN CADILLAC",
+  "contactName": "Rodney Curry",
+  "website": "https://www.jeffdrennencadillac.com/",
+  "sourceUrl": "https://www.jeffdrennencadillac.com/dealership/staff.htm",
+  "status": "no_match",
+  "email": null,
+  "emailsSeen": 1
+ },
+ {
+  "id": "16770",
+  "dealerName": "JEFF SCHMITT CADILLAC",
+  "contactName": "DEPARTMENT JP Morgan",
+  "website": "https://www.jeffschmittcadillac.com/",
+  "sourceUrl": "https://www.jeffschmittcadillac.com/dealership/staff.htm",
+  "status": "no_match",
+  "email": null,
+  "emailsSeen": 4
+ },
+ {
+  "id": "16771",
+  "dealerName": "JEFF WYLER CADILLAC",
+  "contactName": "Cedric Glover",
+  "website": "https://www.jeffwylerfairfieldcadillac.com/",
+  "sourceUrl": "https://www.jeffwylerfairfieldcadillac.com/dealership/staff.htm",
+  "status": "matched",
+  "email": "cedric.glover@jeffwyler.com",
+  "emailsSeen": 10
+ },
+ {
+  "id": "16846",
+  "dealerName": "JERRY'S CADILLAC",
+  "contactName": "Brian Durant",
+  "website": "https://www.jerryscadillac.com/",
+  "sourceUrl": "https://www.jerryscadillac.com/staff",
+  "status": "no_match",
+  "email": null,
+  "emailsSeen": 12
+ },
+ {
+  "id": "16491",
+  "dealerName": "JESSUP CADILLAC",
+  "contactName": "Dan Jessup",
+  "website": "https://www.jessupcadillac.com/",
+  "sourceUrl": "https://www.jessupcadillac.com/staff",
+  "status": "no_match",
+  "email": null,
+  "emailsSeen": 31
+ },
+ {
+  "id": "16655",
+  "dealerName": "JIM COLEMAN CADILLAC",
+  "contactName": "Brendan Coleman",
+  "website": "https://www.jimcolemancadillac.com/",
+  "sourceUrl": "https://www.jimcolemancadillac.com/about-us/staff/",
+  "status": "no_match",
+  "email": null,
+  "emailsSeen": 1
+ },
+ {
+  "id": "16571",
+  "dealerName": "JIM ELLIS CADILLAC",
+  "contactName": "Patrick Bernard",
+  "website": "https://www.jimelliscadillac.com/",
+  "sourceUrl": "https://www.jimelliscadillac.com/about-us/staff/",
+  "status": "no_emails_in_html",
+  "email": null,
+  "emailsSeen": 0
+ },
+ {
+  "id": "16808",
+  "dealerName": "JIM HUDSON CADILLAC",
+  "contactName": "MARC ROSARIO",
+  "website": "https://www.jimhudsoncadillac.com/",
+  "sourceUrl": "https://www.jimhudsoncadillac.com/about-us/staff/",
+  "status": "no_match",
+  "email": null,
+  "emailsSeen": 1
+ },
+ {
+  "id": "16456",
+  "dealerName": "JOE BULLARD CADILLAC, LLC",
+  "contactName": "Jennifer Clark",
+  "website": "https://www.joebullardcadillac.com/",
+  "sourceUrl": "https://www.joebullardcadillac.com/about-us/staff/",
+  "status": "no_emails_in_html",
+  "email": null,
+  "emailsSeen": 0
+ },
+ {
+  "id": "16513",
+  "dealerName": "JOHN ELWAY CADILLAC OF PARK MEADOWS",
+  "contactName": "Gavin Pierce",
+  "website": "https://www.johnelwaycadillac.com/",
+  "sourceUrl": "https://www.johnelwaycadillac.com/about-us/staff/",
+  "status": "http_403"
+ },
+ {
+  "id": "16618",
+  "dealerName": "JOHN JONES CADILLAC OF SALEM",
+  "contactName": "Scott Geltmaker",
+  "website": "https://www.johnjonescadillac.com/",
+  "sourceUrl": "https://www.johnjonessalem.com/about-us/staff/",
+  "status": "http_403"
+ },
+ {
+  "id": "16630",
+  "dealerName": "JOSEPH CADILLAC",
+  "contactName": "Andrew Held",
+  "website": "https://www.josephcadillac.com/",
+  "sourceUrl": "https://www.josephcadillac.com/staff",
+  "status": "matched",
+  "email": "andrew.held@josephcadillac.com",
+  "emailsSeen": 2
+ },
+ {
+  "id": "16798",
+  "dealerName": "KELLY CADILLAC",
+  "contactName": "Nick Yeager",
+  "website": "https://www.kellycadillac.com/",
+  "sourceUrl": "https://www.kellycadillac.com/about-archive/staff/",
+  "status": "http_403"
+ },
+ {
+  "id": "16790",
+  "dealerName": "KENDALL CADILLAC \u2013 EUGENE",
+  "contactName": "Tyler Hirschey",
+  "website": "https://www.kendallcadillacofeugene.com/",
+  "sourceUrl": "https://www.kendallcadillacofeugene.com/about-us/staff/",
+  "status": "http_403"
+ },
+ {
+  "id": "16590",
+  "dealerName": "KENDALL CADILLAC \u2013 Nampa",
+  "contactName": "Tyler Hirschey",
+  "website": "https://www.kendallcadillacnampa.com/",
+  "sourceUrl": "https://www.kendallcadillacofeugene.com/about-us/staff/",
+  "status": "http_403"
+ },
+ {
+  "id": "16542",
+  "dealerName": "KEY WEST CADILLAC",
+  "contactName": "Stephen Bender",
+  "website": "https://www.keywestcadillac.com/",
+  "sourceUrl": "https://www.keywestcadillac.com/about-us/staff/",
+  "status": "http_403"
+ },
+ {
+  "id": "16689",
+  "dealerName": "KOLAR CADILLAC",
+  "contactName": "Dwayne Haapanen",
+  "website": "https://www.kolarcadillac.com/",
+  "sourceUrl": "https://www.kolarcadillac.com/staff",
+  "status": "matched",
+  "email": "dhaapanen@kolarauto.com",
+  "emailsSeen": 28
+ },
+ {
+  "id": "16492",
+  "dealerName": "LA QUINTA CADILLAC",
+  "contactName": "PHIL ISBELL",
+  "website": "https://www.laquintacadillac.com/",
+  "sourceUrl": "https://www.laquintacadillac.com/dealership/staff.htm",
+  "status": "matched",
+  "email": "pisbell@lqchevycady.com",
+  "emailsSeen": 13
+ },
+ {
+  "id": "16673",
+  "dealerName": "LABADIE CADILLAC",
+  "contactName": "DEALERSHIP TJ HORNER",
+  "website": "https://www.labadiecadillac.com/",
+  "sourceUrl": "https://www.labadiecadillac.com/dealership/staff.htm",
+  "status": "no_match",
+  "email": null,
+  "emailsSeen": 59
+ },
+ {
+  "id": "16619",
+  "dealerName": "LAFAYETTE CADILLAC",
+  "contactName": "Derek Hickman",
+  "website": "https://www.lafayettecadillacin.com/",
+  "sourceUrl": "https://www.lafayettecadillacin.com/about-us/staff/",
+  "status": "no_emails_in_html",
+  "email": null,
+  "emailsSeen": 0
+ },
+ {
+  "id": "16674",
+  "dealerName": "LAFONTAINE CADILLAC",
+  "contactName": "Viktor Vulaj",
+  "website": "https://www.lafontainecadillac.com/",
+  "sourceUrl": "https://www.lafontainecadillac.com/staff",
+  "status": "matched",
+  "email": "vvulaj@lafontaineauto.com",
+  "emailsSeen": 67
+ },
+ {
+  "id": "16698",
+  "dealerName": "LANDERS CADILLAC OF JOPLIN",
+  "contactName": "Pete Hizen",
+  "website": "https://www.landerscadillacjoplin.com/",
+  "sourceUrl": "https://www.landerscadillacjoplin.com/about-us/staff/",
+  "status": "no_match",
+  "email": null,
+  "emailsSeen": 1
+ },
+ {
+  "id": "16883",
+  "dealerName": "LEE PETERSON CADILLAC OF YAKIMA",
+  "contactName": "AUSINK FLEET",
+  "website": "https://www.leepetersoncadillac.com/",
+  "sourceUrl": "https://www.leepetersoncadillac.com/dealership/staff.htm",
+  "status": "no_match",
+  "email": null,
+  "emailsSeen": 11
+ },
+ {
+  "id": "16648",
+  "dealerName": "LONG CADILLAC",
+  "contactName": "Leo Tahajian",
+  "website": "https://www.longcadillac.com/",
+  "sourceUrl": "https://www.longcadillac.com/dealership/staff.htm",
+  "status": "matched",
+  "email": "ltahajian@longauto.com",
+  "emailsSeen": 17
+ },
+ {
+  "id": "10983",
+  "dealerName": "LUKE FRUIA MOTORS",
+  "contactName": "JOHN T. EDGE",
+  "website": "https://www.fruia.com/",
+  "sourceUrl": "https://www.fruia.com/dealership/staff.htm",
+  "status": "no_match",
+  "email": null,
+  "emailsSeen": 53
+ },
+ {
+  "id": "16690",
+  "dealerName": "LUTHER CADILLAC",
+  "contactName": "Perry Feavel",
+  "website": "https://www.luthercadillac.com/",
+  "sourceUrl": "https://www.luthercadillac.com/about-us/staff/",
+  "status": "http_403"
+ },
+ {
+  "id": "16731",
+  "dealerName": "MACMULKIN CADILLAC",
+  "contactName": "Snedeker Cadillac",
+  "website": "https://www.macmulkincadillac.com/",
+  "sourceUrl": "https://www.macmulkincadillac.com/about-us/staff/",
+  "status": "http_403"
+ },
+ {
+  "id": "16493",
+  "dealerName": "MAGIC CADILLAC",
+  "contactName": "John Aranda",
+  "website": "https://www.magiccadillac.com/",
+  "sourceUrl": "https://www.magiccadillac.com/about-us/staff/",
+  "status": "http_403"
+ },
+ {
+  "id": "16751",
+  "dealerName": "MAGUIRE CADILLAC",
+  "contactName": "Brian Vorhis",
+  "website": "https://www.maguirecadillac.com/",
+  "sourceUrl": "https://www.maguirecadillac.com/about-us/staff/",
+  "status": "http_403"
+ },
+ {
+  "id": "16494",
+  "dealerName": "MARVIN K. BROWN CADILLAC",
+  "contactName": "Eddie Lopez",
+  "website": "https://www.mkbcadillac.com/",
+  "sourceUrl": "https://www.mkbcadillac.com/about-us/staff/",
+  "status": "http_403"
+ },
+ {
+  "id": "10429",
+  "dealerName": "MASTRIA GMC",
+  "contactName": "Steven Martin",
+  "website": "https://www.mastriacadillac.com/",
+  "sourceUrl": "https://www.mastriamotors.com/about-us/staff/",
+  "status": "no_match",
+  "email": null,
+  "emailsSeen": 1
+ },
+ {
+  "id": "10086",
+  "dealerName": "MATAGA OF STOCKTON",
+  "contactName": "Kathryn Mataga",
+  "website": "https://www.matagacadillac.com/",
+  "sourceUrl": "https://www.mataga.com/staff",
+  "status": "matched",
+  "email": "kathryn@matagaofstockton.com",
+  "emailsSeen": 23
+ },
+ {
+  "id": "16884",
+  "dealerName": "MCCURLEY CADILLAC",
+  "contactName": "BEAU MOHONDRO",
+  "website": "https://www.mccurleycadillac.com/",
+  "sourceUrl": "https://www.mccurleycadillac.com/dealership/staff.htm",
+  "status": "matched",
+  "email": "beau.mohondro@mccurley.net",
+  "emailsSeen": 19
+ },
+ {
+  "id": "16676",
+  "dealerName": "MCDONALD CADILLAC",
+  "contactName": "Casey Hitts",
+  "website": "https://www.mcdonaldcadillac.com/",
+  "sourceUrl": "https://www.mcdonaldcadillac.com/about-us/staff/",
+  "status": "no_match",
+  "email": null,
+  "emailsSeen": 1
+ },
+ {
+  "id": "16585",
+  "dealerName": "MCGRATH CADILLAC",
+  "contactName": "GAVIN MCGRATH",
+  "website": "https://www.mcgrathcadillac.com/",
+  "sourceUrl": "https://www.mcgrathcadillac.com/dealership/staff.htm",
+  "status": "matched",
+  "email": "gmcgrath@mcgrathauto.com",
+  "emailsSeen": 19
+ },
+ {
+  "id": "16601",
+  "dealerName": "MCLAUGHLIN MOTORS, INC.",
+  "contactName": "Dave Calvert",
+  "website": "https://www.mclaughlincadillac.net/",
+  "sourceUrl": "https://www.mclaughlincadillac.net/staff",
+  "status": "matched",
+  "email": "dcalvert@mcmotors.com",
+  "emailsSeen": 6
+ },
+ {
+  "id": "9134",
+  "dealerName": "MICHAEL HOHL MOTOR COMPANY",
+  "contactName": "Rick Haynes",
+  "website": "https://www.michaelhohlcadillac.com/",
+  "sourceUrl": "https://www.michaelhohlchevrolet.com/about-us/staff/",
+  "status": "http_403"
+ },
+ {
+  "id": "16546",
+  "dealerName": "MIKE ERDMAN CADILLAC",
+  "contactName": "Greg Kyzer",
+  "website": "https://www.mikeerdmancadillac.com/",
+  "sourceUrl": "https://www.mikeerdmancadillac.com/about-us/staff/",
+  "status": "http_403"
+ },
+ {
+  "id": "16705",
+  "dealerName": "MILDENBERGER MOTORS",
+  "contactName": "BRIAN STANEK",
+  "website": "https://www.mildenbergermotors.com/",
+  "sourceUrl": "https://www.mildenbergermotors.com/staff",
+  "status": "matched",
+  "email": "brian@mildenbergermotors.com",
+  "emailsSeen": 3
+ },
+ {
+  "id": "16656",
+  "dealerName": "MILLER BROTHERS CADILLAC OF ELLICOTT CITY",
+  "contactName": "BRAD WITMER",
+  "website": "http://www.millerbrotherscadillac.com/",
+  "sourceUrl": "https://www.millerbrotherscadillac.com/staff",
+  "status": "matched",
+  "email": "bwitmer@millerbrothersautomotive.com",
+  "emailsSeen": 19
+ },
+ {
+  "id": "16799",
+  "dealerName": "MIRACLE CADILLAC OF KUTZTOWN",
+  "contactName": "David Jones",
+  "website": "https://www.kutztowncadillac.com/",
+  "sourceUrl": "https://www.kutztowncadillac.com/about-us/staff/",
+  "status": "http_403"
+ },
+ {
+  "id": "16848",
+  "dealerName": "MITCH HALL CADILLAC",
+  "contactName": "Vaughn Wiggins",
+  "website": "https://www.mitchhallcadillac.com/",
+  "sourceUrl": "https://www.mitchhallcadillac.com/staff",
+  "status": "matched",
+  "email": "vwiggins@mitchhallchevy.com",
+  "emailsSeen": 1
+ },
+ {
+  "id": "16873",
+  "dealerName": "MOORE CADILLAC RICHMOND",
+  "contactName": "Billy Theodorakos",
+  "website": "https://www.moorerichmondcadillac.com/",
+  "sourceUrl": "https://www.moorerichmondcadillac.com/about-us/staff/",
+  "status": "http_403"
+ },
+ {
+  "id": "16775",
+  "dealerName": "MORRIS CADILLAC",
+  "contactName": "Adam Morris",
+  "website": "https://www.drivemorriscadillac.com/",
+  "sourceUrl": "https://www.drivemorriscadillac.com/staff",
+  "status": "matched",
+  "email": "adam@drivemorris.com",
+  "emailsSeen": 17
+ },
+ {
+  "id": "16902",
+  "dealerName": "MOSES CADILLAC OF CHARLESTON",
+  "contactName": "KRIS WESTFALL",
+  "website": "https://www.mosescadillacofcharleston.com/",
+  "sourceUrl": "https://www.mosescadillacofcharleston.com/staff",
+  "status": "no_emails_in_html",
+  "email": null,
+  "emailsSeen": 0
+ },
+ {
+  "id": "16458",
+  "dealerName": "MULLINAX CADILLAC",
+  "contactName": "Esteban Ramirez",
+  "website": "https://www.mullinaxcadillac.com/",
+  "sourceUrl": "https://www.mullinaxcadillac.com/about-us/staff/",
+  "status": "no_emails_in_html",
+  "email": null,
+  "emailsSeen": 0
+ },
+ {
+  "id": "16865",
+  "dealerName": "MURDOCK CADILLAC",
+  "contactName": "Skylar Hobbs",
+  "website": "https://www.murdockcadillaclogan.com/",
+  "sourceUrl": "https://www.murdockcadillaclogan.com/about-us/staff/",
+  "status": "http_403"
+ },
+ {
+  "id": "16605",
+  "dealerName": "NAPLETON CADILLAC OF LIBERTYVILLE",
+  "contactName": "Keith Herrera",
+  "website": "https://www.napletoncadillaclibertyville.com/",
+  "sourceUrl": "https://www.napletoncadillaclibertyville.com/about-us/staff/",
+  "status": "http_403"
+ },
+ {
+  "id": "16603",
+  "dealerName": "NAPLETON CADILLAC \u2013 Oak Lawn",
+  "contactName": "Scott Nicoll",
+  "website": "https://www.napletoncadillacoaklawn.com/",
+  "sourceUrl": "https://www.napletoncadillacrockford.com/about-us/staff/",
+  "status": "no_match",
+  "email": null,
+  "emailsSeen": 1
+ },
+ {
+  "id": "16604",
+  "dealerName": "NAPLETON CADILLAC \u2013 ROCKFORD",
+  "contactName": "Scott Nicoll",
+  "website": "https://www.napletoncadillacrockford.com/",
+  "sourceUrl": "https://www.napletoncadillacrockford.com/about-us/staff/",
+  "status": "no_match",
+  "email": null,
+  "emailsSeen": 1
+ },
+ {
+  "id": "16607",
+  "dealerName": "NAPLETON'S RIVER OAKS CADILLAC, INC.",
+  "contactName": "Bill Havican",
+  "website": "https://www.napletonriveroakscadillac.com/",
+  "sourceUrl": "https://www.napletonriveroakscadillac.com/about-us/staff/",
+  "status": "http_403"
+ },
+ {
+  "id": "16462",
+  "dealerName": "ORR CADILLAC OF FORT SMITH",
+  "contactName": "ERIC KEDDIE",
+  "website": "https://www.orrcadillacfs.com/",
+  "sourceUrl": "https://www.orrcadillacfs.com/staff",
+  "status": "matched",
+  "email": "ekeddie@orrautopark.com",
+  "emailsSeen": 5
+ },
+ {
+  "id": "16900",
+  "dealerName": "PALMEN CADILLAC",
+  "contactName": "Nick Faciano",
+  "website": "https://www.palmencadillac.com/",
+  "sourceUrl": "https://www.palmencadillac.com/staff",
+  "status": "matched",
+  "email": "nfaciano@palmen.com",
+  "emailsSeen": 29
+ },
+ {
+  "id": "16496",
+  "dealerName": "PARADISE CADILLAC",
+  "contactName": "JIMMY VARGAS",
+  "website": "https://www.paradisecadillac.com/",
+  "sourceUrl": "https://www.paradisecadillac.com/staff",
+  "status": "no_emails_in_html",
+  "email": null,
+  "emailsSeen": 0
+ },
+ {
+  "id": "16608",
+  "dealerName": "PATRICK CADILLAC",
+  "contactName": "Justin Rupp",
+  "website": "https://www.patrickcadillac.com/",
+  "sourceUrl": "https://www.patrickcadillac.com/about-us/staff/",
+  "status": "http_403"
+ },
+ {
+  "id": "16497",
+  "dealerName": "PENSKE CADILLAC OF SOUTH BAY",
+  "contactName": "Amiri Executive",
+  "website": "https://www.penskecadillac.com/",
+  "sourceUrl": "https://www.penskecadillac.com/staff",
+  "status": "no_emails_in_html",
+  "email": null,
+  "emailsSeen": 0
+ },
+ {
+  "id": "11574",
+  "dealerName": "PEPE CADILLAC",
+  "contactName": "Bryan Franco",
+  "website": "https://www.pepecadillac.com/",
+  "sourceUrl": "https://www.pepecadillac.com/about-us/staff/",
+  "status": "no_emails_in_html",
+  "email": null,
+  "emailsSeen": 0
+ },
+ {
+  "id": "11581",
+  "dealerName": "PINE BELT CADILLAC OF TOMS RIVER, INC.",
+  "contactName": "Marc Stango",
+  "website": "https://www.pinebeltcadillac.com/",
+  "sourceUrl": "https://www.pinebeltcadillac.com/about-us/staff/",
+  "status": "no_match",
+  "email": null,
+  "emailsSeen": 1
+ },
+ {
+  "id": "16850",
+  "dealerName": "PLATINUM CADILLAC",
+  "contactName": "Robert Rodriguez",
+  "website": "https://www.platinumcadillac.com/",
+  "sourceUrl": "https://www.platinumcadillac.com/staff",
+  "status": "matched",
+  "email": "rrodriguez@gilchristautomotive.com",
+  "emailsSeen": 15
+ },
+ {
+  "id": "16548",
+  "dealerName": "PLAZA CADILLAC",
+  "contactName": "Tony Pagano",
+  "website": "https://www.plazacadillac.com/",
+  "sourceUrl": "https://www.plazacadillac.com/staff.aspx",
+  "status": "matched",
+  "email": "tonypagano@plazacadillac.com",
+  "emailsSeen": 10
+ },
+ {
+  "id": "16677",
+  "dealerName": "PRESTIGE CADILLAC",
+  "contactName": "Michael Moore",
+  "website": "https://www.prestigecadillac.com/",
+  "sourceUrl": "https://www.prestigecadillac.com/staff",
+  "status": "matched",
+  "email": "mmoore@prestigecadillac.com",
+  "emailsSeen": 14
+ },
+ {
+  "id": "16632",
+  "dealerName": "QUANTRELL CADILLAC, INC.",
+  "contactName": "Brentley Jones",
+  "website": "https://www.quantrellcadillac.com/",
+  "sourceUrl": "https://www.quantrellcadillac.com/about-us/staff/",
+  "status": "http_403"
+ },
+ {
+  "id": "16660",
+  "dealerName": "QUIRK CADILLAC OF BANGOR",
+  "contactName": "JOE QUIRK",
+  "website": "https://www.quirkcadillac.com/",
+  "sourceUrl": "https://www.quirkcadillac.com/staff/",
+  "status": "no_match",
+  "email": null,
+  "emailsSeen": 1
+ },
+ {
+  "id": "16549",
+  "dealerName": "RANDY MARION CADILLAC OF JACKSONVILLE, LLC",
+  "contactName": "SHAWN SPENCER",
+  "website": "https://www.randymarioncadillacofjacksonville.com/",
+  "sourceUrl": "https://www.randymarioncadillacofjacksonville.com/staff",
+  "status": "no_emails_in_html",
+  "email": null,
+  "emailsSeen": 0
+ },
+ {
+  "id": "16609",
+  "dealerName": "RAY DENNISON CADILLAC",
+  "contactName": "Kerry Roos",
+  "website": "https://www.raydennisoncadillac.com/",
+  "sourceUrl": "https://www.raydennisoncadillac.com/about-us/staff/",
+  "status": "http_403"
+ },
+ {
+  "id": "10074",
+  "dealerName": "RELIABLE CADILLAC",
+  "contactName": "Ryan",
+  "website": "https://www.reliablebuickgmc.com/",
+  "sourceUrl": "https://www.reliablebuickgmc.com/staff",
+  "status": "no_emails_in_html",
+  "email": null,
+  "emailsSeen": 0
+ },
+ {
+  "id": "16706",
+  "dealerName": "RESSLER CADILLAC",
+  "contactName": "Calvin Penrose",
+  "website": "https://www.resslercadillac.com/",
+  "sourceUrl": "https://www.resslercadillac.com/about-us/staff/",
+  "status": "no_match",
+  "email": null,
+  "emailsSeen": 1
+ },
+ {
+  "id": "11138",
+  "dealerName": "RHINELANDER CHEVROLET GMC",
+  "contactName": "Tim N",
+  "website": "https://www.rhinelandercadillac.com/",
+  "sourceUrl": "https://www.rhinelandergmc.com/about-us/staff/",
+  "status": "http_403"
+ },
+ {
+  "id": "16852",
+  "dealerName": "RICHARD KARR CADILLAC",
+  "contactName": "Richard Gough",
+  "website": "https://www.richardkarrcadillac.com/",
+  "sourceUrl": "https://www.richardkarrcadillac.com/about-us/staff/",
+  "status": "no_match",
+  "email": null,
+  "emailsSeen": 1
+ },
+ {
+  "id": "10503",
+  "dealerName": "RICHARDSON-MIDLAND, INC.",
+  "contactName": "Jason Shirely",
+  "website": "https://richardsonbuickgmc.com/",
+  "sourceUrl": "https://www.richardsonbuickgmc.com/about-us/staff/",
+  "status": "no_emails_in_html",
+  "email": null,
+  "emailsSeen": 0
+ },
+ {
+  "id": "16875",
+  "dealerName": "RICK HENDRICK CADILLAC",
+  "contactName": "Mike Evans",
+  "website": "https://www.rickhendrickcadillacnorfolk.com/",
+  "sourceUrl": "https://www.rickhendrickcadillacnorfolk.com/about-us/staff/",
+  "status": "http_403"
+ },
+ {
+  "id": "16516",
+  "dealerName": "RICKENBAUGH CADILLAC COMPANY",
+  "contactName": "Brian Combe",
+  "website": "https://www.rickenbaughcadillac.com/",
+  "sourceUrl": "https://www.rickenbaughcadillac.com/about-us/staff/",
+  "status": "http_403"
+ },
+ {
+  "id": "16550",
+  "dealerName": "RITCHEY CADILLAC",
+  "contactName": "Brett Serbousek",
+  "website": "https://www.ritcheycadillac.com/",
+  "sourceUrl": "https://www.ritcheycadillac.com/staff",
+  "status": "no_emails_in_html",
+  "email": null,
+  "emailsSeen": 0
+ },
+ {
+  "id": "16741",
+  "dealerName": "RIVERTON ELKO CADILLAC",
+  "contactName": "JB Anderson",
+  "website": "https://www.rivertonelko.com/",
+  "sourceUrl": "https://www.rivertonelko.com/about-us/staff/",
+  "status": "http_403"
+ },
+ {
+  "id": "16610",
+  "dealerName": "RIZZA CADILLAC",
+  "contactName": "Jim Allegretti",
+  "website": "https://www.rizzacadillac.com/",
+  "sourceUrl": "https://www.rizzacadillac.com/about-us/staff/",
+  "status": "http_403"
+ },
+ {
+  "id": "16754",
+  "dealerName": "ROBERT BASIL CADILLAC",
+  "contactName": "Steve Piniewski",
+  "website": "https://www.robertbasilcadillac.com/",
+  "sourceUrl": "https://www.robertbasilcadillac.com/about-us/staff/",
+  "status": "http_403"
+ },
+ {
+  "id": "16692",
+  "dealerName": "ROCHESTER CADILLAC",
+  "contactName": "Enke Executive",
+  "website": "https://www.rochestermotorcarscadillac.com/",
+  "sourceUrl": "https://www.rochestermotorcarscadillac.com/staff",
+  "status": "no_emails_in_html",
+  "email": null,
+  "emailsSeen": 0
+ },
+ {
+  "id": "16800",
+  "dealerName": "ROHRICH CADILLAC",
+  "contactName": "Lucci Sr.",
+  "website": "https://www.rohrichcadillac.com/",
+  "sourceUrl": "https://www.rohrichcadillac.com/about-us/staff/",
+  "status": "http_403"
+ },
+ {
+  "id": "16622",
+  "dealerName": "ROMAIN CADILLAC",
+  "contactName": "Enrique Lopez",
+  "website": "https://www.romaincadillac.com/",
+  "sourceUrl": "https://www.romaincadillac.com/staff",
+  "status": "no_match",
+  "email": null,
+  "emailsSeen": 6
+ },
+ {
+  "id": "16639",
+  "dealerName": "ROSS DOWNING CADILLAC",
+  "contactName": "Jay Stricker",
+  "website": "https://www.rossdowningcadillac.com/",
+  "sourceUrl": "https://www.rossdowningcadillac.com/staff",
+  "status": "matched",
+  "email": "jstricker@rossdowning.com",
+  "emailsSeen": 29
+ },
+ {
+  "id": "16611",
+  "dealerName": "RUSS BRAUNECKER CADILLAC",
+  "contactName": "Matt Braunecker",
+  "website": "https://www.russbrauneckerautogroup.com/",
+  "sourceUrl": "https://www.russbrauneckerautogroup.com/staff",
+  "status": "no_match",
+  "email": null,
+  "emailsSeen": 10
+ },
+ {
+  "id": "16724",
+  "dealerName": "RYAN CADILLAC MINOT",
+  "contactName": "Bryan Starr",
+  "website": "https://www.ryancadillacminot.com/",
+  "sourceUrl": "https://www.ryancadillacminot.com/about-us/staff/",
+  "status": "http_403"
+ },
+ {
+  "id": "16612",
+  "dealerName": "SAM LEMAN CADILLAC",
+  "contactName": "Andrew Taylor",
+  "website": "https://www.champaigncadillac.com/",
+  "sourceUrl": "https://www.champaigncadillac.com/about-us/staff/",
+  "status": "http_403"
+ },
+ {
+  "id": "16623",
+  "dealerName": "SCHEPEL CADILLAC",
+  "contactName": "RYAN VANPROOYEN",
+  "website": "https://www.schepelcadillac.com/",
+  "sourceUrl": "https://www.schepelcadillac.com/staff",
+  "status": "no_emails_in_html",
+  "email": null,
+  "emailsSeen": 0
+ },
+ {
+  "id": "16500",
+  "dealerName": "SEASIDE CADILLAC",
+  "contactName": "Ken Brizendine",
+  "website": "https://www.seasidecadillac.com/",
+  "sourceUrl": "https://www.seasidecadillac.com/staff",
+  "status": "matched",
+  "email": "kbrizendine@groppettiauto.com",
+  "emailsSeen": 3
+ },
+ {
+  "id": "16678",
+  "dealerName": "SERRA CADILLAC",
+  "contactName": "Randy Jackson",
+  "website": "https://www.driveserracadillac.com/",
+  "sourceUrl": "https://www.driveserracadillac.com/staff",
+  "status": "matched",
+  "email": "rjackson@driveserra.com",
+  "emailsSeen": 15
+ },
+ {
+  "id": "16823",
+  "dealerName": "SERRA CADILLAC OF JACKSON",
+  "contactName": "Brad Ballentine",
+  "website": "https://www.cadillacofjackson.com/",
+  "sourceUrl": "https://www.cadillacofjackson.com/about-us/staff/",
+  "status": "http_403"
+ },
+ {
+  "id": "16679",
+  "dealerName": "SERRA CADILLAC OF TRAVERSE CITY",
+  "contactName": "Guest Cadillac",
+  "website": "https://www.serracadillacoftraversecity.com/",
+  "sourceUrl": "https://serracadillacoftraversecity.adviserly.com:443/",
+  "status": "no_emails_in_html",
+  "email": null,
+  "emailsSeen": 0
+ },
+ {
+  "id": "16640",
+  "dealerName": "SERVICE CADILLAC",
+  "contactName": "Royce Laseter",
+  "website": "https://www.cadillacatservice.com/",
+  "sourceUrl": "https://www.cadillacatservice.com/dealership/staff.htm",
+  "status": "no_match",
+  "email": null,
+  "emailsSeen": 4
+ },
+ {
+  "id": "16857",
+  "dealerName": "SEWELL CADILLAC OF MIDLAND",
+  "contactName": "Justin Cavazos",
+  "website": "https://www.sewellcadillac-midland.com/",
+  "sourceUrl": "https://www.sewellcadillac-midland.com/our-team/",
+  "status": "http_403"
+ },
+ {
+  "id": "16901",
+  "dealerName": "SHEBOYGAN CADILLAC",
+  "contactName": "Warranty...Ask your",
+  "website": "https://www.sheboygancadillac.com/",
+  "sourceUrl": "https://www.sheboygancadillac.com/aboutus.aspx",
+  "status": "no_emails_in_html",
+  "email": null,
+  "emailsSeen": 0
+ },
+ {
+  "id": "16551",
+  "dealerName": "SHEEHAN CADILLAC, LLC",
+  "contactName": "Mark Gerke",
+  "website": "https://www.sheehancadillac.com/",
+  "sourceUrl": "https://www.sheehancadillac.com/staff",
+  "status": "matched",
+  "email": "mark.gerke@sheehancadillac.com",
+  "emailsSeen": 26
+ },
+ {
+  "id": "16858",
+  "dealerName": "SHERMAN CADILLAC",
+  "contactName": "Rusty McDonald",
+  "website": "https://www.shermancadillac.com/",
+  "sourceUrl": "https://www.shermancadillac.com/about-us/staff/",
+  "status": "http_403"
+ },
+ {
+  "id": "16727",
+  "dealerName": "SID DILLON CADILLAC-FREMONT",
+  "contactName": "Rich Eyler",
+  "website": "https://www.siddilloncadillac.com/",
+  "sourceUrl": "https://www.siddilloncadillac.com/about-us/staff/",
+  "status": "http_403"
+ },
+ {
+  "id": "10877",
+  "dealerName": "SMAIL GMC",
+  "contactName": "Jeff Smail",
+  "website": "https://www.smailcadillac.com/",
+  "sourceUrl": "https://www.smailgmc.com/about-us/staff/",
+  "status": "no_match",
+  "email": null,
+  "emailsSeen": 1
+ },
+ {
+  "id": "10552",
+  "dealerName": "SNELL INDOOR AUTO CENTER",
+  "contactName": "Melissa Bradley",
+  "website": "https://www.snellmotors.com/",
+  "sourceUrl": "https://www.snellmotors.com/staff",
+  "status": "matched",
+  "email": "mbradley@snellmotors.com",
+  "emailsSeen": 36
+ },
+ {
+  "id": "16575",
+  "dealerName": "SONS CHEVROLET",
+  "contactName": "John Capps",
+  "website": "https://www.sonscadillac.com/",
+  "sourceUrl": "https://www.sonscadillac.com/about-us/staff/",
+  "status": "http_403"
+ },
+ {
+  "id": "16576",
+  "dealerName": "SOUTHTOWNE CADILLAC",
+  "contactName": "MARK LENTZ",
+  "website": "https://www.southtownecadillac.com/",
+  "sourceUrl": "https://www.southtownecadillac.com/about-us/staff/",
+  "status": "no_match",
+  "email": null,
+  "emailsSeen": 1
+ },
+ {
+  "id": "10949",
+  "dealerName": "SPEARFISH MOTORS, INC.",
+  "contactName": "Jamie Bartow",
+  "website": "https://www.spearfishcadillac.com/",
+  "sourceUrl": "https://www.spearfishmotors.com/staff",
+  "status": "no_emails_in_html",
+  "email": null,
+  "emailsSeen": 0
+ },
+ {
+  "id": "16577",
+  "dealerName": "SPENCE CADILLAC",
+  "contactName": "Philip Park",
+  "website": "https://www.spencecadillac.com/",
+  "sourceUrl": "https://www.spencecadillac.com/staff",
+  "status": "matched",
+  "email": "ppark@spencecarsandtrucks.com",
+  "emailsSeen": 20
+ },
+ {
+  "id": "16657",
+  "dealerName": "SPORT CADILLAC",
+  "contactName": "Kyle Bacon",
+  "website": "https://www.sportcadillac.com/",
+  "sourceUrl": "https://www.sportcadillac.com/staff",
+  "status": "matched",
+  "email": "kbacon@sportautomotive.com",
+  "emailsSeen": 12
+ },
+ {
+  "id": "16878",
+  "dealerName": "SPRINGFIELD CADILLAC",
+  "contactName": "Colby Mack",
+  "website": "https://www.springfieldcadillacvt.com/",
+  "sourceUrl": "https://www.springfieldcadillacvt.com/staff",
+  "status": "matched",
+  "email": "cmack@springfieldcadillacvt.com",
+  "emailsSeen": 24
+ },
+ {
+  "id": "16776",
+  "dealerName": "STADIUM CADILLAC",
+  "contactName": "Michael Hudock",
+  "website": "https://www.stadiumcadillac.com/",
+  "sourceUrl": "https://www.stadiumcadillac.com/staff",
+  "status": "matched",
+  "email": "michael.hudock@stadiumgm.com",
+  "emailsSeen": 18
+ },
+ {
+  "id": "9555",
+  "dealerName": "STAN MCNABB CHEVROLET COLUMBIA",
+  "contactName": "Brian \"Griz\" Grezenski",
+  "website": "https://www.stanmcnabbcadillaccolumbia.com/",
+  "sourceUrl": "https://www.stanmcnabbchevroletcolumbia.com/about-us/staff/",
+  "status": "http_403"
+ },
+ {
+  "id": "16777",
+  "dealerName": "STEINLE CADILLAC",
+  "contactName": "STEVE STEINLE",
+  "website": "https://www.steinlegmccadillac.com/",
+  "sourceUrl": "https://www.steinlegmccadillac.com/staff",
+  "status": "no_match",
+  "email": null,
+  "emailsSeen": 5
+ },
+ {
+  "id": "16683",
+  "dealerName": "SUBURBAN CADILLAC OF TROY",
+  "contactName": "Jason Nies",
+  "website": "https://www.suburbancadillacoftroy.com/",
+  "sourceUrl": "https://www.suburbancadillacoftroy.com/dealership/staff.htm",
+  "status": "matched",
+  "email": "jnies@suburbancollection.com",
+  "emailsSeen": 3
+ },
+ {
+  "id": "16554",
+  "dealerName": "SULLIVAN CADILLAC",
+  "contactName": "Jared Reynolds",
+  "website": "https://www.sullivancadillac.com/",
+  "sourceUrl": "https://www.sullivancadillac.com/about-us/staff/",
+  "status": "no_match",
+  "email": null,
+  "emailsSeen": 2
+ },
+ {
+  "id": "16556",
+  "dealerName": "SUNSET CADILLAC OF SARASOTA",
+  "contactName": "Craig McGregor",
+  "website": "https://www.sunsetcadillacsarasota.com/",
+  "sourceUrl": "https://www.sunsetcadillacsarasota.com/dealership/staff.htm",
+  "status": "matched",
+  "email": "cmcgregor@sunsetautogroup.com",
+  "emailsSeen": 28
+ },
+ {
+  "id": "16557",
+  "dealerName": "SUNSET CADILLAC OF VENICE",
+  "contactName": "Charles Kyle",
+  "website": "https://www.sunsetcadillacvenice.com/",
+  "sourceUrl": "https://www.sunsetcadillacvenice.com/dealership/staff.htm",
+  "status": "matched",
+  "email": "ckyle@sunsetautogroup.com",
+  "emailsSeen": 25
+ },
+ {
+  "id": "16450",
+  "dealerName": "SWICKARD CADILLAC OF ANCHORAGE",
+  "contactName": "James King",
+  "website": "https://www.cadillacanchorage.com/",
+  "sourceUrl": "https://www.cadillacanchorage.com/staff",
+  "status": "matched",
+  "email": "james.king@swickard.com",
+  "emailsSeen": 8
+ },
+ {
+  "id": "16503",
+  "dealerName": "TEAM CADILLAC",
+  "contactName": "Sly Garcia",
+  "website": "https://www.vallejocadillac.com/",
+  "sourceUrl": "https://www.vallejocadillac.com/about-us/staff/",
+  "status": "no_emails_in_html",
+  "email": null,
+  "emailsSeen": 0
+ },
+ {
+  "id": "10657",
+  "dealerName": "THOMPSON BUICK GMC",
+  "contactName": "Ryan Fuller",
+  "website": "https://www.thompsoncars.net/",
+  "sourceUrl": "https://www.thompsoncars.net/about-us/staff/",
+  "status": "no_emails_in_html",
+  "email": null,
+  "emailsSeen": 0
+ },
+ {
+  "id": "16701",
+  "dealerName": "THOMPSON CADILLAC SPRINGFIELD",
+  "contactName": "Tyler Thompson",
+  "website": "https://www.thompsonsalescadillac.com/",
+  "sourceUrl": "https://www.thompsonsalescadillac.com/about-us/staff/",
+  "status": "no_emails_in_html",
+  "email": null,
+  "emailsSeen": 0
+ },
+ {
+  "id": "16859",
+  "dealerName": "TOM CLARK CADILLAC",
+  "contactName": "Shellie Tait",
+  "website": "https://www.tomclarkcadillac.com/",
+  "sourceUrl": "https://www.tomclarkcadillac.com/staff",
+  "status": "matched",
+  "email": "stait@tomclarkautopark.com",
+  "emailsSeen": 14
+ },
+ {
+  "id": "16625",
+  "dealerName": "TOM NAQUIN CHEVROLET-NISSAN-CADILLAC",
+  "contactName": "GREG FINK",
+  "website": "https://www.tomnaquincadillac.com/",
+  "sourceUrl": "https://www.tomnaquincadillac.com/staff",
+  "status": "matched",
+  "email": "gfink@tomnaquin.com",
+  "emailsSeen": 33
+ },
+ {
+  "id": "16860",
+  "dealerName": "TOM PEACOCK CADILLAC INC.",
+  "contactName": "Alex Hinojosa",
+  "website": "https://www.tompeacockcadillac.com/",
+  "sourceUrl": "https://www.tompeacockcadillac.com/staff",
+  "status": "matched",
+  "email": "ahinojosa@tpcadillac.com",
+  "emailsSeen": 42
+ },
+ {
+  "id": "16720",
+  "dealerName": "TRENT CADILLAC",
+  "contactName": "Director CT TILAHUN",
+  "website": "https://www.trentcadillac.com/",
+  "sourceUrl": "https://www.trentcadillac.com/dealership/staff.htm",
+  "status": "no_match",
+  "email": null,
+  "emailsSeen": 3
+ },
+ {
+  "id": "8916",
+  "dealerName": "TURAN-FOLEY MOTORS, INC.",
+  "contactName": "SEAN DOUGLASS",
+  "website": "https://www.turanfoleycadillac.com/",
+  "sourceUrl": "https://www.turanfoley.com/staff/",
+  "status": "no_emails_in_html",
+  "email": null,
+  "emailsSeen": 0
+ },
+ {
+  "id": "16627",
+  "dealerName": "UEBELHOR AND SONS CADILLAC VINCENNES",
+  "contactName": "PAUL CARY",
+  "website": "https://www.uebelhorcadillacvincennes.com/",
+  "sourceUrl": "https://www.uebelhorcadillacvincennes.com/dealership/staff.htm",
+  "status": "matched",
+  "email": "pcary@uebelhor.com",
+  "emailsSeen": 21
+ },
+ {
+  "id": "16613",
+  "dealerName": "UFTRING MONTGOMERY CADILLAC",
+  "contactName": "service. AJ Blunier",
+  "website": "https://www.uftringmontgomerycadillac.com/",
+  "sourceUrl": "https://www.uftringmontgomerycadillac.com/about-us/staff/",
+  "status": "no_emails_in_html",
+  "email": null,
+  "emailsSeen": 0
+ },
+ {
+  "id": "16578",
+  "dealerName": "VADEN CADILLAC BRUNSWICK",
+  "contactName": "Miguel Zepeda",
+  "website": "https://www.vadencadillacbrunswick.com/",
+  "sourceUrl": "https://www.vadencadillacbrunswick.com/staff",
+  "status": "no_emails_in_html",
+  "email": null,
+  "emailsSeen": 0
+ },
+ {
+  "id": "16579",
+  "dealerName": "VADEN CADILLAC SAVANNAH",
+  "contactName": "David Jung",
+  "website": "https://www.vadencadillac.com/",
+  "sourceUrl": "https://www.vadencadillac.com/staff",
+  "status": "no_emails_in_html",
+  "email": null,
+  "emailsSeen": 0
+ },
+ {
+  "id": "16559",
+  "dealerName": "VAL WARD CADILLAC, INC.",
+  "contactName": "Pete Weidner",
+  "website": "https://www.valwardautos.com/",
+  "sourceUrl": "https://www.valwardautos.com/staff",
+  "status": "no_emails_in_html",
+  "email": null,
+  "emailsSeen": 0
+ },
+ {
+  "id": "16780",
+  "dealerName": "VOSS VILLAGE CADILLAC, INC.",
+  "contactName": "Bryan Vanover",
+  "website": "https://www.vosscadillac.com/",
+  "sourceUrl": "https://www.vosscadillac.com/about-us/staff/",
+  "status": "no_emails_in_html",
+  "email": null,
+  "emailsSeen": 0
+ },
+ {
+  "id": "16861",
+  "dealerName": "WAGNER CADILLAC",
+  "contactName": "Daniel Martin",
+  "website": "https://www.wagnercadillac.com/",
+  "sourceUrl": "https://www.wagnercadillac.com/dealership/staff.htm",
+  "status": "matched",
+  "email": "danielmartin@wagnercadillac.com",
+  "emailsSeen": 6
+ },
+ {
+  "id": "16580",
+  "dealerName": "WALKER-JONES CADILLAC",
+  "contactName": "Barry Hallowell",
+  "website": "https://www.walkerjonescadillac.com/",
+  "sourceUrl": "https://www.walkerjonescadillac.com/staff",
+  "status": "matched",
+  "email": "bhallowell@walkerjones.com",
+  "emailsSeen": 10
+ },
+ {
+  "id": "16508",
+  "dealerName": "WALNUT CREEK CADILLAC",
+  "contactName": "Melissa Arbil",
+  "website": "https://www.walnutcreekcadillac.com/",
+  "sourceUrl": "https://www.walnutcreekcadillac.com/staff/",
+  "status": "http_403"
+ },
+ {
+  "id": "16581",
+  "dealerName": "WELBORN CADILLAC OF CARTERSVILLE",
+  "contactName": "Nick Cornejo",
+  "website": "https://www.riversidecadillaccartersville.com/",
+  "sourceUrl": "https://www.welborncadillacofcartersville.com/about-us/staff/",
+  "status": "no_emails_in_html",
+  "email": null,
+  "emailsSeen": 0
+ },
+ {
+  "id": "16862",
+  "dealerName": "WIESNER CADILLAC",
+  "contactName": "Clint McLaren",
+  "website": "https://www.wiesnercadillac.com/",
+  "sourceUrl": "https://www.wiesnercadillac.com/staff",
+  "status": "matched",
+  "email": "clint_mclaren@wiesnerauto.com",
+  "emailsSeen": 19
+ },
+ {
+  "id": "16563",
+  "dealerName": "WILLIAMSON CADILLAC",
+  "contactName": "Beny Ledesma",
+  "website": "https://www.williamsoncadillac.com/",
+  "sourceUrl": "https://www.williamsoncadillac.com/staff",
+  "status": "no_emails_in_html",
+  "email": null,
+  "emailsSeen": 0
+ },
+ {
+  "id": "16786",
+  "dealerName": "WILSON CADILLAC",
+  "contactName": "Chris Mann",
+  "website": "https://www.wilsoncadillac.com/",
+  "sourceUrl": "https://www.wilsoncadillac.com/staff",
+  "status": "no_emails_in_html",
+  "email": null,
+  "emailsSeen": 0
+ },
+ {
+  "id": "16728",
+  "dealerName": "WOODHOUSE CADILLAC",
+  "contactName": "Elaine Campbell",
+  "website": "https://www.woodhousecadillac.com/",
+  "sourceUrl": "https://www.woodhousecadillac.com/about-us/staff/",
+  "status": "http_403"
+ },
+ {
+  "id": "16511",
+  "dealerName": "WOODLAND CADILLAC",
+  "contactName": "KYLE P.",
+  "website": "https://www.woodlandcadillac.com/",
+  "sourceUrl": "https://www.woodlandcadillac.com/about-us/staff/",
+  "status": "http_403"
+ },
+ {
+  "id": "16614",
+  "dealerName": "ZEIGLER CADILLAC OF LINCOLNWOOD",
+  "contactName": "Nate Hackett",
+  "website": "https://www.zeiglergmcadillac.com/",
+  "sourceUrl": "https://www.zeiglergmcadillac.com/about-us/staff/",
+  "status": "http_403"
+ }
+]
