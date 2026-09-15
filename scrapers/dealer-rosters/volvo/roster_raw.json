@@ -1,0 +1,5149 @@
+[
+ {
+  "code": "6US4124",
+  "parma": "AA7SA",
+  "name": "Century Volvo Cars",
+  "address1": "3800 University Drive N.W.",
+  "city": "Huntsville",
+  "state": "AL",
+  "zip": "35816",
+  "phone": "(256) 787-0669",
+  "url": "https://www.century-volvo.com/",
+  "latitude": "34.73559",
+  "longitude": "-86.62423",
+  "dealerEmail": "ctuttle@centuryauto.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US4152",
+  "parma": "AA7SF",
+  "name": "Jack Ingram Volvo Cars",
+  "address1": "267 Eastern Blvd",
+  "city": "Montgomery",
+  "state": "AL",
+  "zip": "36117",
+  "phone": "(334) 429-7446",
+  "url": "https://www.jackingramvolvocars.com/",
+  "latitude": "32.37475",
+  "longitude": "-86.20842",
+  "dealerEmail": "TThames@jackingram.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US4137",
+  "parma": "AFN3K",
+  "name": "Volvo Cars Mobile",
+  "address1": "1525 E I-65 Service Rd S.",
+  "city": "Mobile",
+  "state": "AL",
+  "zip": "36606",
+  "phone": "(251) 714-2215",
+  "url": "https://www.volvocarsmobile.com/",
+  "latitude": "30.6594812932",
+  "longitude": "-88.124531515",
+  "dealerEmail": "eamen@tameron.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US4142",
+  "parma": "ADS2M",
+  "name": "Volvo Cars of Vestavia Hills",
+  "address1": "3010 Columbiana Road",
+  "city": "Vestavia Hills",
+  "state": "AL",
+  "zip": "35216",
+  "phone": "(205) 847-2741",
+  "url": "https://www.volvocarsofvestaviahills.com/",
+  "latitude": "33.41475",
+  "longitude": "-86.80617",
+  "dealerEmail": "rrobinson@royalautomotive.net",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US4196",
+  "parma": "AEJDZ",
+  "name": "McLarty Volvo Cars of Little Rock",
+  "address1": "1500 North Shackleford Rd",
+  "city": "Little Rock",
+  "state": "AR",
+  "zip": "72211",
+  "phone": "(501) 474-6012",
+  "url": "https://www.mclartyvolvocars.com/",
+  "latitude": "34.76799",
+  "longitude": "-92.39634",
+  "dealerEmail": "jandrews@nortpointcars.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US5390",
+  "parma": "AELNT",
+  "name": "Courtesy Volvo Cars of Scottsdale",
+  "address1": "4001 North 89th Street",
+  "city": "Scottsdale",
+  "state": "AZ",
+  "zip": "85251",
+  "phone": "(480) 573-7243",
+  "url": "https://www.courtesyvolvocarsofscottsdale.com/",
+  "latitude": "33.49406",
+  "longitude": "-111.8894",
+  "dealerEmail": "Volvo@courtesyautomotivegroup.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US5388",
+  "parma": "AEYQR",
+  "name": "Volvo Cars Arrowhead",
+  "address1": "19300 N. 101 Loop",
+  "city": "Glendale",
+  "state": "AZ",
+  "zip": "85308",
+  "phone": "(602) 433-6252",
+  "url": "https://www.volvocarsarrowhead.com",
+  "latitude": "33.65971",
+  "longitude": "-112.23377",
+  "dealerEmail": "sales@volvoarrowhead.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US5360",
+  "parma": "AD5RC",
+  "name": "Volvo Cars Gilbert",
+  "address1": "3285 S. Gilbert Road",
+  "city": "Gilbert",
+  "state": "AZ",
+  "zip": "85297",
+  "phone": "(602) 780-0492",
+  "url": "https://www.volvocarsgilbert.com/",
+  "latitude": "33.29026",
+  "longitude": "-111.78875",
+  "dealerEmail": "volvoesales@volvocarsgilbert.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US5306",
+  "parma": "AEM29",
+  "name": "Volvo Cars Tucson",
+  "address1": "831 West Wetmore Road",
+  "city": "Tucson",
+  "state": "AZ",
+  "zip": "85705",
+  "phone": "(520) 455-3296",
+  "url": "https://www.volvocarstucson.com/",
+  "latitude": "32.28577",
+  "longitude": "-110.98542",
+  "dealerEmail": "mpun@wiseautogroup.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US5490",
+  "parma": "ADV7E",
+  "name": "AutoNation Volvo Cars San Jose",
+  "address1": "4600 Stevens Creek Blvd",
+  "city": "San Jose",
+  "state": "CA",
+  "zip": "95129",
+  "phone": "(408) 638-4368",
+  "url": "https://www.autonationvolvocarssanjose.com/",
+  "latitude": "37.32276",
+  "longitude": "-121.98436",
+  "dealerEmail": "MendozaJ1@autonation.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US5182",
+  "parma": "ADXSW",
+  "name": "Culver City Volvo Cars",
+  "address1": "11201 Washington Blvd",
+  "city": "Culver City",
+  "state": "CA",
+  "zip": "90230",
+  "phone": "(424) 392-6416",
+  "url": "https://www.culvercityvolvo.com/",
+  "latitude": "34.00711",
+  "longitude": "-118.4133",
+  "dealerEmail": "sales@culvercityvolvo.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US5243",
+  "parma": "ADWCS",
+  "name": "Galpin Volvo Cars",
+  "address1": "8333 Sepulveda Blvd",
+  "city": "North Hills",
+  "state": "CA",
+  "zip": "91343",
+  "phone": "(818) 423-4103",
+  "url": "https://www.vannuysvolvocars.com/",
+  "latitude": "34.22054",
+  "longitude": "-118.47039",
+  "dealerEmail": "premier@galpin.dsmessage.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US5586",
+  "parma": "AEDQH",
+  "name": "Niello Volvo Cars Sacramento",
+  "address1": "4609 Madison Ave",
+  "city": "Sacramento",
+  "state": "CA",
+  "zip": "95841",
+  "phone": "(916) 471-4385",
+  "url": "https://volvocars.niello.com/",
+  "latitude": "38.66134",
+  "longitude": "-121.35717",
+  "dealerEmail": "volvo.sales@niello.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US5121",
+  "parma": "AE1KP",
+  "name": "Penske Volvo Cars",
+  "address1": "17695 Gale Avenue",
+  "city": "City of Industry",
+  "state": "CA",
+  "zip": "91748",
+  "phone": "(626) 649-4565",
+  "url": "https://www.penskevolvocars.com/",
+  "latitude": "33.99627",
+  "longitude": "-117.91962",
+  "dealerEmail": "jnorsworthy@socalpenske.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US5152",
+  "parma": "AA7TU",
+  "name": "Rusnak Volvo Cars",
+  "address1": "267 West Colorado Boulevard",
+  "city": "Pasadena",
+  "state": "CA",
+  "zip": "91105",
+  "phone": "(626) 714-6673",
+  "url": "https://www.rusnakvolvocars.com/",
+  "latitude": "34.14596",
+  "longitude": "-118.15614",
+  "dealerEmail": "sales@rusnakvolvo.dealerspace.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US5112",
+  "parma": "AE6K6",
+  "name": "Rusnak Volvo Cars Westlake",
+  "address1": "3839 Auto Mall Drive",
+  "city": "Thousand Oaks",
+  "state": "CA",
+  "zip": "91362",
+  "phone": "(805) 567-7989",
+  "url": "",
+  "latitude": "34.1611",
+  "longitude": "-118.82851",
+  "dealerEmail": "sales@rusnak.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US5123",
+  "parma": "AA7TR",
+  "name": "Smith Volvo Cars",
+  "address1": "1219 Monterey Street",
+  "city": "San Luis Obispo",
+  "state": "CA",
+  "zip": "93401",
+  "phone": "(805) 977-6205",
+  "url": "https://www.smithvolvo.com/",
+  "latitude": "35.28352",
+  "longitude": "-120.65813",
+  "dealerEmail": "brent@smithvolvocars.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US5483",
+  "parma": "AA7UN",
+  "name": "Smothers European Volvo Cars",
+  "address1": "2881 Corby Ave.",
+  "city": "Santa Rosa",
+  "state": "CA",
+  "zip": "95407",
+  "phone": "(707) 638-1636",
+  "url": "https://www.smotherseuropeanvolvocars.com/",
+  "latitude": "38.40741",
+  "longitude": "-122.71704",
+  "dealerEmail": "vileads@smotherseuropean.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US5464",
+  "parma": "AA7UK",
+  "name": "Volvo Cars Burlingame",
+  "address1": "900 Peninsula Avenue",
+  "city": "Burlingame",
+  "state": "CA",
+  "zip": "94010",
+  "phone": "(650) 610-2270",
+  "url": "https://www.volvocarsburlingame.com/",
+  "latitude": "37.57779",
+  "longitude": "-122.33873",
+  "dealerEmail": "rreplies@putnamauto.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US5334",
+  "parma": "AA7T8",
+  "name": "Volvo Cars Carlsbad",
+  "address1": "6830 Avenida Encinas",
+  "city": "Carlsbad",
+  "state": "CA",
+  "zip": "92011",
+  "phone": "(760) 417-6832",
+  "url": "https://www.volvocarscarlsbad.com/",
+  "latitude": "33.1092",
+  "longitude": "-117.31519",
+  "dealerEmail": "info@carlsbadvolvo.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US5153",
+  "parma": "AFG4D",
+  "name": "Volvo Cars Cerritos",
+  "address1": "18303 Studebaker Road",
+  "city": "Cerritos",
+  "state": "CA",
+  "zip": "90703",
+  "phone": "(562) 545-4657",
+  "url": "https://www.volvocarscerritos.com/",
+  "latitude": "33.8650850113",
+  "longitude": "-118.100451028",
+  "dealerEmail": "sales@volvocarscerritos.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US5436",
+  "parma": "AEENJ",
+  "name": "Volvo Cars Chico",
+  "address1": "13340 Garner Lane",
+  "city": "Chico",
+  "state": "CA",
+  "zip": "95973",
+  "phone": "(530) 464-1044",
+  "url": "https://www.volvocarschico.com/",
+  "latitude": "39.78756",
+  "longitude": "-121.88978",
+  "dealerEmail": "courtesymotors@chicocourtesy.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US5555",
+  "parma": "AE1TH",
+  "name": "Volvo Cars Dublin",
+  "address1": "5510 Scarlett Drive",
+  "city": "Dublin",
+  "state": "CA",
+  "zip": "94568",
+  "phone": "(925) 248-3049",
+  "url": "https://www.volvocarsdublin.com",
+  "latitude": "37.70343",
+  "longitude": "-121.90425",
+  "dealerEmail": "sales@volvocarsdublin.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US5335",
+  "parma": "ADYXS",
+  "name": "Volvo Cars Escondido",
+  "address1": "1938 Auto Parkway",
+  "city": "Escondido",
+  "state": "CA",
+  "zip": "92029",
+  "phone": "(760) 546-5814",
+  "url": "https://www.volvocarsescondido.com/",
+  "latitude": "33.11693",
+  "longitude": "-117.10961",
+  "dealerEmail": "info@volvoescondido.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US5275",
+  "parma": "AFAQP",
+  "name": "Volvo Cars Fresno",
+  "address1": "2222 Cesar Chavez Blvd",
+  "city": "Fresno",
+  "state": "CA",
+  "zip": "93721",
+  "phone": "(559) 529-9384",
+  "url": "https://www.volvocarsfresno.com/",
+  "latitude": "36.7309",
+  "longitude": "-119.78345",
+  "dealerEmail": "sales@volvofresno.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US5482",
+  "parma": "ADYK8",
+  "name": "Volvo Cars Marin",
+  "address1": "619 Francisco Blvd East",
+  "city": "San Rafael",
+  "state": "CA",
+  "zip": "94901",
+  "phone": "(415) 496-0273",
+  "url": "https://www.volvocarsmarin.com/",
+  "latitude": "37.96461",
+  "longitude": "-122.51283",
+  "dealerEmail": "Sales@dealerspace.marinluxurycars.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US5353",
+  "parma": "AEZLK",
+  "name": "Volvo Cars Mission Viejo",
+  "address1": "28730 Marguerite Pkwy.",
+  "city": "Mission Viejo",
+  "state": "CA",
+  "zip": "92692",
+  "phone": "(949) 359-6864",
+  "url": "https://www.volvocarsmissionviejo.com/",
+  "latitude": "33.54559",
+  "longitude": "-117.67129",
+  "dealerEmail": "sales@volvocarsmissionviejo.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US5441",
+  "parma": "AFNJY",
+  "name": "Volvo Cars Monterey",
+  "address1": "1711 Del Monte Blvd.",
+  "city": "Seaside",
+  "state": "CA",
+  "zip": "93955",
+  "phone": "(831) 230-9536",
+  "url": "https://www.volvocarsmonterey.com/",
+  "latitude": "36.612249530",
+  "longitude": "-121.84901103",
+  "dealerEmail": "assistance@volvocarsmonterey.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US5119",
+  "parma": "AA7TQ",
+  "name": "Volvo Cars Ontario",
+  "address1": "1300 Auto Center Drive",
+  "city": "Ontario",
+  "state": "CA",
+  "zip": "91761",
+  "phone": "(909) 740-6109",
+  "url": "https://www.volvocarsontario.com/",
+  "latitude": "34.05058",
+  "longitude": "-117.54559",
+  "dealerEmail": "sales@ontariovolvo.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US5352",
+  "parma": "AA7T9",
+  "name": "Volvo Cars Orange County",
+  "address1": "1400 Dan Gurney Drive",
+  "city": "Santa Ana",
+  "state": "CA",
+  "zip": "92705",
+  "phone": "(714) 418-4838",
+  "url": "https://www.volvo-oc.com/",
+  "latitude": "33.72872",
+  "longitude": "-117.83998",
+  "dealerEmail": "sales@volvo-oc.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US5362",
+  "parma": "AEMBM",
+  "name": "Volvo Cars Palm Springs",
+  "address1": "67615 E Palm Canyon Drive",
+  "city": "Cathedral City",
+  "state": "CA",
+  "zip": "92234",
+  "phone": "(760) 284-5786",
+  "url": "https://www.volvocarspalmsprings.com/",
+  "latitude": "33.78727",
+  "longitude": "-116.48092",
+  "dealerEmail": "leads@carspalmsprings.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US5424",
+  "parma": "AD0RF",
+  "name": "Volvo Cars Palo Alto",
+  "address1": "4190 El Camino Real",
+  "city": "Palo Alto",
+  "state": "CA",
+  "zip": "94306",
+  "phone": "(650) 353-9984",
+  "url": "https://www.volvocarspaloalto.com/",
+  "latitude": "37.41058",
+  "longitude": "-122.12405",
+  "dealerEmail": "leads@volvopaloalto.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US5364",
+  "parma": "AA7UA",
+  "name": "Volvo Cars San Diego",
+  "address1": "5350 Kearny Mesa Road",
+  "city": "San Diego",
+  "state": "CA",
+  "zip": "92111",
+  "phone": "(858) 533-2948",
+  "url": "https://www.volvocarssandiego.com/",
+  "latitude": "32.83185",
+  "longitude": "-117.14356",
+  "dealerEmail": "volvos@SanDiegoVolvo.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US5476",
+  "parma": "AA7UL",
+  "name": "Volvo Cars San Francisco",
+  "address1": "285 S. Van Ness Ave.",
+  "city": "San Francisco",
+  "state": "CA",
+  "zip": "94103",
+  "phone": "(415) 780-9669",
+  "url": "https://www.sanfranciscovolvo.com/",
+  "latitude": "37.76866",
+  "longitude": "-122.41761",
+  "dealerEmail": "scarlton@royalmotorsales.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US5145",
+  "parma": "AE1N2",
+  "name": "Volvo Cars Santa Monica",
+  "address1": "1631 Santa Monica Boulevard",
+  "city": "Santa Monica",
+  "state": "CA",
+  "zip": "90404",
+  "phone": "(310) 526-8712",
+  "url": "https://www.volvocarsofsantamonica.com",
+  "latitude": "34.02637",
+  "longitude": "-118.48333",
+  "dealerEmail": "sales@volvocarsofsantamonica.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US5154",
+  "parma": "AEPRL",
+  "name": "Volvo Cars South Bay",
+  "address1": "18900 Hawthorne Blvd",
+  "city": "Torrance",
+  "state": "CA",
+  "zip": "90504",
+  "phone": "(310) 697-8357",
+  "url": "https://www.volvocarssouthbay.com/",
+  "latitude": "33.85891",
+  "longitude": "-118.35248",
+  "dealerEmail": "pkallimanis@mckennacars.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US5552",
+  "parma": "AEH9Q",
+  "name": "Volvo Cars Walnut Creek",
+  "address1": "2791 N. Main Street",
+  "city": "Walnut Creek",
+  "state": "CA",
+  "zip": "94597",
+  "phone": "(925) 578-3591",
+  "url": "https://www.volvocarswalnutcreek.com/",
+  "latitude": "37.92494",
+  "longitude": "-122.06356",
+  "dealerEmail": "cars@lawrencevolvo.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US4380",
+  "parma": "AA7TE",
+  "name": "Bob Penkhus Volvo Cars",
+  "address1": "1115 Motor City Drive",
+  "city": "Colorado Springs",
+  "state": "CO",
+  "zip": "80905",
+  "phone": "(719) 473-5100",
+  "url": "https://www.bobpenkhusvolvocars.com/",
+  "latitude": "38.81947",
+  "longitude": "-104.83606",
+  "dealerEmail": "acohen@bobpenkhus.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US4363",
+  "parma": "AA7TC",
+  "name": "McDonald Volvo Cars",
+  "address1": "6040 South Broadway",
+  "city": "Littleton",
+  "state": "CO",
+  "zip": "80121",
+  "phone": "(720) 783-1690",
+  "url": "https://www.mcdonaldvolvocars.com/",
+  "latitude": "39.60774",
+  "longitude": "-104.9877",
+  "dealerEmail": "volvosales@mcdonaldag.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US4322",
+  "parma": "AA7S0",
+  "name": "Pedersen Volvo Cars",
+  "address1": "4455 South Mason Street",
+  "city": "Fort Collins",
+  "state": "CO",
+  "zip": "80525",
+  "phone": "(970) 538-9413",
+  "url": "https://www.pedersenvolvo.com/",
+  "latitude": "40.5256",
+  "longitude": "-105.07982",
+  "dealerEmail": "sales@pedersenvolvo.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US4378",
+  "parma": "AA7TD",
+  "name": "Rickenbaugh Volvo Cars",
+  "address1": "777 Broadway",
+  "city": "Denver",
+  "state": "CO",
+  "zip": "80203",
+  "phone": "(303) 731-1265",
+  "url": "https://www.rickenbaughvolvocars.com/",
+  "latitude": "39.72853",
+  "longitude": "-104.9887",
+  "dealerEmail": "rsealey@rickenbaugh.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US4345",
+  "parma": "AC7MC",
+  "name": "Sill-TerHar Motors, Inc.",
+  "address1": "125 Alter Street",
+  "city": "Broomfield",
+  "state": "CO",
+  "zip": "80020",
+  "phone": "(303) 800-2122",
+  "url": "https://www.sthvolvocars.com/",
+  "latitude": "39.91936",
+  "longitude": "-105.09441",
+  "dealerEmail": "stheurer@sthmotors.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US3241",
+  "parma": "AA7QK",
+  "name": "Gengras Volvo Cars East Hartford",
+  "address1": "540 Connecticut Blvd",
+  "city": "East Hartford",
+  "state": "CT",
+  "zip": "06108",
+  "phone": "(860) 943-4719",
+  "url": "https://www.gengrasvolvohartford.com/",
+  "latitude": "41.76987",
+  "longitude": "-72.6558",
+  "dealerEmail": "gmcdonald@gengras.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US3269",
+  "parma": "ACUGH",
+  "name": "Gengras Volvo Cars North Haven",
+  "address1": "375 Washington Ave",
+  "city": "North Haven",
+  "state": "CT",
+  "zip": "06473",
+  "phone": "(475) 265-6911",
+  "url": "https://www.gengrasvolvocarsnorthhaven.com/",
+  "latitude": "41.40922",
+  "longitude": "-72.84535",
+  "dealerEmail": "mdeselin@gengras.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US3291",
+  "parma": "AA7ZL",
+  "name": "Mitchell Volvo Cars Simsbury",
+  "address1": "384 Hopmeadow St.",
+  "city": "Simsbury",
+  "state": "CT",
+  "zip": "06070",
+  "phone": "(860) 590-3499",
+  "url": "https://www.mitchellvolvo.com/",
+  "latitude": "41.85159",
+  "longitude": "-72.81272",
+  "dealerEmail": "bmccarthy@mitchellautogroup.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US3286",
+  "parma": "AD5Q7",
+  "name": "Riley Volvo Cars Stamford",
+  "address1": "107 Myrtle Ave.",
+  "city": "Stamford",
+  "state": "CT",
+  "zip": "06902",
+  "phone": "(203) 883-9395",
+  "url": "https://www.rileyvolvocarsstamford.com/",
+  "latitude": "41.05278",
+  "longitude": "-73.52618",
+  "dealerEmail": "info@stamfordvolvo.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US3281",
+  "parma": "AA7QO",
+  "name": "Secor Volvo Cars",
+  "address1": "575 Broad Street",
+  "city": "New London",
+  "state": "CT",
+  "zip": "06320",
+  "phone": "(860) 419-0254",
+  "url": "https://www.secorvolvocars.com/",
+  "latitude": "41.36621",
+  "longitude": "-72.12149",
+  "dealerEmail": "secorvolvosaab@eleadtrack.net",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US3226",
+  "parma": "AEINE",
+  "name": "Valenti Volvo Cars Watertown",
+  "address1": "694 Straits Turnpike",
+  "city": "Watertown",
+  "state": "CT",
+  "zip": "06795",
+  "phone": "(860) 419-0813",
+  "url": "http://www.valentivolvocarswatertown.com/",
+  "latitude": "41.57272",
+  "longitude": "-73.09987",
+  "dealerEmail": "VolvoSales@ValentiVolvo.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US3233",
+  "parma": "AA7QJ",
+  "name": "Volvo Cars Danbury",
+  "address1": "106 Newtown Road",
+  "city": "Danbury",
+  "state": "CT",
+  "zip": "06810",
+  "phone": "(203) 297-6937",
+  "url": "https://www.volvocarsdanbury.com/",
+  "latitude": "41.41465",
+  "longitude": "-73.41081",
+  "dealerEmail": "vodsales@thepremiercollection.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US3298",
+  "parma": "AERVE",
+  "name": "Volvo Cars Westport",
+  "address1": "556 Post Road East",
+  "city": "Westport",
+  "state": "CT",
+  "zip": "06880",
+  "phone": "(203) 349-8943",
+  "url": "https://www.volvocarswestport.com/",
+  "latitude": "41.13901",
+  "longitude": "-73.34634",
+  "dealerEmail": "leads@volvoofwestport.motosnap.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US7331",
+  "parma": "ACTN7",
+  "name": "Union Park Volvo Cars",
+  "address1": "1700 Pennsylvania Avenue",
+  "city": "Wilmington",
+  "state": "DE",
+  "zip": "19806",
+  "phone": "(302) 303-4236",
+  "url": "https://www.unionparkvolvocars.com/",
+  "latitude": "39.75461",
+  "longitude": "-75.56518",
+  "dealerEmail": "fursomarso@unionpark.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US7259",
+  "parma": "AEYEG",
+  "name": "Bomnin Volvo Cars Dadeland",
+  "address1": "8525 South Dixie Hwy",
+  "city": "Miami",
+  "state": "FL",
+  "zip": "33143",
+  "phone": "(786) 796-1238",
+  "url": "https://www.bomninvolvocarsdadeland.com",
+  "latitude": "25.69108",
+  "longitude": "-80.30501",
+  "dealerEmail": "bomninvolvocars@service.leads.cmdlr.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US7207",
+  "parma": "ADZD7",
+  "name": "Capital Volvo Cars Tallahassee",
+  "address1": "1800 Capital Circle NE",
+  "city": "Tallahassee",
+  "state": "FL",
+  "zip": "32308",
+  "phone": "(850) 788-7949",
+  "url": "https://www.capital-volvo.com/",
+  "latitude": "30.45846",
+  "longitude": "-84.35802",
+  "dealerEmail": "aharris@crowncars.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US7256",
+  "parma": "AEJQ3",
+  "name": "Crown Volvo Cars",
+  "address1": "6001 34th Street N.",
+  "city": "Saint Petersburg",
+  "state": "FL",
+  "zip": "33714",
+  "phone": "(727) 231-6609",
+  "url": "https://www.crownvolvocarsclearwater.com/",
+  "latitude": "27.82691",
+  "longitude": "-82.67914",
+  "dealerEmail": "kfeck@crowncars.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US7279",
+  "parma": "AA7V0",
+  "name": "Ferman Volvo Cars of Tarpon Springs",
+  "address1": "43520 U.S. Highway 19, North",
+  "city": "Tarpon Springs",
+  "state": "FL",
+  "zip": "34689",
+  "phone": "(727) 349-6120",
+  "url": "https://www.fermanvolvotarponsprings.com/",
+  "latitude": "28.16876",
+  "longitude": "-82.74118",
+  "dealerEmail": "evolvo@fermanauto.net",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US7123",
+  "parma": "AEI3A",
+  "name": "Gunther Volvo Cars Coconut Creek",
+  "address1": "4350 North State Road 7",
+  "city": "Coconut Creek",
+  "state": "FL",
+  "zip": "33073",
+  "phone": "(954) 371-2615",
+  "url": "https://www.gunthervolvocars.net/",
+  "latitude": "26.28353",
+  "longitude": "-80.20119",
+  "dealerEmail": "ContactUs@GuntherCreek.net",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US7257",
+  "parma": "AEV25",
+  "name": "Gunther Volvo Cars Daytona Beach",
+  "address1": "1270 N. Tomoka Farms Rd. #1",
+  "city": "Daytona Beach",
+  "state": "FL",
+  "zip": "32124",
+  "phone": "(386) 261-9248",
+  "url": "https://www.gunthervolvocarsdaytona.com/",
+  "latitude": "29.20672",
+  "longitude": "-81.10007",
+  "dealerEmail": "sales@guntherdaytona.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US7246",
+  "parma": "AEEAL",
+  "name": "Gunther Volvo Delray Beach",
+  "address1": "2201 N. Federal Hwy",
+  "city": "Delray Beach",
+  "state": "FL",
+  "zip": "33483",
+  "phone": "(561) 786-5443",
+  "url": "https://www.gunthervolvo.com/",
+  "latitude": "26.48591",
+  "longitude": "-80.06465",
+  "dealerEmail": "jfg3@guntermotors.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US7258",
+  "parma": "AE7UU",
+  "name": "Jenkins Volvo Cars Ocala",
+  "address1": "6620 SW 55th Terrace",
+  "city": "Ocala",
+  "state": "FL",
+  "zip": "34474",
+  "phone": "(352) 414-0877",
+  "url": "https://www.jenkinsvolvocarsocala.com",
+  "latitude": "29.23017",
+  "longitude": "-82.15048",
+  "dealerEmail": "volvocars@volvocars.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US7203",
+  "parma": "AA7VU",
+  "name": "OSteen Volvo Cars of Jacksonville",
+  "address1": "10863 Phillips Highway",
+  "city": "Jacksonville",
+  "state": "FL",
+  "zip": "32256",
+  "phone": "(904) 734-3582",
+  "url": "https://www.osteenvolvo.com/",
+  "latitude": "30.17152",
+  "longitude": "-81.54379",
+  "dealerEmail": "info@osteenvolvo.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US7276",
+  "parma": "AEDAT",
+  "name": "Schumacher Volvo Cars of the Palm Beaches",
+  "address1": "3001 Okeechobee Blvd",
+  "city": "West Palm Beach",
+  "state": "FL",
+  "zip": "33409",
+  "phone": "(561) 730-3402",
+  "url": "https://www.volvoofthepalmbeaches.com/",
+  "latitude": "26.70771",
+  "longitude": "-80.10037",
+  "dealerEmail": "volvo@suburbanauto.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US7227",
+  "parma": "AA7V2",
+  "name": "The Volvo Store",
+  "address1": "1051 W Webster Avenue",
+  "city": "Winter Park",
+  "state": "FL",
+  "zip": "32789",
+  "phone": "(407) 378-4737",
+  "url": "https://www.volvowinterpark.com/",
+  "latitude": "28.60432",
+  "longitude": "-81.36372",
+  "dealerEmail": "salesteam@volvowinterpark.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US7261",
+  "parma": "AFJGT",
+  "name": "Volvo Cars Fort Myers",
+  "address1": "2600 Colonial Blvd",
+  "city": "Fort Myers",
+  "state": "FL",
+  "zip": "33907",
+  "phone": "(239) 946-9209",
+  "url": "https://www.volvocarsfortmyers.com",
+  "latitude": "26.5964613",
+  "longitude": "-81.8592",
+  "dealerEmail": "info@volvocarsfortmyers.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US7211",
+  "parma": "AAAPX",
+  "name": "Volvo Cars Melbourne",
+  "address1": "4340 W. New Haven Blvd",
+  "city": "Melbourne",
+  "state": "FL",
+  "zip": "32904",
+  "phone": "(321) 510-0942",
+  "url": "https://www.volvocarsmelbourne.com/",
+  "latitude": "28.07948",
+  "longitude": "-80.69773",
+  "dealerEmail": "sales@volvomelbourne.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US7248",
+  "parma": "AECOH",
+  "name": "Volvo Cars North Miami",
+  "address1": "20800 NW 2nd Avenue",
+  "city": "Miami",
+  "state": "FL",
+  "zip": "33169",
+  "phone": "(786) 481-4009",
+  "url": "https://www.volvocarsnorthmiami.com/",
+  "latitude": "25.96692",
+  "longitude": "-80.20637",
+  "dealerEmail": "sales@volvonorthmiami.net",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US7225",
+  "parma": "AA7V1",
+  "name": "Volvo Cars Pensacola",
+  "address1": "3050 Navy Boulevard",
+  "city": "Pensacola",
+  "state": "FL",
+  "zip": "32505",
+  "phone": "(850) 979-8940",
+  "url": "https://www.volvocarspensacola.com/",
+  "latitude": "30.41256",
+  "longitude": "-87.25171",
+  "dealerEmail": "sales@centennialimports.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US7237",
+  "parma": "AA7V4",
+  "name": "Volvo Cars Sarasota",
+  "address1": "7576 S. Tamiami Trail",
+  "city": "Sarasota",
+  "state": "FL",
+  "zip": "34231",
+  "phone": "(941) 628-7764",
+  "url": "https://www.volvocarssarasota.com/",
+  "latitude": "27.24429",
+  "longitude": "-82.51069",
+  "dealerEmail": "leads@volvoofsarasota.motosnap.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US7230",
+  "parma": "AB5Q4",
+  "name": "Volvo Cars Tampa",
+  "address1": "6008 N. Dale Mabry Highway",
+  "city": "Tampa",
+  "state": "FL",
+  "zip": "33614",
+  "phone": "(813) 492-8341",
+  "url": "https://www.volvocarstampa.com/",
+  "latitude": "28.00231",
+  "longitude": "-82.50558",
+  "dealerEmail": "bill.parham@volvooftampa.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US7260",
+  "parma": "AE0XH",
+  "name": "Volvo Cars Wesley Chapel",
+  "address1": "28329 Paseo Drive",
+  "city": "Wesley Chapel",
+  "state": "FL",
+  "zip": "33543",
+  "phone": "(813) 807-3408",
+  "url": "https://www.volvocarswesleychapel.com",
+  "latitude": "28.18903",
+  "longitude": "-82.3477",
+  "dealerEmail": "info@volvocarswesleychapel.com",
+  "capabilities": [
+   "sales"
+  ]
+ },
+ {
+  "code": "6US7244",
+  "parma": "AD0R0",
+  "name": "Volvo Cars of Naples",
+  "address1": "5870 Naples Blvd",
+  "city": "Naples",
+  "state": "FL",
+  "zip": "34109",
+  "phone": "(239) 977-9199",
+  "url": "https://www.volvocarsofnaples.com/",
+  "latitude": "26.2162",
+  "longitude": "-81.77386",
+  "dealerEmail": "bonitaspringsinfinitivolvofl@eleadtrack.net",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US7293",
+  "parma": "ADIII",
+  "name": "Wallace Volvo Cars",
+  "address1": "2655 South East Federal Highway Stuart",
+  "city": "Stuart",
+  "state": "FL",
+  "zip": "34994",
+  "phone": "(772) 732-7318",
+  "url": "https://www.wallacevolvocars.com/",
+  "latitude": "27.15976",
+  "longitude": "-80.22212",
+  "dealerEmail": "volvo@wallaceautogroup.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US7266",
+  "parma": "AA7V8",
+  "name": "Weston Volvo Cars",
+  "address1": "3650 Weston Road",
+  "city": "Davie",
+  "state": "FL",
+  "zip": "33331",
+  "phone": "(754) 354-0281",
+  "url": "https://www.westonvolvocars.com/",
+  "latitude": "26.07351",
+  "longitude": "-80.36179",
+  "dealerEmail": "Info@westonvolvo.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US7138",
+  "parma": "AA7VL",
+  "name": "Dyer & Dyer Volvo Cars",
+  "address1": "5260 Peachtree Industrial Blvd",
+  "city": "Chamblee",
+  "state": "GA",
+  "zip": "30341",
+  "phone": "(770) 809-6938",
+  "url": "https://www.dyervolvocars.com/",
+  "latitude": "33.89333",
+  "longitude": "-84.30826",
+  "dealerEmail": "sales@dyervolvo.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US7131",
+  "parma": "AA7VJ",
+  "name": "Gerald Jones Volvo Cars",
+  "address1": "4022 Washington Road",
+  "city": "Martinez",
+  "state": "GA",
+  "zip": "30907",
+  "phone": "(706) 670-3396",
+  "url": "https://www.geraldjonesvolvocars.com/",
+  "latitude": "33.51087",
+  "longitude": "-82.10608",
+  "dealerEmail": "jstrickland@geraldjonesimports.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US7143",
+  "parma": "ADDDE",
+  "name": "North Point Volvo Cars",
+  "address1": "1570 Mansell Road",
+  "city": "Alpharetta",
+  "state": "GA",
+  "zip": "30009",
+  "phone": "(770) 758-5534",
+  "url": "https://www.volvocarsnorthpoint.com/",
+  "latitude": "34.0407",
+  "longitude": "-84.32115",
+  "dealerEmail": "info@northpointvolvo.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US7151",
+  "parma": "AFNE3",
+  "name": "OSteen Volvo Cars Athens",
+  "address1": "2890 Atlanta Hwy",
+  "city": "Athens",
+  "state": "GA",
+  "zip": "30606",
+  "phone": "(706) 914-1193",
+  "url": "https://www.osteenvolvocarsathens.com/",
+  "latitude": "33.9454891",
+  "longitude": "-83.436531",
+  "dealerEmail": "pmollock@osteenautomotivegroup.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US7150",
+  "parma": "AEK8H",
+  "name": "Volvo Cars Mall of Georgia",
+  "address1": "3626 Buford Drive NE",
+  "city": "Buford",
+  "state": "GA",
+  "zip": "30519",
+  "phone": "(470) 635-5030",
+  "url": "https://www.volvocarsmallofgeorgia.com/",
+  "latitude": "34.0812",
+  "longitude": "-83.98796",
+  "dealerEmail": "volvo2quote@jimellis.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US7181",
+  "parma": "AFAHS",
+  "name": "Volvo Cars Savannah",
+  "address1": "8301 White Bluff Road",
+  "city": "Savannah",
+  "state": "GA",
+  "zip": "31406",
+  "phone": "(912) 737-0452",
+  "url": "https://www.volvocarssavannah.com",
+  "latitude": "31.99962",
+  "longitude": "-81.1225",
+  "dealerEmail": "ben.burton@smithautogroup.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US7164",
+  "parma": "AA7VO",
+  "name": "Volvo Cars of Macon",
+  "address1": "4781 Riverside Dr",
+  "city": "Macon",
+  "state": "GA",
+  "zip": "31210",
+  "phone": "(478) 999-8955",
+  "url": "https://www.volvocarsofmacon.com/",
+  "latitude": "32.92279",
+  "longitude": "-83.70946",
+  "dealerEmail": "keng@jacksonautomotive.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US7133",
+  "parma": "AD9NA",
+  "name": "Volvo Cars of Marietta",
+  "address1": "1195 Cobb Parkway S",
+  "city": "Marietta",
+  "state": "GA",
+  "zip": "30060",
+  "phone": "(770) 809-6512",
+  "url": "http://www.volvocarsofmarietta.com",
+  "latitude": "33.92328",
+  "longitude": "-84.50521",
+  "dealerEmail": "infovolvo@jimellis.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US5410",
+  "parma": "AE5RS",
+  "name": "Volvo Cars Honolulu",
+  "address1": "888 Kapiolani Blvd.",
+  "city": "Honolulu",
+  "state": "HI",
+  "zip": "96813",
+  "phone": "(808) 201-3950",
+  "url": "https://www.volvocarshonolulu.com",
+  "latitude": "21.29668",
+  "longitude": "-157.86054",
+  "dealerEmail": "jnautomotive@gmail.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US8525",
+  "parma": "ADYSD",
+  "name": "Junge Volvo Cars",
+  "address1": "1200 Boyson Road",
+  "city": "Hiawatha",
+  "state": "IA",
+  "zip": "52233",
+  "phone": "(319) 456-4895",
+  "url": "https://www.jungevolvocars.com/",
+  "latitude": "42.04492",
+  "longitude": "-91.69006",
+  "dealerEmail": "lmi@junge.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US8504",
+  "parma": "ADWY0",
+  "name": "Willis Volvo Cars",
+  "address1": "9800 Hickman Road",
+  "city": "Des Moines",
+  "state": "IA",
+  "zip": "50325",
+  "phone": "(515) 375-1418",
+  "url": "https://www.willisvolvo.com/",
+  "latitude": "41.61418",
+  "longitude": "-93.75247",
+  "dealerEmail": "info@bettsvolvo.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US5663",
+  "parma": "AEYJF",
+  "name": "Lyle Pearson Volvo Cars Boise",
+  "address1": "7805 Gratz Drive",
+  "city": "Boise",
+  "state": "ID",
+  "zip": "83709",
+  "phone": "(208) 428-6640",
+  "url": "https://www.lylepearsonvolvocarsboise.com/",
+  "latitude": "43.60147",
+  "longitude": "-116.2795",
+  "dealerEmail": "volvosales@lylepearson.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US8225",
+  "parma": "AA7X0",
+  "name": "Fields Volvo Cars Northfield",
+  "address1": "770 Frontage Road",
+  "city": "Northfield",
+  "state": "IL",
+  "zip": "60093",
+  "phone": "(847) 200-8913",
+  "url": "https://www.volvonorthfield.com/",
+  "latitude": "42.11167",
+  "longitude": "-87.77591",
+  "dealerEmail": "phubert@fieldsauto.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US8205",
+  "parma": "AA7X7",
+  "name": "Howard Orloff Volvo Cars",
+  "address1": "1924 N. Paulina Street",
+  "city": "Chicago",
+  "state": "IL",
+  "zip": "60622",
+  "phone": "(773) 770-4076",
+  "url": "https://www.howardorloffvolvocars.com/",
+  "latitude": "41.91722",
+  "longitude": "-87.67062",
+  "dealerEmail": "Sales@orloff.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US8522",
+  "parma": "AECDA",
+  "name": "Isringhausen Volvo Cars",
+  "address1": "228 East Jefferson",
+  "city": "Springfield",
+  "state": "IL",
+  "zip": "62701",
+  "phone": "(217) 699-1630",
+  "url": "https://www.isringhausenvolvocars.com/",
+  "latitude": "39.8027",
+  "longitude": "-89.65242",
+  "dealerEmail": "isringhausen@leads.gs.reyrey.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US8201",
+  "parma": "AE39Z",
+  "name": "Kunes Volvo Cars Sycamore",
+  "address1": "1875 Dekalb Avenue",
+  "city": "Sycamore",
+  "state": "IL",
+  "zip": "60178",
+  "phone": "(815) 336-5043",
+  "url": "https://www.volvocarssycamore.com",
+  "latitude": "41.96918",
+  "longitude": "-88.71935",
+  "dealerEmail": "Customercare@kunesvolvo.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US8204",
+  "parma": "AEI3B",
+  "name": "McGrath Volvo Cars Barrington",
+  "address1": "1415 S. Barrington Road",
+  "city": "Barrington",
+  "state": "IL",
+  "zip": "60010",
+  "phone": "(847) 613-1754",
+  "url": "https://www.mcgrathvolvocars.com/",
+  "latitude": "42.1333",
+  "longitude": "-88.1355",
+  "dealerEmail": "Barringtonvolvo@mcgrathag.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US8508",
+  "parma": "ADXB6",
+  "name": "McLaughlin Volvo Cars",
+  "address1": "4101 41st Street",
+  "city": "Moline",
+  "state": "IL",
+  "zip": "61265",
+  "phone": "(309) 250-1976",
+  "url": "https://www.mclaughlinvolvo.com/",
+  "latitude": "41.46966",
+  "longitude": "-90.47692",
+  "dealerEmail": "mclaughlin@mcmotors.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US8264",
+  "parma": "AC4WH",
+  "name": "Patrick Volvo Cars",
+  "address1": "1600 E. Higgins Rd.",
+  "city": "Schaumburg",
+  "state": "IL",
+  "zip": "60173",
+  "phone": "(847) 380-1702",
+  "url": "https://www.patrickvolvocars.com/",
+  "latitude": "42.03911",
+  "longitude": "-88.04039",
+  "dealerEmail": "patrickvolvo@patrickcars.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US8597",
+  "parma": "ADG3Y",
+  "name": "Scherer Volvo Cars",
+  "address1": "2200 W. Pioneer Parkway",
+  "city": "Peoria",
+  "state": "IL",
+  "zip": "61615",
+  "phone": "(309) 316-0534",
+  "url": "https://www.scherervolvocars.com/",
+  "latitude": "40.78268",
+  "longitude": "-89.62683",
+  "dealerEmail": "info@veldeofpeoria.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US8280",
+  "parma": "AEEAM",
+  "name": "The Autobarn Volvo Cars Oak Park",
+  "address1": "1140 Garfield Street",
+  "city": "Oak Park",
+  "state": "IL",
+  "zip": "60304",
+  "phone": "(708) 848-4837",
+  "url": "https://www.volvooakpark.com/",
+  "latitude": "41.87272",
+  "longitude": "-87.80366",
+  "dealerEmail": "volvooakpark@theautobarn.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US8262",
+  "parma": "AD3JE",
+  "name": "Volvo  Cars Orland Park",
+  "address1": "8031 W. 159th St.",
+  "city": "Tinley Park",
+  "state": "IL",
+  "zip": "60477",
+  "phone": "(708) 556-2737",
+  "url": "https://www.volvocarsorlandpark.com/",
+  "latitude": "41.60143",
+  "longitude": "-87.81656",
+  "dealerEmail": "webleads@iaorlandpark.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US8207",
+  "parma": "AA7X8",
+  "name": "Volvo Cars Lisle",
+  "address1": "4325 Lincoln Avenue",
+  "city": "Lisle",
+  "state": "IL",
+  "zip": "60532",
+  "phone": "(630) 796-4340",
+  "url": "https://www.volvocarslisle.com/",
+  "latitude": "41.80684",
+  "longitude": "-88.07615",
+  "dealerEmail": "vosales@auto-plaza.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US8247",
+  "parma": "ADWTU",
+  "name": "Napleton Volvo Cars",
+  "address1": "1349 Indianapolis Blvd",
+  "city": "Schererville",
+  "state": "IN",
+  "zip": "46375",
+  "phone": "(219) 348-8932",
+  "url": "https://www.napletonvolvocars.com/",
+  "latitude": "41.49716",
+  "longitude": "-87.47042",
+  "dealerEmail": "RLANE@NAPLETON.COM",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US8688",
+  "parma": "AB8WP",
+  "name": "Tom Kelley Volvo Cars",
+  "address1": "865 Grand National Drive",
+  "city": "Fort Wayne",
+  "state": "IN",
+  "zip": "46804",
+  "phone": "(260) 230-8554",
+  "url": "https://www.tomkelleyvolvocars.com/",
+  "latitude": "41.07674",
+  "longitude": "-85.22583",
+  "dealerEmail": "croth@kelleyauto.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US8686",
+  "parma": "AA7ZE",
+  "name": "Tom Wood Volvo Cars",
+  "address1": "4620 E. 96th St",
+  "city": "Indianapolis",
+  "state": "IN",
+  "zip": "46240",
+  "phone": "(317) 660-9502",
+  "url": "https://www.tomwoodvolvocars.com/",
+  "latitude": "39.92974",
+  "longitude": "-86.09265",
+  "dealerEmail": "skern@tomwood.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US8667",
+  "parma": "AA7ZC",
+  "name": "Volvo Cars of Bloomington",
+  "address1": "3225 S. Walnut Street",
+  "city": "Bloomington",
+  "state": "IN",
+  "zip": "47401",
+  "phone": "(812) 506-2080",
+  "url": "https://www.volvocarsbloomington.com/",
+  "latitude": "39.1271",
+  "longitude": "-86.53105",
+  "dealerEmail": "bsurian@royalsouth.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US4432",
+  "parma": "AEEL0",
+  "name": "Eddy's Volvo Cars of Wichita",
+  "address1": "3211 N. Webb Road",
+  "city": "Wichita",
+  "state": "KS",
+  "zip": "67226",
+  "phone": "(316) 771-5826",
+  "url": "https://www.eddysvolvocarsofwichita.com/",
+  "latitude": "37.74219",
+  "longitude": "-97.22716",
+  "dealerEmail": "ninamcnelly@volvoofwichita.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US4476",
+  "parma": "AEJQ4",
+  "name": "Premier Volvo Cars Overland Park",
+  "address1": "7891 Metcalf Avenue",
+  "city": "Overland Park",
+  "state": "KS",
+  "zip": "66204",
+  "phone": "(913) 675-1906",
+  "url": "https://www.premiervolvocarsoverlandpark.com/",
+  "latitude": "38.98631",
+  "longitude": "-94.66729",
+  "dealerEmail": "Sales@PremierVolvoCarsOP.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US8608",
+  "parma": "AA7ZA",
+  "name": "Quantrell Volvo Cars",
+  "address1": "1500 New Circle Rd, NE",
+  "city": "Lexington",
+  "state": "KY",
+  "zip": "40509",
+  "phone": "(859) 350-7978",
+  "url": "https://www.quantrellvolvocars.com/",
+  "latitude": "38.02208",
+  "longitude": "-84.45552",
+  "dealerEmail": "Quancadi@aol.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US8609",
+  "parma": "AEF56",
+  "name": "Volvo Cars of Louisville",
+  "address1": "5  AutoCenter Drive",
+  "city": "Louisville",
+  "state": "KY",
+  "zip": "40299",
+  "phone": "(502) 317-2240",
+  "url": "https://www.volvooflouisville.com/",
+  "latitude": "38.2171",
+  "longitude": "-85.57845",
+  "dealerEmail": "Volvo@SamSwope.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US4116",
+  "parma": "AA7R0",
+  "name": "Bergeron Volvo Cars",
+  "address1": "3541 Veterans Boulevard",
+  "city": "Metairie",
+  "state": "LA",
+  "zip": "70002",
+  "phone": "(504) 223-8070",
+  "url": "https://www.bergeronvolvocars.com/",
+  "latitude": "30.00425",
+  "longitude": "-90.16175",
+  "dealerEmail": "bill@bergeronauto.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US4153",
+  "parma": "AA7SG",
+  "name": "Giles Volvo Cars",
+  "address1": "111 South City Parkway",
+  "city": "Lafayette",
+  "state": "LA",
+  "zip": "70503",
+  "phone": "(337) 607-1124",
+  "url": "https://www.gilesvolvocars.com/",
+  "latitude": "30.16532",
+  "longitude": "-92.08094",
+  "dealerEmail": "pmiller@gilescars.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US4163",
+  "parma": "AFRMJ",
+  "name": "Volvo Cars Baton Rouge",
+  "address1": "10101 Coursey Blvd",
+  "city": "Baton Rouge",
+  "state": "LA",
+  "zip": "70816",
+  "phone": "(225) 398-5804",
+  "url": "https://www.allstarvolvocarsbatonrouge.com/",
+  "latitude": "30.41789",
+  "longitude": "-91.06813",
+  "dealerEmail": "sales@volvocarsbatonrouge.com",
+  "capabilities": [
+   "sales"
+  ]
+ },
+ {
+  "code": "6US4294",
+  "parma": "AFAFB",
+  "name": "Volvo Cars Shreveport",
+  "address1": "1221 East Bert Kouns Industrial Loop",
+  "city": "Shreveport",
+  "state": "LA",
+  "zip": "71105",
+  "phone": "(318) 431-6749",
+  "url": "https://www.volvocarsshreveport.com/",
+  "latitude": "32.42076",
+  "longitude": "-93.72",
+  "dealerEmail": "volvoinfo@millsautogroup.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US3608",
+  "parma": "AA7RQ",
+  "name": "Bedard Brothers Volvo Cars",
+  "address1": "395 South State Road",
+  "city": "Cheshire",
+  "state": "MA",
+  "zip": "01225",
+  "phone": "(413) 366-3429",
+  "url": "https://www.bedardbrothersvolvocars.com/",
+  "latitude": "42.55157",
+  "longitude": "-73.16288",
+  "dealerEmail": "sales@bedardbros.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US3663",
+  "parma": "AD0RG",
+  "name": "Bernardi Volvo Cars Natick",
+  "address1": "910 Worcester Street",
+  "city": "Natick",
+  "state": "MA",
+  "zip": "01760",
+  "phone": "(608) 390-6918",
+  "url": "https://www.bernardivolvocars.com",
+  "latitude": "42.29921",
+  "longitude": "-71.36157",
+  "dealerEmail": "volvo.service@bernardiauto.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US3618",
+  "parma": "AA7RR",
+  "name": "Boston Volvo Cars",
+  "address1": "61 North Beacon Street",
+  "city": "Boston",
+  "state": "MA",
+  "zip": "02134",
+  "phone": "(857) 382-6340",
+  "url": "https://www.bostonvolvocars.com/",
+  "latitude": "42.35422",
+  "longitude": "-71.14071",
+  "dealerEmail": "webleads@bostonvolvo.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US3631",
+  "parma": "AA7RT",
+  "name": "Fathers & Sons Volvo Cars West Springfield",
+  "address1": "434 Memorial Avenue",
+  "city": "West Springfield",
+  "state": "MA",
+  "zip": "01089",
+  "phone": "(413) 848-7820",
+  "url": "https://www.volvocarswestspringfield.com/",
+  "latitude": "42.09441",
+  "longitude": "-72.61351",
+  "dealerEmail": "vfusaro@fathers-sons.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US3638",
+  "parma": "AFKJV",
+  "name": "Herb Chambers Volvo Cars Norwood",
+  "address1": "1120 Providence Highway\n Route 1",
+  "city": "Norwood",
+  "state": "MA",
+  "zip": "02062",
+  "phone": "(781) 650-9930",
+  "url": "https://www.volvocarsnorwood.com/ ",
+  "latitude": "42.1743467021",
+  "longitude": "-71.1928447",
+  "dealerEmail": "rbrown4@asburyauto.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US3696",
+  "parma": "AE3XC",
+  "name": "Ira Volvo Cars South Shore",
+  "address1": "1030 Hingham Street",
+  "city": "Rockland",
+  "state": "MA",
+  "zip": "02370",
+  "phone": "(781) 546-5086",
+  "url": "https://www.iravolvocarssouthshore.com",
+  "latitude": "42.16456",
+  "longitude": "-70.899",
+  "dealerEmail": "bferris@driveiragroup.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US3656",
+  "parma": "AA7RX",
+  "name": "Jaffarian Volvo Cars",
+  "address1": "600 River Street",
+  "city": "Haverhill",
+  "state": "MA",
+  "zip": "01832",
+  "phone": "(978) 652-3438",
+  "url": "https://www.jaffarianvolvocars.com/",
+  "latitude": "42.76515",
+  "longitude": "-71.10468",
+  "dealerEmail": "jaffarianvolvotoyota@leads.gs.reyrey.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US3640",
+  "parma": "AEJ2X",
+  "name": "Patrick Volvo Cars Auburn",
+  "address1": "519 Washington Street",
+  "city": "Auburn",
+  "state": "MA",
+  "zip": "01501",
+  "phone": "(508) 514-5172",
+  "url": "https://www.volvocarsauburn.com/",
+  "latitude": "42.18587",
+  "longitude": "-71.83761",
+  "dealerEmail": "volvo@patrickmotors.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US3693",
+  "parma": "AD8IM",
+  "name": "Volvo Cars Cape Cod",
+  "address1": "270 North Street",
+  "city": "Hyannis",
+  "state": "MA",
+  "zip": "02601",
+  "phone": "(508) 978-6208",
+  "url": "https://www.volvocarscapecod.com/",
+  "latitude": "41.65151",
+  "longitude": "-70.29172",
+  "dealerEmail": "volvosales@premiermotive.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US3688",
+  "parma": "AD7BC",
+  "name": "Volvo Cars Danvers",
+  "address1": "24 Commonwealth Avenue",
+  "city": "Danvers",
+  "state": "MA",
+  "zip": "01923",
+  "phone": "(978) 648-2939",
+  "url": "https://www.volvocarsdanvers.com/",
+  "latitude": "42.54956",
+  "longitude": "-70.94363",
+  "dealerEmail": "info@volvodanvers.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US3695",
+  "parma": "AELM6",
+  "name": "Volvo Cars Plymouth",
+  "address1": "500 Colony Place",
+  "city": "Plymouth",
+  "state": "MA",
+  "zip": "02360",
+  "phone": "(508) 876-3484",
+  "url": "https://www.volvocarsplymouth.com/",
+  "latitude": "41.9538",
+  "longitude": "-70.72016",
+  "dealerEmail": "volvocarsplymouth@drivepremier.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US7678",
+  "parma": "AA7XI",
+  "name": "Darcars Volvo Cars",
+  "address1": "15401 Frederick Rd",
+  "city": "Rockville",
+  "state": "MD",
+  "zip": "20855",
+  "phone": "(301) 804-6144",
+  "url": "https://www.darcarsvolvocars.com/",
+  "latitude": "39.10834",
+  "longitude": "-77.15893",
+  "dealerEmail": "aarman@darcars.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US7546",
+  "parma": "AFBB0",
+  "name": "Koons Volvo Cars White Marsh",
+  "address1": "5395 Nottingham Drive",
+  "city": "White Marsh",
+  "state": "MD",
+  "zip": "21162",
+  "phone": "(443) 232-2524",
+  "url": "https:// www.koonsvolvocarswhitemarsh.com ",
+  "latitude": "39.37485",
+  "longitude": "-76.44209",
+  "dealerEmail": "noname@volvo.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US7534",
+  "parma": "AFF5A",
+  "name": "Sheehy Volvo Cars Hunt Valley",
+  "address1": "10630 York Road",
+  "city": "Cockeysville",
+  "state": "MD",
+  "zip": "21030",
+  "phone": "(410) 538-1047",
+  "url": "https://www.sheehyvolvocarshuntvalley.com/",
+  "latitude": "39.4799126131",
+  "longitude": "-76.64344895",
+  "dealerEmail": "ContactVolvoCarsHuntValley@sheehy.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US7504",
+  "parma": "AA7WS",
+  "name": "Volvo Cars Annapolis",
+  "address1": "333 Busch's Frontage Rd.",
+  "city": "Annapolis",
+  "state": "MD",
+  "zip": "21409",
+  "phone": "(410) 874-9868",
+  "url": "https://www.volvocarsannapolis.com/",
+  "latitude": "39.02699",
+  "longitude": "-76.4547",
+  "dealerEmail": "av-sm@annapoliscars.net",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US7644",
+  "parma": "AA7XG",
+  "name": "Volvo Cars Silver Spring",
+  "address1": "3121 Automobile Blvd.",
+  "city": "Silver Spring",
+  "state": "MD",
+  "zip": "20904",
+  "phone": "(301) 517-9143",
+  "url": "https://www.volvocarssilverspring.com/",
+  "latitude": "39.07828",
+  "longitude": "-76.94925",
+  "dealerEmail": "ngreaney@mileone.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US7604",
+  "parma": "AEEP3",
+  "name": "Volvo Cars of Bethesda",
+  "address1": "7001 Arlington Rd",
+  "city": "Bethesda",
+  "state": "MD",
+  "zip": "20814",
+  "phone": "(301) 780-4433",
+  "url": "https://www.volvocarsbethesda.com/",
+  "latitude": "38.97959",
+  "longitude": "-77.09821",
+  "dealerEmail": "information@euromotorcarsvolvo.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US7630",
+  "parma": "ADZL7",
+  "name": "Volvo Cars of Frederick",
+  "address1": "6001 Urbana Pike",
+  "city": "Frederick",
+  "state": "MD",
+  "zip": "21704",
+  "phone": "(301) 479-5795",
+  "url": "https://www.volvofrederick.com/",
+  "latitude": "39.3987",
+  "longitude": "-77.40747",
+  "dealerEmail": "ourismanoffrederick@newsales.leads.cmdlr.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US7545",
+  "parma": "AEL6V",
+  "name": "Younger Volvo Cars Hagerstown",
+  "address1": "1935 Dual Highway",
+  "city": "Hagerstown",
+  "state": "MD",
+  "zip": "21740",
+  "phone": "(301) 857-5392",
+  "url": "http://www.volvocarshagerstown.com/",
+  "latitude": "39.60424",
+  "longitude": "-77.68633",
+  "dealerEmail": "sales@volvocarshagerstown.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US3151",
+  "parma": "AA7QA",
+  "name": "Darling's Volvo",
+  "address1": "114 Sylvan Road",
+  "city": "Bangor",
+  "state": "ME",
+  "zip": "04401",
+  "phone": "(207) 902-7472",
+  "url": "https://www.darlingsvolvo.com/",
+  "latitude": "44.82769",
+  "longitude": "-68.74548",
+  "dealerEmail": "sales@darlings.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US3128",
+  "parma": "AA7P8",
+  "name": "Goodwin's Volvo",
+  "address1": "91 Main St.",
+  "city": "Topsham",
+  "state": "ME",
+  "zip": "04086",
+  "phone": "(207) 820-8276",
+  "url": "https://www.goodwinsvolvo.com/",
+  "latitude": "43.93375",
+  "longitude": "-69.96495",
+  "dealerEmail": "rgoodwin@goodwinmotorgroup.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US3182",
+  "parma": "AA7QE",
+  "name": "Portland Volvo Cars",
+  "address1": "9 US Route 1",
+  "city": "Scarborough",
+  "state": "ME",
+  "zip": "04074",
+  "phone": "(207) 886-5130",
+  "url": "https://www.portlandvolvo.com/",
+  "latitude": "43.61238",
+  "longitude": "-70.31343",
+  "dealerEmail": "email@portlandvolvo.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US8369",
+  "parma": "AA7YM",
+  "name": "Betten Imports, Inc.",
+  "address1": "5901 28TH ST SE",
+  "city": "Grand Rapids",
+  "state": "MI",
+  "zip": "49546",
+  "phone": "(847) 200-8913",
+  "url": "https://www.bettenvolvo.com/",
+  "latitude": "42.91374",
+  "longitude": "-85.52398",
+  "dealerEmail": "sales@bettenimports.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US8321",
+  "parma": "AA7YJ",
+  "name": "Crippen Volvo Cars",
+  "address1": "8300 W. Saginaw Hwy",
+  "city": "Lansing",
+  "state": "MI",
+  "zip": "48917",
+  "phone": "(517) 317-6559",
+  "url": "https://www.crippenvolvo.com/",
+  "latitude": "42.74178",
+  "longitude": "-84.67448",
+  "dealerEmail": "sales@crippencars.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US8312",
+  "parma": "AEEKH",
+  "name": "LaFontaine Volvo Cars of Farmington Hills",
+  "address1": "24730 Haggerty Road",
+  "city": "Farmington Hills",
+  "state": "MI",
+  "zip": "48335",
+  "phone": "(947) 218-4232",
+  "url": "https://www.volvofarmingtonhills.com/",
+  "latitude": "42.47295",
+  "longitude": "-83.43439",
+  "dealerEmail": "feedback@lafontaine.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US8337",
+  "parma": "AEF79",
+  "name": "Serra Volvo Cars of Traverse City",
+  "address1": "1747 S. Garfield Ave",
+  "city": "Traverse City",
+  "state": "MI",
+  "zip": "49686",
+  "phone": "(231) 462-5571",
+  "url": "https://www.serravolvocarsoftraversecity.com/",
+  "latitude": "44.73546",
+  "longitude": "-85.59412",
+  "dealerEmail": "glennc@traversemotors.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US8382",
+  "parma": "ADJN8",
+  "name": "Sesi Volvo Cars",
+  "address1": "3990 Jackson Avenue",
+  "city": "Ann Arbor",
+  "state": "MI",
+  "zip": "48103",
+  "phone": "(734) 415-6492",
+  "url": "https://www.sesivolvocars.com/",
+  "latitude": "42.28573",
+  "longitude": "-83.80864",
+  "dealerEmail": "sesivolvo@salespoint.dealerconnection.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US8385",
+  "parma": "AEZYZ",
+  "name": "Suburban Volvo Cars",
+  "address1": "1795 Maplelawn Dr.",
+  "city": "Troy",
+  "state": "MI",
+  "zip": "48084",
+  "phone": "(248) 686-2350",
+  "url": "https://www.SuburbanVolvoCars.com",
+  "latitude": "42.55244",
+  "longitude": "-83.17394",
+  "dealerEmail": "sales@suburbancollection.dealerspace.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US8338",
+  "parma": "AFQSE",
+  "name": "Volvo Cars Kalamazoo",
+  "address1": "5622 W Main St.",
+  "city": "Kalamazoo",
+  "state": "MI",
+  "zip": "49009",
+  "phone": "(201) 294-7685",
+  "url": "",
+  "latitude": "42.29651",
+  "longitude": "-85.6591",
+  "dealerEmail": "amy.hartwell@volvocars.com",
+  "capabilities": [
+   "sales"
+  ]
+ },
+ {
+  "code": "6US8106",
+  "parma": "ACN0S",
+  "name": "Borton Volvo Cars",
+  "address1": "905 Hampshire Avenue",
+  "city": "Golden Valley",
+  "state": "MN",
+  "zip": "55426",
+  "phone": "(763) 373-6419",
+  "url": "https://www.bortonvolvo.com/",
+  "latitude": "44.9729",
+  "longitude": "-93.3651",
+  "dealerEmail": "gv_sales@borton.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US8108",
+  "parma": "AA7XY",
+  "name": "Kline Volvo Cars of Maplewood",
+  "address1": "3040 N. Highway 61",
+  "city": "Saint Paul",
+  "state": "MN",
+  "zip": "55109",
+  "phone": "(651) 661-6263",
+  "url": "https://www.klinevolvocom.com/",
+  "latitude": "45.03374",
+  "longitude": "-93.0439",
+  "dealerEmail": "miketheisen@klineautoworld.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US4412",
+  "parma": "AD0N7",
+  "name": "Volvo Cars St. Louis",
+  "address1": "7700 Manchester Rd",
+  "city": "Saint Louis",
+  "state": "MO",
+  "zip": "63143",
+  "phone": "(314) 350-6260",
+  "url": "https://www.volvocarsstlouis.com/",
+  "latitude": "38.61301",
+  "longitude": "-90.32813",
+  "dealerEmail": "customerservice@brentwoodvolvo.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US4492",
+  "parma": "AA7TN",
+  "name": "Volvo Cars West County",
+  "address1": "14410 Manchester Road",
+  "city": "Manchester",
+  "state": "MO",
+  "zip": "63011",
+  "phone": "(636) 535-2887",
+  "url": "https://www.wcvolvocars.com/",
+  "latitude": "38.59287",
+  "longitude": "-90.51686",
+  "dealerEmail": "sales@wcvolvo.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US4169",
+  "parma": "AFDY2",
+  "name": "Volvo Cars Jackson",
+  "address1": "1791 Government Street",
+  "city": "Brandon",
+  "state": "MS",
+  "zip": "39042",
+  "phone": "(601) 808-4242",
+  "url": "",
+  "latitude": "32.28327",
+  "longitude": "-90.03250",
+  "dealerEmail": "info@volvocarsjackson.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US5778",
+  "parma": "AA7VE",
+  "name": "Underriner Volvo Cars",
+  "address1": "3671 Pierce Parkway",
+  "city": "Billings",
+  "state": "MT",
+  "zip": "59106",
+  "phone": "(406) 302-5263",
+  "url": "https://www.underrinervolvocars.com/",
+  "latitude": "45.73378",
+  "longitude": "-108.60943",
+  "dealerEmail": "jon.scott@underrinermotors.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US7724",
+  "parma": "AFEB6",
+  "name": "Flow Volvo Cars Greensboro",
+  "address1": "506 Nicholas Rd.",
+  "city": "Greensboro",
+  "state": "NC",
+  "zip": "27409",
+  "phone": "(336) 814-2250",
+  "url": "https://www.flowvolvocarsgreensboro.com/",
+  "latitude": "36.0618470",
+  "longitude": "-79.9106335",
+  "dealerEmail": "sales@volvocarsgreensboro.edealerhub.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US7711",
+  "parma": "AD5RI",
+  "name": "Hunter Volvo Cars Asheville",
+  "address1": "208 Hunter Airport Drive",
+  "city": "Fletcher",
+  "state": "NC",
+  "zip": "28732",
+  "phone": "(828) 554-7927",
+  "url": "https://www.huntervolvocarsasheville.com",
+  "latitude": "35.42224",
+  "longitude": "-82.53047",
+  "dealerEmail": "sales@hunterasheville.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US7729",
+  "parma": "AE391",
+  "name": "Johnson Volvo Cars Charlotte",
+  "address1": "7040 East Independence Boulevard",
+  "city": "Charlotte",
+  "state": "NC",
+  "zip": "28227",
+  "phone": "(980) 944-8758",
+  "url": "",
+  "latitude": "35.164",
+  "longitude": "-80.74148",
+  "dealerEmail": "volvocars@volvocars.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US7715",
+  "parma": "AES5K",
+  "name": "Johnson Volvo Cars Durham",
+  "address1": "966 Southpoint Autopark Blvd",
+  "city": "Durham",
+  "state": "NC",
+  "zip": "27713",
+  "phone": "(984) 305-2932",
+  "url": "",
+  "latitude": "35.90893",
+  "longitude": "-78.95309",
+  "dealerEmail": "info@johnsonvolvocarsdurham.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US7785",
+  "parma": "AA7XW",
+  "name": "Parkway Volvo Cars",
+  "address1": "5820 Market Street",
+  "city": "Wilmington",
+  "state": "NC",
+  "zip": "28405",
+  "phone": "(910) 597-4035",
+  "url": "https://www.parkwayvolvocars.com/",
+  "latitude": "34.24972",
+  "longitude": "-77.8575",
+  "dealerEmail": "thouse@parkwaysales-service.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US7783",
+  "parma": "AA7Z2",
+  "name": "University Volvo Cars",
+  "address1": "7716 North Tryon Street",
+  "city": "Charlotte",
+  "state": "NC",
+  "zip": "28262",
+  "phone": "(704) 631-5679",
+  "url": "https://www.universityvolvo.com/",
+  "latitude": "35.29295",
+  "longitude": "-80.75509",
+  "dealerEmail": "universityvolvo@msn.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US7725",
+  "parma": "AEC5L",
+  "name": "Volvo Cars Burlington",
+  "address1": "660 Huffman Mill Rd",
+  "city": "Burlington",
+  "state": "NC",
+  "zip": "27215",
+  "phone": "(336) 537-1982",
+  "url": "https://www.volvocarsburlington.com/",
+  "latitude": "36.0726",
+  "longitude": "-79.4916",
+  "dealerEmail": "VolvoSalesBurlington@flowauto.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US7752",
+  "parma": "AEF6C",
+  "name": "Volvo Cars Fayetteville",
+  "address1": "5935 Cliffdale Rd.",
+  "city": "Fayetteville",
+  "state": "NC",
+  "zip": "28314",
+  "phone": "(910) 557-8304",
+  "url": "http://www.volvocarsoffayetteville.com/",
+  "latitude": "35.05901",
+  "longitude": "-78.97269",
+  "dealerEmail": "admin@leithfay.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US7721",
+  "parma": "AD3PA",
+  "name": "Volvo Cars Hickory",
+  "address1": "1205 South Center St.",
+  "city": "Hickory",
+  "state": "NC",
+  "zip": "28602",
+  "phone": "(828) 475-8250",
+  "url": "https://www.volvocarshickory.com/",
+  "latitude": "35.71402",
+  "longitude": "-81.33558",
+  "dealerEmail": "volvosales@paramountauto.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US7750",
+  "parma": "AEG7Y",
+  "name": "Volvo Cars New Bern",
+  "address1": "3405 Dr M.L. King, Jr. Blvd",
+  "city": "New Bern",
+  "state": "NC",
+  "zip": "28562",
+  "phone": "(252) 518-4735",
+  "url": "http://www.volvocarsnewbern.com/",
+  "latitude": "35.09871",
+  "longitude": "-77.09644",
+  "dealerEmail": "sales@volvocarsnewbern.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US7734",
+  "parma": "AA7XQ",
+  "name": "Volvo Cars Winston Salem",
+  "address1": "701 Peters Creek Parkway",
+  "city": "Winston Salem",
+  "state": "NC",
+  "zip": "27103",
+  "phone": "(336) 850-5690",
+  "url": "https://www.volvocarswinstonsalem.com/",
+  "latitude": "36.08148",
+  "longitude": "-80.25748",
+  "dealerEmail": "sales@volvoofthetriad.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US7703",
+  "parma": "ADX2V",
+  "name": "Volvo Cars of Cary",
+  "address1": "1375 NW Maynard Rd.",
+  "city": "Cary",
+  "state": "NC",
+  "zip": "27513",
+  "phone": "(919) 238-4654",
+  "url": "https://www.volvocarsofcary.com/",
+  "latitude": "35.78735",
+  "longitude": "-78.81077",
+  "dealerEmail": "sales@volvocary.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US7701",
+  "parma": "AA7XJ",
+  "name": "Weaver Brothers Volvo Cars",
+  "address1": "4409 Capital Boulevard",
+  "city": "Raleigh",
+  "state": "NC",
+  "zip": "27604",
+  "phone": "(919) 825-3854",
+  "url": "https://www.weaverbrothersvolvocars.com/",
+  "latitude": "35.84356",
+  "longitude": "-78.58078",
+  "dealerEmail": "info@weaverbrothersvolvo.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US4441",
+  "parma": "AA7TK",
+  "name": "Gorges Volvo Cars",
+  "address1": "17665 Burt Street",
+  "city": "Omaha",
+  "state": "NE",
+  "zip": "68118",
+  "phone": "(402) 359-1500",
+  "url": "https://www.gorgesvolvocars.com/",
+  "latitude": "41.2643",
+  "longitude": "-96.19105",
+  "dealerEmail": "jgaines@gorgesvolvo.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US3149",
+  "parma": "AA7ZK",
+  "name": "Lovering Volvo Cars Concord",
+  "address1": "95 Manchester Street",
+  "city": "Concord",
+  "state": "NH",
+  "zip": "03301",
+  "phone": "(603) 573-9275",
+  "url": "https://www.loveringconcord.com/",
+  "latitude": "43.19028",
+  "longitude": "-71.50853",
+  "dealerEmail": "info@loveringvolvo.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US3148",
+  "parma": "ADY01",
+  "name": "Lovering Volvo Cars Meredith",
+  "address1": "251 Daniel Webster Highway",
+  "city": "Meredith",
+  "state": "NH",
+  "zip": "03253",
+  "phone": "(603) 968-5036",
+  "url": "https://www.loveringmeredith.com/",
+  "latitude": "43.64994",
+  "longitude": "-71.49785",
+  "dealerEmail": "info@loveringvolvo.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US3123",
+  "parma": "AA7P7",
+  "name": "Lovering Volvo Cars Nashua",
+  "address1": "180 Daniel Webster Highway",
+  "city": "Nashua",
+  "state": "NH",
+  "zip": "03060",
+  "phone": "(603) 718-3565",
+  "url": "https://www.loveringnashua.com/",
+  "latitude": "42.71891",
+  "longitude": "-71.4414",
+  "dealerEmail": "info@loveringvolvo.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US3169",
+  "parma": "AA7QC",
+  "name": "Merrimack Street Volvo Cars",
+  "address1": "40-56 Merrimack Street",
+  "city": "Manchester",
+  "state": "NH",
+  "zip": "03101",
+  "phone": "(603) 325-4761",
+  "url": "https://www.merrimackstvolvo.com/",
+  "latitude": "42.98953",
+  "longitude": "-71.46171",
+  "dealerEmail": "asaidel@merrimackstvolvo.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US3197",
+  "parma": "AEKOB",
+  "name": "Volvo Cars Exeter",
+  "address1": "140 Portsmouth Ave",
+  "city": "Exeter",
+  "state": "NH",
+  "zip": "03833",
+  "phone": "(603) 686-7632",
+  "url": "https://www.volvocarsexeter.com/",
+  "latitude": "42.99045",
+  "longitude": "-70.93139",
+  "dealerEmail": "aenxing@volvocarsexeter.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US3193",
+  "parma": "AA7QF",
+  "name": "Volvo Cars Keene",
+  "address1": "591 Monadnock Highway",
+  "city": "East Swanzey",
+  "state": "NH",
+  "zip": "03446",
+  "phone": "(603) 338-9273",
+  "url": "https://www.volvocarskeene.com/",
+  "latitude": "42.87544",
+  "longitude": "-72.23204",
+  "dealerEmail": "sales@fentonautosales.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US3159",
+  "parma": "AB8WN",
+  "name": "Volvo Cars of Lebanon",
+  "address1": "175 Heater Rd.",
+  "city": "Lebanon",
+  "state": "NH",
+  "zip": "03766",
+  "phone": "(603) 678-4426",
+  "url": "https://www.volvocarsoflebanon.com/",
+  "latitude": "43.65093",
+  "longitude": "-72.24437",
+  "dealerEmail": "JLANFRANCONI@AOL.COM",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US3408",
+  "parma": "AA7Q2",
+  "name": "Cherry Hill Volvo Cars",
+  "address1": "1810 Marlton Pike West",
+  "city": "Cherry Hill",
+  "state": "NJ",
+  "zip": "08002",
+  "phone": "(856) 658-8535",
+  "url": "https://www.cherryhillvolvocars.com/",
+  "latitude": "39.91905",
+  "longitude": "-75.03249",
+  "dealerEmail": "chvolvo@cherryhillvolvo.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US3438",
+  "parma": "AA7Q7",
+  "name": "Kundert Volvo Cars",
+  "address1": "136 Route 17 North",
+  "city": "Hasbrouck Heights",
+  "state": "NJ",
+  "zip": "07604",
+  "phone": "(551) 292-7762",
+  "url": "https://www.kundertvolvocars.com",
+  "latitude": "40.85395",
+  "longitude": "-74.0717",
+  "dealerEmail": "kundertb@kundert.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US3453",
+  "parma": "AEVUJ",
+  "name": "Open Road Volvo Cars Edison",
+  "address1": "731 Route 1",
+  "city": "Edison",
+  "state": "NJ",
+  "zip": "08817",
+  "phone": "(732) 372-0103",
+  "url": "https://www.openroadvolvocarsedison.com/",
+  "latitude": "40.51055",
+  "longitude": "-74.3871",
+  "dealerEmail": "volvoinfo@openroad.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US3461",
+  "parma": "AA7RB",
+  "name": "Prestige Volvo",
+  "address1": "285 East Route 10",
+  "city": "East Hanover",
+  "state": "NJ",
+  "zip": "07936",
+  "phone": "(973) 791-4227",
+  "url": "https://www.prestigevolvo.com/",
+  "latitude": "40.80556",
+  "longitude": "-74.36951",
+  "dealerEmail": "leads@prestigevolvo.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US3474",
+  "parma": "AA7RF",
+  "name": "Smythe Volvo Cars",
+  "address1": "40-42 River Road",
+  "city": "Summit",
+  "state": "NJ",
+  "zip": "07901",
+  "phone": "(908) 495-6522",
+  "url": "https://www.smythevolvocars.com/",
+  "latitude": "40.73012",
+  "longitude": "-74.37629",
+  "dealerEmail": "sales@smythevolvo.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US3449",
+  "parma": "AA7Q9",
+  "name": "Volvo Cars Bridgewater",
+  "address1": "1028 U.S. Route 22",
+  "city": "Somerville",
+  "state": "NJ",
+  "zip": "08876",
+  "phone": "(908) 774-8411",
+  "url": "https://www.volvocarsbridgewater.com/",
+  "latitude": "40.5797",
+  "longitude": "-74.60306",
+  "dealerEmail": "maxtonj@volvocountry.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US3452",
+  "parma": "AEKJ4",
+  "name": "Volvo Cars Manasquan",
+  "address1": "2415 Highway 35",
+  "city": "Manasquan",
+  "state": "NJ",
+  "zip": "08736",
+  "phone": "(732) 820-4219",
+  "url": "https://www.volvocarsmanasquan.com/",
+  "latitude": "40.12466",
+  "longitude": "-74.06931",
+  "dealerEmail": "VolvoCarsManasquan@yahoo.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US3448",
+  "parma": "AA7Q8",
+  "name": "Volvo Cars Princeton",
+  "address1": "2931 Brunswick Pike (Rte 1)",
+  "city": "Lawrenceville",
+  "state": "NJ",
+  "zip": "08648",
+  "phone": "(609) 359-7295",
+  "url": "https://www.volvocarsprinceton.com/",
+  "latitude": "40.274",
+  "longitude": "-74.7083",
+  "dealerEmail": "volvocountry@hotmail.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US3464",
+  "parma": "AA7RC",
+  "name": "Volvo Cars Ramsey",
+  "address1": "585 Route 17 South",
+  "city": "Ramsey",
+  "state": "NJ",
+  "zip": "07446",
+  "phone": "(201) 574-0949",
+  "url": "https://www.volvocarsramsey.com",
+  "latitude": "41.0583",
+  "longitude": "-74.12214",
+  "dealerEmail": "inquiry@volvocarsramsey.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US3465",
+  "parma": "AFM3A",
+  "name": "Volvo Cars Red Bank",
+  "address1": "100 East Newman Springs Rd",
+  "city": "Red Bank",
+  "state": "NJ",
+  "zip": "07701",
+  "phone": "(888) 478-9202",
+  "url": "https://www.volvocarsredbank.com",
+  "latitude": "40.3383",
+  "longitude": "-74.06794",
+  "dealerEmail": "info@volvocarsredbank.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US4342",
+  "parma": "ADLS7",
+  "name": "Corley's Volvo Cars Albuquerque",
+  "address1": "9000 Pan American Freeway N.E.",
+  "city": "Albuquerque",
+  "state": "NM",
+  "zip": "87113",
+  "phone": "(505) 666-5481",
+  "url": "https://www.corleysalbuquerquevolvo.com/",
+  "latitude": "35.18785",
+  "longitude": "-106.57967",
+  "dealerEmail": "bdc@corleyauto.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US5566",
+  "parma": "AA7UV",
+  "name": "Bill Pearce Volvo Cars",
+  "address1": "11555 S Virginia st",
+  "city": "Reno",
+  "state": "NV",
+  "zip": "89511",
+  "phone": "(775) 252-5303",
+  "url": "https://www.billpearcevolvocars.com/",
+  "latitude": "39.42559",
+  "longitude": "-119.76211",
+  "dealerEmail": "sales@billpearcemotors.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US5266",
+  "parma": "AEM3Q",
+  "name": "Findlay Volvo Cars Las Vegas",
+  "address1": "6385 Roy Horn Way",
+  "city": "Las Vegas",
+  "state": "NV",
+  "zip": "89118",
+  "phone": "(702) 470-0911",
+  "url": "https://www.findlayvolvocarslasvegas.com/",
+  "latitude": "36.06569",
+  "longitude": "-115.23092",
+  "dealerEmail": "rscheskiewicz@findlayauto.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US3718",
+  "parma": "AA7R5",
+  "name": "Alan Byer Volvo Cars Syracuse",
+  "address1": "1230 West Genesee Street",
+  "city": "Syracuse",
+  "state": "NY",
+  "zip": "13204",
+  "phone": "(315) 400-8894",
+  "url": "https://www.syracusevolvo.com/",
+  "latitude": "43.05352",
+  "longitude": "-76.17689",
+  "dealerEmail": "volvopm@yahoo.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US3324",
+  "parma": "AE392",
+  "name": "Empire Volvo Cars Smithtown",
+  "address1": "633 Middle Country Road",
+  "city": "Saint James",
+  "state": "NY",
+  "zip": "11780",
+  "phone": "(631) 888-9426",
+  "url": "",
+  "latitude": "40.86056",
+  "longitude": "-73.15658",
+  "dealerEmail": "EmpireVolvo@eagny.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US3332",
+  "parma": "AA7QV",
+  "name": "Karp Volvo",
+  "address1": "392 Sunrise Highway",
+  "city": "Rockville Centre",
+  "state": "NY",
+  "zip": "11570",
+  "phone": "(516) 981-2827",
+  "url": "https://www.karpvolvocars.com/",
+  "latitude": "40.65693",
+  "longitude": "-73.6392",
+  "dealerEmail": "SALES@karpautomotive.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US3725",
+  "parma": "AD237",
+  "name": "Maguire Volvo Cars of Ithaca",
+  "address1": "370 Elmira Road",
+  "city": "Ithaca",
+  "state": "NY",
+  "zip": "14850",
+  "phone": "(607) 327-4088",
+  "url": "https://www.maguirevolvocarsofithaca.com/",
+  "latitude": "42.42274",
+  "longitude": "-76.51776",
+  "dealerEmail": "pmaguire@maguirecars.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US3746",
+  "parma": "AE7FV",
+  "name": "McGovern Volvo Cars Albany",
+  "address1": "350 New Karner Rd. - Route 155",
+  "city": "Colonie",
+  "state": "NY",
+  "zip": "12205",
+  "phone": "(518) 299-5292",
+  "url": "https://www.mcgovernvolvocarsalbany.com",
+  "latitude": "42.73105",
+  "longitude": "-73.8534",
+  "dealerEmail": "Itsupport@mcgovernauto.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US3710",
+  "parma": "AD3NN",
+  "name": "Northtown Volvo Cars Buffalo",
+  "address1": "8135 Main Street",
+  "city": "Williamsville",
+  "state": "NY",
+  "zip": "14221",
+  "phone": "(716) 795-4201",
+  "url": "https://www.northtownvolvo.com/",
+  "latitude": "42.96407",
+  "longitude": "-78.69159",
+  "dealerEmail": "sales@northtownauto.dealerspace.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US3316",
+  "parma": "AEW8N",
+  "name": "Volvo Cars Brooklyn",
+  "address1": "148 39th Street\n Industry City, Building 19",
+  "city": "Brooklyn",
+  "state": "NY",
+  "zip": "11232",
+  "phone": "(929) 560-6402",
+  "url": "https://www.volvocarsbrooklyn.com/",
+  "latitude": "40.65593",
+  "longitude": "-74.01186",
+  "dealerEmail": "nguerrero@volvocars.nyc",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US3313",
+  "parma": "AECLG",
+  "name": "Volvo Cars Glen Cove",
+  "address1": "79 Cedar Swamp Road",
+  "city": "Glen Cove",
+  "state": "NY",
+  "zip": "11542",
+  "phone": "(516) 231-8108",
+  "url": "https://www.volvocarsglencove.com/",
+  "latitude": "40.8529",
+  "longitude": "-73.61882",
+  "dealerEmail": "email@volvoglencove.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US3579",
+  "parma": "AA7RN",
+  "name": "Volvo Cars Hudson Valley",
+  "address1": "1152 Route 9",
+  "city": "Wappingers Falls",
+  "state": "NY",
+  "zip": "12590",
+  "phone": "(845) 622-3881",
+  "url": "https://www.volvocarshudsonvalley.com/",
+  "latitude": "41.56692",
+  "longitude": "-73.90663",
+  "dealerEmail": "hvvolvosales@thepremiercollection.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US3343",
+  "parma": "AEO4F",
+  "name": "Volvo Cars Manhattan",
+  "address1": "565 11th Avenue",
+  "city": "New York",
+  "state": "NY",
+  "zip": "10036",
+  "phone": "(332) 286-2397",
+  "url": "https://www.volvocarsmanhattan.com/",
+  "latitude": "40.7615",
+  "longitude": "-73.99813",
+  "dealerEmail": "volvoddcleads@volvocars.nyc",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US3707",
+  "parma": "AEVYB",
+  "name": "Volvo Cars Rochester",
+  "address1": "1500 University Avenue",
+  "city": "Rochester",
+  "state": "NY",
+  "zip": "14610",
+  "phone": "(585) 659-1450",
+  "url": "http://www.volvocarsrochester.com",
+  "latitude": "43.14918",
+  "longitude": "-77.56218",
+  "dealerEmail": "jeplin@volvocarsrochester.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US3515",
+  "parma": "AEF57",
+  "name": "Volvo Cars White Plains",
+  "address1": "262 East Main Street",
+  "city": "Elmsford",
+  "state": "NY",
+  "zip": "10523",
+  "phone": "(914) 619-2065",
+  "url": "https://www.volvocarswhiteplains.com/",
+  "latitude": "41.04813",
+  "longitude": "-73.80849",
+  "dealerEmail": "vcwpservice@thepremiercollection.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US3357",
+  "parma": "AEF52",
+  "name": "Volvo Cars of Huntington",
+  "address1": "345 W. Jericho Turnpike",
+  "city": "Huntington",
+  "state": "NY",
+  "zip": "11743",
+  "phone": "(631) 964-6038",
+  "url": "https://www.volvocarsofhuntington.com/",
+  "latitude": "40.82875",
+  "longitude": "-73.42954",
+  "dealerEmail": "leads@huntingtonvolvo.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US3333",
+  "parma": "AEHDU",
+  "name": "Volvo Cars of Queens",
+  "address1": "209-18 Northern Blvd",
+  "city": "Bayside",
+  "state": "NY",
+  "zip": "11361",
+  "phone": "(718) 412-9696",
+  "url": "https://www.volvocarsofqueens.com/",
+  "latitude": "40.75891",
+  "longitude": "-73.77392",
+  "dealerEmail": "inquiries@volvocarsofqueens.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US8423",
+  "parma": "AA7YR",
+  "name": "Byers Volvo",
+  "address1": "301 N. Hamilton Road",
+  "city": "Columbus",
+  "state": "OH",
+  "zip": "43213",
+  "phone": "(614) 689-3733",
+  "url": "https://www.byersvolvo.com/",
+  "latitude": "39.98285",
+  "longitude": "-82.87095",
+  "dealerEmail": "DJOHNSON@BYERSAUTO.COM",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US8470",
+  "parma": "AFM29",
+  "name": "Jeff Wyler Volvo Cars Dublin",
+  "address1": "6335 Perimeter Loop Rd",
+  "city": "Dublin",
+  "state": "OH",
+  "zip": "43017",
+  "phone": "(614) 916-9469",
+  "url": "https://www.jeffwylervolvocarsdublin.com/",
+  "latitude": "40.0999",
+  "longitude": "-83.15041",
+  "dealerEmail": "twcleads@jeffwyler.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US8433",
+  "parma": "AA7YT",
+  "name": "Leikin Volvo Cars Cleveland",
+  "address1": "38750 Mentor Ave",
+  "city": "Willoughby",
+  "state": "OH",
+  "zip": "44094",
+  "phone": "(440) 276-8503",
+  "url": "https://www.leikinvolvocarscleveland.com/",
+  "latitude": "41.64464",
+  "longitude": "-81.39261",
+  "dealerEmail": "volvoservice@leikinmotor.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US8453",
+  "parma": "ADVD5",
+  "name": "Montrose Volvo Cars Cleveland",
+  "address1": "9600 Brookpark Road",
+  "city": "Cleveland",
+  "state": "OH",
+  "zip": "44129",
+  "phone": "(216) 606-8586",
+  "url": "https://www.montrosevolvocars.com/",
+  "latitude": "41.42027",
+  "longitude": "-81.75225",
+  "dealerEmail": "sales@westsideautomotivegroup.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US8452",
+  "parma": "AA7YW",
+  "name": "Motorcars Volvo Cars",
+  "address1": "18123 Rockside Rd",
+  "city": "Bedford",
+  "state": "OH",
+  "zip": "44146",
+  "phone": "(440) 664-2046",
+  "url": "https://www.motorcarsvolvocars.com/",
+  "latitude": "41.40298",
+  "longitude": "-81.55097",
+  "dealerEmail": "info@motorcarsvolvo.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US8441",
+  "parma": "AFRMK",
+  "name": "Volvo Cars Canton",
+  "address1": "1449 Cleveland Ave N.W.",
+  "city": "Canton",
+  "state": "OH",
+  "zip": "44703",
+  "phone": "(330) 366-1794",
+  "url": "https://www.volvocarscanton.com/",
+  "latitude": "40.81403",
+  "longitude": "-81.3789",
+  "dealerEmail": "info@canton.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US8434",
+  "parma": "AA7YU",
+  "name": "Volvo Cars Cincinnati",
+  "address1": "4113 Plainville Road",
+  "city": "Cincinnati",
+  "state": "OH",
+  "zip": "45227",
+  "phone": "(513) 916-3981",
+  "url": "https://www.volvocarscincinnati.com/",
+  "latitude": "39.14986",
+  "longitude": "-84.38002",
+  "dealerEmail": "sales@theautomile.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US8490",
+  "parma": "AFRLJ",
+  "name": "Volvo Cars Mansfield",
+  "address1": "1493 Park Ave W",
+  "city": "Mansfield",
+  "state": "OH",
+  "zip": "44906",
+  "phone": "(419) 845-6353",
+  "url": "https://www.volvocarsmansfield.com/",
+  "latitude": "40.7586",
+  "longitude": "-82.56949",
+  "dealerEmail": "info@mansfield.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US8464",
+  "parma": "AA7YY",
+  "name": "Volvo Cars Perrysburg",
+  "address1": "26875 North Dixie Highway",
+  "city": "Perrysburg",
+  "state": "OH",
+  "zip": "43551",
+  "phone": "(419) 658-7750",
+  "url": "https://www.volvoofperrysburg.com/",
+  "latitude": "41.54305",
+  "longitude": "-83.6361",
+  "dealerEmail": "skrajcik@edschmidt.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US4409",
+  "parma": "ADVWK",
+  "name": "Volvo Cars Oklahoma City",
+  "address1": "14220 Broadway Extension",
+  "city": "Edmond",
+  "state": "OK",
+  "zip": "73013",
+  "phone": "(405) 454-7604",
+  "url": "https://www.volvocarsoklahomacity.com/",
+  "latitude": "35.61482",
+  "longitude": "-97.49143",
+  "dealerEmail": "cars@jvokc.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US4488",
+  "parma": "ADW4L",
+  "name": "Volvo Cars of Tulsa",
+  "address1": "4111S. Memorial Drive",
+  "city": "Tulsa",
+  "state": "OK",
+  "zip": "74145",
+  "phone": "(918) 612-7303",
+  "url": "https://www.volvocarsoftulsa.com/",
+  "latitude": "36.10391",
+  "longitude": "-95.88573",
+  "dealerEmail": "mluttrell@billknightauto.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US5629",
+  "parma": "AA7U3",
+  "name": "Herzog-Meier Volvo Cars",
+  "address1": "4180 S.W. 141st Avenue",
+  "city": "Beaverton",
+  "state": "OR",
+  "zip": "97005",
+  "phone": "(503) 714-7816",
+  "url": "https://www.beavertonvolvocars.com/",
+  "latitude": "45.48934",
+  "longitude": "-122.82135",
+  "dealerEmail": "volvowebleads@herzogmeier.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US5623",
+  "parma": "AA7U2",
+  "name": "Jim Fisher Volvo Cars Portland",
+  "address1": "2108 West Burnside",
+  "city": "Portland",
+  "state": "OR",
+  "zip": "97210",
+  "phone": "(971) 309-1776",
+  "url": "https://www.jimfishervolvocars.com/",
+  "latitude": "45.52312",
+  "longitude": "-122.69468",
+  "dealerEmail": "jfisher@jimfishervolvo.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US5686",
+  "parma": "AEW30",
+  "name": "Volvo Cars Bend",
+  "address1": "20630 Grandview Drive",
+  "city": "Bend",
+  "state": "OR",
+  "zip": "97701",
+  "phone": "(541) 827-3201",
+  "url": "https://www.volvocarsbend.com/",
+  "latitude": "44.1155",
+  "longitude": "-121.29205",
+  "dealerEmail": "sales@volvoofbend.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US5676",
+  "parma": "AD02D",
+  "name": "Volvo Cars Corvallis",
+  "address1": "900 Northwest 4th Street",
+  "city": "Corvallis",
+  "state": "OR",
+  "zip": "97330",
+  "phone": "(541) 534-0689",
+  "url": "https://www.volvocarscorvallis.com/",
+  "latitude": "44.57243",
+  "longitude": "-123.25836",
+  "dealerEmail": "vocleads@gokiefer.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US5678",
+  "parma": "AA7U6",
+  "name": "Volvo Cars Eugene",
+  "address1": "89320 N Game Farm Road",
+  "city": "Eugene",
+  "state": "OR",
+  "zip": "97408",
+  "phone": "(458) 224-8905",
+  "url": "https://www.volvocarseugene.com/",
+  "latitude": "44.08754",
+  "longitude": "-123.04933",
+  "dealerEmail": "sheppard@sheppardmotors.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US7379",
+  "parma": "AA7WL",
+  "name": "Brown-Daub Volvo Cars Lehigh Valley",
+  "address1": "4046 Jandy Blvd.",
+  "city": "Nazareth",
+  "state": "PA",
+  "zip": "18064",
+  "phone": "(484) 742-3404",
+  "url": "https://www.browndaubvolvocarslehighvalley.com/",
+  "latitude": "40.7305",
+  "longitude": "-75.30866",
+  "dealerEmail": "bswick@browndaub.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US7488",
+  "parma": "AA7WR",
+  "name": "Delaney Volvo Cars Greensburg",
+  "address1": "5200 State Route 30",
+  "city": "Greensburg",
+  "state": "PA",
+  "zip": "15601",
+  "phone": "(724) 951-2580",
+  "url": "https://www.delaneyvolvocarsgreensburg.com/",
+  "latitude": "40.30254",
+  "longitude": "-79.50299",
+  "dealerEmail": "sales@starautomall.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US7521",
+  "parma": "AFAHT",
+  "name": "Faulkner Volvo Cars Lancaster",
+  "address1": "5455 Manheim Pike",
+  "city": "East Petersburg",
+  "state": "PA",
+  "zip": "17520",
+  "phone": "(717) 229-0874",
+  "url": "",
+  "latitude": "40.09253",
+  "longitude": "-76.34837",
+  "dealerEmail": "info@faulknervolvo.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US7323",
+  "parma": "AEK3M",
+  "name": "Faulkner Volvo Cars Trevose",
+  "address1": "4429 Street Road",
+  "city": "Trevose",
+  "state": "PA",
+  "zip": "19053",
+  "phone": "(267) 727-3248",
+  "url": "https://www.faulknervolvocarstrevose.com/",
+  "latitude": "40.13425",
+  "longitude": "-74.97756",
+  "dealerEmail": "VolvoTrevoseiLeads@FaulknerVolvo.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US7440",
+  "parma": "AFJGV",
+  "name": "Germain Volvo Cars North Hills",
+  "address1": "15035 Perry Highway",
+  "city": "Wexford",
+  "state": "PA",
+  "zip": "15090",
+  "phone": "(724) 598-9418",
+  "url": "",
+  "latitude": "40.64915305",
+  "longitude": "-80.0782614",
+  "dealerEmail": "sales@germainvolvocars.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US7441",
+  "parma": "AFJGW",
+  "name": "Germain Volvo Cars South Hills",
+  "address1": "2411 Washington Road",
+  "city": "Canonsburg",
+  "state": "PA",
+  "zip": "15317",
+  "phone": "(724) 564-6950",
+  "url": "",
+  "latitude": "40.2562970718",
+  "longitude": "-80.1666202306",
+  "dealerEmail": "sales@germainvolvo.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US7509",
+  "parma": "AD0JN",
+  "name": "Ken Pollock Volvo Cars",
+  "address1": "339 Highway 315",
+  "city": "Pittston",
+  "state": "PA",
+  "zip": "18640",
+  "phone": "(570) 602-5514",
+  "url": "https://www.kenpollockvolvocars.com/",
+  "latitude": "41.30545",
+  "longitude": "-75.76411",
+  "dealerEmail": "volvo@kpautogroup.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US7308",
+  "parma": "AA7WB",
+  "name": "Keystone Motors (Berwyn)",
+  "address1": "497 E. Lancaster Ave",
+  "city": "Berwyn",
+  "state": "PA",
+  "zip": "19312",
+  "phone": "(610) 819-4960",
+  "url": "https://www.berwynvolvocars.com/",
+  "latitude": "40.04686",
+  "longitude": "-75.43387",
+  "dealerEmail": "salesber@keystonemotors.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US7309",
+  "parma": "AA7ZW",
+  "name": "Keystone Motors (Doylestown)",
+  "address1": "235 S. Main Street",
+  "city": "Doylestown",
+  "state": "PA",
+  "zip": "18901",
+  "phone": "(267) 494-6457",
+  "url": "https://www.doylestownvolvocars.com",
+  "latitude": "40.3051",
+  "longitude": "-75.12864",
+  "dealerEmail": "salesdoy@keystonemotors.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US7559",
+  "parma": "AA7W2",
+  "name": "Lehman Motors",
+  "address1": "6281 Carlisle Pike",
+  "city": "Mechanicsburg",
+  "state": "PA",
+  "zip": "17050",
+  "phone": "(717) 930-2601",
+  "url": "https://www.lehmanvolvocars.com/",
+  "latitude": "40.24625",
+  "longitude": "-76.99887",
+  "dealerEmail": "brett@lehmanvolvo.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US7594",
+  "parma": "AA7W5",
+  "name": "Lehman Volvo Cars",
+  "address1": "950 North Hills Road",
+  "city": "York",
+  "state": "PA",
+  "zip": "17402",
+  "phone": "(717) 931-6977",
+  "url": "https://www.lehmanvolvocarsyork.com/",
+  "latitude": "39.97986",
+  "longitude": "-76.69567",
+  "dealerEmail": "sales@lehmanvolvoyork.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US7569",
+  "parma": "AD5RG",
+  "name": "Performance Volvo Cars",
+  "address1": "5050 West Penn Avenue",
+  "city": "Sinking Spring",
+  "state": "PA",
+  "zip": "19608",
+  "phone": "(610) 819-7387",
+  "url": "https://www.performancevolvocars.com/",
+  "latitude": "40.32636",
+  "longitude": "-76.06497",
+  "dealerEmail": "PerformanceMO@aol.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US7321",
+  "parma": "AD2GG",
+  "name": "Ray Price Volvo Cars",
+  "address1": "6300 Route 209",
+  "city": "Stroudsburg",
+  "state": "PA",
+  "zip": "18360",
+  "phone": "(570) 882-2052",
+  "url": "https://www.raypricevolvocars.com/",
+  "latitude": "40.95981",
+  "longitude": "-75.28918",
+  "dealerEmail": "volvosales@raypricecars.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US7318",
+  "parma": "ADZ2S",
+  "name": "Scott Volvo Cars Allentown",
+  "address1": "2120 33rd Street SW",
+  "city": "Allentown",
+  "state": "PA",
+  "zip": "18103",
+  "phone": "(610) 904-3951",
+  "url": "https://www.scottvolvocarsallentown.com/",
+  "latitude": "40.55517",
+  "longitude": "-75.4882",
+  "dealerEmail": "volvo@scottcars.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US7311",
+  "parma": "AA7WC",
+  "name": "Stillman Volvo Cars",
+  "address1": "1290 Wilmington Pike Route 202",
+  "city": "West Chester",
+  "state": "PA",
+  "zip": "19382",
+  "phone": "(610) 819-4956",
+  "url": "https://www.stillmanvolvocars.com/",
+  "latitude": "39.90719",
+  "longitude": "-75.56901",
+  "dealerEmail": "Sales@stillmanvolvo.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US7430",
+  "parma": "AD1AR",
+  "name": "Volvo Cars Erie",
+  "address1": "2502 West 26 Street",
+  "city": "Erie",
+  "state": "PA",
+  "zip": "16506",
+  "phone": "(814) 527-4121",
+  "url": "https://www.volvooferie.com/",
+  "latitude": "42.0913",
+  "longitude": "-80.1297",
+  "dealerEmail": "winks904@aol.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US7302",
+  "parma": "AEE24",
+  "name": "Volvo Cars Fort Washington",
+  "address1": "115 Bethlehem Pike",
+  "city": "Fort Washington",
+  "state": "PA",
+  "zip": "19034",
+  "phone": "(215) 583-2395",
+  "url": "https://www.volvofw.com/",
+  "latitude": "40.13884",
+  "longitude": "-75.2121",
+  "dealerEmail": "sales@volvofw.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US7313",
+  "parma": "AA7WE",
+  "name": "Wynn Volvo Cars Norristown",
+  "address1": "2049 West Main Street",
+  "city": "Norristown",
+  "state": "PA",
+  "zip": "19403",
+  "phone": "(610) 819-7299",
+  "url": "https://www.wynnvolvocarsnorristown.com/",
+  "latitude": "40.1343",
+  "longitude": "-75.3799",
+  "dealerEmail": "volvosales@thewynngroup.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US3288",
+  "parma": "AA7QQ",
+  "name": "Steingold Volvo Cars",
+  "address1": "766 Broadway",
+  "city": "Pawtucket",
+  "state": "RI",
+  "zip": "02861",
+  "phone": "(401) 388-3586",
+  "url": "https://www.steingoldvolvocars.com/",
+  "latitude": "41.89359",
+  "longitude": "-71.37191",
+  "dealerEmail": "sales@steingold.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US3265",
+  "parma": "AD5Q6",
+  "name": "Tasca Volvo Cars",
+  "address1": "1300 Pontiac Ave",
+  "city": "Cranston",
+  "state": "RI",
+  "zip": "02920",
+  "phone": "(401) 567-2955",
+  "url": "https://www.tascavolvocars.com/",
+  "latitude": "41.74853",
+  "longitude": "-71.4516",
+  "dealerEmail": "leads@tascacran.motosnap.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US3207",
+  "parma": "AD87V",
+  "name": "Viti Volvo Cars Tiverton",
+  "address1": "975 Fish Road",
+  "city": "Tiverton",
+  "state": "RI",
+  "zip": "02878",
+  "phone": "(401) 812-4037",
+  "url": "https://www.vitivolvo.com/",
+  "latitude": "41.64336",
+  "longitude": "-71.1875",
+  "dealerEmail": "info@viti.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US7113",
+  "parma": "AA7VH",
+  "name": "Dick Dyer Volvo Cars",
+  "address1": "5825 Two Notch Road",
+  "city": "Columbia",
+  "state": "SC",
+  "zip": "29223",
+  "phone": "(803) 871-9679",
+  "url": "https://www.dickdyervolvo.com/",
+  "latitude": "34.05385",
+  "longitude": "-80.97823",
+  "dealerEmail": "MOSBORNE@DICKDYERONLINE.COM",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US7184",
+  "parma": "AA7VQ",
+  "name": "Hendrick Volvo Cars of Charleston",
+  "address1": "1464 Savannah Highway",
+  "city": "Charleston",
+  "state": "SC",
+  "zip": "29407",
+  "phone": "(843) 261-5294",
+  "url": "https://www.hendrickvolvocars.com/",
+  "latitude": "32.78593",
+  "longitude": "-80.00436",
+  "dealerEmail": "RHImports@hendrickauto.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US7161",
+  "parma": "AFG72",
+  "name": "Volvo Cars Greenville",
+  "address1": "148 Duvall Drive",
+  "city": "Greenville",
+  "state": "SC",
+  "zip": "29607",
+  "phone": "(864) 661-6325",
+  "url": "",
+  "latitude": "34.81376",
+  "longitude": "-82.34090",
+  "dealerEmail": "contact@volvocarsgreenville.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US7182",
+  "parma": "AFAHR",
+  "name": "Volvo Cars Hilton Head",
+  "address1": "12 Gateway Village Road",
+  "city": "Bluffton",
+  "state": "SC",
+  "zip": "29910",
+  "phone": "(843) 493-7503",
+  "url": "https://www.volvocarshiltonhead.com/",
+  "latitude": "32.25353",
+  "longitude": "-80.84504",
+  "dealerEmail": "ben.burton@smithautogroup.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US7781",
+  "parma": "AC93U",
+  "name": "Volvo Cars Myrtle Beach",
+  "address1": "855 Jason Blvd",
+  "city": "Myrtle Beach",
+  "state": "SC",
+  "zip": "29577",
+  "phone": "(843) 484-2464",
+  "url": "https://www.volvocarsmyrtlebeach.com/",
+  "latitude": "33.71301",
+  "longitude": "-78.90559",
+  "dealerEmail": "bflmv@hotmail.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US4446",
+  "parma": "AELTH",
+  "name": "Volvo Cars Sioux Falls",
+  "address1": "801 West 41st Street",
+  "city": "Sioux Falls",
+  "state": "SD",
+  "zip": "57105",
+  "phone": "(605) 667-5832",
+  "url": "https://www.volvocarssiouxfalls.com/",
+  "latitude": "43.51467",
+  "longitude": "-96.73465",
+  "dealerEmail": "sales@grahamauto.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US4132",
+  "parma": "AA7SB",
+  "name": "Clayton Motors",
+  "address1": "9715 Parkside Drive",
+  "city": "Knoxville",
+  "state": "TN",
+  "zip": "37922",
+  "phone": "(865) 745-8590",
+  "url": "https://www.claytonvolvo.com/",
+  "latitude": "35.91251",
+  "longitude": "-84.1085",
+  "dealerEmail": "rclayton@claytonvolvo.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US7740",
+  "parma": "AD2RA",
+  "name": "Friendship Volvo Cars of Bristol",
+  "address1": "2638 West State Street",
+  "city": "Bristol",
+  "state": "TN",
+  "zip": "37620",
+  "phone": "(423) 769-6866",
+  "url": "https://www.friendshipvolvo.com/",
+  "latitude": "36.59373",
+  "longitude": "-82.21409",
+  "dealerEmail": "rchandler@friendshipauto.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US4175",
+  "parma": "AD3K2",
+  "name": "Volvo Cars Chattanooga",
+  "address1": "6037 International Dr.",
+  "city": "Chattanooga",
+  "state": "TN",
+  "zip": "37421",
+  "phone": "(423) 301-8013",
+  "url": "https://www.chattanoogavolvotn.com/",
+  "latitude": "35.05979",
+  "longitude": "-85.19143",
+  "dealerEmail": "hleads@longofchatt.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US4172",
+  "parma": "AEZVD",
+  "name": "Volvo Cars Cool Springs",
+  "address1": "1598 Mallory Lane",
+  "city": "Brentwood",
+  "state": "TN",
+  "zip": "37027",
+  "phone": "(629) 263-5005",
+  "url": "https://www.volvocarscoolsprings.com/",
+  "latitude": "35.9754",
+  "longitude": "-86.80995",
+  "dealerEmail": "carlockvolvo@carlockcars.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US4151",
+  "parma": "AD3BL",
+  "name": "Volvo Cars of Memphis",
+  "address1": "7910 Trinity Road",
+  "city": "Memphis",
+  "state": "TN",
+  "zip": "38018",
+  "phone": "(901) 459-3543",
+  "url": "https://www.volvoofmemphis.com/",
+  "latitude": "35.14274",
+  "longitude": "-89.79917",
+  "dealerEmail": "ENORCROSS@PATPATTERSONVOLVO.COM",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US4207",
+  "parma": "AA7SQ",
+  "name": "Autobahn Volvo Cars Fort Worth",
+  "address1": "3000 Westside Drive",
+  "city": "Fort Worth",
+  "state": "TX",
+  "zip": "76107",
+  "phone": "(817) 646-5196",
+  "url": "",
+  "latitude": "32.75955",
+  "longitude": "-97.35929",
+  "dealerEmail": "rdempsey@abahn.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US4222",
+  "parma": "ADB3V",
+  "name": "Crest Volvo Cars",
+  "address1": "6020 State Hwy 121",
+  "city": "Frisco",
+  "state": "TX",
+  "zip": "75034",
+  "phone": "(469) 564-8666",
+  "url": "https://www.crestvolvocars.com/",
+  "latitude": "33.08951",
+  "longitude": "-96.83496",
+  "dealerEmail": "jchapman@vtaig.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US4221",
+  "parma": "AA7SW",
+  "name": "DeMontrond Volvo Cars",
+  "address1": "14101 North Freeway",
+  "city": "Houston",
+  "state": "TX",
+  "zip": "77090",
+  "phone": "(346) 523-1548",
+  "url": "https://www.volvocarsdemontrond.com/",
+  "latitude": "29.9706",
+  "longitude": "-95.42159",
+  "dealerEmail": "sales@demontrond.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US4201",
+  "parma": "AEQ5C",
+  "name": "Giles Volvo Cars El Paso",
+  "address1": "6585 S. Desert Blvd.",
+  "city": "El Paso",
+  "state": "TX",
+  "zip": "79932",
+  "phone": "(915) 465-4348",
+  "url": "http://www.gilesvolvocarselpaso.com/",
+  "latitude": "31.89203",
+  "longitude": "-106.58366",
+  "dealerEmail": "eadams@gilescars.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US4288",
+  "parma": "AE2DX",
+  "name": "Grubbs Volvo Cars Central Houston",
+  "address1": "7620 Washington Ave.",
+  "city": "Houston",
+  "state": "TX",
+  "zip": "77007",
+  "phone": "(346) 420-5261",
+  "url": "",
+  "latitude": "29.78005",
+  "longitude": "-95.4324",
+  "dealerEmail": "sales@grubbsvolvocarscentralhouston.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US4202",
+  "parma": "AER8W",
+  "name": "Grubbs Volvo Cars Grapevine",
+  "address1": "1550 Texan Trail",
+  "city": "Grapevine",
+  "state": "TX",
+  "zip": "76051",
+  "phone": "(817) 783-9321",
+  "url": "https://www.grubbsvolvocars.com/",
+  "latitude": "32.91978",
+  "longitude": "-97.06115",
+  "dealerEmail": "info@grubbsvolvocars.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US4239",
+  "parma": "AA7S2",
+  "name": "Mears Volvo Cars",
+  "address1": "6027 Spur 327",
+  "city": "Lubbock",
+  "state": "TX",
+  "zip": "79424",
+  "phone": "(806) 230-5034",
+  "url": "https://www.mearsvolvocars.com/",
+  "latitude": "33.53764",
+  "longitude": "-101.94767",
+  "dealerEmail": "mearsvolvo@aol.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US4283",
+  "parma": "AEV4L",
+  "name": "Park Place Volvo Cars",
+  "address1": "3515 Inwood Rd.",
+  "city": "Dallas",
+  "state": "TX",
+  "zip": "75209",
+  "phone": "(214) 431-3224",
+  "url": "https://www.parkplacedallasvolvo.com/",
+  "latitude": "32.83085",
+  "longitude": "-96.82595",
+  "dealerEmail": "volvocars@volvocar.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US4271",
+  "parma": "AA7ZO",
+  "name": "Principle Volvo Cars San Antonio",
+  "address1": "1326 N.E. Loop 410",
+  "city": "San Antonio",
+  "state": "TX",
+  "zip": "78209",
+  "phone": "(210) 544-5183",
+  "url": "https://www.principlevolvocarssanantonio.com/",
+  "latitude": "29.51545",
+  "longitude": "-98.44699",
+  "dealerEmail": "nvanderpool@principleauto.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US4232",
+  "parma": "AFDVL",
+  "name": "Volvo Cars Clear Lake",
+  "address1": "17970 Gulf Freeway",
+  "city": "Friendswood",
+  "state": "TX",
+  "zip": "77546",
+  "phone": "(346) 988-2603",
+  "url": "https://www.volvocarsclearlake.com/",
+  "latitude": "29.5603505130",
+  "longitude": "-95.1621591269",
+  "dealerEmail": "info@volvocarsclearlake.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US4273",
+  "parma": "AD67P",
+  "name": "Volvo Cars Edinburg",
+  "address1": "4221 South Highway 281",
+  "city": "Edinburg",
+  "state": "TX",
+  "zip": "78539",
+  "phone": "(956) 297-0814",
+  "url": "https://www.volvocarsedinburg.com/",
+  "latitude": "26.26056",
+  "longitude": "-98.17331",
+  "dealerEmail": "volvoofedinburg@bertogden.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US4211",
+  "parma": "AFA5Z",
+  "name": "Volvo Cars Hill Country",
+  "address1": "10600 N FM 620",
+  "city": "Austin",
+  "state": "TX",
+  "zip": "78726",
+  "phone": "(737) 252-1839",
+  "url": "https://www.volvohillcountry.com/",
+  "latitude": "30.44456",
+  "longitude": "-97.83362",
+  "dealerEmail": "sales@volvohillcountry.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US4240",
+  "parma": "AFLFX",
+  "name": "Volvo Cars Sugar Land",
+  "address1": "8305 W Sam Houston Pkwy S.",
+  "city": "Houston",
+  "state": "TX",
+  "zip": "77072",
+  "phone": "(346) 523-1994",
+  "url": "https://www.volvocarssugarland.com",
+  "latitude": "29.6873",
+  "longitude": "-95.55689",
+  "dealerEmail": "info@volvocarssugarland.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US4138",
+  "parma": "AEOZW",
+  "name": "Volvo Cars West Houston",
+  "address1": "15935 Katy Freeway",
+  "city": "Houston",
+  "state": "TX",
+  "zip": "77094",
+  "phone": "(346) 788-6098",
+  "url": "https://www.volvocarswesthouston.com",
+  "latitude": "29.78392",
+  "longitude": "-95.66283",
+  "dealerEmail": "sales@volvowesthouston.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US4214",
+  "parma": "AA7ST",
+  "name": "Volvo Cars of Austin",
+  "address1": "7216 N. IH-35",
+  "city": "Austin",
+  "state": "TX",
+  "zip": "78752",
+  "phone": "(512) 686-5161",
+  "url": "https://www.volvoaustin.com/",
+  "latitude": "30.33387",
+  "longitude": "-97.7046",
+  "dealerEmail": "VOLVO@VOLVOAUSTIN.COM",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US4285",
+  "parma": "AA7S6",
+  "name": "Volvo Cars of Temple",
+  "address1": "5700 S.W.H.K. Dodgen Loop",
+  "city": "Temple",
+  "state": "TX",
+  "zip": "76502",
+  "phone": "(254) 390-4666",
+  "url": "https://www.templevolvo.com/",
+  "latitude": "31.10798",
+  "longitude": "-97.38966",
+  "dealerEmail": "importleads@garlynshelton.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US5235",
+  "parma": "AA7T1",
+  "name": "Ken Garff Volvo Cars",
+  "address1": "525 South State Street",
+  "city": "Salt Lake City",
+  "state": "UT",
+  "zip": "84111",
+  "phone": "(801) 935-8051",
+  "url": "https://www.kengarffvolvocars.com/",
+  "latitude": "40.7578",
+  "longitude": "-111.8879",
+  "dealerEmail": "wills@kengarff.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US7670",
+  "parma": "AFE4K",
+  "name": "Beyer Volvo Cars Dulles",
+  "address1": "21830 Pacific Blvd",
+  "city": "Dulles",
+  "state": "VA",
+  "zip": "20166",
+  "phone": "(571) 771-2679",
+  "url": "https://www.beyervolvocarsdulles.com/",
+  "latitude": "39.01129",
+  "longitude": "-77.43793",
+  "dealerEmail": "mdwyer@donbeyervolvo.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US7635",
+  "parma": "AFE4G",
+  "name": "Beyer Volvo Cars Falls Church",
+  "address1": "1119 West Broad St.",
+  "city": "Falls Church",
+  "state": "VA",
+  "zip": "22046",
+  "phone": "(571) 202-6443",
+  "url": "https://www.beyervolvocarsfallschurch.com/",
+  "latitude": "38.89318",
+  "longitude": "-77.18861",
+  "dealerEmail": "donbeyervolvokia@eleadtrack.net",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US7610",
+  "parma": "ADYFZ",
+  "name": "CMA's Volvo Cars of Charlottesville",
+  "address1": "3150 Berkmar Drive",
+  "city": "Charlottesville",
+  "state": "VA",
+  "zip": "22901",
+  "phone": "(434) 331-9259",
+  "url": "https://www.volvocarscharlottesville.com/",
+  "latitude": "38.08644",
+  "longitude": "-78.47612",
+  "dealerEmail": "lborches@volvoofcharlottesville.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US7628",
+  "parma": "AFAFA",
+  "name": "DARCARS Volvo Cars Fairfax",
+  "address1": "11050 Fairfax Boulevard",
+  "city": "Fairfax",
+  "state": "VA",
+  "zip": "22030",
+  "phone": "(571) 410-3038",
+  "url": "https://www.darcarsvolvocarsfairfax.com",
+  "latitude": "38.85437",
+  "longitude": "-77.32674",
+  "dealerEmail": "darcarsvolvofairfax@crm.eautodealerhub.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US7642",
+  "parma": "AEMBO",
+  "name": "Lindsay Volvo Cars of Alexandria",
+  "address1": "1700 Kenwood Avenue",
+  "city": "Alexandria",
+  "state": "VA",
+  "zip": "22302",
+  "phone": "(703) 822-5746",
+  "url": "http://www.lindsayvolvocarsofalexandria.com/",
+  "latitude": "38.82864",
+  "longitude": "-77.08512",
+  "dealerEmail": "sales@lindsayvolvocarsofalexandria.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US7608",
+  "parma": "AD2YQ",
+  "name": "Volvo Cars Fredericksburg",
+  "address1": "1001 Noble Way",
+  "city": "Fredericksburg",
+  "state": "VA",
+  "zip": "22401",
+  "phone": "(540) 530-3119",
+  "url": "https://www.volvocarsfredericksburg.com/",
+  "latitude": "38.31206",
+  "longitude": "-77.50613",
+  "dealerEmail": "VolvoSales@HuberMotorCars.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US7710",
+  "parma": "AD076",
+  "name": "Volvo Cars Lynchburg",
+  "address1": "2643 Lakeside Drive",
+  "city": "Lynchburg",
+  "state": "VA",
+  "zip": "24501",
+  "phone": "(434) 448-8942",
+  "url": "https://www.volvocarslynchburg.com/",
+  "latitude": "37.39459",
+  "longitude": "-79.23085",
+  "dealerEmail": "berglundluxuryauto@eleadtrack.net",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US7619",
+  "parma": "AC9QD",
+  "name": "Volvo Cars Midlothian",
+  "address1": "9811 Midlothian Turnpike",
+  "city": "Richmond",
+  "state": "VA",
+  "zip": "23235",
+  "phone": "(804) 409-0881",
+  "url": "https://www.volvocarsmidlothian.com/",
+  "latitude": "37.50274",
+  "longitude": "-77.57763",
+  "dealerEmail": "Hmidlothian@haleyauto.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US7618",
+  "parma": "AA7XB",
+  "name": "Volvo Cars Richmond",
+  "address1": "7211 W. Broad St",
+  "city": "Richmond",
+  "state": "VA",
+  "zip": "23294",
+  "phone": "(804) 966-0082",
+  "url": "https://www.volvocarsrichmond.com/",
+  "latitude": "37.6129",
+  "longitude": "-77.52183",
+  "dealerEmail": "sales@mooersvolvo.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US7712",
+  "parma": "AEAPD",
+  "name": "Volvo Cars Roanoke",
+  "address1": "5000 Franklin Rd.",
+  "city": "Roanoke",
+  "state": "VA",
+  "zip": "24014",
+  "phone": "(540) 900-2950",
+  "url": "https://www.volvocarsroanoke.com/",
+  "latitude": "37.2082",
+  "longitude": "-79.95426",
+  "dealerEmail": "BerglundLuxuryRoanoke@eleadtrack.net",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US7674",
+  "parma": "AFE4F",
+  "name": "Volvo Cars Winchester",
+  "address1": "4015 Valley Pike",
+  "city": "Winchester",
+  "state": "VA",
+  "zip": "22602",
+  "phone": "(540) 530-3181",
+  "url": "https://www.volvocarswinchester.com/",
+  "latitude": "39.1172854599",
+  "longitude": "-78.1970026556",
+  "dealerEmail": "contactus@volvocarswinchester.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US7606",
+  "parma": "AEEE5",
+  "name": "Volvo Cars of Virginia Beach",
+  "address1": "4980 Virgnia Beach Blvd",
+  "city": "Virginia Beach",
+  "state": "VA",
+  "zip": "23462",
+  "phone": "(757) 301-4072",
+  "url": "https://www.volvocarsvirginiabeach.com/",
+  "latitude": "36.84424",
+  "longitude": "-76.15063",
+  "dealerEmail": "sales@vabeachvolvo.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US7626",
+  "parma": "AD3AX",
+  "name": "Wynne Volvo Cars Hampton",
+  "address1": "1010 West Mercury Boulevard",
+  "city": "Hampton",
+  "state": "VA",
+  "zip": "23666",
+  "phone": "(757) 925-8579",
+  "url": "https://www.volvocarshampton.com/",
+  "latitude": "37.04406",
+  "longitude": "-76.37925",
+  "dealerEmail": "pfields@wynnevolvo.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US3107",
+  "parma": "AA7P5",
+  "name": "Almartin Volvo Cars",
+  "address1": "85 Executive Drive",
+  "city": "Shelburne",
+  "state": "VT",
+  "zip": "05482",
+  "phone": "(802) 424-9384",
+  "url": "https://www.almartinvolvocars.com/",
+  "latitude": "44.40714",
+  "longitude": "-73.21521",
+  "dealerEmail": "info@almartin.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US5727",
+  "parma": "AA7VB",
+  "name": "Sandberg Volvo Cars",
+  "address1": "17025 Highway 99",
+  "city": "Lynnwood",
+  "state": "WA",
+  "zip": "98037",
+  "phone": "(425) 474-2452",
+  "url": "https://www.sandbergvolvocars.com/",
+  "latitude": "47.84404",
+  "longitude": "-122.29484",
+  "dealerEmail": "sales@sandbergvolvo.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US5702",
+  "parma": "AESBS",
+  "name": "Volvo Cars Bellevue",
+  "address1": "420 116th Avenue NE",
+  "city": "Bellevue",
+  "state": "WA",
+  "zip": "98004",
+  "phone": "(425) 249-3716",
+  "url": "http://www.volvocarsbellevue.com/",
+  "latitude": "47.6142",
+  "longitude": "-122.18472",
+  "dealerEmail": "salesteam@volvocarsbellevue.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US5774",
+  "parma": "AEMLY",
+  "name": "Volvo Cars Seattle",
+  "address1": "2700 NE 55th Street",
+  "city": "Seattle",
+  "state": "WA",
+  "zip": "98105",
+  "phone": "(206) 647-4105",
+  "url": "http://www.volvocarsseattle.com/",
+  "latitude": "47.66865",
+  "longitude": "-122.29826",
+  "dealerEmail": "email@bobbyersvolvo.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US5786",
+  "parma": "ADIKA",
+  "name": "Volvo Cars Tacoma",
+  "address1": "1602 40th Ave. CT. E",
+  "city": "Fife",
+  "state": "WA",
+  "zip": "98424",
+  "phone": "(253) 553-3091",
+  "url": "https://www.volvocarstacoma.com/",
+  "latitude": "47.24235",
+  "longitude": "-122.37543",
+  "dealerEmail": "sales@volvooftacoma.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US8124",
+  "parma": "ADW2N",
+  "name": "Bergstrom Volvo Cars",
+  "address1": "3030 Victory Lane",
+  "city": "Appleton",
+  "state": "WI",
+  "zip": "54913",
+  "phone": "(920) 259-2497",
+  "url": "https://www.appletonvolvocars.com/",
+  "latitude": "44.2911",
+  "longitude": "-88.46812",
+  "dealerEmail": "premier@bergstromauto.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US8122",
+  "parma": "AD1BF",
+  "name": "Fields Volvo Cars Madison",
+  "address1": "504 E. Badger Road",
+  "city": "Madison",
+  "state": "WI",
+  "zip": "53713",
+  "phone": "(608) 390-6918",
+  "url": "https://www.volvocarsmadison.com/",
+  "latitude": "43.03911",
+  "longitude": "-89.37765",
+  "dealerEmail": "gokla@fieldsauto.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ },
+ {
+  "code": "6US8120",
+  "parma": "ADY2L",
+  "name": "Fields Volvo Cars Waukesha",
+  "address1": "1901 East Moreland Blvd",
+  "city": "Waukesha",
+  "state": "WI",
+  "zip": "53186",
+  "phone": "(262) 747-2476",
+  "url": "https://www.volvocarswaukesha.com/",
+  "latitude": "43.02626",
+  "longitude": "-88.19476",
+  "dealerEmail": "gokla@fieldsauto.com",
+  "capabilities": [
+   "sales",
+   "service",
+   "collision center"
+  ]
+ },
+ {
+  "code": "6US7421",
+  "parma": "AEJCH",
+  "name": "Volvo Cars Charleston",
+  "address1": "7 Dudley Farms Lane",
+  "city": "Charleston",
+  "state": "WV",
+  "zip": "25309",
+  "phone": "(304) 462-2545",
+  "url": "https://www.volvocarscharlestonwv.com/",
+  "latitude": "38.32602",
+  "longitude": "-81.71366",
+  "dealerEmail": "smith@autobasehosted.com",
+  "capabilities": [
+   "sales",
+   "service"
+  ]
+ }
+]

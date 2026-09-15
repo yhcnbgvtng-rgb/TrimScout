@@ -1,0 +1,834 @@
+[
+ {
+  "dealer_name": "MINI of Anchorage",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MINI North Scottsdale",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MINI of Tempe",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bob Smith MINI",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Crevier MINI",
+  "status": "fetched",
+  "source_url": "https://www.creviermini.com/about-us/staff/",
+  "contact_name": "Jeffrey Zheng",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MINI of Berkeley",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MINI of Downtown Los Angeles",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MINI of Escondido",
+  "status": "fetched",
+  "source_url": "https://www.miniofescondido.com/about-us/staff/",
+  "contact_name": "Matt Crandall",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MINI of Marin",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MINI of Monrovia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MINI of Ontario",
+  "status": "fetched",
+  "source_url": "https://www.miniofontario.com/about-us/staff/",
+  "contact_name": "Diego Gonzalez",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MINI of San Diego",
+  "status": "fetched",
+  "source_url": "https://www.miniofsandiego.com/about-us/staff/",
+  "contact_name": "Rich Manas",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MINI of San Francisco",
+  "status": "no_website",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MINI of Stevens Creek",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MINI of Universal City",
+  "status": "fetched",
+  "source_url": "https://www.miniuniversalcity.com/about-us/staff/",
+  "contact_name": "Bernie Gutierrez",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Niello MINI",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "South Bay MINI",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MINI of Loveland",
+  "status": "fetched",
+  "source_url": "https://www.miniofloveland.com/about-us/staff/",
+  "contact_name": "Kim Calaway",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Schomp MINI",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MINI of Darien",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "New Country MINI",
+  "status": "fetched",
+  "source_url": "https://www.newcountrymini.com/about-us/staff/",
+  "contact_name": "Avneesh Naran",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Braman MINI of Miami",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Braman MINI of Palm Beach",
+  "status": "fetched",
+  "source_url": "https://www.bramanmini.com/about-us/staff/",
+  "contact_name": "promoted to",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ferman MINI of Tampa Bay",
+  "status": "fetched",
+  "source_url": "https://www.minioftampabay.com/staff",
+  "contact_name": "BOB MURRAY",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lauderdale MINI Authorized Service",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MINI of Coconut Creek",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MINI of Fort Myers",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MINI of Pensacola",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MINI of South Miami",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MINI of Wesley Chapel",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Orlando MINI",
+  "status": "fetched",
+  "source_url": "https://www.iwantamini.com/dealership/staff.htm",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Tom Bush MINI",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Global Imports MINI",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Mall of Georgia MINI",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MINI of Hawaii",
+  "status": "fetched",
+  "source_url": "https://miniofhawaii.com/about",
+  "contact_name": "Miles Escajeda",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MINI of Des Moines",
+  "status": "fetched",
+  "source_url": "https://miniofdesmoines.com/about",
+  "contact_name": "Miller MINI",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bill Jacobs MINI",
+  "status": "fetched",
+  "source_url": "https://www.billjacobsmini.com/about-us/staff/",
+  "contact_name": "Brian Hogarth",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MINI of Glencoe North Shore",
+  "status": "no_website",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Patrick MINI",
+  "status": "fetched",
+  "source_url": "https://www.patrickmini.com/about-us/staff/",
+  "contact_name": "Joe Quaranta",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Dreyer & Reinbold MINI",
+  "status": "fetched",
+  "source_url": "https://dreyerreinboldmini.com/about",
+  "contact_name": "Frank Koeberlein",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MINI of Fort Wayne",
+  "status": "fetched",
+  "source_url": "https://www.minifortwayne.com/dealership/staff.htm",
+  "contact_name": "SCOTT BROOKS",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MINI of Shawnee Mission",
+  "status": "fetched",
+  "source_url": "https://www.miniofshawneemission.com/about-us/staff/",
+  "contact_name": "Clay Shafer",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MINI of Wichita",
+  "status": "fetched",
+  "source_url": "https://www.miniofwichita.com/about-us/staff/",
+  "contact_name": "Mason Felter",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MINI of Boston",
+  "status": "no_website",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MINI of Peabody",
+  "status": "fetched",
+  "source_url": "https://www.minipeabody.com/staff",
+  "contact_name": "Alex Stoyanov",
+  "contact_title": "General Sales Manager",
+  "contact_email": "astoyanov@minipeabody.com"
+ },
+ {
+  "dealer_name": "MINI of Rockland",
+  "status": "fetched",
+  "source_url": "https://www.miniofrockland.com/about-us/staff/",
+  "contact_name": "Ivo Petrov",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MINI of Annapolis",
+  "status": "fetched",
+  "source_url": "https://www.myminiannapolis.com/about-us/staff/",
+  "contact_name": "David Mier",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MINI of Montgomery County",
+  "status": "fetched",
+  "source_url": "https://www.miniofmontgomerycounty.com/staff",
+  "contact_name": "Matt Charske",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MINI of Towson",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MINI of Grand Rapids",
+  "status": "fetched",
+  "source_url": "https://www.miniofgrandrapids.com/staff/",
+  "contact_name": "Jason Deutsch",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Motor City MINI",
+  "status": "fetched",
+  "source_url": "https://www.motorcitymini.com/dealership/staff.htm",
+  "contact_name": "Richard Martinelli",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Motorwerks MINI",
+  "status": "fetched",
+  "source_url": "https://www.motorwerksmini.com/about-us/staff/",
+  "contact_name": "Trung Hoang",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MINI of St. Louis",
+  "status": "fetched",
+  "source_url": "https://www.miniofstlouis.com/dealership/staff.htm",
+  "contact_name": "Jacob Belcher",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Flow MINI",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Flow MINI of Raleigh",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hendrick MINI",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MINI of Omaha",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MINI of Bedford",
+  "status": "fetched",
+  "source_url": "https://www.minibedford.com/staff",
+  "contact_name": "James Doyle",
+  "contact_title": "General Sales Manager",
+  "contact_email": "jdoyle@minibedford.com"
+ },
+ {
+  "dealer_name": "MINI of Edison",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MINI of Morristown",
+  "status": "fetched",
+  "source_url": "https://www.morristownmini.com/staff",
+  "contact_name": "Amy Musleh",
+  "contact_title": "General Manager",
+  "contact_email": "amy.musleh@openroad.com"
+ },
+ {
+  "dealer_name": "MINI of Mt. Laurel",
+  "status": "fetched",
+  "source_url": "https://www.miniofmtlaurel.com/staff/",
+  "contact_name": "Michael Gale",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MINI of Ramsey",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Sandia MINI",
+  "status": "fetched",
+  "source_url": "https://www.sandiamini.com/about-us/staff/",
+  "contact_name": "Dave Orso",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MINI of Las Vegas",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MINI of Reno",
+  "status": "fetched",
+  "source_url": "https://www.miniofreno.com/dealership/staff.htm",
+  "contact_name": "Alex' Amezcua",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Habberstad MINI",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MINI of Buffalo",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MINI of Freeport",
+  "status": "fetched",
+  "source_url": "https://www.minioffreeport.com/about-us/staff/",
+  "contact_name": "SAM HILAS",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MINI of Latham",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MINI of Manhattan Executive Sales",
+  "status": "fetched",
+  "source_url": "https://www.mininyc.com/about-us/staff/",
+  "contact_name": "Clark MINI",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MINI of Rochester",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MINI of Westchester",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Cincinnati MINI",
+  "status": "fetched",
+  "source_url": "https://www.cincinnatimini.com/about-us/staff/",
+  "contact_name": "Joey Rhodes",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Classic MINI",
+  "status": "fetched",
+  "source_url": "https://www.driveclassicmini.com/about-us/staff/",
+  "contact_name": "Scott Yee",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MINI of Dublin",
+  "status": "no_website",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Jackie Cooper MINI",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MINI of Portland",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MINI of Allentown",
+  "status": "no_website",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MINI of Pittsburgh",
+  "status": "fetched",
+  "source_url": "https://www.miniofpittsburgh.com/staff",
+  "contact_name": "Chris Lasko",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MINI of West Chester",
+  "status": "fetched",
+  "source_url": "https://www.miniwc.com/about-us/staff/",
+  "contact_name": "Chad Carey",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MINI of the Main Line",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MINI of Warwick",
+  "status": "fetched",
+  "source_url": "https://www.miniofwarwick.com/about-us/staff/",
+  "contact_name": "Timothy Pina",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Century MINI",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MINI of Charleston",
+  "status": "fetched",
+  "source_url": "https://www.miniofcharleston.com/dealership/staff.htm",
+  "contact_name": "Jamie Camilo",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MINI of Knoxville",
+  "status": "fetched",
+  "source_url": "https://www.miniofknoxville.com/dealership/staff.htm",
+  "contact_name": "Mark Simerlein",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MINI of Nashville",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Roadshow MINI",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MINI of Austin",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MINI of Clear Lake",
+  "status": "fetched",
+  "source_url": "https://www.miniofclearlake.com/about-us/staff/",
+  "contact_name": "Randy Stine",
+  "contact_title": "General Manager",
+  "contact_email": "rstine@Group1Auto.com"
+ },
+ {
+  "dealer_name": "MINI of Dallas",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MINI of Fort Worth",
+  "status": "fetched",
+  "source_url": "https://www.minioffortworth.com/about-us/staff/",
+  "contact_name": "Collins MINI",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MINI of Plano",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MINI of San Antonio",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MINI of the Woodlands",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Momentum MINI",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MINI of Murray",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Checkered Flag MINI",
+  "status": "fetched",
+  "source_url": "https://www.checkeredflagmini.com/about-us/staff/",
+  "contact_name": "Ashley Harrison",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Crown MINI of Richmond",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MINI of Alexandria",
+  "status": "fetched",
+  "source_url": "https://www.miniofalexandria.com/staff",
+  "contact_name": "Jim Laviolette",
+  "contact_title": "General Sales Manager",
+  "contact_email": "jim.laviolette@miniofalexandria.com"
+ },
+ {
+  "dealer_name": "MINI of Sterling",
+  "status": "fetched",
+  "source_url": "https://www.miniofsterling.com/staff",
+  "contact_name": "Umar Chaudhry",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MINI of Burlington",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Seattle MINI",
+  "status": "fetched",
+  "source_url": "https://seattlemini.com/about",
+  "contact_name": "Dave Murray",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "International MINI",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MINI of Madison",
+  "status": "fetched",
+  "source_url": "https://www.miniofmadison.com/staff",
+  "contact_name": "Chris Ballinger",
+  "contact_title": "Sales Manager",
+  "contact_email": "christopher.ballinger@zimbrick.com"
+ }
+]
