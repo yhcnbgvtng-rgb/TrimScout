@@ -603,5 +603,170 @@
     "lng": -73.42291,
     "source": "oem-locator",
     "sourceUrl": "https://www.lexus.com/rest/lexus/dealers"
+  },
+  {
+    "make": "Lexus",
+    "name": "Cavender Lexus of Lubbock",
+    "city": "Lubbock",
+    "state": "TX",
+    "domain": "cavenderlexusoflubbock.com",
+    "lat": 33.578396,
+    "lng": -101.8494,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.lexus.com/rest/lexus/dealers"
+  },
+  {
+    "make": "Lexus",
+    "name": "Fox Lexus of El Paso",
+    "city": "El Paso",
+    "state": "TX",
+    "domain": "foxlexusofelpaso.com",
+    "lat": 31.742722,
+    "lng": -106.32804,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.lexus.com/rest/lexus/dealers"
+  },
+  {
+    "make": "Lexus",
+    "name": "Lexus Clear Lake",
+    "city": "Friendswood",
+    "state": "TX",
+    "domain": "lexusclearlake.com",
+    "lat": 29.55637,
+    "lng": -95.157845,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.lexus.com/rest/lexus/dealers"
+  },
+  {
+    "make": "Lexus",
+    "name": "Lexus of Austin",
+    "city": "Austin",
+    "state": "TX",
+    "domain": "lexusofaustin.com",
+    "lat": 30.391994,
+    "lng": -97.73986,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.lexus.com/rest/lexus/dealers"
+  },
+  {
+    "make": "Lexus",
+    "name": "Lexus of Lakeway",
+    "city": "Austin",
+    "state": "TX",
+    "domain": "lexusoflakeway.com",
+    "lat": 30.366274,
+    "lng": -97.95207,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.lexus.com/rest/lexus/dealers"
+  },
+  {
+    "make": "Lexus",
+    "name": "Lexus Southwest Houston",
+    "city": "Houston",
+    "state": "TX",
+    "domain": "lexussouthwesthouston.com",
+    "lat": 29.66972,
+    "lng": -95.54664,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.lexus.com/rest/lexus/dealers"
+  },
+  {
+    "make": "Lexus",
+    "name": "North Park Lexus at Dominion",
+    "city": "San Antonio",
+    "state": "TX",
+    "domain": "northparklexusatdominion.com",
+    "lat": 29.642363,
+    "lng": -98.61999,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.lexus.com/rest/lexus/dealers"
+  },
+  {
+    "make": "Lexus",
+    "name": "North Park Lexus of San Antonio",
+    "city": "San Antonio",
+    "state": "TX",
+    "domain": "northparklexus.com",
+    "lat": 29.523409,
+    "lng": -98.50073,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.lexus.com/rest/lexus/dealers"
+  },
+  {
+    "make": "Lexus",
+    "name": "North Park Lexus Rio Grande Valley",
+    "city": "San Juan",
+    "state": "TX",
+    "domain": "nplexusrgv.com",
+    "lat": 26.2041,
+    "lng": -98.15945,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.lexus.com/rest/lexus/dealers"
+  },
+  {
+    "make": "Lexus",
+    "name": "Northside Lexus",
+    "city": "Spring",
+    "state": "TX",
+    "domain": "northsidelexus.com",
+    "lat": 30.115631,
+    "lng": -95.43703,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.lexus.com/rest/lexus/dealers"
+  },
+  {
+    "make": "Lexus",
+    "name": "Park Place Lexus Grapevine",
+    "city": "Grapevine",
+    "state": "TX",
+    "domain": "parkplacelexusgrapevine.com",
+    "lat": 32.923615,
+    "lng": -97.06561,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.lexus.com/rest/lexus/dealers"
+  },
+  {
+    "make": "Lexus",
+    "name": "Park Place Lexus Plano",
+    "city": "Plano",
+    "state": "TX",
+    "domain": "parkplacelexusplano.com",
+    "lat": 33.06411,
+    "lng": -96.82658,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.lexus.com/rest/lexus/dealers"
+  },
+  {
+    "make": "Lexus",
+    "name": "Sewell Lexus",
+    "city": "Dallas",
+    "state": "TX",
+    "domain": "sewelllexus-dallas.com",
+    "lat": 32.834297,
+    "lng": -96.83206,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.lexus.com/rest/lexus/dealers"
+  },
+  {
+    "make": "Lexus",
+    "name": "Sewell Lexus of Ft. Worth",
+    "city": "Ft. Worth",
+    "state": "TX",
+    "domain": "sewelllexus-fortworth.com",
+    "lat": 32.675472,
+    "lng": -97.41812,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.lexus.com/rest/lexus/dealers"
+  },
+  {
+    "make": "Lexus",
+    "name": "Westside Lexus",
+    "city": "Houston",
+    "state": "TX",
+    "domain": "westsidelexus.com",
+    "lat": 29.785553,
+    "lng": -95.598694,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.lexus.com/rest/lexus/dealers"
   }
 ]

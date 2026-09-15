@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-09-15T16:44:48.072Z",
+  "generatedAt": "2026-09-15T20:18:58.175Z",
   "detectOnly": true,
   "brands": [
     {
       "brand": "acura",
       "dest": "dealers/oem-dumps/acura.json",
-      "count": 61,
+      "count": 76,
       "locator": "acura-dealers.json",
       "note": "In-repo official locator dump (not re-fetched).",
       "httpStatus": 200,
@@ -14,7 +14,7 @@
     {
       "brand": "porsche",
       "dest": "dealers/oem-dumps/porsche.json",
-      "count": 44,
+      "count": 61,
       "locator": "dealers.json",
       "note": "In-repo official locator dump (not re-fetched).",
       "httpStatus": 200,
@@ -23,7 +23,7 @@
     {
       "brand": "lexus",
       "dest": "dealers/oem-dumps/lexus.json",
-      "count": 55,
+      "count": 70,
       "locator": "https://www.lexus.com/rest/lexus/dealers",
       "note": "Official Lexus REST dealer directory.",
       "httpStatus": 200,
@@ -33,7 +33,7 @@
     {
       "brand": "toyota",
       "dest": "dealers/oem-dumps/toyota.json",
-      "count": 172,
+      "count": 243,
       "locator": "https://www.toyota.com/dealers/directory/",
       "note": "Official Toyota dealer-hub city pages (dealer-card websites).",
       "pages": [
@@ -231,6 +231,106 @@
           "url": "https://www.toyota.com/dealers/georgia/savannah/dealers/",
           "status": 200,
           "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/texas/dallas/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/texas/fort-worth/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/texas/plano/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/texas/houston/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/texas/the-woodlands/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/texas/sugar-land/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/texas/austin/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/texas/san-antonio/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/texas/el-paso/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/texas/lubbock/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/texas/amarillo/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/texas/midland/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/texas/abilene/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/texas/wichita-falls/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/texas/waco/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/texas/tyler/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/texas/beaumont/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/texas/corpus-christi/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/texas/mcallen/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/texas/laredo/dealers/",
+          "status": 200,
+          "ok": true
         }
       ],
       "blocked": false
@@ -238,7 +338,7 @@
     {
       "brand": "mercedes-benz",
       "dest": "dealers/oem-dumps/mercedes-benz.json",
-      "count": 74,
+      "count": 102,
       "locator": "https://www.mbusa.com/en/dealers",
       "note": "Official MBUSA dealerLocatorService (zip + distance + mbdealer filter).",
       "pages": [
@@ -561,6 +661,106 @@
           "zip": "31401",
           "status": 200,
           "ok": true
+        },
+        {
+          "zip": "75201",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "76102",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "75074",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "77002",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "77380",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "77478",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "78701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "78205",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "79901",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "79401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "79101",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "79701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "79601",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "76301",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "76701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "75701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "77701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "78401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "78501",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "78040",
+          "status": 200,
+          "ok": true
         }
       ],
       "blocked": false
@@ -568,7 +768,7 @@
     {
       "brand": "mitsubishi",
       "dest": "dealers/oem-dumps/mitsubishi.json",
-      "count": 63,
+      "count": 86,
       "locator": "https://www.mitsubishicars.com/dealers",
       "note": "Official Mitsubishi dealers page (embedded Apollo dealer cache).",
       "httpStatus": 200,
@@ -615,7 +815,7 @@
     {
       "brand": "mini",
       "dest": "dealers/oem-dumps/mini.json",
-      "count": 24,
+      "count": 32,
       "locator": "https://www.miniusa.com/tools/shopping/find-a-dealer.html",
       "note": "Official MINI dealer-locator JSON API (getAllDealerByZip), found via network capture; plain fetch, no browser needed.",
       "pages": [
@@ -826,8 +1026,8 @@
         },
         {
           "zip": "33901",
-          "status": 200,
-          "ok": true
+          "status": 0,
+          "ok": false
         },
         {
           "zip": "34102",
@@ -936,8 +1136,108 @@
         },
         {
           "zip": "31401",
-          "status": 0,
-          "ok": false
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "75201",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "76102",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "75074",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "77002",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "77380",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "77478",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "78701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "78205",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "79901",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "79401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "79101",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "79701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "79601",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "76301",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "76701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "75701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "77701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "78401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "78501",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "78040",
+          "status": 200,
+          "ok": true
         }
       ],
       "blocked": false
@@ -945,7 +1245,7 @@
     {
       "brand": "kia",
       "dest": "dealers/oem-dumps/kia.json",
-      "count": 74,
+      "count": 98,
       "locator": "https://www.kia.com/us/en/find-a-dealer",
       "note": "Official Kia find-a-dealer results, rendered per zip (patchright; page is JS-hydrated, not bot-blocked).",
       "pages": [
@@ -1268,6 +1568,106 @@
           "zip": "31401",
           "status": 200,
           "ok": true
+        },
+        {
+          "zip": "75201",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "76102",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "75074",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "77002",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "77380",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "77478",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "78701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "78205",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "79901",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "79401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "79101",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "79701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "79601",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "76301",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "76701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "75701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "77701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "78401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "78501",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "78040",
+          "status": 200,
+          "ok": true
         }
       ],
       "blocked": false
@@ -1307,7 +1707,7 @@
     {
       "brand": "subaru",
       "dest": "dealers/oem-dumps/subaru.json",
-      "count": 124,
+      "count": 153,
       "locator": "https://www.subaru.com/find-a-retailer.html",
       "note": "Official Subaru dealer-distance JSON API (services/dealers/distances/by/zipcode), found via network capture; plain fetch, no browser needed.",
       "pages": [
@@ -1630,6 +2030,106 @@
           "zip": "31401",
           "status": 200,
           "ok": true
+        },
+        {
+          "zip": "75201",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "76102",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "75074",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "77002",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "77380",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "77478",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "78701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "78205",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "79901",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "79401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "79101",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "79701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "79601",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "76301",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "76701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "75701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "77701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "78401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "78501",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "78040",
+          "status": 200,
+          "ok": true
         }
       ],
       "blocked": false
@@ -1637,7 +2137,7 @@
     {
       "brand": "mazda",
       "dest": "dealers/oem-dumps/mazda.json",
-      "count": 93,
+      "count": 136,
       "locator": "https://www.mazdausa.com/find-a-dealer",
       "note": "Official Mazda dealer.ajax handler (zip + maxDistance=50, plain GET).",
       "pages": [
@@ -1960,6 +2460,106 @@
           "zip": "31401",
           "status": 200,
           "ok": true
+        },
+        {
+          "zip": "75201",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "76102",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "75074",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "77002",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "77380",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "77478",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "78701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "78205",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "79901",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "79401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "79101",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "79701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "79601",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "76301",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "76701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "75701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "77701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "78401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "78501",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "78040",
+          "status": 200,
+          "ok": true
         }
       ],
       "blocked": false
@@ -1967,9 +2567,9 @@
     {
       "brand": "volkswagen",
       "dest": "dealers/oem-dumps/volkswagen.json",
-      "count": 120,
+      "count": 165,
       "locator": "https://www.vw.com/en/dealer-search.html",
-      "note": "Official VW bff-search/dealers feature-app API (nationwide, filtered client-side to NJ/NY/FL/GA).",
+      "note": "Official VW bff-search/dealers feature-app API (nationwide, filtered client-side to NJ/NY/FL/GA/TX).",
       "httpStatus": 200,
       "blocked": false,
       "nationwideCount": 954

@@ -482,5 +482,192 @@
     "lng": -76.0785332,
     "source": "oem-locator",
     "sourceUrl": "dealers.json"
+  },
+  {
+    "make": "Porsche",
+    "name": "Park Place Porsche Dallas",
+    "city": "Dallas",
+    "state": "TX",
+    "domain": "parkplace.com",
+    "lat": 32.7762719,
+    "lng": -96.7968559,
+    "source": "oem-locator",
+    "sourceUrl": "dealers.json"
+  },
+  {
+    "make": "Porsche",
+    "name": "Porsche Austin",
+    "city": "Austin",
+    "state": "TX",
+    "domain": "porscheaustin.com",
+    "lat": 30.2711286,
+    "lng": -97.7436995,
+    "source": "oem-locator",
+    "sourceUrl": "dealers.json"
+  },
+  {
+    "make": "Porsche",
+    "name": "Porsche Clear Lake",
+    "city": "Houston",
+    "state": "TX",
+    "domain": "porscheclearlake.com",
+    "lat": 29.7589382,
+    "lng": -95.3676974,
+    "source": "oem-locator",
+    "sourceUrl": "dealers.json"
+  },
+  {
+    "make": "Porsche",
+    "name": "Porsche Corpus Christi",
+    "city": "Corpus Christi",
+    "state": "TX",
+    "domain": "porschecorpuschristi.com",
+    "lat": 27.7635302,
+    "lng": -97.4033191,
+    "source": "oem-locator",
+    "sourceUrl": "dealers.json"
+  },
+  {
+    "make": "Porsche",
+    "name": "Porsche El Paso",
+    "city": "El Paso",
+    "state": "TX",
+    "domain": "porscheelpaso.com",
+    "lat": 31.7601001,
+    "lng": -106.4870476,
+    "source": "oem-locator",
+    "sourceUrl": "dealers.json"
+  },
+  {
+    "make": "Porsche",
+    "name": "Porsche Fort Worth",
+    "city": "Fort Worth",
+    "state": "TX",
+    "domain": "porschefortworth.com",
+    "lat": 32.753177,
+    "lng": -97.3327459,
+    "source": "oem-locator",
+    "sourceUrl": "dealers.json"
+  },
+  {
+    "make": "Porsche",
+    "name": "Porsche Grapevine",
+    "city": "Grapevine",
+    "state": "TX",
+    "domain": "porschegrapevine.com",
+    "lat": 32.9337381,
+    "lng": -97.0788754,
+    "source": "oem-locator",
+    "sourceUrl": "dealers.json"
+  },
+  {
+    "make": "Porsche",
+    "name": "Porsche Houston Central",
+    "city": "Houston",
+    "state": "TX",
+    "domain": "porschehoustoncentral.com",
+    "lat": 29.7589382,
+    "lng": -95.3676974,
+    "source": "oem-locator",
+    "sourceUrl": "dealers.json"
+  },
+  {
+    "make": "Porsche",
+    "name": "Porsche Lubbock",
+    "city": "Lubbock",
+    "state": "TX",
+    "domain": "porschelubbock.com",
+    "lat": 33.5855677,
+    "lng": -101.8470215,
+    "source": "oem-locator",
+    "sourceUrl": "dealers.json"
+  },
+  {
+    "make": "Porsche",
+    "name": "Porsche North Houston",
+    "city": "Houston",
+    "state": "TX",
+    "domain": "porschenorthhouston.com",
+    "lat": 29.7589382,
+    "lng": -95.3676974,
+    "source": "oem-locator",
+    "sourceUrl": "dealers.json"
+  },
+  {
+    "make": "Porsche",
+    "name": "Porsche Plano",
+    "city": "Plano",
+    "state": "TX",
+    "domain": "porscheplano.com",
+    "lat": 33.0136764,
+    "lng": -96.6925096,
+    "source": "oem-locator",
+    "sourceUrl": "dealers.json"
+  },
+  {
+    "make": "Porsche",
+    "name": "Porsche River Oaks",
+    "city": "Houston",
+    "state": "TX",
+    "domain": "porscheriveroaks.com",
+    "lat": 29.7589382,
+    "lng": -95.3676974,
+    "source": "oem-locator",
+    "sourceUrl": "dealers.json"
+  },
+  {
+    "make": "Porsche",
+    "name": "Porsche San Antonio",
+    "city": "San Antonio",
+    "state": "TX",
+    "domain": "porschesanantonio.com",
+    "lat": 29.4246002,
+    "lng": -98.4951405,
+    "source": "oem-locator",
+    "sourceUrl": "dealers.json"
+  },
+  {
+    "make": "Porsche",
+    "name": "Porsche South Austin",
+    "city": "Austin",
+    "state": "TX",
+    "domain": "porschesouthaustin.com",
+    "lat": 30.2711286,
+    "lng": -97.7436995,
+    "source": "oem-locator",
+    "sourceUrl": "dealers.json"
+  },
+  {
+    "make": "Porsche",
+    "name": "Porsche Sugar Land",
+    "city": "Sugar Land",
+    "state": "TX",
+    "domain": "porschesugarland.com",
+    "lat": 29.6196787,
+    "lng": -95.6349463,
+    "source": "oem-locator",
+    "sourceUrl": "dealers.json"
+  },
+  {
+    "make": "Porsche",
+    "name": "Porsche The Woodlands",
+    "city": "The Woodlands",
+    "state": "TX",
+    "domain": "porschethewoodlands.com",
+    "lat": 30.1734194,
+    "lng": -95.504686,
+    "source": "oem-locator",
+    "sourceUrl": "dealers.json"
+  },
+  {
+    "make": "Porsche",
+    "name": "Porsche West Houston",
+    "city": "Houston",
+    "state": "TX",
+    "domain": "porschewesthouston.com",
+    "lat": 29.7589382,
+    "lng": -95.3676974,
+    "source": "oem-locator",
+    "sourceUrl": "dealers.json"
   }
 ]

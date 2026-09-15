@@ -63,7 +63,7 @@
     "lat": null,
     "lng": null,
     "source": "oem-locator",
-    "sourceUrl": "https://www.miniusa.com/bin/services/dealer-locator/getAllDealerByZip.json/33901/50?excludeServiceOnlyDealers=false&includeSatelliteDealers=true"
+    "sourceUrl": "https://www.miniusa.com/bin/services/dealer-locator/getAllDealerByZip.json/34102/50?excludeServiceOnlyDealers=false&includeSatelliteDealers=true"
   },
   {
     "make": "Mini",
@@ -262,5 +262,93 @@
     "lng": null,
     "source": "oem-locator",
     "sourceUrl": "https://www.miniusa.com/bin/services/dealer-locator/getAllDealerByZip.json/07004/50?excludeServiceOnlyDealers=false&includeSatelliteDealers=true"
+  },
+  {
+    "make": "Mini",
+    "name": "MINI of Austin",
+    "city": "Austin",
+    "state": "TX",
+    "domain": "miniofaustin.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.miniusa.com/bin/services/dealer-locator/getAllDealerByZip.json/78701/50?excludeServiceOnlyDealers=false&includeSatelliteDealers=true"
+  },
+  {
+    "make": "Mini",
+    "name": "MINI of Clear Lake",
+    "city": "Webster",
+    "state": "TX",
+    "domain": "miniofclearlake.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.miniusa.com/bin/services/dealer-locator/getAllDealerByZip.json/77002/50?excludeServiceOnlyDealers=false&includeSatelliteDealers=true"
+  },
+  {
+    "make": "Mini",
+    "name": "MINI of Dallas",
+    "city": "Dallas",
+    "state": "TX",
+    "domain": "miniofdallas.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.miniusa.com/bin/services/dealer-locator/getAllDealerByZip.json/75201/50?excludeServiceOnlyDealers=false&includeSatelliteDealers=true"
+  },
+  {
+    "make": "Mini",
+    "name": "MINI of Fort Worth",
+    "city": "Fort Worth",
+    "state": "TX",
+    "domain": "minioffortworth.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.miniusa.com/bin/services/dealer-locator/getAllDealerByZip.json/75201/50?excludeServiceOnlyDealers=false&includeSatelliteDealers=true"
+  },
+  {
+    "make": "Mini",
+    "name": "MINI of Plano",
+    "city": "Plano",
+    "state": "TX",
+    "domain": "miniofplano.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.miniusa.com/bin/services/dealer-locator/getAllDealerByZip.json/75201/50?excludeServiceOnlyDealers=false&includeSatelliteDealers=true"
+  },
+  {
+    "make": "Mini",
+    "name": "MINI of San Antonio",
+    "city": "San Antonio",
+    "state": "TX",
+    "domain": "miniofsanantonio.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.miniusa.com/bin/services/dealer-locator/getAllDealerByZip.json/78205/50?excludeServiceOnlyDealers=false&includeSatelliteDealers=true"
+  },
+  {
+    "make": "Mini",
+    "name": "MINI of the Woodlands",
+    "city": "Conroe",
+    "state": "TX",
+    "domain": "miniofthewoodlands.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.miniusa.com/bin/services/dealer-locator/getAllDealerByZip.json/77002/50?excludeServiceOnlyDealers=false&includeSatelliteDealers=true"
+  },
+  {
+    "make": "Mini",
+    "name": "Momentum MINI",
+    "city": "Houston",
+    "state": "TX",
+    "domain": "momentummini.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.miniusa.com/bin/services/dealer-locator/getAllDealerByZip.json/77002/50?excludeServiceOnlyDealers=false&includeSatelliteDealers=true"
   }
 ]

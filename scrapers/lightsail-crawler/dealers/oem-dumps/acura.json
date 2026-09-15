@@ -669,5 +669,170 @@
     "lng": -73.64035,
     "source": "oem-locator",
     "sourceUrl": "acura-dealers.json"
+  },
+  {
+    "make": "Acura",
+    "name": "Acura of Austin North",
+    "city": "Austin",
+    "state": "TX",
+    "domain": "acuraofaustinnorth.com",
+    "lat": 30.451136,
+    "lng": -97.791298,
+    "source": "oem-locator",
+    "sourceUrl": "acura-dealers.json"
+  },
+  {
+    "make": "Acura",
+    "name": "AutoNation Acura Gulf Freeway",
+    "city": "League City",
+    "state": "TX",
+    "domain": "autonationacuragulffreeway.com",
+    "lat": 29.493441,
+    "lng": -95.109467,
+    "source": "oem-locator",
+    "sourceUrl": "acura-dealers.json"
+  },
+  {
+    "make": "Acura",
+    "name": "Classic Acura",
+    "city": "Beaumont",
+    "state": "TX",
+    "domain": "classicacura.com",
+    "lat": 30.09127,
+    "lng": -94.135551,
+    "source": "oem-locator",
+    "sourceUrl": "acura-dealers.json"
+  },
+  {
+    "make": "Acura",
+    "name": "Fox Acura of El Paso",
+    "city": "El Paso",
+    "state": "TX",
+    "domain": "foxacuraofelpaso.com",
+    "lat": 31.759361,
+    "lng": -106.35778,
+    "source": "oem-locator",
+    "sourceUrl": "acura-dealers.json"
+  },
+  {
+    "make": "Acura",
+    "name": "Gillman Acura",
+    "city": "Houston",
+    "state": "TX",
+    "domain": "gillmanacura.com",
+    "lat": 30.0291,
+    "lng": -95.428703,
+    "source": "oem-locator",
+    "sourceUrl": "acura-dealers.json"
+  },
+  {
+    "make": "Acura",
+    "name": "Goodson Acura of Dallas",
+    "city": "Dallas",
+    "state": "TX",
+    "domain": "goodsonacura.com",
+    "lat": 32.821701,
+    "lng": -96.817703,
+    "source": "oem-locator",
+    "sourceUrl": "acura-dealers.json"
+  },
+  {
+    "make": "Acura",
+    "name": "Group 1 Acura Southwest Houston",
+    "city": "Houston",
+    "state": "TX",
+    "domain": "sterlingmccallacura.com",
+    "lat": 29.667459,
+    "lng": -95.549881,
+    "source": "oem-locator",
+    "sourceUrl": "acura-dealers.json"
+  },
+  {
+    "make": "Acura",
+    "name": "Group 1 Acura Sugar Land",
+    "city": "Sugar Land",
+    "state": "TX",
+    "domain": "acurasugarland.com",
+    "lat": 29.58041,
+    "lng": -95.651527,
+    "source": "oem-locator",
+    "sourceUrl": "acura-dealers.json"
+  },
+  {
+    "make": "Acura",
+    "name": "Grubbs Acura",
+    "city": "Grapevine",
+    "state": "TX",
+    "domain": "grubbsacura.com",
+    "lat": 32.921398,
+    "lng": -97.061897,
+    "source": "oem-locator",
+    "sourceUrl": "acura-dealers.json"
+  },
+  {
+    "make": "Acura",
+    "name": "Gunn Acura",
+    "city": "San Antonio",
+    "state": "TX",
+    "domain": "gunnacura.com",
+    "lat": 29.553801,
+    "lng": -98.586601,
+    "source": "oem-locator",
+    "sourceUrl": "acura-dealers.json"
+  },
+  {
+    "make": "Acura",
+    "name": "Hiley Acura of Fort Worth",
+    "city": "Fort Worth",
+    "state": "TX",
+    "domain": "hileyacura.com",
+    "lat": 32.727741,
+    "lng": -97.482864,
+    "source": "oem-locator",
+    "sourceUrl": "acura-dealers.json"
+  },
+  {
+    "make": "Acura",
+    "name": "John Eagle Acura",
+    "city": "Houston",
+    "state": "TX",
+    "domain": "johneagleacura.com",
+    "lat": 29.784481,
+    "lng": -95.663872,
+    "source": "oem-locator",
+    "sourceUrl": "acura-dealers.json"
+  },
+  {
+    "make": "Acura",
+    "name": "Park Place Acura",
+    "city": "Plano",
+    "state": "TX",
+    "domain": "davidmcdavidacuraplano.com",
+    "lat": 33.063023,
+    "lng": -96.826614,
+    "source": "oem-locator",
+    "sourceUrl": "acura-dealers.json"
+  },
+  {
+    "make": "Acura",
+    "name": "Sterling Acura of Austin",
+    "city": "Austin",
+    "state": "TX",
+    "domain": "sterlingacura.com",
+    "lat": 30.208019,
+    "lng": -97.755341,
+    "source": "oem-locator",
+    "sourceUrl": "acura-dealers.json"
+  },
+  {
+    "make": "Acura",
+    "name": "Vandergriff Acura",
+    "city": "Arlington",
+    "state": "TX",
+    "domain": "vandergriffacura.com",
+    "lat": 32.67659,
+    "lng": -97.121361,
+    "source": "oem-locator",
+    "sourceUrl": "acura-dealers.json"
   }
 ]

@@ -95,8 +95,42 @@ const GA_ZIPS = [
   '31401', // Savannah (east coast)
 ];
 
+// Texas zip spread. TX is the second-largest US auto market and roughly
+// 3x FL's land area, so one zip (or even one per metro) would badly
+// under-cover a 50-120mi-radius zip locator (Mercedes/Mini/Subaru/Mazda/
+// Kia) — a single DFW zip's radius doesn't reach Houston, let alone El
+// Paso. 20 seeds: every major metro (DFW split into Dallas/Fort Worth/
+// Plano since the metro alone is ~9,000 sq mi; Houston split into
+// downtown/Woodlands/Sugar Land for the same reason; Austin; San
+// Antonio) plus regional hubs spanning the panhandle, west Texas, the
+// Rio Grande Valley, south Texas, east Texas and the coast, so no
+// 120mi-radius locator has an uncovered gap larger than a metro's own
+// radius.
+const TX_ZIPS = [
+  '75201', // Dallas
+  '76102', // Fort Worth
+  '75074', // Plano (north DFW)
+  '77002', // Houston (downtown)
+  '77380', // The Woodlands (north Houston)
+  '77478', // Sugar Land (southwest Houston)
+  '78701', // Austin
+  '78205', // San Antonio
+  '79901', // El Paso (far west)
+  '79401', // Lubbock (northwest)
+  '79101', // Amarillo (panhandle)
+  '79701', // Midland (Permian Basin)
+  '79601', // Abilene (west-central)
+  '76301', // Wichita Falls (north)
+  '76701', // Waco (central)
+  '75701', // Tyler (east)
+  '77701', // Beaumont (southeast)
+  '78401', // Corpus Christi (south coast)
+  '78501', // McAllen (Rio Grande Valley)
+  '78040', // Laredo (south, Mexico border)
+];
+
 // Combined zip spread used by every zip+radius OEM locator below.
-const TARGET_ZIPS = [...NJ_NY_ZIPS, ...FL_ZIPS, ...GA_ZIPS];
+const TARGET_ZIPS = [...NJ_NY_ZIPS, ...FL_ZIPS, ...GA_ZIPS, ...TX_ZIPS];
 
 function hostOf(url) {
   return hostFromUrl(url) || normalizeDealerHost(url);
@@ -238,6 +272,26 @@ async function fetchToyota() {
     'georgia/statesboro',
     'georgia/brunswick',
     'georgia/savannah',
+    'texas/dallas',
+    'texas/fort-worth',
+    'texas/plano',
+    'texas/houston',
+    'texas/the-woodlands',
+    'texas/sugar-land',
+    'texas/austin',
+    'texas/san-antonio',
+    'texas/el-paso',
+    'texas/lubbock',
+    'texas/amarillo',
+    'texas/midland',
+    'texas/abilene',
+    'texas/wichita-falls',
+    'texas/waco',
+    'texas/tyler',
+    'texas/beaumont',
+    'texas/corpus-christi',
+    'texas/mcallen',
+    'texas/laredo',
   ];
   const rows = [];
   const pages = [];
