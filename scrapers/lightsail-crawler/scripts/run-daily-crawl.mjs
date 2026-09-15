@@ -1,9 +1,10 @@
 #!/usr/bin/env node
-// Daily NJ + NY multi-brand inventory crawl driver.
+// Daily multi-state, multi-brand inventory crawl driver.
 //
 // Replaces the ad-hoc SSH shell loops used to run the first NJ and NY
 // crawls (2026-09-14) with one persistent, committed job that cron can
-// call unattended. For each state, in order:
+// call unattended. Runs once per state in src/states.js#SUPPORTED_STATES
+// (NJ, NY, then FL as of 2026-09-14). For each state, in order:
 //
 //   1. Regenerate dealers/<state>/<brand>.json from the OEM-locator dumps
 //      (write-nj-dealer-files.mjs / write-ny-dealer-files.mjs). This is
@@ -41,6 +42,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { NJ_BRANDS_IN } from '../src/nj_policy.js';
+import { SUPPORTED_STATES } from '../src/states.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export const ROOT = path.resolve(__dirname, '..');
@@ -49,7 +51,19 @@ const REPORTS_DIR = path.join(ROOT, 'data', 'reports');
 const RUNS_DIR = path.join(ROOT, 'data', 'daily_crawl_runs');
 const CHANGES_DIR = path.join(ROOT, 'data', 'daily_changes');
 
-const STATES = ['NJ', 'NY'];
+// Every state this driver runs, in order — see src/states.js for the
+// single source of truth. Adding a state here (plus its write-dealers
+// script entry in WRITE_DEALER_SCRIPTS below) is the only change needed
+// to have the nightly driver pick it up; nothing else in this file should
+// special-case a particular state.
+export const STATES = SUPPORTED_STATES;
+
+// One entry per state in STATES — the write-dealers step's script name.
+export const WRITE_DEALER_SCRIPTS = {
+  NJ: 'write-nj-dealer-files.mjs',
+  NY: 'write-ny-dealer-files.mjs',
+  FL: 'write-fl-dealer-files.mjs',
+};
 
 // Logs accumulate one file per (state, brand, day) forever otherwise —
 // today's manual runs already show this pattern taking hold. Anything
@@ -222,7 +236,8 @@ async function dealerCountFor(state, brand) {
 async function runState(state, date) {
   const stateSummary = { state, writeDealers: null, botReport: null, readyBrands: null, brands: {} };
 
-  const writeScript = state === 'NJ' ? 'write-nj-dealer-files.mjs' : 'write-ny-dealer-files.mjs';
+  const writeScript = WRITE_DEALER_SCRIPTS[state];
+  if (!writeScript) throw new Error(`No write-dealers script registered for state "${state}" — add one to WRITE_DEALER_SCRIPTS.`);
   stateSummary.writeDealers = await runStep(
     'node',
     [path.join('scripts', writeScript)],

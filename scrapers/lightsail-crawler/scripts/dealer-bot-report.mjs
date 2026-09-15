@@ -12,15 +12,26 @@
 //   node scripts/dealer-bot-report.mjs
 //   node scripts/dealer-bot-report.mjs --brand=Toyota
 //   node scripts/dealer-bot-report.mjs --state=NY
+//   node scripts/dealer-bot-report.mjs --state=FL
 //   CRAWLER_BRAND=Porsche node scripts/dealer-bot-report.mjs
 
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { loadNjDealers, isNjBrandOut } from '../src/nj_policy.js';
 import { loadNyDealers } from '../src/ny_policy.js';
+import { loadFlDealers } from '../src/fl_policy.js';
 import { probeDealer } from '../src/http_probe.js';
 import { buildTablePdf, buildSummaryBlocks } from '../src/pdf_table.js';
 import { CLASSIFICATION_ORDER, summarizeBotRows } from '../src/bot_protection.js';
+import { SUPPORTED_STATES } from '../src/states.js';
+
+// One entry per supported state (see src/states.js) — a new state needs a
+// loader added here, not a new if/else branch.
+const STATE_DEALER_LOADERS = {
+  NJ: loadNjDealers,
+  NY: loadNyDealers,
+  FL: loadFlDealers,
+};
 
 const brandFilter = (process.argv.find((a) => a.startsWith('--brand=')) || '')
   .slice('--brand='.length) || process.env.CRAWLER_BRAND || null;
@@ -28,8 +39,8 @@ const stateFilter = ((process.argv.find((a) => a.startsWith('--state=')) || '')
   .slice('--state='.length) || process.env.CRAWLER_STATE || 'NJ')
   .toUpperCase();
 
-if (stateFilter !== 'NJ' && stateFilter !== 'NY') {
-  console.error(`Unsupported state "${stateFilter}". Use NJ or NY.`);
+if (!SUPPORTED_STATES.includes(stateFilter)) {
+  console.error(`Unsupported state "${stateFilter}". Use one of: ${SUPPORTED_STATES.join(', ')}.`);
   process.exit(1);
 }
 
@@ -39,9 +50,7 @@ if (brandFilter && isNjBrandOut(brandFilter)) {
 }
 
 const cwd = process.cwd();
-const dealers = stateFilter === 'NY'
-  ? loadNyDealers({ cwd, brand: brandFilter })
-  : loadNjDealers({ cwd, brand: brandFilter });
+const dealers = STATE_DEALER_LOADERS[stateFilter]({ cwd, brand: brandFilter });
 if (dealers.length === 0) {
   console.error(`No ${stateFilter} in-scope dealers found. Check dealers/${stateFilter.toLowerCase()}/*.json.`);
   process.exit(1);
