@@ -1,0 +1,3730 @@
+[
+ {
+  "code": "NNA71073",
+  "name": "INFINITI OF BIRMINGHAM",
+  "address1": "1804 MONTGOMERY HIGHWAY",
+  "city": "HOOVER",
+  "state": "AL",
+  "zip": "35244",
+  "phone": "(205) 985-4200",
+  "url": "https://www.infinitibhm.com",
+  "latitude": 33.3514302,
+  "longitude": -86.7953301,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA71239",
+  "name": "INFINITI OF MOBILE",
+  "address1": "1147 E. I-65 SERVICE RD S",
+  "city": "MOBILE",
+  "state": "AL",
+  "zip": "36606",
+  "phone": "(251) 478-7388",
+  "url": "https://www.infinitiofmobile.com",
+  "latitude": 30.6690902,
+  "longitude": -88.1268619,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA72486",
+  "name": "SMITH INFINITI/HUNTSVILLE",
+  "address1": "1010 OLD MONROVIA RD NW",
+  "city": "HUNTSVILLE",
+  "state": "AL",
+  "zip": "35806",
+  "phone": "(256) 882-1009",
+  "url": "https://www.infinitiofhuntsville.com",
+  "latitude": 34.741592,
+  "longitude": -86.662218,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO"
+  ]
+ },
+ {
+  "code": "NNA70593",
+  "name": "EVERETT INFINITI OF NORTHWEST ARKANSAS",
+  "address1": "400 S 47TH STREET",
+  "city": "ROGERS",
+  "state": "AR",
+  "zip": "72758",
+  "phone": "(479) 335-1770",
+  "url": "https://www.infinitinwa.com/",
+  "latitude": 36.3308161,
+  "longitude": -94.1825864,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA75461",
+  "name": "INFINITI OF CENTRAL ARKANSAS",
+  "address1": "21000 INTERSTATE 30 NORTH",
+  "city": "BENTON",
+  "state": "AR",
+  "zip": "72019",
+  "phone": "(501) 320-1400",
+  "url": "https://www.infinitiofcentralarkansas.com",
+  "latitude": 34.6125506,
+  "longitude": -92.6586401,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_CP_CN",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA71526",
+  "name": "COULTER INFINITI",
+  "address1": "6225 EAST TEST DRIVE",
+  "city": "MESA",
+  "state": "AZ",
+  "zip": "85206",
+  "phone": "(480) 386-6375",
+  "url": "https://www.coulterinfiniti.com",
+  "latitude": 33.385201,
+  "longitude": -111.694603,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_CP_CN",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA71237",
+  "name": "COURTESY INFINITI OF TUCSON",
+  "address1": "625 W. AUTO MALL DR",
+  "city": "TUCSON",
+  "state": "AZ",
+  "zip": "85705",
+  "phone": "(520) 690-1500",
+  "url": "https://www.courtesyinfinitioftucson.com",
+  "latitude": 32.2892845,
+  "longitude": -110.9831784,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO"
+  ]
+ },
+ {
+  "code": "NNA72083",
+  "name": "INFINITI OF PEORIA",
+  "address1": "9167 W BELL RD",
+  "city": "PEORIA",
+  "state": "AZ",
+  "zip": "85382",
+  "phone": "(623) 385-1382",
+  "url": "https://infinitiofpeoria.com",
+  "latitude": 33.637508,
+  "longitude": -112.254097,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA71482",
+  "name": "INFINITI OF SCOTTSDALE",
+  "address1": "7601 E FRANK LLOYD WRIGHT",
+  "city": "SCOTTSDALE",
+  "state": "AZ",
+  "zip": "85260",
+  "phone": "(480) 676-4867",
+  "url": "https://www.infinitiofscottsdale.com",
+  "latitude": 33.635937,
+  "longitude": -111.916573,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA71082",
+  "name": "INFINITI ON CAMELBACK",
+  "address1": "1250 E CAMELBACK RD",
+  "city": "PHOENIX",
+  "state": "AZ",
+  "zip": "85014",
+  "phone": "(602) 680-2360",
+  "url": "https://www.infinitioncamelback.com",
+  "latitude": 33.5092371,
+  "longitude": -112.0549979,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA70112",
+  "name": "AUTONATION INFINITI TUSTIN",
+  "address1": "33 AUTO CENTER DR",
+  "city": "TUSTIN",
+  "state": "CA",
+  "zip": "92782",
+  "phone": "(714) 627-5556",
+  "url": "https://www.infinitioftustin.com",
+  "latitude": 33.725899,
+  "longitude": -117.7985,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA71535",
+  "name": "CAPITOL INFINITI",
+  "address1": "1120 CAPITOL EXPRESSWAY",
+  "city": "SAN JOSE",
+  "state": "CA",
+  "zip": "95136",
+  "phone": "(408) 531-3000",
+  "url": "https://www.capitolinfiniti.com/",
+  "latitude": 37.2745506,
+  "longitude": -121.8775895,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA72107",
+  "name": "CERRITOS INFINITI",
+  "address1": "18707 STUDEBAKER RD",
+  "city": "CERRITOS",
+  "state": "CA",
+  "zip": "90703",
+  "phone": "(562) 345-1333",
+  "url": "https://www.cerritosinfiniti.com",
+  "latitude": 33.8610998,
+  "longitude": -118.1015234,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA73116",
+  "name": "DUBLIN INFINITI",
+  "address1": "3800B KAISER ROAD",
+  "city": "DUBLIN",
+  "state": "CA",
+  "zip": "94568",
+  "phone": "(925) 556-3200",
+  "url": "https://www.dublininfiniti.com",
+  "latitude": 37.7020865,
+  "longitude": -121.8615862,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA72097",
+  "name": "FRESNO INFINITI",
+  "address1": "6150 N BLACKSTONE AVE",
+  "city": "FRESNO",
+  "state": "CA",
+  "zip": "93710",
+  "phone": "(559) 435-5001",
+  "url": "https://www.fresnoinfiniti.com/",
+  "latitude": 36.8259164,
+  "longitude": -119.7891777,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA72238",
+  "name": "GLENDALE INFINITI",
+  "address1": "812 BRAND BLVD",
+  "city": "GLENDALE",
+  "state": "CA",
+  "zip": "91204",
+  "phone": "(818) 696-9311",
+  "url": "https://www.glendaleinfiniti.com",
+  "latitude": 34.1362851,
+  "longitude": -118.2545011,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_CP_CN",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA70585",
+  "name": "INFINITI OF DOWNTOWN LA",
+  "address1": "635 W WASHINGTON BLVD",
+  "city": "LOS ANGELES",
+  "state": "CA",
+  "zip": "90015",
+  "phone": "(213) 536-4782",
+  "url": "https://www.infinitiofla.com",
+  "latitude": 34.0350742,
+  "longitude": -118.2725171,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO"
+  ]
+ },
+ {
+  "code": "NNA70587",
+  "name": "INFINITI OF ESCONDIDO",
+  "address1": "1546 AUTO PARK WAY",
+  "city": "ESCONDIDO",
+  "state": "CA",
+  "zip": "92029",
+  "phone": "(760) 746-5050",
+  "url": "https://www.infinitiofescondido.com/",
+  "latitude": 33.1163435,
+  "longitude": -117.1069879,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA73115",
+  "name": "INFINITI OF KEARNY MESA",
+  "address1": "8118 CLAIREMONT MESA BLVD",
+  "city": "SAN DIEGO",
+  "state": "CA",
+  "zip": "92111",
+  "phone": "(858) 573-1700",
+  "url": "https://www.infinitiofkearnymesa.com/",
+  "latitude": 32.8333792,
+  "longitude": -117.1473854,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA7002A",
+  "name": "INFINITI OF MODESTO",
+  "address1": "4530 MCHENRY AVE",
+  "city": "MODESTO",
+  "state": "CA",
+  "zip": "95356",
+  "phone": "(209) 557-9997",
+  "url": "https://www.infinitiofmodesto.com/",
+  "latitude": 37.705155,
+  "longitude": -120.9938627,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_SA"
+  ]
+ },
+ {
+  "code": "NNA70566",
+  "name": "INFINITI OF OCEANSIDE",
+  "address1": "3535 COLLEGE BLVD STE 101",
+  "city": "OCEANSIDE",
+  "state": "CA",
+  "zip": "92056",
+  "phone": "(760) 720-9104",
+  "url": "https://www.infinitiofoceanside.com",
+  "latitude": 33.1818905,
+  "longitude": -117.2986381,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA71110",
+  "name": "INFINITI OF ONTARIO",
+  "address1": "2192 INLAND EMPIRE BLVD",
+  "city": "ONTARIO",
+  "state": "CA",
+  "zip": "91764",
+  "phone": "(909) 625-8990",
+  "url": "https://www.infinitiofontario.com",
+  "latitude": 34.070061,
+  "longitude": -117.604927,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA71583",
+  "name": "INFINITI OF SERRAMONTE",
+  "address1": "630 SERRAMONTE BLVD",
+  "city": "COLMA",
+  "state": "CA",
+  "zip": "94014",
+  "phone": "(650) 488-2850",
+  "url": "https://www.infinitiserramonte.com/",
+  "latitude": 37.6758138,
+  "longitude": -122.4610986,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_CP_CN",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA73105",
+  "name": "INFINITI OF SOUTH BAY",
+  "address1": "2900 PACIFIC COAST HWY",
+  "city": "TORRANCE",
+  "state": "CA",
+  "zip": "90505",
+  "phone": "(310) 325-5555",
+  "url": "https://www.infinitiofsouthbay.com",
+  "latitude": 33.7952633,
+  "longitude": -118.3383891,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA73205",
+  "name": "INFINITI OF THE DESERT",
+  "address1": "36400 AUTO PARK DR",
+  "city": "CATHEDRAL CITY",
+  "state": "CA",
+  "zip": "92234",
+  "phone": "(760) 324-8760",
+  "url": "https://www.infinitiofthedesert.com/",
+  "latitude": 33.7837439,
+  "longitude": -116.4720529,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO"
+  ]
+ },
+ {
+  "code": "NNA72100",
+  "name": "INFINITI OF THOUSAND OAKS",
+  "address1": "3570 E THOUSAND OAKS BLVD",
+  "city": "WESTLAKE VILLAGE",
+  "state": "CA",
+  "zip": "91362",
+  "phone": "(805) 494-1200",
+  "url": "https://www.infinitiofthousandoaks.com/",
+  "latitude": 34.1651,
+  "longitude": -118.831367,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA71504",
+  "name": "INFINITI OF VALENCIA",
+  "address1": "24055 MAGIC MOUNTAIN PKWY",
+  "city": "VALENCIA",
+  "state": "CA",
+  "zip": "91355",
+  "phone": "(661) 505-7800",
+  "url": "https://www.infinitiofvalencia.com",
+  "latitude": 34.418227,
+  "longitude": -118.5555645,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_CP_CN",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA73101",
+  "name": "INFINITI OF VAN NUYS",
+  "address1": "5455 VAN NUYS BLVD",
+  "city": "SHERMAN OAKS",
+  "state": "CA",
+  "zip": "91401",
+  "phone": "(818) 782-1000",
+  "url": "https://www.infinitiofvannuys.com",
+  "latitude": 34.1700167,
+  "longitude": -118.4492985,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_CP_CN",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA71090",
+  "name": "INFINITI ROSEVILLE",
+  "address1": "830 AUTOMALL DR",
+  "city": "ROSEVILLE",
+  "state": "CA",
+  "zip": "95661",
+  "phone": "(916) 633-1822",
+  "url": "https://www.infinitiroseville.com",
+  "latitude": 38.7505536,
+  "longitude": -121.2561898,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA70548",
+  "name": "ORANGE COAST INFINITI",
+  "address1": "15550 BEACH BLVD",
+  "city": "WESTMINSTER",
+  "state": "CA",
+  "zip": "92683",
+  "phone": "(714) 650-8585",
+  "url": "https://www.ocinfiniti.com",
+  "latitude": 33.7367224,
+  "longitude": -117.9891521,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_CP_CN",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA70584",
+  "name": "REDWOOD CITY INFINITI",
+  "address1": "543 EL CAMINO REAL",
+  "city": "REDWOOD CITY",
+  "state": "CA",
+  "zip": "94063",
+  "phone": "(650) 241-2525",
+  "url": "https://www.redwoodcityinfiniti.com",
+  "latitude": 37.4900101,
+  "longitude": -122.2388627,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA70582",
+  "name": "STEVENS CREEK INFINITI",
+  "address1": "4795 STEVENS CREEK BLVD",
+  "city": "SANTA CLARA",
+  "state": "CA",
+  "zip": "95051",
+  "phone": "(408) 264-9999",
+  "url": "https://www.stevenscreekinfiniti.com/",
+  "latitude": 37.3236302,
+  "longitude": -121.986833,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO"
+  ]
+ },
+ {
+  "code": "NNA73084",
+  "name": "INFINITI OF DENVER",
+  "address1": "2990 SOUTH HAVANA STREET",
+  "city": "AURORA",
+  "state": "CO",
+  "zip": "80014",
+  "phone": "(303) 671-6000",
+  "url": "https://www.infinitiofdenver.com",
+  "latitude": 39.6632,
+  "longitude": -104.865402,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA71505",
+  "name": "MIKE WARD INFINITI",
+  "address1": "1800 LUCENT COURT",
+  "city": "HIGHLANDS RANCH",
+  "state": "CO",
+  "zip": "80129",
+  "phone": "(303) 350-4300",
+  "url": "https://www.mikewardinfiniti.com",
+  "latitude": 39.5616462,
+  "longitude": -105.0089699,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_CP_CN",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA70260",
+  "name": "RED NOLAND INFINITI",
+  "address1": "425 MOTOR WORLD PARKWAY",
+  "city": "COLORADO SPRINGS",
+  "state": "CO",
+  "zip": "80905",
+  "phone": "(719) 444-8881",
+  "url": "https://www.rednolandinfiniti.com",
+  "latitude": 38.8158831,
+  "longitude": -104.8362934,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA70558",
+  "name": "RICKENBAUGH INFINITI",
+  "address1": "5900 GATEWAY COURT",
+  "city": "DACONO",
+  "state": "CO",
+  "zip": "80514",
+  "phone": "(303) 243-5585",
+  "url": "https://www.rickenbaughinfiniti.com",
+  "latitude": 40.0849187,
+  "longitude": -104.9783344,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA70586",
+  "name": "DANBURY INFINITI",
+  "address1": "13 SUGAR HOLLOW ROAD",
+  "city": "DANBURY",
+  "state": "CT",
+  "zip": "6810",
+  "phone": "(203) 586-4200",
+  "url": "https://www.infinitidanbury.com",
+  "latitude": 41.3754906,
+  "longitude": -73.4761173,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_CP_CN",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA70406",
+  "name": "GEORGE HARTE INFINITI",
+  "address1": "1076 SOUTH COLONY RD",
+  "city": "WALLINGFORD",
+  "state": "CT",
+  "zip": "6492",
+  "phone": "(203) 495-6700",
+  "url": "https://www.georgeharteinfiniti.com",
+  "latitude": 41.4314843,
+  "longitude": -72.8347508,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA70006",
+  "name": "HARTE INFINITI",
+  "address1": "150 WESTON ST",
+  "city": "HARTFORD",
+  "state": "CT",
+  "zip": "6120",
+  "phone": "(860) 524-1993",
+  "url": "https://www.harteinfiniti.com",
+  "latitude": 41.790947,
+  "longitude": -72.660957,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA72518",
+  "name": "INFINITI OF GREENWICH",
+  "address1": "315 MILBANK AVENUE",
+  "city": "GREENWICH",
+  "state": "CT",
+  "zip": "6830",
+  "phone": "(203) 869-2600",
+  "url": "https://www.greenwichinfiniti.com",
+  "latitude": 41.0233382,
+  "longitude": -73.6233576,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_CP_CN",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA72220",
+  "name": "HERTRICH INFINITI OF NEWARK",
+  "address1": "303 E CLEVELAND AVE",
+  "city": "NEWARK",
+  "state": "DE",
+  "zip": "19711",
+  "phone": "(302) 368-6305",
+  "url": "https://www.HertrichINFINITINewark.com",
+  "latitude": 39.6865063,
+  "longitude": -75.739904,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_CP_CN",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA70046",
+  "name": "ATLANTIC INFINITI",
+  "address1": "10980 ATLANTIC BLVD",
+  "city": "JACKSONVILLE",
+  "state": "FL",
+  "zip": "32225",
+  "phone": "(904) 642-0200",
+  "url": "https://www.atlanticinfiniti.com",
+  "latitude": 30.324394,
+  "longitude": -81.516022,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_CP_CS",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA70568",
+  "name": "DAYTONA INFINITI",
+  "address1": "950 N. TOMOKA FARMS RD",
+  "city": "DAYTONA BEACH",
+  "state": "FL",
+  "zip": "32124",
+  "phone": "(386) 236-1300",
+  "url": "https://www.daytonainfiniti.com",
+  "latitude": 29.1994269,
+  "longitude": -81.0979864,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_CP_CN",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA71529",
+  "name": "FORT MYERS INFINITI",
+  "address1": "14990 SOUTH TAMIAMI TRAIL",
+  "city": "FORT MYERS",
+  "state": "FL",
+  "zip": "33912",
+  "phone": "(239) 432-5500",
+  "url": "https://fortmyersinfiniti.com",
+  "latitude": 26.5251641,
+  "longitude": -81.8713278,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA70555",
+  "name": "HANANIA INFINITI OF ORANGE PARK",
+  "address1": "6999 BLANDING BLVD",
+  "city": "JACKSONVILLE",
+  "state": "FL",
+  "zip": "32244",
+  "phone": "(904) 777-1600",
+  "url": "https://infinitioforangepark.com",
+  "latitude": 30.2219346,
+  "longitude": -81.7371122,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_CP_CN",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA71049",
+  "name": "INFINITI OF CLEARWATER",
+  "address1": "19740 US HIGHWAY 19 NORTH",
+  "city": "CLEARWATER",
+  "state": "FL",
+  "zip": "33764",
+  "phone": "(727) 275-8456",
+  "url": "https://www.clearwaterinfiniti.com",
+  "latitude": 27.9520184,
+  "longitude": -82.7309947,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA70512",
+  "name": "INFINITI OF COCONUT CREEK",
+  "address1": "5501 W SAMPLE RD",
+  "city": "COCONUT CREEK",
+  "state": "FL",
+  "zip": "33073",
+  "phone": "(954) 861-6100",
+  "url": "https://infinitiofcoconutcreek.com",
+  "latitude": 26.2743,
+  "longitude": -80.198402,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_CP_CN",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA73268",
+  "name": "INFINITI OF MELBOURNE",
+  "address1": "90-100 N HARBOR CITY BLVD",
+  "city": "MELBOURNE",
+  "state": "FL",
+  "zip": "32935",
+  "phone": "(321) 728-8880",
+  "url": "https://www.infinitiofmelbourne.com/",
+  "latitude": 28.1086456,
+  "longitude": -80.6180395,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO"
+  ]
+ },
+ {
+  "code": "NNA71050",
+  "name": "INFINITI OF PALM BEACHES",
+  "address1": "3101 OKEECHOBEE BLVD",
+  "city": "WEST PALM BEACH",
+  "state": "FL",
+  "zip": "33409",
+  "phone": "(561) 615-3300",
+  "url": "https://www.infinitiofpalmbeach.com",
+  "latitude": 26.707001,
+  "longitude": -80.104103,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA71245",
+  "name": "INFINITI OF SARASOTA",
+  "address1": "4950 CLARK ROAD",
+  "city": "SARASOTA",
+  "state": "FL",
+  "zip": "34233",
+  "phone": "(941) 924-1211",
+  "url": "https://www.infinitiofsarasota.com",
+  "latitude": 27.2701333,
+  "longitude": -82.4691541,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA71053",
+  "name": "INFINITI OF SOUTH MIAMI",
+  "address1": "16915 S DIXIE HWY",
+  "city": "PALMETTO BAY",
+  "state": "FL",
+  "zip": "33157",
+  "phone": "(305) 256-2000",
+  "url": "https://www.infinitiofsouthmiami.com/",
+  "latitude": 25.6126353,
+  "longitude": -80.3472786,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_CP_CN",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA73251",
+  "name": "INFINITI OF TALLAHASSEE",
+  "address1": "3377 MAHAN DR",
+  "city": "TALLAHASSEE",
+  "state": "FL",
+  "zip": "32308",
+  "phone": "(850) 297-1488",
+  "url": "https://www.infinitioftallahassee.com",
+  "latitude": 30.4628851,
+  "longitude": -84.2198071,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_CP_CN",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA70048",
+  "name": "INFINITI OF TAMPA",
+  "address1": "4600 N DALE MABRY HWY",
+  "city": "TAMPA",
+  "state": "FL",
+  "zip": "33614",
+  "phone": "(833) 688-3560",
+  "url": "https://infinitioftampa.com",
+  "latitude": 27.98444,
+  "longitude": -82.506199,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA70557",
+  "name": "INFINITI STUART",
+  "address1": "3970 SE FEDERAL HIGHWAY",
+  "city": "STUART",
+  "state": "FL",
+  "zip": "34997",
+  "phone": "(772) 266-7600",
+  "url": "https://infinitistuart.com",
+  "latitude": 27.1543512,
+  "longitude": -80.2199534,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA75033",
+  "name": "NAPLES INFINITI",
+  "address1": "3640 PINE RIDGE ROAD",
+  "city": "NAPLES",
+  "state": "FL",
+  "zip": "34109",
+  "phone": "(239) 948-7773",
+  "url": "https://www.naplesinfiniti.com",
+  "latitude": 26.2101641,
+  "longitude": -81.7444748,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA70594",
+  "name": "OCEAN INFINITI DORAL",
+  "address1": "9525 NW 12TH STREET",
+  "city": "DORAL",
+  "state": "FL",
+  "zip": "33172",
+  "phone": "(786) 646-0770",
+  "url": "https://www.oceaninfinitidoral.com",
+  "latitude": 25.783829,
+  "longitude": -80.3513271,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_CP_CN",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA71047",
+  "name": "ORLANDO INFINITI",
+  "address1": "4237 MILLENIA BLVD",
+  "city": "ORLANDO",
+  "state": "FL",
+  "zip": "32839",
+  "phone": "(407) 660-0077",
+  "url": "https://www.orlandoinfiniti.com",
+  "latitude": 28.48992,
+  "longitude": -81.432114,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA73051",
+  "name": "SAWGRASS INFINITI",
+  "address1": "5801 MADISON AVE",
+  "city": "TAMARAC",
+  "state": "FL",
+  "zip": "33321",
+  "phone": "(954) 360-9400",
+  "url": "https://www.sawgrassinfiniti.com",
+  "latitude": 26.195511,
+  "longitude": -80.291161,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_CP_CN",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA71052",
+  "name": "TAVERNA INFINITI NORTH MIAMI",
+  "address1": "3801 S STATE ROAD 7",
+  "city": "WEST PARK",
+  "state": "FL",
+  "zip": "33023",
+  "phone": "(305) 652-9999",
+  "url": "https://www.tavernainfinitinorthmiami.com/",
+  "latitude": 25.9755197,
+  "longitude": -80.2057253,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA72571",
+  "name": "GRAND INFINITI OF MACON",
+  "address1": "4763 RIVERSIDE DR",
+  "city": "MACON",
+  "state": "GA",
+  "zip": "31210",
+  "phone": "(478) 787-0008",
+  "url": "https://www.grandinfiniti.com/",
+  "latitude": 32.9202236,
+  "longitude": -83.7074593,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_CP_CN",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA70493",
+  "name": "INFINITI OF GWINNETT",
+  "address1": "3090 SATELLITE BLVD",
+  "city": "DULUTH",
+  "state": "GA",
+  "zip": "30096",
+  "phone": "(678) 812-8500",
+  "url": "https://infinitiofgwinnett.com",
+  "latitude": 33.961376,
+  "longitude": -84.116982,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_CP_CN",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA71498",
+  "name": "INFINITI OF SOUTH ATLANTA",
+  "address1": "4201 JONESBORO RD",
+  "city": "UNION CITY",
+  "state": "GA",
+  "zip": "30291",
+  "phone": "(770) 774-9151",
+  "url": "https://www.infinitiatlanta.com",
+  "latitude": 33.5686028,
+  "longitude": -84.5253335,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO"
+  ]
+ },
+ {
+  "code": "NNA75247",
+  "name": "MIRACLE INFINITI OF AUGUSTA",
+  "address1": "3300 WASHINGTON ROAD",
+  "city": "AUGUSTA",
+  "state": "GA",
+  "zip": "30907",
+  "phone": "(706) 922-6500",
+  "url": "https://www.miracleinfinitiofaugusta.com/",
+  "latitude": 33.5146876,
+  "longitude": -82.0676542,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA71045",
+  "name": "NALLEY INFINITI OF ATLANTA",
+  "address1": "2550 THE NALLEY WAY",
+  "city": "ATLANTA",
+  "state": "GA",
+  "zip": "30360",
+  "phone": "(678) 254-0987",
+  "url": "https://www.nalleyinfinitiatlanta.com",
+  "latitude": 33.907996,
+  "longitude": -84.282787,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA71304",
+  "name": "NALLEY INFINITI-MARIETTA",
+  "address1": "2020 COBB PARKWAY SOUTH",
+  "city": "MARIETTA",
+  "state": "GA",
+  "zip": "30060",
+  "phone": "(678) 932-8709",
+  "url": "https://www.nalleyinfinitimarietta.com",
+  "latitude": 33.902873,
+  "longitude": -84.488766,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA70044",
+  "name": "RBM INFINITI OF NORTH ATLANTA",
+  "address1": "11405 ALPHARETTA HWY",
+  "city": "ROSWELL",
+  "state": "GA",
+  "zip": "30076",
+  "phone": "(770) 625-8500",
+  "url": "https://roswellinfiniti.com",
+  "latitude": 34.060421,
+  "longitude": -84.324814,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA70519",
+  "name": "KING INFINITI",
+  "address1": "45-568 KAMEHAMEHA HWY",
+  "city": "KANEOHE",
+  "state": "HI",
+  "zip": "96744",
+  "phone": "(808) 836-0848",
+  "url": "https://www.infinitiofhonolulu.com",
+  "latitude": 21.3993724,
+  "longitude": -157.7996707,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA72254",
+  "name": "WILLIS INFINITI",
+  "address1": "2021 NORTHWEST 100TH ST",
+  "city": "DES MOINES",
+  "state": "IA",
+  "zip": "50325",
+  "phone": "(855) 372-3155",
+  "url": "https://www.willisinfiniti.com",
+  "latitude": 41.6092069,
+  "longitude": -93.7555391,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_CP_CN",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA71631",
+  "name": "KENDALL INFINITI OF NAMPA",
+  "address1": "15885 IDAHO CENTER BLVD",
+  "city": "NAMPA",
+  "state": "ID",
+  "zip": "83687",
+  "phone": "(208) 376-8564",
+  "url": "https://www.kendallinfinitinampa.com/",
+  "latitude": 43.6032875,
+  "longitude": -116.5146376,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA72060",
+  "name": "GREGORY INFINITI",
+  "address1": "1205 S MILWAUKEE",
+  "city": "LIBERTYVILLE",
+  "state": "IL",
+  "zip": "60048",
+  "phone": "(847) 362-9200",
+  "url": "https://gregoryinfiniti.com",
+  "latitude": 42.262895,
+  "longitude": -87.9501177,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA74063",
+  "name": "INFINITI OF CHICAGO",
+  "address1": "2711 S STATE ST",
+  "city": "CHICAGO",
+  "state": "IL",
+  "zip": "60616",
+  "phone": "(312) 467-8000",
+  "url": "https://infinitiofchicago.com/",
+  "latitude": 41.8440794,
+  "longitude": -87.6264331,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA70536",
+  "name": "INFINITI OF CLARENDON HILLS",
+  "address1": "415 E OGDEN AVE",
+  "city": "CLARENDON HILLS",
+  "state": "IL",
+  "zip": "60514",
+  "phone": "(630) 468-9000",
+  "url": "https://www.infinitiofclarendonhills.com",
+  "latitude": 41.809805,
+  "longitude": -87.962759,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA71521",
+  "name": "INFINITI OF HOFFMAN ESTATES",
+  "address1": "1075 W GOLF RD",
+  "city": "HOFFMAN ESTATES",
+  "state": "IL",
+  "zip": "60169",
+  "phone": "(224) 653-2901",
+  "url": "https://www.infinitihoffman.com",
+  "latitude": 42.0475822,
+  "longitude": -88.1068987,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO"
+  ]
+ },
+ {
+  "code": "NNA70062",
+  "name": "INFINITI OF NAPERVILLE",
+  "address1": "1550 WEST OGDEN AVENUE",
+  "city": "NAPERVILLE",
+  "state": "IL",
+  "zip": "60540",
+  "phone": "(630) 241-3000",
+  "url": "https://www.infinitiofnaperville.com",
+  "latitude": 41.771935,
+  "longitude": -88.1850429,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA71308",
+  "name": "INFINITI OF ORLAND PARK",
+  "address1": "8751 W 159TH STREET",
+  "city": "ORLAND PARK",
+  "state": "IL",
+  "zip": "60462",
+  "phone": "(708) 403-4700",
+  "url": "https://www.infinitioforlandpark.com",
+  "latitude": 41.6010149,
+  "longitude": -87.8328,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA72119",
+  "name": "MOTOR WERKS INFINITI",
+  "address1": "1475 S BARRINGTON RD",
+  "city": "BARRINGTON",
+  "state": "IL",
+  "zip": "60010",
+  "phone": "(847) 381-8900",
+  "url": "https://www.motorwerksinfiniti.com",
+  "latitude": 42.1356006,
+  "longitude": -88.1361145,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA70581",
+  "name": "STAR INFINITI OF NILES",
+  "address1": "5733 W TOUHY AVE",
+  "city": "NILES",
+  "state": "IL",
+  "zip": "60714",
+  "phone": "(847) 828-8001",
+  "url": "https://www.infinitiniles.com",
+  "latitude": 42.0115293,
+  "longitude": -87.7713919,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA70059",
+  "name": "DREYER & REINBOLD INFINITI",
+  "address1": "9370 WHITLEY DR",
+  "city": "INDIANAPOLIS",
+  "state": "IN",
+  "zip": "46240",
+  "phone": "(317) 573-0222",
+  "url": "https://www.infinitinorth.com",
+  "latitude": 39.923599,
+  "longitude": -86.1147,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA70478",
+  "name": "DREYER & REINBOLD OF GREENWOOD",
+  "address1": "1305.S. 31 SOUTH",
+  "city": "GREENWOOD",
+  "state": "IN",
+  "zip": "46143",
+  "phone": "(317) 885-4800",
+  "url": "https://www.drinfinitisouth.com",
+  "latitude": 39.5972563,
+  "longitude": -86.1031044,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA72556",
+  "name": "SWEIS INFINITI MERRILLVILLE",
+  "address1": "1794 W 81ST AVENUE",
+  "city": "MERRILLVILLE",
+  "state": "IN",
+  "zip": "46410",
+  "phone": "(219) 525-4500",
+  "url": "https://www.infinitimerrillville.com/",
+  "latitude": 41.4719134,
+  "longitude": -87.3583427,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA72067",
+  "name": "INFINITI OF KANSAS CITY",
+  "address1": "6960 W. FRONTAGE ROAD",
+  "city": "MERRIAM",
+  "state": "KS",
+  "zip": "66203",
+  "phone": "(816) 941-0770",
+  "url": "https://www.infinitiofkansascity.com",
+  "latitude": 39.003444,
+  "longitude": -94.6957254,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_CP_CN",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA72430",
+  "name": "INFINITI OF LEXINGTON",
+  "address1": "801 E NEW CIRCLE RD",
+  "city": "LEXINGTON",
+  "state": "KY",
+  "zip": "40505",
+  "phone": "(859) 263-2848",
+  "url": "https://www.infinitioflexington.com",
+  "latitude": 38.0451059,
+  "longitude": -84.452367,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_CP_CN",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA72577",
+  "name": "KERRY INFINITI N KENTUCKY",
+  "address1": "6059 HOPEFUL CHURCH RD",
+  "city": "FLORENCE",
+  "state": "KY",
+  "zip": "41042",
+  "phone": "(859) 371-8191",
+  "url": "https://www.kerryinfiniti.com",
+  "latitude": 39.0044708,
+  "longitude": -84.6543082,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA71217",
+  "name": "LOUISVILLE INFINITI",
+  "address1": "8 AUTOCENTER DR",
+  "city": "LOUISVILLE",
+  "state": "KY",
+  "zip": "40299",
+  "phone": "(502) 499-5070",
+  "url": "https://www.louisvilleinfiniti.com",
+  "latitude": 38.2189619,
+  "longitude": -85.5827794,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_CP_CN",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA70443",
+  "name": "INFINITI OF BATON ROUGE",
+  "address1": "13540 AIRLINE HWY",
+  "city": "BATON ROUGE",
+  "state": "LA",
+  "zip": "70817",
+  "phone": "(225) 753-4433",
+  "url": "https://www.infinitibr.com",
+  "latitude": 30.374161,
+  "longitude": -91.032997,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA70483",
+  "name": "INFINITI OF LAFAYETTE",
+  "address1": "6201 JOHNSTON STREET",
+  "city": "LAFAYETTE",
+  "state": "LA",
+  "zip": "70503",
+  "phone": "(337) 984-0120",
+  "url": "https://www.infinitilaf.com",
+  "latitude": 30.1606519,
+  "longitude": -92.0850801,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA72229",
+  "name": "MATT BOWERS INFINITI METAIRIE",
+  "address1": "3700 N CAUSEWAY BLVD",
+  "city": "METAIRIE",
+  "state": "LA",
+  "zip": "70002",
+  "phone": "(504) 832-2005",
+  "url": "https://www.mattbowersinfiniti.com/",
+  "latitude": 30.0160961,
+  "longitude": -90.1555333,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA71264",
+  "name": "ORR INFINITI",
+  "address1": "1400 EAST 70TH STREET",
+  "city": "SHREVEPORT",
+  "state": "LA",
+  "zip": "71105",
+  "phone": "(318) 797-8899",
+  "url": "https://www.orrinfiniti.com",
+  "latitude": 32.4442537,
+  "longitude": -93.7259462,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_CP_CN",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA70592",
+  "name": "24 INFINITI OF PLYMOUTH",
+  "address1": "151 SAMOSET STREET",
+  "city": "PLYMOUTH",
+  "state": "MA",
+  "zip": "2360",
+  "phone": "(774) 608-8820",
+  "url": "https://www.24infinitiofplymouth.com",
+  "latitude": 41.9522671,
+  "longitude": -70.6878929,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_CP_CN",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA70596",
+  "name": "FOLEY INFINITI",
+  "address1": "894 BOSTON TURNPIKE",
+  "city": "SHREWSBURY",
+  "state": "MA",
+  "zip": "1545",
+  "phone": "(508) 842-9300",
+  "url": "https://www.foleyinfiniti.com/",
+  "latitude": 42.2786859,
+  "longitude": -71.6826223,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO"
+  ]
+ },
+ {
+  "code": "NNA70209",
+  "name": "INFINITI OF NORWOOD",
+  "address1": "866-880 BOSTON PROVIDENCE",
+  "city": "NORWOOD",
+  "state": "MA",
+  "zip": "2062",
+  "phone": "(781) 329-3040",
+  "url": "https://www.infinitiofnorwood.com",
+  "latitude": 42.182419,
+  "longitude": -71.187881,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_CP_CN",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA70001",
+  "name": "KELLY INFINITI",
+  "address1": "155 ANDOVER ST",
+  "city": "DANVERS",
+  "state": "MA",
+  "zip": "1923",
+  "phone": "(978) 774-1000",
+  "url": "https://kellyinfiniti.com",
+  "latitude": 42.558159,
+  "longitude": -70.971336,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_CP_CS",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA70595",
+  "name": "CRISWELL INFINITI",
+  "address1": "1707 WEST STREET",
+  "city": "ANNAPOLIS",
+  "state": "MD",
+  "zip": "21401",
+  "phone": "(443) 482-3240",
+  "url": "https://www.criswellinfiniti.com",
+  "latitude": 38.9793242,
+  "longitude": -76.5198757,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO"
+  ]
+ },
+ {
+  "code": "NNA71481",
+  "name": "JBA INFINITI OF ELLICOTT CITY",
+  "address1": "8431 BALTIMORE NATL PIKE",
+  "city": "ELLICOTT CITY",
+  "state": "MD",
+  "zip": "21043",
+  "phone": "(410) 480-1000",
+  "url": "https://www.jbainfiniti.com",
+  "latitude": 39.2850452,
+  "longitude": -76.8062225,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA70226",
+  "name": "JIM COLEMAN INFINITI",
+  "address1": "10400C AUTO PARK AVENUE",
+  "city": "BETHESDA",
+  "state": "MD",
+  "zip": "20817",
+  "phone": "(301) 469-2100",
+  "url": "https://jimcolemaninfiniti.com",
+  "latitude": 39.028198,
+  "longitude": -77.145393,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA70032",
+  "name": "NATIONWIDE INFINITI OF TIMONIUM",
+  "address1": "22 W TIMONIUM RD",
+  "city": "TIMONIUM",
+  "state": "MD",
+  "zip": "21093",
+  "phone": "(410) 561-1000",
+  "url": "https://www.nationwideinfiniti.com",
+  "latitude": 39.440285,
+  "longitude": -76.628418,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_CP_CN",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA70243",
+  "name": "BILL DODGE INFINITI",
+  "address1": "1 SAUNDERS WAY",
+  "city": "WESTBROOK",
+  "state": "ME",
+  "zip": "4092",
+  "phone": "(207) 854-3200",
+  "url": "https://www.billdodgeinfiniti.com",
+  "latitude": 43.6732653,
+  "longitude": -70.3386737,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA71434",
+  "name": "INFINITI OF GRAND RAPIDS",
+  "address1": "2930 BRETON RD SE",
+  "city": "GRAND RAPIDS",
+  "state": "MI",
+  "zip": "49512",
+  "phone": "(616) 940-8989",
+  "url": "https://www.infinitiofgrandrapids.com",
+  "latitude": 42.9103899,
+  "longitude": -85.6072401,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_CP_CN",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA72530",
+  "name": "LAFONTAINE INFINITI ANN ARBOR",
+  "address1": "3500 JACKSON ROAD",
+  "city": "ANN ARBOR",
+  "state": "MI",
+  "zip": "48103",
+  "phone": "(734) 669-9000",
+  "url": "https://lafontaineinfinitiannarbor.com",
+  "latitude": 42.286188,
+  "longitude": -83.8006429,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA72310",
+  "name": "LAFONTAINE INFINITI NOVI",
+  "address1": "24355 HAGGERTY RD",
+  "city": "NOVI",
+  "state": "MI",
+  "zip": "48375",
+  "phone": "(248) 471-2220",
+  "url": "https://www.lafontaineinfinitinovi.com/",
+  "latitude": 42.4707188,
+  "longitude": -83.4358707,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA72532",
+  "name": "LAFONTAINE INFINITI TROY",
+  "address1": "1816 MAPLELAWN DR",
+  "city": "TROY",
+  "state": "MI",
+  "zip": "48084",
+  "phone": "(248) 731-3300",
+  "url": "https://www.lafontaineinfinititroy.com",
+  "latitude": 42.5511926,
+  "longitude": -83.176081,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA70311",
+  "name": "JIM LUPIENT INFINITI",
+  "address1": "7200 WAYZATA BLVD",
+  "city": "GOLDEN VALLEY",
+  "state": "MN",
+  "zip": "55426",
+  "phone": "(763) 546-5577",
+  "url": "https://www.lupientinfiniti.com",
+  "latitude": 44.9715,
+  "longitude": -93.376701,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA70066",
+  "name": "LUTHER INFINITI OF BLOOMINGTON",
+  "address1": "1500 WEST 81ST STREET",
+  "city": "BLOOMINGTON",
+  "state": "MN",
+  "zip": "55431",
+  "phone": "(952) 888-5555",
+  "url": "https://lutherinfiniti.com",
+  "latitude": 44.858113,
+  "longitude": -93.29921,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA70069",
+  "name": "BOMMARITO INFINITI",
+  "address1": "15700 MANCHESTER RD",
+  "city": "ELLISVILLE",
+  "state": "MO",
+  "zip": "63011",
+  "phone": "(636) 391-9400",
+  "url": "https://www.bommaritoinfiniti.com",
+  "latitude": 38.592495,
+  "longitude": -90.580055,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_CP_CN",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA72068",
+  "name": "INFINITI OF CREVE COEUR",
+  "address1": "755 NORTH NEW BALLAS ROAD",
+  "city": "CREVE COEUR",
+  "state": "MO",
+  "zip": "63141",
+  "phone": "(314) 222-7243",
+  "url": "https://www.infinitiofcrevecoeur.com/",
+  "latitude": 38.669903,
+  "longitude": -90.4439141,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_CP_CN",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA72253",
+  "name": "INFINITI OF SPRINGFIELD",
+  "address1": "3625 SOUTH CAMPBELL ST",
+  "city": "SPRINGFIELD",
+  "state": "MO",
+  "zip": "65807",
+  "phone": "(417) 317-5177",
+  "url": "https://www.infinitiofspringfield.com",
+  "latitude": 37.14806,
+  "longitude": -93.296219,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA70203",
+  "name": "HERRIN-GEAR INFINITI",
+  "address1": "1685 HIGH ST",
+  "city": "JACKSON",
+  "state": "MS",
+  "zip": "39202",
+  "phone": "(601) 354-4900",
+  "url": "https://www.herringearinfiniti.com",
+  "latitude": 32.30233,
+  "longitude": -90.163734,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA71567",
+  "name": "INFINITI OF SOUTH MISSISSIPPI",
+  "address1": "11779 BOBBY ELEUTERIUS",
+  "city": "D'IBERVILLE",
+  "state": "MS",
+  "zip": "39540",
+  "phone": "(228) 641-0400",
+  "url": "https://infinitiofsm.com",
+  "latitude": 30.4426171,
+  "longitude": -88.8934728,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA71588",
+  "name": "HANNA INFINITI OF WILMINGTON",
+  "address1": "5730 MARKET STREET",
+  "city": "WILMINGTON",
+  "state": "NC",
+  "zip": "28405",
+  "phone": "(910) 338-2000",
+  "url": "https://www.infinitiofwilmington.com",
+  "latitude": 34.2490898,
+  "longitude": -77.8600414,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_CP_CN",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA71494",
+  "name": "INFINITI OF APEX",
+  "address1": "1900 LAURA DUNCAN ROAD",
+  "city": "APEX",
+  "state": "NC",
+  "zip": "27523",
+  "phone": "(919) 629-8700",
+  "url": "https://www.infinitiofapex.com",
+  "latitude": 35.7487101,
+  "longitude": -78.8337076,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_CP_CN",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA72042",
+  "name": "INFINITI OF CHARLOTTE",
+  "address1": "9103 E INDEPENDENCE BLVD",
+  "city": "MATTHEWS",
+  "state": "NC",
+  "zip": "28105",
+  "phone": "(704) 847-9010",
+  "url": "https://www.infinitiofcharlotte.com",
+  "latitude": 35.1416935,
+  "longitude": -80.71802,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_CP_CN",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA70522",
+  "name": "LAKE NORMAN INFINITI",
+  "address1": "20435 CHARTWELL CENTER DR",
+  "city": "CORNELIUS",
+  "state": "NC",
+  "zip": "28031",
+  "phone": "(704) 237-8000",
+  "url": "https://www.lakenormaninfiniti.com",
+  "latitude": 35.478512,
+  "longitude": -80.876869,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA71041",
+  "name": "MODERN INFINITI",
+  "address1": "3605 W WENDOVER AVE",
+  "city": "GREENSBORO",
+  "state": "NC",
+  "zip": "27407",
+  "phone": "(336) 852-5981",
+  "url": "https://www.moderninfinitiofgreensboro.com",
+  "latitude": 36.060165,
+  "longitude": -79.867416,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_CP_CN",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA70497",
+  "name": "MODERN INFINITI OF WINSTON-SALEM",
+  "address1": "1500 PETERS CREEK PKWY",
+  "city": "WINSTON SALEM",
+  "state": "NC",
+  "zip": "27103",
+  "phone": "(336) 767-7800",
+  "url": "https://www.moderninfinitiofwinstonsalem.com",
+  "latitude": 36.15955,
+  "longitude": -80.278465,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_CP_CN",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA73313",
+  "name": "INFINITI OF OMAHA",
+  "address1": "18201 BURT STREET",
+  "city": "ELKHORN",
+  "state": "NE",
+  "zip": "68022",
+  "phone": "(402) 592-2200",
+  "url": "https://www.infinitiofomaha.com/",
+  "latitude": 41.2640463,
+  "longitude": -96.1999244,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA71503",
+  "name": "INFINITI OF NASHUA",
+  "address1": "11 MARMON DR",
+  "city": "NASHUA",
+  "state": "NH",
+  "zip": "3060",
+  "phone": "(603) 891-1400",
+  "url": "https://www.infinitiofnashua.com",
+  "latitude": 42.7295738,
+  "longitude": -71.4454385,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_CP_CN",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA71520",
+  "name": "BRIDGEWATER INFINITI",
+  "address1": "1400 ROUTE 22",
+  "city": "BRIDGEWATER",
+  "state": "NJ",
+  "zip": "8807",
+  "phone": "(908) 895-2300",
+  "url": "https://bridgewaterinfiniti.com/",
+  "latitude": 40.5749741,
+  "longitude": -74.5715855,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO"
+  ]
+ },
+ {
+  "code": "NNA70214",
+  "name": "CIRCLE INFINITI",
+  "address1": "300 STATE HIGHWAY 36",
+  "city": "WEST LONG BRANCH",
+  "state": "NJ",
+  "zip": "7764",
+  "phone": "(732) 389-1200",
+  "url": "https://www.circleinfiniti.com",
+  "latitude": 40.293381,
+  "longitude": -74.033272,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_CP_CN",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA70025",
+  "name": "DOUGLAS INFINITI",
+  "address1": "430 MORRIS AVE",
+  "city": "SUMMIT",
+  "state": "NJ",
+  "zip": "7901",
+  "phone": "(908) 522-7300",
+  "url": "https://www.douglasinfiniti.com",
+  "latitude": 40.723358,
+  "longitude": -74.369011,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_CP_CN",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA71024",
+  "name": "EDISON INFINITI",
+  "address1": "401 US-1",
+  "city": "EDISON",
+  "state": "NJ",
+  "zip": "8817",
+  "phone": "(732) 867-2777",
+  "url": "https://www.edisoninfiniti.com/",
+  "latitude": 40.5036278,
+  "longitude": -74.4013552,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA71021",
+  "name": "FETTE INFINITI",
+  "address1": "1137 ROUTE 46 EAST",
+  "city": "CLIFTON",
+  "state": "NJ",
+  "zip": "7013",
+  "phone": "(973) 743-3100",
+  "url": "https://www.fetteinfiniti.com",
+  "latitude": 40.869633,
+  "longitude": -74.184151,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_CP_CN",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA70211",
+  "name": "HOLMAN INFINITI",
+  "address1": "577 ROUTE 38 W",
+  "city": "MAPLE SHADE",
+  "state": "NJ",
+  "zip": "8052",
+  "phone": "(856) 231-4400",
+  "url": "https://www.holmaninfiniti.com",
+  "latitude": 39.9436,
+  "longitude": -74.970596,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA74020",
+  "name": "INFINITI OF ENGLEWOOD",
+  "address1": "60 ROCKWOOD PL",
+  "city": "ENGLEWOOD",
+  "state": "NJ",
+  "zip": "7631",
+  "phone": "(201) 568-1200",
+  "url": "https://www.infinitiofenglewood.com",
+  "latitude": 40.8786691,
+  "longitude": -73.9824283,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO"
+  ]
+ },
+ {
+  "code": "NNA72213",
+  "name": "INFINITI OF FLEMINGTON",
+  "address1": "204 HIGHWAY 202/31",
+  "city": "FLEMINGTON",
+  "state": "NJ",
+  "zip": "8822",
+  "phone": "(908) 782-6868",
+  "url": "https://www.infinitiofflemington.com",
+  "latitude": 40.4857139,
+  "longitude": -74.8623178,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA70591",
+  "name": "MATT BLATT INFINITI ATLANTIC CITY",
+  "address1": "6017 BLACK HORSE PIKE",
+  "city": "EGG HARBOR TWP",
+  "state": "NJ",
+  "zip": "8234",
+  "phone": "(609) 757-0755",
+  "url": "https://www.mattblattinfiniti.com/",
+  "latitude": 39.436313,
+  "longitude": -74.618194,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO"
+  ]
+ },
+ {
+  "code": "NNA70212",
+  "name": "RAMSEY INFINITI",
+  "address1": "535 ROUTE 17 S",
+  "city": "RAMSEY",
+  "state": "NJ",
+  "zip": "7446",
+  "phone": "(201) 327-5100",
+  "url": "https://www.ramseyinfiniti.com",
+  "latitude": 41.056702,
+  "longitude": -74.121002,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_CP_CN",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA73023",
+  "name": "ROCK RIDGE INFINITI",
+  "address1": "3055 ROUTE 10",
+  "city": "DENVILLE",
+  "state": "NJ",
+  "zip": "7834",
+  "phone": "(973) 361-6700",
+  "url": "https://www.rockridgeinfiniti.com/",
+  "latitude": 40.8649832,
+  "longitude": -74.5077812,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO"
+  ]
+ },
+ {
+  "code": "NNA72241",
+  "name": "INFINITI OF ALBUQUERQUE",
+  "address1": "1234 RENAISSANCE NE",
+  "city": "ALBUQUERQUE",
+  "state": "NM",
+  "zip": "87107",
+  "phone": "(505) 217-3000",
+  "url": "https://infinitiofalbuquerque.com/",
+  "latitude": 35.1332292,
+  "longitude": -106.6184918,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA73215",
+  "name": "INFINITI OF LAS VEGAS",
+  "address1": "5555 WEST SAHARA AVENUE",
+  "city": "LAS VEGAS",
+  "state": "NV",
+  "zip": "89146",
+  "phone": "(702) 252-8800",
+  "url": "https://www.infinitioflasvegas.com/",
+  "latitude": 36.1435329,
+  "longitude": -115.2175385,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_CP_CN",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA73009",
+  "name": "BOB JOHNSON INFINITI",
+  "address1": "3855 W HENRIETTA ROAD",
+  "city": "ROCHESTER",
+  "state": "NY",
+  "zip": "14623",
+  "phone": "(585) 334-9440",
+  "url": "https://www.bobjohnsoninfiniti.com",
+  "latitude": 43.0771064,
+  "longitude": -77.6426442,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA71017",
+  "name": "INFINITI CITY OF MASSAPEQUA",
+  "address1": "4450 SUNRISE HWY",
+  "city": "MASSAPEQUA",
+  "state": "NY",
+  "zip": "11758",
+  "phone": "(516) 797-5200",
+  "url": "https://www.infiniticityli.com",
+  "latitude": 40.6758049,
+  "longitude": -73.4697192,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA71560",
+  "name": "INFINITI CITY OF QUEENS",
+  "address1": "21707 NORTHERN BLVD",
+  "city": "BAYSIDE",
+  "state": "NY",
+  "zip": "11361",
+  "phone": "(718) 819-8400",
+  "url": "https://www.infiniticity.com/",
+  "latitude": 40.7613138,
+  "longitude": -73.7646179,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA74015",
+  "name": "INFINITI OF LYNBROOK",
+  "address1": "843 SUNRISE HIGHWAY",
+  "city": "LYNBROOK",
+  "state": "NY",
+  "zip": "11563",
+  "phone": "(516) 536-9000",
+  "url": "https://www.infinitioflynbrook.com/",
+  "latitude": 40.6565086,
+  "longitude": -73.6844686,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_CP_CN",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA71016",
+  "name": "INFINITI OF SMITHTOWN",
+  "address1": "960 MIDDLE COUNTRY RD",
+  "city": "SAINT JAMES",
+  "state": "NY",
+  "zip": "11780",
+  "phone": "(631) 361-4636",
+  "url": "https://www.infinitiofsmithtown.com",
+  "latitude": 40.861127,
+  "longitude": -73.1407249,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA71408",
+  "name": "INFINITI OF SYRACUSE",
+  "address1": "736 W GENESEE ST",
+  "city": "SYRACUSE",
+  "state": "NY",
+  "zip": "13204",
+  "phone": "(315) 471-3979",
+  "url": "https://www.infinitiofsyracuse.com",
+  "latitude": 43.053604,
+  "longitude": -76.164215,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_CP_CN",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA71589",
+  "name": "INFINITI OF WHITE PLAINS",
+  "address1": "235 TARRYTOWN RD",
+  "city": "WHITE PLAINS",
+  "state": "NY",
+  "zip": "10607",
+  "phone": "(914) 688-6450",
+  "url": "https://www.infinitiofwhiteplainsauto.com",
+  "latitude": 41.0411809,
+  "longitude": -73.7914192,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA70012",
+  "name": "KINGS INFINITI",
+  "address1": "14-46 NEPTUNE AVE SUITE A",
+  "city": "BROOKLYN",
+  "state": "NY",
+  "zip": "11235",
+  "phone": "(718) 646-3331",
+  "url": "https://www.kingsinfiniti.com",
+  "latitude": 40.582583,
+  "longitude": -73.955244,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_CP_CN",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA72014",
+  "name": "LEGEND INFINITI",
+  "address1": "268 JERICHO TURNPIKE",
+  "city": "SYOSSET",
+  "state": "NY",
+  "zip": "11791",
+  "phone": "(516) 496-8181",
+  "url": "https://www.legendinfiniti.com",
+  "latitude": 40.8097924,
+  "longitude": -73.5077366,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA71407",
+  "name": "LIA INFINITI",
+  "address1": "965 NEW LOUDON RD",
+  "city": "COHOES",
+  "state": "NY",
+  "zip": "12047",
+  "phone": "(518) 738-0800",
+  "url": "https://www.liainfiniti.com",
+  "latitude": 42.76799,
+  "longitude": -73.75341,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA71008",
+  "name": "WEST HERR INFINITI",
+  "address1": "8137 MAIN ST",
+  "city": "WILLIAMSVILLE",
+  "state": "NY",
+  "zip": "14221",
+  "phone": "(716) 633-9585",
+  "url": "https://www.infinitiwilliamsville.com",
+  "latitude": 42.9625345,
+  "longitude": -78.6913957,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_CP_CN",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA71216",
+  "name": "EVANS INFINITI OF DAYTON",
+  "address1": "299 LOOP RD",
+  "city": "CENTERVILLE",
+  "state": "OH",
+  "zip": "45459",
+  "phone": "(937) 434-8877",
+  "url": "https://www.infinitiofdayton.com",
+  "latitude": 39.6493036,
+  "longitude": -84.1493692,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_CP_CN",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA72559",
+  "name": "INFINITI OF AKRON",
+  "address1": "3332 S ARLINGTON ROAD",
+  "city": "AKRON",
+  "state": "OH",
+  "zip": "44312",
+  "phone": "(330) 644-1800",
+  "url": "https://www.infinitiofakron.com",
+  "latitude": 40.9804027,
+  "longitude": -81.4941777,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_CP_CN",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA74055",
+  "name": "INFINITI OF BEACHWOOD",
+  "address1": "25900 CENTRAL PKWY",
+  "city": "BEACHWOOD",
+  "state": "OH",
+  "zip": "44122",
+  "phone": "(216) 475-4800",
+  "url": "https://www.infinitiofbeachwood.com",
+  "latitude": 41.4663734,
+  "longitude": -81.4922641,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_CP_CN",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA70231",
+  "name": "INFINITI OF CINCINNATI",
+  "address1": "9857 KINGS AUTO MALL RD",
+  "city": "CINCINNATI",
+  "state": "OH",
+  "zip": "45249",
+  "phone": "(513) 583-1200",
+  "url": "https://www.infinitiofcincinnati.com",
+  "latitude": 39.296799,
+  "longitude": -84.3088,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA71232",
+  "name": "INFINITI OF COLUMBUS",
+  "address1": "3890 TULLER RD",
+  "city": "DUBLIN",
+  "state": "OH",
+  "zip": "43017",
+  "phone": "(614) 793-1000",
+  "url": "https://www.infinitiofcolumbus.com",
+  "latitude": 40.107498,
+  "longitude": -83.092796,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA70075",
+  "name": "BOB MOORE INFINITI",
+  "address1": "13000 N KELLEY AVE",
+  "city": "OKLAHOMA CITY",
+  "state": "OK",
+  "zip": "73131",
+  "phone": "(405) 748-8000",
+  "url": "https://www.bobmooreinfiniti.com",
+  "latitude": 35.6013293,
+  "longitude": -97.495913,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA70487",
+  "name": "JACKIE COOPER INFINITI",
+  "address1": "8825 S MEMORIAL DR",
+  "city": "TULSA",
+  "state": "OK",
+  "zip": "74133",
+  "phone": "(918) 249-9393",
+  "url": "https://www.jackiecooperinfiniti.com",
+  "latitude": 36.0428053,
+  "longitude": -95.8881542,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_CP_CN",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA70089",
+  "name": "BEAVERTON INFINITI",
+  "address1": "9500 SW CANYON RD",
+  "city": "PORTLAND",
+  "state": "OR",
+  "zip": "97225",
+  "phone": "(503) 626-8822",
+  "url": "https://www.beavertoninfiniti.com",
+  "latitude": 45.488125,
+  "longitude": -122.804176,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_CP_CN",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA70031",
+  "name": "COCHRAN INFINITI",
+  "address1": "4520 WILLIAM PENN HWY E",
+  "city": "MONROEVILLE",
+  "state": "PA",
+  "zip": "15146",
+  "phone": "(724) 933-2222",
+  "url": "https://www.cochraninfiniti.com",
+  "latitude": 40.4379894,
+  "longitude": -79.7459461,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA71544",
+  "name": "FAULKNER INFINITI OF MECHANICSBURG",
+  "address1": "6720 CARLISLE PIKE",
+  "city": "MECHANICSBURG",
+  "state": "PA",
+  "zip": "17050",
+  "phone": "(717) 691-8900",
+  "url": "https://www.faulknerinfinitimechanicsburg.com",
+  "latitude": 40.2475923,
+  "longitude": -77.0334179,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA72028",
+  "name": "FAULKNER INFINITI OF WILLOW GROVE",
+  "address1": "1510 EASTON RD",
+  "city": "WILLOW GROVE",
+  "state": "PA",
+  "zip": "19090",
+  "phone": "(215) 784-9320",
+  "url": "https://www.faulknerinfinitiwillowgrove.com",
+  "latitude": 40.1600345,
+  "longitude": -75.1244123,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA73029",
+  "name": "INFINITI OF THE MAIN LINE",
+  "address1": "261 EAST LANCASTER AVE",
+  "city": "ARDMORE",
+  "state": "PA",
+  "zip": "19003",
+  "phone": "(610) 649-3600",
+  "url": "https://www.infinitiofardmore.com/",
+  "latitude": 40.0035891,
+  "longitude": -75.2810607,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_CP_CN",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA71508",
+  "name": "INFINITI WEST CHESTER",
+  "address1": "1265 WILMINGTON PIKE",
+  "city": "WEST CHESTER",
+  "state": "PA",
+  "zip": "19382",
+  "phone": "(610) 696-6700",
+  "url": "https://www.infinitiofwestchester.com/",
+  "latitude": 39.9104336,
+  "longitude": -75.5696079,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_CP_CN",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA71414",
+  "name": "NUCAR INFINITI OF ALLENTOWN",
+  "address1": "1648 PLAZA LANE",
+  "city": "ALLENTOWN",
+  "state": "PA",
+  "zip": "18104",
+  "phone": "(610) 398-9100",
+  "url": "https://www.nucarinfinitiallentown.com/",
+  "latitude": 40.6206627,
+  "longitude": -75.5018316,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA72005",
+  "name": "INFINITI OF WARWICK",
+  "address1": "1085 CENTERVILLE RD",
+  "city": "WARWICK",
+  "state": "RI",
+  "zip": "2886",
+  "phone": "(401) 821-9790",
+  "url": "https://www.infinitiofwarwick.com",
+  "latitude": 41.698933,
+  "longitude": -71.496902,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA70320",
+  "name": "BAKER INFINITI CHARLESTON",
+  "address1": "1513 SAVANNAH HWY",
+  "city": "CHARLESTON",
+  "state": "SC",
+  "zip": "29407",
+  "phone": "(843) 852-4001",
+  "url": "https://www.bakerinfiniticharleston.com",
+  "latitude": 32.784395,
+  "longitude": -80.0041443,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA71202",
+  "name": "HOLLER INFINITI OF COLUMBIA",
+  "address1": "3670 FERNANDINA RD",
+  "city": "COLUMBIA",
+  "state": "SC",
+  "zip": "29210",
+  "phone": "(803) 750-6500",
+  "url": "https://www.InfinitiColumbia.com",
+  "latitude": 34.0553178,
+  "longitude": -81.1282709,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO"
+  ]
+ },
+ {
+  "code": "NNA73423",
+  "name": "INFINITI OF GREENVILLE",
+  "address1": "2600 LAURENS ROAD",
+  "city": "GREENVILLE",
+  "state": "SC",
+  "zip": "29607",
+  "phone": "(864) 372-3763",
+  "url": "https://www.infinitigreenville.com/",
+  "latitude": 34.8240657,
+  "longitude": -82.3449347,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_CP_CN",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA71500",
+  "name": "INFINITI OF HILTON HEAD",
+  "address1": "210 FORDING ISLAND RD",
+  "city": "BLUFFTON",
+  "state": "SC",
+  "zip": "29910",
+  "phone": "(843) 208-9100",
+  "url": "https://www.infinitiofhiltonhead.com",
+  "latitude": 32.2909766,
+  "longitude": -80.9150957,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_CP_CN",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA70309",
+  "name": "HARPER INFINITI",
+  "address1": "9737 KINGSTON PIKE",
+  "city": "KNOXVILLE",
+  "state": "TN",
+  "zip": "37922",
+  "phone": "(865) 690-1970",
+  "url": "https://www.harperinfiniti.com",
+  "latitude": 35.906158,
+  "longitude": -84.110062,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA74233",
+  "name": "INFINITI OF CHATTANOOGA",
+  "address1": "7646 LEE HIGHWAY",
+  "city": "CHATTANOOGA",
+  "state": "TN",
+  "zip": "37421",
+  "phone": "(423) 424-4040",
+  "url": "https://www.infinitichattanooga.com",
+  "latitude": 35.0594685,
+  "longitude": -85.1359679,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA72234",
+  "name": "INFINITI OF COOL SPRINGS",
+  "address1": "211 COMTIDE CT.",
+  "city": "FRANKLIN",
+  "state": "TN",
+  "zip": "37067",
+  "phone": "(615) 771-7171",
+  "url": "https://www.infinitiofcoolsprings.com",
+  "latitude": 35.959449,
+  "longitude": -86.808643,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_CP_CN",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA71072",
+  "name": "INFINITI OF MEMPHIS",
+  "address1": "3060 NORTH GERMANTOWN RD",
+  "city": "BARTLETT",
+  "state": "TN",
+  "zip": "38133",
+  "phone": "(901) 432-8255",
+  "url": "https://www.infinitiofmemphis.com",
+  "latitude": 35.2090146,
+  "longitude": -89.7903095,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA70403",
+  "name": "AUSTIN INFINITI",
+  "address1": "8140 BURNET RD",
+  "city": "AUSTIN",
+  "state": "TX",
+  "zip": "78757",
+  "phone": "(512) 454-9489",
+  "url": "https://www.austininfiniti.com",
+  "latitude": 30.36104,
+  "longitude": -97.729599,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA70545",
+  "name": "BERT OGDEN INFINITI",
+  "address1": "4901 SOUTH EXPRESSWAY 281",
+  "city": "EDINBURG",
+  "state": "TX",
+  "zip": "78539",
+  "phone": "(956) 583-0000",
+  "url": "https://www.bertogdeninfiniti.com",
+  "latitude": 26.2608316,
+  "longitude": -98.1637671,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA72447",
+  "name": "CHARLIE CLARK INFINITI OF EL PASO",
+  "address1": "6501 S DESERT BLVD",
+  "city": "EL PASO",
+  "state": "TX",
+  "zip": "79932",
+  "phone": "(915) 465-1800",
+  "url": "https://www.infinitiofelpaso.com",
+  "latitude": 31.889024,
+  "longitude": -106.5841659,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_CP_CN",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA72501",
+  "name": "CLEAR LAKE INFINITI",
+  "address1": "14705 GULF FREEWAY",
+  "city": "HOUSTON",
+  "state": "TX",
+  "zip": "77034",
+  "phone": "(713) 589-4000",
+  "url": "https://www.clearlakeinfiniti.com",
+  "latitude": 29.5925083,
+  "longitude": -95.1887527,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_CP_CN",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA70477",
+  "name": "CREST INFINITI",
+  "address1": "6100 STATE HIGHWAY 121",
+  "city": "FRISCO",
+  "state": "TX",
+  "zip": "75034",
+  "phone": "(972) 441-4330",
+  "url": "https://www.crestinfiniti.com",
+  "latitude": 33.0866584,
+  "longitude": -96.8411242,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA70551",
+  "name": "ED HICKS INFINITI",
+  "address1": "3026 S PADRE ISLAND DR",
+  "city": "CORPUS CHRISTI",
+  "state": "TX",
+  "zip": "78415",
+  "phone": "(361) 654-8555",
+  "url": "https://www.edhicksinfiniti.com",
+  "latitude": 27.730793,
+  "longitude": -97.415355,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA70580",
+  "name": "GEORGETOWN INFINITI",
+  "address1": "6901 SOUTH IH 35",
+  "city": "GEORGETOWN",
+  "state": "TX",
+  "zip": "78626",
+  "phone": "(512) 768-5700",
+  "url": "https://www.georgetowninfiniti.com/",
+  "latitude": 30.5849597,
+  "longitude": -97.6920192,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA70078",
+  "name": "GRUBBS INFINITI",
+  "address1": "1500 E STATE HWY 114",
+  "city": "GRAPEVINE",
+  "state": "TX",
+  "zip": "76051",
+  "phone": "(817) 318-1200",
+  "url": "https://www.grubbsinfiniti.com",
+  "latitude": 32.9211932,
+  "longitude": -97.0637092,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA71236",
+  "name": "GRUBBS INFINITI OF SAN ANTONIO",
+  "address1": "12150 IH 10 W",
+  "city": "SAN ANTONIO",
+  "state": "TX",
+  "zip": "78230",
+  "phone": "(210) 824-1272",
+  "url": "https://www.infinitiofsanantonio.com",
+  "latitude": 29.556643,
+  "longitude": -98.5897279,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA70570",
+  "name": "MCGAVOCK INFINITI OF LUBBOCK",
+  "address1": "6225 SPUR 327",
+  "city": "LUBBOCK",
+  "state": "TX",
+  "zip": "79424",
+  "phone": "(806) 701-4444",
+  "url": "https://www.infinitioflubbock.com",
+  "latitude": 33.5386485,
+  "longitude": -101.9482352,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA71077",
+  "name": "SEWELL INFINITI",
+  "address1": "7110 LEMMON AVE",
+  "city": "DALLAS",
+  "state": "TX",
+  "zip": "75209",
+  "phone": "(972) 490-4545",
+  "url": "https://www.sewellinfiniti-dallas.com",
+  "latitude": 32.842449,
+  "longitude": -96.834457,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA70538",
+  "name": "SEWELL INFINITI OF FORT WORTH",
+  "address1": "5135 BRYANT IRVIN RD",
+  "city": "FORT WORTH",
+  "state": "TX",
+  "zip": "76132",
+  "phone": "(817) 370-8100",
+  "url": "https://www.sewellinfiniti-fortworth.com",
+  "latitude": 32.6750339,
+  "longitude": -97.417321,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA71488",
+  "name": "SEWELL INFINITI OF NORTH HOUSTON",
+  "address1": "17825 NORTH FWY",
+  "city": "HOUSTON",
+  "state": "TX",
+  "zip": "77090",
+  "phone": "(281) 569-3100",
+  "url": "https://www.sewellinfiniti-northhouston.com",
+  "latitude": 30.026199,
+  "longitude": -95.430298,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA72235",
+  "name": "SOUTHWEST INFINITI",
+  "address1": "10495 SOUTHWEST FREEWAY",
+  "city": "HOUSTON",
+  "state": "TX",
+  "zip": "77074",
+  "phone": "(713) 779-2800",
+  "url": "https://www.southwestinfiniti.com",
+  "latitude": 29.6654834,
+  "longitude": -95.551351,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_CP_CN",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA70562",
+  "name": "SYNERGY INFINITI OF BOERNE",
+  "address1": "32275 INTERSTATE HWY 10",
+  "city": "BOERNE",
+  "state": "TX",
+  "zip": "78006",
+  "phone": "(210) 477-1775",
+  "url": "https://www.infinitiofboerne.com",
+  "latitude": 29.7592388,
+  "longitude": -98.7115642,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_CP_CN",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA70079",
+  "name": "WEST HOUSTON INFINITI",
+  "address1": "12200 KATY FREEWAY",
+  "city": "HOUSTON",
+  "state": "TX",
+  "zip": "77079",
+  "phone": "(281) 589-8900",
+  "url": "https://www.westhoustoninfiniti.com",
+  "latitude": 29.785299,
+  "longitude": -95.602203,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA71085",
+  "name": "TIM DAHLE INFINITI",
+  "address1": "4594 S STATE ST",
+  "city": "MURRAY",
+  "state": "UT",
+  "zip": "84107",
+  "phone": "(801) 269-6300",
+  "url": "https://www.timdahleinfiniti.com",
+  "latitude": 40.672035,
+  "longitude": -111.888527,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA71549",
+  "name": "BERGLUND INFINITI OF ROANOKE",
+  "address1": "5050 FRANKIN ROAD",
+  "city": "ROANOKE",
+  "state": "VA",
+  "zip": "24014",
+  "phone": "(540) 344-6284",
+  "url": "https://www.berglundinfinitiroanoke.com",
+  "latitude": 37.2067088,
+  "longitude": -79.9541054,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA71225",
+  "name": "HYMAN BROS INFINITI OF RICHMOND",
+  "address1": "11840 MIDLOTHIAN TURNPIKE",
+  "city": "MIDLOTHIAN",
+  "state": "VA",
+  "zip": "23113",
+  "phone": "(804) 379-9922",
+  "url": "https://www.hymanbrothersinfiniti.com/",
+  "latitude": 37.5057145,
+  "longitude": -77.6186181,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA71248",
+  "name": "PASSPORT INFINITI OF ALEXANDRIA",
+  "address1": "160 S PICKETT ST",
+  "city": "ALEXANDRIA",
+  "state": "VA",
+  "zip": "22304",
+  "phone": "(703) 461-1500",
+  "url": "https://www.passportinfiniti.com",
+  "latitude": 38.809761,
+  "longitude": -77.122391,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA72224",
+  "name": "PRIORITY INFINITI",
+  "address1": "1812 GREENBRIER PARKWAY",
+  "city": "CHESAPEAKE",
+  "state": "VA",
+  "zip": "23320",
+  "phone": "(757) 648-1911",
+  "url": "https://www.priorityinfiniti.com/",
+  "latitude": 36.7912313,
+  "longitude": -76.2411227,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_CP_CN",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA71088",
+  "name": "INFINITI OF BELLEVUE",
+  "address1": "11815 NORTHEAST 8TH ST",
+  "city": "BELLEVUE",
+  "state": "WA",
+  "zip": "98005",
+  "phone": "(425) 821-1600",
+  "url": "https://www.infinitiofbellevue.com",
+  "latitude": 47.6167586,
+  "longitude": -122.1827961,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA71542",
+  "name": "INFINITI OF LYNNWOOD",
+  "address1": "17305 HIGHWAY 99",
+  "city": "LYNNWOOD",
+  "state": "WA",
+  "zip": "98037",
+  "phone": "(425) 563-6600",
+  "url": "https://www.infinitioflynnwood.com",
+  "latitude": 47.8419596,
+  "longitude": -122.2959156,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA71507",
+  "name": "INFINITI OF TACOMA",
+  "address1": "4902 PACIFIC HWY E",
+  "city": "FIFE",
+  "state": "WA",
+  "zip": "98424",
+  "phone": "(253) 231-4300",
+  "url": "https://infinitioftacoma.com",
+  "latitude": 47.2414331,
+  "longitude": -122.363647,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA70546",
+  "name": "BERGSTROM INFINITI",
+  "address1": "3030 N VICTORY LANE",
+  "city": "APPLETON",
+  "state": "WI",
+  "zip": "54913",
+  "phone": "(920) 968-1111",
+  "url": "https://www.bergstrominfiniti.com",
+  "latitude": 44.2913848,
+  "longitude": -88.4680915,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA72065",
+  "name": "INFINITI MILWAUKEE",
+  "address1": "10595 W ARTHUR",
+  "city": "WEST ALLIS",
+  "state": "WI",
+  "zip": "53227",
+  "phone": "(262) 814-1100",
+  "url": "https://www.infinitimilwaukee.com",
+  "latitude": 42.9990403,
+  "longitude": -88.0451694,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ },
+ {
+  "code": "NNA70439",
+  "name": "ZIMBRICK INFINITI OF MADISON",
+  "address1": "1601 W BELTLINE HWY",
+  "city": "MADISON",
+  "state": "WI",
+  "zip": "53713",
+  "phone": "(608) 277-2277",
+  "url": "https://www.zimbrickinfiniti.com",
+  "latitude": 43.03141,
+  "longitude": -89.409416,
+  "services": [
+   "us_en_infiniti_S_SLS",
+   "us_en_infiniti_S_OS",
+   "us_en_infiniti_S_DR_CPO",
+   "us_en_infiniti_S_SVC",
+   "us_en_infiniti_S_CPO",
+   "us_en_infiniti_S_DR"
+  ]
+ }
+]

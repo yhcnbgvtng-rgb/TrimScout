@@ -1,0 +1,1522 @@
+[
+ {
+  "dealer_name": "INFINITI OF BIRMINGHAM",
+  "status": "fetched",
+  "source_url": "https://www.infinitibhm.com/about-us/staff/",
+  "contact_name": "Mark Mitchell",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "INFINITI OF MOBILE",
+  "status": "fetched",
+  "source_url": "https://www.infinitiofmobile.com/about-us/staff/",
+  "contact_name": "SEAN GLEASON",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SMITH INFINITI/HUNTSVILLE",
+  "status": "fetched",
+  "source_url": "https://www.infinitiofhuntsville.com/staff",
+  "contact_name": "Justin Smith",
+  "contact_title": "Executive Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "EVERETT INFINITI OF NORTHWEST ARKANSAS",
+  "status": "fetched",
+  "source_url": "https://www.infinitinwa.com/staff",
+  "contact_name": "Kevin Wilson",
+  "contact_title": "Executive Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "INFINITI OF CENTRAL ARKANSAS",
+  "status": "fetched",
+  "source_url": "https://www.infinitiofcentralarkansas.com/staff",
+  "contact_name": "Chase Pigue",
+  "contact_title": "Sales Consultant",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "COULTER INFINITI",
+  "status": "fetched",
+  "source_url": "https://www.coulterinfiniti.com/staff",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "COURTESY INFINITI OF TUCSON",
+  "status": "fetched",
+  "source_url": "https://www.courtesyinfinitioftucson.com/about-us/staff/",
+  "contact_name": "Matt Asanovich",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "INFINITI OF PEORIA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "INFINITI OF SCOTTSDALE",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "INFINITI ON CAMELBACK",
+  "status": "fetched",
+  "source_url": "https://www.infinitioncamelback.com/about-us/staff/",
+  "contact_name": "Jae Park",
+  "contact_title": "Executive Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "AUTONATION INFINITI TUSTIN",
+  "status": "fetched",
+  "source_url": "https://www.infinitioftustin.com/staff",
+  "contact_name": "David Mohammad",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CAPITOL INFINITI",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CERRITOS INFINITI",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "DUBLIN INFINITI",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "FRESNO INFINITI",
+  "status": "fetched",
+  "source_url": "https://www.fresnoinfiniti.com/staff",
+  "contact_name": "Angel Cortez",
+  "contact_title": "Sales Consultant",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "GLENDALE INFINITI",
+  "status": "fetched",
+  "source_url": "https://www.glendaleinfiniti.com/staff/",
+  "contact_name": "Mansoor Ali",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "INFINITI OF DOWNTOWN LA",
+  "status": "fetched",
+  "source_url": "https://www.infinitiofla.com/about-us/staff/",
+  "contact_name": "Frank Pestano",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "INFINITI OF ESCONDIDO",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "INFINITI OF KEARNY MESA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "INFINITI OF MODESTO",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "INFINITI OF OCEANSIDE",
+  "status": "fetched",
+  "source_url": "https://www.infinitiofoceanside.com/meet-our-team/",
+  "contact_name": "Anthony Rodriguez",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "INFINITI OF ONTARIO",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "INFINITI OF SERRAMONTE",
+  "status": "fetched",
+  "source_url": "https://www.infinitiserramonte.com/staff/",
+  "contact_name": "Carlos Mandigma",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "INFINITI OF SOUTH BAY",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "INFINITI OF THE DESERT",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "INFINITI OF THOUSAND OAKS",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "INFINITI OF VALENCIA",
+  "status": "fetched",
+  "source_url": "https://www.infinitiofvalencia.com/staff/",
+  "contact_name": "RON ELKHOURY",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "INFINITI OF VAN NUYS",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "INFINITI ROSEVILLE",
+  "status": "fetched",
+  "source_url": "https://www.infinitiroseville.com/meet-the-team/",
+  "contact_name": "Shah Atebar",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ORANGE COAST INFINITI",
+  "status": "fetched",
+  "source_url": "https://www.ocinfiniti.com/staff/",
+  "contact_name": "Mark Borsack",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "REDWOOD CITY INFINITI",
+  "status": "fetched",
+  "source_url": "https://www.redwoodcityinfiniti.com/aboutus.aspx",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "STEVENS CREEK INFINITI",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "INFINITI OF DENVER",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MIKE WARD INFINITI",
+  "status": "fetched",
+  "source_url": "https://www.mikewardinfiniti.com/about-us/staff/",
+  "contact_name": "Chad Benoit",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "RED NOLAND INFINITI",
+  "status": "fetched",
+  "source_url": "https://www.rednolandinfiniti.com/about-us/staff/",
+  "contact_name": "ROBERT WARNER",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "RICKENBAUGH INFINITI",
+  "status": "fetched",
+  "source_url": "https://www.rickenbaughinfiniti.com/about-us/staff/",
+  "contact_name": "CHRIS MCNEAL",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "DANBURY INFINITI",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "GEORGE HARTE INFINITI",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HARTE INFINITI",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "INFINITI OF GREENWICH",
+  "status": "fetched",
+  "source_url": "https://www.greenwichinfiniti.com/staff",
+  "contact_name": "Brooke Labonte",
+  "contact_title": "Sales Consultant",
+  "contact_email": "brooke.jessup@darcars.com"
+ },
+ {
+  "dealer_name": "HERTRICH INFINITI OF NEWARK",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ATLANTIC INFINITI",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "DAYTONA INFINITI",
+  "status": "fetched",
+  "source_url": "https://www.daytonainfiniti.com/meet-our-staff/",
+  "contact_name": "and the",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "FORT MYERS INFINITI",
+  "status": "fetched",
+  "source_url": "https://www.fortmyersinfiniti.com:443/meet-our-staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HANANIA INFINITI OF ORANGE PARK",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "INFINITI OF CLEARWATER",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "INFINITI OF COCONUT CREEK",
+  "status": "fetched",
+  "source_url": "https://www.infinitiofcoconutcreek.com:443/meet-our-staff/",
+  "contact_name": "speak Portuguese",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "INFINITI OF MELBOURNE",
+  "status": "fetched",
+  "source_url": "https://www.infinitiofmelbourne.com/staff",
+  "contact_name": "Jon Cody",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "INFINITI OF PALM BEACHES",
+  "status": "fetched",
+  "source_url": "https://www.infinitiofpalmbeach.com/about-us/staff/",
+  "contact_name": "Robert Avison",
+  "contact_title": "Executive Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "INFINITI OF SARASOTA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "INFINITI OF SOUTH MIAMI",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "INFINITI OF TALLAHASSEE",
+  "status": "fetched",
+  "source_url": "https://infinitioftallahassee.com/about",
+  "contact_name": "Ryan Bailey",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "INFINITI OF TAMPA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "INFINITI STUART",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "NAPLES INFINITI",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "OCEAN INFINITI DORAL",
+  "status": "fetched",
+  "source_url": "https://www.oceaninfinitidoral.com/meet-our-staff/",
+  "contact_name": "Jeffrey Passariello",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ORLANDO INFINITI",
+  "status": "fetched",
+  "source_url": "https://www.orlandoinfiniti.com/staff",
+  "contact_name": "Brandon Brevard",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SAWGRASS INFINITI",
+  "status": "fetched",
+  "source_url": "https://www.sawgrassinfiniti.com/staff",
+  "contact_name": "Yoni Edery",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "TAVERNA INFINITI NORTH MIAMI",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "GRAND INFINITI OF MACON",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "INFINITI OF GWINNETT",
+  "status": "fetched",
+  "source_url": "https://www.infinitiofgwinnett.com/about-us/staff/",
+  "contact_name": "Jana Tahirovic",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "INFINITI OF SOUTH ATLANTA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MIRACLE INFINITI OF AUGUSTA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "NALLEY INFINITI OF ATLANTA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "NALLEY INFINITI-MARIETTA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "RBM INFINITI OF NORTH ATLANTA",
+  "status": "fetched",
+  "source_url": "https://www.roswellinfiniti.com/about-us/staff/",
+  "contact_name": "Kristen Chernik",
+  "contact_title": "Executive Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "KING INFINITI",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "WILLIS INFINITI",
+  "status": "fetched",
+  "source_url": "https://willisinfiniti.com/about",
+  "contact_name": "JASON WILLIS",
+  "contact_title": "Dealer Principal",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "KENDALL INFINITI OF NAMPA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "GREGORY INFINITI",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "INFINITI OF CHICAGO",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "INFINITI OF CLARENDON HILLS",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "INFINITI OF HOFFMAN ESTATES",
+  "status": "fetched",
+  "source_url": "https://www.infinitihoffman.com/about-us/staff/",
+  "contact_name": "James Ryder",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "INFINITI OF NAPERVILLE",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "INFINITI OF ORLAND PARK",
+  "status": "fetched",
+  "source_url": "https://www.infinitioforlandpark.com/about-us/staff/",
+  "contact_name": "Moe Rashid",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MOTOR WERKS INFINITI",
+  "status": "fetched",
+  "source_url": "https://www.motorwerksinfiniti.com/about-us/staff/",
+  "contact_name": "Denis Tomsa",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "STAR INFINITI OF NILES",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "DREYER & REINBOLD INFINITI",
+  "status": "fetched",
+  "source_url": "https://infinitinorth.com/about",
+  "contact_name": "Scott Kenney",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "DREYER & REINBOLD OF GREENWOOD",
+  "status": "fetched",
+  "source_url": "https://drinfinitisouth.com/about",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SWEIS INFINITI MERRILLVILLE",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "INFINITI OF KANSAS CITY",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "INFINITI OF LEXINGTON",
+  "status": "fetched",
+  "source_url": "https://www.infinitioflexington.com/staff",
+  "contact_name": "LEONARD SPENCER",
+  "contact_title": "Executive Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "KERRY INFINITI N KENTUCKY",
+  "status": "fetched",
+  "source_url": "https://www.kerryinfiniti.com/staff",
+  "contact_name": "Brad Martin",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "LOUISVILLE INFINITI",
+  "status": "fetched",
+  "source_url": "https://www.louisvilleinfiniti.com/meet-our-staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "INFINITI OF BATON ROUGE",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "INFINITI OF LAFAYETTE",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MATT BOWERS INFINITI METAIRIE",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ORR INFINITI",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "24 INFINITI OF PLYMOUTH",
+  "status": "fetched",
+  "source_url": "https://www.24infinitiofplymouth.com/about-us/staff/",
+  "contact_name": "Nick Healey",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "FOLEY INFINITI",
+  "status": "fetched",
+  "source_url": "https://www.foleyinfiniti.com/staff",
+  "contact_name": "Matt Burke",
+  "contact_title": "Sales Consultant",
+  "contact_email": "matt@rjfoley.com"
+ },
+ {
+  "dealer_name": "INFINITI OF NORWOOD",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "KELLY INFINITI",
+  "status": "fetched",
+  "source_url": "https://www.kellyinfiniti.com/about-us/staff/",
+  "contact_name": "Cong Truong",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CRISWELL INFINITI",
+  "status": "fetched",
+  "source_url": "https://www.criswellinfiniti.com/staff",
+  "contact_name": "Andrew Criswell",
+  "contact_title": "Sales Manager",
+  "contact_email": "andrew.criswell@criswell.biz"
+ },
+ {
+  "dealer_name": "JBA INFINITI OF ELLICOTT CITY",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "JIM COLEMAN INFINITI",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "NATIONWIDE INFINITI OF TIMONIUM",
+  "status": "fetched",
+  "source_url": "https://www.nationwideinfiniti.com/staff",
+  "contact_name": "Guerrier General",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BILL DODGE INFINITI",
+  "status": "fetched",
+  "source_url": "https://www.billdodgeinfiniti.com/staff",
+  "contact_name": "Patrick Demers",
+  "contact_title": "General Manager",
+  "contact_email": "patrick.demers@bdag.com"
+ },
+ {
+  "dealer_name": "INFINITI OF GRAND RAPIDS",
+  "status": "fetched",
+  "source_url": "https://www.infinitiofgrandrapids.com/staff",
+  "contact_name": "Craig Ressell",
+  "contact_title": "Executive Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "LAFONTAINE INFINITI ANN ARBOR",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "LAFONTAINE INFINITI NOVI",
+  "status": "fetched",
+  "source_url": "https://www.lafontaineinfinitinovi.com/staff",
+  "contact_name": "Jeremy Trent",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "LAFONTAINE INFINITI TROY",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "JIM LUPIENT INFINITI",
+  "status": "fetched",
+  "source_url": "https://lupientinfiniti.com/about",
+  "contact_name": "AMANDA CICCARELLI",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "LUTHER INFINITI OF BLOOMINGTON",
+  "status": "fetched",
+  "source_url": "https://www.lutherinfiniti.com/about-us-draft/staff/",
+  "contact_name": "Brad Marr",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BOMMARITO INFINITI",
+  "status": "fetched",
+  "source_url": "https://www.bommaritoinfiniti.com/staff",
+  "contact_name": "Danielle Heisner",
+  "contact_title": "New Car Sales Manager",
+  "contact_email": "dheisner@bommarito.net"
+ },
+ {
+  "dealer_name": "INFINITI OF CREVE COEUR",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "INFINITI OF SPRINGFIELD",
+  "status": "fetched",
+  "source_url": "https://www.infinitiofspringfield.com/about-us/staff/",
+  "contact_name": "Eric Showmaker",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HERRIN-GEAR INFINITI",
+  "status": "fetched",
+  "source_url": "https://www.herringearinfiniti.com/about-us/staff/",
+  "contact_name": "Kyle Montgomery",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "INFINITI OF SOUTH MISSISSIPPI",
+  "status": "fetched",
+  "source_url": "https://www.infinitiofsm.com/about-us/staff/",
+  "contact_name": "Shannon Reeves",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HANNA INFINITI OF WILMINGTON",
+  "status": "fetched",
+  "source_url": "https://www.infinitiofwilmington.com/staff",
+  "contact_name": "Chad Duke",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "INFINITI OF APEX",
+  "status": "fetched",
+  "source_url": "https://www.infinitiofapex.com/staff",
+  "contact_name": "John Cloutman",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "INFINITI OF CHARLOTTE",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "LAKE NORMAN INFINITI",
+  "status": "fetched",
+  "source_url": "https://www.lakenormaninfiniti.com/meet-our-staff/",
+  "contact_name": "years of tenure",
+  "contact_title": "Sales Associate",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MODERN INFINITI",
+  "status": "fetched",
+  "source_url": "https://www.moderninfinitiofgreensboro.com/about-us/staff/",
+  "contact_name": "Darrius Sutton",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MODERN INFINITI OF WINSTON-SALEM",
+  "status": "fetched",
+  "source_url": "https://www.moderninfinitiofwinstonsalem.com/about-us/staff/",
+  "contact_name": "Mike Hilton",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "INFINITI OF OMAHA",
+  "status": "fetched",
+  "source_url": "https://www.infinitiofomaha.com/about-us/staff/",
+  "contact_name": "Matt Swoboda",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "INFINITI OF NASHUA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BRIDGEWATER INFINITI",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CIRCLE INFINITI",
+  "status": "fetched",
+  "source_url": "https://www.circleinfiniti.com/staff/",
+  "contact_name": "TONY MARINO",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "DOUGLAS INFINITI",
+  "status": "fetched",
+  "source_url": "https://www.douglasinfiniti.com/about-us/staff/",
+  "contact_name": "James Sosunov",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "EDISON INFINITI",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "FETTE INFINITI",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HOLMAN INFINITI",
+  "status": "fetched",
+  "source_url": "https://www.holmaninfiniti.com/about-us/staff/",
+  "contact_name": "Sara Kramer",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "INFINITI OF ENGLEWOOD",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "INFINITI OF FLEMINGTON",
+  "status": "fetched",
+  "source_url": "https://www.infinitiofflemington.com/staff",
+  "contact_name": "Jesse Embry",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MATT BLATT INFINITI ATLANTIC CITY",
+  "status": "fetched",
+  "source_url": "https://www.mattblattinfiniti.com/staff",
+  "contact_name": "Bishoy Youssef",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "RAMSEY INFINITI",
+  "status": "fetched",
+  "source_url": "https://www.ramseyinfiniti.com/about-us/staff/",
+  "contact_name": "Greg Maslowski",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ROCK RIDGE INFINITI",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "INFINITI OF ALBUQUERQUE",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "INFINITI OF LAS VEGAS",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BOB JOHNSON INFINITI",
+  "status": "fetched",
+  "source_url": "https://www.bobjohnsoninfiniti.com/meet-our-staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "INFINITI CITY OF MASSAPEQUA",
+  "status": "fetched",
+  "source_url": "https://www.infiniticityli.com/staff",
+  "contact_name": "Michael Tapolow",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "INFINITI CITY OF QUEENS",
+  "status": "fetched",
+  "source_url": "https://www.infiniticity.com/staff",
+  "contact_name": "Eric Shin",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "INFINITI OF LYNBROOK",
+  "status": "fetched",
+  "source_url": "https://www.infinitioflynbrook.com/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "INFINITI OF SMITHTOWN",
+  "status": "fetched",
+  "source_url": "https://www.infinitiofsmithtown.com/meet-our-staff/",
+  "contact_name": "Mazen Elzibk",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "INFINITI OF SYRACUSE",
+  "status": "fetched",
+  "source_url": "https://www.infinitiofsyracuse.com/staff/",
+  "contact_name": "Dan Lowery",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "INFINITI OF WHITE PLAINS",
+  "status": "fetched",
+  "source_url": "https://www.infinitiofwhiteplainsauto.com/staff",
+  "contact_name": "Jay Reyes",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "KINGS INFINITI",
+  "status": "fetched",
+  "source_url": "https://www.kingsinfiniti.com/meet-the-staff/",
+  "contact_name": "ROMAN ZELTSER",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "LEGEND INFINITI",
+  "status": "fetched",
+  "source_url": "https://www.legendinfiniti.com/meet-our-staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "LIA INFINITI",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "WEST HERR INFINITI",
+  "status": "fetched",
+  "source_url": "https://www.westherrinfiniti.com/about-us/staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "EVANS INFINITI OF DAYTON",
+  "status": "fetched",
+  "source_url": "https://www.infinitiofdayton.com/staff",
+  "contact_name": "Principle Ed Bressler",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "INFINITI OF AKRON",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "INFINITI OF BEACHWOOD",
+  "status": "fetched",
+  "source_url": "https://www.infinitiofbeachwood.com/about",
+  "contact_name": "Michael Gutowitz",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "INFINITI OF CINCINNATI",
+  "status": "fetched",
+  "source_url": "https://www.infinitiofcincinnati.com/meet-our-staff/",
+  "contact_name": "James Elam",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "INFINITI OF COLUMBUS",
+  "status": "fetched",
+  "source_url": "https://www.infinitiofcolumbus.com/staff",
+  "contact_name": "Shane Little",
+  "contact_title": "General Sales Manager",
+  "contact_email": "slittle@infinitiofcolumbus.com"
+ },
+ {
+  "dealer_name": "BOB MOORE INFINITI",
+  "status": "fetched",
+  "source_url": "https://www.bobmooreinfiniti.com/staff/",
+  "contact_name": "Barrett Determan",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "JACKIE COOPER INFINITI",
+  "status": "fetched",
+  "source_url": "https://jackiecooperinfiniti.com/about",
+  "contact_name": "Matthew Cumbie",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BEAVERTON INFINITI",
+  "status": "fetched",
+  "source_url": "https://www.beavertoninfiniti.com/about-us/staff/",
+  "contact_name": "Josh Ford",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "COCHRAN INFINITI",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "FAULKNER INFINITI OF MECHANICSBURG",
+  "status": "fetched",
+  "source_url": "https://www.faulknerinfinitimechanicsburg.com/staff.aspx",
+  "contact_name": "Sean Solomon",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "FAULKNER INFINITI OF WILLOW GROVE",
+  "status": "fetched",
+  "source_url": "https://www.faulknerinfinitiwillowgrove.com/staff",
+  "contact_name": "Pat Haggerty",
+  "contact_title": "General Manager",
+  "contact_email": "phaggerty@faulknerinfiniti.com"
+ },
+ {
+  "dealer_name": "INFINITI OF THE MAIN LINE",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "INFINITI WEST CHESTER",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "NUCAR INFINITI OF ALLENTOWN",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "INFINITI OF WARWICK",
+  "status": "fetched",
+  "source_url": "https://www.infinitiofwarwick.com/about-us/staff/",
+  "contact_name": "Sam Abou-Ateih",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BAKER INFINITI CHARLESTON",
+  "status": "fetched",
+  "source_url": "https://www.bakerinfiniticharleston.com/about-us/staff/",
+  "contact_name": "Isabella Principe",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HOLLER INFINITI OF COLUMBIA",
+  "status": "fetched",
+  "source_url": "https://www.InfinitiColumbia.com/aboutus.aspx",
+  "contact_name": "of GM and",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "INFINITI OF GREENVILLE",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "INFINITI OF HILTON HEAD",
+  "status": "fetched",
+  "source_url": "https://www.infinitiofhiltonhead.com/staff",
+  "contact_name": "George Odom",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HARPER INFINITI",
+  "status": "fetched",
+  "source_url": "https://www.harperinfiniti.com/staff",
+  "contact_name": "Matt Stegall",
+  "contact_title": "General Manager",
+  "contact_email": "matt.stegall@harperinfiniti.com"
+ },
+ {
+  "dealer_name": "INFINITI OF CHATTANOOGA",
+  "status": "fetched",
+  "source_url": "https://www.infinitichattanooga.com/about-us/staff/",
+  "contact_name": "Jeff Dumas",
+  "contact_title": "Sales Consultant",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "INFINITI OF COOL SPRINGS",
+  "status": "fetched",
+  "source_url": "https://www.infinitiofcoolsprings.com/staff",
+  "contact_name": "Joseph Gioeli",
+  "contact_title": "New Car Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "INFINITI OF MEMPHIS",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "AUSTIN INFINITI",
+  "status": "fetched",
+  "source_url": "https://www.austininfiniti.com/about-us/staff/",
+  "contact_name": "TAYLOR TICE",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BERT OGDEN INFINITI",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CHARLIE CLARK INFINITI OF EL PASO",
+  "status": "fetched",
+  "source_url": "https://www.infinitiofelpaso.com/meet-our-staff/",
+  "contact_name": "Severo Perez",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CLEAR LAKE INFINITI",
+  "status": "fetched",
+  "source_url": "https://www.clearlakeinfiniti.com/staff",
+  "contact_name": "Moe Hamadneh",
+  "contact_title": "Executive Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CREST INFINITI",
+  "status": "fetched",
+  "source_url": "https://www.crestinfiniti.com/about-us/staff/",
+  "contact_name": "Myles Bates",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ED HICKS INFINITI",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "GEORGETOWN INFINITI",
+  "status": "fetched",
+  "source_url": "https://www.georgetowninfiniti.com/about-us/staff/",
+  "contact_name": "Chris Nations",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "GRUBBS INFINITI",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "GRUBBS INFINITI OF SAN ANTONIO",
+  "status": "fetched",
+  "source_url": "https://www.infinitiofsanantonio.com/staff",
+  "contact_name": "Timothy Boes",
+  "contact_title": "General Manager",
+  "contact_email": "timothy.boes@grubbs.com"
+ },
+ {
+  "dealer_name": "MCGAVOCK INFINITI OF LUBBOCK",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SEWELL INFINITI",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SEWELL INFINITI OF FORT WORTH",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SEWELL INFINITI OF NORTH HOUSTON",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SOUTHWEST INFINITI",
+  "status": "fetched",
+  "source_url": "https://www.southwestinfiniti.com/staff",
+  "contact_name": "Leroy Harris",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SYNERGY INFINITI OF BOERNE",
+  "status": "fetched",
+  "source_url": "https://www.infinitiofboerne.com/about-us/staff/",
+  "contact_name": "Ben Gros",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "WEST HOUSTON INFINITI",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "TIM DAHLE INFINITI",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BERGLUND INFINITI OF ROANOKE",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HYMAN BROS INFINITI OF RICHMOND",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "PASSPORT INFINITI OF ALEXANDRIA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "PRIORITY INFINITI",
+  "status": "fetched",
+  "source_url": "https://www.priorityinfiniti.com/staff.aspx",
+  "contact_name": "Vince Seymore",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "INFINITI OF BELLEVUE",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "INFINITI OF LYNNWOOD",
+  "status": "fetched",
+  "source_url": "https://www.infinitioflynnwood.com/meet-our-staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "INFINITI OF TACOMA",
+  "status": "fetched",
+  "source_url": "https://www.infinitioftacoma.com:443/meet-our-staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BERGSTROM INFINITI",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "INFINITI MILWAUKEE",
+  "status": "fetched",
+  "source_url": "https://infinitimilwaukee.com/about",
+  "contact_name": "ANDREW LERCH",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ZIMBRICK INFINITI OF MADISON",
+  "status": "fetched",
+  "source_url": "https://www.zimbrickinfiniti.com/staff",
+  "contact_name": "Anderson Associate",
+  "contact_title": "General Manager",
+  "contact_email": "sean.anderson@zimbrick.com"
+ }
+]
