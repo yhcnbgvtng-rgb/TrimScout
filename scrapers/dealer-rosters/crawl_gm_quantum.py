@@ -9,7 +9,7 @@ a cell that returns 50 is re-queried at quarter offsets with half the radius.
 import json, sys, time
 from curl_cffi import requests
 
-BRANDS = {"cadillac": ("www.cadillac.com", "006"), "buick": ("www.buick.com", "001"), "gmc": ("www.gmc.com", "003")}
+BRANDS = {"chevrolet": ("www.chevrolet.com", "001"), "buick": ("www.buick.com", "004"), "cadillac": ("www.cadillac.com", "006"), "gmc": ("www.gmc.com", "012")}  # makeCodes verified 2026-09-15
 
 def fetch(session, host, make, lat, lng, miles):
     r = session.get(f"https://{host}/bypass/pcf/quantum-dealer-locator/v1/getDealers", params={"desiredCount": 50, "distance": miles, "makeCodes": make, "serviceCodes": "", "latitude": lat, "longitude": lng, "searchType": "latLongSearch"},
