@@ -1,0 +1,3218 @@
+[
+ {
+  "dealer_name": "Varsity Lincoln, Inc.",
+  "status": "fetched",
+  "source_url": "https://www.varsitylincoln.com/staff",
+  "contact_name": "Dan Rank",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CMA's Colonial Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bob Wade Lincoln, Inc.",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Sanderson Lincoln",
+  "status": "fetched",
+  "source_url": "https://www.sandersonlincoln.net/dealership/staff.htm",
+  "contact_name": "Adam Cox",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bayway Lincoln",
+  "status": "fetched",
+  "source_url": "https://www.baywaylincoln.com/staff",
+  "contact_name": "Lance Willis",
+  "contact_title": "General Manager",
+  "contact_email": "lwillis@baywayautogroup.com"
+ },
+ {
+  "dealer_name": "Corley's Albuquerque Lincoln",
+  "status": "fetched",
+  "source_url": "https://www.corleynewmexico.com/dealership/staff.htm",
+  "contact_name": "Rick Patel",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Junge Lincoln, Inc.",
+  "status": "no_website",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Heller Lincoln of Pontiac",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lowe Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Sesi Lincoln",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Pugmire Lincoln of Marietta",
+  "status": "fetched",
+  "source_url": "https://www.pugmirelincolnofmarietta.com/staff",
+  "contact_name": "Greg Arrington",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "John Deery Motors Inc",
+  "status": "no_website",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Dave Sinclair Lincoln",
+  "status": "fetched",
+  "source_url": "https://www.davesinclairlincolnstlouis.com/staff",
+  "contact_name": "Sinclair Rosso",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Crest Lincoln, Inc.",
+  "status": "fetched",
+  "source_url": "https://www.crestlincoln.com/staff.aspx",
+  "contact_name": "Johnson Asst.",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bilton Lincoln, Inc.",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lincoln of Bloomington",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Forrester Lincoln",
+  "status": "fetched",
+  "source_url": "https://www.forresterlincoln.com/dealership/staff.htm",
+  "contact_name": "Bill Mull",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Cooper Motors Lincoln",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Irwin Lincoln",
+  "status": "fetched",
+  "source_url": "https://www.IrwinLincoln.net/staff",
+  "contact_name": "Jay Irwin",
+  "contact_title": "Sales Manager",
+  "contact_email": "jayi@irwincars.com"
+ },
+ {
+  "dealer_name": "Haldeman Lincoln",
+  "status": "fetched",
+  "source_url": "https://www.haldemanlincolnallentown.com/staff",
+  "contact_name": "Salman Sarwar",
+  "contact_title": "Sales Manager",
+  "contact_email": "ssarwar@haldemanford.com"
+ },
+ {
+  "dealer_name": "Gordie Boucher Lincoln",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Highland Park Lincoln",
+  "status": "fetched",
+  "source_url": "https://www.lincolnofhighlandpark.com/dealership/staff.htm",
+  "contact_name": "Chuck Benkiel",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Libertyville Lincoln Sales, Inc.",
+  "status": "fetched",
+  "source_url": "https://www.libertyville-lincoln.com/staff",
+  "contact_name": "James Won",
+  "contact_title": "Sales Consultant",
+  "contact_email": "james@libertyville-lincoln.com"
+ },
+ {
+  "dealer_name": "Napleton Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Wallace Lincoln",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Capital Lincoln Cary",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Cavenaugh Ford Lincoln, LLC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Woodhouse Lincoln",
+  "status": "fetched",
+  "source_url": "https://www.woodhouselincoln.com/dealership/staff.htm",
+  "contact_name": "Matt Whitmore",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Southgate Lincoln, LLC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "South Hills Lincoln, Inc.",
+  "status": "fetched",
+  "source_url": "https://www.southhillslincolnofpittsburgh.com/dealership/staff.htm",
+  "contact_name": "Jeff Innes",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lincoln of Cincinnati",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Nick Mayer Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Jack Demmer Lincoln, Inc.",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bud Smail Lincoln",
+  "status": "fetched",
+  "source_url": "https://www.smaillincoln.com/dealership/staff.htm",
+  "contact_name": "Jeff Smail",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Biondi Motor Company Inc",
+  "status": "fetched",
+  "source_url": "https://www.biondilincoln.net/staff",
+  "contact_name": "Joshua Hamilton",
+  "contact_title": "General Sales Manager",
+  "contact_email": "joshuah@biondimotor.com"
+ },
+ {
+  "dealer_name": "Bob-Boyd Lincoln, Inc.",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Jack O Diamonds",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Zeigler Lincoln of Kalamazoo",
+  "status": "fetched",
+  "source_url": "https://www.zeiglerlincoln.com/staff",
+  "contact_name": "Jones Lincoln",
+  "contact_title": "Sales Manager",
+  "contact_email": "jeffjones@zagteam.com"
+ },
+ {
+  "dealer_name": "Bob Maxey Lincoln, Inc.",
+  "status": "fetched",
+  "source_url": "https://www.bobmaxeylincoln.com/staff",
+  "contact_name": "Marty Rutkowski",
+  "contact_title": "New Car Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Star Lincoln,  Inc.",
+  "status": "fetched",
+  "source_url": "https://www.starlincoln.com/staff",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bill Knight Lincoln Volvo",
+  "status": "fetched",
+  "source_url": "https://www.billknightlincoln.com/staff",
+  "contact_name": "Dustin McElyea",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Dave Sinclair Lincoln St. Peters",
+  "status": "fetched",
+  "source_url": "https://www.DaveSinclairLincolnStPeters.com/staff",
+  "contact_name": "TERRY OVERKAMP",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Green Lincoln, Inc.",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Landmark Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Findlay Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Napleton's River Oaks Lincoln, LLC",
+  "status": "fetched",
+  "source_url": "https://www.napletonlincolnriveroaks.com/staff",
+  "contact_name": "Bill Havican",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Driver's Village, Inc.",
+  "status": "fetched",
+  "source_url": "https://www.RogerBurdickLincoln.com/dealership/staff.htm",
+  "contact_name": "Nathan Spagnola",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hempstead Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Maplecrest Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lincoln of Wayne",
+  "status": "fetched",
+  "source_url": "https://www.lincolnofwayne.com/staff",
+  "contact_name": "John Chirico",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Dana Lincoln",
+  "status": "fetched",
+  "source_url": "https://www.danalincoln.com/dealership/staff.htm",
+  "contact_name": "John Daly",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Cortese Ford Lincoln, Inc.",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hassett Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Camelback Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bergey's Lincoln",
+  "status": "fetched",
+  "source_url": "https://www.bergeyslincoln.com/dealership/staff.htm",
+  "contact_name": "Robert Vendetti",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Doral Lincoln",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "LaFontaine Lincoln",
+  "status": "fetched",
+  "source_url": "https://www.lafontainelincoln.com/staff",
+  "contact_name": "Jon Bauer",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lincoln of Troy",
+  "status": "fetched",
+  "source_url": "https://www.lincolnoftroy.com/staff",
+  "contact_name": "Timothy Carey",
+  "contact_title": "New Car Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Courtesy Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ogden Lincoln of Westmont",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lincoln South Coast",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Schumacher Lincoln of Delray",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lincoln of New Bern",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lincoln of Cutler Bay",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lincoln White Plains",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "West End Lincoln",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lincoln of Englewood",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Joe Cooper Lincoln of Edmond",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lincoln of Normal",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lincoln of Memphis",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Eddy's Lincoln, LLC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lamarque Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Planet Lincoln Love Field",
+  "status": "fetched",
+  "source_url": "https://www.planetlincolndallaslovefield.com/staff",
+  "contact_name": "Ward Jones",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hooks Lincoln",
+  "status": "fetched",
+  "source_url": "https://www.hookslincoln.com/staff",
+  "contact_name": "Bob Garbo",
+  "contact_title": "General Manager",
+  "contact_email": "garbo@hookslincoln.com"
+ },
+ {
+  "dealer_name": "North Park Lincoln",
+  "status": "fetched",
+  "source_url": "https://www.nplincoln.com/staff",
+  "contact_name": "Diego Iturbe",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "David McDavid Lincoln Frisco",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "J.C. Lewis Lincoln, LLC",
+  "status": "fetched",
+  "source_url": "https://www.jclewislincolnsavannah.com/staff",
+  "contact_name": "Patrick Kennedy",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Miller Lincoln",
+  "status": "fetched",
+  "source_url": "https://www.stcloudlincoln.com/staff",
+  "contact_name": "Michele WJ BDC",
+  "contact_title": "Sales Representative",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Fair Oaks Lincoln",
+  "status": "fetched",
+  "source_url": "https://www.fairoakslincoln.com/staff",
+  "contact_name": "John Krajnovich",
+  "contact_title": "General Sales Manager",
+  "contact_email": "jkrajnovich@fairoakslincoln.com"
+ },
+ {
+  "dealer_name": "North Park Lincoln at Dominion",
+  "status": "fetched",
+  "source_url": "https://www.nplincolndominion.com/staff",
+  "contact_name": "Trey Horner",
+  "contact_title": "General Sales Manager",
+  "contact_email": "thorner@nplincoln.com"
+ },
+ {
+  "dealer_name": "Bay Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Central Florida Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lincoln of Melbourne",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Germain Lincoln of Naples",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lincoln of Coconut Creek",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ken Ganley Lincoln Middleburg Heights",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Parks Lincoln of Wesley Chapel",
+  "status": "fetched",
+  "source_url": "https://www.lincolnoftampa.com/staff",
+  "contact_name": "Craig Randolph",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lincoln North Miami",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Stevens Creek Lincoln",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "LaFontaine Lincoln Grand Rapids",
+  "status": "fetched",
+  "source_url": "https://www.lafontainelincolngrandrapids.com/staff",
+  "contact_name": "Jeffery Crouch",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Sedano Lincoln",
+  "status": "fetched",
+  "source_url": "https://www.sedanolincoln.com/staff.aspx",
+  "contact_name": "Manny Sedano",
+  "contact_title": "Dealer Principal",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "West Point Lincoln",
+  "status": "fetched",
+  "source_url": "https://www.westpointlincolnofhouston.com/staff",
+  "contact_name": "Ryan O'Cain",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Tom Roush, Inc. dba Tom Roush Lincoln",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Don Franklin Lincoln Elizabethtown",
+  "status": "fetched",
+  "source_url": "https://www.donfranklin-lincoln.com/staff",
+  "contact_name": "Scott Keyland",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "West Point Lincoln of Sugar Land",
+  "status": "fetched",
+  "source_url": "https://www.westpointlincolnofsugarland.com/staff",
+  "contact_name": "Ruben Mendoza",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Gerald Jones Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Herb Chambers Lincoln Westborough",
+  "status": "no_website",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Korum Lincoln",
+  "status": "fetched",
+  "source_url": "https://www.korumlincoln.com/staff",
+  "contact_name": "Justin Price",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Fred Beans Lincoln of Doylestown",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Knudtsen Foothills Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Napleton Lincoln of Schaumburg",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Sewell Lincoln",
+  "status": "no_website",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lincoln of Ramsey",
+  "status": "fetched",
+  "source_url": "https://www.lincolnoframsey.com/staff",
+  "contact_name": "Joseph Pitney",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Sanderson Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Holman Lincoln Mt. Laurel",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Herb Chambers Lincoln Norwood",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Koons Lincoln of Bethesda",
+  "status": "no_website",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Tasca Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kendall Lincoln Treasure Valley",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Al Piemonte Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Parks Lincoln of Longwood",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ed Howard Lincoln",
+  "status": "fetched",
+  "source_url": "https://www.edhowardlincoln.net/dealership/staff.htm",
+  "contact_name": "Mike Hillman",
+  "contact_title": "General Sales Manager",
+  "contact_email": "mhillman@edhowardautos.com"
+ },
+ {
+  "dealer_name": "Astro Lincoln",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Parks Lincoln of Gainesville",
+  "status": "fetched",
+  "source_url": "https://www.parkslincolngainesville.com/staff",
+  "contact_name": "Joseph Cox",
+  "contact_title": "General Sales Manager",
+  "contact_email": "jcox@parksofgainesville.com"
+ },
+ {
+  "dealer_name": "North Florida Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Jenkins Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Parks Lincoln of Tampa",
+  "status": "fetched",
+  "source_url": "https://www.lincolnoftampa.com/staff",
+  "contact_name": "Craig Randolph",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Plaza Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Galpin Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Caruso Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Fiesta Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ray Pearman Lincoln, Inc",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Uptown Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "East Carolina Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Deacon Jones Lincoln",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Leith Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Krenzen Lincoln, Inc.",
+  "status": "no_website",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "White Bear Lincoln, Inc.",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Mcauley Motors Inc",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Champaign Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Northtowne Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bob Smith Lincoln, Inc.",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Gervais Lincoln, Inc.",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "State Motors Lincoln",
+  "status": "fetched",
+  "source_url": "https://www.statemotorslincoln.net/dealership/staff.htm",
+  "contact_name": "Grant VP",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Crest Lincoln of Woodbridge",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Shaker's Family Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bright Bay Lincoln, Inc.",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Franklin Park Lincoln, Inc.",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hines Park Lincoln, Inc.",
+  "status": "fetched",
+  "source_url": "https://www.hinesparklincoln.com/staff",
+  "contact_name": "Naszradi Dealership",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Shottenkirk Ford Lincoln",
+  "status": "no_website",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ziems Ford Corners, Inc.",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Galpin Lincoln",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Permian Lincoln",
+  "status": "no_website",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Alexander Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Casa Lincoln",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Malouf Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Liccardi Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Schultz Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Causeway Lincoln of Manahawkin",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Rowe Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Irwin Lincoln",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Sentry Lincoln",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hayes Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Tasca Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Sarat Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hoffman Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Flood Lincoln of Narragansett",
+  "status": "fetched",
+  "source_url": "https://www.floodlincolnofnarragansett.com/dealership/staff.htm",
+  "contact_name": "Tim Whitford",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Steet Ponte Lincoln",
+  "status": "fetched",
+  "source_url": "https://www.steetpontelincoln.com/staff",
+  "contact_name": "Garrett Crane",
+  "contact_title": "Sales & Leasing Consultant",
+  "contact_email": "Gcrane@steet-ponteford.com"
+ },
+ {
+  "dealer_name": "Lincoln of Milford",
+  "status": "no_website",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lincoln of Smithtown",
+  "status": "fetched",
+  "source_url": "https://www.LincolnofSmithtown.net/dealership/staff.htm",
+  "contact_name": "Anthony Greco",
+  "contact_title": "New Car Sales Manager",
+  "contact_email": "agreco@fordofsmithtown.com"
+ },
+ {
+  "dealer_name": "Empire Lincoln of Huntington",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Healey Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lincoln of Queens",
+  "status": "fetched",
+  "source_url": "https://www.lincolnofqueensboulevard.com/dealership/staff.htm",
+  "contact_name": "Vultaggio III",
+  "contact_title": "Dealer Principal",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Premier Lincoln",
+  "status": "fetched",
+  "source_url": "https://www.premierlincolnbrooklyn.com/dealership/staff.htm",
+  "contact_name": "Joe Chalom",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Performance Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ciocca Lincoln of Flemington",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ray Price Lincoln",
+  "status": "fetched",
+  "source_url": "https://www.raypricelincoln.com/dealership/staff.htm",
+  "contact_name": "Nick Rizzo",
+  "contact_title": "New Car Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ciocca Ford Lincoln of Lawrenceville",
+  "status": "fetched",
+  "source_url": "https://www.cioccalincolnoflawrenceville.com/dealership/staff.htm",
+  "contact_name": "Andy Stratz",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Miller Lincoln Sales",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Pacifico Marple Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Chapman Lincoln",
+  "status": "fetched",
+  "source_url": "https://www.ChapmanLincoln.net/dealership/staff.htm",
+  "contact_name": "Donald Hood",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Coccia Lincoln",
+  "status": "fetched",
+  "source_url": "https://www.coccialincoln.com/dealership/staff.htm",
+  "contact_name": "STAFF Leadership",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Carman Lincoln",
+  "status": "fetched",
+  "source_url": "https://www.carmanlincoln.com/staff",
+  "contact_name": "Giacchino Lincoln",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kindle Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hertrich Lincoln of Milford",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Maguire Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "West Herr Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Spitzer Ford Dubois, LLC",
+  "status": "fetched",
+  "source_url": "https://www.spitzerduboislincoln.com/staff",
+  "contact_name": "Don Williams",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "L. B. Smith Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Boulevard Ford",
+  "status": "no_website",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bob Davidson Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Boulevard Lincoln",
+  "status": "fetched",
+  "source_url": "https://www.boulevardlincoln.com/staff",
+  "contact_name": "Jeremy Johnson",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Koons Lincoln of Annapolis",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Apple Lincoln",
+  "status": "fetched",
+  "source_url": "https://www.applelincoln.net/dealership/staff.htm",
+  "contact_name": "Ned Doetsch",
+  "contact_title": "New Car Sales Manager",
+  "contact_email": "ned@appleford.com"
+ },
+ {
+  "dealer_name": "Koons Lincoln of Bethesda",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Sheehy Lincoln of Gaithersburg",
+  "status": "fetched",
+  "source_url": "https://www.sheehylincolngaithersburg.com/staff",
+  "contact_name": "Shawn Lynes",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "State College Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kent Parsons Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Courtesy Lincoln",
+  "status": "fetched",
+  "source_url": "https://www.courtesylincolnaltoona.net/staff",
+  "contact_name": "Rod Davis",
+  "contact_title": "Sales Manager",
+  "contact_email": "rdavis@courtesyaltoona.net"
+ },
+ {
+  "dealer_name": "Bedford Lincoln",
+  "status": "fetched",
+  "source_url": "https://www.bedfordlincoln.com/staff",
+  "contact_name": "Tim Grubb",
+  "contact_title": "Sales Consultant",
+  "contact_email": "tgrubb@bedfordchrysler.com"
+ },
+ {
+  "dealer_name": "Ted Britt Chantilly Lincoln",
+  "status": "fetched",
+  "source_url": "https://www.tedbrittlincolnofchantilly.com/staff",
+  "contact_name": "Michael Britt",
+  "contact_title": "General Manager",
+  "contact_email": "mbritt@tedbritt.com"
+ },
+ {
+  "dealer_name": "Ourisman Lincoln of Alexandria",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Luther Lincoln",
+  "status": "no_website",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lexington Park Lincoln",
+  "status": "fetched",
+  "source_url": "https://www.lexingtonparklincoln.com/staff",
+  "contact_name": "Steve Raley",
+  "contact_title": "General Manager",
+  "contact_email": "sraley@lexingtonparklincoln.com"
+ },
+ {
+  "dealer_name": "Shults Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lincoln of Morgantown",
+  "status": "no_website",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Klaben Lincoln of Warren",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Parkway Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Klaben Lincoln",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Nick Mayer Lincoln Mayfield",
+  "status": "fetched",
+  "source_url": "https://www.nickmayerlincolnmayfield.com/staff",
+  "contact_name": "Ken Stafford",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Dutro Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Don Wood Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Richmond Lincoln",
+  "status": "fetched",
+  "source_url": "https://www.richmondLincoln.net/dealership/staff.htm",
+  "contact_name": "Mike Serpico",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Cavalier Lincoln",
+  "status": "fetched",
+  "source_url": "https://www.cavalierlincoln.com/staff",
+  "contact_name": "Danny Rodriguez",
+  "contact_title": "Sales Director",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Magic City Lincoln",
+  "status": "fetched",
+  "source_url": "https://www.MagicCityLincoln.net/staff",
+  "contact_name": "Jim Sanders",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Scenic Motors Inc",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Green Lincoln",
+  "status": "fetched",
+  "source_url": "https://www.GreenLincolnofGreensboro.com/staff/",
+  "contact_name": "Bob Blakely",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Parkway Lincoln",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Randy Marion Ford Lincoln, LLC",
+  "status": "fetched",
+  "source_url": "https://www.randymarionlincolnstatesville.com/staff",
+  "contact_name": "Chad Sigmon",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Empire Lincoln",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Thornhill Lincoln",
+  "status": "fetched",
+  "source_url": "https://www.thornhilllincoln.com/staff",
+  "contact_name": "Mike Bissell",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Moses Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bruce Walters Ford Sales Inc",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "John Sang Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Dutch Miller Lincoln of Ashland",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Tim Short Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Gates Lincoln",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "LaFayette Lincoln",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Capital Lincoln of Wilmington",
+  "status": "fetched",
+  "source_url": "https://www.capitallincolnofwilmington.com/staff",
+  "contact_name": "Josh Barbour",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Mark Ficken Lincoln",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Beach Lincoln",
+  "status": "fetched",
+  "source_url": "https://www.beachlincoln.com/staff",
+  "contact_name": "Chris Wernett",
+  "contact_title": "Sales Manager",
+  "contact_email": "cwernett@beachautomotive.com"
+ },
+ {
+  "dealer_name": "Classic Ford Lincoln of Shelby",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Classic Lincoln of Columbia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Fairway Lincoln",
+  "status": "fetched",
+  "source_url": "https://www.fairwaylincoln.com/dealership/staff.htm",
+  "contact_name": "Josh Crocker",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Asheville Lincoln",
+  "status": "fetched",
+  "source_url": "https://www.ashevillelincoln.com/staff",
+  "contact_name": "Brian Newman",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Palmetto Lincoln",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "O. C. Welch Lincoln",
+  "status": "fetched",
+  "source_url": "https://www.ocwelchLincoln.net/dealership/staff.htm",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Paul Thigpen Ford Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Billy Cain Ford-Lincoln of Cornelia, Inc.",
+  "status": "no_website",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hennessy Lincoln Atlanta",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Allan Vigil Lincoln",
+  "status": "fetched",
+  "source_url": "https://www.allanvigillincoln.net/staff",
+  "contact_name": "Dennis Kerce",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Angela Krause Lincoln",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Riverside Lincoln",
+  "status": "fetched",
+  "source_url": "https://www.riversidelincolnmacon.com/dealership/staff.htm",
+  "contact_name": "Kevin Franchi",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "King Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Mtn. View Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Long-Lewis of Hoover",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Long-Lewis Lincoln of Cullman",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Stivers Ford Lincoln",
+  "status": "fetched",
+  "source_url": "https://www.stiverslincolnofmontgomery.com/staff/",
+  "contact_name": "Dan Torgrimson",
+  "contact_title": "Sales Manager",
+  "contact_email": "dtorgrimson@rothbardmotors.com"
+ },
+ {
+  "dealer_name": "AutoNation Lincoln Orange Park",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Griffin Lincoln",
+  "status": "fetched",
+  "source_url": "https://www.griffinlincolnoftifton.com/staff",
+  "contact_name": "Logan Harrison",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bozard Lincoln",
+  "status": "fetched",
+  "source_url": "https://www.bozardlincoln.net/staff",
+  "contact_name": "Jeff King",
+  "contact_title": "General Manager",
+  "contact_email": "jking@bozardford.com"
+ },
+ {
+  "dealer_name": "Beck Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Rountree-Moore Lincoln",
+  "status": "fetched",
+  "source_url": "https://www.rountreemoorelincoln.com/dealership/staff.htm",
+  "contact_name": "Stephen Jones",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Gary Yeomans Lincoln Ocala",
+  "status": "fetched",
+  "source_url": "https://www.garyyeomanslincolnocala.com/staff",
+  "contact_name": "Candelora Lincoln",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Gary Yeomans Lincoln",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Jenkins Lincoln of Crystal River",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Robert Hutson Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Pines Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Al Packer Lincoln",
+  "status": "fetched",
+  "source_url": "https://www.alpackerlincoln.net/staff",
+  "contact_name": "Van Johnson",
+  "contact_title": "Sales Associate",
+  "contact_email": "vjohnson@alpackerford.com"
+ },
+ {
+  "dealer_name": "Sam Galloway Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Jarrett-Gordon Lincoln",
+  "status": "fetched",
+  "source_url": "https://www.jarrettgordonlincoln.net/dealership/staff.htm",
+  "contact_name": "Michael Damelia",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Sandy Sansing Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Cannon Lincoln of Pascagoula",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bondy's Lincoln",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Long-Lewis Lincoln of the Shoals",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Cannon Lincoln of Starkville",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Al White Motors, Inc.",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lincoln of Franklin",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Jenkins & Wynne Lincoln",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Greenwood Lincoln",
+  "status": "fetched",
+  "source_url": "https://www.greenwoodlincoln.com/staff",
+  "contact_name": "Jeff Keyes",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Gillie Hyde Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Purchase Lincoln",
+  "status": "no_website",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Golden Circle Lincoln, Inc.",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "D-Patrick Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ted Russell Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Don Franklin Lincoln",
+  "status": "fetched",
+  "source_url": "https://www.donfranklinlincoln.net/staff",
+  "contact_name": "Gary Marvich",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Dan Cummins Lincoln",
+  "status": "fetched",
+  "source_url": "https://www.dancumminslincoln.com/staff",
+  "contact_name": "Mark Hunt",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kirk Lincoln of Grenada",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Cannon Lincoln of Cleveland",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Morlan Ford-Lincoln",
+  "status": "no_website",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Mark McLarty Lincoln",
+  "status": "fetched",
+  "source_url": "https://www.markmclartylincoln.net/staff",
+  "contact_name": "Charles Archer",
+  "contact_title": "Sales Manager",
+  "contact_email": "carcher@mclartyauto.com"
+ },
+ {
+  "dealer_name": "Gray-Daniels Ford Lincoln",
+  "status": "fetched",
+  "source_url": "https://www.graydanielslincoln.com/staff",
+  "contact_name": "Robby Herbert",
+  "contact_title": "General Sales Manager",
+  "contact_email": "RHERBERT@GRAYDANIELS.COM"
+ },
+ {
+  "dealer_name": "Robinson Brothers Lincoln",
+  "status": "fetched",
+  "source_url": "https://www.robinsonlincoln.com/dealership/staff.htm",
+  "contact_name": "Jack Vaughn",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bill Collins Lincoln",
+  "status": "fetched",
+  "source_url": "https://www.billcollinslincolnoflouisville.com/staff",
+  "contact_name": "Collins Executive",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Community Lincoln of Bloomington",
+  "status": "no_website",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Mike Castrucci Lincoln of Alexandria",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Beau Townsend Lincoln of Dayton",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Dave Knapp Lincoln, Inc.",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Reineke Lincoln of Findlay",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bob Thomas Lincoln",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Friendly Lincoln",
+  "status": "fetched",
+  "source_url": "https://www.Friendlylincoln.com/staff",
+  "contact_name": "Nicole Ernst",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bell Lincoln, Inc.",
+  "status": "fetched",
+  "source_url": "https://www.belllincolnofadrian.com/dealership/staff.htm",
+  "contact_name": "Gary Lundy",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Northgate Lincoln",
+  "status": "fetched",
+  "source_url": "https://www.NorthGateLincolnofPortHuron.com/aboutus.aspx",
+  "contact_name": "Internet and",
+  "contact_title": "Sales Specialist",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Morrie's Grand Ledge Ford/Morrie's Grand Ledge Lincoln",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Wilson Ford Lincoln",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lincoln of Midland",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lakeview Lincoln",
+  "status": "no_website",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Max Platt Ford-Lincoln, Inc.",
+  "status": "no_website",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Zeigler Lincoln of Elkhart",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Gurley Leep Lincoln",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Heiser Lincoln",
+  "status": "fetched",
+  "source_url": "https://www.heiserlincoln.com/sales-staff.htm",
+  "contact_name": "Chad Formico",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Oliver Lincoln",
+  "status": "fetched",
+  "source_url": "https://www.oliverlincoln.com/staff",
+  "contact_name": "Oliver III",
+  "contact_title": "General Manager",
+  "contact_email": "john.oliver@oliverford.com"
+ },
+ {
+  "dealer_name": "Fox Lincoln Grand Traverse",
+  "status": "fetched",
+  "source_url": "https://www.foxlincolngrandtraverse.com/dealership/staff.htm",
+  "contact_name": "Adam Rahilly",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Murgado Lincoln of Chicago",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Gordie Boucher Lincoln of West Bend",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Art Hill Lincoln",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Wickstrom Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Buss Lincoln",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Joe Rizza Lincoln",
+  "status": "fetched",
+  "source_url": "https://www.joerizzalincolnoforlandpark.com/staff",
+  "contact_name": "Gary Precin",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ford Lincoln of Lafayette",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Pilson Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Northside Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lincoln of Mt. Vernon",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Gordie Boucher Lincoln of Janesville",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kayser Lincoln",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Jim Xamis Ford, Lincoln, Inc.",
+  "status": "no_website",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bob Ridings Westown Ford, Lincoln",
+  "status": "no_website",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bergstrom Neenah Ford-Lincoln",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Dorsch Lincoln",
+  "status": "fetched",
+  "source_url": "https://www.dorschlincoln.com/staff",
+  "contact_name": "Terrien Internet",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Apple Lincoln Apple Valley",
+  "status": "fetched",
+  "source_url": "https://www.applevalleylincoln.com/staff.aspx",
+  "contact_name": "Aaron Hanson",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Deml Lincoln Inc.",
+  "status": "no_website",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Eau Claire Lincoln",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Mills Motor, Inc.",
+  "status": "fetched",
+  "source_url": "https://www.millslincoln.com/dealership/staff.htm",
+  "contact_name": "Reece Thompson",
+  "contact_title": "Sales Consultant",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Colwell Lincoln",
+  "status": "no_website",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kruse Lincoln",
+  "status": "no_website",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Nelson Lincoln",
+  "status": "no_website",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Vision Lincoln",
+  "status": "no_website",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Stivers Lincoln",
+  "status": "fetched",
+  "source_url": "https://www.stiverslincolnwaukee.com/staff",
+  "contact_name": "CHRISTOPHER HECK",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ames Lincoln",
+  "status": "fetched",
+  "source_url": "https://www.ameslincoln.com/dealership/staff.htm",
+  "contact_name": "Merrill Lincoln",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ulrich Lincoln",
+  "status": "no_website",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Steve Link Ford Lincoln, Inc.",
+  "status": "no_website",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Fort Dodge Ford Lincoln",
+  "status": "no_website",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Pettijohn Auto Center, Inc.",
+  "status": "no_website",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Rydell Lincoln",
+  "status": "fetched",
+  "source_url": "https://www.rydelllincoln.com/staff.aspx",
+  "contact_name": "Jacob Halbur",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Don Pierson Ford-Lincoln, Inc.",
+  "status": "no_website",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hullman's Lincoln, Inc.",
+  "status": "no_website",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Diers Lincoln",
+  "status": "no_website",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Anderson Lincoln of Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Sioux City Lincoln",
+  "status": "no_website",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Sakelaris Ford Lincoln of Rolla, Inc.",
+  "status": "no_website",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Joe Machens Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Sakelaris Lincoln of Camdenton",
+  "status": "no_website",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Olathe Lincoln",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Rick Ball Lincoln",
+  "status": "no_website",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Mike Carpino Lincoln",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "McLarty Daniel Lincoln",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Vance Lincoln",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Cogswell Mtrs Inc",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Sioux Falls Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Prostrollo Auto Plaza Co",
+  "status": "no_website",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Einspahr Lincoln",
+  "status": "no_website",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Pierson Ford Lincoln, Inc.",
+  "status": "no_website",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Diffee Lincoln",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Seth Wadley Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Cummins Lincoln",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "James Hodge Lincoln Muskogee",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Riser Lincoln",
+  "status": "fetched",
+  "source_url": "https://www.RiserLincoln.com/dealership/staff.htm",
+  "contact_name": "Stephen Williams",
+  "contact_title": "Sales Manager",
+  "contact_email": "Swilliams@riserlincoln.com"
+ },
+ {
+  "dealer_name": "Group 1 Lincoln of Shreveport",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Center Motor Company",
+  "status": "fetched",
+  "source_url": "https://www.centermotorcompanylincoln.com/dealership/staff.htm",
+  "contact_name": "Dorian Cerrato",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "James Hodge Lincoln Idabel",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Brian Toliver Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Vaughn Ford Lincoln",
+  "status": "no_website",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Terrebonne Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Sterling Lincoln",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Planet Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Covert Lincoln",
+  "status": "fetched",
+  "source_url": "https://www.covertlincoln.com/staff",
+  "contact_name": "Coy Alexander",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Mac Haik Ford Lincoln of Georgetown",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Grapevine Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Johnson BrothersLincoln",
+  "status": "fetched",
+  "source_url": "https://www.johnsonbroslincoln.com/staff",
+  "contact_name": "Eddy Young",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Big Country Ford Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bluebonnet Lincoln",
+  "status": "fetched",
+  "source_url": "https://www.BluebonnetMotorslincoln.com/staff",
+  "contact_name": "Jake Johnson",
+  "contact_title": "New Car Sales Manager",
+  "contact_email": "jjohnson@bbmotors.com"
+ },
+ {
+  "dealer_name": "Group 1 Lincoln of Hub City",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Rogers Lincoln",
+  "status": "fetched",
+  "source_url": "https://www.rogerslincoln.com/staff",
+  "contact_name": "Corey Pollock",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Sewell Lincoln",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Holmes Tuttle Lincoln",
+  "status": "fetched",
+  "source_url": "https://www.holmestuttlelincoln.com/staff",
+  "contact_name": "Dan Gonzalez",
+  "contact_title": "General Sales Manager",
+  "contact_email": "dgonzalez@jimclick.com"
+ },
+ {
+  "dealer_name": "Sill-TerHar Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Loveland Ford Lincoln, Inc.",
+  "status": "fetched",
+  "source_url": "https://www.lovelandlincoln.com/staff",
+  "contact_name": "Eric Malory",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Phil Long Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Durango Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Mountain Home Auto Ranch",
+  "status": "no_website",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Middlekauff Ford Lincoln",
+  "status": "no_website",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Larry H. Miller Ford Lincoln Draper",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Team Lincoln",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Future Lincoln of Roseville",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Courtesy Lincoln",
+  "status": "fetched",
+  "source_url": "https://www.courtesylincolnportland.com/dealership/staff.htm",
+  "contact_name": "Rick Boyer",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kendall Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Evergreen Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Pierre Lincoln of Lynnwood",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "South Bay Ford Lincoln",
+  "status": "fetched",
+  "source_url": "https://www.southbaylincoln.com/staff",
+  "contact_name": "Adolfo Toledo",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Norm Reeves Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Star Lincoln",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Galpin Ford 101",
+  "status": "no_website",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Tuttle-Click Lincoln",
+  "status": "no_website",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Palm Springs Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Jim Burke Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Santa Maria Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lithia Lincoln of Fresno",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Keller Lincoln",
+  "status": "fetched",
+  "source_url": "https://www.kellerlincolnofhanford.com/dealership/staff.htm",
+  "contact_name": "Alex Goerzen",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Cypress Coast Lincoln",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Perry Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Livermore Lincoln",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Future Lincoln of Concord",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hansel Lincoln",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Valley Isle Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kendall Ford Lincoln of Anchorage",
+  "status": "fetched",
+  "source_url": "https://www.kendalllincolnanchorage.com/dealership/staff.htm",
+  "contact_name": "Jeff Toth",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Seekins Ford Lincoln",
+  "status": "fetched",
+  "source_url": "https://www.seekinslincoln.com/staff",
+  "contact_name": "Margaret Russell",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Sames McAllen Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Platte Valley Auto Mart-Kearney, Inc.",
+  "status": "no_website",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Capital City Lincoln",
+  "status": "no_website",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Eide Lincoln",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Tubbs & Sons Ford Sales, Inc.",
+  "status": "no_website",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "White's Canyon Lincoln",
+  "status": "fetched",
+  "source_url": "https://www.whitescanyonlincoln.com/staff",
+  "contact_name": "Brandon Harms",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ }
+]
