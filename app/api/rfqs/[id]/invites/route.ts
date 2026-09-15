@@ -15,7 +15,7 @@ import {
   type DealerDesk,
 } from "@/lib/quotePackage";
 import { featureEnabled, DEGRADE_COPY } from "@/lib/featureFlags";
-import { firstTrippedLimit, tooManyRequests } from "@/lib/rateLimit";
+import { firstTrippedLimit, isRateLimitExempt, tooManyRequests } from "@/lib/rateLimit";
 import { clientIpFromHeaders } from "@/lib/clientIp";
 import { bump } from "@/lib/opsMetrics";
 import { sendQueuedInvite } from "@/lib/inviteOutbox";
@@ -34,7 +34,8 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   if (!featureEnabled("rfqSend")) {
     return NextResponse.json({ error: DEGRADE_COPY.rfqSendOff, paused: true }, { status: 503, headers: { "Retry-After": "120" } });
   }
-  const tripped = firstTrippedLimit([
+  // Test / admin accounts are never capped — see isRateLimitExempt.
+  const tripped = isRateLimitExempt(session.user as { id?: unknown; email?: string | null; role?: unknown }) ? null : firstTrippedLimit([
     { name: "invite_send_ip", subject: clientIpFromHeaders(req.headers) },
     { name: "invite_send_user", subject: String(session.user.id) },
     { name: "invite_send_global", subject: "all" },

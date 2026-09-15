@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import { featureEnabled, featureFlags, publicFeatureStatus, DEGRADE_COPY } from "./featureFlags";
-import { checkRateLimit, firstTrippedLimit, resetRateLimitsForTests, tooManyRequests } from "./rateLimit";
+import { checkRateLimit, firstTrippedLimit, resetRateLimitsForTests, tooManyRequests, isRateLimitExempt } from "./rateLimit";
 import { buildInviteEmailFromStored, drainQueuedInvites, queuedInvitesOf, sendQueuedInvite } from "./inviteOutbox";
 import { breakerOpen, clearHyundaiStickerMemoryCache, getHyundaiSticker, stickerBreakerSnapshot } from "./hyundaiSticker";
 import { opsSnapshot, resetOpsMetricsForTests } from "./opsMetrics";
@@ -38,6 +38,20 @@ describe("rate limits — 429 with Retry-After, never a 500", () => {
     assert.equal(v.retryAfterSec, 50);
     assert.equal(checkRateLimit("k", 3, 60_000, t0 + 61_000).ok, true, "window rolled");
     assert.equal(checkRateLimit("other", 3, 60_000, t0).ok, true, "keys are independent");
+  });
+  it("test and admin accounts are exempt from the send caps", () => {
+    assert.equal(isRateLimitExempt({ id: 2, email: "tester@trimscout.test", role: "buyer" }), true, "@trimscout.test smoke accounts");
+    assert.equal(isRateLimitExempt({ id: 14, email: "trial@example.com", role: "buyer" }), true, "@example.com");
+    assert.equal(isRateLimitExempt({ id: 1, email: "owner@outlook.com", role: "admin" }), true, "admins");
+    assert.equal(isRateLimitExempt({ id: 12, email: "someone@gmail.com", role: "buyer" }), false, "a real buyer is capped");
+    process.env.RATE_LIMIT_EXEMPT_ACCOUNTS = "someone@gmail.com, 77";
+    assert.equal(isRateLimitExempt({ id: 12, email: "someone@gmail.com", role: "buyer" }), true, "env allowlist by email");
+    assert.equal(isRateLimitExempt({ id: 77, email: "x@y.com", role: "buyer" }), true, "env allowlist by id");
+    delete process.env.RATE_LIMIT_EXEMPT_ACCOUNTS;
+    const create = fs.readFileSync("app/api/rfqs/route.ts", "utf8");
+    const inv = fs.readFileSync("app/api/rfqs/[id]/invites/route.ts", "utf8");
+    assert.match(create, /isRateLimitExempt\(session\.user[\s\S]*?\) \? null : firstTrippedLimit/);
+    assert.match(inv, /isRateLimitExempt\(session\.user[\s\S]*?\) \? null : firstTrippedLimit/);
   });
   it("named limits: per IP, per account, global — first trip wins; the response is 429 + Retry-After", async () => {
     resetRateLimitsForTests();
