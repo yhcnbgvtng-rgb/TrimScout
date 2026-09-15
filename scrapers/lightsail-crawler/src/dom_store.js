@@ -12,6 +12,7 @@ import crypto from 'node:crypto';
 import zlib from 'node:zlib';
 import { promisify } from 'node:util';
 import { priceChangeVsYesterday } from './price_diff.js';
+import { easternDateStamp } from './date_utils.js';
 
 const gzip = promisify(zlib.gzip);
 const gunzip = promisify(zlib.gunzip);
@@ -176,7 +177,12 @@ export function flattenDomIndex(index) {
   return rows;
 }
 
-export async function pruneDomBlobs({ retainDays = DOM_RETAIN_DAYS, today = new Date().toISOString().slice(0, 10), cwd = process.cwd() } = {}) {
+// `today` defaults to the Eastern calendar date (every real caller in this
+// pipeline passes it explicitly anyway — see standalone.js's todayDate —
+// but the default matters for direct/ad-hoc invocations and must agree
+// with the rest of the pipeline's date bucketing, not silently fall back
+// to UTC).
+export async function pruneDomBlobs({ retainDays = DOM_RETAIN_DAYS, today = easternDateStamp(), cwd = process.cwd() } = {}) {
   const cutoff = new Date(`${today}T00:00:00Z`);
   cutoff.setUTCDate(cutoff.getUTCDate() - retainDays);
   const cutoffStr = cutoff.toISOString().slice(0, 10);

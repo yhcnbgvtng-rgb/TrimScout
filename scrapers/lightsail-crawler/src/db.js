@@ -15,6 +15,7 @@
 import mysql from 'mysql2/promise';
 import fs from 'node:fs';
 import path from 'node:path';
+import { easternDateStamp } from './date_utils.js';
 
 function loadDbEnv() {
   const envPath = path.resolve(process.cwd(), '.env.trimscout-db');
@@ -226,7 +227,10 @@ export async function upsertDealers(brandId, dealersArray) {
 
 export async function startScrapeRun(brandId, dealersConfigured) {
   const now = toMysqlDatetime(new Date());
-  const runDate = now.slice(0, 10);
+  // run_date is calendar-date bucketing ("which day's run is this"), so it
+  // uses the Eastern calendar date, not now's UTC date — see
+  // date_utils.js. `now`/`started_at` is a real instant and stays UTC.
+  const runDate = easternDateStamp();
   const [result] = await getPool().query(
     `INSERT INTO scrape_runs (brand_id, run_date, started_at, status, dealers_configured)
      VALUES (?, ?, ?, 'RUNNING', ?)`,

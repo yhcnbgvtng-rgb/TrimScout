@@ -24,6 +24,7 @@ import { probeDealer } from '../src/http_probe.js';
 import { buildTablePdf, buildSummaryBlocks } from '../src/pdf_table.js';
 import { CLASSIFICATION_ORDER, summarizeBotRows } from '../src/bot_protection.js';
 import { SUPPORTED_STATES } from '../src/states.js';
+import { easternDateStamp } from '../src/date_utils.js';
 
 // One entry per supported state (see src/states.js) — a new state needs a
 // loader added here, not a new if/else branch.
@@ -112,7 +113,12 @@ const report = {
 
 const outDir = path.resolve(cwd, 'data', 'reports');
 await fs.mkdir(outDir, { recursive: true });
-const stamp = generatedAt.slice(0, 10);
+// Filename date is the Eastern calendar date, not generatedAt's UTC date —
+// run-daily-crawl.mjs looks this report file up by the same Eastern date
+// it computes for its own run, so the two must always agree (see
+// src/date_utils.js). generatedAt itself stays a precise UTC instant,
+// used only for the report body / PDF subtitle, never for the filename.
+const stamp = easternDateStamp();
 const brandSlug = (brandFilter || 'all').toLowerCase().replace(/[^a-z0-9]+/g, '-');
 const stateSlug = stateFilter.toLowerCase();
 // State is part of every filename — without it, running this for NJ then
