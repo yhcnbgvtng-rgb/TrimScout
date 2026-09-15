@@ -137,14 +137,15 @@ describe("new manufacturer VIN detectors — real VINs from live listings", () =
     }
   });
 
-  it("resolves the Genesis/Hyundai 5NM overlap in favor of Genesis, on purpose", () => {
-    // 5NM is Hyundai Motor Manufacturing Alabama — shared by real Genesis
-    // and real Hyundai-brand vehicles. Genesis already has a working
-    // factory-sticker pipeline riding on it; Hyundai's isHyundaiVin
-    // deliberately excludes it rather than creating an ambiguous VIN.
+  it("both brands claim the shared Alabama 5NM prefix; the paste router lists Hyundai first and that pipeline asks Genesis's sticker host too", () => {
+    // 5NM is Hyundai Motor Manufacturing Alabama — real Tucsons and real
+    // GV70s. Neither WMI check can tell them apart, so the Hyundai
+    // factory-sticker pipeline tries DealerFire (Hyundai) then Genesis.
     const fiveNmVin = "5NMJB3AE1SH123456";
     assert.equal(isGenesisVin(fiveNmVin), true);
-    assert.equal(isHyundaiVin(fiveNmVin), false);
+    assert.equal(isHyundaiVin(fiveNmVin), true);
+    assert.equal(isHyundaiVin("5NPEL4JA2SH123456"), true, "5NP — Alabama cars");
+    assert.equal(isHyundaiVin("KM8RKES23TU034116"), true);
   });
 });
 

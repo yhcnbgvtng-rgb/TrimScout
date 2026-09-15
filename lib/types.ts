@@ -138,6 +138,8 @@ export interface Vehicle {
   buyerConfirmed?: boolean;
   /** Set when the factory sticker service didn't answer — the build is a free decode, not "no build". */
   stickerUnavailableReason?: string | null;
+  /** The OEM hasn't published this VIN's window sticker yet — a neutral note, never a warning. */
+  stickerPendingNote?: string | null;
 }
 
 export type BuildConfidence = "verified_factory" | "dealer_listing_only";

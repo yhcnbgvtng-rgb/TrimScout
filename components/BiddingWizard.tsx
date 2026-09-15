@@ -521,9 +521,11 @@ function LinkConfirmPanel({
               <span className="block truncate text-[10px] text-ink-muted">
                 {isUsedCondition(build.vehicle.condition)
                   ? "Pre-owned — from the VIN; the dealer confirms miles, title and options. No factory sticker needed."
-                  : build.stickerUnavailable
-                    ? "Factory sticker didn't come back from the manufacturer just now — details are a limited VIN decode. You can still confirm and continue."
-                    : [build.vehicle.exteriorColor, build.vehicle.drivetrain].filter(Boolean).join(" · ") || "Factory record read"}
+                  : build.stickerPending
+                    ? build.stickerPending.note
+                    : build.stickerUnavailable
+                      ? "Factory sticker didn't come back from the manufacturer just now — details are a limited VIN decode. You can still confirm and continue."
+                      : [build.vehicle.exteriorColor, build.vehicle.drivetrain].filter(Boolean).join(" · ") || "Factory record read"}
               </span>
             </span>
             <span className="flex shrink-0 items-center gap-2">
@@ -1414,7 +1416,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
       return;
     }
     const vehicle = attachLinkToVehicle(
-      { ...result.vehicle, stickerUnavailableReason: result.stickerUnavailable?.reason || null },
+      { ...result.vehicle, stickerUnavailableReason: result.stickerUnavailable?.reason || null, stickerPendingNote: result.stickerPending?.note || null },
       { url: resolution.url, desk: choice.desk, deskSource: choice.deskSource }
     );
     const stamped: PasteImportSuccess = { ...result, vehicle };
@@ -1500,7 +1502,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
 
   const commitPrimaryImport = (result: PasteImportSuccess) => {
     setPendingLink(null);
-    setSelectedVehicle({ ...result.vehicle, stickerUnavailableReason: result.stickerUnavailable?.reason || result.vehicle.stickerUnavailableReason || null });
+    setSelectedVehicle({ ...result.vehicle, stickerUnavailableReason: result.stickerUnavailable?.reason || result.vehicle.stickerUnavailableReason || null, stickerPendingNote: result.stickerPending?.note || result.vehicle.stickerPendingNote || null });
     setMake(result.vehicle.make);
     setModel(result.vehicle.model);
     setSelectedTrims([result.vehicle.trim]);
@@ -2307,6 +2309,10 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                   <p className="rounded-lg border border-sky-500/30 bg-sky-950/20 px-3 py-2 text-[11px] leading-snug text-sky-200" data-testid="used-build-copy">
                     {selectedVehicle.condition === "cpo" ? CPO_BUILD_COPY : USED_BUILD_COPY}
                   </p>
+                )}
+                {/* Sticker pending (Hyundai new inventory lists before the label exists): a neutral note, no warning, nothing gated. */}
+                {parseSuccessMsg && selectedVehicle?.stickerPendingNote && !isUsedCondition(selectedVehicle.condition) && (
+                  <p className="text-[11px] text-ink-faint" data-testid="sticker-pending">{selectedVehicle.stickerPendingNote}</p>
                 )}
                 {/* Must-haves collapse behind a one-line summary — the full
                     option list is long enough to bury everything else. */}

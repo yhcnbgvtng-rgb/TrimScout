@@ -97,19 +97,21 @@ export const MOCK_CATALOG_PORSCHE_VIN = "WP0AB2A98SS160032";
  * branches. Order matters only as a tie-break when a VIN or paste text could
  * plausibly match more than one (should not happen in practice — the WMI
  * ranges and paste keywords don't overlap across OEMs; the one confirmed
- * near-collision, Genesis/Hyundai both touching WMI 5NM, is resolved inside
- * isHyundaiVin itself by excluding that prefix, not by ordering here).
+ * near-collision, Genesis/Hyundai both touching WMI 5NM, is resolved by
+ * listing Hyundai first — its route asks Genesis's sticker host too).
  */
 const OEM_ORDER: FactoryBuildOem[] = [
   "gm",
   "ford",
   "stellantis",
+  // Hyundai before Genesis: the two share WMI 5NM (Alabama), and the
+  // Hyundai sticker pipeline tries Genesis's label second for that prefix.
+  "hyundai",
   "genesis",
   "porsche",
   "toyota",
   "honda",
   "nissan",
-  "hyundai",
   "kia",
   "subaru",
   "mazda",
@@ -451,6 +453,12 @@ export type PasteImportSuccess = {
    * sticker is temporarily unavailable — never that the VIN has no build.
    */
   stickerUnavailable?: { reason: string } | null;
+  /**
+   * The OEM hasn't published this VIN's window sticker yet (new inventory
+   * often lists first). Not a failure: the car imported on the free decode
+   * and the UI says the sticker is pending, nothing gated on it.
+   */
+  stickerPending?: { note: string } | null;
 };
 
 /**
@@ -576,6 +584,7 @@ function interpretFactoryBuildJson(
       json.stickerUnavailable && typeof (json.stickerUnavailable as { reason?: unknown }).reason === "string"
         ? { reason: (json.stickerUnavailable as { reason: string }).reason }
         : null,
+    stickerPending: json.stickerPending === true ? { note: typeof json.stickerPendingNote === "string" ? json.stickerPendingNote : "Factory window sticker not published yet — we'll keep checking." } : null,
     oem,
     pdfUrl: pdfUrl || matched.oemBuildSheetUrl || null,
     msrp: typeof sticker?.msrp === "number" && sticker.msrp > 0 ? sticker.msrp : null,
