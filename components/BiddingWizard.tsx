@@ -2901,13 +2901,13 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                     <div className="overflow-x-auto">
                       <div
                         className="grid divide-x divide-border/60"
-                        style={{ gridTemplateColumns: `repeat(${cols}, minmax(200px, 1fr))` }}
+                        style={{ gridTemplateColumns: `repeat(${cols}, minmax(${cols > 2 ? 260 : 220}px, 1fr))` }}
                       >
                         {packageVehicles.map(({ vehicle, target, contact, typedEmail, isPrimary }) => {
                           const reachable = Boolean(contact?.hasEmail && !contact?.emailOptOut);
                           const supplied = isPlausibleDealerEmail(typedEmail);
                           return (
-                            <div key={vehicle.vin} className="space-y-2 px-4 py-3 text-xs">
+                            <div key={vehicle.vin} className="space-y-3 px-5 py-4 text-xs">
                               <div>
                                 <div className="text-[10px] font-bold uppercase tracking-wide text-ink-faint">
                                   {isPrimary ? "Primary" : "Alternate"}
@@ -2935,13 +2935,15 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                                 </div>
                               </div>
 
-                              <div className="space-y-0.5 border-t border-border/50 pt-2 text-[11px]">
+                              <div className="space-y-1 border-t border-border/50 pt-3 text-[11px]">
                                 {target?.dealerName ? (
                                   <>
-                                    <div className="flex items-start justify-between gap-2">
-                                      <span className="font-semibold text-ink-light">{target.dealerName}</span>
+                                    {/* Name gets the full column width; the status pill sits on its own line so a
+                                        long rooftop name isn't squeezed into one word per line beside it. */}
+                                    <div className="font-semibold leading-snug text-ink-light">{target.dealerName}</div>
+                                    <div>
                                       <span
-                                        className={`shrink-0 rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide ${(() => {
+                                        className={`inline-block rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide ${(() => {
                                           const ok = directOfferMode
                                             ? Boolean(target?.dealerName && deskPlan.rows[target.dealerName]?.checked)
                                             : reachable || supplied;
