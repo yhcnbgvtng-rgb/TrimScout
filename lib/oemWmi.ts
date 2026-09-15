@@ -184,18 +184,16 @@ export function looksLikeNissanPaste(paste: string): boolean {
 }
 
 /**
- * Hyundai, confirmed live 2026-09-05: KM8 (dominant — Alabama/Korea SUVs),
- * KMH (Korea cars). Deliberately excludes 5NM — that WMI showed up in a
- * real Hyundai-brand sample too, but Genesis (built at the same Alabama
- * plant) already claims 5NM exclusively above and got there first; the two
- * brands are genuinely ambiguous on that one prefix, and Genesis has an
- * actual factory-sticker pipeline riding on it, so a 5NM VIN keeps routing
- * there rather than to Hyundai's listing-feed engine.
+ * Hyundai: KM8 (Korea SUVs), KMH (Korea cars), 5NP (Alabama cars) and 5NM
+ * (Hyundai Motor Manufacturing Alabama — shared with Genesis, which builds
+ * the GV70 there). 5NM routes to the Hyundai factory-sticker pipeline,
+ * which asks Hyundai's sticker host first and Genesis's second, so either
+ * brand's label is found without guessing from the WMI.
  */
 export function isHyundaiVin(vin: string): boolean {
   const u = vin.trim().toUpperCase();
   if (u.length !== 17) return false;
-  return ["KM8", "KMH"].includes(u.slice(0, 3));
+  return ["KM8", "KMH", "5NM", "5NP"].includes(u.slice(0, 3));
 }
 
 export function looksLikeHyundaiPaste(paste: string): boolean {
