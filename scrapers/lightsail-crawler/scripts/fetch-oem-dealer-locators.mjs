@@ -17,20 +17,59 @@ import { fileURLToPath } from 'node:url';
 import { chromium } from 'patchright';
 import { hostFromUrl, isOemMarketingHost } from '../src/oem_locator.js';
 import { normalizeDealerHost } from '../src/nj_verified_domains.js';
+import { SUPPORTED_STATES } from '../src/states.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const OUT_DIR = path.join(ROOT, 'dealers', 'oem-dumps');
 const UA = 'Mozilla/5.0 (compatible; TrimScout-locator/1.0; +https://github.com/yhcnbgvtng-rgb/TrimScout)';
 const TIMEOUT_MS = 15000;
 
-// Shared NJ/NY zip spread (same set fetchMercedes uses) — dense enough to
-// cover both states' dealer networks without needing every zip.
+// Every state this capture tool pulls real rows for — src/states.js is the
+// single source of truth (adding a state there needs a matching zip/city
+// seed added below, nothing else).
+const TARGET_STATES = SUPPORTED_STATES;
+
+function inTargetStates(state) {
+  return TARGET_STATES.includes(String(state || '').toUpperCase());
+}
+
+// NJ/NY zip spread (same set fetchMercedes uses) — dense enough to cover
+// both states' dealer networks without needing every zip.
 const NJ_NY_ZIPS = [
   '07004', '07024', '07030', '07052', '07701', '07739', '07860',
   '08034', '08096', '08234', '08648', '08807', '08902',
   '10001', '10301', '10451', '10940', '11201', '11501', '11743',
   '12205', '12601', '13212', '13501', '13901', '14221', '14623', '14850',
 ];
+
+// Florida zip spread, one roughly every 50-70 miles from the panhandle to
+// the Keys so a 50-120mi-radius zip locator (Mercedes/Mini/Subaru/Mazda/
+// Kia) still covers the whole state without querying every zip in it.
+const FL_ZIPS = [
+  '32501', // Pensacola
+  '32401', // Panama City
+  '32301', // Tallahassee
+  '32202', // Jacksonville
+  '32601', // Gainesville
+  '32114', // Daytona Beach
+  '34470', // Ocala
+  '32801', // Orlando
+  '32901', // Melbourne
+  '33602', // Tampa
+  '33755', // Clearwater
+  '33801', // Lakeland
+  '34236', // Sarasota
+  '33901', // Fort Myers
+  '34102', // Naples
+  '34952', // Port St. Lucie
+  '33401', // West Palm Beach
+  '33301', // Fort Lauderdale
+  '33101', // Miami
+  '33040', // Key West
+];
+
+// Combined zip spread used by every zip+radius OEM locator below.
+const TARGET_ZIPS = [...NJ_NY_ZIPS, ...FL_ZIPS];
 
 function hostOf(url) {
   return hostFromUrl(url) || normalizeDealerHost(url);
@@ -126,7 +165,7 @@ function parseToyotaCards(html, sourceUrl) {
       domain: site,
       sourceUrl,
     });
-    if (rec && (rec.state === 'NJ' || rec.state === 'NY')) rows.push(rec);
+    if (rec && inTargetStates(rec.state)) rows.push(rec);
   }
   return rows;
 }
@@ -146,6 +185,16 @@ async function fetchToyota() {
     'new-york/binghamton',
     'new-york/yonkers',
     'new-york/white-plains',
+    'florida/jacksonville',
+    'florida/tallahassee',
+    'florida/pensacola',
+    'florida/orlando',
+    'florida/tampa',
+    'florida/fort-myers',
+    'florida/naples',
+    'florida/west-palm-beach',
+    'florida/fort-lauderdale',
+    'florida/miami',
   ];
   const rows = [];
   const pages = [];
@@ -155,8 +204,8 @@ async function fetchToyota() {
     pages.push({ url, status: got.status, ok: got.ok });
     if (got.ok) rows.push(...parseToyotaCards(got.text, url));
   }
-  const njNy = rows.filter((r) => r.state === 'NJ' || r.state === 'NY');
-  return writeDump('toyota', njNy, {
+  const inScope = rows.filter((r) => inTargetStates(r.state));
+  return writeDump('toyota', inScope, {
     locator: 'https://www.toyota.com/dealers/directory/',
     note: 'Official Toyota dealer-hub city pages (dealer-card websites).',
     pages,
@@ -171,7 +220,7 @@ async function fetchLexus() {
   const rows = [];
   for (const d of dealers) {
     const addr = d.dealerAddress || {};
-    if (addr.state !== 'NJ' && addr.state !== 'NY') continue;
+    if (!inTargetStates(addr.state)) continue;
     rows.push(row({
       make: 'Lexus',
       name: d.dealerName,
@@ -193,7 +242,7 @@ async function fetchLexus() {
 }
 
 async function fetchMercedes() {
-  const zips = NJ_NY_ZIPS;
+  const zips = TARGET_ZIPS;
   const rows = [];
   const pages = [];
   for (const zip of zips) {
@@ -202,7 +251,7 @@ async function fetchMercedes() {
     pages.push({ zip, status: got.status, ok: got.ok });
     for (const d of got.json?.dealers || []) {
       const addr = (d.address || [])[0] || {};
-      if (addr.state !== 'NJ' && addr.state !== 'NY') continue;
+      if (!inTargetStates(addr.state)) continue;
       rows.push(row({
         make: 'Mercedes-Benz',
         name: d.name,
@@ -241,7 +290,7 @@ function parseMitsubishi(html, sourceUrl) {
   }
   for (const d of dealers.values()) {
     const state = String(d.state || '').toUpperCase();
-    if (state !== 'NJ' && state !== 'NY') continue;
+    if (!inTargetStates(state)) continue;
     const name = d.name || '';
     if (/parts depot|parts only/i.test(name)) continue;
     if (!/mitsubishi/i.test(name) && /subaru|toyota|honda|nissan/i.test(name)) continue;
@@ -311,7 +360,7 @@ async function fetchBmw() {
 // only newVehicleSales is an authorized new-car rooftop, so that's the
 // only one read here.
 async function fetchMini() {
-  const zips = NJ_NY_ZIPS;
+  const zips = TARGET_ZIPS;
   const rows = [];
   const pages = [];
   for (const zip of zips) {
@@ -323,7 +372,7 @@ async function fetchMini() {
       for (const d of obj.newVehicleSales || []) {
         const addr = (d.address || [])[0] || {};
         const state = String(addr.state || '').toUpperCase();
-        if (state !== 'NJ' && state !== 'NY') continue;
+        if (!inTargetStates(state)) continue;
         // MINI's own feed has at least one confirmed typo (dealerURL
         // "www.mininyc" missing its .com — the paired SATELLITE record for
         // the same rooftop has the correct "www.mininyc.com"). A host with
@@ -376,7 +425,7 @@ function parseKiaDealerAnchors(anchors, sourceUrl) {
     const m = tail.match(/^(.*?),\s*([A-Z]{2})\s+(\d{5})?/);
     if (!m) continue;
     const state = m[2];
-    if (state !== 'NJ' && state !== 'NY') continue;
+    if (!inTargetStates(state)) continue;
     rows.push(row({
       make: 'Kia',
       name: a.text,
@@ -390,7 +439,7 @@ function parseKiaDealerAnchors(anchors, sourceUrl) {
 }
 
 async function fetchKia() {
-  const zips = NJ_NY_ZIPS;
+  const zips = TARGET_ZIPS;
   const rows = [];
   const pages = [];
   let browser = null;
@@ -463,7 +512,7 @@ async function fetchInfiniti() {
 // /services/dealers/services, which only returns the dealer-*type* filter
 // list used by the UI's checkboxes, not actual dealers.)
 async function fetchSubaru() {
-  const zips = NJ_NY_ZIPS;
+  const zips = TARGET_ZIPS;
   const rows = [];
   const pages = [];
   for (const zip of zips) {
@@ -475,7 +524,7 @@ async function fetchSubaru() {
       if (!d) continue;
       const addr = d.address || {};
       const state = String(addr.state || '').toUpperCase();
-      if (state !== 'NJ' && state !== 'NY') continue;
+      if (!inTargetStates(state)) continue;
       rows.push(row({
         make: 'Subaru',
         name: d.name,
@@ -500,7 +549,7 @@ async function fetchMazda() {
   // Official ajax handler behind the (correct) /find-a-dealer page, found via
   // network capture: a plain zip+radius GET, no browser needed, 200 with the
   // honest TrimScout-locator UA — not bot-protected, just undiscovered.
-  const zips = NJ_NY_ZIPS;
+  const zips = TARGET_ZIPS;
   const rows = [];
   const pages = [];
   for (const zip of zips) {
@@ -509,7 +558,7 @@ async function fetchMazda() {
     pages.push({ zip, status: got.status, ok: got.ok });
     for (const d of got.json?.body?.results || []) {
       const state = String(d.state || '').toUpperCase();
-      if (state !== 'NJ' && state !== 'NY') continue;
+      if (!inTargetStates(state)) continue;
       rows.push(row({
         make: 'Mazda',
         name: d.name,
@@ -559,7 +608,7 @@ async function fetchVolkswagen() {
   for (const d of got.json?.dealers || []) {
     const addr = d.address || {};
     const state = String(addr.province || '').toUpperCase();
-    if (state !== 'NJ' && state !== 'NY') continue;
+    if (!inTargetStates(state)) continue;
     // The feature-app API mixes VW-authorized collision/body shops into the
     // same "dealers" list — rawServices: ["COLLISION_CENTER"] with nothing
     // else is the clean, data-driven signal for those (every real sales
@@ -580,7 +629,7 @@ async function fetchVolkswagen() {
   }
   return writeDump('volkswagen', rows, {
     locator: 'https://www.vw.com/en/dealer-search.html',
-    note: 'Official VW bff-search/dealers feature-app API (nationwide, filtered client-side to NJ/NY).',
+    note: `Official VW bff-search/dealers feature-app API (nationwide, filtered client-side to ${TARGET_STATES.join('/')}).`,
     httpStatus: got.status,
     blocked: got.status === 403,
     nationwideCount,
@@ -611,7 +660,7 @@ async function copyInRepo(brand, file, make) {
   const rows = [];
   for (const raw of Array.isArray(parsed) ? parsed : []) {
     const state = String(raw.state || '').toUpperCase();
-    if (state !== 'NJ' && state !== 'NY') continue;
+    if (!inTargetStates(state)) continue;
     rows.push(row({
       make: make || raw.make,
       name: raw.name,
@@ -660,5 +709,5 @@ await fs.writeFile(path.join(OUT_DIR, '_status.json'), `${JSON.stringify({
 }, null, 2)}\n`);
 
 for (const s of status) {
-  console.log(`${s.brand}: ${s.count} NJ+NY rows  ${s.blocked ? 'BLOCKED' : 'ok'}  ${s.note}`);
+  console.log(`${s.brand}: ${s.count} ${TARGET_STATES.join('+')} rows  ${s.blocked ? 'BLOCKED' : 'ok'}  ${s.note}`);
 }

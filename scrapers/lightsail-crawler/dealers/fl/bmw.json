@@ -1,0 +1,16 @@
+[
+  {
+    "id": "bmw-fields-bmw-winter-park",
+    "name": "Fields BMW Winter Park",
+    "city": "Winter Park",
+    "state": "FL",
+    "make": "BMW",
+    "domain": "fieldsbmworlando.com",
+    "sitemapUrl": "https://www.fieldsbmworlando.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.fieldsbmworlando.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://fieldsbmworlando.com/",
+    "lat": null,
+    "lng": null,
+    "domainSource": "listing-verified"
+  }
+]
