@@ -14,12 +14,15 @@ import { listDealerships, bulkUpsertDealerships } from "../../lib/dealershipsApi
 const rows = JSON.parse(fs.readFileSync(`scrapers/dealer-rosters/${FOLDER}/upload_rows.json`, "utf8")) as Array<Record<string, unknown> & { dealerName: string; contactName: string; contactEmail: string; notes: string }>;
 const live = await listDealerships();
 const byName = new Map(live.map((d) => [d.dealerName.trim().toLowerCase(), d]));
+// The bulk endpoint replaces the whole row, so an already-live rooftop (a combined Chevy/GMC/Cadillac store,
+// or one another brand's crawl already filed) keeps its notes — both brands' provenance stays on the row.
+const mergeNotes = (live: string | null | undefined, ours: string) => (live && !live.includes(ours) ? `${live} | ${ours}` : ours);
 const payload = rows.map((r) => {
   const l = byName.get(r.dealerName.trim().toLowerCase());
   if (l && !r.contactEmail && (l.contactName || l.contactEmail)) {
-    return { ...r, contactName: l.contactName || r.contactName, contactEmail: l.contactEmail || null, notes: `${l.notes || ""} | ${r.notes}`.replace(/^ \| /, "") };
+    return { ...r, contactName: l.contactName || r.contactName, contactEmail: l.contactEmail || null, notes: mergeNotes(l.notes, r.notes) };
   }
-  return { ...r, contactEmail: r.contactEmail || null };
+  return { ...r, contactEmail: r.contactEmail || null, notes: l ? mergeNotes(l.notes, r.notes) : r.notes };
 });
 const before = live.filter((d) => new RegExp(BRAND, "i").test(d.dealerName) || new RegExp(`Brand: ${BRAND}`, "i").test(d.notes || ""));
 console.log("before:", before.length, BRAND + " rows,", before.filter((d) => d.contactEmail).length, "with email");

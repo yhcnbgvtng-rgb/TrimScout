@@ -1,0 +1,4522 @@
+[
+ {
+  "dealer_name": "SWICKARD CADILLAC OF ANCHORAGE",
+  "status": "fetched",
+  "source_url": "https://www.cadillacanchorage.com/staff",
+  "contact_name": "James King",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ALLEN TURNER CHEVROLET CADILLAC OF AUBURN",
+  "status": "fetched",
+  "source_url": "https://www.allenturnercadillacofauburn.com/about-us/staff/",
+  "contact_name": "Frankie Elliston",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BARKLEY CADILLAC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BENTLEY CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.bentleycadillac.com/staff",
+  "contact_name": "Matt Sanders",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CADILLAC OF BIRMINGHAM LLC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "DEVAN LOWE CADILLAC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "JOE BULLARD CADILLAC, LLC",
+  "status": "fetched",
+  "source_url": "https://www.joebullardcadillac.com/about-us/staff/",
+  "contact_name": "Jennifer Clark",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "LYNN LAYTON CADILLAC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MULLINAX CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.mullinaxcadillac.com/about-us/staff/",
+  "contact_name": "Esteban Ramirez",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CADILLAC OF BENTONVILLE",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CENTRAL CADILLAC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "GREGG ORR CADILLAC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ORR CADILLAC OF FORT SMITH",
+  "status": "fetched",
+  "source_url": "https://www.orrcadillacfs.com/staff",
+  "contact_name": "ERIC KEDDIE",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "PARKER CADILLAC, INC.",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ARROWHEAD CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.arrowheadcadillac.com/dealership/staff.htm",
+  "contact_name": "MICHAEL MEEWES",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CASA CADILLAC OF PRESCOTT",
+  "status": "fetched",
+  "source_url": "https://www.casacadillacofprescott.com/staff",
+  "contact_name": "Omar Sanchez",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "COULTER CADILLAC PHOENIX",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "COULTER CADILLAC TEMPE",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "EARNHARDT CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.earnhardtcadillac.com/staff",
+  "contact_name": "ANTHONY HERRMAN",
+  "contact_title": "Sales Consultant",
+  "contact_email": "anthony.herrmann@earnhardt.com"
+ },
+ {
+  "dealer_name": "EARNHARDT CHANDLER CADILLAC, INC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HORNE AUTO CENTER, INC.",
+  "status": "fetched",
+  "source_url": "https://www.horneauto.com/staff",
+  "contact_name": "Chris Federico",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ROYAL CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.cadillacoftucson.com/staff",
+  "contact_name": "Krysta Valerio",
+  "contact_title": "Sales Manager",
+  "contact_email": "kvalerio@royaltucson.com"
+ },
+ {
+  "dealer_name": "ALEXANDER CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.alexander-cadillac.com/staff",
+  "contact_name": "Katie Kemp",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ALFRED MATTHEWS CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.alfredmatthewscadillac.com/staff",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "AV CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.avcadillac.com/about-us/staff/",
+  "contact_name": "Alex Shaw",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BLACKSTONE CADILLAC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BOULEVARD CADILLAC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CADILLAC MARIN",
+  "status": "fetched",
+  "source_url": "https://www.cadillacmarin.com/about-us/staff/",
+  "contact_name": "Victor Diaz",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CADILLAC OF BEVERLY HILLS",
+  "status": "fetched",
+  "source_url": "https://www.cadillacbeverlyhills.com/about-us/staff/",
+  "contact_name": "Fay Imanabadi",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CADILLAC OF CALABASAS",
+  "status": "fetched",
+  "source_url": "https://www.cadillacofcalabasas.com/about-us/staff/",
+  "contact_name": "Rick Bilgrien",
+  "contact_title": "Executive Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CADILLAC OF CHICO",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CADILLAC OF LAGUNA NIGUEL",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CADILLAC OF SOUTH SAN FRANCISCO",
+  "status": "fetched",
+  "source_url": "https://www.cadillacsouthsanfrancisco.com/staff",
+  "contact_name": "Mustafa Oweida",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CADILLAC OF THOUSAND OAKS",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CADILLAC PASADENA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CASA DE CADILLAC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "COSTA MESA CADILLAC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CRESTVIEW CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.crestview-cadillac.com/staff",
+  "contact_name": "Ted Hwang",
+  "contact_title": "General Manager",
+  "contact_email": "t.hwang@crestview-cadillac.com"
+ },
+ {
+  "dealer_name": "DUBLIN CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.dublincadillac.com/staff",
+  "contact_name": "Admir Besic",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "DUTTON MOTOR COMPANY",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "EPIC CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.epiccadillac.com/staff",
+  "contact_name": "Joe Mesa",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "FREMONT CADILLAC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "GIANT CHEVROLET OF VISALIA",
+  "status": "fetched",
+  "source_url": "https://www.giantcadillacofvisalia.com/dealership/staff.htm",
+  "contact_name": "Joe Sanchez",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "GILROY CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.gilroycadillac.com/about-us/staff/",
+  "contact_name": "Scott Jobe",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HOME MOTORS",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "JESSUP CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.jessupcadillac.com/staff",
+  "contact_name": "Dan Jessup",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "KELLER MOTORS",
+  "status": "fetched",
+  "source_url": "https://www.kellercadillac.com/staff",
+  "contact_name": "E.J. Muir",
+  "contact_title": "General Sales Manager",
+  "contact_email": "emuir@kellerdeal.net"
+ },
+ {
+  "dealer_name": "LA QUINTA CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.laquintacadillac.com/dealership/staff.htm",
+  "contact_name": "PHIL ISBELL",
+  "contact_title": "Dealer Principal",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MAGIC CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.magiccadillac.com/about-us/staff/",
+  "contact_name": "John Aranda",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MARK CHRISTOPHER AUTO CENTER",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MARVIN K. BROWN CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.mkbcadillac.com/about-us/staff/",
+  "contact_name": "Eddie Lopez",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MATAGA OF STOCKTON",
+  "status": "fetched",
+  "source_url": "https://www.matagacadillac.com/staff",
+  "contact_name": "Bob Bronken",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "NORTH COUNTY CADILLAC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "PARADISE CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.paradisecadillac.com/staff",
+  "contact_name": "JIMMY VARGAS",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "PENSKE CADILLAC OF SOUTH BAY",
+  "status": "fetched",
+  "source_url": "https://www.penskecadillac.com/staff",
+  "contact_name": "Amiri Executive",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "PREMIER CADILLAC OF CARLSBAD",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "PUTNAM CADILLAC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "RELIABLE CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.reliable-cadillac.com/staff",
+  "contact_name": "Insurance Ryan",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SEASIDE CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.seasidecadillac.com/staff",
+  "contact_name": "Ken Brizendine",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SIMPSON CADILLAC OF BUENA PARK",
+  "status": "fetched",
+  "source_url": "https://www.simpsoncadillacbuenapark.com/dealership/staff.htm",
+  "contact_name": "Riyaz Mansuri",
+  "contact_title": "General Sales Manager",
+  "contact_email": "rmansuri@SimpsonGM.com"
+ },
+ {
+  "dealer_name": "STEVENS CREEK CADILLAC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "TAYLOR MOTORS, INC.",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "TEAM CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.vallejocadillac.com/about-us/staff/",
+  "contact_name": "Sly Garcia",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "THREE-WAY CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.threewaycadillac.com/staff",
+  "contact_name": "Jay Batikh",
+  "contact_title": "General Sales Manager",
+  "contact_email": "jbatikh@3waychev.com"
+ },
+ {
+  "dealer_name": "TUSTIN CADILLAC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "VICTORVILLE CADILLAC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "VICTORY CADILLAC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "WALNUT CREEK CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.walnutcreekcadillac.com/staff/",
+  "contact_name": "Melissa Arbil",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "WATSONVILLE CADILLAC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "WHEELER CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.wheelerchevycadillac.com/staff",
+  "contact_name": "Sergio Robles",
+  "contact_title": "Sales Manager",
+  "contact_email": "srobles@wheelerautocenter.com"
+ },
+ {
+  "dealer_name": "WOODLAND CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.woodlandcadillac.com/about-us/staff/",
+  "contact_name": "KYLE P.",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "DELLENBACH MOTORS",
+  "status": "fetched",
+  "source_url": "https://www.dellenbachcadillac.com/staff",
+  "contact_name": "Dellenbach Cadillac",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "FOUNDATION CHEVROLET",
+  "status": "fetched",
+  "source_url": "https://www.foundationcadillac.com/about-us/staff/",
+  "contact_name": "Samuel Mittan",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "GHENT CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.ghentcadillac.com/staff",
+  "contact_name": "Erick Ghent",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "JOHN ELWAY CADILLAC OF PARK MEADOWS",
+  "status": "fetched",
+  "source_url": "https://www.johnelwaycadillac.com/about-us/staff/",
+  "contact_name": "Gavin Pierce",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MIKE MAROONE CADILLAC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "RED NOLAND CADILLAC, INC.",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "RICKENBAUGH CADILLAC COMPANY",
+  "status": "fetched",
+  "source_url": "https://www.rickenbaughcadillac.com/about-us/staff/",
+  "contact_name": "Brian Combe",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BLASIUS CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.blasiuscadillac.com/about-us/staff/",
+  "contact_name": "STEVEN MORLEY",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CADILLAC OF GREENWICH",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "COLONIAL CADILLAC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "D'ADDARIO CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.daddariocadillac.com/staff",
+  "contact_name": "Kestenbaum GM",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "INGERSOLL AUTO OF DANBURY",
+  "status": "fetched",
+  "source_url": "https://www.ingersollcadillacofdanbury.com/staff",
+  "contact_name": "Jim LeBlanc",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "NORTHWEST HILLS CADILLAC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SCRANTON CADILLAC OF VERNON",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "STEPHEN CADILLAC GMC, INC.",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "VALENTI CADILLAC, LLC",
+  "status": "fetched",
+  "source_url": "https://www.valenticadillac.com/staff",
+  "contact_name": "Jack Bradshaw",
+  "contact_title": "General Manager",
+  "contact_email": "jbradshaw@valenticadillac.com"
+ },
+ {
+  "dealer_name": "DELAWARE CADILLAC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ALAN JAY CADILLAC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "AUTONATION CADILLAC WEST PALM BEACH",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BILL CRAMER CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.billcramercadillac.com/about-us/staff/",
+  "contact_name": "Kody Clemmons",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BOMNIN CADILLAC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BRAMAN CADILLAC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CADILLAC LAKELAND",
+  "status": "fetched",
+  "source_url": "https://www.cadillaclakeland.com/about-us/staff/",
+  "contact_name": "Glen McGuire",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CARROLL CADILLAC OF NORTH ORLANDO",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "COAST CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.coastcadillac.com/staff",
+  "contact_name": "CHRISTIAN WEST",
+  "contact_title": "General Sales Manager",
+  "contact_email": "cwest@coastbgc.com"
+ },
+ {
+  "dealer_name": "DALE EARNHARDT JR. CADILLAC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "DEVOE CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.devoecadillac.com/staff",
+  "contact_name": "Rich DeVoe",
+  "contact_title": "General Manager",
+  "contact_email": "Rich@devoeauto.com"
+ },
+ {
+  "dealer_name": "DIMMITT CADILLAC OF CLEARWATER",
+  "status": "fetched",
+  "source_url": "https://www.dimmittcadillac.com/staff",
+  "contact_name": "Hristo Lachin",
+  "contact_title": "General Sales Manager",
+  "contact_email": "hlachin@dimmitt.com"
+ },
+ {
+  "dealer_name": "DIMMITT CADILLAC OF ST. PETERSBURG",
+  "status": "fetched",
+  "source_url": "https://www.dimmittcadillacstpete.com/staff",
+  "contact_name": "Jeff Litton",
+  "contact_title": "General Sales Manager",
+  "contact_email": "jlitton@dimmitt.com"
+ },
+ {
+  "dealer_name": "ED MORSE BAYVIEW CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.bayviewcadillac.com/staff",
+  "contact_name": "Tony Giordano",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ED MORSE CADILLAC BRANDON",
+  "status": "fetched",
+  "source_url": "https://www.edmorsecadillacbrandon.com/staff",
+  "contact_name": "Brandon Faiella",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ED MORSE CADILLAC DELRAY",
+  "status": "fetched",
+  "source_url": "https://www.edmorsecadillacdelray.com/staff",
+  "contact_name": "Billy Haworth",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ED MORSE CADILLAC TAMPA",
+  "status": "fetched",
+  "source_url": "https://www.edmorsecadillactampa.com/staff",
+  "contact_name": "Jim Gedra",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ED MORSE SAWGRASS AUTO MALL",
+  "status": "fetched",
+  "source_url": "https://www.edmorsesawgrasscadillac.com/staff",
+  "contact_name": "Jordan Schear",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "FIELDS CADILLAC JACKSONVILLE",
+  "status": "fetched",
+  "source_url": "https://www.fieldscadillacjacksonville.com/dealership/staff.htm",
+  "contact_name": "Bryan Andrews",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "FIELDS CADILLAC ST. AUGUSTINE",
+  "status": "fetched",
+  "source_url": "https://www.fieldscadillacstaugustine.com/dealership/staff.htm",
+  "contact_name": "Steve Vargas",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HUSTON CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.hustoncadillac.com/staff",
+  "contact_name": "Sean Monahan",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "KEY WEST CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.keywestcadillac.com/about-us/staff/",
+  "contact_name": "Stephen Bender",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "LINUS CADILLAC OF VERO BEACH",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MASSEY CADILLAC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MASSEY CADILLAC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MIKE ERDMAN CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.mikeerdmancadillac.com/about-us/staff/",
+  "contact_name": "Greg Kyzer",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "OCEAN CADILLAC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "PLAZA CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.plazacadillac.com/staff.aspx",
+  "contact_name": "Tony Pagano",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "RANDY MARION CADILLAC OF JACKSONVILLE, LLC",
+  "status": "fetched",
+  "source_url": "https://www.randymarioncadillacofjacksonville.com/staff",
+  "contact_name": "SHAWN SPENCER",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "RITCHEY CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.ritcheycadillac.com/staff",
+  "contact_name": "Brett Serbousek",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SHEEHAN CADILLAC, LLC",
+  "status": "fetched",
+  "source_url": "https://www.sheehancadillac.com/staff",
+  "contact_name": "Mark Gerke",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "STEP ONE CADILLAC FORT WALTON BEACH",
+  "status": "fetched",
+  "source_url": "https://www.cadillacfortwaltonbeach.com/meet-the-team/",
+  "contact_name": "Josh Jones",
+  "contact_title": "General Manager",
+  "contact_email": "jsjones@steponeauto.com"
+ },
+ {
+  "dealer_name": "STEP ONE CADILLAC PENSACOLA",
+  "status": "fetched",
+  "source_url": "https://www.cadillacpensacola.com/meet-the-team/",
+  "contact_name": "Steve Massey",
+  "contact_title": "General Manager",
+  "contact_email": "smassey@steponeauto.com"
+ },
+ {
+  "dealer_name": "SULLIVAN CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.sullivancadillac.com/about-us/staff/",
+  "contact_name": "Jared Reynolds",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SUNSET CADILLAC OF BRADENTON",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SUNSET CADILLAC OF SARASOTA",
+  "status": "fetched",
+  "source_url": "https://www.sunsetcadillacsarasota.com/dealership/staff.htm",
+  "contact_name": "Craig McGregor",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SUNSET CADILLAC OF VENICE",
+  "status": "fetched",
+  "source_url": "https://www.sunsetcadillacvenice.com/dealership/staff.htm",
+  "contact_name": "Charles Kyle",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "TASCA CADILLAC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "VAL WARD CADILLAC, INC.",
+  "status": "fetched",
+  "source_url": "https://www.valwardautos.com/staff",
+  "contact_name": "Pete Weidner",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "VERA CADILLAC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "VILLAGE CADILLAC OF HOMOSASSA",
+  "status": "fetched",
+  "source_url": "https://www.villagecadillac.com/staff",
+  "contact_name": "Pam Mills",
+  "contact_title": "General Sales Manager",
+  "contact_email": "pmills@dimmitt.com"
+ },
+ {
+  "dealer_name": "WALLACE CADILLAC, LLC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "WILLIAMSON CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.williamsoncadillac.com/staff",
+  "contact_name": "Beny Ledesma",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CAPITAL CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.capitalcadillac.com/staff",
+  "contact_name": "Chris Biro",
+  "contact_title": "General Sales Manager",
+  "contact_email": "chris.biro@capitalcadillac.com"
+ },
+ {
+  "dealer_name": "CLASSIC CADILLAC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "FIVE STAR CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.fivestarcadillac.com/about-us/staff/",
+  "contact_name": "Andrew Manning",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HAYES CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.hayescadillac.com/dealership/staff.htm",
+  "contact_name": "Adam Ramey",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HENNESSY CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.hennessycadillac.com/dealership/staff.htm",
+  "contact_name": "Carl Morrison",
+  "contact_title": "Sales Associate",
+  "contact_email": "Cmorrison@hennessycadillac.com"
+ },
+ {
+  "dealer_name": "HERITAGE CADILLAC, INC.",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HEYWARD ALLEN MOTOR COMPANY, INC.",
+  "status": "fetched",
+  "source_url": "https://www.heywardallencadillac.com/about-us/staff/",
+  "contact_name": "David Dobrotka",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HUTCHINSON CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.hutchinsoncadillac.com/about-us/staff/",
+  "contact_name": "GREGORY CLARK",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "JIM ELLIS CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.jimelliscadillac.com/about-us/staff/",
+  "contact_name": "Patrick Bernard",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "JIM HUDSON CADILLAC OF AUGUSTA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "JIM SHORKEY CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.jimshorkeycadillac.com/staff",
+  "contact_name": "James Duran",
+  "contact_title": "General Sales Manager",
+  "contact_email": "jamesduran@jimshorkey.com"
+ },
+ {
+  "dealer_name": "JOHN THORNTON CADILLAC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SONS CHEVROLET",
+  "status": "fetched",
+  "source_url": "https://www.sonscadillac.com/about-us/staff/",
+  "contact_name": "John Capps",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SOUTHTOWNE CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.southtownecadillac.com/about-us/staff/",
+  "contact_name": "MARK LENTZ",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SPENCE CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.spencecadillac.com/staff",
+  "contact_name": "Philip Park",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "VADEN CADILLAC BRUNSWICK",
+  "status": "fetched",
+  "source_url": "https://www.vadencadillacbrunswick.com/staff",
+  "contact_name": "Miguel Zepeda",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "VADEN CADILLAC SAVANNAH",
+  "status": "fetched",
+  "source_url": "https://www.vadencadillac.com/staff",
+  "contact_name": "David Jung",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "WALKER-JONES CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.walkerjonescadillac.com/staff",
+  "contact_name": "Barry Hallowell",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "WELBORN CADILLAC OF CARTERSVILLE",
+  "status": "fetched",
+  "source_url": "https://www.welborncadillacofcartersville.com/about-us/staff/",
+  "contact_name": "Nick Cornejo",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HONOLULU CADILLAC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "JIM FALK MOTORS OF MAUI",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "COMMUNITY MOTOR CO., INC.",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "EDWARDS CHEVROLET BUICK GMC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "GREGG YOUNG CADILLAC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MCGRATH CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.mcgrathcadillac.com/dealership/staff.htm",
+  "contact_name": "GAVIN MCGRATH",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "RICHARDSON CADILLAC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "VAUGHN CADILLAC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "WILLIS CADILLAC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "GEORGE GEE CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.georgegeecadillac.com/about-us/staff/",
+  "contact_name": "Rob Billick",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "KENDALL CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.kendallcadillacnampa.com/about-us/staff/",
+  "contact_name": "Norm Puga",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "PETERSON CADILLAC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "TAYLOR CHEVROLET",
+  "status": "fetched",
+  "source_url": "https://www.cadillacofrexburg.com/staff",
+  "contact_name": "David Taylor",
+  "contact_title": "Dealer Principal",
+  "contact_email": "david@taylorchev.com"
+ },
+ {
+  "dealer_name": "WACKERLI AUTO CENTER",
+  "status": "fetched",
+  "source_url": "https://www.wackerlicadillac.com/staff",
+  "contact_name": "Chris C. Niebuhr",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ADVANTAGE CADILLAC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ARNIE BAUER CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.arniebauercadillac.com/staff",
+  "contact_name": "Bret Pechtold",
+  "contact_title": "General Sales Manager",
+  "contact_email": "bret@arniebauer.com"
+ },
+ {
+  "dealer_name": "BARKER MOTOR COMPANY",
+  "status": "fetched",
+  "source_url": "https://www.barkercadillac.com/about-us/staff/",
+  "contact_name": "Meads Yount",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CADILLAC OF MARION",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CADILLAC OF NAPERVILLE, INC.",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CASTLE CHEVROLET OF MCHENRY",
+  "status": "fetched",
+  "source_url": "https://www.castlecadillacmchenry.com/cadillac-dealership-mchenry-il/staff/",
+  "contact_name": "Cadillac Jerry",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "DEKALB SYCAMORE CADILLAC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "DIEPHOLZ CADILLAC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HAWK CADILLAC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HERITAGE CADILLAC, INC.",
+  "status": "fetched",
+  "source_url": "https://www.heritagecadillac.com/dealership/staff.htm",
+  "contact_name": "CODY BAKR",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "KEN NELSON AUTO PLAZA, INC.",
+  "status": "fetched",
+  "source_url": "https://www.kennelsoncadillac.com/about-us/staff/",
+  "contact_name": "Chad Canderman",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "LANDMARK CADILLAC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MCLAUGHLIN MOTORS, INC.",
+  "status": "fetched",
+  "source_url": "https://www.mclaughlincadillac.net/staff",
+  "contact_name": "Dave Calvert",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MOTOR WERKS CADILLAC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "NAPLETON CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.napletoncadillacoaklawn.com/about-us/staff/",
+  "contact_name": "Scott Mudrak",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "NAPLETON CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.napletoncadillacrockford.com/about-us/staff/",
+  "contact_name": "Scott Nicoll",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "NAPLETON CADILLAC OF LIBERTYVILLE",
+  "status": "fetched",
+  "source_url": "https://www.napletoncadillaclibertyville.com/about-us/staff/",
+  "contact_name": "Keith Herrera",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "NAPLETON CADILLAC OF NORTHBROOK",
+  "status": "fetched",
+  "source_url": "https://www.napletoncadillacnorthbrook.com/about-us/staff/",
+  "contact_name": "Erik Bowman",
+  "contact_title": "Sales Consultant",
+  "contact_email": "ebowman@shopnapleton.com"
+ },
+ {
+  "dealer_name": "NAPLETON'S RIVER OAKS CADILLAC, INC.",
+  "status": "fetched",
+  "source_url": "https://www.napletonriveroakscadillac.com/about-us/staff/",
+  "contact_name": "Bill Havican",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "PATRICK CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.patrickcadillac.com/about-us/staff/",
+  "contact_name": "Justin Rupp",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "QUALITY BUICK GMC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "RAY DENNISON CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.raydennisoncadillac.com/about-us/staff/",
+  "contact_name": "Kerry Roos",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "RIZZA CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.rizzacadillac.com/about-us/staff/",
+  "contact_name": "Jim Allegretti",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "RUSS BRAUNECKER CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.russbrauneckerautogroup.com/staff",
+  "contact_name": "Matt Braunecker",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SAM LEMAN CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.champaigncadillac.com/about-us/staff/",
+  "contact_name": "Andrew Taylor",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "UFTRING MONTGOMERY CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.uftringmontgomerycadillac.com/about-us/staff/",
+  "contact_name": "service. AJ Blunier",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ZEIGLER CADILLAC OF LINCOLNWOOD",
+  "status": "fetched",
+  "source_url": "https://www.zeiglergmcadillac.com/about-us/staff/",
+  "contact_name": "Nate Hackett",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ALL AMERICAN CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.munciecadillac.com/staff",
+  "contact_name": "JOE FOLCK",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ED MARTIN CADILLAC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "FUSON CADILLAC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "GURLEY-LEEP BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.gurleyleepcadillac.com/about-us/staff/",
+  "contact_name": "Rocky Faragoi",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "H. E. MCGONIGAL, INC.",
+  "status": "fetched",
+  "source_url": "https://www.mcgonigalcadillac.com/dealership/staff.htm",
+  "contact_name": "TRAVIS SHEDRON",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "JOHN JONES CADILLAC OF SALEM",
+  "status": "fetched",
+  "source_url": "https://www.johnjonessalem.com/about-us/staff/",
+  "contact_name": "Scott Geltmaker",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "LAFAYETTE CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.lafayettecadillacin.com/about-us/staff/",
+  "contact_name": "Derek Hickman",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "LOCKHART CADILLAC GREENWOOD",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "LOCKHART CADILLAC INC.",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ROMAIN CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.romaincadillac.com/staff",
+  "contact_name": "Enrique Lopez",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SCHEPEL CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.schepelcadillac.com/staff",
+  "contact_name": "RYAN VANPROOYEN",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "TOM KELLEY CADILLAC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "TOM NAQUIN CHEVROLET-NISSAN-CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.tomnaquincadillac.com/staff",
+  "contact_name": "GREG FINK",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "UEBELHOR AND SONS CADILLAC JASPER",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "UEBELHOR AND SONS CADILLAC VINCENNES",
+  "status": "fetched",
+  "source_url": "https://www.uebelhorcadillacvincennes.com/dealership/staff.htm",
+  "contact_name": "PAUL CARY",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CABLE DAHMER OF TOPEKA",
+  "status": "fetched",
+  "source_url": "https://www.cabledahmercadillactopeka.com/staff",
+  "contact_name": "CODY VONDRA",
+  "contact_title": "General Sales Manager",
+  "contact_email": "cvondra@cabledahmer.com"
+ },
+ {
+  "dealer_name": "EDDY'S CADILLAC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "COURTESY CADILLAC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "DON FRANKLIN GLASGOW CHEVROLET",
+  "status": "fetched",
+  "source_url": "https://www.donfranklinglasgow.com/about-us/staff/",
+  "contact_name": "Chris Franklin",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "JOSEPH CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.josephcadillac.com/staff",
+  "contact_name": "Andrew Held",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "LEACHMAN CADILLAC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "QUANTRELL CADILLAC, INC.",
+  "status": "fetched",
+  "source_url": "https://www.quantrellcadillac.com/about-us/staff/",
+  "contact_name": "Brentley Jones",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CADILLAC OF NEW ORLEANS",
+  "status": "fetched",
+  "source_url": "https://www.neworleanscadillac.com/staff",
+  "contact_name": "Roberto Rocha",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CAJUN CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.cajun-cadillac.com/dealership/staff.htm",
+  "contact_name": "Dealer and",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "COURTESY CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.broussardcadillac.com/staff",
+  "contact_name": "Blake Chachere",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "GERRY LANE CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.gerrylanecadillac.com/staff",
+  "contact_name": "Office CJ Patton",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "NAVARRE CADILLAC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ORR CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.orrcadillacofshreveport.com/dealership/staff.htm",
+  "contact_name": "Jamie Eguia",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ROSS DOWNING CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.rossdowningcadillac.com/staff",
+  "contact_name": "Jay Stricker",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SERVICE CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.cadillacatservice.com/dealership/staff.htm",
+  "contact_name": "Royce Laseter",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "TRAPP CADILLAC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BILL DELUCA CADILLAC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CADILLAC OF NORWOOD",
+  "status": "fetched",
+  "source_url": "https://www.cadillacnorwood.com/staff",
+  "contact_name": "Alex Gomes",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "COLONIAL CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.colonialcadillacwoburn.com/staff",
+  "contact_name": "Steve Jensen",
+  "contact_title": "Sales Consultant",
+  "contact_email": "sjensen@buycolonialcadillac.com"
+ },
+ {
+  "dealer_name": "DIAMOND CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.choosediamondcadillac.com/dealership/staff.htm",
+  "contact_name": "JON MASSAD",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "DURAND CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.durandcadillac.com/staff.aspx",
+  "contact_name": "Tom Mara",
+  "contact_title": "Sales Manager",
+  "contact_email": "tmara@durandauto.com"
+ },
+ {
+  "dealer_name": "HERB CHAMBERS CADILLAC OF LYNNFIELD",
+  "status": "fetched",
+  "source_url": "https://www.herbchamberscadillacoflynnfield.com/dealership/staff.htm",
+  "contact_name": "Chornovas Jr",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "LONG CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.longcadillac.com/dealership/staff.htm",
+  "contact_name": "Leo Tahajian",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MASTRIA GMC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MCGOVERN CADILLAC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SUDBAY CADILLAC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "FITZGERALD AUTO MALL",
+  "status": "fetched",
+  "source_url": "https://www.fitzgeraldcadillacannapolis.com/staff",
+  "contact_name": "Rod Ritter",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "FITZGERALD CADILLAC FREDERICK",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "FITZGERALD CADILLAC OF HAGERSTOWN",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HERTRICH CADILLAC OF SALISBURY",
+  "status": "fetched",
+  "source_url": "https://www.hertrichcadillacsalisbury.com/dealership/staff.htm",
+  "contact_name": "Eric Meisner",
+  "contact_title": "General Sales Manager",
+  "contact_email": "emeisner@hertrichs.com"
+ },
+ {
+  "dealer_name": "JIM COLEMAN CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.jimcolemancadillac.com/about-us/staff/",
+  "contact_name": "Brendan Coleman",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MILLER BROTHERS CADILLAC OF ELLICOTT CITY",
+  "status": "fetched",
+  "source_url": "https://www.millerbrotherscadillac.com/staff",
+  "contact_name": "BRAD WITMER",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SPORT CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.sportcadillac.com/staff",
+  "contact_name": "Kyle Bacon",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "WALDORF CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.waldorfcadillac.com/staff",
+  "contact_name": "Brandon Turner",
+  "contact_title": "General Manager",
+  "contact_email": "bturner@waldorfcadillac.com"
+ },
+ {
+  "dealer_name": "BILL DODGE CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.billdodgecadillac.com/staff",
+  "contact_name": "Patrick Sullivan",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "QUIRK CADILLAC OF BANGOR",
+  "status": "fetched",
+  "source_url": "https://www.quirkcadillac.com/staff/",
+  "contact_name": "JOE QUIRK",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "AL SERRA CADILLAC",
+  "status": "fetched",
+  "source_url": "https://alserracadillac.adviserly.com/list",
+  "contact_name": "Burge Cadillac",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ALLEN CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.allencadillacmonroe.com/staff",
+  "contact_name": "Nolan Kinchsular",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BELL CADILLAC, INC.",
+  "status": "fetched",
+  "source_url": "https://www.bellcadillacofadrian.com/dealership/staff.htm",
+  "contact_name": "Hank Soto",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BETTEN CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.bettencadillac.com/about-us/staff/",
+  "contact_name": "HALL Cadillac",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CADILLAC OF NOVI",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "COLE CADILLAC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CRESTVIEW CADILLAC, INC.",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CROWN MOTORS, LTD.",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "GENESIS CADILLAC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "GRAFF CADILLAC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HARVEY CADILLAC COMPANY",
+  "status": "fetched",
+  "source_url": "https://www.harveycadillac.com/staff",
+  "contact_name": "Eldon Grosvenor",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "JIM RIEHL'S FRIENDLY CADILLAC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "JIM WINTER AUTOMOTIVE GROUP",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "LABADIE CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.labadiecadillac.com/dealership/staff.htm",
+  "contact_name": "DEALERSHIP TJ HORNER",
+  "contact_title": "Executive Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "LAFONTAINE CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.lafontainecadillac.com/staff",
+  "contact_name": "Viktor Vulaj",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "LES STANFORD CADILLAC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MCDONALD CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.mcdonaldcadillac.com/about-us/staff/",
+  "contact_name": "Casey Hitts",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "PRESTIGE CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.prestigecadillac.com/staff",
+  "contact_name": "Michael Moore",
+  "contact_title": "New Car Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "RICHARDSON-MIDLAND, INC.",
+  "status": "fetched",
+  "source_url": "https://www.richardsoncadillac.com/about-us/staff/",
+  "contact_name": "Jason Shirely",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SERRA CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.driveserracadillac.com/staff",
+  "contact_name": "Randy Jackson",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SERRA CADILLAC OF TRAVERSE CITY",
+  "status": "fetched",
+  "source_url": "https://serracadillacoftraversecity.adviserly.com:443/",
+  "contact_name": "Guest Cadillac",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SHAHEEN CADILLAC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SUBURBAN CADILLAC OF ANN ARBOR",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SUBURBAN CADILLAC OF PLYMOUTH",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SUBURBAN CADILLAC OF TROY",
+  "status": "fetched",
+  "source_url": "https://www.suburbancadillacoftroy.com/dealership/staff.htm",
+  "contact_name": "Jason Nies",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "YOUNG CADILLAC OWOSSO",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ALEXANDRIA CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.alexandria-cadillac.com/staff",
+  "contact_name": "Ross Weigman",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "GILLELAND CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.gillelandcadillac.com/staff",
+  "contact_name": "Travis Miller",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HOUSE CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.house-cadillac.com/staff",
+  "contact_name": "Jason House",
+  "contact_title": "General Manager",
+  "contact_email": "jason.house@houseautogroupmn.com"
+ },
+ {
+  "dealer_name": "KEY CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.keycadillac.com/staff",
+  "contact_name": "Lisa Jensen",
+  "contact_title": "General Manager",
+  "contact_email": "ljensen@keycadillac.com"
+ },
+ {
+  "dealer_name": "KOLAR CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.kolarcadillac.com/staff",
+  "contact_name": "Dwayne Haapanen",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "LUTHER CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.luthercadillac.com/about-us/staff/",
+  "contact_name": "Perry Feavel",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MORRIE'S GOLDEN VALLEY CADILLAC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ROCHESTER CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.rochestermotorcarscadillac.com/staff",
+  "contact_name": "Enke Executive",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "RYAN CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.ryancadillacbuffalo.com/staff",
+  "contact_name": "PAT RYAN",
+  "contact_title": "General Sales Manager",
+  "contact_email": "pryan@ryanautomall.com"
+ },
+ {
+  "dealer_name": "SNELL INDOOR AUTO CENTER",
+  "status": "fetched",
+  "source_url": "https://www.snellcadillac.com/staff",
+  "contact_name": "Jeff Wondra",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BALDWIN CHEVROLET, CADILLAC, INC.",
+  "status": "fetched",
+  "source_url": "https://www.baldwincadillac.com/staff",
+  "contact_name": "Tim Garner",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BOB MCCOSH CHEVROLET BUICK GMC CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.bobmccoshcadillac.com/staff",
+  "contact_name": "Jeff Miller",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BOMMARITO CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.bommaritocadillac.com/staff",
+  "contact_name": "Derickson Cadillac",
+  "contact_title": "Sales Manager",
+  "contact_email": "TDERICKSON@BOMMARITO.NET"
+ },
+ {
+  "dealer_name": "CABLE DAHMER CADILLAC OF KANSAS CITY",
+  "status": "fetched",
+  "source_url": "https://www.cabledahmercadillac.com/staff",
+  "contact_name": "Terence Adams",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ELCO CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.elcocadillac.com/staff",
+  "contact_name": "Bill Pastor",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "LANDERS CADILLAC OF JOPLIN",
+  "status": "fetched",
+  "source_url": "https://www.landerscadillacjoplin.com/about-us/staff/",
+  "contact_name": "Pete Hizen",
+  "contact_title": "Sales Professional",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "RUSTY DREWING CADILLAC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SAPAUGH CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.sapaughcadillac.com/staff",
+  "contact_name": "Joe Clemens",
+  "contact_title": "General Manager",
+  "contact_email": "jclemens@sapaugh.com"
+ },
+ {
+  "dealer_name": "THOMPSON CADILLAC SPRINGFIELD",
+  "status": "fetched",
+  "source_url": "https://www.thompsonsalescadillac.com/about-us/staff/",
+  "contact_name": "Tyler Thompson",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "VAN CADILLAC OF KANSAS CITY",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CADILLAC OF JACKSON",
+  "status": "fetched",
+  "source_url": "https://www.cadillacofjacksonms.com/staff",
+  "contact_name": "Jason Brown",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CANNON MOTORS, LLC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "DOSSETT GMC CADILLAC, INC.",
+  "status": "fetched",
+  "source_url": "https://www.dossettcadillac.com/staff",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "TURAN-FOLEY MOTORS, INC.",
+  "status": "fetched",
+  "source_url": "https://www.turanfoleycadillac.com/staff",
+  "contact_name": "SEAN DOUGLASS",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CADILLAC OF BILLINGS",
+  "status": "fetched",
+  "source_url": "https://www.cadillacofbillings.com/staff",
+  "contact_name": "Kris Smith",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CORWIN MOTORS OF KALISPELL",
+  "status": "fetched",
+  "source_url": "https://www.corwincadillackalispell.com/staff",
+  "contact_name": "Dan Gerber",
+  "contact_title": "Product Specialist",
+  "contact_email": "dgerber@corwinauto.com"
+ },
+ {
+  "dealer_name": "MILDENBERGER MOTORS",
+  "status": "fetched",
+  "source_url": "https://www.mildenbergermotors.com/staff",
+  "contact_name": "BRIAN STANEK",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "RESSLER CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.resslercadillac.com/about-us/staff/",
+  "contact_name": "Calvin Penrose",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BEN MYNATT CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.benmynattcadillac.com/staff.aspx",
+  "contact_name": "Cyndie Mynatt",
+  "contact_title": "Dealer Principal",
+  "contact_email": "cmynatt@benmynatt.com"
+ },
+ {
+  "dealer_name": "BILL BLACK CADILLAC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BROWN & WOOD, INC.",
+  "status": "fetched",
+  "source_url": "https://www.brownandwoodcadillac.com/staff",
+  "contact_name": "Duke General",
+  "contact_title": "Sales Manager",
+  "contact_email": "michaelduke@brownandwoodauto.com"
+ },
+ {
+  "dealer_name": "CADILLAC OF FAYETTEVILLE",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CADILLAC OF SOUTH CHARLOTTE",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CHARLES BOYD CHEVROLET CADILLAC GMC, INC.",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CLARK CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.clarkcadillac.com/about-us_trashed/staff/",
+  "contact_name": "Ian Longfellow",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "DEACON JONES AUTOPARK, INC.",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "EVERETT CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.hickorycadillac.com/about-us/staff/",
+  "contact_name": "Kamby Lewis",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "FLOW CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.flowcadillac.com/staff",
+  "contact_name": "Green Lillard",
+  "contact_title": "New Car Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "FLOW CADILLAC OF WILMINGTON",
+  "status": "fetched",
+  "source_url": "https://www.flowcadillacwilmington.com/staff",
+  "contact_name": "Jason Wallace",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "GASTONIA CADILLAC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HENDRICK CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.hendrickcadillaccary.com/about-us/staff/",
+  "contact_name": "Kevin Green",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HENDRICK CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.hendrickcadillacmonroe.com/about-us/",
+  "contact_name": "Cadillac Monroe",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HENDRICK CADILLAC SOUTHPOINT",
+  "status": "fetched",
+  "source_url": "https://www.hendrickcadillacsouthpoint.com/about-us/staff/",
+  "contact_name": "Tony Holmes",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MODERN CADILLAC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "RANDY MARION CHEVROLET CADILLAC, LLC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "THOMPSON BUICK GMC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "TRENT CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.trentcadillac.com/dealership/staff.htm",
+  "contact_name": "Director CT TILAHUN",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "WILKINSON CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.cadillacofsanford.com/staff",
+  "contact_name": "Chad Triplett",
+  "contact_title": "General Sales Manager",
+  "contact_email": "Chad@wilkinsoncars.com"
+ },
+ {
+  "dealer_name": "CADILLAC OF GRAND FORKS",
+  "status": "fetched",
+  "source_url": "https://www.rydellcadillac.com/staff",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "GATEWAY CADILLAC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "RYAN CADILLAC MINOT",
+  "status": "fetched",
+  "source_url": "https://www.ryancadillacminot.com/about-us/staff/",
+  "contact_name": "Bryan Starr",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SCHWAN CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.schwancadillac.com/staff",
+  "contact_name": "BJ Bohn",
+  "contact_title": "Sales & Leasing Consultant",
+  "contact_email": "bj@schwancadillac.net"
+ },
+ {
+  "dealer_name": "GRAND ISLAND CHEVROLET GMC",
+  "status": "fetched",
+  "source_url": "https://www.gicadillac.com/staff",
+  "contact_name": "Hans Halbur",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HUSKER CADILLAC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SID DILLON CADILLAC-FREMONT",
+  "status": "fetched",
+  "source_url": "https://www.siddilloncadillac.com/about-us/staff/",
+  "contact_name": "Rich Eyler",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "WOODHOUSE CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.woodhousecadillac.com/about-us/staff/",
+  "contact_name": "Elaine Campbell",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BANKS CHEVROLET-CADILLAC, INC.",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "FAIRFIELD CADILLAC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HOLLOWAY CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.hollowaycadillac.com/staff",
+  "contact_name": "Selina Lee",
+  "contact_title": "Sales And Leasing",
+  "contact_email": "slee@hollowayauto.com"
+ },
+ {
+  "dealer_name": "MACMULKIN CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.macmulkincadillac.com/about-us/staff/",
+  "contact_name": "Snedeker Cadillac",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BRIDGETON CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.bridgetoncadillac.com/staff",
+  "contact_name": "Gary Fisher",
+  "contact_title": "Sales Consultant",
+  "contact_email": "gfisher@DriveBAM.com"
+ },
+ {
+  "dealer_name": "BROGAN CADILLAC CO.",
+  "status": "fetched",
+  "source_url": "https://www.brogancadillac.com/staff",
+  "contact_name": "RAKESH MEHROTRA",
+  "contact_title": "General Sales Manager",
+  "contact_email": "rakesh@brogancad.com"
+ },
+ {
+  "dealer_name": "BURKE MOTOR GROUP",
+  "status": "fetched",
+  "source_url": "https://www.burkecadillac.com/staff",
+  "contact_name": "Congleton Internet",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CADILLAC OF ENGLEWOOD CLIFFS",
+  "status": "fetched",
+  "source_url": "https://www.cadillacofenglewoodcliffs.com/about-us/staff/",
+  "contact_name": "Hadi Aridi",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CADILLAC OF MAHWAH, LLC",
+  "status": "fetched",
+  "source_url": "https://www.cadillacofmahwah.com/staff",
+  "contact_name": "Paul Ciriello",
+  "contact_title": "Executive Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CADILLAC OF TURNERSVILLE",
+  "status": "fetched",
+  "source_url": "https://www.cadillacofturnersville.com/about-us/staff/",
+  "contact_name": "Marsh Chambers",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CIOCCA CADILLAC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CIOCCA CADILLAC OF FLEMINGTON",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "COLEMAN CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.colemancadillacnj.com/staff",
+  "contact_name": "Guadarrama Executive",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CROWN CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.CrownCadillac.com/staff",
+  "contact_name": "Stephanie Rivera",
+  "contact_title": "Bdc Manager",
+  "contact_email": "srivera@crowncadillac.com"
+ },
+ {
+  "dealer_name": "GOLD COAST CADILLAC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HOLMAN CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.holmancadillac.com/about-us/staff/",
+  "contact_name": "Monica Stellwag",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "JOHNSON CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.johnsoncadillacnj.com/staff",
+  "contact_name": "Jason Palecco",
+  "contact_title": "General Manager",
+  "contact_email": "jasonp@johnjohnsonautogroup.com"
+ },
+ {
+  "dealer_name": "MALOUF CADILLAC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MCGUIRE CADILLAC, INC.",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "OPEN ROAD CADILLAC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "PINE BELT CADILLAC OF TOMS RIVER, INC.",
+  "status": "fetched",
+  "source_url": "https://www.pinebeltcadillac.com/about-us/staff/",
+  "contact_name": "Marc Stango",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BRAVO CADILLAC-LAS CRUCES",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CADILLAC OF SANTA FE",
+  "status": "fetched",
+  "source_url": "https://www.cadillacofsantafe.com/staff",
+  "contact_name": "DAY CADILLAC",
+  "contact_title": "Sales Consultant",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "GARCIA CADILLAC OF ALBUQUERQUE",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CADILLAC OF LAS VEGAS",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CORWIN CADILLAC RENO",
+  "status": "fetched",
+  "source_url": "https://www.corwincadillacreno.com/staff",
+  "contact_name": "Lance Dattilo",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "FINDLAY CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.findlaycadillac.com/about-us/staff/",
+  "contact_name": "Chris Preciado",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MICHAEL HOHL MOTOR COMPANY",
+  "status": "fetched",
+  "source_url": "https://www.michaelhohlcadillac.com/about-us/staff/",
+  "contact_name": "Tom Schroeder",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "RIVERTON ELKO CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.rivertonelko.com/about-us/staff/",
+  "contact_name": "JB Anderson",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ATLANTIC CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.atlanticcadillac.com/dealership/staff.htm",
+  "contact_name": "Michael Collins",
+  "contact_title": "New Car Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BICAL AUTO MALL",
+  "status": "fetched",
+  "source_url": "https://www.bicalcadillac.com/staff",
+  "contact_name": "Jamil Quaiser",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BOB JOHNSON CADILLAC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BOMNIN CADILLAC NANUET",
+  "status": "fetched",
+  "source_url": "https://www.bomnincadillacnanuet.com/staff",
+  "contact_name": "Richard Ceballos",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BUZZ CHEW CADILLAC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CADILLAC MOUNT KISCO",
+  "status": "fetched",
+  "source_url": "https://www.cadillacmountkisco.com/staff",
+  "contact_name": "Chad Harris",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CADILLAC OF MANHATTAN",
+  "status": "fetched",
+  "source_url": "https://www.cadillacofmanhattan.com/dealership/staff.htm",
+  "contact_name": "MANAGER SERVICE",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CAPPELLINO CADILLAC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CREST CADILLAC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "D'ELLA CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.dellacadillac.com/staff",
+  "contact_name": "Michael Tonks",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "DAVIDSON CADILLAC OF ROME",
+  "status": "fetched",
+  "source_url": "https://www.davidsoncadillac.com/staff",
+  "contact_name": "Consultant CJ CRONK",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "EMPIRE CADILLAC OF LONG ISLAND CITY",
+  "status": "fetched",
+  "source_url": "https://www.shopempirecadillacoflic.com/staff",
+  "contact_name": "Hoppe Internet",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "GARBER RANDALL CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.garberrandallcadillac.com/dealership/staff.htm",
+  "contact_name": "Sean Carroll",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HEALEY BROTHERS CADILLAC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HUDSON CADILLAC BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.cadillacbyhudson.com/staff",
+  "contact_name": "MICHAEL MULLANEY",
+  "contact_title": "Dealer Principal",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "KEN BARRETT CHEVROLET CADILLAC, INC.",
+  "status": "fetched",
+  "source_url": "https://www.kenbarrettautos.com/staff",
+  "contact_name": "Dana Barrett",
+  "contact_title": "General Sales Manager",
+  "contact_email": "Dana@kenbarrett.com"
+ },
+ {
+  "dealer_name": "KING-O'ROURKE CADILLAC, INC.",
+  "status": "fetched",
+  "source_url": "https://www.kingorourkecadillac.com/staff",
+  "contact_name": "Jonathan Congdon",
+  "contact_title": "Sales & Leasing Consultant",
+  "contact_email": "jcongdon@kingorourke.com"
+ },
+ {
+  "dealer_name": "MAGUIRE CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.maguirecadillac.com/about-us/staff/",
+  "contact_name": "Brian Vorhis",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MATTHEWS CADILLAC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "NORTH BAY CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.northbaycadillac.com/staff",
+  "contact_name": "John Campanelli",
+  "contact_title": "Executive Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "OTTO CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.cadillac-otto.com/staff",
+  "contact_name": "Ian Maher",
+  "contact_title": "General Sales Manager",
+  "contact_email": "ianmaher@ottocars.com"
+ },
+ {
+  "dealer_name": "PAUL CONTE CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.contecadillac.com/staff",
+  "contact_name": "Timothy Hardway",
+  "contact_title": "General Sales Manager",
+  "contact_email": "thardway@contecadillac.com"
+ },
+ {
+  "dealer_name": "PEPE CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.pepecadillac.com/about-us/staff/",
+  "contact_name": "Bryan Franco",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "RICK BOKMAN, INC.",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ROBERT BASIL CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.robertbasilcadillac.com/about-us/staff/",
+  "contact_name": "Steve Piniewski",
+  "contact_title": "Sales Consultant",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SARANT CADILLAC CORP.",
+  "status": "fetched",
+  "source_url": "https://www.sarantcadillac.com/staff",
+  "contact_name": "Antonio Centeno",
+  "contact_title": "Executive Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "WEST HERR CADILLAC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "#1 COCHRAN BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.cochrancadillacyoungstown.com/about-us/staff/",
+  "contact_name": "Rich Hostetter",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BAUMANN AUTO CENTER, INC.",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BRADEN CADILLAC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CAMARGO CADILLAC COMPANY",
+  "status": "fetched",
+  "source_url": "https://www.camargocadillac.com/staff",
+  "contact_name": "Meyer Fleet",
+  "contact_title": "Sales Team",
+  "contact_email": "bradmeyer@camargocadillac.com"
+ },
+ {
+  "dealer_name": "CENTRAL CADILLAC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CINCINNATI CADILLAC LLC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CLASSIC CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.driveclassiccadillac.com/about-us/staff/",
+  "contact_name": "Aubrey Southworth",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "COLE-VALLEY MOTOR COMPANY",
+  "status": "fetched",
+  "source_url": "https://www.colevalleycadillac.com/staff",
+  "contact_name": "Joe Sember",
+  "contact_title": "General Sales Manager",
+  "contact_email": "jsember@colecars.net"
+ },
+ {
+  "dealer_name": "COUGHLIN CADILLAC OF CIRCLEVILLE",
+  "status": "fetched",
+  "source_url": "https://www.coughlincirclevillecadillac.com/staff",
+  "contact_name": "Doug Winland",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "COUGHLIN CADILLAC OF MARYSVILLE",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CRESTMONT CADILLAC CORPORATION",
+  "status": "fetched",
+  "source_url": "https://www.crestmontcadillac.com/about-us/staff/",
+  "contact_name": "Chris Boger",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ESTLE CHEVROLET-CADILLAC, INC.",
+  "status": "fetched",
+  "source_url": "https://www.estlecadillac.com/about-us/staff/",
+  "contact_name": "Todd Bartley",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "FOSTER CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.fostersandusky.com/dealership/staff.htm",
+  "contact_name": "Eddie Reilly",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "GERMAIN CADILLAC OF EASTON",
+  "status": "fetched",
+  "source_url": "https://www.germaincadillacofeaston.com/about-us/staff/",
+  "contact_name": "D'LACY STITH",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "GRAHAM CADILLAC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "JAKE SWEENEY BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.jakesweeneycadillac.com/dealership/staff.htm",
+  "contact_name": "TROY COPENHAVER",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "JEFF DRENNEN CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.jeffdrennencadillac.com/dealership/staff.htm",
+  "contact_name": "Rodney Curry",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "JEFF SCHMITT CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.jeffschmittcadillac.com/dealership/staff.htm",
+  "contact_name": "DEPARTMENT JP Morgan",
+  "contact_title": "New Car Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "JEFF WYLER CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.jeffwylerfairfieldcadillac.com/dealership/staff.htm",
+  "contact_name": "Cedric Glover",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "JOSEPH CADILLAC OF DUBLIN",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "LARICHE CADILLAC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "LAVERY AUTOMOTIVE SALES & SERVICE LLC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "LIMA AUTO MALL",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MEDINA AUTO MALL",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MORRIS CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.drivemorriscadillac.com/staff",
+  "contact_name": "Adam Morris",
+  "contact_title": "Dealer Principal",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "STADIUM CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.stadiumcadillac.com/staff",
+  "contact_name": "Michael Hudock",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "STEINLE CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.steinlegmccadillac.com/staff",
+  "contact_name": "STEVE STEINLE",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "TAYLOR CADILLAC, LLC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "VAN DEVERE CADILLAC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "VOSS VILLAGE CADILLAC, INC.",
+  "status": "fetched",
+  "source_url": "https://www.vosscadillac.com/about-us/staff/",
+  "contact_name": "Bryan Vanover",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BOB MOORE CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.bobmoorecadillacokc.com/about-us/staff/",
+  "contact_name": "Rick Sanders",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BOB MOORE CADILLAC OF NORMAN",
+  "status": "fetched",
+  "source_url": "https://www.bobmoorecadillacnorman.com/about-us/staff/",
+  "contact_name": "Rick Sanders",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CUMMINS CADILLAC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "DON THORNTON CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.donthorntoncadillac.com/dealership/staff.htm",
+  "contact_name": "Corey Haas",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "JOE COOPER CADILLAC OF SHAWNEE",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "WILSON CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.wilsoncadillac.com/staff",
+  "contact_name": "Chris Mann",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "AIRPORT CADILLAC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CADILLAC OF PORTLAND",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CAPITOL CADILLAC OF SALEM",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "KENDALL CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.kendallcadillacofeugene.com/about-us/staff/",
+  "contact_name": "Tyler Hirschey",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "#1 COCHRAN OF MONROEVILLE",
+  "status": "fetched",
+  "source_url": "https://www.cochrancadillac.com/about-us/staff/",
+  "contact_name": "Jim Raub",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BERGEY'S CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.bergeyscadillac.com/dealership/staff.htm",
+  "contact_name": "Dan Smith",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "C. HARPER CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.charpercadillac.com/staff",
+  "contact_name": "BILL FERGUSON",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CARLISLE CADILLAC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "COLONIAL MOTOR MART",
+  "status": "fetched",
+  "source_url": "https://www.shopcolonialcadillac.com/about-us/staff/",
+  "contact_name": "Mike Black",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "DIEHL CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.diehlcadillac.com/about-us/staff/",
+  "contact_name": "Oak Moser",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "FAIRFIELD CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.fairfieldcadillac.com/staff",
+  "contact_name": "Cody Swartz",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "FAULKNER CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.cadillacoflehighvalley.com/staff",
+  "contact_name": "Yurkonis Cadillac",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "FAULKNER CADILLAC OF MECHANICSBURG",
+  "status": "fetched",
+  "source_url": "https://www.faulknercadillacmechanicsburg.com/staff",
+  "contact_name": "Doug Singler",
+  "contact_title": "New Car Sales Manager",
+  "contact_email": "Dsingler@faulknercadillac.com"
+ },
+ {
+  "dealer_name": "FAULKNER CADILLAC OF TREVOSE",
+  "status": "fetched",
+  "source_url": "https://www.faulknercadillactrevose.com/staff",
+  "contact_name": "Tim Galen",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "FRED BEANS CADILLAC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "H & H CADILLAC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HILL CADILLAC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "JAMES E. BLACK CADILLAC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "KELLY CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.kellycadillac.com/about-archive/staff/",
+  "contact_name": "Nick Yeager",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MIRACLE CADILLAC OF KUTZTOWN",
+  "status": "fetched",
+  "source_url": "https://www.kutztowncadillac.com/about-us/staff/",
+  "contact_name": "David Jones",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MOTORWORLD CADILLAC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "R.J. BURNE CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.rjburnecadillac.com/staff.aspx",
+  "contact_name": "Brian Marion",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ROHRICH CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.rohrichcadillac.com/about-us/staff/",
+  "contact_name": "Lucci Sr.",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ROTH CADILLAC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SCOTT CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.scottcadillac.net/staff",
+  "contact_name": "Marcus Yard",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SMAIL GMC",
+  "status": "fetched",
+  "source_url": "https://www.smailcadillac.com/about-us/staff/",
+  "contact_name": "Jason Mossing",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SPITZER AUTOWORLD",
+  "status": "fetched",
+  "source_url": "https://www.spitzercadillacdubois.com/meet-our-staff/",
+  "contact_name": "Donald Reich",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "STAR CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.starcadillac.com/staff",
+  "contact_name": "Holly Jarrett",
+  "contact_title": "Dealer Principal",
+  "contact_email": "holly@starcar.com"
+ },
+ {
+  "dealer_name": "HERB CHAMBERS CADILLAC OF WARWICK",
+  "status": "no_website",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BAKER CADILLAC OF CHARLESTON",
+  "status": "fetched",
+  "source_url": "https://www.bakercadillacofcharleston.com/about-us/staff/",
+  "contact_name": "Allan Young",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BURNS CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.burnscadillac.com/staff",
+  "contact_name": "DAVID PARKER",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "COASTAL CADILLAC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "FRED ANDERSON CADILLAC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HILTON HEAD CADILLAC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "JIM HUDSON CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.jimhudsoncadillac.com/about-us/staff/",
+  "contact_name": "MARC ROSARIO",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "KEVIN WHITAKER CADILLAC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "KING CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.kingcadillacsc.com/staff",
+  "contact_name": "Tom Raschiatore",
+  "contact_title": "General Sales Manager",
+  "contact_email": "traschiatore@kingflorence.com"
+ },
+ {
+  "dealer_name": "MYRTLE BEACH CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.cadillacofmyrtlebeach.com/staff",
+  "contact_name": "Brett Mannon",
+  "contact_title": "Sales Consultant",
+  "contact_email": "brett.mannon@cadillacofmyrtlebeach.com"
+ },
+ {
+  "dealer_name": "BECK MOTORS, INC.",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CADILLAC OF SIOUX FALLS",
+  "status": "fetched",
+  "source_url": "https://www.cadillacofsiouxfalls.com/dealership/staff.htm",
+  "contact_name": "ANDY KVERNMO",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "DENNY MENHOLT RAPID CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.rapidcadillac.com/staff",
+  "contact_name": "MARK KOSTBOTH",
+  "contact_title": "General Manager",
+  "contact_email": "markkostboth@rapidchevrolet.com"
+ },
+ {
+  "dealer_name": "SPEARFISH MOTORS, INC.",
+  "status": "fetched",
+  "source_url": "https://www.spearfishcadillac.com/staff",
+  "contact_name": "Jamie Bartow",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ANDREWS CADILLAC COMPANY",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ANDREWS CADILLAC MT. JULIET",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BACHMAN BERNARD CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.bachmanbernardcadillac.com/staff",
+  "contact_name": "Shaun Hinkle",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CADILLAC OF KNOXVILLE, LLC",
+  "status": "fetched",
+  "source_url": "https://www.cadillacofknoxville.com/staff",
+  "contact_name": "Kenny Rivera",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CADILLAC OF MEMPHIS",
+  "status": "fetched",
+  "source_url": "https://www.cadillacofmemphis.com/staff",
+  "contact_name": "Jordan Echols",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CADILLAC OF MURFREESBORO",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CHAMPION CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.championjccadillac.com/about-us/staff/",
+  "contact_name": "Chris McCall",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "INTEGRITY CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.integritycadillac.com/staff",
+  "contact_name": "Nate Schipper",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SERRA CADILLAC CLARKSVILLE",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SERRA CADILLAC OF JACKSON",
+  "status": "fetched",
+  "source_url": "https://www.cadillacofjackson.com/about-us/staff/",
+  "contact_name": "Brad Ballentine",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "STAN MCNABB CHEVROLET COLUMBIA",
+  "status": "fetched",
+  "source_url": "https://www.stanmcnabbcadillac.com/about-us/staff/",
+  "contact_name": "Ryan Greatrex",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "AUTONATION CHEVROLET SOUTH CORPUS CHRISTI",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "AUTONATION CHEVROLET WEST AMARILLO",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BAYER CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.bayercadillac.com/about-us/staff/",
+  "contact_name": "Rob Durham",
+  "contact_title": "Sales And Leasing",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BAYWAY CADILLAC OF THE WOODLANDS",
+  "status": "fetched",
+  "source_url": "https://www.baywaycadillacofthewoodlands.com/staff",
+  "contact_name": "Bill Baker",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BAYWAY CADILLAC SOUTHWEST",
+  "status": "fetched",
+  "source_url": "https://www.baywaycadillacsouthwest.com/staff",
+  "contact_name": "Joey Treadway",
+  "contact_title": "General Manager",
+  "contact_email": "jtreadway@baywaycadillacsw.com"
+ },
+ {
+  "dealer_name": "BERT OGDEN CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.bertogdencadillac.com/about-us/staff/",
+  "contact_name": "Jakob Waldbusser",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BIG STAR CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.bigstarcadillac.com/about-us/staff/",
+  "contact_name": "KEVIN SONNIER",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BRAVO CADILLAC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CAVENDER CADILLAC COMPANY",
+  "status": "fetched",
+  "source_url": "https://www.cavendercadillac.com/about-us/staff/",
+  "contact_name": "MATTHEW GOSSETT",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CAVENDER CADILLAC OF LUBBOCK",
+  "status": "fetched",
+  "source_url": "https://www.cavendercadillacoflubbock.com/dealership/staff.htm",
+  "contact_name": "Troy Tucker",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CENTRAL HOUSTON CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.centralhoustoncadillac.com/dealership/staff.htm",
+  "contact_name": "Akash Hassan",
+  "contact_title": "New Car Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CLASSIC CADILLAC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CLASSIC CADILLAC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CLASSIC CADILLAC GALVESTON",
+  "status": "fetched",
+  "source_url": "https://www.classiccadillacgalveston.com/staff",
+  "contact_name": "Michael Graves",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CLASSIC CHEVROLET",
+  "status": "fetched",
+  "source_url": "https://www.classiccadillacdenison.com/about-us/staff/",
+  "contact_name": "Todd Black",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CLAY COOLEY CADILLAC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "COVERT CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.covertcadillac.com/about-us/staff/",
+  "contact_name": "Joseph III",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "COVERT CADILLAC WEST, INC",
+  "status": "fetched",
+  "source_url": "https://www.covertbeecavecadillac.com/about-us/staff/",
+  "contact_name": "John Yoon",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CREST CADILLAC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "DONALSON CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.donalsoncadillac.com/about-us/staff/",
+  "contact_name": "Perry Jones",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "FRANK KENT CADILLAC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "FRANK KENT CADILLAC OF ARLINGTON",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "GARLYN SHELTON CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.garlynsheltoncadillac.com/staff",
+  "contact_name": "Robert Fortner",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "GRUBBS CADILLAC OF WICHITA FALLS",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "JERRY'S CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.jerryscadillac.com/staff",
+  "contact_name": "Brian Durant",
+  "contact_title": "Executive Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "JIM HOFFPAUIR, INC.",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "LAWRENCE HALL CADILLAC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "LUKE FRUIA MOTORS",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MITCH HALL CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.mitchhallcadillac.com/staff",
+  "contact_name": "Vaughn Wiggins",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ORR CADILLAC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "PLATINUM CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.platinumcadillac.com/staff",
+  "contact_name": "Robert Rodriguez",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "POWELL WATSON MOTORS, INC.",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "RANDALL MOTORS, INC.",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "RICHARD KARR CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.richardkarrcadillac.com/about-us/staff/",
+  "contact_name": "Richard Gough",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "RON CRAFT CHEVROLET",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SEWELL CADILLAC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SEWELL CADILLAC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SEWELL CADILLAC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SEWELL CADILLAC OF GRAPEVINE",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SEWELL CADILLAC OF MIDLAND",
+  "status": "fetched",
+  "source_url": "https://www.sewellcadillac-midland.com/our-team/",
+  "contact_name": "Justin Cavazos",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SHERMAN CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.shermancadillac.com/about-us/staff/",
+  "contact_name": "Rusty McDonald",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "STERLING AUTO GROUP",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "TOM CLARK CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.tomclarkcadillac.com/staff",
+  "contact_name": "Shellie Tait",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "TOM PEACOCK CADILLAC INC.",
+  "status": "fetched",
+  "source_url": "https://www.tompeacockcadillac.com/staff",
+  "contact_name": "Alex Hinojosa",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "WAGNER CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.wagnercadillac.com/dealership/staff.htm",
+  "contact_name": "Daniel Martin",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "WIESNER CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.wiesnercadillac.com/staff",
+  "contact_name": "Clint McLaren",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HANSEN CADILLAC OF BRIGHAM CITY",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "JERRY SEINER CADILLAC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MURDOCK CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.murdockcadillaclogan.com/about-us/staff/",
+  "contact_name": "Skylar Hobbs",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "PROVO CADILLAC",
+  "status": "no_website",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "STEPHEN WADE CADILLAC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CMA'S COLONIAL CADILLAC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "LINDSAY CADILLAC COMPANY",
+  "status": "fetched",
+  "source_url": "https://www.lindsaycadillac.com/staff",
+  "contact_name": "Jim Redden",
+  "contact_title": "General Sales Manager",
+  "contact_email": "Jim.Redden@lindsaycars.com"
+ },
+ {
+  "dealer_name": "LOYALTY CADILLAC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MALLOY CADILLAC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MOORE CADILLAC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MOORE CADILLAC RICHMOND",
+  "status": "fetched",
+  "source_url": "https://www.moorerichmondcadillac.com/about-us/staff/",
+  "contact_name": "Billy Theodorakos",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "RADLEY CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.radleycadillac.com/dealership/staff.htm",
+  "contact_name": "Michelle Radley",
+  "contact_title": "Dealer Principal",
+  "contact_email": "michelleradley@radleyautogroup.com"
+ },
+ {
+  "dealer_name": "RICK HENDRICK CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.rickhendrickcadillacnorfolk.com/about-us/staff/",
+  "contact_name": "Mike Evans",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ROBERT WOODALL CADILLAC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SUTTLE MOTOR CORPORATION",
+  "status": "fetched",
+  "source_url": "https://www.suttlecadillac.com/staff",
+  "contact_name": "Miles Suttle",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CODY CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.codycadillac.com/staff",
+  "contact_name": "Josh Audet",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HANDY BUICK-GMC-CADILLAC INC.",
+  "status": "fetched",
+  "source_url": "https://www.handycadillac.com/dealership/staff.htm",
+  "contact_name": "Bud Handy",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "KEY MOTORS OF SOUTH BURLINGTON LLC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SPRINGFIELD CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.springfieldcadillacvt.com/staff",
+  "contact_name": "Colby Mack",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BROTHERTON CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.brothertoncadillac.com/staff",
+  "contact_name": "Arun Vaidyanathan",
+  "contact_title": "General Manager",
+  "contact_email": "Arun@brothertoncadillac.com"
+ },
+ {
+  "dealer_name": "BROTHERTON CADILLAC NW",
+  "status": "fetched",
+  "source_url": "https://www.brothertoncadillacnw.com/staff",
+  "contact_name": "Brad Brotherton",
+  "contact_title": "Dealer Principal",
+  "contact_email": "brad@brothertoncadillac.com"
+ },
+ {
+  "dealer_name": "CADILLAC OF BELLEVUE",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "LARSON CADILLAC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "LEE PETERSON CADILLAC OF YAKIMA",
+  "status": "fetched",
+  "source_url": "https://www.leepetersoncadillac.com/dealership/staff.htm",
+  "contact_name": "AUSINK FLEET",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MCCURLEY CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.mccurleycadillac.com/dealership/staff.htm",
+  "contact_name": "BEAU MOHONDRO",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "NORTHWEST CADILLAC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "TITUS-WILL CADILLAC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BERGSTROM CADILLAC APPLETON",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BERGSTROM CADILLAC GREEN BAY",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BERGSTROM CADILLAC MADISON",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BERGSTROM CADILLAC NEENAH",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BERGSTROM CADILLAC OF MANITOWOC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BERGSTROM CADILLAC OSHKOSH",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BOUCHER CADILLAC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BUD WEISER MOTORS, INC.",
+  "status": "fetched",
+  "source_url": "https://www.budweisercadillac.com/about-us/staff/",
+  "contact_name": "SCOTT WEISER",
+  "contact_title": "Dealer Principal",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CREST CADILLAC, INC.",
+  "status": "fetched",
+  "source_url": "https://www.cadillacwisconsin.com/dealership/staff.htm",
+  "contact_name": "Juan Sandoval",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ERIC VON SCHLEDORN CADILLAC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "FRANK BOUCHER CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.racinecadillac.com/about-us/staff/",
+  "contact_name": "Chris Tessmer",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HEISER CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.heisercadillac.com/about-us/staff/",
+  "contact_name": "brian crandall",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HOLIDAY CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.holidaycadillac.com/about-us/staff/",
+  "contact_name": "Jaber VP",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "KUNES COUNTRY CADILLAC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MARKQUART MOTORS",
+  "status": "fetched",
+  "source_url": "https://www.markquartcadillac.com/dealership/staff.htm",
+  "contact_name": "MATT MURRAY",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "O'MALLEY AUTOMOTIVE  INC.",
+  "status": "fetched",
+  "source_url": "https://www.omalleycadillac.com/staff",
+  "contact_name": "WOLFERT Cadillac",
+  "contact_title": "Sales Manager",
+  "contact_email": "cwolfert@omalleyautos.com"
+ },
+ {
+  "dealer_name": "PALMEN CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.palmencadillac.com/staff",
+  "contact_name": "Nick Faciano",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "RHINELANDER CHEVROLET GMC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SHEBOYGAN CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.sheboygancadillac.com/aboutus.aspx",
+  "contact_name": "Warranty...Ask your",
+  "contact_title": "Sales Consultant",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MOSES AUTOMALL OF HUNTINGTON",
+  "status": "fetched",
+  "source_url": "https://www.moses-cadillac.com/staff",
+  "contact_name": "Travis Castle",
+  "contact_title": "General Manager",
+  "contact_email": "traviscastle@mosesautonet.com"
+ },
+ {
+  "dealer_name": "MOSES CADILLAC OF CHARLESTON",
+  "status": "fetched",
+  "source_url": "https://www.mosescadillacofcharleston.com/staff",
+  "contact_name": "KRIS WESTFALL",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "OPEQUON MOTORS, INC.",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CASPER CADILLAC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HALLADAY MOTORS",
+  "status": "fetched",
+  "source_url": "https://www.halladaycadillac.com/about-us/staff/",
+  "contact_name": "Carter Robertson",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ }
+]
