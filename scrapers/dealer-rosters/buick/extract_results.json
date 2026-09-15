@@ -1,0 +1,5954 @@
+[
+ {
+  "dealer_name": "SWICKARD CHEVROLET BUICK GMC  OF ANCHORAGE",
+  "status": "fetched",
+  "source_url": "https://www.swickardbuickgmcanchorage.com/staff",
+  "contact_name": "Wendy Wilkins",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ACTION BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.actionofdothan.com/staff",
+  "contact_name": "Rex Windsor",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BARKLEY BUICK GMC CADILLAC, INC",
+  "status": "fetched",
+  "source_url": "https://www.barkleygmc.com/dealership/staff.htm",
+  "contact_name": "William Adams",
+  "contact_title": "Dealer Principal",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BENTLEY BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.bentleygmc.com/staff",
+  "contact_name": "Lamont Wright",
+  "contact_title": "New Car Sales Manager",
+  "contact_email": "lamont@bentleyauto.com"
+ },
+ {
+  "dealer_name": "BILL SMITH BUICK-GMC, INC.",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CARL CANNON INC.",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "DEVAN LOWE BUICK GMC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HOWARD BENTLEY BUICK GMC, INC.",
+  "status": "fetched",
+  "source_url": "https://www.howardbentleyauto.com/dealership/staff.htm",
+  "contact_name": "Greg Nettles",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "JIMMY SMITH BUICK-GMC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MULLINAX BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.mullinaxbuickgmc.com/about-us/staff/",
+  "contact_name": "Esteban Ramirez",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ROYAL AUTOMOTIVE, INC.",
+  "status": "fetched",
+  "source_url": "https://www.royalbuickgmc.net/staff",
+  "contact_name": "Ed Murphy",
+  "contact_title": "General Sales Manager",
+  "contact_email": "emurphy@royalautomotive.net"
+ },
+ {
+  "dealer_name": "SAM BOSWELL BUICK GMC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "TAMERON BUICK GMC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ALLEN TILLERY CHEVROLET BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.allentilleryauto.com/staff",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CAVENAUGH AUTO WORLD, INC.",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CENTRAL BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.centralbuickgmc.com/staff",
+  "contact_name": "Josh Ade",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CRAIN BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.crainteamconway.com/staff",
+  "contact_name": "Nate Brown",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CRAIN BUICK GMC OF SPRINGDALE",
+  "status": "fetched",
+  "source_url": "https://www.crainbuickgmcofspringdale.com/staff",
+  "contact_name": "Jimmy Minks",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "DAVIS BUICK GMC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "EVERETT BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.everettbgmc.com/staff",
+  "contact_name": "Jerry Odom",
+  "contact_title": "General Manager",
+  "contact_email": "jodom@everettbgmc.com"
+ },
+ {
+  "dealer_name": "GLEN SAIN CHEVROLET-BUICK-GMC PARAGOULD",
+  "status": "fetched",
+  "source_url": "https://www.glensainbuickgmcparagould.com/staff",
+  "contact_name": "Tim Roswell",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "GWATNEY BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.gwatneybuickgmc.com/about-us/staff/",
+  "contact_name": "Justin Ludwig",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HARRY ROBINSON BUICK-GMC, INC.",
+  "status": "fetched",
+  "source_url": "https://www.harryrobinsonbuickgmc.com/staff",
+  "contact_name": "PHILLIPS Internet",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MCLARTY DANIEL BUICK GMC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ORR CHEVROLET BUICK GMC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SMART CHEVROLET BUICK GMC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "STANLEY WOOD CHEVROLET BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.stanleywoodbuickgmc.com/staff",
+  "contact_name": "Phil Brissey",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SUPERIOR BUICK GMC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "COULTER CADILLAC, INC.",
+  "status": "fetched",
+  "source_url": "https://www.coulteroncamelback.com/dealership/staff.htm",
+  "contact_name": "Paul Glans",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "EARNHARDT BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.earnhardtbuickgmc.com/staff",
+  "contact_name": "Rod Yamamoto",
+  "contact_title": "General Sales Manager",
+  "contact_email": "Rodney.Yamamoto@Earnhardt.com"
+ },
+ {
+  "dealer_name": "HENRY BROWN BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.henrybrowngmc.com/staff",
+  "contact_name": "Kelsey Brown",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "JONES BUICK GMC CASA GRANDE",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "LIBERTY BUICK, INC.",
+  "status": "fetched",
+  "source_url": "https://www.libertybuick.com/about-us/staff/",
+  "contact_name": "SIMON MINDRUT",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "QUEBEDEAUX BUICK-GMC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ROYAL BUICK GMC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "TEMPE BUICK GMC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "VAN CHEVROLET BUICK GMC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "YATES BUICK GMC INC.",
+  "status": "fetched",
+  "source_url": "https://www.yatesbuickgmc.com/staff",
+  "contact_name": "Matthew Van Horne",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CAPOSIO BUICK GMC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CASA DE CADILLAC BUICK GMC SHERMAN OAKS",
+  "status": "fetched",
+  "source_url": "https://www.buickgmcshermanoaks.com/dealership/staff.htm",
+  "contact_name": "JORGE VIRGEN",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "DUBLIN BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.dublinbuickgmc.com/staff",
+  "contact_name": "Joseph Mesa",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "DUTTON MOTOR COMPANY",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ELK GROVE BUICK GMC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "FOLSOM BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.folsombuickgmc.com/staff",
+  "contact_name": "Joel Banuelos",
+  "contact_title": "Sales & Leasing Consultant",
+  "contact_email": "jbanuelos@folsombuickgmc.com"
+ },
+ {
+  "dealer_name": "FREMONT BUICK GMC CADILLAC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "FRESNO BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.fresnobuickgmc.com/about-us/staff/",
+  "contact_name": "JEFF KAERCHER",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HARDIN BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.hardinbuickgmc.com/staff",
+  "contact_name": "Manuel Garcia",
+  "contact_title": "Sales Manager",
+  "contact_email": "mgarcia@hardin.com"
+ },
+ {
+  "dealer_name": "HATFIELD BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.hatfieldbuick.com/dealership/staff.htm",
+  "contact_name": "Rod Shelffo",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "JESSUP AUTO PLAZA",
+  "status": "fetched",
+  "source_url": "https://www.jessupbuickgmc.com/staff",
+  "contact_name": "Dan Jessup",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MARK CHRISTOPHER AUTO CENTER",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MARVIN K. BROWN BUICK",
+  "status": "fetched",
+  "source_url": "https://www.mkb.com/about-us/staff/",
+  "contact_name": "Eddie Lopez",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MOTOR CITY BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.motorcitygmc.com/dealership/staff.htm",
+  "contact_name": "MIGUEL HEREDIA",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "PENSKE BUICK GMC OF CERRITOS",
+  "status": "fetched",
+  "source_url": "https://www.cerritosgm.com/staff",
+  "contact_name": "Amiri Executive",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "PENSKE CADILLAC BUICK GMC SOUTH BAY",
+  "status": "fetched",
+  "source_url": "https://www.torrancegm.com/staff",
+  "contact_name": "Amiri Executive",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "PREMIER BUICK GMC OF CARLSBAD",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "RELIABLE CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.reliablebuickgmc.com/staff",
+  "contact_name": "Insurance Ryan",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SIMPSON BUICK GMC OF BUENA PARK",
+  "status": "fetched",
+  "source_url": "https://www.simpsonbuickgmcbuenapark.com/dealership/staff.htm",
+  "contact_name": "Riyaz Mansuri",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "STONE CHEVROLET BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.stonebuickgmc.com/staff",
+  "contact_name": "JASON MARTIN",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "STOWASSER BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.stowassergmc.com/staff",
+  "contact_name": "Donald W. Kemp",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SWICKARD BUICK GMC OF THOUSAND OAKS",
+  "status": "fetched",
+  "source_url": "https://www.swickardbuickgmcthousandoaks.com/staff",
+  "contact_name": "Omar Gulam",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "TEMECULA VALLEY BUICK GMC",
+  "status": "no_website",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "THOMPSON CHEVROLET BUICK GMC, INC.",
+  "status": "fetched",
+  "source_url": "https://www.thompsonbuickgmc.com/staff",
+  "contact_name": "Ray Salinas",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "THORSON BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.thorsonmotorcenter.com/staff",
+  "contact_name": "Josh Levine",
+  "contact_title": "General Sales Manager",
+  "contact_email": "jlevine@thorsonmotorcenter.com"
+ },
+ {
+  "dealer_name": "TUSTIN BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.tustingmc.com/dealership/staff.htm",
+  "contact_name": "Emil Cain",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ALPINE BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.alpinebuickgmc.com/staff",
+  "contact_name": "Emilie Metzler",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ALPINE BUICK GMC SOUTH, INC",
+  "status": "fetched",
+  "source_url": "https://www.alpinebuickgmcsouth.com/staff",
+  "contact_name": "Scott Murphy",
+  "contact_title": "Sales Consultant",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "AUTONATION BUICK GMC PARK MEADOWS",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "AUTONATION BUICK GMC WEST",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "JOE FERGUSON BUICK GMC,  INC",
+  "status": "fetched",
+  "source_url": "https://www.joefergusonbuickgmc.com/staff",
+  "contact_name": "Stephan Larson",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "JOHNSON AUTO PLAZA, INC.",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "LOVELAND BUICK GMC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MARKLEY BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.markleygm.com/about-us/staff/",
+  "contact_name": "PAUL BUTTERMORE",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SHORTLINE BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.shortlinebuickgmc.com/staff",
+  "contact_name": "Jovany Hidrogo",
+  "contact_title": "Sales Manager",
+  "contact_email": "jhidrogo@shortlineauto.com"
+ },
+ {
+  "dealer_name": "BRUSTOLON BUICK GMC, INC.",
+  "status": "fetched",
+  "source_url": "https://www.brustolon.com/staff",
+  "contact_name": "Kevin Tobey",
+  "contact_title": "Sales Manager",
+  "contact_email": "Ktobey@brustolon.com"
+ },
+ {
+  "dealer_name": "D'ADDARIO BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.mariodaddario.com/staff",
+  "contact_name": "Kestenbaum GM",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "INGERSOLL AUTO OF DANBURY",
+  "status": "fetched",
+  "source_url": "https://www.ingersollbuickgmcofdanbury.com/staff",
+  "contact_name": "Jim LeBlanc",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "VACHON BUICK GMC, INC.",
+  "status": "fetched",
+  "source_url": "https://www.checkvachonbuickgmc.com/staff",
+  "contact_name": "Steven Doss",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HERTRICH BUICK GMC, INC.",
+  "status": "fetched",
+  "source_url": "https://www.hertrichgmcbuick.com/dealership/staff.htm",
+  "contact_name": "THOMPSON III",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "IG BURTON LEWES CHEVROLET BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.igburtonbuickgmclewes.com/staff",
+  "contact_name": "Chris Diaferio",
+  "contact_title": "General Manager",
+  "contact_email": "cdiaferio@igburton.com"
+ },
+ {
+  "dealer_name": "KENT COUNTY MOTOR SALES CO.",
+  "status": "fetched",
+  "source_url": "https://www.kentcountymotors.com/about-us/staff/",
+  "contact_name": "Jay Whitby",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "UNION PARK BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.unionparkbuickgmc.com/staff",
+  "contact_name": "Buick GMC",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ARCADIA CHEVROLET BUICK, INC.",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BRICKELL BUICK & GMC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BUICK GMC BROOKSVILLE",
+  "status": "fetched",
+  "source_url": "https://www.buickgmcbrooksville.com/about-us/staff/",
+  "contact_name": "Joseph Gyuricsko",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BUICK GMC OF NORTH MIAMI",
+  "status": "fetched",
+  "source_url": "https://www.buickgmcofnorthmiami.com/about-us/staff/",
+  "contact_name": "Hebert Costafreda",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BUICK LAKELAND",
+  "status": "fetched",
+  "source_url": "https://www.buicklakeland.com/about-us/staff/",
+  "contact_name": "Glen McGuire",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CARL BLACK CHEVROLET BUICK GMC OF ORLANDO",
+  "status": "fetched",
+  "source_url": "https://www.carlblackoforlandobuickgmc.com/about-us/staff/",
+  "contact_name": "Bryan Levitt",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CENTRAL BUICK, GMC, INC.",
+  "status": "fetched",
+  "source_url": "https://www.centralbuickgmctruck.com/staff",
+  "contact_name": "Brandon Huston",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CENTURY BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.centurybuickgmc.com/staff.aspx",
+  "contact_name": "Mark Chernowski",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "COAST BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.coastbuickgmc.com/staff",
+  "contact_name": "CHRISTIAN WEST",
+  "contact_title": "General Sales Manager",
+  "contact_email": "cwest@coastbgc.com"
+ },
+ {
+  "dealer_name": "COGGIN BUICK-GMC OF ORANGE PARK",
+  "status": "fetched",
+  "source_url": "https://www.cogginbuickgmc.com/dealership/staff.htm",
+  "contact_name": "Chris Sheets",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CONLEY BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.conleybuickgmc.com/staff",
+  "contact_name": "Kyle Levins",
+  "contact_title": "General Sales Manager",
+  "contact_email": "klevins@conleybuickgmc.com"
+ },
+ {
+  "dealer_name": "CORAL SPRINGS BUICK GMC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CROWN BUICK GMC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "DALE EARNHARDT JR. BUICK GMC CADILLAC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "DAVID SCOTT LEE BUICK GMC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "DELRAY BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.delraybuickgmc.com/dealership/staff.htm",
+  "contact_name": "Kevin Connolly",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "DEVOE BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.devoebuickgmc.com/staff",
+  "contact_name": "JOHN SHEPHERD",
+  "contact_title": "General Manager",
+  "contact_email": "jshepherd@devoeauto.com"
+ },
+ {
+  "dealer_name": "DIXIE BUICK GMC TRUCK, INC.",
+  "status": "fetched",
+  "source_url": "https://www.dixiebg.com/dealership/staff.htm",
+  "contact_name": "Jamie Wood",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "EAGLE BUICK-GMC, INC.",
+  "status": "fetched",
+  "source_url": "https://www.eaglebuickgmc.com/staff",
+  "contact_name": "Ron Elson",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ED MORSE SAWGRASS AUTO MALL",
+  "status": "fetched",
+  "source_url": "https://www.edmorsesawgrassbuickgmc.com/staff",
+  "contact_name": "Jordan Schear",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "FERMAN BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.fermanbuickgmc.com/about-us/staff/",
+  "contact_name": "Jay Cadwallader",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "FOUNTAIN BUICK GMC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "GARBER BUICK GMC OF FT. PIERCE",
+  "status": "fetched",
+  "source_url": "https://www.garberbuickgmc.com/dealership/staff.htm",
+  "contact_name": "Zach Swarthout",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "GARBER CHEVROLET BUICK GMC, INC.",
+  "status": "fetched",
+  "source_url": "https://www.garberautomallbuickgmc.com/dealership/staff.htm",
+  "contact_name": "Shane Gault",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "GETTEL CHEVROLET BUICK GMC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "JACK HANANIA BUICK GMC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "KELLEY BUICK GMC, INC.",
+  "status": "fetched",
+  "source_url": "https://www.kelleybuickgmc.com/staff",
+  "contact_name": "Brandon Wundrow",
+  "contact_title": "New Car Sales Manager",
+  "contact_email": "bwundrow@kelleybuickgmc.com"
+ },
+ {
+  "dealer_name": "KEY BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.keybuickgmc.com/dealership/staff.htm",
+  "contact_name": "Derek Archer",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "LINUS CADILLAC BUICK GMC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "LORENZO BUICK GMC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MCKENZIE BUICK-GMC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "NIMNICHT BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.nimnichtbuickgmc.com/meet-our-staff/",
+  "contact_name": "Jackie Lynch",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ORANGE BUICK GMC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "PHILLIPS BUICK-GMC TRUCK, INC.",
+  "status": "fetched",
+  "source_url": "https://www.phillipsbuickgmctruck.com/staff.aspx",
+  "contact_name": "T. Costas",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "RITCHEY BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.ritcheybuickgmc.com/staff",
+  "contact_name": "Brett Serbousek",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "RIVARD BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.rivardbuickgmc.com/staff",
+  "contact_name": "Justin Ramer",
+  "contact_title": "General Sales Manager",
+  "contact_email": "j.ramer@rivardbuickgmc.com"
+ },
+ {
+  "dealer_name": "RON ANDERSON CHEVROLET BUICK GMC, INC.",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SAM BOSWELL BUICK GMC MT. DORA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SCHUMACHER BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.schumacherpalmbeach.com/dealership/staff.htm",
+  "contact_name": "Dean Lead",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SCHUMACHER CHEVROLET-BUICK-GMC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SHEEHAN BUICK GMC, INC.",
+  "status": "fetched",
+  "source_url": "https://www.sheehanbuickgmc.com/staff",
+  "contact_name": "Buick GMC",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "STARLING BUICK GMC OF STUART",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "STEP ONE BUICK GMC PENSACOLA",
+  "status": "fetched",
+  "source_url": "https://www.buickgmcpensacola.com/meet-the-team/",
+  "contact_name": "Steve Massey",
+  "contact_title": "General Manager",
+  "contact_email": "smassey@steponeauto.com"
+ },
+ {
+  "dealer_name": "SULLIVAN BUICK GMC TRUCK",
+  "status": "fetched",
+  "source_url": "https://www.ocalabuickgmc.com/about-us/staff/",
+  "contact_name": "Zach Ellis",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SUNSET CHEVROLET-BUICK-GMC",
+  "status": "fetched",
+  "source_url": "https://www.sunsetbuickgmc.com/dealership/staff.htm",
+  "contact_name": "Michael Freeman",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "TASCA BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.tascabuickgmcmelbourne.com/about-us/staff/",
+  "contact_name": "Luke Johnson",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "TASCA BUICK GMC CLEARWATER",
+  "status": "fetched",
+  "source_url": "https://www.tascabuickgmcclearwater.com/about-us/staff/",
+  "contact_name": "Joe Clagg",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "TASCA BUICK GMC PALM HARBOR",
+  "status": "fetched",
+  "source_url": "https://www.tascabuickgmcpalmharbor.com/about-us/staff/",
+  "contact_name": "JASON AUSTIN",
+  "contact_title": "Bdc Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "VERA CADILLAC BUICK GMC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "WILLIAMSON BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.williamsonbuickgmc.com/staff",
+  "contact_name": "Beny Ledesma",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CAPITAL BUICK GMC, LLC",
+  "status": "fetched",
+  "source_url": "https://www.capitalbpg.com/staff",
+  "contact_name": "Steffon Stevenson",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CARL BLACK BUICK GMC, LLC",
+  "status": "fetched",
+  "source_url": "https://www.carlblackroswell.com/about-us/staff/",
+  "contact_name": "Matt Hernandez",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CARL BLACK CHEVROLET BUICK GMC, INC.",
+  "status": "fetched",
+  "source_url": "https://www.carlblackkennesawbuickgmc.com/about-us/staff/",
+  "contact_name": "Louis Spaeth",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "COLONIAL BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.colonialgmc.com/dealership/staff.htm",
+  "contact_name": "Phil Cook",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CRITZ, INC.",
+  "status": "fetched",
+  "source_url": "https://www.critzbuickgmc.com/dealership/staff.htm",
+  "contact_name": "Wes Asselin",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HAYES CHEVROLET, BUICK, GMC, CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.hayesbuickgmc.com/dealership/staff.htm",
+  "contact_name": "Adam Ramey",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "JIM ELLIS BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.jimellisbuickgmcatlanta.com/about-us/staff/",
+  "contact_name": "Patrick Bernard",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "JIM ELLIS BUICK GMC MALL OF GEORGIA",
+  "status": "fetched",
+  "source_url": "https://www.jimellisbuickgmcmog.com/about-us/staff/",
+  "contact_name": "Jason Dowdy",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "JIM HARDMAN BUICK GMC, INC.",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "JOHN MILES CHEVROLET BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.johnmileschevy.com/dealership/staff.htm",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "JOHN THORNTON BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.johnthorntonbuickgmc.com/dealership/staff.htm",
+  "contact_name": "RYAN DODSON",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MASTER BUICK GMC, INC.",
+  "status": "fetched",
+  "source_url": "https://www.masterbuickgmc.com/meet-the-team/",
+  "contact_name": "Frank Ward",
+  "contact_title": "General Sales Manager",
+  "contact_email": "fward@masterautomotive.com"
+ },
+ {
+  "dealer_name": "RICK HENDRICK BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.rickhendrickbuickgmcatlanta.com/about-us/staff/",
+  "contact_name": "Michael Dinardi",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SOUTHTOWNE CHEVROLET BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.southtownebuickgmc.com/about-us/staff/",
+  "contact_name": "MARK LENTZ",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BILLION COMMUNITY, INC.",
+  "status": "fetched",
+  "source_url": "https://www.billioncommunitybuickgmc.com/staff",
+  "contact_name": "Tyson Williams",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BOB BROWN BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.bobbrownbuickgmc.com/about-us/staff/",
+  "contact_name": "Dallas Buck",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BROWN'S SALES AND LEASING, INC.",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "COMMUNITY BUICK GMC, INC.",
+  "status": "fetched",
+  "source_url": "https://www.communitybuickgmc.com/about-us/staff/",
+  "contact_name": "Tom Bell",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ED MORSE CHEVROLET BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.edmorsebuickgmcmuscatine.com/staff",
+  "contact_name": "Jim Henderson",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "EDWARDS CHEVROLET BUICK GMC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "GREEN BUICK GMC INC.",
+  "status": "fetched",
+  "source_url": "https://www.greenbuickgmc.com/about-us/staff/",
+  "contact_name": "Jim Anderson",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "GREGG YOUNG BUICK GMC, LLC",
+  "status": "fetched",
+  "source_url": "https://www.gybuickgmc.net/dealership/staff.htm",
+  "contact_name": "Sean O'leary",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "H & N CHEVROLET-BUICK CO.",
+  "status": "fetched",
+  "source_url": "https://www.hnchevy.com/staff",
+  "contact_name": "Adam Hart",
+  "contact_title": "General Manager",
+  "contact_email": "harthnchevy@gmail.com"
+ },
+ {
+  "dealer_name": "HI-WAY CHEVROLET BUICK, INC.",
+  "status": "fetched",
+  "source_url": "https://www.hiwaychevrolet.com/staff",
+  "contact_name": "Vanden Bosch",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "JERRY ROLING MOTORS, INC.",
+  "status": "fetched",
+  "source_url": "https://www.jerryrolingbuick.com/staff",
+  "contact_name": "Craig Gunderson",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "KEMNA AUTO OF FORT DODGE",
+  "status": "fetched",
+  "source_url": "https://www.Kemnabuickgmc.com/staff",
+  "contact_name": "Bob Snider",
+  "contact_title": "General Manager",
+  "contact_email": "bob@kemna.com"
+ },
+ {
+  "dealer_name": "LAUTERBACH BUICK-GMC",
+  "status": "fetched",
+  "source_url": "https://www.lauterbachcars.net/staff",
+  "contact_name": "JASON LAUTERBACH",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MCGRATH BUICK GMC CADILLAC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "RICHARDSON BUICK-CADILLAC-GMC TRUCK",
+  "status": "fetched",
+  "source_url": "https://www.richardsongm.com/dealership/staff.htm",
+  "contact_name": "Justin Hendrickson",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SHOTTENKIRK, INC.",
+  "status": "fetched",
+  "source_url": "https://www.shottenkirkbuickgmc.com/about-us/staff/",
+  "contact_name": "Jamie Mundth",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "STEW HANSEN BUICK GMC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "VAUGHN AUTOMOTIVE",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HIRNING BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.hirningauto.com/dealership/staff.htm",
+  "contact_name": "Chris Sanders",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "KENDALL CHEVROLET BUICK GMC OF NAMPA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "PETERSON CHEVROLET BUICK CADILLAC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ROBIDEAUX MOTORS CO.",
+  "status": "fetched",
+  "source_url": "https://www.robideaux.com/staff",
+  "contact_name": "Tim Mee",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "WACKERLI AUTO CENTER",
+  "status": "fetched",
+  "source_url": "https://www.wackerligm.com/staff",
+  "contact_name": "Garcia Assistant",
+  "contact_title": "Sales Manager",
+  "contact_email": "giovannigarcia@gowackerli.com"
+ },
+ {
+  "dealer_name": "ADVANTAGE BUICK GMC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "AL PIEMONTE BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.apbuickgmc.com/about-us/staff/",
+  "contact_name": "Dan Judd",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ARLINGTON HEIGHTS BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.ahbuickgmc.com/about-us/staff/",
+  "contact_name": "called in",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ARNIE BAUER BUICK GMC CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.arniebauer.com/staff",
+  "contact_name": "Brunious Internet",
+  "contact_title": "Sales Manager",
+  "contact_email": "mbrunious@arniebauer.com"
+ },
+ {
+  "dealer_name": "AUFFENBERG OF CARBONDALE",
+  "status": "fetched",
+  "source_url": "https://www.auffenbergcarbondale.com/about-us/staff/",
+  "contact_name": "Aaron VanVooren",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BARKER MOTOR COMPANY",
+  "status": "fetched",
+  "source_url": "https://www.barkermotorco.net/about-us/staff/",
+  "contact_name": "Meads Yount",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BAUM CHEVROLET-BUICK COMPANY",
+  "status": "fetched",
+  "source_url": "https://www.baumbuick.com/staff",
+  "contact_name": "SHAWN EVANS",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BILL KAY BUICK GMC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BOB BRADY BUICK GMC, INC.",
+  "status": "fetched",
+  "source_url": "https://www.bobbradygm.com/about-us/staff/",
+  "contact_name": "Maurice Brown",
+  "contact_title": "New Car Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BOB BROCKLAND BUICK GMC, INC.",
+  "status": "fetched",
+  "source_url": "https://www.brockland.com/staff",
+  "contact_name": "Brent Ward",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CARDINAL BUICK GMC INC.",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CASTLE BUICK-GMC, INC.",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "D'ARCY BUICK-GMC",
+  "status": "fetched",
+  "source_url": "https://www.darcybuickgmc.com/about-us/staff/",
+  "contact_name": "Luke Sillar",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "DIEPHOLZ CHEVROLET BUICK GMC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "DRALLE CHEVROLET AND BUICK, INC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "DRALLE CHEVROLET BUICK GMC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "EAGLESON AUTOMOTIVE CENTER, INC.",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HAGGERTY BUICK GMC, INC.",
+  "status": "fetched",
+  "source_url": "https://www.haggertybuickgmc.com/staff",
+  "contact_name": "Danny Haggerty",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HOVE BUICK GMC INC.",
+  "status": "fetched",
+  "source_url": "https://www.hovebuickgmc.com/staff",
+  "contact_name": "Jay Smith",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "JEFF PERRY BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.jeffperrygm.com/staff",
+  "contact_name": "Marla Pearson",
+  "contact_title": "General Sales Manager",
+  "contact_email": "marla@jeffperrygm.com"
+ },
+ {
+  "dealer_name": "K. C. SUMMERS BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.kcsummersbuickgmc.com/staff",
+  "contact_name": "Mike Genta",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "KEN NELSON AUTO PLAZA, INC.",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "KEY AUTO MALL",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "LANDMARK OF TAYLORVILLE, INC.",
+  "status": "fetched",
+  "source_url": "https://www.landmarkbuickgmc.com/staff",
+  "contact_name": "Bill Pinkston",
+  "contact_title": "General Manager",
+  "contact_email": "Bill.Pinkston@landmarkauto.com"
+ },
+ {
+  "dealer_name": "LAURA BUICK-GMC, INC.",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "LIGHTHOUSE BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.lighthousegmc.com/staff",
+  "contact_name": "Joel Brown",
+  "contact_title": "Sales & Leasing Consultant",
+  "contact_email": "joelb@lighthousegmc.com"
+ },
+ {
+  "dealer_name": "LOU BACHRODT CHEVROLET BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.bachrodtbuickgmc.com/staff",
+  "contact_name": "Dimitrios Maravelas",
+  "contact_title": "General Sales Manager",
+  "contact_email": "dimitrios.maravelas@bachrodt.com"
+ },
+ {
+  "dealer_name": "MARION CHEVROLET BUICK GMC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MIKE HAGGERTY BUICK GMC, INC.",
+  "status": "fetched",
+  "source_url": "https://www.haggertycars.com/staff",
+  "contact_name": "Ernesto Soule",
+  "contact_title": "Sales Associate",
+  "contact_email": "esoule@haggertycars.com"
+ },
+ {
+  "dealer_name": "NAPLETON BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.napletonbuickgmc.com/about/staff/",
+  "contact_name": "Nick Ludford",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "NAPLETON DOWNTOWN BUICK GMC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "NAPLETON'S SCHAUMBURG BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.schaumburgbuickgmc.com/staff",
+  "contact_name": "Manny Herrera",
+  "contact_title": "General Sales Manager",
+  "contact_email": "mherrera@napletonmail.com"
+ },
+ {
+  "dealer_name": "POAGE AUTO PLAZA, INC.",
+  "status": "fetched",
+  "source_url": "https://www.poageautoplaza.com/staff",
+  "contact_name": "Chris Quinn",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "QUALITY BUICK GMC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "RAY DENNISON BUICK GMC CADILLAC, INC.",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "RIDINGS CHEVROLET-BUICK",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "RIZZA BUICK GMC CADILLAC, INC.",
+  "status": "fetched",
+  "source_url": "https://www.rizzabuickgmc.com/about-us/staff/",
+  "contact_name": "Jim Allegretti",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "RUSS BRAUNECKER BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.russbrauneckerautogroup.com/staff",
+  "contact_name": "Matt Braunecker",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "S & K BUICK-GMC, INC.",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SERRA BUICK GMC CHAMPAIGN",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "STEVE SCHMITT, INC.",
+  "status": "fetched",
+  "source_url": "https://www.steveschmittbuickgmc.com/dealership/staff.htm",
+  "contact_name": "CHRIS MARTZ",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "WOODY BUICK GMC OF GURNEE",
+  "status": "fetched",
+  "source_url": "https://www.woodybuickgmcgurnee.com/about-us/staff/",
+  "contact_name": "Daniel Dominguez",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "WOODY BUICK-GMC, INC.",
+  "status": "fetched",
+  "source_url": "https://www.woodycars.com/about-us/staff/",
+  "contact_name": "Daniel Dominguez",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "YEMM CHEVROLET-BUICK-GMC",
+  "status": "fetched",
+  "source_url": "https://www.yemmbuickgmc.com/dealership/staff.htm",
+  "contact_name": "Justin Wright",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ZEIGLER BUICK GMC OF LINCOLNWOOD",
+  "status": "fetched",
+  "source_url": "https://www.zeiglergmbuick.com/about-us/staff/",
+  "contact_name": "Tony Kokaljari",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ANDY MOHR BUICK GMC, INC",
+  "status": "fetched",
+  "source_url": "https://www.andymohrgmcbuick.com/staff",
+  "contact_name": "ERIC WILSON",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BOB LUEGERS MOTORS, INC.",
+  "status": "fetched",
+  "source_url": "https://www.bobluegers.com/about-us/staff/",
+  "contact_name": "Dave Luegers",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CIRCLE BUICK GMC, INC.",
+  "status": "fetched",
+  "source_url": "https://www.circleautomotive.com/staff",
+  "contact_name": "Druktenis Senior",
+  "contact_title": "Sales Consultant",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CURRIE MOTORS BUICK GMC, INC.",
+  "status": "fetched",
+  "source_url": "https://www.curriebuickgmc.com/about-us/staff/",
+  "contact_name": "Brenden Danford",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CURRY AUTO CENTER, INC.",
+  "status": "fetched",
+  "source_url": "https://www.CurryBuickGMC.com/dealership/staff.htm",
+  "contact_name": "Mike Waymire",
+  "contact_title": "Executive Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ED MARTIN BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.edmartinbuickgmc.com/staff",
+  "contact_name": "Zach Frutiger",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ED MARTIN BUICK GMC OF ANDERSON",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "FUSON BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.drivefuson.com/dealership/staff.htm",
+  "contact_name": "DAVID FUSON",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "GREG HUBLER BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.greghublerbuickgmc.com/about-us/staff/",
+  "contact_name": "Michael Ambler",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "GURLEY-LEEP BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.gurleyleepgmgiant.com/about-us/staff/",
+  "contact_name": "Rocky Faragoi",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "H. E. MCGONIGAL, INC.",
+  "status": "fetched",
+  "source_url": "https://www.mcgonigalgm.com/dealership/staff.htm",
+  "contact_name": "TRAVIS SHEDRON",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HOBSON CHEVROLET BUICK GMC, LLC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HUBBARD AUTO CENTER, INC.",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HUBLER AUTO CENTER, INC.",
+  "status": "fetched",
+  "source_url": "https://www.hublerbuick.com/staff",
+  "contact_name": "Jarrod Amyx",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HUBLER CHEVROLET BUICK GMC INC.",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "LOCHMANDY MOTOR SALES, INC.",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "POYNTER BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.bobpoynterbuickgmc.com/dealership/staff.htm",
+  "contact_name": "CLINT WASKOM",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "RAY SKILLMAN GMC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ROMAIN BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.romainbuick.com/staff",
+  "contact_name": "Enrique Lopez",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SCHEPEL BUICK-GMC, INC.",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "STOOPS BUICK GMC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "STOOPS BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.stoopsbuickgmc.com/dealership/staff.htm",
+  "contact_name": "Daniel Meyers",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "TOM KELLEY BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.drivekelleybuickgmc.com/dealership/staff.htm",
+  "contact_name": "Stephanie Hartman",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "YORK CHEVROLET-BUICK-GMC, INC.",
+  "status": "fetched",
+  "source_url": "https://www.yorkbuickgmc.com/about-us/staff/",
+  "contact_name": "Rodney Osburn",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BRIGGS BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.briggsbuickgmc.com/staff",
+  "contact_name": "Kent Briggs",
+  "contact_title": "Executive Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CABLE DAHMER OF TOPEKA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "DONOVAN AUTO & TRUCK CENTER, INC.",
+  "status": "fetched",
+  "source_url": "https://www.donovandrive.com/dealership/staff.htm",
+  "contact_name": "SHAWN STAFFORD",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HATCHETT BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.hatchettbuickgmc.com/staff",
+  "contact_name": "Jason Hess",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HENRY MARTENS CHEVROLET BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.henrymartensbuickgmc.com/staff",
+  "contact_name": "Dave Grauel",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HOLM BUICK GMC",
+  "status": "no_website",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "RANDY CURNOW BUICK GMC, INC.",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ROBERT BROGDEN'S OLATHE BUICK GMC INC.",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ADAMS BUICK GMC TRUCK",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "COURTESY BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.courtesybuickgmc.net/dealership/staff.htm",
+  "contact_name": "FRANK MOODY",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "DAN CUMMINS CHEVROLET BUICK OF GEORGETOWN",
+  "status": "fetched",
+  "source_url": "https://www.dancumminsbuickofgeorgetown.com/staff",
+  "contact_name": "Trey Congleton",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "DAN CUMMINS CHEVROLET-BUICK,INC.",
+  "status": "fetched",
+  "source_url": "https://www.dancumminsbuick.com/staff",
+  "contact_name": "Walter Johnson",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "DON FRANKLIN BARDSTOWN CHEVROLET BUICK",
+  "status": "fetched",
+  "source_url": "https://www.donfranklinbardstownbuick.com/about-us/staff/",
+  "contact_name": "David Brown",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "DON FRANKLIN CHEVROLET, BUICK, AND GMC, INC.",
+  "status": "fetched",
+  "source_url": "https://www.donfranklinsomersetbuickgmc.com/about-us/staff/",
+  "contact_name": "Adam Bryant",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "DON FRANKLIN LEXINGTON BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.donfranklinlexingtonbuickgmc.com/about-us/staff/",
+  "contact_name": "Eric McDonald",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "JEFF WYLER FLORENCE BUICK GMC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "LARRY STOVESAND BUICK GMC, INC",
+  "status": "fetched",
+  "source_url": "https://www.lsbuickgmc.com/staff",
+  "contact_name": "Paul Stovesand",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "LEACHMAN BUICK GMC CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.leachmanauto.com/staff",
+  "contact_name": "Nik Stanke",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ALL STAR BUICK GMC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BARKER BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.barkerbuickgmc.com/staff",
+  "contact_name": "KEITH BARKER",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "COURTESY BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.lafayettecourtesy.com/staff",
+  "contact_name": "Johnny Meaux",
+  "contact_title": "New Car Sales Manager",
+  "contact_email": "jmeaux@courtesy-group.com"
+ },
+ {
+  "dealer_name": "CROWN BUICK, LLC",
+  "status": "fetched",
+  "source_url": "https://www.crownbuickgmc.com/about-us/staff/",
+  "contact_name": "Todd Leaumont",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "GERRY LANE BUICK",
+  "status": "fetched",
+  "source_url": "https://www.gerrylanebuickgmc.com/staff",
+  "contact_name": "Keioike Lutcher",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "JIM TAYLOR BUICK GMC LLC",
+  "status": "fetched",
+  "source_url": "https://www.jimtaylorbuickgmc.com/about-us/staff/",
+  "contact_name": "Bobby Barton",
+  "contact_title": "Executive Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "LEGACY WESTBANK",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MORGAN BUICK GMC SHREVEPORT, INC.",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ROYAL BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.royal-buick-gmc.com/staff",
+  "contact_name": "John Donnes",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "STERLING BUICK-GMC",
+  "status": "fetched",
+  "source_url": "https://www.sterlingbuickgmc.com/about-us/staff/",
+  "contact_name": "Gabe Young",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "STERLING BUICK/GMC",
+  "status": "fetched",
+  "source_url": "https://www.sterlingbuickgmcwest.com/about-us/staff/",
+  "contact_name": "Justin Sonnier",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "VAUGHN CHEVROLET BUICK",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ALBRECHT BUICK GMC OF WAKEFIELD, INC.",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BATTLES BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.battlescapecod.com/staff",
+  "contact_name": "Melanie Battles",
+  "contact_title": "Executive Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BOB PION BUICK-GMC, INC.",
+  "status": "fetched",
+  "source_url": "https://www.bobpionbuickgmc.com/dealership/staff.htm",
+  "contact_name": "Sara Kapinos",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CHEVROLET BUICK GMC OF ATTLEBORO",
+  "status": "fetched",
+  "source_url": "https://www.attleborobuickgmc.com/dealership/staff.htm",
+  "contact_name": "Paul DaSilva",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "GREATER LOWELL BUICK GMC INC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "QUIRK BUICK GMC OF BRAINTREE",
+  "status": "fetched",
+  "source_url": "https://www.quirkbuickgmcofbraintree.com/about-us/staff/",
+  "contact_name": "Matthew Bille",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "VENDETTI MOTORS, INC.",
+  "status": "fetched",
+  "source_url": "https://www.vendettimotors.com/staff",
+  "contact_name": "Sean Morrissey",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ANDERSON BUICK GMC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ANDERSON BUICK GMC OF ABINGDON",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BUICK GMC OF BRANDYWINE",
+  "status": "fetched",
+  "source_url": "https://www.buickgmcofbrandywine.com/staff",
+  "contact_name": "Collin Miles",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HERTRICH BUICK GMC OF SALISBURY, INC.",
+  "status": "fetched",
+  "source_url": "https://www.hertrichbuickgmcsalisbury.com/dealership/staff.htm",
+  "contact_name": "PAUL LONGAKER",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "IDEAL BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.dealerrater.com/sales/Ideal-Hyundai-Buick-GMC-Employees-35322",
+  "contact_name": "Dennis Dawson",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "IG BURTON BUICK GMC OF ELKTON",
+  "status": "fetched",
+  "source_url": "https://www.igburtonbuickgmcelkton.com/staff",
+  "contact_name": "Brandon Brockmeyer",
+  "contact_title": "General Sales Manager",
+  "contact_email": "bbrockmeyer@igburton.com"
+ },
+ {
+  "dealer_name": "IG BURTON BUICK GMC OF GLEN BURNIE",
+  "status": "fetched",
+  "source_url": "https://www.igburtonbuickgmc.com/staff",
+  "contact_name": "Joseph Beach",
+  "contact_title": "General Sales Manager",
+  "contact_email": "jbeach@igburton.com"
+ },
+ {
+  "dealer_name": "LEXINGTON PARK CHEVROLET BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.lexingtonparkbuickgmc.com/staff",
+  "contact_name": "Grant Williams",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "STOLER CHEVROLET BUICK",
+  "status": "fetched",
+  "source_url": "https://www.stolerbuickowingsmills.com/staff",
+  "contact_name": "Steve Knolle",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BILL DODGE BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.billdodgewestbrook.com/staff",
+  "contact_name": "Patrick Sullivan",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "DARLING'S AUTO MALL",
+  "status": "fetched",
+  "source_url": "https://www.darlingsgmc.com/dealership/staff.htm",
+  "contact_name": "Darren Taylor",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "O'CONNOR CHEVROLET BUICK GMC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "VARNEY BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.varneybpg.com/dealership/staff.htm",
+  "contact_name": "Mac Beckwith",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "AL SERRA BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.alserrabuickgmc.com/staff",
+  "contact_name": "Buick GMC",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BAKER BUICK GMC HUDSONVILLE",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BAKER BUICK GMC LOWELL",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BAKER BUICK GMC OF CADILLAC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BAKER CHEVROLET BUICK COOPERSVILLE",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BELL-WASIK, INC.",
+  "status": "fetched",
+  "source_url": "https://www.bellwasik.com/staff",
+  "contact_name": "Ryan Rahn",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BETTEN CHEVROLET BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.bettenbuickgmc.com/about-us/staff/",
+  "contact_name": "CALEB BEMIS",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BOB JEANNOTTE BUICK GMC, INC.",
+  "status": "fetched",
+  "source_url": "https://www.jeannotte.com/staff",
+  "contact_name": "NEW CAR",
+  "contact_title": "Sales & Leasing Consultant",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CHAMPION BUICK GMC INC.",
+  "status": "fetched",
+  "source_url": "https://www.championgmcbuick.com/about-us/staff/",
+  "contact_name": "Ashley Bennett",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CLIFT BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.cliftauto.com/staff",
+  "contact_name": "LICIA WILLNOW",
+  "contact_title": "Sales Team Lead",
+  "contact_email": "lwillnow@cliftauto.com"
+ },
+ {
+  "dealer_name": "COLE BUICK GMC CADILLAC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CROWN MOTORS, LTD.",
+  "status": "fetched",
+  "source_url": "https://www.crownbuickmi.com/dealership/staff.htm",
+  "contact_name": "Derek Petroelje",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ED RINKE CHEVROLET BUICK GMC CO.",
+  "status": "fetched",
+  "source_url": "https://www.edrinkebuickgmc.com/staff",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "FLANNERY AUTO MALL",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "FLETCHS, INC.",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "FOX BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.foxbuickgmc.com/dealership/staff.htm",
+  "contact_name": "Colin Barrett",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "GARBER BUICK COMPANY",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "GOLLING BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.gollingbuickgmc.com/staff",
+  "contact_name": "Darin Young",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "GRAFF BUICK GMC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "JIM CAUSLEY BUICK - GMC TRUCK",
+  "status": "fetched",
+  "source_url": "https://www.jimcausley.com/staff",
+  "contact_name": "DAVID GRAY",
+  "contact_title": "General Sales Manager",
+  "contact_email": "dgray@jimcausley.com"
+ },
+ {
+  "dealer_name": "JIM WINTER AUTOMOTIVE GROUP",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "LABADIE BUICK GMC CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.labadiegm.com/dealership/staff.htm",
+  "contact_name": "DEALERSHIP TJ HORNER",
+  "contact_title": "Executive Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "LAFONTAINE BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.lafontainegm.com/staff",
+  "contact_name": "VIKTOR VULAJ",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "LAFONTAINE BUICK GMC OF ANN ARBOR, INC.",
+  "status": "fetched",
+  "source_url": "https://www.lafontainebuickgmcannarbor.com/staff",
+  "contact_name": "John Hurley",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "LAFONTAINE BUICK GMC OF DEARBORN",
+  "status": "fetched",
+  "source_url": "https://www.lafontainebuickgmcdearborn.com/staff",
+  "contact_name": "Todd Schulz",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "LAFONTAINE BUICK GMC, INC.",
+  "status": "fetched",
+  "source_url": "https://www.lafontainebuickgmclansing.com/staff",
+  "contact_name": "Jose Gallo",
+  "contact_title": "Sales Professional",
+  "contact_email": "jgallo@lafontaine.com"
+ },
+ {
+  "dealer_name": "LAFONTAINE CHEVROLET BUICK GMC OF ST. CLAIR",
+  "status": "fetched",
+  "source_url": "https://www.lafontainebuickgmcstclair.com/staff",
+  "contact_name": "JASON BIGNALL",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "LES STANFORD BUICK GMC LLC",
+  "status": "fetched",
+  "source_url": "https://www.lesstanfordbuickgmc.com/staff",
+  "contact_name": "Kevin Maples",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "LUNGHAMER BUICK GMC INC.",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MATICK BUICK GMC",
+  "status": "no_website",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MCDONALD CHEVROLET BUICK INC",
+  "status": "fetched",
+  "source_url": "https://www.mcdonaldbuick.com/about-us/staff/",
+  "contact_name": "Mark Prokopenko",
+  "contact_title": "Executive Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MIKE YOUNG BUICK-GMC, INC.",
+  "status": "fetched",
+  "source_url": "https://www.mikeyoung.com/staff",
+  "contact_name": "Ken Wolverton",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MORAN BUICK GMC OF STERLING HEIGHTS",
+  "status": "no_website",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "PREFERRED CHEVROLET BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.preferredbuickgmc.com/staff",
+  "contact_name": "Chuck Pelfresne",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "RANDY WISE BUICK-GMC",
+  "status": "fetched",
+  "source_url": "https://www.randywisebuickgmc.com/staff",
+  "contact_name": "Zach Lukenbill",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "RAY LAETHEM BUICK GMC, INC.",
+  "status": "fetched",
+  "source_url": "https://www.laethemgm.com/about-us/staff/",
+  "contact_name": "Che' Shaydak",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "RICHARDSON-MIDLAND, INC.",
+  "status": "no_website",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SERRA BUICK GMC CADILLAC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SERRA BUICK GMC ROCHESTER HILLS",
+  "status": "fetched",
+  "source_url": "https://www.serrabuickgmcrochesterhills.com/staff",
+  "contact_name": "Lance Smith",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SERRA BUICK GMC TRAVERSE CITY",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SHEA BUICK-GMC",
+  "status": "fetched",
+  "source_url": "https://www.sheabuickgmc.com/dealership/staff.htm",
+  "contact_name": "Stacy Fields",
+  "contact_title": "Dealer Principal",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SUBURBAN BUICK GMC OF TROY",
+  "status": "fetched",
+  "source_url": "https://www.suburbanbuickgmcoftroy.com/dealership/staff.htm",
+  "contact_name": "John Gangler",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "TAYLOR BUICK GMC",
+  "status": "no_website",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "TEAM ONE CHEVROLET-BUICK-GMC, INC.",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "TODD WENZEL BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.toddwenzelbuickgmc.com/about-us/staff/",
+  "contact_name": "Eric Thorns",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "TODD WENZEL BUICK GMC OF DAVISON, INC.",
+  "status": "fetched",
+  "source_url": "https://www.toddwenzeldavison.com/about-us/staff/",
+  "contact_name": "Tony Salsa",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "TODD WENZEL BUICK GMC OF WESTLAND, INC.",
+  "status": "fetched",
+  "source_url": "https://www.toddwenzelwestland.com/about-us/staff/",
+  "contact_name": "Justin Shewchuck",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "YOUNG BUICK GMC, L.L.C.",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "DIAMOND BUICK GMC OF ALEXANDRIA",
+  "status": "fetched",
+  "source_url": "https://www.diamondbuickgmc.com/about-us/staff/",
+  "contact_name": "Tobin Stithem",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "JIM LUPIENT BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.lupientbuickgmc.com/staff",
+  "contact_name": "Tim Ciccarelli",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "KEN WASCHKE AUTO PLAZA, INC.",
+  "status": "fetched",
+  "source_url": "https://www.kensautoplaza.com/staff",
+  "contact_name": "Brent Robinson",
+  "contact_title": "Sales Manager",
+  "contact_email": "brobinson@waschke.com"
+ },
+ {
+  "dealer_name": "KOLAR CHEVROLET-BUICK-GMC",
+  "status": "fetched",
+  "source_url": "https://www.kolarbuickgmc.com/staff",
+  "contact_name": "Dwayne Haapanen",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "KRUSE BUICK-GMC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "KUNES APPLE VALLEY BUICK GMC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "LUTHER BROOKDALE BUICK GMC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MILLER BUICK GMC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MILLS AUTO",
+  "status": "fetched",
+  "source_url": "https://www.millsgmcbaxter.com/about-us/staff/",
+  "contact_name": "Ryan Ware",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MILLS AUTO CENTER, INC.",
+  "status": "fetched",
+  "source_url": "https://www.millsgm-willmar.com/about-us/staff/",
+  "contact_name": "Derek Dionne",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MINNESOTA MOTOR COMPANY",
+  "status": "fetched",
+  "source_url": "https://www.mnmotorcobuick.com/staff",
+  "contact_name": "Brimhall Internet",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "PAPIK MOTORS, INC.",
+  "status": "fetched",
+  "source_url": "https://www.papikbuickgmc.com/about-us/staff/",
+  "contact_name": "Jordan Papik",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SNELL INDOOR AUTO CENTER",
+  "status": "fetched",
+  "source_url": "https://www.snellmotors.com/staff",
+  "contact_name": "Jeff Wondra",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "WALSER BUICK GMC OF BLOOMINGTON",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "WALSER BUICK GMC ROSEVILLE",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "WEST METRO BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.westmetroauto.com/about-us/staff/",
+  "contact_name": "Todd Knickerbocker",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "WHITE BEAR LAKE BUICK-GMC",
+  "status": "fetched",
+  "source_url": "https://www.whitebearlakesuperstore.com/about-us/staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "AUFFENBERG CHEVROLET-BUICK-GMC",
+  "status": "fetched",
+  "source_url": "https://www.auffenbergbuickgmc.com/about-us/staff/",
+  "contact_name": "John Cushman",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "AUTRY MORLAN, INC.",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BALDWIN BUICK GMC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BEHLMANN BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.behlmannbgc.com/staff",
+  "contact_name": "Mike Chrun",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BOB MCCOSH CHEVROLET BUICK GMC CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.bobmccoshbuickgmc.com/staff",
+  "contact_name": "Jeff Miller",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BOMMARITO BUICK-GMC",
+  "status": "fetched",
+  "source_url": "https://www.bommaritobuickgmc.com/staff",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CABLE DAHMER BUICK GMC OF KANSAS CITY",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CABLE-DAHMER BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.cabledahmerbuickgmc.com/staff",
+  "contact_name": "Grant Turnage",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "DAVE CROSS MOTORS",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "DAVE SINCLAIR BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.davesinclairbuickgmc.com/staff",
+  "contact_name": "Michael Sinclair",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ED MORSE CHEVROLET BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.edmorsebuickgmcrolla.com/staff",
+  "contact_name": "Mark Wood",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "FRANK LETA BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.frankletabuickgmc.com/about-us2/staff/",
+  "contact_name": "Tracy Barnett",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "GENTRY CHEVROLET BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.gentrybuickgmcloto.com/staff",
+  "contact_name": "Cory Gideon",
+  "contact_title": "Internet Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "LAURA CHEVROLET BUICK GMC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "LOTSPEICH AUTOMOTIVE",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "LOU FUSZ BUICK GMC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MAYSE AUTOMOTIVE GROUP, INC.",
+  "status": "fetched",
+  "source_url": "https://www.maysebuickgmc.com/staff",
+  "contact_name": "Greg Poe",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MODERN AUTO COMPANY, INC.",
+  "status": "fetched",
+  "source_url": "https://www.modernautoco.com/staff",
+  "contact_name": "Matthew Stewart",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "O'FALLON BUICK GMC LLC",
+  "status": "fetched",
+  "source_url": "https://www.ofallonbuickgmc.com/dealership/staff.htm",
+  "contact_name": "Controller Dariel",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "PEARL MOTOR COMPANY",
+  "status": "fetched",
+  "source_url": "https://www.pearlbuickgmc.com/about-us/staff/",
+  "contact_name": "Troy Teel",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "PINEGAR CHEVROLET-BUICK-GMC, INC.",
+  "status": "fetched",
+  "source_url": "https://www.pinegarbuickgmc.com/staff",
+  "contact_name": "Gary Fletcher",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "POAGE AUTO CENTER",
+  "status": "fetched",
+  "source_url": "https://www.poagechevybuick.com/staff",
+  "contact_name": "Chuck Huston",
+  "contact_title": "General Manager",
+  "contact_email": "chuck@poageautogroup.com"
+ },
+ {
+  "dealer_name": "REED BUICK GMC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "RUSTY DREWING CHEVROLET BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.rustydrewingbuickgmc.com/dealership/staff.htm",
+  "contact_name": "Jay Schnieders",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SAPAUGH CHEVROLET BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.sapaugh.com/staff",
+  "contact_name": "Joe Clemens",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SKYWAY BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.skywaybuickgmc.com/staff",
+  "contact_name": "Robbie Howard",
+  "contact_title": "General Manager",
+  "contact_email": "robbie.howard@skywaybuickgmc.com"
+ },
+ {
+  "dealer_name": "SUNTRUP BUICK GMC",
+  "status": "no_website",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "TAYLOR GRUBAUGH CHEVROLET BUICK GMC, LLC",
+  "status": "fetched",
+  "source_url": "https://www.taylorgrubaughbuickgmc.com/dealership/staff.htm",
+  "contact_name": "ALAN PENDER",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "THOMPSON BUICK GMC OF SPRINGFIELD",
+  "status": "fetched",
+  "source_url": "https://www.thompsonsalesbuickgmc.com/about-us/staff/",
+  "contact_name": "Tyler Thompson",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "W-K",
+  "status": "fetched",
+  "source_url": "https://www.wkbuickgmc.com/staff",
+  "contact_name": "Steve Pritzel",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CANNON BUICK CLEVELAND",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CANNON MOTORS, LLC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "DOSSETT BIG 4 BUICK GMC INC.",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HEAFNER MOTORS, INC.",
+  "status": "fetched",
+  "source_url": "https://www.heafnerchevy.com/staff",
+  "contact_name": "Keith Heafner",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "KIRK BROTHERS, INC.",
+  "status": "no_website",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "LANDERS BUICK GMC, LLC",
+  "status": "fetched",
+  "source_url": "https://www.landersbuickgmc.com/staff",
+  "contact_name": "Jeff Todd",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MANDAL AUTOMOTIVE GROUP, INC.",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "PHIL MOORE BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.philmoorebuickgmc.com/staff",
+  "contact_name": "Stephen Johnson",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "PINE BELT CHEVROLET",
+  "status": "fetched",
+  "source_url": "https://www.pinebeltbuick.com/about-us/staff/",
+  "contact_name": "Joseph Pope",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "DEMAROIS BUICK-GMC TRUCK",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ABERNETHY CHEVROLET BUICK GMC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BEN MYNATT BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.benmynattbuick.com/staff",
+  "contact_name": "Cyndie Mynatt",
+  "contact_title": "Dealer Principal",
+  "contact_email": "cmynatt@benmynatt.com"
+ },
+ {
+  "dealer_name": "BLACK BUICK GMC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BLEECKER BUICK GMC INC.",
+  "status": "fetched",
+  "source_url": "https://www.bleeckergmsuperstore.com/dealership/staff.htm",
+  "contact_name": "Alvin Ivey",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BOB KING BUICK GMC, INC.",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BROWN & WOOD, INC.",
+  "status": "fetched",
+  "source_url": "https://www.brown-wood.net/staff",
+  "contact_name": "DUKE General",
+  "contact_title": "Sales Manager",
+  "contact_email": "michaelduke@brownandwoodauto.com"
+ },
+ {
+  "dealer_name": "DEACON JONES AUTOPARK, INC.",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "DOUG HENRY BUICK GMC, INC.",
+  "status": "fetched",
+  "source_url": "https://www.doughenrygoldsboro.com/staff",
+  "contact_name": "Andy Dworkin",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "EVERETT CHEVROLET BUICK GMC CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.everettbuickgmc.com/about-us/staff/",
+  "contact_name": "Kamby Lewis",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "FLOW AUTO CENTER",
+  "status": "fetched",
+  "source_url": "https://www.flowgreensborobuickgmc.com/staff",
+  "contact_name": "Mike James",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "FLOW BUICK-GMC",
+  "status": "fetched",
+  "source_url": "https://www.flowfayettevillebuickgmc.com/staff",
+  "contact_name": "Buick GMC",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "FLOW CHEVROLET BUICK GMC CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.flowgmauto.com/staff",
+  "contact_name": "Blake Holland",
+  "contact_title": "New Car Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "GASTONIA CHEVROLET BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.gastoniabuickgmc.com/dealership/staff.htm",
+  "contact_name": "Jason Johnson",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "GRIFFIN MOTOR COMPANY, INC.",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HENDRICK BUICK GMC CADILLAC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HENDRICK CHEVROLET BUICK GMC CADILLAC SOUTHPOINT",
+  "status": "fetched",
+  "source_url": "https://www.hendrickbuickgmcsouthpoint.com/about-us/staff/",
+  "contact_name": "Tony Holmes",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "LIBERTY BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.clickliberty.com/staff",
+  "contact_name": "Brad McCorkle",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "LUMBERTON CHEVROLET BUICK GMC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MEDLIN BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.medlinbuickgmc.com/staff",
+  "contact_name": "Trey Medlin",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MOORE BUICK GMC TRUCK, INC.",
+  "status": "fetched",
+  "source_url": "https://www.moorebuick.com/about-us/staff/",
+  "contact_name": "DAVID SMOAK",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "RANDY MARION BUICK GMC, LLC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "THOMPSON BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.thompsoncars.net/about-us/staff/",
+  "contact_name": "Ryan Fuller",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "TRENT BUICK GMC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "VANN YORK CHEVROLET BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.vannyorkbuickgmc.com/staff",
+  "contact_name": "Heard Internet",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "WESTCOTT BUICK GMC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "WILLIAMS BUICK GMC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "LUTHER FAMILY BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.lutherfamilybuickgmc.com/about-us-draft/staff/",
+  "contact_name": "Anita Hetler",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "RYAN GMC, BUICK, CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.ryangmc.com/about-us/staff/",
+  "contact_name": "Bryan Starr",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SCHWAN BUICK GMC CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.schwanbuickgmc.com/staff",
+  "contact_name": "Brad Foss",
+  "contact_title": "Sales & Leasing Consultant",
+  "contact_email": "brad@schwangmc.com"
+ },
+ {
+  "dealer_name": "MIDWAY CHEVROLET BUICK GMC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "PONY EXPRESS CHEVROLET BUICK",
+  "status": "fetched",
+  "source_url": "https://www.ponyexpresschevy.com/staff",
+  "contact_name": "Corey Jensen",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SID DILLON BUICK GMC-FREMONT",
+  "status": "fetched",
+  "source_url": "https://www.siddillonbuickgmc.com/about-us/staff/",
+  "contact_name": "Rich Eyler",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SID DILLON BUICK NISSAN HYUNDAI",
+  "status": "fetched",
+  "source_url": "https://www.siddillonbuick.com/about-us/staff/",
+  "contact_name": "Nick Hunke",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "WOODHOUSE BUICK GMC OF OMAHA",
+  "status": "fetched",
+  "source_url": "https://www.woodhousebuickgmc.com/about-us/staff/",
+  "contact_name": "Ashley Rankin",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BANKS CHEVROLET-CADILLAC, INC.",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "FAIRFIELD'S CADILLAC, BUICK, GMC, INC.",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "QUIRK BUICK AND QUIRK GMC",
+  "status": "fetched",
+  "source_url": "https://www.quirkbuickgmc.com/about-us/meet-our-team/",
+  "contact_name": "Steve O'Brien",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "TULLEY BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.tulleybuickgmc.com/about-us/staff/",
+  "contact_name": "Cameron Tulley",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BARLOW BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.barlowbpg.com/staff",
+  "contact_name": "John Barlow",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BARLOW BUICK-GMC",
+  "status": "fetched",
+  "source_url": "https://www.barlowbuickgmc.com/staff.aspx",
+  "contact_name": "Barlow Giglio",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BUICK-GMC OF MAHWAH",
+  "status": "fetched",
+  "source_url": "https://www.buickgmcofmahwah.com/dealership/staff.htm",
+  "contact_name": "Kathleen Finn",
+  "contact_title": "Dealer Principal",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BURNS BUICK-GMC",
+  "status": "fetched",
+  "source_url": "https://www.burnsbuickgmc.com/staff",
+  "contact_name": "Mike Borkowski",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "COLEMAN BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.colemanautos.com/staff",
+  "contact_name": "Charles Johnson",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "F.C. KERBECK BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.kerbeckbuickgmc.com/staff",
+  "contact_name": "Joe McGrath",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "FREEHOLD BUICK-GMC, INC.",
+  "status": "fetched",
+  "source_url": "https://www.freeholdautos.com/staff",
+  "contact_name": "Sydney Sousa",
+  "contact_title": "Sales Associate",
+  "contact_email": "sydneysousa@freeholdautos.com"
+ },
+ {
+  "dealer_name": "GREEN BROOK BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.greenbrookauto.com/staff",
+  "contact_name": "Andres Gaitan",
+  "contact_title": "Sales Manager",
+  "contact_email": "agaitan@greenbrookauto.com"
+ },
+ {
+  "dealer_name": "JIM CURLEY BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.buickgmckeyportnj.com/about-us/staff/",
+  "contact_name": "Bruce DeFranco",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MAXON BUICK GMC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MCGUIRE BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.mcguireautogroup.net/staff",
+  "contact_name": "Jim Cipola",
+  "contact_title": "Sales Associate",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "NORTH BERGEN BUICK GMC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "PELLEGRINO BUICK GMC, INC.",
+  "status": "fetched",
+  "source_url": "https://www.pellegrinopbg.com/about-us/staff/",
+  "contact_name": "LOUIS CEROTA",
+  "contact_title": "Sales Consultant",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "PERFORMANCE BUICK GMC OF WOODBRIDGE LLC",
+  "status": "fetched",
+  "source_url": "https://www.performancebuickgmcwoodbridge.com/dealership/staff.htm",
+  "contact_name": "Dino Abragao",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "PERFORMANCE BUICK-GMC LLC",
+  "status": "fetched",
+  "source_url": "https://www.performancebuickgmc.com/dealership/staff.htm",
+  "contact_name": "ANTHONY LAMANNA",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ROYAL BUICK GMC, INC.",
+  "status": "fetched",
+  "source_url": "https://www.royaladvantage.com/about-us/staff/",
+  "contact_name": "ROB DOWNS",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SAWYER LYONS BUICK GMC OF RANDOLPH",
+  "status": "fetched",
+  "source_url": "https://www.sawyerlyonsbuickgmc.com/about-us/staff/",
+  "contact_name": "Bret Reyes",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SCHUMACHER CHEVROLET BUICK OF BOONTON",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "T&T COAST BUICK-GMC",
+  "status": "fetched",
+  "source_url": "https://www.ttcoastauto.com/about-us/staff/",
+  "contact_name": "JOHN MCBRIDE",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HI COUNTRY BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.truck-guys.com/dealership/staff.htm",
+  "contact_name": "Orien Israel",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "PITRE BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.pitrebuickgmc.com/dealership/staff.htm",
+  "contact_name": "TAVIO BORBA",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "QUALITY BUICK GMC, INC.",
+  "status": "fetched",
+  "source_url": "https://www.qualitybydilorenzo.com/about-us/staff/",
+  "contact_name": "Aubra Logan",
+  "contact_title": "New Car Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "AUTONATION BUICK GMC HENDERSON",
+  "status": "fetched",
+  "source_url": "https://www.autonationbuickgmchenderson.com/staff",
+  "contact_name": "David Culp",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "AUTONATION BUICK GMC WEST SAHARA",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CORWIN BUICK GMC RENO",
+  "status": "fetched",
+  "source_url": "https://www.corwinbuickgmcreno.com/staff",
+  "contact_name": "Lance Dattilo",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "FAIRWAY BUICK GMC TRUCK",
+  "status": "fetched",
+  "source_url": "https://www.fairwaybuickgmc.com/about-us/staff/",
+  "contact_name": "Matt McCombs",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "JERRY SEINER BUICK GMC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BICAL AUTO MALL",
+  "status": "fetched",
+  "source_url": "https://www.bicalbuickgmc.com/staff",
+  "contact_name": "Jamil Quaiser",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BOB JOHNSON BUICK GMC LLC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BOB JOHNSON BUICK GMC SOUTH",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BOMNIN BUICK GMC NANUET",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BRENNAN BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.brennanbuickgmc.com/dealership/meet-our-staff.htm",
+  "contact_name": "SEAN REIL",
+  "contact_title": "Sales Manager",
+  "contact_email": "SREIL@BRENNANBUICKGMC.COM"
+ },
+ {
+  "dealer_name": "BURDICK CHEVROLET BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.burdickbuickgmc.com/dealership/staff.htm",
+  "contact_name": "Ryan Meek",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CAPPELLINO BUICK-GMC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "COLANDREA BUICK-GMC, INC.",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "D'ELLA BUICK-GMC-CADILLAC, INC.",
+  "status": "fetched",
+  "source_url": "https://www.dellagm.com/staff",
+  "contact_name": "Michael Tonks",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "DAVIDSON AUTOMOTIVE GROUP",
+  "status": "fetched",
+  "source_url": "https://www.davidsonbuickgmc.com/staff",
+  "contact_name": "Jerry Heath",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "DAVIDSON AUTOMOTIVE GROUP",
+  "status": "fetched",
+  "source_url": "https://www.davidsonbuickgmcrome.com/staff",
+  "contact_name": "ROGER BORIS",
+  "contact_title": "Sales Consultant",
+  "contact_email": "rogerb@davidsonautonet.com"
+ },
+ {
+  "dealer_name": "EMPIRE BUICK GMC OF LONG ISLAND CITY",
+  "status": "fetched",
+  "source_url": "https://www.shopempirebuickgmcoflic.com/staff",
+  "contact_name": "Hoppe Internet",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "FAY MOTORS, INC.",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "GARBER RANDALL BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.garberrandallbuickgmc.com/dealership/staff.htm",
+  "contact_name": "Sean Carroll",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "GENERATION BUICK GMC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "GOLDSTEIN BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.goldsteinbuick.com/staff",
+  "contact_name": "Dan Sweeney",
+  "contact_title": "General Sales Manager",
+  "contact_email": "DSweeney@GoldsteinAuto.com"
+ },
+ {
+  "dealer_name": "HUDSON CADILLAC BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.hudsonbuickgmc.com/staff",
+  "contact_name": "Michael Mullaney",
+  "contact_title": "Dealer Principal",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "JIM MURPHY BUICK GMC, INC.",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "KING O'ROURKE BUICK GMC, LLC",
+  "status": "fetched",
+  "source_url": "https://www.kingorourkeautogroup.com/staff",
+  "contact_name": "Tommy Costa",
+  "contact_title": "General Sales Manager",
+  "contact_email": "tcosta@kingorourke.com"
+ },
+ {
+  "dealer_name": "MANGINO BUICK - GMC",
+  "status": "fetched",
+  "source_url": "https://www.manginobuickgmc.com/staff",
+  "contact_name": "Larry Hockford",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MIKE SMITH BUICK GMC INC.",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "NYE BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.nyegmc.com/about-us/staff/",
+  "contact_name": "Emaj Smith",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "PLATINUM BUICK GMC OF WHITE PLAINS",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "RICK BOKMAN, INC.",
+  "status": "fetched",
+  "source_url": "https://www.rickbokmaninc.com/staff",
+  "contact_name": "Kyle O'Laughlin",
+  "contact_title": "Sales Manager",
+  "contact_email": "kyleo@rickbokmaninc.com"
+ },
+ {
+  "dealer_name": "ROBERT BASIL BUICK GMC CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.robertbasilcars.com/about-us/staff/",
+  "contact_name": "James Griffin",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ROMEO CHEVROLET BUICK GMC, LLC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SIMMONS ROCKWELL BUICK GMC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "VISION BUICK GMC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "WEST HERR BUICK GMC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "#1 COCHRAN BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.cochranbuickgmcyoungstown.com/about-us/staff/",
+  "contact_name": "Anthony Garono",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ABRAHAM BUICK GMC, INC.",
+  "status": "fetched",
+  "source_url": "https://www.nickabrahambuick.com/staff",
+  "contact_name": "Wendell Brown",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "AL BAUMANN CHEVROLET-BUICK, INC.",
+  "status": "fetched",
+  "source_url": "https://www.albaumannbuick.com/dealership/staff.htm",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BALLAS BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.ballasbuickgmc.com/staff",
+  "contact_name": "Tim Gladieux",
+  "contact_title": "New Car Sales Manager",
+  "contact_email": "tgladieux@ballasbuickgmc.com"
+ },
+ {
+  "dealer_name": "BOB ROSS BUICK GMC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CLASSIC BUICK GMC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "COUGHLIN AUTOMOTIVE OF CIRCLEVILLE, LLC",
+  "status": "fetched",
+  "source_url": "https://www.coughlinbuickgmccircleville.com/staff",
+  "contact_name": "Doug Winland",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "COUGHLIN CHEVROLET BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.coughlinbuickgmcnewark.com/staff",
+  "contact_name": "Gary Burwell",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "COUGHLIN CHEVROLET OF CHILLICOTHE",
+  "status": "fetched",
+  "source_url": "https://www.coughlinbuickgmcchillicothe.com/staff",
+  "contact_name": "Andy Gilbert",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "COUGHLIN CHEVROLET-BUICK-CADILLAC OF MARYSVILLE",
+  "status": "fetched",
+  "source_url": "https://www.coughlinbuickmarysville.com/staff",
+  "contact_name": "Brad VanFleet",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CRESTMONT BUICK GMC, LLC",
+  "status": "fetched",
+  "source_url": "https://www.crestmontbuickgmc.com/about-us/staff/",
+  "contact_name": "Charles Mayle",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CRONIN BUICK GMC OF PERRYSBURG",
+  "status": "no_website",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "DAVE ARBOGAST BUICK-GMC",
+  "status": "fetched",
+  "source_url": "https://www.arbogastbuickgmc.com/about-us/staff/",
+  "contact_name": "Brandon Johnson",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "JAKE SWEENEY BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.jakesweeneybuickgmc.com/dealership/staff.htm",
+  "contact_name": "TROY COPENHAVER",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "JAY BUICK GMC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "JOSEPH BUICK-GMC TRUCK, INC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "JOYCE BUICK GMC, INC.",
+  "status": "fetched",
+  "source_url": "https://www.drivejoyce.com/staff",
+  "contact_name": "Tony Foos",
+  "contact_title": "General Sales Manager",
+  "contact_email": "tony@drivejoyce.com"
+ },
+ {
+  "dealer_name": "JUNCTION BUICK GMC, INC.",
+  "status": "fetched",
+  "source_url": "https://www.junctionbuickgmc.com/staff",
+  "contact_name": "Butler Buick-GMC",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "KEN GANLEY BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.kenganleybuickgmc.com/dealership/staff.htm",
+  "contact_name": "Jared Wilson",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "KEN GANLEY BUICK GMC STRONGSVILLE",
+  "status": "fetched",
+  "source_url": "https://www.ganleybuickgmc.com/dealership/staff.htm",
+  "contact_name": "Joe Gerycz",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "KERRY BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.kerrybuickgmc.com/meet-our-team.htm",
+  "contact_name": "Chris Williams",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "LAMBERT BUICK GMC, INC.",
+  "status": "fetched",
+  "source_url": "https://www.lambertbuickgmc.com/staff",
+  "contact_name": "Jason Thoenen",
+  "contact_title": "Sales Manager",
+  "contact_email": "jthoenen@lambertgm.com"
+ },
+ {
+  "dealer_name": "LARIA CHEVROLET - BUICK INC.",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "LINDSAY BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.lindsaybuickgmctruck.com/about-us/staff/",
+  "contact_name": "CAMERON WALTERS",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MARK SWEENEY BUICK GMC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MARK WAHLBERG BUICK GMC OF COLUMBUS",
+  "status": "fetched",
+  "source_url": "https://www.markwahlbergbuickgmc.com/staff",
+  "contact_name": "Brian Gilmore",
+  "contact_title": "General Manager",
+  "contact_email": "bgilmore@markwahlbergauto.com"
+ },
+ {
+  "dealer_name": "MCCLUSKEY CHEVROLET BUICK GMC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MEDINA AUTO MALL",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MORRIS BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.drivemorris.com/staff",
+  "contact_name": "Adam Morris",
+  "contact_title": "Dealer Principal",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "REICHARD BUICK GMC, INC.",
+  "status": "fetched",
+  "source_url": "https://www.reichardbuick.com/about-us/staff/",
+  "contact_name": "RHETT REICHARD",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "RICART BUICK GMC",
+  "status": "no_website",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "RON MARHOFER BUICK GMC, INC.",
+  "status": "fetched",
+  "source_url": "https://www.ronmarhofergmc.com/dealership/staff.htm",
+  "contact_name": "Scott Marhofer",
+  "contact_title": "Dealer Principal",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SHARPNACK CHEVROLET BUICK, INC.",
+  "status": "fetched",
+  "source_url": "https://www.sharpnackbuick.com/staff",
+  "contact_name": "TODD WENDT",
+  "contact_title": "General Manager",
+  "contact_email": "todd@sharpnackdirect.com"
+ },
+ {
+  "dealer_name": "SIMS BUICK-GMC TRUCK, INC.",
+  "status": "fetched",
+  "source_url": "https://www.simsbuickgmc.com/about-us/staff/",
+  "contact_name": "Belica Senior",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SNYDER BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.snydergm.com/dealership/staff.htm",
+  "contact_name": "ALLAN WITTE",
+  "contact_title": "Sales And Leasing",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SPITZER BUICK GMC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SPITZER BUICK GMC PARMA",
+  "status": "fetched",
+  "source_url": "https://www.spitzerbuickgmcparma.com/about-us/staff/",
+  "contact_name": "Bill Gilmore",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "STADIUM CHEVROLET BUICK GMC CADILLAC, INC.",
+  "status": "fetched",
+  "source_url": "https://www.stadiumbuickgmc.com/staff",
+  "contact_name": "Michael Hudock",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "STEINLE CHEVROLET BUICK LLC",
+  "status": "fetched",
+  "source_url": "https://www.steinlechevroletbuick.com/staff",
+  "contact_name": "Steinle II",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "TOM AHL BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.tomahlbuickgmc.com/dealership/staff.htm",
+  "contact_name": "Vince Downing",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "TOM GILL BUICK GMC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "TOTH BUICK GMC, INC.",
+  "status": "fetched",
+  "source_url": "https://www.tothakron.com/staff",
+  "contact_name": "Russell Toth",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "TWINS BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.twinsbuickgmc.com/staff",
+  "contact_name": "Beau Daubenmier",
+  "contact_title": "New Car Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "VAN DEVERE BUICK",
+  "status": "fetched",
+  "source_url": "https://www.buickvandevere.com/staff",
+  "contact_name": "Joe VanDevere",
+  "contact_title": "General Manager",
+  "contact_email": "joe.vandevere@vandevere.com"
+ },
+ {
+  "dealer_name": "BLUE RIBBON CHEVROLET BUICK GMC, INC.",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BOB HOWARD BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.bobhowardbuickgmc.com/about-us/staff/",
+  "contact_name": "Andy Herndon",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BOB MOORE BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.bobmoorebuickgmcokc.com/about-us/staff/",
+  "contact_name": "Jeremy Bird",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CONFIDENCE BUICK GMC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "FERGUSON BUICK GMC LLC",
+  "status": "fetched",
+  "source_url": "https://www.fergusonchallenge.com/about-us/staff/",
+  "contact_name": "Gary Burton",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "JERRY FERGUSON BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.fergusonbuickgmc.com/about-us/staff/",
+  "contact_name": "Zach Walker",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "JOHN VANCE MOTORS, INC.",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MARC MILLER BUICK GMC, INC.",
+  "status": "fetched",
+  "source_url": "https://www.marcmillerbuickgmc.com/staff",
+  "contact_name": "Steve Lahmeyer",
+  "contact_title": "New Car Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MARK ALLEN BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.markallen-buick-gmc.com/dealership/staff.htm",
+  "contact_name": "DEREK ELLIS",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SOUTHWEST BUICK OF LAWTON",
+  "status": "no_website",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BUICK GMC OF BEAVERTON",
+  "status": "fetched",
+  "source_url": "https://www.beavertongmc.com/aboutus.aspx",
+  "contact_name": "Charles Brown",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "POWER BUICK GMC OF SALEM",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ROYAL MOORE BUICK-GMC",
+  "status": "fetched",
+  "source_url": "https://www.royalmooregmc.com/staff",
+  "contact_name": "MICHAEL WEBER",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "WESTON BUICK GMC, INC.",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "#1 COCHRAN OF MONROEVILLE",
+  "status": "fetched",
+  "source_url": "https://www.cochranofmonroeville.com/about-us/staff/",
+  "contact_name": "Jim Raub",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "#1 COCHRAN OF ROBINSON TOWNSHIP",
+  "status": "fetched",
+  "source_url": "https://www.cochranofrobinson.com/about-us/staff/",
+  "contact_name": "Joe Schleicher",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "A. CRIVELLI BUICK GMC, INC.",
+  "status": "fetched",
+  "source_url": "https://www.acrivellibpg.com/dealership/staff.htm",
+  "contact_name": "Tony Faraone",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BAGLIER BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.baglierbuickgmc.com/staff",
+  "contact_name": "Matt Keene",
+  "contact_title": "New Car Sales Manager",
+  "contact_email": "mattkeene@baglier.com"
+ },
+ {
+  "dealer_name": "BENNETT BUICK GMC OF LEBANON",
+  "status": "fetched",
+  "source_url": "https://www.bennettbuickgmcoflebanon.com/about-us/staff/",
+  "contact_name": "Collin Wathen",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BERGEY'S BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.bergeysbuickgmc.com/dealership/staff.htm",
+  "contact_name": "Bob Lewis",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BOWSER BUICK",
+  "status": "fetched",
+  "source_url": "https://www.bowserbuickgmc.com/staff",
+  "contact_name": "Brad Boyle",
+  "contact_title": "Sales & Leasing Consultant",
+  "contact_email": "bboyle@powerofbowser.com"
+ },
+ {
+  "dealer_name": "BUDD BAER BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.buddbaergm.com/dealership/staff.htm",
+  "contact_name": "Gregg Cron",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "C HARPER BUICK GMC INC.",
+  "status": "fetched",
+  "source_url": "https://www.charperbuickgmc.com/staff",
+  "contact_name": "Corey Queen",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CARLISLE CADILLAC BUICK GMC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CRIVELLI CHEVROLET BUICK, INC.",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "EDW. J. SCHWARZ, INC.",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "FAULKNER BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.faulknerbuickgmctrevose.com/staff",
+  "contact_name": "Joe Bogansky",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "FAULKNER BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.faulknerbuickgmcharrisburg.com/staff",
+  "contact_name": "Brandon Hughes",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "FAULKNER BUICK GMC WEST CHESTER, INC.",
+  "status": "fetched",
+  "source_url": "https://www.faulknerauto.com/dealership/staff.htm",
+  "contact_name": "JOHN SIMONELLI",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "FRED BEANS BUICK OF MECHANICSBURG",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "GRANITE RUN BUICK GMC INC.",
+  "status": "no_website",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HILL BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.hillbuickgmc.com/dealership/staff.htm",
+  "contact_name": "MARK ROBINSON",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "JACK GIAMBALVO MOTOR CO., INC.",
+  "status": "fetched",
+  "source_url": "https://www.jackgiambalvo.com/about-us/staff/",
+  "contact_name": "Joel Crews",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "JENNINGS CHEVROLET BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.jenningschambersburgbuickgmc.net/staff",
+  "contact_name": "Justin Diehl",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "JO-DAN BUICK GMC, INC.",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "KELLY BUICK-GMC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MIRACLE BUICK GMC OF KUTZTOWN",
+  "status": "fetched",
+  "source_url": "https://www.kutztownauto.com/about-us/staff/",
+  "contact_name": "David Jones",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "NORTH STAR BUICK GMC, INC.",
+  "status": "fetched",
+  "source_url": "https://www.northstarbuickgmc.com/staff",
+  "contact_name": "Allen Mottshaw",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "PATRIOT BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.kingofgmc.com/staff/",
+  "contact_name": "JOHN LONG",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "PERUZZI BUICK GMC, INC.",
+  "status": "fetched",
+  "source_url": "https://www.peruzzibuickgmc.com/staff",
+  "contact_name": "Jason Young",
+  "contact_title": "General Manager",
+  "contact_email": "jyoung@peruzzi.com"
+ },
+ {
+  "dealer_name": "SHERWOOD CHEVROLET BUICK GMC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SOLOMON CHEVROLET BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.solomonbuickgmc.com/staff",
+  "contact_name": "Jason Brant",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "THOMAS BUICK - GMC TRUCK",
+  "status": "fetched",
+  "source_url": "https://www.buythomasbuick.com/dealership/staff.htm",
+  "contact_name": "Scott Leitenberger",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "TROY-ALAN BUICK",
+  "status": "fetched",
+  "source_url": "https://www.troyalanbuick.com/about-us/staff/",
+  "contact_name": "Christine Sepich",
+  "contact_title": "Executive Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "TROY-ALAN CHEVROLET BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.troyalangmcbuick.com/about-us/staff/",
+  "contact_name": "was the",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "TURNER BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.turnernewholland.com/staff",
+  "contact_name": "Bart Kyler",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "WRIGHT AUTOMOTIVE GROUP",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "WRIGHT CHEVROLET OF AMBRIDGE, LLC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "PAUL MASSE BUICK GMC SOUTH, INC.",
+  "status": "fetched",
+  "source_url": "https://www.paulmassebuickgmcsouth.com/staff",
+  "contact_name": "Rick Mignanelli",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "TASCA BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.tascabuickgmc.com/about-us/staff/",
+  "contact_name": "Tim Strom",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BEACH BUICK GMC, INC.",
+  "status": "fetched",
+  "source_url": "https://www.BeachBGMC.com/staff",
+  "contact_name": "Dallas Maxwell",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "FRED ANDERSON CHEVROLET BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.fredandersonbuickgmc.com/staff",
+  "contact_name": "JEFF PLUNKETT",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "GAFFNEY BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.gaffneyauto.com/staff",
+  "contact_name": "Daniel Crabtree",
+  "contact_title": "Executive Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HADWIN-WHITE BUICK GMC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HILTON HEAD BUICK GMC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "JIM HUDSON BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.jimhudsongm.com/about-us/staff/",
+  "contact_name": "MARC ROSARIO",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "KING BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.kingflorencegm.com/staff",
+  "contact_name": "Tom Raschiatore",
+  "contact_title": "General Sales Manager",
+  "contact_email": "traschiatore@kingflorence.com"
+ },
+ {
+  "dealer_name": "LUGOFF CHEVROLET BUICK GMC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MCELVEEN BUICK GMC, INC.",
+  "status": "fetched",
+  "source_url": "https://www.mcelveen.com/dealership/staff.htm",
+  "contact_name": "TOMMY DANTZLER",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "PARKS BUICK GMC, LLC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BILLION BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.gmcsiouxfalls.com/staff",
+  "contact_name": "Jason Donovan",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BROOKINGS AUTO MALL",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "GRANITE BUICK",
+  "status": "fetched",
+  "source_url": "https://www.granitebuickgmc.com/about-us/staff/",
+  "contact_name": "Shane Cox",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "NORTHTOWN AUTOMOTIVE",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "OLYMPIC CHEVROLET BUICK GMC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "PROSTROLLO MOTOR COMPANY",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "WEGNER AUTO COMPANY, INC.",
+  "status": "fetched",
+  "source_url": "https://www.wegnerautobuickgmc.com/staff",
+  "contact_name": "Andy Binegar",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CHAPARRAL BUICK GMC INC.",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CHEVROLET BUICK GMC OF MURFREESBORO",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "DARRELL WALTRIP BUICK GMC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "INTEGRITY BUICK GMC CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.integrityofchattanooga.com/staff",
+  "contact_name": "Bailey Morgan",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "JIM KERAS BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.jimkerasbuickgmc.com/staff",
+  "contact_name": "Sanchez Perez",
+  "contact_title": "Sales Manager",
+  "contact_email": "lsanchezperez@jimkerasbuickgmc.com"
+ },
+ {
+  "dealer_name": "LONG CHEVROLET, BUICK, GMC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "NICK MAYER CHEVROLET BUICK GMC OF DICKSON",
+  "status": "fetched",
+  "source_url": "https://www.nickmayerbuickgmcofdickson.com/staff",
+  "contact_name": "Ryan Russell",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "PARKS MOTOR SALES, INC.",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "RICE BUICK-GMC, INC.",
+  "status": "fetched",
+  "source_url": "https://www.ricegmc.com/about-us/staff/",
+  "contact_name": "Steve Kyle",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SERRA CHEVROLET BUICK GMC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SERRA CHEVROLET CADILLAC BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.serrabuickgmcjackson.com/about-us/staff/",
+  "contact_name": "Brad Ballentine",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "STAN MCNABB CHEVROLET BUICK GMC, INC.",
+  "status": "fetched",
+  "source_url": "https://www.stanmcnabbgmc.com/about-us/staff/",
+  "contact_name": "Paul Jernigan",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "STINNETT CHEVROLET BUICK INC.",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SUNRISE BUICK GMC AT WOLFCHASE",
+  "status": "fetched",
+  "source_url": "https://www.sunriseatwolfchase.com/staff",
+  "contact_name": "Ryan McElroy",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SUNRISE CHEVROLET BUICK GMC AT COLLIERVILLE",
+  "status": "fetched",
+  "source_url": "https://www.sunrisebuickgmccollierville.com/staff",
+  "contact_name": "Jeff Jackson",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "TWIN CITY BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.twincitybuick.com/staff",
+  "contact_name": "Rick Pittenger",
+  "contact_title": "General Manager",
+  "contact_email": "rickp@twincitydealerships.com"
+ },
+ {
+  "dealer_name": "WILSON COUNTY CHEVROLET BUICK GMC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ANCIRA BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.ancirabuickgmc.com/about-us/staff/",
+  "contact_name": "JOHN TERRY",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "AUTONATION BUICK GMC CORPUS CHRISTI",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BAYER MOTOR CO., INC.",
+  "status": "fetched",
+  "source_url": "https://www.bayerbuickgmc.com/about-us/staff/",
+  "contact_name": "Jason Poston",
+  "contact_title": "Sales Consultant",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BECK & BECK BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.beckbuickgmc.com/about-us/staff/",
+  "contact_name": "David Dunn",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BERT OGDEN BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.bertogdenbuickgmc.com/about-us/staff/",
+  "contact_name": "Billy Kelley",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BIG STAR BUICK GMC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BROWN AUTOMOTIVE CENTER, INC.",
+  "status": "fetched",
+  "source_url": "https://www.brownautocenterbuickgmc.com/staff",
+  "contact_name": "Pete Ortiz",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BROWN BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.brownbuickgmc.com/about-us/staff/",
+  "contact_name": "Nick Alfiere",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BROWN CHEVY BUICK GMC OF EAGLE PASS",
+  "status": "fetched",
+  "source_url": "https://www.brownbuickgmceaglepass.com/staff",
+  "contact_name": "Sal Battaglia",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CASA BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.casabuickgmcelpaso.com/staff",
+  "contact_name": "Mario Marmolejo",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CAVENDER AUTO COUNTRY CHEVROLET BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.cavenderautocountrybuickgmc.com/dealership/staff.htm",
+  "contact_name": "Craig Burton",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CAVENDER BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.cavenderbuickgmc281.com/about-us/staff/",
+  "contact_name": "SANTIAGO SANCHEZ",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CAVENDER BUICK GMC WEST",
+  "status": "fetched",
+  "source_url": "https://www.cavenderbuickgmcwest.com/about-us/staff/",
+  "contact_name": "COREY MCDONALD",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CECIL ATKISSION MOTORS",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CHEVROLET BUICK MARBLE FALLS",
+  "status": "fetched",
+  "source_url": "https://www.buickmarblefalls.com/dealership/staff.htm",
+  "contact_name": "Damon Farmer",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CHUCK NASH CHEVROLET BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.chucknashbuickgmc.com/about-us/staff/",
+  "contact_name": "Regis Musabika",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CLASSIC BUICK GMC KATY FREEWAY",
+  "status": "fetched",
+  "source_url": "https://www.classicbuickgmckaty.com/about-us/staff/",
+  "contact_name": "Brandon Sine",
+  "contact_title": "New Car Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CLASSIC BUICK, GMC",
+  "status": "fetched",
+  "source_url": "https://www.classicarlington.com/staff",
+  "contact_name": "Chris Sinku",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CLASSIC BUICK, GMC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CLASSIC BUICK, GMC, CADILLAC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CLASSIC CHEVROLET BUICK GMC CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.classicbuickgmcgalveston.com/staff",
+  "contact_name": "Michael Graves",
+  "contact_title": "General Sales Manager",
+  "contact_email": "MGraves@ClassicGalveston.com"
+ },
+ {
+  "dealer_name": "CLASSIC CHEVROLET BUICK GMC OF CLEBURNE",
+  "status": "fetched",
+  "source_url": "https://www.classicofcleburne.com/dealership/staff.htm",
+  "contact_name": "Brian Carpenter",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "COVERT BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.covertbuickgmc.com/about-us/staff/",
+  "contact_name": "Mario Juarez",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "COVERT BUICK GMC WEST, INC.",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "DEMONTROND AUTOMOTIVE GROUP, INC.",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "DON DAVIS BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.dondavisbuickgmc.com/staff",
+  "contact_name": "JOHNNY NERIO",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "DON HEWLETT CHEVROLET BUICK, INC.",
+  "status": "fetched",
+  "source_url": "https://www.donhewlettbuick.com/staff",
+  "contact_name": "Pedro Gallardo",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "DOW AUTOPLEX",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "EWING BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.ewingbuickgmc.com/about-us/staff/",
+  "contact_name": "MATT PILKINGTON",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "FINNEGAN BUICK GMC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "FREEDOM BUICK GMC BY ED MORSE",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "FREEDOM CHEVROLET BUICK GMC BY ED MORSE",
+  "status": "fetched",
+  "source_url": "https://www.freedomgmcbuick.com/staff",
+  "contact_name": "Kyle Bettilyon",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "FREEMAN BUICK-GMC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "GABRIEL/JORDAN BUICK GMC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "GARLYN SHELTON BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.garlynsheltonbuickgmc.com/staff",
+  "contact_name": "Robert Fortner",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "GAY BUICK GMC, INC.",
+  "status": "fetched",
+  "source_url": "https://www.gaybuickgmc.com/staff",
+  "contact_name": "Randy Buisson",
+  "contact_title": "General Manager",
+  "contact_email": "rbuisson@gayfamilyauto.com"
+ },
+ {
+  "dealer_name": "GLENN POLK CHEVROLET BUICK GMC OF GAINESVILLE",
+  "status": "fetched",
+  "source_url": "https://www.glennpolkbuickgmcofgainesville.com/staff",
+  "contact_name": "BRANDON CARR",
+  "contact_title": "General Sales Manager",
+  "contact_email": "bcarr@gpolk.com"
+ },
+ {
+  "dealer_name": "GROUP 1 BUICK GMC NORTH",
+  "status": "fetched",
+  "source_url": "https://www.group1buickgmcnorth.com/about-us/staff/",
+  "contact_name": "Joseph Pierce",
+  "contact_title": "General Manager",
+  "contact_email": "josephpierce@Group1Auto.com"
+ },
+ {
+  "dealer_name": "GROUP 1 BUICK GMC SOUTH",
+  "status": "fetched",
+  "source_url": "https://www.group1buickgmcsouth.com/about-us/staff/",
+  "contact_name": "Benjamin Richert",
+  "contact_title": "General Manager",
+  "contact_email": "nrichert@group1auto.com"
+ },
+ {
+  "dealer_name": "GULF COAST CHEVROLET BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.gulfcoastgmcbuick.com/dealership/staff.htm",
+  "contact_name": "Mark Holian",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "GUNN BUICK GMC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HALL BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.hallhasitall.com/staff",
+  "contact_name": "Rey Sanchez",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HERITAGE BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.heritagegmcbuick.com/staff",
+  "contact_name": "Robert Bobo",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HILEY BUICK GMC OF FORT WORTH",
+  "status": "fetched",
+  "source_url": "https://www.hileygm.com/about-us/staff/",
+  "contact_name": "Brian Crawford",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "JAMES WOOD CHEVROLET BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.jameswoodbuickgmc.com/staff",
+  "contact_name": "Brandt Wicker",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "JERRY DURANT BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.jerrydurantbuickgmc.com/staff",
+  "contact_name": "Tyler Durant",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "JERRY'S BUICK, GMC",
+  "status": "fetched",
+  "source_url": "https://www.jerrysbuickgmc.com/staff",
+  "contact_name": "Brian Durant",
+  "contact_title": "Executive Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "LAROCHE CHEVROLET BUICK GMC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "LAWRENCE HALL CHEVROLET BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.lawrencehallansonbuickgmc.com/staff",
+  "contact_name": "John Speer",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "LAWRENCE HALL CHEVROLET BUICK GMC CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.lawrencehallabilenebuickgmc.com/dealership/staff.htm",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "LUKE FRUIA MOTORS",
+  "status": "fetched",
+  "source_url": "https://www.fruia.com/dealership/staff.htm",
+  "contact_name": "JOHN T. EDGE",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MCKINNEY BUICK-GMC",
+  "status": "fetched",
+  "source_url": "https://www.mckinneybuickgmc.com/dealership/staff.htm",
+  "contact_name": "Travis Trenkle",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MITCHELL BUICK-GMC",
+  "status": "fetched",
+  "source_url": "https://www.mitchellbuickgmc.com/staff",
+  "contact_name": "Russell Moore",
+  "contact_title": "General Sales Manager",
+  "contact_email": "rmoore@mitchellbpg.com"
+ },
+ {
+  "dealer_name": "PATRIOT BUICK GMC",
+  "status": "no_website",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "PAYNE WESLACO BUICK-GMC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "PETERS CHEVROLET BUICK",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "PIPPEN MOTOR COMPANY",
+  "status": "fetched",
+  "source_url": "https://www.pippenmotorcompany.com/staff",
+  "contact_name": "Will Blackwell",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "POLLARD CHEVROLET BUICK",
+  "status": "fetched",
+  "source_url": "https://www.pollardbuick.com/staff",
+  "contact_name": "Randy Glasscock",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "POWELL WATSON MOTORS, INC.",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "RICHARD KARR MOTORS",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SCOGGIN-DICKEY CHEVROLET-BUICK, INC.",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SEWELL BUICK GMC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SEWELL BUICK GMC OF MIDLAND",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SOUTH SAN ANTONIO BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.southsanantoniobuickgmc.com/dealership/staff.htm",
+  "contact_name": "Marcelo Garza",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SOUTH TEXAS BUICK-GMC",
+  "status": "fetched",
+  "source_url": "https://www.southtexasgmc.net/dealership/staff.htm",
+  "contact_name": "GONZALEZ PRE-OWNED",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "STERLING AUTO GROUP",
+  "status": "fetched",
+  "source_url": "https://www.bryangmdealer.com/dealership/staff.htm",
+  "contact_name": "ADAM DUNKER",
+  "contact_title": "New Car Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "TEXAN GMC BUICK",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "TOLIVER BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.tolivergmc.com/about-us/staff/",
+  "contact_name": "Jason Hein",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "TOM CLARK BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.tomclarkbuickgmc.com/staff",
+  "contact_name": "Joey Yost",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "WIESNER BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.wiesnerbuickgmc.com/dealership/staff.htm",
+  "contact_name": "Mike Earls",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "WIESNER, INC. - HUNTSVILLE",
+  "status": "fetched",
+  "source_url": "https://www.wiesnerhuntsvillebuickgmc.com/staff",
+  "contact_name": "Clint McLaren",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "KEN GARFF BUICK GMC RIVERDALE",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "NEWBY BUICK GMC, INC.",
+  "status": "fetched",
+  "source_url": "https://www.newbybuick.com/staff",
+  "contact_name": "Kevin Newby",
+  "contact_title": "General Sales Manager",
+  "contact_email": "kevin@newbybuickgmc.motosnap.com"
+ },
+ {
+  "dealer_name": "SALT LAKE VALLEY BUICK GMC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "YOUNG BUICK GMC CO.",
+  "status": "fetched",
+  "source_url": "https://www.youngbuickgmc.com/dealership/staff.htm",
+  "contact_name": "Rick Lovell",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BERGLUND CHEVROLET BUICK",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BUICK GMC OF LEESBURG",
+  "status": "fetched",
+  "source_url": "https://www.leesburgsbuickgmc.com/dealership/staff.htm",
+  "contact_name": "Chris Elliot",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CMA'S COLONIAL BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.cmascolonialbuickgmc.com/dealership/staff.htm",
+  "contact_name": "Nick Walton",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CRABTREE BUICK-GMC, INC.",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "FRONT ROYAL BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.frontroyalbuickgmc.com/staff",
+  "contact_name": "Scott Copenhaver",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HALEY BUICK GMC AIRPORT",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HALEY BUICK-GMC TRUCK, INC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "JOYCE KOONS BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.joycekoonsbuickgmc.com/meet-the-team/",
+  "contact_name": "Shawn McGregor",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "KERN MOTOR COMPANY",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "KOONS BUICK GMC WOODBRIDGE",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "LINDSAY BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.lindsaybuickgmc.com/staff",
+  "contact_name": "JAMES ROSE",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MOTOR MILE CHEVROLET BUICK",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "OURISMAN CHEVROLET BUICK GMC OF ALEXANDRIA",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "RICK HENDRICK CHEVROLET BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.hendrickbuickgmcrichmond.com/about-us/staff/",
+  "contact_name": "Robert Lattimer",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SOUTHERN BUICK GMC GREENBRIER",
+  "status": "fetched",
+  "source_url": "https://www.southernbuickgmcgreenbrier.com/about-us/staff/",
+  "contact_name": "Brett Lloyd",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SOUTHERN BUICK GMC VIRGINIA BEACH",
+  "status": "fetched",
+  "source_url": "https://www.southernbuickgmc.com/about-us/staff/",
+  "contact_name": "Dave Jensen",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SUTTLE MOTOR CORPORATION",
+  "status": "fetched",
+  "source_url": "https://www.suttlemotors.com/staff",
+  "contact_name": "Miles Suttle",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HANDY BUICK-GMC-CADILLAC INC.",
+  "status": "fetched",
+  "source_url": "https://www.handygmc.com/dealership/staff.htm",
+  "contact_name": "Bud Handy",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BROTHERTON BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.buybrotherton.com/staff",
+  "contact_name": "Arun Vaidyanathan",
+  "contact_title": "General Manager",
+  "contact_email": "Arun@brothertoncadillac.com"
+ },
+ {
+  "dealer_name": "BUICK GMC OF BELLEVUE",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CARR BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.carrbuickgmc.com/staff",
+  "contact_name": "James Hardy",
+  "contact_title": "Sales Associate",
+  "contact_email": "jhardy@carrauto.com"
+ },
+ {
+  "dealer_name": "GILCHRIST CHEVROLET BUICK GMC INC.",
+  "status": "fetched",
+  "source_url": "https://www.GILCHRISTBUICKGMC.COM/staff",
+  "contact_name": "Roper Commercial",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HARNISH BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.buickgmcofpuyallup.com/staff",
+  "contact_name": "Says Louangphakdy",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SPECK BUICK GMC OF TRI-CITIES",
+  "status": "fetched",
+  "source_url": "https://www.speckbuickgmc.com/staff",
+  "contact_name": "Frank Murillo",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BERGSTROM BUICK GMC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BERGSTROM BUICK-GMC TRUCK, INC.",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BERGSTROM CHEVROLET BUICK",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BERGSTROM CHEVROLET BUICK GMC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BOUCHER BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.boucherbuickgmc.com/about-us/staff/",
+  "contact_name": "Scott Teigland",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BROOKFIELD BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.bpgmc.com/dealership/staff.htm",
+  "contact_name": "MARTINIS HUGHES",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "BURTNESS CHEVROLET BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.burtnessbuick.com/about-us/staff/",
+  "contact_name": "Matt Bowditch",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "CLASON BUICK GMC, INC.",
+  "status": "fetched",
+  "source_url": "https://www.clasonbuickgmc.com/dealership/staff.htm",
+  "contact_name": "Tom Grabowenski",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "DON LARSON CHEVROLET BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.donlarsonbuickgmc.com/dealership/staff.htm",
+  "contact_name": "John Gjertsen",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "EWALD BUICK GMC OF MENOMONEE FALLS, LLC.",
+  "status": "fetched",
+  "source_url": "https://www.ewaldbuickgmc.com/staff",
+  "contact_name": "Steve Gliatis",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "GROSS BUICK,INC.",
+  "status": "no_website",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "GUSTMAN CHEVROLET BUICK GMC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HOLIDAY CHEVROLET BUICK GMC CADILLAC",
+  "status": "fetched",
+  "source_url": "https://www.holidaygmcbuick.com/about-us/staff/",
+  "contact_name": "Jaber VP",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HOLZ CHEVROLET BUICK GMC",
+  "status": "fetched",
+  "source_url": "https://www.holzbuickgmc.com/about-us/staff/",
+  "contact_name": "JESSICA WINKER",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "JOHNSON MOTOR SALES",
+  "status": "fetched",
+  "source_url": "https://www.johnsonbuick.com/aboutus.aspx",
+  "contact_name": "then becoming",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "KAYSER CHEVROLET BUICK GMC",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "KUNES BUICK GMC OF GREENFIELD",
+  "status": "fetched",
+  "source_url": "https://www.kunesbuickgmcgreenfield.com/dealership/staff.htm",
+  "contact_name": "Bill Ederer",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "KUNES BUICK GMC OF OAK CREEK",
+  "status": "fetched",
+  "source_url": "https://www.kunesbuickgmcoakcreek.com/dealership/staff.htm",
+  "contact_name": "Bohm Regional",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "KUNES COUNTRY SUPERSTORE OF STOUGHTON, INC.",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "LEN DUDAS MOTORS, INC.",
+  "status": "fetched",
+  "source_url": "https://www.lendudasbuickgmc.com/staff",
+  "contact_name": "Todd Okray",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "LYNCH BUICK GMC OF WEST BEND",
+  "status": "fetched",
+  "source_url": "https://www.lynchbuickgmcofwestbend.com/staff",
+  "contact_name": "Taylor Darr",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MARKQUART MOTORS",
+  "status": "fetched",
+  "source_url": "https://www.markquartbuickgmc.com/dealership/staff.htm",
+  "contact_name": "MATT MURRAY",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "MEYER MOTORS, INC",
+  "status": "fetched",
+  "source_url": "https://www.gomeyermotors.com/staff",
+  "contact_name": "Steve Schuh",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "NAPLETON CHEVROLET BUICK GMC",
+  "status": "no_website",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "PALMEN BUICK GMC CADILLAC, INC.",
+  "status": "fetched",
+  "source_url": "https://www.palmenauto.com/staff",
+  "contact_name": "Nick Faciano",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "RUNDE CHEVROLET BUICK GMC",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SLEEPY HOLLOW CHEVROLET-BUICK-GMC, INC.",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "SOMMER'S AUTOMOTIVE",
+  "status": "fetched",
+  "source_url": "https://www.sommersbuickgmc.com/staff",
+  "contact_name": "FOTI GM",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "TRECEK AUTOMOTIVE OF PORTAGE, INC.",
+  "status": "fetched",
+  "source_url": "https://www.trecekbuickgmc.com/staff",
+  "contact_name": "Chris Dunahee",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ZIMBRICK BUICK GMC EASTSIDE",
+  "status": "fetched",
+  "source_url": "https://www.zimbrickbuickeast.com/dealership/staff.htm",
+  "contact_name": "CLINT LENZ",
+  "contact_title": "New Car Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "ZIMBRICK BUICK/GMC WEST",
+  "status": "fetched",
+  "source_url": "https://www.zimbrickbuickwest.com/staff",
+  "contact_name": "Garnett Associate",
+  "contact_title": "General Manager",
+  "contact_email": "mitch.garnett@zimbrick.com"
+ }
+]

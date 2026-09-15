@@ -8,7 +8,7 @@ contacts (`extract_results.json`), and the upload rows (`upload_rows.json`,
 - `cffi_staff_crawler.py` — browser-impersonated fetch of ~30 staff-page paths per site
 - `extract_contacts.py` — name · title · email from page text; an email is only paired with a person when its local part matches the name
 - `merge_generic.py <Brand>` (Hyundai kept its own `merge_hyundai.py`) — locator + staff page → upload rows (email precedence: staff page → locator email that matches the GM → locator email that matches the staff-page name → name only)
-- `scripts/probes/push-brand-roster.mts <Brand> [folder]` — bulk upsert into the live directory (existing contacts are kept when ours has no email; an already-live rooftop keeps its notes)
+- `scripts/probes/push-brand-roster.mts <Brand> [folder]` — bulk upsert into the live directory (existing contacts are kept when ours has no email; an already-live rooftop keeps its notes; a rooftop live under another brand's spelling is matched on website domain + state and keeps the live name)
 - `scripts/probes/promote-lead-inboxes.mts <Brand>` — copies a non-generic `Lead inbox:` from notes onto rows that have a named contact but no email
 
 Same-name rooftops (Rick Case Hyundai ×4…) are disambiguated as `Name – City`
@@ -16,6 +16,7 @@ before the push; the directory keys by name.
 
 | Brand | Pulled | Rooftops | Named | Emails | Notes |
 |---|---|---|---|---|---|
+| Buick | 2026-09-15 | 744 | 480 | 70 | GM quantum locator, `makeCodes=004` (`crawl_gm_quantum.py buick`; verified codes: 001 Chevrolet, 004 Buick, 006 Cadillac, 012 GMC). 719 of 744 were already live as Buick-GMC combos from the GMC crawl, so the push mostly refreshed contacts (Buick-named rows 618 → 752, emails 305 → 373). Staff pages: 487 captured / 128 walled / 114 none. |
 | Nissan | 2026-09-15 | 1,040 | 500 | 75 | `graphql.nissanusa.com/graphql` `getDealersByLatLng` (public `x-api-key`), **curl_cffi chrome impersonation required** (plain curl 403) and paced at ~1 call/s (faster → 403 for minutes); `radius` is km, 100 cap → 2° grid, split on overflow (`crawl_nissan_graphql.py nissan`). No GM/email in the feed. Staff pages: 540 captured / 164 walled / 336 none. |
 | INFINITI | 2026-09-15 | 190 | 96 | 10 | Same endpoint with `brand: infiniti` (`crawl_nissan_graphql.py infiniti`). Staff pages: 107 / 6 / 77. |
 | Cadillac | 2026-09-15 | 565 | 341 | 60 | GM quantum locator: `cadillac.com/bypass/pcf/quantum-dealer-locator/v1/getDealers?…&makeCodes=006&searchType=latLongSearch` — 400 without the `clientapplicationid: quantum` header; works from Python with curl_cffi (`crawl_gm_quantum.py`, 1° grid, 50 cap). No email in the feed. Staff pages: 342 captured / 117 walled / 104 none. Live count is higher (640) because Chevy/GMC-combo stores and older Cadillac rows already existed. |
