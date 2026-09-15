@@ -103,13 +103,17 @@ describe("BiddingWizard — Step 1 vehicle; Step 2 payment only; Step 3 quote fo
     assert.match(src, /if \(step === 1 && !vehicleImported\) return;/);
     assert.match(src, /const paymentChosen = Boolean\(quoteType\) && !\(quoteType === "lease" && isUsed\);/);
     assert.match(src, /if \(step === 2 && !paymentChosen\) return;/);
-    assert.match(src, /if \(step === 3 && \(!quoteSetupComplete \|\| confirmedDeskCount === 0 \|\| dealCommentContactWarning\)\) return;/);
+    assert.match(src, /if \(step === 3 && \(!quoteSetupComplete \|\| confirmedDeskCount === 0 \|\| dealCommentContactWarning \|\| tradeInExpected === null\)\) return;/);
     // Every lock must be set: the gate is "nothing missing", and the empty state names what is.
     assert.match(src, /const quoteSetupComplete = Boolean\(quoteType\) && missingLocks\.length === 0 && !\(quoteType === "lease" && isUsed\);/);
     assert.match(src, /quoteType === "finance"\s*\? missingFinanceLocks\(\{ termMonths: financeTerm, downPayment, creditBand, zip: huntZip \}\)/);
     assert.match(src, /quoteType === "cash"\s*\? zipOk \? \[\] : \["ZIP"\]\s*: \[\]/);
     assert.match(step2, /data-testid="missing-locks"/);
     assert.match(step2, /data-testid="missing-contact"/);
+    // Step 3 asks whether a trade-in is coming; Continue waits for an answer; the answer rides the request.
+    assert.match(step2, /data-testid="trade-in-question"/);
+    assert.match(src, /tradeInExpected === null\)\) return;/);
+    assert.match(src, /buyerNote: dealComment\.trim\(\) \|\| null,\s*tradeInExpected,/);
     assert.match(src, /TOTAL_STEPS = 4/);
   });
 

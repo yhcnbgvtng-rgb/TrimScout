@@ -30,6 +30,7 @@ export async function GET(req: Request) {
     condition: usedCar?.condition || "new",
     buyerMiles: usedCar?.mileage ?? null,
     buyerNote: rfq.buyerNote || null,
+    tradeInExpected: rfq.tradeInExpected ?? null,
     msrp: thisCar?.msrp ?? null,
     vin: rfq.vin,
     stockNumber: rfq.stockNumber,

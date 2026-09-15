@@ -38,6 +38,8 @@ export interface QuoteInviteEmailInput {
   financePrefs?: { termMonths: number; downPayment: number; creditBand?: string | null } | null;
   /** The buyer's note, word for word (already scrubbed of contact info). */
   buyerNote?: string | null;
+  /** Buyer said a trade-in is coming — handled after the OTD price, never in the quote. */
+  tradeInExpected?: boolean | null;
   /** Kept for callers that still pass it; not rendered. */
   buyerAlias?: string;
   vehicleFacts?: { drivetrain?: string | null; exteriorColor?: string | null } | null;
@@ -153,6 +155,7 @@ export function quoteInviteHtml(input: QuoteInviteEmailInput): string {
         ${input.purchaseTimelineLabel ? row("Timeline", escapeHtml(input.purchaseTimelineLabel)) : ""}
         ${row("Rooftop", rooftopLine(input))}
         ${input.buyerNote ? row("Buyer says", `<span style="font-weight:400;white-space:pre-wrap">${escapeHtml(input.buyerNote)}</span>`) : ""}
+        ${input.tradeInExpected === true ? row("Trade-in", `Coming <span style="font-weight:400;color:#475569">— handled after the out-the-door price is agreed; quote the car on its own</span>`) : ""}
       </table>
     </div>
     <p style="font-size:13px;color:#475569;margin:14px 0 6px">${escapeHtml(copy.helper)}</p>

@@ -34,7 +34,22 @@ type Context = {
   buyerNote: string | null;
   /** Sticker MSRP when the build was factory-verified; the dealer can type it otherwise. */
   msrp: number | null;
+  /** Buyer said a trade-in is coming (handled after the OTD price). */
+  tradeInExpected: boolean | null;
 };
+
+/** On every dealer sheet: the quote is the car alone — a trade comes after the OTD price is agreed. */
+const DEALER_TRADE_IN_COPY = "Trade-ins are handled after an out-the-door price is agreed. Quote the car on its own — don't net a trade into these numbers; we'll work through any trade, and the registration-fee and sales-tax changes it brings, with you afterwards.";
+
+function TradeInNote({ expected }: { expected: boolean | null }) {
+  return (
+    <p className="text-xs text-ink-muted border-t border-border/60 pt-3" data-testid="dealer-trade-in-note">
+      <strong className="text-ink-light">Trade-in:</strong>{" "}
+      {expected === true ? <strong className="text-sky-300">The buyer has a trade-in coming.</strong> : expected === false ? <span className="text-ink-light">No trade-in.</span> : null}{" "}
+      {DEALER_TRADE_IN_COPY}
+    </p>
+  );
+}
 
 function BuyerNote({ note }: { note: string }) {
   return (
@@ -155,6 +170,7 @@ function ReceivedBody() {
                   <strong className="text-white">Quote through the sheet below.</strong> Selling price, itemized fees with a sales-tax line, add-ons listed (or none), {ctx.condition === "new" ? "" : "miles, "}and a good-until date are required
                   {ctx.quotePrefs.quoteType === "finance" ? "; term and down must equal the buyer's lock, and the monthly is calculated from amount financed, APR and term — a monthly-only reply can't be submitted" : ""}.
                 </p>
+                <TradeInNote expected={ctx.tradeInExpected} />
                 <p className="text-xs text-ink-muted border-t border-border/60 pt-3">This is a non-binding quote request — not an auction, not a bid, and no response deadline. The buyer compares and picks one, or walks away.</p>
               </div>
               <UsedQuoteForm token={token} vin={ctx.vin} stockNumber={ctx.stockNumber} prefs={ctx.quotePrefs} condition={ctx.condition} buyerMiles={ctx.buyerMiles} msrp={ctx.msrp} onSubmitted={(r) => setDone({ warnings: r.warnings, dueAtSigningTotal: 0 })} />
@@ -194,6 +210,7 @@ function ReceivedBody() {
                     <strong className="text-white">Quote through the calculator below.</strong> Every field the buyer compares on is required —
                     cap cost, residual, money factor, monthly, and due at signing itemized. A monthly-only reply can&apos;t be submitted.
                   </p>
+                  <TradeInNote expected={ctx.tradeInExpected} />
                   <p className="text-xs text-ink-muted border-t border-border/60 pt-3">{LEASE_NON_BINDING_COPY}</p>
                 </div>
               )}

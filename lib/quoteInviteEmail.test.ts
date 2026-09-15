@@ -124,6 +124,12 @@ describe("quote-request email — one template for Cash / Lease / Finance", () =
     assert.match(html, /white-space:pre-wrap/);
   });
 
+  it("says a trade-in is coming (handled after the OTD price) only when the buyer said so", () => {
+    assert.doesNotMatch(quoteInviteHtml(base), /Trade-in/);
+    assert.doesNotMatch(quoteInviteHtml({ ...base, tradeInExpected: false }), /Trade-in/);
+    assert.match(quoteInviteHtml({ ...base, tradeInExpected: true }), />Trade-in<\/td><td[^>]*>Coming .*handled after the out-the-door price is agreed/);
+  });
+
   it("escapes what it interpolates", () => {
     const html = quoteInviteHtml({ ...base, dealerName: 'Evil <script>alert("x")</script> Motors' });
     assert.doesNotMatch(html, /<script>/);

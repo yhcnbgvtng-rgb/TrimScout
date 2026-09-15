@@ -141,6 +141,8 @@ export interface RfqRequest extends RfqSpec {
   quotePrefs?: QuotePrefs | null;
   /** The buyer's note to every quoting dealer, word for word (≤1000 chars, no contact info). */
   buyerNote?: string | null;
+  /** Buyer said a trade-in is coming — handled after the OTD price is agreed, never part of the quote. */
+  tradeInExpected?: boolean | null;
 }
 
 /**
