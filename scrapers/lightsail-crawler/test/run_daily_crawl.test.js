@@ -10,13 +10,27 @@ import {
   runStep,
   computeGrandTotals,
   LOG_RETENTION_DAYS,
+  STATES,
+  WRITE_DEALER_SCRIPTS,
 } from '../scripts/run-daily-crawl.mjs';
+import { SUPPORTED_STATES } from '../src/states.js';
 
 describe('run-daily-crawl driver', () => {
   it('slugify matches the brand-file slugs already on disk (e.g. Mercedes-Benz -> mercedes-benz)', () => {
     assert.equal(slugify('Mercedes-Benz'), 'mercedes-benz');
     assert.equal(slugify('Toyota'), 'toyota');
     assert.equal(slugify('Volkswagen'), 'volkswagen');
+  });
+
+  it('runs every state in src/states.js (NJ, NY, then FL) with no hardcoded two-state list left behind', () => {
+    assert.deepEqual(STATES, SUPPORTED_STATES);
+    assert.deepEqual(STATES, ['NJ', 'NY', 'FL']);
+    // Every state the driver loops over must have a write-dealers script
+    // registered, or runState() throws instead of silently skipping it.
+    for (const state of STATES) {
+      assert.ok(WRITE_DEALER_SCRIPTS[state], `no write-dealers script registered for ${state}`);
+    }
+    assert.equal(WRITE_DEALER_SCRIPTS.FL, 'write-fl-dealer-files.mjs');
   });
 
   describe('pruneOldLogs (log retention)', () => {

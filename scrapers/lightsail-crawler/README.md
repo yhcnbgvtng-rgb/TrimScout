@@ -227,14 +227,14 @@ Challenge / WAF / captcha pages are **skipped and logged**. This package must no
 
 `data/daily_changes/daily_changes_<date>.json` (see `daily_changes.js`) is keyed `states.<STATE>.brands.<BRAND>` — one slot per state/brand run that day, merged in rather than overwritten, so a multi-brand, multi-state day doesn't lose every brand but the last one. Each brand's slot carries a complete `priceChanges` list (date + old/new price + delta for every vehicle that changed price that run, not just a top-50 sample) alongside the existing bounded `topPriceDrops` convenience view.
 
-### Daily driver: NJ + NY, every brand, one job
+### Daily driver: NJ + NY + FL, every brand, one job
 
 ```bash
 cd scrapers/lightsail-crawler
 npm run daily-crawl   # node scripts/run-daily-crawl.mjs
 ```
 
-For each state (NJ, then NY): regenerates `dealers/<state>/<brand>.json` from the OEM-locator dumps (`write-nj-dealers` / `write-ny-dealers` — standalone.js reads these static files, not the locator dumps directly, so they have to be refreshed every run or a locator fix/addition since the last run is silently missed), refreshes that state's bot-protection classification (`dealer-bot-report.mjs --state=<X>`), then loops `src/standalone.js` once per brand that had at least one `NONE`/200 dealer in that state's report (`CRAWLER_DEALERS_FILE`/`CRAWLER_BRAND`/`CRAWLER_STATE` env vars, same invocation shape as a manual run). One brand hanging or erroring is caught, logged, and skipped — it never stops the rest of the state or the other state.
+Runs once per state in `src/states.js`'s `SUPPORTED_STATES` (NJ, NY, then FL as of 2026-09-14) — that array is the only place a state list should ever be hardcoded; nothing else in this driver, `dealer-bot-report.mjs`, or `standalone.js` special-cases a particular state. For each state, in order: regenerates `dealers/<state>/<brand>.json` from the OEM-locator dumps (`write-nj-dealers` / `write-ny-dealers` / `write-fl-dealers` — standalone.js reads these static files, not the locator dumps directly, so they have to be refreshed every run or a locator fix/addition since the last run is silently missed), refreshes that state's bot-protection classification (`dealer-bot-report.mjs --state=<X>`), then loops `src/standalone.js` once per brand that had at least one `NONE`/200 dealer in that state's report (`CRAWLER_DEALERS_FILE`/`CRAWLER_BRAND`/`CRAWLER_STATE` env vars, same invocation shape as a manual run). One brand hanging or erroring is caught, logged, and skipped — it never stops the rest of the state or the others.
 
 Per-brand console output goes to `logs/<state>-<brand>-<date>.log` (and `logs/<state>-write-dealers-<date>.log` / `logs/<state>-bot-report-<date>.log` for the two support steps); anything under `logs/` older than 30 days is deleted at the start of every run, so this doesn't accumulate forever. The structured, durable record of the whole run — every step's exit code/duration, which brands were skipped and why, and each brand's vehicle/price-change/sold counts pulled back out of that day's `daily_changes` file — is written to `data/daily_crawl_runs/summary_<date>.json` and `data/daily_crawl_runs/latest.json` and kept indefinitely (small JSON, not logs).
 
@@ -242,16 +242,28 @@ Per-brand console output goes to `logs/<state>-<brand>-<date>.log` (and `logs/<s
 
 ~6–8 in-process page workers (`CRAWLER_CONCURRENCY`, default 8). Chromium is recycled every ~10 dealers (`CRAWLER_PATCHRIGHT_RECYCLE_AFTER`, default 10) if a browser is used for a non-challenge empty sitemap. On this NJ box set `CRAWLER_PATCHRIGHT_FALLBACK=false` so crawls stay HTTP-only.
 
-The daily driver (previous section) already runs one brand at a time internally and never overlaps two brands, so the box's crontab only needs one line for the whole NJ+NY job:
+The daily driver (previous section) already runs one brand at a time internally and never overlaps two brands, so the box's crontab only needs one line for the whole NJ+NY+FL job:
 
 ```cron
 # Progress monitor (once at boot via systemd/pm2 is better than cron)
 @reboot cd /home/ubuntu/lightsail-crawler && node src/progress_server.js
 
-# NJ then NY, every brand: see "Daily driver" above. NJ took ~1h45m and NY
-# ~2h38m on 2026-09-14's manual run, so a 2am start comfortably finishes
-# (~4-5h total) well before anyone checks data that morning.
-0  2 * * * cd /home/ubuntu/lightsail-crawler && mkdir -p logs && node scripts/run-daily-crawl.mjs >> logs/run-all-$(date +\%F).log 2>&1
+# NJ, NY, then FL, every brand: see "Daily driver" above.
+#
+# NJ took ~1h45m (168 in-scope dealers) and NY ~2h38m (275 dealers) on
+# 2026-09-14's manual run — both ~0.6 min/dealer. FL adds ~320 in-scope
+# dealers (write-fl-dealer-files.mjs, 2026-09-14: bigger than NY — Acura
+# 20 vs NY's 16, Porsche 18 vs NY's 13, Toyota 45 vs NY's 56 but from more
+# cities), which projects to another ~3h10m at the same per-dealer rate.
+# That puts the combined NJ+NY+FL run at roughly 7.5h, not the ~4-5h a
+# 2am start was sized for — a 2am start would now finish past 9:30am,
+# no longer "well before anyone checks data that morning". Moved the
+# start to 9pm ET the previous evening so a ~7.5h run (plus some margin
+# for FL's projection being an estimate, not a measured run) still lands
+# by ~5-6am. Re-time this comment once FL has actually run once and its
+# real duration is known, and pull the start back later again if it
+# turns out shorter than projected.
+0  21 * * * cd /home/ubuntu/lightsail-crawler && mkdir -p logs && node scripts/run-daily-crawl.mjs >> logs/run-all-$(date +\%F).log 2>&1
 ```
 
 ### Tests

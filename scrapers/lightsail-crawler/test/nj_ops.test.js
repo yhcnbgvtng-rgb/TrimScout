@@ -20,6 +20,8 @@ import { looksLikeBrandCityGuess, applyVerifiedNjDomains, overlayKey } from '../
 import { buildTablePdf, winAnsiSafe, buildSummaryBlocks } from '../src/pdf_table.js';
 import { extractWindowSticker, applyWindowSticker, captureWindowStickerFromPage } from '../src/window_sticker.js';
 import { loadNyDealers, acceptNyDealer } from '../src/ny_policy.js';
+import { loadFlDealers, acceptFlDealer } from '../src/fl_policy.js';
+import { SUPPORTED_STATES, isSupportedState } from '../src/states.js';
 import { computeEta, emptyProgress, writeProgress, readProgress, renderProgressHtml } from '../src/progress.js';
 import { priceChangeVsYesterday, inventoryChangeTypeToPriceChangeType } from '../src/price_diff.js';
 import { captureVehicleDom, loadDomIndex, pruneDomBlobs, hashDom, extractVehicleDom } from '../src/dom_store.js';
@@ -404,6 +406,73 @@ describe('NY locator seed (no brandofcity guesses)', () => {
     assert.ok(lexus.length > 5);
     const honda = loadNyDealers({ cwd: CRAWLER_ROOT, brand: 'Honda' });
     assert.ok(honda.every((d) => d.domainSource !== 'pattern-guess'));
+  });
+});
+
+describe('state registry (src/states.js)', () => {
+  it('lists NJ, NY, FL as supported and rejects anything else', () => {
+    assert.deepEqual(SUPPORTED_STATES, ['NJ', 'NY', 'FL']);
+    assert.equal(isSupportedState('FL'), true);
+    assert.equal(isSupportedState('fl'), true);
+    assert.equal(isSupportedState(' NJ '), true);
+    assert.equal(isSupportedState('CT'), false);
+    assert.equal(isSupportedState(''), false);
+    assert.equal(isSupportedState(null), false);
+  });
+});
+
+describe('FL locator seed (no brandofcity guesses)', () => {
+  it('loads FL in-scope rooftops from OEM locators and listings only', () => {
+    assert.equal(acceptFlDealer({ name: 'Acura of Fort Myers', state: 'FL', make: 'Acura', domain: 'acuraoffortmyers.com' }), true);
+    assert.equal(acceptFlDealer({ name: 'AutoNation Acura', state: 'FL', make: 'Acura', domain: 'autonationacura.com' }), false);
+    assert.equal(acceptFlDealer({ name: 'Route 1 Ford', state: 'FL', make: 'Ford', domain: 'route1ford.com' }), false);
+    assert.equal(acceptFlDealer({ name: 'Acura of Fort Myers', state: 'NJ', make: 'Acura', domain: 'acuraoffortmyers.com' }), false);
+
+    const all = loadFlDealers({ cwd: CRAWLER_ROOT });
+    assert.ok(all.length > 0);
+    assert.ok(all.every((d) => d.state === 'FL'));
+    assert.ok(all.every((d) => isNjBrandIn(d.make)));
+    assert.ok(all.every((d) => !isNjBrandOut(d.make)));
+    assert.ok(all.every((d) => !isMegadealerOrSuperstore(d)));
+    assert.ok(all.every((d) => ['oem-locator', 'listing-verified', 'curated-overlay'].includes(d.domainSource)), 'every rooftop must have a verified source');
+    assert.ok(all.every((d) => d.domainSource !== 'pattern-guess'));
+
+    // Acura and Porsche's FL rows come straight out of the existing
+    // nationwide in-repo locator dumps (acura-dealers.json / dealers.json),
+    // which already covered every state including FL before this branch —
+    // confirming loadFlDealers actually reaches that data, not just an
+    // empty seed.
+    const acura = loadFlDealers({ cwd: CRAWLER_ROOT, brand: 'Acura' });
+    assert.ok(acura.length > 10);
+    assert.ok(acura.every((d) => d.make === 'Acura'));
+    assert.ok(acura.every((d) => d.domainSource === 'oem-locator'));
+    const fortMyers = acura.find((d) => /acura of fort myers/i.test(d.name));
+    assert.ok(fortMyers);
+    assert.equal(fortMyers.domain, 'acuraoffortmyers.com');
+
+    const porsche = loadFlDealers({ cwd: CRAWLER_ROOT, brand: 'Porsche' });
+    assert.ok(porsche.length > 10);
+    assert.ok(porsche.every((d) => d.make === 'Porsche'));
+    const braman = porsche.find((d) => /braman porsche/i.test(d.name));
+    assert.ok(braman);
+    assert.equal(braman.domain, 'bramanporsche.com');
+
+    // A brand with no working locator (Honda/Nissan/etc., blocked for
+    // NJ/NY too) stays honestly empty for FL rather than inventing a host.
+    const honda = loadFlDealers({ cwd: CRAWLER_ROOT, brand: 'Honda' });
+    assert.equal(honda.length, 0);
+
+    // Toyota/Subaru FL rows come from the live OEM-locator dumps this
+    // branch's fetch-oem-dealer-locators.mjs run added (real fetches
+    // against toyota.com's dealer-hub pages and subaru.com's dealer-
+    // distance API, not invented brandofcity hosts).
+    const toyota = loadFlDealers({ cwd: CRAWLER_ROOT, brand: 'Toyota' });
+    assert.ok(toyota.length > 20);
+    assert.ok(toyota.every((d) => d.domainSource === 'oem-locator'));
+    assert.ok(toyota.some((d) => d.domain === 'arlingtontoyota.com'));
+    const subaru = loadFlDealers({ cwd: CRAWLER_ROOT, brand: 'Subaru' });
+    assert.ok(subaru.length > 10);
+    assert.ok(subaru.some((d) => d.domain === 'bertsmithsubaru.com'));
   });
 });
 
