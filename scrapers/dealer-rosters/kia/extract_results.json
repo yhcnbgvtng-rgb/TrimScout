@@ -1,0 +1,6402 @@
+[
+ {
+  "dealer_name": "Lithia Kia of Anchorage",
+  "status": "fetched",
+  "source_url": "https://www.lithiakiaanchorage.com/dealership/staff.htm",
+  "contact_name": "Ibrahim Edais",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Buster Miles Kia",
+  "status": "fetched",
+  "source_url": "https://www.bustermileskia.com/staff",
+  "contact_name": "TIM WILCOX",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Dean McCrary Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Dothan Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Enterprise Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Greenway Kia of Riverchase",
+  "status": "fetched",
+  "source_url": "https://www.greenwaykiariverchase.com/staff",
+  "contact_name": "Ben Noe",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Julio Jones Kia",
+  "status": "fetched",
+  "source_url": "https://www.juliojoneskia.com/about-us/meet-our-staff/",
+  "contact_name": "Megan Mordecai",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia of Auburn",
+  "status": "fetched",
+  "source_url": "https://www.kiaofauburn.com/about-us/staff/",
+  "contact_name": "Taylor Rowell",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia of Daphne",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia of Rainbow City",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia of The Shoals",
+  "status": "fetched",
+  "source_url": "https://www.kiaoftheshoals.com:443/about-us/meet-our-staff/",
+  "contact_name": "possible deal.",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Long-Lewis Kia of Decatur",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Serra Kia of Gardendale",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Serra Kia of Trussville",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Sons Kia of Montgomery",
+  "status": "fetched",
+  "source_url": "https://www.sonskiamontgomery.com/about-us/staff/",
+  "contact_name": "Jonathan Newman",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "University Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Cavenaugh Kia",
+  "status": "fetched",
+  "source_url": "https://www.cavenaughkia.com:443/about-us/meet-our-staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Crain Kia",
+  "status": "fetched",
+  "source_url": "https://www.crainkia.com/staff",
+  "contact_name": "Jade Allison",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Crain Kia of Bentonville",
+  "status": "fetched",
+  "source_url": "https://www.crainkiaofbentonville.com/staff",
+  "contact_name": "Zach Vann",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Crain Kia of Conway",
+  "status": "fetched",
+  "source_url": "https://www.crainkiaofconway.com/staff",
+  "contact_name": "Jason Buchanan",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Crain Kia of Fayetteville",
+  "status": "fetched",
+  "source_url": "https://www.crainkiaoffayetteville.com/staff",
+  "contact_name": "Gerson Benavidez",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Crain Kia of Fort Smith",
+  "status": "fetched",
+  "source_url": "https://www.crainkiaftsmith.com/staff",
+  "contact_name": "Ricky Nolan",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Everett Kia",
+  "status": "fetched",
+  "source_url": "https://www.everettkia.net/staff",
+  "contact_name": "Mike Wilson",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Landers Kia",
+  "status": "fetched",
+  "source_url": "https://landerskialittlerock.adviserly.com:443/",
+  "contact_name": "SUBPRIME SPECIALIST",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Camelback Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Courtesy Kia",
+  "status": "fetched",
+  "source_url": "https://www.courtesykia.com/about-us/staff/",
+  "contact_name": "Chuck Weesner",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Earnhardt Peoria Kia",
+  "status": "fetched",
+  "source_url": "https://www.earnhardtpeoriakia.com/staff",
+  "contact_name": "Scott Clark",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ed Morse Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Horne Kia",
+  "status": "fetched",
+  "source_url": "https://www.hornekia.com:443/meet-our-team/",
+  "contact_name": "Bertone Internet",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ken Garff Kia Avondale",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ken Garff Kia Bell Road",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia of North Tucson",
+  "status": "fetched",
+  "source_url": "https://www.kiaofnorthtucson.com/staff",
+  "contact_name": "Johnny Baker",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia of Yuma",
+  "status": "fetched",
+  "source_url": "https://www.kiaofyuma.com/meet-the-team.htm",
+  "contact_name": "Isidro Cardona",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Mark Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Martin Swanty Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Oxendale Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Prescott Valley Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Royal Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Sands Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Tempe Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Aaron Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Allstar Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ball Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Capitol Kia",
+  "status": "fetched",
+  "source_url": "https://www.capitolkia.com/about-us/staff/",
+  "contact_name": "Jovanni Reynoso",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Car Pros Kia Glendale",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Car Pros Kia Moreno Valley",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Chula Vista Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Citrus Kia",
+  "status": "fetched",
+  "source_url": "https://www.citruskia.net/about-us/staff/",
+  "contact_name": "Jason Verkler",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Concord Kia",
+  "status": "fetched",
+  "source_url": "https://www.concordkia.com/staff",
+  "contact_name": "Sebastian Avalos",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Covina Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Dch Kia of Temecula",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Dublin Kia",
+  "status": "fetched",
+  "source_url": "https://www.dublinkia.com/staff",
+  "contact_name": "Shah Karimi",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Elk Grove Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Fiesta Kia",
+  "status": "fetched",
+  "source_url": "https://www.i10fiestakia.com/staff",
+  "contact_name": "Marty Dominguez",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "First Kia",
+  "status": "fetched",
+  "source_url": "https://www.1stkia.com/meet-the-team/",
+  "contact_name": "Johnny Kia",
+  "contact_title": "General Manager",
+  "contact_email": "JohnnyKia@FirstAutoGroup.com"
+ },
+ {
+  "dealer_name": "Folsom Lake Kia",
+  "status": "fetched",
+  "source_url": "https://www.folsomlakekia.com/dealership/staff.htm",
+  "contact_name": "Greg Dobbins",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Future Kia",
+  "status": "fetched",
+  "source_url": "https://www.cloviskia.com:443/meet-our-staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Garden Grove Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Geweke Kia",
+  "status": "fetched",
+  "source_url": "https://www.gewekekia.com/staff",
+  "contact_name": "Art Lopez",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Haddad Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hanlees Kia",
+  "status": "fetched",
+  "source_url": "https://www.hanleesdaviskia.com/about-us/staff/",
+  "contact_name": "Ajay Dhami",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Harper Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hayward Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hilltop Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Jim Bone Kia of Santa Rosa",
+  "status": "fetched",
+  "source_url": "https://www.jimbonekia.com:443/meet-our-staff/",
+  "contact_name": "Dan the",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kearny Mesa Kia",
+  "status": "fetched",
+  "source_url": "https://www.kearnymesakia.com/about-us/staff/",
+  "contact_name": "Adam Leighton",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia Country",
+  "status": "fetched",
+  "source_url": "https://www.kiacountry.com:443/about-us/staff/",
+  "contact_name": "buying experiences.",
+  "contact_title": "Sales Team",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia Downtown Los Angeles",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia Santa Maria",
+  "status": "fetched",
+  "source_url": "https://www.kiasm.com/dealership/staff.htm",
+  "contact_name": "Rodrigo Duran",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia Santa Monica",
+  "status": "fetched",
+  "source_url": "https://www.kiasantamonica.com:443/about-us/staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia of Carson",
+  "status": "fetched",
+  "source_url": "https://www.kiaofcarson.com/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia of Cerritos",
+  "status": "fetched",
+  "source_url": "https://www.kiacerritos.com/meet-our-staff/",
+  "contact_name": "Bao Tran",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia of Irvine",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia of Marin",
+  "status": "fetched",
+  "source_url": "https://www.kiamarin.com/staff",
+  "contact_name": "Ebin Gramajo",
+  "contact_title": "Product Specialist",
+  "contact_email": "ebin@kiamarin.com"
+ },
+ {
+  "dealer_name": "Kia of Paso Robles",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia of Stockton",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia of Vacaville",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia of Valencia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kirby Kia of Ventura",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Merced Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Mission Viejo Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "My Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "North County Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Oakland Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Palm Springs Kia",
+  "status": "fetched",
+  "source_url": "https://www.palmspringskia.com/about-us/staff/",
+  "contact_name": "Vito Ballestrasse",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Perris Valley Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Pomona Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Premier Kia of Carlsbad",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Putnam Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Redding Kia",
+  "status": "fetched",
+  "source_url": "https://www.reddingkia.com:443/about-us/staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Riverside Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Roseville Kia",
+  "status": "fetched",
+  "source_url": "https://www.rosevillekia.com/staff",
+  "contact_name": "Veng Vue",
+  "contact_title": "Internet Director",
+  "contact_email": "vengv@rosevillekia.com"
+ },
+ {
+  "dealer_name": "Selma Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Serramonte Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Stevens Creek Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Sutherlin Kia",
+  "status": "fetched",
+  "source_url": "https://www.sutherlinkia.com/staff.aspx",
+  "contact_name": "Tom Bramble",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Team Kia of El Cajon",
+  "status": "fetched",
+  "source_url": "https://www.teamkiaofelcajon.com/about-us/staff/",
+  "contact_name": "Tommy Roderick",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Trust Palmdale Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Tustin Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "United Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Valley Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Valley Kia",
+  "status": "fetched",
+  "source_url": "https://www.valleykia.com/staff",
+  "contact_name": "Steve Rusich",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Valley-HI Kia",
+  "status": "fetched",
+  "source_url": "https://www.valleyhikia.com/about-us/staff/",
+  "contact_name": "Oscar Guerrero",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Van Nuys Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Visalia Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Winn Kia of Fremont",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Arapahoe Kia",
+  "status": "fetched",
+  "source_url": "https://www.coloradokia.com/dealership/staff.htm",
+  "contact_name": "Joel Garbe",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Dale Spradley Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Durango Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Emich Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Faricy Kia",
+  "status": "fetched",
+  "source_url": "https://www.faricykia.com/about-us/staff/",
+  "contact_name": "Steve Bartlett",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Fort Collins Kia",
+  "status": "fetched",
+  "source_url": "https://www.fortcollinskia.com/staff",
+  "contact_name": "Justin Kozak",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Foundation Kia",
+  "status": "fetched",
+  "source_url": "https://www.foundationkia.com/meet-the-team/",
+  "contact_name": "Vladimir Pavicevic",
+  "contact_title": "General Manager",
+  "contact_email": "vpavicevic@buyfoundation.com"
+ },
+ {
+  "dealer_name": "Fowler Kia of Longmont",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Fowler Kia of Windsor",
+  "status": "fetched",
+  "source_url": "https://www.fowlerkiawindsor.com/staff",
+  "contact_name": "Jessica Zumbrun",
+  "contact_title": "General Manager",
+  "contact_email": "Jessica.Zumbrun@fowlerkiawindsor.com"
+ },
+ {
+  "dealer_name": "Grand Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Peak Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Phil Long Kia of Colorado Springs",
+  "status": "fetched",
+  "source_url": "https://www.phillongkia.com/dealership/staff.htm",
+  "contact_name": "Peter Buckles",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Red Rock Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Blasius Kia",
+  "status": "fetched",
+  "source_url": "https://www.blasiuskia.com/staff",
+  "contact_name": "Jason Rodriguez",
+  "contact_title": "Dealer Principal",
+  "contact_email": "jrodriguez@blasiuskia.com"
+ },
+ {
+  "dealer_name": "Columbia Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Crowley Kia",
+  "status": "fetched",
+  "source_url": "https://www.crowleykia.com/about-us/staff/",
+  "contact_name": "Pete DeBarber",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Danbury Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Executive Kia",
+  "status": "fetched",
+  "source_url": "https://www.executivekia.com/about-us/staff/",
+  "contact_name": "Michael Schweikert",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Gary Rome Kia of Enfield",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia Motors of Old Saybrook",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia of East Hartford",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia of Groton",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia of Stamford",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Napoli Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Premier Kia",
+  "status": "fetched",
+  "source_url": "https://www.premierkiact.com/dealership/staff.htm",
+  "contact_name": "Igor Zektser",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Putnam Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Felton Holly Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia of Wilmington",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Martin Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Selbyville Holly Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Airport Kia",
+  "status": "fetched",
+  "source_url": "https://www.airportkiaofnaples.com/staff",
+  "contact_name": "LaFiura Internet",
+  "contact_title": "Sales Manager",
+  "contact_email": "nlafiura@airportkianaples.com"
+ },
+ {
+  "dealer_name": "Alan Jay Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bev Smith Kia",
+  "status": "fetched",
+  "source_url": "https://www.bevsmithkia.net/staff",
+  "contact_name": "Shane Franzer",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bill Byrd Kia",
+  "status": "fetched",
+  "source_url": "https://www.billbyrdkiapanamacity.com/staff",
+  "contact_name": "J.R. Ezzell",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Boniface-Hiers Kia",
+  "status": "fetched",
+  "source_url": "https://www.bonifacehierskia.com:443/meet-our-staff/",
+  "contact_name": "Mike Fullhart",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Century Kia",
+  "status": "fetched",
+  "source_url": "https://www.centurykia.com/staff",
+  "contact_name": "Brent Pieper",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "City Kia of Greater Orlando",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Coral Springs Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Courtesy Kia of Brandon",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Crown Kia",
+  "status": "fetched",
+  "source_url": "https://www.crownkia.com/staff",
+  "contact_name": "Vinny Cafiero",
+  "contact_title": "General Manager",
+  "contact_email": "vcafiero@crowncars.com"
+ },
+ {
+  "dealer_name": "Daytona Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Deland Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Doral Kia",
+  "status": "fetched",
+  "source_url": "https://www.doralkia.com/staff",
+  "contact_name": "Lydia Edouard",
+  "contact_title": "Bdc Manager",
+  "contact_email": "LydiaEdouard@lithia.com"
+ },
+ {
+  "dealer_name": "Dyer Kia",
+  "status": "fetched",
+  "source_url": "https://www.dyerkialakewales.com/staff",
+  "contact_name": "Corey Clough",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Family Kia of St. Augustine",
+  "status": "fetched",
+  "source_url": "https://www.familykia.com/about-us/staff/",
+  "contact_name": "Christopher Cunningham",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Gettel Kia of Bradenton",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Greenway Kia At The Avenues",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Greenway Kia East",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Greenway Kia North",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Greenway Kia West",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Greenway Kia West Palm Beach",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Gunther Kia",
+  "status": "fetched",
+  "source_url": "https://www.guntherkia.com/staff",
+  "contact_name": "Alex Palacios",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hollywood Kia",
+  "status": "fetched",
+  "source_url": "https://www.hollywoodkia.com/about-us/staff/",
+  "contact_name": "Hector Mota",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Jenkins Kia of Cocoa",
+  "status": "fetched",
+  "source_url": "https://www.jenkinskiaofcocoa.com/dealership/staff.htm",
+  "contact_name": "Sandeep Singh",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Jenkins Kia of Crystal River",
+  "status": "fetched",
+  "source_url": "https://www.jenkinskiaofcrystalriver.com/dealership/staff.htm",
+  "contact_name": "George Leslie",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Jenkins Kia of Gainesville",
+  "status": "fetched",
+  "source_url": "https://www.jenkinskiaofgainesville.com/dealership/staff.htm",
+  "contact_name": "Demetrius Ferguson",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Jenkins Kia of Ocala",
+  "status": "fetched",
+  "source_url": "https://www.jenkinskiaofocala.com/dealership/staff.htm",
+  "contact_name": "Richard Moulton",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ken Ganley Kia New Port Richey",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia Autosport",
+  "status": "fetched",
+  "source_url": "https://www.kiaautosportpensacola.com/dealership/staff.htm",
+  "contact_name": "Will Murray",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia Delray",
+  "status": "fetched",
+  "source_url": "https://www.kiadelray.com/about-us/staff/",
+  "contact_name": "Bob Vallone",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia On Atlantic",
+  "status": "fetched",
+  "source_url": "https://www.kiaonatlantic.com/about-us/staff/",
+  "contact_name": "Joseph S. Koziol",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia of Cape Coral",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia of Clermont",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia of Fort Myers",
+  "status": "fetched",
+  "source_url": "https://www.kiaoffortmyers.com/staff",
+  "contact_name": "Robert Frankel",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia of Key West",
+  "status": "fetched",
+  "source_url": "https://www.kiaofkeywest.com/about-us/staff/",
+  "contact_name": "Stephen Bender",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia of Leesburg",
+  "status": "fetched",
+  "source_url": "https://www.kiaofleesburg.com/about-us/staff/",
+  "contact_name": "Yohan Danino",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia of Orange Park",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia of Port Charlotte",
+  "status": "fetched",
+  "source_url": "https://www.kiaofportcharlotte.com/about-us/staff/",
+  "contact_name": "Kareem Raposo",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia of Vero Beach",
+  "status": "fetched",
+  "source_url": "https://www.kiaofverobeach.com/staff",
+  "contact_name": "Paul McDonald",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia of Wesley Chapel",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lokey Kia",
+  "status": "fetched",
+  "source_url": "https://www.lokeykia.com/staff",
+  "contact_name": "Daniel Campbell",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Miami Lakes Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Napleton Northlake Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Phil Smith Kia",
+  "status": "fetched",
+  "source_url": "https://www.philsmithkia.com:443/",
+  "contact_name": "manager and",
+  "contact_title": "Sales Consultant",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Regal Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Rick Case Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Rountree-Moore Kia",
+  "status": "fetched",
+  "source_url": "https://www.rountreemoorekia.com/about-us/staff/",
+  "contact_name": "Mike Kelley",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "South Dade Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "South Dade Kia of Homestead",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Step One Kia Fort Walton Beach",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Sunset Kia of Sarasota",
+  "status": "fetched",
+  "source_url": "https://www.sunsetkiasarasota.com/dealership/staff.htm",
+  "contact_name": "Kevin Simmons",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Sunset Kia of Venice",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Wallace Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Werner Kia",
+  "status": "fetched",
+  "source_url": "https://www.wernerkia.com/about-us/staff/",
+  "contact_name": "Paul Marmon",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Alm Kia Perry",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Alm Kia South",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bulldog Kia",
+  "status": "fetched",
+  "source_url": "https://www.bulldogkia.com/about-us/staff/",
+  "contact_name": "MIKE SADLOCK",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Calavan Kia of West Atlanta",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Carriage Kia of Woodstock",
+  "status": "fetched",
+  "source_url": "https://www.carriagekiawoodstock.com/about-us/staff/",
+  "contact_name": "Amanda Siefkes",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Dalton Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ed Voyles Kia",
+  "status": "fetched",
+  "source_url": "https://www.edvoyleskia.com/staff",
+  "contact_name": "Scott Unger",
+  "contact_title": "Sales Manager",
+  "contact_email": "sunger@edvoyles.com"
+ },
+ {
+  "dealer_name": "Ed Voyles Kia of Chamblee",
+  "status": "fetched",
+  "source_url": "https://www.edvoyleskiachamblee.com/about-us/staff/",
+  "contact_name": "Fred Azarin",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Evans Kia",
+  "status": "fetched",
+  "source_url": "https://www.evanskia.com/meet-the-team/",
+  "contact_name": "Jordan Mureness",
+  "contact_title": "General Sales Manager",
+  "contact_email": "jmureness@evanskia.com"
+ },
+ {
+  "dealer_name": "Hutchinson Kia",
+  "status": "fetched",
+  "source_url": "https://www.kiaofmacon.com/about-us/staff/",
+  "contact_name": "Andrew Olsen",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hutchinson Kia of Albany",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Jim Ellis Kia of Kennesaw",
+  "status": "fetched",
+  "source_url": "https://jimelliskiaofkennesaw.com:443/about",
+  "contact_name": "Mike Martucci",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Jim Shorkey Kia of Gainesville",
+  "status": "fetched",
+  "source_url": "https://www.jimshorkeygainesvillekia.com/staff",
+  "contact_name": "Justin Bradley",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia Autosport",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia Country of Savannah",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia Mall of Georgia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia South Atlanta",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia of Alpharetta",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia of Lagrange",
+  "status": "fetched",
+  "source_url": "https://www.kiaoflagrange.com/about-us/staff/",
+  "contact_name": "Dusty Hunt",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Langdale Kia of Valdosta",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lou Sobh Kia",
+  "status": "fetched",
+  "source_url": "https://www.lousobhkia.com/about-us/staff/",
+  "contact_name": "Tim Tyler",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lou Sobh Kia of Brunswick",
+  "status": "fetched",
+  "source_url": "https://www.lousobhkiabrunswick.com/about-us/staff/",
+  "contact_name": "Tre' Dorrity",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lou Sobh Kia of Newnan",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Matthews Kia of Cartersville",
+  "status": "fetched",
+  "source_url": "https://www.matthewskiaofcartersville.com/staff",
+  "contact_name": "Austin Ariail",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Nalley Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Rick Case Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Sons Kia",
+  "status": "fetched",
+  "source_url": "https://www.sonskia.com/about-us/staff/",
+  "contact_name": "Nathan Redford",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Aloha Kia Airport",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Aloha Kia Leeward",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Billion Kia of Iowa City",
+  "status": "fetched",
+  "source_url": "https://www.billionkiaofiowacity.com/staff",
+  "contact_name": "Zach Cronbaugh",
+  "contact_title": "Sales Associate",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Billion Kia of Sioux City",
+  "status": "fetched",
+  "source_url": "https://www.billionkiaofsiouxcity.com/staff",
+  "contact_name": "Frank Juliano",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Edwards Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Finnin Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia of Des Moines",
+  "status": "fetched",
+  "source_url": "https://www.kiadm.com:443/meet-our-staff/",
+  "contact_name": "Phil the",
+  "contact_title": "New Car Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "McGrath Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Shottenkirk Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Smart Kia of Davenport",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Witham Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Cole Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Dillon Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "George Gee Kia",
+  "status": "fetched",
+  "source_url": "https://www.geekia.net/about-us/staff/",
+  "contact_name": "Rob Billick",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kendall Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Stone's Kia",
+  "status": "fetched",
+  "source_url": "https://www.stoneskia.net:443/meet-our-staff/",
+  "contact_name": "www.StonesKia.net General",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Anderson Kia On Perryville",
+  "status": "fetched",
+  "source_url": "https://www.driveandersonkia.com:443/meet-our-staff/",
+  "contact_name": "is an amazing",
+  "contact_title": "Sales Associate",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Auffenberg Kia",
+  "status": "fetched",
+  "source_url": "https://www.auffenbergkia.com/staff",
+  "contact_name": "Mark Chapman",
+  "contact_title": "General Manager",
+  "contact_email": "MarkChapman1898@dealerdelivery.net"
+ },
+ {
+  "dealer_name": "Berman Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Berwyn Kia",
+  "status": "fetched",
+  "source_url": "https://www.berwynkia.com/staff",
+  "contact_name": "Mike Arias",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bob Rohrman Schaumburg Kia",
+  "status": "fetched",
+  "source_url": "https://www.schaumburgkia.com/staff",
+  "contact_name": "Ricky Perez",
+  "contact_title": "General Manager",
+  "contact_email": "ricky.perez@rohrmanauto.com"
+ },
+ {
+  "dealer_name": "Castle Kia of McHenry",
+  "status": "fetched",
+  "source_url": "https://www.castlekiamchenry.com/dealership/staff.htm",
+  "contact_name": "Jordan Suchowski",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Classic Kia",
+  "status": "fetched",
+  "source_url": "https://www.classickiaonline.com/staff",
+  "contact_name": "Jorge Rodarte",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Elgin Kia",
+  "status": "fetched",
+  "source_url": "https://www.wagelginkia.com:443/meet-our-staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Evergreen Kia",
+  "status": "fetched",
+  "source_url": "https://www.evergreenkia.com:443/about-us/staff/",
+  "contact_name": "HABLA ESPANOL",
+  "contact_title": "Sales Associate",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Federico Kia",
+  "status": "fetched",
+  "source_url": "https://www.federicokia.com:443/meet-our-staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Gerald Kia of Matteson",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Gerald Kia of Naperville",
+  "status": "fetched",
+  "source_url": "https://www.geraldkianaperville.com:443/meet-our-staff/",
+  "contact_name": "position as",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Gerald Kia of North Aurora",
+  "status": "fetched",
+  "source_url": "https://www.geraldkianorthaurora.com:443/meet-our-staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Green Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "International Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia of Bradley",
+  "status": "fetched",
+  "source_url": "https://www.kiaofbradley.com:443/meet-our-staff/",
+  "contact_name": "and breakdancing.",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Larry Stovesand Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Liberty Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lou Fusz Kia of Moline",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "McGrath Arlington Kia",
+  "status": "fetched",
+  "source_url": "https://www.mcgratharlingtonkia.com:443/about-us/meet-our-staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "McGrath Kia of Highland Park",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "McGrath Kia of St. Charles",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Mike Miller Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Napleton's Kia of Elmhurst",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Napleton's Kia of Urbana",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Napleton's River Oaks Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "O'Brien Kia of Bloomington",
+  "status": "fetched",
+  "source_url": "https://www.obrienteamkia.com/about-us/staff/",
+  "contact_name": "Managers TJ Gallagher",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ottawa Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Raymond Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Shottenkirk Kia of Quincy",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Willowbrook Kia",
+  "status": "fetched",
+  "source_url": "https://www.willowbrookkia.com/staff",
+  "contact_name": "Mike Talevski",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "World Kia Joliet",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Andy Mohr Kia",
+  "status": "fetched",
+  "source_url": "https://www.andymohrkia.com/staff",
+  "contact_name": "Joe Kapitan",
+  "contact_title": "General Manager",
+  "contact_email": "jkapitan@andymohr.com"
+ },
+ {
+  "dealer_name": "Bob Rohrman Kia",
+  "status": "fetched",
+  "source_url": "https://www.rohrmankia.com/staff",
+  "contact_name": "Rob Jones",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Community Kia of Bloomington",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Fort Wayne Kia",
+  "status": "fetched",
+  "source_url": "https://www.fortwaynekia.com/staff",
+  "contact_name": "Rob Pargeon",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Graff Kia of Chesterton",
+  "status": "fetched",
+  "source_url": "https://www.graffkiachesterton.com/staff",
+  "contact_name": "Andre Pineda",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Gurley Leep Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia Store Clarksville",
+  "status": "fetched",
+  "source_url": "https://www.kiastoreclarksville.com/about-us/staff/",
+  "contact_name": "John Flispart",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia of Muncie",
+  "status": "fetched",
+  "source_url": "https://www.kiaofmuncie.com/staff",
+  "contact_name": "Chris Hutton",
+  "contact_title": "General Manager",
+  "contact_email": "chutton@kiaofmuncie.com"
+ },
+ {
+  "dealer_name": "Lou Fusz Kia of Evansville",
+  "status": "fetched",
+  "source_url": "https://www.evansvillekia.com/about-us/staff/",
+  "contact_name": "David Cates",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lou Fusz Kia of Terre Haute",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Michigan City Kia",
+  "status": "fetched",
+  "source_url": "https://www.michigancitykia.com/dealership/staff.htm",
+  "contact_name": "Jay Jaber",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Napleton Kia of Carmel",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Napleton Kia of Fishers",
+  "status": "fetched",
+  "source_url": "https://napletonkiaoffishers.adviserly.com/",
+  "contact_name": "Anthony Pappas",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ray Skillman Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ray Skillman Northeast Kia",
+  "status": "fetched",
+  "source_url": "https://www.rayskillmannortheastkia.com/staff/",
+  "contact_name": "Shawn Salinas",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ray Skillman Westside Kia",
+  "status": "fetched",
+  "source_url": "https://www.rayskillmankiawest.com/staff/",
+  "contact_name": "Bim Akin",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Southlake Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Thomas Kia of Highland",
+  "status": "fetched",
+  "source_url": "https://www.thomaskia.com:443/meet-our-staff/",
+  "contact_name": "finance manager",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Briggs Kia",
+  "status": "fetched",
+  "source_url": "https://www.briggskia.com/staff",
+  "contact_name": "Brad Puff",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Cable Dahmer Kia of Lawrence",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia of Dodge City",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia of Manhattan",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Midwest Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Oakes Kia of Olathe",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Shawnee Mission Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bruce Walters Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Don Franklin Bowling Green Kia",
+  "status": "fetched",
+  "source_url": "https://www.donfranklinbowlinggreenkia.com/about-us/staff/",
+  "contact_name": "Ralph Willis",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Don Franklin Somerset Kia",
+  "status": "fetched",
+  "source_url": "https://www.donfranklinsomersetkia.com/about-us/staff/",
+  "contact_name": "Todd Cockerham",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Jake Sweeney Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia Store East",
+  "status": "fetched",
+  "source_url": "https://www.kiastoreeast.com/about-us/staff/",
+  "contact_name": "Rob Mac",
+  "contact_title": "Sales Consultant",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia of Lexington",
+  "status": "fetched",
+  "source_url": "https://www.kiaoflexington.com/about-us/staff/",
+  "contact_name": "Dan Parker",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "The Kia Store",
+  "status": "fetched",
+  "source_url": "https://www.kiastorepreston.com/staff/",
+  "contact_name": "Joe Hammond",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "The Kia Store - Elizabethtown",
+  "status": "fetched",
+  "source_url": "https://www.kiastoreetown.com/about-us/staff/",
+  "contact_name": "SHAWN TAYLOR",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "All Star Kia East",
+  "status": "fetched",
+  "source_url": "https://www.allstarkiaeast.com/staff.aspx",
+  "contact_name": "Rick Digerolamo",
+  "contact_title": "General Sales Manager",
+  "contact_email": "rdigerolamo@allstarautomotive.com"
+ },
+ {
+  "dealer_name": "All Star Kia of Baton Rouge",
+  "status": "fetched",
+  "source_url": "https://www.allstarkiaofbatonrouge.com/staff.aspx",
+  "contact_name": "Jeremy Lambert",
+  "contact_title": "General Manager",
+  "contact_email": "jlambert@allstarautomotive.com"
+ },
+ {
+  "dealer_name": "Barker Kia",
+  "status": "fetched",
+  "source_url": "https://www.barkerkia.com/staff",
+  "contact_name": "Brett Roger",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia of Covington",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia of Lake Charles",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lakeshore Kia",
+  "status": "fetched",
+  "source_url": "https://www.lakeshorekia.com/about-us/staff/",
+  "contact_name": "Chase Favre",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Leblanc Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Orr Kia of Bossier",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Orr Kia of Shreveport",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Premier Kia of Kenner",
+  "status": "fetched",
+  "source_url": "https://www.premierkia.com/about-us/staff/",
+  "contact_name": "John Oliver",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Sparks Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Sterling Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Tameron Kia Westbank",
+  "status": "fetched",
+  "source_url": "https://www.tameronkiawestbank.com/about-us/staff/",
+  "contact_name": "Larry Keene",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Walker Kia",
+  "status": "fetched",
+  "source_url": "https://www.walkerkia.com/about-us/staff/",
+  "contact_name": "Sissy Ross",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Balise Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Cape & Islands Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Commonwealth Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Gervais Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Herb Chambers Kia of Burlington",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia North Danvers",
+  "status": "fetched",
+  "source_url": "https://www.kianorthdanvers.com/dealership/staff.htm",
+  "contact_name": "Garrett Dube",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia of Attleboro",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia of Dartmouth",
+  "status": "fetched",
+  "source_url": "https://www.kiaofdartmouth.com/dealership/staff.htm",
+  "contact_name": "Mike Fortuna",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lev Kia of Framingham",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Mastria Kia",
+  "status": "fetched",
+  "source_url": "https://www.mastriakia.com/about-us/staff/",
+  "contact_name": "Tony Bruno",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "McGovern Kia of Norwood",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Pride Kia",
+  "status": "fetched",
+  "source_url": "https://www.pridekiaoflynn.com/about-us/staff/",
+  "contact_name": "Charbel Richa",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Quirk Kia",
+  "status": "fetched",
+  "source_url": "https://www.quirkkia.com/about-us/staff/",
+  "contact_name": "Jorge Reyes",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Quirk Kia South",
+  "status": "fetched",
+  "source_url": "https://www.quirkkiasouth.com/about-us/staff/",
+  "contact_name": "Sam Fahmie",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ron Bouchard Kia",
+  "status": "fetched",
+  "source_url": "https://www.ronbouchardkia.com/about-us/staff/",
+  "contact_name": "Chris Bakas",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Route 6 Automall Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Wagner Kia of Shrewsbury",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bayside Kia of Waldorf",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bob Bell Kia of Essex",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Buchanan Kia",
+  "status": "fetched",
+  "source_url": "https://www.buchanankia.com:443/meet-our-staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Darcars Kia",
+  "status": "fetched",
+  "source_url": "https://www.darcarskiaoftemplehills.com/staff",
+  "contact_name": "Hernan Vasco",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Darcars Kia of Frederick",
+  "status": "fetched",
+  "source_url": "https://www.darcarskiaoffrederick.com/staff",
+  "contact_name": "Stephen Kenly",
+  "contact_title": "General Sales Manager",
+  "contact_email": "Stephen.Kenly@darcars.com"
+ },
+ {
+  "dealer_name": "Darcars Kia of Lanham",
+  "status": "fetched",
+  "source_url": "https://www.darcarslanhamkia.com/staff",
+  "contact_name": "Virginia Senn",
+  "contact_title": "Sales Consultant",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Fitzgerald Kia of Annapolis",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hagerstown Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Herson's Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hertrich Kia Easton",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "J.B.A. Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Jones Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia of Bowie",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "King Kia",
+  "status": "fetched",
+  "source_url": "https://www.kingautokia.com/staff",
+  "contact_name": "Nan Wong",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "King Kia of Laurel",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Koons Kia Owings Mills",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Nationwide Kia",
+  "status": "fetched",
+  "source_url": "https://www.nationwide-kia.com/staff",
+  "contact_name": "Doug Lamkin",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ourisman Kia of Bethesda",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ourisman Kia of Catonsville",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Pohanka Kia of Salisbury",
+  "status": "fetched",
+  "source_url": "https://www.pohankakiamd.com:443/meet-our-staff/",
+  "contact_name": "John Arieta",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Timbrook Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bill Dodge Kia",
+  "status": "fetched",
+  "source_url": "https://www.billdodgekia.net/staff",
+  "contact_name": "Patrick Demers",
+  "contact_title": "General Manager",
+  "contact_email": "patrick.demers@bdag.com"
+ },
+ {
+  "dealer_name": "Bill Dodge Kia of Saco",
+  "status": "fetched",
+  "source_url": "https://www.billdodgekiaofsaco.com/staff",
+  "contact_name": "Chris Harper",
+  "contact_title": "General Manager",
+  "contact_email": "chris.harper@bdag.com"
+ },
+ {
+  "dealer_name": "Charlie's Kia",
+  "status": "fetched",
+  "source_url": "https://www.charlieskia.com/dealership/staff.htm",
+  "contact_name": "Najib Sanouri",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Darling's Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Rowe Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Feldman Kia",
+  "status": "fetched",
+  "source_url": "https://www.feldmankia.com/staff",
+  "contact_name": "George Hawes",
+  "contact_title": "General Manager",
+  "contact_email": "ghawes@feldmanauto.com"
+ },
+ {
+  "dealer_name": "Fox Kia North",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Fox Kia South",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Glassman Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Golling Kia of Madison Heights",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Jeffrey Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia of Canton",
+  "status": "fetched",
+  "source_url": "https://www.kiaofcanton.com/about-us/staff/",
+  "contact_name": "Alsamra General",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia of Grand Blanc",
+  "status": "fetched",
+  "source_url": "https://www.kiaofgrandblanc.com/staff",
+  "contact_name": "Maciag Kia",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia of Jackson",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia of Lansing",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lafontaine Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lafontaine Kia of Dearborn",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "McDonald Kia",
+  "status": "fetched",
+  "source_url": "https://www.mcdonaldkia.com/about-us/staff/",
+  "contact_name": "Jeramie Brown",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Seelye Kia of Battle Creek",
+  "status": "fetched",
+  "source_url": "https://www.seelyekiabattlecreek.com/about-us/staff/",
+  "contact_name": "Auto Group",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Seelye Kia of Kalamazoo",
+  "status": "fetched",
+  "source_url": "https://www.seelyekiakalamazoo.com/about-us/staff/",
+  "contact_name": "Auto Group",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Serra Kia",
+  "status": "fetched",
+  "source_url": "https://www.driveserrakia.com/dealership/staff.htm",
+  "contact_name": "Randy Jackson",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Summit Place Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Summit Place Kia East",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Thelen Kia",
+  "status": "fetched",
+  "source_url": "https://www.thelenkia.com/",
+  "contact_name": "from his",
+  "contact_title": "Sales Team",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Tyler Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Williams Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Zeigler Kia of Holland",
+  "status": "fetched",
+  "source_url": "https://www.zeiglerkiaofholland.com/staff",
+  "contact_name": "John Ortegon",
+  "contact_title": "Sales Consultant",
+  "contact_email": "johnortegon@zeigler.com"
+ },
+ {
+  "dealer_name": "Barnett Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Cornerstone Kia",
+  "status": "fetched",
+  "source_url": "https://www.cornerstonekia.com/about-us/staff/",
+  "contact_name": "Jon Berg",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Jeff Belzer's Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia of Duluth",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia of Mankato",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia of St. Cloud",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lupient Kia",
+  "status": "fetched",
+  "source_url": "https://lupientkia.com:443/about",
+  "contact_name": "Chris Lucarelli",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Luther Kia",
+  "status": "fetched",
+  "source_url": "https://www.lutherkiamn.com/about-us/staff/",
+  "contact_name": "Dave Ramy",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Luther Kia of Bloomington",
+  "status": "fetched",
+  "source_url": "https://www.lutherkiaofbloomington.com/about-us/staff/",
+  "contact_name": "Dan Dingmann",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Tom Kadlec Kia",
+  "status": "fetched",
+  "source_url": "https://www.tomkadleckia.com/about-us/staff/",
+  "contact_name": "John Prinzing",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Walser Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Anderson Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Auffenberg Kia Cape Girardeau",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bob Sight Independence Kia",
+  "status": "fetched",
+  "source_url": "https://www.bobsightkia.com/staff.aspx",
+  "contact_name": "Todd Chenault",
+  "contact_title": "Sales Manager",
+  "contact_email": "tchenault@bobsightkia.com"
+ },
+ {
+  "dealer_name": "Cable Dahmer Kia of Lees Summit",
+  "status": "fetched",
+  "source_url": "https://www.cabledahmerkia.com/staff",
+  "contact_name": "Ronald Edwards",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ed Morse Kia Rolla",
+  "status": "fetched",
+  "source_url": "https://www.edmorsekiarolla.com/staff.aspx",
+  "contact_name": "Jimmy Southards",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hw Kia of West County",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Jim Butler Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia of Columbia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lou Fusz Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lou Fusz Kia of Wentzville",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Napleton's Mid Rivers Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Oakes Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Roper Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Springfield Kia",
+  "status": "fetched",
+  "source_url": "https://www.springfieldkia.com/staff",
+  "contact_name": "Aaron Swanson",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Suntrup Kia",
+  "status": "fetched",
+  "source_url": "https://www.suntrupkiasouth.com/about-us/staff/",
+  "contact_name": "Dave Chadwick",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Barnes Crossing Kia",
+  "status": "fetched",
+  "source_url": "https://www.bckiaoftupelo.com:443/meet-our-staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Dean McCrary Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia of Laurel",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia of Meridian",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Southaven Kia",
+  "status": "fetched",
+  "source_url": "https://www.southavenkia.com/about-us/staff/",
+  "contact_name": "Jared Hoover",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Tameron Kia",
+  "status": "fetched",
+  "source_url": "https://www.tameronkia.com/staff.aspx",
+  "contact_name": "Jason Host",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Walt Massey Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Wilson Kia",
+  "status": "fetched",
+  "source_url": "https://www.wilsonkia.com/about-us/staff/",
+  "contact_name": "Tyrone Collier",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Campbell Kia of Missoula",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia of Billings",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Auto Park Kia",
+  "status": "fetched",
+  "source_url": "https://www.leithautoparkkia.com/dealership/staff.htm",
+  "contact_name": "Doug Durham",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Battleground Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bob King Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Burlington Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Classic Kia of Smithfield",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Coastal Kia",
+  "status": "fetched",
+  "source_url": "https://www.coastalkia.com/about-us/staff/",
+  "contact_name": "Quezada General",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Courage Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Deacon Jones Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Dutch Miller Kia",
+  "status": "fetched",
+  "source_url": "https://www.dutchmillerclt.com/staff",
+  "contact_name": "Garrett A.",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Fayetteville Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Fred Anderson Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hendrick Kia of Cary",
+  "status": "fetched",
+  "source_url": "https://www.hendrickkia.com/about-us/staff/",
+  "contact_name": "Laakso Executive",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hendrick Kia of Concord",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Jacksonville Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Joey Griffin Kia",
+  "status": "fetched",
+  "source_url": "https://www.joeygriffinkia.com:443/meet-our-staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Keffer Kia",
+  "status": "fetched",
+  "source_url": "https://www.kefferkia.com/about-us/staff/",
+  "contact_name": "Chris Poplin",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia of Kinston",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia of New Bern",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lee Kia of Greenville",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lifetime Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lumberton Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Paramount Kia of Asheville",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Paramount Kia of Hickory",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Planet Kia Charlotte",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Randy Marion Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Shelby Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Southern Pines Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Tri-City Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Union County Kia",
+  "status": "fetched",
+  "source_url": "https://www.unioncountykia.com/staff",
+  "contact_name": "Mike Reed",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "University Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Vann York Kia",
+  "status": "fetched",
+  "source_url": "https://www.vannyorkkia.com/staff",
+  "contact_name": "Travis Johnson",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Westgate Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Eide Kia Mandan",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Grand Forks Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia of Fargo",
+  "status": "fetched",
+  "source_url": "https://www.kiaoffargo.com/staff",
+  "contact_name": "Wess Philome",
+  "contact_title": "General Sales Manager",
+  "contact_email": "wessp@kiaoffargo.com"
+ },
+ {
+  "dealer_name": "H & H Kia",
+  "status": "fetched",
+  "source_url": "https://www.hhkia.com:443/meet-our-staff/",
+  "contact_name": "work with.",
+  "contact_title": "Sales Consultant",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia of Grand Island",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia of Lincoln",
+  "status": "fetched",
+  "source_url": "https://www.kiaoflincoln.com/about-us/staff/",
+  "contact_name": "Andy Goodyear",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bill Dube Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Capital City Kia",
+  "status": "fetched",
+  "source_url": "https://www.capitalcitykia.com/dealership/staff.htm",
+  "contact_name": "Ken Connor",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Fairfield Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "McFarland Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Nashua Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Nucar Kia of Tilton",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Quirk Kia Manchester",
+  "status": "fetched",
+  "source_url": "https://www.quirkkiamanchester.com/about-us/meet-our-team/",
+  "contact_name": "Mirhad Salihovic",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bridgewater Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Burlington Kia",
+  "status": "fetched",
+  "source_url": "https://www.burlingtonkia.com:443/meet-our-staff/",
+  "contact_name": "been the",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Cherry Hill Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ciocca Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Difeo Kia",
+  "status": "fetched",
+  "source_url": "https://www.difeokia.com/staff",
+  "contact_name": "Mike VanSomeren",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Fette Kia",
+  "status": "fetched",
+  "source_url": "https://www.fettekia.com/staff",
+  "contact_name": "Rachid Lachhab",
+  "contact_title": "Product Specialist",
+  "contact_email": "rlachhab@fettekia.com"
+ },
+ {
+  "dealer_name": "Gateway Kia of North Brunswick",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Global Kia of North Plainfield",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Jack Daniels Kia",
+  "status": "fetched",
+  "source_url": "https://www.jackdanielskia.com/dealership/staff.htm",
+  "contact_name": "John Vargas",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Jersey City Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia of Englewood",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia of Riverdale",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Liberty Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Manahawkin Kia",
+  "status": "fetched",
+  "source_url": "https://www.manahawkinkia.com/staff",
+  "contact_name": "Gardner Kia",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Matt Blatt Kia",
+  "status": "fetched",
+  "source_url": "https://www.mattblattkia.com/staff",
+  "contact_name": "Robert Semprevivo",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Matt Blatt Kia of Toms River",
+  "status": "fetched",
+  "source_url": "https://www.mattblattkiatr.com/staff",
+  "contact_name": "Marcus Floyd",
+  "contact_title": "Sales Representative",
+  "contact_email": "mfloyd@drivemattblattkiatr.com"
+ },
+ {
+  "dealer_name": "Motion Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Nielsen Kia of Newton",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Nutley Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Performance Kia of Denville",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Raceway Kia of Freehold",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Rk Kia of Vineland",
+  "status": "fetched",
+  "source_url": "https://www.myrkkia.com/about-us/staff/",
+  "contact_name": "John Luciano",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Sansone Jr's 66 Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Sansone Jr's Keyport Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Sansone Kia",
+  "status": "fetched",
+  "source_url": "https://www.sansoneskia.com/staff",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Turnersville Kia",
+  "status": "fetched",
+  "source_url": "https://www.turnersvillekia.com:443/meet-our-staff/",
+  "contact_name": "been the",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Fiesta Kia",
+  "status": "fetched",
+  "source_url": "https://www.fiestakia.com/about-us/staff/",
+  "contact_name": "Rigo Hernandez",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Giles Kia",
+  "status": "fetched",
+  "source_url": "https://www.gileskia.com/dealership/staff.htm",
+  "contact_name": "Russ Royval",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "HI Country Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Pitre Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Santa Fe Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Findlay Kia",
+  "status": "fetched",
+  "source_url": "https://www.findlaykia.com/about-us/staff/",
+  "contact_name": "Curtis Hardy",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Jim Marsh Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Tom Dolan's Reno Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Towbin Kia",
+  "status": "fetched",
+  "source_url": "https://www.towbinkia.com/about-us/staff/",
+  "contact_name": "Julian Foutch",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Atlantic Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Auto World Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bob Johnson Kia",
+  "status": "fetched",
+  "source_url": "https://www.bobjohnsonkia.com:443/meet-our-staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Burdick Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Della Kia",
+  "status": "fetched",
+  "source_url": "https://www.dellakia.com/staff",
+  "contact_name": "role of",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Destination Kia",
+  "status": "fetched",
+  "source_url": "https://www.destinationkia.com/staff",
+  "contact_name": "Dave Reali",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Destination Kia of Utica",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Dutchess Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Eagle Kia of Riverhead",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "F.X. Caprara Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Garvey Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Generation Kia",
+  "status": "fetched",
+  "source_url": "https://www.generationkia.com/index.cfm/page/about/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Habberstad Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Healey Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Island Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "John Starks Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Karp Kia",
+  "status": "fetched",
+  "source_url": "https://www.karpkia.com/staff",
+  "contact_name": "Eric Martinez",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia City of The Bronx",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia of East Syracuse",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia of Middletown",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia of West Nyack",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Maguire Kia",
+  "status": "fetched",
+  "source_url": "https://www.maguirekia.com/about-us/staff/",
+  "contact_name": "Bethany Divirgilio",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Matthews Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Matthews Kia of Clay",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Matthews Kia of Greece",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Matthews Kia of Schenectady",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Northstar Kia",
+  "status": "fetched",
+  "source_url": "https://www.northstarkiany.com/staff/",
+  "contact_name": "Shaun Jones",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Northtown Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Paul Brown Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Plaza Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Romeo Kia of Kingston",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Smithtown Kia",
+  "status": "fetched",
+  "source_url": "https://www.smithtownkia.com:443/meet-our-staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Tasca Kia South Shore",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Tasca Kia White Plains",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Transitowne Kia of West Seneca",
+  "status": "fetched",
+  "source_url": "https://www.transitownekia.com/about-us/staff/",
+  "contact_name": "Kyle Tolbert",
+  "contact_title": "General Manager",
+  "contact_email": "ktolbert@transitowne.com"
+ },
+ {
+  "dealer_name": "Vision Kia Canandaigua",
+  "status": "fetched",
+  "source_url": "https://www.visionkiacanandaigua.com/about-us/staff/",
+  "contact_name": "Alan Friedman",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Vision Kia East Rochester",
+  "status": "fetched",
+  "source_url": "https://www.visionkiaeastrochester.com/kia-dealership-near-me/staff/",
+  "contact_name": "Awais Younis",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "West-Herr Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Williams Kia",
+  "status": "fetched",
+  "source_url": "https://www.williamskiaofelmira.com:443/meet-our-staff/",
+  "contact_name": "riding ATVs.",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Yonkers Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Coughlin Kia of Dublin",
+  "status": "fetched",
+  "source_url": "https://www.coughlinkiadublin.com/staff",
+  "contact_name": "Jared Ward",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Coughlin Kia of Lancaster",
+  "status": "fetched",
+  "source_url": "https://www.coughlinlancasterkia.com/staff",
+  "contact_name": "Andrew Colopy",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Coughlin Kia of Lewis Center",
+  "status": "fetched",
+  "source_url": "https://www.coughlinkialewiscenter.com/staff",
+  "contact_name": "Lamar Woods",
+  "contact_title": "Sales Associate",
+  "contact_email": "lamarwoods@coughlincars.com"
+ },
+ {
+  "dealer_name": "Coughlin Kia of Pataskala",
+  "status": "fetched",
+  "source_url": "https://www.coughlinkiapataskala.com/staff",
+  "contact_name": "Jason Brown",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Cronin Kia",
+  "status": "fetched",
+  "source_url": "https://www.croninkia.com:443/meet-our-staff/",
+  "contact_name": "and my",
+  "contact_title": "Product Specialist",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Diehl Kia of Massillon",
+  "status": "fetched",
+  "source_url": "https://www.diehlkiaofmassillon.com/meet-the-team/",
+  "contact_name": "Dan Klaes",
+  "contact_title": "General Manager",
+  "contact_email": "dklaes@diehlauto.com"
+ },
+ {
+  "dealer_name": "Germain Kia of Columbus",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Halleen Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Halleen Kia of Sandusky",
+  "status": "fetched",
+  "source_url": "https://www.kiasandusky.com/meet-the-team/",
+  "contact_name": "Patrick Halleen",
+  "contact_title": "General Manager",
+  "contact_email": "Phalleen@halleenkia.com"
+ },
+ {
+  "dealer_name": "Herrnstein Kia",
+  "status": "fetched",
+  "source_url": "https://www.herrnsteinkia.com/staff",
+  "contact_name": "Tom Buck",
+  "contact_title": "General Sales Manager",
+  "contact_email": "tom.buck@herrnstein.com"
+ },
+ {
+  "dealer_name": "Jeff Wyler Fairfield Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Jeff Wyler Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Jeff Wyler Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Jeff Wyler Kia of Colerain",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ken Ganley Kia Alliance",
+  "status": "fetched",
+  "source_url": "https://www.kenganleykiaalliance.com/staff",
+  "contact_name": "Josh Davis",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ken Ganley Kia Boardman",
+  "status": "fetched",
+  "source_url": "https://www.kenganleykiaboardman.com:443/meet-our-staff/",
+  "contact_name": "want on my",
+  "contact_title": "Sales Team",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ken Ganley Kia Medina",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ken Ganley Kia Mentor",
+  "status": "fetched",
+  "source_url": "https://www.kenganleykiamentor.com/staff",
+  "contact_name": "Mike Kaminski",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia of Beavercreek",
+  "status": "fetched",
+  "source_url": "https://www.kiaofbeavercreek.com/about-us/meet-our-staff/",
+  "contact_name": "Terrill Helton",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia of Bedford",
+  "status": "fetched",
+  "source_url": "https://www.kiaofbedford.com/dealership/staff.htm",
+  "contact_name": "Mitch Moss",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia of Dayton",
+  "status": "fetched",
+  "source_url": "https://www.kiaofdayton.com/about-us/staff/",
+  "contact_name": "Zac Frederick",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia of Streetsboro",
+  "status": "fetched",
+  "source_url": "https://www.kiaofstreetsboro.com/about-us/staff/",
+  "contact_name": "Steve DiFranco",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kings Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lou Fusz Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Matt Castrucci Kia",
+  "status": "fetched",
+  "source_url": "https://www.mattcastruccikia.com:443/meet-our-staff/",
+  "contact_name": "am the",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Montrose Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Preston Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ricart Kia",
+  "status": "fetched",
+  "source_url": "https://www.ricartkia.com/staff",
+  "contact_name": "Rich Montgomery",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Spitzer Kia",
+  "status": "fetched",
+  "source_url": "https://www.drivespitzerkia.com/about-us/meet-our-team/",
+  "contact_name": "Matt Studer",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Spitzer Kia West",
+  "status": "fetched",
+  "source_url": "https://www.clevelandkia.com/about-us/meet-our-staff/",
+  "contact_name": "Freddy Mansour",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Taylor Kia Toledo",
+  "status": "fetched",
+  "source_url": "https://www.taylorkiatoledo.com:443/meet-our-staff/",
+  "contact_name": "was my",
+  "contact_title": "Sales Representative",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Taylor Kia of Lima",
+  "status": "fetched",
+  "source_url": "https://www.taylorkia-lima.com:443/meet-our-staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Taylor Kia-Findlay",
+  "status": "fetched",
+  "source_url": "https://www.taylorkiafindlay.com:443/meet-our-staff/",
+  "contact_name": "peoples lives.",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Vandevere Kia",
+  "status": "fetched",
+  "source_url": "https://www.vandeverekia.com/staff",
+  "contact_name": "Joe VanDevere",
+  "contact_title": "General Manager",
+  "contact_email": "joev@vandevere.com"
+ },
+ {
+  "dealer_name": "Bob Moore Kia Northwest",
+  "status": "fetched",
+  "source_url": "https://www.bobmoorekia.com/staff/",
+  "contact_name": "Jacob Wells",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Boomer Kia",
+  "status": "fetched",
+  "source_url": "https://boomerkia.com:443/about",
+  "contact_name": "Hunter Long",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ferguson Kia",
+  "status": "fetched",
+  "source_url": "https://www.fergusonkia.com/about-us/meet-our-team/",
+  "contact_name": "Zach Walker",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kalidy Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lawton Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Midtown Kia",
+  "status": "fetched",
+  "source_url": "https://www.midtownkia.com/dealership/staff.htm",
+  "contact_name": "Kyle Collins",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Sooner Kia of Norman",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Beaverton Kia",
+  "status": "fetched",
+  "source_url": "https://www.beavertonkia.com/about/staff/",
+  "contact_name": "Isaiah Thomas",
+  "contact_title": "Sales Consultant",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia Medford",
+  "status": "fetched",
+  "source_url": "https://www.kiamedford.com:443/meet-our-staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia of Portland",
+  "status": "fetched",
+  "source_url": "https://www.kiaofportland.com/staff",
+  "contact_name": "Ken Cornelison",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia of Warrenton",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kiefer Kia",
+  "status": "fetched",
+  "source_url": "https://www.kieferkia.com/about-us/staff/",
+  "contact_name": "Zac Nelson",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Power Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ron Tonkin Kia",
+  "status": "fetched",
+  "source_url": "https://www.rontonkinkia.com/about-us/staff/",
+  "contact_name": "Evan Walter",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Team Kia of Bend",
+  "status": "fetched",
+  "source_url": "https://goteamkia.com:443/about",
+  "contact_name": "Bryce West",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Weston Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "#1 Cochran Kia of Robinson Twp",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Abeloff Kia",
+  "status": "fetched",
+  "source_url": "https://www.abeloffkia.com/about-us/staff/",
+  "contact_name": "LENNY CONDI",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Allentown Kia",
+  "status": "fetched",
+  "source_url": "https://www.allentownkia.com/about-us/staff/",
+  "contact_name": "Kyle Arcury",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Altoona Courtesy Kia",
+  "status": "fetched",
+  "source_url": "https://www.courtesykiaaltoona.com/staff",
+  "contact_name": "Close JT Ventura",
+  "contact_title": "Sales Manager",
+  "contact_email": "jtventura@courtesyaltoona.net"
+ },
+ {
+  "dealer_name": "Auto Express Kia",
+  "status": "fetched",
+  "source_url": "https://www.autoexpresskia.com:443/meet-our-staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bergey's Kia",
+  "status": "fetched",
+  "source_url": "https://www.bergeyskia.com/dealership/staff.htm",
+  "contact_name": "Ryan Alderfer",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bergey's Kia of Wilkes-Barre",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Blaise Alexander Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Brown-Daub Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "C. Harper Kia",
+  "status": "fetched",
+  "source_url": "https://www.charperkia.com/staff",
+  "contact_name": "Ryan Faust",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Diehl Kia of Beaver",
+  "status": "fetched",
+  "source_url": "https://www.diehlkiaofbeaver.com/meet-the-team/",
+  "contact_name": "Mike Anderson",
+  "contact_title": "General Manager",
+  "contact_email": "manderson@diehlauto.com"
+ },
+ {
+  "dealer_name": "Diehl Kia of Hermitage",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Fred Beans Kia of Langhorne",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Fred Beans Kia of Mechanicsburg",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Gateway Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Gateway Kia of Quakertown",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Giambalvo Kia",
+  "status": "fetched",
+  "source_url": "https://www.giambalvokia.com/about-us/staff/",
+  "contact_name": "Al Monks",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Griffin Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Jim Shorkey Kia",
+  "status": "fetched",
+  "source_url": "https://www.jimshorkeykia.com/staff",
+  "contact_name": "Eric Carroll",
+  "contact_title": "General Sales Manager",
+  "contact_email": "ericcarroll@jimshorkey.com"
+ },
+ {
+  "dealer_name": "Jim Shorkey Kia Wexford",
+  "status": "fetched",
+  "source_url": "https://www.jimshorkeykiawexford.com/staff",
+  "contact_name": "Ibne Fahad",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Jim Shorkey Kia of Uniontown",
+  "status": "fetched",
+  "source_url": "https://www.jimshorkeyuniontownkia.com/staff",
+  "contact_name": "Lloyd Williams",
+  "contact_title": "General Sales Manager",
+  "contact_email": "lloydwilliams@jimshorkey.com"
+ },
+ {
+  "dealer_name": "Kia On The Boulevard",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia of Coatesville",
+  "status": "fetched",
+  "source_url": "https://www.kiaofcoatesville.com/staff",
+  "contact_name": "Jacob Sipala",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia of West Chester",
+  "status": "fetched",
+  "source_url": "https://www.kiaofwestchester.com/staff",
+  "contact_name": "Jacob Sipala",
+  "contact_title": "Sales Manager",
+  "contact_email": "jacobsipala@jimsipalakia.com"
+ },
+ {
+  "dealer_name": "Lancaster Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Legacy Kia of West Mifflin",
+  "status": "fetched",
+  "source_url": "https://www.legacykiaofwestmifflin.com/staff",
+  "contact_name": "Justin Kellerman",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lehighton Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lion Country Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Matt Blatt Kia of Abington",
+  "status": "fetched",
+  "source_url": "https://www.mattblattkiaofabington.com/staff",
+  "contact_name": "Vince Geraci",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Matthews Kia of Blakely",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Mike Kelly Kia",
+  "status": "fetched",
+  "source_url": "https://www.mikekellykia.com/staff",
+  "contact_name": "Steve Akins",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Monroeville Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Moyer Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Outten Kia",
+  "status": "fetched",
+  "source_url": "https://www.outtenkia.com:443/team-outten-kia-in-hamburg-pa",
+  "contact_name": "Pete Schlenker",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Performance Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Raceway Kia of Conshohocken",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Renn Kirby Kia",
+  "status": "fetched",
+  "source_url": "https://www.rennkirbykia.com:443/meet-our-staff/",
+  "contact_name": "Really great",
+  "contact_title": "Sales Team",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Savage Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Scott Kia of Limerick",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Scott Kia of Springfield",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Smail Kia",
+  "status": "fetched",
+  "source_url": "https://www.smailkia.com/about-us/staff/",
+  "contact_name": "Jeff Mikell",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "South Hills Kia",
+  "status": "fetched",
+  "source_url": "https://www.southhillskia.net/about-us/staff/",
+  "contact_name": "Taylor Presto",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Sunbury Motors Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Team Kia",
+  "status": "fetched",
+  "source_url": "https://www.teamkiacars.net/staff.aspx",
+  "contact_name": "Jeremy Bauman",
+  "contact_title": "General Manager",
+  "contact_email": "jbauman@teamcars.net"
+ },
+ {
+  "dealer_name": "Tri Star Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Turner Kia",
+  "status": "fetched",
+  "source_url": "https://www.turnerkia.com/staff",
+  "contact_name": "Jeff Millar",
+  "contact_title": "General Sales Manager",
+  "contact_email": "Jeff.Millar@turnerautos.com"
+ },
+ {
+  "dealer_name": "Value Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bald Hill Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Tasca Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Benson Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Burns Kia",
+  "status": "fetched",
+  "source_url": "https://www.burnskia.com/staff",
+  "contact_name": "Alan Rhoad",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Car Town Kia USA Florence",
+  "status": "fetched",
+  "source_url": "https://www.cartownkiaflorence.com/about-us/staff/",
+  "contact_name": "Wilder Kia",
+  "contact_title": "New Car Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Fred Anderson Kia of Greenville",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Fred Anderson Kia of Greer",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Jts Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Jts Kia of Columbia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Jts Kia of Rock Hill",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia Country",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia Country of Hilton Head",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia of Anderson",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia of Myrtle Beach",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Quality Kia of Greenwood",
+  "status": "fetched",
+  "source_url": "https://www.qualitykiasc.com/about-us/staff/",
+  "contact_name": "Zach Bower",
+  "contact_title": "Sales Consultant",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Stokes Hodges Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Stokes Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Billion Kia",
+  "status": "fetched",
+  "source_url": "https://www.billionkiaofsiouxfalls.com/staff",
+  "contact_name": "Jon Olson",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Billion Kia of Rapid City",
+  "status": "fetched",
+  "source_url": "https://www.billionkiaofrapidcity.com/staff",
+  "contact_name": "Randy Lathen",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Chantz Scott Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Cumberland Kia",
+  "status": "fetched",
+  "source_url": "https://www.cumberlandkia.com/meet-the-team/",
+  "contact_name": "Case Internet",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Gossett Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Gossett Kia South",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Greenway Kia Franklin",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Greenway Kia Hickory Hollow",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Greenway Kia Rivergate",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia of Chattanooga",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia of Cleveland",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia of Johnson City",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia of Murfreesboro",
+  "status": "fetched",
+  "source_url": "https://www.kiaofmurfreesboro.com/staff",
+  "contact_name": "Greg Fondren",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Parkside Kia",
+  "status": "fetched",
+  "source_url": "https://www.parksidekia.com:443/meet-our-staff/",
+  "contact_name": "later the",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Russell Barnett Kia",
+  "status": "fetched",
+  "source_url": "https://www.rbkia.com/staff",
+  "contact_name": "Craig Johnson",
+  "contact_title": "General Manager",
+  "contact_email": "craig@russellbarnett.com"
+ },
+ {
+  "dealer_name": "Rusty Wallace Kia",
+  "status": "fetched",
+  "source_url": "https://www.rustywallacekiaalcoa.com/staff",
+  "contact_name": "Kelly Williamson",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Rusty Wallace Kia Morristown",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Rusty Wallace Kia of Knoxville",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Serra Kia of Jackson",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Wallace Kia of Bristol",
+  "status": "fetched",
+  "source_url": "https://www.wallacekiaofbristol.com/staff",
+  "contact_name": "TC Baker",
+  "contact_title": "General Manager",
+  "contact_email": "tcbaker@wallacemotorcars.com"
+ },
+ {
+  "dealer_name": "Wyatt Johnson Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ancira Kia",
+  "status": "fetched",
+  "source_url": "https://www.ancirakiasa.com/about-us/staff/",
+  "contact_name": "ENRIQUE GARZA",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Archer Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bayway Kia",
+  "status": "fetched",
+  "source_url": "https://www.baywaykia.com/staff",
+  "contact_name": "Enrique Lance",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bert Ogden Harlingen Kia",
+  "status": "fetched",
+  "source_url": "https://www.bertogdenharlingenkia.com/staff/",
+  "contact_name": "Max Cruz",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bert Ogden Kia",
+  "status": "fetched",
+  "source_url": "https://www.bertogdenmissionkia.com/about-us/staff/",
+  "contact_name": "Gilbert Aguilar",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bob Utter Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Casa Kia",
+  "status": "fetched",
+  "source_url": "https://www.casakia.com/staff",
+  "contact_name": "Junior Soto",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Classic Kia",
+  "status": "fetched",
+  "source_url": "https://www.classickia.com:443/about-us/staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Classic Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Classic Kia of Carrollton",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Clay Cooley Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Clay Cooley Kia Plano",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Community Kia",
+  "status": "fetched",
+  "source_url": "https://www.communitykia.com:443/meet-our-staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Cowboy Kia of Conroe",
+  "status": "fetched",
+  "source_url": "https://www.cowboykia.com/about-us/staff/",
+  "contact_name": "Mark Webb",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Demontrond Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Dennis Eakin Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Gay Family Kia",
+  "status": "fetched",
+  "source_url": "https://www.gayfamilykia.com/staff",
+  "contact_name": "Randy Buisson",
+  "contact_title": "General Manager",
+  "contact_email": "rbuisson@gayfamilyauto.com"
+ },
+ {
+  "dealer_name": "Granbury Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Group 1 Kia Hub City",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Group 1 Kia South Austin",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Group 1 Kia Tomball",
+  "status": "fetched",
+  "source_url": "https://www.group1kiatomball.com/about-us/staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Grubbs Kia of Wichita Falls",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Happy Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Huffines Kia Corinth",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Huffines Kia McKinney",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Joe Myers Kia",
+  "status": "fetched",
+  "source_url": "https://www.joemyerskia.com/dealership/staff.htm",
+  "contact_name": "Ralph Samuel",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia of Abilene",
+  "status": "fetched",
+  "source_url": "https://www.kiaofabilene.com:443/meet-our-staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia of Amarillo",
+  "status": "fetched",
+  "source_url": "https://www.kiaofamarillo.com:443/meet-our-staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia of Frisco",
+  "status": "fetched",
+  "source_url": "https://www.kiaoffrisco.com/dealership/staff.htm",
+  "contact_name": "Hunter Venables",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia of North Austin",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia of Round Rock",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia of San Angelo",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kimberly Eakin Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Mesquite Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Mike Shaw Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Moritz Kia of Alliance",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Moritz Kia of Fort Worth",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Moritz Kia of Hurst",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Parkway Family Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Peltier Kia Longview",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Peltier Kia Tyler",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Rockwall Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Sames Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Sewell Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Shottenkirk Kia Fort Bend",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Southwest Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Sterling Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "University Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Vanguard Kia of Arlington",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Victory Kia",
+  "status": "fetched",
+  "source_url": "https://www.victorykiatexas.com/staff.aspx",
+  "contact_name": "Joel Ferrier",
+  "contact_title": "Executive Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Viva Kia",
+  "status": "fetched",
+  "source_url": "https://www.vivakia.com/about-us/staff/",
+  "contact_name": "Emmanuel Melendez",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Westside Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "World Car Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "World Car Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "World Car Kia New Braunfels",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "World Car Kia North",
+  "status": "fetched",
+  "source_url": "https://www.worldcarkianorth.com:443/meet-our-staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Doug Smith Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Findlay Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Jerry Seiner Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Jerry Seiner Kia, Salt Lake",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Wasatch Front Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Young Kia",
+  "status": "fetched",
+  "source_url": "https://www.youngkia.com/dealership/staff.htm",
+  "contact_name": "Jennifer Miles",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Beyer Kia of Falls Church",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Blackwell Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Casey Kia",
+  "status": "fetched",
+  "source_url": "https://www.caseykia.com/about-us/meet-our-staff/",
+  "contact_name": "Roberto A. Dial",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Charlie Obaugh Kia",
+  "status": "fetched",
+  "source_url": "https://www.charlieobaughkia.com/dealership/staff.htm",
+  "contact_name": "Chris Tortorice",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Cma's Colonial Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Dulles Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "First Team Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Flow Kia of Charlottesville",
+  "status": "fetched",
+  "source_url": "https://www.flowkiacharlottesville.com/staff",
+  "contact_name": "Todd Williams",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hart Kia",
+  "status": "fetched",
+  "source_url": "https://www.hartkia.com:443/meet-our-staff/",
+  "contact_name": "fanatic. Kia",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hyman Bros Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia of Lynchburg",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Koons Kia Woodbridge",
+  "status": "fetched",
+  "source_url": "https://www.koonskia.com/staff.htm",
+  "contact_name": "Shah Raufi",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Mechanicsville Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Motor Mile Kia",
+  "status": "fetched",
+  "source_url": "https://www.motormilekia.com:443/meet-our-staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Nelson Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ourisman Chantilly Kia",
+  "status": "fetched",
+  "source_url": "https://www.ourismankia.com/dealership/staff.htm",
+  "contact_name": "Tyler Bratcher",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ourisman Kia of Alexandria",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ourisman Kia of Fairfax",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Parsons Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Safford Kia Manassas",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Safford Kia of Fredericksburg",
+  "status": "fetched",
+  "source_url": "https://www.saffordkia.com:443/meet-our-staff/",
+  "contact_name": "Harry the",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Southern Kia Greenbrier",
+  "status": "fetched",
+  "source_url": "https://www.southernkiagreenbrier.com/about-us/staff/",
+  "contact_name": "Brett Lloyd",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Southern Kia Virginia Beach",
+  "status": "fetched",
+  "source_url": "https://www.southernkiavirginiabeach.com/about-us/staff/",
+  "contact_name": "Dave Jensen",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Steven Kia",
+  "status": "fetched",
+  "source_url": "https://www.stevenkia.com/about-us/meet-our-staff/",
+  "contact_name": "Michael Lynn",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "West Broad Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Williamsburg Kia",
+  "status": "fetched",
+  "source_url": "https://www.williamsburgkia.com/about-us/staff/",
+  "contact_name": "Keith Hassan",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Berlin City Kia, Burlington",
+  "status": "fetched",
+  "source_url": "https://berlincitykiavt.com:443/about",
+  "contact_name": "Dedrick Casab",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Preston's Kia",
+  "status": "fetched",
+  "source_url": "https://www.prestonskia.com/dealership/staff.htm",
+  "contact_name": "Jordan Preston",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Carroll Kia of Bellingham",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Chuck Olson Kia",
+  "status": "fetched",
+  "source_url": "https://www.chuckolsonkia.com:443/meet-our-staff/",
+  "contact_name": "James Kennedy",
+  "contact_title": "Sales Team",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Dick Hannah Kia",
+  "status": "fetched",
+  "source_url": "https://www.dickhannahkia.com/about-us/staff/",
+  "contact_name": "Amir Mahdi",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "George Gee Kia",
+  "status": "fetched",
+  "source_url": "https://www.spokanekia.com/about-us/staff/",
+  "contact_name": "Andy Olson",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Go Kia Renton",
+  "status": "fetched",
+  "source_url": "https://www.gokiarenton.com/dealership/staff.htm",
+  "contact_name": "Dustin Tanton",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Go Kia Tacoma",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia of Everett",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia of Puyallup",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lee Johnson Kia",
+  "status": "fetched",
+  "source_url": "https://www.leejohnsonkia.com:443/meet-our-staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Olympia Kia",
+  "status": "fetched",
+  "source_url": "https://www.olympiakia.com/about-us/staff/",
+  "contact_name": "Dan Murphy",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Overturf Kia",
+  "status": "fetched",
+  "source_url": "https://www.overturfkia.com/dealership/staff.htm",
+  "contact_name": "Doug Overturf",
+  "contact_title": "Dealer Principal",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Rairdon's Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Steve Hahn's Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Sunset Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "West Hills Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bergstrom Kia Appleton",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bergstrom Kia of Oshkosh",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Dorsch Kia",
+  "status": "fetched",
+  "source_url": "https://www.dorschkia.com/staff",
+  "contact_name": "Chuck Doute",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ewald Kia of Oconomowoc",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Frank Boucher Kia",
+  "status": "fetched",
+  "source_url": "https://www.boucherkia.com/about-us/staff/",
+  "contact_name": "Brad Sawatske",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Janesville Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kocourek Kia",
+  "status": "fetched",
+  "source_url": "https://www.kocourekkia.com/dealership/staff.htm",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lupient Kia Milwaukee",
+  "status": "fetched",
+  "source_url": "https://lupientkiamilwaukee.com:443/about",
+  "contact_name": "Ben Artymowski",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Metro Kia of Madison",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Morries West Salem Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Palmen Kia of Kenosha",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Prestige Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Rosen Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Russ Darrow Kia Waukesha",
+  "status": "fetched",
+  "source_url": "https://www.kiaofwaukesha.com/about-us2/meet-our-staff/",
+  "contact_name": "Gildardo Esquivel",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Russ Darrow Kia of Wauwatosa",
+  "status": "fetched",
+  "source_url": "https://www.russdarrowwauwatosa.com/about-us2/meet-our-staff/",
+  "contact_name": "Josh Kiscellus",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Russ Darrow Madison Kia",
+  "status": "fetched",
+  "source_url": "https://www.russdarrowmadison.com/about-us2/meet-our-staff/",
+  "contact_name": "Alex Lallas",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Van Horn Kia of Sheboygan",
+  "status": "fetched",
+  "source_url": "https://www.vhkiasheboygan.com/staff",
+  "contact_name": "Ryan Grandlic",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "A & B Kia",
+  "status": "fetched",
+  "source_url": "https://www.aandbautosales.com:443/about-us/staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Cole Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Dutch Miller Kia",
+  "status": "fetched",
+  "source_url": "https://www.dutchmillerkiaofcharleston.com/staff",
+  "contact_name": "Thurman Workman",
+  "contact_title": "General Sales Manager",
+  "contact_email": "thurman@dutchmillerauto.com"
+ },
+ {
+  "dealer_name": "Dutch Miller Kia",
+  "status": "fetched",
+  "source_url": "https://www.dutchmillerkia.com/staff",
+  "contact_name": "Steven Harriott",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Freedom Kia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Friendship Kia of Beckley",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ken Ganley Kia Clarksburg",
+  "status": "fetched",
+  "source_url": "https://www.kenganleykiaclarksburg.com/staff.aspx",
+  "contact_name": "Josh Davis",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Warner Kia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kia of Cheyenne",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "White's Mountain Kia",
+  "status": "fetched",
+  "source_url": "https://www.whitesmountainkia.com/dealership/staff.htm",
+  "contact_name": "Brad Follensbee",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ }
+]
