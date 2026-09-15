@@ -122,6 +122,28 @@
   },
   {
     "make": "Mini",
+    "name": "Global Imports MINI",
+    "city": "Chamblee",
+    "state": "GA",
+    "domain": "atlantamini.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.miniusa.com/bin/services/dealer-locator/getAllDealerByZip.json/30303/50?excludeServiceOnlyDealers=false&includeSatelliteDealers=true"
+  },
+  {
+    "make": "Mini",
+    "name": "Mall of Georgia MINI",
+    "city": "Buford",
+    "state": "GA",
+    "domain": "mallofgamini.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.miniusa.com/bin/services/dealer-locator/getAllDealerByZip.json/30303/50?excludeServiceOnlyDealers=false&includeSatelliteDealers=true"
+  },
+  {
+    "make": "Mini",
     "name": "MINI of Edison",
     "city": "Edison",
     "state": "NJ",

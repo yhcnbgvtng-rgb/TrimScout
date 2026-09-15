@@ -199,6 +199,39 @@
   },
   {
     "make": "Porsche",
+    "name": "Hennessy Porsche North Atlanta",
+    "city": "Roswell",
+    "state": "GA",
+    "domain": "hennessyporsche.com",
+    "lat": 34.02332,
+    "lng": -84.360022,
+    "source": "oem-locator",
+    "sourceUrl": "dealers.json"
+  },
+  {
+    "make": "Porsche",
+    "name": "Porsche Perimeter Atlanta",
+    "city": "Atlanta",
+    "state": "GA",
+    "domain": "porscheperimeter.com",
+    "lat": 33.7544657,
+    "lng": -84.3898151,
+    "source": "oem-locator",
+    "sourceUrl": "dealers.json"
+  },
+  {
+    "make": "Porsche",
+    "name": "Porsche South Atlanta",
+    "city": "Atlanta",
+    "state": "GA",
+    "domain": "porschesouthatlanta.com",
+    "lat": 33.7544657,
+    "lng": -84.3898151,
+    "source": "oem-locator",
+    "sourceUrl": "dealers.json"
+  },
+  {
+    "make": "Porsche",
     "name": "Jack Daniels Porsche",
     "city": "Upper Saddle River",
     "state": "NJ",

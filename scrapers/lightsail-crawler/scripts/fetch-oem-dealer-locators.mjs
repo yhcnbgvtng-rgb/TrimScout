@@ -68,8 +68,35 @@ const FL_ZIPS = [
   '33040', // Key West
 ];
 
+// Georgia zip spread, one per major metro/regional hub from the north
+// Georgia mountains to the coast and south Georgia — dense enough that a
+// 50-120mi-radius zip locator (Mercedes/Mini/Subaru/Mazda/Kia) still covers
+// the whole state without querying every zip in it. Verified live against
+// Subaru/Mazda/Mercedes/Mini's actual locator endpoints (2026-09-15): every
+// zip below returns real in-state rows, and the more rural south-Georgia
+// zips (Albany/Valdosta/Brunswick/Statesboro/Dublin) each surface rooftops
+// the metro-Atlanta zips alone missed for short-radius brands like Mazda.
+const GA_ZIPS = [
+  '30303', // Atlanta
+  '30060', // Marietta (north Atlanta metro)
+  '30161', // Rome (northwest)
+  '30720', // Dalton (far north)
+  '30501', // Gainesville (north)
+  '30601', // Athens (northeast)
+  '30901', // Augusta (east, SC border)
+  '31021', // Dublin (east-central)
+  '31201', // Macon (central)
+  '31088', // Warner Robins (central)
+  '31901', // Columbus (west, AL border)
+  '31701', // Albany (southwest)
+  '31601', // Valdosta (south)
+  '30458', // Statesboro (southeast)
+  '31520', // Brunswick (southeast coast)
+  '31401', // Savannah (east coast)
+];
+
 // Combined zip spread used by every zip+radius OEM locator below.
-const TARGET_ZIPS = [...NJ_NY_ZIPS, ...FL_ZIPS];
+const TARGET_ZIPS = [...NJ_NY_ZIPS, ...FL_ZIPS, ...GA_ZIPS];
 
 function hostOf(url) {
   return hostFromUrl(url) || normalizeDealerHost(url);
@@ -195,6 +222,22 @@ async function fetchToyota() {
     'florida/west-palm-beach',
     'florida/fort-lauderdale',
     'florida/miami',
+    'georgia/atlanta',
+    'georgia/marietta',
+    'georgia/rome',
+    'georgia/dalton',
+    'georgia/gainesville',
+    'georgia/athens',
+    'georgia/augusta',
+    'georgia/dublin',
+    'georgia/macon',
+    'georgia/warner-robins',
+    'georgia/columbus',
+    'georgia/albany',
+    'georgia/valdosta',
+    'georgia/statesboro',
+    'georgia/brunswick',
+    'georgia/savannah',
   ];
   const rows = [];
   const pages = [];
