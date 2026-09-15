@@ -1,0 +1,6866 @@
+[
+ {
+  "dealer_name": "Lithia Hyundai Of Anchorage",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Allen Turner Hyundai Of Auburn",
+  "status": "fetched",
+  "source_url": "https://www.hyundaiofauburn.com/about-us/staff/",
+  "contact_name": "David Ray",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bentley Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Cooper Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Eastern Shore Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.easternshorehyundai.com/about-us/staff/",
+  "contact_name": "Danny Ponce",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hallmark Hyundai Of Birmingham",
+  "status": "fetched",
+  "source_url": "https://www.hallmarkhyundaibirmingham.com/dealership/staff.htm",
+  "contact_name": "Nick Burchett",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hyundai Montgomery",
+  "status": "fetched",
+  "source_url": "https://www.hyundaimontgomery.com/about-us/staff/",
+  "contact_name": "Marcus Temple",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hyundai Of Dothan",
+  "status": "fetched",
+  "source_url": "https://www.hyundaiofdothan.com/dealership/staff.htm",
+  "contact_name": "FELIX HERNANDEZ",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hyundai Of Jasper",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hyundai Of Mobile",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hyundai Of The Shoals",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Mitchell Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.mitchellhyundai.com/staff",
+  "contact_name": "Michael Birmingham",
+  "contact_title": "General Sales Manager",
+  "contact_email": "michael.birmingham@mitchellauto.com"
+ },
+ {
+  "dealer_name": "Serra Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.serrahyundai.com/about-us/staff/",
+  "contact_name": "Dan Pappert",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Tameron Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Team One Hyundai Of Gadsden",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Tuscaloosa Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.tuscaloosahyundai.com/about-us/staff/",
+  "contact_name": "Brooke Meissner",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "University Hyundai Of Decatur",
+  "status": "fetched",
+  "source_url": "https://www.greenwayhyundaiofdecatur.com/meet-our-staff/",
+  "contact_name": "with the",
+  "contact_title": "Sales Team",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Cavenaugh Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Cavenaugh Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.cavenaughhyundaihotsprings.com/staff",
+  "contact_name": "Cody Parish",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Chris Crain Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.chriscrainhyundai.com/staff",
+  "contact_name": "Greg Lanford",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Crain Hyundai Little Rock",
+  "status": "fetched",
+  "source_url": "https://www.crainhyundailittlerock.com/staff",
+  "contact_name": "Cliff Dickerson",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Crain Hyundai North Little Rock",
+  "status": "fetched",
+  "source_url": "https://www.crainhyundainorth.com/staff",
+  "contact_name": "Chaz Hubbart",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Crain Hyundai Of Bentonville",
+  "status": "fetched",
+  "source_url": "https://www.crainhyundaibentonville.com/staff",
+  "contact_name": "Christopher Barnes",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Crain Hyundai Of Fayetteville",
+  "status": "fetched",
+  "source_url": "https://www.crainhyundaioffayetteville.com/staff",
+  "contact_name": "Phillip Thompson",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Crain Hyundai Of Fort Smith",
+  "status": "fetched",
+  "source_url": "https://www.crainhyundaiftsmith.com/staff",
+  "contact_name": "Chris Attee",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Orr Hyundai Of Russellville",
+  "status": "fetched",
+  "source_url": "https://www.orrhyundai.net/dealership/staff.htm",
+  "contact_name": "James Parker",
+  "contact_title": "Hyundai Sales",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Smart Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.smartdrivehyundai.com/staff",
+  "contact_name": "John Freeman",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Autonation Hyundai Tempe",
+  "status": "fetched",
+  "source_url": "https://www.autonationhyundaitempe.com/dealership/staff.htm",
+  "contact_name": "James Dixon",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Camelback Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Chapman Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.hyundaiofphoenixaz.com/about-us/staff/",
+  "contact_name": "GEORGE SALMAN",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Chapman Scottsdale Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.hyundaiofscottsdale.com/about-us/staff/",
+  "contact_name": "JIM DESCHNER",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Earnhardt Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.earnhardthyundai.com/staff",
+  "contact_name": "Bruce Patrick",
+  "contact_title": "Sales Manager",
+  "contact_email": "Bruce.Patrick@Earnhardt.com"
+ },
+ {
+  "dealer_name": "Earnhardt Hyundai North Scottsdale",
+  "status": "fetched",
+  "source_url": "https://www.northscottsdalehyundai.com/staff",
+  "contact_name": "Cameron Naylor",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Earnhardt Hyundai San Tan",
+  "status": "fetched",
+  "source_url": "https://www.santanhyundai.com/staff",
+  "contact_name": "Ron Swift",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ed Morse Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.edmorsehyundaisierravista.com/staff",
+  "contact_name": "and then",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Findlay Hyundai Prescott",
+  "status": "fetched",
+  "source_url": "https://www.findlayhyundaiprescott.com/staff",
+  "contact_name": "Johnny Miramon",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "High Desert Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Horne Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.hornehyundai.com/meet-our-team/",
+  "contact_name": "Brian Brighella",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hyundai Of Cottonwood",
+  "status": "fetched",
+  "source_url": "https://www.hyundaiofcottonwood.com/dealership/staff.htm",
+  "contact_name": "Steve Epperson",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hyundai Of Yuma",
+  "status": "fetched",
+  "source_url": "https://www.hyundaiofyuma.com/dealership/staff.htm",
+  "contact_name": "Angel Rubalacava",
+  "contact_title": "Sales Manager",
+  "contact_email": "angel@hyundaiofyuma.com"
+ },
+ {
+  "dealer_name": "Jim Click Hyundai Auto Mall",
+  "status": "fetched",
+  "source_url": "https://www.jimclickhyundaiautomall.com/staff",
+  "contact_name": "Rob McNamee",
+  "contact_title": "Sales Consultant",
+  "contact_email": "rmcnamee@jimclick.com"
+ },
+ {
+  "dealer_name": "Jim Click Hyundai Eastside",
+  "status": "fetched",
+  "source_url": "https://www.jimclickhyundaieast.com/staff",
+  "contact_name": "Kevin Hay",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Jim Click Hyundai Of Green Valley",
+  "status": "fetched",
+  "source_url": "https://www.hyundaigreenvalley.com/staff",
+  "contact_name": "Richard Verdugo",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ken Garff Hyundai Surprise",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Larry H Miller Hyundai Peoria",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Oxendale Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Alexander Hyundai Of Oxnard",
+  "status": "fetched",
+  "source_url": "https://www.oxnardhyundai.com/staff",
+  "contact_name": "Doug Holzkamp",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "All Star Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.allstarhyundai.net/about-us/staff/",
+  "contact_name": "Damian Dicicco",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Anaheim Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Autonation Hyundai Carlsbad",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Autonation Hyundai Valencia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bakersfield Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.bakersfieldhyundai.com/staff",
+  "contact_name": "Angel Morfin",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Capitol Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.capitolhyundaisj.com/about-us/staff/",
+  "contact_name": "Billy Kuang",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Cardinaleway Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Cardinaleway Hyundai Of El Monte",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Cardinaleway Hyundai Of Glendora",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Central Valley Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.centralvalleyhyundai.com/about-us/staff/",
+  "contact_name": "Blasengym Executive",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Chico Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Dalton Hyundai National City",
+  "status": "fetched",
+  "source_url": "https://www.hyundaidalton.com/staff",
+  "contact_name": "Paul Fillmore",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Diamond Hyundai Palmdale",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Downey Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Dublin Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.dublinhyundai.com/staff",
+  "contact_name": "Will Amiri",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Elk Grove Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.elkgrovehyundai.com/staff",
+  "contact_name": "Spurrier Executive",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Folsom Lake Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.folsomlakehyundai.com/staff",
+  "contact_name": "Spurrier Executive",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Fontana Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.fontanahyundai.com/meet-our-staff/",
+  "contact_name": "with the",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Fremont Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Future Hyundai Of Concord",
+  "status": "fetched",
+  "source_url": "https://www.futurehyundaiofconcord.com/about-us/staff/",
+  "contact_name": "Esteban Yanez",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Garden Grove Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.gardengrovehyundai.com/dealership/staff.htm",
+  "contact_name": "Robert Navarrete",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hanford Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.hanfordhyundai.com/staff",
+  "contact_name": "John Meredith",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hanlees Hilltop Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.hanleeshilltophyundai.com/about-us/staff/",
+  "contact_name": "James G.",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Harbor Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Huntington Beach Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hyundai Carson",
+  "status": "fetched",
+  "source_url": "https://www.hyundaicarson.com/meet-our-staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hyundai Of Downtown Los Angeles",
+  "status": "fetched",
+  "source_url": "https://www.hyundaioflosangeles.com/staff",
+  "contact_name": "Michael Winding",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hyundai Of El Cajon",
+  "status": "fetched",
+  "source_url": "https://www.hyundaiofelcajon.com/about-us/staff/",
+  "contact_name": "Chris George",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hyundai Of Escondido",
+  "status": "fetched",
+  "source_url": "https://www.hyundaiescondido.com/dealership/staff.htm",
+  "contact_name": "Steve Myers",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hyundai Of Gilroy",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hyundai Of Glendale",
+  "status": "fetched",
+  "source_url": "https://www.hyundaiofglendale.net/meet-our-staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hyundai Of La Quinta",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hyundai Of Mountain View",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hyundai Of Palm Springs",
+  "status": "fetched",
+  "source_url": "https://www.hyundaiofpalmsprings.com/staff",
+  "contact_name": "Todd Hildre",
+  "contact_title": "General Sales Manager",
+  "contact_email": "thildre@indigoautogroup.com"
+ },
+ {
+  "dealer_name": "Hyundai Of San Bruno",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hyundai Of Santa Maria",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hyundai Of Tracy",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hyundai Of Vacaville",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hyundai San Luis Obispo",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hyundai Santa Monica",
+  "status": "fetched",
+  "source_url": "https://www.hyundaisantamonica.com/dealership/staff.htm",
+  "contact_name": "Ara Printsian",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Imperial Valley Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kearny Mesa Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Keyes Hyundai Of Mission Hills",
+  "status": "fetched",
+  "source_url": "https://www.mhhyundai.com/dealership/staff.htm",
+  "contact_name": "Jason Jhee",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Keyes Hyundai Of Van Nuys",
+  "status": "fetched",
+  "source_url": "https://www.keyeshyundai.com/dealership/staff.htm",
+  "contact_name": "Taimur Amin",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Laguna Niguel Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.lagunaniguelhyundai.com/about-us/staff/",
+  "contact_name": "Demetrio Miller",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lithia Hyundai Of Fresno",
+  "status": "fetched",
+  "source_url": "https://www.lithiahyundaioffresno.com/dealership/staff.htm",
+  "contact_name": "Julian E.",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Manly Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Merced Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.mercedhyundai.com/staff",
+  "contact_name": "Shadi Razi",
+  "contact_title": "Sales Director",
+  "contact_email": "shadi@mercedvw.com"
+ },
+ {
+  "dealer_name": "Metro Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Norm Reeves Hyu Superstore Cerritos",
+  "status": "fetched",
+  "source_url": "https://www.normreeveshyundai.com/about-us/staff/",
+  "contact_name": "Chris Dao",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "North Bay Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Northwood Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Oakland Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ontario Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Pedder Hyundai Of Moreno Valley",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Pedder Hyundai Of Poway",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Puente Hills Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.phhyundai.com/about-us/staff/",
+  "contact_name": "Ryan Ozaki",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Riverside Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Roseville Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.rosevillehyundai.com/staff",
+  "contact_name": "Spurrier Executive",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Selma Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "South Bay Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.sbhyundai.com/dealership/staff.htm",
+  "contact_name": "Steven Suh",
+  "contact_title": "General Sales Manager",
+  "contact_email": "stevens@sbhyundai.com"
+ },
+ {
+  "dealer_name": "Stevens Creek Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.stevenscreekhyundai.com/about-us/staff/",
+  "contact_name": "Sunny Singh",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Stockton Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Temecula Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.temeculahyundai.com/dealership/staff.htm",
+  "contact_name": "Alex Fathi",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Tim Moran Hyundai Hemet",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Tustin Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Tuttle-click Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.tuttleclickhyundai.com/dealership/staff.htm",
+  "contact_name": "Blair Morrison",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Vallejo Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Victorville Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Visalia Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.visaliahyundai.com/staff",
+  "contact_name": "Nick Martinez",
+  "contact_title": "General Manager",
+  "contact_email": "nmartinez@visaliahyundai.com"
+ },
+ {
+  "dealer_name": "Westlake Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.westlakehyundai.com/dealership/staff.htm",
+  "contact_name": "Erin Molkentin",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Arapahoe Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.arapahoehyundai.com/dealership/staff.htm",
+  "contact_name": "Dennis Majewski",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Crossroads Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.mycrossroadshyundai.com/about-us/staff/",
+  "contact_name": "Makayla Seybold",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hyundai Of Greeley",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Mcdonald  Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.mcdonaldhyundai.com/about-us/staff/",
+  "contact_name": "Sergio De Quesada",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Mountain Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Phil Long Hyun Of Chapel Hills",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Phil Long Hyundai Of Motor City",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Planet Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Red Rock Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Schomp Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.schomphyundai.com/about-us/staff/",
+  "contact_name": "Denis White",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Spradley Hyundai, Inc.",
+  "status": "fetched",
+  "source_url": "https://www.hyundaispradley.com/dealership/staff.htm",
+  "contact_name": "Kris Spradley",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Stevinson Hyundai Of Frederick",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Balise Hyundai Of Fairfield",
+  "status": "fetched",
+  "source_url": "https://www.balisehyundaifairfield.com/staff",
+  "contact_name": "Andres Duque",
+  "contact_title": "General Sales Manager",
+  "contact_email": "aduque@baliseauto.com"
+ },
+ {
+  "dealer_name": "Brandfon Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Central Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Colonial Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Danbury Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.danburyhyundai.com/dealership/staff.htm",
+  "contact_name": "Scott Vogel",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Harte Hyundai Of Old Saybrook",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Key Hyundai Of Manchester",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Key Hyundai Of Milford",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lia Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lia Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Meriden Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.meridenhyundai.com/meet-our-staff/",
+  "contact_name": "met the",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Shakers Family Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.shakersfamilyhyundai.com/dealership/staff.htm",
+  "contact_name": "Crystal Valenti",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Tasca Hyundai Stamford",
+  "status": "fetched",
+  "source_url": "https://www.tascahyundaistamford.com/about-us/staff/",
+  "contact_name": "the new",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Torrington Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.torringtonhyundai.com/about-us/staff/",
+  "contact_name": "Gary Synott",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Wile Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hertrich Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Porter Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.porterhyundai.com/dealership/staff.htm",
+  "contact_name": "Bill George",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Preston Hyundai Of Millsboro",
+  "status": "fetched",
+  "source_url": "https://www.millsborohyundai.com/staff",
+  "contact_name": "Crockett General",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Winner Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.winnerhyundai.com/staff",
+  "contact_name": "Sam Brandes",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Allen Turner Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.allenturnerhyundai.com/about-us/staff/",
+  "contact_name": "Mitchell Bass",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bay Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.bayhyundai.com/dealership/staff.htm",
+  "contact_name": "Quentin Stephens",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Braman Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Brandon Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Coastal Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.coastalhyundai.com/staff",
+  "contact_name": "Coy Reinke",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Cocoa Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.cocoahyundai.com/staff",
+  "contact_name": "Diego Washington",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Coconut Creek Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Coggin Deland Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.coggindelandhyundai.com/dealership/staff.htm",
+  "contact_name": "Shane Cassily",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Courtesy Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Crown Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Daytona Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.daytonahyundai.com/dealership/staff.htm",
+  "contact_name": "Charlie McHale",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Delray Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.delrayhyundai.com/about-us/staff/",
+  "contact_name": "Pedro Roman",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Doral Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.doralhyundai.com/about-us/staff/",
+  "contact_name": "Navit Brioso",
+  "contact_title": "Sales Representative",
+  "contact_email": "nbrioso@doralhyundai.com"
+ },
+ {
+  "dealer_name": "Fitzgeralds Cntrysde Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Gettel Hyundai Of Charlotte County",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Gettel Hyundai Of Lakewood",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Gettel Hyundai Of Sarasota",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Greenway Hyundai Orlando",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hampton Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.hamptonhyundai.com/dealership/staff.htm",
+  "contact_name": "Cameron Harrington",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Headquarter Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.headquarterhyundai.com/about-us/staff/",
+  "contact_name": "Henry Rogers",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Holler Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.hollerhyundai.com/staff",
+  "contact_name": "Isaac Richardson",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Homestead Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.homesteadhyundai.net/staff",
+  "contact_name": "Los Cueto",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hyundai Of Central Florida",
+  "status": "fetched",
+  "source_url": "https://www.hyundaicfl.com/about-us/staff/",
+  "contact_name": "Devon Ortiz",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hyundai Of Fort Myers",
+  "status": "fetched",
+  "source_url": "https://www.hyundaioffortmyers.com/about-us/",
+  "contact_name": "Tamir Khalil",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hyundai Of New Port Richey",
+  "status": "fetched",
+  "source_url": "https://www.hyundaiofnewportrichey.com/meet-the-staff/",
+  "contact_name": "Parth Donda",
+  "contact_title": "General Sales Manager",
+  "contact_email": "parthdonda@lithia.com"
+ },
+ {
+  "dealer_name": "Hyundai Of North Miami",
+  "status": "fetched",
+  "source_url": "https://www.hyundaiofnorthmiami.com/about-us/staff/",
+  "contact_name": "Hector Mota",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hyundai Of Orange Park",
+  "status": "fetched",
+  "source_url": "https://www.hyundaioforangepark.com/about-us/staff/",
+  "contact_name": "Ronnie Mansour",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hyundai Of St. Augustine",
+  "status": "fetched",
+  "source_url": "https://www.hyundaiofstaugustine.com/meet-our-staff/",
+  "contact_name": "Andrew DiFeo",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hyundai Of Venice",
+  "status": "fetched",
+  "source_url": "https://www.hyundaiofvenice.com/staff",
+  "contact_name": "Glen Davis",
+  "contact_title": "General Sales Manager",
+  "contact_email": "gdavis@hyundaiofvenice.com"
+ },
+ {
+  "dealer_name": "Hyundai Of Wesley Chapel",
+  "status": "fetched",
+  "source_url": "https://www.hyundaiofwesleychapel.com/meet-our-staff/",
+  "contact_name": "Great Mom",
+  "contact_title": "Sales Associate",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Jenkins Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.jenkinshyundaiofocala.com/dealership/staff.htm",
+  "contact_name": "Jason Devilbiss",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Jenkins Hyundai Of Homosassa",
+  "status": "fetched",
+  "source_url": "https://www.jenkinshyundaiofhomosassa.com/dealership/staff.htm",
+  "contact_name": "Dave Schwartz",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Jenkins Hyundai Of Jacksonville",
+  "status": "fetched",
+  "source_url": "https://www.jenkinshyundaiofjacksonville.com/dealership/staff.htm",
+  "contact_name": "Baraso Jr.",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Jenkins Hyundai Of Leesburg",
+  "status": "fetched",
+  "source_url": "https://www.jenkinshyundaiofleesburg.com/dealership/staff.htm",
+  "contact_name": "Jean Tullus",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kendall Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Key Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.keyhyundai.com/dealership/staff.htm",
+  "contact_name": "Eric Thompson",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "King Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lakeland Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.lakelandhyundai.com/staff",
+  "contact_name": "Arms HYUNDAI",
+  "contact_title": "Sales Consultant",
+  "contact_email": "carms@lakelandautomall.com"
+ },
+ {
+  "dealer_name": "Napletons North Palm Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Parks Hyundai Of Gainesville",
+  "status": "fetched",
+  "source_url": "https://www.hyundaiofgainesville.com/about-us-3/staff/",
+  "contact_name": "then to",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Potamkin Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.potamkinhyundai.com/staff.htm",
+  "contact_name": "Roberto Felipe",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Red Hoagland Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.redhoagland.com/staff",
+  "contact_name": "Justin Hoagland",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Rick Case Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.ftlauderdalehyundai.com/dealership/staff.htm",
+  "contact_name": "Omar Hajira",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Rick Case Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.rickcasehyundaidavie.com/dealership/staff.htm",
+  "contact_name": "Ernesto Fuentes",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Route 60 Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.route60hyundai.com/staff",
+  "contact_name": "Fred Hanson",
+  "contact_title": "Sales Manager",
+  "contact_email": "fhanson@route60hyundai.com"
+ },
+ {
+  "dealer_name": "Tamiami Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.tamiamihyundai.com/about-us/staff/",
+  "contact_name": "Carlos Caraballo",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Universal Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.universal-hyundai.com/about-us/staff/",
+  "contact_name": "Amine Saaidi",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Wallace Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Wallace Hyundai Of Fort Pierce",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Werner Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "West Palm Beach Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.westpalmbeachhyundai.com/dealership/staff.htm",
+  "contact_name": "Mario Henriquez",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Westside Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.westsidehyundai.com/about-us/staff/",
+  "contact_name": "Colby Peterson",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Alm Hyundai Athens",
+  "status": "fetched",
+  "source_url": "https://www.hyundaiathens.com/about-us/meet-the-team/",
+  "contact_name": "Neal General",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Alm Hyundai Macon",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Alm Hyundai Warner Robins",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Alm Hyundai West",
+  "status": "fetched",
+  "source_url": "https://www.almhyundaiwest.com/about-us/staff/",
+  "contact_name": "Bryan Adams",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Autonation Hyundai Columbus",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Autonation Hyundai Mall Of Georgia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Autonation Hyundai Savannah",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Carrollton Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ed Voyles Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Five Star Hyundai Albany, Llc",
+  "status": "fetched",
+  "source_url": "https://www.fivestarhyundaialbany.com/about-us/staff/",
+  "contact_name": "Amir Carter",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Grand Hyundai Of Canton",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hyundai Of Cumming",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hyundai Of Kennesaw",
+  "status": "fetched",
+  "source_url": "https://www.hyundaiofkennesaw.com/staff",
+  "contact_name": "Carlos Cerpa",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hyundai Of Milledgeville",
+  "status": "fetched",
+  "source_url": "https://www.hyundaiofmilledgeville.com/about-us/staff/",
+  "contact_name": "Tee Arora",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Jim Ellis Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.jimellishyundai.com/about-us/staff/",
+  "contact_name": "Langford III",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Krause Family Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Langdale Hyundai Of South Georgia",
+  "status": "fetched",
+  "source_url": "https://www.langdalehyundai.com/dealership/staff.htm",
+  "contact_name": "Courtney Grate",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Mcdonough Hyundai",
+  "status": "fetched",
+  "source_url": "https://mcdonoughhyundai.adviserly.com/list",
+  "contact_name": "Matt Gettys",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Mtn View Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.mvhyundai.com/staff",
+  "contact_name": "Shaun Emery",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Nalley Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.nalleyhyundai.com/dealership/staff.htm",
+  "contact_name": "Marquis Williams",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Potamkin Hyundai Stone Mountain",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Rick Case Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.rickcasehyundaiatlanta.com/dealership/staff.htm",
+  "contact_name": "Steve Fricks",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Rick Case Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.rickcasehyundairoswell.com/dealership/staff.htm",
+  "contact_name": "Anthony Delgardio",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Shottenkirk Hyundai Rome",
+  "status": "fetched",
+  "source_url": "https://www.shottenkirkhyundairome.com/about-us/staff/",
+  "contact_name": "Kevin Dowdy",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Southtowne Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.southtowneatlanta.com/about-us/staff/",
+  "contact_name": "Perry Weldon",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Southtowne Hyundai Of Newnan",
+  "status": "fetched",
+  "source_url": "https://www.southtownehyundai.com/about-us/staff/",
+  "contact_name": "Dell Browning",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Taylor Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.taylorhyundai.com/meet-our-staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Terry Reid Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Vaden Hyundai Brunswick",
+  "status": "fetched",
+  "source_url": "https://www.vadenhyundaiofbrunswick.com/staff",
+  "contact_name": "David Wolfe",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Vaden Hyundai Statesboro",
+  "status": "fetched",
+  "source_url": "https://www.vadenhyundaistatesboro.com/staff",
+  "contact_name": "Domenic Cutillo",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Jerry Vs Honolulu Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.jerryvhonoluluhyundai.com/staff",
+  "contact_name": "Cashier CJ Reed",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kuhio Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.kuhiohyundai.com/staff",
+  "contact_name": "Aaris Berry",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Maui Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.jimfalkhyundaiofmaui.com/dealership/staff.htm",
+  "contact_name": "Philip Limon",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Tony Hyundai Waipio",
+  "status": "fetched",
+  "source_url": "https://www.tonyhyundai.com/staff",
+  "contact_name": "Sean Charlston",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Windward Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.windwardhyundai.com/staff",
+  "contact_name": "Quentin Holt",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Billion Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.iowacityhyundai.com/staff",
+  "contact_name": "Mike Dickey",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Cs Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Edwards Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.edwardshyundai.com/about-us/staff/",
+  "contact_name": "Todd Roberts",
+  "contact_title": "Sales Consultant",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Mcgrath Hyundai Of Cedar Rapids",
+  "status": "fetched",
+  "source_url": "https://www.mcgrathhyundaicr.com/dealership/staff.htm",
+  "contact_name": "Trevor Arnold",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Mcgrath Hyundai Of Dubuque",
+  "status": "fetched",
+  "source_url": "https://www.mcgrathhyundaiofdubuque.com/dealership/staff.htm",
+  "contact_name": "Kyawn Buchanan",
+  "contact_title": "Sales Consultant",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Smart Hyundai Of Davenport",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Stew Hansen Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Vern Eide Hyundai Sioux City",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kendall Hyundai Of Boise",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kendall Hyundai Of Nampa",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Midway Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.gotomidwayhyundai.com/meet-our-staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Rob Green Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.robgreenhyundai.com/staff",
+  "contact_name": "Dylan Dawson",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Stones Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.stoneshyundai.com/meet-our-staff/",
+  "contact_name": "Kyle Stringham",
+  "contact_title": "General Manager",
+  "contact_email": "kyle.stringham@stonescars.com"
+ },
+ {
+  "dealer_name": "Auffenberg Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.auffenberghyundai.com/dealership/staff.htm",
+  "contact_name": "Ronnie Durbin",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Autonation Hyundai Ohare",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Berman Hyundai Of Lincolnwood",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bob Brady Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.bobbradyhyundai.com/about-us/staff/",
+  "contact_name": "Michael Weber",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Castle Hyundai Downers Grove",
+  "status": "fetched",
+  "source_url": "https://www.castlehyundaidownersgrove.com/hyundai-dealer-downers-grove/staff/",
+  "contact_name": "Anthony Manteca",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Castle Hyundai Oak Lawn",
+  "status": "fetched",
+  "source_url": "https://www.castlehyundaioaklawn.com/hyundai-dealer-oak-lawn/staff/",
+  "contact_name": "Kelvin Mitcham",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Darcy Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.darcyhyundai.com/dealership/staff.htm",
+  "contact_name": "Jimmy Kociuba",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Elgin Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.elginhyundai.com/dealership/staff.htm",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Family Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.familyhyundai.com/about-us/staff/",
+  "contact_name": "Graham Watson",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Gerald Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.geraldhyundainorthaurora.com/meet-our-staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Gerald Hyundai Of Countryside",
+  "status": "fetched",
+  "source_url": "https://www.geraldhyundaicountryside.com/meet-our-staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Green Family Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.greenfamilyhyundai.com/about-us/staff/",
+  "contact_name": "Shaun Sneath",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Green Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.greenhyundai.com/dealership/staff.htm",
+  "contact_name": "Brian Cox",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Gregory Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Gurnee Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.gurneehyundai.com/staff",
+  "contact_name": "Jason Whitley",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Happy Hyundai Of Libertyville",
+  "status": "fetched",
+  "source_url": "https://www.libertyvillehyundai.com/about-us/staff/",
+  "contact_name": "Karrar Musa",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hyundai On Perryville",
+  "status": "fetched",
+  "source_url": "https://www.hyundaionperryville.com/meet-our-staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "K.C. Summers Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.kcsummershyundai.com/aboutus.aspx",
+  "contact_name": "and experience",
+  "contact_title": "Sales Team",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kunes Country Hyundai Of Quincy",
+  "status": "fetched",
+  "source_url": "https://www.quincyhyundai.com/dealership/staff.htm",
+  "contact_name": "Buxman Regional",
+  "contact_title": "General Manager",
+  "contact_email": "jason.buxman@kunescountry.com"
+ },
+ {
+  "dealer_name": "Kunes Hyundai Of Sycamore",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Mcgrath City Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Morries Peoria Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.morriespeoriahyundai.com/about-us/staff/",
+  "contact_name": "Elijah Horton",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Napleton Downtown Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.napletondowntownhyundai.com/about/staff/",
+  "contact_name": "Steve Safavi",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Napleton Elmhurst Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.elmhursthyundai.com/about-us/staff/",
+  "contact_name": "Nick Corner",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Napleton Hyundai Of Glenview",
+  "status": "fetched",
+  "source_url": "https://www.napletonhyundaiglenview.com/meet-our-staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Napleton Palatine Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.hyundaipalatine.com/about-us/staff/",
+  "contact_name": "Mike Arias",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Napletons Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Napletons Hyundai Of Urbana",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Napletons Valley Hyundai",
+  "status": "fetched",
+  "source_url": "https://napletonsvalleyhyundai.adviserly.com/list",
+  "contact_name": "Rick Cunningham",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Obrien Hyundai Of Normal",
+  "status": "fetched",
+  "source_url": "https://www.obrienteamhyundai.com/about-us/staff/",
+  "contact_name": "Steven McCarthy",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Patrick Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.patrickhyundai.com/about-patrick-hyundai/staff/",
+  "contact_name": "Katie Grass",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Patriot Hyundai Of Bradley",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Patriot Hyundai Of Tilton",
+  "status": "fetched",
+  "source_url": "https://www.danvillehyundai.com/dealership/staff.htm",
+  "contact_name": "Brandon Ball",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Rosen Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.rosenhyundai.com/about-us/staff/",
+  "contact_name": "Bob Tarello",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Schimmer Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Watermark Hyundai Of Marion",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "World Hyundai Matteson",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Andy Mohr Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.andymohrhyundai.com/staff",
+  "contact_name": "Mike Telezyn",
+  "contact_title": "General Manager",
+  "contact_email": "mtelezyn@andymohr.com"
+ },
+ {
+  "dealer_name": "Bachman Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.bachmanhyundai.com/about-us/staff/",
+  "contact_name": "Jason Hutchings",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bob Rohrman Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bob Rohrman Indy Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.indyhyundai.com/staff",
+  "contact_name": "Jon Blakely",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Dorsetts Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.dorsetthyundai.com/staff",
+  "contact_name": "Michaels Assistant",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Glenbrook Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.glenbrookhyundai.com/dealership/staff.htm",
+  "contact_name": "Jeremy Owens",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Greg Hubler Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.greghublerhyundai.com/meet-our-staff/",
+  "contact_name": "Good Experienceour",
+  "contact_title": "Sales Associate",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Gurley Leep Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hyundai Of Columbus",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hyundai Of Evansville",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hyundai Of Goshen",
+  "status": "fetched",
+  "source_url": "https://www.goshenhyundai.com/dealership/staff.htm",
+  "contact_name": "Chris Nunez",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hyundai Of Noblesville",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Michigan City Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.michigancityhyundai.com/dealership/staff.htm",
+  "contact_name": "Heaven Tomlinson",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Napleton Hyundai Of Carmel",
+  "status": "fetched",
+  "source_url": "https://hyundaiofcarmel.adviserly.com/",
+  "contact_name": "Konstantinos Mazarakis",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ray Skillman Avon Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.rayskillmanavon.com/about-us/staff/",
+  "contact_name": "Drew Levy",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ray Skillman Southside Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.rayskillmansouthsidehyundai.com/about-us/staff/",
+  "contact_name": "Ray Haltom",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ray Skillman Westside Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.rayskillmanhyundaiwest.com/about-us/staff/",
+  "contact_name": "James Perkins",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Webb Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.webbhyundai.com/about-us/staff/",
+  "contact_name": "Laurie Fiorenzo-Kralek",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Webb Hyundai Merrillville",
+  "status": "fetched",
+  "source_url": "https://www.hyundaimerrillville.com/about-us/staff/",
+  "contact_name": "David Novak",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hatchett Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.hatchetthyundaieast.com/staff",
+  "contact_name": "Sam Hatchett",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hatchett Hyundai West",
+  "status": "fetched",
+  "source_url": "https://www.hatchetthyundaiwest.com/staff",
+  "contact_name": "Chad Allen",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kansas City Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.kansascityhyundai.net/about-us/staff/",
+  "contact_name": "Eric Risch",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Manhattan Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Mccarthy Hyundai Of Lawrence",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Mccarthy Hyundai Of Topeka",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Mccarthy Olathe Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.mccarthyolathehyundai.com/staff",
+  "contact_name": "Geoff Farwell",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Victory Hyundai At The Legends",
+  "status": "fetched",
+  "source_url": "https://www.victoryhyundaikc.com/about-us/staff/",
+  "contact_name": "Brett Aten",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Don Franklin Lexington Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.donfranklinlexingtonhyundai.com/about-us/staff/",
+  "contact_name": "Eddie Thompson",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Don Franklin Nicholasville Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.donfranklinnicholasvillehyundai.com/about-us/staff/",
+  "contact_name": "Zach Shuping",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Don Franklin Somerset Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.donfranklinsomersethyundai.com/about-us/staff/",
+  "contact_name": "Roy Gillispie",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Don Moore Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.donmoorehyundai.com/aboutus.aspx",
+  "contact_name": "Don Moore",
+  "contact_title": "Hyundai Sales",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Gates Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.gateshyundai.com/staff",
+  "contact_name": "Scott Boggess",
+  "contact_title": "General Manager",
+  "contact_email": "scottboggess@gatesautofamily.com"
+ },
+ {
+  "dealer_name": "Hyundai Of Louisville",
+  "status": "fetched",
+  "source_url": "https://www.hyundaioflouisville.com/about-us/staff/",
+  "contact_name": "Derek Blanchard",
+  "contact_title": "New Car Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Jim Johnson Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kerry Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kerry Hyundai Of Florence",
+  "status": "fetched",
+  "source_url": "https://www.kerryhyundai.com/dealership/staff.htm",
+  "contact_name": "Kevin Kinman",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Linwood Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Oxmoor Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.oxmoorhyundai.com/about-us/staff/",
+  "contact_name": "Me TJ Gritton",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Swope Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.swopehyundai.com/about-us/staff/",
+  "contact_name": "encourages his",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Tim Short Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "All Star Hyundai Of Baton Rouge",
+  "status": "fetched",
+  "source_url": "https://www.hyundaiofbatonrouge-la.com/staff",
+  "contact_name": "Kelly Bordelon",
+  "contact_title": "General Sales Manager",
+  "contact_email": "kbordelon@allstarautomotive.com"
+ },
+ {
+  "dealer_name": "Bill Hood Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.billhoodhyundai.com/staff",
+  "contact_name": "Steven Blades",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Eddie Tourelle  Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.eddietourellehyundai.com/about-us/staff/",
+  "contact_name": "Hogh Preowned",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Giles Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.gileshyundai.com/dealership/staff.htm",
+  "contact_name": "Adam McDonald",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Greg Leblanc Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.gregleblanchyundai.com/meet-our-staff/",
+  "contact_name": "Elk the",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Interstate Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Matt Bowers Hyundai Metairie",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Matt Bowers Hyundai Slidell",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Mike Morgan Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Navarre Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Premier Hyundai Of Harvey",
+  "status": "fetched",
+  "source_url": "https://www.premierhyundaiofharvey.com/staff/",
+  "contact_name": "Chris Johnson",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ralph Sellers Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.ralphsellershyundai.com/dealership/staff.htm",
+  "contact_name": "Jason Walter",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Sterling Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Balise Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.balisehyundaispringfield.com/staff",
+  "contact_name": "Wahab Mohammed",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Balise Hyundai Of Cape Cod",
+  "status": "fetched",
+  "source_url": "https://www.balisehyundaiofcapecod.com/staff",
+  "contact_name": "Justin Phillips",
+  "contact_title": "General Manager",
+  "contact_email": "jphillips@baliseauto.com"
+ },
+ {
+  "dealer_name": "Country Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Empire Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.empirehyundai.com/about-us/staff/",
+  "contact_name": "and onto",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "First Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.firsthyundai.com/dealership/staff.htm",
+  "contact_name": "Robert Rocha",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Gary Rome Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Haddad Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.haddadhyundai.com/dealership/staff.htm",
+  "contact_name": "Khalil Yacteen",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Herb Chambers Hyundai Of Auburn",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Mastria Hyundai Of Plymouth",
+  "status": "fetched",
+  "source_url": "https://www.mastriahyundaiofplymouth.com/about-us/staff/",
+  "contact_name": "Edgar Monterrosa",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Mcgovern Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.mcgovernhyundai.com/dealership/staff.htm",
+  "contact_name": "Tom Silvia",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Mcgovern Hyundai Of Arlington",
+  "status": "fetched",
+  "source_url": "https://www.mcgovernhyundaiofarlington.com/dealership/staff.htm",
+  "contact_name": "Eric Thorner",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Mcgovern Hyundai Of Danvers",
+  "status": "fetched",
+  "source_url": "https://www.mcgovernhyundaiofdanvers.com/dealership/staff.htm",
+  "contact_name": "Michael Tarasuik",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Mcgovern Hyundai Of Milford",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Mcgovern Hyundai Route 2",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Mcgovern Hyundai Route 93",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Metrowest Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.metrowesthyundai.com/dealership/staff.htm",
+  "contact_name": "Adam Mician",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Nucar Hyundai Of Norwood",
+  "status": "fetched",
+  "source_url": "https://www.nucarhyundainorwood.com/about-us/staff/",
+  "contact_name": "Eddie Campana",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Pride Hyundai Of Seekonk",
+  "status": "fetched",
+  "source_url": "https://www.hyundaiofseekonk.com/staff",
+  "contact_name": "Natalie Simoneau",
+  "contact_title": "General Sales Manager",
+  "contact_email": "nsimoneau@pridecars.com"
+ },
+ {
+  "dealer_name": "Quirk Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.quirkhyundai.com/about-us/staff/",
+  "contact_name": "Matthew Kertulis",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Route 44 Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.route44hyundai.com/dealership/staff.htm",
+  "contact_name": "Andre Mendes",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Tasca Hyundai Fairhaven",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Annapolis Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Antwerpen Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.antwerpencatonsvillehyundai.com/meet-our-staff/",
+  "contact_name": "th Top",
+  "contact_title": "Sales Consultant",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Antwerpen Hyundai Columbia",
+  "status": "fetched",
+  "source_url": "https://www.antwerpenhyundaiclarksville.com/meet-our-staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bel Air Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bob Bell Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.bobbellhyundai.com/about-us/staff/",
+  "contact_name": "Rodney Mattison",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Cmas Hyundai Of Lexington Park",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Fitzgerald Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Fitzgeralds Lakeforest Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Group 1 Hyundai College Park",
+  "status": "fetched",
+  "source_url": "https://www.group1hyundaicollegepark.com/about-us/staff/",
+  "contact_name": "Gruner III",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Heritage Hyundai Towson",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hyundai Of Bowie",
+  "status": "fetched",
+  "source_url": "https://www.hyundaicarsofbowie.com/staff",
+  "contact_name": "Marcus Cameron",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hyundai Of Dundalk",
+  "status": "fetched",
+  "source_url": "https://www.hyundaiofdundalk.com/about-us/staff/",
+  "contact_name": "Richard Gordon",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ideal Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Massey Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ourisman Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Pohanka Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.pohankahyundai.com/meet-our-staff/",
+  "contact_name": "our experienced",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Pohanka Hyundai Of Salisbury",
+  "status": "fetched",
+  "source_url": "https://www.pohankahyundaimd.com/meet-our-staff/",
+  "contact_name": "Luca Paparatti",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Preston Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.prestonhyundaiusa.com/staff",
+  "contact_name": "Stephen Biggar",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Sheehy Hyundai Of Waldorf",
+  "status": "fetched",
+  "source_url": "https://www.sheehyhyundaiwaldorf.com/meet-our-staff/",
+  "contact_name": "and family.",
+  "contact_title": "Sales Consultant",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Thomas Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.thomascumberlandhyundai.com/dealership/staff.htm",
+  "contact_name": "Chase Webb",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bill Dodge Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.billdodgehyundai.com/staff",
+  "contact_name": "Nick Elwell",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Darlings Hyundai Augusta",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hyundai Of Saco",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Quirk Hyundai Of Bangor",
+  "status": "fetched",
+  "source_url": "https://www.quirkhyundaiofbangor.com/about-us/staff/",
+  "contact_name": "Jason Oliver",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Rowe Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Rowe Hyundai Westbrook",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Betten Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.bettenhyundai.com/about-us/staff/",
+  "contact_name": "Brandon Zufelt",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Elder Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.elderhyundai.com/dealership/staff.htm",
+  "contact_name": "Brian Denryter",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Feldman Hyundai Of New Hudson",
+  "status": "fetched",
+  "source_url": "https://www.feldmanhyundai.com/staff",
+  "contact_name": "Andreea Moore",
+  "contact_title": "General Sales Manager",
+  "contact_email": "amoore@feldmanauto.com"
+ },
+ {
+  "dealer_name": "Fox Ann Arbor Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.FoxAnnArborHyundai.com/dealership/staff.htm",
+  "contact_name": "Jim Freeworth",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Fox Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.foxhyundai.com/dealership/staff.htm",
+  "contact_name": "Ted Beardsley",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Fox Maple Hill Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Garber Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Glassman Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lafontaine Hyundai Commerce",
+  "status": "fetched",
+  "source_url": "https://www.lafontainehyundaicommerce.com/staff.aspx",
+  "contact_name": "Chris Quinn",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lafontaine Hyundai Dearborn",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lafontaine Hyundai Of Livonia",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Randy Wise Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.randywisehyundai.com/staff",
+  "contact_name": "Joseph Greene",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Serra Hyundai Traverse City",
+  "status": "fetched",
+  "source_url": "https://serrachryslerdodgejeepramtraversecity.adviserly.com/list",
+  "contact_name": "Markham CDJR",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Signature Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.signaturehyundai.com/dealership/staff.htm",
+  "contact_name": "Bill Crowder",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Suburban Hyundai Of Troy",
+  "status": "fetched",
+  "source_url": "https://www.suburbanhyundai.com/dealership/staff.htm",
+  "contact_name": "Gus Van Vlimmeren",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Williams Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Zeigler Hyundai Of Holland",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Buerkle Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Dahl Hyundai Rochester",
+  "status": "fetched",
+  "source_url": "https://www.dahlhyundairochester.com/",
+  "contact_name": "staff. Every",
+  "contact_title": "Sales Consultant",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Dondelinger Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hyundai Of Mankato",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Inver Grove Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.invergrovehyundai.com/dealership/staff.htm",
+  "contact_name": "Kurt Johnson",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kolar Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.kolarhyundai.com/meet-our-staff/",
+  "contact_name": "Palisade Calligraphy.",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Luther Bloomington Hyundai",
+  "status": "fetched",
+  "source_url": "https://bloomingtonhyundai.adviserly.com/",
+  "contact_name": "Alex Irlin",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Luther Burnsville Hyundai",
+  "status": "fetched",
+  "source_url": "https://burnsvillehyundai.adviserly.com/",
+  "contact_name": "Charles Guptill",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Morries 394 Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "St. Cloud Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Walser Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Walser Hyundai Coon Rapids",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Auffenberg Hyundai Cape Girardeau",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Clement Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.clementhyundai.com/about-us/staff/",
+  "contact_name": "Tony Lemaster",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Dean Team Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.deanteamhyundai.com/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Fletcher Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.fletcherhyundai.com/dealership/staff.htm",
+  "contact_name": "Darrin Mills",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hyundai Of Jefferson City",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Joe Machens Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Mccarthy Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.mccarthyhyundai.com/staff",
+  "contact_name": "Ryan Foster",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Napleton Hyundai",
+  "status": "fetched",
+  "source_url": "https://napletonhyundai.adviserly.com/list",
+  "contact_name": "Matt Shrum",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Northtowne Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Reed Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.reedhyundai.com/about-us/staff/",
+  "contact_name": "Brandon Shank",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Reliable Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "St. Charles Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.stcharleshyundai.com/about-us/staff/",
+  "contact_name": "Ben Macormic",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Suntrup Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.suntruphyundaisouth.com/about-us/staff/",
+  "contact_name": "Ryan Beyer",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Barnes Crossing Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.bchyundaioftupelo.com/meet-our-staff/",
+  "contact_name": "with Family",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Columbus Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hallmark Hyundai Flowood",
+  "status": "fetched",
+  "source_url": "https://www.hallmarkhyundaiflowood.com/dealership/staff.htm",
+  "contact_name": "Nick Burchett",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hallmark Hyundai North",
+  "status": "fetched",
+  "source_url": "https://www.hallmarkhyundainorth.com/dealership/staff.htm",
+  "contact_name": "Cameron Chandler",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Homer Skelton Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.homerskeltonhyundai.com/staff",
+  "contact_name": "Brennon Chapman",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hyundai Of Batesville",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hyundai Of Meridian",
+  "status": "fetched",
+  "source_url": "https://www.hyundaiofmeridian.com/about-us/staff/",
+  "contact_name": "Phillip Johnson",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Jason Pilger Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Mack Grubbs Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.mackgrubbshyundai.com/staff",
+  "contact_name": "Antoine Kelly",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Matt Bowers Hyundai-gulfport",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Clark Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Missoula Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Underriner Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.underrinerhyundai.com/about-us/staff/",
+  "contact_name": "Scott Ostrum",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Alm Hyundai Lumberton",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bob King Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Capital Hyundai Of Greensboro",
+  "status": "fetched",
+  "source_url": "https://www.capitalhyundaigreensboro.com/about-us/staff/",
+  "contact_name": "Dylan Ladner",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Capital Hyundai Of Jacksonville",
+  "status": "fetched",
+  "source_url": "https://www.capitalhyundaiofjacksonville.com/dealership/staff.htm",
+  "contact_name": "Mike Bardaxis",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Classic Hyundai Of Wilkesboro",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Crenshaw Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.crenshawhyundai.com/dealership/staff.htm",
+  "contact_name": "Ashley Elliott",
+  "contact_title": "Sales Manager",
+  "contact_email": "ashley@hyundaicrenshaw.com"
+ },
+ {
+  "dealer_name": "Deacon Jones Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Flow Hyundai Of Statesville",
+  "status": "fetched",
+  "source_url": "https://www.flowhyundaistatesville.com/dealership/staff.htm",
+  "contact_name": "Sean Donnelly",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hall Hyundai Elizabeth City",
+  "status": "fetched",
+  "source_url": "https://www.hallhyundaielizabethcity.com/dealership/staff.htm",
+  "contact_name": "Steve Evans",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hunter Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.hunterhyundai.com/about-us/staff/",
+  "contact_name": "manager and",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hyundai Of Asheville",
+  "status": "fetched",
+  "source_url": "https://www.hyundaiofasheville.com/about-us/staff/",
+  "contact_name": "Billy Hill",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hyundai Of New Bern",
+  "status": "fetched",
+  "source_url": "https://www.hyundaiofnewbern.com/about-us/staff/",
+  "contact_name": "Leasing DJ Smith",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hyundai Of Union County",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Joe Pecheles Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.pecheleshyundai.com/dealership/staff.htm",
+  "contact_name": "Pierre Baldwin",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Johnson Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Johnson Hyundai Of Wake Forest",
+  "status": "fetched",
+  "source_url": "https://www.johnsonhyundaiofwakeforest.com/dealership/staff.htm",
+  "contact_name": "Curtis Tucker",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Keffer Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Keith Hawthorne Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.hyundaiofgastonia.com/about-us/staff/",
+  "contact_name": "Christian Hicks",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lake Norman Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.lakenormanhyundai.com/meet-our-staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lee Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lee Hyundai Of Clayton",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Medlin Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.medlinhyundai.com/staff",
+  "contact_name": "Troy Black",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Modern Hyundai Of Concord",
+  "status": "fetched",
+  "source_url": "https://www.modernhyundai.com/about-us/staff/",
+  "contact_name": "James Welborne",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Paramount Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Paramount Hyundai Of Hickory",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Parkway Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.parkwayhyundai.com/dealership/staff.htm",
+  "contact_name": "Marcus Diaz",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Pinehurst Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.pinehursthyundaionline.com/about-us/staff/",
+  "contact_name": "Mark Hoffman",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "South Charlotte Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Southern States Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Sport Durst Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Vann York Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.vannyorkhyundai.com/staff",
+  "contact_name": "David Langley",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Don Bessette Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Gateway Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hyundai Of Mandan",
+  "status": "fetched",
+  "source_url": "https://www.hyundaiofmandan.com/about-us/staff/",
+  "contact_name": "Jason Schneider",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hyundai Of Grand Island",
+  "status": "fetched",
+  "source_url": "https://www.grandislandhyundai.com/staff",
+  "contact_name": "Frank Anderson",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Morries Bellevue Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.morriesbellevuehyundai.com/dealership/staff.htm",
+  "contact_name": "Micah Daniels",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Sid Dillon Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.siddillonhyundai.com/about-us/staff/",
+  "contact_name": "Philip Huber",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Woodhouse Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.woodhousehyundai.com/about-us/staff/",
+  "contact_name": "Jordan Bleibaum",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Woodhouse Place Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.woodhouseplacehyundai.com/about-us/staff/",
+  "contact_name": "Dominic Marasco",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Autofair Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Granite Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hyundai Of Keene",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Irwin Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.irwinhyundai.com/staff",
+  "contact_name": "Anne W. Plourde",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Key Hyundai/salem Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Mcfarland Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Mcgee Hyundai Of Lebanon",
+  "status": "fetched",
+  "source_url": "https://www.hyundailebanon.com/dealership/staff.htm",
+  "contact_name": "Mat D.",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Mcgovern Hyundai Of Concord",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Nashua Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Burlington Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.hyundaiofburlington.com/staff",
+  "contact_name": "Kodye Everton",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Burns Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Causeway Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.causewayhyundai72.com/about-us-1/staff/",
+  "contact_name": "Corey Gellis",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Circle Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.circlehyundai.com/dealership/staff.htm",
+  "contact_name": "Bill Ushock",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Franklin Sussex Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.franklinsussexhyundai.com/dealership/staff.htm",
+  "contact_name": "Chris Suchy",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Fred Beans Hyundai Of Flemington",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Freehold Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Global Hyundai Of North Plainfield",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hudson Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hyundai Of Trenton",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hyundai Of Turnersville",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lester Glenn Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.tomsriverhyundai.com/staff",
+  "contact_name": "Jerry Ojeda",
+  "contact_title": "General Sales Manager",
+  "contact_email": "JOjeda@lesterglenn.com"
+ },
+ {
+  "dealer_name": "Liberty Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lynnes Hyundai Llc",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Maxon Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Paramus Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.paramushyundai.com/meet-our-staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Route 1 Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Sansones Route 1 Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.sansoneshyundai.com/staff",
+  "contact_name": "Eric Bennett",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Sport Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.sporthyundai.net/meet-our-staff/",
+  "contact_name": "been the",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Towne Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Towne Hyundai Of Hackettstown",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Vineland Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Wayne Auto Mall Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Animas Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.animashyundai.com/staff",
+  "contact_name": "Vicki Granito",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Casa Hyundai Of Las Cruces",
+  "status": "fetched",
+  "source_url": "https://www.casahyundailascruces.com/staff",
+  "contact_name": "Stephen Stophel",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Fiesta Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.fiestahyundai.com/about-us/staff/",
+  "contact_name": "Landis Wheeler",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hamilton Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Larry H Miller Hyundai Albuquerque",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Larry H Miller Sw Hyundai Albuquerq",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Roswell Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Abc Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Carson City Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.carsoncityhyundai.com/meet-our-staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Centennial Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Henderson Hyundai Superstore",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hyundai Of Las Vegas",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lithia Hyundai Of Reno",
+  "status": "fetched",
+  "source_url": "https://www.lithiahyundaireno.com/about-us/staff/",
+  "contact_name": "Wes Wilson",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Advantage Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.advantagehyundai.com/dealership/staff.htm",
+  "contact_name": "Anthony Nesnick",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Atlantic Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Auburn Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bob Johnson Hyundai Watertown",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Burdick Hyundai Cicero",
+  "status": "fetched",
+  "source_url": "https://www.hyundaicicero.com/dealership/staff.htm",
+  "contact_name": "Phil Boskovski",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Centereach Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.centereachhyundai.com/about-us/staff/",
+  "contact_name": "Ray Azzato",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "City World Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Country Club Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Curry Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Empire Hyundai Of Jamaica",
+  "status": "fetched",
+  "source_url": "https://www.shopempirehyundaiofjamaica.com/staff",
+  "contact_name": "Rob Rios",
+  "contact_title": "General Sales Manager",
+  "contact_email": "Rrios@eagny.com"
+ },
+ {
+  "dealer_name": "Empire Hyundai Of New Rochelle",
+  "status": "fetched",
+  "source_url": "https://www.shopempirehyundaiofnewrochelle.com/staff",
+  "contact_name": "Sam Rivera",
+  "contact_title": "General Manager",
+  "contact_email": "Srivera@Eagny.Com"
+ },
+ {
+  "dealer_name": "Garvey Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.garveyhyundai.com/staff",
+  "contact_name": "Marc Garvey",
+  "contact_title": "Dealer Principal",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Garvey Hyundai North",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Healey Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Huntington Hyundai, Inc.",
+  "status": "fetched",
+  "source_url": "https://www.huntingtonhyundai.com/about-us/staff/",
+  "contact_name": "Simon Kim",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hyundai 112",
+  "status": "fetched",
+  "source_url": "https://www.hyundai112.com/staff",
+  "contact_name": "Greg Galardi",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hyundai City Of Bay Ridge",
+  "status": "fetched",
+  "source_url": "https://www.hyundaicityny.com/staff",
+  "contact_name": "Daniel Ianelli",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hyundai Of 110",
+  "status": "fetched",
+  "source_url": "https://www.hyundaiof110.com/staff",
+  "contact_name": "Omari Strickland",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Island Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Koeppel Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.koeppelhyundai.com/dealership/staff.htm",
+  "contact_name": "JOE CLEM",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lia Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Maguire Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.maguirehyundai.com/about-us/staff/",
+  "contact_name": "Brian Theetge",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Mastrovito Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Matthews Hyundai Of Greece",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Matthews Hyundai Of Schenectady",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Matthews Hyundai Of Syracuse",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Millennium Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.millenniumhyundai.com/staff",
+  "contact_name": "Abdul Seraj",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Miller Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.millerhyundai.com/dealership/staff.htm",
+  "contact_name": "Bill Calkin",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Niagara Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Northtown Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Plaza Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Prestige Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.prestigehyundai.net/meet-our-staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Riverhead Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Rockland Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Shults Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Simmons Rockwell Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.srhyundai.com/dealership/staff.htm",
+  "contact_name": "Billy Keels",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "South Shore Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.southshorehyundai.com/staff",
+  "contact_name": "Lisa Santoro",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Star Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.starhyundai.com/about-us/staff/",
+  "contact_name": "Philip Robinson",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Suresky Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Tasca Central Avenue Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.tascacentralavehyundai.com/about-us/staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Towne Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.townehyundaibuffalo.com/about-us/staff/",
+  "contact_name": "Mike Decarlo",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Vision Hyundai Canandaigua",
+  "status": "fetched",
+  "source_url": "https://www.visionhyundaicanandaigua.com/about-us/staff/",
+  "contact_name": "Steve Mansfield",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Vision Hyundai Henrietta",
+  "status": "fetched",
+  "source_url": "https://www.visionhyundaihenrietta.com/about-us/staff/",
+  "contact_name": "Mike Kellerson",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Vision Hyundai Webster",
+  "status": "fetched",
+  "source_url": "https://www.visionhyundaiwebster.com/about-us/staff/",
+  "contact_name": "Robbie Cammilleri",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "West Herr Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Classic Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.driveclassichyundai.com/staff/",
+  "contact_name": "Contacts AJ Kelly",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Columbia Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.columbiahyundai.com/why-columbia-hyundai/staff/",
+  "contact_name": "Eric McClure",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Coughlin Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.coughlinhyundai.com/staff.aspx",
+  "contact_name": "Rob Coleman",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Crestmont Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.crestmonthyundai.com/dealership/staff.htm",
+  "contact_name": "Scott Heid",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Diehl Hyundai Of Massillon",
+  "status": "fetched",
+  "source_url": "https://www.diehlhyundaimassillon.com/about-us/staff/",
+  "contact_name": "Chris Lumia",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Dobbs Hyundai Of Columbus",
+  "status": "fetched",
+  "source_url": "https://www.dobbshyundaicolumbus.com/dealership/staff.htm",
+  "contact_name": "Ness Alghofari",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Don Wood Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.donwoodhyundai.com/dealership/staff.htm",
+  "contact_name": "Matt Ames",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Elyria Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.elyriahyundai.com/meet-our-staff/",
+  "contact_name": "am the",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Germain Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.germainhyundaiofcolumbus.com/about-us/staff/",
+  "contact_name": "Gerald Curtis",
+  "contact_title": "New Car Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Graham Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Great Lakes Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Great Lakes Hyundai Of Dublin",
+  "status": "fetched",
+  "source_url": "https://www.glakeshyundaiofdublin.com/dealership/staff.htm",
+  "contact_name": "Khalid Shehedeh",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Herrnstein Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.herrnsteinhyundai.com/staff",
+  "contact_name": "Bryce Matson",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hyundai Of Bedford",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Jeff Wyler Hyundai Of Beavercreek",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Jeff Wyler Hyundai Of Colerain",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Jeff Wyler Hyundai Of Eastgate",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Jeff Wyler Hyundai Of Fairfield",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Jeff Wyler Springfield Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Joseph Airport Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.airhyundai.com/about-us/staff/",
+  "contact_name": "Josh Putnam",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ken Ganley Hyundai North Olmsted",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ken Ganley Hyundai Norwalk",
+  "status": "fetched",
+  "source_url": "https://www.kenganleyhyundainorwalk.com/dealership/staff.htm",
+  "contact_name": "Victor Vilchez",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ken Ganley Hyundai Parma",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Mathews Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.mathewshyundai.com/dealership/staff.htm",
+  "contact_name": "Marshall S.",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Preston Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ricart Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.ricarthyundai.com/staff",
+  "contact_name": "Rich Montgomery",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ron Marhofer Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ron Marhofer Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.hyundaiofakron.com/dealership/staff.htm",
+  "contact_name": "Sean Scruggs",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Spitzer Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.spitzerhyundaicleveland.com/about-us/meet-our-staff/",
+  "contact_name": "Sara Mauser",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Taylor Hyundai Of Findlay",
+  "status": "fetched",
+  "source_url": "https://www.taylorhyundaifindlay.com/meet-our-staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Taylor Hyundai Of Perrysburg",
+  "status": "fetched",
+  "source_url": "https://www.taylorhyundaiperrysburg.com/meet-our-staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Taylor Hyundai Of Toledo",
+  "status": "fetched",
+  "source_url": "https://www.taylorhyundaitoledo.com/meet-our-staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Tom Ahl Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Victory Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.victoryhyundai440.com/about-us/meet-our-team/",
+  "contact_name": "Danny Benage",
+  "contact_title": "Executive Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Voss Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Barry Sanders Super Center",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Billingsley Hyundai Of Lawton",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bob Howard Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Carter County Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Edmond Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "James Hodge Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.jameshodgehyundai.com/about-us/staff/",
+  "contact_name": "Justin Landers",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Joe Cooper Hyundai Of Midwest City",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Norman Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Patriot Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Purdy Hyundai Of Broken Arrow",
+  "status": "fetched",
+  "source_url": "https://www.purdyhyundai.com/meet-our-staff/",
+  "contact_name": "Overall Great",
+  "contact_title": "Sales Representative",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Tulsa Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Beaverton Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.beavertonhyundai.com/about-us/staff/",
+  "contact_name": "Artem Kutuzov",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Dick Hannahs Hyundai Of Portland",
+  "status": "fetched",
+  "source_url": "https://www.hyundaiofportland.com/about-us/staff/",
+  "contact_name": "Matthew Kim",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Dicks Hillsboro Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.dickshillsborohyundai.com/staff",
+  "contact_name": "Jacob Inukai",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hyundai Eugene",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hyundai Medford",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hyundai Of Albany",
+  "status": "fetched",
+  "source_url": "https://www.hyundaiofalbany.com/about-us/staff/",
+  "contact_name": "Jake Zilverberg",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ron Tonkin Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.rontonkinhyundai.com/about-us/staff/",
+  "contact_name": "Joe Carter",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Team Hyundai Of Bend",
+  "status": "fetched",
+  "source_url": "https://www.goteamhyundai.com/about-us/staff/",
+  "contact_name": "Chris Murphy",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Tonkin Gladstone Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.tonkingladstonehyundai.com/about-us/staff/",
+  "contact_name": "Nabil Haymoor",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Withnell Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.withnellhyundai.net/dealership/staff.htm",
+  "contact_name": "Justin Chapman",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "#1 Cochran Hyu Of South Hills",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "#1 Cochran Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Auto Land Hyundai Of Uniontown",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bennett Hyundai Of Lebanon",
+  "status": "fetched",
+  "source_url": "https://www.bennetthyundaioflebanon.com/about-us/staff/",
+  "contact_name": "Bonafede Platform",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Blaise Alexander Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.blaisealexanderhyundai.com/staff",
+  "contact_name": "Jack Galloway",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Blaise Alexander Hyundai Of Altoona",
+  "status": "fetched",
+  "source_url": "https://www.blaisehyundaialtoona.com/dealership/staff.htm",
+  "contact_name": "Jake Schmidt",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bowser Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.bowserchippewa.com/staff",
+  "contact_name": "Chance Saeler",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bowser Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.powerofbowserhyundai.com/staff",
+  "contact_name": "Dave Ross",
+  "contact_title": "Director Of Sales",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Brown-daub Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bush Hyundai Of Downingtown",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Chambersburg Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.chambersburghyundai.com/dealership/staff.htm",
+  "contact_name": "Kyle Trinka",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ciocca Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.cioccahyundai.com/dealership/staff.htm",
+  "contact_name": "Daniel Pichardo",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ciocca Hyundai Of Williamsport",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Conicelli Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Dave Hallman Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.davehallmanhyundai.com/staff",
+  "contact_name": "Benjamin L. Jefferys",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Delaney Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.delaneyhyundai.com/about-us/staff/",
+  "contact_name": "Barre Bell",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Delaney Hyundai Of Dubois",
+  "status": "fetched",
+  "source_url": "https://www.delaneyhyundaidubois.com/about-us/staff/",
+  "contact_name": "Matt McCracken",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Dickson City Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.dicksoncityhyundai.com/about-us/staff/",
+  "contact_name": "Ramon Roedan",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Diehl Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.diehlhyundaisharon.com/about-us/staff/",
+  "contact_name": "Ryan Arena",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Faulkner Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.faulknerhyundaiphilly.com/staff",
+  "contact_name": "Tim Sexton",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Faulkner Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.faulknerhyundaiharrisburg.com/staff.aspx",
+  "contact_name": "Drew Dunn",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Fred Beans Hyundai Of Abington",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Fred Beans Hyundai Of Doylestown",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Fred Beans Hyundai Of Langhorne",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Fred Beans Hyundai Of Mechanicsburg",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Giambalvo Hyundai Of Hanover",
+  "status": "fetched",
+  "source_url": "https://www.giambalvohyundaiofhanover.com/about-us/staff/",
+  "contact_name": "Ernie Marcum",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hazleton Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Jack Giambalvo Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kelly Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kelly Hyundai Of Stroudsburg",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lancaster Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Laurel Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lehigh Valley Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.lehighvalleyhyundai.com/meet-our-staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Mike Camlin Hyundai Of Greensburg",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Mike Kelly Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.mikekellyhyundai.com/staff",
+  "contact_name": "Steve Akins",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Moon Township Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.moonhyundai.com/dealership/staff.htm",
+  "contact_name": "David Baldwin",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Motorworld Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Pacifico Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Piazza Hyundai Of Pottstown",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Piazza Hyundai Of West Chester",
+  "status": "fetched",
+  "source_url": "https://www.piazzahyundaiwestchester.com/dealership/staff.htm",
+  "contact_name": "Marc Mattera",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Seidel Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Springfield Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Sunbury Motors Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Washington Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Wright Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Grieco Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hyundai Of Newport",
+  "status": "fetched",
+  "source_url": "https://www.hyundaiofnewport.com/dealership/staff.htm",
+  "contact_name": "Jon Narcessian",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Nucar Hyundai Of North Kingstown",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Alm Hyundai Florence",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Autonation Hyundai Columbia",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Autonation Hyundai Hilton Head",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Benson Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.bensonhyundai.com/about-us/staff/",
+  "contact_name": "Calandra Brown-Gray",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Fort Mill Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Fred Anderson Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hyundai Of Anderson",
+  "status": "fetched",
+  "source_url": "https://www.hyundaiofanderson.com/about-us/staff/",
+  "contact_name": "Jordan Ziviello",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hyundai Of Charleston",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hyundai Of Greenville",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hyundai Of North Charleston",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Myrtle Beach Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.hyundaiofmyrtlebeach.com/staff",
+  "contact_name": "Mickey Turner",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Stivers Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.stivershyundai.com/about-us/staff/",
+  "contact_name": "Cliff Tanner",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Terry Lambert Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.terrylamberthyundai.com/staff",
+  "contact_name": "Michael Wideman",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Billion Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.hyundaisiouxfalls.com/staff",
+  "contact_name": "Brent Tjepkes",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Liberty Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Allen Samuels Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.allensamuelshyundai.com/about-us/staff/",
+  "contact_name": "Brandon Gray",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Friendship Hyundai Of Bristol",
+  "status": "fetched",
+  "source_url": "https://www.hyundaitn.com/about-us/staff/",
+  "contact_name": "and the",
+  "contact_title": "Sales Team",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Friendship Hyundai Of Johnson City",
+  "status": "fetched",
+  "source_url": "https://www.hyundaijc.com/about-us/staff/",
+  "contact_name": "President and",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Friendship Hyundai Of Kingsport",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Gossett Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Gossett Hyundai South",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Gray Epperson Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.grayeppersonhyundai.com/about-us/staff/",
+  "contact_name": "Billy West",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Grayson Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.graysonhyundai.com/dealership/staff.htm",
+  "contact_name": "Mike Webb",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hallmark Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.hendersonvillehyundai.com/dealership/staff.htm",
+  "contact_name": "David Layton",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hyundai Of Columbia",
+  "status": "fetched",
+  "source_url": "https://www.hyundaiofcolumbia.com/dealership/staff.htm",
+  "contact_name": "Brandon Snitzer",
+  "contact_title": "Sales Professional",
+  "contact_email": "brandon.snitzer@bc.auto"
+ },
+ {
+  "dealer_name": "Hyundai Of Cookeville",
+  "status": "fetched",
+  "source_url": "https://www.hyundaiofcookeville.com/meet-our-staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hyundai Of Cool Springs",
+  "status": "fetched",
+  "source_url": "https://www.hyundaiofcoolsprings.com/dealership/staff.htm",
+  "contact_name": "SAXON REYNOLDS",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hyundai Of South Nashville",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Long Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Murfreesboro Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.hyundaiofmurfreesboro.com/staff",
+  "contact_name": "Kevin Griffin",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Rusty Wallace Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.rustywallacehyundai.com/staff",
+  "contact_name": "Mark Troutt",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Rusty Wallace Hyundai Morristown",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Twin City Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Wilson County Hyundai, Inc",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Wolfchase Hyundai",
+  "status": "fetched",
+  "source_url": "https://wolfchasehyundai.adviserly.com/list",
+  "contact_name": "Brown Internet",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Wyatt Johnson Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.wyattjohnsonhyundai.com/staff",
+  "contact_name": "Chris Collins",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Alliance Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Amarillo Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.amarillohyundai.com/dealership/staff.htm",
+  "contact_name": "Johnny Eguia",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Autonation Hyundai Corpus Christi",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Autonation Hyundai N Richland Hills",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Baytown Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bert Ogden Harlingen Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.bertogdenhyundai.com/about-us/staff/",
+  "contact_name": "C.J. Loya",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Big Star Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.bigstarhyundai.com/about-us/staff/",
+  "contact_name": "Arnaldo Perez",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Brookshire Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Car Town Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Charlie Clark Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Charlie Clark Hyundai Of Laredo",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Clay Cooley Hyundai Irving",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Clay Cooley Hyundai Mesquite",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Clay Cooley Hyundai Of Dallas",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Clay Cooley Hyundai Of Sherman",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Clay Cooley Hyundai Of Terrell",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "College Station Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.collegestationhyundai.com/meet-our-staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Demontrond Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Don Davis Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Eckert Hyundai, Inc.",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Greenville Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Group 1 Hyundai Hub City",
+  "status": "fetched",
+  "source_url": "https://www.group1hyundaihubcity.com/about-us/staff/",
+  "contact_name": "Brendan Cimino",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Group 1 Hyundai North Austin",
+  "status": "fetched",
+  "source_url": "https://www.group1hyundainorthaustin.com/about-us/staff/",
+  "contact_name": "Rafael Nieves",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Group 1 Hyundai Southwest Houston",
+  "status": "fetched",
+  "source_url": "https://www.group1hyundaisouthwesthouston.com/about-us/staff/",
+  "contact_name": "Margarita Pochtovaya",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Grubbs Hyundai Of Wichita Falls",
+  "status": "fetched",
+  "source_url": "https://www.grubbshyundaiwichitafalls.com/staff",
+  "contact_name": "Brendon Porter",
+  "contact_title": "General Manager",
+  "contact_email": "brendon.porter@grubbs.com"
+ },
+ {
+  "dealer_name": "Hiley Hyundai Of Burleson",
+  "status": "fetched",
+  "source_url": "https://www.hileyhyundaiofburleson.com/meet-our-staff/",
+  "contact_name": "blew Vandergrift",
+  "contact_title": "Hyundai Sales",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hiley Hyundai West",
+  "status": "fetched",
+  "source_url": "https://www.hileyhyundaioffortworth.com/about-us/staff/",
+  "contact_name": "Tim Beuck",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Huffines Hyundai Mckinney",
+  "status": "fetched",
+  "source_url": "https://www.huffineshyundaimckinney.com/about-us/staff/",
+  "contact_name": "Anthony Reich",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Huffines Hyundai Plano",
+  "status": "fetched",
+  "source_url": "https://www.huffineshyundaiplano.com/dealership/staff.htm",
+  "contact_name": "Ken Winston",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Humble Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hyundai Of Brenham",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hyundai Of Del Rio",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hyundai Of El Paso",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hyundai Of Leander",
+  "status": "fetched",
+  "source_url": "https://www.hyundaiofleander.com/dealership/staff.htm",
+  "contact_name": "Cory Frick",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hyundai Of Longview",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hyundai Of Lufkin",
+  "status": "fetched",
+  "source_url": "https://www.hyundaioflufkin.com/dealership/staff.htm",
+  "contact_name": "Jeff Barrett",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "James Wood Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.jameswoodhyundai.com/staff",
+  "contact_name": "Trey Moss",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Jerrys Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Keating Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.keatinghyundai.com/meet-our-staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Killeen Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.killeenhyundai.com/meet-our-staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Lithia Hyundai Of Odessa",
+  "status": "fetched",
+  "source_url": "https://www.hyundaiofodessa.com/staff",
+  "contact_name": "Tony Frank",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Mac Haik Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Mike Terry Hyundai Of Silsbee",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "North Freeway Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Northwest Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.northwesthyundai.com/meet-our-staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Orr Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Oscar Leesers Hyundai Of E El Paso",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Patterson Hyundai Tyler",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Perry Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.perryhyundai.com/dealership/staff.htm",
+  "contact_name": "Muncie Powers",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Philpott Motors Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Principle Hyundai  Boerne",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Red Mccombs Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Red Mccombs Hyundai Northwest",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Rockwall Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Round Rock Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.roundrockhyundai.com/dealership/staff.htm",
+  "contact_name": "David Vinson",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Shottenkirk Hyundai Granbury",
+  "status": "fetched",
+  "source_url": "https://www.shottenkirkhyundaigranbury.com/about-us/staff/",
+  "contact_name": "Ryan Cochran",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "South Point Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Star Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.hyundaiofabilene.com/staff",
+  "contact_name": "Tony Rodriguez",
+  "contact_title": "Sales Consultant",
+  "contact_email": "tony.rodriguez@hyundaiofabilene.com"
+ },
+ {
+  "dealer_name": "Steele Hyundai Kyle, Inc",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Steele Hyundai New Braunfels",
+  "status": "fetched",
+  "source_url": "https://www.steelehyundainewbraunfels.com/dealership/staff.htm",
+  "contact_name": "Tim Burns",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Texan Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.texanhyundai.com/dealership/staff.htm",
+  "contact_name": "Robert Rappaccioli",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Tipton Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Tomball Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.tomballhyundai.com/meet-our-staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Van Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Vandergriff Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.vandergriffhyundai.com/dealership/staff.htm",
+  "contact_name": "Jake Johnson",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Waco Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "West Houston Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.westhoustonhyundai.com/meet-our-staff/",
+  "contact_name": "customer service.",
+  "contact_title": "Sales Representative",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Wiesner Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "World Car Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "World Car Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.worldcarhyundaisouth.com/meet-our-staff/",
+  "contact_name": "and their",
+  "contact_title": "Sales Team",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Findlay Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.findlayhyundaistgeorge.com/about-us/meet-our-team/",
+  "contact_name": "Martin Bender",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ken Garff Hyundai Downtown",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ken Garff Hyundai Southtowne",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Murdock Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.murdockhyundailindon.com/about-us/staff/",
+  "contact_name": "Ryan Brady",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Murdock Hyundai Murray, Llc",
+  "status": "fetched",
+  "source_url": "https://www.murdockhyundaislc.com/about-us/staff/",
+  "contact_name": "Shae Stubbs",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Murdock Hyundai Of Logan",
+  "status": "fetched",
+  "source_url": "https://www.murdockhyundailogan.com/about-us/staff/",
+  "contact_name": "Jase Hill",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Young Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.younghyundaiutah.com/dealership/staff.htm",
+  "contact_name": "Tanner Sheldon",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Alexandria Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.alexandriahyundai.com/meet-our-staff/",
+  "contact_name": "was an excellent",
+  "contact_title": "Sales Associate",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Checkered Flag Hyundai World",
+  "status": "fetched",
+  "source_url": "https://www.checkeredflaghyundaiworld.com/about-us/staff/",
+  "contact_name": "Ryan Garner",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Cmas Colonial Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Cmas Hyundai Of Lynchburg",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Cmas Hyundai Of Winchester",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Flow Hyundai Of Charlottesville",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hyundai Of Hampton",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Koons Hyundai Woodbridge",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Motor Mile Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.motormilehyundai.com/dealership/staff.htm",
+  "contact_name": "SERVICE MANAGERS",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Pearson Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.pearsonhyundai.com/dealership/staff.htm",
+  "contact_name": "Scott Lee",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Pohanka Hyundai Of Fredericksburg",
+  "status": "fetched",
+  "source_url": "https://www.pohankahyundaiva.com/meet-our-staff/",
+  "contact_name": "but the",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Priority Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.priorityhyundai.com/staff",
+  "contact_name": "James Young",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Robert Woodall Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.woodallhyundai.com/staff",
+  "contact_name": "Stacy Bagbey",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Safford Hyundai Fairfax",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Safford Hyundai Leesburg",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Safford Hyundai Manassas",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Safford Hyundai Of Springfield",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Sheehy Hyundai Of Chantilly",
+  "status": "fetched",
+  "source_url": "https://www.sheehyhyundaichantilly.com/meet-our-staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Southern Hyundai Chesapeake",
+  "status": "fetched",
+  "source_url": "https://www.southernhyundaichesapeake.com/about-us/staff/",
+  "contact_name": "Jimmy Stancil",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Southern Hyundai Newport News",
+  "status": "fetched",
+  "source_url": "https://www.southernhyundainewportnews.com/about-us/staff/",
+  "contact_name": "Keith McCullers",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Southern Team Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.southernteamhyundai.com/about-us/staff/",
+  "contact_name": "Greg Shortridge",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Steven Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.stevenhyundai.com/about-us/staff/",
+  "contact_name": "ERIC BLOSSER",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Waynesboro Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.waynesborohyundai.com/dealership/staff.htm",
+  "contact_name": "Mayer Harby",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "West Broad Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Williamsburg Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.williamsburghyundai.com/dealership/staff.htm",
+  "contact_name": "Gordon Hatcher",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Burlington Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Auburn Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.budclaryauburnhyundai.com/about-us/staff/",
+  "contact_name": "Hamid Musazay",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bud Clary Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.budclaryhyundai.com/about-us/staff/",
+  "contact_name": "Tyler Didericksen",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Dougs Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.dougshyundai.com/meet-our-staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Go Hyundai Of Renton",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Haselwood Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.haselwoodhyundai.com/dealership/staff.htm",
+  "contact_name": "Scott Heston",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hyundai Of Kirkland",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hyundai Of Yakima",
+  "status": "fetched",
+  "source_url": "https://www.hyundaiofyakima.com/about-us/staff/",
+  "contact_name": "David Bier",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Jack Carrolls Skagit Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kendall Hyundai Of Vancouver",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Korum Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.korumhyundai.com/staff",
+  "contact_name": "Jim Koch",
+  "contact_title": "General Manager",
+  "contact_email": "jkoch@korum.com"
+ },
+ {
+  "dealer_name": "Lee Johnson Hyundai Of Everett",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Rairdons Hyundai Of Bellingham",
+  "status": "fetched",
+  "source_url": "https://www.hyundaiofbellingham.com/about-us/staff/",
+  "contact_name": "Mitch Roberts",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Robert Larsons Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.larsonhyundai.com/meet-our-staff/",
+  "contact_name": "Coleman and",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Seattle Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Speck Hyundai Of Tri-cities",
+  "status": "fetched",
+  "source_url": "https://www.speckhyundai.com/staff",
+  "contact_name": "Andy Flynn",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Spokane Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.spokanehyundai.net/about-us/staff/",
+  "contact_name": "Amber Dow",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Titus-will Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Amato Hyundai Of Glendale",
+  "status": "fetched",
+  "source_url": "https://www.amatohyundaiglendale.com/about-us/staff/",
+  "contact_name": "Matt Husting",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bergstrom Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Bergstrom Hyundai Of Green Bay",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Boucher Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.boucherhyundai.com/about-us/staff/",
+  "contact_name": "Ryan Fitzsimmons",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Boucher Hyundai Of Janesville",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Dahl Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hyundai Lake Country",
+  "status": "fetched",
+  "source_url": "https://www.hyundailakecountry.com/about-us/staff/",
+  "contact_name": "Jacob Harris",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hyundai Of Eau Claire",
+  "status": "fetched",
+  "source_url": "https://www.hyundaiofeauclaire.com/about-us/staff/",
+  "contact_name": "Gregg Grosulak",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Hyundai West Allis",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "John Amato Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.johnamatohyundai.com/about-us/staff/",
+  "contact_name": "Dan Richards",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Kocourek Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Rosen Hyundai Greenfield",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Rosen Hyundai Of Kenosha",
+  "status": "fetched",
+  "source_url": "https://www.rosenhyundaikenosha.com/about-us/staff/",
+  "contact_name": "Scott Waller",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Stevens Point Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.stevenspointhyundai.com/staff",
+  "contact_name": "Greg Jones",
+  "contact_title": "Sales Manager",
+  "contact_email": "gjones@Stevenspointautocenter.com"
+ },
+ {
+  "dealer_name": "Van Horn Hyundai",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Van Horn Hyundai Fond Du Lac",
+  "status": "fetched",
+  "source_url": "https://www.vhhyundaifonddulac.com/dealership/staff.htm",
+  "contact_name": "Zach Jaschob",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Zeigler Hyundai Of Racine",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Zimbrick Eastside Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.zimbrickhyundaieastside.com/dealership/staff.htm",
+  "contact_name": "Adam Seed",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Zimbrick Hyundai West",
+  "status": "fetched",
+  "source_url": "https://www.zimbrickhyundaiwest.com/staff",
+  "contact_name": "Garnett Associate",
+  "contact_title": "General Manager",
+  "contact_email": "mitch.garnett@zimbrick.com"
+ },
+ {
+  "dealer_name": "Astorg Hyundai Of Parkersburg",
+  "status": "fetched",
+  "source_url": "https://www.astorghyundai.com/about-us/staff/",
+  "contact_name": "Luke Ballengee",
+  "contact_title": "Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Dutch Miller Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.dutchmillerhyundai.com/staff",
+  "contact_name": "Smith Senior",
+  "contact_title": "Sales Associate",
+  "contact_email": "msmith@dutchmillerauto.com"
+ },
+ {
+  "dealer_name": "Friendship Hyundai Of Beckley",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Friendship Hyundai Of Princeton",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Jenkins Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.jenkinshyundaiwv.com/about-us/staff/",
+  "contact_name": "Andrew Jenkins",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Joe Holland Hyundai",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Straub Hyundai",
+  "status": "fetched",
+  "source_url": "https://www.straubhyundai.com/about-us/staff/",
+  "contact_name": "Kevin Cook",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Weimer Hyundai Of Morgantown, Inc.",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "Ken Garff Hyundai Cheyenne",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ }
+]
