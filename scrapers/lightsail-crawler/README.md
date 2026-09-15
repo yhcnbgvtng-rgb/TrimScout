@@ -229,14 +229,16 @@ Challenge / WAF / captcha pages are **skipped and logged**. This package must no
 
 **All calendar-date bucketing is the Eastern calendar date, not UTC.** `<date>` above (and in `firstSeen`/`lastSeen`/`soldDate`, DOM-blob retention, `run_date` in the MariaDB `scrape_runs` table, and every filename below) comes from `easternDateStamp()` in `src/date_utils.js`, never from `new Date().toISOString().slice(0,10)`. That distinction matters because `toISOString()` always returns a UTC instant regardless of the process's `TZ` — a run anywhere near midnight (UTC or Eastern; they're never simultaneous) would otherwise file itself under the wrong calendar day. Precise instants (`generatedAt`, `startedAt`/`endedAt`/`finishedAt`, `submittedAt`, `collectedAt`, `updatedAt`) are unaffected by this and correctly stay real UTC ISO instants — only *which day* something is filed under changes, never how precisely a moment itself is recorded.
 
-### Daily driver: NJ + NY + FL, every brand, one job
+### Daily driver: NJ + NY + FL + GA, every brand, one job
 
 ```bash
 cd scrapers/lightsail-crawler
 npm run daily-crawl   # node scripts/run-daily-crawl.mjs
 ```
 
-Runs once per state in `src/states.js`'s `SUPPORTED_STATES` (NJ, NY, then FL as of 2026-09-14) — that array is the only place a state list should ever be hardcoded; nothing else in this driver, `dealer-bot-report.mjs`, or `standalone.js` special-cases a particular state. For each state, in order: regenerates `dealers/<state>/<brand>.json` from the OEM-locator dumps (`write-nj-dealers` / `write-ny-dealers` / `write-fl-dealers` — standalone.js reads these static files, not the locator dumps directly, so they have to be refreshed every run or a locator fix/addition since the last run is silently missed), refreshes that state's bot-protection classification (`dealer-bot-report.mjs --state=<X>`), then loops `src/standalone.js` once per brand that had at least one `NONE`/200 dealer in that state's report (`CRAWLER_DEALERS_FILE`/`CRAWLER_BRAND`/`CRAWLER_STATE` env vars, same invocation shape as a manual run). One brand hanging or erroring is caught, logged, and skipped — it never stops the rest of the state or the others.
+Runs once per state in `src/states.js`'s `SUPPORTED_STATES` (NJ, NY, FL, then GA as of 2026-09-15) — that array is the only place a state list should ever be hardcoded; nothing else in this driver, `dealer-bot-report.mjs`, or `standalone.js` special-cases a particular state. For each state, in order: regenerates `dealers/<state>/<brand>.json` from the OEM-locator dumps (`write-nj-dealers` / `write-ny-dealers` / `write-fl-dealer-files.mjs` / `write-ga-dealer-files.mjs` — standalone.js reads these static files, not the locator dumps directly, so they have to be refreshed every run or a locator fix/addition since the last run is silently missed), refreshes that state's bot-protection classification (`dealer-bot-report.mjs --state=<X>`), then loops `src/standalone.js` once per brand that had at least one `NONE`/200 dealer in that state's report (`CRAWLER_DEALERS_FILE`/`CRAWLER_BRAND`/`CRAWLER_STATE` env vars, same invocation shape as a manual run). One brand hanging or erroring is caught, logged, and skipped — it never stops the rest of the state or the others.
+
+Adding GA (2026-09-15) surfaced a real bug in the shared OEM-locator dedup key (`src/oem_locator.js`), not something GA-specific: the map keyed rooftops by `make+name` only, with no state, so a dealer group that reuses the exact same trading name in two different states (confirmed real, distinct rooftops — "Kia Autosport" in Pensacola, FL and Columbus, GA; "Rick Case Kia" in Sunrise, FL and Duluth, GA) silently collapsed into one entry and dropped the other. Fixed by scoping the dedup key to `state|make+name` (`stateScopedKey()`); `applyCuratedOverlay()` was updated to match its state-less `CURATED_OVERLAY` entries by scanning make+name across all state-scoped entries instead of a single key lookup. This restored two previously-hidden rooftops in the already-live NJ/FL data too (Crown Acura, FL; Prestige Subaru, NJ) — additive only, nothing removed.
 
 Per-brand console output goes to `logs/<state>-<brand>-<date>.log` (and `logs/<state>-write-dealers-<date>.log` / `logs/<state>-bot-report-<date>.log` for the two support steps); anything under `logs/` older than 30 days is deleted at the start of every run, so this doesn't accumulate forever. The structured, durable record of the whole run — every step's exit code/duration, which brands were skipped and why, and each brand's vehicle/price-change/sold counts pulled back out of that day's `daily_changes` file — is written to `data/daily_crawl_runs/summary_<date>.json` and `data/daily_crawl_runs/latest.json` and kept indefinitely (small JSON, not logs).
 
@@ -246,7 +248,7 @@ Per-brand console output goes to `logs/<state>-<brand>-<date>.log` (and `logs/<s
 
 ~6–8 in-process page workers (`CRAWLER_CONCURRENCY`, default 8). Chromium is recycled every ~10 dealers (`CRAWLER_PATCHRIGHT_RECYCLE_AFTER`, default 10) if a browser is used for a non-challenge empty sitemap. On this NJ box set `CRAWLER_PATCHRIGHT_FALLBACK=false` so crawls stay HTTP-only.
 
-The daily driver (previous section) already runs one brand at a time internally and never overlaps two brands, so the box's crontab only needs one job line for the whole NJ+NY+FL run — plus a `TZ=` line above it, which matters for two separate reasons: it's what makes the job *fire* at the intended Eastern wall-clock time regardless of the box's system timezone, and (easy to miss) it's also what makes the `$(date +\%F)` in the log-filename redirect below resolve to the Eastern calendar date rather than the box's system timezone's date — otherwise that one shell-level date could disagree with every Eastern-calendar-date filename the Node process itself writes (see "Daily driver" above):
+The daily driver (previous section) already runs one brand at a time internally and never overlaps two brands, so the box's crontab only needs one job line for the whole NJ+NY+FL+GA run — plus a `TZ=` line above it, which matters for two separate reasons: it's what makes the job *fire* at the intended Eastern wall-clock time regardless of the box's system timezone, and (easy to miss) it's also what makes the `$(date +\%F)` in the log-filename redirect below resolve to the Eastern calendar date rather than the box's system timezone's date — otherwise that one shell-level date could disagree with every Eastern-calendar-date filename the Node process itself writes (see "Daily driver" above):
 
 ```cron
 TZ=America/New_York
@@ -254,7 +256,7 @@ TZ=America/New_York
 # Progress monitor (once at boot via systemd/pm2 is better than cron)
 @reboot cd /home/ubuntu/lightsail-crawler && node src/progress_server.js
 
-# NJ, NY, then FL, every brand: see "Daily driver" above. Safe to leave in
+# NJ, NY, FL, then GA, every brand: see "Daily driver" above. Safe to leave in
 # place even if a previous run is still going (e.g. it ran long, or a
 # manual run is mid-crawl) — the driver's own PID-file lock (see "Daily
 # driver" above) makes an overlapping fire a clean no-op instead of a
@@ -273,6 +275,21 @@ TZ=America/New_York
 # by ~5-6am. Re-time this comment once FL has actually run once and its
 # real duration is known, and pull the start back later again if it
 # turns out shorter than projected.
+#
+# GA (added 2026-09-15, write-ga-dealer-files.mjs / src/ga_policy.js) adds
+# 127 in-scope rooftops across every brand with a working locator (Acura
+# 9, Porsche 3, Lexus 8, Toyota 33, Mercedes-Benz 12, Mitsubishi 8, Kia 18,
+# Subaru 12, Mazda 11, Volkswagen 11, Mini 2 — Honda/Nissan/Infiniti/Audi/
+# Volvo/BMW stay empty, same brand-wide dead ends as NJ/NY/FL), 70 of
+# which came back NONE/200-ready on a live dealer-bot-report run. Real
+# timing was only measured for a 13-dealer sample (Porsche+Mini+Lexus,
+# ~7.5 min total) run from a worktree, not the box — enrichment time
+# scales with each dealer's live vehicle count, not dealer count, so that
+# sample cannot be safely extrapolated per-dealer to the other ~114
+# rooftops the way FL was extrapolated from NJ/NY above. Do not add GA's
+# runtime to this box's schedule from an estimate — wait for GA's first
+# real full run on the box and re-time this comment against that, the
+# same way the FL note above is still waiting on FL's real number.
 0  21 * * * cd /home/ubuntu/lightsail-crawler && mkdir -p logs && node scripts/run-daily-crawl.mjs >> logs/run-all-$(date +\%F).log 2>&1
 ```
 

@@ -21,6 +21,7 @@ import { buildTablePdf, winAnsiSafe, buildSummaryBlocks } from '../src/pdf_table
 import { extractWindowSticker, applyWindowSticker, captureWindowStickerFromPage } from '../src/window_sticker.js';
 import { loadNyDealers, acceptNyDealer } from '../src/ny_policy.js';
 import { loadFlDealers, acceptFlDealer } from '../src/fl_policy.js';
+import { loadGaDealers, acceptGaDealer } from '../src/ga_policy.js';
 import { SUPPORTED_STATES, isSupportedState } from '../src/states.js';
 import { computeEta, emptyProgress, writeProgress, readProgress, renderProgressHtml } from '../src/progress.js';
 import { priceChangeVsYesterday, inventoryChangeTypeToPriceChangeType } from '../src/price_diff.js';
@@ -410,10 +411,12 @@ describe('NY locator seed (no brandofcity guesses)', () => {
 });
 
 describe('state registry (src/states.js)', () => {
-  it('lists NJ, NY, FL as supported and rejects anything else', () => {
-    assert.deepEqual(SUPPORTED_STATES, ['NJ', 'NY', 'FL']);
+  it('lists NJ, NY, FL, GA as supported and rejects anything else', () => {
+    assert.deepEqual(SUPPORTED_STATES, ['NJ', 'NY', 'FL', 'GA']);
     assert.equal(isSupportedState('FL'), true);
     assert.equal(isSupportedState('fl'), true);
+    assert.equal(isSupportedState('GA'), true);
+    assert.equal(isSupportedState('ga'), true);
     assert.equal(isSupportedState(' NJ '), true);
     assert.equal(isSupportedState('CT'), false);
     assert.equal(isSupportedState(''), false);
@@ -449,6 +452,15 @@ describe('FL locator seed (no brandofcity guesses)', () => {
     const fortMyers = acura.find((d) => /acura of fort myers/i.test(d.name));
     assert.ok(fortMyers);
     assert.equal(fortMyers.domain, 'acuraoffortmyers.com');
+    // Regression check for a real cross-state name collision in the
+    // shared oem_locator.js dedup key (fixed 2026-09-15 while adding GA,
+    // but the bug itself predates GA and already affected this exact FL
+    // rooftop): acura-dealers.json also carries a same-named "Crown Acura"
+    // in OH and VA — a state-less dedup key silently dropped this FL one
+    // in their favor. See stateScopedKey() in src/oem_locator.js.
+    const crownAcura = acura.find((d) => /crown acura/i.test(d.name));
+    assert.ok(crownAcura, 'FL Crown Acura must survive the cross-state OH/VA Crown Acura name collision');
+    assert.equal(crownAcura.domain, 'crownacura.com');
 
     const porsche = loadFlDealers({ cwd: CRAWLER_ROOT, brand: 'Porsche' });
     assert.ok(porsche.length > 10);
@@ -473,6 +485,75 @@ describe('FL locator seed (no brandofcity guesses)', () => {
     const subaru = loadFlDealers({ cwd: CRAWLER_ROOT, brand: 'Subaru' });
     assert.ok(subaru.length > 10);
     assert.ok(subaru.some((d) => d.domain === 'bertsmithsubaru.com'));
+  });
+});
+
+describe('GA locator seed (no brandofcity guesses)', () => {
+  it('loads GA in-scope rooftops from OEM locators and listings only', () => {
+    assert.equal(acceptGaDealer({ name: 'Acura of Columbus', state: 'GA', make: 'Acura', domain: 'acuraofcolumbus.com' }), true);
+    assert.equal(acceptGaDealer({ name: 'AutoNation Acura', state: 'GA', make: 'Acura', domain: 'autonationacura.com' }), false);
+    assert.equal(acceptGaDealer({ name: 'Rick Hendrick Chevrolet', state: 'GA', make: 'Chevrolet', domain: 'rickhendrickchevrolet.com' }), false);
+    assert.equal(acceptGaDealer({ name: 'Acura of Columbus', state: 'FL', make: 'Acura', domain: 'acuraofcolumbus.com' }), false);
+
+    const all = loadGaDealers({ cwd: CRAWLER_ROOT });
+    assert.ok(all.length > 0);
+    assert.ok(all.every((d) => d.state === 'GA'));
+    assert.ok(all.every((d) => isNjBrandIn(d.make)));
+    assert.ok(all.every((d) => !isNjBrandOut(d.make)));
+    assert.ok(all.every((d) => !isMegadealerOrSuperstore(d)));
+    assert.ok(all.every((d) => ['oem-locator', 'listing-verified', 'curated-overlay'].includes(d.domainSource)), 'every rooftop must have a verified source');
+    assert.ok(all.every((d) => d.domainSource !== 'pattern-guess'));
+
+    // Acura and Porsche's GA rows come straight out of the existing
+    // nationwide in-repo locator dumps (acura-dealers.json / dealers.json),
+    // which already covered every state including GA before this branch —
+    // confirming loadGaDealers actually reaches that data, not just an
+    // empty seed.
+    const acura = loadGaDealers({ cwd: CRAWLER_ROOT, brand: 'Acura' });
+    assert.ok(acura.length > 5);
+    assert.ok(acura.every((d) => d.make === 'Acura'));
+    assert.ok(acura.every((d) => d.domainSource === 'oem-locator'));
+    const columbus = acura.find((d) => /acura of columbus/i.test(d.name));
+    assert.ok(columbus);
+    assert.equal(columbus.domain, 'acuraofcolumbus.com');
+
+    const porsche = loadGaDealers({ cwd: CRAWLER_ROOT, brand: 'Porsche' });
+    assert.ok(porsche.length > 0);
+    assert.ok(porsche.every((d) => d.make === 'Porsche'));
+    const hennessy = porsche.find((d) => /hennessy porsche/i.test(d.name));
+    assert.ok(hennessy);
+    assert.equal(hennessy.domain, 'hennessyporsche.com');
+
+    // A brand with no working locator (Honda/Nissan/etc., blocked for
+    // NJ/NY/FL too) stays honestly empty for GA rather than inventing a
+    // host.
+    const honda = loadGaDealers({ cwd: CRAWLER_ROOT, brand: 'Honda' });
+    assert.equal(honda.length, 0);
+
+    // Toyota/Subaru GA rows come from the live OEM-locator dumps this
+    // branch's fetch-oem-dealer-locators.mjs run added (real fetches
+    // against toyota.com's dealer-hub pages and subaru.com's dealer-
+    // distance API, not invented brandofcity hosts).
+    const toyota = loadGaDealers({ cwd: CRAWLER_ROOT, brand: 'Toyota' });
+    assert.ok(toyota.length > 20);
+    assert.ok(toyota.every((d) => d.domainSource === 'oem-locator'));
+    assert.ok(toyota.some((d) => d.domain === 'atlantatoyota.com'));
+    const subaru = loadGaDealers({ cwd: CRAWLER_ROOT, brand: 'Subaru' });
+    assert.ok(subaru.length > 5);
+    assert.ok(subaru.some((d) => d.domain === 'cpsubaru.com'));
+
+    // Same real-world same-name-different-state dealer group collision
+    // caught while building this branch (src/oem_locator.js's dedup key
+    // was state-less until now — see stateScopedKey()'s comment): "Kia
+    // Autosport" and "Rick Case Kia" are each a genuinely distinct rooftop
+    // in both FL and GA, and both must survive independently.
+    const gaKia = loadGaDealers({ cwd: CRAWLER_ROOT, brand: 'Kia' });
+    const flKia = loadFlDealers({ cwd: CRAWLER_ROOT, brand: 'Kia' });
+    const gaAutosport = gaKia.find((d) => /kia autosport/i.test(d.name));
+    const flAutosport = flKia.find((d) => /kia autosport/i.test(d.name));
+    assert.ok(gaAutosport, 'GA Kia Autosport (Columbus) must not be dropped by a cross-state dedup collision');
+    assert.ok(flAutosport, 'FL Kia Autosport (Pensacola) must not be dropped by a cross-state dedup collision');
+    assert.notEqual(gaAutosport.domain, flAutosport.domain);
   });
 });
 

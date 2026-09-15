@@ -1,0 +1,30 @@
+[
+  {
+    "id": "mini-global-imports-mini",
+    "name": "Global Imports MINI",
+    "city": "Chamblee",
+    "state": "GA",
+    "make": "Mini",
+    "domain": "atlantamini.com",
+    "sitemapUrl": "https://www.atlantamini.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.atlantamini.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://atlantamini.com/",
+    "lat": null,
+    "lng": null,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "mini-mall-of-georgia-mini",
+    "name": "Mall of Georgia MINI",
+    "city": "Buford",
+    "state": "GA",
+    "make": "Mini",
+    "domain": "mallofgamini.com",
+    "sitemapUrl": "https://www.mallofgamini.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.mallofgamini.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://mallofgamini.com/",
+    "lat": null,
+    "lng": null,
+    "domainSource": "oem-locator"
+  }
+]
