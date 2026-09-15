@@ -68,6 +68,23 @@ export function namedLimit(name: RateLimitName, subject: string, now?: number): 
   return checkRateLimit(`${name}:${subject}`, numEnv(`RATE_${upper}_LIMIT`, d.limit), numEnv(`RATE_${upper}_WINDOW_MS`, d.windowMs), now);
 }
 
+/**
+ * Accounts the send caps never apply to: admins, the `@trimscout.test` / `@example.com` smoke accounts, and
+ * anything listed in RATE_LIMIT_EXEMPT_ACCOUNTS (comma-separated emails or user ids). Testing a flow means
+ * creating and walking away from requests over and over — a cap sized for real buyers just gets in the way,
+ * and none of these accounts reach real dealers (SAFE MODE routes every dealer email to the owner anyway).
+ */
+export const TEST_ACCOUNT_DOMAINS = ["trimscout.test", "example.com"];
+export function isRateLimitExempt(user: { id?: unknown; email?: string | null; role?: unknown } | null | undefined): boolean {
+  if (!user) return false;
+  if (user.role === "admin") return true;
+  const email = (user.email || "").trim().toLowerCase();
+  const domain = email.split("@")[1] || "";
+  if (TEST_ACCOUNT_DOMAINS.includes(domain)) return true;
+  const listed = (process.env.RATE_LIMIT_EXEMPT_ACCOUNTS || "").split(",").map((x) => x.trim().toLowerCase()).filter(Boolean);
+  return listed.includes(email) || (user.id != null && listed.includes(String(user.id).toLowerCase()));
+}
+
 /** Run several named limits; the first that trips wins (its Retry-After is the one sent). */
 export function firstTrippedLimit(checks: Array<{ name: RateLimitName; subject: string }>, now?: number): (RateLimitVerdict & { name: RateLimitName }) | null {
   for (const c of checks) {

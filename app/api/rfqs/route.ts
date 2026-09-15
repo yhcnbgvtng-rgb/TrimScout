@@ -9,7 +9,7 @@ import { MAX_PACKAGE_LINKS } from "@/lib/quotePackage";
 import { recordQuoteRequest } from "@/lib/apiSpendGuard";
 import { findContactInfo } from "@/lib/piiFilter";
 import { featureEnabled, DEGRADE_COPY } from "@/lib/featureFlags";
-import { firstTrippedLimit, tooManyRequests } from "@/lib/rateLimit";
+import { firstTrippedLimit, isRateLimitExempt, tooManyRequests } from "@/lib/rateLimit";
 import { clientIpFromHeaders } from "@/lib/clientIp";
 import { bump } from "@/lib/opsMetrics";
 
@@ -39,7 +39,8 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: DEGRADE_COPY.rfqSendOff, paused: true }, { status: 503, headers: { "Retry-After": "120" } });
   }
   // Hard caps per IP, per account and per instance-global — 429 + Retry-After.
-  const tripped = firstTrippedLimit([
+  // Test / admin accounts are never capped — see isRateLimitExempt.
+  const tripped = isRateLimitExempt(session.user as { id?: unknown; email?: string | null; role?: unknown }) ? null : firstTrippedLimit([
     { name: "rfq_create_ip", subject: clientIpFromHeaders(req.headers) },
     { name: "rfq_create_user", subject: String(session.user.id) },
     { name: "rfq_create_global", subject: "all" },
