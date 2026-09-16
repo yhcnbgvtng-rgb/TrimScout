@@ -30,9 +30,9 @@ describe('run-daily-crawl driver', () => {
     assert.equal(slugify('Volkswagen'), 'volkswagen');
   });
 
-  it('runs every state in src/states.js (NJ, NY, FL, GA, then TX) with no hardcoded state list left behind', () => {
+  it('runs every state in src/states.js (NJ, NY, FL, GA, TX, then SC) with no hardcoded state list left behind', () => {
     assert.deepEqual(STATES, SUPPORTED_STATES);
-    assert.deepEqual(STATES, ['NJ', 'NY', 'FL', 'GA', 'TX']);
+    assert.deepEqual(STATES, ['NJ', 'NY', 'FL', 'GA', 'TX', 'SC']);
     // Every state the driver loops over must have a write-dealers script
     // registered, or runState() throws instead of silently skipping it.
     for (const state of STATES) {
@@ -41,6 +41,7 @@ describe('run-daily-crawl driver', () => {
     assert.equal(WRITE_DEALER_SCRIPTS.FL, 'write-fl-dealer-files.mjs');
     assert.equal(WRITE_DEALER_SCRIPTS.GA, 'write-ga-dealer-files.mjs');
     assert.equal(WRITE_DEALER_SCRIPTS.TX, 'write-tx-dealer-files.mjs');
+    assert.equal(WRITE_DEALER_SCRIPTS.SC, 'write-sc-dealer-files.mjs');
   });
 
   describe('pruneOldLogs (log retention)', () => {
@@ -174,7 +175,7 @@ describe('run-daily-crawl driver', () => {
         return { state, brands: {} };
       };
 
-      await runStatesWithBoundedConcurrency(['NJ', 'NY', 'FL', 'GA', 'TX'], '2026-09-15', 2, fakeRunState);
+      await runStatesWithBoundedConcurrency(['NJ', 'NY', 'FL', 'GA', 'TX', 'SC'], '2026-09-15', 2, fakeRunState);
       assert.equal(maxObservedInFlight, 2);
     });
 
@@ -184,7 +185,7 @@ describe('run-daily-crawl driver', () => {
       // both slots, then start the next pair" instead of a real pool, GA
       // would only start once NJ AND NY (its whole starting batch) were
       // both done — not the moment just one of them frees a slot.
-      const durations = { NJ: 10, NY: 15, FL: 200, GA: 10, TX: 10 };
+      const durations = { NJ: 10, NY: 15, FL: 200, GA: 10, TX: 10, SC: 10 };
       const fakeRunState = async (state) => {
         order.push(`start:${state}`);
         await sleep(durations[state]);
@@ -192,16 +193,17 @@ describe('run-daily-crawl driver', () => {
         return { state, brands: {} };
       };
 
-      await runStatesWithBoundedConcurrency(['NJ', 'FL', 'NY', 'GA', 'TX'], '2026-09-15', 2, fakeRunState);
+      await runStatesWithBoundedConcurrency(['NJ', 'FL', 'NY', 'GA', 'TX', 'SC'], '2026-09-15', 2, fakeRunState);
 
       // NJ and FL start together (the first two slots). NJ finishes long
       // before FL; the pool should immediately backfill that freed slot
-      // with NY, then GA, then TX — all while FL is still running — rather
-      // than waiting for FL too.
+      // with NY, then GA, then TX, then SC — all while FL is still running —
+      // rather than waiting for FL too.
       const flIndex = order.indexOf('end:FL');
       assert.ok(order.indexOf('start:NY') < flIndex, 'NY should have started well before FL finished');
       assert.ok(order.indexOf('start:GA') < flIndex, 'GA should have started well before FL finished');
       assert.ok(order.indexOf('start:TX') < flIndex, 'TX should have started well before FL finished');
+      assert.ok(order.indexOf('start:SC') < flIndex, 'SC should have started well before FL finished');
     });
 
     it('one state throwing outright (before it builds its own summary) does not stop a concurrently-running other state, and both get real timestamps', async () => {

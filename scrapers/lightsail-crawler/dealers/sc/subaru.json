@@ -1,0 +1,72 @@
+[
+  {
+    "id": "subaru-crews-subaru-of-charleston",
+    "name": "Crews Subaru of Charleston",
+    "city": "North Charleston",
+    "state": "SC",
+    "make": "Subaru",
+    "domain": "charlestonsubaru.com",
+    "sitemapUrl": "https://www.charlestonsubaru.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.charlestonsubaru.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://charlestonsubaru.com/",
+    "lat": 32.958228,
+    "lng": -80.044212,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "subaru-fairway-subaru",
+    "name": "Fairway Subaru",
+    "city": "Greenville",
+    "state": "SC",
+    "make": "Subaru",
+    "domain": "fairwaysubarusc.com",
+    "sitemapUrl": "https://www.fairwaysubarusc.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.fairwaysubarusc.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://fairwaysubarusc.com/",
+    "lat": 34.835366,
+    "lng": -82.352321,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "subaru-hadwin-white-subaru",
+    "name": "Hadwin-White Subaru",
+    "city": "Conway",
+    "state": "SC",
+    "make": "Subaru",
+    "domain": "hadwinwhitesubaru.com",
+    "sitemapUrl": "https://www.hadwinwhitesubaru.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.hadwinwhitesubaru.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://hadwinwhitesubaru.com/",
+    "lat": 33.7939,
+    "lng": -78.998298,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "subaru-mcdaniels-subaru-of-columbia",
+    "name": "McDaniels Subaru of Columbia",
+    "city": "Columbia",
+    "state": "SC",
+    "make": "Subaru",
+    "domain": "mcdanielssubaru.com",
+    "sitemapUrl": "https://www.mcdanielssubaru.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.mcdanielssubaru.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://mcdanielssubaru.com/",
+    "lat": 34.140123,
+    "lng": -80.949487,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "subaru-subaru-of-spartanburg",
+    "name": "Subaru of Spartanburg",
+    "city": "Spartanburg",
+    "state": "SC",
+    "make": "Subaru",
+    "domain": "subaruofspartanburg.com",
+    "sitemapUrl": "https://www.subaruofspartanburg.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.subaruofspartanburg.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://subaruofspartanburg.com/",
+    "lat": 34.958115,
+    "lng": -81.928042,
+    "domainSource": "oem-locator"
+  }
+]

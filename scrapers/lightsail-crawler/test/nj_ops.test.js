@@ -23,6 +23,7 @@ import { loadNyDealers, acceptNyDealer } from '../src/ny_policy.js';
 import { loadFlDealers, acceptFlDealer } from '../src/fl_policy.js';
 import { loadGaDealers, acceptGaDealer } from '../src/ga_policy.js';
 import { loadTxDealers, acceptTxDealer } from '../src/tx_policy.js';
+import { loadScDealers, acceptScDealer } from '../src/sc_policy.js';
 import { SUPPORTED_STATES, isSupportedState } from '../src/states.js';
 import { computeEta, emptyProgress, writeProgress, readProgress, renderProgressHtml } from '../src/progress.js';
 import { priceChangeVsYesterday, inventoryChangeTypeToPriceChangeType } from '../src/price_diff.js';
@@ -412,14 +413,16 @@ describe('NY locator seed (no brandofcity guesses)', () => {
 });
 
 describe('state registry (src/states.js)', () => {
-  it('lists NJ, NY, FL, GA, TX as supported and rejects anything else', () => {
-    assert.deepEqual(SUPPORTED_STATES, ['NJ', 'NY', 'FL', 'GA', 'TX']);
+  it('lists NJ, NY, FL, GA, TX, SC as supported and rejects anything else', () => {
+    assert.deepEqual(SUPPORTED_STATES, ['NJ', 'NY', 'FL', 'GA', 'TX', 'SC']);
     assert.equal(isSupportedState('FL'), true);
     assert.equal(isSupportedState('fl'), true);
     assert.equal(isSupportedState('GA'), true);
     assert.equal(isSupportedState('ga'), true);
     assert.equal(isSupportedState('TX'), true);
     assert.equal(isSupportedState('tx'), true);
+    assert.equal(isSupportedState('SC'), true);
+    assert.equal(isSupportedState('sc'), true);
     assert.equal(isSupportedState(' NJ '), true);
     assert.equal(isSupportedState('CT'), false);
     assert.equal(isSupportedState(''), false);
@@ -631,6 +634,74 @@ describe('TX locator seed (no brandofcity guesses)', () => {
     assert.ok(txFiveStar, 'TX Five Star Subaru (Grapevine) must not be dropped by a cross-state dedup collision');
     assert.ok(nyFiveStar, 'NY Five Star Subaru (Oneonta) must not be dropped by a cross-state dedup collision');
     assert.notEqual(txFiveStar.domain, nyFiveStar.domain);
+  });
+});
+
+describe('SC locator seed (no brandofcity guesses)', () => {
+  it('loads SC in-scope rooftops from OEM locators and listings only', () => {
+    assert.equal(acceptScDealer({ name: 'McDaniels Acura of Charleston', state: 'SC', make: 'Acura', domain: 'mcdanielsacuraofcharleston.net' }), true);
+    assert.equal(acceptScDealer({ name: 'AutoNation Subaru Hilton Head', state: 'SC', make: 'Subaru', domain: 'autonationsubaruhiltonhead.com' }), false);
+    assert.equal(acceptScDealer({ name: 'Rick Hendrick Chevrolet', state: 'SC', make: 'Chevrolet', domain: 'rickhendrickchevrolet.com' }), false);
+    assert.equal(acceptScDealer({ name: 'McDaniels Acura of Charleston', state: 'GA', make: 'Acura', domain: 'mcdanielsacuraofcharleston.net' }), false);
+
+    const all = loadScDealers({ cwd: CRAWLER_ROOT });
+    assert.ok(all.length > 0);
+    assert.ok(all.every((d) => d.state === 'SC'));
+    assert.ok(all.every((d) => isNjBrandIn(d.make)));
+    assert.ok(all.every((d) => !isNjBrandOut(d.make)));
+    assert.ok(all.every((d) => !isMegadealerOrSuperstore(d)));
+    assert.ok(all.every((d) => ['oem-locator', 'listing-verified', 'curated-overlay'].includes(d.domainSource)), 'every rooftop must have a verified source');
+    assert.ok(all.every((d) => d.domainSource !== 'pattern-guess'));
+
+    // Acura and Porsche's SC rows come straight out of the existing
+    // nationwide in-repo locator dumps (acura-dealers.json / dealers.json),
+    // which already covered every state including SC before this branch —
+    // confirming loadScDealers actually reaches that data, not just an
+    // empty seed.
+    const acura = loadScDealers({ cwd: CRAWLER_ROOT, brand: 'Acura' });
+    assert.ok(acura.length > 0);
+    assert.ok(acura.every((d) => d.make === 'Acura'));
+    assert.ok(acura.every((d) => d.domainSource === 'oem-locator'));
+    const charleston = acura.find((d) => /mcdaniels acura of charleston/i.test(d.name));
+    assert.ok(charleston);
+    assert.equal(charleston.domain, 'mcdanielsacuraofcharleston.net');
+
+    const porsche = loadScDealers({ cwd: CRAWLER_ROOT, brand: 'Porsche' });
+    assert.ok(porsche.length > 0);
+    assert.ok(porsche.every((d) => d.make === 'Porsche'));
+    const porscheCharleston = porsche.find((d) => /porsche charleston/i.test(d.name));
+    assert.ok(porscheCharleston);
+    assert.equal(porscheCharleston.domain, 'porschecharleston.com');
+
+    // A brand with no working locator (Honda/Nissan/Infiniti/Audi/BMW/Volvo,
+    // blocked for NJ/NY/FL/GA/TX too) stays honestly empty for SC rather
+    // than inventing a host.
+    const honda = loadScDealers({ cwd: CRAWLER_ROOT, brand: 'Honda' });
+    assert.equal(honda.length, 0);
+    const audi = loadScDealers({ cwd: CRAWLER_ROOT, brand: 'Audi' });
+    assert.equal(audi.length, 0);
+    const volvo = loadScDealers({ cwd: CRAWLER_ROOT, brand: 'Volvo' });
+    assert.equal(volvo.length, 0);
+    const bmw = loadScDealers({ cwd: CRAWLER_ROOT, brand: 'BMW' });
+    assert.equal(bmw.length, 0);
+
+    // Toyota/Subaru SC rows come from the live OEM-locator dumps this
+    // branch's fetch-oem-dealer-locators.mjs run added (real fetches
+    // against toyota.com's dealer-hub pages and subaru.com's dealer-
+    // distance API across the 8 SC metro/coastal zip seeds, not invented
+    // brandofcity hosts).
+    const toyota = loadScDealers({ cwd: CRAWLER_ROOT, brand: 'Toyota' });
+    assert.ok(toyota.length > 10);
+    assert.ok(toyota.every((d) => d.domainSource === 'oem-locator'));
+    assert.ok(toyota.some((d) => d.domain === 'toyotaofcharleston.com'));
+    const subaru = loadScDealers({ cwd: CRAWLER_ROOT, brand: 'Subaru' });
+    assert.ok(subaru.length > 0);
+    assert.ok(subaru.some((d) => d.domain === 'charlestonsubaru.com'));
+    // AutoNation Subaru Hilton Head appears in the raw Subaru locator dump
+    // (a real, live OEM row) but must be filtered out by the megadealer
+    // rule same as every other state — confirms the policy layer, not just
+    // the locator fetch, is doing real work for SC.
+    assert.ok(!subaru.some((d) => /autonation/i.test(d.name)));
   });
 });
 

@@ -1,0 +1,44 @@
+[
+  {
+    "id": "mitsubishi-bob-mills-mitsubishi-myrtle-beach",
+    "name": "Bob Mills Mitsubishi-Myrtle Beach",
+    "city": "Myrtle Beach",
+    "state": "SC",
+    "make": "Mitsubishi",
+    "domain": "bobmillsmitsubishimb.com",
+    "sitemapUrl": "https://www.bobmillsmitsubishimb.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.bobmillsmitsubishimb.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://bobmillsmitsubishimb.com/",
+    "lat": null,
+    "lng": null,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "mitsubishi-goose-creek-mitsubishi",
+    "name": "Goose Creek Mitsubishi",
+    "city": "Goose Creek",
+    "state": "SC",
+    "make": "Mitsubishi",
+    "domain": "goosecreekmitsubishi.com",
+    "sitemapUrl": "https://www.goosecreekmitsubishi.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.goosecreekmitsubishi.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://goosecreekmitsubishi.com/",
+    "lat": null,
+    "lng": null,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "mitsubishi-lake-murray-mitsubishi",
+    "name": "Lake Murray Mitsubishi",
+    "city": "Irmo",
+    "state": "SC",
+    "make": "Mitsubishi",
+    "domain": "lakemurraymitsubishi.com",
+    "sitemapUrl": "https://www.lakemurraymitsubishi.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.lakemurraymitsubishi.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://lakemurraymitsubishi.com/",
+    "lat": null,
+    "lng": null,
+    "domainSource": "oem-locator"
+  }
+]
