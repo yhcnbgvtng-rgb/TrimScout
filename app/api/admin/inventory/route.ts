@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireAdminSession } from "@/lib/adminAuth";
-import { listInventory, inventoryStats, inventoryByDealer, InventoryApiError, type InventoryQuery } from "@/lib/inventoryApi";
+import { listInventory, inventoryStats, inventoryByDealer, inventoryVin, InventoryApiError, type InventoryQuery } from "@/lib/inventoryApi";
 
 export const dynamic = "force-dynamic";
 
@@ -15,6 +15,7 @@ export async function GET(req: Request) {
   try {
     if (sp.get("stats") === "1") return NextResponse.json(await inventoryStats());
     if (sp.get("byDealer") === "1") return NextResponse.json(await inventoryByDealer());
+    if (sp.get("vin")) return NextResponse.json(await inventoryVin(sp.get("vin") || ""));
     const q: InventoryQuery = {
       dealerId: sp.get("dealerId") || undefined, state: sp.get("state") || undefined, make: sp.get("make") || undefined, model: sp.get("model") || undefined,
       cond: sp.get("cond") || undefined, q: sp.get("q") || undefined, inStock: sp.get("inStock") === "1", sort: sp.get("sort") || undefined,
@@ -37,6 +38,7 @@ export async function GET(req: Request) {
     return NextResponse.json(await listInventory({ ...q, limit, offset }));
   } catch (err) {
     const message = err instanceof InventoryApiError ? err.message : "Could not load inventory.";
-    return NextResponse.json({ error: message }, { status: err instanceof InventoryApiError && err.status === 503 ? 503 : 502 });
+    const status = err instanceof InventoryApiError ? (err.status === 503 ? 503 : err.status === 400 || err.status === 404 ? err.status : 502) : 502;
+    return NextResponse.json({ error: message }, { status });
   }
 }

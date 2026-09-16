@@ -1598,6 +1598,17 @@ async function ensureInventoryTable(pool) {
     "ADD INDEX IF NOT EXISTS idx_inv_change (change_type)",
     "ADD INDEX IF NOT EXISTS idx_inv_price_change (price_change_type)",
   ]) await pool.query(`ALTER TABLE dealer_inventory ${ddl}`);
+  // One row per (VIN, store, day) the crawl saw the car, with that day's price — the day-by-day history behind
+  // the VIN view. Written on every sync; the crawl's price-history points backfill days before the table existed.
+  await pool.query(`CREATE TABLE IF NOT EXISTS dealer_inventory_days (
+    vin CHAR(17) NOT NULL,
+    dealer_id INT NOT NULL DEFAULT 0,
+    seen_on DATE NOT NULL,
+    price INT NULL,
+    mileage INT NULL,
+    PRIMARY KEY (vin, dealer_id, seen_on),
+    INDEX idx_days_vin (vin)
+  )`);
   inventoryReady = true;
 }
 
@@ -1643,8 +1654,27 @@ async function handleInventoryBulk(req, res) {
       [values]
     );
     upserted += chunk.length;
+    // Today's observation for every vehicle in the chunk, plus the crawl's dated price points (backfill).
+    const today = new Date().toISOString().slice(0, 10);
+    const days = [];
+    for (const v of chunk) {
+      const vin = v.vin.trim().toUpperCase(), dealerId = INV_DEALER(v.dealerId);
+      days.push([vin, dealerId, today, INV_INT(v.price), INV_INT(v.mileage)]);
+      if (Array.isArray(v.priceHistory)) for (const h of v.priceHistory.slice(-60)) { const d = INV_DATE(h && h.date); if (d && d !== today) days.push([vin, dealerId, d, INV_INT(h.price), null]); }
+    }
+    if (days.length) await pool.query("INSERT INTO dealer_inventory_days (vin, dealer_id, seen_on, price, mileage) VALUES ? ON DUPLICATE KEY UPDATE price = COALESCE(VALUES(price), price), mileage = COALESCE(VALUES(mileage), mileage)", [days]);
   }
   sendJson(res, 200, { upserted, skipped });
+}
+
+// GET /api/inventory/vin/:vin — every store that has listed the VIN, with its day-by-day observations.
+async function handleInventoryVin(req, res, vin) {
+  const pool = getPool();
+  await ensureInventoryTable(pool);
+  const [rows] = await pool.query("SELECT i.*, d.city AS dealer_city, d.state AS dealer_state FROM dealer_inventory i LEFT JOIN dealership_contacts d ON d.id = i.dealer_id WHERE i.vin = ? ORDER BY i.removed_at IS NULL DESC, i.last_seen_at DESC", [vin]);
+  const [days] = await pool.query("SELECT dealer_id, seen_on, price, mileage FROM dealer_inventory_days WHERE vin = ? ORDER BY seen_on ASC", [vin]);
+  const fmt = (d) => (d instanceof Date ? d.toISOString().slice(0, 10) : String(d).slice(0, 10));
+  sendJson(res, 200, { vin, listings: rows.map(inventoryRowFromDb), days: days.map((r) => ({ dealerId: r.dealer_id ? String(r.dealer_id) : null, seenOn: fmt(r.seen_on), price: r.price, mileage: r.mileage })) });
 }
 
 // POST /api/inventory/sweep { dealerId, seenAfter, sources? } — a store's VINs not seen since `seenAfter` are
@@ -1738,6 +1768,8 @@ const server = http.createServer((req, res) => {
   if (req.method === "POST" && pathname === "/api/inventory/sweep") return run(handleInventorySweep);
   if (req.method === "GET" && pathname === "/api/inventory/stats") return run(handleInventoryStats);
   if (req.method === "GET" && pathname === "/api/inventory/by-dealer") return run(handleInventoryByDealer);
+  const inventoryVinMatch = pathname.match(/^\/api\/inventory\/vin\/([A-HJ-NPR-Z0-9]{17})$/i);
+  if (req.method === "GET" && inventoryVinMatch) return run(handleInventoryVin, inventoryVinMatch[1].toUpperCase());
   if (req.method === "GET" && pathname === "/api/inventory") return run(handleListInventory, url.searchParams);
 
   // deals (payment/lock)

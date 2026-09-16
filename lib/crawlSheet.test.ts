@@ -105,3 +105,38 @@ describe("vehicles sheet — nightly crawl extras", () => {
     assert.match(fs.readFileSync("app/api/admin/inventory/route.ts", "utf8"), /byDealer/);
   });
 });
+
+describe("VIN history timeline", () => {
+  it("lays out every calendar day between first and last observation, marks crawl gaps, and prices deltas on the observed day", async () => {
+    const { vinTimeline } = await import("./crawlSheetColumns");
+    const listing = { dealerId: "7", firstSeenAt: "2026-09-12T20:00:00.000Z", lastSeenAt: "2026-09-16T11:00:00.000Z", removedAt: null, crawlFirstSeen: "2026-09-10", price: 40017 };
+    const days = [
+      { dealerId: "7", seenOn: "2026-09-10", price: 45792, mileage: 5 },
+      { dealerId: "7", seenOn: "2026-09-14", price: 45792, mileage: null },
+      { dealerId: "7", seenOn: "2026-09-16", price: 40017, mileage: 12 },
+      { dealerId: "9", seenOn: "2026-09-16", price: 39000, mileage: null }, // another store's row — not this listing's
+    ];
+    const t = vinTimeline(listing, days, "2026-09-16");
+    assert.deepEqual(t.map((x) => x.date), ["2026-09-10", "2026-09-11", "2026-09-12", "2026-09-13", "2026-09-14", "2026-09-15", "2026-09-16"]);
+    assert.deepEqual(t.map((x) => x.status), ["seen", "gap", "gap", "gap", "seen", "gap", "seen"]);
+    assert.equal(t[0].delta, 0, "first known price shows no change");
+    assert.equal(t[1].price, 45792, "gap days carry the last known price");
+    assert.equal(t[4].delta, 0);
+    assert.equal(t[6].delta, -5775, "the drop lands on the day it was observed");
+    assert.equal(t[6].mileage, 12);
+  });
+  it("closes a removed listing on its removal day and never runs past today", async () => {
+    const { vinTimeline } = await import("./crawlSheetColumns");
+    const removed = vinTimeline({ dealerId: "1", firstSeenAt: "2026-09-13T00:00:00.000Z", lastSeenAt: "2026-09-14T00:00:00.000Z", removedAt: "2026-09-15T06:15:00.000Z", crawlFirstSeen: null, price: 100 }, [{ dealerId: "1", seenOn: "2026-09-13", price: 100, mileage: null }, { dealerId: "1", seenOn: "2026-09-14", price: 100, mileage: null }], "2026-09-20");
+    assert.deepEqual(removed.map((x) => `${x.date}:${x.status}`), ["2026-09-13:seen", "2026-09-14:seen", "2026-09-15:removed"]);
+    const live = vinTimeline({ dealerId: "1", firstSeenAt: "2026-09-15T00:00:00.000Z", lastSeenAt: "2026-09-30T00:00:00.000Z", removedAt: null, crawlFirstSeen: null, price: 1 }, [], "2026-09-16");
+    assert.equal(live[live.length - 1].date, "2026-09-16", "a lastSeen in the future (clock skew) is clamped to today");
+    assert.deepEqual(vinTimeline(null, [], "2026-09-16"), []);
+  });
+  it("the Vehicles tab wires the VIN panel through the admin route", () => {
+    const sheet = fs.readFileSync("app/admin/crawl/VehiclesSheet.tsx", "utf8");
+    assert.match(sheet, /VinHistory/);
+    assert.match(fs.readFileSync("app/admin/crawl/VinHistory.tsx", "utf8"), /\/api\/admin\/inventory\?vin=/);
+    assert.match(fs.readFileSync("app/api/admin/inventory/route.ts", "utf8"), /inventoryVin\(/);
+  });
+});

@@ -7,6 +7,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ArrowDown, ArrowUp, ArrowUpDown, Download, RefreshCw, Search, X } from "lucide-react";
 import { VEHICLE_SHEET_COLUMNS, vehicleRowCell, vehicleRowsToCsv, vehicleSheetFilename, type VehicleRow } from "@/lib/crawlSheetColumns";
+import VinHistory from "./VinHistory";
 
 type Stats = { total: number; inStock: number; dealers: number; vins?: number; lastSeenAt: string | null; byMake: Array<{ make: string; n: number }>; byState: Array<{ state: string; n: number }>; byCond: Array<{ cond: string | null; n: number }>; movement?: { arrivals: number; priceDrops: number; priceIncreases: number; withSticker: number; removedToday: number } };
 type SortKey = "dealer" | "year" | "make" | "model" | "price" | "mileage" | "seen" | "days" | "pricediff" | "msrp";
@@ -37,6 +38,8 @@ export default function VehiclesSheet() {
   const [minDays, setMinDays] = useState("");
   const [sort, setSort] = useState<{ key: SortKey; dir: "asc" | "desc" }>({ key: "dealer", dir: "asc" });
   const [exporting, setExporting] = useState(false);
+  const [vinOpen, setVinOpen] = useState<string | null>(null);
+  const typedVin = /^[A-HJ-NPR-Z0-9]{17}$/i.test(q.trim()) ? q.trim().toUpperCase() : null;
 
   useEffect(() => { const t = setTimeout(() => setQDebounced(q.trim()), 350); return () => clearTimeout(t); }, [q]);
 
@@ -118,8 +121,11 @@ export default function VehiclesSheet() {
       <div className="rounded-2xl border border-border bg-surface p-3 flex flex-wrap items-center gap-2">
         <div className="relative flex-1 min-w-[220px]">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-ink-faint" />
-          <input id="veh-search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search VIN, dealer, model, trim, stock #…" className="w-full rounded-xl border border-border bg-surface-elevated pl-9 pr-3 py-2 text-xs text-white placeholder:text-ink-faint focus:outline-none focus:ring-2 focus:ring-emerald-500/40" />
+          <input id="veh-search" value={q} onChange={(e) => setQ(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" && typedVin) setVinOpen(typedVin); }} placeholder="Search VIN, dealer, model, trim, stock #…" className="w-full rounded-xl border border-border bg-surface-elevated pl-9 pr-3 py-2 text-xs text-white placeholder:text-ink-faint focus:outline-none focus:ring-2 focus:ring-emerald-500/40" />
         </div>
+        {typedVin && (
+          <button type="button" onClick={() => setVinOpen(typedVin)} className="rounded-xl border border-emerald-500/50 bg-emerald-500/10 px-3 py-2 text-[11px] font-bold text-emerald-300 hover:bg-emerald-500/20">VIN history →</button>
+        )}
         <select id="veh-state" value={state} onChange={(e) => setState(e.target.value)} className="rounded-xl border border-border bg-surface-elevated px-2.5 py-2 text-[11px] font-bold text-ink-light">
           <option value="">All states</option>
           {(stats?.byState || []).map((s) => <option key={s.state} value={s.state}>{s.state} · {s.n.toLocaleString()}</option>)}
@@ -204,7 +210,9 @@ export default function VehiclesSheet() {
                     const link = c.key === "vdpUrl" || c.key === "windowStickerUrl" ? raw : "";
                     return (
                       <div key={c.key} className={`flex items-center border-r border-border/40 px-2.5 shrink-0 overflow-hidden whitespace-nowrap ${tone}`} style={{ width: COL_W[c.key] || 120 }} title={raw}>
-                        {link ? <a href={link} target="_blank" rel="noopener noreferrer" className="truncate text-sky-300 hover:underline">{c.key === "windowStickerUrl" ? "sticker ↗" : link.replace(/^https?:\/\/(www\.)?/, "")}</a> : <span className="truncate">{v}</span>}
+                        {link ? <a href={link} target="_blank" rel="noopener noreferrer" className="truncate text-sky-300 hover:underline">{c.key === "windowStickerUrl" ? "sticker ↗" : link.replace(/^https?:\/\/(www\.)?/, "")}</a>
+                          : c.key === "vin" ? <button type="button" onClick={() => setVinOpen(r.vin)} title="Day-by-day history" className="truncate font-mono text-sky-300 hover:underline">{r.vin}</button>
+                          : <span className="truncate">{v}</span>}
                       </div>
                     );
                   })}
@@ -221,8 +229,9 @@ export default function VehiclesSheet() {
           </div>
         </div>
       </div>
+      {vinOpen && <VinHistory vin={vinOpen} onClose={() => setVinOpen(null)} />}
       <p className="text-[11px] text-ink-faint max-w-3xl">
-        Vehicles come from the nightly crawl of each store&apos;s own website, synced every morning. One row per VIN per store; a VIN that vanishes from the site on the next crawl is marked <em>Removed</em> and drops out of &quot;in stock&quot;. The CSV contains every vehicle matching the current filter (up to 50,000).
+        Vehicles come from the nightly crawl of each store&apos;s own website, synced every morning. One row per VIN per store — click a VIN for its day-by-day history; a VIN that vanishes from the site on the next crawl is marked <em>Removed</em> and drops out of &quot;in stock&quot;. The CSV contains every vehicle matching the current filter (up to 50,000).
       </p>
     </div>
   );
