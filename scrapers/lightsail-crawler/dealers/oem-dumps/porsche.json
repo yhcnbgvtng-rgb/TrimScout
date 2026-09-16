@@ -232,6 +232,72 @@
   },
   {
     "make": "Porsche",
+    "name": "Porsche Asheville",
+    "city": "Fletcher",
+    "state": "NC",
+    "domain": "porscheasheville.com",
+    "lat": 35.4309336,
+    "lng": -82.5011239,
+    "source": "oem-locator",
+    "sourceUrl": "dealers.json"
+  },
+  {
+    "make": "Porsche",
+    "name": "Porsche Charlotte",
+    "city": "Charlotte",
+    "state": "NC",
+    "domain": "porscheofcharlotte.com",
+    "lat": 35.2272086,
+    "lng": -80.8430827,
+    "source": "oem-locator",
+    "sourceUrl": "dealers.json"
+  },
+  {
+    "make": "Porsche",
+    "name": "Porsche Greensboro",
+    "city": "Greensboro",
+    "state": "NC",
+    "domain": "porschegreensboro.com",
+    "lat": 36.0726355,
+    "lng": -79.7919754,
+    "source": "oem-locator",
+    "sourceUrl": "dealers.json"
+  },
+  {
+    "make": "Porsche",
+    "name": "Porsche South Charlotte",
+    "city": "Pineville",
+    "state": "NC",
+    "domain": "porschesouthcharlotte.com",
+    "lat": 35.0855409,
+    "lng": -80.8871253,
+    "source": "oem-locator",
+    "sourceUrl": "dealers.json"
+  },
+  {
+    "make": "Porsche",
+    "name": "Porsche Southpoint",
+    "city": "Durham",
+    "state": "NC",
+    "domain": "porschesouthpoint.com",
+    "lat": 35.996653,
+    "lng": -78.9018053,
+    "source": "oem-locator",
+    "sourceUrl": "dealers.json"
+  },
+  {
+    "make": "Porsche",
+    "name": "Porsche Wilmington",
+    "city": "Wilmington",
+    "state": "NC",
+    "domain": "porschewilmington.com",
+    "lat": 34.2352853,
+    "lng": -77.9487284,
+    "source": "oem-locator",
+    "sourceUrl": "dealers.json"
+  },
+  {
+    "make": "Porsche",
     "name": "Jack Daniels Porsche",
     "city": "Upper Saddle River",
     "state": "NJ",

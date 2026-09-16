@@ -1,0 +1,59 @@
+[driver] log retention: removed 0 of 31 log file(s) older than 30 days.
+[driver] ==== NJ: starting ====
+[driver] NJ Toyota: starting (31 dealer(s), CRAWLER_DEALERS_FILE=dealers/nj/toyota.json)
+[driver] NJ Toyota: ok (exit 0, 589s) — 5708 active, 0 drops, 0 sold
+[driver] NJ Lexus: starting (11 dealer(s), CRAWLER_DEALERS_FILE=dealers/nj/lexus.json)
+[driver] NJ Lexus: ok (exit 0, 45s) — 419 active, 0 drops, 0 sold
+[driver] NJ Kia: starting (8 dealer(s), CRAWLER_DEALERS_FILE=dealers/nj/kia.json)
+[driver] NJ Kia: ok (exit 0, 185s) — 972 active, 0 drops, 0 sold
+[driver] NJ Acura: starting (12 dealer(s), CRAWLER_DEALERS_FILE=dealers/nj/acura.json)
+[driver] NJ Acura: ok (exit 0, 92s) — 121 active, 0 drops, 0 sold
+[driver] NJ Subaru: starting (25 dealer(s), CRAWLER_DEALERS_FILE=dealers/nj/subaru.json)
+[driver] NJ Subaru: ok (exit 0, 504s) — 3121 active, 0 drops, 0 sold
+[driver] NJ Mazda: starting (14 dealer(s), CRAWLER_DEALERS_FILE=dealers/nj/mazda.json)
+[driver] NJ Mazda: ok (exit 0, 491s) — 3507 active, 0 drops, 0 sold
+[driver] NJ Volkswagen: starting (25 dealer(s), CRAWLER_DEALERS_FILE=dealers/nj/volkswagen.json)
+[driver] NJ Volkswagen: ok (exit 0, 456s) — 2119 active, 0 drops, 0 sold
+[driver] NJ Audi: starting (1 dealer(s), CRAWLER_DEALERS_FILE=dealers/nj/audi.json)
+[driver] NJ Audi: ok (exit 0, 37s) — 111 active, 0 drops, 0 sold
+[driver] NJ BMW: starting (4 dealer(s), CRAWLER_DEALERS_FILE=dealers/nj/bmw.json)
+[driver] NJ BMW: ok (exit 0, 213s) — 1387 active, 0 drops, 0 sold
+[driver] NJ Mercedes-Benz: starting (13 dealer(s), CRAWLER_DEALERS_FILE=dealers/nj/mercedes-benz.json)
+[driver] NJ Mercedes-Benz: ok (exit 0, 197s) — 788 active, 0 drops, 0 sold
+[driver] NJ Volvo: starting (1 dealer(s), CRAWLER_DEALERS_FILE=dealers/nj/volvo.json)
+[driver] NJ Volvo: ok (exit 0, 63s) — 334 active, 0 drops, 0 sold
+[driver] NJ Porsche: starting (10 dealer(s), CRAWLER_DEALERS_FILE=dealers/nj/porsche.json)
+[driver] NJ Porsche: ok (exit 0, 115s) — 440 active, 0 drops, 0 sold
+[driver] NJ Mini: starting (4 dealer(s), CRAWLER_DEALERS_FILE=dealers/nj/mini.json)
+[driver] NJ Mini: ok (exit 0, 79s) — 510 active, 0 drops, 0 sold
+[driver] NJ Mitsubishi: starting (9 dealer(s), CRAWLER_DEALERS_FILE=dealers/nj/mitsubishi.json)
+[driver] NJ Mitsubishi: ok (exit 0, 203s) — 314 active, 0 drops, 0 sold
+[driver] ==== NJ: done ====
+[driver] ==== NY: starting ====
+[driver] NY Toyota: starting (56 dealer(s), CRAWLER_DEALERS_FILE=dealers/ny/toyota.json)
+[driver] NY Toyota: ok (exit 0, 1056s) — 6187 active, 17 drops, 8 sold
+[driver] NY Lexus: starting (17 dealer(s), CRAWLER_DEALERS_FILE=dealers/ny/lexus.json)
+[driver] NY Lexus: ok (exit 0, 219s) — 1502 active, 59 drops, 0 sold
+[driver] NY Kia: starting (15 dealer(s), CRAWLER_DEALERS_FILE=dealers/ny/kia.json)
+[driver] NY Kia: ok (exit 0, 484s) — 2266 active, 0 drops, 0 sold
+[driver] NY Acura: starting (16 dealer(s), CRAWLER_DEALERS_FILE=dealers/ny/acura.json)
+[driver] NY Acura: ok (exit 0, 175s) — 380 active, 0 drops, 0 sold
+[driver] NY Subaru: starting (54 dealer(s), CRAWLER_DEALERS_FILE=dealers/ny/subaru.json)
+[driver] NY Subaru: ok (exit 0, 1075s) — 6428 active, 61 drops, 0 sold
+[driver] NY Mazda: starting (28 dealer(s), CRAWLER_DEALERS_FILE=dealers/ny/mazda.json)
+[driver] NY Mazda: ok (exit 0, 642s) — 5099 active, 0 drops, 0 sold
+[driver] NY Volkswagen: starting (35 dealer(s), CRAWLER_DEALERS_FILE=dealers/ny/volkswagen.json)
+[driver] NY Volkswagen: ok (exit 0, 587s) — 2400 active, 0 drops, 0 sold
+[driver] NY Mercedes-Benz: starting (18 dealer(s), CRAWLER_DEALERS_FILE=dealers/ny/mercedes-benz.json)
+[driver] NY Mercedes-Benz: ok (exit 0, 180s) — 894 active, 0 drops, 0 sold
+[driver] NY Volvo: starting (1 dealer(s), CRAWLER_DEALERS_FILE=dealers/ny/volvo.json)
+[driver] NY Volvo: ok (exit 0, 47s) — 507 active, 0 drops, 0 sold
+[driver] NY Porsche: starting (13 dealer(s), CRAWLER_DEALERS_FILE=dealers/ny/porsche.json)
+[driver] NY Porsche: ok (exit 0, 98s) — 295 active, 0 drops, 0 sold
+[driver] NY Mini: starting (7 dealer(s), CRAWLER_DEALERS_FILE=dealers/ny/mini.json)
+[driver] NY Mini: ok (exit 0, 44s) — 216 active, 0 drops, 0 sold
+[driver] NY Mitsubishi: starting (15 dealer(s), CRAWLER_DEALERS_FILE=dealers/ny/mitsubishi.json)
+[driver] NY Mitsubishi: ok (exit 0, 207s) — 631 active, 0 drops, 0 sold
+[driver] ==== NY: done ====
+[driver] summary written to /home/ubuntu/nj-scraper/scrapers/lightsail-crawler/data/daily_crawl_runs/summary_2026-09-15.json
+[driver] grand totals: {"totalActiveInventory":46656,"totalNewArrivals":34006,"totalPriceDrops":137,"totalPriceIncreases":6,"totalSoldOrRemoved":8,"skippedForBotProtection":156,"brandsOk":26,"brandsFailed":0,"brandsSkipped":0}

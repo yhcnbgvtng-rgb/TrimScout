@@ -1,0 +1,44 @@
+[
+  {
+    "id": "mini-flow-mini",
+    "name": "Flow MINI",
+    "city": "Winston Salem",
+    "state": "NC",
+    "make": "Mini",
+    "domain": "flowminiwinston.com",
+    "sitemapUrl": "https://www.flowminiwinston.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.flowminiwinston.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://flowminiwinston.com/",
+    "lat": null,
+    "lng": null,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "mini-flow-mini-of-raleigh",
+    "name": "Flow MINI of Raleigh",
+    "city": "Raleigh",
+    "state": "NC",
+    "make": "Mini",
+    "domain": "flowminiraleigh.com",
+    "sitemapUrl": "https://www.flowminiraleigh.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.flowminiraleigh.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://flowminiraleigh.com/",
+    "lat": null,
+    "lng": null,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "mini-hendrick-mini",
+    "name": "Hendrick MINI",
+    "city": "Charlotte",
+    "state": "NC",
+    "make": "Mini",
+    "domain": "hendrickmini.com",
+    "sitemapUrl": "https://www.hendrickmini.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.hendrickmini.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://hendrickmini.com/",
+    "lat": null,
+    "lng": null,
+    "domainSource": "oem-locator"
+  }
+]

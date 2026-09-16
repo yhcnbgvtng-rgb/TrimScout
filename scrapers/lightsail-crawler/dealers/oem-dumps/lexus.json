@@ -298,6 +298,72 @@
   },
   {
     "make": "Lexus",
+    "name": "Flow Lexus of Greensboro",
+    "city": "Greensboro",
+    "state": "NC",
+    "domain": "flowlexusofgreensboro.com",
+    "lat": 36.05742,
+    "lng": -79.870186,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.lexus.com/rest/lexus/dealers"
+  },
+  {
+    "make": "Lexus",
+    "name": "Flow Lexus of Winston-Salem",
+    "city": "Winston-Salem",
+    "state": "NC",
+    "domain": "flowlexusofwinston-salem.com",
+    "lat": 36.066647,
+    "lng": -80.33936,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.lexus.com/rest/lexus/dealers"
+  },
+  {
+    "make": "Lexus",
+    "name": "Hendrick Lexus Charlotte",
+    "city": "Charlotte",
+    "state": "NC",
+    "domain": "hendricklexuscharlotte.com",
+    "lat": 35.179375,
+    "lng": -80.751495,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.lexus.com/rest/lexus/dealers"
+  },
+  {
+    "make": "Lexus",
+    "name": "Hendrick Lexus Northlake",
+    "city": "Charlotte",
+    "state": "NC",
+    "domain": "hendricklexusnorthlake.com",
+    "lat": 35.36874,
+    "lng": -80.83161,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.lexus.com/rest/lexus/dealers"
+  },
+  {
+    "make": "Lexus",
+    "name": "Johnson Lexus of Durham",
+    "city": "Durham",
+    "state": "NC",
+    "domain": "johnsonlexusdurham.com",
+    "lat": 35.90742,
+    "lng": -78.95871,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.lexus.com/rest/lexus/dealers"
+  },
+  {
+    "make": "Lexus",
+    "name": "Johnson Lexus of Raleigh",
+    "city": "Raleigh",
+    "state": "NC",
+    "domain": "johnsonlexusraleigh.com",
+    "lat": 35.86551,
+    "lng": -78.58302,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.lexus.com/rest/lexus/dealers"
+  },
+  {
+    "make": "Lexus",
     "name": "DARCARS Lexus of Englewood",
     "city": "Englewood",
     "state": "NJ",

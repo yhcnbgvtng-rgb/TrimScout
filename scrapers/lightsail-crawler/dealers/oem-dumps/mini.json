@@ -144,6 +144,39 @@
   },
   {
     "make": "Mini",
+    "name": "Flow MINI",
+    "city": "Winston Salem",
+    "state": "NC",
+    "domain": "flowminiwinston.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.miniusa.com/bin/services/dealer-locator/getAllDealerByZip.json/24011/50?excludeServiceOnlyDealers=false&includeSatelliteDealers=true"
+  },
+  {
+    "make": "Mini",
+    "name": "Flow MINI of Raleigh",
+    "city": "Raleigh",
+    "state": "NC",
+    "domain": "flowminiraleigh.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.miniusa.com/bin/services/dealer-locator/getAllDealerByZip.json/27601/50?excludeServiceOnlyDealers=false&includeSatelliteDealers=true"
+  },
+  {
+    "make": "Mini",
+    "name": "Hendrick MINI",
+    "city": "Charlotte",
+    "state": "NC",
+    "domain": "hendrickmini.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.miniusa.com/bin/services/dealer-locator/getAllDealerByZip.json/29201/50?excludeServiceOnlyDealers=false&includeSatelliteDealers=true"
+  },
+  {
+    "make": "Mini",
     "name": "MINI of Edison",
     "city": "Edison",
     "state": "NJ",

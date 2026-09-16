@@ -177,17 +177,6 @@
   },
   {
     "make": "Kia",
-    "name": "Kia Delray",
-    "city": "Delray Beach",
-    "state": "FL",
-    "domain": "kiadelray.com",
-    "lat": null,
-    "lng": null,
-    "source": "oem-locator",
-    "sourceUrl": "https://www.kia.com/us/en/find-a-dealer/result?zipCode=33401"
-  },
-  {
-    "make": "Kia",
     "name": "Kia of Cape Coral",
     "city": "Cape Coral",
     "state": "FL",
@@ -559,6 +548,116 @@
     "lng": null,
     "source": "oem-locator",
     "sourceUrl": "https://www.kia.com/us/en/find-a-dealer/result?zipCode=30501"
+  },
+  {
+    "make": "Kia",
+    "name": "Burlington Kia",
+    "city": "Burlington",
+    "state": "NC",
+    "domain": "burlingtonkianc.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.kia.com/us/en/find-a-dealer/result?zipCode=27401"
+  },
+  {
+    "make": "Kia",
+    "name": "Classic Kia of Smithfield",
+    "city": "Smithfield",
+    "state": "NC",
+    "domain": "classickiasmithfield.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.kia.com/us/en/find-a-dealer/result?zipCode=28301"
+  },
+  {
+    "make": "Kia",
+    "name": "Dutch Miller Kia",
+    "city": "Charlotte",
+    "state": "NC",
+    "domain": "dutchmillerclt.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.kia.com/us/en/find-a-dealer/result?zipCode=29730"
+  },
+  {
+    "make": "Kia",
+    "name": "Fred Anderson Kia",
+    "city": "Raleigh",
+    "state": "NC",
+    "domain": "kiaofraleigh.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.kia.com/us/en/find-a-dealer/result?zipCode=27601"
+  },
+  {
+    "make": "Kia",
+    "name": "Hendrick Kia of Concord",
+    "city": "Concord",
+    "state": "NC",
+    "domain": "hendrickkiaofconcord.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.kia.com/us/en/find-a-dealer/result?zipCode=28202"
+  },
+  {
+    "make": "Kia",
+    "name": "Kia of Kinston",
+    "city": "Kinston",
+    "state": "NC",
+    "domain": "deaconjoneskiaofkinston.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.kia.com/us/en/find-a-dealer/result?zipCode=28401"
+  },
+  {
+    "make": "Kia",
+    "name": "Lumberton Kia",
+    "city": "Lumberton",
+    "state": "NC",
+    "domain": "kiaoflumberton.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.kia.com/us/en/find-a-dealer/result?zipCode=29577"
+  },
+  {
+    "make": "Kia",
+    "name": "Paramount Kia of Asheville",
+    "city": "Asheville",
+    "state": "NC",
+    "domain": "paramountkiaasheville.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.kia.com/us/en/find-a-dealer/result?zipCode=28801"
+  },
+  {
+    "make": "Kia",
+    "name": "Planet Kia Charlotte",
+    "city": "Charlotte",
+    "state": "NC",
+    "domain": "planetkianc.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.kia.com/us/en/find-a-dealer/result?zipCode=29730"
+  },
+  {
+    "make": "Kia",
+    "name": "University Kia",
+    "city": "Durham",
+    "state": "NC",
+    "domain": "universitykiaofdurham.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.kia.com/us/en/find-a-dealer/result?zipCode=27601"
   },
   {
     "make": "Kia",
@@ -1196,7 +1295,7 @@
     "lat": null,
     "lng": null,
     "source": "oem-locator",
-    "sourceUrl": "https://www.kia.com/us/en/find-a-dealer/result?zipCode=22901"
+    "sourceUrl": "https://www.kia.com/us/en/find-a-dealer/result?zipCode=24501"
   },
   {
     "make": "Kia",
@@ -1207,18 +1306,7 @@
     "lat": null,
     "lng": null,
     "source": "oem-locator",
-    "sourceUrl": "https://www.kia.com/us/en/find-a-dealer/result?zipCode=24011"
-  },
-  {
-    "make": "Kia",
-    "name": "Nelson Kia",
-    "city": "Bassett",
-    "state": "VA",
-    "domain": "kiabynelson.com",
-    "lat": null,
-    "lng": null,
-    "source": "oem-locator",
-    "sourceUrl": "https://www.kia.com/us/en/find-a-dealer/result?zipCode=24011"
+    "sourceUrl": "https://www.kia.com/us/en/find-a-dealer/result?zipCode=24501"
   },
   {
     "make": "Kia",
