@@ -24,6 +24,7 @@ import { loadFlDealers, acceptFlDealer } from '../src/fl_policy.js';
 import { loadGaDealers, acceptGaDealer } from '../src/ga_policy.js';
 import { loadTxDealers, acceptTxDealer } from '../src/tx_policy.js';
 import { loadScDealers, acceptScDealer } from '../src/sc_policy.js';
+import { loadVaDealers, acceptVaDealer } from '../src/va_policy.js';
 import { SUPPORTED_STATES, isSupportedState } from '../src/states.js';
 import { computeEta, emptyProgress, writeProgress, readProgress, renderProgressHtml } from '../src/progress.js';
 import { priceChangeVsYesterday, inventoryChangeTypeToPriceChangeType } from '../src/price_diff.js';
@@ -413,8 +414,8 @@ describe('NY locator seed (no brandofcity guesses)', () => {
 });
 
 describe('state registry (src/states.js)', () => {
-  it('lists NJ, NY, FL, GA, TX, SC as supported and rejects anything else', () => {
-    assert.deepEqual(SUPPORTED_STATES, ['NJ', 'NY', 'FL', 'GA', 'TX', 'SC']);
+  it('lists NJ, NY, FL, GA, TX, SC, VA as supported and rejects anything else', () => {
+    assert.deepEqual(SUPPORTED_STATES, ['NJ', 'NY', 'FL', 'GA', 'TX', 'SC', 'VA']);
     assert.equal(isSupportedState('FL'), true);
     assert.equal(isSupportedState('fl'), true);
     assert.equal(isSupportedState('GA'), true);
@@ -423,6 +424,8 @@ describe('state registry (src/states.js)', () => {
     assert.equal(isSupportedState('tx'), true);
     assert.equal(isSupportedState('SC'), true);
     assert.equal(isSupportedState('sc'), true);
+    assert.equal(isSupportedState('VA'), true);
+    assert.equal(isSupportedState('va'), true);
     assert.equal(isSupportedState(' NJ '), true);
     assert.equal(isSupportedState('CT'), false);
     assert.equal(isSupportedState(''), false);
@@ -702,6 +705,94 @@ describe('SC locator seed (no brandofcity guesses)', () => {
     // rule same as every other state — confirms the policy layer, not just
     // the locator fetch, is doing real work for SC.
     assert.ok(!subaru.some((d) => /autonation/i.test(d.name)));
+  });
+});
+
+describe('VA locator seed (no brandofcity guesses)', () => {
+  it('loads VA in-scope rooftops from OEM locators and listings only', () => {
+    assert.equal(acceptVaDealer({ name: 'Parks Acura', state: 'VA', make: 'Acura', domain: 'parksacura.com' }), true);
+    assert.equal(acceptVaDealer({ name: 'AutoNation Toyota Leesburg', state: 'VA', make: 'Toyota', domain: 'autonationtoyotaleesburg.com' }), false);
+    assert.equal(acceptVaDealer({ name: 'Rick Hendrick Chevrolet', state: 'VA', make: 'Chevrolet', domain: 'rickhendrickchevrolet.com' }), false);
+    assert.equal(acceptVaDealer({ name: 'Parks Acura', state: 'SC', make: 'Acura', domain: 'parksacura.com' }), false);
+
+    const all = loadVaDealers({ cwd: CRAWLER_ROOT });
+    assert.ok(all.length > 0);
+    assert.ok(all.every((d) => d.state === 'VA'));
+    assert.ok(all.every((d) => isNjBrandIn(d.make)));
+    assert.ok(all.every((d) => !isNjBrandOut(d.make)));
+    assert.ok(all.every((d) => !isMegadealerOrSuperstore(d)));
+    assert.ok(all.every((d) => ['oem-locator', 'listing-verified', 'curated-overlay'].includes(d.domainSource)), 'every rooftop must have a verified source');
+    assert.ok(all.every((d) => d.domainSource !== 'pattern-guess'));
+
+    // Acura and Porsche's VA rows come straight out of the existing
+    // nationwide in-repo locator dumps (acura-dealers.json / dealers.json),
+    // which already covered every state including VA before this branch —
+    // confirming loadVaDealers actually reaches that data, not just an
+    // empty seed.
+    const acura = loadVaDealers({ cwd: CRAWLER_ROOT, brand: 'Acura' });
+    assert.ok(acura.length > 5);
+    assert.ok(acura.every((d) => d.make === 'Acura'));
+    assert.ok(acura.every((d) => d.domainSource === 'oem-locator'));
+    const roanoke = acura.find((d) => /parks acura/i.test(d.name));
+    assert.ok(roanoke);
+    assert.equal(roanoke.domain, 'parksacura.com');
+    // Regression check for the same class of real cross-state name
+    // collision caught for FL/GA/TX (see stateScopedKey() in
+    // src/oem_locator.js): acura-dealers.json carries a "Crown Acura" in
+    // both FL (crownacura.com) and VA/Richmond (crownacurarichmond.com) —
+    // genuinely distinct rooftops that must both survive.
+    const crownAcuraVa = acura.find((d) => /crown acura/i.test(d.name));
+    assert.ok(crownAcuraVa, 'VA Crown Acura (Richmond) must not be dropped by the FL/VA name collision');
+    assert.equal(crownAcuraVa.domain, 'crownacurarichmond.com');
+    const crownAcuraFl = loadFlDealers({ cwd: CRAWLER_ROOT, brand: 'Acura' }).find((d) => /crown acura/i.test(d.name));
+    assert.ok(crownAcuraFl, 'FL Crown Acura must still survive too');
+    assert.notEqual(crownAcuraFl.domain, crownAcuraVa.domain);
+
+    const porsche = loadVaDealers({ cwd: CRAWLER_ROOT, brand: 'Porsche' });
+    assert.ok(porsche.length > 0);
+    assert.ok(porsche.every((d) => d.make === 'Porsche'));
+    const porscheRichmond = porsche.find((d) => /porsche richmond/i.test(d.name));
+    assert.ok(porscheRichmond);
+    assert.equal(porscheRichmond.domain, 'porscherichmond.com');
+    // Confirms Northern VA got its own real rooftop, not just Richmond/
+    // Hampton Roads coverage.
+    const porscheTysons = porsche.find((d) => /porsche tysons corner/i.test(d.name));
+    assert.ok(porscheTysons, 'Northern VA (Tysons Corner) must have its own Porsche rooftop, not rely on the Richmond seed');
+
+    // A brand with no working locator (Honda/Nissan/Infiniti/Audi/BMW/Volvo,
+    // blocked for NJ/NY/FL/GA/TX/SC too) stays honestly empty for VA rather
+    // than inventing a host.
+    const honda = loadVaDealers({ cwd: CRAWLER_ROOT, brand: 'Honda' });
+    assert.equal(honda.length, 0);
+    const nissan = loadVaDealers({ cwd: CRAWLER_ROOT, brand: 'Nissan' });
+    assert.equal(nissan.length, 0);
+    const infiniti = loadVaDealers({ cwd: CRAWLER_ROOT, brand: 'Infiniti' });
+    assert.equal(infiniti.length, 0);
+    const audi = loadVaDealers({ cwd: CRAWLER_ROOT, brand: 'Audi' });
+    assert.equal(audi.length, 0);
+    const volvo = loadVaDealers({ cwd: CRAWLER_ROOT, brand: 'Volvo' });
+    assert.equal(volvo.length, 0);
+    const bmw = loadVaDealers({ cwd: CRAWLER_ROOT, brand: 'BMW' });
+    assert.equal(bmw.length, 0);
+
+    // Toyota/Subaru VA rows come from the live OEM-locator dumps this
+    // branch's fetch-oem-dealer-locators.mjs run added (real fetches
+    // against toyota.com's dealer-hub pages and subaru.com's dealer-
+    // distance API across the 10 VA zip/city seeds — Northern VA, Richmond,
+    // Hampton Roads, Roanoke, Charlottesville, Lynchburg, Fredericksburg,
+    // Winchester — not invented brandofcity hosts).
+    const toyota = loadVaDealers({ cwd: CRAWLER_ROOT, brand: 'Toyota' });
+    assert.ok(toyota.length > 20);
+    assert.ok(toyota.every((d) => d.domainSource === 'oem-locator'));
+    assert.ok(toyota.some((d) => d.domain === 'alexandriatoyota.com'));
+    const subaru = loadVaDealers({ cwd: CRAWLER_ROOT, brand: 'Subaru' });
+    assert.ok(subaru.length > 10);
+    assert.ok(subaru.some((d) => d.domain === 'farrishsubaru.com'));
+    // The raw Toyota locator dump for VA includes an AutoNation rooftop
+    // (Leesburg, Northern VA) that acceptVaDealer's megadealer filter
+    // correctly drops, same as every other state — confirms the policy
+    // layer, not just the locator fetch, is doing real work for VA.
+    assert.ok(!toyota.some((d) => /autonation/i.test(d.name)));
   });
 });
 
