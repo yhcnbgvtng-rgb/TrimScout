@@ -111,5 +111,8 @@ console.log();
 const stores = [...new Set(rows.map((r) => r.dealerId).filter(Boolean))];
 let removed = 0;
 for (const id of stores) removed += (await api(DEALS_PORT, "/api/inventory/sweep", { dealerId: id, seenAfter: started, sources: ["nightly"] })).removed;
+// The store-0 bucket holds vehicles whose store wasn't in the directory at sync time; once a rooftop is added
+// they re-file under it, and the stale bucket rows are retired here.
+try { removed += (await api(DEALS_PORT, "/api/inventory/sweep", { dealerId: 0, seenAfter: started, sources: ["nightly"] })).removed; } catch { /* box predates store-0 sweeps */ }
 const stats = await api(DEALS_PORT, "/api/inventory/stats");
 console.log(JSON.stringify({ upserted, sweptStores: stores.length, removed, live: { rows: stats.total, vins: stats.vins, inStock: stats.inStock, stores: stats.dealers, byState: stats.byState.slice(0, 8) } }));
