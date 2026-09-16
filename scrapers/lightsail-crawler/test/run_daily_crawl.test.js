@@ -152,6 +152,18 @@ describe('run-daily-crawl driver', () => {
       assert.equal(env.CRAWLER_PATCHRIGHT_FALLBACK, 'false');
     });
 
+    it('caps the subprocess heap so 2 concurrent brand-runs can never jointly exceed the box\'s RAM', () => {
+      // See enricher.js's ensureEnrichmentShape/persist-block comments for
+      // the root cause this backstops: the enrichment step reads/writes the
+      // entire accumulated national inventory + cache files every brand-run,
+      // and that dataset only grows. MAX_CONCURRENT_STATES=2 means at most 2
+      // of these subprocesses run at once — this must stay comfortably under
+      // half the box's physical RAM (8GB, no swap) or a future growth spurt
+      // risks the OOM-killer instead of a clean, catchable V8 heap error.
+      const env = buildBrandCrawlEnv({ state: 'TX', brand: 'Toyota', dealersFile: 'dealers/tx/toyota.json', date: '2026-09-15' });
+      assert.equal(env.NODE_OPTIONS, '--max-old-space-size=3072');
+    });
+
     it('gives every brand in a state the identical CRAWLER_RUN_DATE, proving it is the driver\'s one canonical value and not recomputed per brand', () => {
       // Simulates exactly the midnight-crossing scenario: FL's first brand
       // (starts early) and its last brand (starts hours later, possibly

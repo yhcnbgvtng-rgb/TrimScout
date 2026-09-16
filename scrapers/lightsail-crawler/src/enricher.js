@@ -194,12 +194,31 @@ export function resolveFactoryOptions(vehicle, brand) {
 // same "missing means missing" rule as the loop below. Applied to every
 // vehicle in the file (not just this run's own), matching the pre-existing
 // backfill behavior.
+//
+// Returns the SAME object (no clone) when nothing is actually missing —
+// this is a memory fix, not a style one: on a 144k-vehicle national file,
+// every vehicle that's already fully shaped (i.e. every run after the
+// first nationwide backfill pass) used to get a brand-new spread-cloned
+// object here for NO reason, on every single brand-run, regardless of how
+// few VINs that run actually touched. That's a full duplicate of the
+// entire dataset's object graph allocated and thrown away every run — the
+// dominant cause of the enrichment-step OOM crashes once the accumulated
+// file crossed ~200MB (confirmed: it crashed even on a single-VIN scoped
+// run, because this backfill pass touches every vehicle in the file, not
+// just the run's own).
 function ensureEnrichmentShape(vehicle, brand) {
+  const missingOptions = !vehicle.factoryOptions;
+  const missingCodes = !vehicle.optionCodes;
+  const missingPrice = vehicle.totalOptionsPrice === undefined;
+  const missingMsrp = vehicle.baseMsrp === undefined;
+  if (!missingOptions && !missingCodes && !missingPrice && !missingMsrp) {
+    return vehicle;
+  }
   const out = { ...vehicle };
-  if (!out.factoryOptions) out.factoryOptions = [];
-  if (!out.optionCodes) out.optionCodes = [];
-  if (out.totalOptionsPrice === undefined) out.totalOptionsPrice = 0;
-  if (out.baseMsrp === undefined) out.baseMsrp = lookupBaseMsrp(out, brand);
+  if (missingOptions) out.factoryOptions = [];
+  if (missingCodes) out.optionCodes = [];
+  if (missingPrice) out.totalOptionsPrice = 0;
+  if (missingMsrp) out.baseMsrp = lookupBaseMsrp(out, brand);
   return out;
 }
 
@@ -224,8 +243,8 @@ function ensureEnrichmentShape(vehicle, brand) {
 export function mergeEnrichedRecordsIntoInventory({ freshInventory, enrichedByVin, brand = null }) {
   return freshInventory.map((v) => {
     const patch = enrichedByVin.get(v.vin);
-    const merged = patch ? { ...v, ...patch } : v;
-    return ensureEnrichmentShape(merged, brand);
+    if (!patch) return ensureEnrichmentShape(v, brand);
+    return ensureEnrichmentShape({ ...v, ...patch }, brand);
   });
 }
 
@@ -406,27 +425,45 @@ export async function runEnrichmentPipeline(limit = Infinity, brand = null, dbRu
   // (enrichedByVin / newCacheEntries) are ever patched in; everything else
   // comes from the fresh read, untouched.
   await withSharedDataLock(async () => {
-    let freshInventory = rawInventory;
+    let freshInventory;
     try {
       freshInventory = JSON.parse(await fs.readFile(INVENTORY_PATH, 'utf-8'));
     } catch {
       // Nothing on disk (shouldn't happen — we read it successfully above —
       // but if it vanished, falling back to what this run already has is
       // strictly better than throwing away this run's own enrichment work.
+      freshInventory = rawInventory;
     }
-    let freshCache = {};
+    let freshCache;
     try {
       freshCache = JSON.parse(await fs.readFile(CACHE_PATH, 'utf-8'));
     } catch {
-      freshCache = {};
+      freshCache = cache;
     }
 
-    rawInventory = mergeEnrichedRecordsIntoInventory({ freshInventory, enrichedByVin, brand });
-    cache = { ...freshCache, ...Object.fromEntries(newCacheEntries) };
+    // Drop the stale top-of-function copies before building the merged
+    // result: on a 200MB+ national file, holding the pipeline-start
+    // snapshot, this fresh re-read, AND the merged output alive at once
+    // (three full copies of the same dataset) is exactly what was
+    // exhausting the heap — see ensureEnrichmentShape's comment for the
+    // matching fix on the per-vehicle clone. Nulling these lets V8 reclaim
+    // the now-unused snapshot while the merge below allocates the result.
+    rawInventory = null;
+    cache = null;
 
-    await fs.writeFile(CACHE_PATH, JSON.stringify(cache, null, 2));
-    await fs.writeFile(INVENTORY_PATH, JSON.stringify(rawInventory, null, 2));
-    await fs.writeFile(path.join(DATA_DIR, "inventory_latest.json"), JSON.stringify(rawInventory, null, 2));
+    const mergedInventory = mergeEnrichedRecordsIntoInventory({ freshInventory, enrichedByVin, brand });
+    const mergedCache = { ...freshCache, ...Object.fromEntries(newCacheEntries) };
+    freshInventory = null;
+    freshCache = null;
+
+    await fs.writeFile(CACHE_PATH, JSON.stringify(mergedCache, null, 2));
+    await fs.writeFile(INVENTORY_PATH, JSON.stringify(mergedInventory, null, 2));
+    await fs.writeFile(path.join(DATA_DIR, "inventory_latest.json"), JSON.stringify(mergedInventory, null, 2));
+
+    // Reassigned after the writes (not before) so the DB sync and closing
+    // log lines below still see the merged result, matching prior behavior.
+    rawInventory = mergedInventory;
+    cache = mergedCache;
   }, { label: `enricher-final:${brand?.name || 'unknown'}` });
 
   // Sync to MariaDB (additive — this never touches the JSON files above,

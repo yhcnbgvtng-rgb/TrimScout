@@ -343,6 +343,16 @@ export function buildBrandCrawlEnv({ state, brand, dealersFile, date }) {
     CRAWLER_STATE: state,
     CRAWLER_PATCHRIGHT_FALLBACK: 'false',
     CRAWLER_RUN_DATE: date,
+    // Safety margin on top of the enricher.js memory fix (see its
+    // ensureEnrichmentShape/persist-block comments): that fix removes the
+    // *unnecessary* duplicate copies of the accumulated inventory/cache
+    // files, but reading + writing the real ~350MB+ combined dataset once
+    // per brand-run is still real, and only grows as more states are
+    // added. MAX_CONCURRENT_STATES=2 means at most 2 of these subprocesses
+    // run at once on this 8GB/no-swap box, so 3GB each leaves headroom for
+    // the OS, MariaDB, and the crawl phase's own Chromium process without
+    // risking the OOM-killer if usage grows before the next review.
+    NODE_OPTIONS: '--max-old-space-size=3072',
   };
 }
 
