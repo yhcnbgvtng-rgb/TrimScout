@@ -8,6 +8,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, ArrowDown, ArrowUp, ArrowUpDown, Columns3, Download, RefreshCw, Search, Table2, X } from "lucide-react";
 import { CRAWL_SHEET_COLUMNS, crawlRowCell, crawlRowsToCsv, crawlSheetFilename, type CrawlRow } from "@/lib/crawlSheetColumns";
+import VehiclesSheet from "./VehiclesSheet";
 
 type ColKey = keyof CrawlRow;
 type Facet = "brands" | "state" | "emailKind" | "emailSource" | "staffPage";
@@ -49,6 +50,7 @@ export default function CrawlSheetClient() {
   const [hidden, setHidden] = useState<Set<ColKey>>(new Set(DEFAULT_HIDDEN));
   const [colsOpen, setColsOpen] = useState(false);
   const [openFacet, setOpenFacet] = useState<Facet | null>(null);
+  const [tab, setTab] = useState<"dealers" | "vehicles">("dealers");
   const [scrollTop, setScrollTop] = useState(0);
   const [viewportH, setViewportH] = useState(600);
   const scrollerRef = useRef<HTMLDivElement | null>(null);
@@ -192,12 +194,19 @@ export default function CrawlSheetClient() {
             <div>
               <h1 className="text-xl font-black text-white tracking-tight">Web Crawl Sheet</h1>
               <p className="text-xs text-ink-muted">
-                Every dealer row the crawls produced — brand, contact, where the email came from, staff-page result.{" "}
-                {fetchedAt ? <span className="text-ink-faint">Loaded {new Date(fetchedAt).toLocaleTimeString()}.</span> : null}
+                {tab === "dealers" ? "Every dealer row the crawls produced — brand, contact, where the email came from, staff-page result." : "Every vehicle crawled from dealer websites — one row per VIN, with price, mileage, colors and the listing link."}{" "}
+                {tab === "dealers" && fetchedAt ? <span className="text-ink-faint">Loaded {new Date(fetchedAt).toLocaleTimeString()}.</span> : null}
               </p>
+              <div className="mt-2 inline-flex rounded-xl border border-border bg-surface-elevated p-0.5">
+                {(["dealers", "vehicles"] as const).map((t) => (
+                  <button key={t} type="button" onClick={() => setTab(t)} className={`rounded-lg px-3 py-1 text-[11px] font-black uppercase tracking-wider ${tab === t ? "bg-emerald-500 text-black" : "text-ink-muted hover:text-white"}`}>
+                    {t === "dealers" ? `Dealers${rows.length ? ` · ${rows.length.toLocaleString()}` : ""}` : "Vehicles"}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
-          <div className="flex flex-wrap items-center gap-2">
+          {tab === "dealers" && <div className="flex flex-wrap items-center gap-2">
             <div className="rounded-xl border border-border bg-surface-elevated px-3 py-2 text-[11px] font-bold text-ink-light tabular-nums">
               <span className="text-white">{sorted.length.toLocaleString()}</span> of {rows.length.toLocaleString()} rows
               <span className="text-ink-faint"> · </span>{stats.named.toLocaleString()} named<span className="text-ink-faint"> · </span>{stats.emails.toLocaleString()} personal emails
@@ -224,9 +233,12 @@ export default function CrawlSheetClient() {
             <button type="button" onClick={download} disabled={loading || sorted.length === 0} className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 px-3.5 py-2 text-xs font-black text-black shadow-md shadow-emerald-500/20 transition-all disabled:opacity-50">
               <Download className="h-3.5 w-3.5" /> Download CSV ({sorted.length.toLocaleString()})
             </button>
-          </div>
+          </div>}
         </div>
 
+        {tab === "vehicles" && <VehiclesSheet />}
+
+        {tab === "dealers" && <>
         <div className="rounded-2xl border border-border bg-surface p-3 flex flex-wrap items-center gap-2">
           <div className="relative flex-1 min-w-[220px]">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-ink-faint" />
@@ -335,6 +347,7 @@ export default function CrawlSheetClient() {
         <p className="text-[11px] text-ink-faint max-w-3xl">
           <span className="text-emerald-400 font-bold">Contact-ready</span> = a named person at a personal mailbox who hasn&apos;t opted out — the only rows a quote request is sent to. Generic inboxes (sales@, info@) are kept on file but never emailed. The CSV contains the rows and columns currently shown, in the order shown.
         </p>
+        </>}
       </main>
     </div>
   );

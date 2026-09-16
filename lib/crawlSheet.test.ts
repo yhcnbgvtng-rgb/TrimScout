@@ -59,3 +59,23 @@ describe("crawl sheet — notes become columns", () => {
     assert.match(fs.readFileSync("app/api/admin/crawl-sheet/route.ts", "utf8"), /requireAdminSession\(\)/);
   });
 });
+
+describe("vehicles sheet", () => {
+  it("vehicle CSV carries the sheet's columns, formats dates as days, and stays client-safe", async () => {
+    const { VEHICLE_SHEET_COLUMNS, vehicleRowsToCsv } = await import("./crawlSheetColumns");
+    const row = { vin: "3GNAXPEG2VL114131", dealerId: "11556", dealerName: "McGuire Chevrolet", dealerCity: "Clare", dealerState: "NJ", condition: "new", year: 2027, make: "Chevrolet", model: "Equinox", trim: "LT", bodyStyle: "SUV", exteriorColor: "Radiant Red Tintcoat", interiorColor: null, mileage: null, price: 35945, msrp: 35945, stockNumber: "227014", vdpUrl: "https://www.mcguirechevrolet.com/new-Clare-2027-Chevrolet-Equinox-LT-3GNAXPEG2VL114131", imageUrl: null, source: "jsonld", firstSeenAt: "2026-09-16T11:02:03.000Z", lastSeenAt: "2026-09-16T11:02:03.000Z", removedAt: null };
+    const csv = vehicleRowsToCsv([row], ["dealerName", "vin", "price", "firstSeenAt"]);
+    assert.equal(csv.split("\r\n")[0], "Dealer,VIN,Price,First seen");
+    assert.equal(csv.split("\r\n")[1], "McGuire Chevrolet,3GNAXPEG2VL114131,35945,2026-09-16");
+    assert.ok(VEHICLE_SHEET_COLUMNS.some((c) => c.key === "vdpUrl"));
+    const client = fs.readFileSync("app/admin/crawl/VehiclesSheet.tsx", "utf8");
+    assert.match(client, /from "@\/lib\/crawlSheetColumns"/);
+    assert.doesNotMatch(client, /from "@\/lib\/inventoryApi"/, "the inventory client is server-only");
+    assert.match(fs.readFileSync("app/api/admin/inventory/route.ts", "utf8"), /requireAdminSession\(\)/);
+  });
+  it("inventoryQueryString only sends set filters and turns inStock into 1", async () => {
+    const { inventoryQueryString } = await import("./inventoryApi");
+    assert.equal(inventoryQueryString({ state: "NJ", make: "", inStock: true, limit: 500, offset: 0 }), "?state=NJ&inStock=1&limit=500&offset=0");
+    assert.equal(inventoryQueryString({}), "");
+  });
+});
