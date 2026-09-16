@@ -201,8 +201,20 @@ const NC_ZIPS = [
   '28601', // Hickory (western Piedmont/foothills)
 ];
 
+// Rhode Island zip spread. RI is the smallest state by area (~1,200 sq mi,
+// ~48 miles end to end) — unlike every other state added so far, one
+// seed's typical 50-100mi locator radius already spans the entire state,
+// so this is margin rather than genuine multi-region coverage: Providence
+// (the dominant market) plus Westerly in the far southwest corner, to make
+// sure the corner nearest the CT border isn't relying solely on radius
+// overlap from the Providence seed.
+const RI_ZIPS = [
+  '02903', // Providence
+  '02891', // Westerly (southwest corner, near CT border)
+];
+
 // Combined zip spread used by every zip+radius OEM locator below.
-const TARGET_ZIPS = [...NJ_NY_ZIPS, ...FL_ZIPS, ...GA_ZIPS, ...TX_ZIPS, ...SC_ZIPS, ...VA_ZIPS, ...NC_ZIPS];
+const TARGET_ZIPS = [...NJ_NY_ZIPS, ...FL_ZIPS, ...GA_ZIPS, ...TX_ZIPS, ...SC_ZIPS, ...VA_ZIPS, ...NC_ZIPS, ...RI_ZIPS];
 
 function hostOf(url) {
   return hostFromUrl(url) || normalizeDealerHost(url);
