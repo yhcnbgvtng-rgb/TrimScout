@@ -30,8 +30,7 @@ import {
   Check,
   ExternalLink,
   Loader2,
-  Clock
-} from "lucide-react";
+  Clock, Table2 } from "lucide-react";
 
 interface AdminPortalProps {
   onImpersonateUser: (user: UserProfile) => void;
@@ -271,6 +270,14 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
           >
             <Building2 className="h-3.5 w-3.5" />
             <span>Dealership Contacts</span>
+          </Link>
+
+          <Link
+            href="/admin/crawl"
+            className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-surface-elevated hover:bg-surface px-3.5 py-2 text-xs font-bold text-ink-light hover:text-white transition-all shadow-sm"
+          >
+            <Table2 className="h-3.5 w-3.5" />
+            <span>Web Crawl Sheet</span>
           </Link>
 
           <Link
