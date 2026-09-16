@@ -1626,7 +1626,8 @@ async function handleInventorySweep(req, res) {
   const body = await readBody(req);
   const dealerId = INV_INT(body.dealerId);
   const seenAfter = typeof body.seenAfter === "string" ? new Date(body.seenAfter) : null;
-  if (!dealerId || !seenAfter || Number.isNaN(seenAfter.getTime())) return badRequest(res, "dealerId and seenAfter (ISO) are required");
+  // dealerId 0 is the "no store matched" bucket — sweeping it retires rows that a later sync re-filed under a real store.
+  if (dealerId == null || !seenAfter || Number.isNaN(seenAfter.getTime())) return badRequest(res, "dealerId and seenAfter (ISO) are required");
   const sources = Array.isArray(body.sources) ? body.sources.map((x) => INV_STR(x, 16)).filter(Boolean) : [];
   const args = [dealerId, seenAfter];
   let sql = "UPDATE dealer_inventory SET removed_at = CURRENT_TIMESTAMP WHERE dealer_id = ? AND removed_at IS NULL AND last_seen_at < ?";
