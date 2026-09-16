@@ -41,14 +41,20 @@ console.log(`${vehicles.length} vehicles in file, ${active.length} active with a
 
 // Directory rows → (name|state) and (name) lookups, so each store gets its directory id (the sheet joins on it).
 const dir = (await api(AUTH_PORT, "/api/dealerships")).dealerships || [];
-const byNameState = new Map(), byName = new Map();
+const byNameState = new Map(), byName = new Map(), byDomain = new Map();
+const hostOf = (u) => { try { return new URL(u).hostname.toLowerCase().replace(/^www\./, ""); } catch { return ""; } };
 for (const d of dir) {
   const st = String(d.state || "").toUpperCase();
   byNameState.set(`${norm(d.dealerName)}|${st}`, d.id);
   if (!byName.has(norm(d.dealerName))) byName.set(norm(d.dealerName), d.id);
+  // The crawl's dealer names are its own spellings; the listing URL's host is the reliable key.
+  for (const dom of [...(d.domains || []), d.website ? hostOf(d.website) : ""]) { const k = String(dom || "").toLowerCase().replace(/^www\./, ""); if (k && !byDomain.has(k)) byDomain.set(k, d.id); }
 }
 const dealerIdFor = (v) => {
   const st = String(v.state || "").toUpperCase();
+  const host = hostOf(v.url || "");
+  const byHost = host && (byDomain.get(host) ?? byDomain.get(host.split(".").slice(-2).join(".")));
+  if (byHost) return byHost;
   for (const name of [v.dealerName, v.configDealerName]) {
     if (!name) continue;
     const id = byNameState.get(`${norm(name)}|${st}`) ?? byName.get(norm(name));
@@ -77,6 +83,6 @@ for (let i = 0; i < rows.length; i += 2000) {
 console.log();
 const stores = [...new Set(rows.map((r) => r.dealerId).filter(Boolean))];
 let removed = 0;
-for (const id of stores) removed += (await api(DEALS_PORT, "/api/inventory/sweep", { dealerId: id, seenAfter: started })).removed;
+for (const id of stores) removed += (await api(DEALS_PORT, "/api/inventory/sweep", { dealerId: id, seenAfter: started, sources: ["nightly"] })).removed;
 const stats = await api(DEALS_PORT, "/api/inventory/stats");
 console.log(JSON.stringify({ upserted, sweptStores: stores.length, removed, live: { rows: stats.total, vins: stats.vins, inStock: stats.inStock, stores: stats.dealers, byState: stats.byState.slice(0, 8) } }));

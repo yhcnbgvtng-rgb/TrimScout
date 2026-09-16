@@ -24,7 +24,7 @@ const sitesFile = file + ".sites.jsonl";
 let removed = 0, swept = 0;
 if (fs.existsSync(sitesFile)) {
   const sites = fs.readFileSync(sitesFile, "utf8").split("\n").filter(Boolean).map((l) => JSON.parse(l));
-  for (const s of sites.filter((s) => s.vehicles > 0)) { removed += (await sweepInventory(s.dealerId, started)).removed; swept++; }
+  for (const s of sites.filter((s) => s.vehicles > 0)) { removed += (await sweepInventory(s.dealerId, started, ["jsonld", "slug"])).removed; swept++; }
 }
 const stats = await inventoryStats();
 console.log(JSON.stringify({ upserted, skipped, sweptStores: swept, removed, live: { total: stats.total, inStock: stats.inStock, dealers: stats.dealers } }));
