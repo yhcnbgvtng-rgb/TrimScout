@@ -95,6 +95,7 @@ def parse_vdp(url, text):
             if not merged["trim"] and merged["name"]:
                 ymm = " ".join(str(x) for x in (merged["year"], merged["make"], merged["model"]) if x)
                 rest = re.sub(re.escape(ymm), "", merged["name"], flags=re.I).strip(" -–|,") if ymm else ""
+                rest = re.sub(r"^(?:new|used|certified(?: pre-owned)?|pre-owned|cpo)\s+", "", rest, flags=re.I).strip()
                 if rest and len(rest) <= 40 and not VIN_RE.search(rest): merged["trim"] = rest
             return merged, "jsonld"
     # fallback: VIN + slug
