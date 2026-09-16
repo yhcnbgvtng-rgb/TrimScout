@@ -134,6 +134,7 @@ export async function bulkUpsertInventory(vehicles: InventoryUpsert[]): Promise<
   return request("POST", "/api/inventory/bulk", { vehicles });
 }
 
-export async function sweepInventory(dealerId: string | number, seenAfter: string): Promise<{ removed: number }> {
-  return request("POST", "/api/inventory/sweep", { dealerId, seenAfter });
+/** `sources` limits the sweep to rows a given crawler wrote, so two crawlers covering one store don't erase each other. */
+export async function sweepInventory(dealerId: string | number, seenAfter: string, sources?: string[]): Promise<{ removed: number }> {
+  return request("POST", "/api/inventory/sweep", { dealerId, seenAfter, ...(sources?.length ? { sources } : {}) });
 }

@@ -1617,7 +1617,9 @@ async function handleInventoryBulk(req, res) {
   sendJson(res, 200, { upserted, skipped });
 }
 
-// POST /api/inventory/sweep { dealerId, seenAfter } — a store's VINs not seen since `seenAfter` are marked removed.
+// POST /api/inventory/sweep { dealerId, seenAfter, sources? } — a store's VINs not seen since `seenAfter` are
+// marked removed. With `sources` (e.g. ["nightly"]) only rows that crawler wrote are swept, so two crawlers
+// covering the same store don't erase each other's finds.
 async function handleInventorySweep(req, res) {
   const pool = getPool();
   await ensureInventoryTable(pool);
@@ -1625,7 +1627,11 @@ async function handleInventorySweep(req, res) {
   const dealerId = INV_INT(body.dealerId);
   const seenAfter = typeof body.seenAfter === "string" ? new Date(body.seenAfter) : null;
   if (!dealerId || !seenAfter || Number.isNaN(seenAfter.getTime())) return badRequest(res, "dealerId and seenAfter (ISO) are required");
-  const [result] = await pool.query("UPDATE dealer_inventory SET removed_at = CURRENT_TIMESTAMP WHERE dealer_id = ? AND removed_at IS NULL AND last_seen_at < ?", [dealerId, seenAfter]);
+  const sources = Array.isArray(body.sources) ? body.sources.map((x) => INV_STR(x, 16)).filter(Boolean) : [];
+  const args = [dealerId, seenAfter];
+  let sql = "UPDATE dealer_inventory SET removed_at = CURRENT_TIMESTAMP WHERE dealer_id = ? AND removed_at IS NULL AND last_seen_at < ?";
+  if (sources.length) { sql += " AND source IN (?)"; args.push(sources); }
+  const [result] = await pool.query(sql, args);
   sendJson(res, 200, { removed: result.affectedRows });
 }
 
