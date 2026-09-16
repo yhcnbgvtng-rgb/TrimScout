@@ -15,3 +15,5 @@ data/deal-engagement.json
 scrapers/inventory/*.jsonl
 scrapers/inventory/*.log
 scrapers/inventory/sites*.json
+scrapers/inventory/*.marker
+scrapers/inventory/state_order.txt

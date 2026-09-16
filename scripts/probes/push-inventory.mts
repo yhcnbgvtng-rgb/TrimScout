@@ -10,7 +10,9 @@ const file = process.argv[2];
 if (!file) throw new Error("usage: push-inventory.mts <crawl.jsonl>");
 const lines = fs.readFileSync(file, "utf8").split("\n").filter(Boolean);
 const rows = lines.map((l) => JSON.parse(l) as InventoryUpsert & { seenAt: string; dealerId: string });
-const started = new Date(Math.min(...rows.map((r) => Date.parse(r.seenAt)))).toISOString();
+let earliest = Infinity;
+for (const r of rows) { const t = Date.parse(r.seenAt); if (t < earliest) earliest = t; }
+const started = new Date(earliest).toISOString();
 let upserted = 0, skipped = 0;
 for (let i = 0; i < rows.length; i += 2000) {
   const r = await bulkUpsertInventory(rows.slice(i, i + 2000));
