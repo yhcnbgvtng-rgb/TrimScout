@@ -815,6 +815,83 @@
   },
   {
     "make": "Mercedes-Benz",
+    "name": "Carlton Motorcars, Inc.",
+    "city": "Greenville",
+    "state": "SC",
+    "domain": "carlton.mercedesdealer.com",
+    "lat": 34.827543,
+    "lng": -82.346551,
+    "source": "oem-locator",
+    "sourceUrl": "https://nafta-service.mbusa.com/api/dlrsrv/v1/dealers?zip=29601&distance=120&filter=mbdealer&country=us&language=en"
+  },
+  {
+    "make": "Mercedes-Benz",
+    "name": "Dick Dyer",
+    "city": "Columbia",
+    "state": "SC",
+    "domain": "dyer.mercedesdealer.com",
+    "lat": 34.053399,
+    "lng": -80.9781,
+    "source": "oem-locator",
+    "sourceUrl": "https://nafta-service.mbusa.com/api/dlrsrv/v1/dealers?zip=29201&distance=120&filter=mbdealer&country=us&language=en"
+  },
+  {
+    "make": "Mercedes-Benz",
+    "name": "Mercedes-Benz of Charleston",
+    "city": "Charleston",
+    "state": "SC",
+    "domain": "baker.mercedesdealer.com",
+    "lat": 32.785744,
+    "lng": -80.007011,
+    "source": "oem-locator",
+    "sourceUrl": "https://nafta-service.mbusa.com/api/dlrsrv/v1/dealers?zip=29401&distance=120&filter=mbdealer&country=us&language=en"
+  },
+  {
+    "make": "Mercedes-Benz",
+    "name": "Mercedes-Benz of Florence",
+    "city": "Florence",
+    "state": "SC",
+    "domain": "florence.mercedesdealer.com",
+    "lat": 34.186982,
+    "lng": -79.817189,
+    "source": "oem-locator",
+    "sourceUrl": "https://nafta-service.mbusa.com/api/dlrsrv/v1/dealers?zip=29501&distance=120&filter=mbdealer&country=us&language=en"
+  },
+  {
+    "make": "Mercedes-Benz",
+    "name": "Mercedes-Benz of Hilton Head",
+    "city": "Bluffton",
+    "state": "SC",
+    "domain": "hiltonhead.mercedesdealer.com",
+    "lat": 32.2917398,
+    "lng": -80.9199572,
+    "source": "oem-locator",
+    "sourceUrl": "https://nafta-service.mbusa.com/api/dlrsrv/v1/dealers?zip=31401&distance=120&filter=mbdealer&country=us&language=en"
+  },
+  {
+    "make": "Mercedes-Benz",
+    "name": "Mercedes-Benz of Mount Pleasant",
+    "city": "Mount Pleasant",
+    "state": "SC",
+    "domain": "mountpleasant.mercedesdealer.com",
+    "lat": 32.8388037,
+    "lng": -79.8198814,
+    "source": "oem-locator",
+    "sourceUrl": "https://nafta-service.mbusa.com/api/dlrsrv/v1/dealers?zip=29401&distance=120&filter=mbdealer&country=us&language=en"
+  },
+  {
+    "make": "Mercedes-Benz",
+    "name": "Mercedes-Benz of Myrtle Beach",
+    "city": "Myrtle Beach",
+    "state": "SC",
+    "domain": "mercedesbenzofmyrtlebeach.com",
+    "lat": 33.788778,
+    "lng": -78.995341,
+    "source": "oem-locator",
+    "sourceUrl": "https://nafta-service.mbusa.com/api/dlrsrv/v1/dealers?zip=29577&distance=120&filter=mbdealer&country=us&language=en"
+  },
+  {
+    "make": "Mercedes-Benz",
     "name": "Ed Hicks Imports, Ltd.",
     "city": "Corpus Christi",
     "state": "TX",

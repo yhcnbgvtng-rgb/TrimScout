@@ -485,6 +485,50 @@
   },
   {
     "make": "Porsche",
+    "name": "Porsche Charleston",
+    "city": "Charleston",
+    "state": "SC",
+    "domain": "porschecharleston.com",
+    "lat": 32.7884363,
+    "lng": -79.9399309,
+    "source": "oem-locator",
+    "sourceUrl": "dealers.json"
+  },
+  {
+    "make": "Porsche",
+    "name": "Porsche Columbia",
+    "city": "Columbia",
+    "state": "SC",
+    "domain": "porschecolumbia.com",
+    "lat": 34.000754,
+    "lng": -81.0352313,
+    "source": "oem-locator",
+    "sourceUrl": "dealers.json"
+  },
+  {
+    "make": "Porsche",
+    "name": "Porsche Greenville",
+    "city": "Greenville",
+    "state": "SC",
+    "domain": "porschegreenville.com",
+    "lat": 34.851354,
+    "lng": -82.3984882,
+    "source": "oem-locator",
+    "sourceUrl": "dealers.json"
+  },
+  {
+    "make": "Porsche",
+    "name": "Porsche Hilton Head",
+    "city": "Hardeeville",
+    "state": "SC",
+    "domain": "porschehiltonhead.com",
+    "lat": 32.2802665,
+    "lng": -81.0726108,
+    "source": "oem-locator",
+    "sourceUrl": "dealers.json"
+  },
+  {
+    "make": "Porsche",
     "name": "Park Place Porsche Dallas",
     "city": "Dallas",
     "state": "TX",

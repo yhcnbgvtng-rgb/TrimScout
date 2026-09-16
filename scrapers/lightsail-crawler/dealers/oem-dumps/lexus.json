@@ -606,6 +606,50 @@
   },
   {
     "make": "Lexus",
+    "name": "Hendrick Lexus Charleston",
+    "city": "Charleston",
+    "state": "SC",
+    "domain": "hendricklexuscharleston.com",
+    "lat": 32.793182,
+    "lng": -80.047104,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.lexus.com/rest/lexus/dealers"
+  },
+  {
+    "make": "Lexus",
+    "name": "Hilton Head Lexus",
+    "city": "Hardeeville",
+    "state": "SC",
+    "domain": "hiltonheadlexus.com",
+    "lat": 32.306705,
+    "lng": -80.972984,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.lexus.com/rest/lexus/dealers"
+  },
+  {
+    "make": "Lexus",
+    "name": "Jim Hudson Lexus, Columbia",
+    "city": "Columbia",
+    "state": "SC",
+    "domain": "hudsonlexus.com",
+    "lat": 34.133896,
+    "lng": -80.965515,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.lexus.com/rest/lexus/dealers"
+  },
+  {
+    "make": "Lexus",
+    "name": "Lexus of Greenville",
+    "city": "Greenville",
+    "state": "SC",
+    "domain": "lexusofgreenville.com",
+    "lat": 34.8114,
+    "lng": -82.33448,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.lexus.com/rest/lexus/dealers"
+  },
+  {
+    "make": "Lexus",
     "name": "Cavender Lexus of Lubbock",
     "city": "Lubbock",
     "state": "TX",

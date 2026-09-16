@@ -1365,6 +1365,72 @@
   },
   {
     "make": "Subaru",
+    "name": "AutoNation Subaru Hilton Head",
+    "city": "Hardeeville",
+    "state": "SC",
+    "domain": "autonationsubaruhiltonhead.com",
+    "lat": 32.311596,
+    "lng": -80.98344,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.subaru.com/services/dealers/distances/by/zipcode?zipcode=32501&count=50&type=Active"
+  },
+  {
+    "make": "Subaru",
+    "name": "Crews Subaru of Charleston",
+    "city": "North Charleston",
+    "state": "SC",
+    "domain": "charlestonsubaru.com",
+    "lat": 32.958228,
+    "lng": -80.044212,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.subaru.com/services/dealers/distances/by/zipcode?zipcode=32401&count=50&type=Active"
+  },
+  {
+    "make": "Subaru",
+    "name": "Fairway Subaru",
+    "city": "Greenville",
+    "state": "SC",
+    "domain": "fairwaysubarusc.com",
+    "lat": 34.835366,
+    "lng": -82.352321,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.subaru.com/services/dealers/distances/by/zipcode?zipcode=32401&count=50&type=Active"
+  },
+  {
+    "make": "Subaru",
+    "name": "Hadwin-White Subaru",
+    "city": "Conway",
+    "state": "SC",
+    "domain": "hadwinwhitesubaru.com",
+    "lat": 33.7939,
+    "lng": -78.998298,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.subaru.com/services/dealers/distances/by/zipcode?zipcode=32202&count=50&type=Active"
+  },
+  {
+    "make": "Subaru",
+    "name": "McDaniels Subaru of Columbia",
+    "city": "Columbia",
+    "state": "SC",
+    "domain": "mcdanielssubaru.com",
+    "lat": 34.140123,
+    "lng": -80.949487,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.subaru.com/services/dealers/distances/by/zipcode?zipcode=32301&count=50&type=Active"
+  },
+  {
+    "make": "Subaru",
+    "name": "Subaru of Spartanburg",
+    "city": "Spartanburg",
+    "state": "SC",
+    "domain": "subaruofspartanburg.com",
+    "lat": 34.958115,
+    "lng": -81.928042,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.subaru.com/services/dealers/distances/by/zipcode?zipcode=32301&count=50&type=Active"
+  },
+  {
+    "make": "Subaru",
     "name": "Austin Subaru",
     "city": "AUSTIN",
     "state": "TX",

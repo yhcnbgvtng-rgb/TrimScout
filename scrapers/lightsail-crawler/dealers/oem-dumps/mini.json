@@ -63,7 +63,7 @@
     "lat": null,
     "lng": null,
     "source": "oem-locator",
-    "sourceUrl": "https://www.miniusa.com/bin/services/dealer-locator/getAllDealerByZip.json/34102/50?excludeServiceOnlyDealers=false&includeSatelliteDealers=true"
+    "sourceUrl": "https://www.miniusa.com/bin/services/dealer-locator/getAllDealerByZip.json/33901/50?excludeServiceOnlyDealers=false&includeSatelliteDealers=true"
   },
   {
     "make": "Mini",
@@ -262,6 +262,28 @@
     "lng": null,
     "source": "oem-locator",
     "sourceUrl": "https://www.miniusa.com/bin/services/dealer-locator/getAllDealerByZip.json/07004/50?excludeServiceOnlyDealers=false&includeSatelliteDealers=true"
+  },
+  {
+    "make": "Mini",
+    "name": "Century MINI",
+    "city": "Greenville",
+    "state": "SC",
+    "domain": "centurymini.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.miniusa.com/bin/services/dealer-locator/getAllDealerByZip.json/30901/50?excludeServiceOnlyDealers=false&includeSatelliteDealers=true"
+  },
+  {
+    "make": "Mini",
+    "name": "MINI of Charleston",
+    "city": "Charleston",
+    "state": "SC",
+    "domain": "miniofcharleston.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.miniusa.com/bin/services/dealer-locator/getAllDealerByZip.json/30458/50?excludeServiceOnlyDealers=false&includeSatelliteDealers=true"
   },
   {
     "make": "Mini",

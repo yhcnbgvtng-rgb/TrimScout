@@ -188,6 +188,17 @@
   },
   {
     "make": "Mitsubishi",
+    "name": "John Lee Mitsubishi",
+    "city": "Panama City",
+    "state": "FL",
+    "domain": "johnleemitsubishi.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.mitsubishicars.com/dealers"
+  },
+  {
+    "make": "Mitsubishi",
     "name": "Miami Lakes Mitsubishi",
     "city": "Miami Lakes",
     "state": "FL",
@@ -687,6 +698,39 @@
     "city": "Webster",
     "state": "NY",
     "domain": "visionmitsubishi.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.mitsubishicars.com/dealers"
+  },
+  {
+    "make": "Mitsubishi",
+    "name": "Bob Mills Mitsubishi-Myrtle Beach",
+    "city": "Myrtle Beach",
+    "state": "SC",
+    "domain": "bobmillsmitsubishimb.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.mitsubishicars.com/dealers"
+  },
+  {
+    "make": "Mitsubishi",
+    "name": "Goose Creek Mitsubishi",
+    "city": "Goose Creek",
+    "state": "SC",
+    "domain": "goosecreekmitsubishi.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.mitsubishicars.com/dealers"
+  },
+  {
+    "make": "Mitsubishi",
+    "name": "Lake Murray Mitsubishi",
+    "city": "Irmo",
+    "state": "SC",
+    "domain": "lakemurraymitsubishi.com",
     "lat": null,
     "lng": null,
     "source": "oem-locator",

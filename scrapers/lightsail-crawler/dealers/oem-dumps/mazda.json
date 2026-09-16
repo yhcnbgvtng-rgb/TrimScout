@@ -1024,6 +1024,72 @@
   },
   {
     "make": "Mazda",
+    "name": "BEACH MAZDA",
+    "city": "Myrtle Beach",
+    "state": "SC",
+    "domain": "beachmazda.net",
+    "lat": 33.7126529,
+    "lng": -78.9052179,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.mazdausa.com/handlers/dealer.ajax?zip=29577&maxDistance=50&p=1&accolades="
+  },
+  {
+    "make": "Mazda",
+    "name": "MAZDA OF COLUMBIA",
+    "city": "Columbia",
+    "state": "SC",
+    "domain": "mazdaofcolumbia.com",
+    "lat": 34.0253314,
+    "lng": -81.0731315,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.mazdausa.com/handlers/dealer.ajax?zip=29201&maxDistance=50&p=1&accolades="
+  },
+  {
+    "make": "Mazda",
+    "name": "MAZDA OF GREENVILLE",
+    "city": "Greenville",
+    "state": "SC",
+    "domain": "mazdagreenville.com",
+    "lat": 34.8250356,
+    "lng": -82.3453586,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.mazdausa.com/handlers/dealer.ajax?zip=29601&maxDistance=50&p=1&accolades="
+  },
+  {
+    "make": "Mazda",
+    "name": "MAZDA OF SPARTANBURG",
+    "city": "Spartanburg",
+    "state": "SC",
+    "domain": "mazdaofspartanburg.com",
+    "lat": 34.9592789,
+    "lng": -81.9254579,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.mazdausa.com/handlers/dealer.ajax?zip=29601&maxDistance=50&p=1&accolades="
+  },
+  {
+    "make": "Mazda",
+    "name": "MCKINNEY MAZDA",
+    "city": "Easley",
+    "state": "SC",
+    "domain": "mckinneymazda.com",
+    "lat": 34.8292591,
+    "lng": -82.5323324,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.mazdausa.com/handlers/dealer.ajax?zip=29601&maxDistance=50&p=1&accolades="
+  },
+  {
+    "make": "Mazda",
+    "name": "STOKES MAZDA",
+    "city": "North Charleston",
+    "state": "SC",
+    "domain": "stokesmazdausa.com",
+    "lat": 32.9268392,
+    "lng": -80.080964,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.mazdausa.com/handlers/dealer.ajax?zip=29401&maxDistance=50&p=1&accolades="
+  },
+  {
+    "make": "Mazda",
     "name": "BENSON'S AUTO GROUP MAZDA",
     "city": "San Antonio",
     "state": "TX",

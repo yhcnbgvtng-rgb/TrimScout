@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-09-15T20:18:58.175Z",
+  "generatedAt": "2026-09-16T10:54:52.886Z",
   "detectOnly": true,
   "brands": [
     {
       "brand": "acura",
       "dest": "dealers/oem-dumps/acura.json",
-      "count": 76,
+      "count": 79,
       "locator": "acura-dealers.json",
       "note": "In-repo official locator dump (not re-fetched).",
       "httpStatus": 200,
@@ -14,7 +14,7 @@
     {
       "brand": "porsche",
       "dest": "dealers/oem-dumps/porsche.json",
-      "count": 61,
+      "count": 65,
       "locator": "dealers.json",
       "note": "In-repo official locator dump (not re-fetched).",
       "httpStatus": 200,
@@ -23,7 +23,7 @@
     {
       "brand": "lexus",
       "dest": "dealers/oem-dumps/lexus.json",
-      "count": 70,
+      "count": 74,
       "locator": "https://www.lexus.com/rest/lexus/dealers",
       "note": "Official Lexus REST dealer directory.",
       "httpStatus": 200,
@@ -33,7 +33,7 @@
     {
       "brand": "toyota",
       "dest": "dealers/oem-dumps/toyota.json",
-      "count": 243,
+      "count": 263,
       "locator": "https://www.toyota.com/dealers/directory/",
       "note": "Official Toyota dealer-hub city pages (dealer-card websites).",
       "pages": [
@@ -331,6 +331,46 @@
           "url": "https://www.toyota.com/dealers/texas/laredo/dealers/",
           "status": 200,
           "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/south-carolina/charleston/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/south-carolina/columbia/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/south-carolina/greenville/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/south-carolina/spartanburg/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/south-carolina/myrtle-beach/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/south-carolina/hilton-head-island/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/south-carolina/rock-hill/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/south-carolina/florence/dealers/",
+          "status": 200,
+          "ok": true
         }
       ],
       "blocked": false
@@ -338,7 +378,7 @@
     {
       "brand": "mercedes-benz",
       "dest": "dealers/oem-dumps/mercedes-benz.json",
-      "count": 102,
+      "count": 109,
       "locator": "https://www.mbusa.com/en/dealers",
       "note": "Official MBUSA dealerLocatorService (zip + distance + mbdealer filter).",
       "pages": [
@@ -761,6 +801,46 @@
           "zip": "78040",
           "status": 200,
           "ok": true
+        },
+        {
+          "zip": "29401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "29201",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "29601",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "29302",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "29577",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "29926",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "29730",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "29501",
+          "status": 200,
+          "ok": true
         }
       ],
       "blocked": false
@@ -768,7 +848,7 @@
     {
       "brand": "mitsubishi",
       "dest": "dealers/oem-dumps/mitsubishi.json",
-      "count": 86,
+      "count": 90,
       "locator": "https://www.mitsubishicars.com/dealers",
       "note": "Official Mitsubishi dealers page (embedded Apollo dealer cache).",
       "httpStatus": 200,
@@ -815,7 +895,7 @@
     {
       "brand": "mini",
       "dest": "dealers/oem-dumps/mini.json",
-      "count": 32,
+      "count": 34,
       "locator": "https://www.miniusa.com/tools/shopping/find-a-dealer.html",
       "note": "Official MINI dealer-locator JSON API (getAllDealerByZip), found via network capture; plain fetch, no browser needed.",
       "pages": [
@@ -1026,8 +1106,8 @@
         },
         {
           "zip": "33901",
-          "status": 0,
-          "ok": false
+          "status": 200,
+          "ok": true
         },
         {
           "zip": "34102",
@@ -1238,6 +1318,46 @@
           "zip": "78040",
           "status": 200,
           "ok": true
+        },
+        {
+          "zip": "29401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "29201",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "29601",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "29302",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "29577",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "29926",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "29730",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "29501",
+          "status": 200,
+          "ok": true
         }
       ],
       "blocked": false
@@ -1245,7 +1365,7 @@
     {
       "brand": "kia",
       "dest": "dealers/oem-dumps/kia.json",
-      "count": 98,
+      "count": 108,
       "locator": "https://www.kia.com/us/en/find-a-dealer",
       "note": "Official Kia find-a-dealer results, rendered per zip (patchright; page is JS-hydrated, not bot-blocked).",
       "pages": [
@@ -1668,6 +1788,46 @@
           "zip": "78040",
           "status": 200,
           "ok": true
+        },
+        {
+          "zip": "29401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "29201",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "29601",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "29302",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "29577",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "29926",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "29730",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "29501",
+          "status": 200,
+          "ok": true
         }
       ],
       "blocked": false
@@ -1707,7 +1867,7 @@
     {
       "brand": "subaru",
       "dest": "dealers/oem-dumps/subaru.json",
-      "count": 153,
+      "count": 159,
       "locator": "https://www.subaru.com/find-a-retailer.html",
       "note": "Official Subaru dealer-distance JSON API (services/dealers/distances/by/zipcode), found via network capture; plain fetch, no browser needed.",
       "pages": [
@@ -2130,6 +2290,46 @@
           "zip": "78040",
           "status": 200,
           "ok": true
+        },
+        {
+          "zip": "29401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "29201",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "29601",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "29302",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "29577",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "29926",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "29730",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "29501",
+          "status": 200,
+          "ok": true
         }
       ],
       "blocked": false
@@ -2137,7 +2337,7 @@
     {
       "brand": "mazda",
       "dest": "dealers/oem-dumps/mazda.json",
-      "count": 136,
+      "count": 142,
       "locator": "https://www.mazdausa.com/find-a-dealer",
       "note": "Official Mazda dealer.ajax handler (zip + maxDistance=50, plain GET).",
       "pages": [
@@ -2560,6 +2760,46 @@
           "zip": "78040",
           "status": 200,
           "ok": true
+        },
+        {
+          "zip": "29401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "29201",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "29601",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "29302",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "29577",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "29926",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "29730",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "29501",
+          "status": 200,
+          "ok": true
         }
       ],
       "blocked": false
@@ -2567,9 +2807,9 @@
     {
       "brand": "volkswagen",
       "dest": "dealers/oem-dumps/volkswagen.json",
-      "count": 165,
+      "count": 174,
       "locator": "https://www.vw.com/en/dealer-search.html",
-      "note": "Official VW bff-search/dealers feature-app API (nationwide, filtered client-side to NJ/NY/FL/GA/TX).",
+      "note": "Official VW bff-search/dealers feature-app API (nationwide, filtered client-side to NJ/NY/FL/GA/TX/SC).",
       "httpStatus": 200,
       "blocked": false,
       "nationwideCount": 954

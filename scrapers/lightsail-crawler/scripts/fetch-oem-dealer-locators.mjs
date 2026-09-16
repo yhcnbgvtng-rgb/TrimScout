@@ -129,8 +129,32 @@ const TX_ZIPS = [
   '78040', // Laredo (south, Mexico border)
 ];
 
+// South Carolina zip spread. SC is a compact state (~32,000 sq mi, smaller
+// than GA and far smaller than TX) with its dealer network concentrated in
+// a handful of metros, so it needs far fewer seeds than GA/TX — 8 covers
+// every real population/dealer cluster with a 50-120mi-radius zip locator
+// (Mercedes/Mini/Subaru/Mazda/Kia): the three biggest metros (Charleston,
+// Columbia, Greenville/Spartanburg), the coastal tourist/retiree corridor
+// (Myrtle Beach, Hilton Head), and the remaining regional hubs (Rock Hill
+// in the Charlotte NC exurbs, Florence in the Pee Dee region, Aiken/Augusta
+// border). Confirmed against the in-repo nationwide Acura/Porsche dumps
+// before picking these — every metro below already has at least one real
+// rooftop in acura-dealers.json or dealers.json (Charleston, Greenville,
+// Columbia, Hilton Head all appear), so the seed list matches SC's actual
+// dealer geography rather than just population.
+const SC_ZIPS = [
+  '29401', // Charleston
+  '29201', // Columbia
+  '29601', // Greenville
+  '29302', // Spartanburg
+  '29577', // Myrtle Beach
+  '29926', // Hilton Head Island
+  '29730', // Rock Hill (Charlotte NC exurbs)
+  '29501', // Florence (Pee Dee region)
+];
+
 // Combined zip spread used by every zip+radius OEM locator below.
-const TARGET_ZIPS = [...NJ_NY_ZIPS, ...FL_ZIPS, ...GA_ZIPS, ...TX_ZIPS];
+const TARGET_ZIPS = [...NJ_NY_ZIPS, ...FL_ZIPS, ...GA_ZIPS, ...TX_ZIPS, ...SC_ZIPS];
 
 function hostOf(url) {
   return hostFromUrl(url) || normalizeDealerHost(url);
@@ -292,6 +316,14 @@ async function fetchToyota() {
     'texas/corpus-christi',
     'texas/mcallen',
     'texas/laredo',
+    'south-carolina/charleston',
+    'south-carolina/columbia',
+    'south-carolina/greenville',
+    'south-carolina/spartanburg',
+    'south-carolina/myrtle-beach',
+    'south-carolina/hilton-head-island',
+    'south-carolina/rock-hill',
+    'south-carolina/florence',
   ];
   const rows = [];
   const pages = [];
