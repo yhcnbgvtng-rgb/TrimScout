@@ -82,7 +82,15 @@ const dealerIdFor = (v) => {
   }
   return null;
 };
-const cond = (t) => ({ NEW: "new", USED: "used", CERTIFIED: "cpo", CPO: "cpo", "CERTIFIED PRE-OWNED": "cpo" })[String(t || "").toUpperCase()] || null;
+const cond = (t) => ({ NEW: "new", USED: "used", CERTIFIED: "cpo", CPO: "cpo", "CERTIFIED PRE-OWNED": "cpo", CERTIFIED_PRE_OWNED: "cpo", WHOLESALE: "wholesale" })[String(t || "").toUpperCase()] || null;
+const num = (v) => (v == null || v === "" || Number.isNaN(Number(v)) ? null : Math.round(Number(v)));
+// Factory + dealer-listed options, compacted to what the sheet shows (code / name / price).
+const options = (v) => {
+  const out = [];
+  for (const o of Array.isArray(v.factoryOptions) ? v.factoryOptions : []) if (o && (o.name || o.code)) out.push({ code: o.code || null, name: o.name || null, price: num(o.price), kind: "factory" });
+  for (const o of Array.isArray(v.dealerListedOptions) ? v.dealerListedOptions : []) { const name = typeof o === "string" ? o : o && (o.name || o.title); if (name) out.push({ code: null, name, price: num(o && o.price), kind: "dealer" }); }
+  return out.length ? out.slice(0, 200) : null;
+};
 
 const rows = [];
 let total = 0;
@@ -92,6 +100,9 @@ for (const v of streamTopLevelObjects(file)) {
   rows.push({
     vin: v.vin.toUpperCase(), dealerId: dealerIdFor(v), dealerName: v.dealerName || v.configDealerName, condition: cond(v.inventoryType), year: v.year, make: v.make, model: v.model, trim: v.trim,
     bodyStyle: v.bodyStyle, exteriorColor: v.exteriorColor, interiorColor: v.interiorColor, mileage: v.mileage, price: v.price, msrp: v.msrp, stockNumber: v.stockNumber, vdpUrl: v.url, imageUrl: v.imageUrl, source: "nightly",
+    windowStickerUrl: v.windowStickerUrl || null, engine: v.engine || null, transmission: v.transmission || null, daysOnLot: num(v.daysOnLot), oldPrice: num(v.oldPrice), priceDiff: num(v.priceDiff),
+    priceChangeType: v.priceChangeType || null, changeType: v.changeType || null, priceHistory: Array.isArray(v.priceHistory) && v.priceHistory.length ? v.priceHistory.slice(-60) : null,
+    options: options(v), optionsTotal: num(v.totalOptionsPrice), baseMsrp: num(v.baseMsrp), crawlFirstSeen: v.firstSeen || null,
   });
 }
 const unmatched = rows.filter((r) => !r.dealerId).length;

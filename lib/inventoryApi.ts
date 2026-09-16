@@ -1,6 +1,6 @@
 /**
- * Dealer inventory on the deals box — vehicles crawled from dealer websites by
- * scrapers/inventory/crawl_inventory.py and upserted by VIN. Server-only (API key).
+ * Dealer inventory on the deals box — vehicles crawled nightly by the crawl box (run-daily-crawl.mjs) and
+ * synced by scripts/box/inventory-sync.mjs, keyed by (VIN, store). Server-only (API key).
  */
 import { LIGHTSAIL_HOST } from "./lightsailClient";
 import { serverSecret } from "./serverSecret";
@@ -32,6 +32,28 @@ export interface InventoryVehicle {
   firstSeenAt: string;
   lastSeenAt: string;
   removedAt: string | null;
+  /** Nightly-crawl extras (null when the row came from a source that doesn't carry them). */
+  windowStickerUrl: string | null;
+  engine: string | null;
+  transmission: string | null;
+  daysOnLot: number | null;
+  oldPrice: number | null;
+  priceDiff: number | null;
+  priceChangeType: string | null;
+  changeType: string | null;
+  priceHistory: Array<{ date: string; price: number }> | null;
+  options: Array<{ code: string | null; name: string | null; price: number | null; kind: "factory" | "dealer" }> | null;
+  optionsTotal: number | null;
+  baseMsrp: number | null;
+  crawlFirstSeen: string | null;
+}
+
+export interface InventoryDealerCount {
+  dealerId: string;
+  inStock: number;
+  newCount: number;
+  priceDrops: number;
+  lastSeenAt: string | null;
 }
 
 export interface InventoryUpsert {
@@ -63,6 +85,10 @@ export interface InventoryQuery {
   cond?: string;
   q?: string;
   inStock?: boolean;
+  changeType?: string;
+  priceChange?: "drop" | "increase";
+  hasSticker?: boolean;
+  minDays?: number;
   limit?: number;
   offset?: number;
   sort?: string;
@@ -78,6 +104,7 @@ export interface InventoryStats {
   byMake: Array<{ make: string; n: number }>;
   byState: Array<{ state: string; n: number }>;
   byCond: Array<{ cond: string | null; n: number }>;
+  movement?: { arrivals: number; priceDrops: number; priceIncreases: number; withSticker: number; removedToday: number };
 }
 
 export class InventoryApiError extends Error {
@@ -128,6 +155,10 @@ export async function listInventory(q: InventoryQuery = {}): Promise<{ total: nu
 
 export async function inventoryStats(): Promise<InventoryStats> {
   return request("GET", "/api/inventory/stats");
+}
+
+export async function inventoryByDealer(): Promise<{ dealers: InventoryDealerCount[] }> {
+  return request("GET", "/api/inventory/by-dealer");
 }
 
 export async function bulkUpsertInventory(vehicles: InventoryUpsert[]): Promise<{ upserted: number; skipped: number }> {

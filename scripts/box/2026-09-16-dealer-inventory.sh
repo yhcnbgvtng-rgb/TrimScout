@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Deals API: dealer_inventory — vehicles crawled from dealer websites.
+# Deals API: dealer_inventory — vehicles crawled nightly from dealer websites (crawl box → inventory-sync.mjs).
 #   POST /api/inventory/bulk   { vehicles: [...] }        upsert by VIN
 #   POST /api/inventory/sweep  { dealerId, seenAfter }    mark a store's stale VINs removed
 #   GET  /api/inventory?dealerId=&state=&make=&model=&cond=&q=&inStock=1&limit=&offset=&sort=

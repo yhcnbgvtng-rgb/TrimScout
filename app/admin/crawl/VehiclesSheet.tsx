@@ -8,10 +8,11 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { ArrowDown, ArrowUp, ArrowUpDown, Download, RefreshCw, Search, X } from "lucide-react";
 import { VEHICLE_SHEET_COLUMNS, vehicleRowCell, vehicleRowsToCsv, vehicleSheetFilename, type VehicleRow } from "@/lib/crawlSheetColumns";
 
-type Stats = { total: number; inStock: number; dealers: number; vins?: number; lastSeenAt: string | null; byMake: Array<{ make: string; n: number }>; byState: Array<{ state: string; n: number }>; byCond: Array<{ cond: string | null; n: number }> };
-type SortKey = "dealer" | "year" | "make" | "model" | "price" | "mileage" | "seen";
-const SORT_FOR: Partial<Record<keyof VehicleRow, SortKey>> = { dealerName: "dealer", year: "year", make: "make", model: "model", price: "price", mileage: "mileage", lastSeenAt: "seen" };
-const COL_W: Partial<Record<keyof VehicleRow, number>> = { dealerName: 240, dealerState: 60, dealerCity: 130, condition: 90, year: 64, make: 110, model: 130, trim: 190, vin: 170, stockNumber: 100, price: 90, msrp: 90, mileage: 80, exteriorColor: 170, interiorColor: 150, bodyStyle: 100, vdpUrl: 260, firstSeenAt: 100, lastSeenAt: 100, removedAt: 100, source: 90 };
+type Stats = { total: number; inStock: number; dealers: number; vins?: number; lastSeenAt: string | null; byMake: Array<{ make: string; n: number }>; byState: Array<{ state: string; n: number }>; byCond: Array<{ cond: string | null; n: number }>; movement?: { arrivals: number; priceDrops: number; priceIncreases: number; withSticker: number; removedToday: number } };
+type SortKey = "dealer" | "year" | "make" | "model" | "price" | "mileage" | "seen" | "days" | "pricediff" | "msrp";
+type Movement = "" | "arrivals" | "drops" | "increases";
+const SORT_FOR: Partial<Record<keyof VehicleRow, SortKey>> = { dealerName: "dealer", year: "year", make: "make", model: "model", price: "price", mileage: "mileage", lastSeenAt: "seen", daysOnLot: "days", priceDiff: "pricediff", msrp: "msrp" };
+const COL_W: Partial<Record<keyof VehicleRow, number>> = { dealerName: 240, dealerState: 60, dealerCity: 130, condition: 90, year: 64, make: 110, model: 130, trim: 190, vin: 170, stockNumber: 100, price: 90, priceDiff: 90, msrp: 90, mileage: 80, daysOnLot: 90, changeType: 110, windowStickerUrl: 120, exteriorColor: 170, interiorColor: 150, bodyStyle: 100, engine: 200, transmission: 200, options: 260, optionsTotal: 90, vdpUrl: 260, crawlFirstSeen: 110, firstSeenAt: 100, lastSeenAt: 100, removedAt: 100, source: 90 };
 const PAGE = 500;
 const ROW_H = 32;
 
@@ -31,6 +32,9 @@ export default function VehiclesSheet() {
   const [model, setModel] = useState("");
   const [cond, setCond] = useState("");
   const [inStock, setInStock] = useState(true);
+  const [movement, setMovement] = useState<Movement>("");
+  const [hasSticker, setHasSticker] = useState(false);
+  const [minDays, setMinDays] = useState("");
   const [sort, setSort] = useState<{ key: SortKey; dir: "asc" | "desc" }>({ key: "dealer", dir: "asc" });
   const [exporting, setExporting] = useState(false);
 
@@ -43,10 +47,15 @@ export default function VehiclesSheet() {
     if (model.trim()) p.set("model", model.trim());
     if (cond) p.set("cond", cond);
     if (inStock) p.set("inStock", "1");
+    if (movement === "arrivals") p.set("changeType", "NEW_ARRIVAL");
+    if (movement === "drops") p.set("priceChange", "drop");
+    if (movement === "increases") p.set("priceChange", "increase");
+    if (hasSticker) p.set("hasSticker", "1");
+    if (minDays.trim() && Number(minDays) > 0) p.set("minDays", String(Number(minDays)));
     if (qDebounced) p.set("q", qDebounced);
     p.set("sort", `${sort.key}:${sort.dir}`);
     return p;
-  }, [state, make, model, cond, inStock, qDebounced, sort]);
+  }, [state, make, model, cond, inStock, movement, hasSticker, minDays, qDebounced, sort]);
 
   const loadStats = useCallback(async () => {
     const res = await fetch("/api/admin/inventory?stats=1", { cache: "no-store" });
@@ -99,9 +108,9 @@ export default function VehiclesSheet() {
     }
   };
 
-  const activeFilters = [state, make, model.trim(), cond, qDebounced].filter(Boolean).length + (inStock ? 0 : 1);
-  const clearAll = () => { setQ(""); setState(""); setMake(""); setModel(""); setCond(""); setInStock(true); };
-  const onHeader = (key: keyof VehicleRow) => { const sk = SORT_FOR[key]; if (!sk) return; setSort((s) => (s.key === sk ? { key: sk, dir: s.dir === "asc" ? "desc" : "asc" } : { key: sk, dir: sk === "price" || sk === "year" || sk === "seen" ? "desc" : "asc" })); };
+  const activeFilters = [state, make, model.trim(), cond, qDebounced, movement, minDays.trim()].filter(Boolean).length + (inStock ? 0 : 1) + (hasSticker ? 1 : 0);
+  const clearAll = () => { setQ(""); setState(""); setMake(""); setModel(""); setCond(""); setInStock(true); setMovement(""); setHasSticker(false); setMinDays(""); };
+  const onHeader = (key: keyof VehicleRow) => { const sk = SORT_FOR[key]; if (!sk) return; setSort((s) => (s.key === sk ? { key: sk, dir: s.dir === "asc" ? "desc" : "asc" } : { key: sk, dir: sk === "price" || sk === "year" || sk === "seen" || sk === "days" || sk === "msrp" ? "desc" : "asc" })); };
   const totalW = VEHICLE_SHEET_COLUMNS.reduce((s, c) => s + (COL_W[c.key] || 120), 0);
 
   return (
@@ -123,6 +132,11 @@ export default function VehiclesSheet() {
         <select id="veh-cond" value={cond} onChange={(e) => setCond(e.target.value)} className="rounded-xl border border-border bg-surface-elevated px-2.5 py-2 text-[11px] font-bold text-ink-light">
           <option value="">New + used</option><option value="new">New</option><option value="used">Used</option><option value="cpo">Certified</option>
         </select>
+        <select id="veh-movement" value={movement} onChange={(e) => setMovement(e.target.value as Movement)} className="rounded-xl border border-border bg-surface-elevated px-2.5 py-2 text-[11px] font-bold text-ink-light">
+          <option value="">Any movement</option><option value="arrivals">New arrivals</option><option value="drops">Price drops</option><option value="increases">Price increases</option>
+        </select>
+        <input id="veh-mindays" value={minDays} onChange={(e) => setMinDays(e.target.value.replace(/\D/g, ""))} placeholder="Days on lot ≥" inputMode="numeric" className="w-28 rounded-xl border border-border bg-surface-elevated px-2.5 py-2 text-[11px] font-bold text-white placeholder:text-ink-faint" />
+        <label className="flex items-center gap-1.5 text-[11px] font-semibold text-ink-muted"><input type="checkbox" checked={hasSticker} onChange={(e) => setHasSticker(e.target.checked)} className="accent-emerald-500" /> Has window sticker</label>
         <label className="flex items-center gap-1.5 text-[11px] font-semibold text-ink-muted"><input type="checkbox" checked={inStock} onChange={(e) => setInStock(e.target.checked)} className="accent-emerald-500" /> In stock only</label>
         {activeFilters > 0 && (
           <button type="button" onClick={clearAll} className="inline-flex items-center gap-1 rounded-xl border border-rose-500/40 bg-rose-950/30 px-3 py-2 text-[11px] font-bold text-rose-300 hover:text-white"><X className="h-3 w-3" /> Clear</button>
@@ -136,6 +150,22 @@ export default function VehiclesSheet() {
         </div>
       </div>
 
+      {stats?.movement && (
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+          {([
+            ["In stock", stats.inStock, "text-white", ""],
+            ["New arrivals", stats.movement.arrivals, "text-emerald-300", "arrivals"],
+            ["Price drops", stats.movement.priceDrops, "text-emerald-300", "drops"],
+            ["Price increases", stats.movement.priceIncreases, "text-amber-300", "increases"],
+            ["Removed (24h)", stats.movement.removedToday, "text-ink-muted", ""],
+          ] as Array<[string, number, string, Movement]>).map(([label, n, tone, mv]) => (
+            <button key={label} type="button" onClick={() => mv && setMovement((m) => (m === mv ? "" : mv))} disabled={!mv} className={`rounded-xl border px-3 py-2 text-left ${mv && movement === mv ? "border-emerald-500/60 bg-emerald-500/10" : "border-border bg-surface"} ${mv ? "hover:border-emerald-500/40" : ""}`}>
+              <div className="text-[10px] font-black uppercase tracking-wider text-ink-faint">{label}</div>
+              <div className={`text-lg font-black tabular-nums ${tone}`}>{n.toLocaleString()}</div>
+            </button>
+          ))}
+        </div>
+      )}
       {error && <div className="rounded-xl border border-rose-500/40 bg-rose-950/30 p-3 text-xs text-rose-200">{error}</div>}
 
       <div className="rounded-2xl border border-border bg-surface overflow-hidden">
@@ -154,17 +184,27 @@ export default function VehiclesSheet() {
               })}
             </div>
             {rows.length === 0 ? (
-              <div className="p-8 text-center text-xs text-ink-muted">{loading ? "Loading…" : total === 0 && !stats?.total ? "No vehicles crawled yet — run scrapers/inventory/crawl_inventory.py and push with scripts/probes/push-inventory.mts." : "No vehicles match these filters."}</div>
+              <div className="p-8 text-center text-xs text-ink-muted">{loading ? "Loading…" : total === 0 && !stats?.total ? "No vehicles synced yet — the nightly crawl-box sync (scripts/box/inventory-sync.mjs) fills this in." : "No vehicles match these filters."}</div>
             ) : (
               rows.map((r, idx) => (
                 <div key={`${r.vin}|${r.dealerId ?? ""}`} className={`flex border-b border-border/40 text-[11.5px] ${idx % 2 ? "bg-surface" : "bg-surface-elevated/40"} hover:bg-emerald-500/5 ${r.removedAt ? "opacity-60" : ""}`} style={{ height: ROW_H }}>
                   {VEHICLE_SHEET_COLUMNS.map((c) => {
                     const raw = vehicleRowCell(r, c.key);
-                    const v = c.key === "price" || c.key === "msrp" ? money(r[c.key]) : c.key === "mileage" && r.mileage != null ? r.mileage.toLocaleString() : c.key === "condition" ? condLabel(r.condition) : raw;
-                    const tone = c.key === "dealerName" ? "font-semibold text-white" : c.key === "vin" || c.key === "stockNumber" ? "font-mono text-ink-light" : c.key === "price" || c.key === "msrp" || c.key === "mileage" ? "tabular-nums text-ink-light justify-end" : c.key === "condition" ? (r.condition === "new" ? "text-emerald-300" : "text-amber-200") : "text-ink-light";
+                    const diff = r.priceDiff ?? null;
+                    const v = c.key === "price" || c.key === "msrp" || c.key === "optionsTotal" ? money((r[c.key] as number | null | undefined) ?? null)
+                      : c.key === "priceDiff" ? (diff == null || diff === 0 ? "" : `${diff < 0 ? "▼" : "▲"} $${Math.abs(diff).toLocaleString()}`)
+                      : c.key === "mileage" && r.mileage != null ? r.mileage.toLocaleString()
+                      : c.key === "condition" ? condLabel(r.condition)
+                      : c.key === "options" && r.options?.length ? `${r.options.length} · ${raw}` : raw;
+                    const tone = c.key === "dealerName" ? "font-semibold text-white" : c.key === "vin" || c.key === "stockNumber" ? "font-mono text-ink-light"
+                      : c.key === "priceDiff" ? `tabular-nums justify-end font-bold ${diff != null && diff < 0 ? "text-emerald-300" : diff != null && diff > 0 ? "text-amber-300" : "text-ink-faint"}`
+                      : c.key === "price" || c.key === "msrp" || c.key === "mileage" || c.key === "daysOnLot" || c.key === "optionsTotal" ? "tabular-nums text-ink-light justify-end"
+                      : c.key === "condition" ? (r.condition === "new" ? "text-emerald-300" : "text-amber-200")
+                      : c.key === "changeType" ? (r.changeType === "NEW_ARRIVAL" ? "text-emerald-300" : "text-ink-muted") : "text-ink-light";
+                    const link = c.key === "vdpUrl" || c.key === "windowStickerUrl" ? raw : "";
                     return (
                       <div key={c.key} className={`flex items-center border-r border-border/40 px-2.5 shrink-0 overflow-hidden whitespace-nowrap ${tone}`} style={{ width: COL_W[c.key] || 120 }} title={raw}>
-                        {c.key === "vdpUrl" && raw ? <a href={raw} target="_blank" rel="noopener noreferrer" className="truncate text-sky-300 hover:underline">{raw.replace(/^https?:\/\/(www\.)?/, "")}</a> : <span className="truncate">{v}</span>}
+                        {link ? <a href={link} target="_blank" rel="noopener noreferrer" className="truncate text-sky-300 hover:underline">{c.key === "windowStickerUrl" ? "sticker ↗" : link.replace(/^https?:\/\/(www\.)?/, "")}</a> : <span className="truncate">{v}</span>}
                       </div>
                     );
                   })}
@@ -182,7 +222,7 @@ export default function VehiclesSheet() {
         </div>
       </div>
       <p className="text-[11px] text-ink-faint max-w-3xl">
-        Vehicles come from each store&apos;s own website (sitemap → vehicle pages → the schema.org data the page embeds). One row per VIN; a VIN that vanishes from the site on the next crawl is marked <em>Removed</em> and drops out of &quot;in stock&quot;. The CSV contains every vehicle matching the current filter (up to 50,000).
+        Vehicles come from the nightly crawl of each store&apos;s own website, synced every morning. One row per VIN per store; a VIN that vanishes from the site on the next crawl is marked <em>Removed</em> and drops out of &quot;in stock&quot;. The CSV contains every vehicle matching the current filter (up to 50,000).
       </p>
     </div>
   );
