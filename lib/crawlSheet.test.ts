@@ -79,3 +79,29 @@ describe("vehicles sheet", () => {
     assert.equal(inventoryQueryString({}), "");
   });
 });
+
+describe("vehicles sheet — nightly crawl extras", () => {
+  it("renders options, price history, change type and the crawl's first-seen date as cells", async () => {
+    const { vehicleRowCell, VEHICLE_SHEET_COLUMNS } = await import("./crawlSheetColumns");
+    const row = { vin: "5TDAAAB57TS41E883", dealerId: "1", dealerName: "Basil Toyota", dealerCity: "Lockport", dealerState: "NY", condition: "new", year: 2026, make: "Toyota", model: "Grand Highlander", trim: "LE", bodyStyle: null, exteriorColor: null, interiorColor: null, mileage: 0, price: 47102, msrp: 47102, stockNumber: null, vdpUrl: null, imageUrl: null, source: "nightly", firstSeenAt: "2026-09-16T11:00:00.000Z", lastSeenAt: "2026-09-16T11:00:00.000Z", removedAt: null,
+      windowStickerUrl: "https://x/sticker.pdf", engine: "4-Cyl. Turbocharged Engine", transmission: null, daysOnLot: 3, oldPrice: 47602, priceDiff: -500, priceChangeType: "DROP", changeType: "NEW_ARRIVAL",
+      priceHistory: [{ date: "2026-09-14", price: 47602 }, { date: "2026-09-16", price: 47102 }], options: [{ code: "OPT-49", name: "Mudguards", price: 129, kind: "factory" }, { code: null, name: "Wheel locks", price: 75, kind: "dealer" }], optionsTotal: 204, baseMsrp: null, crawlFirstSeen: "2026-09-14" };
+    assert.equal(vehicleRowCell(row, "options"), "Mudguards; Wheel locks");
+    assert.equal(vehicleRowCell(row, "priceHistory"), "2026-09-14:47602; 2026-09-16:47102");
+    assert.equal(vehicleRowCell(row, "changeType"), "New arrival");
+    assert.equal(vehicleRowCell(row, "crawlFirstSeen"), "2026-09-14");
+    assert.equal(vehicleRowCell(row, "priceDiff"), "-500");
+    for (const k of ["priceDiff", "daysOnLot", "changeType", "windowStickerUrl", "engine", "options", "crawlFirstSeen"]) assert.ok(VEHICLE_SHEET_COLUMNS.some((c) => c.key === k), k);
+  });
+  it("the dealer sheet carries inventory counts and renders zero as blank", async () => {
+    const { crawlRowCell, CRAWL_SHEET_COLUMNS } = await import("./crawlSheetColumns");
+    const { crawlRowFromDealership } = await import("./crawlSheet");
+    const r = { ...crawlRowFromDealership({ id: "1", dealerName: "Joyce Honda", address: null, city: "Denville", state: "NJ", zipCode: null, phone: null, contactName: null, contactEmail: null, notes: "Brand: Honda", website: null, domains: [], emailOptOut: false, createdAt: "", updatedAt: "" }), inStock: 212, newCount: 0, priceDrops: 9 };
+    assert.equal(crawlRowCell(r, "inStock"), "212");
+    assert.equal(crawlRowCell(r, "newCount"), "");
+    assert.equal(crawlRowCell(r, "priceDrops"), "9");
+    assert.ok(CRAWL_SHEET_COLUMNS.some((c) => c.key === "inStock"));
+    assert.match(fs.readFileSync("app/admin/crawl/CrawlSheetClient.tsx", "utf8"), /byDealer=1/);
+    assert.match(fs.readFileSync("app/api/admin/inventory/route.ts", "utf8"), /byDealer/);
+  });
+});

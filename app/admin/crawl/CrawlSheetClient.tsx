@@ -28,7 +28,7 @@ const OVERSCAN = 12;
 
 const COL_WIDTH: Partial<Record<ColKey, number>> = {
   dealerName: 260, brands: 120, city: 130, state: 60, zip: 70, phone: 120, website: 220, contactName: 160, contactTitle: 170, contactEmail: 230,
-  emailKind: 110, contactReady: 100, emailSource: 120, staffPage: 110, source: 260, leadInbox: 200, domains: 220, address: 200, emailOptOut: 80, updatedAt: 110, notes: 480,
+  emailKind: 110, contactReady: 100, inStock: 80, newCount: 70, priceDrops: 90, emailSource: 120, staffPage: 110, source: 260, leadInbox: 200, domains: 220, address: 200, emailOptOut: 80, updatedAt: 110, notes: 480,
 };
 
 function pretty(key: ColKey, v: string): string {
@@ -62,7 +62,17 @@ export default function CrawlSheetClient() {
       const res = await fetch("/api/admin/crawl-sheet", { cache: "no-store" });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || "Could not load the crawl sheet.");
-      setRows(json.rows as CrawlRow[]);
+      let rows = json.rows as CrawlRow[];
+      // Inventory counts per rooftop, when the box has them — a store's stock beside its contact.
+      try {
+        const inv = await fetch("/api/admin/inventory?byDealer=1", { cache: "no-store" });
+        const ij = await inv.json();
+        if (inv.ok && Array.isArray(ij.dealers)) {
+          const by = new Map((ij.dealers as Array<{ dealerId: string; inStock: number; newCount: number; priceDrops: number }>).map((d) => [d.dealerId, d]));
+          rows = rows.map((r) => { const d = by.get(r.id); return d ? { ...r, inStock: d.inStock, newCount: d.newCount, priceDrops: d.priceDrops } : { ...r, inStock: 0, newCount: 0, priceDrops: 0 }; });
+        }
+      } catch { /* inventory service down → columns stay blank */ }
+      setRows(rows);
       setFetchedAt(json.fetchedAt || null);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not load the crawl sheet.");
@@ -123,8 +133,10 @@ export default function CrawlSheetClient() {
 
   const sorted = useMemo(() => {
     const key = sort.key;
+    const numeric = key === "inStock" || key === "newCount" || key === "priceDrops";
     const val = (r: CrawlRow) => crawlRowCell(r, key).toLowerCase();
     return [...filtered].sort((a, b) => {
+      if (numeric) { const an = Number(a[key] ?? 0), bn = Number(b[key] ?? 0); return an === bn ? a.dealerName.localeCompare(b.dealerName) : (an - bn) * sort.dir; }
       const av = val(a), bv = val(b);
       if (av === bv) return a.dealerName.localeCompare(b.dealerName);
       if (!av) return 1;
@@ -327,6 +339,7 @@ export default function CrawlSheetClient() {
                             c.key === "contactReady" && r.contactReady ? "text-emerald-400 font-bold"
                             : c.key === "emailKind" ? (r.emailKind === "named" ? "text-emerald-300" : r.emailKind === "generic" ? "text-amber-300" : "text-ink-faint")
                             : c.key === "staffPage" ? (r.staffPage === "captured" ? "text-ink-light" : r.staffPage === "blocked" ? "text-amber-300" : "text-ink-faint")
+                            : c.key === "inStock" || c.key === "newCount" || c.key === "priceDrops" ? `tabular-nums justify-end ${Number(v) > 0 ? (c.key === "priceDrops" ? "text-emerald-300" : "text-ink-light") : "text-ink-faint"}`
                             : c.key === "contactEmail" || c.key === "phone" || c.key === "zip" ? "font-mono text-ink-light"
                             : c.key === "dealerName" ? "font-semibold text-white"
                             : "text-ink-light";

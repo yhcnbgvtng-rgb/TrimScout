@@ -24,6 +24,10 @@ export interface CrawlRow {
   /** A named person at a personal mailbox who hasn't opted out — the only kind a quote request goes to. */
   contactReady: boolean;
   emailOptOut: boolean;
+  /** Crawled inventory for this rooftop (filled client-side from /api/admin/inventory?byDealer=1). */
+  inStock?: number | null;
+  newCount?: number | null;
+  priceDrops?: number | null;
   /** Where the contact came from: a staff-page URL, or a locator/site-harvest label. */
   source: string;
   staffPage: StaffPageStatus;
@@ -46,6 +50,9 @@ export const CRAWL_SHEET_COLUMNS: Array<{ key: keyof CrawlRow; label: string }> 
   { key: "contactEmail", label: "Email" },
   { key: "emailKind", label: "Email kind" },
   { key: "contactReady", label: "Contact ready" },
+  { key: "inStock", label: "In stock" },
+  { key: "newCount", label: "New" },
+  { key: "priceDrops", label: "Price drops" },
   { key: "emailSource", label: "Email source" },
   { key: "staffPage", label: "Staff page" },
   { key: "source", label: "Source" },
@@ -61,6 +68,7 @@ export function crawlRowCell(row: CrawlRow, key: keyof CrawlRow): string {
   const v = row[key];
   if (Array.isArray(v)) return v.join("; ");
   if (typeof v === "boolean") return v ? "yes" : "";
+  if (typeof v === "number") return v ? String(v) : "";
   return String(v ?? "");
 }
 
@@ -106,6 +114,19 @@ export interface VehicleRow {
   firstSeenAt: string;
   lastSeenAt: string;
   removedAt: string | null;
+  windowStickerUrl?: string | null;
+  engine?: string | null;
+  transmission?: string | null;
+  daysOnLot?: number | null;
+  oldPrice?: number | null;
+  priceDiff?: number | null;
+  priceChangeType?: string | null;
+  changeType?: string | null;
+  priceHistory?: Array<{ date: string; price: number }> | null;
+  options?: Array<{ code: string | null; name: string | null; price: number | null; kind: string }> | null;
+  optionsTotal?: number | null;
+  baseMsrp?: number | null;
+  crawlFirstSeen?: string | null;
 }
 
 export const VEHICLE_SHEET_COLUMNS: Array<{ key: keyof VehicleRow; label: string }> = [
@@ -120,12 +141,21 @@ export const VEHICLE_SHEET_COLUMNS: Array<{ key: keyof VehicleRow; label: string
   { key: "vin", label: "VIN" },
   { key: "stockNumber", label: "Stock #" },
   { key: "price", label: "Price" },
+  { key: "priceDiff", label: "Price Δ" },
   { key: "msrp", label: "MSRP" },
   { key: "mileage", label: "Miles" },
+  { key: "daysOnLot", label: "Days on lot" },
+  { key: "changeType", label: "Change" },
+  { key: "windowStickerUrl", label: "Window sticker" },
   { key: "exteriorColor", label: "Exterior" },
   { key: "interiorColor", label: "Interior" },
   { key: "bodyStyle", label: "Body" },
+  { key: "engine", label: "Engine" },
+  { key: "transmission", label: "Transmission" },
+  { key: "options", label: "Options" },
+  { key: "optionsTotal", label: "Options $" },
   { key: "vdpUrl", label: "Listing" },
+  { key: "crawlFirstSeen", label: "On site since" },
   { key: "firstSeenAt", label: "First seen" },
   { key: "lastSeenAt", label: "Last seen" },
   { key: "removedAt", label: "Removed" },
@@ -135,7 +165,10 @@ export const VEHICLE_SHEET_COLUMNS: Array<{ key: keyof VehicleRow; label: string
 export function vehicleRowCell(row: VehicleRow, key: keyof VehicleRow): string {
   const v = row[key];
   if (v == null) return "";
-  if ((key === "firstSeenAt" || key === "lastSeenAt" || key === "removedAt") && typeof v === "string") return v.slice(0, 10);
+  if ((key === "firstSeenAt" || key === "lastSeenAt" || key === "removedAt" || key === "crawlFirstSeen") && typeof v === "string") return v.slice(0, 10);
+  if (key === "options" && Array.isArray(v)) return v.map((o) => (o as { name: string | null }).name || (o as { code: string | null }).code || "").filter(Boolean).join("; ");
+  if (key === "priceHistory" && Array.isArray(v)) return v.map((h) => `${(h as { date: string }).date}:${(h as { price: number }).price}`).join("; ");
+  if (key === "changeType" && typeof v === "string") return ({ NEW_ARRIVAL: "New arrival", SOLD: "Sold", PRICE_CHANGE: "Price change", UNCHANGED: "" } as Record<string, string>)[v] ?? v;
   return String(v);
 }
 

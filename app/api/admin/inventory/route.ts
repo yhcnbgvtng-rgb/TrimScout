@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireAdminSession } from "@/lib/adminAuth";
-import { listInventory, inventoryStats, InventoryApiError, type InventoryQuery } from "@/lib/inventoryApi";
+import { listInventory, inventoryStats, inventoryByDealer, InventoryApiError, type InventoryQuery } from "@/lib/inventoryApi";
 
 export const dynamic = "force-dynamic";
 
@@ -14,9 +14,12 @@ export async function GET(req: Request) {
   const sp = new URL(req.url).searchParams;
   try {
     if (sp.get("stats") === "1") return NextResponse.json(await inventoryStats());
+    if (sp.get("byDealer") === "1") return NextResponse.json(await inventoryByDealer());
     const q: InventoryQuery = {
       dealerId: sp.get("dealerId") || undefined, state: sp.get("state") || undefined, make: sp.get("make") || undefined, model: sp.get("model") || undefined,
       cond: sp.get("cond") || undefined, q: sp.get("q") || undefined, inStock: sp.get("inStock") === "1", sort: sp.get("sort") || undefined,
+      changeType: sp.get("changeType") || undefined, priceChange: (sp.get("priceChange") as "drop" | "increase") || undefined, hasSticker: sp.get("hasSticker") === "1",
+      minDays: sp.get("minDays") ? Number(sp.get("minDays")) : undefined,
     };
     if (sp.get("export") === "1") {
       const all: unknown[] = [];
