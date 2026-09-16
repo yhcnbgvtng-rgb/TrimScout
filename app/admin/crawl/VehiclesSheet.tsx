@@ -8,7 +8,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { ArrowDown, ArrowUp, ArrowUpDown, Download, RefreshCw, Search, X } from "lucide-react";
 import { VEHICLE_SHEET_COLUMNS, vehicleRowCell, vehicleRowsToCsv, vehicleSheetFilename, type VehicleRow } from "@/lib/crawlSheetColumns";
 
-type Stats = { total: number; inStock: number; dealers: number; lastSeenAt: string | null; byMake: Array<{ make: string; n: number }>; byState: Array<{ state: string; n: number }>; byCond: Array<{ cond: string | null; n: number }> };
+type Stats = { total: number; inStock: number; dealers: number; vins?: number; lastSeenAt: string | null; byMake: Array<{ make: string; n: number }>; byState: Array<{ state: string; n: number }>; byCond: Array<{ cond: string | null; n: number }> };
 type SortKey = "dealer" | "year" | "make" | "model" | "price" | "mileage" | "seen";
 const SORT_FOR: Partial<Record<keyof VehicleRow, SortKey>> = { dealerName: "dealer", year: "year", make: "make", model: "model", price: "price", mileage: "mileage", lastSeenAt: "seen" };
 const COL_W: Partial<Record<keyof VehicleRow, number>> = { dealerName: 240, dealerState: 60, dealerCity: 130, condition: 90, year: 64, make: 110, model: 130, trim: 190, vin: 170, stockNumber: 100, price: 90, msrp: 90, mileage: 80, exteriorColor: 170, interiorColor: 150, bodyStyle: 100, vdpUrl: 260, firstSeenAt: 100, lastSeenAt: 100, removedAt: 100, source: 90 };
@@ -157,7 +157,7 @@ export default function VehiclesSheet() {
               <div className="p-8 text-center text-xs text-ink-muted">{loading ? "Loading…" : total === 0 && !stats?.total ? "No vehicles crawled yet — run scrapers/inventory/crawl_inventory.py and push with scripts/probes/push-inventory.mts." : "No vehicles match these filters."}</div>
             ) : (
               rows.map((r, idx) => (
-                <div key={r.vin} className={`flex border-b border-border/40 text-[11.5px] ${idx % 2 ? "bg-surface" : "bg-surface-elevated/40"} hover:bg-emerald-500/5 ${r.removedAt ? "opacity-60" : ""}`} style={{ height: ROW_H }}>
+                <div key={`${r.vin}|${r.dealerId ?? ""}`} className={`flex border-b border-border/40 text-[11.5px] ${idx % 2 ? "bg-surface" : "bg-surface-elevated/40"} hover:bg-emerald-500/5 ${r.removedAt ? "opacity-60" : ""}`} style={{ height: ROW_H }}>
                   {VEHICLE_SHEET_COLUMNS.map((c) => {
                     const raw = vehicleRowCell(r, c.key);
                     const v = c.key === "price" || c.key === "msrp" ? money(r[c.key]) : c.key === "mileage" && r.mileage != null ? r.mileage.toLocaleString() : c.key === "condition" ? condLabel(r.condition) : raw;

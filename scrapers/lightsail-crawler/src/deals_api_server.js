@@ -1545,8 +1545,8 @@ let inventoryReady = false;
 async function ensureInventoryTable(pool) {
   if (inventoryReady) return;
   await pool.query(`CREATE TABLE IF NOT EXISTS dealer_inventory (
-    vin CHAR(17) NOT NULL PRIMARY KEY,
-    dealer_id INT NULL,
+    vin CHAR(17) NOT NULL,
+    dealer_id INT NOT NULL DEFAULT 0,
     dealer_name VARCHAR(255) NOT NULL,
     cond VARCHAR(8) NULL,
     year SMALLINT NULL,
@@ -1569,17 +1569,25 @@ async function ensureInventoryTable(pool) {
     INDEX idx_inv_dealer (dealer_id),
     INDEX idx_inv_make_model (make, model),
     INDEX idx_inv_last_seen (last_seen_at),
-    INDEX idx_inv_removed (removed_at)
+    INDEX idx_inv_removed (removed_at),
+    PRIMARY KEY (vin, dealer_id)
   )`);
+  // First cut keyed by VIN alone; a dealer group lists the same car on several rooftops, so the key is (vin, store).
+  const [[pk]] = await pool.query("SELECT COUNT(*) AS n FROM information_schema.KEY_COLUMN_USAGE WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'dealer_inventory' AND CONSTRAINT_NAME = 'PRIMARY'");
+  if (Number(pk.n) === 1) {
+    await pool.query("ALTER TABLE dealer_inventory MODIFY dealer_id INT NOT NULL DEFAULT 0");
+    await pool.query("ALTER TABLE dealer_inventory DROP PRIMARY KEY, ADD PRIMARY KEY (vin, dealer_id)");
+  }
   inventoryReady = true;
 }
 
 const INV_STR = (v, n) => (typeof v === "string" && v.trim() ? v.trim().slice(0, n) : null);
 const INV_INT = (v) => (Number.isFinite(Number(v)) && v !== null && v !== "" ? Math.round(Number(v)) : null);
+const INV_DEALER = (v) => INV_INT(v) || 0;
 
 function inventoryRowFromDb(r) {
   return {
-    vin: r.vin, dealerId: r.dealer_id == null ? null : String(r.dealer_id), dealerName: r.dealer_name, condition: r.cond || null, year: r.year, make: r.make, model: r.model, trim: r.trim,
+    vin: r.vin, dealerId: r.dealer_id ? String(r.dealer_id) : null, dealerName: r.dealer_name, condition: r.cond || null, year: r.year, make: r.make, model: r.model, trim: r.trim,
     bodyStyle: r.body_style, exteriorColor: r.exterior_color, interiorColor: r.interior_color, mileage: r.mileage, price: r.price, msrp: r.msrp, stockNumber: r.stock_number,
     vdpUrl: r.vdp_url, imageUrl: r.image_url, source: r.source, firstSeenAt: r.first_seen_at, lastSeenAt: r.last_seen_at, removedAt: r.removed_at,
     dealerCity: r.dealer_city ?? null, dealerState: r.dealer_state ?? null,
@@ -1598,7 +1606,7 @@ async function handleInventoryBulk(req, res) {
     const chunk = vehicles.slice(i, i + 500).filter((v) => typeof v.vin === "string" && /^[A-HJ-NPR-Z0-9]{17}$/.test(v.vin.trim().toUpperCase()) && INV_STR(v.dealerName, 255));
     skipped += Math.min(500, vehicles.length - i) - chunk.length;
     if (!chunk.length) continue;
-    const values = chunk.map((v) => [v.vin.trim().toUpperCase(), INV_INT(v.dealerId), INV_STR(v.dealerName, 255), INV_STR(v.condition, 8), INV_INT(v.year), INV_STR(v.make, 64), INV_STR(v.model, 96), INV_STR(v.trim, 160), INV_STR(v.bodyStyle, 64), INV_STR(v.exteriorColor, 96), INV_STR(v.interiorColor, 96), INV_INT(v.mileage), INV_INT(v.price), INV_INT(v.msrp), INV_STR(v.stockNumber, 64), INV_STR(v.vdpUrl, 700), INV_STR(v.imageUrl, 700), INV_STR(v.source, 16)]);
+    const values = chunk.map((v) => [v.vin.trim().toUpperCase(), INV_DEALER(v.dealerId), INV_STR(v.dealerName, 255), INV_STR(v.condition, 8), INV_INT(v.year), INV_STR(v.make, 64), INV_STR(v.model, 96), INV_STR(v.trim, 160), INV_STR(v.bodyStyle, 64), INV_STR(v.exteriorColor, 96), INV_STR(v.interiorColor, 96), INV_INT(v.mileage), INV_INT(v.price), INV_INT(v.msrp), INV_STR(v.stockNumber, 64), INV_STR(v.vdpUrl, 700), INV_STR(v.imageUrl, 700), INV_STR(v.source, 16)]);
     await pool.query(
       `INSERT INTO dealer_inventory (vin, dealer_id, dealer_name, cond, year, make, model, trim, body_style, exterior_color, interior_color, mileage, price, msrp, stock_number, vdp_url, image_url, source)
        VALUES ? ON DUPLICATE KEY UPDATE dealer_id = VALUES(dealer_id), dealer_name = VALUES(dealer_name), cond = COALESCE(VALUES(cond), cond), year = COALESCE(VALUES(year), year), make = COALESCE(VALUES(make), make), model = COALESCE(VALUES(model), model), trim = COALESCE(VALUES(trim), trim), body_style = COALESCE(VALUES(body_style), body_style), exterior_color = COALESCE(VALUES(exterior_color), exterior_color), interior_color = COALESCE(VALUES(interior_color), interior_color), mileage = COALESCE(VALUES(mileage), mileage), price = COALESCE(VALUES(price), price), msrp = COALESCE(VALUES(msrp), msrp), stock_number = COALESCE(VALUES(stock_number), stock_number), vdp_url = VALUES(vdp_url), image_url = COALESCE(VALUES(image_url), image_url), source = VALUES(source), last_seen_at = CURRENT_TIMESTAMP, removed_at = NULL`,
@@ -1649,11 +1657,11 @@ async function handleListInventory(req, res, params) {
 async function handleInventoryStats(req, res) {
   const pool = getPool();
   await ensureInventoryTable(pool);
-  const [[tot]] = await pool.query("SELECT COUNT(*) AS total, SUM(removed_at IS NULL) AS inStock, COUNT(DISTINCT dealer_id) AS dealers, MAX(last_seen_at) AS lastSeenAt FROM dealer_inventory");
+  const [[tot]] = await pool.query("SELECT COUNT(*) AS total, SUM(removed_at IS NULL) AS inStock, COUNT(DISTINCT dealer_id) AS dealers, COUNT(DISTINCT vin) AS vins, MAX(last_seen_at) AS lastSeenAt FROM dealer_inventory");
   const [byMake] = await pool.query("SELECT make, COUNT(*) AS n FROM dealer_inventory WHERE removed_at IS NULL AND make IS NOT NULL GROUP BY make ORDER BY n DESC LIMIT 100");
   const [byState] = await pool.query("SELECT d.state AS state, COUNT(*) AS n FROM dealer_inventory i JOIN dealership_contacts d ON d.id = i.dealer_id WHERE i.removed_at IS NULL GROUP BY d.state ORDER BY n DESC");
   const [byCond] = await pool.query("SELECT cond, COUNT(*) AS n FROM dealer_inventory WHERE removed_at IS NULL GROUP BY cond");
-  sendJson(res, 200, { total: Number(tot.total), inStock: Number(tot.inStock || 0), dealers: Number(tot.dealers), lastSeenAt: tot.lastSeenAt, byMake, byState, byCond });
+  sendJson(res, 200, { total: Number(tot.total), inStock: Number(tot.inStock || 0), dealers: Number(tot.dealers), vins: Number(tot.vins), lastSeenAt: tot.lastSeenAt, byMake, byState, byCond });
 }
 
 const server = http.createServer((req, res) => {

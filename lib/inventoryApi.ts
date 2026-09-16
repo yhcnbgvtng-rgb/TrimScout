@@ -72,6 +72,8 @@ export interface InventoryStats {
   total: number;
   inStock: number;
   dealers: number;
+  /** Distinct VINs — a car a dealer group lists on several rooftops counts once here, once per store in `total`. */
+  vins?: number;
   lastSeenAt: string | null;
   byMake: Array<{ make: string; n: number }>;
   byState: Array<{ state: string; n: number }>;
