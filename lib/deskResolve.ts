@@ -50,7 +50,29 @@ export interface DeskMatch {
 /** More rooftops than this on one mail domain is a group inbox pattern, not a store key. */
 export const MAX_EMAIL_DOMAIN_CANDIDATES = 6;
 
-export type DeskMatchVia = "alias_host" | "website" | "alias_domain" | "email_domain" | "redirect";
+export type DeskMatchVia = "alias_host" | "website" | "alias_domain" | "email_domain" | "platform_slug" | "redirect";
+
+/**
+ * White-label retail platforms that host a store's shopping pages on a per-dealer subdomain of their own
+ * domain — joycehonda.roadster.com is Joyce Honda's Roadster Express Store, not a Roadster rooftop. The
+ * registrable domain (roadster.com) identifies the vendor, so the store is keyed by the subdomain slug
+ * matching the label of a site on file (joycehonda.com). The slug must equal a domain label exactly; it is
+ * never fuzzy-matched against dealer names.
+ */
+export const WHITE_LABEL_PLATFORMS = new Set([
+  "roadster.com", "tekion.com", "dealerinspire.com", "dealeron.com", "dealereprocess.com", "motosnap.com",
+  "carnow.com", "autofi.com", "gubagoo.com", "dealerfire.com", "sincrocars.com",
+]);
+
+/** The store slug of a white-label host ("joycehonda.roadster.com" → "joycehonda"); null for any other host. */
+export function platformSlug(host: string): string | null {
+  const reg = registrableDomain(host);
+  if (!reg || !WHITE_LABEL_PLATFORMS.has(reg)) return null;
+  const labels = (normalizeDomain(host) || "").split(".");
+  const subs = labels.slice(0, labels.length - reg.split(".").length).filter((l) => !INVENTORY_SUBDOMAINS.has(l));
+  const slug = subs[subs.length - 1] || "";
+  return slug.length >= 4 ? slug : null;
+}
 
 export type DeskResolution =
   | { status: "invalid" }
@@ -126,6 +148,7 @@ export function contactDomains(contact: DeskContact): string[] {
 }
 
 interface DeskIndex {
+  bySlug: Map<string, DeskContact[]>;
   byAliasHost: Map<string, DeskContact[]>;
   byWebsiteDomain: Map<string, DeskContact[]>;
   byAliasDomain: Map<string, DeskContact[]>;
@@ -149,11 +172,13 @@ export function indexDeskContacts(contacts: DeskContact[]): DeskIndex {
     byWebsiteDomain: new Map(),
     byAliasDomain: new Map(),
     byEmailDomain: new Map(),
+    bySlug: new Map(),
   };
   for (const row of contacts) {
     const site = contactWebsite(row);
     const siteHost = site ? normalizeDealerHost(site) : null;
     push(index.byWebsiteDomain, siteHost?.registrable ?? null, row);
+    for (const domain of contactDomains(row)) push(index.bySlug, domain.split(".")[0] || null, row);
     for (const alias of row.domains || []) {
       const a = normalizeDealerHost(alias);
       if (!a) continue;
@@ -207,6 +232,8 @@ export function resolveDeskFromVdpUrl(
     ["alias_domain", index.byAliasDomain.get(norm.registrable)],
     ["email_domain", index.byEmailDomain.get(norm.registrable)],
   ];
+  const slug = platformSlug(norm.host);
+  if (slug) tiers.push(["platform_slug", index.bySlug.get(slug)]);
   for (const [via, rows] of tiers) {
     if (!rows || rows.length === 0) continue;
     const unique = dedupe(rows);
@@ -214,7 +241,11 @@ export function resolveDeskFromVdpUrl(
     // not a match the buyer can pick from, so it counts as no key at all.
     if (via === "email_domain" && unique.length > MAX_EMAIL_DOMAIN_CANDIDATES) continue;
     if (unique.length === 1) {
-      return { status: "unique", via, host: norm.host, desk: deskMatchFromContact(unique[0], knownNamedOf(unique[0])) };
+      const desk = deskMatchFromContact(unique[0], knownNamedOf(unique[0]));
+      // A platform-slug hit is worth remembering on the desk as an alias host, so it's an exact hit next time.
+      return via === "platform_slug"
+        ? { status: "unique", via, host: norm.host, desk, aliasHosts: [norm.host] }
+        : { status: "unique", via, host: norm.host, desk };
     }
     return {
       status: "ambiguous",

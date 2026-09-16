@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { contactDomains, normalizeDealerHost, registrableDomain, resolveDeskFromVdpUrl, resolveDeskWithRedirect, type DeskContact } from "./deskResolve";
+import { contactDomains, normalizeDealerHost, platformSlug, registrableDomain, resolveDeskFromVdpUrl, resolveDeskWithRedirect, type DeskContact } from "./deskResolve";
 
 const row = (o: Partial<DeskContact> & { id: string; dealerName: string }): DeskContact => ({
   city: null,
@@ -107,6 +107,22 @@ describe("resolveDeskFromVdpUrl", () => {
     const b = resolveDeskFromVdpUrl("https://specials-page.paulmillerbmwnj.com/new/x", CONTACTS);
     assert.equal(b.status, "unique");
     if (b.status === "unique") assert.equal(b.via, "alias_domain");
+  });
+
+  it("keys a white-label platform subdomain (joycehonda.roadster.com) on the store whose site label matches", () => {
+    const contacts = [...CONTACTS, row({ id: "j", dealerName: "Joyce Honda", city: "Denville", state: "NJ", website: "https://www.joycehonda.com/", domains: ["joycehonda.com"] })];
+    const r = resolveDeskFromVdpUrl("https://joycehonda.roadster.com/express/1HGCY1F23TA071150?unlock=1", contacts);
+    assert.equal(r.status, "unique");
+    if (r.status === "unique") {
+      assert.equal(r.desk.deskId, "j");
+      assert.equal(r.via, "platform_slug");
+      assert.deepEqual(r.aliasHosts, ["joycehonda.roadster.com"], "remembered as an alias host for next time");
+    }
+    // The platform's own domain is never a store, and an unknown slug binds nothing.
+    assert.equal(resolveDeskFromVdpUrl("https://nobodyhere.roadster.com/express/x", contacts).status, "none");
+    assert.equal(platformSlug("joycehonda.roadster.com"), "joycehonda");
+    assert.equal(platformSlug("www.joycehonda.com"), null, "only white-label platform hosts have a slug");
+    assert.equal(platformSlug("express.joycehonda.roadster.com"), "joycehonda", "inventory-style prefixes are peeled");
   });
 
   it("does not invent a dealer for an unknown host, and seeds no name search from the slug", () => {

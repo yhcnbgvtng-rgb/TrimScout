@@ -32,7 +32,7 @@ export async function POST(req: Request) {
   const knownNamed = (row: DeskContact) => Boolean(deskFromDealership(row as Dealership)?.knownNamed);
   const resolution = await resolveDeskWithRedirect(url, contacts, knownNamed, resolveHostRedirect);
 
-  if (resolution.status === "unique" && resolution.via === "redirect" && resolution.aliasHosts?.length) {
+  if (resolution.status === "unique" && (resolution.via === "redirect" || resolution.via === "platform_slug") && resolution.aliasHosts?.length) {
     // Best-effort: persist both hosts as aliases so this becomes an exact
     // domain hit next time. A box that predates the column just ignores it.
     const row = contacts.find((c) => c.id === resolution.desk.deskId);
