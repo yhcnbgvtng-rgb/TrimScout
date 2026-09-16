@@ -13,8 +13,10 @@ export async function GET(req: Request) {
   if (!session) return NextResponse.json({ error: "Admin access required." }, { status: 403 });
   const sp = new URL(req.url).searchParams;
   try {
-    if (sp.get("stats") === "1") return NextResponse.json(await inventoryStats());
-    if (sp.get("byDealer") === "1") return NextResponse.json(await inventoryByDealer());
+    // Aggregates change once a day (the sync); let the admin's browser keep them a minute so tab switches are instant.
+    const aggHeaders = { "Cache-Control": "private, max-age=60" };
+    if (sp.get("stats") === "1") return NextResponse.json(await inventoryStats(), { headers: aggHeaders });
+    if (sp.get("byDealer") === "1") return NextResponse.json(await inventoryByDealer(), { headers: aggHeaders });
     if (sp.get("vin")) return NextResponse.json(await inventoryVin(sp.get("vin") || ""));
     const q: InventoryQuery = {
       dealerId: sp.get("dealerId") || undefined, state: sp.get("state") || undefined, make: sp.get("make") || undefined, model: sp.get("model") || undefined,

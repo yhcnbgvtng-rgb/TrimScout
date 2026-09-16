@@ -1597,6 +1597,17 @@ async function ensureInventoryTable(pool) {
     "ADD COLUMN IF NOT EXISTS crawl_first_seen DATE NULL",
     "ADD INDEX IF NOT EXISTS idx_inv_change (change_type)",
     "ADD INDEX IF NOT EXISTS idx_inv_price_change (price_change_type)",
+    // Every sheet query filters removed_at IS NULL then sorts — composite indexes let those read in order.
+    "ADD INDEX IF NOT EXISTS idx_inv_stock_dealer (removed_at, dealer_name, vin)",
+    "ADD INDEX IF NOT EXISTS idx_inv_stock_make (removed_at, make, model)",
+    "ADD INDEX IF NOT EXISTS idx_inv_stock_price (removed_at, price)",
+    "ADD INDEX IF NOT EXISTS idx_inv_stock_msrp (removed_at, msrp)",
+    "ADD INDEX IF NOT EXISTS idx_inv_stock_mileage (removed_at, mileage)",
+    "ADD INDEX IF NOT EXISTS idx_inv_stock_year (removed_at, year)",
+    "ADD INDEX IF NOT EXISTS idx_inv_stock_seen (removed_at, last_seen_at)",
+    "ADD INDEX IF NOT EXISTS idx_inv_stock_days (removed_at, days_on_lot)",
+    "ADD INDEX IF NOT EXISTS idx_inv_stock_diff (removed_at, price_diff)",
+    "ADD INDEX IF NOT EXISTS idx_inv_stock_dealer_id (removed_at, dealer_id)",
   ]) await pool.query(`ALTER TABLE dealer_inventory ${ddl}`);
   // One row per (VIN, store, day) the crawl saw the car, with that day's price — the day-by-day history behind
   // the VIN view. Written on every sync; the crawl's price-history points backfill days before the table existed.
@@ -1613,6 +1624,12 @@ async function ensureInventoryTable(pool) {
 }
 
 const INV_STR = (v, n) => (typeof v === "string" && v.trim() ? v.trim().slice(0, n) : null);
+// The aggregate endpoints (stats, by-dealer) scan the whole table and only change when a sync writes, so they
+// are served from memory for 10 minutes and dropped by every bulk upsert / sweep.
+const INV_CACHE_MS = 10 * 60_000;
+const invCache = new Map();
+const invCached = async (key, fn) => { const hit = invCache.get(key); if (hit && Date.now() - hit.at < INV_CACHE_MS) return hit.value; const value = await fn(); invCache.set(key, { at: Date.now(), value }); return value; };
+const invInvalidate = () => invCache.clear();
 const INV_INT = (v) => (Number.isFinite(Number(v)) && v !== null && v !== "" ? Math.round(Number(v)) : null);
 const INV_DEALER = (v) => INV_INT(v) || 0;
 
@@ -1664,6 +1681,7 @@ async function handleInventoryBulk(req, res) {
     }
     if (days.length) await pool.query("INSERT INTO dealer_inventory_days (vin, dealer_id, seen_on, price, mileage) VALUES ? ON DUPLICATE KEY UPDATE price = COALESCE(VALUES(price), price), mileage = COALESCE(VALUES(mileage), mileage)", [days]);
   }
+  invInvalidate();
   sendJson(res, 200, { upserted, skipped });
 }
 
@@ -1693,6 +1711,7 @@ async function handleInventorySweep(req, res) {
   let sql = "UPDATE dealer_inventory SET removed_at = CURRENT_TIMESTAMP WHERE dealer_id = ? AND removed_at IS NULL AND last_seen_at < ?";
   if (sources.length) { sql += " AND source IN (?)"; args.push(sources); }
   const [result] = await pool.query(sql, args);
+  if (result.affectedRows) invInvalidate();
   sendJson(res, 200, { removed: result.affectedRows });
 }
 
@@ -1729,21 +1748,26 @@ async function handleListInventory(req, res, params) {
 async function handleInventoryStats(req, res) {
   const pool = getPool();
   await ensureInventoryTable(pool);
+  sendJson(res, 200, await invCached("stats", () => computeInventoryStats(pool)));
+}
+async function computeInventoryStats(pool) {
   const [[tot]] = await pool.query("SELECT COUNT(*) AS total, SUM(removed_at IS NULL) AS inStock, COUNT(DISTINCT dealer_id) AS dealers, COUNT(DISTINCT vin) AS vins, MAX(last_seen_at) AS lastSeenAt FROM dealer_inventory");
   const [byMake] = await pool.query("SELECT make, COUNT(*) AS n FROM dealer_inventory WHERE removed_at IS NULL AND make IS NOT NULL GROUP BY make ORDER BY n DESC LIMIT 100");
   const [byState] = await pool.query("SELECT d.state AS state, COUNT(*) AS n FROM dealer_inventory i JOIN dealership_contacts d ON d.id = i.dealer_id WHERE i.removed_at IS NULL GROUP BY d.state ORDER BY n DESC");
   const [byCond] = await pool.query("SELECT cond, COUNT(*) AS n FROM dealer_inventory WHERE removed_at IS NULL GROUP BY cond");
   const [[mv]] = await pool.query("SELECT SUM(change_type = 'NEW_ARRIVAL') AS arrivals, SUM(price_diff < 0) AS priceDrops, SUM(price_diff > 0) AS priceIncreases, SUM(window_sticker_url IS NOT NULL) AS withSticker, SUM(removed_at >= DATE_SUB(NOW(), INTERVAL 1 DAY)) AS removedToday FROM dealer_inventory WHERE removed_at IS NULL OR removed_at >= DATE_SUB(NOW(), INTERVAL 1 DAY)");
-  sendJson(res, 200, { total: Number(tot.total), inStock: Number(tot.inStock || 0), dealers: Number(tot.dealers), vins: Number(tot.vins), lastSeenAt: tot.lastSeenAt, byMake, byState, byCond,
-    movement: { arrivals: Number(mv.arrivals || 0), priceDrops: Number(mv.priceDrops || 0), priceIncreases: Number(mv.priceIncreases || 0), withSticker: Number(mv.withSticker || 0), removedToday: Number(mv.removedToday || 0) } });
+  return { total: Number(tot.total), inStock: Number(tot.inStock || 0), dealers: Number(tot.dealers), vins: Number(tot.vins), lastSeenAt: tot.lastSeenAt, byMake, byState, byCond,
+    movement: { arrivals: Number(mv.arrivals || 0), priceDrops: Number(mv.priceDrops || 0), priceIncreases: Number(mv.priceIncreases || 0), withSticker: Number(mv.withSticker || 0), removedToday: Number(mv.removedToday || 0) } };
 }
 
 // GET /api/inventory/by-dealer — in-stock counts per store, for the dealer sheet.
 async function handleInventoryByDealer(req, res) {
   const pool = getPool();
   await ensureInventoryTable(pool);
-  const [rows] = await pool.query("SELECT dealer_id, COUNT(*) AS inStock, SUM(cond = 'new') AS newCount, SUM(price_diff < 0) AS priceDrops, MAX(last_seen_at) AS lastSeenAt FROM dealer_inventory WHERE removed_at IS NULL AND dealer_id > 0 GROUP BY dealer_id");
-  sendJson(res, 200, { dealers: rows.map((r) => ({ dealerId: String(r.dealer_id), inStock: Number(r.inStock), newCount: Number(r.newCount || 0), priceDrops: Number(r.priceDrops || 0), lastSeenAt: r.lastSeenAt })) });
+  sendJson(res, 200, await invCached("by-dealer", async () => {
+    const [rows] = await pool.query("SELECT dealer_id, COUNT(*) AS inStock, SUM(cond = 'new') AS newCount, SUM(price_diff < 0) AS priceDrops, MAX(last_seen_at) AS lastSeenAt FROM dealer_inventory WHERE removed_at IS NULL AND dealer_id > 0 GROUP BY dealer_id");
+    return { dealers: rows.map((r) => ({ dealerId: String(r.dealer_id), inStock: Number(r.inStock), newCount: Number(r.newCount || 0), priceDrops: Number(r.priceDrops || 0), lastSeenAt: r.lastSeenAt })) };
+  }));
 }
 
 const server = http.createServer((req, res) => {

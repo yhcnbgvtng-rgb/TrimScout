@@ -59,15 +59,17 @@ export default function CrawlSheetClient() {
     setLoading(true);
     setError(null);
     try {
+      // The sheet and the per-store inventory counts are independent — fetch both at once.
+      const invPromise = fetch("/api/admin/inventory?byDealer=1", { cache: "no-store" }).then(async (r) => [r.ok, await r.json()] as const).catch(() => [false, null] as const);
       const res = await fetch("/api/admin/crawl-sheet", { cache: "no-store" });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || "Could not load the crawl sheet.");
       let rows = json.rows as CrawlRow[];
       // Inventory counts per rooftop, when the box has them — a store's stock beside its contact.
       try {
-        const inv = await fetch("/api/admin/inventory?byDealer=1", { cache: "no-store" });
-        const ij = await inv.json();
-        if (inv.ok && Array.isArray(ij.dealers)) {
+        const [invOk, ij] = await invPromise;
+        const inv = { ok: invOk };
+        if (inv.ok && ij && Array.isArray(ij.dealers)) {
           const by = new Map((ij.dealers as Array<{ dealerId: string; inStock: number; newCount: number; priceDrops: number }>).map((d) => [d.dealerId, d]));
           rows = rows.map((r) => { const d = by.get(r.id); return d ? { ...r, inStock: d.inStock, newCount: d.newCount, priceDrops: d.priceDrops } : { ...r, inStock: 0, newCount: 0, priceDrops: 0 }; });
         }
