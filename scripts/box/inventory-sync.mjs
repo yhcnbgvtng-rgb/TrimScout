@@ -34,10 +34,30 @@ const api = async (port, path, body) => {
 };
 
 const norm = (s) => String(s || "").toLowerCase().replace(/[^a-z0-9]/g, "");
-const raw = JSON.parse(fs.readFileSync(file, "utf8"));
-const vehicles = Array.isArray(raw) ? raw : raw.vehicles || raw.inventory || [];
-const active = vehicles.filter((v) => /^[A-HJ-NPR-Z0-9]{17}$/.test(String(v.vin || "").toUpperCase()) && (v.status || "ACTIVE").toUpperCase() === "ACTIVE");
-console.log(`${vehicles.length} vehicles in file, ${active.length} active with a valid VIN`);
+
+// Stream the JSON array object by object instead of parsing the whole file: each record carries NHTSA,
+// options and price-history blobs, so 150k of them parsed at once is hundreds of MB on a small box.
+// Only the compact mapped row is kept per vehicle.
+function* streamTopLevelObjects(path) {
+  const fd = fs.openSync(path, "r");
+  const buf = Buffer.alloc(1 << 20);
+  let depth = 0, inStr = false, esc = false, started = false, cur = "";
+  for (;;) {
+    const n = fs.readSync(fd, buf, 0, buf.length, null);
+    if (n <= 0) break;
+    const chunk = buf.toString("utf8", 0, n);
+    for (const ch of chunk) {
+      if (!started) { if (ch === "[") started = true; continue; }
+      if (depth === 0) { if (ch === "{") { depth = 1; cur = "{"; } continue; }
+      cur += ch;
+      if (inStr) { if (esc) esc = false; else if (ch === "\\") esc = true; else if (ch === '"') inStr = false; continue; }
+      if (ch === '"') inStr = true;
+      else if (ch === "{") depth++;
+      else if (ch === "}") { depth--; if (depth === 0) { yield JSON.parse(cur); cur = ""; } }
+    }
+  }
+  fs.closeSync(fd);
+}
 
 // Directory rows → (name|state) and (name) lookups, so each store gets its directory id (the sheet joins on it).
 const dir = (await api(AUTH_PORT, "/api/dealerships")).dealerships || [];
@@ -64,11 +84,18 @@ const dealerIdFor = (v) => {
 };
 const cond = (t) => ({ NEW: "new", USED: "used", CERTIFIED: "cpo", CPO: "cpo", "CERTIFIED PRE-OWNED": "cpo" })[String(t || "").toUpperCase()] || null;
 
-const rows = active.map((v) => ({
-  vin: v.vin.toUpperCase(), dealerId: dealerIdFor(v), dealerName: v.dealerName || v.configDealerName, condition: cond(v.inventoryType), year: v.year, make: v.make, model: v.model, trim: v.trim,
-  bodyStyle: v.bodyStyle, exteriorColor: v.exteriorColor, interiorColor: v.interiorColor, mileage: v.mileage, price: v.price, msrp: v.msrp, stockNumber: v.stockNumber, vdpUrl: v.url, imageUrl: v.imageUrl, source: "nightly",
-}));
+const rows = [];
+let total = 0;
+for (const v of streamTopLevelObjects(file)) {
+  total++;
+  if (!/^[A-HJ-NPR-Z0-9]{17}$/.test(String(v.vin || "").toUpperCase()) || (v.status || "ACTIVE").toUpperCase() !== "ACTIVE") continue;
+  rows.push({
+    vin: v.vin.toUpperCase(), dealerId: dealerIdFor(v), dealerName: v.dealerName || v.configDealerName, condition: cond(v.inventoryType), year: v.year, make: v.make, model: v.model, trim: v.trim,
+    bodyStyle: v.bodyStyle, exteriorColor: v.exteriorColor, interiorColor: v.interiorColor, mileage: v.mileage, price: v.price, msrp: v.msrp, stockNumber: v.stockNumber, vdpUrl: v.url, imageUrl: v.imageUrl, source: "nightly",
+  });
+}
 const unmatched = rows.filter((r) => !r.dealerId).length;
+console.log(`${total} vehicles in file, ${rows.length} active with a valid VIN`);
 console.log(`stores matched to the directory: ${rows.length - unmatched}/${rows.length} vehicles (${unmatched} unmatched — kept, keyed to store 0)`);
 
 // The sweep compares against the deals box's clock; give it a 10-minute margin so a few seconds of clock
