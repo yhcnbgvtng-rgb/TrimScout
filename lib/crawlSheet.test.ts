@@ -56,7 +56,11 @@ describe("crawl sheet — notes become columns", () => {
     assert.match(client, /from "@\/lib\/crawlSheetColumns"/);
     assert.doesNotMatch(client, /from "@\/lib\/crawlSheet"/);
     assert.doesNotMatch(fs.readFileSync("lib/crawlSheetColumns.ts", "utf8"), /^import /m, "no imports at all — safe for the browser bundle");
-    assert.match(fs.readFileSync("app/api/admin/crawl-sheet/route.ts", "utf8"), /requireAdminSession\(\)/);
+    const route = fs.readFileSync("app/api/admin/crawl-sheet/route.ts", "utf8");
+    assert.match(route, /requireAdminSession\(\)/);
+    assert.match(route, /cachedDealerDirectory\(\)/, "served from the directory cache, not a fresh box pull per open");
+    assert.match(route, /get\("notes"\) === "1"/, "notes are an opt-in second request");
+    assert.match(fs.readFileSync("app/admin/crawl/CrawlSheetClient.tsx", "utf8"), /crawl-sheet\?notes=1/);
   });
 });
 

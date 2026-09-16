@@ -51,6 +51,21 @@ export default function CrawlSheetClient() {
   const [colsOpen, setColsOpen] = useState(false);
   const [openFacet, setOpenFacet] = useState<Facet | null>(null);
   const [tab, setTab] = useState<"dealers" | "vehicles">("dealers");
+  // Crawl notes arrive separately (6 MB, hidden column) — pulled once, the first time they're needed.
+  const [notesState, setNotesState] = useState<"none" | "loading" | "loaded">("none");
+  const loadNotes = useCallback(async () => {
+    setNotesState((st) => (st === "none" ? "loading" : st));
+    try {
+      const res = await fetch("/api/admin/crawl-sheet?notes=1", { cache: "no-store" });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "Could not load notes.");
+      const notes = json.notes as Record<string, string>;
+      setRows((prev) => prev.map((r) => ({ ...r, notes: notes[r.id] ?? "" })));
+      setNotesState("loaded");
+    } catch {
+      setNotesState("none");
+    }
+  }, []);
   const [scrollTop, setScrollTop] = useState(0);
   const [viewportH, setViewportH] = useState(600);
   const scrollerRef = useRef<HTMLDivElement | null>(null);
@@ -75,6 +90,7 @@ export default function CrawlSheetClient() {
         }
       } catch { /* inventory service down → columns stay blank */ }
       setRows(rows);
+      setNotesState("none");
       setFetchedAt(json.fetchedAt || null);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not load the crawl sheet.");
@@ -237,7 +253,7 @@ export default function CrawlSheetClient() {
                 <div className="absolute right-0 mt-1.5 w-56 rounded-xl border border-border bg-surface-elevated shadow-2xl p-2 z-30 grid grid-cols-1 gap-0.5">
                   {CRAWL_SHEET_COLUMNS.map((c) => (
                     <label key={c.key} className="flex items-center gap-2 rounded-lg px-2 py-1 text-[11px] font-semibold text-ink-light hover:bg-surface cursor-pointer">
-                      <input type="checkbox" checked={!hidden.has(c.key)} onChange={() => setHidden((h) => { const n = new Set(h); if (n.has(c.key)) n.delete(c.key); else n.add(c.key); return n; })} className="accent-emerald-500" />
+                      <input type="checkbox" checked={!hidden.has(c.key)} onChange={() => { if (c.key === "notes" && hidden.has("notes") && notesState === "none") void loadNotes(); setHidden((h) => { const n = new Set(h); if (n.has(c.key)) n.delete(c.key); else n.add(c.key); return n; }); }} className="accent-emerald-500" />
                       {c.label}
                     </label>
                   ))}
@@ -259,8 +275,8 @@ export default function CrawlSheetClient() {
             <input
               id="crawl-search"
               value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search dealer, city, contact, email, source, notes…"
+              onChange={(e) => { setQuery(e.target.value); if (e.target.value.trim() && notesState === "none") void loadNotes(); }}
+              placeholder={notesState === "loaded" ? "Search dealer, city, contact, email, source, notes…" : "Search dealer, city, contact, email, source…"}
               className="w-full rounded-xl border border-border bg-surface-elevated pl-9 pr-3 py-2 text-xs text-white placeholder:text-ink-faint focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
             />
           </div>
