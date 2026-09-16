@@ -21,6 +21,7 @@ import {
 import { inventoryChangeTypeToPriceChangeType } from './price_diff.js';
 import { mergeInventorySnapshot } from './inventory_merge.js';
 import { buildBrandChangeRecord, mergeDailyChangesDocument } from './daily_changes.js';
+import { withSharedDataLock } from './shared_data_lock.js';
 import {
     collectSalesEmail,
     applyContactToDealer,
@@ -68,6 +69,11 @@ const brand = getBrand(process.env.CRAWLER_BRAND || dealers[0]?.make || 'Porsche
 // record built by nj_policy.js/ny_policy.js carries a `state`), with an
 // explicit CRAWLER_STATE override for dealer files that predate that field.
 const state = process.env.CRAWLER_STATE || dealers[0]?.state || 'UNKNOWN';
+// Used only to keep this run's own diagnostic checkpoint file (see the
+// per-dealer checkpoint write below) from colliding with a concurrently
+// running other state+brand's checkpoint file — never parsed back, so it
+// just needs to be unique-enough per (state, brand), not reversible.
+const checkpointSlug = `${state}_${brand.name}`.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
 const startedAt = new Date().toISOString();
 const PAGE_WORKERS = Number(process.env.CRAWLER_CONCURRENCY) || 8;
 
@@ -1197,9 +1203,17 @@ for (let i = 0; i < dealers.length; i++) {
     // Checkpoint after every dealer. A full nationwide run can take hours;
     // without this, a stall or crash partway through loses everything —
     // the real output files only get written after the whole loop finishes.
+    //
+    // Scoped to this run's own state+brand (not a single shared filename):
+    // with run-daily-crawl.mjs now able to run more than one state's brand
+    // loop at once, a shared, unscoped checkpoint filename would have two
+    // processes overwriting the same file all through both runs, leaving
+    // whichever wrote last as pure noise (this file is diagnostic-only —
+    // never read back by anything in this repo — but corrupting it for
+    // nothing when a one-line scope fixes it isn't worth doing).
     try {
         await fs.writeFile(
-            path.join(DATA_DIR, 'checkpoint_raw_inventory.json'),
+            path.join(DATA_DIR, `checkpoint_raw_inventory_${checkpointSlug}.json`),
             JSON.stringify(Array.from(currentInventory.values()), null, 2)
         );
     } catch (checkpointErr) {
@@ -1221,70 +1235,103 @@ console.log(`Total Live Vehicles Tracked: ${currentInventory.size}`);
 // header comment for the cross-brand data-loss bug this fixes: without
 // that scoping, every other brand's active inventory got mislabeled
 // SOLD_OR_REMOVED on every run, and then dropped entirely two runs later.
-const { updatedSnapshot, allRecords, newArrivals, priceDrops, priceIncreases, soldVehicles } = mergeInventorySnapshot({
-    previousSnapshot,
-    currentInventory,
-    dealers,
-    failedDealerNames,
-    todayDate,
-    todayIso,
-    toPriceChangeType: inventoryChangeTypeToPriceChangeType,
-});
-
-for (const soldRecord of soldVehicles) {
-    try {
-        await recordSoldDom({
-            vin: soldRecord.vin,
-            date: todayDate,
-            yesterdayPrice: soldRecord.price ?? null,
-            cwd: process.cwd(),
-            index: domIndex,
-        });
-    } catch {}
-}
-
-// Persist Daily Changes & Latest Inventory Files
 //
-// This brand's slot in today's daily_changes_<date>.json — merged in
-// (read-modify-write), never a whole-file overwrite. See daily_changes.js's
-// header comment: overwriting here used to make every earlier brand run
-// today vanish from this file the moment the next brand finished.
-const brandChangeRecord = buildBrandChangeRecord({
-    brand: brand.name,
-    state,
-    todayDate,
-    todayIso,
-    totalDealersConfigured: dealers.length,
-    activeDealersCount,
-    currentInventorySize: currentInventory.size,
-    newArrivals,
-    priceDrops,
-    priceIncreases,
-    soldVehicles,
-    dealerStats,
-    skippedForBotProtection: skippedBotProtection,
-});
+// Concurrency: everything from here through the four writes below runs
+// inside the shared-data lock (see shared_data_lock.js), and — critically —
+// re-reads latest_snapshot.json and today's daily_changes file FRESH right
+// here, rather than trusting `previousSnapshot` (read once at process
+// start, ~a whole crawl ago) or a read taken outside the lock. With
+// run-daily-crawl.mjs now running up to MAX_CONCURRENT_STATES states'
+// brand loops at once, another state's process may have written a newer
+// version of either file at any point during this run's own (possibly
+// hours-long) crawl; merging against the stale start-of-run copy would
+// silently discard that other state's update the moment this run writes.
+// The early `previousSnapshot` read up top is left in place and still used
+// for the per-vehicle DOM "yesterdayPrice"/"isNew" bookkeeping during the
+// crawl above — that's informational, not authoritative, so a bit of
+// staleness there is harmless; only the actual merge below needs the
+// freshest possible base.
+let latestPreviousSnapshot = {};
+let dailyChangesDoc;
+let updatedSnapshot;
+let allRecords;
+let newArrivals;
+let priceDrops;
+let priceIncreases;
+let soldVehicles;
 
-let existingChangesDoc = null;
-try {
-    existingChangesDoc = JSON.parse(await fs.readFile(path.join(CHANGES_DIR, `daily_changes_${todayDate}.json`), 'utf-8'));
-} catch {
-    // No file yet today (first brand of the day, or first day ever) — fine.
-}
+await withSharedDataLock(async () => {
+    try {
+        latestPreviousSnapshot = JSON.parse(await fs.readFile(LATEST_SNAPSHOT_PATH, 'utf-8'));
+    } catch {
+        latestPreviousSnapshot = {};
+    }
 
-const dailyChangesDoc = mergeDailyChangesDocument({
-    existing: existingChangesDoc,
-    state,
-    brand: brand.name,
-    brandRecord: brandChangeRecord,
-    todayDate,
-    todayIso,
-});
+    ({ updatedSnapshot, allRecords, newArrivals, priceDrops, priceIncreases, soldVehicles } = mergeInventorySnapshot({
+        previousSnapshot: latestPreviousSnapshot,
+        currentInventory,
+        dealers,
+        failedDealerNames,
+        todayDate,
+        todayIso,
+        toPriceChangeType: inventoryChangeTypeToPriceChangeType,
+    }));
 
-await fs.writeFile(LATEST_SNAPSHOT_PATH, JSON.stringify(updatedSnapshot, null, 2));
-await fs.writeFile(path.join(DATA_DIR, 'national_inventory_latest.json'), JSON.stringify(allRecords, null, 2));
-await fs.writeFile(path.join(DATA_DIR, 'inventory_latest.json'), JSON.stringify(allRecords, null, 2));
-await fs.writeFile(path.join(CHANGES_DIR, `daily_changes_${todayDate}.json`), JSON.stringify(dailyChangesDoc, null, 2));
+    for (const soldRecord of soldVehicles) {
+        try {
+            await recordSoldDom({
+                vin: soldRecord.vin,
+                date: todayDate,
+                yesterdayPrice: soldRecord.price ?? null,
+                cwd: process.cwd(),
+                index: domIndex,
+            });
+        } catch {}
+    }
+
+    // Persist Daily Changes & Latest Inventory Files
+    //
+    // This brand's slot in today's daily_changes_<date>.json — merged in
+    // (read-modify-write), never a whole-file overwrite. See daily_changes.js's
+    // header comment: overwriting here used to make every earlier brand run
+    // today vanish from this file the moment the next brand finished.
+    const brandChangeRecord = buildBrandChangeRecord({
+        brand: brand.name,
+        state,
+        todayDate,
+        todayIso,
+        totalDealersConfigured: dealers.length,
+        activeDealersCount,
+        currentInventorySize: currentInventory.size,
+        newArrivals,
+        priceDrops,
+        priceIncreases,
+        soldVehicles,
+        dealerStats,
+        skippedForBotProtection: skippedBotProtection,
+    });
+
+    let existingChangesDoc = null;
+    try {
+        existingChangesDoc = JSON.parse(await fs.readFile(path.join(CHANGES_DIR, `daily_changes_${todayDate}.json`), 'utf-8'));
+    } catch {
+        // No file yet today (first brand of the day, or first day ever) — fine.
+    }
+
+    dailyChangesDoc = mergeDailyChangesDocument({
+        existing: existingChangesDoc,
+        state,
+        brand: brand.name,
+        brandRecord: brandChangeRecord,
+        todayDate,
+        todayIso,
+    });
+
+    await fs.writeFile(LATEST_SNAPSHOT_PATH, JSON.stringify(updatedSnapshot, null, 2));
+    await fs.writeFile(path.join(DATA_DIR, 'national_inventory_latest.json'), JSON.stringify(allRecords, null, 2));
+    await fs.writeFile(path.join(DATA_DIR, 'inventory_latest.json'), JSON.stringify(allRecords, null, 2));
+    await fs.writeFile(path.join(CHANGES_DIR, `daily_changes_${todayDate}.json`), JSON.stringify(dailyChangesDoc, null, 2));
+}, { label: `standalone:${state}/${brand.name}` });
 
 try {
     await saveDomIndex(domIndex);

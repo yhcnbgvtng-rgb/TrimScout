@@ -14,8 +14,14 @@ import {
   LOG_RETENTION_DAYS,
   STATES,
   WRITE_DEALER_SCRIPTS,
+  MAX_CONCURRENT_STATES,
+  runStatesWithBoundedConcurrency,
 } from '../scripts/run-daily-crawl.mjs';
 import { SUPPORTED_STATES } from '../src/states.js';
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
 describe('run-daily-crawl driver', () => {
   it('slugify matches the brand-file slugs already on disk (e.g. Mercedes-Benz -> mercedes-benz)', () => {
@@ -139,6 +145,122 @@ describe('run-daily-crawl driver', () => {
       assert.equal(totals.brandsOk, 2);
       assert.equal(totals.brandsFailed, 1);
       assert.equal(totals.brandsSkipped, 1);
+    });
+  });
+
+  // ---------------------------------------------------------------------
+  // Bounded state concurrency: this driver used to run STATES fully
+  // sequentially (one state's whole write-dealers -> bot-report -> brand
+  // loop pipeline finished before the next started). The box has 2 vCPUs,
+  // so MAX_CONCURRENT_STATES caps this at 2 states at once rather than
+  // running all 5 unbounded (severe CPU contention + real OOM risk — see
+  // the constant's own comment). runStateFn is injected here so these
+  // tests exercise the real scheduling logic (worker pool, isolation,
+  // timestamps) without spawning any real subprocesses.
+  // ---------------------------------------------------------------------
+  describe('runStatesWithBoundedConcurrency (bounded state parallelism)', () => {
+    it('MAX_CONCURRENT_STATES is 2, matching the crawl box\'s 2 vCPUs', () => {
+      assert.equal(MAX_CONCURRENT_STATES, 2);
+    });
+
+    it('never runs more than maxConcurrent states at once', async () => {
+      let inFlight = 0;
+      let maxObservedInFlight = 0;
+      const fakeRunState = async (state) => {
+        inFlight++;
+        maxObservedInFlight = Math.max(maxObservedInFlight, inFlight);
+        await sleep(30);
+        inFlight--;
+        return { state, brands: {} };
+      };
+
+      await runStatesWithBoundedConcurrency(['NJ', 'NY', 'FL', 'GA', 'TX'], '2026-09-15', 2, fakeRunState);
+      assert.equal(maxObservedInFlight, 2);
+    });
+
+    it('starts the next queued state as soon as a slot frees, not only after every slot finishes (a real worker pool, not fixed batches of 2)', async () => {
+      const order = [];
+      // FL is deliberately slow; NJ/NY/GA are fast. If this were "wait for
+      // both slots, then start the next pair" instead of a real pool, GA
+      // would only start once NJ AND NY (its whole starting batch) were
+      // both done — not the moment just one of them frees a slot.
+      const durations = { NJ: 10, NY: 15, FL: 200, GA: 10, TX: 10 };
+      const fakeRunState = async (state) => {
+        order.push(`start:${state}`);
+        await sleep(durations[state]);
+        order.push(`end:${state}`);
+        return { state, brands: {} };
+      };
+
+      await runStatesWithBoundedConcurrency(['NJ', 'FL', 'NY', 'GA', 'TX'], '2026-09-15', 2, fakeRunState);
+
+      // NJ and FL start together (the first two slots). NJ finishes long
+      // before FL; the pool should immediately backfill that freed slot
+      // with NY, then GA, then TX — all while FL is still running — rather
+      // than waiting for FL too.
+      const flIndex = order.indexOf('end:FL');
+      assert.ok(order.indexOf('start:NY') < flIndex, 'NY should have started well before FL finished');
+      assert.ok(order.indexOf('start:GA') < flIndex, 'GA should have started well before FL finished');
+      assert.ok(order.indexOf('start:TX') < flIndex, 'TX should have started well before FL finished');
+    });
+
+    it('one state throwing outright (before it builds its own summary) does not stop a concurrently-running other state, and both get real timestamps', async () => {
+      const fakeRunState = async (state) => {
+        if (state === 'GA') {
+          await sleep(10);
+          throw new Error('dealers/ga directory could not be created');
+        }
+        await sleep(40);
+        return { state, brands: { Toyota: { status: 'ok' } } };
+      };
+
+      const results = await runStatesWithBoundedConcurrency(['GA', 'FL'], '2026-09-15', 2, fakeRunState);
+
+      assert.equal(results.GA.fatalError, 'dealers/ga directory could not be created');
+      assert.ok(results.GA.startedAt);
+      assert.ok(results.GA.finishedAt);
+
+      // FL was running concurrently in the other slot and must have
+      // completed normally, unaffected by GA's failure.
+      assert.equal(results.FL.brands.Toyota.status, 'ok');
+      assert.ok(results.FL.startedAt);
+      assert.ok(results.FL.finishedAt);
+    });
+
+    it('records per-state startedAt/finishedAt/durationMs that can genuinely overlap between two concurrent states', async () => {
+      const durations = { NJ: 60, NY: 60 };
+      const fakeRunState = async (state) => {
+        const startedAt = new Date().toISOString();
+        await sleep(durations[state]);
+        return { state, startedAt, finishedAt: new Date().toISOString(), durationMs: durations[state], brands: {} };
+      };
+
+      const results = await runStatesWithBoundedConcurrency(['NJ', 'NY'], '2026-09-15', 2, fakeRunState);
+
+      const njStart = Date.parse(results.NJ.startedAt);
+      const njEnd = Date.parse(results.NJ.finishedAt);
+      const nyStart = Date.parse(results.NY.startedAt);
+      const nyEnd = Date.parse(results.NY.finishedAt);
+
+      // Genuine overlap: NY started before NJ finished (and vice versa) —
+      // this is what "reflects concurrent execution sensibly" means here,
+      // as opposed to a naive sequential total where one state's window
+      // never touches another's.
+      assert.ok(nyStart < njEnd, 'NY should have started before NJ finished (concurrent, not sequential)');
+      assert.ok(njStart < nyEnd, 'NJ should have started before NY finished (concurrent, not sequential)');
+    });
+
+    it('with maxConcurrent=1, falls back to fully sequential (no overlap) — the pool degrades safely rather than assuming concurrency', async () => {
+      const order = [];
+      const fakeRunState = async (state) => {
+        order.push(`start:${state}`);
+        await sleep(10);
+        order.push(`end:${state}`);
+        return { state, brands: {} };
+      };
+
+      await runStatesWithBoundedConcurrency(['NJ', 'NY', 'FL'], '2026-09-15', 1, fakeRunState);
+      assert.deepEqual(order, ['start:NJ', 'end:NJ', 'start:NY', 'end:NY', 'start:FL', 'end:FL']);
     });
   });
 

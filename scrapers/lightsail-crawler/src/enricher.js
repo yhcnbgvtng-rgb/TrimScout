@@ -1,6 +1,7 @@
 import { gotScraping } from 'got-scraping';
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import { withSharedDataLock } from './shared_data_lock.js';
 
 // Computed fresh (not a module-level constant) so a test can chdir into a
 // scratch directory before calling runEnrichmentPipeline and get isolated
@@ -188,6 +189,46 @@ export function resolveFactoryOptions(vehicle, brand) {
   };
 }
 
+// Ensures the expected enrichment fields exist on a vehicle record without
+// ever inventing NHTSA specs or a base price it doesn't already have —
+// same "missing means missing" rule as the loop below. Applied to every
+// vehicle in the file (not just this run's own), matching the pre-existing
+// backfill behavior.
+function ensureEnrichmentShape(vehicle, brand) {
+  const out = { ...vehicle };
+  if (!out.factoryOptions) out.factoryOptions = [];
+  if (!out.optionCodes) out.optionCodes = [];
+  if (out.totalOptionsPrice === undefined) out.totalOptionsPrice = 0;
+  if (out.baseMsrp === undefined) out.baseMsrp = lookupBaseMsrp(out, brand);
+  return out;
+}
+
+// Patches only the VINs THIS run actually enriched onto a freshly-read copy
+// of the shared inventory array, instead of trusting the copy read at this
+// pipeline's own start (which, for a run that took hours of sequential
+// NHTSA lookups, can be long stale by the time it's ready to persist).
+//
+// Root cause this fixes: without it, this function's caller would take
+// whatever `rawInventory` looked like when the pipeline STARTED reading —
+// including every other brand/state's vehicles — mutate this run's own
+// entries in place, and write the WHOLE array back verbatim at the end.
+// If a concurrently-running other state's own crawl+merge (see
+// standalone.js) or enrichment pass wrote a newer version of this same
+// file in the meantime, that write gets silently discarded the moment this
+// one lands — the exact same lost-update shape inventory_merge.js's header
+// comment describes for the sold/active snapshot, just for enrichment
+// fields instead. `enrichedByVin` scopes the patch to only the VINs this
+// run has real fresh data for; every other vehicle is returned exactly as
+// just read from disk, untouched (only shape-backfilled, never content-
+// overwritten) — this run has no evidence about it either way.
+export function mergeEnrichedRecordsIntoInventory({ freshInventory, enrichedByVin, brand = null }) {
+  return freshInventory.map((v) => {
+    const patch = enrichedByVin.get(v.vin);
+    const merged = patch ? { ...v, ...patch } : v;
+    return ensureEnrichmentShape(merged, brand);
+  });
+}
+
 // `vinsToEnrich` scopes the (potentially network-bound, always sequential)
 // per-vehicle work below to just the vehicles this invocation's caller
 // actually has fresh data for — e.g. standalone.js passes the VINs from
@@ -231,6 +272,14 @@ export async function runEnrichmentPipeline(limit = Infinity, brand = null, dbRu
 
   let enrichedCount = 0;
   let cacheHits = 0;
+  // Every field-level result this run computes, keyed by VIN — the actual
+  // "modify" half of this pipeline's read-modify-write, kept separate from
+  // `rawInventory`/`cache` (which are just this run's own start-of-pipeline
+  // snapshot) so the persist step below can apply it onto a FRESH read
+  // instead of overwriting with a stale one. See mergeEnrichedRecordsInto
+  // Inventory's header comment.
+  const enrichedByVin = new Map();
+  const newCacheEntries = new Map();
   const vinScope = vinsToEnrich ? new Set(vinsToEnrich) : null;
   const scopedInventory = vinScope ? rawInventory.filter((v) => vinScope.has(v.vin)) : rawInventory;
   const targetVehicles = scopedInventory.slice(0, limit);
@@ -265,25 +314,29 @@ export async function runEnrichmentPipeline(limit = Infinity, brand = null, dbRu
 
     if (cached && cached.nhtsa && (!isEv || cached.nhtsa.engineCylinders === 0)) {
       cacheHits++;
-      Object.assign(v, {
+      const patch = {
         nhtsa: cached.nhtsa,
         factoryOptions: optionData.options,
         optionCodes: optionData.optionCodes,
         totalOptionsPrice: optionData.totalOptionsPrice,
         baseMsrp: optionData.baseMsrp,
         enrichedAt: cached.enrichedAt,
-      });
+      };
+      Object.assign(v, patch);
+      enrichedByVin.set(v.vin, patch);
       continue;
     }
 
     if (skipNhtsa) {
-      Object.assign(v, {
+      const patch = {
         nhtsa: null,
         factoryOptions: optionData.options,
         optionCodes: optionData.optionCodes,
         totalOptionsPrice: optionData.totalOptionsPrice,
         baseMsrp: optionData.baseMsrp,
-      });
+      };
+      Object.assign(v, patch);
+      enrichedByVin.set(v.vin, patch);
       continue;
     }
 
@@ -301,8 +354,12 @@ export async function runEnrichmentPipeline(limit = Infinity, brand = null, dbRu
 
     // Only cache real NHTSA data — a null result (lookup failed) should be
     // retried on the next run, not permanently frozen as "no data".
-    if (nhtsaData) cache[v.vin] = enrichment;
+    if (nhtsaData) {
+      cache[v.vin] = enrichment;
+      newCacheEntries.set(v.vin, enrichment);
+    }
     Object.assign(v, enrichment);
+    enrichedByVin.set(v.vin, enrichment);
     enrichedCount++;
 
     if (enrichedCount % 50 === 0 || enrichedCount === 1) {
@@ -316,26 +373,61 @@ export async function runEnrichmentPipeline(limit = Infinity, brand = null, dbRu
     // scale losing an interrupted run's un-persisted NHTSA lookups is a minor
     // annoyance; at nationwide scale (hours-long, many thousands of external
     // API calls) it's real lost work if the process is ever killed mid-run.
+    //
+    // Locked + fresh-merged, same reasoning as the final persist below: this
+    // pipeline can run for hours, and a concurrently-running other state's
+    // own enrichment pass may have added ITS OWN new cache entries to this
+    // same file since this run started — writing back this run's full
+    // in-memory `cache` (which was only ever a stale-by-now snapshot plus
+    // this run's own additions) would erase those. Merging just this run's
+    // own `newCacheEntries` onto a fresh read keeps both.
     if (enrichedCount % 200 === 0) {
-      await fs.writeFile(CACHE_PATH, JSON.stringify(cache, null, 2));
+      await withSharedDataLock(async () => {
+        let freshCache = {};
+        try {
+          freshCache = JSON.parse(await fs.readFile(CACHE_PATH, 'utf-8'));
+        } catch {
+          freshCache = {};
+        }
+        const merged = { ...freshCache, ...Object.fromEntries(newCacheEntries) };
+        await fs.writeFile(CACHE_PATH, JSON.stringify(merged, null, 2));
+      }, { label: `enricher-checkpoint:${brand?.name || 'unknown'}` });
     }
   }
 
-  // Ensure every record has the expected shape — but never invent NHTSA
-  // specs or a base price for a vehicle that genuinely doesn't have real
-  // data. Missing means missing; the UI is expected to handle that (it
-  // already does for factoryOptions/baseMsrp).
-  for (const v of rawInventory) {
-    if (!v.factoryOptions) v.factoryOptions = [];
-    if (!v.optionCodes) v.optionCodes = [];
-    if (v.totalOptionsPrice === undefined) v.totalOptionsPrice = 0;
-    if (v.baseMsrp === undefined) v.baseMsrp = lookupBaseMsrp(v, brand);
-  }
+  // Save updated cache and enriched inventory — locked, and merged onto a
+  // FRESH read of both files rather than the copies read at the top of this
+  // function. See mergeEnrichedRecordsIntoInventory's header comment: this
+  // pipeline is network-bound and can run for hours (sequential NHTSA
+  // lookups), so by the time it's ready to persist, a concurrently-running
+  // other state's crawl+merge (standalone.js) or enrichment pass may well
+  // have written a newer version of national_inventory_latest.json /
+  // inventory_latest.json / enriched_cache.json. Only this run's own VINs
+  // (enrichedByVin / newCacheEntries) are ever patched in; everything else
+  // comes from the fresh read, untouched.
+  await withSharedDataLock(async () => {
+    let freshInventory = rawInventory;
+    try {
+      freshInventory = JSON.parse(await fs.readFile(INVENTORY_PATH, 'utf-8'));
+    } catch {
+      // Nothing on disk (shouldn't happen — we read it successfully above —
+      // but if it vanished, falling back to what this run already has is
+      // strictly better than throwing away this run's own enrichment work.
+    }
+    let freshCache = {};
+    try {
+      freshCache = JSON.parse(await fs.readFile(CACHE_PATH, 'utf-8'));
+    } catch {
+      freshCache = {};
+    }
 
-  // Save updated cache and enriched inventory
-  await fs.writeFile(CACHE_PATH, JSON.stringify(cache, null, 2));
-  await fs.writeFile(INVENTORY_PATH, JSON.stringify(rawInventory, null, 2));
-  await fs.writeFile(path.join(DATA_DIR, "inventory_latest.json"), JSON.stringify(rawInventory, null, 2));
+    rawInventory = mergeEnrichedRecordsIntoInventory({ freshInventory, enrichedByVin, brand });
+    cache = { ...freshCache, ...Object.fromEntries(newCacheEntries) };
+
+    await fs.writeFile(CACHE_PATH, JSON.stringify(cache, null, 2));
+    await fs.writeFile(INVENTORY_PATH, JSON.stringify(rawInventory, null, 2));
+    await fs.writeFile(path.join(DATA_DIR, "inventory_latest.json"), JSON.stringify(rawInventory, null, 2));
+  }, { label: `enricher-final:${brand?.name || 'unknown'}` });
 
   // Sync to MariaDB (additive — this never touches the JSON files above,
   // which remain the source of truth for anything that reads them today).

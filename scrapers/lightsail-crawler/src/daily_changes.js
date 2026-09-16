@@ -25,18 +25,32 @@
 // per-brand detail and stay correct no matter what order brands ran in or
 // whether a brand is rerun later the same day (its slot is simply replaced).
 //
-// Concurrency note: this assumes brand runs are serial, never concurrent —
-// the same assumption standalone.js's own README already documents
-// ("Never run two brands concurrently"). A read-modify-write here is not
-// safe against two processes writing the same date's file at once. This is
-// exactly the failure mode the driver's PID-file lock (see
-// scripts/run-daily-crawl.mjs's acquireLock()) guards against at the
-// whole-run level — it stops a second `run-daily-crawl.mjs` invocation
-// (e.g. cron firing into a still-running manual run) from ever starting
-// brand processes concurrently with an already-running invocation's. It
-// does not by itself make concurrent writes to this file safe; it just
-// prevents the driver from ever creating that situation in the first
-// place.
+// Concurrency note (updated 2026-09-15 — the functions in this file are
+// still assumed single-threaded/serial in themselves; what changed is who
+// is allowed to call them at the same time as whom):
+//
+// Brands within one state's brand loop are still run one at a time — that
+// was never the bottleneck. What changed is that run-daily-crawl.mjs can
+// now run up to MAX_CONCURRENT_STATES different STATES' brand loops at
+// once (see that script's MAX_CONCURRENT_STATES comment), so two different
+// brand processes (each covering a different state) CAN now call
+// mergeDailyChangesDocument() around the same moment, both targeting the
+// same daily_changes_<date>.json. A bare read-modify-write here is still
+// not safe against that on its own — nothing in this file's own functions
+// changed to make it so. Safety instead comes from the caller
+// (standalone.js) wrapping its read of the existing document, this merge,
+// and the write, in src/shared_data_lock.js's withSharedDataLock() — see
+// standalone.js's own comment at the call site. That's a deliberate
+// choice: keep this file's merge logic (already fixed once, already
+// tested) untouched, and add exclusivity as a thin wrapper around it
+// rather than threading locking concerns into the merge itself.
+//
+// The driver's own PID-file lock (scripts/run-daily-crawl.mjs's
+// acquireLock()) is a different, unrelated guard: it stops a second whole
+// invocation of the driver script itself from starting (e.g. cron firing
+// into a still-running manual run). It says nothing about — and was never
+// meant to prevent — two states running concurrently within one
+// invocation of the driver, which is now the supported, intended case.
 
 export function buildBrandChangeRecord({
   brand,

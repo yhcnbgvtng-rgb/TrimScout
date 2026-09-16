@@ -3,8 +3,12 @@
 //
 // Replaces the ad-hoc SSH shell loops used to run the first NJ and NY
 // crawls (2026-09-14) with one persistent, committed job that cron can
-// call unattended. Runs once per state in src/states.js#SUPPORTED_STATES
-// (NJ, NY, FL, GA, then TX as of 2026-09-15). For each state, in order:
+// call unattended. Runs every state in src/states.js#SUPPORTED_STATES
+// (NJ, NY, FL, GA, then TX as of 2026-09-15), up to MAX_CONCURRENT_STATES
+// (2, matching the crawl box's 2 vCPUs) at a time via
+// runStatesWithBoundedConcurrency() — see that function's own comment for
+// how states are scheduled into the two slots, and MAX_CONCURRENT_STATES'
+// comment for why 2 and not more. Each state's own pipeline, in order:
 //
 //   1. Regenerate dealers/<state>/<brand>.json from the OEM-locator dumps
 //      (write-nj-dealer-files.mjs / write-ny-dealer-files.mjs). This is
@@ -29,13 +33,28 @@
 //
 // One brand hanging or crashing is caught and logged, never allowed to
 // take down the rest of the run — see runStep()'s timeout and the
-// try/catch around each brand in runState().
+// try/catch around each brand in runState(). One STATE hanging or crashing
+// is likewise isolated from any other state running concurrently in the
+// other slot — see runStatesWithBoundedConcurrency()'s own try/catch.
+//
+// Concurrency safety for the shared data files (national_inventory_latest
+// .json, inventory_latest.json, enriched_cache.json, snapshots/latest_
+// snapshot.json, daily_changes/daily_changes_<date>.json) that every
+// state's brand processes read-modify-write is handled inside those
+// processes themselves (src/standalone.js, src/enricher.js), via
+// src/shared_data_lock.js — not here. This driver's own acquireLock()/
+// releaseLock() below guards a different, narrower thing: a second whole
+// invocation of THIS SCRIPT (e.g. cron firing while a manual run is still
+// going) never starts at all. Running this driver's own states
+// concurrently within one invocation is the intended, supported case.
 //
 // Everything this run did — per-step exit codes, per-brand vehicle/price
 // stats pulled back out of the (now correctly per-brand-keyed, see
 // daily_changes.js) daily_changes file, and durations — is written to a
 // durable JSON summary under data/daily_crawl_runs/, not just scattered
-// across per-brand log files.
+// across per-brand log files. Per-state startedAt/finishedAt/durationMs in
+// that summary can now overlap between states — that's expected, not a
+// bug in the summary.
 
 import { spawn } from 'node:child_process';
 import fs from 'node:fs/promises';
@@ -44,6 +63,7 @@ import { fileURLToPath } from 'node:url';
 import { NJ_BRANDS_IN } from '../src/nj_policy.js';
 import { SUPPORTED_STATES } from '../src/states.js';
 import { easternDateStamp } from '../src/date_utils.js';
+import { isProcessAlive } from '../src/pid_lock.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export const ROOT = path.resolve(__dirname, '..');
@@ -81,6 +101,20 @@ export const LOG_RETENTION_DAYS = 30;
 // own numbers) still comfortably fits inside this.
 export const PER_BRAND_TIMEOUT_MS = 2 * 60 * 60 * 1000; // 2 hours
 const SUPPORT_STEP_TIMEOUT_MS = 30 * 60 * 1000; // write-dealers / bot-report
+
+// How many states' full pipelines (write-dealers -> bot-report -> per-brand
+// crawl loop) run at once. Confirmed this session via `nproc`/`free -h`
+// against the actual Lightsail box: 2 vCPUs, 7.6GB RAM. A single brand's
+// crawl process has been observed spiking to ~1.3-1.4GB RSS on a heavier
+// brand (e.g. TX Toyota, GA Toyota), and Patchright/Chromium rendering is
+// CPU-bound — so this is deliberately capped at the vCPU count, not raised
+// further just because more states exist. Five states' worth of that peak
+// at once (~6.5GB) would already be pushing the box's usable RAM before
+// Node/OS overhead, on top of severe CPU contention with only 2 cores. A
+// named constant (not a hardcoded loop shape) so it stays trivially
+// tunable if the box is ever resized, without restructuring runState()/
+// main() again.
+export const MAX_CONCURRENT_STATES = 2;
 
 // PID-file lock so a second invocation of this driver (e.g. cron firing
 // again while a manual run, or the previous day's run, is still going)
@@ -134,18 +168,6 @@ export async function pruneOldLogs({ logsDir = LOGS_DIR, retentionDays = LOG_RET
     }
   }
   return { removed, checked };
-}
-
-// True if a process with this PID is still alive. EPERM means it exists
-// but is owned by another user (still alive); ESRCH (the common case for a
-// stale lock left by a crashed/killed run) means it is not.
-function isProcessAlive(pid) {
-  try {
-    process.kill(pid, 0);
-    return true;
-  } catch (err) {
-    return err.code === 'EPERM';
-  }
 }
 
 // Overlap guard: refuses to let a second invocation of this driver start
@@ -301,7 +323,12 @@ async function dealerCountFor(state, brand) {
 }
 
 async function runState(state, date) {
-  const stateSummary = { state, writeDealers: null, botReport: null, readyBrands: null, brands: {} };
+  // startedAt/finishedAt are wall-clock, not "time actually spent running"
+  // — with MAX_CONCURRENT_STATES > 1, two states' windows can (and are
+  // meant to) overlap. That overlap is the whole point of this change, so
+  // it's recorded plainly rather than hidden behind a single sequential
+  // total that would no longer mean what it used to.
+  const stateSummary = { state, startedAt: new Date().toISOString(), finishedAt: null, durationMs: null, writeDealers: null, botReport: null, readyBrands: null, brands: {} };
 
   const writeScript = WRITE_DEALER_SCRIPTS[state];
   if (!writeScript) throw new Error(`No write-dealers script registered for state "${state}" — add one to WRITE_DEALER_SCRIPTS.`);
@@ -398,6 +425,8 @@ async function runState(state, date) {
     stateSummary.brands[brand] = result;
   }
 
+  stateSummary.finishedAt = new Date().toISOString();
+  stateSummary.durationMs = Date.parse(stateSummary.finishedAt) - Date.parse(stateSummary.startedAt);
   return stateSummary;
 }
 
@@ -431,6 +460,79 @@ export function computeGrandTotals(states) {
   return { ...totals, brandsOk, brandsFailed, brandsSkipped };
 }
 
+// Runs every state's full pipeline (write-dealers -> bot-report -> per-
+// brand crawl loop, all inside runState()) with at most `maxConcurrent`
+// states in flight at once — a small worker pool, not a fixed pairing.
+//
+// Why a pool instead of pre-computed pairs: states aren't equal size (see
+// the MAX_CONCURRENT_STATES comment's numbers — FL and TX each dwarf NJ/
+// NY/GA), and any fixed pairing baked into code would need updating by
+// hand every time a state's real duration drifts or a new state is added,
+// with no guarantee whoever edits it re-derives a good pairing. A pool
+// gets the same result mechanically: `states` is processed in order, and
+// the moment either slot frees up (a state finishes, however long or
+// short it actually took that day), it immediately pulls the next not-yet-
+// started state off the front of the list. With the current STATES order
+// (NJ, NY, FL, GA, TX) and this driver's own historical per-state
+// durations, that lands on essentially the same makespan as manually
+// solving the 2-bin-packing problem for these five states (see the task
+// notes: naive halving would suggest ~5h40m; the achieved schedule comes
+// out within a couple minutes of that, because the long-running states
+// (FL, TX) each claim a slot immediately and the short ones (NJ, NY, GA)
+// backfill around them) — without hardcoding a single day's numbers into
+// the scheduler itself.
+//
+// Each state's own runState() call keeps its existing try/catch around
+// the whole per-brand loop; the try/catch here is a second, outer safety
+// net so a state failing before runState() even builds its own
+// stateSummary (e.g. an unregistered write-dealers script throwing
+// immediately) still can't take down whichever other state is running
+// concurrently in the other slot, and still gets recorded with real
+// start/end timestamps like every other state.
+// `runStateFn` defaults to the real runState() and exists as a seam for
+// tests: runState() itself spawns real subprocesses (write-dealers script,
+// bot-report, standalone.js per brand), so exercising the *scheduling*
+// behavior here (bounded concurrency, per-state isolation, timestamps) in
+// a fast unit test needs a fake that resolves/rejects on a controlled
+// schedule instead — see test/run_daily_crawl.test.js.
+export async function runStatesWithBoundedConcurrency(states, date, maxConcurrent = MAX_CONCURRENT_STATES, runStateFn = runState) {
+  const results = {};
+  let nextIndex = 0;
+
+  async function worker() {
+    for (;;) {
+      const myIndex = nextIndex++;
+      if (myIndex >= states.length) return;
+      const state = states[myIndex];
+
+      const startedAt = new Date().toISOString();
+      console.log(`[driver] ==== ${state}: starting (${startedAt}) ====`);
+      try {
+        results[state] = await runStateFn(state, date);
+      } catch (err) {
+        // A whole state blowing up (e.g. can't create dealers/<state>/ dir)
+        // must not stop a concurrently-running other state.
+        console.error(`[driver] ${state}: fatal error — ${err.stack || err.message}`);
+        results[state] = { state, fatalError: err.message };
+      }
+      const finishedAt = new Date().toISOString();
+      // runState() already sets these on success; only fill them in here
+      // if the fatal-error branch above skipped straight past runState's
+      // own bookkeeping.
+      if (!results[state].startedAt) results[state].startedAt = startedAt;
+      if (!results[state].finishedAt) {
+        results[state].finishedAt = finishedAt;
+        results[state].durationMs = Date.parse(finishedAt) - Date.parse(results[state].startedAt);
+      }
+      console.log(`[driver] ==== ${state}: done (${finishedAt}, ${Math.round(results[state].durationMs / 1000)}s) ====`);
+    }
+  }
+
+  const workerCount = Math.max(1, Math.min(maxConcurrent, states.length));
+  await Promise.all(Array.from({ length: workerCount }, () => worker()));
+  return results;
+}
+
 export async function main() {
   await fs.mkdir(LOGS_DIR, { recursive: true });
   await fs.mkdir(RUNS_DIR, { recursive: true });
@@ -456,22 +558,16 @@ export async function main() {
     const summary = {
       date,
       startedAt,
+      maxConcurrentStates: MAX_CONCURRENT_STATES,
       logRetention: { days: LOG_RETENTION_DAYS, ...pruneResult },
       states: {},
     };
 
-    for (const state of STATES) {
-      console.log(`[driver] ==== ${state}: starting ====`);
-      try {
-        summary.states[state] = await runState(state, date);
-      } catch (err) {
-        // A whole state blowing up (e.g. can't create dealers/<state>/ dir)
-        // must not stop the other state from running.
-        console.error(`[driver] ${state}: fatal error — ${err.stack || err.message}`);
-        summary.states[state] = { state, fatalError: err.message };
-      }
-      console.log(`[driver] ==== ${state}: done ====`);
-    }
+    // Up to MAX_CONCURRENT_STATES states' full pipelines run at once — see
+    // runStatesWithBoundedConcurrency()'s own comment for how states are
+    // scheduled into the available slots, and MAX_CONCURRENT_STATES' for
+    // why that number is 2 and not higher on this box.
+    summary.states = await runStatesWithBoundedConcurrency(STATES, date, MAX_CONCURRENT_STATES);
 
     summary.finishedAt = new Date().toISOString();
     summary.durationMs = Date.parse(summary.finishedAt) - Date.parse(summary.startedAt);
