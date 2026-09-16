@@ -181,3 +181,52 @@ export function vehicleRowsToCsv(rows: VehicleRow[], columns: Array<keyof Vehicl
 export function vehicleSheetFilename(now: Date = new Date()): string {
   return `trimscout-vehicles-${now.toISOString().slice(0, 10)}.csv`;
 }
+
+// ---- VIN history -------------------------------------------------------------------------------------------
+
+export interface VinDay {
+  dealerId: string | null;
+  seenOn: string;
+  price: number | null;
+  mileage: number | null;
+}
+
+export interface VinTimelineRow {
+  date: string;
+  /** "seen" = the crawl observed it that day; "gap" = between observations; "removed" = the day it left the site. */
+  status: "seen" | "gap" | "removed";
+  price: number | null;
+  /** Change versus the previous known price (0 on the first known day). */
+  delta: number | null;
+  mileage: number | null;
+}
+
+const addDays = (iso: string, n: number) => { const d = new Date(`${iso}T00:00:00Z`); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
+
+/**
+ * Day-by-day history of one listing (a VIN at one store): every calendar day from the first observation (or
+ * the crawl's first-seen date) to the last (or its removal day). Days the crawl saw it are "seen" with that day's
+ * price; days in between carry the last known price as a "gap"; the removal day closes the run. Price deltas are
+ * against the previous known price, so a drop shows on the day it was observed.
+ */
+export function vinTimeline(listing: Pick<VehicleRow, "dealerId" | "firstSeenAt" | "lastSeenAt" | "removedAt" | "crawlFirstSeen" | "price"> | null, days: VinDay[], today: string = new Date().toISOString().slice(0, 10)): VinTimelineRow[] {
+  const mine = days.filter((d) => !listing || (d.dealerId ?? null) === (listing.dealerId ?? null)).sort((a, b) => a.seenOn.localeCompare(b.seenOn));
+  const byDay = new Map(mine.map((d) => [d.seenOn, d]));
+  const starts = [mine[0]?.seenOn, listing?.crawlFirstSeen?.slice(0, 10), listing?.firstSeenAt?.slice(0, 10)].filter(Boolean) as string[];
+  if (!starts.length) return [];
+  const start = starts.sort()[0];
+  const removed = listing?.removedAt ? listing.removedAt.slice(0, 10) : null;
+  const ends = [mine[mine.length - 1]?.seenOn, listing?.lastSeenAt?.slice(0, 10), removed].filter(Boolean) as string[];
+  const end = removed ?? (ends.sort().reverse()[0] > today ? today : ends.sort().reverse()[0]);
+  const out: VinTimelineRow[] = [];
+  let lastPrice: number | null = null;
+  for (let d = start; d <= end && out.length < 400; d = addDays(d, 1)) {
+    const obs = byDay.get(d);
+    if (removed && d === removed && !obs) { out.push({ date: d, status: "removed", price: lastPrice, delta: null, mileage: null }); break; }
+    const price = obs?.price ?? (obs ? lastPrice : lastPrice);
+    const delta = obs && obs.price != null && lastPrice != null ? obs.price - lastPrice : obs && obs.price != null && lastPrice == null ? 0 : null;
+    out.push({ date: d, status: obs ? "seen" : "gap", price, delta, mileage: obs?.mileage ?? null });
+    if (obs?.price != null) lastPrice = obs.price;
+  }
+  return out;
+}

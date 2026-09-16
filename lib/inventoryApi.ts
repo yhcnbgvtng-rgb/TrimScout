@@ -161,6 +161,20 @@ export async function inventoryByDealer(): Promise<{ dealers: InventoryDealerCou
   return request("GET", "/api/inventory/by-dealer");
 }
 
+export interface InventoryDay {
+  dealerId: string | null;
+  seenOn: string;
+  price: number | null;
+  mileage: number | null;
+}
+
+/** Every listing of one VIN (each store that has carried it) plus the day-by-day observations behind them. */
+export async function inventoryVin(vin: string): Promise<{ vin: string; listings: InventoryVehicle[]; days: InventoryDay[] }> {
+  const clean = vin.trim().toUpperCase();
+  if (!/^[A-HJ-NPR-Z0-9]{17}$/.test(clean)) throw new InventoryApiError("A VIN is 17 characters (no I, O or Q).", 400);
+  return request("GET", `/api/inventory/vin/${clean}`);
+}
+
 export async function bulkUpsertInventory(vehicles: InventoryUpsert[]): Promise<{ upserted: number; skipped: number }> {
   return request("POST", "/api/inventory/bulk", { vehicles });
 }
