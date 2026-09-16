@@ -180,8 +180,29 @@ const VA_ZIPS = [
   '22601', // Winchester (Shenandoah Valley / I-81 corridor)
 ];
 
+// North Carolina zip spread. NC has two large, genuinely distinct metro
+// clusters rather than one dominant city (unlike SC/Charleston or
+// GA/Atlanta): Charlotte in the west and the Raleigh-Durham "Research
+// Triangle" + Piedmont Triad (Greensboro/Winston-Salem) in the center, plus
+// separate coastal (Wilmington), mountain (Asheville) and southern
+// (Fayetteville) markets a single-seed radius locator would miss entirely.
+// Concord adds Charlotte-exurb density the same way VA's two Northern-VA
+// seeds cover DC suburbs a Richmond seed alone can't reach.
+const NC_ZIPS = [
+  '28202', // Charlotte
+  '28025', // Concord (Charlotte exurbs)
+  '27601', // Raleigh
+  '27701', // Durham (Research Triangle)
+  '27401', // Greensboro (Piedmont Triad)
+  '27101', // Winston-Salem (Piedmont Triad)
+  '28801', // Asheville (mountains/west)
+  '28401', // Wilmington (coast)
+  '28301', // Fayetteville (south-central)
+  '28601', // Hickory (western Piedmont/foothills)
+];
+
 // Combined zip spread used by every zip+radius OEM locator below.
-const TARGET_ZIPS = [...NJ_NY_ZIPS, ...FL_ZIPS, ...GA_ZIPS, ...TX_ZIPS, ...SC_ZIPS, ...VA_ZIPS];
+const TARGET_ZIPS = [...NJ_NY_ZIPS, ...FL_ZIPS, ...GA_ZIPS, ...TX_ZIPS, ...SC_ZIPS, ...VA_ZIPS, ...NC_ZIPS];
 
 function hostOf(url) {
   return hostFromUrl(url) || normalizeDealerHost(url);
