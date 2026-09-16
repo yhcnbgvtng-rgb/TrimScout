@@ -16,6 +16,7 @@ import {
   WRITE_DEALER_SCRIPTS,
   MAX_CONCURRENT_STATES,
   runStatesWithBoundedConcurrency,
+  buildBrandCrawlEnv,
 } from '../scripts/run-daily-crawl.mjs';
 import { SUPPORTED_STATES } from '../src/states.js';
 
@@ -122,6 +123,46 @@ describe('run-daily-crawl driver', () => {
       );
       assert.equal(result.timedOut, true);
       assert.notEqual(result.exitCode, 0);
+    });
+  });
+
+  // ---------------------------------------------------------------------
+  // buildBrandCrawlEnv: root cause this covers — run-daily-crawl.mjs
+  // computes ONE canonical date once per run (todayStamp(), Eastern
+  // calendar day) and used to thread it through every report/log/summary
+  // filename EXCEPT the env handed to each brand's own standalone.js
+  // subprocess, which instead computed its own date independently at
+  // whatever wall-clock moment that particular brand's subprocess started.
+  // Confirmed live 2026-09-16 on a run spanning Eastern midnight: 11 of 61
+  // brand-runs (FL, TX) filed into the next day's daily_changes file
+  // instead of merging into the run's actual one. Fixed by passing the
+  // driver's own `date` argument (identical for every state/brand in one
+  // invocation, regardless of how long earlier brands took) down as
+  // CRAWLER_RUN_DATE, which standalone.js's resolveRunDate() now prefers
+  // over computing its own date fresh — see test/date_utils.test.js for
+  // that half of the fix.
+  // ---------------------------------------------------------------------
+  describe('buildBrandCrawlEnv (per-brand subprocess inherits the driver\'s one canonical run date)', () => {
+    it('sets CRAWLER_RUN_DATE to the exact date passed in, not a fresh computation', () => {
+      const env = buildBrandCrawlEnv({ state: 'TX', brand: 'Toyota', dealersFile: 'dealers/tx/toyota.json', date: '2026-09-15' });
+      assert.equal(env.CRAWLER_RUN_DATE, '2026-09-15');
+      assert.equal(env.CRAWLER_STATE, 'TX');
+      assert.equal(env.CRAWLER_BRAND, 'Toyota');
+      assert.equal(env.CRAWLER_DEALERS_FILE, 'dealers/tx/toyota.json');
+      assert.equal(env.CRAWLER_PATCHRIGHT_FALLBACK, 'false');
+    });
+
+    it('gives every brand in a state the identical CRAWLER_RUN_DATE, proving it is the driver\'s one canonical value and not recomputed per brand', () => {
+      // Simulates exactly the midnight-crossing scenario: FL's first brand
+      // (starts early) and its last brand (starts hours later, possibly
+      // after Eastern midnight) both get the SAME date because runState()
+      // calls this once per brand with the one `date` it was given, never
+      // re-deriving it from the current wall clock in between.
+      const date = '2026-09-15';
+      const firstBrandEnv = buildBrandCrawlEnv({ state: 'FL', brand: 'Honda', dealersFile: 'dealers/fl/honda.json', date });
+      const lastBrandEnv = buildBrandCrawlEnv({ state: 'FL', brand: 'Toyota', dealersFile: 'dealers/fl/toyota.json', date });
+      assert.equal(firstBrandEnv.CRAWLER_RUN_DATE, lastBrandEnv.CRAWLER_RUN_DATE);
+      assert.equal(firstBrandEnv.CRAWLER_RUN_DATE, '2026-09-15');
     });
   });
 

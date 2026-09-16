@@ -324,6 +324,28 @@ async function dealerCountFor(state, brand) {
   }
 }
 
+// Env for one brand's standalone.js subprocess. CRAWLER_RUN_DATE carries
+// this run's single canonical date (computed once in main() via
+// todayStamp(), the same value for every state and every brand this
+// invocation touches) down to the subprocess explicitly — see
+// resolveRunDate() in src/date_utils.js for the bug this fixes: without
+// it, standalone.js computed its own Eastern date fresh at whatever
+// wall-clock moment that particular brand's subprocess happened to start,
+// which could disagree with the driver's date (and with sibling brands'
+// dates) for any run spanning Eastern midnight, splitting one business
+// day's daily_changes ledger across two dated files. Pulled out as its
+// own function so the exact env passed to every brand subprocess is
+// covered by a fast unit test without spawning a real subprocess.
+export function buildBrandCrawlEnv({ state, brand, dealersFile, date }) {
+  return {
+    CRAWLER_DEALERS_FILE: dealersFile,
+    CRAWLER_BRAND: brand,
+    CRAWLER_STATE: state,
+    CRAWLER_PATCHRIGHT_FALLBACK: 'false',
+    CRAWLER_RUN_DATE: date,
+  };
+}
+
 async function runState(state, date) {
   // startedAt/finishedAt are wall-clock, not "time actually spent running"
   // — with MAX_CONCURRENT_STATES > 1, two states' windows can (and are
@@ -353,6 +375,14 @@ async function runState(state, date) {
     ['scripts/dealer-bot-report.mjs', `--state=${state}`],
     {
       cwd: ROOT,
+      // CRAWLER_RUN_DATE: same fix, same reason as buildBrandCrawlEnv()
+      // below — with states now able to run concurrently, this step for a
+      // state near the back of the scheduling pool can start hours after
+      // `date` was computed. Without this, dealer-bot-report.mjs could
+      // independently compute a later date and write its report under a
+      // filename readReadyBrandsForState() (which looks it up by `date`)
+      // would never find.
+      env: { CRAWLER_RUN_DATE: date },
       logFile: path.join(LOGS_DIR, `${state.toLowerCase()}-bot-report-${date}.log`),
       timeoutMs: SUPPORT_STEP_TIMEOUT_MS,
     },
@@ -393,12 +423,7 @@ async function runState(state, date) {
     try {
       result = await runStep('node', ['src/standalone.js'], {
         cwd: ROOT,
-        env: {
-          CRAWLER_DEALERS_FILE: dealersFile,
-          CRAWLER_BRAND: brand,
-          CRAWLER_STATE: state,
-          CRAWLER_PATCHRIGHT_FALLBACK: 'false',
-        },
+        env: buildBrandCrawlEnv({ state, brand, dealersFile, date }),
         logFile,
         timeoutMs: PER_BRAND_TIMEOUT_MS,
       });

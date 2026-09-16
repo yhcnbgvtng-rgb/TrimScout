@@ -1,7 +1,7 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { easternDateStamp } from '../src/date_utils.js';
+import { easternDateStamp, resolveRunDate } from '../src/date_utils.js';
 
 // ---------------------------------------------------------------------
 // Root cause this covers: Node's Date.toISOString() always returns a UTC
@@ -42,5 +42,58 @@ describe('easternDateStamp (Eastern-calendar-date bucketing)', () => {
   it('formats as zero-padded YYYY-MM-DD for single-digit months/days', () => {
     // 2026-03-05 12:00 UTC is still 2026-03-05 morning in America/New_York.
     assert.equal(easternDateStamp(new Date('2026-03-05T12:00:00.000Z')), '2026-03-05');
+  });
+});
+
+// ---------------------------------------------------------------------
+// resolveRunDate: the fix for the midnight-crossing daily_changes
+// ledger-split bug. run-daily-crawl.mjs computes ONE canonical date once
+// at the start of a run and threads it through every state/brand, but
+// each brand runs in its own standalone.js subprocess spawned whenever
+// the driver gets around to it — not necessarily the same wall-clock
+// moment the driver itself started. Confirmed live 2026-09-16: a run
+// starting ~9pm ET with FL and TX still crawling past midnight ET saw 11
+// of 61 brand-runs compute the *next* day's date instead of the run's
+// actual date, filing into a freshly-created daily_changes_<next-date>
+// .json instead of merging into the correct file.
+//
+// The fix threads the driver's canonical date down via the CRAWLER_
+// RUN_DATE env var; standalone.js's todayDate now comes from
+// resolveRunDate() instead of calling easternDateStamp() directly.
+// ---------------------------------------------------------------------
+describe('resolveRunDate (per-brand-subprocess run-date inheritance)', () => {
+  it('uses CRAWLER_RUN_DATE when set, even though the wall clock has already crossed into the next Eastern calendar day — the actual midnight-crossing bug', () => {
+    // The driver started at ~9pm ET on 2026-09-15 and computed canonical
+    // date 2026-09-15. This brand's own subprocess doesn't get spawned
+    // until after Eastern midnight — wall-clock "now" for THIS subprocess
+    // is already 2026-09-16.
+    const wallClockAfterMidnight = new Date('2026-09-16T04:30:00.000Z'); // 2026-09-16 00:30 ET (EDT, UTC-4)
+    // Confirms this scenario actually exercises the bug: computing fresh
+    // from "now" (the old, buggy behavior) would give a DIFFERENT date
+    // than the driver's canonical one.
+    assert.equal(easternDateStamp(wallClockAfterMidnight), '2026-09-16');
+
+    const resolved = resolveRunDate({ env: { CRAWLER_RUN_DATE: '2026-09-15' }, now: wallClockAfterMidnight });
+    assert.equal(resolved, '2026-09-15', 'must use the driver\'s canonical date, not the date fresh-computed from this subprocess\'s own wall clock');
+  });
+
+  it('falls back to computing the Eastern date fresh from "now" when CRAWLER_RUN_DATE is not set (manual/ad hoc standalone.js invocation)', () => {
+    // Every prior state rollout has sample-tested new state data by
+    // running `node src/standalone.js` directly from a worktree, with no
+    // driver and no CRAWLER_RUN_DATE — that path must keep working
+    // exactly as it does today.
+    const now = new Date('2026-09-16T04:30:00.000Z');
+    assert.equal(resolveRunDate({ env: {}, now }), '2026-09-16');
+  });
+
+  it('ignores a malformed CRAWLER_RUN_DATE and falls back to computing fresh instead of filing under garbage', () => {
+    const now = new Date('2026-09-16T04:30:00.000Z');
+    assert.equal(resolveRunDate({ env: { CRAWLER_RUN_DATE: 'not-a-date' }, now }), '2026-09-16');
+    assert.equal(resolveRunDate({ env: { CRAWLER_RUN_DATE: '' }, now }), '2026-09-16');
+  });
+
+  it('defaults env to process.env and now to the real current time when called with no arguments', () => {
+    const stamp = resolveRunDate();
+    assert.match(stamp, /^\d{4}-\d{2}-\d{2}$/);
   });
 });

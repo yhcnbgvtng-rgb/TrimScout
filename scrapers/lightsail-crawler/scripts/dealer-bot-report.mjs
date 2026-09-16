@@ -32,7 +32,7 @@ import { probeDealer } from '../src/http_probe.js';
 import { buildTablePdf, buildSummaryBlocks } from '../src/pdf_table.js';
 import { CLASSIFICATION_ORDER, summarizeBotRows } from '../src/bot_protection.js';
 import { SUPPORTED_STATES } from '../src/states.js';
-import { easternDateStamp } from '../src/date_utils.js';
+import { resolveRunDate } from '../src/date_utils.js';
 
 // One entry per supported state (see src/states.js) — a new state needs a
 // loader added here, not a new if/else branch.
@@ -130,7 +130,19 @@ await fs.mkdir(outDir, { recursive: true });
 // it computes for its own run, so the two must always agree (see
 // src/date_utils.js). generatedAt itself stays a precise UTC instant,
 // used only for the report body / PDF subtitle, never for the filename.
-const stamp = easternDateStamp();
+//
+// Uses CRAWLER_RUN_DATE (set by run-daily-crawl.mjs to its own canonical
+// once-per-run date) when present, same fix and same reason as
+// standalone.js's todayDate: with up to MAX_CONCURRENT_STATES states now
+// running concurrently, a state near the back of the scheduling pool can
+// have its write-dealers/bot-report step start hours after the driver's
+// own date was computed — independently calling easternDateStamp() here
+// could then disagree with the driver's date and write this report under
+// a filename readReadyBrandsForState() (which looks it up by the driver's
+// date) can never find, silently falling back to "attempt every in-scope
+// brand" instead of the real ready list. Falls back to computing fresh
+// when unset, for manual/ad hoc runs of this script.
+const stamp = resolveRunDate();
 const brandSlug = (brandFilter || 'all').toLowerCase().replace(/[^a-z0-9]+/g, '-');
 const stateSlug = stateFilter.toLowerCase();
 // State is part of every filename — without it, running this for NJ then

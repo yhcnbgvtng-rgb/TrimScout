@@ -29,7 +29,7 @@ import {
     saveDealerContacts,
 } from './sales_email.js';
 import { applyWindowSticker } from './window_sticker.js';
-import { easternDateStamp } from './date_utils.js';
+import { resolveRunDate } from './date_utils.js';
 
 // One shared V8 context, reused for every vehicle's DDC dataLayer eval
 // (Strategy 1) instead of creating a fresh one per call via
@@ -812,7 +812,14 @@ const currentInventory = new Map();
 // Calendar-date bucketing (file naming, firstSeen/lastSeen, DOM retention)
 // uses the Eastern calendar date, not UTC — see date_utils.js. todayIso
 // below is a real UTC instant (when this run happened) and stays as-is.
-const todayDate = easternDateStamp();
+//
+// Uses CRAWLER_RUN_DATE (set by run-daily-crawl.mjs to its own canonical
+// once-per-run date) when present, rather than computing this
+// subprocess's own Eastern date fresh — see resolveRunDate()'s comment in
+// date_utils.js for the midnight-crossing ledger-split bug this fixes.
+// Falls back to computing it fresh when unset, so a manual/ad hoc
+// `node src/standalone.js` run (not launched by the driver) is unaffected.
+const todayDate = resolveRunDate();
 const todayIso = new Date().toISOString();
 const dealerStats = {};
 

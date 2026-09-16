@@ -39,3 +39,38 @@ const easternDateFormatter = new Intl.DateTimeFormat('en-CA', {
 export function easternDateStamp(date = new Date()) {
   return easternDateFormatter.format(date);
 }
+
+const RUN_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+
+// Resolves the single calendar date a crawl run should file its data
+// under (daily_changes filename, firstSeen/lastSeen/soldDate, DOM-blob
+// retention — everything easternDateStamp() itself is used for).
+//
+// Root cause this fixes: run-daily-crawl.mjs computes ONE canonical
+// business date (via easternDateStamp()) once at the start of a run, but
+// each brand it crawls runs in its own standalone.js subprocess, spawned
+// at whatever wall-clock moment the driver happens to get around to that
+// brand — not necessarily the same moment the driver itself started. A
+// run spanning Eastern midnight (confirmed live: a 9pm ET start with FL
+// and TX still crawling past midnight) used to let brands that started
+// after midnight silently compute a DIFFERENT calendar date than brands
+// that started before it, splitting one business day's daily_changes
+// ledger across two files.
+//
+// Fix: the driver passes its canonical date down to every brand
+// subprocess as CRAWLER_RUN_DATE (YYYY-MM-DD, Eastern). standalone.js
+// calls this instead of easternDateStamp() directly, so every brand in a
+// driver-launched run agrees on the same date regardless of when its own
+// subprocess happened to start. Falls back to computing the Eastern date
+// fresh (the pre-fix behavior) when CRAWLER_RUN_DATE is unset or
+// malformed — this is what a manual/ad hoc `node src/standalone.js`
+// invocation (run directly from a terminal, not via the driver — the
+// habit every prior state-rollout used to sample-test new data) still
+// needs and must keep working unchanged.
+export function resolveRunDate({ env = process.env, now = new Date() } = {}) {
+  const override = env.CRAWLER_RUN_DATE;
+  if (override && RUN_DATE_RE.test(override)) {
+    return override;
+  }
+  return easternDateStamp(now);
+}
