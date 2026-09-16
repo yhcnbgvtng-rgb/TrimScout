@@ -17,6 +17,7 @@ before the push; the directory keys by name.
 
 | Brand | Pulled | Rooftops | Named | Emails | Notes |
 |---|---|---|---|---|---|
+| McLaren | 2026-09-15 | 26 | 11 | 6 | `cms.production.aws.mclaren.com/api/retailers` (curl_cffi; filter `country == "USA"`). Feed has no dealer websites — derived `mclaren<city>.com` + verified, 5 multi-brand stores found by search (`mclaren/crawl_locator.md`). Staff pages: 13 captured / 4 walled / 9 none. |
 | Buick | 2026-09-15 | 744 | 480 | 70 (+63 recovery → 435 live) | GM quantum locator, `makeCodes=004` (`crawl_gm_quantum.py buick`; verified codes: 001 Chevrolet, 004 Buick, 006 Cadillac, 012 GMC). 719 of 744 were already live as Buick-GMC combos from the GMC crawl, so the push mostly refreshed contacts (Buick-named rows 618 → 752, emails 305 → 373). Staff pages: 487 captured / 128 walled / 114 none. |
 | Nissan | 2026-09-15 | 1,040 | 500 | 75 | `graphql.nissanusa.com/graphql` `getDealersByLatLng` (public `x-api-key`), **curl_cffi chrome impersonation required** (plain curl 403) and paced at ~1 call/s (faster → 403 for minutes); `radius` is km, 100 cap → 2° grid, split on overflow (`crawl_nissan_graphql.py nissan`). No GM/email in the feed. Staff pages: 540 captured / 164 walled / 336 none. |
 | INFINITI | 2026-09-15 | 190 | 96 | 10 | Same endpoint with `brand: infiniti` (`crawl_nissan_graphql.py infiniti`). Staff pages: 107 / 6 / 77. |

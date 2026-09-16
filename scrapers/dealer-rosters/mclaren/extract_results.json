@@ -1,0 +1,210 @@
+[
+ {
+  "dealer_name": "McLaren Scottsdale",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "McLaren Beverly Hills",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "McLaren Newport Beach",
+  "status": "fetched",
+  "source_url": "https://www.mclarennb.com/meet-our-staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "McLaren Rancho Mirage",
+  "status": "fetched",
+  "source_url": "https://www.mclarenranchomirage.com/staff",
+  "contact_name": "Mo Diab",
+  "contact_title": "General Sales Manager",
+  "contact_email": "mdiab@indigoautogroup.com"
+ },
+ {
+  "dealer_name": "McLaren San Diego",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "McLaren San Francisco",
+  "status": "fetched",
+  "source_url": "https://www.mclarensanfrancisco.com/staff/",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "McLaren Walnut Creek",
+  "status": "fetched",
+  "source_url": "https://www.theluxurycollectionwc.com/staff/",
+  "contact_name": "Lemar Arghandiwal",
+  "contact_title": "Sales Manager",
+  "contact_email": "lemararghandiwal@luxurycarswc.com"
+ },
+ {
+  "dealer_name": "McLaren Westlake Village",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "McLaren Denver",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "McLaren Greenwich",
+  "status": "fetched",
+  "source_url": "https://www.millermotorcars.com/staff/",
+  "contact_name": "Timothy Coughlin",
+  "contact_title": "General Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "McLaren Orlando",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "McLaren Palm Beach",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "McLaren Tampa Bay",
+  "status": "fetched",
+  "source_url": "https://www.mclarentampabay.com/staff",
+  "contact_name": "Andrew Dunton",
+  "contact_title": "General Manager",
+  "contact_email": "adunton@dimmitt.com"
+ },
+ {
+  "dealer_name": "McLaren The Collection",
+  "status": "fetched",
+  "source_url": "https://www.thecollection.com/about-us/management-team/",
+  "contact_name": "David Delgado",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "McLaren Atlanta",
+  "status": "fetched",
+  "source_url": "https://motorcarsofatlanta.com/sales-team",
+  "contact_name": "Jorge Galvez",
+  "contact_title": "General Sales Manager",
+  "contact_email": "jorge@motorcarsofatlanta.com"
+ },
+ {
+  "dealer_name": "McLaren Chicago",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "McLaren Boston",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "McLaren Troy",
+  "status": "fetched",
+  "source_url": "https://www.exoticmotorcarsofmichigan.com/dealership/staff.htm",
+  "contact_name": "Paul Heenan",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "McLaren Charlotte",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "McLaren North Jersey",
+  "status": "fetched",
+  "source_url": "https://www.mclarennorthjersey.com/meet-the-team",
+  "contact_name": "Tony Plesh",
+  "contact_title": "General Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "McLaren Long Island",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "McLaren Philadelphia",
+  "status": "fetched",
+  "source_url": "https://www.mclarenphl.com/dealership/staff.htm",
+  "contact_name": "Chad Sierer",
+  "contact_title": "New Car Sales Manager",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "McLaren Dallas",
+  "status": "blocked",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ },
+ {
+  "dealer_name": "McLaren Houston",
+  "status": "fetched",
+  "source_url": "https://www.mclarenhouston.com/staff",
+  "contact_name": "Pablo Del-Gado",
+  "contact_title": "General Manager",
+  "contact_email": "pdelgado@indigoautogroup.com"
+ },
+ {
+  "dealer_name": "McLaren Washington",
+  "status": "fetched",
+  "source_url": "https://www.mclarenwashington.com/staff",
+  "contact_name": "Amir Hadzimehmedovic",
+  "contact_title": "General Manager",
+  "contact_email": "amirhadzimehmedovic@lithia.com"
+ },
+ {
+  "dealer_name": "McLaren Seattle",
+  "status": "no_staff_page",
+  "source_url": "",
+  "contact_name": "",
+  "contact_title": "",
+  "contact_email": ""
+ }
+]
