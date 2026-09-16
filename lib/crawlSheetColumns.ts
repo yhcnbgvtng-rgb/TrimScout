@@ -79,3 +79,72 @@ export function crawlRowsToCsv(rows: CrawlRow[], columns: Array<keyof CrawlRow> 
 export function crawlSheetFilename(now: Date = new Date()): string {
   return `trimscout-crawl-sheet-${now.toISOString().slice(0, 10)}.csv`;
 }
+
+// ---- Vehicles (crawled dealer inventory) ----------------------------------------------------------------
+
+export interface VehicleRow {
+  vin: string;
+  dealerId: string | null;
+  dealerName: string;
+  dealerCity: string | null;
+  dealerState: string | null;
+  condition: string | null;
+  year: number | null;
+  make: string | null;
+  model: string | null;
+  trim: string | null;
+  bodyStyle: string | null;
+  exteriorColor: string | null;
+  interiorColor: string | null;
+  mileage: number | null;
+  price: number | null;
+  msrp: number | null;
+  stockNumber: string | null;
+  vdpUrl: string | null;
+  imageUrl: string | null;
+  source: string | null;
+  firstSeenAt: string;
+  lastSeenAt: string;
+  removedAt: string | null;
+}
+
+export const VEHICLE_SHEET_COLUMNS: Array<{ key: keyof VehicleRow; label: string }> = [
+  { key: "dealerName", label: "Dealer" },
+  { key: "dealerState", label: "State" },
+  { key: "dealerCity", label: "City" },
+  { key: "condition", label: "Condition" },
+  { key: "year", label: "Year" },
+  { key: "make", label: "Make" },
+  { key: "model", label: "Model" },
+  { key: "trim", label: "Trim" },
+  { key: "vin", label: "VIN" },
+  { key: "stockNumber", label: "Stock #" },
+  { key: "price", label: "Price" },
+  { key: "msrp", label: "MSRP" },
+  { key: "mileage", label: "Miles" },
+  { key: "exteriorColor", label: "Exterior" },
+  { key: "interiorColor", label: "Interior" },
+  { key: "bodyStyle", label: "Body" },
+  { key: "vdpUrl", label: "Listing" },
+  { key: "firstSeenAt", label: "First seen" },
+  { key: "lastSeenAt", label: "Last seen" },
+  { key: "removedAt", label: "Removed" },
+  { key: "source", label: "Parsed from" },
+];
+
+export function vehicleRowCell(row: VehicleRow, key: keyof VehicleRow): string {
+  const v = row[key];
+  if (v == null) return "";
+  if ((key === "firstSeenAt" || key === "lastSeenAt" || key === "removedAt") && typeof v === "string") return v.slice(0, 10);
+  return String(v);
+}
+
+export function vehicleRowsToCsv(rows: VehicleRow[], columns: Array<keyof VehicleRow> = VEHICLE_SHEET_COLUMNS.map((c) => c.key)): string {
+  const labels = columns.map((k) => VEHICLE_SHEET_COLUMNS.find((c) => c.key === k)?.label || String(k));
+  const lines = [labels, ...rows.map((r) => columns.map((k) => vehicleRowCell(r, k)))];
+  return lines.map((l) => l.map(csvCell).join(",")).join("\r\n") + "\r\n";
+}
+
+export function vehicleSheetFilename(now: Date = new Date()): string {
+  return `trimscout-vehicles-${now.toISOString().slice(0, 10)}.csv`;
+}

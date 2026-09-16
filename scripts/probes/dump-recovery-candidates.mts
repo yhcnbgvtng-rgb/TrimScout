@@ -7,10 +7,10 @@
 import fs from "node:fs";
 import { listDealerships } from "../../lib/dealershipsApi";
 const [brand, out] = process.argv.slice(2);
-if (!brand || !out) throw new Error("usage: dump-recovery-candidates.mts <Brand> <out.json>");
+if (!brand || !out) throw new Error("usage: dump-recovery-candidates.mts <Brand|ALL> <out.json>");
 const live = await listDealerships();
 const rows = live
-  .filter((d) => new RegExp(`Brand: ${brand}\\b`, "i").test(d.notes || "") && d.contactName && !d.contactEmail)
+  .filter((d) => (brand === "ALL" || new RegExp(`Brand: ${brand}\\b`, "i").test(d.notes || "")) && d.contactName && !d.contactEmail)
   .map((d) => ({ id: d.id, dealerName: d.dealerName, contactName: d.contactName, website: d.website, sourceUrl: ((d.notes || "").match(/Source: (https?:\/\/[^\s|)]+)/) || [])[1] || "" }))
   .filter((d) => d.sourceUrl);
 fs.writeFileSync(out, JSON.stringify(rows, null, 1));

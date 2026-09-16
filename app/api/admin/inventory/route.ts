@@ -1,0 +1,39 @@
+import { NextResponse } from "next/server";
+import { requireAdminSession } from "@/lib/adminAuth";
+import { listInventory, inventoryStats, InventoryApiError, type InventoryQuery } from "@/lib/inventoryApi";
+
+export const dynamic = "force-dynamic";
+
+/**
+ * Crawled dealer inventory for the admin sheet. `?stats=1` returns the filter-menu counts; otherwise a page of
+ * vehicles for the given filters. `?export=1` walks every page of the filter (cap 50k rows) for the CSV.
+ */
+export async function GET(req: Request) {
+  const session = await requireAdminSession();
+  if (!session) return NextResponse.json({ error: "Admin access required." }, { status: 403 });
+  const sp = new URL(req.url).searchParams;
+  try {
+    if (sp.get("stats") === "1") return NextResponse.json(await inventoryStats());
+    const q: InventoryQuery = {
+      dealerId: sp.get("dealerId") || undefined, state: sp.get("state") || undefined, make: sp.get("make") || undefined, model: sp.get("model") || undefined,
+      cond: sp.get("cond") || undefined, q: sp.get("q") || undefined, inStock: sp.get("inStock") === "1", sort: sp.get("sort") || undefined,
+    };
+    if (sp.get("export") === "1") {
+      const all: unknown[] = [];
+      let offset = 0;
+      while (all.length < 50_000) {
+        const page = await listInventory({ ...q, limit: 2000, offset });
+        all.push(...page.vehicles);
+        offset += page.vehicles.length;
+        if (page.vehicles.length < 2000 || offset >= page.total) break;
+      }
+      return NextResponse.json({ vehicles: all, capped: all.length >= 50_000 });
+    }
+    const limit = Math.min(Number(sp.get("limit")) || 500, 2000);
+    const offset = Number(sp.get("offset")) || 0;
+    return NextResponse.json(await listInventory({ ...q, limit, offset }));
+  } catch (err) {
+    const message = err instanceof InventoryApiError ? err.message : "Could not load inventory.";
+    return NextResponse.json({ error: message }, { status: err instanceof InventoryApiError && err.status === 503 ? 503 : 502 });
+  }
+}
