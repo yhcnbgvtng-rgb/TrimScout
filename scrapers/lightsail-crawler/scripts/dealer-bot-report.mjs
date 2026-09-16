@@ -30,6 +30,8 @@ import { loadScDealers } from '../src/sc_policy.js';
 import { loadVaDealers } from '../src/va_policy.js';
 import { loadNcDealers } from '../src/nc_policy.js';
 import { loadRiDealers } from '../src/ri_policy.js';
+import { loadVtDealers } from '../src/vt_policy.js';
+import { loadNhDealers } from '../src/nh_policy.js';
 import { probeDealer } from '../src/http_probe.js';
 import { buildTablePdf, buildSummaryBlocks } from '../src/pdf_table.js';
 import { CLASSIFICATION_ORDER, summarizeBotRows } from '../src/bot_protection.js';
@@ -48,6 +50,8 @@ const STATE_DEALER_LOADERS = {
   VA: loadVaDealers,
   NC: loadNcDealers,
   RI: loadRiDealers,
+  VT: loadVtDealers,
+  NH: loadNhDealers,
 };
 
 const brandFilter = (process.argv.find((a) => a.startsWith('--brand=')) || '')

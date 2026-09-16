@@ -213,8 +213,35 @@ const RI_ZIPS = [
   '02891', // Westerly (southwest corner, near CT border)
 ];
 
+// Vermont zip spread. VT has no single dominant metro (Burlington is the
+// largest city at under 50,000 people) — population and dealers instead
+// string out along two corridors: US-7 down the western spine
+// (Burlington to Rutland to Bennington) and the southeastern corner along
+// I-91 (Brattleboro). St. Johnsbury seeds the otherwise-unreached
+// Northeast Kingdom.
+const VT_ZIPS = [
+  '05401', // Burlington (largest metro)
+  '05701', // Rutland (central)
+  '05201', // Bennington (southwest)
+  '05301', // Brattleboro (southeast, I-91 corridor)
+  '05819', // St. Johnsbury (Northeast Kingdom)
+];
+
+// New Hampshire zip spread. Population and dealers concentrate in the
+// south, near the MA border and along the Merrimack Valley — Manchester
+// (largest city), Nashua and Salem all sit within that corridor. Concord
+// covers the capital/central belt and Portsmouth the seacoast, the two
+// regions a southern-NH-only seed set would miss.
+const NH_ZIPS = [
+  '03101', // Manchester (largest city)
+  '03060', // Nashua (southern NH, MA border)
+  '03079', // Salem (southern NH, MA border retail corridor)
+  '03301', // Concord (capital, central)
+  '03801', // Portsmouth (seacoast)
+];
+
 // Combined zip spread used by every zip+radius OEM locator below.
-const TARGET_ZIPS = [...NJ_NY_ZIPS, ...FL_ZIPS, ...GA_ZIPS, ...TX_ZIPS, ...SC_ZIPS, ...VA_ZIPS, ...NC_ZIPS, ...RI_ZIPS];
+const TARGET_ZIPS = [...NJ_NY_ZIPS, ...FL_ZIPS, ...GA_ZIPS, ...TX_ZIPS, ...SC_ZIPS, ...VA_ZIPS, ...NC_ZIPS, ...RI_ZIPS, ...VT_ZIPS, ...NH_ZIPS];
 
 function hostOf(url) {
   return hostFromUrl(url) || normalizeDealerHost(url);
