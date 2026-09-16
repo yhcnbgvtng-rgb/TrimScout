@@ -346,13 +346,19 @@ export function buildBrandCrawlEnv({ state, brand, dealersFile, date }) {
     // Safety margin on top of the enricher.js memory fix (see its
     // ensureEnrichmentShape/persist-block comments): that fix removes the
     // *unnecessary* duplicate copies of the accumulated inventory/cache
-    // files, but reading + writing the real ~350MB+ combined dataset once
-    // per brand-run is still real, and only grows as more states are
-    // added. MAX_CONCURRENT_STATES=2 means at most 2 of these subprocesses
-    // run at once on this 8GB/no-swap box, so 3GB each leaves headroom for
-    // the OS, MariaDB, and the crawl phase's own Chromium process without
-    // risking the OOM-killer if usage grows before the next review.
-    NODE_OPTIONS: '--max-old-space-size=3072',
+    // files, but reading + writing the real dataset once per brand-run is
+    // still real and only grows as more states are added. Measured live
+    // against the actual ~153k-vehicle/350MB production files after the
+    // fix: peak RSS 3,055MB for a single scoped brand-run with default
+    // Node heap (no crash) — so 3072 would have left almost no margin.
+    // 3584 leaves ~500MB of headroom over that measured floor. Re-measure
+    // before adding more states: MAX_CONCURRENT_STATES=2 means 2 of these
+    // can run at once, and if both happen to hit their enrichment peak
+    // simultaneously that's up to ~7GB combined on this 8GB/no-swap box —
+    // little left for the OS/MariaDB/Chromium. If the dataset grows
+    // enough to make that a real risk, drop MAX_CONCURRENT_STATES to 1
+    // before raising this further.
+    NODE_OPTIONS: '--max-old-space-size=3584',
   };
 }
 

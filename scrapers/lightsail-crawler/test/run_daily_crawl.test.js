@@ -161,7 +161,7 @@ describe('run-daily-crawl driver', () => {
       // half the box's physical RAM (8GB, no swap) or a future growth spurt
       // risks the OOM-killer instead of a clean, catchable V8 heap error.
       const env = buildBrandCrawlEnv({ state: 'TX', brand: 'Toyota', dealersFile: 'dealers/tx/toyota.json', date: '2026-09-15' });
-      assert.equal(env.NODE_OPTIONS, '--max-old-space-size=3072');
+      assert.equal(env.NODE_OPTIONS, '--max-old-space-size=3584');
     });
 
     it('gives every brand in a state the identical CRAWLER_RUN_DATE, proving it is the driver\'s one canonical value and not recomputed per brand', () => {
