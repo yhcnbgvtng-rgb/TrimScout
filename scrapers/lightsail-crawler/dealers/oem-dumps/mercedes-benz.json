@@ -1197,5 +1197,137 @@
     "lng": -95.442869,
     "source": "oem-locator",
     "sourceUrl": "https://nafta-service.mbusa.com/api/dlrsrv/v1/dealers?zip=77002&distance=120&filter=mbdealer&country=us&language=en"
+  },
+  {
+    "make": "Mercedes-Benz",
+    "name": "Mercedes-Benz of Alexandria",
+    "city": "Alexandria",
+    "state": "VA",
+    "domain": "alexandria.mercedesdealer.com",
+    "lat": 38.80887,
+    "lng": -77.124163,
+    "source": "oem-locator",
+    "sourceUrl": "https://nafta-service.mbusa.com/api/dlrsrv/v1/dealers?zip=22030&distance=120&filter=mbdealer&country=us&language=en"
+  },
+  {
+    "make": "Mercedes-Benz",
+    "name": "Mercedes-Benz of Arlington",
+    "city": "Arlington",
+    "state": "VA",
+    "domain": "arlington.mercedesdealer.com",
+    "lat": 38.876593,
+    "lng": -77.108877,
+    "source": "oem-locator",
+    "sourceUrl": "https://nafta-service.mbusa.com/api/dlrsrv/v1/dealers?zip=22030&distance=120&filter=mbdealer&country=us&language=en"
+  },
+  {
+    "make": "Mercedes-Benz",
+    "name": "Mercedes-Benz of Chantilly",
+    "city": "Chantilly",
+    "state": "VA",
+    "domain": "mbchantilly.com",
+    "lat": 38.8975705,
+    "lng": -77.4634022,
+    "source": "oem-locator",
+    "sourceUrl": "https://nafta-service.mbusa.com/api/dlrsrv/v1/dealers?zip=22030&distance=120&filter=mbdealer&country=us&language=en"
+  },
+  {
+    "make": "Mercedes-Benz",
+    "name": "Mercedes-Benz of Charlottesville",
+    "city": "Charlottesville",
+    "state": "VA",
+    "domain": "mbofcharlottesville.com",
+    "lat": 38.032699,
+    "lng": -78.4488053,
+    "source": "oem-locator",
+    "sourceUrl": "https://nafta-service.mbusa.com/api/dlrsrv/v1/dealers?zip=22901&distance=120&filter=mbdealer&country=us&language=en"
+  },
+  {
+    "make": "Mercedes-Benz",
+    "name": "Mercedes-Benz of Fredericksburg",
+    "city": "Fredericksburg",
+    "state": "VA",
+    "domain": "mboffredericksburg.com",
+    "lat": 38.3123042,
+    "lng": -77.5070954,
+    "source": "oem-locator",
+    "sourceUrl": "https://nafta-service.mbusa.com/api/dlrsrv/v1/dealers?zip=22401&distance=120&filter=mbdealer&country=us&language=en"
+  },
+  {
+    "make": "Mercedes-Benz",
+    "name": "Mercedes-Benz of Hampton",
+    "city": "Hampton",
+    "state": "VA",
+    "domain": "mercedesbenzofhampton.com",
+    "lat": 37.062535,
+    "lng": -76.399993,
+    "source": "oem-locator",
+    "sourceUrl": "https://nafta-service.mbusa.com/api/dlrsrv/v1/dealers?zip=23510&distance=120&filter=mbdealer&country=us&language=en"
+  },
+  {
+    "make": "Mercedes-Benz",
+    "name": "Mercedes-Benz of Lynchburg",
+    "city": "Lynchburg",
+    "state": "VA",
+    "domain": "berglund.mercedesdealer.com",
+    "lat": 37.396035,
+    "lng": -79.228719,
+    "source": "oem-locator",
+    "sourceUrl": "https://nafta-service.mbusa.com/api/dlrsrv/v1/dealers?zip=24501&distance=120&filter=mbdealer&country=us&language=en"
+  },
+  {
+    "make": "Mercedes-Benz",
+    "name": "Mercedes-Benz of Midlothian",
+    "city": "Midlothian",
+    "state": "VA",
+    "domain": "mbofmidlothian.com",
+    "lat": 37.50417,
+    "lng": -77.623429,
+    "source": "oem-locator",
+    "sourceUrl": "https://nafta-service.mbusa.com/api/dlrsrv/v1/dealers?zip=23219&distance=120&filter=mbdealer&country=us&language=en"
+  },
+  {
+    "make": "Mercedes-Benz",
+    "name": "Mercedes-Benz of Richmond",
+    "city": "Richmond",
+    "state": "VA",
+    "domain": "mbofrichmond.com",
+    "lat": 37.630277,
+    "lng": -77.535697,
+    "source": "oem-locator",
+    "sourceUrl": "https://nafta-service.mbusa.com/api/dlrsrv/v1/dealers?zip=23219&distance=120&filter=mbdealer&country=us&language=en"
+  },
+  {
+    "make": "Mercedes-Benz",
+    "name": "Mercedes-Benz of Roanoke",
+    "city": "Roanoke",
+    "state": "VA",
+    "domain": "mercedesbenzofroanoke.com",
+    "lat": 37.207338,
+    "lng": -79.95441,
+    "source": "oem-locator",
+    "sourceUrl": "https://nafta-service.mbusa.com/api/dlrsrv/v1/dealers?zip=24011&distance=120&filter=mbdealer&country=us&language=en"
+  },
+  {
+    "make": "Mercedes-Benz",
+    "name": "Mercedes-Benz of Tysons Corner",
+    "city": "Vienna",
+    "state": "VA",
+    "domain": "mboftysons.com",
+    "lat": 38.929226,
+    "lng": -77.24223,
+    "source": "oem-locator",
+    "sourceUrl": "https://nafta-service.mbusa.com/api/dlrsrv/v1/dealers?zip=22030&distance=120&filter=mbdealer&country=us&language=en"
+  },
+  {
+    "make": "Mercedes-Benz",
+    "name": "Mercedes-Benz of Virginia Beach",
+    "city": "Virginia Beach",
+    "state": "VA",
+    "domain": "mercedesbenzofvirginiabeach.com",
+    "lat": 36.843616,
+    "lng": -76.148344,
+    "source": "oem-locator",
+    "sourceUrl": "https://nafta-service.mbusa.com/api/dlrsrv/v1/dealers?zip=23451&distance=120&filter=mbdealer&country=us&language=en"
   }
 ]

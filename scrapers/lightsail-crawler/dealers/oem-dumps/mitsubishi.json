@@ -988,5 +988,93 @@
     "lng": null,
     "source": "oem-locator",
     "sourceUrl": "https://www.mitsubishicars.com/dealers"
+  },
+  {
+    "make": "Mitsubishi",
+    "name": "Auto Giants Mitsubishi",
+    "city": "Manassas",
+    "state": "VA",
+    "domain": "autogiantsmitsubishi.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.mitsubishicars.com/dealers"
+  },
+  {
+    "make": "Mitsubishi",
+    "name": "Banister Mitsubishi-Hampton",
+    "city": "Hampton",
+    "state": "VA",
+    "domain": "banistermitsubishi.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.mitsubishicars.com/dealers"
+  },
+  {
+    "make": "Mitsubishi",
+    "name": "Charlie Obaugh Mitsubishi",
+    "city": "Staunton",
+    "state": "VA",
+    "domain": "charlieobaughmitsubishi.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.mitsubishicars.com/dealers"
+  },
+  {
+    "make": "Mitsubishi",
+    "name": "Little Joe's Mitsubishi",
+    "city": "Chesapeake",
+    "state": "VA",
+    "domain": "littlejoesautos.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.mitsubishicars.com/dealers"
+  },
+  {
+    "make": "Mitsubishi",
+    "name": "Motor Mile Mitsubishi",
+    "city": "Christiansburg",
+    "state": "VA",
+    "domain": "motormilemitsubishi.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.mitsubishicars.com/dealers"
+  },
+  {
+    "make": "Mitsubishi",
+    "name": "Priority Mitsubishi",
+    "city": "Suffolk",
+    "state": "VA",
+    "domain": "prioritymitsubishi.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.mitsubishicars.com/dealers"
+  },
+  {
+    "make": "Mitsubishi",
+    "name": "Richmond Mitsubishi-South",
+    "city": "Richmond",
+    "state": "VA",
+    "domain": "richmondmitsubishi.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.mitsubishicars.com/dealers"
+  },
+  {
+    "make": "Mitsubishi",
+    "name": "Winchester Mitsubishi",
+    "city": "Winchester",
+    "state": "VA",
+    "domain": "winchester-mitsubishi.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.mitsubishicars.com/dealers"
   }
 ]

@@ -372,5 +372,49 @@
     "lng": null,
     "source": "oem-locator",
     "sourceUrl": "https://www.miniusa.com/bin/services/dealer-locator/getAllDealerByZip.json/77002/50?excludeServiceOnlyDealers=false&includeSatelliteDealers=true"
+  },
+  {
+    "make": "Mini",
+    "name": "Checkered Flag MINI",
+    "city": "Virginia Beach",
+    "state": "VA",
+    "domain": "checkeredflagmini.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.miniusa.com/bin/services/dealer-locator/getAllDealerByZip.json/23451/50?excludeServiceOnlyDealers=false&includeSatelliteDealers=true"
+  },
+  {
+    "make": "Mini",
+    "name": "Crown MINI of Richmond",
+    "city": "Richmond",
+    "state": "VA",
+    "domain": "crownmini.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.miniusa.com/bin/services/dealer-locator/getAllDealerByZip.json/23219/50?excludeServiceOnlyDealers=false&includeSatelliteDealers=true"
+  },
+  {
+    "make": "Mini",
+    "name": "MINI of Alexandria",
+    "city": "Alexandria",
+    "state": "VA",
+    "domain": "miniofalexandria.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.miniusa.com/bin/services/dealer-locator/getAllDealerByZip.json/22030/50?excludeServiceOnlyDealers=false&includeSatelliteDealers=true"
+  },
+  {
+    "make": "Mini",
+    "name": "MINI of Sterling",
+    "city": "Sterling",
+    "state": "VA",
+    "domain": "miniofsterling.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.miniusa.com/bin/services/dealer-locator/getAllDealerByZip.json/22030/50?excludeServiceOnlyDealers=false&includeSatelliteDealers=true"
   }
 ]

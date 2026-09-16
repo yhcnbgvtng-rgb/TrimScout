@@ -1912,5 +1912,203 @@
     "lng": -95.6815,
     "source": "oem-locator",
     "sourceUrl": "https://v3-92-0.ds-us.dcc.feature-app.io/bff-search/dealers?serviceConfigEndpoint=%7B%22endpoint%22%3A%7B%22type%22%3A%22publish%22%2C%22country%22%3A%22us%22%2C%22language%22%3A%22en%22%2C%22content%22%3A%22onehub_pkw%22%2C%22envName%22%3A%22prod%22%2C%22testScenarioId%22%3Anull%7D%2C%22signature%22%3A%22VehBWLTr2hxx8TJ85NJrpgRXoPfAyNcz2K8KuyXQTNI%3D%22%7D&lufthansaApiKey=h0CQWvPYSBvp5KYXUpRU4FpZrnl0tZx1&query=%7B%22type%22%3A%22DEALER%22%2C%22language%22%3A%22en-US%22%2C%22countryCode%22%3A%22US%22%2C%22dealerServiceFilter%22%3A%5B%5D%2C%22contentDealerServiceFilter%22%3A%5B%22ACCES_CNFG%22%2C%22DCA%22%5D%2C%22usePrimaryTenant%22%3Atrue%2C%22name%22%3A%22%2B%22%2C%22useMinimalEndpoint%22%3Afalse%7D"
+  },
+  {
+    "make": "Volkswagen",
+    "name": "Alexandria Volkswagen",
+    "city": "Alexandria",
+    "state": "VA",
+    "domain": "alexandriavw.com",
+    "lat": 38.8366,
+    "lng": -77.0598,
+    "source": "oem-locator",
+    "sourceUrl": "https://v3-92-0.ds-us.dcc.feature-app.io/bff-search/dealers?serviceConfigEndpoint=%7B%22endpoint%22%3A%7B%22type%22%3A%22publish%22%2C%22country%22%3A%22us%22%2C%22language%22%3A%22en%22%2C%22content%22%3A%22onehub_pkw%22%2C%22envName%22%3A%22prod%22%2C%22testScenarioId%22%3Anull%7D%2C%22signature%22%3A%22VehBWLTr2hxx8TJ85NJrpgRXoPfAyNcz2K8KuyXQTNI%3D%22%7D&lufthansaApiKey=h0CQWvPYSBvp5KYXUpRU4FpZrnl0tZx1&query=%7B%22type%22%3A%22DEALER%22%2C%22language%22%3A%22en-US%22%2C%22countryCode%22%3A%22US%22%2C%22dealerServiceFilter%22%3A%5B%5D%2C%22contentDealerServiceFilter%22%3A%5B%22ACCES_CNFG%22%2C%22DCA%22%5D%2C%22usePrimaryTenant%22%3Atrue%2C%22name%22%3A%22%2B%22%2C%22useMinimalEndpoint%22%3Afalse%7D"
+  },
+  {
+    "make": "Volkswagen",
+    "name": "Casey Volkswagen",
+    "city": "Newport News",
+    "state": "VA",
+    "domain": "caseyvolkswagen.com",
+    "lat": 37.0822,
+    "lng": -76.4606,
+    "source": "oem-locator",
+    "sourceUrl": "https://v3-92-0.ds-us.dcc.feature-app.io/bff-search/dealers?serviceConfigEndpoint=%7B%22endpoint%22%3A%7B%22type%22%3A%22publish%22%2C%22country%22%3A%22us%22%2C%22language%22%3A%22en%22%2C%22content%22%3A%22onehub_pkw%22%2C%22envName%22%3A%22prod%22%2C%22testScenarioId%22%3Anull%7D%2C%22signature%22%3A%22VehBWLTr2hxx8TJ85NJrpgRXoPfAyNcz2K8KuyXQTNI%3D%22%7D&lufthansaApiKey=h0CQWvPYSBvp5KYXUpRU4FpZrnl0tZx1&query=%7B%22type%22%3A%22DEALER%22%2C%22language%22%3A%22en-US%22%2C%22countryCode%22%3A%22US%22%2C%22dealerServiceFilter%22%3A%5B%5D%2C%22contentDealerServiceFilter%22%3A%5B%22ACCES_CNFG%22%2C%22DCA%22%5D%2C%22usePrimaryTenant%22%3Atrue%2C%22name%22%3A%22%2B%22%2C%22useMinimalEndpoint%22%3Afalse%7D"
+  },
+  {
+    "make": "Volkswagen",
+    "name": "Checkered Flag Volkswagen",
+    "city": "Virginia Beach",
+    "state": "VA",
+    "domain": "vw.checkeredflag.com",
+    "lat": 36.8431,
+    "lng": -76.0765,
+    "source": "oem-locator",
+    "sourceUrl": "https://v3-92-0.ds-us.dcc.feature-app.io/bff-search/dealers?serviceConfigEndpoint=%7B%22endpoint%22%3A%7B%22type%22%3A%22publish%22%2C%22country%22%3A%22us%22%2C%22language%22%3A%22en%22%2C%22content%22%3A%22onehub_pkw%22%2C%22envName%22%3A%22prod%22%2C%22testScenarioId%22%3Anull%7D%2C%22signature%22%3A%22VehBWLTr2hxx8TJ85NJrpgRXoPfAyNcz2K8KuyXQTNI%3D%22%7D&lufthansaApiKey=h0CQWvPYSBvp5KYXUpRU4FpZrnl0tZx1&query=%7B%22type%22%3A%22DEALER%22%2C%22language%22%3A%22en-US%22%2C%22countryCode%22%3A%22US%22%2C%22dealerServiceFilter%22%3A%5B%5D%2C%22contentDealerServiceFilter%22%3A%5B%22ACCES_CNFG%22%2C%22DCA%22%5D%2C%22usePrimaryTenant%22%3Atrue%2C%22name%22%3A%22%2B%22%2C%22useMinimalEndpoint%22%3Afalse%7D"
+  },
+  {
+    "make": "Volkswagen",
+    "name": "CMA's Valley Volkswagen",
+    "city": "Staunton",
+    "state": "VA",
+    "domain": "cmasvalleyvw.com",
+    "lat": 38.1173,
+    "lng": -79.0679,
+    "source": "oem-locator",
+    "sourceUrl": "https://v3-92-0.ds-us.dcc.feature-app.io/bff-search/dealers?serviceConfigEndpoint=%7B%22endpoint%22%3A%7B%22type%22%3A%22publish%22%2C%22country%22%3A%22us%22%2C%22language%22%3A%22en%22%2C%22content%22%3A%22onehub_pkw%22%2C%22envName%22%3A%22prod%22%2C%22testScenarioId%22%3Anull%7D%2C%22signature%22%3A%22VehBWLTr2hxx8TJ85NJrpgRXoPfAyNcz2K8KuyXQTNI%3D%22%7D&lufthansaApiKey=h0CQWvPYSBvp5KYXUpRU4FpZrnl0tZx1&query=%7B%22type%22%3A%22DEALER%22%2C%22language%22%3A%22en-US%22%2C%22countryCode%22%3A%22US%22%2C%22dealerServiceFilter%22%3A%5B%5D%2C%22contentDealerServiceFilter%22%3A%5B%22ACCES_CNFG%22%2C%22DCA%22%5D%2C%22usePrimaryTenant%22%3Atrue%2C%22name%22%3A%22%2B%22%2C%22useMinimalEndpoint%22%3Afalse%7D"
+  },
+  {
+    "make": "Volkswagen",
+    "name": "Flow Volkswagen of Charlottesville",
+    "city": "Charlottesville",
+    "state": "VA",
+    "domain": "flowvolkswagencharlottesville.com",
+    "lat": 38.0338,
+    "lng": -78.4508,
+    "source": "oem-locator",
+    "sourceUrl": "https://v3-92-0.ds-us.dcc.feature-app.io/bff-search/dealers?serviceConfigEndpoint=%7B%22endpoint%22%3A%7B%22type%22%3A%22publish%22%2C%22country%22%3A%22us%22%2C%22language%22%3A%22en%22%2C%22content%22%3A%22onehub_pkw%22%2C%22envName%22%3A%22prod%22%2C%22testScenarioId%22%3Anull%7D%2C%22signature%22%3A%22VehBWLTr2hxx8TJ85NJrpgRXoPfAyNcz2K8KuyXQTNI%3D%22%7D&lufthansaApiKey=h0CQWvPYSBvp5KYXUpRU4FpZrnl0tZx1&query=%7B%22type%22%3A%22DEALER%22%2C%22language%22%3A%22en-US%22%2C%22countryCode%22%3A%22US%22%2C%22dealerServiceFilter%22%3A%5B%5D%2C%22contentDealerServiceFilter%22%3A%5B%22ACCES_CNFG%22%2C%22DCA%22%5D%2C%22usePrimaryTenant%22%3Atrue%2C%22name%22%3A%22%2B%22%2C%22useMinimalEndpoint%22%3Afalse%7D"
+  },
+  {
+    "make": "Volkswagen",
+    "name": "Karen Radley Volkswagen",
+    "city": "Woodbridge",
+    "state": "VA",
+    "domain": "karenradleyvw.com",
+    "lat": 38.6341,
+    "lng": -77.2735,
+    "source": "oem-locator",
+    "sourceUrl": "https://v3-92-0.ds-us.dcc.feature-app.io/bff-search/dealers?serviceConfigEndpoint=%7B%22endpoint%22%3A%7B%22type%22%3A%22publish%22%2C%22country%22%3A%22us%22%2C%22language%22%3A%22en%22%2C%22content%22%3A%22onehub_pkw%22%2C%22envName%22%3A%22prod%22%2C%22testScenarioId%22%3Anull%7D%2C%22signature%22%3A%22VehBWLTr2hxx8TJ85NJrpgRXoPfAyNcz2K8KuyXQTNI%3D%22%7D&lufthansaApiKey=h0CQWvPYSBvp5KYXUpRU4FpZrnl0tZx1&query=%7B%22type%22%3A%22DEALER%22%2C%22language%22%3A%22en-US%22%2C%22countryCode%22%3A%22US%22%2C%22dealerServiceFilter%22%3A%5B%5D%2C%22contentDealerServiceFilter%22%3A%5B%22ACCES_CNFG%22%2C%22DCA%22%5D%2C%22usePrimaryTenant%22%3Atrue%2C%22name%22%3A%22%2B%22%2C%22useMinimalEndpoint%22%3Afalse%7D"
+  },
+  {
+    "make": "Volkswagen",
+    "name": "Lindsay Volkswagen of Dulles",
+    "city": "Sterling",
+    "state": "VA",
+    "domain": "lindsayvolkswagen.com",
+    "lat": 38.9978,
+    "lng": -77.4335,
+    "source": "oem-locator",
+    "sourceUrl": "https://v3-92-0.ds-us.dcc.feature-app.io/bff-search/dealers?serviceConfigEndpoint=%7B%22endpoint%22%3A%7B%22type%22%3A%22publish%22%2C%22country%22%3A%22us%22%2C%22language%22%3A%22en%22%2C%22content%22%3A%22onehub_pkw%22%2C%22envName%22%3A%22prod%22%2C%22testScenarioId%22%3Anull%7D%2C%22signature%22%3A%22VehBWLTr2hxx8TJ85NJrpgRXoPfAyNcz2K8KuyXQTNI%3D%22%7D&lufthansaApiKey=h0CQWvPYSBvp5KYXUpRU4FpZrnl0tZx1&query=%7B%22type%22%3A%22DEALER%22%2C%22language%22%3A%22en-US%22%2C%22countryCode%22%3A%22US%22%2C%22dealerServiceFilter%22%3A%5B%5D%2C%22contentDealerServiceFilter%22%3A%5B%22ACCES_CNFG%22%2C%22DCA%22%5D%2C%22usePrimaryTenant%22%3Atrue%2C%22name%22%3A%22%2B%22%2C%22useMinimalEndpoint%22%3Afalse%7D"
+  },
+  {
+    "make": "Volkswagen",
+    "name": "Lindsay Volkswagen of Manassas",
+    "city": "Manassas",
+    "state": "VA",
+    "domain": "manassasvw.com",
+    "lat": 38.7784,
+    "lng": -77.4514,
+    "source": "oem-locator",
+    "sourceUrl": "https://v3-92-0.ds-us.dcc.feature-app.io/bff-search/dealers?serviceConfigEndpoint=%7B%22endpoint%22%3A%7B%22type%22%3A%22publish%22%2C%22country%22%3A%22us%22%2C%22language%22%3A%22en%22%2C%22content%22%3A%22onehub_pkw%22%2C%22envName%22%3A%22prod%22%2C%22testScenarioId%22%3Anull%7D%2C%22signature%22%3A%22VehBWLTr2hxx8TJ85NJrpgRXoPfAyNcz2K8KuyXQTNI%3D%22%7D&lufthansaApiKey=h0CQWvPYSBvp5KYXUpRU4FpZrnl0tZx1&query=%7B%22type%22%3A%22DEALER%22%2C%22language%22%3A%22en-US%22%2C%22countryCode%22%3A%22US%22%2C%22dealerServiceFilter%22%3A%5B%5D%2C%22contentDealerServiceFilter%22%3A%5B%22ACCES_CNFG%22%2C%22DCA%22%5D%2C%22usePrimaryTenant%22%3Atrue%2C%22name%22%3A%22%2B%22%2C%22useMinimalEndpoint%22%3Afalse%7D"
+  },
+  {
+    "make": "Volkswagen",
+    "name": "Loyalty Volkswagen",
+    "city": "Chester",
+    "state": "VA",
+    "domain": "loyaltyvwrichmond.com",
+    "lat": 37.3059,
+    "lng": -77.3931,
+    "source": "oem-locator",
+    "sourceUrl": "https://v3-92-0.ds-us.dcc.feature-app.io/bff-search/dealers?serviceConfigEndpoint=%7B%22endpoint%22%3A%7B%22type%22%3A%22publish%22%2C%22country%22%3A%22us%22%2C%22language%22%3A%22en%22%2C%22content%22%3A%22onehub_pkw%22%2C%22envName%22%3A%22prod%22%2C%22testScenarioId%22%3Anull%7D%2C%22signature%22%3A%22VehBWLTr2hxx8TJ85NJrpgRXoPfAyNcz2K8KuyXQTNI%3D%22%7D&lufthansaApiKey=h0CQWvPYSBvp5KYXUpRU4FpZrnl0tZx1&query=%7B%22type%22%3A%22DEALER%22%2C%22language%22%3A%22en-US%22%2C%22countryCode%22%3A%22US%22%2C%22dealerServiceFilter%22%3A%5B%5D%2C%22contentDealerServiceFilter%22%3A%5B%22ACCES_CNFG%22%2C%22DCA%22%5D%2C%22usePrimaryTenant%22%3Atrue%2C%22name%22%3A%22%2B%22%2C%22useMinimalEndpoint%22%3Afalse%7D"
+  },
+  {
+    "make": "Volkswagen",
+    "name": "Safford Volkswagen West Richmond",
+    "city": "North Chesterfield",
+    "state": "VA",
+    "domain": "saffordvwrichmond.com",
+    "lat": 37.5065,
+    "lng": -77.5915,
+    "source": "oem-locator",
+    "sourceUrl": "https://v3-92-0.ds-us.dcc.feature-app.io/bff-search/dealers?serviceConfigEndpoint=%7B%22endpoint%22%3A%7B%22type%22%3A%22publish%22%2C%22country%22%3A%22us%22%2C%22language%22%3A%22en%22%2C%22content%22%3A%22onehub_pkw%22%2C%22envName%22%3A%22prod%22%2C%22testScenarioId%22%3Anull%7D%2C%22signature%22%3A%22VehBWLTr2hxx8TJ85NJrpgRXoPfAyNcz2K8KuyXQTNI%3D%22%7D&lufthansaApiKey=h0CQWvPYSBvp5KYXUpRU4FpZrnl0tZx1&query=%7B%22type%22%3A%22DEALER%22%2C%22language%22%3A%22en-US%22%2C%22countryCode%22%3A%22US%22%2C%22dealerServiceFilter%22%3A%5B%5D%2C%22contentDealerServiceFilter%22%3A%5B%22ACCES_CNFG%22%2C%22DCA%22%5D%2C%22usePrimaryTenant%22%3Atrue%2C%22name%22%3A%22%2B%22%2C%22useMinimalEndpoint%22%3Afalse%7D"
+  },
+  {
+    "make": "Volkswagen",
+    "name": "Safford VW of Fredericksburg",
+    "city": "Fredericksburg",
+    "state": "VA",
+    "domain": "saffordvw.com",
+    "lat": 38.2524,
+    "lng": -77.4973,
+    "source": "oem-locator",
+    "sourceUrl": "https://v3-92-0.ds-us.dcc.feature-app.io/bff-search/dealers?serviceConfigEndpoint=%7B%22endpoint%22%3A%7B%22type%22%3A%22publish%22%2C%22country%22%3A%22us%22%2C%22language%22%3A%22en%22%2C%22content%22%3A%22onehub_pkw%22%2C%22envName%22%3A%22prod%22%2C%22testScenarioId%22%3Anull%7D%2C%22signature%22%3A%22VehBWLTr2hxx8TJ85NJrpgRXoPfAyNcz2K8KuyXQTNI%3D%22%7D&lufthansaApiKey=h0CQWvPYSBvp5KYXUpRU4FpZrnl0tZx1&query=%7B%22type%22%3A%22DEALER%22%2C%22language%22%3A%22en-US%22%2C%22countryCode%22%3A%22US%22%2C%22dealerServiceFilter%22%3A%5B%5D%2C%22contentDealerServiceFilter%22%3A%5B%22ACCES_CNFG%22%2C%22DCA%22%5D%2C%22usePrimaryTenant%22%3Atrue%2C%22name%22%3A%22%2B%22%2C%22useMinimalEndpoint%22%3Afalse%7D"
+  },
+  {
+    "make": "Volkswagen",
+    "name": "Sheehy Volkswagen of Springfield",
+    "city": "Springfield",
+    "state": "VA",
+    "domain": "sheehyspringfieldvw.com",
+    "lat": 38.7756,
+    "lng": -77.1834,
+    "source": "oem-locator",
+    "sourceUrl": "https://v3-92-0.ds-us.dcc.feature-app.io/bff-search/dealers?serviceConfigEndpoint=%7B%22endpoint%22%3A%7B%22type%22%3A%22publish%22%2C%22country%22%3A%22us%22%2C%22language%22%3A%22en%22%2C%22content%22%3A%22onehub_pkw%22%2C%22envName%22%3A%22prod%22%2C%22testScenarioId%22%3Anull%7D%2C%22signature%22%3A%22VehBWLTr2hxx8TJ85NJrpgRXoPfAyNcz2K8KuyXQTNI%3D%22%7D&lufthansaApiKey=h0CQWvPYSBvp5KYXUpRU4FpZrnl0tZx1&query=%7B%22type%22%3A%22DEALER%22%2C%22language%22%3A%22en-US%22%2C%22countryCode%22%3A%22US%22%2C%22dealerServiceFilter%22%3A%5B%5D%2C%22contentDealerServiceFilter%22%3A%5B%22ACCES_CNFG%22%2C%22DCA%22%5D%2C%22usePrimaryTenant%22%3Atrue%2C%22name%22%3A%22%2B%22%2C%22useMinimalEndpoint%22%3Afalse%7D"
+  },
+  {
+    "make": "Volkswagen",
+    "name": "Southern Team Volkswagen of Roanoke",
+    "city": "Roanoke",
+    "state": "VA",
+    "domain": "southernteamvolkswagen.com",
+    "lat": 37.3454,
+    "lng": -79.961,
+    "source": "oem-locator",
+    "sourceUrl": "https://v3-92-0.ds-us.dcc.feature-app.io/bff-search/dealers?serviceConfigEndpoint=%7B%22endpoint%22%3A%7B%22type%22%3A%22publish%22%2C%22country%22%3A%22us%22%2C%22language%22%3A%22en%22%2C%22content%22%3A%22onehub_pkw%22%2C%22envName%22%3A%22prod%22%2C%22testScenarioId%22%3Anull%7D%2C%22signature%22%3A%22VehBWLTr2hxx8TJ85NJrpgRXoPfAyNcz2K8KuyXQTNI%3D%22%7D&lufthansaApiKey=h0CQWvPYSBvp5KYXUpRU4FpZrnl0tZx1&query=%7B%22type%22%3A%22DEALER%22%2C%22language%22%3A%22en-US%22%2C%22countryCode%22%3A%22US%22%2C%22dealerServiceFilter%22%3A%5B%5D%2C%22contentDealerServiceFilter%22%3A%5B%22ACCES_CNFG%22%2C%22DCA%22%5D%2C%22usePrimaryTenant%22%3Atrue%2C%22name%22%3A%22%2B%22%2C%22useMinimalEndpoint%22%3Afalse%7D"
+  },
+  {
+    "make": "Volkswagen",
+    "name": "Southern Volkswagen Greenbrier",
+    "city": "Chesapeake",
+    "state": "VA",
+    "domain": "southernvolkswagengreenbrier.com",
+    "lat": 36.8022,
+    "lng": -76.2263,
+    "source": "oem-locator",
+    "sourceUrl": "https://v3-92-0.ds-us.dcc.feature-app.io/bff-search/dealers?serviceConfigEndpoint=%7B%22endpoint%22%3A%7B%22type%22%3A%22publish%22%2C%22country%22%3A%22us%22%2C%22language%22%3A%22en%22%2C%22content%22%3A%22onehub_pkw%22%2C%22envName%22%3A%22prod%22%2C%22testScenarioId%22%3Anull%7D%2C%22signature%22%3A%22VehBWLTr2hxx8TJ85NJrpgRXoPfAyNcz2K8KuyXQTNI%3D%22%7D&lufthansaApiKey=h0CQWvPYSBvp5KYXUpRU4FpZrnl0tZx1&query=%7B%22type%22%3A%22DEALER%22%2C%22language%22%3A%22en-US%22%2C%22countryCode%22%3A%22US%22%2C%22dealerServiceFilter%22%3A%5B%5D%2C%22contentDealerServiceFilter%22%3A%5B%22ACCES_CNFG%22%2C%22DCA%22%5D%2C%22usePrimaryTenant%22%3Atrue%2C%22name%22%3A%22%2B%22%2C%22useMinimalEndpoint%22%3Afalse%7D"
+  },
+  {
+    "make": "Volkswagen",
+    "name": "Stohlman Volkswagen",
+    "city": "Vienna",
+    "state": "VA",
+    "domain": "stohlman-vw.com",
+    "lat": 38.9237,
+    "lng": -77.2378,
+    "source": "oem-locator",
+    "sourceUrl": "https://v3-92-0.ds-us.dcc.feature-app.io/bff-search/dealers?serviceConfigEndpoint=%7B%22endpoint%22%3A%7B%22type%22%3A%22publish%22%2C%22country%22%3A%22us%22%2C%22language%22%3A%22en%22%2C%22content%22%3A%22onehub_pkw%22%2C%22envName%22%3A%22prod%22%2C%22testScenarioId%22%3Anull%7D%2C%22signature%22%3A%22VehBWLTr2hxx8TJ85NJrpgRXoPfAyNcz2K8KuyXQTNI%3D%22%7D&lufthansaApiKey=h0CQWvPYSBvp5KYXUpRU4FpZrnl0tZx1&query=%7B%22type%22%3A%22DEALER%22%2C%22language%22%3A%22en-US%22%2C%22countryCode%22%3A%22US%22%2C%22dealerServiceFilter%22%3A%5B%5D%2C%22contentDealerServiceFilter%22%3A%5B%22ACCES_CNFG%22%2C%22DCA%22%5D%2C%22usePrimaryTenant%22%3Atrue%2C%22name%22%3A%22%2B%22%2C%22useMinimalEndpoint%22%3Afalse%7D"
+  },
+  {
+    "make": "Volkswagen",
+    "name": "Terry Volkswagen",
+    "city": "Forest",
+    "state": "VA",
+    "domain": "terryvolkswagen.com",
+    "lat": 37.3676,
+    "lng": -79.2536,
+    "source": "oem-locator",
+    "sourceUrl": "https://v3-92-0.ds-us.dcc.feature-app.io/bff-search/dealers?serviceConfigEndpoint=%7B%22endpoint%22%3A%7B%22type%22%3A%22publish%22%2C%22country%22%3A%22us%22%2C%22language%22%3A%22en%22%2C%22content%22%3A%22onehub_pkw%22%2C%22envName%22%3A%22prod%22%2C%22testScenarioId%22%3Anull%7D%2C%22signature%22%3A%22VehBWLTr2hxx8TJ85NJrpgRXoPfAyNcz2K8KuyXQTNI%3D%22%7D&lufthansaApiKey=h0CQWvPYSBvp5KYXUpRU4FpZrnl0tZx1&query=%7B%22type%22%3A%22DEALER%22%2C%22language%22%3A%22en-US%22%2C%22countryCode%22%3A%22US%22%2C%22dealerServiceFilter%22%3A%5B%5D%2C%22contentDealerServiceFilter%22%3A%5B%22ACCES_CNFG%22%2C%22DCA%22%5D%2C%22usePrimaryTenant%22%3Atrue%2C%22name%22%3A%22%2B%22%2C%22useMinimalEndpoint%22%3Afalse%7D"
+  },
+  {
+    "make": "Volkswagen",
+    "name": "Volkswagen of Winchester",
+    "city": "Winchester",
+    "state": "VA",
+    "domain": "volkswagenofwinchester.com",
+    "lat": 39.1162,
+    "lng": -78.1991,
+    "source": "oem-locator",
+    "sourceUrl": "https://v3-92-0.ds-us.dcc.feature-app.io/bff-search/dealers?serviceConfigEndpoint=%7B%22endpoint%22%3A%7B%22type%22%3A%22publish%22%2C%22country%22%3A%22us%22%2C%22language%22%3A%22en%22%2C%22content%22%3A%22onehub_pkw%22%2C%22envName%22%3A%22prod%22%2C%22testScenarioId%22%3Anull%7D%2C%22signature%22%3A%22VehBWLTr2hxx8TJ85NJrpgRXoPfAyNcz2K8KuyXQTNI%3D%22%7D&lufthansaApiKey=h0CQWvPYSBvp5KYXUpRU4FpZrnl0tZx1&query=%7B%22type%22%3A%22DEALER%22%2C%22language%22%3A%22en-US%22%2C%22countryCode%22%3A%22US%22%2C%22dealerServiceFilter%22%3A%5B%5D%2C%22contentDealerServiceFilter%22%3A%5B%22ACCES_CNFG%22%2C%22DCA%22%5D%2C%22usePrimaryTenant%22%3Atrue%2C%22name%22%3A%22%2B%22%2C%22useMinimalEndpoint%22%3Afalse%7D"
+  },
+  {
+    "make": "Volkswagen",
+    "name": "West Broad Volkswagen",
+    "city": "Richmond",
+    "state": "VA",
+    "domain": "westbroadvw.com",
+    "lat": 37.6343,
+    "lng": -77.5475,
+    "source": "oem-locator",
+    "sourceUrl": "https://v3-92-0.ds-us.dcc.feature-app.io/bff-search/dealers?serviceConfigEndpoint=%7B%22endpoint%22%3A%7B%22type%22%3A%22publish%22%2C%22country%22%3A%22us%22%2C%22language%22%3A%22en%22%2C%22content%22%3A%22onehub_pkw%22%2C%22envName%22%3A%22prod%22%2C%22testScenarioId%22%3Anull%7D%2C%22signature%22%3A%22VehBWLTr2hxx8TJ85NJrpgRXoPfAyNcz2K8KuyXQTNI%3D%22%7D&lufthansaApiKey=h0CQWvPYSBvp5KYXUpRU4FpZrnl0tZx1&query=%7B%22type%22%3A%22DEALER%22%2C%22language%22%3A%22en-US%22%2C%22countryCode%22%3A%22US%22%2C%22dealerServiceFilter%22%3A%5B%5D%2C%22contentDealerServiceFilter%22%3A%5B%22ACCES_CNFG%22%2C%22DCA%22%5D%2C%22usePrimaryTenant%22%3Atrue%2C%22name%22%3A%22%2B%22%2C%22useMinimalEndpoint%22%3Afalse%7D"
   }
 ]

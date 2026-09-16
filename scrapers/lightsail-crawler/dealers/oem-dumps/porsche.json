@@ -713,5 +713,60 @@
     "lng": -95.3676974,
     "source": "oem-locator",
     "sourceUrl": "dealers.json"
+  },
+  {
+    "make": "Porsche",
+    "name": "Porsche Arlington",
+    "city": "Arlington",
+    "state": "VA",
+    "domain": "porschearlington.com",
+    "lat": 38.8903961,
+    "lng": -77.0841585,
+    "source": "oem-locator",
+    "sourceUrl": "dealers.json"
+  },
+  {
+    "make": "Porsche",
+    "name": "Porsche Chantilly",
+    "city": "Chantilly",
+    "state": "VA",
+    "domain": "porschechantilly.com",
+    "lat": 38.8941543,
+    "lng": -77.4311513,
+    "source": "oem-locator",
+    "sourceUrl": "dealers.json"
+  },
+  {
+    "make": "Porsche",
+    "name": "Porsche Richmond",
+    "city": "Richmond",
+    "state": "VA",
+    "domain": "porscherichmond.com",
+    "lat": 37.5385087,
+    "lng": -77.43428,
+    "source": "oem-locator",
+    "sourceUrl": "dealers.json"
+  },
+  {
+    "make": "Porsche",
+    "name": "Porsche Tysons Corner",
+    "city": "Vienna",
+    "state": "VA",
+    "domain": "porschetysonscorner.com",
+    "lat": 38.9013729,
+    "lng": -77.2651762,
+    "source": "oem-locator",
+    "sourceUrl": "dealers.json"
+  },
+  {
+    "make": "Porsche",
+    "name": "Porsche Virginia Beach",
+    "city": "Virginia Beach",
+    "state": "VA",
+    "domain": "porschevirginiabeach.com",
+    "lat": 36.8496579,
+    "lng": -75.9760751,
+    "source": "oem-locator",
+    "sourceUrl": "dealers.json"
   }
 ]

@@ -1186,5 +1186,93 @@
     "lng": null,
     "source": "oem-locator",
     "sourceUrl": "https://www.kia.com/us/en/find-a-dealer/result?zipCode=78205"
+  },
+  {
+    "make": "Kia",
+    "name": "Flow Kia of Charlottesville",
+    "city": "Charlottesville",
+    "state": "VA",
+    "domain": "flowkiacharlottesville.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.kia.com/us/en/find-a-dealer/result?zipCode=22901"
+  },
+  {
+    "make": "Kia",
+    "name": "Kia of Lynchburg",
+    "city": "Lynchburg",
+    "state": "VA",
+    "domain": "kiaoflynchburg.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.kia.com/us/en/find-a-dealer/result?zipCode=24011"
+  },
+  {
+    "make": "Kia",
+    "name": "Nelson Kia",
+    "city": "Bassett",
+    "state": "VA",
+    "domain": "kiabynelson.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.kia.com/us/en/find-a-dealer/result?zipCode=24011"
+  },
+  {
+    "make": "Kia",
+    "name": "Ourisman Kia of Fairfax",
+    "city": "Fairfax",
+    "state": "VA",
+    "domain": "ourismankiafairfax.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.kia.com/us/en/find-a-dealer/result?zipCode=22030"
+  },
+  {
+    "make": "Kia",
+    "name": "Parsons Kia",
+    "city": "Winchester",
+    "state": "VA",
+    "domain": "parsonskiaofwinchester.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.kia.com/us/en/find-a-dealer/result?zipCode=22601"
+  },
+  {
+    "make": "Kia",
+    "name": "Safford Kia Manassas",
+    "city": "Manassas",
+    "state": "VA",
+    "domain": "saffordbrownkiamanassas.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.kia.com/us/en/find-a-dealer/result?zipCode=22030"
+  },
+  {
+    "make": "Kia",
+    "name": "Southern Kia Greenbrier",
+    "city": "Chesapeake",
+    "state": "VA",
+    "domain": "southernkiagreenbrier.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.kia.com/us/en/find-a-dealer/result?zipCode=23451"
+  },
+  {
+    "make": "Kia",
+    "name": "Southern Kia Virginia Beach",
+    "city": "Virginia Beach",
+    "state": "VA",
+    "domain": "southernkiavirginiabeach.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.kia.com/us/en/find-a-dealer/result?zipCode=23451"
   }
 ]

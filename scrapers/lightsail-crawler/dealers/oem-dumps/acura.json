@@ -867,5 +867,93 @@
     "lng": -97.121361,
     "source": "oem-locator",
     "sourceUrl": "acura-dealers.json"
+  },
+  {
+    "make": "Acura",
+    "name": "Crown Acura",
+    "city": "Richmond",
+    "state": "VA",
+    "domain": "crownacurarichmond.com",
+    "lat": 37.632877,
+    "lng": -77.540443,
+    "source": "oem-locator",
+    "sourceUrl": "acura-dealers.json"
+  },
+  {
+    "make": "Acura",
+    "name": "Hall Acura Virginia Beach",
+    "city": "Virginia Beach",
+    "state": "VA",
+    "domain": "hallacura.com",
+    "lat": 36.843227,
+    "lng": -76.082588,
+    "source": "oem-locator",
+    "sourceUrl": "acura-dealers.json"
+  },
+  {
+    "make": "Acura",
+    "name": "Karen Radley Acura",
+    "city": "Woodbridge",
+    "state": "VA",
+    "domain": "karenradleyacura.com",
+    "lat": 38.633591,
+    "lng": -77.272423,
+    "source": "oem-locator",
+    "sourceUrl": "acura-dealers.json"
+  },
+  {
+    "make": "Acura",
+    "name": "Parks Acura",
+    "city": "Roanoke",
+    "state": "VA",
+    "domain": "parksacura.com",
+    "lat": 37.311085,
+    "lng": -80.006699,
+    "source": "oem-locator",
+    "sourceUrl": "acura-dealers.json"
+  },
+  {
+    "make": "Acura",
+    "name": "Pohanka Acura",
+    "city": "Chantilly",
+    "state": "VA",
+    "domain": "pohankaacura.com",
+    "lat": 38.892712,
+    "lng": -77.429199,
+    "source": "oem-locator",
+    "sourceUrl": "acura-dealers.json"
+  },
+  {
+    "make": "Acura",
+    "name": "Priority Acura",
+    "city": "Chesapeake",
+    "state": "VA",
+    "domain": "priorityacura.com",
+    "lat": 36.792736,
+    "lng": -76.241577,
+    "source": "oem-locator",
+    "sourceUrl": "acura-dealers.json"
+  },
+  {
+    "make": "Acura",
+    "name": "Radley Acura",
+    "city": "Falls Church",
+    "state": "VA",
+    "domain": "radleyacura.com",
+    "lat": 38.849041,
+    "lng": -77.131042,
+    "source": "oem-locator",
+    "sourceUrl": "acura-dealers.json"
+  },
+  {
+    "make": "Acura",
+    "name": "Southern Acura Newport News",
+    "city": "Newport News",
+    "state": "VA",
+    "domain": "southernacuranewportnews.com",
+    "lat": 37.125858,
+    "lng": -76.51033,
+    "source": "oem-locator",
+    "sourceUrl": "acura-dealers.json"
   }
 ]

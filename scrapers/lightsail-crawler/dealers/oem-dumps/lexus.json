@@ -812,5 +812,60 @@
     "lng": -95.598694,
     "source": "oem-locator",
     "sourceUrl": "https://www.lexus.com/rest/lexus/dealers"
+  },
+  {
+    "make": "Lexus",
+    "name": "Lindsay Lexus of Alexandria",
+    "city": "Alexandria",
+    "state": "VA",
+    "domain": "lindsaylexusofalexandria.com",
+    "lat": 38.82876,
+    "lng": -77.08424,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.lexus.com/rest/lexus/dealers"
+  },
+  {
+    "make": "Lexus",
+    "name": "Pohanka Lexus of Chantilly",
+    "city": "Chantilly",
+    "state": "VA",
+    "domain": "pohankalexuschantilly.com",
+    "lat": 38.89223,
+    "lng": -77.428085,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.lexus.com/rest/lexus/dealers"
+  },
+  {
+    "make": "Lexus",
+    "name": "Priority Lexus Newport News",
+    "city": "Newport News",
+    "state": "VA",
+    "domain": "prioritylexusnewportnews.com",
+    "lat": 37.142574,
+    "lng": -76.52378,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.lexus.com/rest/lexus/dealers"
+  },
+  {
+    "make": "Lexus",
+    "name": "Priority Lexus Virginia Beach",
+    "city": "Virginia Beach",
+    "state": "VA",
+    "domain": "prioritylexusvirginiabeach.com",
+    "lat": 36.840256,
+    "lng": -76.11177,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.lexus.com/rest/lexus/dealers"
+  },
+  {
+    "make": "Lexus",
+    "name": "Sheehy Lexus of Richmond",
+    "city": "Richmond",
+    "state": "VA",
+    "domain": "lexusofrichmond.com",
+    "lat": 37.502296,
+    "lng": -77.57624,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.lexus.com/rest/lexus/dealers"
   }
 ]

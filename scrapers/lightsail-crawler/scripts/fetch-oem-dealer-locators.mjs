@@ -153,8 +153,35 @@ const SC_ZIPS = [
   '29501', // Florence (Pee Dee region)
 ];
 
+// Virginia zip spread. VA is larger than SC (~42,000 sq mi vs ~32,000) and
+// has a genuinely distinct, dense Northern VA/DC-suburbs market (Fairfax,
+// Arlington, Alexandria) that isn't reachable from a Richmond seed alone —
+// even a 120mi-radius locator falls well short of the ~100mi gap between
+// Richmond and the DC suburbs, so Northern VA gets two seeds of its own
+// (Fairfax/Tysons and Arlington/Alexandria) rather than assuming Richmond's
+// radius covers it. 10 seeds total: Northern VA split in two (the region's
+// dealer density alone rivals the rest of the state), Richmond, Virginia
+// Beach/Norfolk/Hampton Roads (split into two since the Hampton
+// Roads metro spans a large bay), Roanoke (southwest), Charlottesville
+// (central), Lynchburg (south-central), Fredericksburg (I-95 corridor
+// between DC and Richmond), and Winchester (Shenandoah Valley/I-81
+// corridor) — covering every real population/dealer cluster the same way
+// GA's and TX's regional-hub seeds do.
+const VA_ZIPS = [
+  '22030', // Fairfax / Tysons (Northern VA)
+  '22314', // Alexandria / Arlington (Northern VA, DC suburbs)
+  '23219', // Richmond
+  '23451', // Virginia Beach
+  '23510', // Norfolk (Hampton Roads)
+  '24011', // Roanoke (southwest)
+  '22901', // Charlottesville (central)
+  '24501', // Lynchburg (south-central)
+  '22401', // Fredericksburg (I-95 corridor)
+  '22601', // Winchester (Shenandoah Valley / I-81 corridor)
+];
+
 // Combined zip spread used by every zip+radius OEM locator below.
-const TARGET_ZIPS = [...NJ_NY_ZIPS, ...FL_ZIPS, ...GA_ZIPS, ...TX_ZIPS, ...SC_ZIPS];
+const TARGET_ZIPS = [...NJ_NY_ZIPS, ...FL_ZIPS, ...GA_ZIPS, ...TX_ZIPS, ...SC_ZIPS, ...VA_ZIPS];
 
 function hostOf(url) {
   return hostFromUrl(url) || normalizeDealerHost(url);
@@ -324,6 +351,16 @@ async function fetchToyota() {
     'south-carolina/hilton-head-island',
     'south-carolina/rock-hill',
     'south-carolina/florence',
+    'virginia/fairfax',
+    'virginia/alexandria',
+    'virginia/richmond',
+    'virginia/virginia-beach',
+    'virginia/norfolk',
+    'virginia/roanoke',
+    'virginia/charlottesville',
+    'virginia/lynchburg',
+    'virginia/fredericksburg',
+    'virginia/winchester',
   ];
   const rows = [];
   const pages = [];

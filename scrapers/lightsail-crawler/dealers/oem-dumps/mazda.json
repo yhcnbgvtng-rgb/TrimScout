@@ -1560,5 +1560,181 @@
     "lng": -98.3636131,
     "source": "oem-locator",
     "sourceUrl": "https://www.mazdausa.com/handlers/dealer.ajax?zip=78205&maxDistance=50&p=1&accolades="
+  },
+  {
+    "make": "Mazda",
+    "name": "BERGLUND MAZDA",
+    "city": "Salem",
+    "state": "VA",
+    "domain": "berglundmazdasalem.com",
+    "lat": 37.294526,
+    "lng": -80.044693,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.mazdausa.com/handlers/dealer.ajax?zip=24011&maxDistance=50&p=1&accolades="
+  },
+  {
+    "make": "Mazda",
+    "name": "CAVALIER MAZDA",
+    "city": "Chesapeake",
+    "state": "VA",
+    "domain": "cavaliermazda.com",
+    "lat": 36.7952681,
+    "lng": -76.2362907,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.mazdausa.com/handlers/dealer.ajax?zip=23451&maxDistance=50&p=1&accolades="
+  },
+  {
+    "make": "Mazda",
+    "name": "DOGWOOD MAZDA",
+    "city": "Winchester",
+    "state": "VA",
+    "domain": "dogwoodmazda.com",
+    "lat": 39.1165099,
+    "lng": -78.1987038,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.mazdausa.com/handlers/dealer.ajax?zip=22601&maxDistance=50&p=1&accolades="
+  },
+  {
+    "make": "Mazda",
+    "name": "DUNCAN MAZDA",
+    "city": "Blacksburg",
+    "state": "VA",
+    "domain": "duncanmazda.net",
+    "lat": 37.2248517,
+    "lng": -80.4091028,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.mazdausa.com/handlers/dealer.ajax?zip=24011&maxDistance=50&p=1&accolades="
+  },
+  {
+    "make": "Mazda",
+    "name": "FLOW MAZDA",
+    "city": "Charlottesville",
+    "state": "VA",
+    "domain": "flowmazdacharlottesville.com",
+    "lat": 38.0342169,
+    "lng": -78.4509847,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.mazdausa.com/handlers/dealer.ajax?zip=22901&maxDistance=50&p=1&accolades="
+  },
+  {
+    "make": "Mazda",
+    "name": "HALL MAZDA",
+    "city": "Virginia Beach",
+    "state": "VA",
+    "domain": "hallmazda.com",
+    "lat": 36.8234388,
+    "lng": -76.124814,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.mazdausa.com/handlers/dealer.ajax?zip=23451&maxDistance=50&p=1&accolades="
+  },
+  {
+    "make": "Mazda",
+    "name": "LUCKI MAZDA OF WOODBRIDGE",
+    "city": "Woodbridge",
+    "state": "VA",
+    "domain": "luckimazda.com",
+    "lat": 38.613181,
+    "lng": -77.2903699,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.mazdausa.com/handlers/dealer.ajax?zip=22030&maxDistance=50&p=1&accolades="
+  },
+  {
+    "make": "Mazda",
+    "name": "LYNCHBURG MAZDA",
+    "city": "Forest",
+    "state": "VA",
+    "domain": "lynchburgmazda.com",
+    "lat": 37.3850172,
+    "lng": -79.2449814,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.mazdausa.com/handlers/dealer.ajax?zip=24011&maxDistance=50&p=1&accolades="
+  },
+  {
+    "make": "Mazda",
+    "name": "PEARSON MAZDA",
+    "city": "Henrico",
+    "state": "VA",
+    "domain": "pearsonmazda.com",
+    "lat": 37.6411651,
+    "lng": -77.5594335,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.mazdausa.com/handlers/dealer.ajax?zip=23219&maxDistance=50&p=1&accolades="
+  },
+  {
+    "make": "Mazda",
+    "name": "SAFFORD MAZDA ALEXANDRIA",
+    "city": "Alexandria",
+    "state": "VA",
+    "domain": "saffordbrownmazdaalexandria.com",
+    "lat": 38.7568887,
+    "lng": -77.0845963,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.mazdausa.com/handlers/dealer.ajax?zip=22030&maxDistance=50&p=1&accolades="
+  },
+  {
+    "make": "Mazda",
+    "name": "SAFFORD MAZDA CHANTILLY",
+    "city": "Chantilly",
+    "state": "VA",
+    "domain": "saffordbrownmazdachantilly.com",
+    "lat": 38.901818,
+    "lng": -77.4625783,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.mazdausa.com/handlers/dealer.ajax?zip=22030&maxDistance=50&p=1&accolades="
+  },
+  {
+    "make": "Mazda",
+    "name": "SAFFORD MAZDA FAIRFAX",
+    "city": "Fairfax",
+    "state": "VA",
+    "domain": "saffordbrownmazdafairfax.com",
+    "lat": 38.8577451,
+    "lng": -77.310203,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.mazdausa.com/handlers/dealer.ajax?zip=22030&maxDistance=50&p=1&accolades="
+  },
+  {
+    "make": "Mazda",
+    "name": "SAFFORD MAZDA OF FREDERICKSBUR",
+    "city": "Fredericksburg",
+    "state": "VA",
+    "domain": "saffordmazda.com",
+    "lat": 38.2533142,
+    "lng": -77.4972176,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.mazdausa.com/handlers/dealer.ajax?zip=22401&maxDistance=50&p=1&accolades="
+  },
+  {
+    "make": "Mazda",
+    "name": "SAFFORD MAZDA STERLING",
+    "city": "Sterling",
+    "state": "VA",
+    "domain": "saffordmazdasterling.com",
+    "lat": 39.0100194,
+    "lng": -77.438105,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.mazdausa.com/handlers/dealer.ajax?zip=22030&maxDistance=50&p=1&accolades="
+  },
+  {
+    "make": "Mazda",
+    "name": "SOUTHERN MAZDA NEWPORT NEWS",
+    "city": "Newport News",
+    "state": "VA",
+    "domain": "southernmazdanewportnews.com",
+    "lat": 37.1325529,
+    "lng": -76.5166395,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.mazdausa.com/handlers/dealer.ajax?zip=23451&maxDistance=50&p=1&accolades="
+  },
+  {
+    "make": "Mazda",
+    "name": "WHITTEN BROS. MAZDA",
+    "city": "North Chesterfield",
+    "state": "VA",
+    "domain": "whittenmazda.com",
+    "lat": 37.5061167,
+    "lng": -77.5953974,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.mazdausa.com/handlers/dealer.ajax?zip=23219&maxDistance=50&p=1&accolades="
   }
 ]
