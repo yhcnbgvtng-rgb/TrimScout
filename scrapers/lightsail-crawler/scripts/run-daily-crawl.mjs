@@ -4,7 +4,7 @@
 // Replaces the ad-hoc SSH shell loops used to run the first NJ and NY
 // crawls (2026-09-14) with one persistent, committed job that cron can
 // call unattended. Runs every state in src/states.js#SUPPORTED_STATES
-// (NJ, NY, FL, GA, TX, then SC as of 2026-09-16), up to MAX_CONCURRENT_STATES
+// (NJ, NY, FL, GA, TX, SC, then VA as of 2026-09-16), up to MAX_CONCURRENT_STATES
 // (2, matching the crawl box's 2 vCPUs) at a time via
 // runStatesWithBoundedConcurrency() — see that function's own comment for
 // how states are scheduled into the two slots, and MAX_CONCURRENT_STATES'
@@ -87,6 +87,7 @@ export const WRITE_DEALER_SCRIPTS = {
   GA: 'write-ga-dealer-files.mjs',
   TX: 'write-tx-dealer-files.mjs',
   SC: 'write-sc-dealer-files.mjs',
+  VA: 'write-va-dealer-files.mjs',
 };
 
 // Logs accumulate one file per (state, brand, day) forever otherwise —
