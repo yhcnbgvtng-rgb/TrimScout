@@ -32,11 +32,9 @@ before the push; the directory keys by name.
 | Kia | 2026-09-15 | 800 | 309 | 42 | Locator: POST `kia.com/us/services/en/dealers/search` `{"type":"zip","zipCode":…,"radius":"120"}` (no GM/email in the feed). Staff pages: 339 captured / 219 walled / 242 none. |
 | Hyundai | 2026-09-15 | 858 | 855 | 65 | Locator: `hyundaiusa.com/var/hyundai/services/dealer/dealersByZip.json?brand=hyundai&model=all&lang=en&zip=&radius=150&maxdealers=200`. Dealer sites rarely publish emails (153/468 staff pages had any); locator `dealerEmail` used only when it matches the GM. |
 
-## Vehicle inventory (scrapers/inventory/)
+## Vehicle inventory
 
-`crawl_inventory.py sites.json out.jsonl` — for every rooftop with a website: robots.txt + sitemaps → vehicle-page
-URLs (VIN-in-URL first) → fetch each page with browser TLS at a polite per-host pace → parse the schema.org JSON-LD
-every dealer platform embeds (Vehicle / Car / Product; blocks merged) → one JSONL line per VIN. Resumable per site.
-`scripts/probes/push-inventory.mts out.jsonl` upserts into the box's `dealer_inventory` (by VIN) and sweeps each
-crawled store so VINs no longer on the site are marked removed. The admin sheet's **Vehicles** tab reads it back.
-NJ pilot 2026-09-16: 12/12 sites parsed, 40/40 pages on most (DealerOn, dealer.com, Dealer Inspire, Team Velocity).
+Vehicles are crawled by the crawl box (`98.92.140.11`, `run-daily-crawl.mjs`, nightly 23:00 ET) and synced into the
+deals box's `dealer_inventory` table at 06:15 ET by `scripts/box/inventory-sync.mjs` (installed via
+`scripts/box/2026-09-16-inventory-sync-cron.sh`). The admin sheet's **Vehicles** tab reads it. There is no
+Mac-side inventory crawler any more.
