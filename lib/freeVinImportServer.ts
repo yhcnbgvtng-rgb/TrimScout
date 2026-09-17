@@ -16,6 +16,8 @@ import { decodeVinFromNhtsa, type DecodedVehicle } from "./vinDecoder";
 import { freeVinImportVehicle, isUsableFreeImport, hasVinIntegrityError, vpicCorrectedButValid, vpicCorrectedDecode } from "./freeVinImport";
 import type { DealerPageIdentity } from "./dealerPageIdentity";
 import type { Vehicle } from "./types";
+import { resolveVehicleDealer } from "./pasteResolutionServer";
+import { inventoryDealerForVin, type InventoryVinLookup } from "./inventoryVinLookup";
 
 export interface FreeImportSource {
   listingPrice?: number | null;
@@ -57,12 +59,14 @@ export async function buildFreeImport(input: {
   fallbackMake?: string;
   /** Passed through so the client keeps the real sticker status (e.g. "unreleased"). */
   sticker?: Record<string, unknown>;
+  /** Test seam: where our own crawl last saw the VIN (defaults to the live dealer_inventory lookup). */
+  lookupSighting?: InventoryVinLookup;
 }): Promise<FreeImportOutcome> {
   const { vin, pasteUrl, source, makeLabel } = input;
   const listingUrl = pasteUrl && /^https?:\/\//i.test(pasteUrl) ? pasteUrl.trim() : null;
   const raw = await decodeVinFromNhtsa(vin).catch(() => null);
   const decoded = raw && vpicCorrectedButValid(raw) ? vpicCorrectedDecode(raw) : raw;
-  const vehicle = freeVinImportVehicle({
+  const built = freeVinImportVehicle({
     vin,
     decoded,
     dealer: source.dealer,
@@ -70,9 +74,9 @@ export async function buildFreeImport(input: {
     listingUrl,
     fallbackMake: input.fallbackMake ?? makeLabel,
   });
-  vehicle.buildConfidence = "dealer_listing_only";
+  built.buildConfidence = "dealer_listing_only";
 
-  if (!isUsableFreeImport(vehicle, decoded)) {
+  if (!isUsableFreeImport(built, decoded)) {
     const vinIntegrity = hasVinIntegrityError(decoded);
     return {
       ok: false,
@@ -82,6 +86,14 @@ export async function buildFreeImport(input: {
         : `We couldn't find a ${makeLabel} with this VIN: ${vin}. Copy it straight from the listing and try again.`,
     };
   }
+
+  // The dealership, the same way every sticker route settles it: the link's
+  // store first, else the rooftop our own crawl last saw the VIN at (with
+  // its lot age), never invented. Live QA 2026-09-16: every free import —
+  // Toyota, Lexus, Acura, the catch-all — shipped "Dealer not found" while
+  // dealer_inventory had the car, because only the sticker routes ran this.
+  const vehicle = await resolveVehicleDealer(built, { dealer: source.dealer }, null, input.lookupSighting ?? inventoryDealerForVin);
+  vehicle.buildConfidence = "dealer_listing_only";
 
   return {
     ok: true,
