@@ -19,6 +19,10 @@ export interface InventoryDealerSighting {
   state: string | null;
   /** YYYY-MM-DD of the last crawl that saw the VIN there. */
   lastSeen: string | null;
+  /** YYYY-MM-DD the crawl first saw the VIN on that lot (the dealer's own first-listed date when the feed carries it). */
+  firstSeen: string | null;
+  /** Days on the lot as of lastSeen — the feed's figure, else counted from firstSeen. */
+  daysOnLot: number | null;
 }
 
 export type InventoryVinLookup = (vin: string) => Promise<InventoryDealerSighting | null>;
@@ -31,12 +35,18 @@ export function sightingFromListings(listings: InventoryVehicle[]): InventoryDea
   const rank = (l: InventoryVehicle) => `${l.removedAt ? 0 : 1}${l.lastSeenAt || ""}`;
   const best = named.reduce((a, b) => (rank(b) > rank(a) ? b : a));
   const id = best.dealerId && best.dealerId !== "0" ? String(best.dealerId) : null;
+  const lastSeen = (best.lastSeenAt || "").slice(0, 10) || null;
+  const firstSeen = (best.crawlFirstSeen || best.firstSeenAt || "").slice(0, 10) || null;
+  const counted = firstSeen && lastSeen ? Math.max(0, Math.round((Date.parse(lastSeen) - Date.parse(firstSeen)) / 86_400_000)) : null;
+  const daysOnLot = best.daysOnLot != null && best.daysOnLot > 0 ? best.daysOnLot : counted;
   return {
     dealerId: id,
     dealerName: best.dealerName.trim(),
     city: best.dealerCity || null,
     state: best.dealerState || null,
-    lastSeen: (best.lastSeenAt || "").slice(0, 10) || null,
+    lastSeen,
+    firstSeen,
+    daysOnLot,
   };
 }
 

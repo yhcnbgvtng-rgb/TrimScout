@@ -116,6 +116,8 @@ export function isToyotaVin(vin: string): boolean {
     "4T1", "4T3", "4T4", "5TD", "5TE", "5TF", "5TB", "5TY", "2T1", "2T3", "3TM", "3TY", "3MY",
     "JTD", "JTE", "JTK", "JTL", "JTM", "JTN", "1NX",
     "JTH", "JTJ", "2T2", "5TJ",
+    // Mazda Toyota Manufacturing (Huntsville) — Corolla Cross; a 2026 on City World Toyota's lot is 7MU.
+    "7MU",
   ].includes(u.slice(0, 3));
 }
 
@@ -125,14 +127,14 @@ export function isToyotaVin(vin: string): boolean {
  * 5FN / 5FP / 5FR (Alabama SUVs, Odyssey, Passport, Pilot), 5J6 (Ohio CR-V),
  * 7FA (Indiana CR-V — confirmed on a 2026 CR-V Sport), 2HK (Canada CR-V),
  * 3CZ (Mexico HR-V), JHM (Japan), SHH (UK Civic). Acura rides along: 19U,
- * 5J8, 2HN, JH4.
+ * 5J8, 2HN, JH4, and 3HD (Celaya, Mexico — the 2026 ADX).
  */
 export function isHondaVin(vin: string): boolean {
   const u = vin.trim().toUpperCase();
   if (u.length !== 17) return false;
   return [
     "1HG", "2HG", "19X", "5FN", "5FP", "5FR", "5J6", "7FA", "2HK", "3CZ", "JHM", "SHH",
-    "19U", "5J8", "2HN", "JH4",
+    "19U", "5J8", "2HN", "JH4", "3HD",
   ].includes(u.slice(0, 3));
 }
 

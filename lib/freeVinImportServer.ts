@@ -13,7 +13,7 @@
  */
 
 import { decodeVinFromNhtsa, type DecodedVehicle } from "./vinDecoder";
-import { freeVinImportVehicle, isUsableFreeImport, hasVinIntegrityError } from "./freeVinImport";
+import { freeVinImportVehicle, isUsableFreeImport, hasVinIntegrityError, vpicCorrectedButValid, vpicCorrectedDecode } from "./freeVinImport";
 import type { DealerPageIdentity } from "./dealerPageIdentity";
 import type { Vehicle } from "./types";
 
@@ -53,19 +53,22 @@ export async function buildFreeImport(input: {
   pasteUrl: string | null;
   source: FreeImportSource;
   makeLabel: string;
+  /** The make when NHTSA names none; defaults to makeLabel. The catch-all route passes "" so an unknown make never ships as a car. */
+  fallbackMake?: string;
   /** Passed through so the client keeps the real sticker status (e.g. "unreleased"). */
   sticker?: Record<string, unknown>;
 }): Promise<FreeImportOutcome> {
   const { vin, pasteUrl, source, makeLabel } = input;
   const listingUrl = pasteUrl && /^https?:\/\//i.test(pasteUrl) ? pasteUrl.trim() : null;
-  const decoded = await decodeVinFromNhtsa(vin).catch(() => null);
+  const raw = await decodeVinFromNhtsa(vin).catch(() => null);
+  const decoded = raw && vpicCorrectedButValid(raw) ? vpicCorrectedDecode(raw) : raw;
   const vehicle = freeVinImportVehicle({
     vin,
     decoded,
     dealer: source.dealer,
     listingPrice: source.listingPrice ?? null,
     listingUrl,
-    fallbackMake: makeLabel,
+    fallbackMake: input.fallbackMake ?? makeLabel,
   });
   vehicle.buildConfidence = "dealer_listing_only";
 

@@ -123,26 +123,47 @@ export function freeVinImportVehicle(input: FreeVinImportInput): Vehicle {
  * Codes it does not list (notably 14, "unable to provide information for some
  * characters") mean partial data about a valid VIN, which is fine.
  *
- * vPIC's check-digit verdict (1) and "invalid characters" (400) are taken
- * only when our own ISO-3779 math agrees. Its manufacturer profiles lag new
- * VIN schemes — 2026 RAV4s built in Cambridge carry letters in the serial
- * (2T36CRAVXTC39J403, on Route 22 Toyota's lot and in our nightly crawl)
- * and vPIC flags every one of them while the check digit is in fact correct.
+ * vPIC's verdicts on the VIN string itself — check digit (1), "invalid
+ * characters" (400) and its auto-corrections (3/4) — are taken only when our
+ * own ISO-3779 math agrees. Its manufacturer profiles lag new VIN schemes:
+ * 2026 RAV4s built in Cambridge carry letters in the serial
+ * (2T36CRAVXTC39J403, on Route 22 Toyota's lot and in our nightly crawl) and
+ * vPIC flags every one of them; a 2026 Lexus at Hendrick Charleston
+ * (JTJVBCDXXT5098743) comes back "corrected, multiple matches" — while the
+ * check digit is in fact correct in both. A corrected decode is trusted only
+ * for year and make (vpicCorrectedDecode strips the rest), since its
+ * model/trim belong to the VIN vPIC guessed at, not the one pasted.
  */
 const VIN_INTEGRITY_ERROR_CODES = new Set([1, 3, 4, 11]);
-const CHECK_DIGIT_ERROR_CODES = new Set([1, 400]);
+const VIN_STRING_VERDICT_CODES = new Set([1, 3, 4, 400]);
+
+function vpicErrorCodes(decoded: DecodedVehicle | null): number[] {
+  // ErrorText is a "code - description" list joined by semicolons, e.g.
+  // "1 - Check Digit (9th position) does not calculate properly; 14 - ...".
+  return (decoded?.errorText || "")
+    .split(";")
+    .map((part) => parseInt(part.trim(), 10))
+    .filter((code) => Number.isFinite(code));
+}
 
 /** True when NHTSA flagged the VIN itself as invalid or auto-corrected. */
 export function hasVinIntegrityError(decoded: DecodedVehicle | null): boolean {
-  const text = decoded?.errorText;
-  if (!text) return false;
-  const checkDigitOk = vinCheckDigitValid(decoded?.vin || "");
-  // ErrorText is a "code - description" list joined by semicolons, e.g.
-  // "1 - Check Digit (9th position) does not calculate properly; 14 - ...".
-  return text
-    .split(";")
-    .map((part) => parseInt(part.trim(), 10))
-    .some((code) => Number.isFinite(code) && (VIN_INTEGRITY_ERROR_CODES.has(code) || CHECK_DIGIT_ERROR_CODES.has(code)) && !(checkDigitOk && CHECK_DIGIT_ERROR_CODES.has(code)));
+  if (!decoded?.errorText) return false;
+  const checkDigitOk = vinCheckDigitValid(decoded.vin || "");
+  return vpicErrorCodes(decoded).some(
+    (code) => (VIN_INTEGRITY_ERROR_CODES.has(code) || VIN_STRING_VERDICT_CODES.has(code)) && !(checkDigitOk && VIN_STRING_VERDICT_CODES.has(code))
+  );
+}
+
+/** True when vPIC "corrected" the VIN (3/4) but the pasted VIN's own check digit is fine. */
+export function vpicCorrectedButValid(decoded: DecodedVehicle | null): boolean {
+  if (!decoded?.errorText) return false;
+  return vinCheckDigitValid(decoded.vin || "") && vpicErrorCodes(decoded).some((code) => code === 3 || code === 4);
+}
+
+/** A corrected decode with only what the VIN string itself pins down: year (position 10) and make (WMI). */
+export function vpicCorrectedDecode(decoded: DecodedVehicle): DecodedVehicle {
+  return { vin: decoded.vin, year: decoded.year, make: decoded.make, errorText: decoded.errorText };
 }
 
 /**

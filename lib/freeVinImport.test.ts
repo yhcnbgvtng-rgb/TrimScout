@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { freeVinImportVehicle, isUsableFreeImport, hasVinIntegrityError } from "./freeVinImport";
+import { freeVinImportVehicle, isUsableFreeImport, hasVinIntegrityError, vpicCorrectedButValid, vpicCorrectedDecode } from "./freeVinImport";
 import type { DecodedVehicle } from "./vinDecoder";
 
 const VIN = "WBA33AY09RF611293";
@@ -181,7 +181,7 @@ describe("freeVinImportVehicle", () => {
     assert.equal(isUsableFreeImport(vehicle, decodedBad), false);
   });
 
-  it("refuses an auto-corrected VIN too", () => {
+  it("refuses an auto-corrected VIN too (the test VIN's own check digit is wrong, so vPIC's verdicts stand)", () => {
     for (const text of [
       "3 - VIN corrected, error in one position (assuming Check Digit is correct)",
       "4 - VIN corrected, error in two positions",
@@ -205,8 +205,15 @@ describe("freeVinImportVehicle", () => {
     assert.equal(hasVinIntegrityError(vpicMisfire), false);
     // The same verdict on a VIN whose check digit really is wrong still refuses.
     assert.equal(hasVinIntegrityError(decoded({ vin: "2T36CRAV1TC39J403", errorText: vpicMisfire.errorText })), true);
-    // An auto-correction is refused even when the check digit passes — the decode is for a different VIN.
-    assert.equal(hasVinIntegrityError(decoded({ vin: "2T36CRAVXTC39J403", errorText: "3 - VIN corrected, error in one position" })), true);
+    // vPIC "corrected" a valid VIN it simply doesn't have patterns for (Hendrick Lexus Charleston's
+    // JTJVBCDXXT5098743): accepted, but only year and make survive — the model/trim belong to the guess.
+    const corrected = decoded({ vin: "JTJVBCDXXT5098743", year: 2026, make: "Lexus", model: "ES", trim: "350", errorText: "4 - VIN corrected, error in one position only, multiple matches found; 14 - Unable to provide information" });
+    assert.equal(hasVinIntegrityError(corrected), false);
+    assert.equal(vpicCorrectedButValid(corrected), true);
+    assert.deepEqual(vpicCorrectedDecode(corrected), { vin: "JTJVBCDXXT5098743", year: 2026, make: "Lexus", errorText: corrected.errorText });
+    // The same "corrected" verdict on a VIN whose check digit really is wrong still refuses.
+    assert.equal(hasVinIntegrityError(decoded({ vin: "JTJVBCDX1T5098743", errorText: corrected.errorText })), true);
+    assert.equal(vpicCorrectedButValid(decoded({ vin: "JTJVBCDX1T5098743", errorText: corrected.errorText })), false);
   });
 
   it("still accepts a valid VIN that NHTSA only has partial data for", () => {

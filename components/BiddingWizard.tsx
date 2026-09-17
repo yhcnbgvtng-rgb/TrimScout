@@ -40,7 +40,8 @@ import {
   formatFactoryOptionLine,
   reviewTargetFromVehicle,
 } from "../lib/fordCompetitionUi";
-import { brandCodeFromMake } from "../lib/oemWmi";
+import { brandCodeFromMake, pastedVinCandidate } from "../lib/oemWmi";
+import { classifyResolvePath, dealerFromVdp, factoryBuildStateLine, logResolve, resolveLogEntry, type ResolvePath } from "../lib/resolvePath";
 import {
   classifyPaste,
   importPastedFactoryVehicle,
@@ -299,6 +300,8 @@ type PendingLink =
       resolution: Extract<LinkResolution, { ok: true }>;
       /** Built from the URL's VIN while the panel opened, so the store the VIN names is known before the buyer confirms. */
       prebuilt: PasteImportSuccess | null;
+      /** Why the URL's VIN didn't build — shown in the panel so the buyer sees it before Confirm, not after. */
+      prebuildError: string | null;
     }
   | { kind: "pick_dealer"; slot: VehicleSlot };
 
@@ -510,6 +513,13 @@ function LinkConfirmPanel({
         />
       </div>
 
+      {!build && pending.prebuildError && r.vinFromUrl && cleanVin === r.vinFromUrl.toUpperCase() ? (
+        <div className="rounded-lg border border-amber-500/40 bg-amber-950/20 px-3 py-2" data-testid="link-confirm-prebuild-error">
+          <p className="text-[11px] font-bold text-amber-200">We read the VIN from the link but couldn&apos;t build the car</p>
+          <p className="text-[10px] leading-snug text-amber-200/90">{pending.prebuildError} Check the VIN against the listing, then Confirm to try again.</p>
+        </div>
+      ) : null}
+
       {build ? (
         <div className="space-y-1" data-testid="link-confirm-build">
           <p className="text-[10px] font-bold uppercase tracking-wide text-ink-faint">Vehicle</p>
@@ -518,13 +528,13 @@ function LinkConfirmPanel({
               <span className="block truncate text-[11px] font-semibold text-white">
                 {[build.vehicle.year, build.vehicle.make, build.vehicle.model, build.vehicle.trim].filter(Boolean).join(" ")}
               </span>
-              <span className="block truncate text-[10px] text-ink-muted">
+              <span className={`block text-[10px] ${build.factoryBuildUnavailable && !isUsedCondition(build.vehicle.condition) ? "text-amber-300" : "truncate text-ink-muted"}`} data-testid="confirm-build-state">
                 {isUsedCondition(build.vehicle.condition)
                   ? "Pre-owned — from the VIN; the dealer confirms miles, title and options. No factory sticker needed."
-                  : build.stickerPending
-                    ? build.stickerPending.note
-                    : build.stickerUnavailable
-                      ? "Factory sticker didn't come back from the manufacturer just now — details are a limited VIN decode. You can still confirm and continue."
+                  : build.stickerUnavailable
+                    ? "Factory sticker didn't come back from the manufacturer just now — details are a limited VIN decode. You can still confirm and continue."
+                    : build.factoryBuildUnavailable
+                      ? factoryBuildStateLine({ ...build.vehicle, buildConfidence: "dealer_listing_only", stickerPendingNote: build.stickerPending?.note || null })
                       : [build.vehicle.exteriorColor, build.vehicle.drivetrain].filter(Boolean).join(" · ") || "Factory record read"}
               </span>
             </span>
@@ -697,7 +707,12 @@ function AlternateVinField({
     const report = fullReport && fullReport.kind === "scored" ? fullReport : null;
     const chips = primary ? diffVsPrimary(primary, vehicle, mustHaves || []) : [];
     return (
-      <div className="rounded-xl border border-emerald-500/40 bg-emerald-500/5 px-3 py-2.5">
+      <div
+        className="rounded-xl border border-emerald-500/40 bg-emerald-500/5 px-3 py-2.5"
+        data-resolve-path={vehicle.resolvePath || ""}
+        data-dealer-from-vdp={dealerFromVdp(vehicle) ? "true" : "false"}
+        data-dealer-shown={vehicle.location?.dealerName?.trim() || ""}
+      >
         <div className="flex items-center justify-between gap-2">
         <div className="min-w-0">
           <p className="flex items-center gap-2 text-[10px] font-bold uppercase text-emerald-400">
@@ -734,6 +749,9 @@ function AlternateVinField({
               </>
             ) : null}
           </p>
+          {factoryBuildStateLine(vehicle) ? (
+            <p className="mt-1 text-[10px] leading-snug text-amber-300" data-testid="factory-build-state">{factoryBuildStateLine(vehicle)}</p>
+          ) : null}
         </div>
         <button
           type="button"
@@ -872,6 +890,8 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   const [altError2, setAltError2] = useState<string | null>(null);
   // A pasted link waiting on the buyer's confirmation — one at a time.
   const [pendingLink, setPendingLink] = useState<PendingLink | null>(null);
+  /** The last listing link pasted into each slot — a bare VIN pasted next keeps its store. */
+  const lastLinkRef = React.useRef<Record<VehicleSlot, Extract<LinkResolution, { ok: true }> | null>>({ primary: null, alt1: null, alt2: null });
   const [linkBusy, setLinkBusy] = useState(false);
   const [linkError, setLinkError] = useState<string | null>(null);
 
@@ -1006,6 +1026,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     setParseSuccessMsg(null);
     setParseError(null);
     setPendingLink(null);
+    lastLinkRef.current = { primary: null, alt1: null, alt2: null };
     setLinkError(null);
     setSelectedVehicle(null);
     setMake("");
@@ -1439,12 +1460,41 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     // Settle the store from the VIN before the buyer sees the panel — the
     // link only gets a say when the VIN has none.
     let prebuilt: PasteImportSuccess | null = null;
+    let prebuildError: string | null = null;
     if (resolution.vinFromUrl) {
       const built = await importPastedFactoryVehicle(resolution.vinFromUrl, fetch, { existingVehicles: slotVehicles(slot), ...importOpt });
       if (built.ok) prebuilt = built;
+      else prebuildError = built.error;
     }
-    setPendingLink({ kind: "link", slot, resolution, prebuilt });
+    // The link outlives the panel: a bare VIN pasted next for this slot
+    // still gets the store the link named (rule: dealer from the VDP first).
+    lastLinkRef.current[slot] = resolution;
+    setPendingLink({ kind: "link", slot, resolution, prebuilt, prebuildError });
     return true;
+  };
+
+  /**
+   * A bare VIN pasted after a link for the same slot keeps the link's
+   * store when the hostname mapped to a rooftop and the link named this VIN
+   * (or none). Stamps the resolve path either way.
+   */
+  const settleBareVinImport = (slot: VehicleSlot, result: PasteImportSuccess): PasteImportSuccess => {
+    const link = lastLinkRef.current[slot];
+    const linkFits = link && (!link.vinFromUrl || link.vinFromUrl.toUpperCase() === result.vehicle.vin.toUpperCase());
+    const vehicle =
+      linkFits && link.desk && !dealerFromVdp(result.vehicle)
+        ? attachLinkToVehicle(result.vehicle, { url: link.url, desk: link.desk, deskSource: "listing_domain" })
+        : result.vehicle;
+    const resolvePath = classifyResolvePath({
+      paste: linkFits ? "url" : "vin",
+      vinFromUrl: linkFits ? link.vinFromUrl : null,
+      vinUsed: vehicle.vin,
+      ok: true,
+      factoryBuildUnavailable: Boolean(result.factoryBuildUnavailable),
+    });
+    const stamped = { ...vehicle, resolvePath };
+    logResolve(resolveLogEntry(stamped, resolvePath));
+    return { ...result, vehicle: stamped };
   };
 
   const retryPendingLink = async () => {
@@ -1469,10 +1519,21 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
       setLinkBusy(false);
       return;
     }
-    const vehicle = attachLinkToVehicle(
-      { ...result.vehicle, stickerUnavailableReason: result.stickerUnavailable?.reason || null, stickerPendingNote: result.stickerPending?.note || null },
-      { url: resolution.url, desk: choice.desk, deskSource: choice.deskSource }
-    );
+    const resolvePath = classifyResolvePath({
+      paste: "url",
+      vinFromUrl: resolution.vinFromUrl,
+      vinUsed: choice.vin,
+      ok: true,
+      factoryBuildUnavailable: Boolean(result.factoryBuildUnavailable),
+    });
+    const vehicle = {
+      ...attachLinkToVehicle(
+        { ...result.vehicle, stickerUnavailableReason: result.stickerUnavailable?.reason || null, stickerPendingNote: result.stickerPending?.note || null },
+        { url: resolution.url, desk: choice.desk, deskSource: choice.deskSource }
+      ),
+      resolvePath,
+    };
+    logResolve(resolveLogEntry(vehicle, resolvePath));
     const stamped: PasteImportSuccess = { ...result, vehicle };
     if (slot === "primary") commitPrimaryImport(stamped);
     else if (slot === "alt1") setAltVehicle1(vehicle);
@@ -1546,11 +1607,12 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
         setFordPdfUrl(result.pdfUrl ?? null);
       }
       setParseError(result.error);
+      logResolve({ resolvePath: "fail", vin: pastedVinCandidate(raw), dealerShown: "", dealerFromVdp: false, dealerSource: null });
       setIsParsingLink(false);
       return;
     }
 
-    commitPrimaryImport(result);
+    commitPrimaryImport(settleBareVinImport("primary", result));
     setIsParsingLink(false);
   };
 
@@ -1592,7 +1654,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
       return;
     }
     setPendingLink(null);
-    setAltVehicle1(result.vehicle);
+    setAltVehicle1(settleBareVinImport("alt1", result).vehicle);
     setAltParsing1(false);
   };
   // Lets the buyer swap the primary car out for a different VDP without
@@ -1635,7 +1697,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
       return;
     }
     setPendingLink(null);
-    setAltVehicle2(result.vehicle);
+    setAltVehicle2(settleBareVinImport("alt2", result).vehicle);
     setAltParsing2(false);
   };
   const removeAlt2 = () => {
@@ -2242,18 +2304,15 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                     build stays one click away on the factory sheet. */}
                 {parseSuccessMsg && selectedVehicle && (
                   <div
-                    className={`flex items-center justify-between gap-3 rounded-lg border px-3 py-2 animate-fadeIn ${
-                      selectedVehicle.buildConfidence === "dealer_listing_only"
-                        ? "border-amber-500/40 bg-amber-500/5"
-                        : "border-emerald-500/40 bg-emerald-500/5"
-                    }`}
+                    className="flex items-center justify-between gap-3 rounded-lg border border-emerald-500/40 bg-emerald-500/5 px-3 py-2 animate-fadeIn"
+                    data-testid="primary-vehicle-card"
+                    data-resolve-path={selectedVehicle.resolvePath || ""}
+                    data-dealer-from-vdp={dealerFromVdp(selectedVehicle) ? "true" : "false"}
+                    data-dealer-shown={selectedVehicle.location?.dealerName?.trim() || ""}
+                    data-build-state={selectedVehicle.buildConfidence === "dealer_listing_only" ? "factory_pending" : "factory_verified"}
                   >
                     <span className="flex min-w-0 items-center gap-2">
-                      <CheckCircle2
-                        className={`h-4 w-4 shrink-0 ${
-                          selectedVehicle.buildConfidence === "dealer_listing_only" ? "text-amber-400" : "text-emerald-400"
-                        }`}
-                      />
+                      <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-400" />
                       <span className="min-w-0 text-[11px] text-ink-light">
                         <span className="block truncate">
                         {[selectedVehicle.year, selectedVehicle.make, selectedVehicle.model, selectedVehicle.trim]
@@ -2372,9 +2431,13 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                     {selectedVehicle.condition === "cpo" ? CPO_BUILD_COPY : USED_BUILD_COPY}
                   </p>
                 )}
-                {/* Sticker pending (Hyundai new inventory lists before the label exists): a neutral note, no warning, nothing gated. */}
-                {parseSuccessMsg && selectedVehicle?.stickerPendingNote && !isUsedCondition(selectedVehicle.condition) && (
-                  <p className="text-[11px] text-ink-faint" data-testid="sticker-pending">{selectedVehicle.stickerPendingNote}</p>
+                {/* No factory build behind the car (sticker not published, OEM we don't read, or the
+                    sticker service was down): say so plainly, with the lot age when our crawl knows it.
+                    Nothing is gated on it — the dealer confirms the build when they quote. */}
+                {parseSuccessMsg && selectedVehicle && factoryBuildStateLine(selectedVehicle) && (
+                  <p className="rounded-lg border border-amber-500/30 bg-amber-950/20 px-3 py-2 text-[11px] leading-snug text-amber-200" data-testid="factory-build-state">
+                    {factoryBuildStateLine(selectedVehicle)}
+                  </p>
                 )}
                 {/* Must-haves collapse behind a one-line summary — the full
                     option list is long enough to bury everything else. */}
@@ -3158,6 +3221,11 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
               >
                 <ArrowLeft className="h-4 w-4" /> Back
               </button>
+            ) : !vehicleImported ? (
+              // Step 1 has no Back; the slot says why Continue is off instead of leaving it mute.
+              <span className="text-[10px] text-ink-faint" data-testid="continue-reason">
+                {pendingLink?.kind === "link" ? "Confirm the vehicle above to continue" : parseError ? "Fix the vehicle paste to continue" : "Add a vehicle to continue"}
+              </span>
             ) : (
               <div />
             )}
