@@ -4,6 +4,7 @@
  */
 import { LIGHTSAIL_HOST } from "./lightsailClient";
 import { serverSecret } from "./serverSecret";
+import type { DealerAnalytics } from "./dealerAnalytics";
 
 const DEALS_API_PORT = 3004;
 const DEFAULT_TIMEOUT_MS = 60_000;
@@ -166,6 +167,28 @@ export interface InventoryDay {
   seenOn: string;
   price: number | null;
   mileage: number | null;
+}
+
+export interface AnalyticsFilters {
+  state?: string;
+  make?: string;
+  dealerId?: string | number | null;
+  model?: string;
+  from?: string;
+  to?: string;
+}
+
+/** Dealership analytics (DOM = days on the lot, velocity, pricing, coverage, quality), aggregated on the box. */
+export async function inventoryAnalytics(f: AnalyticsFilters = {}): Promise<DealerAnalytics> {
+  const qs = new URLSearchParams();
+  if (f.state) qs.set("state", f.state);
+  if (f.make) qs.set("make", f.make);
+  if (f.dealerId != null && f.dealerId !== "") qs.set("dealerId", String(f.dealerId));
+  if (f.model) qs.set("model", f.model);
+  if (f.from) qs.set("from", f.from);
+  if (f.to) qs.set("to", f.to);
+  const suffix = qs.toString();
+  return request("GET", `/api/inventory/analytics${suffix ? `?${suffix}` : ""}`);
 }
 
 /** Every listing of one VIN (each store that has carried it) plus the day-by-day observations behind them. */

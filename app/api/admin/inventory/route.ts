@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireAdminSession } from "@/lib/adminAuth";
-import { listInventory, inventoryStats, inventoryByDealer, inventoryVin, InventoryApiError, type InventoryQuery } from "@/lib/inventoryApi";
+import { listInventory, inventoryStats, inventoryByDealer, inventoryVin, inventoryAnalytics, InventoryApiError, type InventoryQuery } from "@/lib/inventoryApi";
 
 export const dynamic = "force-dynamic";
 
@@ -18,6 +18,8 @@ export async function GET(req: Request) {
     if (sp.get("stats") === "1") return NextResponse.json(await inventoryStats(), { headers: aggHeaders });
     if (sp.get("byDealer") === "1") return NextResponse.json(await inventoryByDealer(), { headers: aggHeaders });
     if (sp.get("vin")) return NextResponse.json(await inventoryVin(sp.get("vin") || ""));
+    // Dealership analytics for the Site Analytics page — aggregated and cached on the box.
+    if (sp.get("analytics") === "1") return NextResponse.json(await inventoryAnalytics({ state: sp.get("state") || undefined, make: sp.get("make") || undefined, dealerId: sp.get("dealerId") || null, model: sp.get("model") || undefined, from: sp.get("from") || undefined, to: sp.get("to") || undefined }));
     const q: InventoryQuery = {
       dealerId: sp.get("dealerId") || undefined, state: sp.get("state") || undefined, make: sp.get("make") || undefined, model: sp.get("model") || undefined,
       cond: sp.get("cond") || undefined, q: sp.get("q") || undefined, inStock: sp.get("inStock") === "1", sort: sp.get("sort") || undefined,
