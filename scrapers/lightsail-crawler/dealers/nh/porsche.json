@@ -1,0 +1,30 @@
+[
+  {
+    "id": "porsche-nashua",
+    "name": "Porsche Nashua",
+    "city": "Nashua",
+    "state": "NH",
+    "make": "Porsche",
+    "domain": "porschenashua.com",
+    "sitemapUrl": "https://www.porschenashua.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschenashua.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschenashua.com/",
+    "lat": 42.7656251,
+    "lng": -71.4677032,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "porsche-stratham",
+    "name": "Porsche Stratham",
+    "city": "Stratham",
+    "state": "NH",
+    "make": "Porsche",
+    "domain": "porschestratham.com",
+    "sitemapUrl": "https://www.porschestratham.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschestratham.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschestratham.com/",
+    "lat": 43.0244129,
+    "lng": -70.9122808,
+    "domainSource": "oem-locator"
+  }
+]

@@ -1,0 +1,16 @@
+[
+  {
+    "id": "shearer-acura",
+    "name": "Shearer Acura",
+    "city": "S Burlington",
+    "state": "VT",
+    "make": "Acura",
+    "domain": "sheareracura.com",
+    "sitemapUrl": "https://www.sheareracura.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.sheareracura.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://sheareracura.com/",
+    "lat": 44.434402,
+    "lng": -73.210777,
+    "domainSource": "oem-locator"
+  }
+]

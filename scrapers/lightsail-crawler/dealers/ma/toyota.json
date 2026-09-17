@@ -1,0 +1,30 @@
+[
+  {
+    "id": "toyota-haddad-toyota",
+    "name": "Haddad Toyota",
+    "city": "Pittsfield",
+    "state": "MA",
+    "make": "Toyota",
+    "domain": "haddadtoyota.com",
+    "sitemapUrl": "https://www.haddadtoyota.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.haddadtoyota.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://haddadtoyota.com/",
+    "lat": null,
+    "lng": null,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "toyota-k-m-toyota",
+    "name": "K-M Toyota",
+    "city": "North Adams",
+    "state": "MA",
+    "make": "Toyota",
+    "domain": "kmmotors.com",
+    "sitemapUrl": "https://www.kmmotors.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.kmmotors.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://kmmotors.com/",
+    "lat": null,
+    "lng": null,
+    "domainSource": "oem-locator"
+  }
+]

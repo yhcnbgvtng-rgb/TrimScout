@@ -1,0 +1,30 @@
+[
+  {
+    "id": "key-acura-of-portsmouth",
+    "name": "Key Acura of Portsmouth",
+    "city": "Portsmouth",
+    "state": "NH",
+    "make": "Acura",
+    "domain": "keyacuraofportsmouth.com",
+    "sitemapUrl": "https://www.keyacuraofportsmouth.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.keyacuraofportsmouth.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://keyacuraofportsmouth.com/",
+    "lat": 43.035419,
+    "lng": -70.778,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "sunnyside-acura",
+    "name": "Sunnyside Acura",
+    "city": "Nashua",
+    "state": "NH",
+    "make": "Acura",
+    "domain": "sunnysideacura.com",
+    "sitemapUrl": "https://www.sunnysideacura.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.sunnysideacura.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://sunnysideacura.com/",
+    "lat": 42.791821,
+    "lng": -71.52153,
+    "domainSource": "oem-locator"
+  }
+]

@@ -1,6 +1,215 @@
 [
   {
     "make": "Kia",
+    "name": "Allstar Kia",
+    "city": "San Bernardino",
+    "state": "CA",
+    "domain": "allstarkiasanbernardino.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.kia.com/us/en/find-a-dealer/result?zipCode=92501"
+  },
+  {
+    "make": "Kia",
+    "name": "Car Pros Kia Moreno Valley",
+    "city": "Moreno Valley",
+    "state": "CA",
+    "domain": "carproskiamorenovalley.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.kia.com/us/en/find-a-dealer/result?zipCode=92501"
+  },
+  {
+    "make": "Kia",
+    "name": "Citrus Kia",
+    "city": "Ontario",
+    "state": "CA",
+    "domain": "citruskia.net",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.kia.com/us/en/find-a-dealer/result?zipCode=92501"
+  },
+  {
+    "make": "Kia",
+    "name": "Dch Kia of Temecula",
+    "city": "Temecula",
+    "state": "CA",
+    "domain": "dchkiaoftemecula.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.kia.com/us/en/find-a-dealer/result?zipCode=92262"
+  },
+  {
+    "make": "Kia",
+    "name": "Kia Country",
+    "city": "Manteca",
+    "state": "CA",
+    "domain": "kiacountry.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.kia.com/us/en/find-a-dealer/result?zipCode=95202"
+  },
+  {
+    "make": "Kia",
+    "name": "Kia Downtown Los Angeles",
+    "city": "Los Angeles",
+    "state": "CA",
+    "domain": "kiaofdtla.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.kia.com/us/en/find-a-dealer/result?zipCode=90012"
+  },
+  {
+    "make": "Kia",
+    "name": "Kia of Carson",
+    "city": "Carson",
+    "state": "CA",
+    "domain": "kiaofcarson.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.kia.com/us/en/find-a-dealer/result?zipCode=90802"
+  },
+  {
+    "make": "Kia",
+    "name": "Kia of Cerritos",
+    "city": "Cerritos",
+    "state": "CA",
+    "domain": "kiacerritos.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.kia.com/us/en/find-a-dealer/result?zipCode=90012"
+  },
+  {
+    "make": "Kia",
+    "name": "Kia of Irvine",
+    "city": "Irvine",
+    "state": "CA",
+    "domain": "kiaofirvine.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.kia.com/us/en/find-a-dealer/result?zipCode=92602"
+  },
+  {
+    "make": "Kia",
+    "name": "Kia of Marin",
+    "city": "Novato",
+    "state": "CA",
+    "domain": "kiamarin.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.kia.com/us/en/find-a-dealer/result?zipCode=95401"
+  },
+  {
+    "make": "Kia",
+    "name": "Kia of Vacaville",
+    "city": "Vacaville",
+    "state": "CA",
+    "domain": "kiavacaville.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.kia.com/us/en/find-a-dealer/result?zipCode=95814"
+  },
+  {
+    "make": "Kia",
+    "name": "Kia of Valencia",
+    "city": "Santa Clarita",
+    "state": "CA",
+    "domain": "kiaofvalencia.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.kia.com/us/en/find-a-dealer/result?zipCode=93301"
+  },
+  {
+    "make": "Kia",
+    "name": "Kia Santa Maria",
+    "city": "Santa Maria",
+    "state": "CA",
+    "domain": "kiasm.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.kia.com/us/en/find-a-dealer/result?zipCode=93101"
+  },
+  {
+    "make": "Kia",
+    "name": "Kia Santa Monica",
+    "city": "Santa Monica",
+    "state": "CA",
+    "domain": "kiasantamonica.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.kia.com/us/en/find-a-dealer/result?zipCode=90012"
+  },
+  {
+    "make": "Kia",
+    "name": "Kirby Kia of Ventura",
+    "city": "Ventura",
+    "state": "CA",
+    "domain": "kiaofventura.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.kia.com/us/en/find-a-dealer/result?zipCode=93101"
+  },
+  {
+    "make": "Kia",
+    "name": "Putnam Kia",
+    "city": "Burlingame",
+    "state": "CA",
+    "domain": "putnamkiaburlingame.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.kia.com/us/en/find-a-dealer/result?zipCode=94102"
+  },
+  {
+    "make": "Kia",
+    "name": "Team Kia of El Cajon",
+    "city": "El Cajon",
+    "state": "CA",
+    "domain": "teamkiaofelcajon.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.kia.com/us/en/find-a-dealer/result?zipCode=92101"
+  },
+  {
+    "make": "Kia",
+    "name": "Valley Kia",
+    "city": "Modesto",
+    "state": "CA",
+    "domain": "valleykiaofmodesto.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.kia.com/us/en/find-a-dealer/result?zipCode=93721"
+  },
+  {
+    "make": "Kia",
+    "name": "Winn Kia of Fremont",
+    "city": "Newark",
+    "state": "CA",
+    "domain": "winnkiaoffremont.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.kia.com/us/en/find-a-dealer/result?zipCode=95113"
+  },
+  {
+    "make": "Kia",
     "name": "Airport Kia",
     "city": "Naples",
     "state": "FL",
@@ -174,6 +383,17 @@
     "lng": null,
     "source": "oem-locator",
     "sourceUrl": "https://www.kia.com/us/en/find-a-dealer/result?zipCode=32501"
+  },
+  {
+    "make": "Kia",
+    "name": "Kia Delray",
+    "city": "Delray Beach",
+    "state": "FL",
+    "domain": "kiadelray.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.kia.com/us/en/find-a-dealer/result?zipCode=33401"
   },
   {
     "make": "Kia",
@@ -551,6 +771,105 @@
   },
   {
     "make": "Kia",
+    "name": "Herb Chambers Kia of Burlington",
+    "city": "Burlington",
+    "state": "MA",
+    "domain": "herbchambersofburlington.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.kia.com/us/en/find-a-dealer/result?zipCode=02116"
+  },
+  {
+    "make": "Kia",
+    "name": "Kia North Danvers",
+    "city": "Danvers",
+    "state": "MA",
+    "domain": "kianorthdanvers.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.kia.com/us/en/find-a-dealer/result?zipCode=03079"
+  },
+  {
+    "make": "Kia",
+    "name": "Kia of Attleboro",
+    "city": "South Attleboro",
+    "state": "MA",
+    "domain": "kiaofattleboro.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.kia.com/us/en/find-a-dealer/result?zipCode=02903"
+  },
+  {
+    "make": "Kia",
+    "name": "Kia of Dartmouth",
+    "city": "Dartmouth",
+    "state": "MA",
+    "domain": "kiaofdartmouth.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.kia.com/us/en/find-a-dealer/result?zipCode=02740"
+  },
+  {
+    "make": "Kia",
+    "name": "McGovern Kia of Norwood",
+    "city": "Norwood",
+    "state": "MA",
+    "domain": "mcgovernkiaofnorwood.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.kia.com/us/en/find-a-dealer/result?zipCode=02116"
+  },
+  {
+    "make": "Kia",
+    "name": "Pride Kia",
+    "city": "Lynn",
+    "state": "MA",
+    "domain": "pridekiaoflynn.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.kia.com/us/en/find-a-dealer/result?zipCode=02116"
+  },
+  {
+    "make": "Kia",
+    "name": "Quirk Kia South",
+    "city": "Marshfield",
+    "state": "MA",
+    "domain": "quirkkiasouth.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.kia.com/us/en/find-a-dealer/result?zipCode=02601"
+  },
+  {
+    "make": "Kia",
+    "name": "Route 6 Automall Kia",
+    "city": "Swansea",
+    "state": "MA",
+    "domain": "route6automall.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.kia.com/us/en/find-a-dealer/result?zipCode=02903"
+  },
+  {
+    "make": "Kia",
+    "name": "Wagner Kia of Shrewsbury",
+    "city": "Shrewsbury",
+    "state": "MA",
+    "domain": "wagnerkiaofshrewsbury.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.kia.com/us/en/find-a-dealer/result?zipCode=01608"
+  },
+  {
+    "make": "Kia",
     "name": "Burlington Kia",
     "city": "Burlington",
     "state": "NC",
@@ -658,6 +977,28 @@
     "lng": null,
     "source": "oem-locator",
     "sourceUrl": "https://www.kia.com/us/en/find-a-dealer/result?zipCode=27601"
+  },
+  {
+    "make": "Kia",
+    "name": "Nucar Kia of Tilton",
+    "city": "Tilton",
+    "state": "NH",
+    "domain": "nucarkiatilton.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.kia.com/us/en/find-a-dealer/result?zipCode=05701"
+  },
+  {
+    "make": "Kia",
+    "name": "Quirk Kia Manchester",
+    "city": "Manchester",
+    "state": "NH",
+    "domain": "quirkkiamanchester.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.kia.com/us/en/find-a-dealer/result?zipCode=03101"
   },
   {
     "make": "Kia",
@@ -1295,7 +1636,7 @@
     "lat": null,
     "lng": null,
     "source": "oem-locator",
-    "sourceUrl": "https://www.kia.com/us/en/find-a-dealer/result?zipCode=24501"
+    "sourceUrl": "https://www.kia.com/us/en/find-a-dealer/result?zipCode=22901"
   },
   {
     "make": "Kia",
@@ -1306,7 +1647,18 @@
     "lat": null,
     "lng": null,
     "source": "oem-locator",
-    "sourceUrl": "https://www.kia.com/us/en/find-a-dealer/result?zipCode=24501"
+    "sourceUrl": "https://www.kia.com/us/en/find-a-dealer/result?zipCode=24011"
+  },
+  {
+    "make": "Kia",
+    "name": "Nelson Kia",
+    "city": "Bassett",
+    "state": "VA",
+    "domain": "kiabynelson.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.kia.com/us/en/find-a-dealer/result?zipCode=24011"
   },
   {
     "make": "Kia",
@@ -1362,5 +1714,16 @@
     "lng": null,
     "source": "oem-locator",
     "sourceUrl": "https://www.kia.com/us/en/find-a-dealer/result?zipCode=23451"
+  },
+  {
+    "make": "Kia",
+    "name": "Berlin City Kia, Burlington",
+    "city": "Williston",
+    "state": "VT",
+    "domain": "berlincitykiavt.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.kia.com/us/en/find-a-dealer/result?zipCode=05401"
   }
 ]

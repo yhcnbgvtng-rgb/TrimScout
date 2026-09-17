@@ -1,0 +1,16 @@
+[
+  {
+    "id": "speedcraft-acura",
+    "name": "Speedcraft Acura",
+    "city": "West Warwick",
+    "state": "RI",
+    "make": "Acura",
+    "domain": "speedcraftacura.com",
+    "sitemapUrl": "https://www.speedcraftacura.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.speedcraftacura.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://speedcraftacura.com/",
+    "lat": 41.6744,
+    "lng": -71.499901,
+    "domainSource": "oem-locator"
+  }
+]

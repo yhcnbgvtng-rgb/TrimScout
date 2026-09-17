@@ -1,0 +1,30 @@
+[
+  {
+    "id": "mercedes-benz-mercedes-benz-of-tiverton",
+    "name": "Mercedes-Benz OF Tiverton",
+    "city": "Tiverton",
+    "state": "RI",
+    "make": "Mercedes-Benz",
+    "domain": "viti.mercedesdealer.com",
+    "sitemapUrl": "https://viti.mercedesdealer.com/sitemap.xml",
+    "inventorySitemapUrl": "https://viti.mercedesdealer.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://viti.mercedesdealer.com/",
+    "lat": 41.64304,
+    "lng": -71.187159,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "mercedes-benz-mercedes-benz-of-warwick",
+    "name": "Mercedes-Benz of Warwick",
+    "city": "Warwick",
+    "state": "RI",
+    "make": "Mercedes-Benz",
+    "domain": "warwickmb.com",
+    "sitemapUrl": "https://www.warwickmb.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.warwickmb.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://warwickmb.com/",
+    "lat": 41.698795,
+    "lng": -71.496644,
+    "domainSource": "oem-locator"
+  }
+]

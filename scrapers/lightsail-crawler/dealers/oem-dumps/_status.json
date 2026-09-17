@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-09-16T21:28:20.646Z",
+  "generatedAt": "2026-09-17T14:29:09.365Z",
   "detectOnly": true,
   "brands": [
     {
       "brand": "acura",
       "dest": "dealers/oem-dumps/acura.json",
-      "count": 96,
+      "count": 141,
       "locator": "acura-dealers.json",
       "note": "In-repo official locator dump (not re-fetched).",
       "httpStatus": 200,
@@ -14,7 +14,7 @@
     {
       "brand": "porsche",
       "dest": "dealers/oem-dumps/porsche.json",
-      "count": 76,
+      "count": 118,
       "locator": "dealers.json",
       "note": "In-repo official locator dump (not re-fetched).",
       "httpStatus": 200,
@@ -23,7 +23,7 @@
     {
       "brand": "lexus",
       "dest": "dealers/oem-dumps/lexus.json",
-      "count": 85,
+      "count": 132,
       "locator": "https://www.lexus.com/rest/lexus/dealers",
       "note": "Official Lexus REST dealer directory.",
       "httpStatus": 200,
@@ -33,402 +33,402 @@
     {
       "brand": "toyota",
       "dest": "dealers/oem-dumps/toyota.json",
-      "count": 307,
+      "count": 0,
       "locator": "https://www.toyota.com/dealers/directory/",
       "note": "Official Toyota dealer-hub city pages (dealer-card websites).",
       "pages": [
         {
           "url": "https://www.toyota.com/dealers/new-jersey/avenel/dealers/",
-          "status": 200,
-          "ok": true
+          "status": 403,
+          "ok": false
         },
         {
           "url": "https://www.toyota.com/dealers/new-jersey/cherry-hill/dealers/",
-          "status": 200,
-          "ok": true
+          "status": 403,
+          "ok": false
         },
         {
           "url": "https://www.toyota.com/dealers/new-jersey/vineland/dealers/",
-          "status": 200,
-          "ok": true
+          "status": 403,
+          "ok": false
         },
         {
           "url": "https://www.toyota.com/dealers/new-jersey/turnersville/dealers/",
-          "status": 200,
-          "ok": true
+          "status": 403,
+          "ok": false
         },
         {
           "url": "https://www.toyota.com/dealers/new-jersey/mays-landing/dealers/",
-          "status": 200,
-          "ok": true
+          "status": 403,
+          "ok": false
         },
         {
           "url": "https://www.toyota.com/dealers/new-york/brooklyn/dealers/",
-          "status": 200,
-          "ok": true
+          "status": 403,
+          "ok": false
         },
         {
           "url": "https://www.toyota.com/dealers/new-york/buffalo/dealers/",
-          "status": 200,
-          "ok": true
+          "status": 403,
+          "ok": false
         },
         {
           "url": "https://www.toyota.com/dealers/new-york/rochester/dealers/",
-          "status": 200,
-          "ok": true
+          "status": 403,
+          "ok": false
         },
         {
           "url": "https://www.toyota.com/dealers/new-york/syracuse/dealers/",
-          "status": 200,
-          "ok": true
+          "status": 403,
+          "ok": false
         },
         {
           "url": "https://www.toyota.com/dealers/new-york/albany/dealers/",
-          "status": 200,
-          "ok": true
+          "status": 403,
+          "ok": false
         },
         {
           "url": "https://www.toyota.com/dealers/new-york/binghamton/dealers/",
-          "status": 200,
-          "ok": true
+          "status": 403,
+          "ok": false
         },
         {
           "url": "https://www.toyota.com/dealers/new-york/yonkers/dealers/",
-          "status": 200,
-          "ok": true
+          "status": 403,
+          "ok": false
         },
         {
           "url": "https://www.toyota.com/dealers/new-york/white-plains/dealers/",
-          "status": 200,
-          "ok": true
+          "status": 403,
+          "ok": false
         },
         {
           "url": "https://www.toyota.com/dealers/florida/jacksonville/dealers/",
-          "status": 200,
-          "ok": true
+          "status": 403,
+          "ok": false
         },
         {
           "url": "https://www.toyota.com/dealers/florida/tallahassee/dealers/",
-          "status": 200,
-          "ok": true
+          "status": 403,
+          "ok": false
         },
         {
           "url": "https://www.toyota.com/dealers/florida/pensacola/dealers/",
-          "status": 200,
-          "ok": true
+          "status": 403,
+          "ok": false
         },
         {
           "url": "https://www.toyota.com/dealers/florida/orlando/dealers/",
-          "status": 200,
-          "ok": true
+          "status": 403,
+          "ok": false
         },
         {
           "url": "https://www.toyota.com/dealers/florida/tampa/dealers/",
-          "status": 200,
-          "ok": true
+          "status": 403,
+          "ok": false
         },
         {
           "url": "https://www.toyota.com/dealers/florida/fort-myers/dealers/",
-          "status": 200,
-          "ok": true
+          "status": 403,
+          "ok": false
         },
         {
           "url": "https://www.toyota.com/dealers/florida/naples/dealers/",
-          "status": 200,
-          "ok": true
+          "status": 403,
+          "ok": false
         },
         {
           "url": "https://www.toyota.com/dealers/florida/west-palm-beach/dealers/",
-          "status": 200,
-          "ok": true
+          "status": 403,
+          "ok": false
         },
         {
           "url": "https://www.toyota.com/dealers/florida/fort-lauderdale/dealers/",
-          "status": 200,
-          "ok": true
+          "status": 403,
+          "ok": false
         },
         {
           "url": "https://www.toyota.com/dealers/florida/miami/dealers/",
-          "status": 200,
-          "ok": true
+          "status": 403,
+          "ok": false
         },
         {
           "url": "https://www.toyota.com/dealers/georgia/atlanta/dealers/",
-          "status": 200,
-          "ok": true
+          "status": 403,
+          "ok": false
         },
         {
           "url": "https://www.toyota.com/dealers/georgia/marietta/dealers/",
-          "status": 200,
-          "ok": true
+          "status": 403,
+          "ok": false
         },
         {
           "url": "https://www.toyota.com/dealers/georgia/rome/dealers/",
-          "status": 200,
-          "ok": true
+          "status": 403,
+          "ok": false
         },
         {
           "url": "https://www.toyota.com/dealers/georgia/dalton/dealers/",
-          "status": 200,
-          "ok": true
+          "status": 403,
+          "ok": false
         },
         {
           "url": "https://www.toyota.com/dealers/georgia/gainesville/dealers/",
-          "status": 200,
-          "ok": true
+          "status": 403,
+          "ok": false
         },
         {
           "url": "https://www.toyota.com/dealers/georgia/athens/dealers/",
-          "status": 200,
-          "ok": true
+          "status": 403,
+          "ok": false
         },
         {
           "url": "https://www.toyota.com/dealers/georgia/augusta/dealers/",
-          "status": 200,
-          "ok": true
+          "status": 403,
+          "ok": false
         },
         {
           "url": "https://www.toyota.com/dealers/georgia/dublin/dealers/",
-          "status": 200,
-          "ok": true
+          "status": 403,
+          "ok": false
         },
         {
           "url": "https://www.toyota.com/dealers/georgia/macon/dealers/",
-          "status": 200,
-          "ok": true
+          "status": 403,
+          "ok": false
         },
         {
           "url": "https://www.toyota.com/dealers/georgia/warner-robins/dealers/",
-          "status": 200,
-          "ok": true
+          "status": 403,
+          "ok": false
         },
         {
           "url": "https://www.toyota.com/dealers/georgia/columbus/dealers/",
-          "status": 200,
-          "ok": true
+          "status": 403,
+          "ok": false
         },
         {
           "url": "https://www.toyota.com/dealers/georgia/albany/dealers/",
-          "status": 200,
-          "ok": true
+          "status": 403,
+          "ok": false
         },
         {
           "url": "https://www.toyota.com/dealers/georgia/valdosta/dealers/",
-          "status": 200,
-          "ok": true
+          "status": 403,
+          "ok": false
         },
         {
           "url": "https://www.toyota.com/dealers/georgia/statesboro/dealers/",
-          "status": 200,
-          "ok": true
+          "status": 403,
+          "ok": false
         },
         {
           "url": "https://www.toyota.com/dealers/georgia/brunswick/dealers/",
-          "status": 200,
-          "ok": true
+          "status": 403,
+          "ok": false
         },
         {
           "url": "https://www.toyota.com/dealers/georgia/savannah/dealers/",
-          "status": 200,
-          "ok": true
+          "status": 403,
+          "ok": false
         },
         {
           "url": "https://www.toyota.com/dealers/texas/dallas/dealers/",
-          "status": 200,
-          "ok": true
+          "status": 403,
+          "ok": false
         },
         {
           "url": "https://www.toyota.com/dealers/texas/fort-worth/dealers/",
-          "status": 200,
-          "ok": true
+          "status": 403,
+          "ok": false
         },
         {
           "url": "https://www.toyota.com/dealers/texas/plano/dealers/",
-          "status": 200,
-          "ok": true
+          "status": 403,
+          "ok": false
         },
         {
           "url": "https://www.toyota.com/dealers/texas/houston/dealers/",
-          "status": 200,
-          "ok": true
+          "status": 403,
+          "ok": false
         },
         {
           "url": "https://www.toyota.com/dealers/texas/the-woodlands/dealers/",
-          "status": 200,
-          "ok": true
+          "status": 403,
+          "ok": false
         },
         {
           "url": "https://www.toyota.com/dealers/texas/sugar-land/dealers/",
-          "status": 200,
-          "ok": true
+          "status": 403,
+          "ok": false
         },
         {
           "url": "https://www.toyota.com/dealers/texas/austin/dealers/",
-          "status": 200,
-          "ok": true
+          "status": 403,
+          "ok": false
         },
         {
           "url": "https://www.toyota.com/dealers/texas/san-antonio/dealers/",
-          "status": 200,
-          "ok": true
+          "status": 403,
+          "ok": false
         },
         {
           "url": "https://www.toyota.com/dealers/texas/el-paso/dealers/",
-          "status": 200,
-          "ok": true
+          "status": 403,
+          "ok": false
         },
         {
           "url": "https://www.toyota.com/dealers/texas/lubbock/dealers/",
-          "status": 200,
-          "ok": true
+          "status": 403,
+          "ok": false
         },
         {
           "url": "https://www.toyota.com/dealers/texas/amarillo/dealers/",
-          "status": 200,
-          "ok": true
+          "status": 403,
+          "ok": false
         },
         {
           "url": "https://www.toyota.com/dealers/texas/midland/dealers/",
-          "status": 200,
-          "ok": true
+          "status": 403,
+          "ok": false
         },
         {
           "url": "https://www.toyota.com/dealers/texas/abilene/dealers/",
-          "status": 200,
-          "ok": true
+          "status": 403,
+          "ok": false
         },
         {
           "url": "https://www.toyota.com/dealers/texas/wichita-falls/dealers/",
-          "status": 200,
-          "ok": true
+          "status": 403,
+          "ok": false
         },
         {
           "url": "https://www.toyota.com/dealers/texas/waco/dealers/",
-          "status": 200,
-          "ok": true
+          "status": 403,
+          "ok": false
         },
         {
           "url": "https://www.toyota.com/dealers/texas/tyler/dealers/",
-          "status": 200,
-          "ok": true
+          "status": 403,
+          "ok": false
         },
         {
           "url": "https://www.toyota.com/dealers/texas/beaumont/dealers/",
-          "status": 200,
-          "ok": true
+          "status": 403,
+          "ok": false
         },
         {
           "url": "https://www.toyota.com/dealers/texas/corpus-christi/dealers/",
-          "status": 200,
-          "ok": true
+          "status": 403,
+          "ok": false
         },
         {
           "url": "https://www.toyota.com/dealers/texas/mcallen/dealers/",
-          "status": 200,
-          "ok": true
+          "status": 403,
+          "ok": false
         },
         {
           "url": "https://www.toyota.com/dealers/texas/laredo/dealers/",
-          "status": 200,
-          "ok": true
+          "status": 403,
+          "ok": false
         },
         {
           "url": "https://www.toyota.com/dealers/south-carolina/charleston/dealers/",
-          "status": 200,
-          "ok": true
+          "status": 403,
+          "ok": false
         },
         {
           "url": "https://www.toyota.com/dealers/south-carolina/columbia/dealers/",
-          "status": 200,
-          "ok": true
+          "status": 403,
+          "ok": false
         },
         {
           "url": "https://www.toyota.com/dealers/south-carolina/greenville/dealers/",
-          "status": 200,
-          "ok": true
+          "status": 403,
+          "ok": false
         },
         {
           "url": "https://www.toyota.com/dealers/south-carolina/spartanburg/dealers/",
-          "status": 200,
-          "ok": true
+          "status": 403,
+          "ok": false
         },
         {
           "url": "https://www.toyota.com/dealers/south-carolina/myrtle-beach/dealers/",
-          "status": 200,
-          "ok": true
+          "status": 403,
+          "ok": false
         },
         {
           "url": "https://www.toyota.com/dealers/south-carolina/hilton-head-island/dealers/",
-          "status": 200,
-          "ok": true
+          "status": 403,
+          "ok": false
         },
         {
           "url": "https://www.toyota.com/dealers/south-carolina/rock-hill/dealers/",
-          "status": 200,
-          "ok": true
+          "status": 403,
+          "ok": false
         },
         {
           "url": "https://www.toyota.com/dealers/south-carolina/florence/dealers/",
-          "status": 200,
-          "ok": true
+          "status": 403,
+          "ok": false
         },
         {
           "url": "https://www.toyota.com/dealers/virginia/fairfax/dealers/",
-          "status": 200,
-          "ok": true
+          "status": 403,
+          "ok": false
         },
         {
           "url": "https://www.toyota.com/dealers/virginia/alexandria/dealers/",
-          "status": 200,
-          "ok": true
+          "status": 403,
+          "ok": false
         },
         {
           "url": "https://www.toyota.com/dealers/virginia/richmond/dealers/",
-          "status": 200,
-          "ok": true
+          "status": 403,
+          "ok": false
         },
         {
           "url": "https://www.toyota.com/dealers/virginia/virginia-beach/dealers/",
-          "status": 200,
-          "ok": true
+          "status": 403,
+          "ok": false
         },
         {
           "url": "https://www.toyota.com/dealers/virginia/norfolk/dealers/",
-          "status": 200,
-          "ok": true
+          "status": 403,
+          "ok": false
         },
         {
           "url": "https://www.toyota.com/dealers/virginia/roanoke/dealers/",
-          "status": 200,
-          "ok": true
+          "status": 403,
+          "ok": false
         },
         {
           "url": "https://www.toyota.com/dealers/virginia/charlottesville/dealers/",
-          "status": 200,
-          "ok": true
+          "status": 403,
+          "ok": false
         },
         {
           "url": "https://www.toyota.com/dealers/virginia/lynchburg/dealers/",
-          "status": 200,
-          "ok": true
+          "status": 403,
+          "ok": false
         },
         {
           "url": "https://www.toyota.com/dealers/virginia/fredericksburg/dealers/",
-          "status": 200,
-          "ok": true
+          "status": 403,
+          "ok": false
         },
         {
           "url": "https://www.toyota.com/dealers/virginia/winchester/dealers/",
-          "status": 200,
-          "ok": true
+          "status": 403,
+          "ok": false
         }
       ],
-      "blocked": false
+      "blocked": true
     },
     {
       "brand": "mercedes-benz",
       "dest": "dealers/oem-dumps/mercedes-benz.json",
-      "count": 132,
+      "count": 185,
       "locator": "https://www.mbusa.com/en/dealers",
       "note": "Official MBUSA dealerLocatorService (zip + distance + mbdealer filter).",
       "pages": [
@@ -991,6 +991,201 @@
           "zip": "28601",
           "status": 200,
           "ok": true
+        },
+        {
+          "zip": "02903",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "02891",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "05401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "05701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "05201",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "05301",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "05819",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "03101",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "03060",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "03079",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "03301",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "03801",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "02116",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "01608",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "01103",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "01852",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "02740",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "02601",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "01201",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "90012",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "90802",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "92805",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "92602",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "92101",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "91910",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "95113",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "94102",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "94612",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "95814",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "93721",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "93301",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "92501",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "92401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "95202",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "95350",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "95401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "93101",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "92262",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "96001",
+          "status": 200,
+          "ok": true
         }
       ],
       "blocked": false
@@ -998,7 +1193,7 @@
     {
       "brand": "mitsubishi",
       "dest": "dealers/oem-dumps/mitsubishi.json",
-      "count": 107,
+      "count": 135,
       "locator": "https://www.mitsubishicars.com/dealers",
       "note": "Official Mitsubishi dealers page (embedded Apollo dealer cache).",
       "httpStatus": 200,
@@ -1045,7 +1240,7 @@
     {
       "brand": "mini",
       "dest": "dealers/oem-dumps/mini.json",
-      "count": 41,
+      "count": 62,
       "locator": "https://www.miniusa.com/tools/shopping/find-a-dealer.html",
       "note": "Official MINI dealer-locator JSON API (getAllDealerByZip), found via network capture; plain fetch, no browser needed.",
       "pages": [
@@ -1608,6 +1803,201 @@
           "zip": "28601",
           "status": 200,
           "ok": true
+        },
+        {
+          "zip": "02903",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "02891",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "05401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "05701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "05201",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "05301",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "05819",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "03101",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "03060",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "03079",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "03301",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "03801",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "02116",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "01608",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "01103",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "01852",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "02740",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "02601",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "01201",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "90012",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "90802",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "92805",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "92602",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "92101",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "91910",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "95113",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "94102",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "94612",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "95814",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "93721",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "93301",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "92501",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "92401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "95202",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "95350",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "95401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "93101",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "92262",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "96001",
+          "status": 200,
+          "ok": true
         }
       ],
       "blocked": false
@@ -1615,7 +2005,7 @@
     {
       "brand": "kia",
       "dest": "dealers/oem-dumps/kia.json",
-      "count": 124,
+      "count": 157,
       "locator": "https://www.kia.com/us/en/find-a-dealer",
       "note": "Official Kia find-a-dealer results, rendered per zip (patchright; page is JS-hydrated, not bot-blocked).",
       "pages": [
@@ -1841,9 +2231,8 @@
         },
         {
           "zip": "33401",
-          "status": 0,
-          "ok": false,
-          "error": "page.goto: Timeout 20000ms exceeded.\nCall log:\n  - navigating to \"https://www.kia.com/us/en/find-a-dealer/result?zipCode=33401\", waiting until \"load\"\n"
+          "status": 200,
+          "ok": true
         },
         {
           "zip": "33301",
@@ -2057,9 +2446,8 @@
         },
         {
           "zip": "29302",
-          "status": 0,
-          "ok": false,
-          "error": "page.goto: Timeout 20000ms exceeded.\nCall log:\n  - navigating to \"https://www.kia.com/us/en/find-a-dealer/result?zipCode=29302\", waiting until \"load\"\n"
+          "status": 200,
+          "ok": true
         },
         {
           "zip": "29577",
@@ -2108,15 +2496,13 @@
         },
         {
           "zip": "24011",
-          "status": 0,
-          "ok": false,
-          "error": "page.goto: Timeout 20000ms exceeded.\nCall log:\n  - navigating to \"https://www.kia.com/us/en/find-a-dealer/result?zipCode=24011\", waiting until \"load\"\n"
+          "status": 200,
+          "ok": true
         },
         {
           "zip": "22901",
-          "status": 0,
-          "ok": false,
-          "error": "page.goto: Timeout 20000ms exceeded.\nCall log:\n  - navigating to \"https://www.kia.com/us/en/find-a-dealer/result?zipCode=22901\", waiting until \"load\"\n"
+          "status": 200,
+          "ok": true
         },
         {
           "zip": "24501",
@@ -2180,9 +2566,203 @@
         },
         {
           "zip": "28601",
-          "status": 0,
-          "ok": false,
-          "error": "page.goto: Timeout 20000ms exceeded.\nCall log:\n  - navigating to \"https://www.kia.com/us/en/find-a-dealer/result?zipCode=28601\", waiting until \"load\"\n"
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "02903",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "02891",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "05401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "05701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "05201",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "05301",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "05819",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "03101",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "03060",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "03079",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "03301",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "03801",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "02116",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "01608",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "01103",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "01852",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "02740",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "02601",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "01201",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "90012",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "90802",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "92805",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "92602",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "92101",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "91910",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "95113",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "94102",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "94612",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "95814",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "93721",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "93301",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "92501",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "92401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "95202",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "95350",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "95401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "93101",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "92262",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "96001",
+          "status": 200,
+          "ok": true
         }
       ],
       "blocked": false
@@ -2222,7 +2802,7 @@
     {
       "brand": "subaru",
       "dest": "dealers/oem-dumps/subaru.json",
-      "count": 205,
+      "count": 303,
       "locator": "https://www.subaru.com/find-a-retailer.html",
       "note": "Official Subaru dealer-distance JSON API (services/dealers/distances/by/zipcode), found via network capture; plain fetch, no browser needed.",
       "pages": [
@@ -2785,6 +3365,201 @@
           "zip": "28601",
           "status": 200,
           "ok": true
+        },
+        {
+          "zip": "02903",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "02891",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "05401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "05701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "05201",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "05301",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "05819",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "03101",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "03060",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "03079",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "03301",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "03801",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "02116",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "01608",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "01103",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "01852",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "02740",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "02601",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "01201",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "90012",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "90802",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "92805",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "92602",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "92101",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "91910",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "95113",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "94102",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "94612",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "95814",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "93721",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "93301",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "92501",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "92401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "95202",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "95350",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "95401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "93101",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "92262",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "96001",
+          "status": 200,
+          "ok": true
         }
       ],
       "blocked": false
@@ -2792,7 +3567,7 @@
     {
       "brand": "mazda",
       "dest": "dealers/oem-dumps/mazda.json",
-      "count": 173,
+      "count": 245,
       "locator": "https://www.mazdausa.com/find-a-dealer",
       "note": "Official Mazda dealer.ajax handler (zip + maxDistance=50, plain GET).",
       "pages": [
@@ -3355,6 +4130,201 @@
           "zip": "28601",
           "status": 200,
           "ok": true
+        },
+        {
+          "zip": "02903",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "02891",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "05401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "05701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "05201",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "05301",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "05819",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "03101",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "03060",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "03079",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "03301",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "03801",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "02116",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "01608",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "01103",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "01852",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "02740",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "02601",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "01201",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "90012",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "90802",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "92805",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "92602",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "92101",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "91910",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "95113",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "94102",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "94612",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "95814",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "93721",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "93301",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "92501",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "92401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "95202",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "95350",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "95401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "93101",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "92262",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "96001",
+          "status": 200,
+          "ok": true
         }
       ],
       "blocked": false
@@ -3362,9 +4332,9 @@
     {
       "brand": "volkswagen",
       "dest": "dealers/oem-dumps/volkswagen.json",
-      "count": 210,
+      "count": 296,
       "locator": "https://www.vw.com/en/dealer-search.html",
-      "note": "Official VW bff-search/dealers feature-app API (nationwide, filtered client-side to NJ/NY/FL/GA/TX/SC/VA/NC).",
+      "note": "Official VW bff-search/dealers feature-app API (nationwide, filtered client-side to NJ/NY/FL/GA/TX/SC/VA/NC/RI/VT/NH/MA/CA).",
       "httpStatus": 200,
       "blocked": false,
       "nationwideCount": 954

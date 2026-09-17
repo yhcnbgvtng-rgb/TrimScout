@@ -1,0 +1,30 @@
+[
+  {
+    "id": "kia-nucar-kia-of-tilton",
+    "name": "Nucar Kia of Tilton",
+    "city": "Tilton",
+    "state": "NH",
+    "make": "Kia",
+    "domain": "nucarkiatilton.com",
+    "sitemapUrl": "https://www.nucarkiatilton.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.nucarkiatilton.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://nucarkiatilton.com/",
+    "lat": null,
+    "lng": null,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "kia-quirk-kia-manchester",
+    "name": "Quirk Kia Manchester",
+    "city": "Manchester",
+    "state": "NH",
+    "make": "Kia",
+    "domain": "quirkkiamanchester.com",
+    "sitemapUrl": "https://www.quirkkiamanchester.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.quirkkiamanchester.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://quirkkiamanchester.com/",
+    "lat": null,
+    "lng": null,
+    "domainSource": "oem-locator"
+  }
+]

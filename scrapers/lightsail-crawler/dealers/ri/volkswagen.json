@@ -1,0 +1,44 @@
+[
+  {
+    "id": "volkswagen-balise-volkswagen",
+    "name": "Balise Volkswagen",
+    "city": "West Warwick",
+    "state": "RI",
+    "make": "Volkswagen",
+    "domain": "balisevolkswagenri.com",
+    "sitemapUrl": "https://www.balisevolkswagenri.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.balisevolkswagenri.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://balisevolkswagenri.com/",
+    "lat": 41.6795,
+    "lng": -71.5013,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "volkswagen-scott-volkswagen",
+    "name": "Scott Volkswagen",
+    "city": "East Providence",
+    "state": "RI",
+    "make": "Volkswagen",
+    "domain": "scottvw.com",
+    "sitemapUrl": "https://www.scottvw.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.scottvw.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://scottvw.com/",
+    "lat": 41.822,
+    "lng": -71.3518,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "volkswagen-speedcraft-volkswagen",
+    "name": "Speedcraft Volkswagen",
+    "city": "Wakefield",
+    "state": "RI",
+    "make": "Volkswagen",
+    "domain": "speedcraftvw.com",
+    "sitemapUrl": "https://www.speedcraftvw.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.speedcraftvw.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://speedcraftvw.com/",
+    "lat": 41.4424,
+    "lng": -71.4846,
+    "domainSource": "oem-locator"
+  }
+]

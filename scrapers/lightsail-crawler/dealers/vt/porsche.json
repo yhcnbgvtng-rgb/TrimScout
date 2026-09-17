@@ -1,0 +1,16 @@
+[
+  {
+    "id": "porsche-south-burlington",
+    "name": "Porsche South Burlington",
+    "city": "South Burlington",
+    "state": "VT",
+    "make": "Porsche",
+    "domain": "porscheofsouthburlington.com",
+    "sitemapUrl": "https://www.porscheofsouthburlington.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porscheofsouthburlington.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porscheofsouthburlington.com/",
+    "lat": 44.4642957,
+    "lng": -73.176273,
+    "domainSource": "oem-locator"
+  }
+]
