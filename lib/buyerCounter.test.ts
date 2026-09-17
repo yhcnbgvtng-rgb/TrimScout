@@ -104,3 +104,17 @@ describe("buyer counter — the dealer's own sheet with price-side edits, a requ
     }
   });
 });
+
+describe("every add-on, fee and rebate is shown by name — never a bare total", () => {
+  it("compare tables list each line; nothing hides behind a collapsed total", () => {
+    const read = (f: string) => fs.readFileSync(path.join(process.cwd(), f), "utf8");
+    const used = read("components/UsedCompare.tsx");
+    assert.doesNotMatch(used, /<details>/, "no collapsed totals on the cash/finance compare");
+    assert.match(used, /data-testid="itemized-lines"/);
+    const lease = read("components/LeaseCompare.tsx");
+    assert.match(lease, /<th className="px-3 py-2\.5">Add-ons \/ incentives<\/th>/);
+    assert.match(lease, /data-testid="lease-row-lines"/);
+    const form = read("components/CounterSheetForm.tsx");
+    assert.doesNotMatch(form, /truncate text-\[11px\]/, "line names wrap, never truncate, on the counter sheet");
+  });
+});

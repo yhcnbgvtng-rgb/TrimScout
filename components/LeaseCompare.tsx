@@ -82,6 +82,7 @@ export function LeaseCompare({
                 <th className="px-3 py-2.5">MF (APR)</th>
                 <th className="px-3 py-2.5">Residual %</th>
                 <th className="px-3 py-2.5">Term / miles</th>
+                <th className="px-3 py-2.5">Add-ons / incentives</th>
                 <th className="px-3 py-2.5">Expires</th>
                 <th className="px-3 py-2.5">Status</th>
               </tr>
@@ -92,7 +93,7 @@ export function LeaseCompare({
               ))}
               {counters.length ? (
                 <tr className="bg-amber-950/10">
-                  <td colSpan={9} className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wide text-amber-300" data-testid="counter-divider">
+                  <td colSpan={10} className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wide text-amber-300" data-testid="counter-divider">
                     Counters — differ from your {termMilesLabel(prefs.termMonths, prefs.milesPerYear)}
                   </td>
                 </tr>
@@ -160,6 +161,20 @@ function Row({ r, open, toggle, collecting, onPick, busy, prefs, countering, onS
         {cell(l ? <span className="font-mono text-[11px]">{fmtMf(l.moneyFactor)}</span> : "—")}
         {cell(l ? fmtPct(l.residualPercent) : "—")}
         {cell(l ? <>{termMilesLabel(l.termMonths, l.milesPerYear)}{r.counterHow ? <span className="block text-[10px] text-amber-300">{r.counterHow}</span> : null}</> : "—", r.kind === "counter" ? "text-amber-200" : "")}
+        {cell(
+          l ? (
+            l.addOns.length + l.incentives.length ? (
+              <ul className="space-y-0.5 text-[10px] tabular-nums" data-testid="lease-row-lines">
+                {l.addOns.map((x, i) => (<li key={`a${i}`} className="flex justify-between gap-3"><span className="text-amber-200">{x.name}</span><span className="text-amber-200">+{fmtMoney(x.amount)}</span></li>))}
+                {l.incentives.map((x, i) => (<li key={`i${i}`} className="flex justify-between gap-3"><span className="text-ink-muted">{x.name}</span><span className="text-emerald-300">−{fmtMoney(x.amount)}</span></li>))}
+              </ul>
+            ) : (
+              <span className="text-[10px] text-ink-faint">no add-ons</span>
+            )
+          ) : (
+            "—"
+          )
+        )}
         {cell(r.expiresAt ? new Date(r.expiresAt).toLocaleDateString() : "—", r.kind === "expired" ? "text-rose-300" : "")}
         <td className="px-3 py-2.5 align-top">
           <div className="flex flex-col items-start gap-1.5">
@@ -183,14 +198,14 @@ function Row({ r, open, toggle, collecting, onPick, busy, prefs, countering, onS
       </tr>
       {countering && l && r.quoteId && onCounter ? (
         <tr className="bg-background/60">
-          <td colSpan={9} className="px-4 py-3">
+          <td colSpan={10} className="px-4 py-3">
             <CounterSheetForm dealerName={r.dealerName} quote={{ lease: l }} quoteId={r.quoteId} onSubmit={onCounter} onCancel={onCancelCounter} />
           </td>
         </tr>
       ) : null}
       {open && l ? (
         <tr className="bg-background/60" data-testid="lease-row-detail">
-          <td colSpan={9} className="px-4 py-3">
+          <td colSpan={10} className="px-4 py-3">
             <div className="grid gap-4 text-[11px] text-ink-light sm:grid-cols-3">
               <div>
                 <p className="text-[10px] font-bold uppercase tracking-wide text-ink-faint">Due at signing — itemized</p>

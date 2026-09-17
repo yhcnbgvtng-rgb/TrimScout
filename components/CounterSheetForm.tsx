@@ -122,7 +122,7 @@ export function CounterSheetForm({
           {addOns.length === 0 ? <p className="text-[10px] text-ink-faint">None quoted.</p> : null}
           {addOns.map((l, i) => (
             <div key={i} className="flex items-center gap-1.5">
-              <span className="min-w-0 flex-1 truncate text-[11px] text-ink-light">{l.name}</span>
+              <span className="min-w-0 flex-1 text-[11px] leading-snug text-ink-light">{l.name}<span className="block text-[10px] text-ink-faint">quoted ${(lease ? lease.addOns : used!.addOns)[i]?.amount.toLocaleString()}</span></span>
               <input value={l.amount} onChange={(e) => setLine(addOns, setAddOns, i, e.target.value)} inputMode="decimal" className={`${input} w-24 flex-none`} aria-label={`Add-on ${l.name}`} />
               <button type="button" onClick={() => strike(addOns, setAddOns, i)} className="text-[10px] font-bold text-rose-300 hover:text-white" title="Ask to remove this add-on">strike</button>
             </div>
@@ -132,7 +132,7 @@ export function CounterSheetForm({
           <span className={label}>Fees <span className="normal-case font-normal text-ink-muted">— {kind === "lease" ? "lower any" : "doc fee only"}</span></span>
           {fees.map((l, i) => (
             <div key={i} className="flex items-center gap-1.5">
-              <span className={`min-w-0 flex-1 truncate text-[11px] ${feeEditable(l.name) ? "text-ink-light" : "text-ink-faint"}`}>{l.name}{feeEditable(l.name) ? "" : " (fixed)"}</span>
+              <span className={`min-w-0 flex-1 text-[11px] leading-snug ${feeEditable(l.name) ? "text-ink-light" : "text-ink-faint"}`}>{l.name}{feeEditable(l.name) ? "" : " (fixed)"}</span>
               <input value={l.amount} onChange={(e) => setLine(fees, setFees, i, e.target.value)} inputMode="decimal" disabled={!feeEditable(l.name)} className={`${input} w-24 flex-none disabled:opacity-50`} aria-label={`Fee ${l.name}`} />
             </div>
           ))}

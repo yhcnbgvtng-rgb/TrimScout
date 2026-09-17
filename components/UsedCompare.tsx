@@ -43,14 +43,15 @@ export function UsedCompare({ rfq, prefs, onPick, onWalk, onCounter, busy }: { r
   const vin = rfq.invites[0]?.vehicle?.vin || rfq.vin;
   const cell = (v: React.ReactNode, extra = "") => <td className={`px-3 py-2.5 align-top tabular-nums ${extra}`}>{v}</td>;
   const hi = "bg-emerald-500/10 font-extrabold text-emerald-300";
+  // Every line is named, always visible — a buyer has to see WHAT a dealer is adding on, not just the total.
   const lines = (total: number, items: LineItem[] | undefined, negative = false) =>
     items && items.length ? (
-      <details>
-        <summary className="cursor-pointer list-none font-bold text-white">{negative ? "−" : ""}{fmtMoney(total)}</summary>
-        <ul className="mt-1 space-y-0.5 text-[10px] text-ink-muted tabular-nums">
-          {items.map((l, i) => (<li key={i} className="flex justify-between gap-3"><span>{l.name}</span><span>{fmtMoney(l.amount)}</span></li>))}
+      <div data-testid="itemized-lines">
+        <span className="font-bold text-white">{negative ? "−" : ""}{fmtMoney(total)}</span>
+        <ul className="mt-1 space-y-0.5 text-[10px] text-ink-light tabular-nums">
+          {items.map((l, i) => (<li key={i} className="flex justify-between gap-3"><span className="text-ink-muted">{l.name}</span><span>{negative ? "−" : ""}{fmtMoney(l.amount)}</span></li>))}
         </ul>
-      </details>
+      </div>
     ) : (
       <span className="font-bold text-white">{fmtMoney(total)}</span>
     );
@@ -126,15 +127,15 @@ export function UsedCompare({ rfq, prefs, onPick, onWalk, onCounter, busy }: { r
                     <>
                       {cell(fin ? <>{fmtMoney(fin.monthlyPaymentPreTax)}<span className="text-[10px] text-ink-muted">/mo</span>{fin.monthlyPaymentWithEstTax != null ? <span className="block text-[10px] text-ink-muted">{fmtMoney(fin.monthlyPaymentWithEstTax)} with est. tax</span> : <span className="block text-[10px] text-ink-muted">tax estimated at signing</span>}</> : "—", fin && !expired && fin.monthlyPaymentPreTax === bestMonthly ? hi : "")}
                       {cell(fin ? (
-                        <details>
-                          <summary className="cursor-pointer list-none font-bold text-white">{fmtMoney(financeCashDue(fin))}</summary>
+                        <div>
+                          <span className="font-bold text-white">{fmtMoney(financeCashDue(fin))}</span>
                           <ul className="mt-1 space-y-0.5 text-[10px] text-ink-muted tabular-nums">
                             <li className="flex justify-between gap-3"><span>Down</span><span>{fmtMoney(fin.downPayment)}</span></li>
                             {fin.dueAtSigning.map((l, i) => (<li key={`f${i}`} className="flex justify-between gap-3"><span>{l.name}</span><span>{fmtMoney(l.amount)}</span></li>))}
                             {fin.addOns?.map((l, i) => (<li key={`a${i}`} className="flex justify-between gap-3"><span>{l.name} (add-on)</span><span>{fmtMoney(l.amount)}</span></li>))}
                             {fin.rebates?.map((l, i) => (<li key={`r${i}`} className="flex justify-between gap-3"><span>{l.name} (rebate)</span><span>−{fmtMoney(l.amount)}</span></li>))}
                           </ul>
-                        </details>
+                        </div>
                       ) : "—", fin && !expired && financeCashDue(fin) === bestCashDue ? hi : "")}
                       {cell(fin ? <>{fmtPct(fin.apr)} · {fin.termMonths} mo<span className="block text-[10px] text-ink-muted">{fmtMoney(fin.amountFinanced)} financed{fin.lenderName ? ` · ${fin.lenderName}` : ""}</span></> : "—")}
                     </>
