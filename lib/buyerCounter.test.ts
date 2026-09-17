@@ -111,9 +111,18 @@ describe("every add-on, fee and rebate is shown by name — never a bare total",
     const used = read("components/UsedCompare.tsx");
     assert.doesNotMatch(used, /<details>/, "no collapsed totals on the cash/finance compare");
     assert.match(used, /data-testid="itemized-lines"/);
+    // Lease compare (locked 9 columns): the primary row carries a one-line summary
+    // ("1 add-on +$899 · 1 incentive") under Due at signing; every line is named in
+    // the expanded detail, with the masked contact email there and nowhere else.
     const lease = read("components/LeaseCompare.tsx");
-    assert.match(lease, /<th className="px-3 py-2\.5">Add-ons \/ incentives<\/th>/);
-    assert.match(lease, /data-testid="lease-row-lines"/);
+    assert.match(lease, /<th className="px-4 py-3">Dealer<\/th>|Dealer<\/th>/);
+    assert.doesNotMatch(lease, /Add-ons \/ incentives<\/th>/, "no mid-table add-ons column");
+    assert.match(lease, /data-testid="lines-summary"/);
+    assert.match(lease, /data-testid="money-note"/, "deltas sit under the money columns, not in the dealer cell");
+    assert.doesNotMatch(lease, /r\.chips\.map\(\(c\) => \(\s*<span key=\{c\} className="rounded bg-border/, "no comparison badges in the dealer cell");
+    assert.match(lease, /Quoted by <span className="text-ink-light">/, "masked email only in the expand detail");
+    const headers = lease.match(/<th className="px-4 py-3">([^<]+)<\/th>/g)!.map((h) => h.replace(/<[^>]+>/g, ""));
+    assert.deepEqual(headers, ["Monthly", "Due at signing", "Cap cost", "MF (APR)", "Residual %", "Term / miles", "Expires", "Status"]);
     const form = read("components/CounterSheetForm.tsx");
     assert.doesNotMatch(form, /truncate text-\[11px\]/, "line names wrap, never truncate, on the counter sheet");
   });
