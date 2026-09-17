@@ -196,7 +196,7 @@ export function buildOfferEmail(
       unsubscribeUrl
         ? `<tr>
              <td style="padding:16px 32px 24px;border-top:1px solid #e2e8f0;">
-               <p style="margin:0;font-size:11px;color:#94a3b8;">Don't want emails like this about quote requests? <a href="${escapeHtml(unsubscribeUrl)}" style="color:#64748b;">Unsubscribe</a>.</p>
+               <p style="margin:0;font-size:11px;color:#94a3b8;">Prefer not to get quote requests for this rooftop? <a href="${escapeHtml(unsubscribeUrl)}" style="color:#64748b;">Unsubscribe</a> — we'll stop emailing it, and it'll be pulled from any open request still waiting on your reply (buyers are asked to choose another dealership).</p>
              </td>
            </tr>`
         : ""

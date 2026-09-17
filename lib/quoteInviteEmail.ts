@@ -173,7 +173,7 @@ export function quoteInviteHtml(input: QuoteInviteEmailInput): string {
     <p style="font-size:13px;margin:0 0 28px"><a href="${view}" style="color:#059669">View request details</a></p>
     <p style="font-size:12px;color:#64748b;border-top:1px solid #e2e8f0;padding-top:12px;margin:0;line-height:1.7">
       Sent to ${escapeHtml(input.contactName)}, ${escapeHtml(roleLabel)} · ${escapeHtml(input.dealerName)}${input.dealReference ? ` · ${escapeHtml(input.dealReference)}` : ""}<br>
-      ${input.unsubscribeUrl ? `<a href="${escapeHtml(input.unsubscribeUrl)}" style="color:#64748b">Unsubscribe this rooftop</a><br>` : ""}
+      ${input.unsubscribeUrl ? `<a href="${escapeHtml(input.unsubscribeUrl)}" style="color:#64748b">Unsubscribe this rooftop</a> — stops these emails and closes out any open request still waiting on you.<br>` : ""}
       ${escapeHtml(QUOTE_EMAIL_LEGAL)} <a href="${home}/terms" style="color:#64748b">Terms</a>
     </p>
   </div>`;
