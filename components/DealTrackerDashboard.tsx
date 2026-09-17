@@ -38,6 +38,8 @@ interface DealTrackerDashboardProps {
   justSent?: JustSentPackage | null;
   onOpenLiveDealRoom: (request: BiddingRequest) => void;
   onStartNewBid: () => void;
+  /** The "Resume" button on a parked draft — same wizard, logged as its own placement. Falls back to onStartNewBid. */
+  onResumeDraft?: () => void;
   onToggleTradeIn: (requestId: string, hasTradeIn: boolean) => void;
 }
 
@@ -95,6 +97,7 @@ export const DealTrackerDashboard: React.FC<DealTrackerDashboardProps> = ({
   justSent = null,
   onOpenLiveDealRoom,
   onStartNewBid,
+  onResumeDraft,
   onToggleTradeIn,
 }) => {
   const [clockById, setClockById] = useState<Record<string, OfferCloseClockView>>({});
@@ -128,7 +131,7 @@ export const DealTrackerDashboard: React.FC<DealTrackerDashboardProps> = ({
             <QuoteStatusStrip stage="draft" detail="Not sent yet — pick up where you left off." />
             <div className="flex flex-wrap items-center justify-between gap-2">
               <p className="text-sm font-semibold text-white">{draftSummary}</p>
-              <button type="button" onClick={onStartNewBid} className="inline-flex items-center gap-1 rounded-xl bg-emerald-500 px-3 py-2 text-xs font-extrabold text-black hover:bg-emerald-400">
+              <button type="button" onClick={onResumeDraft || onStartNewBid} data-testid="cta-request-quote-tracker-draft" className="inline-flex items-center gap-1 rounded-xl bg-emerald-500 px-3 py-2 text-xs font-extrabold text-black hover:bg-emerald-400">
                 Resume <ChevronRight className="h-3.5 w-3.5" />
               </button>
             </div>
@@ -205,7 +208,9 @@ export const DealTrackerDashboard: React.FC<DealTrackerDashboardProps> = ({
             </p>
           </div>
           <button
+            type="button"
             onClick={onStartNewBid}
+            data-testid="cta-request-quote-tracker-empty"
             className="inline-flex items-center gap-2 rounded-xl bg-emerald-500 px-5 py-2.5 text-xs font-black text-black hover:bg-emerald-400 shadow-md shadow-emerald-500/20 transition-all"
           >
             <Zap className="h-4 w-4 fill-black" /> Request a quote

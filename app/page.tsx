@@ -3,6 +3,7 @@
 export const dynamic = "force-dynamic";
 
 import React, { useState, useEffect } from "react";
+import { trackEvent, quoteCtaProps, type QuoteCtaPlacement } from "@/lib/analytics";
 import { formatBuyerAlias } from "@/lib/buyerAlias";
 import Link from "next/link";
 import { useSession, signOut as authSignOut } from "next-auth/react";
@@ -346,6 +347,16 @@ export default function Home() {
     openFreshWizard();
   };
 
+  // Every "Request a Quote" CTA — header, hero, tracker empty state — opens
+  // the same Configure Quote Request wizard, from whatever view is showing.
+  // Signed out, the buyer walks Step 1 as a guest; the sign-in gate is at
+  // Send, and the draft survives it (lib/quoteDraft). Never a view switch,
+  // never a scroll.
+  const requestQuoteFromCta = (placement: QuoteCtaPlacement) => {
+    trackEvent("cta_request_quote_click", quoteCtaProps(placement, Boolean(currentUser)));
+    handleOpenFlexibleWizard();
+  };
+
   // From the factory-option match flow: the buyer already picked a specific
   // matched (or closest-match) car, so the wizard opens straight past its
   // own paste-a-VIN step with that car's real must-haves pre-filled.
@@ -539,6 +550,7 @@ export default function Home() {
         activeDealCount={shopperRequests.filter((r) => r.status === "active").length}
         currentView={currentView}
         onToggleView={setCurrentView}
+        onRequestQuote={(placement) => requestQuoteFromCta(placement)}
         onOpenAuthModal={() => setIsAuthModalOpen(true)}
         onLogout={handleLogout}
       />
@@ -580,7 +592,8 @@ export default function Home() {
               setActiveRequest(request);
               setCurrentView("deal_room");
             }}
-            onStartNewBid={handleOpenFlexibleWizard}
+            onStartNewBid={() => requestQuoteFromCta("tracker_empty")}
+            onResumeDraft={() => requestQuoteFromCta("tracker_draft")}
             onToggleTradeIn={handleToggleTradeIn}
           />
         ) : (
@@ -606,7 +619,7 @@ export default function Home() {
       {/* View 2: Reverse Bidding Program Intro Page */}
       {currentView === "bid_program" && (
         <BidProgramIntro
-          onStartWizard={handleOpenFlexibleWizard}
+          onStartWizard={(placement) => requestQuoteFromCta(placement)}
           onViewDemoDealRoom={() => setCurrentView("deal_room")}
         />
       )}

@@ -26,6 +26,8 @@ interface NavbarProps {
   activeDealCount: number;
   currentView: "bid_program" | "factory_match" | "deal_room" | "dealer_portal" | "track_deals" | "signup" | "admin";
   onToggleView: (view: "bid_program" | "factory_match" | "deal_room" | "dealer_portal" | "track_deals" | "signup" | "admin") => void;
+  /** The header "Request a Quote" CTA opens Configure Quote Request directly — it never just switches views. */
+  onRequestQuote: (placement: "header" | "mobile_menu") => void;
   onOpenAuthModal: () => void;
   onLogout: () => void;
 }
@@ -35,6 +37,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   activeDealCount,
   currentView,
   onToggleView,
+  onRequestQuote,
   onOpenAuthModal,
   onLogout,
 }) => {
@@ -246,9 +249,11 @@ export const Navbar: React.FC<NavbarProps> = ({
             </div>
           )}
 
-          {/* Primary CTA */}
+          {/* Primary CTA — opens the wizard from any view (it used to switch to the intro page, a no-op when already there). */}
           <button
-            onClick={() => onToggleView("bid_program")}
+            type="button"
+            onClick={() => onRequestQuote("header")}
+            data-testid="cta-request-quote-header"
             className="flex items-center gap-1.5 rounded-xl bg-emerald-500 px-3.5 py-1.5 text-xs font-extrabold text-black hover:bg-emerald-400 transition-all shadow-sm active:scale-95"
           >
             <Zap className="h-3.5 w-3.5 fill-black" />
@@ -294,6 +299,19 @@ export const Navbar: React.FC<NavbarProps> = ({
               </button>
             );
           })}
+
+          <button
+            type="button"
+            onClick={() => {
+              setIsMobileMenuOpen(false);
+              onRequestQuote("mobile_menu");
+            }}
+            data-testid="cta-request-quote-mobile"
+            className="w-full flex items-center justify-center gap-1.5 rounded-xl bg-emerald-500 py-2 text-xs font-extrabold text-black"
+          >
+            <Zap className="h-3.5 w-3.5 fill-black" />
+            <span>Request a Quote</span>
+          </button>
 
           {!user && (
             <div className="pt-2 border-t border-border flex items-center gap-2">
