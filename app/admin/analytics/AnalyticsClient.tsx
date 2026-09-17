@@ -2,6 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
+import DealerAnalyticsSection from "./DealerAnalyticsSection";
 import {
   ArrowLeft,
   BarChart3,
@@ -134,6 +135,9 @@ export default function AnalyticsClient() {
             <ExternalLink className="h-3.5 w-3.5" />
           </a>
         </div>
+
+        {/* Dealership analytics from the nightly inventory crawl — DOM (days on market), velocity, pricing, coverage. */}
+        <DealerAnalyticsSection />
       </main>
     </div>
   );
