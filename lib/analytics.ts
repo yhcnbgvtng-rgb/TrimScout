@@ -5,7 +5,7 @@
  * never blocks the UI and never carries a full VIN or an email.
  */
 
-export const TRACKED_EVENTS = ["factory_build_pending", "factory_build_retry", "factory_build_notify_requested", "vehicle_saved_for_later", "vehicle_resumed", "cta_request_quote_click"] as const;
+export const TRACKED_EVENTS = ["factory_build_pending", "factory_build_retry", "factory_build_notify_requested", "vehicle_saved_for_later", "vehicle_resumed", "cta_request_quote_click", "rfq_intent_selected"] as const;
 export type TrackedEvent = (typeof TRACKED_EVENTS)[number];
 
 export type EventProps = Record<string, string | number | boolean | null>;

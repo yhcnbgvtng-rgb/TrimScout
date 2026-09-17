@@ -38,6 +38,8 @@ export interface QuoteInviteEmailInput {
   financePrefs?: { termMonths: number; downPayment: number; creditBand?: string | null } | null;
   /** The buyer's note, word for word (already scrubbed of contact info). */
   buyerNote?: string | null;
+  /** Alternate lane: the buyer is open to other vehicles — this is what they asked for, and there is no VIN. */
+  alternateAsk?: string | null;
   /** Buyer said a trade-in is coming — handled after the OTD price, never in the quote. */
   tradeInExpected?: boolean | null;
   /** Kept for callers that still pass it; not rendered. */
@@ -108,13 +110,13 @@ function carName(v: QuoteInviteEmailInput["vehicle"]): string {
 
 export function quoteInviteTitle(input: QuoteInviteEmailInput): string {
   const copy = QUOTE_EMAIL_COPY[input.quoteType];
-  const short = [input.vehicle.year, input.vehicle.model, input.vehicle.trim].filter(Boolean).join(" ");
+  const short = input.alternateAsk ? "open to different vehicles" : [input.vehicle.year, input.vehicle.model, input.vehicle.trim].filter(Boolean).join(" ");
   const area = areaLabel(input.buyerZip ?? input.leasePrefs?.zip);
   return [`${copy.title} — ${short}`, copy.pay, area].filter(Boolean).join(" · ");
 }
 
 export function quoteInviteSubject(input: QuoteInviteEmailInput): string {
-  return `${quoteInviteTitle(input)} · VIN …${input.vehicle.vin.slice(-6)}`;
+  return input.alternateAsk ? quoteInviteTitle(input) : `${quoteInviteTitle(input)} · VIN …${input.vehicle.vin.slice(-6)}`;
 }
 
 /** "Jane Doe" → "Jane"; a rooftop's shared inbox ("Sales desk") is greeted as the team. */
@@ -148,12 +150,14 @@ export function quoteInviteHtml(input: QuoteInviteEmailInput): string {
       <a href="${view}" style="display:inline-block;background:#059669;color:#ffffff;text-decoration:none;font-weight:700;font-size:15px;padding:12px 22px;border-radius:8px">${copy.cta}</a>
     </p>
     <div style="border:1px solid #e2e8f0;border-radius:12px;padding:16px 18px">
-      <table role="presentation" style="border-collapse:collapse;width:100%"><tr>${thumb}<td style="vertical-align:top">
+      ${input.alternateAsk ? `<div style="font-size:16px;font-weight:800">Open to different vehicles</div>
+        <div style="font-size:13px;color:#475569;margin-top:2px">The buyer asked for: <strong>${escapeHtml(input.alternateAsk)}</strong></div>
+        <div style="font-size:13px;color:#475569;margin-top:4px">Propose any car on your lot that fits — enter its VIN when you quote. Quotes on a different car show as alternates on the buyer's compare.</div>` : `<table role="presentation" style="border-collapse:collapse;width:100%"><tr>${thumb}<td style="vertical-align:top">
         <div style="font-size:16px;font-weight:800">${escapeHtml(carName(input.vehicle))}</div>
         ${facts ? `<div style="font-size:13px;color:#475569">${facts}</div>` : ""}
         <div style="font-size:13px;color:#475569;font-family:ui-monospace,Menlo,monospace;margin-top:2px">VIN ${escapeHtml(input.vehicle.vin)}</div>
         ${input.vehicle.vdpUrl ? `<div style="font-size:13px;margin-top:4px"><a href="${escapeHtml(input.vehicle.vdpUrl)}" style="color:#059669">Your listing</a></div>` : ""}
-      </td></tr></table>
+      </td></tr></table>`}
       <hr style="border:0;border-top:1px solid #e2e8f0;margin:14px 0">
       <table role="presentation" style="border-collapse:collapse;width:100%">
         ${row("Pay", copy.pay)}

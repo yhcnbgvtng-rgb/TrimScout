@@ -13,6 +13,7 @@ export const RFQ_MAX_INVITES = 3;
 import type { LeaseQuote, LeaseRequestPrefs } from "./leaseQuote";
 import type { QuotePrefs, UsedQuote } from "./usedQuote";
 import type { CounterSheet } from "./counterSheet";
+import type { AlternateAsk, RfqLane } from "./alternateAsk";
 
 export type OptionMatchStatus = "hit" | "miss" | "unknown";
 
@@ -164,6 +165,13 @@ export interface RfqRequest extends RfqSpec {
   buyerNote?: string | null;
   /** Buyer said a trade-in is coming — handled after the OTD price is agreed, never part of the quote. */
   tradeInExpected?: boolean | null;
+  /**
+   * "same_spec" (default): quotes for this VIN / build compete in the main compare.
+   * "alternate": the buyer is open to other vehicles — no VIN required; every quote is an alternate.
+   */
+  lane?: RfqLane;
+  /** What the buyer asked for on the alternate lane. */
+  alternateAsk?: AlternateAsk | null;
   /** Admin gate — see RfqApprovalStatus. Absent on rows from a box that predates it (treated as approved). */
   approvalStatus?: RfqApprovalStatus;
   approvalDecidedAt?: string | null;

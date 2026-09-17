@@ -7,6 +7,7 @@
 import { LEASE_DAS_INTENT_LABELS, type LeaseRequestPrefs } from "./leaseQuote";
 import { CREDIT_BAND_LABELS } from "./creditBand";
 import type { RfqRequest } from "./rfq";
+import { alternateAskSummary } from "./alternateAsk";
 
 /** One pasted car as the package recorded it (rfq.linkPastes rows). */
 export interface RfqPasteVehicle {
@@ -76,8 +77,9 @@ export function vehicleLine(v: Pick<RfqPasteVehicle, "year" | "make" | "model" |
   return [v.year, v.make, v.model, v.trim].filter(Boolean).join(" ");
 }
 
-/** "2026 Chevrolet Tahoe LS" or "2026 Chevrolet Tahoe LS + 2 more". */
-export function rfqVehicleSummary(rfq: Parameters<typeof rfqVehicles>[0]): string {
+/** "2026 Chevrolet Tahoe LS", "2026 Chevrolet Tahoe LS + 2 more", or on the alternate lane the ask. */
+export function rfqVehicleSummary(rfq: Parameters<typeof rfqVehicles>[0] & Partial<Pick<RfqRequest, "lane" | "alternateAsk">>): string {
+  if ((rfq.lane ?? "same_spec") === "alternate") return `Open to different vehicles — ${alternateAskSummary(rfq.alternateAsk)}`;
   const vs = rfqVehicles(rfq);
   const first = vehicleLine(vs[0]);
   return vs.length > 1 ? `${first} + ${vs.length - 1} more` : first;

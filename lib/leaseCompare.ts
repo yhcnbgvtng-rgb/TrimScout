@@ -11,6 +11,7 @@
  */
 import { aprFromMoneyFactor, dueAtSigningTotal, isCounter, isExpired, termMilesLabel, type LeaseQuote, type LeaseRequestPrefs } from "./leaseQuote";
 import type { BuyerCounter, RfqInvite, RfqQuote, RfqRequest } from "./rfq";
+import { alternateAskSummary, isAlternateQuote, type RfqLane } from "./alternateAsk";
 
 export type LeaseRowKind = "eligible" | "counter" | "expired" | "waiting" | "declined" | "countered";
 
@@ -39,10 +40,21 @@ export interface LeaseCompareRow {
   priorQuotes: RfqQuote[];
   /** True when the live quote is a revision after a buyer counter. */
   revised: boolean;
+  /**
+   * The dealer quoted a different vehicle than asked (or the whole request is the
+   * alternate lane). Alternates never rank in the same-spec compare or win its cards.
+   */
+  alternate: boolean;
+  /** The VIN the dealer quoted, when it differs from the ask. */
+  quotedVin: string | null;
 }
 
 export interface LeaseCompare {
   prefs: LeaseRequestPrefs;
+  /** same_spec: the cards and ranking are the same-spec set; alternate: the whole request is alternates. */
+  lane: RfqLane;
+  /** One line under the cards on the alternate lane: what the buyer asked for. */
+  askSummary: string | null;
   /** Eligible quotes, lowest monthly first; then counters; then expired; then waiting/declined. */
   rows: LeaseCompareRow[];
   glance: {
@@ -83,6 +95,8 @@ function baseRow(invite: RfqInvite, rfq: RfqRequest): Omit<LeaseCompareRow, "kin
     buyerCounter: invite.buyerCounter ?? null,
     priorQuotes: invite.priorQuotes ?? [],
     revised: Boolean(invite.quote?.lease && invite.priorQuotes?.length),
+    alternate: isAlternateQuote(rfq, invite.quote?.vin),
+    quotedVin: invite.quote?.vin && invite.quote.vin.trim().toUpperCase() !== (rfq.vin || "").trim().toUpperCase() ? invite.quote.vin.trim().toUpperCase() : null,
   };
 }
 
@@ -116,7 +130,13 @@ export function analyzeLeaseQuotes(rfq: RfqRequest, now: Date = new Date()): Lea
     });
   }
 
-  const eligible = rows.filter((r) => r.kind === "eligible");
+  const lane: RfqLane = rfq.lane ?? "same_spec";
+  // Same-spec lane: a dealer's quote for a different VIN is an alternate — shown in its own
+  // block, never ranked with the same-spec quotes and never "lowest" on the cards. Alternate
+  // lane: every quote is an alternate, so they are the set the cards describe.
+  const sameSpecEligible = rows.filter((r) => r.kind === "eligible" && !r.alternate);
+  const alternateEligible = rows.filter((r) => r.kind === "eligible" && r.alternate);
+  const eligible = lane === "alternate" ? alternateEligible : sameSpecEligible;
   const byMonthly = [...eligible].sort((a, b) => a.monthly! - b.monthly!);
   const byDas = [...eligible].sort((a, b) => a.dueAtSigning! - b.dueAtSigning!);
   const bestM = byMonthly[0] ?? null;
@@ -147,16 +167,20 @@ export function analyzeLeaseQuotes(rfq: RfqRequest, now: Date = new Date()): Lea
   const countered = rows.filter((r) => r.kind === "countered");
   const waiting = rows.filter((r) => r.kind === "waiting");
   const declined = rows.filter((r) => r.kind === "declined");
-  const ordered = [...byMonthly, ...counters.sort((a, b) => a.monthly! - b.monthly!), ...countered, ...expiredRows, ...waiting, ...declined];
+  const sideAlternates = lane === "alternate" ? [] : alternateEligible.sort((a, b) => a.monthly! - b.monthly!);
+  const ordered = [...byMonthly, ...counters.sort((a, b) => a.monthly! - b.monthly!), ...sideAlternates, ...countered, ...expiredRows, ...waiting, ...declined];
 
   const warn: string[] = [];
   if (counters.length) warn.push(`${counters.length} counter${counters.length === 1 ? "" : "s"} on term/miles`);
+  if (sideAlternates.length) warn.push(`${sideAlternates.length} alternate vehicle${sideAlternates.length === 1 ? "" : "s"} proposed`);
   if (expiredRows.length) warn.push(`${expiredRows.length} expired`);
   if (countered.length) warn.push(`${countered.length} awaiting a revised quote after your counter`);
-  const quoted = eligible.length + counters.length + expiredRows.length;
+  const quoted = eligible.length + counters.length + expiredRows.length + sideAlternates.length;
 
   return {
     prefs,
+    lane,
+    askSummary: lane === "alternate" ? alternateAskSummary(rfq.alternateAsk) : null,
     rows: ordered,
     glance: {
       lowestMonthly: bestM ? { dealerName: bestM.dealerName, amount: bestM.monthly!, quoteId: bestM.quoteId! } : null,
@@ -166,7 +190,7 @@ export function analyzeLeaseQuotes(rfq: RfqRequest, now: Date = new Date()): Lea
         eligible.length > 0
           ? null
           : quoted > 0
-            ? `No quote matches your ${termMilesLabel(prefs.termMonths, prefs.milesPerYear)} yet — the ${counters.length ? "counters" : "quotes"} below differ from what you asked for.`
+            ? `No quote matches your ${termMilesLabel(prefs.termMonths, prefs.milesPerYear)}${sideAlternates.length ? " on this vehicle" : ""} yet — the ${counters.length ? "counters" : sideAlternates.length ? "alternate vehicles" : "quotes"} below differ from what you asked for.`
             : countered.length
               ? `You countered ${countered.length === 1 ? "a quote" : `${countered.length} quotes`} — revised numbers appear here when the dealer${countered.length === 1 ? "" : "s"} reply.`
               : `Waiting on ${waiting.length} dealer${waiting.length === 1 ? "" : "s"} — quotes appear here as they reply.`,

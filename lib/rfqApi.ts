@@ -4,6 +4,7 @@
 // request/error pattern as lib/dealsApi.ts.
 import { LIGHTSAIL_HOST } from "./lightsailClient";
 import type { LeaseQuote, LeaseRequestPrefs } from "./leaseQuote";
+import type { AlternateAsk, RfqLane } from "./alternateAsk";
 import type { BuyerCounter } from "./rfq";
 import type { QuotePrefs, UsedQuote } from "./usedQuote";
 import { serverSecret } from "./serverSecret";
@@ -80,6 +81,9 @@ export async function createRfq(input: {
   buyerNote?: string | null;
   /** Whether the buyer said a trade-in is coming (handled after the OTD price; never in the quote). */
   tradeInExpected?: boolean | null;
+  /** same_spec (default) or alternate — the latter needs no VIN and carries the ask instead. */
+  lane?: RfqLane;
+  alternateAsk?: AlternateAsk | null;
 }): Promise<RfqRequest> {
   const json = await request("POST", "/api/rfqs", input);
   return json.rfq as RfqRequest;

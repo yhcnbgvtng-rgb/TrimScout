@@ -96,7 +96,8 @@ describe("Configure Quote Request — vehicle resolve hardening", () => {
     const text = () => doc.body.textContent || "";
     const tick = async (n = 1) => { for (let i = 0; i < n; i++) await act(async () => { await new Promise((r) => setTimeout(r, 10)); }); };
     const settle = async (pred: () => boolean) => { for (let i = 0; i < 40 && !pred(); i++) await tick(); assert.ok(pred(), "settled"); };
-    const openFresh = async () => { await act(async () => { bump(); setOpen(true); }); await tick(); };
+    // Every open picks "Quote this vehicle / same build" first — the intent question precedes the VIN box.
+    const openFresh = async () => { await act(async () => { bump(); setOpen(true); }); await tick(); await act(async () => { (dom.window.document.querySelector('[data-testid="intent-same_spec"]') as HTMLButtonElement).click(); }); };
     const setInput = async (el: HTMLInputElement, value: string) => {
       const setter = Object.getOwnPropertyDescriptor(dom.window.HTMLInputElement.prototype, "value")!.set!;
       await act(async () => { setter.call(el, value); el.dispatchEvent(new dom.window.Event("input", { bubbles: true })); });
@@ -111,7 +112,9 @@ describe("Configure Quote Request — vehicle resolve hardening", () => {
     const card = () => doc.querySelector<HTMLElement>('[data-testid="primary-vehicle-card"]');
 
     // ---- 1. A dealer VDP with the VIN in the path: one click, no retyping, rooftop from the VDP.
-    await openFresh();
+    await act(async () => { bump(); setOpen(true); }); await tick();
+    assert.equal(doc.querySelector('[data-testid="continue-reason"]')?.textContent, "Choose what you want quoted to continue");
+    await act(async () => { (doc.querySelector('[data-testid="intent-same_spec"]') as HTMLButtonElement).click(); });
     assert.equal(continueBtn().disabled, true);
     assert.equal(doc.querySelector('[data-testid="continue-reason"]')?.textContent, "Add a vehicle to continue");
     await paste(URL_F150);
@@ -234,6 +237,93 @@ describe("Configure Quote Request — vehicle resolve hardening", () => {
     // Remove works too.
     await openFresh();
     assert.equal(doc.querySelector('[data-testid="parked-vehicle"]'), null);
+    await act(async () => { root.unmount(); });
+  });
+});
+
+describe("Step 1 asks the quote intent before the VIN (2026-09-17)", () => {
+  let dom: JSDOM;
+  const fetched: string[] = [];
+  const events: string[] = [];
+  before(() => {
+    dom = new JSDOM("<!doctype html><html><body><div id=\"root\"></div></body></html>", { url: "http://localhost/" });
+    const w = dom.window as unknown as Record<string, unknown>;
+    const define = (k: string, v: unknown) => Object.defineProperty(globalThis, k, { value: v, configurable: true, writable: true });
+    for (const k of ["window", "document", "navigator", "HTMLElement", "HTMLInputElement", "HTMLSelectElement", "Node", "Event", "KeyboardEvent", "MouseEvent", "sessionStorage", "localStorage"]) define(k, w[k]);
+    define("getComputedStyle", dom.window.getComputedStyle.bind(dom.window));
+    define("requestAnimationFrame", (cb: FrameRequestCallback) => setTimeout(() => cb(Date.now()), 0));
+    define("IS_REACT_ACT_ENVIRONMENT", true);
+    const inner = stubFetch();
+    define("fetch", async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input);
+      fetched.push(url);
+      if (url.startsWith("/api/dealer-search")) return new Response(JSON.stringify({ matches: [{ deskId: "6339", dealerName: "Route 22 Toyota", city: "Hillside", state: "NJ", zip: "07205", knownNamed: false, emailOptOut: false }] }), { status: 200, headers: { "Content-Type": "application/json" } });
+      if (url.startsWith("/api/events/track")) { events.push(String(init?.body)); return new Response("{}"); }
+      return inner(input, init);
+    });
+  });
+  after(() => dom.window.close());
+
+  it("path B continues with no VIN and no sticker call; path A still needs the car; switching works both ways", async () => {
+    const React = (await import("react")).default;
+    const { act } = await import("react");
+    const { createRoot } = await import("react-dom/client");
+    const { BiddingWizard } = await import("../components/BiddingWizard");
+    let setOpen!: (v: boolean) => void;
+    function Host() {
+      const [open, _setOpen] = React.useState(false);
+      setOpen = _setOpen;
+      return React.createElement(BiddingWizard, { key: 1, isOpen: open, onClose: () => _setOpen(false), onSubmitBidRequest: () => {}, vehicles: [], preselectedVehicle: null, currentUser: null, onRequireLogin: () => {} });
+    }
+    const root = createRoot(dom.window.document.getElementById("root")!);
+    await act(async () => { root.render(React.createElement(Host)); });
+    await act(async () => { setOpen(true); });
+    await act(async () => { await new Promise((r) => setTimeout(r, 10)); });
+    const doc = dom.window.document;
+    const text = () => doc.body.textContent || "";
+    const setVal = async (el: HTMLInputElement, value: string) => {
+      const setter = Object.getOwnPropertyDescriptor(dom.window.HTMLInputElement.prototype, "value")!.set!;
+      await act(async () => { setter.call(el, value); el.dispatchEvent(new dom.window.Event("input", { bubbles: true })); });
+    };
+    const continueBtn = () => Array.from(doc.querySelectorAll<HTMLButtonElement>("button")).find((b) => b.textContent?.trim().startsWith("Continue"))!;
+    const reason = () => doc.querySelector('[data-testid="continue-reason"]')?.textContent;
+
+    // 1. Intent first — no VIN box yet.
+    assert.ok(doc.querySelector('[data-testid="intent-picker"]'), "intent choice on screen");
+    assert.equal(doc.getElementById("primary-link-input"), null, "no VIN / link box until an intent is chosen");
+    assert.equal(continueBtn().disabled, true);
+    assert.equal(reason(), "Choose what you want quoted to continue");
+    assert.match(text(), /We'll use the VIN or dealer link so quotes match this car's factory options/);
+    assert.match(text(), /No VIN needed — tell us what you need and dealers can propose other vehicles/);
+
+    // 2. Path B: an ask + one rooftop → Continue, no VIN, no sticker call.
+    fetched.length = 0;
+    await act(async () => { (doc.querySelector('[data-testid="intent-alternate"]') as HTMLButtonElement).click(); });
+    assert.ok(events.some((e) => e.includes('"rfq_intent_selected"') && e.includes('"alternate"')), "rfq_intent_selected { intent: alternate }");
+    assert.equal(doc.getElementById("primary-link-input"), null, "path B has no VIN box");
+    assert.equal(reason(), "Tell dealers what you need to continue");
+    await setVal(doc.querySelector('[data-testid="alt-must-haves"]') as HTMLInputElement, "AWD, heated seats");
+    await setVal(doc.querySelector('[data-testid="alt-monthly-max"]') as HTMLInputElement, "500");
+    assert.equal(reason(), "Add at least one dealership to continue");
+    await act(async () => { (doc.querySelector('[data-testid="alt-add-dealer"]') as HTMLButtonElement).click(); });
+    await setVal(doc.querySelector('input[placeholder="Dealership name"]') as HTMLInputElement, "Route 22");
+    await act(async () => { Array.from(doc.querySelectorAll<HTMLButtonElement>("button")).find((b) => b.textContent?.trim() === "Search")!.click(); });
+    for (let i = 0; i < 20 && !text().includes("Hillside"); i++) await act(async () => { await new Promise((r) => setTimeout(r, 10)); });
+    await act(async () => { Array.from(doc.querySelectorAll<HTMLButtonElement>("button")).find((b) => b.textContent?.includes("Route 22 Toyota") && b.textContent?.includes("Hillside"))!.click(); });
+    assert.match(doc.querySelector('[data-testid="alt-dealers"]')!.textContent!, /Route 22 Toyota/);
+    assert.equal(continueBtn().disabled, false, "path B continues with no VIN");
+    assert.ok(!fetched.some((u) => u.includes("-sticker") || u.includes("/api/free-vin")), "no factory sticker call on path B");
+    assert.match(text(), /AWD, heated seats · ≤ \$500\/mo/);
+
+    // 3. Switch B → A: the car is required again.
+    await act(async () => { (doc.querySelector('[data-testid="intent-same_spec"]') as HTMLButtonElement).click(); });
+    assert.ok(doc.getElementById("primary-link-input"), "path A shows the VIN / link box");
+    assert.equal(continueBtn().disabled, true);
+    assert.equal(reason(), "Add a vehicle to continue");
+
+    // 4. Switch A → B again: the ask and the rooftop are still there, Continue is live.
+    await act(async () => { (doc.querySelector('[data-testid="intent-alternate"]') as HTMLButtonElement).click(); });
+    assert.equal(continueBtn().disabled, false);
     await act(async () => { root.unmount(); });
   });
 });

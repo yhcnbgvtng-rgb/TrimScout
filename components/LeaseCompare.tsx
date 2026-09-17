@@ -34,14 +34,20 @@ export function LeaseCompare({
 }) {
   const [open, setOpen] = useState<Record<string, boolean>>({});
   const [countering, setCountering] = useState<string | null>(null);
-  const { rows, glance, prefs, counts } = data;
-  const eligible = rows.filter((r) => r.kind === "eligible");
+  const { rows, glance, prefs, counts, lane, askSummary } = data;
+  const eligible = rows.filter((r) => r.kind === "eligible" && (lane === "alternate" || !r.alternate));
+  const alternates = lane === "alternate" ? [] : rows.filter((r) => r.kind === "eligible" && r.alternate);
   const counters = rows.filter((r) => r.kind === "counter");
   const rest = rows.filter((r) => r.kind === "countered" || r.kind === "expired" || r.kind === "waiting" || r.kind === "declined");
   const anyQuote = counts.quoted > 0;
 
   return (
-    <section className="space-y-4" data-testid="lease-compare">
+    <section className="space-y-4" data-testid="lease-compare" data-lane={lane}>
+      {lane === "alternate" ? (
+        <p className="rounded-xl border border-sky-500/30 bg-sky-950/20 px-4 py-2.5 text-[11px] text-sky-100" data-testid="alternate-lane-note">
+          <span className="font-bold">Open to different vehicles.</span> You asked for {askSummary}. Every quote below is a dealer&apos;s proposal — the cards compare <span className="font-bold">among alternate quotes</span>; open a row to see which car each one is.
+        </p>
+      ) : null}
       {/* 1 — at a glance */}
       <div className="grid gap-2 sm:grid-cols-3" data-testid="lease-glance">
         {glance.noEligible ? (
@@ -51,12 +57,12 @@ export function LeaseCompare({
         ) : (
           <>
             <div className="rounded-xl border border-emerald-500/40 bg-emerald-500/5 px-4 py-3">
-              <p className="text-[10px] font-bold uppercase tracking-wide text-ink-faint">Lowest monthly</p>
+              <p className="text-[10px] font-bold uppercase tracking-wide text-ink-faint">Lowest monthly{lane === "alternate" ? " · among alternate quotes" : ""}</p>
               <p className="text-lg font-extrabold text-white tabular-nums">{fmtMoney(glance.lowestMonthly!.amount)}<span className="text-xs font-semibold text-ink-muted">/mo</span></p>
               <p className="text-[11px] text-ink-light">{glance.lowestMonthly!.dealerName}</p>
             </div>
             <div className="rounded-xl border border-emerald-500/40 bg-emerald-500/5 px-4 py-3">
-              <p className="text-[10px] font-bold uppercase tracking-wide text-ink-faint">Lowest due at signing</p>
+              <p className="text-[10px] font-bold uppercase tracking-wide text-ink-faint">Lowest due at signing{lane === "alternate" ? " · among alternate quotes" : ""}</p>
               <p className="text-lg font-extrabold text-white tabular-nums">{fmtMoney(glance.lowestDas!.amount)}</p>
               <p className="text-[11px] text-ink-light">{glance.lowestDas!.dealerName}</p>
             </div>
@@ -88,7 +94,7 @@ export function LeaseCompare({
             </thead>
             <tbody className="divide-y divide-border/60">
               {eligible.map((r) => (
-                <Row key={r.inviteId} r={r} open={!!open[r.inviteId]} toggle={() => setOpen((o) => ({ ...o, [r.inviteId]: !o[r.inviteId] }))} collecting={collecting} onPick={onPick} busy={busy} prefs={prefs} countering={countering === r.inviteId} onStartCounter={onCounter ? () => setCountering(r.inviteId) : undefined} onCancelCounter={() => setCountering(null)} onCounter={onCounter ? async (c) => { await onCounter(r.inviteId, c); setCountering(null); } : undefined} />
+                <Row key={r.inviteId} r={r} open={!!open[r.inviteId]} toggle={() => setOpen((o) => ({ ...o, [r.inviteId]: !o[r.inviteId] }))} collecting={collecting} onPick={onPick} busy={busy} prefs={prefs} lane={lane} countering={countering === r.inviteId} onStartCounter={onCounter ? () => setCountering(r.inviteId) : undefined} onCancelCounter={() => setCountering(null)} onCounter={onCounter ? async (c) => { await onCounter(r.inviteId, c); setCountering(null); } : undefined} />
               ))}
               {counters.length ? (
                 <tr className="bg-amber-950/10">
@@ -98,10 +104,20 @@ export function LeaseCompare({
                 </tr>
               ) : null}
               {counters.map((r) => (
-                <Row key={r.inviteId} r={r} open={!!open[r.inviteId]} toggle={() => setOpen((o) => ({ ...o, [r.inviteId]: !o[r.inviteId] }))} collecting={collecting} onPick={onPick} busy={busy} prefs={prefs} countering={countering === r.inviteId} onStartCounter={onCounter ? () => setCountering(r.inviteId) : undefined} onCancelCounter={() => setCountering(null)} onCounter={onCounter ? async (c) => { await onCounter(r.inviteId, c); setCountering(null); } : undefined} />
+                <Row key={r.inviteId} r={r} open={!!open[r.inviteId]} toggle={() => setOpen((o) => ({ ...o, [r.inviteId]: !o[r.inviteId] }))} collecting={collecting} onPick={onPick} busy={busy} prefs={prefs} lane={lane} countering={countering === r.inviteId} onStartCounter={onCounter ? () => setCountering(r.inviteId) : undefined} onCancelCounter={() => setCountering(null)} onCounter={onCounter ? async (c) => { await onCounter(r.inviteId, c); setCountering(null); } : undefined} />
+              ))}
+              {alternates.length ? (
+                <tr className="bg-sky-950/10">
+                  <td colSpan={9} className="px-4 py-2 text-[10px] font-bold uppercase tracking-wide text-sky-300" data-testid="alternate-divider">
+                    Alternate vehicles proposed — a different car than you asked for; not ranked with the quotes above
+                  </td>
+                </tr>
+              ) : null}
+              {alternates.map((r) => (
+                <Row key={r.inviteId} r={r} open={!!open[r.inviteId]} toggle={() => setOpen((o) => ({ ...o, [r.inviteId]: !o[r.inviteId] }))} collecting={collecting} onPick={onPick} busy={busy} prefs={prefs} lane={lane} countering={countering === r.inviteId} onStartCounter={onCounter ? () => setCountering(r.inviteId) : undefined} onCancelCounter={() => setCountering(null)} onCounter={onCounter ? async (c) => { await onCounter(r.inviteId, c); setCountering(null); } : undefined} />
               ))}
               {rest.map((r) => (
-                <Row key={r.inviteId} r={r} open={!!open[r.inviteId]} toggle={() => setOpen((o) => ({ ...o, [r.inviteId]: !o[r.inviteId] }))} collecting={collecting} onPick={onPick} busy={busy} prefs={prefs} countering={countering === r.inviteId} onStartCounter={onCounter ? () => setCountering(r.inviteId) : undefined} onCancelCounter={() => setCountering(null)} onCounter={onCounter ? async (c) => { await onCounter(r.inviteId, c); setCountering(null); } : undefined} />
+                <Row key={r.inviteId} r={r} open={!!open[r.inviteId]} toggle={() => setOpen((o) => ({ ...o, [r.inviteId]: !o[r.inviteId] }))} collecting={collecting} onPick={onPick} busy={busy} prefs={prefs} lane={lane} countering={countering === r.inviteId} onStartCounter={onCounter ? () => setCountering(r.inviteId) : undefined} onCancelCounter={() => setCountering(null)} onCounter={onCounter ? async (c) => { await onCounter(r.inviteId, c); setCountering(null); } : undefined} />
               ))}
             </tbody>
           </table>
@@ -123,7 +139,7 @@ export function LeaseCompare({
   );
 }
 
-function Row({ r, open, toggle, collecting, onPick, busy, prefs, countering, onStartCounter, onCancelCounter, onCounter }: { r: LeaseCompareRow; open: boolean; toggle: () => void; collecting: boolean; onPick: (id: string) => void; busy: boolean; prefs: LeaseCompareData["prefs"]; countering: boolean; onStartCounter?: () => void; onCancelCounter: () => void; onCounter?: (c: CounterEditsPayload) => Promise<void> }) {
+function Row({ r, open, toggle, collecting, onPick, busy, prefs, lane, countering, onStartCounter, onCancelCounter, onCounter }: { r: LeaseCompareRow; open: boolean; toggle: () => void; collecting: boolean; onPick: (id: string) => void; busy: boolean; prefs: LeaseCompareData["prefs"]; lane: LeaseCompareData["lane"]; countering: boolean; onStartCounter?: () => void; onCancelCounter: () => void; onCounter?: (c: CounterEditsPayload) => Promise<void> }) {
   const l = r.lease;
   const muted = r.kind === "expired" || r.kind === "declined" || r.kind === "countered";
   const hi = "bg-emerald-500/10";
@@ -145,7 +161,7 @@ function Row({ r, open, toggle, collecting, onPick, busy, prefs, countering, onS
   const incentiveCount = l ? l.incentives.length : 0;
   const addOnTotal = l ? l.addOns.reduce((t, x) => t + x.amount, 0) : 0;
   const status =
-    r.kind === "eligible" ? (r.picked ? <span className="rounded bg-emerald-500/15 px-1.5 py-0.5 text-[9px] font-bold uppercase text-emerald-300">Chosen</span> : <span className="text-[10px] text-ink-muted">Matches your ask</span>)
+    r.kind === "eligible" ? (r.picked ? <span className="rounded bg-emerald-500/15 px-1.5 py-0.5 text-[9px] font-bold uppercase text-emerald-300">Chosen</span> : <span className="text-[10px] text-ink-muted">{r.alternate && lane !== "alternate" ? "Different vehicle" : "Matches your ask"}</span>)
     : r.kind === "counter" ? <span className="rounded bg-amber-500/15 px-1.5 py-0.5 text-[9px] font-bold uppercase text-amber-300">Counter</span>
     : r.kind === "expired" ? <span className="rounded bg-border px-1.5 py-0.5 text-[9px] font-bold uppercase text-ink-muted">Expired</span>
     : r.kind === "declined" ? <span className="rounded bg-rose-500/15 px-1.5 py-0.5 text-[9px] font-bold uppercase text-rose-300">Declined</span>
@@ -160,6 +176,7 @@ function Row({ r, open, toggle, collecting, onPick, busy, prefs, countering, onS
             <span className="min-w-0">
               <span className="block text-sm font-bold leading-snug text-white">{r.dealerName}</span>
               {r.contactName ? <span className="mt-0.5 block text-[10px] text-ink-muted">{r.contactName}</span> : null}
+              {r.alternate && r.quotedVin ? <span className="mt-0.5 block font-mono text-[10px] text-sky-200">VIN {r.quotedVin}</span> : null}
             </span>
           </button>
         </td>
@@ -188,6 +205,7 @@ function Row({ r, open, toggle, collecting, onPick, busy, prefs, countering, onS
           <div className="flex flex-col gap-2">
             <div className="flex flex-wrap items-center gap-2">
               {status}
+              {r.alternate ? <span className="rounded bg-sky-500/15 px-1.5 py-0.5 text-[9px] font-bold uppercase text-sky-300" data-testid="alternate-badge">Alternate vehicle</span> : null}
               {r.revised ? <span className="rounded bg-sky-500/15 px-1.5 py-0.5 text-[9px] font-bold uppercase text-sky-300">Revised</span> : null}
             </div>
             {statusNotes.map((c) => <span key={c} className="text-[10px] leading-snug text-ink-muted">{c}</span>)}

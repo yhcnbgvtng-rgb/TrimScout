@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { CounterSheetForm } from "./CounterSheetForm";
 import { CounterComparison } from "./CounterComparison";
 import { counterSummary, type CounterEditsPayload } from "../lib/buyerCounter";
+import { alternateAskSummary, isAlternateQuote } from "../lib/alternateAsk";
 import { fmtMoney, fmtPct } from "../lib/leaseCompare";
 import { cashOutTheDoor, compareFinanceQuotes, dueAtSigningSum, financeCashDue, type QuotePrefs, type UsedFinanceQuote, type UsedQuote } from "../lib/usedQuote";
 import { isExpired } from "../lib/leaseQuote";
@@ -23,8 +24,14 @@ export function UsedCompare({ rfq, prefs, onPick, onWalk, onCounter, busy }: { r
   const [countering, setCountering] = useState<string | null>(null);
   const collecting = rfq.status === "collecting";
   const finance = prefs.quoteType === "finance";
-  const rows = rfq.invites.map((i) => ({ invite: i, used: i.quote?.used ?? null }));
-  const live = rows.filter((r) => r.used && !isExpired({ expiresAt: r.used.expiresAt }));
+  const lane = rfq.lane ?? "same_spec";
+  const rows = rfq.invites.map((i) => ({ invite: i, used: i.quote?.used ?? null, alternate: Boolean(i.quote) && isAlternateQuote(rfq, i.quote?.vin) }));
+  // Same-spec lane: a quote for a different VIN is an alternate — its own block, never ranked
+  // with the same-spec quotes, never "best". Alternate lane: every quote is an alternate and
+  // they are the set being compared.
+  const liveAll = rows.filter((r) => r.used && !isExpired({ expiresAt: r.used.expiresAt }));
+  const live = lane === "alternate" ? liveAll : liveAll.filter((r) => !r.alternate);
+  const sideAlternates = lane === "alternate" ? [] : liveAll.filter((r) => r.alternate);
   const ranked = [...live].sort((a, b) =>
     finance && a.used!.kind === "finance" && b.used!.kind === "finance"
       ? compareFinanceQuotes(a.used as UsedFinanceQuote, b.used as UsedFinanceQuote)
@@ -38,7 +45,7 @@ export function UsedCompare({ rfq, prefs, onPick, onWalk, onCounter, busy }: { r
   const bestMonthly = finance ? lowest((u) => (u.kind === "finance" ? u.monthlyPaymentPreTax : null)) : null;
   const bestCashDue = finance ? lowest((u) => (u.kind === "finance" ? financeCashDue(u) : null)) : null;
   const bestOtd = !finance ? lowest((u) => (u.kind === "cash" ? cashOutTheDoor(u) : null)) : null;
-  const ordered = [...ranked, ...rows.filter((r) => !live.includes(r))];
+  const ordered = [...ranked, ...sideAlternates, ...rows.filter((r) => !live.includes(r) && !sideAlternates.includes(r))];
   const quoted = rows.filter((r) => r.used).length;
   const vin = rfq.invites[0]?.vehicle?.vin || rfq.vin;
   const cell = (v: React.ReactNode, extra = "") => <td className={`px-3 py-2.5 align-top tabular-nums ${extra}`}>{v}</td>;
@@ -60,7 +67,12 @@ export function UsedCompare({ rfq, prefs, onPick, onWalk, onCounter, busy }: { r
     <section className="space-y-3" data-testid="used-compare">
       <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] text-ink-muted">
         <span>
-          {quoted} of {rows.length} dealer{rows.length === 1 ? "" : "s"} quoted · same car on every row: VIN <span className="font-mono text-ink-light">{vin}</span>{rfq.stockNumber ? <> · stock {rfq.stockNumber}</> : null}
+          {quoted} of {rows.length} dealer{rows.length === 1 ? "" : "s"} quoted ·{" "}
+          {lane === "alternate" ? (
+            <span data-testid="alternate-lane-note">open to different vehicles — you asked for <span className="text-ink-light">{alternateAskSummary(rfq.alternateAsk)}</span>; every quote is a dealer&apos;s proposal, compared among alternate quotes</span>
+          ) : (
+            <>same car on every row: VIN <span className="font-mono text-ink-light">{vin}</span>{rfq.stockNumber ? <> · stock {rfq.stockNumber}</> : null}{sideAlternates.length ? <span className="text-sky-200"> · {sideAlternates.length} alternate vehicle{sideAlternates.length === 1 ? "" : "s"} proposed, shown separately</span> : null}</>
+          )}
         </span>
         {finance ? <span>Your locks: {prefs.finance.termMonths} mo · {fmtMoney(prefs.finance.downPayment)} down · {prefs.finance.creditBand} credit · ZIP {prefs.finance.zip}</span> : <span>ZIP {prefs.cash.zip} (tax context)</span>}
       </div>
@@ -105,7 +117,7 @@ export function UsedCompare({ rfq, prefs, onPick, onWalk, onCounter, busy }: { r
             </tr>
           </thead>
           <tbody className="divide-y divide-border/60">
-            {ordered.map(({ invite, used }) => {
+            {ordered.map(({ invite, used, alternate }) => {
               const expired = used ? isExpired({ expiresAt: used.expiresAt }) : false;
               const picked = Boolean(invite.quote && rfq.pickedQuoteId === invite.quote.id);
               const status = !used
@@ -120,12 +132,13 @@ export function UsedCompare({ rfq, prefs, onPick, onWalk, onCounter, busy }: { r
                 <tr className={`${expired || invite.status === "declined" ? "opacity-50" : ""} ${picked ? "bg-emerald-500/5" : ""}`} data-testid={`used-row-${!used ? "waiting" : expired ? "expired" : "eligible"}`}>
                   <td className="sticky left-0 z-10 bg-surface px-3 py-2.5 align-top">
                     <span className="block text-sm font-bold text-white">{invite.dealerName}</span>
+                    {alternate ? <span className="mt-0.5 inline-block rounded bg-sky-500/15 px-1.5 py-0.5 text-[9px] font-bold uppercase text-sky-300" data-testid="alternate-badge">Alternate vehicle{lane !== "alternate" && invite.quote?.vin ? <span className="font-mono normal-case"> · {invite.quote.vin}</span> : null}</span> : null}
                     {invite.desk?.contactName ? <span className="block text-[10px] text-ink-muted">{invite.desk.contactName}{invite.desk.emailMasked ? <span className="font-mono"> · {invite.desk.emailMasked}</span> : null}</span> : null}
                     {used?.stockNumber ? <span className="block text-[10px] text-ink-faint">stock {used.stockNumber}</span> : null}
                   </td>
                   {finance ? (
                     <>
-                      {cell(fin ? <>{fmtMoney(fin.monthlyPaymentPreTax)}<span className="text-[10px] text-ink-muted">/mo</span>{fin.monthlyPaymentWithEstTax != null ? <span className="block text-[10px] text-ink-muted">{fmtMoney(fin.monthlyPaymentWithEstTax)} with est. tax</span> : <span className="block text-[10px] text-ink-muted">tax estimated at signing</span>}</> : "—", fin && !expired && fin.monthlyPaymentPreTax === bestMonthly ? hi : "")}
+                      {cell(fin ? <>{fmtMoney(fin.monthlyPaymentPreTax)}<span className="text-[10px] text-ink-muted">/mo</span>{fin.monthlyPaymentWithEstTax != null ? <span className="block text-[10px] text-ink-muted">{fmtMoney(fin.monthlyPaymentWithEstTax)} with est. tax</span> : <span className="block text-[10px] text-ink-muted">tax estimated at signing</span>}</> : "—", fin && !expired && !(alternate && lane !== "alternate") && fin.monthlyPaymentPreTax === bestMonthly ? hi : "")}
                       {cell(fin ? (
                         <div>
                           <span className="font-bold text-white">{fmtMoney(financeCashDue(fin))}</span>
@@ -136,11 +149,11 @@ export function UsedCompare({ rfq, prefs, onPick, onWalk, onCounter, busy }: { r
                             {fin.rebates?.map((l, i) => (<li key={`r${i}`} className="flex justify-between gap-3"><span>{l.name} (rebate)</span><span>−{fmtMoney(l.amount)}</span></li>))}
                           </ul>
                         </div>
-                      ) : "—", fin && !expired && financeCashDue(fin) === bestCashDue ? hi : "")}
+                      ) : "—", fin && !expired && !(alternate && lane !== "alternate") && financeCashDue(fin) === bestCashDue ? hi : "")}
                       {cell(fin ? <>{fmtPct(fin.apr)} · {fin.termMonths} mo<span className="block text-[10px] text-ink-muted">{fmtMoney(fin.amountFinanced)} financed{fin.lenderName ? ` · ${fin.lenderName}` : ""}</span></> : "—")}
                     </>
                   ) : (
-                    cell(used?.kind === "cash" ? fmtMoney(cashOutTheDoor(used)) : "—", used && !expired && used.kind === "cash" && cashOutTheDoor(used) === bestOtd ? hi : "")
+                    cell(used?.kind === "cash" ? fmtMoney(cashOutTheDoor(used)) : "—", used && !expired && !(alternate && lane !== "alternate") && used.kind === "cash" && cashOutTheDoor(used) === bestOtd ? hi : "")
                   )}
                   {cell(used ? fmtMoney(used.sellingPrice) : "—")}
                   {cell(used ? lines(dueAtSigningSum(used.dueAtSigning), used.dueAtSigning) : "—")}

@@ -1035,6 +1035,10 @@ async function ensureQuotePackageColumns(pool) {
   await pool.query("ALTER TABLE rfq_requests ADD COLUMN IF NOT EXISTS approval_decided_by VARCHAR(191) NULL");
   await pool.query("ALTER TABLE rfq_requests ADD COLUMN IF NOT EXISTS rejection_reason VARCHAR(500) NULL");
   await pool.query("ALTER TABLE rfq_requests ADD COLUMN IF NOT EXISTS admin_edits_json TEXT NULL");
+  // Quote intent (2026-09-17): same_spec = this VIN/build; alternate = open to other vehicles, no VIN required.
+  await pool.query("ALTER TABLE rfq_requests ADD COLUMN IF NOT EXISTS lane VARCHAR(16) NOT NULL DEFAULT 'same_spec'");
+  await pool.query("ALTER TABLE rfq_requests ADD COLUMN IF NOT EXISTS alternate_ask_json TEXT NULL");
+  await pool.query("ALTER TABLE rfq_requests MODIFY vin VARCHAR(17) NOT NULL DEFAULT ''");
   await pool.query("ALTER TABLE rfq_quotes ADD COLUMN IF NOT EXISTS used_json TEXT NULL");
   await pool.query("ALTER TABLE rfq_requests ADD COLUMN IF NOT EXISTS lease_sheet_locked_at DATETIME NULL");
   await pool.query("ALTER TABLE rfq_requests ADD COLUMN IF NOT EXISTS lease_sheet_locked_by_invite_id BIGINT NULL");
@@ -1084,6 +1088,9 @@ function publicRfqRequest(row, invites) {
     buyerNote: row.buyer_note || null,
     // Buyer said a trade-in is coming — handled after the OTD price, never in the quote.
     tradeInExpected: row.trade_in_expected == null ? null : Boolean(row.trade_in_expected),
+    // same_spec (this VIN/build) or alternate (open to other vehicles — no VIN; every quote is an alternate).
+    lane: row.lane || "same_spec",
+    alternateAsk: parseJsonCol(row.alternate_ask_json) || null,
     // Admin gate: 'pending' until an admin releases it, 'approved' (released), or 'rejected' (reason to the buyer).
     approvalStatus: row.approval_status || "approved",
     approvalDecidedAt: row.approval_decided_at || null,
@@ -1148,11 +1155,19 @@ async function handleCreateRfq(req, res) {
   const buyerNote = typeof body.buyerNote === "string" && body.buyerNote.trim() ? body.buyerNote.trim().slice(0, 1000) : null;
   const tradeInExpected = typeof body.tradeInExpected === "boolean" ? (body.tradeInExpected ? 1 : 0) : null;
 
+  const lane = body.lane === "alternate" ? "alternate" : "same_spec";
+  const alternateAsk = lane === "alternate" && body.alternateAsk && typeof body.alternateAsk === "object" ? body.alternateAsk : null;
+
   if (!buyerUserId) return badRequest(res, "buyerUserId is required");
-  if (!vin) return badRequest(res, "vin is required");
-  if (!Number.isFinite(vehicleYear) || vehicleYear <= 0) return badRequest(res, "Invalid vehicleYear");
-  if (!vehicleMake || !vehicleModel) return badRequest(res, "vehicleMake and vehicleModel are required");
-  if (packageKind === "match") {
+  // The alternate lane quotes an ask, not a VIN: no VIN, year, make/model or link required.
+  if (lane === "same_spec") {
+    if (!vin) return badRequest(res, "vin is required");
+    if (!Number.isFinite(vehicleYear) || vehicleYear <= 0) return badRequest(res, "Invalid vehicleYear");
+    if (!vehicleMake || !vehicleModel) return badRequest(res, "vehicleMake and vehicleModel are required");
+  }
+  if (lane === "alternate") {
+    if (!alternateAsk) return badRequest(res, "alternateAsk is required on the alternate lane");
+  } else if (packageKind === "match") {
     if (!vehicleTrim) return badRequest(res, "vehicleTrim is required");
     if (mustHaves.length === 0) return badRequest(res, "mustHaves must be non-empty — an RFQ needs at least one locked must-have");
     if (!mustHaves.every((m) => m && m.code && m.name && m.status === "hit")) {
@@ -1165,9 +1180,9 @@ async function handleCreateRfq(req, res) {
   const pool = getPool();
   await ensureQuotePackageColumns(pool);
   const [result] = await pool.query(
-    `INSERT INTO rfq_requests (buyer_user_id, vin, stock_number, vehicle_year, vehicle_make, vehicle_model, vehicle_trim, must_haves_json, status, package_kind, link_pastes_json, deal_reference, lease_prefs_json, quote_prefs_json, buyer_note, trade_in_expected, approval_status)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'collecting', ?, ?, ?, ?, ?, ?, ?, 'pending')`,
-    [buyerUserId, vin, stockNumber, vehicleYear, vehicleMake, vehicleModel, vehicleTrim, JSON.stringify(mustHaves), packageKind, linkPastes.length ? JSON.stringify(linkPastes) : null, dealReference, body.leasePrefs && typeof body.leasePrefs === "object" ? JSON.stringify(body.leasePrefs) : null, body.quotePrefs && typeof body.quotePrefs === "object" ? JSON.stringify(body.quotePrefs) : null, buyerNote, tradeInExpected]
+    `INSERT INTO rfq_requests (buyer_user_id, vin, stock_number, vehicle_year, vehicle_make, vehicle_model, vehicle_trim, must_haves_json, status, package_kind, link_pastes_json, deal_reference, lease_prefs_json, quote_prefs_json, buyer_note, trade_in_expected, approval_status, lane, alternate_ask_json)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'collecting', ?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?)`,
+    [buyerUserId, vin || "", stockNumber, Number.isFinite(vehicleYear) && vehicleYear > 0 ? vehicleYear : 0, vehicleMake || (lane === "alternate" ? "Open" : ""), vehicleModel || (lane === "alternate" ? "to alternatives" : ""), vehicleTrim, JSON.stringify(mustHaves), packageKind, linkPastes.length ? JSON.stringify(linkPastes) : null, dealReference, body.leasePrefs && typeof body.leasePrefs === "object" ? JSON.stringify(body.leasePrefs) : null, body.quotePrefs && typeof body.quotePrefs === "object" ? JSON.stringify(body.quotePrefs) : null, buyerNote, tradeInExpected, lane, alternateAsk ? JSON.stringify(alternateAsk) : null]
   );
   const [rows] = await pool.query("SELECT * FROM rfq_requests WHERE id = ?", [result.insertId]);
   sendJson(res, 201, { rfq: publicRfqRequest(rows[0], []) });
@@ -1222,6 +1237,8 @@ async function handleCreateRfqInvite(req, res, rfqId) {
   await ensureQuotePackageColumns(pool);
   const [rfqRows] = await pool.query("SELECT * FROM rfq_requests WHERE id = ?", [rfqId]);
   if (rfqRows.length === 0) return sendJson(res, 404, { error: "RFQ not found" });
+  // Alternate lane: no car on the invite — the dealer names the VIN they propose when they quote.
+  const inviteVehicle = (rfqRows[0].lane || "same_spec") === "alternate" && vehicle && !vehicle.vin ? null : vehicle;
 
   const [activeRows] = await pool.query(
     "SELECT COUNT(*) AS n FROM rfq_invites WHERE rfq_id = ? AND status NOT IN ('declined', 'expired')",
@@ -1249,7 +1266,7 @@ async function handleCreateRfqInvite(req, res, rfqId) {
   const [result] = await pool.query(
     `INSERT INTO rfq_invites (rfq_id, dealer_name, dealer_contact_email, status, desk_json, vehicle_json, delivery_status, queued_at, view_token)
      VALUES (?, ?, ?, 'invited', ?, ?, 'queued', NOW(), ?)`,
-    [rfqId, dealerName, dealerContactEmail, desk ? JSON.stringify(desk) : null, vehicle ? JSON.stringify(vehicle) : null, viewToken]
+    [rfqId, dealerName, dealerContactEmail, desk ? JSON.stringify(desk) : null, inviteVehicle ? JSON.stringify(inviteVehicle) : null, viewToken]
   );
   await logRfqEvent(pool, rfqId, "invite_queued", { dealerName, inviteId: result.insertId, vin: vehicle && vehicle.vin ? vehicle.vin : rfqRows[0].vin, stockNumber: rfqRows[0].stock_number, mustHaves: [] });
   const mustHaves = typeof rfqRows[0].must_haves_json === "string" ? JSON.parse(rfqRows[0].must_haves_json) : rfqRows[0].must_haves_json;
