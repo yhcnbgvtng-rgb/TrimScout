@@ -63,6 +63,11 @@ export default function Home() {
 
   // Wizard state
   const [isWizardOpen, setIsWizardOpen] = useState(false);
+  // Bumped on every buyer-initiated open so the wizard mounts as a brand-new instance — no prior vehicle,
+  // rooftop or deal-type state can survive from the last request. A draft restore (auth round-trip) reopens
+  // the same instance on purpose and doesn't bump it.
+  const [wizardSession, setWizardSession] = useState(0);
+  const openFreshWizard = () => { setWizardSession((n) => n + 1); setIsWizardOpen(true); };
   const [preselectedVehicle, setPreselectedVehicle] = useState<Vehicle | null>(null);
 
   // The quote request currently open in the quote room. Null until the buyer
@@ -338,7 +343,7 @@ export default function Home() {
   // Handlers
   const handleOpenFlexibleWizard = () => {
     setPreselectedVehicle(null);
-    setIsWizardOpen(true);
+    openFreshWizard();
   };
 
   // From the factory-option match flow: the buyer already picked a specific
@@ -346,7 +351,7 @@ export default function Home() {
   // own paste-a-VIN step with that car's real must-haves pre-filled.
   const handleRequestQuoteForVehicle = (vehicle: Vehicle) => {
     setPreselectedVehicle(vehicle);
-    setIsWizardOpen(true);
+    openFreshWizard();
   };
 
   const rememberShopperRequest = (request: BiddingRequest) => {
@@ -704,6 +709,7 @@ export default function Home() {
 
       {/* Bidding Wizard Modal */}
       <BiddingWizard
+        key={wizardSession}
         isOpen={isWizardOpen}
         onClose={() => setIsWizardOpen(false)}
         vehicles={vehicles}

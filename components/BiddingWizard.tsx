@@ -971,6 +971,10 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   // A restore (e.g. the auth round-trip draft) sets this so the open that
   // follows it keeps the restored state instead of wiping it.
   const keepStateOnNextOpenRef = React.useRef(false);
+  const dialogRef = React.useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    if (isOpen) dialogRef.current?.focus({ preventScroll: true });
+  }, [isOpen]);
   useEffect(() => {
     if (!isOpen) return;
     fetch("/api/status/features")
@@ -995,8 +999,47 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     setLeaseDasIntent("");
     setHuntZip("");
     setPurchaseTimeline("");
+    // Everything a previous request's vehicle put on screen: the imported car, its build, the alternates,
+    // the rooftops resolved for it, and the send-side bookkeeping. A fresh open must start empty.
+    setDealerUrlInput("");
+    setIsParsingLink(false);
+    setParseSuccessMsg(null);
+    setParseError(null);
+    setPendingLink(null);
+    setLinkError(null);
+    setSelectedVehicle(null);
+    setMake("");
+    setModel("");
+    setSelectedTrims([]);
+    setMustHavePackages([]);
+    setNiceToHavePackages([]);
+    setFordFilterableOptions([]);
+    setFactoryBuildOem(null);
+    setFordStickerStatus(null);
+    setFordPdfUrl(null);
+    setTargetOtdPrice(52000);
+    setAltVin1(""); setAltVehicle1(null); setAltError1(null);
+    setAltVin2(""); setAltVehicle2(null); setAltError2(null);
+    setDealerContacts({});
+    setBuyerDealerEmails({});
+    setQuoteDesks({});
+    setConfirmedDesks({});
+    setDealComment("");
+    setTradeInExpected(null);
+    setCreatedDealId(null);
+    setSentPackage(null);
+    setSubmitError(null);
+    setDealerResponsiveness(null);
+    setTypicalOtd(null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
+
+  // Every way out — the Close button, Escape, a click on the backdrop — drops the parked draft too, so
+  // nothing from this request can be restored into the next open.
+  const dismiss = () => {
+    clearQuoteDraft();
+    onClose();
+  };
 
   useEffect(() => {
     if (preselectedVehicle) {
@@ -2058,8 +2101,13 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4 overflow-y-auto">
-      <div className="relative w-full max-w-2xl rounded-2xl border border-border-strong bg-surface shadow-2xl overflow-hidden my-8">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4 overflow-y-auto"
+      data-testid="wizard-backdrop"
+      onMouseDown={(e) => { if (e.target === e.currentTarget) dismiss(); }}
+      onKeyDown={(e) => { if (e.key === "Escape") { e.stopPropagation(); dismiss(); } }}
+    >
+      <div className="relative w-full max-w-2xl rounded-2xl border border-border-strong bg-surface shadow-2xl overflow-hidden my-8" role="dialog" aria-modal="true" aria-label="Configure Quote Request" tabIndex={-1} ref={dialogRef}>
         {/* Header */}
         <div className="flex items-center justify-between border-b border-border bg-surface-elevated px-6 py-4">
           <div className="flex items-center gap-2">
@@ -2097,7 +2145,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
               )}
             </div>
             <button
-              onClick={onClose}
+              onClick={dismiss}
               aria-label="Close"
               className="rounded-lg p-1.5 text-ink-muted hover:bg-border hover:text-white transition-colors"
             >
