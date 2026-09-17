@@ -87,16 +87,19 @@ export function rfqVehicleSummary(rfq: Parameters<typeof rfqVehicles>[0] & Parti
 
 /**
  * The one lifecycle strip at the top of every Deal Tracker card:
- * Draft → In progress → Sent, awaiting dealer response → Walked away | Successful.
- * "Draft" is a saved, unsent wizard draft (no request on the box yet);
+ * Draft → In progress → Sent, awaiting dealer response → Dealer responses
+ * received → Trade-in evaluation → Walked away | Successful. "Draft" is a
+ * saved, unsent wizard draft (no request on the box yet);
  * "In progress" is a request whose invites are still going out.
  */
-export type RfqLifecycleStage = "draft" | "in_progress" | "under_review" | "awaiting" | "walked" | "successful";
+export type RfqLifecycleStage = "draft" | "in_progress" | "under_review" | "awaiting" | "responses_received" | "trade_in_evaluation" | "walked" | "successful";
 export const RFQ_LIFECYCLE: ReadonlyArray<{ id: RfqLifecycleStage; label: string }> = [
   { id: "draft", label: "Draft" },
   { id: "in_progress", label: "In progress" },
   { id: "under_review", label: "Under review" },
   { id: "awaiting", label: "Sent — awaiting dealer response" },
+  { id: "responses_received", label: "Dealer responses received" },
+  { id: "trade_in_evaluation", label: "Trade-in evaluation" },
   { id: "walked", label: "Walked away" },
   { id: "successful", label: "Successful" },
 ];
@@ -104,7 +107,7 @@ export const RFQ_LIFECYCLE: ReadonlyArray<{ id: RfqLifecycleStage; label: string
 /** The buyer-facing promise while an admin checks the request. */
 export const UNDER_REVIEW_COPY = "Under review — released to dealers within 1 business day.";
 
-type LifecycleRfq = Pick<RfqRequest, "status" | "invites"> & Partial<Pick<RfqRequest, "approvalStatus" | "rejectionReason" | "adminEdits">>;
+type LifecycleRfq = Pick<RfqRequest, "status" | "invites"> & Partial<Pick<RfqRequest, "approvalStatus" | "rejectionReason" | "adminEdits" | "tradeInExpected">>;
 
 /** True while the request waits on (or was refused by) the admin gate; pre-gate rows read as released. */
 export function rfqAwaitingApproval(rfq: Pick<RfqRequest, "approvalStatus">): boolean {
@@ -122,7 +125,13 @@ export function rfqLifecycleStage(rfq: LifecycleRfq): RfqLifecycleStage {
   // buyer fixes and resubmits.
   if (rfqAwaitingApproval(rfq)) return "under_review";
   if (open.some((i) => i.status === "invited" && (i.deliveryStatus ?? "queued") === "queued")) return "in_progress";
-  return "awaiting";
+  // Sent and out with the dealers. No reply yet → still awaiting. Once at least
+  // one quote is in, the buyer is comparing responses; a request with a trade-in
+  // then sits in trade-in evaluation (the trade is appraised after the out-the-
+  // door price, so it's the last step before walk/pick), otherwise it reads as
+  // "responses received" until the buyer picks one or walks away.
+  if (!rfq.invites.some((i) => i.quote)) return "awaiting";
+  return rfq.tradeInExpected ? "trade_in_evaluation" : "responses_received";
 }
 
 /** One line under the strip: what's actually happening at this stage. */
@@ -139,9 +148,11 @@ export function rfqLifecycleDetail(rfq: LifecycleRfq): string {
         ? `Not released — ${rfq.rejectionReason || "TrimScout couldn't send this as submitted"}. Fix it and resubmit.`
         : UNDER_REVIEW_COPY;
     case "awaiting":
-      return quotes === 0
-        ? `${sent} dealer${sent === 1 ? "" : "s"} have it — none has replied yet. They answer on their own time.`
-        : `${quotes} of ${sent} dealer${sent === 1 ? "" : "s"} replied — compare and pick one, or walk away.`;
+      return `${sent} dealer${sent === 1 ? "" : "s"} have it — none has replied yet. They answer on their own time.`;
+    case "responses_received":
+      return `${quotes} of ${sent} dealer${sent === 1 ? "" : "s"} replied — compare and pick one, or walk away.`;
+    case "trade_in_evaluation":
+      return `${quotes} of ${sent} dealer${sent === 1 ? "" : "s"} replied — your trade-in is sized up against the out-the-door price. Compare and pick one, or walk away.`;
     case "walked":
       return "You walked away from this request.";
     case "successful":

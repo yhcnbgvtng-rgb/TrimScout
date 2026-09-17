@@ -55,8 +55,8 @@ interface DealTrackerDashboardProps {
  * Reached stages are ticked, the current one is lit, the two endings sit
  * side by side and only the one that happened lights up.
  */
-export function QuoteStatusStrip({ stage, detail }: { stage: RfqLifecycleStage; detail: string }) {
-  const order = ["draft", "in_progress", "under_review", "awaiting"] as const;
+export function QuoteStatusStrip({ stage, detail, showTradeIn = false }: { stage: RfqLifecycleStage; detail: string; showTradeIn?: boolean }) {
+  const order = ["draft", "in_progress", "under_review", "awaiting", "responses_received", "trade_in_evaluation"] as const;
   const idx = stage === "walked" || stage === "successful" ? order.length : order.indexOf(stage);
   const node = (id: RfqLifecycleStage, label: string) => {
     const ending = id === "walked" || id === "successful";
@@ -75,7 +75,7 @@ export function QuoteStatusStrip({ stage, detail }: { stage: RfqLifecycleStage; 
   return (
     <div className="space-y-1" data-testid="quote-status-strip" data-current={stage}>
       <div className="flex flex-wrap items-center gap-1">
-        {RFQ_LIFECYCLE.filter((x) => x.id !== "walked" && x.id !== "successful").map((x, i) => (
+        {RFQ_LIFECYCLE.filter((x) => x.id !== "walked" && x.id !== "successful" && (showTradeIn || x.id !== "trade_in_evaluation")).map((x, i) => (
           <React.Fragment key={x.id}>
             {i > 0 ? <span className="text-ink-faint">›</span> : null}
             {node(x.id, x.label)}
@@ -162,7 +162,7 @@ export const DealTrackerDashboard: React.FC<DealTrackerDashboardProps> = ({
                 className={`rounded-2xl border bg-surface p-5 space-y-3 ${focused ? "border-emerald-500/60 shadow-lg shadow-emerald-500/10" : "border-border"}`}
                 data-testid={focused ? "quote-request-focused" : undefined}
               >
-                <QuoteStatusStrip stage={rfqLifecycleStage(rfq)} detail={rfqLifecycleDetail(rfq)} />
+                <QuoteStatusStrip stage={rfqLifecycleStage(rfq)} detail={rfqLifecycleDetail(rfq)} showTradeIn={rfq.tradeInExpected === true} />
                 <UnsubscribedBanner rfq={rfq} onChooseAnother={onChooseAnother} />
                 {rfq.approvalStatus === "rejected" ? (
                   <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-rose-500/40 bg-rose-950/30 px-3 py-2" data-testid="rfq-rejected">

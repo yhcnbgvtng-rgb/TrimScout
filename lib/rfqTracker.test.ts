@@ -136,19 +136,22 @@ describe("lifecycle strip — Draft → In progress → Sent, awaiting dealer re
     assert.equal(rfqLifecycleStage(rfq({ invites: [inv({}), inv({ id: "2", deliveryStatus: "queued" })] })), "in_progress", "one still queued");
     assert.equal(rfqLifecycleStage(rfq({ invites: [inv({})] })), "awaiting");
     assert.equal(rfqLifecycleStage(rfq({ invites: [inv({ deliveryStatus: "viewed" })] })), "awaiting");
-    assert.equal(rfqLifecycleStage(rfq({ invites: [inv({ status: "quoted", quote: { id: "q" } })] })), "awaiting", "quotes in is still the sent stage — the buyer decides");
+    assert.equal(rfqLifecycleStage(rfq({ invites: [inv({ status: "quoted", quote: { id: "q" } })] })), "responses_received", "a quote is in → dealer responses received");
+    assert.equal(rfqLifecycleStage(rfq({ tradeInExpected: true, invites: [inv({ status: "quoted", quote: { id: "q" } })] })), "trade_in_evaluation", "a quote is in and there's a trade-in → trade-in evaluation");
+    assert.equal(rfqLifecycleStage(rfq({ tradeInExpected: true, invites: [inv({})] })), "awaiting", "trade-in but no quote yet is still awaiting");
     assert.equal(rfqLifecycleStage(rfq({ status: "walked", invites: [inv({})] })), "walked");
     assert.equal(rfqLifecycleStage(rfq({ status: "picked", invites: [inv({ status: "quoted", quote: { id: "q" } })] })), "successful");
   });
   it("detail line names what's happening", () => {
     assert.match(rfqLifecycleDetail(rfq({ invites: [inv({}), inv({ id: "2" })] })), /2 dealers have it — none has replied yet/);
     assert.match(rfqLifecycleDetail(rfq({ invites: [inv({ status: "quoted", quote: { id: "q" } }), inv({ id: "2" })] })), /1 of 2 dealers replied — compare and pick one, or walk away/);
+    assert.match(rfqLifecycleDetail(rfq({ tradeInExpected: true, invites: [inv({ status: "quoted", quote: { id: "q" } }), inv({ id: "2" })] })), /your trade-in is sized up against the out-the-door price/);
     assert.match(rfqLifecycleDetail(rfq({ invites: [inv({ deliveryStatus: "queued" })] })), /Sending to 1 dealer…/);
     assert.match(rfqLifecycleDetail(rfq({ status: "walked" })), /walked away/);
     assert.match(rfqLifecycleDetail(rfq({ status: "picked" })), /chose a quote/);
   });
-  it("labels, in order, are the six the buyer sees", () => {
-    assert.deepEqual(RFQ_LIFECYCLE.map((s) => s.label), ["Draft", "In progress", "Under review", "Sent — awaiting dealer response", "Walked away", "Successful"]);
+  it("labels, in order, are the ones the buyer sees", () => {
+    assert.deepEqual(RFQ_LIFECYCLE.map((s) => s.label), ["Draft", "In progress", "Under review", "Sent — awaiting dealer response", "Dealer responses received", "Trade-in evaluation", "Walked away", "Successful"]);
   });
   it("the admin gate (2026-09-17): a submitted request is under review until released; a rejection stays there with its reason; pre-gate rows read as released", () => {
     const queued = [inv({ deliveryStatus: "queued" })];
@@ -167,7 +170,7 @@ describe("lifecycle strip — Draft → In progress → Sent, awaiting dealer re
   });
   it("wiring: every tracker card opens with the strip; a saved draft gets its own card with Resume", () => {
     const d = fs.readFileSync(path.join(process.cwd(), "components/DealTrackerDashboard.tsx"), "utf8");
-    assert.match(d, /<QuoteStatusStrip stage=\{rfqLifecycleStage\(rfq\)\} detail=\{rfqLifecycleDetail\(rfq\)\} \/>\s*<UnsubscribedBanner rfq=\{rfq\} onChooseAnother=\{onChooseAnother\} \/>\s*\{rfq\.approvalStatus === "rejected" \? \(/);
+    assert.match(d, /<QuoteStatusStrip stage=\{rfqLifecycleStage\(rfq\)\} detail=\{rfqLifecycleDetail\(rfq\)\} showTradeIn=\{rfq\.tradeInExpected === true\} \/>\s*<UnsubscribedBanner rfq=\{rfq\} onChooseAnother=\{onChooseAnother\} \/>\s*\{rfq\.approvalStatus === "rejected" \? \(/);
     assert.match(d, /data-testid="rfq-resubmit"/, "a rejected request offers Fix & resubmit");
     assert.match(d, /Corrected by TrimScout:/, "admin corrections are shown to the buyer");
     assert.match(d, /data-testid="quote-draft"[\s\S]*?<QuoteStatusStrip stage="draft"[\s\S]*?Resume/);
