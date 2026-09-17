@@ -6,6 +6,7 @@ import { createRfq, listRfqsForBuyer, RfqApiError } from "@/lib/rfqApi";
 import { publicRfqForBuyer } from "@/lib/rfq";
 import { hasActiveRfq, isFullyLockedSpec } from "@/lib/rfqLogic";
 import { MAX_PACKAGE_LINKS } from "@/lib/quotePackage";
+import { parseAlternateAsk } from "@/lib/alternateAsk";
 import { recordQuoteRequest } from "@/lib/apiSpendGuard";
 import { findContactInfo } from "@/lib/piiFilter";
 import { featureEnabled, DEGRADE_COPY } from "@/lib/featureFlags";
@@ -61,12 +62,23 @@ export async function POST(req: Request) {
   // hard gate: every must-have a confirmed hit. "links" is the v1 core loop
   // — the buyer pasted dealer listings; there is no option match to gate
   // on, and no target price anywhere in it.
+  const lane = body.lane === "alternate" ? "alternate" : "same_spec";
+  const alternateAsk = lane === "alternate" ? parseAlternateAsk(body.alternateAsk) : null;
+  if (alternateAsk && !alternateAsk.bodyStyle && !alternateAsk.makes?.length && !alternateAsk.mustHaves?.length && alternateAsk.monthlyMax == null && alternateAsk.dueAtSigningMax == null && !alternateAsk.exampleUrl) {
+    return NextResponse.json({ error: "Tell dealers at least one thing — a body style, a make, a must-have, or a budget." }, { status: 400 });
+  }
   if (packageKind === "match") {
     if (!Array.isArray(body.mustHaves) || !isFullyLockedSpec(body.mustHaves)) {
       return NextResponse.json(
         { error: "This vehicle doesn't hit every must-have — an RFQ can only be sent from a full match." },
         { status: 400 }
       );
+    }
+  } else if (lane === "alternate") {
+    // Open to different vehicles: an ask, not a VIN. No pastes, no sticker, no factory gate.
+    if (!alternateAsk) return NextResponse.json({ error: "Tell dealers at least one thing — a body style, a make, a must-have, or a budget." }, { status: 400 });
+    if (body.quotePrefs && typeof body.quotePrefs === "object" && !parseQuotePrefs(body.quotePrefs)) {
+      return NextResponse.json({ error: "Finance requests need a term, down payment, credit band and ZIP before they can be sent." }, { status: 400 });
     }
   } else {
     const pastes = Array.isArray(body.linkPastes) ? body.linkPastes : [];
@@ -102,7 +114,7 @@ export async function POST(req: Request) {
       // Idempotent double-submit: the same buyer re-sending the same car
       // (a retry, a double click, a refresh) gets the request that already
       // exists — one row, not an error and not a second row.
-      const same = existing.find((r) => r.status === "collecting" && r.vin === String(body.vin || "").trim().toUpperCase());
+      const same = existing.find((r) => r.status === "collecting" && r.vin === String(body.vin || "").trim().toUpperCase() && (lane !== "alternate" || (r.lane ?? "same_spec") === "alternate"));
       if (same) {
         bump("rfq_create_idempotent");
         return NextResponse.json({ rfq: publicRfqForBuyer(same), idempotent: true });
@@ -131,6 +143,8 @@ export async function POST(req: Request) {
       quotePrefs: parseQuotePrefs(body.quotePrefs),
       buyerNote: buyerNote || null,
       tradeInExpected: typeof body.tradeInExpected === "boolean" ? body.tradeInExpected : null,
+      lane,
+      alternateAsk,
     });
     recordQuoteRequest();
     bump("rfq_create");

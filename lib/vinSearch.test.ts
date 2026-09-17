@@ -1078,7 +1078,7 @@ describe("shopper-facing factory option copy", () => {
     const step1 = src.slice(start, end);
     assert.doesNotMatch(src, /Lock This Car/);
     assert.doesNotMatch(step1, /onClick=\{\(\) => setStep\(3\)\}/);
-    assert.match(src, /const vehicleImported = Boolean\(lockVehicleSelection \|\| \(parseSuccessMsg && selectedVehicle\)\)/);
+    assert.match(src, /const vehicleImported = intent === "alternate" \? Boolean\(altAsk\.ask && altDealers\.length > 0\) : Boolean\(lockVehicleSelection \|\| \(parseSuccessMsg && selectedVehicle\)\)/);
     // Step 1 is the vehicle step: Continue waits only for a loaded vehicle.
     assert.match(src, /if \(step === 1 && !vehicleImported\) return;/);
     assert.match(step1, /One car is required to continue/);

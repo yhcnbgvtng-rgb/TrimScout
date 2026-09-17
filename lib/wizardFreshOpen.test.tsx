@@ -68,7 +68,7 @@ describe("Configure Quote Request starts fresh on every open", () => {
     const root = createRoot(dom.window.document.getElementById("root")!);
     await act(async () => { root.render(React.createElement(Host)); });
 
-    const openFresh = async () => { await act(async () => { bump(); setOpen(true); }); await act(async () => { await new Promise((r) => setTimeout(r, 0)); }); };
+    const openFresh = async () => { await act(async () => { bump(); setOpen(true); }); await act(async () => { await new Promise((r) => setTimeout(r, 0)); }); await act(async () => { (dom.window.document.querySelector('[data-testid="intent-same_spec"]') as HTMLButtonElement).click(); }); };
     const paste = async (vin: string) => {
       const input = dom.window.document.getElementById("primary-link-input") as HTMLInputElement;
       assert.ok(input, "Step 1 paste box is on screen");
@@ -96,6 +96,7 @@ describe("Configure Quote Request starts fresh on every open", () => {
     const box = dom.window.document.getElementById("primary-link-input") as HTMLInputElement;
     assert.equal(box.value, "", "second open: empty paste box, no prior VIN");
     assert.doesNotMatch(text(), /Kia|Carnival|Performance Kia/, "second open: nothing of vehicle A on Step 1");
+    assert.equal(dom.window.document.querySelector('[data-testid="intent-same_spec"]')?.getAttribute("aria-checked"), "true", "the intent was re-asked and re-chosen — nothing sticky");
     assert.match(text(), /Step 1 of/);
 
     await paste(VIN_B);

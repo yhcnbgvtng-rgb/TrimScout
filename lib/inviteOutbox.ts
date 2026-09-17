@@ -25,6 +25,7 @@ import { quoteInviteHtml, quoteInviteSubject, type QuoteEmailType, type QuoteInv
 import { markRfqInviteDelivery } from "./rfqApi";
 import { LEASE_TIMELINE_LABELS, rfqVehicles } from "./rfqTracker";
 import { rfqIsReleased, type RfqInvite, type RfqRequest } from "./rfq";
+import { alternateAskSummary } from "./alternateAsk";
 
 export type OutboxResult = "sent" | "parked_switch_off" | "held_for_approval" | "no_desk" | "already_sent" | "failed";
 
@@ -58,6 +59,7 @@ export async function buildInviteEmailFromStored(
     financePrefs: rfq.quotePrefs?.quoteType === "finance" ? { termMonths: rfq.quotePrefs.finance.termMonths, downPayment: rfq.quotePrefs.finance.downPayment, creditBand: rfq.quotePrefs.finance.creditBand } : null,
     buyerNote: rfq.buyerNote || null,
     tradeInExpected: rfq.tradeInExpected ?? null,
+    alternateAsk: (rfq.lane ?? "same_spec") === "alternate" ? alternateAskSummary(rfq.alternateAsk) : null,
   };
   return { subject: quoteInviteSubject(input), html: quoteInviteHtml(input) };
 }

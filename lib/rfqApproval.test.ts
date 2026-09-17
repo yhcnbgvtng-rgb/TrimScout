@@ -84,7 +84,7 @@ describe("wiring", () => {
   it("the box patch inserts every new request as pending and grandfathers existing rows as approved", () => {
     const box = fs.readFileSync("scrapers/lightsail-crawler/src/deals_api_server.js", "utf8");
     assert.match(box, /approval_status VARCHAR\(16\) NOT NULL DEFAULT 'approved'/);
-    assert.match(box, /trade_in_expected, approval_status\)\s*VALUES \(\?, \?, \?, \?, \?, \?, \?, \?, 'collecting', \?, \?, \?, \?, \?, \?, \?, 'pending'\)/);
+    assert.match(box, /trade_in_expected, approval_status, lane, alternate_ask_json\)\s*VALUES \(\?, \?, \?, \?, \?, \?, \?, \?, 'collecting', \?, \?, \?, \?, \?, \?, \?, 'pending', \?, \?\)/);
     assert.match(box, /async function handleRfqApproval/);
     assert.match(box, /async function handleAdminPatchRfq/);
     assert.match(box, /if \(\(rows\[0\]\.approval_status \|\| "approved"\) === "approved"\) return sendJson\(res, 409, \{ error: "released"/, "no edits after release");
