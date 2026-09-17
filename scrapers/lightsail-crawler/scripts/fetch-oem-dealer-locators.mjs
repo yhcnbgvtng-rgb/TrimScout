@@ -240,8 +240,25 @@ const NH_ZIPS = [
   '03801', // Portsmouth (seacoast)
 ];
 
+// Massachusetts zip spread. Far more populous (~7M) than the New England
+// states added so far, with Boston metro dominant but real, distinct
+// markets spread the width of the state: Worcester (central), the
+// Springfield/Pioneer Valley market (west), New Bedford/Fall River (south
+// coast), Lowell (Merrimack Valley, north), Cape Cod (Hyannis), and
+// Pittsfield in the Berkshires (far west) — none of which a Boston-radius
+// seed alone reaches.
+const MA_ZIPS = [
+  '02116', // Boston (dominant metro)
+  '01608', // Worcester (central)
+  '01103', // Springfield (Pioneer Valley, west)
+  '01852', // Lowell (Merrimack Valley, north)
+  '02740', // New Bedford (south coast)
+  '02601', // Hyannis (Cape Cod)
+  '01201', // Pittsfield (Berkshires, far west)
+];
+
 // Combined zip spread used by every zip+radius OEM locator below.
-const TARGET_ZIPS = [...NJ_NY_ZIPS, ...FL_ZIPS, ...GA_ZIPS, ...TX_ZIPS, ...SC_ZIPS, ...VA_ZIPS, ...NC_ZIPS, ...RI_ZIPS, ...VT_ZIPS, ...NH_ZIPS];
+const TARGET_ZIPS = [...NJ_NY_ZIPS, ...FL_ZIPS, ...GA_ZIPS, ...TX_ZIPS, ...SC_ZIPS, ...VA_ZIPS, ...NC_ZIPS, ...RI_ZIPS, ...VT_ZIPS, ...NH_ZIPS, ...MA_ZIPS];
 
 function hostOf(url) {
   return hostFromUrl(url) || normalizeDealerHost(url);

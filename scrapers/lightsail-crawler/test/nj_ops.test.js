@@ -414,8 +414,8 @@ describe('NY locator seed (no brandofcity guesses)', () => {
 });
 
 describe('state registry (src/states.js)', () => {
-  it('lists NJ, NY, FL, GA, TX, SC, VA, NC, RI, VT, NH as supported and rejects anything else', () => {
-    assert.deepEqual(SUPPORTED_STATES, ['NJ', 'NY', 'FL', 'GA', 'TX', 'SC', 'VA', 'NC', 'RI', 'VT', 'NH']);
+  it('lists NJ, NY, FL, GA, TX, SC, VA, NC, RI, VT, NH, MA as supported and rejects anything else', () => {
+    assert.deepEqual(SUPPORTED_STATES, ['NJ', 'NY', 'FL', 'GA', 'TX', 'SC', 'VA', 'NC', 'RI', 'VT', 'NH', 'MA']);
     assert.equal(isSupportedState('FL'), true);
     assert.equal(isSupportedState('fl'), true);
     assert.equal(isSupportedState('GA'), true);
@@ -434,6 +434,8 @@ describe('state registry (src/states.js)', () => {
     assert.equal(isSupportedState('vt'), true);
     assert.equal(isSupportedState('NH'), true);
     assert.equal(isSupportedState('nh'), true);
+    assert.equal(isSupportedState('MA'), true);
+    assert.equal(isSupportedState('ma'), true);
     assert.equal(isSupportedState(' NJ '), true);
     assert.equal(isSupportedState('CT'), false);
     assert.equal(isSupportedState(''), false);
