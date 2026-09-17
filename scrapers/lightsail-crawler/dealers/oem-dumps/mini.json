@@ -1,6 +1,182 @@
 [
   {
     "make": "Mini",
+    "name": "Bob Smith MINI",
+    "city": "Calabasas",
+    "state": "CA",
+    "domain": "bobsmithmini.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.miniusa.com/bin/services/dealer-locator/getAllDealerByZip.json/90012/50?excludeServiceOnlyDealers=false&includeSatelliteDealers=true"
+  },
+  {
+    "make": "Mini",
+    "name": "Crevier MINI",
+    "city": "Santa Ana",
+    "state": "CA",
+    "domain": "creviermini.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.miniusa.com/bin/services/dealer-locator/getAllDealerByZip.json/90012/50?excludeServiceOnlyDealers=false&includeSatelliteDealers=true"
+  },
+  {
+    "make": "Mini",
+    "name": "East Bay MINI Authorized Service",
+    "city": "Pleasanton",
+    "state": "CA",
+    "domain": "eastbaymini.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.miniusa.com/bin/services/dealer-locator/getAllDealerByZip.json/95113/50?excludeServiceOnlyDealers=false&includeSatelliteDealers=true"
+  },
+  {
+    "make": "Mini",
+    "name": "MINI Authorized Service of Concord",
+    "city": "Concord",
+    "state": "CA",
+    "domain": "miniofconcord.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.miniusa.com/bin/services/dealer-locator/getAllDealerByZip.json/95113/50?excludeServiceOnlyDealers=false&includeSatelliteDealers=true"
+  },
+  {
+    "make": "Mini",
+    "name": "MINI Authorized Service of Long Beach",
+    "city": "Signal Hill",
+    "state": "CA",
+    "domain": "longbeachmini.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.miniusa.com/bin/services/dealer-locator/getAllDealerByZip.json/90012/50?excludeServiceOnlyDealers=false&includeSatelliteDealers=true"
+  },
+  {
+    "make": "Mini",
+    "name": "MINI of Berkeley",
+    "city": "Berkeley",
+    "state": "CA",
+    "domain": "miniofberkeley.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.miniusa.com/bin/services/dealer-locator/getAllDealerByZip.json/95113/50?excludeServiceOnlyDealers=false&includeSatelliteDealers=true"
+  },
+  {
+    "make": "Mini",
+    "name": "MINI of Downtown Los Angeles",
+    "city": "Los Angeles",
+    "state": "CA",
+    "domain": "minidtla.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.miniusa.com/bin/services/dealer-locator/getAllDealerByZip.json/90012/50?excludeServiceOnlyDealers=false&includeSatelliteDealers=true"
+  },
+  {
+    "make": "Mini",
+    "name": "MINI of Escondido",
+    "city": "Escondido",
+    "state": "CA",
+    "domain": "miniofescondido.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.miniusa.com/bin/services/dealer-locator/getAllDealerByZip.json/92101/50?excludeServiceOnlyDealers=false&includeSatelliteDealers=true"
+  },
+  {
+    "make": "Mini",
+    "name": "MINI of Marin",
+    "city": "Corte Madera",
+    "state": "CA",
+    "domain": "miniofmarin.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.miniusa.com/bin/services/dealer-locator/getAllDealerByZip.json/94102/50?excludeServiceOnlyDealers=false&includeSatelliteDealers=true"
+  },
+  {
+    "make": "Mini",
+    "name": "MINI of Monrovia",
+    "city": "Monrovia",
+    "state": "CA",
+    "domain": "miniofmonrovia.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.miniusa.com/bin/services/dealer-locator/getAllDealerByZip.json/90012/50?excludeServiceOnlyDealers=false&includeSatelliteDealers=true"
+  },
+  {
+    "make": "Mini",
+    "name": "MINI of Ontario",
+    "city": "Ontario",
+    "state": "CA",
+    "domain": "miniofontario.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.miniusa.com/bin/services/dealer-locator/getAllDealerByZip.json/90012/50?excludeServiceOnlyDealers=false&includeSatelliteDealers=true"
+  },
+  {
+    "make": "Mini",
+    "name": "MINI of San Diego",
+    "city": "San Diego",
+    "state": "CA",
+    "domain": "miniofsandiego.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.miniusa.com/bin/services/dealer-locator/getAllDealerByZip.json/92101/50?excludeServiceOnlyDealers=false&includeSatelliteDealers=true"
+  },
+  {
+    "make": "Mini",
+    "name": "MINI of Stevens Creek",
+    "city": "Santa Clara",
+    "state": "CA",
+    "domain": "miniofstevenscreek.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.miniusa.com/bin/services/dealer-locator/getAllDealerByZip.json/95113/50?excludeServiceOnlyDealers=false&includeSatelliteDealers=true"
+  },
+  {
+    "make": "Mini",
+    "name": "MINI of Universal City",
+    "city": "North Hollywood",
+    "state": "CA",
+    "domain": "miniuniversalcity.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.miniusa.com/bin/services/dealer-locator/getAllDealerByZip.json/90012/50?excludeServiceOnlyDealers=false&includeSatelliteDealers=true"
+  },
+  {
+    "make": "Mini",
+    "name": "Niello MINI",
+    "city": "Sacramento",
+    "state": "CA",
+    "domain": "niellomini.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.miniusa.com/bin/services/dealer-locator/getAllDealerByZip.json/95814/50?excludeServiceOnlyDealers=false&includeSatelliteDealers=true"
+  },
+  {
+    "make": "Mini",
+    "name": "South Bay MINI",
+    "city": "Torrance",
+    "state": "CA",
+    "domain": "southbaymini.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.miniusa.com/bin/services/dealer-locator/getAllDealerByZip.json/90012/50?excludeServiceOnlyDealers=false&includeSatelliteDealers=true"
+  },
+  {
+    "make": "Mini",
     "name": "Braman MINI of Miami",
     "city": "Miami",
     "state": "FL",
@@ -144,6 +320,28 @@
   },
   {
     "make": "Mini",
+    "name": "MINI of Peabody",
+    "city": "Peabody",
+    "state": "MA",
+    "domain": "minipeabody.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.miniusa.com/bin/services/dealer-locator/getAllDealerByZip.json/03101/50?excludeServiceOnlyDealers=false&includeSatelliteDealers=true"
+  },
+  {
+    "make": "Mini",
+    "name": "MINI of Rockland",
+    "city": "Rockland",
+    "state": "MA",
+    "domain": "miniofrockland.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.miniusa.com/bin/services/dealer-locator/getAllDealerByZip.json/02903/50?excludeServiceOnlyDealers=false&includeSatelliteDealers=true"
+  },
+  {
+    "make": "Mini",
     "name": "Flow MINI",
     "city": "Winston Salem",
     "state": "NC",
@@ -174,6 +372,17 @@
     "lng": null,
     "source": "oem-locator",
     "sourceUrl": "https://www.miniusa.com/bin/services/dealer-locator/getAllDealerByZip.json/29201/50?excludeServiceOnlyDealers=false&includeSatelliteDealers=true"
+  },
+  {
+    "make": "Mini",
+    "name": "MINI of Bedford",
+    "city": "Bedford",
+    "state": "NH",
+    "domain": "minibedford.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.miniusa.com/bin/services/dealer-locator/getAllDealerByZip.json/05301/50?excludeServiceOnlyDealers=false&includeSatelliteDealers=true"
   },
   {
     "make": "Mini",
@@ -295,6 +504,17 @@
     "lng": null,
     "source": "oem-locator",
     "sourceUrl": "https://www.miniusa.com/bin/services/dealer-locator/getAllDealerByZip.json/07004/50?excludeServiceOnlyDealers=false&includeSatelliteDealers=true"
+  },
+  {
+    "make": "Mini",
+    "name": "MINI of Warwick",
+    "city": "Warwick",
+    "state": "RI",
+    "domain": "warwickmini.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.miniusa.com/bin/services/dealer-locator/getAllDealerByZip.json/02903/50?excludeServiceOnlyDealers=false&includeSatelliteDealers=true"
   },
   {
     "make": "Mini",
@@ -449,5 +669,16 @@
     "lng": null,
     "source": "oem-locator",
     "sourceUrl": "https://www.miniusa.com/bin/services/dealer-locator/getAllDealerByZip.json/22030/50?excludeServiceOnlyDealers=false&includeSatelliteDealers=true"
+  },
+  {
+    "make": "Mini",
+    "name": "MINI of Burlington",
+    "city": "Shelburne",
+    "state": "VT",
+    "domain": "miniofburlington.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.miniusa.com/bin/services/dealer-locator/getAllDealerByZip.json/05401/50?excludeServiceOnlyDealers=false&includeSatelliteDealers=true"
   }
 ]

@@ -1,0 +1,16 @@
+[
+  {
+    "id": "mini-mini-of-bedford",
+    "name": "MINI of Bedford",
+    "city": "Bedford",
+    "state": "NH",
+    "make": "Mini",
+    "domain": "minibedford.com",
+    "sitemapUrl": "https://www.minibedford.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.minibedford.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://minibedford.com/",
+    "lat": null,
+    "lng": null,
+    "domainSource": "oem-locator"
+  }
+]

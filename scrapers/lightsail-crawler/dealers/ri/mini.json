@@ -1,0 +1,16 @@
+[
+  {
+    "id": "mini-mini-of-warwick",
+    "name": "MINI of Warwick",
+    "city": "Warwick",
+    "state": "RI",
+    "make": "Mini",
+    "domain": "warwickmini.com",
+    "sitemapUrl": "https://www.warwickmini.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.warwickmini.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://warwickmini.com/",
+    "lat": null,
+    "lng": null,
+    "domainSource": "oem-locator"
+  }
+]

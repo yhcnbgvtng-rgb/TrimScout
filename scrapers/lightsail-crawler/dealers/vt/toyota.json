@@ -1,0 +1,16 @@
+[
+  {
+    "id": "toyota-coggins-toyota-of-bennington",
+    "name": "Coggins Toyota of Bennington",
+    "city": "Bennington",
+    "state": "VT",
+    "make": "Toyota",
+    "domain": "cogginstoyotaofbennington.com",
+    "sitemapUrl": "https://www.cogginstoyotaofbennington.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.cogginstoyotaofbennington.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://cogginstoyotaofbennington.com/",
+    "lat": null,
+    "lng": null,
+    "domainSource": "oem-locator"
+  }
+]

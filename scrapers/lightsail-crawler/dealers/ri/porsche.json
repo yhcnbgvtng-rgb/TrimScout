@@ -1,0 +1,16 @@
+[
+  {
+    "id": "porsche-warwick",
+    "name": "Porsche Warwick",
+    "city": "Warwick",
+    "state": "RI",
+    "make": "Porsche",
+    "domain": "porschewarwick.com",
+    "sitemapUrl": "https://www.porschewarwick.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschewarwick.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschewarwick.com/",
+    "lat": 41.6992717,
+    "lng": -71.4586114,
+    "domainSource": "oem-locator"
+  }
+]

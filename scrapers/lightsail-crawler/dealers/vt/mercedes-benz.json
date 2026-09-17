@@ -1,0 +1,16 @@
+[
+  {
+    "id": "mercedes-benz-the-automaster",
+    "name": "The Automaster",
+    "city": "Shelburne",
+    "state": "VT",
+    "make": "Mercedes-Benz",
+    "domain": "automaster.mercedesdealer.com",
+    "sitemapUrl": "https://automaster.mercedesdealer.com/sitemap.xml",
+    "inventorySitemapUrl": "https://automaster.mercedesdealer.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://automaster.mercedesdealer.com/",
+    "lat": 44.3878,
+    "lng": -73.22,
+    "domainSource": "oem-locator"
+  }
+]

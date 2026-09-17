@@ -1,0 +1,16 @@
+[
+  {
+    "id": "mitsubishi-prestige-mitsubishi",
+    "name": "Prestige Mitsubishi",
+    "city": "East Providence",
+    "state": "RI",
+    "make": "Mitsubishi",
+    "domain": "prestigemitsubishiri.com",
+    "sitemapUrl": "https://www.prestigemitsubishiri.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.prestigemitsubishiri.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://prestigemitsubishiri.com/",
+    "lat": null,
+    "lng": null,
+    "domainSource": "oem-locator"
+  }
+]

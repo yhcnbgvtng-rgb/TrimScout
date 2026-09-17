@@ -1,0 +1,16 @@
+[
+  {
+    "id": "bmw-stevens-creek-bmw",
+    "name": "Stevens Creek BMW",
+    "city": "San Jose",
+    "state": "CA",
+    "make": "BMW",
+    "domain": "stevenscreekbmw.com",
+    "sitemapUrl": "https://www.stevenscreekbmw.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.stevenscreekbmw.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://stevenscreekbmw.com/",
+    "lat": null,
+    "lng": null,
+    "domainSource": "listing-verified"
+  }
+]

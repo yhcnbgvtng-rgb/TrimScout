@@ -1,0 +1,58 @@
+[
+  {
+    "id": "volkswagen-montpelier-volkswagen",
+    "name": "Montpelier Volkswagen",
+    "city": "Berlin",
+    "state": "VT",
+    "make": "Volkswagen",
+    "domain": "montpeliervolkswagen.com",
+    "sitemapUrl": "https://www.montpeliervolkswagen.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.montpeliervolkswagen.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://montpeliervolkswagen.com/",
+    "lat": 44.2409,
+    "lng": -72.541,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "volkswagen-shearer-vw-of-south-burlington",
+    "name": "Shearer VW of South Burlington",
+    "city": "South Burlington",
+    "state": "VT",
+    "make": "Volkswagen",
+    "domain": "shearervw.com",
+    "sitemapUrl": "https://www.shearervw.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.shearervw.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://shearervw.com/",
+    "lat": 44.4405,
+    "lng": -73.2094,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "volkswagen-volkswagen-of-manchester",
+    "name": "Volkswagen of Manchester",
+    "city": "Manchester Center",
+    "state": "VT",
+    "make": "Volkswagen",
+    "domain": "langwayvolkswagen.com",
+    "sitemapUrl": "https://www.langwayvolkswagen.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.langwayvolkswagen.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://langwayvolkswagen.com/",
+    "lat": 43.1767,
+    "lng": -73.0584,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "volkswagen-volkswagen-of-rutland",
+    "name": "Volkswagen of Rutland",
+    "city": "Rutland",
+    "state": "VT",
+    "make": "Volkswagen",
+    "domain": "rutlandvw.com",
+    "sitemapUrl": "https://www.rutlandvw.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.rutlandvw.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://rutlandvw.com/",
+    "lat": 43.5878,
+    "lng": -72.9692,
+    "domainSource": "oem-locator"
+  }
+]

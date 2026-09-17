@@ -1,0 +1,30 @@
+[
+  {
+    "id": "mazda-montpelier-mazda",
+    "name": "MONTPELIER MAZDA",
+    "city": "Berlin",
+    "state": "VT",
+    "make": "Mazda",
+    "domain": "montpeliermazda.com",
+    "sitemapUrl": "https://www.montpeliermazda.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.montpeliermazda.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://montpeliermazda.com/",
+    "lat": 44.2411079,
+    "lng": -72.540993,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "mazda-south-burlington-mazda",
+    "name": "SOUTH BURLINGTON MAZDA",
+    "city": "South Burlington",
+    "state": "VT",
+    "make": "Mazda",
+    "domain": "southburlingtonmazda.com",
+    "sitemapUrl": "https://www.southburlingtonmazda.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.southburlingtonmazda.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://southburlingtonmazda.com/",
+    "lat": 44.423497,
+    "lng": -73.2123702,
+    "domainSource": "oem-locator"
+  }
+]

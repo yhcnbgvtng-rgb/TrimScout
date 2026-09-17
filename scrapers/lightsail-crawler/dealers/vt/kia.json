@@ -1,0 +1,16 @@
+[
+  {
+    "id": "kia-berlin-city-kia-burlington",
+    "name": "Berlin City Kia, Burlington",
+    "city": "Williston",
+    "state": "VT",
+    "make": "Kia",
+    "domain": "berlincitykiavt.com",
+    "sitemapUrl": "https://www.berlincitykiavt.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.berlincitykiavt.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://berlincitykiavt.com/",
+    "lat": null,
+    "lng": null,
+    "domainSource": "oem-locator"
+  }
+]

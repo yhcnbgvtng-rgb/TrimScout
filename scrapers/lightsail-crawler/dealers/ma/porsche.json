@@ -1,0 +1,72 @@
+[
+  {
+    "id": "porsche-brookline",
+    "name": "Porsche Brookline",
+    "city": "Brookline",
+    "state": "MA",
+    "make": "Porsche",
+    "domain": "porschebrookline.com",
+    "sitemapUrl": "https://www.porschebrookline.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschebrookline.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschebrookline.com/",
+    "lat": 42.332918,
+    "lng": -71.1187829,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "porsche-burlington",
+    "name": "Porsche Burlington",
+    "city": "Burlington",
+    "state": "MA",
+    "make": "Porsche",
+    "domain": "porscheburlington.com",
+    "sitemapUrl": "https://www.porscheburlington.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porscheburlington.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porscheburlington.com/",
+    "lat": 42.5048167,
+    "lng": -71.1956111,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "porsche-cape-cod",
+    "name": "Porsche Cape Cod",
+    "city": "Hyannis",
+    "state": "MA",
+    "make": "Porsche",
+    "domain": "porschecapecod.com",
+    "sitemapUrl": "https://www.porschecapecod.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschecapecod.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschecapecod.com/",
+    "lat": 41.6535345,
+    "lng": -70.2823287,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "porsche-norwell",
+    "name": "Porsche Norwell",
+    "city": "Norwell",
+    "state": "MA",
+    "make": "Porsche",
+    "domain": "porschenorwell.com",
+    "sitemapUrl": "https://www.porschenorwell.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschenorwell.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschenorwell.com/",
+    "lat": 42.1617681,
+    "lng": -70.7939307,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "porsche-westwood",
+    "name": "Porsche Westwood",
+    "city": "Westwood",
+    "state": "MA",
+    "make": "Porsche",
+    "domain": "porschewestwood.com",
+    "sitemapUrl": "https://www.porschewestwood.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschewestwood.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschewestwood.com/",
+    "lat": 42.2186913,
+    "lng": -71.2233829,
+    "domainSource": "oem-locator"
+  }
+]

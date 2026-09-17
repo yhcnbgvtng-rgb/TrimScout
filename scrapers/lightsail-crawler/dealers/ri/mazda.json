@@ -1,0 +1,30 @@
+[
+  {
+    "id": "mazda-flood-mazda",
+    "name": "FLOOD MAZDA",
+    "city": "Wakefield",
+    "state": "RI",
+    "make": "Mazda",
+    "domain": "floodmazda.com",
+    "sitemapUrl": "https://www.floodmazda.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.floodmazda.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://floodmazda.com/",
+    "lat": 41.4438856,
+    "lng": -71.4809469,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "mazda-tasca-mazda",
+    "name": "TASCA MAZDA",
+    "city": "Cranston",
+    "state": "RI",
+    "make": "Mazda",
+    "domain": "tascamazdari.com",
+    "sitemapUrl": "https://www.tascamazdari.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.tascamazdari.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://tascamazdari.com/",
+    "lat": 41.7480371,
+    "lng": -71.4518471,
+    "domainSource": "oem-locator"
+  }
+]

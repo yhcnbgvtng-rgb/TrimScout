@@ -1,0 +1,30 @@
+[
+  {
+    "id": "mitsubishi-burlington-mitsubishi",
+    "name": "Burlington Mitsubishi",
+    "city": "South Burlington",
+    "state": "VT",
+    "make": "Mitsubishi",
+    "domain": "burlingtonmitsubishi.com",
+    "sitemapUrl": "https://www.burlingtonmitsubishi.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.burlingtonmitsubishi.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://burlingtonmitsubishi.com/",
+    "lat": null,
+    "lng": null,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "mitsubishi-quality-mitsubishi",
+    "name": "Quality Mitsubishi",
+    "city": "St. Johnsbury",
+    "state": "VT",
+    "make": "Mitsubishi",
+    "domain": "qualitymitsubishivt.com",
+    "sitemapUrl": "https://www.qualitymitsubishivt.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.qualitymitsubishivt.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://qualitymitsubishivt.com/",
+    "lat": null,
+    "lng": null,
+    "domainSource": "oem-locator"
+  }
+]
