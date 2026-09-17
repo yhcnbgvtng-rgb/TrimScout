@@ -22,6 +22,19 @@ export interface RfqMustHave {
 }
 
 export type RfqStatus = "collecting" | "picked" | "walked";
+/**
+ * The admin gate (2026-09-17): every request is "pending" from the moment the
+ * buyer submits until an admin releases it. Nothing reaches a dealer before
+ * "approved". "rejected" carries a reason for the buyer, who may resubmit.
+ * Requests older than the gate carry "approved".
+ */
+export type RfqApprovalStatus = "pending" | "approved" | "rejected";
+export interface RfqAdminEdit {
+  at: string;
+  by: string | null;
+  /** Buyer-facing summary of what was corrected ("dealer contact updated"). */
+  summary: string;
+}
 export type RfqInviteStatus = "invited" | "quoted" | "declined" | "expired";
 export type RfqDeclineReason = "soft_lead" | "wrong_car" | "options_mismatch" | "other";
 
@@ -143,6 +156,24 @@ export interface RfqRequest extends RfqSpec {
   buyerNote?: string | null;
   /** Buyer said a trade-in is coming — handled after the OTD price is agreed, never part of the quote. */
   tradeInExpected?: boolean | null;
+  /** Admin gate — see RfqApprovalStatus. Absent on rows from a box that predates it (treated as approved). */
+  approvalStatus?: RfqApprovalStatus;
+  approvalDecidedAt?: string | null;
+  approvalDecidedBy?: string | null;
+  rejectionReason?: string | null;
+  /** Corrections an admin made before release, oldest first. */
+  adminEdits?: RfqAdminEdit[];
+}
+
+/**
+ * Released to dealers — the only state in which any invite may be sent.
+ * Fails closed: a row with no approvalStatus (a box that hasn't got the
+ * gate yet) is NOT released, so nothing can leak in the window between the
+ * app deploying and the box being patched. Once patched, pre-gate rows
+ * carry "approved" (the column default) and flow as before.
+ */
+export function rfqIsReleased(rfq: Pick<RfqRequest, "approvalStatus">): boolean {
+  return rfq.approvalStatus === "approved";
 }
 
 /**

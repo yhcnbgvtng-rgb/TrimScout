@@ -236,6 +236,15 @@ export async function sendQuoteInviteEmail(subject: string, html: string): Promi
 }
 
 /**
+ * Admin alert: a new quote request is waiting for approval. Same sender and
+ * SAFE MODE routing as dealer mail (so today it lands in the same inbox).
+ * The intended admin address is ADMIN_NOTIFY_EMAIL once SAFE MODE is lifted.
+ */
+export async function sendAdminApprovalAlert(subject: string, html: string): Promise<boolean> {
+  return sendViaResend(subject, html);
+}
+
+/**
  * Tells the winning dealer a buyer's trade-in details and photos are waiting
  * in their portal. Goes through the same SAFE MODE sender as every other
  * dealer email — see the header — so it lands at SAFE_MODE_RECIPIENT until

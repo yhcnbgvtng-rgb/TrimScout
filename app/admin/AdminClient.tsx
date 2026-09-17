@@ -47,6 +47,12 @@ export default function AdminClient() {
 
           <div className="flex items-center gap-2">
             <Link
+              href="/admin/approvals"
+              className="inline-flex items-center gap-1.5 rounded-xl border border-amber-500/50 bg-amber-500/10 hover:bg-amber-500/20 px-3 py-1.5 text-xs font-bold text-amber-300 hover:text-white transition-all shadow-sm"
+            >
+              <span>Pending approvals</span>
+            </Link>
+            <Link
               href="/admin/quote-requests"
               className="inline-flex items-center gap-1.5 rounded-xl border border-emerald-500/40 bg-emerald-500/10 hover:bg-emerald-500/20 px-3 py-1.5 text-xs font-bold text-emerald-300 hover:text-white transition-all shadow-sm"
             >

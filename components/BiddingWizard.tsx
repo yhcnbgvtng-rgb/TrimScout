@@ -42,6 +42,7 @@ import {
 } from "../lib/fordCompetitionUi";
 import { brandCodeFromMake, pastedVinCandidate } from "../lib/oemWmi";
 import { classifyResolvePath, dealerFromVdp, factoryBuildStateLine, logResolve, resolveLogEntry, type ResolvePath } from "../lib/resolvePath";
+import { UNDER_REVIEW_COPY } from "../lib/rfqTracker";
 import { factoryBuildPendingProps, hostOf, trackEvent } from "../lib/analytics";
 import { clearParkedVehicle, parkVehicle, parkedVehicleLabel, readParkedVehicle, type ParkedVehicle } from "../lib/parkedVehicle";
 import {
@@ -1800,10 +1801,10 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
               <CheckCircle2 className="h-7 w-7" />
             </div>
             <h2 className="mt-3 text-lg font-black text-white">
-              {sentCount === 0 ? "Nothing was sent" : `Quote request sent to ${sentCount} desk${sentCount === 1 ? "" : "s"}`}
+              {sentCount === 0 ? "Nothing was sent" : `Quote request submitted — ${sentCount} desk${sentCount === 1 ? "" : "s"} lined up`}
             </h2>
-            <p className="mt-1 text-xs text-ink-muted">
-              Each desk replies on its own time. We&apos;ll show every quote as it comes in — pick one, or walk away.
+            <p className="mt-1 text-xs text-ink-muted" data-testid="sent-under-review">
+              {UNDER_REVIEW_COPY} Each desk then replies on its own time — we&apos;ll show every quote as it comes in; pick one, or walk away.
             </p>
           </div>
           <ul className="space-y-1.5">

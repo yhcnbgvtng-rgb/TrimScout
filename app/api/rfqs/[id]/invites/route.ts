@@ -1,26 +1,14 @@
-import { NextResponse, after } from "next/server";
+import { NextResponse } from "next/server";
 import { auth } from "@/auth";
-import { createRfqInvite, getRfq, listRfqsForBuyer, RfqApiError } from "@/lib/rfqApi";
-import type { RfqInvite } from "@/lib/rfq";
+import { getRfq, listRfqsForBuyer, RfqApiError } from "@/lib/rfqApi";
 import { guardPerDeskCap } from "@/lib/apiSpendGuard";
 import { buyerRfqStrikeCount, canInviteMore, reputationInviteCap } from "@/lib/rfqLogic";
-import { listDealerships } from "@/lib/dealershipsApi";
-import { matchDirectoryDealership } from "@/lib/dealerContactLookup";
-import {
-  deskFromDealership,
-  deskFromBuyerEmail,
-  deskFromRooftop,
-  inviteRouting,
-  maskEmail,
-  sisterStoreConflicts,
-  INVITE_BLOCK_MESSAGES,
-  type DealerDesk,
-} from "@/lib/quotePackage";
+import { inviteRouting } from "@/lib/quotePackage";
+import { queueInvite, resolveInviteDesk } from "@/lib/inviteDesk";
 import { featureEnabled, DEGRADE_COPY } from "@/lib/featureFlags";
 import { firstTrippedLimit, isRateLimitExempt, tooManyRequests } from "@/lib/rateLimit";
 import { clientIpFromHeaders } from "@/lib/clientIp";
 import { bump } from "@/lib/opsMetrics";
-import { sendQueuedInvite } from "@/lib/inviteOutbox";
 
 // The one send path. The buyer's confirm step names a dealership; this
 // route re-derives the desk from the contact directory itself — the
@@ -71,91 +59,28 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       return NextResponse.json({ error: "You've reached the invite limit for this request." }, { status: 400 });
     }
 
-    // --- Resolve the desk. A named person from the directory first; else a
-    //     buyer-typed adviser address (a person's mailbox only); else the
-    //     rooftop's own sales desk — its shared inbox when the directory has
-    //     one, or no address at all, in which case the invite queues for ops
-    //     to route. A known rooftop is never a dead end; the client never
-    //     supplies the address we send to.
-    let desk: DealerDesk | null = null;
-    if (rfq.packageKind === "links") {
-      const directory = await listDealerships().catch(() => []);
-      const row = matchDirectoryDealership(directory, { dealerName, state: dealerState });
-      desk = row ? deskFromDealership(row) : null;
-      if (!desk?.knownNamed && typeof body?.buyerProvidedEmail === "string") {
-        desk = deskFromBuyerEmail(dealerName, dealerState, body.buyerProvidedEmail) || desk;
-      }
-      if (!desk?.knownNamed) {
-        desk = row ? deskFromRooftop(row) : { dealerName, dealerState: dealerState.toUpperCase() || null, contactName: "Sales desk", role: "sales", email: "", emailDomain: "", source: "rooftop", knownNamed: false, emailOptOut: false };
-      }
-      if (desk.emailOptOut) {
-        return NextResponse.json({ error: INVITE_BLOCK_MESSAGES.dealer_opted_out, code: "dealer_opted_out" }, { status: 422 });
-      }
-      // Sister store: the package already has a desk on this dealer group's domain.
-      const existingDesks = rfq.invites
-        .filter((i) => i.status !== "declined" && i.status !== "expired")
-        .map((i) => (i.dealerContactEmail ? ({ emailDomain: i.dealerContactEmail.split("@")[1] || "" } as DealerDesk) : null));
-      if (sisterStoreConflicts([...existingDesks, desk]).has(existingDesks.length)) {
-        return NextResponse.json({ error: INVITE_BLOCK_MESSAGES.sister_store, code: "sister_store" }, { status: 422 });
-      }
-    }
+    // --- Desk and vehicle, by the shared rule (lib/inviteDesk.ts); then
+    //     queue it. The box enforces the one-open-invite-per-desk cap across
+    //     all buyers. Nothing is sent here.
+    const resolved = await resolveInviteDesk(rfq, { dealerName, dealerState, providedEmail: typeof body?.buyerProvidedEmail === "string" ? body.buyerProvidedEmail : null });
+    if (!resolved.ok) return NextResponse.json({ error: resolved.error, code: resolved.code }, { status: resolved.status });
+    const desk = resolved.desk;
+    const queued = await queueInvite(rfq, dealerName, desk, typeof body?.dealerContactEmail === "string" ? body.dealerContactEmail : null);
+    if (!queued.ok) return NextResponse.json({ error: queued.error, code: queued.code }, { status: queued.status });
+    const invite = queued.invite;
 
-    // --- The vehicle this desk quotes, from the package's own pastes.
-    const paste = (rfq.linkPastes || []).find(
-      (p) => typeof p.dealerName === "string" && p.dealerName.trim().toLowerCase() === dealerName.toLowerCase()
-    ) as Record<string, unknown> | undefined;
-    const vehicle = paste
-      ? {
-          vin: String(paste.vin || rfq.vin),
-          year: Number(paste.year || rfq.vehicleYear),
-          make: String(paste.make || rfq.vehicleMake),
-          model: String(paste.model || rfq.vehicleModel),
-          trim: String(paste.trim || rfq.vehicleTrim || ""),
-          vdpUrl: typeof paste.vdpUrl === "string" ? paste.vdpUrl : null,
-        }
-      : { vin: rfq.vin, year: rfq.vehicleYear, make: rfq.vehicleMake, model: rfq.vehicleModel, trim: rfq.vehicleTrim, vdpUrl: null };
-
-    // --- Queue it. The box enforces the one-open-invite-per-desk cap
-    //     across all buyers and returns 409 if this desk is already waiting.
-    let invite: RfqInvite;
-    try {
-      invite = await createRfqInvite(id, {
-        dealerName,
-        dealerContactEmail: desk ? desk.email || null : body?.dealerContactEmail || null,
-        desk: desk
-          ? { contactName: desk.contactName, role: desk.role, emailMasked: maskEmail(desk.email), source: desk.source }
-          : undefined,
-        vehicle,
-      });
-    } catch (err) {
-      if (err instanceof RfqApiError && err.status === 409) {
-        return NextResponse.json({ error: INVITE_BLOCK_MESSAGES.desk_already_invited, code: "desk_already_invited" }, { status: 409 });
-      }
-      throw err;
-    }
-
-    // --- The invite row is the queue entry. The buyer's request returns
-    //     now; the email is built from stored state and sent after the
-    //     response (or parked when the outbound switch is off), and
-    //     anything left "queued" is drained later — see lib/inviteOutbox.ts.
-    //     Nothing here awaits a mail provider, a dealer site, or a sticker.
+    // --- The invite row is the queue entry, and it stays there: nothing is
+    //     sent until an admin releases the request (POST /api/admin/rfqs/:id/
+    //     approval), which drains it. The outbox itself refuses unreleased
+    //     requests, so neither the buyer opening the deal page nor an ops
+    //     "drain all" can send early — see lib/inviteOutbox.ts.
     bump("invite_queued");
     if (desk && !desk.email) bump("invite_unassigned");
-    const emailOn = featureEnabled("outboundDealerEmail");
-    if (desk?.email) {
-      const queuedInvite = invite;
-      after(async () => {
-        const fresh = await getRfq(id).catch(() => null);
-        if (!fresh) return;
-        const row = fresh.invites.find((i) => i.id === queuedInvite.id) || queuedInvite;
-        await sendQueuedInvite(fresh, { ...row, dealerContactEmail: row.dealerContactEmail ?? queuedInvite.dealerContactEmail, viewToken: row.viewToken ?? queuedInvite.viewToken });
-      });
-    }
 
     // Neither the desk's real address nor the tracked-link token leaves the server.
     const { dealerContactEmail: _hiddenEmail, viewToken: _hiddenToken, ...publicInvite } = invite;
     const routing = inviteRouting(desk);
-    return NextResponse.json({ invite: publicInvite, queued: true, routing, notice: !emailOn ? DEGRADE_COPY.emailOff : routing === "unassigned" ? DEGRADE_COPY.queuedUnassigned : DEGRADE_COPY.queued });
+    return NextResponse.json({ invite: publicInvite, queued: true, routing, underReview: true, notice: DEGRADE_COPY.underReview });
   } catch (err) {
     const message = err instanceof RfqApiError ? err.message : "Could not add this dealer.";
     const status = err instanceof RfqApiError ? err.status : 502;

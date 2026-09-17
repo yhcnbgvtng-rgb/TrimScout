@@ -24,9 +24,9 @@ import { bump } from "./opsMetrics";
 import { quoteInviteHtml, quoteInviteSubject, type QuoteEmailType, type QuoteInviteEmailInput } from "./quoteInviteEmail";
 import { markRfqInviteDelivery } from "./rfqApi";
 import { LEASE_TIMELINE_LABELS, rfqVehicles } from "./rfqTracker";
-import type { RfqInvite, RfqRequest } from "./rfq";
+import { rfqIsReleased, type RfqInvite, type RfqRequest } from "./rfq";
 
-export type OutboxResult = "sent" | "parked_switch_off" | "no_desk" | "already_sent" | "failed";
+export type OutboxResult = "sent" | "parked_switch_off" | "held_for_approval" | "no_desk" | "already_sent" | "failed";
 
 /** Build the dealer email from what the box stores — nothing from the original request payload. */
 export async function buildInviteEmailFromStored(
@@ -70,6 +70,12 @@ export async function sendQueuedInvite(
 ): Promise<OutboxResult> {
   if (invite.status !== "invited") return "already_sent";
   if ((invite.deliveryStatus ?? "queued") !== "queued") return "already_sent";
+  // The admin gate comes before every other check: an unreleased request is
+  // never sent — not by the buyer opening the deal page, not by "drain all".
+  if (!rfqIsReleased(rfq)) {
+    bump("email_held_for_approval");
+    return "held_for_approval";
+  }
   if (!(deps.emailEnabled || (() => featureEnabled("outboundDealerEmail")))()) {
     bump("email_parked_switch_off");
     return "parked_switch_off";
@@ -102,7 +108,7 @@ export async function drainQueuedInvites(
   rfqs: RfqRequest[],
   deps: Parameters<typeof sendQueuedInvite>[2] & { maxSends?: number } = {}
 ): Promise<Record<OutboxResult, number> & { queued: number }> {
-  const out: Record<OutboxResult, number> & { queued: number } = { sent: 0, parked_switch_off: 0, no_desk: 0, already_sent: 0, failed: 0, queued: 0 };
+  const out: Record<OutboxResult, number> & { queued: number } = { sent: 0, parked_switch_off: 0, held_for_approval: 0, no_desk: 0, already_sent: 0, failed: 0, queued: 0 };
   const directory = deps.directory ?? (await listDealerships().catch(() => []));
   let sends = 0;
   for (const rfq of rfqs) {

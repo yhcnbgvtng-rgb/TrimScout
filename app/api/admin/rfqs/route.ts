@@ -6,7 +6,7 @@
 // which the desk says out loud.
 import { NextResponse } from "next/server";
 import { requireAdminSession } from "@/lib/adminAuth";
-import { listAllRfqs, RfqApiError } from "@/lib/rfqApi";
+import { listAllRfqs, listPendingRfqs, RfqApiError } from "@/lib/rfqApi";
 import type { RfqRequest } from "@/lib/rfq";
 
 export type AdminRfqInvite = Omit<RfqRequest["invites"][number], "viewToken"> & {
@@ -18,9 +18,11 @@ export type AdminRfq = Omit<RfqRequest, "invites"> & { invites: AdminRfqInvite[]
 export async function GET(req: Request) {
   const session = await requireAdminSession();
   if (!session) return NextResponse.json({ error: "Admin access required." }, { status: 403 });
-  const limit = Math.min(Math.max(Number(new URL(req.url).searchParams.get("limit")) || 200, 1), 1000);
+  const sp = new URL(req.url).searchParams;
+  const limit = Math.min(Math.max(Number(sp.get("limit")) || 200, 1), 1000);
   try {
-    const rfqs = await listAllRfqs(limit);
+    // ?approval=pending → only requests waiting on the admin gate, oldest first.
+    const rfqs = sp.get("approval") === "pending" ? await listPendingRfqs(limit) : await listAllRfqs(limit);
     const out: AdminRfq[] = rfqs.map((rfq) => ({
       ...rfq,
       invites: rfq.invites.map(({ viewToken, ...rest }) => ({

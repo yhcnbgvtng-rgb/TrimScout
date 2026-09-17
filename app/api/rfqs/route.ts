@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
 import { parseLeasePrefs } from "@/lib/leaseQuote";
 import { parseQuotePrefs } from "@/lib/usedQuote";
 import { auth } from "@/auth";
@@ -12,6 +12,8 @@ import { featureEnabled, DEGRADE_COPY } from "@/lib/featureFlags";
 import { firstTrippedLimit, isRateLimitExempt, tooManyRequests } from "@/lib/rateLimit";
 import { clientIpFromHeaders } from "@/lib/clientIp";
 import { bump } from "@/lib/opsMetrics";
+import { approvalAlertHtml, approvalAlertSubject } from "@/lib/approvalAlertEmail";
+import { sendAdminApprovalAlert } from "@/lib/dealerEmail";
 
 export async function GET() {
   const session = await auth();
@@ -132,6 +134,11 @@ export async function POST(req: Request) {
     });
     recordQuoteRequest();
     bump("rfq_create");
+    // The admin gate: every new request waits for approval. Tell the admin
+    // now (after the response), with the summary and a link to the desk.
+    after(async () => {
+      await sendAdminApprovalAlert(approvalAlertSubject(rfq), approvalAlertHtml(rfq)).catch(() => false);
+    });
     return NextResponse.json({ rfq: publicRfqForBuyer(rfq) });
   } catch (err) {
     const message = err instanceof RfqApiError ? err.message : "Could not create your request.";

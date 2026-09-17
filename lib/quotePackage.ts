@@ -338,7 +338,7 @@ export function inviteStage(invite: Pick<RfqInvite, "status"> & Partial<QuoteInv
 }
 
 export const INVITE_STAGE_LABELS: Record<QuoteInviteStage, string> = {
-  queued: "Queued",
+  queued: "Under review",
   sent: "Sent",
   viewed: "Opened by dealer",
   quoted: "Quoted",
