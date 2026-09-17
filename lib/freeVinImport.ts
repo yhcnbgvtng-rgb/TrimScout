@@ -20,6 +20,7 @@
 import type { Vehicle } from "./types";
 import type { DecodedVehicle } from "./vinDecoder";
 import type { DealerPageIdentity } from "./dealerPageIdentity";
+import { vinCheckDigitValid } from "./fordSticker";
 
 export interface FreeVinImportInput {
   vin: string;
@@ -121,19 +122,27 @@ export function freeVinImportVehicle(input: FreeVinImportInput): Vehicle {
  * to avoid — a wrong year here becomes a quote request for a car nobody has.
  * Codes it does not list (notably 14, "unable to provide information for some
  * characters") mean partial data about a valid VIN, which is fine.
+ *
+ * vPIC's check-digit verdict (1) and "invalid characters" (400) are taken
+ * only when our own ISO-3779 math agrees. Its manufacturer profiles lag new
+ * VIN schemes — 2026 RAV4s built in Cambridge carry letters in the serial
+ * (2T36CRAVXTC39J403, on Route 22 Toyota's lot and in our nightly crawl)
+ * and vPIC flags every one of them while the check digit is in fact correct.
  */
 const VIN_INTEGRITY_ERROR_CODES = new Set([1, 3, 4, 11]);
+const CHECK_DIGIT_ERROR_CODES = new Set([1, 400]);
 
 /** True when NHTSA flagged the VIN itself as invalid or auto-corrected. */
 export function hasVinIntegrityError(decoded: DecodedVehicle | null): boolean {
   const text = decoded?.errorText;
   if (!text) return false;
+  const checkDigitOk = vinCheckDigitValid(decoded?.vin || "");
   // ErrorText is a "code - description" list joined by semicolons, e.g.
   // "1 - Check Digit (9th position) does not calculate properly; 14 - ...".
   return text
     .split(";")
     .map((part) => parseInt(part.trim(), 10))
-    .some((code) => Number.isFinite(code) && VIN_INTEGRITY_ERROR_CODES.has(code));
+    .some((code) => Number.isFinite(code) && (VIN_INTEGRITY_ERROR_CODES.has(code) || CHECK_DIGIT_ERROR_CODES.has(code)) && !(checkDigitOk && CHECK_DIGIT_ERROR_CODES.has(code)));
 }
 
 /**

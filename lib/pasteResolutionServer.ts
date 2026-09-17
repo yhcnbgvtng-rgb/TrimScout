@@ -9,7 +9,7 @@ import type { CurrentDealerLookup } from "./listingSheet";
 import type { Vehicle } from "./types";
 import { crossReferenceStickerDealer, type StickerSoldTo } from "./dealerSearch";
 import { dealerDirectoryOrEmpty } from "./dealerDirectoryCache";
-import { inventoryDealerForVin } from "./inventoryVinLookup";
+import { inventoryDealerForVin, type InventoryVinLookup } from "./inventoryVinLookup";
 
 /**
  * A forced VIN arrives on the cross-OEM retry: another make's route read
@@ -70,8 +70,9 @@ export function blockedDealerPayload(dealer: DealerPageIdentity | undefined) {
  *      the request goes. A factory ship-to store that differs is kept on
  *      the vehicle as factoryShipTo, a note, never the recipient;
  *   2. our own inventory crawl last saw this VIN at a rooftop
- *      (lib/inventoryVinLookup.ts) — cross-referenced against the
- *      directory so it carries the directory's spelling and address;
+ *      (lib/inventoryVinLookup.ts, live dealer_inventory) — the directory
+ *      row by id when the sync matched one, else cross-referenced by name
+ *      so it carries the directory's spelling and address;
  *   3. the window sticker's sold-to block, cross-referenced the same way —
  *      the store the factory shipped to, usually but not always where it
  *      sits today, hence dealerConfirmed: false;
@@ -82,15 +83,20 @@ export function blockedDealerPayload(dealer: DealerPageIdentity | undefined) {
 export async function resolveVehicleDealer(
   vehicle: Vehicle,
   resolved: { dealer?: DealerPageIdentity },
-  soldTo: StickerSoldTo | null | undefined
+  soldTo: StickerSoldTo | null | undefined,
+  lookupSighting: InventoryVinLookup = inventoryDealerForVin
 ): Promise<Vehicle> {
-  const rows = await dealerDirectoryOrEmpty();
-  const seen = inventoryDealerForVin(vehicle.vin);
+  const [rows, seen] = await Promise.all([dealerDirectoryOrEmpty(), lookupSighting(vehicle.vin)]);
+  const sightingRow = (): (typeof rows)[number] | null => {
+    if (!seen?.dealerName) return null;
+    const byId = seen.dealerId ? rows.find((r) => String(r.id) === seen.dealerId) : null;
+    return byId || crossReferenceStickerDealer(rows, { name: seen.dealerName, city: seen.city, state: seen.state });
+  };
 
   const listing = resolved.dealer;
   if (listing?.name) {
     const origin = seen?.dealerName ? { name: seen.dealerName, city: seen.city, state: seen.state } : soldTo?.name?.trim() ? soldTo : null;
-    const originRow = origin ? crossReferenceStickerDealer(rows, origin) : null;
+    const originRow = origin ? (seen?.dealerName ? sightingRow() : crossReferenceStickerDealer(rows, origin)) : null;
     const originName = originRow ? originRow.dealerName : origin?.name?.trim() || "";
     const factoryShipTo =
       originName && !sameDealerName(originName, listing.name)
@@ -108,7 +114,7 @@ export async function resolveVehicleDealer(
   }
 
   if (seen?.dealerName) {
-    const row = crossReferenceStickerDealer(rows, { name: seen.dealerName, city: seen.city, state: seen.state });
+    const row = sightingRow();
     return withDealer(vehicle, {
       dealerName: row ? row.dealerName : seen.dealerName,
       city: (row ? row.city : seen.city) || "",

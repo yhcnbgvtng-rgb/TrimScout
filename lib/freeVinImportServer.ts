@@ -75,8 +75,8 @@ export async function buildFreeImport(input: {
       ok: false,
       vinIntegrity,
       error: vinIntegrity
-        ? `That VIN doesn't check out — ${vin} fails its own check digit, so it isn't a valid ${makeLabel} VIN. Copy it again from the listing.`
-        : `We couldn't read enough about that ${makeLabel} to add it. Check the VIN and try again.`,
+        ? `This VIN doesn't look right: ${vin}. One character is probably off — copy the VIN straight from the listing and try again.`
+        : `We couldn't find a ${makeLabel} with this VIN: ${vin}. Copy it straight from the listing and try again.`,
     };
   }
 
