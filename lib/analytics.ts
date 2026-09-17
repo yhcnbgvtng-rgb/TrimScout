@@ -5,7 +5,7 @@
  * never blocks the UI and never carries a full VIN or an email.
  */
 
-export const TRACKED_EVENTS = ["factory_build_pending", "factory_build_retry", "factory_build_notify_requested", "vehicle_saved_for_later", "vehicle_resumed"] as const;
+export const TRACKED_EVENTS = ["factory_build_pending", "factory_build_retry", "factory_build_notify_requested", "vehicle_saved_for_later", "vehicle_resumed", "cta_request_quote_click"] as const;
 export type TrackedEvent = (typeof TRACKED_EVENTS)[number];
 
 export type EventProps = Record<string, string | number | boolean | null>;
@@ -48,4 +48,11 @@ export function trackEvent(name: TrackedEvent, props: EventProps = {}, fetchImpl
   } catch {
     // a beacon that can't be sent is not the buyer's problem
   }
+}
+
+/** Where a "Request a Quote" CTA lives. Every one of them opens the same Configure Quote Request wizard. */
+export type QuoteCtaPlacement = "hero" | "header" | "tracker_empty" | "tracker_draft" | "intro_footer" | "mobile_menu";
+
+export function quoteCtaProps(placement: QuoteCtaPlacement, signedIn: boolean): EventProps {
+  return { placement, signedIn };
 }
