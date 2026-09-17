@@ -147,12 +147,29 @@ describe("lifecycle strip — Draft → In progress → Sent, awaiting dealer re
     assert.match(rfqLifecycleDetail(rfq({ status: "walked" })), /walked away/);
     assert.match(rfqLifecycleDetail(rfq({ status: "picked" })), /chose a quote/);
   });
-  it("labels, in order, are the five the buyer sees", () => {
-    assert.deepEqual(RFQ_LIFECYCLE.map((s) => s.label), ["Draft", "In progress", "Sent — awaiting dealer response", "Walked away", "Successful"]);
+  it("labels, in order, are the six the buyer sees", () => {
+    assert.deepEqual(RFQ_LIFECYCLE.map((s) => s.label), ["Draft", "In progress", "Under review", "Sent — awaiting dealer response", "Walked away", "Successful"]);
+  });
+  it("the admin gate (2026-09-17): a submitted request is under review until released; a rejection stays there with its reason; pre-gate rows read as released", () => {
+    const queued = [inv({ deliveryStatus: "queued" })];
+    assert.equal(rfqLifecycleStage(rfq({ invites: queued, approvalStatus: "pending" })), "under_review");
+    assert.equal(rfqLifecycleDetail(rfq({ invites: queued, approvalStatus: "pending" })), "Under review — released to dealers within 1 business day.");
+    assert.equal(rfqLifecycleStage(rfq({ invites: queued, approvalStatus: "rejected", rejectionReason: "wrong rooftop — the car is at Route 22" })), "under_review");
+    assert.match(rfqLifecycleDetail(rfq({ invites: queued, approvalStatus: "rejected", rejectionReason: "wrong rooftop — the car is at Route 22" })), /^Not released — wrong rooftop — the car is at Route 22\. Fix it and resubmit\.$/);
+    assert.equal(rfqLifecycleStage(rfq({ invites: queued, approvalStatus: "approved" })), "in_progress", "released but not yet sent");
+    assert.equal(rfqLifecycleStage(rfq({ invites: [inv({})], approvalStatus: "approved" })), "awaiting");
+    assert.equal(rfqLifecycleStage(rfq({ invites: [inv({})] })), "awaiting", "no approvalStatus at all = a request from before the gate");
+    assert.equal(rfqLifecycleStage(rfq({ invites: [], approvalStatus: "pending" })), "in_progress", "no dealers yet → not submitted");
+    assert.equal(rfqTrackerStatus(rfq({ invites: queued, approvalStatus: "pending" })), "under_review");
+    assert.equal(rfqTrackerStatusLabel(rfq({ invites: queued, approvalStatus: "pending" })), "Under review");
+    assert.equal(rfqTrackerStatusLabel(rfq({ invites: queued, approvalStatus: "rejected" })), "Not released");
+    assert.equal(rfqTrackerStatus(rfq({ status: "walked", invites: queued, approvalStatus: "rejected" })), "closed_walked", "a resubmitted (walked) rejection is closed");
   });
   it("wiring: every tracker card opens with the strip; a saved draft gets its own card with Resume", () => {
     const d = fs.readFileSync(path.join(process.cwd(), "components/DealTrackerDashboard.tsx"), "utf8");
-    assert.match(d, /<QuoteStatusStrip stage=\{rfqLifecycleStage\(rfq\)\} detail=\{rfqLifecycleDetail\(rfq\)\} \/>\s*<div className="flex flex-wrap items-start justify-between gap-2">/);
+    assert.match(d, /<QuoteStatusStrip stage=\{rfqLifecycleStage\(rfq\)\} detail=\{rfqLifecycleDetail\(rfq\)\} \/>\s*\{rfq\.approvalStatus === "rejected" \? \(/);
+    assert.match(d, /data-testid="rfq-resubmit"/, "a rejected request offers Fix & resubmit");
+    assert.match(d, /Corrected by TrimScout:/, "admin corrections are shown to the buyer");
     assert.match(d, /data-testid="quote-draft"[\s\S]*?<QuoteStatusStrip stage="draft"[\s\S]*?Resume/);
     assert.match(d, /readQuoteDraft\(\)/);
   });

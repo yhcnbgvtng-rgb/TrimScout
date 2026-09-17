@@ -51,6 +51,8 @@ export const DEGRADE_COPY = {
   emailOff: "Quotes are delayed — dealers will be notified as soon as sending resumes. Your request is saved and in line.",
   queued: "We're lining up your quote — the dealer will be notified in a moment.",
   queuedUnassigned: "We're lining up your quote — this dealership has no sales inbox on file yet, so our team routes it to the store by hand. Replies still come back through TrimScout.",
+  /** Every request is reviewed by TrimScout before any dealer sees it. */
+  underReview: "Under review — we check every request before it goes out and release it to your dealers within 1 business day. Replies come back here.",
 } as const;
 
 /** The public status the app polls for its degrade banner: flags only, never counters. */

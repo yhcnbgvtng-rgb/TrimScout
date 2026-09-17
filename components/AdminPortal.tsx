@@ -71,6 +71,21 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
     loadAccounts();
   }, []);
 
+  // The approval desk badge: how many quote requests are waiting on an admin.
+  const [pendingApprovals, setPendingApprovals] = useState<number | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/admin/rfqs?approval=pending&limit=300")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((j) => {
+        if (!cancelled && j && Array.isArray(j.rfqs)) setPendingApprovals(j.rfqs.length);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   // Filter & Search State
   const [searchQuery, setSearchQuery] = useState("");
   const [roleFilter, setRoleFilter] = useState<"all" | "buyer" | "dealer" | "admin" | "suspended" | "pending">("all");
@@ -264,6 +279,16 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
         </div>
 
         <div className="flex items-center gap-2 flex-wrap">
+          <Link
+            href="/admin/approvals"
+            className={`inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-black shadow-md transition-all cursor-pointer ${pendingApprovals ? "bg-amber-400 text-black hover:bg-amber-300 shadow-amber-500/20" : "border border-border bg-surface-elevated text-ink-light hover:bg-surface hover:text-white shadow-sm"}`}
+            data-testid="nav-approvals"
+          >
+            <ShieldCheck className="h-3.5 w-3.5" />
+            <span>Pending approvals</span>
+            {pendingApprovals ? <span className="rounded-full bg-black/80 px-1.5 py-0.5 text-[10px] font-black text-amber-300">{pendingApprovals}</span> : null}
+          </Link>
+
           <Link
             href="/admin/dealerships"
             className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 px-3.5 py-2 text-xs font-black text-black shadow-md shadow-emerald-500/20 transition-all cursor-pointer"

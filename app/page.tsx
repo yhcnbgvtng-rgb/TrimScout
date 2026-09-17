@@ -352,6 +352,41 @@ export default function Home() {
   // Signed out, the buyer walks Step 1 as a guest; the sign-in gate is at
   // Send, and the draft survives it (lib/quoteDraft). Never a view switch,
   // never a scroll.
+  // A rejected request: the buyer fixes and submits again. The old request
+  // is closed (walked) so it can't be released later by mistake, and the
+  // wizard reopens on the same car with the admin's reason in view.
+  const handleResubmitRfq = (rfq: RfqRequest) => {
+    fetch(`/api/rfqs/${rfq.id}/walk`, { method: "POST" }).catch(() => {});
+    setQuoteRequests((prev) => prev.map((r) => (r.id === rfq.id ? { ...r, status: "walked" as const } : r)));
+    const paste = (rfq.linkPastes || [])[0] as Record<string, unknown> | undefined;
+    const vehicle: Vehicle = {
+      id: `rfq-${rfq.id}`,
+      vin: rfq.vin,
+      year: rfq.vehicleYear,
+      make: rfq.vehicleMake,
+      model: rfq.vehicleModel,
+      trim: rfq.vehicleTrim,
+      bodyType: "",
+      engine: "",
+      drivetrain: "",
+      transmission: "",
+      exteriorColor: "",
+      interiorColor: "",
+      msrp: 0,
+      dealerPrice: 0,
+      daysOnLot: 0,
+      status: "on_lot",
+      location: { dealerName: typeof paste?.dealerName === "string" ? paste.dealerName : "", city: "", state: typeof paste?.dealerState === "string" ? paste.dealerState : "", distanceMiles: 0, dealerConfirmed: Boolean(paste?.dealerName), dealerSource: paste?.dealerName ? "listing_domain" : "unknown" },
+      dealerUrl: typeof paste?.vdpUrl === "string" ? paste.vdpUrl : undefined,
+      buildConfidence: "dealer_listing_only",
+      packages: [],
+      options: [],
+      imageUrl: "",
+      mileage: 0,
+    } as Vehicle;
+    handleRequestQuoteForVehicle(vehicle);
+  };
+
   const requestQuoteFromCta = (placement: QuoteCtaPlacement) => {
     trackEvent("cta_request_quote_click", quoteCtaProps(placement, Boolean(currentUser)));
     handleOpenFlexibleWizard();
@@ -594,6 +629,7 @@ export default function Home() {
             }}
             onStartNewBid={() => requestQuoteFromCta("tracker_empty")}
             onResumeDraft={() => requestQuoteFromCta("tracker_draft")}
+            onResubmitRfq={handleResubmitRfq}
             onToggleTradeIn={handleToggleTradeIn}
           />
         ) : (

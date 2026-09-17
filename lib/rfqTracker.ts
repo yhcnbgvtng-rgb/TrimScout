@@ -89,26 +89,42 @@ export function rfqVehicleSummary(rfq: Parameters<typeof rfqVehicles>[0]): strin
  * "Draft" is a saved, unsent wizard draft (no request on the box yet);
  * "In progress" is a request whose invites are still going out.
  */
-export type RfqLifecycleStage = "draft" | "in_progress" | "awaiting" | "walked" | "successful";
+export type RfqLifecycleStage = "draft" | "in_progress" | "under_review" | "awaiting" | "walked" | "successful";
 export const RFQ_LIFECYCLE: ReadonlyArray<{ id: RfqLifecycleStage; label: string }> = [
   { id: "draft", label: "Draft" },
   { id: "in_progress", label: "In progress" },
+  { id: "under_review", label: "Under review" },
   { id: "awaiting", label: "Sent — awaiting dealer response" },
   { id: "walked", label: "Walked away" },
   { id: "successful", label: "Successful" },
 ];
 
-export function rfqLifecycleStage(rfq: Pick<RfqRequest, "status" | "invites">): RfqLifecycleStage {
+/** The buyer-facing promise while an admin checks the request. */
+export const UNDER_REVIEW_COPY = "Under review — released to dealers within 1 business day.";
+
+type LifecycleRfq = Pick<RfqRequest, "status" | "invites"> & Partial<Pick<RfqRequest, "approvalStatus" | "rejectionReason" | "adminEdits">>;
+
+/** True while the request waits on (or was refused by) the admin gate; pre-gate rows read as released. */
+export function rfqAwaitingApproval(rfq: Pick<RfqRequest, "approvalStatus">): boolean {
+  return (rfq.approvalStatus ?? "approved") !== "approved";
+}
+
+export function rfqLifecycleStage(rfq: LifecycleRfq): RfqLifecycleStage {
   if (rfq.status === "picked") return "successful";
   if (rfq.status === "walked") return "walked";
   const open = rfq.invites.filter((i) => i.status !== "declined" && i.status !== "expired");
   if (open.length === 0) return "in_progress";
+  // The admin gate sits between "dealers chosen" and "sent": a submitted
+  // request (queued invites) that hasn't been released is under review —
+  // including a rejected one, which stays here with its reason until the
+  // buyer fixes and resubmits.
+  if (rfqAwaitingApproval(rfq)) return "under_review";
   if (open.some((i) => i.status === "invited" && (i.deliveryStatus ?? "queued") === "queued")) return "in_progress";
   return "awaiting";
 }
 
 /** One line under the strip: what's actually happening at this stage. */
-export function rfqLifecycleDetail(rfq: Pick<RfqRequest, "status" | "invites">): string {
+export function rfqLifecycleDetail(rfq: LifecycleRfq): string {
   const quotes = rfq.invites.filter((i) => i.quote).length;
   const sent = rfq.invites.filter((i) => i.status !== "declined" && i.status !== "expired").length;
   switch (rfqLifecycleStage(rfq)) {
@@ -116,6 +132,10 @@ export function rfqLifecycleDetail(rfq: Pick<RfqRequest, "status" | "invites">):
       return "Not sent yet — pick up where you left off.";
     case "in_progress":
       return sent === 0 ? "No dealer is on this request yet." : `Sending to ${sent} dealer${sent === 1 ? "" : "s"}…`;
+    case "under_review":
+      return rfq.approvalStatus === "rejected"
+        ? `Not released — ${rfq.rejectionReason || "TrimScout couldn't send this as submitted"}. Fix it and resubmit.`
+        : UNDER_REVIEW_COPY;
     case "awaiting":
       return quotes === 0
         ? `${sent} dealer${sent === 1 ? "" : "s"} have it — none has replied yet. They answer on their own time.`
@@ -127,17 +147,22 @@ export function rfqLifecycleDetail(rfq: Pick<RfqRequest, "status" | "invites">):
   }
 }
 
-export type RfqTrackerStatus = "awaiting" | "quotes_in" | "closed_picked" | "closed_walked";
+export type RfqTrackerStatus = "under_review" | "rejected" | "awaiting" | "quotes_in" | "closed_picked" | "closed_walked";
 
-export function rfqTrackerStatus(rfq: Pick<RfqRequest, "status" | "invites">): RfqTrackerStatus {
+export function rfqTrackerStatus(rfq: LifecycleRfq): RfqTrackerStatus {
   if (rfq.status === "picked") return "closed_picked";
   if (rfq.status === "walked") return "closed_walked";
+  if (rfqAwaitingApproval(rfq)) return rfq.approvalStatus === "rejected" ? "rejected" : "under_review";
   return rfq.invites.some((i) => i.quote) ? "quotes_in" : "awaiting";
 }
 
-export function rfqTrackerStatusLabel(rfq: Pick<RfqRequest, "status" | "invites">): string {
+export function rfqTrackerStatusLabel(rfq: LifecycleRfq): string {
   const n = rfq.invites.filter((i) => i.quote).length;
   switch (rfqTrackerStatus(rfq)) {
+    case "under_review":
+      return "Under review";
+    case "rejected":
+      return "Not released";
     case "awaiting":
       return "Awaiting quotes";
     case "quotes_in":

@@ -32,10 +32,20 @@ desk across all buyers (box 409), one active request per buyer, 15/desk/day.
 
 ## Queue
 
+**Admin approval gate (since 2026-09-17).** Every quote request is
+`approval_status = pending` from the moment the buyer submits. Nothing is
+sent — not by the buyer opening the deal page, not by "drain all" — until an
+admin releases it on **/admin/approvals** (Approve & release, or correct the
+quote sheet first, or Reject with a reason the buyer reads). Release drains
+that request's queued invites through the normal outbox. The outbox fails
+closed: a request without an explicit `approved` is `held_for_approval`.
+One admin email per new request (same SAFE MODE routing as dealer mail).
+Box side: `scripts/box/2026-09-17-rfq-approval.sh`.
+
 The invite row on the box *is* the queue. Create → `queued` → the buyer's
-request returns → the email is built from stored state and sent after the
-response. Anything still `queued` (killed function, provider blip, switch off)
-is retried when:
+request returns → on admin release the email is built from stored state and
+sent. Anything still `queued` on a *released* request (killed function,
+provider blip, switch off) is retried when:
 - the buyer opens the deal page (`GET /api/rfqs/:id` drains that request), or
 - ops drains everything: `curl -X POST https://www.trimscout.com/api/ops/drain-invites?max=100 -H "x-ops-secret: $OPS_SECRET"` (or an admin session).
 

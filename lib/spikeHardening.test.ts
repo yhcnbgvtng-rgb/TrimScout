@@ -69,7 +69,7 @@ describe("dealer email is a queue — built from stored state, sent after the re
   const invite = (over: Partial<RfqInvite> = {}): RfqInvite =>
     ({ id: "14", dealerName: "Smoke Chevrolet of Butler", dealerContactEmail: "sam@example.com", status: "invited", deliveryStatus: "queued", viewToken: "tok", desk: { contactName: "Sam Smoke", role: "gsm", emailMasked: "s••@e.com", source: "buyer" }, vehicle: { vin: "1GNS6MKD2TR280381", year: 2026, make: "Chevrolet", model: "Tahoe", trim: "LS", vdpUrl: null }, quote: null, ...over }) as unknown as RfqInvite;
   const rfq = (invites: RfqInvite[], over: Partial<RfqRequest> = {}): RfqRequest =>
-    ({ id: "17", buyerUserId: "2", vin: "1GNS6MKD2TR280381", vehicleYear: 2026, vehicleMake: "Chevrolet", vehicleModel: "Tahoe", vehicleTrim: "LS", status: "collecting", createdAt: "2026-09-14T00:00:00Z", linkPastes: [{ vin: "1GNS6MKD2TR280381", year: 2026, make: "Chevrolet", model: "Tahoe", trim: "LS", dealerName: "Smoke Chevrolet of Butler", dealerState: "NJ", vdpUrl: null, condition: "new" }], invites, quotePrefs: { quoteType: "cash", cash: { zip: "07405", timeline: "this_month" } }, buyerNote: "Need it by the 30th", tradeInExpected: true, ...over }) as unknown as RfqRequest;
+    ({ id: "17", buyerUserId: "2", vin: "1GNS6MKD2TR280381", vehicleYear: 2026, vehicleMake: "Chevrolet", vehicleModel: "Tahoe", vehicleTrim: "LS", status: "collecting", approvalStatus: "approved", createdAt: "2026-09-14T00:00:00Z", linkPastes: [{ vin: "1GNS6MKD2TR280381", year: 2026, make: "Chevrolet", model: "Tahoe", trim: "LS", dealerName: "Smoke Chevrolet of Butler", dealerState: "NJ", vdpUrl: null, condition: "new" }], invites, quotePrefs: { quoteType: "cash", cash: { zip: "07405", timeline: "this_month" } }, buyerNote: "Need it by the 30th", tradeInExpected: true, ...over }) as unknown as RfqRequest;
 
   it("the email needs nothing from the original HTTP body: cash type, ZIP, timeline, note, trade-in, TQ ref, rooftop state all come from the stored request", async () => {
     const mail = await buildInviteEmailFromStored(rfq([invite()]), invite(), []);
@@ -102,11 +102,12 @@ describe("dealer email is a queue — built from stored state, sent after the re
     const out = await drainQueuedInvites([r1, r2], { ...deps, maxSends: 1 });
     assert.equal(out.queued, 2); assert.equal(out.sent, 1); assert.equal(sent.length, 1);
   });
-  it("wiring: the invite route returns before any send (after()), never awaits mail, and both write routes gate on the switch + 429s", () => {
+  it("wiring: the invite route queues and returns — the send happens on admin release (2026-09-17), never in the request — and both write routes gate on the switch + 429s", () => {
     const inv = read("app/api/rfqs/[id]/invites/route.ts");
-    assert.match(inv, /import \{ NextResponse, after \} from "next\/server"/);
-    assert.match(inv, /after\(async \(\) => \{[\s\S]*?sendQueuedInvite\(/);
+    assert.doesNotMatch(inv, /sendQueuedInvite\(|after\(/, "no send of any kind in the buyer's request — the admin approval route releases");
     assert.doesNotMatch(inv, /await sendQuoteInviteEmail|quoteInviteHtml\(/, "no inline mail build/send in the request");
+    const release = read("app/api/admin/rfqs/[id]/approval/route.ts");
+    assert.match(release, /drainQueuedInvites\(\[fresh\]\)/, "release goes through the gated outbox");
     assert.match(inv, /featureEnabled\("rfqSend"\)/);
     assert.match(inv, /firstTrippedLimit\(\[[\s\S]*?"invite_send_ip"[\s\S]*?"invite_send_user"[\s\S]*?"invite_send_global"/);
     const create = read("app/api/rfqs/route.ts");

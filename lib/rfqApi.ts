@@ -20,7 +20,7 @@ export class RfqApiError extends Error {
   }
 }
 
-async function request(method: "GET" | "POST" | "PATCH", path: string, body?: unknown): Promise<any> {
+async function request(method: "GET" | "POST" | "PATCH" | "DELETE", path: string, body?: unknown): Promise<any> {
   const apiKey = serverSecret("LIGHTSAIL_API_KEY");
   if (!apiKey) {
     throw new RfqApiError("RFQ backend is not configured (missing LIGHTSAIL_API_KEY)", 500);
@@ -123,6 +123,30 @@ export async function createRfqInvite(
 ): Promise<RfqInvite> {
   const json = await request("POST", `/api/rfqs/${rfqId}/invites`, input);
   return json.invite as RfqInvite;
+}
+
+/** The admin gate: release, reject (reason required), or put back to pending (buyer resubmit). */
+export async function setRfqApproval(rfqId: string, input: { decision: "approved" | "rejected" | "pending"; by?: string | null; reason?: string | null }): Promise<RfqRequest> {
+  const json = await request("POST", `/api/rfqs/${rfqId}/approval`, input);
+  return json.rfq as RfqRequest;
+}
+
+/** An admin correcting the quote sheet before release; 409 once released. */
+export async function adminPatchRfq(rfqId: string, patch: Record<string, unknown> & { adminEdit?: { by?: string | null; summary: string } }): Promise<RfqRequest> {
+  const json = await request("PATCH", `/api/rfqs/${rfqId}`, patch);
+  return json.rfq as RfqRequest;
+}
+
+/** An admin dropping a dealer before release; 409 once released or sent. */
+export async function deleteRfqInvite(rfqId: string, inviteId: string): Promise<RfqRequest> {
+  const json = await request("DELETE", `/api/rfqs/${rfqId}/invites/${inviteId}`);
+  return json.rfq as RfqRequest;
+}
+
+/** Every buyer's requests awaiting an admin decision, oldest first. */
+export async function listPendingRfqs(limit = 200): Promise<RfqRequest[]> {
+  const json = await request("GET", `/api/rfqs?all=1&approval=pending&limit=${limit}`);
+  return (json.rfqs as RfqRequest[]) || [];
 }
 
 /** Advances an invite's delivery leg. The box logs the matching audit event. */

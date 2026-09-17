@@ -40,6 +40,8 @@ interface DealTrackerDashboardProps {
   onStartNewBid: () => void;
   /** The "Resume" button on a parked draft — same wizard, logged as its own placement. Falls back to onStartNewBid. */
   onResumeDraft?: () => void;
+  /** A rejected request: reopen the wizard on its car so the buyer can fix and submit again (the old request is closed). */
+  onResubmitRfq?: (rfq: RfqRequest) => void;
   onToggleTradeIn: (requestId: string, hasTradeIn: boolean) => void;
 }
 
@@ -50,11 +52,11 @@ interface DealTrackerDashboardProps {
  * side by side and only the one that happened lights up.
  */
 export function QuoteStatusStrip({ stage, detail }: { stage: RfqLifecycleStage; detail: string }) {
-  const order = ["draft", "in_progress", "awaiting"] as const;
-  const idx = stage === "walked" || stage === "successful" ? 3 : order.indexOf(stage);
+  const order = ["draft", "in_progress", "under_review", "awaiting"] as const;
+  const idx = stage === "walked" || stage === "successful" ? order.length : order.indexOf(stage);
   const node = (id: RfqLifecycleStage, label: string) => {
     const ending = id === "walked" || id === "successful";
-    const pos = ending ? 3 : order.indexOf(id as (typeof order)[number]);
+    const pos = ending ? order.length : order.indexOf(id as (typeof order)[number]);
     const isCurrent = id === stage;
     const reached = pos < idx || isCurrent;
     const tone = isCurrent
@@ -98,6 +100,7 @@ export const DealTrackerDashboard: React.FC<DealTrackerDashboardProps> = ({
   onOpenLiveDealRoom,
   onStartNewBid,
   onResumeDraft,
+  onResubmitRfq,
   onToggleTradeIn,
 }) => {
   const [clockById, setClockById] = useState<Record<string, OfferCloseClockView>>({});
@@ -155,6 +158,23 @@ export const DealTrackerDashboard: React.FC<DealTrackerDashboardProps> = ({
                 data-testid={focused ? "quote-request-focused" : undefined}
               >
                 <QuoteStatusStrip stage={rfqLifecycleStage(rfq)} detail={rfqLifecycleDetail(rfq)} />
+                {rfq.approvalStatus === "rejected" ? (
+                  <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-rose-500/40 bg-rose-950/30 px-3 py-2" data-testid="rfq-rejected">
+                    <p className="min-w-0 text-[11px] text-rose-200">
+                      <span className="font-bold">Not released.</span> {rfq.rejectionReason || "TrimScout couldn't send this request as submitted."}
+                    </p>
+                    {onResubmitRfq ? (
+                      <button type="button" onClick={() => onResubmitRfq(rfq)} className="shrink-0 rounded-lg bg-emerald-500 px-3 py-1.5 text-[11px] font-extrabold text-black hover:bg-emerald-400" data-testid="rfq-resubmit">
+                        Fix &amp; resubmit
+                      </button>
+                    ) : null}
+                  </div>
+                ) : null}
+                {rfq.adminEdits && rfq.adminEdits.length > 0 ? (
+                  <p className="text-[10px] text-sky-200/90" data-testid="rfq-admin-edits">
+                    Corrected by TrimScout: {rfq.adminEdits.map((e) => e.summary).join(" · ")}
+                  </p>
+                ) : null}
                 <div className="flex flex-wrap items-start justify-between gap-2">
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
@@ -178,7 +198,7 @@ export const DealTrackerDashboard: React.FC<DealTrackerDashboardProps> = ({
                 {sent ? (
                   <div className="rounded-xl border border-emerald-500/40 bg-emerald-500/5 px-3 py-2 space-y-1">
                     <p className="text-[11px] font-bold text-emerald-300">
-                      Sent to {sent.rows.filter((r) => r.sent).length} desk{sent.rows.filter((r) => r.sent).length === 1 ? "" : "s"} — each replies on its own time through the lease calculator.
+                      {sent.rows.filter((r) => r.sent).length} desk{sent.rows.filter((r) => r.sent).length === 1 ? "" : "s"} lined up — under review; we release it to them within 1 business day, and each replies on its own time through TrimScout.
                     </p>
                     <ul className="space-y-0.5">
                       {sent.rows.map((r) => (
