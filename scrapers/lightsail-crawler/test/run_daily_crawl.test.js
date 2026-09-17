@@ -31,9 +31,9 @@ describe('run-daily-crawl driver', () => {
     assert.equal(slugify('Volkswagen'), 'volkswagen');
   });
 
-  it('runs every state in src/states.js (NJ, NY, FL, GA, TX, SC, VA, NC, RI, VT, NH, then MA) with no hardcoded state list left behind', () => {
+  it('runs every state in src/states.js (NJ, NY, FL, GA, TX, SC, VA, NC, RI, VT, NH, MA, then CA) with no hardcoded state list left behind', () => {
     assert.deepEqual(STATES, SUPPORTED_STATES);
-    assert.deepEqual(STATES, ['NJ', 'NY', 'FL', 'GA', 'TX', 'SC', 'VA', 'NC', 'RI', 'VT', 'NH', 'MA']);
+    assert.deepEqual(STATES, ['NJ', 'NY', 'FL', 'GA', 'TX', 'SC', 'VA', 'NC', 'RI', 'VT', 'NH', 'MA', 'CA']);
     // Every state the driver loops over must have a write-dealers script
     // registered, or runState() throws instead of silently skipping it.
     for (const state of STATES) {

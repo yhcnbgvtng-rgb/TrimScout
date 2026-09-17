@@ -257,8 +257,39 @@ const MA_ZIPS = [
   '01201', // Pittsfield (Berkshires, far west)
 ];
 
+// California zip spread. The largest, most populous state added so far
+// (~39M, edging out TX's ~30M) with more genuinely distinct major metros
+// than any prior state: LA and the Bay Area are each bigger markets on
+// their own than most entire states already in this crawler, plus San
+// Diego, Sacramento, the Central Valley's agricultural cities, the Inland
+// Empire, the Central Coast, and the far north are all real, separate
+// dealer markets a handful of seeds would miss. 20 seeds, matching TX's
+// count as the next-largest state onboarded.
+const CA_ZIPS = [
+  '90012', // Los Angeles (downtown)
+  '90802', // Long Beach
+  '92805', // Anaheim (Orange County)
+  '92602', // Irvine (Orange County)
+  '92101', // San Diego
+  '91910', // Chula Vista (south San Diego County)
+  '95113', // San Jose
+  '94102', // San Francisco
+  '94612', // Oakland
+  '95814', // Sacramento
+  '93721', // Fresno (Central Valley)
+  '93301', // Bakersfield (southern Central Valley)
+  '92501', // Riverside (Inland Empire)
+  '92401', // San Bernardino (Inland Empire)
+  '95202', // Stockton (Central Valley)
+  '95350', // Modesto (Central Valley)
+  '95401', // Santa Rosa (North Bay)
+  '93101', // Santa Barbara (Central Coast)
+  '92262', // Palm Springs (Coachella Valley/desert)
+  '96001', // Redding (far north)
+];
+
 // Combined zip spread used by every zip+radius OEM locator below.
-const TARGET_ZIPS = [...NJ_NY_ZIPS, ...FL_ZIPS, ...GA_ZIPS, ...TX_ZIPS, ...SC_ZIPS, ...VA_ZIPS, ...NC_ZIPS, ...RI_ZIPS, ...VT_ZIPS, ...NH_ZIPS, ...MA_ZIPS];
+const TARGET_ZIPS = [...NJ_NY_ZIPS, ...FL_ZIPS, ...GA_ZIPS, ...TX_ZIPS, ...SC_ZIPS, ...VA_ZIPS, ...NC_ZIPS, ...RI_ZIPS, ...VT_ZIPS, ...NH_ZIPS, ...MA_ZIPS, ...CA_ZIPS];
 
 function hostOf(url) {
   return hostFromUrl(url) || normalizeDealerHost(url);

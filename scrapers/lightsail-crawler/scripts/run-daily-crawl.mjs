@@ -93,6 +93,7 @@ export const WRITE_DEALER_SCRIPTS = {
   VT: 'write-vt-dealer-files.mjs',
   NH: 'write-nh-dealer-files.mjs',
   MA: 'write-ma-dealer-files.mjs',
+  CA: 'write-ca-dealer-files.mjs',
 };
 
 // Logs accumulate one file per (state, brand, day) forever otherwise —
