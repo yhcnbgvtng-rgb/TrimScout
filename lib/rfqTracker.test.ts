@@ -167,7 +167,7 @@ describe("lifecycle strip — Draft → In progress → Sent, awaiting dealer re
   });
   it("wiring: every tracker card opens with the strip; a saved draft gets its own card with Resume", () => {
     const d = fs.readFileSync(path.join(process.cwd(), "components/DealTrackerDashboard.tsx"), "utf8");
-    assert.match(d, /<QuoteStatusStrip stage=\{rfqLifecycleStage\(rfq\)\} detail=\{rfqLifecycleDetail\(rfq\)\} \/>\s*\{rfq\.approvalStatus === "rejected" \? \(/);
+    assert.match(d, /<QuoteStatusStrip stage=\{rfqLifecycleStage\(rfq\)\} detail=\{rfqLifecycleDetail\(rfq\)\} \/>\s*<UnsubscribedBanner rfq=\{rfq\} onChooseAnother=\{onChooseAnother\} \/>\s*\{rfq\.approvalStatus === "rejected" \? \(/);
     assert.match(d, /data-testid="rfq-resubmit"/, "a rejected request offers Fix & resubmit");
     assert.match(d, /Corrected by TrimScout:/, "admin corrections are shown to the buyer");
     assert.match(d, /data-testid="quote-draft"[\s\S]*?<QuoteStatusStrip stage="draft"[\s\S]*?Resume/);

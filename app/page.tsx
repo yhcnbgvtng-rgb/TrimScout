@@ -8,6 +8,7 @@ import { formatBuyerAlias } from "@/lib/buyerAlias";
 import Link from "next/link";
 import { useSession, signOut as authSignOut } from "next-auth/react";
 import { Vehicle, BiddingRequest, DealerBid, LockedDeal, UserProfile } from "../lib/types";
+import type { RfqLane } from "../lib/alternateAsk";
 import { MOCK_VEHICLES } from "../lib/mockData";
 import { fetchLiveInventory } from "../lib/inventoryConnector";
 import { mapDealRequestJson } from "../lib/shopperDeal";
@@ -70,6 +71,8 @@ export default function Home() {
   const [wizardSession, setWizardSession] = useState(0);
   const openFreshWizard = () => { setWizardSession((n) => n + 1); setIsWizardOpen(true); };
   const [preselectedVehicle, setPreselectedVehicle] = useState<Vehicle | null>(null);
+  // Seeds Step 1 intent when the buyer clicks "Choose another vehicle" after a rooftop unsubscribed.
+  const [repickIntent, setRepickIntent] = useState<RfqLane | null>(null);
 
   // The quote request currently open in the quote room. Null until the buyer
   // opens one from the tracker — there is no demo request. A BMW fixture used
@@ -87,6 +90,22 @@ export default function Home() {
   const [isFeeModalOpen, setIsFeeModalOpen] = useState(false);
   const [lockedDeal, setLockedDeal] = useState<LockedDeal | null>(null);
   const [isVoucherModalOpen, setIsVoucherModalOpen] = useState(false);
+
+  // Arriving from a dealer-unsubscribed banner on /rfq/[id]: ?repick=1&intent=
+  // opens the wizard fresh on that request's Step 1 intent, then clears the
+  // query so a refresh doesn't reopen it.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("repick") !== "1") return;
+    const intent: RfqLane = params.get("intent") === "alternate" ? "alternate" : "same_spec";
+    handleChooseAnother(intent);
+    const url = new URL(window.location.href);
+    url.searchParams.delete("repick");
+    url.searchParams.delete("intent");
+    window.history.replaceState({}, "", url.pathname + url.search + url.hash);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Initial live inventory sync & user session restore on load
   useEffect(() => {
@@ -344,6 +363,16 @@ export default function Home() {
   // Handlers
   const handleOpenFlexibleWizard = () => {
     setPreselectedVehicle(null);
+    setRepickIntent(null);
+    openFreshWizard();
+  };
+
+  // Dealer unsubscribed → "Choose another vehicle": open the wizard fresh on
+  // the original request's Step 1 intent (same_spec keeps the buyer on the same
+  // build; alternate opens the flexible ask). Never carries the old vehicle.
+  const handleChooseAnother = (intent: RfqLane) => {
+    setPreselectedVehicle(null);
+    setRepickIntent(intent);
     openFreshWizard();
   };
 
@@ -630,6 +659,7 @@ export default function Home() {
             onStartNewBid={() => requestQuoteFromCta("tracker_empty")}
             onResumeDraft={() => requestQuoteFromCta("tracker_draft")}
             onResubmitRfq={handleResubmitRfq}
+            onChooseAnother={handleChooseAnother}
             onToggleTradeIn={handleToggleTradeIn}
           />
         ) : (
@@ -763,6 +793,7 @@ export default function Home() {
         onClose={() => setIsWizardOpen(false)}
         vehicles={vehicles}
         preselectedVehicle={preselectedVehicle}
+        initialIntent={repickIntent}
         currentUser={currentUser}
         onRequireLogin={() => setIsAuthModalOpen(true)}
         onSwitchToBuyer={async () => {

@@ -124,6 +124,12 @@ export interface RfqInvite {
   /** The buyer's open counter to this desk's last quote (invite reopened for a revised quote). */
   buyerCounter?: BuyerCounter | null;
   buyerCounterAt?: string | null;
+  /**
+   * Set when the dealership opted out of TrimScout while this invite was still
+   * open (auth server's opt-out cascade). The app stops waiting on the rooftop
+   * and disables counters; a quote submitted before it stays readable/choosable.
+   */
+  dealerUnsubscribedAt?: string | null;
   /** Earlier versions of this desk's quote, superseded by a buyer counter. */
   priorQuotes?: RfqQuote[];
 }

@@ -13,7 +13,7 @@ import { aprFromMoneyFactor, dueAtSigningTotal, isCounter, isExpired, termMilesL
 import type { BuyerCounter, RfqInvite, RfqQuote, RfqRequest } from "./rfq";
 import { alternateAskSummary, isAlternateQuote, type RfqLane } from "./alternateAsk";
 
-export type LeaseRowKind = "eligible" | "counter" | "expired" | "waiting" | "declined" | "countered";
+export type LeaseRowKind = "eligible" | "counter" | "expired" | "waiting" | "declined" | "countered" | "unsubscribed";
 
 export interface LeaseCompareRow {
   inviteId: string;
@@ -47,6 +47,8 @@ export interface LeaseCompareRow {
   alternate: boolean;
   /** The VIN the dealer quoted, when it differs from the ask. */
   quotedVin: string | null;
+  /** The rooftop unsubscribed from TrimScout while this invite was open — no reply is coming; counters off. */
+  unsubscribed: boolean;
 }
 
 export interface LeaseCompare {
@@ -95,6 +97,7 @@ function baseRow(invite: RfqInvite, rfq: RfqRequest): Omit<LeaseCompareRow, "kin
     buyerCounter: invite.buyerCounter ?? null,
     priorQuotes: invite.priorQuotes ?? [],
     revised: Boolean(invite.quote?.lease && invite.priorQuotes?.length),
+    unsubscribed: Boolean(invite.dealerUnsubscribedAt),
     alternate: isAlternateQuote(rfq, invite.quote?.vin),
     quotedVin: invite.quote?.vin && invite.quote.vin.trim().toUpperCase() !== (rfq.vin || "").trim().toUpperCase() ? invite.quote.vin.trim().toUpperCase() : null,
   };
@@ -114,7 +117,7 @@ export function analyzeLeaseQuotes(rfq: RfqRequest, now: Date = new Date()): Lea
         rows.push({ ...baseRow(invite, rfq), kind: "countered", lease: prior, monthly: prior.monthlyPaymentPreTax, dueAtSigning: dueAtSigningTotal(prior.dueAtSigning), counterHow: null, counterNote: null, expiresAt: prior.expiresAt });
         continue;
       }
-      rows.push({ ...baseRow(invite, rfq), kind: invite.status === "declined" ? "declined" : "waiting", monthly: null, dueAtSigning: null, counterHow: null, counterNote: null, expiresAt: null });
+      rows.push({ ...baseRow(invite, rfq), kind: invite.dealerUnsubscribedAt ? "unsubscribed" : invite.status === "declined" ? "declined" : "waiting", monthly: null, dueAtSigning: null, counterHow: null, counterNote: null, expiresAt: null });
       continue;
     }
     const expired = isExpired(lease, now);
@@ -158,6 +161,7 @@ export function analyzeLeaseQuotes(rfq: RfqRequest, now: Date = new Date()): Lea
   for (const r of rows) {
     if (r.kind === "counter" && r.counterHow) r.chips = [`Counters to ${r.counterHow}`];
     if (r.kind === "expired") r.chips = ["Expired — ask the dealer to re-quote"];
+    if (r.unsubscribed) r.chips = ["Unsubscribed — won't reply", ...r.chips];
     if (r.kind === "countered") r.chips = ["You countered — waiting on a revised quote"];
     if (r.revised) r.chips = [`Revised after your counter (v${r.priorQuotes.length + 1})`, ...r.chips];
   }
@@ -167,8 +171,9 @@ export function analyzeLeaseQuotes(rfq: RfqRequest, now: Date = new Date()): Lea
   const countered = rows.filter((r) => r.kind === "countered");
   const waiting = rows.filter((r) => r.kind === "waiting");
   const declined = rows.filter((r) => r.kind === "declined");
+  const unsub = rows.filter((r) => r.kind === "unsubscribed");
   const sideAlternates = lane === "alternate" ? [] : alternateEligible.sort((a, b) => a.monthly! - b.monthly!);
-  const ordered = [...byMonthly, ...counters.sort((a, b) => a.monthly! - b.monthly!), ...sideAlternates, ...countered, ...expiredRows, ...waiting, ...declined];
+  const ordered = [...byMonthly, ...counters.sort((a, b) => a.monthly! - b.monthly!), ...sideAlternates, ...countered, ...expiredRows, ...waiting, ...unsub, ...declined];
 
   const warn: string[] = [];
   if (counters.length) warn.push(`${counters.length} counter${counters.length === 1 ? "" : "s"} on term/miles`);

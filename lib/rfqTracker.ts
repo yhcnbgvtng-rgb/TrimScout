@@ -128,7 +128,7 @@ export function rfqLifecycleStage(rfq: LifecycleRfq): RfqLifecycleStage {
 /** One line under the strip: what's actually happening at this stage. */
 export function rfqLifecycleDetail(rfq: LifecycleRfq): string {
   const quotes = rfq.invites.filter((i) => i.quote).length;
-  const sent = rfq.invites.filter((i) => i.status !== "declined" && i.status !== "expired").length;
+  const sent = rfq.invites.filter((i) => i.status !== "declined" && i.status !== "expired" && !(i.dealerUnsubscribedAt && !i.quote)).length;
   switch (rfqLifecycleStage(rfq)) {
     case "draft":
       return "Not sent yet — pick up where you left off.";

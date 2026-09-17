@@ -268,6 +268,8 @@ interface BiddingWizardProps {
   onClose: () => void;
   vehicles: Vehicle[];
   preselectedVehicle?: Vehicle | null;
+  /** Seed Step 1 intent when the wizard is opened from a dealer-unsubscribed "Choose another vehicle" CTA. */
+  initialIntent?: RfqLane | null;
   initialStrategy?: BiddingStrategy;
   onSubmitBidRequest: (request: BiddingRequest) => void;
   // Real reverse-auction flow: the buyer already picked a specific real
@@ -855,6 +857,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   isOpen,
   onClose,
   preselectedVehicle,
+  initialIntent = null,
   initialStrategy = "flexible_discount",
   onSubmitBidRequest,
   lockVehicleSelection,
@@ -928,7 +931,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
    * what they need and picks the rooftops to ask. A preselected vehicle
    * (factory-match flow) is same-spec by definition.
    */
-  const [intent, setIntent] = useState<RfqLane | null>(preselectedVehicle ? "same_spec" : null);
+  const [intent, setIntent] = useState<RfqLane | null>(preselectedVehicle ? "same_spec" : initialIntent);
   const [altDraft, setAltDraft] = useState<AlternateAskDraft>(EMPTY_ALTERNATE_DRAFT);
   const [altDealers, setAltDealers] = useState<DeskMatch[]>([]);
   const [altPicking, setAltPicking] = useState(false);
@@ -1065,7 +1068,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     setParked(readParkedVehicle());
     setNotifyAck(false);
     setRetryingBuild(false);
-    setIntent(preselectedVehicle ? "same_spec" : null);
+    setIntent(preselectedVehicle ? "same_spec" : initialIntent);
     setAltDraft(EMPTY_ALTERNATE_DRAFT);
     setAltDealers([]);
     setAltPicking(false);

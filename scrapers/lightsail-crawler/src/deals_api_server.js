@@ -1012,6 +1012,10 @@ function publicRfqInvite(row, quoteRow) {
     // The buyer's scoped counter to this desk's last quote, if any.
     buyerCounter: parseJsonCol(row.buyer_counter_json) || null,
     buyerCounterAt: row.buyer_counter_at || null,
+    // Set when the dealership opted out while this invite was still open (see auth server's
+    // opt-out cascade). The buyer app stops waiting on it and disables counters; a quote
+    // submitted before it stays readable.
+    dealerUnsubscribedAt: row.dealer_unsubscribed_at || null,
     priorQuotes: Array.isArray(row.__priorQuotes) ? row.__priorQuotes : [],
   };
 }
@@ -1046,6 +1050,7 @@ async function ensureQuotePackageColumns(pool) {
   await pool.query("ALTER TABLE rfq_quotes ADD COLUMN IF NOT EXISTS superseded_at DATETIME NULL");
   await pool.query("ALTER TABLE rfq_invites ADD COLUMN IF NOT EXISTS buyer_counter_json TEXT NULL");
   await pool.query("ALTER TABLE rfq_invites ADD COLUMN IF NOT EXISTS buyer_counter_at DATETIME NULL");
+  await pool.query("ALTER TABLE rfq_invites ADD COLUMN IF NOT EXISTS dealer_unsubscribed_at DATETIME NULL");
   await pool.query("ALTER TABLE rfq_invites ADD COLUMN IF NOT EXISTS desk_json TEXT NULL");
   await pool.query("ALTER TABLE rfq_invites ADD COLUMN IF NOT EXISTS vehicle_json TEXT NULL");
   await pool.query("ALTER TABLE rfq_invites ADD COLUMN IF NOT EXISTS delivery_status VARCHAR(16) NOT NULL DEFAULT 'queued'");

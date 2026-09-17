@@ -29,7 +29,9 @@ export async function POST(req: Request) {
   } catch {
     return NextResponse.json({ matches: [], degraded: true });
   }
-  const hits = searchDirectoryDealerships(rows, q, { state, limit: LIMIT });
+  // A rooftop that unsubscribed is off the desk for new RFQs until it re-subscribes.
+  const active = rows.filter((r) => !r.emailOptOut);
+  const hits = searchDirectoryDealerships(active, q, { state, limit: LIMIT });
   return NextResponse.json({
     matches: hits.map((h) => deskMatchFromContact(h.row, Boolean(deskFromDealership(h.row)?.knownNamed))),
     state,

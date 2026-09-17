@@ -4,6 +4,8 @@ import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { BiddingRequest, DealerBid, OfferCloseClockView } from "../lib/types";
 import type { RfqRequest } from "../lib/rfq";
+import type { RfqLane } from "../lib/alternateAsk";
+import { UnsubscribedBanner } from "./UnsubscribedBanner";
 import { RFQ_LIFECYCLE, relativeTime, rfqDealNumber, rfqLifecycleDetail, rfqLifecycleStage, rfqQuoteTypeLabel, rfqTrackerStatus, rfqTrackerStatusLabel, rfqVehicleSummary, type RfqLifecycleStage } from "../lib/rfqTracker";
 import { readQuoteDraft } from "../lib/quoteDraft";
 import { formatCurrency } from "../lib/otdCalculator";
@@ -42,6 +44,8 @@ interface DealTrackerDashboardProps {
   onResumeDraft?: () => void;
   /** A rejected request: reopen the wizard on its car so the buyer can fix and submit again (the old request is closed). */
   onResubmitRfq?: (rfq: RfqRequest) => void;
+  /** "Choose another vehicle" from the dealer-unsubscribed banner — opens the wizard on the request's Step 1 intent. */
+  onChooseAnother?: (intent: RfqLane) => void;
   onToggleTradeIn: (requestId: string, hasTradeIn: boolean) => void;
 }
 
@@ -101,6 +105,7 @@ export const DealTrackerDashboard: React.FC<DealTrackerDashboardProps> = ({
   onStartNewBid,
   onResumeDraft,
   onResubmitRfq,
+  onChooseAnother,
   onToggleTradeIn,
 }) => {
   const [clockById, setClockById] = useState<Record<string, OfferCloseClockView>>({});
@@ -158,6 +163,7 @@ export const DealTrackerDashboard: React.FC<DealTrackerDashboardProps> = ({
                 data-testid={focused ? "quote-request-focused" : undefined}
               >
                 <QuoteStatusStrip stage={rfqLifecycleStage(rfq)} detail={rfqLifecycleDetail(rfq)} />
+                <UnsubscribedBanner rfq={rfq} onChooseAnother={onChooseAnother} />
                 {rfq.approvalStatus === "rejected" ? (
                   <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-rose-500/40 bg-rose-950/30 px-3 py-2" data-testid="rfq-rejected">
                     <p className="min-w-0 text-[11px] text-rose-200">

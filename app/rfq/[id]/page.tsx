@@ -7,6 +7,7 @@ import { LeaseQuoteSheet } from "@/components/LeaseQuoteSheet";
 import { LeaseCalculatorSheet } from "@/components/LeaseCalculatorSheet";
 import { LeaseQuoteFormat } from "@/components/LeaseQuoteFormat";
 import { UsedCompare } from "@/components/UsedCompare";
+import { UnsubscribedBanner } from "@/components/UnsubscribedBanner";
 import { rfqVehicles } from "@/lib/rfqTracker";
 import { LEASE_NON_BINDING_COPY } from "@/lib/leaseQuote";
 import { useParams, useRouter } from "next/navigation";
@@ -518,6 +519,8 @@ export default function RfqWorkspacePage() {
           <span className="font-mono">{rfq.vin}</span>
         </p>
       </div>
+
+      <UnsubscribedBanner rfq={rfq} />
 
       {Object.values(stickerRecheck).map((hit) => (
         <p key={hit.pdfUrl} className="flex flex-wrap items-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/5 px-4 py-2.5 text-xs text-ink-light" data-testid="sticker-published">
