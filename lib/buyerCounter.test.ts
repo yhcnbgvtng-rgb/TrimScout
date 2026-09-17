@@ -2,7 +2,7 @@ import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
-import { COUNTER_COPY, buildBuyerCounter, counterDraftFrom, counterSummary, parseBuyerCounter } from "./buyerCounter";
+import { COUNTER_COPY, buildCounterFromEdits, counterSummary, parseBuyerCounter, parseCounterEdits } from "./buyerCounter";
 import { analyzeLeaseQuotes } from "./leaseCompare";
 import type { LeaseQuote } from "./leaseQuote";
 import type { RfqInvite, RfqRequest } from "./rfq";
@@ -15,34 +15,37 @@ const quote: LeaseQuote = {
   incentives: [{ name: "Lease cash / rebate", amount: 1500 }], addOns: [], expiresAt: "2026-09-30T00:00:00Z", notes: null, counter: { counterOffer: false, note: "" },
 };
 
-describe("buyer counter — structured, scoped to one quote, a request not a bid", () => {
-  it("prefills term/miles from the quote and leaves money blank; asks for at least one thing", () => {
-    const d = counterDraftFrom(quote, PREFS);
-    assert.deepEqual(d, { targetMonthlyMax: "", maxCashDueAtSigning: "", termMonths: "36", milesPerYear: "10000", note: "" });
-    const empty = buildBuyerCounter(d, quote, "q1", NOW);
-    assert.equal(empty.counter, null);
-    assert.match(empty.errors[0], /Ask for something/);
+describe("buyer counter — the dealer's own sheet with price-side edits, a request not a bid", () => {
+  it("parseCounterEdits keeps numbers and named lines only, per kind; buildCounterFromEdits re-applies them to the quote on file", () => {
+    const raw = { againstQuoteId: "q1", note: "  Loyalty applies. ", edits: { capCost: "$64,500", capReduction: 1000, incentives: [{ name: "Lease cash / rebate", amount: 1500 }, { name: "Loyalty", amount: "750" }, { name: "", amount: 5 }], otherFees: [{ name: "Doc fee", amount: 199 }], moneyFactor: 0.001, termMonths: 24 } };
+    const p = parseCounterEdits(raw, "lease")!;
+    assert.deepEqual(p, { againstQuoteId: "q1", note: "Loyalty applies.", edits: { capCost: 64500, capReduction: 1000, incentives: [{ name: "Lease cash / rebate", amount: 1500 }, { name: "Loyalty", amount: 750 }], otherFees: [{ name: "Doc fee", amount: 199 }] } }, "money factor / term in the payload are ignored — they're not edits");
+    const built = buildCounterFromEdits({ lease: quote }, p, NOW);
+    assert.ok(built.counter);
+    const sheet = built.counter!.sheet!;
+    assert.equal(sheet.kind, "lease");
+    assert.equal((sheet.after as LeaseQuote).capCost, 64500 - 750, "the added incentive lowers the cap by its amount");
+    assert.equal((sheet.after as LeaseQuote).moneyFactor, quote.moneyFactor);
+    assert.equal((sheet.after as LeaseQuote).termMonths, 36);
+    assert.ok((sheet.after as LeaseQuote).monthlyPaymentPreTax < quote.monthlyPaymentPreTax);
+    assert.deepEqual(sheet.changed.sort(), ["capCost", "capReduction", "fee:Doc fee", "incentive:Loyalty"]);
+    assert.equal(built.counter!.againstQuoteId, "q1");
+    assert.equal(built.counter!.note, "Loyalty applies.");
+    assert.match(counterSummary(built.counter!), /Cap cost −\$2,250 · Loyalty −\$750 · Cap reduction \+\$1,000 · Doc fee −\$100 → \$/);
   });
-
-  it("builds a counter from $ text, refuses a target at or above the quoted monthly, keeps term/miles only when changed", () => {
-    const ok = buildBuyerCounter({ targetMonthlyMax: "$875", maxCashDueAtSigning: "1,500", termMonths: "39", milesPerYear: "10000", note: " Roll the acquisition fee in? " }, quote, "q1", NOW);
-    assert.deepEqual(ok.errors, []);
-    assert.deepEqual(ok.counter, { againstQuoteId: "q1", targetMonthlyMax: 875, maxCashDueAtSigning: 1500, termMonths: 39, milesPerYear: null, note: "Roll the acquisition fee in?", sentAt: NOW.toISOString() });
-    assert.equal(counterSummary(ok.counter!), "≤ $875/mo · ≤ $1,500 due at signing · 39 mo");
-    const high = buildBuyerCounter({ targetMonthlyMax: "939", maxCashDueAtSigning: "", termMonths: "36", milesPerYear: "10000", note: "" }, quote, "q1", NOW);
-    assert.match(high.errors[0], /below the quoted \$939\/mo/);
+  it("refuses a counter that raises the price, moves a locked line, or changes nothing", () => {
+    assert.match(buildCounterFromEdits({ lease: quote }, { againstQuoteId: "q1", edits: { capCost: 70000 } }).errors.join(" "), /can lower this, not raise it/);
+    assert.match(buildCounterFromEdits({ lease: quote }, { againstQuoteId: "q1", edits: {} }).errors.join(" "), /Change at least one number/);
+    assert.equal(parseCounterEdits({ edits: { capCost: 1 } }, "lease"), null, "no quote id → nothing");
+    assert.equal(parseCounterEdits("junk", "cash"), null);
+    assert.equal(buildCounterFromEdits({}, { againstQuoteId: "q1", edits: { sellingPrice: 1 } }).counter, null);
   });
-
-  it("parseBuyerCounter rejects junk and empty asks; copy never says bid or auction", () => {
+  it("legacy counters (target monthly asks) still parse and summarise; copy never says bid or auction", () => {
+    const legacy = parseBuyerCounter({ againstQuoteId: "q1", targetMonthlyMax: 875, note: "x" })!;
+    assert.equal(counterSummary(legacy), "≤ $875/mo");
     assert.equal(parseBuyerCounter({ againstQuoteId: "q1" }), null);
-    assert.equal(parseBuyerCounter({ againstQuoteId: "q1", targetMonthlyMax: -5 }), null);
-    assert.equal(parseBuyerCounter({ targetMonthlyMax: 800 }), null, "must name the quote it answers");
-    const c = parseBuyerCounter({ againstQuoteId: "q1", targetMonthlyMax: 800.4, termMonths: 39, milesPerYear: 99, note: "x".repeat(400) });
-    assert.deepEqual([c?.targetMonthlyMax, c?.termMonths, c?.milesPerYear, c?.note?.length], [800, 39, null, 300]);
-    assert.equal(COUNTER_COPY, "Send a counter — request, not a binding bid.");
-    assert.doesNotMatch(COUNTER_COPY, /auction/i);
+    assert.match(COUNTER_COPY, /request, not a binding bid/);
   });
-
   it("compare: a countered desk shows its last numbers greyed as 'Buyer countered'; a revised quote is a live row badged Revised", () => {
     const base = (over: Partial<RfqInvite>): RfqInvite => ({ id: "1", dealerName: "Desk", dealerContactEmail: null, status: "invited", declineReason: null, invitedAt: "2026-09-13T00:00:00Z", respondedAt: null, quote: null, ...over });
     const priorQuote = { id: "q1", price: 939, fees: [], totalOtdPrice: 0, vin: "V", stockNumber: null, expiresAt: quote.expiresAt, submittedAt: "2026-09-13T01:00:00Z", mustHaveAcknowledgement: true, notes: null, lease: quote, supersededAt: "2026-09-13T02:00:00Z" } as unknown as NonNullable<RfqInvite["quote"]>;
@@ -74,18 +77,29 @@ describe("buyer counter — structured, scoped to one quote, a request not a bid
     assert.match(read("scripts/box/2026-09-13-buyer-counter.sh"), /"counter handler"/);
     const route = read("app/api/rfqs/[id]/invites/[inviteId]/counter/route.ts");
     assert.match(route, /rfq\.buyerUserId !== session\.user\.id/);
-    assert.match(route, /invite\.quote\.id !== counter\.againstQuoteId/);
+    assert.match(route, /invite\.quote\.id !== payload\.againstQuoteId/);
+    assert.match(route, /buildCounterFromEdits\(invite\.quote, payload\)/, "the sheet is rebuilt server-side from the quote on file");
     assert.match(route, /buyerCounterHtml\(input\)/);
+    assert.match(route, /rows: counter\.sheet \? counterDiff\(counter\.sheet\)/, "the dealer's email carries the line-by-line comparison");
+    assert.doesNotMatch(route, /Counters are for lease quotes/, "cash and finance quotes can be countered too");
     const dealer = read("app/quote-request/received/page.tsx");
     assert.match(dealer, /data-testid="buyer-counter-panel"/);
     assert.match(dealer, /initial=\{ctx\.priorLease\}/);
+    assert.match(dealer, /initial=\{ctx\.priorUsed \|\| null\}/, "the cash/finance sheet prefills from the prior quote too");
+    assert.match(dealer, /<CounterComparison sheet=\{ctx\.buyerCounter\.sheet\} beforeLabel="You quoted" afterLabel="Buyer's counter" \/>/);
+    assert.match(dealer, /prefs=\{ctx\.leasePrefs\}/, "terms never change in a counter — the calculator keeps the buyer's locks");
     assert.match(dealer, /\/api\/quote-invite\/decline/);
     const compare = read("components/LeaseCompare.tsx");
     assert.match(compare, /data-testid="counter-quote"/);
-    assert.match(compare, /<BuyerCounterForm/);
+    assert.match(compare, /<CounterSheetForm/);
     assert.match(compare, />Buyer countered</);
     assert.match(compare, />Revised</);
-    for (const f of ["components/BuyerCounterForm.tsx", "components/LeaseCompare.tsx", "lib/quoteInviteEmail.ts", "app/quote-request/received/page.tsx"]) {
+    const used = read("components/UsedCompare.tsx");
+    assert.match(used, /data-testid="counter-quote"/);
+    assert.match(used, /<CounterSheetForm dealerName=\{invite\.dealerName\} quote=\{\{ used \}\}/);
+    assert.match(read("app/rfq/[id]/page.tsx"), /router\.push\(`\/rfq\/\$\{rfqId\}\/counter\/\$\{inviteId\}`\)/, "after sending, the buyer lands on the before/after page");
+    assert.match(read("app/rfq/[id]/counter/[inviteId]/page.tsx"), /data-testid="counter-review"/);
+    for (const f of ["components/CounterSheetForm.tsx", "components/CounterComparison.tsx", "components/LeaseCompare.tsx", "components/UsedCompare.tsx", "lib/quoteInviteEmail.ts", "lib/counterSheet.ts", "app/quote-request/received/page.tsx", "app/rfq/[id]/counter/[inviteId]/page.tsx"]) {
       assert.doesNotMatch(read(f).replace(/not an auction, not a bid|not a binding bid|not a bid/g, ""), /auction|bid[- ]out|bid war|\bbids?\b/i, f);
     }
   });

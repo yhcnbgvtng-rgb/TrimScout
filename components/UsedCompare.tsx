@@ -1,6 +1,9 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
+import { CounterSheetForm } from "./CounterSheetForm";
+import { CounterComparison } from "./CounterComparison";
+import { counterSummary, type CounterEditsPayload } from "../lib/buyerCounter";
 import { fmtMoney, fmtPct } from "../lib/leaseCompare";
 import { cashOutTheDoor, compareFinanceQuotes, dueAtSigningSum, financeCashDue, type QuotePrefs, type UsedFinanceQuote, type UsedQuote } from "../lib/usedQuote";
 import { isExpired } from "../lib/leaseQuote";
@@ -15,7 +18,9 @@ import type { LineItem } from "../lib/leaseQuote";
  * so a cheap monthly can't hide junk. Cash ranks by out the door.
  * Expired rows grey out; waiting rows show dashes.
  */
-export function UsedCompare({ rfq, prefs, onPick, onWalk, busy }: { rfq: RfqRequest; prefs: QuotePrefs; onPick: (quoteId: string) => void; onWalk: () => void; busy: boolean }) {
+export function UsedCompare({ rfq, prefs, onPick, onWalk, onCounter, busy }: { rfq: RfqRequest; prefs: QuotePrefs; onPick: (quoteId: string) => void; onWalk: () => void; onCounter?: (inviteId: string, counter: CounterEditsPayload) => Promise<void>; busy: boolean }) {
+  // Which row has the counter sheet open — one at a time.
+  const [countering, setCountering] = useState<string | null>(null);
   const collecting = rfq.status === "collecting";
   const finance = prefs.quoteType === "finance";
   const rows = rfq.invites.map((i) => ({ invite: i, used: i.quote?.used ?? null }));
@@ -108,8 +113,10 @@ export function UsedCompare({ rfq, prefs, onPick, onWalk, busy }: { rfq: RfqRequ
                 : picked ? <span className="rounded bg-emerald-500/15 px-1.5 py-0.5 text-[9px] font-bold uppercase text-emerald-300">Chosen</span>
                 : <span className="text-[10px] text-ink-muted">Quoted to your locks</span>;
               const fin = used?.kind === "finance" ? used : null;
+              const colCount = 8 + (finance ? 2 : 0) + (rows.some((r) => r.used?.miles != null) ? 1 : 0);
               return (
-                <tr key={invite.id} className={`${expired || invite.status === "declined" ? "opacity-50" : ""} ${picked ? "bg-emerald-500/5" : ""}`} data-testid={`used-row-${!used ? "waiting" : expired ? "expired" : "eligible"}`}>
+                <React.Fragment key={invite.id}>
+                <tr className={`${expired || invite.status === "declined" ? "opacity-50" : ""} ${picked ? "bg-emerald-500/5" : ""}`} data-testid={`used-row-${!used ? "waiting" : expired ? "expired" : "eligible"}`}>
                   <td className="sticky left-0 z-10 bg-surface px-3 py-2.5 align-top">
                     <span className="block text-sm font-bold text-white">{invite.dealerName}</span>
                     {invite.desk?.contactName ? <span className="block text-[10px] text-ink-muted">{invite.desk.contactName}{invite.desk.emailMasked ? <span className="font-mono"> · {invite.desk.emailMasked}</span> : null}</span> : null}
@@ -143,12 +150,34 @@ export function UsedCompare({ rfq, prefs, onPick, onWalk, busy }: { rfq: RfqRequ
                   <td className="px-3 py-2.5 align-top">
                     <div className="flex flex-col items-start gap-1.5">
                       {status}
+                      {invite.buyerCounter && invite.status === "invited" ? <span className="text-[10px] text-sky-200">You countered: {counterSummary(invite.buyerCounter)}</span> : null}
                       {collecting && used && !expired && invite.quote ? (
-                        <button type="button" onClick={() => onPick(invite.quote!.id)} disabled={busy} className="rounded-lg bg-emerald-500 px-2.5 py-1 text-[10px] font-extrabold text-black hover:bg-emerald-400 disabled:opacity-50" data-testid="choose-quote">Choose this quote</button>
+                        <>
+                          <button type="button" onClick={() => onPick(invite.quote!.id)} disabled={busy} className="rounded-lg bg-emerald-500 px-2.5 py-1 text-[10px] font-extrabold text-black hover:bg-emerald-400 disabled:opacity-50" data-testid="choose-quote">Choose this quote</button>
+                          {onCounter ? (
+                            <button type="button" onClick={() => setCountering(invite.id)} disabled={busy || countering === invite.id} className="rounded-lg border border-sky-500/50 px-2.5 py-1 text-[10px] font-bold text-sky-200 hover:bg-sky-500/10 disabled:opacity-50" data-testid="counter-quote">Counter</button>
+                          ) : null}
+                        </>
                       ) : null}
                     </div>
                   </td>
                 </tr>
+                {countering === invite.id && used && invite.quote && onCounter ? (
+                  <tr className="bg-background/60">
+                    <td colSpan={colCount} className="px-4 py-3">
+                      <CounterSheetForm dealerName={invite.dealerName} quote={{ used }} quoteId={invite.quote.id} onSubmit={async (c) => { await onCounter(invite.id, c); setCountering(null); }} onCancel={() => setCountering(null)} />
+                    </td>
+                  </tr>
+                ) : null}
+                {invite.buyerCounter?.sheet && invite.status === "invited" ? (
+                  <tr className="bg-background/60" data-testid="used-row-counter">
+                    <td colSpan={colCount} className="px-4 py-3 space-y-1">
+                      <p className="text-[10px] font-bold uppercase tracking-wide text-ink-faint">Your counter to {invite.dealerName}, line by line — before vs after{invite.buyerCounter.note ? ` · “${invite.buyerCounter.note}”` : ""}</p>
+                      <CounterComparison sheet={invite.buyerCounter.sheet} />
+                    </td>
+                  </tr>
+                ) : null}
+                </React.Fragment>
               );
             })}
           </tbody>

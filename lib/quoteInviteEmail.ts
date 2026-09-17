@@ -184,16 +184,42 @@ export interface BuyerCounterEmailInput {
   contactName: string;
   vehicle: { vin: string; year?: number; make?: string; model?: string; trim?: string; vdpUrl?: string | null };
   dealReference: string | null;
-  /** "≤ $650/mo · ≤ $1,500 due at signing · 39 mo" */
+  /** "Cap cost −$1,500 · Doc fee struck → $612/mo (was $648/mo)" */
   summary: string;
   note: string | null;
+  /** The headline number of the dealer's quote: monthly (lease/finance) or OTD (cash). */
   priorMonthly: number;
+  kind?: "lease" | "finance" | "cash";
+  /** The line-by-line comparison (lib/counterSheet.ts counterDiff), when the counter is an edited sheet. */
+  rows?: Array<{ label: string; before: number | null; after: number | null; delta: number; locked: boolean; total?: boolean; format?: "money" | "mf" | "pct" | "int" }> | null;
   viewUrl: string;
+}
+
+const fmtRow = (v: number | null, format?: "money" | "mf" | "pct" | "int"): string => {
+  if (v == null) return "—";
+  if (format === "mf") return v.toFixed(5);
+  if (format === "pct") return `${v}%`;
+  if (format === "int") return v.toLocaleString();
+  return `${v < 0 ? "−" : ""}$${Math.abs(v).toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
+};
+
+/** Dealer quoted · Buyer's counter · Δ, changed lines bold, locked lines greyed, totals ruled. */
+export function counterComparisonTableHtml(rows: NonNullable<BuyerCounterEmailInput["rows"]>): string {
+  const tr = rows
+    .map((r) => {
+      const moved = Math.abs(r.delta) >= (r.format === "mf" ? 1e-6 : 0.005);
+      const color = r.locked ? "#94a3b8" : moved ? "#0f172a" : "#475569";
+      const weight = moved || r.total ? "700" : "400";
+      const border = r.total ? "border-top:1px solid #cbd5e1;" : "";
+      return `<tr style="color:${color};font-weight:${weight}"><td style="padding:4px 8px 4px 0;${border}">${escapeHtml(r.label)}${r.locked ? " <span style=\"font-size:11px;color:#94a3b8\">(fixed)</span>" : ""}</td><td style="padding:4px 8px;text-align:right;${border}">${fmtRow(r.before, r.format)}</td><td style="padding:4px 8px;text-align:right;${border}">${fmtRow(r.after, r.format)}</td><td style="padding:4px 0 4px 8px;text-align:right;${border}">${moved ? fmtRow(r.delta, r.format) : ""}</td></tr>`;
+    })
+    .join("");
+  return `<table style="border-collapse:collapse;width:100%;margin:12px 0;font-size:13px;font-variant-numeric:tabular-nums"><thead><tr style="color:#64748b;font-size:11px;text-transform:uppercase;letter-spacing:.04em"><th style="text-align:left;padding:4px 8px 4px 0">Line</th><th style="text-align:right;padding:4px 8px">You quoted</th><th style="text-align:right;padding:4px 8px">Buyer's counter</th><th style="text-align:right;padding:4px 0 4px 8px">Δ</th></tr></thead><tbody>${tr}</tbody></table>`;
 }
 
 export function buyerCounterSubject(input: BuyerCounterEmailInput): string {
   const car = [input.vehicle.year, input.vehicle.make, input.vehicle.model, input.vehicle.trim].filter(Boolean).join(" ");
-  return `Buyer counter on your lease quote: ${car} (VIN …${input.vehicle.vin.slice(-6)})`;
+  return `Buyer counter on your ${input.kind || "lease"} quote: ${car} (VIN …${input.vehicle.vin.slice(-6)})`;
 }
 
 export function buyerCounterHtml(input: BuyerCounterEmailInput): string {
@@ -203,13 +229,13 @@ export function buyerCounterHtml(input: BuyerCounterEmailInput): string {
   <div style="font-family:-apple-system,Segoe UI,Roboto,sans-serif;max-width:600px;margin:0 auto;color:#0f172a;line-height:1.5">
     ${emailHeader()}
     <p style="font-size:15px">Hi ${escapeHtml(firstName)},</p>
-    <p>The buyer looked at your lease quote on the <strong>${escapeHtml(car)}</strong> (VIN ${escapeHtml(input.vehicle.vin)}${input.dealReference ? `, ref ${escapeHtml(input.dealReference)}` : ""}) and sent a counter.</p>
-    <table style="border-collapse:collapse;width:100%;margin:12px 0;font-size:14px">
-      <tr><td style="padding:6px 0;color:#64748b;width:160px">Your quote</td><td style="padding:6px 0">$${Math.round(input.priorMonthly).toLocaleString()}/mo (pre-tax)</td></tr>
+    <p>The buyer looked at your ${escapeHtml(input.kind || "lease")} quote on the <strong>${escapeHtml(car)}</strong> (VIN ${escapeHtml(input.vehicle.vin)}${input.dealReference ? `, ref ${escapeHtml(input.dealReference)}` : ""}) and sent a counter${input.rows ? " — your numbers with only the lines they're asking about changed; everything the lender and the state set is untouched, and the payment is recomputed by your own factors" : ""}.</p>
+    ${input.rows ? counterComparisonTableHtml(input.rows) : `<table style="border-collapse:collapse;width:100%;margin:12px 0;font-size:14px">
+      <tr><td style="padding:6px 0;color:#64748b;width:160px">Your quote</td><td style="padding:6px 0">$${Math.round(input.priorMonthly).toLocaleString()}${input.kind === "cash" ? " out the door" : "/mo (pre-tax)"}</td></tr>
       <tr><td style="padding:6px 0;color:#64748b">Buyer is asking for</td><td style="padding:6px 0"><strong>${escapeHtml(input.summary)}</strong></td></tr>
-      ${input.note ? `<tr><td style="padding:6px 0;color:#64748b">Their note</td><td style="padding:6px 0">${escapeHtml(input.note)}</td></tr>` : ""}
-    </table>
-    <p><strong>To reply:</strong> open the calculator below — it's prefilled with your last quote — and submit a revised lease quote, or mark that you can't do better. This is a request, not a bid, and there's no deadline on you.</p>
+    </table>`}
+    ${input.note ? `<p style="font-size:14px"><span style="color:#64748b">Their note:</span> ${escapeHtml(input.note)}</p>` : ""}
+    <p><strong>To reply:</strong> open the ${input.kind === "lease" || !input.kind ? "calculator" : "quote sheet"} below — it's prefilled with your last quote — and submit a revised quote, or mark that you can't do better. This is a request, not a bid, and there's no deadline on you.</p>
     <p style="margin:18px 0"><a href="${escapeHtml(input.viewUrl)}" style="background:#10b981;color:#000;font-weight:700;padding:10px 16px;border-radius:8px;text-decoration:none">Open the calculator</a></p>
     <p style="font-size:12px;color:#64748b">We pass messages between you and the buyer without sharing their email. Replies come back through TrimScout.</p>
   </div>`;

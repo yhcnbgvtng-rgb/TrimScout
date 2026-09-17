@@ -21,7 +21,8 @@ import {
   Trash2,
   X as XIcon,
 } from "lucide-react";
-import type { BuyerCounter, RfqDeclineReason, RfqInvite, RfqRequest } from "@/lib/rfq";
+import type { RfqDeclineReason, RfqInvite, RfqRequest } from "@/lib/rfq";
+import type { CounterEditsPayload } from "@/lib/buyerCounter";
 import { RFQ_DECLINE_REASON_LABELS } from "@/lib/rfq";
 import { isQuoteComplete, quoteMatchesLockedSpec } from "@/lib/rfqLogic";
 import { inviteStage, DESK_ROLE_LABELS, NON_BINDING_COPY } from "@/lib/quotePackage";
@@ -453,7 +454,7 @@ export default function RfqWorkspacePage() {
 
   // Buyer counter to one desk: the box supersedes that quote and reopens
   // the invite; the response carries the refreshed rfq.
-  const handleCounter = async (inviteId: string, counter: BuyerCounter) => {
+  const handleCounter = async (inviteId: string, counter: CounterEditsPayload) => {
     const res = await fetch(`/api/rfqs/${rfqId}/invites/${inviteId}/counter`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -461,6 +462,8 @@ export default function RfqWorkspacePage() {
     });
     const json = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(json.error || "Could not send your counter.");
+    // Straight to the before/after page — the same table the dealer gets.
+    router.push(`/rfq/${rfqId}/counter/${inviteId}`);
     setRfq(json.rfq);
     setLeaseCompare(null);
   };
@@ -607,7 +610,7 @@ export default function RfqWorkspacePage() {
               ? `You asked for ${rfq.quotePrefs.finance.termMonths} months · $${rfq.quotePrefs.finance.downPayment.toLocaleString()} down. Counters on term or down are flagged; expired quotes can't be chosen.`
               : "Out-the-door = selling price + itemized fees and taxes. Expired quotes can't be chosen."}
           </p>
-          <UsedCompare rfq={rfq} prefs={rfq.quotePrefs} onPick={handlePick} onWalk={handleWalk} busy={picking || walking} />
+          <UsedCompare rfq={rfq} prefs={rfq.quotePrefs} onPick={handlePick} onWalk={handleWalk} onCounter={handleCounter} busy={picking || walking} />
         </div>
       )}
 

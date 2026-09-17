@@ -8,6 +8,8 @@ import { useSearchParams } from "next/navigation";
 import { LEASE_NON_BINDING_COPY, type LeaseQuote, type LeaseRequestPrefs } from "../../../lib/leaseQuote";
 import { LeaseCalculatorForm } from "../../../components/LeaseCalculatorForm";
 import { counterSummary } from "../../../lib/buyerCounter";
+import { CounterComparison } from "../../../components/CounterComparison";
+import type { UsedQuote } from "../../../lib/usedQuote";
 import type { BuyerCounter } from "../../../lib/rfq";
 import { UsedQuoteForm } from "../../../components/UsedQuoteForm";
 import type { QuotePrefs } from "../../../lib/usedQuote";
@@ -27,6 +29,7 @@ type Context = {
   dealReference: string | null;
   /** Set when the buyer countered this desk's last quote — the invite is open again for a revised one. */
   buyerCounter: BuyerCounter | null;
+  priorUsed?: UsedQuote | null;
   priorLease: LeaseQuote | null;
   condition: "new" | "used" | "cpo";
   buyerMiles: number | null;
@@ -168,6 +171,25 @@ function ReceivedBody() {
           ) : ctx.quotePrefs ? (
             <>
               {ctx.buyerNote ? <BuyerNote note={ctx.buyerNote} /> : null}
+              {ctx.buyerCounter ? (
+                <div className="rounded-2xl border border-amber-500/40 bg-amber-950/20 p-5 space-y-3 text-sm text-amber-100 leading-relaxed" data-testid="buyer-counter-panel">
+                  <p className="font-bold text-white">The buyer countered your quote.</p>
+                  <p>
+                    They&apos;re asking for <strong>{counterSummary(ctx.buyerCounter)}</strong>.
+                    {ctx.buyerCounter.note ? <> Their note: &ldquo;{ctx.buyerCounter.note}&rdquo;</> : null}
+                  </p>
+                  {ctx.buyerCounter.sheet ? (
+                    <div className="space-y-1">
+                      <p className="text-[10px] font-bold uppercase tracking-wide text-amber-200/80">Your quote vs their counter — only the highlighted lines moved; APR, term, tax and title are as you quoted</p>
+                      <CounterComparison sheet={ctx.buyerCounter.sheet} beforeLabel="You quoted" afterLabel="Buyer's counter" />
+                    </div>
+                  ) : null}
+                  <p className="text-xs text-amber-200/90">The sheet below is prefilled with your last quote — revise and submit, or say you can&apos;t go further. A request, not a bid; no deadline on you.</p>
+                  <button type="button" onClick={decline} disabled={declining} className="rounded-lg border border-amber-500/40 px-3 py-1.5 text-xs font-bold text-amber-100 hover:bg-amber-500/10 disabled:opacity-50" data-testid="decline-counter">
+                    {declining ? "Recording…" : "I can't do better than my quote"}
+                  </button>
+                </div>
+              ) : null}
               <div className="rounded-2xl border border-border bg-surface p-5 space-y-2 text-sm text-ink-light leading-relaxed">
                 <p>
                   <strong className="text-white">Quote through the sheet below.</strong> Selling price, itemized fees with a sales-tax line, add-ons listed (or none), {ctx.condition === "new" ? "" : "miles, "}and a good-until date are required
@@ -176,7 +198,7 @@ function ReceivedBody() {
                 <TradeInNote expected={ctx.tradeInExpected} />
                 <p className="text-xs text-ink-muted border-t border-border/60 pt-3">This is a non-binding quote request — not an auction, not a bid, and no response deadline. The buyer compares and picks one, or walks away.</p>
               </div>
-              <UsedQuoteForm token={token} vin={ctx.vin} stockNumber={ctx.stockNumber} prefs={ctx.quotePrefs} condition={ctx.condition} buyerMiles={ctx.buyerMiles} msrp={ctx.msrp} onSubmitted={(r) => setDone({ warnings: r.warnings, dueAtSigningTotal: 0 })} />
+              <UsedQuoteForm token={token} vin={ctx.vin} stockNumber={ctx.stockNumber} prefs={ctx.quotePrefs} condition={ctx.condition} buyerMiles={ctx.buyerMiles} msrp={ctx.msrp} initial={ctx.priorUsed || null} onSubmitted={(r) => setDone({ warnings: r.warnings, dueAtSigningTotal: 0 })} />
             </>
           ) : !ctx.leasePrefs ? (
             <div className="rounded-2xl border border-border bg-surface p-5 space-y-3 text-sm text-ink-light" data-testid="login-to-quote">
@@ -200,6 +222,12 @@ function ReceivedBody() {
                     They&apos;re asking for <strong>{counterSummary(ctx.buyerCounter)}</strong>.
                     {ctx.buyerCounter.note ? <> Their note: &ldquo;{ctx.buyerCounter.note}&rdquo;</> : null}
                   </p>
+                  {ctx.buyerCounter.sheet ? (
+                    <div className="space-y-1">
+                      <p className="text-[10px] font-bold uppercase tracking-wide text-amber-200/80">Your quote vs their counter — only the highlighted lines moved; money factor, residual, term and miles are as you quoted</p>
+                      <CounterComparison sheet={ctx.buyerCounter.sheet} beforeLabel="You quoted" afterLabel="Buyer's counter" />
+                    </div>
+                  ) : null}
                   <p className="text-xs text-amber-200/90">
                     The calculator below is prefilled with your last quote — revise and submit, or say you can&apos;t go further. A request, not a bid; no deadline on you.
                   </p>
@@ -221,7 +249,7 @@ function ReceivedBody() {
                 token={token}
                 vin={ctx.vin}
                 stockNumber={ctx.stockNumber}
-                prefs={ctx.buyerCounter ? { ...ctx.leasePrefs, termMonths: (ctx.buyerCounter.termMonths as LeaseRequestPrefs["termMonths"]) || ctx.leasePrefs.termMonths, milesPerYear: (ctx.buyerCounter.milesPerYear as LeaseRequestPrefs["milesPerYear"]) || ctx.leasePrefs.milesPerYear } : ctx.leasePrefs}
+                prefs={ctx.leasePrefs}
                 initial={ctx.priorLease}
                 onSubmitted={setDone}
               />

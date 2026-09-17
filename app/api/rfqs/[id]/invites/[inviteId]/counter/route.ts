@@ -7,7 +7,9 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { getRfq, RfqApiError, submitBuyerCounter } from "@/lib/rfqApi";
 import { publicRfqForBuyer } from "@/lib/rfq";
-import { parseBuyerCounter, counterSummary } from "@/lib/buyerCounter";
+import { buildCounterFromEdits, counterSummary, parseCounterEdits } from "@/lib/buyerCounter";
+import { counterDiff, counterKindOf } from "@/lib/counterSheet";
+import { cashOutTheDoor } from "@/lib/usedQuote";
 import { sendQuoteInviteEmail } from "@/lib/dealerEmail";
 import { buyerCounterHtml, buyerCounterSubject } from "@/lib/quoteInviteEmail";
 import { dealerReference } from "@/lib/dealerReference";
@@ -20,18 +22,24 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   }
   const { id, inviteId } = await params;
   const body = await req.json().catch(() => null);
-  const counter = parseBuyerCounter(body?.counter);
-  if (!counter) return NextResponse.json({ error: "Ask for something: a target monthly, a max due at signing, or a different term or miles." }, { status: 400 });
 
   try {
     const rfq = await getRfq(id);
     if (!rfq) return NextResponse.json({ error: "RFQ not found." }, { status: 404 });
     if (rfq.buyerUserId !== session.user.id) return NextResponse.json({ error: "This request belongs to a different buyer." }, { status: 403 });
-    if (!rfq.leasePrefs) return NextResponse.json({ error: "Counters are for lease quotes." }, { status: 409 });
     if (rfq.status !== "collecting") return NextResponse.json({ error: "This request is closed." }, { status: 409 });
     const invite = rfq.invites.find((i) => i.id === inviteId);
-    if (!invite?.quote?.lease) return NextResponse.json({ error: "This dealer has no current lease quote to counter." }, { status: 409 });
-    if (invite.quote.id !== counter.againstQuoteId) return NextResponse.json({ error: "That quote has been replaced — reload and counter the current one." }, { status: 409 });
+    const kind = invite?.quote ? counterKindOf(invite.quote) : null;
+    if (!invite?.quote || !kind) return NextResponse.json({ error: "This dealer has no current quote to counter." }, { status: 409 });
+    // The browser sends the dealer's quote id plus the buyer's edits; the sheet is
+    // rebuilt here from the quote on file, so no number the dealer didn't write
+    // can arrive from the client, and terms can't move.
+    const payload = parseCounterEdits(body?.counter, kind);
+    if (!payload) return NextResponse.json({ error: "Change at least one number on the dealer's quote to counter it." }, { status: 400 });
+    if (invite.quote.id !== payload.againstQuoteId) return NextResponse.json({ error: "That quote has been replaced — reload and counter the current one." }, { status: 409 });
+    const built = buildCounterFromEdits(invite.quote, payload);
+    if (!built.counter) return NextResponse.json({ error: built.errors.join(" ") }, { status: 400 });
+    const counter = built.counter;
 
     const updated = await submitBuyerCounter(id, inviteId, counter);
 
@@ -45,7 +53,9 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
         dealReference: dealerReference(id, inviteId),
         summary: counterSummary(counter),
         note: counter.note ?? null,
-        priorMonthly: invite.quote.lease.monthlyPaymentPreTax,
+        priorMonthly: invite.quote.lease ? invite.quote.lease.monthlyPaymentPreTax : invite.quote.used?.kind === "finance" ? invite.quote.used.monthlyPaymentPreTax : invite.quote.used ? cashOutTheDoor(invite.quote.used) : invite.quote.price,
+        kind,
+        rows: counter.sheet ? counterDiff(counter.sheet).map(({ label, before, after, delta, locked, total, format }) => ({ label, before, after, delta, locked, total, format })) : null,
         viewUrl: `${DEALER_EMAIL_BASE_URL}/api/quote-invite/view?t=${encodeURIComponent(invite.viewToken)}`,
       };
       await sendQuoteInviteEmail(buyerCounterSubject(input), buyerCounterHtml(input)).catch(() => false);

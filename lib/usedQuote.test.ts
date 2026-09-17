@@ -155,7 +155,9 @@ describe("wiring — Finance | Cash locks on Step 2; dealer sheets; compare colu
     assert.match(c, />Add-ons</);
     assert.match(c, /compareFinanceQuotes\(a\.used as UsedFinanceQuote, b\.used as UsedFinanceQuote\)/);
     assert.match(c, /same car on every row: VIN/);
-    assert.doesNotMatch(c, /isFinanceCounter|Counter</);
+    // Dealer-side counter offers never existed on used quotes; the buyer's own counter (2026-09-17) does.
+    assert.doesNotMatch(c, /isFinanceCounter|dealer counter/i);
+    assert.match(c, /<CounterSheetForm dealerName=\{invite\.dealerName\} quote=\{\{ used \}\}/);
     assert.match(read("lib/rfqTracker.ts"), /quotePrefs\?\.quoteType === "finance"\) return "Finance"/);
   });
 });

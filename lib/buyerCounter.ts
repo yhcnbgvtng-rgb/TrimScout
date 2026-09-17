@@ -1,75 +1,95 @@
 /**
- * The buyer's counter to one dealer's lease quote: structured fields only,
- * scoped to that quote. Validation shared by the form and the route.
+ * The buyer's counter to one dealer's quote — since 2026-09-17 an edited
+ * copy of the dealer's own sheet (lib/counterSheet.ts), scoped to that
+ * quote. parseCounterEdits sanitises what the browser sends;
+ * buildCounterFromEdits re-applies it to the quote on file. The legacy
+ * parser and summary remain for counters stored before the sheet.
  *
  * Copy rule: "Send a counter — request, not a binding bid." Never auction
  * or bid-war language.
  */
-import { LEASE_MILES, LEASE_TERMS, type LeaseQuote, type LeaseRequestPrefs } from "./leaseQuote";
+import { LEASE_MILES, LEASE_TERMS, type LeaseQuote, type LineItem } from "./leaseQuote";
 import type { BuyerCounter } from "./rfq";
+import { applyCashCounter, applyFinanceCounter, applyLeaseCounter, changedKeys, counterSheetSummary, validateCounterSheet, type CounterKind, type CounterSheet, type LeaseCounterEdits, type UsedCounterEdits } from "./counterSheet";
+import type { UsedQuote } from "./usedQuote";
 
 export const COUNTER_COPY = "Send a counter — request, not a binding bid.";
 
-export interface CounterDraft {
-  targetMonthlyMax: string;
-  maxCashDueAtSigning: string;
-  termMonths: string;
-  milesPerYear: string;
-  note: string;
+// ---------------------------------------------------------------------------
+// The editable-sheet counter (2026-09-17): what the browser sends is the
+// dealer's quote id plus the buyer's edits; the server re-applies them to
+// the quote it has on file, validates, and stores before/after.
+// ---------------------------------------------------------------------------
+
+export interface CounterEditsPayload {
+  againstQuoteId: string;
+  edits: LeaseCounterEdits | UsedCounterEdits;
+  note?: string | null;
 }
 
-/** Prefill from the dealer's quote (term/miles) and the buyer's ask; money fields start blank. */
-export function counterDraftFrom(quote: LeaseQuote, prefs: LeaseRequestPrefs): CounterDraft {
-  return {
-    targetMonthlyMax: "",
-    maxCashDueAtSigning: "",
-    termMonths: String(quote.termMonths || prefs.termMonths),
-    milesPerYear: String(quote.milesPerYear || prefs.milesPerYear),
-    note: "",
-  };
-}
-
-const money = (raw: string): number | null => {
-  const t = (raw || "").replace(/[$,\s]/g, "");
-  if (t === "") return null;
-  const n = Number(t);
-  return Number.isFinite(n) ? Math.round(n) : NaN;
+const lineItems = (raw: unknown): LineItem[] | undefined => {
+  if (!Array.isArray(raw)) return undefined;
+  return raw
+    .map((x) => {
+      const o = (x || {}) as Record<string, unknown>;
+      const amount = typeof o.amount === "number" ? o.amount : typeof o.amount === "string" ? Number(String(o.amount).replace(/[$,\s]/g, "")) : NaN;
+      return { name: typeof o.name === "string" ? o.name.trim().slice(0, 80) : "", amount: Number.isFinite(amount) ? Math.round(amount * 100) / 100 : NaN };
+    })
+    .filter((i) => i.name && Number.isFinite(i.amount))
+    .slice(0, 20);
+};
+const moneyOf = (raw: unknown): number | undefined => {
+  if (raw == null || raw === "") return undefined;
+  const n = typeof raw === "number" ? raw : Number(String(raw).replace(/[$,\s]/g, ""));
+  return Number.isFinite(n) ? Math.round(n * 100) / 100 : undefined;
 };
 
-/** Build the counter or list what's wrong. At least one number (or a term/miles change) must be asked for. */
-export function buildBuyerCounter(draft: CounterDraft, quote: LeaseQuote, againstQuoteId: string, now = new Date()): { counter: BuyerCounter | null; errors: string[] } {
-  const errors: string[] = [];
-  const target = money(draft.targetMonthlyMax);
-  const maxDas = money(draft.maxCashDueAtSigning);
-  const term = draft.termMonths ? Number(draft.termMonths) : null;
-  const miles = draft.milesPerYear ? Number(draft.milesPerYear) : null;
-  if (target != null && !(target > 0)) errors.push("Target monthly must be a number greater than 0.");
-  if (maxDas != null && !(maxDas >= 0)) errors.push("Max due at signing must be 0 or more.");
-  if (term != null && !(LEASE_TERMS as readonly number[]).includes(term)) errors.push("Pick a term the calculator can quote to.");
-  if (miles != null && !(LEASE_MILES as readonly number[]).includes(miles)) errors.push("Pick a mileage band the calculator can quote to.");
-  if (target != null && target >= quote.monthlyPaymentPreTax) errors.push(`Target monthly should be below the quoted $${Math.round(quote.monthlyPaymentPreTax).toLocaleString()}/mo — otherwise there's nothing to counter.`);
-  const termChanged = term != null && term !== quote.termMonths;
-  const milesChanged = miles != null && miles !== quote.milesPerYear;
-  if (target == null && maxDas == null && !termChanged && !milesChanged) errors.push("Ask for something: a target monthly, a max due at signing, or a different term or miles.");
-  const note = (draft.note || "").trim();
-  if (note.length > 300) errors.push("Keep the note under 300 characters.");
-  if (errors.length) return { counter: null, errors };
-  return {
-    counter: {
-      againstQuoteId,
-      targetMonthlyMax: target,
-      maxCashDueAtSigning: maxDas,
-      termMonths: termChanged ? term : null,
-      milesPerYear: milesChanged ? miles : null,
-      note: note || null,
-      sentAt: now.toISOString(),
-    },
-    errors: [],
-  };
+/** Sanitize the browser's edits for one quote kind — numbers and named lines only, nothing else gets through. */
+export function parseCounterEdits(raw: unknown, kind: CounterKind): CounterEditsPayload | null {
+  if (!raw || typeof raw !== "object") return null;
+  const o = raw as Record<string, unknown>;
+  const againstQuoteId = String(o.againstQuoteId || "");
+  if (!againstQuoteId) return null;
+  const e = (o.edits && typeof o.edits === "object" ? o.edits : {}) as Record<string, unknown>;
+  const note = typeof o.note === "string" && o.note.trim() ? o.note.trim().slice(0, 300) : null;
+  if (kind === "lease") {
+    const edits: LeaseCounterEdits = {};
+    const capCost = moneyOf(e.capCost); if (capCost !== undefined) edits.capCost = capCost;
+    const capReduction = moneyOf(e.capReduction); if (capReduction !== undefined) edits.capReduction = capReduction;
+    const addOns = lineItems(e.addOns); if (addOns) edits.addOns = addOns;
+    const incentives = lineItems(e.incentives); if (incentives) edits.incentives = incentives;
+    const otherFees = lineItems(e.otherFees); if (otherFees) edits.otherFees = otherFees;
+    return { againstQuoteId, edits, note };
+  }
+  const edits: UsedCounterEdits = {};
+  const sellingPrice = moneyOf(e.sellingPrice); if (sellingPrice !== undefined) edits.sellingPrice = sellingPrice;
+  const downPayment = moneyOf(e.downPayment); if (downPayment !== undefined) edits.downPayment = downPayment;
+  const addOns = lineItems(e.addOns); if (addOns) edits.addOns = addOns;
+  const rebates = lineItems(e.rebates); if (rebates) edits.rebates = rebates;
+  const dueAtSigning = lineItems(e.dueAtSigning); if (dueAtSigning) edits.dueAtSigning = dueAtSigning;
+  return { againstQuoteId, edits, note };
 }
 
-/** One line for badges and the dealer's page: "≤ $650/mo · ≤ $1,500 due at signing · 39 mo". */
+/** Apply the buyer's edits to the dealer's quote on file, validate, and build the stored counter. */
+export function buildCounterFromEdits(
+  quote: { lease?: LeaseQuote | null; used?: UsedQuote | null },
+  payload: CounterEditsPayload,
+  now = new Date()
+): { counter: BuyerCounter | null; errors: string[] } {
+  let sheet: Omit<CounterSheet, "changed"> | null = null;
+  if (quote.lease) sheet = { kind: "lease", before: quote.lease, after: applyLeaseCounter(quote.lease, payload.edits as LeaseCounterEdits) };
+  else if (quote.used?.kind === "finance") sheet = { kind: "finance", before: quote.used, after: applyFinanceCounter(quote.used, payload.edits as UsedCounterEdits) };
+  else if (quote.used?.kind === "cash") sheet = { kind: "cash", before: quote.used, after: applyCashCounter(quote.used, payload.edits as UsedCounterEdits) };
+  if (!sheet) return { counter: null, errors: ["This dealer has no current quote to counter."] };
+  const errors = validateCounterSheet(sheet);
+  if (errors.length) return { counter: null, errors };
+  const full: CounterSheet = { ...sheet, changed: changedKeys(sheet) };
+  return { counter: { againstQuoteId: payload.againstQuoteId, sheet: full, note: payload.note ?? null, sentAt: now.toISOString() }, errors: [] };
+}
+
+/** One line for badges and the dealer's page. Sheet counters: "Cap cost −$1,500 · Doc fee struck → $612/mo (was $648/mo)"; legacy asks: "≤ $650/mo · 39 mo". */
 export function counterSummary(c: BuyerCounter): string {
+  if (c.sheet) return counterSheetSummary(c.sheet);
   const parts: string[] = [];
   if (c.targetMonthlyMax != null) parts.push(`≤ $${c.targetMonthlyMax.toLocaleString()}/mo`);
   if (c.maxCashDueAtSigning != null) parts.push(`≤ $${c.maxCashDueAtSigning.toLocaleString()} due at signing`);

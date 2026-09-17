@@ -29,6 +29,7 @@ export function UsedQuoteForm({
   condition = "used",
   buyerMiles,
   msrp,
+  initial,
   onSubmitted,
 }: {
   token: string;
@@ -39,37 +40,45 @@ export function UsedQuoteForm({
   buyerMiles: number | null;
   /** Sticker MSRP when known — prefills the sheet's MSRP field for the percent line. */
   msrp?: number | null;
+  /** The dealer's own last quote (after a buyer counter) — the sheet opens prefilled so they revise, not retype. */
+  initial?: UsedQuote | null;
   onSubmitted: (result: { warnings: string[] }) => void;
 }) {
   const kind = prefs.quoteType;
   const used = condition !== "new";
   const zip = kind === "finance" ? prefs.finance.zip : prefs.cash.zip;
   const zipRate = zip ? getZipCoordinates(zip).taxRate : null;
+  const initFin = initial?.kind === "finance" ? initial : null;
   const [f, setF] = useState({
     vin,
-    stockNumber: stockNumber || "",
-    sellingPrice: "",
-    miles: "",
-    cpo: false,
+    stockNumber: initial?.stockNumber || stockNumber || "",
+    sellingPrice: initial ? String(initial.sellingPrice) : "",
+    miles: initial?.miles != null ? String(initial.miles) : "",
+    cpo: initial?.cpo ?? false,
     expiresAt: "",
-    notes: "",
+    notes: initial?.notes || "",
     // finance
-    downPayment: kind === "finance" ? String(prefs.finance.downPayment) : "",
-    tradeEquity: "",
-    apr: "",
-    termMonths: kind === "finance" ? String(prefs.finance.termMonths) : "",
-    lenderName: "",
+    downPayment: initFin ? String(initFin.downPayment) : kind === "finance" ? String(prefs.finance.downPayment) : "",
+    tradeEquity: initFin?.tradeEquity != null ? String(initFin.tradeEquity) : "",
+    apr: initFin ? String(initFin.apr) : "",
+    termMonths: initFin ? String(initFin.termMonths) : kind === "finance" ? String(prefs.finance.termMonths) : "",
+    lenderName: initFin?.lenderName || "",
     msrp: msrp && msrp > 0 ? String(msrp) : "",
   });
-  const [noTaxEstimate, setNoTaxEstimate] = useState(false);
-  const [addOns, setAddOns] = useState<Item[]>([]);
-  const [noAddOns, setNoAddOns] = useState(false);
-  const [rebates, setRebates] = useState<Item[]>([]);
-  const [fees, setFees] = useState<Item[]>([
-    { name: "Sales tax", amount: "" },
-    { name: "Doc fee", amount: "" },
-    { name: "Title & registration", amount: "" },
-  ]);
+  const asItems = (list: { name: string; amount: number }[] | undefined | null): Item[] => (list || []).map((l) => ({ name: l.name, amount: String(l.amount) }));
+  const [noTaxEstimate, setNoTaxEstimate] = useState(initFin ? initFin.monthlyPaymentWithEstTax == null : false);
+  const [addOns, setAddOns] = useState<Item[]>(asItems(initial?.addOns));
+  const [noAddOns, setNoAddOns] = useState(initial?.noAddOns ?? false);
+  const [rebates, setRebates] = useState<Item[]>(asItems(initial?.rebates));
+  const [fees, setFees] = useState<Item[]>(
+    initial?.dueAtSigning?.length
+      ? asItems(initial.dueAtSigning)
+      : [
+          { name: "Sales tax", amount: "" },
+          { name: "Doc fee", amount: "" },
+          { name: "Title & registration", amount: "" },
+        ]
+  );
   const [focused, setFocused] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [touched, setTouched] = useState(false);

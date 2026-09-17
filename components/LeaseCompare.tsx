@@ -6,7 +6,9 @@ import { fmtMf, fmtMoney, fmtPct, type LeaseCompare as LeaseCompareData, type Le
 import { termMilesLabel } from "../lib/leaseQuote";
 import type { BuyerCounter } from "../lib/rfq";
 import { counterSummary } from "../lib/buyerCounter";
-import { BuyerCounterForm } from "./BuyerCounterForm";
+import { CounterSheetForm } from "./CounterSheetForm";
+import { CounterComparison } from "./CounterComparison";
+import type { CounterEditsPayload } from "../lib/buyerCounter";
 
 /**
  * Deal page lease comparison: at a glance → one row per dealer in the same
@@ -27,7 +29,7 @@ export function LeaseCompare({
   onPick: (quoteId: string) => void;
   onWalk: () => void;
   /** Buyer counter to one desk; resolves once the box has it. */
-  onCounter?: (inviteId: string, counter: BuyerCounter) => Promise<void>;
+  onCounter?: (inviteId: string, counter: CounterEditsPayload) => Promise<void>;
   busy: boolean;
 }) {
   const [open, setOpen] = useState<Record<string, boolean>>({});
@@ -121,7 +123,7 @@ export function LeaseCompare({
   );
 }
 
-function Row({ r, open, toggle, collecting, onPick, busy, prefs, countering, onStartCounter, onCancelCounter, onCounter }: { r: LeaseCompareRow; open: boolean; toggle: () => void; collecting: boolean; onPick: (id: string) => void; busy: boolean; prefs: LeaseCompareData["prefs"]; countering: boolean; onStartCounter?: () => void; onCancelCounter: () => void; onCounter?: (c: BuyerCounter) => Promise<void> }) {
+function Row({ r, open, toggle, collecting, onPick, busy, prefs, countering, onStartCounter, onCancelCounter, onCounter }: { r: LeaseCompareRow; open: boolean; toggle: () => void; collecting: boolean; onPick: (id: string) => void; busy: boolean; prefs: LeaseCompareData["prefs"]; countering: boolean; onStartCounter?: () => void; onCancelCounter: () => void; onCounter?: (c: CounterEditsPayload) => Promise<void> }) {
   const l = r.lease;
   const muted = r.kind === "expired" || r.kind === "declined" || r.kind === "countered";
   const hi = "bg-emerald-500/10 font-extrabold text-emerald-300";
@@ -182,7 +184,7 @@ function Row({ r, open, toggle, collecting, onPick, busy, prefs, countering, onS
       {countering && l && r.quoteId && onCounter ? (
         <tr className="bg-background/60">
           <td colSpan={9} className="px-4 py-3">
-            <BuyerCounterForm dealerName={r.dealerName} quote={l} quoteId={r.quoteId} prefs={prefs} onSubmit={onCounter} onCancel={onCancelCounter} />
+            <CounterSheetForm dealerName={r.dealerName} quote={{ lease: l }} quoteId={r.quoteId} onSubmit={onCounter} onCancel={onCancelCounter} />
           </td>
         </tr>
       ) : null}
@@ -225,6 +227,7 @@ function Row({ r, open, toggle, collecting, onPick, busy, prefs, countering, onS
                 </div>
                 {r.counterNote ? <p className="rounded-lg border border-amber-500/30 bg-amber-950/20 px-2 py-1.5 text-amber-100"><span className="font-bold">Counter note:</span> {r.counterNote}</p> : null}
                 {r.buyerCounter ? <p className="rounded-lg border border-sky-500/30 bg-sky-950/20 px-2 py-1.5 text-sky-100"><span className="font-bold">Your counter{r.buyerCounter.sentAt ? ` (${new Date(r.buyerCounter.sentAt).toLocaleDateString()})` : ""}:</span> {counterSummary(r.buyerCounter)}{r.buyerCounter.note ? ` — “${r.buyerCounter.note}”` : ""}</p> : null}
+
                 {r.priorQuotes.length ? (
                   <p className="text-[10px] text-ink-faint">
                     Earlier version{r.priorQuotes.length === 1 ? "" : "s"}: {r.priorQuotes.map((q) => (q.lease ? `${fmtMoney(q.lease.monthlyPaymentPreTax)}/mo · ${termMilesLabel(q.lease.termMonths, q.lease.milesPerYear)}` : fmtMoney(q.price))).join(" → ")} (superseded)
@@ -234,6 +237,12 @@ function Row({ r, open, toggle, collecting, onPick, busy, prefs, countering, onS
                 <p className="text-[10px] text-ink-faint">Good through {r.expiresAt ? new Date(r.expiresAt).toLocaleDateString() : "—"}</p>
               </div>
             </div>
+            {r.buyerCounter?.sheet ? (
+              <div className="mt-3 space-y-1" data-testid="lease-row-counter">
+                <p className="text-[10px] font-bold uppercase tracking-wide text-ink-faint">Your counter, line by line — before vs after</p>
+                <CounterComparison sheet={r.buyerCounter.sheet} />
+              </div>
+            ) : null}
           </td>
         </tr>
       ) : null}

@@ -12,6 +12,7 @@ export const RFQ_MAX_INVITES = 3;
 // real "miss", not an unknown.
 import type { LeaseQuote, LeaseRequestPrefs } from "./leaseQuote";
 import type { QuotePrefs, UsedQuote } from "./usedQuote";
+import type { CounterSheet } from "./counterSheet";
 
 export type OptionMatchStatus = "hit" | "miss" | "unknown";
 
@@ -84,6 +85,13 @@ export interface RfqQuote {
 export interface BuyerCounter {
   /** The quote this answers (kept in priorQuotes once superseded). */
   againstQuoteId: string;
+  /**
+   * Since 2026-09-17 the counter is the dealer's own quote with the buyer's
+   * price-side edits and the payment recomputed (lib/counterSheet.ts):
+   * before, after and which lines moved. Terms never change.
+   */
+  sheet?: CounterSheet | null;
+  /** Legacy "ask" fields from counters sent before the editable sheet. */
   targetMonthlyMax?: number | null;
   maxCashDueAtSigning?: number | null;
   termMonths?: number | null;

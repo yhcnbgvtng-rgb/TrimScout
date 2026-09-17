@@ -31,6 +31,7 @@ export async function GET(req: Request) {
   return NextResponse.json({
     buyerCounter: invite.buyerCounter || null,
     priorLease: priorQuote?.lease || null,
+    priorUsed: priorQuote?.used || null,
     condition: usedCar?.condition || "new",
     buyerMiles: usedCar?.mileage ?? null,
     buyerNote: rfq.buyerNote || null,
