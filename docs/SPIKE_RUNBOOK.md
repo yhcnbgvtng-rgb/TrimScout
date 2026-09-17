@@ -41,6 +41,67 @@ is retried when:
 
 No cron (Hobby plan). Upgrade to Pro → add `{"crons":[{"path":"/api/ops/drain-invites","schedule":"*/5 * * * *"}]}` to `vercel.json` and pass `CRON_SECRET`.
 
+**Unassigned invites (`no_desk` in the drain result).** Since 2026-09-16 a
+known rooftop with no named sales contact is *not* blocked: the invite queues
+with no address (`invite_unassigned` counter) and the buyer is told our team
+routes it by hand. The drain skips these every time — they are not stuck, they
+are yours. Attach an address (a named person or the store's sales inbox) on the
+dealer's directory row, then drain again; or reach the store by phone with the
+request reference. `GET /api/admin/ops` lists them under queued invites.
+
+## Deals box (3.208.49.1 — deals API :3004, auth/directory API :3003)
+
+Symptoms when it's down: every free VIN import says "Dealer not found", Step 3
+shows "Checking…" forever, buyer/dealer sign-in fails, `/api/admin/inventory`
+503s. From a laptop, `nc -z 3.208.49.1 3004` refusing while `:22` answers means
+the box is up but the API processes are dead — almost always the OOM killer
+after a crawl/sync spike. The Lightsail browser SSH shows `UPSTREAM_ERROR
+[515]` while the instance thrashes; use a plain SSH client, or **Reboot** from
+the Lightsail console if that also hangs.
+
+Restart the APIs (idempotent):
+
+```bash
+pm2 resurrect; pm2 restart all; pm2 save; pm2 ls
+curl -s -o /dev/null -w "3003 %{http_code}\n" "http://127.0.0.1:3003/api/dealerships?limit=1" -H "X-Trimscout-Api-Key: $TRIMSCOUT_API_KEY"
+curl -s -o /dev/null -w "3004 %{http_code}\n" http://127.0.0.1:3004/api/inventory/stats -H "X-Trimscout-Api-Key: $TRIMSCOUT_API_KEY"
+```
+
+If `pm2 ls` is empty, the daemon lost its list — start them by hand from
+`/opt/trimscout-deals` (`pm2 start deals_api_server.js --name trimscout-deals-api`,
+same for `auth_api_server.js` → `trimscout-auth-api`), then `pm2 save` and
+`pm2 startup` so they survive a reboot.
+
+Confirm it was memory, and stop it recurring:
+
+```bash
+free -m; swapon --show; dmesg -T | grep -iE "out of memory|killed process" | tail -5; ps aux --sort=-%mem | head -6
+```
+
+The box has no swap by default. A 2 GB swap file gives the OOM killer
+headroom during the nightly inventory sync (06:15 ET) and the peer crawl jobs
+without restarting anything — do this once (idempotent script; it checks disk
+space, creates the file, enables it, persists it in fstab, sets swappiness 10):
+
+```bash
+curl -fsSL -o 2026-09-17-swapfile.sh https://raw.githubusercontent.com/yhcnbgvtng-rgb/TrimScout/main/scripts/box/2026-09-17-swapfile.sh && bash 2026-09-17-swapfile.sh
+```
+
+By hand, the same thing is:
+
+```bash
+sudo fallocate -l 2G /swapfile && sudo chmod 600 /swapfile && sudo mkswap /swapfile && sudo swapon /swapfile
+echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
+sudo sysctl vm.swappiness=10 && echo 'vm.swappiness=10' | sudo tee /etc/sysctl.d/99-trimscout-swap.conf
+free -m
+```
+
+(`fallocate` needs ~3 GB free on the root disk — `df -h /` first; on a 40 GB
+Lightsail disk that's fine.) If `dmesg` keeps naming the same process, cap it
+instead of the box: `pm2 restart trimscout-deals-api --max-memory-restart 600M`
+and `pm2 save`. Swap is a cushion, not a fix, for a job that genuinely needs
+more RAM than the instance has.
+
 ## Watch
 
 `GET /api/admin/ops` (admin session): switches, this instance's counters
