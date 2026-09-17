@@ -469,6 +469,69 @@ async function fetchToyota() {
     'virginia/lynchburg',
     'virginia/fredericksburg',
     'virginia/winchester',
+    // Added 2026-09-17: NC/RI/VT/NH/MA/CA had NO entries here at all since
+    // their state additions — this curated list was never updated past VA,
+    // so every one of these states has only ever gotten Toyota coverage via
+    // incidental spillover on a NEIGHBORING state's city-hub page, not a
+    // real per-state search. Confirmed via git history: toyota.json's
+    // committed count (307, matching the pre-CA total) barely grew across
+    // 5 state additions, consistent with spillover-only coverage rather
+    // than genuine new-state search. Slugs below are best-effort standard
+    // city-slug conventions matching this file's existing pattern and each
+    // state's own zip-seed geography (see NC_ZIPS/RI_ZIPS/etc. above) —
+    // NOT yet verified live (Toyota's site was rate-limiting this box's IP
+    // as of this addition, likely from repeated same-day nationwide
+    // re-fetches); re-run this script once fetchable again and check
+    // `pages` in the toyota write-dump's metadata for any 404s to correct.
+    'north-carolina/charlotte',
+    'north-carolina/concord',
+    'north-carolina/raleigh',
+    'north-carolina/durham',
+    'north-carolina/greensboro',
+    'north-carolina/winston-salem',
+    'north-carolina/asheville',
+    'north-carolina/wilmington',
+    'north-carolina/fayetteville',
+    'north-carolina/hickory',
+    'rhode-island/providence',
+    'rhode-island/westerly',
+    'vermont/burlington',
+    'vermont/rutland',
+    'vermont/bennington',
+    'vermont/brattleboro',
+    'vermont/st-johnsbury',
+    'new-hampshire/manchester',
+    'new-hampshire/nashua',
+    'new-hampshire/salem',
+    'new-hampshire/concord',
+    'new-hampshire/portsmouth',
+    'massachusetts/boston',
+    'massachusetts/worcester',
+    'massachusetts/springfield',
+    'massachusetts/lowell',
+    'massachusetts/new-bedford',
+    'massachusetts/hyannis',
+    'massachusetts/pittsfield',
+    'california/los-angeles',
+    'california/long-beach',
+    'california/anaheim',
+    'california/irvine',
+    'california/san-diego',
+    'california/chula-vista',
+    'california/san-jose',
+    'california/san-francisco',
+    'california/oakland',
+    'california/sacramento',
+    'california/fresno',
+    'california/bakersfield',
+    'california/riverside',
+    'california/san-bernardino',
+    'california/stockton',
+    'california/modesto',
+    'california/santa-rosa',
+    'california/santa-barbara',
+    'california/palm-springs',
+    'california/redding',
   ];
   const rows = [];
   const pages = [];
