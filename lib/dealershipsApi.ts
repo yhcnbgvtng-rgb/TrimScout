@@ -113,10 +113,17 @@ export async function deleteDealership(id: string): Promise<void> {
   await request(`/api/dealerships/${id}`, { method: "DELETE" });
 }
 
+export interface DealershipOptOutResult {
+  dealership: Dealership;
+  /** RFQ ids whose open invites to this rooftop were just flipped to unsubscribed (the buyer-notify set). */
+  affectedRfqs: string[];
+}
+
 /** One-directional — a dealer opting out via the unsubscribe link. No "opt back in" here on purpose. */
-export async function setDealershipEmailOptOut(id: string): Promise<Dealership> {
+export async function setDealershipEmailOptOut(id: string): Promise<DealershipOptOutResult> {
   const json = await request(`/api/dealerships/${id}/opt-out`, { method: "POST" });
-  return normalizeDealership(json.dealership);
+  const affectedRfqs = Array.isArray(json.affectedRfqs) ? (json.affectedRfqs as unknown[]).map((x) => String(x)) : [];
+  return { dealership: normalizeDealership(json.dealership), affectedRfqs };
 }
 
 export interface BulkUpsertResult {

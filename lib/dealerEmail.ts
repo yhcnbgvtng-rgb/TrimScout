@@ -236,6 +236,42 @@ export async function sendQuoteInviteEmail(subject: string, html: string): Promi
 }
 
 /**
+ * Buyer notice: a rooftop they were waiting on unsubscribed, so no reply is
+ * coming there — pick a different vehicle at another dealership. Neutral tone,
+ * never blames the buyer, never "bid"/auction, never exposes internal ops
+ * notes. Same SAFE MODE sender as every other email in this module (see the
+ * header), so today it lands at SAFE_MODE_RECIPIENT for approval before any
+ * real buyer address is used. Draft-then-approve.
+ */
+export function buildDealerUnsubscribedNotice(dealerName: string, rfqUrl?: string | null): { subject: string; html: string } {
+  const dealer = escapeHtml(dealerName || "This dealership");
+  const subject = `[SAFE MODE] ${dealerName || "A dealership"} unsubscribed — pick another dealership`;
+  const cta = rfqUrl
+    ? `<a href="${escapeHtml(rfqUrl)}" style="display:inline-block;margin-top:16px;padding:10px 18px;border-radius:10px;background:#22c55e;color:#000;font-weight:800;text-decoration:none;">Choose another vehicle</a>`
+    : "";
+  const html = `<div style="font-family:system-ui,-apple-system,sans-serif;max-width:520px;color:#111;">
+    <p style="font-size:12px;color:#a16207;background:#fef9c3;border-radius:8px;padding:8px 10px;">
+      <strong>SAFE MODE:</strong> this buyer notification was redirected here for approval instead of the buyer, per site-owner override.
+    </p>
+    <h1 style="font-size:18px;margin:16px 0 8px;">${dealer} is no longer accepting quote requests on TrimScout</h1>
+    <p style="font-size:14px;line-height:1.6;color:#374151;">They unsubscribed, so they won't reply here. Choose a different vehicle at another dealership to continue.</p>
+    ${cta}
+  </div>`.trim();
+  return { subject, html };
+}
+
+/** Sends the buyer-unsubscribed notice through the SAFE MODE sender. Never throws. */
+export async function sendDealerUnsubscribedNotice(dealerName: string, rfqUrl?: string | null): Promise<boolean> {
+  try {
+    const { subject, html } = buildDealerUnsubscribedNotice(dealerName, rfqUrl);
+    return await sendViaResend(subject, html);
+  } catch (err) {
+    console.error("dealerEmail: unsubscribed-notice send failed —", err instanceof Error ? err.message : err);
+    return false;
+  }
+}
+
+/**
  * Admin alert: a new quote request is waiting for approval. Same sender and
  * SAFE MODE routing as dealer mail (so today it lands in the same inbox).
  * The intended admin address is ADMIN_NOTIFY_EMAIL once SAFE MODE is lifted.

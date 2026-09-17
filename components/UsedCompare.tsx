@@ -120,16 +120,20 @@ export function UsedCompare({ rfq, prefs, onPick, onWalk, onCounter, busy }: { r
             {ordered.map(({ invite, used, alternate }) => {
               const expired = used ? isExpired({ expiresAt: used.expiresAt }) : false;
               const picked = Boolean(invite.quote && rfq.pickedQuoteId === invite.quote.id);
+              const unsubscribed = Boolean(invite.dealerUnsubscribedAt);
               const status = !used
-                ? invite.status === "declined" ? <span className="rounded bg-rose-500/15 px-1.5 py-0.5 text-[9px] font-bold uppercase text-rose-300">Declined</span> : <span className="rounded bg-border px-1.5 py-0.5 text-[9px] font-bold uppercase text-ink-muted">Waiting</span>
+                ? invite.status === "declined" ? <span className="rounded bg-rose-500/15 px-1.5 py-0.5 text-[9px] font-bold uppercase text-rose-300">Declined</span>
+                  : unsubscribed ? <span className="rounded bg-border px-1.5 py-0.5 text-[9px] font-bold uppercase text-ink-muted" data-testid="unsub-chip">Unsubscribed — won't reply</span>
+                  : <span className="rounded bg-border px-1.5 py-0.5 text-[9px] font-bold uppercase text-ink-muted">Waiting</span>
                 : expired ? <span className="rounded bg-border px-1.5 py-0.5 text-[9px] font-bold uppercase text-ink-muted">Expired</span>
                 : picked ? <span className="rounded bg-emerald-500/15 px-1.5 py-0.5 text-[9px] font-bold uppercase text-emerald-300">Chosen</span>
+                : unsubscribed ? <span className="rounded bg-border px-1.5 py-0.5 text-[9px] font-bold uppercase text-ink-muted" data-testid="unsub-chip">Unsubscribed — quote still valid</span>
                 : <span className="text-[10px] text-ink-muted">Quoted to your locks</span>;
               const fin = used?.kind === "finance" ? used : null;
               const colCount = 8 + (finance ? 2 : 0) + (rows.some((r) => r.used?.miles != null) ? 1 : 0);
               return (
                 <React.Fragment key={invite.id}>
-                <tr className={`${expired || invite.status === "declined" ? "opacity-50" : ""} ${picked ? "bg-emerald-500/5" : ""}`} data-testid={`used-row-${!used ? "waiting" : expired ? "expired" : "eligible"}`}>
+                <tr className={`${expired || invite.status === "declined" || (unsubscribed && !used) ? "opacity-50" : ""} ${picked ? "bg-emerald-500/5" : ""}`} data-testid={`used-row-${!used ? "waiting" : expired ? "expired" : "eligible"}`}>
                   <td className="sticky left-0 z-10 bg-surface px-3 py-2.5 align-top">
                     <span className="block text-sm font-bold text-white">{invite.dealerName}</span>
                     {alternate ? <span className="mt-0.5 inline-block rounded bg-sky-500/15 px-1.5 py-0.5 text-[9px] font-bold uppercase text-sky-300" data-testid="alternate-badge">Alternate vehicle{lane !== "alternate" && invite.quote?.vin ? <span className="font-mono normal-case"> · {invite.quote.vin}</span> : null}</span> : null}
@@ -168,7 +172,7 @@ export function UsedCompare({ rfq, prefs, onPick, onWalk, onCounter, busy }: { r
                       {collecting && used && !expired && invite.quote ? (
                         <>
                           <button type="button" onClick={() => onPick(invite.quote!.id)} disabled={busy} className="rounded-lg bg-emerald-500 px-2.5 py-1 text-[10px] font-extrabold text-black hover:bg-emerald-400 disabled:opacity-50" data-testid="choose-quote">Choose this quote</button>
-                          {onCounter ? (
+                          {onCounter && !unsubscribed ? (
                             <button type="button" onClick={() => setCountering(invite.id)} disabled={busy || countering === invite.id} className="rounded-lg border border-sky-500/50 px-2.5 py-1 text-[10px] font-bold text-sky-200 hover:bg-sky-500/10 disabled:opacity-50" data-testid="counter-quote">Counter</button>
                           ) : null}
                         </>

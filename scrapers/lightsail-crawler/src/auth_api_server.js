@@ -368,7 +368,37 @@ async function handleSetDealershipOptOut(req, res, id) {
   const [result] = await pool.query("UPDATE dealership_contacts SET email_opt_out = 1 WHERE id = ?", [id]);
   if (result.affectedRows === 0) return sendJson(res, 404, { error: "Dealership not found" });
   const [rows] = await pool.query("SELECT * FROM dealership_contacts WHERE id = ?", [id]);
-  sendJson(res, 200, { dealership: publicDealership(rows[0]) });
+  const dealer = rows[0];
+  // Cascade to open quote requests pointing at this rooftop: flag every still-open
+  // (invited) or already-quoted invite so the buyer's app stops waiting on it and
+  // disables counters — WITHOUT touching status, so a quote submitted before the
+  // opt-out stays readable and choosable. Idempotent: only rows not already flagged.
+  let affectedRfqs = [];
+  try {
+    await pool.query("ALTER TABLE rfq_invites ADD COLUMN IF NOT EXISTS dealer_unsubscribed_at DATETIME NULL");
+    const [open] = await pool.query(
+      `SELECT DISTINCT i.rfq_id FROM rfq_invites i JOIN rfq_requests r ON r.id = i.rfq_id
+       WHERE i.dealer_name = ? AND i.status IN ('invited','quoted') AND i.dealer_unsubscribed_at IS NULL AND r.status = 'collecting'`,
+      [dealer.dealer_name]
+    );
+    affectedRfqs = open.map((x) => String(x.rfq_id));
+    if (affectedRfqs.length) {
+      await pool.query(
+        `UPDATE rfq_invites i JOIN rfq_requests r ON r.id = i.rfq_id
+         SET i.dealer_unsubscribed_at = NOW()
+         WHERE i.dealer_name = ? AND i.status IN ('invited','quoted') AND i.dealer_unsubscribed_at IS NULL AND r.status = 'collecting'`,
+        [dealer.dealer_name]
+      );
+      // One event per affected request — the buyer-notify signal, deduped by the flag above.
+      const values = affectedRfqs.map((rfqId) => [rfqId, "dealer_unsubscribed", JSON.stringify({ dealerId: String(id), dealerName: dealer.dealer_name })]);
+      await pool.query("INSERT INTO rfq_events (rfq_id, event_type, payload_json) VALUES ?", [values]);
+    }
+  } catch (err) {
+    // A directory-only dealer with no RFQ tables yet, or an older schema: the opt-out
+    // itself still stands; the cascade is best-effort.
+    console.error("opt-out cascade:", err && err.message);
+  }
+  sendJson(res, 200, { dealership: publicDealership(dealer), affectedRfqs });
 }
 
 // GET /api/dealerships — full directory listing.

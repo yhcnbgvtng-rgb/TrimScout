@@ -38,7 +38,7 @@ export function LeaseCompare({
   const eligible = rows.filter((r) => r.kind === "eligible" && (lane === "alternate" || !r.alternate));
   const alternates = lane === "alternate" ? [] : rows.filter((r) => r.kind === "eligible" && r.alternate);
   const counters = rows.filter((r) => r.kind === "counter");
-  const rest = rows.filter((r) => r.kind === "countered" || r.kind === "expired" || r.kind === "waiting" || r.kind === "declined");
+  const rest = rows.filter((r) => r.kind === "countered" || r.kind === "expired" || r.kind === "waiting" || r.kind === "declined" || r.kind === "unsubscribed");
   const anyQuote = counts.quoted > 0;
 
   return (
@@ -141,7 +141,7 @@ export function LeaseCompare({
 
 function Row({ r, open, toggle, collecting, onPick, busy, prefs, lane, countering, onStartCounter, onCancelCounter, onCounter }: { r: LeaseCompareRow; open: boolean; toggle: () => void; collecting: boolean; onPick: (id: string) => void; busy: boolean; prefs: LeaseCompareData["prefs"]; lane: LeaseCompareData["lane"]; countering: boolean; onStartCounter?: () => void; onCancelCounter: () => void; onCounter?: (c: CounterEditsPayload) => Promise<void> }) {
   const l = r.lease;
-  const muted = r.kind === "expired" || r.kind === "declined" || r.kind === "countered";
+  const muted = r.kind === "expired" || r.kind === "declined" || r.kind === "countered" || r.kind === "unsubscribed";
   const hi = "bg-emerald-500/10";
   // The chips are computed once in lib/leaseCompare; here they land next to the number they're about —
   // "/mo" deltas under Monthly, "at signing" deltas under Due at signing, anything else quietly under Status.
@@ -162,10 +162,12 @@ function Row({ r, open, toggle, collecting, onPick, busy, prefs, lane, counterin
   const addOnTotal = l ? l.addOns.reduce((t, x) => t + x.amount, 0) : 0;
   const status =
     r.kind === "eligible" ? (r.picked ? <span className="rounded bg-emerald-500/15 px-1.5 py-0.5 text-[9px] font-bold uppercase text-emerald-300">Chosen</span> : <span className="text-[10px] text-ink-muted">{r.alternate && lane !== "alternate" ? "Different vehicle" : "Matches your ask"}</span>)
+    : r.unsubscribed && r.kind === "counter" ? <span className="rounded bg-border px-1.5 py-0.5 text-[9px] font-bold uppercase text-ink-muted" data-testid="unsub-chip">Unsubscribed — quote still valid</span>
     : r.kind === "counter" ? <span className="rounded bg-amber-500/15 px-1.5 py-0.5 text-[9px] font-bold uppercase text-amber-300">Counter</span>
     : r.kind === "expired" ? <span className="rounded bg-border px-1.5 py-0.5 text-[9px] font-bold uppercase text-ink-muted">Expired</span>
     : r.kind === "declined" ? <span className="rounded bg-rose-500/15 px-1.5 py-0.5 text-[9px] font-bold uppercase text-rose-300">Declined</span>
     : r.kind === "countered" ? <span className="rounded bg-sky-500/15 px-1.5 py-0.5 text-[9px] font-bold uppercase text-sky-300">Buyer countered</span>
+    : r.kind === "unsubscribed" ? <span className="rounded bg-border px-1.5 py-0.5 text-[9px] font-bold uppercase text-ink-muted" data-testid="unsub-chip">Unsubscribed — won't reply</span>
     : <span className="rounded bg-border px-1.5 py-0.5 text-[9px] font-bold uppercase text-ink-muted">Waiting</span>;
   return (
     <>
@@ -215,7 +217,7 @@ function Row({ r, open, toggle, collecting, onPick, busy, prefs, lane, counterin
                 <button type="button" onClick={() => onPick(r.quoteId!)} disabled={busy} className="rounded-lg bg-emerald-500 px-3 py-1.5 text-[11px] font-extrabold text-black hover:bg-emerald-400 disabled:opacity-50" data-testid="choose-quote">
                   Choose this quote
                 </button>
-                {onStartCounter ? (
+                {onStartCounter && !r.unsubscribed ? (
                   <button type="button" onClick={onStartCounter} disabled={busy || countering} className="rounded-lg border border-sky-500/50 px-3 py-1.5 text-[11px] font-bold text-sky-200 hover:bg-sky-500/10 disabled:opacity-50" data-testid="counter-quote">
                     Counter
                   </button>

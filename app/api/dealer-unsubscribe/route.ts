@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { verifyUnsubscribeToken } from "@/lib/dealerUnsubscribe";
 import { setDealershipEmailOptOut, DealershipsApiError } from "@/lib/dealershipsApi";
+import { sendDealerUnsubscribedNotice } from "@/lib/dealerEmail";
 
 // Public, unauthenticated — this is the link a dealer clicks straight from
 // an email, not something reached from inside the signed-in app. The HMAC
@@ -34,8 +35,10 @@ export async function GET(request: Request) {
     );
   }
 
+  let dealership;
+  let affectedRfqs: string[] = [];
   try {
-    await setDealershipEmailOptOut(id);
+    ({ dealership, affectedRfqs } = await setDealershipEmailOptOut(id));
   } catch (err) {
     if (err instanceof DealershipsApiError && err.status === 404) {
       return htmlPage("Already handled", "We couldn't find this dealership on file — you may already be unsubscribed.", 200);
@@ -45,6 +48,22 @@ export async function GET(request: Request) {
       "We couldn't process this request right now. Please try again in a few minutes.",
       502
     );
+  }
+
+  // Best-effort buyer-notify: one analytics signal + one draft notice per
+  // affected RFQ. The auth cascade already deduped (one rfq_events row per
+  // RFQ, guarded by the dealer_unsubscribed_at flag), so this fires once per
+  // buyer per RFQ per unsubscribe. Failures here never fail the unsubscribe.
+  if (affectedRfqs.length) {
+    const dealerName = dealership?.dealerName || "This dealership";
+    for (const rfqId of affectedRfqs) {
+      console.log(JSON.stringify({ event: "dealer_unsubscribed_buyer_notified", at: new Date().toISOString(), rfqId, dealerId: id }));
+    }
+    try {
+      await sendDealerUnsubscribedNotice(dealerName);
+    } catch {
+      // notice is best-effort; the in-app banner is the buyer's primary signal
+    }
   }
 
   return htmlPage(
