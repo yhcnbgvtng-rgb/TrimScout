@@ -25,6 +25,11 @@ export type OpsCounter =
   | "sticker_fetch"
   | "sticker_pending"
   | "sticker_breaker_open"
+  | "factory_build_verified"
+  | "factory_build_pending"
+  | "factory_build_decode_provisional"
+  | "factory_build_parse_failed"
+  | "factory_build_enrich_mismatch"
   | "drain_run"
   | "http_503";
 
