@@ -27,7 +27,18 @@ export function LeaseQuoteSheet({ rfq, compact = false, onSaved }: { rfq: RfqReq
   const prefs = rfq.leasePrefs;
   const [editing, setEditing] = useState(false);
   if (!prefs) return null;
-  const vehicles = rfqVehicles(rfq);
+  // One row per VIN. A dealer group listing the same car at two rooftops (or a request that
+  // pasted the same VIN twice) used to render twin rows both tagged "Unconfirmed build" —
+  // which read as a glitch. Now the car is shown once with every rooftop quoting it under it.
+  const vehicles = Object.values(
+    rfqVehicles(rfq).reduce<Record<string, ReturnType<typeof rfqVehicles>[number] & { dealers: Array<{ name: string; state: string | null }> }>>((acc, v) => {
+      const row = acc[v.vin] || (acc[v.vin] = { ...v, dealers: [] });
+      if (v.dealerName && !row.dealers.some((d) => d.name === v.dealerName)) row.dealers.push({ name: v.dealerName, state: v.dealerState });
+      if (v.factoryVerified) row.factoryVerified = true;
+      return acc;
+    }, {})
+  );
+  const anyUnconfirmed = vehicles.some((v) => !v.factoryVerified);
   const deskFor = (dealerName: string | null) => rfq.invites.find((i) => i.dealerName === dealerName)?.desk || null;
   const editable = sheetEditable(rfq);
   const lockedBy = rfq.leaseSheetLockedByInviteId ? rfq.invites.find((i) => i.id === rfq.leaseSheetLockedByInviteId)?.dealerName : null;
@@ -64,7 +75,6 @@ export function LeaseQuoteSheet({ rfq, compact = false, onSaved }: { rfq: RfqReq
         <p className="text-[10px] font-bold uppercase tracking-wide text-ink-faint">Vehicle{vehicles.length === 1 ? "" : "s"}</p>
         <ul className="space-y-1.5">
           {vehicles.map((v) => {
-            const desk = deskFor(v.dealerName);
             return (
               <li key={v.vin} className="rounded-lg border border-border bg-surface-elevated px-3 py-2">
                 <div className="flex flex-wrap items-center justify-between gap-2">
@@ -79,18 +89,23 @@ export function LeaseQuoteSheet({ rfq, compact = false, onSaved }: { rfq: RfqReq
                 </div>
                 <div className="text-[10px] text-ink-muted">
                   VIN <span className="font-mono">{v.vin}</span>
-                  {v.dealerName ? (
-                    <>
-                      {" · "}
-                      {v.dealerName}
-                      {v.dealerState ? ` (${v.dealerState})` : ""}
-                      {desk && !compact ? (
-                        <span>
-                          {" · "}to {desk.contactName}
-                          {desk.emailMasked ? <span className="font-mono"> · {desk.emailMasked}</span> : null}
+                  {v.dealers.length ? (
+                    v.dealers.map((d) => {
+                      const dDesk = deskFor(d.name);
+                      return (
+                        <span key={d.name}>
+                          {" · "}
+                          {d.name}
+                          {d.state ? ` (${d.state})` : ""}
+                          {dDesk && !compact ? (
+                            <span>
+                              {" · "}to {dDesk.contactName}
+                              {dDesk.emailMasked ? <span className="font-mono"> · {dDesk.emailMasked}</span> : null}
+                            </span>
+                          ) : null}
                         </span>
-                      ) : null}
-                    </>
+                      );
+                    })
                   ) : (
                     <span className="text-amber-300"> · no dealership attached</span>
                   )}
@@ -99,6 +114,11 @@ export function LeaseQuoteSheet({ rfq, compact = false, onSaved }: { rfq: RfqReq
             );
           })}
         </ul>
+        {anyUnconfirmed ? (
+          <p className="text-[10px] leading-snug text-ink-muted" data-testid="unconfirmed-build-help">
+            <span className="font-bold text-amber-300">Unconfirmed build</span> means the factory window sticker isn&apos;t published for this VIN yet, so the trim and options come from the VIN decode rather than the factory record. It doesn&apos;t hold anything up: dealers quote the car as it sits, you can choose any quote, and the dealer confirms the build when you sign.
+          </p>
+        ) : null}
       </div>
 
       {editing && editable ? (

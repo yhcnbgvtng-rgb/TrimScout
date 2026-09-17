@@ -83,7 +83,7 @@ export function LeaseCompare({
                 <th className="px-4 py-3">Residual %</th>
                 <th className="px-4 py-3">Term / miles</th>
                 <th className="px-4 py-3">Expires</th>
-                <th className="px-4 py-3">Status</th>
+                <th className="sticky right-0 z-10 bg-surface px-4 py-3 shadow-[-8px_0_12px_-8px_rgba(0,0,0,0.6)]">Status</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border/60">
@@ -183,7 +183,8 @@ function Row({ r, open, toggle, collecting, onPick, busy, prefs, countering, onS
         {cell(l ? fmtPct(l.residualPercent) : "—")}
         {cell(l ? <>{termMilesLabel(l.termMonths, l.milesPerYear)}{r.counterHow ? <span className="mt-1 block text-[10px] text-amber-300">{r.counterHow}</span> : null}</> : "—", r.kind === "counter" ? "text-amber-200" : "")}
         {cell(r.expiresAt ? new Date(r.expiresAt).toLocaleDateString() : "—", r.kind === "expired" ? "text-rose-300" : "")}
-        <td className="px-4 py-4 align-top">
+        {/* Pinned right: Choose / Counter stay in view even when Cap / MF / Residual scroll away. */}
+        <td className="sticky right-0 z-10 bg-surface px-4 py-4 align-top shadow-[-8px_0_12px_-8px_rgba(0,0,0,0.6)]" data-testid="status-cell">
           <div className="flex flex-col gap-2">
             <div className="flex flex-wrap items-center gap-2">
               {status}

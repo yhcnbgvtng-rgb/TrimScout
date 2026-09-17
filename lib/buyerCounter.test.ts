@@ -121,8 +121,8 @@ describe("every add-on, fee and rebate is shown by name — never a bare total",
     assert.match(lease, /data-testid="money-note"/, "deltas sit under the money columns, not in the dealer cell");
     assert.doesNotMatch(lease, /r\.chips\.map\(\(c\) => \(\s*<span key=\{c\} className="rounded bg-border/, "no comparison badges in the dealer cell");
     assert.match(lease, /Quoted by <span className="text-ink-light">/, "masked email only in the expand detail");
-    const headers = lease.match(/<th className="px-4 py-3">([^<]+)<\/th>/g)!.map((h) => h.replace(/<[^>]+>/g, ""));
-    assert.deepEqual(headers, ["Monthly", "Due at signing", "Cap cost", "MF (APR)", "Residual %", "Term / miles", "Expires", "Status"]);
+    const headers = lease.match(/<th className="[^"]*px-4 py-3[^"]*">([^<]+)<\/th>/g)!.map((h) => h.replace(/<[^>]+>/g, ""));
+    assert.deepEqual(headers, ["Dealer", "Monthly", "Due at signing", "Cap cost", "MF (APR)", "Residual %", "Term / miles", "Expires", "Status"]);
     const form = read("components/CounterSheetForm.tsx");
     assert.doesNotMatch(form, /truncate text-\[11px\]/, "line names wrap, never truncate, on the counter sheet");
   });

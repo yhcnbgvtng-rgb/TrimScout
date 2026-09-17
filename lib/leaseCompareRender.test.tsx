@@ -41,7 +41,7 @@ describe("Compare lease quotes — an airy, scannable primary band", () => {
   });
   it("the dealer cell is just the name and the contact — no badges, no email; add-ons are a one-line summary", () => {
     // Rows are ranked by monthly, so Bob Johnson (lower monthly) is first; check both dealer cells.
-    const dealerCells = Array.from(html.matchAll(/<td class="sticky[^"]*"[^>]*>[\s\S]*?<\/td>/g)).map((m) => m[0]);
+    const dealerCells = Array.from(html.matchAll(/<td class="sticky left-0[^"]*"[^>]*>[\s\S]*?<\/td>/g)).map((m) => m[0]);
     assert.equal(dealerCells.length, 2);
     assert.match(dealerCells[0], /Bob Johnson Lexus/); assert.match(dealerCells[0], /Sales desk/);
     assert.match(dealerCells[1], /Lexus of Route 10/); assert.match(dealerCells[1], /E\. Ruby/);
@@ -53,5 +53,24 @@ describe("Compare lease quotes — an airy, scannable primary band", () => {
   it("Choose is green and primary, Counter secondary, side by side", () => {
     assert.match(html, /data-testid="choose-quote">Choose this quote<\/button><button[^>]*data-testid="counter-quote">Counter<\/button>/);
     assert.match(html, /Matches your ask/);
+  });
+});
+
+describe("deal page: compare wins the first screen once a quote exists; actions never scroll away", () => {
+  it("wiring", async () => {
+    const fs = await import("node:fs");
+    const page = fs.readFileSync("app/rfq/[id]/page.tsx", "utf8");
+    assert.match(page, /const hasQuotes = quotedInvites\.length > 0;/);
+    assert.match(page, /<details className="group rounded-2xl border border-border bg-surface" open=\{!hasQuotes\} data-testid="request-details">/, "sheet + invited dealers fold once quotes exist");
+    const foldIdx = page.indexOf('data-testid="request-details"');
+    const compareFirst = page.indexOf("{hasQuotes ? (");
+    assert.ok(compareFirst > -1 && compareFirst < foldIdx, "with quotes, the compare renders above the folded request details");
+    assert.match(page, /mx-auto max-w-6xl px-4 py-10/, "the deal page is wide enough for the nine columns at 1280px");
+    const compare = fs.readFileSync("components/LeaseCompare.tsx", "utf8");
+    assert.match(compare, /sticky right-0 z-10 bg-surface px-4 py-4 align-top[^"]*" data-testid="status-cell"/, "Status / Choose / Counter pinned right");
+    assert.match(compare, /sticky left-0 z-10 bg-surface px-4 py-4 align-top/, "Dealer pinned left");
+    const sheet = fs.readFileSync("components/LeaseQuoteSheet.tsx", "utf8");
+    assert.match(sheet, /data-testid="unconfirmed-build-help"/);
+    assert.match(sheet, /reduce<Record<string, ReturnType<typeof rfqVehicles>\[number\] & \{ dealers:/, "one row per VIN, rooftops listed under it");
   });
 });
