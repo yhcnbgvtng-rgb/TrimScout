@@ -59,9 +59,12 @@ async function computeInventoryAnalytics(pool, f) {
   const num = (v) => (v == null ? null : Number(v));
   const round1 = (v) => (v == null ? null : Math.round(Number(v) * 10) / 10);
   // Medians: MariaDB ≥ 10.3 has MEDIAN() as a window function; older builds get null medians, not a 500.
-  async function medians(partition, keyCols) {
+  // MEDIAN() OVER a partition gives every row in the group the same value; the derived table t
+  // exposes the key columns under PLAIN aliases (inner has "i.make AS make"), so the outer SELECT /
+  // GROUP BY must use those plain names — never i.make or an AS in GROUP BY, which is invalid against t.
+  async function medians(partition, innerCols, outerCols) {
     try {
-      const rows = await q(`SELECT ${keyCols}, MAX(med) AS med FROM (SELECT ${keyCols}, MEDIAN(${INV_DOM}) OVER (PARTITION BY ${partition}) AS med ${stock}) t GROUP BY ${keyCols}`);
+      const rows = await q(`SELECT ${outerCols}, MAX(med) AS med FROM (SELECT ${innerCols}, MEDIAN(${INV_DOM}) OVER (PARTITION BY ${partition}) AS med ${stock}) t GROUP BY ${outerCols}`);
       return rows;
     } catch { return null; }
   }
@@ -76,11 +79,11 @@ async function computeInventoryAnalytics(pool, f) {
   const [[totals]] = await pool.query(`SELECT COUNT(*) AS n, AVG(${INV_DOM}) AS avgDom, ${INV_BANDS}, MAX(i.last_seen_at) AS lastSeenAt, COUNT(DISTINCT i.dealer_id) AS dealers, COUNT(DISTINCT CONCAT(i.make, '|', i.model)) AS models ${stock}`, args);
   // --- DOM by model / dealer / trim / year / drivetrain / powertrain
   const byModel = (await q(`SELECT i.make, i.model, COUNT(*) AS n, AVG(${INV_DOM}) AS avgDom, ${INV_BANDS}, AVG(CASE WHEN i.msrp > 0 AND i.price > 0 THEN (i.msrp - i.price) / i.msrp END) AS avgDiscount, SUM(i.window_sticker_url IS NOT NULL) AS withSticker ${stock} AND i.make IS NOT NULL AND i.model IS NOT NULL GROUP BY i.make, i.model ORDER BY n DESC LIMIT 400`)).map(shape);
-  attachMedian(byModel, await medians("i.make, i.model", "i.make, i.model"), ["make", "model"]);
+  attachMedian(byModel, await medians("i.make, i.model", "i.make AS make, i.model AS model", "make, model"), ["make", "model"]);
   const byDealer = (await q(`SELECT i.dealer_id AS dealerId, i.dealer_name AS dealerName, d.state, d.city, COUNT(*) AS n, AVG(${INV_DOM}) AS avgDom, ${INV_BANDS}, AVG(CASE WHEN i.msrp > 0 AND i.price > 0 THEN (i.msrp - i.price) / i.msrp END) AS avgDiscount, SUM(i.window_sticker_url IS NOT NULL) AS withSticker, SUM(i.options_json IS NOT NULL) AS withOptions, SUM(i.price IS NULL OR i.price <= 0) AS missingPrice, SUM(i.image_url IS NULL OR i.image_url = '') AS missingPhoto, SUM(i.last_seen_at < DATE_SUB(NOW(), INTERVAL 2 DAY)) AS stale, MAX(d.contact_email IS NOT NULL AND d.contact_email <> '') AS hasEmail, MAX(i.last_seen_at) AS lastSeenAt ${stock} GROUP BY i.dealer_id, i.dealer_name, d.state, d.city ORDER BY n DESC LIMIT 1500`)).map(shape);
-  attachMedian(byDealer, await medians("i.dealer_id", "i.dealer_id AS dealerId"), ["dealerId"]);
+  attachMedian(byDealer, await medians("i.dealer_id", "i.dealer_id AS dealerId", "dealerId"), ["dealerId"]);
   const byTrim = (await q(`SELECT i.make, i.model, i.trim, COUNT(*) AS n, AVG(${INV_DOM}) AS avgDom, ${INV_BANDS}, AVG(CASE WHEN i.msrp > 0 AND i.price > 0 THEN (i.msrp - i.price) / i.msrp END) AS avgDiscount ${stock} AND i.make IS NOT NULL AND i.model IS NOT NULL AND i.trim IS NOT NULL AND i.trim <> '' GROUP BY i.make, i.model, i.trim HAVING n >= 2 ORDER BY n DESC LIMIT 400`)).map(shape);
-  attachMedian(byTrim, await medians("i.make, i.model, i.trim", "i.make, i.model, i.trim"), ["make", "model", "trim"]);
+  attachMedian(byTrim, await medians("i.make, i.model, i.trim", "i.make AS make, i.model AS model, i.trim AS trim", "make, model, trim"), ["make", "model", "trim"]);
   const byYear = (await q(`SELECT i.make, i.model, i.year, COUNT(*) AS n, AVG(${INV_DOM}) AS avgDom, ${INV_BANDS} ${stock} AND i.make IS NOT NULL AND i.model IS NOT NULL AND i.year IS NOT NULL GROUP BY i.make, i.model, i.year ORDER BY n DESC LIMIT 600`)).map(shape);
   const byDrivetrain = (await q(`SELECT ${INV_DRIVETRAIN} AS drivetrain, COUNT(*) AS n, AVG(${INV_DOM}) AS avgDom, ${INV_BANDS} ${stock} GROUP BY drivetrain ORDER BY n DESC`)).map(shape);
   const byPowertrain = (await q(`SELECT ${INV_POWERTRAIN} AS powertrain, COUNT(*) AS n, AVG(${INV_DOM}) AS avgDom, ${INV_BANDS} ${stock} GROUP BY powertrain ORDER BY n DESC`)).map(shape);

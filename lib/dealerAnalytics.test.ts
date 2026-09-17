@@ -59,6 +59,11 @@ describe("wiring", () => {
     assert.match(box, /COALESCE\(NULLIF\(i\.days_on_lot, 0\), DATEDIFF\(COALESCE\(i\.removed_at, NOW\(\)\), COALESCE\(i\.crawl_first_seen, i\.first_seen_at\)\)\)/);
     assert.match(box, /<= 14\) AS d0_14, SUM\(.*BETWEEN 15 AND 45\) AS d15_45, SUM\(.*BETWEEN 46 AND 90\) AS d46_90, SUM\(.*> 90\) AS d90p/);
     assert.match(box, /pathname === "\/api\/inventory\/analytics"/);
+    // Median subqueries must reference the derived table's plain aliases, never i.<col> or an AS in GROUP BY.
+    assert.match(box, /async function medians\(partition, innerCols, outerCols\)/);
+    assert.match(box, /SELECT \$\{outerCols\}, MAX\(med\) AS med FROM \(SELECT \$\{innerCols\}, MEDIAN/);
+    assert.match(box, /medians\("i\.make, i\.model", "i\.make AS make, i\.model AS model", "make, model"\)/);
+    assert.doesNotMatch(box, /GROUP BY \$\{keyCols\}/, "the broken alias-in-GROUP-BY median query is gone");
     assert.match(fs.readFileSync("scripts/box/2026-09-17-inventory-analytics.sh", "utf8"), /analytics handler/);
     const page = fs.readFileSync("app/admin/analytics/AnalyticsClient.tsx", "utf8");
     assert.match(page, /<DealerAnalyticsSection \/>/);
