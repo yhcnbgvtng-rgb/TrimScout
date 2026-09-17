@@ -192,6 +192,23 @@ describe("freeVinImportVehicle", () => {
     }
   });
 
+  it("trusts our own check-digit math over vPIC's when they disagree (2026 RAV4 alphanumeric serials)", () => {
+    // Route 22 Toyota lists 2T36CRAVXTC39J403 and our nightly crawl saw it there; the ISO-3779
+    // check digit is X and correct, but vPIC's Toyota profile predates letters in the serial.
+    const vpicMisfire = decoded({
+      vin: "2T36CRAVXTC39J403",
+      year: 2026,
+      make: "Toyota",
+      model: "RAV4",
+      errorText: "1 - Check Digit (9th position) does not calculate properly; 400 - Invalid Characters Present",
+    });
+    assert.equal(hasVinIntegrityError(vpicMisfire), false);
+    // The same verdict on a VIN whose check digit really is wrong still refuses.
+    assert.equal(hasVinIntegrityError(decoded({ vin: "2T36CRAV1TC39J403", errorText: vpicMisfire.errorText })), true);
+    // An auto-correction is refused even when the check digit passes — the decode is for a different VIN.
+    assert.equal(hasVinIntegrityError(decoded({ vin: "2T36CRAVXTC39J403", errorText: "3 - VIN corrected, error in one position" })), true);
+  });
+
   it("still accepts a valid VIN that NHTSA only has partial data for", () => {
     // Code 14 is "we don't know everything about this VIN", not "this VIN is
     // wrong" — the car is real and belongs in the package.

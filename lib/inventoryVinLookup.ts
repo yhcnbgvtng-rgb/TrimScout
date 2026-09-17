@@ -3,13 +3,17 @@
  * "dealer from the VIN" sources (the other is the window sticker's sold-to
  * block); both outrank anything derived from a pasted link.
  *
- * Reads the small derived index (scripts/build-inventory-vin-index.mjs),
- * never the 84 MB snapshot. Pure apart from the static JSON import.
+ * Reads the live dealer_inventory table on the deals box (lib/inventoryApi.ts),
+ * fed nightly by the crawl box — not a snapshot. A car a dealer group lists on
+ * several rooftops has one listing per store; the one still in stock and seen
+ * most recently wins. Fails soft: any backend trouble reads as "never seen".
  */
 
-import index from "../data/inventory-vin-dealers.json";
+import { inventoryVin, type InventoryVehicle } from "./inventoryApi";
 
 export interface InventoryDealerSighting {
+  /** Directory id of the rooftop when the sync matched one (0 / null when the store isn't on file). */
+  dealerId: string | null;
   dealerName: string;
   city: string | null;
   state: string | null;
@@ -17,17 +21,33 @@ export interface InventoryDealerSighting {
   lastSeen: string | null;
 }
 
-type IndexRow = [string, string, string, string];
-const VINS = (index as unknown as { vins: Record<string, IndexRow> }).vins;
+export type InventoryVinLookup = (vin: string) => Promise<InventoryDealerSighting | null>;
 
-export function inventoryDealerForVin(vin: string): InventoryDealerSighting | null {
-  const row = VINS[(vin || "").trim().toUpperCase()];
-  if (!row) return null;
-  const [dealerName, city, state, lastSeen] = row;
-  if (!dealerName) return null;
-  return { dealerName, city: city || null, state: state || null, lastSeen: lastSeen || null };
+const LOOKUP_TIMEOUT_MS = 4_000;
+
+export function sightingFromListings(listings: InventoryVehicle[]): InventoryDealerSighting | null {
+  const named = listings.filter((l) => (l.dealerName || "").trim());
+  if (!named.length) return null;
+  const rank = (l: InventoryVehicle) => `${l.removedAt ? 0 : 1}${l.lastSeenAt || ""}`;
+  const best = named.reduce((a, b) => (rank(b) > rank(a) ? b : a));
+  const id = best.dealerId && best.dealerId !== "0" ? String(best.dealerId) : null;
+  return {
+    dealerId: id,
+    dealerName: best.dealerName.trim(),
+    city: best.dealerCity || null,
+    state: best.dealerState || null,
+    lastSeen: (best.lastSeenAt || "").slice(0, 10) || null,
+  };
 }
 
-export function inventoryIndexSize(): number {
-  return Object.keys(VINS).length;
+export async function inventoryDealerForVin(vin: string): Promise<InventoryDealerSighting | null> {
+  const clean = (vin || "").trim().toUpperCase();
+  if (!/^[A-HJ-NPR-Z0-9]{17}$/.test(clean)) return null;
+  const timeout = new Promise<null>((resolve) => setTimeout(() => resolve(null), LOOKUP_TIMEOUT_MS).unref?.());
+  try {
+    const res = await Promise.race([inventoryVin(clean), timeout]);
+    return res ? sightingFromListings(res.listings || []) : null;
+  } catch {
+    return null;
+  }
 }

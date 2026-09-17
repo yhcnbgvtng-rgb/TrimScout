@@ -329,7 +329,7 @@ function reasonFromServerError(message: string, json: Record<string, unknown>): 
   if (json.dealerBlocked) return "blocked";
   if (/blocked/i.test(message)) return "blocked";
   if (/could not (read|find) a .*vin|17-character vin/i.test(message)) return "no_vin";
-  if (/doesn't check out|check digit|couldn't read enough/i.test(message)) return "not_found";
+  if (/doesn't look right|doesn't check out|check digit|couldn't (find|read enough)/i.test(message)) return "not_found";
   return "not_found";
 }
 
