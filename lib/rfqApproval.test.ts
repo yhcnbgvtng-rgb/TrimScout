@@ -98,3 +98,16 @@ describe("wiring", () => {
     assert.equal(inviteVehicleFor(r, "Somewhere Else").vin, "2T36CRAVXTC39J403");
   });
 });
+
+describe("the all-quotes desk shows every status", () => {
+  it("filters cover pending review, not released, awaiting, quotes in, closed; the portal links both desks", () => {
+    const page = fs.readFileSync("app/admin/quote-requests/QuoteRequestsClient.tsx", "utf8");
+    for (const id of ["pending", "rejected", "awaiting", "quotes_in", "closed"]) assert.match(page, new RegExp(`id: "${id}"`), id);
+    assert.match(page, /data-testid="approval-badge"/);
+    assert.match(page, /held for approval/);
+    assert.match(page, /href=\{`\/admin\/approvals#rfq-\$\{r\.id\}`\}/, "pending rows jump to the approval desk");
+    const portal = fs.readFileSync("components/AdminPortal.tsx", "utf8");
+    assert.match(portal, /href="\/admin\/quote-requests"/);
+    assert.match(portal, /href="\/admin\/approvals"/);
+  });
+});
