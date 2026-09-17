@@ -20,7 +20,7 @@ export interface ListingFeedRouteConfig {
   notFlag: string;
 }
 
-function vinPasteError(
+export function vinPasteError(
   message: string,
   extra?: { dealerBlocked?: boolean; vin?: string | null; dealer?: DealerPageIdentity; listingUrl?: string | null }
 ) {

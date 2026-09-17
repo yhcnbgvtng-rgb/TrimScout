@@ -21,7 +21,7 @@ const vehicle = (vin: string): Vehicle =>
 // A VIN our own crawl has seen (the live dealer_inventory table, stubbed here), and one it never has.
 const SEEN = "2T2HGCEZ9TC38B302";
 const UNSEEN = "1FTFW1E80PFA00001";
-const SIGHTING: InventoryDealerSighting = { dealerId: null, dealerName: "Lexus of Route 10", city: "Whippany", state: "NJ", lastSeen: "2026-09-16" };
+const SIGHTING: InventoryDealerSighting = { dealerId: null, dealerName: "Lexus of Route 10", city: "Whippany", state: "NJ", lastSeen: "2026-09-16", firstSeen: "2026-09-10", daysOnLot: 6 };
 const lookup = async (vin: string) => (vin === SEEN ? SIGHTING : null);
 const LINK = { name: "Paul Miller BMW", city: "Wayne", state: "NJ", zip: null, source: "directory_domain" as const };
 
@@ -35,7 +35,12 @@ describe("sightingFromListings — the rooftop our crawl last saw the VIN at", (
       listing({ dealerId: "7486", lastSeenAt: "2026-09-15T22:00:00.000Z" }),
       listing({ dealerId: "9999", dealerName: "Lexus of Elsewhere", lastSeenAt: "2026-09-16T22:00:00.000Z" }),
     ]);
-    assert.deepEqual(s, { dealerId: "9999", dealerName: "Lexus of Elsewhere", city: "Whippany", state: "NJ", lastSeen: "2026-09-16" });
+    assert.deepEqual(s, { dealerId: "9999", dealerName: "Lexus of Elsewhere", city: "Whippany", state: "NJ", lastSeen: "2026-09-16", firstSeen: null, daysOnLot: null });
+    // Lot age: the feed's own figure first, else counted from the crawl's first sighting.
+    assert.equal(sightingFromListings([listing({ daysOnLot: 12, crawlFirstSeen: "2026-09-01T00:00:00.000Z" })])?.daysOnLot, 12);
+    const counted = sightingFromListings([listing({ daysOnLot: 0, crawlFirstSeen: "2026-09-10T00:00:00.000Z" })]);
+    assert.equal(counted?.daysOnLot, 6);
+    assert.equal(counted?.firstSeen, "2026-09-10");
     assert.equal(sightingFromListings([listing({ dealerId: "0" })])?.dealerId, null);
     assert.equal(sightingFromListings([]), null);
   });
@@ -77,6 +82,15 @@ describe("resolveVehicleDealer — the store advertising the car first, the VIN 
     assert.equal(v.location.dealerSource, "inventory");
     assert.equal(v.location.dealerName, "Lexus of Route 10");
     assert.equal(v.location.dealerConfirmed, true);
+    assert.equal(v.daysOnLot, 6, "lot age rides along from the crawl");
+    assert.equal(v.lotFirstSeen, "2026-09-10");
+  });
+
+  it("2d. lot age from the crawl is counted from first-seen when the feed had no figure, and never overrides a sticker's own", async () => {
+    const counted = await resolveVehicleDealer(vehicle(SEEN), {}, undefined, async () => ({ ...SIGHTING, daysOnLot: 0 }));
+    assert.equal(counted.daysOnLot, 0);
+    const own = await resolveVehicleDealer({ ...vehicle(SEEN), daysOnLot: 40 }, {}, undefined, lookup);
+    assert.equal(own.daysOnLot, 40);
   });
 
   it("2c. a backend hiccup reads as never seen, never as a crash", async () => {

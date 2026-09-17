@@ -716,7 +716,20 @@ export async function importPastedFactoryVehicle(
         const retryJson = (await retryRes.json().catch(() => ({}))) as Record<string, unknown>;
         return interpretFactoryBuildJson(retryJson, retryRes.ok, OEM_BY_ENDPOINT[retryEndpoint], jsonVin);
       }
-      return { ok: false, reason: "not_found", error: factoryBuildUnavailableError(jsonVin || pastedVin) };
+      // No OEM route claims this VIN: the catch-all imports it on the free
+      // path (NHTSA + the link's store) instead of dead-ending the buyer.
+      const anyRes = await fetchImpl("/api/free-vin", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ paste: raw, vin: jsonVin || suppliedVin || undefined }),
+      });
+      const anyJson = (await anyRes.json().catch(() => ({}))) as Record<string, unknown>;
+      if (anyJson.needsVin || anyJson.dealerBlocked) {
+        const message = (typeof anyJson.error === "string" && anyJson.error) || factoryBuildUnavailableError(jsonVin || pastedVin);
+        return { ok: false, reason: reasonFromServerError(message, anyJson), error: message, dealer: blockedDealerFromJson(anyJson), listingUrl: typeof anyJson.listingUrl === "string" && anyJson.listingUrl ? anyJson.listingUrl : undefined };
+      }
+      const any = interpretFactoryBuildJson(anyJson, anyRes.ok, triedOem, jsonVin || pastedVin);
+      return any.ok ? { ...any, oem: null } : any;
     }
 
     return interpretFactoryBuildJson(json, res.ok, triedOem, jsonVin || pastedVin);

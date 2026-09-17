@@ -86,6 +86,8 @@ export interface Vehicle {
   msrp: number;
   dealerPrice: number;
   daysOnLot: number;
+  /** YYYY-MM-DD our inventory crawl first saw the VIN on this lot — the source of daysOnLot when the feed had none. */
+  lotFirstSeen?: string;
   status: VehicleStatus;
   condition?: VehicleCondition;
   location: {
@@ -136,6 +138,8 @@ export interface Vehicle {
    * Never upgrades buildConfidence — a person's glance is not a build sheet.
    */
   buyerConfirmed?: boolean;
+  /** How the paste became this car (lib/resolvePath.ts) — client-side, for QA metrics. */
+  resolvePath?: "url_only" | "url_plus_vin_confirm" | "vin_only" | "factory_pending" | "fail";
   /** Set when the factory sticker service didn't answer — the build is a free decode, not "no build". */
   stickerUnavailableReason?: string | null;
   /** The OEM hasn't published this VIN's window sticker yet — a neutral note, never a warning. */
