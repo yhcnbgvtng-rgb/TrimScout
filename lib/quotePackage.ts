@@ -41,7 +41,8 @@ export interface DealerDesk {
   email: string;
   emailDomain: string;
   /** "directory" = scraped, admin-maintained dealership_contacts row; "buyer" = typed in by the buyer, unverified. */
-  source: "directory" | "buyer";
+  /** "rooftop": the dealership's own sales desk — a shared inbox on file, or nothing yet (ops routes it). */
+  source: "directory" | "buyer" | "rooftop";
   /** True when this is a real person at a real mailbox — the only kind that gets an invite. */
   knownNamed: boolean;
   emailOptOut: boolean;
@@ -133,6 +134,36 @@ export function deskFromDealership(row: Pick<Dealership, "dealerName" | "state" 
   };
 }
 
+/**
+ * The dealership's own sales desk, for a rooftop with no named person on
+ * file: the shared inbox the directory has (sales@, internet@ …) when
+ * there is one, else no address — the invite queues for ops to route
+ * (draft-then-approve, as every invite). Never "verified", never a person.
+ */
+export function deskFromRooftop(row: Pick<Dealership, "dealerName" | "state" | "contactEmail" | "emailOptOut">): DealerDesk {
+  const email = (row.contactEmail || "").trim().toLowerCase();
+  const inbox = email && isGenericMailbox(email) ? email : "";
+  return {
+    dealerName: (row.dealerName || "").trim(),
+    dealerState: (row.state || "").trim().toUpperCase() || null,
+    contactName: "Sales desk",
+    role: "sales",
+    email: inbox,
+    emailDomain: emailDomainOf(inbox),
+    source: "rooftop",
+    knownNamed: false,
+    emailOptOut: Boolean(row.emailOptOut),
+  };
+}
+
+/** Where an invite goes: a named person, the rooftop's shared inbox, or the ops routing queue. */
+export type InviteRouting = "named" | "rooftop_inbox" | "unassigned";
+
+export function inviteRouting(desk: Pick<DealerDesk, "knownNamed" | "email" | "source"> | null | undefined): InviteRouting {
+  if (desk?.knownNamed) return "named";
+  return desk?.email ? "rooftop_inbox" : "unassigned";
+}
+
 /** A sales-adviser address the buyer typed in. Never a generic mailbox, and never treated as verified. */
 export function deskFromBuyerEmail(dealerName: string, dealerState: string | null, email: string): DealerDesk | null {
   const clean = (email || "").trim().toLowerCase();
@@ -194,14 +225,14 @@ export const MAX_PACKAGE_LINKS = 3;
 // ---------------------------------------------------------------------
 
 export type InviteBlockReason =
-  | "no_named_contact"     // rooftop resolved, but no named person with a real mailbox on file
+  | "no_named_contact"     // legacy: rooftop resolved, no named person — no longer blocks (the rooftop desk takes it); kept for stored invites
   | "dealer_opted_out"     // the desk used the unsubscribe link
   | "sister_store"         // another desk in this package shares the dealer group's domain
   | "desk_already_invited" // that desk already has an open invite from another package
   | "no_rooftop";          // the link never resolved to a dealership at all
 
 export const INVITE_BLOCK_MESSAGES: Record<InviteBlockReason, string> = {
-  no_named_contact: "No sales contact on file for this dealership. We only send quote requests to a named person — never a shared inbox — so this one can't be sent yet.",
+  no_named_contact: "No named sales contact on file for this dealership yet. The request goes to the dealership's sales desk instead, and every reply still comes back through TrimScout.",
   dealer_opted_out: "This dealership asked us to stop emailing them.",
   sister_store: "Same dealer group as another dealership in this request — one request per group, so this one is skipped.",
   desk_already_invited: "This desk already has an open quote request from you. Wait for their reply, or walk away from that request first.",
@@ -212,6 +243,8 @@ export interface PlannedInvite {
   paste: DealerLinkPaste;
   desk: DealerDesk | null;
   blocked: InviteBlockReason | null;
+  /** How it will be delivered when not blocked. */
+  routing: InviteRouting;
 }
 
 /**
@@ -259,7 +292,9 @@ export function desksWithOpenInvites(rfqs: RfqRequest[]): Set<string> {
  * Pairs each pasted vehicle with its desk and decides, per pair, whether an
  * invite can go out. Order is preserved; the package is capped at
  * MAX_PACKAGE_LINKS pairs. A blocked pair stays visible — the buyer sees
- * exactly why and can swap the car — but never becomes an invite.
+ * exactly why and can swap the car — but never becomes an invite. A rooftop
+ * with no named person is not blocked: the invite routes to its sales desk
+ * (shared inbox) or to the ops queue — a known store is never a dead end.
  */
 export function planInvites(
   pastes: DealerLinkPaste[],
@@ -273,11 +308,10 @@ export function planInvites(
     const desk = desks[i];
     let blocked: InviteBlockReason | null = null;
     if (!paste.dealerName) blocked = "no_rooftop";
-    else if (!desk || !desk.knownNamed) blocked = "no_named_contact";
-    else if (desk.emailOptOut) blocked = "dealer_opted_out";
+    else if (desk?.emailOptOut) blocked = "dealer_opted_out";
     else if (sisters.has(i)) blocked = "sister_store";
-    else if (openDeskEmails.has(desk.email)) blocked = "desk_already_invited";
-    return { paste, desk, blocked };
+    else if (desk?.email && openDeskEmails.has(desk.email)) blocked = "desk_already_invited";
+    return { paste, desk, blocked, routing: inviteRouting(desk) };
   });
 }
 

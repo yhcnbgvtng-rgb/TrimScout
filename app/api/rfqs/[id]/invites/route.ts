@@ -9,6 +9,8 @@ import { matchDirectoryDealership } from "@/lib/dealerContactLookup";
 import {
   deskFromDealership,
   deskFromBuyerEmail,
+  deskFromRooftop,
+  inviteRouting,
   maskEmail,
   sisterStoreConflicts,
   INVITE_BLOCK_MESSAGES,
@@ -69,19 +71,22 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       return NextResponse.json({ error: "You've reached the invite limit for this request." }, { status: 400 });
     }
 
-    // --- Resolve the desk. Directory first; a buyer-typed adviser address
-    //     only when the directory has nothing, and only if it's a person's
-    //     mailbox. Never a shared inbox from either source.
+    // --- Resolve the desk. A named person from the directory first; else a
+    //     buyer-typed adviser address (a person's mailbox only); else the
+    //     rooftop's own sales desk — its shared inbox when the directory has
+    //     one, or no address at all, in which case the invite queues for ops
+    //     to route. A known rooftop is never a dead end; the client never
+    //     supplies the address we send to.
     let desk: DealerDesk | null = null;
     if (rfq.packageKind === "links") {
       const directory = await listDealerships().catch(() => []);
       const row = matchDirectoryDealership(directory, { dealerName, state: dealerState });
       desk = row ? deskFromDealership(row) : null;
       if (!desk?.knownNamed && typeof body?.buyerProvidedEmail === "string") {
-        desk = deskFromBuyerEmail(dealerName, dealerState, body.buyerProvidedEmail);
+        desk = deskFromBuyerEmail(dealerName, dealerState, body.buyerProvidedEmail) || desk;
       }
-      if (!desk || !desk.knownNamed) {
-        return NextResponse.json({ error: INVITE_BLOCK_MESSAGES.no_named_contact, code: "no_named_contact" }, { status: 422 });
+      if (!desk?.knownNamed) {
+        desk = row ? deskFromRooftop(row) : { dealerName, dealerState: dealerState.toUpperCase() || null, contactName: "Sales desk", role: "sales", email: "", emailDomain: "", source: "rooftop", knownNamed: false, emailOptOut: false };
       }
       if (desk.emailOptOut) {
         return NextResponse.json({ error: INVITE_BLOCK_MESSAGES.dealer_opted_out, code: "dealer_opted_out" }, { status: 422 });
@@ -116,7 +121,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     try {
       invite = await createRfqInvite(id, {
         dealerName,
-        dealerContactEmail: desk ? desk.email : body?.dealerContactEmail || null,
+        dealerContactEmail: desk ? desk.email || null : body?.dealerContactEmail || null,
         desk: desk
           ? { contactName: desk.contactName, role: desk.role, emailMasked: maskEmail(desk.email), source: desk.source }
           : undefined,
@@ -135,8 +140,9 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     //     anything left "queued" is drained later — see lib/inviteOutbox.ts.
     //     Nothing here awaits a mail provider, a dealer site, or a sticker.
     bump("invite_queued");
+    if (desk && !desk.email) bump("invite_unassigned");
     const emailOn = featureEnabled("outboundDealerEmail");
-    if (desk) {
+    if (desk?.email) {
       const queuedInvite = invite;
       after(async () => {
         const fresh = await getRfq(id).catch(() => null);
@@ -148,7 +154,8 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
 
     // Neither the desk's real address nor the tracked-link token leaves the server.
     const { dealerContactEmail: _hiddenEmail, viewToken: _hiddenToken, ...publicInvite } = invite;
-    return NextResponse.json({ invite: publicInvite, queued: true, notice: emailOn ? DEGRADE_COPY.queued : DEGRADE_COPY.emailOff });
+    const routing = inviteRouting(desk);
+    return NextResponse.json({ invite: publicInvite, queued: true, routing, notice: !emailOn ? DEGRADE_COPY.emailOff : routing === "unassigned" ? DEGRADE_COPY.queuedUnassigned : DEGRADE_COPY.queued });
   } catch (err) {
     const message = err instanceof RfqApiError ? err.message : "Could not add this dealer.";
     const status = err instanceof RfqApiError ? err.status : 502;

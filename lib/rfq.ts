@@ -89,7 +89,7 @@ export interface RfqInvite {
   respondedAt: string | null;
   quote: RfqQuote | null;
   /** The named person this went to. Email is masked before it reaches the buyer. */
-  desk?: { contactName: string; role: string; emailMasked: string; source: "directory" | "buyer" } | null;
+  desk?: { contactName: string; role: string; emailMasked: string; source: "directory" | "buyer" | "rooftop" } | null;
   /** The car this desk is quoting — a link package has one per invite. */
   vehicle?: { vin: string; year: number; make: string; model: string; trim: string; vdpUrl: string | null } | null;
   /** Delivery leg of the audit trail: queued → sent → viewed. */

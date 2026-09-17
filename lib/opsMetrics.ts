@@ -11,6 +11,8 @@ export type OpsCounter =
   | "rfq_create_429"
   | "rfq_create_off"
   | "invite_queued"
+  /** Queued with no address — the rooftop has no named contact and no shared inbox on file; ops routes it. */
+  | "invite_unassigned"
   | "invite_429"
   | "email_sent"
   | "email_failed"

@@ -50,6 +50,7 @@ export const DEGRADE_COPY = {
   rfqSendOff: "Quote requests are paused for a moment while we catch up. Your draft is saved — try again shortly.",
   emailOff: "Quotes are delayed — dealers will be notified as soon as sending resumes. Your request is saved and in line.",
   queued: "We're lining up your quote — the dealer will be notified in a moment.",
+  queuedUnassigned: "We're lining up your quote — this dealership has no sales inbox on file yet, so our team routes it to the store by hand. Replies still come back through TrimScout.",
 } as const;
 
 /** The public status the app polls for its degrade banner: flags only, never counters. */
