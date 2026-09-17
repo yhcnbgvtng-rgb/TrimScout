@@ -501,9 +501,16 @@ export default function RfqWorkspacePage() {
 
   const quotedInvites = rfq.invites.filter((i) => i.quote);
   const respondedCount = rfq.invites.filter((i) => i.status !== "invited").length;
+  const hasQuotes = quotedInvites.length > 0;
+  const requestSummary = [
+    rfq.leasePrefs ? `${rfq.leasePrefs.termMonths} mo · ${rfq.leasePrefs.milesPerYear.toLocaleString()} mi/yr · ZIP ${rfq.leasePrefs.zip}` : rfq.quotePrefs?.quoteType === "finance" ? `${rfq.quotePrefs.finance.termMonths} mo · $${rfq.quotePrefs.finance.downPayment.toLocaleString()} down` : rfq.quotePrefs ? "Cash" : null,
+    `${rfq.invites.length} dealer${rfq.invites.length === 1 ? "" : "s"} invited`,
+    rfq.leaseSheetLockedAt ? "sheet locked" : null,
+    rfq.dealReference || null,
+  ].filter(Boolean).join(" · ");
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6 lg:px-8 space-y-8 animate-fadeIn">
+    <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8 space-y-8 animate-fadeIn">
       <div className="space-y-2">
         <h1 className="text-2xl sm:text-3xl font-black text-white">Your Quote Request</h1>
         <p className="text-sm text-ink-muted">
@@ -520,45 +527,6 @@ export default function RfqWorkspacePage() {
         </p>
       ))}
 
-      {rfq.leasePrefs ? <LeaseQuoteSheet rfq={rfq} onSaved={setRfq} /> : null}
-
-      {/* Used cars: what the buyer told us about the car. */}
-      {rfqVehicles(rfq).filter((v) => v.condition !== "new").map((v) => (
-        <section key={v.vin} className="rounded-2xl border border-border bg-surface p-5 space-y-2" data-testid="used-ask-sheet">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <h2 className="text-sm font-bold text-white">Used car</h2>
-            <span className="rounded bg-sky-500/15 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-sky-300">{v.condition === "cpo" ? "CPO" : "USED"}</span>
-          </div>
-          <p className="text-[11px] text-ink-muted">
-            VIN <span className="font-mono">{v.vin}</span>
-            {v.mileage != null ? ` · ${v.mileage.toLocaleString()} miles (buyer-entered)` : ""}
-            {v.stockNumber ? ` · stock ${v.stockNumber}` : ""}
-          </p>
-        </section>
-      ))}
-
-      {rfq.packageKind === "links" ? (
-        <div className="rounded-2xl border border-border bg-surface p-5 space-y-2">
-          <p className="text-[11px] font-bold text-ink-light uppercase tracking-wide">
-            Quote request{rfq.dealReference ? ` · ${rfq.dealReference}` : ""}
-          </p>
-          <p className="text-[11px] leading-snug text-ink-muted">{rfq.leasePrefs ? LEASE_NON_BINDING_COPY : NON_BINDING_COPY}</p>
-          <p className="text-[11px] text-ink-faint">
-            {(rfq.linkPastes || []).length} vehicle{(rfq.linkPastes || []).length === 1 ? "" : "s"} in this request — each desk quotes its own car.
-          </p>
-        </div>
-      ) : (
-        <div className="rounded-2xl border border-border bg-surface p-5 space-y-2">
-          <p className="text-[11px] font-bold text-ink-light uppercase tracking-wide">Locked must-haves</p>
-          {rfq.mustHaves.map((m) => (
-            <div key={m.code} className="flex items-start gap-1.5 text-[11px] text-white">
-              <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 shrink-0 mt-0.5" />
-              <span>{formatFactoryOptionLine({ code: m.code, description: m.name })}</span>
-            </div>
-          ))}
-        </div>
-      )}
-
       {rfq.status === "picked" && (
         <div className="rounded-2xl border border-emerald-500/60 bg-emerald-950/20 p-5 text-center">
           <p className="text-sm font-bold text-emerald-400">You chose this quote</p>
@@ -570,50 +538,135 @@ export default function RfqWorkspacePage() {
         </div>
       )}
 
-      <div className="space-y-3">
-        <h2 className="text-sm font-bold text-white">Invited dealers</h2>
-        {rfq.invites.length === 0 ? (
-          <p className="text-xs text-ink-muted">No dealers invited yet.</p>
-        ) : (
-          <>
-            <p className="text-[11px] text-ink-muted">
-              {respondedCount} of {rfq.invites.length} dealers have responded so far.
-            </p>
-            {rfq.invites.map((invite) => (
-              <InviteRow key={invite.id} invite={invite} rfq={rfq} onAction={load} />
+      {/* Once a dealer has quoted, the compare is the decision surface: it takes the first screen and the
+          locked sheet + invited-dealer audit fold into "Request details". Before any quote, the sheet leads. */}
+      {hasQuotes ? (
+        <>
+          {pickError && (
+            <div className="rounded-xl border border-amber-500/40 bg-amber-950/30 px-3 py-2 text-[11px] text-amber-200">
+              {pickError}
+            </div>
+          )}
+
+          {rfq.leasePrefs && (
+            <div className="space-y-3">
+              <h2 className="text-sm font-bold text-white">Compare lease quotes</h2>
+              <p className="text-[11px] text-ink-muted">
+                You asked for {rfq.leasePrefs.termMonths} months · {rfq.leasePrefs.milesPerYear.toLocaleString()} mi/yr. Counters on term or miles sit in their own block; expired quotes can&apos;t be chosen.
+              </p>
+              <LeaseCompare data={leaseCompare || analyzeLeaseQuotes(rfq)!} collecting={rfq.status === "collecting"} onPick={handlePick} onWalk={handleWalk} onCounter={handleCounter} busy={picking || walking} />
+            </div>
+          )}
+
+          {rfq.quotePrefs && (
+            <div className="space-y-3">
+              <h2 className="text-sm font-bold text-white">Compare {rfq.quotePrefs.quoteType === "finance" ? "finance" : "cash"} quotes</h2>
+              <p className="text-[11px] text-ink-muted">
+                {rfq.quotePrefs.quoteType === "finance"
+                  ? `You asked for ${rfq.quotePrefs.finance.termMonths} months · $${rfq.quotePrefs.finance.downPayment.toLocaleString()} down. Counters on term or down are flagged; expired quotes can't be chosen.`
+                  : "Out-the-door = selling price + itemized fees and taxes. Expired quotes can't be chosen."}
+              </p>
+              <UsedCompare rfq={rfq} prefs={rfq.quotePrefs} onPick={handlePick} onWalk={handleWalk} onCounter={handleCounter} busy={picking || walking} />
+            </div>
+          )}
+
+        </>
+      ) : null}
+      <details className="group rounded-2xl border border-border bg-surface" open={!hasQuotes} data-testid="request-details">
+        <summary className="flex cursor-pointer list-none flex-wrap items-center justify-between gap-2 px-5 py-3.5">
+          <span className="text-sm font-bold text-white">Request details</span>
+          <span className="text-[11px] text-ink-muted">{requestSummary}</span>
+        </summary>
+        <div className="space-y-6 border-t border-border/60 px-5 pb-5 pt-4">
+            {rfq.leasePrefs ? <LeaseQuoteSheet rfq={rfq} onSaved={setRfq} /> : null}
+
+            {/* Used cars: what the buyer told us about the car. */}
+            {rfqVehicles(rfq).filter((v) => v.condition !== "new").map((v) => (
+              <section key={v.vin} className="rounded-2xl border border-border bg-surface p-5 space-y-2" data-testid="used-ask-sheet">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <h2 className="text-sm font-bold text-white">Used car</h2>
+                  <span className="rounded bg-sky-500/15 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-sky-300">{v.condition === "cpo" ? "CPO" : "USED"}</span>
+                </div>
+                <p className="text-[11px] text-ink-muted">
+                  VIN <span className="font-mono">{v.vin}</span>
+                  {v.mileage != null ? ` · ${v.mileage.toLocaleString()} miles (buyer-entered)` : ""}
+                  {v.stockNumber ? ` · stock ${v.stockNumber}` : ""}
+                </p>
+              </section>
             ))}
-          </>
-        )}
-      </div>
 
-      {pickError && (
-        <div className="rounded-xl border border-amber-500/40 bg-amber-950/30 px-3 py-2 text-[11px] text-amber-200">
-          {pickError}
+            {rfq.packageKind === "links" ? (
+              <div className="rounded-2xl border border-border bg-surface p-5 space-y-2">
+                <p className="text-[11px] font-bold text-ink-light uppercase tracking-wide">
+                  Quote request{rfq.dealReference ? ` · ${rfq.dealReference}` : ""}
+                </p>
+                <p className="text-[11px] leading-snug text-ink-muted">{rfq.leasePrefs ? LEASE_NON_BINDING_COPY : NON_BINDING_COPY}</p>
+                <p className="text-[11px] text-ink-faint">
+                  {(rfq.linkPastes || []).length} vehicle{(rfq.linkPastes || []).length === 1 ? "" : "s"} in this request — each desk quotes its own car.
+                </p>
+              </div>
+            ) : (
+              <div className="rounded-2xl border border-border bg-surface p-5 space-y-2">
+                <p className="text-[11px] font-bold text-ink-light uppercase tracking-wide">Locked must-haves</p>
+                {rfq.mustHaves.map((m) => (
+                  <div key={m.code} className="flex items-start gap-1.5 text-[11px] text-white">
+                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 shrink-0 mt-0.5" />
+                    <span>{formatFactoryOptionLine({ code: m.code, description: m.name })}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <div className="space-y-3">
+              <h2 className="text-sm font-bold text-white">Invited dealers</h2>
+              {rfq.invites.length === 0 ? (
+                <p className="text-xs text-ink-muted">No dealers invited yet.</p>
+              ) : (
+                <>
+                  <p className="text-[11px] text-ink-muted">
+                    {respondedCount} of {rfq.invites.length} dealers have responded so far.
+                  </p>
+                  {rfq.invites.map((invite) => (
+                    <InviteRow key={invite.id} invite={invite} rfq={rfq} onAction={load} />
+                  ))}
+                </>
+              )}
+            </div>
+
         </div>
-      )}
+      </details>
+      {!hasQuotes ? (
+        <>
+          {pickError && (
+            <div className="rounded-xl border border-amber-500/40 bg-amber-950/30 px-3 py-2 text-[11px] text-amber-200">
+              {pickError}
+            </div>
+          )}
 
-      {rfq.leasePrefs && (
-        <div className="space-y-3">
-          <h2 className="text-sm font-bold text-white">Compare lease quotes</h2>
-          <p className="text-[11px] text-ink-muted">
-            You asked for {rfq.leasePrefs.termMonths} months · {rfq.leasePrefs.milesPerYear.toLocaleString()} mi/yr. Counters on term or miles sit in their own block; expired quotes can&apos;t be chosen.
-          </p>
-          <LeaseCompare data={leaseCompare || analyzeLeaseQuotes(rfq)!} collecting={rfq.status === "collecting"} onPick={handlePick} onWalk={handleWalk} onCounter={handleCounter} busy={picking || walking} />
-        </div>
-      )}
+          {rfq.leasePrefs && (
+            <div className="space-y-3">
+              <h2 className="text-sm font-bold text-white">Compare lease quotes</h2>
+              <p className="text-[11px] text-ink-muted">
+                You asked for {rfq.leasePrefs.termMonths} months · {rfq.leasePrefs.milesPerYear.toLocaleString()} mi/yr. Counters on term or miles sit in their own block; expired quotes can&apos;t be chosen.
+              </p>
+              <LeaseCompare data={leaseCompare || analyzeLeaseQuotes(rfq)!} collecting={rfq.status === "collecting"} onPick={handlePick} onWalk={handleWalk} onCounter={handleCounter} busy={picking || walking} />
+            </div>
+          )}
 
-      {rfq.quotePrefs && (
-        <div className="space-y-3">
-          <h2 className="text-sm font-bold text-white">Compare {rfq.quotePrefs.quoteType === "finance" ? "finance" : "cash"} quotes</h2>
-          <p className="text-[11px] text-ink-muted">
-            {rfq.quotePrefs.quoteType === "finance"
-              ? `You asked for ${rfq.quotePrefs.finance.termMonths} months · $${rfq.quotePrefs.finance.downPayment.toLocaleString()} down. Counters on term or down are flagged; expired quotes can't be chosen.`
-              : "Out-the-door = selling price + itemized fees and taxes. Expired quotes can't be chosen."}
-          </p>
-          <UsedCompare rfq={rfq} prefs={rfq.quotePrefs} onPick={handlePick} onWalk={handleWalk} onCounter={handleCounter} busy={picking || walking} />
-        </div>
-      )}
+          {rfq.quotePrefs && (
+            <div className="space-y-3">
+              <h2 className="text-sm font-bold text-white">Compare {rfq.quotePrefs.quoteType === "finance" ? "finance" : "cash"} quotes</h2>
+              <p className="text-[11px] text-ink-muted">
+                {rfq.quotePrefs.quoteType === "finance"
+                  ? `You asked for ${rfq.quotePrefs.finance.termMonths} months · $${rfq.quotePrefs.finance.downPayment.toLocaleString()} down. Counters on term or down are flagged; expired quotes can't be chosen.`
+                  : "Out-the-door = selling price + itemized fees and taxes. Expired quotes can't be chosen."}
+              </p>
+              <UsedCompare rfq={rfq} prefs={rfq.quotePrefs} onPick={handlePick} onWalk={handleWalk} onCounter={handleCounter} busy={picking || walking} />
+            </div>
+          )}
 
+        </>
+      ) : null}
       {quotedInvites.length > 0 && !rfq.leasePrefs && !rfq.quotePrefs && (
         <div className="space-y-3">
           <h2 className="text-sm font-bold text-white">Compare quotes</h2>
