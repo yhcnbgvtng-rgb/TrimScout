@@ -159,3 +159,12 @@ describe("wiring — the send route feeds the one template", () => {
     assert.doesNotMatch(page, /from "\.\.\/\.\.\/\.\.\/lib\/quoteInviteEmail"/, "client page must not import the server-only email module");
   });
 });
+
+describe("greetingName — a rooftop's shared inbox is greeted as the team", () => {
+  it("first name for a person, 'Sales team' for the desk", async () => {
+    const { greetingName } = await import("./quoteInviteEmail");
+    assert.equal(greetingName("Jane Doe"), "Jane");
+    assert.equal(greetingName("Sales desk"), "Sales team");
+    assert.equal(greetingName(""), "Sales team");
+  });
+});

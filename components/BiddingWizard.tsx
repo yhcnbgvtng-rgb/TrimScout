@@ -2017,7 +2017,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
       (p) => p.dealerName && deskPlan.rows[p.dealerName]?.checked
     );
     if (toSend.length === 0) {
-      setSubmitError("Tick at least one dealership with a named sales contact to send the request.");
+      setSubmitError("Tick at least one dealership to send the request.");
       return;
     }
 
@@ -2679,6 +2679,9 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                         const supplied = isPlausibleDealerEmail(typed);
                         const row = deskPlan.rows[dealer.dealerName];
                         const onFile = Boolean(desk && desk.knownNamed && !desk.blockedReason);
+                        const optedOut = desk?.blockedReason === "dealer_opted_out";
+                        // No named person, not opted out: the request goes to the dealership's own sales desk.
+                        const toDesk = Boolean(desk) && !onFile && !optedOut && !supplied;
                         return (
                           <li key={dealer.dealerName} className="space-y-1.5 rounded-lg border border-border bg-background px-3 py-2" data-testid="dealer-contact-row">
                             <div className="flex items-start justify-between gap-3">
@@ -2706,9 +2709,13 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                                 <span className="shrink-0 rounded-lg bg-emerald-500 px-2.5 py-1 text-[10px] font-extrabold text-black" data-testid="contact-added">
                                   ✓ Adviser added
                                 </span>
-                              ) : (
+                              ) : optedOut ? (
                                 <span className="shrink-0 rounded-lg border border-amber-500/50 px-2.5 py-1 text-[10px] font-bold text-amber-300" data-testid="contact-missing">
-                                  {desk.blockedReason === "dealer_opted_out" ? "Opted out" : "No sales contact"}
+                                  Opted out
+                                </span>
+                              ) : (
+                                <span className="shrink-0 rounded-lg bg-sky-500/15 px-2.5 py-1 text-[10px] font-extrabold text-sky-200" data-testid="contact-desk" data-routing={desk.routing}>
+                                  → Dealership sales desk
                                 </span>
                               )}
                             </div>
@@ -2720,20 +2727,23 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                               </p>
                             ) : desk ? (
                               <div className="space-y-1" data-testid="add-adviser">
-                                <p className="text-[10px] leading-snug text-ink-muted">
+                                <p className="text-[10px] leading-snug text-ink-muted" data-testid="desk-routing-copy">
                                   {supplied
                                     ? "The request goes to the adviser address you added."
-                                    : desk.blockedReason === "dealer_opted_out"
+                                    : optedOut
                                       ? "This dealership asked us to stop emailing them. Add your own sales adviser's address to reach them."
-                                      : "We don't have a named sales contact for this store yet. Add your sales adviser's email and the request goes to them."}
+                                      : desk.routing === "rooftop_inbox"
+                                        ? "No named sales contact on file yet — the request goes to the dealership's sales desk, and every reply comes back through TrimScout. Have a sales adviser there? Add their email (optional) and it goes to them instead."
+                                        : "No sales contact on file yet — our team routes the request to this dealership by hand, and every reply comes back through TrimScout. Have a sales adviser there? Add their email (optional) and it goes to them directly."}
                                 </p>
+                                {toDesk ? <p className="text-[10px] text-ink-light">To: <span className="font-semibold">Sales desk</span> · {dealer.dealerName}</p> : null}
                                 <input
                                   type="email"
                                   inputMode="email"
                                   autoComplete="off"
                                   value={typed}
                                   onChange={(e) => setBuyerDealerEmails((current) => ({ ...current, [dealer.dealerName]: e.target.value }))}
-                                  placeholder="Sales adviser email"
+                                  placeholder={optedOut ? "Sales adviser email" : "Sales adviser email (optional)"}
                                   aria-label={`Sales adviser email for ${dealer.dealerName}`}
                                   className="w-full rounded-lg border border-border bg-background px-3 py-1.5 text-[11px] text-ink-light placeholder-ink-faint focus:border-emerald-500 focus:outline-none"
                                 />
@@ -2934,7 +2944,14 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                   ) : null}
                   {confirmedDeskCount === 0 && importedDealerships.length > 0 ? (
                     <p className="mt-2 text-[11px] text-amber-300/90" data-testid="missing-contact">
-                      No dealer can receive this yet — add a sales adviser&apos;s email under the dealer above, or tick a store with a contact on file.
+                      {Object.values(deskPlan.rows).some((r) => r.selectable)
+                        ? "Tick at least one dealership above to continue."
+                        : "This dealership has opted out of our emails — add your own sales adviser's address under it to reach them."}
+                    </p>
+                  ) : null}
+                  {importedDealerships.length === 0 ? (
+                    <p className="mt-2 text-[11px] text-amber-300/90" data-testid="missing-dealer">
+                      Choose a dealership — go back to step 1 and attach the store that lists the car.
                     </p>
                   ) : null}
                 </WizardSection>
@@ -3177,10 +3194,11 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                                           if (directOfferMode) {
                                             const desk = target?.dealerName ? quoteDesks[target.dealerName] : undefined;
                                             if (!desk) return "Checking";
-                                            const ticked = deskPlan.rows[target!.dealerName!]?.checked;
-                                            if (!desk.blockedReason) return ticked ? "Named contact" : "Not sending";
-                                            if (supplied) return ticked ? "Adviser added" : "Not sending";
-                                            return "No sales contact";
+                                            const row = deskPlan.rows[target!.dealerName!];
+                                            if (!row?.checked) return desk.blockedReason === "dealer_opted_out" && !supplied ? "Opted out" : "Not sending";
+                                            if (row.routing === "adviser") return "Adviser added";
+                                            if (row.routing === "named") return "Named contact";
+                                            return "Dealership sales desk";
                                           }
                                           return !contact ? "Checking" : reachable ? "Email on file" : supplied ? "Email added" : "No email";
                                         })()}
@@ -3339,6 +3357,11 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
               <div />
             )}
 
+            {step === 3 && importedDealerships.length === 0 ? (
+              <span className="ml-auto mr-3 text-[10px] text-amber-300/90" data-testid="continue-reason">Choose a dealership</span>
+            ) : step === 3 && confirmedDeskCount === 0 ? (
+              <span className="ml-auto mr-3 text-[10px] text-amber-300/90" data-testid="continue-reason">Tick a dealership</span>
+            ) : null}
             {step < TOTAL_STEPS ? (
               <button
                 onClick={goNext}

@@ -66,7 +66,7 @@ describe("BiddingWizard — Step 1 vehicle; Step 2 payment only; Step 3 quote fo
     assert.match(step2, /<QuoteFormatMatrix\s+quoteType=\{quoteType\}\s+cars=\{\[selectedVehicle, altVehicle1, altVehicle2\]/);
     // Dealer panel: a green "Sales contact on file" when the desk is known, an adviser-email field when it isn't; the note goes with the request.
     assert.match(step2, /✓ Sales contact on file/);
-    assert.match(step2, /placeholder="Sales adviser email"/);
+    assert.match(step2, /placeholder=\{optedOut \? "Sales adviser email" : "Sales adviser email \(optional\)"\}/, "the adviser address is optional once the rooftop is known");
     assert.match(src, /buyerNote: dealComment\.trim\(\) \|\| null,/);
     // Dealer on top, the car under it, then every dealer's return as a vertical equation.
     assert.match(src, /data-testid="format-dealer"[\s\S]*?data-testid="format-vehicle"[\s\S]*?data-testid="format-equation"/);

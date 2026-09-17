@@ -7,7 +7,9 @@ import { planDeskSelection, type SelectionDesk } from "./deskSelection";
 // named contact on file. It must be ticked and Continue live on entry —
 // no ZIP change, no "Include dealerships in other states" click.
 const named = { knownNamed: true, blockedReason: null };
-const generic = { knownNamed: false, blockedReason: "no_named_contact" };
+// A known rooftop with no named person: the request goes to its sales desk (shared inbox or the ops queue).
+const generic = { knownNamed: false, blockedReason: null, routing: "rooftop_inbox" as const };
+const unassigned = { knownNamed: false, blockedReason: null, routing: "unassigned" as const };
 const scott: SelectionDesk = { dealerName: "Scott Chevrolet", state: "PA", desk: named };
 const healey: SelectionDesk = { dealerName: "Healey Chevrolet, INC.", state: "NY", desk: named };
 const malouf: SelectionDesk = { dealerName: "Malouf Chevrolet", state: "NJ", desk: named };
@@ -59,11 +61,20 @@ describe("planDeskSelection — primary desk outside the buyer's state", () => {
     assert.deepEqual(plan.sendTo, ["Scott Chevrolet", "Healey Chevrolet, INC."]);
   });
 
-  it("a primary desk without a named contact is never tickable — the ≥1 named desk rule holds", () => {
+  // Live QA (2026-09-16): a VDP link attached the right rooftop, the directory had no named
+  // person, and Continue sat dead until a test adviser address was typed. A known store
+  // routes to its own sales desk instead — never a hard block.
+  it("a primary desk without a named contact is tickable and auto-ticked: the request goes to the dealership's sales desk", () => {
     const plan = nj([{ ...scott, desk: generic }]);
-    assert.equal(plan.rows["Scott Chevrolet"].selectable, false);
-    assert.equal(plan.rows["Scott Chevrolet"].checked, false);
-    assert.equal(plan.canContinue, false);
+    assert.equal(plan.rows["Scott Chevrolet"].selectable, true);
+    assert.equal(plan.rows["Scott Chevrolet"].checked, true);
+    assert.equal(plan.rows["Scott Chevrolet"].routing, "rooftop_inbox");
+    assert.equal(plan.canContinue, true);
+    const queued = nj([{ ...scott, desk: unassigned }]);
+    assert.equal(queued.rows["Scott Chevrolet"].selectable, true);
+    assert.equal(queued.rows["Scott Chevrolet"].routing, "unassigned", "no inbox on file → ops routes it; still not a dead end");
+    assert.equal(queued.canContinue, true);
+    assert.equal(nj([{ ...scott, desk: named }]).rows["Scott Chevrolet"].routing, "named");
   });
 
   // The Freedom Ford (Iselin, NJ) case: directory has no named contact, the
@@ -74,23 +85,26 @@ describe("planDeskSelection — primary desk outside the buyer's state", () => {
     const plan = planDeskSelection({ buyerState: "NJ", sameStateOnly: true, primaryDealerName: freedom.dealerName, desks: [freedom], confirmed: {} });
     const row = plan.rows[freedom.dealerName];
     assert.equal(row.adviserAdded, true);
+    assert.equal(row.routing, "adviser", "the adviser takes it instead of the desk");
     assert.equal(row.selectable, true);
     assert.equal(row.checked, true);
     assert.equal(plan.canContinue, true);
   });
 
-  it("an adviser address never unlocks a shared inbox, a half-typed address, or an opted-out desk", () => {
+  it("a shared-inbox or half-typed adviser address is ignored (the desk still takes it); an opted-out desk stays locked", () => {
     const base = { buyerState: "NJ", sameStateOnly: true, primaryDealerName: "Freedom Ford", confirmed: {} };
     for (const buyerEmail of ["sales@freedomford.com", "info@freedomford.com", "jane@freedomford", "jane"]) {
       const plan = planDeskSelection({ ...base, desks: [{ dealerName: "Freedom Ford", state: "NJ", desk: generic, buyerEmail }] });
-      assert.equal(plan.rows["Freedom Ford"].selectable, false, buyerEmail);
-      assert.equal(plan.canContinue, false, buyerEmail);
+      assert.equal(plan.rows["Freedom Ford"].adviserAdded, false, buyerEmail);
+      assert.equal(plan.rows["Freedom Ford"].routing, "rooftop_inbox", buyerEmail);
+      assert.equal(plan.canContinue, true, buyerEmail);
     }
     const optedOut = planDeskSelection({
       ...base,
       desks: [{ dealerName: "Freedom Ford", state: "NJ", desk: { knownNamed: true, blockedReason: "dealer_opted_out" }, buyerEmail: "jane.doe@freedomford.com" }],
     });
     assert.equal(optedOut.rows["Freedom Ford"].selectable, false);
+    assert.equal(optedOut.canContinue, false);
   });
 
   it("while the lookup is still loading nothing is tickable and Continue waits", () => {

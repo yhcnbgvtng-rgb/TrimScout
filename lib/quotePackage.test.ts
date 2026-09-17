@@ -14,6 +14,8 @@ import {
   NON_BINDING_COPY,
   type DealerLinkPaste,
   type DealerDesk,
+  deskFromRooftop,
+  inviteRouting,
 } from "./quotePackage";
 import type { RfqRequest } from "./rfq";
 
@@ -182,10 +184,31 @@ describe("planInvites", () => {
     assert.equal(plan[0].desk?.contactName, "Jane Doe");
   });
 
-  it("blocks with a specific reason instead of falling back to a shared inbox", () => {
+  it("a rooftop with no named person is not blocked: it routes to the store's sales desk", () => {
     const plan = planInvites([paste({ dealerName: "Shared Inbox Motors" })], deskFor);
-    assert.equal(plan[0].blocked, "no_named_contact");
-    assert.equal(plan[0].desk?.email, "info@shared.com"); // visible for the message, never invited
+    assert.equal(plan[0].blocked, null);
+    assert.equal(plan[0].routing, "rooftop_inbox");
+    assert.equal(plan[0].desk?.email, "info@shared.com");
+    assert.equal(planInvites([paste()], deskFor)[0].routing, "named");
+    // No desk at all for a known name → the ops queue, still not blocked.
+    assert.equal(planInvites([paste({ dealerName: "Unknown Motors" })], deskFor)[0].routing, "unassigned");
+    assert.equal(planInvites([paste({ dealerName: "Unknown Motors" })], deskFor)[0].blocked, null);
+  });
+
+  it("deskFromRooftop: the shared inbox when the directory has one, else no address; never a person, never verified", () => {
+    const withInbox = deskFromRooftop({ dealerName: "Route 22 Toyota", state: "nj", contactEmail: "Sales@route22toyota.com", emailOptOut: false });
+    assert.equal(withInbox.email, "sales@route22toyota.com");
+    assert.equal(withInbox.source, "rooftop");
+    assert.equal(withInbox.knownNamed, false);
+    assert.equal(withInbox.contactName, "Sales desk");
+    assert.equal(withInbox.dealerState, "NJ");
+    assert.equal(inviteRouting(withInbox), "rooftop_inbox");
+    // A personal address that didn't qualify as a named contact is not turned into a "desk inbox".
+    const personal = deskFromRooftop({ dealerName: "X", state: "NJ", contactEmail: "eruby@lexusofroute10.com", emailOptOut: false });
+    assert.equal(personal.email, "");
+    assert.equal(inviteRouting(personal), "unassigned");
+    assert.equal(inviteRouting(null), "unassigned");
+    assert.equal(deskFromRooftop({ dealerName: "X", state: "NJ", contactEmail: null, emailOptOut: true }).emailOptOut, true);
   });
 
   it("blocks an opted-out desk, a no-rooftop paste, and an already-invited desk", () => {

@@ -6,12 +6,13 @@
  * only desk → OUTSIDE NJ, checkbox disabled, Continue never enabling) has a
  * regression test instead of a screenshot. Rules:
  *
- * - A desk is selectable only with a named, non-generic, not-opted-out
- *   contact (blockedReason null). Generic mailboxes never get a checkbox.
- * - When the directory has no named contact, a sales adviser's own address
- *   the buyer typed stands in for one (the invites route accepts exactly
- *   this: deskFromBuyerEmail, person mailbox only). It never overrides an
- *   opt-out or a sister-store block — only "no_named_contact".
+ * - A desk is selectable when the rooftop is known and hasn't opted out.
+ *   With a named contact the request goes to them; without one it goes to
+ *   the dealership's sales desk (its shared inbox, or the ops routing queue)
+ *   — a known store is never a dead Continue.
+ * - A sales adviser's own address the buyer typed is optional: it stands in
+ *   for a missing named contact and takes the request instead of the desk.
+ *   It never overrides an opt-out.
  * - The primary (listing) desk is never held back by the same-state gate.
  *   The gate only decides about the other dealerships in the package.
  * - A selectable desk starts ticked. The buyer's own tick/untick wins once
@@ -27,14 +28,14 @@ export interface SelectionDesk {
   dealerName: string;
   state: string | null | undefined;
   /** The /api/quote-desks answer, or undefined while it's still loading. */
-  desk: { knownNamed: boolean; blockedReason: string | null } | undefined;
+  desk: { knownNamed: boolean; blockedReason: string | null; routing?: "named" | "rooftop_inbox" | "unassigned" } | undefined;
   /** A sales adviser's address the buyer typed for this dealership, if any. */
   buyerEmail?: string;
 }
 
 /** True when the typed address can stand in for a missing directory contact. */
 export function adviserEmailStandsIn(desk: SelectionDesk["desk"], buyerEmail: string | undefined): boolean {
-  if (!desk || desk.blockedReason !== "no_named_contact") return false;
+  if (!desk || desk.knownNamed || (desk.blockedReason && desk.blockedReason !== "no_named_contact")) return false;
   const clean = (buyerEmail || "").trim();
   return isPlausibleDealerEmail(clean) && !isGenericMailbox(clean);
 }
@@ -47,8 +48,10 @@ export interface DeskRowState {
   heldByState: boolean;
   /** Primary desk outside the buyer's state, kept in because it lists the car. */
   keptOutOfState: boolean;
-  /** Selectable only because the buyer supplied an adviser's address. */
+  /** The buyer supplied an adviser's address — the request goes there instead of the desk. */
   adviserAdded: boolean;
+  /** Where the request goes for this row. */
+  routing: "named" | "adviser" | "rooftop_inbox" | "unassigned";
 }
 
 export interface DeskSelectionPlan {
@@ -68,8 +71,8 @@ export function planDeskSelection(args: {
   confirmed: Record<string, boolean | undefined>;
 }): DeskSelectionPlan {
   const primary = (args.primaryDealerName || "").trim();
-  const contactReady = (d: SelectionDesk) =>
-    Boolean(d.desk?.knownNamed && !d.desk?.blockedReason) || adviserEmailStandsIn(d.desk, d.buyerEmail);
+  const optedOut = (d: SelectionDesk) => d.desk?.blockedReason === "dealer_opted_out";
+  const contactReady = (d: SelectionDesk) => Boolean(d.desk) && !optedOut(d);
   const gate = stateGatePlan(
     args.buyerState,
     args.desks.map((d) => ({
@@ -88,11 +91,12 @@ export function planDeskSelection(args: {
   for (const d of args.desks) {
     const heldByState = held.has(d.dealerName);
     const adviserAdded = adviserEmailStandsIn(d.desk, d.buyerEmail);
-    const hasContact = Boolean(d.desk && !d.desk.blockedReason) || adviserAdded;
+    const hasContact = contactReady(d);
     const selectable = hasContact && !heldByState;
     const wanted = args.confirmed[d.dealerName] ?? hasContact;
     const checked = selectable && wanted;
-    rows[d.dealerName] = { selectable, checked, heldByState, keptOutOfState: kept.has(d.dealerName), adviserAdded };
+    const routing: DeskRowState["routing"] = adviserAdded ? "adviser" : d.desk?.knownNamed ? "named" : d.desk?.routing === "rooftop_inbox" ? "rooftop_inbox" : "unassigned";
+    rows[d.dealerName] = { selectable, checked, heldByState, keptOutOfState: kept.has(d.dealerName), adviserAdded, routing };
     if (checked) sendTo.push(d.dealerName);
   }
   return { gate, rows, sendTo, canContinue: sendTo.length > 0 };

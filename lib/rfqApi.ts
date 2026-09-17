@@ -117,7 +117,7 @@ export async function createRfqInvite(
   input: {
     dealerName: string;
     dealerContactEmail?: string | null;
-    desk?: { contactName: string; role: string; emailMasked: string; source: "directory" | "buyer" };
+    desk?: { contactName: string; role: string; emailMasked: string; source: "directory" | "buyer" | "rooftop" };
     vehicle?: { vin: string; year: number; make: string; model: string; trim: string; vdpUrl: string | null };
   }
 ): Promise<RfqInvite> {

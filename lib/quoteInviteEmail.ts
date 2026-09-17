@@ -117,10 +117,17 @@ export function quoteInviteSubject(input: QuoteInviteEmailInput): string {
   return `${quoteInviteTitle(input)} · VIN …${input.vehicle.vin.slice(-6)}`;
 }
 
+/** "Jane Doe" → "Jane"; a rooftop's shared inbox ("Sales desk") is greeted as the team. */
+export function greetingName(contactName: string): string {
+  const clean = (contactName || "").trim();
+  if (!clean || /^sales desk$/i.test(clean)) return "Sales team";
+  return clean.split(/\s+/)[0] || clean;
+}
+
 export function quoteInviteHtml(input: QuoteInviteEmailInput): string {
   const copy = QUOTE_EMAIL_COPY[input.quoteType];
   const roleLabel = (DESK_ROLE_LABELS as Record<string, string>)[input.role] || "Sales";
-  const firstName = input.contactName.split(/\s+/)[0] || input.contactName;
+  const firstName = greetingName(input.contactName);
   const area = areaLabel(input.buyerZip ?? input.leasePrefs?.zip);
   const prefs = prefsLine(input);
   const view = escapeHtml(input.viewUrl);
@@ -191,7 +198,7 @@ export function buyerCounterSubject(input: BuyerCounterEmailInput): string {
 
 export function buyerCounterHtml(input: BuyerCounterEmailInput): string {
   const car = [input.vehicle.year, input.vehicle.make, input.vehicle.model, input.vehicle.trim].filter(Boolean).join(" ");
-  const firstName = input.contactName.split(/\s+/)[0] || input.contactName;
+  const firstName = greetingName(input.contactName);
   return `
   <div style="font-family:-apple-system,Segoe UI,Roboto,sans-serif;max-width:600px;margin:0 auto;color:#0f172a;line-height:1.5">
     ${emailHeader()}

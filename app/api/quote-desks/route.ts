@@ -2,11 +2,12 @@ import { NextResponse } from "next/server";
 import type { Dealership } from "@/lib/dealershipsApi";
 import { cachedDealerDirectory } from "@/lib/dealerDirectoryCache";
 import { matchDirectoryDealership } from "@/lib/dealerContactLookup";
-import { deskFromDealership, maskEmail, INVITE_BLOCK_MESSAGES, type DealerDesk } from "@/lib/quotePackage";
+import { deskFromDealership, deskFromRooftop, inviteRouting, type InviteRouting, maskEmail, INVITE_BLOCK_MESSAGES, type DealerDesk } from "@/lib/quotePackage";
 
 // The confirm step asks: for these dealerships, who would the quote request
 // go to? Answers with the named desk, masked — never the address itself.
-// A rooftop with no named person comes back blocked, with the reason.
+// A rooftop with no named person isn't blocked: it routes to the store's
+// sales desk (shared inbox) or the ops queue, and says which.
 
 const MAX = 3;
 
@@ -21,6 +22,8 @@ export interface PublicDesk {
   emailOptOut: boolean;
   blockedReason: keyof typeof INVITE_BLOCK_MESSAGES | null;
   blockedMessage: string | null;
+  /** Where the request goes: a named person, the rooftop's shared inbox, or our routing queue. */
+  routing: InviteRouting;
 }
 
 export async function POST(req: Request) {
@@ -48,12 +51,9 @@ export async function POST(req: Request) {
 
   const desks: PublicDesk[] = dealers.map((d: { dealerName: string; state: string }) => {
     const row = matchDirectoryDealership(rows, d);
-    const desk = row ? deskFromDealership(row) : null;
-    const blocked: PublicDesk["blockedReason"] = !desk || !desk.knownNamed
-      ? "no_named_contact"
-      : desk.emailOptOut
-        ? "dealer_opted_out"
-        : null;
+    const named = row ? deskFromDealership(row) : null;
+    const desk = named?.knownNamed ? named : row ? deskFromRooftop(row) : null;
+    const blocked: PublicDesk["blockedReason"] = desk?.emailOptOut ? "dealer_opted_out" : null;
     return {
       dealerName: d.dealerName,
       found: Boolean(row),
@@ -65,6 +65,7 @@ export async function POST(req: Request) {
       emailOptOut: Boolean(desk?.emailOptOut),
       blockedReason: blocked,
       blockedMessage: blocked ? INVITE_BLOCK_MESSAGES[blocked] : null,
+      routing: inviteRouting(desk),
     };
   });
   return NextResponse.json({ desks, degraded });
