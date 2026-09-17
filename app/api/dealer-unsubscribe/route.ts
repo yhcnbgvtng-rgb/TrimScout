@@ -68,7 +68,7 @@ export async function GET(request: Request) {
 
   return htmlPage(
     "You're unsubscribed",
-    "TrimScout will no longer email this dealership about buyer offers. If this was a mistake, contact us and we'll re-enable it.",
+    "We won't email this dealership about buyer quote requests anymore. Any open request still waiting on you has been closed out and those buyers were asked to choose another dealership; quotes you already submitted stay with the buyer to consider. If this was a mistake, contact us and we'll turn it back on.",
     200
   );
 }
