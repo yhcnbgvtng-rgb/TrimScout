@@ -90,6 +90,23 @@ describe("importPastedFactoryVehicle — good VIN", () => {
   });
 });
 
+describe("importPastedFactoryVehicle — no factory document means no 'factory verified', whatever the route says", () => {
+  it("an unreleased sticker with options lifted from the listing (Visor / dealer HTML) stays dealer-listing-only", async () => {
+    // A route that read option lines off the dealer's page and still claimed verified_factory:
+    // the sticker status is the truth. Those options are never labelled factory-verified.
+    const claimed = releasedFord({ buildConfidence: "verified_factory" });
+    const { impl } = fakeFetch({
+      "/api/ford-sticker": { json: { ...claimed, sticker: { status: "unreleased", pdfUrl: null, msrp: null, source: "free_decode" }, buildConfidence: "verified_factory", filterableOptions: [{ code: "VISOR", label: "Panoramic roof (dealer listing)" }] } },
+    });
+    const r = await importPastedFactoryVehicle(FORD_VIN, impl);
+    assert.equal(r.ok, true);
+    if (!r.ok) return;
+    assert.equal(r.buildConfidence, "dealer_listing_only");
+    assert.equal(r.vehicle.buildConfidence, "dealer_listing_only");
+    assert.equal(r.factoryBuildUnavailable, true);
+  });
+});
+
 describe("importPastedFactoryVehicle — good VDP URL", () => {
   it("routes a dealer page URL to the VIN's make and imports the vehicle", async () => {
     const url = `https://www.route23automall.com/new/Ford/2026-Ford-Explorer-${FORD_VIN}.htm`;

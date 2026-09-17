@@ -24,6 +24,8 @@ const vehicle = (vin: string, make: string, model: string, over: Record<string, 
 });
 
 let adxRoute: "fail" | "free" = "fail";
+let rav4Sticker: "unreleased" | "released" = "unreleased";
+const beacons: Array<{ name: string; props: Record<string, unknown> }> = [];
 
 function stubFetch() {
   const json = (body: unknown, status = 200) => Promise.resolve(new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } }));
@@ -42,11 +44,13 @@ function stubFetch() {
       return json({ handled: true, vin, sticker: { status: "unreleased", pdfUrl: null, msrp: null, source: "free_decode" }, vehicle: vehicle(vin, "Acura", "ADX", { daysOnLot: 9 }), buildConfidence: "dealer_listing_only", mustHaveLines: [], niceToHaveLines: [], filterableOptions: [], pdfUrl: null });
     }
     if (url.includes("-sticker")) {
+      if (vin === VIN_RAV4 && rav4Sticker === "released") return json({ handled: true, vin, sticker: { status: "released", pdfUrl: "https://example.test/rav4.pdf", msrp: 41000 }, vehicle: vehicle(vin, "Toyota", "RAV4", { msrp: 41000, buildConfidence: "verified_factory" }), buildConfidence: "verified_factory", mustHaveLines: [], niceToHaveLines: [], filterableOptions: [], pdfUrl: "https://example.test/rav4.pdf" });
       if (vin === VIN_RAV4) return json({ handled: true, vin, sticker: { status: "unreleased", pdfUrl: null, msrp: null, source: "free_decode" }, vehicle: vehicle(vin, "Toyota", "RAV4", { daysOnLot: 12 }), buildConfidence: "dealer_listing_only", mustHaveLines: [], niceToHaveLines: [], filterableOptions: [], pdfUrl: null });
       if (vin === VIN_F150) return json({ handled: true, vin, sticker: { status: "released", pdfUrl: "https://example.test/sticker.pdf", msrp: 61000 }, vehicle: vehicle(vin, "Ford", "F-150", { msrp: 61000, buildConfidence: "verified_factory" }), buildConfidence: "verified_factory", mustHaveLines: [], niceToHaveLines: [], filterableOptions: [], pdfUrl: "https://example.test/sticker.pdf" });
       // Every OEM route disowns the Acura → the client falls through to /api/free-vin.
       return json({ handled: false, notFord: true, notGm: true, notToyota: true, notHonda: true, vin, error: `We don't have a factory build for VIN ${vin} yet.` });
     }
+    if (url.startsWith("/api/events/track")) { beacons.push(body as unknown as { name: string; props: Record<string, unknown> }); return json({ ok: true }); }
     if (url.startsWith("/api/status/features")) return json({ rfqSend: true });
     if (url.startsWith("/api/quote-desks")) return json({ desks: {} });
     if (url.startsWith("/api/dealer-contact")) return json({ contacts: {} });
@@ -178,6 +182,58 @@ describe("Configure Quote Request — vehicle resolve hardening", () => {
     assert.equal(primaryInput().value, "");
     assert.equal(card(), null);
     assert.doesNotMatch(text(), /RAV4|Route 22|F-150|Freedom Ford|ADX/);
+    // ---- 6. Factory pending is recoverable: the analytics event fired; Try again picks up a build that has since posted.
+    await openFresh();
+    await paste(URL_RAV4);
+    await settle(() => Boolean(doc.querySelector('[data-testid="link-confirm-build"]')));
+    await act(async () => { button("Confirm & add")!.click(); });
+    await settle(() => Boolean(doc.querySelector('[data-testid="factory-build-pending"]')));
+    const pendingBeacon = beacons.find((b) => b.name === "factory_build_pending");
+    assert.deepEqual(pendingBeacon?.props, { make: "Toyota", vinPrefix: VIN_RAV4.slice(0, 11), dealerHost: "route22toyota.com" });
+    assert.equal(card()!.dataset.dealerShown, "Route 22 Toyota", "rooftop shown while the build is pending");
+    assert.equal(continueBtn().disabled, false);
+    rav4Sticker = "released";
+    await act(async () => { (doc.querySelector('[data-testid="factory-build-retry"]') as HTMLButtonElement).click(); });
+    await settle(() => !doc.querySelector('[data-testid="factory-build-pending"]'));
+    assert.equal(card()!.dataset.buildState, "factory_verified");
+    assert.equal(card()!.dataset.dealerShown, "Route 22 Toyota", "the retry never loses the rooftop");
+    assert.equal(card()!.dataset.resolvePath, "url_only");
+    assert.ok(beacons.some((b) => b.name === "factory_build_retry"));
+    rav4Sticker = "unreleased";
+
+    // ---- 7. Notify me is an honest stub; Save for later & exit keeps the VIN without sending anything.
+    await openFresh();
+    await paste(URL_RAV4);
+    await settle(() => Boolean(doc.querySelector('[data-testid="link-confirm-build"]')));
+    await act(async () => { button("Confirm & add")!.click(); });
+    await settle(() => Boolean(doc.querySelector('[data-testid="factory-build-pending"]')));
+    await act(async () => { (doc.querySelector('[data-testid="factory-build-notify"]') as HTMLButtonElement).click(); });
+    assert.match(doc.querySelector('[data-testid="factory-build-notify-ack"]')!.textContent!, /Alerts aren't live yet/);
+    assert.ok(beacons.some((b) => b.name === "factory_build_notify_requested"));
+    await act(async () => { (doc.querySelector('[data-testid="factory-build-save"]') as HTMLButtonElement).click(); });
+    assert.equal(primaryInput(), null, "wizard closed");
+    assert.equal(dom.window.sessionStorage.length, 0, "the quote draft is still cleared on exit");
+    const parked = JSON.parse(dom.window.localStorage.getItem("trimscout.parkedVehicle.v1")!);
+    assert.equal(parked.vin, VIN_RAV4);
+    assert.equal(parked.url, URL_RAV4);
+    assert.equal(parked.dealerName, "Route 22 Toyota");
+    assert.equal(parked.notify, true);
+    assert.ok(beacons.some((b) => b.name === "vehicle_saved_for_later"));
+
+    // ---- 8. Next open offers the saved car back; Try again resolves it through the link, rooftop intact.
+    await openFresh();
+    assert.equal(primaryInput().value, "", "still opens empty — the saved car is an offer, not a restore");
+    assert.match(doc.querySelector('[data-testid="parked-vehicle"]')!.textContent!, /2026 Toyota RAV4 XLE · Route 22 Toyota.*you asked to be told/);
+    await act(async () => { (doc.querySelector('[data-testid="parked-vehicle-resume"]') as HTMLButtonElement).click(); });
+    await settle(() => Boolean(doc.querySelector('[data-testid="link-confirm-build"]')));
+    assert.equal(dom.window.localStorage.getItem("trimscout.parkedVehicle.v1"), null, "consumed");
+    await act(async () => { button("Confirm & add")!.click(); });
+    await settle(() => Boolean(card()));
+    assert.equal(card()!.dataset.dealerShown, "Route 22 Toyota");
+    assert.ok(beacons.some((b) => b.name === "vehicle_resumed"));
+    // Remove works too.
+    await openFresh();
+    assert.equal(doc.querySelector('[data-testid="parked-vehicle"]'), null);
     await act(async () => { root.unmount(); });
   });
 });

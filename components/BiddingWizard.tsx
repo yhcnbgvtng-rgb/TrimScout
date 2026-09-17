@@ -42,6 +42,8 @@ import {
 } from "../lib/fordCompetitionUi";
 import { brandCodeFromMake, pastedVinCandidate } from "../lib/oemWmi";
 import { classifyResolvePath, dealerFromVdp, factoryBuildStateLine, logResolve, resolveLogEntry, type ResolvePath } from "../lib/resolvePath";
+import { factoryBuildPendingProps, hostOf, trackEvent } from "../lib/analytics";
+import { clearParkedVehicle, parkVehicle, parkedVehicleLabel, readParkedVehicle, type ParkedVehicle } from "../lib/parkedVehicle";
 import {
   classifyPaste,
   importPastedFactoryVehicle,
@@ -859,6 +861,11 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   const [isParsingLink, setIsParsingLink] = useState<boolean>(false);
   const [parseSuccessMsg, setParseSuccessMsg] = useState<string | null>(null);
   const [parseError, setParseError] = useState<string | null>(null);
+  /** A car the buyer saved for later (lib/parkedVehicle.ts), offered back on Step 1 until used or removed. */
+  const [parked, setParked] = useState<ParkedVehicle | null>(null);
+  const [retryingBuild, setRetryingBuild] = useState(false);
+  const [notifyAck, setNotifyAck] = useState(false);
+  const pendingEventVinsRef = React.useRef<Set<string>>(new Set());
   const [factoryBuildOem, setFactoryBuildOem] = useState<FactoryBuildOem | null>(null);
   const [fordStickerStatus, setFordStickerStatus] = useState<"released" | "unreleased" | "error" | null>(null);
   const [fordPdfUrl, setFordPdfUrl] = useState<string | null>(null);
@@ -1027,6 +1034,9 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     setParseError(null);
     setPendingLink(null);
     lastLinkRef.current = { primary: null, alt1: null, alt2: null };
+    setParked(readParkedVehicle());
+    setNotifyAck(false);
+    setRetryingBuild(false);
     setLinkError(null);
     setSelectedVehicle(null);
     setMake("");
@@ -1634,6 +1644,67 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
       setTargetOtdPrice(Math.round(result.msrp * 0.92));
     }
     setParseSuccessMsg(`VIN ${result.vehicle.vin}`);
+    // New car, no factory build: the spec's factory_build_pending { make, vinPrefix, dealerHost }, once per VIN.
+    if (result.factoryBuildUnavailable && !isUsedCondition(result.vehicle.condition) && !pendingEventVinsRef.current.has(result.vehicle.vin)) {
+      pendingEventVinsRef.current.add(result.vehicle.vin);
+      trackEvent("factory_build_pending", factoryBuildPendingProps({ ...result.vehicle, dealerUrl: result.vehicle.dealerUrl || lastLinkRef.current.primary?.url || null }));
+    }
+  };
+
+  /**
+   * "Try again" on a pending build: re-run the import for the same VIN. A
+   * build that has since posted replaces the free decode; the rooftop the
+   * buyer already has stays either way (the retry never downgrades a car).
+   */
+  const retryFactoryBuild = async () => {
+    if (!selectedVehicle || retryingBuild) return;
+    const current = selectedVehicle;
+    setRetryingBuild(true);
+    trackEvent("factory_build_retry", factoryBuildPendingProps(current));
+    const result = await importPastedFactoryVehicle(current.vin, fetch, { existingVehicles: [altVehicle1, altVehicle2], ...usedOpt });
+    if (result.ok) {
+      const location = result.vehicle.location?.dealerName?.trim() && !current.location?.dealerName?.trim() ? result.vehicle.location : current.location;
+      commitPrimaryImport({ ...result, vehicle: { ...result.vehicle, location, dealerUrl: current.dealerUrl, buyerConfirmed: current.buyerConfirmed, resolvePath: result.factoryBuildUnavailable ? "factory_pending" : current.resolvePath === "factory_pending" ? "url_only" : current.resolvePath } });
+    }
+    setRetryingBuild(false);
+  };
+
+  /** "Notify me": the record of the ask. No alerts are sent yet, and the copy says so. */
+  const requestBuildNotify = () => {
+    if (!selectedVehicle) return;
+    trackEvent("factory_build_notify_requested", factoryBuildPendingProps(selectedVehicle));
+    parkVehicle(parkedFrom(selectedVehicle, true));
+    setNotifyAck(true);
+  };
+
+  const parkedFrom = (v: Vehicle, notify: boolean): Omit<ParkedVehicle, "version" | "savedAt"> => ({
+    vin: v.vin,
+    url: v.dealerUrl || lastLinkRef.current.primary?.url || null,
+    year: v.year || null,
+    make: v.make,
+    model: v.model,
+    trim: v.trim || null,
+    dealerName: v.location?.dealerName?.trim() || null,
+    notify: notify || Boolean(readParkedVehicle()?.notify),
+  });
+
+  /** "Save for later": keep the VIN (and the link, so the rooftop comes back) and leave — nothing is sent. */
+  const saveForLaterAndExit = () => {
+    if (!selectedVehicle) return;
+    parkVehicle(parkedFrom(selectedVehicle, false));
+    trackEvent("vehicle_saved_for_later", { ...factoryBuildPendingProps(selectedVehicle), hadDealer: Boolean(selectedVehicle.location?.dealerName?.trim()) });
+    dismiss();
+  };
+
+  /** The parked car, back on Step 1: retry through the link when there was one (keeps the rooftop), else the VIN. */
+  const resumeParked = async () => {
+    if (!parked) return;
+    trackEvent("vehicle_resumed", { make: parked.make, vinPrefix: parked.vin.slice(0, 11), dealerHost: hostOf(parked.url) });
+    const paste = parked.url || parked.vin;
+    clearParkedVehicle();
+    setParked(null);
+    setDealerUrlInput(paste);
+    await handleParseDealerUrl(paste);
   };
 
   // Resolves an alternate VIN/link through the same real import used for
@@ -2251,6 +2322,25 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                     <span className="text-[10px] text-ink-faint">{isUsed ? "Used or certified pre-owned — no factory sticker needed." : "A used link flips this on its own."}</span>
                   </div>
                 ) : null}
+                {parked && !selectedVehicle && !pendingLink ? (
+                  <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-sky-500/40 bg-sky-950/20 px-3 py-2" data-testid="parked-vehicle">
+                    <span className="min-w-0">
+                      <p className="text-[11px] font-bold text-sky-200">Saved for later</p>
+                      <p className="truncate text-[10px] text-sky-200/90">
+                        {parkedVehicleLabel(parked)} · <span className="font-mono">{parked.vin}</span>
+                        {parked.notify ? " · you asked to be told when the build posts" : ""}
+                      </p>
+                    </span>
+                    <span className="flex shrink-0 gap-2">
+                      <button type="button" onClick={resumeParked} disabled={isParsingLink} className="rounded-lg bg-sky-400 px-3 py-1.5 text-[11px] font-black text-black hover:bg-sky-300 transition-all disabled:opacity-50" data-testid="parked-vehicle-resume">
+                        Try again
+                      </button>
+                      <button type="button" onClick={() => { clearParkedVehicle(); setParked(null); }} className="rounded-lg border border-border px-3 py-1.5 text-[11px] font-bold text-ink-light hover:border-rose-500 hover:text-white transition-all" data-testid="parked-vehicle-remove">
+                        Remove
+                      </button>
+                    </span>
+                  </div>
+                ) : null}
                 <div className="flex gap-2">
                   <div className="relative flex-1">
                     <Globe className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-emerald-400" />
@@ -2435,9 +2525,28 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                     sticker service was down): say so plainly, with the lot age when our crawl knows it.
                     Nothing is gated on it — the dealer confirms the build when they quote. */}
                 {parseSuccessMsg && selectedVehicle && factoryBuildStateLine(selectedVehicle) && (
-                  <p className="rounded-lg border border-amber-500/30 bg-amber-950/20 px-3 py-2 text-[11px] leading-snug text-amber-200" data-testid="factory-build-state">
-                    {factoryBuildStateLine(selectedVehicle)}
-                  </p>
+                  <div className="space-y-1.5 rounded-lg border border-amber-500/30 bg-amber-950/20 px-3 py-2" data-testid="factory-build-pending">
+                    <p className="text-[11px] leading-snug text-amber-200" data-testid="factory-build-state">
+                      {factoryBuildStateLine(selectedVehicle)}
+                    </p>
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] font-bold">
+                      <button type="button" onClick={retryFactoryBuild} disabled={retryingBuild} className="text-amber-300 hover:text-white disabled:opacity-50" data-testid="factory-build-retry">
+                        {retryingBuild ? "Checking…" : "Try again"}
+                      </button>
+                      <button type="button" onClick={requestBuildNotify} disabled={notifyAck} className="text-amber-300 hover:text-white disabled:opacity-50" data-testid="factory-build-notify">
+                        Notify me when it&apos;s published
+                      </button>
+                      <button type="button" onClick={saveForLaterAndExit} className="text-amber-300 hover:text-white" data-testid="factory-build-save">
+                        Save for later &amp; exit
+                      </button>
+                      <span className="font-normal text-ink-faint">You can still continue now — the dealer confirms the build when they quote.</span>
+                    </div>
+                    {notifyAck ? (
+                      <p className="text-[10px] leading-snug text-ink-muted" data-testid="factory-build-notify-ack">
+                        Noted. Alerts aren&apos;t live yet — we&apos;ve kept this car for you; open the wizard and use Try again in a few days. Factory stickers usually post within a few weeks of the listing.
+                      </p>
+                    ) : null}
+                  </div>
                 )}
                 {/* Must-haves collapse behind a one-line summary — the full
                     option list is long enough to bury everything else. */}

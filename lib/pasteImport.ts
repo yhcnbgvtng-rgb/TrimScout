@@ -568,10 +568,15 @@ function interpretFactoryBuildJson(
     };
   }
 
-  const buildConfidence: BuildConfidence =
-    json.buildConfidence === "verified_factory"
+  // Only a released factory document is "verified": a route can't call a
+  // free decode — or options lifted from a dealer page / Visor feed —
+  // factory-verified while the sticker itself is unreleased or unavailable.
+  const noFactoryDocument = sticker?.status === "unreleased" || sticker?.status === "unavailable";
+  const buildConfidence: BuildConfidence = noFactoryDocument
+    ? "dealer_listing_only"
+    : json.buildConfidence === "verified_factory"
       ? "verified_factory"
-      : json.buildConfidence === "dealer_listing_only" || sticker?.status === "unreleased" || sticker?.status === "unavailable"
+      : json.buildConfidence === "dealer_listing_only"
         ? "dealer_listing_only"
         : matched.buildConfidence || "verified_factory";
 
