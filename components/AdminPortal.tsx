@@ -7,6 +7,7 @@ import { UserProfile } from "../lib/types";
 import {
   ShieldAlert,
   ShieldCheck,
+  ClipboardList,
   Users,
   Building2,
   BarChart3,
@@ -71,14 +72,21 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
     loadAccounts();
   }, []);
 
-  // The approval desk badge: how many quote requests are waiting on an admin.
+  // The two quote desks' badges: how many requests wait on an admin, and how many exist at all.
   const [pendingApprovals, setPendingApprovals] = useState<number | null>(null);
+  const [allQuotes, setAllQuotes] = useState<number | null>(null);
   useEffect(() => {
     let cancelled = false;
     fetch("/api/admin/rfqs?approval=pending&limit=300")
       .then((r) => (r.ok ? r.json() : null))
       .then((j) => {
         if (!cancelled && j && Array.isArray(j.rfqs)) setPendingApprovals(j.rfqs.length);
+      })
+      .catch(() => {});
+    fetch("/api/admin/rfqs?limit=1000")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((j) => {
+        if (!cancelled && j && Array.isArray(j.rfqs)) setAllQuotes(j.rfqs.length);
       })
       .catch(() => {});
     return () => {
@@ -287,6 +295,16 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
             <ShieldCheck className="h-3.5 w-3.5" />
             <span>Pending approvals</span>
             {pendingApprovals ? <span className="rounded-full bg-black/80 px-1.5 py-0.5 text-[10px] font-black text-amber-300">{pendingApprovals}</span> : null}
+          </Link>
+
+          <Link
+            href="/admin/quote-requests"
+            className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-surface-elevated hover:bg-surface px-3.5 py-2 text-xs font-bold text-ink-light hover:text-white transition-all shadow-sm"
+            data-testid="nav-all-quotes"
+          >
+            <ClipboardList className="h-3.5 w-3.5" />
+            <span>All quote requests</span>
+            {allQuotes != null ? <span className="rounded-full bg-border px-1.5 py-0.5 text-[10px] font-black text-ink-light">{allQuotes}</span> : null}
           </Link>
 
           <Link
