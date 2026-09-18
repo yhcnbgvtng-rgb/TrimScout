@@ -150,9 +150,10 @@ describe("Configure Quote Request starts fresh on every open", () => {
 
     // Leaving the intent substep on alternate reveals the ask (not a VIN) and re-gates Continue on it.
     await act(async () => { continueBtn().click(); });
-    assert.ok(doc.querySelector('[data-testid="alternate-ask"]'), "Continue reveals the alternate ask");
+    assert.ok(doc.querySelector('[data-testid="alternate-ask"]'), "Continue reveals the dealership picker");
     assert.equal(doc.getElementById("primary-link-input"), null, "alternate never shows a VIN box");
-    assert.equal(reason(), "Tell dealers what you need to continue");
+    assert.equal(doc.querySelector('[data-testid="alt-must-haves"]'), null, "no What-you-need fields on the alternate lane");
+    assert.equal(reason(), "Add at least one dealership to continue");
 
     // And switching back to same_spec (now past the intent substep) reveals the VIN box.
     await act(async () => { (doc.querySelector('[data-testid="intent-same_spec"]') as HTMLButtonElement).click(); });

@@ -299,18 +299,18 @@ describe("Step 1 asks the quote intent before the VIN (2026-09-17)", () => {
     assert.equal(continueBtn().disabled, true);
     assert.equal(reason(), "Choose what you want quoted to continue");
     assert.match(text(), /We'll use the VIN or dealer link so quotes match this car's factory options/);
-    assert.match(text(), /No VIN needed — tell us what you need and dealers can propose other vehicles/);
+    assert.match(text(), /No VIN needed — dealers can propose other vehicles/);
 
-    // 2. Path B: an ask + one rooftop → Continue, no VIN, no sticker call.
+    // 2. Path B: a rooftop is all it takes → Continue, no VIN, no What-you-need fields, no sticker call.
     fetched.length = 0;
     await act(async () => { (doc.querySelector('[data-testid="intent-alternate"]') as HTMLButtonElement).click(); });
     assert.ok(events.some((e) => e.includes('"rfq_intent_selected"') && e.includes('"alternate"')), "rfq_intent_selected { intent: alternate }");
     assert.equal(continueBtn().disabled, false, "alternate intent alone enables Continue — no VIN to leave the intent substep");
-    await act(async () => { continueBtn().click(); }); // leave the intent substep → the alternate ask appears
+    await act(async () => { continueBtn().click(); }); // leave the intent substep → the dealership picker appears
     assert.equal(doc.getElementById("primary-link-input"), null, "path B has no VIN box");
-    assert.equal(reason(), "Tell dealers what you need to continue");
-    await setVal(doc.querySelector('[data-testid="alt-must-haves"]') as HTMLInputElement, "AWD, heated seats");
-    await setVal(doc.querySelector('[data-testid="alt-monthly-max"]') as HTMLInputElement, "500");
+    // No "What you need" fields on the alternate lane anymore.
+    assert.equal(doc.querySelector('[data-testid="alt-must-haves"]'), null, "no must-have field on the alternate lane");
+    assert.equal(doc.querySelector('[data-testid="alt-monthly-max"]'), null, "no budget field on the alternate lane");
     assert.equal(reason(), "Add at least one dealership to continue");
     await act(async () => { (doc.querySelector('[data-testid="alt-add-dealer"]') as HTMLButtonElement).click(); });
     await setVal(doc.querySelector('input[placeholder="Dealership name"]') as HTMLInputElement, "Route 22");
@@ -318,9 +318,8 @@ describe("Step 1 asks the quote intent before the VIN (2026-09-17)", () => {
     for (let i = 0; i < 20 && !text().includes("Hillside"); i++) await act(async () => { await new Promise((r) => setTimeout(r, 10)); });
     await act(async () => { Array.from(doc.querySelectorAll<HTMLButtonElement>("button")).find((b) => b.textContent?.includes("Route 22 Toyota") && b.textContent?.includes("Hillside"))!.click(); });
     assert.match(doc.querySelector('[data-testid="alt-dealers"]')!.textContent!, /Route 22 Toyota/);
-    assert.equal(continueBtn().disabled, false, "path B continues with no VIN");
+    assert.equal(continueBtn().disabled, false, "path B continues on a dealership alone — no VIN, no ask");
     assert.ok(!fetched.some((u) => u.includes("-sticker") || u.includes("/api/free-vin")), "no factory sticker call on path B");
-    assert.match(text(), /AWD, heated seats · ≤ \$500\/mo/);
 
     // 3. Switch B → A: the car is required again.
     await act(async () => { (doc.querySelector('[data-testid="intent-same_spec"]') as HTMLButtonElement).click(); });
@@ -328,7 +327,7 @@ describe("Step 1 asks the quote intent before the VIN (2026-09-17)", () => {
     assert.equal(continueBtn().disabled, true);
     assert.equal(reason(), "Add a vehicle to continue");
 
-    // 4. Switch A → B again: the ask and the rooftop are still there, Continue is live.
+    // 4. Switch A → B again: the rooftop is still there, Continue is live.
     await act(async () => { (doc.querySelector('[data-testid="intent-alternate"]') as HTMLButtonElement).click(); });
     assert.equal(continueBtn().disabled, false);
     await act(async () => { root.unmount(); });
