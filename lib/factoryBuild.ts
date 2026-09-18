@@ -10,7 +10,10 @@
  * lib/factoryBuildStore.ts, and lib/factoryBuildPipeline.ts wires all four.
  */
 import { createHash } from "node:crypto";
-import type { GenesisOptionLine, GenesisSticker } from "./genesisSticker";
+import type { GenesisSticker } from "./genesisSticker";
+import type { FordSticker } from "./fordSticker";
+import type { GmSticker } from "./gmSticker";
+import type { StellantisSticker } from "./stellantisSticker";
 
 export type FactoryBuildStatus = "factory_verified" | "factory_pending" | "decode_provisional" | "parse_failed";
 export type FactoryBuildProvenance = "sticker" | "decode_provisional" | "mixed";
@@ -95,29 +98,68 @@ function hashRawText(rawText: string): string | null {
 }
 
 /**
+ * Every OEM Monroney parser in this codebase (Ford, GM, Genesis, Hyundai,
+ * Stellantis) converges on this shape — same field names, same
+ * released/unreleased/error status. Only how an option line's code is
+ * spelled differs per brand (GenesisOptionLine.code, GmOptionLine.rpo,
+ * FordOptionLine has none), so that's the one thing callers supply.
+ */
+interface OemOptionLineLike {
+  name: string;
+  price: number | null;
+  isStandard: boolean;
+  isPackageChild: boolean;
+}
+
+interface OemMonroneyStickerLike<O extends OemOptionLineLike = OemOptionLineLike> {
+  vin: string;
+  status: "released" | "unreleased" | "error";
+  year?: number;
+  make?: string;
+  model?: string;
+  trim?: string;
+  exteriorColor?: string;
+  interiorColor?: string;
+  msrp: number | null;
+  basePrice: number | null;
+  optionsPrice: number | null;
+  destination: number | null;
+  options: O[];
+  rawText: string;
+  fetchedAt: string;
+  note?: string;
+}
+
+/**
  * A package header is followed by its (unpriced) child lines in the source
  * parsers — the child flag marks membership, not the header itself. Derive
  * "package" vs. standalone "option" from that adjacency so MSRP dedup stays
  * correct (children carry msrpDelta: null, never double-counted).
  */
-function classifyOptionKind(options: GenesisOptionLine[], index: number): "option" | "package" {
+function classifyOptionKind<O extends OemOptionLineLike>(options: O[], index: number): "option" | "package" {
   const opt = options[index];
   if (opt.isPackageChild) return "option";
   return options[index + 1]?.isPackageChild === true ? "package" : "option";
 }
 
-function mapOptions(sticker: GenesisSticker, resolveCatalogId: CatalogResolver): FactoryBuildOption[] {
-  return sticker.options.map((o, i) => ({
-    code: o.code || null,
-    rawName: o.name,
-    catalogId: resolveCatalogId({ code: o.code || null, rawName: o.name }),
-    msrpDelta: o.price,
-    kind: classifyOptionKind(sticker.options, i),
-  }));
+function mapOptions<O extends OemOptionLineLike>(
+  sticker: OemMonroneyStickerLike<O>,
+  codeOf: (opt: O) => string | null,
+  resolveCatalogId: CatalogResolver
+): FactoryBuildOption[] {
+  return sticker.options.map((o, i) => {
+    const code = codeOf(o);
+    return {
+      code,
+      rawName: o.name,
+      catalogId: resolveCatalogId({ code, rawName: o.name }),
+      msrpDelta: o.price,
+      kind: classifyOptionKind(sticker.options, i),
+    };
+  });
 }
 
-function computeParse(sticker: GenesisSticker, options: FactoryBuildOption[]): FactoryBuildParse {
-  const parserId = "genesis_family_v1";
+function computeParse(sticker: OemMonroneyStickerLike, options: FactoryBuildOption[], parserId: string): FactoryBuildParse {
   if (sticker.status === "error") {
     return { parserId, confidence: "low", warnings: [sticker.note || "Sticker text did not match the requested VIN."] };
   }
@@ -145,22 +187,23 @@ function computeParse(sticker: GenesisSticker, options: FactoryBuildOption[]): F
 }
 
 /**
- * Normalizes a GenesisSticker-shaped record (Genesis and Hyundai both parse
- * to this shape — same SAP Monroney form family) into the common
- * FactoryBuild schema. "released" -> factory_verified, "unreleased" ->
- * factory_pending, "error" (text didn't match the requested VIN) ->
- * parse_failed. Options/MSRP are only populated for factory_verified —
- * never invent sticker content for a pending or failed fetch.
+ * Normalizes any OEM Monroney-shaped sticker into the common FactoryBuild
+ * schema. "released" -> factory_verified, "unreleased" -> factory_pending,
+ * "error" (text didn't match the requested VIN) -> parse_failed.
+ * Options/MSRP are only populated for factory_verified — never invent
+ * sticker content for a pending or failed fetch.
  */
-export function normalizeGenesisFamilySticker(
-  sticker: GenesisSticker,
+function normalizeOemSticker<O extends OemOptionLineLike>(
+  sticker: OemMonroneyStickerLike<O>,
+  codeOf: (opt: O) => string | null,
+  parserId: string,
   source: NormalizeStickerSource,
-  opts: NormalizeOptions = {}
+  opts: NormalizeOptions
 ): FactoryBuild {
   const resolveCatalogId = opts.resolveCatalogId || noopCatalogResolver;
   const status: FactoryBuildStatus =
     sticker.status === "released" ? "factory_verified" : sticker.status === "error" ? "parse_failed" : "factory_pending";
-  const options = status === "factory_verified" ? mapOptions(sticker, resolveCatalogId) : [];
+  const options = status === "factory_verified" ? mapOptions(sticker, codeOf, resolveCatalogId) : [];
 
   return {
     vin: sticker.vin,
@@ -183,11 +226,36 @@ export function normalizeGenesisFamilySticker(
     },
     options,
     colors: { exterior: sticker.exteriorColor ?? null, interior: sticker.interiorColor ?? null },
-    parse: computeParse(sticker, options),
+    parse: computeParse(sticker, options, parserId),
     enrich: null,
     status,
     updatedAt: new Date().toISOString(),
   };
+}
+
+/** Genesis and Hyundai both parse to this shape — same SAP Monroney form family. */
+export function normalizeGenesisFamilySticker(
+  sticker: GenesisSticker,
+  source: NormalizeStickerSource,
+  opts: NormalizeOptions = {}
+): FactoryBuild {
+  return normalizeOemSticker(sticker, (o) => o.code || null, "genesis_family_v1", source, opts);
+}
+
+export function normalizeFordSticker(sticker: FordSticker, source: NormalizeStickerSource, opts: NormalizeOptions = {}): FactoryBuild {
+  return normalizeOemSticker(sticker, () => null, "ford_v1", source, opts);
+}
+
+export function normalizeGmSticker(sticker: GmSticker, source: NormalizeStickerSource, opts: NormalizeOptions = {}): FactoryBuild {
+  return normalizeOemSticker(sticker, (o) => o.rpo || null, "gm_v1", source, opts);
+}
+
+export function normalizeStellantisSticker(
+  sticker: StellantisSticker,
+  source: NormalizeStickerSource,
+  opts: NormalizeOptions = {}
+): FactoryBuild {
+  return normalizeOemSticker(sticker, (o) => o.code || null, "stellantis_v1", source, opts);
 }
 
 /** A shell for a VIN whose brand has no wired sticker provider yet — never factory_verified, always eligible for decode enrichment. */

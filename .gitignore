@@ -11,3 +11,4 @@ build
 data/lightsail_inventory.backup.json
 data/deal-engagement.json
 data/factory-builds.json
+data/factory-option-catalog.json

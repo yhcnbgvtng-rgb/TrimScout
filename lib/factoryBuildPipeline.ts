@@ -4,9 +4,10 @@
  * fetchers cache by VIN already, and upsertFactoryBuild replaces the prior
  * record rather than appending.
  */
-import { normalizeGenesisFamilySticker, pendingFactoryBuildShell, type CatalogResolver, type FactoryBuild } from "./factoryBuild";
+import { pendingFactoryBuildShell, type CatalogResolver, type FactoryBuild } from "./factoryBuild";
 import { stickerProviderForVin, type StickerProvider } from "./factoryBuildProviders";
 import { enrichFactoryBuild, type VinDecodeFn } from "./factoryBuildEnrich";
+import { canonicalizeFactoryBuildOptions } from "./factoryOptionCatalogStore";
 import { upsertFactoryBuild } from "./factoryBuildStore";
 import { bump } from "./opsMetrics";
 
@@ -14,6 +15,8 @@ export interface RunFactoryBuildPipelineOptions {
   /** Runs NHTSA decode enrichment. Default true. */
   enrich?: boolean;
   resolveCatalogId?: CatalogResolver;
+  /** Runs stage-3 catalog canonicalization for any option resolveCatalogId left unresolved. Default true. */
+  canonicalize?: boolean;
   /** Test seam for the enrichment decode call. */
   decode?: VinDecodeFn;
   /** Test seam: overrides the WMI-routed provider lookup. */
@@ -39,8 +42,11 @@ export async function runFactoryBuildPipeline(vin: string, opts: RunFactoryBuild
   if (!provider) {
     build = pendingFactoryBuildShell(cleanVin, "No factory sticker provider is wired for this VIN's brand yet.");
   } else {
-    const result = await provider.fetch(cleanVin);
-    build = normalizeGenesisFamilySticker(result.sticker, { providerId: result.providerId, url: result.url }, { resolveCatalogId: opts.resolveCatalogId });
+    build = await provider.fetch(cleanVin, { resolveCatalogId: opts.resolveCatalogId });
+  }
+
+  if (opts.canonicalize ?? true) {
+    build = await canonicalizeFactoryBuildOptions(build);
   }
 
   if (opts.enrich ?? true) {
