@@ -249,9 +249,36 @@ const MARKETING_PROSE_MARKERS = [
     /if you like this vehicle/i,
 ];
 
+// Some third-party spec-sheet feeds dump the description field as one
+// undelimited run with no real word/item boundaries at all — confirmed
+// live on Porsche Beverly Hills: "Standard EquipmentMECHANICALFull-Time
+// All-Wheel3.36 Axle Ratio...". Splitting that on commas/periods/newlines
+// produces mashed-together garbage, not real per-VIN features. These two
+// patterns are generic signals that adjacent "words" got concatenated with
+// no separator at all: a lowercase letter directly touching the next
+// word's capital ("EquipmenTMechanical"), or an all-caps run directly
+// touching a lowercase word ("MECHANICALFull"). A normal bulleted or
+// comma-separated feature list — even one that mentions a legitimate
+// mixed-case brand name like "SiriusXM" once — essentially never produces
+// two or more of these by accident, so the threshold is 2: below that,
+// a single incidental brand-name hit is not treated as proof the whole
+// field is unparseable. Deliberately excludes digit/letter adjacency
+// (e.g. "4WD", "3.6L") — those are common, legitimate automotive
+// abbreviations, not jamming, and would false-positive constantly.
+const UNDELIMITED_JAM_PATTERNS = [/[a-z][A-Z]/g, /[A-Z]{2,}[a-z]/g];
+function looksUndelimited(text) {
+    let jams = 0;
+    for (const pattern of UNDELIMITED_JAM_PATTERNS) {
+        jams += (text.match(pattern) || []).length;
+        if (jams >= 2) return true;
+    }
+    return false;
+}
+
 function parseFeaturesFromDescription(description) {
     if (!description) return [];
     if (MARKETING_PROSE_MARKERS.some((marker) => marker.test(description))) return [];
+    if (looksUndelimited(description)) return [];
 
     let text = description;
     for (const marker of DESCRIPTION_BOILERPLATE_MARKERS) {
@@ -341,14 +368,13 @@ function extractSchemaOrgVehicle(html, url, dealer) {
         interiorColor: null,
         engine: cleanString(vehicleLd.vehicleEngine?.name),
         transmission: null,
-        // Deliberately not parsing options from vehicleLd.description here.
-        // Confirmed live on Porsche Beverly Hills: that field is sometimes an
-        // undelimited third-party spec-sheet dump ("Standard
-        // EquipmentMECHANICALFull-Time All-Wheel3.36 Axle Ratio...") with no
-        // real item boundaries — splitting it produces mashed-together
-        // garbage, not real per-VIN options. Left empty (honest) rather than
-        // risk shipping that as an itemized options list.
-        dealerListedOptions: [],
+        // parseFeaturesFromDescription() now guards against exactly the
+        // Porsche Beverly Hills failure mode that used to justify leaving
+        // this empty (looksUndelimited() bails on an undelimited spec-sheet
+        // dump like "Standard EquipmentMECHANICALFull-Time All-Wheel3.36
+        // Axle Ratio..."), so it's safe to parse real bulleted/comma-
+        // separated feature lists here instead of always shipping nothing.
+        dealerListedOptions: parseFeaturesFromDescription(vehicleLd.description),
         imageUrl: extractImageUrl(html, vehicleLd, url),
         url,
     };
