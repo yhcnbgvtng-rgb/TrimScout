@@ -269,25 +269,63 @@ export async function runEnrichmentPipeline(limit = Infinity, brand = null, dbRu
 
   const { cachePath: CACHE_PATH, inventoryPath: INVENTORY_PATH, dataDir: DATA_DIR } = getDataPaths();
 
-  let rawInventory = [];
-  try {
-    const raw = await fs.readFile(INVENTORY_PATH, "utf-8");
-    rawInventory = JSON.parse(raw);
-  } catch (err) {
-    console.error("Could not read inventory:", err.message);
-    return;
-  }
-
+  let rawInventory = null;
   let cache = {};
-  try {
-    const rawCache = await fs.readFile(CACHE_PATH, "utf-8");
-    cache = JSON.parse(rawCache);
-  } catch {
-    cache = {};
-  }
+  let targetVehicles = [];
+  let inventoryReadFailed = false;
+  const vinScope = vinsToEnrich ? new Set(vinsToEnrich) : null;
 
-  console.log(`Total Vehicles in Inventory File: ${rawInventory.length}`);
-  console.log(`Existing Cached Enriched VINs: ${Object.keys(cache).length}`);
+  // Locked: the OTHER memory-heavy moment in this pipeline, besides the
+  // final persist below — parsing the full nationwide inventory + cache
+  // files (250k+ vehicles, 400MB+ combined as of 2026-09-18). Two
+  // concurrent brand-runs (MAX_CONCURRENT_STATES=2) each doing this at the
+  // same instant — or one doing this while the other is in its own final
+  // persist below — is what was tripping the kernel's OOM-killer: 43 of
+  // 135 brand-runs crashed silently mid-enrichment that night, with no
+  // self-reported V8 heap-limit error, the signature of a kernel SIGKILL
+  // from combined memory pressure rather than any single process
+  // exceeding its own heap cap. Serializing this against the final
+  // persist's own lock means the two GB-scale parses this pipeline ever
+  // does can never land at the same instant as another concurrent
+  // brand-run's.
+  //
+  // The full parsed array never leaves this callback as itself — only
+  // targetVehicles (a small slice) and cache survive it — so it's eligible
+  // for GC before the (often long, network-bound) per-VIN loop below even
+  // starts, instead of sitting in memory for that whole duration for no
+  // reason. `rawInventory` stays declared at the outer scope only because
+  // the final persist step reassigns it (to the merged result) for the
+  // DB-sync call after that — it's never populated with the full parse.
+  await withSharedDataLock(async () => {
+    let inventory;
+    try {
+      const raw = await fs.readFile(INVENTORY_PATH, "utf-8");
+      inventory = JSON.parse(raw);
+    } catch (err) {
+      console.error("Could not read inventory:", err.message);
+      inventoryReadFailed = true;
+      return;
+    }
+
+    try {
+      const rawCache = await fs.readFile(CACHE_PATH, "utf-8");
+      cache = JSON.parse(rawCache);
+    } catch {
+      cache = {};
+    }
+
+    console.log(`Total Vehicles in Inventory File: ${inventory.length}`);
+    console.log(`Existing Cached Enriched VINs: ${Object.keys(cache).length}`);
+
+    const scopedInventory = vinScope ? inventory.filter((v) => vinScope.has(v.vin)) : inventory;
+    targetVehicles = scopedInventory.slice(0, limit);
+  }, { label: `enricher-read:${brand?.name || 'unknown'}` });
+
+  if (inventoryReadFailed) return;
+
+  if (vinScope) {
+    console.log(`Scoped to this run's ${vinScope.size} VIN(s): ${targetVehicles.length} matched in the inventory file.`);
+  }
 
   let enrichedCount = 0;
   let cacheHits = 0;
@@ -299,12 +337,6 @@ export async function runEnrichmentPipeline(limit = Infinity, brand = null, dbRu
   // Inventory's header comment.
   const enrichedByVin = new Map();
   const newCacheEntries = new Map();
-  const vinScope = vinsToEnrich ? new Set(vinsToEnrich) : null;
-  const scopedInventory = vinScope ? rawInventory.filter((v) => vinScope.has(v.vin)) : rawInventory;
-  const targetVehicles = scopedInventory.slice(0, limit);
-  if (vinScope) {
-    console.log(`Scoped to this run's ${vinScope.size} VIN(s): ${targetVehicles.length} matched in the inventory file.`);
-  }
 
   // Escape hatch for nationwide batch runs where the per-VIN NHTSA lookup
   // (sequential, one network round-trip at a time) is the dominant cost of
@@ -428,11 +460,14 @@ export async function runEnrichmentPipeline(limit = Infinity, brand = null, dbRu
     let freshInventory;
     try {
       freshInventory = JSON.parse(await fs.readFile(INVENTORY_PATH, 'utf-8'));
-    } catch {
-      // Nothing on disk (shouldn't happen — we read it successfully above —
-      // but if it vanished, falling back to what this run already has is
-      // strictly better than throwing away this run's own enrichment work.
-      freshInventory = rawInventory;
+    } catch (err) {
+      // Nothing on disk (shouldn't happen — we read it successfully in the
+      // read-lock block above). No stale full copy to fall back to anymore
+      // — `rawInventory` is never populated with the full parse now (see
+      // that block's comment), so there's nothing safe to write. Surface
+      // the error instead of silently producing a bad persist.
+      console.error("Could not re-read inventory for persist:", err.message);
+      throw err;
     }
     let freshCache;
     try {
@@ -441,14 +476,13 @@ export async function runEnrichmentPipeline(limit = Infinity, brand = null, dbRu
       freshCache = cache;
     }
 
-    // Drop the stale top-of-function copies before building the merged
-    // result: on a 200MB+ national file, holding the pipeline-start
-    // snapshot, this fresh re-read, AND the merged output alive at once
-    // (three full copies of the same dataset) is exactly what was
-    // exhausting the heap — see ensureEnrichmentShape's comment for the
-    // matching fix on the per-vehicle clone. Nulling these lets V8 reclaim
-    // the now-unused snapshot while the merge below allocates the result.
-    rawInventory = null;
+    // `rawInventory` is already null (see the read-lock block above —
+    // the full parse from the top of this function is never kept this
+    // far). `cache`, though, still holds that block's full accumulated
+    // snapshot; drop it here before building the merged result so it
+    // doesn't coexist with freshCache/mergedCache. See
+    // ensureEnrichmentShape's comment for the matching fix on the
+    // per-vehicle clone.
     cache = null;
 
     const mergedInventory = mergeEnrichedRecordsIntoInventory({ freshInventory, enrichedByVin, brand });
