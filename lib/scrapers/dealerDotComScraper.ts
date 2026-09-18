@@ -47,8 +47,9 @@ export async function scrapeDealerDotCom(
       const items = data?.results || data?.pageData?.trackingData || data?.inventory || [];
 
       if (Array.isArray(items) && items.length > 0) {
-        items.forEach((item: any, idx: number) => {
-          const vin = item.vin || item.uuid || `1FT8W3BT${idx}RF${Math.floor(100000 + Math.random() * 900000)}`;
+        items.forEach((item: any) => {
+          const vin = item.vin || item.uuid;
+          if (!vin) return;
           const year = parseInt(item.year || item.modelYear, 10) || 2026;
           const make = item.make || options?.make || "BMW";
           const model = item.model || options?.model || "3 Series";
@@ -106,46 +107,9 @@ export async function scrapeDealerDotCom(
     // Graceful fallback for network timeout or proxy restriction
   }
 
-  // If live site blocks direct JSON call, synthesize normalized template with real verified 200 OK Dealer.com search deep-link
-  if (vehicles.length === 0) {
-    const make = options?.make || "BMW";
-    const model = options?.model || "3 Series";
-    const generatedVin = `WBA33AY0${Math.floor(10 + Math.random() * 89)}RF${Math.floor(100000 + Math.random() * 900000)}`;
-
-    vehicles.push({
-      id: `ddc-${generatedVin}`,
-      vin: generatedVin,
-      year: 2026,
-      make,
-      model,
-      trim: "330i M Sport",
-      bodyType: "Sedan",
-      engine: "2.0L Turbo Inline-4 (255 hp)",
-      drivetrain: "xDrive AWD",
-      transmission: "8-Speed Sport Automatic",
-      exteriorColor: "Brooklyn Grey Metallic",
-      interiorColor: "Tacora Red Perforated",
-      msrp: 54800,
-      dealerPrice: 51400,
-      daysOnLot: 31,
-      status: "on_lot",
-      location: {
-        dealerName: cleanDomain.split(".")[0].toUpperCase().replace(/-/g, " "),
-        city: "San Francisco",
-        state: "CA",
-        zip: options?.zip || "94107",
-        distanceMiles: 14,
-      },
-      packages: ["M Sport Package", "Shadowline Package", "Premium Package", "Harman Kardon Audio"],
-      options: [
-        { code: "ZMP", name: "M Sport Package", price: 2550, category: "package" },
-        { code: "ZPP", name: "Premium Package", price: 1900, category: "package" },
-      ],
-      imageUrl: "https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=1200&q=80",
-      mileage: 9,
-      dealerUrl: `${baseUrl}/new-inventory/index.htm?search=${generatedVin}`,
-    });
-  }
+  // A blocked/empty/malformed live response yields zero vehicles — never a
+  // fabricated one. The caller (runUnifiedScrapers) already treats an empty
+  // result as a normal, tolerated outcome.
 
   return {
     source: "Dealer.com",

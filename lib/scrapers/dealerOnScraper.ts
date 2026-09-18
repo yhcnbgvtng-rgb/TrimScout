@@ -38,8 +38,9 @@ export async function scrapeDealerOn(
       const items = data?.vehicles || data?.results || (Array.isArray(data) ? data : []);
 
       if (items.length > 0) {
-        items.forEach((item: any, idx: number) => {
-          const vin = item.vin || `1FMCU0G9${idx}RF${Math.floor(100000 + Math.random() * 900000)}`;
+        items.forEach((item: any) => {
+          const vin = item.vin;
+          if (!vin) return;
           const year = parseInt(item.year, 10) || 2026;
           const make = item.make || options?.make || "Ford";
           const model = item.model || options?.model || "F-150 Lightning";
@@ -95,49 +96,9 @@ export async function scrapeDealerOn(
     // Network fallback
   }
 
-  if (vehicles.length === 0) {
-    const make = options?.make || "Kia";
-    const model = options?.model || "EV9";
-    const generatedVin = `KNDAG454${Math.floor(10 + Math.random() * 89)}RF${Math.floor(100000 + Math.random() * 900000)}`;
-
-    vehicles.push({
-      id: `don-${generatedVin}`,
-      vin: generatedVin,
-      year: 2026,
-      make,
-      model,
-      trim: "Land AWD",
-      bodyType: "SUV",
-      engine: "Dual Electric Motors (379 hp / 516 lb-ft)",
-      drivetrain: "Dual Motor AWD",
-      transmission: "Single-Speed Automatic",
-      exteriorColor: "Ocean Blue Matte",
-      interiorColor: "Dark Gray & Navy SynTex",
-      msrp: 72800,
-      dealerPrice: 67400,
-      daysOnLot: 28,
-      status: "on_lot",
-      location: {
-        dealerName: cleanDomain.split(".")[0].toUpperCase().replace(/-/g, " "),
-        city: "Richmond",
-        state: "CA",
-        zip: options?.zip || "94806",
-        distanceMiles: 16,
-      },
-      packages: [
-        "Land Relaxation Package (2nd Row Ottoman VIP Seats)",
-        "Towing Package (5,000 lbs w/ Self-Leveling Rear Suspension)",
-        "Meridian 14-Speaker Surround Sound"
-      ],
-      options: [
-        { code: "RELAX", name: "Land VIP Relaxation Package", price: 2000, category: "package" },
-        { code: "TOW", name: "Towing Package", price: 1500, category: "package" },
-      ],
-      imageUrl: "https://images.unsplash.com/photo-1617814076367-b759c7d7e738?auto=format&fit=crop&w=1200&q=80",
-      mileage: 11,
-      dealerUrl: `${baseUrl}/new-inventory/?vin=${generatedVin}`,
-    });
-  }
+  // A blocked/empty/malformed live response yields zero vehicles — never a
+  // fabricated one. The caller (runUnifiedScrapers) already treats an empty
+  // result as a normal, tolerated outcome.
 
   return {
     source: "DealerOn",

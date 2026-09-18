@@ -39,8 +39,9 @@ export async function scrapeDealerInspire(
       const items = Array.isArray(data) ? data : data?.vehicles || data?.data || [];
 
       if (items.length > 0) {
-        items.forEach((item: any, idx: number) => {
-          const vin = item.vin || item.VIN || `5YJ3E1EB${idx}RF${Math.floor(100000 + Math.random() * 900000)}`;
+        items.forEach((item: any) => {
+          const vin = item.vin || item.VIN;
+          if (!vin) return;
           const year = parseInt(item.year || item.model_year, 10) || 2026;
           const make = item.make || options?.make || "Toyota";
           const model = item.model || options?.model || "RAV4 Hybrid";
@@ -102,44 +103,9 @@ export async function scrapeDealerInspire(
     // Network fallback
   }
 
-  if (vehicles.length === 0) {
-    const make = options?.make || "Hyundai";
-    const model = options?.model || "Ioniq 5";
-    const generatedVin = `KM8KRDAF${Math.floor(10 + Math.random() * 89)}RF${Math.floor(100000 + Math.random() * 900000)}`;
-
-    vehicles.push({
-      id: `di-${generatedVin}`,
-      vin: generatedVin,
-      year: 2026,
-      make,
-      model,
-      trim: "Limited AWD",
-      bodyType: "SUV",
-      engine: "Dual Electric Motors (320 hp / 446 lb-ft)",
-      drivetrain: "HTRAC AWD",
-      transmission: "Single-Speed Reduction Gear",
-      exteriorColor: "Digital Teal Metallic",
-      interiorColor: "Dark Green w/ Dove Gray",
-      msrp: 58500,
-      dealerPrice: 53200,
-      daysOnLot: 15,
-      status: "in_transit",
-      location: {
-        dealerName: cleanDomain.split(".")[0].toUpperCase().replace(/-/g, " "),
-        city: "Vallejo",
-        state: "CA",
-        zip: options?.zip || "94590",
-        distanceMiles: 20,
-      },
-      packages: ["Vision Roof Package", "Remote Smart Parking Assist 2", "Bose Premium Audio"],
-      options: [
-        { code: "LIMITED", name: "Limited Equipment Group", price: 3500, category: "package" },
-      ],
-      imageUrl: "https://images.unsplash.com/photo-1593941707882-a5bba14938c7?auto=format&fit=crop&w=1200&q=80",
-      mileage: 0,
-      dealerUrl: `${baseUrl}/inventory/?q=${generatedVin}`,
-    });
-  }
+  // A blocked/empty/malformed live response yields zero vehicles — never a
+  // fabricated one. The caller (runUnifiedScrapers) already treats an empty
+  // result as a normal, tolerated outcome.
 
   return {
     source: "DealerInspire",
