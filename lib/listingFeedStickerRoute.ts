@@ -54,7 +54,15 @@ export function createListingFeedStickerHandlers(config: ListingFeedRouteConfig)
   ) {
     const free = await buildFreeImport({ vin, pasteUrl, source: resolved, makeLabel: make.label });
     if (!free.ok) return vinPasteError(free.error, { vin });
-    return NextResponse.json(free.payload);
+    // These makes have no window-sticker source in v1 (unlike Ford/GM/Stellantis/
+    // Genesis, whose sticker is only "not published *yet*"). Say so plainly rather
+    // than let the generic "Factory build not published yet" imply one is coming —
+    // the car still imports on the VIN decode and the dealer confirms the build.
+    return NextResponse.json({
+      ...free.payload,
+      stickerPending: true,
+      stickerPendingNote: `Window sticker isn't available for ${make.label} on TrimScout — details come from the VIN decode; the dealer confirms the exact build when they quote.`,
+    });
   }
 
   async function lookup(opts: { vin?: string; paste?: string; pasteUrl: string | null; request: Request }) {
