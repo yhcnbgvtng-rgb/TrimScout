@@ -44,7 +44,7 @@ import { brandCodeFromMake, pastedVinCandidate } from "../lib/oemWmi";
 import { classifyResolvePath, dealerFromVdp, factoryBuildStateLine, logResolve, resolveLogEntry, type ResolvePath } from "../lib/resolvePath";
 import { UNDER_REVIEW_COPY } from "../lib/rfqTracker";
 import { factoryBuildPendingProps, hostOf, trackEvent } from "../lib/analytics";
-import { BODY_STYLES, EMPTY_ALTERNATE_DRAFT, LANE_COPY, alternateAskSummary, buildAlternateAsk, type AlternateAskDraft, type RfqLane } from "../lib/alternateAsk";
+import { EMPTY_ALTERNATE_DRAFT, LANE_COPY, type AlternateAskDraft, type RfqLane } from "../lib/alternateAsk";
 import { clearParkedVehicle, parkVehicle, parkedVehicleLabel, readParkedVehicle, type ParkedVehicle } from "../lib/parkedVehicle";
 import {
   classifyPaste,
@@ -943,8 +943,10 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   const chooseIntent = (next: RfqLane) => {
     if (next !== intent) trackEvent("rfq_intent_selected", { intent: next });
     setIntent(next);
+    // The alternate lane no longer collects "what you need" — clear any prior
+    // values so nothing from a same-spec detour rides along on submit.
+    if (next === "alternate") setAltDraft(EMPTY_ALTERNATE_DRAFT);
   };
-  const altAsk = buildAlternateAsk(altDraft);
 
   // Custom/Flexible Spec Fields
   const [make, setMake] = useState<string>("BMW");
@@ -1151,7 +1153,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   // lockVehicleSelection, in which case there's nothing to import.
   // Typing a VIN/URL, or merely arriving on this step, is not enough.
   // Same-spec: a resolved car. Alternate: an ask plus at least one rooftop to send it to — no VIN.
-  const vehicleImported = intent === "alternate" ? Boolean(altAsk.ask && altDealers.length > 0) : Boolean(lockVehicleSelection || (parseSuccessMsg && selectedVehicle));
+  const vehicleImported = intent === "alternate" ? altDealers.length > 0 : Boolean(lockVehicleSelection || (parseSuccessMsg && selectedVehicle));
   const reviewTarget = reviewTargetFromVehicle(selectedVehicle);
 
   // Step 2 asks "who gets this offer", so it has to name the dealerships the
@@ -2060,7 +2062,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   const sendQuoteRequestPackage = async () => {
     const alternateLane = intent === "alternate";
     if (!alternateLane && !selectedVehicle) return;
-    if (alternateLane && !altAsk.ask) return;
+    if (alternateLane && altDealers.length === 0) return;
     const vehicles = alternateLane ? [] : [selectedVehicle, altVehicle1, altVehicle2].filter((v): v is Vehicle => Boolean(v)).slice(0, MAX_PACKAGE_LINKS);
     // On the alternate lane there is no car: one "paste" per chosen rooftop, VIN-less, so the
     // invite loop and the desk plan work the same way. The box stores the ask, not a vehicle.
@@ -2101,7 +2103,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
         body: JSON.stringify({
           packageKind: "links",
           lane: alternateLane ? "alternate" : "same_spec",
-          alternateAsk: alternateLane ? altAsk.ask : null,
+          alternateAsk: null,
           // Word for word to every quoting dealer (scrubbed of contact info first).
           buyerNote: dealComment.trim() || null,
           tradeInExpected,
@@ -2396,45 +2398,9 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
               ) : null}
 
               {intent === "alternate" && intentConfirmed ? (
-                <WizardSection title="What you need" hint="No VIN needed. Dealers may reply with different VINs and builds — those show as alternate quotes in your compare." className="py-6">
+                <WizardSection title="Dealerships to ask" hint="No VIN needed — pick the stores you want proposals from. Dealers can propose vehicles that fit; each reply shows as an alternate quote in your compare." className="py-6">
                   <div className="space-y-3" data-testid="alternate-ask">
-                    <div className="grid gap-2 sm:grid-cols-2">
-                      <label className="space-y-1">
-                        <span className="block text-[10px] font-bold uppercase tracking-wide text-ink-faint">Body style (optional)</span>
-                        <select value={altDraft.bodyStyle} onChange={(e) => setAltDraft((d) => ({ ...d, bodyStyle: e.target.value }))} className="w-full rounded-lg border border-border bg-background px-3 py-2 text-[11px] text-ink-light focus:border-emerald-500 focus:outline-none" data-testid="alt-body-style">
-                          <option value="">Any</option>
-                          {BODY_STYLES.map((b) => <option key={b} value={b}>{b}</option>)}
-                        </select>
-                      </label>
-                      <label className="space-y-1">
-                        <span className="block text-[10px] font-bold uppercase tracking-wide text-ink-faint">Makes you&apos;d consider (optional)</span>
-                        <input value={altDraft.makes} onChange={(e) => setAltDraft((d) => ({ ...d, makes: e.target.value }))} placeholder="Toyota, Honda, Mazda" className="w-full rounded-lg border border-border bg-background px-3 py-2 text-[11px] text-ink-light placeholder-ink-faint focus:border-emerald-500 focus:outline-none" data-testid="alt-makes" />
-                      </label>
-                    </div>
-                    <label className="block space-y-1">
-                      <span className="block text-[10px] font-bold uppercase tracking-wide text-ink-faint">Must-have features</span>
-                      <input value={altDraft.mustHaves} onChange={(e) => setAltDraft((d) => ({ ...d, mustHaves: e.target.value }))} placeholder="AWD, heated seats, 3rd row, under 20k miles…" className="w-full rounded-lg border border-border bg-background px-3 py-2 text-[11px] text-ink-light placeholder-ink-faint focus:border-emerald-500 focus:outline-none" data-testid="alt-must-haves" />
-                    </label>
-                    <div className="grid gap-2 sm:grid-cols-3">
-                      <label className="space-y-1">
-                        <span className="block text-[10px] font-bold uppercase tracking-wide text-ink-faint">Monthly max</span>
-                        <input value={altDraft.monthlyMax} onChange={(e) => setAltDraft((d) => ({ ...d, monthlyMax: e.target.value }))} inputMode="decimal" placeholder="$" className="w-full rounded-lg border border-border bg-background px-3 py-2 text-[11px] text-ink-light placeholder-ink-faint focus:border-emerald-500 focus:outline-none tabular-nums" data-testid="alt-monthly-max" />
-                      </label>
-                      <label className="space-y-1">
-                        <span className="block text-[10px] font-bold uppercase tracking-wide text-ink-faint">Due at signing / cash max</span>
-                        <input value={altDraft.dueAtSigningMax} onChange={(e) => setAltDraft((d) => ({ ...d, dueAtSigningMax: e.target.value }))} inputMode="decimal" placeholder="$" className="w-full rounded-lg border border-border bg-background px-3 py-2 text-[11px] text-ink-light placeholder-ink-faint focus:border-emerald-500 focus:outline-none tabular-nums" data-testid="alt-das-max" />
-                      </label>
-                      <label className="space-y-1">
-                        <span className="block text-[10px] font-bold uppercase tracking-wide text-ink-faint">Example listing (optional)</span>
-                        <input value={altDraft.exampleUrl} onChange={(e) => setAltDraft((d) => ({ ...d, exampleUrl: e.target.value }))} placeholder="A link to a car you like" className="w-full rounded-lg border border-border bg-background px-3 py-2 text-[11px] text-ink-light placeholder-ink-faint focus:border-emerald-500 focus:outline-none" data-testid="alt-example-url" />
-                      </label>
-                    </div>
-                    {altAsk.errors.length && (altDraft.bodyStyle || altDraft.makes || altDraft.mustHaves || altDraft.monthlyMax || altDraft.dueAtSigningMax || altDraft.exampleUrl) ? (
-                      <ul className="space-y-0.5 text-[11px] text-rose-300" data-testid="alt-errors">{altAsk.errors.map((e) => <li key={e}>{e}</li>)}</ul>
-                    ) : null}
-                    {altAsk.ask ? <p className="text-[11px] text-ink-muted">Dealers will read: <span className="text-ink-light">{alternateAskSummary(altAsk.ask)}</span></p> : null}
-
-                    <div className="space-y-2 border-t border-border/60 pt-3">
+                    <div className="space-y-2">
                       <p className="text-[10px] font-bold uppercase tracking-wide text-ink-faint">Dealerships to ask <span className="normal-case font-normal text-ink-muted">— up to {MAX_PACKAGE_LINKS}, any brand</span></p>
                       {altDealers.length ? (
                         <ul className="space-y-1" data-testid="alt-dealers">
@@ -2831,7 +2797,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
               <QuoteFormatMatrix
                 quoteType={quoteType}
                 cars={intent === "alternate" ? [] : [selectedVehicle, altVehicle1, altVehicle2].filter((v): v is Vehicle => Boolean(v))}
-                askSummary={intent === "alternate" && altAsk.ask ? alternateAskSummary(altAsk.ask) : null}
+                askSummary={null}
                 dealerPanel={
                   importedDealerships.length === 0 ? (
                     <p className="text-xs text-amber-300">Dealer not attached yet — go back to step 1 and attach the store that lists the car.</p>
@@ -3302,7 +3268,6 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                     <div className="rounded-xl border border-border bg-surface-elevated overflow-hidden" data-testid="review-alternate">
                       <div className="border-b border-border/60 px-4 py-2 text-[11px] font-bold uppercase tracking-wider text-ink-faint">Open to different vehicles</div>
                       <div className="space-y-2 px-4 py-3 text-[11px]">
-                        <p className="text-white">{altAsk.ask ? alternateAskSummary(altAsk.ask) : "—"}</p>
                         <p className="text-ink-muted">Going to {importedDealerships.map((d) => d.dealerName).join(", ")}. Dealers may propose any VIN or build that fits — each reply shows as an alternate quote, compared among alternates. A request, not a bid.</p>
                       </div>
                     </div>
@@ -3527,7 +3492,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
             ) : step1ContinueDisabled ? (
               // Step 1 has no Back; the slot says why Continue is off instead of leaving it mute.
               <span className="text-[10px] text-ink-faint" data-testid="continue-reason">
-                {!intent && !lockVehicleSelection ? "Choose what you want quoted to continue" : intent === "alternate" ? (!altAsk.ask ? "Tell dealers what you need to continue" : "Add at least one dealership to continue") : pendingLink?.kind === "link" ? "Confirm the vehicle above to continue" : parseError ? "Fix the vehicle paste to continue" : "Add a vehicle to continue"}
+                {!intent && !lockVehicleSelection ? "Choose what you want quoted to continue" : intent === "alternate" ? "Add at least one dealership to continue" : pendingLink?.kind === "link" ? "Confirm the vehicle above to continue" : parseError ? "Fix the vehicle paste to continue" : "Add a vehicle to continue"}
               </span>
             ) : (
               <div />
