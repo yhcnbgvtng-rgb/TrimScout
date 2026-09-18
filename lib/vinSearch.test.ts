@@ -1078,7 +1078,7 @@ describe("shopper-facing factory option copy", () => {
     const step1 = src.slice(start, end);
     assert.doesNotMatch(src, /Lock This Car/);
     assert.doesNotMatch(step1, /onClick=\{\(\) => setStep\(3\)\}/);
-    assert.match(src, /const vehicleImported = intent === "alternate" \? altDealers\.length > 0 : Boolean\(lockVehicleSelection \|\| \(parseSuccessMsg && selectedVehicle\)\)/);
+    assert.match(src, /const vehicleImported = intent === "alternate" \? true : Boolean\(lockVehicleSelection \|\| \(parseSuccessMsg && selectedVehicle\)\)/);
     // Step 1 is the vehicle step: Continue waits only for a loaded vehicle.
     assert.match(src, /if \(step === 1\) \{[\s\S]*?if \(!vehicleImported\) return;\s*\}/, "Step 1 Continue still waits on a loaded vehicle to advance");
     assert.match(step1, /One car is required to continue/);
@@ -1290,15 +1290,14 @@ describe("shopper-facing factory option copy", () => {
     assert.match(dealsRoute, /decorateDealRequestJson/);
   });
 
-  it("shows must-have factory options after a Ford import — no hunt in the wizard", () => {
+  it("does NOT load a must-have factory-option picker after an import (2026-09-18)", () => {
     const src = fs.readFileSync(path.join(process.cwd(), "components/BiddingWizard.tsx"), "utf8");
     const start = src.indexOf("STEP 1: VEHICLE");
     const end = src.indexOf("STEP 2: PAYMENT");
     const step1 = src.slice(start, end);
-    assert.match(
-      step1,
-      /fordStickerStatus === "released" && fordFilterableOptions\.length > 0/
-    );
+    // The option checklist is no longer rendered after VDP/VIN resolve.
+    assert.doesNotMatch(step1, /fordStickerStatus === "released" && fordFilterableOptions\.length > 0/);
+    assert.doesNotMatch(step1, /<FactoryMustHavePicker/);
     assert.doesNotMatch(step1, /findLotsMode/);
     assert.doesNotMatch(step1, /FORD_OTHER_LOTS_MODE_PASTE/);
     assert.doesNotMatch(src, /\/api\/ford-comparables/);
