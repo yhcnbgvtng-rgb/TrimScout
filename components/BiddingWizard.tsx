@@ -932,6 +932,11 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
    * (factory-match flow) is same-spec by definition.
    */
   const [intent, setIntent] = useState<RfqLane | null>(preselectedVehicle ? "same_spec" : initialIntent);
+  // Step 1 has two substeps: pick the intent, then Continue reveals the branch
+  // fields (VIN/VDP for same_spec, the alternate ask for alternate). Selecting
+  // an intent enables Continue; leaving the intent substep never needs a VIN.
+  // A preselected/locked vehicle is already past the intent substep.
+  const [intentConfirmed, setIntentConfirmed] = useState<boolean>(Boolean(preselectedVehicle || lockVehicleSelection));
   const [altDraft, setAltDraft] = useState<AlternateAskDraft>(EMPTY_ALTERNATE_DRAFT);
   const [altDealers, setAltDealers] = useState<DeskMatch[]>([]);
   const [altPicking, setAltPicking] = useState(false);
@@ -1069,6 +1074,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     setNotifyAck(false);
     setRetryingBuild(false);
     setIntent(preselectedVehicle ? "same_spec" : initialIntent);
+    setIntentConfirmed(Boolean(preselectedVehicle || lockVehicleSelection));
     setAltDraft(EMPTY_ALTERNATE_DRAFT);
     setAltDealers([]);
     setAltPicking(false);
@@ -1348,6 +1354,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
       if (d[key] !== undefined) set(d[key] as T);
     };
     pick<RfqLane | null>("intent", setIntent);
+    if (d.intent !== undefined && d.intent !== null) setIntentConfirmed(true);
     pick<AlternateAskDraft>("altDraft", setAltDraft);
     pick<DeskMatch[]>("altDealers", setAltDealers);
     pick<string>("dealerUrlInput", setDealerUrlInput);
@@ -1464,8 +1471,21 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   const quoteSetupComplete = Boolean(quoteType) && missingLocks.length === 0 && !(quoteType === "lease" && isUsed);
 
   const paymentChosen = Boolean(quoteType) && !(quoteType === "lease" && isUsed);
+  // Step 1 substep gating: the intent phase only needs an intent picked; the
+  // details phase needs the vehicle imported (same_spec) or the ask + a
+  // dealership (alternate). A locked/real-inventory vehicle skips the intent phase.
+  const step1IntentPhase = !intentConfirmed && !lockVehicleSelection;
+  const step1ContinueDisabled = step1IntentPhase ? !intent : !vehicleImported;
   const goNext = () => {
-    if (step === 1 && !vehicleImported) return;
+    if (step === 1) {
+      // Leave the intent substep on any valid intent — no VIN required here.
+      if (step1IntentPhase) {
+        if (!intent) return;
+        setIntentConfirmed(true);
+        return;
+      }
+      if (!vehicleImported) return;
+    }
     if (step === 2 && !paymentChosen) return;
     // Step 3 → 4: every lock set, and at least one desk with a named contact (or an adviser address) ticked.
     if (step === 3 && (!quoteSetupComplete || confirmedDeskCount === 0 || dealCommentContactWarning || tradeInExpected === null)) return;
@@ -2375,7 +2395,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                 </WizardSection>
               ) : null}
 
-              {intent === "alternate" ? (
+              {intent === "alternate" && intentConfirmed ? (
                 <WizardSection title="What you need" hint="No VIN needed. Dealers may reply with different VINs and builds — those show as alternate quotes in your compare." className="py-6">
                   <div className="space-y-3" data-testid="alternate-ask">
                     <div className="grid gap-2 sm:grid-cols-2">
@@ -2442,7 +2462,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                 </WizardSection>
               ) : null}
 
-              {intent === "same_spec" || lockVehicleSelection ? (
+              {(intent === "same_spec" && intentConfirmed) || lockVehicleSelection ? (
               <WizardSection
                 title="Vehicle"
                 hint="Paste the dealership link to the exact vehicle, or its 17-character VIN. One car is required to continue."
@@ -3504,7 +3524,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
               >
                 <ArrowLeft className="h-4 w-4" /> Back
               </button>
-            ) : !vehicleImported ? (
+            ) : step1ContinueDisabled ? (
               // Step 1 has no Back; the slot says why Continue is off instead of leaving it mute.
               <span className="text-[10px] text-ink-faint" data-testid="continue-reason">
                 {!intent && !lockVehicleSelection ? "Choose what you want quoted to continue" : intent === "alternate" ? (!altAsk.ask ? "Tell dealers what you need to continue" : "Add at least one dealership to continue") : pendingLink?.kind === "link" ? "Confirm the vehicle above to continue" : parseError ? "Fix the vehicle paste to continue" : "Add a vehicle to continue"}
@@ -3522,7 +3542,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
               <button
                 onClick={goNext}
                 disabled={
-                  (step === 1 && !vehicleImported) ||
+                  (step === 1 && step1ContinueDisabled) ||
                   (step === 2 && !paymentChosen) ||
                   (step === 3 && (!quoteSetupComplete || confirmedDeskCount === 0 || Boolean(dealCommentContactWarning) || tradeInExpected === null))
                 }

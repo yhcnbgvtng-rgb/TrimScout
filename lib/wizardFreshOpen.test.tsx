@@ -68,7 +68,7 @@ describe("Configure Quote Request starts fresh on every open", () => {
     const root = createRoot(dom.window.document.getElementById("root")!);
     await act(async () => { root.render(React.createElement(Host)); });
 
-    const openFresh = async () => { await act(async () => { bump(); setOpen(true); }); await act(async () => { await new Promise((r) => setTimeout(r, 0)); }); await act(async () => { (dom.window.document.querySelector('[data-testid="intent-same_spec"]') as HTMLButtonElement).click(); }); };
+    const openFresh = async () => { await act(async () => { bump(); setOpen(true); }); await act(async () => { await new Promise((r) => setTimeout(r, 0)); }); await act(async () => { (dom.window.document.querySelector('[data-testid="intent-same_spec"]') as HTMLButtonElement).click(); }); await act(async () => { Array.from(dom.window.document.querySelectorAll<HTMLButtonElement>("button")).find((b) => b.textContent?.trim().startsWith("Continue"))!.click(); }); };
     const paste = async (vin: string) => {
       const input = dom.window.document.getElementById("primary-link-input") as HTMLInputElement;
       assert.ok(input, "Step 1 paste box is on screen");
@@ -109,6 +109,55 @@ describe("Configure Quote Request starts fresh on every open", () => {
     await act(async () => { backdrop.dispatchEvent(new dom.window.KeyboardEvent("keydown", { key: "Escape", bubbles: true })); });
     assert.equal(dom.window.document.getElementById("primary-link-input"), null, "Escape closes the wizard");
     assert.equal(dom.window.sessionStorage.length, 0, "no draft survives a dismiss");
+    await act(async () => { root.unmount(); });
+  });
+
+  it("Step 1 intent gate (bug 2026-09-18): picking same_spec OR alternate enables Continue without a VIN", async () => {
+    const React = (await import("react")).default;
+    const { act } = await import("react");
+    const { createRoot } = await import("react-dom/client");
+    const { BiddingWizard } = await import("../components/BiddingWizard");
+
+    let setOpen!: (v: boolean) => void;
+    function Host() {
+      const [open, _setOpen] = React.useState(false);
+      setOpen = _setOpen;
+      return React.createElement(BiddingWizard, { key: 1, isOpen: open, onClose: () => _setOpen(false), onSubmitBidRequest: () => {}, vehicles: [], preselectedVehicle: null, currentUser: null, onRequireLogin: () => {} });
+    }
+    const root = createRoot(dom.window.document.getElementById("root")!);
+    await act(async () => { root.render(React.createElement(Host)); });
+    await act(async () => { setOpen(true); });
+    await act(async () => { await new Promise((r) => setTimeout(r, 0)); });
+    const doc = dom.window.document;
+    const continueBtn = () => Array.from(doc.querySelectorAll<HTMLButtonElement>("button")).find((b) => b.textContent?.trim().startsWith("Continue"))!;
+    const reason = () => doc.querySelector('[data-testid="continue-reason"]')?.textContent ?? null;
+
+    // Nothing picked: Continue is off and says why; no VIN box yet.
+    assert.equal(continueBtn().disabled, true, "Continue is off before an intent is picked");
+    assert.equal(reason(), "Choose what you want quoted to continue");
+    assert.equal(doc.getElementById("primary-link-input"), null, "no VIN box before an intent");
+
+    // ACCEPTANCE 1: same_spec enables Continue with no force-click, no VIN, still in the intent substep.
+    await act(async () => { (doc.querySelector('[data-testid="intent-same_spec"]') as HTMLButtonElement).click(); });
+    assert.equal(continueBtn().disabled, false, "same_spec enables Continue");
+    assert.equal(reason(), null, "no 'off' reason once same_spec is picked");
+    assert.equal(doc.getElementById("primary-link-input"), null, "VIN box only appears after leaving the intent substep");
+
+    // ACCEPTANCE 2: switching to alternate (still in the intent substep) also enables Continue, no VIN.
+    await act(async () => { (doc.querySelector('[data-testid="intent-alternate"]') as HTMLButtonElement).click(); });
+    assert.equal(continueBtn().disabled, false, "alternate enables Continue with no VIN");
+    assert.equal(doc.getElementById("primary-link-input"), null, "alternate never shows a VIN box");
+
+    // Leaving the intent substep on alternate reveals the ask (not a VIN) and re-gates Continue on it.
+    await act(async () => { continueBtn().click(); });
+    assert.ok(doc.querySelector('[data-testid="alternate-ask"]'), "Continue reveals the alternate ask");
+    assert.equal(doc.getElementById("primary-link-input"), null, "alternate never shows a VIN box");
+    assert.equal(reason(), "Tell dealers what you need to continue");
+
+    // And switching back to same_spec (now past the intent substep) reveals the VIN box.
+    await act(async () => { (doc.querySelector('[data-testid="intent-same_spec"]') as HTMLButtonElement).click(); });
+    assert.ok(doc.getElementById("primary-link-input"), "same_spec reveals the VIN box");
+    assert.equal(continueBtn().disabled, true, "same_spec still needs a resolved vehicle to advance");
     await act(async () => { root.unmount(); });
   });
 

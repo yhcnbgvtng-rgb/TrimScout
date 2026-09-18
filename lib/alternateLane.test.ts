@@ -78,7 +78,7 @@ describe("wiring", () => {
     assert.match(w, /const vehicleImported = intent === "alternate" \? Boolean\(altAsk\.ask && altDealers\.length > 0\)/, "path B continues with no VIN");
     assert.match(w, /lane: alternateLane \? "alternate" : "same_spec",/);
     assert.match(w, /linkPastes: alternateLane \? \[\] : pastes,/);
-    assert.match(w, /\{intent === "same_spec" \|\| lockVehicleSelection \? \(/, "the VIN / link section only on path A");
+    assert.match(w, /\{\(intent === "same_spec" && intentConfirmed\) \|\| lockVehicleSelection \? \(/, "the VIN / link section only on path A, and only after the intent substep");
     const route = fs.readFileSync("app/api/rfqs/route.ts", "utf8");
     assert.match(route, /const lane = body\.lane === "alternate" \? "alternate" : "same_spec";/);
     assert.match(route, /\} else if \(lane === "alternate"\) \{/, "no 1-to-3-vehicles rule on the alternate lane");

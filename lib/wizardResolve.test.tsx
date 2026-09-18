@@ -96,8 +96,9 @@ describe("Configure Quote Request — vehicle resolve hardening", () => {
     const text = () => doc.body.textContent || "";
     const tick = async (n = 1) => { for (let i = 0; i < n; i++) await act(async () => { await new Promise((r) => setTimeout(r, 10)); }); };
     const settle = async (pred: () => boolean) => { for (let i = 0; i < 40 && !pred(); i++) await tick(); assert.ok(pred(), "settled"); };
-    // Every open picks "Quote this vehicle / same build" first — the intent question precedes the VIN box.
-    const openFresh = async () => { await act(async () => { bump(); setOpen(true); }); await tick(); await act(async () => { (dom.window.document.querySelector('[data-testid="intent-same_spec"]') as HTMLButtonElement).click(); }); };
+    // Every open picks "Quote this vehicle / same build" then Continues out of the
+    // intent substep — the intent question precedes, and now gates the reveal of, the VIN box.
+    const openFresh = async () => { await act(async () => { bump(); setOpen(true); }); await tick(); await act(async () => { (dom.window.document.querySelector('[data-testid="intent-same_spec"]') as HTMLButtonElement).click(); }); await act(async () => { continueBtn().click(); }); };
     const setInput = async (el: HTMLInputElement, value: string) => {
       const setter = Object.getOwnPropertyDescriptor(dom.window.HTMLInputElement.prototype, "value")!.set!;
       await act(async () => { setter.call(el, value); el.dispatchEvent(new dom.window.Event("input", { bubbles: true })); });
@@ -115,6 +116,10 @@ describe("Configure Quote Request — vehicle resolve hardening", () => {
     await act(async () => { bump(); setOpen(true); }); await tick();
     assert.equal(doc.querySelector('[data-testid="continue-reason"]')?.textContent, "Choose what you want quoted to continue");
     await act(async () => { (doc.querySelector('[data-testid="intent-same_spec"]') as HTMLButtonElement).click(); });
+    // Bug fix (2026-09-18): an intent alone enables Continue — leaving the intent substep needs no VIN.
+    assert.equal(continueBtn().disabled, false, "picking an intent enables Continue");
+    assert.equal(doc.querySelector('[data-testid="continue-reason"]'), null, "no 'off' reason once an intent is chosen");
+    await act(async () => { continueBtn().click(); }); // leave the intent substep → the VIN box appears
     assert.equal(continueBtn().disabled, true);
     assert.equal(doc.querySelector('[data-testid="continue-reason"]')?.textContent, "Add a vehicle to continue");
     await paste(URL_F150);
@@ -300,6 +305,8 @@ describe("Step 1 asks the quote intent before the VIN (2026-09-17)", () => {
     fetched.length = 0;
     await act(async () => { (doc.querySelector('[data-testid="intent-alternate"]') as HTMLButtonElement).click(); });
     assert.ok(events.some((e) => e.includes('"rfq_intent_selected"') && e.includes('"alternate"')), "rfq_intent_selected { intent: alternate }");
+    assert.equal(continueBtn().disabled, false, "alternate intent alone enables Continue — no VIN to leave the intent substep");
+    await act(async () => { continueBtn().click(); }); // leave the intent substep → the alternate ask appears
     assert.equal(doc.getElementById("primary-link-input"), null, "path B has no VIN box");
     assert.equal(reason(), "Tell dealers what you need to continue");
     await setVal(doc.querySelector('[data-testid="alt-must-haves"]') as HTMLInputElement, "AWD, heated seats");
