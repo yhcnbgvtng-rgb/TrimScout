@@ -943,16 +943,17 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   const chooseIntent = (next: RfqLane) => {
     if (next !== intent) trackEvent("rfq_intent_selected", { intent: next });
     setIntent(next);
-    // The alternate lane no longer collects "what you need" — clear any prior
-    // values so nothing from a same-spec detour rides along on submit.
-    if (next === "alternate") setAltDraft(EMPTY_ALTERNATE_DRAFT);
+    // Clear the wrong branch's state so nothing rides along: the alternate lane
+    // carries no vehicle/must-haves; the same-spec lane carries no alt dealerships.
+    if (next === "alternate") { setAltDraft(EMPTY_ALTERNATE_DRAFT); setMustHavePackages([]); setNiceToHavePackages([]); }
+    if (next === "same_spec") setAltDealers([]);
   };
 
   // Custom/Flexible Spec Fields
   const [make, setMake] = useState<string>("BMW");
   const [model, setModel] = useState<string>("3 Series");
   const [selectedTrims, setSelectedTrims] = useState<string[]>(["330i M Sport", "330i xDrive"]);
-  const [mustHavePackages, setMustHavePackages] = useState<string[]>(["M Sport Package", "Premium Package"]);
+  const [mustHavePackages, setMustHavePackages] = useState<string[]>([]);
 
   // Trade-in is now just a yes/no flag collected here — the actual
   // appraisal (value, photos, condition) happens later, once a selling
@@ -1153,7 +1154,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   // lockVehicleSelection, in which case there's nothing to import.
   // Typing a VIN/URL, or merely arriving on this step, is not enough.
   // Same-spec: a resolved car. Alternate: an ask plus at least one rooftop to send it to — no VIN.
-  const vehicleImported = intent === "alternate" ? altDealers.length > 0 : Boolean(lockVehicleSelection || (parseSuccessMsg && selectedVehicle));
+  const vehicleImported = intent === "alternate" ? true : Boolean(lockVehicleSelection || (parseSuccessMsg && selectedVehicle));
   const reviewTarget = reviewTargetFromVehicle(selectedVehicle);
 
   // Step 2 asks "who gets this offer", so it has to name the dealerships the
@@ -1484,6 +1485,9 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
       if (step1IntentPhase) {
         if (!intent) return;
         setIntentConfirmed(true);
+        // Alternate collects nothing on Step 1 (dealers are chosen on Step 3),
+        // so it goes straight to the payment step; same_spec reveals the VIN box.
+        if (intent === "alternate") setStep(2);
         return;
       }
       if (!vehicleImported) return;
@@ -1698,9 +1702,11 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     setMake(result.vehicle.make);
     setModel(result.vehicle.model);
     setSelectedTrims([result.vehicle.trim]);
-    setMustHavePackages(result.mustHaveLines);
-    setNiceToHavePackages(result.niceToHaveLines);
-    setFordFilterableOptions(result.filterableOptions);
+    // Must-have options are no longer collected in this wizard path — the exact
+    // VIN/build is the request; we never auto-load an option checklist after resolve.
+    setMustHavePackages([]);
+    setNiceToHavePackages([]);
+    setFordFilterableOptions([]);
     setFactoryBuildOem(result.oem);
     // Only a real factory build unlocks the must-have picker; a free-decode
     // import has no option list to choose from.
@@ -2397,37 +2403,6 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                 </WizardSection>
               ) : null}
 
-              {intent === "alternate" && intentConfirmed ? (
-                <WizardSection title="Dealerships to ask" hint="No VIN needed — pick the stores you want proposals from. Dealers can propose vehicles that fit; each reply shows as an alternate quote in your compare." className="py-6">
-                  <div className="space-y-3" data-testid="alternate-ask">
-                    <div className="space-y-2">
-                      <p className="text-[10px] font-bold uppercase tracking-wide text-ink-faint">Dealerships to ask <span className="normal-case font-normal text-ink-muted">— up to {MAX_PACKAGE_LINKS}, any brand</span></p>
-                      {altDealers.length ? (
-                        <ul className="space-y-1" data-testid="alt-dealers">
-                          {altDealers.map((d) => (
-                            <li key={d.deskId} className="flex items-center justify-between gap-2 rounded-lg border border-emerald-500/40 bg-emerald-500/5 px-3 py-2 text-[11px]">
-                              <span className="min-w-0 truncate text-white">{d.dealerName}<span className="text-ink-muted"> · {deskLocationLine(d)}</span></span>
-                              <button type="button" onClick={() => setAltDealers((list) => list.filter((x) => x.deskId !== d.deskId))} className="shrink-0 text-[10px] font-bold text-rose-300 hover:text-white">Remove</button>
-                            </li>
-                          ))}
-                        </ul>
-                      ) : (
-                        <p className="text-[11px] text-ink-muted">Search for the stores you want proposals from.</p>
-                      )}
-                      {altDealers.length < MAX_PACKAGE_LINKS ? (
-                        altPicking ? (
-                          <DealerPicker candidates={[]} zipHint={buyerZipHint} onPick={(d) => { setAltDealers((list) => (list.some((x) => x.deskId === d.deskId) ? list : [...list, d])); setAltPicking(false); }} onCancel={() => setAltPicking(false)} />
-                        ) : (
-                          <button type="button" onClick={() => setAltPicking(true)} className="rounded-lg bg-sky-400 px-3 py-1.5 text-[11px] font-black text-black hover:bg-sky-300" data-testid="alt-add-dealer">
-                            {altDealers.length ? "Add another dealership" : "Search dealerships"}
-                          </button>
-                        )
-                      ) : null}
-                    </div>
-                  </div>
-                </WizardSection>
-              ) : null}
-
               {(intent === "same_spec" && intentConfirmed) || lockVehicleSelection ? (
               <WizardSection
                 title="Vehicle"
@@ -2677,32 +2652,6 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                     ) : null}
                   </div>
                 )}
-                {/* Must-haves collapse behind a one-line summary — the full
-                    option list is long enough to bury everything else. */}
-                {selectedVehicle && fordStickerStatus === "released" && fordFilterableOptions.length > 0 && (
-                  <details className="group rounded-xl border border-border bg-surface-elevated">
-                    <summary className="cursor-pointer list-none px-3.5 py-2.5 flex items-center justify-between gap-2">
-                      <span className="text-xs font-semibold text-white">
-                        {FORD_MUST_HAVE_HEADING}
-                        <span className="ml-2 text-[11px] font-normal text-ink-muted">
-                          {mustHavePackages.length} of {fordFilterableOptions.length} selected
-                        </span>
-                      </span>
-                      <ChevronDown className="h-3.5 w-3.5 shrink-0 text-ink-faint transition-transform group-open:rotate-180" />
-                    </summary>
-                    <div className="border-t border-border/60 px-3.5 py-3 space-y-2">
-                      <p className="text-[11px] text-ink-muted">{FORD_MUST_HAVE_HELP}</p>
-                      <FactoryMustHavePicker
-                        options={fordFilterableOptions}
-                        checked={mustHavePackages}
-                        onToggle={toggleFordMustHave}
-                      />
-                      <p className="text-[10px] text-ink-faint">
-                        Must-haves are saved with this deal. Dealer ads are not proof.
-                      </p>
-                    </div>
-                  </details>
-                )}
 
                 {/* Two alternate slots, always visible on a new car — optional,
                     the buyer fills them in or doesn't. Used requests are one car. */}
@@ -2799,8 +2748,27 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                 cars={intent === "alternate" ? [] : [selectedVehicle, altVehicle1, altVehicle2].filter((v): v is Vehicle => Boolean(v))}
                 askSummary={null}
                 dealerPanel={
-                  importedDealerships.length === 0 ? (
+                  <div className="space-y-3">
+                    {intent === "alternate" ? (
+                      <div className="space-y-2" data-testid="alternate-dealers">
+                        <p className="text-[10px] font-bold uppercase tracking-wide text-ink-faint">Dealerships to ask <span className="normal-case font-normal text-ink-muted">— up to {MAX_PACKAGE_LINKS}, any brand</span></p>
+                        {altDealers.length < MAX_PACKAGE_LINKS ? (
+                          altPicking ? (
+                            <DealerPicker candidates={[]} zipHint={buyerZipHint} onPick={(d) => { setAltDealers((list) => (list.some((x) => x.deskId === d.deskId) ? list : [...list, d])); setAltPicking(false); }} onCancel={() => setAltPicking(false)} />
+                          ) : (
+                            <button type="button" onClick={() => setAltPicking(true)} className="rounded-lg bg-sky-400 px-3 py-1.5 text-[11px] font-black text-black hover:bg-sky-300" data-testid="alt-add-dealer">
+                              {altDealers.length ? "Add another dealership" : "Search dealerships"}
+                            </button>
+                          )
+                        ) : null}
+                      </div>
+                    ) : null}
+                    {importedDealerships.length === 0 ? (
+                    intent === "alternate" ? (
+                      <p className="text-[11px] text-ink-muted">Search for the stores you want proposals from.</p>
+                    ) : (
                     <p className="text-xs text-amber-300">Dealer not attached yet — go back to step 1 and attach the store that lists the car.</p>
+                    )
                   ) : (
                     <ul className="space-y-1.5" data-testid="dealer-contact-list">
                       {importedDealerships.map((dealer) => {
@@ -2885,7 +2853,8 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                         );
                       })}
                     </ul>
-                  )
+                  )}
+                  </div>
                 }
               />
               {quoteType === "lease" && (
@@ -3082,7 +3051,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                   ) : null}
                   {importedDealerships.length === 0 ? (
                     <p className="mt-2 text-[11px] text-amber-300/90" data-testid="missing-dealer">
-                      Choose a dealership — go back to step 1 and attach the store that lists the car.
+                      {intent === "alternate" ? "Add at least one dealership above to continue." : "Choose a dealership — go back to step 1 and attach the store that lists the car."}
                     </p>
                   ) : null}
                 </WizardSection>
@@ -3492,7 +3461,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
             ) : step1ContinueDisabled ? (
               // Step 1 has no Back; the slot says why Continue is off instead of leaving it mute.
               <span className="text-[10px] text-ink-faint" data-testid="continue-reason">
-                {!intent && !lockVehicleSelection ? "Choose what you want quoted to continue" : intent === "alternate" ? "Add at least one dealership to continue" : pendingLink?.kind === "link" ? "Confirm the vehicle above to continue" : parseError ? "Fix the vehicle paste to continue" : "Add a vehicle to continue"}
+                {!intent && !lockVehicleSelection ? "Choose what you want quoted to continue" : pendingLink?.kind === "link" ? "Confirm the vehicle above to continue" : parseError ? "Fix the vehicle paste to continue" : "Add a vehicle to continue"}
               </span>
             ) : (
               <div />

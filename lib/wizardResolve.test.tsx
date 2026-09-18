@@ -301,35 +301,28 @@ describe("Step 1 asks the quote intent before the VIN (2026-09-17)", () => {
     assert.match(text(), /We'll use the VIN or dealer link so quotes match this car's factory options/);
     assert.match(text(), /No VIN needed — dealers can propose other vehicles/);
 
-    // 2. Path B: a rooftop is all it takes → Continue, no VIN, no What-you-need fields, no sticker call.
+    // 2. Path B (alternate): intent alone enables Continue — no VIN box, no What-you-need,
+    //    and NO dealership picker on Step 1 (dealer selection moved to the later Step 3 desks).
     fetched.length = 0;
     await act(async () => { (doc.querySelector('[data-testid="intent-alternate"]') as HTMLButtonElement).click(); });
     assert.ok(events.some((e) => e.includes('"rfq_intent_selected"') && e.includes('"alternate"')), "rfq_intent_selected { intent: alternate }");
-    assert.equal(continueBtn().disabled, false, "alternate intent alone enables Continue — no VIN to leave the intent substep");
-    await act(async () => { continueBtn().click(); }); // leave the intent substep → the dealership picker appears
+    assert.equal(continueBtn().disabled, false, "alternate intent alone enables Continue");
     assert.equal(doc.getElementById("primary-link-input"), null, "path B has no VIN box");
-    // No "What you need" fields on the alternate lane anymore.
     assert.equal(doc.querySelector('[data-testid="alt-must-haves"]'), null, "no must-have field on the alternate lane");
-    assert.equal(doc.querySelector('[data-testid="alt-monthly-max"]'), null, "no budget field on the alternate lane");
-    assert.equal(reason(), "Add at least one dealership to continue");
-    await act(async () => { (doc.querySelector('[data-testid="alt-add-dealer"]') as HTMLButtonElement).click(); });
-    await setVal(doc.querySelector('input[placeholder="Dealership name"]') as HTMLInputElement, "Route 22");
-    await act(async () => { Array.from(doc.querySelectorAll<HTMLButtonElement>("button")).find((b) => b.textContent?.trim() === "Search")!.click(); });
-    for (let i = 0; i < 20 && !text().includes("Hillside"); i++) await act(async () => { await new Promise((r) => setTimeout(r, 10)); });
-    await act(async () => { Array.from(doc.querySelectorAll<HTMLButtonElement>("button")).find((b) => b.textContent?.includes("Route 22 Toyota") && b.textContent?.includes("Hillside"))!.click(); });
-    assert.match(doc.querySelector('[data-testid="alt-dealers"]')!.textContent!, /Route 22 Toyota/);
-    assert.equal(continueBtn().disabled, false, "path B continues on a dealership alone — no VIN, no ask");
-    assert.ok(!fetched.some((u) => u.includes("-sticker") || u.includes("/api/free-vin")), "no factory sticker call on path B");
+    assert.equal(doc.querySelector('[data-testid="alt-add-dealer"]'), null, "no dealership picker on Step 1 for alternate");
+    assert.equal(reason(), undefined, "an intent is chosen, so Continue shows no 'off' reason");
 
-    // 3. Switch B → A: the car is required again.
+    // 3. Switching in the intent substep works both ways; no fields leak, still no VIN box.
     await act(async () => { (doc.querySelector('[data-testid="intent-same_spec"]') as HTMLButtonElement).click(); });
-    assert.ok(doc.getElementById("primary-link-input"), "path A shows the VIN / link box");
-    assert.equal(continueBtn().disabled, true);
-    assert.equal(reason(), "Add a vehicle to continue");
-
-    // 4. Switch A → B again: the rooftop is still there, Continue is live.
+    assert.equal(doc.getElementById("primary-link-input"), null, "same_spec VIN box only appears after Continue");
+    assert.equal(continueBtn().disabled, false);
     await act(async () => { (doc.querySelector('[data-testid="intent-alternate"]') as HTMLButtonElement).click(); });
     assert.equal(continueBtn().disabled, false);
+
+    // 4. Confirm alternate → leaves Step 1 for the payment step; no factory sticker call was made.
+    await act(async () => { continueBtn().click(); });
+    assert.equal(doc.querySelector('[data-testid="intent-picker"]'), null, "alternate Continue advances off Step 1");
+    assert.ok(!fetched.some((u) => u.includes("-sticker") || u.includes("/api/free-vin")), "no factory sticker call on path B");
     await act(async () => { root.unmount(); });
   });
 });

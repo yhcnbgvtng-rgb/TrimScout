@@ -143,20 +143,18 @@ describe("Configure Quote Request starts fresh on every open", () => {
     assert.equal(reason(), null, "no 'off' reason once same_spec is picked");
     assert.equal(doc.getElementById("primary-link-input"), null, "VIN box only appears after leaving the intent substep");
 
-    // ACCEPTANCE 2: switching to alternate (still in the intent substep) also enables Continue, no VIN.
+    // ACCEPTANCE 2: switching to alternate (still in the intent substep) also enables Continue —
+    //   no VIN, no What-you-need, and NO dealership picker on Step 1 (that lives on the later step).
     await act(async () => { (doc.querySelector('[data-testid="intent-alternate"]') as HTMLButtonElement).click(); });
     assert.equal(continueBtn().disabled, false, "alternate enables Continue with no VIN");
     assert.equal(doc.getElementById("primary-link-input"), null, "alternate never shows a VIN box");
-
-    // Leaving the intent substep on alternate reveals the ask (not a VIN) and re-gates Continue on it.
-    await act(async () => { continueBtn().click(); });
-    assert.ok(doc.querySelector('[data-testid="alternate-ask"]'), "Continue reveals the dealership picker");
-    assert.equal(doc.getElementById("primary-link-input"), null, "alternate never shows a VIN box");
+    assert.equal(doc.querySelector('[data-testid="alt-add-dealer"]'), null, "no dealership search on the alternate Step 1");
     assert.equal(doc.querySelector('[data-testid="alt-must-haves"]'), null, "no What-you-need fields on the alternate lane");
-    assert.equal(reason(), "Add at least one dealership to continue");
 
-    // And switching back to same_spec (now past the intent substep) reveals the VIN box.
+    // Back to same_spec, then Continue → the VIN box appears (still needs a car to advance).
     await act(async () => { (doc.querySelector('[data-testid="intent-same_spec"]') as HTMLButtonElement).click(); });
+    assert.equal(doc.getElementById("primary-link-input"), null, "same_spec VIN box only appears after Continue");
+    await act(async () => { continueBtn().click(); });
     assert.ok(doc.getElementById("primary-link-input"), "same_spec reveals the VIN box");
     assert.equal(continueBtn().disabled, true, "same_spec still needs a resolved vehicle to advance");
     await act(async () => { root.unmount(); });

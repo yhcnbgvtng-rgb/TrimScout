@@ -75,7 +75,7 @@ describe("wiring", () => {
     const vehicle = w.indexOf('id="primary-link-input"');
     assert.ok(picker > -1 && picker < vehicle, "intent picker renders above the paste box");
     assert.match(w, /trackEvent\("rfq_intent_selected", \{ intent: next \}\)/);
-    assert.match(w, /const vehicleImported = intent === "alternate" \? altDealers\.length > 0/, "path B continues on a dealership alone — no VIN, no ask");
+    assert.match(w, /const vehicleImported = intent === "alternate" \? true/, "path B leaves Step 1 on intent alone — dealers chosen on the later step");
     assert.match(w, /lane: alternateLane \? "alternate" : "same_spec",/);
     assert.match(w, /linkPastes: alternateLane \? \[\] : pastes,/);
     assert.match(w, /\{\(intent === "same_spec" && intentConfirmed\) \|\| lockVehicleSelection \? \(/, "the VIN / link section only on path A, and only after the intent substep");
