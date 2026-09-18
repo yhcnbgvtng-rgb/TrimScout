@@ -1,8 +1,11 @@
 import "./testdata/blockLiveHttp";
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { normalizeGenesisFamilySticker, pendingFactoryBuildShell } from "./factoryBuild";
+import { normalizeGenesisFamilySticker, normalizeFordSticker, normalizeGmSticker, normalizeStellantisSticker, pendingFactoryBuildShell } from "./factoryBuild";
 import type { GenesisSticker } from "./genesisSticker";
+import type { FordSticker } from "./fordSticker";
+import type { GmSticker } from "./gmSticker";
+import type { StellantisSticker } from "./stellantisSticker";
 
 function baseSticker(overrides: Partial<GenesisSticker> = {}): GenesisSticker {
   return {
@@ -105,6 +108,99 @@ describe("normalizeGenesisFamilySticker", () => {
   it("a sticker whose text never matched the requested VIN becomes parse_failed, not factory_verified", () => {
     const build = normalizeGenesisFamilySticker(baseSticker({ status: "error" }), { providerId: "hyundai_dealerfire", url: null });
     assert.equal(build.status, "parse_failed");
+    assert.deepEqual(build.options, []);
+  });
+});
+
+describe("normalizeFordSticker / normalizeGmSticker / normalizeStellantisSticker", () => {
+  it("Ford: same shape as the Genesis family, but FordOptionLine has no code field at all — always null", () => {
+    const sticker: FordSticker = {
+      vin: "1FTFW1ED5PFA12345",
+      status: "released",
+      make: "Ford",
+      year: 2023,
+      model: "F-150",
+      trim: "Lariat",
+      basePrice: 52000,
+      destination: 1795,
+      optionsPrice: 3200,
+      msrp: 56995,
+      options: [{ name: "502A Equipment Group", price: 3200, isStandard: false, isPackageChild: false, source: "sticker" }],
+      standardEquipment: [],
+      rawText: "ford sticker text",
+      pdfUrl: "https://windowsticker.forddirect.com/windowsticker.pdf?vin=1FTFW1ED5PFA12345",
+      fetchedAt: "2026-09-17T00:00:00.000Z",
+    };
+    const build = normalizeFordSticker(sticker, { providerId: "ford_windowsticker", url: sticker.pdfUrl });
+    assert.equal(build.status, "factory_verified");
+    assert.equal(build.options[0].code, null);
+    assert.equal(build.options[0].rawName, "502A Equipment Group");
+    assert.equal(build.parse.parserId, "ford_v1");
+  });
+
+  it("GM: an option's code comes from the RPO field", () => {
+    const sticker: GmSticker = {
+      vin: "3GNAXPEG1VL131423",
+      status: "released",
+      make: "Chevrolet",
+      year: 2027,
+      model: "Equinox",
+      trim: "RS",
+      basePrice: 31600,
+      destination: 1395,
+      optionsPrice: 1450,
+      msrp: 34445,
+      options: [{ name: "RS Package", rpo: "PDS", price: 1450, isStandard: false, isPackageChild: false, source: "sticker" }],
+      standardEquipment: [],
+      rawText: "gm sticker text",
+      pdfUrl: "https://cws.gm.com/vs-cws/vehshop/v2/vehicle/windowsticker?vin=3GNAXPEG1VL131423",
+      fetchedAt: "2026-09-17T00:00:00.000Z",
+    };
+    const build = normalizeGmSticker(sticker, { providerId: "gm_cws", url: sticker.pdfUrl });
+    assert.equal(build.options[0].code, "PDS");
+    assert.equal(build.parse.parserId, "gm_v1");
+  });
+
+  it("Stellantis: an option's code comes from the code field, same as Genesis", () => {
+    const sticker: StellantisSticker = {
+      vin: "1C4RJFBG5NC123456",
+      status: "released",
+      make: "Jeep",
+      year: 2022,
+      model: "Grand Cherokee",
+      trim: "Limited",
+      basePrice: 48000,
+      destination: 1795,
+      optionsPrice: 2495,
+      msrp: 52290,
+      options: [{ name: "Trailer Tow Group", code: "AHQ", price: 2495, isStandard: false, isPackageChild: false, source: "sticker" }],
+      standardEquipment: [],
+      rawText: "stellantis sticker text",
+      pdfUrl: "https://www.chrysler.com/hostd/windowsticker/getWindowStickerPdf.do?vin=1C4RJFBG5NC123456",
+      fetchedAt: "2026-09-17T00:00:00.000Z",
+    };
+    const build = normalizeStellantisSticker(sticker, { providerId: "stellantis_hostd", url: sticker.pdfUrl });
+    assert.equal(build.options[0].code, "AHQ");
+    assert.equal(build.parse.parserId, "stellantis_v1");
+  });
+
+  it("an unreleased GM sticker is factory_pending, not verified, and carries no options", () => {
+    const sticker: GmSticker = {
+      vin: "3GNAXPEG1VL131423",
+      status: "unreleased",
+      msrp: null,
+      basePrice: null,
+      optionsPrice: null,
+      destination: null,
+      options: [],
+      standardEquipment: [],
+      rawText: "",
+      pdfUrl: "https://cws.gm.com/vs-cws/vehshop/v2/vehicle/windowsticker?vin=3GNAXPEG1VL131423",
+      fetchedAt: "2026-09-17T00:00:00.000Z",
+      note: "GM has no factory build on file for this VIN.",
+    };
+    const build = normalizeGmSticker(sticker, { providerId: "gm_cws", url: sticker.pdfUrl });
+    assert.equal(build.status, "factory_pending");
     assert.deepEqual(build.options, []);
   });
 });

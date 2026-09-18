@@ -9,16 +9,25 @@ genuinely missing trim, and flag disagreements — it never overwrites a
 sticker's MSRP or options, and it never gets to call itself
 `factory_verified`.
 
+Only the five brands with a genuine OEM window sticker are wired as
+`StickerProvider`s: Ford, GM, Genesis, Hyundai, Stellantis. The other 14
+brand modules under `lib/*Sticker.ts` (Audi, BMW, Honda, Kia, Mazda,
+Mercedes, MINI, Mitsubishi, Nissan, Porsche, Subaru, Toyota, Volkswagen,
+Volvo) wrap MarketCheck's dealer-equipment feed
+(`lib/listingFeedBuild.ts`/`createListingFeedStickerHandlers`) — real,
+dealer-reported data, but not a factory Monroney sticker — and must never
+be registered here as `factory_verified`.
+
 ## The pieces
 
 | Stage | File | What it does |
 |---|---|---|
-| Acquire | `lib/factoryBuildProviders.ts` | Routes a VIN (by WMI, via `lib/oemWmi.ts`) to a brand's sticker fetcher. |
-| Normalize + canonicalize | `lib/factoryBuild.ts` | Converts a brand sticker into `FactoryBuild`; maps raw option names/codes to a catalog id when a resolver is given (additive — `rawName`/`code` are always kept). |
+| Acquire + normalize | `lib/factoryBuildProviders.ts`, `lib/factoryBuild.ts` | Routes a VIN (by WMI, via `lib/oemWmi.ts`) to a brand's sticker fetcher, then converts its sticker into the common `FactoryBuild`. |
+| Canonicalize | `lib/factoryOptionCatalog.ts`, `lib/factoryOptionCatalogStore.ts` | Folds a raw option name/code into a stable, cross-brand catalog entry (`data/factory-option-catalog.json`) so "M Sport Package" and "M SPORT PACKAGE" resolve to the same searchable thing — additive, `rawName`/`code` are always kept as-is. |
 | Enrich | `lib/factoryBuildEnrich.ts` | NHTSA vPIC decode; fills a missing trim, flags mismatches, upgrades a sticker-less build to `decode_provisional`. |
 | Persist | `lib/factoryBuildStore.ts` | Local JSON store (`data/factory-builds.json`), upsert by VIN. |
 | Orchestrate | `lib/factoryBuildPipeline.ts` | `runFactoryBuildPipeline(vin)` — the whole job, safe to re-run. |
-| Serve (QA) | `app/api/admin/factory-build/route.ts` | `GET ?vin=` looks up a stored build; `POST { vin }` runs the pipeline. Admin-only. |
+| Serve (QA) | `app/api/admin/factory-build/route.ts`, `app/api/admin/factory-options/route.ts` | `GET/POST /factory-build` looks up or runs the pipeline for one VIN. `GET /factory-options?q=` searches the option catalog by name or code and returns every VIN (from the local store) that actually carries a match. Both admin-only. |
 
 ## Adding a new brand
 
@@ -40,16 +49,33 @@ sticker's MSRP or options, and it never gets to call itself
      and import `lib/testdata/blockLiveHttp.ts` first so an unmocked
      `fetch` fails loudly instead of burning live quota.
 
-2. **Register a `StickerProvider`** in `lib/factoryBuildProviders.ts`:
+2. **Normalize.** Ford, GM, Genesis, Hyundai and Stellantis all parse to the
+   same shape (`vin`, `status`, `year?`/`make?`/`model?`/`trim?`, `msrp`,
+   `basePrice`, `optionsPrice`, `destination`, `options[]`, ...) — only how
+   an option line's code is spelled differs (`GmOptionLine.rpo`,
+   `GenesisOptionLine`/`StellantisOptionLine.code`, `FordOptionLine` has
+   none). If the new brand's sticker matches that shape, add a one-line
+   wrapper next to `normalizeFordSticker`/`normalizeGmSticker` in
+   `lib/factoryBuild.ts` that calls the shared `normalizeOemSticker()` with
+   the right code accessor. Otherwise write a small `normalize{Brand}Sticker()`
+   that maps the brand's own fields into `FactoryBuild` directly. Keep the
+   same rules either way: options/MSRP only populated for `factory_verified`,
+   package vs. standalone option derived from the source data (never
+   guessed), and a warning (not a silent drop) whenever a total fails to
+   reconcile or a released sticker parses to zero options.
+
+3. **Register a `StickerProvider`** in `lib/factoryBuildProviders.ts` —
+   `fetch` calls the brand's `getXSticker` and returns the already-normalized
+   `FactoryBuild`:
 
    ```ts
    export const acmeStickerProvider: StickerProvider = {
      id: "acme_oem",
      make: "Acme",
      matchesVin: isAcmeVin, // from lib/oemWmi.ts
-     fetch: async (vin) => {
+     fetch: async (vin, opts) => {
        const sticker = await getAcmeSticker(vin);
-       return { providerId: "acme_oem", url: sticker.pdfUrl, sticker };
+       return normalizeAcmeSticker(sticker, { providerId: "acme_oem", url: sticker.pdfUrl }, opts);
      },
    };
    ```
@@ -60,18 +86,9 @@ sticker's MSRP or options, and it never gets to call itself
    other brand first, the way `hyundaiStickerProvider` is checked before
    `genesisStickerProvider`.
 
-3. **Normalize.** If the new brand's sticker doesn't parse to the
-   `GenesisSticker` shape, write a small `normalize{Brand}Sticker()`
-   alongside `normalizeGenesisFamilySticker()` in `lib/factoryBuild.ts`
-   that maps the brand's own fields into `FactoryBuild`. Keep the same
-   rules: options/MSRP only populated for `factory_verified`, package vs.
-   standalone option derived from the source data (never guessed), and a
-   warning (not a silent drop) whenever a total fails to reconcile or a
-   released sticker parses to zero options.
-
-4. Nothing in `factoryBuildEnrich.ts`, `factoryBuildStore.ts`, or
-   `factoryBuildPipeline.ts` needs to change — they only ever see the
-   common `FactoryBuild` shape.
+4. Nothing in `factoryOptionCatalogStore.ts`, `factoryBuildEnrich.ts`,
+   `factoryBuildStore.ts`, or `factoryBuildPipeline.ts` needs to change —
+   they only ever see the common `FactoryBuild` shape.
 
 ## Status and provenance
 

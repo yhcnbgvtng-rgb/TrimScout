@@ -16,8 +16,20 @@ describe("stickerProviderForVin", () => {
     assert.equal(stickerProviderForVin("5NMJECDE6TH781852")?.id, "hyundai_dealerfire");
   });
 
-  it("returns null for a brand with no wired provider yet", () => {
-    assert.equal(stickerProviderForVin("1FTFW1ED5PFA12345"), null);
+  it("routes a Ford WMI to the Ford provider", () => {
+    assert.equal(stickerProviderForVin("1FTFW1ED5PFA12345")?.id, "ford_windowsticker");
+  });
+
+  it("routes a GM WMI to the GM provider", () => {
+    assert.equal(stickerProviderForVin("3GNAXPEG1VL131423")?.id, "gm_cws");
+  });
+
+  it("routes a Stellantis WMI to the Stellantis provider", () => {
+    assert.equal(stickerProviderForVin("1C4RJFBG5NC123456")?.id, "stellantis_hostd");
+  });
+
+  it("returns null for a brand with no wired provider yet (MarketCheck-fed only, e.g. Toyota)", () => {
+    assert.equal(stickerProviderForVin("3TMCZ5AN0RM123456"), null);
   });
 
   it("returns null for a VIN that isn't 17 characters", () => {
