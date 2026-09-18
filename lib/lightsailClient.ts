@@ -123,6 +123,8 @@ export interface BoxVehiclesResponse {
 export interface BoxFacetValue {
   value: string;
   count: number;
+  /** Only present on the `optionCode` facet dimension — the option's name from the box's per-brand option_names reference table. */
+  label?: string;
 }
 
 export interface BoxFacetsResponse {
