@@ -12,6 +12,7 @@ import { CounterComparison } from "../../../components/CounterComparison";
 import type { UsedQuote } from "../../../lib/usedQuote";
 import type { BuyerCounter } from "../../../lib/rfq";
 import { UsedQuoteForm } from "../../../components/UsedQuoteForm";
+import { SiteFooter } from "../../../components/SiteFooter";
 import type { QuotePrefs } from "../../../lib/usedQuote";
 
 // Where a dealer lands from the tracked link in a lease-quote-request
@@ -260,6 +261,7 @@ function ReceivedBody() {
           </p>
         </div>
       </main>
+      <SiteFooter />
     </div>
   );
 }

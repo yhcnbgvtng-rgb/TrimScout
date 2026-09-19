@@ -4,6 +4,7 @@ export const dynamic = "force-dynamic";
 
 import React from "react";
 import Link from "next/link";
+import { SiteFooter } from "@/components/SiteFooter";
 
 export default function PrivacyPage() {
   return (
@@ -181,18 +182,7 @@ export default function PrivacyPage() {
         </div>
       </main>
 
-      <footer className="border-t border-border/60 py-6 text-center text-xs text-ink-faint">
-        <p>© 2026 LyDar Enterprises LLC. Built for honest option matches and real dealer quotes.</p>
-        <p className="mt-2 flex items-center justify-center gap-4">
-          <Link href="/terms" className="hover:text-white transition-colors">Terms of Use</Link>
-          <span className="text-border-strong">•</span>
-          <Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link>
-          <span className="text-border-strong">•</span>
-          <Link href="/disclaimer" className="hover:text-white transition-colors">Disclaimer</Link>
-          <span className="text-border-strong">•</span>
-          <Link href="/contact" className="hover:text-white transition-colors">Contact</Link>
-        </p>
-      </footer>
+      <SiteFooter />
     </div>
   );
 }
