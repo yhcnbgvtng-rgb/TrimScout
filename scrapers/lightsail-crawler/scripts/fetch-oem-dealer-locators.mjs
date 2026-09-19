@@ -288,8 +288,28 @@ const CA_ZIPS = [
   '96001', // Redding (far north)
 ];
 
+// Pennsylvania zip spread. Two genuinely distinct major metros at opposite
+// corners (Philadelphia southeast, Pittsburgh southwest) rather than one
+// dominant city, plus a string of real mid-size markets across the
+// central corridor between them — Allentown/Lehigh Valley, Harrisburg
+// (capital), Lancaster, Reading, York — and Scranton (northeast) and Erie
+// (far northwest, on the lake) that neither Philadelphia's nor
+// Pittsburgh's radius would reach.
+const PA_ZIPS = [
+  '19102', // Philadelphia
+  '15222', // Pittsburgh
+  '18101', // Allentown (Lehigh Valley)
+  '17101', // Harrisburg (capital)
+  '17603', // Lancaster
+  '19601', // Reading (Berks County)
+  '17401', // York
+  '18503', // Scranton (northeast)
+  '16501', // Erie (far northwest)
+  '16601', // Altoona (central, distinct from Pittsburgh)
+];
+
 // Combined zip spread used by every zip+radius OEM locator below.
-const TARGET_ZIPS = [...NJ_NY_ZIPS, ...FL_ZIPS, ...GA_ZIPS, ...TX_ZIPS, ...SC_ZIPS, ...VA_ZIPS, ...NC_ZIPS, ...RI_ZIPS, ...VT_ZIPS, ...NH_ZIPS, ...MA_ZIPS, ...CA_ZIPS];
+const TARGET_ZIPS = [...NJ_NY_ZIPS, ...FL_ZIPS, ...GA_ZIPS, ...TX_ZIPS, ...SC_ZIPS, ...VA_ZIPS, ...NC_ZIPS, ...RI_ZIPS, ...VT_ZIPS, ...NH_ZIPS, ...MA_ZIPS, ...CA_ZIPS, ...PA_ZIPS];
 
 function hostOf(url) {
   return hostFromUrl(url) || normalizeDealerHost(url);
@@ -532,6 +552,21 @@ async function fetchToyota() {
     'california/santa-barbara',
     'california/palm-springs',
     'california/redding',
+    // Added with PA's own state addition (2026-09-18), same real per-state
+    // slugs as every other state here — see this list's own header comment
+    // for why NC/RI/VT/NH/MA/CA had to be added after the fact instead of
+    // at onboarding time; PA gets its slugs up front to avoid repeating
+    // that gap.
+    'pennsylvania/philadelphia',
+    'pennsylvania/pittsburgh',
+    'pennsylvania/allentown',
+    'pennsylvania/harrisburg',
+    'pennsylvania/lancaster',
+    'pennsylvania/reading',
+    'pennsylvania/york',
+    'pennsylvania/scranton',
+    'pennsylvania/erie',
+    'pennsylvania/altoona',
   ];
   const rows = [];
   const pages = [];
