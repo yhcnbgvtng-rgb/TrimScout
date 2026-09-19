@@ -8,6 +8,7 @@ import { LeaseCalculatorSheet } from "@/components/LeaseCalculatorSheet";
 import { LeaseQuoteFormat } from "@/components/LeaseQuoteFormat";
 import { UsedCompare } from "@/components/UsedCompare";
 import { UnsubscribedBanner } from "@/components/UnsubscribedBanner";
+import { SiteFooter } from "@/components/SiteFooter";
 import { rfqVehicles } from "@/lib/rfqTracker";
 import { LEASE_NON_BINDING_COPY } from "@/lib/leaseQuote";
 import { useParams, useRouter } from "next/navigation";
@@ -706,6 +707,7 @@ export default function RfqWorkspacePage() {
             : "No quotes yet — check back after dealers respond, or record one above as it comes in."}
         </div>
       )}
+      <SiteFooter className="mt-12" />
     </div>
   );
 }

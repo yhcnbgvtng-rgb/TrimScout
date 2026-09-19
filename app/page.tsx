@@ -9,6 +9,7 @@ import Link from "next/link";
 import { useSession, signOut as authSignOut } from "next-auth/react";
 import { Vehicle, BiddingRequest, DealerBid, LockedDeal, UserProfile } from "../lib/types";
 import type { RfqLane } from "../lib/alternateAsk";
+import { SiteFooter } from "../components/SiteFooter";
 import { MOCK_VEHICLES } from "../lib/mockData";
 import { fetchLiveInventory } from "../lib/inventoryConnector";
 import { mapDealRequestJson } from "../lib/shopperDeal";
@@ -771,20 +772,7 @@ export default function Home() {
       )}
 
       {/* Site Footer */}
-      <footer className="border-t border-border/60 mt-12 py-6 text-center text-xs text-ink-faint">
-        {currentView !== "track_deals" && (
-          <p>© 2026 LyDar Enterprises LLC. Built for honest option matches and real dealer quotes.</p>
-        )}
-        <p className="mt-2 flex items-center justify-center gap-4">
-          <Link href="/terms" className="hover:text-white transition-colors">Terms of Use</Link>
-          <span className="text-border-strong">•</span>
-          <Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link>
-          <span className="text-border-strong">•</span>
-          <Link href="/disclaimer" className="hover:text-white transition-colors">Disclaimer</Link>
-          <span className="text-border-strong">•</span>
-          <Link href="/contact" className="hover:text-white transition-colors">Contact</Link>
-        </p>
-      </footer>
+      <SiteFooter showCopyright={currentView !== "track_deals"} className="mt-12" />
 
       {/* Bidding Wizard Modal */}
       <BiddingWizard
