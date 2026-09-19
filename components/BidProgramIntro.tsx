@@ -5,12 +5,10 @@ import {
   ShieldCheck,
   Zap,
   ListChecks,
-  CircleCheck as CheckCircle2,
   Handshake,
   ArrowRight,
   Search,
-  SendHorizontal,
-  Clock
+  SendHorizontal
 } from "lucide-react";
 
 interface BidProgramIntroProps {
@@ -153,83 +151,6 @@ export const BidProgramIntro: React.FC<BidProgramIntroProps> = ({
             </p>
           </div>
         </div>
-      </div>
-
-      {/* PRICING */}
-      <div className="space-y-6">
-        <div className="text-center space-y-1">
-          <h2 className="text-xl sm:text-2xl font-black text-white">Simple, Honest Pricing</h2>
-          <p className="text-xs text-ink-muted">No hidden fees. No percentage cut of your savings.</p>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-3xl mx-auto">
-          <div className="rounded-2xl border-2 border-emerald-500 bg-surface p-5 space-y-2 text-center">
-            <div className="flex items-center justify-center gap-2 text-sm font-extrabold text-white">
-              <CheckCircle2 className="h-4 w-4 text-emerald-400" />
-              <span>Requesting and comparing quotes is free.</span>
-            </div>
-            <p className="text-xs text-ink-muted leading-relaxed">
-              No cost to identify the car, send the request, or see every quote that comes back. Take the best one
-              straight to the dealer if you like — nothing owed to us.
-            </p>
-          </div>
-          <div className="rounded-2xl border border-border bg-surface p-5 space-y-2 text-center">
-            <div className="flex items-center justify-center gap-2 text-sm font-extrabold text-white">
-              <span>Deal Certificate — $299, optional</span>
-            </div>
-            <p className="text-xs text-ink-muted leading-relaxed">
-              If you pick a quote through TrimScout, a flat fee holds the dealer to that out-the-door price and
-              unlocks your voucher, paperwork verification, and trade-in appraisal. Shown before you pay, never
-              a percentage of your savings.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* COMING NEXT */}
-      <div className="rounded-2xl border border-border bg-surface-elevated p-6 space-y-4 max-w-3xl mx-auto">
-        <div className="flex items-center gap-2">
-          <Clock className="h-4 w-4 text-amber-400" />
-          <h2 className="text-sm font-black uppercase tracking-wider text-amber-400">Coming Next</h2>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs text-ink-muted leading-relaxed">
-          <div className="space-y-1">
-            <div className="font-bold text-ink-light">Multiple dealers, one live comparison</div>
-            <p>
-              Today, dealers you request from quote you back on their own time. Next, we&apos;re building a way to
-              see multiple real quotes on the same request side by side as they come in.
-            </p>
-          </div>
-          <div className="space-y-1">
-            <div className="font-bold text-ink-light">Paperwork verification</div>
-            <p>
-              Once you&apos;re ready to sign, we want to check your contract against the quote you were given —
-              flagging padded fees or terms that don&apos;t match. Not live yet.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* FINAL LAUNCHPAD */}
-      <div className="rounded-3xl border border-emerald-500/40 bg-gradient-to-r from-surface via-surface-elevated to-surface p-8 text-center space-y-5 shadow-2xl relative overflow-hidden">
-        <div className="max-w-xl mx-auto space-y-2">
-          <h2 className="text-2xl sm:text-3xl font-black text-white">Ready to Get a Real Quote?</h2>
-          <p className="text-xs sm:text-sm text-ink-muted">
-            Paste a VIN or dealer link — takes about 2 minutes. We&apos;ll read the real build and get your quote
-            request moving today.
-          </p>
-        </div>
-
-        <button
-          type="button"
-          onClick={() => onStartWizard("intro_footer")}
-          data-testid="cta-request-quote-intro-footer"
-          className="inline-flex items-center gap-2 rounded-xl bg-emerald-500 px-8 py-3.5 font-extrabold text-sm text-black hover:bg-emerald-400 transition-all shadow-xl shadow-emerald-500/20 active:scale-95"
-        >
-          <Zap className="h-4 w-4 fill-black" />
-          <span>Request a Quote</span>
-          <ArrowRight className="h-4 w-4 stroke-[2.5]" />
-        </button>
       </div>
     </div>
   );

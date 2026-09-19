@@ -50,15 +50,14 @@ describe("Request a Quote CTAs — one wizard, every placement", () => {
     };
     await click("cta-request-quote-header");
     await click("cta-request-quote-hero");
-    await click("cta-request-quote-intro-footer");
     // The mobile drawer CTA appears once the drawer is open.
     const toggle = Array.from(doc.querySelectorAll<HTMLButtonElement>("button")).find((b) => /menu/i.test(b.getAttribute("aria-label") || ""));
     if (toggle) {
       await act(async () => { toggle.click(); });
       await click("cta-request-quote-mobile");
-      assert.deepEqual(opened, ["header", "hero", "intro_footer", "mobile_menu"]);
+      assert.deepEqual(opened, ["header", "hero", "mobile_menu"]);
     } else {
-      assert.deepEqual(opened, ["header", "hero", "intro_footer"]);
+      assert.deepEqual(opened, ["header", "hero"]);
     }
     assert.deepEqual(toggled, [], "a Request a Quote CTA never just switches views");
     await act(async () => { root.unmount(); });
