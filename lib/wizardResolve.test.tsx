@@ -96,7 +96,7 @@ describe("Configure Quote Request — vehicle resolve hardening", () => {
     const text = () => doc.body.textContent || "";
     const tick = async (n = 1) => { for (let i = 0; i < n; i++) await act(async () => { await new Promise((r) => setTimeout(r, 10)); }); };
     const settle = async (pred: () => boolean) => { for (let i = 0; i < 40 && !pred(); i++) await tick(); assert.ok(pred(), "settled"); };
-    // Every open picks "Quote this vehicle / same build" then Continues out of the
+    // Every open picks "This exact vehicle" then Continues out of the
     // intent substep — the intent question precedes, and now gates the reveal of, the VIN box.
     const openFresh = async () => { await act(async () => { bump(); setOpen(true); }); await tick(); await act(async () => { (dom.window.document.querySelector('[data-testid="intent-same_spec"]') as HTMLButtonElement).click(); }); await act(async () => { continueBtn().click(); }); };
     const setInput = async (el: HTMLInputElement, value: string) => {
@@ -298,8 +298,8 @@ describe("Step 1 asks the quote intent before the VIN (2026-09-17)", () => {
     assert.equal(doc.getElementById("primary-link-input"), null, "no VIN / link box until an intent is chosen");
     assert.equal(continueBtn().disabled, true);
     assert.equal(reason(), "Choose what you want quoted to continue");
-    assert.match(text(), /We'll use the VIN or dealer link so quotes match this car's factory options/);
-    assert.match(text(), /No VIN needed — dealers can propose other vehicles/);
+    assert.match(text(), /Paste the VIN or dealer link so quotes match this car/);
+    assert.match(text(), /No VIN needed — dealers can propose different cars/);
 
     // 2. Path B (alternate): intent alone enables Continue — no VIN box, no What-you-need,
     //    and NO dealership picker on Step 1 (dealer selection moved to the later Step 3 desks).
