@@ -132,6 +132,15 @@ describe("Configure Quote Request starts fresh on every open", () => {
     const continueBtn = () => Array.from(doc.querySelectorAll<HTMLButtonElement>("button")).find((b) => b.textContent?.trim().startsWith("Continue"))!;
     const reason = () => doc.querySelector('[data-testid="continue-reason"]')?.textContent ?? null;
 
+    // Plain-language intent card labels (2026-09-19).
+    const sameCard = doc.querySelector('[data-testid="intent-same_spec"]')!;
+    const altCard = doc.querySelector('[data-testid="intent-alternate"]')!;
+    assert.match(sameCard.textContent!, /This exact vehicle/);
+    assert.match(sameCard.textContent!, /Paste the VIN or dealer link so quotes match this car/);
+    assert.match(altCard.textContent!, /Open to anything/);
+    assert.match(altCard.textContent!, /No VIN needed — dealers can propose different cars/);
+    assert.doesNotMatch(doc.body.textContent!, /same build|I'm open to different vehicles/);
+
     // Nothing picked: Continue is off and says why; no VIN box yet.
     assert.equal(continueBtn().disabled, true, "Continue is off before an intent is picked");
     assert.equal(reason(), "Choose what you want quoted to continue");
