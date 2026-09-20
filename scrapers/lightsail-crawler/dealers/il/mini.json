@@ -1,0 +1,30 @@
+[
+  {
+    "id": "mini-bill-jacobs-mini",
+    "name": "Bill Jacobs MINI",
+    "city": "Naperville",
+    "state": "IL",
+    "make": "Mini",
+    "domain": "billjacobsmini.com",
+    "sitemapUrl": "https://www.billjacobsmini.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.billjacobsmini.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://billjacobsmini.com/",
+    "lat": null,
+    "lng": null,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "mini-patrick-mini",
+    "name": "Patrick MINI",
+    "city": "Schaumburg",
+    "state": "IL",
+    "make": "Mini",
+    "domain": "patrickmini.com",
+    "sitemapUrl": "https://www.patrickmini.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.patrickmini.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://patrickmini.com/",
+    "lat": null,
+    "lng": null,
+    "domainSource": "oem-locator"
+  }
+]

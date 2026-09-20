@@ -1,0 +1,30 @@
+[
+  {
+    "id": "lexus-eskridge-lexus-of-oklahoma-city",
+    "name": "Eskridge Lexus of Oklahoma City",
+    "city": "Oklahoma City",
+    "state": "OK",
+    "make": "Lexus",
+    "domain": "eskridgelexus.com",
+    "sitemapUrl": "https://www.eskridgelexus.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.eskridgelexus.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://eskridgelexus.com/",
+    "lat": 35.608368,
+    "lng": -97.52718,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "lexus-lexus-of-tulsa",
+    "name": "Lexus of Tulsa",
+    "city": "Tulsa",
+    "state": "OK",
+    "make": "Lexus",
+    "domain": "lexusoftulsa.com",
+    "sitemapUrl": "https://www.lexusoftulsa.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.lexusoftulsa.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://lexusoftulsa.com/",
+    "lat": 36.100628,
+    "lng": -95.88768,
+    "domainSource": "oem-locator"
+  }
+]

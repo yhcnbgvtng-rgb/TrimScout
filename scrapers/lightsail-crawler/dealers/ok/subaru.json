@@ -1,0 +1,44 @@
+[
+  {
+    "id": "subaru-bob-moore-subaru",
+    "name": "Bob Moore Subaru",
+    "city": "Oklahoma City",
+    "state": "OK",
+    "make": "Subaru",
+    "domain": "bobmooresubaru.com",
+    "sitemapUrl": "https://www.bobmooresubaru.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.bobmooresubaru.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://bobmooresubaru.com/",
+    "lat": 35.601486,
+    "lng": -97.494527,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "subaru-cavender-subaru-of-norman",
+    "name": "Cavender Subaru of Norman",
+    "city": "Norman",
+    "state": "OK",
+    "make": "Subaru",
+    "domain": "cavendersubaruofnorman.com",
+    "sitemapUrl": "https://www.cavendersubaruofnorman.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.cavendersubaruofnorman.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://cavendersubaruofnorman.com/",
+    "lat": 35.257614,
+    "lng": -97.484432,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "subaru-ferguson-subaru",
+    "name": "Ferguson Subaru",
+    "city": "Broken Arrow",
+    "state": "OK",
+    "make": "Subaru",
+    "domain": "fergusonsubaru.com",
+    "sitemapUrl": "https://www.fergusonsubaru.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.fergusonsubaru.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://fergusonsubaru.com/",
+    "lat": 36.06923,
+    "lng": -95.794834,
+    "domainSource": "oem-locator"
+  }
+]
