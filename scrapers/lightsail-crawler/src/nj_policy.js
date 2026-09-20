@@ -25,6 +25,13 @@ export const NJ_BRANDS_IN = [
   'Porsche',
   'Mini',
   'Mitsubishi',
+  // Added 2026-09-20 after a real 15-dealer pilot across 15 states came
+  // back with 0 crashes, 0 errors, 0 zero-extraction/sitemap-discovery
+  // misses — 2,959 real vehicles, clean. Genesis (Hyundai's sister brand)
+  // is deliberately NOT added alongside it: its own pilot showed a
+  // sitemap-discovery miss on 4 of 15 dealers (26.7%), a real gap worth
+  // fixing before it goes into the nightly rotation, not a one-off.
+  'Hyundai',
 ];
 
 export const NJ_BRANDS_OUT = [
@@ -39,7 +46,6 @@ export const NJ_BRANDS_OUT = [
   'Dodge',
   'Jeep',
   'Ram',
-  'Hyundai',
   'Genesis',
   'Tesla',
   'Rivian',

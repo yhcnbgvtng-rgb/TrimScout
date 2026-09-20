@@ -218,6 +218,20 @@ export const BRANDS = {
     baseMsrpTable: null,
     plantFallback: null,
   },
+  Hyundai: {
+    name: "Hyundai",
+    // Added 2026-09-20. Not yet cross-checked against real live VINs the
+    // way Chevrolet's table was — general automotive-VIN-decoding
+    // knowledge only. KMH = Korea-built, 5NP/5NM/KMF = Montgomery AL-built
+    // (HMMA). A 15-dealer/15-state pilot run did decode real VINs under
+    // both prefix families (KMH.../5NM... -> South Korea/United States
+    // respectively via NHTSA), which is a reasonable but not exhaustive
+    // confirmation. Secondary signal only, same as every other brand here.
+    vinPrefixes: ["KMH", "5NP", "5NM", "KMF"],
+    hasOfficialRetailerPlatform: false,
+    baseMsrpTable: null,
+    plantFallback: null,
+  },
 };
 
 const BRAND_ALIASES = {

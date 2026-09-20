@@ -43,7 +43,11 @@ describe('NJ brand policy', () => {
     assert.equal(isNjBrandIn('Mini'), true);
     assert.equal(isNjBrandOut('Ford'), true);
     assert.equal(isNjBrandOut('Chevy'), true);
-    assert.equal(isNjBrandOut('Hyundai'), true);
+    // Genesis stays OUT (its own pilot found a real sitemap-discovery gap
+    // on 27% of dealers, not yet fixed) even though its sister brand
+    // Hyundai moved IN on 2026-09-20 after a clean pilot.
+    assert.equal(isNjBrandOut('Genesis'), true);
+    assert.equal(isNjBrandIn('Hyundai'), true);
     assert.equal(isNjBrandIn('Ford'), false);
     assert.equal(canonicalBrandName('mercedes'), 'Mercedes-Benz');
   });

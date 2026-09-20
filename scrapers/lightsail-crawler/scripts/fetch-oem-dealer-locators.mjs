@@ -1325,6 +1325,51 @@ async function fetchMazda() {
   });
 }
 
+async function fetchHyundai() {
+  // Official dealersByZip.json handler behind the (correct)
+  // /us/en/dealer-locator page — a plain zip+radius GET, no browser
+  // needed. Recipe carried over from an earlier, separate Hyundai
+  // dealer-DIRECTORY crawl in this repo (scrapers/dealer-rosters/hyundai/
+  // crawl_locator.py, 858 rooftops) and re-verified live 2026-09-20 before
+  // wiring in here. Default radius is only 25mi — must pass radius=150
+  // explicitly for real nationwide coverage. dealerUrl comes back as a
+  // bare hostname (no protocol), sometimes with a path suffix.
+  const zips = TARGET_ZIPS;
+  const rows = [];
+  const pages = [];
+  const seenCode = new Set();
+  for (const zip of zips) {
+    const url = `https://www.hyundaiusa.com/var/hyundai/services/dealer/dealersByZip.json?brand=hyundai&model=all&lang=en&zip=${zip}&maxdealers=200&radius=150`;
+    const got = await fetchJson(url, { referer: 'https://www.hyundaiusa.com/us/en/dealer-locator' });
+    pages.push({ zip, status: got.status, ok: got.ok });
+    for (const d of got.json?.dealers || []) {
+      const code = d.dealerCd;
+      if (code) {
+        if (seenCode.has(code)) continue;
+        seenCode.add(code);
+      }
+      const state = String(d.state || '').toUpperCase();
+      if (!inTargetStates(state)) continue;
+      rows.push(row({
+        make: 'Hyundai',
+        name: d.dealerNm,
+        city: d.city,
+        state,
+        domain: d.dealerUrl,
+        lat: typeof d.latitude === 'number' ? d.latitude : null,
+        lng: typeof d.longitude === 'number' ? d.longitude : null,
+        sourceUrl: url,
+      }));
+    }
+  }
+  return writeDump('hyundai', rows, {
+    locator: 'https://www.hyundaiusa.com/us/en/dealer-locator',
+    note: 'Official Hyundai dealersByZip.json handler (zip + radius=150, plain GET).',
+    pages,
+    blocked: pages.every((p) => p.status === 403),
+  });
+}
+
 async function fetchVolkswagen() {
   // Official bff-search/dealers feature-app API behind the (correct)
   // /en/dealer-search.html page, found via network capture. The
@@ -1444,6 +1489,7 @@ status.push(await fetchNissan());
 status.push(await fetchInfiniti());
 status.push(await fetchSubaru());
 status.push(await fetchMazda());
+status.push(await fetchHyundai());
 status.push(await fetchVolkswagen());
 status.push(await fetchAudi());
 status.push(await fetchVolvo());
