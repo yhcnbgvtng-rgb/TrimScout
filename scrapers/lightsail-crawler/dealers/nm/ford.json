@@ -1,0 +1,67 @@
+[
+  {
+    "id": "ford-casa-ford-of-las-cruces",
+    "name": "Casa Ford of Las Cruces",
+    "city": "Las Cruces",
+    "state": "NM",
+    "make": "Ford",
+    "domain": "casafordlascruces.net",
+    "sitemapUrl": "https://www.casafordlascruces.net/sitemap.xml",
+    "inventorySitemapUrl": "https://www.casafordlascruces.net/sitemap-inventory.xml",
+    "fallbackUrl": "https://casafordlascruces.net/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "ford-chalmers-ford",
+    "name": "Chalmers Ford",
+    "city": "Rio Rancho",
+    "state": "NM",
+    "make": "Ford",
+    "domain": "dcford.com",
+    "sitemapUrl": "https://www.dcford.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.dcford.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://dcford.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "ford-melloy-ford",
+    "name": "Melloy Ford",
+    "city": "Los Lunas",
+    "state": "NM",
+    "make": "Ford",
+    "domain": "melloyford.com",
+    "sitemapUrl": "https://www.melloyford.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.melloyford.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://melloyford.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "ford-power-ford",
+    "name": "Power Ford",
+    "city": "Albuquerque",
+    "state": "NM",
+    "make": "Ford",
+    "domain": "powerfordnm.com",
+    "sitemapUrl": "https://www.powerfordnm.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.powerfordnm.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://powerfordnm.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "ford-rich-ford-sales-inc",
+    "name": "Rich Ford Sales, Inc.",
+    "city": "Albuquerque",
+    "state": "NM",
+    "make": "Ford",
+    "domain": "richardsonfordsales.com",
+    "sitemapUrl": "https://www.richardsonfordsales.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.richardsonfordsales.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://richardsonfordsales.com/",
+    "lat": null,
+    "lng": null
+  }
+]

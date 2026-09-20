@@ -1,0 +1,41 @@
+[
+  {
+    "id": "lincoln-crest-lincoln-of-woodbridge",
+    "name": "Crest Lincoln of Woodbridge",
+    "city": "Woodbridge",
+    "state": "CT",
+    "make": "Lincoln",
+    "domain": "crestwoodbridge.com",
+    "sitemapUrl": "https://www.crestwoodbridge.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.crestwoodbridge.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://crestwoodbridge.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "lincoln-hoffman-lincoln",
+    "name": "Hoffman Lincoln",
+    "city": "East Hartford",
+    "state": "CT",
+    "make": "Lincoln",
+    "domain": "hoffmanlincoln.net",
+    "sitemapUrl": "https://www.hoffmanlincoln.net/sitemap.xml",
+    "inventorySitemapUrl": "https://www.hoffmanlincoln.net/sitemap-inventory.xml",
+    "fallbackUrl": "https://hoffmanlincoln.net/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "lincoln-shaker-s-family-lincoln",
+    "name": "Shaker's Family Lincoln",
+    "city": "Watertown",
+    "state": "CT",
+    "make": "Lincoln",
+    "domain": "familylincoln.net",
+    "sitemapUrl": "https://www.familylincoln.net/sitemap.xml",
+    "inventorySitemapUrl": "https://www.familylincoln.net/sitemap-inventory.xml",
+    "fallbackUrl": "https://familylincoln.net/",
+    "lat": null,
+    "lng": null
+  }
+]

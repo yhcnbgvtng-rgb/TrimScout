@@ -1,0 +1,54 @@
+[
+  {
+    "id": "stellantis-anchorage-chrysler-center-inc",
+    "name": "Anchorage Chrysler Center Inc",
+    "city": "Anchorage",
+    "state": "AK",
+    "make": "Stellantis",
+    "domain": "anchoragechryslercenter.com",
+    "sitemapUrl": "https://www.anchoragechryslercenter.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.anchoragechryslercenter.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://anchoragechryslercenter.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "stellantis-gene-s-chrysler-center",
+    "name": "Gene's Chrysler Center",
+    "city": "Fairbanks",
+    "state": "AK",
+    "make": "Stellantis",
+    "domain": "geneschrysler.com",
+    "sitemapUrl": "https://www.geneschrysler.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.geneschrysler.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://geneschrysler.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "stellantis-juneau-chrysler-dodge-jeep-ram",
+    "name": "Juneau Chrysler Dodge Jeep Ram",
+    "city": "Juneau",
+    "state": "AK",
+    "make": "Stellantis",
+    "domain": "juneaujeepram.com",
+    "sitemapUrl": "https://www.juneaujeepram.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.juneaujeepram.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://juneaujeepram.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "stellantis-kendall-dodge-chrysler-jeep-ram",
+    "name": "Kendall Dodge Chrysler Jeep Ram",
+    "city": "Soldotna",
+    "state": "AK",
+    "make": "Stellantis",
+    "domain": "kendalldcjrofsoldotna.com",
+    "sitemapUrl": "https://www.kendalldcjrofsoldotna.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.kendalldcjrofsoldotna.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://kendalldcjrofsoldotna.com/",
+    "lat": null,
+    "lng": null
+  }
+]

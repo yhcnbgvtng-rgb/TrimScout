@@ -1,0 +1,54 @@
+[
+  {
+    "id": "lincoln-gervais-lincoln-inc",
+    "name": "Gervais Lincoln, Inc.",
+    "city": "Lowell",
+    "state": "MA",
+    "make": "Lincoln",
+    "domain": "gervaislincoln.net",
+    "sitemapUrl": "https://www.gervaislincoln.net/sitemap.xml",
+    "inventorySitemapUrl": "https://www.gervaislincoln.net/sitemap-inventory.xml",
+    "fallbackUrl": "https://gervaislincoln.net/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "lincoln-herb-chambers-lincoln-norwood",
+    "name": "Herb Chambers Lincoln Norwood",
+    "city": "Norwood",
+    "state": "MA",
+    "make": "Lincoln",
+    "domain": "hclincolnnorwood.com",
+    "sitemapUrl": "https://www.hclincolnnorwood.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.hclincolnnorwood.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://hclincolnnorwood.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "lincoln-sarat-lincoln",
+    "name": "Sarat Lincoln",
+    "city": "Agawam",
+    "state": "MA",
+    "make": "Lincoln",
+    "domain": "saratlincoln.net",
+    "sitemapUrl": "https://www.saratlincoln.net/sitemap.xml",
+    "inventorySitemapUrl": "https://www.saratlincoln.net/sitemap-inventory.xml",
+    "fallbackUrl": "https://saratlincoln.net/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "lincoln-sentry-lincoln",
+    "name": "Sentry Lincoln",
+    "city": "Medford",
+    "state": "MA",
+    "make": "Lincoln",
+    "domain": "sentrylincolnofmedford.com",
+    "sitemapUrl": "https://www.sentrylincolnofmedford.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.sentrylincolnofmedford.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://sentrylincolnofmedford.com/",
+    "lat": null,
+    "lng": null
+  }
+]

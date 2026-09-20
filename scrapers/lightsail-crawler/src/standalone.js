@@ -23,6 +23,7 @@ import { mergeInventorySnapshot } from './inventory_merge.js';
 import { buildBrandChangeRecord, mergeDailyChangesDocument } from './daily_changes.js';
 import { withSharedDataLock } from './shared_data_lock.js';
 import { inventoryShardPath, inventoryShardsDir, snapshotShardPath } from './inventory_shards.js';
+import { resolveVehicleBrandMatch } from './brand_match.js';
 import {
     collectSalesEmail,
     applyContactToDealer,
@@ -934,6 +935,22 @@ for (let i = 0; i < dealers.length; i++) {
             failedDealerNames.add(dealer.name);
             continue;
         }
+        // Hard backstop for a pathologically large single lot (a genuine
+        // used-car superstore, or a megadealer group whose sitemap covers
+        // several physical locations at once) — DEALER_TIMEOUT_MS already
+        // bounds this dealer's wall-clock time, but a huge vehicle count
+        // still means a huge downstream NHTSA-enrichment bill for this one
+        // dealer even with the enrichment pool parallelized (see
+        // enricher.js). Slicing rather than sampling: the sitemap/DDC
+        // ordering is typically newest-first already, so the kept subset is
+        // still representative, real inventory, not an arbitrary chunk.
+        // 0 (the default) means no cap, matching every dealer's behavior
+        // before this existed.
+        const maxVehiclesPerDealer = Number(process.env.CRAWLER_MAX_VEHICLES_PER_DEALER) || 0;
+        if (maxVehiclesPerDealer > 0 && vehicleUrls.length > maxVehiclesPerDealer) {
+            console.log(`${progress} ✂️ ${dealer.name} has ${vehicleUrls.length} vehicle URLs — capping to ${maxVehiclesPerDealer}.`);
+            vehicleUrls = vehicleUrls.slice(0, maxVehiclesPerDealer);
+        }
         if (dealerTimedOut) {
             // The 1-hour mark already passed during sitemap resolution
             // itself (rare — that phase has its own short per-request
@@ -1120,23 +1137,25 @@ for (let i = 0; i < dealers.length; i++) {
                 }
 
                 if (vehicle && vehicle.vin && vehicle.vin.length >= 16) {
-                    // Multi-brand isolation check: some dealers (especially
-                    // multi-franchise groups) surface other brands they also
-                    // sell in the same sitemap/pages — only keep vehicles
-                    // that actually match the brand this run is targeting.
-                    const isTargetBrand = vehicle.make?.toLowerCase().includes(brand.name.toLowerCase()) ||
-                                      brand.vinPrefixes.some((p) => vehicle.vin.startsWith(p));
+                    // Multi-brand isolation check — see brand_match.js. Most
+                    // brands are single-nameplate (brand.name IS the real
+                    // make); Stellantis is multi-nameplate (brand.nameplates
+                    // = Jeep/Ram/Dodge/Chrysler/Fiat, since they share the
+                    // same rooftops) and resolveVehicleBrandMatch keeps each
+                    // vehicle's own real nameplate instead of collapsing it
+                    // to the umbrella crawl-scope name.
+                    const { isTargetBrand, resolvedMake } = resolveVehicleBrandMatch(brand, vehicle);
 
                     if (isTargetBrand) {
-                        // Collapse to the canonical brand name. isTargetBrand
-                        // just confirmed this vehicle genuinely belongs to
-                        // this brand (by label match or VIN prefix), so any
-                        // raw label variant the source site used — "FORD
-                        // TRUCK", "FORD MEDIUM TRUCK", etc. — is the same
-                        // vehicle, not a different make; storing the raw
-                        // variant instead of "Ford"/"Chevrolet" just splits
-                        // one brand into several make values downstream.
-                        vehicle.make = brand.name;
+                        // Collapse to the canonical nameplate. isTargetBrand
+                        // just confirmed this vehicle genuinely belongs here
+                        // (by label match or VIN prefix), so any raw label
+                        // variant the source site used — "FORD TRUCK", "FORD
+                        // MEDIUM TRUCK", etc. — is the same vehicle, not a
+                        // different make; storing the raw variant instead of
+                        // "Ford"/"Chevrolet"/"Jeep" just splits one nameplate
+                        // into several make values downstream.
+                        vehicle.make = resolvedMake;
                         // Un-mix model/trim/body_style for brands whose
                         // source sites bake trim/body-style tokens into the
                         // model field (confirmed live: Porsche dealer.com
@@ -1147,7 +1166,10 @@ for (let i = 0; i < dealers.length; i++) {
                         // — DDC, schema.org, the Porsche retailer platform —
                         // gets the same cleanup. No-op for every other
                         // brand (see modelNormalizer.js's brand dispatcher).
-                        vehicle = normalizeVehicleFields(brand.name, vehicle);
+                        // Dispatches on the real resolved nameplate, not the
+                        // umbrella brand.name, so a multi-nameplate config
+                        // still gets each nameplate's own normalization.
+                        vehicle = normalizeVehicleFields(resolvedMake, vehicle);
                         applyWindowSticker(vehicle, html, url, { classification: pageClass.classification });
                         currentInventory.set(vehicle.vin, vehicle);
                         dealerCount++;

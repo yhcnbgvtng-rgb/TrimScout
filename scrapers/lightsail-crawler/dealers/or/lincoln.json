@@ -1,0 +1,28 @@
+[
+  {
+    "id": "lincoln-courtesy-lincoln-portland",
+    "name": "Courtesy Lincoln – Portland",
+    "city": "Portland",
+    "state": "OR",
+    "make": "Lincoln",
+    "domain": "courtesylincolnportland.com",
+    "sitemapUrl": "https://www.courtesylincolnportland.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.courtesylincolnportland.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://courtesylincolnportland.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "lincoln-kendall-lincoln",
+    "name": "Kendall Lincoln",
+    "city": "Eugene",
+    "state": "OR",
+    "make": "Lincoln",
+    "domain": "kendalllincolnofeugene.com",
+    "sitemapUrl": "https://www.kendalllincolnofeugene.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.kendalllincolnofeugene.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://kendalllincolnofeugene.com/",
+    "lat": null,
+    "lng": null
+  }
+]

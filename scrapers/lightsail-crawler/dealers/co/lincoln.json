@@ -1,0 +1,67 @@
+[
+  {
+    "id": "lincoln-durango-lincoln",
+    "name": "Durango Lincoln",
+    "city": "Durango",
+    "state": "CO",
+    "make": "Lincoln",
+    "domain": "lincolnofdurango.com",
+    "sitemapUrl": "https://www.lincolnofdurango.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.lincolnofdurango.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://lincolnofdurango.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "lincoln-landmark-lincoln",
+    "name": "Landmark Lincoln",
+    "city": "Englewood",
+    "state": "CO",
+    "make": "Lincoln",
+    "domain": "landmarklincoln.com",
+    "sitemapUrl": "https://www.landmarklincoln.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.landmarklincoln.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://landmarklincoln.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "lincoln-loveland-ford-lincoln-inc",
+    "name": "Loveland Ford Lincoln, Inc.",
+    "city": "Loveland",
+    "state": "CO",
+    "make": "Lincoln",
+    "domain": "lovelandlincoln.net",
+    "sitemapUrl": "https://www.lovelandlincoln.net/sitemap.xml",
+    "inventorySitemapUrl": "https://www.lovelandlincoln.net/sitemap-inventory.xml",
+    "fallbackUrl": "https://lovelandlincoln.net/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "lincoln-phil-long-lincoln",
+    "name": "Phil Long Lincoln",
+    "city": "Colorado Springs",
+    "state": "CO",
+    "make": "Lincoln",
+    "domain": "phillonglincoln.com",
+    "sitemapUrl": "https://www.phillonglincoln.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.phillonglincoln.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://phillonglincoln.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "lincoln-sill-terhar-lincoln",
+    "name": "Sill-TerHar Lincoln",
+    "city": "Broomfield",
+    "state": "CO",
+    "make": "Lincoln",
+    "domain": "sthlincoln.com",
+    "sitemapUrl": "https://www.sthlincoln.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.sthlincoln.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://sthlincoln.com/",
+    "lat": null,
+    "lng": null
+  }
+]

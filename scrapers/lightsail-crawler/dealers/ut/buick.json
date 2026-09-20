@@ -1,0 +1,54 @@
+[
+  {
+    "id": "buick-ken-garff-buick-gmc-riverdale",
+    "name": "KEN GARFF BUICK GMC RIVERDALE",
+    "city": "OGDEN",
+    "state": "UT",
+    "make": "Buick",
+    "domain": "kengarffgm.com",
+    "sitemapUrl": "https://www.kengarffgm.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.kengarffgm.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://kengarffgm.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "buick-newby-buick-gmc-inc",
+    "name": "NEWBY BUICK GMC, INC.",
+    "city": "St. George",
+    "state": "UT",
+    "make": "Buick",
+    "domain": "newbybuick.com",
+    "sitemapUrl": "https://www.newbybuick.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.newbybuick.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://newbybuick.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "buick-salt-lake-valley-buick-gmc",
+    "name": "SALT LAKE VALLEY BUICK GMC",
+    "city": "Salt Lake City",
+    "state": "UT",
+    "make": "Buick",
+    "domain": "slvbuickgmc.com",
+    "sitemapUrl": "https://www.slvbuickgmc.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.slvbuickgmc.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://slvbuickgmc.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "buick-young-buick-gmc-co",
+    "name": "YOUNG BUICK GMC CO.",
+    "city": "Layton",
+    "state": "UT",
+    "make": "Buick",
+    "domain": "youngbuickgmc.com",
+    "sitemapUrl": "https://www.youngbuickgmc.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.youngbuickgmc.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://youngbuickgmc.com/",
+    "lat": null,
+    "lng": null
+  }
+]

@@ -1,0 +1,80 @@
+[
+  {
+    "id": "stellantis-bailey-s-motor-sales-inc",
+    "name": "Bailey's Motor Sales Inc",
+    "city": "North Kingstown",
+    "state": "RI",
+    "make": "Stellantis",
+    "domain": "baileysmotor.net",
+    "sitemapUrl": "https://www.baileysmotor.net/sitemap.xml",
+    "inventorySitemapUrl": "https://www.baileysmotor.net/sitemap-inventory.xml",
+    "fallbackUrl": "https://baileysmotor.net/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "stellantis-bald-hill-dodge-chrysler-jeep",
+    "name": "Bald Hill Dodge Chrysler Jeep",
+    "city": "Warwick",
+    "state": "RI",
+    "make": "Stellantis",
+    "domain": "baldhilldodgechrysler.net",
+    "sitemapUrl": "https://www.baldhilldodgechrysler.net/sitemap.xml",
+    "inventorySitemapUrl": "https://www.baldhilldodgechrysler.net/sitemap-inventory.xml",
+    "fallbackUrl": "https://baldhilldodgechrysler.net/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "stellantis-elmwood-chrysler-dodge-jeep-ram",
+    "name": "Elmwood Chrysler Dodge Jeep Ram",
+    "city": "E Providence",
+    "state": "RI",
+    "make": "Stellantis",
+    "domain": "elmwoodcdjr.com",
+    "sitemapUrl": "https://www.elmwoodcdjr.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.elmwoodcdjr.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://elmwoodcdjr.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "stellantis-newport-chrysler-dodge-jeep-ram",
+    "name": "Newport Chrysler Dodge Jeep Ram",
+    "city": "Middletown",
+    "state": "RI",
+    "make": "Stellantis",
+    "domain": "newportjeepram.com",
+    "sitemapUrl": "https://www.newportjeepram.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.newportjeepram.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://newportjeepram.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "stellantis-tasca-chrysler-dodge-jeep-ram-fiat",
+    "name": "Tasca Chrysler Dodge Jeep Ram FIAT",
+    "city": "Johnston",
+    "state": "RI",
+    "make": "Stellantis",
+    "domain": "tascacdjrf.com",
+    "sitemapUrl": "https://www.tascacdjrf.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.tascacdjrf.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://tascacdjrf.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "stellantis-westerly-chrysler-dodge-jeep-ram",
+    "name": "Westerly Chrysler Dodge Jeep Ram",
+    "city": "Westerly",
+    "state": "RI",
+    "make": "Stellantis",
+    "domain": "westerlyjeepram.com",
+    "sitemapUrl": "https://www.westerlyjeepram.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.westerlyjeepram.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://westerlyjeepram.com/",
+    "lat": null,
+    "lng": null
+  }
+]

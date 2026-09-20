@@ -1,0 +1,80 @@
+[
+  {
+    "id": "cadillac-bob-moore-cadillac",
+    "name": "BOB MOORE CADILLAC",
+    "city": "Oklahoma City",
+    "state": "OK",
+    "make": "Cadillac",
+    "domain": "bobmoorecadillacokc.com",
+    "sitemapUrl": "https://www.bobmoorecadillacokc.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.bobmoorecadillacokc.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://bobmoorecadillacokc.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "cadillac-bob-moore-cadillac-of-norman",
+    "name": "BOB MOORE CADILLAC OF NORMAN",
+    "city": "Norman",
+    "state": "OK",
+    "make": "Cadillac",
+    "domain": "bobmoorecadillacnorman.com",
+    "sitemapUrl": "https://www.bobmoorecadillacnorman.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.bobmoorecadillacnorman.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://bobmoorecadillacnorman.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "cadillac-cummins-cadillac",
+    "name": "CUMMINS CADILLAC",
+    "city": "Weatherford",
+    "state": "OK",
+    "make": "Cadillac",
+    "domain": "cumminscadillac.com",
+    "sitemapUrl": "https://www.cumminscadillac.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.cumminscadillac.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://cumminscadillac.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "cadillac-don-thornton-cadillac",
+    "name": "DON THORNTON CADILLAC",
+    "city": "Tulsa",
+    "state": "OK",
+    "make": "Cadillac",
+    "domain": "donthorntoncadillac.com",
+    "sitemapUrl": "https://www.donthorntoncadillac.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.donthorntoncadillac.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://donthorntoncadillac.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "cadillac-joe-cooper-cadillac-of-shawnee",
+    "name": "JOE COOPER CADILLAC OF SHAWNEE",
+    "city": "Shawnee",
+    "state": "OK",
+    "make": "Cadillac",
+    "domain": "joecoopercadillac.com",
+    "sitemapUrl": "https://www.joecoopercadillac.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.joecoopercadillac.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://joecoopercadillac.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "cadillac-wilson-cadillac",
+    "name": "WILSON CADILLAC",
+    "city": "Stillwater",
+    "state": "OK",
+    "make": "Cadillac",
+    "domain": "wilsoncadillac.com",
+    "sitemapUrl": "https://www.wilsoncadillac.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.wilsoncadillac.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://wilsoncadillac.com/",
+    "lat": null,
+    "lng": null
+  }
+]

@@ -1,0 +1,15 @@
+[
+  {
+    "id": "cadillac-swickard-cadillac-of-anchorage",
+    "name": "SWICKARD CADILLAC OF ANCHORAGE",
+    "city": "Anchorage",
+    "state": "AK",
+    "make": "Cadillac",
+    "domain": "cadillacanchorage.com",
+    "sitemapUrl": "https://www.cadillacanchorage.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.cadillacanchorage.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://cadillacanchorage.com/",
+    "lat": null,
+    "lng": null
+  }
+]

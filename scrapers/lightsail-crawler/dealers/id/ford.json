@@ -1,0 +1,54 @@
+[
+  {
+    "id": "ford-corwin-ford",
+    "name": "Corwin Ford",
+    "city": "Nampa",
+    "state": "ID",
+    "make": "Ford",
+    "domain": "corwinfordnampa.net",
+    "sitemapUrl": "https://www.corwinfordnampa.net/sitemap.xml",
+    "inventorySitemapUrl": "https://www.corwinfordnampa.net/sitemap-inventory.xml",
+    "fallbackUrl": "https://corwinfordnampa.net/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "ford-kendall-ford",
+    "name": "Kendall Ford",
+    "city": "Meridian",
+    "state": "ID",
+    "make": "Ford",
+    "domain": "kendallford.net",
+    "sitemapUrl": "https://www.kendallford.net/sitemap.xml",
+    "inventorySitemapUrl": "https://www.kendallford.net/sitemap-inventory.xml",
+    "fallbackUrl": "https://kendallford.net/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "ford-mike-white-ford-of-coeur-d-alene",
+    "name": "Mike White Ford of Coeur d'Alene",
+    "city": "Coeur D Alene",
+    "state": "ID",
+    "make": "Ford",
+    "domain": "mikewhitefordcda.net",
+    "sitemapUrl": "https://www.mikewhitefordcda.net/sitemap.xml",
+    "inventorySitemapUrl": "https://www.mikewhitefordcda.net/sitemap-inventory.xml",
+    "fallbackUrl": "https://mikewhitefordcda.net/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "ford-mountain-home-auto-ranch",
+    "name": "Mountain Home Auto Ranch",
+    "city": "Mountain Home",
+    "state": "ID",
+    "make": "Ford",
+    "domain": "mountainhomeford.net",
+    "sitemapUrl": "https://www.mountainhomeford.net/sitemap.xml",
+    "inventorySitemapUrl": "https://www.mountainhomeford.net/sitemap-inventory.xml",
+    "fallbackUrl": "https://mountainhomeford.net/",
+    "lat": null,
+    "lng": null
+  }
+]

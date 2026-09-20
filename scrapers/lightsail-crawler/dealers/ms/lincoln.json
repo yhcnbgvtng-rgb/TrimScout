@@ -1,0 +1,67 @@
+[
+  {
+    "id": "lincoln-cannon-lincoln-of-cleveland",
+    "name": "Cannon Lincoln of Cleveland",
+    "city": "Cleveland",
+    "state": "MS",
+    "make": "Lincoln",
+    "domain": "cannonlincoln.com",
+    "sitemapUrl": "https://www.cannonlincoln.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.cannonlincoln.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://cannonlincoln.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "lincoln-cannon-lincoln-of-pascagoula",
+    "name": "Cannon Lincoln of Pascagoula",
+    "city": "Pascagoula",
+    "state": "MS",
+    "make": "Lincoln",
+    "domain": "cannonlincolnpascagoula.net",
+    "sitemapUrl": "https://www.cannonlincolnpascagoula.net/sitemap.xml",
+    "inventorySitemapUrl": "https://www.cannonlincolnpascagoula.net/sitemap-inventory.xml",
+    "fallbackUrl": "https://cannonlincolnpascagoula.net/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "lincoln-cannon-lincoln-of-starkville",
+    "name": "Cannon Lincoln of Starkville",
+    "city": "Starkville",
+    "state": "MS",
+    "make": "Lincoln",
+    "domain": "cannonlincolnofstarkville.com",
+    "sitemapUrl": "https://www.cannonlincolnofstarkville.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.cannonlincolnofstarkville.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://cannonlincolnofstarkville.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "lincoln-gray-daniels-ford-lincoln",
+    "name": "Gray-Daniels Ford Lincoln",
+    "city": "Brandon",
+    "state": "MS",
+    "make": "Lincoln",
+    "domain": "graydanielslincoln.net",
+    "sitemapUrl": "https://www.graydanielslincoln.net/sitemap.xml",
+    "inventorySitemapUrl": "https://www.graydanielslincoln.net/sitemap-inventory.xml",
+    "fallbackUrl": "https://graydanielslincoln.net/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "lincoln-kirk-lincoln-of-grenada",
+    "name": "Kirk Lincoln of Grenada",
+    "city": "Grenada",
+    "state": "MS",
+    "make": "Lincoln",
+    "domain": "kirklincolnofgrenada.com",
+    "sitemapUrl": "https://www.kirklincolnofgrenada.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.kirklincolnofgrenada.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://kirklincolnofgrenada.com/",
+    "lat": null,
+    "lng": null
+  }
+]

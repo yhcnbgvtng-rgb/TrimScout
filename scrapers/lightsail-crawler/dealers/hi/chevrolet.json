@@ -1,0 +1,80 @@
+[
+  {
+    "id": "chevrolet-cutter-chevrolet",
+    "name": "Cutter Chevrolet",
+    "city": "Honolulu",
+    "state": "HI",
+    "make": "Chevrolet",
+    "domain": "cutterchevy.com",
+    "sitemapUrl": "https://www.cutterchevy.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.cutterchevy.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://cutterchevy.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "chevrolet-jim-falk-motors-of-maui",
+    "name": "Jim Falk Motors of Maui",
+    "city": "Kahului",
+    "state": "HI",
+    "make": "Chevrolet",
+    "domain": "jimfalkgm.com",
+    "sitemapUrl": "https://www.jimfalkgm.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.jimfalkgm.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://jimfalkgm.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "chevrolet-jn-chevrolet",
+    "name": "Jn Chevrolet",
+    "city": "Honolulu",
+    "state": "HI",
+    "make": "Chevrolet",
+    "domain": "jnchevrolet.com",
+    "sitemapUrl": "https://www.jnchevrolet.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.jnchevrolet.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://jnchevrolet.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "chevrolet-kuhio-chevrolet",
+    "name": "Kuhio Chevrolet",
+    "city": "Lihue",
+    "state": "HI",
+    "make": "Chevrolet",
+    "domain": "kuhiomotors.net",
+    "sitemapUrl": "https://www.kuhiomotors.net/sitemap.xml",
+    "inventorySitemapUrl": "https://www.kuhiomotors.net/sitemap-inventory.xml",
+    "fallbackUrl": "https://kuhiomotors.net/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "chevrolet-servco-auto-waipahu",
+    "name": "Servco Auto Waipahu",
+    "city": "Waipahu",
+    "state": "HI",
+    "make": "Chevrolet",
+    "domain": "servcochevrolet.com",
+    "sitemapUrl": "https://www.servcochevrolet.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.servcochevrolet.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://servcochevrolet.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "chevrolet-tony-chevrolet-hilo",
+    "name": "Tony Chevrolet Hilo",
+    "city": "Hilo",
+    "state": "HI",
+    "make": "Chevrolet",
+    "domain": "tonychevrolethilo.com",
+    "sitemapUrl": "https://www.tonychevrolethilo.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.tonychevrolethilo.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://tonychevrolethilo.com/",
+    "lat": null,
+    "lng": null
+  }
+]

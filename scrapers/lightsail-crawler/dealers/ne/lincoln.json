@@ -1,0 +1,28 @@
+[
+  {
+    "id": "lincoln-anderson-lincoln-of-lincoln",
+    "name": "Anderson Lincoln of Lincoln",
+    "city": "Lincoln",
+    "state": "NE",
+    "make": "Lincoln",
+    "domain": "andersonlincolnoflincoln.com",
+    "sitemapUrl": "https://www.andersonlincolnoflincoln.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.andersonlincolnoflincoln.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://andersonlincolnoflincoln.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "lincoln-woodhouse-lincoln",
+    "name": "Woodhouse Lincoln",
+    "city": "Omaha",
+    "state": "NE",
+    "make": "Lincoln",
+    "domain": "woodhouselincoln.com",
+    "sitemapUrl": "https://www.woodhouselincoln.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.woodhouselincoln.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://woodhouselincoln.com/",
+    "lat": null,
+    "lng": null
+  }
+]

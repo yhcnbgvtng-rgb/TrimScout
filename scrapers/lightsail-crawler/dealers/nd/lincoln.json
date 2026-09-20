@@ -1,0 +1,15 @@
+[
+  {
+    "id": "lincoln-eide-lincoln",
+    "name": "Eide Lincoln",
+    "city": "Bismarck",
+    "state": "ND",
+    "make": "Lincoln",
+    "domain": "eidelincoln.net",
+    "sitemapUrl": "https://www.eidelincoln.net/sitemap.xml",
+    "inventorySitemapUrl": "https://www.eidelincoln.net/sitemap-inventory.xml",
+    "fallbackUrl": "https://eidelincoln.net/",
+    "lat": null,
+    "lng": null
+  }
+]

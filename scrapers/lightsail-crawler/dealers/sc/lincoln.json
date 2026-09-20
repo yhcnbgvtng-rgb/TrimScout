@@ -1,0 +1,80 @@
+[
+  {
+    "id": "lincoln-beach-lincoln",
+    "name": "Beach Lincoln",
+    "city": "Myrtle Beach",
+    "state": "SC",
+    "make": "Lincoln",
+    "domain": "beachlincoln.com",
+    "sitemapUrl": "https://www.beachlincoln.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.beachlincoln.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://beachlincoln.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "lincoln-bilton-lincoln-inc",
+    "name": "Bilton Lincoln, Inc.",
+    "city": "Sumter",
+    "state": "SC",
+    "make": "Lincoln",
+    "domain": "biltonlincoln.com",
+    "sitemapUrl": "https://www.biltonlincoln.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.biltonlincoln.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://biltonlincoln.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "lincoln-classic-lincoln-of-columbia",
+    "name": "Classic Lincoln of Columbia",
+    "city": "Columbia",
+    "state": "SC",
+    "make": "Lincoln",
+    "domain": "classiclincolnofcolumbia.com",
+    "sitemapUrl": "https://www.classiclincolnofcolumbia.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.classiclincolnofcolumbia.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://classiclincolnofcolumbia.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "lincoln-fairway-lincoln",
+    "name": "Fairway Lincoln",
+    "city": "Greenville",
+    "state": "SC",
+    "make": "Lincoln",
+    "domain": "fairwaylincolngreenville.net",
+    "sitemapUrl": "https://www.fairwaylincolngreenville.net/sitemap.xml",
+    "inventorySitemapUrl": "https://www.fairwaylincolngreenville.net/sitemap-inventory.xml",
+    "fallbackUrl": "https://fairwaylincolngreenville.net/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "lincoln-o-c-welch-lincoln",
+    "name": "O. C. Welch Lincoln",
+    "city": "Hardeeville",
+    "state": "SC",
+    "make": "Lincoln",
+    "domain": "ocwelchlincoln.net",
+    "sitemapUrl": "https://www.ocwelchlincoln.net/sitemap.xml",
+    "inventorySitemapUrl": "https://www.ocwelchlincoln.net/sitemap-inventory.xml",
+    "fallbackUrl": "https://ocwelchlincoln.net/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "lincoln-palmetto-lincoln",
+    "name": "Palmetto Lincoln",
+    "city": "Charleston",
+    "state": "SC",
+    "make": "Lincoln",
+    "domain": "palmettolincoln.net",
+    "sitemapUrl": "https://www.palmettolincoln.net/sitemap.xml",
+    "inventorySitemapUrl": "https://www.palmettolincoln.net/sitemap-inventory.xml",
+    "fallbackUrl": "https://palmettolincoln.net/",
+    "lat": null,
+    "lng": null
+  }
+]

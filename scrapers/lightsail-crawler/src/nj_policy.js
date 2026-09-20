@@ -7,7 +7,7 @@
 
 import { locatorRowsForState } from './oem_locator.js';
 
-export const NJ_BRANDS_IN = [
+export const NJ_BRANDS_IN_CORE = [
   'Toyota',
   'Lexus',
   'Kia',
@@ -34,7 +34,24 @@ export const NJ_BRANDS_IN = [
   'Hyundai',
 ];
 
-export const NJ_BRANDS_OUT = [
+// Box 3/box 4's brand set (CRAWLER_BRAND_SET=expansion — see below):
+// domestic Ford/GM/Stellantis brands, added 2026-09-20 after sizing the
+// real dealer rosters (Ford 2,083 / Chevrolet 2,039 / GMC 1,639 / Buick 744
+// / Cadillac 565 / Lincoln 402 / Stellantis 2,337, ~9,700 raw rooftops).
+// 'Stellantis' covers Chrysler/Dodge/Jeep/Ram/Fiat as ONE crawl config —
+// see brands.js's Stellantis entry and brand_match.js. Genesis stays out
+// here too (same unresolved sitemap-discovery gap as the core set).
+export const NJ_BRANDS_IN_EXPANSION = [
+  'Ford',
+  'Lincoln',
+  'Chevrolet',
+  'GMC',
+  'Buick',
+  'Cadillac',
+  'Stellantis',
+];
+
+export const NJ_BRANDS_OUT_CORE = [
   'Ford',
   'Lincoln',
   'Chevy',
@@ -53,6 +70,28 @@ export const NJ_BRANDS_OUT = [
   'Hummer',
 ];
 
+// Direct-to-consumer brands with no traditional franchise dealer network
+// (never in scope for either brand set), plus Genesis's own unresolved gap.
+export const NJ_BRANDS_OUT_EXPANSION = [
+  'Genesis',
+  'Tesla',
+  'Rivian',
+  'Lucid',
+  'Hummer',
+];
+
+// Which brand set THIS process runs — 'core' (default; box 1/box 2's
+// original 18 brands, unchanged) or 'expansion' (box 3/box 4's new
+// domestic brands). Read once at module load, same as CRAWLER_STATE/
+// CRAWLER_BRAND in standalone.js: every real invocation (write-<state>-
+// dealer-files.mjs, run-daily-crawl.mjs, standalone.js itself) is a fresh
+// process with this env var already set before it starts, so box 1/box 2
+// — which never set it — get exactly NJ_BRANDS_IN_CORE/OUT_CORE, byte-for-
+// byte what NJ_BRANDS_IN/OUT used to be before this existed.
+const IS_EXPANSION = process.env.CRAWLER_BRAND_SET === 'expansion';
+export const NJ_BRANDS_IN = IS_EXPANSION ? NJ_BRANDS_IN_EXPANSION : NJ_BRANDS_IN_CORE;
+export const NJ_BRANDS_OUT = IS_EXPANSION ? NJ_BRANDS_OUT_EXPANSION : NJ_BRANDS_OUT_CORE;
+
 const BRAND_ALIASES = {
   mercedes: 'Mercedes-Benz',
   'mercedes-benz': 'Mercedes-Benz',
@@ -61,6 +100,13 @@ const BRAND_ALIASES = {
   mini: 'Mini',
   chevy: 'Chevrolet',
   chevrolet: 'Chevrolet',
+  // Any of Stellantis's nameplates canonicalizes to the combined brand —
+  // see brands.js's Stellantis entry and NJ_BRANDS_IN_EXPANSION above.
+  jeep: 'Stellantis',
+  ram: 'Stellantis',
+  dodge: 'Stellantis',
+  chrysler: 'Stellantis',
+  fiat: 'Stellantis',
 };
 
 const IN_SET = new Set(NJ_BRANDS_IN.map((b) => b.toLowerCase()));
@@ -98,7 +144,18 @@ export function isNjBrandOut(name) {
 
 export function isMegadealerOrSuperstore(dealer) {
   const hay = `${dealer?.name || ''} ${dealer?.domain || ''} ${dealer?.id || ''}`;
-  return MEGA_OR_SUPERSTORE_RE.test(hay) || MULTI_FRANCHISE_RE.test(hay);
+  if (MEGA_OR_SUPERSTORE_RE.test(hay)) return true;
+  // Combo/multi-franchise dealers are allowed for the expansion brand set:
+  // Ford/Lincoln and GM's domestic brands are structurally built around
+  // co-located combo stores (real-world estimate: 60-85% of Buick/GMC/
+  // Cadillac/Lincoln dealers) — excluding them by name pattern the way the
+  // core set does would gut those brands' coverage before crawling a
+  // single dealer. The time/volume risk a bigger combo lot poses is bounded
+  // elsewhere instead (DEALER_TIMEOUT_MS, the per-dealer vehicle cap, and
+  // parallelized NHTSA enrichment) — see standalone.js/enricher.js. Core
+  // brands keep the original combo exclusion unchanged.
+  if (IS_EXPANSION) return false;
+  return MULTI_FRANCHISE_RE.test(hay);
 }
 
 export function isNjDealer(dealer) {

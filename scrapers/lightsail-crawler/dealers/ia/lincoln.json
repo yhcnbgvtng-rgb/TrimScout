@@ -1,0 +1,41 @@
+[
+  {
+    "id": "lincoln-ames-lincoln",
+    "name": "Ames Lincoln",
+    "city": "Ames",
+    "state": "IA",
+    "make": "Lincoln",
+    "domain": "ameslincoln.com",
+    "sitemapUrl": "https://www.ameslincoln.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.ameslincoln.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://ameslincoln.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "lincoln-rydell-lincoln",
+    "name": "Rydell Lincoln",
+    "city": "Independence",
+    "state": "IA",
+    "make": "Lincoln",
+    "domain": "rydelllincoln.com",
+    "sitemapUrl": "https://www.rydelllincoln.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.rydelllincoln.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://rydelllincoln.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "lincoln-stivers-lincoln",
+    "name": "Stivers Lincoln",
+    "city": "Waukee",
+    "state": "IA",
+    "make": "Lincoln",
+    "domain": "stiverslincolnwaukee.com",
+    "sitemapUrl": "https://www.stiverslincolnwaukee.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.stiverslincolnwaukee.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://stiverslincolnwaukee.com/",
+    "lat": null,
+    "lng": null
+  }
+]

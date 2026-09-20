@@ -1,0 +1,67 @@
+[
+  {
+    "id": "cadillac-cadillac-of-las-vegas",
+    "name": "CADILLAC OF LAS VEGAS",
+    "city": "LAS VEGAS",
+    "state": "NV",
+    "make": "Cadillac",
+    "domain": "cadillaclasvegaswest.com",
+    "sitemapUrl": "https://www.cadillaclasvegaswest.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.cadillaclasvegaswest.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://cadillaclasvegaswest.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "cadillac-corwin-cadillac-reno",
+    "name": "CORWIN CADILLAC RENO",
+    "city": "Reno",
+    "state": "NV",
+    "make": "Cadillac",
+    "domain": "corwincadillacreno.com",
+    "sitemapUrl": "https://www.corwincadillacreno.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.corwincadillacreno.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://corwincadillacreno.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "cadillac-findlay-cadillac",
+    "name": "FINDLAY CADILLAC",
+    "city": "HENDERSON",
+    "state": "NV",
+    "make": "Cadillac",
+    "domain": "findlaycadillac.com",
+    "sitemapUrl": "https://www.findlaycadillac.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.findlaycadillac.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://findlaycadillac.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "cadillac-michael-hohl-motor-company",
+    "name": "MICHAEL HOHL MOTOR COMPANY",
+    "city": "Carson City",
+    "state": "NV",
+    "make": "Cadillac",
+    "domain": "michaelhohlcadillac.com",
+    "sitemapUrl": "https://www.michaelhohlcadillac.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.michaelhohlcadillac.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://michaelhohlcadillac.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "cadillac-riverton-elko-cadillac",
+    "name": "RIVERTON ELKO CADILLAC",
+    "city": "elko",
+    "state": "NV",
+    "make": "Cadillac",
+    "domain": "rivertonelko.com",
+    "sitemapUrl": "https://www.rivertonelko.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.rivertonelko.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://rivertonelko.com/",
+    "lat": null,
+    "lng": null
+  }
+]

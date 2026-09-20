@@ -1,0 +1,28 @@
+[
+  {
+    "id": "buick-paul-masse-buick-gmc-south-inc",
+    "name": "PAUL MASSE BUICK GMC SOUTH, INC.",
+    "city": "South Kingstown",
+    "state": "RI",
+    "make": "Buick",
+    "domain": "paulmassebuickgmcsouth.com",
+    "sitemapUrl": "https://www.paulmassebuickgmcsouth.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.paulmassebuickgmcsouth.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://paulmassebuickgmcsouth.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "buick-tasca-buick-gmc-woonsocket",
+    "name": "TASCA BUICK GMC – WOONSOCKET",
+    "city": "WOONSOCKET",
+    "state": "RI",
+    "make": "Buick",
+    "domain": "tascabuickgmc.com",
+    "sitemapUrl": "https://www.tascabuickgmc.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.tascabuickgmc.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://tascabuickgmc.com/",
+    "lat": null,
+    "lng": null
+  }
+]

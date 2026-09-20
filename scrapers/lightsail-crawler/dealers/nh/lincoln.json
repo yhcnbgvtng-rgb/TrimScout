@@ -1,0 +1,28 @@
+[
+  {
+    "id": "lincoln-irwin-lincoln-laconia",
+    "name": "Irwin Lincoln – Laconia",
+    "city": "Laconia",
+    "state": "NH",
+    "make": "Lincoln",
+    "domain": "irwinlincolnlaconia.net",
+    "sitemapUrl": "https://www.irwinlincolnlaconia.net/sitemap.xml",
+    "inventorySitemapUrl": "https://www.irwinlincolnlaconia.net/sitemap-inventory.xml",
+    "fallbackUrl": "https://irwinlincolnlaconia.net/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "lincoln-state-motors-lincoln",
+    "name": "State Motors Lincoln",
+    "city": "Manchester",
+    "state": "NH",
+    "make": "Lincoln",
+    "domain": "statemotorslincoln.net",
+    "sitemapUrl": "https://www.statemotorslincoln.net/sitemap.xml",
+    "inventorySitemapUrl": "https://www.statemotorslincoln.net/sitemap-inventory.xml",
+    "fallbackUrl": "https://statemotorslincoln.net/",
+    "lat": null,
+    "lng": null
+  }
+]

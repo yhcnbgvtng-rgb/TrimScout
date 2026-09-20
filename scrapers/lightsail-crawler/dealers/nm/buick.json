@@ -1,0 +1,41 @@
+[
+  {
+    "id": "buick-hi-country-buick-gmc",
+    "name": "HI COUNTRY BUICK GMC",
+    "city": "Farmington",
+    "state": "NM",
+    "make": "Buick",
+    "domain": "truck-guys.com",
+    "sitemapUrl": "https://www.truck-guys.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.truck-guys.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://truck-guys.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "buick-pitre-buick-gmc",
+    "name": "PITRE BUICK GMC",
+    "city": "Albuquerque",
+    "state": "NM",
+    "make": "Buick",
+    "domain": "pitrebuickgmc.com",
+    "sitemapUrl": "https://www.pitrebuickgmc.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.pitrebuickgmc.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://pitrebuickgmc.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "buick-quality-buick-gmc-inc",
+    "name": "QUALITY BUICK GMC, INC.",
+    "city": "ALBUQUERQUE",
+    "state": "NM",
+    "make": "Buick",
+    "domain": "qualitybydilorenzo.com",
+    "sitemapUrl": "https://www.qualitybydilorenzo.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.qualitybydilorenzo.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://qualitybydilorenzo.com/",
+    "lat": null,
+    "lng": null
+  }
+]

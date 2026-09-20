@@ -1,0 +1,41 @@
+[
+  {
+    "id": "cadillac-moses-automall-of-huntington",
+    "name": "MOSES AUTOMALL OF HUNTINGTON",
+    "city": "Huntington",
+    "state": "WV",
+    "make": "Cadillac",
+    "domain": "moses-cadillac.com",
+    "sitemapUrl": "https://www.moses-cadillac.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.moses-cadillac.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://moses-cadillac.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "cadillac-moses-cadillac-of-charleston",
+    "name": "MOSES CADILLAC OF CHARLESTON",
+    "city": "Charleston",
+    "state": "WV",
+    "make": "Cadillac",
+    "domain": "mosescadillacofcharleston.com",
+    "sitemapUrl": "https://www.mosescadillacofcharleston.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.mosescadillacofcharleston.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://mosescadillacofcharleston.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "cadillac-opequon-motors-inc",
+    "name": "OPEQUON MOTORS, INC.",
+    "city": "Martinsburg",
+    "state": "WV",
+    "make": "Cadillac",
+    "domain": "opequoncadillac.com",
+    "sitemapUrl": "https://www.opequoncadillac.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.opequoncadillac.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://opequoncadillac.com/",
+    "lat": null,
+    "lng": null
+  }
+]

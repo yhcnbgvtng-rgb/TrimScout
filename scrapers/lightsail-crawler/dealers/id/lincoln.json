@@ -1,0 +1,15 @@
+[
+  {
+    "id": "lincoln-kendall-lincoln-treasure-valley",
+    "name": "Kendall Lincoln Treasure Valley",
+    "city": "Meridian",
+    "state": "ID",
+    "make": "Lincoln",
+    "domain": "kendalllincolntreasurevalley.net",
+    "sitemapUrl": "https://www.kendalllincolntreasurevalley.net/sitemap.xml",
+    "inventorySitemapUrl": "https://www.kendalllincolntreasurevalley.net/sitemap-inventory.xml",
+    "fallbackUrl": "https://kendalllincolntreasurevalley.net/",
+    "lat": null,
+    "lng": null
+  }
+]

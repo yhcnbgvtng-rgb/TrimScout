@@ -1,0 +1,41 @@
+[
+  {
+    "id": "ford-greiner-ford-of-casper",
+    "name": "Greiner Ford of Casper",
+    "city": "Casper",
+    "state": "WY",
+    "make": "Ford",
+    "domain": "greinerford.com",
+    "sitemapUrl": "https://www.greinerford.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.greinerford.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://greinerford.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "ford-ken-garff-ford-cheyenne",
+    "name": "Ken Garff Ford Cheyenne",
+    "city": "Cheyenne",
+    "state": "WY",
+    "make": "Ford",
+    "domain": "kengarfffordcheyenne.com",
+    "sitemapUrl": "https://www.kengarfffordcheyenne.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.kengarfffordcheyenne.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://kengarfffordcheyenne.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "ford-laramie-range-ford",
+    "name": "Laramie Range Ford",
+    "city": "Laramie",
+    "state": "WY",
+    "make": "Ford",
+    "domain": "laramierangeford.net",
+    "sitemapUrl": "https://www.laramierangeford.net/sitemap.xml",
+    "inventorySitemapUrl": "https://www.laramierangeford.net/sitemap-inventory.xml",
+    "fallbackUrl": "https://laramierangeford.net/",
+    "lat": null,
+    "lng": null
+  }
+]

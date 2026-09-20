@@ -1,0 +1,80 @@
+[
+  {
+    "id": "lincoln-apple-lincoln-apple-valley",
+    "name": "Apple Lincoln Apple Valley",
+    "city": "Apple Valley",
+    "state": "MN",
+    "make": "Lincoln",
+    "domain": "applevalleylincoln.com",
+    "sitemapUrl": "https://www.applevalleylincoln.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.applevalleylincoln.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://applevalleylincoln.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "lincoln-lincoln-of-bloomington",
+    "name": "Lincoln of Bloomington",
+    "city": "Bloomington",
+    "state": "MN",
+    "make": "Lincoln",
+    "domain": "lincolnofbloomington.com",
+    "sitemapUrl": "https://www.lincolnofbloomington.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.lincolnofbloomington.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://lincolnofbloomington.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "lincoln-miller-lincoln",
+    "name": "Miller Lincoln",
+    "city": "Saint Cloud",
+    "state": "MN",
+    "make": "Lincoln",
+    "domain": "millerlincolnstcloudmn.com",
+    "sitemapUrl": "https://www.millerlincolnstcloudmn.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.millerlincolnstcloudmn.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://millerlincolnstcloudmn.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "lincoln-mills-motor-inc",
+    "name": "Mills Motor, Inc.",
+    "city": "Baxter",
+    "state": "MN",
+    "make": "Lincoln",
+    "domain": "millslincoln.com",
+    "sitemapUrl": "https://www.millslincoln.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.millslincoln.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://millslincoln.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "lincoln-west-end-lincoln",
+    "name": "West End Lincoln",
+    "city": "Saint Louis Park",
+    "state": "MN",
+    "make": "Lincoln",
+    "domain": "westendlincoln.com",
+    "sitemapUrl": "https://www.westendlincoln.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.westendlincoln.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://westendlincoln.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "lincoln-white-bear-lincoln-inc",
+    "name": "White Bear Lincoln, Inc.",
+    "city": "St Paul",
+    "state": "MN",
+    "make": "Lincoln",
+    "domain": "whitebearlincoln.com",
+    "sitemapUrl": "https://www.whitebearlincoln.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.whitebearlincoln.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://whitebearlincoln.com/",
+    "lat": null,
+    "lng": null
+  }
+]

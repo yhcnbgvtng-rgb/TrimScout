@@ -1,0 +1,28 @@
+[
+  {
+    "id": "cadillac-casper-cadillac",
+    "name": "CASPER CADILLAC",
+    "city": "CASPER",
+    "state": "WY",
+    "make": "Cadillac",
+    "domain": "caspercadillac.com",
+    "sitemapUrl": "https://www.caspercadillac.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.caspercadillac.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://caspercadillac.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "cadillac-halladay-motors",
+    "name": "HALLADAY MOTORS",
+    "city": "Cheyenne",
+    "state": "WY",
+    "make": "Cadillac",
+    "domain": "halladaycadillac.com",
+    "sitemapUrl": "https://www.halladaycadillac.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.halladaycadillac.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://halladaycadillac.com/",
+    "lat": null,
+    "lng": null
+  }
+]

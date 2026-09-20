@@ -1,0 +1,54 @@
+[
+  {
+    "id": "cadillac-hansen-cadillac-of-brigham-city",
+    "name": "HANSEN CADILLAC OF BRIGHAM CITY",
+    "city": "Brigham City",
+    "state": "UT",
+    "make": "Cadillac",
+    "domain": "hansencadillac.com",
+    "sitemapUrl": "https://www.hansencadillac.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.hansencadillac.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://hansencadillac.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "cadillac-jerry-seiner-cadillac",
+    "name": "JERRY SEINER CADILLAC",
+    "city": "Salt Lake City",
+    "state": "UT",
+    "make": "Cadillac",
+    "domain": "jerryseinercadillac.com",
+    "sitemapUrl": "https://www.jerryseinercadillac.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.jerryseinercadillac.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://jerryseinercadillac.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "cadillac-murdock-cadillac",
+    "name": "MURDOCK CADILLAC",
+    "city": "Logan",
+    "state": "UT",
+    "make": "Cadillac",
+    "domain": "murdockcadillaclogan.com",
+    "sitemapUrl": "https://www.murdockcadillaclogan.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.murdockcadillaclogan.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://murdockcadillaclogan.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "cadillac-stephen-wade-cadillac",
+    "name": "STEPHEN WADE CADILLAC",
+    "city": "St. George",
+    "state": "UT",
+    "make": "Cadillac",
+    "domain": "stephenwadecadillac.com",
+    "sitemapUrl": "https://www.stephenwadecadillac.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.stephenwadecadillac.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://stephenwadecadillac.com/",
+    "lat": null,
+    "lng": null
+  }
+]

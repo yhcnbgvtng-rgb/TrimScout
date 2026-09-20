@@ -1,0 +1,41 @@
+[
+  {
+    "id": "lincoln-boulevard-lincoln",
+    "name": "Boulevard Lincoln",
+    "city": "Millsboro",
+    "state": "DE",
+    "make": "Lincoln",
+    "domain": "boulevardlincoln.net",
+    "sitemapUrl": "https://www.boulevardlincoln.net/sitemap.xml",
+    "inventorySitemapUrl": "https://www.boulevardlincoln.net/sitemap-inventory.xml",
+    "fallbackUrl": "https://boulevardlincoln.net/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "lincoln-carman-lincoln",
+    "name": "Carman Lincoln",
+    "city": "New Castle",
+    "state": "DE",
+    "make": "Lincoln",
+    "domain": "carmanlincoln.com",
+    "sitemapUrl": "https://www.carmanlincoln.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.carmanlincoln.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://carmanlincoln.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "lincoln-hertrich-lincoln-of-milford",
+    "name": "Hertrich Lincoln of Milford",
+    "city": "Milford",
+    "state": "DE",
+    "make": "Lincoln",
+    "domain": "hertrichlincolnofmilford.com",
+    "sitemapUrl": "https://www.hertrichlincolnofmilford.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.hertrichlincolnofmilford.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://hertrichlincolnofmilford.com/",
+    "lat": null,
+    "lng": null
+  }
+]

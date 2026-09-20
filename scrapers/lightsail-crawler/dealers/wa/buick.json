@@ -1,0 +1,80 @@
+[
+  {
+    "id": "buick-brotherton-buick-gmc",
+    "name": "BROTHERTON BUICK GMC",
+    "city": "RENTON",
+    "state": "WA",
+    "make": "Buick",
+    "domain": "buybrotherton.com",
+    "sitemapUrl": "https://www.buybrotherton.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.buybrotherton.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://buybrotherton.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "buick-buick-gmc-of-bellevue",
+    "name": "BUICK GMC OF BELLEVUE",
+    "city": "Bellevue",
+    "state": "WA",
+    "make": "Buick",
+    "domain": "buickgmcofbellevue.com",
+    "sitemapUrl": "https://www.buickgmcofbellevue.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.buickgmcofbellevue.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://buickgmcofbellevue.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "buick-carr-buick-gmc",
+    "name": "CARR BUICK GMC",
+    "city": "Vancouver",
+    "state": "WA",
+    "make": "Buick",
+    "domain": "carrbuickgmc.com",
+    "sitemapUrl": "https://www.carrbuickgmc.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.carrbuickgmc.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://carrbuickgmc.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "buick-gilchrist-chevrolet-buick-gmc-inc",
+    "name": "GILCHRIST CHEVROLET BUICK GMC INC.",
+    "city": "TACOMA",
+    "state": "WA",
+    "make": "Buick",
+    "domain": "gilchristbuickgmc.com",
+    "sitemapUrl": "https://www.gilchristbuickgmc.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.gilchristbuickgmc.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://gilchristbuickgmc.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "buick-harnish-buick-gmc",
+    "name": "HARNISH BUICK GMC",
+    "city": "Puyallup",
+    "state": "WA",
+    "make": "Buick",
+    "domain": "buickgmcofpuyallup.com",
+    "sitemapUrl": "https://www.buickgmcofpuyallup.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.buickgmcofpuyallup.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://buickgmcofpuyallup.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "buick-speck-buick-gmc-of-tri-cities",
+    "name": "SPECK BUICK GMC OF TRI-CITIES",
+    "city": "Pasco",
+    "state": "WA",
+    "make": "Buick",
+    "domain": "speckbuickgmc.com",
+    "sitemapUrl": "https://www.speckbuickgmc.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.speckbuickgmc.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://speckbuickgmc.com/",
+    "lat": null,
+    "lng": null
+  }
+]

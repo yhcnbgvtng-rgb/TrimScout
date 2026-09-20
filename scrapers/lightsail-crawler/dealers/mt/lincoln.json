@@ -1,0 +1,15 @@
+[
+  {
+    "id": "lincoln-bob-smith-lincoln-inc",
+    "name": "Bob Smith Lincoln, Inc.",
+    "city": "Billings",
+    "state": "MT",
+    "make": "Lincoln",
+    "domain": "bobsmithlincoln.com",
+    "sitemapUrl": "https://www.bobsmithlincoln.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.bobsmithlincoln.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://bobsmithlincoln.com/",
+    "lat": null,
+    "lng": null
+  }
+]

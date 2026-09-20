@@ -1,0 +1,80 @@
+[
+  {
+    "id": "lincoln-courtesy-lincoln-lafayette",
+    "name": "Courtesy Lincoln – Lafayette",
+    "city": "Lafayette",
+    "state": "LA",
+    "make": "Lincoln",
+    "domain": "courtesylincolnoflafayette.com",
+    "sitemapUrl": "https://www.courtesylincolnoflafayette.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.courtesylincolnoflafayette.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://courtesylincolnoflafayette.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "lincoln-group-1-lincoln-of-shreveport",
+    "name": "Group 1 Lincoln of Shreveport",
+    "city": "Shreveport",
+    "state": "LA",
+    "make": "Lincoln",
+    "domain": "group1lincolnshreveport.net",
+    "sitemapUrl": "https://www.group1lincolnshreveport.net/sitemap.xml",
+    "inventorySitemapUrl": "https://www.group1lincolnshreveport.net/sitemap-inventory.xml",
+    "fallbackUrl": "https://group1lincolnshreveport.net/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "lincoln-lamarque-lincoln",
+    "name": "Lamarque Lincoln",
+    "city": "Kenner",
+    "state": "LA",
+    "make": "Lincoln",
+    "domain": "lamarquelincoln.com",
+    "sitemapUrl": "https://www.lamarquelincoln.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.lamarquelincoln.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://lamarquelincoln.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "lincoln-robinson-brothers-lincoln",
+    "name": "Robinson Brothers Lincoln",
+    "city": "Baton Rouge",
+    "state": "LA",
+    "make": "Lincoln",
+    "domain": "robinsonlincoln.com",
+    "sitemapUrl": "https://www.robinsonlincoln.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.robinsonlincoln.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://robinsonlincoln.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "lincoln-sterling-lincoln",
+    "name": "Sterling Lincoln",
+    "city": "Opelousas",
+    "state": "LA",
+    "make": "Lincoln",
+    "domain": "sterlinglincolnofopelousas.com",
+    "sitemapUrl": "https://www.sterlinglincolnofopelousas.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.sterlinglincolnofopelousas.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://sterlinglincolnofopelousas.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "lincoln-terrebonne-lincoln",
+    "name": "Terrebonne Lincoln",
+    "city": "Houma",
+    "state": "LA",
+    "make": "Lincoln",
+    "domain": "terrebonnelincoln.com",
+    "sitemapUrl": "https://www.terrebonnelincoln.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.terrebonnelincoln.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://terrebonnelincoln.com/",
+    "lat": null,
+    "lng": null
+  }
+]

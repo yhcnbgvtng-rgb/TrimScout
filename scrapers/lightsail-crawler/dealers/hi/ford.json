@@ -1,0 +1,41 @@
+[
+  {
+    "id": "ford-cutter-ford-inc",
+    "name": "Cutter Ford, Inc.",
+    "city": "Aiea",
+    "state": "HI",
+    "make": "Ford",
+    "domain": "cutterfordsales.com",
+    "sitemapUrl": "https://www.cutterfordsales.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.cutterfordsales.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://cutterfordsales.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "ford-honolulu-ford",
+    "name": "Honolulu Ford",
+    "city": "Honolulu",
+    "state": "HI",
+    "make": "Ford",
+    "domain": "honoluluford.com",
+    "sitemapUrl": "https://www.honoluluford.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.honoluluford.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://honoluluford.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "ford-windward-ford-of-hawaii",
+    "name": "Windward Ford of Hawaii",
+    "city": "Kailua",
+    "state": "HI",
+    "make": "Ford",
+    "domain": "windwardfordhawaii.com",
+    "sitemapUrl": "https://www.windwardfordhawaii.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.windwardfordhawaii.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://windwardfordhawaii.com/",
+    "lat": null,
+    "lng": null
+  }
+]

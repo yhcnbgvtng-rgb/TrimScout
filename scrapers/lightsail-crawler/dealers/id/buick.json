@@ -1,0 +1,67 @@
+[
+  {
+    "id": "buick-hirning-buick-gmc",
+    "name": "HIRNING BUICK GMC",
+    "city": "Pocatello",
+    "state": "ID",
+    "make": "Buick",
+    "domain": "hirningauto.com",
+    "sitemapUrl": "https://www.hirningauto.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.hirningauto.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://hirningauto.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "buick-kendall-chevrolet-buick-gmc-of-nampa",
+    "name": "KENDALL CHEVROLET BUICK GMC OF NAMPA",
+    "city": "Nampa",
+    "state": "ID",
+    "make": "Buick",
+    "domain": "kendallgmcbuicknampa.com",
+    "sitemapUrl": "https://www.kendallgmcbuicknampa.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.kendallgmcbuicknampa.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://kendallgmcbuicknampa.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "buick-peterson-chevrolet-buick-cadillac",
+    "name": "PETERSON CHEVROLET BUICK CADILLAC",
+    "city": "BOISE",
+    "state": "ID",
+    "make": "Buick",
+    "domain": "petersonbuick.com",
+    "sitemapUrl": "https://www.petersonbuick.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.petersonbuick.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://petersonbuick.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "buick-robideaux-motors-co",
+    "name": "ROBIDEAUX MOTORS CO.",
+    "city": "Coeur d'Alene",
+    "state": "ID",
+    "make": "Buick",
+    "domain": "robideaux.com",
+    "sitemapUrl": "https://www.robideaux.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.robideaux.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://robideaux.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "buick-wackerli-auto-center",
+    "name": "WACKERLI AUTO CENTER",
+    "city": "Idaho Falls",
+    "state": "ID",
+    "make": "Buick",
+    "domain": "wackerligm.com",
+    "sitemapUrl": "https://www.wackerligm.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.wackerligm.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://wackerligm.com/",
+    "lat": null,
+    "lng": null
+  }
+]

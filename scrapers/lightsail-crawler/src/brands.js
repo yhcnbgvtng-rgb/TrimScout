@@ -232,6 +232,58 @@ export const BRANDS = {
     baseMsrpTable: null,
     plantFallback: null,
   },
+  // Expansion brand set (CRAWLER_BRAND_SET=expansion — see nj_policy.js's
+  // NJ_BRANDS_IN_EXPANSION comment). GMC/Buick/Cadillac/Lincoln's
+  // vinPrefixes are general WMI-convention knowledge, not yet cross-checked
+  // against real live VINs the way Chevrolet's table was — same caveat as
+  // Acura/Audi above.
+  GMC: {
+    name: "GMC",
+    vinPrefixes: ["1GT", "1GK", "3GT", "3GK"],
+    hasOfficialRetailerPlatform: false,
+    baseMsrpTable: null,
+    plantFallback: null,
+  },
+  Buick: {
+    name: "Buick",
+    vinPrefixes: ["1G4", "3G4", "KL4"],
+    hasOfficialRetailerPlatform: false,
+    baseMsrpTable: null,
+    plantFallback: null,
+  },
+  Cadillac: {
+    name: "Cadillac",
+    vinPrefixes: ["1G6", "1GY", "3G6"],
+    hasOfficialRetailerPlatform: false,
+    baseMsrpTable: null,
+    plantFallback: null,
+  },
+  Lincoln: {
+    name: "Lincoln",
+    vinPrefixes: ["5LM", "1LN", "3LN", "2LM"],
+    hasOfficialRetailerPlatform: false,
+    baseMsrpTable: null,
+    plantFallback: null,
+  },
+  // Multi-nameplate on purpose: Chrysler/Dodge/Jeep/Ram/Fiat share the same
+  // ~2,300 physical rooftops nationwide (confirmed live — the Stellantis
+  // locator API returns identical dealer lists for all four brand codes at
+  // the same zip). One crawl config covers all of them instead of
+  // re-visiting the same sites four times; `nameplates` (consumed by
+  // brand_match.js's resolveVehicleBrandMatch) keeps each vehicle's own
+  // real make (Jeep/Ram/Dodge/Chrysler/Fiat) instead of collapsing every
+  // vehicle to the literal string "Stellantis" — nobody shopping for a Jeep
+  // Wrangler wants to see "Stellantis" as its make. `name` is still
+  // "Stellantis" for logging/DB-brand-grouping/checkpoint-slug purposes
+  // only. vinPrefixes not yet cross-checked against real live VINs.
+  Stellantis: {
+    name: "Stellantis",
+    nameplates: ["Jeep", "Ram", "Dodge", "Chrysler", "Fiat"],
+    vinPrefixes: ["1C3", "2C3", "1C4", "2C4", "3C4", "1C6", "3C6", "1J4", "1J8", "ZFA"],
+    hasOfficialRetailerPlatform: false,
+    baseMsrpTable: null,
+    plantFallback: null,
+  },
 };
 
 const BRAND_ALIASES = {
@@ -242,6 +294,13 @@ const BRAND_ALIASES = {
   mini: "Mini",
   chevy: "Chevrolet",
   chevrolet: "Chevrolet",
+  // Any of Stellantis's four (or five, with Fiat) nameplates resolves to
+  // the same combined brand config — see the Stellantis entry's comment.
+  jeep: "Stellantis",
+  ram: "Stellantis",
+  dodge: "Stellantis",
+  chrysler: "Stellantis",
+  fiat: "Stellantis",
 };
 
 export function resolveBrandName(name) {

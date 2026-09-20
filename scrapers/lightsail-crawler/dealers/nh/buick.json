@@ -1,0 +1,54 @@
+[
+  {
+    "id": "buick-banks-chevrolet-cadillac-inc",
+    "name": "BANKS CHEVROLET-CADILLAC, INC.",
+    "city": "Concord",
+    "state": "NH",
+    "make": "Buick",
+    "domain": "banksautosbuickgmc.com",
+    "sitemapUrl": "https://www.banksautosbuickgmc.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.banksautosbuickgmc.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://banksautosbuickgmc.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "buick-fairfield-s-cadillac-buick-gmc-inc",
+    "name": "FAIRFIELD'S CADILLAC, BUICK, GMC, INC.",
+    "city": "Keene",
+    "state": "NH",
+    "make": "Buick",
+    "domain": "fairfieldsautos.com",
+    "sitemapUrl": "https://www.fairfieldsautos.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.fairfieldsautos.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://fairfieldsautos.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "buick-quirk-buick-and-quirk-gmc",
+    "name": "QUIRK BUICK AND QUIRK GMC",
+    "city": "Manchester",
+    "state": "NH",
+    "make": "Buick",
+    "domain": "quirkbuickgmc.com",
+    "sitemapUrl": "https://www.quirkbuickgmc.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.quirkbuickgmc.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://quirkbuickgmc.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "buick-tulley-buick-gmc",
+    "name": "TULLEY BUICK GMC",
+    "city": "Nashua",
+    "state": "NH",
+    "make": "Buick",
+    "domain": "tulleybuickgmc.com",
+    "sitemapUrl": "https://www.tulleybuickgmc.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.tulleybuickgmc.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://tulleybuickgmc.com/",
+    "lat": null,
+    "lng": null
+  }
+]

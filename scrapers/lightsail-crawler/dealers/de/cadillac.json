@@ -1,0 +1,15 @@
+[
+  {
+    "id": "cadillac-delaware-cadillac",
+    "name": "DELAWARE CADILLAC",
+    "city": "WILMINGTON",
+    "state": "DE",
+    "make": "Cadillac",
+    "domain": "delawarecadillac.com",
+    "sitemapUrl": "https://www.delawarecadillac.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.delawarecadillac.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://delawarecadillac.com/",
+    "lat": null,
+    "lng": null
+  }
+]

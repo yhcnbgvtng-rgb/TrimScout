@@ -1,0 +1,67 @@
+[
+  {
+    "id": "buick-midway-chevrolet-buick-gmc",
+    "name": "MIDWAY CHEVROLET BUICK GMC",
+    "city": "KEARNEY",
+    "state": "NE",
+    "make": "Buick",
+    "domain": "thinkmidwaybuickgmc.com",
+    "sitemapUrl": "https://www.thinkmidwaybuickgmc.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.thinkmidwaybuickgmc.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://thinkmidwaybuickgmc.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "buick-pony-express-chevrolet-buick",
+    "name": "PONY EXPRESS CHEVROLET BUICK",
+    "city": "GOTHENBURG",
+    "state": "NE",
+    "make": "Buick",
+    "domain": "ponyexpresschevy.com",
+    "sitemapUrl": "https://www.ponyexpresschevy.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.ponyexpresschevy.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://ponyexpresschevy.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "buick-sid-dillon-buick-gmc-fremont",
+    "name": "SID DILLON BUICK GMC-FREMONT",
+    "city": "Fremont",
+    "state": "NE",
+    "make": "Buick",
+    "domain": "siddillonbuickgmc.com",
+    "sitemapUrl": "https://www.siddillonbuickgmc.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.siddillonbuickgmc.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://siddillonbuickgmc.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "buick-sid-dillon-buick-nissan-hyundai",
+    "name": "SID DILLON BUICK NISSAN HYUNDAI",
+    "city": "Lincoln",
+    "state": "NE",
+    "make": "Buick",
+    "domain": "siddillonbuick.com",
+    "sitemapUrl": "https://www.siddillonbuick.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.siddillonbuick.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://siddillonbuick.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "buick-woodhouse-buick-gmc-of-omaha",
+    "name": "WOODHOUSE BUICK GMC OF OMAHA",
+    "city": "Omaha",
+    "state": "NE",
+    "make": "Buick",
+    "domain": "woodhousebuickgmc.com",
+    "sitemapUrl": "https://www.woodhousebuickgmc.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.woodhousebuickgmc.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://woodhousebuickgmc.com/",
+    "lat": null,
+    "lng": null
+  }
+]

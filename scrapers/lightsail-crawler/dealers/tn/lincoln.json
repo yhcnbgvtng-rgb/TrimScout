@@ -1,0 +1,93 @@
+[
+  {
+    "id": "lincoln-al-white-motors-inc",
+    "name": "Al White Motors, Inc.",
+    "city": "Manchester",
+    "state": "TN",
+    "make": "Lincoln",
+    "domain": "alwhitelincoln.com",
+    "sitemapUrl": "https://www.alwhitelincoln.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.alwhitelincoln.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://alwhitelincoln.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "lincoln-golden-circle-lincoln-inc",
+    "name": "Golden Circle Lincoln, Inc.",
+    "city": "Jackson",
+    "state": "TN",
+    "make": "Lincoln",
+    "domain": "goldencirclelincoln.net",
+    "sitemapUrl": "https://www.goldencirclelincoln.net/sitemap.xml",
+    "inventorySitemapUrl": "https://www.goldencirclelincoln.net/sitemap-inventory.xml",
+    "fallbackUrl": "https://goldencirclelincoln.net/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "lincoln-jenkins-wynne-lincoln",
+    "name": "Jenkins & Wynne Lincoln",
+    "city": "Clarksville",
+    "state": "TN",
+    "make": "Lincoln",
+    "domain": "jenkinsandwynnelincoln.com",
+    "sitemapUrl": "https://www.jenkinsandwynnelincoln.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.jenkinsandwynnelincoln.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://jenkinsandwynnelincoln.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "lincoln-lincoln-of-franklin",
+    "name": "Lincoln of Franklin",
+    "city": "Franklin",
+    "state": "TN",
+    "make": "Lincoln",
+    "domain": "lincolnoffranklin.net",
+    "sitemapUrl": "https://www.lincolnoffranklin.net/sitemap.xml",
+    "inventorySitemapUrl": "https://www.lincolnoffranklin.net/sitemap-inventory.xml",
+    "fallbackUrl": "https://lincolnoffranklin.net/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "lincoln-lincoln-of-memphis",
+    "name": "Lincoln of Memphis",
+    "city": "Memphis",
+    "state": "TN",
+    "make": "Lincoln",
+    "domain": "lincolnofmemphis.net",
+    "sitemapUrl": "https://www.lincolnofmemphis.net/sitemap.xml",
+    "inventorySitemapUrl": "https://www.lincolnofmemphis.net/sitemap-inventory.xml",
+    "fallbackUrl": "https://lincolnofmemphis.net/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "lincoln-mtn-view-lincoln",
+    "name": "Mtn. View Lincoln",
+    "city": "Chattanooga",
+    "state": "TN",
+    "make": "Lincoln",
+    "domain": "mtnviewlincoln.net",
+    "sitemapUrl": "https://www.mtnviewlincoln.net/sitemap.xml",
+    "inventorySitemapUrl": "https://www.mtnviewlincoln.net/sitemap-inventory.xml",
+    "fallbackUrl": "https://mtnviewlincoln.net/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "lincoln-ted-russell-lincoln",
+    "name": "Ted Russell Lincoln",
+    "city": "Knoxville",
+    "state": "TN",
+    "make": "Lincoln",
+    "domain": "tedrusselllincoln.net",
+    "sitemapUrl": "https://www.tedrusselllincoln.net/sitemap.xml",
+    "inventorySitemapUrl": "https://www.tedrusselllincoln.net/sitemap-inventory.xml",
+    "fallbackUrl": "https://tedrusselllincoln.net/",
+    "lat": null,
+    "lng": null
+  }
+]

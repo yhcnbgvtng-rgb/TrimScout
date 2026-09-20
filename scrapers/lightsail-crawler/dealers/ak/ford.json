@@ -1,0 +1,28 @@
+[
+  {
+    "id": "ford-kendall-ford-lincoln-of-anchorage",
+    "name": "Kendall Ford Lincoln of Anchorage",
+    "city": "Anchorage",
+    "state": "AK",
+    "make": "Ford",
+    "domain": "kendallfordanchorage.com",
+    "sitemapUrl": "https://www.kendallfordanchorage.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.kendallfordanchorage.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://kendallfordanchorage.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "ford-kendall-ford-of-wasilla",
+    "name": "Kendall Ford of Wasilla",
+    "city": "Wasilla",
+    "state": "AK",
+    "make": "Ford",
+    "domain": "kendallfordwasilla.net",
+    "sitemapUrl": "https://www.kendallfordwasilla.net/sitemap.xml",
+    "inventorySitemapUrl": "https://www.kendallfordwasilla.net/sitemap-inventory.xml",
+    "fallbackUrl": "https://kendallfordwasilla.net/",
+    "lat": null,
+    "lng": null
+  }
+]

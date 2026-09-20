@@ -1,0 +1,41 @@
+[
+  {
+    "id": "lincoln-kent-parsons-lincoln",
+    "name": "Kent Parsons Lincoln",
+    "city": "Martinsburg",
+    "state": "WV",
+    "make": "Lincoln",
+    "domain": "parsonslincoln.com",
+    "sitemapUrl": "https://www.parsonslincoln.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.parsonslincoln.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://parsonslincoln.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "lincoln-moses-lincoln",
+    "name": "Moses Lincoln",
+    "city": "St Albans",
+    "state": "WV",
+    "make": "Lincoln",
+    "domain": "moseslincoln.net",
+    "sitemapUrl": "https://www.moseslincoln.net/sitemap.xml",
+    "inventorySitemapUrl": "https://www.moseslincoln.net/sitemap-inventory.xml",
+    "fallbackUrl": "https://moseslincoln.net/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "lincoln-thornhill-lincoln",
+    "name": "Thornhill Lincoln",
+    "city": "Chapmanville",
+    "state": "WV",
+    "make": "Lincoln",
+    "domain": "thornhilllincoln.com",
+    "sitemapUrl": "https://www.thornhilllincoln.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.thornhilllincoln.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://thornhilllincoln.com/",
+    "lat": null,
+    "lng": null
+  }
+]

@@ -1,0 +1,28 @@
+[
+  {
+    "id": "cadillac-bill-dodge-cadillac",
+    "name": "BILL DODGE CADILLAC",
+    "city": "Westbrook",
+    "state": "ME",
+    "make": "Cadillac",
+    "domain": "billdodgecadillac.com",
+    "sitemapUrl": "https://www.billdodgecadillac.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.billdodgecadillac.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://billdodgecadillac.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "cadillac-quirk-cadillac-of-bangor",
+    "name": "QUIRK CADILLAC OF BANGOR",
+    "city": "Bangor",
+    "state": "ME",
+    "make": "Cadillac",
+    "domain": "quirkcadillac.com",
+    "sitemapUrl": "https://www.quirkcadillac.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.quirkcadillac.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://quirkcadillac.com/",
+    "lat": null,
+    "lng": null
+  }
+]

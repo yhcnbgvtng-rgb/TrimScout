@@ -1,0 +1,28 @@
+[
+  {
+    "id": "lincoln-flood-lincoln-of-narragansett",
+    "name": "Flood Lincoln of Narragansett",
+    "city": "Narragansett",
+    "state": "RI",
+    "make": "Lincoln",
+    "domain": "floodlincolnofnarragansett.com",
+    "sitemapUrl": "https://www.floodlincolnofnarragansett.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.floodlincolnofnarragansett.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://floodlincolnofnarragansett.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "lincoln-tasca-lincoln-cranston",
+    "name": "Tasca Lincoln – Cranston",
+    "city": "Cranston",
+    "state": "RI",
+    "make": "Lincoln",
+    "domain": "tascalincoln.net",
+    "sitemapUrl": "https://www.tascalincoln.net/sitemap.xml",
+    "inventorySitemapUrl": "https://www.tascalincoln.net/sitemap-inventory.xml",
+    "fallbackUrl": "https://tascalincoln.net/",
+    "lat": null,
+    "lng": null
+  }
+]

@@ -1,0 +1,41 @@
+[
+  {
+    "id": "gmc-hurd-auto-mall",
+    "name": "Hurd Auto Mall",
+    "city": "Johnston",
+    "state": "RI",
+    "make": "GMC",
+    "domain": "hurdgmcjohnston.com",
+    "sitemapUrl": "https://www.hurdgmcjohnston.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.hurdgmcjohnston.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://hurdgmcjohnston.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "gmc-paul-masse-buick-gmc-south-inc",
+    "name": "Paul Masse Buick GMC South, INC.",
+    "city": "South Kingstown",
+    "state": "RI",
+    "make": "GMC",
+    "domain": "paulmassebuickgmcsouth.com",
+    "sitemapUrl": "https://www.paulmassebuickgmcsouth.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.paulmassebuickgmcsouth.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://paulmassebuickgmcsouth.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "gmc-tasca-buick-gmc",
+    "name": "Tasca Buick GMC",
+    "city": "Woonsocket",
+    "state": "RI",
+    "make": "GMC",
+    "domain": "tascabuickgmc.com",
+    "sitemapUrl": "https://www.tascabuickgmc.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.tascabuickgmc.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://tascabuickgmc.com/",
+    "lat": null,
+    "lng": null
+  }
+]

@@ -1,0 +1,28 @@
+[
+  {
+    "id": "cadillac-cable-dahmer-of-topeka",
+    "name": "CABLE DAHMER OF TOPEKA",
+    "city": "Topeka",
+    "state": "KS",
+    "make": "Cadillac",
+    "domain": "cabledahmercadillactopeka.com",
+    "sitemapUrl": "https://www.cabledahmercadillactopeka.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.cabledahmercadillactopeka.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://cabledahmercadillactopeka.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "cadillac-eddy-s-cadillac",
+    "name": "EDDY'S CADILLAC",
+    "city": "Wichita",
+    "state": "KS",
+    "make": "Cadillac",
+    "domain": "eddyscadillac.com",
+    "sitemapUrl": "https://www.eddyscadillac.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.eddyscadillac.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://eddyscadillac.com/",
+    "lat": null,
+    "lng": null
+  }
+]

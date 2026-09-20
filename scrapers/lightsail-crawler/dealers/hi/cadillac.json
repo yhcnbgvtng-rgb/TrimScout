@@ -1,0 +1,28 @@
+[
+  {
+    "id": "cadillac-honolulu-cadillac",
+    "name": "HONOLULU CADILLAC",
+    "city": "HONOLULU",
+    "state": "HI",
+    "make": "Cadillac",
+    "domain": "honolulucadillac.com",
+    "sitemapUrl": "https://www.honolulucadillac.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.honolulucadillac.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://honolulucadillac.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "cadillac-jim-falk-motors-of-maui",
+    "name": "JIM FALK MOTORS OF MAUI",
+    "city": "KAHULUI",
+    "state": "HI",
+    "make": "Cadillac",
+    "domain": "jimfalkcadillac.com",
+    "sitemapUrl": "https://www.jimfalkcadillac.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.jimfalkcadillac.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://jimfalkcadillac.com/",
+    "lat": null,
+    "lng": null
+  }
+]

@@ -1,0 +1,54 @@
+[
+  {
+    "id": "buick-hertrich-buick-gmc-inc",
+    "name": "HERTRICH BUICK GMC, INC.",
+    "city": "Seaford",
+    "state": "DE",
+    "make": "Buick",
+    "domain": "hertrichgmcbuick.com",
+    "sitemapUrl": "https://www.hertrichgmcbuick.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.hertrichgmcbuick.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://hertrichgmcbuick.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "buick-ig-burton-lewes-chevrolet-buick-gmc",
+    "name": "IG BURTON LEWES CHEVROLET BUICK GMC",
+    "city": "LEWES",
+    "state": "DE",
+    "make": "Buick",
+    "domain": "igburtonbuickgmclewes.com",
+    "sitemapUrl": "https://www.igburtonbuickgmclewes.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.igburtonbuickgmclewes.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://igburtonbuickgmclewes.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "buick-kent-county-motor-sales-co",
+    "name": "KENT COUNTY MOTOR SALES CO.",
+    "city": "Dover",
+    "state": "DE",
+    "make": "Buick",
+    "domain": "kentcountymotors.com",
+    "sitemapUrl": "https://www.kentcountymotors.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.kentcountymotors.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://kentcountymotors.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "buick-union-park-buick-gmc",
+    "name": "UNION PARK BUICK GMC",
+    "city": "Wilmington",
+    "state": "DE",
+    "make": "Buick",
+    "domain": "unionparkbuickgmc.com",
+    "sitemapUrl": "https://www.unionparkbuickgmc.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.unionparkbuickgmc.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://unionparkbuickgmc.com/",
+    "lat": null,
+    "lng": null
+  }
+]

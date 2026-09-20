@@ -1,0 +1,41 @@
+[
+  {
+    "id": "buick-luther-family-buick-gmc",
+    "name": "LUTHER FAMILY BUICK GMC",
+    "city": "Fargo",
+    "state": "ND",
+    "make": "Buick",
+    "domain": "lutherfamilybuickgmc.com",
+    "sitemapUrl": "https://www.lutherfamilybuickgmc.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.lutherfamilybuickgmc.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://lutherfamilybuickgmc.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "buick-ryan-gmc-buick-cadillac",
+    "name": "RYAN GMC, BUICK, CADILLAC",
+    "city": "Minot",
+    "state": "ND",
+    "make": "Buick",
+    "domain": "ryangmc.com",
+    "sitemapUrl": "https://www.ryangmc.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.ryangmc.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://ryangmc.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "buick-schwan-buick-gmc-cadillac",
+    "name": "SCHWAN BUICK GMC CADILLAC",
+    "city": "Mandan",
+    "state": "ND",
+    "make": "Buick",
+    "domain": "schwanbuickgmc.com",
+    "sitemapUrl": "https://www.schwanbuickgmc.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.schwanbuickgmc.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://schwanbuickgmc.com/",
+    "lat": null,
+    "lng": null
+  }
+]
