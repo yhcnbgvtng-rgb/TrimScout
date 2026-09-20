@@ -100,7 +100,7 @@ describe("BiddingWizard — Step 1 vehicle; Step 2 payment only; Step 3 quote fo
   });
 
   it("(4) Continue into Step 2 needs the vehicle; out of Step 2 a payment method; out of Step 3 every lock plus ≥1 reachable desk and a clean note", () => {
-    assert.match(src, /if \(step === 1\) \{[\s\S]*?if \(step1IntentPhase\) \{[\s\S]*?setIntentConfirmed\(true\);[\s\S]*?if \(!vehicleImported\) return;\s*\}/, "Step 1: leave the intent substep on an intent, then the vehicle gates Step 2");
+    assert.match(src, /if \(step === 1\) \{[\s\S]*?if \(!vehicleImported\) return;\s*\}/, "Step 1: an intent, then the resolved vehicle gates Step 2 (same_spec)");
     assert.match(src, /const paymentChosen = Boolean\(quoteType\) && !\(quoteType === "lease" && isUsed\);/);
     assert.match(src, /if \(step === 2 && !paymentChosen\) return;/);
     assert.match(src, /if \(step === 3 && \(!quoteSetupComplete \|\| confirmedDeskCount === 0 \|\| dealCommentContactWarning \|\| tradeInExpected === null\)\) return;/);
