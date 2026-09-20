@@ -112,7 +112,7 @@ describe("Configure Quote Request starts fresh on every open", () => {
     await act(async () => { root.unmount(); });
   });
 
-  it("Step 1 intent gate (bug 2026-09-18): picking same_spec OR alternate enables Continue without a VIN", async () => {
+  it("Step 1: picking an intent loads the VDP fields on Step 1; alternate Continue needs no VIN, same_spec needs a resolved vehicle (2026-09-19)", async () => {
     const React = (await import("react")).default;
     const { act } = await import("react");
     const { createRoot } = await import("react-dom/client");
@@ -146,25 +146,24 @@ describe("Configure Quote Request starts fresh on every open", () => {
     assert.equal(reason(), "Choose what you want quoted to continue");
     assert.equal(doc.getElementById("primary-link-input"), null, "no VIN box before an intent");
 
-    // ACCEPTANCE 1: same_spec enables Continue with no force-click, no VIN, still in the intent substep.
+    // same_spec: the VDP fields load on Step 1 immediately (no reveal substep); Continue
+    // then waits on a resolved vehicle.
     await act(async () => { (doc.querySelector('[data-testid="intent-same_spec"]') as HTMLButtonElement).click(); });
-    assert.equal(continueBtn().disabled, false, "same_spec enables Continue");
-    assert.equal(reason(), null, "no 'off' reason once same_spec is picked");
-    assert.equal(doc.getElementById("primary-link-input"), null, "VIN box only appears after leaving the intent substep");
+    assert.ok(doc.getElementById("primary-link-input"), "same_spec loads the VDP fields on Step 1");
+    assert.equal(continueBtn().disabled, true, "same_spec needs a resolved vehicle to continue");
+    assert.equal(reason(), "Add a vehicle to continue");
 
-    // ACCEPTANCE 2: switching to alternate (still in the intent substep) also enables Continue —
-    //   no VIN, no What-you-need, and NO dealership picker on Step 1 (that lives on the later step).
+    // alternate: VDP fields still load (optional); Continue enabled with no VIN; no dealer
+    // search / What-you-need on Step 1.
     await act(async () => { (doc.querySelector('[data-testid="intent-alternate"]') as HTMLButtonElement).click(); });
-    assert.equal(continueBtn().disabled, false, "alternate enables Continue with no VIN");
-    assert.equal(doc.getElementById("primary-link-input"), null, "alternate never shows a VIN box");
+    assert.ok(doc.getElementById("primary-link-input"), "alternate loads the VDP fields on Step 1 (optional)");
+    assert.equal(continueBtn().disabled, false, "alternate: VDP optional, Continue enabled with no VIN");
     assert.equal(doc.querySelector('[data-testid="alt-add-dealer"]'), null, "no dealership search on the alternate Step 1");
     assert.equal(doc.querySelector('[data-testid="alt-must-haves"]'), null, "no What-you-need fields on the alternate lane");
 
-    // Back to same_spec, then Continue → the VIN box appears (still needs a car to advance).
+    // Back to same_spec: VDP fields stay, Continue waits on a vehicle again.
     await act(async () => { (doc.querySelector('[data-testid="intent-same_spec"]') as HTMLButtonElement).click(); });
-    assert.equal(doc.getElementById("primary-link-input"), null, "same_spec VIN box only appears after Continue");
-    await act(async () => { continueBtn().click(); });
-    assert.ok(doc.getElementById("primary-link-input"), "same_spec reveals the VIN box");
+    assert.ok(doc.getElementById("primary-link-input"), "same_spec keeps the VDP fields");
     assert.equal(continueBtn().disabled, true, "same_spec still needs a resolved vehicle to advance");
     await act(async () => { root.unmount(); });
   });

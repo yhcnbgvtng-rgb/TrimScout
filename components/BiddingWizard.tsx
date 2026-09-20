@@ -944,6 +944,9 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     if (next === intent) return;
     trackEvent("rfq_intent_selected", { intent: next });
     setIntent(next);
+    // Load the VDP fields on Step 1 as soon as an intent is picked — no separate
+    // "Continue to reveal" substep.
+    setIntentConfirmed(true);
     // Each intent resolves differently (same_spec loads the OEM window sticker +
     // factory options; alternate free-decodes only), so drop any resolved vehicle
     // and factory state from the other branch — no stale sticker/must-have compare.
@@ -1488,21 +1491,12 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   const quoteSetupComplete = Boolean(quoteType) && missingLocks.length === 0 && !(quoteType === "lease" && isUsed);
 
   const paymentChosen = Boolean(quoteType) && !(quoteType === "lease" && isUsed);
-  // Step 1 substep gating: the intent phase only needs an intent picked; the
-  // details phase needs the vehicle imported (same_spec) or the ask + a
-  // dealership (alternate). A locked/real-inventory vehicle skips the intent phase.
-  const step1IntentPhase = !intentConfirmed && !lockVehicleSelection;
-  const step1ContinueDisabled = step1IntentPhase ? !intent : !vehicleImported;
+  // Step 1: an intent must be picked; then same_spec needs a resolved vehicle to
+  // continue while alternate's VDP fields are optional (vehicleImported === true).
+  const step1ContinueDisabled = (!intent && !lockVehicleSelection) ? true : !vehicleImported;
   const goNext = () => {
     if (step === 1) {
-      // Leave the intent substep on any valid intent — no VIN required here.
-      if (step1IntentPhase) {
-        if (!intent) return;
-        setIntentConfirmed(true);
-        // Both intents reveal the VDP fields; alternate's are optional (Continue
-        // enabled) while same_spec needs a resolved vehicle to advance.
-        return;
-      }
+      if (!intent && !lockVehicleSelection) return;
       if (!vehicleImported) return;
     }
     if (step === 2 && !paymentChosen) return;
