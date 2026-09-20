@@ -96,7 +96,7 @@ describe("Configure Quote Request — vehicle resolve hardening", () => {
     const text = () => doc.body.textContent || "";
     const tick = async (n = 1) => { for (let i = 0; i < n; i++) await act(async () => { await new Promise((r) => setTimeout(r, 10)); }); };
     const settle = async (pred: () => boolean) => { for (let i = 0; i < 40 && !pred(); i++) await tick(); assert.ok(pred(), "settled"); };
-    // Every open picks "This exact vehicle"; the VDP fields load on Step 1 right away.
+    // Every open picks "A vehicle with specific options"; the VDP fields load on Step 1 right away.
     const openFresh = async () => { await act(async () => { bump(); setOpen(true); }); await tick(); await act(async () => { (dom.window.document.querySelector('[data-testid="intent-same_spec"]') as HTMLButtonElement).click(); }); };
     const setInput = async (el: HTMLInputElement, value: string) => {
       const setter = Object.getOwnPropertyDescriptor(dom.window.HTMLInputElement.prototype, "value")!.set!;
@@ -294,7 +294,7 @@ describe("Step 1 asks the quote intent before the VIN (2026-09-17)", () => {
     assert.ok(doc.getElementById("primary-link-input"), "VDP fields load on open (same_spec default)");
     assert.equal(continueBtn().disabled, true);
     assert.equal(reason(), "Add a vehicle to continue");
-    assert.match((doc.querySelector('[data-testid="intent-same_spec"]') as HTMLElement).textContent!, /This exact vehicle/);
+    assert.match((doc.querySelector('[data-testid="intent-same_spec"]') as HTMLElement).textContent!, /A vehicle with specific options/);
     assert.match((doc.querySelector('[data-testid="intent-alternate"]') as HTMLElement).textContent!, /Open to anything/);
 
     // 2. Path B (alternate): picking the intent loads the VDP fields on Step 1 immediately,

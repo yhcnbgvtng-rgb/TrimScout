@@ -4,7 +4,7 @@ import { LANE_COPY, type RfqLane } from "./alternateAsk";
 
 describe("Step 1 intent card copy (2026-09-19)", () => {
   it("uses plain buyer language mapped to the same_spec / alternate enums", () => {
-    assert.equal(LANE_COPY.same_spec.title, "This exact vehicle");
+    assert.equal(LANE_COPY.same_spec.title, "A vehicle with specific options");
     assert.equal(LANE_COPY.same_spec.help, "Paste the VIN or dealer link so quotes match this car.");
     assert.equal(LANE_COPY.alternate.title, "Open to anything");
     assert.equal(LANE_COPY.alternate.help, "No VIN needed — dealers can propose different cars.");
