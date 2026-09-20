@@ -141,10 +141,11 @@ describe("Configure Quote Request starts fresh on every open", () => {
     assert.match(altCard.textContent!, /No VIN needed — dealers can propose different cars/);
     assert.doesNotMatch(doc.body.textContent!, /same build|I'm open to different vehicles/);
 
-    // Nothing picked: Continue is off and says why; no VIN box yet.
-    assert.equal(continueBtn().disabled, true, "Continue is off before an intent is picked");
-    assert.equal(reason(), "Choose what you want quoted to continue");
-    assert.equal(doc.getElementById("primary-link-input"), null, "no VIN box before an intent");
+    // On open, same_spec is the default: the VDP fields are already on screen and Continue
+    // waits on a resolved vehicle.
+    assert.ok(doc.getElementById("primary-link-input"), "VDP fields load on open (same_spec default)");
+    assert.equal(continueBtn().disabled, true, "Continue waits on a resolved vehicle");
+    assert.equal(reason(), "Add a vehicle to continue");
 
     // same_spec: the VDP fields load on Step 1 immediately (no reveal substep); Continue
     // then waits on a resolved vehicle.
