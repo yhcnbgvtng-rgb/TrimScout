@@ -4,6 +4,48 @@ import path from 'node:path';
 import { withSharedDataLock } from './shared_data_lock.js';
 import { cacheShardPath, inventoryShardPath, listShardedStates } from './inventory_shards.js';
 
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+// Real rate limit found live 2026-09-20 during the expansion-brand pilot:
+// NHTSA's vPIC edge does NOT just cap concurrency — it enforces an
+// undocumented per-IP REQUEST RATE limit. Confirmed with a real box against
+// real VINs: a sustained run at concurrency=5 succeeded for its first ~135
+// requests, then failed (fast, ~20-100ms) on every request after that — the
+// "failure" is an instant HTML block page, not a real 404/429 JSON body, so
+// the original fetchNhtsaSpec's `catch {}` silently swallowed it as "no
+// data" with no signal anything was wrong. The block outlasted a 30s
+// cooldown in that same test, so it isn't a sub-second thing either. This
+// is a scaling ceiling of the free public API itself, not something this
+// crawler introduced — a big enough cold-start batch (thousands of VINs,
+// 0% cache hit) would eventually hit it even at the OLD one-at-a-time
+// pace, just much later. Parallelizing without a rate limiter made it
+// trivial to hit in seconds instead of minutes.
+//
+// This throttle enforces a hard ceiling on REQUEST RATE (not just how many
+// are in flight) across every fetchNhtsaSpec call in this process — a
+// shared "next allowed slot" that every request must wait its turn for,
+// same shape as a classic scheduling rate limiter. 3/sec is deliberately
+// conservative (nowhere near the ~135-request burst that failed above) —
+// tune via CRAWLER_NHTSA_MAX_PER_SECOND if a real run shows more headroom.
+// Caveat: this only limits requests from THIS process. Two brand-runs on
+// the same box (MAX_CONCURRENT_STATES) each rate-limit independently, so
+// the box's real combined outbound rate can still be a small multiple of
+// this — acceptable for now (still far below the observed failure point),
+// but a genuinely global (cross-process) limiter would need its own
+// lock-file-with-timestamp mechanism if this ever proves insufficient.
+const NHTSA_MAX_PER_SECOND = Number(process.env.CRAWLER_NHTSA_MAX_PER_SECOND) || 3;
+let nhtsaNextSlotAt = 0;
+export async function throttleNhtsaRequest() {
+  const intervalMs = 1000 / NHTSA_MAX_PER_SECOND;
+  const now = Date.now();
+  const slot = Math.max(now, nhtsaNextSlotAt);
+  nhtsaNextSlotAt = slot + intervalMs;
+  const waitMs = slot - now;
+  if (waitMs > 0) await sleep(waitMs);
+}
+
 // Computed fresh (not a module-level constant) so a test can chdir into a
 // scratch directory before calling runEnrichmentPipeline and get isolated
 // paths — process.cwd() never actually changes mid-run in production, so
@@ -113,42 +155,61 @@ export const PORSCHE_BASE_MSRP = {
 // plausible-looking default (a fake "Germany/Stuttgart" plant on a Ford
 // would be actively wrong, not just generic — this was already wrong for
 // any non-Porsche vehicle even before Ford existed here).
+// Retries: a network/timeout/parse failure (see throttleNhtsaRequest's
+// comment — the observed block returns fast, invalid-JSON HTML, which
+// fails at JSON.parse before ever reaching the item.Make check below) gets
+// retried with backoff rather than immediately written off as "no data".
+// A VALID JSON response with no item.Make is a real "this VIN doesn't
+// decode" result from NHTSA, not a block — that's returned as null below,
+// same as always, and is NOT retried here (retrying it would just get the
+// same real answer again).
+const NHTSA_RETRY_DELAYS_MS = [2000, 5000];
+
 export async function fetchNhtsaSpec(vin, vehicleContext = {}) {
   const isEv = /taycan|electric/i.test(`${vehicleContext.model || ''} ${vehicleContext.trim || ''} ${vehicleContext.bodyStyle || ''}`);
 
-  try {
-    const url = `https://vpic.nhtsa.dot.gov/api/vehicles/decodevinvalues/${vin}?format=json`;
-    const res = await gotScraping({
-      url,
-      timeout: { request: 5000 },
-      retry: { limit: 1 },
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36'
+  for (let attempt = 0; attempt <= NHTSA_RETRY_DELAYS_MS.length; attempt++) {
+    await throttleNhtsaRequest();
+    try {
+      const url = `https://vpic.nhtsa.dot.gov/api/vehicles/decodevinvalues/${vin}?format=json`;
+      const res = await gotScraping({
+        url,
+        timeout: { request: 5000 },
+        retry: { limit: 1 },
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36'
+        }
+      });
+      const json = JSON.parse(res.body);
+      const item = json.Results?.[0];
+      if (item && item.Make) {
+        const nhtsaIsElectric = item.FuelTypePrimary === "Electric" || (item.ElectrificationLevel && item.ElectrificationLevel.includes("BEV"));
+        const isElectricFinal = isEv || nhtsaIsElectric;
+
+        const engineCylinders = isElectricFinal ? 0 : (item.EngineCylinders ? parseInt(item.EngineCylinders, 10) : null);
+        const engineDisplacementL = isElectricFinal
+          ? "Electric"
+          : (item.DisplacementL ? `${parseFloat(item.DisplacementL).toFixed(1)}L` : null);
+
+        return {
+          plantCountry: item.PlantCountry || null,
+          plantCity: item.PlantCity || null,
+          engineCylinders,
+          engineDisplacementL,
+          fuelType: isElectricFinal ? "Electric (BEV)" : (item.FuelTypePrimary || null),
+          bodyClass: item.BodyClass || null,
+          grossWeightClass: item.GVWR || null,
+          brakeSystem: item.BrakeSystemType || null
+        };
       }
-    });
-    const json = JSON.parse(res.body);
-    const item = json.Results?.[0];
-    if (item && item.Make) {
-      const nhtsaIsElectric = item.FuelTypePrimary === "Electric" || (item.ElectrificationLevel && item.ElectrificationLevel.includes("BEV"));
-      const isElectricFinal = isEv || nhtsaIsElectric;
-
-      const engineCylinders = isElectricFinal ? 0 : (item.EngineCylinders ? parseInt(item.EngineCylinders, 10) : null);
-      const engineDisplacementL = isElectricFinal
-        ? "Electric"
-        : (item.DisplacementL ? `${parseFloat(item.DisplacementL).toFixed(1)}L` : null);
-
-      return {
-        plantCountry: item.PlantCountry || null,
-        plantCity: item.PlantCity || null,
-        engineCylinders,
-        engineDisplacementL,
-        fuelType: isElectricFinal ? "Electric (BEV)" : (item.FuelTypePrimary || null),
-        bodyClass: item.BodyClass || null,
-        grossWeightClass: item.GVWR || null,
-        brakeSystem: item.BrakeSystemType || null
-      };
+      return null; // valid response, genuinely no decodable data — not a block, don't retry
+    } catch {
+      if (attempt < NHTSA_RETRY_DELAYS_MS.length) {
+        await sleep(NHTSA_RETRY_DELAYS_MS[attempt]);
+        continue;
+      }
     }
-  } catch {}
+  }
 
   return null;
 }
@@ -375,19 +436,20 @@ export async function runEnrichmentPipeline(limit = Infinity, brand = null, dbRu
   // picked up again).
   const skipNhtsa = process.env.SKIP_NHTSA_ENRICHMENT === 'true';
 
-  // How many NHTSA lookups run at once. Root cause this fixes: this loop
-  // used to be a single `for` doing one lookup at a time, so a batch's
-  // enrichment cost scaled with its own vehicle count regardless of how
-  // many CPUs/how much bandwidth the box had spare — fine for a handful of
-  // dealers, a real problem for a cold-start brand onboarding thousands of
-  // dealers at once (0% cache hit rate: every vehicle needs a real fetch).
-  // NHTSA's vPIC API has no documented hard rate limit and each request is
-  // independent (keyed by VIN, no shared state) so there's no correctness
-  // reason to serialize them — this is purely a historical "wrote it as a
-  // plain loop" artifact, not a deliberate throttle. 12 is a starting point
-  // (comfortably parallel without hammering a government API too hard);
-  // tune via CRAWLER_NHTSA_CONCURRENCY if a real run shows it should move.
-  const nhtsaConcurrency = Math.max(1, Number(process.env.CRAWLER_NHTSA_CONCURRENCY) || 12);
+  // How many NHTSA lookups are in flight at once. Root cause this fixes:
+  // this loop used to be a single `for` doing one lookup at a time, so a
+  // batch's enrichment cost scaled with its own vehicle count regardless of
+  // spare bandwidth — a real problem for a cold-start brand onboarding
+  // thousands of dealers at once (0% cache hit rate). BUT — confirmed live
+  // 2026-09-20, see throttleNhtsaRequest's comment — NHTSA's vPIC edge does
+  // enforce a real, undocumented per-IP RATE limit (not just a concurrency
+  // limit): a live test failed after ~135 sustained requests regardless of
+  // concurrency level, including at concurrency=1. throttleNhtsaRequest is
+  // what actually keeps this safe now; this concurrency setting just
+  // controls how many requests are queued up waiting their turn at that
+  // throttle, so a low default here is just extra headroom, not the real
+  // safety mechanism. Tune via CRAWLER_NHTSA_CONCURRENCY if needed.
+  const nhtsaConcurrency = Math.max(1, Number(process.env.CRAWLER_NHTSA_CONCURRENCY) || 4);
 
   const cacheHitOrSkipped = [];
   const needsFetch = [];
