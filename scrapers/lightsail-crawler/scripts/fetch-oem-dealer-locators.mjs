@@ -308,8 +308,40 @@ const PA_ZIPS = [
   '16601', // Altoona (central, distinct from Pittsburgh)
 ];
 
+// Oklahoma zip spread. Two dominant metros (Oklahoma City, Tulsa) carry
+// most of the state's population, with real secondary markets at Norman
+// (OKC's university-town suburb), Lawton (southwest), Enid (north), and
+// Ardmore (south) rounding out coverage a two-seed radius alone would miss.
+const OK_ZIPS = [
+  '73102', // Oklahoma City
+  '74103', // Tulsa
+  '73069', // Norman (OKC suburb)
+  '73501', // Lawton (southwest)
+  '73701', // Enid (north)
+  '73401', // Ardmore (south)
+];
+
+// Illinois zip spread. Chicago and its suburbs dominate (~9.5M of IL's
+// ~12.6M), so two Chicagoland seeds (downtown + the western/northwest
+// suburban dealer corridor) anchor coverage there, but real downstate
+// markets — Rockford (north), Peoria and Bloomington (central),
+// Springfield (capital), Champaign (east-central), Quincy (west, on the
+// Mississippi), and Carbondale (far south) — are each their own distinct
+// market a Chicago-radius locator would never reach.
+const IL_ZIPS = [
+  '60602', // Chicago (downtown)
+  '60540', // Naperville (west suburbs)
+  '61101', // Rockford (north)
+  '61602', // Peoria (central)
+  '62701', // Springfield (capital)
+  '61820', // Champaign (east-central)
+  '61701', // Bloomington (central)
+  '62301', // Quincy (west, Mississippi River)
+  '62901', // Carbondale (far south)
+];
+
 // Combined zip spread used by every zip+radius OEM locator below.
-const TARGET_ZIPS = [...NJ_NY_ZIPS, ...FL_ZIPS, ...GA_ZIPS, ...TX_ZIPS, ...SC_ZIPS, ...VA_ZIPS, ...NC_ZIPS, ...RI_ZIPS, ...VT_ZIPS, ...NH_ZIPS, ...MA_ZIPS, ...CA_ZIPS, ...PA_ZIPS];
+const TARGET_ZIPS = [...NJ_NY_ZIPS, ...FL_ZIPS, ...GA_ZIPS, ...TX_ZIPS, ...SC_ZIPS, ...VA_ZIPS, ...NC_ZIPS, ...RI_ZIPS, ...VT_ZIPS, ...NH_ZIPS, ...MA_ZIPS, ...CA_ZIPS, ...PA_ZIPS, ...OK_ZIPS, ...IL_ZIPS];
 
 function hostOf(url) {
   return hostFromUrl(url) || normalizeDealerHost(url);
@@ -567,6 +599,24 @@ async function fetchToyota() {
     'pennsylvania/scranton',
     'pennsylvania/erie',
     'pennsylvania/altoona',
+    // Added with OK/IL's own state addition (2026-09-19), same real
+    // per-state slugs as every other state here — see this list's own
+    // header comment for why NC/RI/VT/NH/MA/CA had to be added after the
+    // fact instead of at onboarding time; OK/IL get their slugs up front
+    // to avoid repeating that gap.
+    'oklahoma/oklahoma-city',
+    'oklahoma/tulsa',
+    'oklahoma/norman',
+    'oklahoma/lawton',
+    'oklahoma/enid',
+    'illinois/chicago',
+    'illinois/naperville',
+    'illinois/rockford',
+    'illinois/peoria',
+    'illinois/springfield',
+    'illinois/champaign',
+    'illinois/bloomington',
+    'illinois/quincy',
   ];
   const rows = [];
   const pages = [];

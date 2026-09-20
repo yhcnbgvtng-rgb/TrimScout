@@ -35,6 +35,8 @@ import { loadNhDealers } from '../src/nh_policy.js';
 import { loadMaDealers } from '../src/ma_policy.js';
 import { loadCaDealers } from '../src/ca_policy.js';
 import { loadPaDealers } from '../src/pa_policy.js';
+import { loadOkDealers } from '../src/ok_policy.js';
+import { loadIlDealers } from '../src/il_policy.js';
 import { probeDealer } from '../src/http_probe.js';
 import { buildTablePdf, buildSummaryBlocks } from '../src/pdf_table.js';
 import { CLASSIFICATION_ORDER, summarizeBotRows } from '../src/bot_protection.js';
@@ -58,6 +60,8 @@ const STATE_DEALER_LOADERS = {
   MA: loadMaDealers,
   CA: loadCaDealers,
   PA: loadPaDealers,
+  OK: loadOkDealers,
+  IL: loadIlDealers,
 };
 
 const brandFilter = (process.argv.find((a) => a.startsWith('--brand=')) || '')
