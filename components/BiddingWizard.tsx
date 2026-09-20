@@ -941,11 +941,25 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   const [altDealers, setAltDealers] = useState<DeskMatch[]>([]);
   const [altPicking, setAltPicking] = useState(false);
   const chooseIntent = (next: RfqLane) => {
-    if (next !== intent) trackEvent("rfq_intent_selected", { intent: next });
+    if (next === intent) return;
+    trackEvent("rfq_intent_selected", { intent: next });
     setIntent(next);
-    // Clear the wrong branch's state so nothing rides along: the alternate lane
-    // carries no vehicle/must-haves; the same-spec lane carries no alt dealerships.
-    if (next === "alternate") { setAltDraft(EMPTY_ALTERNATE_DRAFT); setMustHavePackages([]); setNiceToHavePackages([]); }
+    // Each intent resolves differently (same_spec loads the OEM window sticker +
+    // factory options; alternate free-decodes only), so drop any resolved vehicle
+    // and factory state from the other branch — no stale sticker/must-have compare.
+    setSelectedVehicle(null);
+    setParseSuccessMsg(null);
+    setParseError(null);
+    setPendingLink(null);
+    setFordStickerStatus(null);
+    setFordFilterableOptions([]);
+    setFordPdfUrl(null);
+    setFactoryBuildOem(null);
+    setMustHavePackages([]);
+    setNiceToHavePackages([]);
+    setAltVehicle1(null);
+    setAltVehicle2(null);
+    if (next === "alternate") setAltDraft(EMPTY_ALTERNATE_DRAFT);
     if (next === "same_spec") setAltDealers([]);
   };
 
@@ -1485,9 +1499,8 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
       if (step1IntentPhase) {
         if (!intent) return;
         setIntentConfirmed(true);
-        // Alternate collects nothing on Step 1 (dealers are chosen on Step 3),
-        // so it goes straight to the payment step; same_spec reveals the VIN box.
-        if (intent === "alternate") setStep(2);
+        // Both intents reveal the VDP fields; alternate's are optional (Continue
+        // enabled) while same_spec needs a resolved vehicle to advance.
         return;
       }
       if (!vehicleImported) return;
@@ -1542,7 +1555,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     let prebuilt: PasteImportSuccess | null = null;
     let prebuildError: string | null = null;
     if (resolution.vinFromUrl) {
-      const built = await importPastedFactoryVehicle(resolution.vinFromUrl, fetch, { existingVehicles: slotVehicles(slot), ...importOpt });
+      const built = await importPastedFactoryVehicle(resolution.vinFromUrl, fetch, { existingVehicles: slotVehicles(slot), ...importOpt, freeDecodeOnly: intent === "alternate" });
       if (built.ok) prebuilt = built;
       else prebuildError = built.error;
     }
@@ -1593,7 +1606,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     const result =
       prebuilt && prebuilt.vehicle.vin === choice.vin
         ? prebuilt
-        : await importPastedFactoryVehicle(choice.vin, fetch, { existingVehicles: slotVehicles(slot), ...usedOpt });
+        : await importPastedFactoryVehicle(choice.vin, fetch, { existingVehicles: slotVehicles(slot), ...usedOpt, freeDecodeOnly: intent === "alternate" });
     if (!result.ok) {
       setLinkError(result.error);
       setLinkBusy(false);
@@ -1679,6 +1692,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     const result = await importPastedFactoryVehicle(raw, fetch, {
       existingVehicles: [altVehicle1, altVehicle2],
       ...usedOpt,
+      freeDecodeOnly: intent === "alternate",
     });
     if (!result.ok) {
       if (result.unreleased) {
@@ -1702,11 +1716,12 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     setMake(result.vehicle.make);
     setModel(result.vehicle.model);
     setSelectedTrims([result.vehicle.trim]);
-    // Must-have options are no longer collected in this wizard path — the exact
-    // VIN/build is the request; we never auto-load an option checklist after resolve.
-    setMustHavePackages([]);
-    setNiceToHavePackages([]);
-    setFordFilterableOptions([]);
+    // Restore the must-have options + factory-option list from the resolve. On the
+    // alternate lane the resolve is a free VIN decode, so these come back empty and
+    // no factory picker/compare shows — the difference is the resolve mode, not here.
+    setMustHavePackages(result.mustHaveLines);
+    setNiceToHavePackages(result.niceToHaveLines);
+    setFordFilterableOptions(result.filterableOptions);
     setFactoryBuildOem(result.oem);
     // Only a real factory build unlocks the must-have picker; a free-decode
     // import has no option list to choose from.
@@ -1733,7 +1748,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     const current = selectedVehicle;
     setRetryingBuild(true);
     trackEvent("factory_build_retry", factoryBuildPendingProps(current));
-    const result = await importPastedFactoryVehicle(current.vin, fetch, { existingVehicles: [altVehicle1, altVehicle2], ...usedOpt });
+    const result = await importPastedFactoryVehicle(current.vin, fetch, { existingVehicles: [altVehicle1, altVehicle2], ...usedOpt, freeDecodeOnly: intent === "alternate" });
     if (result.ok) {
       const location = result.vehicle.location?.dealerName?.trim() && !current.location?.dealerName?.trim() ? result.vehicle.location : current.location;
       commitPrimaryImport({ ...result, vehicle: { ...result.vehicle, location, dealerUrl: current.dealerUrl, buyerConfirmed: current.buyerConfirmed, resolvePath: result.factoryBuildUnavailable ? "factory_pending" : current.resolvePath === "factory_pending" ? "url_only" : current.resolvePath } });
@@ -1790,6 +1805,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     setAltError1(null);
     const result = await importPastedFactoryVehicle(raw, fetch, {
       existingVehicles: [selectedVehicle, altVehicle2],
+      freeDecodeOnly: intent === "alternate",
     });
     if (!result.ok) {
       setAltError1(result.error);
@@ -1833,6 +1849,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     setAltError2(null);
     const result = await importPastedFactoryVehicle(raw, fetch, {
       existingVehicles: [selectedVehicle, altVehicle1],
+      freeDecodeOnly: intent === "alternate",
     });
     if (!result.ok) {
       setAltError2(result.error);
@@ -2403,10 +2420,12 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                 </WizardSection>
               ) : null}
 
-              {(intent === "same_spec" && intentConfirmed) || lockVehicleSelection ? (
+              {intentConfirmed || lockVehicleSelection ? (
               <WizardSection
                 title="Vehicle"
-                hint="Paste the dealership link to the exact vehicle, or its 17-character VIN. One car is required to continue."
+                hint={intent === "alternate"
+                  ? "Optional — paste a VIN or dealer link as an example if you like. Dealers can propose different cars; nothing here is required."
+                  : "Paste the dealership link to the exact vehicle, or its 17-character VIN. One car is required to continue."}
                 className="py-6"
               >
                 {USED_VEHICLES_ENABLED && !selectedVehicle ? (
@@ -2628,7 +2647,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                 {/* No factory build behind the car (sticker not published, OEM we don't read, or the
                     sticker service was down): say so plainly, with the lot age when our crawl knows it.
                     Nothing is gated on it — the dealer confirms the build when they quote. */}
-                {parseSuccessMsg && selectedVehicle && factoryBuildStateLine(selectedVehicle) && (
+                {intent !== "alternate" && parseSuccessMsg && selectedVehicle && factoryBuildStateLine(selectedVehicle) && (
                   <div className="space-y-1.5 rounded-lg border border-amber-500/30 bg-amber-950/20 px-3 py-2" data-testid="factory-build-pending">
                     <p className="text-[11px] leading-snug text-amber-200" data-testid="factory-build-state">
                       {factoryBuildStateLine(selectedVehicle)}
@@ -2651,6 +2670,34 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                       </p>
                     ) : null}
                   </div>
+                )}
+
+                {/* Must-haves collapse behind a one-line summary — the full option
+                    list is long enough to bury everything else. Same-spec only: the
+                    alternate lane free-decodes and has no factory option list. */}
+                {intent === "same_spec" && selectedVehicle && fordStickerStatus === "released" && fordFilterableOptions.length > 0 && (
+                  <details className="group rounded-xl border border-border bg-surface-elevated">
+                    <summary className="cursor-pointer list-none px-3.5 py-2.5 flex items-center justify-between gap-2">
+                      <span className="text-xs font-semibold text-white">
+                        {FORD_MUST_HAVE_HEADING}
+                        <span className="ml-2 text-[11px] font-normal text-ink-muted">
+                          {mustHavePackages.length} of {fordFilterableOptions.length} selected
+                        </span>
+                      </span>
+                      <ChevronDown className="h-3.5 w-3.5 shrink-0 text-ink-faint transition-transform group-open:rotate-180" />
+                    </summary>
+                    <div className="border-t border-border/60 px-3.5 py-3 space-y-2">
+                      <p className="text-[11px] text-ink-muted">{FORD_MUST_HAVE_HELP}</p>
+                      <FactoryMustHavePicker
+                        options={fordFilterableOptions}
+                        checked={mustHavePackages}
+                        onToggle={toggleFordMustHave}
+                      />
+                      <p className="text-[10px] text-ink-faint">
+                        Must-haves are saved with this deal. Dealer ads are not proof.
+                      </p>
+                    </div>
+                  </details>
                 )}
 
                 {/* Two alternate slots, always visible on a new car — optional,

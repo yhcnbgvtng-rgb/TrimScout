@@ -1290,14 +1290,15 @@ describe("shopper-facing factory option copy", () => {
     assert.match(dealsRoute, /decorateDealRequestJson/);
   });
 
-  it("does NOT load a must-have factory-option picker after an import (2026-09-18)", () => {
+  it("loads the must-have factory-option picker on This exact vehicle, gated off the alternate lane (2026-09-19)", () => {
     const src = fs.readFileSync(path.join(process.cwd(), "components/BiddingWizard.tsx"), "utf8");
     const start = src.indexOf("STEP 1: VEHICLE");
     const end = src.indexOf("STEP 2: PAYMENT");
     const step1 = src.slice(start, end);
-    // The option checklist is no longer rendered after VDP/VIN resolve.
-    assert.doesNotMatch(step1, /fordStickerStatus === "released" && fordFilterableOptions\.length > 0/);
-    assert.doesNotMatch(step1, /<FactoryMustHavePicker/);
+    // The picker is restored for same_spec (released sticker) and never on alternate.
+    assert.match(step1, /intent === "same_spec" && selectedVehicle && fordStickerStatus === "released" && fordFilterableOptions\.length > 0/);
+    assert.match(step1, /<FactoryMustHavePicker/);
+    // Alternate resolves via the free decode — no OEM comparables / other-lots hunt.
     assert.doesNotMatch(step1, /findLotsMode/);
     assert.doesNotMatch(step1, /FORD_OTHER_LOTS_MODE_PASTE/);
     assert.doesNotMatch(src, /\/api\/ford-comparables/);
