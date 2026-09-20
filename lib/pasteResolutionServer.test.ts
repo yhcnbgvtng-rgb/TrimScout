@@ -46,8 +46,8 @@ describe("sightingFromListings — the rooftop our crawl last saw the VIN at", (
   });
 });
 
-describe("resolveVehicleDealer — the store advertising the car first, the VIN only as a fallback, never invented", () => {
-  it("1. the link's store wins over the sticker's sold-to dealer; the ship-to store is kept as a note", async () => {
+describe("resolveVehicleDealer — dealer-attach priority locked 2026-09-20: VDP domain first, sticker/inventory only to narrow an ambiguous or absent domain match, never to override a unique one", () => {
+  it("1. ACCEPTANCE — unique VDP domain wins over the sticker's sold-to dealer; the ship-to store is kept as a note, never the recipient", async () => {
     const v = await resolveVehicleDealer(vehicle(UNSEEN), { dealer: LINK }, { name: "Route 23 Auto Mall", city: "Butler", state: "NJ", zip: "07405" }, lookup);
     assert.equal(v.location.dealerSource, "listing_domain");
     assert.equal(v.location.dealerName, "Paul Miller BMW");
@@ -56,7 +56,7 @@ describe("resolveVehicleDealer — the store advertising the car first, the VIN 
     assert.equal(v.location.factoryShipTo?.state, "NJ");
   });
 
-  it("1b. the link's store wins over an inventory sighting too", async () => {
+  it("1b. ACCEPTANCE — a unique VDP domain wins over an inventory sighting too", async () => {
     const v = await resolveVehicleDealer(vehicle(SEEN), { dealer: LINK }, { name: "SOME OTHER FORD", state: "TX" }, lookup);
     assert.equal(v.location.dealerSource, "listing_domain");
     assert.equal(v.location.dealerName, "Paul Miller BMW");
@@ -69,12 +69,21 @@ describe("resolveVehicleDealer — the store advertising the car first, the VIN 
     assert.equal(v.location.factoryShipTo, null);
   });
 
-  it("2. without a link store, an inventory sighting of the VIN wins over the sticker", async () => {
+  it("1d. a shared multi-rooftop domain (huntauto.com: Hunt Ford + Hunt Chrysler) never reaches the domain branch — the caller passes no `listing` for an ambiguous match, so a published sticker resolves it instead, dealerSource=window_sticker", async () => {
+    // The ambiguity itself is resolved upstream (lib/deskResolve.ts's "ambiguous"
+    // status): this function only ever sees resolved.dealer when a match was
+    // unique. Simulating the ambiguous case is simply omitting `dealer`.
+    const v = await resolveVehicleDealer(vehicle(UNSEEN), {}, { name: "Hunt Ford Inc", city: "Franklin", state: "KY" }, lookup);
+    assert.equal(v.location.dealerSource, "window_sticker");
+    assert.equal(v.location.dealerName, "Hunt Ford Inc");
+    assert.equal(v.location.dealerConfirmed, false);
+  });
+
+  it("2. ACCEPTANCE — no domain match: the sticker's sold-to dealer now wins over an inventory sighting (locked priority reversal, 2026-09-20)", async () => {
     const v = await resolveVehicleDealer(vehicle(SEEN), {}, { name: "SOME OTHER FORD", state: "TX" }, lookup);
-    assert.equal(v.location.dealerSource, "inventory");
-    assert.ok(v.location.dealerName, "the sighting's rooftop (or its directory spelling) is named");
-    assert.equal(v.location.dealerConfirmed, true);
-    assert.notEqual(v.location.dealerName, "SOME OTHER FORD");
+    assert.equal(v.location.dealerSource, "window_sticker");
+    assert.equal(v.location.dealerName, "SOME OTHER FORD");
+    assert.equal(v.location.dealerConfirmed, false);
   });
 
   it("2b. the QA paste: a Lexus group-site link the directory can't key, no factory sold-to — the crawl's sighting names the store", async () => {
@@ -98,14 +107,14 @@ describe("resolveVehicleDealer — the store advertising the car first, the VIN 
     assert.equal(v.location.dealerSource, "unknown");
   });
 
-  it("3. without a link store or a sighting, the sticker's sold-to dealer fills in — unconfirmed", async () => {
+  it("3. ACCEPTANCE — sticker-only after a pending build publishes: no domain, no sighting, the sticker's sold-to dealer fills in — unconfirmed", async () => {
     const v = await resolveVehicleDealer(vehicle(UNSEEN), {}, { name: "Route 23 Auto Mall", city: "Butler", state: "NJ", zip: "07405" }, lookup);
     assert.equal(v.location.dealerSource, "window_sticker");
     assert.equal(v.location.dealerName, "Route 23 Auto Mall");
     assert.equal(v.location.dealerConfirmed, false, "a ship-to store may not be where the car sits now");
   });
 
-  it("4. with nothing anywhere, the dealer is blank — the mapper's placeholder never ships", async () => {
+  it("4. ACCEPTANCE — ambiguous/absent domain and no sticker: the dealer is blank (no false single match) — the mapper's placeholder never ships", async () => {
     const v = await resolveVehicleDealer(vehicle(UNSEEN), {}, undefined, lookup);
     assert.equal(v.location.dealerName, "");
     assert.equal(v.location.dealerSource, "unknown");
