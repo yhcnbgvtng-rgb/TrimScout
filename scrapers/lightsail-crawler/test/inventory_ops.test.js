@@ -321,9 +321,13 @@ describe('mergeInventorySnapshot (daysOnLot / days-on-market across brands and d
 // ---------------------------------------------------------------------
 // Bug 1: enrichment must only process the vehicles the current run
 // actually has fresh data for (vinsToEnrich), not the whole cumulative
-// national_inventory_latest.json. We isolate this in a scratch data/
-// directory (enricher.js resolves its paths from process.cwd()) and use
+// inventory shard. We isolate this in a scratch data/ directory
+// (enricher.js resolves its paths from process.cwd()) and use
 // SKIP_NHTSA_ENRICHMENT=true so this test never hits the real network.
+//
+// As of the state-sharding fix, "the whole cumulative file" is per-state
+// (data/inventory/<state>.json — see inventory_shards.js), so these tests
+// write/read a single state's shard (NJ) directly.
 // ---------------------------------------------------------------------
 describe('runEnrichmentPipeline (bug 1: scope to this run\'s own VINs)', () => {
   let tmpDir;
@@ -335,7 +339,7 @@ describe('runEnrichmentPipeline (bug 1: scope to this run\'s own VINs)', () => {
     originalSkipEnv = process.env.SKIP_NHTSA_ENRICHMENT;
     process.env.SKIP_NHTSA_ENRICHMENT = 'true';
     tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'trimscout-enricher-test-'));
-    await fs.mkdir(path.join(tmpDir, 'data'), { recursive: true });
+    await fs.mkdir(path.join(tmpDir, 'data', 'inventory'), { recursive: true });
   });
 
   after(async () => {
@@ -345,15 +349,15 @@ describe('runEnrichmentPipeline (bug 1: scope to this run\'s own VINs)', () => {
     await fs.rm(tmpDir, { recursive: true, force: true });
   });
 
-  async function writeInventory(vehicles) {
-    await fs.writeFile(path.join(tmpDir, 'data', 'national_inventory_latest.json'), JSON.stringify(vehicles, null, 2));
+  async function writeInventory(vehicles, state = 'NJ') {
+    await fs.writeFile(path.join(tmpDir, 'data', 'inventory', `${state}.json`), JSON.stringify(vehicles, null, 2));
   }
-  async function readInventory() {
-    const raw = await fs.readFile(path.join(tmpDir, 'data', 'national_inventory_latest.json'), 'utf-8');
+  async function readInventory(state = 'NJ') {
+    const raw = await fs.readFile(path.join(tmpDir, 'data', 'inventory', `${state}.json`), 'utf-8');
     return JSON.parse(raw);
   }
 
-  it('only touches vehicles in vinsToEnrich, leaving the rest of the cumulative file untouched', async () => {
+  it('only touches vehicles in vinsToEnrich, leaving the rest of the cumulative shard untouched', async () => {
     process.chdir(tmpDir);
 
     // "Old" vehicle: simulates a vehicle from a brand that ran earlier
@@ -381,7 +385,7 @@ describe('runEnrichmentPipeline (bug 1: scope to this run\'s own VINs)', () => {
 
     await writeInventory([oldVehicle, newVehicle]);
 
-    await runEnrichmentPipeline(Infinity, null, null, ['NEW00000000000001']);
+    await runEnrichmentPipeline(Infinity, null, null, ['NEW00000000000001'], 'NJ');
 
     const after1 = await readInventory();
     const oldAfter = after1.find((v) => v.vin === 'OLD00000000000001');
@@ -398,7 +402,7 @@ describe('runEnrichmentPipeline (bug 1: scope to this run\'s own VINs)', () => {
     assert.equal(newAfter.totalOptionsPrice, 1200);
   });
 
-  it('still supports the full-backfill CLI use case when vinsToEnrich is omitted', async () => {
+  it('still supports the full-backfill CLI use case when vinsToEnrich AND state are both omitted, by discovering every shard', async () => {
     process.chdir(tmpDir);
 
     const staleVehicle = {
@@ -408,15 +412,29 @@ describe('runEnrichmentPipeline (bug 1: scope to this run\'s own VINs)', () => {
       factoryOptions: [{ code: 'SENTINEL', name: 'stale', price: 1 }],
       totalOptionsPrice: 1,
     };
-    await writeInventory([staleVehicle]);
+    const staleVehicleGa = {
+      vin: 'STALE0000000000002',
+      make: 'Kia',
+      nhtsa: { sentinel: true },
+      factoryOptions: [{ code: 'SENTINEL', name: 'stale', price: 1 }],
+      totalOptionsPrice: 1,
+    };
+    await writeInventory([staleVehicle], 'NJ');
+    await writeInventory([staleVehicleGa], 'GA');
 
-    // No vinsToEnrich passed — should process everything, same as the
-    // pre-existing `node src/enricher.js` manual backfill behavior.
+    // No state and no vinsToEnrich passed — should discover every shard on
+    // disk (NJ and GA here) and backfill each one, same as the
+    // pre-existing `node src/enricher.js` monolithic-file manual backfill
+    // behavior, just applied per-shard now instead of to one file.
     await runEnrichmentPipeline();
 
-    const after2 = await readInventory();
-    const staleAfter = after2.find((v) => v.vin === 'STALE0000000000001');
+    const njAfter = await readInventory('NJ');
+    const gaAfter = await readInventory('GA');
+    const staleAfter = njAfter.find((v) => v.vin === 'STALE0000000000001');
+    const staleAfterGa = gaAfter.find((v) => v.vin === 'STALE0000000000002');
     assert.equal(staleAfter.nhtsa, null); // reprocessed under SKIP_NHTSA_ENRICHMENT
     assert.deepEqual(staleAfter.factoryOptions, []); // recomputed from (absent) dealerListedOptions
+    assert.equal(staleAfterGa.nhtsa, null);
+    assert.deepEqual(staleAfterGa.factoryOptions, []);
   });
 });

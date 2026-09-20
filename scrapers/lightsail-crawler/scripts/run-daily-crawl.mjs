@@ -37,16 +37,21 @@
 // is likewise isolated from any other state running concurrently in the
 // other slot — see runStatesWithBoundedConcurrency()'s own try/catch.
 //
-// Concurrency safety for the shared data files (national_inventory_latest
-// .json, inventory_latest.json, enriched_cache.json, snapshots/latest_
-// snapshot.json, daily_changes/daily_changes_<date>.json) that every
-// state's brand processes read-modify-write is handled inside those
-// processes themselves (src/standalone.js, src/enricher.js), via
-// src/shared_data_lock.js — not here. This driver's own acquireLock()/
-// releaseLock() below guards a different, narrower thing: a second whole
-// invocation of THIS SCRIPT (e.g. cron firing while a manual run is still
-// going) never starts at all. Running this driver's own states
-// concurrently within one invocation is the intended, supported case.
+// Concurrency safety for the data files every state's brand processes
+// read-modify-write is handled inside those processes themselves
+// (src/standalone.js, src/enricher.js), via src/shared_data_lock.js — not
+// here. As of the state-sharding fix (src/inventory_shards.js), most of
+// that data — inventory, snapshots, the enrichment cache — is split into
+// one shard per state (data/inventory/<state>.json etc.), so two different
+// states' brand processes touch different files entirely and the lock
+// barely ever contends for them; only daily_changes/daily_changes_<date>
+// .json is still genuinely shared across every state running today, and
+// is locked by date rather than by state for that reason. This driver's
+// own acquireLock()/releaseLock() below guards a different, narrower
+// thing: a second whole invocation of THIS SCRIPT (e.g. cron firing while
+// a manual run is still going) never starts at all. Running this driver's
+// own states concurrently within one invocation is the intended,
+// supported case.
 //
 // Everything this run did — per-step exit codes, per-brand vehicle/price
 // stats pulled back out of the (now correctly per-brand-keyed, see

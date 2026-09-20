@@ -1,9 +1,15 @@
-// Mutual exclusion around the shared, cumulative data files every brand
-// process's crawl (src/standalone.js) and enrichment pass (src/enricher.js)
-// reads and rewrites: data/national_inventory_latest.json,
-// data/inventory_latest.json, data/enriched_cache.json,
-// data/snapshots/latest_snapshot.json, and
-// data/daily_changes/daily_changes_<date>.json.
+// Mutual exclusion around the shared data files every brand process's crawl
+// (src/standalone.js) and enrichment pass (src/enricher.js) reads and
+// rewrites. As of the state-sharding fix (see inventory_shards.js), most of
+// these are no longer nationwide-shared at all: data/inventory/<state>.json,
+// data/snapshots/<state>.json, and data/enriched_cache/<state>.json are each
+// touched only by that one state's own brand-runs, so the lock is now keyed
+// by `scope` — pass a state code (e.g. "NJ") for those, so two different
+// states' brand-runs never even attempt to take the same lock file. The one
+// file that's still genuinely nationwide-shared is
+// data/daily_changes/daily_changes_<date>.json (every state's brands append
+// their own slot into the SAME date's file) — callers scope that one by
+// date instead (e.g. "daily-changes-2026-09-20").
 //
 // Why this exists: run-daily-crawl.mjs used to run one state's entire
 // brand loop to completion before starting the next state, so no two
@@ -67,8 +73,20 @@ export const DEFAULT_STALE_AFTER_MS = 10 * 60 * 1000; // 10 minutes
 export const DEFAULT_MAX_WAIT_MS = 5 * 60 * 1000; // 5 minutes
 export const DEFAULT_RETRY_DELAY_MS = 200;
 
-export function sharedDataLockPath(cwd = process.cwd()) {
-  return path.join(path.resolve(cwd, 'data'), 'shared_data.lock');
+// `scope` is required: every real call site now has one (a state code, or a
+// "daily-changes-<date>" key for the one still-nationwide file — see the
+// header comment above). There's deliberately no unscoped fallback to a
+// single global lock file — that global file is exactly the bottleneck this
+// scoping fixes, so a caller that forgot to scope itself should fail loudly
+// here rather than silently serializing against every other state again.
+export function sharedDataLockPath(cwd = process.cwd(), scope) {
+  if (!scope) {
+    throw new Error(
+      'sharedDataLockPath requires a scope (a state code like "NJ", or "daily-changes-<date>" '
+      + 'for the shared daily-changes file) — pass one explicitly, or pass lockPath directly instead.',
+    );
+  }
+  return path.join(path.resolve(cwd, 'data'), 'locks', `${scope}.lock`);
 }
 
 function sleep(ms) {
@@ -121,37 +139,40 @@ async function reclaimIfStale(lockPath, staleAfterMs, now) {
 // per-brand try/catch, exactly like any other failure of that one brand's
 // run, so it can never take down a concurrently-running other state.
 export async function acquireSharedDataLock({
-  lockPath = sharedDataLockPath(),
+  lockPath,
+  scope,
+  cwd,
   pid = process.pid,
   label = null,
   staleAfterMs = DEFAULT_STALE_AFTER_MS,
   maxWaitMs = DEFAULT_MAX_WAIT_MS,
   retryDelayMs = DEFAULT_RETRY_DELAY_MS,
 } = {}) {
+  const resolvedLockPath = lockPath || sharedDataLockPath(cwd, scope);
   const payload = { pid, label, startedAt: new Date().toISOString() };
   const deadline = Date.now() + maxWaitMs;
   for (;;) {
-    if (await tryCreateLockFile(lockPath, payload)) {
+    if (await tryCreateLockFile(resolvedLockPath, payload)) {
       return {
-        lockPath,
+        lockPath: resolvedLockPath,
         pid,
-        release: () => releaseSharedDataLock({ lockPath, pid }),
+        release: () => releaseSharedDataLock({ lockPath: resolvedLockPath, pid }),
       };
     }
     if (Date.now() >= deadline) {
       let holder = null;
       try {
-        holder = JSON.parse(await fs.readFile(lockPath, 'utf-8'));
+        holder = JSON.parse(await fs.readFile(resolvedLockPath, 'utf-8'));
       } catch {
         // fall through with holder still null
       }
       throw new Error(
-        `Timed out after ${maxWaitMs}ms waiting for the shared-data lock at ${lockPath}`
+        `Timed out after ${maxWaitMs}ms waiting for the shared-data lock at ${resolvedLockPath}`
         + (label ? ` (wanted by ${label})` : '')
         + (holder ? ` — currently held by pid ${holder.pid}, started ${holder.startedAt}${holder.label ? ` (${holder.label})` : ''}` : ''),
       );
     }
-    await reclaimIfStale(lockPath, staleAfterMs, Date.now());
+    await reclaimIfStale(resolvedLockPath, staleAfterMs, Date.now());
     await sleep(retryDelayMs);
   }
 }
@@ -159,14 +180,15 @@ export async function acquireSharedDataLock({
 // Releases the lock, but only if it still looks like ours — guards against
 // a slow caller releasing a lock that a stale-reclaim already handed to a
 // different process in the meantime. Never throws: safe in a `finally`.
-export async function releaseSharedDataLock({ lockPath = sharedDataLockPath(), pid = process.pid } = {}) {
+export async function releaseSharedDataLock({ lockPath, scope, cwd, pid = process.pid } = {}) {
+  const resolvedLockPath = lockPath || sharedDataLockPath(cwd, scope);
   try {
-    const existing = JSON.parse(await fs.readFile(lockPath, 'utf-8'));
+    const existing = JSON.parse(await fs.readFile(resolvedLockPath, 'utf-8'));
     if (existing?.pid !== pid) return;
   } catch {
     return;
   }
-  await fs.rm(lockPath, { force: true }).catch(() => {});
+  await fs.rm(resolvedLockPath, { force: true }).catch(() => {});
 }
 
 // Convenience wrapper: acquire, run fn(), always release — even if fn()

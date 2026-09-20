@@ -2,6 +2,7 @@ import http from 'node:http';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { handleProgressRequest } from './progress.js';
+import { readAllInventoryShards } from './inventory_shards.js';
 
 const PORT = 3000;
 const DATA_DIR = path.resolve(process.cwd(), 'data');
@@ -18,10 +19,7 @@ const server = http.createServer(async (req, res) => {
     // API: Export Full Inventory as CSV
     if (url.pathname === '/export.csv') {
         try {
-            const raw = await fs.readFile(path.join(DATA_DIR, 'national_inventory_latest.json'), 'utf-8').catch(() =>
-                fs.readFile(path.join(DATA_DIR, 'inventory_latest.json'), 'utf-8')
-            );
-            const data = JSON.parse(raw);
+            const data = await readAllInventoryShards(process.cwd());
 
             const headers = ['VIN', 'Dealer', 'City', 'State', 'Type', 'Year', 'Make', 'Model', 'Trim', 'Price', 'OldPrice', 'PriceDiff', 'Mileage', 'Status', 'ChangeType', 'DaysOnLot', 'FirstSeen', 'LastSeen', 'URL'];
             const rows = data.map((v) => [
@@ -70,10 +68,7 @@ const server = http.createServer(async (req, res) => {
 
         let inventory = [];
         try {
-            const rawInv = await fs.readFile(path.join(DATA_DIR, 'national_inventory_latest.json'), 'utf-8').catch(() =>
-                fs.readFile(path.join(DATA_DIR, 'inventory_latest.json'), 'utf-8')
-            );
-            inventory = JSON.parse(rawInv);
+            inventory = await readAllInventoryShards(process.cwd());
         } catch {}
 
         const stats = changes.stats || {

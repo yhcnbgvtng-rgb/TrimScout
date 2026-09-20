@@ -22,6 +22,7 @@ import { inventoryChangeTypeToPriceChangeType } from './price_diff.js';
 import { mergeInventorySnapshot } from './inventory_merge.js';
 import { buildBrandChangeRecord, mergeDailyChangesDocument } from './daily_changes.js';
 import { withSharedDataLock } from './shared_data_lock.js';
+import { inventoryShardPath, inventoryShardsDir, snapshotShardPath } from './inventory_shards.js';
 import {
     collectSalesEmail,
     applyContactToDealer,
@@ -48,10 +49,10 @@ const ddcEvalContext = vm.createContext({});
 const DATA_DIR = path.resolve(process.cwd(), 'data');
 const SNAPSHOTS_DIR = path.join(DATA_DIR, 'snapshots');
 const CHANGES_DIR = path.join(DATA_DIR, 'daily_changes');
-const LATEST_SNAPSHOT_PATH = path.join(SNAPSHOTS_DIR, 'latest_snapshot.json');
 
 await fs.mkdir(SNAPSHOTS_DIR, { recursive: true });
 await fs.mkdir(CHANGES_DIR, { recursive: true });
+await fs.mkdir(inventoryShardsDir(), { recursive: true });
 
 // One invocation crawls one brand's dealer list — a dedicated dealers.json
 // per brand/deployment, not a mixed file. Enrichment runs as a single
@@ -64,11 +65,15 @@ await fs.mkdir(CHANGES_DIR, { recursive: true });
 const dealersPath = path.resolve(process.cwd(), process.env.CRAWLER_DEALERS_FILE || 'dealers.json');
 const dealers = JSON.parse(await fs.readFile(dealersPath, 'utf-8'));
 const brand = getBrand(process.env.CRAWLER_BRAND || dealers[0]?.make || 'Porsche');
-// Which state's daily_changes slot this run's record belongs under (see
-// daily_changes.js) — inferred from the dealer file itself (every dealer
-// record built by nj_policy.js/ny_policy.js carries a `state`), with an
-// explicit CRAWLER_STATE override for dealer files that predate that field.
+// Which state this run belongs to — inferred from the dealer file itself
+// (every dealer record built by nj_policy.js/ny_policy.js carries a
+// `state`), with an explicit CRAWLER_STATE override for dealer files that
+// predate that field. Used for the daily_changes slot (as before) AND, as
+// of the state-sharding fix, to pick this run's own inventory/snapshot
+// shard (see inventory_shards.js) instead of one nationwide file.
 const state = process.env.CRAWLER_STATE || dealers[0]?.state || 'UNKNOWN';
+const LATEST_SNAPSHOT_PATH = snapshotShardPath(state);
+const INVENTORY_SHARD_PATH = inventoryShardPath(state);
 // Used only to keep this run's own diagnostic checkpoint file (see the
 // per-dealer checkpoint write below) from colliding with a concurrently
 // running other state+brand's checkpoint file — never parsed back, so it
@@ -1236,28 +1241,34 @@ console.log(`\n🎉 Nationwide Crawl Complete!`);
 console.log(`Total Active ${brand.name} Centers with Live Inventory: ${activeDealersCount}`);
 console.log(`Total Live Vehicles Tracked: ${currentInventory.size}`);
 
-// Compute Nationwide Diffs — merged against the FULL shared snapshot
-// (every brand ever crawled into this data dir), but scoped so this run
-// only ever touches its own brand's dealers. See inventory_merge.js's
+// Compute this state's diffs — merged against this state's OWN shared
+// snapshot shard (every brand ever crawled for this state, not every
+// brand/state in the whole box — see inventory_shards.js), scoped so this
+// run only ever touches its own brand's dealers. See inventory_merge.js's
 // header comment for the cross-brand data-loss bug this fixes: without
 // that scoping, every other brand's active inventory got mislabeled
 // SOLD_OR_REMOVED on every run, and then dropped entirely two runs later.
 //
-// Concurrency: everything from here through the four writes below runs
-// inside the shared-data lock (see shared_data_lock.js), and — critically —
-// re-reads latest_snapshot.json and today's daily_changes file FRESH right
+// Concurrency: the snapshot+inventory read/merge/write below runs inside a
+// lock SCOPED TO THIS STATE (see shared_data_lock.js) — a different state's
+// concurrent brand-run touches a completely different shard file, so it
+// never even attempts this lock, unlike the old single nationwide lock
+// every brand-run used to queue behind. The daily_changes file is still
+// genuinely nationwide-shared (every state's brands append into the SAME
+// day's file), so it keeps its own lock, scoped by today's date instead.
+// Both critical sections — critically — re-read their file FRESH right
 // here, rather than trusting `previousSnapshot` (read once at process
-// start, ~a whole crawl ago) or a read taken outside the lock. With
-// run-daily-crawl.mjs now running up to MAX_CONCURRENT_STATES states'
-// brand loops at once, another state's process may have written a newer
-// version of either file at any point during this run's own (possibly
-// hours-long) crawl; merging against the stale start-of-run copy would
-// silently discard that other state's update the moment this run writes.
-// The early `previousSnapshot` read up top is left in place and still used
-// for the per-vehicle DOM "yesterdayPrice"/"isNew" bookkeeping during the
-// crawl above — that's informational, not authoritative, so a bit of
-// staleness there is harmless; only the actual merge below needs the
-// freshest possible base.
+// start, ~a whole crawl ago) or a read taken outside the lock: with
+// run-daily-crawl.mjs running up to MAX_CONCURRENT_STATES states' brand
+// loops at once, another BRAND in this same state (or another state, for
+// daily_changes) may have written a newer version of either file at any
+// point during this run's own (possibly hours-long) crawl; merging against
+// the stale start-of-run copy would silently discard that update the
+// moment this run writes. The early `previousSnapshot` read up top is left
+// in place and still used for the per-vehicle DOM "yesterdayPrice"/"isNew"
+// bookkeeping during the crawl above — that's informational, not
+// authoritative, so a bit of staleness there is harmless; only the actual
+// merge below needs the freshest possible base.
 let latestPreviousSnapshot = {};
 let dailyChangesDoc;
 let updatedSnapshot;
@@ -1296,28 +1307,34 @@ await withSharedDataLock(async () => {
         } catch {}
     }
 
-    // Persist Daily Changes & Latest Inventory Files
-    //
-    // This brand's slot in today's daily_changes_<date>.json — merged in
-    // (read-modify-write), never a whole-file overwrite. See daily_changes.js's
-    // header comment: overwriting here used to make every earlier brand run
-    // today vanish from this file the moment the next brand finished.
-    const brandChangeRecord = buildBrandChangeRecord({
-        brand: brand.name,
-        state,
-        todayDate,
-        todayIso,
-        totalDealersConfigured: dealers.length,
-        activeDealersCount,
-        currentInventorySize: currentInventory.size,
-        newArrivals,
-        priceDrops,
-        priceIncreases,
-        soldVehicles,
-        dealerStats,
-        skippedForBotProtection: skippedBotProtection,
-    });
+    await fs.writeFile(LATEST_SNAPSHOT_PATH, JSON.stringify(updatedSnapshot, null, 2));
+    await fs.writeFile(INVENTORY_SHARD_PATH, JSON.stringify(allRecords, null, 2));
+}, { scope: state, label: `standalone:${state}/${brand.name}` });
 
+// Persist this brand's slot in today's daily_changes_<date>.json — merged
+// in (read-modify-write), never a whole-file overwrite. See
+// daily_changes.js's header comment: overwriting here used to make every
+// earlier brand run today vanish from this file the moment the next brand
+// finished. Locked separately from the snapshot/inventory write above,
+// scoped by date rather than state, since this file is the one place every
+// state's brands today still genuinely share one file.
+const brandChangeRecord = buildBrandChangeRecord({
+    brand: brand.name,
+    state,
+    todayDate,
+    todayIso,
+    totalDealersConfigured: dealers.length,
+    activeDealersCount,
+    currentInventorySize: currentInventory.size,
+    newArrivals,
+    priceDrops,
+    priceIncreases,
+    soldVehicles,
+    dealerStats,
+    skippedForBotProtection: skippedBotProtection,
+});
+
+await withSharedDataLock(async () => {
     let existingChangesDoc = null;
     try {
         existingChangesDoc = JSON.parse(await fs.readFile(path.join(CHANGES_DIR, `daily_changes_${todayDate}.json`), 'utf-8'));
@@ -1334,11 +1351,8 @@ await withSharedDataLock(async () => {
         todayIso,
     });
 
-    await fs.writeFile(LATEST_SNAPSHOT_PATH, JSON.stringify(updatedSnapshot, null, 2));
-    await fs.writeFile(path.join(DATA_DIR, 'national_inventory_latest.json'), JSON.stringify(allRecords, null, 2));
-    await fs.writeFile(path.join(DATA_DIR, 'inventory_latest.json'), JSON.stringify(allRecords, null, 2));
     await fs.writeFile(path.join(CHANGES_DIR, `daily_changes_${todayDate}.json`), JSON.stringify(dailyChangesDoc, null, 2));
-}, { label: `standalone:${state}/${brand.name}` });
+}, { scope: `daily-changes-${todayDate}`, label: `standalone:${state}/${brand.name}/daily-changes` });
 
 try {
     await saveDomIndex(domIndex);
@@ -1365,7 +1379,7 @@ try {
     // ones just (re)crawled with fresh dealerListedOptions. Every other
     // brand's already-enriched vehicles in the shared inventory file are
     // left completely alone (see enricher.js's vinsToEnrich comment).
-    await runEnrichmentPipeline(Infinity, brand, { brandId: dbBrandId, runId: dbRunId }, Array.from(currentInventory.keys()));
+    await runEnrichmentPipeline(Infinity, brand, { brandId: dbBrandId, runId: dbRunId }, Array.from(currentInventory.keys()), state);
 } catch (enrichErr) {
     console.error('Enrichment step warning:', enrichErr.message);
 }

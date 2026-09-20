@@ -68,8 +68,14 @@ async function doWork() {
   await fs.writeFile(snapshotPath, JSON.stringify(updatedSnapshot, null, 2));
 }
 
+// scope is a fixed, shared value (not per-dealer/state) deliberately: this
+// fixture's whole point is proving the lock primitive serializes access to
+// ONE shared file across real concurrent processes — see
+// concurrency_race.test.js's header comment. Production callers scope by
+// state (or by date, for daily_changes) instead; that per-scope isolation
+// is covered separately in shared_data_lock.test.js.
 if (useLock) {
-  await withSharedDataLock(doWork, { label: `fixture:${dealerName}`, retryDelayMs: 20 });
+  await withSharedDataLock(doWork, { cwd, scope: 'concurrency-test', label: `fixture:${dealerName}`, retryDelayMs: 20 });
 } else {
   await doWork();
 }

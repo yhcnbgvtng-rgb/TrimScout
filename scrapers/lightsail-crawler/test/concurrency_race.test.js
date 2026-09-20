@@ -8,6 +8,7 @@ import { spawn } from 'node:child_process';
 
 import { mergeInventorySnapshot } from '../src/inventory_merge.js';
 import { withSharedDataLock, sharedDataLockPath } from '../src/shared_data_lock.js';
+import { snapshotShardPath, inventoryShardPath } from '../src/inventory_shards.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const FIXTURE = path.join(__dirname, 'fixtures', 'simulate_state_write.mjs');
@@ -170,6 +171,77 @@ describe('concurrency race: two states writing the shared inventory snapshot at 
 });
 
 // ---------------------------------------------------------------------
+// The actual point of the state-sharding fix (see inventory_shards.js):
+// two DIFFERENT states' brand-runs no longer touch the same snapshot file
+// at all, so they never even attempt the same lock — proven here by
+// running the exact scenario above (NJ slow-writer, GA fast-writer,
+// forced interleaving) against each state's OWN shard path instead of one
+// shared latest_snapshot.json, and confirming both survive with NO lock
+// held at all. Before this fix, this same interleaving with no lock is
+// exactly what the CONTROL test above proves loses GA's update.
+// ---------------------------------------------------------------------
+describe('state sharding: two different states never contend, because they no longer share a file', () => {
+  let tmpDir;
+
+  before(async () => {
+    tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'trimscout-shard-isolation-'));
+    await fs.mkdir(path.join(tmpDir, 'data', 'snapshots'), { recursive: true });
+  });
+
+  after(async () => {
+    await fs.rm(tmpDir, { recursive: true, force: true });
+  });
+
+  async function simulateShardedStateRun({ state, vin, dealerName, delayMs }) {
+    const shardPath = snapshotShardPath(state, tmpDir);
+    let previousSnapshot = {};
+    try {
+      previousSnapshot = JSON.parse(await fs.readFile(shardPath, 'utf-8'));
+    } catch {
+      previousSnapshot = {};
+    }
+
+    await sleep(delayMs); // the same forced interleaving window as the shared-file tests above
+
+    const { updatedSnapshot } = mergeInventorySnapshot({
+      previousSnapshot,
+      currentInventory: new Map([[vin, { vin, configDealerName: dealerName, price: 10000 }]]),
+      dealers: [{ name: dealerName }],
+      failedDealerNames: new Set(),
+      todayDate: '2026-09-20',
+      todayIso: '2026-09-20T00:00:00.000Z',
+      toPriceChangeType: (t) => t,
+    });
+
+    await fs.writeFile(shardPath, JSON.stringify(updatedSnapshot, null, 2));
+  }
+
+  it('NJ and GA each land in their own shard, correctly, with no lock at all — not just "no data lost"', async () => {
+    // Deliberately NO withSharedDataLock/scope here — proving that the
+    // isolation comes from writing to different files, not from a lock
+    // this test forgot to remove.
+    await Promise.all([
+      simulateShardedStateRun({ state: 'NJ', vin: 'NJ_SHARD_1', dealerName: 'NJ Toyota', delayMs: 80 }),
+      simulateShardedStateRun({ state: 'GA', vin: 'GA_SHARD_1', dealerName: 'GA Toyota', delayMs: 10 }),
+    ]);
+
+    const nj = JSON.parse(await fs.readFile(snapshotShardPath('NJ', tmpDir), 'utf-8'));
+    const ga = JSON.parse(await fs.readFile(snapshotShardPath('GA', tmpDir), 'utf-8'));
+    assert.equal(nj.NJ_SHARD_1.status, 'ACTIVE');
+    assert.equal(ga.GA_SHARD_1.status, 'ACTIVE');
+    // And each shard contains ONLY its own state's vehicle — confirming
+    // this isn't one shared file in disguise.
+    assert.equal(nj.GA_SHARD_1, undefined);
+    assert.equal(ga.NJ_SHARD_1, undefined);
+  });
+
+  it('inventoryShardPath / snapshotShardPath key strictly by state — different states never collide on the same file', () => {
+    assert.notEqual(inventoryShardPath('NJ', tmpDir), inventoryShardPath('GA', tmpDir));
+    assert.notEqual(snapshotShardPath('NJ', tmpDir), snapshotShardPath('GA', tmpDir));
+  });
+});
+
+// ---------------------------------------------------------------------
 // Same race, proven again across REAL, separate OS processes (not just
 // concurrent async functions inside one Node process) — spawned the same
 // way run-daily-crawl.mjs's runStep() actually spawns each brand's real
@@ -237,12 +309,14 @@ describe('concurrency race: real concurrent child processes (not just concurrent
     assert.equal(final.PROC_GA_2.status, 'ACTIVE');
 
     // And no stray lock file left behind — both processes released cleanly.
-    await assert.rejects(fs.access(sharedDataLockPath(tmpDir)));
+    // 'concurrency-test' matches the fixed scope simulate_state_write.mjs
+    // itself acquires the lock under (see that fixture's own comment).
+    await assert.rejects(fs.access(sharedDataLockPath(tmpDir, 'concurrency-test')));
   });
 
   it('FIX: a crashed lock holder does not permanently block a later real process', async () => {
     await fs.writeFile(snapshotPath, JSON.stringify({}));
-    const lockPath = sharedDataLockPath(tmpDir);
+    const lockPath = sharedDataLockPath(tmpDir, 'concurrency-test');
     await fs.mkdir(path.dirname(lockPath), { recursive: true });
     // Simulate a process that acquired the lock and then died without
     // releasing it (kill -9 mid-critical-section) — a PID that is

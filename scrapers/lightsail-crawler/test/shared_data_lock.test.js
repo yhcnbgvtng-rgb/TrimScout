@@ -29,8 +29,13 @@ describe('shared_data_lock', () => {
     await fs.rm(tmpDir, { recursive: true, force: true });
   });
 
-  it('sharedDataLockPath resolves under <cwd>/data', () => {
-    assert.equal(sharedDataLockPath('/some/root'), path.join('/some/root', 'data', 'shared_data.lock'));
+  it('sharedDataLockPath resolves under <cwd>/data/locks/<scope>.lock', () => {
+    assert.equal(sharedDataLockPath('/some/root', 'NJ'), path.join('/some/root', 'data', 'locks', 'NJ.lock'));
+    assert.equal(sharedDataLockPath('/some/root', 'daily-changes-2026-09-20'), path.join('/some/root', 'data', 'locks', 'daily-changes-2026-09-20.lock'));
+  });
+
+  it('sharedDataLockPath throws without a scope — no unscoped global lock exists anymore', () => {
+    assert.throws(() => sharedDataLockPath('/some/root'), /scope/);
   });
 
   it('acquires a fresh lock when none exists, and release() removes it', async () => {
@@ -173,6 +178,33 @@ describe('shared_data_lock', () => {
       await assert.doesNotReject(
         withSharedDataLock(async () => 'fine', { lockPath, pid: process.pid + 1 }),
       );
+    });
+  });
+
+  describe('scope-based resolution (no explicit lockPath)', () => {
+    it('acquire/release via {scope, cwd} resolves to the same file sharedDataLockPath computes, and two different scopes never contend', async () => {
+      const cwd = path.join(tmpDir, 'scoped-root');
+      const njLock = await acquireSharedDataLock({ cwd, scope: 'NJ', pid: process.pid });
+      assert.equal(njLock.lockPath, sharedDataLockPath(cwd, 'NJ'));
+
+      // A different scope (GA) must succeed immediately, even while NJ's
+      // lock is still held — this is the whole point of scoping: two
+      // states' brand-runs no longer queue behind each other's lock.
+      const gaLock = await acquireSharedDataLock({ cwd, scope: 'GA', pid: process.pid, maxWaitMs: 200 });
+      assert.equal(gaLock.lockPath, sharedDataLockPath(cwd, 'GA'));
+
+      await njLock.release();
+      await gaLock.release();
+      await assert.rejects(fs.access(njLock.lockPath));
+      await assert.rejects(fs.access(gaLock.lockPath));
+    });
+
+    it('withSharedDataLock accepts {scope, cwd} the same way standalone.js/enricher.js call it', async () => {
+      const cwd = path.join(tmpDir, 'scoped-root-2');
+      let ran = false;
+      await withSharedDataLock(async () => { ran = true; }, { cwd, scope: 'TX', pid: process.pid });
+      assert.equal(ran, true);
+      await assert.rejects(fs.access(sharedDataLockPath(cwd, 'TX'))); // released
     });
   });
 });

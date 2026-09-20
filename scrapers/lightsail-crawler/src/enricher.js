@@ -2,17 +2,21 @@ import { gotScraping } from 'got-scraping';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { withSharedDataLock } from './shared_data_lock.js';
+import { cacheShardPath, inventoryShardPath, listShardedStates } from './inventory_shards.js';
 
 // Computed fresh (not a module-level constant) so a test can chdir into a
 // scratch directory before calling runEnrichmentPipeline and get isolated
 // paths — process.cwd() never actually changes mid-run in production, so
-// this is behavior-preserving there.
-function getDataPaths() {
+// this is behavior-preserving there. `state` picks this run's own shard
+// (see inventory_shards.js) instead of one nationwide cache/inventory file
+// — required here, unlike the CLI backfill entry point below, which
+// discovers every state's shard itself and calls this once per state.
+function getDataPaths(state) {
   const dataDir = path.resolve(process.cwd(), 'data');
   return {
     dataDir,
-    cachePath: path.join(dataDir, 'enriched_cache.json'),
-    inventoryPath: path.join(dataDir, 'national_inventory_latest.json'),
+    cachePath: cacheShardPath(state, process.cwd()),
+    inventoryPath: inventoryShardPath(state, process.cwd()),
   };
 }
 
@@ -252,22 +256,44 @@ export function mergeEnrichedRecordsIntoInventory({ freshInventory, enrichedByVi
 // per-vehicle work below to just the vehicles this invocation's caller
 // actually has fresh data for — e.g. standalone.js passes the VINs from
 // the brand/dealer crawl that just ran. Without this, every brand run
-// reprocessed the ENTIRE cumulative `national_inventory_latest.json`
-// (every brand/dealer ever crawled into that shared file), so a run's cost
-// grew with the whole file's size rather than with that run's own new
-// vehicles — confirmed live: Volvo (1 dealer) took 2m14s while Toyota (31
-// dealers, last in a 12-brand queue) took 29m30s, a blowup tracking queue
-// position/cumulative history size, not Toyota's own dealer count.
-// `null` (the default, and what the CLI entry point below uses) keeps the
-// original "enrich/backfill everything in the file" behavior, which is a
-// deliberately supported standalone use (see the SKIP_NHTSA_ENRICHMENT
-// comment above about backfilling missed specs without re-crawling).
-export async function runEnrichmentPipeline(limit = Infinity, brand = null, dbRunContext = null, vinsToEnrich = null) {
+// reprocessed the ENTIRE cumulative inventory shard (every brand/dealer
+// ever crawled for that state), so a run's cost grew with the whole
+// shard's size rather than with that run's own new vehicles — confirmed
+// live: Volvo (1 dealer) took 2m14s while Toyota (31 dealers, last in a
+// 12-brand queue) took 29m30s, a blowup tracking queue position/cumulative
+// history size, not Toyota's own dealer count. `vinsToEnrich: null` (the
+// default) keeps the original "enrich/backfill everything in this state's
+// shard" behavior, a deliberately supported standalone use (see the
+// SKIP_NHTSA_ENRICHMENT comment above about backfilling missed specs
+// without re-crawling).
+//
+// `state` picks which shard this run touches (see inventory_shards.js).
+// standalone.js always passes its own state explicitly. The CLI entry
+// point at the bottom of this file omits it — runEnrichmentPipeline then
+// discovers every state that has a shard on disk and backfills each one in
+// turn, preserving the old "one monolithic file" CLI backfill behavior
+// without ever holding more than one state's data in memory at a time.
+export async function runEnrichmentPipeline(limit = Infinity, brand = null, dbRunContext = null, vinsToEnrich = null, state = null) {
+  if (!state) {
+    const states = await listShardedStates();
+    if (states.length === 0) {
+      console.log('No inventory shards found under data/inventory/ — nothing to backfill.');
+      return;
+    }
+    console.log(`No state given — backfilling all ${states.length} shard(s) in turn: ${states.join(', ')}`);
+    for (const s of states) {
+      await runEnrichmentPipeline(limit, brand, dbRunContext, vinsToEnrich, s);
+    }
+    return;
+  }
+
   console.log("====================================================");
-  console.log("⚡ STARTING ENHANCED VIN ENRICHMENT PIPELINE");
+  console.log(`⚡ STARTING ENHANCED VIN ENRICHMENT PIPELINE (${state})`);
   console.log("====================================================");
 
-  const { cachePath: CACHE_PATH, inventoryPath: INVENTORY_PATH, dataDir: DATA_DIR } = getDataPaths();
+  const { cachePath: CACHE_PATH, inventoryPath: INVENTORY_PATH } = getDataPaths(state);
+  await fs.mkdir(path.dirname(CACHE_PATH), { recursive: true });
+  await fs.mkdir(path.dirname(INVENTORY_PATH), { recursive: true });
 
   let rawInventory = null;
   let cache = {};
@@ -319,7 +345,7 @@ export async function runEnrichmentPipeline(limit = Infinity, brand = null, dbRu
 
     const scopedInventory = vinScope ? inventory.filter((v) => vinScope.has(v.vin)) : inventory;
     targetVehicles = scopedInventory.slice(0, limit);
-  }, { label: `enricher-read:${brand?.name || 'unknown'}` });
+  }, { scope: state, label: `enricher-read:${state}/${brand?.name || 'unknown'}` });
 
   if (inventoryReadFailed) return;
 
@@ -442,7 +468,7 @@ export async function runEnrichmentPipeline(limit = Infinity, brand = null, dbRu
         }
         const merged = { ...freshCache, ...Object.fromEntries(newCacheEntries) };
         await fs.writeFile(CACHE_PATH, JSON.stringify(merged, null, 2));
-      }, { label: `enricher-checkpoint:${brand?.name || 'unknown'}` });
+      }, { scope: state, label: `enricher-checkpoint:${state}/${brand?.name || 'unknown'}` });
     }
   }
 
@@ -451,11 +477,11 @@ export async function runEnrichmentPipeline(limit = Infinity, brand = null, dbRu
   // function. See mergeEnrichedRecordsIntoInventory's header comment: this
   // pipeline is network-bound and can run for hours (sequential NHTSA
   // lookups), so by the time it's ready to persist, a concurrently-running
-  // other state's crawl+merge (standalone.js) or enrichment pass may well
-  // have written a newer version of national_inventory_latest.json /
-  // inventory_latest.json / enriched_cache.json. Only this run's own VINs
-  // (enrichedByVin / newCacheEntries) are ever patched in; everything else
-  // comes from the fresh read, untouched.
+  // OTHER BRAND in this same state's crawl+merge (standalone.js) or
+  // enrichment pass may well have written a newer version of this state's
+  // inventory/cache shard. Only this run's own VINs (enrichedByVin /
+  // newCacheEntries) are ever patched in; everything else comes from the
+  // fresh read, untouched.
   await withSharedDataLock(async () => {
     let freshInventory;
     try {
@@ -492,13 +518,12 @@ export async function runEnrichmentPipeline(limit = Infinity, brand = null, dbRu
 
     await fs.writeFile(CACHE_PATH, JSON.stringify(mergedCache, null, 2));
     await fs.writeFile(INVENTORY_PATH, JSON.stringify(mergedInventory, null, 2));
-    await fs.writeFile(path.join(DATA_DIR, "inventory_latest.json"), JSON.stringify(mergedInventory, null, 2));
 
     // Reassigned after the writes (not before) so the DB sync and closing
     // log lines below still see the merged result, matching prior behavior.
     rawInventory = mergedInventory;
     cache = mergedCache;
-  }, { label: `enricher-final:${brand?.name || 'unknown'}` });
+  }, { scope: state, label: `enricher-final:${state}/${brand?.name || 'unknown'}` });
 
   // Sync to MariaDB (additive — this never touches the JSON files above,
   // which remain the source of truth for anything that reads them today).
