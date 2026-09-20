@@ -625,6 +625,11 @@ export async function importPastedFactoryVehicle(
      * link's desk — no OEM sticker route, no factory build implied.
      */
     condition?: "used" | "cpo";
+    /**
+     * The alternate lane ("open to anything"): free VIN decode only (NHTSA facts
+     * + the link's dealer), never an OEM window-sticker route. Keeps the car new.
+     */
+    freeDecodeOnly?: boolean;
   } = {}
 ): Promise<PasteImportResult> {
   const raw = paste.trim();
@@ -671,6 +676,27 @@ export async function importPastedFactoryVehicle(
       const out = interpretFactoryBuildJson(json, res.ok, "gm", jsonVin || pastedVin);
       if (!out.ok) return out;
       return { ...out, oem: null, vehicle: { ...out.vehicle, condition: options.condition }, factoryBuildUnavailable: true, buildConfidence: "dealer_listing_only" };
+    }
+    // Alternate lane: free VIN decode only — never an OEM window-sticker route,
+    // no factory options. The car stays "new"; the buyer is just showing an example.
+    if (options.freeDecodeOnly) {
+      const res = await fetchImpl("/api/free-vin", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(suppliedVin ? { paste: raw, vin: suppliedVin } : { paste: raw }),
+      });
+      const json = (await res.json().catch(() => ({}))) as Record<string, unknown>;
+      const jsonVin = typeof json.vin === "string" ? json.vin.trim().toUpperCase() : pastedVin;
+      if (json.needsVin || json.dealerBlocked) {
+        const message = (typeof json.error === "string" && json.error) || "Could not read a VIN from that page. Paste the 17-character VIN.";
+        return { ok: false, reason: reasonFromServerError(message, json), error: message, dealer: blockedDealerFromJson(json), listingUrl: typeof json.listingUrl === "string" && json.listingUrl ? json.listingUrl : undefined };
+      }
+      if (jsonVin && options.existingVehicles && isDuplicateVehicle(jsonVin, options.existingVehicles)) {
+        return { ok: false, reason: "duplicate", error: `VIN ${jsonVin} is already in your package. Paste a different vehicle.` };
+      }
+      const out = interpretFactoryBuildJson(json, res.ok, "gm", jsonVin || pastedVin);
+      if (!out.ok) return out;
+      return { ...out, oem: null, factoryBuildUnavailable: true, buildConfidence: "dealer_listing_only" };
     }
     // A supplied VIN settles the make outright — no guessing from the URL.
     const endpoint =
