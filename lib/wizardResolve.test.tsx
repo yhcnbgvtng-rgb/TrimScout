@@ -113,11 +113,9 @@ describe("Configure Quote Request — vehicle resolve hardening", () => {
 
     // ---- 1. A dealer VDP with the VIN in the path: one click, no retyping, rooftop from the VDP.
     await act(async () => { bump(); setOpen(true); }); await tick();
-    assert.equal(doc.querySelector('[data-testid="continue-reason"]')?.textContent, "Choose what you want quoted to continue");
-    await act(async () => { (doc.querySelector('[data-testid="intent-same_spec"]') as HTMLButtonElement).click(); });
-    // 2026-09-19: picking an intent loads the VDP fields on Step 1 immediately (no reveal
-    // substep). same_spec then waits on a resolved vehicle before Continue enables.
-    assert.ok(doc.getElementById("primary-link-input"), "VDP fields load as soon as the intent is picked");
+    // 2026-09-19: same_spec is the default on open — the VDP fields are on screen right away
+    // and Continue waits on a resolved vehicle.
+    assert.ok(doc.getElementById("primary-link-input"), "VDP fields load on open (same_spec default)");
     assert.equal(continueBtn().disabled, true);
     assert.equal(doc.querySelector('[data-testid="continue-reason"]')?.textContent, "Add a vehicle to continue");
     await paste(URL_F150);
@@ -291,11 +289,11 @@ describe("Step 1 asks the quote intent before the VIN (2026-09-17)", () => {
     const continueBtn = () => Array.from(doc.querySelectorAll<HTMLButtonElement>("button")).find((b) => b.textContent?.trim().startsWith("Continue"))!;
     const reason = () => doc.querySelector('[data-testid="continue-reason"]')?.textContent;
 
-    // 1. Intent first — no VIN box yet.
+    // 1. On open, same_spec is the default and the VDP fields are already on screen.
     assert.ok(doc.querySelector('[data-testid="intent-picker"]'), "intent choice on screen");
-    assert.equal(doc.getElementById("primary-link-input"), null, "no VIN / link box until an intent is chosen");
+    assert.ok(doc.getElementById("primary-link-input"), "VDP fields load on open (same_spec default)");
     assert.equal(continueBtn().disabled, true);
-    assert.equal(reason(), "Choose what you want quoted to continue");
+    assert.equal(reason(), "Add a vehicle to continue");
     assert.match(text(), /Paste the VIN or dealer link so quotes match this car/);
     assert.match(text(), /No VIN needed — dealers can propose different cars/);
 
