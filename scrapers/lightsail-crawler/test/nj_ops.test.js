@@ -414,8 +414,8 @@ describe('NY locator seed (no brandofcity guesses)', () => {
 });
 
 describe('state registry (src/states.js)', () => {
-  it('lists NJ, NY, FL, GA, TX, SC, VA, NC, RI, VT, NH, MA, CA, PA, OK, IL as supported and rejects anything else', () => {
-    assert.deepEqual(SUPPORTED_STATES, ['NJ', 'NY', 'FL', 'GA', 'TX', 'SC', 'VA', 'NC', 'RI', 'VT', 'NH', 'MA', 'CA', 'PA', 'OK', 'IL']);
+  it('lists all 50 states as supported (16 onboarded individually + the 34-state scale-out) and rejects anything else', () => {
+    assert.deepEqual(SUPPORTED_STATES, ['NJ', 'NY', 'FL', 'GA', 'TX', 'SC', 'VA', 'NC', 'RI', 'VT', 'NH', 'MA', 'CA', 'PA', 'OK', 'IL', 'OH', 'MI', 'WA', 'AZ', 'TN', 'IN', 'MO', 'IA', 'MD', 'WI', 'CO', 'MN', 'AL', 'LA', 'KY', 'OR', 'NV', 'UT', 'CT', 'AR', 'MS', 'KS', 'NM', 'NE', 'WV', 'ID', 'HI', 'ME', 'MT', 'SD', 'ND', 'AK', 'DE', 'WY']);
     assert.equal(isSupportedState('FL'), true);
     assert.equal(isSupportedState('fl'), true);
     assert.equal(isSupportedState('GA'), true);
@@ -444,8 +444,18 @@ describe('state registry (src/states.js)', () => {
     assert.equal(isSupportedState('ok'), true);
     assert.equal(isSupportedState('IL'), true);
     assert.equal(isSupportedState('il'), true);
+    // The 34-state scale-out (2026-09-20) — looped rather than one
+    // assert.equal per state/case, same coverage without 68 near-identical
+    // lines.
+    for (const code of ['OH', 'MI', 'WA', 'AZ', 'TN', 'IN', 'MO', 'IA', 'MD', 'WI', 'CO', 'MN', 'AL', 'LA', 'KY', 'OR', 'NV', 'UT', 'CT', 'AR', 'MS', 'KS', 'NM', 'NE', 'WV', 'ID', 'HI', 'ME', 'MT', 'SD', 'ND', 'AK', 'DE', 'WY']) {
+      assert.equal(isSupportedState(code), true, `${code} should be supported`);
+      assert.equal(isSupportedState(code.toLowerCase()), true, `${code.toLowerCase()} should be supported`);
+    }
     assert.equal(isSupportedState(' NJ '), true);
-    assert.equal(isSupportedState('CT'), false);
+    // CT used to be the go-to "not yet supported" example here, until it
+    // was added in the 34-state scale-out above — ZZ is not a real state
+    // and never will be, so this assertion can't go stale the same way.
+    assert.equal(isSupportedState('ZZ'), false);
     assert.equal(isSupportedState(''), false);
     assert.equal(isSupportedState(null), false);
   });

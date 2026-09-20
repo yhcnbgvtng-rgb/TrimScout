@@ -37,6 +37,40 @@ import { loadCaDealers } from '../src/ca_policy.js';
 import { loadPaDealers } from '../src/pa_policy.js';
 import { loadOkDealers } from '../src/ok_policy.js';
 import { loadIlDealers } from '../src/il_policy.js';
+import { loadOhDealers } from '../src/oh_policy.js';
+import { loadMiDealers } from '../src/mi_policy.js';
+import { loadWaDealers } from '../src/wa_policy.js';
+import { loadAzDealers } from '../src/az_policy.js';
+import { loadTnDealers } from '../src/tn_policy.js';
+import { loadInDealers } from '../src/in_policy.js';
+import { loadMoDealers } from '../src/mo_policy.js';
+import { loadIaDealers } from '../src/ia_policy.js';
+import { loadMdDealers } from '../src/md_policy.js';
+import { loadWiDealers } from '../src/wi_policy.js';
+import { loadCoDealers } from '../src/co_policy.js';
+import { loadMnDealers } from '../src/mn_policy.js';
+import { loadAlDealers } from '../src/al_policy.js';
+import { loadLaDealers } from '../src/la_policy.js';
+import { loadKyDealers } from '../src/ky_policy.js';
+import { loadOrDealers } from '../src/or_policy.js';
+import { loadNvDealers } from '../src/nv_policy.js';
+import { loadUtDealers } from '../src/ut_policy.js';
+import { loadCtDealers } from '../src/ct_policy.js';
+import { loadArDealers } from '../src/ar_policy.js';
+import { loadMsDealers } from '../src/ms_policy.js';
+import { loadKsDealers } from '../src/ks_policy.js';
+import { loadNmDealers } from '../src/nm_policy.js';
+import { loadNeDealers } from '../src/ne_policy.js';
+import { loadWvDealers } from '../src/wv_policy.js';
+import { loadIdDealers } from '../src/id_policy.js';
+import { loadHiDealers } from '../src/hi_policy.js';
+import { loadMeDealers } from '../src/me_policy.js';
+import { loadMtDealers } from '../src/mt_policy.js';
+import { loadSdDealers } from '../src/sd_policy.js';
+import { loadNdDealers } from '../src/nd_policy.js';
+import { loadAkDealers } from '../src/ak_policy.js';
+import { loadDeDealers } from '../src/de_policy.js';
+import { loadWyDealers } from '../src/wy_policy.js';
 import { probeDealer } from '../src/http_probe.js';
 import { buildTablePdf, buildSummaryBlocks } from '../src/pdf_table.js';
 import { CLASSIFICATION_ORDER, summarizeBotRows } from '../src/bot_protection.js';
@@ -62,6 +96,40 @@ const STATE_DEALER_LOADERS = {
   PA: loadPaDealers,
   OK: loadOkDealers,
   IL: loadIlDealers,
+OH: loadOhDealers,
+  MI: loadMiDealers,
+  WA: loadWaDealers,
+  AZ: loadAzDealers,
+  TN: loadTnDealers,
+  IN: loadInDealers,
+  MO: loadMoDealers,
+  IA: loadIaDealers,
+  MD: loadMdDealers,
+  WI: loadWiDealers,
+  CO: loadCoDealers,
+  MN: loadMnDealers,
+  AL: loadAlDealers,
+  LA: loadLaDealers,
+  KY: loadKyDealers,
+  OR: loadOrDealers,
+  NV: loadNvDealers,
+  UT: loadUtDealers,
+  CT: loadCtDealers,
+  AR: loadArDealers,
+  MS: loadMsDealers,
+  KS: loadKsDealers,
+  NM: loadNmDealers,
+  NE: loadNeDealers,
+  WV: loadWvDealers,
+  ID: loadIdDealers,
+  HI: loadHiDealers,
+  ME: loadMeDealers,
+  MT: loadMtDealers,
+  SD: loadSdDealers,
+  ND: loadNdDealers,
+  AK: loadAkDealers,
+  DE: loadDeDealers,
+  WY: loadWyDealers,
 };
 
 const brandFilter = (process.argv.find((a) => a.startsWith('--brand=')) || '')

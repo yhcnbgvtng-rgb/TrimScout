@@ -340,8 +340,223 @@ const IL_ZIPS = [
   '62901', // Carbondale (far south)
 ];
 
+// The remaining 34 states, added 2026-09-20 as part of scaling to
+// nationwide coverage across multiple crawl boxes. Same real-metro,
+// population-scaled zip-seed approach as every prior state: 1-2 seeds for
+// the smallest/single-metro states (HI, AK, DE, WY...), up to 7 for the
+// biggest remaining ones (OH, MI) with multiple genuinely distinct
+// markets.
+const OH_ZIPS = [
+  '43215', // Columbus (capital, largest)
+  '44113', // Cleveland
+  '45202', // Cincinnati
+  '43604', // Toledo
+  '44308', // Akron
+  '45402', // Dayton
+  '44503', // Youngstown
+];
+
+const MI_ZIPS = [
+  '48226', // Detroit (dominant)
+  '49503', // Grand Rapids
+  '48933', // Lansing (capital)
+  '48502', // Flint
+  '49685', // Traverse City (north)
+];
+
+const WA_ZIPS = [
+  '98101', // Seattle (dominant)
+  '99201', // Spokane (east)
+  '98402', // Tacoma
+  '98660', // Vancouver WA (south, near Portland)
+  '98501', // Olympia (capital)
+];
+
+const AZ_ZIPS = [
+  '85003', // Phoenix (dominant)
+  '85701', // Tucson
+  '86001', // Flagstaff (north)
+  '85364', // Yuma (southwest)
+];
+
+const TN_ZIPS = [
+  '37201', // Nashville (capital)
+  '38103', // Memphis
+  '37902', // Knoxville
+  '37402', // Chattanooga
+];
+
+const IN_ZIPS = [
+  '46204', // Indianapolis (dominant)
+  '46802', // Fort Wayne
+  '47708', // Evansville
+  '46601', // South Bend
+];
+
+const MO_ZIPS = [
+  '64106', // Kansas City
+  '63101', // St. Louis
+  '65806', // Springfield MO
+  '65101', // Jefferson City (capital)
+];
+
+const IA_ZIPS = [
+  '50309', // Des Moines (capital, dominant)
+  '52401', // Cedar Rapids
+  '52801', // Davenport (Quad Cities, east)
+];
+
+const MD_ZIPS = [
+  '21201', // Baltimore (dominant)
+  '20852', // Rockville (DC suburbs)
+  '21401', // Annapolis (capital)
+  '21801', // Salisbury (Eastern Shore)
+];
+
+const WI_ZIPS = [
+  '53202', // Milwaukee (dominant)
+  '53703', // Madison (capital)
+  '54301', // Green Bay
+  '54701', // Eau Claire
+];
+
+const CO_ZIPS = [
+  '80202', // Denver (dominant)
+  '80903', // Colorado Springs
+  '80521', // Fort Collins
+  '81501', // Grand Junction (west)
+];
+
+const MN_ZIPS = [
+  '55402', // Minneapolis
+  '55102', // St. Paul
+  '55802', // Duluth (north)
+  '55901', // Rochester MN (south)
+];
+
+const AL_ZIPS = [
+  '35203', // Birmingham (dominant)
+  '36104', // Montgomery (capital)
+  '36602', // Mobile (south)
+  '35801', // Huntsville (north)
+];
+
+const LA_ZIPS = [
+  '70112', // New Orleans (dominant)
+  '70802', // Baton Rouge (capital)
+  '71101', // Shreveport
+  '70501', // Lafayette
+];
+
+const KY_ZIPS = [
+  '40202', // Louisville (dominant)
+  '40507', // Lexington
+  '42101', // Bowling Green
+];
+
+const OR_ZIPS = [
+  '97204', // Portland (dominant)
+  '97401', // Eugene
+  '97301', // Salem (capital)
+  '97701', // Bend (central)
+];
+
+const NV_ZIPS = [
+  '89101', // Las Vegas (dominant)
+  '89501', // Reno
+];
+
+const UT_ZIPS = [
+  '84101', // Salt Lake City (dominant)
+  '84601', // Provo
+  '84770', // St. George (south)
+];
+
+const CT_ZIPS = [
+  '06103', // Hartford (capital)
+  '06510', // New Haven
+  '06901', // Stamford (near NYC)
+];
+
+const AR_ZIPS = [
+  '72201', // Little Rock (capital, dominant)
+  '72701', // Fayetteville (northwest)
+];
+
+const MS_ZIPS = [
+  '39201', // Jackson (capital, dominant)
+  '39501', // Gulfport (south)
+];
+
+const KS_ZIPS = [
+  '67202', // Wichita (dominant)
+  '66210', // Overland Park (KC metro)
+  '66603', // Topeka (capital)
+];
+
+const NM_ZIPS = [
+  '87102', // Albuquerque (dominant)
+  '87501', // Santa Fe (capital)
+  '88001', // Las Cruces (south)
+];
+
+const NE_ZIPS = [
+  '68102', // Omaha (dominant)
+  '68508', // Lincoln (capital)
+];
+
+const WV_ZIPS = [
+  '25301', // Charleston (capital)
+  '26505', // Morgantown
+];
+
+const ID_ZIPS = [
+  '83702', // Boise (dominant)
+  '83401', // Idaho Falls
+  '83814', // Coeur d'Alene (north)
+];
+
+const HI_ZIPS = [
+  '96813', // Honolulu (dominant, Oahu)
+];
+
+const ME_ZIPS = [
+  '04101', // Portland ME (dominant)
+  '04401', // Bangor
+];
+
+const MT_ZIPS = [
+  '59101', // Billings
+  '59802', // Missoula
+  '59718', // Bozeman
+];
+
+const SD_ZIPS = [
+  '57104', // Sioux Falls (dominant)
+  '57701', // Rapid City (west)
+];
+
+const ND_ZIPS = [
+  '58102', // Fargo (dominant)
+  '58501', // Bismarck (capital)
+];
+
+const AK_ZIPS = [
+  '99501', // Anchorage (dominant)
+];
+
+const DE_ZIPS = [
+  '19801', // Wilmington (dominant)
+  '19901', // Dover (capital)
+];
+
+const WY_ZIPS = [
+  '82001', // Cheyenne (capital)
+  '82601', // Casper
+];
+
 // Combined zip spread used by every zip+radius OEM locator below.
-const TARGET_ZIPS = [...NJ_NY_ZIPS, ...FL_ZIPS, ...GA_ZIPS, ...TX_ZIPS, ...SC_ZIPS, ...VA_ZIPS, ...NC_ZIPS, ...RI_ZIPS, ...VT_ZIPS, ...NH_ZIPS, ...MA_ZIPS, ...CA_ZIPS, ...PA_ZIPS, ...OK_ZIPS, ...IL_ZIPS];
+const TARGET_ZIPS = [...NJ_NY_ZIPS, ...FL_ZIPS, ...GA_ZIPS, ...TX_ZIPS, ...SC_ZIPS, ...VA_ZIPS, ...NC_ZIPS, ...RI_ZIPS, ...VT_ZIPS, ...NH_ZIPS, ...MA_ZIPS, ...CA_ZIPS, ...PA_ZIPS, ...OK_ZIPS, ...IL_ZIPS, ...OH_ZIPS, ...MI_ZIPS, ...WA_ZIPS, ...AZ_ZIPS, ...TN_ZIPS, ...IN_ZIPS, ...MO_ZIPS, ...IA_ZIPS, ...MD_ZIPS, ...WI_ZIPS, ...CO_ZIPS, ...MN_ZIPS, ...AL_ZIPS, ...LA_ZIPS, ...KY_ZIPS, ...OR_ZIPS, ...NV_ZIPS, ...UT_ZIPS, ...CT_ZIPS, ...AR_ZIPS, ...MS_ZIPS, ...KS_ZIPS, ...NM_ZIPS, ...NE_ZIPS, ...WV_ZIPS, ...ID_ZIPS, ...HI_ZIPS, ...ME_ZIPS, ...MT_ZIPS, ...SD_ZIPS, ...ND_ZIPS, ...AK_ZIPS, ...DE_ZIPS, ...WY_ZIPS];
 
 function hostOf(url) {
   return hostFromUrl(url) || normalizeDealerHost(url);
@@ -599,6 +814,115 @@ async function fetchToyota() {
     'pennsylvania/scranton',
     'pennsylvania/erie',
     'pennsylvania/altoona',
+    // Added with the 34-state scale-out (2026-09-20), same real
+    // per-state slugs as every other state here.
+    'ohio/columbus',
+    'ohio/cleveland',
+    'ohio/cincinnati',
+    'ohio/toledo',
+    'ohio/akron',
+    'ohio/dayton',
+    'ohio/youngstown',
+    'michigan/detroit',
+    'michigan/grand-rapids',
+    'michigan/lansing',
+    'michigan/flint',
+    'michigan/traverse-city',
+    'washington/seattle',
+    'washington/spokane',
+    'washington/tacoma',
+    'washington/vancouver',
+    'washington/olympia',
+    'arizona/phoenix',
+    'arizona/tucson',
+    'arizona/flagstaff',
+    'arizona/yuma',
+    'tennessee/nashville',
+    'tennessee/memphis',
+    'tennessee/knoxville',
+    'tennessee/chattanooga',
+    'indiana/indianapolis',
+    'indiana/fort-wayne',
+    'indiana/evansville',
+    'indiana/south-bend',
+    'missouri/kansas-city',
+    'missouri/st-louis',
+    'missouri/springfield-mo',
+    'missouri/jefferson-city',
+    'iowa/des-moines',
+    'iowa/cedar-rapids',
+    'iowa/davenport',
+    'maryland/baltimore',
+    'maryland/rockville',
+    'maryland/annapolis',
+    'maryland/salisbury',
+    'wisconsin/milwaukee',
+    'wisconsin/madison',
+    'wisconsin/green-bay',
+    'wisconsin/eau-claire',
+    'colorado/denver',
+    'colorado/colorado-springs',
+    'colorado/fort-collins',
+    'colorado/grand-junction',
+    'minnesota/minneapolis',
+    'minnesota/st-paul',
+    'minnesota/duluth',
+    'minnesota/rochester-mn',
+    'alabama/birmingham',
+    'alabama/montgomery',
+    'alabama/mobile',
+    'alabama/huntsville',
+    'louisiana/new-orleans',
+    'louisiana/baton-rouge',
+    'louisiana/shreveport',
+    'louisiana/lafayette',
+    'kentucky/louisville',
+    'kentucky/lexington',
+    'kentucky/bowling-green',
+    'oregon/portland',
+    'oregon/eugene',
+    'oregon/salem',
+    'oregon/bend',
+    'nevada/las-vegas',
+    'nevada/reno',
+    'utah/salt-lake-city',
+    'utah/provo',
+    'utah/st-george',
+    'connecticut/hartford',
+    'connecticut/new-haven',
+    'connecticut/stamford',
+    'arkansas/little-rock',
+    'arkansas/fayetteville',
+    'mississippi/jackson',
+    'mississippi/gulfport',
+    'kansas/wichita',
+    'kansas/overland-park',
+    'kansas/topeka',
+    'new-mexico/albuquerque',
+    'new-mexico/santa-fe',
+    'new-mexico/las-cruces',
+    'nebraska/omaha',
+    'nebraska/lincoln',
+    'west-virginia/charleston',
+    'west-virginia/morgantown',
+    'idaho/boise',
+    'idaho/idaho-falls',
+    'idaho/coeur-d-alene',
+    'hawaii/honolulu',
+    'maine/portland-me',
+    'maine/bangor',
+    'montana/billings',
+    'montana/missoula',
+    'montana/bozeman',
+    'south-dakota/sioux-falls',
+    'south-dakota/rapid-city',
+    'north-dakota/fargo',
+    'north-dakota/bismarck',
+    'alaska/anchorage',
+    'delaware/wilmington',
+    'delaware/dover',
+    'wyoming/cheyenne',
+    'wyoming/casper',
     // Added with OK/IL's own state addition (2026-09-19), same real
     // per-state slugs as every other state here — see this list's own
     // header comment for why NC/RI/VT/NH/MA/CA had to be added after the

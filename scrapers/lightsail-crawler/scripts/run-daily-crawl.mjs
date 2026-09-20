@@ -77,7 +77,29 @@ const CHANGES_DIR = path.join(ROOT, 'data', 'daily_changes');
 // script entry in WRITE_DEALER_SCRIPTS below) is the only change needed
 // to have the nightly driver pick it up; nothing else in this file should
 // special-case a particular state.
-export const STATES = SUPPORTED_STATES;
+//
+// CRAWL_STATES (optional, comma-separated, e.g. "OH,MI,WA") scopes this to
+// a subset — added 2026-09-20 so multiple boxes can share this exact
+// codebase/states.js (one source of truth for what the crawler CAN cover)
+// while each box's own crontab sets CRAWL_STATES to just the slice IT is
+// responsible for, via env var rather than a per-box branch or config
+// file that could drift. Order still follows SUPPORTED_STATES, not the
+// env var's own order, since that order is what the work-stealing pool
+// schedules against (see MAX_CONCURRENT_STATES' comment below). Unset
+// (the default, and what every single-box run before this used) keeps
+// the original "run everything" behavior. A typo'd/unsupported code in
+// CRAWL_STATES fails loudly rather than silently crawling nothing for it.
+const crawlStatesEnv = (process.env.CRAWL_STATES || '').trim();
+if (crawlStatesEnv) {
+  const requested = crawlStatesEnv.split(',').map((s) => s.trim().toUpperCase()).filter(Boolean);
+  const unknown = requested.filter((s) => !SUPPORTED_STATES.includes(s));
+  if (unknown.length) {
+    throw new Error(`CRAWL_STATES has unsupported state(s): ${unknown.join(', ')}. Must be a subset of ${SUPPORTED_STATES.join(', ')}.`);
+  }
+}
+export const STATES = crawlStatesEnv
+  ? SUPPORTED_STATES.filter((s) => crawlStatesEnv.split(',').map((x) => x.trim().toUpperCase()).includes(s))
+  : SUPPORTED_STATES;
 
 // One entry per state in STATES — the write-dealers step's script name.
 export const WRITE_DEALER_SCRIPTS = {
@@ -97,6 +119,40 @@ export const WRITE_DEALER_SCRIPTS = {
   PA: 'write-pa-dealer-files.mjs',
   OK: 'write-ok-dealer-files.mjs',
   IL: 'write-il-dealer-files.mjs',
+  OH: 'write-oh-dealer-files.mjs',
+  MI: 'write-mi-dealer-files.mjs',
+  WA: 'write-wa-dealer-files.mjs',
+  AZ: 'write-az-dealer-files.mjs',
+  TN: 'write-tn-dealer-files.mjs',
+  IN: 'write-in-dealer-files.mjs',
+  MO: 'write-mo-dealer-files.mjs',
+  IA: 'write-ia-dealer-files.mjs',
+  MD: 'write-md-dealer-files.mjs',
+  WI: 'write-wi-dealer-files.mjs',
+  CO: 'write-co-dealer-files.mjs',
+  MN: 'write-mn-dealer-files.mjs',
+  AL: 'write-al-dealer-files.mjs',
+  LA: 'write-la-dealer-files.mjs',
+  KY: 'write-ky-dealer-files.mjs',
+  OR: 'write-or-dealer-files.mjs',
+  NV: 'write-nv-dealer-files.mjs',
+  UT: 'write-ut-dealer-files.mjs',
+  CT: 'write-ct-dealer-files.mjs',
+  AR: 'write-ar-dealer-files.mjs',
+  MS: 'write-ms-dealer-files.mjs',
+  KS: 'write-ks-dealer-files.mjs',
+  NM: 'write-nm-dealer-files.mjs',
+  NE: 'write-ne-dealer-files.mjs',
+  WV: 'write-wv-dealer-files.mjs',
+  ID: 'write-id-dealer-files.mjs',
+  HI: 'write-hi-dealer-files.mjs',
+  ME: 'write-me-dealer-files.mjs',
+  MT: 'write-mt-dealer-files.mjs',
+  SD: 'write-sd-dealer-files.mjs',
+  ND: 'write-nd-dealer-files.mjs',
+  AK: 'write-ak-dealer-files.mjs',
+  DE: 'write-de-dealer-files.mjs',
+  WY: 'write-wy-dealer-files.mjs',
 };
 
 // Logs accumulate one file per (state, brand, day) forever otherwise —
