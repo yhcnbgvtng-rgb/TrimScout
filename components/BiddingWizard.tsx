@@ -13,7 +13,7 @@ import { missingFinanceLocks, type QuotePrefs } from "../lib/usedQuote";
 import { orderFactoryOptions } from "../lib/factoryOptionOrder";
 import { CREDIT_BAND_COPY, CREDIT_BAND_LABELS, CREDIT_BANDS, type CreditBand } from "../lib/creditBand";
 import { clearQuoteDraft, readQuoteDraft, saveQuoteDraft, wizardAuthState, type QuoteDraft } from "../lib/quoteDraft";
-import { diffVsPrimary, mustHaveHeadline, mustHaveReport, type MustHaveRef } from "../lib/alternateCompare";
+import { diffVsPrimary, mustHaveHeadline, mustHaveReport, normalizeDrivetrain, type MustHaveRef } from "../lib/alternateCompare";
 import { DEFAULT_LEASE_TERM, LEASE_DAS_INTENTS, LEASE_DAS_INTENT_LABELS, LEASE_MILES, LEASE_NON_BINDING_COPY, LEASE_TERMS, type LeaseDueAtSigningIntent, type LeaseMiles, type LeaseTerm } from "../lib/leaseQuote";
 import { isPlausibleDealerEmail, type DealerContactStatus } from "../lib/dealerContactLookup";
 import {
@@ -80,6 +80,7 @@ import {
   ArrowRight,
   ArrowLeft,
   CircleCheck as CheckCircle2,
+  Check,
   ChevronDown,
   MapPin,
   Globe,
@@ -877,6 +878,141 @@ function AlternateVinField({
         </button>
       </div>
       {error && <p className="text-[10px] text-rose-400">{error}</p>}
+    </div>
+  );
+}
+
+/**
+ * Once the buyer has all three VDPs resolved and has picked must-haves, this
+ * is the "how do the alternates stack up" screen: must-haves first (scored
+ * against each vehicle's own factory record, never a guess), then the rest
+ * of the factory build, then everything else that differs — never a single
+ * composite score, just the facts side by side.
+ */
+function FactoryOptionsCompare({
+  primary,
+  alt1,
+  alt2,
+  mustHaves,
+}: {
+  primary: Vehicle;
+  alt1: Vehicle;
+  alt2: Vehicle;
+  mustHaves: MustHaveRef[];
+}) {
+  const vehicles = [primary, alt1, alt2];
+  const reports = vehicles.map((v) => mustHaveReport(mustHaves, v));
+  const diffs = [diffVsPrimary(primary, alt1, mustHaves), diffVsPrimary(primary, alt2, mustHaves)];
+  const sameText = (a?: string | null, b?: string | null) => (a || "").trim().toLowerCase() === (b || "").trim().toLowerCase();
+  const packagesOf = (kind: "missing" | "extra", i: number) =>
+    diffs[i].filter((c) => c.kind === kind).map((c) => c.text.replace(/^(missing|adds):\s*/, ""));
+
+  const vehicleLabel = (v: Vehicle) => [v.year, v.make, v.model, v.trim].filter(Boolean).join(" ");
+  const chipCell = "flex items-start";
+  const valueCell = (text: string, differs: boolean) => (
+    <div className={`flex min-h-[24px] items-center text-[12px] ${differs ? "text-amber-300" : "text-ink-light"}`}>{text || "—"}</div>
+  );
+
+  return (
+    <div className="space-y-3 rounded-xl border border-border bg-surface-elevated p-4" data-testid="factory-options-compare">
+      <div>
+        <h4 className="text-[11px] font-bold uppercase tracking-wider text-ink-faint">Compare factory options</h4>
+        <p className="mt-0.5 text-[11px] leading-snug text-ink-muted">How your two alternates stack up against the vehicle you configured.</p>
+      </div>
+
+      <div className="grid grid-cols-[130px_repeat(3,minmax(0,1fr))] items-start gap-x-3 gap-y-2.5">
+        {/* Vehicle headers */}
+        <div className="flex items-end pb-1 text-[10px] font-bold uppercase tracking-wide text-ink-faint">Comparing</div>
+        {vehicles.map((v, i) => (
+          <div
+            key={i}
+            className={`rounded-lg border p-2.5 ${i === 0 ? "border-emerald-500/40 bg-emerald-500/5" : "border-border bg-background"}`}
+          >
+            <div className="flex flex-wrap gap-1">
+              <span className={`rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide ${i === 0 ? "bg-emerald-500/15 text-emerald-300" : "bg-border text-ink-light"}`}>
+                {i === 0 ? "Your pick" : `Alternate ${i}`}
+              </span>
+              {v.buildConfidence !== "dealer_listing_only" ? (
+                <span className="rounded bg-emerald-500/15 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-emerald-300">Factory verified</span>
+              ) : null}
+            </div>
+            <p className="mt-1.5 truncate text-[12px] font-bold text-white">{vehicleLabel(v)}</p>
+            <p className="mt-0.5 truncate text-[10px] text-ink-muted">
+              <span className="font-mono">{v.vin}</span>
+              {v.location?.dealerName ? <> · {v.location.dealerName}</> : null}
+            </p>
+          </div>
+        ))}
+
+        {/* Must-haves */}
+        <div className="col-span-4 border-t border-border/60 pt-2 text-[10px] font-bold uppercase tracking-wide text-ink-faint">
+          Must-haves · {mustHaves.length} selected
+        </div>
+        {mustHaves.map((m) => (
+          <React.Fragment key={m.name}>
+            <div className="flex min-h-[24px] items-center text-[11px] text-ink-muted">{m.name}</div>
+            {reports.map((report, i) => {
+              if (report.kind !== "scored") return <div key={i} className="flex min-h-[24px] items-center text-[11px] text-ink-faint">—</div>;
+              const hit = report.hits.find((h) => sameText(h.name, m.name.replace(/^[A-Z0-9]{2,5}\s{2,}/, "")));
+              const present = hit?.present ?? false;
+              return (
+                <div key={i} className={`flex min-h-[24px] items-center gap-1.5 text-[11px] ${present ? "text-emerald-300" : "text-amber-200"}`}>
+                  {present ? <Check className="h-3.5 w-3.5 shrink-0" /> : <X className="h-3.5 w-3.5 shrink-0" />}
+                  {present ? "Included" : "Missing"}
+                </div>
+              );
+            })}
+          </React.Fragment>
+        ))}
+        <div className="flex min-h-[28px] items-center text-[11px] font-bold text-white">Must-haves matched</div>
+        {reports.map((report, i) => (
+          <div key={i} className="flex min-h-[28px] items-center">
+            {report.kind === "scored" ? (
+              <span className={`rounded-full px-2.5 py-1 text-[11px] font-extrabold ${report.missing.length === 0 ? "bg-emerald-500/15 text-emerald-300" : "bg-amber-500/15 text-amber-200"}`}>
+                {report.present.length} of {report.total}
+              </span>
+            ) : (
+              <span className="text-[10px] text-ink-faint">Can&apos;t verify — no factory record</span>
+            )}
+          </div>
+        ))}
+
+        {/* Factory build */}
+        <div className="col-span-4 border-t border-border/60 pt-2 text-[10px] font-bold uppercase tracking-wide text-ink-faint">Factory build</div>
+        <div className="flex min-h-[22px] items-center text-[11px] text-ink-muted">Trim</div>
+        {vehicles.map((v, i) => <React.Fragment key={i}>{valueCell(v.trim, i > 0 && !sameText(v.trim, primary.trim))}</React.Fragment>)}
+        <div className="flex min-h-[22px] items-center text-[11px] text-ink-muted">Drivetrain</div>
+        {vehicles.map((v, i) => <React.Fragment key={i}>{valueCell(v.drivetrain, i > 0 && normalizeDrivetrain(v.drivetrain || "") !== normalizeDrivetrain(primary.drivetrain || ""))}</React.Fragment>)}
+        <div className="flex min-h-[22px] items-center text-[11px] text-ink-muted">Exterior color</div>
+        {vehicles.map((v, i) => <React.Fragment key={i}>{valueCell(v.exteriorColor, i > 0 && !sameText(v.exteriorColor, primary.exteriorColor))}</React.Fragment>)}
+
+        {/* Other differences: everything besides the must-haves already scored above */}
+        <div className="col-span-4 border-t border-border/60 pt-2 text-[10px] font-bold uppercase tracking-wide text-ink-faint">Other differences · not must-haves</div>
+        <div className="flex min-h-[28px] items-center text-[11px] text-ink-muted">Missing</div>
+        <div className="flex min-h-[28px] items-center text-[11px] text-ink-faint">—</div>
+        {[0, 1].map((i) => {
+          const items = packagesOf("missing", i);
+          return (
+            <div key={i} className={`flex flex-wrap items-start gap-1 ${chipCell}`}>
+              {items.length === 0 ? <span className="text-[11px] text-ink-faint">—</span> : items.map((t) => (
+                <span key={t} className="rounded bg-amber-500/15 px-1.5 py-0.5 text-[10px] text-amber-200">{t}</span>
+              ))}
+            </div>
+          );
+        })}
+        <div className="flex min-h-[28px] items-center text-[11px] text-ink-muted">Also includes</div>
+        <div className="flex min-h-[28px] items-center text-[11px] text-ink-faint">—</div>
+        {[0, 1].map((i) => {
+          const items = packagesOf("extra", i);
+          return (
+            <div key={i} className={`flex flex-wrap items-start gap-1 ${chipCell}`}>
+              {items.length === 0 ? <span className="text-[11px] text-ink-faint">—</span> : items.map((t) => (
+                <span key={t} className="rounded bg-sky-500/15 px-1.5 py-0.5 text-[10px] text-sky-200">{t}</span>
+              ))}
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
@@ -2774,6 +2910,9 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                         <DealerPicker candidates={[]} zipHint={buyerZipHint} onPick={applyPickedDealer} onCancel={cancelPendingLink} />
                       </div>
                     )}
+                    {selectedVehicle && altVehicle1 && altVehicle2 && mustHavePackages.length > 0 ? (
+                      <FactoryOptionsCompare primary={selectedVehicle} alt1={altVehicle1} alt2={altVehicle2} mustHaves={selectedMustHaveRefs} />
+                    ) : null}
                   </div>
                 )}
               </WizardSection>
