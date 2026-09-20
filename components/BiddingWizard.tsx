@@ -722,84 +722,82 @@ function AlternateVinField({
     const fullReport = primary ? mustHaveReport(mustHaves || [], vehicle) : null;
     const report = fullReport && fullReport.kind === "scored" ? fullReport : null;
     const chips = primary ? diffVsPrimary(primary, vehicle, mustHaves || []) : [];
+    const specDiffs = chips.filter((c) => c.kind === "different" || c.kind === "same");
+    const missingDiffs = chips.filter((c) => c.kind === "missing");
+    const addedDiffs = chips.filter((c) => c.kind === "extra");
+    const hasDiffs = specDiffs.length > 0 || missingDiffs.length > 0 || addedDiffs.length > 0;
     return (
       <div
-        className="rounded-xl border border-emerald-500/40 bg-emerald-500/5 px-3 py-2.5"
+        className="rounded-xl border border-emerald-500/40 bg-emerald-500/5 p-4 space-y-3"
         data-resolve-path={vehicle.resolvePath || ""}
         data-dealer-from-vdp={dealerFromVdp(vehicle) ? "true" : "false"}
         data-dealer-shown={vehicle.location?.dealerName?.trim() || ""}
       >
-        <div className="flex items-center justify-between gap-2">
-        <div className="min-w-0">
-          <p className="flex items-center gap-2 text-[10px] font-bold uppercase text-emerald-400">
-            {label} — added
-            {vehicle.buildConfidence !== "dealer_listing_only" ? (
-              <span className="rounded bg-emerald-500/15 px-1.5 py-0.5 text-[9px] tracking-wide text-emerald-300">Factory verified</span>
-            ) : null}
-          </p>
-          <p className="text-xs text-white font-semibold truncate">
+        {/* 1. Header: the car, and a quiet remove control. */}
+        <div className="flex items-start justify-between gap-2">
+          <p className="min-w-0 truncate text-sm font-bold text-white">
             {[vehicle.year, vehicle.make, vehicle.model, vehicle.trim].filter(Boolean).join(" ")}
           </p>
-          <p className="truncate text-[10px] text-ink-muted">
-            <span className="font-mono">{vehicle.vin}</span>
-            {vehicle.location?.dealerName ? (
-              <>
-                {" · "}
-                {vehicle.location.dealerName}
-                {dealerSourceLabel(vehicle.location.dealerSource) ? (
-                  <span className={vehicle.location.dealerSource === "window_sticker" ? "text-amber-300/90" : "text-ink-faint"}>
-                    {" "}
-                    ({dealerSourceLabel(vehicle.location.dealerSource)})
-                  </span>
-                ) : null}
-              </>
-            ) : (
-              <span className="font-bold text-amber-300"> · Dealer not found</span>
-            )}
-            {onChangeDealer ? (
-              <>
-                {" · "}
-                <button type="button" onClick={onChangeDealer} className="font-bold text-sky-300 hover:text-white">
-                  {vehicle.location?.dealerName ? "Change dealer" : "Pick dealer"}
-                </button>
-              </>
-            ) : null}
-          </p>
-          {factoryBuildStateLine(vehicle) ? (
-            <p className="mt-1 text-[10px] leading-snug text-amber-300" data-testid="factory-build-state">{factoryBuildStateLine(vehicle)}</p>
+          <button
+            type="button"
+            onClick={onRemove}
+            aria-label={`Remove ${label.toLowerCase()}`}
+            className="shrink-0 text-ink-muted hover:text-rose-400 transition-colors"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+
+        {/* 2. Quiet status chips. */}
+        <div className="flex flex-wrap items-center gap-1.5">
+          <span className="rounded bg-emerald-500/15 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-emerald-300">{label} — added</span>
+          {vehicle.buildConfidence !== "dealer_listing_only" ? (
+            <span className="rounded bg-emerald-500/15 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-emerald-300">Factory verified</span>
           ) : null}
         </div>
-        <button
-          type="button"
-          onClick={onRemove}
-          aria-label={`Remove ${label.toLowerCase()}`}
-          className="shrink-0 text-ink-muted hover:text-rose-400 transition-colors"
-        >
-          <X className="h-4 w-4" />
-        </button>
-        </div>
+
+        {/* 3. Meta: VIN · dealer · change dealer, one muted line. */}
+        <p className="text-[10px] leading-snug text-ink-muted">
+          <span className="font-mono">{vehicle.vin}</span>
+          {vehicle.location?.dealerName ? (
+            <>
+              {" · "}
+              {vehicle.location.dealerName}
+              {dealerSourceLabel(vehicle.location.dealerSource) ? (
+                <span className={vehicle.location.dealerSource === "window_sticker" ? "text-amber-300/90" : "text-ink-faint"}>
+                  {" "}
+                  ({dealerSourceLabel(vehicle.location.dealerSource)})
+                </span>
+              ) : null}
+            </>
+          ) : (
+            <span className="font-bold text-amber-300"> · Dealer not found</span>
+          )}
+          {onChangeDealer ? (
+            <>
+              {" · "}
+              <button type="button" onClick={onChangeDealer} className="font-bold text-sky-300 hover:text-white">
+                {vehicle.location?.dealerName ? "Change dealer" : "Pick dealer"}
+              </button>
+            </>
+          ) : null}
+        </p>
+        {factoryBuildStateLine(vehicle) ? (
+          <p className="text-[10px] leading-snug text-amber-300" data-testid="factory-build-state">{factoryBuildStateLine(vehicle)}</p>
+        ) : null}
+
+        {/* 4. Must-haves — its own block, chips on their own row. */}
         {report ? (
-          <div className="mt-2 space-y-1 border-t border-border/60 pt-2" data-testid="alternate-compare">
-            <p
-              className={`text-[11px] font-bold ${
-                report.kind === "scored"
-                  ? report.missing.length === 0
-                    ? "text-emerald-300"
-                    : "text-amber-200"
-                  : "text-ink-muted"
-              }`}
-            >
-              {mustHaveHeadline(report)}
-              {report.kind === "scored" ? <span className="font-normal text-ink-faint"> vs your favorite</span> : null}
+          <div className="space-y-1.5 border-t border-border/60 pt-3" data-testid="alternate-compare">
+            <p className={`text-[11px] font-semibold ${report.missing.length === 0 ? "text-emerald-300" : "text-amber-200"}`}>
+              {mustHaveHeadline(report)} <span className="font-normal text-ink-faint">vs your favorite</span>
             </p>
-            {report.kind === "scored" && report.total > 1 ? (
-              <div className="flex flex-wrap gap-1">
+            {report.total > 1 ? (
+              <div className="flex flex-wrap gap-1.5">
                 {report.hits.map((h) => (
                   <span
                     key={h.name}
-                    className={`rounded px-1.5 py-0.5 text-[10px] ${
-                      h.present ? "bg-emerald-500/15 text-emerald-300" : "bg-amber-500/20 text-amber-200 line-through decoration-amber-400/70"
-                    }`}
+                    className={`rounded px-1.5 py-0.5 text-[10px] ${h.present ? "bg-emerald-500/15 text-emerald-300" : "bg-amber-500/20 text-amber-200 line-through decoration-amber-400/70"}`}
                   >
                     {h.present ? "✓ " : "✕ "}
                     {h.name}
@@ -807,19 +805,49 @@ function AlternateVinField({
                 ))}
               </div>
             ) : null}
-            {chips.length > 0 ? (
-              <p className="text-[10px] leading-snug text-ink-muted">
-                {chips.map((c, i) => (
-                  <span key={`${c.kind}-${c.text}`}>
-                    {i > 0 ? " · " : ""}
-                    <span className={c.kind === "missing" ? "text-amber-300" : c.kind === "different" ? "text-ink-light" : c.kind === "extra" ? "text-sky-300" : ""}>
-                      {c.text}
-                    </span>
-                  </span>
-                ))}
-              </p>
-            ) : null}
           </div>
+        ) : null}
+
+        {/* 5. Differences — separated, collapsed, stacked lists (not one paragraph). */}
+        {hasDiffs ? (
+          <details className="group border-t border-border/60 pt-3">
+            <summary className="flex cursor-pointer list-none items-center gap-1 text-[11px] font-semibold text-ink-light">
+              <ChevronDown className="h-3.5 w-3.5 text-ink-faint transition-transform group-open:rotate-180" />
+              Show differences vs your favorite
+            </summary>
+            <div className="mt-2 space-y-2" data-testid="alternate-diffs">
+              {specDiffs.length ? (
+                <div className="space-y-1">
+                  <p className="text-[9px] font-bold uppercase tracking-wide text-ink-faint">Trim · color · drivetrain</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {specDiffs.map((c) => (
+                      <span key={c.text} className={`rounded px-1.5 py-0.5 text-[10px] ${c.kind === "same" ? "bg-emerald-500/15 text-emerald-300" : "bg-border text-ink-light"}`}>{c.text}</span>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
+              {missingDiffs.length ? (
+                <div className="space-y-1">
+                  <p className="text-[9px] font-bold uppercase tracking-wide text-ink-faint">Missing</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {missingDiffs.map((c) => (
+                      <span key={c.text} className="rounded bg-amber-500/15 px-1.5 py-0.5 text-[10px] text-amber-200">{c.text.replace(/^missing:\s*/, "")}</span>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
+              {addedDiffs.length ? (
+                <div className="space-y-1">
+                  <p className="text-[9px] font-bold uppercase tracking-wide text-ink-faint">Adds</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {addedDiffs.map((c) => (
+                      <span key={c.text} className="rounded bg-sky-500/15 px-1.5 py-0.5 text-[10px] text-sky-200">{c.text.replace(/^adds:\s*/, "")}</span>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
+            </div>
+          </details>
         ) : null}
       </div>
     );
