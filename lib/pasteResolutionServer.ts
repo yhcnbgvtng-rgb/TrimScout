@@ -61,24 +61,36 @@ export function blockedDealerPayload(dealer: DealerPageIdentity | undefined) {
 }
 
 /**
- * Settle a sticker-built vehicle's dealership without any paid lookup.
- * The store advertising the car comes first, the VIN only as a fallback,
- * and nothing is invented:
+ * Settle a vehicle's dealership. Locked priority (2026-09-20): the VDP /
+ * listing link's own hostname is dealer identity #1 — when it keys to
+ * exactly one directory rooftop, that IS the dealer, full stop. The window
+ * sticker stays ground truth for the *factory build* everywhere else, but
+ * it never gets to silently outrank a clear domain match on WHO to ask.
  *
- *   1. the store the pasted link's hostname resolved to (resolvePasteVin)
- *      — the dealership advertising the car on its own website is where
- *      the request goes. A factory ship-to store that differs is kept on
- *      the vehicle as factoryShipTo, a note, never the recipient;
- *   2. our own inventory crawl last saw this VIN at a rooftop
- *      (lib/inventoryVinLookup.ts, live dealer_inventory) — the directory
- *      row by id when the sync matched one, else cross-referenced by name
- *      so it carries the directory's spelling and address;
- *   3. the window sticker's sold-to block, cross-referenced the same way —
- *      the store the factory shipped to, usually but not always where it
- *      sits today, hence dealerConfirmed: false;
- *   4. nothing — location blanked, dealerSource "unknown", so the UI can
- *      say "dealer not found". The sticker→vehicle mappers' placeholders
- *      ("Ford dealer") never ship.
+ *   1. the store the pasted link's hostname resolved to, uniquely
+ *      (dealerDomainLookup's directory-domain match) — the dealership
+ *      advertising the car on its own website is where the request goes.
+ *      A factory ship-to store or a crawl sighting that names someone else
+ *      is kept on the vehicle as factoryShipTo, a note, never the
+ *      recipient. A shared multi-rooftop domain (a dealer group's one
+ *      site for several stores) does NOT produce a unique match here —
+ *      the caller sees no `resolved.dealer`, so control falls through to
+ *      the tiers below instead of guessing which rooftop;
+ *   2. only once the domain didn't resolve to one rooftop, in order:
+ *      a. the window sticker's sold-to block, cross-referenced against the
+ *         directory — the store the factory shipped to, usually but not
+ *         always where it sits today, hence dealerConfirmed: false;
+ *      b. our own inventory crawl's last sighting of this VIN
+ *         (lib/inventoryVinLookup.ts, live dealer_inventory) — the
+ *         directory row by id when the sync matched one, else
+ *         cross-referenced by name so it carries the directory's spelling;
+ *      c. the listing page's own declared name (json-ld / og:site_name /
+ *         title) when the domain didn't key to a directory row at all —
+ *         better than nothing, but never a directory-verified store;
+ *      d. nothing — location blanked, dealerSource "unknown", so the UI
+ *         can say "dealer not found" and hand it to the buyer's own pick.
+ *         The sticker→vehicle mappers' placeholders ("Ford dealer") never
+ *         ship.
  */
 export async function resolveVehicleDealer(
   vehicle: Vehicle,
@@ -96,7 +108,13 @@ export async function resolveVehicleDealer(
   };
 
   const listing = resolved.dealer;
-  if (listing?.name) {
+
+  // Priority 1: an exact, unique domain match on the pasted link's hostname.
+  // This is the dealer, even when the sticker's sold-to or our own crawl
+  // sighting names a different store — those become a factoryShipTo note,
+  // never the recipient. (A shared multi-rooftop domain never reaches this
+  // branch: the caller only passes a `listing` when the match was unique.)
+  if (listing?.name && listing.source === "directory_domain") {
     const origin = seen?.dealerName ? { name: seen.dealerName, city: seen.city, state: seen.state } : soldTo?.name?.trim() ? soldTo : null;
     const originRow = origin ? (seen?.dealerName ? sightingRow() : crossReferenceStickerDealer(rows, origin)) : null;
     const originName = originRow ? originRow.dealerName : origin?.name?.trim() || "";
@@ -110,8 +128,25 @@ export async function resolveVehicleDealer(
       state: listing.state || "",
       zip: listing.zip || undefined,
       dealerConfirmed: true,
-      dealerSource: listing.source === "directory_domain" ? "listing_domain" : "listing_page",
+      dealerSource: "listing_domain",
       factoryShipTo,
+    });
+  }
+
+  // The domain didn't key to one rooftop — only now do VIN-derived signals
+  // narrow it down. The factory's own sold-to record outranks our crawl's
+  // sighting: it's the authoritative "who did Ford/GM/etc. ship this car
+  // to", where a sighting is just the last place our own crawl happened to
+  // see the VIN listed.
+  if (soldTo?.name?.trim()) {
+    const row = crossReferenceStickerDealer(rows, soldTo);
+    return withDealer(vehicle, {
+      dealerName: row ? row.dealerName : soldTo.name.trim(),
+      city: (row ? row.city : soldTo.city) || "",
+      state: ((row ? row.state : soldTo.state) || "").toUpperCase(),
+      zip: (row ? row.zipCode : soldTo.zip) || undefined,
+      dealerConfirmed: false,
+      dealerSource: "window_sticker",
     });
   }
 
@@ -127,15 +162,17 @@ export async function resolveVehicleDealer(
     });
   }
 
-  if (soldTo?.name?.trim()) {
-    const row = crossReferenceStickerDealer(rows, soldTo);
+  // The domain matched nothing in the directory at all, but the page named
+  // itself (json-ld / og:site_name / title) — last resort, never confirmed
+  // since it was never checked against the directory.
+  if (listing?.name) {
     return withDealer(vehicle, {
-      dealerName: row ? row.dealerName : soldTo.name.trim(),
-      city: (row ? row.city : soldTo.city) || "",
-      state: ((row ? row.state : soldTo.state) || "").toUpperCase(),
-      zip: (row ? row.zipCode : soldTo.zip) || undefined,
-      dealerConfirmed: false,
-      dealerSource: "window_sticker",
+      dealerName: listing.name,
+      city: listing.city || "",
+      state: listing.state || "",
+      zip: listing.zip || undefined,
+      dealerConfirmed: true,
+      dealerSource: "listing_page",
     });
   }
 
