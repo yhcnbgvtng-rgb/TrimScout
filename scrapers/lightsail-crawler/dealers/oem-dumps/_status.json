@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-09-17T14:29:09.365Z",
+  "generatedAt": "2026-09-20T01:09:21.169Z",
   "detectOnly": true,
   "brands": [
     {
       "brand": "acura",
       "dest": "dealers/oem-dumps/acura.json",
-      "count": 141,
+      "count": 169,
       "locator": "acura-dealers.json",
       "note": "In-repo official locator dump (not re-fetched).",
       "httpStatus": 200,
@@ -14,7 +14,7 @@
     {
       "brand": "porsche",
       "dest": "dealers/oem-dumps/porsche.json",
-      "count": 118,
+      "count": 137,
       "locator": "dealers.json",
       "note": "In-repo official locator dump (not re-fetched).",
       "httpStatus": 200,
@@ -23,7 +23,7 @@
     {
       "brand": "lexus",
       "dest": "dealers/oem-dumps/lexus.json",
-      "count": 132,
+      "count": 155,
       "locator": "https://www.lexus.com/rest/lexus/dealers",
       "note": "Official Lexus REST dealer directory.",
       "httpStatus": 200,
@@ -33,402 +33,762 @@
     {
       "brand": "toyota",
       "dest": "dealers/oem-dumps/toyota.json",
-      "count": 0,
+      "count": 621,
       "locator": "https://www.toyota.com/dealers/directory/",
       "note": "Official Toyota dealer-hub city pages (dealer-card websites).",
       "pages": [
         {
           "url": "https://www.toyota.com/dealers/new-jersey/avenel/dealers/",
-          "status": 403,
-          "ok": false
+          "status": 200,
+          "ok": true
         },
         {
           "url": "https://www.toyota.com/dealers/new-jersey/cherry-hill/dealers/",
-          "status": 403,
-          "ok": false
+          "status": 200,
+          "ok": true
         },
         {
           "url": "https://www.toyota.com/dealers/new-jersey/vineland/dealers/",
-          "status": 403,
-          "ok": false
+          "status": 200,
+          "ok": true
         },
         {
           "url": "https://www.toyota.com/dealers/new-jersey/turnersville/dealers/",
-          "status": 403,
-          "ok": false
+          "status": 200,
+          "ok": true
         },
         {
           "url": "https://www.toyota.com/dealers/new-jersey/mays-landing/dealers/",
-          "status": 403,
-          "ok": false
+          "status": 200,
+          "ok": true
         },
         {
           "url": "https://www.toyota.com/dealers/new-york/brooklyn/dealers/",
-          "status": 403,
-          "ok": false
+          "status": 200,
+          "ok": true
         },
         {
           "url": "https://www.toyota.com/dealers/new-york/buffalo/dealers/",
-          "status": 403,
-          "ok": false
+          "status": 200,
+          "ok": true
         },
         {
           "url": "https://www.toyota.com/dealers/new-york/rochester/dealers/",
-          "status": 403,
-          "ok": false
+          "status": 200,
+          "ok": true
         },
         {
           "url": "https://www.toyota.com/dealers/new-york/syracuse/dealers/",
-          "status": 403,
-          "ok": false
+          "status": 200,
+          "ok": true
         },
         {
           "url": "https://www.toyota.com/dealers/new-york/albany/dealers/",
-          "status": 403,
-          "ok": false
+          "status": 200,
+          "ok": true
         },
         {
           "url": "https://www.toyota.com/dealers/new-york/binghamton/dealers/",
-          "status": 403,
-          "ok": false
+          "status": 200,
+          "ok": true
         },
         {
           "url": "https://www.toyota.com/dealers/new-york/yonkers/dealers/",
-          "status": 403,
-          "ok": false
+          "status": 200,
+          "ok": true
         },
         {
           "url": "https://www.toyota.com/dealers/new-york/white-plains/dealers/",
-          "status": 403,
-          "ok": false
+          "status": 200,
+          "ok": true
         },
         {
           "url": "https://www.toyota.com/dealers/florida/jacksonville/dealers/",
-          "status": 403,
-          "ok": false
+          "status": 200,
+          "ok": true
         },
         {
           "url": "https://www.toyota.com/dealers/florida/tallahassee/dealers/",
-          "status": 403,
-          "ok": false
+          "status": 200,
+          "ok": true
         },
         {
           "url": "https://www.toyota.com/dealers/florida/pensacola/dealers/",
-          "status": 403,
-          "ok": false
+          "status": 200,
+          "ok": true
         },
         {
           "url": "https://www.toyota.com/dealers/florida/orlando/dealers/",
-          "status": 403,
-          "ok": false
+          "status": 200,
+          "ok": true
         },
         {
           "url": "https://www.toyota.com/dealers/florida/tampa/dealers/",
-          "status": 403,
-          "ok": false
+          "status": 200,
+          "ok": true
         },
         {
           "url": "https://www.toyota.com/dealers/florida/fort-myers/dealers/",
-          "status": 403,
-          "ok": false
+          "status": 200,
+          "ok": true
         },
         {
           "url": "https://www.toyota.com/dealers/florida/naples/dealers/",
-          "status": 403,
-          "ok": false
+          "status": 200,
+          "ok": true
         },
         {
           "url": "https://www.toyota.com/dealers/florida/west-palm-beach/dealers/",
-          "status": 403,
-          "ok": false
+          "status": 200,
+          "ok": true
         },
         {
           "url": "https://www.toyota.com/dealers/florida/fort-lauderdale/dealers/",
-          "status": 403,
-          "ok": false
+          "status": 200,
+          "ok": true
         },
         {
           "url": "https://www.toyota.com/dealers/florida/miami/dealers/",
-          "status": 403,
-          "ok": false
+          "status": 200,
+          "ok": true
         },
         {
           "url": "https://www.toyota.com/dealers/georgia/atlanta/dealers/",
-          "status": 403,
-          "ok": false
+          "status": 200,
+          "ok": true
         },
         {
           "url": "https://www.toyota.com/dealers/georgia/marietta/dealers/",
-          "status": 403,
-          "ok": false
+          "status": 200,
+          "ok": true
         },
         {
           "url": "https://www.toyota.com/dealers/georgia/rome/dealers/",
-          "status": 403,
-          "ok": false
+          "status": 200,
+          "ok": true
         },
         {
           "url": "https://www.toyota.com/dealers/georgia/dalton/dealers/",
-          "status": 403,
-          "ok": false
+          "status": 200,
+          "ok": true
         },
         {
           "url": "https://www.toyota.com/dealers/georgia/gainesville/dealers/",
-          "status": 403,
-          "ok": false
+          "status": 200,
+          "ok": true
         },
         {
           "url": "https://www.toyota.com/dealers/georgia/athens/dealers/",
-          "status": 403,
-          "ok": false
+          "status": 200,
+          "ok": true
         },
         {
           "url": "https://www.toyota.com/dealers/georgia/augusta/dealers/",
-          "status": 403,
-          "ok": false
+          "status": 200,
+          "ok": true
         },
         {
           "url": "https://www.toyota.com/dealers/georgia/dublin/dealers/",
-          "status": 403,
-          "ok": false
+          "status": 200,
+          "ok": true
         },
         {
           "url": "https://www.toyota.com/dealers/georgia/macon/dealers/",
-          "status": 403,
-          "ok": false
+          "status": 200,
+          "ok": true
         },
         {
           "url": "https://www.toyota.com/dealers/georgia/warner-robins/dealers/",
-          "status": 403,
-          "ok": false
+          "status": 200,
+          "ok": true
         },
         {
           "url": "https://www.toyota.com/dealers/georgia/columbus/dealers/",
-          "status": 403,
-          "ok": false
+          "status": 200,
+          "ok": true
         },
         {
           "url": "https://www.toyota.com/dealers/georgia/albany/dealers/",
-          "status": 403,
-          "ok": false
+          "status": 200,
+          "ok": true
         },
         {
           "url": "https://www.toyota.com/dealers/georgia/valdosta/dealers/",
-          "status": 403,
-          "ok": false
+          "status": 200,
+          "ok": true
         },
         {
           "url": "https://www.toyota.com/dealers/georgia/statesboro/dealers/",
-          "status": 403,
-          "ok": false
+          "status": 200,
+          "ok": true
         },
         {
           "url": "https://www.toyota.com/dealers/georgia/brunswick/dealers/",
-          "status": 403,
-          "ok": false
+          "status": 200,
+          "ok": true
         },
         {
           "url": "https://www.toyota.com/dealers/georgia/savannah/dealers/",
-          "status": 403,
-          "ok": false
+          "status": 200,
+          "ok": true
         },
         {
           "url": "https://www.toyota.com/dealers/texas/dallas/dealers/",
-          "status": 403,
-          "ok": false
+          "status": 200,
+          "ok": true
         },
         {
           "url": "https://www.toyota.com/dealers/texas/fort-worth/dealers/",
-          "status": 403,
-          "ok": false
+          "status": 200,
+          "ok": true
         },
         {
           "url": "https://www.toyota.com/dealers/texas/plano/dealers/",
-          "status": 403,
-          "ok": false
+          "status": 200,
+          "ok": true
         },
         {
           "url": "https://www.toyota.com/dealers/texas/houston/dealers/",
-          "status": 403,
-          "ok": false
+          "status": 200,
+          "ok": true
         },
         {
           "url": "https://www.toyota.com/dealers/texas/the-woodlands/dealers/",
-          "status": 403,
-          "ok": false
+          "status": 200,
+          "ok": true
         },
         {
           "url": "https://www.toyota.com/dealers/texas/sugar-land/dealers/",
-          "status": 403,
-          "ok": false
+          "status": 200,
+          "ok": true
         },
         {
           "url": "https://www.toyota.com/dealers/texas/austin/dealers/",
-          "status": 403,
-          "ok": false
+          "status": 200,
+          "ok": true
         },
         {
           "url": "https://www.toyota.com/dealers/texas/san-antonio/dealers/",
-          "status": 403,
-          "ok": false
+          "status": 200,
+          "ok": true
         },
         {
           "url": "https://www.toyota.com/dealers/texas/el-paso/dealers/",
-          "status": 403,
-          "ok": false
+          "status": 200,
+          "ok": true
         },
         {
           "url": "https://www.toyota.com/dealers/texas/lubbock/dealers/",
-          "status": 403,
-          "ok": false
+          "status": 200,
+          "ok": true
         },
         {
           "url": "https://www.toyota.com/dealers/texas/amarillo/dealers/",
-          "status": 403,
-          "ok": false
+          "status": 200,
+          "ok": true
         },
         {
           "url": "https://www.toyota.com/dealers/texas/midland/dealers/",
-          "status": 403,
-          "ok": false
+          "status": 200,
+          "ok": true
         },
         {
           "url": "https://www.toyota.com/dealers/texas/abilene/dealers/",
-          "status": 403,
-          "ok": false
+          "status": 200,
+          "ok": true
         },
         {
           "url": "https://www.toyota.com/dealers/texas/wichita-falls/dealers/",
-          "status": 403,
-          "ok": false
+          "status": 200,
+          "ok": true
         },
         {
           "url": "https://www.toyota.com/dealers/texas/waco/dealers/",
-          "status": 403,
-          "ok": false
+          "status": 200,
+          "ok": true
         },
         {
           "url": "https://www.toyota.com/dealers/texas/tyler/dealers/",
-          "status": 403,
-          "ok": false
+          "status": 200,
+          "ok": true
         },
         {
           "url": "https://www.toyota.com/dealers/texas/beaumont/dealers/",
-          "status": 403,
-          "ok": false
+          "status": 200,
+          "ok": true
         },
         {
           "url": "https://www.toyota.com/dealers/texas/corpus-christi/dealers/",
-          "status": 403,
-          "ok": false
+          "status": 200,
+          "ok": true
         },
         {
           "url": "https://www.toyota.com/dealers/texas/mcallen/dealers/",
-          "status": 403,
-          "ok": false
+          "status": 200,
+          "ok": true
         },
         {
           "url": "https://www.toyota.com/dealers/texas/laredo/dealers/",
-          "status": 403,
-          "ok": false
+          "status": 200,
+          "ok": true
         },
         {
           "url": "https://www.toyota.com/dealers/south-carolina/charleston/dealers/",
-          "status": 403,
-          "ok": false
+          "status": 200,
+          "ok": true
         },
         {
           "url": "https://www.toyota.com/dealers/south-carolina/columbia/dealers/",
-          "status": 403,
-          "ok": false
+          "status": 200,
+          "ok": true
         },
         {
           "url": "https://www.toyota.com/dealers/south-carolina/greenville/dealers/",
-          "status": 403,
-          "ok": false
+          "status": 200,
+          "ok": true
         },
         {
           "url": "https://www.toyota.com/dealers/south-carolina/spartanburg/dealers/",
-          "status": 403,
-          "ok": false
+          "status": 200,
+          "ok": true
         },
         {
           "url": "https://www.toyota.com/dealers/south-carolina/myrtle-beach/dealers/",
-          "status": 403,
-          "ok": false
+          "status": 200,
+          "ok": true
         },
         {
           "url": "https://www.toyota.com/dealers/south-carolina/hilton-head-island/dealers/",
-          "status": 403,
-          "ok": false
+          "status": 200,
+          "ok": true
         },
         {
           "url": "https://www.toyota.com/dealers/south-carolina/rock-hill/dealers/",
-          "status": 403,
-          "ok": false
+          "status": 200,
+          "ok": true
         },
         {
           "url": "https://www.toyota.com/dealers/south-carolina/florence/dealers/",
-          "status": 403,
-          "ok": false
+          "status": 200,
+          "ok": true
         },
         {
           "url": "https://www.toyota.com/dealers/virginia/fairfax/dealers/",
-          "status": 403,
-          "ok": false
+          "status": 200,
+          "ok": true
         },
         {
           "url": "https://www.toyota.com/dealers/virginia/alexandria/dealers/",
-          "status": 403,
-          "ok": false
+          "status": 200,
+          "ok": true
         },
         {
           "url": "https://www.toyota.com/dealers/virginia/richmond/dealers/",
-          "status": 403,
-          "ok": false
+          "status": 200,
+          "ok": true
         },
         {
           "url": "https://www.toyota.com/dealers/virginia/virginia-beach/dealers/",
-          "status": 403,
-          "ok": false
+          "status": 200,
+          "ok": true
         },
         {
           "url": "https://www.toyota.com/dealers/virginia/norfolk/dealers/",
-          "status": 403,
-          "ok": false
+          "status": 200,
+          "ok": true
         },
         {
           "url": "https://www.toyota.com/dealers/virginia/roanoke/dealers/",
-          "status": 403,
-          "ok": false
+          "status": 200,
+          "ok": true
         },
         {
           "url": "https://www.toyota.com/dealers/virginia/charlottesville/dealers/",
-          "status": 403,
-          "ok": false
+          "status": 200,
+          "ok": true
         },
         {
           "url": "https://www.toyota.com/dealers/virginia/lynchburg/dealers/",
-          "status": 403,
-          "ok": false
+          "status": 200,
+          "ok": true
         },
         {
           "url": "https://www.toyota.com/dealers/virginia/fredericksburg/dealers/",
-          "status": 403,
-          "ok": false
+          "status": 200,
+          "ok": true
         },
         {
           "url": "https://www.toyota.com/dealers/virginia/winchester/dealers/",
-          "status": 403,
-          "ok": false
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/north-carolina/charlotte/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/north-carolina/concord/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/north-carolina/raleigh/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/north-carolina/durham/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/north-carolina/greensboro/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/north-carolina/winston-salem/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/north-carolina/asheville/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/north-carolina/wilmington/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/north-carolina/fayetteville/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/north-carolina/hickory/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/rhode-island/providence/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/rhode-island/westerly/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/vermont/burlington/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/vermont/rutland/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/vermont/bennington/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/vermont/brattleboro/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/vermont/st-johnsbury/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/new-hampshire/manchester/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/new-hampshire/nashua/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/new-hampshire/salem/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/new-hampshire/concord/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/new-hampshire/portsmouth/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/massachusetts/boston/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/massachusetts/worcester/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/massachusetts/springfield/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/massachusetts/lowell/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/massachusetts/new-bedford/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/massachusetts/hyannis/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/massachusetts/pittsfield/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/california/los-angeles/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/california/long-beach/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/california/anaheim/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/california/irvine/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/california/san-diego/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/california/chula-vista/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/california/san-jose/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/california/san-francisco/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/california/oakland/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/california/sacramento/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/california/fresno/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/california/bakersfield/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/california/riverside/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/california/san-bernardino/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/california/stockton/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/california/modesto/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/california/santa-rosa/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/california/santa-barbara/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/california/palm-springs/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/california/redding/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/pennsylvania/philadelphia/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/pennsylvania/pittsburgh/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/pennsylvania/allentown/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/pennsylvania/harrisburg/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/pennsylvania/lancaster/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/pennsylvania/reading/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/pennsylvania/york/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/pennsylvania/scranton/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/pennsylvania/erie/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/pennsylvania/altoona/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/oklahoma/oklahoma-city/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/oklahoma/tulsa/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/oklahoma/norman/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/oklahoma/lawton/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/oklahoma/enid/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/illinois/chicago/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/illinois/naperville/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/illinois/rockford/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/illinois/peoria/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/illinois/springfield/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/illinois/champaign/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/illinois/bloomington/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/illinois/quincy/dealers/",
+          "status": 200,
+          "ok": true
         }
       ],
-      "blocked": true
+      "blocked": false
     },
     {
       "brand": "mercedes-benz",
       "dest": "dealers/oem-dumps/mercedes-benz.json",
-      "count": 185,
+      "count": 215,
       "locator": "https://www.mbusa.com/en/dealers",
       "note": "Official MBUSA dealerLocatorService (zip + distance + mbdealer filter).",
       "pages": [
@@ -1186,6 +1546,131 @@
           "zip": "96001",
           "status": 200,
           "ok": true
+        },
+        {
+          "zip": "19102",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "15222",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "18101",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "17101",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "17603",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "19601",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "17401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "18503",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "16501",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "16601",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "73102",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "74103",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "73069",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "73501",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "73701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "73401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "60602",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "60540",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "61101",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "61602",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "62701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "61820",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "61701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "62301",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "62901",
+          "status": 200,
+          "ok": true
         }
       ],
       "blocked": false
@@ -1193,7 +1678,7 @@
     {
       "brand": "mitsubishi",
       "dest": "dealers/oem-dumps/mitsubishi.json",
-      "count": 135,
+      "count": 171,
       "locator": "https://www.mitsubishicars.com/dealers",
       "note": "Official Mitsubishi dealers page (embedded Apollo dealer cache).",
       "httpStatus": 200,
@@ -1240,7 +1725,7 @@
     {
       "brand": "mini",
       "dest": "dealers/oem-dumps/mini.json",
-      "count": 62,
+      "count": 68,
       "locator": "https://www.miniusa.com/tools/shopping/find-a-dealer.html",
       "note": "Official MINI dealer-locator JSON API (getAllDealerByZip), found via network capture; plain fetch, no browser needed.",
       "pages": [
@@ -1998,6 +2483,131 @@
           "zip": "96001",
           "status": 200,
           "ok": true
+        },
+        {
+          "zip": "19102",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "15222",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "18101",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "17101",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "17603",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "19601",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "17401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "18503",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "16501",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "16601",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "73102",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "74103",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "73069",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "73501",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "73701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "73401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "60602",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "60540",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "61101",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "61602",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "62701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "61820",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "61701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "62301",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "62901",
+          "status": 200,
+          "ok": true
         }
       ],
       "blocked": false
@@ -2005,7 +2615,7 @@
     {
       "brand": "kia",
       "dest": "dealers/oem-dumps/kia.json",
-      "count": 157,
+      "count": 184,
       "locator": "https://www.kia.com/us/en/find-a-dealer",
       "note": "Official Kia find-a-dealer results, rendered per zip (patchright; page is JS-hydrated, not bot-blocked).",
       "pages": [
@@ -2763,6 +3373,132 @@
           "zip": "96001",
           "status": 200,
           "ok": true
+        },
+        {
+          "zip": "19102",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "15222",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "18101",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "17101",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "17603",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "19601",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "17401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "18503",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "16501",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "16601",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "73102",
+          "status": 0,
+          "ok": false,
+          "error": "page.goto: Timeout 20000ms exceeded.\nCall log:\n  - navigating to \"https://www.kia.com/us/en/find-a-dealer/result?zipCode=73102\", waiting until \"load\"\n"
+        },
+        {
+          "zip": "74103",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "73069",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "73501",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "73701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "73401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "60602",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "60540",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "61101",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "61602",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "62701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "61820",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "61701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "62301",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "62901",
+          "status": 200,
+          "ok": true
         }
       ],
       "blocked": false
@@ -2802,7 +3538,7 @@
     {
       "brand": "subaru",
       "dest": "dealers/oem-dumps/subaru.json",
-      "count": 303,
+      "count": 373,
       "locator": "https://www.subaru.com/find-a-retailer.html",
       "note": "Official Subaru dealer-distance JSON API (services/dealers/distances/by/zipcode), found via network capture; plain fetch, no browser needed.",
       "pages": [
@@ -3560,6 +4296,131 @@
           "zip": "96001",
           "status": 200,
           "ok": true
+        },
+        {
+          "zip": "19102",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "15222",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "18101",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "17101",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "17603",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "19601",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "17401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "18503",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "16501",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "16601",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "73102",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "74103",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "73069",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "73501",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "73701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "73401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "60602",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "60540",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "61101",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "61602",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "62701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "61820",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "61701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "62301",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "62901",
+          "status": 200,
+          "ok": true
         }
       ],
       "blocked": false
@@ -3567,7 +4428,7 @@
     {
       "brand": "mazda",
       "dest": "dealers/oem-dumps/mazda.json",
-      "count": 245,
+      "count": 296,
       "locator": "https://www.mazdausa.com/find-a-dealer",
       "note": "Official Mazda dealer.ajax handler (zip + maxDistance=50, plain GET).",
       "pages": [
@@ -4325,6 +5186,131 @@
           "zip": "96001",
           "status": 200,
           "ok": true
+        },
+        {
+          "zip": "19102",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "15222",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "18101",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "17101",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "17603",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "19601",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "17401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "18503",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "16501",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "16601",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "73102",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "74103",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "73069",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "73501",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "73701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "73401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "60602",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "60540",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "61101",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "61602",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "62701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "61820",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "61701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "62301",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "62901",
+          "status": 200,
+          "ok": true
         }
       ],
       "blocked": false
@@ -4332,12 +5318,12 @@
     {
       "brand": "volkswagen",
       "dest": "dealers/oem-dumps/volkswagen.json",
-      "count": 296,
+      "count": 360,
       "locator": "https://www.vw.com/en/dealer-search.html",
-      "note": "Official VW bff-search/dealers feature-app API (nationwide, filtered client-side to NJ/NY/FL/GA/TX/SC/VA/NC/RI/VT/NH/MA/CA).",
+      "note": "Official VW bff-search/dealers feature-app API (nationwide, filtered client-side to NJ/NY/FL/GA/TX/SC/VA/NC/RI/VT/NH/MA/CA/PA/OK/IL).",
       "httpStatus": 200,
       "blocked": false,
-      "nationwideCount": 954
+      "nationwideCount": 955
     },
     {
       "brand": "audi",

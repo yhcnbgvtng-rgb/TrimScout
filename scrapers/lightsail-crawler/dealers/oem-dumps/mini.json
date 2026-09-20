@@ -320,6 +320,28 @@
   },
   {
     "make": "Mini",
+    "name": "Bill Jacobs MINI",
+    "city": "Naperville",
+    "state": "IL",
+    "domain": "billjacobsmini.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.miniusa.com/bin/services/dealer-locator/getAllDealerByZip.json/60602/50?excludeServiceOnlyDealers=false&includeSatelliteDealers=true"
+  },
+  {
+    "make": "Mini",
+    "name": "Patrick MINI",
+    "city": "Schaumburg",
+    "state": "IL",
+    "domain": "patrickmini.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.miniusa.com/bin/services/dealer-locator/getAllDealerByZip.json/60602/50?excludeServiceOnlyDealers=false&includeSatelliteDealers=true"
+  },
+  {
+    "make": "Mini",
     "name": "MINI of Peabody",
     "city": "Peabody",
     "state": "MA",
@@ -504,6 +526,50 @@
     "lng": null,
     "source": "oem-locator",
     "sourceUrl": "https://www.miniusa.com/bin/services/dealer-locator/getAllDealerByZip.json/07004/50?excludeServiceOnlyDealers=false&includeSatelliteDealers=true"
+  },
+  {
+    "make": "Mini",
+    "name": "Jackie Cooper MINI",
+    "city": "Edmond",
+    "state": "OK",
+    "domain": "jackiecoopermini.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.miniusa.com/bin/services/dealer-locator/getAllDealerByZip.json/79101/50?excludeServiceOnlyDealers=false&includeSatelliteDealers=true"
+  },
+  {
+    "make": "Mini",
+    "name": "MINI of Pittsburgh",
+    "city": "Pittsburgh",
+    "state": "PA",
+    "domain": "miniofpittsburgh.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.miniusa.com/bin/services/dealer-locator/getAllDealerByZip.json/15222/50?excludeServiceOnlyDealers=false&includeSatelliteDealers=true"
+  },
+  {
+    "make": "Mini",
+    "name": "MINI of the Main Line",
+    "city": "Bala Cynwyd",
+    "state": "PA",
+    "domain": "minimainline.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.miniusa.com/bin/services/dealer-locator/getAllDealerByZip.json/08034/50?excludeServiceOnlyDealers=false&includeSatelliteDealers=true"
+  },
+  {
+    "make": "Mini",
+    "name": "MINI of West Chester",
+    "city": "West Chester",
+    "state": "PA",
+    "domain": "miniwc.com",
+    "lat": null,
+    "lng": null,
+    "source": "oem-locator",
+    "sourceUrl": "https://www.miniusa.com/bin/services/dealer-locator/getAllDealerByZip.json/08034/50?excludeServiceOnlyDealers=false&includeSatelliteDealers=true"
   },
   {
     "make": "Mini",

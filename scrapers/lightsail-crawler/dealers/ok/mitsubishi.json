@@ -1,0 +1,16 @@
+[
+  {
+    "id": "mitsubishi-david-stanley-mitsubishi",
+    "name": "David Stanley Mitsubishi",
+    "city": "Oklahoma City",
+    "state": "OK",
+    "make": "Mitsubishi",
+    "domain": "davidstanleymitsubishi.com",
+    "sitemapUrl": "https://www.davidstanleymitsubishi.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.davidstanleymitsubishi.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://davidstanleymitsubishi.com/",
+    "lat": null,
+    "lng": null,
+    "domainSource": "oem-locator"
+  }
+]

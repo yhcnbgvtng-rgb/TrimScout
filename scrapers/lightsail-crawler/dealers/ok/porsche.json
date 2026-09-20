@@ -1,0 +1,30 @@
+[
+  {
+    "id": "porsche-oklahoma-city",
+    "name": "Porsche Oklahoma City",
+    "city": "Oklahoma City",
+    "state": "OK",
+    "make": "Porsche",
+    "domain": "porscheoklahomacity.com",
+    "sitemapUrl": "https://www.porscheoklahomacity.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porscheoklahomacity.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porscheoklahomacity.com/",
+    "lat": 35.4729886,
+    "lng": -97.5170536,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "porsche-tulsa",
+    "name": "Porsche Tulsa",
+    "city": "Tulsa",
+    "state": "OK",
+    "make": "Porsche",
+    "domain": "porschetulsa.com",
+    "sitemapUrl": "https://www.porschetulsa.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschetulsa.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschetulsa.com/",
+    "lat": 36.1563122,
+    "lng": -95.9927516,
+    "domainSource": "oem-locator"
+  }
+]

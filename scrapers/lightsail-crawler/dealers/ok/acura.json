@@ -1,0 +1,30 @@
+[
+  {
+    "id": "bob-howard-acura",
+    "name": "Bob Howard Acura",
+    "city": "Oklahoma City",
+    "state": "OK",
+    "make": "Acura",
+    "domain": "bobhowardacura.com",
+    "sitemapUrl": "https://www.bobhowardacura.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.bobhowardacura.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://bobhowardacura.com/",
+    "lat": 35.603069,
+    "lng": -97.49649,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "grubbs-acura-of-tulsa",
+    "name": "Grubbs Acura of Tulsa",
+    "city": "Tulsa",
+    "state": "OK",
+    "make": "Acura",
+    "domain": "grubbsacuratulsa.com",
+    "sitemapUrl": "https://www.grubbsacuratulsa.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.grubbsacuratulsa.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://grubbsacuratulsa.com/",
+    "lat": 36.09222,
+    "lng": -95.886169,
+    "domainSource": "oem-locator"
+  }
+]

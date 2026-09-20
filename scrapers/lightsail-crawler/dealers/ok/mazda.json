@@ -1,0 +1,58 @@
+[
+  {
+    "id": "mazda-bob-moore-mazda",
+    "name": "BOB MOORE MAZDA",
+    "city": "Oklahoma City",
+    "state": "OK",
+    "make": "Mazda",
+    "domain": "bobmooremazda.com",
+    "sitemapUrl": "https://www.bobmooremazda.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.bobmooremazda.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://bobmooremazda.com/",
+    "lat": 35.6022117,
+    "lng": -97.4965521,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "mazda-nelson-mazda",
+    "name": "NELSON MAZDA",
+    "city": "Tulsa",
+    "state": "OK",
+    "make": "Mazda",
+    "domain": "nelsonmazdaok.com",
+    "sitemapUrl": "https://www.nelsonmazdaok.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.nelsonmazdaok.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://nelsonmazdaok.com/",
+    "lat": 36.020152,
+    "lng": -95.8873233,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "mazda-nelson-mazda-norman",
+    "name": "NELSON MAZDA NORMAN",
+    "city": "Norman",
+    "state": "OK",
+    "make": "Mazda",
+    "domain": "nelsonmazdanorman.com",
+    "sitemapUrl": "https://www.nelsonmazdanorman.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.nelsonmazdanorman.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://nelsonmazdanorman.com/",
+    "lat": 35.2276213,
+    "lng": -97.484168,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "mazda-southwest-mazda",
+    "name": "SOUTHWEST MAZDA",
+    "city": "Lawton",
+    "state": "OK",
+    "make": "Mazda",
+    "domain": "swmazda.com",
+    "sitemapUrl": "https://www.swmazda.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.swmazda.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://swmazda.com/",
+    "lat": 34.6240154,
+    "lng": -98.4592557,
+    "domainSource": "oem-locator"
+  }
+]

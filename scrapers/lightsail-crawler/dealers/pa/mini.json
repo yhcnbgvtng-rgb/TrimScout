@@ -1,0 +1,44 @@
+[
+  {
+    "id": "mini-mini-of-pittsburgh",
+    "name": "MINI of Pittsburgh",
+    "city": "Pittsburgh",
+    "state": "PA",
+    "make": "Mini",
+    "domain": "miniofpittsburgh.com",
+    "sitemapUrl": "https://www.miniofpittsburgh.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.miniofpittsburgh.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://miniofpittsburgh.com/",
+    "lat": null,
+    "lng": null,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "mini-mini-of-the-main-line",
+    "name": "MINI of the Main Line",
+    "city": "Bala Cynwyd",
+    "state": "PA",
+    "make": "Mini",
+    "domain": "minimainline.com",
+    "sitemapUrl": "https://www.minimainline.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.minimainline.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://minimainline.com/",
+    "lat": null,
+    "lng": null,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "mini-mini-of-west-chester",
+    "name": "MINI of West Chester",
+    "city": "West Chester",
+    "state": "PA",
+    "make": "Mini",
+    "domain": "miniwc.com",
+    "sitemapUrl": "https://www.miniwc.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.miniwc.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://miniwc.com/",
+    "lat": null,
+    "lng": null,
+    "domainSource": "oem-locator"
+  }
+]

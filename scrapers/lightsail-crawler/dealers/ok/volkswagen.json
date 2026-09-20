@@ -1,0 +1,58 @@
+[
+  {
+    "id": "volkswagen-bob-moore-volkswagen",
+    "name": "Bob Moore Volkswagen",
+    "city": "Oklahoma City",
+    "state": "OK",
+    "make": "Volkswagen",
+    "domain": "bobmoorevolkswagen.com",
+    "sitemapUrl": "https://www.bobmoorevolkswagen.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.bobmoorevolkswagen.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://bobmoorevolkswagen.com/",
+    "lat": 35.6096,
+    "lng": -97.5143,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "volkswagen-don-thornton-volkswagen-of-tulsa",
+    "name": "Don Thornton Volkswagen of Tulsa",
+    "city": "Tulsa",
+    "state": "OK",
+    "make": "Volkswagen",
+    "domain": "donthorntonvw.com",
+    "sitemapUrl": "https://www.donthorntonvw.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.donthorntonvw.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://donthorntonvw.com/",
+    "lat": 36.0997,
+    "lng": -95.8871,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "volkswagen-fowler-volkswagen-of-norman",
+    "name": "Fowler Volkswagen of Norman",
+    "city": "Norman",
+    "state": "OK",
+    "make": "Volkswagen",
+    "domain": "fowlervw.com",
+    "sitemapUrl": "https://www.fowlervw.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.fowlervw.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://fowlervw.com/",
+    "lat": 35.2271,
+    "lng": -97.484,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "volkswagen-oklahoma-city-volkswagen",
+    "name": "Oklahoma City Volkswagen",
+    "city": "Oklahoma City",
+    "state": "OK",
+    "make": "Volkswagen",
+    "domain": "volkswagenofoklahoma.com",
+    "sitemapUrl": "https://www.volkswagenofoklahoma.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.volkswagenofoklahoma.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://volkswagenofoklahoma.com/",
+    "lat": 35.5107,
+    "lng": -97.6067,
+    "domainSource": "oem-locator"
+  }
+]
