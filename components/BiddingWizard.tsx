@@ -1173,7 +1173,8 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   // lockVehicleSelection, in which case there's nothing to import.
   // Typing a VIN/URL, or merely arriving on this step, is not enough.
   // Same-spec: a resolved car. Alternate: an ask plus at least one rooftop to send it to — no VIN.
-  const vehicleImported = intent === "alternate" ? true : Boolean(lockVehicleSelection || (parseSuccessMsg && selectedVehicle));
+  // Primary VDP/vehicle is required to Continue on BOTH intents; alternates stay optional.
+  const vehicleImported = Boolean(lockVehicleSelection || (parseSuccessMsg && selectedVehicle));
   const reviewTarget = reviewTargetFromVehicle(selectedVehicle);
 
   // Step 2 asks "who gets this offer", so it has to name the dealerships the
@@ -2397,7 +2398,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
               {/* ---------------------------------------------------------- */}
               {!lockVehicleSelection ? (
                 <WizardSection title="What do you want quoted?" hint="Pick one. This decides whether we need a VIN." className="py-4">
-                  <div className="grid gap-2 sm:grid-cols-2" role="radiogroup" aria-label="Quote intent" data-testid="intent-picker">
+                  <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Quote intent" data-testid="intent-picker">
                     {(["same_spec", "alternate"] as const).map((lane) => (
                       <button
                         key={lane}
@@ -2406,10 +2407,10 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                         aria-checked={intent === lane}
                         onClick={() => chooseIntent(lane)}
                         data-testid={`intent-${lane}`}
-                        className={`rounded-lg border px-3 py-2 text-left transition-all ${intent === lane ? "border-emerald-500 bg-emerald-500/10" : "border-border bg-surface-elevated hover:border-border-strong"}`}
+                        title={LANE_COPY[lane].help}
+                        className={`rounded-full border px-3.5 py-1.5 text-xs font-bold transition-all ${intent === lane ? "border-emerald-500 bg-emerald-500/15 text-white" : "border-border bg-surface-elevated text-ink-light hover:border-border-strong"}`}
                       >
-                        <span className="block text-xs font-bold text-white">{LANE_COPY[lane].title}</span>
-                        <span className="mt-0.5 block text-[10px] leading-snug text-ink-muted">{LANE_COPY[lane].help}</span>
+                        {LANE_COPY[lane].title}
                       </button>
                     ))}
                   </div>
@@ -2419,9 +2420,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
               {intentConfirmed || lockVehicleSelection ? (
               <WizardSection
                 title="Vehicle"
-                hint={intent === "alternate"
-                  ? "Optional — paste a VIN or dealer link as an example if you like. Dealers can propose different cars; nothing here is required."
-                  : "Paste the dealership link to the exact vehicle, or its 17-character VIN. One car is required to continue."}
+                hint="Paste the dealership link to the exact vehicle, or its 17-character VIN. One car is required to continue."
                 className="py-4"
               >
                 {USED_VEHICLES_ENABLED && !selectedVehicle ? (
