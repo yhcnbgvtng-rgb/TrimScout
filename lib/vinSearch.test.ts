@@ -1290,7 +1290,7 @@ describe("shopper-facing factory option copy", () => {
     assert.match(dealsRoute, /decorateDealRequestJson/);
   });
 
-  it("loads the must-have factory-option picker on This exact vehicle, gated off the alternate lane (2026-09-19)", () => {
+  it("loads the must-have factory-option picker on the specific-options lane, gated off the alternate lane (2026-09-19)", () => {
     const src = fs.readFileSync(path.join(process.cwd(), "components/BiddingWizard.tsx"), "utf8");
     const start = src.indexOf("STEP 1: VEHICLE");
     const end = src.indexOf("STEP 2: PAYMENT");

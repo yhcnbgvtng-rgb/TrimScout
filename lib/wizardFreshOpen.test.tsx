@@ -135,7 +135,7 @@ describe("Configure Quote Request starts fresh on every open", () => {
     // Plain-language intent card labels (2026-09-19).
     const sameCard = doc.querySelector('[data-testid="intent-same_spec"]')!;
     const altCard = doc.querySelector('[data-testid="intent-alternate"]')!;
-    assert.match(sameCard.textContent!, /This exact vehicle/);
+    assert.match(sameCard.textContent!, /A vehicle with specific options/);
     assert.match(altCard.textContent!, /Open to anything/);
     // The subtext lives in the chip's title tooltip now that the buttons are compact chips.
     assert.match(sameCard.getAttribute("title") || "", /Paste the VIN or dealer link so quotes match this car/);

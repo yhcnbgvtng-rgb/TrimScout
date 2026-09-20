@@ -9,7 +9,7 @@
 export type RfqLane = "same_spec" | "alternate";
 
 export const LANE_COPY: Record<RfqLane, { title: string; help: string }> = {
-  same_spec: { title: "This exact vehicle", help: "Paste the VIN or dealer link so quotes match this car." },
+  same_spec: { title: "A vehicle with specific options", help: "Paste the VIN or dealer link so quotes match this car." },
   alternate: { title: "Open to anything", help: "No VIN needed — dealers can propose different cars." },
 };
 
