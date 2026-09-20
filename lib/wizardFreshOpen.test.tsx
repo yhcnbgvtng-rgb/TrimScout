@@ -136,9 +136,10 @@ describe("Configure Quote Request starts fresh on every open", () => {
     const sameCard = doc.querySelector('[data-testid="intent-same_spec"]')!;
     const altCard = doc.querySelector('[data-testid="intent-alternate"]')!;
     assert.match(sameCard.textContent!, /This exact vehicle/);
-    assert.match(sameCard.textContent!, /Paste the VIN or dealer link so quotes match this car/);
     assert.match(altCard.textContent!, /Open to anything/);
-    assert.match(altCard.textContent!, /No VIN needed — dealers can propose different cars/);
+    // The subtext lives in the chip's title tooltip now that the buttons are compact chips.
+    assert.match(sameCard.getAttribute("title") || "", /Paste the VIN or dealer link so quotes match this car/);
+    assert.match(altCard.getAttribute("title") || "", /No VIN needed — dealers can propose different cars/);
     assert.doesNotMatch(doc.body.textContent!, /same build|I'm open to different vehicles/);
 
     // On open, same_spec is the default: the VDP fields are already on screen and Continue
@@ -157,8 +158,9 @@ describe("Configure Quote Request starts fresh on every open", () => {
     // alternate: VDP fields still load (optional); Continue enabled with no VIN; no dealer
     // search / What-you-need on Step 1.
     await act(async () => { (doc.querySelector('[data-testid="intent-alternate"]') as HTMLButtonElement).click(); });
-    assert.ok(doc.getElementById("primary-link-input"), "alternate loads the VDP fields on Step 1 (optional)");
-    assert.equal(continueBtn().disabled, false, "alternate: VDP optional, Continue enabled with no VIN");
+    assert.ok(doc.getElementById("primary-link-input"), "alternate keeps the VDP fields visible");
+    assert.equal(continueBtn().disabled, true, "alternate also requires the primary VDP to continue");
+    assert.equal(reason(), "Add a vehicle to continue");
     assert.equal(doc.querySelector('[data-testid="alt-add-dealer"]'), null, "no dealership search on the alternate Step 1");
     assert.equal(doc.querySelector('[data-testid="alt-must-haves"]'), null, "no What-you-need fields on the alternate lane");
 

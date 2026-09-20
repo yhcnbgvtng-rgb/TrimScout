@@ -294,16 +294,16 @@ describe("Step 1 asks the quote intent before the VIN (2026-09-17)", () => {
     assert.ok(doc.getElementById("primary-link-input"), "VDP fields load on open (same_spec default)");
     assert.equal(continueBtn().disabled, true);
     assert.equal(reason(), "Add a vehicle to continue");
-    assert.match(text(), /Paste the VIN or dealer link so quotes match this car/);
-    assert.match(text(), /No VIN needed — dealers can propose different cars/);
+    assert.match((doc.querySelector('[data-testid="intent-same_spec"]') as HTMLElement).textContent!, /This exact vehicle/);
+    assert.match((doc.querySelector('[data-testid="intent-alternate"]') as HTMLElement).textContent!, /Open to anything/);
 
     // 2. Path B (alternate): picking the intent loads the VDP fields on Step 1 immediately,
     //    but they are OPTIONAL — Continue stays enabled with no VIN, and no What-you-need shows.
     fetched.length = 0;
     await act(async () => { (doc.querySelector('[data-testid="intent-alternate"]') as HTMLButtonElement).click(); });
     assert.ok(events.some((e) => e.includes('"rfq_intent_selected"') && e.includes('"alternate"')), "rfq_intent_selected { intent: alternate }");
-    assert.ok(doc.getElementById("primary-link-input"), "alternate loads the VDP fields on Step 1 (optional)");
-    assert.equal(continueBtn().disabled, false, "alternate: VDP optional, Continue stays enabled with no VIN");
+    assert.ok(doc.getElementById("primary-link-input"), "alternate keeps the VDP fields visible");
+    assert.equal(continueBtn().disabled, true, "alternate also requires the primary VDP to continue");
     assert.equal(doc.querySelector('[data-testid="alt-must-haves"]'), null, "no What-you-need on the alternate lane");
 
     // 3. Pasting a VDP on alternate free-decodes only — /api/free-vin, never an OEM -sticker
@@ -316,6 +316,7 @@ describe("Step 1 asks the quote intent before the VIN (2026-09-17)", () => {
     assert.ok(fetched.some((u) => u.includes("/api/free-vin")), "alternate resolve uses the free decode");
     assert.ok(!fetched.some((u) => u.includes("-sticker")), "no OEM window-sticker route on the alternate lane");
     assert.equal(doc.querySelector('[data-testid="factory-build-pending"]'), null, "no factory-build/sticker UI on alternate");
+    assert.equal(continueBtn().disabled, false, "alternate Continue enables once the primary VDP resolves");
 
     // 4. Switch to same_spec: VDP fields stay, but a resolved car is required again.
     await act(async () => { (doc.querySelector('[data-testid="intent-same_spec"]') as HTMLButtonElement).click(); });

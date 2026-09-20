@@ -75,7 +75,7 @@ describe("wiring", () => {
     const vehicle = w.indexOf('id="primary-link-input"');
     assert.ok(picker > -1 && picker < vehicle, "intent picker renders above the paste box");
     assert.match(w, /trackEvent\("rfq_intent_selected", \{ intent: next \}\)/);
-    assert.match(w, /const vehicleImported = intent === "alternate" \? true/, "path B leaves Step 1 on intent alone — dealers chosen on the later step");
+    assert.match(w, /const vehicleImported = Boolean\(lockVehicleSelection \|\| \(parseSuccessMsg && selectedVehicle\)\)/, "primary VDP/vehicle required to Continue on both intents");
     assert.match(w, /lane: alternateLane \? "alternate" : "same_spec",/);
     assert.match(w, /linkPastes: alternateLane \? \[\] : pastes,/);
     assert.match(w, /\{intentConfirmed \|\| lockVehicleSelection \? \(/, "the VDP fields render for BOTH intents once the intent substep is passed");
