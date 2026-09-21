@@ -188,6 +188,27 @@ const SUPPORT_STEP_TIMEOUT_MS = 30 * 60 * 1000; // write-dealers / bot-report
 // main() again.
 export const MAX_CONCURRENT_STATES = 2;
 
+// Hard wall-clock ceiling on the WHOLE run (every state, not any single
+// one) — unset by default, preserving the original "run until done"
+// behavior everywhere this isn't explicitly configured. Added 2026-09-21
+// after box 1 (2 vCPU/8GB, the box's own smaller hardware) ran for 40+
+// hours on what should have been a single night's crawl — the state-
+// sharding fix (see inventory_shards.js) addresses the root cause of that
+// specific blowup, but a hard budget is a real guarantee, not a hope that
+// a fix works as well in practice as it did in testing. Once elapsed time
+// since this run started passes CRAWLER_DRIVER_BUDGET_HOURS, the worker
+// pool (runStatesWithBoundedConcurrency below) simply stops STARTING new
+// states — it never kills a state that's already running, which would
+// risk tearing a mid-write brand-run; every already-fixed safety net at
+// finer grain (DEALER_TIMEOUT_MS, PER_BRAND_TIMEOUT_MS) already bounds how
+// long any one already-started state can run past the deadline. Any state
+// that never got a slot is recorded in the summary as skipped, not
+// silently dropped, so a human (or tomorrow's own run) can see exactly
+// what didn't get covered.
+export const DRIVER_BUDGET_MS = process.env.CRAWLER_DRIVER_BUDGET_HOURS
+  ? Number(process.env.CRAWLER_DRIVER_BUDGET_HOURS) * 60 * 60 * 1000
+  : null;
+
 // PID-file lock so a second invocation of this driver (e.g. cron firing
 // again while a manual run, or the previous day's run, is still going)
 // refuses to start instead of running concurrently against the same
@@ -608,12 +629,21 @@ export function computeGrandTotals(states) {
 // behavior here (bounded concurrency, per-state isolation, timestamps) in
 // a fast unit test needs a fake that resolves/rejects on a controlled
 // schedule instead — see test/run_daily_crawl.test.js.
-export async function runStatesWithBoundedConcurrency(states, date, maxConcurrent = MAX_CONCURRENT_STATES, runStateFn = runState) {
+export async function runStatesWithBoundedConcurrency(states, date, maxConcurrent = MAX_CONCURRENT_STATES, runStateFn = runState, { budgetMs = DRIVER_BUDGET_MS, runStartedAt = Date.now() } = {}) {
   const results = {};
   let nextIndex = 0;
+  let budgetExceeded = false;
 
   async function worker() {
     for (;;) {
+      // See DRIVER_BUDGET_MS's comment: only gates STARTING a new state,
+      // never kills one already in flight. Checked before claiming the
+      // next index so a state that hasn't started yet is left untouched
+      // (and reported as skipped below) rather than started and abandoned.
+      if (budgetMs !== null && Date.now() - runStartedAt >= budgetMs) {
+        budgetExceeded = true;
+        return;
+      }
       const myIndex = nextIndex++;
       if (myIndex >= states.length) return;
       const state = states[myIndex];
@@ -643,6 +673,18 @@ export async function runStatesWithBoundedConcurrency(states, date, maxConcurren
 
   const workerCount = Math.max(1, Math.min(maxConcurrent, states.length));
   await Promise.all(Array.from({ length: workerCount }, () => worker()));
+
+  // Any state that never got a slot before the budget ran out is recorded
+  // explicitly, not silently missing from the summary.
+  if (budgetExceeded) {
+    for (const state of states) {
+      if (!results[state]) {
+        results[state] = { state, status: 'skipped', reason: `driver time budget (${budgetMs}ms) exceeded before this state could start` };
+        console.log(`[driver] ==== ${state}: skipped — time budget exceeded ====`);
+      }
+    }
+  }
+
   return results;
 }
 

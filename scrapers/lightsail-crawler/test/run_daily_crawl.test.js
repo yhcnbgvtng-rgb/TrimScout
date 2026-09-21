@@ -322,6 +322,74 @@ describe('run-daily-crawl driver', () => {
   });
 
   // ---------------------------------------------------------------------
+  // Real bug this guards against: box 1 (2 vCPU/8GB) ran for 40+ hours on
+  // what should have been a single night's crawl (root cause: the pre-
+  // sharding-fix architecture's O(whole-dataset) scaling — see
+  // inventory_shards.js). The sharding fix addresses that root cause, but
+  // DRIVER_BUDGET_MS is a real, deterministic guarantee independent of
+  // whether that fix performs as well in production as it did in testing —
+  // it caps the WHOLE run's wall-clock time, not any single state's.
+  // ---------------------------------------------------------------------
+  describe('runStatesWithBoundedConcurrency (driver time budget)', () => {
+    it('with no budget set (the default), runs every state regardless of elapsed time — unchanged from before this existed', async () => {
+      const fakeRunState = async (state) => {
+        await sleep(20);
+        return { state, brands: {} };
+      };
+      const results = await runStatesWithBoundedConcurrency(['NJ', 'NY', 'FL'], '2026-09-15', 1, fakeRunState);
+      assert.ok(results.NJ && results.NY && results.FL, 'all three states should have run with no budget configured');
+      assert.equal(results.NJ.status, undefined); // ran normally, not skipped
+    });
+
+    it('once the budget is exceeded, stops STARTING new states but lets an already-started one finish naturally (never kills mid-run)', async () => {
+      const order = [];
+      const fakeRunState = async (state) => {
+        order.push(`start:${state}`);
+        // FL deliberately overruns the budget while it's already running —
+        // proves the budget doesn't tear down in-flight work.
+        await sleep(state === 'FL' ? 80 : 10);
+        order.push(`end:${state}`);
+        return { state, brands: {} };
+      };
+
+      // FL (slot 2) sleeps 80ms and must be allowed to finish regardless.
+      // Slot 1 churns NJ (10ms) then NY (10ms) before attempting GA at
+      // ~20ms elapsed — budget=15ms means that GA attempt is past budget,
+      // so GA never starts, while FL (already running) still finishes.
+      const runStartedAt = Date.now();
+      const results = await runStatesWithBoundedConcurrency(
+        ['NJ', 'FL', 'NY', 'GA'], '2026-09-15', 2, fakeRunState,
+        { budgetMs: 15, runStartedAt },
+      );
+
+      assert.ok(order.includes('end:FL'), 'FL (already running when the budget expired) should still finish');
+      assert.deepEqual(results.FL.brands, {}); // FL ran for real, not skipped
+      assert.equal(results.FL.status, undefined);
+      assert.ok(!order.includes('start:GA'), 'GA (never started) should not start once the budget is exceeded');
+      assert.equal(results.GA.status, 'skipped');
+      assert.match(results.GA.reason, /time budget/);
+    });
+
+    it('a state that already started before the budget check keeps its real result shape — skipped states are clearly distinguishable from real ones', async () => {
+      const fakeRunState = async (state) => {
+        await sleep(state === 'NJ' ? 50 : 5);
+        return { state, brands: { Toyota: { status: 'ok' } } };
+      };
+      const runStartedAt = Date.now();
+      const results = await runStatesWithBoundedConcurrency(
+        ['NJ', 'NY'], '2026-09-15', 1, fakeRunState,
+        { budgetMs: 20, runStartedAt },
+      );
+      // NJ claimed the only slot before the budget expired and ran to completion.
+      assert.equal(results.NJ.brands.Toyota.status, 'ok');
+      assert.equal(results.NJ.status, undefined);
+      // NY never got a slot.
+      assert.equal(results.NY.status, 'skipped');
+      assert.equal(results.NY.brands, undefined);
+    });
+  });
+
+  // ---------------------------------------------------------------------
   // Overlap guard: root cause this fixes — the installed cron fired at its
   // scheduled time while a manually-started run of this same driver was
   // still mid-crawl, and with no guard both processes ran concurrently
