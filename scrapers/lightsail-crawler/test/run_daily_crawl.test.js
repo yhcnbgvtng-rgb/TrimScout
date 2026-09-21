@@ -214,8 +214,20 @@ describe('run-daily-crawl driver', () => {
   // timestamps) without spawning any real subprocesses.
   // ---------------------------------------------------------------------
   describe('runStatesWithBoundedConcurrency (bounded state parallelism)', () => {
-    it('MAX_CONCURRENT_STATES is 2, matching the crawl box\'s 2 vCPUs', () => {
+    it('MAX_CONCURRENT_STATES defaults to 2 (box 1\'s 2 vCPUs) when CRAWLER_MAX_CONCURRENT_STATES is unset', () => {
       assert.equal(MAX_CONCURRENT_STATES, 2);
+    });
+
+    it('CRAWLER_MAX_CONCURRENT_STATES overrides the default — how box 2/3/4 (4 vCPU) use their real capacity', async () => {
+      const prev = process.env.CRAWLER_MAX_CONCURRENT_STATES;
+      process.env.CRAWLER_MAX_CONCURRENT_STATES = '4';
+      try {
+        const mod = await import(`../scripts/run-daily-crawl.mjs?t=${Date.now()}-${Math.random()}`);
+        assert.equal(mod.MAX_CONCURRENT_STATES, 4);
+      } finally {
+        if (prev === undefined) delete process.env.CRAWLER_MAX_CONCURRENT_STATES;
+        else process.env.CRAWLER_MAX_CONCURRENT_STATES = prev;
+      }
     });
 
     it('never runs more than maxConcurrent states at once', async () => {

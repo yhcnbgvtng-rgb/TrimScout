@@ -182,11 +182,16 @@ const SUPPORT_STEP_TIMEOUT_MS = 30 * 60 * 1000; // write-dealers / bot-report
 // CPU-bound — so this is deliberately capped at the vCPU count, not raised
 // further just because more states exist. Five states' worth of that peak
 // at once (~6.5GB) would already be pushing the box's usable RAM before
-// Node/OS overhead, on top of severe CPU contention with only 2 cores. A
-// named constant (not a hardcoded loop shape) so it stays trivially
-// tunable if the box is ever resized, without restructuring runState()/
-// main() again.
-export const MAX_CONCURRENT_STATES = 2;
+// Node/OS overhead, on top of severe CPU contention with only 2 cores.
+//
+// That box was box 1 (2 vCPU/8GB) — the original crawler box. Box 2/3/4
+// are xlarge_3_0 (4 vCPU/16GB), double the cores and RAM, but inherited
+// this same constant unchanged: they've been leaving real concurrency
+// headroom unused. CRAWLER_MAX_CONCURRENT_STATES lets each box's own
+// crontab set this to match its actual hardware (default 2, so box 1 and
+// any box that never sets it keep today's exact behavior) instead of a
+// single hardcoded constant applying uniformly regardless of vCPU count.
+export const MAX_CONCURRENT_STATES = Number(process.env.CRAWLER_MAX_CONCURRENT_STATES) || 2;
 
 // Hard wall-clock ceiling on the WHOLE run (every state, not any single
 // one) — unset by default, preserving the original "run until done"
