@@ -18,6 +18,7 @@ import {
   runStatesWithBoundedConcurrency,
   buildBrandCrawlEnv,
   shouldRunWriteDealersStep,
+  checkProjectedRuntime,
 } from '../scripts/run-daily-crawl.mjs';
 import { SUPPORTED_STATES } from '../src/states.js';
 
@@ -441,6 +442,47 @@ describe('run-daily-crawl driver', () => {
 
     it('skips write-dealers for the expansion brand set — its dealer files are a static, pre-built dataset', () => {
       assert.equal(shouldRunWriteDealersStep('expansion'), false);
+    });
+  });
+
+  // ---------------------------------------------------------------------
+  // Real bug this guards against: box 1/box 3/box 4 were each assigned a
+  // state list sized by dealer count or vehicle volume, not real p90
+  // timing — box 1 alone projected to 28.3h before this preflight check
+  // (and the rebalance it enabled) existed. checkProjectedRuntime is what
+  // main() calls before ever starting a crawl, to refuse an oversized
+  // shard outright instead of discovering the overrun 20 hours in.
+  // ---------------------------------------------------------------------
+  describe('checkProjectedRuntime (predictive preflight — refuses an oversized shard before it starts)', () => {
+    let tmpDir;
+    before(async () => {
+      tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'trimscout-preflight-'));
+      await fs.mkdir(path.join(tmpDir, 'dealers', 'tx'), { recursive: true });
+      // 2000 real rooftops for one brand in one state — at the p90 rate
+      // (93.2s/rooftop) and concurrency=4, that alone projects to
+      // 2000*93.2/3600/4 = ~12.9h. Comfortably under 24h.
+      await fs.writeFile(
+        path.join(tmpDir, 'dealers', 'tx', 'ford.json'),
+        JSON.stringify(Array.from({ length: 2000 }, (_, i) => ({ name: `Dealer ${i}` }))),
+      );
+    });
+    after(async () => {
+      await fs.rm(tmpDir, { recursive: true, force: true });
+    });
+
+    it('a shard within the SLA reports withinBudget=true with the real rooftop count and projected hours', () => {
+      const result = checkProjectedRuntime(['TX'], ['Ford'], 4, tmpDir);
+      assert.equal(result.rooftops, 2000);
+      assert.equal(result.withinBudget, true);
+      assert.ok(result.projectedHours < 24, `expected under 24h, got ${result.projectedHours}`);
+    });
+
+    it('an oversized shard (low concurrency for the same real rooftop count) reports withinBudget=false', () => {
+      // Same 2000 rooftops, but concurrency=1 instead of 4 — projects to
+      // ~51.8h, well past 24h.
+      const result = checkProjectedRuntime(['TX'], ['Ford'], 1, tmpDir);
+      assert.equal(result.withinBudget, false);
+      assert.ok(result.projectedHours > 24, `expected over 24h, got ${result.projectedHours}`);
     });
   });
 

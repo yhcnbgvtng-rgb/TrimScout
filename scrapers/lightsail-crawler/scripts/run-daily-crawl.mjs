@@ -69,6 +69,7 @@ import { NJ_BRANDS_IN } from '../src/nj_policy.js';
 import { SUPPORTED_STATES } from '../src/states.js';
 import { easternDateStamp } from '../src/date_utils.js';
 import { isProcessAlive } from '../src/pid_lock.js';
+import { countRooftopsForStates, projectedHours, MAX_PROJECTED_HOURS, P90_SECONDS_PER_ROOFTOP } from '../src/capacity.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export const ROOT = path.resolve(__dirname, '..');
@@ -735,6 +736,25 @@ export async function runStatesWithBoundedConcurrency(states, date, maxConcurren
   return results;
 }
 
+// Predictive preflight check — refuses to even START a run whose real
+// rooftop count, at the measured p90 rate, projects past MAX_PROJECTED_
+// HOURS (default 24h — the hard SLA). This is deliberately separate from
+// DRIVER_BUDGET_MS (which reacts to elapsed wall-clock time once a run is
+// already under way): that guard stops STARTING new states once time runs
+// out, but a shard that's simply too big to begin with would still limp
+// through most of its states before hitting that ceiling, burning a whole
+// night's compute for a run that was never going to finish anyway. This
+// check catches that before a single dealer is crawled. brands is the
+// resolved in-scope brand list for this run (NJ_BRANDS_IN already reflects
+// CRAWLER_BRAND_SET — see nj_policy.js) so the same states list is sized
+// correctly whether this is a core or expansion invocation.
+export function checkProjectedRuntime(states, brands, maxConcurrent, cwd = process.cwd()) {
+  const rooftops = countRooftopsForStates(states, brands, cwd);
+  const hours = projectedHours(rooftops, maxConcurrent);
+  const withinBudget = hours <= MAX_PROJECTED_HOURS;
+  return { rooftops, projectedHours: hours, withinBudget };
+}
+
 export async function main() {
   await fs.mkdir(LOGS_DIR, { recursive: true });
   await fs.mkdir(RUNS_DIR, { recursive: true });
@@ -764,6 +784,29 @@ export async function main() {
       logRetention: { days: LOG_RETENTION_DAYS, ...pruneResult },
       states: {},
     };
+
+    // Predictive preflight — see checkProjectedRuntime()'s own comment.
+    // Refuses to start at all if this shard's real rooftop count, at the
+    // measured p90 rate, projects past the 24h hard SLA — catching an
+    // oversized shard before a single dealer is crawled, rather than
+    // discovering it 20 hours in. Release the overlap lock first so this
+    // refusal doesn't block tonight's retry or a corrected redeploy.
+    const capacityCheck = checkProjectedRuntime(STATES, NJ_BRANDS_IN, MAX_CONCURRENT_STATES);
+    summary.capacityCheck = capacityCheck;
+    if (!capacityCheck.withinBudget) {
+      console.error(
+        `[driver] REFUSING TO START: ${STATES.length} state(s) / ${capacityCheck.rooftops} rooftops project to `
+        + `${capacityCheck.projectedHours.toFixed(1)}h at ${MAX_CONCURRENT_STATES}x concurrency (p90 rate `
+        + `${P90_SECONDS_PER_ROOFTOP}s/rooftop) — over the ${MAX_PROJECTED_HOURS}h hard SLA. Shrink this box's `
+        + `CRAWL_STATES (see scripts/recommend-shard-split.mjs) or raise CRAWLER_MAX_PROJECTED_HOURS if this is intentional.`,
+      );
+      await releaseLock();
+      return { skipped: true, reason: 'projected runtime exceeds MAX_PROJECTED_HOURS', capacityCheck };
+    }
+    console.log(
+      `[driver] capacity preflight: ${STATES.length} state(s) / ${capacityCheck.rooftops} rooftops, `
+      + `projected ${capacityCheck.projectedHours.toFixed(1)}h at ${MAX_CONCURRENT_STATES}x concurrency (within ${MAX_PROJECTED_HOURS}h SLA).`,
+    );
 
     // Up to MAX_CONCURRENT_STATES states' full pipelines run at once — see
     // runStatesWithBoundedConcurrency()'s own comment for how states are
