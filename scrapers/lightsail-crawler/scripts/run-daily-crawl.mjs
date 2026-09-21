@@ -469,6 +469,13 @@ export function buildBrandCrawlEnv({ state, brand, dealersFile, date }) {
   };
 }
 
+// Extracted as its own function (rather than an inline env check) so this
+// exact decision is unit-testable — see this function's own callsite
+// comment in runState() for the real bug this guards against.
+export function shouldRunWriteDealersStep(brandSet = process.env.CRAWLER_BRAND_SET) {
+  return brandSet !== 'expansion';
+}
+
 async function runState(state, date) {
   // startedAt/finishedAt are wall-clock, not "time actually spent running"
   // — with MAX_CONCURRENT_STATES > 1, two states' windows can (and are
@@ -477,20 +484,44 @@ async function runState(state, date) {
   // total that would no longer mean what it used to.
   const stateSummary = { state, startedAt: new Date().toISOString(), finishedAt: null, durationMs: null, writeDealers: null, botReport: null, readyBrands: null, brands: {} };
 
-  const writeScript = WRITE_DEALER_SCRIPTS[state];
-  if (!writeScript) throw new Error(`No write-dealers script registered for state "${state}" — add one to WRITE_DEALER_SCRIPTS.`);
-  stateSummary.writeDealers = await runStep(
-    'node',
-    [path.join('scripts', writeScript)],
-    {
-      cwd: ROOT,
-      logFile: path.join(LOGS_DIR, `${state.toLowerCase()}-write-dealers-${date}.log`),
-      timeoutMs: SUPPORT_STEP_TIMEOUT_MS,
-    },
-  );
-  stateSummary.writeDealers.status = statusOf(stateSummary.writeDealers);
-  if (stateSummary.writeDealers.status !== 'ok') {
-    console.error(`[driver] ${state} write-dealers step ${stateSummary.writeDealers.status} (exit ${stateSummary.writeDealers.exitCode}) — continuing with whatever dealers/${state.toLowerCase()}/*.json already exists on disk.`);
+  // Real bug found live 2026-09-21, pre-flight-checked before it ever hit
+  // production: every per-state write-dealers script (write-<state>-
+  // dealer-files.mjs -> <state>_policy.js's writeXxxDealerFiles) imports
+  // NJ_BRANDS_IN directly and iterates it to decide which brands to
+  // (re)write — sourcing each brand's dealers from loadNjDealers(), which
+  // reads OEM locator dumps (see oem_locator.js). NJ_BRANDS_IN now resolves
+  // to the EXPANSION list under CRAWLER_BRAND_SET=expansion (see
+  // nj_policy.js) — but the expansion brands never went through OEM-
+  // locator fetching; they were materialized once from real dealer-
+  // contact rosters (scripts/materialize-expansion-dealer-files.mjs).
+  // Running this step under expansion would have iterated Ford/Chevrolet/
+  // etc., found zero locator rows for each, and silently overwritten every
+  // one of those 9,451 real materialized dealers with an empty array — on
+  // literally every state, on the very first cron fire. Confirmed live on
+  // a real box before this fix: HI and ID's expansion dealer files were
+  // already clobbered to `[]` by an earlier manual driver invocation.
+  // Expansion brands' dealer files are a static, pre-built dataset (no
+  // periodic locator refresh built for them yet), so this step is simply
+  // skipped for that brand set rather than taught to no-op per brand —
+  // there's nothing for it to legitimately do there.
+  if (!shouldRunWriteDealersStep()) {
+    stateSummary.writeDealers = { status: 'skipped', reason: 'CRAWLER_BRAND_SET=expansion — dealer files are pre-materialized, never regenerated from OEM locators' };
+  } else {
+    const writeScript = WRITE_DEALER_SCRIPTS[state];
+    if (!writeScript) throw new Error(`No write-dealers script registered for state "${state}" — add one to WRITE_DEALER_SCRIPTS.`);
+    stateSummary.writeDealers = await runStep(
+      'node',
+      [path.join('scripts', writeScript)],
+      {
+        cwd: ROOT,
+        logFile: path.join(LOGS_DIR, `${state.toLowerCase()}-write-dealers-${date}.log`),
+        timeoutMs: SUPPORT_STEP_TIMEOUT_MS,
+      },
+    );
+    stateSummary.writeDealers.status = statusOf(stateSummary.writeDealers);
+    if (stateSummary.writeDealers.status !== 'ok') {
+      console.error(`[driver] ${state} write-dealers step ${stateSummary.writeDealers.status} (exit ${stateSummary.writeDealers.exitCode}) — continuing with whatever dealers/${state.toLowerCase()}/*.json already exists on disk.`);
+    }
   }
 
   stateSummary.botReport = await runStep(

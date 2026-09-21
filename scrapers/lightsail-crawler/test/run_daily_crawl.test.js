@@ -17,6 +17,7 @@ import {
   MAX_CONCURRENT_STATES,
   runStatesWithBoundedConcurrency,
   buildBrandCrawlEnv,
+  shouldRunWriteDealersStep,
 } from '../scripts/run-daily-crawl.mjs';
 import { SUPPORTED_STATES } from '../src/states.js';
 
@@ -415,6 +416,31 @@ describe('run-daily-crawl driver', () => {
       // NY never got a slot.
       assert.equal(results.NY.status, 'skipped');
       assert.equal(results.NY.brands, undefined);
+    });
+  });
+
+  // ---------------------------------------------------------------------
+  // Real bug found live 2026-09-21 — caught by a pre-flight smoke test of
+  // the real driver, before it ever ran on a real cron fire. Every per-
+  // state write-dealers script imports NJ_BRANDS_IN and iterates it,
+  // sourcing each brand's dealers from OEM locator dumps. NJ_BRANDS_IN
+  // resolves to the EXPANSION brand list under CRAWLER_BRAND_SET=expansion
+  // (see nj_policy.js) — but the expansion brands (Ford/Chevrolet/GMC/...)
+  // never went through OEM-locator fetching; they were materialized once
+  // from real dealer-contact rosters. Running write-dealers under
+  // expansion would silently overwrite every one of those real,
+  // materialized dealer files with an empty array, on every state, on the
+  // very first cron fire — confirmed live: it happened to two real states
+  // (HI on box 3, ID on box 4) before this fix existed.
+  // ---------------------------------------------------------------------
+  describe('shouldRunWriteDealersStep (expansion brands must never regenerate from OEM locators)', () => {
+    it('runs write-dealers for the core brand set (unset, or explicitly "core")', () => {
+      assert.equal(shouldRunWriteDealersStep(undefined), true);
+      assert.equal(shouldRunWriteDealersStep('core'), true);
+    });
+
+    it('skips write-dealers for the expansion brand set — its dealer files are a static, pre-built dataset', () => {
+      assert.equal(shouldRunWriteDealersStep('expansion'), false);
     });
   });
 
