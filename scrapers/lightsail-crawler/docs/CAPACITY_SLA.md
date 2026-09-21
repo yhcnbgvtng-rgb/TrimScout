@@ -69,6 +69,68 @@ the 11pm expansion job): RI on box 3, VT on box 4 — states moved off
 box 1 to lighten its load. Negligible rooftop count; not counted against
 the expansion SLA above since it's a different brand set entirely.
 
+## Daily box performance
+
+Separate from this document's capacity math, every driver run now writes an
+**ops SLA report** — this is *not* the AI Analytics system (inventory/DOM
+product metrics); it only reports on the crawl operation itself: did it
+finish on time, how fast was it, how much bot-blocking did it hit.
+
+### Where to look each morning
+
+1. **Per box**: `data/runs/<date>/<runLabel>/box-report.{json,html}` on
+   that box (`runLabel` is `expansion` or `core` — box3/box4 write both,
+   one per side-job). Open the `.html` for a quick read, or `.json` for
+   scripting. A report is written even when the run hit its time budget
+   or crashed mid-run — a missing report means the driver never even
+   started (lock contention, or the box itself is down), not that
+   everything was fine.
+2. **Fleet-wide**: from your own machine (never from a box, and not on a
+   cron), run:
+   ```
+   npm run fleet-report
+   ```
+   This pulls every box's latest `box-report.json` over SSH (read-only —
+   it never touches `CRAWL_STATES` or concurrency on any box) and writes
+   `data/runs/<date>/fleet-summary.{json,html}` with one row per
+   box/runLabel: rooftops, hours, p90 seconds/rooftop, SLA verdict, WAF%,
+   NHTSA%, and finish time in ET. Open the `.html` — **red** means
+   `wallClockHours > 22` or `slaOk: false` (an actual breach or thin-margin
+   overrun), **yellow** means 20–22h (within SLA but worth watching),
+   **gray** means no report was found for that box/runLabel at all. Pass
+   `--date=YYYY-MM-DD` for a past night or `--boxes=box1,box2` to check a
+   subset.
+3. **Trend over time**: `docs/capacity_history.csv` gets one row appended
+   per box per runLabel per night (never rewritten), carrying that
+   night's *real measured* p50/p90 seconds/rooftop — not the config
+   constant. Once enough real nights have accumulated, recompute
+   `CRAWLER_P50_SEC_PER_ROOFTOP` / `CRAWLER_P90_SEC_PER_ROOFTOP` (see
+   `src/capacity.js`) from this file's actual distribution instead of the
+   23-sample estimate this document started from, and update both the
+   "Measured rate" table above and the two env-var defaults together.
+
+### What's in a box-report.json
+
+`identity` (host/brand set/concurrency), `schedule` (start/end,
+wall-clock hours, whether it hit its time budget, `slaOk`), `scope`
+(states/rooftops assigned vs. attempted vs. skipped), `throughput` (real
+per-brand seconds/rooftop, vehicles/hour), `quality` (WAF-blocked count by
+classification, NHTSA enrichment success rate, shared-data-lock
+contention), `capacity` (projected vs. actual hours), `health`
+(best-effort point-in-time free memory/load average — Chromium crash
+count and a true run-long CPU/RAM peak aren't instrumented yet, and the
+report says so explicitly rather than reporting a fabricated 0), and
+`links` back to the underlying log files and driver summary. All of it is
+derived from data `run-daily-crawl.mjs` already collects (per-brand
+`dealerCount`/`durationMs`/`status`/`stats`) plus regex-parsed signals
+from the per-brand log files it already writes — nothing new was added to
+`standalone.js` or `enricher.js` to produce this.
+
+An example filled report (from a dry run against realistic fixture data,
+not a live box) lives at
+[`data/runs/2026-09-21/expansion/box-report.json`](../data/runs/2026-09-21/expansion/box-report.json)
+and its rendered [`box-report.html`](../data/runs/2026-09-21/expansion/box-report.html).
+
 ## Known data-quality caveat
 
 `scripts/recommend-shard-split.mjs`, when run from a plain git checkout

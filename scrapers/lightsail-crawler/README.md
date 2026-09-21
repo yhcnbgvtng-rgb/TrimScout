@@ -371,6 +371,19 @@ TZ=America/New_York
 0  21 * * * cd /home/ubuntu/lightsail-crawler && mkdir -p logs && node scripts/run-daily-crawl.mjs >> logs/run-all-$(date +\%F).log 2>&1
 ```
 
+### Fleet ops: where to look each morning
+
+The crawler fleet (4 Lightsail boxes, core + expansion brand sets) runs
+under a hard 24h-per-box SLA. Each box writes its own nightly ops report
+(`data/runs/<date>/<runLabel>/box-report.html`), and `npm run fleet-report`
+rolls all 4 boxes into one table (`data/runs/<date>/fleet-summary.html`) —
+red rows are a breach or thin-margin overrun, yellow is 20-22h, gray means
+a box's report is missing entirely. This is ops/SLA reporting only, kept
+separate from AI Analytics (inventory/DOM product metrics). Full detail —
+report fields, the capacity-recalibration CSV, and an example filled
+report — is in [`docs/CAPACITY_SLA.md`](docs/CAPACITY_SLA.md)'s "Daily box
+performance" section.
+
 ### Tests
 
 ```bash

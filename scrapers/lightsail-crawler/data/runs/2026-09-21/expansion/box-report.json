@@ -1,0 +1,83 @@
+{
+  "identity": {
+    "hostname": "Pauls-MacBook-Air.local",
+    "publicIp": "13.220.170.220",
+    "brandSet": "expansion",
+    "runLabel": "expansion",
+    "concurrency": 4,
+    "budgetHours": 24
+  },
+  "schedule": {
+    "date": "2026-09-21",
+    "actualStart": "2026-09-20T23:00:00.000Z",
+    "actualEnd": "2026-09-21T22:48:00.000Z",
+    "wallClockHours": 23.8,
+    "budgetHours": 24,
+    "hitBudget": true,
+    "slaOk": false
+  },
+  "scope": {
+    "statesAssigned": [
+      "tx",
+      "la",
+      "ar"
+    ],
+    "statesAttempted": [
+      "tx",
+      "la"
+    ],
+    "statesSkipped": [
+      {
+        "state": "ar",
+        "reason": "driver time budget (24h) exceeded before this state could start"
+      }
+    ],
+    "rooftopsPlanned": 3675,
+    "rooftopsAttempted": 2885,
+    "rooftopsCompleted": 2885,
+    "rooftopsSkipped": 790
+  },
+  "throughput": {
+    "secondsPerRooftopMean": 47.800000000000004,
+    "secondsPerRooftopP50": 44.1,
+    "secondsPerRooftopP90": 61,
+    "sampleCount": 7,
+    "vehiclesScraped": 129600,
+    "vehiclesPerHour": 5445.4
+  },
+  "quality": {
+    "wafBlockedTotal": 55,
+    "wafByClass": {
+      "BLOCKED_BY_WAF": 14,
+      "SUSPECTED_BLOCK": 7
+    },
+    "emptyInventoryDealers": 7,
+    "nhtsaAttempted": 21,
+    "nhtsaSucceeded": 14,
+    "nhtsaSuccessRate": 0.667,
+    "lockContentionTimeouts": 14
+  },
+  "capacity": {
+    "projectedHoursAtStart": 23.8,
+    "actualHours": 23.8,
+    "ratio": 1,
+    "overProjectionBy15Pct": false
+  },
+  "health": {
+    "sampledAtReportTime": true,
+    "freeMemGb": 0.99,
+    "totalMemGb": 24,
+    "loadAvg1m": 1.541015625,
+    "chromiumCrashCount": 0,
+    "chromiumCrashCountNotInstrumented": true,
+    "lockCollisions": 14
+  },
+  "links": {
+    "logsDir": "logs/",
+    "summaryPath": "data/daily_crawl_runs/summary_2026-09-21.json",
+    "shardsTouched": [
+      "tx",
+      "la"
+    ]
+  }
+}

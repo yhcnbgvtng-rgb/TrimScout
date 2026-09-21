@@ -70,6 +70,7 @@ import { SUPPORTED_STATES } from '../src/states.js';
 import { easternDateStamp } from '../src/date_utils.js';
 import { isProcessAlive } from '../src/pid_lock.js';
 import { countRooftopsForStates, projectedHours, MAX_PROJECTED_HOURS, P90_SECONDS_PER_ROOFTOP } from '../src/capacity.js';
+import { buildBoxReport, renderBoxReportHtml, appendCapacityHistoryRow } from '../src/box_report.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export const ROOT = path.resolve(__dirname, '..');
@@ -755,6 +756,38 @@ export function checkProjectedRuntime(states, brands, maxConcurrent, cwd = proce
   return { rooftops, projectedHours: hours, withinBudget };
 }
 
+// Written after EVERY run, success or not (a budget-abort or a fatal
+// mid-run error still produces a report from whatever `summary` reached
+// at that point — see main()'s try/catch/finally below) — an ops report
+// that only exists on a clean night is worse than useless, since the
+// nights you actually need it are the ones that didn't go cleanly.
+// `runLabel` names the report directory (falls back to the brand set) so
+// box 3/box 4's two independent daily jobs (11pm expansion, 4am core
+// side-job) never overwrite each other's report.
+async function writeBoxReport(summary, date) {
+  try {
+    const runLabel = process.env.CRAWLER_RUN_LABEL || process.env.CRAWLER_BRAND_SET || 'core';
+    const report = await buildBoxReport(summary, {
+      brandSet: process.env.CRAWLER_BRAND_SET || 'core',
+      runLabel: process.env.CRAWLER_RUN_LABEL || null,
+      concurrency: MAX_CONCURRENT_STATES,
+      budgetHours: process.env.CRAWLER_DRIVER_BUDGET_HOURS ? Number(process.env.CRAWLER_DRIVER_BUDGET_HOURS) : null,
+    });
+    const dir = path.join(ROOT, 'data', 'runs', date, runLabel);
+    await fs.mkdir(dir, { recursive: true });
+    await fs.writeFile(path.join(dir, 'box-report.json'), JSON.stringify(report, null, 2));
+    await fs.writeFile(path.join(dir, 'box-report.html'), renderBoxReportHtml(report));
+    await appendCapacityHistoryRow(report, path.join(ROOT, 'docs', 'capacity_history.csv'));
+    console.log(`[driver] box report written to ${dir}/box-report.json (SLA ${report.schedule.slaOk ? 'OK' : 'BREACH'}, ${report.schedule.wallClockHours}h)`);
+    return report;
+  } catch (err) {
+    // A reporting failure must never mask the real crawl result — log and
+    // move on, same principle as every other non-fatal error in this file.
+    console.error('[driver] box report generation failed (non-fatal):', err.stack || err.message);
+    return null;
+  }
+}
+
 export async function main() {
   await fs.mkdir(LOGS_DIR, { recursive: true });
   await fs.mkdir(RUNS_DIR, { recursive: true });
@@ -800,6 +833,8 @@ export async function main() {
         + `${P90_SECONDS_PER_ROOFTOP}s/rooftop) — over the ${MAX_PROJECTED_HOURS}h hard SLA. Shrink this box's `
         + `CRAWL_STATES (see scripts/recommend-shard-split.mjs) or raise CRAWLER_MAX_PROJECTED_HOURS if this is intentional.`,
       );
+      summary.finishedAt = new Date().toISOString();
+      await writeBoxReport(summary, date);
       await releaseLock();
       return { skipped: true, reason: 'projected runtime exceeds MAX_PROJECTED_HOURS', capacityCheck };
     }
@@ -808,24 +843,40 @@ export async function main() {
       + `projected ${capacityCheck.projectedHours.toFixed(1)}h at ${MAX_CONCURRENT_STATES}x concurrency (within ${MAX_PROJECTED_HOURS}h SLA).`,
     );
 
-    // Up to MAX_CONCURRENT_STATES states' full pipelines run at once — see
-    // runStatesWithBoundedConcurrency()'s own comment for how states are
-    // scheduled into the available slots, and MAX_CONCURRENT_STATES' for
-    // why that number is 2 and not higher on this box.
-    summary.states = await runStatesWithBoundedConcurrency(STATES, date, MAX_CONCURRENT_STATES);
+    // The report must be written even if the crawl itself blows up
+    // unexpectedly (anything not already caught by runState()'s own
+    // per-state try/catch) — an ops report that only exists on a clean
+    // night defeats the point. This inner try/catch writes whatever
+    // `summary` reached (states may be empty or partial) before
+    // re-throwing, so the outer fatal-error behavior (non-zero exit,
+    // visible to cron) is unchanged.
+    try {
+      // Up to MAX_CONCURRENT_STATES states' full pipelines run at once —
+      // see runStatesWithBoundedConcurrency()'s own comment for how
+      // states are scheduled into the available slots, and
+      // MAX_CONCURRENT_STATES' for why that number is 2 and not higher
+      // on this box.
+      summary.states = await runStatesWithBoundedConcurrency(STATES, date, MAX_CONCURRENT_STATES);
 
-    summary.finishedAt = new Date().toISOString();
-    summary.durationMs = Date.parse(summary.finishedAt) - Date.parse(summary.startedAt);
-    summary.grandTotals = computeGrandTotals(summary.states);
+      summary.finishedAt = new Date().toISOString();
+      summary.durationMs = Date.parse(summary.finishedAt) - Date.parse(summary.startedAt);
+      summary.grandTotals = computeGrandTotals(summary.states);
 
-    const summaryPath = path.join(RUNS_DIR, `summary_${date}.json`);
-    await fs.writeFile(summaryPath, JSON.stringify(summary, null, 2));
-    await fs.writeFile(path.join(RUNS_DIR, 'latest.json'), JSON.stringify(summary, null, 2));
+      const summaryPath = path.join(RUNS_DIR, `summary_${date}.json`);
+      await fs.writeFile(summaryPath, JSON.stringify(summary, null, 2));
+      await fs.writeFile(path.join(RUNS_DIR, 'latest.json'), JSON.stringify(summary, null, 2));
 
-    console.log(`[driver] summary written to ${summaryPath}`);
-    console.log(`[driver] grand totals: ${JSON.stringify(summary.grandTotals)}`);
+      console.log(`[driver] summary written to ${summaryPath}`);
+      console.log(`[driver] grand totals: ${JSON.stringify(summary.grandTotals)}`);
 
-    return summary;
+      summary.boxReport = await writeBoxReport(summary, date);
+      return summary;
+    } catch (err) {
+      summary.finishedAt = summary.finishedAt || new Date().toISOString();
+      summary.fatalError = err.message;
+      await writeBoxReport(summary, date);
+      throw err;
+    }
   } finally {
     await releaseLock();
   }
