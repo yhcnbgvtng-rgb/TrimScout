@@ -1,0 +1,16 @@
+[
+  {
+    "id": "lexus-lexus-of-warwick",
+    "name": "Lexus of Warwick",
+    "city": "Warwick",
+    "state": "RI",
+    "make": "Lexus",
+    "domain": "lexusofwarwick.com",
+    "sitemapUrl": "https://www.lexusofwarwick.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.lexusofwarwick.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://lexusofwarwick.com/",
+    "lat": 41.697155,
+    "lng": -71.4999,
+    "domainSource": "oem-locator"
+  }
+]

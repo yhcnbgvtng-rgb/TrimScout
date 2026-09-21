@@ -1,0 +1,16 @@
+[
+  {
+    "id": "audi-audi-turnersville",
+    "name": "Audi Turnersville",
+    "city": "Turnersville",
+    "state": "NJ",
+    "make": "Audi",
+    "domain": "auditurnersville.com",
+    "sitemapUrl": "https://www.auditurnersville.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.auditurnersville.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://auditurnersville.com/",
+    "lat": null,
+    "lng": null,
+    "domainSource": "listing-verified"
+  }
+]

@@ -1,0 +1,41 @@
+[
+  {
+    "id": "lincoln-eddy-s-lincoln-llc",
+    "name": "Eddy's Lincoln, LLC",
+    "city": "Wichita",
+    "state": "KS",
+    "make": "Lincoln",
+    "domain": "eddyslincoln.com",
+    "sitemapUrl": "https://www.eddyslincoln.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.eddyslincoln.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://eddyslincoln.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "lincoln-mike-carpino-lincoln",
+    "name": "Mike Carpino Lincoln",
+    "city": "Pittsburg",
+    "state": "KS",
+    "make": "Lincoln",
+    "domain": "mikecarpinolincoln.com",
+    "sitemapUrl": "https://www.mikecarpinolincoln.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.mikecarpinolincoln.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://mikecarpinolincoln.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "lincoln-olathe-lincoln",
+    "name": "Olathe Lincoln",
+    "city": "Olathe",
+    "state": "KS",
+    "make": "Lincoln",
+    "domain": "olathelincoln.net",
+    "sitemapUrl": "https://www.olathelincoln.net/sitemap.xml",
+    "inventorySitemapUrl": "https://www.olathelincoln.net/sitemap-inventory.xml",
+    "fallbackUrl": "https://olathelincoln.net/",
+    "lat": null,
+    "lng": null
+  }
+]

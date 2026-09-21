@@ -1,0 +1,80 @@
+[
+  {
+    "id": "lincoln-apple-lincoln",
+    "name": "Apple Lincoln",
+    "city": "Columbia",
+    "state": "MD",
+    "make": "Lincoln",
+    "domain": "applelincoln.net",
+    "sitemapUrl": "https://www.applelincoln.net/sitemap.xml",
+    "inventorySitemapUrl": "https://www.applelincoln.net/sitemap-inventory.xml",
+    "fallbackUrl": "https://applelincoln.net/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "lincoln-bob-davidson-lincoln",
+    "name": "Bob Davidson Lincoln",
+    "city": "Baltimore",
+    "state": "MD",
+    "make": "Lincoln",
+    "domain": "bobdavidsonlincoln.net",
+    "sitemapUrl": "https://www.bobdavidsonlincoln.net/sitemap.xml",
+    "inventorySitemapUrl": "https://www.bobdavidsonlincoln.net/sitemap-inventory.xml",
+    "fallbackUrl": "https://bobdavidsonlincoln.net/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "lincoln-koons-lincoln-of-annapolis",
+    "name": "Koons Lincoln of Annapolis",
+    "city": "Annapolis",
+    "state": "MD",
+    "make": "Lincoln",
+    "domain": "lincolnofannapolis.com",
+    "sitemapUrl": "https://www.lincolnofannapolis.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.lincolnofannapolis.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://lincolnofannapolis.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "lincoln-koons-lincoln-of-bethesda-silver-spring",
+    "name": "Koons Lincoln of Bethesda – Silver Spring",
+    "city": "Silver Spring",
+    "state": "MD",
+    "make": "Lincoln",
+    "domain": "koonssilverspringlincoln.com",
+    "sitemapUrl": "https://www.koonssilverspringlincoln.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.koonssilverspringlincoln.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://koonssilverspringlincoln.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "lincoln-lexington-park-lincoln",
+    "name": "Lexington Park Lincoln",
+    "city": "California",
+    "state": "MD",
+    "make": "Lincoln",
+    "domain": "lexingtonparklincoln.com",
+    "sitemapUrl": "https://www.lexingtonparklincoln.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.lexingtonparklincoln.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://lexingtonparklincoln.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "lincoln-sheehy-lincoln-of-gaithersburg",
+    "name": "Sheehy Lincoln of Gaithersburg",
+    "city": "Gaithersburg",
+    "state": "MD",
+    "make": "Lincoln",
+    "domain": "sheehylincolngaithersburg.com",
+    "sitemapUrl": "https://www.sheehylincolngaithersburg.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.sheehylincolngaithersburg.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://sheehylincolngaithersburg.com/",
+    "lat": null,
+    "lng": null
+  }
+]

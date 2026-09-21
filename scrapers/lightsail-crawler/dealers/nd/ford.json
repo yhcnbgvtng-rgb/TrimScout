@@ -1,0 +1,54 @@
+[
+  {
+    "id": "ford-eide-ford",
+    "name": "Eide Ford",
+    "city": "Bismarck",
+    "state": "ND",
+    "make": "Ford",
+    "domain": "eide-ford.com",
+    "sitemapUrl": "https://www.eide-ford.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.eide-ford.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://eide-ford.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "ford-eide-ford-mandan",
+    "name": "Eide Ford Mandan",
+    "city": "Mandan",
+    "state": "ND",
+    "make": "Ford",
+    "domain": "eideford-mandan.com",
+    "sitemapUrl": "https://www.eideford-mandan.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.eideford-mandan.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://eideford-mandan.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "ford-luther-family-ford",
+    "name": "Luther Family Ford",
+    "city": "Fargo",
+    "state": "ND",
+    "make": "Ford",
+    "domain": "lutherfamilyford.net",
+    "sitemapUrl": "https://www.lutherfamilyford.net/sitemap.xml",
+    "inventorySitemapUrl": "https://www.lutherfamilyford.net/sitemap-inventory.xml",
+    "fallbackUrl": "https://lutherfamilyford.net/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "ford-vision-ford",
+    "name": "Vision Ford",
+    "city": "Wahpeton",
+    "state": "ND",
+    "make": "Ford",
+    "domain": "visionfordwahpeton.com",
+    "sitemapUrl": "https://www.visionfordwahpeton.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.visionfordwahpeton.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://visionfordwahpeton.com/",
+    "lat": null,
+    "lng": null
+  }
+]

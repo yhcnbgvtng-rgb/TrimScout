@@ -1,0 +1,44 @@
+[
+  {
+    "id": "hennessy-porsche-north-atlanta",
+    "name": "Hennessy Porsche North Atlanta",
+    "city": "Roswell",
+    "state": "GA",
+    "make": "Porsche",
+    "domain": "hennessyporsche.com",
+    "sitemapUrl": "https://www.hennessyporsche.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.hennessyporsche.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://hennessyporsche.com/",
+    "lat": 34.02332,
+    "lng": -84.360022,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "porsche-perimeter-atlanta",
+    "name": "Porsche Perimeter Atlanta",
+    "city": "Atlanta",
+    "state": "GA",
+    "make": "Porsche",
+    "domain": "porscheperimeter.com",
+    "sitemapUrl": "https://www.porscheperimeter.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porscheperimeter.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porscheperimeter.com/",
+    "lat": 33.7544657,
+    "lng": -84.3898151,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "porsche-south-atlanta",
+    "name": "Porsche South Atlanta",
+    "city": "Atlanta",
+    "state": "GA",
+    "make": "Porsche",
+    "domain": "porschesouthatlanta.com",
+    "sitemapUrl": "https://www.porschesouthatlanta.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschesouthatlanta.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschesouthatlanta.com/",
+    "lat": 33.7544657,
+    "lng": -84.3898151,
+    "domainSource": "oem-locator"
+  }
+]

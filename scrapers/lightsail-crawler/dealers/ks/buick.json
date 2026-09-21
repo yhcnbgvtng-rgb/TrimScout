@@ -1,0 +1,93 @@
+[
+  {
+    "id": "buick-briggs-buick-gmc",
+    "name": "BRIGGS BUICK GMC",
+    "city": "Manhattan",
+    "state": "KS",
+    "make": "Buick",
+    "domain": "briggsbuickgmc.com",
+    "sitemapUrl": "https://www.briggsbuickgmc.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.briggsbuickgmc.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://briggsbuickgmc.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "buick-cable-dahmer-of-topeka",
+    "name": "CABLE DAHMER OF TOPEKA",
+    "city": "Topeka",
+    "state": "KS",
+    "make": "Buick",
+    "domain": "cabledahmerbuickgmctopeka.com",
+    "sitemapUrl": "https://www.cabledahmerbuickgmctopeka.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.cabledahmerbuickgmctopeka.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://cabledahmerbuickgmctopeka.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "buick-donovan-auto-truck-center-inc",
+    "name": "DONOVAN AUTO & TRUCK CENTER, INC.",
+    "city": "WICHITA",
+    "state": "KS",
+    "make": "Buick",
+    "domain": "donovandrive.com",
+    "sitemapUrl": "https://www.donovandrive.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.donovandrive.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://donovandrive.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "buick-hatchett-buick-gmc",
+    "name": "HATCHETT BUICK GMC",
+    "city": "Wichita",
+    "state": "KS",
+    "make": "Buick",
+    "domain": "hatchettbuickgmc.com",
+    "sitemapUrl": "https://www.hatchettbuickgmc.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.hatchettbuickgmc.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://hatchettbuickgmc.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "buick-henry-martens-chevrolet-buick-gmc",
+    "name": "HENRY MARTENS CHEVROLET BUICK GMC",
+    "city": "Leavenworth",
+    "state": "KS",
+    "make": "Buick",
+    "domain": "henrymartensbuickgmc.com",
+    "sitemapUrl": "https://www.henrymartensbuickgmc.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.henrymartensbuickgmc.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://henrymartensbuickgmc.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "buick-randy-curnow-buick-gmc-inc",
+    "name": "RANDY CURNOW BUICK GMC, INC.",
+    "city": "KANSAS CITY",
+    "state": "KS",
+    "make": "Buick",
+    "domain": "randycurnow.com",
+    "sitemapUrl": "https://www.randycurnow.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.randycurnow.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://randycurnow.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "buick-robert-brogden-s-olathe-buick-gmc-inc",
+    "name": "ROBERT BROGDEN'S OLATHE BUICK GMC INC.",
+    "city": "Olathe",
+    "state": "KS",
+    "make": "Buick",
+    "domain": "robertbrogden.com",
+    "sitemapUrl": "https://www.robertbrogden.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.robertbrogden.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://robertbrogden.com/",
+    "lat": null,
+    "lng": null
+  }
+]

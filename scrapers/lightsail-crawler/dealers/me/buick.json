@@ -1,0 +1,54 @@
+[
+  {
+    "id": "buick-bill-dodge-buick-gmc",
+    "name": "BILL DODGE BUICK GMC",
+    "city": "Westbrook",
+    "state": "ME",
+    "make": "Buick",
+    "domain": "billdodgewestbrook.com",
+    "sitemapUrl": "https://www.billdodgewestbrook.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.billdodgewestbrook.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://billdodgewestbrook.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "buick-darling-s-auto-mall",
+    "name": "DARLING'S AUTO MALL",
+    "city": "Ellsworth",
+    "state": "ME",
+    "make": "Buick",
+    "domain": "darlingsbuickgmc.com",
+    "sitemapUrl": "https://www.darlingsbuickgmc.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.darlingsbuickgmc.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://darlingsbuickgmc.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "buick-o-connor-chevrolet-buick-gmc",
+    "name": "O'CONNOR CHEVROLET BUICK GMC",
+    "city": "Augusta",
+    "state": "ME",
+    "make": "Buick",
+    "domain": "oconnorchevy.com",
+    "sitemapUrl": "https://www.oconnorchevy.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.oconnorchevy.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://oconnorchevy.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "buick-varney-buick-gmc",
+    "name": "VARNEY BUICK GMC",
+    "city": "BANGOR",
+    "state": "ME",
+    "make": "Buick",
+    "domain": "varneybpg.com",
+    "sitemapUrl": "https://www.varneybpg.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.varneybpg.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://varneybpg.com/",
+    "lat": null,
+    "lng": null
+  }
+]

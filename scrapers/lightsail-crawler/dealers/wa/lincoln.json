@@ -1,0 +1,54 @@
+[
+  {
+    "id": "lincoln-evergreen-lincoln",
+    "name": "Evergreen Lincoln",
+    "city": "Issaquah",
+    "state": "WA",
+    "make": "Lincoln",
+    "domain": "evergreenlincoln.com",
+    "sitemapUrl": "https://www.evergreenlincoln.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.evergreenlincoln.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://evergreenlincoln.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "lincoln-knudtsen-foothills-lincoln",
+    "name": "Knudtsen Foothills Lincoln",
+    "city": "Spokane",
+    "state": "WA",
+    "make": "Lincoln",
+    "domain": "foothillslincoln.net",
+    "sitemapUrl": "https://www.foothillslincoln.net/sitemap.xml",
+    "inventorySitemapUrl": "https://www.foothillslincoln.net/sitemap-inventory.xml",
+    "fallbackUrl": "https://foothillslincoln.net/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "lincoln-korum-lincoln",
+    "name": "Korum Lincoln",
+    "city": "Puyallup",
+    "state": "WA",
+    "make": "Lincoln",
+    "domain": "korumlincoln.com",
+    "sitemapUrl": "https://www.korumlincoln.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.korumlincoln.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://korumlincoln.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "lincoln-pierre-lincoln-of-lynnwood",
+    "name": "Pierre Lincoln of Lynnwood",
+    "city": "Lynnwood",
+    "state": "WA",
+    "make": "Lincoln",
+    "domain": "harrislincoln.net",
+    "sitemapUrl": "https://www.harrislincoln.net/sitemap.xml",
+    "inventorySitemapUrl": "https://www.harrislincoln.net/sitemap-inventory.xml",
+    "fallbackUrl": "https://harrislincoln.net/",
+    "lat": null,
+    "lng": null
+  }
+]

@@ -1,0 +1,54 @@
+[
+  {
+    "id": "cadillac-cadillac-of-jackson",
+    "name": "CADILLAC OF JACKSON",
+    "city": "Ridgeland",
+    "state": "MS",
+    "make": "Cadillac",
+    "domain": "cadillacofjacksonms.com",
+    "sitemapUrl": "https://www.cadillacofjacksonms.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.cadillacofjacksonms.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://cadillacofjacksonms.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "cadillac-cannon-motors-llc",
+    "name": "CANNON MOTORS, LLC",
+    "city": "Oxford",
+    "state": "MS",
+    "make": "Cadillac",
+    "domain": "cannoncadillacofoxford.com",
+    "sitemapUrl": "https://www.cannoncadillacofoxford.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.cannoncadillacofoxford.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://cannoncadillacofoxford.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "cadillac-dossett-gmc-cadillac-inc",
+    "name": "DOSSETT GMC CADILLAC, INC.",
+    "city": "HATTIESBURG",
+    "state": "MS",
+    "make": "Cadillac",
+    "domain": "dossettcadillac.com",
+    "sitemapUrl": "https://www.dossettcadillac.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.dossettcadillac.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://dossettcadillac.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "cadillac-turan-foley-motors-inc",
+    "name": "TURAN-FOLEY MOTORS, INC.",
+    "city": "Gulfport",
+    "state": "MS",
+    "make": "Cadillac",
+    "domain": "turanfoleycadillac.com",
+    "sitemapUrl": "https://www.turanfoleycadillac.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.turanfoleycadillac.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://turanfoleycadillac.com/",
+    "lat": null,
+    "lng": null
+  }
+]

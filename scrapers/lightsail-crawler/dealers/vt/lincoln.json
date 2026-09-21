@@ -1,0 +1,15 @@
+[
+  {
+    "id": "lincoln-hayes-lincoln",
+    "name": "Hayes Lincoln",
+    "city": "Newport",
+    "state": "VT",
+    "make": "Lincoln",
+    "domain": "hayeslincoln.com",
+    "sitemapUrl": "https://www.hayeslincoln.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.hayeslincoln.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://hayeslincoln.com/",
+    "lat": null,
+    "lng": null
+  }
+]

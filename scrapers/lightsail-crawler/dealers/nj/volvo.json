@@ -1,0 +1,16 @@
+[
+  {
+    "id": "volvo-prestige-volvo",
+    "name": "Prestige Volvo",
+    "city": "East Hanover",
+    "state": "NJ",
+    "make": "Volvo",
+    "domain": "prestigevolvo.com",
+    "sitemapUrl": "https://www.prestigevolvo.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.prestigevolvo.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://prestigevolvo.com/",
+    "lat": null,
+    "lng": null,
+    "domainSource": "curated-overlay"
+  }
+]

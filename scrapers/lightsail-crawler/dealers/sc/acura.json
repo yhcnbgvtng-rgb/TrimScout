@@ -1,0 +1,44 @@
+[
+  {
+    "id": "fred-anderson-acura",
+    "name": "Fred Anderson Acura",
+    "city": "Greenville",
+    "state": "SC",
+    "make": "Acura",
+    "domain": "fredandersonacura.com",
+    "sitemapUrl": "https://www.fredandersonacura.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.fredandersonacura.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://fredandersonacura.com/",
+    "lat": 34.826492,
+    "lng": -82.346382,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "mcdaniels-acura",
+    "name": "McDaniels Acura",
+    "city": "Columbia",
+    "state": "SC",
+    "make": "Acura",
+    "domain": "mcdanielsacura.net",
+    "sitemapUrl": "https://www.mcdanielsacura.net/sitemap.xml",
+    "inventorySitemapUrl": "https://www.mcdanielsacura.net/sitemap-inventory.xml",
+    "fallbackUrl": "https://mcdanielsacura.net/",
+    "lat": 34.137436,
+    "lng": -80.954697,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "mcdaniels-acura-of-charleston",
+    "name": "McDaniels Acura of Charleston",
+    "city": "Charleston",
+    "state": "SC",
+    "make": "Acura",
+    "domain": "mcdanielsacuraofcharleston.net",
+    "sitemapUrl": "https://www.mcdanielsacuraofcharleston.net/sitemap.xml",
+    "inventorySitemapUrl": "https://www.mcdanielsacuraofcharleston.net/sitemap-inventory.xml",
+    "fallbackUrl": "https://mcdanielsacuraofcharleston.net/",
+    "lat": 32.791664,
+    "lng": -80.042099,
+    "domainSource": "oem-locator"
+  }
+]

@@ -1,0 +1,93 @@
+[
+  {
+    "id": "cadillac-dellenbach-motors",
+    "name": "DELLENBACH MOTORS",
+    "city": "FORT COLLINS",
+    "state": "CO",
+    "make": "Cadillac",
+    "domain": "dellenbachcadillac.com",
+    "sitemapUrl": "https://www.dellenbachcadillac.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.dellenbachcadillac.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://dellenbachcadillac.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "cadillac-foundation-chevrolet",
+    "name": "FOUNDATION CHEVROLET",
+    "city": "Wheat Ridge",
+    "state": "CO",
+    "make": "Cadillac",
+    "domain": "foundationcadillac.com",
+    "sitemapUrl": "https://www.foundationcadillac.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.foundationcadillac.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://foundationcadillac.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "cadillac-ghent-cadillac",
+    "name": "GHENT CADILLAC",
+    "city": "Greeley",
+    "state": "CO",
+    "make": "Cadillac",
+    "domain": "ghentcadillac.com",
+    "sitemapUrl": "https://www.ghentcadillac.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.ghentcadillac.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://ghentcadillac.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "cadillac-john-elway-cadillac-of-park-meadows",
+    "name": "JOHN ELWAY CADILLAC OF PARK MEADOWS",
+    "city": "Lone Tree",
+    "state": "CO",
+    "make": "Cadillac",
+    "domain": "johnelwaycadillac.com",
+    "sitemapUrl": "https://www.johnelwaycadillac.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.johnelwaycadillac.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://johnelwaycadillac.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "cadillac-mike-maroone-cadillac",
+    "name": "MIKE MAROONE CADILLAC",
+    "city": "Boulder",
+    "state": "CO",
+    "make": "Cadillac",
+    "domain": "mikemaroonecadillac.com",
+    "sitemapUrl": "https://www.mikemaroonecadillac.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.mikemaroonecadillac.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://mikemaroonecadillac.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "cadillac-red-noland-cadillac-inc",
+    "name": "RED NOLAND CADILLAC, INC.",
+    "city": "Colorado Springs",
+    "state": "CO",
+    "make": "Cadillac",
+    "domain": "rednolandcadillac.com",
+    "sitemapUrl": "https://www.rednolandcadillac.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.rednolandcadillac.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://rednolandcadillac.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "cadillac-rickenbaugh-cadillac-company",
+    "name": "RICKENBAUGH CADILLAC COMPANY",
+    "city": "DENVER",
+    "state": "CO",
+    "make": "Cadillac",
+    "domain": "rickenbaughcadillac.com",
+    "sitemapUrl": "https://www.rickenbaughcadillac.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.rickenbaughcadillac.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://rickenbaughcadillac.com/",
+    "lat": null,
+    "lng": null
+  }
+]

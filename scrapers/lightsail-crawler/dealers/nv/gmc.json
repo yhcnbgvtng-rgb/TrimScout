@@ -1,0 +1,80 @@
+[
+  {
+    "id": "gmc-corwin-buick-gmc-reno",
+    "name": "Corwin Buick GMC Reno",
+    "city": "Reno",
+    "state": "NV",
+    "make": "GMC",
+    "domain": "corwinbuickgmcreno.com",
+    "sitemapUrl": "https://www.corwinbuickgmcreno.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.corwinbuickgmcreno.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://corwinbuickgmcreno.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "gmc-fairway-buick-gmc-truck",
+    "name": "Fairway Buick GMC Truck",
+    "city": "Las Vegas",
+    "state": "NV",
+    "make": "GMC",
+    "domain": "fairwaybuickgmc.com",
+    "sitemapUrl": "https://www.fairwaybuickgmc.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.fairwaybuickgmc.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://fairwaybuickgmc.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "gmc-jerry-seiner-buick-gmc",
+    "name": "Jerry Seiner Buick GMC",
+    "city": "Las Vegas",
+    "state": "NV",
+    "make": "GMC",
+    "domain": "seinerbuickgmc.com",
+    "sitemapUrl": "https://www.seinerbuickgmc.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.seinerbuickgmc.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://seinerbuickgmc.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "gmc-michael-hohl-motor-company",
+    "name": "Michael Hohl Motor Company",
+    "city": "Carson City",
+    "state": "NV",
+    "make": "GMC",
+    "domain": "michaelhohlgmc.com",
+    "sitemapUrl": "https://www.michaelhohlgmc.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.michaelhohlgmc.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://michaelhohlgmc.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "gmc-pahrump-valley-auto-plaza-llc",
+    "name": "Pahrump Valley Auto Plaza, LLC",
+    "city": "Pahrump",
+    "state": "NV",
+    "make": "GMC",
+    "domain": "pahrumpgmc.com",
+    "sitemapUrl": "https://www.pahrumpgmc.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.pahrumpgmc.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://pahrumpgmc.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "gmc-riverton-elko-chevrolet-gmc",
+    "name": "Riverton Elko Chevrolet GMC",
+    "city": "Elko",
+    "state": "NV",
+    "make": "GMC",
+    "domain": "rivertonelkogmc.com",
+    "sitemapUrl": "https://www.rivertonelkogmc.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.rivertonelkogmc.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://rivertonelkogmc.com/",
+    "lat": null,
+    "lng": null
+  }
+]

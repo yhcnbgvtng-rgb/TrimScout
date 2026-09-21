@@ -1,0 +1,41 @@
+[
+  {
+    "id": "buick-corwin-buick-gmc-reno",
+    "name": "CORWIN BUICK GMC RENO",
+    "city": "Reno",
+    "state": "NV",
+    "make": "Buick",
+    "domain": "corwinbuickgmcreno.com",
+    "sitemapUrl": "https://www.corwinbuickgmcreno.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.corwinbuickgmcreno.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://corwinbuickgmcreno.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "buick-fairway-buick-gmc-truck",
+    "name": "FAIRWAY BUICK GMC TRUCK",
+    "city": "Las Vegas",
+    "state": "NV",
+    "make": "Buick",
+    "domain": "fairwaybuickgmc.com",
+    "sitemapUrl": "https://www.fairwaybuickgmc.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.fairwaybuickgmc.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://fairwaybuickgmc.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "buick-jerry-seiner-buick-gmc",
+    "name": "JERRY SEINER BUICK GMC",
+    "city": "Las Vegas",
+    "state": "NV",
+    "make": "Buick",
+    "domain": "seinerbuickgmc.com",
+    "sitemapUrl": "https://www.seinerbuickgmc.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.seinerbuickgmc.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://seinerbuickgmc.com/",
+    "lat": null,
+    "lng": null
+  }
+]

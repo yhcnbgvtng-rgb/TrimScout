@@ -1,0 +1,41 @@
+[
+  {
+    "id": "cadillac-bravo-cadillac-las-cruces",
+    "name": "BRAVO CADILLAC-LAS CRUCES",
+    "city": "Las Cruces",
+    "state": "NM",
+    "make": "Cadillac",
+    "domain": "bravocadillaclascruces.com",
+    "sitemapUrl": "https://www.bravocadillaclascruces.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.bravocadillaclascruces.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://bravocadillaclascruces.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "cadillac-cadillac-of-santa-fe",
+    "name": "CADILLAC OF SANTA FE",
+    "city": "Santa Fe",
+    "state": "NM",
+    "make": "Cadillac",
+    "domain": "cadillacofsantafe.com",
+    "sitemapUrl": "https://www.cadillacofsantafe.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.cadillacofsantafe.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://cadillacofsantafe.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "cadillac-garcia-cadillac-of-albuquerque",
+    "name": "GARCIA CADILLAC OF ALBUQUERQUE",
+    "city": "Albuquerque",
+    "state": "NM",
+    "make": "Cadillac",
+    "domain": "garciacadillac.com",
+    "sitemapUrl": "https://www.garciacadillac.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.garciacadillac.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://garciacadillac.com/",
+    "lat": null,
+    "lng": null
+  }
+]

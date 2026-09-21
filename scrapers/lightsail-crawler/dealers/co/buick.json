@@ -1,0 +1,93 @@
+[
+  {
+    "id": "buick-alpine-buick-gmc",
+    "name": "ALPINE BUICK GMC",
+    "city": "Littleton",
+    "state": "CO",
+    "make": "Buick",
+    "domain": "alpinebuickgmc.com",
+    "sitemapUrl": "https://www.alpinebuickgmc.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.alpinebuickgmc.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://alpinebuickgmc.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "buick-alpine-buick-gmc-south-inc",
+    "name": "ALPINE BUICK GMC SOUTH, INC",
+    "city": "COLORADO SPRINGS",
+    "state": "CO",
+    "make": "Buick",
+    "domain": "alpinebuickgmcsouth.com",
+    "sitemapUrl": "https://www.alpinebuickgmcsouth.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.alpinebuickgmcsouth.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://alpinebuickgmcsouth.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "buick-joe-ferguson-buick-gmc-inc",
+    "name": "JOE FERGUSON BUICK GMC,  INC",
+    "city": "Colorado Springs",
+    "state": "CO",
+    "make": "Buick",
+    "domain": "joefergusonbuickgmc.com",
+    "sitemapUrl": "https://www.joefergusonbuickgmc.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.joefergusonbuickgmc.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://joefergusonbuickgmc.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "buick-johnson-auto-plaza-inc",
+    "name": "JOHNSON AUTO PLAZA, INC.",
+    "city": "brighton",
+    "state": "CO",
+    "make": "Buick",
+    "domain": "johnsongmcbuick.com",
+    "sitemapUrl": "https://www.johnsongmcbuick.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.johnsongmcbuick.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://johnsongmcbuick.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "buick-loveland-buick-gmc",
+    "name": "LOVELAND BUICK GMC",
+    "city": "Loveland",
+    "state": "CO",
+    "make": "Buick",
+    "domain": "lovelandbuickgmc.com",
+    "sitemapUrl": "https://www.lovelandbuickgmc.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.lovelandbuickgmc.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://lovelandbuickgmc.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "buick-markley-buick-gmc",
+    "name": "MARKLEY BUICK GMC",
+    "city": "Fort Collins",
+    "state": "CO",
+    "make": "Buick",
+    "domain": "markleygm.com",
+    "sitemapUrl": "https://www.markleygm.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.markleygm.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://markleygm.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "buick-shortline-buick-gmc",
+    "name": "SHORTLINE BUICK GMC",
+    "city": "Aurora",
+    "state": "CO",
+    "make": "Buick",
+    "domain": "shortlinebuickgmc.com",
+    "sitemapUrl": "https://www.shortlinebuickgmc.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.shortlinebuickgmc.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://shortlinebuickgmc.com/",
+    "lat": null,
+    "lng": null
+  }
+]

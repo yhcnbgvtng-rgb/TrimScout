@@ -1,0 +1,54 @@
+[
+  {
+    "id": "cadillac-cadillac-of-grand-forks",
+    "name": "CADILLAC OF GRAND FORKS",
+    "city": "Grand Forks",
+    "state": "ND",
+    "make": "Cadillac",
+    "domain": "rydellcadillac.com",
+    "sitemapUrl": "https://www.rydellcadillac.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.rydellcadillac.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://rydellcadillac.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "cadillac-gateway-cadillac",
+    "name": "GATEWAY CADILLAC",
+    "city": "Fargo",
+    "state": "ND",
+    "make": "Cadillac",
+    "domain": "fargocadillac.com",
+    "sitemapUrl": "https://www.fargocadillac.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.fargocadillac.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://fargocadillac.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "cadillac-ryan-cadillac-minot",
+    "name": "RYAN CADILLAC MINOT",
+    "city": "Minot",
+    "state": "ND",
+    "make": "Cadillac",
+    "domain": "ryancadillacminot.com",
+    "sitemapUrl": "https://www.ryancadillacminot.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.ryancadillacminot.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://ryancadillacminot.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "cadillac-schwan-cadillac",
+    "name": "SCHWAN CADILLAC",
+    "city": "Mandan",
+    "state": "ND",
+    "make": "Cadillac",
+    "domain": "schwancadillac.com",
+    "sitemapUrl": "https://www.schwancadillac.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.schwancadillac.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://schwancadillac.com/",
+    "lat": null,
+    "lng": null
+  }
+]

@@ -1,0 +1,41 @@
+[
+  {
+    "id": "gmc-cutter-gmc",
+    "name": "Cutter GMC",
+    "city": "Waipahu",
+    "state": "HI",
+    "make": "GMC",
+    "domain": "cuttergmc.com",
+    "sitemapUrl": "https://www.cuttergmc.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.cuttergmc.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://cuttergmc.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "gmc-honolulu-gmc",
+    "name": "Honolulu GMC",
+    "city": "Honolulu",
+    "state": "HI",
+    "make": "GMC",
+    "domain": "honolulugmc.com",
+    "sitemapUrl": "https://www.honolulugmc.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.honolulugmc.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://honolulugmc.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "gmc-jim-falk-motors-of-maui",
+    "name": "Jim Falk Motors of Maui",
+    "city": "Kahului",
+    "state": "HI",
+    "make": "GMC",
+    "domain": "jimfalkgmcmaui.com",
+    "sitemapUrl": "https://www.jimfalkgmcmaui.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.jimfalkgmcmaui.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://jimfalkgmcmaui.com/",
+    "lat": null,
+    "lng": null
+  }
+]

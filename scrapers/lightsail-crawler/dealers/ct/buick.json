@@ -1,0 +1,54 @@
+[
+  {
+    "id": "buick-brustolon-buick-gmc-inc",
+    "name": "BRUSTOLON BUICK GMC, INC.",
+    "city": "MYSTIC",
+    "state": "CT",
+    "make": "Buick",
+    "domain": "brustolon.com",
+    "sitemapUrl": "https://www.brustolon.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.brustolon.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://brustolon.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "buick-d-addario-buick-gmc",
+    "name": "D'ADDARIO BUICK GMC",
+    "city": "Shelton",
+    "state": "CT",
+    "make": "Buick",
+    "domain": "mariodaddario.com",
+    "sitemapUrl": "https://www.mariodaddario.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.mariodaddario.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://mariodaddario.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "buick-ingersoll-auto-of-danbury",
+    "name": "INGERSOLL AUTO OF DANBURY",
+    "city": "Danbury",
+    "state": "CT",
+    "make": "Buick",
+    "domain": "ingersollbuickgmcofdanbury.com",
+    "sitemapUrl": "https://www.ingersollbuickgmcofdanbury.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.ingersollbuickgmcofdanbury.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://ingersollbuickgmcofdanbury.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "buick-vachon-buick-gmc-inc",
+    "name": "VACHON BUICK GMC, INC.",
+    "city": "Old Saybrook",
+    "state": "CT",
+    "make": "Buick",
+    "domain": "checkvachonbuickgmc.com",
+    "sitemapUrl": "https://www.checkvachonbuickgmc.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.checkvachonbuickgmc.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://checkvachonbuickgmc.com/",
+    "lat": null,
+    "lng": null
+  }
+]

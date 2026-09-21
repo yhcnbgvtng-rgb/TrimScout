@@ -1,10 +1,66 @@
 import { gotScraping } from 'got-scraping';
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import { withSharedDataLock } from './shared_data_lock.js';
+import { cacheShardPath, inventoryShardPath, listShardedStates } from './inventory_shards.js';
 
-const DATA_DIR = path.resolve(process.cwd(), 'data');
-const CACHE_PATH = path.join(DATA_DIR, 'enriched_cache.json');
-const INVENTORY_PATH = path.join(DATA_DIR, 'national_inventory_latest.json');
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+// Real rate limit found live 2026-09-20 during the expansion-brand pilot:
+// NHTSA's vPIC edge does NOT just cap concurrency — it enforces an
+// undocumented per-IP REQUEST RATE limit. Confirmed with a real box against
+// real VINs: a sustained run at concurrency=5 succeeded for its first ~135
+// requests, then failed (fast, ~20-100ms) on every request after that — the
+// "failure" is an instant HTML block page, not a real 404/429 JSON body, so
+// the original fetchNhtsaSpec's `catch {}` silently swallowed it as "no
+// data" with no signal anything was wrong. The block outlasted a 30s
+// cooldown in that same test, so it isn't a sub-second thing either. This
+// is a scaling ceiling of the free public API itself, not something this
+// crawler introduced — a big enough cold-start batch (thousands of VINs,
+// 0% cache hit) would eventually hit it even at the OLD one-at-a-time
+// pace, just much later. Parallelizing without a rate limiter made it
+// trivial to hit in seconds instead of minutes.
+//
+// This throttle enforces a hard ceiling on REQUEST RATE (not just how many
+// are in flight) across every fetchNhtsaSpec call in this process — a
+// shared "next allowed slot" that every request must wait its turn for,
+// same shape as a classic scheduling rate limiter. 3/sec is deliberately
+// conservative (nowhere near the ~135-request burst that failed above) —
+// tune via CRAWLER_NHTSA_MAX_PER_SECOND if a real run shows more headroom.
+// Caveat: this only limits requests from THIS process. Two brand-runs on
+// the same box (MAX_CONCURRENT_STATES) each rate-limit independently, so
+// the box's real combined outbound rate can still be a small multiple of
+// this — acceptable for now (still far below the observed failure point),
+// but a genuinely global (cross-process) limiter would need its own
+// lock-file-with-timestamp mechanism if this ever proves insufficient.
+const NHTSA_MAX_PER_SECOND = Number(process.env.CRAWLER_NHTSA_MAX_PER_SECOND) || 3;
+let nhtsaNextSlotAt = 0;
+export async function throttleNhtsaRequest() {
+  const intervalMs = 1000 / NHTSA_MAX_PER_SECOND;
+  const now = Date.now();
+  const slot = Math.max(now, nhtsaNextSlotAt);
+  nhtsaNextSlotAt = slot + intervalMs;
+  const waitMs = slot - now;
+  if (waitMs > 0) await sleep(waitMs);
+}
+
+// Computed fresh (not a module-level constant) so a test can chdir into a
+// scratch directory before calling runEnrichmentPipeline and get isolated
+// paths — process.cwd() never actually changes mid-run in production, so
+// this is behavior-preserving there. `state` picks this run's own shard
+// (see inventory_shards.js) instead of one nationwide cache/inventory file
+// — required here, unlike the CLI backfill entry point below, which
+// discovers every state's shard itself and calls this once per state.
+function getDataPaths(state) {
+  const dataDir = path.resolve(process.cwd(), 'data');
+  return {
+    dataDir,
+    cachePath: cacheShardPath(state, process.cwd()),
+    inventoryPath: inventoryShardPath(state, process.cwd()),
+  };
+}
 
 // Canonical Porsche Base MSRP Reference Table
 export const PORSCHE_BASE_MSRP = {
@@ -99,42 +155,61 @@ export const PORSCHE_BASE_MSRP = {
 // plausible-looking default (a fake "Germany/Stuttgart" plant on a Ford
 // would be actively wrong, not just generic — this was already wrong for
 // any non-Porsche vehicle even before Ford existed here).
+// Retries: a network/timeout/parse failure (see throttleNhtsaRequest's
+// comment — the observed block returns fast, invalid-JSON HTML, which
+// fails at JSON.parse before ever reaching the item.Make check below) gets
+// retried with backoff rather than immediately written off as "no data".
+// A VALID JSON response with no item.Make is a real "this VIN doesn't
+// decode" result from NHTSA, not a block — that's returned as null below,
+// same as always, and is NOT retried here (retrying it would just get the
+// same real answer again).
+const NHTSA_RETRY_DELAYS_MS = [2000, 5000];
+
 export async function fetchNhtsaSpec(vin, vehicleContext = {}) {
   const isEv = /taycan|electric/i.test(`${vehicleContext.model || ''} ${vehicleContext.trim || ''} ${vehicleContext.bodyStyle || ''}`);
 
-  try {
-    const url = `https://vpic.nhtsa.dot.gov/api/vehicles/decodevinvalues/${vin}?format=json`;
-    const res = await gotScraping({
-      url,
-      timeout: { request: 5000 },
-      retry: { limit: 1 },
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36'
+  for (let attempt = 0; attempt <= NHTSA_RETRY_DELAYS_MS.length; attempt++) {
+    await throttleNhtsaRequest();
+    try {
+      const url = `https://vpic.nhtsa.dot.gov/api/vehicles/decodevinvalues/${vin}?format=json`;
+      const res = await gotScraping({
+        url,
+        timeout: { request: 5000 },
+        retry: { limit: 1 },
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36'
+        }
+      });
+      const json = JSON.parse(res.body);
+      const item = json.Results?.[0];
+      if (item && item.Make) {
+        const nhtsaIsElectric = item.FuelTypePrimary === "Electric" || (item.ElectrificationLevel && item.ElectrificationLevel.includes("BEV"));
+        const isElectricFinal = isEv || nhtsaIsElectric;
+
+        const engineCylinders = isElectricFinal ? 0 : (item.EngineCylinders ? parseInt(item.EngineCylinders, 10) : null);
+        const engineDisplacementL = isElectricFinal
+          ? "Electric"
+          : (item.DisplacementL ? `${parseFloat(item.DisplacementL).toFixed(1)}L` : null);
+
+        return {
+          plantCountry: item.PlantCountry || null,
+          plantCity: item.PlantCity || null,
+          engineCylinders,
+          engineDisplacementL,
+          fuelType: isElectricFinal ? "Electric (BEV)" : (item.FuelTypePrimary || null),
+          bodyClass: item.BodyClass || null,
+          grossWeightClass: item.GVWR || null,
+          brakeSystem: item.BrakeSystemType || null
+        };
       }
-    });
-    const json = JSON.parse(res.body);
-    const item = json.Results?.[0];
-    if (item && item.Make) {
-      const nhtsaIsElectric = item.FuelTypePrimary === "Electric" || (item.ElectrificationLevel && item.ElectrificationLevel.includes("BEV"));
-      const isElectricFinal = isEv || nhtsaIsElectric;
-
-      const engineCylinders = isElectricFinal ? 0 : (item.EngineCylinders ? parseInt(item.EngineCylinders, 10) : null);
-      const engineDisplacementL = isElectricFinal
-        ? "Electric"
-        : (item.DisplacementL ? `${parseFloat(item.DisplacementL).toFixed(1)}L` : null);
-
-      return {
-        plantCountry: item.PlantCountry || null,
-        plantCity: item.PlantCity || null,
-        engineCylinders,
-        engineDisplacementL,
-        fuelType: isElectricFinal ? "Electric (BEV)" : (item.FuelTypePrimary || null),
-        bodyClass: item.BodyClass || null,
-        grossWeightClass: item.GVWR || null,
-        brakeSystem: item.BrakeSystemType || null
-      };
+      return null; // valid response, genuinely no decodable data — not a block, don't retry
+    } catch {
+      if (attempt < NHTSA_RETRY_DELAYS_MS.length) {
+        await sleep(NHTSA_RETRY_DELAYS_MS[attempt]);
+        continue;
+      }
     }
-  } catch {}
+  }
 
   return null;
 }
@@ -179,133 +254,371 @@ export function resolveFactoryOptions(vehicle, brand) {
   };
 }
 
-export async function runEnrichmentPipeline(limit = Infinity, brand = null, dbRunContext = null) {
-  console.log("====================================================");
-  console.log("⚡ STARTING ENHANCED VIN ENRICHMENT PIPELINE (ALL VEHICLES)");
-  console.log("====================================================");
+// Ensures the expected enrichment fields exist on a vehicle record without
+// ever inventing NHTSA specs or a base price it doesn't already have —
+// same "missing means missing" rule as the loop below. Applied to every
+// vehicle in the file (not just this run's own), matching the pre-existing
+// backfill behavior.
+//
+// Returns the SAME object (no clone) when nothing is actually missing —
+// this is a memory fix, not a style one: on a 144k-vehicle national file,
+// every vehicle that's already fully shaped (i.e. every run after the
+// first nationwide backfill pass) used to get a brand-new spread-cloned
+// object here for NO reason, on every single brand-run, regardless of how
+// few VINs that run actually touched. That's a full duplicate of the
+// entire dataset's object graph allocated and thrown away every run — the
+// dominant cause of the enrichment-step OOM crashes once the accumulated
+// file crossed ~200MB (confirmed: it crashed even on a single-VIN scoped
+// run, because this backfill pass touches every vehicle in the file, not
+// just the run's own).
+function ensureEnrichmentShape(vehicle, brand) {
+  const missingOptions = !vehicle.factoryOptions;
+  const missingCodes = !vehicle.optionCodes;
+  const missingPrice = vehicle.totalOptionsPrice === undefined;
+  const missingMsrp = vehicle.baseMsrp === undefined;
+  if (!missingOptions && !missingCodes && !missingPrice && !missingMsrp) {
+    return vehicle;
+  }
+  const out = { ...vehicle };
+  if (missingOptions) out.factoryOptions = [];
+  if (missingCodes) out.optionCodes = [];
+  if (missingPrice) out.totalOptionsPrice = 0;
+  if (missingMsrp) out.baseMsrp = lookupBaseMsrp(out, brand);
+  return out;
+}
 
-  let rawInventory = [];
-  try {
-    const raw = await fs.readFile(INVENTORY_PATH, "utf-8");
-    rawInventory = JSON.parse(raw);
-  } catch (err) {
-    console.error("Could not read inventory:", err.message);
+// Patches only the VINs THIS run actually enriched onto a freshly-read copy
+// of the shared inventory array, instead of trusting the copy read at this
+// pipeline's own start (which, for a run that took hours of sequential
+// NHTSA lookups, can be long stale by the time it's ready to persist).
+//
+// Root cause this fixes: without it, this function's caller would take
+// whatever `rawInventory` looked like when the pipeline STARTED reading —
+// including every other brand/state's vehicles — mutate this run's own
+// entries in place, and write the WHOLE array back verbatim at the end.
+// If a concurrently-running other state's own crawl+merge (see
+// standalone.js) or enrichment pass wrote a newer version of this same
+// file in the meantime, that write gets silently discarded the moment this
+// one lands — the exact same lost-update shape inventory_merge.js's header
+// comment describes for the sold/active snapshot, just for enrichment
+// fields instead. `enrichedByVin` scopes the patch to only the VINs this
+// run has real fresh data for; every other vehicle is returned exactly as
+// just read from disk, untouched (only shape-backfilled, never content-
+// overwritten) — this run has no evidence about it either way.
+export function mergeEnrichedRecordsIntoInventory({ freshInventory, enrichedByVin, brand = null }) {
+  return freshInventory.map((v) => {
+    const patch = enrichedByVin.get(v.vin);
+    if (!patch) return ensureEnrichmentShape(v, brand);
+    return ensureEnrichmentShape({ ...v, ...patch }, brand);
+  });
+}
+
+// `vinsToEnrich` scopes the (potentially network-bound, always sequential)
+// per-vehicle work below to just the vehicles this invocation's caller
+// actually has fresh data for — e.g. standalone.js passes the VINs from
+// the brand/dealer crawl that just ran. Without this, every brand run
+// reprocessed the ENTIRE cumulative inventory shard (every brand/dealer
+// ever crawled for that state), so a run's cost grew with the whole
+// shard's size rather than with that run's own new vehicles — confirmed
+// live: Volvo (1 dealer) took 2m14s while Toyota (31 dealers, last in a
+// 12-brand queue) took 29m30s, a blowup tracking queue position/cumulative
+// history size, not Toyota's own dealer count. `vinsToEnrich: null` (the
+// default) keeps the original "enrich/backfill everything in this state's
+// shard" behavior, a deliberately supported standalone use (see the
+// SKIP_NHTSA_ENRICHMENT comment above about backfilling missed specs
+// without re-crawling).
+//
+// `state` picks which shard this run touches (see inventory_shards.js).
+// standalone.js always passes its own state explicitly. The CLI entry
+// point at the bottom of this file omits it — runEnrichmentPipeline then
+// discovers every state that has a shard on disk and backfills each one in
+// turn, preserving the old "one monolithic file" CLI backfill behavior
+// without ever holding more than one state's data in memory at a time.
+export async function runEnrichmentPipeline(limit = Infinity, brand = null, dbRunContext = null, vinsToEnrich = null, state = null) {
+  if (!state) {
+    const states = await listShardedStates();
+    if (states.length === 0) {
+      console.log('No inventory shards found under data/inventory/ — nothing to backfill.');
+      return;
+    }
+    console.log(`No state given — backfilling all ${states.length} shard(s) in turn: ${states.join(', ')}`);
+    for (const s of states) {
+      await runEnrichmentPipeline(limit, brand, dbRunContext, vinsToEnrich, s);
+    }
     return;
   }
 
-  let cache = {};
-  try {
-    const rawCache = await fs.readFile(CACHE_PATH, "utf-8");
-    cache = JSON.parse(rawCache);
-  } catch {
-    cache = {};
-  }
+  console.log("====================================================");
+  console.log(`⚡ STARTING ENHANCED VIN ENRICHMENT PIPELINE (${state})`);
+  console.log("====================================================");
 
-  console.log(`Total Vehicles in Inventory File: ${rawInventory.length}`);
-  console.log(`Existing Cached Enriched VINs: ${Object.keys(cache).length}`);
+  const { cachePath: CACHE_PATH, inventoryPath: INVENTORY_PATH } = getDataPaths(state);
+  await fs.mkdir(path.dirname(CACHE_PATH), { recursive: true });
+  await fs.mkdir(path.dirname(INVENTORY_PATH), { recursive: true });
+
+  let rawInventory = null;
+  let cache = {};
+  let targetVehicles = [];
+  let inventoryReadFailed = false;
+  const vinScope = vinsToEnrich ? new Set(vinsToEnrich) : null;
+
+  // Locked: the OTHER memory-heavy moment in this pipeline, besides the
+  // final persist below — parsing the full nationwide inventory + cache
+  // files (250k+ vehicles, 400MB+ combined as of 2026-09-18). Two
+  // concurrent brand-runs (MAX_CONCURRENT_STATES=2) each doing this at the
+  // same instant — or one doing this while the other is in its own final
+  // persist below — is what was tripping the kernel's OOM-killer: 43 of
+  // 135 brand-runs crashed silently mid-enrichment that night, with no
+  // self-reported V8 heap-limit error, the signature of a kernel SIGKILL
+  // from combined memory pressure rather than any single process
+  // exceeding its own heap cap. Serializing this against the final
+  // persist's own lock means the two GB-scale parses this pipeline ever
+  // does can never land at the same instant as another concurrent
+  // brand-run's.
+  //
+  // The full parsed array never leaves this callback as itself — only
+  // targetVehicles (a small slice) and cache survive it — so it's eligible
+  // for GC before the (often long, network-bound) per-VIN loop below even
+  // starts, instead of sitting in memory for that whole duration for no
+  // reason. `rawInventory` stays declared at the outer scope only because
+  // the final persist step reassigns it (to the merged result) for the
+  // DB-sync call after that — it's never populated with the full parse.
+  await withSharedDataLock(async () => {
+    let inventory;
+    try {
+      const raw = await fs.readFile(INVENTORY_PATH, "utf-8");
+      inventory = JSON.parse(raw);
+    } catch (err) {
+      console.error("Could not read inventory:", err.message);
+      inventoryReadFailed = true;
+      return;
+    }
+
+    try {
+      const rawCache = await fs.readFile(CACHE_PATH, "utf-8");
+      cache = JSON.parse(rawCache);
+    } catch {
+      cache = {};
+    }
+
+    console.log(`Total Vehicles in Inventory File: ${inventory.length}`);
+    console.log(`Existing Cached Enriched VINs: ${Object.keys(cache).length}`);
+
+    const scopedInventory = vinScope ? inventory.filter((v) => vinScope.has(v.vin)) : inventory;
+    targetVehicles = scopedInventory.slice(0, limit);
+  }, { scope: state, label: `enricher-read:${state}/${brand?.name || 'unknown'}` });
+
+  if (inventoryReadFailed) return;
+
+  if (vinScope) {
+    console.log(`Scoped to this run's ${vinScope.size} VIN(s): ${targetVehicles.length} matched in the inventory file.`);
+  }
 
   let enrichedCount = 0;
   let cacheHits = 0;
-  const targetVehicles = rawInventory.slice(0, limit);
+  // Every field-level result this run computes, keyed by VIN — the actual
+  // "modify" half of this pipeline's read-modify-write, kept separate from
+  // `rawInventory`/`cache` (which are just this run's own start-of-pipeline
+  // snapshot) so the persist step below can apply it onto a FRESH read
+  // instead of overwriting with a stale one. See mergeEnrichedRecordsInto
+  // Inventory's header comment.
+  const enrichedByVin = new Map();
+  const newCacheEntries = new Map();
 
   // Escape hatch for nationwide batch runs where the per-VIN NHTSA lookup
-  // (sequential, one network round-trip at a time) is the dominant cost of
-  // a whole batch — confirmed live: Ford batch 1 took ~5 hours end-to-end
-  // for 250 dealers. Skipping it here still runs the cheap, local
-  // factoryOptions/baseMsrp computation and — critically — still reaches
-  // syncInventoryToDatabase() below, so basic listing data (VIN, price,
-  // model, dealer) lands in the DB at crawl speed instead of NHTSA speed.
-  // nhtsa stays null; a later pass with this flag off can backfill specs
-  // without re-crawling (cache-miss vehicles just get picked up again).
+  // is the dominant cost of a whole batch — confirmed live: Ford batch 1
+  // took ~5 hours end-to-end for 250 dealers. Skipping it here still runs
+  // the cheap, local factoryOptions/baseMsrp computation and — critically
+  // — still reaches syncInventoryToDatabase() below, so basic listing data
+  // (VIN, price, model, dealer) lands in the DB at crawl speed instead of
+  // NHTSA speed. nhtsa stays null; a later pass with this flag off can
+  // backfill specs without re-crawling (cache-miss vehicles just get
+  // picked up again).
   const skipNhtsa = process.env.SKIP_NHTSA_ENRICHMENT === 'true';
 
-  for (let i = 0; i < targetVehicles.length; i++) {
-    const v = targetVehicles[i];
+  // How many NHTSA lookups are in flight at once. Root cause this fixes:
+  // this loop used to be a single `for` doing one lookup at a time, so a
+  // batch's enrichment cost scaled with its own vehicle count regardless of
+  // spare bandwidth — a real problem for a cold-start brand onboarding
+  // thousands of dealers at once (0% cache hit rate). BUT — confirmed live
+  // 2026-09-20, see throttleNhtsaRequest's comment — NHTSA's vPIC edge does
+  // enforce a real, undocumented per-IP RATE limit (not just a concurrency
+  // limit): a live test failed after ~135 sustained requests regardless of
+  // concurrency level, including at concurrency=1. throttleNhtsaRequest is
+  // what actually keeps this safe now; this concurrency setting just
+  // controls how many requests are queued up waiting their turn at that
+  // throttle, so a low default here is just extra headroom, not the real
+  // safety mechanism. Tune via CRAWLER_NHTSA_CONCURRENCY if needed.
+  const nhtsaConcurrency = Math.max(1, Number(process.env.CRAWLER_NHTSA_CONCURRENCY) || 4);
 
-    // Re-verify EVs or incomplete records
+  const cacheHitOrSkipped = [];
+  const needsFetch = [];
+  for (const v of targetVehicles) {
     const isEv = /taycan|electric/i.test(`${v.model || ''} ${v.trim || ''}`);
     const cached = cache[v.vin];
+    if (cached && cached.nhtsa && (!isEv || cached.nhtsa.engineCylinders === 0)) {
+      cacheHitOrSkipped.push({ v, fromCache: true });
+    } else if (skipNhtsa) {
+      cacheHitOrSkipped.push({ v, fromCache: false });
+    } else {
+      needsFetch.push(v);
+    }
+  }
 
+  // First: every vehicle that needs no network call at all (cache hit, or
+  // skipNhtsa) — synchronous, no reason to route these through the pool.
+  for (const { v, fromCache } of cacheHitOrSkipped) {
     // factoryOptions is always recomputed fresh from this run's scraped
     // dealerListedOptions, never trusted from cache — the cache predates
     // real per-VIN option scraping and would otherwise silently resurrect
     // the old guessed data. Only the (expensive, network-bound) NHTSA
     // lookup is cached.
     const optionData = resolveFactoryOptions(v, brand);
-
-    if (cached && cached.nhtsa && (!isEv || cached.nhtsa.engineCylinders === 0)) {
-      cacheHits++;
-      Object.assign(v, {
-        nhtsa: cached.nhtsa,
-        factoryOptions: optionData.options,
-        optionCodes: optionData.optionCodes,
-        totalOptionsPrice: optionData.totalOptionsPrice,
-        baseMsrp: optionData.baseMsrp,
-        enrichedAt: cached.enrichedAt,
-      });
-      continue;
-    }
-
-    if (skipNhtsa) {
-      Object.assign(v, {
-        nhtsa: null,
-        factoryOptions: optionData.options,
-        optionCodes: optionData.optionCodes,
-        totalOptionsPrice: optionData.totalOptionsPrice,
-        baseMsrp: optionData.baseMsrp,
-      });
-      continue;
-    }
-
-    const progress = `[${i + 1}/${targetVehicles.length}]`;
-    const nhtsaData = await fetchNhtsaSpec(v.vin, v);
-
-    const enrichment = {
-      nhtsa: nhtsaData,
+    if (fromCache) cacheHits++;
+    const cached = cache[v.vin];
+    const patch = {
+      nhtsa: fromCache ? cached.nhtsa : null,
       factoryOptions: optionData.options,
       optionCodes: optionData.optionCodes,
       totalOptionsPrice: optionData.totalOptionsPrice,
       baseMsrp: optionData.baseMsrp,
-      enrichedAt: new Date().toISOString()
+      ...(fromCache ? { enrichedAt: cached.enrichedAt } : {}),
     };
+    Object.assign(v, patch);
+    enrichedByVin.set(v.vin, patch);
+  }
 
-    // Only cache real NHTSA data — a null result (lookup failed) should be
-    // retried on the next run, not permanently frozen as "no data".
-    if (nhtsaData) cache[v.vin] = enrichment;
-    Object.assign(v, enrichment);
-    enrichedCount++;
+  // Then: the vehicles that genuinely need a fresh NHTSA lookup, up to
+  // `nhtsaConcurrency` in flight at once instead of one at a time. Plain
+  // worker-pool shape: each worker pulls the next unclaimed index and loops
+  // until the queue is empty — no batching/chunking, so a handful of slow
+  // requests can't stall the whole pool behind them.
+  let nextIndex = 0;
+  async function nhtsaWorker() {
+    for (;;) {
+      const i = nextIndex++;
+      if (i >= needsFetch.length) return;
+      const v = needsFetch[i];
+      const optionData = resolveFactoryOptions(v, brand);
+      const progress = `[${i + 1}/${needsFetch.length}]`;
+      const nhtsaData = await fetchNhtsaSpec(v.vin, v);
 
-    if (enrichedCount % 50 === 0 || enrichedCount === 1) {
-      const baseMsrpStr = optionData.baseMsrp !== null ? `$${optionData.baseMsrp.toLocaleString()}` : "unknown";
-      const optionsStr = `$${optionData.totalOptionsPrice.toLocaleString()}`;
-      const specStr = nhtsaData ? `${nhtsaData.engineDisplacementL || "?"} (${nhtsaData.plantCountry || "?"})` : "NHTSA lookup unavailable";
-      console.log(`${progress} ✓ Enriched ${v.vin} (${v.year || "?"} ${v.model || "?"}): Base ${baseMsrpStr} | Options: ${optionsStr} | ${specStr}`);
-    }
+      const enrichment = {
+        nhtsa: nhtsaData,
+        factoryOptions: optionData.options,
+        optionCodes: optionData.optionCodes,
+        totalOptionsPrice: optionData.totalOptionsPrice,
+        baseMsrp: optionData.baseMsrp,
+        enrichedAt: new Date().toISOString(),
+      };
 
-    // Checkpoint the cache periodically, not just at the very end. At small
-    // scale losing an interrupted run's un-persisted NHTSA lookups is a minor
-    // annoyance; at nationwide scale (hours-long, many thousands of external
-    // API calls) it's real lost work if the process is ever killed mid-run.
-    if (enrichedCount % 200 === 0) {
-      await fs.writeFile(CACHE_PATH, JSON.stringify(cache, null, 2));
+      // Only cache real NHTSA data — a null result (lookup failed) should
+      // be retried on the next run, not permanently frozen as "no data".
+      if (nhtsaData) {
+        cache[v.vin] = enrichment;
+        newCacheEntries.set(v.vin, enrichment);
+      }
+      Object.assign(v, enrichment);
+      enrichedByVin.set(v.vin, enrichment);
+      enrichedCount++;
+
+      if (enrichedCount % 50 === 0 || enrichedCount === 1) {
+        const baseMsrpStr = optionData.baseMsrp !== null ? `$${optionData.baseMsrp.toLocaleString()}` : "unknown";
+        const optionsStr = `$${optionData.totalOptionsPrice.toLocaleString()}`;
+        const specStr = nhtsaData ? `${nhtsaData.engineDisplacementL || "?"} (${nhtsaData.plantCountry || "?"})` : "NHTSA lookup unavailable";
+        console.log(`${progress} ✓ Enriched ${v.vin} (${v.year || "?"} ${v.model || "?"}): Base ${baseMsrpStr} | Options: ${optionsStr} | ${specStr}`);
+      }
+
+      await maybeCheckpoint();
     }
   }
 
-  // Ensure every record has the expected shape — but never invent NHTSA
-  // specs or a base price for a vehicle that genuinely doesn't have real
-  // data. Missing means missing; the UI is expected to handle that (it
-  // already does for factoryOptions/baseMsrp).
-  for (const v of rawInventory) {
-    if (!v.factoryOptions) v.factoryOptions = [];
-    if (!v.optionCodes) v.optionCodes = [];
-    if (v.totalOptionsPrice === undefined) v.totalOptionsPrice = 0;
-    if (v.baseMsrp === undefined) v.baseMsrp = lookupBaseMsrp(v, brand);
+  // Checkpoint the cache periodically, not just at the very end. At small
+  // scale losing an interrupted run's un-persisted NHTSA lookups is a minor
+  // annoyance; at nationwide scale (hours-long, many thousands of external
+  // API calls) it's real lost work if the process is ever killed mid-run.
+  // Concurrent workers can each cross a multiple-of-200 boundary at nearly
+  // the same time — harmless: withSharedDataLock already serializes them,
+  // so this just checkpoints slightly more often than exactly every 200th
+  // completion, never less safely.
+  //
+  // Locked + fresh-merged, same reasoning as the final persist below: this
+  // pipeline can run for hours, and a concurrently-running other state's
+  // own enrichment pass may have added ITS OWN new cache entries to this
+  // same file since this run started — writing back this run's full
+  // in-memory `cache` (which was only ever a stale-by-now snapshot plus
+  // this run's own additions) would erase those. Merging just this run's
+  // own `newCacheEntries` onto a fresh read keeps both.
+  async function maybeCheckpoint() {
+    if (enrichedCount % 200 !== 0) return;
+    await withSharedDataLock(async () => {
+      let freshCache = {};
+      try {
+        freshCache = JSON.parse(await fs.readFile(CACHE_PATH, 'utf-8'));
+      } catch {
+        freshCache = {};
+      }
+      const merged = { ...freshCache, ...Object.fromEntries(newCacheEntries) };
+      await fs.writeFile(CACHE_PATH, JSON.stringify(merged, null, 2));
+    }, { scope: state, label: `enricher-checkpoint:${state}/${brand?.name || 'unknown'}` });
   }
 
-  // Save updated cache and enriched inventory
-  await fs.writeFile(CACHE_PATH, JSON.stringify(cache, null, 2));
-  await fs.writeFile(INVENTORY_PATH, JSON.stringify(rawInventory, null, 2));
-  await fs.writeFile(path.join(DATA_DIR, "inventory_latest.json"), JSON.stringify(rawInventory, null, 2));
+  await Promise.all(
+    Array.from({ length: Math.min(nhtsaConcurrency, needsFetch.length) }, () => nhtsaWorker()),
+  );
+
+  // Save updated cache and enriched inventory — locked, and merged onto a
+  // FRESH read of both files rather than the copies read at the top of this
+  // function. See mergeEnrichedRecordsIntoInventory's header comment: this
+  // pipeline is network-bound and can run for hours (sequential NHTSA
+  // lookups), so by the time it's ready to persist, a concurrently-running
+  // OTHER BRAND in this same state's crawl+merge (standalone.js) or
+  // enrichment pass may well have written a newer version of this state's
+  // inventory/cache shard. Only this run's own VINs (enrichedByVin /
+  // newCacheEntries) are ever patched in; everything else comes from the
+  // fresh read, untouched.
+  await withSharedDataLock(async () => {
+    let freshInventory;
+    try {
+      freshInventory = JSON.parse(await fs.readFile(INVENTORY_PATH, 'utf-8'));
+    } catch (err) {
+      // Nothing on disk (shouldn't happen — we read it successfully in the
+      // read-lock block above). No stale full copy to fall back to anymore
+      // — `rawInventory` is never populated with the full parse now (see
+      // that block's comment), so there's nothing safe to write. Surface
+      // the error instead of silently producing a bad persist.
+      console.error("Could not re-read inventory for persist:", err.message);
+      throw err;
+    }
+    let freshCache;
+    try {
+      freshCache = JSON.parse(await fs.readFile(CACHE_PATH, 'utf-8'));
+    } catch {
+      freshCache = cache;
+    }
+
+    // `rawInventory` is already null (see the read-lock block above —
+    // the full parse from the top of this function is never kept this
+    // far). `cache`, though, still holds that block's full accumulated
+    // snapshot; drop it here before building the merged result so it
+    // doesn't coexist with freshCache/mergedCache. See
+    // ensureEnrichmentShape's comment for the matching fix on the
+    // per-vehicle clone.
+    cache = null;
+
+    const mergedInventory = mergeEnrichedRecordsIntoInventory({ freshInventory, enrichedByVin, brand });
+    const mergedCache = { ...freshCache, ...Object.fromEntries(newCacheEntries) };
+    freshInventory = null;
+    freshCache = null;
+
+    await fs.writeFile(CACHE_PATH, JSON.stringify(mergedCache, null, 2));
+    await fs.writeFile(INVENTORY_PATH, JSON.stringify(mergedInventory, null, 2));
+
+    // Reassigned after the writes (not before) so the DB sync and closing
+    // log lines below still see the merged result, matching prior behavior.
+    rawInventory = mergedInventory;
+    cache = mergedCache;
+  }, { scope: state, label: `enricher-final:${state}/${brand?.name || 'unknown'}` });
 
   // Sync to MariaDB (additive — this never touches the JSON files above,
   // which remain the source of truth for anything that reads them today).

@@ -1,0 +1,58 @@
+[
+  {
+    "id": "porsche-charleston",
+    "name": "Porsche Charleston",
+    "city": "Charleston",
+    "state": "SC",
+    "make": "Porsche",
+    "domain": "porschecharleston.com",
+    "sitemapUrl": "https://www.porschecharleston.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschecharleston.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschecharleston.com/",
+    "lat": 32.7884363,
+    "lng": -79.9399309,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "porsche-columbia",
+    "name": "Porsche Columbia",
+    "city": "Columbia",
+    "state": "SC",
+    "make": "Porsche",
+    "domain": "porschecolumbia.com",
+    "sitemapUrl": "https://www.porschecolumbia.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschecolumbia.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschecolumbia.com/",
+    "lat": 34.000754,
+    "lng": -81.0352313,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "porsche-greenville",
+    "name": "Porsche Greenville",
+    "city": "Greenville",
+    "state": "SC",
+    "make": "Porsche",
+    "domain": "porschegreenville.com",
+    "sitemapUrl": "https://www.porschegreenville.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschegreenville.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschegreenville.com/",
+    "lat": 34.851354,
+    "lng": -82.3984882,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "porsche-hilton-head",
+    "name": "Porsche Hilton Head",
+    "city": "Hardeeville",
+    "state": "SC",
+    "make": "Porsche",
+    "domain": "porschehiltonhead.com",
+    "sitemapUrl": "https://www.porschehiltonhead.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschehiltonhead.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschehiltonhead.com/",
+    "lat": 32.2802665,
+    "lng": -81.0726108,
+    "domainSource": "oem-locator"
+  }
+]

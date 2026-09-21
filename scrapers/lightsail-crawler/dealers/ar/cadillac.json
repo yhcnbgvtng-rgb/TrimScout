@@ -1,0 +1,67 @@
+[
+  {
+    "id": "cadillac-cadillac-of-bentonville",
+    "name": "CADILLAC OF BENTONVILLE",
+    "city": "BENTONVILLE",
+    "state": "AR",
+    "make": "Cadillac",
+    "domain": "cadillacofbentonville.com",
+    "sitemapUrl": "https://www.cadillacofbentonville.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.cadillacofbentonville.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://cadillacofbentonville.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "cadillac-central-cadillac-jonesboro",
+    "name": "CENTRAL CADILLAC – Jonesboro",
+    "city": "Jonesboro",
+    "state": "AR",
+    "make": "Cadillac",
+    "domain": "centralcadillacofarkansas.com",
+    "sitemapUrl": "https://www.centralcadillacofarkansas.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.centralcadillacofarkansas.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://centralcadillacofarkansas.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "cadillac-gregg-orr-cadillac",
+    "name": "GREGG ORR CADILLAC",
+    "city": "Hot Springs",
+    "state": "AR",
+    "make": "Cadillac",
+    "domain": "hotspringscadillac.com",
+    "sitemapUrl": "https://www.hotspringscadillac.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.hotspringscadillac.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://hotspringscadillac.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "cadillac-orr-cadillac-of-fort-smith",
+    "name": "ORR CADILLAC OF FORT SMITH",
+    "city": "Fort Smith",
+    "state": "AR",
+    "make": "Cadillac",
+    "domain": "orrcadillacfs.com",
+    "sitemapUrl": "https://www.orrcadillacfs.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.orrcadillacfs.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://orrcadillacfs.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "cadillac-parker-cadillac-inc",
+    "name": "PARKER CADILLAC, INC.",
+    "city": "Little Rock",
+    "state": "AR",
+    "make": "Cadillac",
+    "domain": "parker-cadillac.com",
+    "sitemapUrl": "https://www.parker-cadillac.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.parker-cadillac.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://parker-cadillac.com/",
+    "lat": null,
+    "lng": null
+  }
+]

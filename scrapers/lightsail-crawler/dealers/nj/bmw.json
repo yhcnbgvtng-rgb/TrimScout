@@ -1,0 +1,58 @@
+[
+  {
+    "id": "bmw-bmw-of-freehold",
+    "name": "BMW of Freehold",
+    "city": "Freehold",
+    "state": "NJ",
+    "make": "BMW",
+    "domain": "bmwoffreehold.com",
+    "sitemapUrl": "https://www.bmwoffreehold.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.bmwoffreehold.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://bmwoffreehold.com/",
+    "lat": null,
+    "lng": null,
+    "domainSource": "listing-verified"
+  },
+  {
+    "id": "bmw-bmw-of-springfield",
+    "name": "BMW of Springfield",
+    "city": "Springfield",
+    "state": "NJ",
+    "make": "BMW",
+    "domain": "bmwofspringfield.com",
+    "sitemapUrl": "https://www.bmwofspringfield.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.bmwofspringfield.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://bmwofspringfield.com/",
+    "lat": null,
+    "lng": null,
+    "domainSource": "listing-verified"
+  },
+  {
+    "id": "bmw-bmw-of-tenafly",
+    "name": "BMW of Tenafly",
+    "city": "Tenafly",
+    "state": "NJ",
+    "make": "BMW",
+    "domain": "bmwoftenafly.com",
+    "sitemapUrl": "https://www.bmwoftenafly.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.bmwoftenafly.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://bmwoftenafly.com/",
+    "lat": null,
+    "lng": null,
+    "domainSource": "listing-verified"
+  },
+  {
+    "id": "bmw-circle-bmw",
+    "name": "Circle BMW",
+    "city": "Eatontown",
+    "state": "NJ",
+    "make": "BMW",
+    "domain": "circlebmw.com",
+    "sitemapUrl": "https://www.circlebmw.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.circlebmw.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://circlebmw.com/",
+    "lat": null,
+    "lng": null,
+    "domainSource": "listing-verified"
+  }
+]

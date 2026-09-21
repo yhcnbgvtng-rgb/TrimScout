@@ -1,0 +1,93 @@
+[
+  {
+    "id": "cadillac-community-motor-co-inc",
+    "name": "COMMUNITY MOTOR CO., INC.",
+    "city": "Cedar Falls",
+    "state": "IA",
+    "make": "Cadillac",
+    "domain": "communitycadillaccf.com",
+    "sitemapUrl": "https://www.communitycadillaccf.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.communitycadillaccf.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://communitycadillaccf.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "cadillac-edwards-chevrolet-buick-gmc",
+    "name": "EDWARDS CHEVROLET BUICK GMC",
+    "city": "Council Bluffs",
+    "state": "IA",
+    "make": "Cadillac",
+    "domain": "edwardscadillac.com",
+    "sitemapUrl": "https://www.edwardscadillac.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.edwardscadillac.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://edwardscadillac.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "cadillac-gregg-young-cadillac",
+    "name": "GREGG YOUNG CADILLAC",
+    "city": "Newton",
+    "state": "IA",
+    "make": "Cadillac",
+    "domain": "greggyoungcadillac.net",
+    "sitemapUrl": "https://www.greggyoungcadillac.net/sitemap.xml",
+    "inventorySitemapUrl": "https://www.greggyoungcadillac.net/sitemap-inventory.xml",
+    "fallbackUrl": "https://greggyoungcadillac.net/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "cadillac-mcgrath-cadillac",
+    "name": "MCGRATH CADILLAC",
+    "city": "Cedar Rapids",
+    "state": "IA",
+    "make": "Cadillac",
+    "domain": "mcgrathcadillac.com",
+    "sitemapUrl": "https://www.mcgrathcadillac.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.mcgrathcadillac.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://mcgrathcadillac.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "cadillac-richardson-cadillac",
+    "name": "RICHARDSON CADILLAC",
+    "city": "Dubuque",
+    "state": "IA",
+    "make": "Cadillac",
+    "domain": "richardsongm.com",
+    "sitemapUrl": "https://www.richardsongm.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.richardsongm.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://richardsongm.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "cadillac-vaughn-cadillac",
+    "name": "VAUGHN CADILLAC",
+    "city": "OTTUMWA",
+    "state": "IA",
+    "make": "Cadillac",
+    "domain": "vaughncadillac.com",
+    "sitemapUrl": "https://www.vaughncadillac.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.vaughncadillac.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://vaughncadillac.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "cadillac-willis-cadillac",
+    "name": "WILLIS CADILLAC",
+    "city": "Des Moines",
+    "state": "IA",
+    "make": "Cadillac",
+    "domain": "williscadillac.com",
+    "sitemapUrl": "https://www.williscadillac.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.williscadillac.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://williscadillac.com/",
+    "lat": null,
+    "lng": null
+  }
+]

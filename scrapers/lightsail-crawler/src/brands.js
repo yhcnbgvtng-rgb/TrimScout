@@ -118,10 +118,203 @@ export const BRANDS = {
     baseMsrpTable: null,
     plantFallback: { country: "England", city: "Woking" },
   },
+  // NJ Lightsail box — remaining in-scope brands. VIN prefixes are a
+  // secondary isolation signal only (same as Ford/Chevy/Acura above).
+  Toyota: {
+    name: "Toyota",
+    vinPrefixes: ["4T1", "4T3", "4T4", "5TD", "5TE", "5TF", "2T1", "2T3", "JTD", "JTE", "JT2", "JT3"],
+    hasOfficialRetailerPlatform: false,
+    baseMsrpTable: null,
+    plantFallback: null,
+  },
+  Lexus: {
+    name: "Lexus",
+    vinPrefixes: ["JTH", "JTJ", "JT8", "2T2"],
+    hasOfficialRetailerPlatform: false,
+    baseMsrpTable: null,
+    plantFallback: null,
+  },
+  Kia: {
+    name: "Kia",
+    vinPrefixes: ["KNA", "KND", "KNH", "5XY", "3KP", "KN4"],
+    hasOfficialRetailerPlatform: false,
+    baseMsrpTable: null,
+    plantFallback: null,
+  },
+  Honda: {
+    name: "Honda",
+    vinPrefixes: ["1HG", "2HG", "3HG", "5FN", "5J6", "19X", "JHM", "SHH"],
+    hasOfficialRetailerPlatform: false,
+    baseMsrpTable: null,
+    plantFallback: null,
+  },
+  Nissan: {
+    name: "Nissan",
+    vinPrefixes: ["1N4", "1N6", "3N1", "5N1", "JN1", "JN8"],
+    hasOfficialRetailerPlatform: false,
+    baseMsrpTable: null,
+    plantFallback: null,
+  },
+  Infiniti: {
+    name: "Infiniti",
+    vinPrefixes: ["JN1", "JN8", "5N3", "3N1"],
+    hasOfficialRetailerPlatform: false,
+    baseMsrpTable: null,
+    plantFallback: null,
+  },
+  Subaru: {
+    name: "Subaru",
+    vinPrefixes: ["4S3", "4S4", "JF1", "JF2"],
+    hasOfficialRetailerPlatform: false,
+    baseMsrpTable: null,
+    plantFallback: null,
+  },
+  Mazda: {
+    name: "Mazda",
+    vinPrefixes: ["JM1", "JM3", "JM7", "3MZ"],
+    hasOfficialRetailerPlatform: false,
+    baseMsrpTable: null,
+    plantFallback: null,
+  },
+  Volkswagen: {
+    name: "Volkswagen",
+    vinPrefixes: ["3VW", "WVW", "WV1", "WV2", "WVG", "1V2"],
+    hasOfficialRetailerPlatform: false,
+    baseMsrpTable: null,
+    plantFallback: null,
+  },
+  BMW: {
+    name: "BMW",
+    vinPrefixes: ["WBA", "WBS", "WBY", "5UX", "5YM"],
+    hasOfficialRetailerPlatform: false,
+    baseMsrpTable: null,
+    plantFallback: null,
+  },
+  "Mercedes-Benz": {
+    name: "Mercedes-Benz",
+    vinPrefixes: ["WDD", "WDC", "W1K", "W1N", "4JG", "WD4"],
+    hasOfficialRetailerPlatform: false,
+    baseMsrpTable: null,
+    plantFallback: null,
+  },
+  Volvo: {
+    name: "Volvo",
+    vinPrefixes: ["YV1", "YV4", "LYV", "7JR"],
+    hasOfficialRetailerPlatform: false,
+    baseMsrpTable: null,
+    plantFallback: null,
+  },
+  Mini: {
+    name: "Mini",
+    vinPrefixes: ["WMW", "WMZ", "3MW"],
+    hasOfficialRetailerPlatform: false,
+    baseMsrpTable: null,
+    plantFallback: null,
+  },
+  Mitsubishi: {
+    name: "Mitsubishi",
+    vinPrefixes: ["JA3", "JA4", "4A3", "4A4"],
+    hasOfficialRetailerPlatform: false,
+    baseMsrpTable: null,
+    plantFallback: null,
+  },
+  Hyundai: {
+    name: "Hyundai",
+    // Added 2026-09-20. Not yet cross-checked against real live VINs the
+    // way Chevrolet's table was — general automotive-VIN-decoding
+    // knowledge only. KMH = Korea-built, 5NP/5NM/KMF = Montgomery AL-built
+    // (HMMA). A 15-dealer/15-state pilot run did decode real VINs under
+    // both prefix families (KMH.../5NM... -> South Korea/United States
+    // respectively via NHTSA), which is a reasonable but not exhaustive
+    // confirmation. Secondary signal only, same as every other brand here.
+    vinPrefixes: ["KMH", "5NP", "5NM", "KMF"],
+    hasOfficialRetailerPlatform: false,
+    baseMsrpTable: null,
+    plantFallback: null,
+  },
+  // Expansion brand set (CRAWLER_BRAND_SET=expansion — see nj_policy.js's
+  // NJ_BRANDS_IN_EXPANSION comment). GMC/Buick/Cadillac/Lincoln's
+  // vinPrefixes are general WMI-convention knowledge, not yet cross-checked
+  // against real live VINs the way Chevrolet's table was — same caveat as
+  // Acura/Audi above.
+  GMC: {
+    name: "GMC",
+    vinPrefixes: ["1GT", "1GK", "3GT", "3GK"],
+    hasOfficialRetailerPlatform: false,
+    baseMsrpTable: null,
+    plantFallback: null,
+  },
+  Buick: {
+    name: "Buick",
+    vinPrefixes: ["1G4", "3G4", "KL4"],
+    hasOfficialRetailerPlatform: false,
+    baseMsrpTable: null,
+    plantFallback: null,
+  },
+  Cadillac: {
+    name: "Cadillac",
+    vinPrefixes: ["1G6", "1GY", "3G6"],
+    hasOfficialRetailerPlatform: false,
+    baseMsrpTable: null,
+    plantFallback: null,
+  },
+  Lincoln: {
+    name: "Lincoln",
+    vinPrefixes: ["5LM", "1LN", "3LN", "2LM"],
+    hasOfficialRetailerPlatform: false,
+    baseMsrpTable: null,
+    plantFallback: null,
+  },
+  // Multi-nameplate on purpose: Chrysler/Dodge/Jeep/Ram/Fiat share the same
+  // ~2,300 physical rooftops nationwide (confirmed live — the Stellantis
+  // locator API returns identical dealer lists for all four brand codes at
+  // the same zip). One crawl config covers all of them instead of
+  // re-visiting the same sites four times; `nameplates` (consumed by
+  // brand_match.js's resolveVehicleBrandMatch) keeps each vehicle's own
+  // real make (Jeep/Ram/Dodge/Chrysler/Fiat) instead of collapsing every
+  // vehicle to the literal string "Stellantis" — nobody shopping for a Jeep
+  // Wrangler wants to see "Stellantis" as its make. `name` is still
+  // "Stellantis" for logging/DB-brand-grouping/checkpoint-slug purposes
+  // only. vinPrefixes not yet cross-checked against real live VINs.
+  Stellantis: {
+    name: "Stellantis",
+    nameplates: ["Jeep", "Ram", "Dodge", "Chrysler", "Fiat"],
+    vinPrefixes: ["1C3", "2C3", "1C4", "2C4", "3C4", "1C6", "3C6", "1J4", "1J8", "ZFA"],
+    hasOfficialRetailerPlatform: false,
+    baseMsrpTable: null,
+    plantFallback: null,
+  },
 };
 
+const BRAND_ALIASES = {
+  mercedes: "Mercedes-Benz",
+  "mercedes-benz": "Mercedes-Benz",
+  vw: "Volkswagen",
+  volkswagen: "Volkswagen",
+  mini: "Mini",
+  chevy: "Chevrolet",
+  chevrolet: "Chevrolet",
+  // Any of Stellantis's four (or five, with Fiat) nameplates resolves to
+  // the same combined brand config — see the Stellantis entry's comment.
+  jeep: "Stellantis",
+  ram: "Stellantis",
+  dodge: "Stellantis",
+  chrysler: "Stellantis",
+  fiat: "Stellantis",
+};
+
+export function resolveBrandName(name) {
+  if (!name) return name;
+  const trimmed = String(name).trim();
+  const aliased = BRAND_ALIASES[trimmed.toLowerCase()];
+  if (aliased) return aliased;
+  const hit = Object.keys(BRANDS).find((k) => k.toLowerCase() === trimmed.toLowerCase());
+  return hit || trimmed;
+}
+
 export function getBrand(name) {
-  const brand = BRANDS[name];
+  const resolved = resolveBrandName(name);
+  const brand = BRANDS[resolved];
   if (!brand) throw new Error(`Unknown brand "${name}" — add it to src/brands.js`);
   return brand;
 }

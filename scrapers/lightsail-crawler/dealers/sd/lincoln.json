@@ -1,0 +1,28 @@
+[
+  {
+    "id": "lincoln-sioux-falls-lincoln",
+    "name": "Sioux Falls Lincoln",
+    "city": "Sioux Falls",
+    "state": "SD",
+    "make": "Lincoln",
+    "domain": "siouxfallslincoln.net",
+    "sitemapUrl": "https://www.siouxfallslincoln.net/sitemap.xml",
+    "inventorySitemapUrl": "https://www.siouxfallslincoln.net/sitemap-inventory.xml",
+    "fallbackUrl": "https://siouxfallslincoln.net/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "lincoln-white-s-canyon-lincoln",
+    "name": "White's Canyon Lincoln",
+    "city": "Spearfish",
+    "state": "SD",
+    "make": "Lincoln",
+    "domain": "whitescanyonlincoln.com",
+    "sitemapUrl": "https://www.whitescanyonlincoln.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.whitescanyonlincoln.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://whitescanyonlincoln.com/",
+    "lat": null,
+    "lng": null
+  }
+]

@@ -1,0 +1,16 @@
+[
+  {
+    "id": "mini-jackie-cooper-mini",
+    "name": "Jackie Cooper MINI",
+    "city": "Edmond",
+    "state": "OK",
+    "make": "Mini",
+    "domain": "jackiecoopermini.com",
+    "sitemapUrl": "https://www.jackiecoopermini.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.jackiecoopermini.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://jackiecoopermini.com/",
+    "lat": null,
+    "lng": null,
+    "domainSource": "oem-locator"
+  }
+]

@@ -1,0 +1,58 @@
+[
+  {
+    "id": "mini-checkered-flag-mini",
+    "name": "Checkered Flag MINI",
+    "city": "Virginia Beach",
+    "state": "VA",
+    "make": "Mini",
+    "domain": "checkeredflagmini.com",
+    "sitemapUrl": "https://www.checkeredflagmini.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.checkeredflagmini.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://checkeredflagmini.com/",
+    "lat": null,
+    "lng": null,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "mini-crown-mini-of-richmond",
+    "name": "Crown MINI of Richmond",
+    "city": "Richmond",
+    "state": "VA",
+    "make": "Mini",
+    "domain": "crownmini.com",
+    "sitemapUrl": "https://www.crownmini.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.crownmini.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://crownmini.com/",
+    "lat": null,
+    "lng": null,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "mini-mini-of-alexandria",
+    "name": "MINI of Alexandria",
+    "city": "Alexandria",
+    "state": "VA",
+    "make": "Mini",
+    "domain": "miniofalexandria.com",
+    "sitemapUrl": "https://www.miniofalexandria.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.miniofalexandria.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://miniofalexandria.com/",
+    "lat": null,
+    "lng": null,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "mini-mini-of-sterling",
+    "name": "MINI of Sterling",
+    "city": "Sterling",
+    "state": "VA",
+    "make": "Mini",
+    "domain": "miniofsterling.com",
+    "sitemapUrl": "https://www.miniofsterling.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.miniofsterling.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://miniofsterling.com/",
+    "lat": null,
+    "lng": null,
+    "domainSource": "oem-locator"
+  }
+]

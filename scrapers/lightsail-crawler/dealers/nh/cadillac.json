@@ -1,0 +1,54 @@
+[
+  {
+    "id": "cadillac-banks-chevrolet-cadillac-inc",
+    "name": "BANKS CHEVROLET-CADILLAC, INC.",
+    "city": "Concord",
+    "state": "NH",
+    "make": "Cadillac",
+    "domain": "banksautos.com",
+    "sitemapUrl": "https://www.banksautos.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.banksautos.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://banksautos.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "cadillac-fairfield-cadillac-keene",
+    "name": "FAIRFIELD CADILLAC – KEENE",
+    "city": "KEENE",
+    "state": "NH",
+    "make": "Cadillac",
+    "domain": "fairfieldscadillac.com",
+    "sitemapUrl": "https://www.fairfieldscadillac.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.fairfieldscadillac.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://fairfieldscadillac.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "cadillac-holloway-cadillac",
+    "name": "HOLLOWAY CADILLAC",
+    "city": "PORTSMOUTH",
+    "state": "NH",
+    "make": "Cadillac",
+    "domain": "hollowaycadillac.com",
+    "sitemapUrl": "https://www.hollowaycadillac.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.hollowaycadillac.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://hollowaycadillac.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "cadillac-macmulkin-cadillac",
+    "name": "MACMULKIN CADILLAC",
+    "city": "Nashua",
+    "state": "NH",
+    "make": "Cadillac",
+    "domain": "macmulkincadillac.com",
+    "sitemapUrl": "https://www.macmulkincadillac.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.macmulkincadillac.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://macmulkincadillac.com/",
+    "lat": null,
+    "lng": null
+  }
+]

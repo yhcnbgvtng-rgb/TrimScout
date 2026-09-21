@@ -7,6 +7,31 @@ import zlib from 'node:zlib';
 import { runEnrichmentPipeline } from './enricher.js';
 import { getBrand } from './brands.js';
 import { normalizeVehicleFields } from './modelNormalizer.js';
+import { classifyFetchResult, isBotProtected, isUncrawlable, decideProbeNext } from './bot_protection.js';
+import { writeProgress, emptyProgress } from './progress.js';
+import { dealerProbeUrls } from './nj_policy.js';
+import {
+    loadDomIndex,
+    saveDomIndex,
+    captureVehicleDom,
+    recordSoldDom,
+    flattenDomIndex,
+    pruneDomBlobs,
+} from './dom_store.js';
+import { inventoryChangeTypeToPriceChangeType } from './price_diff.js';
+import { mergeInventorySnapshot } from './inventory_merge.js';
+import { buildBrandChangeRecord, mergeDailyChangesDocument } from './daily_changes.js';
+import { withSharedDataLock } from './shared_data_lock.js';
+import { inventoryShardPath, inventoryShardsDir, snapshotShardPath } from './inventory_shards.js';
+import { resolveVehicleBrandMatch } from './brand_match.js';
+import {
+    collectSalesEmail,
+    applyContactToDealer,
+    loadDealerContacts,
+    saveDealerContacts,
+} from './sales_email.js';
+import { applyWindowSticker } from './window_sticker.js';
+import { resolveRunDate } from './date_utils.js';
 
 // One shared V8 context, reused for every vehicle's DDC dataLayer eval
 // (Strategy 1) instead of creating a fresh one per call via
@@ -25,10 +50,10 @@ const ddcEvalContext = vm.createContext({});
 const DATA_DIR = path.resolve(process.cwd(), 'data');
 const SNAPSHOTS_DIR = path.join(DATA_DIR, 'snapshots');
 const CHANGES_DIR = path.join(DATA_DIR, 'daily_changes');
-const LATEST_SNAPSHOT_PATH = path.join(SNAPSHOTS_DIR, 'latest_snapshot.json');
 
 await fs.mkdir(SNAPSHOTS_DIR, { recursive: true });
 await fs.mkdir(CHANGES_DIR, { recursive: true });
+await fs.mkdir(inventoryShardsDir(), { recursive: true });
 
 // One invocation crawls one brand's dealer list — a dedicated dealers.json
 // per brand/deployment, not a mixed file. Enrichment runs as a single
@@ -41,11 +66,40 @@ await fs.mkdir(CHANGES_DIR, { recursive: true });
 const dealersPath = path.resolve(process.cwd(), process.env.CRAWLER_DEALERS_FILE || 'dealers.json');
 const dealers = JSON.parse(await fs.readFile(dealersPath, 'utf-8'));
 const brand = getBrand(process.env.CRAWLER_BRAND || dealers[0]?.make || 'Porsche');
+// Which state this run belongs to — inferred from the dealer file itself
+// (every dealer record built by nj_policy.js/ny_policy.js carries a
+// `state`), with an explicit CRAWLER_STATE override for dealer files that
+// predate that field. Used for the daily_changes slot (as before) AND, as
+// of the state-sharding fix, to pick this run's own inventory/snapshot
+// shard (see inventory_shards.js) instead of one nationwide file.
+const state = process.env.CRAWLER_STATE || dealers[0]?.state || 'UNKNOWN';
+const LATEST_SNAPSHOT_PATH = snapshotShardPath(state);
+const INVENTORY_SHARD_PATH = inventoryShardPath(state);
+// Used only to keep this run's own diagnostic checkpoint file (see the
+// per-dealer checkpoint write below) from colliding with a concurrently
+// running other state+brand's checkpoint file — never parsed back, so it
+// just needs to be unique-enough per (state, brand), not reversible.
+const checkpointSlug = `${state}_${brand.name}`.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+const startedAt = new Date().toISOString();
+const PAGE_WORKERS = Number(process.env.CRAWLER_CONCURRENCY) || 8;
 
 console.log('====================================================');
 console.log(`🏎️ ${brand.name.toUpperCase()} ALL-DEALERSHIP NATIONWIDE TRACKER`);
 console.log(`Total Authorized ${brand.name} Centers Configured: ${dealers.length}`);
+console.log(`Page workers: ${PAGE_WORKERS} (target 6–8) · Chromium recycle every ${Number(process.env.CRAWLER_PATCHRIGHT_RECYCLE_AFTER) || 10} dealers`);
+console.log('Challenge pages are skipped and logged — no WAF/captcha bypass.');
 console.log('====================================================\n');
+
+const runProgress = emptyProgress({
+    status: 'running',
+    currentBrand: brand.name,
+    dealersDone: 0,
+    dealersTotal: dealers.length,
+    startedAt,
+});
+await writeProgress(runProgress);
+
+let domIndex = await loadDomIndex();
 
 let previousSnapshot = {};
 try {
@@ -69,6 +123,7 @@ try {
     const dbMod = await import('./db.js');
     if (process.env.DB_HOST) {
         dbBrandId = await dbMod.upsertBrand(brand.name.toLowerCase(), brand.name);
+        await dbMod.ensureNjOpsSchema();
         await dbMod.upsertDealers(dbBrandId, dealers);
         dbRunId = await dbMod.startScrapeRun(dbBrandId, dealers.length);
         console.log(`💾 DB scrape_run started: id=${dbRunId} (brand_id=${dbBrandId})`);
@@ -519,6 +574,45 @@ async function safeFetch(url, timeoutMs = 7000, patchrightPage = null) {
     ]);
 }
 
+// Detect-only probe. Uses the same HTTP client as the crawl so we classify
+// what the crawler itself would see. Never launches a browser, never
+// retries a challenge, never tries to "solve" it.
+async function probeDealerBotProtection(dealer) {
+    let soft = null;
+    for (const url of dealerProbeUrls(dealer)) {
+        let cls;
+        try {
+            const res = await safeFetch(url, 8000);
+            cls = {
+                ...classifyFetchResult({
+                    statusCode: res.statusCode,
+                    headers: res.headers,
+                    body: res.body,
+                }),
+                url,
+            };
+        } catch (error) {
+            cls = { ...classifyFetchResult({ error }), url };
+        }
+        const action = decideProbeNext(cls);
+        if (action === 'accept' || action === 'stop') return cls;
+        if (action === 'continue' && !soft) soft = cls;
+    }
+    return soft || { classification: 'NONE', httpStatus: 200, notes: '', url: null };
+}
+
+async function flushRunProgress(extra = {}) {
+    Object.assign(runProgress, extra, {
+        vehiclesSeen: currentInventory.size,
+        currentBrand: brand.name,
+    });
+    try {
+        await writeProgress(runProgress);
+    } catch (err) {
+        console.error(`⚠️ Progress write failed: ${err.message}`);
+    }
+}
+
 // Sitemap XML escapes reserved characters inside <loc> (e.g. a literal "+"
 // in a URL slug becomes "&#x2B;"), but that was never being decoded back —
 // every <loc> value was stored and used verbatim, so any URL containing an
@@ -721,7 +815,17 @@ async function tryPatchrightFallback(dealer, brand) {
 }
 
 const currentInventory = new Map();
-const todayDate = new Date().toISOString().slice(0, 10);
+// Calendar-date bucketing (file naming, firstSeen/lastSeen, DOM retention)
+// uses the Eastern calendar date, not UTC — see date_utils.js. todayIso
+// below is a real UTC instant (when this run happened) and stays as-is.
+//
+// Uses CRAWLER_RUN_DATE (set by run-daily-crawl.mjs to its own canonical
+// once-per-run date) when present, rather than computing this
+// subprocess's own Eastern date fresh — see resolveRunDate()'s comment in
+// date_utils.js for the midnight-crossing ledger-split bug this fixes.
+// Falls back to computing it fresh when unset, so a manual/ad hoc
+// `node src/standalone.js` run (not launched by the driver) is unaffected.
+const todayDate = resolveRunDate();
 const todayIso = new Date().toISOString();
 const dealerStats = {};
 
@@ -736,6 +840,8 @@ const failedDealerNames = new Set();
 
 let activeDealersCount = 0;
 let erroredDealersCount = 0;
+let skippedBotProtection = 0;
+const dealerContacts = await loadDealerContacts();
 
 // A single pathological dealer (huge sitemap, a slow-failing site) should
 // never be able to stall the whole nationwide run — confirmed live
@@ -750,6 +856,53 @@ for (let i = 0; i < dealers.length; i++) {
     const dealer = dealers[i];
     const progress = `[${i + 1}/${dealers.length}]`;
     console.log(`${progress} 🏢 Crawling ${dealer.name} (${dealer.city}, ${dealer.state})...`);
+    runProgress.currentDealer = dealer.name;
+    await flushRunProgress();
+
+    const botProbe = await probeDealerBotProtection(dealer);
+    if (isUncrawlable(botProbe.classification)) {
+        if (isBotProtected(botProbe.classification)) skippedBotProtection++;
+        failedDealerNames.add(dealer.name);
+        dealerStats[dealer.name] = 0;
+        runProgress.skippedForBotProtection = skippedBotProtection;
+        runProgress.dealersDone = i + 1;
+        runProgress.lastError = `${dealer.name}: ${botProbe.classification}${botProbe.httpStatus ? ` HTTP ${botProbe.httpStatus}` : ''} — skipped, no bypass`;
+        const kind = isBotProtected(botProbe.classification) ? 'bot protection' : 'uncrawlable';
+        console.log(`${progress} 🛡️ SKIP ${dealer.name}: ${botProbe.classification}${botProbe.httpStatus ? ` (${botProbe.httpStatus})` : ''} — ${botProbe.notes || kind} [${botProbe.url || dealer.domain}]`);
+        await flushRunProgress();
+        continue;
+    }
+
+    try {
+        const contact = await collectSalesEmail(dealer, {
+            getHtml: async (url) => {
+                try {
+                    const res = await safeFetch(url, 8000);
+                    return {
+                        statusCode: res.statusCode,
+                        headers: res.headers,
+                        body: res.body,
+                    };
+                } catch (error) {
+                    return { error };
+                }
+            },
+        });
+        applyContactToDealer(dealer, contact);
+        if (dealer.domain) {
+            dealerContacts[dealer.domain] = {
+                dealerName: dealer.name,
+                brand: dealer.make || brand.name,
+                ...contact,
+            };
+            await saveDealerContacts(dealerContacts);
+        }
+        if (contact.salesEmail) {
+            console.log(`${progress} ✉️ ${dealer.name} sales inbox: ${contact.salesEmail} (${contact.emailSourceUrl})`);
+        }
+    } catch (emailErr) {
+        console.error(`${progress} ✉️ Email collect failed for ${dealer.name}: ${emailErr.message}`);
+    }
 
     let patchrightFallback = null;
     let dealerTimedOut = false;
@@ -764,13 +917,11 @@ for (let i = 0; i < dealers.length; i++) {
     try {
         let vehicleUrls = await resolveSitemapUrls(dealer, brand);
         if (vehicleUrls.length === 0 && process.env.CRAWLER_PATCHRIGHT_FALLBACK !== 'false') {
-            // Plain HTTP found nothing — before giving up on this dealer,
-            // try a real browser. Confirmed live this recovers real
-            // inventory for dealers behind Cloudflare's standard bot-fight
-            // challenge (see tryPatchrightFallback's header comment); a
-            // dealer that's genuinely empty or blocked by something
-            // patchright can't beat still correctly falls through to
-            // failedDealerNames below.
+            // Challenge / WAF pages were already skipped above. This fallback
+            // is only for a sitemap that came back empty without a detected
+            // challenge — it is not a captcha solver and must not be used as
+            // one. Set CRAWLER_PATCHRIGHT_FALLBACK=false on the NJ box if
+            // you want HTTP-only crawls.
             console.log(`${progress} 🛡️ No inventory URLs via plain HTTP for ${dealer.name} — trying patchright fallback...`);
             patchrightFallback = await tryPatchrightFallback(dealer, brand);
             if (patchrightFallback) {
@@ -783,6 +934,22 @@ for (let i = 0; i < dealers.length; i++) {
             dealerStats[dealer.name] = 0;
             failedDealerNames.add(dealer.name);
             continue;
+        }
+        // Hard backstop for a pathologically large single lot (a genuine
+        // used-car superstore, or a megadealer group whose sitemap covers
+        // several physical locations at once) — DEALER_TIMEOUT_MS already
+        // bounds this dealer's wall-clock time, but a huge vehicle count
+        // still means a huge downstream NHTSA-enrichment bill for this one
+        // dealer even with the enrichment pool parallelized (see
+        // enricher.js). Slicing rather than sampling: the sitemap/DDC
+        // ordering is typically newest-first already, so the kept subset is
+        // still representative, real inventory, not an arbitrary chunk.
+        // 0 (the default) means no cap, matching every dealer's behavior
+        // before this existed.
+        const maxVehiclesPerDealer = Number(process.env.CRAWLER_MAX_VEHICLES_PER_DEALER) || 0;
+        if (maxVehiclesPerDealer > 0 && vehicleUrls.length > maxVehiclesPerDealer) {
+            console.log(`${progress} ✂️ ${dealer.name} has ${vehicleUrls.length} vehicle URLs — capping to ${maxVehiclesPerDealer}.`);
+            vehicleUrls = vehicleUrls.slice(0, maxVehiclesPerDealer);
         }
         if (dealerTimedOut) {
             // The 1-hour mark already passed during sitemap resolution
@@ -801,6 +968,14 @@ for (let i = 0; i < dealers.length; i++) {
             try {
                 const res = await safeFetch(url, patchrightPage ? 15000 : 7000, patchrightPage);
                 const html = res.body;
+                const pageClass = classifyFetchResult({
+                    statusCode: res.statusCode,
+                    headers: res.headers,
+                    body: html,
+                });
+                if (isBotProtected(pageClass.classification)) {
+                    return;
+                }
                 let vehicle = null;
 
                 // Strategy 1: DDC DataLayer (Dealer.com)
@@ -962,23 +1137,25 @@ for (let i = 0; i < dealers.length; i++) {
                 }
 
                 if (vehicle && vehicle.vin && vehicle.vin.length >= 16) {
-                    // Multi-brand isolation check: some dealers (especially
-                    // multi-franchise groups) surface other brands they also
-                    // sell in the same sitemap/pages — only keep vehicles
-                    // that actually match the brand this run is targeting.
-                    const isTargetBrand = vehicle.make?.toLowerCase().includes(brand.name.toLowerCase()) ||
-                                      brand.vinPrefixes.some((p) => vehicle.vin.startsWith(p));
+                    // Multi-brand isolation check — see brand_match.js. Most
+                    // brands are single-nameplate (brand.name IS the real
+                    // make); Stellantis is multi-nameplate (brand.nameplates
+                    // = Jeep/Ram/Dodge/Chrysler/Fiat, since they share the
+                    // same rooftops) and resolveVehicleBrandMatch keeps each
+                    // vehicle's own real nameplate instead of collapsing it
+                    // to the umbrella crawl-scope name.
+                    const { isTargetBrand, resolvedMake } = resolveVehicleBrandMatch(brand, vehicle);
 
                     if (isTargetBrand) {
-                        // Collapse to the canonical brand name. isTargetBrand
-                        // just confirmed this vehicle genuinely belongs to
-                        // this brand (by label match or VIN prefix), so any
-                        // raw label variant the source site used — "FORD
-                        // TRUCK", "FORD MEDIUM TRUCK", etc. — is the same
-                        // vehicle, not a different make; storing the raw
-                        // variant instead of "Ford"/"Chevrolet" just splits
-                        // one brand into several make values downstream.
-                        vehicle.make = brand.name;
+                        // Collapse to the canonical nameplate. isTargetBrand
+                        // just confirmed this vehicle genuinely belongs here
+                        // (by label match or VIN prefix), so any raw label
+                        // variant the source site used — "FORD TRUCK", "FORD
+                        // MEDIUM TRUCK", etc. — is the same vehicle, not a
+                        // different make; storing the raw variant instead of
+                        // "Ford"/"Chevrolet"/"Jeep" just splits one nameplate
+                        // into several make values downstream.
+                        vehicle.make = resolvedMake;
                         // Un-mix model/trim/body_style for brands whose
                         // source sites bake trim/body-style tokens into the
                         // model field (confirmed live: Porsche dealer.com
@@ -989,9 +1166,26 @@ for (let i = 0; i < dealers.length; i++) {
                         // — DDC, schema.org, the Porsche retailer platform —
                         // gets the same cleanup. No-op for every other
                         // brand (see modelNormalizer.js's brand dispatcher).
-                        vehicle = normalizeVehicleFields(brand.name, vehicle);
+                        // Dispatches on the real resolved nameplate, not the
+                        // umbrella brand.name, so a multi-nameplate config
+                        // still gets each nameplate's own normalization.
+                        vehicle = normalizeVehicleFields(resolvedMake, vehicle);
+                        applyWindowSticker(vehicle, html, url, { classification: pageClass.classification });
                         currentInventory.set(vehicle.vin, vehicle);
                         dealerCount++;
+                        const prev = previousSnapshot[vehicle.vin];
+                        try {
+                            await captureVehicleDom({
+                                vin: vehicle.vin,
+                                date: todayDate,
+                                html,
+                                price: vehicle.price,
+                                yesterdayPrice: prev?.price ?? null,
+                                isNew: !prev,
+                                cwd: process.cwd(),
+                                index: domIndex,
+                            });
+                        } catch {}
                     }
                 }
             } catch {}
@@ -1000,7 +1194,7 @@ for (let i = 0; i < dealers.length; i++) {
         if (patchrightFallback) {
             await pMapWithPages(vehicleUrls, extractOne, patchrightFallback.pages);
         } else {
-            await pMap(vehicleUrls, extractOne, Number(process.env.CRAWLER_CONCURRENCY) || 8);
+            await pMap(vehicleUrls, extractOne, PAGE_WORKERS);
         }
 
         dealerStats[dealer.name] = dealerCount;
@@ -1023,20 +1217,37 @@ for (let i = 0; i < dealers.length; i++) {
     } catch (err) {
         erroredDealersCount++;
         failedDealerNames.add(dealer.name);
+        runProgress.lastError = `${dealer.name}: ${err.message}`;
         console.error(`${progress} ❌ Error crawling ${dealer.name}: ${err.message}`);
     } finally {
         clearTimeout(dealerTimeoutHandle);
         if (patchrightFallback) {
             await patchrightFallback.context.close().catch(() => {});
         }
+        runProgress.dealersDone = i + 1;
+        runProgress.skippedForBotProtection = skippedBotProtection;
+        await flushRunProgress();
+        try {
+            await saveDomIndex(domIndex);
+        } catch (domErr) {
+            console.error(`⚠️ DOM index write failed: ${domErr.message}`);
+        }
     }
 
     // Checkpoint after every dealer. A full nationwide run can take hours;
     // without this, a stall or crash partway through loses everything —
     // the real output files only get written after the whole loop finishes.
+    //
+    // Scoped to this run's own state+brand (not a single shared filename):
+    // with run-daily-crawl.mjs now able to run more than one state's brand
+    // loop at once, a shared, unscoped checkpoint filename would have two
+    // processes overwriting the same file all through both runs, leaving
+    // whichever wrote last as pure noise (this file is diagnostic-only —
+    // never read back by anything in this repo — but corrupting it for
+    // nothing when a one-line scope fixes it isn't worth doing).
     try {
         await fs.writeFile(
-            path.join(DATA_DIR, 'checkpoint_raw_inventory.json'),
+            path.join(DATA_DIR, `checkpoint_raw_inventory_${checkpointSlug}.json`),
             JSON.stringify(Array.from(currentInventory.values()), null, 2)
         );
     } catch (checkpointErr) {
@@ -1052,123 +1263,126 @@ console.log(`\n🎉 Nationwide Crawl Complete!`);
 console.log(`Total Active ${brand.name} Centers with Live Inventory: ${activeDealersCount}`);
 console.log(`Total Live Vehicles Tracked: ${currentInventory.size}`);
 
-// Compute Nationwide Diffs
-const updatedSnapshot = {};
-const priceDrops = [];
-const priceIncreases = [];
-const newArrivals = [];
-const soldVehicles = [];
-const allRecords = [];
+// Compute this state's diffs — merged against this state's OWN shared
+// snapshot shard (every brand ever crawled for this state, not every
+// brand/state in the whole box — see inventory_shards.js), scoped so this
+// run only ever touches its own brand's dealers. See inventory_merge.js's
+// header comment for the cross-brand data-loss bug this fixes: without
+// that scoping, every other brand's active inventory got mislabeled
+// SOLD_OR_REMOVED on every run, and then dropped entirely two runs later.
+//
+// Concurrency: the snapshot+inventory read/merge/write below runs inside a
+// lock SCOPED TO THIS STATE (see shared_data_lock.js) — a different state's
+// concurrent brand-run touches a completely different shard file, so it
+// never even attempts this lock, unlike the old single nationwide lock
+// every brand-run used to queue behind. The daily_changes file is still
+// genuinely nationwide-shared (every state's brands append into the SAME
+// day's file), so it keeps its own lock, scoped by today's date instead.
+// Both critical sections — critically — re-read their file FRESH right
+// here, rather than trusting `previousSnapshot` (read once at process
+// start, ~a whole crawl ago) or a read taken outside the lock: with
+// run-daily-crawl.mjs running up to MAX_CONCURRENT_STATES states' brand
+// loops at once, another BRAND in this same state (or another state, for
+// daily_changes) may have written a newer version of either file at any
+// point during this run's own (possibly hours-long) crawl; merging against
+// the stale start-of-run copy would silently discard that update the
+// moment this run writes. The early `previousSnapshot` read up top is left
+// in place and still used for the per-vehicle DOM "yesterdayPrice"/"isNew"
+// bookkeeping during the crawl above — that's informational, not
+// authoritative, so a bit of staleness there is harmless; only the actual
+// merge below needs the freshest possible base.
+let latestPreviousSnapshot = {};
+let dailyChangesDoc;
+let updatedSnapshot;
+let allRecords;
+let newArrivals;
+let priceDrops;
+let priceIncreases;
+let soldVehicles;
 
-for (const [vin, cur] of currentInventory.entries()) {
-    const prev = previousSnapshot[vin];
-    let changeType = 'UNCHANGED';
-    let priceDiff = 0;
-    let oldPrice = null;
-    let daysOnLot = 0;
-    let firstSeen = todayDate;
-    let priceHistory = [];
-
-    if (!prev) {
-        changeType = 'NEW_ARRIVAL';
-        daysOnLot = 0;
-        firstSeen = todayDate;
-        priceHistory = cur.price ? [{ date: todayDate, price: cur.price }] : [];
-        newArrivals.push(cur);
-    } else {
-        firstSeen = prev.firstSeen || todayDate;
-        priceHistory = prev.priceHistory || [];
-        const prevFirst = new Date(firstSeen).getTime();
-        const now = new Date(todayDate).getTime();
-        daysOnLot = Math.max(0, Math.floor((now - prevFirst) / (1000 * 60 * 60 * 24)));
-
-        if (cur.price && prev.price && cur.price !== prev.price) {
-            priceDiff = cur.price - prev.price;
-            oldPrice = prev.price;
-            priceHistory.push({ date: todayDate, price: cur.price });
-
-            if (priceDiff < 0) {
-                changeType = 'PRICE_DROP';
-                priceDrops.push({ ...cur, oldPrice, priceDiff, daysOnLot });
-            } else {
-                changeType = 'PRICE_INCREASE';
-                priceIncreases.push({ ...cur, oldPrice, priceDiff, daysOnLot });
-            }
-        }
+await withSharedDataLock(async () => {
+    try {
+        latestPreviousSnapshot = JSON.parse(await fs.readFile(LATEST_SNAPSHOT_PATH, 'utf-8'));
+    } catch {
+        latestPreviousSnapshot = {};
     }
 
-    const record = {
-        ...cur,
-        oldPrice,
-        priceDiff,
-        daysOnLot,
-        firstSeen,
-        lastSeen: todayDate,
-        changeType,
-        priceHistory,
-        status: 'ACTIVE',
-        updatedAt: todayIso,
-    };
+    ({ updatedSnapshot, allRecords, newArrivals, priceDrops, priceIncreases, soldVehicles } = mergeInventorySnapshot({
+        previousSnapshot: latestPreviousSnapshot,
+        currentInventory,
+        dealers,
+        failedDealerNames,
+        todayDate,
+        todayIso,
+        toPriceChangeType: inventoryChangeTypeToPriceChangeType,
+    }));
 
-    updatedSnapshot[vin] = record;
-    allRecords.push(record);
-}
-
-// Identify Sold / Removed Vehicles
-for (const [vin, prev] of Object.entries(previousSnapshot)) {
-    if (!currentInventory.has(vin) && prev.status === 'ACTIVE') {
-        // configDealerName is the crawl-loop dealer key (reliable even for
-        // shared-inventory dealer groups where the vehicle's own scraped
-        // dealerName differs — see the DDC extraction comment above); older
-        // records predate that field, so fall back to dealerName for those.
-        const dealerKey = prev.configDealerName || prev.dealerName;
-        if (failedDealerNames.has(dealerKey)) {
-            // This vehicle's dealer produced zero real evidence this run
-            // (bot-blocked, fetch failure, or extraction failure) — carry it
-            // forward unchanged instead of marking it sold. Worst case a
-            // genuinely-sold vehicle stays ACTIVE one extra day; the
-            // alternative (mass-marking a blocked dealer's whole active
-            // inventory SOLD, confirmed happening live) is far worse.
-            updatedSnapshot[vin] = prev;
-            allRecords.push(prev);
-            continue;
-        }
-
-        const soldRecord = {
-            ...prev,
-            status: 'SOLD_OR_REMOVED',
-            changeType: 'SOLD',
-            soldDate: todayDate,
-            lastSeen: todayDate,
-            updatedAt: todayIso,
-        };
-        updatedSnapshot[vin] = soldRecord;
-        soldVehicles.push(soldRecord);
-        allRecords.push(soldRecord);
+    for (const soldRecord of soldVehicles) {
+        try {
+            await recordSoldDom({
+                vin: soldRecord.vin,
+                date: todayDate,
+                yesterdayPrice: soldRecord.price ?? null,
+                cwd: process.cwd(),
+                index: domIndex,
+            });
+        } catch {}
     }
-}
 
-// Persist Daily Changes & Latest Inventory Files
-const dailySummary = {
-    date: todayDate,
-    timestamp: todayIso,
+    await fs.writeFile(LATEST_SNAPSHOT_PATH, JSON.stringify(updatedSnapshot, null, 2));
+    await fs.writeFile(INVENTORY_SHARD_PATH, JSON.stringify(allRecords, null, 2));
+}, { scope: state, label: `standalone:${state}/${brand.name}` });
+
+// Persist this brand's slot in today's daily_changes_<date>.json — merged
+// in (read-modify-write), never a whole-file overwrite. See
+// daily_changes.js's header comment: overwriting here used to make every
+// earlier brand run today vanish from this file the moment the next brand
+// finished. Locked separately from the snapshot/inventory write above,
+// scoped by date rather than state, since this file is the one place every
+// state's brands today still genuinely share one file.
+const brandChangeRecord = buildBrandChangeRecord({
+    brand: brand.name,
+    state,
+    todayDate,
+    todayIso,
     totalDealersConfigured: dealers.length,
     activeDealersCount,
-    stats: {
-        totalActiveInventory: currentInventory.size,
-        totalNewArrivals: newArrivals.length,
-        totalPriceDrops: priceDrops.length,
-        totalPriceIncreases: priceIncreases.length,
-        totalSoldOrRemoved: soldVehicles.length,
-    },
-    topPriceDrops: priceDrops.sort((a, b) => a.priceDiff - b.priceDiff).slice(0, 50),
-    dealerBreakdown: dealerStats,
-};
+    currentInventorySize: currentInventory.size,
+    newArrivals,
+    priceDrops,
+    priceIncreases,
+    soldVehicles,
+    dealerStats,
+    skippedForBotProtection: skippedBotProtection,
+});
 
-await fs.writeFile(LATEST_SNAPSHOT_PATH, JSON.stringify(updatedSnapshot, null, 2));
-await fs.writeFile(path.join(DATA_DIR, 'national_inventory_latest.json'), JSON.stringify(allRecords, null, 2));
-await fs.writeFile(path.join(DATA_DIR, 'inventory_latest.json'), JSON.stringify(allRecords, null, 2));
-await fs.writeFile(path.join(CHANGES_DIR, `daily_changes_${todayDate}.json`), JSON.stringify(dailySummary, null, 2));
+await withSharedDataLock(async () => {
+    let existingChangesDoc = null;
+    try {
+        existingChangesDoc = JSON.parse(await fs.readFile(path.join(CHANGES_DIR, `daily_changes_${todayDate}.json`), 'utf-8'));
+    } catch {
+        // No file yet today (first brand of the day, or first day ever) — fine.
+    }
+
+    dailyChangesDoc = mergeDailyChangesDocument({
+        existing: existingChangesDoc,
+        state,
+        brand: brand.name,
+        brandRecord: brandChangeRecord,
+        todayDate,
+        todayIso,
+    });
+
+    await fs.writeFile(path.join(CHANGES_DIR, `daily_changes_${todayDate}.json`), JSON.stringify(dailyChangesDoc, null, 2));
+}, { scope: `daily-changes-${todayDate}`, label: `standalone:${state}/${brand.name}/daily-changes` });
+
+try {
+    await saveDomIndex(domIndex);
+    const pruned = await pruneDomBlobs({ today: todayDate });
+    console.log(`DOM snapshots: hashes kept indefinitely; pruned ${pruned.removed} blob(s) older than 7 days (cutoff ${pruned.cutoff}).`);
+} catch (domErr) {
+    console.error('DOM snapshot finalize warning:', domErr.message);
+}
 
 console.log('\n====================================================');
 console.log(`📊 NATIONWIDE PORSCHE MARKET SUMMARY (${todayDate})`);
@@ -1176,13 +1390,18 @@ console.log(`Active Live Inventory:   ${currentInventory.size}`);
 console.log(`New Arrivals Today:     ${newArrivals.length}`);
 console.log(`Price Drops Today:      ${priceDrops.length}`);
 console.log(`Sold / Removed Today:   ${soldVehicles.length}`);
+console.log(`Skipped bot protection: ${skippedBotProtection}`);
 console.log(`Data Output:            ${DATA_DIR}`);
 console.log('====================================================\n');
 
 // Automatically trigger enrichment pipeline on all captured inventory
 try {
     console.log('⚡ Triggering automatic spec enrichment pipeline...');
-    await runEnrichmentPipeline(Infinity, brand, { brandId: dbBrandId, runId: dbRunId });
+    // Only this run's own dealers' vehicles need enrichment — they're the
+    // ones just (re)crawled with fresh dealerListedOptions. Every other
+    // brand's already-enriched vehicles in the shared inventory file are
+    // left completely alone (see enricher.js's vinsToEnrich comment).
+    await runEnrichmentPipeline(Infinity, brand, { brandId: dbBrandId, runId: dbRunId }, Array.from(currentInventory.keys()), state);
 } catch (enrichErr) {
     console.error('Enrichment step warning:', enrichErr.message);
 }
@@ -1196,6 +1415,15 @@ try {
 if (dbRunId) {
     try {
         const { finishScrapeRun } = await import('./db.js');
+        if (process.env.DB_HOST) {
+            try {
+                const { upsertDomSnapshots, upsertDealers } = await import('./db.js');
+                await upsertDomSnapshots(flattenDomIndex(domIndex).filter((r) => r.snapshotDate === todayDate));
+                if (dbBrandId) await upsertDealers(dbBrandId, dealers);
+            } catch (domDbErr) {
+                console.error('DB DOM/dealer contact sync failed (non-fatal):', domDbErr.message);
+            }
+        }
         await finishScrapeRun(dbRunId, {
             dealersActive: activeDealersCount,
             dealersErrored: erroredDealersCount,
@@ -1204,6 +1432,7 @@ if (dbRunId) {
             priceDrops: priceDrops.length,
             priceIncreases: priceIncreases.length,
             soldOrRemoved: soldVehicles.length,
+            skippedBotProtection,
             failedDealerNames: Array.from(failedDealerNames),
         });
         console.log(`💾 DB scrape_run ${dbRunId} marked COMPLETE.`);
@@ -1226,4 +1455,14 @@ try {
 } catch {
     // db.js may never have been imported this run (DB_HOST unset) — fine.
 }
+
+await flushRunProgress({
+    status: 'complete',
+    currentDealer: null,
+    dealersDone: dealers.length,
+    priceDrops: priceDrops.length,
+    newArrivals: newArrivals.length,
+    skippedForBotProtection: skippedBotProtection,
+    finishedAt: new Date().toISOString(),
+});
 process.exit(0);

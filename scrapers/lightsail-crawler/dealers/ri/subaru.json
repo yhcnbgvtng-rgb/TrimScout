@@ -1,0 +1,44 @@
+[
+  {
+    "id": "subaru-anchor-subaru",
+    "name": "Anchor Subaru",
+    "city": "North Smithfield",
+    "state": "RI",
+    "make": "Subaru",
+    "domain": "anchorsubaru.com",
+    "sitemapUrl": "https://www.anchorsubaru.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.anchorsubaru.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://anchorsubaru.com/",
+    "lat": 41.961286,
+    "lng": -71.495422,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "subaru-balise-subaru",
+    "name": "Balise Subaru",
+    "city": "West Warwick",
+    "state": "RI",
+    "make": "Subaru",
+    "domain": "balisesubaru.com",
+    "sitemapUrl": "https://www.balisesubaru.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.balisesubaru.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://balisesubaru.com/",
+    "lat": 41.676712,
+    "lng": -71.50022,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "subaru-valenti-subaru",
+    "name": "Valenti Subaru",
+    "city": "Westerly",
+    "state": "RI",
+    "make": "Subaru",
+    "domain": "valentisubaru.com",
+    "sitemapUrl": "https://www.valentisubaru.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.valentisubaru.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://valentisubaru.com/",
+    "lat": 41.350926,
+    "lng": -71.767883,
+    "domainSource": "oem-locator"
+  }
+]

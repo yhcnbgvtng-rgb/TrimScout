@@ -1,0 +1,15 @@
+[
+  {
+    "id": "lincoln-valley-isle-lincoln",
+    "name": "Valley Isle Lincoln",
+    "city": "Kahului",
+    "state": "HI",
+    "make": "Lincoln",
+    "domain": "valleyislelincoln.com",
+    "sitemapUrl": "https://www.valleyislelincoln.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.valleyislelincoln.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://valleyislelincoln.com/",
+    "lat": null,
+    "lng": null
+  }
+]

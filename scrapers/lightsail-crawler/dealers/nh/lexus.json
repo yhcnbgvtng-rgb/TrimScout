@@ -1,0 +1,16 @@
+[
+  {
+    "id": "lexus-lexus-of-bedford",
+    "name": "Lexus of Bedford",
+    "city": "Bedford",
+    "state": "NH",
+    "make": "Lexus",
+    "domain": "lexusbedford.com",
+    "sitemapUrl": "https://www.lexusbedford.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.lexusbedford.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://lexusbedford.com/",
+    "lat": 42.955917,
+    "lng": -71.48161,
+    "domainSource": "oem-locator"
+  }
+]

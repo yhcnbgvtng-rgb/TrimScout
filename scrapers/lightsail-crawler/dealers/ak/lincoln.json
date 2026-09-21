@@ -1,0 +1,28 @@
+[
+  {
+    "id": "lincoln-kendall-ford-lincoln-of-anchorage",
+    "name": "Kendall Ford Lincoln of Anchorage",
+    "city": "Anchorage",
+    "state": "AK",
+    "make": "Lincoln",
+    "domain": "kendalllincolnanchorage.com",
+    "sitemapUrl": "https://www.kendalllincolnanchorage.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.kendalllincolnanchorage.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://kendalllincolnanchorage.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "lincoln-seekins-ford-lincoln",
+    "name": "Seekins Ford Lincoln",
+    "city": "Fairbanks",
+    "state": "AK",
+    "make": "Lincoln",
+    "domain": "seekinslincoln.com",
+    "sitemapUrl": "https://www.seekinslincoln.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.seekinslincoln.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://seekinslincoln.com/",
+    "lat": null,
+    "lng": null
+  }
+]

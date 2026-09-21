@@ -1,0 +1,67 @@
+[
+  {
+    "id": "lincoln-cavenaugh-ford-lincoln-llc",
+    "name": "Cavenaugh Ford Lincoln, LLC",
+    "city": "Jonesboro",
+    "state": "AR",
+    "make": "Lincoln",
+    "domain": "cavenaughlincoln.com",
+    "sitemapUrl": "https://www.cavenaughlincoln.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.cavenaughlincoln.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://cavenaughlincoln.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "lincoln-cogswell-mtrs-inc",
+    "name": "Cogswell Mtrs Inc",
+    "city": "Russellville",
+    "state": "AR",
+    "make": "Lincoln",
+    "domain": "cogswellmotorslincoln.net",
+    "sitemapUrl": "https://www.cogswellmotorslincoln.net/sitemap.xml",
+    "inventorySitemapUrl": "https://www.cogswellmotorslincoln.net/sitemap-inventory.xml",
+    "fallbackUrl": "https://cogswellmotorslincoln.net/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "lincoln-mark-mclarty-lincoln",
+    "name": "Mark McLarty Lincoln",
+    "city": "North Little Rock",
+    "state": "AR",
+    "make": "Lincoln",
+    "domain": "markmclartylincoln.net",
+    "sitemapUrl": "https://www.markmclartylincoln.net/sitemap.xml",
+    "inventorySitemapUrl": "https://www.markmclartylincoln.net/sitemap-inventory.xml",
+    "fallbackUrl": "https://markmclartylincoln.net/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "lincoln-mclarty-daniel-lincoln",
+    "name": "McLarty Daniel Lincoln",
+    "city": "Bentonville",
+    "state": "AR",
+    "make": "Lincoln",
+    "domain": "mclartydaniellincoln.net",
+    "sitemapUrl": "https://www.mclartydaniellincoln.net/sitemap.xml",
+    "inventorySitemapUrl": "https://www.mclartydaniellincoln.net/sitemap-inventory.xml",
+    "fallbackUrl": "https://mclartydaniellincoln.net/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "lincoln-riser-lincoln",
+    "name": "Riser Lincoln",
+    "city": "Hot Springs",
+    "state": "AR",
+    "make": "Lincoln",
+    "domain": "riserlincoln.com",
+    "sitemapUrl": "https://www.riserlincoln.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.riserlincoln.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://riserlincoln.com/",
+    "lat": null,
+    "lng": null
+  }
+]

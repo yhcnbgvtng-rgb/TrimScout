@@ -1,0 +1,16 @@
+[
+  {
+    "id": "mini-mini-of-burlington",
+    "name": "MINI of Burlington",
+    "city": "Shelburne",
+    "state": "VT",
+    "make": "Mini",
+    "domain": "miniofburlington.com",
+    "sitemapUrl": "https://www.miniofburlington.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.miniofburlington.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://miniofburlington.com/",
+    "lat": null,
+    "lng": null,
+    "domainSource": "oem-locator"
+  }
+]

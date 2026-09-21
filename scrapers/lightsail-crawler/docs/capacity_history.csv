@@ -1,0 +1,2 @@
+date,box,brandSet,runLabel,rooftopsAttempted,wallClockHours,slaOk,secondsPerRooftopP50,secondsPerRooftopP90,sampleCount,wafBlockedTotal
+2026-09-21,box3,expansion,expansion,2885,23.8,false,44.1,61,7,55

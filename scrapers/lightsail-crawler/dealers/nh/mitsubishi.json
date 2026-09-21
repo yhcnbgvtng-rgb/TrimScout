@@ -1,0 +1,16 @@
+[
+  {
+    "id": "mitsubishi-keene-mitsubishi",
+    "name": "Keene Mitsubishi",
+    "city": "Keene",
+    "state": "NH",
+    "make": "Mitsubishi",
+    "domain": "keenemitsu.com",
+    "sitemapUrl": "https://www.keenemitsu.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.keenemitsu.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://keenemitsu.com/",
+    "lat": null,
+    "lng": null,
+    "domainSource": "oem-locator"
+  }
+]

@@ -1,0 +1,15 @@
+[
+  {
+    "id": "buick-handy-buick-gmc-cadillac-inc",
+    "name": "HANDY BUICK-GMC-CADILLAC INC.",
+    "city": "St. Albans",
+    "state": "VT",
+    "make": "Buick",
+    "domain": "handygmc.com",
+    "sitemapUrl": "https://www.handygmc.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.handygmc.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://handygmc.com/",
+    "lat": null,
+    "lng": null
+  }
+]

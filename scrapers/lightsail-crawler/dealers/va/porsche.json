@@ -1,0 +1,72 @@
+[
+  {
+    "id": "porsche-arlington",
+    "name": "Porsche Arlington",
+    "city": "Arlington",
+    "state": "VA",
+    "make": "Porsche",
+    "domain": "porschearlington.com",
+    "sitemapUrl": "https://www.porschearlington.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschearlington.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschearlington.com/",
+    "lat": 38.8903961,
+    "lng": -77.0841585,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "porsche-chantilly",
+    "name": "Porsche Chantilly",
+    "city": "Chantilly",
+    "state": "VA",
+    "make": "Porsche",
+    "domain": "porschechantilly.com",
+    "sitemapUrl": "https://www.porschechantilly.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschechantilly.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschechantilly.com/",
+    "lat": 38.8941543,
+    "lng": -77.4311513,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "porsche-richmond",
+    "name": "Porsche Richmond",
+    "city": "Richmond",
+    "state": "VA",
+    "make": "Porsche",
+    "domain": "porscherichmond.com",
+    "sitemapUrl": "https://www.porscherichmond.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porscherichmond.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porscherichmond.com/",
+    "lat": 37.5385087,
+    "lng": -77.43428,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "porsche-tysons-corner",
+    "name": "Porsche Tysons Corner",
+    "city": "Vienna",
+    "state": "VA",
+    "make": "Porsche",
+    "domain": "porschetysonscorner.com",
+    "sitemapUrl": "https://www.porschetysonscorner.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschetysonscorner.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschetysonscorner.com/",
+    "lat": 38.9013729,
+    "lng": -77.2651762,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "porsche-virginia-beach",
+    "name": "Porsche Virginia Beach",
+    "city": "Virginia Beach",
+    "state": "VA",
+    "make": "Porsche",
+    "domain": "porschevirginiabeach.com",
+    "sitemapUrl": "https://www.porschevirginiabeach.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschevirginiabeach.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschevirginiabeach.com/",
+    "lat": 36.8496579,
+    "lng": -75.9760751,
+    "domainSource": "oem-locator"
+  }
+]

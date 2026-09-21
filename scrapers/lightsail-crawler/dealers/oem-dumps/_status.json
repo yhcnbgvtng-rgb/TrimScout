@@ -1,0 +1,5367 @@
+{
+  "generatedAt": "2026-09-20T01:09:21.169Z",
+  "detectOnly": true,
+  "brands": [
+    {
+      "brand": "acura",
+      "dest": "dealers/oem-dumps/acura.json",
+      "count": 169,
+      "locator": "acura-dealers.json",
+      "note": "In-repo official locator dump (not re-fetched).",
+      "httpStatus": 200,
+      "blocked": false
+    },
+    {
+      "brand": "porsche",
+      "dest": "dealers/oem-dumps/porsche.json",
+      "count": 137,
+      "locator": "dealers.json",
+      "note": "In-repo official locator dump (not re-fetched).",
+      "httpStatus": 200,
+      "blocked": false
+    },
+    {
+      "brand": "lexus",
+      "dest": "dealers/oem-dumps/lexus.json",
+      "count": 155,
+      "locator": "https://www.lexus.com/rest/lexus/dealers",
+      "note": "Official Lexus REST dealer directory.",
+      "httpStatus": 200,
+      "blocked": false,
+      "nationwideCount": 246
+    },
+    {
+      "brand": "toyota",
+      "dest": "dealers/oem-dumps/toyota.json",
+      "count": 621,
+      "locator": "https://www.toyota.com/dealers/directory/",
+      "note": "Official Toyota dealer-hub city pages (dealer-card websites).",
+      "pages": [
+        {
+          "url": "https://www.toyota.com/dealers/new-jersey/avenel/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/new-jersey/cherry-hill/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/new-jersey/vineland/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/new-jersey/turnersville/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/new-jersey/mays-landing/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/new-york/brooklyn/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/new-york/buffalo/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/new-york/rochester/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/new-york/syracuse/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/new-york/albany/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/new-york/binghamton/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/new-york/yonkers/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/new-york/white-plains/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/florida/jacksonville/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/florida/tallahassee/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/florida/pensacola/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/florida/orlando/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/florida/tampa/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/florida/fort-myers/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/florida/naples/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/florida/west-palm-beach/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/florida/fort-lauderdale/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/florida/miami/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/georgia/atlanta/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/georgia/marietta/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/georgia/rome/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/georgia/dalton/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/georgia/gainesville/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/georgia/athens/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/georgia/augusta/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/georgia/dublin/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/georgia/macon/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/georgia/warner-robins/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/georgia/columbus/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/georgia/albany/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/georgia/valdosta/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/georgia/statesboro/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/georgia/brunswick/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/georgia/savannah/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/texas/dallas/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/texas/fort-worth/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/texas/plano/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/texas/houston/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/texas/the-woodlands/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/texas/sugar-land/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/texas/austin/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/texas/san-antonio/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/texas/el-paso/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/texas/lubbock/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/texas/amarillo/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/texas/midland/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/texas/abilene/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/texas/wichita-falls/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/texas/waco/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/texas/tyler/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/texas/beaumont/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/texas/corpus-christi/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/texas/mcallen/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/texas/laredo/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/south-carolina/charleston/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/south-carolina/columbia/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/south-carolina/greenville/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/south-carolina/spartanburg/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/south-carolina/myrtle-beach/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/south-carolina/hilton-head-island/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/south-carolina/rock-hill/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/south-carolina/florence/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/virginia/fairfax/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/virginia/alexandria/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/virginia/richmond/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/virginia/virginia-beach/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/virginia/norfolk/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/virginia/roanoke/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/virginia/charlottesville/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/virginia/lynchburg/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/virginia/fredericksburg/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/virginia/winchester/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/north-carolina/charlotte/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/north-carolina/concord/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/north-carolina/raleigh/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/north-carolina/durham/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/north-carolina/greensboro/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/north-carolina/winston-salem/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/north-carolina/asheville/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/north-carolina/wilmington/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/north-carolina/fayetteville/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/north-carolina/hickory/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/rhode-island/providence/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/rhode-island/westerly/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/vermont/burlington/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/vermont/rutland/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/vermont/bennington/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/vermont/brattleboro/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/vermont/st-johnsbury/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/new-hampshire/manchester/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/new-hampshire/nashua/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/new-hampshire/salem/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/new-hampshire/concord/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/new-hampshire/portsmouth/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/massachusetts/boston/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/massachusetts/worcester/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/massachusetts/springfield/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/massachusetts/lowell/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/massachusetts/new-bedford/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/massachusetts/hyannis/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/massachusetts/pittsfield/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/california/los-angeles/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/california/long-beach/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/california/anaheim/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/california/irvine/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/california/san-diego/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/california/chula-vista/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/california/san-jose/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/california/san-francisco/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/california/oakland/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/california/sacramento/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/california/fresno/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/california/bakersfield/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/california/riverside/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/california/san-bernardino/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/california/stockton/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/california/modesto/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/california/santa-rosa/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/california/santa-barbara/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/california/palm-springs/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/california/redding/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/pennsylvania/philadelphia/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/pennsylvania/pittsburgh/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/pennsylvania/allentown/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/pennsylvania/harrisburg/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/pennsylvania/lancaster/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/pennsylvania/reading/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/pennsylvania/york/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/pennsylvania/scranton/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/pennsylvania/erie/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/pennsylvania/altoona/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/oklahoma/oklahoma-city/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/oklahoma/tulsa/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/oklahoma/norman/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/oklahoma/lawton/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/oklahoma/enid/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/illinois/chicago/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/illinois/naperville/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/illinois/rockford/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/illinois/peoria/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/illinois/springfield/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/illinois/champaign/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/illinois/bloomington/dealers/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "url": "https://www.toyota.com/dealers/illinois/quincy/dealers/",
+          "status": 200,
+          "ok": true
+        }
+      ],
+      "blocked": false
+    },
+    {
+      "brand": "mercedes-benz",
+      "dest": "dealers/oem-dumps/mercedes-benz.json",
+      "count": 215,
+      "locator": "https://www.mbusa.com/en/dealers",
+      "note": "Official MBUSA dealerLocatorService (zip + distance + mbdealer filter).",
+      "pages": [
+        {
+          "zip": "07004",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "07024",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "07030",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "07052",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "07701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "07739",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "07860",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "08034",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "08096",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "08234",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "08648",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "08807",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "08902",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "10001",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "10301",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "10451",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "10940",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "11201",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "11501",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "11743",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "12205",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "12601",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "13212",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "13501",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "13901",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "14221",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "14623",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "14850",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "32501",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "32401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "32301",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "32202",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "32601",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "32114",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "34470",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "32801",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "32901",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "33602",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "33755",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "33801",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "34236",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "33901",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "34102",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "34952",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "33401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "33301",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "33101",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "33040",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "30303",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "30060",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "30161",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "30720",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "30501",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "30601",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "30901",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "31021",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "31201",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "31088",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "31901",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "31701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "31601",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "30458",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "31520",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "31401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "75201",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "76102",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "75074",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "77002",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "77380",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "77478",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "78701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "78205",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "79901",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "79401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "79101",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "79701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "79601",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "76301",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "76701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "75701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "77701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "78401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "78501",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "78040",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "29401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "29201",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "29601",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "29302",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "29577",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "29926",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "29730",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "29501",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "22030",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "22314",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "23219",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "23451",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "23510",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "24011",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "22901",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "24501",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "22401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "22601",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "28202",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "28025",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "27601",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "27701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "27401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "27101",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "28801",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "28401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "28301",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "28601",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "02903",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "02891",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "05401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "05701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "05201",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "05301",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "05819",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "03101",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "03060",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "03079",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "03301",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "03801",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "02116",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "01608",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "01103",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "01852",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "02740",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "02601",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "01201",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "90012",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "90802",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "92805",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "92602",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "92101",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "91910",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "95113",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "94102",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "94612",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "95814",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "93721",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "93301",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "92501",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "92401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "95202",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "95350",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "95401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "93101",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "92262",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "96001",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "19102",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "15222",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "18101",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "17101",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "17603",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "19601",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "17401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "18503",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "16501",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "16601",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "73102",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "74103",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "73069",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "73501",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "73701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "73401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "60602",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "60540",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "61101",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "61602",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "62701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "61820",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "61701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "62301",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "62901",
+          "status": 200,
+          "ok": true
+        }
+      ],
+      "blocked": false
+    },
+    {
+      "brand": "mitsubishi",
+      "dest": "dealers/oem-dumps/mitsubishi.json",
+      "count": 171,
+      "locator": "https://www.mitsubishicars.com/dealers",
+      "note": "Official Mitsubishi dealers page (embedded Apollo dealer cache).",
+      "httpStatus": 200,
+      "blocked": false
+    },
+    {
+      "brand": "honda",
+      "dest": "dealers/oem-dumps/honda.json",
+      "count": 0,
+      "locator": "https://automobiles.honda.com/tools/dealership-locator",
+      "note": "Official locator blocked or empty from this IP. Do not bypass. Re-run on Lightsail.",
+      "pages": [
+        {
+          "url": "https://automobiles.honda.com/tools/dealership-locator",
+          "status": 403,
+          "ok": false,
+          "error": null
+        },
+        {
+          "url": "https://automobiles.honda.com/platform/api/v1/dealer",
+          "status": 403,
+          "ok": false,
+          "error": null
+        }
+      ],
+      "blocked": true
+    },
+    {
+      "brand": "bmw",
+      "dest": "dealers/oem-dumps/bmw.json",
+      "count": 0,
+      "locator": "https://www.bmwusa.com/dealer-locator.html",
+      "note": "Official locator blocked or empty from this IP. Do not bypass. Re-run on Lightsail.",
+      "pages": [
+        {
+          "url": "https://www.bmwusa.com/dealer-locator.html",
+          "status": 200,
+          "ok": true,
+          "error": null
+        }
+      ],
+      "blocked": false
+    },
+    {
+      "brand": "mini",
+      "dest": "dealers/oem-dumps/mini.json",
+      "count": 68,
+      "locator": "https://www.miniusa.com/tools/shopping/find-a-dealer.html",
+      "note": "Official MINI dealer-locator JSON API (getAllDealerByZip), found via network capture; plain fetch, no browser needed.",
+      "pages": [
+        {
+          "zip": "07004",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "07024",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "07030",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "07052",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "07701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "07739",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "07860",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "08034",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "08096",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "08234",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "08648",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "08807",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "08902",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "10001",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "10301",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "10451",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "10940",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "11201",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "11501",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "11743",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "12205",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "12601",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "13212",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "13501",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "13901",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "14221",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "14623",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "14850",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "32501",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "32401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "32301",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "32202",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "32601",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "32114",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "34470",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "32801",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "32901",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "33602",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "33755",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "33801",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "34236",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "33901",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "34102",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "34952",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "33401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "33301",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "33101",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "33040",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "30303",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "30060",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "30161",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "30720",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "30501",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "30601",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "30901",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "31021",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "31201",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "31088",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "31901",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "31701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "31601",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "30458",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "31520",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "31401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "75201",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "76102",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "75074",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "77002",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "77380",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "77478",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "78701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "78205",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "79901",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "79401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "79101",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "79701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "79601",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "76301",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "76701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "75701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "77701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "78401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "78501",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "78040",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "29401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "29201",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "29601",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "29302",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "29577",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "29926",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "29730",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "29501",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "22030",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "22314",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "23219",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "23451",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "23510",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "24011",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "22901",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "24501",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "22401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "22601",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "28202",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "28025",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "27601",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "27701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "27401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "27101",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "28801",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "28401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "28301",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "28601",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "02903",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "02891",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "05401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "05701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "05201",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "05301",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "05819",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "03101",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "03060",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "03079",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "03301",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "03801",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "02116",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "01608",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "01103",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "01852",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "02740",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "02601",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "01201",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "90012",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "90802",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "92805",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "92602",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "92101",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "91910",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "95113",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "94102",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "94612",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "95814",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "93721",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "93301",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "92501",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "92401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "95202",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "95350",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "95401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "93101",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "92262",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "96001",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "19102",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "15222",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "18101",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "17101",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "17603",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "19601",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "17401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "18503",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "16501",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "16601",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "73102",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "74103",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "73069",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "73501",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "73701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "73401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "60602",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "60540",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "61101",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "61602",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "62701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "61820",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "61701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "62301",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "62901",
+          "status": 200,
+          "ok": true
+        }
+      ],
+      "blocked": false
+    },
+    {
+      "brand": "kia",
+      "dest": "dealers/oem-dumps/kia.json",
+      "count": 184,
+      "locator": "https://www.kia.com/us/en/find-a-dealer",
+      "note": "Official Kia find-a-dealer results, rendered per zip (patchright; page is JS-hydrated, not bot-blocked).",
+      "pages": [
+        {
+          "zip": "07004",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "07024",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "07030",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "07052",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "07701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "07739",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "07860",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "08034",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "08096",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "08234",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "08648",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "08807",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "08902",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "10001",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "10301",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "10451",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "10940",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "11201",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "11501",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "11743",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "12205",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "12601",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "13212",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "13501",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "13901",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "14221",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "14623",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "14850",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "32501",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "32401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "32301",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "32202",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "32601",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "32114",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "34470",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "32801",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "32901",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "33602",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "33755",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "33801",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "34236",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "33901",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "34102",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "34952",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "33401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "33301",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "33101",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "33040",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "30303",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "30060",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "30161",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "30720",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "30501",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "30601",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "30901",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "31021",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "31201",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "31088",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "31901",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "31701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "31601",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "30458",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "31520",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "31401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "75201",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "76102",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "75074",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "77002",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "77380",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "77478",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "78701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "78205",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "79901",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "79401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "79101",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "79701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "79601",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "76301",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "76701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "75701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "77701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "78401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "78501",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "78040",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "29401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "29201",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "29601",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "29302",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "29577",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "29926",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "29730",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "29501",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "22030",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "22314",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "23219",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "23451",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "23510",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "24011",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "22901",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "24501",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "22401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "22601",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "28202",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "28025",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "27601",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "27701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "27401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "27101",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "28801",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "28401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "28301",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "28601",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "02903",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "02891",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "05401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "05701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "05201",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "05301",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "05819",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "03101",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "03060",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "03079",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "03301",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "03801",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "02116",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "01608",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "01103",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "01852",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "02740",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "02601",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "01201",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "90012",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "90802",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "92805",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "92602",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "92101",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "91910",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "95113",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "94102",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "94612",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "95814",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "93721",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "93301",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "92501",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "92401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "95202",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "95350",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "95401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "93101",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "92262",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "96001",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "19102",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "15222",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "18101",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "17101",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "17603",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "19601",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "17401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "18503",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "16501",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "16601",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "73102",
+          "status": 0,
+          "ok": false,
+          "error": "page.goto: Timeout 20000ms exceeded.\nCall log:\n  - navigating to \"https://www.kia.com/us/en/find-a-dealer/result?zipCode=73102\", waiting until \"load\"\n"
+        },
+        {
+          "zip": "74103",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "73069",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "73501",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "73701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "73401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "60602",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "60540",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "61101",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "61602",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "62701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "61820",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "61701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "62301",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "62901",
+          "status": 200,
+          "ok": true
+        }
+      ],
+      "blocked": false
+    },
+    {
+      "brand": "nissan",
+      "dest": "dealers/oem-dumps/nissan.json",
+      "count": 0,
+      "locator": "https://www.nissanusa.com/dealer-locator.html",
+      "note": "Official locator blocked or empty from this IP. Do not bypass. Re-run on Lightsail.",
+      "pages": [
+        {
+          "url": "https://www.nissanusa.com/dealer-locator.html",
+          "status": 200,
+          "ok": true,
+          "error": null
+        }
+      ],
+      "blocked": false
+    },
+    {
+      "brand": "infiniti",
+      "dest": "dealers/oem-dumps/infiniti.json",
+      "count": 0,
+      "locator": "https://www.infinitiusa.com/locate-infiniti-retailer.html",
+      "note": "Official locator blocked or empty from this IP. Do not bypass. Re-run on Lightsail.",
+      "pages": [
+        {
+          "url": "https://www.infinitiusa.com/locate-infiniti-retailer.html",
+          "status": 200,
+          "ok": true,
+          "error": null
+        }
+      ],
+      "blocked": false
+    },
+    {
+      "brand": "subaru",
+      "dest": "dealers/oem-dumps/subaru.json",
+      "count": 373,
+      "locator": "https://www.subaru.com/find-a-retailer.html",
+      "note": "Official Subaru dealer-distance JSON API (services/dealers/distances/by/zipcode), found via network capture; plain fetch, no browser needed.",
+      "pages": [
+        {
+          "zip": "07004",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "07024",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "07030",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "07052",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "07701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "07739",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "07860",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "08034",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "08096",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "08234",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "08648",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "08807",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "08902",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "10001",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "10301",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "10451",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "10940",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "11201",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "11501",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "11743",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "12205",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "12601",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "13212",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "13501",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "13901",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "14221",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "14623",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "14850",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "32501",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "32401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "32301",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "32202",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "32601",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "32114",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "34470",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "32801",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "32901",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "33602",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "33755",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "33801",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "34236",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "33901",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "34102",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "34952",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "33401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "33301",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "33101",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "33040",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "30303",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "30060",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "30161",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "30720",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "30501",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "30601",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "30901",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "31021",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "31201",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "31088",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "31901",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "31701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "31601",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "30458",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "31520",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "31401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "75201",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "76102",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "75074",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "77002",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "77380",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "77478",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "78701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "78205",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "79901",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "79401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "79101",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "79701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "79601",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "76301",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "76701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "75701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "77701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "78401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "78501",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "78040",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "29401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "29201",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "29601",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "29302",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "29577",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "29926",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "29730",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "29501",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "22030",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "22314",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "23219",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "23451",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "23510",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "24011",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "22901",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "24501",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "22401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "22601",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "28202",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "28025",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "27601",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "27701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "27401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "27101",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "28801",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "28401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "28301",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "28601",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "02903",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "02891",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "05401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "05701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "05201",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "05301",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "05819",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "03101",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "03060",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "03079",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "03301",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "03801",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "02116",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "01608",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "01103",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "01852",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "02740",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "02601",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "01201",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "90012",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "90802",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "92805",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "92602",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "92101",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "91910",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "95113",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "94102",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "94612",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "95814",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "93721",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "93301",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "92501",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "92401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "95202",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "95350",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "95401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "93101",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "92262",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "96001",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "19102",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "15222",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "18101",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "17101",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "17603",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "19601",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "17401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "18503",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "16501",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "16601",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "73102",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "74103",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "73069",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "73501",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "73701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "73401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "60602",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "60540",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "61101",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "61602",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "62701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "61820",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "61701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "62301",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "62901",
+          "status": 200,
+          "ok": true
+        }
+      ],
+      "blocked": false
+    },
+    {
+      "brand": "mazda",
+      "dest": "dealers/oem-dumps/mazda.json",
+      "count": 296,
+      "locator": "https://www.mazdausa.com/find-a-dealer",
+      "note": "Official Mazda dealer.ajax handler (zip + maxDistance=50, plain GET).",
+      "pages": [
+        {
+          "zip": "07004",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "07024",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "07030",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "07052",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "07701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "07739",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "07860",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "08034",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "08096",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "08234",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "08648",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "08807",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "08902",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "10001",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "10301",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "10451",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "10940",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "11201",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "11501",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "11743",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "12205",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "12601",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "13212",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "13501",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "13901",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "14221",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "14623",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "14850",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "32501",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "32401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "32301",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "32202",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "32601",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "32114",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "34470",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "32801",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "32901",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "33602",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "33755",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "33801",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "34236",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "33901",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "34102",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "34952",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "33401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "33301",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "33101",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "33040",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "30303",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "30060",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "30161",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "30720",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "30501",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "30601",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "30901",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "31021",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "31201",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "31088",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "31901",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "31701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "31601",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "30458",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "31520",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "31401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "75201",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "76102",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "75074",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "77002",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "77380",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "77478",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "78701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "78205",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "79901",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "79401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "79101",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "79701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "79601",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "76301",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "76701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "75701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "77701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "78401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "78501",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "78040",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "29401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "29201",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "29601",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "29302",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "29577",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "29926",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "29730",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "29501",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "22030",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "22314",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "23219",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "23451",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "23510",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "24011",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "22901",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "24501",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "22401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "22601",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "28202",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "28025",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "27601",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "27701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "27401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "27101",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "28801",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "28401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "28301",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "28601",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "02903",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "02891",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "05401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "05701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "05201",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "05301",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "05819",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "03101",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "03060",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "03079",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "03301",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "03801",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "02116",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "01608",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "01103",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "01852",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "02740",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "02601",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "01201",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "90012",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "90802",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "92805",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "92602",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "92101",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "91910",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "95113",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "94102",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "94612",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "95814",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "93721",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "93301",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "92501",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "92401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "95202",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "95350",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "95401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "93101",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "92262",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "96001",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "19102",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "15222",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "18101",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "17101",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "17603",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "19601",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "17401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "18503",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "16501",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "16601",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "73102",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "74103",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "73069",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "73501",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "73701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "73401",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "60602",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "60540",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "61101",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "61602",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "62701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "61820",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "61701",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "62301",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "zip": "62901",
+          "status": 200,
+          "ok": true
+        }
+      ],
+      "blocked": false
+    },
+    {
+      "brand": "volkswagen",
+      "dest": "dealers/oem-dumps/volkswagen.json",
+      "count": 360,
+      "locator": "https://www.vw.com/en/dealer-search.html",
+      "note": "Official VW bff-search/dealers feature-app API (nationwide, filtered client-side to NJ/NY/FL/GA/TX/SC/VA/NC/RI/VT/NH/MA/CA/PA/OK/IL).",
+      "httpStatus": 200,
+      "blocked": false,
+      "nationwideCount": 955
+    },
+    {
+      "brand": "audi",
+      "dest": "dealers/oem-dumps/audi.json",
+      "count": 0,
+      "locator": "https://www.audiusa.com/us/web/en/dealer-locator.html",
+      "note": "Official locator blocked or empty from this IP. Do not bypass. Re-run on Lightsail.",
+      "pages": [
+        {
+          "url": "https://www.audiusa.com/us/web/en/dealer-locator.html",
+          "status": 403,
+          "ok": false,
+          "error": null
+        }
+      ],
+      "blocked": true
+    },
+    {
+      "brand": "volvo",
+      "dest": "dealers/oem-dumps/volvo.json",
+      "count": 0,
+      "locator": "https://www.volvocars.com/us/dealers/",
+      "note": "Official locator blocked or empty from this IP. Do not bypass. Re-run on Lightsail.",
+      "pages": [
+        {
+          "url": "https://www.volvocars.com/us/dealers/",
+          "status": 403,
+          "ok": false,
+          "error": null
+        },
+        {
+          "url": "https://www.volvocars.com/us/api/dealers",
+          "status": 403,
+          "ok": false,
+          "error": null
+        }
+      ],
+      "blocked": true
+    }
+  ]
+}

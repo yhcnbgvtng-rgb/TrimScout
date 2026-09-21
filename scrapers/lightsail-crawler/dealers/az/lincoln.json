@@ -1,0 +1,93 @@
+[
+  {
+    "id": "lincoln-alexander-lincoln",
+    "name": "Alexander Lincoln",
+    "city": "Yuma",
+    "state": "AZ",
+    "make": "Lincoln",
+    "domain": "billalexanderlincoln.com",
+    "sitemapUrl": "https://www.billalexanderlincoln.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.billalexanderlincoln.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://billalexanderlincoln.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "lincoln-camelback-lincoln",
+    "name": "Camelback Lincoln",
+    "city": "Phoenix",
+    "state": "AZ",
+    "make": "Lincoln",
+    "domain": "camelback-lincoln.com",
+    "sitemapUrl": "https://www.camelback-lincoln.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.camelback-lincoln.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://camelback-lincoln.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "lincoln-fiesta-lincoln",
+    "name": "Fiesta Lincoln",
+    "city": "Mesa",
+    "state": "AZ",
+    "make": "Lincoln",
+    "domain": "fiestalincolnofmesa.com",
+    "sitemapUrl": "https://www.fiestalincolnofmesa.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.fiestalincolnofmesa.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://fiestalincolnofmesa.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "lincoln-galpin-lincoln-prescott",
+    "name": "Galpin Lincoln – Prescott",
+    "city": "Prescott",
+    "state": "AZ",
+    "make": "Lincoln",
+    "domain": "galpinlincolnofprescott.com",
+    "sitemapUrl": "https://www.galpinlincolnofprescott.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.galpinlincolnofprescott.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://galpinlincolnofprescott.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "lincoln-holmes-tuttle-lincoln",
+    "name": "Holmes Tuttle Lincoln",
+    "city": "Tucson",
+    "state": "AZ",
+    "make": "Lincoln",
+    "domain": "holmestuttlelincoln.com",
+    "sitemapUrl": "https://www.holmestuttlelincoln.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.holmestuttlelincoln.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://holmestuttlelincoln.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "lincoln-sanderson-lincoln-phoenix",
+    "name": "Sanderson Lincoln – Phoenix",
+    "city": "Phoenix",
+    "state": "AZ",
+    "make": "Lincoln",
+    "domain": "sandersonlincoln.net",
+    "sitemapUrl": "https://www.sandersonlincoln.net/sitemap.xml",
+    "inventorySitemapUrl": "https://www.sandersonlincoln.net/sitemap-inventory.xml",
+    "fallbackUrl": "https://sandersonlincoln.net/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "lincoln-sanderson-lincoln-scottsdale",
+    "name": "Sanderson Lincoln – Scottsdale",
+    "city": "Scottsdale",
+    "state": "AZ",
+    "make": "Lincoln",
+    "domain": "sandersonlincoln.net",
+    "sitemapUrl": "https://www.sandersonlincoln.net/sitemap.xml",
+    "inventorySitemapUrl": "https://www.sandersonlincoln.net/sitemap-inventory.xml",
+    "fallbackUrl": "https://sandersonlincoln.net/",
+    "lat": null,
+    "lng": null
+  }
+]

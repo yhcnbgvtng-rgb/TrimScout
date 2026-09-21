@@ -1,0 +1,54 @@
+[
+  {
+    "id": "cadillac-grand-island-chevrolet-gmc",
+    "name": "GRAND ISLAND CHEVROLET GMC",
+    "city": "GRAND ISLAND",
+    "state": "NE",
+    "make": "Cadillac",
+    "domain": "gicadillac.com",
+    "sitemapUrl": "https://www.gicadillac.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.gicadillac.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://gicadillac.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "cadillac-husker-cadillac",
+    "name": "HUSKER CADILLAC",
+    "city": "Lincoln",
+    "state": "NE",
+    "make": "Cadillac",
+    "domain": "huskercadillac.com",
+    "sitemapUrl": "https://www.huskercadillac.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.huskercadillac.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://huskercadillac.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "cadillac-sid-dillon-cadillac-fremont",
+    "name": "SID DILLON CADILLAC-FREMONT",
+    "city": "Fremont",
+    "state": "NE",
+    "make": "Cadillac",
+    "domain": "siddilloncadillac.com",
+    "sitemapUrl": "https://www.siddilloncadillac.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.siddilloncadillac.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://siddilloncadillac.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "cadillac-woodhouse-cadillac",
+    "name": "WOODHOUSE CADILLAC",
+    "city": "Omaha",
+    "state": "NE",
+    "make": "Cadillac",
+    "domain": "woodhousecadillac.com",
+    "sitemapUrl": "https://www.woodhousecadillac.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.woodhousecadillac.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://woodhousecadillac.com/",
+    "lat": null,
+    "lng": null
+  }
+]

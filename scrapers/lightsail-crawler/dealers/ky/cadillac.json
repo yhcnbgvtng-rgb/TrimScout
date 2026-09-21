@@ -1,0 +1,67 @@
+[
+  {
+    "id": "cadillac-courtesy-cadillac-louisville",
+    "name": "COURTESY CADILLAC – Louisville",
+    "city": "Louisville",
+    "state": "KY",
+    "make": "Cadillac",
+    "domain": "courtesycadillac.net",
+    "sitemapUrl": "https://www.courtesycadillac.net/sitemap.xml",
+    "inventorySitemapUrl": "https://www.courtesycadillac.net/sitemap-inventory.xml",
+    "fallbackUrl": "https://courtesycadillac.net/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "cadillac-don-franklin-glasgow-chevrolet",
+    "name": "DON FRANKLIN GLASGOW CHEVROLET",
+    "city": "Glasgow",
+    "state": "KY",
+    "make": "Cadillac",
+    "domain": "donfranklinglasgow.com",
+    "sitemapUrl": "https://www.donfranklinglasgow.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.donfranklinglasgow.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://donfranklinglasgow.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "cadillac-joseph-cadillac",
+    "name": "JOSEPH CADILLAC",
+    "city": "Florence",
+    "state": "KY",
+    "make": "Cadillac",
+    "domain": "josephcadillac.com",
+    "sitemapUrl": "https://www.josephcadillac.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.josephcadillac.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://josephcadillac.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "cadillac-leachman-cadillac",
+    "name": "LEACHMAN CADILLAC",
+    "city": "Bowling Green",
+    "state": "KY",
+    "make": "Cadillac",
+    "domain": "leachmancadillac.com",
+    "sitemapUrl": "https://www.leachmancadillac.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.leachmancadillac.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://leachmancadillac.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "cadillac-quantrell-cadillac-inc",
+    "name": "QUANTRELL CADILLAC, INC.",
+    "city": "Lexington",
+    "state": "KY",
+    "make": "Cadillac",
+    "domain": "quantrellcadillac.com",
+    "sitemapUrl": "https://www.quantrellcadillac.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.quantrellcadillac.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://quantrellcadillac.com/",
+    "lat": null,
+    "lng": null
+  }
+]

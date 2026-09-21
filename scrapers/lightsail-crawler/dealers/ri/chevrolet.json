@@ -1,0 +1,67 @@
+[
+  {
+    "id": "chevrolet-balise-chevrolet-of-warwick",
+    "name": "Balise Chevrolet of Warwick",
+    "city": "Warwick",
+    "state": "RI",
+    "make": "Chevrolet",
+    "domain": "balisechevroletri.com",
+    "sitemapUrl": "https://www.balisechevroletri.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.balisechevroletri.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://balisechevroletri.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "chevrolet-hurd-auto-mall",
+    "name": "Hurd Auto Mall",
+    "city": "Johnston",
+    "state": "RI",
+    "make": "Chevrolet",
+    "domain": "hurdchevrolet.com",
+    "sitemapUrl": "https://www.hurdchevrolet.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.hurdchevrolet.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://hurdchevrolet.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "chevrolet-paul-masse-chevrolet-south-inc",
+    "name": "Paul Masse Chevrolet South, INC.",
+    "city": "Wakefield",
+    "state": "RI",
+    "make": "Chevrolet",
+    "domain": "paulmassewakefield.com",
+    "sitemapUrl": "https://www.paulmassewakefield.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.paulmassewakefield.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://paulmassewakefield.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "chevrolet-paul-masse-chevrolet-inc",
+    "name": "Paul Masse Chevrolet, INC.",
+    "city": "East Providence",
+    "state": "RI",
+    "make": "Chevrolet",
+    "domain": "paulmasseeastprovidence.com",
+    "sitemapUrl": "https://www.paulmasseeastprovidence.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.paulmasseeastprovidence.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://paulmasseeastprovidence.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "chevrolet-tasca-chevrolet",
+    "name": "Tasca Chevrolet",
+    "city": "Woonsocket",
+    "state": "RI",
+    "make": "Chevrolet",
+    "domain": "tascachevy.com",
+    "sitemapUrl": "https://www.tascachevy.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.tascachevy.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://tascachevy.com/",
+    "lat": null,
+    "lng": null
+  }
+]

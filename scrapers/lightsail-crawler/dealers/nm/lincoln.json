@@ -1,0 +1,28 @@
+[
+  {
+    "id": "lincoln-corley-s-albuquerque-lincoln",
+    "name": "Corley's Albuquerque Lincoln",
+    "city": "Albuquerque",
+    "state": "NM",
+    "make": "Lincoln",
+    "domain": "corleynewmexico.com",
+    "sitemapUrl": "https://www.corleynewmexico.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.corleynewmexico.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://corleynewmexico.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "lincoln-ziems-ford-corners-inc",
+    "name": "Ziems Ford Corners, Inc.",
+    "city": "Farmington",
+    "state": "NM",
+    "make": "Lincoln",
+    "domain": "ziemscornerslincoln.com",
+    "sitemapUrl": "https://www.ziemscornerslincoln.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.ziemscornerslincoln.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://ziemscornerslincoln.com/",
+    "lat": null,
+    "lng": null
+  }
+]

@@ -1,0 +1,58 @@
+[
+  {
+    "id": "lexus-hendrick-lexus-charleston",
+    "name": "Hendrick Lexus Charleston",
+    "city": "Charleston",
+    "state": "SC",
+    "make": "Lexus",
+    "domain": "hendricklexuscharleston.com",
+    "sitemapUrl": "https://www.hendricklexuscharleston.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.hendricklexuscharleston.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://hendricklexuscharleston.com/",
+    "lat": 32.793182,
+    "lng": -80.047104,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "lexus-hilton-head-lexus",
+    "name": "Hilton Head Lexus",
+    "city": "Hardeeville",
+    "state": "SC",
+    "make": "Lexus",
+    "domain": "hiltonheadlexus.com",
+    "sitemapUrl": "https://www.hiltonheadlexus.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.hiltonheadlexus.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://hiltonheadlexus.com/",
+    "lat": 32.306705,
+    "lng": -80.972984,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "lexus-jim-hudson-lexus-columbia",
+    "name": "Jim Hudson Lexus, Columbia",
+    "city": "Columbia",
+    "state": "SC",
+    "make": "Lexus",
+    "domain": "hudsonlexus.com",
+    "sitemapUrl": "https://www.hudsonlexus.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.hudsonlexus.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://hudsonlexus.com/",
+    "lat": 34.133896,
+    "lng": -80.965515,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "lexus-lexus-of-greenville",
+    "name": "Lexus of Greenville",
+    "city": "Greenville",
+    "state": "SC",
+    "make": "Lexus",
+    "domain": "lexusofgreenville.com",
+    "sitemapUrl": "https://www.lexusofgreenville.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.lexusofgreenville.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://lexusofgreenville.com/",
+    "lat": 34.8114,
+    "lng": -82.33448,
+    "domainSource": "oem-locator"
+  }
+]

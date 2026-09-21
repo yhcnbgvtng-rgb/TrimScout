@@ -1,0 +1,30 @@
+[
+  {
+    "id": "mini-mini-of-peabody",
+    "name": "MINI of Peabody",
+    "city": "Peabody",
+    "state": "MA",
+    "make": "Mini",
+    "domain": "minipeabody.com",
+    "sitemapUrl": "https://www.minipeabody.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.minipeabody.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://minipeabody.com/",
+    "lat": null,
+    "lng": null,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "mini-mini-of-rockland",
+    "name": "MINI of Rockland",
+    "city": "Rockland",
+    "state": "MA",
+    "make": "Mini",
+    "domain": "miniofrockland.com",
+    "sitemapUrl": "https://www.miniofrockland.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.miniofrockland.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://miniofrockland.com/",
+    "lat": null,
+    "lng": null,
+    "domainSource": "oem-locator"
+  }
+]

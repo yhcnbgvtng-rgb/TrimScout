@@ -1,0 +1,54 @@
+[
+  {
+    "id": "buick-buick-gmc-of-beaverton",
+    "name": "BUICK GMC OF BEAVERTON",
+    "city": "PORTLAND",
+    "state": "OR",
+    "make": "Buick",
+    "domain": "beavertongmc.com",
+    "sitemapUrl": "https://www.beavertongmc.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.beavertongmc.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://beavertongmc.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "buick-power-buick-gmc-of-salem",
+    "name": "POWER BUICK GMC OF SALEM",
+    "city": "SALEM",
+    "state": "OR",
+    "make": "Buick",
+    "domain": "buyatpower.com",
+    "sitemapUrl": "https://www.buyatpower.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.buyatpower.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://buyatpower.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "buick-royal-moore-buick-gmc",
+    "name": "ROYAL MOORE BUICK-GMC",
+    "city": "Hillsboro",
+    "state": "OR",
+    "make": "Buick",
+    "domain": "royalmooregmc.com",
+    "sitemapUrl": "https://www.royalmooregmc.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.royalmooregmc.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://royalmooregmc.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "buick-weston-buick-gmc-inc",
+    "name": "WESTON BUICK GMC, INC.",
+    "city": "Gresham",
+    "state": "OR",
+    "make": "Buick",
+    "domain": "westonbuickgmc.com",
+    "sitemapUrl": "https://www.westonbuickgmc.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.westonbuickgmc.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://westonbuickgmc.com/",
+    "lat": null,
+    "lng": null
+  }
+]

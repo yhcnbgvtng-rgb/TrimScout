@@ -1,0 +1,41 @@
+[
+  {
+    "id": "ford-flood-ford-of-east-greenwich",
+    "name": "Flood Ford of East Greenwich",
+    "city": "East Greenwich",
+    "state": "RI",
+    "make": "Ford",
+    "domain": "floodauto.net",
+    "sitemapUrl": "https://www.floodauto.net/sitemap.xml",
+    "inventorySitemapUrl": "https://www.floodauto.net/sitemap-inventory.xml",
+    "fallbackUrl": "https://floodauto.net/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "ford-flood-ford-of-narragansett",
+    "name": "Flood Ford of Narragansett",
+    "city": "Narragansett",
+    "state": "RI",
+    "make": "Ford",
+    "domain": "floodford.net",
+    "sitemapUrl": "https://www.floodford.net/sitemap.xml",
+    "inventorySitemapUrl": "https://www.floodford.net/sitemap-inventory.xml",
+    "fallbackUrl": "https://floodford.net/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "ford-tasca-ford-cranston-ri",
+    "name": "Tasca Ford (Cranston, RI)",
+    "city": "Cranston",
+    "state": "RI",
+    "make": "Ford",
+    "domain": "tascaford.net",
+    "sitemapUrl": "https://www.tascaford.net/sitemap.xml",
+    "inventorySitemapUrl": "https://www.tascaford.net/sitemap-inventory.xml",
+    "fallbackUrl": "https://tascaford.net/",
+    "lat": null,
+    "lng": null
+  }
+]

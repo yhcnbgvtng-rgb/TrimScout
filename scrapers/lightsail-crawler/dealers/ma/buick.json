@@ -1,0 +1,93 @@
+[
+  {
+    "id": "buick-albrecht-buick-gmc-of-wakefield-inc",
+    "name": "ALBRECHT BUICK GMC OF WAKEFIELD, INC.",
+    "city": "Wakefield",
+    "state": "MA",
+    "make": "Buick",
+    "domain": "albrechtbuickgmcwakefield.com",
+    "sitemapUrl": "https://www.albrechtbuickgmcwakefield.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.albrechtbuickgmcwakefield.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://albrechtbuickgmcwakefield.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "buick-battles-buick-gmc",
+    "name": "BATTLES BUICK GMC",
+    "city": "Bourne",
+    "state": "MA",
+    "make": "Buick",
+    "domain": "battlescapecod.com",
+    "sitemapUrl": "https://www.battlescapecod.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.battlescapecod.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://battlescapecod.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "buick-bob-pion-buick-gmc-inc",
+    "name": "BOB PION BUICK-GMC, INC.",
+    "city": "Chicopee",
+    "state": "MA",
+    "make": "Buick",
+    "domain": "bobpionbuickgmc.com",
+    "sitemapUrl": "https://www.bobpionbuickgmc.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.bobpionbuickgmc.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://bobpionbuickgmc.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "buick-chevrolet-buick-gmc-of-attleboro",
+    "name": "CHEVROLET BUICK GMC OF ATTLEBORO",
+    "city": "South Attleboro",
+    "state": "MA",
+    "make": "Buick",
+    "domain": "attleborobuickgmc.com",
+    "sitemapUrl": "https://www.attleborobuickgmc.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.attleborobuickgmc.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://attleborobuickgmc.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "buick-greater-lowell-buick-gmc-inc",
+    "name": "GREATER LOWELL BUICK GMC INC",
+    "city": "Lowell",
+    "state": "MA",
+    "make": "Buick",
+    "domain": "greaterlowell.net",
+    "sitemapUrl": "https://www.greaterlowell.net/sitemap.xml",
+    "inventorySitemapUrl": "https://www.greaterlowell.net/sitemap-inventory.xml",
+    "fallbackUrl": "https://greaterlowell.net/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "buick-quirk-buick-gmc-of-braintree",
+    "name": "QUIRK BUICK GMC OF BRAINTREE",
+    "city": "Braintree",
+    "state": "MA",
+    "make": "Buick",
+    "domain": "quirkbuickgmcofbraintree.com",
+    "sitemapUrl": "https://www.quirkbuickgmcofbraintree.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.quirkbuickgmcofbraintree.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://quirkbuickgmcofbraintree.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "buick-vendetti-motors-inc",
+    "name": "VENDETTI MOTORS, INC.",
+    "city": "Franklin",
+    "state": "MA",
+    "make": "Buick",
+    "domain": "vendettimotors.com",
+    "sitemapUrl": "https://www.vendettimotors.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.vendettimotors.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://vendettimotors.com/",
+    "lat": null,
+    "lng": null
+  }
+]

@@ -1,0 +1,58 @@
+[
+  {
+    "id": "mini-mini-of-edison",
+    "name": "MINI of Edison",
+    "city": "Edison",
+    "state": "NJ",
+    "make": "Mini",
+    "domain": "miniofedison.com",
+    "sitemapUrl": "https://www.miniofedison.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.miniofedison.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://miniofedison.com/",
+    "lat": null,
+    "lng": null,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "mini-mini-of-morristown",
+    "name": "MINI of Morristown",
+    "city": "Morristown",
+    "state": "NJ",
+    "make": "Mini",
+    "domain": "morristownmini.com",
+    "sitemapUrl": "https://www.morristownmini.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.morristownmini.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://morristownmini.com/",
+    "lat": null,
+    "lng": null,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "mini-mini-of-mt-laurel",
+    "name": "MINI of Mt. Laurel",
+    "city": "Mount Laurel",
+    "state": "NJ",
+    "make": "Mini",
+    "domain": "miniofmtlaurel.com",
+    "sitemapUrl": "https://www.miniofmtlaurel.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.miniofmtlaurel.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://miniofmtlaurel.com/",
+    "lat": null,
+    "lng": null,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "mini-mini-of-ramsey",
+    "name": "MINI of Ramsey",
+    "city": "Ramsey",
+    "state": "NJ",
+    "make": "Mini",
+    "domain": "miniramsey.com",
+    "sitemapUrl": "https://www.miniramsey.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.miniramsey.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://miniramsey.com/",
+    "lat": null,
+    "lng": null,
+    "domainSource": "oem-locator"
+  }
+]

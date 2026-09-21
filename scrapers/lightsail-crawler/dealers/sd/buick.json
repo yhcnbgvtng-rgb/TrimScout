@@ -1,0 +1,93 @@
+[
+  {
+    "id": "buick-billion-buick-gmc",
+    "name": "BILLION BUICK GMC",
+    "city": "Sioux Falls",
+    "state": "SD",
+    "make": "Buick",
+    "domain": "gmcsiouxfalls.com",
+    "sitemapUrl": "https://www.gmcsiouxfalls.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.gmcsiouxfalls.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://gmcsiouxfalls.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "buick-brookings-auto-mall",
+    "name": "BROOKINGS AUTO MALL",
+    "city": "Brookings",
+    "state": "SD",
+    "make": "Buick",
+    "domain": "brookingsbuickgmc.com",
+    "sitemapUrl": "https://www.brookingsbuickgmc.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.brookingsbuickgmc.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://brookingsbuickgmc.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "buick-granite-buick",
+    "name": "GRANITE BUICK",
+    "city": "Rapid City",
+    "state": "SD",
+    "make": "Buick",
+    "domain": "granitebuickgmc.com",
+    "sitemapUrl": "https://www.granitebuickgmc.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.granitebuickgmc.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://granitebuickgmc.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "buick-northtown-automotive",
+    "name": "NORTHTOWN AUTOMOTIVE",
+    "city": "YANKTON",
+    "state": "SD",
+    "make": "Buick",
+    "domain": "northtowncars.com",
+    "sitemapUrl": "https://www.northtowncars.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.northtowncars.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://northtowncars.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "buick-olympic-chevrolet-buick-gmc",
+    "name": "OLYMPIC CHEVROLET BUICK GMC",
+    "city": "Huron",
+    "state": "SD",
+    "make": "Buick",
+    "domain": "olympicgmc.com",
+    "sitemapUrl": "https://www.olympicgmc.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.olympicgmc.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://olympicgmc.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "buick-prostrollo-motor-company",
+    "name": "PROSTROLLO MOTOR COMPANY",
+    "city": "Madison",
+    "state": "SD",
+    "make": "Buick",
+    "domain": "prostrollogm.com",
+    "sitemapUrl": "https://www.prostrollogm.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.prostrollogm.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://prostrollogm.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "buick-wegner-auto-company-inc",
+    "name": "WEGNER AUTO COMPANY, INC.",
+    "city": "PIERRE",
+    "state": "SD",
+    "make": "Buick",
+    "domain": "wegnerautobuickgmc.com",
+    "sitemapUrl": "https://www.wegnerautobuickgmc.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.wegnerautobuickgmc.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://wegnerautobuickgmc.com/",
+    "lat": null,
+    "lng": null
+  }
+]

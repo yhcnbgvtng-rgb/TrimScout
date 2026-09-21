@@ -1,0 +1,54 @@
+[
+  {
+    "id": "cadillac-beck-motors-inc",
+    "name": "BECK MOTORS, INC.",
+    "city": "Pierre",
+    "state": "SD",
+    "make": "Cadillac",
+    "domain": "beck-cadillac.com",
+    "sitemapUrl": "https://www.beck-cadillac.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.beck-cadillac.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://beck-cadillac.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "cadillac-cadillac-of-sioux-falls",
+    "name": "CADILLAC OF SIOUX FALLS",
+    "city": "Sioux Falls",
+    "state": "SD",
+    "make": "Cadillac",
+    "domain": "cadillacofsiouxfalls.com",
+    "sitemapUrl": "https://www.cadillacofsiouxfalls.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.cadillacofsiouxfalls.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://cadillacofsiouxfalls.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "cadillac-denny-menholt-rapid-cadillac",
+    "name": "DENNY MENHOLT RAPID CADILLAC",
+    "city": "Rapid City",
+    "state": "SD",
+    "make": "Cadillac",
+    "domain": "rapidcadillac.com",
+    "sitemapUrl": "https://www.rapidcadillac.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.rapidcadillac.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://rapidcadillac.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "cadillac-spearfish-motors-inc",
+    "name": "SPEARFISH MOTORS, INC.",
+    "city": "Spearfish",
+    "state": "SD",
+    "make": "Cadillac",
+    "domain": "spearfishcadillac.com",
+    "sitemapUrl": "https://www.spearfishcadillac.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.spearfishcadillac.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://spearfishcadillac.com/",
+    "lat": null,
+    "lng": null
+  }
+]

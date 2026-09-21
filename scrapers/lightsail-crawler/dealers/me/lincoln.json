@@ -1,0 +1,15 @@
+[
+  {
+    "id": "lincoln-rowe-lincoln",
+    "name": "Rowe Lincoln",
+    "city": "Westbrook",
+    "state": "ME",
+    "make": "Lincoln",
+    "domain": "rowelincolnofwestbrook.com",
+    "sitemapUrl": "https://www.rowelincolnofwestbrook.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.rowelincolnofwestbrook.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://rowelincolnofwestbrook.com/",
+    "lat": null,
+    "lng": null
+  }
+]

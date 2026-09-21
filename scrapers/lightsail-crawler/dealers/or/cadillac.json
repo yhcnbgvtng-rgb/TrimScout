@@ -1,0 +1,54 @@
+[
+  {
+    "id": "cadillac-airport-cadillac",
+    "name": "AIRPORT CADILLAC",
+    "city": "Medford",
+    "state": "OR",
+    "make": "Cadillac",
+    "domain": "cadillacofmedford.com",
+    "sitemapUrl": "https://www.cadillacofmedford.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.cadillacofmedford.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://cadillacofmedford.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "cadillac-cadillac-of-portland",
+    "name": "CADILLAC OF PORTLAND",
+    "city": "portland",
+    "state": "OR",
+    "make": "Cadillac",
+    "domain": "cadillacportland.com",
+    "sitemapUrl": "https://www.cadillacportland.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.cadillacportland.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://cadillacportland.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "cadillac-capitol-cadillac-of-salem",
+    "name": "CAPITOL CADILLAC OF SALEM",
+    "city": "Salem",
+    "state": "OR",
+    "make": "Cadillac",
+    "domain": "cap-cadillac.com",
+    "sitemapUrl": "https://www.cap-cadillac.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.cap-cadillac.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://cap-cadillac.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "cadillac-kendall-cadillac-eugene",
+    "name": "KENDALL CADILLAC – EUGENE",
+    "city": "EUGENE",
+    "state": "OR",
+    "make": "Cadillac",
+    "domain": "kendallcadillacofeugene.com",
+    "sitemapUrl": "https://www.kendallcadillacofeugene.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.kendallcadillacofeugene.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://kendallcadillacofeugene.com/",
+    "lat": null,
+    "lng": null
+  }
+]

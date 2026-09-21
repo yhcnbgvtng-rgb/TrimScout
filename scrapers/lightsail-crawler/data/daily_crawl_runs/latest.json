@@ -1,0 +1,1471 @@
+{
+  "date": "2026-09-15",
+  "startedAt": "2026-09-16T01:00:50.732Z",
+  "maxConcurrentStates": 2,
+  "logRetention": {
+    "days": 30,
+    "removed": 0,
+    "checked": 100
+  },
+  "states": {
+    "NJ": {
+      "state": "NJ",
+      "startedAt": "2026-09-16T01:00:50.744Z",
+      "finishedAt": "2026-09-16T02:03:52.158Z",
+      "durationMs": 3781414,
+      "writeDealers": {
+        "cmd": "node scripts/write-nj-dealer-files.mjs",
+        "startedAt": "2026-09-16T01:00:50.744Z",
+        "endedAt": "2026-09-16T01:00:52.045Z",
+        "durationMs": 1301,
+        "exitCode": 0,
+        "signal": null,
+        "timedOut": false,
+        "logFile": "/home/ubuntu/nj-scraper/scrapers/lightsail-crawler/logs/nj-write-dealers-2026-09-15.log",
+        "status": "ok"
+      },
+      "botReport": {
+        "cmd": "node scripts/dealer-bot-report.mjs --state=NJ",
+        "startedAt": "2026-09-16T01:00:52.045Z",
+        "endedAt": "2026-09-16T01:01:22.265Z",
+        "durationMs": 30220,
+        "exitCode": 0,
+        "signal": null,
+        "timedOut": false,
+        "logFile": "/home/ubuntu/nj-scraper/scrapers/lightsail-crawler/logs/nj-bot-report-2026-09-15.log",
+        "status": "ok"
+      },
+      "readyBrands": [
+        "Acura",
+        "Audi",
+        "BMW",
+        "Kia",
+        "Lexus",
+        "Mazda",
+        "Mercedes-Benz",
+        "Mini",
+        "Mitsubishi",
+        "Porsche",
+        "Subaru",
+        "Toyota",
+        "Volkswagen",
+        "Volvo"
+      ],
+      "brands": {
+        "Toyota": {
+          "cmd": "node src/standalone.js",
+          "startedAt": "2026-09-16T01:01:22.268Z",
+          "endedAt": "2026-09-16T01:12:59.297Z",
+          "durationMs": 697029,
+          "exitCode": 0,
+          "signal": null,
+          "timedOut": false,
+          "logFile": "/home/ubuntu/nj-scraper/scrapers/lightsail-crawler/logs/nj-toyota-2026-09-15.log",
+          "status": "ok",
+          "dealerCount": 31,
+          "stats": {
+            "totalActiveInventory": 5738,
+            "totalNewArrivals": 114,
+            "totalPriceDrops": 3,
+            "totalPriceIncreases": 4,
+            "totalSoldOrRemoved": 157,
+            "skippedForBotProtection": 6
+          }
+        },
+        "Lexus": {
+          "cmd": "node src/standalone.js",
+          "startedAt": "2026-09-16T01:12:59.311Z",
+          "endedAt": "2026-09-16T01:14:35.779Z",
+          "durationMs": 96468,
+          "exitCode": 0,
+          "signal": null,
+          "timedOut": false,
+          "logFile": "/home/ubuntu/nj-scraper/scrapers/lightsail-crawler/logs/nj-lexus-2026-09-15.log",
+          "status": "ok",
+          "dealerCount": 11,
+          "stats": {
+            "totalActiveInventory": 415,
+            "totalNewArrivals": 0,
+            "totalPriceDrops": 0,
+            "totalPriceIncreases": 0,
+            "totalSoldOrRemoved": 1,
+            "skippedForBotProtection": 6
+          }
+        },
+        "Kia": {
+          "cmd": "node src/standalone.js",
+          "startedAt": "2026-09-16T01:14:35.792Z",
+          "endedAt": "2026-09-16T01:18:48.177Z",
+          "durationMs": 252385,
+          "exitCode": 0,
+          "signal": null,
+          "timedOut": false,
+          "logFile": "/home/ubuntu/nj-scraper/scrapers/lightsail-crawler/logs/nj-kia-2026-09-15.log",
+          "status": "ok",
+          "dealerCount": 8,
+          "stats": {
+            "totalActiveInventory": 968,
+            "totalNewArrivals": 1,
+            "totalPriceDrops": 0,
+            "totalPriceIncreases": 0,
+            "totalSoldOrRemoved": 14,
+            "skippedForBotProtection": 3
+          }
+        },
+        "Acura": {
+          "cmd": "node src/standalone.js",
+          "startedAt": "2026-09-16T01:18:48.194Z",
+          "endedAt": "2026-09-16T01:21:08.248Z",
+          "durationMs": 140054,
+          "exitCode": 0,
+          "signal": null,
+          "timedOut": false,
+          "logFile": "/home/ubuntu/nj-scraper/scrapers/lightsail-crawler/logs/nj-acura-2026-09-15.log",
+          "status": "ok",
+          "dealerCount": 12,
+          "stats": {
+            "totalActiveInventory": 121,
+            "totalNewArrivals": 0,
+            "totalPriceDrops": 0,
+            "totalPriceIncreases": 0,
+            "totalSoldOrRemoved": 1,
+            "skippedForBotProtection": 8
+          }
+        },
+        "Subaru": {
+          "cmd": "node src/standalone.js",
+          "startedAt": "2026-09-16T01:21:08.262Z",
+          "endedAt": "2026-09-16T01:31:25.386Z",
+          "durationMs": 617124,
+          "exitCode": 0,
+          "signal": null,
+          "timedOut": false,
+          "logFile": "/home/ubuntu/nj-scraper/scrapers/lightsail-crawler/logs/nj-subaru-2026-09-15.log",
+          "status": "ok",
+          "dealerCount": 26,
+          "stats": {
+            "totalActiveInventory": 3379,
+            "totalNewArrivals": 27,
+            "totalPriceDrops": 66,
+            "totalPriceIncreases": 1,
+            "totalSoldOrRemoved": 25,
+            "skippedForBotProtection": 4
+          }
+        },
+        "Mazda": {
+          "cmd": "node src/standalone.js",
+          "startedAt": "2026-09-16T01:31:25.398Z",
+          "endedAt": "2026-09-16T01:38:15.906Z",
+          "durationMs": 410508,
+          "exitCode": 0,
+          "signal": null,
+          "timedOut": false,
+          "logFile": "/home/ubuntu/nj-scraper/scrapers/lightsail-crawler/logs/nj-mazda-2026-09-15.log",
+          "status": "ok",
+          "dealerCount": 14,
+          "stats": {
+            "totalActiveInventory": 3454,
+            "totalNewArrivals": 0,
+            "totalPriceDrops": 13,
+            "totalPriceIncreases": 0,
+            "totalSoldOrRemoved": 55,
+            "skippedForBotProtection": 6
+          }
+        },
+        "Volkswagen": {
+          "cmd": "node src/standalone.js",
+          "startedAt": "2026-09-16T01:38:15.919Z",
+          "endedAt": "2026-09-16T01:46:13.547Z",
+          "durationMs": 477628,
+          "exitCode": 0,
+          "signal": null,
+          "timedOut": false,
+          "logFile": "/home/ubuntu/nj-scraper/scrapers/lightsail-crawler/logs/nj-volkswagen-2026-09-15.log",
+          "status": "ok",
+          "dealerCount": 25,
+          "stats": {
+            "totalActiveInventory": 2129,
+            "totalNewArrivals": 10,
+            "totalPriceDrops": 6,
+            "totalPriceIncreases": 0,
+            "totalSoldOrRemoved": 7,
+            "skippedForBotProtection": 7
+          }
+        },
+        "Audi": {
+          "cmd": "node src/standalone.js",
+          "startedAt": "2026-09-16T01:46:13.570Z",
+          "endedAt": "2026-09-16T01:47:37.735Z",
+          "durationMs": 84165,
+          "exitCode": 0,
+          "signal": null,
+          "timedOut": false,
+          "logFile": "/home/ubuntu/nj-scraper/scrapers/lightsail-crawler/logs/nj-audi-2026-09-15.log",
+          "status": "ok",
+          "dealerCount": 1,
+          "stats": {
+            "totalActiveInventory": 119,
+            "totalNewArrivals": 9,
+            "totalPriceDrops": 0,
+            "totalPriceIncreases": 0,
+            "totalSoldOrRemoved": 0,
+            "skippedForBotProtection": 0
+          }
+        },
+        "BMW": {
+          "cmd": "node src/standalone.js",
+          "startedAt": "2026-09-16T01:47:37.748Z",
+          "endedAt": "2026-09-16T01:51:30.287Z",
+          "durationMs": 232539,
+          "exitCode": 0,
+          "signal": null,
+          "timedOut": false,
+          "logFile": "/home/ubuntu/nj-scraper/scrapers/lightsail-crawler/logs/nj-bmw-2026-09-15.log",
+          "status": "ok",
+          "dealerCount": 4,
+          "stats": {
+            "totalActiveInventory": 1412,
+            "totalNewArrivals": 35,
+            "totalPriceDrops": 0,
+            "totalPriceIncreases": 1,
+            "totalSoldOrRemoved": 4,
+            "skippedForBotProtection": 0
+          }
+        },
+        "Mercedes-Benz": {
+          "cmd": "node src/standalone.js",
+          "startedAt": "2026-09-16T01:51:30.298Z",
+          "endedAt": "2026-09-16T01:55:22.143Z",
+          "durationMs": 231845,
+          "exitCode": 0,
+          "signal": null,
+          "timedOut": false,
+          "logFile": "/home/ubuntu/nj-scraper/scrapers/lightsail-crawler/logs/nj-mercedes-benz-2026-09-15.log",
+          "status": "ok",
+          "dealerCount": 13,
+          "stats": {
+            "totalActiveInventory": 809,
+            "totalNewArrivals": 0,
+            "totalPriceDrops": 0,
+            "totalPriceIncreases": 0,
+            "totalSoldOrRemoved": 3,
+            "skippedForBotProtection": 6
+          }
+        },
+        "Volvo": {
+          "cmd": "node src/standalone.js",
+          "startedAt": "2026-09-16T01:55:22.155Z",
+          "endedAt": "2026-09-16T01:57:07.292Z",
+          "durationMs": 105137,
+          "exitCode": 0,
+          "signal": null,
+          "timedOut": false,
+          "logFile": "/home/ubuntu/nj-scraper/scrapers/lightsail-crawler/logs/nj-volvo-2026-09-15.log",
+          "status": "ok",
+          "dealerCount": 1,
+          "stats": {
+            "totalActiveInventory": 346,
+            "totalNewArrivals": 1,
+            "totalPriceDrops": 0,
+            "totalPriceIncreases": 0,
+            "totalSoldOrRemoved": 1,
+            "skippedForBotProtection": 0
+          }
+        },
+        "Porsche": {
+          "cmd": "node src/standalone.js",
+          "startedAt": "2026-09-16T01:57:07.305Z",
+          "endedAt": "2026-09-16T01:59:23.954Z",
+          "durationMs": 136649,
+          "exitCode": 0,
+          "signal": null,
+          "timedOut": false,
+          "logFile": "/home/ubuntu/nj-scraper/scrapers/lightsail-crawler/logs/nj-porsche-2026-09-15.log",
+          "status": "ok",
+          "dealerCount": 10,
+          "stats": {
+            "totalActiveInventory": 442,
+            "totalNewArrivals": 8,
+            "totalPriceDrops": 0,
+            "totalPriceIncreases": 0,
+            "totalSoldOrRemoved": 0,
+            "skippedForBotProtection": 5
+          }
+        },
+        "Mini": {
+          "cmd": "node src/standalone.js",
+          "startedAt": "2026-09-16T01:59:23.970Z",
+          "endedAt": "2026-09-16T02:01:46.063Z",
+          "durationMs": 142093,
+          "exitCode": 0,
+          "signal": null,
+          "timedOut": false,
+          "logFile": "/home/ubuntu/nj-scraper/scrapers/lightsail-crawler/logs/nj-mini-2026-09-15.log",
+          "status": "ok",
+          "dealerCount": 4,
+          "stats": {
+            "totalActiveInventory": 512,
+            "totalNewArrivals": 0,
+            "totalPriceDrops": 2,
+            "totalPriceIncreases": 0,
+            "totalSoldOrRemoved": 0,
+            "skippedForBotProtection": 1
+          }
+        },
+        "Mitsubishi": {
+          "cmd": "node src/standalone.js",
+          "startedAt": "2026-09-16T02:01:46.082Z",
+          "endedAt": "2026-09-16T02:03:52.150Z",
+          "durationMs": 126067,
+          "exitCode": 0,
+          "signal": null,
+          "timedOut": false,
+          "logFile": "/home/ubuntu/nj-scraper/scrapers/lightsail-crawler/logs/nj-mitsubishi-2026-09-15.log",
+          "status": "ok",
+          "dealerCount": 9,
+          "stats": {
+            "totalActiveInventory": 208,
+            "totalNewArrivals": 0,
+            "totalPriceDrops": 0,
+            "totalPriceIncreases": 0,
+            "totalSoldOrRemoved": 0,
+            "skippedForBotProtection": 5
+          }
+        }
+      },
+      "botReportPath": "/home/ubuntu/nj-scraper/scrapers/lightsail-crawler/data/reports/dealer-bot-report-nj-all-2026-09-15.json"
+    },
+    "NY": {
+      "state": "NY",
+      "startedAt": "2026-09-16T01:00:50.744Z",
+      "finishedAt": "2026-09-16T02:38:07.664Z",
+      "durationMs": 5836920,
+      "writeDealers": {
+        "cmd": "node scripts/write-ny-dealer-files.mjs",
+        "startedAt": "2026-09-16T01:00:50.744Z",
+        "endedAt": "2026-09-16T01:00:51.938Z",
+        "durationMs": 1194,
+        "exitCode": 0,
+        "signal": null,
+        "timedOut": false,
+        "logFile": "/home/ubuntu/nj-scraper/scrapers/lightsail-crawler/logs/ny-write-dealers-2026-09-15.log",
+        "status": "ok"
+      },
+      "botReport": {
+        "cmd": "node scripts/dealer-bot-report.mjs --state=NY",
+        "startedAt": "2026-09-16T01:00:51.938Z",
+        "endedAt": "2026-09-16T01:02:42.550Z",
+        "durationMs": 110612,
+        "exitCode": 0,
+        "signal": null,
+        "timedOut": false,
+        "logFile": "/home/ubuntu/nj-scraper/scrapers/lightsail-crawler/logs/ny-bot-report-2026-09-15.log",
+        "status": "ok"
+      },
+      "readyBrands": [
+        "Acura",
+        "Kia",
+        "Lexus",
+        "Mazda",
+        "Mercedes-Benz",
+        "Mini",
+        "Mitsubishi",
+        "Porsche",
+        "Subaru",
+        "Toyota",
+        "Volkswagen",
+        "Volvo"
+      ],
+      "brands": {
+        "Toyota": {
+          "cmd": "node src/standalone.js",
+          "startedAt": "2026-09-16T01:02:42.552Z",
+          "endedAt": "2026-09-16T01:20:16.159Z",
+          "durationMs": 1053607,
+          "exitCode": 0,
+          "signal": null,
+          "timedOut": false,
+          "logFile": "/home/ubuntu/nj-scraper/scrapers/lightsail-crawler/logs/ny-toyota-2026-09-15.log",
+          "status": "ok",
+          "dealerCount": 56,
+          "stats": {
+            "totalActiveInventory": 6134,
+            "totalNewArrivals": 194,
+            "totalPriceDrops": 104,
+            "totalPriceIncreases": 19,
+            "totalSoldOrRemoved": 244,
+            "skippedForBotProtection": 22
+          }
+        },
+        "Lexus": {
+          "cmd": "node src/standalone.js",
+          "startedAt": "2026-09-16T01:20:16.174Z",
+          "endedAt": "2026-09-16T01:25:07.067Z",
+          "durationMs": 290893,
+          "exitCode": 0,
+          "signal": null,
+          "timedOut": false,
+          "logFile": "/home/ubuntu/nj-scraper/scrapers/lightsail-crawler/logs/ny-lexus-2026-09-15.log",
+          "status": "ok",
+          "dealerCount": 17,
+          "stats": {
+            "totalActiveInventory": 1486,
+            "totalNewArrivals": 60,
+            "totalPriceDrops": 145,
+            "totalPriceIncreases": 5,
+            "totalSoldOrRemoved": 78,
+            "skippedForBotProtection": 9
+          }
+        },
+        "Kia": {
+          "cmd": "node src/standalone.js",
+          "startedAt": "2026-09-16T01:25:07.082Z",
+          "endedAt": "2026-09-16T01:34:35.677Z",
+          "durationMs": 568595,
+          "exitCode": 0,
+          "signal": null,
+          "timedOut": false,
+          "logFile": "/home/ubuntu/nj-scraper/scrapers/lightsail-crawler/logs/ny-kia-2026-09-15.log",
+          "status": "ok",
+          "dealerCount": 15,
+          "stats": {
+            "totalActiveInventory": 2261,
+            "totalNewArrivals": 58,
+            "totalPriceDrops": 25,
+            "totalPriceIncreases": 5,
+            "totalSoldOrRemoved": 64,
+            "skippedForBotProtection": 5
+          }
+        },
+        "Acura": {
+          "cmd": "node src/standalone.js",
+          "startedAt": "2026-09-16T01:34:35.691Z",
+          "endedAt": "2026-09-16T01:38:39.584Z",
+          "durationMs": 243893,
+          "exitCode": 0,
+          "signal": null,
+          "timedOut": false,
+          "logFile": "/home/ubuntu/nj-scraper/scrapers/lightsail-crawler/logs/ny-acura-2026-09-15.log",
+          "status": "ok",
+          "dealerCount": 16,
+          "stats": {
+            "totalActiveInventory": 373,
+            "totalNewArrivals": 10,
+            "totalPriceDrops": 3,
+            "totalPriceIncreases": 1,
+            "totalSoldOrRemoved": 17,
+            "skippedForBotProtection": 5
+          }
+        },
+        "Subaru": {
+          "cmd": "node src/standalone.js",
+          "startedAt": "2026-09-16T01:38:39.602Z",
+          "endedAt": "2026-09-16T01:58:59.362Z",
+          "durationMs": 1219760,
+          "exitCode": 0,
+          "signal": null,
+          "timedOut": false,
+          "logFile": "/home/ubuntu/nj-scraper/scrapers/lightsail-crawler/logs/ny-subaru-2026-09-15.log",
+          "status": "ok",
+          "dealerCount": 54,
+          "stats": {
+            "totalActiveInventory": 6303,
+            "totalNewArrivals": 304,
+            "totalPriceDrops": 92,
+            "totalPriceIncreases": 39,
+            "totalSoldOrRemoved": 324,
+            "skippedForBotProtection": 11
+          }
+        },
+        "Mazda": {
+          "cmd": "node src/standalone.js",
+          "startedAt": "2026-09-16T01:58:59.377Z",
+          "endedAt": "2026-09-16T02:12:32.267Z",
+          "durationMs": 812890,
+          "exitCode": 0,
+          "signal": null,
+          "timedOut": false,
+          "logFile": "/home/ubuntu/nj-scraper/scrapers/lightsail-crawler/logs/ny-mazda-2026-09-15.log",
+          "status": "ok",
+          "dealerCount": 28,
+          "stats": {
+            "totalActiveInventory": 4725,
+            "totalNewArrivals": 82,
+            "totalPriceDrops": 33,
+            "totalPriceIncreases": 10,
+            "totalSoldOrRemoved": 236,
+            "skippedForBotProtection": 11
+          }
+        },
+        "Volkswagen": {
+          "cmd": "node src/standalone.js",
+          "startedAt": "2026-09-16T02:12:32.279Z",
+          "endedAt": "2026-09-16T02:24:20.543Z",
+          "durationMs": 708264,
+          "exitCode": 0,
+          "signal": null,
+          "timedOut": false,
+          "logFile": "/home/ubuntu/nj-scraper/scrapers/lightsail-crawler/logs/ny-volkswagen-2026-09-15.log",
+          "status": "ok",
+          "dealerCount": 35,
+          "stats": {
+            "totalActiveInventory": 2594,
+            "totalNewArrivals": 263,
+            "totalPriceDrops": 20,
+            "totalPriceIncreases": 7,
+            "totalSoldOrRemoved": 67,
+            "skippedForBotProtection": 12
+          }
+        },
+        "Mercedes-Benz": {
+          "cmd": "node src/standalone.js",
+          "startedAt": "2026-09-16T02:24:20.561Z",
+          "endedAt": "2026-09-16T02:27:15.210Z",
+          "durationMs": 174649,
+          "exitCode": 0,
+          "signal": null,
+          "timedOut": false,
+          "logFile": "/home/ubuntu/nj-scraper/scrapers/lightsail-crawler/logs/ny-mercedes-benz-2026-09-15.log",
+          "status": "ok",
+          "dealerCount": 18,
+          "stats": {
+            "totalActiveInventory": 749,
+            "totalNewArrivals": 46,
+            "totalPriceDrops": 18,
+            "totalPriceIncreases": 0,
+            "totalSoldOrRemoved": 14,
+            "skippedForBotProtection": 10
+          }
+        },
+        "Volvo": {
+          "cmd": "node src/standalone.js",
+          "startedAt": "2026-09-16T02:27:15.237Z",
+          "endedAt": "2026-09-16T02:28:56.743Z",
+          "durationMs": 101506,
+          "exitCode": 0,
+          "signal": null,
+          "timedOut": false,
+          "logFile": "/home/ubuntu/nj-scraper/scrapers/lightsail-crawler/logs/ny-volvo-2026-09-15.log",
+          "status": "ok",
+          "dealerCount": 1,
+          "stats": {
+            "totalActiveInventory": 512,
+            "totalNewArrivals": 17,
+            "totalPriceDrops": 0,
+            "totalPriceIncreases": 0,
+            "totalSoldOrRemoved": 12,
+            "skippedForBotProtection": 0
+          }
+        },
+        "Porsche": {
+          "cmd": "node src/standalone.js",
+          "startedAt": "2026-09-16T02:28:56.759Z",
+          "endedAt": "2026-09-16T02:31:19.955Z",
+          "durationMs": 143196,
+          "exitCode": 0,
+          "signal": null,
+          "timedOut": false,
+          "logFile": "/home/ubuntu/nj-scraper/scrapers/lightsail-crawler/logs/ny-porsche-2026-09-15.log",
+          "status": "ok",
+          "dealerCount": 13,
+          "stats": {
+            "totalActiveInventory": 294,
+            "totalNewArrivals": 3,
+            "totalPriceDrops": 5,
+            "totalPriceIncreases": 1,
+            "totalSoldOrRemoved": 4,
+            "skippedForBotProtection": 4
+          }
+        },
+        "Mini": {
+          "cmd": "node src/standalone.js",
+          "startedAt": "2026-09-16T02:31:19.967Z",
+          "endedAt": "2026-09-16T02:32:53.124Z",
+          "durationMs": 93157,
+          "exitCode": 0,
+          "signal": null,
+          "timedOut": false,
+          "logFile": "/home/ubuntu/nj-scraper/scrapers/lightsail-crawler/logs/ny-mini-2026-09-15.log",
+          "status": "ok",
+          "dealerCount": 7,
+          "stats": {
+            "totalActiveInventory": 220,
+            "totalNewArrivals": 16,
+            "totalPriceDrops": 0,
+            "totalPriceIncreases": 0,
+            "totalSoldOrRemoved": 12,
+            "skippedForBotProtection": 4
+          }
+        },
+        "Mitsubishi": {
+          "cmd": "node src/standalone.js",
+          "startedAt": "2026-09-16T02:32:53.138Z",
+          "endedAt": "2026-09-16T02:38:07.647Z",
+          "durationMs": 314509,
+          "exitCode": 0,
+          "signal": null,
+          "timedOut": false,
+          "logFile": "/home/ubuntu/nj-scraper/scrapers/lightsail-crawler/logs/ny-mitsubishi-2026-09-15.log",
+          "status": "ok",
+          "dealerCount": 15,
+          "stats": {
+            "totalActiveInventory": 622,
+            "totalNewArrivals": 4,
+            "totalPriceDrops": 1,
+            "totalPriceIncreases": 0,
+            "totalSoldOrRemoved": 13,
+            "skippedForBotProtection": 6
+          }
+        }
+      },
+      "botReportPath": "/home/ubuntu/nj-scraper/scrapers/lightsail-crawler/data/reports/dealer-bot-report-ny-all-2026-09-15.json"
+    },
+    "GA": {
+      "state": "GA",
+      "startedAt": "2026-09-16T02:38:07.664Z",
+      "finishedAt": "2026-09-16T03:18:59.183Z",
+      "durationMs": 2451519,
+      "writeDealers": {
+        "cmd": "node scripts/write-ga-dealer-files.mjs",
+        "startedAt": "2026-09-16T02:38:07.664Z",
+        "endedAt": "2026-09-16T02:38:08.836Z",
+        "durationMs": 1172,
+        "exitCode": 0,
+        "signal": null,
+        "timedOut": false,
+        "logFile": "/home/ubuntu/nj-scraper/scrapers/lightsail-crawler/logs/ga-write-dealers-2026-09-15.log",
+        "status": "ok"
+      },
+      "botReport": {
+        "cmd": "node scripts/dealer-bot-report.mjs --state=GA",
+        "startedAt": "2026-09-16T02:38:08.836Z",
+        "endedAt": "2026-09-16T02:38:36.399Z",
+        "durationMs": 27563,
+        "exitCode": 0,
+        "signal": null,
+        "timedOut": false,
+        "logFile": "/home/ubuntu/nj-scraper/scrapers/lightsail-crawler/logs/ga-bot-report-2026-09-15.log",
+        "status": "ok"
+      },
+      "readyBrands": [
+        "Acura",
+        "Kia",
+        "Lexus",
+        "Mazda",
+        "Mercedes-Benz",
+        "Mini",
+        "Mitsubishi",
+        "Porsche",
+        "Subaru",
+        "Toyota",
+        "Volkswagen"
+      ],
+      "brands": {
+        "Toyota": {
+          "cmd": "node src/standalone.js",
+          "startedAt": "2026-09-16T02:38:36.400Z",
+          "endedAt": "2026-09-16T02:44:30.867Z",
+          "durationMs": 354467,
+          "exitCode": 0,
+          "signal": null,
+          "timedOut": false,
+          "logFile": "/home/ubuntu/nj-scraper/scrapers/lightsail-crawler/logs/ga-toyota-2026-09-15.log",
+          "status": "ok",
+          "dealerCount": 33,
+          "stats": {
+            "totalActiveInventory": 1861,
+            "totalNewArrivals": 34,
+            "totalPriceDrops": 6,
+            "totalPriceIncreases": 1,
+            "totalSoldOrRemoved": 53,
+            "skippedForBotProtection": 15
+          }
+        },
+        "Lexus": {
+          "cmd": "node src/standalone.js",
+          "startedAt": "2026-09-16T02:44:30.878Z",
+          "endedAt": "2026-09-16T02:48:06.908Z",
+          "durationMs": 216030,
+          "exitCode": 0,
+          "signal": null,
+          "timedOut": false,
+          "logFile": "/home/ubuntu/nj-scraper/scrapers/lightsail-crawler/logs/ga-lexus-2026-09-15.log",
+          "status": "ok",
+          "dealerCount": 8,
+          "stats": {
+            "totalActiveInventory": 931,
+            "totalNewArrivals": 0,
+            "totalPriceDrops": 11,
+            "totalPriceIncreases": 6,
+            "totalSoldOrRemoved": 16,
+            "skippedForBotProtection": 2
+          }
+        },
+        "Kia": {
+          "cmd": "node src/standalone.js",
+          "startedAt": "2026-09-16T02:48:06.923Z",
+          "endedAt": "2026-09-16T02:54:08.296Z",
+          "durationMs": 361373,
+          "exitCode": 0,
+          "signal": null,
+          "timedOut": false,
+          "logFile": "/home/ubuntu/nj-scraper/scrapers/lightsail-crawler/logs/ga-kia-2026-09-15.log",
+          "status": "ok",
+          "dealerCount": 18,
+          "stats": {
+            "totalActiveInventory": 1894,
+            "totalNewArrivals": 217,
+            "totalPriceDrops": 12,
+            "totalPriceIncreases": 9,
+            "totalSoldOrRemoved": 829,
+            "skippedForBotProtection": 8
+          }
+        },
+        "Acura": {
+          "cmd": "node src/standalone.js",
+          "startedAt": "2026-09-16T02:54:08.311Z",
+          "endedAt": "2026-09-16T02:58:22.011Z",
+          "durationMs": 253700,
+          "exitCode": 0,
+          "signal": null,
+          "timedOut": false,
+          "logFile": "/home/ubuntu/nj-scraper/scrapers/lightsail-crawler/logs/ga-acura-2026-09-15.log",
+          "status": "ok",
+          "dealerCount": 9,
+          "stats": {
+            "totalActiveInventory": 784,
+            "totalNewArrivals": 0,
+            "totalPriceDrops": 4,
+            "totalPriceIncreases": 3,
+            "totalSoldOrRemoved": 10,
+            "skippedForBotProtection": 1
+          }
+        },
+        "Subaru": {
+          "cmd": "node src/standalone.js",
+          "startedAt": "2026-09-16T02:58:22.031Z",
+          "endedAt": "2026-09-16T03:02:46.347Z",
+          "durationMs": 264316,
+          "exitCode": 0,
+          "signal": null,
+          "timedOut": false,
+          "logFile": "/home/ubuntu/nj-scraper/scrapers/lightsail-crawler/logs/ga-subaru-2026-09-15.log",
+          "status": "ok",
+          "dealerCount": 12,
+          "stats": {
+            "totalActiveInventory": 1483,
+            "totalNewArrivals": 1,
+            "totalPriceDrops": 30,
+            "totalPriceIncreases": 1,
+            "totalSoldOrRemoved": 2,
+            "skippedForBotProtection": 4
+          }
+        },
+        "Mazda": {
+          "cmd": "node src/standalone.js",
+          "startedAt": "2026-09-16T03:02:46.375Z",
+          "endedAt": "2026-09-16T03:05:13.590Z",
+          "durationMs": 147215,
+          "exitCode": 0,
+          "signal": null,
+          "timedOut": false,
+          "logFile": "/home/ubuntu/nj-scraper/scrapers/lightsail-crawler/logs/ga-mazda-2026-09-15.log",
+          "status": "ok",
+          "dealerCount": 11,
+          "stats": {
+            "totalActiveInventory": 795,
+            "totalNewArrivals": 8,
+            "totalPriceDrops": 13,
+            "totalPriceIncreases": 0,
+            "totalSoldOrRemoved": 4,
+            "skippedForBotProtection": 8
+          }
+        },
+        "Volkswagen": {
+          "cmd": "node src/standalone.js",
+          "startedAt": "2026-09-16T03:05:13.640Z",
+          "endedAt": "2026-09-16T03:08:40.173Z",
+          "durationMs": 206533,
+          "exitCode": 0,
+          "signal": null,
+          "timedOut": false,
+          "logFile": "/home/ubuntu/nj-scraper/scrapers/lightsail-crawler/logs/ga-volkswagen-2026-09-15.log",
+          "status": "ok",
+          "dealerCount": 11,
+          "stats": {
+            "totalActiveInventory": 560,
+            "totalNewArrivals": 0,
+            "totalPriceDrops": 2,
+            "totalPriceIncreases": 0,
+            "totalSoldOrRemoved": 4,
+            "skippedForBotProtection": 6
+          }
+        },
+        "Mercedes-Benz": {
+          "cmd": "node src/standalone.js",
+          "startedAt": "2026-09-16T03:08:40.193Z",
+          "endedAt": "2026-09-16T03:13:56.126Z",
+          "durationMs": 315933,
+          "exitCode": 0,
+          "signal": null,
+          "timedOut": false,
+          "logFile": "/home/ubuntu/nj-scraper/scrapers/lightsail-crawler/logs/ga-mercedes-benz-2026-09-15.log",
+          "status": "ok",
+          "dealerCount": 12,
+          "stats": {
+            "totalActiveInventory": 927,
+            "totalNewArrivals": 0,
+            "totalPriceDrops": 4,
+            "totalPriceIncreases": 0,
+            "totalSoldOrRemoved": 540,
+            "skippedForBotProtection": 6
+          }
+        },
+        "Porsche": {
+          "cmd": "node src/standalone.js",
+          "startedAt": "2026-09-16T03:13:56.149Z",
+          "endedAt": "2026-09-16T03:15:01.746Z",
+          "durationMs": 65597,
+          "exitCode": 0,
+          "signal": null,
+          "timedOut": false,
+          "logFile": "/home/ubuntu/nj-scraper/scrapers/lightsail-crawler/logs/ga-porsche-2026-09-15.log",
+          "status": "ok",
+          "dealerCount": 3,
+          "stats": {
+            "totalActiveInventory": 0,
+            "totalNewArrivals": 0,
+            "totalPriceDrops": 0,
+            "totalPriceIncreases": 0,
+            "totalSoldOrRemoved": 0,
+            "skippedForBotProtection": 1
+          }
+        },
+        "Mini": {
+          "cmd": "node src/standalone.js",
+          "startedAt": "2026-09-16T03:15:01.762Z",
+          "endedAt": "2026-09-16T03:16:43.243Z",
+          "durationMs": 101481,
+          "exitCode": 0,
+          "signal": null,
+          "timedOut": false,
+          "logFile": "/home/ubuntu/nj-scraper/scrapers/lightsail-crawler/logs/ga-mini-2026-09-15.log",
+          "status": "ok",
+          "dealerCount": 2,
+          "stats": {
+            "totalActiveInventory": 119,
+            "totalNewArrivals": 0,
+            "totalPriceDrops": 0,
+            "totalPriceIncreases": 0,
+            "totalSoldOrRemoved": 2,
+            "skippedForBotProtection": 1
+          }
+        },
+        "Mitsubishi": {
+          "cmd": "node src/standalone.js",
+          "startedAt": "2026-09-16T03:16:43.270Z",
+          "endedAt": "2026-09-16T03:18:59.166Z",
+          "durationMs": 135896,
+          "exitCode": 0,
+          "signal": null,
+          "timedOut": false,
+          "logFile": "/home/ubuntu/nj-scraper/scrapers/lightsail-crawler/logs/ga-mitsubishi-2026-09-15.log",
+          "status": "ok",
+          "dealerCount": 8,
+          "stats": {
+            "totalActiveInventory": 587,
+            "totalNewArrivals": 4,
+            "totalPriceDrops": 2,
+            "totalPriceIncreases": 0,
+            "totalSoldOrRemoved": 7,
+            "skippedForBotProtection": 1
+          }
+        }
+      },
+      "botReportPath": "/home/ubuntu/nj-scraper/scrapers/lightsail-crawler/data/reports/dealer-bot-report-ga-all-2026-09-15.json"
+    },
+    "FL": {
+      "state": "FL",
+      "startedAt": "2026-09-16T02:03:52.158Z",
+      "finishedAt": "2026-09-16T04:46:17.913Z",
+      "durationMs": 9745755,
+      "writeDealers": {
+        "cmd": "node scripts/write-fl-dealer-files.mjs",
+        "startedAt": "2026-09-16T02:03:52.158Z",
+        "endedAt": "2026-09-16T02:03:52.950Z",
+        "durationMs": 792,
+        "exitCode": 0,
+        "signal": null,
+        "timedOut": false,
+        "logFile": "/home/ubuntu/nj-scraper/scrapers/lightsail-crawler/logs/fl-write-dealers-2026-09-15.log",
+        "status": "ok"
+      },
+      "botReport": {
+        "cmd": "node scripts/dealer-bot-report.mjs --state=FL",
+        "startedAt": "2026-09-16T02:03:52.950Z",
+        "endedAt": "2026-09-16T02:04:58.926Z",
+        "durationMs": 65976,
+        "exitCode": 0,
+        "signal": null,
+        "timedOut": false,
+        "logFile": "/home/ubuntu/nj-scraper/scrapers/lightsail-crawler/logs/fl-bot-report-2026-09-15.log",
+        "status": "ok"
+      },
+      "readyBrands": [
+        "Acura",
+        "BMW",
+        "Kia",
+        "Lexus",
+        "Mazda",
+        "Mercedes-Benz",
+        "Mini",
+        "Mitsubishi",
+        "Porsche",
+        "Subaru",
+        "Toyota",
+        "Volkswagen"
+      ],
+      "brands": {
+        "Toyota": {
+          "cmd": "node src/standalone.js",
+          "startedAt": "2026-09-16T02:04:58.928Z",
+          "endedAt": "2026-09-16T02:22:56.121Z",
+          "durationMs": 1077193,
+          "exitCode": 0,
+          "signal": null,
+          "timedOut": false,
+          "logFile": "/home/ubuntu/nj-scraper/scrapers/lightsail-crawler/logs/fl-toyota-2026-09-15.log",
+          "status": "ok",
+          "dealerCount": 45,
+          "stats": {
+            "totalActiveInventory": 8030,
+            "totalNewArrivals": 157,
+            "totalPriceDrops": 372,
+            "totalPriceIncreases": 77,
+            "totalSoldOrRemoved": 366,
+            "skippedForBotProtection": 17
+          }
+        },
+        "Lexus": {
+          "cmd": "node src/standalone.js",
+          "startedAt": "2026-09-16T02:22:56.135Z",
+          "endedAt": "2026-09-16T02:24:42.927Z",
+          "durationMs": 106792,
+          "exitCode": 0,
+          "signal": null,
+          "timedOut": false,
+          "logFile": "/home/ubuntu/nj-scraper/scrapers/lightsail-crawler/logs/fl-lexus-2026-09-15.log",
+          "status": "ok",
+          "dealerCount": 19,
+          "stats": {
+            "totalActiveInventory": 271,
+            "totalNewArrivals": 0,
+            "totalPriceDrops": 0,
+            "totalPriceIncreases": 0,
+            "totalSoldOrRemoved": 2,
+            "skippedForBotProtection": 15
+          }
+        },
+        "Kia": {
+          "cmd": "node src/standalone.js",
+          "startedAt": "2026-09-16T02:24:42.938Z",
+          "endedAt": "2026-09-16T02:41:36.027Z",
+          "durationMs": 1013089,
+          "exitCode": 0,
+          "signal": null,
+          "timedOut": false,
+          "logFile": "/home/ubuntu/nj-scraper/scrapers/lightsail-crawler/logs/fl-kia-2026-09-15.log",
+          "status": "ok",
+          "dealerCount": 33,
+          "stats": {
+            "totalActiveInventory": 4891,
+            "totalNewArrivals": 92,
+            "totalPriceDrops": 79,
+            "totalPriceIncreases": 7,
+            "totalSoldOrRemoved": 775,
+            "skippedForBotProtection": 15
+          }
+        },
+        "Acura": {
+          "cmd": "node src/standalone.js",
+          "startedAt": "2026-09-16T02:41:36.041Z",
+          "endedAt": "2026-09-16T02:48:58.445Z",
+          "durationMs": 442404,
+          "exitCode": 0,
+          "signal": null,
+          "timedOut": false,
+          "logFile": "/home/ubuntu/nj-scraper/scrapers/lightsail-crawler/logs/fl-acura-2026-09-15.log",
+          "status": "ok",
+          "dealerCount": 21,
+          "stats": {
+            "totalActiveInventory": 1356,
+            "totalNewArrivals": 0,
+            "totalPriceDrops": 8,
+            "totalPriceIncreases": 92,
+            "totalSoldOrRemoved": 322,
+            "skippedForBotProtection": 8
+          }
+        },
+        "Subaru": {
+          "cmd": "node src/standalone.js",
+          "startedAt": "2026-09-16T02:48:58.477Z",
+          "endedAt": "2026-09-16T03:01:30.545Z",
+          "durationMs": 752068,
+          "exitCode": 0,
+          "signal": null,
+          "timedOut": false,
+          "logFile": "/home/ubuntu/nj-scraper/scrapers/lightsail-crawler/logs/fl-subaru-2026-09-15.log",
+          "status": "ok",
+          "dealerCount": 31,
+          "stats": {
+            "totalActiveInventory": 4469,
+            "totalNewArrivals": 54,
+            "totalPriceDrops": 140,
+            "totalPriceIncreases": 17,
+            "totalSoldOrRemoved": 131,
+            "skippedForBotProtection": 10
+          }
+        },
+        "Mazda": {
+          "cmd": "node src/standalone.js",
+          "startedAt": "2026-09-16T03:01:30.558Z",
+          "endedAt": "2026-09-16T03:11:30.478Z",
+          "durationMs": 599920,
+          "exitCode": 0,
+          "signal": null,
+          "timedOut": false,
+          "logFile": "/home/ubuntu/nj-scraper/scrapers/lightsail-crawler/logs/fl-mazda-2026-09-15.log",
+          "status": "ok",
+          "dealerCount": 38,
+          "stats": {
+            "totalActiveInventory": 4158,
+            "totalNewArrivals": 91,
+            "totalPriceDrops": 38,
+            "totalPriceIncreases": 52,
+            "totalSoldOrRemoved": 113,
+            "skippedForBotProtection": 17
+          }
+        },
+        "Volkswagen": {
+          "cmd": "node src/standalone.js",
+          "startedAt": "2026-09-16T03:11:30.516Z",
+          "endedAt": "2026-09-16T03:25:15.530Z",
+          "durationMs": 825014,
+          "exitCode": 0,
+          "signal": null,
+          "timedOut": false,
+          "logFile": "/home/ubuntu/nj-scraper/scrapers/lightsail-crawler/logs/fl-volkswagen-2026-09-15.log",
+          "status": "ok",
+          "dealerCount": 43,
+          "stats": {
+            "totalActiveInventory": 5305,
+            "totalNewArrivals": 36,
+            "totalPriceDrops": 199,
+            "totalPriceIncreases": 79,
+            "totalSoldOrRemoved": 58,
+            "skippedForBotProtection": 16
+          }
+        },
+        "BMW": {
+          "cmd": "node src/standalone.js",
+          "startedAt": "2026-09-16T03:25:15.548Z",
+          "endedAt": "2026-09-16T03:27:04.095Z",
+          "durationMs": 108547,
+          "exitCode": 0,
+          "signal": null,
+          "timedOut": false,
+          "logFile": "/home/ubuntu/nj-scraper/scrapers/lightsail-crawler/logs/fl-bmw-2026-09-15.log",
+          "status": "ok",
+          "dealerCount": 1,
+          "stats": {
+            "totalActiveInventory": 583,
+            "totalNewArrivals": 22,
+            "totalPriceDrops": 25,
+            "totalPriceIncreases": 0,
+            "totalSoldOrRemoved": 14,
+            "skippedForBotProtection": 0
+          }
+        },
+        "Mercedes-Benz": {
+          "cmd": "node src/standalone.js",
+          "startedAt": "2026-09-16T03:27:04.145Z",
+          "endedAt": "2026-09-16T04:29:29.773Z",
+          "durationMs": 3745628,
+          "exitCode": 0,
+          "signal": null,
+          "timedOut": false,
+          "logFile": "/home/ubuntu/nj-scraper/scrapers/lightsail-crawler/logs/fl-mercedes-benz-2026-09-15.log",
+          "status": "ok",
+          "dealerCount": 30,
+          "stats": {
+            "totalActiveInventory": 5470,
+            "totalNewArrivals": 9,
+            "totalPriceDrops": 56,
+            "totalPriceIncreases": 23,
+            "totalSoldOrRemoved": 41,
+            "skippedForBotProtection": 4
+          }
+        },
+        "Porsche": {
+          "cmd": "node src/standalone.js",
+          "startedAt": "2026-09-16T04:29:29.796Z",
+          "endedAt": "2026-09-16T04:34:18.114Z",
+          "durationMs": 288318,
+          "exitCode": 0,
+          "signal": null,
+          "timedOut": false,
+          "logFile": "/home/ubuntu/nj-scraper/scrapers/lightsail-crawler/logs/fl-porsche-2026-09-15.log",
+          "status": "ok",
+          "dealerCount": 18,
+          "stats": {
+            "totalActiveInventory": 1112,
+            "totalNewArrivals": 1112,
+            "totalPriceDrops": 0,
+            "totalPriceIncreases": 0,
+            "totalSoldOrRemoved": 0,
+            "skippedForBotProtection": 5
+          }
+        },
+        "Mini": {
+          "cmd": "node src/standalone.js",
+          "startedAt": "2026-09-16T04:34:18.151Z",
+          "endedAt": "2026-09-16T04:37:42.300Z",
+          "durationMs": 204149,
+          "exitCode": 0,
+          "signal": null,
+          "timedOut": false,
+          "logFile": "/home/ubuntu/nj-scraper/scrapers/lightsail-crawler/logs/fl-mini-2026-09-15.log",
+          "status": "ok",
+          "dealerCount": 11,
+          "stats": {
+            "totalActiveInventory": 766,
+            "totalNewArrivals": 766,
+            "totalPriceDrops": 0,
+            "totalPriceIncreases": 0,
+            "totalSoldOrRemoved": 0,
+            "skippedForBotProtection": 6
+          }
+        },
+        "Mitsubishi": {
+          "cmd": "node src/standalone.js",
+          "startedAt": "2026-09-16T04:37:42.323Z",
+          "endedAt": "2026-09-16T04:46:17.880Z",
+          "durationMs": 515557,
+          "exitCode": 0,
+          "signal": null,
+          "timedOut": false,
+          "logFile": "/home/ubuntu/nj-scraper/scrapers/lightsail-crawler/logs/fl-mitsubishi-2026-09-15.log",
+          "status": "ok",
+          "dealerCount": 31,
+          "stats": {
+            "totalActiveInventory": 1599,
+            "totalNewArrivals": 1599,
+            "totalPriceDrops": 0,
+            "totalPriceIncreases": 0,
+            "totalSoldOrRemoved": 0,
+            "skippedForBotProtection": 9
+          }
+        }
+      },
+      "botReportPath": "/home/ubuntu/nj-scraper/scrapers/lightsail-crawler/data/reports/dealer-bot-report-fl-all-2026-09-15.json"
+    },
+    "TX": {
+      "state": "TX",
+      "startedAt": "2026-09-16T03:18:59.183Z",
+      "finishedAt": "2026-09-16T04:53:50.634Z",
+      "durationMs": 5691451,
+      "writeDealers": {
+        "cmd": "node scripts/write-tx-dealer-files.mjs",
+        "startedAt": "2026-09-16T03:18:59.183Z",
+        "endedAt": "2026-09-16T03:19:00.705Z",
+        "durationMs": 1522,
+        "exitCode": 0,
+        "signal": null,
+        "timedOut": false,
+        "logFile": "/home/ubuntu/nj-scraper/scrapers/lightsail-crawler/logs/tx-write-dealers-2026-09-15.log",
+        "status": "ok"
+      },
+      "botReport": {
+        "cmd": "node scripts/dealer-bot-report.mjs --state=TX",
+        "startedAt": "2026-09-16T03:19:00.705Z",
+        "endedAt": "2026-09-16T03:19:43.283Z",
+        "durationMs": 42579,
+        "exitCode": 0,
+        "signal": null,
+        "timedOut": false,
+        "logFile": "/home/ubuntu/nj-scraper/scrapers/lightsail-crawler/logs/tx-bot-report-2026-09-15.log",
+        "status": "ok"
+      },
+      "readyBrands": [
+        "Acura",
+        "BMW",
+        "Kia",
+        "Lexus",
+        "Mazda",
+        "Mercedes-Benz",
+        "Mini",
+        "Mitsubishi",
+        "Porsche",
+        "Subaru",
+        "Toyota",
+        "Volkswagen"
+      ],
+      "brands": {
+        "Toyota": {
+          "cmd": "node src/standalone.js",
+          "startedAt": "2026-09-16T03:19:43.286Z",
+          "endedAt": "2026-09-16T03:44:56.109Z",
+          "durationMs": 1512823,
+          "exitCode": 0,
+          "signal": null,
+          "timedOut": false,
+          "logFile": "/home/ubuntu/nj-scraper/scrapers/lightsail-crawler/logs/tx-toyota-2026-09-15.log",
+          "status": "ok",
+          "dealerCount": 66,
+          "stats": {
+            "totalActiveInventory": 12933,
+            "totalNewArrivals": 114,
+            "totalPriceDrops": 358,
+            "totalPriceIncreases": 391,
+            "totalSoldOrRemoved": 1006,
+            "skippedForBotProtection": 26
+          }
+        },
+        "Lexus": {
+          "cmd": "node src/standalone.js",
+          "startedAt": "2026-09-16T03:44:56.139Z",
+          "endedAt": "2026-09-16T03:50:54.417Z",
+          "durationMs": 358278,
+          "exitCode": 0,
+          "signal": null,
+          "timedOut": false,
+          "logFile": "/home/ubuntu/nj-scraper/scrapers/lightsail-crawler/logs/tx-lexus-2026-09-15.log",
+          "status": "ok",
+          "dealerCount": 15,
+          "stats": {
+            "totalActiveInventory": 1609,
+            "totalNewArrivals": 1609,
+            "totalPriceDrops": 0,
+            "totalPriceIncreases": 0,
+            "totalSoldOrRemoved": 0,
+            "skippedForBotProtection": 6
+          }
+        },
+        "Kia": {
+          "cmd": "node src/standalone.js",
+          "startedAt": "2026-09-16T03:50:54.501Z",
+          "endedAt": "2026-09-16T03:58:22.561Z",
+          "durationMs": 448060,
+          "exitCode": 0,
+          "signal": null,
+          "timedOut": false,
+          "logFile": "/home/ubuntu/nj-scraper/scrapers/lightsail-crawler/logs/tx-kia-2026-09-15.log",
+          "status": "ok",
+          "dealerCount": 23,
+          "stats": {
+            "totalActiveInventory": 4241,
+            "totalNewArrivals": 4241,
+            "totalPriceDrops": 0,
+            "totalPriceIncreases": 0,
+            "totalSoldOrRemoved": 0,
+            "skippedForBotProtection": 11
+          }
+        },
+        "Acura": {
+          "cmd": "node src/standalone.js",
+          "startedAt": "2026-09-16T03:58:22.582Z",
+          "endedAt": "2026-09-16T04:03:00.344Z",
+          "durationMs": 277762,
+          "exitCode": 0,
+          "signal": null,
+          "timedOut": false,
+          "logFile": "/home/ubuntu/nj-scraper/scrapers/lightsail-crawler/logs/tx-acura-2026-09-15.log",
+          "status": "ok",
+          "dealerCount": 14,
+          "stats": {
+            "totalActiveInventory": 1176,
+            "totalNewArrivals": 6,
+            "totalPriceDrops": 0,
+            "totalPriceIncreases": 0,
+            "totalSoldOrRemoved": 15,
+            "skippedForBotProtection": 3
+          }
+        },
+        "Subaru": {
+          "cmd": "node src/standalone.js",
+          "startedAt": "2026-09-16T04:03:00.374Z",
+          "endedAt": "2026-09-16T04:11:00.443Z",
+          "durationMs": 480069,
+          "exitCode": 0,
+          "signal": null,
+          "timedOut": false,
+          "logFile": "/home/ubuntu/nj-scraper/scrapers/lightsail-crawler/logs/tx-subaru-2026-09-15.log",
+          "status": "ok",
+          "dealerCount": 29,
+          "stats": {
+            "totalActiveInventory": 3544,
+            "totalNewArrivals": 3544,
+            "totalPriceDrops": 0,
+            "totalPriceIncreases": 0,
+            "totalSoldOrRemoved": 0,
+            "skippedForBotProtection": 13
+          }
+        },
+        "Mazda": {
+          "cmd": "node src/standalone.js",
+          "startedAt": "2026-09-16T04:11:00.470Z",
+          "endedAt": "2026-09-16T04:19:59.435Z",
+          "durationMs": 538965,
+          "exitCode": 0,
+          "signal": null,
+          "timedOut": false,
+          "logFile": "/home/ubuntu/nj-scraper/scrapers/lightsail-crawler/logs/tx-mazda-2026-09-15.log",
+          "status": "ok",
+          "dealerCount": 43,
+          "stats": {
+            "totalActiveInventory": 4358,
+            "totalNewArrivals": 4358,
+            "totalPriceDrops": 0,
+            "totalPriceIncreases": 0,
+            "totalSoldOrRemoved": 0,
+            "skippedForBotProtection": 19
+          }
+        },
+        "Volkswagen": {
+          "cmd": "node src/standalone.js",
+          "startedAt": "2026-09-16T04:19:59.467Z",
+          "endedAt": "2026-09-16T04:31:50.020Z",
+          "durationMs": 710553,
+          "exitCode": 0,
+          "signal": null,
+          "timedOut": false,
+          "logFile": "/home/ubuntu/nj-scraper/scrapers/lightsail-crawler/logs/tx-volkswagen-2026-09-15.log",
+          "status": "ok",
+          "dealerCount": 45,
+          "stats": {
+            "totalActiveInventory": 4497,
+            "totalNewArrivals": 4497,
+            "totalPriceDrops": 0,
+            "totalPriceIncreases": 0,
+            "totalSoldOrRemoved": 0,
+            "skippedForBotProtection": 15
+          }
+        },
+        "BMW": {
+          "cmd": "node src/standalone.js",
+          "startedAt": "2026-09-16T04:31:50.060Z",
+          "endedAt": "2026-09-16T04:33:47.938Z",
+          "durationMs": 117878,
+          "exitCode": 0,
+          "signal": null,
+          "timedOut": false,
+          "logFile": "/home/ubuntu/nj-scraper/scrapers/lightsail-crawler/logs/tx-bmw-2026-09-15.log",
+          "status": "ok",
+          "dealerCount": 1,
+          "stats": {
+            "totalActiveInventory": 560,
+            "totalNewArrivals": 550,
+            "totalPriceDrops": 0,
+            "totalPriceIncreases": 0,
+            "totalSoldOrRemoved": 0,
+            "skippedForBotProtection": 0
+          }
+        },
+        "Mercedes-Benz": {
+          "cmd": "node src/standalone.js",
+          "startedAt": "2026-09-16T04:33:47.966Z",
+          "endedAt": "2026-09-16T04:39:28.256Z",
+          "durationMs": 340291,
+          "exitCode": 0,
+          "signal": null,
+          "timedOut": false,
+          "logFile": "/home/ubuntu/nj-scraper/scrapers/lightsail-crawler/logs/tx-mercedes-benz-2026-09-15.log",
+          "status": "ok",
+          "dealerCount": 28,
+          "stats": {
+            "totalActiveInventory": 1562,
+            "totalNewArrivals": 1561,
+            "totalPriceDrops": 0,
+            "totalPriceIncreases": 1,
+            "totalSoldOrRemoved": 0,
+            "skippedForBotProtection": 12
+          }
+        },
+        "Porsche": {
+          "cmd": "node src/standalone.js",
+          "startedAt": "2026-09-16T04:39:28.294Z",
+          "endedAt": "2026-09-16T04:44:22.341Z",
+          "durationMs": 294047,
+          "exitCode": 0,
+          "signal": null,
+          "timedOut": false,
+          "logFile": "/home/ubuntu/nj-scraper/scrapers/lightsail-crawler/logs/tx-porsche-2026-09-15.log",
+          "status": "ok",
+          "dealerCount": 17,
+          "stats": {
+            "totalActiveInventory": 719,
+            "totalNewArrivals": 719,
+            "totalPriceDrops": 0,
+            "totalPriceIncreases": 0,
+            "totalSoldOrRemoved": 0,
+            "skippedForBotProtection": 8
+          }
+        },
+        "Mini": {
+          "cmd": "node src/standalone.js",
+          "startedAt": "2026-09-16T04:44:22.363Z",
+          "endedAt": "2026-09-16T04:47:23.748Z",
+          "durationMs": 181385,
+          "exitCode": 0,
+          "signal": null,
+          "timedOut": false,
+          "logFile": "/home/ubuntu/nj-scraper/scrapers/lightsail-crawler/logs/tx-mini-2026-09-15.log",
+          "status": "ok",
+          "dealerCount": 8,
+          "stats": {
+            "totalActiveInventory": 436,
+            "totalNewArrivals": 436,
+            "totalPriceDrops": 0,
+            "totalPriceIncreases": 0,
+            "totalSoldOrRemoved": 0,
+            "skippedForBotProtection": 4
+          }
+        },
+        "Mitsubishi": {
+          "cmd": "node src/standalone.js",
+          "startedAt": "2026-09-16T04:47:23.772Z",
+          "endedAt": "2026-09-16T04:53:50.603Z",
+          "durationMs": 386831,
+          "exitCode": 0,
+          "signal": null,
+          "timedOut": false,
+          "logFile": "/home/ubuntu/nj-scraper/scrapers/lightsail-crawler/logs/tx-mitsubishi-2026-09-15.log",
+          "status": "ok",
+          "dealerCount": 23,
+          "stats": {
+            "totalActiveInventory": 1250,
+            "totalNewArrivals": 1250,
+            "totalPriceDrops": 0,
+            "totalPriceIncreases": 0,
+            "totalSoldOrRemoved": 0,
+            "skippedForBotProtection": 5
+          }
+        }
+      },
+      "botReportPath": "/home/ubuntu/nj-scraper/scrapers/lightsail-crawler/data/reports/dealer-bot-report-tx-all-2026-09-15.json"
+    }
+  },
+  "finishedAt": "2026-09-16T04:53:50.634Z",
+  "durationMs": 13979902,
+  "grandTotals": {
+    "totalActiveInventory": 131161,
+    "totalNewArrivals": 28349,
+    "totalPriceDrops": 1895,
+    "totalPriceIncreases": 852,
+    "totalSoldOrRemoved": 5663,
+    "skippedForBotProtection": 453,
+    "brandsOk": 61,
+    "brandsFailed": 0,
+    "brandsSkipped": 0
+  }
+}

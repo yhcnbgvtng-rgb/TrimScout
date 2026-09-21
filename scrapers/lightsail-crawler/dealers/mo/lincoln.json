@@ -1,0 +1,54 @@
+[
+  {
+    "id": "lincoln-dave-sinclair-lincoln",
+    "name": "Dave Sinclair Lincoln",
+    "city": "Ballwin",
+    "state": "MO",
+    "make": "Lincoln",
+    "domain": "davesinclairlincolnsouth.com",
+    "sitemapUrl": "https://www.davesinclairlincolnsouth.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.davesinclairlincolnsouth.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://davesinclairlincolnsouth.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "lincoln-dave-sinclair-lincoln-st-peters",
+    "name": "Dave Sinclair Lincoln St. Peters",
+    "city": "Saint Peters",
+    "state": "MO",
+    "make": "Lincoln",
+    "domain": "davesinclairlincolnstpeters.com",
+    "sitemapUrl": "https://www.davesinclairlincolnstpeters.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.davesinclairlincolnstpeters.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://davesinclairlincolnstpeters.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "lincoln-joe-machens-lincoln",
+    "name": "Joe Machens Lincoln",
+    "city": "Columbia",
+    "state": "MO",
+    "make": "Lincoln",
+    "domain": "machenslincoln.net",
+    "sitemapUrl": "https://www.machenslincoln.net/sitemap.xml",
+    "inventorySitemapUrl": "https://www.machenslincoln.net/sitemap-inventory.xml",
+    "fallbackUrl": "https://machenslincoln.net/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "lincoln-northtowne-lincoln",
+    "name": "Northtowne Lincoln",
+    "city": "Kansas City",
+    "state": "MO",
+    "make": "Lincoln",
+    "domain": "northtownelincoln.com",
+    "sitemapUrl": "https://www.northtownelincoln.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.northtownelincoln.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://northtownelincoln.com/",
+    "lat": null,
+    "lng": null
+  }
+]

@@ -1,0 +1,67 @@
+[
+  {
+    "id": "cadillac-george-gee-cadillac",
+    "name": "GEORGE GEE CADILLAC",
+    "city": "Coeur d' Alene",
+    "state": "ID",
+    "make": "Cadillac",
+    "domain": "georgegeecadillac.com",
+    "sitemapUrl": "https://www.georgegeecadillac.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.georgegeecadillac.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://georgegeecadillac.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "cadillac-kendall-cadillac-nampa",
+    "name": "KENDALL CADILLAC – Nampa",
+    "city": "Nampa",
+    "state": "ID",
+    "make": "Cadillac",
+    "domain": "kendallcadillacnampa.com",
+    "sitemapUrl": "https://www.kendallcadillacnampa.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.kendallcadillacnampa.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://kendallcadillacnampa.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "cadillac-peterson-cadillac",
+    "name": "PETERSON CADILLAC",
+    "city": "BOISE",
+    "state": "ID",
+    "make": "Cadillac",
+    "domain": "petersoncadillac.com",
+    "sitemapUrl": "https://www.petersoncadillac.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.petersoncadillac.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://petersoncadillac.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "cadillac-taylor-chevrolet",
+    "name": "TAYLOR CHEVROLET",
+    "city": "Rexburg",
+    "state": "ID",
+    "make": "Cadillac",
+    "domain": "cadillacofrexburg.com",
+    "sitemapUrl": "https://www.cadillacofrexburg.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.cadillacofrexburg.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://cadillacofrexburg.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "cadillac-wackerli-auto-center",
+    "name": "WACKERLI AUTO CENTER",
+    "city": "Idaho falls",
+    "state": "ID",
+    "make": "Cadillac",
+    "domain": "wackerlicadillac.com",
+    "sitemapUrl": "https://www.wackerlicadillac.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.wackerlicadillac.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://wackerlicadillac.com/",
+    "lat": null,
+    "lng": null
+  }
+]

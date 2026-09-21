@@ -1,0 +1,30 @@
+[
+  {
+    "id": "mercedes-benz-jackie-cooper-imports",
+    "name": "Jackie Cooper Imports",
+    "city": "Tulsa",
+    "state": "OK",
+    "make": "Mercedes-Benz",
+    "domain": "cooper.mercedesdealer.com",
+    "sitemapUrl": "https://cooper.mercedesdealer.com/sitemap.xml",
+    "inventorySitemapUrl": "https://cooper.mercedesdealer.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://cooper.mercedesdealer.com/",
+    "lat": 36.02445,
+    "lng": -95.886399,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "mercedes-benz-mercedes-benz-of-oklahoma-city",
+    "name": "Mercedes-Benz of Oklahoma City",
+    "city": "Edmond",
+    "state": "OK",
+    "make": "Mercedes-Benz",
+    "domain": "mercedesbenzofokc.com",
+    "sitemapUrl": "https://www.mercedesbenzofokc.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.mercedesbenzofokc.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://mercedesbenzofokc.com/",
+    "lat": 35.4806116,
+    "lng": -97.5147724,
+    "domainSource": "oem-locator"
+  }
+]

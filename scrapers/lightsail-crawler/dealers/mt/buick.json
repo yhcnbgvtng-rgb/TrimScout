@@ -1,0 +1,15 @@
+[
+  {
+    "id": "buick-demarois-buick-gmc-truck",
+    "name": "DEMAROIS BUICK-GMC TRUCK",
+    "city": "MISSOULA",
+    "state": "MT",
+    "make": "Buick",
+    "domain": "demaroismotors.com",
+    "sitemapUrl": "https://www.demaroismotors.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.demaroismotors.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://demaroismotors.com/",
+    "lat": null,
+    "lng": null
+  }
+]

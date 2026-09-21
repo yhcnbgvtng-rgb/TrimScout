@@ -1,0 +1,30 @@
+[
+  {
+    "id": "mini-century-mini",
+    "name": "Century MINI",
+    "city": "Greenville",
+    "state": "SC",
+    "make": "Mini",
+    "domain": "centurymini.com",
+    "sitemapUrl": "https://www.centurymini.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.centurymini.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://centurymini.com/",
+    "lat": null,
+    "lng": null,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "mini-mini-of-charleston",
+    "name": "MINI of Charleston",
+    "city": "Charleston",
+    "state": "SC",
+    "make": "Mini",
+    "domain": "miniofcharleston.com",
+    "sitemapUrl": "https://www.miniofcharleston.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.miniofcharleston.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://miniofcharleston.com/",
+    "lat": null,
+    "lng": null,
+    "domainSource": "oem-locator"
+  }
+]

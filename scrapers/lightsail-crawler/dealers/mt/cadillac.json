@@ -1,0 +1,54 @@
+[
+  {
+    "id": "cadillac-cadillac-of-billings",
+    "name": "CADILLAC OF BILLINGS",
+    "city": "Billings",
+    "state": "MT",
+    "make": "Cadillac",
+    "domain": "cadillacofbillings.com",
+    "sitemapUrl": "https://www.cadillacofbillings.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.cadillacofbillings.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://cadillacofbillings.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "cadillac-corwin-motors-of-kalispell",
+    "name": "CORWIN MOTORS OF KALISPELL",
+    "city": "Kalispell",
+    "state": "MT",
+    "make": "Cadillac",
+    "domain": "corwincadillackalispell.com",
+    "sitemapUrl": "https://www.corwincadillackalispell.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.corwincadillackalispell.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://corwincadillackalispell.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "cadillac-mildenberger-motors",
+    "name": "MILDENBERGER MOTORS",
+    "city": "HAMILTON",
+    "state": "MT",
+    "make": "Cadillac",
+    "domain": "mildenbergermotors.com",
+    "sitemapUrl": "https://www.mildenbergermotors.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.mildenbergermotors.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://mildenbergermotors.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "cadillac-ressler-cadillac",
+    "name": "RESSLER CADILLAC",
+    "city": "Bozeman",
+    "state": "MT",
+    "make": "Cadillac",
+    "domain": "resslercadillac.com",
+    "sitemapUrl": "https://www.resslercadillac.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.resslercadillac.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://resslercadillac.com/",
+    "lat": null,
+    "lng": null
+  }
+]

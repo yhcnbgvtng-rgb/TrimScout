@@ -1,0 +1,54 @@
+[
+  {
+    "id": "cadillac-cody-cadillac",
+    "name": "CODY CADILLAC",
+    "city": "Montpelier",
+    "state": "VT",
+    "make": "Cadillac",
+    "domain": "codycadillac.com",
+    "sitemapUrl": "https://www.codycadillac.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.codycadillac.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://codycadillac.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "cadillac-handy-buick-gmc-cadillac-inc",
+    "name": "HANDY BUICK-GMC-CADILLAC INC.",
+    "city": "Saint Albans City",
+    "state": "VT",
+    "make": "Cadillac",
+    "domain": "handycadillac.com",
+    "sitemapUrl": "https://www.handycadillac.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.handycadillac.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://handycadillac.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "cadillac-key-motors-of-south-burlington-llc",
+    "name": "KEY MOTORS OF SOUTH BURLINGTON LLC",
+    "city": "South Burlington",
+    "state": "VT",
+    "make": "Cadillac",
+    "domain": "keycadillacvt.com",
+    "sitemapUrl": "https://www.keycadillacvt.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.keycadillacvt.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://keycadillacvt.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "cadillac-springfield-cadillac",
+    "name": "SPRINGFIELD CADILLAC",
+    "city": "N. Springfield",
+    "state": "VT",
+    "make": "Cadillac",
+    "domain": "springfieldcadillacvt.com",
+    "sitemapUrl": "https://www.springfieldcadillacvt.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.springfieldcadillacvt.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://springfieldcadillacvt.com/",
+    "lat": null,
+    "lng": null
+  }
+]

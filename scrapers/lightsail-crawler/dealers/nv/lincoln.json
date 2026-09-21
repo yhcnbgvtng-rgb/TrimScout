@@ -1,0 +1,28 @@
+[
+  {
+    "id": "lincoln-findlay-lincoln",
+    "name": "Findlay Lincoln",
+    "city": "Henderson",
+    "state": "NV",
+    "make": "Lincoln",
+    "domain": "findlaylincolnofhenderson.com",
+    "sitemapUrl": "https://www.findlaylincolnofhenderson.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.findlaylincolnofhenderson.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://findlaylincolnofhenderson.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "lincoln-team-lincoln",
+    "name": "Team Lincoln",
+    "city": "Las Vegas",
+    "state": "NV",
+    "make": "Lincoln",
+    "domain": "teamlincolnlasvegas.com",
+    "sitemapUrl": "https://www.teamlincolnlasvegas.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.teamlincolnlasvegas.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://teamlincolnlasvegas.com/",
+    "lat": null,
+    "lng": null
+  }
+]

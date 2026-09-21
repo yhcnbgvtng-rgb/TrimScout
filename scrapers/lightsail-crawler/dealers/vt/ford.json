@@ -1,0 +1,93 @@
+[
+  {
+    "id": "ford-e-j-barrette-sons-inc",
+    "name": "E. J. Barrette & Sons, Inc.",
+    "city": "Swanton",
+    "state": "VT",
+    "make": "Ford",
+    "domain": "barretteford.com",
+    "sitemapUrl": "https://www.barretteford.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.barretteford.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://barretteford.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "ford-g-stone-motors-inc",
+    "name": "G. Stone Motors, Inc.",
+    "city": "Middlebury",
+    "state": "VT",
+    "make": "Ford",
+    "domain": "gstonemotors.com",
+    "sitemapUrl": "https://www.gstonemotors.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.gstonemotors.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://gstonemotors.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "ford-heritage-ford-south-burlington-vt",
+    "name": "Heritage Ford (South Burlington, VT)",
+    "city": "South Burlington",
+    "state": "VT",
+    "make": "Ford",
+    "domain": "heritagefordvt.com",
+    "sitemapUrl": "https://www.heritagefordvt.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.heritagefordvt.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://heritagefordvt.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "ford-lamoille-valley-ford-inc",
+    "name": "Lamoille Valley Ford, Inc.",
+    "city": "Hardwick",
+    "state": "VT",
+    "make": "Ford",
+    "domain": "lvford.com",
+    "sitemapUrl": "https://www.lvford.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.lvford.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://lvford.com/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "ford-mcgee-ford-of-montpelier",
+    "name": "McGee Ford of Montpelier",
+    "city": "Montpelier",
+    "state": "VT",
+    "make": "Ford",
+    "domain": "mcgeefordvt.net",
+    "sitemapUrl": "https://www.mcgeefordvt.net/sitemap.xml",
+    "inventorySitemapUrl": "https://www.mcgeefordvt.net/sitemap-inventory.xml",
+    "fallbackUrl": "https://mcgeefordvt.net/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "ford-nucar-ford-of-saint-albans",
+    "name": "Nucar Ford of Saint Albans",
+    "city": "Saint Albans",
+    "state": "VT",
+    "make": "Ford",
+    "domain": "nucarfordstalbans.net",
+    "sitemapUrl": "https://www.nucarfordstalbans.net/sitemap.xml",
+    "inventorySitemapUrl": "https://www.nucarfordstalbans.net/sitemap-inventory.xml",
+    "fallbackUrl": "https://nucarfordstalbans.net/",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "id": "ford-oliver-ford-of-bennington",
+    "name": "Oliver Ford of Bennington",
+    "city": "Bennington",
+    "state": "VT",
+    "make": "Ford",
+    "domain": "oliverfordofbennington.net",
+    "sitemapUrl": "https://www.oliverfordofbennington.net/sitemap.xml",
+    "inventorySitemapUrl": "https://www.oliverfordofbennington.net/sitemap-inventory.xml",
+    "fallbackUrl": "https://oliverfordofbennington.net/",
+    "lat": null,
+    "lng": null
+  }
+]

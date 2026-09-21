@@ -1,0 +1,30 @@
+[
+  {
+    "id": "mercedes-benz-mercedes-benz-of-manchester",
+    "name": "Mercedes-Benz of Manchester",
+    "city": "Manchester",
+    "state": "NH",
+    "make": "Mercedes-Benz",
+    "domain": "manchester.mercedesdealer.com",
+    "sitemapUrl": "https://manchester.mercedesdealer.com/sitemap.xml",
+    "inventorySitemapUrl": "https://manchester.mercedesdealer.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://manchester.mercedesdealer.com/",
+    "lat": 42.956801,
+    "lng": -71.439583,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "mercedes-benz-mercedes-benz-of-portsmouth",
+    "name": "Mercedes-Benz of Portsmouth",
+    "city": "Greenland",
+    "state": "NH",
+    "make": "Mercedes-Benz",
+    "domain": "mbportsmouth.com",
+    "sitemapUrl": "https://www.mbportsmouth.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.mbportsmouth.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://mbportsmouth.com/",
+    "lat": 43.0411581,
+    "lng": -70.8216784,
+    "domainSource": "oem-locator"
+  }
+]
