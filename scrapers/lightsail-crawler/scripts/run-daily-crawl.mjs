@@ -219,7 +219,18 @@ export const DRIVER_BUDGET_MS = process.env.CRAWLER_DRIVER_BUDGET_HOURS
 // refuses to start instead of running concurrently against the same
 // shared data files (national_inventory_latest.json, daily_changes/,
 // bot-report outputs) — see acquireLock() below for the actual guard.
-export const LOCK_PATH = path.join(RUNS_DIR, 'driver.lock');
+//
+// CRAWLER_RUN_LABEL scopes this to a named lock file instead of the one
+// shared default — added when a box runs more than one genuinely
+// independent driver invocation (e.g. box 3/box 4 each run their main
+// expansion-brand crawl at 11pm AND a small separate core-brand slice at
+// 4am, on different states/brand sets). Without this, those two
+// invocations would fight over the SAME lock file and the driver would
+// wrongly treat the second one as "the previous run still going" and
+// refuse to start it — they're unrelated jobs, not the same job
+// double-firing. Unset (the default) keeps the single shared lock file
+// every box already used before this existed.
+export const LOCK_PATH = path.join(RUNS_DIR, process.env.CRAWLER_RUN_LABEL ? `driver-${process.env.CRAWLER_RUN_LABEL}.lock` : 'driver.lock');
 
 // Calendar-date bucketing (report/log/summary filenames) uses the Eastern
 // calendar date, not UTC — see src/date_utils.js. A run that starts late

@@ -230,6 +230,23 @@ describe('run-daily-crawl driver', () => {
       }
     });
 
+    it('CRAWLER_RUN_LABEL scopes LOCK_PATH to its own file, so two independent driver jobs on the same box never fight over one lock', async () => {
+      const prev = process.env.CRAWLER_RUN_LABEL;
+      try {
+        delete process.env.CRAWLER_RUN_LABEL;
+        const unlabeled = await import(`../scripts/run-daily-crawl.mjs?t=${Date.now()}-${Math.random()}`);
+        assert.ok(unlabeled.LOCK_PATH.endsWith('driver.lock'));
+
+        process.env.CRAWLER_RUN_LABEL = 'core';
+        const labeled = await import(`../scripts/run-daily-crawl.mjs?t=${Date.now()}-${Math.random()}`);
+        assert.ok(labeled.LOCK_PATH.endsWith('driver-core.lock'));
+        assert.notEqual(labeled.LOCK_PATH, unlabeled.LOCK_PATH);
+      } finally {
+        if (prev === undefined) delete process.env.CRAWLER_RUN_LABEL;
+        else process.env.CRAWLER_RUN_LABEL = prev;
+      }
+    });
+
     it('never runs more than maxConcurrent states at once', async () => {
       let inFlight = 0;
       let maxObservedInFlight = 0;
