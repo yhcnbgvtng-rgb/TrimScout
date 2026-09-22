@@ -1727,13 +1727,35 @@ async function ensureInventoryTable(pool) {
     "ADD INDEX IF NOT EXISTS idx_inv_stock_diff (removed_at, price_diff)",
     "ADD INDEX IF NOT EXISTS idx_inv_stock_dealer_id (removed_at, dealer_id)",
   ]) await pool.query(`ALTER TABLE dealer_inventory ${ddl}`);
-  // The free-text q= search's index: an ngram-parsed FULLTEXT index turns a "contains
-  // anywhere" match into an indexed lookup instead of a 5-column OR'd LIKE full scan (see
-  // handleListInventory). Built once, IF NOT EXISTS — on an existing 570k+-row table this can
-  // take real time, so it's deployed as its own one-off script (scripts/box/2026-09-22-…)
-  // rather than left to run implicitly on first request after a restart; this entry only
-  // matters for a fresh box provisioned from scratch.
-  await pool.query("ALTER TABLE dealer_inventory ADD FULLTEXT INDEX IF NOT EXISTS idx_inv_search (vin, dealer_name, model, trim, stock_number) WITH PARSER ngram");
+  // The free-text q= search's index. 2026-09-22: an ngram FULLTEXT parser (MariaDB's
+  // documented CJK/no-space substring technique) turned out not to exist on this box at all —
+  // not installed, not even present as a plugin file, and no apt package ships it either
+  // (confirmed live: ER_FUNCTION_NOT_DEFINED, then an empty apt-cache search). Vanilla MariaDB
+  // has no built-in arbitrary-substring index, so this covers the two patterns that actually
+  // matter in practice — the start OR the end of a value (a partial VIN's last 6, a dealer
+  // name's trailing "…Route 10") — via a plain B-tree prefix search in each direction: a
+  // forward index on the column, and a reversed, generated column with its own index (a
+  // reversed-prefix search is a suffix search on the original string). vin's forward prefix
+  // already has an index via the PRIMARY KEY (vin, dealer_id). Built once, IF NOT EXISTS — on
+  // an existing 570k+-row table this can take real time, so it's deployed as its own one-off
+  // script (scripts/box/2026-09-22-…) rather than left to run implicitly on first request
+  // after a restart; this entry only matters for a fresh box provisioned from scratch.
+  for (const ddl of [
+    "ADD COLUMN IF NOT EXISTS vin_rev CHAR(17) GENERATED ALWAYS AS (REVERSE(vin)) STORED",
+    "ADD COLUMN IF NOT EXISTS dealer_name_rev VARCHAR(255) GENERATED ALWAYS AS (REVERSE(dealer_name)) STORED",
+    "ADD COLUMN IF NOT EXISTS model_rev VARCHAR(96) GENERATED ALWAYS AS (REVERSE(model)) STORED",
+    "ADD COLUMN IF NOT EXISTS trim_rev VARCHAR(160) GENERATED ALWAYS AS (REVERSE(trim)) STORED",
+    "ADD COLUMN IF NOT EXISTS stock_number_rev VARCHAR(64) GENERATED ALWAYS AS (REVERSE(stock_number)) STORED",
+    "ADD INDEX IF NOT EXISTS idx_inv_vin_rev (vin_rev)",
+    "ADD INDEX IF NOT EXISTS idx_inv_dealer_name_fwd (dealer_name)",
+    "ADD INDEX IF NOT EXISTS idx_inv_dealer_name_rev (dealer_name_rev)",
+    "ADD INDEX IF NOT EXISTS idx_inv_model_fwd (model)",
+    "ADD INDEX IF NOT EXISTS idx_inv_model_rev (model_rev)",
+    "ADD INDEX IF NOT EXISTS idx_inv_trim_fwd (trim)",
+    "ADD INDEX IF NOT EXISTS idx_inv_trim_rev (trim_rev)",
+    "ADD INDEX IF NOT EXISTS idx_inv_stock_fwd (stock_number)",
+    "ADD INDEX IF NOT EXISTS idx_inv_stock_rev (stock_number_rev)",
+  ]) await pool.query(`ALTER TABLE dealer_inventory ${ddl}`);
   // One row per (VIN, store, day) the crawl saw the car, with that day's price — the day-by-day history behind
   // the VIN view. Written on every sync; the crawl's price-history points backfill days before the table existed.
   await pool.query(`CREATE TABLE IF NOT EXISTS dealer_inventory_days (
@@ -1860,15 +1882,27 @@ async function handleListInventory(req, res, params) {
   if (p("q")) {
     // A leading-wildcard LIKE across 5 columns can't use any index — confirmed via EXPLAIN
     // against the live box (2026-09-22): type "ALL", a full scan of 555k+ rows, ~16s per
-    // search. idx_inv_search (an ngram FULLTEXT index — see scripts/box/2026-09-22-…) turns
-    // the same "contains anywhere" search into an indexed lookup: a double-quoted boolean-mode
-    // phrase match is MariaDB's documented technique for true substring search via ngram
-    // (built for CJK/no-space text, equally valid for VINs and stock numbers). A term under 2
-    // characters has no ngram to match, so it falls back to the old scan — rare, no regression.
-    const term = p("q").replace(/"/g, "").trim();
+    // search. idx_inv_*_fwd/_rev (see ensureInventoryTable) cover the two patterns that
+    // matter in practice — starts-with or ends-with — as an indexed prefix search in each
+    // direction (a reversed-prefix match is a suffix match on the original value): a VIN's
+    // last 6, a dealer name's trailing "…Route 10", the start of a model/trim/stock number.
+    // What this can't find: a fragment from the middle that's neither end — a smaller, more
+    // honest gap than the ngram approach this replaced, which didn't exist on this box at
+    // all (no plugin, not installable via apt either). A term under 2 characters is too
+    // short for a useful prefix/suffix match, so it falls back to the old full scan — rare,
+    // no regression there.
+    const term = p("q").trim();
     if (term.length >= 2) {
-      where.push("MATCH(i.vin, i.dealer_name, i.model, i.trim, i.stock_number) AGAINST (? IN BOOLEAN MODE)");
-      args.push(`"${term}"`);
+      where.push(`(
+        i.vin LIKE ? OR i.vin_rev LIKE ? OR
+        i.dealer_name LIKE ? OR i.dealer_name_rev LIKE ? OR
+        i.model LIKE ? OR i.model_rev LIKE ? OR
+        i.trim LIKE ? OR i.trim_rev LIKE ? OR
+        i.stock_number LIKE ? OR i.stock_number_rev LIKE ?
+      )`);
+      const fwd = `${term}%`;
+      const back = `${term.split("").reverse().join("")}%`;
+      args.push(fwd, back, fwd, back, fwd, back, fwd, back, fwd, back);
     } else if (term) {
       where.push("(i.vin LIKE ? OR i.dealer_name LIKE ? OR i.model LIKE ? OR i.trim LIKE ? OR i.stock_number LIKE ?)");
       const like = `%${term}%`;
@@ -1883,8 +1917,8 @@ async function handleListInventory(req, res, params) {
   const sql = `FROM dealer_inventory i LEFT JOIN dealership_contacts d ON d.id = i.dealer_id ${where.length ? "WHERE " + where.join(" AND ") : ""}`;
   // One scan instead of two: running the WHERE clause a second time just for
   // COUNT(*) doubled the cost of every request for nothing (worst case a
-  // free-text q= search — see idx_inv_search above for why that's no longer
-  // a full scan on its own). SQL_CALC_FOUND_ROWS computes the full match
+  // free-text q= search — see the idx_inv_*_fwd/_rev indexes above for why
+  // that's no longer a full scan on its own). SQL_CALC_FOUND_ROWS computes the full match
   // count as a side effect of the LIMITed query itself (MariaDB has never
   // deprecated it, unlike MySQL 8+), so FOUND_ROWS() is a cheap follow-up,
   // not a second scan — but it's per-connection state, so both queries MUST
