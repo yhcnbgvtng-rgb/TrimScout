@@ -1857,8 +1857,24 @@ async function handleListInventory(req, res, params) {
   const limit = Math.min(Math.max(Number(p("limit")) || 200, 1), 2000);
   const offset = Math.max(Number(p("offset")) || 0, 0);
   const sql = `FROM dealer_inventory i LEFT JOIN dealership_contacts d ON d.id = i.dealer_id ${where.length ? "WHERE " + where.join(" AND ") : ""}`;
-  const [[{ total }]] = await pool.query(`SELECT COUNT(*) AS total ${sql}`, args);
-  const [rows] = await pool.query(`SELECT i.*, d.city AS dealer_city, d.state AS dealer_state ${sql} ORDER BY ${orderBy} LIMIT ? OFFSET ?`, [...args, limit, offset]);
+  // One scan instead of two. A free-text q= search is a 5-column OR'd LIKE
+  // '%...%' — no index can help a leading wildcard, so it walks every
+  // candidate row; running that same WHERE clause a second time just for
+  // COUNT(*) doubled the cost of every search for nothing. SQL_CALC_FOUND_ROWS
+  // computes the full match count as a side effect of the LIMITed query
+  // itself (MariaDB has never deprecated it, unlike MySQL 8+), so FOUND_ROWS()
+  // is a cheap follow-up, not a second scan — but it's per-connection state,
+  // so both queries MUST run on the same pooled connection, never pool.query()
+  // twice (the second call can land on a different connection and read back
+  // an unrelated request's count). Same `total` value in the response either way.
+  const conn = await pool.getConnection();
+  let rows, total;
+  try {
+    [rows] = await conn.query(`SELECT SQL_CALC_FOUND_ROWS i.*, d.city AS dealer_city, d.state AS dealer_state ${sql} ORDER BY ${orderBy} LIMIT ? OFFSET ?`, [...args, limit, offset]);
+    [[{ total }]] = await conn.query("SELECT FOUND_ROWS() AS total");
+  } finally {
+    conn.release();
+  }
   sendJson(res, 200, { total, limit, offset, vehicles: rows.map(inventoryRowFromDb) });
 }
 
