@@ -1940,7 +1940,14 @@ async function handleListInventory(req, res, params) {
   const orderBy = `${sortable[sk] || "i.dealer_name"} ${sd === "desc" ? "DESC" : "ASC"}, i.vin ASC`;
   const limit = Math.min(Math.max(Number(p("limit")) || 200, 1), 2000);
   const offset = Math.max(Number(p("offset")) || 0, 0);
-  const sql = `FROM dealer_inventory i LEFT JOIN dealership_contacts d ON d.id = i.dealer_id ${where.length ? "WHERE " + where.join(" AND ") : ""}`;
+  // A make= filter combined with the default dealer_name sort made the optimizer pick
+  // idx_inv_stock_dealer (295k-row estimate) over the far more selective idx_inv_stock_make
+  // (removed_at, make, model) — confirmed live 2026-09-22: 110.9s vs 203ms forced. Likely
+  // the growing number of indexes on this table (added for the prefix/suffix search) gave
+  // the planner more bad options to pick from. model= and state= filters were checked at the
+  // same time and don't hit this — only make= needed a hint.
+  const indexHint = p("make") ? "FORCE INDEX (idx_inv_stock_make)" : "";
+  const sql = `FROM dealer_inventory i ${indexHint} LEFT JOIN dealership_contacts d ON d.id = i.dealer_id ${where.length ? "WHERE " + where.join(" AND ") : ""}`;
   // Two independent queries, NOT SQL_CALC_FOUND_ROWS — reverted 2026-09-22 after it caused a
   // live outage on the default (no q=, inStock=1, sort=dealer:asc) view: 591k candidate rows,
   // 427k matching. SQL_CALC_FOUND_ROWS can't return early once LIMIT rows are found — it must
