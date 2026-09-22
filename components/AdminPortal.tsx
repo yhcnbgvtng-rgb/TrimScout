@@ -268,48 +268,70 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
       )}
 
       {/* Admin Command Header */}
-      <div className="rounded-3xl border border-border-strong bg-surface p-6 shadow-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4 backdrop-blur-xl">
-        <div className="flex items-center gap-3.5">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-rose-500/30 to-purple-500/20 text-rose-400 border border-rose-500/40 shadow-inner">
-            <ShieldCheck className="h-6 w-6" />
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-xl font-black text-white tracking-tight">TrimScout Master Admin Portal</h1>
-              <span className="inline-flex items-center gap-1 rounded-full bg-rose-500/20 px-2 py-0.5 text-[9.5px] font-black text-rose-400 border border-rose-500/40 uppercase">
-                Root Access
-              </span>
+      <div className="rounded-2xl border border-border bg-surface p-5 shadow-lg">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-rose-500/15 text-rose-400">
+              <ShieldCheck className="h-5 w-5" />
             </div>
-            <p className="text-xs text-ink-muted">
-              Live Directory Administration • User Impersonation • Telemetry & Security
-            </p>
+            <div>
+              <div className="flex items-center gap-2">
+                <h1 className="text-base font-black text-white tracking-tight">Admin Portal</h1>
+                <span className="rounded-full bg-rose-500/15 px-2 py-0.5 text-[9px] font-black uppercase tracking-wide text-rose-400">
+                  Root
+                </span>
+              </div>
+              <p className="text-[11px] text-ink-muted">Directory administration · Impersonation · Telemetry</p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={handleAdminLogout}
+              className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[11px] font-bold text-rose-300 hover:bg-rose-500/10 hover:text-rose-200 transition-colors"
+            >
+              <LogOut className="h-3.5 w-3.5" />
+              <span>Lock Admin</span>
+            </button>
+            <button
+              onClick={onExitAdmin}
+              className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[11px] font-bold text-ink-muted hover:bg-surface-elevated hover:text-white transition-colors"
+            >
+              <span>Exit Portal</span>
+            </button>
           </div>
         </div>
 
-        <div className="flex items-center gap-2 flex-wrap">
+        <div className="mt-4 flex flex-wrap items-center gap-1.5 border-t border-border pt-4">
           <Link
             href="/admin/approvals"
-            className={`inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-black shadow-md transition-all cursor-pointer ${pendingApprovals ? "bg-amber-400 text-black hover:bg-amber-300 shadow-amber-500/20" : "border border-border bg-surface-elevated text-ink-light hover:bg-surface hover:text-white shadow-sm"}`}
             data-testid="nav-approvals"
+            className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-[11px] font-bold transition-colors ${
+              pendingApprovals
+                ? "border-amber-500/40 bg-amber-500/10 text-amber-300 hover:bg-amber-500/15"
+                : "border-border bg-surface-elevated text-ink-light hover:bg-border/40 hover:text-white"
+            }`}
           >
             <ShieldCheck className="h-3.5 w-3.5" />
             <span>Pending approvals</span>
-            {pendingApprovals ? <span className="rounded-full bg-black/80 px-1.5 py-0.5 text-[10px] font-black text-amber-300">{pendingApprovals}</span> : null}
+            {pendingApprovals ? (
+              <span className="rounded-full bg-amber-500 px-1.5 py-0.5 text-[9.5px] font-black text-black">{pendingApprovals}</span>
+            ) : null}
           </Link>
 
           <Link
             href="/admin/quote-requests"
-            className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-surface-elevated hover:bg-surface px-3.5 py-2 text-xs font-bold text-ink-light hover:text-white transition-all shadow-sm"
             data-testid="nav-all-quotes"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface-elevated px-3 py-1.5 text-[11px] font-bold text-ink-light hover:bg-border/40 hover:text-white transition-colors"
           >
             <ClipboardList className="h-3.5 w-3.5" />
             <span>All quote requests</span>
-            {allQuotes != null ? <span className="rounded-full bg-border px-1.5 py-0.5 text-[10px] font-black text-ink-light">{allQuotes}</span> : null}
+            {allQuotes != null ? <span className="rounded-full bg-border px-1.5 py-0.5 text-[9.5px] font-black text-ink-light">{allQuotes}</span> : null}
           </Link>
 
           <Link
             href="/admin/dealerships"
-            className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 px-3.5 py-2 text-xs font-black text-black shadow-md shadow-emerald-500/20 transition-all cursor-pointer"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface-elevated px-3 py-1.5 text-[11px] font-bold text-ink-light hover:bg-border/40 hover:text-white transition-colors"
           >
             <Building2 className="h-3.5 w-3.5" />
             <span>Dealership Contacts</span>
@@ -317,7 +339,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
 
           <Link
             href="/admin/crawl"
-            className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-surface-elevated hover:bg-surface px-3.5 py-2 text-xs font-bold text-ink-light hover:text-white transition-all shadow-sm"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface-elevated px-3 py-1.5 text-[11px] font-bold text-ink-light hover:bg-border/40 hover:text-white transition-colors"
           >
             <Table2 className="h-3.5 w-3.5" />
             <span>Web Crawl Sheet</span>
@@ -325,7 +347,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
 
           <Link
             href="/admin/analytics"
-            className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-surface-elevated hover:bg-surface px-3.5 py-2 text-xs font-bold text-ink-light hover:text-white transition-all shadow-sm"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface-elevated px-3 py-1.5 text-[11px] font-bold text-ink-light hover:bg-border/40 hover:text-white transition-colors"
           >
             <BarChart3 className="h-3.5 w-3.5" />
             <span>Site Analytics</span>
@@ -333,90 +355,75 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
 
           <button
             onClick={handleExportAccounts}
-            className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-surface-elevated hover:bg-surface px-3 py-2 text-xs font-bold text-ink-light hover:text-white transition-all shadow-sm"
             title="Download JSON database backup"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface-elevated px-3 py-1.5 text-[11px] font-bold text-ink-light hover:bg-border/40 hover:text-white transition-colors"
           >
-            <Download className="h-3.5 w-3.5 text-emerald-400" />
+            <Download className="h-3.5 w-3.5" />
             <span>Export Accounts</span>
-          </button>
-
-          <button
-            onClick={handleAdminLogout}
-            className="inline-flex items-center gap-1.5 rounded-xl border border-rose-500/40 bg-rose-950/30 hover:bg-rose-900/40 px-3 py-2 text-xs font-bold text-rose-300 hover:text-white transition-all shadow-sm"
-          >
-            <LogOut className="h-3.5 w-3.5" />
-            <span>Lock Admin</span>
-          </button>
-
-          <button
-            onClick={onExitAdmin}
-            className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-surface-elevated hover:bg-surface px-3 py-2 text-xs font-bold text-white transition-all shadow-sm"
-          >
-            <span>Exit Portal</span>
           </button>
         </div>
       </div>
 
       {/* Platform Telemetry Metric Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
-        <div className="rounded-2xl border border-border/80 bg-surface p-4 space-y-1 shadow-sm">
+      <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+        <div className="rounded-xl border border-border bg-surface p-4 space-y-1">
           <div className="flex items-center justify-between text-xs text-ink-muted">
             <span>Total Accounts</span>
-            <Users className="h-4 w-4 text-emerald-400" />
+            <Users className="h-4 w-4 text-ink-faint" />
           </div>
           <div className="text-2xl font-black text-white">{accounts.length}</div>
           <div className="text-[10.5px] text-emerald-400 font-medium">+2 this week</div>
         </div>
 
-        <div className="rounded-2xl border border-border/80 bg-surface p-4 space-y-1 shadow-sm">
+        <div className="rounded-xl border border-border bg-surface p-4 space-y-1">
           <div className="flex items-center justify-between text-xs text-ink-muted">
             <span>Buyer Accounts</span>
-            <User className="h-4 w-4 text-blue-400" />
+            <User className="h-4 w-4 text-ink-faint" />
           </div>
           <div className="text-2xl font-black text-white">{totalBuyers}</div>
-          <div className="text-[10.5px] text-ink-muted">Shielded Aliases</div>
+          <div className="text-[10.5px] text-ink-muted">Shielded aliases</div>
         </div>
 
-        <div className="rounded-2xl border border-border/80 bg-surface p-4 space-y-1 shadow-sm">
+        <div className="rounded-xl border border-border bg-surface p-4 space-y-1">
           <div className="flex items-center justify-between text-xs text-ink-muted">
             <span>Dealer Partners</span>
-            <Building2 className="h-4 w-4 text-purple-400" />
+            <Building2 className="h-4 w-4 text-ink-faint" />
           </div>
           <div className="text-2xl font-black text-white">{totalDealers}</div>
-          <div className="text-[10.5px] text-purple-400 font-medium">Verified Franchise</div>
+          <div className="text-[10.5px] text-ink-muted">Verified franchise</div>
         </div>
 
         <button
           type="button"
           onClick={() => setRoleFilter(roleFilter === "pending" ? "all" : "pending")}
-          className={`text-left rounded-2xl border p-4 space-y-1 shadow-sm transition-all ${
-            totalPending > 0 ? "border-amber-500/40 bg-amber-950/10 hover:bg-amber-950/20" : "border-border/80 bg-surface"
+          className={`text-left rounded-xl border p-4 space-y-1 transition-colors ${
+            totalPending > 0 ? "border-amber-500/40 bg-amber-500/5 hover:bg-amber-500/10" : "border-border bg-surface hover:bg-surface-elevated"
           }`}
         >
           <div className="flex items-center justify-between text-xs text-ink-muted">
             <span>Pending Approval</span>
-            <UserCheck className="h-4 w-4 text-amber-400" />
+            <UserCheck className={`h-4 w-4 ${totalPending > 0 ? "text-amber-400" : "text-ink-faint"}`} />
           </div>
           <div className={`text-2xl font-black ${totalPending > 0 ? "text-amber-400" : "text-white"}`}>{totalPending}</div>
           <div className="text-[10.5px] text-ink-muted">Uninvited dealer signups</div>
         </button>
 
-        <div className="rounded-2xl border border-border/80 bg-surface p-4 space-y-1 shadow-sm">
+        <div className={`rounded-xl border p-4 space-y-1 ${totalSuspended > 0 ? "border-rose-500/40 bg-rose-500/5" : "border-border bg-surface"}`}>
           <div className="flex items-center justify-between text-xs text-ink-muted">
             <span>Suspended / Flags</span>
-            <AlertTriangle className="h-4 w-4 text-rose-400" />
+            <AlertTriangle className={`h-4 w-4 ${totalSuspended > 0 ? "text-rose-400" : "text-ink-faint"}`} />
           </div>
-          <div className="text-2xl font-black text-rose-400">{totalSuspended}</div>
+          <div className={`text-2xl font-black ${totalSuspended > 0 ? "text-rose-400" : "text-white"}`}>{totalSuspended}</div>
           <div className="text-[10.5px] text-ink-muted">Auto-flagged</div>
         </div>
       </div>
 
       {/* Main Admin Section: Navigation & Table */}
-      <div className="rounded-3xl border border-border-strong bg-surface p-6 shadow-2xl space-y-5">
+      <div className="rounded-2xl border border-border bg-surface p-5 shadow-lg space-y-4">
         {/* Filters and Search Bar */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3 flex-wrap">
           {/* Role Filter Tabs */}
-          <div className="flex items-center gap-1.5 p-1 rounded-2xl bg-surface-elevated border border-border text-xs font-bold overflow-x-auto w-full sm:w-auto">
+          <div className="flex items-center gap-1 p-1 rounded-xl bg-surface-elevated border border-border text-[11px] font-bold overflow-x-auto w-full sm:w-auto">
             <button
               onClick={() => setRoleFilter("all")}
               className={`px-3 py-1.5 rounded-xl transition-all ${

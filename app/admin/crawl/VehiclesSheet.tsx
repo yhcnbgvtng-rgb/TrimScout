@@ -31,6 +31,7 @@ export default function VehiclesSheet() {
   const [state, setState] = useState("");
   const [make, setMake] = useState("");
   const [model, setModel] = useState("");
+  const [trim, setTrim] = useState("");
   const [cond, setCond] = useState("");
   const [inStock, setInStock] = useState(true);
   const [movement, setMovement] = useState<Movement>("");
@@ -48,6 +49,7 @@ export default function VehiclesSheet() {
     if (state) p.set("state", state);
     if (make) p.set("make", make);
     if (model.trim()) p.set("model", model.trim());
+    if (trim.trim()) p.set("trim", trim.trim());
     if (cond) p.set("cond", cond);
     if (inStock) p.set("inStock", "1");
     if (movement === "arrivals") p.set("changeType", "NEW_ARRIVAL");
@@ -58,7 +60,7 @@ export default function VehiclesSheet() {
     if (qDebounced) p.set("q", qDebounced);
     p.set("sort", `${sort.key}:${sort.dir}`);
     return p;
-  }, [state, make, model, cond, inStock, movement, hasSticker, minDays, qDebounced, sort]);
+  }, [state, make, model, trim, cond, inStock, movement, hasSticker, minDays, qDebounced, sort]);
 
   const loadStats = useCallback(async () => {
     const res = await fetch("/api/admin/inventory?stats=1", { cache: "no-store" });
@@ -111,8 +113,8 @@ export default function VehiclesSheet() {
     }
   };
 
-  const activeFilters = [state, make, model.trim(), cond, qDebounced, movement, minDays.trim()].filter(Boolean).length + (inStock ? 0 : 1) + (hasSticker ? 1 : 0);
-  const clearAll = () => { setQ(""); setState(""); setMake(""); setModel(""); setCond(""); setInStock(true); setMovement(""); setHasSticker(false); setMinDays(""); };
+  const activeFilters = [state, make, model.trim(), trim.trim(), cond, qDebounced, movement, minDays.trim()].filter(Boolean).length + (inStock ? 0 : 1) + (hasSticker ? 1 : 0);
+  const clearAll = () => { setQ(""); setState(""); setMake(""); setModel(""); setTrim(""); setCond(""); setInStock(true); setMovement(""); setHasSticker(false); setMinDays(""); };
   const onHeader = (key: keyof VehicleRow) => { const sk = SORT_FOR[key]; if (!sk) return; setSort((s) => (s.key === sk ? { key: sk, dir: s.dir === "asc" ? "desc" : "asc" } : { key: sk, dir: sk === "price" || sk === "year" || sk === "seen" || sk === "days" || sk === "msrp" ? "desc" : "asc" })); };
   const totalW = VEHICLE_SHEET_COLUMNS.reduce((s, c) => s + (COL_W[c.key] || 120), 0);
 
@@ -128,13 +130,14 @@ export default function VehiclesSheet() {
         )}
         <select id="veh-state" value={state} onChange={(e) => setState(e.target.value)} className="rounded-xl border border-border bg-surface-elevated px-2.5 py-2 text-[11px] font-bold text-ink-light">
           <option value="">All states</option>
-          {(stats?.byState || []).map((s) => <option key={s.state} value={s.state}>{s.state} · {s.n.toLocaleString()}</option>)}
+          {[...(stats?.byState || [])].sort((a, b) => a.state.localeCompare(b.state)).map((s) => <option key={s.state} value={s.state}>{s.state} · {s.n.toLocaleString()}</option>)}
         </select>
         <select id="veh-make" value={make} onChange={(e) => setMake(e.target.value)} className="rounded-xl border border-border bg-surface-elevated px-2.5 py-2 text-[11px] font-bold text-ink-light">
           <option value="">All makes</option>
           {(stats?.byMake || []).map((m) => <option key={m.make} value={m.make}>{m.make} · {m.n.toLocaleString()}</option>)}
         </select>
-        <input id="veh-model" value={model} onChange={(e) => setModel(e.target.value)} placeholder="Model" className="w-32 rounded-xl border border-border bg-surface-elevated px-2.5 py-2 text-[11px] font-bold text-white placeholder:text-ink-faint" />
+        <input id="veh-model" value={model} onChange={(e) => setModel(e.target.value)} placeholder="Model" className="w-28 rounded-xl border border-border bg-surface-elevated px-2.5 py-2 text-[11px] font-bold text-white placeholder:text-ink-faint" />
+        <input id="veh-trim" value={trim} onChange={(e) => setTrim(e.target.value)} placeholder="Trim" className="w-28 rounded-xl border border-border bg-surface-elevated px-2.5 py-2 text-[11px] font-bold text-white placeholder:text-ink-faint" />
         <select id="veh-cond" value={cond} onChange={(e) => setCond(e.target.value)} className="rounded-xl border border-border bg-surface-elevated px-2.5 py-2 text-[11px] font-bold text-ink-light">
           <option value="">New + used</option><option value="new">New</option><option value="used">Used</option><option value="cpo">Certified</option>
         </select>
