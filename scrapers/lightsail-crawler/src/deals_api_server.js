@@ -1734,18 +1734,22 @@ async function ensureInventoryTable(pool) {
   // has no built-in arbitrary-substring index, so this covers the two patterns that actually
   // matter in practice — the start OR the end of a value (a partial VIN's last 6, a dealer
   // name's trailing "…Route 10") — via a plain B-tree prefix search in each direction: a
-  // forward index on the column, and a reversed, generated column with its own index (a
-  // reversed-prefix search is a suffix search on the original string). vin's forward prefix
+  // forward index on the column, and a reversed copy with its own index (a reversed-prefix
+  // search is a suffix search on the original string). The reversed columns are plain (NOT
+  // generated) — MariaDB rejects REVERSE() inside GENERATED ALWAYS AS (confirmed live:
+  // "Function or expression 'reverse(...)' cannot be used in the GENERATED ALWAYS AS
+  // clause", no error code, errno 1901 — a MariaDB-specific restriction MySQL doesn't share),
+  // so the two triggers below populate them on every write instead. vin's forward prefix
   // already has an index via the PRIMARY KEY (vin, dealer_id). Built once, IF NOT EXISTS — on
   // an existing 570k+-row table this can take real time, so it's deployed as its own one-off
   // script (scripts/box/2026-09-22-…) rather than left to run implicitly on first request
   // after a restart; this entry only matters for a fresh box provisioned from scratch.
   for (const ddl of [
-    "ADD COLUMN IF NOT EXISTS vin_rev CHAR(17) GENERATED ALWAYS AS (REVERSE(vin)) STORED",
-    "ADD COLUMN IF NOT EXISTS dealer_name_rev VARCHAR(255) GENERATED ALWAYS AS (REVERSE(dealer_name)) STORED",
-    "ADD COLUMN IF NOT EXISTS model_rev VARCHAR(96) GENERATED ALWAYS AS (REVERSE(model)) STORED",
-    "ADD COLUMN IF NOT EXISTS trim_rev VARCHAR(160) GENERATED ALWAYS AS (REVERSE(trim)) STORED",
-    "ADD COLUMN IF NOT EXISTS stock_number_rev VARCHAR(64) GENERATED ALWAYS AS (REVERSE(stock_number)) STORED",
+    "ADD COLUMN IF NOT EXISTS vin_rev CHAR(17) NULL",
+    "ADD COLUMN IF NOT EXISTS dealer_name_rev VARCHAR(255) NULL",
+    "ADD COLUMN IF NOT EXISTS model_rev VARCHAR(96) NULL",
+    "ADD COLUMN IF NOT EXISTS trim_rev VARCHAR(160) NULL",
+    "ADD COLUMN IF NOT EXISTS stock_number_rev VARCHAR(64) NULL",
     "ADD INDEX IF NOT EXISTS idx_inv_vin_rev (vin_rev)",
     "ADD INDEX IF NOT EXISTS idx_inv_dealer_name_fwd (dealer_name)",
     "ADD INDEX IF NOT EXISTS idx_inv_dealer_name_rev (dealer_name_rev)",
@@ -1756,6 +1760,20 @@ async function ensureInventoryTable(pool) {
     "ADD INDEX IF NOT EXISTS idx_inv_stock_fwd (stock_number)",
     "ADD INDEX IF NOT EXISTS idx_inv_stock_rev (stock_number_rev)",
   ]) await pool.query(`ALTER TABLE dealer_inventory ${ddl}`);
+  // Triggers, not generated columns (see note above) — plain BEFORE INSERT/UPDATE writes,
+  // unrestricted in what functions they may call. Backfilling existing rows is a separate,
+  // one-off step (scripts/box/2026-09-22-…), not done here — it only matters on first deploy.
+  for (const when of ["INSERT", "UPDATE"]) {
+    await pool.query(`
+      CREATE TRIGGER IF NOT EXISTS trg_inv_rev_${when.toLowerCase()} BEFORE ${when} ON dealer_inventory
+      FOR EACH ROW SET
+        NEW.vin_rev = REVERSE(NEW.vin),
+        NEW.dealer_name_rev = REVERSE(NEW.dealer_name),
+        NEW.model_rev = REVERSE(NEW.model),
+        NEW.trim_rev = REVERSE(NEW.trim),
+        NEW.stock_number_rev = REVERSE(NEW.stock_number)
+    `);
+  }
   // One row per (VIN, store, day) the crawl saw the car, with that day's price — the day-by-day history behind
   // the VIN view. Written on every sync; the crawl's price-history points backfill days before the table existed.
   await pool.query(`CREATE TABLE IF NOT EXISTS dealer_inventory_days (
