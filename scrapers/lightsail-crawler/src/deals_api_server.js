@@ -1727,6 +1727,13 @@ async function ensureInventoryTable(pool) {
     "ADD INDEX IF NOT EXISTS idx_inv_stock_diff (removed_at, price_diff)",
     "ADD INDEX IF NOT EXISTS idx_inv_stock_dealer_id (removed_at, dealer_id)",
   ]) await pool.query(`ALTER TABLE dealer_inventory ${ddl}`);
+  // The free-text q= search's index: an ngram-parsed FULLTEXT index turns a "contains
+  // anywhere" match into an indexed lookup instead of a 5-column OR'd LIKE full scan (see
+  // handleListInventory). Built once, IF NOT EXISTS — on an existing 570k+-row table this can
+  // take real time, so it's deployed as its own one-off script (scripts/box/2026-09-22-…)
+  // rather than left to run implicitly on first request after a restart; this entry only
+  // matters for a fresh box provisioned from scratch.
+  await pool.query("ALTER TABLE dealer_inventory ADD FULLTEXT INDEX IF NOT EXISTS idx_inv_search (vin, dealer_name, model, trim, stock_number) WITH PARSER ngram");
   // One row per (VIN, store, day) the crawl saw the car, with that day's price — the day-by-day history behind
   // the VIN view. Written on every sync; the crawl's price-history points backfill days before the table existed.
   await pool.query(`CREATE TABLE IF NOT EXISTS dealer_inventory_days (
@@ -1850,23 +1857,40 @@ async function handleListInventory(req, res, params) {
   if (p("priceChange") === "increase") where.push("i.price_diff > 0");
   if (p("hasSticker") === "1") where.push("i.window_sticker_url IS NOT NULL");
   if (p("minDays")) { where.push("i.days_on_lot >= ?"); args.push(Number(p("minDays"))); }
-  if (p("q")) { where.push("(i.vin LIKE ? OR i.dealer_name LIKE ? OR i.model LIKE ? OR i.trim LIKE ? OR i.stock_number LIKE ?)"); const like = `%${p("q")}%`; args.push(like, like, like, like, like); }
+  if (p("q")) {
+    // A leading-wildcard LIKE across 5 columns can't use any index — confirmed via EXPLAIN
+    // against the live box (2026-09-22): type "ALL", a full scan of 555k+ rows, ~16s per
+    // search. idx_inv_search (an ngram FULLTEXT index — see scripts/box/2026-09-22-…) turns
+    // the same "contains anywhere" search into an indexed lookup: a double-quoted boolean-mode
+    // phrase match is MariaDB's documented technique for true substring search via ngram
+    // (built for CJK/no-space text, equally valid for VINs and stock numbers). A term under 2
+    // characters has no ngram to match, so it falls back to the old scan — rare, no regression.
+    const term = p("q").replace(/"/g, "").trim();
+    if (term.length >= 2) {
+      where.push("MATCH(i.vin, i.dealer_name, i.model, i.trim, i.stock_number) AGAINST (? IN BOOLEAN MODE)");
+      args.push(`"${term}"`);
+    } else if (term) {
+      where.push("(i.vin LIKE ? OR i.dealer_name LIKE ? OR i.model LIKE ? OR i.trim LIKE ? OR i.stock_number LIKE ?)");
+      const like = `%${term}%`;
+      args.push(like, like, like, like, like);
+    }
+  }
   const sortable = { dealer: "i.dealer_name", year: "i.year", make: "i.make", model: "i.model", price: "i.price", mileage: "i.mileage", seen: "i.last_seen_at", days: "i.days_on_lot", pricediff: "i.price_diff", msrp: "i.msrp" };
   const [sk, sd] = (p("sort") || "dealer:asc").split(":");
   const orderBy = `${sortable[sk] || "i.dealer_name"} ${sd === "desc" ? "DESC" : "ASC"}, i.vin ASC`;
   const limit = Math.min(Math.max(Number(p("limit")) || 200, 1), 2000);
   const offset = Math.max(Number(p("offset")) || 0, 0);
   const sql = `FROM dealer_inventory i LEFT JOIN dealership_contacts d ON d.id = i.dealer_id ${where.length ? "WHERE " + where.join(" AND ") : ""}`;
-  // One scan instead of two. A free-text q= search is a 5-column OR'd LIKE
-  // '%...%' — no index can help a leading wildcard, so it walks every
-  // candidate row; running that same WHERE clause a second time just for
-  // COUNT(*) doubled the cost of every search for nothing. SQL_CALC_FOUND_ROWS
-  // computes the full match count as a side effect of the LIMITed query
-  // itself (MariaDB has never deprecated it, unlike MySQL 8+), so FOUND_ROWS()
-  // is a cheap follow-up, not a second scan — but it's per-connection state,
-  // so both queries MUST run on the same pooled connection, never pool.query()
-  // twice (the second call can land on a different connection and read back
-  // an unrelated request's count). Same `total` value in the response either way.
+  // One scan instead of two: running the WHERE clause a second time just for
+  // COUNT(*) doubled the cost of every request for nothing (worst case a
+  // free-text q= search — see idx_inv_search above for why that's no longer
+  // a full scan on its own). SQL_CALC_FOUND_ROWS computes the full match
+  // count as a side effect of the LIMITed query itself (MariaDB has never
+  // deprecated it, unlike MySQL 8+), so FOUND_ROWS() is a cheap follow-up,
+  // not a second scan — but it's per-connection state, so both queries MUST
+  // run on the same pooled connection, never pool.query() twice (the second
+  // call can land on a different connection and read back an unrelated
+  // request's count). Same `total` value in the response either way.
   const conn = await pool.getConnection();
   let rows, total;
   try {
