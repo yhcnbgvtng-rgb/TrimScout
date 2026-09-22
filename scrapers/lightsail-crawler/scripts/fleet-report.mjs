@@ -220,7 +220,7 @@ async function main() {
   return summary;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1])) {
   main().then(() => process.exit(0)).catch((err) => {
     console.error('[fleet-report] fatal:', err.stack || err.message);
     process.exit(1);
