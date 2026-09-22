@@ -186,6 +186,22 @@ function normalizeBodyStyleField(rawBodyStyle) {
   return { bodyStyle: realBodyStyle, extraTrimWords, extraModelWords };
 }
 
+// Single-word membership check against the same recognized trim/nameplate
+// vocabulary the main normalizer uses (TRIM_WORD_CANON / BODY_APPEND_WORD_
+// CANON) — exposed so a caller with a candidate word from somewhere OTHER
+// than the model field (e.g. a URL slug) can tell whether it's safe to fold
+// in, without duplicating this vocabulary. Deliberately excludes the 2-word
+// pairs (TRIM_PAIRS/BODY_APPEND_PAIRS) and "ev" — a single out-of-context
+// word is inherently less certain than one already sitting in the model
+// field next to a confirmed base model, so this stays conservative: real
+// but rare compound trims may be missed, which is a smaller cost than
+// treating some unrelated word (a stock number, a city name fragment) as
+// legitimate nameplate data.
+export function isKnownPorscheNameplateWord(word) {
+  const w = (word || '').toLowerCase();
+  return Boolean(TRIM_WORD_CANON[w] || BODY_APPEND_WORD_CANON[w]);
+}
+
 // The core Porsche normalizer. Pure function — never mutates its input,
 // safe/idempotent to run on already-clean data (a second pass over its own
 // output reproduces the same output), which matters both because the

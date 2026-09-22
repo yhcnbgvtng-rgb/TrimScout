@@ -7,6 +7,7 @@ import zlib from 'node:zlib';
 import { runEnrichmentPipeline } from './enricher.js';
 import { getBrand } from './brands.js';
 import { normalizeVehicleFields } from './modelNormalizer.js';
+import { enrichYearAndModelFromUrl } from './porscheUrlFields.js';
 import { classifyFetchResult, isBotProtected, isUncrawlable, decideProbeNext } from './bot_protection.js';
 import { writeProgress, emptyProgress } from './progress.js';
 import { dealerProbeUrls } from './nj_policy.js';
@@ -369,7 +370,11 @@ function extractSchemaOrgVehicle(html, url, dealer) {
     if (!/^[A-HJ-NPR-Z0-9]{17}$/i.test(vin)) return null;
 
     const price = cleanPrice(vehicleLd.offers?.price);
-    const year = vehicleLd.vehicleModelDate ? parseInt(vehicleLd.vehicleModelDate, 10) : null;
+    // Some dealer sites' schema.org Vehicle JSON-LD omits vehicleModelDate
+    // and/or bakes trim into the URL slug rather than `model` (confirmed
+    // live: Champion Porsche). See porscheUrlFields.js for the recovery
+    // logic and its safety gates.
+    const { year, model } = enrichYearAndModelFromUrl({ vehicleLd, url, dealer });
 
     return {
         vin,
@@ -386,7 +391,7 @@ function extractSchemaOrgVehicle(html, url, dealer) {
         // surfaced Ram, VW, Honda, Mazda, and Maserati vehicles) would get
         // every vehicle mislabeled if dealer.make won here.
         make: cleanString(vehicleLd.manufacturer?.name) || dealer.make || null,
-        model: cleanString(vehicleLd.model),
+        model,
         trim: null,
         bodyStyle: cleanString(vehicleLd.bodyType),
         price,
