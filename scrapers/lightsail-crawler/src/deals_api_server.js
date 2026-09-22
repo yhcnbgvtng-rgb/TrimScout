@@ -1897,6 +1897,7 @@ async function handleListInventory(req, res, params) {
   if (p("state")) { where.push("d.state = ?"); args.push(p("state").toUpperCase()); }
   if (p("make")) { where.push("i.make = ?"); args.push(p("make")); }
   if (p("model")) { where.push("i.model = ?"); args.push(p("model")); }
+  if (p("trim")) { where.push("i.trim = ?"); args.push(p("trim")); }
   if (p("cond")) { where.push("i.cond = ?"); args.push(p("cond")); }
   if (p("inStock") === "1") where.push("i.removed_at IS NULL");
   if (p("changeType")) { where.push("i.change_type = ?"); args.push(p("changeType").toUpperCase()); }
