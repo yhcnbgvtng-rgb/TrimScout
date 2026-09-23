@@ -9,7 +9,8 @@ import { getBrand } from './brands.js';
 import { normalizeVehicleFields, splitPorscheTrimFromModelName } from './modelNormalizer.js';
 import { enrichYearAndModelFromUrl } from './porscheUrlFields.js';
 import { isVehicleLikeSchemaOrgType, readSchemaOrgVehicleFields } from './porscheSchemaOrgFields.js';
-import { classifyFetchResult, isBotProtected, isUncrawlable, decideProbeNext } from './bot_protection.js';
+import { classifyFetchResult, isBotProtected, isUncrawlable, decideProbeNext, BOT_CLASSES } from './bot_protection.js';
+import { withProbeRetry } from './probeRetry.js';
 import { writeProgress, emptyProgress } from './progress.js';
 import { dealerProbeUrls } from './nj_policy.js';
 import {
@@ -614,6 +615,31 @@ async function probeDealerBotProtection(dealer) {
     return soft || { classification: 'NONE', httpStatus: 200, notes: '', url: null };
 }
 
+// HTTP_429 specifically means "you're going too fast, try again later" — the
+// textbook retry-after-backoff case, and the one production evidence
+// actually supports: a real-night audit (box2 core, 2026-09-22) found only
+// 23 dealers fleet-wide skipped for HTTP_429 specifically, out of ~1,900
+// skipped total (versus 1,095 Cloudflare + 665 HTTP_403 — deterministic WAF
+// blocks a retry can't help with). One retry after a real wait costs this
+// box roughly 20 minutes total across a whole night's run — trivial against
+// the 23-24h SLA — while a blanket slowdown of every dealer's page-fetch
+// concurrency to reduce 429s in the first place was estimated at 4-5 HOURS
+// added for a box this size, which the fleet's SLA margin (see
+// docs/CAPACITY_SLA.md) can't absorb. Deliberately does NOT retry
+// CONN_RESET/TIMEOUT/DNS_DEAD/TLS here — see INFRA_NO_HOMEPAGE_RETRY's own
+// comment in bot_protection.js for why those don't benefit from retrying
+// the same target.
+const PROBE_RETRY_CLASSES = new Set([BOT_CLASSES.HTTP_429]);
+const PROBE_RETRY_DELAY_MS = 45_000;
+
+async function probeDealerBotProtectionWithRetry(dealer) {
+    return withProbeRetry(() => probeDealerBotProtection(dealer), {
+        retryClasses: PROBE_RETRY_CLASSES,
+        delayMs: PROBE_RETRY_DELAY_MS,
+        onRetry: (first) => console.log(`  ⏳ ${dealer.name}: ${first.classification} — waiting ${Math.round(PROBE_RETRY_DELAY_MS / 1000)}s and retrying once before giving up`),
+    });
+}
+
 async function flushRunProgress(extra = {}) {
     Object.assign(runProgress, extra, {
         vehiclesSeen: currentInventory.size,
@@ -872,7 +898,7 @@ for (let i = 0; i < dealers.length; i++) {
     runProgress.currentDealer = dealer.name;
     await flushRunProgress();
 
-    const botProbe = await probeDealerBotProtection(dealer);
+    const botProbe = await probeDealerBotProtectionWithRetry(dealer);
     if (isUncrawlable(botProbe.classification)) {
         if (isBotProtected(botProbe.classification)) skippedBotProtection++;
         failedDealerNames.add(dealer.name);
