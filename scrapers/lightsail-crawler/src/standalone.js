@@ -26,6 +26,7 @@ import { buildBrandChangeRecord, mergeDailyChangesDocument } from './daily_chang
 import { withSharedDataLock } from './shared_data_lock.js';
 import { inventoryShardPath, inventoryShardsDir, snapshotShardPath } from './inventory_shards.js';
 import { resolveVehicleBrandMatch } from './brand_match.js';
+import { fillFromFacebookPixelViewContent } from './facebookPixelFields.js';
 import {
     collectSalesEmail,
     applyContactToDealer,
@@ -1158,6 +1159,14 @@ for (let i = 0; i < dealers.length; i++) {
                         };
                     }
                 }
+
+                // Strategy 3b: Facebook Pixel "ViewContent" fallback — see
+                // facebookPixelFields.js's own header for why. Runs after
+                // every extraction strategy above regardless of which one
+                // (if any) produced `vehicle`, and only fills gaps — a
+                // real value any stronger strategy already found is never
+                // overwritten.
+                vehicle = fillFromFacebookPixelViewContent(vehicle, html);
 
                 if (vehicle && vehicle.vin && vehicle.vin.length >= 16) {
                     // Multi-brand isolation check — see brand_match.js. Most
