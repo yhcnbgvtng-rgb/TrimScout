@@ -172,10 +172,19 @@ export function vehicleRowCell(row: VehicleRow, key: keyof VehicleRow): string {
   return String(v);
 }
 
-export function vehicleRowsToCsv(rows: VehicleRow[], columns: Array<keyof VehicleRow> = VEHICLE_SHEET_COLUMNS.map((c) => c.key)): string {
-  const labels = columns.map((k) => VEHICLE_SHEET_COLUMNS.find((c) => c.key === k)?.label || String(k));
-  const lines = [labels, ...rows.map((r) => columns.map((k) => vehicleRowCell(r, k)))];
-  return lines.map((l) => l.map(csvCell).join(",")).join("\r\n") + "\r\n";
+const VEHICLE_COLUMN_KEYS = VEHICLE_SHEET_COLUMNS.map((c) => c.key);
+
+/** The CSV header line (with CRLF) — the streamed export writes this, then one vehicleCsvLine per row. */
+export function vehicleCsvHeader(columns: Array<keyof VehicleRow> = VEHICLE_COLUMN_KEYS): string {
+  return columns.map((k) => csvCell(VEHICLE_SHEET_COLUMNS.find((c) => c.key === k)?.label || String(k))).join(",") + "\r\n";
+}
+
+export function vehicleCsvLine(row: VehicleRow, columns: Array<keyof VehicleRow> = VEHICLE_COLUMN_KEYS): string {
+  return columns.map((k) => csvCell(vehicleRowCell(row, k))).join(",") + "\r\n";
+}
+
+export function vehicleRowsToCsv(rows: VehicleRow[], columns: Array<keyof VehicleRow> = VEHICLE_COLUMN_KEYS): string {
+  return vehicleCsvHeader(columns) + rows.map((r) => vehicleCsvLine(r, columns)).join("");
 }
 
 export function vehicleSheetFilename(now: Date = new Date()): string {

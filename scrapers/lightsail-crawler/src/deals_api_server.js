@@ -1887,10 +1887,9 @@ async function handleInventorySweep(req, res) {
   sendJson(res, 200, { removed: result.affectedRows });
 }
 
-// GET /api/inventory?dealerId=&state=&make=&model=&cond=&q=&inStock=1&limit=&offset=&sort=
-async function handleListInventory(req, res, params) {
-  const pool = getPool();
-  await ensureInventoryTable(pool);
+// The filter/sort shared by GET /api/inventory (one page) and GET /api/inventory/export (the whole
+// filter, streamed): returns the FROM/WHERE clause, its args and the ORDER BY.
+function inventoryListQuery(params) {
   const where = [], args = [];
   const p = (k) => (params.get(k) || "").trim();
   if (p("dealerId")) { where.push("i.dealer_id = ?"); args.push(Number(p("dealerId"))); }
@@ -1947,8 +1946,6 @@ async function handleListInventory(req, res, params) {
   const sortable = { dealer: "i.dealer_name", year: "i.year", make: "i.make", model: "i.model", price: "i.price", mileage: "i.mileage", seen: "i.last_seen_at", days: "i.days_on_lot", pricediff: "i.price_diff", msrp: "i.msrp" };
   const [sk, sd] = (p("sort") || "dealer:asc").split(":");
   const orderBy = `${sortable[sk] || "i.dealer_name"} ${sd === "desc" ? "DESC" : "ASC"}, i.vin ASC`;
-  const limit = Math.min(Math.max(Number(p("limit")) || 200, 1), 2000);
-  const offset = Math.max(Number(p("offset")) || 0, 0);
   // A make= filter combined with the default dealer_name sort made the optimizer pick
   // idx_inv_stock_dealer (295k-row estimate) over the far more selective idx_inv_stock_make
   // (removed_at, make, model) — confirmed live 2026-09-22: 110.9s vs 203ms forced. Likely
@@ -1956,7 +1953,31 @@ async function handleListInventory(req, res, params) {
   // the planner more bad options to pick from. model= and state= filters were checked at the
   // same time and don't hit this — only make= needed a hint.
   const indexHint = p("make") ? "FORCE INDEX (idx_inv_stock_make)" : "";
-  const sql = `FROM dealer_inventory i ${indexHint} LEFT JOIN dealership_contacts d ON d.id = i.dealer_id ${where.length ? "WHERE " + where.join(" AND ") : ""}`;
+  // state= has the same trap, found after the make= fix: with the default dealer_name sort the
+  // optimizer walks idx_inv_stock_dealer — every in-stock car in the country, in dealer order —
+  // and throws away the other states row by row. Confirmed live 2026-09-22 for TX (38,847 in
+  // stock): 21.3s for the first 2,000 rows, >90s (killed) at offset 20,000; IGNORE INDEX just
+  // moved it onto idx_inv_dealer_name_fwd with the same result. Starting from the state's
+  // rooftops (dealership_contacts) and reading each one's cars via its dealer_id index measured
+  // 9–11s at any offset — a filesort over only that state's rows. The state filter makes the
+  // LEFT JOIN an inner join anyway, so STRAIGHT_JOIN changes the plan, not the result. Scoped
+  // to state= without make= (already hinted), q= (its prefix/suffix index merge is better) or
+  // dealerId= (already one store).
+  const whereSql = where.length ? "WHERE " + where.join(" AND ") : "";
+  const byState = p("state") && !p("make") && !p("q") && !p("dealerId");
+  const sql = byState
+    ? `FROM dealership_contacts d STRAIGHT_JOIN dealer_inventory i FORCE INDEX (${p("inStock") === "1" ? "idx_inv_stock_dealer_id" : "idx_inv_dealer"}) ON d.id = i.dealer_id ${whereSql}`
+    : `FROM dealer_inventory i ${indexHint} LEFT JOIN dealership_contacts d ON d.id = i.dealer_id ${whereSql}`;
+  return { sql, args, orderBy };
+}
+
+// GET /api/inventory?dealerId=&state=&make=&model=&cond=&q=&inStock=1&limit=&offset=&sort=
+async function handleListInventory(req, res, params) {
+  const pool = getPool();
+  await ensureInventoryTable(pool);
+  const { sql, args, orderBy } = inventoryListQuery(params);
+  const limit = Math.min(Math.max(Number(params.get("limit")) || 200, 1), 2000);
+  const offset = Math.max(Number(params.get("offset")) || 0, 0);
   // Two independent queries, NOT SQL_CALC_FOUND_ROWS — reverted 2026-09-22 after it caused a
   // live outage on the default (no q=, inStock=1, sort=dealer:asc) view: 591k candidate rows,
   // 427k matching. SQL_CALC_FOUND_ROWS can't return early once LIMIT rows are found — it must
@@ -1971,6 +1992,41 @@ async function handleListInventory(req, res, params) {
   const [rows] = await pool.query(`SELECT i.*, d.city AS dealer_city, d.state AS dealer_state ${sql} ORDER BY ${orderBy} LIMIT ? OFFSET ?`, [...args, limit, offset]);
   const [[{ total }]] = await pool.query(`SELECT COUNT(*) AS total ${sql}`, args);
   sendJson(res, 200, { total, limit, offset, vehicles: rows.map(inventoryRowFromDb) });
+}
+
+// GET /api/inventory/export?<same filters as /api/inventory>&max= — the admin sheet's CSV source.
+// The CSV used to page /api/inventory 2,000 rows at a time, so a 38k-row state paid ~20 separate
+// sorts; this runs the filter once and streams one vehicle per line (NDJSON) as MariaDB returns
+// rows, so neither this 1GB box nor the caller holds the whole export in memory. The last line is
+// {"done":true,"rows":n,"capped":bool} — a stream without it was cut off. A client that
+// disconnects destroys the connection (not released mid-query back into the pool).
+async function handleExportInventory(req, res, params) {
+  const pool = getPool();
+  await ensureInventoryTable(pool);
+  const { sql, args, orderBy } = inventoryListQuery(params);
+  const max = Math.min(Math.max(Number(params.get("max")) || 50000, 1), 50000);
+  const conn = await pool.getConnection();
+  let aborted = false;
+  res.on("close", () => { if (!res.writableFinished) { aborted = true; conn.destroy(); } });
+  res.writeHead(200, { "Content-Type": "application/x-ndjson; charset=utf-8", "Cache-Control": "no-store" });
+  let n = 0, capped = false;
+  try {
+    const rows = conn.connection.query(`SELECT i.*, d.city AS dealer_city, d.state AS dealer_state ${sql} ORDER BY ${orderBy} LIMIT ?`, [...args, max + 1]).stream({ highWaterMark: 500 });
+    for await (const row of rows) {
+      if (aborted) break;
+      if (n === max) { capped = true; continue; }
+      n++;
+      if (!res.write(JSON.stringify(inventoryRowFromDb(row)) + "\n")) await new Promise((r) => { res.once("drain", r); res.once("close", r); });
+    }
+    if (!aborted) res.end(JSON.stringify({ done: true, rows: n, capped }) + "\n");
+  } catch (err) {
+    if (!aborted) {
+      console.error(`${new Date().toISOString()} /api/inventory/export failed after ${n} rows:`, err.message);
+      res.end(JSON.stringify({ error: "Export failed partway through" }) + "\n");
+    }
+  } finally {
+    if (!aborted) conn.release();
+  }
 }
 
 // GET /api/inventory/stats — counts for the admin sheet's filter menus.
@@ -2135,6 +2191,7 @@ const server = http.createServer((req, res) => {
   const inventoryVinMatch = pathname.match(/^\/api\/inventory\/vin\/([A-HJ-NPR-Z0-9]{17})$/i);
   if (req.method === "GET" && inventoryVinMatch) return run(handleInventoryVin, inventoryVinMatch[1].toUpperCase());
   if (req.method === "GET" && pathname === "/api/inventory") return run(handleListInventory, url.searchParams);
+  if (req.method === "GET" && pathname === "/api/inventory/export") return run(handleExportInventory, url.searchParams);
 
   // deals (payment/lock)
   if (req.method === "POST" && pathname === "/api/deals") {
