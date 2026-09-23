@@ -1905,6 +1905,15 @@ async function handleListInventory(req, res, params) {
   if (p("priceChange") === "increase") where.push("i.price_diff > 0");
   if (p("hasSticker") === "1") where.push("i.window_sticker_url IS NOT NULL");
   if (p("minDays")) { where.push("i.days_on_lot >= ?"); args.push(Number(p("minDays"))); }
+  // "New" with real miles on it usually means a demo/loaner, not a car
+  // fresh off the truck — there's no separate demo/loaner condition value
+  // anywhere in this schema (confirmed in a 2026-09-22 inventory audit),
+  // so this filters on the two fields that already exist rather than
+  // adding one. 500 is a judgment call, not a manufacturer-defined
+  // threshold — a handful of delivery/demo miles is normal for any new
+  // car, but a few hundred or more usually means it's been driven as a
+  // loaner.
+  if (p("possibleDemo") === "1") where.push("i.cond = 'new' AND i.mileage > 500");
   if (p("q")) {
     // A leading-wildcard LIKE across 5 columns can't use any index — confirmed via EXPLAIN
     // against the live box (2026-09-22): type "ALL", a full scan of 555k+ rows, ~16s per
