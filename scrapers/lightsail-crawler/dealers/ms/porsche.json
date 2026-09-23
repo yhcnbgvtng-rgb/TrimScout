@@ -1,0 +1,16 @@
+[
+  {
+    "id": "porsche-jackson",
+    "name": "Porsche Jackson",
+    "city": "Jackson",
+    "state": "MS",
+    "make": "Porsche",
+    "domain": "porschejackson.com",
+    "sitemapUrl": "https://www.porschejackson.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschejackson.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschejackson.com/",
+    "lat": 32.2998686,
+    "lng": -90.1830408,
+    "domainSource": "oem-locator"
+  }
+]

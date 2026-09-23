@@ -1,0 +1,16 @@
+[
+  {
+    "id": "porsche-albuquerque",
+    "name": "Porsche Albuquerque",
+    "city": "Albuquerque",
+    "state": "NM",
+    "make": "Porsche",
+    "domain": "porschealbuquerque.com",
+    "sitemapUrl": "https://www.porschealbuquerque.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschealbuquerque.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschealbuquerque.com/",
+    "lat": 35.0841034,
+    "lng": -106.650985,
+    "domainSource": "oem-locator"
+  }
+]

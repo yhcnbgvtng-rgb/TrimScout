@@ -1,0 +1,30 @@
+[
+  {
+    "id": "porsche-lehi",
+    "name": "Porsche Lehi",
+    "city": "Lehi",
+    "state": "UT",
+    "make": "Porsche",
+    "domain": "porschelehi.com",
+    "sitemapUrl": "https://www.porschelehi.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschelehi.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschelehi.com/",
+    "lat": 40.3881114,
+    "lng": -111.8486019,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "porsche-salt-lake-city",
+    "name": "Porsche Salt Lake City",
+    "city": "Salt Lake City",
+    "state": "UT",
+    "make": "Porsche",
+    "domain": "porschesaltlakecity.com",
+    "sitemapUrl": "https://www.porschesaltlakecity.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschesaltlakecity.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschesaltlakecity.com/",
+    "lat": 40.7596198,
+    "lng": -111.886797,
+    "domainSource": "oem-locator"
+  }
+]

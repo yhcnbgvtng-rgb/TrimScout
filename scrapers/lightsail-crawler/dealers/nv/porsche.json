@@ -1,0 +1,44 @@
+[
+  {
+    "id": "porsche-henderson",
+    "name": "Porsche Henderson",
+    "city": "Henderson",
+    "state": "NV",
+    "make": "Porsche",
+    "domain": "porschehenderson.com",
+    "sitemapUrl": "https://www.porschehenderson.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschehenderson.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschehenderson.com/",
+    "lat": 36.0319602,
+    "lng": -114.9822716,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "porsche-las-vegas",
+    "name": "Porsche Las Vegas",
+    "city": "Las Vegas",
+    "state": "NV",
+    "make": "Porsche",
+    "domain": "gaudinporschelv.com",
+    "sitemapUrl": "https://www.gaudinporschelv.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.gaudinporschelv.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://gaudinporschelv.com/",
+    "lat": 36.1674263,
+    "lng": -115.1484131,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "porsche-reno",
+    "name": "Porsche Reno",
+    "city": "Reno",
+    "state": "NV",
+    "make": "Porsche",
+    "domain": "porschereno.com",
+    "sitemapUrl": "https://www.porschereno.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschereno.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschereno.com/",
+    "lat": 39.5261788,
+    "lng": -119.812658,
+    "domainSource": "oem-locator"
+  }
+]

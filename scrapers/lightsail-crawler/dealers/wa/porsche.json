@@ -1,0 +1,72 @@
+[
+  {
+    "id": "porsche-bellevue",
+    "name": "Porsche Bellevue",
+    "city": "Bellevue",
+    "state": "WA",
+    "make": "Porsche",
+    "domain": "porschebellevue.com",
+    "sitemapUrl": "https://www.porschebellevue.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschebellevue.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschebellevue.com/",
+    "lat": 47.6144219,
+    "lng": -122.192337,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "porsche-bellingham",
+    "name": "Porsche Bellingham",
+    "city": "Bellingham",
+    "state": "WA",
+    "make": "Porsche",
+    "domain": "porschebellingham.com",
+    "sitemapUrl": "https://www.porschebellingham.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschebellingham.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschebellingham.com/",
+    "lat": 48.7544012,
+    "lng": -122.478836,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "porsche-seattle-north",
+    "name": "Porsche Seattle North",
+    "city": "Lynnwood",
+    "state": "WA",
+    "make": "Porsche",
+    "domain": "porscheseattlenorth.com",
+    "sitemapUrl": "https://www.porscheseattlenorth.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porscheseattlenorth.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porscheseattlenorth.com/",
+    "lat": 47.8278656,
+    "lng": -122.3053932,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "porsche-spokane",
+    "name": "Porsche Spokane",
+    "city": "Spokane",
+    "state": "WA",
+    "make": "Porsche",
+    "domain": "porschespokane.com",
+    "sitemapUrl": "https://www.porschespokane.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschespokane.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschespokane.com/",
+    "lat": 47.6571934,
+    "lng": -117.42351,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "porsche-tacoma",
+    "name": "Porsche Tacoma",
+    "city": "Fife",
+    "state": "WA",
+    "make": "Porsche",
+    "domain": "porschetacoma.com",
+    "sitemapUrl": "https://www.porschetacoma.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschetacoma.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschetacoma.com/",
+    "lat": 47.2359524,
+    "lng": -122.3626381,
+    "domainSource": "oem-locator"
+  }
+]

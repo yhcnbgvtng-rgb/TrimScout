@@ -1,0 +1,16 @@
+[
+  {
+    "id": "porsche-boise",
+    "name": "Porsche Boise",
+    "city": "Boise",
+    "state": "ID",
+    "make": "Porsche",
+    "domain": "porscheboise.com",
+    "sitemapUrl": "https://www.porscheboise.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porscheboise.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porscheboise.com/",
+    "lat": 43.6166163,
+    "lng": -116.200886,
+    "domainSource": "oem-locator"
+  }
+]

@@ -1,0 +1,58 @@
+[
+  {
+    "id": "porsche-arrowhead",
+    "name": "Porsche Arrowhead",
+    "city": "Peoria",
+    "state": "AZ",
+    "make": "Porsche",
+    "domain": "porschearrowhead.com",
+    "sitemapUrl": "https://www.porschearrowhead.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschearrowhead.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschearrowhead.com/",
+    "lat": 33.5806115,
+    "lng": -112.237294,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "porsche-chandler",
+    "name": "Porsche Chandler",
+    "city": "Chandler",
+    "state": "AZ",
+    "make": "Porsche",
+    "domain": "porschechandler.com",
+    "sitemapUrl": "https://www.porschechandler.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschechandler.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschechandler.com/",
+    "lat": 33.3062031,
+    "lng": -111.841185,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "porsche-north-scottsdale",
+    "name": "Porsche North Scottsdale",
+    "city": "Scottsdale",
+    "state": "AZ",
+    "make": "Porsche",
+    "domain": "porschenorthscottsdale.com",
+    "sitemapUrl": "https://www.porschenorthscottsdale.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschenorthscottsdale.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschenorthscottsdale.com/",
+    "lat": 33.4942189,
+    "lng": -111.926018,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "porsche-tucson",
+    "name": "Porsche Tucson",
+    "city": "Tucson",
+    "state": "AZ",
+    "make": "Porsche",
+    "domain": "porschetucson.com",
+    "sitemapUrl": "https://www.porschetucson.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschetucson.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschetucson.com/",
+    "lat": 32.2228765,
+    "lng": -110.974847,
+    "domainSource": "oem-locator"
+  }
+]

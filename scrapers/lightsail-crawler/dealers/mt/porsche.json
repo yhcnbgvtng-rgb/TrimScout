@@ -1,0 +1,30 @@
+[
+  {
+    "id": "porsche-billings",
+    "name": "Porsche Billings",
+    "city": "Billings",
+    "state": "MT",
+    "make": "Porsche",
+    "domain": "porschebillings.com",
+    "sitemapUrl": "https://www.porschebillings.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschebillings.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschebillings.com/",
+    "lat": 45.7874957,
+    "lng": -108.49607,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "porsche-missoula",
+    "name": "Porsche Missoula",
+    "city": "Missoula",
+    "state": "MT",
+    "make": "Porsche",
+    "domain": "porschemissoula.com",
+    "sitemapUrl": "https://www.porschemissoula.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschemissoula.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschemissoula.com/",
+    "lat": 46.8701049,
+    "lng": -113.995267,
+    "domainSource": "oem-locator"
+  }
+]

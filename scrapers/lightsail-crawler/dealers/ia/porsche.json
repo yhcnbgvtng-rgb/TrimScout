@@ -1,0 +1,16 @@
+[
+  {
+    "id": "porsche-des-moines",
+    "name": "Porsche Des Moines",
+    "city": "Des Moines",
+    "state": "IA",
+    "make": "Porsche",
+    "domain": "porschedesmoines.com",
+    "sitemapUrl": "https://www.porschedesmoines.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschedesmoines.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschedesmoines.com/",
+    "lat": 41.5868654,
+    "lng": -93.6249494,
+    "domainSource": "oem-locator"
+  }
+]

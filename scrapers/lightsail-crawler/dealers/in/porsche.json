@@ -1,0 +1,44 @@
+[
+  {
+    "id": "porsche-fort-wayne",
+    "name": "Porsche Fort Wayne",
+    "city": "Fort Wayne",
+    "state": "IN",
+    "make": "Porsche",
+    "domain": "porschefortwayne.com",
+    "sitemapUrl": "https://www.porschefortwayne.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschefortwayne.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschefortwayne.com/",
+    "lat": 41.0799898,
+    "lng": -85.1386015,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "porsche-indianapolis",
+    "name": "Porsche Indianapolis",
+    "city": "Indianapolis",
+    "state": "IN",
+    "make": "Porsche",
+    "domain": "porscheindianapolis.com",
+    "sitemapUrl": "https://www.porscheindianapolis.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porscheindianapolis.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porscheindianapolis.com/",
+    "lat": 39.7683331,
+    "lng": -86.1583502,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "porsche-south-bend",
+    "name": "Porsche South Bend",
+    "city": "South Bend",
+    "state": "IN",
+    "make": "Porsche",
+    "domain": "porschesouthbend.com",
+    "sitemapUrl": "https://www.porschesouthbend.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschesouthbend.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschesouthbend.com/",
+    "lat": 41.6833813,
+    "lng": -86.2500066,
+    "domainSource": "oem-locator"
+  }
+]
