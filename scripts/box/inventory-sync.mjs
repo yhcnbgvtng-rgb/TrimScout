@@ -1,24 +1,42 @@
 #!/usr/bin/env node
 /**
- * Sync the nightly dealer-inventory crawl (national_inventory_latest.json on the crawl box) into the deals
- * box's dealer_inventory table, so the site's Vehicles sheet shows what the crawler pulled.
+ * Sync the nightly dealer-inventory crawl (data/inventory/<STATE>.json per-state shards on the crawl box)
+ * into the deals box's dealer_inventory table, so the site's Vehicles sheet shows what the crawler pulled.
  *
- * Runs on the crawl box (ubuntu@98.92.140.11) after scripts/run-daily-crawl.mjs:
- *   TRIMSCOUT_API_KEY=… node inventory-sync.mjs /home/ubuntu/nj-scraper/scrapers/lightsail-crawler/data/national_inventory_latest.json
+ * Runs on each crawl box (ubuntu@98.92.140.11, ubuntu@3.237.204.55) after scripts/run-daily-crawl.mjs:
+ *   TRIMSCOUT_API_KEY=… node inventory-sync.mjs /home/ubuntu/nj-scraper/scrapers/lightsail-crawler/data/inventory
+ *
+ * Was a single national_inventory_latest.json until the crawler's state-sharding fix (inventory_shards.js,
+ * 2026-09) replaced that one nationwide file with one file per state — this reads a *directory* of those
+ * shards instead of one file (a bare file path still works, for a one-off manual run against a single shard).
+ * Each shard has the exact same top-level-array-of-vehicle-objects shape the old national file had, so
+ * everything past file discovery (row building, store matching, upsert, sweep) is unchanged.
  *
  * No dependencies. Reads the JSON, resolves each vehicle's store to a directory row (dealer name + state),
  * upserts by (VIN, store) in chunks, then sweeps every store that had ACTIVE vehicles in the file so VINs the
  * crawler no longer lists are marked removed. Idempotent — re-running just refreshes last_seen.
  */
 import fs from "node:fs";
+import path from "node:path";
 
 const DEALS_HOST = process.env.TRIMSCOUT_DEALS_HOST || "3.208.49.1";
 const DEALS_PORT = process.env.TRIMSCOUT_DEALS_PORT || "3004";
 const AUTH_PORT = process.env.TRIMSCOUT_AUTH_PORT || "3003";
 const KEY = process.env.TRIMSCOUT_API_KEY || process.env.LIGHTSAIL_API_KEY;
-const file = process.argv[2];
-if (!file || !KEY) {
-  console.error("usage: TRIMSCOUT_API_KEY=… node inventory-sync.mjs <national_inventory_latest.json>");
+const inputPath = process.argv[2];
+if (!inputPath || !KEY) {
+  console.error("usage: TRIMSCOUT_API_KEY=… node inventory-sync.mjs <data/inventory dir, or a single shard .json file>");
+  process.exit(2);
+}
+
+// A bare file still works (manual/one-off use); the normal nightly case is a directory of per-state shards.
+// Sorted for a deterministic, reproducible run order — matters for log-reading, not for correctness.
+const isDir = fs.statSync(inputPath).isDirectory();
+const files = isDir
+  ? fs.readdirSync(inputPath).filter((f) => f.endsWith(".json")).sort().map((f) => path.join(inputPath, f))
+  : [inputPath];
+if (files.length === 0) {
+  console.error(`no .json shard files found in ${inputPath}`);
   process.exit(2);
 }
 
@@ -38,8 +56,8 @@ const norm = (s) => String(s || "").toLowerCase().replace(/[^a-z0-9]/g, "");
 // Stream the JSON array object by object instead of parsing the whole file: each record carries NHTSA,
 // options and price-history blobs, so 150k of them parsed at once is hundreds of MB on a small box.
 // Only the compact mapped row is kept per vehicle.
-function* streamTopLevelObjects(path) {
-  const fd = fs.openSync(path, "r");
+function* streamTopLevelObjects(filePath) {
+  const fd = fs.openSync(filePath, "r");
   const buf = Buffer.alloc(1 << 20);
   let depth = 0, inStr = false, esc = false, started = false, cur = "";
   for (;;) {
@@ -85,25 +103,39 @@ const dealerIdFor = (v) => {
 const cond = (t) => ({ NEW: "new", USED: "used", CERTIFIED: "cpo", CPO: "cpo", "CERTIFIED PRE-OWNED": "cpo", CERTIFIED_PRE_OWNED: "cpo", WHOLESALE: "wholesale" })[String(t || "").toUpperCase()] || null;
 const num = (v) => (v == null || v === "" || Number.isNaN(Number(v)) ? null : Math.round(Number(v)));
 // Factory + dealer-listed options, compacted to what the sheet shows (code / name / price).
+// dealerListedOptions carries two different shapes depending on the source platform:
+// Dealer.com's structured packages/options each have a real, stable code (PKG-{id}/OPT-{id} —
+// extractDealerListedOptions() in standalone.js); DealerOn's free-text feature mentions
+// (parseFeaturesFromDescription()) have no per-item code at all and share the literal
+// placeholder "FEATURE". Previously this always hardcoded code: null here, discarding a real
+// Dealer.com code even when one existed — preserve it when present instead, so a downstream
+// facet can actually tell "this exact coded package" apart from "any of these free-text mentions".
 const options = (v) => {
   const out = [];
   for (const o of Array.isArray(v.factoryOptions) ? v.factoryOptions : []) if (o && (o.name || o.code)) out.push({ code: o.code || null, name: o.name || null, price: num(o.price), kind: "factory" });
-  for (const o of Array.isArray(v.dealerListedOptions) ? v.dealerListedOptions : []) { const name = typeof o === "string" ? o : o && (o.name || o.title); if (name) out.push({ code: null, name, price: num(o && o.price), kind: "dealer" }); }
+  for (const o of Array.isArray(v.dealerListedOptions) ? v.dealerListedOptions : []) {
+    const name = typeof o === "string" ? o : o && (o.name || o.title);
+    if (!name) continue;
+    const code = typeof o === "object" && o && o.code ? String(o.code).slice(0, 64) : null;
+    out.push({ code, name, price: num(o && o.price), kind: "dealer" });
+  }
   return out.length ? out.slice(0, 200) : null;
 };
 
 const rows = [];
 let total = 0;
-for (const v of streamTopLevelObjects(file)) {
-  total++;
-  if (!/^[A-HJ-NPR-Z0-9]{17}$/.test(String(v.vin || "").toUpperCase()) || (v.status || "ACTIVE").toUpperCase() !== "ACTIVE") continue;
-  rows.push({
-    vin: v.vin.toUpperCase(), dealerId: dealerIdFor(v), dealerName: v.dealerName || v.configDealerName, condition: cond(v.inventoryType), year: v.year, make: v.make, model: v.model, trim: v.trim,
-    bodyStyle: v.bodyStyle, exteriorColor: v.exteriorColor, interiorColor: v.interiorColor, mileage: v.mileage, price: v.price, msrp: v.msrp, stockNumber: v.stockNumber, vdpUrl: v.url, imageUrl: v.imageUrl, source: "nightly",
-    windowStickerUrl: v.windowStickerUrl || null, engine: v.engine || null, transmission: v.transmission || null, daysOnLot: num(v.daysOnLot), oldPrice: num(v.oldPrice), priceDiff: num(v.priceDiff),
-    priceChangeType: v.priceChangeType || null, changeType: v.changeType || null, priceHistory: Array.isArray(v.priceHistory) && v.priceHistory.length ? v.priceHistory.slice(-60) : null,
-    options: options(v), optionsTotal: num(v.totalOptionsPrice), baseMsrp: num(v.baseMsrp), crawlFirstSeen: v.firstSeen || null,
-  });
+for (const shardFile of files) {
+  for (const v of streamTopLevelObjects(shardFile)) {
+    total++;
+    if (!/^[A-HJ-NPR-Z0-9]{17}$/.test(String(v.vin || "").toUpperCase()) || (v.status || "ACTIVE").toUpperCase() !== "ACTIVE") continue;
+    rows.push({
+      vin: v.vin.toUpperCase(), dealerId: dealerIdFor(v), dealerName: v.dealerName || v.configDealerName, condition: cond(v.inventoryType), year: v.year, make: v.make, model: v.model, trim: v.trim,
+      bodyStyle: v.bodyStyle, exteriorColor: v.exteriorColor, interiorColor: v.interiorColor, mileage: v.mileage, price: v.price, msrp: v.msrp, stockNumber: v.stockNumber, vdpUrl: v.url, imageUrl: v.imageUrl, source: "nightly",
+      windowStickerUrl: v.windowStickerUrl || null, engine: v.engine || null, transmission: v.transmission || null, daysOnLot: num(v.daysOnLot), oldPrice: num(v.oldPrice), priceDiff: num(v.priceDiff),
+      priceChangeType: v.priceChangeType || null, changeType: v.changeType || null, priceHistory: Array.isArray(v.priceHistory) && v.priceHistory.length ? v.priceHistory.slice(-60) : null,
+      options: options(v), optionsTotal: num(v.totalOptionsPrice), baseMsrp: num(v.baseMsrp), crawlFirstSeen: v.firstSeen || null,
+    });
+  }
 }
 const unmatched = rows.filter((r) => !r.dealerId).length;
 console.log(`${total} vehicles in file, ${rows.length} active with a valid VIN`);
