@@ -78,6 +78,24 @@ async function acquireSyncLock({ pollMs = 30_000, maxWaitMs = 3 * 60 * 60 * 1000
 // never throw and mask whatever real error is already in flight.
 const releaseSyncLock = () => api(DEALS_PORT, "/api/ops/sync-lock/release", { owner: LOCK_OWNER }).catch(() => {});
 
+// One retry with a short delay before giving up — the sweep loop below makes one HTTP call per store
+// (1,500-2,500 of them on the bigger boxes), sequentially, against a deals box that's genuinely
+// resource-constrained; a single transient timeout used to abort the *entire* already-mostly-done sweep
+// (confirmed live 2026-09-23: the same store consistently failed the process on 3 separate full reruns,
+// each of which had already finished the whole upsert phase first). Sweeping is eventually consistent —
+// a store this misses just gets swept again next run — so a store that still fails after the retry is
+// skipped, not fatal.
+async function withRetry(fn, { retries = 1, delayMs = 3000 } = {}) {
+  for (let attempt = 0; ; attempt++) {
+    try {
+      return await fn();
+    } catch (err) {
+      if (attempt >= retries) throw err;
+      await new Promise((resolve) => setTimeout(resolve, delayMs));
+    }
+  }
+}
+
 const norm = (s) => String(s || "").toLowerCase().replace(/[^a-z0-9]/g, "");
 
 // Stream the JSON array object by object instead of parsing the whole file: each record carries NHTSA,
@@ -185,12 +203,20 @@ try {
   console.log();
   const stores = [...new Set(rows.map((r) => r.dealerId).filter(Boolean))];
   let removed = 0;
-  for (const id of stores) removed += (await api(DEALS_PORT, "/api/inventory/sweep", { dealerId: id, seenAfter: started, sources: ["nightly"] })).removed;
+  let sweepFailed = 0;
+  for (const id of stores) {
+    try {
+      removed += (await withRetry(() => api(DEALS_PORT, "/api/inventory/sweep", { dealerId: id, seenAfter: started, sources: ["nightly"] }))).removed;
+    } catch (err) {
+      sweepFailed++;
+      console.error(`[sync] sweep failed for store ${id} after retry, skipping (will sweep next run): ${err.message}`);
+    }
+  }
   // The store-0 bucket holds vehicles whose store wasn't in the directory at sync time; once a rooftop is added
   // they re-file under it, and the stale bucket rows are retired here.
-  try { removed += (await api(DEALS_PORT, "/api/inventory/sweep", { dealerId: 0, seenAfter: started, sources: ["nightly"] })).removed; } catch { /* box predates store-0 sweeps */ }
-  const stats = await api(DEALS_PORT, "/api/inventory/stats");
-  console.log(JSON.stringify({ upserted, sweptStores: stores.length, removed, live: { rows: stats.total, vins: stats.vins, inStock: stats.inStock, stores: stats.dealers, byState: stats.byState.slice(0, 8) } }));
+  try { removed += (await withRetry(() => api(DEALS_PORT, "/api/inventory/sweep", { dealerId: 0, seenAfter: started, sources: ["nightly"] }))).removed; } catch { /* box predates store-0 sweeps, or this one failed too — not fatal either way */ }
+  const stats = await withRetry(() => api(DEALS_PORT, "/api/inventory/stats"));
+  console.log(JSON.stringify({ upserted, sweptStores: stores.length - sweepFailed, sweepFailed, removed, live: { rows: stats.total, vins: stats.vins, inStock: stats.inStock, stores: stats.dealers, byState: stats.byState.slice(0, 8) } }));
 } finally {
   await releaseSyncLock();
 }
