@@ -8,6 +8,7 @@ import { runEnrichmentPipeline } from './enricher.js';
 import { getBrand } from './brands.js';
 import { normalizeVehicleFields, splitPorscheTrimFromModelName } from './modelNormalizer.js';
 import { enrichYearAndModelFromUrl } from './porscheUrlFields.js';
+import { isVehicleLikeSchemaOrgType, readSchemaOrgVehicleFields } from './porscheSchemaOrgFields.js';
 import { classifyFetchResult, isBotProtected, isUncrawlable, decideProbeNext } from './bot_protection.js';
 import { writeProgress, emptyProgress } from './progress.js';
 import { dealerProbeUrls } from './nj_policy.js';
@@ -356,7 +357,13 @@ function extractSchemaOrgVehicle(html, url, dealer) {
     for (const block of ldBlocks) {
         try {
             const parsed = JSON.parse(block[1]);
-            if (parsed && parsed['@type'] === 'Vehicle' && parsed.vehicleIdentificationNumber) {
+            // Confirmed live 2026-09-22 on Porsche's own official retailer
+            // platform (jackdaniels.porsche.com): its Vehicle JSON-LD uses
+            // "@type":["Car","Product"] — an array, never the bare string
+            // "Vehicle" this only used to match — so this strategy silently
+            // returned null for every Porsche-network dealer's own real
+            // markup, not just non-standard third-party ones.
+            if (parsed && isVehicleLikeSchemaOrgType(parsed['@type']) && parsed.vehicleIdentificationNumber) {
                 vehicleLd = parsed;
                 break;
             }
@@ -396,11 +403,11 @@ function extractSchemaOrgVehicle(html, url, dealer) {
         bodyStyle: cleanString(vehicleLd.bodyType),
         price,
         msrp: price,
-        mileage: 0,
-        exteriorColor: null,
-        interiorColor: null,
-        engine: cleanString(vehicleLd.vehicleEngine?.name),
-        transmission: null,
+        // mileage/exteriorColor/interiorColor/engine/transmission were all
+        // hardcoded to null/0 despite real schema.org data being available
+        // under these exact property names — confirmed live 2026-09-22 on
+        // two real Porsche-network VDPs. See porscheSchemaOrgFields.js.
+        ...readSchemaOrgVehicleFields(vehicleLd),
         // Deliberately not parsing options from vehicleLd.description here.
         // Confirmed live on Porsche Beverly Hills: that field is sometimes an
         // undelimited third-party spec-sheet dump ("Standard
