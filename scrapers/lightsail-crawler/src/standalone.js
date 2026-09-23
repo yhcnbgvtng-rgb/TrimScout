@@ -6,7 +6,7 @@ import vm from 'node:vm';
 import zlib from 'node:zlib';
 import { runEnrichmentPipeline } from './enricher.js';
 import { getBrand } from './brands.js';
-import { normalizeVehicleFields } from './modelNormalizer.js';
+import { normalizeVehicleFields, splitPorscheTrimFromModelName } from './modelNormalizer.js';
 import { enrichYearAndModelFromUrl } from './porscheUrlFields.js';
 import { classifyFetchResult, isBotProtected, isUncrawlable, decideProbeNext } from './bot_protection.js';
 import { writeProgress, emptyProgress } from './progress.js';
@@ -514,10 +514,10 @@ function extractPorscheRetailerVehicle(html, url, dealer) {
         : rawModelRange;
     const modelName = cleanString(car.modelName);
     // modelName includes modelRangeName as a prefix ("718" + "718 Spyder");
-    // strip the confirmed-matching prefix rather than guess a split.
-    const trim = rawModelRange && modelName && modelName.startsWith(rawModelRange)
-        ? cleanString(modelName.slice(rawModelRange.length)) || null
-        : modelName;
+    // strip the confirmed-matching prefix rather than guess a split — see
+    // splitPorscheTrimFromModelName's own comment for why this needs to be
+    // case-insensitive.
+    const trim = splitPorscheTrimFromModelName(rawModelRange, modelName);
 
     const price = cleanPrice(car.priceTotalTotal);
 
@@ -1054,18 +1054,29 @@ for (let i = 0; i < dealers.length; i++) {
                     } catch {}
                 }
 
-                // Strategy 2: schema.org Vehicle JSON-LD (DealerOn and others).
-                if (!vehicle || !vehicle.vin) {
-                    vehicle = extractSchemaOrgVehicle(html, url, dealer);
-                }
-
                 // Strategy 2b: manufacturer's own official retailer platform
                 // (RSC) — only Porsche has one of these (confirmed this
                 // session: Audi, VW, and Lamborghini each run separate,
                 // brand-specific systems), so this is skipped entirely for
-                // other brands rather than wastefully attempted.
+                // other brands rather than wastefully attempted. Tried
+                // BEFORE the generic schema.org strategy below when this
+                // brand has one, so its richer, brand-authoritative fields
+                // (real trim, stock #, model) aren't silently discarded by
+                // a same-page schema.org block winning the race just
+                // because it happened to run first and also found a VIN.
+                // Confirmed live 2026-09-22 (Porsche inventory audit):
+                // RSC-platform VDPs often ALSO emit a generic schema.org
+                // Vehicle block for SEO, which used to win here every time
+                // and permanently hid 2b's real data for those dealers
+                // despite hasOfficialRetailerPlatform saying they should
+                // use it.
                 if (brand.hasOfficialRetailerPlatform && (!vehicle || !vehicle.vin)) {
                     vehicle = extractPorscheRetailerVehicle(html, url, dealer);
+                }
+
+                // Strategy 2: schema.org Vehicle JSON-LD (DealerOn and others).
+                if (!vehicle || !vehicle.vin) {
+                    vehicle = extractSchemaOrgVehicle(html, url, dealer);
                 }
 
                 // Strategy 3: last-resort structured-field scan. Only trusts

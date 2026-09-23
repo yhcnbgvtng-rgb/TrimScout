@@ -202,6 +202,26 @@ export function isKnownPorscheNameplateWord(word) {
   return Boolean(TRIM_WORD_CANON[w] || BODY_APPEND_WORD_CANON[w]);
 }
 
+// Porsche's own official retailer-platform (RSC) feed pairs modelRangeName
+// ("macan") and modelName ("Macan S") inconsistently — modelName always
+// carries modelRangeName as a literal prefix, but the two don't always
+// agree on case. Splitting them with a case-SENSITIVE startsWith (as this
+// once did) silently failed whenever they disagreed, dumping the whole
+// modelName into trim uncleaned instead of splitting it — confirmed live
+// 2026-09-22 on Macan/Cayenne listings during a Porsche inventory audit.
+// Matching case-insensitively while still slicing by the raw prefix's own
+// length is safe here (not a guess): the two values are already confirmed
+// to be the same real string modulo case, so this recovers the split, not
+// invents content.
+export function splitPorscheTrimFromModelName(modelRangeName, modelName) {
+  const rawModelRange = (modelRangeName || '').trim() || null;
+  const cleanModelName = (modelName || '').trim() || null;
+  if (!rawModelRange || !cleanModelName) return cleanModelName;
+  if (!cleanModelName.toLowerCase().startsWith(rawModelRange.toLowerCase())) return cleanModelName;
+  const rest = cleanModelName.slice(rawModelRange.length).trim();
+  return rest || null;
+}
+
 // The core Porsche normalizer. Pure function — never mutates its input,
 // safe/idempotent to run on already-clean data (a second pass over its own
 // output reproduces the same output), which matters both because the
