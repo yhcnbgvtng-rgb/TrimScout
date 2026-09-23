@@ -335,6 +335,19 @@ async function ensureDealerDomainColumns(pool) {
   dealerDomainColumnsEnsured = true;
   console.log(`dealer domains: columns ensured, backfilled ${filled} of ${rows.length} rows`);
 }
+// dealer_inventory got composite indexes for its sort/filter columns back on
+// 2026-09-16 (see deals_api_server.js) — this table never did, and the
+// directory has grown a lot since via nationwide brand dealer-contact
+// crawls. handleListDealerships's ORDER BY dealer_name was a full-table
+// filesort with no index to walk, and the admin Web Crawl Sheet's Dealers
+// tab (its one blocking, non-optional fetch) started timing out against
+// dealershipsApi.ts's 8s client abort as a result.
+let dealerNameIndexEnsured = false;
+async function ensureDealerNameIndex(pool) {
+  if (dealerNameIndexEnsured) return;
+  await pool.query("ALTER TABLE dealership_contacts ADD INDEX IF NOT EXISTS idx_dealer_name (dealer_name)");
+  dealerNameIndexEnsured = true;
+}
 
 function publicDealership(row) {
   if (!row) return null;
@@ -406,6 +419,7 @@ async function handleListDealerships(req, res) {
   const pool = getPool();
   await ensureDealerDomainColumns(pool);
   await ensureDealerOptOutColumn(pool);
+  await ensureDealerNameIndex(pool);
   const [rows] = await pool.query("SELECT * FROM dealership_contacts ORDER BY dealer_name ASC");
   sendJson(res, 200, { dealerships: rows.map(publicDealership) });
 }
