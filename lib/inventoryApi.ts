@@ -83,6 +83,7 @@ export interface InventoryQuery {
   state?: string;
   make?: string;
   model?: string;
+  trim?: string;
   cond?: string;
   q?: string;
   inStock?: boolean;
@@ -90,6 +91,8 @@ export interface InventoryQuery {
   priceChange?: "drop" | "increase";
   hasSticker?: boolean;
   minDays?: number;
+  /** New condition with over 500 miles — likely a demo/loaner. */
+  possibleDemo?: boolean;
   limit?: number;
   offset?: number;
   sort?: string;

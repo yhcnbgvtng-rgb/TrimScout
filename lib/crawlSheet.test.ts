@@ -81,6 +81,9 @@ describe("vehicles sheet", () => {
     const { inventoryQueryString } = await import("./inventoryApi");
     assert.equal(inventoryQueryString({ state: "NJ", make: "", inStock: true, limit: 500, offset: 0 }), "?state=NJ&inStock=1&limit=500&offset=0");
     assert.equal(inventoryQueryString({}), "");
+    // Trim and possibleDemo must reach the box (they were dropped by the route before), and an unchecked box is omitted.
+    assert.equal(inventoryQueryString({ trim: "Carrera GTS", possibleDemo: true }), "?trim=Carrera+GTS&possibleDemo=1");
+    assert.equal(inventoryQueryString({ possibleDemo: false }), "");
   });
 });
 
