@@ -50,7 +50,14 @@ export default function VinHistory({ vin, onClose }: { vin: string; onClose: () 
         {data && data.listings.length > 0 && (
           <>
             <div className="mt-4 space-y-1.5">
-              <div className="text-[10px] font-black uppercase tracking-wider text-ink-faint">Listed at</div>
+              <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-wider text-ink-faint">
+                <span>Listed at</span>
+                {data.listings.length > 1 && (
+                  <span className="rounded-full bg-amber-500/15 px-2 py-0.5 text-amber-300 normal-case tracking-normal" title="The same VIN is listed by more than one store — a real dealer-trade/cross-listing, or worth a closer look.">
+                    {data.listings.length} dealers
+                  </span>
+                )}
+              </div>
               {data.listings.map((l, i) => (
                 <button key={`${l.dealerId}|${i}`} type="button" onClick={() => setWhich(i)} className={`flex w-full items-center justify-between gap-3 rounded-xl border px-3 py-2 text-left text-xs ${i === which ? "border-emerald-500/60 bg-emerald-500/10" : "border-border bg-surface-elevated hover:border-emerald-500/40"}`}>
                   <span><span className="font-semibold text-white">{l.dealerName}</span>{l.dealerCity ? <span className="text-ink-muted"> · {l.dealerCity}, {l.dealerState}</span> : null}</span>

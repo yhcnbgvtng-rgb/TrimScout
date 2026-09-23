@@ -36,6 +36,7 @@ export default function VehiclesSheet() {
   const [inStock, setInStock] = useState(true);
   const [movement, setMovement] = useState<Movement>("");
   const [hasSticker, setHasSticker] = useState(false);
+  const [possibleDemo, setPossibleDemo] = useState(false);
   const [minDays, setMinDays] = useState("");
   const [sort, setSort] = useState<{ key: SortKey; dir: "asc" | "desc" }>({ key: "dealer", dir: "asc" });
   const [exporting, setExporting] = useState(false);
@@ -56,11 +57,12 @@ export default function VehiclesSheet() {
     if (movement === "drops") p.set("priceChange", "drop");
     if (movement === "increases") p.set("priceChange", "increase");
     if (hasSticker) p.set("hasSticker", "1");
+    if (possibleDemo) p.set("possibleDemo", "1");
     if (minDays.trim() && Number(minDays) > 0) p.set("minDays", String(Number(minDays)));
     if (qDebounced) p.set("q", qDebounced);
     p.set("sort", `${sort.key}:${sort.dir}`);
     return p;
-  }, [state, make, model, trim, cond, inStock, movement, hasSticker, minDays, qDebounced, sort]);
+  }, [state, make, model, trim, cond, inStock, movement, hasSticker, possibleDemo, minDays, qDebounced, sort]);
 
   const loadStats = useCallback(async () => {
     const res = await fetch("/api/admin/inventory?stats=1", { cache: "no-store" });
@@ -113,8 +115,8 @@ export default function VehiclesSheet() {
     }
   };
 
-  const activeFilters = [state, make, model.trim(), trim.trim(), cond, qDebounced, movement, minDays.trim()].filter(Boolean).length + (inStock ? 0 : 1) + (hasSticker ? 1 : 0);
-  const clearAll = () => { setQ(""); setState(""); setMake(""); setModel(""); setTrim(""); setCond(""); setInStock(true); setMovement(""); setHasSticker(false); setMinDays(""); };
+  const activeFilters = [state, make, model.trim(), trim.trim(), cond, qDebounced, movement, minDays.trim()].filter(Boolean).length + (inStock ? 0 : 1) + (hasSticker ? 1 : 0) + (possibleDemo ? 1 : 0);
+  const clearAll = () => { setQ(""); setState(""); setMake(""); setModel(""); setTrim(""); setCond(""); setInStock(true); setMovement(""); setHasSticker(false); setPossibleDemo(false); setMinDays(""); };
   const onHeader = (key: keyof VehicleRow) => { const sk = SORT_FOR[key]; if (!sk) return; setSort((s) => (s.key === sk ? { key: sk, dir: s.dir === "asc" ? "desc" : "asc" } : { key: sk, dir: sk === "price" || sk === "year" || sk === "seen" || sk === "days" || sk === "msrp" ? "desc" : "asc" })); };
   const totalW = VEHICLE_SHEET_COLUMNS.reduce((s, c) => s + (COL_W[c.key] || 120), 0);
 
@@ -146,6 +148,7 @@ export default function VehiclesSheet() {
         </select>
         <input id="veh-mindays" value={minDays} onChange={(e) => setMinDays(e.target.value.replace(/\D/g, ""))} placeholder="Days on lot ≥" inputMode="numeric" className="w-28 rounded-xl border border-border bg-surface-elevated px-2.5 py-2 text-[11px] font-bold text-white placeholder:text-ink-faint" />
         <label className="flex items-center gap-1.5 text-[11px] font-semibold text-ink-muted"><input type="checkbox" checked={hasSticker} onChange={(e) => setHasSticker(e.target.checked)} className="accent-emerald-500" /> Has window sticker</label>
+        <label className="flex items-center gap-1.5 text-[11px] font-semibold text-ink-muted" title="New condition with over 500 miles — usually a demo or loaner, not fresh off the truck"><input type="checkbox" checked={possibleDemo} onChange={(e) => setPossibleDemo(e.target.checked)} className="accent-emerald-500" /> Possible demo</label>
         <label className="flex items-center gap-1.5 text-[11px] font-semibold text-ink-muted"><input type="checkbox" checked={inStock} onChange={(e) => setInStock(e.target.checked)} className="accent-emerald-500" /> In stock only</label>
         {activeFilters > 0 && (
           <button type="button" onClick={clearAll} className="inline-flex items-center gap-1 rounded-xl border border-rose-500/40 bg-rose-950/30 px-3 py-2 text-[11px] font-bold text-rose-300 hover:text-white"><X className="h-3 w-3" /> Clear</button>
