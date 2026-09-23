@@ -127,6 +127,7 @@ export interface VehicleRow {
   optionsTotal?: number | null;
   baseMsrp?: number | null;
   crawlFirstSeen?: string | null;
+  sourceBox?: string | null;
 }
 
 export const VEHICLE_SHEET_COLUMNS: Array<{ key: keyof VehicleRow; label: string }> = [
@@ -160,6 +161,7 @@ export const VEHICLE_SHEET_COLUMNS: Array<{ key: keyof VehicleRow; label: string
   { key: "lastSeenAt", label: "Last seen" },
   { key: "removedAt", label: "Removed" },
   { key: "source", label: "Parsed from" },
+  { key: "sourceBox", label: "Box" },
 ];
 
 export function vehicleRowCell(row: VehicleRow, key: keyof VehicleRow): string {

@@ -33,6 +33,10 @@ const DEALS_HOST = process.env.TRIMSCOUT_DEALS_HOST || "3.208.49.1";
 const DEALS_PORT = process.env.TRIMSCOUT_DEALS_PORT || "3004";
 const AUTH_PORT = process.env.TRIMSCOUT_AUTH_PORT || "3003";
 const KEY = process.env.TRIMSCOUT_API_KEY || process.env.LIGHTSAIL_API_KEY;
+// Which crawl box this run came from, for the admin Vehicles sheet's "Box" column — set in each
+// box's inventory-sync/.env (box1/box2/box3/box4). Falls back to the box's own hostname so a box
+// that predates this label still tags its rows with *something* recognizable instead of nothing.
+const BOX_LABEL = process.env.TRIMSCOUT_BOX_LABEL || os.hostname();
 const inputPath = process.argv[2];
 if (!inputPath || !KEY) {
   console.error("usage: TRIMSCOUT_API_KEY=… node inventory-sync.mjs <data/inventory dir, or a single shard .json file>");
@@ -178,7 +182,7 @@ for (const shardFile of files) {
       bodyStyle: v.bodyStyle, exteriorColor: v.exteriorColor, interiorColor: v.interiorColor, mileage: v.mileage, price: v.price, msrp: v.msrp, stockNumber: v.stockNumber, vdpUrl: v.url, imageUrl: v.imageUrl, source: "nightly",
       windowStickerUrl: v.windowStickerUrl || null, engine: v.engine || null, transmission: v.transmission || null, daysOnLot: num(v.daysOnLot), oldPrice: num(v.oldPrice), priceDiff: num(v.priceDiff),
       priceChangeType: v.priceChangeType || null, changeType: v.changeType || null, priceHistory: Array.isArray(v.priceHistory) && v.priceHistory.length ? v.priceHistory.slice(-60) : null,
-      options: options(v), optionsTotal: num(v.totalOptionsPrice), baseMsrp: num(v.baseMsrp), crawlFirstSeen: v.firstSeen || null,
+      options: options(v), optionsTotal: num(v.totalOptionsPrice), baseMsrp: num(v.baseMsrp), crawlFirstSeen: v.firstSeen || null, sourceBox: BOX_LABEL,
     });
   }
 }
