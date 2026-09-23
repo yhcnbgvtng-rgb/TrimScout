@@ -47,6 +47,8 @@ export interface InventoryVehicle {
   optionsTotal: number | null;
   baseMsrp: number | null;
   crawlFirstSeen: string | null;
+  /** Which crawl box's nightly sync last wrote this row (box1-4) — null for rows written before this was tracked. */
+  sourceBox: string | null;
 }
 
 export interface InventoryDealerCount {
@@ -76,6 +78,7 @@ export interface InventoryUpsert {
   vdpUrl?: string | null;
   imageUrl?: string | null;
   source?: string | null;
+  sourceBox?: string | null;
 }
 
 export interface InventoryQuery {
