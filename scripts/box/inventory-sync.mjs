@@ -15,9 +15,19 @@
  * No dependencies. Reads the JSON, resolves each vehicle's store to a directory row (dealer name + state),
  * upserts by (VIN, store) in chunks, then sweeps every store that had ACTIVE vehicles in the file so VINs the
  * crawler no longer lists are marked removed. Idempotent — re-running just refreshes last_seen.
+ *
+ * Four boxes now run this (box1/box2 core at 6:15/6:45am ET, box3/box4 expansion at 7:15/7:45am ET) against
+ * the SAME deals-box database. The 30-minute stagger alone isn't a guarantee — each run actually starts
+ * whenever ITS OWN box's crawl finishes, not exactly at its cron time, so two runs can still land together
+ * on an unlucky night (this happened for real 2026-09-23: two concurrent /api/inventory/bulk calls hit a
+ * MySQL "Deadlock found when trying to get lock" error). Acquires a lock from the deals-api server itself
+ * (POST /api/ops/sync-lock/acquire — see handleSyncLockAcquire in deals_api_server.js) before the write
+ * phase, so a second box's run waits for the first to finish instead of colliding. A single, unclustered
+ * PM2 process backs that server, so an in-memory lock there is enough — no DB table needed.
  */
 import fs from "node:fs";
 import path from "node:path";
+import os from "node:os";
 
 const DEALS_HOST = process.env.TRIMSCOUT_DEALS_HOST || "3.208.49.1";
 const DEALS_PORT = process.env.TRIMSCOUT_DEALS_PORT || "3004";
@@ -50,6 +60,23 @@ const api = async (port, path, body) => {
   if (!res.ok) throw new Error(`${path} -> ${res.status} ${json && json.error ? json.error : ""}`);
   return json;
 };
+
+// Identifies this run in the lock-holder message another box's wait loop prints — not used for anything
+// else, so it doesn't need to be globally unique, just recognizable in a log.
+const LOCK_OWNER = `${os.hostname()}-${path.basename(inputPath)}-${process.pid}`;
+async function acquireSyncLock({ pollMs = 30_000, maxWaitMs = 3 * 60 * 60 * 1000 } = {}) {
+  const start = Date.now();
+  for (;;) {
+    const r = await api(DEALS_PORT, "/api/ops/sync-lock/acquire", { owner: LOCK_OWNER });
+    if (r.acquired) return;
+    if (Date.now() - start > maxWaitMs) throw new Error(`gave up waiting for the sync lock after ${maxWaitMs}ms (held by ${r.heldBy})`);
+    console.log(`[sync] another box's sync is running (${r.heldBy}, held ${Math.round(r.heldSinceMs / 1000)}s) — waiting...`);
+    await new Promise((resolve) => setTimeout(resolve, pollMs));
+  }
+}
+// Best-effort — a failed release just means the server's own staleness timeout clears it later; must
+// never throw and mask whatever real error is already in flight.
+const releaseSyncLock = () => api(DEALS_PORT, "/api/ops/sync-lock/release", { owner: LOCK_OWNER }).catch(() => {});
 
 const norm = (s) => String(s || "").toLowerCase().replace(/[^a-z0-9]/g, "");
 
@@ -141,21 +168,29 @@ const unmatched = rows.filter((r) => !r.dealerId).length;
 console.log(`${total} vehicles in file, ${rows.length} active with a valid VIN`);
 console.log(`stores matched to the directory: ${rows.length - unmatched}/${rows.length} vehicles (${unmatched} unmatched — kept, keyed to store 0)`);
 
-// The sweep compares against the deals box's clock; give it a 10-minute margin so a few seconds of clock
-// skew between machines can't sweep rows this very run just wrote.
-const started = new Date(Date.now() - 10 * 60 * 1000).toISOString();
-let upserted = 0;
-for (let i = 0; i < rows.length; i += 2000) {
-  const r = await api(DEALS_PORT, "/api/inventory/bulk", { vehicles: rows.slice(i, i + 2000) });
-  upserted += r.upserted;
-  process.stdout.write(`\r  upserted ${upserted}/${rows.length}`);
+// Only the write phase below needs the lock — everything above (reading shards, matching stores) is
+// local/read-only and safe to run in parallel with another box's sync.
+console.log(`[sync] acquiring sync lock as ${LOCK_OWNER}...`);
+await acquireSyncLock();
+try {
+  // The sweep compares against the deals box's clock; give it a 10-minute margin so a few seconds of clock
+  // skew between machines can't sweep rows this very run just wrote.
+  const started = new Date(Date.now() - 10 * 60 * 1000).toISOString();
+  let upserted = 0;
+  for (let i = 0; i < rows.length; i += 2000) {
+    const r = await api(DEALS_PORT, "/api/inventory/bulk", { vehicles: rows.slice(i, i + 2000) });
+    upserted += r.upserted;
+    process.stdout.write(`\r  upserted ${upserted}/${rows.length}`);
+  }
+  console.log();
+  const stores = [...new Set(rows.map((r) => r.dealerId).filter(Boolean))];
+  let removed = 0;
+  for (const id of stores) removed += (await api(DEALS_PORT, "/api/inventory/sweep", { dealerId: id, seenAfter: started, sources: ["nightly"] })).removed;
+  // The store-0 bucket holds vehicles whose store wasn't in the directory at sync time; once a rooftop is added
+  // they re-file under it, and the stale bucket rows are retired here.
+  try { removed += (await api(DEALS_PORT, "/api/inventory/sweep", { dealerId: 0, seenAfter: started, sources: ["nightly"] })).removed; } catch { /* box predates store-0 sweeps */ }
+  const stats = await api(DEALS_PORT, "/api/inventory/stats");
+  console.log(JSON.stringify({ upserted, sweptStores: stores.length, removed, live: { rows: stats.total, vins: stats.vins, inStock: stats.inStock, stores: stats.dealers, byState: stats.byState.slice(0, 8) } }));
+} finally {
+  await releaseSyncLock();
 }
-console.log();
-const stores = [...new Set(rows.map((r) => r.dealerId).filter(Boolean))];
-let removed = 0;
-for (const id of stores) removed += (await api(DEALS_PORT, "/api/inventory/sweep", { dealerId: id, seenAfter: started, sources: ["nightly"] })).removed;
-// The store-0 bucket holds vehicles whose store wasn't in the directory at sync time; once a rooftop is added
-// they re-file under it, and the stale bucket rows are retired here.
-try { removed += (await api(DEALS_PORT, "/api/inventory/sweep", { dealerId: 0, seenAfter: started, sources: ["nightly"] })).removed; } catch { /* box predates store-0 sweeps */ }
-const stats = await api(DEALS_PORT, "/api/inventory/stats");
-console.log(JSON.stringify({ upserted, sweptStores: stores.length, removed, live: { rows: stats.total, vins: stats.vins, inStock: stats.inStock, stores: stats.dealers, byState: stats.byState.slice(0, 8) } }));
