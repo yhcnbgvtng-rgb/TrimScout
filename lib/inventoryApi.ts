@@ -154,6 +154,61 @@ export async function listInventory(q: InventoryQuery = {}): Promise<{ total: nu
   return request("GET", `/api/inventory${inventoryQueryString(q)}`);
 }
 
+/** Longest the box may take to stream a whole export — the route's maxDuration minus headroom. */
+const EXPORT_TIMEOUT_MS = 280_000;
+
+/**
+ * Every vehicle matching `q` (cap 50k), one box query streamed as it arrives: yields each vehicle,
+ * then returns whether the cap cut the result short. Throws if the box reports a failure or the
+ * stream ends without its {"done":true} trailer (cut off) — a partial CSV must never look complete.
+ */
+export async function* exportInventory(q: InventoryQuery = {}): AsyncGenerator<InventoryVehicle, { capped: boolean }> {
+  const apiKey = serverSecret("LIGHTSAIL_API_KEY");
+  if (!apiKey) throw new InventoryApiError("Inventory backend is not configured (missing LIGHTSAIL_API_KEY)", 500);
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), EXPORT_TIMEOUT_MS);
+  try {
+    let res: Response;
+    try {
+      res = await fetch(`http://${LIGHTSAIL_HOST}:${DEALS_API_PORT}/api/inventory/export${inventoryQueryString(q)}`, {
+        headers: { "X-Trimscout-Api-Key": apiKey }, signal: controller.signal, cache: "no-store",
+      });
+    } catch (err) {
+      throw new InventoryApiError(err instanceof Error && err.name === "AbortError" ? "Inventory request timed out" : "Could not reach inventory service", 503);
+    }
+    if (!res.ok || !res.body) {
+      const json = await res.json().catch(() => null);
+      throw new InventoryApiError((json && json.error) || `Inventory service error (${res.status})`, res.status);
+    }
+    const decoder = new TextDecoder();
+    let buf = "";
+    try {
+      // A trailing sentinel chunk flushes a last line that arrived without its newline.
+      const chunks = async function* (body: AsyncIterable<Uint8Array>) { yield* body; yield null; };
+      for await (const chunk of chunks(res.body as unknown as AsyncIterable<Uint8Array>)) {
+        buf += chunk ? decoder.decode(chunk, { stream: true }) : decoder.decode() + "\n";
+        let nl: number;
+        while ((nl = buf.indexOf("\n")) >= 0) {
+          const line = buf.slice(0, nl);
+          buf = buf.slice(nl + 1);
+          if (!line) continue;
+          const obj = JSON.parse(line);
+          if (obj.done) return { capped: Boolean(obj.capped) };
+          if (obj.error) throw new InventoryApiError(obj.error, 502);
+          yield obj as InventoryVehicle;
+        }
+      }
+    } catch (err) {
+      if (err instanceof InventoryApiError) throw err;
+      throw new InventoryApiError(err instanceof Error && err.name === "AbortError" ? "Inventory request timed out" : "Inventory export was cut off", 503);
+    }
+    throw new InventoryApiError("Inventory export was cut off", 502);
+  } finally {
+    clearTimeout(timeoutId);
+    controller.abort();
+  }
+}
+
 export async function inventoryStats(): Promise<InventoryStats> {
   return request("GET", "/api/inventory/stats");
 }

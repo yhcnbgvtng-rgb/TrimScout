@@ -1,12 +1,16 @@
 import { NextResponse } from "next/server";
 import { requireAdminSession } from "@/lib/adminAuth";
-import { listInventory, inventoryStats, inventoryByDealer, inventoryVin, inventoryAnalytics, InventoryApiError, type InventoryQuery } from "@/lib/inventoryApi";
+import { listInventory, exportInventory, inventoryStats, inventoryByDealer, inventoryVin, inventoryAnalytics, InventoryApiError, type InventoryQuery } from "@/lib/inventoryApi";
+import { vehicleCsvHeader, vehicleCsvLine, vehicleSheetFilename, type VehicleRow } from "@/lib/crawlSheetColumns";
 
 export const dynamic = "force-dynamic";
+// A whole-state CSV is one box query that can take ~10s+ before the first row, then streams.
+export const maxDuration = 300;
 
 /**
  * Crawled dealer inventory for the admin sheet. `?stats=1` returns the filter-menu counts; otherwise a page of
- * vehicles for the given filters. `?export=1` walks every page of the filter (cap 50k rows) for the CSV.
+ * vehicles for the given filters. `?export=1` streams the whole filter (cap 50k rows) as a CSV download — streamed
+ * because a state's CSV is well past Vercel's 4.5MB limit on a buffered response body.
  */
 export async function GET(req: Request) {
   const session = await requireAdminSession();
@@ -27,15 +31,30 @@ export async function GET(req: Request) {
       minDays: sp.get("minDays") ? Number(sp.get("minDays")) : undefined,
     };
     if (sp.get("export") === "1") {
-      const all: unknown[] = [];
-      let offset = 0;
-      while (all.length < 50_000) {
-        const page = await listInventory({ ...q, limit: 2000, offset });
-        all.push(...page.vehicles);
-        offset += page.vehicles.length;
-        if (page.vehicles.length < 2000 || offset >= page.total) break;
-      }
-      return NextResponse.json({ vehicles: all, capped: all.length >= 50_000 });
+      const rows = exportInventory(q);
+      // Pull the first row before committing to a 200 so a box/timeout failure still comes back as a JSON error.
+      const first = await rows.next();
+      const encoder = new TextEncoder();
+      const body = new ReadableStream<Uint8Array>({
+        async start(controller) {
+          try {
+            controller.enqueue(encoder.encode("\uFEFF" + vehicleCsvHeader()));
+            let r = first;
+            while (!r.done) {
+              controller.enqueue(encoder.encode(vehicleCsvLine(r.value as unknown as VehicleRow)));
+              r = await rows.next();
+            }
+            controller.close();
+          } catch (err) {
+            // Erroring the stream fails the browser's download instead of saving a silently truncated CSV.
+            controller.error(err);
+          }
+        },
+        cancel() { void rows.return({ capped: false }); },
+      });
+      return new Response(body, {
+        headers: { "Content-Type": "text/csv; charset=utf-8", "Content-Disposition": `attachment; filename="${vehicleSheetFilename()}"`, "Cache-Control": "no-store" },
+      });
     }
     const limit = Math.min(Number(sp.get("limit")) || 500, 2000);
     const offset = Number(sp.get("offset")) || 0;

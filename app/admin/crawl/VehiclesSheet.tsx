@@ -6,7 +6,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ArrowDown, ArrowUp, ArrowUpDown, Download, RefreshCw, Search, X } from "lucide-react";
-import { VEHICLE_SHEET_COLUMNS, vehicleRowCell, vehicleRowsToCsv, vehicleSheetFilename, type VehicleRow } from "@/lib/crawlSheetColumns";
+import { VEHICLE_SHEET_COLUMNS, vehicleRowCell, vehicleSheetFilename, type VehicleRow } from "@/lib/crawlSheetColumns";
 import VinHistory from "./VinHistory";
 
 type Stats = { total: number; inStock: number; dealers: number; vins?: number; lastSeenAt: string | null; byMake: Array<{ make: string; n: number }>; byState: Array<{ state: string; n: number }>; byCond: Array<{ cond: string | null; n: number }>; movement?: { arrivals: number; priceDrops: number; priceIncreases: number; withSticker: number; removedToday: number } };
@@ -97,17 +97,17 @@ export default function VehiclesSheet() {
     try {
       const p = new URLSearchParams(query);
       p.set("export", "1");
+      // The route streams the CSV itself; a failure before the first row comes back as JSON instead.
       const res = await fetch(`/api/admin/inventory?${p}`, { cache: "no-store" });
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.error || "Export failed.");
-      const csv = vehicleRowsToCsv(json.vehicles as VehicleRow[]);
-      const url = URL.createObjectURL(new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8" }));
+      if (!res.ok) throw new Error(((await res.json().catch(() => null)) as { error?: string } | null)?.error || "Export failed.");
+      const blob = await res.blob().catch(() => { throw new Error("Export was cut off partway through — try again."); });
+      const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
       a.download = vehicleSheetFilename();
       a.click();
       setTimeout(() => URL.revokeObjectURL(url), 1000);
-      if (json.capped) setError("Export stopped at 50,000 rows — narrow the filter for the rest.");
+      if (total > 50000) setError("Export stopped at 50,000 rows — narrow the filter for the rest.");
     } catch (e) {
       setError(e instanceof Error ? e.message : "Export failed.");
     } finally {

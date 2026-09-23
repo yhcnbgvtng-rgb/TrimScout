@@ -144,3 +144,50 @@ describe("VIN history timeline", () => {
     assert.match(fs.readFileSync("app/api/admin/inventory/route.ts", "utf8"), /inventoryVin\(/);
   });
 });
+
+describe("vehicles CSV export — streamed from the box", () => {
+  const ndjson = (lines: string[], split = 7) => {
+    const text = lines.join("\n");
+    const chunks: Uint8Array[] = [];
+    // Split mid-line so the parser has to buffer partial lines across chunks.
+    for (let i = 0; i < text.length; i += split) chunks.push(new TextEncoder().encode(text.slice(i, i + split)));
+    return new Response(new ReadableStream({ start(c) { chunks.forEach((x) => c.enqueue(x)); c.close(); } }), { status: 200 });
+  };
+  const run = async (res: Response) => {
+    process.env.LIGHTSAIL_API_KEY = "test-key";
+    const realFetch = globalThis.fetch;
+    let url = "";
+    globalThis.fetch = (async (u: string) => { url = u; return res; }) as typeof fetch;
+    try {
+      const { exportInventory } = await import("./inventoryApi");
+      const gen = exportInventory({ state: "TX", inStock: true });
+      const vins: string[] = [];
+      let r = await gen.next();
+      while (!r.done) { vins.push(r.value.vin); r = await gen.next(); }
+      return { vins, capped: r.value.capped, url };
+    } finally {
+      globalThis.fetch = realFetch;
+    }
+  };
+
+  it("yields every row and reads the done trailer, with the filter forwarded to the box", async () => {
+    const out = await run(ndjson(['{"vin":"A1"}', '{"vin":"B2"}', '{"done":true,"rows":2,"capped":false}', ""]));
+    assert.deepEqual(out.vins, ["A1", "B2"]);
+    assert.equal(out.capped, false);
+    assert.match(out.url, /\/api\/inventory\/export\?state=TX&inStock=1$/);
+  });
+
+  it("throws when the stream ends without its done trailer, so a truncated CSV never looks complete", async () => {
+    await assert.rejects(run(ndjson(['{"vin":"A1"}', '{"vin":"B2"}'])), /cut off/);
+  });
+
+  it("surfaces an error line from the box", async () => {
+    await assert.rejects(run(ndjson(['{"vin":"A1"}', '{"error":"Export failed partway through"}'])), /Export failed partway through/);
+  });
+
+  it("the streamed header + lines build the same CSV as the one-shot helper", async () => {
+    const { vehicleCsvHeader, vehicleCsvLine, vehicleRowsToCsv } = await import("./crawlSheetColumns");
+    const row = { vin: "1HGCM82633A004352", dealerName: "=Joyce, Honda", price: 30000, options: [{ code: "X", name: "Sunroof", price: 1, kind: "o" }] } as never;
+    assert.equal(vehicleCsvHeader() + vehicleCsvLine(row), vehicleRowsToCsv([row]));
+  });
+});
