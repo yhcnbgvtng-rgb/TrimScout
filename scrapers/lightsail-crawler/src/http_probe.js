@@ -5,7 +5,7 @@
 
 import http from 'node:http';
 import https from 'node:https';
-import { classifyFetchResult, classifyFetchError, pickProbeResult, decideProbeNext } from './bot_protection.js';
+import { classifyFetchResult, classifyFetchError, pickProbeResult, decideProbeNext, BOT_CLASSES } from './bot_protection.js';
 
 const DEFAULT_TIMEOUT_MS = 12000;
 const MAX_REDIRECTS = 3;
@@ -64,7 +64,14 @@ export async function probeUrl(url, { timeoutMs = DEFAULT_TIMEOUT_MS, redirects 
       const next = new URL(loc, url).toString();
       return probeUrl(next, { timeoutMs, redirects: redirects + 1 });
     }
-    return { ...classifyFetchResult(res), url, fetchedUrl: url };
+    const classified = classifyFetchResult(res);
+    // The body is already in memory from requestOnce — only carry it back
+    // to the caller for a clean, unblocked page. A challenge/error page's
+    // HTML isn't the dealer's real content (see dealerPageIdentityPlain.js's
+    // own block-page guard), and there's no reason to hold onto bodies for
+    // 404/5xx/etc. probes that nothing downstream reads.
+    const body = classified.classification === BOT_CLASSES.NONE ? res.body : undefined;
+    return { ...classified, url, fetchedUrl: url, body };
   } catch (error) {
     return { ...classifyFetchError(error), url, fetchedUrl: url };
   }

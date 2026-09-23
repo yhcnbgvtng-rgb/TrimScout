@@ -21,7 +21,8 @@
 
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { loadNjDealers, isNjBrandOut } from '../src/nj_policy.js';
+import { loadNjDealers, canonicalBrandName, NJ_BRANDS_IN_CORE, NJ_BRANDS_IN_EXPANSION } from '../src/nj_policy.js';
+import { loadExpansionDealersForState } from '../src/expansionDealerFiles.js';
 import { loadNyDealers } from '../src/ny_policy.js';
 import { loadFlDealers } from '../src/fl_policy.js';
 import { loadGaDealers } from '../src/ga_policy.js';
@@ -76,6 +77,8 @@ import { buildTablePdf, buildSummaryBlocks } from '../src/pdf_table.js';
 import { CLASSIFICATION_ORDER, summarizeBotRows } from '../src/bot_protection.js';
 import { SUPPORTED_STATES } from '../src/states.js';
 import { resolveRunDate } from '../src/date_utils.js';
+import { extractDealerIdentity } from '../src/dealerPageIdentityPlain.js';
+import { detectDomainDrift, detectNameDrift } from '../src/dealerDriftDetect.js';
 
 // One entry per supported state (see src/states.js) — a new state needs a
 // loader added here, not a new if/else branch.
@@ -143,13 +146,40 @@ if (!SUPPORTED_STATES.includes(stateFilter)) {
   process.exit(1);
 }
 
-if (brandFilter && isNjBrandOut(brandFilter)) {
-  console.error(`Refusing excluded brand "${brandFilter}". Brands-out are not reported.`);
+// Brand recognition here is deliberately independent of CRAWLER_BRAND_SET:
+// this report merges the OEM-locator-backed core brands with the
+// separately-materialized expansion brands (see expansionDealerFiles.js)
+// regardless of which brand set the current process env selects. Ford et
+// al. only ever appear in isNjBrandOut() because that check is scoped to
+// whichever single brand set is currently active (NJ_BRANDS_OUT_CORE
+// really means "the OTHER set's brands", not "never in scope") — the
+// brands genuinely out of scope for *both* sets are NJ_BRANDS_OUT_EXPANSION
+// (Genesis/Tesla/Rivian/Lucid/Hummer: no traditional franchise network).
+// So refuse only when the filter isn't recognized by either IN list.
+const knownBrand = brandFilter
+  ? [...NJ_BRANDS_IN_CORE, ...NJ_BRANDS_IN_EXPANSION].some((b) => canonicalBrandName(b) === canonicalBrandName(brandFilter))
+  : true;
+if (brandFilter && !knownBrand) {
+  console.error(`Refusing unknown brand "${brandFilter}". Not in the core or expansion in-scope lists.`);
   process.exit(1);
 }
 
 const cwd = process.cwd();
-const dealers = STATE_DEALER_LOADERS[stateFilter]({ cwd, brand: brandFilter });
+// Expansion brands (Ford/Lincoln/Chevrolet/GMC/Buick/Cadillac/Stellantis)
+// have no OEM-locator dump, so STATE_DEALER_LOADERS alone can never see
+// them (confirmed live 2026-09-23 — see expansionDealerFiles.js's header)
+// — merge in their pre-materialized dealer files directly, deduped the
+// same way the core loaders already dedup (name+domain).
+const coreDealers = STATE_DEALER_LOADERS[stateFilter]({ cwd, brand: brandFilter });
+const expansionDealers = loadExpansionDealersForState(stateFilter, { cwd, brand: brandFilter });
+const seenDealerKey = new Set();
+const dealers = [];
+for (const d of [...coreDealers, ...expansionDealers]) {
+  const key = `${String(d.make).toLowerCase()}|${String(d.name).toLowerCase()}|${String(d.domain).toLowerCase().replace(/^www\./, '')}`;
+  if (seenDealerKey.has(key)) continue;
+  seenDealerKey.add(key);
+  dealers.push(d);
+}
 if (dealers.length === 0) {
   console.error(`No ${stateFilter} in-scope dealers found. Check dealers/${stateFilter.toLowerCase()}/*.json.`);
   process.exit(1);
@@ -162,6 +192,13 @@ for (let i = 0; i < dealers.length; i++) {
   const d = dealers[i];
   process.stdout.write(`  [${i + 1}/${dealers.length}] ${d.make} · ${d.name} (${d.domain})... `);
   const result = await probeDealer(d);
+  const resolvedUrl = result.url || result.fetchedUrl || null;
+  // Detect-only: the identity extraction never fetches anything itself —
+  // it just reads the body http_probe.js already pulled down for
+  // classification, when the response was NONE/clean.
+  const observed = extractDealerIdentity(result.body, result.httpStatus);
+  const domainDrift = detectDomainDrift(d.domain, resolvedUrl);
+  const nameDrift = detectNameDrift(d.name, observed.name);
   const row = {
     brand: d.make,
     dealerName: d.name,
@@ -173,10 +210,15 @@ for (let i = 0; i < dealers.length; i++) {
     httpStatus: result.httpStatus,
     wafVendor: result.wafVendor || '',
     notes: result.notes || '',
-    url: result.url || result.fetchedUrl || null,
+    url: resolvedUrl,
     ready: result.classification === 'NONE' && Number(result.httpStatus) === 200 ? 'Y' : 'N',
+    domainDrift,
+    nameDrift,
   };
   rows.push(row);
+  if (domainDrift || nameDrift) {
+    console.log(`    drift: ${domainDrift ? `domain ${domainDrift.configured} -> ${domainDrift.resolved}` : ''}${domainDrift && nameDrift ? '; ' : ''}${nameDrift ? `name "${nameDrift.configured}" -> "${nameDrift.observed}"` : ''}`);
+  }
   console.log(`${row.classification}${row.httpStatus ? ` ${row.httpStatus}` : ''}${row.wafVendor ? ` · ${row.wafVendor}` : ''}`);
 }
 
@@ -199,6 +241,16 @@ const report = {
     domain: r.domain,
     httpStatus: r.httpStatus,
   })),
+  driftFlagged: rows
+    .filter((r) => r.domainDrift || r.nameDrift)
+    .map((r) => ({
+      brand: r.brand,
+      dealerName: r.dealerName,
+      domain: r.domain,
+      state: r.state,
+      domainDrift: r.domainDrift,
+      nameDrift: r.nameDrift,
+    })),
   policy: {
     detectOnly: true,
     bypassForbidden: true,
@@ -272,4 +324,5 @@ console.log(`\nJSON: ${jsonPath}`);
 console.log(`PDF:  ${pdfPath}`);
 console.log('Summary:', summary);
 console.log(`Ready to crawl (NONE/200): ${ready.length}`);
+console.log(`Domain/name drift flagged: ${report.driftFlagged.length}`);
 console.log('No WAF/captcha/challenge bypass was attempted.');
