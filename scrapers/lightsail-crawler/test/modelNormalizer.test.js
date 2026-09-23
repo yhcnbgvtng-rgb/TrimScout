@@ -1,7 +1,7 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { splitPorscheTrimFromModelName, isKnownPorscheNameplateWord } from '../src/modelNormalizer.js';
+import { splitPorscheTrimFromModelName, isKnownPorscheNameplateWord, normalizeVehicleFields } from '../src/modelNormalizer.js';
 
 describe('splitPorscheTrimFromModelName', () => {
   it('splits a matching-case prefix cleanly', () => {
@@ -37,5 +37,27 @@ describe('isKnownPorscheNameplateWord', () => {
   it('rejects arbitrary words', () => {
     assert.equal(isKnownPorscheNameplateWord('19696'), false);
     assert.equal(isKnownPorscheNameplateWord('sedan'), false);
+  });
+});
+
+describe('normalizeVehicleFields — Taycan engine backfill', () => {
+  it('fills engine with "Electric" for a Taycan with no engine value from any strategy', () => {
+    const result = normalizeVehicleFields('Porsche', { model: 'Taycan', trim: null, bodyStyle: null, engine: null });
+    assert.equal(result.engine, 'Electric');
+  });
+
+  it('does not override a real engine value if one was already extracted', () => {
+    const result = normalizeVehicleFields('Porsche', { model: 'Taycan', trim: null, bodyStyle: null, engine: 'Dual Motor' });
+    assert.equal(result.engine, 'Dual Motor');
+  });
+
+  it('never sets Electric for a non-Taycan model', () => {
+    const result = normalizeVehicleFields('Porsche', { model: '911', trim: null, bodyStyle: null, engine: null });
+    assert.equal(result.engine, null);
+  });
+
+  it('is a no-op for non-Porsche brands', () => {
+    const vehicle = { model: 'Taycan', trim: null, bodyStyle: null, engine: null };
+    assert.deepEqual(normalizeVehicleFields('Ford', vehicle), vehicle);
   });
 });

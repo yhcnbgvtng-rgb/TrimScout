@@ -308,5 +308,13 @@ export function normalizeVehicleFields(brandName, vehicle) {
     trim: vehicle.trim,
     bodyStyle: vehicle.bodyStyle,
   });
-  return { ...vehicle, model, trim, bodyStyle };
+  // No extraction strategy ever synthesizes an explicit engine value for a
+  // BEV — the source pages simply have no combustion-engine field to read,
+  // so `engine` was just left blank rather than saying anything (confirmed
+  // in a 2026-09-22 inventory audit: Taycan rows had null engine across
+  // every strategy). Taycan is Porsche's only fully-electric nameplate
+  // today; the model has already been confirmed/normalized above, so this
+  // states a known fact rather than guessing one.
+  const engine = !vehicle.engine && /^taycan\b/i.test(model || '') ? 'Electric' : vehicle.engine;
+  return { ...vehicle, model, trim, bodyStyle, engine };
 }
