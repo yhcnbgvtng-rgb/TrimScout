@@ -1,0 +1,16 @@
+[
+  {
+    "id": "porsche-omaha",
+    "name": "Porsche Omaha",
+    "city": "Omaha",
+    "state": "NE",
+    "make": "Porsche",
+    "domain": "porscheomaha.com",
+    "sitemapUrl": "https://www.porscheomaha.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porscheomaha.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porscheomaha.com/",
+    "lat": 41.2587459,
+    "lng": -95.9383758,
+    "domainSource": "oem-locator"
+  }
+]

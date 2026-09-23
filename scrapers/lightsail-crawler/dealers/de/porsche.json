@@ -1,0 +1,16 @@
+[
+  {
+    "id": "porsche-delaware",
+    "name": "Porsche Delaware",
+    "city": "Newark",
+    "state": "DE",
+    "make": "Porsche",
+    "domain": "porschedelaware.com",
+    "sitemapUrl": "https://www.porschedelaware.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschedelaware.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschedelaware.com/",
+    "lat": 39.6828358,
+    "lng": -75.7515682,
+    "domainSource": "oem-locator"
+  }
+]

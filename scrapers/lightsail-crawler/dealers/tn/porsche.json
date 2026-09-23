@@ -1,0 +1,58 @@
+[
+  {
+    "id": "porsche-chattanooga",
+    "name": "Porsche Chattanooga",
+    "city": "Chattanooga",
+    "state": "TN",
+    "make": "Porsche",
+    "domain": "porschechattanooga.com",
+    "sitemapUrl": "https://www.porschechattanooga.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschechattanooga.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschechattanooga.com/",
+    "lat": 35.0457219,
+    "lng": -85.3094883,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "porsche-knoxville",
+    "name": "Porsche Knoxville",
+    "city": "Knoxville",
+    "state": "TN",
+    "make": "Porsche",
+    "domain": "porscheknoxville.com",
+    "sitemapUrl": "https://www.porscheknoxville.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porscheknoxville.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porscheknoxville.com/",
+    "lat": 35.9603948,
+    "lng": -83.9210261,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "porsche-memphis",
+    "name": "Porsche Memphis",
+    "city": "Memphis",
+    "state": "TN",
+    "make": "Porsche",
+    "domain": "porscheofmemphis.com",
+    "sitemapUrl": "https://www.porscheofmemphis.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porscheofmemphis.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porscheofmemphis.com/",
+    "lat": 35.146026,
+    "lng": -90.0517786,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "porsche-nashville",
+    "name": "Porsche Nashville",
+    "city": "Brentwood",
+    "state": "TN",
+    "make": "Porsche",
+    "domain": "porschenashville.com",
+    "sitemapUrl": "https://www.porschenashville.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschenashville.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschenashville.com/",
+    "lat": 36.0325687,
+    "lng": -86.7825235,
+    "domainSource": "oem-locator"
+  }
+]

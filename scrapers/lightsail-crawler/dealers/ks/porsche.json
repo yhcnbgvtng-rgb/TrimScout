@@ -1,0 +1,30 @@
+[
+  {
+    "id": "porsche-kansas-city",
+    "name": "Porsche Kansas City",
+    "city": "Merriam",
+    "state": "KS",
+    "make": "Porsche",
+    "domain": "porschekansascity.com",
+    "sitemapUrl": "https://www.porschekansascity.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschekansascity.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschekansascity.com/",
+    "lat": 39.0168058,
+    "lng": -94.689947,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "porsche-wichita",
+    "name": "Porsche Wichita",
+    "city": "Wichita",
+    "state": "KS",
+    "make": "Porsche",
+    "domain": "porschewichita.com",
+    "sitemapUrl": "https://www.porschewichita.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschewichita.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschewichita.com/",
+    "lat": 37.6922361,
+    "lng": -97.3375448,
+    "domainSource": "oem-locator"
+  }
+]

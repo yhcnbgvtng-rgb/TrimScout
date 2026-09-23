@@ -1,0 +1,30 @@
+[
+  {
+    "id": "porsche-springfield",
+    "name": "Porsche Springfield",
+    "city": "Springfield",
+    "state": "MO",
+    "make": "Porsche",
+    "domain": "porschespringfield.com",
+    "sitemapUrl": "https://www.porschespringfield.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschespringfield.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschespringfield.com/",
+    "lat": 37.2081729,
+    "lng": -93.2922715,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "porsche-st-louis",
+    "name": "Porsche St. Louis",
+    "city": "St. Louis",
+    "state": "MO",
+    "make": "Porsche",
+    "domain": "porschestlouis.com",
+    "sitemapUrl": "https://www.porschestlouis.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschestlouis.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschestlouis.com/",
+    "lat": 38.6254063,
+    "lng": -90.190009,
+    "domainSource": "oem-locator"
+  }
+]

@@ -1,0 +1,58 @@
+[
+  {
+    "id": "porsche-colorado-springs",
+    "name": "Porsche Colorado Springs",
+    "city": "Colorado Springs",
+    "state": "CO",
+    "make": "Porsche",
+    "domain": "porschecoloradosprings.com",
+    "sitemapUrl": "https://www.porschecoloradosprings.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschecoloradosprings.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschecoloradosprings.com/",
+    "lat": 38.8339578,
+    "lng": -104.825348,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "porsche-denver-central",
+    "name": "Porsche Denver Central",
+    "city": "Denver",
+    "state": "CO",
+    "make": "Porsche",
+    "domain": "porschedenvercentral.com",
+    "sitemapUrl": "https://www.porschedenvercentral.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschedenvercentral.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschedenvercentral.com/",
+    "lat": 39.7392364,
+    "lng": -104.984862,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "porsche-fort-collins",
+    "name": "Porsche Fort Collins",
+    "city": "Fort Collins",
+    "state": "CO",
+    "make": "Porsche",
+    "domain": "porschefortcollins.com",
+    "sitemapUrl": "https://www.porschefortcollins.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschefortcollins.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschefortcollins.com/",
+    "lat": 40.5871782,
+    "lng": -105.0770113,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "porsche-littleton",
+    "name": "Porsche Littleton",
+    "city": "Littleton",
+    "state": "CO",
+    "make": "Porsche",
+    "domain": "porschelittleton.com",
+    "sitemapUrl": "https://www.porschelittleton.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschelittleton.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschelittleton.com/",
+    "lat": 39.613321,
+    "lng": -105.016649,
+    "domainSource": "oem-locator"
+  }
+]

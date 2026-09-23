@@ -1,0 +1,30 @@
+[
+  {
+    "id": "porsche-lexington",
+    "name": "Porsche Lexington",
+    "city": "Lexington",
+    "state": "KY",
+    "make": "Porsche",
+    "domain": "porschelexington.com",
+    "sitemapUrl": "https://www.porschelexington.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschelexington.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschelexington.com/",
+    "lat": 38.0464066,
+    "lng": -84.4970393,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "porsche-louisville",
+    "name": "Porsche Louisville",
+    "city": "Louisville",
+    "state": "KY",
+    "make": "Porsche",
+    "domain": "porschelouisville.com",
+    "sitemapUrl": "https://www.porschelouisville.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschelouisville.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschelouisville.com/",
+    "lat": 38.2542376,
+    "lng": -85.759407,
+    "domainSource": "oem-locator"
+  }
+]

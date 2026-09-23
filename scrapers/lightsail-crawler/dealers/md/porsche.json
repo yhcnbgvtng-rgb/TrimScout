@@ -1,0 +1,58 @@
+[
+  {
+    "id": "porsche-annapolis",
+    "name": "Porsche Annapolis",
+    "city": "Annapolis",
+    "state": "MD",
+    "make": "Porsche",
+    "domain": "porscheannapolis.com",
+    "sitemapUrl": "https://www.porscheannapolis.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porscheannapolis.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porscheannapolis.com/",
+    "lat": 38.9786401,
+    "lng": -76.492786,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "porsche-bethesda",
+    "name": "Porsche Bethesda",
+    "city": "Bethesda",
+    "state": "MD",
+    "make": "Porsche",
+    "domain": "porschebethesda.com",
+    "sitemapUrl": "https://www.porschebethesda.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschebethesda.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschebethesda.com/",
+    "lat": 38.9846816,
+    "lng": -77.0942447,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "porsche-silver-spring",
+    "name": "Porsche Silver Spring",
+    "city": "Silver Spring",
+    "state": "MD",
+    "make": "Porsche",
+    "domain": "porschesilverspring.com",
+    "sitemapUrl": "https://www.porschesilverspring.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschesilverspring.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschesilverspring.com/",
+    "lat": 38.9959461,
+    "lng": -77.0276231,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "porsche-towson",
+    "name": "Porsche Towson",
+    "city": "Towson",
+    "state": "MD",
+    "make": "Porsche",
+    "domain": "porschetowson.com",
+    "sitemapUrl": "https://www.porschetowson.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschetowson.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschetowson.com/",
+    "lat": 39.4018513,
+    "lng": -76.6023803,
+    "domainSource": "oem-locator"
+  }
+]

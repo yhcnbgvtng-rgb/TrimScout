@@ -1,0 +1,16 @@
+[
+  {
+    "id": "porsche-anchorage",
+    "name": "Porsche Anchorage",
+    "city": "Anchorage",
+    "state": "AK",
+    "make": "Porsche",
+    "domain": "porscheanchorage.com",
+    "sitemapUrl": "https://www.porscheanchorage.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porscheanchorage.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porscheanchorage.com/",
+    "lat": 61.2163129,
+    "lng": -149.894852,
+    "domainSource": "oem-locator"
+  }
+]

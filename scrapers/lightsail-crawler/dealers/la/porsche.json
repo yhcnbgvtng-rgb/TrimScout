@@ -1,0 +1,44 @@
+[
+  {
+    "id": "porsche-baton-rouge",
+    "name": "Porsche Baton Rouge",
+    "city": "Baton Rouge",
+    "state": "LA",
+    "make": "Porsche",
+    "domain": "porschebatonrouge.com",
+    "sitemapUrl": "https://www.porschebatonrouge.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschebatonrouge.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschebatonrouge.com/",
+    "lat": 30.4494155,
+    "lng": -91.1869659,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "porsche-new-orleans",
+    "name": "Porsche New Orleans",
+    "city": "Metairie",
+    "state": "LA",
+    "make": "Porsche",
+    "domain": "porscheneworleans.com",
+    "sitemapUrl": "https://www.porscheneworleans.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porscheneworleans.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porscheneworleans.com/",
+    "lat": 29.9899926,
+    "lng": -90.1505426,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "porsche-shreveport",
+    "name": "Porsche Shreveport",
+    "city": "Shreveport",
+    "state": "LA",
+    "make": "Porsche",
+    "domain": "porscheshreveport.com",
+    "sitemapUrl": "https://www.porscheshreveport.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porscheshreveport.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porscheshreveport.com/",
+    "lat": 32.5135356,
+    "lng": -93.7477839,
+    "domainSource": "oem-locator"
+  }
+]

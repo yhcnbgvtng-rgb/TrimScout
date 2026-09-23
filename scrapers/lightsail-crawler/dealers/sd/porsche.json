@@ -1,0 +1,16 @@
+[
+  {
+    "id": "porsche-sioux-falls",
+    "name": "Porsche Sioux Falls",
+    "city": "Sioux Falls",
+    "state": "SD",
+    "make": "Porsche",
+    "domain": "porschesiouxfalls.com",
+    "sitemapUrl": "https://www.porschesiouxfalls.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschesiouxfalls.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschesiouxfalls.com/",
+    "lat": 43.5476008,
+    "lng": -96.7293629,
+    "domainSource": "oem-locator"
+  }
+]

@@ -1,0 +1,30 @@
+[
+  {
+    "id": "porsche-little-rock",
+    "name": "Porsche Little Rock",
+    "city": "Little Rock",
+    "state": "AR",
+    "make": "Porsche",
+    "domain": "porschelittlerock.com",
+    "sitemapUrl": "https://www.porschelittlerock.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschelittlerock.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschelittlerock.com/",
+    "lat": 34.7465071,
+    "lng": -92.2896267,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "porsche-northwest-arkansas",
+    "name": "Porsche Northwest Arkansas",
+    "city": "Rogers",
+    "state": "AR",
+    "make": "Porsche",
+    "domain": "porschenorthwestarkansas.com",
+    "sitemapUrl": "https://www.porschenorthwestarkansas.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschenorthwestarkansas.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschenorthwestarkansas.com/",
+    "lat": 36.334857,
+    "lng": -94.1193816,
+    "domainSource": "oem-locator"
+  }
+]

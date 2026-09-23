@@ -1,0 +1,58 @@
+[
+  {
+    "id": "porsche-ann-arbor",
+    "name": "Porsche Ann Arbor",
+    "city": "Ann Arbor",
+    "state": "MI",
+    "make": "Porsche",
+    "domain": "porscheannarbor.com",
+    "sitemapUrl": "https://www.porscheannarbor.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porscheannarbor.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porscheannarbor.com/",
+    "lat": 42.2813722,
+    "lng": -83.7484616,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "porsche-farmington-hills",
+    "name": "Porsche Farmington Hills",
+    "city": "Farmington Hills",
+    "state": "MI",
+    "make": "Porsche",
+    "domain": "porschefarmingtonhills.com",
+    "sitemapUrl": "https://www.porschefarmingtonhills.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschefarmingtonhills.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschefarmingtonhills.com/",
+    "lat": 42.4853125,
+    "lng": -83.3771553,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "porsche-grand-rapids",
+    "name": "Porsche Grand Rapids",
+    "city": "Grand Rapids",
+    "state": "MI",
+    "make": "Porsche",
+    "domain": "porschegrandrapids.com",
+    "sitemapUrl": "https://www.porschegrandrapids.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschegrandrapids.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschegrandrapids.com/",
+    "lat": 42.9632425,
+    "lng": -85.6678639,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "porsche-troy",
+    "name": "Porsche Troy",
+    "city": "Troy",
+    "state": "MI",
+    "make": "Porsche",
+    "domain": "suburbanporsche.com",
+    "sitemapUrl": "https://www.suburbanporsche.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.suburbanporsche.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://suburbanporsche.com/",
+    "lat": 42.6055893,
+    "lng": -83.1499304,
+    "domainSource": "oem-locator"
+  }
+]

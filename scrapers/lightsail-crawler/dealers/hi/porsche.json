@@ -1,0 +1,16 @@
+[
+  {
+    "id": "porsche-honolulu",
+    "name": "Porsche Honolulu",
+    "city": "Honolulu",
+    "state": "HI",
+    "make": "Porsche",
+    "domain": "porschehonolulu.com",
+    "sitemapUrl": "https://www.porschehonolulu.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschehonolulu.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschehonolulu.com/",
+    "lat": 21.304547,
+    "lng": -157.855676,
+    "domainSource": "oem-locator"
+  }
+]

@@ -1,0 +1,30 @@
+[
+  {
+    "id": "porsche-minneapolis",
+    "name": "Porsche Minneapolis",
+    "city": "Minneapolis",
+    "state": "MN",
+    "make": "Porsche",
+    "domain": "porscheminneapolis.com",
+    "sitemapUrl": "https://www.porscheminneapolis.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porscheminneapolis.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porscheminneapolis.com/",
+    "lat": 44.9772995,
+    "lng": -93.2654692,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "porsche-st-paul",
+    "name": "Porsche St. Paul",
+    "city": "Maplewood",
+    "state": "MN",
+    "make": "Porsche",
+    "domain": "porschestpaul.com",
+    "sitemapUrl": "https://www.porschestpaul.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschestpaul.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschestpaul.com/",
+    "lat": 45.0082216,
+    "lng": -93.0456985,
+    "domainSource": "oem-locator"
+  }
+]

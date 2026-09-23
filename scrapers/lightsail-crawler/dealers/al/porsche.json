@@ -1,0 +1,44 @@
+[
+  {
+    "id": "porsche-birmingham",
+    "name": "Porsche Birmingham",
+    "city": "Birmingham",
+    "state": "AL",
+    "make": "Porsche",
+    "domain": "porschebirmingham.com",
+    "sitemapUrl": "https://www.porschebirmingham.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschebirmingham.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschebirmingham.com/",
+    "lat": 33.5206824,
+    "lng": -86.8024326,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "porsche-huntsville",
+    "name": "Porsche Huntsville",
+    "city": "Huntsville",
+    "state": "AL",
+    "make": "Porsche",
+    "domain": "porschehuntsville.com",
+    "sitemapUrl": "https://www.porschehuntsville.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschehuntsville.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschehuntsville.com/",
+    "lat": 34.729847,
+    "lng": -86.5859011,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "porsche-mobile",
+    "name": "Porsche Mobile",
+    "city": "Mobile",
+    "state": "AL",
+    "make": "Porsche",
+    "domain": "porscheofmobile.com",
+    "sitemapUrl": "https://www.porscheofmobile.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porscheofmobile.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porscheofmobile.com/",
+    "lat": 30.6913462,
+    "lng": -88.0437509,
+    "domainSource": "oem-locator"
+  }
+]

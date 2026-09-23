@@ -1,0 +1,58 @@
+[
+  {
+    "id": "porsche-danbury",
+    "name": "Porsche Danbury",
+    "city": "Danbury",
+    "state": "CT",
+    "make": "Porsche",
+    "domain": "porschedanbury.com",
+    "sitemapUrl": "https://www.porschedanbury.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschedanbury.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschedanbury.com/",
+    "lat": 41.394817,
+    "lng": -73.4540111,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "porsche-fairfield",
+    "name": "Porsche Fairfield",
+    "city": "Fairfield",
+    "state": "CT",
+    "make": "Porsche",
+    "domain": "porschefairfield.com",
+    "sitemapUrl": "https://www.porschefairfield.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschefairfield.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschefairfield.com/",
+    "lat": 41.1412078,
+    "lng": -73.2637258,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "porsche-greenwich",
+    "name": "Porsche Greenwich",
+    "city": "Greenwich",
+    "state": "CT",
+    "make": "Porsche",
+    "domain": "porschegreenwich.com",
+    "sitemapUrl": "https://www.porschegreenwich.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschegreenwich.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschegreenwich.com/",
+    "lat": 41.0264862,
+    "lng": -73.6284598,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "porsche-hartford",
+    "name": "Porsche Hartford",
+    "city": "East Hartford",
+    "state": "CT",
+    "make": "Porsche",
+    "domain": "porscheofhartford.com",
+    "sitemapUrl": "https://www.porscheofhartford.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porscheofhartford.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porscheofhartford.com/",
+    "lat": 41.767914,
+    "lng": -72.644512,
+    "domainSource": "oem-locator"
+  }
+]

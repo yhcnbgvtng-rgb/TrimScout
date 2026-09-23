@@ -1,0 +1,44 @@
+[
+  {
+    "id": "porsche-beaverton",
+    "name": "Porsche Beaverton",
+    "city": "Beaverton",
+    "state": "OR",
+    "make": "Porsche",
+    "domain": "porschebeaverton.com",
+    "sitemapUrl": "https://www.porschebeaverton.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschebeaverton.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschebeaverton.com/",
+    "lat": 45.4871723,
+    "lng": -122.80378,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "porsche-bend",
+    "name": "Porsche Bend",
+    "city": "Bend",
+    "state": "OR",
+    "make": "Porsche",
+    "domain": "porschebend.com",
+    "sitemapUrl": "https://www.porschebend.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschebend.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschebend.com/",
+    "lat": 44.0581728,
+    "lng": -121.3153096,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "porsche-eugene",
+    "name": "Porsche Eugene",
+    "city": "Eugene",
+    "state": "OR",
+    "make": "Porsche",
+    "domain": "porscheeugene.com",
+    "sitemapUrl": "https://www.porscheeugene.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porscheeugene.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porscheeugene.com/",
+    "lat": 44.0505054,
+    "lng": -123.0950506,
+    "domainSource": "oem-locator"
+  }
+]

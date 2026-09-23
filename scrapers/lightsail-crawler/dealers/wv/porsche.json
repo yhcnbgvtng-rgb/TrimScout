@@ -1,0 +1,16 @@
+[
+  {
+    "id": "porsche-charleston-wv",
+    "name": "Porsche Charleston WV",
+    "city": "Charleston",
+    "state": "WV",
+    "make": "Porsche",
+    "domain": "porscheofcharleston.com",
+    "sitemapUrl": "https://www.porscheofcharleston.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porscheofcharleston.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porscheofcharleston.com/",
+    "lat": 38.3505995,
+    "lng": -81.6332812,
+    "domainSource": "oem-locator"
+  }
+]

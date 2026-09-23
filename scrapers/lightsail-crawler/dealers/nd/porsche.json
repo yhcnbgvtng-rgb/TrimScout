@@ -1,0 +1,16 @@
+[
+  {
+    "id": "porsche-fargo",
+    "name": "Porsche Fargo",
+    "city": "Fargo",
+    "state": "ND",
+    "make": "Porsche",
+    "domain": "porschefargo.com",
+    "sitemapUrl": "https://www.porschefargo.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschefargo.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschefargo.com/",
+    "lat": 46.877229,
+    "lng": -96.789821,
+    "domainSource": "oem-locator"
+  }
+]

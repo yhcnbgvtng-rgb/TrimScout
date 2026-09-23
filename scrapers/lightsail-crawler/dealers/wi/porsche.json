@@ -1,0 +1,44 @@
+[
+  {
+    "id": "porsche-fox-valley",
+    "name": "Porsche Fox Valley",
+    "city": "Appleton",
+    "state": "WI",
+    "make": "Porsche",
+    "domain": "porschefoxvalley.com",
+    "sitemapUrl": "https://www.porschefoxvalley.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschefoxvalley.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschefoxvalley.com/",
+    "lat": 44.2613967,
+    "lng": -88.4069744,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "porsche-madison",
+    "name": "Porsche Madison",
+    "city": "Madison",
+    "state": "WI",
+    "make": "Porsche",
+    "domain": "porschemadison.com",
+    "sitemapUrl": "https://www.porschemadison.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschemadison.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschemadison.com/",
+    "lat": 43.07469,
+    "lng": -89.3841663,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "porsche-milwaukee-north",
+    "name": "Porsche Milwaukee North",
+    "city": "Milwaukee",
+    "state": "WI",
+    "make": "Porsche",
+    "domain": "porschemilwaukeenorth.com",
+    "sitemapUrl": "https://www.porschemilwaukeenorth.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.porschemilwaukeenorth.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://porschemilwaukeenorth.com/",
+    "lat": 43.0386475,
+    "lng": -87.9090751,
+    "domainSource": "oem-locator"
+  }
+]
