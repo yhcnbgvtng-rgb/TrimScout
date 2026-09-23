@@ -1718,6 +1718,9 @@ async function ensureInventoryTable(pool) {
     // Every sheet query filters removed_at IS NULL then sorts — composite indexes let those read in order.
     "ADD INDEX IF NOT EXISTS idx_inv_stock_dealer (removed_at, dealer_name, vin)",
     "ADD INDEX IF NOT EXISTS idx_inv_stock_make (removed_at, make, model)",
+    // make= WITHOUT inStock=1 (the sheet's "all, incl. removed" view): idx_inv_stock_make can't seek
+    // on make until removed_at is pinned, so that was a full scan — see inventoryListQuery.
+    "ADD INDEX IF NOT EXISTS idx_inv_make_dealer (make, dealer_name, vin)",
     "ADD INDEX IF NOT EXISTS idx_inv_stock_price (removed_at, price)",
     "ADD INDEX IF NOT EXISTS idx_inv_stock_msrp (removed_at, msrp)",
     "ADD INDEX IF NOT EXISTS idx_inv_stock_mileage (removed_at, mileage)",
@@ -1952,7 +1955,12 @@ function inventoryListQuery(params) {
   // the growing number of indexes on this table (added for the prefix/suffix search) gave
   // the planner more bad options to pick from. model= and state= filters were checked at the
   // same time and don't hit this — only make= needed a hint.
-  const indexHint = p("make") ? "FORCE INDEX (idx_inv_stock_make)" : "";
+  // idx_inv_stock_make leads with removed_at, so it only seeks on make when inStock=1 pins that
+  // column; without it the same hint was a forced full scan + filesort — confirmed live 2026-09-22:
+  // make=Porsche 18s, make=Toyota 20.1s. idx_inv_make_dealer (make, dealer_name, vin) leads with make
+  // and reads the default dealer:asc sort in index order.
+  const indexHint = !p("make") ? ""
+    : p("inStock") === "1" ? "FORCE INDEX (idx_inv_stock_make)" : "FORCE INDEX (idx_inv_make_dealer)";
   // state= has the same trap, found after the make= fix: with the default dealer_name sort the
   // optimizer walks idx_inv_stock_dealer — every in-stock car in the country, in dealer order —
   // and throws away the other states row by row. Confirmed live 2026-09-22 for TX (38,847 in
