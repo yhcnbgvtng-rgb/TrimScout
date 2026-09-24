@@ -8,7 +8,7 @@ import { buildFreeImport } from "./freeVinImportServer";
 import type { InventoryDealerSighting } from "./inventoryVinLookup";
 
 const ADX = "3HDSA2H70TM713712";
-const SIGHTING: InventoryDealerSighting = { dealerId: null, dealerName: "Key Acura of Atlantic City", city: "Egg Harbor Township", state: "NJ", lastSeen: "2026-09-16", firstSeen: "2026-09-15", daysOnLot: 1 };
+const SIGHTING: InventoryDealerSighting = { dealerId: null, dealerName: "Key Acura of Atlantic City", city: "Egg Harbor Township", state: "NJ", lastSeen: "2026-09-16", firstSeen: "2026-09-15", daysOnLot: 1, windowStickerUrl: null };
 
 describe("buildFreeImport — the dealer is settled like every sticker route settles it", () => {
   const realFetch = globalThis.fetch;

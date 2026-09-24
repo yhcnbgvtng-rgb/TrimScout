@@ -23,6 +23,8 @@ export interface InventoryDealerSighting {
   firstSeen: string | null;
   /** Days on the lot as of lastSeen — the feed's figure, else counted from firstSeen. */
   daysOnLot: number | null;
+  /** The dealer's own window-sticker link, captured off their VDP during the crawl — real and dealer-specific, unlike a VIN-only OEM-site guess. */
+  windowStickerUrl: string | null;
 }
 
 export type InventoryVinLookup = (vin: string) => Promise<InventoryDealerSighting | null>;
@@ -47,6 +49,7 @@ export function sightingFromListings(listings: InventoryVehicle[]): InventoryDea
     lastSeen,
     firstSeen,
     daysOnLot,
+    windowStickerUrl: best.windowStickerUrl || null,
   };
 }
 

@@ -495,9 +495,9 @@ function sliceSection(text: string, startRe: RegExp, endRe: RegExp): string {
   return end > 0 ? from.slice(0, end) : from;
 }
 
-export function parseFordStickerText(vin: string, text: string): FordSticker {
+export function parseFordStickerText(vin: string, text: string, sourceUrl?: string): FordSticker {
   const cleanVin = vin.trim().toUpperCase();
-  const pdfUrl = fordStickerPdfUrl(cleanVin);
+  const pdfUrl = sourceUrl || fordStickerPdfUrl(cleanVin);
   const fetchedAt = new Date().toISOString();
 
   if (isUnreleasedText(text)) {
@@ -937,8 +937,7 @@ async function extractPdfText(bytes: Uint8Array): Promise<string> {
   return Array.isArray(text) ? text.join("\n") : String(text || "");
 }
 
-async function fetchFordStickerBytes(vin: string): Promise<Uint8Array> {
-  const url = fordStickerPdfUrl(vin);
+async function fetchStickerBytesFromUrl(url: string): Promise<Uint8Array> {
   const res = await fetch(url, {
     headers: {
       Accept: "application/pdf,text/html;q=0.8,*/*;q=0.5",
@@ -948,7 +947,7 @@ async function fetchFordStickerBytes(vin: string): Promise<Uint8Array> {
     cache: "no-store",
   });
   if (!res.ok) {
-    throw new Error(`Ford Direct returned HTTP ${res.status} for VIN ${vin}`);
+    throw new Error(`Sticker fetch returned HTTP ${res.status}`);
   }
   return new Uint8Array(await res.arrayBuffer());
 }
@@ -957,15 +956,22 @@ function looksLikePdf(bytes: Uint8Array): boolean {
   return bytes.length >= 4 && bytes[0] === 0x25 && bytes[1] === 0x50 && bytes[2] === 0x44 && bytes[3] === 0x46;
 }
 
-export async function getFordSticker(vin: string): Promise<FordSticker> {
+/**
+ * Reads a Ford window sticker from a caller-supplied URL rather than
+ * guessing one from the VIN — used when TrimScout's own inventory crawl
+ * already captured the dealer's real, working sticker link (which carries
+ * whatever dealer/session parameter Ford Direct needs) off the VDP page.
+ * `fordStickerPdfUrl(vin)`'s generic VIN-only reconstruction is missing
+ * that parameter and gets Ford Direct's generic "not yet released"
+ * placeholder even for real, released vehicles — confirmed live 2026-09-23
+ * against three real Ford VINs whose crawled dealer link worked fine.
+ */
+export async function getFordStickerFromUrl(vin: string, url: string): Promise<FordSticker> {
   const cleanVin = vin.trim().toUpperCase();
-  if (cleanVin.length !== 17) {
-    throw new Error("VIN must be exactly 17 characters");
-  }
   const cached = getCachedFordSticker(cleanVin);
   if (cached) return cached;
 
-  const bytes = await fetchFordStickerBytes(cleanVin);
+  const bytes = await fetchStickerBytesFromUrl(url);
   let text: string;
   if (looksLikePdf(bytes)) {
     text = await extractPdfText(bytes);
@@ -973,13 +979,21 @@ export async function getFordSticker(vin: string): Promise<FordSticker> {
     text = new TextDecoder().decode(bytes);
   }
 
-  const sticker = parseFordStickerText(cleanVin, text);
+  const sticker = parseFordStickerText(cleanVin, text, url);
   if (sticker.status === "released") {
     putCachedFordSticker(sticker);
   } else {
     MEMORY_CACHE.set(cleanVin, sticker);
   }
   return sticker;
+}
+
+export async function getFordSticker(vin: string): Promise<FordSticker> {
+  const cleanVin = vin.trim().toUpperCase();
+  if (cleanVin.length !== 17) {
+    throw new Error("VIN must be exactly 17 characters");
+  }
+  return getFordStickerFromUrl(cleanVin, fordStickerPdfUrl(cleanVin));
 }
 
 export async function confirmFordMustHaves(

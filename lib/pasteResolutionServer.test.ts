@@ -21,7 +21,7 @@ const vehicle = (vin: string): Vehicle =>
 // A VIN our own crawl has seen (the live dealer_inventory table, stubbed here), and one it never has.
 const SEEN = "2T2HGCEZ9TC38B302";
 const UNSEEN = "1FTFW1E80PFA00001";
-const SIGHTING: InventoryDealerSighting = { dealerId: null, dealerName: "Lexus of Route 10", city: "Whippany", state: "NJ", lastSeen: "2026-09-16", firstSeen: "2026-09-10", daysOnLot: 6 };
+const SIGHTING: InventoryDealerSighting = { dealerId: null, dealerName: "Lexus of Route 10", city: "Whippany", state: "NJ", lastSeen: "2026-09-16", firstSeen: "2026-09-10", daysOnLot: 6, windowStickerUrl: null };
 const lookup = async (vin: string) => (vin === SEEN ? SIGHTING : null);
 const LINK = { name: "Paul Miller BMW", city: "Wayne", state: "NJ", zip: null, source: "directory_domain" as const };
 
@@ -35,7 +35,7 @@ describe("sightingFromListings — the rooftop our crawl last saw the VIN at", (
       listing({ dealerId: "7486", lastSeenAt: "2026-09-15T22:00:00.000Z" }),
       listing({ dealerId: "9999", dealerName: "Lexus of Elsewhere", lastSeenAt: "2026-09-16T22:00:00.000Z" }),
     ]);
-    assert.deepEqual(s, { dealerId: "9999", dealerName: "Lexus of Elsewhere", city: "Whippany", state: "NJ", lastSeen: "2026-09-16", firstSeen: null, daysOnLot: null });
+    assert.deepEqual(s, { dealerId: "9999", dealerName: "Lexus of Elsewhere", city: "Whippany", state: "NJ", lastSeen: "2026-09-16", firstSeen: null, daysOnLot: null, windowStickerUrl: null });
     // Lot age: the feed's own figure first, else counted from the crawl's first sighting.
     assert.equal(sightingFromListings([listing({ daysOnLot: 12, crawlFirstSeen: "2026-09-01T00:00:00.000Z" })])?.daysOnLot, 12);
     const counted = sightingFromListings([listing({ daysOnLot: 0, crawlFirstSeen: "2026-09-10T00:00:00.000Z" })]);
@@ -43,6 +43,12 @@ describe("sightingFromListings — the rooftop our crawl last saw the VIN at", (
     assert.equal(counted?.firstSeen, "2026-09-10");
     assert.equal(sightingFromListings([listing({ dealerId: "0" })])?.dealerId, null);
     assert.equal(sightingFromListings([]), null);
+  });
+
+  it("carries the crawl's captured window-sticker link through — the real, dealer-specific URL, not a VIN-only guess", () => {
+    const withSticker = sightingFromListings([listing({ windowStickerUrl: "https://www.windowsticker.forddirect.com/windowsticker.pdf?vin=2T2HGCEZ9TC38B302&dealerId=12345" })]);
+    assert.equal(withSticker?.windowStickerUrl, "https://www.windowsticker.forddirect.com/windowsticker.pdf?vin=2T2HGCEZ9TC38B302&dealerId=12345");
+    assert.equal(sightingFromListings([listing({})])?.windowStickerUrl, null, "no captured link is null, not undefined");
   });
 });
 
