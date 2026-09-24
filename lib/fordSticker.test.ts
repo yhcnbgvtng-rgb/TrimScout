@@ -691,7 +691,7 @@ describe("getFordStickerFromUrl — reads a caller-supplied link instead of gues
   // suite's own VINs before and after so a "released" result from an
   // earlier run can't skip the fetch (and silently pass a stale assertion).
   const cleanCacheFiles = () => {
-    for (const vin of [SHORKEY, DECOY_23, BATTLEFIELD]) {
+    for (const vin of [SHORKEY, DECOY_23, BATTLEFIELD, MALL_OF_GEORGIA]) {
       try { fs.unlinkSync(path.join(CACHE_DIR, `${vin}.json`)); } catch {}
     }
   };
@@ -725,6 +725,32 @@ describe("getFordStickerFromUrl — reads a caller-supplied link instead of gues
   it("propagates a fetch failure rather than silently returning a fake sticker", async () => {
     globalThis.fetch = (async () => new Response("Not Found", { status: 404 })) as typeof fetch;
     await assert.rejects(() => getFordStickerFromUrl(BATTLEFIELD, "https://dealer-hosted.example.com/gone.pdf"));
+  });
+
+  // Real bug, confirmed live 2026-09-23: the same captured URL returned
+  // Ford Direct's placeholder once, then the real sticker on every direct
+  // fetch moments later — but /api/ford-sticker kept reporting "unreleased"
+  // because the first miss got memory-cached under the plain VIN and every
+  // later call (same VIN, same URL) served that stale result back without
+  // ever fetching again. A non-released result must never be memory-cached.
+  it("a first unreleased result never poisons a later call for the same VIN and URL — always re-fetches", async () => {
+    const captured = "https://www.windowsticker.forddirect.com/windowsticker.pdf?token=abc123";
+    let calls = 0;
+    globalThis.fetch = (async () => {
+      calls++;
+      // Ford's backend hadn't finished generating the real PDF on the first
+      // hit (the placeholder), but has it ready by the second (the real
+      // sticker) — the exact live pattern this test guards against.
+      return new Response(loadFixture(calls === 1 ? UNRELEASED : MALL_OF_GEORGIA), { status: 200 });
+    }) as typeof fetch;
+
+    const first = await getFordStickerFromUrl(MALL_OF_GEORGIA, captured);
+    assert.equal(first.status, "unreleased");
+
+    const second = await getFordStickerFromUrl(MALL_OF_GEORGIA, captured);
+    assert.equal(calls, 2, "the second call must actually re-fetch, not serve the first miss from memory");
+    assert.equal(second.status, "released");
+    assert.equal(stickerHasMustHave(second, "Ultimate Package"), true);
   });
 });
 

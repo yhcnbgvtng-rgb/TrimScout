@@ -966,6 +966,20 @@ function looksLikePdf(bytes: Uint8Array): boolean {
  * that parameter and gets Ford Direct's generic "not yet released"
  * placeholder even for real, released vehicles — confirmed live 2026-09-23
  * against three real Ford VINs whose crawled dealer link worked fine.
+ *
+ * Deliberately does NOT memory-cache a non-released result (only a
+ * released one, via putCachedFordSticker — disk-backed, keyed by VIN,
+ * genuinely stable once true). A real bug shipped in the first version of
+ * this function: it cached an "unreleased" result under the plain VIN,
+ * same as getFordSticker's generic-guess path — so the FIRST caller to
+ * try a given VIN's captured URL while Ford's backend hadn't finished
+ * generating the real PDF yet would poison every later attempt for that
+ * VIN, for the life of the warm serverless instance, even after Ford's
+ * real document became available. Confirmed live 2026-09-23: the exact
+ * same captured URL returned the placeholder once, then the real sticker
+ * consistently on every direct fetch moments later — but the API kept
+ * reporting "unreleased" because it was serving that first failure back
+ * from memory instead of trying again.
  */
 export async function getFordStickerFromUrl(vin: string, url: string): Promise<FordSticker> {
   const cleanVin = vin.trim().toUpperCase();
@@ -983,8 +997,6 @@ export async function getFordStickerFromUrl(vin: string, url: string): Promise<F
   const sticker = parseFordStickerText(cleanVin, text, url);
   if (sticker.status === "released") {
     putCachedFordSticker(sticker);
-  } else {
-    MEMORY_CACHE.set(cleanVin, sticker);
   }
   return sticker;
 }
