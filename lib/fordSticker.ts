@@ -24,6 +24,7 @@ import {
 } from "./dealerPageIdentity";
 import { identityFromDealership, matchDealershipByUrl, type DomainIndexableDealership } from "./dealerDomainLookup";
 import { dealerDirectoryOrEmpty } from "./dealerDirectoryCache";
+import { inventoryVinByListingUrl } from "./inventoryApi";
 
 export { isFordOrLincolnVin };
 
@@ -1009,14 +1010,15 @@ export type PasteVinResolution = {
    * directory — the buyer, not us, has to be the one who looked at the car.
    */
   pageBlocked?: boolean;
-  source: "paste" | "dealer_page" | "none";
+  source: "paste" | "dealer_page" | "inventory_lookup" | "none";
   listingPrice?: number | null;
   dealer?: DealerPageIdentity;
 };
 
-/** Test seam: the directory the domain lookup reads. Production pulls the cached box directory. */
+/** Test seam: the directory the domain lookup reads, and the inventory-by-URL fallback lookup. Production pulls the cached box directory and calls the deals box for real. */
 export type PasteVinResolveDeps = {
   directory?: () => Promise<DomainIndexableDealership[]>;
+  listingUrlLookup?: (url: string) => Promise<{ vin: string } | null>;
 };
 
 /**
@@ -1228,12 +1230,16 @@ export async function resolveVinFromPaste(paste: string): Promise<string | null>
 /**
  * What a paste tells us on its own. A pasted link is never requested: the
  * VIN comes from the URL text when it carries one (most dealer platforms
- * put it in the path) and otherwise the buyer confirms it; the dealership
- * comes from the link's hostname against the contacts on file. Dealer
- * sites sit behind Cloudflare, and the buyer's browser is the only thing
- * that should visit them — so there is no code path here that fetches the
- * page for enrichment. (extractVinFromDealerPage still exists for the
- * offline probe scripts; no route calls it.)
+ * put it in the path) and otherwise from our own inventory crawl, keyed by
+ * the same URL (lib/inventoryApi.ts's inventoryVinByListingUrl, matched
+ * against dealer_inventory.vdp_url_norm on the deals box) — never the
+ * dealer's page itself. The dealership comes from the link's hostname
+ * against the contacts on file. Dealer sites sit behind Cloudflare, and
+ * the buyer's browser is the only thing that should visit them — so there
+ * is no code path here that fetches the page for enrichment.
+ * (extractVinFromDealerPage still exists for the offline probe scripts;
+ * no route calls it.) Only when neither source has the VIN does the buyer
+ * confirm it themselves.
  */
 export async function resolvePasteVin(paste: string, deps: PasteVinResolveDeps = {}): Promise<PasteVinResolution> {
   const direct = extractVin(paste);
@@ -1246,9 +1252,15 @@ export async function resolvePasteVin(paste: string, deps: PasteVinResolveDeps =
     }
     // pageBlocked is true by construction: the page was never read, so the
     // buyer, not us, is the one who looked at the car.
-    return vin
-      ? { vin, dealerBlocked: false, pageBlocked: true, source: "paste", listingPrice: null, dealer }
-      : { vin: null, dealerBlocked: true, pageBlocked: true, source: "none", listingPrice: null, dealer };
+    if (vin) {
+      return { vin, dealerBlocked: false, pageBlocked: true, source: "paste", listingPrice: null, dealer };
+    }
+    const lookup = deps.listingUrlLookup ?? ((u: string) => inventoryVinByListingUrl(u));
+    const matched = await lookup(url).catch(() => null);
+    if (matched?.vin) {
+      return { vin: matched.vin, dealerBlocked: false, pageBlocked: true, source: "inventory_lookup", listingPrice: null, dealer };
+    }
+    return { vin: null, dealerBlocked: true, pageBlocked: true, source: "none", listingPrice: null, dealer };
   }
   if (direct) {
     return { vin: direct, dealerBlocked: false, source: "paste", listingPrice: null };
