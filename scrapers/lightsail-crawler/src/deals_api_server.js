@@ -1714,6 +1714,7 @@ async function ensureInventoryTable(pool) {
     "ADD COLUMN IF NOT EXISTS base_msrp INT NULL",
     "ADD COLUMN IF NOT EXISTS crawl_first_seen DATE NULL",
     "ADD COLUMN IF NOT EXISTS source_box VARCHAR(16) NULL",
+    "ADD COLUMN IF NOT EXISTS vdp_url_norm VARCHAR(700) NULL",
     "ADD INDEX IF NOT EXISTS idx_inv_change (change_type)",
     "ADD INDEX IF NOT EXISTS idx_inv_price_change (price_change_type)",
     // Every sheet query filters removed_at IS NULL then sorts — composite indexes let those read in order.
@@ -1737,6 +1738,7 @@ async function ensureInventoryTable(pool) {
     // referenced column in one index, MariaDB answers the whole query from the index alone
     // ("Using index" in EXPLAIN, no row access): 223ms, ~148x faster.
     "ADD INDEX IF NOT EXISTS idx_inv_by_dealer_covering (removed_at, dealer_id, cond, price_diff, last_seen_at)",
+    "ADD INDEX IF NOT EXISTS idx_inv_vdp_url_norm (vdp_url_norm)",
   ]) await pool.query(`ALTER TABLE dealer_inventory ${ddl}`);
   // The free-text q= search's index. 2026-09-22: an ngram FULLTEXT parser (MariaDB's
   // documented CJK/no-space substring technique) turned out not to exist on this box at all —
@@ -1774,15 +1776,24 @@ async function ensureInventoryTable(pool) {
   // Triggers, not generated columns (see note above) — plain BEFORE INSERT/UPDATE writes,
   // unrestricted in what functions they may call. Backfilling existing rows is a separate,
   // one-off step (scripts/box/2026-09-22-…), not done here — it only matters on first deploy.
+  // DROP+CREATE (not IF NOT EXISTS) so a trigger body change — like vdp_url_norm below,
+  // added 2026-09-23 for the paste-a-link VIN lookup — actually takes effect on an existing
+  // box after a restart, instead of silently keeping whatever body was first created there.
   for (const when of ["INSERT", "UPDATE"]) {
+    await pool.query(`DROP TRIGGER IF EXISTS trg_inv_rev_${when.toLowerCase()}`);
     await pool.query(`
-      CREATE TRIGGER IF NOT EXISTS trg_inv_rev_${when.toLowerCase()} BEFORE ${when} ON dealer_inventory
-      FOR EACH ROW SET
-        NEW.vin_rev = REVERSE(NEW.vin),
-        NEW.dealer_name_rev = REVERSE(NEW.dealer_name),
-        NEW.model_rev = REVERSE(NEW.model),
-        NEW.trim_rev = REVERSE(NEW.trim),
-        NEW.stock_number_rev = REVERSE(NEW.stock_number)
+      CREATE TRIGGER trg_inv_rev_${when.toLowerCase()} BEFORE ${when} ON dealer_inventory
+      FOR EACH ROW BEGIN
+        SET NEW.vin_rev = REVERSE(NEW.vin);
+        SET NEW.dealer_name_rev = REVERSE(NEW.dealer_name);
+        SET NEW.model_rev = REVERSE(NEW.model);
+        SET NEW.trim_rev = REVERSE(NEW.trim);
+        SET NEW.stock_number_rev = REVERSE(NEW.stock_number);
+        SET @vun = SUBSTRING_INDEX(SUBSTRING_INDEX(LOWER(NEW.vdp_url), '?', 1), '#', 1);
+        SET @vun = REPLACE(REPLACE(@vun, 'https://', ''), 'http://', '');
+        SET @vun = IF(LEFT(@vun, 4) = 'www.', SUBSTRING(@vun, 5), @vun);
+        SET NEW.vdp_url_norm = NULLIF(TRIM(TRAILING '/' FROM @vun), '');
+      END
     `);
   }
   // One row per (VIN, store, day) the crawl saw the car, with that day's price — the day-by-day history behind
@@ -1800,6 +1811,20 @@ async function ensureInventoryTable(pool) {
 }
 
 const INV_STR = (v, n) => (typeof v === "string" && v.trim() ? v.trim().slice(0, n) : null);
+
+// Mirrors the SQL expression in trg_inv_rev_insert/update exactly (see ensureInventoryTable) —
+// strip query string and fragment, protocol, leading www., and trailing slash, all lowercased.
+// Used by /api/inventory/by-listing-url, the buyer wizard's paste-a-link fallback when a pasted
+// VDP URL carries no VIN in its own text: a lookup against inventory OUR OWN crawl already
+// wrote, never a live fetch of the dealer's page.
+function normalizeListingUrl(raw) {
+  if (!raw) return null;
+  let s = String(raw).trim().toLowerCase();
+  const cutCandidates = [s.indexOf("?"), s.indexOf("#")].filter((i) => i >= 0);
+  if (cutCandidates.length) s = s.slice(0, Math.min(...cutCandidates));
+  s = s.replace(/^https?:\/\//, "").replace(/^www\./, "").replace(/\/+$/, "");
+  return s || null;
+}
 // The aggregate endpoints (stats, by-dealer) scan the whole table and only change when a sync writes, so they
 // are served from memory for 10 minutes and dropped by every bulk upsert / sweep.
 const INV_CACHE_MS = 10 * 60_000;
@@ -1863,6 +1888,22 @@ async function handleInventoryBulk(req, res) {
 }
 
 // GET /api/inventory/vin/:vin — every store that has listed the VIN, with its day-by-day observations.
+// GET /api/inventory/by-listing-url?url=<VDP URL> — the VIN(s) our own crawl already matched
+// to this exact listing page, via the normalized-URL index (vdp_url_norm). Read-only, indexed,
+// never touches the dealer's site.
+async function handleInventoryByListingUrl(req, res, params) {
+  const pool = getPool();
+  await ensureInventoryTable(pool);
+  const raw = params.get("url") || "";
+  const norm = normalizeListingUrl(raw);
+  if (!norm) return badRequest(res, "url is required");
+  const [rows] = await pool.query(
+    "SELECT i.*, d.city AS dealer_city, d.state AS dealer_state FROM dealer_inventory i LEFT JOIN dealership_contacts d ON d.id = i.dealer_id WHERE i.vdp_url_norm = ? ORDER BY i.removed_at IS NULL DESC, i.last_seen_at DESC LIMIT 5",
+    [norm]
+  );
+  sendJson(res, 200, { url: raw, matches: rows.map(inventoryRowFromDb) });
+}
+
 async function handleInventoryVin(req, res, vin) {
   const pool = getPool();
   await ensureInventoryTable(pool);
@@ -2198,6 +2239,7 @@ const server = http.createServer((req, res) => {
   if (req.method === "GET" && pathname === "/api/inventory/stats") return run(handleInventoryStats);
   if (req.method === "GET" && pathname === "/api/inventory/analytics") return run(handleInventoryAnalytics, url.searchParams);
   if (req.method === "GET" && pathname === "/api/inventory/by-dealer") return run(handleInventoryByDealer);
+if (req.method === "GET" && pathname === "/api/inventory/by-listing-url") return run(handleInventoryByListingUrl, url.searchParams);
   const inventoryVinMatch = pathname.match(/^\/api\/inventory\/vin\/([A-HJ-NPR-Z0-9]{17})$/i);
   if (req.method === "GET" && inventoryVinMatch) return run(handleInventoryVin, inventoryVinMatch[1].toUpperCase());
   if (req.method === "GET" && pathname === "/api/inventory") return run(handleListInventory, url.searchParams);
@@ -2385,6 +2427,7 @@ server.listen(PORT, () => {
   console.log(`  POST /api/inventory/sweep`);
   console.log(`  GET  /api/inventory?dealerId=&state=&make=&model=&cond=&q=&inStock=1&limit=&offset=&sort=`);
   console.log(`  GET  /api/inventory/stats`);
+console.log(`  GET  /api/inventory/by-listing-url?url=`);
   console.log(`  GET  /health`);
   console.log(`All routes require header X-Trimscout-Api-Key.`);
 });

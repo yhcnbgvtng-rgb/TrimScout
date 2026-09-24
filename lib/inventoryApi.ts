@@ -263,6 +263,23 @@ export async function bulkUpsertInventory(vehicles: InventoryUpsert[]): Promise<
   return request("POST", "/api/inventory/bulk", { vehicles });
 }
 
+/**
+ * The VIN(s) our own nightly crawl already matched to this exact listing URL, keyed by a
+ * normalized comparison (query string/fragment, protocol, leading www., trailing slash all
+ * stripped — see the box's vdp_url_norm trigger). Used as a fallback when a buyer pastes a VDP
+ * link that carries no VIN in its own text: a lookup against inventory we already collected,
+ * never a live fetch of the dealer's page. Fails soft — any backend trouble reads as "no match".
+ */
+export async function inventoryVinByListingUrl(url: string): Promise<InventoryVehicle | null> {
+  try {
+    const res = await request("GET", `/api/inventory/by-listing-url?url=${encodeURIComponent(url)}`);
+    const matches: InventoryVehicle[] = Array.isArray(res?.matches) ? res.matches : [];
+    return matches[0] || null;
+  } catch {
+    return null;
+  }
+}
+
 /** `sources` limits the sweep to rows a given crawler wrote, so two crawlers covering one store don't erase each other. */
 export async function sweepInventory(dealerId: string | number, seenAfter: string, sources?: string[]): Promise<{ removed: number }> {
   return request("POST", "/api/inventory/sweep", { dealerId, seenAfter, ...(sources?.length ? { sources } : {}) });

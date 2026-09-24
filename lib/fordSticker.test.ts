@@ -195,10 +195,13 @@ describe("resolvePasteVin — a pasted link is never fetched", () => {
     }
   });
 
-  it("with no VIN in the URL, still names the store and asks for the VIN — no request", async () => {
+  it("with no VIN in the URL and no inventory match, still names the store and asks for the VIN — no request", async () => {
     const restore = forbidFetch();
     try {
-      const r = await resolvePasteVin(ROUTE23_BRONCO_URL, { directory });
+      // The inventory-lookup fallback goes through lib/inventoryApi.ts (a real network call in
+      // production); stubbed to "no match" here so this test still proves no DEALER page is ever
+      // fetched, without also asserting on the fallback itself (see the dedicated describe below).
+      const r = await resolvePasteVin(ROUTE23_BRONCO_URL, { directory, listingUrlLookup: async () => null });
       assert.equal(r.vin, null);
       assert.equal(r.dealerBlocked, true);
       assert.equal(r.pageBlocked, true);
@@ -214,6 +217,91 @@ describe("resolvePasteVin — a pasted link is never fetched", () => {
       const r = await resolvePasteVin(`https://www.zephyr.example/new-Route-23-Auto-Mall-${BRONCO}`, { directory });
       assert.equal(r.vin, BRONCO);
       assert.equal(r.dealer, undefined);
+    } finally {
+      restore();
+    }
+  });
+});
+
+describe("resolvePasteVin — inventory-lookup fallback for a URL with no VIN in its own text", () => {
+  const directory = async () => [
+    { dealerName: "Route 23 Auto Mall", city: "Butler", state: "NJ", zipCode: "07405", notes: "Website: https://www.23ford.com/" },
+  ];
+  /** Same guard as the describe above — the fallback reads our own inventory, never the dealer's page. */
+  const forbidFetch = () => {
+    const orig = globalThis.fetch;
+    globalThis.fetch = (async () => {
+      throw new Error("resolvePasteVin must not fetch the pasted page");
+    }) as typeof fetch;
+    return () => {
+      globalThis.fetch = orig;
+    };
+  };
+
+  it("uses the VIN our own crawl already matched to this URL when the URL text carries none", async () => {
+    const restore = forbidFetch();
+    try {
+      let calledWith: string | null = null;
+      const r = await resolvePasteVin(ROUTE23_BRONCO_URL, {
+        directory,
+        listingUrlLookup: async (url) => {
+          calledWith = url;
+          return { vin: BRONCO };
+        },
+      });
+      assert.equal(calledWith, ROUTE23_BRONCO_URL);
+      assert.equal(r.vin, BRONCO);
+      assert.equal(r.source, "inventory_lookup");
+      assert.equal(r.dealerBlocked, false, "a real match is not a block");
+      assert.equal(r.pageBlocked, true, "the page was still never read");
+      assert.equal(r.dealer?.name, "Route 23 Auto Mall");
+    } finally {
+      restore();
+    }
+  });
+
+  it("a URL VIN always wins over the inventory lookup — the fallback is never even called", async () => {
+    const restore = forbidFetch();
+    try {
+      let called = false;
+      const r = await resolvePasteVin(`https://www.23ford.com/new-Butler-2026-Ford-Bronco-Sport-${BRONCO}`, {
+        directory,
+        listingUrlLookup: async () => {
+          called = true;
+          return { vin: "1FMDE5BH0SLA00000" };
+        },
+      });
+      assert.equal(called, false);
+      assert.equal(r.vin, BRONCO);
+      assert.equal(r.source, "paste");
+    } finally {
+      restore();
+    }
+  });
+
+  it("falls through to asking the buyer when the lookup also finds nothing", async () => {
+    const restore = forbidFetch();
+    try {
+      const r = await resolvePasteVin(ROUTE23_BRONCO_URL, { directory, listingUrlLookup: async () => null });
+      assert.equal(r.vin, null);
+      assert.equal(r.dealerBlocked, true);
+      assert.equal(r.source, "none");
+    } finally {
+      restore();
+    }
+  });
+
+  it("fails soft when the lookup itself throws — still asks the buyer instead of erroring", async () => {
+    const restore = forbidFetch();
+    try {
+      const r = await resolvePasteVin(ROUTE23_BRONCO_URL, {
+        directory,
+        listingUrlLookup: async () => {
+          throw new Error("deals box unreachable");
+        },
+      });
+      assert.equal(r.vin, null);
+      assert.equal(r.dealerBlocked, true);
     } finally {
       restore();
     }
