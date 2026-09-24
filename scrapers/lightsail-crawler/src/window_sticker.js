@@ -6,6 +6,17 @@ import { isBotProtected } from './bot_protection.js';
 const LABEL_RE = /window\s*sticker|monroney|manufacturer\s*sticker|view\s+window\s+sticker/i;
 const HREF_HINT_RE = /window[-_]?sticker|monroney|sticker\.pdf|windowsticker/i;
 const IMG_HINT_RE = /window[-_]?sticker|monroney/i;
+// DealerOn-platform VDPs (a very common dealer site vendor) don't put the
+// sticker link in any href-like attribute at all — the button's onclick
+// calls a JS helper (seen live: "DoUtility.OpenFordWindowSticker(...)")
+// with the real, relative URL as its first string argument. The
+// function-name match ("open" ... "sticker" ... "(") is brand-agnostic on
+// purpose: the same platform convention plausibly names it
+// OpenGMWindowSticker/OpenChryslerWindowSticker/etc. for other makes.
+// Matches "&quot;"/'"'/"'" as either delimiter, since the raw HTML has the
+// button's whole onclick value inside a real double-quoted attribute with
+// literal &quot; entities marking the JS string's own quotes.
+const ONCLICK_STICKER_RE = /open[a-z]*sticker[a-z]*\s*\(\s*(?:&quot;|"|')([\s\S]*?)(?:&quot;|"|')/i;
 
 function empty() {
   return {
@@ -43,6 +54,12 @@ function attrs(tag) {
     out[m[1].toLowerCase()] = m[2] ?? m[3] ?? m[4] ?? '';
   }
   return out;
+}
+
+/** The raw (still HTML-entity-escaped) URL string inside an onclick sticker-opener call, or null. */
+function onclickStickerHit(onclickValue) {
+  const m = (onclickValue || '').match(ONCLICK_STICKER_RE);
+  return m && m[1] ? m[1].replace(/&amp;/g, '&') : null;
 }
 
 function fromJsonFields(html) {
@@ -106,6 +123,16 @@ export function extractWindowSticker(html, pageUrl, { now = new Date() } = {}) {
         return found(url, 'vdp_link', collectedAt);
       }
     }
+    // DealerOn's own sticker button is an <a> with no real href at all
+    // (href="javascript:void(0);" or none) — the URL only exists as an
+    // onclick call's string argument. See onclickStickerHit's own comment.
+    const onclickHit = onclickStickerHit(a.onclick);
+    if (onclickHit) {
+      const url = resolveUrl(onclickHit, pageUrl);
+      if (url) {
+        return found(url, 'vdp_onclick', collectedAt);
+      }
+    }
   }
 
   const btnRe = /<(?:button|div|span)([^>]*)>([\s\S]*?)<\/(?:button|div|span)>/gi;
@@ -118,6 +145,13 @@ export function extractWindowSticker(html, pageUrl, { now = new Date() } = {}) {
       const url = resolveUrl(href, pageUrl);
       if (url) {
         return found(url, 'vdp_link', collectedAt);
+      }
+    }
+    const onclickHit = onclickStickerHit(a.onclick);
+    if (onclickHit) {
+      const url = resolveUrl(onclickHit, pageUrl);
+      if (url) {
+        return found(url, 'vdp_onclick', collectedAt);
       }
     }
   }
