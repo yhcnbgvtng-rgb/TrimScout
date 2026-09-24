@@ -2,7 +2,7 @@ import "./testdata/blockLiveHttp";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
-import { describe, it } from "node:test";
+import { afterEach, beforeEach, describe, it } from "node:test";
 import {
   confirmFordMustHavesFromSticker,
   DEMO_SUBJECT_VIN,
@@ -11,6 +11,8 @@ import {
   exteriorColorMustHaveName,
   extractVin,
   extractVinFromDealerPage,
+  fordStickerPdfUrl,
+  getFordStickerFromUrl,
   resolvePasteVin,
   extractAdvertisedListingPrice,
   factoryOptionBreakout,
@@ -655,6 +657,74 @@ describe("factory discounts on the sticker", () => {
     const s = parseFordStickerText(SUBJECT, loadFixture(SUBJECT));
     assert.equal(s.msrp, 64705);
     assert.equal((s.basePrice ?? 0) + (s.optionsPrice ?? 0) + (s.destination ?? 0), 64705);
+  });
+});
+
+describe("parseFordStickerText — pdfUrl reflects where the bytes actually came from", () => {
+  it("stamps the guessed VIN-only URL when no sourceUrl is given", () => {
+    const s = parseFordStickerText(SHORKEY, loadFixture(SHORKEY));
+    assert.equal(s.pdfUrl, fordStickerPdfUrl(SHORKEY));
+  });
+
+  it("stamps the real sourceUrl when one is supplied — not the generic guess", () => {
+    const captured = "https://www.windowsticker.forddirect.com/windowsticker.pdf?vin=1FMWK8JC7TGB81309&dealerId=12345";
+    const s = parseFordStickerText(SHORKEY, loadFixture(SHORKEY), captured);
+    assert.equal(s.pdfUrl, captured);
+    assert.notEqual(s.pdfUrl, fordStickerPdfUrl(SHORKEY));
+  });
+});
+
+// Real bug found live 2026-09-23: three real, valid Ford VINs (NHTSA-clean,
+// including a 2023 model) all came back "not yet released" from
+// fordStickerPdfUrl()'s generic VIN-only guess — confirmed via curl AND a
+// real browser (same TLS fingerprint, same result) that Ford Direct's own
+// endpoint needs more than just the VIN to resolve a real record. But the
+// exact same VIN's sticker link, captured off the dealer's own VDP page by
+// the crawler and stored in dealer_inventory, opened fine in a browser.
+// getFordStickerFromUrl lets a caller who already has that captured link
+// (see lib/inventoryVinLookup.ts's windowStickerUrl) skip the broken guess
+// entirely.
+describe("getFordStickerFromUrl — reads a caller-supplied link instead of guessing one from the VIN", () => {
+  const realFetch = globalThis.fetch;
+  const CACHE_DIR = path.join("/tmp", "trimscout-ford-stickers");
+  // getFordStickerFromUrl caches a released result to /tmp — clean up this
+  // suite's own VINs before and after so a "released" result from an
+  // earlier run can't skip the fetch (and silently pass a stale assertion).
+  const cleanCacheFiles = () => {
+    for (const vin of [SHORKEY, DECOY_23, BATTLEFIELD]) {
+      try { fs.unlinkSync(path.join(CACHE_DIR, `${vin}.json`)); } catch {}
+    }
+  };
+  beforeEach(cleanCacheFiles);
+  afterEach(() => {
+    globalThis.fetch = realFetch;
+    cleanCacheFiles();
+  });
+
+  it("parses a released sticker fetched from the supplied URL, stamping that URL as pdfUrl", async () => {
+    const captured = "https://www.windowsticker.forddirect.com/windowsticker.pdf?vin=1FMWK8JC7TGB81309&dealerId=99887";
+    let requestedUrl = "";
+    globalThis.fetch = (async (input: RequestInfo | URL) => {
+      requestedUrl = String(input);
+      return new Response(loadFixture(SHORKEY), { status: 200 });
+    }) as typeof fetch;
+    const s = await getFordStickerFromUrl(SHORKEY, captured);
+    assert.equal(requestedUrl, captured, "fetches the supplied URL, not a VIN-only guess");
+    assert.equal(s.status, "released");
+    assert.equal(s.pdfUrl, captured);
+    assert.equal(stickerHasMustHave(s, "Ultimate Package"), true);
+  });
+
+  it("still reports unreleased when the supplied URL's own content is the placeholder", async () => {
+    const captured = "https://dealer-hosted.example.com/sticker.pdf";
+    globalThis.fetch = (async () => new Response(loadFixture(UNRELEASED), { status: 200 })) as typeof fetch;
+    const s = await getFordStickerFromUrl(DECOY_23, captured);
+    assert.equal(s.status, "unreleased");
+  });
+
+  it("propagates a fetch failure rather than silently returning a fake sticker", async () => {
+    globalThis.fetch = (async () => new Response("Not Found", { status: 404 })) as typeof fetch;
+    await assert.rejects(() => getFordStickerFromUrl(BATTLEFIELD, "https://dealer-hosted.example.com/gone.pdf"));
   });
 });
 

@@ -9,15 +9,19 @@ import {
   defaultNiceToHaveLines,
   filterableFactoryOptionBreakout,
   getFordSticker,
+  getFordStickerFromUrl,
   isExplicitNonFordDemoPaste,
   isFordOrLincolnVin,
   looksLikeFordOrLincolnPaste,
   looksLikeUrl,
+  type FordSticker,
+  type PasteVinResolution,
 } from "@/lib/fordSticker";
 import { stickerToVehicle } from "@/lib/vinSearch";
 import { factoryBuildFailedError } from "@/lib/pasteImport";
 import { buildFreeImport, buildStickerUnavailableImport, fillMissingYear } from "@/lib/freeVinImportServer";
 import { blockedDealerPayload, resolveRoutePaste, resolveVehicleDealer } from "@/lib/pasteResolutionServer";
+import { inventoryDealerForVin } from "@/lib/inventoryVinLookup";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -50,6 +54,48 @@ function vinPasteError(
     },
     { status: 422 }
   );
+}
+
+// Shared by both routes to a released sticker: the generic VIN-only guess
+// succeeding, and TrimScout's own crawl-captured dealer link succeeding
+// where the guess didn't (see the capturedUrl branch in lookup()).
+async function respondReleased(
+  sticker: FordSticker,
+  vin: string,
+  resolved: PasteVinResolution,
+  listingUrl: string | null,
+  listingPrice: number | null
+) {
+  const mustHaveLines = defaultMustHaveLines(sticker);
+  const niceToHaveLines = defaultNiceToHaveLines(sticker, mustHaveLines);
+  // A released sticker the parser only half-read (no year) must not ship
+  // as "0 Ford F-150" — fill the year from the VIN.
+  const vehicle = await resolveVehicleDealer(
+    await fillMissingYear(stickerToVehicle(sticker, listingUrl, listingPrice, null)),
+    resolved,
+    sticker.dealerSoldTo
+  );
+  vehicle.buildConfidence = "verified_factory";
+  return NextResponse.json({
+    handled: true,
+    vin,
+    sticker,
+    vehicle,
+    buildConfidence: "verified_factory",
+    listingPrice,
+    pageUnread: Boolean(resolved.pageBlocked),
+    mustHaveLines,
+    niceToHaveLines,
+    filterableOptions: filterableFactoryOptionBreakout(sticker).map((o) => ({
+      name: o.description,
+      code: o.code,
+      description: o.description,
+      price: o.price,
+      isPackageChild: o.isPackageChild,
+      source: "sticker" as const,
+    })),
+    pdfUrl: sticker.pdfUrl,
+  });
 }
 
 async function lookup(opts: { vin?: string; paste?: string; pasteUrl: string | null; request: Request }) {
@@ -101,53 +147,46 @@ async function lookup(opts: { vin?: string; paste?: string; pasteUrl: string | n
     const sticker = await getFordSticker(vin);
     const listingUrl =
       opts.pasteUrl && /^https?:\/\//i.test(opts.pasteUrl) ? opts.pasteUrl.trim() : null;
-    const mustHaveLines = defaultMustHaveLines(sticker);
-    const niceToHaveLines = defaultNiceToHaveLines(sticker, mustHaveLines);
     const listingPrice = resolved.listingPrice && resolved.listingPrice > 0 ? resolved.listingPrice : null;
 
-    // No released sticker — the car is still real. Import it on the free
-    // path (NHTSA + the listing page) flagged dealer-listing-only, instead
-    // of returning vehicle: null and dead-ending the buyer.
+    // No released sticker from the generic VIN-only guess — but TrimScout's
+    // own inventory crawl may already have this exact VIN with a real,
+    // dealer-captured sticker link (see getFordStickerFromUrl's comment:
+    // the generic URL is missing a param Ford Direct needs and always
+    // falls back to its "not yet released" placeholder, even for real,
+    // released vehicles — confirmed live 2026-09-23). Worth a second try
+    // before telling the buyer it's unavailable when we already have a
+    // working link for this exact car sitting in dealer_inventory.
     if (sticker.status !== "released") {
+      const sighting = await inventoryDealerForVin(vin);
+      const capturedUrl = sighting?.windowStickerUrl || null;
+      if (capturedUrl) {
+        const fromCapture = await getFordStickerFromUrl(vin, capturedUrl).catch(() => null);
+        if (fromCapture && fromCapture.status === "released") {
+          return respondReleased(fromCapture, vin, resolved, listingUrl, listingPrice);
+        }
+      }
+
+      // Still nothing real — import on the free path (NHTSA + the listing
+      // page) flagged dealer-listing-only, instead of returning
+      // vehicle: null and dead-ending the buyer. Carry the captured link
+      // through as pdfUrl even though it didn't parse as a released
+      // sticker (e.g. a non-PDF dealer viewer) — a real, clickable link
+      // beats none. lookupSighting reuses the sighting already fetched
+      // above so buildFreeImport doesn't round-trip dealer_inventory again.
       const free = await buildFreeImport({
         vin,
         pasteUrl: opts.pasteUrl,
         source: resolved,
         makeLabel: "Ford",
-        sticker: sticker as unknown as Record<string, unknown>,
+        sticker: { ...sticker, pdfUrl: capturedUrl || sticker.pdfUrl } as unknown as Record<string, unknown>,
+        lookupSighting: async () => sighting,
       });
       if (!free.ok) return vinPasteError(free.error);
       return NextResponse.json(free.payload);
     }
 
-    // A released sticker the parser only half-read (no year) must not ship
-    // as "0 Ford F-150" — fill the year from the VIN.
-    const vehicle = await resolveVehicleDealer(
-      await fillMissingYear(stickerToVehicle(sticker, listingUrl, listingPrice, null)),
-      resolved,
-      sticker.dealerSoldTo
-    );
-    vehicle.buildConfidence = "verified_factory";
-    return NextResponse.json({
-      handled: true,
-      vin,
-      sticker,
-      vehicle,
-      buildConfidence: "verified_factory",
-      listingPrice,
-      pageUnread: Boolean(resolved.pageBlocked),
-      mustHaveLines,
-      niceToHaveLines,
-      filterableOptions: filterableFactoryOptionBreakout(sticker).map((o) => ({
-        name: o.description,
-        code: o.code,
-        description: o.description,
-        price: o.price,
-        isPackageChild: o.isPackageChild,
-        source: "sticker" as const,
-      })),
-      pdfUrl: sticker.pdfUrl,
-    });
+    return respondReleased(sticker, vin, resolved, listingUrl, listingPrice);
   } catch (err: unknown) {
     // The factory sticker didn't come back (edge hiccup, bot shield,
     // network). The VIN is valid and the desk may already be matched, so
