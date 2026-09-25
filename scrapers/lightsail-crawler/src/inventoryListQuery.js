@@ -25,6 +25,27 @@ export function inventoryListQuery(params) {
   if (p("priceChange") === "increase") where.push("i.price_diff > 0");
   if (p("hasSticker") === "1") where.push("i.window_sticker_url IS NOT NULL");
   if (p("minDays")) { where.push("i.days_on_lot >= ?"); args.push(Number(p("minDays"))); }
+  if (p("odometerMax")) { where.push("i.mileage <= ?"); args.push(Number(p("odometerMax"))); }
+  // price_change_count is denormalized onto dealer_inventory, incremented in
+  // handleInventoryBulk's upsert only when the incoming price genuinely differs from what
+  // was stored — no live aggregation needed here, unlike the admin analytics page's
+  // cohort-level LAG() OVER query over dealer_inventory_days.
+  if (p("minPriceChanges")) { where.push("i.price_change_count >= ?"); args.push(Number(p("minPriceChanges"))); }
+  // Buyer search's "must-have ALL of these factory options" — real set containment against
+  // the normalized dealer_inventory_options side table (see ensureInventoryTable), not a
+  // LIKE/JSON scan of options_json. A comma-separated single param (optionCodes=A,B), not
+  // repeated params — matches how every other filter here is a single string value, and is
+  // simpler for a client to build than URLSearchParams.append() per code.
+  //
+  // This is a correlated subquery (one dealer_inventory_options lookup per outer candidate
+  // row), so it should run after other filters (make/model/price/etc.) have already narrowed
+  // the outer set — it has no index hint of its own yet. Confirm live via EXPLAIN once a real
+  // optionCodes= search is exercised, the same discipline every other filter here has had.
+  const optionCodes = (params.get("optionCodes") || "").split(",").map((c) => c.trim()).filter(Boolean);
+  if (optionCodes.length) {
+    where.push(`i.vin IN (SELECT vin FROM dealer_inventory_options WHERE dealer_id = i.dealer_id AND code IN (${optionCodes.map(() => "?").join(",")}) GROUP BY vin HAVING COUNT(DISTINCT code) = ?)`);
+    args.push(...optionCodes, optionCodes.length);
+  }
   // "New" with real miles on it usually means a demo/loaner, not a car
   // fresh off the truck — there's no separate demo/loaner condition value
   // anywhere in this schema (confirmed in a 2026-09-22 inventory audit),
