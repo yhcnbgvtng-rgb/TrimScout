@@ -231,6 +231,15 @@ export async function buildBoxReport(driverSummary, config = {}) {
       summaryPath: `data/daily_crawl_runs/summary_${driverSummary.date}.json`,
       shardsTouched: statesAttempted,
     },
+    // Longest-job-first claim-order log (added 2026-09-25, see
+    // docs/CAPACITY_SLA.md) — the fleet-wide crawl_claims view for
+    // tonight's run, when CRAWLER_STEAL_ENABLED=1 (null otherwise, never a
+    // fabricated empty list). Sorted by actual claimedAt already (see
+    // /api/ops/crawl-claims/status), so the top of this list is literally
+    // "what got claimed first" — recalibrate estimatedSeconds/HIGH_WAF_STATES
+    // (capacity.js) if actualSeconds keeps running far past estimatedSeconds
+    // for the same state night after night.
+    claimOrder: driverSummary.crawlClaimsStatus?.states ?? null,
   };
 }
 
@@ -316,5 +325,9 @@ ${row('Free mem (GB)', report.health.freeMemGb)}
 ${row('Load avg (1m)', report.health.loadAvg1m?.toFixed(2))}
 ${row('Chromium crashes', `${report.health.chromiumCrashCount} (not instrumented yet)`)}
 </table>
+${report.claimOrder ? `<h2>Claim order (fleet-wide, longest-job-first)</h2><table>
+<tr>${['state', 'status', 'claimedBy', 'claimedAt', 'estimatedSeconds', 'actualSeconds'].map((h) => `<th style="text-align:left;padding:4px 12px;color:#666">${h}</th>`).join('')}</tr>
+${report.claimOrder.map((c) => `<tr>${[c.state, c.status, c.claimedBy ?? '—', c.claimedAt ?? '—', c.estimatedSeconds ?? '—', c.actualSeconds ?? '—'].map((v) => `<td style="padding:4px 12px;font-family:monospace">${v}</td>`).join('')}</tr>`).join('\n')}
+</table>` : ''}
 </body></html>`;
 }

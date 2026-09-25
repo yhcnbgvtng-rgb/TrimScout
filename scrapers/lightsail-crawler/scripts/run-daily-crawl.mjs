@@ -69,9 +69,9 @@ import { NJ_BRANDS_IN } from '../src/nj_policy.js';
 import { SUPPORTED_STATES } from '../src/states.js';
 import { easternDateStamp } from '../src/date_utils.js';
 import { isProcessAlive } from '../src/pid_lock.js';
-import { countRooftopsForState, countRooftopsForStates, projectedHours, MAX_PROJECTED_HOURS, P90_SECONDS_PER_ROOFTOP } from '../src/capacity.js';
+import { countRooftopsForState, countRooftopsForStates, projectedHours, MAX_PROJECTED_HOURS, P90_SECONDS_PER_ROOFTOP, estimatedSecondsForState } from '../src/capacity.js';
 import { buildBoxReport, renderBoxReportHtml, appendCapacityHistoryRow } from '../src/box_report.js';
-import { seedClaims, claimNextState, heartbeatClaim, releaseClaim } from '../src/crawl_claims.js';
+import { seedClaims, claimSpecificState, claimNextState, heartbeatClaim, releaseClaim, claimsStatus } from '../src/crawl_claims.js';
 
 // CRAWLER_STEAL_ENABLED=1 turns on cross-box work-stealing (src/crawl_claims.js)
 // — off by default, so every box's behavior is unchanged unless explicitly
@@ -707,6 +707,22 @@ export async function runStatesWithBoundedConcurrency(
     // of local work early (not just one that's overloaded) is the case this
     // exists for.
     claimNextStateFn = null,
+    // Called with (state) for each of THIS box's own locally-listed states,
+    // in list order, right before it would run — added 2026-09-25 after a
+    // fresh look at the design found the original claimNextStateFn-only
+    // version still let a box's own list act as a de-facto reservation (see
+    // main()'s old preClaimedBy seeding): an overloaded box's own
+    // not-yet-started states were unstealable until it actually got to (or
+    // gave up on) them, which is exactly the hoarding problem this system
+    // exists to fix. When given, a local state is only actually run if this
+    // resolves truthy; a falsy result means a peer already claimed it (via
+    // its own claimNextStateFn steal, most likely), so this worker skips
+    // straight to its next local state instead — the local `states` list is
+    // now genuinely just an ordering hint, contestable at every step, never
+    // a lock. Optional and no-op (always "yes, run it") by default, so
+    // every caller/test that doesn't pass it keeps the exact prior
+    // behavior.
+    claimLocalStateFn = null,
     // Called periodically (heartbeatIntervalMs) while ANY state — local or
     // stolen — is in flight, local ones included: a locally-assigned state
     // is seeded as pre-claimed by this same box (see main()), and without a
@@ -742,7 +758,20 @@ export async function runStatesWithBoundedConcurrency(
       let state;
       let stolen = false;
       if (nextIndex < queue.length) {
-        state = queue[nextIndex++];
+        const candidate = queue[nextIndex++];
+        if (claimLocalStateFn) {
+          const won = await claimLocalStateFn(candidate).catch(() => false);
+          if (!won) {
+            results[candidate] = results[candidate] || {
+              state: candidate,
+              status: 'skipped',
+              reason: 'claimed by another box before this one reached it',
+            };
+            console.log(`[driver] ==== ${candidate}: skipped — already claimed by a peer ====`);
+            continue;
+          }
+        }
+        state = candidate;
       } else if (claimNextStateFn) {
         const claimed = await claimNextStateFn(remainingMs).catch(() => null);
         if (!claimed) return; // nothing left to steal (or nothing that fits) — this worker is done
@@ -919,20 +948,42 @@ export async function main() {
     // Cross-box work-stealing (src/crawl_claims.js) — seeded once per run,
     // opt-in via CRAWLER_STEAL_ENABLED=1. Seeding is idempotent (INSERT
     // IGNORE server-side), so it's safe even if multiple boxes' runs start
-    // close together and both try to seed the same night's queue. This
-    // box's OWN assigned states are seeded as already claimed by it (never
-    // stealable while it's still working through them); every other
-    // SUPPORTED_STATES entry seeds as plain unclaimed, available to any box
-    // that finishes its own list first.
+    // close together and both try to seed the same night's queue. Every
+    // SUPPORTED_STATES entry — including this box's own STATES list — seeds
+    // as plain unclaimed: this box's list is only the ORDER it tries claims
+    // in (claimLocalStateFn, one atomic claim per state right before
+    // running it), never a reservation, so a faster peer can claim one of
+    // THIS box's own listed-but-not-yet-started states the moment it runs
+    // out of its own — see claimLocalStateFn's own comment on
+    // runStatesWithBoundedConcurrency for why the original pre-claimed-at-
+    // seed-time version defeated the point of this system for exactly the
+    // box (a slow one) it matters most for.
     const brandSet = process.env.CRAWLER_BRAND_SET || 'core';
     let stealOptions = {};
+    let orderedLocalStates = STATES;
     if (STEAL_ENABLED) {
-      const rooftopCounts = {};
-      for (const state of SUPPORTED_STATES) rooftopCounts[state] = countRooftopsForState(state, NJ_BRANDS_IN);
-      await seedClaims({ runDate: date, brandSet, rooftopCounts, owned: STATES }).catch((err) => {
+      // Longest-job-first (added 2026-09-25): rooftopCount sizes the fit
+      // check a claimer's own maxRooftops budget compares against;
+      // estimatedSeconds (a fleet-reference-rate estimate, boosted for a
+      // known-high-WAF state) is what the shared queue ranks candidates by
+      // — see capacity.js's estimatedSecondsForState() and crawl_claims.js's
+      // seedClaims() for why these are two different numbers, not one.
+      const units = {};
+      for (const state of SUPPORTED_STATES) {
+        const rooftopCount = countRooftopsForState(state, NJ_BRANDS_IN);
+        units[state] = { rooftopCount, estimatedSeconds: estimatedSecondsForState(state, rooftopCount) };
+      }
+      await seedClaims({ runDate: date, brandSet, units }).catch((err) => {
         console.error(`[driver] crawl-claims seed failed (stealing disabled for this run): ${err.message}`);
       });
+      // This box's own local list is only ever a claim ORDER, never a
+      // reservation (see claimLocalStateFn's comment) — but the order
+      // itself still matters: try the biggest/slowest of this box's own
+      // states first, while this box's own remaining budget is largest,
+      // same longest-job-first logic as the shared queue's ranking.
+      orderedLocalStates = [...STATES].sort((a, b) => (units[b]?.estimatedSeconds || 0) - (units[a]?.estimatedSeconds || 0));
       stealOptions = {
+        claimLocalStateFn: (state) => claimSpecificState({ runDate: date, brandSet, state }),
         claimNextStateFn: async (remainingMs) => {
           if (remainingMs === null) return claimNextState({ runDate: date, brandSet });
           const maxRooftops = Math.floor(remainingMs / 1000 / STEAL_P90_SECONDS_PER_ROOFTOP);
@@ -952,7 +1003,21 @@ export async function main() {
       // on this box. With CRAWLER_STEAL_ENABLED=1, workers that exhaust
       // this box's own STATES list keep going against the shared claim
       // queue instead of returning — see stealOptions above.
-      summary.states = await runStatesWithBoundedConcurrency(STATES, date, MAX_CONCURRENT_STATES, runState, stealOptions);
+      summary.states = await runStatesWithBoundedConcurrency(orderedLocalStates, date, MAX_CONCURRENT_STATES, runState, stealOptions);
+
+      // Longest-job-first observability (see docs/CAPACITY_SLA.md): the
+      // fleet-wide claim order (who claimed what, when, and how long it
+      // actually took vs. its estimated_seconds ranking) lives on the
+      // shared queue, not in this box's own summary — pulled once at the
+      // end of the run so box-report.js can show it without needing its
+      // own network call (that file's own header comment is explicit
+      // about staying a pure "read what's already collected" reporter).
+      if (STEAL_ENABLED) {
+        summary.crawlClaimsStatus = await claimsStatus({ runDate: date, brandSet }).catch((err) => {
+          console.error(`[driver] crawl-claims status fetch failed (non-fatal, box report will omit claim-order section): ${err.message}`);
+          return null;
+        });
+      }
 
       summary.finishedAt = new Date().toISOString();
       summary.durationMs = Date.parse(summary.finishedAt) - Date.parse(summary.startedAt);

@@ -259,6 +259,90 @@ picked up from the shared queue rather than its own static assignment.
 `/api/ops/crawl-claims/status?runDate=&brandSet=` on the deals box for the
 full picture of who donated and who stole on a given night.
 
+## 2026-09-25 update, part 2 — box 1's concurrency fixed live, static lists are now hints not reservations, and the queue is longest-job-first
+
+The first pass above shipped the mechanism but deliberately left
+`CRAWLER_STEAL_ENABLED` off everywhere. A follow-up spec asked for three
+more things, all done the same night:
+
+### 1. Box 1's concurrency fix, deployed and verified live
+
+Box 1's crontab was running `CRAWLER_MAX_CONCURRENT_STATES=4` on its 2
+vCPUs (a 2.0 processes/vCPU ratio) — the exact oversubscription this
+document's root-cause section blames for its 77.4s/rooftop rate. Fixed to
+`CRAWLER_MAX_CONCURRENT_STATES=2` (ratio 1.0), with
+`CRAWLER_P90_SEC_PER_ROOFTOP=77.4` also set so the preflight check
+(`checkProjectedRuntime`) uses box 1's own real rate rather than the
+generic fleet default (93.2s/rooftop) — using the generic rate here would
+have made an accurately-sized box 1 shard look like it breaches 24h when
+it doesn't. Halving concurrency without shrinking box 1's state list
+would have pushed it well past the 24h SLA (verified: 20-state list @
+2x/77.4 = 41.8h using the generic rate, 34.7h even at box 1's own real
+rate), so box 1's `CRAWL_STATES` was also cut down to a 13-state list
+(1,889 rooftops) that fits with real margin (verified live via
+`checkProjectedRuntime`: 20.3h). The 7 states removed from box 1 (CO, GA,
+MD, OK, TX, VT, WV) moved to box 2, which had enormous slack (was
+projecting ~1.7-2.2h out of its 23h budget) and remains at ~12.1h even
+after absorbing them. Both boxes' new crontabs were diffed against their
+previous content before applying (no unrelated drift) and re-verified via
+the real `checkProjectedRuntime` code path post-change, not hand
+arithmetic. This took effect on both boxes' next scheduled 11pm ET run.
+
+**Open item, not yet acted on**: box 2's main job runs
+`CRAWLER_MAX_CONCURRENT_STATES=8` on its 4 vCPUs — also a 2.0
+processes/vCPU ratio, the same pattern this whole investigation flags as
+box 1's root cause. It was raised to 8x in an earlier, separately-approved
+rebalance before this session's root-cause finding existed. Box 2's
+massive headroom (~2h projected out of a 23h budget even now) means this
+isn't urgent, but it's worth deliberately revisiting — the CPU-safe
+default this document otherwise uses elsewhere is 1.5x (box 3/box 4's
+core side-job) or 1.0x (box 3/box 4's main expansion job), not 2.0x.
+
+### 2. Static lists are hints, not reservations
+
+The first pass's `seedClaims()` pre-claimed a box's own static list at
+seed time (`preClaimedBy`), which meant an overloaded box's own
+not-yet-started states were unstealable until it actually got to (or gave
+up on) them — exactly the hoarding pattern this system exists to fix,
+just moved one layer down. Fixed: every state now seeds `unclaimed`
+regardless of whose list it's on, and a box claims its OWN states one at
+a time, in list order, right before running each one
+(`claimSpecificState` / `POST /api/ops/crawl-claims/claim-specific`) — a
+`{claimed: false}` result (a peer already has it) is not an error, it
+just means don't run this one, skip to the next local state. A box's
+`CRAWL_STATES` is now genuinely just the ORDER it tries claims in, never a
+lock, so every state in a run — local or stolen — goes through the exact
+same atomic claim. See `claimLocalStateFn` in
+`runStatesWithBoundedConcurrency` (`scripts/run-daily-crawl.mjs`) and
+`src/crawl_claims.js`'s `claimSpecificState()`.
+
+### 3. Longest-job-first scheduling
+
+Both the shared queue's general claim (`POST /api/ops/crawl-claims/claim`)
+and a box's own local claim order now prioritize the biggest/slowest jobs
+first, not smallest-fits-first: the `crawl_claims` table gained an
+`estimated_seconds` column (`src/capacity.js`'s
+`estimatedSecondsForState()` — rooftops × a reference p90 rate, with an
+optional boost for a state on the env-configurable `HIGH_WAF_STATES` list,
+default empty since no reliable per-state WAF-rate history exists yet to
+seed it honestly), and the claim endpoint's `ORDER BY` changed from
+`rooftop_count DESC` to `estimated_seconds DESC`. The budget-fit filter
+(`maxRooftops`) is unchanged and still compares against the CLAIMING box's
+own rate via raw `rooftop_count` — `estimated_seconds` only decides which
+of the candidates that already fit gets claimed first. This means a box
+whose remaining budget can only fit small jobs (a slow or nearly-
+exhausted box) still only ever gets offered candidates that pass its own
+fit filter — it can't hoover up the big states even though they're
+ranked first, so small/fast states naturally end up going to
+early-finishing boxes toward the end of the night without an explicit
+reservation rule. `/api/ops/crawl-claims/status` now also returns
+`estimatedSeconds` and `actualSeconds` per state, ordered by actual
+`claimedAt` — `box-report.json`'s new `claimOrder` field (populated when
+`CRAWLER_STEAL_ENABLED=1`) is exactly this list, so a human can see
+whether a state's `actualSeconds` badly overshot its `estimatedSeconds`
+and use that to populate `HIGH_WAF_STATES`/`CRAWLER_HIGH_WAF_BOOST` from
+real recurring evidence rather than a guess.
+
 ## Known data-quality caveat
 
 `scripts/recommend-shard-split.mjs`, when run from a plain git checkout
