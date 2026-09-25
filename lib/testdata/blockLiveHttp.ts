@@ -6,7 +6,7 @@
 import { before } from "node:test";
 
 export const LIVE_HTTP_BLOCKLIST =
-  /windowsticker\.forddirect\.com|cws\.gm\.com|api\.marketcheck\.com|api\.auto\.dev|trim-scout\.vercel\.app/i;
+  /windowsticker\.forddirect\.com|cws\.gm\.com|api\.marketcheck\.com|api\.auto\.dev|trim-scout\.vercel\.app|generativelanguage\.googleapis\.com/i;
 
 export function assertNotLiveHttpUrl(url: string): void {
   if (LIVE_HTTP_BLOCKLIST.test(url)) {

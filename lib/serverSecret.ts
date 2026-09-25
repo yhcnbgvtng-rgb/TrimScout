@@ -20,6 +20,15 @@ export function isMarketCheckEnabled(): boolean {
   return /^(1|true|yes|on)$/i.test(raw);
 }
 
+/**
+ * The buyer /search page's NL box needs BOTH a key and a model — GEMINI_MODEL has no hardcoded
+ * default (confirmed with the user: a wrong guess at a model id should fail loudly, not silently
+ * downgrade), so "configured" means both are actually set, not just the key.
+ */
+export function isGeminiEnabled(): boolean {
+  return Boolean(serverSecret("GEMINI_API_KEY")) && Boolean(serverSecret("GEMINI_MODEL"));
+}
+
 export function serverSecret(name: string): string {
   if (name === "MARKETCHECK_API_KEY") {
     if (!isMarketCheckEnabled()) return "";
@@ -33,6 +42,12 @@ export function serverSecret(name: string): string {
   }
   if (name === "RESEND_API_KEY") {
     return String(env.RESEND_API_KEY || process.env.RESEND_API_KEY || "").trim();
+  }
+  if (name === "GEMINI_API_KEY") {
+    return String(env.GEMINI_API_KEY || process.env.GEMINI_API_KEY || "").trim();
+  }
+  if (name === "GEMINI_MODEL") {
+    return String(env.GEMINI_MODEL || process.env.GEMINI_MODEL || "").trim();
   }
   return String(env[name] ?? "").trim();
 }
