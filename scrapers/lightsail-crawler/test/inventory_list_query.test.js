@@ -166,3 +166,32 @@ describe('inventoryListQuery — optionCodes (must-have ALL, real set containmen
     assert.deepEqual(args, ['BMW', 'PANO', 1]);
   });
 });
+
+// Buyer search PR 2: the remaining deterministic filters (price/DOM range, colors) needed for
+// /api/vehicles/search — no schema change, price/days_on_lot/color columns already exist.
+describe('inventoryListQuery — price and DOM range', () => {
+  it('priceMin/priceMax filter on i.price', () => {
+    const { sql, args } = query({ priceMin: '20000', priceMax: '40000' });
+    assert.match(sql, /WHERE i\.price >= \? AND i\.price <= \?/);
+    assert.deepEqual(args, [20000, 40000]);
+  });
+
+  it('maxDays filters on i.days_on_lot <=, alongside the existing minDays >=', () => {
+    const { sql, args } = query({ minDays: '5', maxDays: '30' });
+    assert.match(sql, /WHERE i\.days_on_lot >= \? AND i\.days_on_lot <= \?/);
+    assert.deepEqual(args, [5, 30]);
+  });
+});
+
+describe('inventoryListQuery — exteriorColor / interiorColor', () => {
+  it('filters on the plain color columns', () => {
+    const { sql, args } = query({ exteriorColor: 'Black', interiorColor: 'Tan' });
+    assert.match(sql, /WHERE i\.exterior_color = \? AND i\.interior_color = \?/);
+    assert.deepEqual(args, ['Black', 'Tan']);
+  });
+
+  it('is a no-op when absent', () => {
+    const { sql } = query({});
+    assert.doesNotMatch(sql, /exterior_color|interior_color/);
+  });
+});

@@ -2188,6 +2188,43 @@ async function handleInventoryByDealer(req, res) {
   }));
 }
 
+// GET /api/inventory/catalog?make=&model=&trim= — the buyer /search page's filter-panel
+// options: which factory option codes and exterior/interior colors actually exist among
+// in-stock vehicles matching the given make/model/trim. Scoped (not a global distinct list)
+// so the panel never offers a combination that returns zero results — e.g. offering "PANO"
+// for a Model 3 when only the Model Y has it. Cached per make/model/trim key the same 10
+// minutes as stats/by-dealer/analytics, invalidated the same way (every bulk upsert/sweep).
+async function handleInventoryCatalogOptions(req, res, params) {
+  const pool = getPool();
+  await ensureInventoryTable(pool);
+  const make = (params.get("make") || "").trim();
+  const model = (params.get("model") || "").trim();
+  const trim = (params.get("trim") || "").trim();
+  const where = ["i.removed_at IS NULL"], args = [];
+  if (make) { where.push("i.make = ?"); args.push(make); }
+  if (model) { where.push("i.model = ?"); args.push(model); }
+  if (trim) { where.push("i.trim = ?"); args.push(trim); }
+  const whereSql = "WHERE " + where.join(" AND ");
+  const cacheKey = `catalog-options:${make}|${model}|${trim}`;
+  sendJson(res, 200, await invCached(cacheKey, async () => {
+    const [optionRows] = await pool.query(
+      `SELECT o.code, COUNT(*) AS vehicleCount FROM dealer_inventory_options o JOIN dealer_inventory i ON i.vin = o.vin AND i.dealer_id = o.dealer_id ${whereSql} GROUP BY o.code ORDER BY o.code`,
+      args
+    );
+    const [colorRows] = await pool.query(
+      `SELECT exterior_color, interior_color FROM dealer_inventory i ${whereSql} AND (exterior_color IS NOT NULL OR interior_color IS NOT NULL) GROUP BY exterior_color, interior_color`,
+      args
+    );
+    const exteriorColors = [...new Set(colorRows.map((r) => r.exterior_color).filter(Boolean))].sort();
+    const interiorColors = [...new Set(colorRows.map((r) => r.interior_color).filter(Boolean))].sort();
+    return {
+      options: optionRows.map((r) => ({ code: r.code, vehicleCount: Number(r.vehicleCount) })),
+      exteriorColors,
+      interiorColors,
+    };
+  }));
+}
+
 // ---------------------------------------------------------------------------
 // Cross-box crawl claim queue — dynamic work-stealing for the nightly crawl
 // fleet, added 2026-09-25 after real measurement showed box 1 (2 vCPU) runs
@@ -2427,6 +2464,7 @@ const server = http.createServer((req, res) => {
   if (req.method === "GET" && pathname === "/api/inventory/stats") return run(handleInventoryStats);
   if (req.method === "GET" && pathname === "/api/inventory/analytics") return run(handleInventoryAnalytics, url.searchParams);
   if (req.method === "GET" && pathname === "/api/inventory/by-dealer") return run(handleInventoryByDealer);
+  if (req.method === "GET" && pathname === "/api/inventory/catalog") return run(handleInventoryCatalogOptions, url.searchParams);
 if (req.method === "GET" && pathname === "/api/inventory/by-listing-url") return run(handleInventoryByListingUrl, url.searchParams);
 
   // cross-box crawl claim queue (dynamic work-stealing)

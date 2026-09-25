@@ -94,12 +94,56 @@ export interface InventoryQuery {
   priceChange?: "drop" | "increase";
   hasSticker?: boolean;
   minDays?: number;
+  maxDays?: number;
+  priceMin?: number;
+  priceMax?: number;
+  exteriorColor?: string;
+  interiorColor?: string;
+  /** Max odometer reading. */
+  odometerMax?: number;
+  /** Only vehicles whose price has changed at least this many times since it was first crawled. */
+  minPriceChanges?: number;
+  /**
+   * Must-have-ALL factory option codes (real set containment against dealer_inventory_options,
+   * not a free-text match) — pass the `code`s straight off `catalogOptions()`. Comma-joined on
+   * the wire, same as every other filter here being a single string value.
+   */
+  optionCodes?: string[];
   /** New condition with over 500 miles — likely a demo/loaner. */
   possibleDemo?: boolean;
   limit?: number;
   offset?: number;
   sort?: string;
 }
+
+/** Filters the buyer-facing /search page exposes — a subset of InventoryQuery, no admin-only fields (dealerId, changeType, hasSticker). */
+export type BuyerSearchQuery = Pick<
+  InventoryQuery,
+  | "state"
+  | "make"
+  | "model"
+  | "trim"
+  | "cond"
+  | "q"
+  | "priceMin"
+  | "priceMax"
+  | "minDays"
+  | "maxDays"
+  | "odometerMax"
+  | "minPriceChanges"
+  | "exteriorColor"
+  | "interiorColor"
+  | "optionCodes"
+  | "possibleDemo"
+  | "limit"
+  | "offset"
+  | "sort"
+> & {
+  /** Buyer's own zip — used only for the response's per-vehicle distanceMiles, and (with radiusMiles) to filter/sort by distance. */
+  zip?: string;
+  /** Requires `make` to also be set — enforced by the /api/vehicles/search route, not here. */
+  radiusMiles?: number;
+};
 
 export interface InventoryStats {
   total: number;
@@ -150,6 +194,7 @@ export function inventoryQueryString(q: InventoryQuery): string {
   const p = new URLSearchParams();
   for (const [k, v] of Object.entries(q)) {
     if (v === undefined || v === null || v === "" || v === false) continue;
+    if (Array.isArray(v) && v.length === 0) continue;
     p.set(k, v === true ? "1" : String(v));
   }
   const s = p.toString();
@@ -158,6 +203,34 @@ export function inventoryQueryString(q: InventoryQuery): string {
 
 export async function listInventory(q: InventoryQuery = {}): Promise<{ total: number; limit: number; offset: number; vehicles: InventoryVehicle[] }> {
   return request("GET", `/api/inventory${inventoryQueryString(q)}`);
+}
+
+/**
+ * The buyer /search page's deterministic search — always in-stock only (buyers never see removed
+ * listings), and strips `zip`/`radiusMiles` before hitting the box (those are handled by the
+ * caller via calculateDistanceMiles in otdCalculator.ts, not by dealer_inventory itself, which
+ * has no per-dealer lat/lng). Callers enforce the "zip+radius needs make" guardrail themselves —
+ * this function doesn't know about it.
+ */
+export async function searchInventory(q: BuyerSearchQuery = {}): Promise<{ total: number; limit: number; offset: number; vehicles: InventoryVehicle[] }> {
+  const { zip, radiusMiles, ...rest } = q;
+  return listInventory({ ...rest, inStock: true });
+}
+
+export interface CatalogOptions {
+  options: Array<{ code: string; vehicleCount: number }>;
+  exteriorColors: string[];
+  interiorColors: string[];
+}
+
+/** Factory option codes and colors that actually exist among in-stock vehicles matching make/model/trim — the /search filter panel's own source of truth, so it never offers a combination with zero results. */
+export async function catalogOptions(f: { make?: string; model?: string; trim?: string } = {}): Promise<CatalogOptions> {
+  const qs = new URLSearchParams();
+  if (f.make) qs.set("make", f.make);
+  if (f.model) qs.set("model", f.model);
+  if (f.trim) qs.set("trim", f.trim);
+  const suffix = qs.toString();
+  return request("GET", `/api/inventory/catalog${suffix ? `?${suffix}` : ""}`);
 }
 
 /** Longest the box may take to stream a whole export — the route's maxDuration minus headroom. */
