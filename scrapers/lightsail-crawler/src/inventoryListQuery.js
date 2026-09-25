@@ -25,6 +25,14 @@ export function inventoryListQuery(params) {
   if (p("priceChange") === "increase") where.push("i.price_diff > 0");
   if (p("hasSticker") === "1") where.push("i.window_sticker_url IS NOT NULL");
   if (p("minDays")) { where.push("i.days_on_lot >= ?"); args.push(Number(p("minDays"))); }
+  if (p("maxDays")) { where.push("i.days_on_lot <= ?"); args.push(Number(p("maxDays"))); }
+  if (p("priceMin")) { where.push("i.price >= ?"); args.push(Number(p("priceMin"))); }
+  if (p("priceMax")) { where.push("i.price <= ?"); args.push(Number(p("priceMax"))); }
+  // No dedicated index on either color column yet — fine for now since these are additive
+  // filters typically combined with make=/model= (already the selective, indexed part of the
+  // query). Confirm live via EXPLAIN if a color-only search (no make) turns out to be common.
+  if (p("exteriorColor")) { where.push("i.exterior_color = ?"); args.push(p("exteriorColor")); }
+  if (p("interiorColor")) { where.push("i.interior_color = ?"); args.push(p("interiorColor")); }
   if (p("odometerMax")) { where.push("i.mileage <= ?"); args.push(Number(p("odometerMax"))); }
   // price_change_count is denormalized onto dealer_inventory, incremented in
   // handleInventoryBulk's upsert only when the incoming price genuinely differs from what
