@@ -288,15 +288,40 @@ previous content before applying (no unrelated drift) and re-verified via
 the real `checkProjectedRuntime` code path post-change, not hand
 arithmetic. This took effect on both boxes' next scheduled 11pm ET run.
 
-**Open item, not yet acted on**: box 2's main job runs
+**Resolved same night**: box 2's main job was found running
 `CRAWLER_MAX_CONCURRENT_STATES=8` on its 4 vCPUs — also a 2.0
 processes/vCPU ratio, the same pattern this whole investigation flags as
-box 1's root cause. It was raised to 8x in an earlier, separately-approved
-rebalance before this session's root-cause finding existed. Box 2's
-massive headroom (~2h projected out of a 23h budget even now) means this
-isn't urgent, but it's worth deliberately revisiting — the CPU-safe
-default this document otherwise uses elsewhere is 1.5x (box 3/box 4's
-core side-job) or 1.0x (box 3/box 4's main expansion job), not 2.0x.
+box 1's root cause. It had been raised to 8x in an earlier, separately-
+approved rebalance before this session's root-cause finding existed.
+Dropped live to `CRAWLER_MAX_CONCURRENT_STATES=6` (ratio 1.5, matching box
+3/box 4's core side-job) on 2026-09-25, crontab-only (no code/PR — this
+paragraph is the durable record of that change until something in the
+repo itself encodes it). Re-verified live via `checkProjectedRuntime`
+post-change: 3,745 rooftops, 16.2h projected at 6x — comfortably inside
+the 23h budget, down from ~12.1h of *reported* margin at 8x (the 8x number
+was never actually at risk of breaching, but the ratio itself was the
+same oversubscription pattern regardless of how much slack it happened to
+have).
+
+### Hard rule: max concurrency = floor(1.5 × vCPU)
+
+Codifying the ratio every box above (and box 3/box 4's existing config)
+now actually follows, so a future rebalance has a written ceiling to
+check against instead of re-deriving "what's safe" from scratch:
+
+| vCPUs | Max `CRAWLER_MAX_CONCURRENT_STATES` |
+|---|---|
+| 2 (box 1) | **2** |
+| 4 (box 2/3/4) | **6** |
+
+**Do not raise `CRAWLER_MAX_CONCURRENT_STATES` past this ceiling to soak
+up idle budget on a box that's finishing early.** That was the original
+mistake (box 2's 8x) — more processes than vCPUs buys nothing but
+Patchright/Chromium contention, which is exactly what inflated box 1's
+real per-rooftop rate 4.8x in the first place. An early finisher's idle
+budget is what the claim queue (longest-job-first, see above) exists to
+soak up instead — by claiming more STATES within the same concurrency
+ceiling, never by running more states at once than the box has cores for.
 
 ### 2. Static lists are hints, not reservations
 
