@@ -668,6 +668,20 @@ function decodeXmlEntities(str) {
         .replace(/&apos;/g, "'");
 }
 
+// Some platforms (confirmed live 2026-09-25: Audi's own OEM-endorsed retailer
+// sitemap template, e.g. audiforsythcounty.com's sitemap-vdp-sitemap_*.xml)
+// wrap every <loc> value in a CDATA section — <loc><![CDATA[https://...]]></loc>
+// — which the plain `<loc>([^<]+)</loc>` pattern below can never match: the
+// capture group requires a non-'<' character immediately after <loc>, but the
+// very next character is the '<' that starts <![CDATA[, so the match fails
+// silently on every single URL in the file. A real dealer's real inventory
+// (confirmed live: 237 valid VIN-tagged VDP URLs) was being read as zero and
+// logged as "No inventory URLs detected" — not a bot block, not a missing
+// sitemap, just this one regex never seeing the URLs that were right there.
+// Matches either shape; group 1 or group 2 holds the URL, whichever branch fired.
+const LOC_RE = /<loc>\s*(?:<!\[CDATA\[([^\]]+)\]\]>|([^<]+))\s*<\/loc>/gi;
+const locMatches = (xml) => [...xml.matchAll(LOC_RE)].map((m) => decodeXmlEntities((m[1] ?? m[2] ?? '').trim())).filter(Boolean);
+
 async function fetchSitemapXmlUrls(sitemapUrl, depth = 0, brand, patchrightPage = null) {
     if (depth > 2) return [];
     const brandWord = brand.name.toLowerCase();
@@ -694,7 +708,7 @@ async function fetchSitemapXmlUrls(sitemapUrl, depth = 0, brand, patchrightPage 
             }
         }
 
-        const childSitemaps = [...xml.matchAll(/<sitemap>\s*<loc>([^<]+)<\/loc>/gi)].map((m) => decodeXmlEntities(m[1].trim()));
+        const childSitemaps = [...xml.matchAll(/<sitemap>([\s\S]*?)<\/sitemap>/gi)].flatMap((m) => locMatches(m[1]));
         if (childSitemaps.length > 0) {
             const inventoryChild = childSitemaps.filter((u) => new RegExp(`vehicle|inventory|cars|${brandWord}|sitemap`, 'i').test(u));
             const targets = inventoryChild.length > 0 ? inventoryChild : childSitemaps;
@@ -705,7 +719,7 @@ async function fetchSitemapXmlUrls(sitemapUrl, depth = 0, brand, patchrightPage 
             return nested;
         }
 
-        const allUrls = [...xml.matchAll(/<loc>([^<]+)<\/loc>/gi)].map((m) => decodeXmlEntities(m[1].trim()));
+        const allUrls = locMatches(xml);
         const vinPattern = brand.vinPrefixes.map((p) => `${p}[A-Z0-9]{13,14}`).join('|');
         return allUrls.filter((u) =>
             /-[a-f0-9]{32}\.htm/i.test(u) ||
