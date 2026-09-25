@@ -1726,6 +1726,14 @@ async function ensureInventoryTable(pool) {
     // Existing rows are backfilled once by this same deploy script, not here (500k+ rows —
     // too slow to gate a live request behind).
     "ADD COLUMN IF NOT EXISTS state VARCHAR(2) NULL",
+    // How many times this vehicle's price has genuinely changed since it was first seen —
+    // for the buyer search's minPriceChanges= filter. Incremented in handleInventoryBulk's
+    // upsert only when the incoming price differs from what was already stored (see that
+    // function), never recomputed from history here. Existing rows stay at the DEFAULT 0 —
+    // there's no historical per-change record to backfill from, so this is "tracked going
+    // forward" only, not a true lifetime count for inventory that predates this column.
+    "ADD COLUMN IF NOT EXISTS price_change_count INT NOT NULL DEFAULT 0",
+    "ADD INDEX IF NOT EXISTS idx_inv_stock_price_changes (removed_at, price_change_count)",
     "ADD INDEX IF NOT EXISTS idx_inv_change (change_type)",
     "ADD INDEX IF NOT EXISTS idx_inv_price_change (price_change_type)",
     // Every sheet query filters removed_at IS NULL then sorts — composite indexes let those read in order.
@@ -1826,6 +1834,20 @@ async function ensureInventoryTable(pool) {
     PRIMARY KEY (vin, dealer_id, seen_on),
     INDEX idx_days_vin (vin)
   )`);
+  // One row per (vehicle, factory option code) — a normalized side table for the buyer
+  // search's "must-have ALL of these options" filter. dealer_inventory.options_json is a
+  // free-text blob (see inventoryRowFromDb) with no index, so "has every one of these codes"
+  // can't be answered efficiently there at 1.5M+ rows. Populated in handleInventoryBulk by
+  // deleting and reinserting each chunk's vehicles' rows on every upsert — always a full
+  // replace of the set, never a partial add, so a vehicle that loses an option on a later
+  // crawl doesn't keep matching it forever.
+  await pool.query(`CREATE TABLE IF NOT EXISTS dealer_inventory_options (
+    vin CHAR(17) NOT NULL,
+    dealer_id INT NOT NULL DEFAULT 0,
+    code VARCHAR(32) NOT NULL,
+    PRIMARY KEY (vin, dealer_id, code),
+    INDEX idx_opt_code (code)
+  )`);
   inventoryReady = true;
 }
 
@@ -1887,11 +1909,28 @@ async function handleInventoryBulk(req, res) {
     await pool.query(
       `INSERT INTO dealer_inventory (vin, dealer_id, dealer_name, cond, year, make, model, trim, body_style, exterior_color, interior_color, mileage, price, msrp, stock_number, vdp_url, image_url, source,
         window_sticker_url, engine, transmission, days_on_lot, old_price, price_diff, price_change_type, change_type, price_history_json, options_json, options_total, base_msrp, crawl_first_seen, source_box)
-       VALUES ? ON DUPLICATE KEY UPDATE dealer_id = VALUES(dealer_id), dealer_name = VALUES(dealer_name), cond = COALESCE(VALUES(cond), cond), year = COALESCE(VALUES(year), year), make = COALESCE(VALUES(make), make), model = COALESCE(VALUES(model), model), trim = COALESCE(VALUES(trim), trim), body_style = COALESCE(VALUES(body_style), body_style), exterior_color = COALESCE(VALUES(exterior_color), exterior_color), interior_color = COALESCE(VALUES(interior_color), interior_color), mileage = COALESCE(VALUES(mileage), mileage), price = COALESCE(VALUES(price), price), msrp = COALESCE(VALUES(msrp), msrp), stock_number = COALESCE(VALUES(stock_number), stock_number), vdp_url = VALUES(vdp_url), image_url = COALESCE(VALUES(image_url), image_url), source = VALUES(source), last_seen_at = CURRENT_TIMESTAMP, removed_at = NULL,
+       VALUES ? ON DUPLICATE KEY UPDATE dealer_id = VALUES(dealer_id), dealer_name = VALUES(dealer_name), cond = COALESCE(VALUES(cond), cond), year = COALESCE(VALUES(year), year), make = COALESCE(VALUES(make), make), model = COALESCE(VALUES(model), model), trim = COALESCE(VALUES(trim), trim), body_style = COALESCE(VALUES(body_style), body_style), exterior_color = COALESCE(VALUES(exterior_color), exterior_color), interior_color = COALESCE(VALUES(interior_color), interior_color), mileage = COALESCE(VALUES(mileage), mileage),
+        price_change_count = price_change_count + IF(VALUES(price) IS NOT NULL AND price IS NOT NULL AND VALUES(price) <> price, 1, 0),
+        price = COALESCE(VALUES(price), price), msrp = COALESCE(VALUES(msrp), msrp), stock_number = COALESCE(VALUES(stock_number), stock_number), vdp_url = VALUES(vdp_url), image_url = COALESCE(VALUES(image_url), image_url), source = VALUES(source), last_seen_at = CURRENT_TIMESTAMP, removed_at = NULL,
         window_sticker_url = COALESCE(VALUES(window_sticker_url), window_sticker_url), engine = COALESCE(VALUES(engine), engine), transmission = COALESCE(VALUES(transmission), transmission), days_on_lot = COALESCE(VALUES(days_on_lot), days_on_lot), old_price = VALUES(old_price), price_diff = VALUES(price_diff), price_change_type = VALUES(price_change_type), change_type = VALUES(change_type), price_history_json = COALESCE(VALUES(price_history_json), price_history_json), options_json = COALESCE(VALUES(options_json), options_json), options_total = COALESCE(VALUES(options_total), options_total), base_msrp = COALESCE(VALUES(base_msrp), base_msrp), crawl_first_seen = COALESCE(VALUES(crawl_first_seen), crawl_first_seen), source_box = COALESCE(VALUES(source_box), source_box)`,
       [values]
     );
     upserted += chunk.length;
+    // Replace each vehicle's option-code set (dealer_inventory_options) in the same chunk as
+    // its main upsert — tied together so a chunk that fails partway through never leaves a
+    // live VIN's row updated but its option set stale/empty. A full delete-then-reinsert per
+    // chunk, not a per-vehicle diff: cheap at 500 rows, and correct when a later crawl drops
+    // an option the vehicle no longer has (an additive-only write would keep matching it).
+    const optionPairs = chunk.map((v) => [v.vin.trim().toUpperCase(), INV_DEALER(v.dealerId)]);
+    await pool.query("DELETE FROM dealer_inventory_options WHERE (vin, dealer_id) IN (?)", [optionPairs]);
+    const optionRows = [];
+    for (const v of chunk) {
+      if (!Array.isArray(v.options)) continue;
+      const vin = v.vin.trim().toUpperCase(), dealerId = INV_DEALER(v.dealerId);
+      const codes = new Set(v.options.map((o) => INV_STR(o && o.code, 32)).filter(Boolean));
+      for (const code of codes) optionRows.push([vin, dealerId, code]);
+    }
+    if (optionRows.length) await pool.query("INSERT INTO dealer_inventory_options (vin, dealer_id, code) VALUES ? ON DUPLICATE KEY UPDATE vin = VALUES(vin)", [optionRows]);
     // Today's observation for every vehicle in the chunk, plus the crawl's dated price points (backfill).
     const today = new Date().toISOString().slice(0, 10);
     const days = [];

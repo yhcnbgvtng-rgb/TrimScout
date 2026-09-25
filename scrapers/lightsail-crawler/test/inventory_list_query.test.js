@@ -115,3 +115,54 @@ describe('inventoryListQuery — sort', () => {
     assert.equal(orderBy, 'i.dealer_name DESC, i.vin ASC');
   });
 });
+
+// Buyer search (PR 1 of the /search feature) additions: odometerMax, minPriceChanges, optionCodes.
+describe('inventoryListQuery — odometerMax', () => {
+  it('filters on i.mileage <= the given value', () => {
+    const { sql, args } = query({ odometerMax: '30000' });
+    assert.match(sql, /WHERE i\.mileage <= \?/);
+    assert.deepEqual(args, [30000]);
+  });
+
+  it('combines with other filters via AND, in declaration order', () => {
+    const { sql, args } = query({ make: 'Toyota', odometerMax: '25000', inStock: '1' });
+    assert.match(sql, /WHERE i\.make = \? AND i\.removed_at IS NULL AND i\.mileage <= \?/);
+    assert.deepEqual(args, ['Toyota', 25000]);
+  });
+});
+
+describe('inventoryListQuery — minPriceChanges', () => {
+  it('filters on the denormalized price_change_count column, not a live aggregate', () => {
+    const { sql, args } = query({ minPriceChanges: '2' });
+    assert.match(sql, /WHERE i\.price_change_count >= \?/);
+    assert.deepEqual(args, [2]);
+  });
+});
+
+describe('inventoryListQuery — optionCodes (must-have ALL, real set containment)', () => {
+  it('builds a HAVING COUNT(DISTINCT code) = N containment check against dealer_inventory_options', () => {
+    const { sql, args } = query({ optionCodes: 'PANO,AWD' });
+    assert.match(
+      sql,
+      /WHERE i\.vin IN \(SELECT vin FROM dealer_inventory_options WHERE dealer_id = i\.dealer_id AND code IN \(\?,\?\) GROUP BY vin HAVING COUNT\(DISTINCT code\) = \?\)/
+    );
+    assert.deepEqual(args, ['PANO', 'AWD', 2]);
+  });
+
+  it('trims whitespace and drops empty entries from the comma-separated list', () => {
+    const { args } = query({ optionCodes: ' PANO , , AWD ' });
+    assert.deepEqual(args, ['PANO', 'AWD', 2]);
+  });
+
+  it('is a no-op when optionCodes is empty or absent', () => {
+    assert.equal(query({}).sql.includes('dealer_inventory_options'), false);
+    assert.equal(query({ optionCodes: '' }).sql.includes('dealer_inventory_options'), false);
+  });
+
+  it('composes with other filters and the make= index hint unchanged', () => {
+    const { sql, args } = query({ make: 'BMW', optionCodes: 'PANO', inStock: '1' });
+    assert.match(sql, /FORCE INDEX \(idx_inv_stock_make\)/);
+    assert.match(sql, /i\.make = \? AND .*dealer_inventory_options/);
+    assert.deepEqual(args, ['BMW', 'PANO', 1]);
+  });
+});
