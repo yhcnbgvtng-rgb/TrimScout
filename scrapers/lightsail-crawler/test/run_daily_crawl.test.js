@@ -421,6 +421,121 @@ describe('run-daily-crawl driver', () => {
   });
 
   // ---------------------------------------------------------------------
+  // Cross-box work-stealing (src/crawl_claims.js), added 2026-09-25 after
+  // real measurement showed box 1 (2 vCPU) running 4.8x slower per rooftop
+  // than box 2 (4 vCPU) — a static split sized to be "fair by wall-clock
+  // time" gives box 1 only a sliver of the workload, which finishes early
+  // and then sits idle. claimNextStateFn/heartbeatFn/releaseClaimFn are
+  // all optional and default to null (see runStatesWithBoundedConcurrency's
+  // own comment) — every test above this one exercises that unchanged,
+  // no-stealing path. These test the stealing path itself, with fakes
+  // standing in for the real HTTP calls to the deals box.
+  // ---------------------------------------------------------------------
+  describe('runStatesWithBoundedConcurrency (cross-box work-stealing)', () => {
+    it('with no claimNextStateFn, a worker just exits once local states run out — unchanged default behavior', async () => {
+      const fakeRunState = async (state) => { await sleep(5); return { state, brands: {} }; };
+      const results = await runStatesWithBoundedConcurrency(['NJ'], '2026-09-15', 4, fakeRunState);
+      assert.deepEqual(Object.keys(results), ['NJ']);
+    });
+
+    it('a worker that runs out of local states claims more from the shared queue instead of exiting', async () => {
+      const pool = ['FL', 'GA', 'TX'];
+      const claimNextStateFn = async () => (pool.length ? pool.shift() : null);
+      const fakeRunState = async (state) => { await sleep(5); return { state, brands: {} }; };
+
+      const results = await runStatesWithBoundedConcurrency(
+        ['NJ'], '2026-09-15', 1, fakeRunState, { claimNextStateFn },
+      );
+
+      // One local state plus all three stolen ones, all recorded like any other state.
+      assert.deepEqual(new Set(Object.keys(results)), new Set(['NJ', 'FL', 'GA', 'TX']));
+      assert.equal(results.NJ.stolen, undefined, 'a locally-assigned state is never marked stolen');
+      assert.equal(results.FL.stolen, true);
+      assert.equal(results.GA.stolen, true);
+      assert.equal(results.TX.stolen, true);
+    });
+
+    it('a short local list still spawns up to maxConcurrent workers when stealing is enabled, not capped at the local list length', async () => {
+      let concurrentClaims = 0;
+      let maxConcurrentClaims = 0;
+      const pool = ['FL', 'GA', 'TX', 'VA'];
+      const claimNextStateFn = async () => {
+        concurrentClaims++;
+        maxConcurrentClaims = Math.max(maxConcurrentClaims, concurrentClaims);
+        await sleep(10); // give sibling workers a chance to also be mid-claim
+        concurrentClaims--;
+        return pool.length ? pool.shift() : null;
+      };
+      const fakeRunState = async (state) => { await sleep(5); return { state, brands: {} }; };
+
+      // Only ONE local state, but maxConcurrent=4 — without the fix, workerCount
+      // would be capped at states.length (1) and this would never observe >1.
+      await runStatesWithBoundedConcurrency(['NJ'], '2026-09-15', 4, fakeRunState, { claimNextStateFn });
+      assert.ok(maxConcurrentClaims > 1, `expected multiple workers claiming concurrently, saw max ${maxConcurrentClaims}`);
+    });
+
+    it('stops stealing once the shared queue reports nothing claimable, without erroring', async () => {
+      const claimNextStateFn = async () => null; // queue is empty from the start
+      const fakeRunState = async (state) => { await sleep(5); return { state, brands: {} }; };
+      const results = await runStatesWithBoundedConcurrency(
+        ['NJ'], '2026-09-15', 2, fakeRunState, { claimNextStateFn },
+      );
+      assert.deepEqual(Object.keys(results), ['NJ']);
+    });
+
+    it('passes remaining budget (not the full budget) to claimNextStateFn, so a late steal attempt sees a shrinking window', async () => {
+      const seenRemaining = [];
+      const claimNextStateFn = async (remainingMs) => { seenRemaining.push(remainingMs); return null; };
+      const fakeRunState = async (state) => { await sleep(30); return { state, brands: {} }; };
+      const runStartedAt = Date.now();
+
+      await runStatesWithBoundedConcurrency(
+        ['NJ'], '2026-09-15', 1, fakeRunState,
+        { claimNextStateFn, budgetMs: 10_000, runStartedAt },
+      );
+
+      assert.ok(seenRemaining.length >= 1);
+      assert.ok(seenRemaining[0] < 10_000 && seenRemaining[0] > 9_000, `expected remaining close to but under 10000ms, got ${seenRemaining[0]}`);
+    });
+
+    it('a heartbeat fires periodically while a state is in flight, and stops once it finishes', async () => {
+      const beats = [];
+      const heartbeatFn = (state) => beats.push(state);
+      const fakeRunState = async (state) => { await sleep(35); return { state, brands: {} }; };
+
+      await runStatesWithBoundedConcurrency(
+        ['NJ'], '2026-09-15', 1, fakeRunState,
+        { heartbeatFn, heartbeatIntervalMs: 10 },
+      );
+      await sleep(30); // if the interval weren't cleared, more beats would still be arriving here
+
+      const countAfterFinish = beats.length;
+      await sleep(30);
+      assert.equal(beats.length, countAfterFinish, 'heartbeat must stop once the state finishes, not keep firing');
+      assert.ok(beats.length >= 2, `expected multiple heartbeats over a 35ms run at a 10ms interval, got ${beats.length}`);
+      assert.ok(beats.every((s) => s === 'NJ'));
+    });
+
+    it('releaseClaimFn is called once per state with "done" on success and "failed" on a fatal error — for both local and stolen states', async () => {
+      const released = [];
+      const releaseClaimFn = async (state, status) => { released.push([state, status]); };
+      const pool = ['GA'];
+      const claimNextStateFn = async () => (pool.length ? pool.shift() : null);
+      const fakeRunState = async (state) => {
+        if (state === 'GA') throw new Error('simulated fatal error');
+        return { state, brands: {} };
+      };
+
+      await runStatesWithBoundedConcurrency(
+        ['NJ'], '2026-09-15', 1, fakeRunState,
+        { claimNextStateFn, releaseClaimFn },
+      );
+
+      assert.deepEqual(new Set(released.map((r) => r.join(':'))), new Set(['NJ:done', 'GA:failed']));
+    });
+  });
+
+  // ---------------------------------------------------------------------
   // Real bug found live 2026-09-21 — caught by a pre-flight smoke test of
   // the real driver, before it ever ran on a real cron fire. Every per-
   // state write-dealers script imports NJ_BRANDS_IN and iterates it,

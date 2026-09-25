@@ -17,6 +17,7 @@
 //   node scripts/recommend-shard-split.mjs --brand-set=core --boxes=2 --concurrency=2,4
 //   node scripts/recommend-shard-split.mjs --brand-set=expansion --boxes=2 --concurrency=4,4
 //   node scripts/recommend-shard-split.mjs --brand-set=expansion --boxes=4 --concurrency=4,4,4,4
+//   node scripts/recommend-shard-split.mjs --brand-set=core --boxes=2 --concurrency=2,6 --p90=77.4,16.2
 //
 // --brand-set: core | expansion (which brand list to size against)
 // --boxes: how many boxes to split across (tries this count first; if even
@@ -27,6 +28,24 @@
 //   per box (or a single value applied to all). Boxes are NOT assumed
 //   identical — box 1's 2 vCPUs vs box 2/3/4's 4 is exactly the kind of
 //   asymmetry this needs to size correctly.
+// --p90: comma-separated seconds/rooftop per box, one value per box (or a
+//   single value applied to all — the previous behavior, and still the
+//   right default absent real per-box measurements). Confirmed live
+//   2026-09-25: this is not a minor tuning knob — box 1's real measured
+//   rate (77.4s/rooftop, from 359 paired starting/ok log lines across a
+//   full night) is 4.8x WORSE than box 2's (16.2s/rooftop, 660 paired
+//   lines, same night), despite box 1 running LOWER absolute concurrency
+//   (4x vs 6x). The single global P90_SECONDS_PER_ROOFTOP this tool used
+//   before hid that gap entirely — a rooftop-balanced split under one
+//   shared rate systematically under-projects box 1 and over-projects
+//   box 2, which is exactly why box 1 kept running long after box 2/3/4
+//   finished even when its assigned rooftop count looked "fair". The
+//   likely cause isn't box 1's state mix — it's concurrency=4 on a
+//   2-vCPU box (2.0 procs/vCPU) vs box 2's concurrency=6 on 4 vCPUs (1.5
+//   procs/vCPU): box 1 is MORE oversubscribed than box 2 despite the
+//   lower absolute number, and each concurrent Patchright/Chromium
+//   process contends harder for the same 2 real cores. See
+//   docs/CAPACITY_SLA.md for the full write-up and how to re-measure.
 
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -57,6 +76,17 @@ if (concurrencies.length !== boxCount) {
   process.exit(1);
 }
 
+const p90Arg = arg('p90', String(P90_SECONDS_PER_ROOFTOP));
+const p90List = p90Arg.split(',').map(Number);
+const p90Rates = p90List.length === 1
+  ? Array.from({ length: boxCount }, () => p90List[0])
+  : p90List;
+
+if (p90Rates.length !== boxCount) {
+  console.error(`--p90 must have exactly 1 value (applied to every box) or exactly ${boxCount} values (one per box) — got ${p90Rates.length}.`);
+  process.exit(1);
+}
+
 const counts = {};
 for (const state of SUPPORTED_STATES) {
   counts[state] = countRooftopsForState(state, brands, ROOT);
@@ -65,12 +95,14 @@ const total = Object.values(counts).reduce((a, b) => a + b, 0);
 
 console.log(`Brand set: ${brandSet} (${brands.length} brands: ${brands.join(', ')})`);
 console.log(`Total real rooftops across all ${SUPPORTED_STATES.length} supported states: ${total}`);
-console.log(`p90 rate: ${P90_SECONDS_PER_ROOFTOP}s/rooftop, SLA: ${MAX_PROJECTED_HOURS}h\n`);
+console.log(`p90 rate: ${p90Rates.every((r) => r === p90Rates[0]) ? `${p90Rates[0]}s/rooftop (same for every box)` : `${p90Rates.join('s, ')}s/rooftop (per-box)`}, SLA: ${MAX_PROJECTED_HOURS}h\n`);
 
 // Greedy: assign each state (largest first) to whichever box currently has
 // the LOWEST projected ETA — this is what actually balances wall-clock
-// time across boxes with different concurrency, not just raw rooftop
-// count (see the module header comment on why that distinction mattered).
+// time across boxes with different concurrency AND different per-box
+// throughput, not just raw rooftop count (see the module header comment
+// on why that distinction mattered, and the --p90 comment on why a single
+// shared rate silently mis-projects an asymmetric fleet).
 const statesSorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
 const bins = Array.from({ length: boxCount }, () => []);
 const sums = Array.from({ length: boxCount }, () => 0);
@@ -78,7 +110,7 @@ for (const [state, count] of statesSorted) {
   let bestBox = 0;
   let bestEta = Infinity;
   for (let i = 0; i < boxCount; i++) {
-    const eta = (sums[i] + count) / Math.max(1, concurrencies[i]);
+    const eta = projectedHours(sums[i] + count, concurrencies[i], p90Rates[i]);
     if (eta < bestEta) { bestEta = eta; bestBox = i; }
   }
   bins[bestBox].push(state);
@@ -87,28 +119,30 @@ for (const [state, count] of statesSorted) {
 
 let anyOverBudget = false;
 for (let i = 0; i < boxCount; i++) {
-  const hours = projectedHours(sums[i], concurrencies[i]);
+  const hours = projectedHours(sums[i], concurrencies[i], p90Rates[i]);
   const overBudget = hours > MAX_PROJECTED_HOURS;
   if (overBudget) anyOverBudget = true;
   console.log(
-    `BOX${i + 1} (${concurrencies[i]}x concurrency): ${bins[i].length} states, ${sums[i]} rooftops, `
+    `BOX${i + 1} (${concurrencies[i]}x concurrency, ${p90Rates[i]}s/rooftop): ${bins[i].length} states, ${sums[i]} rooftops, `
     + `projected ${hours.toFixed(1)}h ${overBudget ? '— OVER the ' + MAX_PROJECTED_HOURS + 'h SLA ⚠️' : '(within SLA)'}`,
   );
   console.log(`  CRAWL_STATES=${bins[i].sort().join(',')}`);
 }
 
 if (anyOverBudget) {
-  // How many boxes (of the SAME average concurrency as requested) would
-  // actually be needed, at the p90 rate, to fit the whole workload.
+  // How many boxes (of the SAME average concurrency/rate as requested)
+  // would actually be needed to fit the whole workload — an approximation
+  // when boxes have different rates, since it uses the average of both.
   const avgConcurrency = concurrencies.reduce((a, b) => a + b, 0) / boxCount;
-  const perBoxCeiling = MAX_PROJECTED_HOURS * 3600 * avgConcurrency / P90_SECONDS_PER_ROOFTOP;
+  const avgP90 = p90Rates.reduce((a, b) => a + b, 0) / boxCount;
+  const perBoxCeiling = MAX_PROJECTED_HOURS * 3600 * avgConcurrency / avgP90;
   const boxesNeeded = Math.ceil(total / perBoxCeiling);
   console.log(
-    `\n⚠️  ${boxCount} box(es) at this concurrency cannot fit the whole ${brandSet} workload within `
-    + `${MAX_PROJECTED_HOURS}h. At ~${avgConcurrency}x average concurrency, this needs roughly ${boxesNeeded} `
-    + `box(es) total to cover every state — or defer the lowest-rooftop states to a backlog and re-run this `
-    + `tool with the same --boxes count against the reduced state list.`,
+    `\n⚠️  ${boxCount} box(es) at this concurrency/rate cannot fit the whole ${brandSet} workload within `
+    + `${MAX_PROJECTED_HOURS}h. At ~${avgConcurrency}x average concurrency and ~${avgP90.toFixed(1)}s/rooftop average, `
+    + `this needs roughly ${boxesNeeded} box(es) total to cover every state — or defer the lowest-rooftop states `
+    + `to a backlog and re-run this tool with the same --boxes count against the reduced state list.`,
   );
 } else {
-  console.log(`\n✅ All ${boxCount} boxes fit within the ${MAX_PROJECTED_HOURS}h SLA at p90.`);
+  console.log(`\n✅ All ${boxCount} boxes fit within the ${MAX_PROJECTED_HOURS}h SLA.`);
 }

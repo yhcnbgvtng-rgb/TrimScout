@@ -2149,6 +2149,185 @@ async function handleInventoryByDealer(req, res) {
   }));
 }
 
+// ---------------------------------------------------------------------------
+// Cross-box crawl claim queue — dynamic work-stealing for the nightly crawl
+// fleet, added 2026-09-25 after real measurement showed box 1 (2 vCPU) runs
+// at 77.4s/rooftop vs box 2's (4 vCPU) 16.2s/rooftop — a 4.8x gap driven by
+// concurrency-per-vCPU oversubscription, not state assignment (see
+// docs/CAPACITY_SLA.md). A STATIC split "fair by wall-clock time" therefore
+// gives box 1 only a tiny sliver of the workload, which finishes in ~2h and
+// then sits idle the rest of the night while box 2/3/4 grind through many
+// more hours — the same box-1-lags-everyone-waits problem, just inverted.
+// This table lets any box, once its own locally-assigned states are done,
+// keep claiming more states from a shared pool (seeded once per run) until
+// its own budget runs out — the fleet's actual throughput is what balances,
+// not a number computed hours before the run started.
+//
+// One row per (run_date, brand_set, state). 'unclaimed' -> 'claimed' via an
+// atomic UPDATE ... LIMIT 1 (no SELECT-then-UPDATE race), 'claimed' -> 'done'
+// or back to 'unclaimed' on release (so a crashed claimant's work can be
+// retried by someone else), and a stale 'claimed' row (no heartbeat within
+// CRAWL_CLAIM_STALE_MS) is auto-reclaimed the same self-healing way a stale
+// driver.lock already gets reclaimed on the crawler side.
+// ---------------------------------------------------------------------------
+let crawlClaimsReady = false;
+async function ensureCrawlClaimsTable(pool) {
+  if (crawlClaimsReady) return;
+  await pool.query(`CREATE TABLE IF NOT EXISTS crawl_claims (
+    run_date DATE NOT NULL,
+    brand_set VARCHAR(16) NOT NULL,
+    state CHAR(2) NOT NULL,
+    rooftop_count INT NOT NULL DEFAULT 0,
+    status VARCHAR(16) NOT NULL DEFAULT 'unclaimed',
+    claimed_by VARCHAR(128) NULL,
+    claimed_at DATETIME NULL,
+    heartbeat_at DATETIME NULL,
+    finished_at DATETIME NULL,
+    PRIMARY KEY (run_date, brand_set, state),
+    INDEX idx_claims_status (run_date, brand_set, status, rooftop_count)
+  )`);
+  crawlClaimsReady = true;
+}
+
+const CRAWL_CLAIM_STALE_MS = 90 * 60 * 1000; // 90min — real states have taken up to ~1h; generous margin
+
+// POST /api/ops/crawl-claims/seed { runDate, brandSet, states: [{state, rooftopCount}], preClaimedBy }
+// Idempotent: INSERT IGNORE means a box that already seeded tonight (or a second box seeding the same
+// run) never resets rows another box has already claimed or finished. `preClaimedBy`, when given, seeds
+// the caller's OWN statically-assigned states as already 'claimed'/owned by it — so a box's local slice
+// is reserved for itself from minute one and never gets stolen out from under it by a faster peer, while
+// every other box's slice remains stealable the moment that box falls behind or finishes early.
+async function handleCrawlClaimsSeed(req, res) {
+  const pool = getPool();
+  await ensureCrawlClaimsTable(pool);
+  const body = await readBody(req);
+  const runDate = INV_DATE(body.runDate);
+  const brandSet = typeof body.brandSet === "string" ? body.brandSet.slice(0, 16) : "";
+  const states = Array.isArray(body.states) ? body.states : [];
+  const preClaimedBy = typeof body.preClaimedBy === "string" ? body.preClaimedBy.slice(0, 128) : null;
+  if (!runDate || !brandSet || !states.length) return badRequest(res, "runDate, brandSet and states[] are required");
+  const now = new Date();
+  const rows = states
+    .filter((s) => typeof s.state === "string" && s.state.length === 2)
+    .map((s) => [runDate, brandSet, s.state.toUpperCase(), INV_INT(s.rooftopCount) || 0, preClaimedBy ? "claimed" : "unclaimed", preClaimedBy, preClaimedBy ? now : null, preClaimedBy ? now : null]);
+  if (!rows.length) return badRequest(res, "no valid state rows");
+  await pool.query(
+    "INSERT IGNORE INTO crawl_claims (run_date, brand_set, state, rooftop_count, status, claimed_by, claimed_at, heartbeat_at) VALUES ?",
+    [rows]
+  );
+  sendJson(res, 200, { seeded: rows.length });
+}
+
+// POST /api/ops/crawl-claims/claim { runDate, brandSet, owner, maxRooftops? }
+// Atomically claims the LARGEST unclaimed (or stale-reclaimed) state that fits within maxRooftops, when
+// given — the caller's own remaining-budget check (see runStatesWithBoundedConcurrency's claimNextStateFn
+// in run-daily-crawl.mjs), never a state this box couldn't plausibly finish before its own SLA deadline.
+// A single UPDATE ... ORDER BY ... LIMIT 1 makes the claim atomic without a separate lock: MySQL/MariaDB
+// serializes concurrent UPDATEs against the same row set, so two boxes racing for the same top candidate
+// never both win it.
+async function handleCrawlClaimsClaim(req, res) {
+  const pool = getPool();
+  await ensureCrawlClaimsTable(pool);
+  const body = await readBody(req);
+  const runDate = INV_DATE(body.runDate);
+  const brandSet = typeof body.brandSet === "string" ? body.brandSet.slice(0, 16) : "";
+  const owner = typeof body.owner === "string" && body.owner ? body.owner.slice(0, 128) : "unknown";
+  const maxRooftops = INV_INT(body.maxRooftops);
+  if (!runDate || !brandSet) return badRequest(res, "runDate and brandSet are required");
+
+  // Reclaim anything stale first — a crashed/killed claimant never wedges its state unstealable forever.
+  await pool.query(
+    "UPDATE crawl_claims SET status = 'unclaimed', claimed_by = NULL, claimed_at = NULL, heartbeat_at = NULL WHERE run_date = ? AND brand_set = ? AND status = 'claimed' AND heartbeat_at < ?",
+    [runDate, brandSet, new Date(Date.now() - CRAWL_CLAIM_STALE_MS)]
+  );
+
+  const params = [runDate, brandSet];
+  let fitClause = "";
+  if (maxRooftops != null) { fitClause = "AND rooftop_count <= ?"; params.push(maxRooftops); }
+  const [[candidate]] = await pool.query(
+    `SELECT state, rooftop_count FROM crawl_claims WHERE run_date = ? AND brand_set = ? AND status = 'unclaimed' ${fitClause} ORDER BY rooftop_count DESC LIMIT 1`,
+    params
+  );
+  if (!candidate) return sendJson(res, 200, { claimed: null });
+
+  const now = new Date();
+  const [result] = await pool.query(
+    "UPDATE crawl_claims SET status = 'claimed', claimed_by = ?, claimed_at = ?, heartbeat_at = ? WHERE run_date = ? AND brand_set = ? AND state = ? AND status = 'unclaimed'",
+    [owner, now, now, runDate, brandSet, candidate.state]
+  );
+  // Someone else won the race between our SELECT and UPDATE — try once more rather than report nothing
+  // claimable when a smaller state might still be free.
+  if (result.affectedRows === 0) return handleCrawlClaimsClaim(req, res);
+  sendJson(res, 200, { claimed: { state: candidate.state, rooftopCount: candidate.rooftop_count } });
+}
+
+// POST /api/ops/crawl-claims/heartbeat { runDate, brandSet, state, owner }
+async function handleCrawlClaimsHeartbeat(req, res) {
+  const pool = getPool();
+  await ensureCrawlClaimsTable(pool);
+  const body = await readBody(req);
+  const runDate = INV_DATE(body.runDate);
+  const brandSet = typeof body.brandSet === "string" ? body.brandSet.slice(0, 16) : "";
+  const state = typeof body.state === "string" ? body.state.slice(0, 2).toUpperCase() : "";
+  const owner = typeof body.owner === "string" ? body.owner.slice(0, 128) : "";
+  if (!runDate || !brandSet || !state) return badRequest(res, "runDate, brandSet and state are required");
+  await pool.query(
+    "UPDATE crawl_claims SET heartbeat_at = ? WHERE run_date = ? AND brand_set = ? AND state = ? AND claimed_by = ? AND status = 'claimed'",
+    [new Date(), runDate, brandSet, state, owner]
+  );
+  sendJson(res, 200, { ok: true });
+}
+
+// POST /api/ops/crawl-claims/release { runDate, brandSet, state, owner, status: 'done' | 'failed' }
+// 'done' is terminal; 'failed' resets to 'unclaimed' so another box can retry it tonight instead of the
+// state silently never running. Only the actual holder releases (same guard as elsewhere in this file).
+async function handleCrawlClaimsRelease(req, res) {
+  const pool = getPool();
+  await ensureCrawlClaimsTable(pool);
+  const body = await readBody(req);
+  const runDate = INV_DATE(body.runDate);
+  const brandSet = typeof body.brandSet === "string" ? body.brandSet.slice(0, 16) : "";
+  const state = typeof body.state === "string" ? body.state.slice(0, 2).toUpperCase() : "";
+  const owner = typeof body.owner === "string" ? body.owner.slice(0, 128) : "";
+  const status = body.status === "done" ? "done" : "unclaimed";
+  if (!runDate || !brandSet || !state) return badRequest(res, "runDate, brandSet and state are required");
+  const now = new Date();
+  await pool.query(
+    status === "done"
+      ? "UPDATE crawl_claims SET status = 'done', finished_at = ? WHERE run_date = ? AND brand_set = ? AND state = ? AND claimed_by = ?"
+      : "UPDATE crawl_claims SET status = 'unclaimed', claimed_by = NULL, claimed_at = NULL, heartbeat_at = NULL WHERE run_date = ? AND brand_set = ? AND state = ? AND claimed_by = ?",
+    status === "done" ? [now, runDate, brandSet, state, owner] : [runDate, brandSet, state, owner]
+  );
+  sendJson(res, 200, { released: true });
+}
+
+// GET /api/ops/crawl-claims/status?runDate=&brandSet= — every claim row for tonight's run, for the
+// fleet-summary/box-report observability requirement (who donated, who stole, states moved).
+async function handleCrawlClaimsStatus(req, res, params) {
+  const pool = getPool();
+  await ensureCrawlClaimsTable(pool);
+  const runDate = INV_DATE(params.get("runDate") || "");
+  const brandSet = params.get("brandSet") || "";
+  if (!runDate || !brandSet) return badRequest(res, "runDate and brandSet query params are required");
+  const [rows] = await pool.query(
+    "SELECT state, rooftop_count, status, claimed_by, claimed_at, heartbeat_at, finished_at FROM crawl_claims WHERE run_date = ? AND brand_set = ? ORDER BY state",
+    [runDate, brandSet]
+  );
+  sendJson(res, 200, {
+    runDate,
+    brandSet,
+    states: rows.map((r) => ({
+      state: r.state,
+      rooftopCount: r.rooftop_count,
+      status: r.status,
+      claimedBy: r.claimed_by,
+      claimedAt: r.claimed_at,
+      heartbeatAt: r.heartbeat_at,
+      finishedAt: r.finished_at,
+    })),
+  });
+}
+
 const server = http.createServer((req, res) => {
   if (!requireAuth(req, res)) return;
 
@@ -2173,6 +2352,13 @@ const server = http.createServer((req, res) => {
   if (req.method === "GET" && pathname === "/api/inventory/analytics") return run(handleInventoryAnalytics, url.searchParams);
   if (req.method === "GET" && pathname === "/api/inventory/by-dealer") return run(handleInventoryByDealer);
 if (req.method === "GET" && pathname === "/api/inventory/by-listing-url") return run(handleInventoryByListingUrl, url.searchParams);
+
+  // cross-box crawl claim queue (dynamic work-stealing)
+  if (req.method === "POST" && pathname === "/api/ops/crawl-claims/seed") return run(handleCrawlClaimsSeed);
+  if (req.method === "POST" && pathname === "/api/ops/crawl-claims/claim") return run(handleCrawlClaimsClaim);
+  if (req.method === "POST" && pathname === "/api/ops/crawl-claims/heartbeat") return run(handleCrawlClaimsHeartbeat);
+  if (req.method === "POST" && pathname === "/api/ops/crawl-claims/release") return run(handleCrawlClaimsRelease);
+  if (req.method === "GET" && pathname === "/api/ops/crawl-claims/status") return run(handleCrawlClaimsStatus, url.searchParams);
   const inventoryVinMatch = pathname.match(/^\/api\/inventory\/vin\/([A-HJ-NPR-Z0-9]{17})$/i);
   if (req.method === "GET" && inventoryVinMatch) return run(handleInventoryVin, inventoryVinMatch[1].toUpperCase());
   if (req.method === "GET" && pathname === "/api/inventory") return run(handleListInventory, url.searchParams);
@@ -2361,6 +2547,11 @@ server.listen(PORT, () => {
   console.log(`  GET  /api/inventory?dealerId=&state=&make=&model=&cond=&q=&inStock=1&limit=&offset=&sort=`);
   console.log(`  GET  /api/inventory/stats`);
 console.log(`  GET  /api/inventory/by-listing-url?url=`);
+  console.log(`  POST /api/ops/crawl-claims/seed`);
+  console.log(`  POST /api/ops/crawl-claims/claim`);
+  console.log(`  POST /api/ops/crawl-claims/heartbeat`);
+  console.log(`  POST /api/ops/crawl-claims/release`);
+  console.log(`  GET  /api/ops/crawl-claims/status?runDate=&brandSet=`);
   console.log(`  GET  /health`);
   console.log(`All routes require header X-Trimscout-Api-Key.`);
 });
