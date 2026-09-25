@@ -2178,25 +2178,31 @@ async function ensureCrawlClaimsTable(pool) {
     brand_set VARCHAR(16) NOT NULL,
     state CHAR(2) NOT NULL,
     rooftop_count INT NOT NULL DEFAULT 0,
+    estimated_seconds INT NOT NULL DEFAULT 0,
     status VARCHAR(16) NOT NULL DEFAULT 'unclaimed',
     claimed_by VARCHAR(128) NULL,
     claimed_at DATETIME NULL,
     heartbeat_at DATETIME NULL,
     finished_at DATETIME NULL,
     PRIMARY KEY (run_date, brand_set, state),
-    INDEX idx_claims_status (run_date, brand_set, status, rooftop_count)
+    INDEX idx_claims_status (run_date, brand_set, status, estimated_seconds)
   )`);
+  // ADD COLUMN IF NOT EXISTS: a box that already created this table before
+  // estimated_seconds existed (this session's own earlier deploy) gets the
+  // column added in place rather than needing a manual migration — same
+  // pattern already used elsewhere in this file (see rfq_invites/
+  // rfq_requests ALTERs above).
+  await pool.query(`ALTER TABLE crawl_claims ADD COLUMN IF NOT EXISTS estimated_seconds INT NOT NULL DEFAULT 0`);
   crawlClaimsReady = true;
 }
 
 const CRAWL_CLAIM_STALE_MS = 90 * 60 * 1000; // 90min — real states have taken up to ~1h; generous margin
 
-// POST /api/ops/crawl-claims/seed { runDate, brandSet, states: [{state, rooftopCount}], preClaimedBy }
+// POST /api/ops/crawl-claims/seed { runDate, brandSet, states: [{state, rooftopCount, estimatedSeconds}] }
 // Idempotent: INSERT IGNORE means a box that already seeded tonight (or a second box seeding the same
-// run) never resets rows another box has already claimed or finished. `preClaimedBy`, when given, seeds
-// the caller's OWN statically-assigned states as already 'claimed'/owned by it — so a box's local slice
-// is reserved for itself from minute one and never gets stolen out from under it by a faster peer, while
-// every other box's slice remains stealable the moment that box falls behind or finishes early.
+// run) never resets rows another box has already claimed or finished. Every state seeds 'unclaimed',
+// including the seeding box's own statically-assigned list — seeding never reserves a row; see
+// claim-specific below for how a box actually secures one of its own states right before running it.
 async function handleCrawlClaimsSeed(req, res) {
   const pool = getPool();
   await ensureCrawlClaimsTable(pool);
@@ -2204,25 +2210,51 @@ async function handleCrawlClaimsSeed(req, res) {
   const runDate = INV_DATE(body.runDate);
   const brandSet = typeof body.brandSet === "string" ? body.brandSet.slice(0, 16) : "";
   const states = Array.isArray(body.states) ? body.states : [];
-  const preClaimedBy = typeof body.preClaimedBy === "string" ? body.preClaimedBy.slice(0, 128) : null;
   if (!runDate || !brandSet || !states.length) return badRequest(res, "runDate, brandSet and states[] are required");
-  const now = new Date();
   const rows = states
     .filter((s) => typeof s.state === "string" && s.state.length === 2)
-    .map((s) => [runDate, brandSet, s.state.toUpperCase(), INV_INT(s.rooftopCount) || 0, preClaimedBy ? "claimed" : "unclaimed", preClaimedBy, preClaimedBy ? now : null, preClaimedBy ? now : null]);
+    .map((s) => [runDate, brandSet, s.state.toUpperCase(), INV_INT(s.rooftopCount) || 0, INV_INT(s.estimatedSeconds) || 0]);
   if (!rows.length) return badRequest(res, "no valid state rows");
   await pool.query(
-    "INSERT IGNORE INTO crawl_claims (run_date, brand_set, state, rooftop_count, status, claimed_by, claimed_at, heartbeat_at) VALUES ?",
+    "INSERT IGNORE INTO crawl_claims (run_date, brand_set, state, rooftop_count, estimated_seconds) VALUES ?",
     [rows]
   );
   sendJson(res, 200, { seeded: rows.length });
 }
 
+// POST /api/ops/crawl-claims/claim-specific { runDate, brandSet, state, owner }
+// Atomically claims exactly ONE named state — added 2026-09-25 so a box's own statically-hinted states
+// go through the SAME claim as a stolen one (see claimLocalStateFn in run-daily-crawl.mjs) instead of
+// running unconditionally: { claimed: false } means a peer already has it (or already finished it),
+// which is the correct, expected outcome when a faster box got to this box's own hinted state first —
+// never an error.
+async function handleCrawlClaimsClaimSpecific(req, res) {
+  const pool = getPool();
+  await ensureCrawlClaimsTable(pool);
+  const body = await readBody(req);
+  const runDate = INV_DATE(body.runDate);
+  const brandSet = typeof body.brandSet === "string" ? body.brandSet.slice(0, 16) : "";
+  const state = typeof body.state === "string" ? body.state.slice(0, 2).toUpperCase() : "";
+  const owner = typeof body.owner === "string" && body.owner ? body.owner.slice(0, 128) : "unknown";
+  if (!runDate || !brandSet || !state) return badRequest(res, "runDate, brandSet and state are required");
+  const now = new Date();
+  const [result] = await pool.query(
+    "UPDATE crawl_claims SET status = 'claimed', claimed_by = ?, claimed_at = ?, heartbeat_at = ? WHERE run_date = ? AND brand_set = ? AND state = ? AND status = 'unclaimed'",
+    [owner, now, now, runDate, brandSet, state]
+  );
+  sendJson(res, 200, { claimed: result.affectedRows > 0 });
+}
+
 // POST /api/ops/crawl-claims/claim { runDate, brandSet, owner, maxRooftops? }
-// Atomically claims the LARGEST unclaimed (or stale-reclaimed) state that fits within maxRooftops, when
-// given — the caller's own remaining-budget check (see runStatesWithBoundedConcurrency's claimNextStateFn
-// in run-daily-crawl.mjs), never a state this box couldn't plausibly finish before its own SLA deadline.
-// A single UPDATE ... ORDER BY ... LIMIT 1 makes the claim atomic without a separate lock: MySQL/MariaDB
+// Atomically claims the LONGEST-ESTIMATED-JOB unclaimed (or stale-reclaimed) state that fits within
+// maxRooftops, when given — the caller's own remaining-budget check (see runStatesWithBoundedConcurrency's
+// claimNextStateFn in run-daily-crawl.mjs), never a state this box couldn't plausibly finish before its
+// own SLA deadline. Longest-first (added 2026-09-25): ranks by estimated_seconds, not raw rooftop_count,
+// so a disproportionately slow (e.g. known-high-WAF) state gets claimed early in the night while there's
+// still a full budget's worth of headroom to absorb it running long — the fit filter still checks
+// rooftop_count, which is what a claimer's own maxRooftops (computed from ITS OWN rate) is expressed in;
+// estimated_seconds only decides ranking order among the candidates that already pass that filter. A
+// single UPDATE ... ORDER BY ... LIMIT 1 makes the claim atomic without a separate lock: MySQL/MariaDB
 // serializes concurrent UPDATEs against the same row set, so two boxes racing for the same top candidate
 // never both win it.
 async function handleCrawlClaimsClaim(req, res) {
@@ -2245,7 +2277,7 @@ async function handleCrawlClaimsClaim(req, res) {
   let fitClause = "";
   if (maxRooftops != null) { fitClause = "AND rooftop_count <= ?"; params.push(maxRooftops); }
   const [[candidate]] = await pool.query(
-    `SELECT state, rooftop_count FROM crawl_claims WHERE run_date = ? AND brand_set = ? AND status = 'unclaimed' ${fitClause} ORDER BY rooftop_count DESC LIMIT 1`,
+    `SELECT state, rooftop_count, estimated_seconds FROM crawl_claims WHERE run_date = ? AND brand_set = ? AND status = 'unclaimed' ${fitClause} ORDER BY estimated_seconds DESC LIMIT 1`,
     params
   );
   if (!candidate) return sendJson(res, 200, { claimed: null });
@@ -2258,7 +2290,7 @@ async function handleCrawlClaimsClaim(req, res) {
   // Someone else won the race between our SELECT and UPDATE — try once more rather than report nothing
   // claimable when a smaller state might still be free.
   if (result.affectedRows === 0) return handleCrawlClaimsClaim(req, res);
-  sendJson(res, 200, { claimed: { state: candidate.state, rooftopCount: candidate.rooftop_count } });
+  sendJson(res, 200, { claimed: { state: candidate.state, rooftopCount: candidate.rooftop_count, estimatedSeconds: candidate.estimated_seconds } });
 }
 
 // POST /api/ops/crawl-claims/heartbeat { runDate, brandSet, state, owner }
@@ -2310,7 +2342,10 @@ async function handleCrawlClaimsStatus(req, res, params) {
   const brandSet = params.get("brandSet") || "";
   if (!runDate || !brandSet) return badRequest(res, "runDate and brandSet query params are required");
   const [rows] = await pool.query(
-    "SELECT state, rooftop_count, status, claimed_by, claimed_at, heartbeat_at, finished_at FROM crawl_claims WHERE run_date = ? AND brand_set = ? ORDER BY state",
+    // ORDER BY claimed_at (nulls-i.e.-never-claimed last): the box-report's claim-order log (see
+    // docs/CAPACITY_SLA.md's longest-job-first section) reads this endpoint expecting the ACTUAL claim
+    // order, to compare against the estimated_seconds ranking that drove it.
+    "SELECT state, rooftop_count, estimated_seconds, status, claimed_by, claimed_at, heartbeat_at, finished_at FROM crawl_claims WHERE run_date = ? AND brand_set = ? ORDER BY (claimed_at IS NULL), claimed_at",
     [runDate, brandSet]
   );
   sendJson(res, 200, {
@@ -2319,11 +2354,13 @@ async function handleCrawlClaimsStatus(req, res, params) {
     states: rows.map((r) => ({
       state: r.state,
       rooftopCount: r.rooftop_count,
+      estimatedSeconds: r.estimated_seconds,
       status: r.status,
       claimedBy: r.claimed_by,
       claimedAt: r.claimed_at,
       heartbeatAt: r.heartbeat_at,
       finishedAt: r.finished_at,
+      actualSeconds: r.claimed_at && r.finished_at ? Math.round((new Date(r.finished_at) - new Date(r.claimed_at)) / 1000) : null,
     })),
   });
 }
@@ -2355,6 +2392,7 @@ if (req.method === "GET" && pathname === "/api/inventory/by-listing-url") return
 
   // cross-box crawl claim queue (dynamic work-stealing)
   if (req.method === "POST" && pathname === "/api/ops/crawl-claims/seed") return run(handleCrawlClaimsSeed);
+  if (req.method === "POST" && pathname === "/api/ops/crawl-claims/claim-specific") return run(handleCrawlClaimsClaimSpecific);
   if (req.method === "POST" && pathname === "/api/ops/crawl-claims/claim") return run(handleCrawlClaimsClaim);
   if (req.method === "POST" && pathname === "/api/ops/crawl-claims/heartbeat") return run(handleCrawlClaimsHeartbeat);
   if (req.method === "POST" && pathname === "/api/ops/crawl-claims/release") return run(handleCrawlClaimsRelease);
@@ -2548,6 +2586,7 @@ server.listen(PORT, () => {
   console.log(`  GET  /api/inventory/stats`);
 console.log(`  GET  /api/inventory/by-listing-url?url=`);
   console.log(`  POST /api/ops/crawl-claims/seed`);
+  console.log(`  POST /api/ops/crawl-claims/claim-specific`);
   console.log(`  POST /api/ops/crawl-claims/claim`);
   console.log(`  POST /api/ops/crawl-claims/heartbeat`);
   console.log(`  POST /api/ops/crawl-claims/release`);

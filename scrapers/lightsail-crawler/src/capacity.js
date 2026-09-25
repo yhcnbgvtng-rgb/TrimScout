@@ -50,3 +50,30 @@ export function countRooftopsForStates(states, brands, cwd = process.cwd()) {
 export function projectedHours(rooftops, concurrency, secondsPerRooftop = P90_SECONDS_PER_ROOFTOP) {
   return (rooftops * secondsPerRooftop) / 3600 / Math.max(1, concurrency);
 }
+
+// Longest-job-first scheduling (added 2026-09-25): the shared claim queue
+// (src/crawl_claims.js) ranks claimable states by ESTIMATED seconds, not
+// raw rooftop count, so the biggest/slowest jobs get claimed earliest in
+// the night — while there's still a full budget's worth of headroom left
+// to absorb one running long — rather than being whatever's left standing
+// at 4am when a box happens to free up. estimatedSecondsForState() is that
+// per-unit estimate: rooftops * a reference rate, boosted for a state
+// known to eat extra wall-clock time to WAF-driven retries/backoff (not
+// just per-rooftop crawl time).
+//
+// HIGH_WAF_STATES starts empty on purpose: this session found no reliable
+// PER-STATE (as opposed to per-box, which box_report.js already tracks in
+// quality.wafByClass) WAF-rate history to seed it from honestly. Once
+// docs/capacity_history.csv or the per-box reports accumulate enough
+// nights to show a state consistently running hotter than its rooftop
+// count alone predicts, add it here (env-overridable so a remeasurement
+// doesn't need a code change) rather than guessing which states are
+// "known" to be bot-defended.
+export const HIGH_WAF_STATES = (process.env.CRAWLER_HIGH_WAF_STATES || '')
+  .split(',').map((s) => s.trim().toUpperCase()).filter(Boolean);
+export const HIGH_WAF_BOOST = Number(process.env.CRAWLER_HIGH_WAF_BOOST) || 1.5;
+
+export function estimatedSecondsForState(state, rooftops, secondsPerRooftop = P90_SECONDS_PER_ROOFTOP) {
+  const boost = HIGH_WAF_STATES.includes(state) ? HIGH_WAF_BOOST : 1;
+  return Math.round(rooftops * secondsPerRooftop * boost);
+}

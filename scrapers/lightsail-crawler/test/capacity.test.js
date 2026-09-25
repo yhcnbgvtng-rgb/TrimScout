@@ -4,7 +4,7 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 
-import { countRooftopsForState, countRooftopsForStates, projectedHours, P90_SECONDS_PER_ROOFTOP } from '../src/capacity.js';
+import { countRooftopsForState, countRooftopsForStates, projectedHours, P90_SECONDS_PER_ROOFTOP, estimatedSecondsForState } from '../src/capacity.js';
 
 // ---------------------------------------------------------------------
 // Real bug this whole module exists to prevent: box 1/box 3/box 4 were
@@ -61,5 +61,46 @@ describe('capacity.js (real rooftop-count + p90-rate projections)', () => {
     const h1 = projectedHours(2000, 2, 90);
     const h2 = projectedHours(2000, 4, 90);
     assert.ok(Math.abs(h1 / 2 - h2) < 0.001);
+  });
+
+  // Longest-job-first scheduling (added 2026-09-25) — the shared claim
+  // queue ranks candidates by estimatedSecondsForState(), not raw rooftop
+  // count, so a disproportionately slow state can be claimed early in the
+  // night even if a same-sized "normal" state would rank lower.
+  describe('estimatedSecondsForState (longest-job-first ranking)', () => {
+    it('with no HIGH_WAF_STATES configured, it is exactly rooftops * secondsPerRooftop', () => {
+      assert.equal(estimatedSecondsForState('TX', 500, 90), 500 * 90);
+    });
+
+    it('a state NOT in HIGH_WAF_STATES gets no boost even when the list is non-empty', async () => {
+      process.env.CRAWLER_HIGH_WAF_STATES = 'FL,GA';
+      try {
+        const cap = await import(`../src/capacity.js?t=${Date.now()}-${Math.random()}`);
+        assert.equal(cap.estimatedSecondsForState('TX', 500, 90), 500 * 90);
+      } finally {
+        delete process.env.CRAWLER_HIGH_WAF_STATES;
+      }
+    });
+
+    it('a state IN HIGH_WAF_STATES is boosted by HIGH_WAF_BOOST (env-overridable, default 1.5x)', async () => {
+      process.env.CRAWLER_HIGH_WAF_STATES = 'FL,GA';
+      process.env.CRAWLER_HIGH_WAF_BOOST = '2';
+      try {
+        const cap = await import(`../src/capacity.js?t=${Date.now()}-${Math.random()}`);
+        assert.deepEqual(cap.HIGH_WAF_STATES, ['FL', 'GA']);
+        assert.equal(cap.HIGH_WAF_BOOST, 2);
+        assert.equal(cap.estimatedSecondsForState('GA', 500, 90), 500 * 90 * 2);
+        assert.equal(cap.estimatedSecondsForState('TX', 500, 90), 500 * 90); // unaffected
+      } finally {
+        delete process.env.CRAWLER_HIGH_WAF_STATES;
+        delete process.env.CRAWLER_HIGH_WAF_BOOST;
+      }
+    });
+
+    it('a bigger estimate always outranks a smaller one — the property the claim queue ORDER BY relies on', () => {
+      const small = estimatedSecondsForState('RI', 38, 77.4);
+      const big = estimatedSecondsForState('TX', 585, 77.4);
+      assert.ok(big > small);
+    });
   });
 });

@@ -533,6 +533,61 @@ describe('run-daily-crawl driver', () => {
 
       assert.deepEqual(new Set(released.map((r) => r.join(':'))), new Set(['NJ:done', 'GA:failed']));
     });
+
+    // claimLocalStateFn — added 2026-09-25 (second pass) after a fresh spec
+    // pointed out that a box's own STATES list must be a HINT, not a
+    // reservation: without this, a box's local states ran unconditionally,
+    // so an overloaded box's own not-yet-started states were unstealable
+    // until it actually got to (or gave up on) them — the exact hoarding
+    // problem this whole system exists to fix. See run-daily-crawl.mjs's
+    // own comment on this option for the full story.
+    it('with no claimLocalStateFn, a local state runs unconditionally — unchanged default behavior', async () => {
+      const fakeRunState = async (state) => { await sleep(5); return { state, brands: { Toyota: { status: 'ok' } } }; };
+      const results = await runStatesWithBoundedConcurrency(['NJ', 'NY'], '2026-09-15', 2, fakeRunState);
+      assert.equal(results.NJ.brands.Toyota.status, 'ok');
+      assert.equal(results.NY.brands.Toyota.status, 'ok');
+    });
+
+    it('a local state that wins its claim runs normally', async () => {
+      const claimed = [];
+      const claimLocalStateFn = async (state) => { claimed.push(state); return true; };
+      const fakeRunState = async (state) => { await sleep(5); return { state, brands: { Toyota: { status: 'ok' } } }; };
+      const results = await runStatesWithBoundedConcurrency(
+        ['NJ', 'NY'], '2026-09-15', 1, fakeRunState, { claimLocalStateFn },
+      );
+      assert.deepEqual(claimed, ['NJ', 'NY']);
+      assert.equal(results.NJ.brands.Toyota.status, 'ok');
+      assert.equal(results.NY.brands.Toyota.status, 'ok');
+    });
+
+    it('a local state that LOSES its claim (a peer already has it) is skipped, not run, and the worker moves on to its next local state', async () => {
+      const ran = [];
+      const claimLocalStateFn = async (state) => state !== 'NJ'; // NJ is already claimed by "someone else"
+      const fakeRunState = async (state) => { ran.push(state); await sleep(5); return { state, brands: {} }; };
+
+      const results = await runStatesWithBoundedConcurrency(
+        ['NJ', 'NY'], '2026-09-15', 1, fakeRunState, { claimLocalStateFn },
+      );
+
+      assert.deepEqual(ran, ['NY'], 'NJ must never actually run once its claim is lost');
+      assert.equal(results.NJ.status, 'skipped');
+      assert.match(results.NJ.reason, /claimed by another box/);
+      assert.equal(results.NY.brands !== undefined, true);
+    });
+
+    it('a lost local claim does not block the shared queue: the worker still steals once its local list is exhausted', async () => {
+      const pool = ['TX'];
+      const claimLocalStateFn = async () => false; // this box's whole local list is already claimed by peers
+      const claimNextStateFn = async () => (pool.length ? pool.shift() : null);
+      const fakeRunState = async (state) => { await sleep(5); return { state, brands: {} }; };
+
+      const results = await runStatesWithBoundedConcurrency(
+        ['NJ'], '2026-09-15', 1, fakeRunState, { claimLocalStateFn, claimNextStateFn },
+      );
+
+      assert.equal(results.NJ.status, 'skipped');
+      assert.equal(results.TX.stolen, true);
+    });
   });
 
   // ---------------------------------------------------------------------
