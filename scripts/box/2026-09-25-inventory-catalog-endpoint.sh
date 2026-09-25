@@ -31,6 +31,9 @@ def rep(old, new, label):
     s = s.replace(old, new); changed.append(label)
 
 if "handleInventoryCatalogOptions" not in s:
+    # Anchored on just the function body (not a trailing comment/section divider) — the box's
+    # file has been observed to have this and the crawl-claims section in a different relative
+    # order than the repo copy (box file drift, not a bug), so a divider-based anchor is fragile.
     rep('''async function handleInventoryByDealer(req, res) {
   const pool = getPool();
   await ensureInventoryTable(pool);
@@ -38,9 +41,7 @@ if "handleInventoryCatalogOptions" not in s:
     const [rows] = await pool.query("SELECT dealer_id, COUNT(*) AS inStock, SUM(cond = 'new') AS newCount, SUM(price_diff < 0) AS priceDrops, MAX(last_seen_at) AS lastSeenAt FROM dealer_inventory WHERE removed_at IS NULL AND dealer_id > 0 GROUP BY dealer_id");
     return { dealers: rows.map((r) => ({ dealerId: String(r.dealer_id), inStock: Number(r.inStock), newCount: Number(r.newCount || 0), priceDrops: Number(r.priceDrops || 0), lastSeenAt: r.lastSeenAt })) };
   }));
-}
-
-// ---------------------------------------------------------------------------''', '''async function handleInventoryByDealer(req, res) {
+}''', '''async function handleInventoryByDealer(req, res) {
   const pool = getPool();
   await ensureInventoryTable(pool);
   sendJson(res, 200, await invCached("by-dealer", async () => {
@@ -84,9 +85,7 @@ async function handleInventoryCatalogOptions(req, res, params) {
       interiorColors,
     };
   }));
-}
-
-// ---------------------------------------------------------------------------''', "handleInventoryCatalogOptions handler")
+}''', "handleInventoryCatalogOptions handler")
 
     rep('''  if (req.method === "GET" && pathname === "/api/inventory/by-dealer") return run(handleInventoryByDealer);
 if (req.method === "GET" && pathname === "/api/inventory/by-listing-url") return run(handleInventoryByListingUrl, url.searchParams);''', '''  if (req.method === "GET" && pathname === "/api/inventory/by-dealer") return run(handleInventoryByDealer);
