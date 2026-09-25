@@ -131,6 +131,134 @@ not a live box) lives at
 [`data/runs/2026-09-21/expansion/box-report.json`](../data/runs/2026-09-21/expansion/box-report.json)
 and its rendered [`box-report.html`](../data/runs/2026-09-21/expansion/box-report.html).
 
+## 2026-09-25 update — box 1 is 4.8x slower per rooftop than box 2, and why the fix is a claim queue, not a bigger static shard
+
+Box 1 sat idle for hours every night while box 2/3/4 were still grinding.
+The 2026-09-21 shard map above was built from ONE fleet-wide p90 rate
+(93.2s/rooftop) applied to every box equally — that assumption turned out
+to be wrong, and wrong enough to explain the whole imbalance on its own.
+
+### Root cause: measured, not estimated
+
+Parsing real `[driver] STATE BRAND: starting/ok` log-line pairs from a
+full core-brand night on box 1 and box 2 gives each box's own actual
+seconds/rooftop:
+
+| Box | vCPU | `CRAWLER_MAX_CONCURRENT_STATES` | Processes/vCPU | Paired jobs | Rooftops | Measured s/rooftop |
+|---|---|---|---|---|---|---|
+| Box 1 | 2 | 4 | **2.0** | 359 | 4,664 | **77.4s** |
+| Box 2 | 4 | 6 | 1.5 | 660 | 8,986 | **16.2s** |
+
+Box 1 is **4.8x slower per rooftop**, not ~2x slower as its half-the-vCPUs
+would suggest. The gap tracks processes-per-vCPU, not raw vCPU count: box
+1 is proportionally the more oversubscribed box despite running fewer
+processes in absolute terms, and Patchright/Chromium contention under
+oversubscription inflates real wall-clock per-job duration far past what
+the compute difference alone predicts. This is a hypothesis backed by
+strong circumstantial evidence (the ratio direction matches, the gap
+magnitude is far larger than a compute-only explanation), not a
+100%-proven root cause — a controlled test (same box, same brand set, two
+different `CRAWLER_MAX_CONCURRENT_STATES` values, same night) would
+confirm it, but the fix below doesn't require that experiment to already
+work.
+
+**Explicitly ruled out as the fix**: raising `CRAWLER_MAX_CONCURRENT_STATES`
+on box 1 past its CPU-safe default. Given the oversubscription-driven root
+cause, that would very plausibly make box 1's per-rooftop rate *worse*, not
+better — more processes competing for the same 2 vCPUs.
+
+### Why a static split can no longer be "fair"
+
+`recommend-shard-split.mjs` now accepts a `--p90` value **per box**
+(previously one global rate, silently assumed equal for every box — see
+the CLI change below). Re-running the core-brand split with real box
+1/box 2 rates (box 3/box 4 core-brand rates are not yet directly measured;
+box 2's rate is used as a provisional proxy for them, since they share the
+same 4 vCPU / 4-6-concurrency profile):
+
+```
+scripts/recommend-shard-split.mjs --brand-set=core --boxes=4 \
+  --concurrency=4,6,6,6 --p90=77.4,16.2,16.2,16.2
+```
+
+gives box 1 only **3 states** (MI, MO, NE — 368 rooftops, ~2.0h projected)
+against **~15-16 states each** (~2,690-2,700 rooftops, ~2.0h projected)
+for box 2/3/4. A split sized to be time-fair leaves box 1 almost idle for
+most of the night — there is no static state→box assignment that both
+respects the measured throughput gap and keeps box 1 meaningfully
+utilized. The static split is therefore no longer the primary
+load-balancing mechanism; it becomes a small guaranteed floor per box,
+with the shared claim queue below doing the real balancing as actual
+throughput reveals itself run over run.
+
+### The claim queue (`src/crawl_claims.js` + deals-api `/api/ops/crawl-claims/*`)
+
+A `crawl_claims` table on the existing deals-api MariaDB instance (no new
+service — reuses the same database already backing `dealer_inventory` and
+the sync-lock) holds one row per `(run_date, brand_set, state)`:
+`rooftop_count`, `status` (`unclaimed`/`claimed`/`done`/`failed`),
+`claimed_by`, `claimed_at`, `heartbeat_at`, `finished_at`.
+
+Each run:
+
+1. **Seeds** every state for tonight's `(runDate, brandSet)` once
+   (idempotent `INSERT IGNORE` — safe to call from every box). A box's own
+   statically-owned states seed pre-claimed by that box; every other state
+   seeds `unclaimed`.
+2. Each of `CRAWLER_MAX_CONCURRENT_STATES` local worker slots first drains
+   this box's own owned states, then — once its local list is exhausted —
+   **claims** the largest still-unclaimed state that fits inside its
+   remaining budget (`maxRooftops`, derived from
+   `CRAWLER_STEAL_P90_SEC_PER_ROOFTOP` and the time left before the 24h
+   budget), atomically (`UPDATE ... ORDER BY rooftop_count DESC LIMIT 1`,
+   retried once on a race with a peer box).
+3. Sends a **heartbeat** every 5 minutes while a claimed state is in
+   flight (a real state has taken up to ~11.85h — far longer than the
+   90-minute `CRAWL_CLAIM_STALE_MS` staleness window, so a claim without a
+   heartbeat is what actually marks it abandoned and reclaimable, not the
+   claim's age alone).
+4. **Releases** the state as `done` on success, or back to `unclaimed`
+   (for a peer to retry tonight) on a fatal error.
+
+This is scoped by `brandSet`, so a core-brand-set run can only ever claim
+core rows and an expansion run only expansion rows — stealing never
+crosses the brand-set boundary the existing shard map already respects.
+Guarantees this gives, matching the fleet's existing invariants: exactly
+one active claim per `(state, brandSet)` per night; per-state shard writes
+(`data/inventory/<state>.json`) stay untouched — a claim only changes
+*which box* runs a state, never how that state's own data is written;
+NHTSA rate-limiting stays per-box-IP as before (the queue moves work, not
+API-key/IP-scoped rate budgets); a box that can't fit a state's remaining
+work within its own leftover budget simply doesn't claim it, so the 24h
+per-box SLA and `checkProjectedRuntime`'s preflight refusal are both
+unaffected.
+
+### Enabling it per box
+
+Off by default everywhere — every existing box's behavior is completely
+unchanged unless explicitly opted in. To enable on a box's crontab entry:
+
+```
+CRAWLER_STEAL_ENABLED=1
+CRAWLER_STEAL_P90_SEC_PER_ROOFTOP=<this box's own measured rate, e.g. 77.4 for box1, 16.2 for box2>
+```
+
+Recommended rollout: enable on box 1 and box 2 first (their rates are
+directly measured), watch one night's `box-report.json`
+(`scope.statesStolen` lists every state a box picked up from the shared
+queue) and the claims table's `/api/ops/crawl-claims/status` endpoint for
+sane behavior — no double-claims, no state left permanently `claimed` past
+its heartbeat window — before enabling on box 3/box 4, whose core-brand
+rate is still a proxy estimate rather than a direct measurement.
+
+### Observability
+
+`box-report.json`'s `scope.statesStolen` lists every state that box
+picked up from the shared queue rather than its own static assignment.
+`npm run fleet-report`'s fleet-summary should be read alongside
+`/api/ops/crawl-claims/status?runDate=&brandSet=` on the deals box for the
+full picture of who donated and who stole on a given night.
+
 ## Known data-quality caveat
 
 `scripts/recommend-shard-split.mjs`, when run from a plain git checkout

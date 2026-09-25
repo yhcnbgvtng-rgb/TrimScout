@@ -112,6 +112,7 @@ export async function buildBoxReport(driverSummary, config = {}) {
 
   const statesAttempted = [];
   const statesSkipped = [];
+  const statesStolen = [];
 
   for (const state of stateList) {
     const stateSummary = states[state];
@@ -120,6 +121,7 @@ export async function buildBoxReport(driverSummary, config = {}) {
       continue;
     }
     statesAttempted.push(state);
+    if (stateSummary.stolen) statesStolen.push(state);
 
     for (const [brand, brandResult] of Object.entries(stateSummary.brands || {})) {
       if (brandResult.status === 'skipped') continue; // 0 dealers for this brand — nothing ran
@@ -174,6 +176,13 @@ export async function buildBoxReport(driverSummary, config = {}) {
       statesAssigned: stateList,
       statesAttempted,
       statesSkipped,
+      // Cross-box work-stealing (CRAWLER_STEAL_ENABLED=1, src/crawl_claims.js) —
+      // states this box claimed from the shared queue beyond its own static
+      // assignment. Empty when stealing is off, or when this box never ran
+      // out of local work early enough to steal anything. See the shared
+      // crawl_claims table (deals-api's /api/ops/crawl-claims/status?runDate=
+      // &brandSet=) for the fleet-wide view of who donated vs. who stole.
+      statesStolen,
       rooftopsPlanned,
       rooftopsAttempted,
       rooftopsCompleted,

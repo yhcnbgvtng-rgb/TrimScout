@@ -69,8 +69,20 @@ import { NJ_BRANDS_IN } from '../src/nj_policy.js';
 import { SUPPORTED_STATES } from '../src/states.js';
 import { easternDateStamp } from '../src/date_utils.js';
 import { isProcessAlive } from '../src/pid_lock.js';
-import { countRooftopsForStates, projectedHours, MAX_PROJECTED_HOURS, P90_SECONDS_PER_ROOFTOP } from '../src/capacity.js';
+import { countRooftopsForState, countRooftopsForStates, projectedHours, MAX_PROJECTED_HOURS, P90_SECONDS_PER_ROOFTOP } from '../src/capacity.js';
 import { buildBoxReport, renderBoxReportHtml, appendCapacityHistoryRow } from '../src/box_report.js';
+import { seedClaims, claimNextState, heartbeatClaim, releaseClaim } from '../src/crawl_claims.js';
+
+// CRAWLER_STEAL_ENABLED=1 turns on cross-box work-stealing (src/crawl_claims.js)
+// — off by default, so every box's behavior is unchanged unless explicitly
+// opted in per box. See runStatesWithBoundedConcurrency's own comment on
+// claimNextStateFn for why this exists: a box that runs out of its own
+// assigned states early keeps claiming more from a shared pool instead of
+// sitting idle, and the SAME per-box p90 rate that sizes the static split
+// (recommend-shard-split.mjs --p90) is what bounds how big a claim it's
+// allowed to take on with the budget it has left.
+const STEAL_ENABLED = process.env.CRAWLER_STEAL_ENABLED === '1';
+const STEAL_P90_SECONDS_PER_ROOFTOP = Number(process.env.CRAWLER_STEAL_P90_SEC_PER_ROOFTOP) || P90_SECONDS_PER_ROOFTOP;
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export const ROOT = path.resolve(__dirname, '..');
@@ -678,8 +690,40 @@ export function computeGrandTotals(states) {
 // behavior here (bounded concurrency, per-state isolation, timestamps) in
 // a fast unit test needs a fake that resolves/rejects on a controlled
 // schedule instead — see test/run_daily_crawl.test.js.
-export async function runStatesWithBoundedConcurrency(states, date, maxConcurrent = MAX_CONCURRENT_STATES, runStateFn = runState, { budgetMs = DRIVER_BUDGET_MS, runStartedAt = Date.now() } = {}) {
+export async function runStatesWithBoundedConcurrency(
+  states,
+  date,
+  maxConcurrent = MAX_CONCURRENT_STATES,
+  runStateFn = runState,
+  {
+    budgetMs = DRIVER_BUDGET_MS,
+    runStartedAt = Date.now(),
+    // Cross-box work-stealing (src/crawl_claims.js) — all three optional and
+    // no-op by default, so every existing caller/test (fixed-length local
+    // `states` only) is unaffected. When claimNextStateFn is given, a worker
+    // that runs out of LOCAL states doesn't just exit: it asks the shared
+    // claim queue for another state that fits in whatever budget is left,
+    // and keeps going — see docs/CAPACITY_SLA.md for why a box running out
+    // of local work early (not just one that's overloaded) is the case this
+    // exists for.
+    claimNextStateFn = null,
+    // Called periodically (heartbeatIntervalMs) while ANY state — local or
+    // stolen — is in flight, local ones included: a locally-assigned state
+    // is seeded as pre-claimed by this same box (see main()), and without a
+    // heartbeat it would look exactly as stale to a peer as an abandoned
+    // stolen claim after a long-running state (TX alone took ~11.85h one
+    // night — confirmed live 2026-09-25) outlives CRAWL_CLAIM_STALE_MS.
+    heartbeatFn = null,
+    heartbeatIntervalMs = 5 * 60 * 1000,
+    // Called once per state (local or stolen) after it finishes, success or
+    // failure — marks the shared claim 'done' (or released back to
+    // 'unclaimed' on failure, so a peer can retry it tonight) and is the
+    // observability trail (who ran what) the fleet-summary reads.
+    releaseClaimFn = null,
+  } = {},
+) {
   const results = {};
+  const queue = [...states];
   let nextIndex = 0;
   let budgetExceeded = false;
 
@@ -689,16 +733,30 @@ export async function runStatesWithBoundedConcurrency(states, date, maxConcurren
       // never kills one already in flight. Checked before claiming the
       // next index so a state that hasn't started yet is left untouched
       // (and reported as skipped below) rather than started and abandoned.
-      if (budgetMs !== null && Date.now() - runStartedAt >= budgetMs) {
+      const remainingMs = budgetMs !== null ? budgetMs - (Date.now() - runStartedAt) : null;
+      if (remainingMs !== null && remainingMs <= 0) {
         budgetExceeded = true;
         return;
       }
-      const myIndex = nextIndex++;
-      if (myIndex >= states.length) return;
-      const state = states[myIndex];
+
+      let state;
+      let stolen = false;
+      if (nextIndex < queue.length) {
+        state = queue[nextIndex++];
+      } else if (claimNextStateFn) {
+        const claimed = await claimNextStateFn(remainingMs).catch(() => null);
+        if (!claimed) return; // nothing left to steal (or nothing that fits) — this worker is done
+        state = claimed;
+        stolen = true;
+        queue.push(state);
+        nextIndex++;
+      } else {
+        return;
+      }
 
       const startedAt = new Date().toISOString();
-      console.log(`[driver] ==== ${state}: starting (${startedAt}) ====`);
+      console.log(`[driver] ==== ${state}: starting (${startedAt})${stolen ? ' [stolen from shared queue]' : ''} ====`);
+      const heartbeat = heartbeatFn ? setInterval(() => heartbeatFn(state), heartbeatIntervalMs) : null;
       try {
         results[state] = await runStateFn(state, date);
       } catch (err) {
@@ -706,6 +764,8 @@ export async function runStatesWithBoundedConcurrency(states, date, maxConcurren
         // must not stop a concurrently-running other state.
         console.error(`[driver] ${state}: fatal error — ${err.stack || err.message}`);
         results[state] = { state, fatalError: err.message };
+      } finally {
+        if (heartbeat) clearInterval(heartbeat);
       }
       const finishedAt = new Date().toISOString();
       // runState() already sets these on success; only fill them in here
@@ -716,11 +776,17 @@ export async function runStatesWithBoundedConcurrency(states, date, maxConcurren
         results[state].finishedAt = finishedAt;
         results[state].durationMs = Date.parse(finishedAt) - Date.parse(results[state].startedAt);
       }
+      if (stolen) results[state].stolen = true;
       console.log(`[driver] ==== ${state}: done (${finishedAt}, ${Math.round(results[state].durationMs / 1000)}s) ====`);
+      if (releaseClaimFn) await releaseClaimFn(state, results[state].fatalError ? 'failed' : 'done').catch(() => {});
     }
   }
 
-  const workerCount = Math.max(1, Math.min(maxConcurrent, states.length));
+  // Capped to states.length only when stealing is off — a box with a short
+  // local list but a real concurrency budget (box 1: as few as 3 local
+  // states at 4x) must still spawn enough workers to ALSO pull from the
+  // shared queue once its own list runs out, not sit at 3 workers all night.
+  const workerCount = claimNextStateFn ? Math.max(1, maxConcurrent) : Math.max(1, Math.min(maxConcurrent, states.length));
   await Promise.all(Array.from({ length: workerCount }, () => worker()));
 
   // Any state that never got a slot before the budget ran out is recorded
@@ -850,13 +916,43 @@ export async function main() {
     // `summary` reached (states may be empty or partial) before
     // re-throwing, so the outer fatal-error behavior (non-zero exit,
     // visible to cron) is unchanged.
+    // Cross-box work-stealing (src/crawl_claims.js) — seeded once per run,
+    // opt-in via CRAWLER_STEAL_ENABLED=1. Seeding is idempotent (INSERT
+    // IGNORE server-side), so it's safe even if multiple boxes' runs start
+    // close together and both try to seed the same night's queue. This
+    // box's OWN assigned states are seeded as already claimed by it (never
+    // stealable while it's still working through them); every other
+    // SUPPORTED_STATES entry seeds as plain unclaimed, available to any box
+    // that finishes its own list first.
+    const brandSet = process.env.CRAWLER_BRAND_SET || 'core';
+    let stealOptions = {};
+    if (STEAL_ENABLED) {
+      const rooftopCounts = {};
+      for (const state of SUPPORTED_STATES) rooftopCounts[state] = countRooftopsForState(state, NJ_BRANDS_IN);
+      await seedClaims({ runDate: date, brandSet, rooftopCounts, owned: STATES }).catch((err) => {
+        console.error(`[driver] crawl-claims seed failed (stealing disabled for this run): ${err.message}`);
+      });
+      stealOptions = {
+        claimNextStateFn: async (remainingMs) => {
+          if (remainingMs === null) return claimNextState({ runDate: date, brandSet });
+          const maxRooftops = Math.floor(remainingMs / 1000 / STEAL_P90_SECONDS_PER_ROOFTOP);
+          if (maxRooftops <= 0) return null;
+          return claimNextState({ runDate: date, brandSet, maxRooftops });
+        },
+        heartbeatFn: (state) => heartbeatClaim({ runDate: date, brandSet, state }),
+        releaseClaimFn: (state, status) => releaseClaim({ runDate: date, brandSet, state, status }),
+      };
+    }
+
     try {
       // Up to MAX_CONCURRENT_STATES states' full pipelines run at once —
       // see runStatesWithBoundedConcurrency()'s own comment for how
       // states are scheduled into the available slots, and
       // MAX_CONCURRENT_STATES' for why that number is 2 and not higher
-      // on this box.
-      summary.states = await runStatesWithBoundedConcurrency(STATES, date, MAX_CONCURRENT_STATES);
+      // on this box. With CRAWLER_STEAL_ENABLED=1, workers that exhaust
+      // this box's own STATES list keep going against the shared claim
+      // queue instead of returning — see stealOptions above.
+      summary.states = await runStatesWithBoundedConcurrency(STATES, date, MAX_CONCURRENT_STATES, runState, stealOptions);
 
       summary.finishedAt = new Date().toISOString();
       summary.durationMs = Date.parse(summary.finishedAt) - Date.parse(summary.startedAt);
