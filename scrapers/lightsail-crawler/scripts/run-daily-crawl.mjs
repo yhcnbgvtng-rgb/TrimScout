@@ -185,7 +185,31 @@ export const LOG_RETENTION_DAYS = 30;
 // Hard cap per brand so one hung dealer site can't stall the whole night.
 // Generous on purpose: a single brand crawling ~200 dealers (bot-report's
 // own numbers) still comfortably fits inside this.
+//
+// Real finding, 2026-09-26: this assumption did NOT hold for FL Honda (55
+// dealers), FL Kia (33), FL Toyota (45), NJ Honda (33), and IL Toyota (39)
+// — all five were SIGKILLed at exactly 7200s, each with only a fraction of
+// its dealer list actually crawled. 33-55 dealers is far short of the
+// ~200 this comment assumed comfortable, meaning real per-dealer time
+// (including WAF-driven retries/backoff) is heavier than expected for
+// these specific high-volume core brands in high-WAF states. See
+// MAX_DEALERS_PER_SHARD below — the fix is to shard an oversized brand's
+// own dealer list into multiple sub-2h runs rather than raise this
+// constant, so a brand that needs more than 2h still finishes completely
+// instead of being silently truncated.
 export const PER_BRAND_TIMEOUT_MS = 2 * 60 * 60 * 1000; // 2 hours
+
+// Above this many dealers, a single brand+state crawl is split into
+// multiple sequential sub-runs (see runBrandSharded below), each covering
+// a slice of the dealer file and each independently bounded by
+// PER_BRAND_TIMEOUT_MS — so a brand this large can never be killed with
+// half its dealers untouched; it just takes a few sequential passes
+// instead of one. 25 is deliberately conservative: FL Honda's 55 dealers
+// died well before the 2h mark, so a shard needs real margin below that,
+// not just barely under it. Env-overridable so a future remeasurement
+// doesn't need a code change.
+export const MAX_DEALERS_PER_SHARD = Number(process.env.CRAWLER_MAX_DEALERS_PER_SHARD) || 25;
+
 const SUPPORT_STEP_TIMEOUT_MS = 30 * 60 * 1000; // write-dealers / bot-report
 
 // How many states' full pipelines (write-dealers -> bot-report -> per-brand
@@ -483,6 +507,130 @@ export function buildBrandCrawlEnv({ state, brand, dealersFile, date }) {
   };
 }
 
+// Splits an oversized brand+state dealer file into ceil(dealerCount /
+// MAX_DEALERS_PER_SHARD) sequential sub-runs, each independently bounded
+// by PER_BRAND_TIMEOUT_MS — added 2026-09-26 after FL Honda/Kia/Toyota,
+// NJ Honda, and IL Toyota were each SIGKILLed with only part of their
+// dealer list crawled (see PER_BRAND_TIMEOUT_MS's own comment). Running
+// smaller slices sequentially means a brand that genuinely needs more
+// than 2h to finish now DOES finish — just as several passes — instead
+// of being silently truncated at exactly 2h with an arbitrary subset of
+// dealers never attempted.
+//
+// Stats aggregation note: daily_changes.js's mergeDailyChangesDocument
+// REPLACES a (state, brand) slot on every run of that same brand — it
+// does not sum across repeated runs (see that file's own header comment:
+// "its slot is simply replaced"). Since every shard here targets the
+// SAME (state, brand) with a different dealer subset, each shard's own
+// standalone.js invocation overwrites the previous shard's stats slot.
+// That's fine for the actual inventory DATA (dealer_inventory rows are
+// keyed per-dealer/VIN and accumulate correctly across shards regardless
+// of daily_changes' per-run replacement semantics), but it means this
+// function must capture and sum each shard's stats itself right after
+// that shard finishes, before the next shard's run overwrites the slot —
+// relying on a single post-hoc readBrandStatsFromDailyChanges() call
+// after the LAST shard would silently report only that final shard's
+// numbers as if they were the whole brand's.
+// `runStepFn` defaults to the real runStep() and exists as a seam for
+// tests — same reasoning as runStatesWithBoundedConcurrency's own
+// `runStateFn` parameter: this function's real job is spawning a real
+// standalone.js subprocess, but the sharding/aggregation logic (chunking,
+// per-shard stats summing, temp-file cleanup) is exercised in a fast unit
+// test with a fake step function instead. `readStatsFn` is the same seam
+// for readBrandStatsFromDailyChanges, since a test has no real
+// daily_changes file to read from.
+export async function runBrandSharded(state, brand, dealersFile, dealerCount, date, runStepFn = runStep, readStatsFn = readBrandStatsFromDailyChanges, root = ROOT) {
+  const slug = slugify(brand);
+  const fullPath = path.join(root, dealersFile);
+  const allDealers = JSON.parse(await fs.readFile(fullPath, 'utf-8'));
+  const shardCount = Math.ceil(dealerCount / MAX_DEALERS_PER_SHARD);
+  const shardPaths = [];
+  const shardResults = [];
+  const combinedStats = {
+    totalActiveInventory: 0,
+    totalNewArrivals: 0,
+    totalPriceDrops: 0,
+    totalPriceIncreases: 0,
+    totalSoldOrRemoved: 0,
+    skippedForBotProtection: 0,
+  };
+  let anyStatsSeen = false;
+
+  console.log(`[driver] ${state} ${brand}: ${dealerCount} dealers exceeds MAX_DEALERS_PER_SHARD (${MAX_DEALERS_PER_SHARD}) — splitting into ${shardCount} sequential shard(s).`);
+
+  try {
+    for (let i = 0; i < shardCount; i++) {
+      const chunk = allDealers.slice(i * MAX_DEALERS_PER_SHARD, (i + 1) * MAX_DEALERS_PER_SHARD);
+      const shardRelPath = path.join(path.dirname(dealersFile), `.shard-${slug}-${i}-${date}.json`);
+      const shardFullPath = path.join(root, shardRelPath);
+      await fs.writeFile(shardFullPath, JSON.stringify(chunk));
+      shardPaths.push(shardFullPath);
+
+      const logFile = path.join(LOGS_DIR, `${state.toLowerCase()}-${slug}-shard${i}-${date}.log`);
+      console.log(`[driver] ${state} ${brand}: shard ${i + 1}/${shardCount} starting (${chunk.length} dealer(s), CRAWLER_DEALERS_FILE=${shardRelPath})`);
+
+      let shardResult;
+      try {
+        shardResult = await runStepFn('node', ['src/standalone.js'], {
+          cwd: root,
+          env: buildBrandCrawlEnv({ state, brand, dealersFile: shardRelPath, date }),
+          logFile,
+          timeoutMs: PER_BRAND_TIMEOUT_MS,
+        });
+      } catch (err) {
+        shardResult = {
+          startedAt: new Date().toISOString(),
+          endedAt: new Date().toISOString(),
+          durationMs: 0,
+          exitCode: null,
+          signal: null,
+          timedOut: false,
+          spawnError: err.message,
+          logFile,
+        };
+      }
+      shardResult.status = statusOf(shardResult);
+      shardResult.dealerCount = chunk.length;
+
+      // Capture THIS shard's stats before the next shard's run replaces
+      // the (state, brand) slot in daily_changes — see this function's
+      // own header comment for why a single read after the loop would be
+      // wrong.
+      const shardStats = await readStatsFn(state, brand, date);
+      if (shardStats) {
+        anyStatsSeen = true;
+        for (const key of Object.keys(combinedStats)) {
+          combinedStats[key] += shardStats[key] || 0;
+        }
+      }
+
+      console.log(`[driver] ${state} ${brand}: shard ${i + 1}/${shardCount} ${shardResult.status} (exit ${shardResult.exitCode}, ${Math.round(shardResult.durationMs / 1000)}s)${shardStats ? ` — ${shardStats.totalActiveInventory} active` : ''}`);
+      shardResults.push(shardResult);
+    }
+  } finally {
+    // Best-effort cleanup — a leftover shard file is harmless clutter, not
+    // worth failing the run over, so unlink errors are swallowed.
+    await Promise.all(shardPaths.map((p) => fs.rm(p, { force: true }).catch(() => {})));
+  }
+
+  const totalDurationMs = shardResults.reduce((sum, r) => sum + r.durationMs, 0);
+  const anyTimedOut = shardResults.some((r) => r.timedOut);
+  const anyError = shardResults.some((r) => r.status === 'error');
+  const overallStatus = anyTimedOut ? 'timeout' : anyError ? 'error' : 'ok';
+
+  return {
+    status: overallStatus,
+    dealerCount,
+    durationMs: totalDurationMs,
+    exitCode: overallStatus === 'ok' ? 0 : null,
+    sharded: true,
+    shardCount,
+    shardResults,
+    stats: anyStatsSeen ? combinedStats : null,
+    logFile: shardResults[0]?.logFile ?? null,
+  };
+}
+
 // Extracted as its own function (rather than an inline env check) so this
 // exact decision is unit-testable — see this function's own callsite
 // comment in runState() for the real bug this guards against.
@@ -584,36 +732,46 @@ async function runState(state, date) {
     }
 
     const slug = slugify(brand);
-    const logFile = path.join(LOGS_DIR, `${state.toLowerCase()}-${slug}-${date}.log`);
-    console.log(`[driver] ${state} ${brand}: starting (${dealerCount} dealer(s), CRAWLER_DEALERS_FILE=${dealersFile})`);
-
     let result;
-    try {
-      result = await runStep('node', ['src/standalone.js'], {
-        cwd: ROOT,
-        env: buildBrandCrawlEnv({ state, brand, dealersFile, date }),
-        logFile,
-        timeoutMs: PER_BRAND_TIMEOUT_MS,
-      });
-    } catch (err) {
-      // runStep is designed to never throw, but one more safety net so a
-      // genuinely unexpected exception here still can't take out the rest
-      // of this state's brand loop.
-      result = {
-        startedAt: new Date().toISOString(),
-        endedAt: new Date().toISOString(),
-        durationMs: 0,
-        exitCode: null,
-        signal: null,
-        timedOut: false,
-        spawnError: err.message,
-        logFile,
-      };
-    }
 
-    result.status = statusOf(result);
-    result.dealerCount = dealerCount;
-    result.stats = await readBrandStatsFromDailyChanges(state, brand, date);
+    if (dealerCount > MAX_DEALERS_PER_SHARD) {
+      // See runBrandSharded's own comment: this brand+state combo is
+      // large enough that a single PER_BRAND_TIMEOUT_MS window isn't a
+      // safe bet (FL Honda/Kia/Toyota, NJ Honda, and IL Toyota were all
+      // SIGKILLed at exactly this size range) — split it rather than risk
+      // an incomplete crawl.
+      result = await runBrandSharded(state, brand, dealersFile, dealerCount, date);
+    } else {
+      const logFile = path.join(LOGS_DIR, `${state.toLowerCase()}-${slug}-${date}.log`);
+      console.log(`[driver] ${state} ${brand}: starting (${dealerCount} dealer(s), CRAWLER_DEALERS_FILE=${dealersFile})`);
+
+      try {
+        result = await runStep('node', ['src/standalone.js'], {
+          cwd: ROOT,
+          env: buildBrandCrawlEnv({ state, brand, dealersFile, date }),
+          logFile,
+          timeoutMs: PER_BRAND_TIMEOUT_MS,
+        });
+      } catch (err) {
+        // runStep is designed to never throw, but one more safety net so a
+        // genuinely unexpected exception here still can't take out the rest
+        // of this state's brand loop.
+        result = {
+          startedAt: new Date().toISOString(),
+          endedAt: new Date().toISOString(),
+          durationMs: 0,
+          exitCode: null,
+          signal: null,
+          timedOut: false,
+          spawnError: err.message,
+          logFile,
+        };
+      }
+
+      result.status = statusOf(result);
+      result.dealerCount = dealerCount;
+      result.stats = await readBrandStatsFromDailyChanges(state, brand, date);
+    }
 
     console.log(`[driver] ${state} ${brand}: ${result.status} (exit ${result.exitCode}, ${Math.round(result.durationMs / 1000)}s)${result.stats ? ` — ${result.stats.totalActiveInventory} active, ${result.stats.totalPriceDrops} drops, ${result.stats.totalSoldOrRemoved} sold` : ''}`);
 

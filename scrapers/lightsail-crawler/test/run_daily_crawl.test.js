@@ -19,6 +19,7 @@ import {
   buildBrandCrawlEnv,
   shouldRunWriteDealersStep,
   checkProjectedRuntime,
+  runBrandSharded,
 } from '../scripts/run-daily-crawl.mjs';
 import { SUPPORTED_STATES } from '../src/states.js';
 
@@ -653,6 +654,93 @@ describe('run-daily-crawl driver', () => {
       const result = checkProjectedRuntime(['TX'], ['Ford'], 1, tmpDir);
       assert.equal(result.withinBudget, false);
       assert.ok(result.projectedHours > 24, `expected over 24h, got ${result.projectedHours}`);
+    });
+  });
+
+  // ---------------------------------------------------------------------
+  // runBrandSharded: real bug found live 2026-09-26 — FL Honda (55
+  // dealers), FL Kia (33), FL Toyota (45), NJ Honda (33), and IL Toyota
+  // (39) were each SIGKILLed at exactly PER_BRAND_TIMEOUT_MS (2h) with
+  // only part of their dealer list ever crawled. These tests exercise the
+  // sharding/aggregation logic with a fake runStepFn/readStatsFn (see
+  // runBrandSharded's own comment on why real standalone.js subprocesses
+  // and a real daily_changes file aren't needed to prove this logic
+  // correct) rather than spawning anything real.
+  // ---------------------------------------------------------------------
+  describe('runBrandSharded (oversized brand+state dealer-list splitting)', () => {
+    let tmpDir;
+    let dealersRelPath;
+
+    before(async () => {
+      tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'trimscout-shard-'));
+      await fs.mkdir(path.join(tmpDir, 'dealers', 'fl'), { recursive: true });
+      const dealers = Array.from({ length: 55 }, (_, i) => ({ name: `Dealer ${i}`, id: i }));
+      dealersRelPath = path.join('dealers', 'fl', 'honda.json');
+      await fs.writeFile(path.join(tmpDir, dealersRelPath), JSON.stringify(dealers));
+    });
+    after(async () => {
+      await fs.rm(tmpDir, { recursive: true, force: true });
+    });
+
+    it('splits 55 dealers into 3 shards of <=25 each (ceil(55/25)) and runs them sequentially', async () => {
+      const seenChunkSizes = [];
+      const runStepFn = async (cmd, args, { env }) => {
+        const chunk = JSON.parse(await fs.readFile(path.join(tmpDir, env.CRAWLER_DEALERS_FILE), 'utf-8'));
+        seenChunkSizes.push(chunk.length);
+        return { startedAt: new Date().toISOString(), endedAt: new Date().toISOString(), durationMs: 1000, exitCode: 0, signal: null, timedOut: false, logFile: 'fake.log' };
+      };
+      const readStatsFn = async () => ({ totalActiveInventory: 10, totalNewArrivals: 1, totalPriceDrops: 0, totalPriceIncreases: 0, totalSoldOrRemoved: 0, skippedForBotProtection: 0 });
+
+      const result = await runBrandSharded('FL', 'Honda', dealersRelPath, 55, '2026-09-26', runStepFn, readStatsFn, tmpDir);
+
+      assert.deepEqual(seenChunkSizes, [25, 25, 5]);
+      assert.equal(result.sharded, true);
+      assert.equal(result.shardCount, 3);
+      assert.equal(result.status, 'ok');
+      assert.equal(result.dealerCount, 55);
+    });
+
+    it('sums each shard\'s stats rather than reporting only the last shard\'s (daily_changes replaces, never sums, a repeated brand run)', async () => {
+      let call = 0;
+      const runStepFn = async () => ({ startedAt: new Date().toISOString(), endedAt: new Date().toISOString(), durationMs: 500, exitCode: 0, signal: null, timedOut: false, logFile: 'fake.log' });
+      // Each shard "writes" a different active-inventory number, exactly
+      // mimicking daily_changes' real per-run replacement behavior — if
+      // this function read stats only once after the loop, it would see
+      // only the last shard's number (30), not the true sum (10+20+30=60).
+      const readStatsFn = async () => {
+        call += 1;
+        return { totalActiveInventory: call * 10, totalNewArrivals: 0, totalPriceDrops: 0, totalPriceIncreases: 0, totalSoldOrRemoved: 0, skippedForBotProtection: 0 };
+      };
+
+      const result = await runBrandSharded('FL', 'Honda', dealersRelPath, 55, '2026-09-26', runStepFn, readStatsFn, tmpDir);
+
+      assert.equal(result.stats.totalActiveInventory, 60, 'must be the SUM of all 3 shards (10+20+30), not just the last shard (30)');
+    });
+
+    it('reports overall status "timeout" if any single shard times out, even when the others succeed', async () => {
+      let call = 0;
+      const runStepFn = async () => {
+        call += 1;
+        const timedOut = call === 2;
+        return { startedAt: new Date().toISOString(), endedAt: new Date().toISOString(), durationMs: 500, exitCode: timedOut ? null : 0, signal: null, timedOut, logFile: 'fake.log' };
+      };
+      const readStatsFn = async () => null;
+
+      const result = await runBrandSharded('FL', 'Honda', dealersRelPath, 55, '2026-09-26', runStepFn, readStatsFn, tmpDir);
+
+      assert.equal(result.status, 'timeout');
+      assert.equal(result.shardResults[1].timedOut, true);
+    });
+
+    it('cleans up every temp shard file it creates, success or failure', async () => {
+      const runStepFn = async () => ({ startedAt: new Date().toISOString(), endedAt: new Date().toISOString(), durationMs: 100, exitCode: 0, signal: null, timedOut: false, logFile: 'fake.log' });
+      const readStatsFn = async () => null;
+
+      await runBrandSharded('FL', 'Honda', dealersRelPath, 55, '2026-09-26', runStepFn, readStatsFn, tmpDir);
+
+      const files = await fs.readdir(path.join(tmpDir, 'dealers', 'fl'));
+      const leftoverShards = files.filter((f) => f.startsWith('.shard-'));
+      assert.deepEqual(leftoverShards, [], `expected no leftover shard files, found: ${leftoverShards}`);
     });
   });
 
