@@ -1866,12 +1866,45 @@ function normalizeListingUrl(raw) {
   s = s.replace(/^https?:\/\//, "").replace(/^www\./, "").replace(/\/+$/, "");
   return s || null;
 }
-// The aggregate endpoints (stats, by-dealer) scan the whole table and only change when a sync writes, so they
-// are served from memory for 10 minutes and dropped by every bulk upsert / sweep.
+// The aggregate endpoints (stats, by-dealer, catalog options) scan the whole table and only change
+// when a sync writes, so they are served from memory for 10 minutes and dropped by every bulk
+// upsert / sweep.
 const INV_CACHE_MS = 10 * 60_000;
 const invCache = new Map();
-const invCached = async (key, fn) => { const hit = invCache.get(key); if (hit && Date.now() - hit.at < INV_CACHE_MS) return hit.value; const value = await fn(); invCache.set(key, { at: Date.now(), value }); return value; };
-const invInvalidate = () => invCache.clear();
+// invInFlight dedupes concurrent cache MISSES on the same key — without it, N requests that all
+// arrive before the first one finishes computing and populating invCache each independently kick
+// off the same expensive full-table query. Confirmed live 2026-09-25 after /api/catalog/makes (the
+// buyer /search page's make picker, PR 4) started calling the same "stats" key that used to see
+// only rare admin-sheet traffic: 3 concurrent identical aggregate queries piled up on the box,
+// each 50-150+ seconds, timing out ordinary buyer requests that had nothing to do with the slow
+// query itself. The dedup key includes the cache generation so a concurrent invInvalidate() (a
+// bulk upsert/sweep mid-computation) doesn't hand a request a result computed against data that
+// was invalidated before it finished.
+const invInFlight = new Map();
+let invGeneration = 0;
+const invCached = async (key, fn) => {
+  const hit = invCache.get(key);
+  if (hit && Date.now() - hit.at < INV_CACHE_MS) return hit.value;
+  const generation = invGeneration;
+  const flightKey = `${generation}:${key}`;
+  const existing = invInFlight.get(flightKey);
+  if (existing) return existing;
+  const promise = (async () => {
+    try {
+      const value = await fn();
+      if (generation === invGeneration) invCache.set(key, { at: Date.now(), value });
+      return value;
+    } finally {
+      invInFlight.delete(flightKey);
+    }
+  })();
+  invInFlight.set(flightKey, promise);
+  return promise;
+};
+const invInvalidate = () => {
+  invGeneration++;
+  invCache.clear();
+};
 const INV_INT = (v) => (Number.isFinite(Number(v)) && v !== null && v !== "" ? Math.round(Number(v)) : null);
 const INV_DEALER = (v) => INV_INT(v) || 0;
 
