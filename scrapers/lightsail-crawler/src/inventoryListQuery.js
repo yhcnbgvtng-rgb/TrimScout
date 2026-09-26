@@ -53,22 +53,26 @@ export function inventoryListQuery(params) {
   // params — matches how every other filter here is a single string value, and is simpler for a
   // client to build than URLSearchParams.append() per key.
   //
-  // This is a correlated subquery (one dealer_inventory_options lookup per outer candidate
-  // row) — confirmed live 2026-09-26 that without an index of its own this hangs outright:
-  // GET /api/vehicles/search?optionKeys=... with no make/model (the exact shape the buyer
-  // /search AI box produces for an options-only query like "heated seats and sunroof") hung
-  // past the box's 60s client-side timeout every time, because the only index available,
-  // idx_opt_canonical (canonical_key), leads with canonical_key, not dealer_id — MariaDB had
-  // to scan every row nationwide with a matching key before it could check dealer_id, against
-  // a table the CREATE TABLE comment below already calls out as real volume. Even narrowed to
-  // make=BMW (26,945 candidate rows, 0.6s on its own), adding a single optionKeys= took 15.9s.
-  // idx_opt_dealer_canonical (dealer_id, canonical_key, vin) leads with the per-outer-row
-  // equality this correlated subquery actually runs on and covers vin, turning each call into
-  // an index-only lookup against one dealer's own rows instead of a nationwide scan.
+  // Was a CORRELATED SUBQUERY (one dealer_inventory_options lookup per outer candidate row,
+  // "i.vin IN (SELECT ... WHERE dealer_id = i.dealer_id ...)") — an earlier fix (indexing it by
+  // dealer_id) made each individual lookup fast, but a correlated subquery still runs once PER
+  // OUTER ROW regardless of how fast any one lookup is. Confirmed live 2026-09-26: a real buyer
+  // search with optionKeys= and no make=/state= (exactly what the AI search box produces for an
+  // options-only query like "heated seats and sunroof") ran for 2+ hours before being killed —
+  // 674,248 outer candidate rows (every in-stock vehicle nationally) × one subquery execution
+  // each. Rewritten as a JOIN into a derived table instead: the matching (vin, dealer_id) pairs
+  // are computed EXACTLY ONCE regardless of outer row count, then joined in like any other
+  // table — the standard fix for this exact correlated-subquery-doesn't-scale shape.
+  // idx_opt_canonical (canonical_key) already covers this derived table's own scan: InnoDB
+  // appends the primary key (vin, dealer_id, canonical_key) to every secondary index, so scanning
+  // by canonical_key already returns vin/dealer_id index-only, no new index needed — confirmed
+  // via EXPLAIN (no "Using filesort"/"Using temporary" beyond the small per-key row set itself).
   const optionKeys = (params.get("optionKeys") || "").split(",").map((c) => c.trim()).filter(Boolean);
+  let optionJoin = "";
+  const optionArgs = [];
   if (optionKeys.length) {
-    where.push(`i.vin IN (SELECT vin FROM dealer_inventory_options FORCE INDEX (idx_opt_dealer_canonical) WHERE dealer_id = i.dealer_id AND canonical_key IN (${optionKeys.map(() => "?").join(",")}) GROUP BY vin HAVING COUNT(DISTINCT canonical_key) = ?)`);
-    args.push(...optionKeys, optionKeys.length);
+    optionJoin = `JOIN (SELECT vin, dealer_id FROM dealer_inventory_options WHERE canonical_key IN (${optionKeys.map(() => "?").join(",")}) GROUP BY vin, dealer_id HAVING COUNT(DISTINCT canonical_key) = ?) opt_match ON opt_match.vin = i.vin AND opt_match.dealer_id = i.dealer_id `;
+    optionArgs.push(...optionKeys, optionKeys.length);
   }
   // "New" with real miles on it usually means a demo/loaner, not a car
   // fresh off the truck — there's no separate demo/loaner condition value
@@ -151,6 +155,8 @@ export function inventoryListQuery(params) {
     : !p("make") ? ""
     : p("inStock") === "1" ? "FORCE INDEX (idx_inv_stock_make_dealer)" : "FORCE INDEX (idx_inv_make_dealer)";
   const whereSql = where.length ? "WHERE " + where.join(" AND ") : "";
-  const sql = `FROM dealer_inventory i ${indexHint} LEFT JOIN dealership_contacts d ON d.id = i.dealer_id ${whereSql}`;
-  return { sql, args, orderBy };
+  // optionJoin's own placeholders appear in the SQL text before whereSql's, so its args must come
+  // first in the flat array mysql2 binds positionally against.
+  const sql = `FROM dealer_inventory i ${indexHint} ${optionJoin}LEFT JOIN dealership_contacts d ON d.id = i.dealer_id ${whereSql}`;
+  return { sql, args: [...optionArgs, ...args], orderBy };
 }

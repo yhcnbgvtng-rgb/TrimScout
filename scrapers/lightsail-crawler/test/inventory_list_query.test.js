@@ -139,13 +139,16 @@ describe('inventoryListQuery — minPriceChanges', () => {
   });
 });
 
-describe('inventoryListQuery — optionKeys (must-have ALL, real set containment on canonical_key)', () => {
-  it('builds a HAVING COUNT(DISTINCT canonical_key) = N containment check against dealer_inventory_options', () => {
+describe('inventoryListQuery — optionKeys (must-have ALL, real set containment on canonical_key, as a JOIN not a correlated subquery)', () => {
+  it('joins a derived table computing the matching (vin, dealer_id) pairs once, not a per-row correlated subquery', () => {
     const { sql, args } = query({ optionKeys: 'pano,awd' });
     assert.match(
       sql,
-      /WHERE i\.vin IN \(SELECT vin FROM dealer_inventory_options FORCE INDEX \(idx_opt_dealer_canonical\) WHERE dealer_id = i\.dealer_id AND canonical_key IN \(\?,\?\) GROUP BY vin HAVING COUNT\(DISTINCT canonical_key\) = \?\)/
+      /JOIN \(SELECT vin, dealer_id FROM dealer_inventory_options WHERE canonical_key IN \(\?,\?\) GROUP BY vin, dealer_id HAVING COUNT\(DISTINCT canonical_key\) = \?\) opt_match ON opt_match\.vin = i\.vin AND opt_match\.dealer_id = i\.dealer_id/
     );
+    // Never regress back to a correlated subquery — that's the exact shape that hung for 2+
+    // hours live on an optionKeys-only search (no make=/state= to narrow the outer scan first).
+    assert.doesNotMatch(sql, /i\.vin IN \(SELECT/);
     assert.deepEqual(args, ['pano', 'awd', 2]);
   });
 
@@ -159,11 +162,17 @@ describe('inventoryListQuery — optionKeys (must-have ALL, real set containment
     assert.equal(query({ optionKeys: '' }).sql.includes('dealer_inventory_options'), false);
   });
 
-  it('composes with other filters and the make= index hint unchanged', () => {
+  it('composes with other filters and the make= index hint unchanged — optionJoin args come first, matching their position in the SQL text', () => {
     const { sql, args } = query({ make: 'BMW', optionKeys: 'bowers wilkins', inStock: '1' });
     assert.match(sql, /FORCE INDEX \(idx_inv_stock_make_dealer\)/);
-    assert.match(sql, /i\.make = \? AND .*dealer_inventory_options/);
-    assert.deepEqual(args, ['BMW', 'bowers wilkins', 1]);
+    assert.match(sql, /dealer_inventory_options.*i\.make = \?/s);
+    assert.deepEqual(args, ['bowers wilkins', 1, 'BMW']);
+  });
+
+  it('works with no make=/state= at all — the exact shape that used to hang (an options-only AI search)', () => {
+    const { sql, args } = query({ optionKeys: 'heated front seats,sunroof' });
+    assert.match(sql, /JOIN \(SELECT vin, dealer_id FROM dealer_inventory_options/);
+    assert.deepEqual(args, ['heated front seats', 'sunroof', 2]);
   });
 });
 
