@@ -107,6 +107,14 @@ export function inventoryListQuery(params) {
   // make=Porsche 18s, make=Toyota 20.1s. idx_inv_make_dealer (make, dealer_name, vin) leads with make
   // and reads the default dealer:asc sort in index order.
   //
+  // idx_inv_stock_make itself (removed_at, make, model) seeks the WHERE fine but doesn't cover
+  // dealer_name/vin, so the inStock=1 case above still filesorted every matching row before
+  // returning a page — confirmed live 2026-09-25 once the buyer /search page (whose default view
+  // is exactly this: make=, inStock=1, no explicit sort=) sent it real traffic: make=Toyota,
+  // 10.8s for ~340k matching rows. idx_inv_stock_make_dealer (removed_at, make, dealer_name, vin)
+  // is the covering fix — same shape as idx_inv_stock_state got for the identical state= bug the
+  // same day.
+  //
   // state= originally had no column of its own — every state= filter had to JOIN
   // dealership_contacts (which had no index on state either), and even the STRAIGHT_JOIN
   // rework that fixed the worst case (2026-09-22) still couldn't return sorted results
@@ -125,7 +133,7 @@ export function inventoryListQuery(params) {
   const indexHint = (p("state") && !p("dealerId"))
     ? (p("inStock") === "1" ? "FORCE INDEX (idx_inv_stock_state)" : "FORCE INDEX (idx_inv_state_dealer)")
     : !p("make") ? ""
-    : p("inStock") === "1" ? "FORCE INDEX (idx_inv_stock_make)" : "FORCE INDEX (idx_inv_make_dealer)";
+    : p("inStock") === "1" ? "FORCE INDEX (idx_inv_stock_make_dealer)" : "FORCE INDEX (idx_inv_make_dealer)";
   const whereSql = where.length ? "WHERE " + where.join(" AND ") : "";
   const sql = `FROM dealer_inventory i ${indexHint} LEFT JOIN dealership_contacts d ON d.id = i.dealer_id ${whereSql}`;
   return { sql, args, orderBy };

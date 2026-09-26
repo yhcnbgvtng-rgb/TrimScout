@@ -58,9 +58,9 @@ describe('inventoryListQuery — state= (the 2026-09-25 regression)', () => {
 });
 
 describe('inventoryListQuery — make= (2026-09-22 fix, must not regress)', () => {
-  it('forces idx_inv_stock_make when inStock=1 is set — 110.9s -> 203ms live fix', () => {
+  it('forces idx_inv_stock_make_dealer when inStock=1 is set — a covering index, no filesort (2026-09-25 fix of a 2026-09-22 gap: 10.8s for make=Toyota with the plain idx_inv_stock_make once the buyer /search page sent it real default-sort traffic)', () => {
     const { sql, args } = query({ make: 'Porsche', inStock: '1' });
-    assert.match(sql, /FORCE INDEX \(idx_inv_stock_make\)/);
+    assert.match(sql, /FORCE INDEX \(idx_inv_stock_make_dealer\)/);
     assert.deepEqual(args, ['Porsche']);
   });
 
@@ -71,7 +71,7 @@ describe('inventoryListQuery — make= (2026-09-22 fix, must not regress)', () =
 
   it('keeps applying the make hint even with dealerId= set — unchanged 2026-09-22 behavior, not touched by the state fix', () => {
     const { sql } = query({ make: 'Ford', dealerId: '99', inStock: '1' });
-    assert.match(sql, /FORCE INDEX \(idx_inv_stock_make\)/);
+    assert.match(sql, /FORCE INDEX \(idx_inv_stock_make_dealer\)/);
   });
 });
 
@@ -100,7 +100,7 @@ describe('inventoryListQuery — other filters never disqualify the state/make h
 
   it('make= + q= still gets the make index hint (unchanged, pre-existing behavior)', () => {
     const { sql } = query({ make: 'Honda', q: 'accord', inStock: '1' });
-    assert.match(sql, /FORCE INDEX \(idx_inv_stock_make\)/);
+    assert.match(sql, /FORCE INDEX \(idx_inv_stock_make_dealer\)/);
   });
 });
 
@@ -161,7 +161,7 @@ describe('inventoryListQuery — optionCodes (must-have ALL, real set containmen
 
   it('composes with other filters and the make= index hint unchanged', () => {
     const { sql, args } = query({ make: 'BMW', optionCodes: 'PANO', inStock: '1' });
-    assert.match(sql, /FORCE INDEX \(idx_inv_stock_make\)/);
+    assert.match(sql, /FORCE INDEX \(idx_inv_stock_make_dealer\)/);
     assert.match(sql, /i\.make = \? AND .*dealer_inventory_options/);
     assert.deepEqual(args, ['BMW', 'PANO', 1]);
   });
