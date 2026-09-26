@@ -1739,6 +1739,14 @@ async function ensureInventoryTable(pool) {
     // Every sheet query filters removed_at IS NULL then sorts — composite indexes let those read in order.
     "ADD INDEX IF NOT EXISTS idx_inv_stock_dealer (removed_at, dealer_name, vin)",
     "ADD INDEX IF NOT EXISTS idx_inv_stock_make (removed_at, make, model)",
+    // idx_inv_stock_make (above) seeks on (removed_at, make) fine, but doesn't cover the default
+    // dealer_name/vin sort, so MariaDB still had to materialize and filesort every matching row
+    // before returning the first page — confirmed live 2026-09-25: make=Toyota, inStock=1, no
+    // sort= (the buyer /search page's own default view once it went public), 10.8s for 340k
+    // matching rows, EXPLAIN showing "Using filesort". state= got this exact covering treatment
+    // (idx_inv_stock_state below) when its own version of this bug was fixed 2026-09-25 — make=
+    // never did. This is that same fix, for make=.
+    "ADD INDEX IF NOT EXISTS idx_inv_stock_make_dealer (removed_at, make, dealer_name, vin)",
     // make= WITHOUT inStock=1 (the sheet's "all, incl. removed" view): idx_inv_stock_make can't seek
     // on make until removed_at is pinned, so that was a full scan — see inventoryListQuery.js.
     "ADD INDEX IF NOT EXISTS idx_inv_make_dealer (make, dealer_name, vin)",
