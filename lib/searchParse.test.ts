@@ -101,12 +101,47 @@ describe("parseSearchQuery — configured, mocked Gemini response", () => {
     });
   });
 
-  it("throws SearchParseError when Gemini returns a non-2xx status", async () => {
+  it("throws SearchParseError when Gemini returns a persistent non-2xx, non-retryable status", async () => {
     await withEnv({ GEMINI_API_KEY: "test-key", GEMINI_MODEL: "gemini-test" }, async () => {
       const origFetch = globalThis.fetch;
-      globalThis.fetch = (async () => new Response("quota exceeded", { status: 429 })) as typeof fetch;
+      let calls = 0;
+      globalThis.fetch = (async () => { calls++; return new Response("bad request", { status: 400 }); }) as typeof fetch;
       try {
         await assert.rejects(() => parseSearchQuery("anything", catalog), SearchParseError);
+        assert.equal(calls, 1, "a non-retryable status should not be retried");
+      } finally {
+        globalThis.fetch = origFetch;
+      }
+    });
+  });
+
+  it("retries a 503 (Gemini's own 'usually temporary' overload status) and succeeds on a later attempt", async () => {
+    await withEnv({ GEMINI_API_KEY: "test-key", GEMINI_MODEL: "gemini-test" }, async () => {
+      const origFetch = globalThis.fetch;
+      let calls = 0;
+      globalThis.fetch = (async () => {
+        calls++;
+        if (calls < 2) return new Response(JSON.stringify({ error: { code: 503, status: "UNAVAILABLE" } }), { status: 503 });
+        return geminiResponse(JSON.stringify({ filters: { make: "Honda" }, confidence: 0.5, clarifications: [], displayChips: [] }));
+      }) as typeof fetch;
+      try {
+        const result = await parseSearchQuery("a Honda", catalog);
+        assert.equal(result!.filters.make, "Honda");
+        assert.equal(calls, 2, "should have retried exactly once before succeeding");
+      } finally {
+        globalThis.fetch = origFetch;
+      }
+    });
+  });
+
+  it("retries 429 the same way as 503, and gives up (throwing) after exhausting retries on persistent overload", async () => {
+    await withEnv({ GEMINI_API_KEY: "test-key", GEMINI_MODEL: "gemini-test" }, async () => {
+      const origFetch = globalThis.fetch;
+      let calls = 0;
+      globalThis.fetch = (async () => { calls++; return new Response("rate limited", { status: 429 }); }) as typeof fetch;
+      try {
+        await assert.rejects(() => parseSearchQuery("anything", catalog), SearchParseError);
+        assert.equal(calls, 3, "should attempt exactly 3 times total before giving up");
       } finally {
         globalThis.fetch = origFetch;
       }
