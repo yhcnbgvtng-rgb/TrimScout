@@ -1848,21 +1848,54 @@ async function ensureInventoryTable(pool) {
     PRIMARY KEY (vin, dealer_id, seen_on),
     INDEX idx_days_vin (vin)
   )`);
-  // One row per (vehicle, factory option code) — a normalized side table for the buyer
+  // One row per (vehicle, canonicalized option) — a normalized side table for the buyer
   // search's "must-have ALL of these options" filter. dealer_inventory.options_json is a
-  // free-text blob (see inventoryRowFromDb) with no index, so "has every one of these codes"
-  // can't be answered efficiently there at 1.5M+ rows. Populated in handleInventoryBulk by
-  // deleting and reinserting each chunk's vehicles' rows on every upsert — always a full
-  // replace of the set, never a partial add, so a vehicle that loses an option on a later
-  // crawl doesn't keep matching it forever.
+  // free-text blob (see inventoryRowFromDb) with no index, so "has every one of these options"
+  // can't be answered efficiently there at 1.5M+ rows.
+  //
+  // Search identity is canonical_key (normalizeOptionKey(label) below), NEVER the raw `code` a
+  // listing carries. Confirmed live 2026-09-25: the crawled `code` field (e.g. "OPT-35") is just
+  // that vehicle's listing-position number, not a stable factory RPO code — the SAME real option
+  // ("Heated Front Seats") showed up as OPT-30 on one BMW iX, OPT-48 on another, OPT-62 on a
+  // third. A raw-code containment search would silently miss most vehicles that actually have a
+  // given option. canonical_key normalizes the option's LABEL (lowercased, punctuation stripped,
+  // whitespace collapsed) into a value that's the same across every vehicle that has that same
+  // real option, regardless of what position it was listed in or what per-vehicle code a scraper
+  // assigned it — the same principle lib/factoryOptionCatalog.ts already uses for the
+  // window-sticker pipeline, applied independently here since this is a separate table/pipeline.
+  // `code` is kept purely as metadata (never used for matching); `label` keeps one real display
+  // spelling for the UI.
+  //
+  // Populated in handleInventoryBulk by deleting and reinserting each chunk's vehicles' rows on
+  // every upsert — always a full replace of the set, never a partial add, so a vehicle that loses
+  // an option on a later crawl doesn't keep matching it forever.
   await pool.query(`CREATE TABLE IF NOT EXISTS dealer_inventory_options (
     vin CHAR(17) NOT NULL,
     dealer_id INT NOT NULL DEFAULT 0,
-    code VARCHAR(32) NOT NULL,
-    PRIMARY KEY (vin, dealer_id, code),
-    INDEX idx_opt_code (code)
+    canonical_key VARCHAR(80) NOT NULL,
+    label VARCHAR(160) NOT NULL,
+    code VARCHAR(32) NULL,
+    PRIMARY KEY (vin, dealer_id, canonical_key),
+    INDEX idx_opt_canonical (canonical_key)
   )`);
   inventoryReady = true;
+}
+
+// Lowercase, strip punctuation, collapse whitespace — mirrors lib/factoryOptionCatalog.ts's
+// normalizeOptionKey() (a separate pipeline/table, but the same identity principle: two
+// differently-worded/coded mentions of the same real option should resolve to the same key).
+// Includes the OEM audio-brand synonym folding this table exists to fix: "Bowers & Wilkins",
+// "Bowers and Wilkins", and "B&W" all need to land on one canonical_key, but naive normalization
+// alone turns "B&W" into "b w" — two characters, meaningless and collision-prone — rather than
+// the same key as the full name. Expand known abbreviations to their full form BEFORE
+// normalizing so both spellings converge.
+const OPTION_SYNONYM_EXPANSIONS = [
+  [/\bb\s*&\s*w\b/gi, "bowers wilkins"],
+];
+function normalizeOptionKey(label) {
+  let s = String(label || "").trim().toLowerCase();
+  for (const [pattern, replacement] of OPTION_SYNONYM_EXPANSIONS) s = s.replace(pattern, replacement);
+  return s.replace(/[^a-z0-9]+/g, " ").replace(/\s+/g, " ").trim().slice(0, 80);
 }
 
 const INV_STR = (v, n) => (typeof v === "string" && v.trim() ? v.trim().slice(0, n) : null);
@@ -1963,10 +1996,10 @@ async function handleInventoryBulk(req, res) {
       [values]
     );
     upserted += chunk.length;
-    // Replace each vehicle's option-code set (dealer_inventory_options) in the same chunk as
-    // its main upsert — tied together so a chunk that fails partway through never leaves a
-    // live VIN's row updated but its option set stale/empty. A full delete-then-reinsert per
-    // chunk, not a per-vehicle diff: cheap at 500 rows, and correct when a later crawl drops
+    // Replace each vehicle's canonicalized option set (dealer_inventory_options) in the same
+    // chunk as its main upsert — tied together so a chunk that fails partway through never
+    // leaves a live VIN's row updated but its option set stale/empty. A full delete-then-reinsert
+    // per chunk, not a per-vehicle diff: cheap at 500 rows, and correct when a later crawl drops
     // an option the vehicle no longer has (an additive-only write would keep matching it).
     const optionPairs = chunk.map((v) => [v.vin.trim().toUpperCase(), INV_DEALER(v.dealerId)]);
     await pool.query("DELETE FROM dealer_inventory_options WHERE (vin, dealer_id) IN (?)", [optionPairs]);
@@ -1974,10 +2007,21 @@ async function handleInventoryBulk(req, res) {
     for (const v of chunk) {
       if (!Array.isArray(v.options)) continue;
       const vin = v.vin.trim().toUpperCase(), dealerId = INV_DEALER(v.dealerId);
-      const codes = new Set(v.options.map((o) => INV_STR(o && o.code, 32)).filter(Boolean));
-      for (const code of codes) optionRows.push([vin, dealerId, code]);
+      // Identity comes from the option's NAME, never its raw per-listing `code` (see the table's
+      // own comment in ensureInventoryTable) — a name-only option (no code at all, common on
+      // several sources) still canonicalizes and matches fine; a code with no name has nothing
+      // stable to key on and is skipped.
+      const byKey = new Map();
+      for (const o of v.options) {
+        const label = INV_STR(o && o.name, 160);
+        if (!label) continue;
+        const key = normalizeOptionKey(label);
+        if (!key) continue;
+        if (!byKey.has(key)) byKey.set(key, { label, code: INV_STR(o && o.code, 32) });
+      }
+      for (const [key, { label, code }] of byKey) optionRows.push([vin, dealerId, key, label, code]);
     }
-    if (optionRows.length) await pool.query("INSERT INTO dealer_inventory_options (vin, dealer_id, code) VALUES ? ON DUPLICATE KEY UPDATE vin = VALUES(vin)", [optionRows]);
+    if (optionRows.length) await pool.query("INSERT INTO dealer_inventory_options (vin, dealer_id, canonical_key, label, code) VALUES ? ON DUPLICATE KEY UPDATE label = VALUES(label), code = VALUES(code)", [optionRows]);
     // Today's observation for every vehicle in the chunk, plus the crawl's dated price points (backfill).
     const today = new Date().toISOString().slice(0, 10);
     const days = [];
@@ -2286,11 +2330,11 @@ async function handleInventoryCatalogOptions(req, res, params) {
   const cacheKey = `catalog-options:${make}|${model}|${trim}`;
   sendJson(res, 200, await invCached(cacheKey, async () => {
     // STRAIGHT_JOIN drives from dealer_inventory (filtered by make=/removed_at first, typically
-    // the far smaller side) into dealer_inventory_options by its (vin, dealer_id, code) primary
-    // key, instead of the optimizer's previous choice of scanning every row in
+    // the far smaller side) into dealer_inventory_options by its (vin, dealer_id, canonical_key)
+    // primary key, instead of the optimizer's previous choice of scanning every row in
     // dealer_inventory_options and only filtering by make afterward.
     const [optionRows] = await pool.query(
-      `SELECT STRAIGHT_JOIN o.code, COUNT(*) AS vehicleCount FROM dealer_inventory i ${makeIndexHint} JOIN dealer_inventory_options o ON o.vin = i.vin AND o.dealer_id = i.dealer_id ${whereSql} GROUP BY o.code ORDER BY o.code`,
+      `SELECT STRAIGHT_JOIN o.canonical_key, MIN(o.label) AS label, COUNT(*) AS vehicleCount FROM dealer_inventory i ${makeIndexHint} JOIN dealer_inventory_options o ON o.vin = i.vin AND o.dealer_id = i.dealer_id ${whereSql} GROUP BY o.canonical_key ORDER BY o.canonical_key`,
       args
     );
     const [colorRows] = await pool.query(
@@ -2300,7 +2344,7 @@ async function handleInventoryCatalogOptions(req, res, params) {
     const exteriorColors = [...new Set(colorRows.map((r) => r.exterior_color).filter(Boolean))].sort();
     const interiorColors = [...new Set(colorRows.map((r) => r.interior_color).filter(Boolean))].sort();
     return {
-      options: optionRows.map((r) => ({ code: r.code, vehicleCount: Number(r.vehicleCount) })),
+      options: optionRows.map((r) => ({ key: r.canonical_key, label: r.label, vehicleCount: Number(r.vehicleCount) })),
       exteriorColors,
       interiorColors,
     };

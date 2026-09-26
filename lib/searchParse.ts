@@ -27,7 +27,8 @@ export interface ParsedSearchFilters {
   maxDays: number | null;
   exteriorColor: string | null;
   interiorColor: string | null;
-  optionCodes: string[] | null;
+  /** Stable canonical_key values (never a raw per-listing code) — see SearchCatalogSlice.options. */
+  optionKeys: string[] | null;
   possibleDemo: boolean | null;
   zip: string | null;
   radiusMiles: number | null;
@@ -47,7 +48,8 @@ export interface ParsedSearch {
 export interface SearchCatalogSlice {
   makes: string[];
   models?: string[];
-  optionCodes?: Array<{ code: string; label?: string | null }>;
+  /** `key` is the stable canonical_key to put in filters.optionKeys; `label` is the real display text to match the shopper's phrase against (synonyms like "B&W" included). */
+  options?: Array<{ key: string; label: string }>;
   exteriorColors?: string[];
   interiorColors?: string[];
 }
@@ -65,8 +67,8 @@ function coerceParsedSearch(raw: unknown): ParsedSearch {
   const str = (v: unknown): string | null => (typeof v === "string" && v.trim() ? v.trim() : null);
   const num = (v: unknown): number | null => (typeof v === "number" && Number.isFinite(v) ? v : null);
   const bool = (v: unknown): boolean | null => (typeof v === "boolean" ? v : null);
-  const codes = Array.isArray(f.optionCodes)
-    ? f.optionCodes.filter((c): c is string => typeof c === "string" && c.trim().length > 0)
+  const keys = Array.isArray(f.optionKeys)
+    ? f.optionKeys.filter((c): c is string => typeof c === "string" && c.trim().length > 0)
     : null;
 
   const filters: ParsedSearchFilters = {
@@ -82,7 +84,7 @@ function coerceParsedSearch(raw: unknown): ParsedSearch {
     maxDays: num(f.maxDays),
     exteriorColor: str(f.exteriorColor),
     interiorColor: str(f.interiorColor),
-    optionCodes: codes && codes.length ? codes : null,
+    optionKeys: keys && keys.length ? keys : null,
     possibleDemo: bool(f.possibleDemo),
     zip: str(f.zip),
     radiusMiles: num(f.radiusMiles),
@@ -90,13 +92,27 @@ function coerceParsedSearch(raw: unknown): ParsedSearch {
 
   const confidence = typeof obj.confidence === "number" && Number.isFinite(obj.confidence) ? Math.min(1, Math.max(0, obj.confidence)) : 0;
   const rawClarifications = Array.isArray(obj.clarifications) ? obj.clarifications.filter((c): c is string => typeof c === "string" && c.trim().length > 0) : [];
-  // Backstop against the prompt alone: a clarification is only worth surfacing when the model
-  // itself says it isn't confident. A model/make the shopper stated outright should never trigger
-  // a "did you mean" or a filler question (color, ZIP) they never brought up — confirmed live,
-  // "2024 bmw ix with bowers and wilkins" came back with exactly that kind of bogus clarification
-  // despite make/model both being explicit in the text. At most one clarification ever reaches
-  // the shopper, and only when the model itself signals genuine uncertainty.
-  const clarifications = confidence < 0.6 ? rawClarifications.slice(0, 1) : [];
+  // A named option the model couldn't resolve to a real catalog key is its own clarification
+  // category, deliberately kept separate from the general ambiguity ones below: a shopper who
+  // named an option deserves to know it couldn't be confirmed/filtered on, even when everything
+  // ELSE about the query (make/model/year) was parsed with high confidence — unlike a vague "did
+  // you mean" question, this one is never bogus filler, so it isn't gated by confidence.
+  const unresolvedOptions = Array.isArray(obj.unresolvedOptions)
+    ? obj.unresolvedOptions.filter((o): o is string => typeof o === "string" && o.trim().length > 0)
+    : [];
+  const optionClarifications = unresolvedOptions.slice(0, 1).map(
+    (o) => `Couldn't confirm "${o}" as a listed option — showing results without that filter.`
+  );
+  // Backstop against the prompt alone for general ambiguity clarifications: only worth surfacing
+  // when the model itself says it isn't confident. A model/make the shopper stated outright
+  // should never trigger a "did you mean" or a filler question (color, ZIP) they never brought
+  // up — confirmed live, "2024 bmw ix with bowers and wilkins" came back with exactly that kind
+  // of bogus clarification despite make/model both being explicit in the text.
+  const clarifications = optionClarifications.length
+    ? optionClarifications
+    : confidence < 0.6
+      ? rawClarifications.slice(0, 1)
+      : [];
   const displayChips = Array.isArray(obj.displayChips)
     ? obj.displayChips
         .filter((c): c is { field: unknown; label: unknown } => !!c && typeof c === "object")
@@ -148,7 +164,7 @@ export async function parseSearchQuery(userText: string, catalog: SearchCatalogS
   const catalogSummary = JSON.stringify({
     makes: catalog.makes,
     models: catalog.models ?? [],
-    optionCodes: (catalog.optionCodes ?? []).map((o) => (o.label ? `${o.code} (${o.label})` : o.code)),
+    options: (catalog.options ?? []).map((o) => ({ key: o.key, label: o.label })),
     exteriorColors: catalog.exteriorColors ?? [],
     interiorColors: catalog.interiorColors ?? [],
   });
@@ -159,22 +175,32 @@ export async function parseSearchQuery(userText: string, catalog: SearchCatalogS
     "set it and search — do not stop to ask a clarifying question just because a value isn't in the " +
     "catalog slice below or because some optional field (color, ZIP, etc.) wasn't mentioned.\n\n" +
     "CATALOG RULES — these differ by field, read carefully:\n" +
-    "- make, optionCodes, exteriorColor, interiorColor: closed vocabularies. Only set these to a value " +
-    "that appears in the catalog below — never invent one that isn't listed.\n" +
-    "- model, trim: the catalog's model/option lists are NOT exhaustive — they only reflect what's " +
-    "currently in stock, not every real model a manufacturer makes. If the shopper names a real model " +
-    "(e.g. \"iX\", \"i4\", \"M3\", \"Model Y\") — even one that isn't in the catalog slice — set it " +
-    "exactly as they said it, preserving exact spelling and capitalization (never \"correct\" iX to X, " +
-    "i4 to 4, etc., and never drop a leading lowercase letter). A model missing from today's in-stock " +
-    "catalog just means the search may return zero results — that is a perfectly fine, honest outcome. " +
-    "It is never a reason to substitute a different model or to question the shopper's stated model.\n\n" +
+    "- make, exteriorColor, interiorColor: closed vocabularies. Only set these to a value that appears " +
+    "in the catalog below — never invent one that isn't listed.\n" +
+    "- model, trim: the catalog's model list is NOT exhaustive — it only reflects what's currently in " +
+    "stock, not every real model a manufacturer makes. If the shopper names a real model (e.g. \"iX\", " +
+    "\"i4\", \"M3\", \"Model Y\") — even one that isn't in the catalog slice — set it exactly as they " +
+    "said it, preserving exact spelling and capitalization (never \"correct\" iX to X, i4 to 4, etc., " +
+    "and never drop a leading lowercase letter). A model missing from today's in-stock catalog just " +
+    "means the search may return zero results — that is a perfectly fine, honest outcome. It is never " +
+    "a reason to substitute a different model or to question the shopper's stated model.\n" +
+    "- options: each catalog entry is {key, label} — key is a stable internal identifier (put it in " +
+    "filters.optionKeys), label is the real, human-readable option name to match the shopper's words " +
+    "against. Match by MEANING, not exact text: synonyms, abbreviations, and brand names all count " +
+    "(\"B&W\", \"Bowers and Wilkins\", \"Bowers & Wilkins\" all mean the same real option; match " +
+    "whichever catalog label is the closest fit). A named option is a MUST-HAVE filter — never drop it " +
+    "silently just to avoid blocking the search. If a named option cannot be matched to any catalog " +
+    "entry with reasonable confidence, add the shopper's own phrase (verbatim) to unresolvedOptions " +
+    "instead of guessing a key or silently ignoring it — see below.\n\n" +
     "CLARIFICATIONS — the default is none. Only include one (never more than one) when BOTH: " +
     "(a) your confidence is genuinely low, and (b) a field needed to run any reasonable search is " +
     "missing or ambiguous (e.g. \"a nice SUV\" with no make/model/price at all, or two very different " +
     "models could plausibly be meant). Never include a clarification that:\n" +
     "  - Questions or second-guesses a make/model/year the shopper already stated outright.\n" +
     "  - Says a model \"isn't in our catalog\" — irrelevant to the shopper, and often wrong (see above).\n" +
-    "  - Asks about color, ZIP, radius, or any other field the shopper never brought up.\n\n" +
+    "  - Asks about color, ZIP, radius, or any other field the shopper never brought up.\n" +
+    "An unresolved OPTION is handled separately via unresolvedOptions below, not this array — never " +
+    "duplicate it here.\n\n" +
     "Return ONLY a JSON object (no prose, no code fence) with exactly these keys:\n" +
     '  "filters": {\n' +
     '    "make": string|null, "model": string|null, "trim": string|null,\n' +
@@ -182,35 +208,40 @@ export async function parseSearchQuery(userText: string, catalog: SearchCatalogS
     '    "yearMin": number|null, "yearMax": number|null,\n' +
     '    "odometerMax": number|null, "minDays": number|null, "maxDays": number|null,\n' +
     '    "exteriorColor": string|null, "interiorColor": string|null,\n' +
-    '    "optionCodes": string[]|null,\n' +
+    '    "optionKeys": string[]|null,\n' +
     '    "possibleDemo": boolean|null,\n' +
     '    "zip": string|null, "radiusMiles": number|null\n' +
     "  },\n" +
     '  "confidence": number — 0 to 1, how confident you are this captures what the shopper meant. High ' +
     "(0.8+) whenever make/model/year/options are stated plainly, even if some are absent from the catalog slice.\n" +
     '  "clarifications": string[] — at most one entry, and only per the rules above (empty array otherwise).\n' +
-    '  "displayChips": array of {"field": string, "label": string} — one per filter you actually set, a short human-readable label (e.g. {"field": "priceMax", "label": "Under $40,000"}, {"field": "model", "label": "iX"}).\n' +
+    '  "unresolvedOptions": string[] — the shopper\'s own verbatim phrase for each named option you could NOT ' +
+    "confidently match to a catalog entry (empty array if every named option matched, or none were mentioned).\n" +
+    '  "displayChips": array of {"field": string, "label": string} — one per filter you actually set, a short human-readable label (e.g. {"field": "priceMax", "label": "Under $40,000"}, {"field": "model", "label": "iX"}, {"field": "optionKeys", "label": "Bowers & Wilkins"}).\n' +
     "A specific year mentioned once (e.g. \"2024\") means yearMin = yearMax = that year, unless the " +
-    "shopper said \"or newer\"/\"or later\" (yearMin only) or \"or older\" (yearMax only). " +
-    "For an option phrase, first try to match it to a real catalog option code (e.g. a brand name like " +
-    "\"Bowers & Wilkins\" or \"B&W\" often corresponds to a premium-audio option code) — if nothing in " +
-    "the catalog plausibly matches, just leave optionCodes null for that phrase rather than asking " +
-    "about it or substituting an unrelated filter. Never guess a numeric value that wasn't stated or " +
-    "clearly implied.\n\n" +
+    "shopper said \"or newer\"/\"or later\" (yearMin only) or \"or older\" (yearMax only). Never guess a " +
+    "numeric value that wasn't stated or clearly implied.\n\n" +
     "EXAMPLES:\n" +
-    'Shopper: "2024 bmw ix with bowers and wilkins"\n' +
+    'Shopper: "2024 bmw ix with bowers and wilkins" — catalog options includes {"key": "bowers wilkins diamond surround sound", "label": "Bowers & Wilkins Diamond Surround Sound"}\n' +
     'Correct: {"filters": {"make": "BMW", "model": "iX", "trim": null, "priceMin": null, "priceMax": null, ' +
     '"yearMin": 2024, "yearMax": 2024, "odometerMax": null, "minDays": null, "maxDays": null, ' +
-    '"exteriorColor": null, "interiorColor": null, "optionCodes": null, "possibleDemo": null, "zip": null, ' +
-    '"radiusMiles": null}, "confidence": 0.9, "clarifications": [], "displayChips": [{"field": "make", ' +
-    '"label": "BMW"}, {"field": "model", "label": "iX"}, {"field": "yearMin", "label": "2024"}]} ' +
-    "(model stays \"iX\" exactly as stated even if the catalog slice below has no BMW iX in stock right now — " +
-    "never \"BMW X\", never a clarification about it.)\n" +
+    '"exteriorColor": null, "interiorColor": null, "optionKeys": ["bowers wilkins diamond surround sound"], ' +
+    '"possibleDemo": null, "zip": null, "radiusMiles": null}, "confidence": 0.9, "clarifications": [], ' +
+    '"unresolvedOptions": [], "displayChips": [{"field": "make", "label": "BMW"}, {"field": "model", ' +
+    '"label": "iX"}, {"field": "yearMin", "label": "2024"}, {"field": "optionKeys", "label": "Bowers & Wilkins Diamond Surround Sound"}]} ' +
+    "(model stays \"iX\" exactly as stated even with no BMW iX in stock right now; \"bowers and wilkins\" " +
+    "matched the catalog label despite different wording/capitalization/punctuation.)\n" +
+    'Shopper: "2024 bmw ix with bowers and wilkins" — catalog options has NO entry resembling Bowers & Wilkins at all\n' +
+    'Correct: {"filters": {"make": "BMW", "model": "iX", "yearMin": 2024, "yearMax": 2024, "optionKeys": null, ...}, ' +
+    '"confidence": 0.9, "clarifications": [], "unresolvedOptions": ["bowers and wilkins"], "displayChips": [...]} ' +
+    "(the option genuinely isn't resolvable from this catalog slice — say so via unresolvedOptions, keep " +
+    "searching on everything else that WAS clear; never silently drop it with no signal at all, and never " +
+    "invent a key that doesn't exist in the catalog.)\n" +
     'Shopper: "nice bmw suv under 60k"\n' +
     'Correct: {"filters": {"make": "BMW", "model": null, ..., "priceMax": 60000, ...}, "confidence": 0.5, ' +
-    '"clarifications": ["Which BMW SUV — X1, X3, X5, X7, or another?"], "displayChips": [...]} ' +
+    '"clarifications": ["Which BMW SUV — X1, X3, X5, X7, or another?"], "unresolvedOptions": [], "displayChips": [...]} ' +
     "(here a clarification is appropriate: no specific model was named and BMW makes several SUVs.)\n\n" +
-    `Catalog (real values currently in stock — only make/optionCodes/colors are limited to this list; ` +
+    `Catalog (real values currently in stock — only make/options/colors are limited to this list; ` +
     `model/trim are NOT, see rules above):\n${catalogSummary}\n\n` +
     `Shopper's search:\n"""\n${text}\n"""`;
 

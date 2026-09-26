@@ -2,13 +2,13 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { inventoryQueryString } from "./inventoryApi";
 
-describe("inventoryQueryString — optionCodes array", () => {
-  it("comma-joins an optionCodes array into a single query param", () => {
-    assert.equal(inventoryQueryString({ optionCodes: ["PANO", "AWD"] }), "?optionCodes=PANO%2CAWD");
+describe("inventoryQueryString — optionKeys array", () => {
+  it("comma-joins an optionKeys array into a single query param", () => {
+    assert.equal(inventoryQueryString({ optionKeys: ["pano", "awd"] }), "?optionKeys=pano%2Cawd");
   });
 
-  it("omits optionCodes entirely when the array is empty", () => {
-    assert.equal(inventoryQueryString({ optionCodes: [] }), "");
+  it("omits optionKeys entirely when the array is empty", () => {
+    assert.equal(inventoryQueryString({ optionKeys: [] }), "");
   });
 });
 

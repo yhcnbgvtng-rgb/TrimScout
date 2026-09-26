@@ -29,7 +29,7 @@ export function parseBuyerSearchParams(sp: URLSearchParams): ParsedBuyerSearch {
     throw new BuyerSearchParamsError("radiusMiles requires make to also be set.");
   }
 
-  const optionCodes = (sp.get("optionCodes") || "").split(",").map((c) => c.trim()).filter(Boolean);
+  const optionKeys = (sp.get("optionKeys") || "").split(",").map((c) => c.trim()).filter(Boolean);
   const sortDistance = sp.get("sort") === "distance";
   const query: BuyerSearchQuery = {
     state: sp.get("state") || undefined,
@@ -48,7 +48,7 @@ export function parseBuyerSearchParams(sp: URLSearchParams): ParsedBuyerSearch {
     minPriceChanges: sp.get("minPriceChanges") ? Number(sp.get("minPriceChanges")) : undefined,
     exteriorColor: sp.get("exteriorColor") || undefined,
     interiorColor: sp.get("interiorColor") || undefined,
-    optionCodes: optionCodes.length ? optionCodes : undefined,
+    optionKeys: optionKeys.length ? optionKeys : undefined,
     possibleDemo: sp.get("possibleDemo") === "1",
     // "distance" isn't a box-side sort key (inventoryListQuery.js falls back to dealer:asc for
     // an unknown key) — distance sort happens in-memory on the fetched page, in the route.
@@ -81,7 +81,7 @@ export function parsedSearchFiltersToParams(filters: ParsedSearchFilters, clarif
   if (filters.maxDays != null) sp.set("maxDays", String(filters.maxDays));
   if (filters.exteriorColor) sp.set("exteriorColor", filters.exteriorColor);
   if (filters.interiorColor) sp.set("interiorColor", filters.interiorColor);
-  if (filters.optionCodes?.length) sp.set("optionCodes", filters.optionCodes.join(","));
+  if (filters.optionKeys?.length) sp.set("optionKeys", filters.optionKeys.join(","));
   if (filters.possibleDemo) sp.set("possibleDemo", "1");
   if (filters.zip) sp.set("zip", filters.zip);
   if (filters.radiusMiles != null) {
