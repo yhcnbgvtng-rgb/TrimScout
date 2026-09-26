@@ -34,7 +34,8 @@ interface SearchResults {
 }
 
 interface CatalogOption {
-  code: string;
+  key: string;
+  label: string;
   vehicleCount: number;
 }
 
@@ -51,7 +52,7 @@ interface Filters {
   maxDays: string;
   exteriorColor: string;
   interiorColor: string;
-  optionCodes: string[];
+  optionKeys: string[];
   possibleDemo: boolean;
   zip: string;
   radiusMiles: string;
@@ -60,7 +61,7 @@ interface Filters {
 
 const EMPTY_FILTERS: Filters = {
   make: "", model: "", trim: "", priceMin: "", priceMax: "", yearMin: "", yearMax: "", odometerMax: "",
-  minDays: "", maxDays: "", exteriorColor: "", interiorColor: "", optionCodes: [],
+  minDays: "", maxDays: "", exteriorColor: "", interiorColor: "", optionKeys: [],
   possibleDemo: false, zip: "", radiusMiles: "", sort: "",
 };
 
@@ -78,7 +79,7 @@ function filtersToQueryString(f: Filters, extra: { limit?: number; offset?: numb
   if (f.maxDays) sp.set("maxDays", f.maxDays);
   if (f.exteriorColor) sp.set("exteriorColor", f.exteriorColor);
   if (f.interiorColor) sp.set("interiorColor", f.interiorColor);
-  if (f.optionCodes.length) sp.set("optionCodes", f.optionCodes.join(","));
+  if (f.optionKeys.length) sp.set("optionKeys", f.optionKeys.join(","));
   if (f.possibleDemo) sp.set("possibleDemo", "1");
   if (f.zip) sp.set("zip", f.zip);
   if (f.radiusMiles && f.make && f.zip) sp.set("radiusMiles", f.radiusMiles);
@@ -208,7 +209,7 @@ export function BuyerSearchView() {
         maxDays: pf.maxDays != null ? String(pf.maxDays) : "",
         exteriorColor: pf.exteriorColor || "",
         interiorColor: pf.interiorColor || "",
-        optionCodes: Array.isArray(pf.optionCodes) ? pf.optionCodes : [],
+        optionKeys: Array.isArray(pf.optionKeys) ? pf.optionKeys : [],
         possibleDemo: !!pf.possibleDemo,
         zip: pf.zip || filters.zip || "",
         radiusMiles: pf.radiusMiles != null ? String(pf.radiusMiles) : "",
@@ -227,7 +228,7 @@ export function BuyerSearchView() {
   // second Gemini call, per this series' scope.
   const clearFilterField = useCallback(
     (field: keyof Filters) => {
-      const next: Filters = { ...filters, [field]: field === "optionCodes" ? [] : field === "possibleDemo" ? false : "" };
+      const next: Filters = { ...filters, [field]: field === "optionKeys" ? [] : field === "possibleDemo" ? false : "" };
       setFilters(next);
       setDisplayChips((chips) => chips.filter((c) => c.field !== field));
       void runFilterSearch(next, 0);
@@ -235,10 +236,10 @@ export function BuyerSearchView() {
     [filters, runFilterSearch]
   );
 
-  const toggleOptionCode = (code: string) => {
+  const toggleOptionKey = (key: string) => {
     setFilters((f) => ({
       ...f,
-      optionCodes: f.optionCodes.includes(code) ? f.optionCodes.filter((c) => c !== code) : [...f.optionCodes, code],
+      optionKeys: f.optionKeys.includes(key) ? f.optionKeys.filter((k) => k !== key) : [...f.optionKeys, key],
     }));
   };
 
@@ -444,14 +445,14 @@ export function BuyerSearchView() {
               <label className="mb-1 block text-[11px] font-bold uppercase tracking-wide text-ink-faint">Must-have options</label>
               <div className="max-h-40 space-y-1 overflow-y-auto pr-1">
                 {catalogOptions.map((o) => (
-                  <label key={o.code} className="flex items-center gap-2 text-xs text-ink-light">
+                  <label key={o.key} className="flex items-center gap-2 text-xs text-ink-light">
                     <input
                       type="checkbox"
-                      checked={filters.optionCodes.includes(o.code)}
-                      onChange={() => toggleOptionCode(o.code)}
+                      checked={filters.optionKeys.includes(o.key)}
+                      onChange={() => toggleOptionKey(o.key)}
                       className="h-3.5 w-3.5 rounded border-border accent-emerald-500"
                     />
-                    <span className="flex-1 truncate">{o.code}</span>
+                    <span className="flex-1 truncate">{o.label}</span>
                     <span className="text-ink-faint">{o.vehicleCount}</span>
                   </label>
                 ))}

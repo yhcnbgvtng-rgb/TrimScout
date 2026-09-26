@@ -35,7 +35,7 @@ export async function POST(req: Request) {
     const [{ makes: byMake }, catalog] = await Promise.all([inventoryMakes(), catalogOptions()]);
     const parsed = await parseSearchQuery(q, {
       makes: byMake.map((m) => m.make),
-      optionCodes: catalog.options.map((o) => ({ code: o.code })),
+      options: catalog.options.map((o) => ({ key: o.key, label: o.label })),
       exteriorColors: catalog.exteriorColors,
       interiorColors: catalog.interiorColors,
     });

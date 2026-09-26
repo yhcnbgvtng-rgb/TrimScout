@@ -45,18 +45,22 @@ export function inventoryListQuery(params) {
   if (p("minPriceChanges")) { where.push("i.price_change_count >= ?"); args.push(Number(p("minPriceChanges"))); }
   // Buyer search's "must-have ALL of these factory options" — real set containment against
   // the normalized dealer_inventory_options side table (see ensureInventoryTable), not a
-  // LIKE/JSON scan of options_json. A comma-separated single param (optionCodes=A,B), not
-  // repeated params — matches how every other filter here is a single string value, and is
-  // simpler for a client to build than URLSearchParams.append() per code.
+  // LIKE/JSON scan of options_json. Filters on canonical_key, NEVER the raw per-listing `code`
+  // dealer_inventory_options also stores as metadata — confirmed live 2026-09-25, that code is
+  // just a listing-position number ("OPT-35"), not a stable identifier, so the SAME real option
+  // gets a different code on every vehicle; only canonical_key (normalizeOptionKey(label)) is
+  // safe to match across vehicles. A comma-separated single param (optionKeys=a,b), not repeated
+  // params — matches how every other filter here is a single string value, and is simpler for a
+  // client to build than URLSearchParams.append() per key.
   //
   // This is a correlated subquery (one dealer_inventory_options lookup per outer candidate
   // row), so it should run after other filters (make/model/price/etc.) have already narrowed
   // the outer set — it has no index hint of its own yet. Confirm live via EXPLAIN once a real
-  // optionCodes= search is exercised, the same discipline every other filter here has had.
-  const optionCodes = (params.get("optionCodes") || "").split(",").map((c) => c.trim()).filter(Boolean);
-  if (optionCodes.length) {
-    where.push(`i.vin IN (SELECT vin FROM dealer_inventory_options WHERE dealer_id = i.dealer_id AND code IN (${optionCodes.map(() => "?").join(",")}) GROUP BY vin HAVING COUNT(DISTINCT code) = ?)`);
-    args.push(...optionCodes, optionCodes.length);
+  // optionKeys= search is exercised, the same discipline every other filter here has had.
+  const optionKeys = (params.get("optionKeys") || "").split(",").map((c) => c.trim()).filter(Boolean);
+  if (optionKeys.length) {
+    where.push(`i.vin IN (SELECT vin FROM dealer_inventory_options WHERE dealer_id = i.dealer_id AND canonical_key IN (${optionKeys.map(() => "?").join(",")}) GROUP BY vin HAVING COUNT(DISTINCT canonical_key) = ?)`);
+    args.push(...optionKeys, optionKeys.length);
   }
   // "New" with real miles on it usually means a demo/loaner, not a car
   // fresh off the truck — there's no separate demo/loaner condition value

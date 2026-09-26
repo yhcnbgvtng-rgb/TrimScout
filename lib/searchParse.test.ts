@@ -20,8 +20,12 @@ function withEnv<T>(vars: Record<string, string | undefined>, fn: () => Promise<
 }
 
 const catalog = {
-  makes: ["Toyota", "Honda"],
-  optionCodes: [{ code: "PANO", label: "Panoramic Roof" }, { code: "AWD" }],
+  makes: ["Toyota", "Honda", "BMW"],
+  options: [
+    { key: "panoramic roof", label: "Panoramic Roof" },
+    { key: "awd", label: "AWD" },
+    { key: "bowers wilkins diamond surround sound", label: "Bowers & Wilkins Diamond Surround Sound" },
+  ],
   exteriorColors: ["Black", "White"],
   interiorColors: ["Tan", "Black"],
 };
@@ -164,13 +168,13 @@ describe("parseSearchQuery — configured, mocked Gemini response", () => {
     });
   });
 
-  it("drops a non-array/empty optionCodes to null rather than an empty array", async () => {
+  it("drops a non-array/empty optionKeys to null rather than an empty array", async () => {
     await withEnv({ GEMINI_API_KEY: "test-key", GEMINI_MODEL: "gemini-test" }, async () => {
       const origFetch = globalThis.fetch;
-      globalThis.fetch = (async () => geminiResponse(JSON.stringify({ filters: { optionCodes: [] } }))) as typeof fetch;
+      globalThis.fetch = (async () => geminiResponse(JSON.stringify({ filters: { optionKeys: [] } }))) as typeof fetch;
       try {
         const result = await parseSearchQuery("something", catalog);
-        assert.equal(result!.filters.optionCodes, null);
+        assert.equal(result!.filters.optionKeys, null);
       } finally {
         globalThis.fetch = origFetch;
       }
@@ -264,6 +268,82 @@ describe("parseSearchQuery — configured, mocked Gemini response", () => {
       try {
         const result = await parseSearchQuery("nice bmw suv under 60k", catalog);
         assert.deepEqual(result!.clarifications, ["Which BMW SUV — X1, X3, X5, or X7?"]);
+      } finally {
+        globalThis.fetch = origFetch;
+      }
+    });
+  });
+
+  it("resolves a named option to its catalog canonical_key, never the raw code, and keeps the search must-have on it", async () => {
+    await withEnv({ GEMINI_API_KEY: "test-key", GEMINI_MODEL: "gemini-test" }, async () => {
+      const origFetch = globalThis.fetch;
+      globalThis.fetch = (async () =>
+        geminiResponse(
+          JSON.stringify({
+            filters: { make: "BMW", model: "iX", yearMin: 2024, yearMax: 2024, optionKeys: ["bowers wilkins diamond surround sound"] },
+            confidence: 0.9,
+            clarifications: [],
+            unresolvedOptions: [],
+            displayChips: [
+              { field: "make", label: "BMW" },
+              { field: "model", label: "iX" },
+              { field: "optionKeys", label: "Bowers & Wilkins Diamond Surround Sound" },
+            ],
+          })
+        )) as typeof fetch;
+      try {
+        const result = await parseSearchQuery("2024 bmw ix with bowers and wilkins", catalog);
+        assert.deepEqual(result!.filters.optionKeys, ["bowers wilkins diamond surround sound"]);
+        assert.equal(result!.clarifications.length, 0);
+        assert.ok(result!.displayChips.some((c) => c.field === "optionKeys" && c.label.includes("Bowers")));
+      } finally {
+        globalThis.fetch = origFetch;
+      }
+    });
+  });
+
+  it("never silently drops a named option that couldn't be resolved — surfaces exactly one clarification about it instead", async () => {
+    await withEnv({ GEMINI_API_KEY: "test-key", GEMINI_MODEL: "gemini-test" }, async () => {
+      const origFetch = globalThis.fetch;
+      globalThis.fetch = (async () =>
+        geminiResponse(
+          JSON.stringify({
+            filters: { make: "BMW", model: "iX", yearMin: 2024, yearMax: 2024, optionKeys: null },
+            confidence: 0.9,
+            clarifications: [],
+            unresolvedOptions: ["bowers and wilkins"],
+            displayChips: [{ field: "make", label: "BMW" }, { field: "model", label: "iX" }],
+          })
+        )) as typeof fetch;
+      try {
+        const result = await parseSearchQuery("2024 bmw ix with bowers and wilkins", catalog);
+        assert.equal(result!.filters.optionKeys, null);
+        assert.equal(result!.filters.make, "BMW", "other clearly-stated filters still run even when the option can't be resolved");
+        assert.equal(result!.clarifications.length, 1);
+        assert.match(result!.clarifications[0], /bowers and wilkins/i);
+      } finally {
+        globalThis.fetch = origFetch;
+      }
+    });
+  });
+
+  it("an unresolved-option clarification is never suppressed by the high-confidence backstop", async () => {
+    await withEnv({ GEMINI_API_KEY: "test-key", GEMINI_MODEL: "gemini-test" }, async () => {
+      const origFetch = globalThis.fetch;
+      globalThis.fetch = (async () =>
+        geminiResponse(
+          JSON.stringify({
+            filters: { make: "BMW" },
+            confidence: 0.95,
+            clarifications: [],
+            unresolvedOptions: ["heated cupholders"],
+            displayChips: [],
+          })
+        )) as typeof fetch;
+      try {
+        const result = await parseSearchQuery("bmw with heated cupholders", catalog);
+        // A vague general clarification would be dropped at this confidence — the option one must not be.
+        assert.equal(result!.clarifications.length, 1);
       } finally {
         globalThis.fetch = origFetch;
       }

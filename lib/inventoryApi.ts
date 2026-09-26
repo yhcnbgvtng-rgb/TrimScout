@@ -106,11 +106,14 @@ export interface InventoryQuery {
   /** Only vehicles whose price has changed at least this many times since it was first crawled. */
   minPriceChanges?: number;
   /**
-   * Must-have-ALL factory option codes (real set containment against dealer_inventory_options,
-   * not a free-text match) — pass the `code`s straight off `catalogOptions()`. Comma-joined on
-   * the wire, same as every other filter here being a single string value.
+   * Must-have-ALL factory options (real set containment against dealer_inventory_options's
+   * canonical_key column) — pass the `key`s straight off `catalogOptions()`. NEVER the raw
+   * per-listing `code` a listing carries (confirmed live: that's a listing-position number like
+   * "OPT-35", not a stable identifier — the same real option gets a different code on every
+   * vehicle). Comma-joined on the wire, same as every other filter here being a single string
+   * value.
    */
-  optionCodes?: string[];
+  optionKeys?: string[];
   /** New condition with over 500 miles — likely a demo/loaner. */
   possibleDemo?: boolean;
   limit?: number;
@@ -137,7 +140,7 @@ export type BuyerSearchQuery = Pick<
   | "minPriceChanges"
   | "exteriorColor"
   | "interiorColor"
-  | "optionCodes"
+  | "optionKeys"
   | "possibleDemo"
   | "limit"
   | "offset"
@@ -222,12 +225,13 @@ export async function searchInventory(q: BuyerSearchQuery = {}): Promise<{ total
 }
 
 export interface CatalogOptions {
-  options: Array<{ code: string; vehicleCount: number }>;
+  /** `key` is the stable canonical_key to pass into `optionKeys=` — never a raw per-listing code. `label` is what to actually show the buyer. */
+  options: Array<{ key: string; label: string; vehicleCount: number }>;
   exteriorColors: string[];
   interiorColors: string[];
 }
 
-/** Factory option codes and colors that actually exist among in-stock vehicles matching make/model/trim — the /search filter panel's own source of truth, so it never offers a combination with zero results. */
+/** Factory options (canonical key + display label) and colors that actually exist among in-stock vehicles matching make/model/trim — the /search filter panel's own source of truth, so it never offers a combination with zero results. */
 export async function catalogOptions(f: { make?: string; model?: string; trim?: string } = {}): Promise<CatalogOptions> {
   const qs = new URLSearchParams();
   if (f.make) qs.set("make", f.make);

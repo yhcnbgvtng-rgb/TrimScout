@@ -116,7 +116,7 @@ describe('inventoryListQuery — sort', () => {
   });
 });
 
-// Buyer search (PR 1 of the /search feature) additions: odometerMax, minPriceChanges, optionCodes.
+// Buyer search (PR 1 of the /search feature) additions: odometerMax, minPriceChanges, optionKeys.
 describe('inventoryListQuery — odometerMax', () => {
   it('filters on i.mileage <= the given value', () => {
     const { sql, args } = query({ odometerMax: '30000' });
@@ -139,31 +139,31 @@ describe('inventoryListQuery — minPriceChanges', () => {
   });
 });
 
-describe('inventoryListQuery — optionCodes (must-have ALL, real set containment)', () => {
-  it('builds a HAVING COUNT(DISTINCT code) = N containment check against dealer_inventory_options', () => {
-    const { sql, args } = query({ optionCodes: 'PANO,AWD' });
+describe('inventoryListQuery — optionKeys (must-have ALL, real set containment on canonical_key)', () => {
+  it('builds a HAVING COUNT(DISTINCT canonical_key) = N containment check against dealer_inventory_options', () => {
+    const { sql, args } = query({ optionKeys: 'pano,awd' });
     assert.match(
       sql,
-      /WHERE i\.vin IN \(SELECT vin FROM dealer_inventory_options WHERE dealer_id = i\.dealer_id AND code IN \(\?,\?\) GROUP BY vin HAVING COUNT\(DISTINCT code\) = \?\)/
+      /WHERE i\.vin IN \(SELECT vin FROM dealer_inventory_options WHERE dealer_id = i\.dealer_id AND canonical_key IN \(\?,\?\) GROUP BY vin HAVING COUNT\(DISTINCT canonical_key\) = \?\)/
     );
-    assert.deepEqual(args, ['PANO', 'AWD', 2]);
+    assert.deepEqual(args, ['pano', 'awd', 2]);
   });
 
   it('trims whitespace and drops empty entries from the comma-separated list', () => {
-    const { args } = query({ optionCodes: ' PANO , , AWD ' });
-    assert.deepEqual(args, ['PANO', 'AWD', 2]);
+    const { args } = query({ optionKeys: ' pano , , awd ' });
+    assert.deepEqual(args, ['pano', 'awd', 2]);
   });
 
-  it('is a no-op when optionCodes is empty or absent', () => {
+  it('is a no-op when optionKeys is empty or absent', () => {
     assert.equal(query({}).sql.includes('dealer_inventory_options'), false);
-    assert.equal(query({ optionCodes: '' }).sql.includes('dealer_inventory_options'), false);
+    assert.equal(query({ optionKeys: '' }).sql.includes('dealer_inventory_options'), false);
   });
 
   it('composes with other filters and the make= index hint unchanged', () => {
-    const { sql, args } = query({ make: 'BMW', optionCodes: 'PANO', inStock: '1' });
+    const { sql, args } = query({ make: 'BMW', optionKeys: 'bowers wilkins', inStock: '1' });
     assert.match(sql, /FORCE INDEX \(idx_inv_stock_make_dealer\)/);
     assert.match(sql, /i\.make = \? AND .*dealer_inventory_options/);
-    assert.deepEqual(args, ['BMW', 'PANO', 1]);
+    assert.deepEqual(args, ['BMW', 'bowers wilkins', 1]);
   });
 });
 

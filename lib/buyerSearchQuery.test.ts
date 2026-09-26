@@ -6,7 +6,7 @@ import type { ParsedSearchFilters } from "./searchParse";
 function filters(partial: Partial<ParsedSearchFilters>): ParsedSearchFilters {
   return {
     make: null, model: null, trim: null, priceMin: null, priceMax: null, yearMin: null, yearMax: null, odometerMax: null,
-    minDays: null, maxDays: null, exteriorColor: null, interiorColor: null, optionCodes: null,
+    minDays: null, maxDays: null, exteriorColor: null, interiorColor: null, optionKeys: null,
     possibleDemo: null, zip: null, radiusMiles: null, ...partial,
   };
 }
@@ -53,14 +53,14 @@ describe("parseBuyerSearchParams — sort=distance", () => {
 });
 
 describe("parseBuyerSearchParams — field parsing", () => {
-  it("splits, trims and drops empty entries from optionCodes", () => {
-    const { query } = parseBuyerSearchParams(sp({ optionCodes: " PANO , , AWD " }));
-    assert.deepEqual(query.optionCodes, ["PANO", "AWD"]);
+  it("splits, trims and drops empty entries from optionKeys", () => {
+    const { query } = parseBuyerSearchParams(sp({ optionKeys: " PANO , , AWD " }));
+    assert.deepEqual(query.optionKeys, ["PANO", "AWD"]);
   });
 
-  it("is undefined (not an empty array) when optionCodes is absent", () => {
+  it("is undefined (not an empty array) when optionKeys is absent", () => {
     const { query } = parseBuyerSearchParams(sp({}));
-    assert.equal(query.optionCodes, undefined);
+    assert.equal(query.optionKeys, undefined);
   });
 
   it("coerces numeric filters and caps limit at 100", () => {
@@ -86,10 +86,10 @@ describe("parseBuyerSearchParams — field parsing", () => {
 describe("parsedSearchFiltersToParams — Gemini's parsed filters onto the wire", () => {
   it("sets a param for every non-null filter", () => {
     const clarifications: string[] = [];
-    const params = parsedSearchFiltersToParams(filters({ make: "Toyota", priceMax: 30000, optionCodes: ["PANO", "AWD"] }), clarifications);
+    const params = parsedSearchFiltersToParams(filters({ make: "Toyota", priceMax: 30000, optionKeys: ["PANO", "AWD"] }), clarifications);
     assert.equal(params.get("make"), "Toyota");
     assert.equal(params.get("priceMax"), "30000");
-    assert.equal(params.get("optionCodes"), "PANO,AWD");
+    assert.equal(params.get("optionKeys"), "PANO,AWD");
     assert.deepEqual(clarifications, []);
   });
 
