@@ -108,6 +108,12 @@ export const Navbar: React.FC<NavbarProps> = ({
               </button>
             );
           })}
+          <Link
+            href="/search"
+            className="relative px-3.5 py-1.5 rounded-lg text-xs font-semibold text-ink-muted hover:text-white hover:bg-surface-elevated transition-all"
+          >
+            Search Inventory
+          </Link>
         </nav>
 
         {/* Right Actions: User Profile / Login Button + Request a Quote CTA */}
@@ -299,6 +305,13 @@ export const Navbar: React.FC<NavbarProps> = ({
               </button>
             );
           })}
+          <Link
+            href="/search"
+            onClick={() => setIsMobileMenuOpen(false)}
+            className="w-full flex items-center px-3 py-2 rounded-lg text-xs font-medium text-ink-muted hover:text-white hover:bg-surface transition-all"
+          >
+            Search Inventory
+          </Link>
 
           <button
             type="button"
