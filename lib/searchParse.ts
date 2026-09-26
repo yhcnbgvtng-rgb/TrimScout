@@ -170,7 +170,10 @@ export async function parseSearchQuery(userText: string, catalog: SearchCatalogS
 
   if (!res.ok) {
     const body = await res.text().catch(() => "");
-    throw new SearchParseError(`AI search request failed (${res.status}): ${body.slice(0, 300)}`);
+    // 429/quota errors carry a `violations` array naming the specific quota metric and its limit
+    // (e.g. which tier/model dimension was exceeded) further into the body than 300 chars — worth
+    // keeping enough to actually diagnose a quota error, not just confirm one happened.
+    throw new SearchParseError(`AI search request failed (${res.status}): ${body.slice(0, 1200)}`);
   }
 
   const json = await res.json();
