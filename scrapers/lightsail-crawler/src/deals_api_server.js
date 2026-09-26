@@ -1882,6 +1882,15 @@ async function ensureInventoryTable(pool) {
     PRIMARY KEY (vin, dealer_id, canonical_key),
     INDEX idx_opt_canonical (canonical_key)
   )`);
+  // The buyer search's optionKeys= filter (inventoryListQuery.js) runs a correlated subquery
+  // against this table per outer candidate row: WHERE dealer_id = i.dealer_id AND canonical_key
+  // IN (...). idx_opt_canonical above leads with canonical_key, not dealer_id, so that subquery
+  // had no index matching its own leading equality — confirmed live 2026-09-26: an options-only
+  // search (no make/model, the shape the AI search box produces for a query like "heated seats
+  // and sunroof") timed out past 60s outright, and even make=BMW (26,945 rows) added 15.9s for a
+  // single option key. This composite leads with the per-row equality and covers vin, turning
+  // each call into an index-only lookup scoped to one dealer's own rows.
+  await pool.query("ALTER TABLE dealer_inventory_options ADD INDEX IF NOT EXISTS idx_opt_dealer_canonical (dealer_id, canonical_key, vin)");
   inventoryReady = true;
 }
 

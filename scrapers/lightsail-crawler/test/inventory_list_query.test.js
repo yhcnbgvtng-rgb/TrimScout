@@ -144,7 +144,7 @@ describe('inventoryListQuery — optionKeys (must-have ALL, real set containment
     const { sql, args } = query({ optionKeys: 'pano,awd' });
     assert.match(
       sql,
-      /WHERE i\.vin IN \(SELECT vin FROM dealer_inventory_options WHERE dealer_id = i\.dealer_id AND canonical_key IN \(\?,\?\) GROUP BY vin HAVING COUNT\(DISTINCT canonical_key\) = \?\)/
+      /WHERE i\.vin IN \(SELECT vin FROM dealer_inventory_options FORCE INDEX \(idx_opt_dealer_canonical\) WHERE dealer_id = i\.dealer_id AND canonical_key IN \(\?,\?\) GROUP BY vin HAVING COUNT\(DISTINCT canonical_key\) = \?\)/
     );
     assert.deepEqual(args, ['pano', 'awd', 2]);
   });
