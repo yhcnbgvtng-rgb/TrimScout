@@ -250,11 +250,8 @@ export function BuyerSearchView() {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      <div className="mb-8 space-y-2">
+      <div className="mb-8">
         <h1 className="text-2xl font-extrabold tracking-tight text-white sm:text-3xl">Search real dealer inventory</h1>
-        <p className="text-sm text-ink-muted">
-          Every vehicle here comes from TrimScout&apos;s own nightly dealer crawl — never a MarketCheck listing or an estimate.
-        </p>
       </div>
 
       {/* NL search box */}
