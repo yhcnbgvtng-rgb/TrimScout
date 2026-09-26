@@ -2099,6 +2099,22 @@ async function handleInventorySweep(req, res) {
 // unit-tested without starting this file's real server — see that module's header comment.
 
 // GET /api/inventory?dealerId=&state=&make=&model=&cond=&q=&inStock=1&limit=&offset=&sort=
+// Hard ceiling on how long any single GET /api/inventory (list or count) query is allowed to run
+// server-side, via MariaDB's own SET STATEMENT ... FOR (confirmed live 2026-09-26, MariaDB
+// 10.11: aborts with error 1969 "max_statement_time exceeded" at exactly the given second).
+// This is a backstop independent of query-plan correctness — even a well-planned query can run
+// long under enough concurrent write contention (confirmed live the same day: a correctly
+// index-only-planned optionKeys= query still took 58s against a table under heavy concurrent
+// write load from a one-time backfill). Without this, a slow query keeps consuming a MySQL
+// thread/connection long after the calling client's own 60s timeout (lib/inventoryApi.ts) has
+// already given up — confirmed live: a real buyer search sat in the MariaDB processlist for
+// 2+ hours after its caller was long gone, silently starving the box of resources until manually
+// killed. 20s is comfortably above every legitimately-fast query measured on this table (all
+// well under 1s once properly indexed) while still failing fast on anything pathological.
+// Not applied to handleExportInventory's streaming query — a 50k-row CSV export is expected to
+// run longer than this by design.
+const INV_LIST_STATEMENT_TIMEOUT_SECONDS = 20;
+
 async function handleListInventory(req, res, params) {
   const pool = getPool();
   await ensureInventoryTable(pool);
@@ -2116,8 +2132,11 @@ async function handleListInventory(req, res, params) {
   // and the COUNT is a separate, simple aggregate. This trades away the one real case
   // SQL_CALC_FOUND_ROWS helped (the original un-indexed q= full scan, where neither query
   // could stop early anyway) for correctness on every other case, which is the common one.
-  const [rows] = await pool.query(`SELECT i.*, d.city AS dealer_city, d.state AS dealer_state ${sql} ORDER BY ${orderBy} LIMIT ? OFFSET ?`, [...args, limit, offset]);
-  const [[{ total }]] = await pool.query(`SELECT COUNT(*) AS total ${sql}`, args);
+  const [rows] = await pool.query(
+    `SET STATEMENT max_statement_time=${INV_LIST_STATEMENT_TIMEOUT_SECONDS} FOR SELECT i.*, d.city AS dealer_city, d.state AS dealer_state ${sql} ORDER BY ${orderBy} LIMIT ? OFFSET ?`,
+    [...args, limit, offset]
+  );
+  const [[{ total }]] = await pool.query(`SET STATEMENT max_statement_time=${INV_LIST_STATEMENT_TIMEOUT_SECONDS} FOR SELECT COUNT(*) AS total ${sql}`, args);
   sendJson(res, 200, { total, limit, offset, vehicles: rows.map(inventoryRowFromDb) });
 }
 
