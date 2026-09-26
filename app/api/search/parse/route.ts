@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
-import { inventoryStats, catalogOptions, InventoryApiError } from "@/lib/inventoryApi";
+import { inventoryMakes, catalogOptions, InventoryApiError } from "@/lib/inventoryApi";
 import { parseSearchQuery, SearchParseError } from "@/lib/searchParse";
+import { isGeminiEnabled } from "@/lib/serverSecret";
 import { parseBuyerSearchParams, parsedSearchFiltersToParams } from "@/lib/buyerSearchQuery";
 import { runBuyerSearch } from "@/lib/buyerSearch";
 
@@ -24,10 +25,16 @@ export async function POST(req: Request) {
   if (!q) return NextResponse.json({ error: "q is required." }, { status: 400 });
   const defaultZip = typeof body.zip === "string" ? body.zip.trim() : undefined;
 
+  // Checked before touching the box at all — when Gemini isn't configured, there's no point
+  // paying for a makes/catalog round trip just to immediately report "not configured".
+  if (!isGeminiEnabled()) {
+    return NextResponse.json({ available: false, message: "AI search is not configured — use the filters below instead." });
+  }
+
   try {
-    const [stats, catalog] = await Promise.all([inventoryStats(), catalogOptions()]);
+    const [{ makes: byMake }, catalog] = await Promise.all([inventoryMakes(), catalogOptions()]);
     const parsed = await parseSearchQuery(q, {
-      makes: stats.byMake.map((m) => m.make),
+      makes: byMake.map((m) => m.make),
       optionCodes: catalog.options.map((o) => ({ code: o.code })),
       exteriorColors: catalog.exteriorColors,
       interiorColors: catalog.interiorColors,
