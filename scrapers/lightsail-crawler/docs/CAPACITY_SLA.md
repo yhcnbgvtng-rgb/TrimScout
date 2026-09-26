@@ -368,6 +368,47 @@ whether a state's `actualSeconds` badly overshot its `estimatedSeconds`
 and use that to populate `HIGH_WAF_STATES`/`CRAWLER_HIGH_WAF_BOOST` from
 real recurring evidence rather than a guess.
 
+## 2026-09-26 update — deduped core coverage, filled the NE/UT/WI gap, split oversized brand crawls, and recalibrated p90 from real overnight data
+
+The first real night with box 1's concurrency fix live (2026-09-25/26) surfaced three more problems, all live-verified against the actual crontabs/logs/DB, not estimated:
+
+### Problem 1: core-brand states were double-crawled while others got none
+
+Box 1's 11pm main job and box 3/box 4's 4am `CRAWLER_RUN_LABEL=core` side-jobs were assigned independently and drifted into real overlap: **CT, DE, IA, ID, OH, VA, AZ, KS, LA, RI, TX** were core-brand-crawled *twice* a night, while **NE, UT, WI** got *zero* core-brand (Honda/Toyota/Kia/Nissan/etc.) coverage from any box at all.
+
+### Problem 2: FL Honda/Kia/Toyota, NJ Honda, and IL Toyota were being SIGKILLed mid-crawl
+
+Confirmed live in box 4's 2026-09-26 core-side-job log: these five brand+state crawls each hit `PER_BRAND_TIMEOUT_MS` (2h) and were killed with only part of their dealer list ever attempted — a scheduling gap, not an extractor bug (see the separate Priority-1 extractor investigation for that). `PER_BRAND_TIMEOUT_MS`'s own comment had assumed ~200 dealers comfortably fit in 2h; these five all failed well under that (33-55 dealers), meaning real per-dealer time (including WAF-driven retries) is heavier than assumed, at least for these high-volume core brands in these particular states.
+
+### Problem 3: the p90 planning rate was wildly conservative for every box, in both directions
+
+The first full night with real per-box data available showed every job finishing dramatically faster than its projection (ratios of actual/projected hours between 0.12 and 0.56) — the global 93.2s/rooftop default (and box 1's now-stale 77.4s override) don't reflect real 2026-09-25/26 throughput:
+
+| Box/job | Old rate | Real weighted rate, 2026-09-25/26 | New rate |
+|---|---|---|---|
+| Box 1 core main | 77.4 (stale) | 44.1 | **55** |
+| Box 2 core main | 93.2 (default) | 23.35 | **30** |
+| Box 3 expansion main | 93.2 (default) | ~13.0 (mean) | **20** |
+| Box 4 expansion main | 93.2 (default) | ~12.0 (mean) | **20** |
+| Box 3/4 core side-jobs | 93.2 (default) | ~91.7 / ~105.4 (mean) | **unchanged** — the default already happens to be a reasonable fit here, confirming core brands genuinely run 5-8x slower per rooftop than expansion brands on the same boxes, not an artifact of a bad constant |
+
+Each "new rate" carries real margin over its single-night weighted-average measurement, deliberately — one night is not enough data to calibrate tight, and these are meant to stay conservative planning numbers, not exact averages. Revisit after `docs/capacity_history.csv` accumulates more real nights, same practice as always in this document.
+
+### Fixes
+
+**Dedupe + fill the gap (crontab-only, deployed live 2026-09-26)**: box 3's core side-job dropped CT/DE/IA/ID/OH/VA/TX (already covered by box 1/box 2) and picked up NE/UT/WI instead; box 4's core side-job dropped AZ/KS/LA/RI (already covered by box 1). The result is a clean, verified partition — **exactly 50 states, zero overlap, zero gaps** — across box 1 + box 2 + box 3-core + box 4-core:
+
+| Box/job | Core-brand states owned |
+|---|---|
+| Box 1 (11pm) | AK, AZ, CT, DE, IA, ID, KS, LA, MN, NY, OH, RI, VA |
+| Box 2 (11pm) | AL, CA, CO, GA, IN, MD, ME, MT, NC, ND, NV, OK, OR, PA, TN, TX, VT, WV, WY |
+| Box 3 core (4am) | AR, MA, MO, NH, SC, SD, NE, UT, WI |
+| Box 4 core (4am) | FL, HI, IL, KY, MI, MS, NJ, NM, WA |
+
+FL/NJ/IL — the timeout victims — stay on box 4's core side-job (unchanged ownership); removing the 4 duplicate states from that job gives it real extra headroom on top of the sharding fix below.
+
+**Split oversized brand crawls instead of raising the timeout (`scripts/run-daily-crawl.mjs`)**: a new `MAX_DEALERS_PER_SHARD` (default 25, `CRAWLER_MAX_DEALERS_PER_SHARD`-overridable) threshold. Any brand+state combo above it now runs as several sequential sub-crawls (`runBrandSharded()`), each independently bounded by the same `PER_BRAND_TIMEOUT_MS` — so a brand that genuinely needs more than 2h to finish (FL Honda's 55 dealers, etc.) now actually finishes, just as multiple passes, instead of being silently truncated with an arbitrary chunk of dealers never attempted. `PER_BRAND_TIMEOUT_MS` itself was deliberately left unchanged, per the explicit instruction not to paper over this with a bigger timeout. Each shard's stats are captured and summed by the driver itself, not read once after the fact — `daily_changes.js`'s per-(state,brand) slot is *replaced* on every run of that brand, so a naive single post-hoc read would silently report only the last shard's numbers.
+
 ## Known data-quality caveat
 
 `scripts/recommend-shard-split.mjs`, when run from a plain git checkout
