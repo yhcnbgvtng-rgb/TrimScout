@@ -97,6 +97,8 @@ export interface InventoryQuery {
   maxDays?: number;
   priceMin?: number;
   priceMax?: number;
+  yearMin?: number;
+  yearMax?: number;
   exteriorColor?: string;
   interiorColor?: string;
   /** Max odometer reading. */
@@ -127,6 +129,8 @@ export type BuyerSearchQuery = Pick<
   | "q"
   | "priceMin"
   | "priceMax"
+  | "yearMin"
+  | "yearMax"
   | "minDays"
   | "maxDays"
   | "odometerMax"

@@ -28,6 +28,10 @@ export function inventoryListQuery(params) {
   if (p("maxDays")) { where.push("i.days_on_lot <= ?"); args.push(Number(p("maxDays"))); }
   if (p("priceMin")) { where.push("i.price >= ?"); args.push(Number(p("priceMin"))); }
   if (p("priceMax")) { where.push("i.price <= ?"); args.push(Number(p("priceMax"))); }
+  // idx_inv_stock_year (removed_at, year) already existed (added for the year:asc/desc sort
+  // option) — this is the first filter to actually use it.
+  if (p("yearMin")) { where.push("i.year >= ?"); args.push(Number(p("yearMin"))); }
+  if (p("yearMax")) { where.push("i.year <= ?"); args.push(Number(p("yearMax"))); }
   // No dedicated index on either color column yet — fine for now since these are additive
   // filters typically combined with make=/model= (already the selective, indexed part of the
   // query). Confirm live via EXPLAIN if a color-only search (no make) turns out to be common.

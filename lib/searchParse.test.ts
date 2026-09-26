@@ -182,4 +182,91 @@ describe("parseSearchQuery — configured, mocked Gemini response", () => {
       await assert.rejects(() => parseSearchQuery("   ", catalog), SearchParseError);
     });
   });
+
+  it("preserves an exact model string like 'iX' verbatim — never altered by coercion", async () => {
+    await withEnv({ GEMINI_API_KEY: "test-key", GEMINI_MODEL: "gemini-test" }, async () => {
+      const origFetch = globalThis.fetch;
+      globalThis.fetch = (async () =>
+        geminiResponse(
+          JSON.stringify({
+            filters: { make: "BMW", model: "iX", yearMin: 2024, yearMax: 2024 },
+            confidence: 0.9,
+            clarifications: [],
+            displayChips: [{ field: "make", label: "BMW" }, { field: "model", label: "iX" }],
+          })
+        )) as typeof fetch;
+      try {
+        const result = await parseSearchQuery("2024 bmw ix", catalog);
+        assert.equal(result!.filters.model, "iX", "must not become BMW X or lose the leading lowercase i");
+        assert.equal(result!.filters.yearMin, 2024);
+        assert.equal(result!.filters.yearMax, 2024);
+      } finally {
+        globalThis.fetch = origFetch;
+      }
+    });
+  });
+
+  it("drops clarifications entirely when confidence is high, even if the model returned some anyway", async () => {
+    await withEnv({ GEMINI_API_KEY: "test-key", GEMINI_MODEL: "gemini-test" }, async () => {
+      const origFetch = globalThis.fetch;
+      globalThis.fetch = (async () =>
+        geminiResponse(
+          JSON.stringify({
+            filters: { make: "BMW", model: "iX" },
+            confidence: 0.9,
+            clarifications: ["Did you mean the BMW X instead? iX is not currently listed."],
+            displayChips: [],
+          })
+        )) as typeof fetch;
+      try {
+        const result = await parseSearchQuery("2024 bmw ix", catalog);
+        assert.deepEqual(result!.clarifications, [], "a stated make+model should never surface a 'did you mean' clarification");
+      } finally {
+        globalThis.fetch = origFetch;
+      }
+    });
+  });
+
+  it("caps clarifications to at most one, even when confidence is low and the model returned several", async () => {
+    await withEnv({ GEMINI_API_KEY: "test-key", GEMINI_MODEL: "gemini-test" }, async () => {
+      const origFetch = globalThis.fetch;
+      globalThis.fetch = (async () =>
+        geminiResponse(
+          JSON.stringify({
+            filters: {},
+            confidence: 0.3,
+            clarifications: ["Which make?", "What's your budget?", "Any color preference?"],
+            displayChips: [],
+          })
+        )) as typeof fetch;
+      try {
+        const result = await parseSearchQuery("a nice car", catalog);
+        assert.equal(result!.clarifications.length, 1);
+        assert.equal(result!.clarifications[0], "Which make?");
+      } finally {
+        globalThis.fetch = origFetch;
+      }
+    });
+  });
+
+  it("keeps a single clarification when confidence is genuinely low and a field is missing", async () => {
+    await withEnv({ GEMINI_API_KEY: "test-key", GEMINI_MODEL: "gemini-test" }, async () => {
+      const origFetch = globalThis.fetch;
+      globalThis.fetch = (async () =>
+        geminiResponse(
+          JSON.stringify({
+            filters: { make: "BMW" },
+            confidence: 0.5,
+            clarifications: ["Which BMW SUV — X1, X3, X5, or X7?"],
+            displayChips: [{ field: "make", label: "BMW" }],
+          })
+        )) as typeof fetch;
+      try {
+        const result = await parseSearchQuery("nice bmw suv under 60k", catalog);
+        assert.deepEqual(result!.clarifications, ["Which BMW SUV — X1, X3, X5, or X7?"]);
+      } finally {
+        globalThis.fetch = origFetch;
+      }
+    });
+  });
 });

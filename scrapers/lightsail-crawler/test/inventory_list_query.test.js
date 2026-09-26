@@ -181,6 +181,18 @@ describe('inventoryListQuery — price and DOM range', () => {
     assert.match(sql, /WHERE i\.days_on_lot >= \? AND i\.days_on_lot <= \?/);
     assert.deepEqual(args, [5, 30]);
   });
+
+  it('yearMin/yearMax filter on i.year', () => {
+    const { sql, args } = query({ yearMin: '2023', yearMax: '2025' });
+    assert.match(sql, /WHERE i\.year >= \? AND i\.year <= \?/);
+    assert.deepEqual(args, [2023, 2025]);
+  });
+
+  it('a single yearMin (no yearMax) works for "2024 or newer"', () => {
+    const { sql, args } = query({ yearMin: '2024' });
+    assert.match(sql, /WHERE i\.year >= \?/);
+    assert.deepEqual(args, [2024]);
+  });
 });
 
 describe('inventoryListQuery — exteriorColor / interiorColor', () => {

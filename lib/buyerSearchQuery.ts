@@ -40,6 +40,8 @@ export function parseBuyerSearchParams(sp: URLSearchParams): ParsedBuyerSearch {
     q: sp.get("q") || undefined,
     priceMin: sp.get("priceMin") ? Number(sp.get("priceMin")) : undefined,
     priceMax: sp.get("priceMax") ? Number(sp.get("priceMax")) : undefined,
+    yearMin: sp.get("yearMin") ? Number(sp.get("yearMin")) : undefined,
+    yearMax: sp.get("yearMax") ? Number(sp.get("yearMax")) : undefined,
     minDays: sp.get("minDays") ? Number(sp.get("minDays")) : undefined,
     maxDays: sp.get("maxDays") ? Number(sp.get("maxDays")) : undefined,
     odometerMax: sp.get("odometerMax") ? Number(sp.get("odometerMax")) : undefined,
@@ -72,6 +74,8 @@ export function parsedSearchFiltersToParams(filters: ParsedSearchFilters, clarif
   if (filters.trim) sp.set("trim", filters.trim);
   if (filters.priceMin != null) sp.set("priceMin", String(filters.priceMin));
   if (filters.priceMax != null) sp.set("priceMax", String(filters.priceMax));
+  if (filters.yearMin != null) sp.set("yearMin", String(filters.yearMin));
+  if (filters.yearMax != null) sp.set("yearMax", String(filters.yearMax));
   if (filters.odometerMax != null) sp.set("odometerMax", String(filters.odometerMax));
   if (filters.minDays != null) sp.set("minDays", String(filters.minDays));
   if (filters.maxDays != null) sp.set("maxDays", String(filters.maxDays));
