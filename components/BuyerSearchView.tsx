@@ -44,6 +44,8 @@ interface Filters {
   trim: string;
   priceMin: string;
   priceMax: string;
+  yearMin: string;
+  yearMax: string;
   odometerMax: string;
   minDays: string;
   maxDays: string;
@@ -57,7 +59,7 @@ interface Filters {
 }
 
 const EMPTY_FILTERS: Filters = {
-  make: "", model: "", trim: "", priceMin: "", priceMax: "", odometerMax: "",
+  make: "", model: "", trim: "", priceMin: "", priceMax: "", yearMin: "", yearMax: "", odometerMax: "",
   minDays: "", maxDays: "", exteriorColor: "", interiorColor: "", optionCodes: [],
   possibleDemo: false, zip: "", radiusMiles: "", sort: "",
 };
@@ -69,6 +71,8 @@ function filtersToQueryString(f: Filters, extra: { limit?: number; offset?: numb
   if (f.trim) sp.set("trim", f.trim);
   if (f.priceMin) sp.set("priceMin", f.priceMin);
   if (f.priceMax) sp.set("priceMax", f.priceMax);
+  if (f.yearMin) sp.set("yearMin", f.yearMin);
+  if (f.yearMax) sp.set("yearMax", f.yearMax);
   if (f.odometerMax) sp.set("odometerMax", f.odometerMax);
   if (f.minDays) sp.set("minDays", f.minDays);
   if (f.maxDays) sp.set("maxDays", f.maxDays);
@@ -197,6 +201,8 @@ export function BuyerSearchView() {
         trim: pf.trim || "",
         priceMin: pf.priceMin != null ? String(pf.priceMin) : "",
         priceMax: pf.priceMax != null ? String(pf.priceMax) : "",
+        yearMin: pf.yearMin != null ? String(pf.yearMin) : "",
+        yearMax: pf.yearMax != null ? String(pf.yearMax) : "",
         odometerMax: pf.odometerMax != null ? String(pf.odometerMax) : "",
         minDays: pf.minDays != null ? String(pf.minDays) : "",
         maxDays: pf.maxDays != null ? String(pf.maxDays) : "",
@@ -365,6 +371,29 @@ export function BuyerSearchView() {
                 value={filters.priceMax}
                 onChange={(e) => setFilters((f) => ({ ...f, priceMax: e.target.value }))}
                 placeholder="No max"
+                className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-white placeholder:text-ink-faint focus:border-emerald-500/60 focus:outline-none"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <label className="mb-1 block text-[11px] font-bold uppercase tracking-wide text-ink-faint">Year min</label>
+              <input
+                type="number"
+                value={filters.yearMin}
+                onChange={(e) => setFilters((f) => ({ ...f, yearMin: e.target.value }))}
+                placeholder="Any"
+                className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-white placeholder:text-ink-faint focus:border-emerald-500/60 focus:outline-none"
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-[11px] font-bold uppercase tracking-wide text-ink-faint">Year max</label>
+              <input
+                type="number"
+                value={filters.yearMax}
+                onChange={(e) => setFilters((f) => ({ ...f, yearMax: e.target.value }))}
+                placeholder="Any"
                 className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-white placeholder:text-ink-faint focus:border-emerald-500/60 focus:outline-none"
               />
             </div>

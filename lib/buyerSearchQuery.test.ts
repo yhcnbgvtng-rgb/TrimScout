@@ -5,7 +5,7 @@ import type { ParsedSearchFilters } from "./searchParse";
 
 function filters(partial: Partial<ParsedSearchFilters>): ParsedSearchFilters {
   return {
-    make: null, model: null, trim: null, priceMin: null, priceMax: null, odometerMax: null,
+    make: null, model: null, trim: null, priceMin: null, priceMax: null, yearMin: null, yearMax: null, odometerMax: null,
     minDays: null, maxDays: null, exteriorColor: null, interiorColor: null, optionCodes: null,
     possibleDemo: null, zip: null, radiusMiles: null, ...partial,
   };
@@ -70,6 +70,12 @@ describe("parseBuyerSearchParams — field parsing", () => {
     assert.equal(query.limit, 100);
   });
 
+  it("coerces yearMin/yearMax", () => {
+    const { query } = parseBuyerSearchParams(sp({ yearMin: "2023", yearMax: "2025" }));
+    assert.equal(query.yearMin, 2023);
+    assert.equal(query.yearMax, 2025);
+  });
+
   it("defaults limit to 50 and offset to 0 when absent", () => {
     const { query } = parseBuyerSearchParams(sp({}));
     assert.equal(query.limit, 50);
@@ -85,6 +91,13 @@ describe("parsedSearchFiltersToParams — Gemini's parsed filters onto the wire"
     assert.equal(params.get("priceMax"), "30000");
     assert.equal(params.get("optionCodes"), "PANO,AWD");
     assert.deepEqual(clarifications, []);
+  });
+
+  it("passes yearMin/yearMax through", () => {
+    const clarifications: string[] = [];
+    const params = parsedSearchFiltersToParams(filters({ yearMin: 2024, yearMax: 2024 }), clarifications);
+    assert.equal(params.get("yearMin"), "2024");
+    assert.equal(params.get("yearMax"), "2024");
   });
 
   it("drops radiusMiles and adds a clarification when make is absent — never a hard failure for an NL search", () => {
