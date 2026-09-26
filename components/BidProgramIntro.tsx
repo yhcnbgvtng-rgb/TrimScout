@@ -10,6 +10,7 @@ import {
   Search,
   SendHorizontal
 } from "lucide-react";
+import { MarketPulse } from "./MarketPulse";
 
 interface BidProgramIntroProps {
   /** Opens Configure Quote Request; the placement names which button. */
@@ -51,6 +52,8 @@ export const BidProgramIntro: React.FC<BidProgramIntroProps> = ({
           </button>
         </div>
       </div>
+
+      <MarketPulse />
 
       {/* HOW IT WORKS */}
       <div className="space-y-6">

@@ -311,6 +311,54 @@ export async function inventoryMakes(): Promise<{ makes: Array<{ make: string; n
   return request("GET", "/api/inventory/makes");
 }
 
+export interface MarketPulseJustArrived {
+  vin: string;
+  year: number | null;
+  make: string | null;
+  model: string | null;
+  trim: string | null;
+  price: number | null;
+  imageUrl: string | null;
+  dealerName: string;
+  dealerState: string | null;
+  vdpUrl: string | null;
+  firstSeenAt: string;
+}
+
+export interface MarketPulseMovingMake {
+  make: string;
+  removed7d: number;
+  /** The box's CURRENT in-stock count for this make, used as a proxy for a true rolling 7-day average — there's no daily inventory snapshot table to compute a real one from. */
+  avgInStock7d: number;
+  /** Percent, one decimal (e.g. 4.2 for 4.2%). */
+  rate: number;
+  sampleOk: boolean;
+}
+
+export interface MarketPulse {
+  asOf: string;
+  scope: "national" | { state: string };
+  windows: {
+    "24h": { inStock: number; arrivals: number; removed: number; priceDrops: number; priceIncreases: number; medianDaysOnLot: number | null };
+    "7d": { arrivals: number; removed: number };
+  };
+  movingMakes: MarketPulseMovingMake[];
+  justArrived: MarketPulseJustArrived[];
+}
+
+/**
+ * The public homepage's crawl-derived market pulse — arrivals, removals ("left dealer lots",
+ * never "sold" — this is a velocity proxy, not a confirmed sale), price drops, days on lot, and
+ * moving makes. Cached on the box (10-min TTL, same as stats/analytics) so this is cheap and
+ * fast even on a cache miss; still goes through the shared 60s-timeout `request()` like every
+ * other call here, so a caller on the public homepage path should treat a failure as "pulse
+ * unavailable" and render nothing rather than surface an error to a visitor.
+ */
+export async function marketPulse(state?: string): Promise<MarketPulse> {
+  const qs = state ? `?state=${encodeURIComponent(state)}` : "";
+  return request("GET", `/api/inventory/market-pulse${qs}`);
+}
+
 export async function inventoryByDealer(): Promise<{ dealers: InventoryDealerCount[] }> {
   return request("GET", "/api/inventory/by-dealer");
 }

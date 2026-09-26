@@ -1764,6 +1764,10 @@ async function ensureInventoryTable(pool) {
     "ADD INDEX IF NOT EXISTS idx_inv_stock_mileage (removed_at, mileage)",
     "ADD INDEX IF NOT EXISTS idx_inv_stock_year (removed_at, year)",
     "ADD INDEX IF NOT EXISTS idx_inv_stock_seen (removed_at, last_seen_at)",
+    // For the homepage Market Pulse's "just arrived" cards — WHERE removed_at IS NULL AND
+    // first_seen_at >= ... ORDER BY first_seen_at DESC. Mirrors idx_inv_stock_seen exactly, one
+    // column different (first_seen_at instead of last_seen_at).
+    "ADD INDEX IF NOT EXISTS idx_inv_stock_first_seen (removed_at, first_seen_at)",
     "ADD INDEX IF NOT EXISTS idx_inv_stock_days (removed_at, days_on_lot)",
     "ADD INDEX IF NOT EXISTS idx_inv_stock_diff (removed_at, price_diff)",
     "ADD INDEX IF NOT EXISTS idx_inv_stock_dealer_id (removed_at, dealer_id)",
@@ -2254,6 +2258,127 @@ async function computeInventoryAnalytics(pool, f) {
   };
 }
 
+// GET /api/inventory/market-pulse?state= — the public homepage's crawl-derived market pulse
+// (arrivals, removals, price drops, days on lot, moving makes, just-arrived cards). Cached the
+// same way stats/analytics are (invCached, 10-min TTL, dropped on every bulk upsert/sweep) —
+// that already satisfies "nightly minimum, hourly nice" with no dedicated cron: whenever the
+// cache is cold (first hit after a write, or after 10 minutes), the next request recomputes it;
+// otherwise it's served from memory. A dedicated key (not shared with "stats"/"analytics") so a
+// public homepage visitor never pays for or is exposed to admin-only aggregates.
+//
+// "Removed" here means the crawl stopped seeing the VIN at that store — a velocity PROXY, never
+// a confirmed sale. Every field name and the response itself avoid the word "sold" on purpose;
+// the homepage copy must say "left dealer lots" / "removed from inventory".
+async function handleMarketPulse(req, res, params) {
+  const pool = getPool();
+  await ensureInventoryTable(pool);
+  const state = (params.get("state") || "").trim().toUpperCase().slice(0, 2);
+  const cacheKey = `market-pulse:${state || "national"}`;
+  sendJson(res, 200, await invCached(cacheKey, () => computeMarketPulse(pool, state || null)));
+}
+
+// Volume floor for "moving makes" — below this, a single vehicle selling/leaving swings the rate
+// too much to be a meaningful signal (a state with 3 Porsches in stock and 1 removed this week
+// would otherwise show a wildly misleading 33% weekly turn rate). Either threshold qualifies a
+// make, since a very high-volume make can have a meaningful rate even with modest weekly removals.
+const MOVING_MIN_IN_STOCK = 200;
+const MOVING_MIN_REMOVED_7D = 15;
+
+async function computeMarketPulse(pool, state) {
+  const scopeWhere = state ? "AND state = ?" : "";
+  const scopeArgs = state ? [state] : [];
+
+  // Windows. Kept in one query since every field here is a plain SUM() over the same base rows —
+  // a row scoped in (in-stock, or removed within the last 7 days so it still counts toward the
+  // 7d "removed" window) needs scanning once, not per metric.
+  const [[w]] = await pool.query(
+    `SELECT
+       SUM(removed_at IS NULL) AS inStock,
+       SUM(first_seen_at >= DATE_SUB(NOW(), INTERVAL 1 DAY) AND removed_at IS NULL) AS arrivals24h,
+       SUM(first_seen_at >= DATE_SUB(NOW(), INTERVAL 7 DAY) AND removed_at IS NULL) AS arrivals7d,
+       SUM(removed_at >= DATE_SUB(NOW(), INTERVAL 1 DAY)) AS removed24h,
+       SUM(removed_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)) AS removed7d,
+       SUM(removed_at IS NULL AND price_diff < 0) AS priceDrops24h,
+       SUM(removed_at IS NULL AND price_diff > 0) AS priceIncreases24h
+     FROM dealer_inventory
+     WHERE (removed_at IS NULL OR removed_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)) ${scopeWhere}`,
+    scopeArgs
+  );
+
+  // Median days-on-lot, in-stock only, this scope. Same MariaDB-version guard as
+  // computeInventoryAnalytics's medians() (MEDIAN() OVER () needs MariaDB >= 10.3) — a market
+  // pulse tile is exactly the kind of place that must degrade to null, never a 500, on an older build.
+  let medianDaysOnLot = null;
+  try {
+    const [[m]] = await pool.query(
+      `SELECT MAX(med) AS med FROM (SELECT MEDIAN(${INV_DOM.replace(/i\./g, "")}) OVER () AS med FROM dealer_inventory WHERE removed_at IS NULL ${scopeWhere}) t`,
+      scopeArgs
+    );
+    medianDaysOnLot = m && m.med != null ? Math.round(Number(m.med)) : null;
+  } catch {
+    medianDaysOnLot = null;
+  }
+
+  // Moving makes: 7-day removal rate, volume-floored, ranked highest-first. `avgInStock7d` is
+  // actually the CURRENT in-stock count, not a true rolling 7-day average (no daily inventory
+  // snapshot table exists to compute one) — documented here rather than overclaiming precision;
+  // for a make with a reasonably stable count week to week this is a fine proxy.
+  const [movingRows] = await pool.query(
+    `SELECT make, SUM(removed_at IS NULL) AS inStock, SUM(removed_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)) AS removed7d
+     FROM dealer_inventory
+     WHERE make IS NOT NULL ${scopeWhere}
+     GROUP BY make
+     HAVING inStock >= ? OR removed7d >= ?
+     ORDER BY (removed7d / GREATEST(inStock, 1)) DESC
+     LIMIT 8`,
+    [...scopeArgs, MOVING_MIN_IN_STOCK, MOVING_MIN_REMOVED_7D]
+  );
+  const movingMakes = movingRows.map((r) => {
+    const inStock = Number(r.inStock || 0), removed7d = Number(r.removed7d || 0);
+    return { make: r.make, removed7d, avgInStock7d: inStock, rate: inStock > 0 ? Math.round((removed7d / inStock) * 1000) / 10 : 0, sampleOk: true };
+  });
+
+  // Just arrived: newest in-stock vehicles first seen in the last 24h — thin cards, no essays.
+  const [justArrivedRows] = await pool.query(
+    `SELECT vin, year, make, model, trim, price, image_url, dealer_name, state, vdp_url, first_seen_at
+     FROM dealer_inventory
+     WHERE removed_at IS NULL AND first_seen_at >= DATE_SUB(NOW(), INTERVAL 1 DAY) ${scopeWhere}
+     ORDER BY first_seen_at DESC
+     LIMIT 12`,
+    scopeArgs
+  );
+
+  return {
+    asOf: new Date().toISOString(),
+    scope: state ? { state } : "national",
+    windows: {
+      "24h": {
+        inStock: Number(w.inStock || 0),
+        arrivals: Number(w.arrivals24h || 0),
+        removed: Number(w.removed24h || 0),
+        priceDrops: Number(w.priceDrops24h || 0),
+        priceIncreases: Number(w.priceIncreases24h || 0),
+        medianDaysOnLot,
+      },
+      "7d": { arrivals: Number(w.arrivals7d || 0), removed: Number(w.removed7d || 0) },
+    },
+    movingMakes,
+    justArrived: justArrivedRows.map((r) => ({
+      vin: r.vin,
+      year: r.year,
+      make: r.make,
+      model: r.model,
+      trim: r.trim,
+      price: r.price,
+      imageUrl: r.image_url,
+      dealerName: r.dealer_name,
+      dealerState: r.state,
+      vdpUrl: r.vdp_url,
+      firstSeenAt: r.first_seen_at,
+    })),
+  };
+}
+
 async function handleInventoryStats(req, res) {
   const pool = getPool();
   await ensureInventoryTable(pool);
@@ -2590,6 +2715,7 @@ const server = http.createServer((req, res) => {
   if (req.method === "GET" && pathname === "/api/inventory/stats") return run(handleInventoryStats);
   if (req.method === "GET" && pathname === "/api/inventory/makes") return run(handleInventoryMakes);
   if (req.method === "GET" && pathname === "/api/inventory/analytics") return run(handleInventoryAnalytics, url.searchParams);
+  if (req.method === "GET" && pathname === "/api/inventory/market-pulse") return run(handleMarketPulse, url.searchParams);
   if (req.method === "GET" && pathname === "/api/inventory/by-dealer") return run(handleInventoryByDealer);
   if (req.method === "GET" && pathname === "/api/inventory/catalog") return run(handleInventoryCatalogOptions, url.searchParams);
 if (req.method === "GET" && pathname === "/api/inventory/by-listing-url") return run(handleInventoryByListingUrl, url.searchParams);
