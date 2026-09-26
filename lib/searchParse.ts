@@ -96,6 +96,31 @@ function coerceParsedSearch(raw: unknown): ParsedSearch {
   return { filters, confidence, clarifications, displayChips };
 }
 
+// Gemini's docs describe 503 UNAVAILABLE / 429 RESOURCE_EXHAUSTED as transient overload —
+// "usually temporary," their own wording — confirmed live: the same query succeeded on one
+// attempt and failed with an identical 503 on the next, seconds apart. A short retry with
+// backoff turns a real, common intermittent failure into a slower-but-successful search for the
+// shopper, instead of a search that fails outright roughly as often as it works on a busy model.
+const GEMINI_RETRY_STATUSES = new Set([429, 503]);
+const GEMINI_MAX_ATTEMPTS = 3;
+const GEMINI_RETRY_DELAYS_MS = [300, 900];
+
+async function fetchGeminiWithRetry(url: string, body: unknown): Promise<Response> {
+  let lastRes: Response | undefined;
+  for (let attempt = 0; attempt < GEMINI_MAX_ATTEMPTS; attempt++) {
+    const res = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    if (res.ok || !GEMINI_RETRY_STATUSES.has(res.status)) return res;
+    lastRes = res;
+    const delay = GEMINI_RETRY_DELAYS_MS[attempt];
+    if (delay !== undefined) await new Promise((r) => setTimeout(r, delay));
+  }
+  return lastRes!;
+}
+
 /**
  * Returns null (not an error) when Gemini isn't configured (missing GEMINI_API_KEY or
  * GEMINI_MODEL) — callers should treat that as "AI search unavailable," not a failure of the
@@ -138,11 +163,10 @@ export async function parseSearchQuery(userText: string, catalog: SearchCatalogS
     `Catalog (only real values — pick from these, never invent others):\n${catalogSummary}\n\n` +
     `Shopper's search:\n"""\n${text}\n"""`;
 
-  const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }),
-  });
+  const res = await fetchGeminiWithRetry(
+    `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`,
+    { contents: [{ parts: [{ text: prompt }] }] }
+  );
 
   if (!res.ok) {
     const body = await res.text().catch(() => "");
