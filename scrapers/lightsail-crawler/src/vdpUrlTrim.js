@@ -109,6 +109,16 @@ export function recoverTrimFromUrl(url, model, vin) {
   const trimTokens = tokens.slice(modelEndIdx, vinIdx);
   if (!trimTokens.length || trimTokens.length > MAX_TRIM_WORDS) return null;
 
+  // Real false positive, caught live against production data: a slug
+  // like ".../acura-tlx-2-4l-19UUB1F34LA002790-..." recovers ["2", "4l"]
+  // — the engine displacement ("2.4L"), not a trim — because it happens
+  // to sit between the model match and the VIN, same as a real trim
+  // would. A genuine trim code always has real letter content (LT, RS,
+  // XLE, 3LZ, Sport); a bare number or a number-plus-unit-letter doesn't.
+  // Reject the whole candidate if not one word in it has 2+ consecutive
+  // letters, rather than ship a spec value mislabeled as a trim.
+  if (!trimTokens.some((t) => /[a-z]{2,}/i.test(t))) return null;
+
   const trim = trimTokens.map(normalizeTrimWord).join(' ');
 
   if (!trim || trim.length > MAX_TRIM_LENGTH) return null;

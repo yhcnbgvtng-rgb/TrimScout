@@ -56,6 +56,11 @@ describe('recoverTrimFromUrl (real live-confirmed VDP URLs, 2026-09-26)', () => 
     assert.equal(recoverTrimFromUrl(url, 'RAV4', '2T36CRAV0TC42F658'), null);
   });
 
+  it('rejects an engine-displacement spec mistaken for a trim — real false positive caught live (firstteamhonda.com Acura TLX "2-4l")', () => {
+    const url = 'https://www.firstteamhonda.com/inventory/used-2020-acura-tlx-2-4l-19uub1f34la002790-in-chesapeake-va';
+    assert.equal(recoverTrimFromUrl(url, 'TLX', '19UUB1F34LA002790'), null);
+  });
+
   it('returns null when url, model, or vin is missing', () => {
     assert.equal(recoverTrimFromUrl(null, 'RAV4', 'X'.repeat(17)), null);
     assert.equal(recoverTrimFromUrl('https://example.com/x', null, 'X'.repeat(17)), null);
