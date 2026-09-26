@@ -2323,20 +2323,28 @@ async function computeMarketPulse(pool, state) {
   // actually the CURRENT in-stock count, not a true rolling 7-day average (no daily inventory
   // snapshot table exists to compute one) — documented here rather than overclaiming precision;
   // for a make with a reasonably stable count week to week this is a fine proxy.
+  //
+  // Ranking is done in JS, not SQL: MariaDB rejects an aggregate ALIAS used inside an ORDER BY
+  // EXPRESSION ("Reference 'removed7d' not supported (reference to group function)") — confirmed
+  // live — even though the bare alias works fine on its own in ORDER BY/HAVING. The result set
+  // here is one row per make (well under 100 after the HAVING floor), so sorting/slicing in JS
+  // costs nothing and sidesteps the quirk entirely rather than repeating both SUM(...)
+  // expressions verbatim in the ORDER BY clause.
   const [movingRows] = await pool.query(
     `SELECT make, SUM(removed_at IS NULL) AS inStock, SUM(removed_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)) AS removed7d
      FROM dealer_inventory
      WHERE make IS NOT NULL ${scopeWhere}
      GROUP BY make
-     HAVING inStock >= ? OR removed7d >= ?
-     ORDER BY (removed7d / GREATEST(inStock, 1)) DESC
-     LIMIT 8`,
+     HAVING inStock >= ? OR removed7d >= ?`,
     [...scopeArgs, MOVING_MIN_IN_STOCK, MOVING_MIN_REMOVED_7D]
   );
-  const movingMakes = movingRows.map((r) => {
-    const inStock = Number(r.inStock || 0), removed7d = Number(r.removed7d || 0);
-    return { make: r.make, removed7d, avgInStock7d: inStock, rate: inStock > 0 ? Math.round((removed7d / inStock) * 1000) / 10 : 0, sampleOk: true };
-  });
+  const movingMakes = movingRows
+    .map((r) => {
+      const inStock = Number(r.inStock || 0), removed7d = Number(r.removed7d || 0);
+      return { make: r.make, removed7d, avgInStock7d: inStock, rate: inStock > 0 ? Math.round((removed7d / inStock) * 1000) / 10 : 0, sampleOk: true };
+    })
+    .sort((a, b) => b.rate - a.rate)
+    .slice(0, 8);
 
   // Just arrived: newest in-stock vehicles first seen in the last 24h — thin cards, no essays.
   const [justArrivedRows] = await pool.query(
