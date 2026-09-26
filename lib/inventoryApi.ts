@@ -292,6 +292,17 @@ export async function inventoryStats(): Promise<InventoryStats> {
   return request("GET", "/api/inventory/stats");
 }
 
+/**
+ * Just the make list with in-stock counts — a cheap, indexed query on its own, deliberately NOT
+ * `inventoryStats().byMake`: that endpoint also computes a `byState` aggregate and a movement
+ * aggregate neither caller of this function needs, and (until 2026-09-25) shared one cache
+ * key/computation with them, so every caller paid for the slow parts too. See
+ * BUYER_SEARCH.md / handleInventoryMakes in deals_api_server.js.
+ */
+export async function inventoryMakes(): Promise<{ makes: Array<{ make: string; n: number }> }> {
+  return request("GET", "/api/inventory/makes");
+}
+
 export async function inventoryByDealer(): Promise<{ dealers: InventoryDealerCount[] }> {
   return request("GET", "/api/inventory/by-dealer");
 }
