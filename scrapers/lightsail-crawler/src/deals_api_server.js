@@ -1747,6 +1747,12 @@ async function ensureInventoryTable(pool) {
     // (idx_inv_stock_state below) when its own version of this bug was fixed 2026-09-25 — make=
     // never did. This is that same fix, for make=.
     "ADD INDEX IF NOT EXISTS idx_inv_stock_make_dealer (removed_at, make, dealer_name, vin)",
+    // Same bug, same day, for GET /api/inventory/catalog's colors aggregate
+    // (handleInventoryCatalogOptions): GROUP BY exterior_color, interior_color had no covering
+    // index at all — "Using temporary; Using filesort" over 280k+ matching rows for a single
+    // make. This index's trailing two columns exactly match the GROUP BY, turning it into a
+    // plain ordered index scan.
+    "ADD INDEX IF NOT EXISTS idx_inv_stock_make_colors (removed_at, make, exterior_color, interior_color)",
     // make= WITHOUT inStock=1 (the sheet's "all, incl. removed" view): idx_inv_stock_make can't seek
     // on make until removed_at is pinned, so that was a full scan — see inventoryListQuery.js.
     "ADD INDEX IF NOT EXISTS idx_inv_make_dealer (make, dealer_name, vin)",
@@ -2267,14 +2273,28 @@ async function handleInventoryCatalogOptions(req, res, params) {
   if (model) { where.push("i.model = ?"); args.push(model); }
   if (trim) { where.push("i.trim = ?"); args.push(trim); }
   const whereSql = "WHERE " + where.join(" AND ");
+  // Both queries below only get a FORCE INDEX when make= is set — mirrors inventoryListQuery.js's
+  // own rule (a hint is only safe/helpful when the leading equality column it expects is actually
+  // pinned). Confirmed live 2026-09-25: without these, both queries scanned/filesorted the whole
+  // matching set — the options query drove from dealer_inventory_options (the larger table) and
+  // filtered dealer_inventory afterward instead of the other way around (30s+, mostly wasted once
+  // dealer_inventory_options has real volume); the colors query had no index covering its
+  // GROUP BY exterior_color, interior_color at all ("Using temporary; Using filesort" over 280k+
+  // rows for a single make).
+  const makeIndexHint = make ? "FORCE INDEX (idx_inv_stock_make_dealer)" : "";
+  const makeColorsIndexHint = make ? "FORCE INDEX (idx_inv_stock_make_colors)" : "";
   const cacheKey = `catalog-options:${make}|${model}|${trim}`;
   sendJson(res, 200, await invCached(cacheKey, async () => {
+    // STRAIGHT_JOIN drives from dealer_inventory (filtered by make=/removed_at first, typically
+    // the far smaller side) into dealer_inventory_options by its (vin, dealer_id, code) primary
+    // key, instead of the optimizer's previous choice of scanning every row in
+    // dealer_inventory_options and only filtering by make afterward.
     const [optionRows] = await pool.query(
-      `SELECT o.code, COUNT(*) AS vehicleCount FROM dealer_inventory_options o JOIN dealer_inventory i ON i.vin = o.vin AND i.dealer_id = o.dealer_id ${whereSql} GROUP BY o.code ORDER BY o.code`,
+      `SELECT STRAIGHT_JOIN o.code, COUNT(*) AS vehicleCount FROM dealer_inventory i ${makeIndexHint} JOIN dealer_inventory_options o ON o.vin = i.vin AND o.dealer_id = i.dealer_id ${whereSql} GROUP BY o.code ORDER BY o.code`,
       args
     );
     const [colorRows] = await pool.query(
-      `SELECT exterior_color, interior_color FROM dealer_inventory i ${whereSql} AND (exterior_color IS NOT NULL OR interior_color IS NOT NULL) GROUP BY exterior_color, interior_color`,
+      `SELECT exterior_color, interior_color FROM dealer_inventory i ${makeColorsIndexHint} ${whereSql} AND (exterior_color IS NOT NULL OR interior_color IS NOT NULL) GROUP BY exterior_color, interior_color`,
       args
     );
     const exteriorColors = [...new Set(colorRows.map((r) => r.exterior_color).filter(Boolean))].sort();
