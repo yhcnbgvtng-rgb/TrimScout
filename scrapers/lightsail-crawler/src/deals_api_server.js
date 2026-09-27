@@ -1795,6 +1795,25 @@ async function ensureInventoryTable(pool) {
     // Mirrors idx_inv_stock_make/idx_inv_make_dealer exactly, for state= instead of make=.
     "ADD INDEX IF NOT EXISTS idx_inv_stock_state (removed_at, state, dealer_name, vin)",
     "ADD INDEX IF NOT EXISTS idx_inv_state_dealer (state, dealer_name, vin)",
+    // Confirmed live 2026-09-27: handleInventoryFacets's states-scoped-by-make query
+    // (WHERE removed_at IS NULL AND make=? GROUP BY state) hit the same shape of bug as every
+    // other aggregate here — FORCE INDEX(idx_inv_stock_make) seeks on (removed_at, make) fine,
+    // but state isn't part of that index, so every one of Ford's 187k+ matching rows needed a
+    // separate lookup back to the row just to read state, hitting the 20s statement timeout.
+    // This index puts state right after (removed_at, make), so both this GROUP BY state query
+    // AND handleInventoryFacets's models-scoped-by-make(+state) query (GROUP BY model, with an
+    // optional state= equality filter) read entirely from the index — no row lookups either way,
+    // since model is index-only too and state is either the exact next equality predicate or
+    // just an unused-but-present column when only make= is set.
+    "ADD INDEX IF NOT EXISTS idx_inv_facet_make_state_model (removed_at, make, state, model)",
+    // Mirrors the index above for the reverse direction: handleInventoryFacets's
+    // makes-scoped-by-state query (WHERE removed_at IS NULL AND state=? GROUP BY make).
+    "ADD INDEX IF NOT EXISTS idx_inv_facet_state_make (removed_at, state, make)",
+    // handleInventoryFacets's trims query (WHERE removed_at IS NULL AND make=? AND model=?
+    // [AND state=?] GROUP BY trim) — same reasoning as idx_inv_facet_make_state_model, one
+    // column further in: covers the query whether or not state= is also set, with no table
+    // lookups for trim.
+    "ADD INDEX IF NOT EXISTS idx_inv_facet_make_model_state_trim (removed_at, make, model, state, trim)",
     "ADD INDEX IF NOT EXISTS idx_inv_stock_price (removed_at, price)",
     "ADD INDEX IF NOT EXISTS idx_inv_stock_msrp (removed_at, msrp)",
     "ADD INDEX IF NOT EXISTS idx_inv_stock_mileage (removed_at, mileage)",
@@ -2507,6 +2526,88 @@ async function handleInventoryMakes(req, res) {
   }));
 }
 
+// GET /api/inventory/facets?state=&make=&model= — hit counts for the buyer /search page's
+// State/Make/Model/Trim dropdowns (GET /api/catalog/facets), each scoped to whatever the OTHER
+// dropdowns are currently set to: states/makes are cross-scoped by each other, models only ever
+// computed when make= is given, trims only ever computed when BOTH make= and model= are given
+// (mirrors the progressive-unlock rule the page itself enforces — a model or trim list with
+// nothing to scope it by has nothing selective to index on either, same reasoning as
+// handleInventoryCatalogOptions and inventoryListQuery.js's own make= index hint).
+//
+// state and make are both native, indexed columns on dealer_inventory (state since PR #296,
+// make from day one) — no JOIN into dealership_contacts, the exact shape that made byState slow
+// on computeInventoryStats before that fix. Deliberately its OWN endpoint/cache keyspace, not a
+// call into computeInventoryStats or handleInventoryMakes: those return unscoped, whole-table
+// aggregates cached under one shared key each, but this handler's whole point is per-filter
+// combination counts, so every distinct (state, make) pair needs its own cache entry — reusing
+// either of those keys would mean two callers with different filters silently reading each
+// other's cached result (the same class of cross-caller cache-key collision that made
+// /api/catalog/makes need to split off from computeInventoryStats on 2026-09-25).
+async function handleInventoryFacets(req, res, params) {
+  const pool = getPool();
+  await ensureInventoryTable(pool);
+  const state = (params.get("state") || "").trim().toUpperCase().slice(0, 2);
+  const make = (params.get("make") || "").trim();
+  const model = (params.get("model") || "").trim();
+  const cacheKey = `facets:${state}|${make}|${model}`;
+  sendJson(res, 200, await invCached(cacheKey, async () => {
+    const q = (sql, args) =>
+      withPoolTimeout(
+        pool.query(`SET STATEMENT max_statement_time=${INV_LIST_STATEMENT_TIMEOUT_SECONDS} FOR ${sql}`, args),
+        POOL_WAIT_TIMEOUT_MS,
+        "Timed out waiting for an available database connection or a slow query"
+      );
+    // States list: scoped by make= if set. idx_inv_facet_make_state_model (removed_at, make,
+    // state, model) covers this as an index-only GROUP BY state scan — confirmed live 2026-09-27
+    // that FORCE INDEX (idx_inv_stock_make) alone (removed_at, make, model — no state column)
+    // forced a per-row lookup for state on every one of a big make's matching rows and blew the
+    // 20s statement timeout outright (Ford: 187k+ rows). This index puts state right after
+    // (removed_at, make), so no row lookups are needed either way.
+    const statesPromise = make
+      ? q(
+          `SELECT state, COUNT(*) AS n FROM dealer_inventory FORCE INDEX (idx_inv_facet_make_state_model) WHERE removed_at IS NULL AND make = ? AND state IS NOT NULL GROUP BY state ORDER BY n DESC`,
+          [make]
+        )
+      : q(`SELECT state, COUNT(*) AS n FROM dealer_inventory WHERE removed_at IS NULL AND state IS NOT NULL GROUP BY state ORDER BY n DESC`, []);
+    // Makes list: scoped by state= if set. idx_inv_facet_state_make (removed_at, state, make)
+    // mirrors the index above for the reverse direction — same reasoning, same fix.
+    const makesPromise = state
+      ? q(
+          `SELECT make, COUNT(*) AS n FROM dealer_inventory FORCE INDEX (idx_inv_facet_state_make) WHERE removed_at IS NULL AND state = ? AND make IS NOT NULL GROUP BY make ORDER BY n DESC LIMIT 100`,
+          [state]
+        )
+      : q(`SELECT make, COUNT(*) AS n FROM dealer_inventory WHERE removed_at IS NULL AND make IS NOT NULL GROUP BY make ORDER BY n DESC LIMIT 100`, []);
+    // Models: only ever queried when make= is set. Same idx_inv_facet_make_state_model index as
+    // the states query above covers this too — model is its trailing column, so this reads
+    // entirely from the index whether or not state= is also set (state is either the exact next
+    // equality predicate in the index or just an unused-but-present column).
+    const modelsPromise = make
+      ? q(
+          `SELECT model, COUNT(*) AS n FROM dealer_inventory FORCE INDEX (idx_inv_facet_make_state_model) WHERE removed_at IS NULL AND make = ? ${state ? "AND state = ?" : ""} AND model IS NOT NULL GROUP BY model ORDER BY n DESC LIMIT 200`,
+          state ? [make, state] : [make]
+        )
+      : Promise.resolve([[]]);
+    // Trims: only ever queried when make= AND model= are both set (the page's own unlock order —
+    // trim is optional and never blocks the options unlock, but it has nothing to scope by until
+    // a model is picked). idx_inv_facet_make_model_state_trim (removed_at, make, model, state,
+    // trim) covers this as an index-only scan too, same reasoning as the two indexes above.
+    const trimsPromise =
+      make && model
+        ? q(
+            `SELECT trim, COUNT(*) AS n FROM dealer_inventory FORCE INDEX (idx_inv_facet_make_model_state_trim) WHERE removed_at IS NULL AND make = ? AND model = ? ${state ? "AND state = ?" : ""} AND trim IS NOT NULL GROUP BY trim ORDER BY n DESC LIMIT 100`,
+            state ? [make, model, state] : [make, model]
+          )
+        : Promise.resolve([[]]);
+    const [[stateRows], [makeRows], [modelRows], [trimRows]] = await Promise.all([statesPromise, makesPromise, modelsPromise, trimsPromise]);
+    return {
+      states: stateRows.map((r) => ({ state: r.state, n: Number(r.n) })),
+      makes: makeRows.map((r) => ({ make: r.make, n: Number(r.n) })),
+      models: modelRows.map((r) => ({ model: r.model, n: Number(r.n) })),
+      trims: trimRows.map((r) => ({ trim: r.trim, n: Number(r.n) })),
+    };
+  }));
+}
+
 // GET /api/inventory/by-dealer — in-stock counts per store, for the dealer sheet.
 async function handleInventoryByDealer(req, res) {
   const pool = getPool();
@@ -2891,6 +2992,7 @@ const server = http.createServer((req, res) => {
   if (req.method === "POST" && pathname === "/api/inventory/sweep") return run(handleInventorySweep);
   if (req.method === "GET" && pathname === "/api/inventory/stats") return run(handleInventoryStats);
   if (req.method === "GET" && pathname === "/api/inventory/makes") return run(handleInventoryMakes);
+  if (req.method === "GET" && pathname === "/api/inventory/facets") return run(handleInventoryFacets, url.searchParams);
   if (req.method === "GET" && pathname === "/api/inventory/analytics") return run(handleInventoryAnalytics, url.searchParams);
   if (req.method === "GET" && pathname === "/api/inventory/market-pulse") return run(handleMarketPulse, url.searchParams);
   if (req.method === "GET" && pathname === "/api/inventory/by-dealer") return run(handleInventoryByDealer);
