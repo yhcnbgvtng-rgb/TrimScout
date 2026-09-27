@@ -241,36 +241,6 @@ export async function catalogOptions(f: { make?: string; model?: string; trim?: 
   return request("GET", `/api/inventory/catalog${suffix ? `?${suffix}` : ""}`);
 }
 
-/**
- * The buyer /search AI box's Gemini-context source (app/api/search/parse/route.ts) — NEVER the
- * filter panel, which stays on `catalogOptions()` above for its real per-make vehicle counts.
- * Confirmed live 2026-09-27 via box logs: /api/search/parse used to call `catalogOptions()` with
- * no make/model/trim to get a nationwide option/color list for Gemini to match against, which
- * forced a STRAIGHT_JOIN across the entire dealer_inventory (every brand, 1.5M+ vehicles) and
- * dealer_inventory_options (9.5M+ rows) tables on every single AI search request — continuously
- * hitting the 20s statement-timeout cap all day (03:29 to 19:57 the day this was found), for
- * every brand, not just one. Since it never completed, it never cached either, so every request
- * paid the cost fresh. This endpoint drops the join entirely — Gemini only reads {key, label} off
- * each option, never vehicleCount, so there's no reason to touch dealer_inventory for options at
- * all here. Colors still read dealer_inventory (no per-option join exists for them), but a plain
- * DISTINCT scan of one table is far cheaper than joining it against another 9.5M-row table.
- *
- * NOTE (2026-09-27, buyer /search filter redesign): AI search is disconnected from the /search
- * page's UI as of that redesign — `/api/search/parse` is orphaned (no client calls it anymore)
- * but deliberately not deleted in that PR, so this function and its route stay here, unused by
- * the live page, until a follow-up either restores an AI entry point or removes this dead path
- * for good.
- */
-export interface GlobalCatalogOptions {
-  options: Array<{ key: string; label: string }>;
-  exteriorColors: string[];
-  interiorColors: string[];
-}
-
-export async function allCatalogOptions(): Promise<GlobalCatalogOptions> {
-  return request("GET", "/api/inventory/catalog/global");
-}
-
 export interface InventoryFacets {
   states: Array<{ state: string; n: number }>;
   makes: Array<{ make: string; n: number }>;

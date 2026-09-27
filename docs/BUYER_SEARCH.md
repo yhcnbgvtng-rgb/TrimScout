@@ -1,26 +1,24 @@
 # Buyer inventory search (`/search`)
 
 A buyer-facing page over `dealer_inventory` — the crawler's own real, nightly-crawled dealer
-inventory (see [`DEALER_ANALYTICS.md`](./DEALER_ANALYTICS.md) for how that data gets there). Two
-ways in, one shared result set:
+inventory (see [`DEALER_ANALYTICS.md`](./DEALER_ANALYTICS.md) for how that data gets there). A
+filter panel — searchable State/Make/Model/Trim/Factory-options dropdowns with live hit counts,
+price/odometer/days-on-lot/colors/ZIP+radius/sort under a "More" popover — feeds one deterministic
+search endpoint (`GET /api/vehicles/search`). `dealer_inventory` is the only source of truth here
+— this never reads MarketCheck, and never will (a deliberate scope decision for this feature, not
+an oversight).
 
-- A natural-language box ("black 4Runner under 40k with a moonroof near 07601") that Gemini
-  translates into structured filters.
-- A generic filter panel — make/model/trim, price, odometer, days on lot, colors, must-have
-  factory options, ZIP + radius, sort — that works standalone with **zero AI**, always.
-
-Both feed the same deterministic search endpoint (`GET /api/vehicles/search`), so the page never
-depends on Gemini being configured or reachable. `dealer_inventory` is the only source of truth
-here — this never reads MarketCheck, and never will (a deliberate scope decision for this
-feature, not an oversight).
+**No AI/natural-language search** — a prior version of this page had a Gemini-backed NL box
+("black 4Runner under 40k with a moonroof near 07601") feeding the same search endpoint. It was
+removed from the page's UI (PR #341, 2026-09-27) in favor of the filter-first redesign below. The
+underlying `POST /api/search/parse` route, `lib/searchParse.ts`, and their Gemini plumbing were
+deleted outright in a follow-up (2026-09-27) once confirmed unused anywhere else — see this file's
+git history for that design if a future AI entry point is ever wanted again.
 
 ## Non-goals (confirmed scope, don't re-add without asking)
 
-- No LLM ranking or scoring of vehicles — Gemini only fills query parameters; the same SQL that
-  powers the generic filter panel does the actual matching, so "AI search" and "filter panel
-  search" can never disagree about which vehicles match.
+- No LLM ranking, scoring, or natural-language parsing of a search query — see above.
 - No embeddings, no vector search.
-- No AI vendor besides Gemini.
 - No paid per-dealer geocoding — distance uses the same ZIP/city/state approximation
   (`lib/otdCalculator.ts`'s `calculateDistanceMiles`) every other distance feature in this app
   already uses.
@@ -58,7 +56,7 @@ there's no `inStock=` toggle for buyers — a removed listing is never useful to
 | `minPriceChanges` | See `price_change_count` above. |
 | `possibleDemo` | `1` to also allow new-condition vehicles with > 500 miles (the same "likely a demo/loaner" heuristic used elsewhere in this app — there's no separate demo/loaner condition value in this schema). |
 | `zip` | Buyer's own ZIP — every vehicle in the response gets a `distanceMiles` computed from it (Haversine over the same ZIP/city/state approximation used everywhere else in this app; see `lib/otdCalculator.ts`). Does **not** filter results by itself. |
-| `radiusMiles` | Filters to `distanceMiles <= radiusMiles`. **Requires `make` to also be set** — a nationwide radius scan with no make has nothing selective to index on (see `inventoryListQuery.js`'s make= index hint), so this returns **400** instead of running an unbounded query. The `/search` page's filter panel disables the radius input until both a ZIP and a make are entered, and the NL route (below) silently drops an AI-set radius with no make rather than failing the whole search. |
+| `radiusMiles` | Filters to `distanceMiles <= radiusMiles`. **Requires `make` to also be set** — a nationwide radius scan with no make has nothing selective to index on (see `inventoryListQuery.js`'s make= index hint), so this returns **400** instead of running an unbounded query. The `/search` page's filter panel disables the radius input until both a ZIP and a make are entered. |
 | `sort` | A plain column sort (`price:asc`, `mileage:desc`, …) or `distance` (only meaningful with `zip=`) — `distance` is **not** a box-side sort key; it's computed in-memory on the already-fetched page, in the route. |
 | `limit`, `offset` | Capped at 100 (well below the admin sheet's 2000 — this is a page of results for a shopper, not a bulk export). |
 
@@ -83,68 +81,26 @@ curl "https://trimscout.com/api/catalog/options?make=Toyota&model=4Runner"
 
 ### `GET /api/catalog/makes`
 
-Distinct makes with live in-stock inventory, for the make picker. Wraps the box's existing
-`GET /api/inventory/stats` — no dedicated box endpoint of its own.
+Distinct makes with live in-stock inventory. Superseded on the `/search` page itself by
+`GET /api/catalog/facets` below (which also returns per-make counts), but still used wherever only
+a plain make list is needed. Wraps the box's existing `GET /api/inventory/stats` — no dedicated
+box endpoint of its own.
 
-### `POST /api/search/parse`
+### `GET /api/catalog/facets`
 
-The NL box. Body: `{ "q": "<free text>", "zip"?: "<optional ZIP>" }`.
-
-Gemini is shown **only** the buyer's own text plus a compact, real-values-only catalog slice
-(distinct makes, option codes, colors) — **never** inventory rows, VINs, or dealer data — so it
-can only pick values that actually exist in TrimScout's inventory, never hallucinate a make or
-option code that isn't real. It fills the exact same query parameters `/api/vehicles/search`
-accepts; the route then runs that search as a direct function call (`lib/buyerSearch.ts`'s
-`runBuyerSearch`), not a second HTTP round trip to itself.
-
-```bash
-curl -X POST https://trimscout.com/api/search/parse \
-  -H "Content-Type: application/json" \
-  -d '{"q": "black 4Runner under 40k with a moonroof near 07601", "zip": "07601"}'
-```
-
-Response shape:
-
-```json
-{
-  "available": true,
-  "filters": { "make": "Toyota", "model": "4Runner", "priceMax": 40000, "exteriorColor": "Black", "zip": "07601", "...": null },
-  "confidence": 0.86,
-  "clarifications": ["..."],
-  "displayChips": [{ "field": "make", "label": "Toyota" }, "..."],
-  "results": { "total": 12, "limit": 50, "offset": 0, "vehicles": ["..."] }
-}
-```
-
-When `GEMINI_API_KEY` or `GEMINI_MODEL` isn't configured, this returns `{"available": false,
-"message": "..."}` with a **200**, not an error — the filter panel keeps working either way. A
-real parse failure (bad Gemini response, non-2xx from Gemini) is a genuine 502, distinct from "not
-configured."
-
-If Gemini sets `radiusMiles` with no `make` (violating the guardrail above), the route drops the
-radius and adds a `clarifications` entry explaining why, rather than failing the whole search —
-an NL shopper never typed that internal query-cost rule, so it should never surface as an error to
-them the way it does on the deterministic route.
-
-## Gemini setup
+`?state=&make=&model=` (each optional) → hit counts for the State/Make/Model/Trim dropdowns,
+cross-scoped by whichever of the others is already set: `state` scopes the make count and vice
+versa; `make` also returns a model list (scoped by `state` too, if set); `make` + `model` together
+also return a trim list. Backed by a dedicated box handler (`GET /api/inventory/facets`) reading
+`dealer_inventory`'s native `state`/`make`/`model` columns directly — no JOIN — with its own
+composite covering indexes (`idx_inv_facet_make_state_model`, `idx_inv_facet_state_make`,
+`idx_inv_facet_make_model_state_trim`) so every cross-scoped combination stays index-only. Each
+distinct filter combination is its own cache entry, never `inventoryStats()`'s or
+`inventoryMakes()`'s shared whole-table cache key.
 
 ```bash
-GEMINI_API_KEY=
-GEMINI_MODEL=
+curl "https://trimscout.com/api/catalog/facets?make=Ford&model=F-150"
 ```
-
-Both are **required together, with no hardcoded model default** — a wrong or stale model id
-should fail loudly (`isGeminiEnabled()` returns false, the NL box reports itself unavailable),
-never silently downgrade to some other model. See
-[ai.google.dev/gemini-api/docs/models](https://ai.google.dev/gemini-api/docs/models) for current
-model ids.
-
-**Free-tier rate limits**: Gemini's free tier caps requests per minute and per day (check current
-limits on the model you choose — they change). This feature has no request-level rate limiting or
-budget guard of its own (unlike the MarketCheck spend guard in
-[`api-spend-protection.md`](./api-spend-protection.md)) — if usage grows enough to hit free-tier
-limits or warrants a paid tier, add one modeled on `lib/apiSpendGuard.ts` before that becomes an
-outage rather than after.
 
 ## Where the code lives
 
@@ -152,20 +108,19 @@ outage rather than after.
   query/filter/sort builder (`test/inventory_list_query.test.js`) — this is the one place both
   `/api/inventory` (admin) and the buyer search's box calls build their WHERE clause.
 - `scrapers/lightsail-crawler/src/deals_api_server.js` — `handleInventoryCatalogOptions` (the
-  `/api/inventory/catalog` box endpoint behind `GET /api/catalog/options`).
-- `lib/inventoryApi.ts` — `searchInventory()`, `catalogOptions()`, the `BuyerSearchQuery` type.
+  `/api/inventory/catalog` box endpoint behind `GET /api/catalog/options`) and
+  `handleInventoryFacets` (`/api/inventory/facets`, behind `GET /api/catalog/facets`).
+- `lib/inventoryApi.ts` — `searchInventory()`, `catalogOptions()`, `inventoryFacets()`, the
+  `BuyerSearchQuery` type.
 - `lib/buyerSearchQuery.ts` — `parseBuyerSearchParams()` (the radius/make guardrail,
-  `sort=distance` handling) and `parsedSearchFiltersToParams()` (Gemini's filters onto the wire) —
-  both pure and unit-tested (`lib/buyerSearchQuery.test.ts`) without spinning up a request.
-- `lib/buyerSearch.ts` — `runBuyerSearch()`, shared between the deterministic route and the NL
-  parse route.
-- `lib/searchParse.ts` — `parseSearchQuery()`, modeled directly on `lib/contractExtraction.ts`'s
-  `serverSecret`-gated / typed-error / JSON-fence-stripping pattern. Unit-tested against mocked
-  Gemini responses (`lib/searchParse.test.ts`) — no test ever calls the real Gemini API
-  (`generativelanguage.googleapis.com` is in `lib/testdata/blockLiveHttp.ts`'s blocklist).
+  `sort=distance` handling), pure and unit-tested (`lib/buyerSearchQuery.test.ts`) without
+  spinning up a request.
+- `lib/buyerSearch.ts` — `runBuyerSearch()`, the box call + distance post-processing behind
+  `GET /api/vehicles/search`.
 - `app/api/vehicles/search/route.ts`, `app/api/catalog/options/route.ts`,
-  `app/api/catalog/makes/route.ts`, `app/api/search/parse/route.ts` — the public routes.
-- `app/search/page.tsx` + `components/BuyerSearchView.tsx` — the page itself.
+  `app/api/catalog/makes/route.ts`, `app/api/catalog/facets/route.ts` — the public routes.
+- `app/search/page.tsx` + `components/BuyerSearchView.tsx` +
+  `components/search/SearchableDropdown.tsx` — the page itself.
 
 ## Box deploys
 

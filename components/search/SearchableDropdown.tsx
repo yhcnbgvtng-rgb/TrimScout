@@ -25,6 +25,14 @@ interface BaseProps {
   loading?: boolean;
   /** Shown in place of the trigger when the filter isn't unlocked yet — kept out of the DOM entirely by the caller otherwise (progressive-unlock). */
   disabledHint?: string;
+  /**
+   * Shown instead of the generic "No matches." when `options` itself is empty (not loading) —
+   * i.e. there's genuinely nothing to search, as opposed to a search term matching nothing. Lets
+   * a caller distinguish "this data doesn't exist yet" from "try a different search term," which
+   * look identical without this — e.g. factory options for a make/model the crawler hasn't
+   * captured any option data for yet vs. a real search with no results.
+   */
+  emptyMessage?: string;
 }
 
 interface SingleProps extends BaseProps {
@@ -42,7 +50,7 @@ interface MultiProps extends BaseProps {
 type Props = SingleProps | MultiProps;
 
 export default function SearchableDropdown(props: Props) {
-  const { label, placeholder, options, loading, disabledHint } = props;
+  const { label, placeholder, options, loading, disabledHint, emptyMessage } = props;
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const rootRef = useRef<HTMLDivElement>(null);
@@ -159,6 +167,8 @@ export default function SearchableDropdown(props: Props) {
           <div className="max-h-64 overflow-y-auto py-1">
             {loading ? (
               <div className="px-3 py-4 text-center text-xs text-ink-faint">Loading…</div>
+            ) : options.length === 0 && emptyMessage ? (
+              <div className="px-3 py-4 text-center text-xs text-ink-faint">{emptyMessage}</div>
             ) : filtered.length === 0 ? (
               <div className="px-3 py-4 text-center text-xs text-ink-faint">No matches.</div>
             ) : (

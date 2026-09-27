@@ -10,11 +10,7 @@ function toBuyerVehicle(v: InventoryVehicle, distanceMiles: number | null): Buye
   return { ...rest, distanceMiles };
 }
 
-/**
- * The actual box call + distance post-processing behind GET /api/vehicles/search — pulled out so
- * /api/search/parse can run the same search after Gemini fills the filters, as a direct function
- * call rather than the route re-fetching its own URL over HTTP.
- */
+/** The actual box call + distance post-processing behind GET /api/vehicles/search. */
 export async function runBuyerSearch(parsed: ParsedBuyerSearch): Promise<{ total: number; limit: number; offset: number; vehicles: BuyerVehicle[] }> {
   const { query, zip, radiusMiles, sortDistance } = parsed;
   const result = await searchInventory(query);

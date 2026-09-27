@@ -126,6 +126,7 @@ export function BuyerSearchView() {
   const [catalogOptions, setCatalogOptions] = useState<CatalogOption[]>([]);
   const [exteriorColors, setExteriorColors] = useState<string[]>([]);
   const [interiorColors, setInteriorColors] = useState<string[]>([]);
+  const [catalogOptionsLoading, setCatalogOptionsLoading] = useState(false);
 
   const [results, setResults] = useState<SearchResults | null>(null);
   const [searchLoading, setSearchLoading] = useState(false);
@@ -175,6 +176,7 @@ export function BuyerSearchView() {
     if (filters.make) sp.set("make", filters.make);
     if (filters.model) sp.set("model", filters.model);
     if (filters.trim) sp.set("trim", filters.trim);
+    setCatalogOptionsLoading(true);
     fetch(`/api/catalog/options${sp.toString() ? `?${sp}` : ""}`, { signal: controller.signal })
       .then((r) => r.json())
       .then((json) => {
@@ -187,7 +189,8 @@ export function BuyerSearchView() {
         setCatalogOptions([]);
         setExteriorColors([]);
         setInteriorColors([]);
-      });
+      })
+      .finally(() => setCatalogOptionsLoading(false));
     return () => controller.abort();
   }, [filters.make, filters.model, filters.trim]);
 
@@ -290,7 +293,17 @@ export function BuyerSearchView() {
             <SearchableDropdown label="Trim" placeholder="Any trim" options={trimOptions} value={filters.trim} loading={facetsLoading} onChange={(trim) => setFilters((f) => ({ ...f, trim }))} disabledHint={trimDisabledHint} />
           </div>
           <div className="w-56">
-            <SearchableDropdown multi label="Factory options" placeholder="Any options" options={optionDropdownOptions} value={filters.optionKeys} onChange={(optionKeys) => setFilters((f) => ({ ...f, optionKeys }))} disabledHint={optionsDisabledHint} />
+            <SearchableDropdown
+              multi
+              label="Factory options"
+              placeholder="Any options"
+              options={optionDropdownOptions}
+              value={filters.optionKeys}
+              onChange={(optionKeys) => setFilters((f) => ({ ...f, optionKeys }))}
+              disabledHint={optionsDisabledHint}
+              loading={catalogOptionsLoading}
+              emptyMessage="No factory options in inventory for this make/model yet."
+            />
           </div>
 
           <div ref={moreRef} className="relative flex flex-col gap-1">
