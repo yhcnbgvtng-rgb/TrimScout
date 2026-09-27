@@ -2507,6 +2507,84 @@ async function handleInventoryMakes(req, res) {
   }));
 }
 
+// GET /api/inventory/facets?state=&make=&model= — hit counts for the buyer /search page's
+// State/Make/Model/Trim dropdowns (GET /api/catalog/facets), each scoped to whatever the OTHER
+// dropdowns are currently set to: states/makes are cross-scoped by each other, models only ever
+// computed when make= is given, trims only ever computed when BOTH make= and model= are given
+// (mirrors the progressive-unlock rule the page itself enforces — a model or trim list with
+// nothing to scope it by has nothing selective to index on either, same reasoning as
+// handleInventoryCatalogOptions and inventoryListQuery.js's own make= index hint).
+//
+// state and make are both native, indexed columns on dealer_inventory (state since PR #296,
+// make from day one) — no JOIN into dealership_contacts, the exact shape that made byState slow
+// on computeInventoryStats before that fix. Deliberately its OWN endpoint/cache keyspace, not a
+// call into computeInventoryStats or handleInventoryMakes: those return unscoped, whole-table
+// aggregates cached under one shared key each, but this handler's whole point is per-filter
+// combination counts, so every distinct (state, make) pair needs its own cache entry — reusing
+// either of those keys would mean two callers with different filters silently reading each
+// other's cached result (the same class of cross-caller cache-key collision that made
+// /api/catalog/makes need to split off from computeInventoryStats on 2026-09-25).
+async function handleInventoryFacets(req, res, params) {
+  const pool = getPool();
+  await ensureInventoryTable(pool);
+  const state = (params.get("state") || "").trim().toUpperCase().slice(0, 2);
+  const make = (params.get("make") || "").trim();
+  const model = (params.get("model") || "").trim();
+  const cacheKey = `facets:${state}|${make}|${model}`;
+  sendJson(res, 200, await invCached(cacheKey, async () => {
+    const q = (sql, args) =>
+      withPoolTimeout(
+        pool.query(`SET STATEMENT max_statement_time=${INV_LIST_STATEMENT_TIMEOUT_SECONDS} FOR ${sql}`, args),
+        POOL_WAIT_TIMEOUT_MS,
+        "Timed out waiting for an available database connection or a slow query"
+      );
+    // States list: scoped by make= if set. FORCE INDEX only when make= actually pins the leading
+    // column an index hint expects — same rule handleInventoryCatalogOptions/inventoryListQuery.js
+    // already follow for this table.
+    const statesPromise = make
+      ? q(
+          `SELECT state, COUNT(*) AS n FROM dealer_inventory FORCE INDEX (idx_inv_stock_make) WHERE removed_at IS NULL AND make = ? AND state IS NOT NULL GROUP BY state ORDER BY n DESC`,
+          [make]
+        )
+      : q(`SELECT state, COUNT(*) AS n FROM dealer_inventory WHERE removed_at IS NULL AND state IS NOT NULL GROUP BY state ORDER BY n DESC`, []);
+    // Makes list: scoped by state= if set.
+    const makesPromise = state
+      ? q(
+          `SELECT make, COUNT(*) AS n FROM dealer_inventory FORCE INDEX (idx_inv_stock_state) WHERE removed_at IS NULL AND state = ? AND make IS NOT NULL GROUP BY make ORDER BY n DESC LIMIT 100`,
+          [state]
+        )
+      : q(`SELECT make, COUNT(*) AS n FROM dealer_inventory WHERE removed_at IS NULL AND make IS NOT NULL GROUP BY make ORDER BY n DESC LIMIT 100`, []);
+    // Models: only ever queried when make= is set — idx_inv_stock_make (removed_at, make, model)
+    // covers this as an index-only scan; state=, if also set, filters the already-narrow make
+    // scan in memory rather than needing its own composite index.
+    const modelsPromise = make
+      ? q(
+          `SELECT model, COUNT(*) AS n FROM dealer_inventory FORCE INDEX (idx_inv_stock_make) WHERE removed_at IS NULL AND make = ? ${state ? "AND state = ?" : ""} AND model IS NOT NULL GROUP BY model ORDER BY n DESC LIMIT 200`,
+          state ? [make, state] : [make]
+        )
+      : Promise.resolve([[]]);
+    // Trims: only ever queried when make= AND model= are both set (the page's own unlock order —
+    // trim is optional and never blocks the options unlock, but it has nothing to scope by until
+    // a model is picked). Same idx_inv_stock_make index range-scans down to one model's rows
+    // first; trim isn't in that index, but a single model's in-stock inventory is small enough
+    // that grouping the remainder in memory is cheap regardless.
+    const trimsPromise =
+      make && model
+        ? q(
+            `SELECT trim, COUNT(*) AS n FROM dealer_inventory FORCE INDEX (idx_inv_stock_make) WHERE removed_at IS NULL AND make = ? AND model = ? ${state ? "AND state = ?" : ""} AND trim IS NOT NULL GROUP BY trim ORDER BY n DESC LIMIT 100`,
+            state ? [make, model, state] : [make, model]
+          )
+        : Promise.resolve([[]]);
+    const [[stateRows], [makeRows], [modelRows], [trimRows]] = await Promise.all([statesPromise, makesPromise, modelsPromise, trimsPromise]);
+    return {
+      states: stateRows.map((r) => ({ state: r.state, n: Number(r.n) })),
+      makes: makeRows.map((r) => ({ make: r.make, n: Number(r.n) })),
+      models: modelRows.map((r) => ({ model: r.model, n: Number(r.n) })),
+      trims: trimRows.map((r) => ({ trim: r.trim, n: Number(r.n) })),
+    };
+  }));
+}
+
 // GET /api/inventory/by-dealer — in-stock counts per store, for the dealer sheet.
 async function handleInventoryByDealer(req, res) {
   const pool = getPool();
@@ -2891,6 +2969,7 @@ const server = http.createServer((req, res) => {
   if (req.method === "POST" && pathname === "/api/inventory/sweep") return run(handleInventorySweep);
   if (req.method === "GET" && pathname === "/api/inventory/stats") return run(handleInventoryStats);
   if (req.method === "GET" && pathname === "/api/inventory/makes") return run(handleInventoryMakes);
+  if (req.method === "GET" && pathname === "/api/inventory/facets") return run(handleInventoryFacets, url.searchParams);
   if (req.method === "GET" && pathname === "/api/inventory/analytics") return run(handleInventoryAnalytics, url.searchParams);
   if (req.method === "GET" && pathname === "/api/inventory/market-pulse") return run(handleMarketPulse, url.searchParams);
   if (req.method === "GET" && pathname === "/api/inventory/by-dealer") return run(handleInventoryByDealer);

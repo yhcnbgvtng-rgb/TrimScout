@@ -254,6 +254,12 @@ export async function catalogOptions(f: { make?: string; model?: string; trim?: 
  * each option, never vehicleCount, so there's no reason to touch dealer_inventory for options at
  * all here. Colors still read dealer_inventory (no per-option join exists for them), but a plain
  * DISTINCT scan of one table is far cheaper than joining it against another 9.5M-row table.
+ *
+ * NOTE (2026-09-27, buyer /search filter redesign): AI search is disconnected from the /search
+ * page's UI as of that redesign — `/api/search/parse` is orphaned (no client calls it anymore)
+ * but deliberately not deleted in that PR, so this function and its route stay here, unused by
+ * the live page, until a follow-up either restores an AI entry point or removes this dead path
+ * for good.
  */
 export interface GlobalCatalogOptions {
   options: Array<{ key: string; label: string }>;
@@ -263,6 +269,33 @@ export interface GlobalCatalogOptions {
 
 export async function allCatalogOptions(): Promise<GlobalCatalogOptions> {
   return request("GET", "/api/inventory/catalog/global");
+}
+
+export interface InventoryFacets {
+  states: Array<{ state: string; n: number }>;
+  makes: Array<{ make: string; n: number }>;
+  /** Only ever populated when `make` was passed — mirrors the /search page's own unlock rule (a model list with no make has nothing selective to scope it by). */
+  models: Array<{ model: string; n: number }>;
+  /** Only ever populated when both `make` and `model` were passed. */
+  trims: Array<{ trim: string; n: number }>;
+}
+
+/**
+ * Hit counts for the /search page's State/Make/Model/Trim dropdowns, cross-scoped by whichever
+ * filters are already set: pass `state` to get make counts scoped to that state (and vice versa),
+ * `make` to also get a model list scoped to that make (+ state, if set), and `make` + `model`
+ * together to also get a trim list. Each distinct (state, make, model) combination is its own
+ * cache entry on the box — never reuses `inventoryStats()`'s or `inventoryMakes()`'s unscoped,
+ * whole-table cache keys, which would mean two callers with different filters silently reading
+ * each other's result.
+ */
+export async function inventoryFacets(f: { state?: string; make?: string; model?: string } = {}): Promise<InventoryFacets> {
+  const qs = new URLSearchParams();
+  if (f.state) qs.set("state", f.state);
+  if (f.make) qs.set("make", f.make);
+  if (f.model) qs.set("model", f.model);
+  const suffix = qs.toString();
+  return request("GET", `/api/inventory/facets${suffix ? `?${suffix}` : ""}`);
 }
 
 /** Longest the box may take to stream a whole export — the route's maxDuration minus headroom. */
