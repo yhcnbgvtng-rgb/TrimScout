@@ -6,6 +6,18 @@ import { parseBuyerSearchParams, parsedSearchFiltersToParams } from "@/lib/buyer
 import { runBuyerSearch } from "@/lib/buyerSearch";
 
 export const dynamic = "force-dynamic";
+// Without this, the route falls back to Vercel's own platform-level function duration limit —
+// confirmed live 2026-09-26 that it's well under the 60s AbortController lib/inventoryApi.ts
+// already uses to time out the box call gracefully: a query slow enough to approach that budget
+// (e.g. make+model+trim+zip+radius with no color/options, which still requires a full Gemini
+// parse round trip plus the box call) got killed by the PLATFORM at a near-constant ~24-26s
+// across three separate reproductions, with zero application-level logs at any level — meaning
+// the whole function process was terminated externally, before our own try/catch, the box's own
+// 20s max_statement_time cap, or lib/inventoryApi.ts's 60s abort ever got a chance to run. That
+// turned a case our own code is built to handle gracefully (a clean 503 "Inventory request timed
+// out") into an opaque, unlogged 502 "Internal server error" instead. 90s gives lib/inventoryApi's
+// own 60s budget room to always resolve first.
+export const maxDuration = 90;
 
 /**
  * POST /api/search/parse { q: string, zip?: string } — the buyer /search page's NL box. Calls
