@@ -4,6 +4,11 @@ import { parseBuyerSearchParams, BuyerSearchParamsError } from "@/lib/buyerSearc
 import { runBuyerSearch } from "@/lib/buyerSearch";
 
 export const dynamic = "force-dynamic";
+// See app/api/search/parse/route.ts for why this is set explicitly: this route makes the same
+// slow box call (via runBuyerSearch), so without it this would hit the same unconfigured
+// platform-level function duration limit — confirmed live 2026-09-26 to sit well under the 60s
+// AbortController lib/inventoryApi.ts uses to time this call out gracefully.
+export const maxDuration = 90;
 
 /**
  * GET /api/vehicles/search — the deterministic search behind the buyer /search page's generic
