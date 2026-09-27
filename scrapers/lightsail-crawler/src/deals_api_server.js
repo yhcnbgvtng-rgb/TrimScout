@@ -2816,6 +2816,19 @@ const server = http.createServer((req, res) => {
         console.error(`${new Date().toISOString()} ${pathname} -> 503 (pool timeout):`, err.message);
         return sendJson(res, 503, { error: err.message });
       }
+      // MariaDB's own SET STATEMENT max_statement_time=... FOR ... (see
+      // INV_LIST_STATEMENT_TIMEOUT_SECONDS) throws error 1969 when it kills a query — a real,
+      // expected outcome for a genuinely slow filter combination, not a bug. Confirmed live
+      // 2026-09-27: this fell through to the generic 500 below, which lib/inventoryApi.ts then
+      // shows the caller as an opaque "Internal server error" (mapped to 502 by
+      // app/api/search/parse/route.ts) — no different from an actual crash, even though the box
+      // knows exactly what happened and why. Giving it the same clear-503 treatment as
+      // PoolTimeoutError lets a buyer's search page tell them to narrow their filters instead of
+      // just failing silently.
+      if (err && err.errno === 1969) {
+        console.error(`${new Date().toISOString()} ${pathname} -> 503 (statement timeout):`, err.message);
+        return sendJson(res, 503, { error: "Search took too long and was stopped — try narrowing your filters (make/model, a smaller radius, or fewer must-have options)" });
+      }
       console.error(`${new Date().toISOString()} ${pathname} -> 500:`, err.message);
       sendJson(res, 500, { error: "Internal server error" });
     });
