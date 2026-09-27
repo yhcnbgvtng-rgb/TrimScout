@@ -50,8 +50,18 @@ function normalizeTrimWord(word) {
 // Finds the contiguous run of tokens (case-insensitive) matching every
 // word of `model`, and returns the index just past that run — or null if
 // model's words don't appear together, in order, anywhere in `tokens`.
+// Real gap found live 2026-09-27: Toyota's "i-FORCE MAX" nameplate (e.g.
+// "Tundra i-FORCE MAX", "4Runner i-FORCE MAX") has an internal hyphen in
+// the model string as stored (from schema.org), but the VDP URL slug
+// spells it with every word "+"-separated instead — "Tundra-i-FORCE-MAX"
+// once decoded, i.e. FOUR plain words, not three with one hyphenated.
+// Splitting modelWords on whitespace only ("i-force" stays one word)
+// never matches the slug's four separate tokens, so recovery silently
+// declined for every i-FORCE MAX vehicle. Splitting on hyphens too fixes
+// this without changing behavior for any model that has no internal
+// hyphen (Civic Hybrid, Corvette Z06, RAV4, etc. are unaffected).
 function findModelEndIndex(tokens, model) {
-  const modelWords = model.trim().toLowerCase().split(/\s+/).filter(Boolean);
+  const modelWords = model.trim().toLowerCase().split(/[\s-]+/).filter(Boolean);
   if (!modelWords.length) return null;
   const tokensLower = tokens.map((t) => t.toLowerCase());
   for (let start = 0; start <= tokensLower.length - modelWords.length; start++) {
