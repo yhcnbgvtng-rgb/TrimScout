@@ -184,6 +184,19 @@ export async function parseSearchQuery(userText: string, catalog: SearchCatalogS
     "and never drop a leading lowercase letter). A model missing from today's in-stock catalog just " +
     "means the search may return zero results — that is a perfectly fine, honest outcome. It is never " +
     "a reason to substitute a different model or to question the shopper's stated model.\n" +
+    "- model vs trim boundary: confirmed live 2026-09-27 that \"Taycan Turbo\" was set as the WHOLE " +
+    "model, with trim left null — wrong, since \"Turbo\" there is a trim/performance level, not part " +
+    "of the model name. When a shopper's phrase is <base model> + <trim-level word>, split it: model " +
+    "is the base model alone, trim is the qualifier. Trim-level words include (not exhaustive) " +
+    "\"Turbo\", \"Turbo S\", \"GTS\", \"GT\", \"GT3\", \"GT4\", \"S\", \"4S\", \"SS\", \"Sport\", " +
+    "\"Sport Plus\", \"Limited\", \"Platinum\", \"Denali\", \"Raptor\", \"Lariat\", \"XLT\", \"SEL\", " +
+    "\"Premium\", \"Competition\", \"M Sport\". Examples: \"Taycan Turbo\" -> model \"Taycan\", trim " +
+    "\"Turbo\"; \"911 Turbo S\" -> model \"911\", trim \"Turbo S\"; \"F-150 Lariat\" -> model \"F-150\", " +
+    "trim \"Lariat\"; \"Model Y\" -> model \"Model Y\", trim null (\"Y\" here is part of the model " +
+    "name itself, not a trim word — the rule is about a trailing trim-level qualifier, not every " +
+    "multi-word model). When genuinely unsure whether a trailing word is part of the model name or a " +
+    "trim level, prefer splitting it into trim — a wrong trim still finds the right model with wider " +
+    "results, which is more honest than silently folding a real trim into an unmatchable model string.\n" +
     "- options: each catalog entry is {key, label} — key is a stable internal identifier (put it in " +
     "filters.optionKeys), label is the real, human-readable option name to match the shopper's words " +
     "against. Match by MEANING, not exact text: synonyms, abbreviations, and brand names all count " +
