@@ -2493,7 +2493,16 @@ async function handleInventoryMakes(req, res) {
   const pool = getPool();
   await ensureInventoryTable(pool);
   sendJson(res, 200, await invCached("makes", async () => {
-    const [rows] = await pool.query("SELECT make, COUNT(*) AS n FROM dealer_inventory WHERE removed_at IS NULL AND make IS NOT NULL GROUP BY make ORDER BY n DESC LIMIT 100");
+    // Wrapped the same way handleListInventory/handleInventoryCatalogOptions are (SET STATEMENT
+    // + withPoolTimeout) — confirmed live 2026-09-27 this was the last unprotected call in
+    // /api/search/parse's own fan-out (Promise.all([inventoryMakes(), catalogOptions()]) then
+    // runBuyerSearch()): after #322/#324 fixed the other two, this endpoint alone still hung the
+    // full 60s caller-side abort under load, with nothing on either side to show for it.
+    const [rows] = await withPoolTimeout(
+      pool.query(`SET STATEMENT max_statement_time=${INV_LIST_STATEMENT_TIMEOUT_SECONDS} FOR SELECT make, COUNT(*) AS n FROM dealer_inventory WHERE removed_at IS NULL AND make IS NOT NULL GROUP BY make ORDER BY n DESC LIMIT 100`),
+      POOL_WAIT_TIMEOUT_MS,
+      "Timed out waiting for an available database connection or a slow query"
+    );
     return { makes: rows.map((r) => ({ make: r.make, n: Number(r.n) })) };
   }));
 }
