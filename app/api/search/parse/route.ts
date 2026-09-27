@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { inventoryMakes, allCatalogOptions, InventoryApiError } from "@/lib/inventoryApi";
+import { inventoryMakes, allCatalogOptions, InventoryApiError, type GlobalCatalogOptions } from "@/lib/inventoryApi";
 import { parseSearchQuery, SearchParseError } from "@/lib/searchParse";
 import { isGeminiEnabled } from "@/lib/serverSecret";
 import { parseBuyerSearchParams, parsedSearchFiltersToParams } from "@/lib/buyerSearchQuery";
@@ -49,7 +49,32 @@ export async function POST(req: Request) {
     // brand) and dealer_inventory_options on every single AI search request, continuously hitting
     // the 20s statement timeout all day. allCatalogOptions() is a join-free nationwide option/color
     // list purpose-built for this Gemini-context use, which only ever reads {key, label} anyway.
-    const [{ makes: byMake }, catalog] = await Promise.all([inventoryMakes(), allCatalogOptions()]);
+    //
+    // Even join-free, this is STILL slow right now (confirmed live: ~22s) — the underlying
+    // dealer_inventory_options table has 286,596 distinct canonical_key values (nationwide
+    // dealer wording inconsistency plus residual sentence-junk from before this table's
+    // extraction filter shipped), so grouping the whole table into that many buckets is real
+    // work regardless of the join. That's a separate, larger data-normalization problem — fixing
+    // it here isn't realistic. What IS fixable here: this fetch was BLOCKING every single AI
+    // search, however simple, on that same nationwide computation — confirmed live: even
+    // "2025 cayenne" (no options mentioned at all) failed at the same ~20s mark, because
+    // /api/search/parse always fetches the full catalog before parsing, regardless of whether
+    // the query needs it. Gemini parses make/model/year/color perfectly well without this
+    // context; only exact must-have-option matching degrades without it. Racing both calls
+    // against a short timeout and falling back to an empty list means a slow/cold catalog no
+    // longer blocks the whole search — it only means options might not get canonicalized this
+    // one time, which is a far better failure than the entire search timing out. The box-side
+    // request isn't cancelled by losing this race (Promise.race can't cancel a fetch already in
+    // flight) — it keeps running and, if it succeeds, still warms invCached's 10-minute cache for
+    // the next request.
+    const CONTEXT_TIMEOUT_MS = 3_000;
+    const withFallback = <T>(promise: Promise<T>, fallback: T): Promise<T> =>
+      Promise.race([promise, new Promise<T>((resolve) => setTimeout(() => resolve(fallback), CONTEXT_TIMEOUT_MS))]).catch(() => fallback);
+    const emptyCatalog: GlobalCatalogOptions = { options: [], exteriorColors: [], interiorColors: [] };
+    const [{ makes: byMake }, catalog] = await Promise.all([
+      withFallback(inventoryMakes(), { makes: [] }),
+      withFallback(allCatalogOptions(), emptyCatalog),
+    ]);
     const parsed = await parseSearchQuery(q, {
       makes: byMake.map((m) => m.make),
       options: catalog.options.map((o) => ({ key: o.key, label: o.label })),
