@@ -22,6 +22,7 @@ import {
     pruneDomBlobs,
 } from './dom_store.js';
 import { inventoryChangeTypeToPriceChangeType } from './price_diff.js';
+import { looksLikeOptionSentence } from './optionSentenceFilter.js';
 import { mergeInventorySnapshot } from './inventory_merge.js';
 import { buildBrandChangeRecord, mergeDailyChangesDocument } from './daily_changes.js';
 import { withSharedDataLock } from './shared_data_lock.js';
@@ -219,7 +220,7 @@ function extractDealerListedOptions(raw) {
 
         for (const opt of optionList) {
             const description = opt.textMap && opt.textMap.description;
-            if (!description) continue;
+            if (!description || looksLikeOptionSentence(description)) continue;
             const price = typeof opt.msrPrice === 'number' ? opt.msrPrice : 0;
             if (!isNamedPackage && price <= 0) continue;
             items.push({
