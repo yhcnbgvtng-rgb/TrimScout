@@ -1795,6 +1795,25 @@ async function ensureInventoryTable(pool) {
     // Mirrors idx_inv_stock_make/idx_inv_make_dealer exactly, for state= instead of make=.
     "ADD INDEX IF NOT EXISTS idx_inv_stock_state (removed_at, state, dealer_name, vin)",
     "ADD INDEX IF NOT EXISTS idx_inv_state_dealer (state, dealer_name, vin)",
+    // Confirmed live 2026-09-27: handleInventoryFacets's states-scoped-by-make query
+    // (WHERE removed_at IS NULL AND make=? GROUP BY state) hit the same shape of bug as every
+    // other aggregate here — FORCE INDEX(idx_inv_stock_make) seeks on (removed_at, make) fine,
+    // but state isn't part of that index, so every one of Ford's 187k+ matching rows needed a
+    // separate lookup back to the row just to read state, hitting the 20s statement timeout.
+    // This index puts state right after (removed_at, make), so both this GROUP BY state query
+    // AND handleInventoryFacets's models-scoped-by-make(+state) query (GROUP BY model, with an
+    // optional state= equality filter) read entirely from the index — no row lookups either way,
+    // since model is index-only too and state is either the exact next equality predicate or
+    // just an unused-but-present column when only make= is set.
+    "ADD INDEX IF NOT EXISTS idx_inv_facet_make_state_model (removed_at, make, state, model)",
+    // Mirrors the index above for the reverse direction: handleInventoryFacets's
+    // makes-scoped-by-state query (WHERE removed_at IS NULL AND state=? GROUP BY make).
+    "ADD INDEX IF NOT EXISTS idx_inv_facet_state_make (removed_at, state, make)",
+    // handleInventoryFacets's trims query (WHERE removed_at IS NULL AND make=? AND model=?
+    // [AND state=?] GROUP BY trim) — same reasoning as idx_inv_facet_make_state_model, one
+    // column further in: covers the query whether or not state= is also set, with no table
+    // lookups for trim.
+    "ADD INDEX IF NOT EXISTS idx_inv_facet_make_model_state_trim (removed_at, make, model, state, trim)",
     "ADD INDEX IF NOT EXISTS idx_inv_stock_price (removed_at, price)",
     "ADD INDEX IF NOT EXISTS idx_inv_stock_msrp (removed_at, msrp)",
     "ADD INDEX IF NOT EXISTS idx_inv_stock_mileage (removed_at, mileage)",
@@ -2538,40 +2557,44 @@ async function handleInventoryFacets(req, res, params) {
         POOL_WAIT_TIMEOUT_MS,
         "Timed out waiting for an available database connection or a slow query"
       );
-    // States list: scoped by make= if set. FORCE INDEX only when make= actually pins the leading
-    // column an index hint expects — same rule handleInventoryCatalogOptions/inventoryListQuery.js
-    // already follow for this table.
+    // States list: scoped by make= if set. idx_inv_facet_make_state_model (removed_at, make,
+    // state, model) covers this as an index-only GROUP BY state scan — confirmed live 2026-09-27
+    // that FORCE INDEX (idx_inv_stock_make) alone (removed_at, make, model — no state column)
+    // forced a per-row lookup for state on every one of a big make's matching rows and blew the
+    // 20s statement timeout outright (Ford: 187k+ rows). This index puts state right after
+    // (removed_at, make), so no row lookups are needed either way.
     const statesPromise = make
       ? q(
-          `SELECT state, COUNT(*) AS n FROM dealer_inventory FORCE INDEX (idx_inv_stock_make) WHERE removed_at IS NULL AND make = ? AND state IS NOT NULL GROUP BY state ORDER BY n DESC`,
+          `SELECT state, COUNT(*) AS n FROM dealer_inventory FORCE INDEX (idx_inv_facet_make_state_model) WHERE removed_at IS NULL AND make = ? AND state IS NOT NULL GROUP BY state ORDER BY n DESC`,
           [make]
         )
       : q(`SELECT state, COUNT(*) AS n FROM dealer_inventory WHERE removed_at IS NULL AND state IS NOT NULL GROUP BY state ORDER BY n DESC`, []);
-    // Makes list: scoped by state= if set.
+    // Makes list: scoped by state= if set. idx_inv_facet_state_make (removed_at, state, make)
+    // mirrors the index above for the reverse direction — same reasoning, same fix.
     const makesPromise = state
       ? q(
-          `SELECT make, COUNT(*) AS n FROM dealer_inventory FORCE INDEX (idx_inv_stock_state) WHERE removed_at IS NULL AND state = ? AND make IS NOT NULL GROUP BY make ORDER BY n DESC LIMIT 100`,
+          `SELECT make, COUNT(*) AS n FROM dealer_inventory FORCE INDEX (idx_inv_facet_state_make) WHERE removed_at IS NULL AND state = ? AND make IS NOT NULL GROUP BY make ORDER BY n DESC LIMIT 100`,
           [state]
         )
       : q(`SELECT make, COUNT(*) AS n FROM dealer_inventory WHERE removed_at IS NULL AND make IS NOT NULL GROUP BY make ORDER BY n DESC LIMIT 100`, []);
-    // Models: only ever queried when make= is set — idx_inv_stock_make (removed_at, make, model)
-    // covers this as an index-only scan; state=, if also set, filters the already-narrow make
-    // scan in memory rather than needing its own composite index.
+    // Models: only ever queried when make= is set. Same idx_inv_facet_make_state_model index as
+    // the states query above covers this too — model is its trailing column, so this reads
+    // entirely from the index whether or not state= is also set (state is either the exact next
+    // equality predicate in the index or just an unused-but-present column).
     const modelsPromise = make
       ? q(
-          `SELECT model, COUNT(*) AS n FROM dealer_inventory FORCE INDEX (idx_inv_stock_make) WHERE removed_at IS NULL AND make = ? ${state ? "AND state = ?" : ""} AND model IS NOT NULL GROUP BY model ORDER BY n DESC LIMIT 200`,
+          `SELECT model, COUNT(*) AS n FROM dealer_inventory FORCE INDEX (idx_inv_facet_make_state_model) WHERE removed_at IS NULL AND make = ? ${state ? "AND state = ?" : ""} AND model IS NOT NULL GROUP BY model ORDER BY n DESC LIMIT 200`,
           state ? [make, state] : [make]
         )
       : Promise.resolve([[]]);
     // Trims: only ever queried when make= AND model= are both set (the page's own unlock order —
     // trim is optional and never blocks the options unlock, but it has nothing to scope by until
-    // a model is picked). Same idx_inv_stock_make index range-scans down to one model's rows
-    // first; trim isn't in that index, but a single model's in-stock inventory is small enough
-    // that grouping the remainder in memory is cheap regardless.
+    // a model is picked). idx_inv_facet_make_model_state_trim (removed_at, make, model, state,
+    // trim) covers this as an index-only scan too, same reasoning as the two indexes above.
     const trimsPromise =
       make && model
         ? q(
-            `SELECT trim, COUNT(*) AS n FROM dealer_inventory FORCE INDEX (idx_inv_stock_make) WHERE removed_at IS NULL AND make = ? AND model = ? ${state ? "AND state = ?" : ""} AND trim IS NOT NULL GROUP BY trim ORDER BY n DESC LIMIT 100`,
+            `SELECT trim, COUNT(*) AS n FROM dealer_inventory FORCE INDEX (idx_inv_facet_make_model_state_trim) WHERE removed_at IS NULL AND make = ? AND model = ? ${state ? "AND state = ?" : ""} AND trim IS NOT NULL GROUP BY trim ORDER BY n DESC LIMIT 100`,
             state ? [make, model, state] : [make, model]
           )
         : Promise.resolve([[]]);
