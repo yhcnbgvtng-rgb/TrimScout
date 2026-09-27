@@ -61,6 +61,11 @@ describe('recoverTrimFromUrl (real live-confirmed VDP URLs, 2026-09-26)', () => 
     assert.equal(recoverTrimFromUrl(url, 'TLX', '19UUB1F34LA002790'), null);
   });
 
+  it('matches a hyphenated model word against its space-separated slug form — real gap caught live (355toyota.com Tundra i-FORCE MAX TRD Pro)', () => {
+    const url = 'https://www.355toyota.com/new-Rockville-2026-Toyota-Tundra+i+FORCE+MAX-TRD+Pro-5TFPC5DB6TX42C529';
+    assert.equal(recoverTrimFromUrl(url, 'Tundra i-FORCE MAX', '5TFPC5DB6TX42C529'), 'TRD Pro');
+  });
+
   it('returns null when url, model, or vin is missing', () => {
     assert.equal(recoverTrimFromUrl(null, 'RAV4', 'X'.repeat(17)), null);
     assert.equal(recoverTrimFromUrl('https://example.com/x', null, 'X'.repeat(17)), null);
