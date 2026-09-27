@@ -28,6 +28,7 @@ import { buildBrandChangeRecord, mergeDailyChangesDocument } from './daily_chang
 import { withSharedDataLock } from './shared_data_lock.js';
 import { inventoryShardPath, inventoryShardsDir, snapshotShardPath } from './inventory_shards.js';
 import { resolveVehicleBrandMatch } from './brand_match.js';
+import { isLikelyVdpUrl } from './vdpUrlFilter.js';
 import { fillFromFacebookPixelViewContent } from './facebookPixelFields.js';
 import {
     collectSalesEmail,
@@ -621,14 +622,7 @@ async function fetchSitemapXmlUrls(sitemapUrl, depth = 0, brand, patchrightPage 
         }
 
         const allUrls = locMatches(xml);
-        const vinPattern = brand.vinPrefixes.map((p) => `${p}[A-Z0-9]{13,14}`).join('|');
-        return allUrls.filter((u) =>
-            /-[a-f0-9]{32}\.htm/i.test(u) ||
-            /\/vehicle-details/i.test(u) ||
-            new RegExp(`\\/inventory\\/(?:new|used|certified|${brandWord}|all)`, 'i').test(u) ||
-            new RegExp(`\\/(?:new|used|certified|cpo)\\/(?:${brand.name}|inventory)\\/`, 'i').test(u) ||
-            new RegExp(vinPattern, 'i').test(u)
-        );
+        return allUrls.filter((u) => isLikelyVdpUrl(u, brand));
     } catch {
         return [];
     }
