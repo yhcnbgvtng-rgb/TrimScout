@@ -20,6 +20,9 @@ import {
   shouldRunWriteDealersStep,
   checkProjectedRuntime,
   runBrandSharded,
+  readReadyBrandsForState,
+  resolveRunLabel,
+  REPORTS_DIR,
 } from '../scripts/run-daily-crawl.mjs';
 import { SUPPORTED_STATES } from '../src/states.js';
 
@@ -613,6 +616,84 @@ describe('run-daily-crawl driver', () => {
 
     it('skips write-dealers for the expansion brand set — its dealer files are a static, pre-built dataset', () => {
       assert.equal(shouldRunWriteDealersStep('expansion'), false);
+    });
+  });
+
+  // ---------------------------------------------------------------------
+  // Real bug found live 2026-09-27 (Sat 11pm expansion following Sat 4am
+  // core, same calendar date): dealer-bot-report.mjs always wrote
+  // "dealer-bot-report-<state>-all-<date>.json" no matter which run
+  // (core or expansion) produced it, and this driver always looked up
+  // that exact filename. Sat 4am core's report for VA/TX/OH/NJ/IA/NY/IL/
+  // KY got silently overwritten by Sat 11pm expansion's own run writing
+  // to the identical path — so readReadyBrandsForState() handed expansion
+  // core's readyBrands, intersected against the expansion brand list, and
+  // got zero every time. Those 8 states finished in ~0-1s having
+  // attempted no expansion brands at all (~3,026 rooftops skipped in one
+  // night). runLabel is now part of the filename on both ends and
+  // re-verified against the report body on read, so a same-date core run
+  // and expansion run can never collide, and a report written under the
+  // wrong runLabel is rejected rather than silently trusted.
+  // ---------------------------------------------------------------------
+  describe('resolveRunLabel (same fallback chain LOCK_PATH and writeBoxReport already use)', () => {
+    it('defaults to "core" when neither var is set', () => {
+      assert.equal(resolveRunLabel({}), 'core');
+    });
+
+    it('falls back to CRAWLER_BRAND_SET when CRAWLER_RUN_LABEL is unset', () => {
+      assert.equal(resolveRunLabel({ CRAWLER_BRAND_SET: 'expansion' }), 'expansion');
+    });
+
+    it('prefers CRAWLER_RUN_LABEL over CRAWLER_BRAND_SET when both are set', () => {
+      assert.equal(resolveRunLabel({ CRAWLER_RUN_LABEL: 'box4-4am-core', CRAWLER_BRAND_SET: 'core' }), 'box4-4am-core');
+    });
+  });
+
+  describe('readReadyBrandsForState (core and expansion bot-reports must never collide on the same filename)', () => {
+    const testDate = '2099-01-01';
+    const testState = 'NJ';
+
+    async function writeFixtureReport(runLabel, readyBrands) {
+      await fs.mkdir(REPORTS_DIR, { recursive: true });
+      const runLabelSlug = runLabel.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+      const reportPath = path.join(REPORTS_DIR, `dealer-bot-report-${testState.toLowerCase()}-${runLabelSlug}-all-${testDate}.json`);
+      await fs.writeFile(reportPath, JSON.stringify({
+        state: testState,
+        runLabel,
+        readyToCrawl: readyBrands.map((brand) => ({ brand, dealerName: 'Test Dealer', domain: 'example.com', httpStatus: 200 })),
+      }));
+      return reportPath;
+    }
+
+    after(async () => {
+      await Promise.all(['core', 'expansion'].map(async (label) => {
+        const slug = label.toLowerCase();
+        await fs.rm(path.join(REPORTS_DIR, `dealer-bot-report-${testState.toLowerCase()}-${slug}-all-${testDate}.json`), { force: true });
+      }));
+    });
+
+    it('a same-date core report and expansion report land at different paths and each is read back by its own run', async () => {
+      await writeFixtureReport('core', ['Honda', 'Toyota']);
+      await writeFixtureReport('expansion', ['Ford', 'Chevrolet']);
+
+      const core = await readReadyBrandsForState(testState, testDate, 'core');
+      assert.deepEqual(core.brands, ['Honda', 'Toyota']);
+
+      const expansion = await readReadyBrandsForState(testState, testDate, 'expansion');
+      assert.deepEqual(expansion.brands, ['Ford', 'Chevrolet']);
+      assert.notEqual(core.reportPath, expansion.reportPath);
+    });
+
+    it('rejects a report whose body was written under a different runLabel than the one requested', async () => {
+      await writeFixtureReport('core', ['Honda']);
+      // Simulate a stale/mismatched file sitting at the expansion path.
+      const expansionPath = await writeFixtureReport('expansion', ['Ford']);
+      await fs.writeFile(expansionPath, JSON.stringify({ state: testState, runLabel: 'core', readyToCrawl: [{ brand: 'Honda' }] }));
+
+      await assert.rejects(
+        () => readReadyBrandsForState(testState, testDate, 'expansion'),
+        /runLabel "core", expected "expansion"/,
+      );
     });
   });
 

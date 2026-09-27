@@ -140,6 +140,18 @@ const brandFilter = (process.argv.find((a) => a.startsWith('--brand=')) || '')
 const stateFilter = ((process.argv.find((a) => a.startsWith('--state=')) || '')
   .slice('--state='.length) || process.env.CRAWLER_STATE || 'NJ')
   .toUpperCase();
+// Real bug found live 2026-09-27: this report's filename never encoded
+// which brand SET (core vs expansion) generated it — only which single
+// --brand was filtered, which the driver never passes, so both runs wrote
+// the same "-all-" filename. A same-date core run followed by an
+// expansion run (the fleet's normal Sat-11pm-after-Sat-4am pattern)
+// silently overwrote core's report with expansion's, and
+// readReadyBrandsForState() then intersected core's readyBrands with the
+// expansion brand list — empty, every time — costing ~3,026 rooftops
+// across 8 states in one night. runLabel scopes the file (and is
+// re-checked on read in run-daily-crawl.mjs) so core and expansion can
+// never collide again, even sharing a calendar date.
+const runLabel = process.env.CRAWLER_RUN_LABEL || process.env.CRAWLER_BRAND_SET || 'core';
 
 if (!SUPPORTED_STATES.includes(stateFilter)) {
   console.error(`Unsupported state "${stateFilter}". Use one of: ${SUPPORTED_STATES.join(', ')}.`);
@@ -231,6 +243,7 @@ for (const cls of CLASSIFICATION_ORDER) {
 const report = {
   generatedAt,
   state: stateFilter,
+  runLabel,
   brandFilter: brandFilter || 'ALL_IN_SCOPE',
   dealerCount: rows.length,
   summary,
@@ -283,14 +296,17 @@ await fs.mkdir(outDir, { recursive: true });
 const stamp = resolveRunDate();
 const brandSlug = (brandFilter || 'all').toLowerCase().replace(/[^a-z0-9]+/g, '-');
 const stateSlug = stateFilter.toLowerCase();
+const runLabelSlug = runLabel.toLowerCase().replace(/[^a-z0-9]+/g, '-');
 // State is part of every filename — without it, running this for NJ then
 // NY on the same day (the daily driver's normal pattern) silently
 // overwrote NJ's report with NY's, since both used to share the exact
-// same "all"-brand, same-date filename.
-const jsonPath = path.join(outDir, `dealer-bot-report-${stateSlug}-${brandSlug}-${stamp}.json`);
-const pdfPath = path.join(outDir, `dealer-bot-report-${stateSlug}-${brandSlug}-${stamp}.pdf`);
-const latestJson = path.join(outDir, `dealer-bot-report-${stateSlug}-latest.json`);
-const latestPdf = path.join(outDir, `dealer-bot-report-${stateSlug}-latest.pdf`);
+// same "all"-brand, same-date filename. runLabel is part of it too, for
+// the same reason: without it, a same-date core run and expansion run
+// collide on this exact filename (see runLabel's own comment above).
+const jsonPath = path.join(outDir, `dealer-bot-report-${stateSlug}-${runLabelSlug}-${brandSlug}-${stamp}.json`);
+const pdfPath = path.join(outDir, `dealer-bot-report-${stateSlug}-${runLabelSlug}-${brandSlug}-${stamp}.pdf`);
+const latestJson = path.join(outDir, `dealer-bot-report-${stateSlug}-${runLabelSlug}-latest.json`);
+const latestPdf = path.join(outDir, `dealer-bot-report-${stateSlug}-${runLabelSlug}-latest.pdf`);
 
 await fs.writeFile(jsonPath, `${JSON.stringify(report, null, 2)}\n`);
 await fs.writeFile(latestJson, `${JSON.stringify(report, null, 2)}\n`);

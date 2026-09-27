@@ -69,6 +69,14 @@ the 11pm expansion job): RI on box 3, VT on box 4 — states moved off
 box 1 to lighten its load. Negligible rooftop count; not counted against
 the expansion SLA above since it's a different brand set entirely.
 
+`CRAWLER_RUN_LABEL`/`CRAWLER_BRAND_SET` also scope each state's
+`dealer-bot-report-<state>-<runLabel>-<brand>-<date>.json` filename (fixed
+2026-09-27, see `readReadyBrandsForState()` in `run-daily-crawl.mjs`) — a
+same-date core run and expansion run used to write that report under the
+identical filename and silently clobber each other, so the second run's
+`readyToCrawl` lookup intersected against the wrong brand set and came
+back empty for every state it touched.
+
 ## Daily box performance
 
 Separate from this document's capacity math, every driver run now writes an
