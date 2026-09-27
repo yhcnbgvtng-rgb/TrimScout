@@ -87,7 +87,7 @@ const STEAL_P90_SECONDS_PER_ROOFTOP = Number(process.env.CRAWLER_STEAL_P90_SEC_P
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export const ROOT = path.resolve(__dirname, '..');
 const LOGS_DIR = path.join(ROOT, 'logs');
-const REPORTS_DIR = path.join(ROOT, 'data', 'reports');
+export const REPORTS_DIR = path.join(ROOT, 'data', 'reports');
 const RUNS_DIR = path.join(ROOT, 'data', 'daily_crawl_runs');
 const CHANGES_DIR = path.join(ROOT, 'data', 'daily_changes');
 
@@ -270,6 +270,14 @@ export const DRIVER_BUDGET_MS = process.env.CRAWLER_DRIVER_BUDGET_HOURS
 // every box already used before this existed.
 export const LOCK_PATH = path.join(RUNS_DIR, process.env.CRAWLER_RUN_LABEL ? `driver-${process.env.CRAWLER_RUN_LABEL}.lock` : 'driver.lock');
 
+// Same fallback chain as LOCK_PATH and writeBoxReport() below, pulled out
+// so dealer-bot-report.mjs's report filename/env and this driver's lookup
+// of it always agree — see readReadyBrandsForState()'s own comment for the
+// real bug this fixes (core and expansion runs colliding on one filename).
+export function resolveRunLabel(env = process.env) {
+  return env.CRAWLER_RUN_LABEL || env.CRAWLER_BRAND_SET || 'core';
+}
+
 // Calendar-date bucketing (report/log/summary filenames) uses the Eastern
 // calendar date, not UTC — see src/date_utils.js. A run that starts late
 // evening Eastern (already past midnight UTC) or early morning Eastern
@@ -441,10 +449,30 @@ function statusOf(result) {
   return 'error';
 }
 
-async function readReadyBrandsForState(state, date) {
-  const reportPath = path.join(REPORTS_DIR, `dealer-bot-report-${state.toLowerCase()}-all-${date}.json`);
+// Real bug found live 2026-09-27: this always looked up the "-all-"
+// filename regardless of which run (core vs expansion) was asking, and
+// dealer-bot-report.mjs always wrote that same "-all-" filename regardless
+// of which run produced it (the driver never passes --brand). A same-date
+// core run followed by an expansion run silently overwrote core's report
+// with expansion's, so this function then intersected core's readyBrands
+// against the expansion brand list — empty every time — and both box3/
+// box4's expansion runs finished in ~0-1s having attempted zero brands
+// across 8 states (~3,026 rooftops). runLabel is now part of the filename
+// on both ends (see dealer-bot-report.mjs), and re-verified here against
+// the report body itself: a file that exists but was written under a
+// different runLabel (e.g. a stale report from before this fix, or a
+// filename collision this fix missed) is treated the same as a missing
+// file — caught by runState()'s existing "couldn't read bot-report
+// output" fallback to attempting every in-scope brand, rather than
+// silently trusting brands from the wrong run.
+export async function readReadyBrandsForState(state, date, runLabel = resolveRunLabel()) {
+  const runLabelSlug = runLabel.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+  const reportPath = path.join(REPORTS_DIR, `dealer-bot-report-${state.toLowerCase()}-${runLabelSlug}-all-${date}.json`);
   const raw = await fs.readFile(reportPath, 'utf-8');
   const report = JSON.parse(raw);
+  if (report.runLabel !== runLabel) {
+    throw new Error(`bot-report at ${reportPath} was written under runLabel "${report.runLabel}", expected "${runLabel}"`);
+  }
   const brands = [...new Set((report.readyToCrawl || []).map((r) => r.brand))];
   return { reportPath, brands };
 }
@@ -686,6 +714,7 @@ async function runState(state, date) {
     }
   }
 
+  const runLabel = resolveRunLabel();
   stateSummary.botReport = await runStep(
     'node',
     ['scripts/dealer-bot-report.mjs', `--state=${state}`],
@@ -698,6 +727,12 @@ async function runState(state, date) {
       // independently compute a later date and write its report under a
       // filename readReadyBrandsForState() (which looks it up by `date`)
       // would never find.
+      //
+      // CRAWLER_RUN_LABEL/CRAWLER_BRAND_SET aren't set here because
+      // runStep() already merges `env` onto a copy of this driver
+      // process's own env (see runStep() above) — this child inherits
+      // whichever of those two vars cron set on the driver itself, the
+      // same way dealer-bot-report.mjs's own resolveRunLabel() reads them.
       env: { CRAWLER_RUN_DATE: date },
       logFile: path.join(LOGS_DIR, `${state.toLowerCase()}-bot-report-${date}.log`),
       timeoutMs: SUPPORT_STEP_TIMEOUT_MS,
@@ -712,7 +747,7 @@ async function runState(state, date) {
   // bot-report genuinely found zero ready brands, no brand is crawled.
   let brandsToRun = null;
   try {
-    const { reportPath, brands } = await readReadyBrandsForState(state, date);
+    const { reportPath, brands } = await readReadyBrandsForState(state, date, runLabel);
     stateSummary.readyBrands = brands;
     stateSummary.botReportPath = reportPath;
     brandsToRun = brands;
@@ -1019,7 +1054,7 @@ export function checkProjectedRuntime(states, brands, maxConcurrent, cwd = proce
 // side-job) never overwrite each other's report.
 async function writeBoxReport(summary, date) {
   try {
-    const runLabel = process.env.CRAWLER_RUN_LABEL || process.env.CRAWLER_BRAND_SET || 'core';
+    const runLabel = resolveRunLabel();
     const report = await buildBoxReport(summary, {
       brandSet: process.env.CRAWLER_BRAND_SET || 'core',
       runLabel: process.env.CRAWLER_RUN_LABEL || null,
