@@ -45,11 +45,16 @@ def rep(old, new, label):
     assert n == 1, f"{label}: expected exactly 1 match, found {n}:\n{old[:200]}"
     s = s.replace(old, new); changed.append(label)
 
-rep('''  }));
+rep('''      exteriorColors,
+      interiorColors,
+    };
+  }));
 }
 
-// ---------------------------------------------------------------------------
-// Cross-box crawl claim queue — dynamic work-stealing for the nightly crawl''', '''  }));
+const server = http.createServer((req, res) => {''', '''      exteriorColors,
+      interiorColors,
+    };
+  }));
 }
 
 // GET /api/inventory/catalog/global — the buyer /search AI box's Gemini-context source (see
@@ -100,8 +105,7 @@ async function handleGlobalCatalogOptions(req, res) {
   }));
 }
 
-// ---------------------------------------------------------------------------
-// Cross-box crawl claim queue — dynamic work-stealing for the nightly crawl''', "new handleGlobalCatalogOptions handler")
+const server = http.createServer((req, res) => {''', "new handleGlobalCatalogOptions handler")
 
 rep('''  if (req.method === "GET" && pathname === "/api/inventory/catalog") return run(handleInventoryCatalogOptions, url.searchParams);
 if (req.method === "GET" && pathname === "/api/inventory/by-listing-url") return run(handleInventoryByListingUrl, url.searchParams);''', '''  if (req.method === "GET" && pathname === "/api/inventory/catalog") return run(handleInventoryCatalogOptions, url.searchParams);
