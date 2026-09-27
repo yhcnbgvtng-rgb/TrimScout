@@ -72,10 +72,46 @@ function getPool() {
       password: process.env.DB_WRITER_PASSWORD,
       waitForConnections: true,
       connectionLimit: 5,
+      // No bound on this before 2026-09-27: mysql2's pool has no time-based acquire timeout
+      // (checked its source — getConnection() just pushes onto an unbounded _connectionQueue
+      // when every connection is busy and waitForConnections is true), so a saturated pool let
+      // a request queue silently forever, well past even the 60s caller-side AbortController
+      // (lib/inventoryApi.ts) that was supposed to be this server's outer bound. queueLimit
+      // caps how many requests may ever wait at once — past this, getConnection() rejects
+      // immediately with "Queue limit reached" instead of adding to an ever-growing queue.
+      // 20 is generous for this box's normal traffic (5 connections, occasional backfill/export
+      // jobs sharing the pool) while still failing fast under real saturation instead of piling
+      // requests up behind it.
+      queueLimit: 20,
       dateStrings: false,
     });
   }
   return pool;
+}
+
+// Thrown by withPoolTimeout below — distinguished from a generic Error so the server's top-level
+// `run()` handler (see the request router) can map it to a clear 503, not the generic 500
+// "Internal server error" every other uncaught exception gets.
+class PoolTimeoutError extends Error {}
+
+// mysql2 has no acquire-timeout option (see queueLimit comment above) — this bounds the
+// COMBINED "wait for a free connection + run the query" time for a single call, the same idea
+// as lib/inventoryApi.ts's 60s client-side AbortController but enforced here on the server, so a
+// saturated pool fails fast and visibly instead of silently consuming the caller's entire budget
+// with nothing to show for it on either side. Confirmed live 2026-09-27: a buyer search that
+// should have failed at 20s via INV_LIST_STATEMENT_TIMEOUT_SECONDS instead ran the full 60s with
+// zero errors anywhere — the query never even started executing, so that statement-level cap
+// never got a chance to apply. 45s stays comfortably under the caller's 60s abort (so this box
+// always answers first, with a real reason, instead of the caller just giving up) while staying
+// above INV_LIST_STATEMENT_TIMEOUT_SECONDS so a query that DOES reach execution hits that more
+// specific, better-logged cap first — this only catches "still waiting for a connection."
+const POOL_WAIT_TIMEOUT_MS = 45_000;
+function withPoolTimeout(promise, ms, message) {
+  let timer;
+  const timeout = new Promise((_, reject) => {
+    timer = setTimeout(() => reject(new PoolTimeoutError(message)), ms);
+  });
+  return Promise.race([promise, timeout]).finally(() => clearTimeout(timer));
 }
 
 function sendJson(res, status, obj) {
@@ -2132,11 +2168,22 @@ async function handleListInventory(req, res, params) {
   // and the COUNT is a separate, simple aggregate. This trades away the one real case
   // SQL_CALC_FOUND_ROWS helped (the original un-indexed q= full scan, where neither query
   // could stop early anyway) for correctness on every other case, which is the common one.
-  const [rows] = await pool.query(
-    `SET STATEMENT max_statement_time=${INV_LIST_STATEMENT_TIMEOUT_SECONDS} FOR SELECT i.*, d.city AS dealer_city, d.state AS dealer_state ${sql} ORDER BY ${orderBy} LIMIT ? OFFSET ?`,
-    [...args, limit, offset]
+  // Each wrapped in withPoolTimeout (see its own comment) — INV_LIST_STATEMENT_TIMEOUT_SECONDS
+  // only bounds a query once it's actually executing; this bounds "waiting for a free pool
+  // connection" too, which that statement-level cap can't see at all.
+  const [rows] = await withPoolTimeout(
+    pool.query(
+      `SET STATEMENT max_statement_time=${INV_LIST_STATEMENT_TIMEOUT_SECONDS} FOR SELECT i.*, d.city AS dealer_city, d.state AS dealer_state ${sql} ORDER BY ${orderBy} LIMIT ? OFFSET ?`,
+      [...args, limit, offset]
+    ),
+    POOL_WAIT_TIMEOUT_MS,
+    "Timed out waiting for an available database connection or a slow query"
   );
-  const [[{ total }]] = await pool.query(`SET STATEMENT max_statement_time=${INV_LIST_STATEMENT_TIMEOUT_SECONDS} FOR SELECT COUNT(*) AS total ${sql}`, args);
+  const [[{ total }]] = await withPoolTimeout(
+    pool.query(`SET STATEMENT max_statement_time=${INV_LIST_STATEMENT_TIMEOUT_SECONDS} FOR SELECT COUNT(*) AS total ${sql}`, args),
+    POOL_WAIT_TIMEOUT_MS,
+    "Timed out waiting for an available database connection or a slow query"
+  );
   sendJson(res, 200, { total, limit, offset, vehicles: rows.map(inventoryRowFromDb) });
 }
 
@@ -2736,6 +2783,14 @@ const server = http.createServer((req, res) => {
 
   const run = (fn, ...args) => {
     fn(req, res, ...args).catch((err) => {
+      // A saturated connection pool (see withPoolTimeout) is a known, expected failure mode
+      // under real load — worth its own status/message rather than folding into the generic
+      // 500 every other uncaught exception here gets, so the caller (lib/inventoryApi.ts) can
+      // tell "this box is overloaded, try again" apart from an actual bug.
+      if (err instanceof PoolTimeoutError) {
+        console.error(`${new Date().toISOString()} ${pathname} -> 503 (pool timeout):`, err.message);
+        return sendJson(res, 503, { error: err.message });
+      }
       console.error(`${new Date().toISOString()} ${pathname} -> 500:`, err.message);
       sendJson(res, 500, { error: "Internal server error" });
     });
