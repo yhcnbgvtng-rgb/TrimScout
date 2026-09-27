@@ -2541,13 +2541,29 @@ async function handleInventoryCatalogOptions(req, res, params) {
     // the far smaller side) into dealer_inventory_options by its (vin, dealer_id, canonical_key)
     // primary key, instead of the optimizer's previous choice of scanning every row in
     // dealer_inventory_options and only filtering by make afterward.
-    const [optionRows] = await pool.query(
-      `SELECT STRAIGHT_JOIN o.canonical_key, MIN(o.label) AS label, COUNT(*) AS vehicleCount FROM dealer_inventory i ${makeIndexHint} JOIN dealer_inventory_options o ON o.vin = i.vin AND o.dealer_id = i.dealer_id ${whereSql} GROUP BY o.canonical_key ORDER BY o.canonical_key`,
-      args
+    //
+    // Wrapped the same way handleListInventory's queries are (SET STATEMENT + withPoolTimeout,
+    // see their comments) — confirmed live 2026-09-27 this handler had neither: /api/search/parse
+    // calls this unconditionally (via catalogOptions()) on every AI search, and with the box
+    // under real load it hung the full 60s caller-side abort with no error on either side, the
+    // exact same "never even started executing, so the statement-level cap had nothing to catch"
+    // failure handleListInventory already had fixed. This is a separate handler with its own
+    // pool.query() calls, so it needed the same fix applied to it directly, not inherited.
+    const [optionRows] = await withPoolTimeout(
+      pool.query(
+        `SET STATEMENT max_statement_time=${INV_LIST_STATEMENT_TIMEOUT_SECONDS} FOR SELECT STRAIGHT_JOIN o.canonical_key, MIN(o.label) AS label, COUNT(*) AS vehicleCount FROM dealer_inventory i ${makeIndexHint} JOIN dealer_inventory_options o ON o.vin = i.vin AND o.dealer_id = i.dealer_id ${whereSql} GROUP BY o.canonical_key ORDER BY o.canonical_key`,
+        args
+      ),
+      POOL_WAIT_TIMEOUT_MS,
+      "Timed out waiting for an available database connection or a slow query"
     );
-    const [colorRows] = await pool.query(
-      `SELECT exterior_color, interior_color FROM dealer_inventory i ${makeColorsIndexHint} ${whereSql} AND (exterior_color IS NOT NULL OR interior_color IS NOT NULL) GROUP BY exterior_color, interior_color`,
-      args
+    const [colorRows] = await withPoolTimeout(
+      pool.query(
+        `SET STATEMENT max_statement_time=${INV_LIST_STATEMENT_TIMEOUT_SECONDS} FOR SELECT exterior_color, interior_color FROM dealer_inventory i ${makeColorsIndexHint} ${whereSql} AND (exterior_color IS NOT NULL OR interior_color IS NOT NULL) GROUP BY exterior_color, interior_color`,
+        args
+      ),
+      POOL_WAIT_TIMEOUT_MS,
+      "Timed out waiting for an available database connection or a slow query"
     );
     const exteriorColors = [...new Set(colorRows.map((r) => r.exterior_color).filter(Boolean))].sort();
     const interiorColors = [...new Set(colorRows.map((r) => r.interior_color).filter(Boolean))].sort();
