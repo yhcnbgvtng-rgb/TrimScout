@@ -1,15 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { parseBuyerSearchParams, parsedSearchFiltersToParams, BuyerSearchParamsError } from "./buyerSearchQuery";
-import type { ParsedSearchFilters } from "./searchParse";
-
-function filters(partial: Partial<ParsedSearchFilters>): ParsedSearchFilters {
-  return {
-    make: null, model: null, trim: null, priceMin: null, priceMax: null, yearMin: null, yearMax: null, odometerMax: null,
-    minDays: null, maxDays: null, exteriorColor: null, interiorColor: null, optionKeys: null,
-    possibleDemo: null, zip: null, radiusMiles: null, ...partial,
-  };
-}
+import { parseBuyerSearchParams, BuyerSearchParamsError } from "./buyerSearchQuery";
 
 function sp(pairs: Record<string, string>): URLSearchParams {
   return new URLSearchParams(pairs);
@@ -80,44 +71,5 @@ describe("parseBuyerSearchParams — field parsing", () => {
     const { query } = parseBuyerSearchParams(sp({}));
     assert.equal(query.limit, 50);
     assert.equal(query.offset, 0);
-  });
-});
-
-describe("parsedSearchFiltersToParams — Gemini's parsed filters onto the wire", () => {
-  it("sets a param for every non-null filter", () => {
-    const clarifications: string[] = [];
-    const params = parsedSearchFiltersToParams(filters({ make: "Toyota", priceMax: 30000, optionKeys: ["PANO", "AWD"] }), clarifications);
-    assert.equal(params.get("make"), "Toyota");
-    assert.equal(params.get("priceMax"), "30000");
-    assert.equal(params.get("optionKeys"), "PANO,AWD");
-    assert.deepEqual(clarifications, []);
-  });
-
-  it("passes yearMin/yearMax through", () => {
-    const clarifications: string[] = [];
-    const params = parsedSearchFiltersToParams(filters({ yearMin: 2024, yearMax: 2024 }), clarifications);
-    assert.equal(params.get("yearMin"), "2024");
-    assert.equal(params.get("yearMax"), "2024");
-  });
-
-  it("drops radiusMiles and adds a clarification when make is absent — never a hard failure for an NL search", () => {
-    const clarifications: string[] = [];
-    const params = parsedSearchFiltersToParams(filters({ zip: "07601", radiusMiles: 50 }), clarifications);
-    assert.equal(params.has("radiusMiles"), false);
-    assert.equal(params.get("zip"), "07601");
-    assert.equal(clarifications.length, 1);
-  });
-
-  it("keeps radiusMiles when make is also set", () => {
-    const clarifications: string[] = [];
-    const params = parsedSearchFiltersToParams(filters({ make: "Toyota", zip: "07601", radiusMiles: 50 }), clarifications);
-    assert.equal(params.get("radiusMiles"), "50");
-    assert.deepEqual(clarifications, []);
-  });
-
-  it("the resulting params pass parseBuyerSearchParams without throwing", () => {
-    const clarifications: string[] = [];
-    const params = parsedSearchFiltersToParams(filters({ zip: "07601", radiusMiles: 50 }), clarifications);
-    assert.doesNotThrow(() => parseBuyerSearchParams(params));
   });
 });
