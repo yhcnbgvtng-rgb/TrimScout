@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { inventoryMakes, catalogOptions, InventoryApiError } from "@/lib/inventoryApi";
+import { inventoryMakes, allCatalogOptions, InventoryApiError } from "@/lib/inventoryApi";
 import { parseSearchQuery, SearchParseError } from "@/lib/searchParse";
 import { isGeminiEnabled } from "@/lib/serverSecret";
 import { parseBuyerSearchParams, parsedSearchFiltersToParams } from "@/lib/buyerSearchQuery";
@@ -44,7 +44,12 @@ export async function POST(req: Request) {
   }
 
   try {
-    const [{ makes: byMake }, catalog] = await Promise.all([inventoryMakes(), catalogOptions()]);
+    // allCatalogOptions() (NOT catalogOptions()) — confirmed live 2026-09-27: catalogOptions()
+    // with no make/model/trim forced a nationwide STRAIGHT_JOIN across dealer_inventory (every
+    // brand) and dealer_inventory_options on every single AI search request, continuously hitting
+    // the 20s statement timeout all day. allCatalogOptions() is a join-free nationwide option/color
+    // list purpose-built for this Gemini-context use, which only ever reads {key, label} anyway.
+    const [{ makes: byMake }, catalog] = await Promise.all([inventoryMakes(), allCatalogOptions()]);
     const parsed = await parseSearchQuery(q, {
       makes: byMake.map((m) => m.make),
       options: catalog.options.map((o) => ({ key: o.key, label: o.label })),
