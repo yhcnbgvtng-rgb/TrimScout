@@ -1,7 +1,7 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { resolveVehicleBrandMatch } from '../src/brand_match.js';
+import { resolveVehicleBrandMatch, resolveKeptMake } from '../src/brand_match.js';
 
 describe('resolveVehicleBrandMatch', () => {
   it('single-nameplate brand: matches by raw make label and collapses to brand.name (existing behavior, unchanged)', () => {
@@ -54,5 +54,33 @@ describe('resolveVehicleBrandMatch', () => {
     const result = resolveVehicleBrandMatch(stellantis, { make: null, vin: '1C4ZZZZZZZZZZZZZZ' });
     assert.equal(result.isTargetBrand, true);
     assert.equal(result.resolvedMake, 'Stellantis');
+  });
+});
+
+describe('resolveKeptMake — off-brand trade-ins are kept under their own real make, not discarded', () => {
+  it('a target-brand vehicle resolves exactly like resolveVehicleBrandMatch (unchanged behavior)', () => {
+    const brand = { name: 'Ford', vinPrefixes: ['1FA', '1FT'] };
+    assert.equal(resolveKeptMake(brand, { make: 'FORD MEDIUM TRUCK', vin: '1FTZZZZZZZZZZZZZZ' }), 'Ford');
+  });
+
+  it('the exact live case: a used Porsche trade-in found while crawling a Volkswagen store keeps its own make', () => {
+    const brand = { name: 'Volkswagen', vinPrefixes: ['3VW', '1VW', 'WVW'] };
+    const result = resolveKeptMake(brand, { make: 'Porsche', vin: 'WP0AD2Y1XPSA47099' });
+    assert.equal(result, 'Porsche');
+  });
+
+  it('an off-brand vehicle with no make label at all still can\'t be identified and is dropped', () => {
+    const brand = { name: 'Volkswagen', vinPrefixes: ['3VW', '1VW', 'WVW'] };
+    assert.equal(resolveKeptMake(brand, { make: null, vin: 'WP0AD2Y1XPSA47099' }), null);
+  });
+
+  it('a multi-nameplate brand (Stellantis) still keeps the real nameplate, not the umbrella name', () => {
+    const stellantis = { name: 'Stellantis', nameplates: ['Jeep', 'Ram', 'Dodge', 'Chrysler', 'Fiat'], vinPrefixes: ['1C4'] };
+    assert.equal(resolveKeptMake(stellantis, { make: 'Jeep', vin: '1J4ZZZZZZZZZZZZZZ' }), 'Jeep');
+  });
+
+  it('trims whitespace off a raw off-brand make label', () => {
+    const brand = { name: 'Volkswagen', vinPrefixes: ['3VW'] };
+    assert.equal(resolveKeptMake(brand, { make: '  Audi  ', vin: 'WAUZZZZZZZZZZZZZZ' }), 'Audi');
   });
 });

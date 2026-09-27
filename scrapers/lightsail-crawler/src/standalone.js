@@ -27,7 +27,7 @@ import { mergeInventorySnapshot } from './inventory_merge.js';
 import { buildBrandChangeRecord, mergeDailyChangesDocument } from './daily_changes.js';
 import { withSharedDataLock } from './shared_data_lock.js';
 import { inventoryShardPath, inventoryShardsDir, snapshotShardPath } from './inventory_shards.js';
-import { resolveVehicleBrandMatch } from './brand_match.js';
+import { resolveKeptMake } from './brand_match.js';
 import { fillFromFacebookPixelViewContent } from './facebookPixelFields.js';
 import {
     collectSalesEmail,
@@ -1114,21 +1114,25 @@ for (let i = 0; i < dealers.length; i++) {
                     // brands are single-nameplate (brand.name IS the real
                     // make); Stellantis is multi-nameplate (brand.nameplates
                     // = Jeep/Ram/Dodge/Chrysler/Fiat, since they share the
-                    // same rooftops) and resolveVehicleBrandMatch keeps each
+                    // same rooftops) and resolveKeptMake keeps each
                     // vehicle's own real nameplate instead of collapsing it
-                    // to the umbrella crawl-scope name.
-                    const { isTargetBrand, resolvedMake } = resolveVehicleBrandMatch(brand, vehicle);
+                    // to the umbrella crawl-scope name. A vehicle that
+                    // doesn't match this crawl's target brand/nameplates at
+                    // all (e.g. a used Porsche trade-in found on a
+                    // single-franchise VW store's own site) is still kept,
+                    // tagged with its own real make, rather than discarded —
+                    // see resolveKeptMake's own header for why.
+                    const keptMake = resolveKeptMake(brand, vehicle);
 
-                    if (isTargetBrand) {
-                        // Collapse to the canonical nameplate. isTargetBrand
-                        // just confirmed this vehicle genuinely belongs here
-                        // (by label match or VIN prefix), so any raw label
-                        // variant the source site used — "FORD TRUCK", "FORD
-                        // MEDIUM TRUCK", etc. — is the same vehicle, not a
-                        // different make; storing the raw variant instead of
-                        // "Ford"/"Chevrolet"/"Jeep" just splits one nameplate
-                        // into several make values downstream.
-                        vehicle.make = resolvedMake;
+                    if (keptMake) {
+                        // Collapse to the canonical nameplate. keptMake is
+                        // either the crawl's own resolved nameplate (any raw
+                        // label variant a source site used — "FORD TRUCK",
+                        // "FORD MEDIUM TRUCK", etc. — is the same vehicle,
+                        // not a different make) or, for an off-brand
+                        // vehicle, its own real make as the site reported
+                        // it — never overwritten to this crawl's brand.
+                        vehicle.make = keptMake;
                         // Un-mix model/trim/body_style for brands whose
                         // source sites bake trim/body-style tokens into the
                         // model field (confirmed live: Porsche dealer.com
@@ -1139,10 +1143,10 @@ for (let i = 0; i < dealers.length; i++) {
                         // — DDC, schema.org, the Porsche retailer platform —
                         // gets the same cleanup. No-op for every other
                         // brand (see modelNormalizer.js's brand dispatcher).
-                        // Dispatches on the real resolved nameplate, not the
-                        // umbrella brand.name, so a multi-nameplate config
-                        // still gets each nameplate's own normalization.
-                        vehicle = normalizeVehicleFields(resolvedMake, vehicle);
+                        // Dispatches on the real kept make, not the umbrella
+                        // brand.name, so both a multi-nameplate config and
+                        // an off-brand vehicle get their own normalization.
+                        vehicle = normalizeVehicleFields(keptMake, vehicle);
                         // URL-slug trim recovery — see vdpUrlTrim.js. Runs
                         // here, after every extraction strategy converges,
                         // for the same reason applyWindowSticker below
