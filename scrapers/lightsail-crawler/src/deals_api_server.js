@@ -32,6 +32,7 @@ import fs from "node:fs";
 import path from "node:path";
 import mysql from "mysql2/promise";
 import { inventoryListQuery } from "./inventoryListQuery.js";
+import { optionRowsFromOptions, payloadHasOptions } from "./inventoryOptionRows.js";
 
 const PORT = process.env.DEALS_API_PORT || 3004;
 
@@ -1961,22 +1962,8 @@ async function ensureInventoryTable(pool) {
   inventoryReady = true;
 }
 
-// Lowercase, strip punctuation, collapse whitespace — mirrors lib/factoryOptionCatalog.ts's
-// normalizeOptionKey() (a separate pipeline/table, but the same identity principle: two
-// differently-worded/coded mentions of the same real option should resolve to the same key).
-// Includes the OEM audio-brand synonym folding this table exists to fix: "Bowers & Wilkins",
-// "Bowers and Wilkins", and "B&W" all need to land on one canonical_key, but naive normalization
-// alone turns "B&W" into "b w" — two characters, meaningless and collision-prone — rather than
-// the same key as the full name. Expand known abbreviations to their full form BEFORE
-// normalizing so both spellings converge.
-const OPTION_SYNONYM_EXPANSIONS = [
-  [/\bb\s*&\s*w\b/gi, "bowers wilkins"],
-];
-function normalizeOptionKey(label) {
-  let s = String(label || "").trim().toLowerCase();
-  for (const [pattern, replacement] of OPTION_SYNONYM_EXPANSIONS) s = s.replace(pattern, replacement);
-  return s.replace(/[^a-z0-9]+/g, " ").replace(/\s+/g, " ").trim().slice(0, 80);
-}
+// normalizeOptionKey() and the option -> facet-row rules live in inventoryOptionRows.js, shared
+// with the options backfill script and unit-tested there.
 
 const INV_STR = (v, n) => (typeof v === "string" && v.trim() ? v.trim().slice(0, n) : null);
 
@@ -2059,7 +2046,7 @@ async function handleInventoryBulk(req, res) {
   const body = await readBody(req, 30_000_000);
   const vehicles = Array.isArray(body.vehicles) ? body.vehicles : null;
   if (!vehicles) return badRequest(res, "vehicles[] is required");
-  let upserted = 0, skipped = 0;
+  let upserted = 0, skipped = 0, optionSetsReplaced = 0, optionSetsKept = 0, optionRowsWritten = 0, optionJunkDropped = 0;
   for (let i = 0; i < vehicles.length; i += 500) {
     const chunk = vehicles.slice(i, i + 500).filter((v) => typeof v.vin === "string" && /^[A-HJ-NPR-Z0-9]{17}$/.test(v.vin.trim().toUpperCase()) && INV_STR(v.dealerName, 255));
     skipped += Math.min(500, vehicles.length - i) - chunk.length;
@@ -2077,31 +2064,32 @@ async function handleInventoryBulk(req, res) {
     );
     upserted += chunk.length;
     // Replace each vehicle's canonicalized option set (dealer_inventory_options) in the same
-    // chunk as its main upsert — tied together so a chunk that fails partway through never
-    // leaves a live VIN's row updated but its option set stale/empty. A full delete-then-reinsert
-    // per chunk, not a per-vehicle diff: cheap at 500 rows, and correct when a later crawl drops
-    // an option the vehicle no longer has (an additive-only write would keep matching it).
-    const optionPairs = chunk.map((v) => [v.vin.trim().toUpperCase(), INV_DEALER(v.dealerId)]);
-    await pool.query("DELETE FROM dealer_inventory_options WHERE (vin, dealer_id) IN (?)", [optionPairs]);
-    const optionRows = [];
-    for (const v of chunk) {
-      if (!Array.isArray(v.options)) continue;
-      const vin = v.vin.trim().toUpperCase(), dealerId = INV_DEALER(v.dealerId);
-      // Identity comes from the option's NAME, never its raw per-listing `code` (see the table's
-      // own comment in ensureInventoryTable) — a name-only option (no code at all, common on
-      // several sources) still canonicalizes and matches fine; a code with no name has nothing
-      // stable to key on and is skipped.
-      const byKey = new Map();
-      for (const o of v.options) {
-        const label = INV_STR(o && o.name, 160);
-        if (!label) continue;
-        const key = normalizeOptionKey(label);
-        if (!key) continue;
-        if (!byKey.has(key)) byKey.set(key, { label, code: INV_STR(o && o.code, 32) });
+    // chunk as its main upsert, so a chunk that fails partway never leaves a live VIN updated but
+    // its option set stale. Delete-then-reinsert (not additive) so an option a later crawl no
+    // longer sees stops matching.
+    //
+    // ONLY for vehicles whose payload actually carries options. Confirmed 2026-09-28: the nightly
+    // sync sends options: null whenever that night's crawl extracted nothing for a VIN, and this
+    // used to delete the vehicle's facet rows anyway — while options_json above COALESCEs and keeps
+    // the last real value. Every re-crawl that hit a fallback page strategy or a partial page
+    // silently erased that car's factory options from buyer /search. A null/empty payload now
+    // leaves the existing rows alone, exactly matching options_json.
+    const withOptions = chunk.filter((v) => payloadHasOptions(v.options));
+    optionSetsKept += chunk.length - withOptions.length;
+    if (withOptions.length) {
+      const optionPairs = withOptions.map((v) => [v.vin.trim().toUpperCase(), INV_DEALER(v.dealerId)]);
+      await pool.query("DELETE FROM dealer_inventory_options WHERE (vin, dealer_id) IN (?)", [optionPairs]);
+      const optionRows = [];
+      for (const v of withOptions) {
+        const vin = v.vin.trim().toUpperCase(), dealerId = INV_DEALER(v.dealerId);
+        const { rows: facetRows, junkDropped } = optionRowsFromOptions(v.options);
+        optionJunkDropped += junkDropped;
+        for (const { key, label, code } of facetRows) optionRows.push([vin, dealerId, key, label, code]);
       }
-      for (const [key, { label, code }] of byKey) optionRows.push([vin, dealerId, key, label, code]);
+      if (optionRows.length) await pool.query("INSERT INTO dealer_inventory_options (vin, dealer_id, canonical_key, label, code) VALUES ? ON DUPLICATE KEY UPDATE label = VALUES(label), code = VALUES(code)", [optionRows]);
+      optionSetsReplaced += withOptions.length;
+      optionRowsWritten += optionRows.length;
     }
-    if (optionRows.length) await pool.query("INSERT INTO dealer_inventory_options (vin, dealer_id, canonical_key, label, code) VALUES ? ON DUPLICATE KEY UPDATE label = VALUES(label), code = VALUES(code)", [optionRows]);
     // Today's observation for every vehicle in the chunk, plus the crawl's dated price points (backfill).
     const today = new Date().toISOString().slice(0, 10);
     const days = [];
@@ -2113,7 +2101,9 @@ async function handleInventoryBulk(req, res) {
     if (days.length) await pool.query("INSERT INTO dealer_inventory_days (vin, dealer_id, seen_on, price, mileage) VALUES ? ON DUPLICATE KEY UPDATE price = COALESCE(VALUES(price), price), mileage = COALESCE(VALUES(mileage), mileage)", [days]);
   }
   invInvalidate();
-  sendJson(res, 200, { upserted, skipped });
+  // Option counters are reported back so the sync's own log shows what happened to the facet
+  // table on every run, instead of it being invisible unless someone queries the DB.
+  sendJson(res, 200, { upserted, skipped, optionSetsReplaced, optionSetsKept, optionRowsWritten, optionJunkDropped });
 }
 
 // GET /api/inventory/vin/:vin — every store that has listed the VIN, with its day-by-day observations.

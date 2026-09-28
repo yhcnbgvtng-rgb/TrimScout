@@ -199,12 +199,20 @@ try {
   // skew between machines can't sweep rows this very run just wrote.
   const started = new Date(Date.now() - 10 * 60 * 1000).toISOString();
   let upserted = 0;
+  // What happened to the buyer /search factory-options facet table this run. `?? 0` so this stays
+  // compatible with a deals box that predates these counters.
+  const optionStats = { setsReplaced: 0, setsKept: 0, rowsWritten: 0, junkDropped: 0 };
   for (let i = 0; i < rows.length; i += 2000) {
     const r = await api(DEALS_PORT, "/api/inventory/bulk", { vehicles: rows.slice(i, i + 2000) });
     upserted += r.upserted;
+    optionStats.setsReplaced += r.optionSetsReplaced ?? 0;
+    optionStats.setsKept += r.optionSetsKept ?? 0;
+    optionStats.rowsWritten += r.optionRowsWritten ?? 0;
+    optionStats.junkDropped += r.optionJunkDropped ?? 0;
     process.stdout.write(`\r  upserted ${upserted}/${rows.length}`);
   }
   console.log();
+  console.log(`[sync] factory options: ${optionStats.setsReplaced} vehicles replaced (${optionStats.rowsWritten} rows, ${optionStats.junkDropped} junk sentences dropped), ${optionStats.setsKept} kept as-is (no options extracted this run)`);
   const stores = [...new Set(rows.map((r) => r.dealerId).filter(Boolean))];
   let removed = 0;
   let sweepFailed = 0;
