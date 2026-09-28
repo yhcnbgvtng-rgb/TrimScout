@@ -1846,6 +1846,17 @@ async function ensureInventoryTable(pool) {
     // ("Using index" in EXPLAIN, no row access): 223ms, ~148x faster.
     "ADD INDEX IF NOT EXISTS idx_inv_by_dealer_covering (removed_at, dealer_id, cond, price_diff, last_seen_at)",
     "ADD INDEX IF NOT EXISTS idx_inv_vdp_url_norm (vdp_url_norm)",
+    // Admin Vehicles sheet's "Sold" movement filter (removed_at IS NOT NULL, scoped by make= or
+    // state=, no time-scoped composite existed for the REMOVED branch — every idx_inv_stock_*
+    // index above leads with removed_at used as IS NULL). Confirmed live 2026-09-28: make=Toyota
+    // + removed_at IS NOT NULL fell back to idx_inv_make_dealer (make, dealer_name, vin), no
+    // removed_at in the key at all, so MySQL had to residual-filter every one of that make's rows
+    // — 70s+ for a common make, killed manually. (make, removed_at) / (state, removed_at) let it
+    // seek straight to the make/state and range-scan only the recently-removed rows within it,
+    // mirroring idx_inv_make_dealer/idx_inv_state_dealer's existing "not currently in stock"
+    // sibling shape, one column swapped.
+    "ADD INDEX IF NOT EXISTS idx_inv_make_removed (make, removed_at)",
+    "ADD INDEX IF NOT EXISTS idx_inv_state_removed (state, removed_at)",
   ]) await pool.query(`ALTER TABLE dealer_inventory ${ddl}`);
   // The free-text q= search's index. 2026-09-22: an ngram FULLTEXT parser (MariaDB's
   // documented CJK/no-space substring technique) turned out not to exist on this box at all —

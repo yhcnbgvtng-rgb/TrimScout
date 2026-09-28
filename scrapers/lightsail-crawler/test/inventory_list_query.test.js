@@ -180,6 +180,39 @@ describe('inventoryListQuery — minPriceChanges', () => {
   });
 });
 
+describe('inventoryListQuery — removed=1 (admin "Sold" movement filter, 2026-09-28)', () => {
+  it('matches removed_at IS NOT NULL within a rolling 24h window — no crawl run-id exists in this schema, so this is the durable "since last crawl" signal', () => {
+    const { sql, args } = query({ removed: '1' });
+    assert.match(sql, /WHERE i\.removed_at IS NOT NULL AND i\.removed_at >= DATE_SUB\(NOW\(\), INTERVAL 1 DAY\)/);
+    assert.deepEqual(args, []);
+  });
+
+  it('is a no-op when absent', () => {
+    const { sql } = query({});
+    assert.doesNotMatch(sql, /removed_at IS NOT NULL/);
+  });
+
+  it('composes with make= — uses the dedicated (make, removed_at) index, not the in-stock make index (confirmed live: that one has no removed_at in its key and took 70s+ residual-filtering a common make)', () => {
+    const { sql, args } = query({ make: 'BMW', removed: '1' });
+    assert.match(sql, /FORCE INDEX \(idx_inv_make_removed\)/);
+    assert.match(sql, /WHERE i\.make = \? AND i\.removed_at IS NOT NULL AND i\.removed_at >= DATE_SUB\(NOW\(\), INTERVAL 1 DAY\)/);
+    assert.deepEqual(args, ['BMW']);
+  });
+
+  it('composes with state= — uses the dedicated (state, removed_at) index, and state wins over make when both are set (matching the existing state-wins convention elsewhere in this file)', () => {
+    const { sql, args } = query({ state: 'NJ', make: 'BMW', removed: '1' });
+    assert.match(sql, /FORCE INDEX \(idx_inv_state_removed\)/);
+    assert.doesNotMatch(sql, /idx_inv_make_removed/);
+    assert.deepEqual(args, ['NJ', 'BMW']);
+  });
+
+  it('works with no make=/state= at all — the "any make, any state" case the admin sheet must support — and still uses the plain removed_at index', () => {
+    const { sql } = query({ removed: '1' });
+    assert.match(sql, /FORCE INDEX \(idx_inv_removed\)/);
+    assert.match(sql, /removed_at IS NOT NULL/);
+  });
+});
+
 describe('inventoryListQuery — optionKeys (must-have ALL, real set containment on canonical_key, as a JOIN not a correlated subquery)', () => {
   it('joins a derived table computing the matching (vin, dealer_id) pairs once, not a per-row correlated subquery', () => {
     const { sql, args } = query({ optionKeys: 'pano,awd' });
