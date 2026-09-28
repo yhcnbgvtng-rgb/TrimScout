@@ -4,9 +4,21 @@
 
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import crypto from 'node:crypto';
+import { withSharedDataLock } from './shared_data_lock.js';
 
 export const PROGRESS_PORT = Number(process.env.CRAWLER_PROGRESS_PORT) || 3001;
 export const PROGRESS_FILENAME = 'run_progress.json';
+
+// This one file is shared by every concurrently-running state/brand/shard
+// process on the box (see progressPath() — the path never varies by state
+// or brand, unlike inventory/snapshot files, because it backs a single
+// "live crawl status" page, not a per-state one). shared_data_lock.js's
+// scopes are usually a state code, but this file has no per-state identity
+// to scope by — it's genuinely one shared resource, so it gets its own
+// fixed scope name, the same way daily_changes.js scopes its one
+// genuinely-shared file by date instead of state.
+const PROGRESS_LOCK_SCOPE = 'run-progress';
 
 export function progressPath(cwd = process.cwd()) {
   return path.resolve(cwd, 'data', PROGRESS_FILENAME);
@@ -54,20 +66,45 @@ export async function readProgress(cwd = process.cwd()) {
   }
 }
 
+// Real bug found live 2026-09-27: this read-modify-write used one shared
+// `<path>.tmp` name for every caller, with no lock around the read, merge,
+// write and rename. run-daily-crawl.mjs can run MAX_CONCURRENT_STATES
+// states at once, each spawning its own standalone.js process for this
+// same shared file (see progressPath()'s own comment) — when two of those
+// processes' writeProgress() calls overlapped, whichever renamed second
+// hit ENOENT (the first process's rename had already consumed the shared
+// tmp file, or its own earlier write raced the same way), crashing that
+// whole brand+state crawl. Confirmed live: MI Honda's first shard (box4)
+// died 2 seconds in this way, losing that shard's entire dealer list.
+// Even when the rename didn't outright fail, this was a plain lost-update
+// race: two processes could read the same `prev`, merge their own
+// (individually correct) partial into it, and whichever wrote last simply
+// discarded the other's fields — a silently wrong status page, not just an
+// occasional crash.
+//
+// Fixed by reusing shared_data_lock.js's already-tested mutual-exclusion
+// primitive (the same one standalone.js/enricher.js already use around
+// the inventory/daily-changes read-modify-write, for exactly this class of
+// bug) to make the whole read+merge+write+rename section atomic, plus a
+// per-call unique tmp filename as defense in depth — even a caller that
+// somehow reached this function outside the lock can no longer collide on
+// the exact tmp path another writer is mid-rename on.
 export async function writeProgress(partial, cwd = process.cwd()) {
   const dir = path.dirname(progressPath(cwd));
   await fs.mkdir(dir, { recursive: true });
-  const prev = await readProgress(cwd);
-  const next = {
-    ...prev,
-    ...partial,
-    updatedAt: new Date().toISOString(),
-  };
-  next.eta = computeEta(next);
-  const tmp = `${progressPath(cwd)}.tmp`;
-  await fs.writeFile(tmp, JSON.stringify(next, null, 2));
-  await fs.rename(tmp, progressPath(cwd));
-  return next;
+  return withSharedDataLock(async () => {
+    const prev = await readProgress(cwd);
+    const next = {
+      ...prev,
+      ...partial,
+      updatedAt: new Date().toISOString(),
+    };
+    next.eta = computeEta(next);
+    const tmp = `${progressPath(cwd)}.tmp.${process.pid}.${crypto.randomBytes(6).toString('hex')}`;
+    await fs.writeFile(tmp, JSON.stringify(next, null, 2));
+    await fs.rename(tmp, progressPath(cwd));
+    return next;
+  }, { scope: PROGRESS_LOCK_SCOPE, cwd, label: `writeProgress(pid ${process.pid})` });
 }
 
 function esc(value) {
