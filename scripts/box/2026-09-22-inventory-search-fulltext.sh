@@ -7,7 +7,7 @@
 # ngram index resolves as an indexed lookup. Also idempotently registers the index's own creation
 # in ensureInventoryTable for future/fresh box provisioning (IF NOT EXISTS — a no-op once built).
 #
-# Run on the box (ubuntu@3.208.49.1), AFTER the index-build step:
+# Run on the box (ubuntu@52.202.234.65), AFTER the index-build step:
 #   curl -fsSL -o 2026-09-22-inventory-search-fulltext.sh https://raw.githubusercontent.com/yhcnbgvtng-rgb/TrimScout/main/scripts/box/2026-09-22-inventory-search-fulltext.sh && bash 2026-09-22-inventory-search-fulltext.sh
 # Idempotent. Backup, exact-replace with asserts, node --check, pm2 restart, health check.
 set -euo pipefail

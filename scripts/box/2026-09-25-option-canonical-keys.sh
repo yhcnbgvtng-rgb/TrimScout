@@ -22,7 +22,7 @@
 # data. Confirmed empty right before this script was written; if a crawl has run in between and
 # populated real rows, do NOT force past this check — run the backfill script instead of dropping.
 #
-# Run on the deals box (ubuntu@3.237.204.55 — box2):
+# Run on the deals box (ubuntu@52.202.234.65 — box2):
 #   cd ~ && curl -fsSL -o 2026-09-25-option-canonical-keys.sh "https://raw.githubusercontent.com/yhcnbgvtng-rgb/TrimScout/main/scripts/box/2026-09-25-option-canonical-keys.sh?cb=$(date +%s)" && curl -fsSL -o inventoryListQuery.js "https://raw.githubusercontent.com/yhcnbgvtng-rgb/TrimScout/main/scrapers/lightsail-crawler/src/inventoryListQuery.js?cb=$(date +%s)" && grep -c canonical_key inventoryListQuery.js && sudo cp 2026-09-25-option-canonical-keys.sh inventoryListQuery.js /opt/trimscout-deals/src/ && cd /opt/trimscout-deals/src && sudo bash 2026-09-25-option-canonical-keys.sh
 set -euo pipefail
 FILE=${FILE:-/opt/trimscout-deals/src/deals_api_server.js}

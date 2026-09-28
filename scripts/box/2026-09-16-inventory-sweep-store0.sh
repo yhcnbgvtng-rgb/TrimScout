@@ -2,7 +2,7 @@
 # Deals API: POST /api/inventory/sweep accepts dealerId 0 (the "no store matched" bucket), so the nightly sync
 # can retire store-less rows once their VINs are re-filed under real stores.
 #
-# Run on the deals box (ubuntu@3.208.49.1):
+# Run on the deals box (ubuntu@52.202.234.65):
 #   curl -fsSL -o 2026-09-16-inventory-sweep-store0.sh https://raw.githubusercontent.com/yhcnbgvtng-rgb/TrimScout/main/scripts/box/2026-09-16-inventory-sweep-store0.sh && bash 2026-09-16-inventory-sweep-store0.sh
 # Idempotent. Backup, exact-replace with asserts, node --check, pm2 restart, health check.
 set -euo pipefail

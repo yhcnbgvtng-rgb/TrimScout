@@ -15,7 +15,7 @@
 # patched in place (same rule as every other box script that touches it) —
 # it's small, pure, and fully covered by test/inventory_list_query.test.js.
 #
-# Run on the deals box (ubuntu@3.237.204.55 — box2):
+# Run on the deals box (ubuntu@52.202.234.65 — box2):
 #   cd ~ && curl -fsSL -o 2026-09-25-deploy-pr2-query-filters.sh "https://raw.githubusercontent.com/yhcnbgvtng-rgb/TrimScout/main/scripts/box/2026-09-25-deploy-pr2-query-filters.sh?cb=$(date +%s)" && curl -fsSL -o inventoryListQuery.js "https://raw.githubusercontent.com/yhcnbgvtng-rgb/TrimScout/main/scrapers/lightsail-crawler/src/inventoryListQuery.js?cb=$(date +%s)" && grep -c priceMax inventoryListQuery.js && sudo cp 2026-09-25-deploy-pr2-query-filters.sh inventoryListQuery.js /opt/trimscout-deals/src/ && cd /opt/trimscout-deals/src && sudo bash 2026-09-25-deploy-pr2-query-filters.sh
 set -euo pipefail
 DIR=/opt/trimscout-deals/src

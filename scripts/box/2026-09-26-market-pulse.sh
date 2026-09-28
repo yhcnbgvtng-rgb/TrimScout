@@ -6,7 +6,7 @@
 # minimum, hourly nice". Code-only, plus one new index (idx_inv_stock_first_seen) for the
 # "just arrived" query's ORDER BY.
 #
-# Run on the deals box (ubuntu@3.237.204.55 — box2):
+# Run on the deals box (ubuntu@52.202.234.65 — box2):
 #   cd ~ && curl -fsSL -o 2026-09-26-market-pulse.sh "https://raw.githubusercontent.com/yhcnbgvtng-rgb/TrimScout/main/scripts/box/2026-09-26-market-pulse.sh?cb=$(date +%s)" && grep -c computeMarketPulse 2026-09-26-market-pulse.sh && sudo cp 2026-09-26-market-pulse.sh /opt/trimscout-deals/src/ && cd /opt/trimscout-deals/src && sudo bash 2026-09-26-market-pulse.sh
 set -euo pipefail
 FILE=${FILE:-/opt/trimscout-deals/src/deals_api_server.js}

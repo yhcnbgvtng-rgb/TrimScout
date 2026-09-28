@@ -3,7 +3,7 @@
 # written on every sync and backfilled from the crawl's dated price points; GET /api/inventory/vin/:vin returns
 # every listing of a VIN with its day-by-day observations (the VIN history view on the admin sheet).
 #
-# Run on the deals box (ubuntu@3.208.49.1):
+# Run on the deals box (ubuntu@52.202.234.65):
 #   curl -fsSL -o 2026-09-16-inventory-days.sh https://raw.githubusercontent.com/yhcnbgvtng-rgb/TrimScout/main/scripts/box/2026-09-16-inventory-days.sh && bash 2026-09-16-inventory-days.sh
 # Idempotent. Backup, exact-replace with asserts, node --check, pm2 restart, health check.
 set -euo pipefail

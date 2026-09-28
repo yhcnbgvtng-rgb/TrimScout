@@ -6,7 +6,7 @@
 #   GET  /api/inventory/stats
 # The table is created on first use (CREATE TABLE IF NOT EXISTS).
 #
-# Run on the deals box (ubuntu@3.208.49.1):
+# Run on the deals box (ubuntu@52.202.234.65):
 #   curl -fsSL -o 2026-09-16-dealer-inventory.sh https://raw.githubusercontent.com/yhcnbgvtng-rgb/TrimScout/main/scripts/box/2026-09-16-dealer-inventory.sh && bash 2026-09-16-dealer-inventory.sh
 # Idempotent. Backup, exact-replace with asserts, node --check, pm2 restart, health check.
 set -euo pipefail

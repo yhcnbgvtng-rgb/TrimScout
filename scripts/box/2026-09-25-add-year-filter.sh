@@ -9,7 +9,7 @@
 # rule as every other box script that touches it) — it's small, pure, and fully covered by
 # test/inventory_list_query.test.js.
 #
-# Run on the deals box (ubuntu@3.237.204.55 — box2):
+# Run on the deals box (ubuntu@52.202.234.65 — box2):
 #   cd ~ && curl -fsSL -o 2026-09-25-add-year-filter.sh "https://raw.githubusercontent.com/yhcnbgvtng-rgb/TrimScout/main/scripts/box/2026-09-25-add-year-filter.sh?cb=$(date +%s)" && sudo bash 2026-09-25-add-year-filter.sh
 set -euo pipefail
 cd /tmp

@@ -14,7 +14,7 @@
 // Also supersedes the earlier ngram attempt (v1): the ngram FULLTEXT parser doesn't exist on
 // this box at all (not installed, no plugin file, no apt package either — confirmed live).
 //
-// Run on the box (ubuntu@3.208.49.1):
+// Run on the box (ubuntu@52.202.234.65):
 //   curl -fsSL -o 2026-09-22-build-search-prefix-suffix-index.mjs https://raw.githubusercontent.com/yhcnbgvtng-rgb/TrimScout/main/scripts/box/2026-09-22-build-search-prefix-suffix-index.mjs
 //   sudo cp 2026-09-22-build-search-prefix-suffix-index.mjs /opt/trimscout-deals/ && cd /opt/trimscout-deals && sudo node 2026-09-22-build-search-prefix-suffix-index.mjs
 import fs from "node:fs";

@@ -59,11 +59,11 @@ are yours. Attach an address (a named person or the store's sales inbox) on the
 dealer's directory row, then drain again; or reach the store by phone with the
 request reference. `GET /api/admin/ops` lists them under queued invites.
 
-## Deals box (3.208.49.1 — deals API :3004, auth/directory API :3003)
+## Deals box (52.202.234.65 — deals API :3004, auth/directory API :3003)
 
 Symptoms when it's down: every free VIN import says "Dealer not found", Step 3
 shows "Checking…" forever, buyer/dealer sign-in fails, `/api/admin/inventory`
-503s. From a laptop, `nc -z 3.208.49.1 3004` refusing while `:22` answers means
+503s. From a laptop, `nc -z 52.202.234.65 3004` refusing while `:22` answers means
 the box is up but the API processes are dead — almost always the OOM killer
 after a crawl/sync spike. The Lightsail browser SSH shows `UPSTREAM_ERROR
 [515]` while the instance thrashes; use a plain SSH client, or **Reboot** from

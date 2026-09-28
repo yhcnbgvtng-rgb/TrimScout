@@ -3,7 +3,7 @@
 # nightly crawl-box sync and the Mac state crawl (which overlap on NJ/NY/FL/TX/GA/SC/VA stores) stop marking
 # each other's vehicles removed.
 #
-# Run on the deals box (ubuntu@3.208.49.1):
+# Run on the deals box (ubuntu@52.202.234.65):
 #   curl -fsSL -o 2026-09-16-inventory-sweep-sources.sh https://raw.githubusercontent.com/yhcnbgvtng-rgb/TrimScout/main/scripts/box/2026-09-16-inventory-sweep-sources.sh && bash 2026-09-16-inventory-sweep-sources.sh
 # Idempotent. Backup, exact-replace with asserts, node --check, pm2 restart, health check.
 set -euo pipefail

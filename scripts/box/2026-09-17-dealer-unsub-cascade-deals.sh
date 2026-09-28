@@ -2,7 +2,7 @@
 # Deals API: expose rfq_invites.dealer_unsubscribed_at on the invite (set by the auth server's
 # opt-out cascade), and ensure the column exists. Pairs with 2026-09-17-dealer-unsub-cascade-auth.sh.
 #
-# Run on the box (ubuntu@3.208.49.1):
+# Run on the box (ubuntu@52.202.234.65):
 #   curl -fsSL -o 2026-09-17-dealer-unsub-cascade-deals.sh https://raw.githubusercontent.com/yhcnbgvtng-rgb/TrimScout/main/scripts/box/2026-09-17-dealer-unsub-cascade-deals.sh && bash 2026-09-17-dealer-unsub-cascade-deals.sh
 # Idempotent. Backup, exact-replace with asserts, node --check, pm2 restart, health check.
 set -euo pipefail

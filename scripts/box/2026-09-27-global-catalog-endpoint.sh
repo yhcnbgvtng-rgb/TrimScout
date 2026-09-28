@@ -26,7 +26,7 @@
 # (pointing /api/search/parse at the new endpoint) deploys automatically via Vercel — only this
 # box file needs the manual deploy.
 #
-# Run on the deals box (ubuntu@3.237.204.55 — box2):
+# Run on the deals box (ubuntu@52.202.234.65 — box2):
 #   cd ~ && curl -fsSL -o 2026-09-27-global-catalog-endpoint.sh "https://raw.githubusercontent.com/yhcnbgvtng-rgb/TrimScout/main/scripts/box/2026-09-27-global-catalog-endpoint.sh?cb=$(date +%s)" && sudo cp 2026-09-27-global-catalog-endpoint.sh /opt/trimscout-deals/src/ && cd /opt/trimscout-deals/src && sudo bash 2026-09-27-global-catalog-endpoint.sh
 set -euo pipefail
 FILE=/opt/trimscout-deals/src/deals_api_server.js

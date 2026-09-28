@@ -23,7 +23,7 @@
 #    hours. Not applied to handleExportInventory's streaming query (a 50k-row CSV export is
 #    expected to run longer than 20s by design).
 #
-# Run on the deals box (ubuntu@3.237.204.55 — box2):
+# Run on the deals box (ubuntu@52.202.234.65 — box2):
 #   cd ~ && curl -fsSL -o 2026-09-26-fix-optionkeys-scan-plus-statement-timeout.sh "https://raw.githubusercontent.com/yhcnbgvtng-rgb/TrimScout/main/scripts/box/2026-09-26-fix-optionkeys-scan-plus-statement-timeout.sh?cb=$(date +%s)" && curl -fsSL -o inventoryListQuery.js "https://raw.githubusercontent.com/yhcnbgvtng-rgb/TrimScout/main/scrapers/lightsail-crawler/src/inventoryListQuery.js?cb=$(date +%s)" && grep -c opt_match inventoryListQuery.js && sudo cp 2026-09-26-fix-optionkeys-scan-plus-statement-timeout.sh inventoryListQuery.js /opt/trimscout-deals/src/ && cd /opt/trimscout-deals/src && sudo bash 2026-09-26-fix-optionkeys-scan-plus-statement-timeout.sh
 set -euo pipefail
 FILE=${FILE:-/opt/trimscout-deals/src/deals_api_server.js}
