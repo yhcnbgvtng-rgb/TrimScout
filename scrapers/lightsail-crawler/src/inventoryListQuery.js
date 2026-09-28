@@ -23,6 +23,18 @@ export function inventoryListQuery(params) {
   if (p("changeType")) { where.push("i.change_type = ?"); args.push(p("changeType").toUpperCase()); }
   if (p("priceChange") === "drop") where.push("i.price_diff < 0");
   if (p("priceChange") === "increase") where.push("i.price_diff > 0");
+  // Admin "Sold" movement filter — a vehicle the crawler no longer finds on the dealer's own
+  // site. Never a confirmed sale (same "left lots" disclaimer as Market Pulse's computeMarketPulse
+  // in deals_api_server.js — this is admin inventory-movement language, never shown to buyers).
+  // There is no crawl run-id anywhere in this schema (confirmed live 2026-09-27 auditing this
+  // exact gap: scrape_runs exists but belongs to an unconnected, brand-scoped pipeline, never
+  // written by handleInventoryBulk/handleInventorySweep), so a rolling 24h window against
+  // removed_at is the most durable "since last crawl" signal that actually exists — this crawls
+  // nightly, and it's the exact same window the sheet's own "Removed (24h)" stat tile already
+  // counts (computeInventoryStats's removedToday), so the filter and the tile it's driven from
+  // agree by construction. A vehicle can never be both removed and in stock, so this is never
+  // combined with inStock=1 by the frontend (see VehiclesSheet.tsx's query builder).
+  if (p("removed") === "1") where.push("i.removed_at IS NOT NULL AND i.removed_at >= DATE_SUB(NOW(), INTERVAL 1 DAY)");
   if (p("hasSticker") === "1") where.push("i.window_sticker_url IS NOT NULL");
   if (p("minDays")) { where.push("i.days_on_lot >= ?"); args.push(Number(p("minDays"))); }
   if (p("maxDays")) { where.push("i.days_on_lot <= ?"); args.push(Number(p("maxDays"))); }
@@ -167,7 +179,16 @@ export function inventoryListQuery(params) {
   // is once again the correctly-ordered remainder, index-only, no filesort, whether or not trim=
   // is present (trim locks one column further right in the same index; leaving it unset just means
   // a wider but still fully-ordered range within that make+model).
-  const indexHint = (p("state") && !p("dealerId"))
+  // removed=1 (admin "Sold" movement filter) branches first and separately: every index above is
+  // keyed for the IN-STOCK case (removed_at IS NULL) or no removed_at condition at all, so none of
+  // them help WHERE make/state = ? AND removed_at IS NOT NULL AND removed_at >= ? — confirmed live
+  // 2026-09-28, make=Toyota fell back to idx_inv_make_dealer (make, dealer_name, vin) with no
+  // removed_at in the key, forcing a residual filter over every one of that make's rows: 70s+ for
+  // a common make. idx_inv_make_removed/idx_inv_state_removed (see ensureInventoryTable) seek
+  // straight to the make/state and range-scan only the recently-removed rows within it.
+  const indexHint = p("removed") === "1" && !p("dealerId")
+    ? (p("state") ? "FORCE INDEX (idx_inv_state_removed)" : p("make") ? "FORCE INDEX (idx_inv_make_removed)" : "FORCE INDEX (idx_inv_removed)")
+    : (p("state") && !p("dealerId"))
     ? (p("inStock") === "1" ? "FORCE INDEX (idx_inv_stock_state)" : "FORCE INDEX (idx_inv_state_dealer)")
     : !p("make") ? ""
     : p("model")

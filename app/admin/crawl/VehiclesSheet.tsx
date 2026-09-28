@@ -14,7 +14,7 @@ import VinHistory from "./VinHistory";
 
 type Stats = { total: number; inStock: number; dealers: number; vins?: number; lastSeenAt: string | null; movement?: { arrivals: number; priceDrops: number; priceIncreases: number; withSticker: number; removedToday: number } };
 type SortKey = "dealer" | "year" | "make" | "model" | "price" | "mileage" | "seen" | "days" | "pricediff" | "msrp";
-type Movement = "" | "arrivals" | "drops" | "increases";
+type Movement = "" | "arrivals" | "drops" | "increases" | "removed";
 const SORT_FOR: Partial<Record<keyof VehicleRow, SortKey>> = { dealerName: "dealer", year: "year", make: "make", model: "model", price: "price", mileage: "mileage", lastSeenAt: "seen", daysOnLot: "days", priceDiff: "pricediff", msrp: "msrp" };
 const COL_W: Partial<Record<keyof VehicleRow, number>> = { dealerName: 240, dealerState: 60, dealerCity: 130, condition: 90, year: 64, make: 110, model: 130, trim: 190, vin: 170, stockNumber: 100, price: 90, priceDiff: 90, msrp: 90, mileage: 80, daysOnLot: 90, changeType: 110, windowStickerUrl: 120, exteriorColor: 170, interiorColor: 150, bodyStyle: 100, engine: 200, transmission: 200, options: 260, optionsTotal: 90, vdpUrl: 260, crawlFirstSeen: 110, firstSeenAt: 100, lastSeenAt: 100, removedAt: 100, source: 90, sourceBox: 70 };
 const PAGE = 500;
@@ -97,10 +97,14 @@ export default function VehiclesSheet() {
     if (model.trim()) p.set("model", model.trim());
     if (trim.trim()) p.set("trim", trim.trim());
     if (cond) p.set("cond", cond);
-    if (inStock) p.set("inStock", "1");
+    // A "Sold" vehicle is by definition not in stock (removed_at IS NOT NULL) — sending both
+    // would always return zero rows, so the in-stock checkbox is ignored (not unchecked, just
+    // not sent) while that movement is selected, rather than fighting the user's own checkbox state.
+    if (inStock && movement !== "removed") p.set("inStock", "1");
     if (movement === "arrivals") p.set("changeType", "NEW_ARRIVAL");
     if (movement === "drops") p.set("priceChange", "drop");
     if (movement === "increases") p.set("priceChange", "increase");
+    if (movement === "removed") p.set("removed", "1");
     if (hasSticker) p.set("hasSticker", "1");
     if (possibleDemo) p.set("possibleDemo", "1");
     if (minDays.trim() && Number(minDays) > 0) p.set("minDays", String(Number(minDays)));
@@ -205,7 +209,7 @@ export default function VehiclesSheet() {
           <option value="">New + used</option><option value="new">New</option><option value="used">Used</option><option value="cpo">Certified</option>
         </select>
         <select id="veh-movement" value={movement} onChange={(e) => setMovement(e.target.value as Movement)} className="rounded-xl border border-border bg-surface-elevated px-2.5 py-2 text-[11px] font-bold text-ink-light">
-          <option value="">Any movement</option><option value="arrivals">New arrivals</option><option value="drops">Price drops</option><option value="increases">Price increases</option>
+          <option value="">Any movement</option><option value="arrivals">New arrivals</option><option value="drops">Price drops</option><option value="increases">Price increases</option><option value="removed">Sold (removed, 24h)</option>
         </select>
         <input id="veh-mindays" value={minDays} onChange={(e) => setMinDays(e.target.value.replace(/\D/g, ""))} placeholder="Days on lot ≥" inputMode="numeric" className="w-28 rounded-xl border border-border bg-surface-elevated px-2.5 py-2 text-[11px] font-bold text-white placeholder:text-ink-faint" />
         <label className="flex items-center gap-1.5 text-[11px] font-semibold text-ink-muted"><input type="checkbox" checked={hasSticker} onChange={(e) => setHasSticker(e.target.checked)} className="accent-emerald-500" /> Has window sticker</label>
@@ -230,7 +234,7 @@ export default function VehiclesSheet() {
             ["New arrivals", stats.movement.arrivals, "text-emerald-300", "arrivals"],
             ["Price drops", stats.movement.priceDrops, "text-emerald-300", "drops"],
             ["Price increases", stats.movement.priceIncreases, "text-amber-300", "increases"],
-            ["Removed (24h)", stats.movement.removedToday, "text-ink-muted", ""],
+            ["Removed (24h)", stats.movement.removedToday, "text-ink-muted", "removed"],
           ] as Array<[string, number, string, Movement]>).map(([label, n, tone, mv]) => (
             <button key={label} type="button" onClick={() => mv && setMovement((m) => (m === mv ? "" : mv))} disabled={!mv} className={`rounded-xl border px-3 py-2 text-left ${mv && movement === mv ? "border-emerald-500/60 bg-emerald-500/10" : "border-border bg-surface"} ${mv ? "hover:border-emerald-500/40" : ""}`}>
               <div className="text-[10px] font-black uppercase tracking-wider text-ink-faint">{label}</div>
