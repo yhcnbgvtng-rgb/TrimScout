@@ -15,15 +15,39 @@
 //
 // Needs src/inventoryOptionRows.js deployed on the box first (it's loaded from there, not copied,
 // so the backfill and the live upsert can never disagree). Run on box2 from /opt/trimscout-deals,
-// OUTSIDE the nightly sync window:
-//   sudo node 2026-09-28-backfill-inventory-options.mjs [--dry-run] [--after=VIN:DEALER_ID] [--batch=2000]
+// OUTSIDE the nightly sync window, in the background so a dropped SSH session doesn't kill it:
+//   sudo nohup node 2026-09-28-backfill-inventory-options.mjs [--dry-run] [--after=VIN:DEALER_ID]
+//     [--batch=250] [--pause-ms=150] [--min-free-mb=600] > ~/backfill.log 2>&1 &
 import fs from "node:fs";
 import path from "node:path";
 import mysql from "mysql2/promise";
 
 const args = Object.fromEntries(process.argv.slice(2).map((a) => { const [k, v] = a.replace(/^--/, "").split("="); return [k, v ?? true]; }));
 const DRY_RUN = Boolean(args["dry-run"]);
-const BATCH = Math.min(Math.max(Number(args.batch) || 2000, 100), 5000);
+// box2 is a shared box (MariaDB + deals/auth APIs + crawls). The first dry run (2026-09-28) read
+// 2,000 vehicles' full options_json per batch and the box stopped responding around 600K scanned.
+// Small batches, a pause between them, and a free-memory guard keep this a background job.
+const BATCH = Math.min(Math.max(Number(args.batch) || 250, 50), 1000);
+const PAUSE_MS = Math.max(Number(args["pause-ms"]) || 150, 0);
+const MIN_AVAILABLE_MB = Math.max(Number(args["min-free-mb"]) || 600, 100);
+
+// MemAvailable (not os.freemem(), which reports MemFree and ignores reclaimable cache).
+function availableMb() {
+  try {
+    const m = fs.readFileSync("/proc/meminfo", "utf8").match(/^MemAvailable:\s+(\d+) kB/m);
+    return m ? Math.round(Number(m[1]) / 1024) : Infinity;
+  } catch {
+    return Infinity;
+  }
+}
+async function waitForMemory() {
+  const started = Date.now();
+  while (availableMb() < MIN_AVAILABLE_MB) {
+    if (Date.now() - started > 10 * 60_000) throw new Error(`available memory stayed under ${MIN_AVAILABLE_MB}MB for 10 minutes — stopping to protect the box`);
+    console.log(`  paused: ${availableMb()}MB available (< ${MIN_AVAILABLE_MB}MB), waiting 30s`);
+    await new Promise((r) => setTimeout(r, 30_000));
+  }
+}
 
 const modPath = path.resolve(process.cwd(), "src/inventoryOptionRows.js");
 if (!fs.existsSync(modPath)) {
@@ -68,6 +92,8 @@ const byMake = new Map(); // make -> { replaced, nowWithFacet }
 async function main() {
   console.log(`${DRY_RUN ? "[DRY RUN] " : ""}backfilling in-stock facet rows from options_json, batch=${BATCH}, starting after ${cursor.vin || "(start)"}:${cursor.dealerId}`);
   for (;;) {
+    await waitForMemory();
+    if (PAUSE_MS) await new Promise((r) => setTimeout(r, PAUSE_MS));
     const conn = await pool.getConnection();
     let rows;
     try {
@@ -114,7 +140,7 @@ async function main() {
     } finally {
       conn.release();
     }
-    if (totals.scanned % (BATCH * 25) < BATCH) console.log(`...${totals.scanned} in-stock scanned, ${totals.replaced} rebuilt, ${totals.rowsWritten} rows, cursor ${cursor.vin}:${cursor.dealerId}`);
+    if (totals.scanned % 25000 < BATCH) console.log(`...${totals.scanned} in-stock scanned, ${totals.replaced} rebuilt, ${totals.rowsWritten} rows, ${availableMb()}MB available, cursor ${cursor.vin}:${cursor.dealerId}`);
   }
 
   console.log(`\n=== ${DRY_RUN ? "DRY RUN — nothing written" : "Backfill complete"} ===`);
