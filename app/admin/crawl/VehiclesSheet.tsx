@@ -1,24 +1,34 @@
 "use client";
 
 // The Vehicles side of the crawl sheet: crawled dealer inventory, server-paged (the table is far bigger than
-// the dealer list), with the filters the box indexes — state, make, model, condition, in-stock, free text —
-// server-side sort, and a CSV of the whole current filter (capped at 50k rows).
+// the dealer list), with the filters the box indexes — state, make, model, trim, condition, in-stock, free
+// text — server-side sort, and a CSV of the whole current filter (capped at 50k rows). State/Make/Model/Trim
+// use the same searchable-combobox component the buyer /search page does (SearchableDropdown), themed
+// emerald to match this sheet's own Dealers tab rather than that page's blue.
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ArrowDown, ArrowUp, ArrowUpDown, Download, RefreshCw, Search, X } from "lucide-react";
 import { VEHICLE_SHEET_COLUMNS, vehicleRowCell, vehicleSheetFilename, type VehicleRow } from "@/lib/crawlSheetColumns";
+import SearchableDropdown, { type DropdownOption } from "@/components/search/SearchableDropdown";
 import VinHistory from "./VinHistory";
 
-type Stats = { total: number; inStock: number; dealers: number; vins?: number; lastSeenAt: string | null; byMake: Array<{ make: string; n: number }>; byState: Array<{ state: string; n: number }>; byCond: Array<{ cond: string | null; n: number }>; movement?: { arrivals: number; priceDrops: number; priceIncreases: number; withSticker: number; removedToday: number } };
+type Stats = { total: number; inStock: number; dealers: number; vins?: number; lastSeenAt: string | null; movement?: { arrivals: number; priceDrops: number; priceIncreases: number; withSticker: number; removedToday: number } };
 type SortKey = "dealer" | "year" | "make" | "model" | "price" | "mileage" | "seen" | "days" | "pricediff" | "msrp";
 type Movement = "" | "arrivals" | "drops" | "increases";
 const SORT_FOR: Partial<Record<keyof VehicleRow, SortKey>> = { dealerName: "dealer", year: "year", make: "make", model: "model", price: "price", mileage: "mileage", lastSeenAt: "seen", daysOnLot: "days", priceDiff: "pricediff", msrp: "msrp" };
 const COL_W: Partial<Record<keyof VehicleRow, number>> = { dealerName: 240, dealerState: 60, dealerCity: 130, condition: 90, year: 64, make: 110, model: 130, trim: 190, vin: 170, stockNumber: 100, price: 90, priceDiff: 90, msrp: 90, mileage: 80, daysOnLot: 90, changeType: 110, windowStickerUrl: 120, exteriorColor: 170, interiorColor: 150, bodyStyle: 100, engine: 200, transmission: 200, options: 260, optionsTotal: 90, vdpUrl: 260, crawlFirstSeen: 110, firstSeenAt: 100, lastSeenAt: 100, removedAt: 100, source: 90, sourceBox: 70 };
 const PAGE = 500;
 const ROW_H = 32;
+// Row-list changes debounce on this, matching the buyer /search page's own combobox-driven filter
+// bar — a burst of rapid dropdown selections collapses into one request instead of one per click.
+const LOAD_DEBOUNCE_MS = 250;
 
 const money = (n: number | null) => (n == null ? "" : `$${n.toLocaleString()}`);
 const condLabel = (c: string | null) => ({ new: "New", used: "Used", cpo: "Certified" } as Record<string, string>)[c || ""] || (c || "—");
+
+function toOptions<T>(rows: T[], valueKey: keyof T, countKey: keyof T): DropdownOption[] {
+  return rows.map((r) => ({ value: String(r[valueKey]), label: String(r[valueKey]), count: Number(r[countKey]) || 0 }));
+}
 
 export default function VehiclesSheet() {
   const [stats, setStats] = useState<Stats | null>(null);
@@ -43,7 +53,42 @@ export default function VehiclesSheet() {
   const [vinOpen, setVinOpen] = useState<string | null>(null);
   const typedVin = /^[A-HJ-NPR-Z0-9]{17}$/i.test(q.trim()) ? q.trim().toUpperCase() : null;
 
+  const [stateOptions, setStateOptions] = useState<DropdownOption[]>([]);
+  const [makeOptions, setMakeOptions] = useState<DropdownOption[]>([]);
+  const [modelOptions, setModelOptions] = useState<DropdownOption[]>([]);
+  const [trimOptions, setTrimOptions] = useState<DropdownOption[]>([]);
+  const [facetsLoading, setFacetsLoading] = useState(false);
+
   useEffect(() => { const t = setTimeout(() => setQDebounced(q.trim()), 350); return () => clearTimeout(t); }, [q]);
+
+  // Clearing make clears model/trim; clearing model clears trim — the box has nothing to scope
+  // them by otherwise (same rule the buyer /search page's filter bar follows).
+  const onSetMake = (v: string) => { setMake(v); setModel(""); setTrim(""); };
+  const onSetModel = (v: string) => { setModel(v); setTrim(""); };
+
+  // State/Make/Model/Trim counts, cross-scoped by each other — same box endpoint (and covering
+  // indexes) the buyer /search page's GET /api/catalog/facets uses, reached through the admin
+  // route so it stays under admin auth. Soft-fails to empty option lists on a 503, same as the
+  // row list below — the dropdowns just show "No matches" rather than blocking the sheet.
+  useEffect(() => {
+    const controller = new AbortController();
+    setFacetsLoading(true);
+    const sp = new URLSearchParams({ facets: "1" });
+    if (state) sp.set("state", state);
+    if (make) sp.set("make", make);
+    if (model) sp.set("model", model);
+    fetch(`/api/admin/inventory?${sp}`, { cache: "no-store", signal: controller.signal })
+      .then((r) => r.json())
+      .then((json) => {
+        setStateOptions(toOptions(json?.states || [], "state", "n"));
+        setMakeOptions(toOptions(json?.makes || [], "make", "n"));
+        setModelOptions(toOptions(json?.models || [], "model", "n"));
+        setTrimOptions(toOptions(json?.trims || [], "trim", "n"));
+      })
+      .catch((e) => { if (e?.name !== "AbortError") { setStateOptions([]); setMakeOptions([]); setModelOptions([]); setTrimOptions([]); } })
+      .finally(() => setFacetsLoading(false));
+    return () => controller.abort();
+  }, [state, make, model]);
 
   const query = useMemo(() => {
     const p = new URLSearchParams();
@@ -70,27 +115,38 @@ export default function VehiclesSheet() {
     if (res.ok) setStats(json);
   }, []);
 
-  const load = useCallback(async (offset: number, append: boolean) => {
+  const loadRequestRef = useRef(0);
+  const load = useCallback(async (offset: number, append: boolean, signal?: AbortSignal) => {
+    const requestId = ++loadRequestRef.current;
     setLoading(true);
     setError(null);
     try {
       const p = new URLSearchParams(query);
       p.set("limit", String(PAGE));
       p.set("offset", String(offset));
-      const res = await fetch(`/api/admin/inventory?${p}`, { cache: "no-store" });
+      const res = await fetch(`/api/admin/inventory?${p}`, { cache: "no-store", signal });
+      if (requestId !== loadRequestRef.current) return; // a newer request has since superseded this one
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || "Could not load inventory.");
       setTotal(json.total);
       setRows((prev) => (append ? [...prev, ...json.vehicles] : json.vehicles));
     } catch (e) {
+      if ((e as { name?: string })?.name === "AbortError") return;
+      if (requestId !== loadRequestRef.current) return;
       setError(e instanceof Error ? e.message : "Could not load inventory.");
     } finally {
-      setLoading(false);
+      if (requestId === loadRequestRef.current) setLoading(false);
     }
   }, [query]);
 
   useEffect(() => { void loadStats(); }, [loadStats]);
-  useEffect(() => { void load(0, false); }, [load]);
+  // Filter changes debounce and cancel whatever request was still in flight — never lets a slow
+  // earlier response overwrite a faster later one.
+  useEffect(() => {
+    const controller = new AbortController();
+    const t = setTimeout(() => void load(0, false, controller.signal), LOAD_DEBOUNCE_MS);
+    return () => { clearTimeout(t); controller.abort(); };
+  }, [load]);
 
   const download = async () => {
     setExporting(true);
@@ -120,9 +176,12 @@ export default function VehiclesSheet() {
   const onHeader = (key: keyof VehicleRow) => { const sk = SORT_FOR[key]; if (!sk) return; setSort((s) => (s.key === sk ? { key: sk, dir: s.dir === "asc" ? "desc" : "asc" } : { key: sk, dir: sk === "price" || sk === "year" || sk === "seen" || sk === "days" || sk === "msrp" ? "desc" : "asc" })); };
   const totalW = VEHICLE_SHEET_COLUMNS.reduce((s, c) => s + (COL_W[c.key] || 120), 0);
 
+  const modelDisabledHint = !make ? "Pick a make first" : undefined;
+  const trimDisabledHint = !model ? "Pick a model first" : undefined;
+
   return (
     <div className="space-y-4">
-      <div className="rounded-2xl border border-border bg-surface p-3 flex flex-wrap items-center gap-2">
+      <div className="rounded-2xl border border-border bg-surface p-3 flex flex-wrap items-end gap-2">
         <div className="relative flex-1 min-w-[220px]">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-ink-faint" />
           <input id="veh-search" value={q} onChange={(e) => setQ(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" && typedVin) setVinOpen(typedVin); }} placeholder="Search VIN, dealer, model, trim, stock #…" className="w-full rounded-xl border border-border bg-surface-elevated pl-9 pr-3 py-2 text-xs text-white placeholder:text-ink-faint focus:outline-none focus:ring-2 focus:ring-emerald-500/40" />
@@ -130,16 +189,18 @@ export default function VehiclesSheet() {
         {typedVin && (
           <button type="button" onClick={() => setVinOpen(typedVin)} className="rounded-xl border border-emerald-500/50 bg-emerald-500/10 px-3 py-2 text-[11px] font-bold text-emerald-300 hover:bg-emerald-500/20">VIN history →</button>
         )}
-        <select id="veh-state" value={state} onChange={(e) => setState(e.target.value)} className="rounded-xl border border-border bg-surface-elevated px-2.5 py-2 text-[11px] font-bold text-ink-light">
-          <option value="">All states</option>
-          {[...(stats?.byState || [])].sort((a, b) => a.state.localeCompare(b.state)).map((s) => <option key={s.state} value={s.state}>{s.state} · {s.n.toLocaleString()}</option>)}
-        </select>
-        <select id="veh-make" value={make} onChange={(e) => setMake(e.target.value)} className="rounded-xl border border-border bg-surface-elevated px-2.5 py-2 text-[11px] font-bold text-ink-light">
-          <option value="">All makes</option>
-          {(stats?.byMake || []).map((m) => <option key={m.make} value={m.make}>{m.make} · {m.n.toLocaleString()}</option>)}
-        </select>
-        <input id="veh-model" value={model} onChange={(e) => setModel(e.target.value)} placeholder="Model" className="w-28 rounded-xl border border-border bg-surface-elevated px-2.5 py-2 text-[11px] font-bold text-white placeholder:text-ink-faint" />
-        <input id="veh-trim" value={trim} onChange={(e) => setTrim(e.target.value)} placeholder="Trim" className="w-28 rounded-xl border border-border bg-surface-elevated px-2.5 py-2 text-[11px] font-bold text-white placeholder:text-ink-faint" />
+        <div className="w-36">
+          <SearchableDropdown accent="emerald" label="State" placeholder="All states" options={stateOptions} value={state} loading={facetsLoading} onChange={setState} />
+        </div>
+        <div className="w-44">
+          <SearchableDropdown accent="emerald" label="Make" placeholder="All makes" options={makeOptions} value={make} loading={facetsLoading} onChange={onSetMake} />
+        </div>
+        <div className="w-44">
+          <SearchableDropdown accent="emerald" label="Model" placeholder="All models" options={modelOptions} value={model} loading={facetsLoading} onChange={onSetModel} disabledHint={modelDisabledHint} />
+        </div>
+        <div className="w-44">
+          <SearchableDropdown accent="emerald" label="Trim" placeholder="Any trim" options={trimOptions} value={trim} loading={facetsLoading} onChange={setTrim} disabledHint={trimDisabledHint} />
+        </div>
         <select id="veh-cond" value={cond} onChange={(e) => setCond(e.target.value)} className="rounded-xl border border-border bg-surface-elevated px-2.5 py-2 text-[11px] font-bold text-ink-light">
           <option value="">New + used</option><option value="new">New</option><option value="used">Used</option><option value="cpo">Certified</option>
         </select>

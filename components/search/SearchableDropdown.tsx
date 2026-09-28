@@ -7,10 +7,11 @@
 // State/Make/Model/Trim can be tabbed to and typed into immediately, with ArrowUp/ArrowDown/Enter
 // to select without touching the mouse. A live hit-count shows on every row and on the closed
 // trigger once a value is picked — e.g. `NJ · 84,210`. Quiet slate chrome with a soft blue
-// selected/hover state (never the admin sheet's emerald "shouty chip" look — a deliberate,
-// separate style for this buyer-facing page). Supports both single-select (State/Make/Model/Trim)
-// and multi-select (factory options) through the same component so the two behave identically
-// otherwise.
+// selected/hover state by default (buyer /search's own look) — pass `accent="emerald"` to match
+// the admin Web Crawl Sheet's existing active-filter color instead, as its Vehicles tab does, so
+// the two sheets don't invent a second visual language. Supports both single-select
+// (State/Make/Model/Trim) and multi-select (factory options) through the same component so the
+// two behave identically otherwise.
 //
 // Confirmed live 2026-09-27: an earlier version used a plain <button> trigger that opened a
 // popover containing a separate search <input>, auto-focused via a useEffect + setTimeout(0).
@@ -46,6 +47,13 @@ interface BaseProps {
    * captured any option data for yet vs. a real search with no results.
    */
   emptyMessage?: string;
+  /**
+   * "sky" (default) is this component's original buyer /search look. "emerald" matches the admin
+   * Web Crawl Sheet's existing active-filter color (see the Dealers tab's facet buttons) — passed
+   * by the admin Vehicles sheet so it visually matches its own Dealers tab rather than picking up
+   * buyer /search's separate color language.
+   */
+  accent?: "sky" | "emerald";
 }
 
 interface SingleProps extends BaseProps {
@@ -62,8 +70,26 @@ interface MultiProps extends BaseProps {
 
 type Props = SingleProps | MultiProps;
 
+const ACCENT = {
+  sky: {
+    triggerActive: "border-sky-500/50 bg-sky-950/20",
+    optionSelected: "bg-sky-500/15 text-sky-300",
+    optionSelectedCount: "text-sky-300/80",
+    checkboxSelected: "border-sky-400 bg-sky-500/30",
+    checkboxDot: "bg-sky-300",
+  },
+  emerald: {
+    triggerActive: "border-emerald-500/50 bg-emerald-500/10",
+    optionSelected: "bg-emerald-500/15 text-emerald-300",
+    optionSelectedCount: "text-emerald-300/80",
+    checkboxSelected: "border-emerald-400 bg-emerald-500/30",
+    checkboxDot: "bg-emerald-300",
+  },
+} as const;
+
 export default function SearchableDropdown(props: Props) {
-  const { label, placeholder, options, loading, disabledHint, emptyMessage } = props;
+  const { label, placeholder, options, loading, disabledHint, emptyMessage, accent = "sky" } = props;
+  const colors = ACCENT[accent];
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [activeIndex, setActiveIndex] = useState(-1);
@@ -178,7 +204,7 @@ export default function SearchableDropdown(props: Props) {
       </label>
       <div
         className={`flex w-full items-center gap-2 rounded-xl border px-3 py-2.5 transition-colors ${
-          hasValue ? "border-sky-500/50 bg-sky-950/20" : "border-border bg-surface-elevated focus-within:border-border-strong"
+          hasValue ? colors.triggerActive : "border-border bg-surface-elevated focus-within:border-border-strong"
         }`}
       >
         <Search className="h-3.5 w-3.5 shrink-0 text-ink-faint" />
@@ -242,22 +268,22 @@ export default function SearchableDropdown(props: Props) {
                   onMouseEnter={() => setActiveIndex(idx)}
                   onClick={() => selectAt(idx)}
                   className={`flex w-full items-center justify-between gap-3 px-3 py-1.5 text-left text-xs transition-colors ${
-                    selected ? "bg-sky-500/15 text-sky-300" : active ? "bg-surface text-white" : zero ? "text-ink-faint hover:bg-surface" : "text-ink-light hover:bg-surface"
+                    selected ? colors.optionSelected : active ? "bg-surface text-white" : zero ? "text-ink-faint hover:bg-surface" : "text-ink-light hover:bg-surface"
                   }`}
                 >
                   <span className="flex items-center gap-2 truncate">
                     {props.multi && (
                       <span
                         className={`flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded border ${
-                          selected ? "border-sky-400 bg-sky-500/30" : "border-border"
+                          selected ? colors.checkboxSelected : "border-border"
                         }`}
                       >
-                        {selected && <span className="h-1.5 w-1.5 rounded-sm bg-sky-300" />}
+                        {selected && <span className={`h-1.5 w-1.5 rounded-sm ${colors.checkboxDot}`} />}
                       </span>
                     )}
                     <span className="truncate">{o.label}</span>
                   </span>
-                  <span className={`shrink-0 tabular-nums ${selected ? "text-sky-300/80" : "text-ink-faint"}`}>{o.count.toLocaleString()}</span>
+                  <span className={`shrink-0 tabular-nums ${selected ? colors.optionSelectedCount : "text-ink-faint"}`}>{o.count.toLocaleString()}</span>
                 </button>
               );
             })
