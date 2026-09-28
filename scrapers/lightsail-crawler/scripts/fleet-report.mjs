@@ -30,11 +30,20 @@ const ROOT = path.resolve(__dirname, '..');
 // expansion-brands branches). remoteDir matches every SSH command used
 // to deploy/test this fleet throughout that work. Update here (not per
 // call-site) if a box is ever replaced.
+//
+// 2026-09-28: switched to each box's Lightsail STATIC IP (console names
+// Ubuntu-1/crawler-box-2/3/4) after all 4 boxes went down overnight on a
+// billing gate and came back up with new DYNAMIC IPs on restart, which
+// silently broke every hardcoded IP across tooling, scheduled checks, and
+// this Vercel LIGHTSAIL_IP env var (production buyer search was down until
+// that was traced and fixed). Static IPs are free while attached to a
+// running instance and don't change across stop/start, so this list should
+// now be stable.
 export const BOXES = [
-  { label: 'box1', host: '98.92.140.11', sshUser: 'ubuntu', remoteDir: 'nj-scraper/scrapers/lightsail-crawler' },
-  { label: 'box2', host: '3.237.204.55', sshUser: 'ubuntu', remoteDir: 'nj-scraper/scrapers/lightsail-crawler' },
-  { label: 'box3', host: '13.220.170.220', sshUser: 'ubuntu', remoteDir: 'nj-scraper/scrapers/lightsail-crawler' },
-  { label: 'box4', host: '44.200.57.189', sshUser: 'ubuntu', remoteDir: 'nj-scraper/scrapers/lightsail-crawler' },
+  { label: 'box1', host: '34.203.148.79', sshUser: 'ubuntu', remoteDir: 'nj-scraper/scrapers/lightsail-crawler' },
+  { label: 'box2', host: '52.202.234.65', sshUser: 'ubuntu', remoteDir: 'nj-scraper/scrapers/lightsail-crawler' },
+  { label: 'box3', host: '184.73.158.210', sshUser: 'ubuntu', remoteDir: 'nj-scraper/scrapers/lightsail-crawler' },
+  { label: 'box4', host: '100.50.85.234', sshUser: 'ubuntu', remoteDir: 'nj-scraper/scrapers/lightsail-crawler' },
 ];
 const DEFAULT_SSH_KEY = path.join(os.homedir(), '.ssh', 'LightsailDefaultKey-us-east-1.pem');
 
