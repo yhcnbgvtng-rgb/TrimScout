@@ -150,13 +150,40 @@ export function inventoryListQuery(params) {
   // already maximally selective, and forcing a state-wide index onto a single-dealer query
   // could only make an already-fast query slower. make='s own hint keeps applying regardless
   // of dealerId=, unchanged from 2026-09-22 — no live evidence that combination needs a guard.
+  //
+  // make= + model=(+ trim=), state= NOT set (state stays optional — confirmed live 2026-09-28
+  // this combination is common and must not be nudged toward requiring state): idx_inv_stock_
+  // make_dealer above covers make= alone (removed_at, make, dealer_name, vin) but doesn't include
+  // model/trim, so once those are also in the WHERE, every one of make='s rows (Ford: 186k+) still
+  // needed a full row lookup just to check model=/trim= before the ~2k-45k that actually matched
+  // could be counted or sorted — the exact same "index covers the equality prefix but not the next
+  // WHERE column" shape state=/make= alone already had fixed into them, one level deeper. A make=
+  // + model= query can't just reuse idx_inv_stock_make_dealer's own deeper sibling either: once
+  // model/trim are unconstrained-but-present in index order ahead of dealer_name, the DEFAULT
+  // dealer:asc sort would no longer match index order for the make-ONLY case, trading the filesort
+  // this index exists to avoid for a different one. idx_inv_stock_make_model_trim (removed_at,
+  // make, model, trim, dealer_name, vin) is a separate index used ONLY when model= is also given —
+  // model=/trim= then pin exactly enough of the index's leading columns that (dealer_name, vin)
+  // is once again the correctly-ordered remainder, index-only, no filesort, whether or not trim=
+  // is present (trim locks one column further right in the same index; leaving it unset just means
+  // a wider but still fully-ordered range within that make+model).
   const indexHint = (p("state") && !p("dealerId"))
     ? (p("inStock") === "1" ? "FORCE INDEX (idx_inv_stock_state)" : "FORCE INDEX (idx_inv_state_dealer)")
     : !p("make") ? ""
-    : p("inStock") === "1" ? "FORCE INDEX (idx_inv_stock_make_dealer)" : "FORCE INDEX (idx_inv_make_dealer)";
+    : p("model")
+      ? (p("inStock") === "1" ? "FORCE INDEX (idx_inv_stock_make_model_trim)" : "FORCE INDEX (idx_inv_make_model_trim)")
+      : p("inStock") === "1" ? "FORCE INDEX (idx_inv_stock_make_dealer)" : "FORCE INDEX (idx_inv_make_dealer)";
   const whereSql = where.length ? "WHERE " + where.join(" AND ") : "";
   // optionJoin's own placeholders appear in the SQL text before whereSql's, so its args must come
   // first in the flat array mysql2 binds positionally against.
   const sql = `FROM dealer_inventory i ${indexHint} ${optionJoin}LEFT JOIN dealership_contacts d ON d.id = i.dealer_id ${whereSql}`;
-  return { sql, args: [...optionArgs, ...args], orderBy };
+  // COUNT(*) never needs dealer_city/dealer_state — only the row-list SELECT does — and no WHERE
+  // clause built above ever filters on a d.* column (state and dealer_name are native i.* columns,
+  // denormalized in PR #296 and from day one respectively), so the count-only FROM clause drops
+  // the dealership_contacts join entirely instead of paying for a lookup on every one of make='s
+  // (or the whole table's) matching rows just to discard the result. Confirmed live 2026-09-28
+  // this join was pure overhead on the COUNT(*) query for every filter combination, not just the
+  // make=+model= case this fix targets.
+  const countSql = `FROM dealer_inventory i ${indexHint} ${optionJoin}${whereSql}`;
+  return { sql, countSql, args: [...optionArgs, ...args], orderBy };
 }
