@@ -85,10 +85,22 @@ const dealerIdFor = (v) => {
 const cond = (t) => ({ NEW: "new", USED: "used", CERTIFIED: "cpo", CPO: "cpo", "CERTIFIED PRE-OWNED": "cpo", CERTIFIED_PRE_OWNED: "cpo", WHOLESALE: "wholesale" })[String(t || "").toUpperCase()] || null;
 const num = (v) => (v == null || v === "" || Number.isNaN(Number(v)) ? null : Math.round(Number(v)));
 // Factory + dealer-listed options, compacted to what the sheet shows (code / name / price).
+// dealerListedOptions carries two different shapes depending on the source platform:
+// Dealer.com's structured packages/options each have a real, stable code (PKG-{id}/OPT-{id} —
+// extractDealerListedOptions() in standalone.js); DealerOn's free-text feature mentions
+// (parseFeaturesFromDescription()) have no per-item code at all and share the literal
+// placeholder "FEATURE". Previously this always hardcoded code: null here, discarding a real
+// Dealer.com code even when one existed — preserve it when present instead, so a downstream
+// facet can actually tell "this exact coded package" apart from "any of these free-text mentions".
 const options = (v) => {
   const out = [];
   for (const o of Array.isArray(v.factoryOptions) ? v.factoryOptions : []) if (o && (o.name || o.code)) out.push({ code: o.code || null, name: o.name || null, price: num(o.price), kind: "factory" });
-  for (const o of Array.isArray(v.dealerListedOptions) ? v.dealerListedOptions : []) { const name = typeof o === "string" ? o : o && (o.name || o.title); if (name) out.push({ code: null, name, price: num(o && o.price), kind: "dealer" }); }
+  for (const o of Array.isArray(v.dealerListedOptions) ? v.dealerListedOptions : []) {
+    const name = typeof o === "string" ? o : o && (o.name || o.title);
+    if (!name) continue;
+    const code = typeof o === "object" && o && o.code ? String(o.code).slice(0, 64) : null;
+    out.push({ code, name, price: num(o && o.price), kind: "dealer" });
+  }
   return out.length ? out.slice(0, 200) : null;
 };
 

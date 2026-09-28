@@ -90,6 +90,10 @@ export interface InventoryQuery {
   priceChange?: "drop" | "increase";
   hasSticker?: boolean;
   minDays?: number;
+  /** Exact match against a real per-item option code — pass a `value` straight off inventoryOptionFacet(make, "coded"). */
+  optionCode?: string;
+  /** Exact match against a DealerOn free-text feature name — pass a `value` straight off inventoryOptionFacet(make, "feature"). */
+  featureText?: string;
   limit?: number;
   offset?: number;
   sort?: string;
@@ -152,6 +156,25 @@ export function inventoryQueryString(q: InventoryQuery): string {
 
 export async function listInventory(q: InventoryQuery = {}): Promise<{ total: number; limit: number; offset: number; vehicles: InventoryVehicle[] }> {
   return request("GET", `/api/inventory${inventoryQueryString(q)}`);
+}
+
+export interface InventoryOptionFacetValue {
+  /** For type "coded", the real per-item code; for type "feature", the free-text name itself (identical to `label`). */
+  value: string;
+  /** Display label — resolved from dealer_option_names for "coded", or the same string as `value` for "feature". */
+  label: string | null;
+  /** In-stock vehicles of this make carrying it. */
+  count: number;
+}
+
+/**
+ * Aggregate option ("coded" — a real Dealer.com/factory per-item code) or feature ("feature" —
+ * DealerOn's uncoded free-text mentions) names for one make, each with a count. Feed a returned
+ * `value` back into listInventory() as `optionCode` / `featureText` to see the actual vehicles.
+ */
+export async function inventoryOptionFacet(make: string, type: "coded" | "feature" = "coded"): Promise<{ make: string; type: string; facet: InventoryOptionFacetValue[] }> {
+  const qs = new URLSearchParams({ make, type });
+  return request("GET", `/api/inventory/options/facet?${qs.toString()}`);
 }
 
 export async function inventoryStats(): Promise<InventoryStats> {
