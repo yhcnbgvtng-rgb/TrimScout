@@ -107,21 +107,15 @@ const runProgress = emptyProgress({
 });
 // Real bug found live 2026-09-27: this is the one writeProgress() call in
 // the whole file that wasn't wrapped like flushRunProgress()'s own call
-// below — every OTHER call already catches and logs
-// "⚠️ Progress write failed" because src/progress.js's write-tmp-then-
-// rename to a single shared, unlocked path can race when two states run
-// concurrently (MAX_CONCURRENT_STATES > 1) and both happen to write/rename
-// that same tmp file around the same moment. This one, at process startup
-// before any dealer has been crawled, being unguarded meant hitting that
-// race here crashed the WHOLE brand+state crawl with zero dealers
-// attempted — confirmed live: MI Honda's first shard (2026-09-27, box4)
-// died 2 seconds in, losing that shard's entire dealer list, while every
-// later write throughout the same run already survives the identical
-// race harmlessly. This doesn't fix the underlying race (still worth a
-// real per-state-scoped or locked progress path someday — see
-// shared_data_lock.js's pattern, already used for daily_changes) but it
-// stops a rare, one-in-a-thousand-writes race from ever costing a whole
-// crawl again.
+// below, at a time when src/progress.js's write-tmp-then-rename raced on
+// a single shared, unlocked tmp path whenever two states ran concurrently
+// (MAX_CONCURRENT_STATES > 1) — confirmed live: MI Honda's first shard
+// (2026-09-27, box4) died 2 seconds in this way, losing that shard's
+// entire dealer list. writeProgress() itself is now race-free (it takes
+// shared_data_lock.js's lock around its whole read+merge+write+rename, the
+// same primitive already used for daily_changes — see progress.js). This
+// try/catch stays anyway, same as every other writeProgress() call here:
+// a write to this file is never worth crashing a whole crawl over.
 try {
     await writeProgress(runProgress);
 } catch (err) {
