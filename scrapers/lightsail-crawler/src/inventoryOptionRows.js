@@ -39,7 +39,8 @@ const NON_OPTION_TERMS = /\b(fees?|deductible|warranty|warranties|coverage|docum
 const SPLIT_NUMBER_FRAGMENT = /^0+(?!\d)/;
 
 export function looksLikeNonOptionText(label) {
-  return NON_OPTION_TERMS.test(label) || SPLIT_NUMBER_FRAGMENT.test(label.replace(/^\$/, ""));
+  // Leading punctuation ("$0 ...", "(0 A) Marsh Gray") doesn't hide a split-number fragment.
+  return NON_OPTION_TERMS.test(label) || SPLIT_NUMBER_FRAGMENT.test(label.replace(/^[^a-z0-9]+/i, ""));
 }
 
 /**

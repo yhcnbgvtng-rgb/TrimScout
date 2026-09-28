@@ -36,10 +36,13 @@ describe('optionRowsFromOptions', () => {
       { name: '00 Doc Fee' },
       { name: '0-amp port in center console' },
       { name: '$0 Warranty Deductible' },
+      { name: '(0 A) Marsh Gray' },
+      { name: '0!!!' },
+      { name: '0 adds adaptive cruise control with stop-and-go capability' },
       { name: '360-Degree Camera' },
       { name: '10-Speed Automatic Transmission' },
     ]);
-    assert.equal(junkDropped, 5);
+    assert.equal(junkDropped, 8);
     assert.deepEqual(rows.map((r) => r.label), ['360-Degree Camera', '10-Speed Automatic Transmission']);
   });
 
