@@ -1819,6 +1819,18 @@ async function handleInventoryBulk(req, res) {
     if (!chunk.length) continue;
     const values = chunk.map((v) => [v.vin.trim().toUpperCase(), INV_DEALER(v.dealerId), INV_STR(v.dealerName, 255), INV_STR(v.condition, 12), INV_INT(v.year), INV_STR(v.make, 64), INV_STR(v.model, 96), INV_STR(v.trim, 160), INV_STR(v.bodyStyle, 64), INV_STR(v.exteriorColor, 96), INV_STR(v.interiorColor, 96), INV_INT(v.mileage), INV_INT(v.price), INV_INT(v.msrp), INV_STR(v.stockNumber, 64), INV_STR(v.vdpUrl, 700), INV_STR(v.imageUrl, 700), INV_STR(v.source, 16),
       INV_STR(v.windowStickerUrl, 700), INV_STR(v.engine, 160), INV_STR(v.transmission, 160), INV_INT(v.daysOnLot), INV_INT(v.oldPrice), INV_INT(v.priceDiff), INV_STR(v.priceChangeType, 16), INV_STR(v.changeType, 16), INV_JSON_STR(v.priceHistory, 60000), INV_JSON_STR(v.options, 200000), INV_INT(v.optionsTotal), INV_INT(v.baseMsrp), INV_DATE(v.crawlFirstSeen)]);
+    // Sorted by the table's own primary key (vin, dealer_id) before the multi-row INSERT below.
+    // Confirmed live 2026-09-28 via SHOW ENGINE INNODB STATUS on a deliberately reproduced
+    // deadlock: two concurrent chunks upserting overlapping VINs in different orders is InnoDB's
+    // classic multi-row INSERT ... ON DUPLICATE KEY UPDATE deadlock shape — each transaction
+    // locks its own rows in payload order, then blocks on a row the other transaction already
+    // holds, in the opposite order. Sorting every VALUES list by PK before the statement makes
+    // any two concurrent writers (another box's sync, or a backfill script) acquire row locks in
+    // the same relative order, which is what actually prevents the deadlock — the sync's own
+    // cross-box lock only serializes inventory-sync.mjs runs against each other, not this
+    // endpoint against any other caller (a backfill script was still running concurrently the day
+    // this was diagnosed). Applied to every multi-row statement in this handler below.
+    values.sort((a, b) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : a[1] - b[1]));
     await pool.query(
       `INSERT INTO dealer_inventory (vin, dealer_id, dealer_name, cond, year, make, model, trim, body_style, exterior_color, interior_color, mileage, price, msrp, stock_number, vdp_url, image_url, source,
         window_sticker_url, engine, transmission, days_on_lot, old_price, price_diff, price_change_type, change_type, price_history_json, options_json, options_total, base_msrp, crawl_first_seen)
@@ -1827,14 +1839,26 @@ async function handleInventoryBulk(req, res) {
       [values]
     );
     upserted += chunk.length;
-    // Today's observation for every vehicle in the chunk, plus the crawl's dated price points (backfill).
+    // Today's observation for every vehicle in the chunk, plus the crawl's dated price points
+    // (backfill). This is the biggest of the multi-row statements in this loop — up to ~30k
+    // rows/chunk (500 vehicles x up to 60 price-history points each) — so it was the most exposed
+    // to the deadlock shape confirmed live 2026-09-28 (see the `values` comment above).
+    // De-duplicated per (vin, dealer_id, seen_on), this table's own primary key, before the
+    // INSERT — a vehicle's own priceHistory can carry more than one point for the same date (a
+    // re-crawl within the day, or a source that reports duplicates), which used to put the same
+    // key in one VALUES list twice. Then sorted by that same key for the same lock-ordering
+    // reason as `values` above.
     const today = new Date().toISOString().slice(0, 10);
-    const days = [];
+    const daysByKey = new Map(); // `${vin}|${dealerId}|${date}` -> row
     for (const v of chunk) {
       const vin = v.vin.trim().toUpperCase(), dealerId = INV_DEALER(v.dealerId);
-      days.push([vin, dealerId, today, INV_INT(v.price), INV_INT(v.mileage)]);
-      if (Array.isArray(v.priceHistory)) for (const h of v.priceHistory.slice(-60)) { const d = INV_DATE(h && h.date); if (d && d !== today) days.push([vin, dealerId, d, INV_INT(h.price), null]); }
+      daysByKey.set(`${vin}|${dealerId}|${today}`, [vin, dealerId, today, INV_INT(v.price), INV_INT(v.mileage)]);
+      if (Array.isArray(v.priceHistory)) for (const h of v.priceHistory.slice(-60)) {
+        const d = INV_DATE(h && h.date);
+        if (d && d !== today) daysByKey.set(`${vin}|${dealerId}|${d}`, [vin, dealerId, d, INV_INT(h.price), null]);
+      }
     }
+    const days = [...daysByKey.values()].sort((a, b) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : a[1] !== b[1] ? a[1] - b[1] : a[2] < b[2] ? -1 : a[2] > b[2] ? 1 : 0));
     if (days.length) await pool.query("INSERT INTO dealer_inventory_days (vin, dealer_id, seen_on, price, mileage) VALUES ? ON DUPLICATE KEY UPDATE price = COALESCE(VALUES(price), price), mileage = COALESCE(VALUES(mileage), mileage)", [days]);
 
     // Side-table option rows, scoped to just the vehicles in this chunk that actually carried
@@ -1842,7 +1866,9 @@ async function handleInventoryBulk(req, res) {
     // COALESCE above) rather than having its existing option rows erased by a partial sync.
     const withOptions = chunk.filter((v) => Array.isArray(v.options) && v.options.length);
     if (withOptions.length) {
-      const optKeys = withOptions.map((v) => [v.vin.trim().toUpperCase(), INV_DEALER(v.dealerId)]);
+      // Sorted by (vin, dealer_id) — same deadlock-avoidance reason as `values` above — before
+      // both the DELETE and the reinsert, so concurrent chunks lock rows in the same order.
+      const optKeys = withOptions.map((v) => [v.vin.trim().toUpperCase(), INV_DEALER(v.dealerId)]).sort((a, b) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : a[1] - b[1]));
       await pool.query(
         `DELETE FROM dealer_inventory_options WHERE (vin, dealer_id) IN (${optKeys.map(() => "(?,?)").join(",")})`,
         optKeys.flat()
@@ -1859,8 +1885,9 @@ async function handleInventoryBulk(req, res) {
           if (code && make) namesSeen.set(`${make}|${code}`, [make, code, name]);
         }
       }
+      oValues.sort((a, b) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : a[1] - b[1]));
       if (oValues.length) await pool.query("INSERT INTO dealer_inventory_options (vin, dealer_id, make, code, name, price, kind) VALUES ?", [oValues]);
-      if (namesSeen.size) await pool.query("INSERT INTO dealer_option_names (make, code, name) VALUES ? ON DUPLICATE KEY UPDATE name = VALUES(name)", [[...namesSeen.values()]]);
+      if (namesSeen.size) await pool.query("INSERT INTO dealer_option_names (make, code, name) VALUES ? ON DUPLICATE KEY UPDATE name = VALUES(name)", [[...namesSeen.values()].sort((a, b) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : a[1] < b[1] ? -1 : a[1] > b[1] ? 1 : 0))]);
     }
   }
   invInvalidate();
