@@ -7,7 +7,7 @@
 // Idempotent (ON DUPLICATE KEY UPDATE) — safe to re-run. Keyset-paginated over the
 // (vin, dealer_id) primary key (no OFFSET — degrades badly at 1.6M+ rows).
 //
-// Run on the deals box (ubuntu@3.237.204.55 — box2), from /opt/trimscout-deals so it picks up
+// Run on the deals box (ubuntu@52.202.234.65 — box2), from /opt/trimscout-deals so it picks up
 // .env.trimscout-db and the existing node_modules (mysql2) the same way deals_api_server.js does:
 //   cd /opt/trimscout-deals && curl -fsSL -o 2026-09-25-backfill-dealer-inventory-options.mjs "https://raw.githubusercontent.com/yhcnbgvtng-rgb/TrimScout/main/scripts/box/2026-09-25-backfill-dealer-inventory-options.mjs?cb=$(date +%s)" && sudo node 2026-09-25-backfill-dealer-inventory-options.mjs
 import fs from "node:fs";

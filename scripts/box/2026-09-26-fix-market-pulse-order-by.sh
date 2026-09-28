@@ -6,7 +6,7 @@
 # instead: the "moving makes" result set is one row per make (well under 100 after the volume
 # floor), so sorting/slicing there costs nothing and sidesteps the quirk entirely.
 #
-# Run on the deals box (ubuntu@3.237.204.55 — box2):
+# Run on the deals box (ubuntu@52.202.234.65 — box2):
 #   cd ~ && curl -fsSL -o 2026-09-26-fix-market-pulse-order-by.sh "https://raw.githubusercontent.com/yhcnbgvtng-rgb/TrimScout/main/scripts/box/2026-09-26-fix-market-pulse-order-by.sh?cb=$(date +%s)" && grep -c "sort((a, b) => b.rate" 2026-09-26-fix-market-pulse-order-by.sh && sudo cp 2026-09-26-fix-market-pulse-order-by.sh /opt/trimscout-deals/src/ && cd /opt/trimscout-deals/src && sudo bash 2026-09-26-fix-market-pulse-order-by.sh
 set -euo pipefail
 FILE=${FILE:-/opt/trimscout-deals/src/deals_api_server.js}

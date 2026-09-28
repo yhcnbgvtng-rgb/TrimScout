@@ -3,7 +3,7 @@
 # 10-minute in-memory cache for the aggregate endpoints (/stats, /by-dealer) that every bulk upsert / sweep
 # clears. Before: stats 22 s, by-dealer 17 s, a listing page ~5 s.
 #
-# Run on the deals box (ubuntu@3.208.49.1):
+# Run on the deals box (ubuntu@52.202.234.65):
 #   curl -fsSL -o 2026-09-16-inventory-speed.sh https://raw.githubusercontent.com/yhcnbgvtng-rgb/TrimScout/main/scripts/box/2026-09-16-inventory-speed.sh && bash 2026-09-16-inventory-speed.sh
 # Idempotent. The indexes build on the first request after restart (a minute or so on ~250k rows).
 set -euo pipefail

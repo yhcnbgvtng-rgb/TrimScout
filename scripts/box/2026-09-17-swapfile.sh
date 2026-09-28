@@ -3,7 +3,7 @@
 # servers (deals :3004, auth/directory :3003) during the nightly inventory sync and the crawl jobs.
 # 2026-09-16: both APIs were found dead (connection refused) mid-QA and flapped after restart.
 #
-# Run on the deals box (ubuntu@3.208.49.1):
+# Run on the deals box (ubuntu@52.202.234.65):
 #   curl -fsSL -o 2026-09-17-swapfile.sh https://raw.githubusercontent.com/yhcnbgvtng-rgb/TrimScout/main/scripts/box/2026-09-17-swapfile.sh && bash 2026-09-17-swapfile.sh
 # Idempotent: skips each step that's already done. Nothing restarts; no downtime.
 set -euo pipefail

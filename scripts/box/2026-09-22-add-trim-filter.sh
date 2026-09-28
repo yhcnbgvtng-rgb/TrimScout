@@ -3,7 +3,7 @@
 # `model` filter — the admin crawl sheet's Vehicles tab gained a "Trim" input alongside "Model"
 # and needs the box to support it.
 #
-# Run on the box (ubuntu@3.208.49.1):
+# Run on the box (ubuntu@52.202.234.65):
 #   cd ~ && curl -fsSL -o 2026-09-22-add-trim-filter.sh https://raw.githubusercontent.com/yhcnbgvtng-rgb/TrimScout/main/scripts/box/2026-09-22-add-trim-filter.sh && sudo cp 2026-09-22-add-trim-filter.sh /opt/trimscout-deals/ && cd /opt/trimscout-deals && sudo bash 2026-09-22-add-trim-filter.sh
 # Idempotent. Backup, exact-replace with asserts, node --check, pm2 restart, health check.
 set -euo pipefail

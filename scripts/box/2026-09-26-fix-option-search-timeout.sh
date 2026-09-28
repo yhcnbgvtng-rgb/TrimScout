@@ -27,7 +27,7 @@
 # test/inventory_list_query.test.js (28/28 passing locally, including the updated optionKeys
 # assertions for the new FORCE INDEX).
 #
-# Run on the deals box (ubuntu@3.237.204.55 — box2):
+# Run on the deals box (ubuntu@52.202.234.65 — box2):
 #   cd ~ && curl -fsSL -o 2026-09-26-fix-option-search-timeout.sh "https://raw.githubusercontent.com/yhcnbgvtng-rgb/TrimScout/main/scripts/box/2026-09-26-fix-option-search-timeout.sh?cb=$(date +%s)" && curl -fsSL -o inventoryListQuery.js "https://raw.githubusercontent.com/yhcnbgvtng-rgb/TrimScout/main/scrapers/lightsail-crawler/src/inventoryListQuery.js?cb=$(date +%s)" && grep -c idx_opt_dealer_canonical inventoryListQuery.js && sudo cp 2026-09-26-fix-option-search-timeout.sh inventoryListQuery.js /opt/trimscout-deals/src/ && cd /opt/trimscout-deals/src && sudo bash 2026-09-26-fix-option-search-timeout.sh
 set -euo pipefail
 DIR=/opt/trimscout-deals/src

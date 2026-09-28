@@ -9,7 +9,7 @@
 # identical bug and got the covering-index fix (idx_inv_stock_state) the same day; make= never
 # did — this closes that gap with idx_inv_stock_make_dealer (removed_at, make, dealer_name, vin).
 #
-# Run on the deals box (ubuntu@3.237.204.55 — box2):
+# Run on the deals box (ubuntu@52.202.234.65 — box2):
 #   cd ~ && curl -fsSL -o 2026-09-25-fix-make-filter-filesort.sh "https://raw.githubusercontent.com/yhcnbgvtng-rgb/TrimScout/main/scripts/box/2026-09-25-fix-make-filter-filesort.sh?cb=$(date +%s)" && curl -fsSL -o inventoryListQuery.js "https://raw.githubusercontent.com/yhcnbgvtng-rgb/TrimScout/main/scrapers/lightsail-crawler/src/inventoryListQuery.js?cb=$(date +%s)" && grep -c idx_inv_stock_make_dealer inventoryListQuery.js && sudo cp 2026-09-25-fix-make-filter-filesort.sh inventoryListQuery.js /opt/trimscout-deals/src/ && cd /opt/trimscout-deals/src && sudo bash 2026-09-25-fix-make-filter-filesort.sh
 # Idempotent. Backup, exact-replace with asserts, direct DDL (index applies immediately —
 # no backfill needed, unlike a new column), node --check, pm2 restart, health check.

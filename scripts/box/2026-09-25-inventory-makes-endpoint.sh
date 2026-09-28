@@ -16,7 +16,7 @@
 #
 # Code-only, no schema change (dealer_inventory.state already exists, PR #296).
 #
-# Run on the deals box (ubuntu@3.237.204.55 — box2):
+# Run on the deals box (ubuntu@52.202.234.65 — box2):
 #   cd ~ && curl -fsSL -o 2026-09-25-inventory-makes-endpoint.sh "https://raw.githubusercontent.com/yhcnbgvtng-rgb/TrimScout/main/scripts/box/2026-09-25-inventory-makes-endpoint.sh?cb=$(date +%s)" && grep -c handleInventoryMakes 2026-09-25-inventory-makes-endpoint.sh && sudo cp 2026-09-25-inventory-makes-endpoint.sh /opt/trimscout-deals/src/ && cd /opt/trimscout-deals/src && sudo bash 2026-09-25-inventory-makes-endpoint.sh
 set -euo pipefail
 FILE=${FILE:-/opt/trimscout-deals/src/deals_api_server.js}

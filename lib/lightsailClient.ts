@@ -20,7 +20,7 @@
 // Same host resolution pattern as the existing app/api/lightsail/route.ts:
 // a Lightsail Static IP that survives instance resize/migration.
 export const LIGHTSAIL_HOST =
-  process.env.LIGHTSAIL_IP || process.env.LIGHTSAIL_HOST || "44.205.48.153";
+  process.env.LIGHTSAIL_IP || process.env.LIGHTSAIL_HOST || "52.202.234.65";
 
 // Distinct from the existing port-3000 CSV export server — this is the new
 // Step 4 MariaDB-backed HTTP API (inventory_api_server.js).

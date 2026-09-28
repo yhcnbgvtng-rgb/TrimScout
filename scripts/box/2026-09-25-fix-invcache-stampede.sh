@@ -18,7 +18,7 @@
 # itself can't be unit-tested (it starts a real server unconditionally on
 # import, no "am I the main module" guard).
 #
-# Run on the deals box (ubuntu@3.237.204.55 — box2):
+# Run on the deals box (ubuntu@52.202.234.65 — box2):
 #   cd ~ && curl -fsSL -o 2026-09-25-fix-invcache-stampede.sh "https://raw.githubusercontent.com/yhcnbgvtng-rgb/TrimScout/main/scripts/box/2026-09-25-fix-invcache-stampede.sh?cb=$(date +%s)" && sudo cp 2026-09-25-fix-invcache-stampede.sh /opt/trimscout-deals/src/ && cd /opt/trimscout-deals/src && sudo bash 2026-09-25-fix-invcache-stampede.sh
 set -euo pipefail
 FILE=${FILE:-/opt/trimscout-deals/src/deals_api_server.js}

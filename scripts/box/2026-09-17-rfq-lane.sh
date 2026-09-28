@@ -3,7 +3,7 @@
 # the alternate lane needs no VIN / year / make / link (vin defaults to ''). Invites on it carry no vehicle —
 # the dealer names the VIN they propose when they quote.
 #
-# Run on the deals box (ubuntu@3.208.49.1):
+# Run on the deals box (ubuntu@52.202.234.65):
 #   curl -fsSL -o 2026-09-17-rfq-lane.sh https://raw.githubusercontent.com/yhcnbgvtng-rgb/TrimScout/main/scripts/box/2026-09-17-rfq-lane.sh && bash 2026-09-17-rfq-lane.sh
 # Idempotent. Backup, exact-replace with asserts, node --check, pm2 restart, health check.
 set -euo pipefail

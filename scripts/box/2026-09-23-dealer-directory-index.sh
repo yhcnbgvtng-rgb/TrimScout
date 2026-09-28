@@ -9,7 +9,7 @@
 # exceeds dealershipsApi.ts's 8s client abort, producing the admin sheet's
 # "Request timed out" banner.
 #
-# Run on the deals box (ubuntu@3.208.49.1 — same box serves both APIs):
+# Run on the deals box (ubuntu@52.202.234.65 — same box serves both APIs):
 #   curl -fsSL -o 2026-09-23-dealer-directory-index.sh https://raw.githubusercontent.com/yhcnbgvtng-rgb/TrimScout/main/scripts/box/2026-09-23-dealer-directory-index.sh && bash 2026-09-23-dealer-directory-index.sh
 # Idempotent. The index builds on the first /api/dealerships request after
 # restart.
