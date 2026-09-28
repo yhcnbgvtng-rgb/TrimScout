@@ -1792,6 +1792,18 @@ async function ensureInventoryTable(pool) {
     // make= WITHOUT inStock=1 (the sheet's "all, incl. removed" view): idx_inv_stock_make can't seek
     // on make until removed_at is pinned, so that was a full scan — see inventoryListQuery.js.
     "ADD INDEX IF NOT EXISTS idx_inv_make_dealer (make, dealer_name, vin)",
+    // Confirmed live 2026-09-28: make=+model=(+trim=) row-list requests (admin Vehicles and buyer
+    // /search, state= deliberately NOT required — see inventoryListQuery.js's own comment) hit
+    // the exact same shape of bug idx_inv_stock_make_dealer above was built to fix, one column
+    // deeper — that index covers make= alone but doesn't include model/trim, so scanning down
+    // to make=Ford AND model=F-150 (or +trim=Lariat) still visited every one of Ford's 186k+ rows
+    // for a row lookup just to check model=/trim=, timing out at the 20s statement cap even
+    // though only ~2k-45k rows actually matched. This index (and its non-inStock sibling right
+    // below) is used ONLY when model= is also given — see inventoryListQuery.js's indexHint for
+    // why make= alone deliberately keeps using the shallower index above instead (using this one
+    // for a make-only query would trade its filesort-free default sort for a different filesort).
+    "ADD INDEX IF NOT EXISTS idx_inv_stock_make_model_trim (removed_at, make, model, trim, dealer_name, vin)",
+    "ADD INDEX IF NOT EXISTS idx_inv_make_model_trim (make, model, trim, dealer_name, vin)",
     // Mirrors idx_inv_stock_make/idx_inv_make_dealer exactly, for state= instead of make=.
     "ADD INDEX IF NOT EXISTS idx_inv_stock_state (removed_at, state, dealer_name, vin)",
     "ADD INDEX IF NOT EXISTS idx_inv_state_dealer (state, dealer_name, vin)",
@@ -2173,7 +2185,7 @@ const INV_LIST_STATEMENT_TIMEOUT_SECONDS = 20;
 async function handleListInventory(req, res, params) {
   const pool = getPool();
   await ensureInventoryTable(pool);
-  const { sql, args, orderBy } = inventoryListQuery(params);
+  const { sql, countSql, args, orderBy } = inventoryListQuery(params);
   const limit = Math.min(Math.max(Number(params.get("limit")) || 200, 1), 2000);
   const offset = Math.max(Number(params.get("offset")) || 0, 0);
   // Two independent queries, NOT SQL_CALC_FOUND_ROWS — reverted 2026-09-22 after it caused a
@@ -2199,7 +2211,7 @@ async function handleListInventory(req, res, params) {
     "Timed out waiting for an available database connection or a slow query"
   );
   const [[{ total }]] = await withPoolTimeout(
-    pool.query(`SET STATEMENT max_statement_time=${INV_LIST_STATEMENT_TIMEOUT_SECONDS} FOR SELECT COUNT(*) AS total ${sql}`, args),
+    pool.query(`SET STATEMENT max_statement_time=${INV_LIST_STATEMENT_TIMEOUT_SECONDS} FOR SELECT COUNT(*) AS total ${countSql}`, args),
     POOL_WAIT_TIMEOUT_MS,
     "Timed out waiting for an available database connection or a slow query"
   );
@@ -2643,7 +2655,12 @@ async function handleInventoryCatalogOptions(req, res, params) {
   // dealer_inventory_options has real volume); the colors query had no index covering its
   // GROUP BY exterior_color, interior_color at all ("Using temporary; Using filesort" over 280k+
   // rows for a single make).
-  const makeIndexHint = make ? "FORCE INDEX (idx_inv_stock_make_dealer)" : "";
+  // Same deeper-index fix as inventoryListQuery.js's indexHint, for the identical reason: once
+  // model= is also pinned, idx_inv_stock_make_dealer doesn't cover it, so the STRAIGHT_JOIN's
+  // driving scan of dealer_inventory still visited every one of make='s rows for a lookup. No
+  // sort-order tradeoff to worry about here (unlike the row list) — this query's own ORDER BY is
+  // canonical_key, unrelated to either index's trailing columns — so this is a strict win.
+  const makeIndexHint = !make ? "" : model ? "FORCE INDEX (idx_inv_stock_make_model_trim)" : "FORCE INDEX (idx_inv_stock_make_dealer)";
   const makeColorsIndexHint = make ? "FORCE INDEX (idx_inv_stock_make_colors)" : "";
   const cacheKey = `catalog-options:${make}|${model}|${trim}`;
   sendJson(res, 200, await invCached(cacheKey, async () => {

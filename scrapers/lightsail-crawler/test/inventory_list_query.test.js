@@ -75,6 +75,47 @@ describe('inventoryListQuery — make= (2026-09-22 fix, must not regress)', () =
   });
 });
 
+describe('inventoryListQuery — make= + model=(+ trim=), state= optional (2026-09-28 fix, must not regress)', () => {
+  it('switches to idx_inv_stock_make_model_trim once model= joins make= — idx_inv_stock_make_dealer does not cover model, so it visited every one of make\'s rows for a lookup (confirmed live: Ford 186k+ rows, 20s timeout, for a filter that only matched ~45k)', () => {
+    const { sql, args } = query({ make: 'Ford', model: 'F-150', inStock: '1' });
+    assert.match(sql, /FORCE INDEX \(idx_inv_stock_make_model_trim\)/);
+    assert.doesNotMatch(sql, /idx_inv_stock_make_dealer\)/);
+    assert.deepEqual(args, ['Ford', 'F-150']);
+  });
+
+  it('keeps the deeper index when trim= is also given — same index, trim just pins one column further right', () => {
+    const { sql, args } = query({ make: 'Ford', model: 'F-150', trim: 'Lariat', inStock: '1' });
+    assert.match(sql, /FORCE INDEX \(idx_inv_stock_make_model_trim\)/);
+    assert.deepEqual(args, ['Ford', 'F-150', 'Lariat']);
+  });
+
+  it('uses the non-inStock sibling index when inStock is not set', () => {
+    const { sql } = query({ make: 'Ford', model: 'F-150' });
+    assert.match(sql, /FORCE INDEX \(idx_inv_make_model_trim\)/);
+    assert.doesNotMatch(sql, /idx_inv_stock_make_model_trim/);
+  });
+
+  it('make= alone (no model=) still uses the shallower make-only index — switching indexes here would trade the default dealer:asc sort\'s filesort-free scan for a different filesort', () => {
+    const { sql } = query({ make: 'Ford', inStock: '1' });
+    assert.match(sql, /FORCE INDEX \(idx_inv_stock_make_dealer\)/);
+    assert.doesNotMatch(sql, /idx_inv_stock_make_model_trim/);
+  });
+
+  it('the row-list SELECT keeps the dealership_contacts join (needs dealer_city/dealer_state) but countSql drops it — no WHERE clause ever filters on a d.* column', () => {
+    const { sql, countSql } = query({ make: 'Ford', model: 'F-150', inStock: '1' });
+    assert.match(sql, /LEFT JOIN dealership_contacts d ON d\.id = i\.dealer_id/);
+    assert.doesNotMatch(countSql, /dealership_contacts/);
+    assert.match(countSql, /FORCE INDEX \(idx_inv_stock_make_model_trim\)/);
+    assert.match(countSql, /WHERE i\.make = \? AND i\.model = \? AND i\.removed_at IS NULL/);
+  });
+
+  it('state= still wins over the make+model hint when all three are given — state was never required to be dropped by this fix', () => {
+    const { sql } = query({ state: 'NJ', make: 'Ford', model: 'F-150', inStock: '1' });
+    assert.match(sql, /FORCE INDEX \(idx_inv_stock_state\)/);
+    assert.doesNotMatch(sql, /idx_inv_stock_make_model_trim|idx_inv_stock_make_dealer/);
+  });
+});
+
 describe('inventoryListQuery — state= and make= together', () => {
   it("state's hint wins when both are present — state was the one confirmed broken", () => {
     const { sql, args } = query({ state: 'NJ', make: 'Toyota', inStock: '1' });
