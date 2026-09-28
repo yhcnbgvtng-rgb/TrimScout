@@ -34,7 +34,7 @@ before the push; the directory keys by name.
 
 ## Vehicle inventory
 
-Vehicles are crawled by the crawl box (`98.92.140.11`, `run-daily-crawl.mjs`, nightly 23:00 ET) and synced into the
+Vehicles are crawled by the crawl box (`34.203.148.79`, `run-daily-crawl.mjs`, nightly 23:00 ET) and synced into the
 deals box's `dealer_inventory` table at 06:15 ET by `scripts/box/inventory-sync.mjs` (installed via
 `scripts/box/2026-09-16-inventory-sync-cron.sh`). The admin sheet's **Vehicles** tab reads it. There is no
 Mac-side inventory crawler any more.

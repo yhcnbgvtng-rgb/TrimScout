@@ -157,7 +157,7 @@ To automatically monitor changes every day without manual intervention:
 
 ---
 
-## NJ Lightsail box (ubuntu@98.92.140.11)
+## NJ Lightsail box (ubuntu@34.203.148.79)
 
 New Jersey–only inventory crawler. One brand per process. Authorized **single-franchise** rooftops only.
 

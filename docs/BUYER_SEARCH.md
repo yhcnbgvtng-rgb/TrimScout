@@ -125,7 +125,7 @@ curl "https://trimscout.com/api/catalog/facets?make=Ford&model=F-150"
 ## Box deploys
 
 Everything on `scrapers/lightsail-crawler/src/*.js` needs an explicit deploy to box2
-(`3.237.204.55`) — merging to `main` does **not** update the running server. As of this feature:
+(`52.202.234.65`) — merging to `main` does **not** update the running server. As of this feature:
 
 - `scripts/box/2026-09-25-buyer-search-schema.sh` — PR 1's schema (already run).
 - `scripts/box/2026-09-25-inventory-catalog-endpoint.sh` — PR 2's new
