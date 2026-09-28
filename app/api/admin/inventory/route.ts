@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireAdminSession } from "@/lib/adminAuth";
-import { listInventory, exportInventory, inventoryStats, inventoryByDealer, inventoryVin, inventoryAnalytics, InventoryApiError, type InventoryQuery } from "@/lib/inventoryApi";
+import { listInventory, exportInventory, inventoryStats, inventoryFacets, inventoryByDealer, inventoryVin, inventoryAnalytics, InventoryApiError, type InventoryQuery } from "@/lib/inventoryApi";
 import { vehicleCsvHeader, vehicleCsvLine, vehicleSheetFilename, type VehicleRow } from "@/lib/crawlSheetColumns";
 
 export const dynamic = "force-dynamic";
@@ -20,6 +20,16 @@ export async function GET(req: Request) {
     // Aggregates change once a day (the sync); let the admin's browser keep them a minute so tab switches are instant.
     const aggHeaders = { "Cache-Control": "private, max-age=60" };
     if (sp.get("stats") === "1") return NextResponse.json(await inventoryStats(), { headers: aggHeaders });
+    // State/Make/Model/Trim dropdown counts for the Vehicles sheet's filter row — same box
+    // endpoint (and its covering indexes) the buyer /search page's GET /api/catalog/facets uses,
+    // reached here through the admin-authenticated route rather than the public one so the admin
+    // sheet's own API surface stays self-contained.
+    if (sp.get("facets") === "1") {
+      return NextResponse.json(
+        await inventoryFacets({ state: sp.get("state") || undefined, make: sp.get("make") || undefined, model: sp.get("model") || undefined }),
+        { headers: aggHeaders }
+      );
+    }
     if (sp.get("byDealer") === "1") return NextResponse.json(await inventoryByDealer(), { headers: aggHeaders });
     if (sp.get("vin")) return NextResponse.json(await inventoryVin(sp.get("vin") || ""));
     // Dealership analytics for the Site Analytics page — aggregated and cached on the box.
