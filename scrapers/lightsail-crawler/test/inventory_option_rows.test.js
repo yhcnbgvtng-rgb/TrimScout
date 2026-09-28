@@ -29,6 +29,20 @@ describe('optionRowsFromOptions', () => {
     assert.deepEqual(rows.map((r) => r.key), ['bowers wilkins diamond surround sound system']);
   });
 
+  it('drops dealer fees, finance/warranty products and split-decimal fragments (live Honda CR-V junk)', () => {
+    const { rows, junkDropped } = optionRowsFromOptions([
+      { name: '$0 Deductible Coverage' },
+      { name: '00 Dealer Document Processing Fee' },
+      { name: '00 Doc Fee' },
+      { name: '0-amp port in center console' },
+      { name: '$0 Warranty Deductible' },
+      { name: '360-Degree Camera' },
+      { name: '10-Speed Automatic Transmission' },
+    ]);
+    assert.equal(junkDropped, 5);
+    assert.deepEqual(rows.map((r) => r.label), ['360-Degree Camera', '10-Speed Automatic Transmission']);
+  });
+
   it('keeps a real option containing a single sentence-marker word', () => {
     const { rows, junkDropped } = optionRowsFromOptions([{ name: '20-inch Wheels With FX4 Off-Road Bodyside Decal' }]);
     assert.equal(junkDropped, 0);

@@ -1959,6 +1959,27 @@ async function ensureInventoryTable(pool) {
   // single option key. This composite leads with the per-row equality and covers vin, turning
   // each call into an index-only lookup scoped to one dealer's own rows.
   await pool.query("ALTER TABLE dealer_inventory_options ADD INDEX IF NOT EXISTS idx_opt_dealer_canonical (dealer_id, canonical_key, vin)");
+  // Precomputed counts behind buyer /search's factory-options and color pickers (see
+  // rebuildCatalogFacets). NULL model/trim/colors are stored as '' so they can sit in the key.
+  await pool.query(`CREATE TABLE IF NOT EXISTS inv_option_facets (
+    make VARCHAR(64) NOT NULL,
+    model VARCHAR(96) NOT NULL,
+    trim VARCHAR(160) NOT NULL,
+    canonical_key VARCHAR(80) NOT NULL,
+    label VARCHAR(160) NOT NULL,
+    vehicle_count INT NOT NULL,
+    PRIMARY KEY (make, model, trim, canonical_key)
+  )`);
+  await pool.query(`CREATE TABLE IF NOT EXISTS inv_color_facets (
+    make VARCHAR(64) NOT NULL,
+    model VARCHAR(96) NOT NULL,
+    trim VARCHAR(160) NOT NULL,
+    exterior_color VARCHAR(96) NOT NULL,
+    interior_color VARCHAR(96) NOT NULL,
+    vehicle_count INT NOT NULL,
+    PRIMARY KEY (make, model, trim, exterior_color, interior_color)
+  )`);
+  await pool.query("CREATE TABLE IF NOT EXISTS inv_facet_meta (id TINYINT NOT NULL PRIMARY KEY, built_at DATETIME NOT NULL, duration_ms INT NOT NULL)");
   inventoryReady = true;
 }
 
@@ -2101,6 +2122,7 @@ async function handleInventoryBulk(req, res) {
     if (days.length) await pool.query("INSERT INTO dealer_inventory_days (vin, dealer_id, seen_on, price, mileage) VALUES ? ON DUPLICATE KEY UPDATE price = COALESCE(VALUES(price), price), mileage = COALESCE(VALUES(mileage), mileage)", [days]);
   }
   invInvalidate();
+  scheduleCatalogFacetRebuild();
   // Option counters are reported back so the sync's own log shows what happened to the facet
   // table on every run, instead of it being invisible unless someone queries the DB.
   sendJson(res, 200, { upserted, skipped, optionSetsReplaced, optionSetsKept, optionRowsWritten, optionJunkDropped });
@@ -2148,7 +2170,7 @@ async function handleInventorySweep(req, res) {
   let sql = "UPDATE dealer_inventory SET removed_at = CURRENT_TIMESTAMP WHERE dealer_id = ? AND removed_at IS NULL AND last_seen_at < ?";
   if (sources.length) { sql += " AND source IN (?)"; args.push(sources); }
   const [result] = await pool.query(sql, args);
-  if (result.affectedRows) invInvalidate();
+  if (result.affectedRows) { invInvalidate(); scheduleCatalogFacetRebuild(); }
   sendJson(res, 200, { removed: result.affectedRows });
 }
 
@@ -2626,12 +2648,145 @@ async function handleInventoryByDealer(req, res) {
 // so the panel never offers a combination that returns zero results — e.g. offering "PANO"
 // for a Model 3 when only the Model Y has it. Cached per make/model/trim key the same 10
 // minutes as stats/by-dealer/analytics, invalidated the same way (every bulk upsert/sweep).
+// Precomputed factory-option and color counts per (make, model, trim), rebuilt after each nightly
+// sync instead of computed per request. Confirmed live 2026-09-28: the per-request query (every
+// in-stock vehicle of the make/model joined against the 9.5M-row options table, then grouped)
+// hit the 20s statement cap for Ford F-150 (27.8s) and Toyota RAV4 (21.9s) even with #346's
+// index — and buyer /search showed that timeout as "no factory options". Counts now reflect the
+// last rebuild (minutes after each sync); the vehicle list itself stays live.
+//
+// Built per make, reading with plain SELECTs (consistent reads, no locks on dealer_inventory or
+// dealer_inventory_options, so a concurrent sync never waits on this) and then swapping each
+// make's rows in one short transaction, so readers always see a complete make.
+const catalogFacets = { building: false, again: false, builtAt: null, durationMs: null, lastError: null, timer: null, loaded: false };
+const FACET_REBUILD_DEBOUNCE_MS = 15 * 60_000;
+
+function scheduleCatalogFacetRebuild(delayMs = FACET_REBUILD_DEBOUNCE_MS) {
+  clearTimeout(catalogFacets.timer);
+  catalogFacets.timer = setTimeout(() => { void rebuildCatalogFacets(getPool()); }, delayMs);
+}
+
+async function loadCatalogFacetMeta(pool) {
+  if (catalogFacets.loaded) return;
+  const [[meta]] = await pool.query("SELECT built_at, duration_ms FROM inv_facet_meta WHERE id = 1");
+  if (meta) { catalogFacets.builtAt = meta.built_at; catalogFacets.durationMs = meta.duration_ms; }
+  catalogFacets.loaded = true;
+}
+
+async function rebuildCatalogFacets(pool) {
+  if (catalogFacets.building) { catalogFacets.again = true; return; }
+  catalogFacets.building = true;
+  const started = Date.now();
+  try {
+    await ensureInventoryTable(pool);
+    const [makeRows] = await pool.query("SELECT DISTINCT make FROM dealer_inventory WHERE removed_at IS NULL AND make IS NOT NULL");
+    const makes = makeRows.map((r) => r.make);
+    for (const make of makes) {
+      const [optionAgg] = await pool.query(
+        `SELECT STRAIGHT_JOIN COALESCE(i.model, '') AS model, COALESCE(i.trim, '') AS trim, o.canonical_key, MIN(o.label) AS label, COUNT(*) AS n
+         FROM dealer_inventory i FORCE INDEX (idx_inv_stock_make_model_trim)
+         JOIN dealer_inventory_options o ON o.vin = i.vin AND o.dealer_id = i.dealer_id
+         WHERE i.removed_at IS NULL AND i.make = ?
+         GROUP BY COALESCE(i.model, ''), COALESCE(i.trim, ''), o.canonical_key`,
+        [make]
+      );
+      const [colorAgg] = await pool.query(
+        `SELECT COALESCE(model, '') AS model, COALESCE(trim, '') AS trim, COALESCE(exterior_color, '') AS ext, COALESCE(interior_color, '') AS intr, COUNT(*) AS n
+         FROM dealer_inventory FORCE INDEX (idx_inv_stock_make_model_trim)
+         WHERE removed_at IS NULL AND make = ? AND (exterior_color IS NOT NULL OR interior_color IS NOT NULL)
+         GROUP BY COALESCE(model, ''), COALESCE(trim, ''), COALESCE(exterior_color, ''), COALESCE(interior_color, '')`,
+        [make]
+      );
+      const conn = await pool.getConnection();
+      try {
+        await conn.beginTransaction();
+        await conn.query("DELETE FROM inv_option_facets WHERE make = ?", [make]);
+        await conn.query("DELETE FROM inv_color_facets WHERE make = ?", [make]);
+        for (let i = 0; i < optionAgg.length; i += 2000) {
+          await conn.query("INSERT INTO inv_option_facets (make, model, trim, canonical_key, label, vehicle_count) VALUES ?", [optionAgg.slice(i, i + 2000).map((r) => [make, r.model, r.trim, r.canonical_key, r.label, Number(r.n)])]);
+        }
+        for (let i = 0; i < colorAgg.length; i += 2000) {
+          await conn.query("INSERT INTO inv_color_facets (make, model, trim, exterior_color, interior_color, vehicle_count) VALUES ?", [colorAgg.slice(i, i + 2000).map((r) => [make, r.model, r.trim, r.ext, r.intr, Number(r.n)])]);
+        }
+        await conn.commit();
+      } catch (err) {
+        await conn.rollback().catch(() => {});
+        throw err;
+      } finally {
+        conn.release();
+      }
+    }
+    // Makes with nothing left in stock.
+    if (makes.length) {
+      await pool.query("DELETE FROM inv_option_facets WHERE make NOT IN (?)", [makes]);
+      await pool.query("DELETE FROM inv_color_facets WHERE make NOT IN (?)", [makes]);
+    }
+    const durationMs = Date.now() - started;
+    await pool.query("INSERT INTO inv_facet_meta (id, built_at, duration_ms) VALUES (1, NOW(), ?) ON DUPLICATE KEY UPDATE built_at = VALUES(built_at), duration_ms = VALUES(duration_ms)", [durationMs]);
+    catalogFacets.builtAt = new Date();
+    catalogFacets.durationMs = durationMs;
+    catalogFacets.lastError = null;
+    catalogFacets.loaded = true;
+    invInvalidate();
+    console.log(`${new Date().toISOString()} catalog facets rebuilt: ${makes.length} makes in ${durationMs}ms`);
+  } catch (err) {
+    catalogFacets.lastError = err.message;
+    console.error(`${new Date().toISOString()} catalog facet rebuild failed:`, err.message);
+  } finally {
+    catalogFacets.building = false;
+    if (catalogFacets.again) { catalogFacets.again = false; void rebuildCatalogFacets(pool); }
+  }
+}
+
+// POST /api/inventory/catalog-facets/rebuild — starts a rebuild now (the options backfill calls
+// this when it finishes). GET .../status — whether one is running and when the last one finished.
+async function handleCatalogFacetRebuild(req, res) {
+  const pool = getPool();
+  await loadCatalogFacetMeta(pool).catch(() => {});
+  const alreadyRunning = catalogFacets.building;
+  void rebuildCatalogFacets(pool);
+  sendJson(res, 202, { started: !alreadyRunning, alreadyRunning, lastBuiltAt: catalogFacets.builtAt });
+}
+async function handleCatalogFacetStatus(req, res) {
+  await ensureInventoryTable(getPool());
+  await loadCatalogFacetMeta(getPool());
+  sendJson(res, 200, { building: catalogFacets.building, lastBuiltAt: catalogFacets.builtAt, lastDurationMs: catalogFacets.durationMs, lastError: catalogFacets.lastError });
+}
+
 async function handleInventoryCatalogOptions(req, res, params) {
   const pool = getPool();
   await ensureInventoryTable(pool);
   const make = (params.get("make") || "").trim();
   const model = (params.get("model") || "").trim();
   const trim = (params.get("trim") || "").trim();
+  await loadCatalogFacetMeta(pool);
+  if (catalogFacets.builtAt) {
+    const fWhere = [], fArgs = [];
+    if (make) { fWhere.push("make = ?"); fArgs.push(make); }
+    if (model) { fWhere.push("model = ?"); fArgs.push(model); }
+    if (trim) { fWhere.push("trim = ?"); fArgs.push(trim); }
+    const fWhereSql = fWhere.length ? "WHERE " + fWhere.join(" AND ") : "";
+    sendJson(res, 200, await invCached(`catalog-facets:${make}|${model}|${trim}`, async () => {
+      const [optionRows] = await withPoolTimeout(
+        pool.query(`SET STATEMENT max_statement_time=${INV_LIST_STATEMENT_TIMEOUT_SECONDS} FOR SELECT canonical_key, MIN(label) AS label, SUM(vehicle_count) AS vehicleCount FROM inv_option_facets ${fWhereSql} GROUP BY canonical_key ORDER BY canonical_key`, fArgs),
+        POOL_WAIT_TIMEOUT_MS,
+        "Timed out waiting for an available database connection or a slow query"
+      );
+      const [colorRows] = await withPoolTimeout(
+        pool.query(`SET STATEMENT max_statement_time=${INV_LIST_STATEMENT_TIMEOUT_SECONDS} FOR SELECT DISTINCT exterior_color, interior_color FROM inv_color_facets ${fWhereSql}`, fArgs),
+        POOL_WAIT_TIMEOUT_MS,
+        "Timed out waiting for an available database connection or a slow query"
+      );
+      return {
+        options: optionRows.map((r) => ({ key: r.canonical_key, label: r.label, vehicleCount: Number(r.vehicleCount) })),
+        exteriorColors: [...new Set(colorRows.map((r) => r.exterior_color).filter(Boolean))].sort(),
+        interiorColors: [...new Set(colorRows.map((r) => r.interior_color).filter(Boolean))].sort(),
+        countsAsOf: catalogFacets.builtAt,
+      };
+    }));
+    return;
+  }
+  // No facet build yet (fresh deploy, before the first rebuild finishes): the original live query.
   const where = ["i.removed_at IS NULL"], args = [];
   if (make) { where.push("i.make = ?"); args.push(make); }
   if (model) { where.push("i.model = ?"); args.push(model); }
@@ -2997,6 +3152,8 @@ const server = http.createServer((req, res) => {
   // dealer inventory (crawled vehicles)
   if (req.method === "POST" && pathname === "/api/inventory/bulk") return run(handleInventoryBulk);
   if (req.method === "POST" && pathname === "/api/inventory/sweep") return run(handleInventorySweep);
+  if (req.method === "POST" && pathname === "/api/inventory/catalog-facets/rebuild") return run(handleCatalogFacetRebuild);
+  if (req.method === "GET" && pathname === "/api/inventory/catalog-facets/status") return run(handleCatalogFacetStatus);
   if (req.method === "GET" && pathname === "/api/inventory/stats") return run(handleInventoryStats);
   if (req.method === "GET" && pathname === "/api/inventory/makes") return run(handleInventoryMakes);
   if (req.method === "GET" && pathname === "/api/inventory/facets") return run(handleInventoryFacets, url.searchParams);
@@ -3168,6 +3325,18 @@ if (req.method === "GET" && pathname === "/api/inventory/by-listing-url") return
 
 server.listen(PORT, () => {
   console.log(`Deals API server listening on port ${PORT}`);
+  // First deploy (or a box whose facet tables were never built): build once shortly after start.
+  // Until it finishes, /api/inventory/catalog serves the old live query.
+  setTimeout(async () => {
+    try {
+      const pool = getPool();
+      await ensureInventoryTable(pool);
+      await loadCatalogFacetMeta(pool);
+      if (!catalogFacets.builtAt) void rebuildCatalogFacets(pool);
+    } catch (err) {
+      console.error("startup catalog facet check failed:", err.message);
+    }
+  }, 30_000);
   console.log(`  POST /api/deals`);
   console.log(`  GET  /api/deals/:id`);
   console.log(`  POST /api/deals/:id/mark-paid`);

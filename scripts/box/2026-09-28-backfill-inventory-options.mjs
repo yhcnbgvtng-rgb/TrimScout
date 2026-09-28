@@ -130,6 +130,19 @@ async function main() {
     console.log(`  ${make.padEnd(18)} ${String(m.replaced).padStart(8)} / ${m.nowWithFacet}`);
   }
   await pool.end();
+
+  // The buyer dropdown reads precomputed counts (inv_option_facets); rebuild them now rather than
+  // waiting for the next nightly sync to trigger it.
+  if (!DRY_RUN) {
+    const port = process.env.DEALS_API_PORT || 3004;
+    try {
+      const res = await fetch(`http://127.0.0.1:${port}/api/inventory/catalog-facets/rebuild`, { method: "POST", headers: { "X-Trimscout-Api-Key": process.env.TRIMSCOUT_API_KEY || "" } });
+      console.log(`\nCatalog facet rebuild requested: HTTP ${res.status} ${await res.text()}`);
+      console.log(`Check progress: curl -s -H "X-Trimscout-Api-Key: $KEY" http://127.0.0.1:${port}/api/inventory/catalog-facets/status`);
+    } catch (err) {
+      console.error(`\nCould not request a catalog facet rebuild (${err.message}) — it will run automatically after the next sync, or trigger it manually.`);
+    }
+  }
 }
 
 main().catch((err) => { console.error("Backfill failed:", err); process.exit(1); });

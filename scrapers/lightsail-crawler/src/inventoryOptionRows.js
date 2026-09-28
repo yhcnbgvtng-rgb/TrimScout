@@ -29,6 +29,19 @@ export function normalizeOptionKey(label) {
 
 const str = (v, n) => (typeof v === "string" && v.trim() ? v.trim().slice(0, n) : null);
 
+// Dealer-side charges, finance and after-sale products that free-text descriptions list alongside
+// equipment — never factory options. Confirmed live 2026-09-28 in the Honda CR-V facet ("$0
+// Deductible Coverage", "00 Dealer Document Processing Fee", "Doc Fee").
+const NON_OPTION_TERMS = /\b(fees?|deductible|warranty|warranties|coverage|documentation|doc|registration|title|taxe?s?|financing|apr|down payment|rebates?|incentives?|service contract|protection plan|maintenance plan|insurance)\b/i;
+// A label that starts with a bare "0"/"00" is the tail of a number the old description parser split
+// at its decimal point ("$899.00 ..." -> "00 ...", "2.0-amp" -> "0-amp"); real option names don't
+// start that way. Fixed at the source in descriptionFeatures.js; this cleans what's already stored.
+const SPLIT_NUMBER_FRAGMENT = /^0+(?!\d)/;
+
+export function looksLikeNonOptionText(label) {
+  return NON_OPTION_TERMS.test(label) || SPLIT_NUMBER_FRAGMENT.test(label.replace(/^\$/, ""));
+}
+
 /**
  * @returns {{ rows: Array<{ key: string, label: string, code: string | null }>, junkDropped: number }}
  * One row per distinct canonical key. Identity comes from the option's NAME, never its raw
@@ -43,7 +56,7 @@ export function optionRowsFromOptions(options) {
     const rawName = o && typeof o.name === "string" ? o.name.trim() : "";
     if (!rawName) continue;
     // Checked on the raw, pre-truncation text — see looksLikeOptionSentence's own length note.
-    if (looksLikeOptionSentence(rawName)) { junkDropped++; continue; }
+    if (looksLikeOptionSentence(rawName) || looksLikeNonOptionText(rawName)) { junkDropped++; continue; }
     const label = rawName.slice(0, 160);
     const key = normalizeOptionKey(label);
     if (!key) continue;

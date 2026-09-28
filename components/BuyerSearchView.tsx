@@ -127,6 +127,7 @@ export function BuyerSearchView() {
   const [exteriorColors, setExteriorColors] = useState<string[]>([]);
   const [interiorColors, setInteriorColors] = useState<string[]>([]);
   const [catalogOptionsLoading, setCatalogOptionsLoading] = useState(false);
+  const [catalogOptionsFailed, setCatalogOptionsFailed] = useState(false);
 
   const [results, setResults] = useState<SearchResults | null>(null);
   const [searchLoading, setSearchLoading] = useState(false);
@@ -177,8 +178,14 @@ export function BuyerSearchView() {
     if (filters.model) sp.set("model", filters.model);
     if (filters.trim) sp.set("trim", filters.trim);
     setCatalogOptionsLoading(true);
+    setCatalogOptionsFailed(false);
     fetch(`/api/catalog/options${sp.toString() ? `?${sp}` : ""}`, { signal: controller.signal })
-      .then((r) => r.json())
+      .then(async (r) => {
+        // A timeout/503 must not be shown as "no factory options" — that claims the data doesn't
+        // exist when it just didn't load (confirmed live 2026-09-28 for Ford F-150 and Toyota RAV4).
+        if (!r.ok) throw new Error(`options ${r.status}`);
+        return r.json();
+      })
       .then((json) => {
         setCatalogOptions(Array.isArray(json?.options) ? json.options : []);
         setExteriorColors(Array.isArray(json?.exteriorColors) ? json.exteriorColors : []);
@@ -186,6 +193,7 @@ export function BuyerSearchView() {
       })
       .catch((e) => {
         if (e?.name === "AbortError") return;
+        setCatalogOptionsFailed(true);
         setCatalogOptions([]);
         setExteriorColors([]);
         setInteriorColors([]);
@@ -302,7 +310,7 @@ export function BuyerSearchView() {
               onChange={(optionKeys) => setFilters((f) => ({ ...f, optionKeys }))}
               disabledHint={optionsDisabledHint}
               loading={catalogOptionsLoading}
-              emptyMessage="No factory options in inventory for this make/model yet."
+              emptyMessage={catalogOptionsFailed ? "Couldn't load factory options right now — try again in a moment." : "No factory options in inventory for this make/model yet."}
             />
           </div>
 
