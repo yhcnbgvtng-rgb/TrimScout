@@ -2125,7 +2125,16 @@ async function handleInventoryBulk(req, res) {
       // Sorted by (vin, dealer_id) — same deadlock-avoidance reason as `values` above — before
       // both the DELETE and the reinsert, so concurrent chunks lock rows in the same order.
       const optionPairs = withOptions.map((v) => [v.vin.trim().toUpperCase(), INV_DEALER(v.dealerId)]).sort((a, b) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : a[1] - b[1]));
-      await pool.query("DELETE FROM dealer_inventory_options WHERE (vin, dealer_id) IN (?)", [optionPairs]);
+      // NOT `WHERE (vin, dealer_id) IN (?)` — confirmed live 2026-09-28 via EXPLAIN: MariaDB's
+      // optimizer can't use this table's own (vin, dealer_id, canonical_key) primary key for a
+      // row-value/tuple IN-list, even a single-pair one. Every call fell back to a full table scan
+      // (`type: ALL`, 19.3M rows) instead of the index range scan (`type: range`, exact row count)
+      // a plain per-pair comparison gets — the real cause of this endpoint's sustained slowness and
+      // lock-wait/deadlock errors all day, not (only) the row-ordering issue fixed above: a
+      // multi-second-to-multi-minute full scan holding locks is far more likely to collide with
+      // anything else touching this table than a millisecond index lookup ever would.
+      const pairConds = optionPairs.map(() => "(vin = ? AND dealer_id = ?)").join(" OR ");
+      await pool.query(`DELETE FROM dealer_inventory_options WHERE ${pairConds}`, optionPairs.flat());
       const optionRows = [];
       for (const v of withOptions) {
         const vin = v.vin.trim().toUpperCase(), dealerId = INV_DEALER(v.dealerId);
