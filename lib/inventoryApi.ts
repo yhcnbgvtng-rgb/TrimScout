@@ -92,6 +92,8 @@ export interface InventoryQuery {
   inStock?: boolean;
   changeType?: string;
   priceChange?: "drop" | "increase";
+  /** Admin "Sold" movement filter — removed from the dealer's own site within the last 24h. See inventoryListQuery.js's own comment for why 24h (no crawl run-id exists in this schema). Never combined with inStock. */
+  removed?: boolean;
   hasSticker?: boolean;
   minDays?: number;
   maxDays?: number;

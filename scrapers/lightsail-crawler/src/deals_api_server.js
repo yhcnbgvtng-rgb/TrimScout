@@ -33,6 +33,7 @@ import path from "node:path";
 import mysql from "mysql2/promise";
 import { inventoryListQuery } from "./inventoryListQuery.js";
 import { optionRowsFromOptions, payloadHasOptions } from "./inventoryOptionRows.js";
+import { tryAcquireSyncLock, releaseSyncLock } from "./syncLock.js";
 
 const PORT = process.env.DEALS_API_PORT || 3004;
 
@@ -1847,6 +1848,17 @@ async function ensureInventoryTable(pool) {
     // ("Using index" in EXPLAIN, no row access): 223ms, ~148x faster.
     "ADD INDEX IF NOT EXISTS idx_inv_by_dealer_covering (removed_at, dealer_id, cond, price_diff, last_seen_at)",
     "ADD INDEX IF NOT EXISTS idx_inv_vdp_url_norm (vdp_url_norm)",
+    // Admin Vehicles sheet's "Sold" movement filter (removed_at IS NOT NULL, scoped by make= or
+    // state=, no time-scoped composite existed for the REMOVED branch — every idx_inv_stock_*
+    // index above leads with removed_at used as IS NULL). Confirmed live 2026-09-28: make=Toyota
+    // + removed_at IS NOT NULL fell back to idx_inv_make_dealer (make, dealer_name, vin), no
+    // removed_at in the key at all, so MySQL had to residual-filter every one of that make's rows
+    // — 70s+ for a common make, killed manually. (make, removed_at) / (state, removed_at) let it
+    // seek straight to the make/state and range-scan only the recently-removed rows within it,
+    // mirroring idx_inv_make_dealer/idx_inv_state_dealer's existing "not currently in stock"
+    // sibling shape, one column swapped.
+    "ADD INDEX IF NOT EXISTS idx_inv_make_removed (make, removed_at)",
+    "ADD INDEX IF NOT EXISTS idx_inv_state_removed (state, removed_at)",
   ]) await pool.query(`ALTER TABLE dealer_inventory ${ddl}`);
   // The free-text q= search's index. 2026-09-22: an ngram FULLTEXT parser (MariaDB's
   // documented CJK/no-space substring technique) turned out not to exist on this box at all —
@@ -2074,6 +2086,18 @@ async function handleInventoryBulk(req, res) {
     if (!chunk.length) continue;
     const values = chunk.map((v) => [v.vin.trim().toUpperCase(), INV_DEALER(v.dealerId), INV_STR(v.dealerName, 255), INV_STR(v.condition, 12), INV_INT(v.year), INV_STR(v.make, 64), INV_STR(v.model, 96), INV_STR(v.trim, 160), INV_STR(v.bodyStyle, 64), INV_STR(v.exteriorColor, 96), INV_STR(v.interiorColor, 96), INV_INT(v.mileage), INV_INT(v.price), INV_INT(v.msrp), INV_STR(v.stockNumber, 64), INV_STR(v.vdpUrl, 700), INV_STR(v.imageUrl, 700), INV_STR(v.source, 16),
       INV_STR(v.windowStickerUrl, 700), INV_STR(v.engine, 160), INV_STR(v.transmission, 160), INV_INT(v.daysOnLot), INV_INT(v.oldPrice), INV_INT(v.priceDiff), INV_STR(v.priceChangeType, 16), INV_STR(v.changeType, 16), INV_JSON_STR(v.priceHistory, 60000), INV_JSON_STR(v.options, 200000), INV_INT(v.optionsTotal), INV_INT(v.baseMsrp), INV_DATE(v.crawlFirstSeen), INV_STR(v.sourceBox, 16)]);
+    // Sorted by the table's own primary key (vin, dealer_id) before the multi-row INSERT below.
+    // Confirmed live 2026-09-28 via SHOW ENGINE INNODB STATUS on a deliberately reproduced
+    // deadlock (see the catch-up-sync deadlock-storm investigation): two concurrent chunks
+    // upserting overlapping VINs in different orders is InnoDB's classic multi-row
+    // INSERT ... ON DUPLICATE KEY UPDATE deadlock shape — each transaction locks its own rows in
+    // payload order, then blocks on a row the other transaction already holds, in the opposite
+    // order. Sorting every VALUES list by PK before the statement makes any two concurrent
+    // writers (another box's sync, or a backfill script) acquire row locks in the same relative
+    // order, which is what actually prevents the deadlock — inventory-sync.mjs's own cross-box
+    // sync-lock only serializes sync runs against each other, not this endpoint against any other
+    // caller (a backfill script was still running concurrently the day this was diagnosed).
+    values.sort((a, b) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : a[1] - b[1]));
     await pool.query(
       `INSERT INTO dealer_inventory (vin, dealer_id, dealer_name, cond, year, make, model, trim, body_style, exterior_color, interior_color, mileage, price, msrp, stock_number, vdp_url, image_url, source,
         window_sticker_url, engine, transmission, days_on_lot, old_price, price_diff, price_change_type, change_type, price_history_json, options_json, options_total, base_msrp, crawl_first_seen, source_box)
@@ -2098,8 +2122,19 @@ async function handleInventoryBulk(req, res) {
     const withOptions = chunk.filter((v) => payloadHasOptions(v.options));
     optionSetsKept += chunk.length - withOptions.length;
     if (withOptions.length) {
-      const optionPairs = withOptions.map((v) => [v.vin.trim().toUpperCase(), INV_DEALER(v.dealerId)]);
-      await pool.query("DELETE FROM dealer_inventory_options WHERE (vin, dealer_id) IN (?)", [optionPairs]);
+      // Sorted by (vin, dealer_id) — same deadlock-avoidance reason as `values` above — before
+      // both the DELETE and the reinsert, so concurrent chunks lock rows in the same order.
+      const optionPairs = withOptions.map((v) => [v.vin.trim().toUpperCase(), INV_DEALER(v.dealerId)]).sort((a, b) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : a[1] - b[1]));
+      // NOT `WHERE (vin, dealer_id) IN (?)` — confirmed live 2026-09-28 via EXPLAIN: MariaDB's
+      // optimizer can't use this table's own (vin, dealer_id, canonical_key) primary key for a
+      // row-value/tuple IN-list, even a single-pair one. Every call fell back to a full table scan
+      // (`type: ALL`, 19.3M rows) instead of the index range scan (`type: range`, exact row count)
+      // a plain per-pair comparison gets — the real cause of this endpoint's sustained slowness and
+      // lock-wait/deadlock errors all day, not (only) the row-ordering issue fixed above: a
+      // multi-second-to-multi-minute full scan holding locks is far more likely to collide with
+      // anything else touching this table than a millisecond index lookup ever would.
+      const pairConds = optionPairs.map(() => "(vin = ? AND dealer_id = ?)").join(" OR ");
+      await pool.query(`DELETE FROM dealer_inventory_options WHERE ${pairConds}`, optionPairs.flat());
       const optionRows = [];
       for (const v of withOptions) {
         const vin = v.vin.trim().toUpperCase(), dealerId = INV_DEALER(v.dealerId);
@@ -2107,18 +2142,32 @@ async function handleInventoryBulk(req, res) {
         optionJunkDropped += junkDropped;
         for (const { key, label, code } of facetRows) optionRows.push([vin, dealerId, key, label, code]);
       }
+      // Sorted by this table's own primary key (vin, dealer_id, canonical_key).
+      optionRows.sort((a, b) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : a[1] !== b[1] ? a[1] - b[1] : a[2] < b[2] ? -1 : a[2] > b[2] ? 1 : 0));
       if (optionRows.length) await pool.query("INSERT INTO dealer_inventory_options (vin, dealer_id, canonical_key, label, code) VALUES ? ON DUPLICATE KEY UPDATE label = VALUES(label), code = VALUES(code)", [optionRows]);
       optionSetsReplaced += withOptions.length;
       optionRowsWritten += optionRows.length;
     }
-    // Today's observation for every vehicle in the chunk, plus the crawl's dated price points (backfill).
+    // Today's observation for every vehicle in the chunk, plus the crawl's dated price points
+    // (backfill). This is the biggest of the three multi-row statements in this loop — up to
+    // ~30k rows/chunk (500 vehicles x up to 60 price-history points each) — so it was the most
+    // exposed to the deadlock shape confirmed live 2026-09-28 (see the `values` comment above).
+    // De-duplicated per (vin, dealer_id, seen_on), this table's own primary key, before the
+    // INSERT — a vehicle's own priceHistory can carry more than one point for the same date (a
+    // re-crawl within the day, or a source that reports duplicates), which used to put the same
+    // key in one VALUES list twice. Then sorted by that same key for the same lock-ordering
+    // reason.
     const today = new Date().toISOString().slice(0, 10);
-    const days = [];
+    const daysByKey = new Map(); // `${vin}|${dealerId}|${date}` -> row
     for (const v of chunk) {
       const vin = v.vin.trim().toUpperCase(), dealerId = INV_DEALER(v.dealerId);
-      days.push([vin, dealerId, today, INV_INT(v.price), INV_INT(v.mileage)]);
-      if (Array.isArray(v.priceHistory)) for (const h of v.priceHistory.slice(-60)) { const d = INV_DATE(h && h.date); if (d && d !== today) days.push([vin, dealerId, d, INV_INT(h.price), null]); }
+      daysByKey.set(`${vin}|${dealerId}|${today}`, [vin, dealerId, today, INV_INT(v.price), INV_INT(v.mileage)]);
+      if (Array.isArray(v.priceHistory)) for (const h of v.priceHistory.slice(-60)) {
+        const d = INV_DATE(h && h.date);
+        if (d && d !== today) daysByKey.set(`${vin}|${dealerId}|${d}`, [vin, dealerId, d, INV_INT(h.price), null]);
+      }
     }
+    const days = [...daysByKey.values()].sort((a, b) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : a[1] !== b[1] ? a[1] - b[1] : a[2] < b[2] ? -1 : a[2] > b[2] ? 1 : 0));
     if (days.length) await pool.query("INSERT INTO dealer_inventory_days (vin, dealer_id, seen_on, price, mileage) VALUES ? ON DUPLICATE KEY UPDATE price = COALESCE(VALUES(price), price), mileage = COALESCE(VALUES(mileage), mileage)", [days]);
   }
   invInvalidate();
@@ -2673,7 +2722,18 @@ async function loadCatalogFacetMeta(pool) {
   catalogFacets.loaded = true;
 }
 
+// Kill switch for this whole feature, checked once per call rather than at every scheduling site
+// (scheduleCatalogFacetRebuild's debounced timer, its own re-queue on completion, the manual
+// rebuild endpoint, and the startup check) so it can't be re-enabled by missing one. Added
+// 2026-09-29: this job's per-make full-table aggregate queries were confirmed live to be a real,
+// still-unfixed contributor to the "Lock wait timeout"/deadlock errors chasing tonight's inventory
+// syncs even after #355's fix for the (much larger) options-delete full-scan bug — killing one of
+// its queries directly unblocked a stuck sync. Set DISABLE_FACET_REBUILD=1 in the process env to
+// pause it (e.g. during a heavy sync night); unset and restart to resume. The facet tables just
+// keep serving whatever they last had — buyer /search's factory-options facet doesn't go blank,
+// it just doesn't reflect tonight's crawl until this is turned back on.
 async function rebuildCatalogFacets(pool) {
+  if (process.env.DISABLE_FACET_REBUILD) return;
   if (catalogFacets.building) { catalogFacets.again = true; return; }
   catalogFacets.building = true;
   const started = Date.now();
@@ -2893,6 +2953,49 @@ async function handleGlobalCatalogOptions(req, res) {
       interiorColors,
     };
   }));
+}
+
+// ---------------------------------------------------------------------------
+// Cross-box inventory-sync lock — POST /api/ops/sync-lock/acquire|release, called by every crawl
+// box's scripts/box/inventory-sync.mjs before its write phase (upsert + sweep). Re-added
+// 2026-09-28: this route existed and worked (every sync log through 2026-09-27 shows it
+// succeeding) but was missing entirely from this file and from the repo's own git history —
+// confirmed live, `grep -c sync-lock` on both came back empty — so it must have only ever existed
+// as a hand-patch directly on the box, never committed, and was lost when the box was
+// redeployed/restarted during that day's Lightsail-fleet IP fix. Discovered live 2026-09-28 when
+// every one of that morning's catch-up syncs (box1's included, the exact run meant to land the
+// off-brand-trade-in fix's first real data) crashed on `/api/ops/sync-lock/acquire -> 404` right
+// before its write phase — after it had already spent real time reading and matching every
+// vehicle, so the failure looked late and silent rather than fast and loud.
+//
+// The actual acquire/release logic is in syncLock.js — pure and unit-tested, for the same reason
+// brand_match.js/vdpUrlFilter.js are separate modules — this just holds the in-memory state and
+// wires HTTP. A plain in-memory lock, exactly as inventory-sync.mjs's own comment already
+// documented this route as being ("a single, unclustered PM2 process backs that server, so an
+// in-memory lock there is enough — no DB table needed") — pm2's `deals-api` process really is
+// unclustered (fork mode, 1 instance), confirmed in this session's own pm2 list output, so this
+// doesn't need to survive a restart or be visible across processes the way crawl_claims (a real
+// cross-box, cross-process queue) needs a table for.
+let syncLock = null; // { owner, acquiredAt } | null
+
+// POST /api/ops/sync-lock/acquire { owner }
+async function handleSyncLockAcquire(req, res) {
+  const body = await readBody(req);
+  const owner = typeof body.owner === "string" ? body.owner.slice(0, 128) : "";
+  if (!owner) return badRequest(res, "owner is required");
+  const { nextLock, result } = tryAcquireSyncLock(syncLock, owner, Date.now());
+  syncLock = nextLock;
+  sendJson(res, 200, result);
+}
+
+// POST /api/ops/sync-lock/release { owner } — best-effort on the caller's side (inventory-sync.mjs
+// swallows this call's own errors), so this never needs to itself be strict: releasing a lock you
+// don't hold, or one that already expired, is just a no-op, not an error.
+async function handleSyncLockRelease(req, res) {
+  const body = await readBody(req);
+  const owner = typeof body.owner === "string" ? body.owner.slice(0, 128) : "";
+  syncLock = releaseSyncLock(syncLock, owner);
+  sendJson(res, 200, { released: true });
 }
 
 // ---------------------------------------------------------------------------
@@ -3163,6 +3266,10 @@ const server = http.createServer((req, res) => {
   if (req.method === "GET" && pathname === "/api/inventory/catalog") return run(handleInventoryCatalogOptions, url.searchParams);
   if (req.method === "GET" && pathname === "/api/inventory/catalog/global") return run(handleGlobalCatalogOptions);
 if (req.method === "GET" && pathname === "/api/inventory/by-listing-url") return run(handleInventoryByListingUrl, url.searchParams);
+
+  // cross-box inventory-sync lock
+  if (req.method === "POST" && pathname === "/api/ops/sync-lock/acquire") return run(handleSyncLockAcquire);
+  if (req.method === "POST" && pathname === "/api/ops/sync-lock/release") return run(handleSyncLockRelease);
 
   // cross-box crawl claim queue (dynamic work-stealing)
   if (req.method === "POST" && pathname === "/api/ops/crawl-claims/seed") return run(handleCrawlClaimsSeed);

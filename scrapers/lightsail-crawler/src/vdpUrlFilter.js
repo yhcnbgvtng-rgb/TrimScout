@@ -15,8 +15,13 @@ const VEHICLE_DETAILS_RE = /\/vehicle-details/i;
 // (Kia/Jeep/RAM/Hyundai) were being dropped before extraction ever ran, while same-brand
 // used Chevrolets on the identical URL shape passed fine. A brand-agnostic VIN-shaped
 // final path segment (valid VIN charset, excludes I/O/Q) catches these without needing
-// to know the trade-in's make ahead of time.
-const GENERIC_VIN_SLUG_RE = /-[A-HJ-NPR-Z0-9]{17}(?:[/?#]|$)/i;
+// to know the trade-in's make ahead of time. The VIN can be hyphen-suffixed onto a longer
+// slug segment (DealerOn's shape above) OR be its own bare path segment, slash-delimited
+// on both sides — confirmed live 2026-09-28 against Volkswagen of Hartford's real sitemap
+// (a "Team Velocity/Apollo" platform, a third distinct URL family from the two above):
+// /viewdetails/used/{vin}/{descriptive-slug} dropped a real used Porsche Taycan trade-in
+// the exact same way, because the VIN there is preceded by "/", never "-".
+const GENERIC_VIN_SLUG_RE = /[/-][A-HJ-NPR-Z0-9]{17}(?:[/?#]|$)/i;
 
 /** Is this sitemap <loc> URL worth fetching as a candidate vehicle detail page? */
 export function isLikelyVdpUrl(url, brand) {

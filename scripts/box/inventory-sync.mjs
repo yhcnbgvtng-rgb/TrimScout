@@ -203,7 +203,18 @@ try {
   // compatible with a deals box that predates these counters.
   const optionStats = { setsReplaced: 0, setsKept: 0, rowsWritten: 0, junkDropped: 0 };
   for (let i = 0; i < rows.length; i += 2000) {
-    const r = await api(DEALS_PORT, "/api/inventory/bulk", { vehicles: rows.slice(i, i + 2000) });
+    // Confirmed live 2026-09-28: a concurrent, legitimate, hours-long data-migration script
+    // (PR #347's options backfill) doing a paginated `SELECT ... FOR UPDATE` range scan over
+    // dealer_inventory collided with bulk upsert batches repeatedly — both "Deadlock found when
+    // trying to get lock" and "Lock wait timeout exceeded" (MySQL's own advice in both cases is
+    // "try restarting transaction"), and a single retry (the sweep loop's own default) wasn't
+    // enough since the contention was sustained, not a one-off blip. A batch is a plain upsert
+    // keyed on (VIN, dealer_id), so resending it after a failed attempt is always safe. More
+    // retries with real spacing than the sweep gets, since this is a background batch job that
+    // can afford to be patient — unlike the sweep's one-call-per-store loop, blocking longer here
+    // doesn't cascade into skipping other stores.
+    const batch = rows.slice(i, i + 2000);
+    const r = await withRetry(() => api(DEALS_PORT, "/api/inventory/bulk", { vehicles: batch }), { retries: 6, delayMs: 5000 });
     upserted += r.upserted;
     optionStats.setsReplaced += r.optionSetsReplaced ?? 0;
     optionStats.setsKept += r.optionSetsKept ?? 0;

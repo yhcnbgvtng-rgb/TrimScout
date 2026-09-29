@@ -72,3 +72,31 @@ describe('isLikelyVdpUrl (flat-slug cross-brand used-trade-in fix)', () => {
     assert.equal(isLikelyVdpUrl(url, CHEVROLET), false);
   });
 });
+
+const VOLKSWAGEN = { name: 'Volkswagen', vinPrefixes: ['3VW', '1VW', 'WVW', 'WVG', '1V2'] };
+
+// A third real-world VDP URL family, distinct from both DDC's 32-hex-hash and DealerOn's flat
+// hyphen-suffixed slug: "Team Velocity/Apollo"-platform dealers (confirmed live 2026-09-28 on
+// Volkswagen of Hartford's real sitemap) put the VIN as its own bare path segment,
+// /viewdetails/used/{vin}/{slug} — a used Porsche Taycan trade-in was invisible everywhere in the
+// app because this exact URL never matched any existing branch, catching this well after
+// PR #334/#335 already fixed the brand-isolation and flat-slug cases (VW of Hartford's own site
+// lists 61 used vehicles across 12 makes; only the 39 actual VWs were ever being found before
+// this fix landed, since the sitemap URL itself was the thing being dropped, upstream of any
+// make-matching logic at all).
+describe('isLikelyVdpUrl (bare-VIN-path-segment fix, "viewdetails" platform)', () => {
+  it('matches a cross-brand used trade-in whose VIN is its own path segment, not hyphen-suffixed', () => {
+    const url = 'https://www.vwofhartford.com/viewdetails/used/wp0ad2y1xpsa47099/2023-porsche-taycan-4dr-car?type=finance';
+    assert.equal(isLikelyVdpUrl(url, VOLKSWAGEN), true);
+  });
+
+  it('still matches a same-brand VDP on the identical bare-VIN-segment shape', () => {
+    const url = 'https://www.vwofhartford.com/viewdetails/used/3vwc57bu3rm003526/2024-volkswagen-jetta-4dr-car';
+    assert.equal(isLikelyVdpUrl(url, VOLKSWAGEN), true);
+  });
+
+  it('does NOT match when the segment is bare but not VIN-shaped (no false positive)', () => {
+    const url = 'https://www.vwofhartford.com/viewdetails/used/not-a-real-vin-segment/2023-porsche-taycan';
+    assert.equal(isLikelyVdpUrl(url, VOLKSWAGEN), false);
+  });
+});
