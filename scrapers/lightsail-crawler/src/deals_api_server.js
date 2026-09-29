@@ -2722,7 +2722,18 @@ async function loadCatalogFacetMeta(pool) {
   catalogFacets.loaded = true;
 }
 
+// Kill switch for this whole feature, checked once per call rather than at every scheduling site
+// (scheduleCatalogFacetRebuild's debounced timer, its own re-queue on completion, the manual
+// rebuild endpoint, and the startup check) so it can't be re-enabled by missing one. Added
+// 2026-09-29: this job's per-make full-table aggregate queries were confirmed live to be a real,
+// still-unfixed contributor to the "Lock wait timeout"/deadlock errors chasing tonight's inventory
+// syncs even after #355's fix for the (much larger) options-delete full-scan bug — killing one of
+// its queries directly unblocked a stuck sync. Set DISABLE_FACET_REBUILD=1 in the process env to
+// pause it (e.g. during a heavy sync night); unset and restart to resume. The facet tables just
+// keep serving whatever they last had — buyer /search's factory-options facet doesn't go blank,
+// it just doesn't reflect tonight's crawl until this is turned back on.
 async function rebuildCatalogFacets(pool) {
+  if (process.env.DISABLE_FACET_REBUILD) return;
   if (catalogFacets.building) { catalogFacets.again = true; return; }
   catalogFacets.building = true;
   const started = Date.now();
