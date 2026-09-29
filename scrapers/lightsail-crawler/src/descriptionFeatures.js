@@ -119,7 +119,11 @@ export function parseFeaturesFromDescription(description) {
         .replace(/KEY FEATURES INCLUDE/gi, '\n')
         .replace(/<[^>]+>/g, ' ');
 
-    let rawItems = text.split(/[\n,.]/).map((s) => s.trim());
+    // Split on newlines, and on commas/periods EXCEPT between two digits. Splitting inside numbers
+    // shredded prices and specs into fake "features" — confirmed live 2026-09-28 in the Honda CR-V
+    // facet: "$899.00 Dealer Document Processing Fee" became "00 Dealer Document Processing Fee",
+    // "2.0-amp USB port" became "0-amp port in center console".
+    let rawItems = text.split(/\n|[,.](?!\d)|(?<!\d)[,.]/).map((s) => s.trim());
 
     // Some descriptions mix a genuine bulleted feature list with trailing
     // prose in the same field ("- Sport Chrono Package ... The vehicle has

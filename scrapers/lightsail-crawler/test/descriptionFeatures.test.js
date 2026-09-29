@@ -58,4 +58,10 @@ describe('parseFeaturesFromDescription', () => {
     const result = parseFeaturesFromDescription(description);
     assert.deepEqual(result.map((f) => f.name), ['Heated Seats', 'Sunroof', 'Sport Package']);
   });
+
+  it('never splits inside a number — decimals and thousands separators stay whole (live CR-V "00 Dealer Document Processing Fee" / "0-amp port" artifacts)', () => {
+    const description = '2.0-amp USB port in center console, 3.5L V6 Engine. Twin Panel Moonroof,Tow Package';
+    const result = parseFeaturesFromDescription(description);
+    assert.deepEqual(result.map((f) => f.name), ['2.0-amp USB port in center console', '3.5L V6 Engine', 'Twin Panel Moonroof', 'Tow Package']);
+  });
 });
