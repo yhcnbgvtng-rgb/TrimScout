@@ -32,6 +32,7 @@ import fs from "node:fs";
 import path from "node:path";
 import mysql from "mysql2/promise";
 import { inventoryListQuery } from "./inventoryListQuery.js";
+import { optionRowsFromOptions, payloadHasOptions } from "./inventoryOptionRows.js";
 import { tryAcquireSyncLock, releaseSyncLock } from "./syncLock.js";
 
 const PORT = process.env.DEALS_API_PORT || 3004;
@@ -1970,25 +1971,32 @@ async function ensureInventoryTable(pool) {
   // single option key. This composite leads with the per-row equality and covers vin, turning
   // each call into an index-only lookup scoped to one dealer's own rows.
   await pool.query("ALTER TABLE dealer_inventory_options ADD INDEX IF NOT EXISTS idx_opt_dealer_canonical (dealer_id, canonical_key, vin)");
+  // Precomputed counts behind buyer /search's factory-options and color pickers (see
+  // rebuildCatalogFacets). NULL model/trim/colors are stored as '' so they can sit in the key.
+  await pool.query(`CREATE TABLE IF NOT EXISTS inv_option_facets (
+    make VARCHAR(64) NOT NULL,
+    model VARCHAR(96) NOT NULL,
+    trim VARCHAR(160) NOT NULL,
+    canonical_key VARCHAR(80) NOT NULL,
+    label VARCHAR(160) NOT NULL,
+    vehicle_count INT NOT NULL,
+    PRIMARY KEY (make, model, trim, canonical_key)
+  )`);
+  await pool.query(`CREATE TABLE IF NOT EXISTS inv_color_facets (
+    make VARCHAR(64) NOT NULL,
+    model VARCHAR(96) NOT NULL,
+    trim VARCHAR(160) NOT NULL,
+    exterior_color VARCHAR(96) NOT NULL,
+    interior_color VARCHAR(96) NOT NULL,
+    vehicle_count INT NOT NULL,
+    PRIMARY KEY (make, model, trim, exterior_color, interior_color)
+  )`);
+  await pool.query("CREATE TABLE IF NOT EXISTS inv_facet_meta (id TINYINT NOT NULL PRIMARY KEY, built_at DATETIME NOT NULL, duration_ms INT NOT NULL)");
   inventoryReady = true;
 }
 
-// Lowercase, strip punctuation, collapse whitespace — mirrors lib/factoryOptionCatalog.ts's
-// normalizeOptionKey() (a separate pipeline/table, but the same identity principle: two
-// differently-worded/coded mentions of the same real option should resolve to the same key).
-// Includes the OEM audio-brand synonym folding this table exists to fix: "Bowers & Wilkins",
-// "Bowers and Wilkins", and "B&W" all need to land on one canonical_key, but naive normalization
-// alone turns "B&W" into "b w" — two characters, meaningless and collision-prone — rather than
-// the same key as the full name. Expand known abbreviations to their full form BEFORE
-// normalizing so both spellings converge.
-const OPTION_SYNONYM_EXPANSIONS = [
-  [/\bb\s*&\s*w\b/gi, "bowers wilkins"],
-];
-function normalizeOptionKey(label) {
-  let s = String(label || "").trim().toLowerCase();
-  for (const [pattern, replacement] of OPTION_SYNONYM_EXPANSIONS) s = s.replace(pattern, replacement);
-  return s.replace(/[^a-z0-9]+/g, " ").replace(/\s+/g, " ").trim().slice(0, 80);
-}
+// normalizeOptionKey() and the option -> facet-row rules live in inventoryOptionRows.js, shared
+// with the options backfill script and unit-tested there.
 
 const INV_STR = (v, n) => (typeof v === "string" && v.trim() ? v.trim().slice(0, n) : null);
 
@@ -2071,13 +2079,25 @@ async function handleInventoryBulk(req, res) {
   const body = await readBody(req, 30_000_000);
   const vehicles = Array.isArray(body.vehicles) ? body.vehicles : null;
   if (!vehicles) return badRequest(res, "vehicles[] is required");
-  let upserted = 0, skipped = 0;
+  let upserted = 0, skipped = 0, optionSetsReplaced = 0, optionSetsKept = 0, optionRowsWritten = 0, optionJunkDropped = 0;
   for (let i = 0; i < vehicles.length; i += 500) {
     const chunk = vehicles.slice(i, i + 500).filter((v) => typeof v.vin === "string" && /^[A-HJ-NPR-Z0-9]{17}$/.test(v.vin.trim().toUpperCase()) && INV_STR(v.dealerName, 255));
     skipped += Math.min(500, vehicles.length - i) - chunk.length;
     if (!chunk.length) continue;
     const values = chunk.map((v) => [v.vin.trim().toUpperCase(), INV_DEALER(v.dealerId), INV_STR(v.dealerName, 255), INV_STR(v.condition, 12), INV_INT(v.year), INV_STR(v.make, 64), INV_STR(v.model, 96), INV_STR(v.trim, 160), INV_STR(v.bodyStyle, 64), INV_STR(v.exteriorColor, 96), INV_STR(v.interiorColor, 96), INV_INT(v.mileage), INV_INT(v.price), INV_INT(v.msrp), INV_STR(v.stockNumber, 64), INV_STR(v.vdpUrl, 700), INV_STR(v.imageUrl, 700), INV_STR(v.source, 16),
       INV_STR(v.windowStickerUrl, 700), INV_STR(v.engine, 160), INV_STR(v.transmission, 160), INV_INT(v.daysOnLot), INV_INT(v.oldPrice), INV_INT(v.priceDiff), INV_STR(v.priceChangeType, 16), INV_STR(v.changeType, 16), INV_JSON_STR(v.priceHistory, 60000), INV_JSON_STR(v.options, 200000), INV_INT(v.optionsTotal), INV_INT(v.baseMsrp), INV_DATE(v.crawlFirstSeen), INV_STR(v.sourceBox, 16)]);
+    // Sorted by the table's own primary key (vin, dealer_id) before the multi-row INSERT below.
+    // Confirmed live 2026-09-28 via SHOW ENGINE INNODB STATUS on a deliberately reproduced
+    // deadlock (see the catch-up-sync deadlock-storm investigation): two concurrent chunks
+    // upserting overlapping VINs in different orders is InnoDB's classic multi-row
+    // INSERT ... ON DUPLICATE KEY UPDATE deadlock shape — each transaction locks its own rows in
+    // payload order, then blocks on a row the other transaction already holds, in the opposite
+    // order. Sorting every VALUES list by PK before the statement makes any two concurrent
+    // writers (another box's sync, or a backfill script) acquire row locks in the same relative
+    // order, which is what actually prevents the deadlock — inventory-sync.mjs's own cross-box
+    // sync-lock only serializes sync runs against each other, not this endpoint against any other
+    // caller (a backfill script was still running concurrently the day this was diagnosed).
+    values.sort((a, b) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : a[1] - b[1]));
     await pool.query(
       `INSERT INTO dealer_inventory (vin, dealer_id, dealer_name, cond, year, make, model, trim, body_style, exterior_color, interior_color, mileage, price, msrp, stock_number, vdp_url, image_url, source,
         window_sticker_url, engine, transmission, days_on_lot, old_price, price_diff, price_change_type, change_type, price_history_json, options_json, options_total, base_msrp, crawl_first_seen, source_box)
@@ -2089,43 +2109,63 @@ async function handleInventoryBulk(req, res) {
     );
     upserted += chunk.length;
     // Replace each vehicle's canonicalized option set (dealer_inventory_options) in the same
-    // chunk as its main upsert — tied together so a chunk that fails partway through never
-    // leaves a live VIN's row updated but its option set stale/empty. A full delete-then-reinsert
-    // per chunk, not a per-vehicle diff: cheap at 500 rows, and correct when a later crawl drops
-    // an option the vehicle no longer has (an additive-only write would keep matching it).
-    const optionPairs = chunk.map((v) => [v.vin.trim().toUpperCase(), INV_DEALER(v.dealerId)]);
-    await pool.query("DELETE FROM dealer_inventory_options WHERE (vin, dealer_id) IN (?)", [optionPairs]);
-    const optionRows = [];
-    for (const v of chunk) {
-      if (!Array.isArray(v.options)) continue;
-      const vin = v.vin.trim().toUpperCase(), dealerId = INV_DEALER(v.dealerId);
-      // Identity comes from the option's NAME, never its raw per-listing `code` (see the table's
-      // own comment in ensureInventoryTable) — a name-only option (no code at all, common on
-      // several sources) still canonicalizes and matches fine; a code with no name has nothing
-      // stable to key on and is skipped.
-      const byKey = new Map();
-      for (const o of v.options) {
-        const label = INV_STR(o && o.name, 160);
-        if (!label) continue;
-        const key = normalizeOptionKey(label);
-        if (!key) continue;
-        if (!byKey.has(key)) byKey.set(key, { label, code: INV_STR(o && o.code, 32) });
+    // chunk as its main upsert, so a chunk that fails partway never leaves a live VIN updated but
+    // its option set stale. Delete-then-reinsert (not additive) so an option a later crawl no
+    // longer sees stops matching.
+    //
+    // ONLY for vehicles whose payload actually carries options. Confirmed 2026-09-28: the nightly
+    // sync sends options: null whenever that night's crawl extracted nothing for a VIN, and this
+    // used to delete the vehicle's facet rows anyway — while options_json above COALESCEs and keeps
+    // the last real value. Every re-crawl that hit a fallback page strategy or a partial page
+    // silently erased that car's factory options from buyer /search. A null/empty payload now
+    // leaves the existing rows alone, exactly matching options_json.
+    const withOptions = chunk.filter((v) => payloadHasOptions(v.options));
+    optionSetsKept += chunk.length - withOptions.length;
+    if (withOptions.length) {
+      // Sorted by (vin, dealer_id) — same deadlock-avoidance reason as `values` above — before
+      // both the DELETE and the reinsert, so concurrent chunks lock rows in the same order.
+      const optionPairs = withOptions.map((v) => [v.vin.trim().toUpperCase(), INV_DEALER(v.dealerId)]).sort((a, b) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : a[1] - b[1]));
+      await pool.query("DELETE FROM dealer_inventory_options WHERE (vin, dealer_id) IN (?)", [optionPairs]);
+      const optionRows = [];
+      for (const v of withOptions) {
+        const vin = v.vin.trim().toUpperCase(), dealerId = INV_DEALER(v.dealerId);
+        const { rows: facetRows, junkDropped } = optionRowsFromOptions(v.options);
+        optionJunkDropped += junkDropped;
+        for (const { key, label, code } of facetRows) optionRows.push([vin, dealerId, key, label, code]);
       }
-      for (const [key, { label, code }] of byKey) optionRows.push([vin, dealerId, key, label, code]);
+      // Sorted by this table's own primary key (vin, dealer_id, canonical_key).
+      optionRows.sort((a, b) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : a[1] !== b[1] ? a[1] - b[1] : a[2] < b[2] ? -1 : a[2] > b[2] ? 1 : 0));
+      if (optionRows.length) await pool.query("INSERT INTO dealer_inventory_options (vin, dealer_id, canonical_key, label, code) VALUES ? ON DUPLICATE KEY UPDATE label = VALUES(label), code = VALUES(code)", [optionRows]);
+      optionSetsReplaced += withOptions.length;
+      optionRowsWritten += optionRows.length;
     }
-    if (optionRows.length) await pool.query("INSERT INTO dealer_inventory_options (vin, dealer_id, canonical_key, label, code) VALUES ? ON DUPLICATE KEY UPDATE label = VALUES(label), code = VALUES(code)", [optionRows]);
-    // Today's observation for every vehicle in the chunk, plus the crawl's dated price points (backfill).
+    // Today's observation for every vehicle in the chunk, plus the crawl's dated price points
+    // (backfill). This is the biggest of the three multi-row statements in this loop — up to
+    // ~30k rows/chunk (500 vehicles x up to 60 price-history points each) — so it was the most
+    // exposed to the deadlock shape confirmed live 2026-09-28 (see the `values` comment above).
+    // De-duplicated per (vin, dealer_id, seen_on), this table's own primary key, before the
+    // INSERT — a vehicle's own priceHistory can carry more than one point for the same date (a
+    // re-crawl within the day, or a source that reports duplicates), which used to put the same
+    // key in one VALUES list twice. Then sorted by that same key for the same lock-ordering
+    // reason.
     const today = new Date().toISOString().slice(0, 10);
-    const days = [];
+    const daysByKey = new Map(); // `${vin}|${dealerId}|${date}` -> row
     for (const v of chunk) {
       const vin = v.vin.trim().toUpperCase(), dealerId = INV_DEALER(v.dealerId);
-      days.push([vin, dealerId, today, INV_INT(v.price), INV_INT(v.mileage)]);
-      if (Array.isArray(v.priceHistory)) for (const h of v.priceHistory.slice(-60)) { const d = INV_DATE(h && h.date); if (d && d !== today) days.push([vin, dealerId, d, INV_INT(h.price), null]); }
+      daysByKey.set(`${vin}|${dealerId}|${today}`, [vin, dealerId, today, INV_INT(v.price), INV_INT(v.mileage)]);
+      if (Array.isArray(v.priceHistory)) for (const h of v.priceHistory.slice(-60)) {
+        const d = INV_DATE(h && h.date);
+        if (d && d !== today) daysByKey.set(`${vin}|${dealerId}|${d}`, [vin, dealerId, d, INV_INT(h.price), null]);
+      }
     }
+    const days = [...daysByKey.values()].sort((a, b) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : a[1] !== b[1] ? a[1] - b[1] : a[2] < b[2] ? -1 : a[2] > b[2] ? 1 : 0));
     if (days.length) await pool.query("INSERT INTO dealer_inventory_days (vin, dealer_id, seen_on, price, mileage) VALUES ? ON DUPLICATE KEY UPDATE price = COALESCE(VALUES(price), price), mileage = COALESCE(VALUES(mileage), mileage)", [days]);
   }
   invInvalidate();
-  sendJson(res, 200, { upserted, skipped });
+  scheduleCatalogFacetRebuild();
+  // Option counters are reported back so the sync's own log shows what happened to the facet
+  // table on every run, instead of it being invisible unless someone queries the DB.
+  sendJson(res, 200, { upserted, skipped, optionSetsReplaced, optionSetsKept, optionRowsWritten, optionJunkDropped });
 }
 
 // GET /api/inventory/vin/:vin — every store that has listed the VIN, with its day-by-day observations.
@@ -2170,7 +2210,7 @@ async function handleInventorySweep(req, res) {
   let sql = "UPDATE dealer_inventory SET removed_at = CURRENT_TIMESTAMP WHERE dealer_id = ? AND removed_at IS NULL AND last_seen_at < ?";
   if (sources.length) { sql += " AND source IN (?)"; args.push(sources); }
   const [result] = await pool.query(sql, args);
-  if (result.affectedRows) invInvalidate();
+  if (result.affectedRows) { invInvalidate(); scheduleCatalogFacetRebuild(); }
   sendJson(res, 200, { removed: result.affectedRows });
 }
 
@@ -2648,12 +2688,145 @@ async function handleInventoryByDealer(req, res) {
 // so the panel never offers a combination that returns zero results — e.g. offering "PANO"
 // for a Model 3 when only the Model Y has it. Cached per make/model/trim key the same 10
 // minutes as stats/by-dealer/analytics, invalidated the same way (every bulk upsert/sweep).
+// Precomputed factory-option and color counts per (make, model, trim), rebuilt after each nightly
+// sync instead of computed per request. Confirmed live 2026-09-28: the per-request query (every
+// in-stock vehicle of the make/model joined against the 9.5M-row options table, then grouped)
+// hit the 20s statement cap for Ford F-150 (27.8s) and Toyota RAV4 (21.9s) even with #346's
+// index — and buyer /search showed that timeout as "no factory options". Counts now reflect the
+// last rebuild (minutes after each sync); the vehicle list itself stays live.
+//
+// Built per make, reading with plain SELECTs (consistent reads, no locks on dealer_inventory or
+// dealer_inventory_options, so a concurrent sync never waits on this) and then swapping each
+// make's rows in one short transaction, so readers always see a complete make.
+const catalogFacets = { building: false, again: false, builtAt: null, durationMs: null, lastError: null, timer: null, loaded: false };
+const FACET_REBUILD_DEBOUNCE_MS = 15 * 60_000;
+
+function scheduleCatalogFacetRebuild(delayMs = FACET_REBUILD_DEBOUNCE_MS) {
+  clearTimeout(catalogFacets.timer);
+  catalogFacets.timer = setTimeout(() => { void rebuildCatalogFacets(getPool()); }, delayMs);
+}
+
+async function loadCatalogFacetMeta(pool) {
+  if (catalogFacets.loaded) return;
+  const [[meta]] = await pool.query("SELECT built_at, duration_ms FROM inv_facet_meta WHERE id = 1");
+  if (meta) { catalogFacets.builtAt = meta.built_at; catalogFacets.durationMs = meta.duration_ms; }
+  catalogFacets.loaded = true;
+}
+
+async function rebuildCatalogFacets(pool) {
+  if (catalogFacets.building) { catalogFacets.again = true; return; }
+  catalogFacets.building = true;
+  const started = Date.now();
+  try {
+    await ensureInventoryTable(pool);
+    const [makeRows] = await pool.query("SELECT DISTINCT make FROM dealer_inventory WHERE removed_at IS NULL AND make IS NOT NULL");
+    const makes = makeRows.map((r) => r.make);
+    for (const make of makes) {
+      const [optionAgg] = await pool.query(
+        `SELECT STRAIGHT_JOIN COALESCE(i.model, '') AS model, COALESCE(i.trim, '') AS trim, o.canonical_key, MIN(o.label) AS label, COUNT(*) AS n
+         FROM dealer_inventory i FORCE INDEX (idx_inv_stock_make_model_trim)
+         JOIN dealer_inventory_options o ON o.vin = i.vin AND o.dealer_id = i.dealer_id
+         WHERE i.removed_at IS NULL AND i.make = ?
+         GROUP BY COALESCE(i.model, ''), COALESCE(i.trim, ''), o.canonical_key`,
+        [make]
+      );
+      const [colorAgg] = await pool.query(
+        `SELECT COALESCE(model, '') AS model, COALESCE(trim, '') AS trim, COALESCE(exterior_color, '') AS ext, COALESCE(interior_color, '') AS intr, COUNT(*) AS n
+         FROM dealer_inventory FORCE INDEX (idx_inv_stock_make_model_trim)
+         WHERE removed_at IS NULL AND make = ? AND (exterior_color IS NOT NULL OR interior_color IS NOT NULL)
+         GROUP BY COALESCE(model, ''), COALESCE(trim, ''), COALESCE(exterior_color, ''), COALESCE(interior_color, '')`,
+        [make]
+      );
+      const conn = await pool.getConnection();
+      try {
+        await conn.beginTransaction();
+        await conn.query("DELETE FROM inv_option_facets WHERE make = ?", [make]);
+        await conn.query("DELETE FROM inv_color_facets WHERE make = ?", [make]);
+        for (let i = 0; i < optionAgg.length; i += 2000) {
+          await conn.query("INSERT INTO inv_option_facets (make, model, trim, canonical_key, label, vehicle_count) VALUES ?", [optionAgg.slice(i, i + 2000).map((r) => [make, r.model, r.trim, r.canonical_key, r.label, Number(r.n)])]);
+        }
+        for (let i = 0; i < colorAgg.length; i += 2000) {
+          await conn.query("INSERT INTO inv_color_facets (make, model, trim, exterior_color, interior_color, vehicle_count) VALUES ?", [colorAgg.slice(i, i + 2000).map((r) => [make, r.model, r.trim, r.ext, r.intr, Number(r.n)])]);
+        }
+        await conn.commit();
+      } catch (err) {
+        await conn.rollback().catch(() => {});
+        throw err;
+      } finally {
+        conn.release();
+      }
+    }
+    // Makes with nothing left in stock.
+    if (makes.length) {
+      await pool.query("DELETE FROM inv_option_facets WHERE make NOT IN (?)", [makes]);
+      await pool.query("DELETE FROM inv_color_facets WHERE make NOT IN (?)", [makes]);
+    }
+    const durationMs = Date.now() - started;
+    await pool.query("INSERT INTO inv_facet_meta (id, built_at, duration_ms) VALUES (1, NOW(), ?) ON DUPLICATE KEY UPDATE built_at = VALUES(built_at), duration_ms = VALUES(duration_ms)", [durationMs]);
+    catalogFacets.builtAt = new Date();
+    catalogFacets.durationMs = durationMs;
+    catalogFacets.lastError = null;
+    catalogFacets.loaded = true;
+    invInvalidate();
+    console.log(`${new Date().toISOString()} catalog facets rebuilt: ${makes.length} makes in ${durationMs}ms`);
+  } catch (err) {
+    catalogFacets.lastError = err.message;
+    console.error(`${new Date().toISOString()} catalog facet rebuild failed:`, err.message);
+  } finally {
+    catalogFacets.building = false;
+    if (catalogFacets.again) { catalogFacets.again = false; void rebuildCatalogFacets(pool); }
+  }
+}
+
+// POST /api/inventory/catalog-facets/rebuild — starts a rebuild now (the options backfill calls
+// this when it finishes). GET .../status — whether one is running and when the last one finished.
+async function handleCatalogFacetRebuild(req, res) {
+  const pool = getPool();
+  await loadCatalogFacetMeta(pool).catch(() => {});
+  const alreadyRunning = catalogFacets.building;
+  void rebuildCatalogFacets(pool);
+  sendJson(res, 202, { started: !alreadyRunning, alreadyRunning, lastBuiltAt: catalogFacets.builtAt });
+}
+async function handleCatalogFacetStatus(req, res) {
+  await ensureInventoryTable(getPool());
+  await loadCatalogFacetMeta(getPool());
+  sendJson(res, 200, { building: catalogFacets.building, lastBuiltAt: catalogFacets.builtAt, lastDurationMs: catalogFacets.durationMs, lastError: catalogFacets.lastError });
+}
+
 async function handleInventoryCatalogOptions(req, res, params) {
   const pool = getPool();
   await ensureInventoryTable(pool);
   const make = (params.get("make") || "").trim();
   const model = (params.get("model") || "").trim();
   const trim = (params.get("trim") || "").trim();
+  await loadCatalogFacetMeta(pool);
+  if (catalogFacets.builtAt) {
+    const fWhere = [], fArgs = [];
+    if (make) { fWhere.push("make = ?"); fArgs.push(make); }
+    if (model) { fWhere.push("model = ?"); fArgs.push(model); }
+    if (trim) { fWhere.push("trim = ?"); fArgs.push(trim); }
+    const fWhereSql = fWhere.length ? "WHERE " + fWhere.join(" AND ") : "";
+    sendJson(res, 200, await invCached(`catalog-facets:${make}|${model}|${trim}`, async () => {
+      const [optionRows] = await withPoolTimeout(
+        pool.query(`SET STATEMENT max_statement_time=${INV_LIST_STATEMENT_TIMEOUT_SECONDS} FOR SELECT canonical_key, MIN(label) AS label, SUM(vehicle_count) AS vehicleCount FROM inv_option_facets ${fWhereSql} GROUP BY canonical_key ORDER BY canonical_key`, fArgs),
+        POOL_WAIT_TIMEOUT_MS,
+        "Timed out waiting for an available database connection or a slow query"
+      );
+      const [colorRows] = await withPoolTimeout(
+        pool.query(`SET STATEMENT max_statement_time=${INV_LIST_STATEMENT_TIMEOUT_SECONDS} FOR SELECT DISTINCT exterior_color, interior_color FROM inv_color_facets ${fWhereSql}`, fArgs),
+        POOL_WAIT_TIMEOUT_MS,
+        "Timed out waiting for an available database connection or a slow query"
+      );
+      return {
+        options: optionRows.map((r) => ({ key: r.canonical_key, label: r.label, vehicleCount: Number(r.vehicleCount) })),
+        exteriorColors: [...new Set(colorRows.map((r) => r.exterior_color).filter(Boolean))].sort(),
+        interiorColors: [...new Set(colorRows.map((r) => r.interior_color).filter(Boolean))].sort(),
+        countsAsOf: catalogFacets.builtAt,
+      };
+    }));
+    return;
+  }
+  // No facet build yet (fresh deploy, before the first rebuild finishes): the original live query.
   const where = ["i.removed_at IS NULL"], args = [];
   if (make) { where.push("i.make = ?"); args.push(make); }
   if (model) { where.push("i.model = ?"); args.push(model); }
@@ -2773,9 +2946,16 @@ async function handleGlobalCatalogOptions(req, res) {
 // every one of that morning's catch-up syncs (box1's included, the exact run meant to land the
 // off-brand-trade-in fix's first real data) crashed on `/api/ops/sync-lock/acquire -> 404` right
 // before its write phase — after it had already spent real time reading and matching every
-// vehicle, so the failure looked late and silent rather than fast and loud. The actual acquire/
-// release logic is in syncLock.js — pure and unit-tested, for the same reason brand_match.js/
-// vdpUrlFilter.js are separate modules — this just holds the in-memory state and wires HTTP.
+// vehicle, so the failure looked late and silent rather than fast and loud.
+//
+// The actual acquire/release logic is in syncLock.js — pure and unit-tested, for the same reason
+// brand_match.js/vdpUrlFilter.js are separate modules — this just holds the in-memory state and
+// wires HTTP. A plain in-memory lock, exactly as inventory-sync.mjs's own comment already
+// documented this route as being ("a single, unclustered PM2 process backs that server, so an
+// in-memory lock there is enough — no DB table needed") — pm2's `deals-api` process really is
+// unclustered (fork mode, 1 instance), confirmed in this session's own pm2 list output, so this
+// doesn't need to survive a restart or be visible across processes the way crawl_claims (a real
+// cross-box, cross-process queue) needs a table for.
 let syncLock = null; // { owner, acquiredAt } | null
 
 // POST /api/ops/sync-lock/acquire { owner }
@@ -2788,7 +2968,9 @@ async function handleSyncLockAcquire(req, res) {
   sendJson(res, 200, result);
 }
 
-// POST /api/ops/sync-lock/release { owner }
+// POST /api/ops/sync-lock/release { owner } — best-effort on the caller's side (inventory-sync.mjs
+// swallows this call's own errors), so this never needs to itself be strict: releasing a lock you
+// don't hold, or one that already expired, is just a no-op, not an error.
 async function handleSyncLockRelease(req, res) {
   const body = await readBody(req);
   const owner = typeof body.owner === "string" ? body.owner.slice(0, 128) : "";
@@ -3053,6 +3235,8 @@ const server = http.createServer((req, res) => {
   // dealer inventory (crawled vehicles)
   if (req.method === "POST" && pathname === "/api/inventory/bulk") return run(handleInventoryBulk);
   if (req.method === "POST" && pathname === "/api/inventory/sweep") return run(handleInventorySweep);
+  if (req.method === "POST" && pathname === "/api/inventory/catalog-facets/rebuild") return run(handleCatalogFacetRebuild);
+  if (req.method === "GET" && pathname === "/api/inventory/catalog-facets/status") return run(handleCatalogFacetStatus);
   if (req.method === "GET" && pathname === "/api/inventory/stats") return run(handleInventoryStats);
   if (req.method === "GET" && pathname === "/api/inventory/makes") return run(handleInventoryMakes);
   if (req.method === "GET" && pathname === "/api/inventory/facets") return run(handleInventoryFacets, url.searchParams);
@@ -3228,6 +3412,18 @@ if (req.method === "GET" && pathname === "/api/inventory/by-listing-url") return
 
 server.listen(PORT, () => {
   console.log(`Deals API server listening on port ${PORT}`);
+  // First deploy (or a box whose facet tables were never built): build once shortly after start.
+  // Until it finishes, /api/inventory/catalog serves the old live query.
+  setTimeout(async () => {
+    try {
+      const pool = getPool();
+      await ensureInventoryTable(pool);
+      await loadCatalogFacetMeta(pool);
+      if (!catalogFacets.builtAt) void rebuildCatalogFacets(pool);
+    } catch (err) {
+      console.error("startup catalog facet check failed:", err.message);
+    }
+  }, 30_000);
   console.log(`  POST /api/deals`);
   console.log(`  GET  /api/deals/:id`);
   console.log(`  POST /api/deals/:id/mark-paid`);
