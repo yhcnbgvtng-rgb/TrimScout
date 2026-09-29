@@ -128,7 +128,12 @@ async function main() {
         for (const { key, label, code } of facetRows) inserts.push([r.vin, r.dealer_id, key, label, code]);
       }
       if (!DRY_RUN && pairs.length) {
-        await conn.query("DELETE FROM dealer_inventory_options WHERE (vin, dealer_id) IN (?)", [pairs]);
+        // NOT `WHERE (vin, dealer_id) IN (?)` — same fix as PR #355 on the sync write path: MariaDB
+        // can't use this table's own (vin, dealer_id, canonical_key) primary key for a row-value
+        // IN-list, so every call fell back to a full table scan instead of an index range scan.
+        const sortedPairs = pairs.slice().sort((a, b) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : a[1] - b[1]));
+        const pairConds = sortedPairs.map(() => "(vin = ? AND dealer_id = ?)").join(" OR ");
+        await conn.query(`DELETE FROM dealer_inventory_options WHERE ${pairConds}`, sortedPairs.flat());
         if (inserts.length) await conn.query("INSERT INTO dealer_inventory_options (vin, dealer_id, canonical_key, label, code) VALUES ?", [inserts]);
       }
       totals.rowsWritten += inserts.length;
