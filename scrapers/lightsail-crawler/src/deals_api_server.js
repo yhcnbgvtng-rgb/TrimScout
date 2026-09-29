@@ -32,6 +32,7 @@ import fs from "node:fs";
 import path from "node:path";
 import mysql from "mysql2/promise";
 import { inventoryListQuery } from "./inventoryListQuery.js";
+import { tryAcquireSyncLock, releaseSyncLock } from "./syncLock.js";
 
 const PORT = process.env.DEALS_API_PORT || 3004;
 
@@ -2762,6 +2763,40 @@ async function handleGlobalCatalogOptions(req, res) {
 }
 
 // ---------------------------------------------------------------------------
+// Cross-box inventory-sync lock — POST /api/ops/sync-lock/acquire|release, called by every crawl
+// box's scripts/box/inventory-sync.mjs before its write phase (upsert + sweep). Re-added
+// 2026-09-28: this route existed and worked (every sync log through 2026-09-27 shows it
+// succeeding) but was missing entirely from this file and from the repo's own git history —
+// confirmed live, `grep -c sync-lock` on both came back empty — so it must have only ever existed
+// as a hand-patch directly on the box, never committed, and was lost when the box was
+// redeployed/restarted during that day's Lightsail-fleet IP fix. Discovered live 2026-09-28 when
+// every one of that morning's catch-up syncs (box1's included, the exact run meant to land the
+// off-brand-trade-in fix's first real data) crashed on `/api/ops/sync-lock/acquire -> 404` right
+// before its write phase — after it had already spent real time reading and matching every
+// vehicle, so the failure looked late and silent rather than fast and loud. The actual acquire/
+// release logic is in syncLock.js — pure and unit-tested, for the same reason brand_match.js/
+// vdpUrlFilter.js are separate modules — this just holds the in-memory state and wires HTTP.
+let syncLock = null; // { owner, acquiredAt } | null
+
+// POST /api/ops/sync-lock/acquire { owner }
+async function handleSyncLockAcquire(req, res) {
+  const body = await readBody(req);
+  const owner = typeof body.owner === "string" ? body.owner.slice(0, 128) : "";
+  if (!owner) return badRequest(res, "owner is required");
+  const { nextLock, result } = tryAcquireSyncLock(syncLock, owner, Date.now());
+  syncLock = nextLock;
+  sendJson(res, 200, result);
+}
+
+// POST /api/ops/sync-lock/release { owner }
+async function handleSyncLockRelease(req, res) {
+  const body = await readBody(req);
+  const owner = typeof body.owner === "string" ? body.owner.slice(0, 128) : "";
+  syncLock = releaseSyncLock(syncLock, owner);
+  sendJson(res, 200, { released: true });
+}
+
+// ---------------------------------------------------------------------------
 // Cross-box crawl claim queue — dynamic work-stealing for the nightly crawl
 // fleet, added 2026-09-25 after real measurement showed box 1 (2 vCPU) runs
 // at 77.4s/rooftop vs box 2's (4 vCPU) 16.2s/rooftop — a 4.8x gap driven by
@@ -3027,6 +3062,10 @@ const server = http.createServer((req, res) => {
   if (req.method === "GET" && pathname === "/api/inventory/catalog") return run(handleInventoryCatalogOptions, url.searchParams);
   if (req.method === "GET" && pathname === "/api/inventory/catalog/global") return run(handleGlobalCatalogOptions);
 if (req.method === "GET" && pathname === "/api/inventory/by-listing-url") return run(handleInventoryByListingUrl, url.searchParams);
+
+  // cross-box inventory-sync lock
+  if (req.method === "POST" && pathname === "/api/ops/sync-lock/acquire") return run(handleSyncLockAcquire);
+  if (req.method === "POST" && pathname === "/api/ops/sync-lock/release") return run(handleSyncLockRelease);
 
   // cross-box crawl claim queue (dynamic work-stealing)
   if (req.method === "POST" && pathname === "/api/ops/crawl-claims/seed") return run(handleCrawlClaimsSeed);
