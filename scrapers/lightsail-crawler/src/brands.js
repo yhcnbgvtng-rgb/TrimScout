@@ -265,6 +265,23 @@ export const BRANDS = {
     baseMsrpTable: null,
     plantFallback: null,
   },
+  // Added 2026-09-30 to the expansion set only (NJ_BRANDS_IN_EXPANSION in
+  // nj_policy.js) — box1/box2's core crawl never sets CRAWLER_BRAND_SET,
+  // so this brand is invisible to them regardless. INEOS Automotive is a
+  // single-model (Grenadier) off-road SUV brand with a small, newly-built
+  // US dealer network. vinPrefixes left empty rather than guessed — unlike
+  // GMC/Buick/Cadillac/Lincoln above (general WMI-convention knowledge,
+  // still unverified against real VINs), I have no confident source for
+  // INEOS's real WMI codes; this field is secondary signal only (see
+  // brand_match.js), so an empty array here is safe, just less precise
+  // than a real one would be. Fill in once real Grenadier VINs are seen.
+  INEOS: {
+    name: "INEOS",
+    vinPrefixes: [],
+    hasOfficialRetailerPlatform: false,
+    baseMsrpTable: null,
+    plantFallback: null,
+  },
   // Multi-nameplate on purpose: Chrysler/Dodge/Jeep/Ram/Fiat share the same
   // ~2,300 physical rooftops nationwide (confirmed live — the Stellantis
   // locator API returns identical dealer lists for all four brand codes at
