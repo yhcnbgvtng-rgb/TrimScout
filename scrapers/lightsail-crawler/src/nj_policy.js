@@ -49,6 +49,19 @@ export const NJ_BRANDS_IN_EXPANSION = [
   'Buick',
   'Cadillac',
   'Stellantis',
+  // Added 2026-09-30. INEOS Automotive (single-model Grenadier off-road
+  // SUV) sells through a real appointed-dealer network, not direct-to-
+  // consumer — unlike Tesla/Rivian/Lucid/Hummer above, which is why this
+  // goes in the IN list rather than NJ_BRANDS_OUT_EXPANSION. Recognized
+  // here, but has NO materialized dealer files yet (see
+  // materialize-expansion-dealer-files.mjs's SOURCES map, and
+  // expansionDealerFiles.js's loadExpansionDealersForState, which returns
+  // [] for a state/brand with no file — not an error, just zero dealers
+  // crawled) — this config change alone does not crawl any real INEOS
+  // inventory. A one-time dealer-roster build + materialize run is a
+  // separate follow-up, same as how Ford/GMC/Buick/Cadillac/Lincoln/
+  // Stellantis were each onboarded.
+  'INEOS',
 ];
 
 export const NJ_BRANDS_OUT_CORE = [
