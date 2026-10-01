@@ -32,6 +32,7 @@ import fs from "node:fs";
 import path from "node:path";
 import os from "node:os";
 import { waitForSyncLock } from "./syncLockWait.js";
+import { startSyncLockHeartbeat } from "./syncLockHeartbeat.js";
 import { computeFileIdentity, sortRows, makeCheckpoint, resumeFrom } from "./syncCheckpoint.js";
 
 const DEALS_HOST = process.env.TRIMSCOUT_DEALS_HOST || "3.208.49.1";
@@ -81,7 +82,7 @@ const LOCK_OWNER = `${os.hostname()}-${path.basename(inputPath)}-${process.pid}`
 // only exits (non-zero) if the full 20h budget is actually exhausted.
 async function acquireSyncLock({ pollMs = 30_000, maxWaitMs = 20 * 60 * 60 * 1000 } = {}) {
   await waitForSyncLock({
-    tryAcquire: () => api(DEALS_PORT, "/api/ops/sync-lock/acquire", { owner: LOCK_OWNER }),
+    tryAcquire: () => api(DEALS_PORT, "/api/ops/sync-lock/acquire", { owner: LOCK_OWNER, heartbeat: true }),
     sleep: (ms) => new Promise((resolve) => setTimeout(resolve, ms)),
     pollMs,
     maxWaitMs,
@@ -91,7 +92,11 @@ async function acquireSyncLock({ pollMs = 30_000, maxWaitMs = 20 * 60 * 60 * 100
 }
 // Best-effort — a failed release just means the server's own staleness timeout clears it later; must
 // never throw and mask whatever real error is already in flight.
-const releaseSyncLock = () => api(DEALS_PORT, "/api/ops/sync-lock/release", { owner: LOCK_OWNER }).catch(() => {});
+let lockHeartbeat = null;
+const releaseSyncLock = () => {
+  if (lockHeartbeat) { lockHeartbeat.stop(); lockHeartbeat = null; }
+  return api(DEALS_PORT, "/api/ops/sync-lock/release", { owner: LOCK_OWNER }).catch(() => {});
+};
 
 // One retry with a short delay before giving up — the sweep loop below makes one HTTP call per store
 // (1,500-2,500 of them on the bigger boxes), sequentially, against a deals box that's genuinely
@@ -224,6 +229,12 @@ if (checkpoint && rowsToSync.length < sortedRows.length) {
 // local/read-only and safe to run in parallel with another box's sync.
 console.log(`[sync] acquiring sync lock as ${LOCK_OWNER}...`);
 await acquireSyncLock();
+// Prove liveness for the whole upsert + sweep: without it a slow-but-healthy sync looks dead to the
+// server's staleness rule and another box reclaims the lock (two writers — happened 2026-10-01).
+lockHeartbeat = startSyncLockHeartbeat({
+  heartbeat: () => api(DEALS_PORT, "/api/ops/sync-lock/heartbeat", { owner: LOCK_OWNER }),
+  reacquire: () => api(DEALS_PORT, "/api/ops/sync-lock/acquire", { owner: LOCK_OWNER, heartbeat: true }),
+});
 try {
   // The sweep compares against the deals box's clock; give it a 10-minute margin so a few seconds of clock
   // skew between machines can't sweep rows this very run just wrote.

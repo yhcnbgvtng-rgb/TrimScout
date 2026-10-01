@@ -36,7 +36,7 @@ import { createGate, SearchBusyError } from "./searchGate.js";
 import { createStableCache } from "./stableCache.js";
 import { optionRowsFromOptions, payloadHasOptions, buyerOptionCatalog, CATALOG_MIN_VEHICLES } from "./inventoryOptionRows.js";
 import { normalizeMakeForWrite } from "./stellantisMake.js";
-import { tryAcquireSyncLock, releaseSyncLock } from "./syncLock.js";
+import { tryAcquireSyncLock, releaseSyncLock, heartbeatSyncLock } from "./syncLock.js";
 
 const PORT = process.env.DEALS_API_PORT || 3004;
 
@@ -3010,15 +3010,33 @@ async function handleGlobalCatalogOptions(req, res) {
 // unclustered (fork mode, 1 instance), confirmed in this session's own pm2 list output, so this
 // doesn't need to survive a restart or be visible across processes the way crawl_claims (a real
 // cross-box, cross-process queue) needs a table for.
-let syncLock = null; // { owner, acquiredAt } | null
+let syncLock = null; // { owner, acquiredAt, heartbeatAt } | null — see syncLock.js for the liveness rules
+let syncLockBeats = 0;
+const syncLogTs = () => new Date().toISOString();
 
-// POST /api/ops/sync-lock/acquire { owner }
+// POST /api/ops/sync-lock/acquire { owner, heartbeat? } — heartbeat:true = the caller will renew
+// (new client). Never a silent steal: a reclaim is always logged with who lost it and why.
 async function handleSyncLockAcquire(req, res) {
   const body = await readBody(req);
   const owner = typeof body.owner === "string" ? body.owner.slice(0, 128) : "";
   if (!owner) return badRequest(res, "owner is required");
-  const { nextLock, result } = tryAcquireSyncLock(syncLock, owner, Date.now());
+  const { nextLock, result, event } = tryAcquireSyncLock(syncLock, owner, Date.now(), { heartbeat: body.heartbeat === true });
   syncLock = nextLock;
+  if (event.kind === "reclaimed") console.warn(`[sync-lock] ${syncLogTs()} RECLAIM by ${owner} from ${event.from}: ${event.reason}`);
+  else if (event.kind === "acquired") { syncLockBeats = 0; console.log(`[sync-lock] ${syncLogTs()} acquire by ${owner}${body.heartbeat === true ? "" : " (legacy client, no heartbeat)"}`); }
+  sendJson(res, 200, result);
+}
+
+// POST /api/ops/sync-lock/heartbeat { owner } — holder liveness. renewed:false tells the caller it no
+// longer holds the lock (reclaimed, or this server restarted and lost its in-memory state).
+async function handleSyncLockHeartbeat(req, res) {
+  const body = await readBody(req);
+  const owner = typeof body.owner === "string" ? body.owner.slice(0, 128) : "";
+  if (!owner) return badRequest(res, "owner is required");
+  const { nextLock, result } = heartbeatSyncLock(syncLock, owner, Date.now());
+  syncLock = nextLock;
+  if (!result.renewed) console.warn(`[sync-lock] ${syncLogTs()} heartbeat from ${owner} REJECTED (held by ${result.heldBy ?? "nobody"})`);
+  else if (syncLockBeats++ % 20 === 0) console.log(`[sync-lock] ${syncLogTs()} renew by ${owner} (beat ${syncLockBeats})`);
   sendJson(res, 200, result);
 }
 
@@ -3028,7 +3046,9 @@ async function handleSyncLockAcquire(req, res) {
 async function handleSyncLockRelease(req, res) {
   const body = await readBody(req);
   const owner = typeof body.owner === "string" ? body.owner.slice(0, 128) : "";
+  const held = syncLock && syncLock.owner === owner;
   syncLock = releaseSyncLock(syncLock, owner);
+  if (held) console.log(`[sync-lock] ${syncLogTs()} release by ${owner}`);
   sendJson(res, 200, { released: true });
 }
 
@@ -3308,6 +3328,7 @@ if (req.method === "GET" && pathname === "/api/inventory/by-listing-url") return
 
   // cross-box inventory-sync lock
   if (req.method === "POST" && pathname === "/api/ops/sync-lock/acquire") return run(handleSyncLockAcquire);
+  if (req.method === "POST" && pathname === "/api/ops/sync-lock/heartbeat") return run(handleSyncLockHeartbeat);
   if (req.method === "POST" && pathname === "/api/ops/sync-lock/release") return run(handleSyncLockRelease);
 
   // cross-box crawl claim queue (dynamic work-stealing)
