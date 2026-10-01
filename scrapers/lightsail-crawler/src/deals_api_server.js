@@ -33,6 +33,7 @@ import path from "node:path";
 import mysql from "mysql2/promise";
 import { inventoryListQuery } from "./inventoryListQuery.js";
 import { optionRowsFromOptions, payloadHasOptions } from "./inventoryOptionRows.js";
+import { normalizeMakeForWrite } from "./stellantisMake.js";
 import { tryAcquireSyncLock, releaseSyncLock } from "./syncLock.js";
 
 const PORT = process.env.DEALS_API_PORT || 3004;
@@ -2084,7 +2085,7 @@ async function handleInventoryBulk(req, res) {
     const chunk = vehicles.slice(i, i + 500).filter((v) => typeof v.vin === "string" && /^[A-HJ-NPR-Z0-9]{17}$/.test(v.vin.trim().toUpperCase()) && INV_STR(v.dealerName, 255));
     skipped += Math.min(500, vehicles.length - i) - chunk.length;
     if (!chunk.length) continue;
-    const values = chunk.map((v) => [v.vin.trim().toUpperCase(), INV_DEALER(v.dealerId), INV_STR(v.dealerName, 255), INV_STR(v.condition, 12), INV_INT(v.year), INV_STR(v.make, 64), INV_STR(v.model, 96), INV_STR(v.trim, 160), INV_STR(v.bodyStyle, 64), INV_STR(v.exteriorColor, 96), INV_STR(v.interiorColor, 96), INV_INT(v.mileage), INV_INT(v.price), INV_INT(v.msrp), INV_STR(v.stockNumber, 64), INV_STR(v.vdpUrl, 700), INV_STR(v.imageUrl, 700), INV_STR(v.source, 16),
+    const values = chunk.map((v) => [v.vin.trim().toUpperCase(), INV_DEALER(v.dealerId), INV_STR(v.dealerName, 255), INV_STR(v.condition, 12), INV_INT(v.year), INV_STR(normalizeMakeForWrite({ make: v.make, vin: v.vin, model: v.model }), 64), INV_STR(v.model, 96), INV_STR(v.trim, 160), INV_STR(v.bodyStyle, 64), INV_STR(v.exteriorColor, 96), INV_STR(v.interiorColor, 96), INV_INT(v.mileage), INV_INT(v.price), INV_INT(v.msrp), INV_STR(v.stockNumber, 64), INV_STR(v.vdpUrl, 700), INV_STR(v.imageUrl, 700), INV_STR(v.source, 16),
       INV_STR(v.windowStickerUrl, 700), INV_STR(v.engine, 160), INV_STR(v.transmission, 160), INV_INT(v.daysOnLot), INV_INT(v.oldPrice), INV_INT(v.priceDiff), INV_STR(v.priceChangeType, 16), INV_STR(v.changeType, 16), INV_JSON_STR(v.priceHistory, 60000), INV_JSON_STR(v.options, 200000), INV_INT(v.optionsTotal), INV_INT(v.baseMsrp), INV_DATE(v.crawlFirstSeen), INV_STR(v.sourceBox, 16)]);
     // Sorted by the table's own primary key (vin, dealer_id) before the multi-row INSERT below.
     // Confirmed live 2026-09-28 via SHOW ENGINE INNODB STATUS on a deliberately reproduced
