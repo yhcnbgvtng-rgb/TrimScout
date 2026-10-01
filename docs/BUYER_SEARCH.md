@@ -96,6 +96,20 @@ state=NJ&make=Ford (dealer)    i ref idx_inv_stock_state                Using in
 reads `idx_opt_canonical` index-only. `idx_opt_dealer_canonical` and the make/model FORCE INDEX
 paths are unchanged. Query shapes are pinned in `test/inventory_list_query.test.js`.
 
+## Dropdown payloads: stale-while-revalidate, write-proof, restart-proof
+
+`GET /api/catalog/{makes,facets,options}` (box: `/api/inventory/{makes,facets,catalog}`) are served
+from `stableCache.js`, **not** the write-invalidated `invCached`. Found live 2026-10-01: `invCached`
+is cleared by every bulk upsert and every removing sweep (and a concurrent clear discards an
+in-flight result), so while crawl boxes push continuously those whole-table GROUP BYs could never be
+cached — and on a box that is I/O-bound from those same writes (60-78% iowait, 128 MB buffer pool)
+they cannot finish inside the 20 s cap either. The Make dropdown sat on "Loading…". Now: a fresh
+entry is served; an expired one is served **immediately** while a single background refresh runs; a
+failed refresh keeps serving the stale value; every success is persisted to
+`/opt/trimscout-deals/facet-cache.json` so a deals-api restart doesn't lose it. Only the *hit counts*
+can be minutes-to-hours stale; the vehicle list is always live. A cold cache (first boot, no file)
+has nothing to serve and must be warmed once while the box is quiet.
+
 ## Data model additions
 
 Two additions to `dealer_inventory` (deals box, MariaDB), both **not backfilled** — they start

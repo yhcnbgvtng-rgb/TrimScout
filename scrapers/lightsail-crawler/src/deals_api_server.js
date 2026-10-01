@@ -33,6 +33,7 @@ import path from "node:path";
 import mysql from "mysql2/promise";
 import { inventoryListQuery, totalFromPage, applyCountCap, deferredPageSql } from "./inventoryListQuery.js";
 import { createGate, SearchBusyError } from "./searchGate.js";
+import { createStableCache } from "./stableCache.js";
 import { optionRowsFromOptions, payloadHasOptions, buyerOptionCatalog, CATALOG_MIN_VEHICLES } from "./inventoryOptionRows.js";
 import { normalizeMakeForWrite } from "./stellantisMake.js";
 import { tryAcquireSyncLock, releaseSyncLock } from "./syncLock.js";
@@ -2050,6 +2051,13 @@ const invCached = async (key, fn) => {
   invInFlight.set(flightKey, promise);
   return promise;
 };
+// The buyer /search dropdown payloads (makes, state/make/model/trim counts, option catalog) live in
+// their own stale-while-revalidate cache that writes do NOT invalidate and a restart does not lose —
+// see stableCache.js for why invCached cannot serve them while the crawl is writing.
+const stableCached = createStableCache({
+  ttlMs: INV_CACHE_MS,
+  filePath: process.env.INV_FACET_CACHE_FILE || "/opt/trimscout-deals/facet-cache.json",
+}).get;
 const invInvalidate = () => {
   invGeneration++;
   invCache.clear();
@@ -2609,7 +2617,7 @@ async function computeInventoryStats(pool) {
 async function handleInventoryMakes(req, res) {
   const pool = getPool();
   await ensureInventoryTable(pool);
-  sendJson(res, 200, await invCached("makes", async () => {
+  sendJson(res, 200, await stableCached("makes", async () => {
     // Wrapped the same way handleListInventory/handleInventoryCatalogOptions are (SET STATEMENT
     // + withPoolTimeout) — confirmed live 2026-09-27 this was the last unprotected call in
     // /api/search/parse's own fan-out (Promise.all([inventoryMakes(), catalogOptions()]) then
@@ -2648,7 +2656,7 @@ async function handleInventoryFacets(req, res, params) {
   const make = (params.get("make") || "").trim();
   const model = (params.get("model") || "").trim();
   const cacheKey = `facets:${state}|${make}|${model}`;
-  sendJson(res, 200, await invCached(cacheKey, async () => {
+  sendJson(res, 200, await stableCached(cacheKey, async () => {
     const q = (sql, args) =>
       withPoolTimeout(
         pool.query(`SET STATEMENT max_statement_time=${INV_LIST_STATEMENT_TIMEOUT_SECONDS} FOR ${sql}`, args),
@@ -2851,7 +2859,7 @@ async function handleInventoryCatalogOptions(req, res, params) {
     if (model) { fWhere.push("model = ?"); fArgs.push(model); }
     if (trim) { fWhere.push("trim = ?"); fArgs.push(trim); }
     const fWhereSql = fWhere.length ? "WHERE " + fWhere.join(" AND ") : "";
-    sendJson(res, 200, await invCached(`catalog-facets:${make}|${model}|${trim}`, async () => {
+    sendJson(res, 200, await stableCached(`catalog-facets:${make}|${model}|${trim}`, async () => {
       const [optionRows] = await withPoolTimeout(
         pool.query(`SET STATEMENT max_statement_time=${INV_LIST_STATEMENT_TIMEOUT_SECONDS} FOR SELECT canonical_key, MIN(label) AS label, SUM(vehicle_count) AS vehicleCount FROM inv_option_facets ${fWhereSql} GROUP BY canonical_key HAVING SUM(vehicle_count) >= ${CATALOG_MIN_VEHICLES} ORDER BY SUM(vehicle_count) DESC LIMIT 400`, fArgs),
         POOL_WAIT_TIMEOUT_MS,
@@ -2894,7 +2902,7 @@ async function handleInventoryCatalogOptions(req, res, params) {
   const makeIndexHint = !make ? "" : model ? "FORCE INDEX (idx_inv_stock_make_model_trim)" : "FORCE INDEX (idx_inv_stock_make_dealer)";
   const makeColorsIndexHint = make ? "FORCE INDEX (idx_inv_stock_make_colors)" : "";
   const cacheKey = `catalog-options:${make}|${model}|${trim}`;
-  sendJson(res, 200, await invCached(cacheKey, async () => {
+  sendJson(res, 200, await stableCached(cacheKey, async () => {
     // STRAIGHT_JOIN drives from dealer_inventory (filtered by make=/removed_at first, typically
     // the far smaller side) into dealer_inventory_options by its (vin, dealer_id, canonical_key)
     // primary key, instead of the optimizer's previous choice of scanning every row in
