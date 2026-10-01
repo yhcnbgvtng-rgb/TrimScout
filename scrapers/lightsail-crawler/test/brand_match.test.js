@@ -49,11 +49,32 @@ describe('resolveVehicleBrandMatch', () => {
     assert.equal(result.isTargetBrand, false);
   });
 
-  it('multi-nameplate brand: VIN-prefix-only match (no nameplate in the label) falls back to the umbrella name, not a guess', () => {
+  it('multi-nameplate brand: VIN-prefix-only match (no nameplate in the label) resolves the real nameplate from the VIN, never the umbrella', () => {
+    const stellantis = { name: 'Stellantis', nameplates: ['Jeep', 'Ram', 'Dodge', 'Chrysler', 'Fiat'], vinPrefixes: ['1C4', '1J4', '1C6'] };
+    const jeep = resolveVehicleBrandMatch(stellantis, { make: null, vin: '1C4SJVFJ2NS102432' });
+    assert.equal(jeep.isTargetBrand, true);
+    assert.equal(jeep.resolvedMake, 'Jeep');
+    const ram = resolveVehicleBrandMatch(stellantis, { make: '', vin: '1C6SRFJT3RN184304' });
+    assert.equal(ram.resolvedMake, 'Ram');
+  });
+
+  it('multi-nameplate brand: an unplaceable VIN-prefix-only match still keeps the vehicle (umbrella as last resort, nulled by the API)', () => {
     const stellantis = { name: 'Stellantis', nameplates: ['Jeep', 'Ram', 'Dodge', 'Chrysler', 'Fiat'], vinPrefixes: ['1C4'] };
     const result = resolveVehicleBrandMatch(stellantis, { make: null, vin: '1C4ZZZZZZZZZZZZZZ' });
     assert.equal(result.isTargetBrand, true);
     assert.equal(result.resolvedMake, 'Stellantis');
+  });
+
+  it('the Fiat nameplate is stored with the canonical FIAT spelling', () => {
+    const stellantis = { name: 'Stellantis', nameplates: ['Jeep', 'Ram', 'Dodge', 'Chrysler', 'Fiat'], vinPrefixes: ['ZFA'] };
+    assert.equal(resolveVehicleBrandMatch(stellantis, { make: 'Fiat', vin: 'ZFBCFYBT0KP000001' }).resolvedMake, 'FIAT');
+  });
+});
+
+describe('resolveKeptMake — umbrella make on an off-brand vehicle', () => {
+  it('a roster-level "Stellantis" make on a Ford F-150 resolves to Ford from the VIN', () => {
+    const stellantis = { name: 'Stellantis', nameplates: ['Jeep', 'Ram', 'Dodge', 'Chrysler', 'Fiat'], vinPrefixes: ['1C4'] };
+    assert.equal(resolveKeptMake(stellantis, { make: 'Stellantis', vin: '1FTFW1E50NFA00001', model: 'F-150' }), 'Ford');
   });
 });
 

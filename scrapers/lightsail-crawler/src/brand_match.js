@@ -21,6 +21,8 @@
 // while still crawling under one shared brand config. Single-nameplate
 // brands never set `nameplates`, so they fall back to `[brand.name]` and
 // behave exactly as before this existed.
+import { canonicalNameplate, isUmbrellaMake, resolveUmbrellaMake, normalizeMakeForWrite } from './stellantisMake.js';
+
 export function resolveVehicleBrandMatch(brand, vehicle) {
   const nameplates = brand.nameplates && brand.nameplates.length ? brand.nameplates : [brand.name];
   const rawMake = (vehicle.make || '').toLowerCase();
@@ -31,10 +33,17 @@ export function resolveVehicleBrandMatch(brand, vehicle) {
     return { isTargetBrand: false, resolvedMake: null };
   }
 
-  // A VIN-prefix-only match (no nameplate found in the raw make label —
-  // e.g. it was blank) has no real nameplate to preserve; fall back to
-  // brand.name rather than guessing which of several nameplates it is.
-  return { isTargetBrand: true, resolvedMake: matchedNameplate || brand.name };
+  // A VIN-prefix-only match (no nameplate found in the raw make label — e.g. it was blank) used to
+  // fall back to brand.name, which for Stellantis stored the umbrella "Stellantis" as the make on
+  // ~19k rows (confirmed live 2026-10-01). Resolve the real nameplate from the VIN (and model)
+  // instead — see stellantisMake.js. brand.name remains only the last resort for a VIN that no
+  // table can place; the deals API nulls an unresolvable umbrella make rather than storing it.
+  if (matchedNameplate) return { isTargetBrand: true, resolvedMake: canonicalNameplate(matchedNameplate) || matchedNameplate };
+  if (isUmbrellaMake(brand.name) && nameplates.length > 1) {
+    const resolved = resolveUmbrellaMake({ vin: vehicle.vin, model: vehicle.model }).make;
+    if (resolved) return { isTargetBrand: true, resolvedMake: resolved };
+  }
+  return { isTargetBrand: true, resolvedMake: brand.name };
 }
 
 // Confirmed live 2026-09-27: a used 2023 Porsche Taycan GTS trade-in listed
@@ -55,6 +64,6 @@ export function resolveVehicleBrandMatch(brand, vehicle) {
 export function resolveKeptMake(brand, vehicle) {
   const { isTargetBrand, resolvedMake } = resolveVehicleBrandMatch(brand, vehicle);
   if (isTargetBrand) return resolvedMake;
-  const rawMake = (vehicle.make || '').trim();
-  return rawMake || null;
+  // An off-brand vehicle's raw make may itself be the umbrella (roster `dealer.make`); resolve it too.
+  return normalizeMakeForWrite({ make: vehicle.make, vin: vehicle.vin, model: vehicle.model });
 }
