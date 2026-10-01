@@ -66,6 +66,9 @@ export function buildBrandChangeRecord({
   soldVehicles = [],
   dealerStats = {},
   skippedForBotProtection = 0,
+  // Lite-crawl shadow-mode totals (liteCrawlPlan.js). null when the mode is off, in which case the
+  // record is exactly what it was before this field existed.
+  liteShadow = null,
 }) {
   const priceChanges = [
     ...priceDrops.map((v) => ({
@@ -106,6 +109,7 @@ export function buildBrandChangeRecord({
       totalPriceIncreases: priceIncreases.length,
       totalSoldOrRemoved: soldVehicles.length,
       skippedForBotProtection,
+      ...(liteShadow ? { liteShadow } : {}),
     },
     // Every vehicle that changed price today, in full — this is the record
     // the "daily changes with date + price change" requirement needs.

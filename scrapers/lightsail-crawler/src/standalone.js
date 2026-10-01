@@ -25,6 +25,7 @@ import { inventoryChangeTypeToPriceChangeType } from './price_diff.js';
 import { looksLikeOptionSentence } from './optionSentenceFilter.js';
 import { mergeInventorySnapshot } from './inventory_merge.js';
 import { buildBrandChangeRecord, mergeDailyChangesDocument } from './daily_changes.js';
+import { createLiteShadowSession, liteModeFromEnv, litePlatformsFromEnv } from './liteCrawlPlan.js';
 import { withSharedDataLock } from './shared_data_lock.js';
 import { inventoryShardPath, inventoryShardsDir, snapshotShardPath } from './inventory_shards.js';
 import { resolveKeptMake } from './brand_match.js';
@@ -131,6 +132,19 @@ try {
 } catch {
     console.log('No previous baseline found. Starting fresh initial scan.');
 }
+
+// Lite nightly crawl, Phase 0: CRAWLER_LITE_NIGHTLY=shadow only predicts which VDP fetches a future
+// lite pass would skip and checks that against tonight's normal full fetch — it never changes what is
+// fetched or stored. Unset/off (the default) is a no-op session. See liteCrawlPlan.js.
+if (String(process.env.CRAWLER_LITE_NIGHTLY || '').trim().toLowerCase() === 'on') {
+    console.warn('⚠️ CRAWLER_LITE_NIGHTLY=on is not implemented yet — running the normal full crawl.');
+}
+const liteShadow = createLiteShadowSession({
+    mode: liteModeFromEnv(process.env),
+    platforms: litePlatformsFromEnv(process.env),
+    snapshot: previousSnapshot,
+    log: (line) => console.log(line),
+});
 
 // --- DB scrape-run tracking (additive) ---------------------------------
 // Once dealers are loaded, register this run in MariaDB: upsert the brand
@@ -903,6 +917,7 @@ for (let i = 0; i < dealers.length; i++) {
             continue;
         }
 
+        liteShadow.beginDealer(dealer.name, vehicleUrls);
         console.log(`${progress} Found ${vehicleUrls.length} vehicle URLs. Extracting data...`);
 
         let dealerCount = 0;
@@ -1157,6 +1172,7 @@ for (let i = 0; i < dealers.length; i++) {
                         applyWindowSticker(vehicle, html, url, { classification: pageClass.classification });
                         currentInventory.set(vehicle.vin, vehicle);
                         dealerCount++;
+                        liteShadow.recordExtracted(url, vehicle.vin);
                         const prev = previousSnapshot[vehicle.vin];
                         try {
                             await captureVehicleDom({
@@ -1204,6 +1220,7 @@ for (let i = 0; i < dealers.length; i++) {
         runProgress.lastError = `${dealer.name}: ${err.message}`;
         console.error(`${progress} ❌ Error crawling ${dealer.name}: ${err.message}`);
     } finally {
+        liteShadow.endDealer();
         clearTimeout(dealerTimeoutHandle);
         if (patchrightFallback) {
             await patchrightFallback.context.close().catch(() => {});
@@ -1338,6 +1355,7 @@ const brandChangeRecord = buildBrandChangeRecord({
     soldVehicles,
     dealerStats,
     skippedForBotProtection: skippedBotProtection,
+    liteShadow: liteShadow.stats(),
 });
 
 await withSharedDataLock(async () => {

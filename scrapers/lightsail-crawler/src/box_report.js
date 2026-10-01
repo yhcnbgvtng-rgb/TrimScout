@@ -15,6 +15,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import os from 'node:os';
+import { addLiteShadowStats } from './liteCrawlPlan.js';
 
 function readLogSafe(logFile) {
   if (!logFile) return '';
@@ -103,6 +104,7 @@ export async function buildBoxReport(driverSummary, config = {}) {
   const secondsPerRooftopSamples = [];
   let vehiclesScraped = 0;
   let skippedForBotProtectionTotal = 0;
+  let liteShadowTotal = null;
 
   let wafByClass = {};
   let emptyInventoryTotal = 0;
@@ -134,6 +136,7 @@ export async function buildBoxReport(driverSummary, config = {}) {
       if (brandResult.stats) {
         vehiclesScraped += brandResult.stats.totalActiveInventory || 0;
         skippedForBotProtectionTotal += brandResult.stats.skippedForBotProtection || 0;
+        if (brandResult.stats.liteShadow) liteShadowTotal = addLiteShadowStats(liteShadowTotal, brandResult.stats.liteShadow);
       }
     }
 
@@ -240,6 +243,11 @@ export async function buildBoxReport(driverSummary, config = {}) {
     // (capacity.js) if actualSeconds keeps running far past estimatedSeconds
     // for the same state night after night.
     claimOrder: driverSummary.crawlClaimsStatus?.states ?? null,
+    // Lite nightly crawl, Phase 0 (CRAWLER_LITE_NIGHTLY=shadow): how many VDP fetches a lite pass
+    // would have skipped tonight (liteEligible of urlsTotal), how many of those the normal full fetch
+    // actually turned into a vehicle (liteEligibleProduced), and how often the URL -> VIN index from
+    // yesterday's snapshot was wrong (indexMismatches). Only present when shadow mode ran.
+    ...(liteShadowTotal ? { liteShadow: liteShadowTotal } : {}),
   };
 }
 
@@ -313,7 +321,16 @@ ${row('WAF by class', `<pre>${JSON.stringify(report.quality.wafByClass, null, 2)
 ${row('Empty-inventory dealers', report.quality.emptyInventoryDealers)}
 ${row('NHTSA success rate', report.quality.nhtsaSuccessRate !== null ? `${(report.quality.nhtsaSuccessRate * 100).toFixed(1)}%` : '—')}
 ${row('Lock contention timeouts', report.quality.lockContentionTimeouts)}
-</table>
+</table>${report.liteShadow ? `
+<h2>Lite crawl (shadow)</h2><table>
+${row('URLs total', report.liteShadow.urlsTotal)}
+${row('Matched to snapshot VIN', report.liteShadow.matched)}
+${row('Lite-eligible (would skip)', report.liteShadow.liteEligible)}
+${row('Lite-eligible that produced a vehicle', report.liteShadow.liteEligibleProduced)}
+${row('Index mismatches', report.liteShadow.indexMismatches)}
+${row('Vehicles extracted', report.liteShadow.vehiclesExtracted)}
+${row('By platform', `<pre>${JSON.stringify(report.liteShadow.byPlatform, null, 2)}</pre>`)}
+</table>` : ''}
 <h2>Capacity</h2><table>
 ${row('Projected hours (at start)', report.capacity.projectedHoursAtStart?.toFixed(1))}
 ${row('Actual hours', report.capacity.actualHours)}
