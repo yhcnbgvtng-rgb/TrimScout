@@ -182,7 +182,9 @@ open(p, "w").write(s)
 PY
 
 node --check "$FILE" && echo "syntax ok: deals_api_server.js"
-sudo pm2 restart trimscout-deals-api --update-env >/dev/null && sleep 2
+# The deals API runs as "deals-api" under the ubuntu user's pm2 (not root's) — plain restart keeps its
+# stored env (e.g. DISABLE_FACET_REBUILD), which --update-env would overwrite from this shell.
+sudo -u ubuntu pm2 restart deals-api >/dev/null && sleep 3
 code=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:3004/api/inventory)
 echo "GET /api/inventory without key -> $code (401 = server up and guarding)"
-echo "Rollback: sudo cp $FILE.bak.$STAMP $FILE && sudo pm2 restart trimscout-deals-api"
+echo "Rollback: sudo cp $FILE.bak.$STAMP $FILE && sudo -u ubuntu pm2 restart deals-api"

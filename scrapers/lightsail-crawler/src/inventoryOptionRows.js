@@ -206,7 +206,8 @@ const LISTING_POSITION_KEY = /^(?:opt|option|code|pkg)\s*\d+$/;
 /** Whether a stored (canonical_key, label) is fit to show a buyer as a pickable factory option. */
 export function isBuyerFacingOption(key, label) {
   if (typeof key !== "string" || typeof label !== "string") return false;
-  const cleanLabel = label.trim();
+  if (MOJIBAKE.test(label)) return false;
+  const cleanLabel = buyerOptionLabel(label);
   if (cleanLabel.length < 3 || cleanLabel.length > 60) return false;
   if (key.split(" ").length > 9) return false; // a spec run-on, not an option name
   if (LISTING_POSITION_KEY.test(key)) return false;
@@ -214,9 +215,13 @@ export function isBuyerFacingOption(key, label) {
   return !looksLikeJunkCanonicalKey(key) && !looksLikeNonOptionText(cleanLabel);
 }
 
-/** Plain-English display label: collapsed whitespace, and SHOUTING dealer text title-cased. */
+// Mojibake from a UTF-8 bullet/dash decoded as Latin-1 ("â?¢", "Â·") — a label carrying it can't be
+// trusted to be clean anywhere else either, so it is dropped rather than repaired.
+const MOJIBAKE = /[\u00c2\u00c3\u00e2][\u0080-\u00bf?\u2018-\u203a]/;
+
+/** Plain-English display label: bullets/asterisks/punctuation trimmed off both ends, collapsed whitespace, SHOUTING dealer text title-cased. */
 export function buyerOptionLabel(label) {
-  const clean = String(label || "").replace(/\s+/g, " ").trim();
+  const clean = String(label || "").replace(/^[^A-Za-z0-9]+/, "").replace(/[^A-Za-z0-9)"%]+$/, "").replace(/\s+/g, " ").trim();
   if (clean.length > 4 && clean === clean.toUpperCase() && /[A-Z]/.test(clean)) {
     return clean.toLowerCase().replace(/\b([a-z])/g, (c) => c.toUpperCase());
   }

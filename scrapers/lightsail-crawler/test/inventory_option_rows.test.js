@@ -278,3 +278,20 @@ describe('buyer option catalog hygiene', () => {
     assert.equal(buyerOptionLabel('  Tow   package '), 'Tow package');
   });
 });
+
+describe('buyer option labels — bullets and mojibake', () => {
+  it('trims leading/trailing bullets, asterisks and punctuation', () => {
+    assert.equal(buyerOptionLabel('**Sync 4**'), 'Sync 4');
+    assert.equal(buyerOptionLabel('* 4wd'), '4wd');
+    assert.equal(buyerOptionLabel('? Dual-zone electronic automatic temperature control'), 'Dual-zone electronic automatic temperature control');
+    assert.equal(buyerOptionLabel('Radio: AM/FM Stereo with SiriusXM 360L'), 'Radio: AM/FM Stereo with SiriusXM 360L');
+  });
+  it('drops mojibake labels instead of showing them', () => {
+    assert.equal(isBuyerFacingOption('unique sport cloth 40 console 40 front seats', '\u00e2?\u00a2 Unique Sport Cloth 40/console/40 front seats'), false);
+  });
+  it('folds "**Sync 4**" and "Sync 4" into one entry', () => {
+    const out = buyerOptionCatalog([{ canonical_key: 'sync 4', label: '**Sync 4**', vehicleCount: 4382 }, { canonical_key: 'sync 4 2', label: 'Sync 4', vehicleCount: 100 }]);
+    assert.equal(out.length, 1);
+    assert.equal(out[0].label, 'Sync 4');
+  });
+});
