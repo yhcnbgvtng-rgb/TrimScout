@@ -127,7 +127,14 @@ export function inventoryListQuery(params) {
   }
   const sortable = { dealer: "i.dealer_name", year: "i.year", make: "i.make", model: "i.model", price: "i.price", mileage: "i.mileage", seen: "i.last_seen_at", days: "i.days_on_lot", pricediff: "i.price_diff", msrp: "i.msrp" };
   const [sk, sd] = (p("sort") || "dealer:asc").split(":");
-  const orderBy = `${sortable[sk] || "i.dealer_name"} ${sd === "desc" ? "DESC" : "ASC"}, i.vin ASC`;
+  // sort=trim is the buyer search's default for make+model: idx_inv_stock_make_model_trim is ordered
+  // (removed_at, make, model, trim, dealer_name, vin), so with make+model pinned, (trim, dealer_name,
+  // vin) IS index order — no filesort at all. Measured live 2026-10-01 on 57,574 in-stock Ford F-150s:
+  // the dealer:asc default filesorts the whole make+model range (348ms covering / 952ms with full
+  // rows) while this order stops after 24 index entries (4ms). Only meaningful with make+model.
+  const orderBy = sk === "trim"
+    ? `i.trim ${sd === "desc" ? "DESC" : "ASC"}, i.dealer_name ${sd === "desc" ? "DESC" : "ASC"}, i.vin ${sd === "desc" ? "DESC" : "ASC"}`
+    : `${sortable[sk] || "i.dealer_name"} ${sd === "desc" ? "DESC" : "ASC"}, i.vin ASC`;
   // A make= filter combined with the default dealer_name sort made the optimizer pick
   // idx_inv_stock_dealer (295k-row estimate) over the far more selective idx_inv_stock_make
   // (removed_at, make, model) — confirmed live 2026-09-22: 110.9s vs 203ms forced. Likely
@@ -188,6 +195,19 @@ export function inventoryListQuery(params) {
   // straight to the make/state and range-scan only the recently-removed rows within it.
   const indexHint = p("removed") === "1" && !p("dealerId")
     ? (p("state") ? "FORCE INDEX (idx_inv_state_removed)" : p("make") ? "FORCE INDEX (idx_inv_make_removed)" : "FORCE INDEX (idx_inv_removed)")
+    // make+model+state, in stock: state's own index (below) walks the WHOLE state in dealer order and
+    // needs a row lookup per car just to test make/model — measured live 2026-10-01, Ford F-150 in NJ
+    // (1,555 of NJ's ~57k cars) never finished inside 10s. idx_inv_facet_make_model_state_trim
+    // (removed_at, make, model, state, trim) is exactly the equality prefix, so the range is only
+    // those 1,555 rows; the sort then runs over that tiny set. (Created for the facet dropdowns.)
+    : (p("make") && p("model") && p("state") && p("inStock") === "1" && !p("dealerId"))
+    ? "FORCE INDEX (idx_inv_facet_make_model_state_trim)"
+    // make+state (no model) with sort=model: idx_inv_facet_make_state_model is (removed_at, make,
+    // state, model) + the PK's vin, so (model, vin) is index order — the buyer's default for this
+    // shape. Without it the state index walks all of the state's cars looking for a rare make (Porsche
+    // in NJ never finished inside 10s, 2026-10-01); here the range is only that make's cars in the state.
+    : (p("make") && p("state") && !p("model") && p("inStock") === "1" && !p("dealerId") && (p("sort") || "").startsWith("model:"))
+    ? "FORCE INDEX (idx_inv_facet_make_state_model)"
     : (p("state") && !p("dealerId"))
     ? (p("inStock") === "1" ? "FORCE INDEX (idx_inv_stock_state)" : "FORCE INDEX (idx_inv_state_dealer)")
     : !p("make") ? ""
@@ -206,5 +226,43 @@ export function inventoryListQuery(params) {
   // this join was pure overhead on the COUNT(*) query for every filter combination, not just the
   // make=+model= case this fix targets.
   const countSql = `FROM dealer_inventory i ${indexHint} ${optionJoin}${whereSql}`;
-  return { sql, countSql, args: [...optionArgs, ...args], orderBy };
+  // countCap: stop counting once this many matches are found. An exact COUNT(*) has to visit every
+  // matching row — 186k+ for a bare make like Ford — and buyers never need that number: "1,000+" is
+  // an honest answer, and the LIMIT inside the derived table lets MariaDB stop early (a plain
+  // COUNT(*) can't). Counting one past the cap is how the caller knows the real total is higher.
+  // Absent/invalid = exact count, unchanged — the admin sheet still wants the true number.
+  const capN = Math.floor(Number(params.get("countCap")));
+  const countCap = Number.isFinite(capN) && capN >= 1 ? Math.min(capN, 100000) : null;
+  const cappedCountSql = countCap ? `SELECT COUNT(*) AS total FROM (SELECT 1 ${countSql} LIMIT ${countCap + 1}) capped` : null;
+  return { sql, countSql, countCap, cappedCountSql, args: [...optionArgs, ...args], orderBy };
+}
+
+/**
+ * Resolves the page's `total` without a COUNT(*) when the page itself already proves it: a first
+ * page that isn't full (offset 0) or a later page that isn't full means there are no more rows, so
+ * the total is exactly offset + rows returned. Returns null when a count query is still needed.
+ */
+export function totalFromPage(offset, limit, rowsReturned) {
+  if (rowsReturned === 0 && offset > 0) return null; // paged past the end — the true total is unknown
+  return rowsReturned < limit ? offset + rowsReturned : null;
+}
+
+/** Folds a capped count result into the {total, totalCapped} the API returns. */
+export function applyCountCap(rawCount, countCap) {
+  const n = Number(rawCount);
+  return countCap && n > countCap ? { total: countCap, totalCapped: true } : { total: n, totalCapped: false };
+}
+
+/**
+ * Deferred-join page query: the inner query picks the page's (vin, dealer_id) pairs using only
+ * columns the chosen index covers (no row lookups, no blob pages), and only those <= LIMIT rows are
+ * then fetched whole. Without it MariaDB reads the full wide row (options_json etc.) for every
+ * candidate before filtering/sorting — measured live 2026-10-01: F-150 + two must-have options never
+ * finished inside 10s that way. Takes the builder's own `countSql` (the FROM/WHERE with no
+ * dealership_contacts join, which is exactly what the inner query needs) and `orderBy`; bind
+ * [...args, limit, offset]. The outer ORDER BY repeats the inner one because a join doesn't
+ * preserve the derived table's order.
+ */
+export function deferredPageSql({ countSql, orderBy }) {
+  return `SELECT i.*, d.city AS dealer_city, d.state AS dealer_state FROM (SELECT i.vin, i.dealer_id ${countSql} ORDER BY ${orderBy} LIMIT ? OFFSET ?) pg JOIN dealer_inventory i ON i.vin = pg.vin AND i.dealer_id = pg.dealer_id LEFT JOIN dealership_contacts d ON d.id = i.dealer_id ORDER BY ${orderBy}`;
 }

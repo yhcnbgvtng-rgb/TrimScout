@@ -187,3 +187,57 @@ export function looksLikeJunkCanonicalKey(key) {
 export function payloadHasOptions(options) {
   return Array.isArray(options) && options.length > 0;
 }
+
+// ---- Buyer-facing option catalog hygiene -------------------------------------------------------
+// The /search "Factory options" list is a shopper's checklist, not a data dump. Measured live
+// 2026-10-01: Ford F-150 had 95,895 (model, trim, key) facet rows and only 4,111 with 20+ vehicles —
+// the rest is long-tail dealer free text that no shopper can pick or meaningfully filter on. The
+// catalog endpoint therefore keeps only keys with real volume, drops anything that still looks like
+// junk or a listing-position code, caps the list, and cleans the labels.
+
+/** Fewer vehicles than this and an option is noise, not something a shopper can usefully filter on. */
+export const CATALOG_MIN_VEHICLES = 25;
+/** The list a shopper actually scrolls — most common first. */
+export const CATALOG_MAX_OPTIONS = 60;
+
+// "opt 35" — a listing-position code (confirmed live 2026-09-25), not an option name.
+const LISTING_POSITION_KEY = /^(?:opt|option|code|pkg)\s*\d+$/;
+
+/** Whether a stored (canonical_key, label) is fit to show a buyer as a pickable factory option. */
+export function isBuyerFacingOption(key, label) {
+  if (typeof key !== "string" || typeof label !== "string") return false;
+  const cleanLabel = label.trim();
+  if (cleanLabel.length < 3 || cleanLabel.length > 60) return false;
+  if (key.split(" ").length > 9) return false; // a spec run-on, not an option name
+  if (LISTING_POSITION_KEY.test(key)) return false;
+  if (!/[a-z]/.test(key)) return false; // digits/symbols only
+  return !looksLikeJunkCanonicalKey(key) && !looksLikeNonOptionText(cleanLabel);
+}
+
+/** Plain-English display label: collapsed whitespace, and SHOUTING dealer text title-cased. */
+export function buyerOptionLabel(label) {
+  const clean = String(label || "").replace(/\s+/g, " ").trim();
+  if (clean.length > 4 && clean === clean.toUpperCase() && /[A-Z]/.test(clean)) {
+    return clean.toLowerCase().replace(/\b([a-z])/g, (c) => c.toUpperCase());
+  }
+  return clean;
+}
+
+/**
+ * Raw facet rows ({ canonical_key, label, vehicleCount }, any order) -> the buyer-facing list:
+ * junk removed, labels cleaned, same-label duplicates folded together, most common first, capped.
+ */
+export function buyerOptionCatalog(rows) {
+  const byLabel = new Map();
+  for (const r of rows) {
+    const vehicleCount = Number(r.vehicleCount);
+    if (!(vehicleCount >= CATALOG_MIN_VEHICLES) || !isBuyerFacingOption(r.canonical_key, r.label)) continue;
+    const label = buyerOptionLabel(r.label);
+    const prev = byLabel.get(label.toLowerCase());
+    // Two keys can differ only in punctuation we already display identically ("Sync 4" / "SYNC 4"
+    // normalize to one key, but near-variants exist) — keep the bigger one, never sum: they
+    // describe overlapping vehicles, so a sum would overstate the count.
+    if (!prev || vehicleCount > prev.vehicleCount) byLabel.set(label.toLowerCase(), { key: r.canonical_key, label, vehicleCount });
+  }
+  return [...byLabel.values()].sort((a, b) => b.vehicleCount - a.vehicleCount || a.label.localeCompare(b.label)).slice(0, CATALOG_MAX_OPTIONS);
+}

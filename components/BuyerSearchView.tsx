@@ -29,6 +29,10 @@ interface BuyerVehicle {
 
 interface SearchResults {
   total: number;
+  /** True when `total` is a floor ("1,000+") — the box stopped counting at its cap. */
+  totalCapped?: boolean;
+  /** How many vehicles the most recent page returned — a full page is how "Load more" knows there may be another. */
+  lastPageCount?: number;
   limit: number;
   offset: number;
   vehicles: BuyerVehicle[];
@@ -100,9 +104,17 @@ function filtersToQueryString(f: Filters, extra: { limit?: number; offset?: numb
 }
 
 const RESULTS_PAGE_SIZE = 24;
-// Filter changes fire a new search on a short debounce so a burst of rapid dropdown clicks (or
-// typing in a "More" number field) collapses into one request instead of one per keystroke/click.
-const SEARCH_DEBOUNCE_MS = 300;
+
+/**
+ * Why Search is disabled, or null when it can run. Mirrors the server's gates
+ * (lib/buyerSearchQuery.ts) so a shopper is told what to pick instead of getting a 400 — a search
+ * with no make is an unbounded scan of the whole inventory, and factory options need a model.
+ */
+function searchBlockedReason(f: Filters): string | null {
+  if (!f.make) return "Pick a make to search.";
+  if (f.optionKeys.length > 0 && !f.model) return "Pick a model to filter by factory options.";
+  return null;
+}
 
 function toOptions<T>(rows: T[], valueKey: keyof T, countKey: keyof T, labelFor?: (r: T) => string): DropdownOption[] {
   return rows.map((r) => ({
@@ -129,6 +141,10 @@ export function BuyerSearchView() {
   const [catalogOptionsLoading, setCatalogOptionsLoading] = useState(false);
   const [catalogOptionsFailed, setCatalogOptionsFailed] = useState(false);
 
+  // `filters` is the draft the shopper is editing; `applied` is what the last Search actually ran.
+  // Nothing fires on a filter change — only Search (or Enter in a field) commits the draft, so a
+  // burst of clicks or keystrokes can never turn into a burst of expensive box queries.
+  const [applied, setApplied] = useState<Filters | null>(null);
   const [results, setResults] = useState<SearchResults | null>(null);
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
@@ -208,8 +224,15 @@ export function BuyerSearchView() {
   const setMake = (make: string) => setFilters((f) => ({ ...f, make, model: "", trim: "", optionKeys: [] }));
   const setModel = (model: string) => setFilters((f) => ({ ...f, model, trim: "", optionKeys: [] }));
 
+  // The one AbortController for search requests: starting a new search (or page) cancels whatever
+  // is still in flight, and requestId guards against a cancelled response that lands anyway.
   const runSearchRef = useRef(0);
-  const runSearch = useCallback(async (f: Filters, offset: number, signal: AbortSignal) => {
+  const controllerRef = useRef<AbortController | null>(null);
+  const runSearch = useCallback(async (f: Filters, offset: number) => {
+    controllerRef.current?.abort();
+    const controller = new AbortController();
+    controllerRef.current = controller;
+    const signal = controller.signal;
     const requestId = ++runSearchRef.current;
     setSearchLoading(true);
     if (offset === 0) setSearchError(null);
@@ -224,7 +247,8 @@ export function BuyerSearchView() {
         return;
       }
       setSearchError(null);
-      setResults((prev) => (offset > 0 && prev ? { ...json, vehicles: [...prev.vehicles, ...json.vehicles] } : json));
+      const lastPageCount = Array.isArray(json.vehicles) ? json.vehicles.length : 0;
+      setResults((prev) => (offset > 0 && prev ? { ...json, lastPageCount, vehicles: [...prev.vehicles, ...json.vehicles] } : { ...json, lastPageCount }));
     } catch (e) {
       if ((e as { name?: string })?.name === "AbortError") return;
       if (requestId !== runSearchRef.current) return;
@@ -235,38 +259,33 @@ export function BuyerSearchView() {
     }
   }, []);
 
-  // Live total: any filter change re-runs the search on a short debounce, cancelling whatever
-  // request was still in flight — never lets a slow earlier response overwrite a faster later one
-  // (the exact race this page had no guard against before this redesign).
+  // Runs the search for whatever Search last committed. Unmount cancels anything in flight.
   useEffect(() => {
-    const hasAnyFilter = filters.make || filters.state;
-    if (!hasAnyFilter) {
-      setResults(null);
-      setSearchError(null);
-      return;
-    }
-    const controller = new AbortController();
-    const t = setTimeout(() => void runSearch(filters, 0, controller.signal), SEARCH_DEBOUNCE_MS);
-    return () => {
-      clearTimeout(t);
-      controller.abort();
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    filters.state, filters.make, filters.model, filters.trim, filters.cond, filters.priceMin, filters.priceMax,
-    filters.yearMin, filters.yearMax, filters.odometerMax, filters.exteriorColor,
-    filters.interiorColor, filters.optionKeys, filters.possibleDemo, filters.zip, filters.radiusMiles, filters.sort,
-  ]);
+    if (!applied) return;
+    void runSearch(applied, 0);
+  }, [applied, runSearch]);
+  useEffect(() => () => controllerRef.current?.abort(), []);
+
+  const blockedReason = searchBlockedReason(filters);
+  const submitSearch = () => {
+    if (blockedReason) return;
+    setMoreOpen(false);
+    // A fresh object every time, so pressing Search again re-runs the same filters on purpose.
+    setApplied({ ...filters });
+  };
+  // Filters edited since the last Search — the results on screen no longer match the panel.
+  const dirty = applied !== null && JSON.stringify(applied) !== JSON.stringify(filters);
 
   const toggleOptionKey = (key: string) => {
     setFilters((f) => ({ ...f, optionKeys: f.optionKeys.includes(key) ? f.optionKeys.filter((k) => k !== key) : [...f.optionKeys, key] }));
   };
 
   const loadMore = () => {
-    if (!results) return;
-    const controller = new AbortController();
-    void runSearch(filters, results.offset + results.vehicles.length, controller.signal);
+    if (!results || !applied) return;
+    void runSearch(applied, results.vehicles.length);
   };
+  // A capped total is a floor, so "more" is known only from the last page having been full.
+  const hasMore = results ? (results.totalCapped ? (results.lastPageCount ?? 0) >= RESULTS_PAGE_SIZE : results.vehicles.length < results.total) : false;
 
   const moreCount = countMoreFilters(filters);
   const clearMore = () =>
@@ -328,7 +347,12 @@ export function BuyerSearchView() {
             </button>
 
             {moreOpen && (
-              <div className="absolute right-0 top-full z-30 mt-1.5 w-80 max-w-[92vw] space-y-3 rounded-xl border border-border-strong bg-surface-elevated p-3 shadow-2xl">
+              <div
+                onKeyDown={(e) => {
+                  const t = e.target as HTMLElement;
+                  if (e.key === "Enter" && t.tagName === "INPUT" && (t as HTMLInputElement).type !== "checkbox") { e.preventDefault(); submitSearch(); }
+                }}
+                className="absolute right-0 top-full z-30 mt-1.5 w-80 max-w-[92vw] space-y-3 rounded-xl border border-border-strong bg-surface-elevated p-3 shadow-2xl">
                 <div>
                   <label className="mb-1 block text-[10.5px] font-bold uppercase tracking-wide text-ink-faint">Condition</label>
                   <select value={filters.cond} onChange={(e) => setFilters((f) => ({ ...f, cond: e.target.value }))} className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-white focus:border-sky-500/50 focus:outline-none">
@@ -417,12 +441,28 @@ export function BuyerSearchView() {
               </div>
             )}
           </div>
+
+          <div className="flex flex-col gap-1">
+            <span className="text-[10.5px] font-bold uppercase tracking-wide text-ink-faint">&nbsp;</span>
+            <button
+              type="button"
+              onClick={submitSearch}
+              disabled={Boolean(blockedReason) || searchLoading}
+              title={blockedReason ?? undefined}
+              className="rounded-xl bg-sky-500 px-5 py-2.5 text-xs font-extrabold text-white transition-colors hover:bg-sky-400 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              {searchLoading ? "Searching…" : "Search"}
+            </button>
+          </div>
         </div>
+        {(blockedReason || dirty) && (
+          <p className="mt-2 text-[11px] text-ink-faint">{blockedReason ?? "Filters changed — press Search to update the results."}</p>
+        )}
       </div>
 
       <div>
         <p className="mb-3 text-xs font-semibold text-ink-muted">
-          {results ? `${results.total.toLocaleString()} vehicle${results.total === 1 ? "" : "s"} found` : searchLoading ? "Searching…" : " "}
+          {results ? `${results.total.toLocaleString()}${results.totalCapped ? "+" : ""} vehicle${results.total === 1 && !results.totalCapped ? "" : "s"} found` : searchLoading ? "Searching…" : " "}
         </p>
 
         {searchError && (
@@ -437,13 +477,13 @@ export function BuyerSearchView() {
 
         {!searchError && !results && !searchLoading && (
           <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-surface/40 px-4 py-16 text-center text-sm text-ink-faint">
-            Choose a make (and state if you want) to see in-stock vehicles.
+            Pick a make (add a model to narrow it further), then press Search.
           </div>
         )}
 
         {!searchError && results && (
           <>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            <div className={`grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3 transition-opacity ${dirty ? "opacity-60" : ""}`}>
               {results.vehicles.map((v) => (
                 <VehicleCard key={`${v.vin}-${v.dealerName}`} vehicle={v} />
               ))}
@@ -453,7 +493,7 @@ export function BuyerSearchView() {
                 No vehicles match these filters — try widening them.
               </div>
             )}
-            {results.vehicles.length < results.total && (
+            {hasMore && (
               <div className="mt-6 flex justify-center">
                 <button type="button" onClick={loadMore} disabled={searchLoading} className="rounded-xl border border-border bg-surface-elevated px-5 py-2.5 text-xs font-bold text-ink-light hover:border-sky-500/50 hover:text-white disabled:opacity-50">
                   {searchLoading ? "Loading…" : "Load more"}

@@ -11,7 +11,7 @@ function toBuyerVehicle(v: InventoryVehicle, distanceMiles: number | null): Buye
 }
 
 /** The actual box call + distance post-processing behind GET /api/vehicles/search. */
-export async function runBuyerSearch(parsed: ParsedBuyerSearch): Promise<{ total: number; limit: number; offset: number; vehicles: BuyerVehicle[] }> {
+export async function runBuyerSearch(parsed: ParsedBuyerSearch): Promise<{ total: number; totalCapped: boolean; limit: number; offset: number; vehicles: BuyerVehicle[] }> {
   const { query, zip, radiusMiles, sortDistance } = parsed;
   const result = await searchInventory(query);
   let vehicles: BuyerVehicle[] = result.vehicles.map((v) =>
@@ -23,5 +23,5 @@ export async function runBuyerSearch(parsed: ParsedBuyerSearch): Promise<{ total
   if (zip && sortDistance) {
     vehicles = vehicles.sort((a, b) => (a.distanceMiles ?? Infinity) - (b.distanceMiles ?? Infinity));
   }
-  return { total: result.total, limit: result.limit, offset: result.offset, vehicles };
+  return { total: result.total, totalCapped: Boolean(result.totalCapped), limit: result.limit, offset: result.offset, vehicles };
 }

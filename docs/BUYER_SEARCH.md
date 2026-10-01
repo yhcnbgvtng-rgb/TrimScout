@@ -24,6 +24,78 @@ git history for that design if a future AI entry point is ever wanted again.
   already uses.
 - No changes to the Lightsail crawl-claim queue / crawler concurrency — unrelated system.
 
+## Allowed filter combinations, gates and latency SLOs
+
+`/api/vehicles/search` refuses anything that would be an unbounded scan (HTTP 400, never reaches
+the box). Measured live 2026-09-30: bare searches 503'd at the 20s `max_statement_time` and four at
+once left three timeouts — so the fix is gating and shape, **never a raised timeout**.
+
+| Request | Result |
+|---|---|
+| no `make` (bare, state-only, price-only, `q`-only, zip/radius-only) | **400** "Pick a make to search…" |
+| `make` | OK |
+| `make` + `model` (+ `trim`) | OK — the fast path |
+| `make` + `state` (+ `model`) | OK |
+| `optionKeys` without `model` | **400** "Pick a model before filtering by factory options." |
+| `optionKeys` with `make` + `model` | OK, at most 8 keys |
+| `radiusMiles` without `make` | **400** (`radiusMiles requires make`) |
+
+Latency SLOs (p95, warm, one buyer): `make`+`model` **< 2s**; with ZIP radius **< 3s** (Part B);
+bare **refused** immediately. Under load the box allows at most `INV_SEARCH_MAX_CONCURRENT`
+(default 6) list queries at once and waits at most `INV_SEARCH_QUEUE_WAIT_MS` (3000) for a slot,
+then answers **503 + `Retry-After: 2`** ("Search is busy right now") — fast and recoverable instead
+of queueing behind slow queries into a timeout cascade.
+
+**Counts.** The page is fetched first; the total is skipped entirely when the page is short (it *is*
+the total), otherwise counted only up to `countCap` (the buyer route sends 1000) through a
+`LIMIT cap+1` derived table that stops early. The response then carries `totalCapped: true` and the
+UI shows "1,000+ vehicles". Admin calls send no `countCap` and still get the exact count.
+
+**Buyer page query = deferred join.** The inner query picks the page's `(vin, dealer_id)` pairs from
+the covering index only; just those ≤24 rows are then read whole (`deferredPageSql`). Default order
+is `trim` for make+model and `model` for make+state (the exact index order of
+`idx_inv_stock_make_model_trim` / `idx_inv_facet_make_state_model`, so no filesort); make alone keeps
+the dealer-name default (`idx_inv_stock_make_dealer`).
+
+**Factory-options catalog.** `GET /api/catalog/options` now returns only keys with ≥ 25 vehicles,
+junk / listing-position codes dropped, labels cleaned, most common first, **max 60** (Ford F-150 had
+95,895 stored (model, trim, key) facet rows and only 4,111 with 20+ vehicles).
+
+### Measured on the live deals box, 2026-10-01 (24-row page, SELECT only, 10s cap)
+
+| Shape | Before | After |
+|---|---|---|
+| `make=Ford` | 47 ms | 63 ms (deferred join; dealer order) |
+| `make=Ford&model=F-150` (57,574 in stock) | 952 ms (filesort) | **204 ms** (sort=trim, index order) |
+| …page 3 | — | 123 ms |
+| F-150 + 1 option | timeout | **235 ms** |
+| F-150 + 2 options | **> 10 s** | **891 ms** |
+| F-150 in NJ (1,555) | **> 10 s** | **1.0 s** (`idx_inv_facet_make_model_state_trim`) |
+| Porsche in NJ | **> 10 s** | **20 ms** (`idx_inv_facet_make_state_model`, sort=model) |
+| Ford in NJ / TX | 71 ms | 31 / 27 ms |
+| Capped count, F-150 | exact `COUNT(*)` | **11 ms** |
+| `optionKeys` with no make/model | unbounded | **400** |
+
+**Known gap — explicit non-index sorts** (`price`, `mileage`, `days`): F-150 `sort=price:asc` still
+exceeds 10s. None of those columns are in the make+model index, so each candidate costs a row
+lookup, and the box's `innodb_buffer_pool_size` is the MariaDB default **128 MB** on a 15.7 GB host
+whose `dealer_inventory` is several GB — most lookups miss to disk. Raising it (it is dynamic in
+10.11) is the single biggest lever for load behaviour; it is a production DB setting and has not been
+changed by this work.
+
+### EXPLAIN snapshots (live, trimmed)
+
+```
+make=Ford                      i ref idx_inv_stock_make_dealer          Using index condition; Using where
+make=Ford&model=F-150          i ref idx_inv_stock_make_model_trim      Using index condition; Using where; Using filesort   (dealer sort — why the default is now trim)
+make+model, capped count       <derived2> ALL 1001 / i ref idx_inv_stock_make_model_trim  Using where; Using index   (covering, stops at cap+1)
+make+model+optionKeys          PRIMARY i idx_inv_stock_make_model_trim → <derived2> key0 (vin,dealer_id) ← DERIVED dealer_inventory_options range idx_opt_canonical (Using index)
+state=NJ&make=Ford (dealer)    i ref idx_inv_stock_state                Using index condition; Using where
+```
+`optionKeys` stays a JOIN against a derived table (never a correlated subquery); the derived table
+reads `idx_opt_canonical` index-only. `idx_opt_dealer_canonical` and the make/model FORCE INDEX
+paths are unchanged. Query shapes are pinned in `test/inventory_list_query.test.js`.
+
 ## Data model additions
 
 Two additions to `dealer_inventory` (deals box, MariaDB), both **not backfilled** — they start

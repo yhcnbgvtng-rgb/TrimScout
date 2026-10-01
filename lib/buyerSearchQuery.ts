@@ -10,10 +10,13 @@ export interface ParsedBuyerSearch {
 }
 
 const MAX_LIMIT = 100;
+const MAX_OPTION_KEYS = 8;
+/** Buyer searches never pay for an exact COUNT(*) past this — the UI shows "1,000+ vehicles". */
+export const BUYER_COUNT_CAP = 1000;
 
 /**
  * Pure param parsing + validation for GET /api/vehicles/search, pulled out of the route so the
- * "radiusMiles requires make" guardrail and the sort=distance handling (both easy to silently
+ * query gates (make required; optionKeys need a model) and the sort=distance handling (both easy to silently
  * regress) have real test coverage without spinning up a Next.js request.
  */
 export function parseBuyerSearchParams(sp: URLSearchParams): ParsedBuyerSearch {
@@ -21,14 +24,28 @@ export function parseBuyerSearchParams(sp: URLSearchParams): ParsedBuyerSearch {
   const radiusMiles = sp.get("radiusMiles") ? Number(sp.get("radiusMiles")) : undefined;
   const make = sp.get("make") || undefined;
 
-  // A radius search with no make is an unbounded scan of every in-stock vehicle nationwide just
-  // to compute distance on each one — make= is what keeps this a bounded, indexed query (see
-  // inventoryListQuery.js's make= index hint). Required rather than silently ignoring radius.
-  if (zip && radiusMiles !== undefined && !make) {
+  // Query gates: a search with no make is an unbounded scan of every in-stock vehicle nationwide.
+  // Measured live (2026-09-30): bare searches 503 at the 20s max_statement_time, and four of them
+  // at once left three timeouts — the box can't afford even one. make= is what keeps this a
+  // bounded, indexed query (see inventoryListQuery.js's make= index hints), so it is required
+  // outright rather than silently ignoring a missing one or raising a timeout to paper over it.
+  // (This also subsumes the old "radiusMiles requires make" rule.)
+  if (!make && zip && radiusMiles !== undefined) {
     throw new BuyerSearchParamsError("radiusMiles requires make to also be set.");
   }
-
+  if (!make) {
+    throw new BuyerSearchParamsError("Pick a make to search — searching all of inventory at once is too slow. Add a model to narrow it further.");
+  }
+  // The option JOIN's derived table scans every vehicle nationally that has the option, whatever
+  // the outer make= filter says — only a model keeps that bounded to something a shopper means.
   const optionKeys = (sp.get("optionKeys") || "").split(",").map((c) => c.trim()).filter(Boolean);
+  if (optionKeys.length && !sp.get("model")) {
+    throw new BuyerSearchParamsError("Pick a model before filtering by factory options.");
+  }
+  if (optionKeys.length > MAX_OPTION_KEYS) {
+    throw new BuyerSearchParamsError(`Pick at most ${MAX_OPTION_KEYS} factory options at a time.`);
+  }
+
   const sortDistance = sp.get("sort") === "distance";
   const query: BuyerSearchQuery = {
     state: sp.get("state") || undefined,
@@ -51,7 +68,11 @@ export function parseBuyerSearchParams(sp: URLSearchParams): ParsedBuyerSearch {
     possibleDemo: sp.get("possibleDemo") === "1",
     // "distance" isn't a box-side sort key (inventoryListQuery.js falls back to dealer:asc for
     // an unknown key) — distance sort happens in-memory on the fetched page, in the route.
-    sort: sortDistance ? undefined : sp.get("sort") || undefined,
+    // No explicit sort: the one order the make-scoped index serves with no filesort — trim for
+    // make+model (idx_inv_stock_make_model_trim), model for make+state (idx_inv_facet_make_state_model);
+    // make alone keeps the box's dealer default (idx_inv_stock_make_dealer). See inventoryListQuery.js.
+    sort: sortDistance ? undefined : sp.get("sort") || (sp.get("model") ? "trim:asc" : sp.get("state") ? "model:asc" : undefined),
+    countCap: BUYER_COUNT_CAP,
     limit: Math.min(Number(sp.get("limit")) || 50, MAX_LIMIT),
     offset: Number(sp.get("offset")) || 0,
   };
