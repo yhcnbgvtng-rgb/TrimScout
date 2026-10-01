@@ -20,26 +20,77 @@
 // survive a restart or be visible across processes the way crawl_claims (a real cross-box,
 // cross-process queue) needs a table for.
 
-// Longest real sync observed this session is well under an hour (2026-09-25's full nationwide
-// run); a crashed sync that dies without calling release should never wedge every box out for
-// longer than a generous multiple of that.
-export const SYNC_LOCK_STALE_MS = 3 * 60 * 60 * 1000; // 3h
+// LIVENESS, not elapsed time (changed 2026-10-01). The lock used to be reclaimed whenever it had
+// been held longer than 3h, on the assumption that no healthy sync runs that long. Live that
+// night: box1's sync legitimately ran 5h+ (slow upsert + a one-call-per-store sweep against a
+// loaded deals box), the 3h clock expired while its process was still alive, box3 reclaimed the
+// lock, and two syncs wrote at once — and box1 later died mid-sweep on a headers timeout.
+//
+// Now a holder proves it is alive by heartbeating (POST /api/ops/sync-lock/heartbeat, every
+// SYNC_LOCK_HEARTBEAT_INTERVAL_MS from inventory-sync.mjs's syncLockHeartbeat.js). A lock is only
+// reclaimed when its heartbeat has been silent for SYNC_LOCK_HEARTBEAT_STALE_MS — i.e. the holder
+// missed many beats in a row, which a slow-but-alive sync never does — so a crash that skips
+// release still frees the lock within minutes instead of hours.
+//
+// Mixed-version safety: a holder running the OLD client never heartbeats. Such a lock (heartbeatAt
+// === null) keeps the old 3h wall-clock rule, so deploying the server before the box clients can't
+// start stealing locks from not-yet-updated boxes after 10 minutes.
+//
+// Backstop: a holder that heartbeats forever but is wedged is reclaimed after SYNC_LOCK_MAX_HOLD_MS
+// (a hung process whose timer still fires), with the reason logged.
+export const SYNC_LOCK_STALE_MS = 3 * 60 * 60 * 1000; // legacy rule, holders that never heartbeat
+export const SYNC_LOCK_HEARTBEAT_INTERVAL_MS = 30 * 1000;
+export const SYNC_LOCK_HEARTBEAT_STALE_MS = 10 * 60 * 1000; // 20 missed beats
+export const SYNC_LOCK_MAX_HOLD_MS = 24 * 60 * 60 * 1000;
+
+/** Why (if at all) `lock` may be reclaimed at `now`; null = holder presumed alive. */
+export function syncLockReclaimReason(lock, now) {
+  if (!lock) return null;
+  const held = now - lock.acquiredAt;
+  if (held > SYNC_LOCK_MAX_HOLD_MS) return `held ${Math.round(held / 60000)}min, over the ${SYNC_LOCK_MAX_HOLD_MS / 3600000}h absolute cap`;
+  if (lock.heartbeatAt == null) {
+    return held > SYNC_LOCK_STALE_MS ? `no heartbeat support from holder and held ${Math.round(held / 60000)}min (legacy ${SYNC_LOCK_STALE_MS / 3600000}h rule)` : null;
+  }
+  const silent = now - lock.heartbeatAt;
+  return silent > SYNC_LOCK_HEARTBEAT_STALE_MS ? `heartbeat silent for ${Math.round(silent / 1000)}s (limit ${SYNC_LOCK_HEARTBEAT_STALE_MS / 1000}s); holder presumed dead` : null;
+}
 
 /**
- * @param {{ owner: string, acquiredAt: number } | null} lock current lock state
+ * @param {{ owner: string, acquiredAt: number, heartbeatAt: number | null } | null} lock current lock state
  * @param {string} owner requesting caller
  * @param {number} now current time (injected for deterministic tests)
- * @returns {{ nextLock: {owner: string, acquiredAt: number}, result: {acquired: true} | {acquired: false, heldBy: string, heldSinceMs: number} }}
+ * @param {{ heartbeat?: boolean }} [opts] heartbeat: caller will heartbeat (new client)
+ * @returns {{ nextLock, result: {acquired: true} | {acquired: false, heldBy: string, heldSinceMs: number}, event: {kind: 'acquired'|'reacquired'|'reclaimed'|'denied', ...} }}
  */
-export function tryAcquireSyncLock(lock, owner, now) {
-  // Self-heal a crashed holder that never released.
-  const live = lock && now - lock.acquiredAt > SYNC_LOCK_STALE_MS ? null : lock;
+export function tryAcquireSyncLock(lock, owner, now, opts = {}) {
+  const reason = syncLockReclaimReason(lock, now);
+  const live = reason ? null : lock;
+  const heartbeatAt = opts.heartbeat ? now : null;
   if (live && live.owner !== owner) {
-    return { nextLock: live, result: { acquired: false, heldBy: live.owner, heldSinceMs: now - live.acquiredAt } };
+    return {
+      nextLock: live,
+      result: { acquired: false, heldBy: live.owner, heldSinceMs: now - live.acquiredAt },
+      event: { kind: 'denied', heldBy: live.owner },
+    };
   }
-  // Same owner re-acquiring (a retry after a transient error) keeps the original acquiredAt
-  // rather than resetting its own staleness clock.
-  return { nextLock: { owner, acquiredAt: live ? live.acquiredAt : now }, result: { acquired: true } };
+  // Same owner re-acquiring (a retry after a transient error, or re-taking the lock after a server
+  // restart) keeps the original acquiredAt rather than resetting its own clock.
+  const nextLock = { owner, acquiredAt: live ? live.acquiredAt : now, heartbeatAt: live && !opts.heartbeat ? live.heartbeatAt : heartbeatAt };
+  const event = reason
+    ? { kind: 'reclaimed', from: lock.owner, reason }
+    : { kind: live ? 'reacquired' : 'acquired' };
+  return { nextLock, result: { acquired: true }, event };
+}
+
+/**
+ * Holder proves it is alive. Only the current owner can renew; a caller that has lost the lock
+ * (reclaimed, or the server restarted and forgot it) is told so and by whom, never silently renewed.
+ * @returns {{ nextLock, result: {renewed: true} | {renewed: false, heldBy: string | null} }}
+ */
+export function heartbeatSyncLock(lock, owner, now) {
+  if (!lock) return { nextLock: lock, result: { renewed: false, heldBy: null } };
+  if (lock.owner !== owner) return { nextLock: lock, result: { renewed: false, heldBy: lock.owner } };
+  return { nextLock: { ...lock, heartbeatAt: now }, result: { renewed: true } };
 }
 
 /**
