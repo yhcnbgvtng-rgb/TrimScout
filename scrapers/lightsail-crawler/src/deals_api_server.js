@@ -31,8 +31,9 @@ import { randomBytes } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import mysql from "mysql2/promise";
-import { inventoryListQuery } from "./inventoryListQuery.js";
-import { optionRowsFromOptions, payloadHasOptions } from "./inventoryOptionRows.js";
+import { inventoryListQuery, totalFromPage, applyCountCap, deferredPageSql } from "./inventoryListQuery.js";
+import { createGate, SearchBusyError } from "./searchGate.js";
+import { optionRowsFromOptions, payloadHasOptions, buyerOptionCatalog, CATALOG_MIN_VEHICLES } from "./inventoryOptionRows.js";
 import { normalizeMakeForWrite } from "./stellantisMake.js";
 import { tryAcquireSyncLock, releaseSyncLock } from "./syncLock.js";
 
@@ -2244,10 +2245,18 @@ async function handleInventorySweep(req, res) {
 // run longer than this by design.
 const INV_LIST_STATEMENT_TIMEOUT_SECONDS = 20;
 
+// At most this many list queries run at once; a caller that can't get a slot within the wait is
+// refused with a 503 instead of queueing behind slow queries (see searchGate.js). Env-tunable so
+// the cap can be adjusted on the box without a code change.
+const invSearchGate = createGate({
+  max: Number(process.env.INV_SEARCH_MAX_CONCURRENT) || 6,
+  waitMs: Number(process.env.INV_SEARCH_QUEUE_WAIT_MS) || 3000,
+});
+
 async function handleListInventory(req, res, params) {
   const pool = getPool();
   await ensureInventoryTable(pool);
-  const { sql, countSql, args, orderBy } = inventoryListQuery(params);
+  const { sql, countSql, countCap, cappedCountSql, args, orderBy } = inventoryListQuery(params);
   const limit = Math.min(Math.max(Number(params.get("limit")) || 200, 1), 2000);
   const offset = Math.max(Number(params.get("offset")) || 0, 0);
   // Two independent queries, NOT SQL_CALC_FOUND_ROWS — reverted 2026-09-22 after it caused a
@@ -2264,20 +2273,35 @@ async function handleListInventory(req, res, params) {
   // Each wrapped in withPoolTimeout (see its own comment) — INV_LIST_STATEMENT_TIMEOUT_SECONDS
   // only bounds a query once it's actually executing; this bounds "waiting for a free pool
   // connection" too, which that statement-level cap can't see at all.
-  const [rows] = await withPoolTimeout(
-    pool.query(
-      `SET STATEMENT max_statement_time=${INV_LIST_STATEMENT_TIMEOUT_SECONDS} FOR SELECT i.*, d.city AS dealer_city, d.state AS dealer_state ${sql} ORDER BY ${orderBy} LIMIT ? OFFSET ?`,
-      [...args, limit, offset]
-    ),
-    POOL_WAIT_TIMEOUT_MS,
-    "Timed out waiting for an available database connection or a slow query"
-  );
-  const [[{ total }]] = await withPoolTimeout(
-    pool.query(`SET STATEMENT max_statement_time=${INV_LIST_STATEMENT_TIMEOUT_SECONDS} FOR SELECT COUNT(*) AS total ${countSql}`, args),
-    POOL_WAIT_TIMEOUT_MS,
-    "Timed out waiting for an available database connection or a slow query"
-  );
-  sendJson(res, 200, { total, limit, offset, vehicles: rows.map(inventoryRowFromDb) });
+  // The page goes first, and the COUNT only runs when the page can't already prove the total
+  // (totalFromPage) — a short page IS the total. With countCap (buyer search) the count also stops
+  // early instead of visiting every matching row (see inventoryListQuery.js). The whole thing holds
+  // one concurrency slot, so a burst of searches queues briefly or is told to retry rather than
+  // all hitting MariaDB at once.
+  const result = await invSearchGate.run(async () => {
+    const [rows] = await withPoolTimeout(
+      pool.query(
+        `SET STATEMENT max_statement_time=${INV_LIST_STATEMENT_TIMEOUT_SECONDS} FOR ${countCap
+          // Buyer search (countCap set): deferred join — page ids off the covering index first.
+          ? deferredPageSql({ countSql, orderBy })
+          : `SELECT i.*, d.city AS dealer_city, d.state AS dealer_state ${sql} ORDER BY ${orderBy} LIMIT ? OFFSET ?`}`,
+        [...args, limit, offset]
+      ),
+      POOL_WAIT_TIMEOUT_MS,
+      "Timed out waiting for an available database connection or a slow query"
+    );
+    const known = totalFromPage(offset, limit, rows.length);
+    if (known !== null) return { rows, total: known, totalCapped: false };
+    const [[{ total }]] = await withPoolTimeout(
+      pool.query(`SET STATEMENT max_statement_time=${INV_LIST_STATEMENT_TIMEOUT_SECONDS} FOR ${cappedCountSql || `SELECT COUNT(*) AS total ${countSql}`}`, args),
+      POOL_WAIT_TIMEOUT_MS,
+      "Timed out waiting for an available database connection or a slow query"
+    );
+    return { rows, ...applyCountCap(total, countCap) };
+  });
+  const body = { total: result.total, limit, offset, vehicles: result.rows.map(inventoryRowFromDb) };
+  if (result.totalCapped) body.totalCapped = true;
+  sendJson(res, 200, body);
 }
 
 // GET /api/inventory/export?<same filters as /api/inventory>&max= — the admin sheet's CSV source.
@@ -2829,7 +2853,7 @@ async function handleInventoryCatalogOptions(req, res, params) {
     const fWhereSql = fWhere.length ? "WHERE " + fWhere.join(" AND ") : "";
     sendJson(res, 200, await invCached(`catalog-facets:${make}|${model}|${trim}`, async () => {
       const [optionRows] = await withPoolTimeout(
-        pool.query(`SET STATEMENT max_statement_time=${INV_LIST_STATEMENT_TIMEOUT_SECONDS} FOR SELECT canonical_key, MIN(label) AS label, SUM(vehicle_count) AS vehicleCount FROM inv_option_facets ${fWhereSql} GROUP BY canonical_key ORDER BY canonical_key`, fArgs),
+        pool.query(`SET STATEMENT max_statement_time=${INV_LIST_STATEMENT_TIMEOUT_SECONDS} FOR SELECT canonical_key, MIN(label) AS label, SUM(vehicle_count) AS vehicleCount FROM inv_option_facets ${fWhereSql} GROUP BY canonical_key HAVING SUM(vehicle_count) >= ${CATALOG_MIN_VEHICLES} ORDER BY SUM(vehicle_count) DESC LIMIT 400`, fArgs),
         POOL_WAIT_TIMEOUT_MS,
         "Timed out waiting for an available database connection or a slow query"
       );
@@ -2839,7 +2863,8 @@ async function handleInventoryCatalogOptions(req, res, params) {
         "Timed out waiting for an available database connection or a slow query"
       );
       return {
-        options: optionRows.map((r) => ({ key: r.canonical_key, label: r.label, vehicleCount: Number(r.vehicleCount) })),
+        // Cleaned and capped for the buyer's checklist — see buyerOptionCatalog.
+        options: buyerOptionCatalog(optionRows),
         exteriorColors: [...new Set(colorRows.map((r) => r.exterior_color).filter(Boolean))].sort(),
         interiorColors: [...new Set(colorRows.map((r) => r.interior_color).filter(Boolean))].sort(),
         countsAsOf: catalogFacets.builtAt,
@@ -3227,6 +3252,11 @@ const server = http.createServer((req, res) => {
       // under real load — worth its own status/message rather than folding into the generic
       // 500 every other uncaught exception here gets, so the caller (lib/inventoryApi.ts) can
       // tell "this box is overloaded, try again" apart from an actual bug.
+      if (err instanceof SearchBusyError) {
+        console.error(`${new Date().toISOString()} ${pathname} -> 503 (search gate full):`, JSON.stringify(invSearchGate.stats()));
+        res.setHeader("Retry-After", "2");
+        return sendJson(res, 503, { error: err.message });
+      }
       if (err instanceof PoolTimeoutError) {
         console.error(`${new Date().toISOString()} ${pathname} -> 503 (pool timeout):`, err.message);
         return sendJson(res, 503, { error: err.message });

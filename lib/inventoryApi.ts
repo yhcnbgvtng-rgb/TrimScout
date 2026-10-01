@@ -118,6 +118,8 @@ export interface InventoryQuery {
   optionKeys?: string[];
   /** New condition with over 500 miles — likely a demo/loaner. */
   possibleDemo?: boolean;
+  /** Stop counting at this many matches (the response sets totalCapped) — buyer search never pays for an exact COUNT(*) over a huge set. */
+  countCap?: number;
   limit?: number;
   offset?: number;
   sort?: string;
@@ -144,6 +146,7 @@ export type BuyerSearchQuery = Pick<
   | "interiorColor"
   | "optionKeys"
   | "possibleDemo"
+  | "countCap"
   | "limit"
   | "offset"
   | "sort"
@@ -210,7 +213,10 @@ export function inventoryQueryString(q: InventoryQuery): string {
   return s ? `?${s}` : "";
 }
 
-export async function listInventory(q: InventoryQuery = {}): Promise<{ total: number; limit: number; offset: number; vehicles: InventoryVehicle[] }> {
+/** `total` is exact unless `totalCapped` — then it is a floor ("at least this many"), counted only up to the request's countCap. */
+export interface InventoryPage { total: number; totalCapped?: boolean; limit: number; offset: number; vehicles: InventoryVehicle[] }
+
+export async function listInventory(q: InventoryQuery = {}): Promise<InventoryPage> {
   return request("GET", `/api/inventory${inventoryQueryString(q)}`);
 }
 
@@ -221,7 +227,7 @@ export async function listInventory(q: InventoryQuery = {}): Promise<{ total: nu
  * has no per-dealer lat/lng). Callers enforce the "zip+radius needs make" guardrail themselves —
  * this function doesn't know about it.
  */
-export async function searchInventory(q: BuyerSearchQuery = {}): Promise<{ total: number; limit: number; offset: number; vehicles: InventoryVehicle[] }> {
+export async function searchInventory(q: BuyerSearchQuery = {}): Promise<InventoryPage> {
   const { zip, radiusMiles, ...rest } = q;
   return listInventory({ ...rest, inStock: true });
 }

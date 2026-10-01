@@ -247,3 +247,51 @@ describe('normalizeOptionKey', () => {
     assert.equal(normalizeOptionKey('a '.repeat(100)).length <= 80, true);
   });
 });
+
+import { buyerOptionCatalog, isBuyerFacingOption, buyerOptionLabel, CATALOG_MAX_OPTIONS } from '../src/inventoryOptionRows.js';
+
+describe('buyer option catalog hygiene', () => {
+  const row = (canonical_key, label, vehicleCount) => ({ canonical_key, label, vehicleCount });
+
+  it('drops listing-position codes, near-empty keys and non-option text', () => {
+    const out = buyerOptionCatalog([
+      row('opt 35', 'OPT-35', 5000),
+      row('heated front seats', 'Heated front seats', 2714),
+      row('4wd', '4WD', 24),
+      row('doc fee', 'Doc Fee', 9000),
+      row('09 30 2026', '09/30/2026', 9000),
+    ]);
+    assert.deepEqual(out.map((o) => o.key), ['heated front seats']);
+  });
+
+  it('orders by vehicle count, cleans SHOUTING labels, and caps the list', () => {
+    const many = Array.from({ length: 200 }, (_, i) => row(`feature ${String.fromCharCode(97 + (i % 26))} ${i}`, `Feature ${i}`, 100 + i));
+    const out = buyerOptionCatalog([row('sunroof', 'PANORAMIC SUNROOF', 99999), ...many]);
+    assert.equal(out.length, CATALOG_MAX_OPTIONS);
+    assert.equal(out[0].label, 'Panoramic Sunroof');
+    assert.ok(out.every((o, i) => i === 0 || out[i - 1].vehicleCount >= o.vehicleCount));
+  });
+
+  it('rejects over-long run-on labels and digit-only keys', () => {
+    assert.equal(isBuyerFacingOption('x'.repeat(10), 'x'.repeat(61)), false);
+    assert.equal(isBuyerFacingOption('123 456', '123-456'), false);
+    assert.equal(buyerOptionLabel('  Tow   package '), 'Tow package');
+  });
+});
+
+describe('buyer option labels — bullets and mojibake', () => {
+  it('trims leading/trailing bullets, asterisks and punctuation', () => {
+    assert.equal(buyerOptionLabel('**Sync 4**'), 'Sync 4');
+    assert.equal(buyerOptionLabel('* 4wd'), '4wd');
+    assert.equal(buyerOptionLabel('? Dual-zone electronic automatic temperature control'), 'Dual-zone electronic automatic temperature control');
+    assert.equal(buyerOptionLabel('Radio: AM/FM Stereo with SiriusXM 360L'), 'Radio: AM/FM Stereo with SiriusXM 360L');
+  });
+  it('drops mojibake labels instead of showing them', () => {
+    assert.equal(isBuyerFacingOption('unique sport cloth 40 console 40 front seats', '\u00e2?\u00a2 Unique Sport Cloth 40/console/40 front seats'), false);
+  });
+  it('folds "**Sync 4**" and "Sync 4" into one entry', () => {
+    const out = buyerOptionCatalog([{ canonical_key: 'sync 4', label: '**Sync 4**', vehicleCount: 4382 }, { canonical_key: 'sync 4 2', label: 'Sync 4', vehicleCount: 100 }]);
+    assert.equal(out.length, 1);
+    assert.equal(out[0].label, 'Sync 4');
+  });
+});

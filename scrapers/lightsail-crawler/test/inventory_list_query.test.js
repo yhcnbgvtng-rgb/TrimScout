@@ -7,7 +7,7 @@
 // rediscover the same trap by hitting a slow query in production.
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { inventoryListQuery } from '../src/inventoryListQuery.js';
+import { inventoryListQuery, totalFromPage, applyCountCap, deferredPageSql } from '../src/inventoryListQuery.js';
 
 function query(pairs) {
   return inventoryListQuery(new URLSearchParams(pairs));
@@ -109,10 +109,13 @@ describe('inventoryListQuery — make= + model=(+ trim=), state= optional (2026-
     assert.match(countSql, /WHERE i\.make = \? AND i\.model = \? AND i\.removed_at IS NULL/);
   });
 
-  it('state= still wins over the make+model hint when all three are given — state was never required to be dropped by this fix', () => {
+  it('make+model+state (in stock) now uses the make/model/state facet index instead of the state-wide walk — 2026-10-01', () => {
+    // Was: state's idx_inv_stock_state won. Measured live, Ford F-150 in NJ (1,555 cars) never
+    // finished inside 10s that way (a row lookup per NJ car to test make/model); this index's
+    // equality prefix IS make+model+state, ~1s. state-only and make+state keep state's hint.
     const { sql } = query({ state: 'NJ', make: 'Ford', model: 'F-150', inStock: '1' });
-    assert.match(sql, /FORCE INDEX \(idx_inv_stock_state\)/);
-    assert.doesNotMatch(sql, /idx_inv_stock_make_model_trim|idx_inv_stock_make_dealer/);
+    assert.match(sql, /FORCE INDEX \(idx_inv_facet_make_model_state_trim\)/);
+    assert.doesNotMatch(sql, /idx_inv_stock_state|idx_inv_stock_make_model_trim|idx_inv_stock_make_dealer/);
   });
 });
 
@@ -288,5 +291,92 @@ describe('inventoryListQuery — exteriorColor / interiorColor', () => {
   it('is a no-op when absent', () => {
     const { sql } = query({});
     assert.doesNotMatch(sql, /exterior_color|interior_color/);
+  });
+});
+
+// Buyer search speed: a capped count stops early instead of visiting every matching row.
+describe('inventoryListQuery — countCap', () => {
+  it('is absent (exact COUNT) unless countCap is given', () => {
+    const r = query({ make: 'Ford' });
+    assert.equal(r.countCap, null);
+    assert.equal(r.cappedCountSql, null);
+  });
+
+  it('wraps the count in a LIMIT cap+1 derived table, keeping the make index hint and no dealer join', () => {
+    const r = query({ make: 'Ford', model: 'F-150', inStock: '1', countCap: '1000' });
+    assert.equal(r.countCap, 1000);
+    assert.match(r.cappedCountSql, /^SELECT COUNT\(\*\) AS total FROM \(SELECT 1 FROM dealer_inventory i FORCE INDEX \(idx_inv_stock_make_model_trim\) .*LIMIT 1001\) capped$/);
+    assert.doesNotMatch(r.cappedCountSql, /dealership_contacts/);
+  });
+
+  it('keeps the optionKeys derived-table JOIN (not a correlated subquery) inside the capped count', () => {
+    const r = query({ make: 'Ford', model: 'F-150', inStock: '1', optionKeys: 'heated front seats', countCap: '1000' });
+    assert.match(r.cappedCountSql, /JOIN \(SELECT vin, dealer_id FROM dealer_inventory_options WHERE canonical_key IN \(\?\) GROUP BY vin, dealer_id HAVING COUNT\(DISTINCT canonical_key\) = \?\) opt_match/);
+    assert.doesNotMatch(r.cappedCountSql, /i\.vin IN \(SELECT/);
+  });
+
+  it('ignores a junk or negative cap and bounds a huge one', () => {
+    assert.equal(query({ countCap: 'abc' }).countCap, null);
+    assert.equal(query({ countCap: '-5' }).countCap, null);
+    assert.equal(query({ countCap: '999999999' }).countCap, 100000);
+  });
+});
+
+describe('totalFromPage / applyCountCap', () => {
+  it('a short page is the exact total — no COUNT needed', () => {
+    assert.equal(totalFromPage(0, 24, 7), 7);
+    assert.equal(totalFromPage(48, 24, 5), 53);
+  });
+  it('a full page, or a page past the end, still needs a count', () => {
+    assert.equal(totalFromPage(0, 24, 24), null);
+    assert.equal(totalFromPage(500, 24, 0), null);
+  });
+  it('flags a capped total as a floor, and passes an exact one through', () => {
+    assert.deepEqual(applyCountCap(1001, 1000), { total: 1000, totalCapped: true });
+    assert.deepEqual(applyCountCap(1000, 1000), { total: 1000, totalCapped: false });
+    assert.deepEqual(applyCountCap(42, null), { total: 42, totalCapped: false });
+  });
+});
+
+// Buyer search hot paths, measured live 2026-10-01 (see docs/BUYER_SEARCH.md for the EXPLAIN snapshots).
+describe('inventoryListQuery — buyer hot-path shapes', () => {
+  it('sort=trim orders (trim, dealer_name, vin) — the index order of idx_inv_stock_make_model_trim', () => {
+    const r = query({ make: 'Ford', model: 'F-150', inStock: '1', sort: 'trim:asc' });
+    assert.equal(r.orderBy, 'i.trim ASC, i.dealer_name ASC, i.vin ASC');
+    assert.match(r.sql, /FORCE INDEX \(idx_inv_stock_make_model_trim\)/);
+  });
+
+  it('make+model+state in stock uses the make/model/state/trim facet index, not the state-wide walk', () => {
+    const r = query({ make: 'Ford', model: 'F-150', state: 'NJ', inStock: '1', sort: 'trim:asc' });
+    assert.match(r.sql, /FORCE INDEX \(idx_inv_facet_make_model_state_trim\)/);
+    assert.doesNotMatch(r.sql, /idx_inv_stock_state/);
+  });
+
+  it('make+state with sort=model uses idx_inv_facet_make_state_model; the admin dealer default still uses the state index', () => {
+    assert.match(query({ make: 'Porsche', state: 'NJ', inStock: '1', sort: 'model:asc' }).sql, /FORCE INDEX \(idx_inv_facet_make_state_model\)/);
+    assert.match(query({ make: 'Porsche', state: 'NJ', inStock: '1' }).sql, /FORCE INDEX \(idx_inv_stock_state\)/);
+  });
+
+  it('state alone and make alone keep their existing hints', () => {
+    assert.match(query({ state: 'NJ', inStock: '1' }).sql, /idx_inv_stock_state/);
+    assert.match(query({ make: 'Ford', inStock: '1' }).sql, /idx_inv_stock_make_dealer/);
+  });
+});
+
+describe('deferredPageSql', () => {
+  it('picks page ids from the covering FROM/WHERE (no dealer join, no i.*) then fetches only those rows whole', () => {
+    const r = query({ make: 'Ford', model: 'F-150', inStock: '1', sort: 'trim:asc', countCap: '1000' });
+    const sql = deferredPageSql(r);
+    assert.match(sql, /^SELECT i\.\*, d\.city AS dealer_city, d\.state AS dealer_state FROM \(SELECT i\.vin, i\.dealer_id FROM dealer_inventory i FORCE INDEX \(idx_inv_stock_make_model_trim\) /);
+    assert.match(sql, /ORDER BY i\.trim ASC, i\.dealer_name ASC, i\.vin ASC LIMIT \? OFFSET \?\) pg JOIN dealer_inventory i ON i\.vin = pg\.vin AND i\.dealer_id = pg\.dealer_id LEFT JOIN dealership_contacts d ON d\.id = i\.dealer_id ORDER BY i\.trim ASC, i\.dealer_name ASC, i\.vin ASC$/);
+    // the inner query must not touch dealership_contacts (that join is the outer query's, on 24 rows)
+    assert.equal((sql.match(/dealership_contacts/g) || []).length, 1);
+  });
+
+  it('keeps the optionKeys derived-table JOIN inside the inner id query, args in bind order', () => {
+    const r = query({ make: 'Ford', model: 'F-150', inStock: '1', optionKeys: 'heated front seats,4wd', countCap: '1000' });
+    const sql = deferredPageSql(r);
+    assert.ok(sql.indexOf('opt_match') < sql.indexOf(') pg JOIN'));
+    assert.deepEqual(r.args.slice(0, 3), ['heated front seats', '4wd', 2]);
   });
 });
