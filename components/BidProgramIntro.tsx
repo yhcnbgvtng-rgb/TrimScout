@@ -2,13 +2,13 @@
 
 import React from "react";
 import {
-  ShieldCheck,
   Zap,
-  ListChecks,
-  Handshake,
   ArrowRight,
-  Search,
-  SendHorizontal
+  SlidersHorizontal,
+  UserRound,
+  FileText,
+  Check,
+  X,
 } from "lucide-react";
 import { MarketPulse } from "./MarketPulse";
 
@@ -18,12 +18,59 @@ interface BidProgramIntroProps {
   onViewDemoDealRoom: () => void;
 }
 
+const REASONS = [
+  {
+    icon: SlidersHorizontal,
+    title: "Your terms",
+    body: "Set your must-haves and budget. We match real, verified inventory to what matters to you — trim, packages and color, not just year and model.",
+  },
+  {
+    icon: UserRound,
+    title: "No broker cut",
+    body: "Invite a few dealers directly. You deal with them, not through a middleman.",
+  },
+  {
+    icon: FileText,
+    title: "Quotes you can compare",
+    body: "Get structured, itemized quotes with clear monthly payments and due-at-signing amounts, so every offer reads the same way.",
+  },
+];
+
+const USUAL_WAY = [
+  "Inquiry forms that trigger days of calls and texts",
+  "Quotes that bury fees until you're at the desk",
+  "Hard to tell if a car really has the options you want",
+  "Every dealer's numbers laid out differently",
+];
+
+const WITH_TRIMSCOUT = [
+  "One request, sent through TrimScout — replies come to you in one place",
+  "Itemized quotes with payment and due-at-signing up front",
+  "Factory build record read from the VIN, so the spec is real",
+  "Quotes side by side, in the same format",
+];
+
+const STEPS = [
+  {
+    title: "Paste a link or VIN",
+    body: "We pull the factory record for the exact car. You confirm the car and the store.",
+  },
+  {
+    title: "Choose who to ask",
+    body: "Send it to the dealer who has the car, or add a few more with a similar match.",
+  },
+  {
+    title: "Compare real quotes",
+    body: "Each dealer replies with their number, on their own time. Take the best one straight to the dealer if you like.",
+  },
+];
+
 export const BidProgramIntro: React.FC<BidProgramIntroProps> = ({
   onStartWizard,
   onViewDemoDealRoom,
 }) => {
   return (
-    <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6 lg:px-8 space-y-16 animate-fadeIn">
+    <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6 lg:px-8 space-y-20 animate-fadeIn">
       {/* HERO SECTION */}
       <div className="text-center space-y-6 max-w-3xl mx-auto pt-4">
         <h1 className="text-3xl sm:text-5xl font-black text-white tracking-tight leading-tight">
@@ -33,13 +80,7 @@ export const BidProgramIntro: React.FC<BidProgramIntroProps> = ({
           </span>
         </h1>
 
-        <p className="text-sm sm:text-base text-ink-muted leading-relaxed max-w-2xl mx-auto font-normal">
-          Paste the dealer&apos;s link to the car (or its VIN). We&apos;ll pull the factory record, you confirm the car and the store,
-          and we send your quote request to the dealer through TrimScout.
-        </p>
-
-        {/* Hero CTA */}
-        <div className="flex flex-col items-center justify-center gap-3 pt-2">
+        <div className="flex flex-col items-center justify-center gap-4 pt-2">
           <button
             type="button"
             onClick={() => onStartWizard("hero")}
@@ -50,110 +91,114 @@ export const BidProgramIntro: React.FC<BidProgramIntroProps> = ({
             <span>Request a Quote</span>
             <ArrowRight className="h-4 w-4 stroke-[2.5]" />
           </button>
+          <ul className="flex flex-wrap justify-center gap-x-6 gap-y-1 text-xs text-ink-faint">
+            {["Free to request & compare", "Takes about 2 minutes", "Your number stays private"].map((t) => (
+              <li key={t} className="flex items-center gap-1.5">
+                <Check className="h-3.5 w-3.5 text-emerald-400" />
+                {t}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+
+      {/* WHY TRIMSCOUT */}
+      <div className="space-y-8">
+        <div className="text-center space-y-2">
+          <p className="text-xs font-extrabold uppercase tracking-widest text-emerald-400">Why TrimScout</p>
+          <h2 className="text-2xl sm:text-3xl font-black text-white">
+            Three reasons buyers use it instead of walking in
+          </h2>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {REASONS.map(({ icon: Icon, title, body }) => (
+            <div key={title} className="rounded-2xl border border-border bg-surface p-6">
+              <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 to-teal-600">
+                <Icon className="h-7 w-7 text-emerald-950" strokeWidth={1.9} />
+              </div>
+              <h3 className="mb-2 text-lg font-bold text-white">{title}</h3>
+              <p className="text-sm text-ink-muted leading-relaxed">{body}</p>
+            </div>
+          ))}
         </div>
       </div>
 
       <MarketPulse />
 
-      {/* HOW IT WORKS */}
-      <div className="space-y-6">
-        <div className="text-center space-y-1">
-          <h2 className="text-xl sm:text-2xl font-black text-white">How It Works</h2>
-          <p className="text-xs text-ink-muted">Three steps. No dealership visit required to get started.</p>
+      {/* THE DIFFERENCE */}
+      <div className="space-y-8">
+        <div className="text-center space-y-2">
+          <p className="text-xs font-extrabold uppercase tracking-widest text-emerald-400">The difference</p>
+          <h2 className="text-2xl sm:text-3xl font-black text-white">Stop negotiating on their turf</h2>
         </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="rounded-2xl border-2 border-emerald-500 bg-surface p-6 space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-400 font-black text-sm">
-                1
-              </div>
-              <ListChecks className="h-5 w-5 text-emerald-400" />
-            </div>
-            <h3 className="text-lg font-bold text-white">Tell Us Your Must-Haves</h3>
-            <p className="text-xs text-ink-muted leading-relaxed">
-              Trim, factory packages, color — the options you won&apos;t compromise on. Not just year, make, and
-              model.
-            </p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl mx-auto">
+          <div className="rounded-2xl border border-border bg-surface p-7">
+            <h3 className="mb-4 text-xs font-extrabold uppercase tracking-wider text-ink-faint">The usual way</h3>
+            <ul className="space-y-3 text-sm text-ink-muted">
+              {USUAL_WAY.map((t) => (
+                <li key={t} className="flex gap-3">
+                  <X className="mt-0.5 h-4 w-4 shrink-0 text-red-400" />
+                  {t}
+                </li>
+              ))}
+            </ul>
           </div>
-
-          <div className="rounded-2xl border border-border bg-surface p-6 space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-400 font-black text-sm">
-                2
-              </div>
-              <Search className="h-5 w-5 text-ink-muted" />
-            </div>
-            <h3 className="text-lg font-bold text-white">See an Honest Shortlist</h3>
-            <p className="text-xs text-ink-muted leading-relaxed">
-              We match your must-haves against our verified inventory. If it&apos;s not a real, checked match, it
-              doesn&apos;t make your list.
-            </p>
+          <div className="rounded-2xl border-2 border-emerald-500 bg-gradient-to-b from-emerald-500/10 to-surface p-7">
+            <h3 className="mb-4 text-xs font-extrabold uppercase tracking-wider text-emerald-400">With TrimScout</h3>
+            <ul className="space-y-3 text-sm text-ink-light">
+              {WITH_TRIMSCOUT.map((t) => (
+                <li key={t} className="flex gap-3">
+                  <Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-400" />
+                  {t}
+                </li>
+              ))}
+            </ul>
           </div>
-
-          <div className="rounded-2xl border border-border bg-surface p-6 space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-400 font-black text-sm">
-                3
-              </div>
-              <SendHorizontal className="h-5 w-5 text-ink-muted" />
-            </div>
-            <h3 className="text-lg font-bold text-white">Request a Quote</h3>
-            <p className="text-xs text-ink-muted leading-relaxed">
-              Send your spec to the dealer who has the car. It&apos;s a real quote request — the dealer replies
-              with their number, on their own time.
-            </p>
-          </div>
-        </div>
-
-        <div className="rounded-2xl border border-border bg-surface-elevated p-5 flex items-start gap-3 max-w-3xl mx-auto">
-          <ShieldCheck className="h-5 w-5 text-emerald-400 shrink-0 mt-0.5" />
-          <p className="text-xs text-ink-muted leading-relaxed">
-            <strong className="text-ink-light">Our inventory right now is a curated, hand-verified set of
-            listings</strong> — not the whole market yet. We&apos;re expanding coverage make by make, and we&apos;ll
-            never show you a &quot;match&quot; we haven&apos;t actually checked the options on.
-          </p>
         </div>
       </div>
 
-      {/* OFFER / MODES */}
-      <div className="space-y-6">
-        <div className="text-center space-y-1">
-          <h2 className="text-xl sm:text-2xl font-black text-white">How Your Quote Request Works</h2>
-          <p className="text-xs text-ink-muted">
-            You&apos;ve found the car. Choose where your request goes.
+      {/* HOW IT WORKS */}
+      <div className="space-y-8">
+        <div className="text-center space-y-2">
+          <p className="text-xs font-extrabold uppercase tracking-widest text-emerald-400">How it works</p>
+          <h2 className="text-2xl sm:text-3xl font-black text-white">From link to quote in three steps</h2>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {STEPS.map((s, i) => (
+            <div key={s.title} className="px-2">
+              <div className="text-4xl font-black leading-none text-border-strong">{i + 1}</div>
+              <h3 className="mt-2 mb-1.5 text-lg font-bold text-white">{s.title}</h3>
+              <p className="text-sm text-ink-muted leading-relaxed">{s.body}</p>
+            </div>
+          ))}
+        </div>
+        <p className="max-w-3xl mx-auto text-center text-xs text-ink-faint leading-relaxed">
+          <strong className="text-ink-muted">Honest about where we are:</strong> our inventory is a curated,
+          hand-verified set of listings, not the whole market yet. We expand make by make and never show a match we
+          haven&apos;t checked.
+        </p>
+      </div>
+
+      {/* FINAL CTA */}
+      <div className="rounded-3xl border border-emerald-500/40 bg-gradient-to-r from-surface via-surface-elevated to-surface p-10 text-center space-y-5">
+        <div className="max-w-xl mx-auto space-y-2">
+          <h2 className="text-2xl sm:text-3xl font-black text-white">
+            Know the real price before you set foot in a dealership
+          </h2>
+          <p className="text-sm text-ink-muted">
+            Paste a VIN or dealer link. About 2 minutes, and your quote request is moving today.
           </p>
         </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="rounded-2xl border-2 border-emerald-500 bg-surface p-5 space-y-3 relative overflow-hidden">
-            <div className="rounded bg-emerald-500 text-black px-2 py-0.5 text-[10px] font-black uppercase tracking-wider w-fit">
-              ONE DEALER
-            </div>
-            <div className="flex items-center gap-2 font-extrabold text-white text-base">
-              <Handshake className="h-5 w-5 text-emerald-400" />
-              <h3>Request From This Dealer</h3>
-            </div>
-            <p className="text-xs text-ink-muted leading-relaxed">
-              Send your spec straight to the dealer who has the exact car you matched with. They follow up with a
-              quote directly.
-            </p>
-          </div>
-
-          <div className="rounded-2xl border border-border bg-surface p-5 space-y-3">
-            <div className="rounded bg-blue-500/20 text-blue-400 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider w-fit border border-blue-500/30">
-              A FEW MORE
-            </div>
-            <div className="flex items-center gap-2 font-extrabold text-white text-base">
-              <Zap className="h-5 w-5 text-blue-400" />
-              <h3>Request From a Few More</h3>
-            </div>
-            <p className="text-xs text-ink-muted leading-relaxed">
-              Send the same request to other dealers with a similar match, and compare what comes back. Each
-              dealer quotes you separately, on their own timeline — not a live auction.
-            </p>
-          </div>
-        </div>
+        <button
+          type="button"
+          onClick={() => onStartWizard("intro_footer")}
+          data-testid="cta-request-quote-intro-footer"
+          className="inline-flex items-center gap-2 rounded-xl bg-emerald-500 px-8 py-3.5 font-extrabold text-sm text-black hover:bg-emerald-400 transition-all shadow-xl shadow-emerald-500/20 active:scale-95"
+        >
+          <Zap className="h-4 w-4 fill-black" />
+          <span>Request a Quote</span>
+          <ArrowRight className="h-4 w-4 stroke-[2.5]" />
+        </button>
       </div>
     </div>
   );
