@@ -5,7 +5,7 @@
 # rfq_events row per affected request (the buyer-notify signal, deduped by the flag). A quote
 # submitted before the opt-out stays readable/choosable; status is untouched.
 #
-# Run on the box (ubuntu@3.208.49.1):
+# Run on the box (ubuntu@52.202.234.65):
 #   curl -fsSL -o 2026-09-17-dealer-unsub-cascade-auth.sh https://raw.githubusercontent.com/yhcnbgvtng-rgb/TrimScout/main/scripts/box/2026-09-17-dealer-unsub-cascade-auth.sh && bash 2026-09-17-dealer-unsub-cascade-auth.sh
 # Idempotent. Backup, exact-replace with asserts, node --check, pm2 restart, health check.
 set -euo pipefail

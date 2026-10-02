@@ -6,7 +6,7 @@
 # which already exist (dealer_inventory_options landed in PR 1's
 # 2026-09-25-buyer-search-schema.sh; the color columns predate this series entirely).
 #
-# Run on the deals box (ubuntu@3.237.204.55 — box2):
+# Run on the deals box (ubuntu@52.202.234.65 — box2):
 #   cd ~ && curl -fsSL -o 2026-09-25-inventory-catalog-endpoint.sh https://raw.githubusercontent.com/yhcnbgvtng-rgb/TrimScout/main/scripts/box/2026-09-25-inventory-catalog-endpoint.sh && sudo cp 2026-09-25-inventory-catalog-endpoint.sh /opt/trimscout-deals/src/ && cd /opt/trimscout-deals/src && sudo bash 2026-09-25-inventory-catalog-endpoint.sh
 # Idempotent. Backup, exact-replace with asserts, node --check, pm2 restart, health check.
 #

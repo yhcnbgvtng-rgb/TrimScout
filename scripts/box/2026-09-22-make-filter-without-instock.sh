@@ -17,7 +17,7 @@
 # restart, so ensureInventoryTable's ADD INDEX IF NOT EXISTS is a no-op at startup rather than a
 # multi-second ALTER stalling the first request. The ensure list gets it too, for a fresh table.
 #
-# Run on the box (ubuntu@3.208.49.1):
+# Run on the box (ubuntu@52.202.234.65):
 #   cd ~ && curl -fsSL -o 2026-09-22-make-filter-without-instock.sh https://raw.githubusercontent.com/yhcnbgvtng-rgb/TrimScout/main/scripts/box/2026-09-22-make-filter-without-instock.sh && sudo cp 2026-09-22-make-filter-without-instock.sh /opt/trimscout-deals/ && cd /opt/trimscout-deals && sudo bash 2026-09-22-make-filter-without-instock.sh
 # Idempotent. Backup, exact-replace with asserts, node --check, index build, pm2 restart, health check.
 # FILE=... overrides the target (used to apply the identical change to the repo mirror).

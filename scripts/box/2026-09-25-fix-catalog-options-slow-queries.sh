@@ -13,7 +13,7 @@
 # 2026-09-25-fix-make-filter-filesort.sh, run this first if you haven't) and the new
 # idx_inv_stock_make_colors below. Indexes apply immediately — no backfill needed.
 #
-# Run on the deals box (ubuntu@3.237.204.55 — box2):
+# Run on the deals box (ubuntu@52.202.234.65 — box2):
 #   cd ~ && curl -fsSL -o 2026-09-25-fix-catalog-options-slow-queries.sh "https://raw.githubusercontent.com/yhcnbgvtng-rgb/TrimScout/main/scripts/box/2026-09-25-fix-catalog-options-slow-queries.sh?cb=$(date +%s)" && grep -c idx_inv_stock_make_colors 2026-09-25-fix-catalog-options-slow-queries.sh && sudo cp 2026-09-25-fix-catalog-options-slow-queries.sh /opt/trimscout-deals/src/ && cd /opt/trimscout-deals/src && sudo bash 2026-09-25-fix-catalog-options-slow-queries.sh
 set -euo pipefail
 FILE=${FILE:-/opt/trimscout-deals/src/deals_api_server.js}

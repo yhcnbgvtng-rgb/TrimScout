@@ -5,7 +5,7 @@
 #   POST /api/rfqs/:id/approval { decision, by, reason } · PATCH /api/rfqs/:id (admin corrections) ·
 #   DELETE /api/rfqs/:id/invites/:inviteId · GET /api/rfqs?all=1&approval=pending.
 #
-# Run on the deals box (ubuntu@3.208.49.1):
+# Run on the deals box (ubuntu@52.202.234.65):
 #   curl -fsSL -o 2026-09-17-rfq-approval.sh https://raw.githubusercontent.com/yhcnbgvtng-rgb/TrimScout/main/scripts/box/2026-09-17-rfq-approval.sh && bash 2026-09-17-rfq-approval.sh
 # Idempotent. Backup, exact-replace with asserts, node --check, pm2 restart, health check.
 set -euo pipefail

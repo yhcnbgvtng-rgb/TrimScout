@@ -7,7 +7,7 @@
 # MySQL 8+) — so the row count comes as a side effect of the one LIMITed query
 # instead of a second full scan. Same `total` value in the response either way.
 #
-# Run on the box (ubuntu@3.208.49.1):
+# Run on the box (ubuntu@52.202.234.65):
 #   curl -fsSL -o 2026-09-22-speed-up-inventory-search.sh https://raw.githubusercontent.com/yhcnbgvtng-rgb/TrimScout/main/scripts/box/2026-09-22-speed-up-inventory-search.sh && bash 2026-09-22-speed-up-inventory-search.sh
 # Idempotent. Backup, exact-replace with asserts, node --check, pm2 restart, health check.
 set -euo pipefail

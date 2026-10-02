@@ -20,7 +20,7 @@
 # the box is fully consistent immediately, not dependent on a live request
 # happening afterward.
 #
-# Run on the deals box (ubuntu@3.237.204.55 — box2):
+# Run on the deals box (ubuntu@52.202.234.65 — box2):
 #   cd ~ && curl -fsSL -o 2026-09-25-buyer-search-schema.sh https://raw.githubusercontent.com/yhcnbgvtng-rgb/TrimScout/main/scripts/box/2026-09-25-buyer-search-schema.sh && curl -fsSL -o inventoryListQuery.js https://raw.githubusercontent.com/yhcnbgvtng-rgb/TrimScout/main/scrapers/lightsail-crawler/src/inventoryListQuery.js && sudo cp 2026-09-25-buyer-search-schema.sh inventoryListQuery.js /opt/trimscout-deals/src/ && cd /opt/trimscout-deals/src && sudo bash 2026-09-25-buyer-search-schema.sh
 # Idempotent. Backup, exact-replace with asserts, direct DDL, node --check,
 # pm2 restart, health check.

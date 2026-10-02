@@ -3,7 +3,7 @@
  * Sync the nightly dealer-inventory crawl (data/inventory/<STATE>.json per-state shards on the crawl box)
  * into the deals box's dealer_inventory table, so the site's Vehicles sheet shows what the crawler pulled.
  *
- * Runs on each crawl box (ubuntu@98.92.140.11, ubuntu@3.237.204.55) after scripts/run-daily-crawl.mjs:
+ * Runs on each crawl box (ubuntu@98.92.140.11, ubuntu@52.202.234.65) after scripts/run-daily-crawl.mjs:
  *   TRIMSCOUT_API_KEY=… node inventory-sync.mjs /home/ubuntu/nj-scraper/scrapers/lightsail-crawler/data/inventory
  *
  * Was a single national_inventory_latest.json until the crawler's state-sharding fix (inventory_shards.js,
@@ -35,7 +35,7 @@ import { waitForSyncLock } from "./syncLockWait.js";
 import { startSyncLockHeartbeat } from "./syncLockHeartbeat.js";
 import { computeFileIdentity, sortRows, makeCheckpoint, resumeFrom } from "./syncCheckpoint.js";
 
-const DEALS_HOST = process.env.TRIMSCOUT_DEALS_HOST || "3.208.49.1";
+const DEALS_HOST = process.env.TRIMSCOUT_DEALS_HOST || "52.202.234.65";
 const DEALS_PORT = process.env.TRIMSCOUT_DEALS_PORT || "3004";
 const AUTH_PORT = process.env.TRIMSCOUT_AUTH_PORT || "3003";
 const KEY = process.env.TRIMSCOUT_API_KEY || process.env.LIGHTSAIL_API_KEY;
