@@ -1,0 +1,285 @@
+// deals_api_server.js starts a real server the moment it is imported, so its handlers can't be imported into a
+// test. This extracts the REAL source of handleInventoryBulk / selectExistingOptionRows / handleInventorySweep
+// (and the INV_* helpers they use) and runs it in a vm context against an in-memory stand-in for the database
+// pool — so what is tested is the code that ships, not a copy of it. If someone renames or moves one of these
+// functions, extraction fails with a message saying so; update the names here.
+//
+// The property that matters most: with INVENTORY_OPTIONS_DIFF_WRITE on, the facet table ends up EXACTLY as it
+// would with the old rewrite-everything behavior, for any sequence of nights, including when the derivation
+// rules change in between.
+import { describe, it } from 'node:test';
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import vm from 'node:vm';
+import { optionRowsFromOptions, payloadHasOptions } from '../src/inventoryOptionRows.js';
+import { normalizeMakeForWrite } from '../src/stellantisMake.js';
+import { buildAllowlist, resolveAllowlisted, EMPTY_ALLOWLIST } from '../src/factoryOptionAllowlist.js';
+import { pairKey, diffOptionSets, groupExistingOptionRows } from '../src/inventoryOptionsDiff.js';
+import { parseSweepRequest, buildSweepStatement } from '../src/inventorySweep.js';
+
+const SRC = fs.readFileSync(new URL('../src/deals_api_server.js', import.meta.url), 'utf8');
+const extractFunction = (name) => {
+  const start = SRC.indexOf(`async function ${name}(`);
+  assert.ok(start >= 0, `could not find "async function ${name}(" in deals_api_server.js — this test runs the real handler source; update it if the function was renamed or moved`);
+  const end = SRC.indexOf('\n}\n', start);
+  assert.ok(end > start, `could not find the end of ${name}`);
+  return SRC.slice(start, end + 3);
+};
+const extractConst = (name) => {
+  const m = SRC.match(new RegExp(`^const ${name} = .*;$`, 'm'));
+  assert.ok(m, `could not find "const ${name} = ..." in deals_api_server.js`);
+  return m[0];
+};
+
+// ---- an in-memory database pool that understands exactly the statements these handlers issue ---------------
+function makeDb() {
+  const db = {
+    inv: new Map(), // `${vin}|${dealer}` -> { dealerId, source, lastSeen, removed }
+    opts: new Map(), // `${vin}|${dealer}|${key}` -> { vin, dealer_id, canonical_key, label, code }
+    days: new Map(),
+    clock: 1_000,
+    n: { optionDeletes: 0, optionInserts: 0, optionSelects: 0, upserts: 0, sweeps: [] },
+  };
+  const pairsOf = (flat) => { const out = []; for (let i = 0; i < flat.length; i += 2) out.push([flat[i], flat[i + 1]]); return out; };
+  db.pool = {
+    async query(sql, params = []) {
+      if (/^INSERT INTO dealer_inventory \(vin, dealer_id,/.test(sql)) {
+        for (const v of params[0]) db.inv.set(`${v[0]}|${v[1]}`, { dealerId: v[1], source: v[17], lastSeen: db.clock, removed: false });
+        db.n.upserts += params[0].length;
+        return [{ affectedRows: params[0].length }];
+      }
+      if (/^INSERT INTO dealer_inventory_days/.test(sql)) { for (const d of params[0]) db.days.set(`${d[0]}|${d[1]}|${d[2]}`, d); return [{ affectedRows: params[0].length }]; }
+      if (/^SELECT vin, dealer_id, canonical_key, label, code FROM dealer_inventory_options WHERE/.test(sql)) {
+        db.n.optionSelects++;
+        assert.equal((sql.match(/\(vin = \? AND dealer_id = \?\)/g) || []).length, params.length / 2, 'one PK probe per vehicle');
+        assert.doesNotMatch(sql, /\(\s*vin\s*,\s*dealer_id\s*\)\s+IN/i, 'never a row-value IN-list');
+        const want = new Set(pairsOf(params).map(([v, d]) => `${v}|${d}`));
+        return [[...db.opts.values()].filter((r) => want.has(`${r.vin}|${r.dealer_id}`)).map((r) => ({ ...r }))];
+      }
+      if (/^DELETE FROM dealer_inventory_options WHERE/.test(sql)) {
+        const want = new Set(pairsOf(params).map(([v, d]) => `${v}|${d}`));
+        db.n.optionDeletes += want.size;
+        let n = 0;
+        for (const [k, r] of db.opts) if (want.has(`${r.vin}|${r.dealer_id}`)) { db.opts.delete(k); n++; }
+        return [{ affectedRows: n }];
+      }
+      if (/^INSERT INTO dealer_inventory_options/.test(sql)) {
+        db.n.optionInserts += params[0].length;
+        for (const [vin, dealer_id, canonical_key, label, code] of params[0]) db.opts.set(`${vin}|${dealer_id}|${canonical_key}`, { vin, dealer_id, canonical_key, label, code });
+        return [{ affectedRows: params[0].length }];
+      }
+      if (/^UPDATE dealer_inventory SET removed_at/.test(sql)) {
+        db.n.sweeps.push({ sql, params });
+        const batch = /dealer_id IN \(\?\)/.test(sql);
+        const ids = new Set(batch ? params[0] : [params[0]]);
+        const seenAfter = params[1].getTime();
+        const sources = /source IN \(\?\)/.test(sql) ? params[2] : null;
+        let n = 0;
+        for (const r of db.inv.values()) if (ids.has(r.dealerId) && !r.removed && r.lastSeen < seenAfter && (!sources || sources.includes(r.source))) { r.removed = true; n++; }
+        return [{ affectedRows: n }];
+      }
+      throw new Error(`the fake pool does not know this statement: ${sql.slice(0, 80)}`);
+    },
+    optionTable: () => JSON.stringify([...db.opts.values()].sort((a, b) => (a.vin + a.dealer_id + a.canonical_key < b.vin + b.dealer_id + b.canonical_key ? -1 : 1))),
+  };
+  return db;
+}
+
+// ---- load the real handlers into a context ------------------------------------------------------------------
+function loadHandlers(db) {
+  const out = { statuses: [], invalidations: 0, rebuilds: 0, body: null };
+  const ctx = {
+    getPool: () => db.pool,
+    ensureInventoryTable: async () => {},
+    readBody: async () => out.body,
+    // JSON round trip: objects built inside the vm context have that context's Object.prototype, which strict deepEqual would reject.
+    sendJson: (res, status, obj) => { res.status = status; res.json = JSON.parse(JSON.stringify(obj)); },
+    badRequest: (res, message) => { res.status = 400; res.json = { error: message }; },
+    invInvalidate: () => { out.invalidations++; },
+    scheduleCatalogFacetRebuild: () => { out.rebuilds++; },
+    normalizeMakeForWrite, optionRowsFromOptions, payloadHasOptions, resolveAllowlisted,
+    OPTION_ALLOWLIST: EMPTY_ALLOWLIST,
+    OPTIONS_DIFF_WRITE: true,
+    pairKey, diffOptionSets, groupExistingOptionRows, parseSweepRequest, buildSweepStatement,
+    performance,
+  };
+  vm.createContext(ctx);
+  const code = [
+    ...['INV_STR', 'INV_INT', 'INV_DEALER', 'INV_JSON_STR', 'INV_DATE'].map(extractConst),
+    extractFunction('handleInventoryBulk'),
+    extractFunction('selectExistingOptionRows'),
+    extractFunction('handleInventorySweep'),
+  ].join('\n');
+  vm.runInContext(code, ctx);
+  const call = async (fn, body) => { out.body = body; const res = {}; await ctx[fn]({}, res); return res; };
+  return { ctx, out, bulk: (vehicles) => call('handleInventoryBulk', { vehicles }), sweep: (body) => call('handleInventorySweep', body) };
+}
+
+const vin = (i) => `1HGBH41JXMN${String(i).padStart(6, '0')}`;
+const veh = (i, options, extra = {}) => ({ vin: vin(i), dealerId: (i % 3) + 1, dealerName: `Dealer ${(i % 3) + 1}`, make: 'Toyota', model: 'Camry', source: 'nightly', price: 30000, options, ...extra });
+const opt = (name, code = null) => ({ name, code, kind: 'dealer' });
+const HEATED = opt('Heated Front Seats', 'OPT-3');
+const ROOF = opt('Panoramic Sunroof', 'OPT-9');
+const TOW = opt('Trailer Tow Package');
+const FEE = opt('$995 Dealer Document Processing Fee');
+
+describe('handleInventoryBulk — options diff-write (the real handler, in-memory pool)', () => {
+  it('first night: every set is new, so every vehicle with options is written', async () => {
+    const db = makeDb(); const h = loadHandlers(db);
+    const r = await h.bulk([veh(1, [HEATED, ROOF]), veh(2, [TOW]), veh(3, null)]);
+    assert.equal(r.status, 200);
+    assert.deepEqual({ up: r.json.upserted, rep: r.json.optionSetsReplaced, unch: r.json.optionSetsUnchanged, kept: r.json.optionSetsKept, rows: r.json.optionRowsWritten }, { up: 3, rep: 2, unch: 0, kept: 1, rows: 3 });
+    assert.equal(db.opts.size, 3);
+  });
+
+  it('second night with identical payloads: nothing in the facet table is touched', async () => {
+    const db = makeDb(); const h = loadHandlers(db);
+    const vs = [veh(1, [HEATED, ROOF]), veh(2, [TOW]), veh(3, null)];
+    await h.bulk(vs);
+    const before = db.pool.optionTable();
+    db.n.optionDeletes = db.n.optionInserts = 0;
+    const r = await h.bulk(vs);
+    assert.deepEqual({ rep: r.json.optionSetsReplaced, unch: r.json.optionSetsUnchanged, rows: r.json.optionRowsWritten }, { rep: 0, unch: 2, rows: 0 });
+    assert.deepEqual({ d: db.n.optionDeletes, i: db.n.optionInserts }, { d: 0, i: 0 }, 'no DELETE, no INSERT');
+    assert.equal(db.pool.optionTable(), before);
+    assert.equal(db.n.upserts, 6, 'the main rows are still upserted every night (last_seen_at)');
+  });
+
+  it('a vehicle whose options changed is rewritten (and stops matching the option it lost); the rest are left alone', async () => {
+    const db = makeDb(); const h = loadHandlers(db);
+    await h.bulk([veh(1, [HEATED, ROOF]), veh(2, [TOW]), veh(4, [HEATED])]);
+    db.n.optionDeletes = db.n.optionInserts = 0;
+    const r = await h.bulk([veh(1, [HEATED]), veh(2, [TOW]), veh(4, [HEATED])]);
+    assert.deepEqual({ rep: r.json.optionSetsReplaced, unch: r.json.optionSetsUnchanged }, { rep: 1, unch: 2 });
+    assert.deepEqual({ d: db.n.optionDeletes, i: db.n.optionInserts }, { d: 1, i: 1 });
+    assert.ok(![...db.opts.values()].some((o) => o.vin === vin(1) && o.canonical_key === 'panoramic sunroof'));
+  });
+
+  it('a payload that is only junk clears a vehicle\'s old rows; junk-only twice in a row writes nothing the second time', async () => {
+    const db = makeDb(); const h = loadHandlers(db);
+    await h.bulk([veh(1, [HEATED])]);
+    const r1 = await h.bulk([veh(1, [FEE])]);
+    assert.equal(r1.json.optionSetsReplaced, 1);
+    assert.equal([...db.opts.values()].filter((o) => o.vin === vin(1)).length, 0);
+    db.n.optionDeletes = 0;
+    const r2 = await h.bulk([veh(1, [FEE])]);
+    assert.deepEqual({ rep: r2.json.optionSetsReplaced, unch: r2.json.optionSetsUnchanged, d: db.n.optionDeletes }, { rep: 0, unch: 1, d: 0 });
+  });
+
+  it('a payload with no options at all leaves the stored rows alone (unchanged behavior)', async () => {
+    const db = makeDb(); const h = loadHandlers(db);
+    await h.bulk([veh(1, [HEATED])]);
+    const before = db.pool.optionTable();
+    const r = await h.bulk([veh(1, null)]);
+    assert.equal(r.json.optionSetsKept, 1);
+    assert.equal(db.pool.optionTable(), before);
+  });
+
+  it('INVENTORY_OPTIONS_DIFF_WRITE off: every set is deleted and re-inserted, exactly as before', async () => {
+    const db = makeDb(); const h = loadHandlers(db); h.ctx.OPTIONS_DIFF_WRITE = false;
+    const vs = [veh(1, [HEATED, ROOF]), veh(2, [TOW])];
+    await h.bulk(vs);
+    db.n.optionDeletes = db.n.optionInserts = db.n.optionSelects = 0;
+    const r = await h.bulk(vs);
+    assert.deepEqual({ rep: r.json.optionSetsReplaced, unch: r.json.optionSetsUnchanged, d: db.n.optionDeletes, i: db.n.optionInserts, sel: db.n.optionSelects }, { rep: 2, unch: 0, d: 2, i: 3, sel: 0 });
+  });
+
+  it('reports where its time went', async () => {
+    const db = makeDb(); const h = loadHandlers(db);
+    const r = await h.bulk([veh(1, [HEATED]), veh(2, null)]);
+    const t = r.json.timings;
+    for (const k of ['upsertMs', 'optionsMs', 'optionsReadMs', 'daysMs', 'totalMs']) assert.ok(Number.isInteger(t[k]) && t[k] >= 0, k);
+    assert.equal(t.chunks, 1);
+    assert.ok(t.totalMs >= t.upsertMs);
+  });
+
+  it('rejects a body with no vehicles array, and skips rows with a bad VIN or no dealer name, as before', async () => {
+    const db = makeDb(); const h = loadHandlers(db);
+    assert.equal((await h.bulk(null)).status, 400);
+    const r = await h.bulk([veh(1, [HEATED]), { ...veh(2, [TOW]), vin: 'SHORT' }, { ...veh(3, [TOW]), dealerName: '' }]);
+    assert.deepEqual({ up: r.json.upserted, skipped: r.json.skipped }, { up: 1, skipped: 2 });
+  });
+
+  it('property: over random nights — including a change of derivation rules — the facet table always equals what rewrite-everything produces', async () => {
+    let seed = 20261002;
+    const rnd = () => { seed = (seed + 0x6d2b79f5) | 0; let t = Math.imul(seed ^ (seed >>> 15), 1 | seed); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+    const POOL = [HEATED, ROOF, TOW, FEE, opt('Leather Seats', 'OPT-5'), opt('Sky One-Touch Power Top'), opt('SKY 1-TOUCH PWR TOP'), opt('Black 3-Piece Hard Top')];
+    const randomOptions = () => { const r = rnd(); if (r < 0.15) return null; if (r < 0.2) return []; const n = 1 + Math.floor(rnd() * 5); return Array.from({ length: n }, () => POOL[Math.floor(rnd() * POOL.length)]); };
+    const worldA = (() => { const db = makeDb(); const h = loadHandlers(db); return { db, h }; })();
+    const worldB = (() => { const db = makeDb(); const h = loadHandlers(db); h.ctx.OPTIONS_DIFF_WRITE = false; return { db, h }; })();
+    const cars = Array.from({ length: 14 }, (_, i) => ({ i, options: randomOptions() }));
+    let writesDiff = 0, writesAll = 0;
+    for (let night = 0; night < 40; night++) {
+      if (night === 20) { // the derivation rules change (an allowlist arrives)
+        const allow = buildAllowlist({ Toyota: { 'Sky One-Touch Power Top': { label: 'Sky One-Touch Power Top', aliases: ['SKY 1-TOUCH PWR TOP'] } } });
+        worldA.h.ctx.OPTION_ALLOWLIST = allow; worldB.h.ctx.OPTION_ALLOWLIST = allow;
+      }
+      for (const c of cars) if (rnd() < 0.25) c.options = randomOptions(); // some vehicles' options change, most don't
+      const tonight = cars.filter(() => rnd() < 0.9).map((c) => veh(c.i, c.options));
+      worldA.db.n.optionInserts = worldB.db.n.optionInserts = 0;
+      await worldA.h.bulk(tonight); await worldB.h.bulk(tonight);
+      writesDiff += worldA.db.n.optionInserts; writesAll += worldB.db.n.optionInserts;
+      assert.equal(worldA.db.pool.optionTable(), worldB.db.pool.optionTable(), `facet tables diverged on night ${night}`);
+    }
+    assert.ok(writesDiff < writesAll * 0.6, `diff-write should have written far less (${writesDiff} vs ${writesAll} rows)`);
+  });
+});
+
+describe('handleInventorySweep — the real handler, in-memory pool', () => {
+  const seed = async (h, db) => {
+    await h.bulk([veh(1, null), veh(2, null), veh(3, null), veh(4, null), veh(5, null), veh(6, null)]); // stores 2,3,1,2,3,1
+    db.clock = 5_000; // the run's cutoff will sit between the two groups
+    await h.bulk([veh(1, null), veh(2, null)]); // seen again after the cutoff: stores 2 and 3
+  };
+  const cutoff = new Date(3_000).toISOString();
+
+  it('single store: unchanged request, unchanged response shape, only that store\'s stale rows retired', async () => {
+    const db = makeDb(); const h = loadHandlers(db); await seed(h, db);
+    const r = await h.sweep({ dealerId: 1, seenAfter: cutoff, sources: ['nightly'] });
+    assert.equal(r.status, 200);
+    assert.deepEqual(r.json, { removed: 2 }, 'store 1 holds vehicles 3 and 6; neither was seen after the cutoff');
+    assert.match(db.n.sweeps[0].sql, /dealer_id = \? AND removed_at IS NULL AND last_seen_at < \? AND source IN \(\?\)$/);
+    assert.equal(h.out.invalidations > 0, true);
+  });
+
+  it('a batch of stores: one statement, one invalidation, same rows retired as sweeping them one at a time', async () => {
+    const batched = makeDb(); const hb = loadHandlers(batched); await seed(hb, batched);
+    const invBefore = hb.out.invalidations;
+    const r = await hb.sweep({ dealerIds: [1, 2, 3], seenAfter: cutoff, sources: ['nightly'] });
+    assert.deepEqual(r.json, { removed: 4, stores: 3 });
+    assert.equal(hb.out.invalidations - invBefore, 1);
+    assert.equal(batched.n.sweeps.length, 1);
+
+    const single = makeDb(); const hs = loadHandlers(single); await seed(hs, single);
+    let total = 0;
+    for (const id of [1, 2, 3]) total += (await hs.sweep({ dealerId: id, seenAfter: cutoff, sources: ['nightly'] })).json.removed;
+    assert.equal(total, 4);
+    assert.deepEqual([...batched.inv.values()].map((x) => x.removed), [...single.inv.values()].map((x) => x.removed));
+  });
+
+  it('only rows from the named sources are swept, and rows seen since the cutoff are never touched', async () => {
+    const db = makeDb(); const h = loadHandlers(db); await seed(h, db);
+    const r = await h.sweep({ dealerIds: [1, 2, 3], seenAfter: cutoff, sources: ['manual'] });
+    assert.equal(r.json.removed, 0);
+    const kept = await h.sweep({ dealerIds: [1, 2, 3], seenAfter: new Date(1).toISOString(), sources: ['nightly'] });
+    assert.equal(kept.json.removed, 0, 'a cutoff before every row retires nothing');
+  });
+
+  it('a call that retires nothing does not drop the API caches', async () => {
+    const db = makeDb(); const h = loadHandlers(db); await seed(h, db);
+    const before = h.out.invalidations;
+    await h.sweep({ dealerIds: [1, 2, 3], seenAfter: new Date(1).toISOString() });
+    assert.equal(h.out.invalidations, before);
+  });
+
+  it('keeps answering what it always answered for bad requests', async () => {
+    const db = makeDb(); const h = loadHandlers(db);
+    for (const body of [{ seenAfter: cutoff }, { dealerId: 1 }, { dealerId: 1, seenAfter: 'x' }]) {
+      const r = await h.sweep(body);
+      assert.deepEqual({ s: r.status, e: r.json.error }, { s: 400, e: 'dealerId and seenAfter (ISO) are required' });
+    }
+    assert.equal((await h.sweep({ dealerIds: [], seenAfter: cutoff })).status, 400);
+    assert.equal((await h.sweep({ dealerId: 1, dealerIds: [1], seenAfter: cutoff })).status, 400);
+    assert.equal(db.n.sweeps.length, 0);
+  });
+});
