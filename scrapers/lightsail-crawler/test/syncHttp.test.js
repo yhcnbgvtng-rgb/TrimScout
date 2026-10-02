@@ -5,7 +5,7 @@ import { describe, it, after } from 'node:test';
 import assert from 'node:assert/strict';
 import http from 'node:http';
 import {
-  ApiError, isRetryableStatus, timeoutKindFor, DEFAULT_TIMEOUTS_MS, requestJson, createApi, withRetry,
+  ApiError, isRetryableStatus, timeoutKindFor, DEFAULT_TIMEOUTS_MS, requestJson, createApi, withRetry, isTimeout, heavyCallShouldRetry,
 } from '../../../scripts/box/syncHttp.js';
 
 const servers = [];
@@ -150,5 +150,38 @@ describe('withRetry', () => {
     await assert.rejects(withRetry(async () => { n++; throw new TypeError('x is not a function'); }, { retries: 5, sleep }), TypeError);
     assert.equal(n, 2);
     assert.deepEqual(w, []);
+  });
+});
+
+describe('heavyCallShouldRetry', () => {
+  const timeout = () => new ApiError('/api/inventory/sweep -> no response within 1200s', { code: 'ETIMEDOUT', retryable: true });
+  const five = () => new ApiError('x -> 500', { status: 500, retryable: true });
+
+  it('retries what can clear up on its own, however often', () => {
+    const should = heavyCallShouldRetry();
+    for (let i = 0; i < 10; i++) assert.equal(should(five()), true);
+    assert.equal(should(new ApiError('reset', { code: 'ECONNRESET', retryable: true })), true);
+  });
+
+  it('a request that already waited its full deadline is retried once, not again — a second copy on a stalled database is no fix', () => {
+    const should = heavyCallShouldRetry();
+    assert.equal(isTimeout(timeout()), true);
+    assert.equal(should(timeout()), true);
+    assert.equal(should(timeout()), false);
+    assert.equal(should(five()), true, 'other failures are still retried');
+  });
+
+  it('each call gets its own count, and non-retryable errors are never retried', () => {
+    const a = heavyCallShouldRetry(); const b = heavyCallShouldRetry();
+    assert.equal(a(timeout()), true); assert.equal(a(timeout()), false);
+    assert.equal(b(timeout()), true);
+    assert.equal(a(new ApiError('bad', { status: 400, retryable: false })), false);
+    assert.equal(a(new TypeError('bug')), false);
+  });
+
+  it('with withRetry: a call that times out twice stops after exactly two attempts', async () => {
+    let n = 0;
+    await assert.rejects(withRetry(async () => { n++; throw timeout(); }, { retries: 6, delayMs: 0, shouldRetry: heavyCallShouldRetry() }), /no response within/);
+    assert.equal(n, 2);
   });
 });

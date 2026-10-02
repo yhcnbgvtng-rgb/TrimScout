@@ -31,10 +31,10 @@ export const isRetryableStatus = (status) => status === 408 || status === 425 ||
 // the two heavy calls is far beyond anything a healthy-but-loaded deals box needs.
 export const DEFAULT_TIMEOUTS_MS = Object.freeze({
   lock: 20_000, // acquire / heartbeat / release: must stay snappy so a stuck call can't mask a lost lock
-  directory: 120_000, // GET /api/dealerships (read once at start)
+  directory: 5 * 60_000, // GET /api/dealerships (read once at start; a multi-MB body)
   bulk: 20 * 60_000, // POST /api/inventory/bulk
   sweep: 20 * 60_000, // POST /api/inventory/sweep
-  stats: 90_000, // GET /api/inventory/stats — only feeds a log line
+  stats: 3 * 60_000, // GET /api/inventory/stats — only feeds a log line; a cold full-table aggregate has taken 150s
   other: 5 * 60_000,
 });
 
@@ -132,4 +132,22 @@ export async function withRetry(fn, { retries = 1, delayMs = 3000, factor = 1, m
       await sleep(wait);
     }
   }
+}
+
+export const isTimeout = (err) => err instanceof ApiError && err.code === "ETIMEDOUT";
+
+/**
+ * `shouldRetry` for the heavy calls (bulk upsert, sweep). Retry what can clear up on its own — a 5xx, a reset
+ * connection — but a request that already waited its FULL deadline is retried at most once: the server may
+ * still be running the first copy of that statement, and a second one on top of a stalled database is not a
+ * fix. (Every attempt holds the global sync lock, so an unbounded stall also blocks the other three boxes.)
+ * Make one per call: it counts timeouts.
+ */
+export function heavyCallShouldRetry() {
+  let timeouts = 0;
+  return (err) => {
+    if (!(err instanceof ApiError && err.retryable)) return false;
+    if (isTimeout(err)) return ++timeouts <= 1;
+    return true;
+  };
 }

@@ -283,6 +283,20 @@ describe('safety', () => {
   });
 });
 
+describe('a stalled deals API', () => {
+  it('an upsert request that waits out its deadline is retried once, then the run stops with its place saved (not 7 more tries)', async () => {
+    const clock = { t: T0 };
+    let n = 0;
+    const d = fakeDeals({ clock });
+    const api = async (p, b) => { if (p === BULK_PATH) { n++; throw new ApiError('/api/inventory/bulk -> no response within 1200s', { code: 'ETIMEDOUT', retryable: true }); } return d.api(p, b); };
+    const store = memoryStore();
+    await assert.rejects(run({ rows: makeRows(25), api, store, clock, config: cfg({ bulkRetries: 6 }) }), /no response within/);
+    assert.equal(n, 2);
+    assert.equal(store.data.phase, 'upsert');
+    assert.equal(store.data.upsert.rows, 0);
+  });
+});
+
 describe('configFromEnv', () => {
   it('defaults match the previous behavior (2000-row requests, one store sweep at a time)', () => {
     const c = configFromEnv({});

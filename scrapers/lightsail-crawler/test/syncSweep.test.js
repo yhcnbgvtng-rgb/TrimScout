@@ -4,6 +4,7 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import { ApiError } from '../../../scripts/box/syncHttp.js';
+const timeoutError = () => new ApiError('/api/inventory/sweep -> no response within 1200s', { code: 'ETIMEDOUT', retryable: true });
 import { runSweep, SweepAbortError, LockLostError, isBatchSweepUnsupported, SWEEP_PATH } from '../../../scripts/box/syncSweep.js';
 
 const fast = { sleep: async () => {}, retry: { batch: { retries: 3, delayMs: 0 }, store: { retries: 1, delayMs: 0 } } };
@@ -199,5 +200,34 @@ describe('concurrency', () => {
     const progress = [];
     await assert.rejects(runSweep({ api: f.api, stores: ids(10), startedAt: 'x', batchStores: 2, concurrency: 3, maxConsecutiveStoreFailures: 2, onProgress: (p) => progress.push(p.nextIndex), ...fast }), SweepAbortError);
     assert.ok(progress.every((n) => n <= 2), `cursor moved past the failed batch: ${progress}`);
+  });
+});
+
+describe('a stalled database (calls that wait out their whole deadline)', () => {
+  it('a batch that times out twice stops the sweep with its place saved — it does NOT fall back to per-store calls', async () => {
+    let attempts = 0;
+    const calls = [];
+    const api = async (path, body) => { calls.push(body); if (body.dealerIds && body.dealerIds[0] === 4) { attempts++; throw timeoutError(); } return { removed: 1 }; };
+    const progress = [];
+    await assert.rejects(
+      runSweep({ api, stores: ids(9), startedAt: 'x', batchStores: 3, onProgress: (p) => progress.push(p.nextIndex), ...fast }),
+      (err) => err instanceof SweepAbortError && /stalled/.test(err.message) && err.nextIndex === 3
+    );
+    assert.equal(attempts, 2, 'one retry, then it stops');
+    assert.equal(calls.filter((c) => c.dealerId !== undefined).length, 0, 'no per-store calls were queued behind the stalled statement');
+    assert.deepEqual(progress, [3]);
+  });
+
+  it('a single timeout followed by success is just retried', async () => {
+    let n = 0;
+    const api = async () => { if (++n === 1) throw timeoutError(); return { removed: 2 }; };
+    const r = await runSweep({ api, stores: ids(3), startedAt: 'x', batchStores: 3, ...fast });
+    assert.deepEqual({ removed: r.removed, failed: r.failedStores }, { removed: 2, failed: [] });
+    assert.equal(n, 2);
+  });
+
+  it('a per-store call that times out twice also stops the sweep', async () => {
+    const api = async (path, body) => { if (body.dealerIds) throw new ApiError('/x -> 400 dealerId and seenAfter (ISO) are required', { status: 400 }); if (body.dealerId === 2) throw timeoutError(); return { removed: 1 }; };
+    await assert.rejects(runSweep({ api, stores: ids(4), startedAt: 'x', batchStores: 4, ...fast }), (err) => err instanceof SweepAbortError && /store 2/.test(err.message));
   });
 });

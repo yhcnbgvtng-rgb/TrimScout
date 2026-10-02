@@ -16,7 +16,7 @@
 import { createHash } from "node:crypto";
 import { sortRows, newRunState, parseRunState, upsertStartIndex, MAX_RESUME_AGE_MS } from "./syncCheckpoint.js";
 import { takeBatch, DEFAULT_BATCH_ROWS, DEFAULT_BATCH_MAX_BYTES } from "./syncBatching.js";
-import { withRetry } from "./syncHttp.js";
+import { withRetry, heavyCallShouldRetry } from "./syncHttp.js";
 import { runSweep, SWEEP_PATH, LockLostError } from "./syncSweep.js";
 
 export const BULK_PATH = "/api/inventory/bulk";
@@ -110,6 +110,7 @@ export async function runWritePhase({ rows, fileIdentity, api, store, isLockLost
         factor: 1.5,
         maxDelayMs: 60_000 * config.retryScale,
         sleep,
+        shouldRetry: heavyCallShouldRetry(),
         onRetry: ({ attempt, retries, waitMs, err }) => log(`[sync] bulk upsert attempt ${attempt}/${retries + 1} failed (${err.message}); retrying in ${Math.round(waitMs / 1000)}s`),
       });
       batchWallMs.push(now() - tb);

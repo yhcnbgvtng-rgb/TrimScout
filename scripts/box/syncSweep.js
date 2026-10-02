@@ -23,7 +23,7 @@
 // Sweeping is idempotent: re-running a batch (retries, a resume that redoes the one in-flight batch) only
 // retires rows that are still stale, so none of the above can remove a row that shouldn't be.
 
-import { ApiError, withRetry } from "./syncHttp.js";
+import { ApiError, withRetry, isTimeout, heavyCallShouldRetry } from "./syncHttp.js";
 
 export const SWEEP_PATH = "/api/inventory/sweep";
 
@@ -93,11 +93,12 @@ export async function runSweep({
     storeCalls++;
     usedPerStore = true;
     try {
-      const r = await withRetry(() => api(SWEEP_PATH, { dealerId: id, seenAfter: startedAt, sources }), { ...retry.store, sleep });
+      const r = await withRetry(() => api(SWEEP_PATH, { dealerId: id, seenAfter: startedAt, sources }), { ...retry.store, sleep, shouldRetry: heavyCallShouldRetry() });
       if (counts) consecutiveStoreFailures = 0;
       return { removed: r?.removed ?? 0, ok: true };
     } catch (err) {
       if (err instanceof LockLostError) throw err;
+      if (isTimeout(err)) throw new SweepAbortError(`the sweep of store ${id} got no response within its deadline, twice (${err.message}) — the deals API or its database is stalled, so the sweep stops here with its place saved`);
       log(`[sync] sweep failed for store ${id} after retry, skipping (will sweep next run): ${err.message}`);
       if (!counts) return { removed: 0, ok: false };
       consecutiveStoreFailures++;
@@ -116,6 +117,7 @@ export async function runSweep({
         const r = await withRetry(() => api(SWEEP_PATH, { dealerIds: batch.ids, seenAfter: startedAt, sources }), {
           ...retry.batch,
           sleep,
+          shouldRetry: heavyCallShouldRetry(),
           onRetry: ({ attempt, retries, waitMs, err }) => log(`[sync] sweep batch (stores #${batch.start}-${batch.start + batch.ids.length - 1}) attempt ${attempt}/${retries + 1} failed (${err.message}); retrying in ${Math.round(waitMs / 1000)}s`),
         });
         supportsBatch = true;
@@ -124,6 +126,9 @@ export async function runSweep({
         return { removed: r?.removed ?? 0, failedIds: [] };
       } catch (err) {
         if (err instanceof LockLostError) throw err;
+        // A batch that waited out its whole deadline (twice) means a stalled database, not one bad store: splitting
+        // it into per-store calls would only queue more statements behind the stalled one.
+        if (isTimeout(err)) throw new SweepAbortError(`a sweep batch (stores #${batch.start}-${batch.start + batch.ids.length - 1}) got no response within its deadline, twice (${err.message}) — the deals API or its database is stalled, so the sweep stops here with its place saved`, { nextIndex: batch.start });
         if (isBatchSweepUnsupported(err)) {
           supportsBatch = false;
           log("[sync] the deals API has no batched sweep yet — sweeping store by store (same result, more calls)");
