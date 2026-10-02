@@ -1,16 +1,13 @@
 /**
- * The dealer listing page our own crawl captured for a VIN — what the wizard's VIN links to.
+ * Does our own crawl hold data for this VIN? Drives the wizard's VIN hyperlink, which opens that
+ * VIN's page in the admin crawl sheet (/admin/crawl?vin=…, the day-by-day VIN history).
  *
- * Why this is its own lookup instead of riding on the paste import: the import's VIN→sighting call
- * (inventoryDealerForVin) is deliberately capped at 4s so a slow deals box never stalls a buyer's
- * paste, and it fails soft to "never seen". Live 2026-10-02 the same three VINs came back with and
- * without crawl data on consecutive imports (2s hits, 4s misses), so a link that depended on that
- * race showed up on some cards and not others. This lookup is off the import's critical path (the
- * VIN link asks for it after the card renders), so it can afford a longer cap and a retry, and it
- * caches both answers — a hit for an hour, a genuine "we have no crawl data" briefly.
+ * Its own lookup, off the paste import's critical path: the import's VIN→sighting call is capped at
+ * 4s and fails soft, and live 2026-10-02 the same VINs came back with and without crawl data on
+ * consecutive imports. This one can afford a longer cap, and caches both answers — a hit for an
+ * hour, a genuine "no crawl data" briefly. A timeout/error is "unavailable" (retry), never cached.
  */
-import { inventoryVin, type InventoryVehicle } from "./inventoryApi";
-import { safeHttpUrl } from "./inventoryVinLookup";
+import { inventoryVin } from "./inventoryApi";
 
 const VIN_RE = /^[A-HJ-NPR-Z0-9]{17}$/;
 const LOOKUP_TIMEOUT_MS = 12_000;
@@ -18,42 +15,36 @@ const HIT_TTL_MS = 60 * 60 * 1000;
 const MISS_TTL_MS = 60 * 1000;
 const MAX_CACHE = 2000;
 
-export type VinCrawlLink = { status: "found"; url: string } | { status: "none" } | { status: "unavailable" };
+export type VinCrawlData = "found" | "none" | "unavailable";
 
-/** In stock first, then most recently seen; only listings that actually carry a usable http(s) URL. */
-export function crawlLinkFromListings(listings: InventoryVehicle[]): string | null {
-  const withUrl = listings
-    .map((l) => ({ l, url: safeHttpUrl(l.vdpUrl) }))
-    .filter((x): x is { l: InventoryVehicle; url: string } => Boolean(x.url));
-  if (!withUrl.length) return null;
-  const rank = (l: InventoryVehicle) => `${l.removedAt ? 0 : 1}${l.lastSeenAt || ""}`;
-  return withUrl.reduce((a, b) => (rank(b.l) > rank(a.l) ? b : a)).url;
-}
+const cache = new Map<string, { at: number; ttl: number; found: boolean }>();
 
-const cache = new Map<string, { at: number; ttl: number; url: string | null }>();
-
-export async function crawlLinkForVin(rawVin: string, lookup: typeof inventoryVin = inventoryVin, now: () => number = Date.now): Promise<VinCrawlLink> {
+export async function crawlDataForVin(rawVin: string, lookup: typeof inventoryVin = inventoryVin, now: () => number = Date.now): Promise<VinCrawlData> {
   const vin = (rawVin || "").trim().toUpperCase();
-  if (!VIN_RE.test(vin)) return { status: "none" };
+  if (!VIN_RE.test(vin)) return "none";
   const hit = cache.get(vin);
-  if (hit && now() - hit.at < hit.ttl) return hit.url ? { status: "found", url: hit.url } : { status: "none" };
+  if (hit && now() - hit.at < hit.ttl) return hit.found ? "found" : "none";
   let timer: ReturnType<typeof setTimeout> | undefined;
   try {
     const timeout = new Promise<null>((resolve) => { timer = setTimeout(() => resolve(null), LOOKUP_TIMEOUT_MS); });
     const res = await Promise.race([lookup(vin), timeout]);
-    // A timeout or backend error is "couldn't tell", never cached as "no data".
-    if (!res) return { status: "unavailable" };
-    const url = crawlLinkFromListings(res.listings || []);
+    if (!res) return "unavailable";
+    const found = (res.listings || []).length > 0;
     if (cache.size >= MAX_CACHE) cache.clear();
-    cache.set(vin, { at: now(), ttl: url ? HIT_TTL_MS : MISS_TTL_MS, url });
-    return url ? { status: "found", url } : { status: "none" };
+    cache.set(vin, { at: now(), ttl: found ? HIT_TTL_MS : MISS_TTL_MS, found });
+    return found ? "found" : "none";
   } catch {
-    return { status: "unavailable" };
+    return "unavailable";
   } finally {
     if (timer) clearTimeout(timer);
   }
 }
 
-export function clearVinCrawlLinkCache(): void {
+export function clearVinCrawlCache(): void {
   cache.clear();
+}
+
+/** The admin crawl-sheet page for one VIN. */
+export function crawlSheetPathForVin(vin: string): string {
+  return `/admin/crawl?vin=${encodeURIComponent(vin.trim().toUpperCase())}`;
 }

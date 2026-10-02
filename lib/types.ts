@@ -88,8 +88,6 @@ export interface Vehicle {
   daysOnLot: number;
   /** YYYY-MM-DD our inventory crawl first saw the VIN on this lot — the source of daysOnLot when the feed had none. */
   lotFirstSeen?: string;
-  /** The dealer's listing page for this VIN as our own crawl captured it (http/https only); the wizard's VIN links here when present. */
-  crawlListingUrl?: string;
   status: VehicleStatus;
   condition?: VehicleCondition;
   location: {
