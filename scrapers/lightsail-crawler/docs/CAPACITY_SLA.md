@@ -408,8 +408,8 @@ Each "new rate" carries real margin over its single-night weighted-average measu
 
 | Box/job | Core-brand states owned |
 |---|---|
-| Box 1 (11pm) | AK, AZ, CT, DE, IA, ID, KS, LA, MN, NY, OH, RI, VA |
-| Box 2 (11pm) | AL, CA, CO, GA, IN, MD, ME, MT, NC, ND, NV, OK, OR, PA, TN, TX, VT, WV, WY |
+| Box 1 (10pm) | AK, AZ, CT, DE, IA, ID, KS, LA, MN, NY, OH, RI, VA |
+| Box 2 (10pm) | AL, CA, CO, GA, IN, MD, ME, MT, NC, ND, NV, OK, OR, PA, TN, TX, VT, WV, WY |
 | Box 3 core (4am) | AR, MA, MO, NH, SC, SD, NE, UT, WI |
 | Box 4 core (4am) | FL, HI, IL, KY, MI, MS, NJ, NM, WA |
 
