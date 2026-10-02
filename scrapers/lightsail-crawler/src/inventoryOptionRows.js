@@ -42,7 +42,11 @@ const str = (v, n) => (typeof v === "string" && v.trim() ? v.trim().slice(0, n) 
 // condition disclosures ("1 Owner Clean Carfax", "1-OWNERCLEAN AUTO CHECK WITH NO ACCIDENTS
 // REPORTED") — a buyer's-guide/condition statement about THIS specific used car, never a factory
 // option on any car. "credit" catches dealer-applied credits ("$100 Tire Credit") the same way.
-const NON_OPTION_TERMS = /\b(fees?|deductible|warranty|warranties|coverage|documentation|doc|registration|title|taxe?s?|financ(?:e|ed|ing)|apr|down payment|rebates?|incentives?|service contract|protection plan|maintenance plan|insurance|cash|bonus|msrp|owner|carfax|accidents?|credit)\b/i;
+// Widened 2026-10-01 from the live Jeep Wrangler facet: "MYFLEXCARE SERVICE PLAN" (5,226 vehicles)
+// is a dealer-sold service plan, the same category as the "maintenance plan" already listed. Also
+// dealer-listing boilerplate from DealerOn description text ("2020 Jeep Wrangler Unlimited 4x4 for
+// sale in Grand Rapids", "As an award-winning Ford Dealership").
+const NON_OPTION_TERMS = /\b(fees?|deductible|warranty|warranties|coverage|documentation|doc|registration|title|taxe?s?|financ(?:e|ed|ing)|apr|down payment|rebates?|incentives?|service contract|service[\s-]+plans?|protection plan|maintenance plan|insurance|cash|bonus|msrp|owner|carfax|accidents?|credit|for[\s-]+sale|dealership|award[\s-]+winning|test[\s-]+drive)\b/i;
 // A label that starts with a bare "0"/"00" is the tail of a number the old description parser split
 // at its decimal point ("$899.00 ..." -> "00 ...", "2.0-amp" -> "0-amp"); real option names don't
 // start that way. Fixed at the source in descriptionFeatures.js; this cleans what's already stored.
@@ -98,38 +102,110 @@ const MENTIONS_MILEAGE = /\bmiles?\b/i;
 // documents elsewhere for low-confidence cases.
 const LONG_CAPS_RUN_GLUED_ON = /[a-z][A-Z]{4,}/;
 
-export function looksLikeNonOptionText(label) {
-  // Leading punctuation ("$0 ...", "(0 A) Marsh Gray") doesn't hide a split-number fragment.
-  const trimmed = label.trim();
+// The rules below were added 2026-10-01. Each is written so it means the same thing on a raw label
+// and on its normalized canonical_key (lowercased, punctuation collapsed to single spaces), so the
+// write path and the purge script's key-only classifier share one definition instead of two.
+
+// A fragment of a prose list split on its commas: "and Mazda MX-5 Miata", "As an award-winning Ford
+// Dealership", "or ..." (confirmed live in DealerOn description-derived rows). A real option name is
+// a noun phrase and never opens with a conjunction. "in"/"at"/"to"/"by" are deliberately NOT here:
+// "In-Dash Navigation" is a real option.
+const LEADING_CONJUNCTION = /^(?:and|as|or|but|for|of)\s/i;
+
+// A vehicle listing title, not an option: "2020 Jeep Wrangler Unlimited 4x4 for sale in Grand
+// Rapids". A model year followed by more words. A bare year alone is already BARE_NUMBER_OR_CURRENCY.
+const LEADING_MODEL_YEAR = /^(?:19[89]\d|20[0-4]\d)\s+[a-z]/i;
+
+// The tail of a screen size split at its decimal point by the old description parser: "12.3"
+// Display" became "3 Display", "8.4 Touchscreen Display" became "4 Touchscreen Display" (both live,
+// 1,565 Wrangler vehicles for the first). Exactly ONE leading digit, so real sizes like "10-inch
+// Touchscreen" or "12.3-inch Display" are untouched.
+const SPLIT_SCREEN_SIZE = /^\d\s*"?\s*(?:touch\s*screen|display|screen)\b/i;
+
+// Labels that are a heading, a call to action, or a truncated stub rather than an option: "For More
+// Info" (1,201 Wrangler vehicles), "Exp" (1,618), "Equipment". Whole-label match only.
+const GENERIC_STUB = /^(?:exp|equipment|options?|features?|details|highlights|specs|specifications|more info|for more info|see dealer|call for details|click here|other|misc|n a|na|none|standard|optional|standard equipment|optional equipment|installed options|additional options)$/i;
+
+// A listing-position code used as a name ("OPT-35", "PKG 7") — different on every vehicle for the
+// same real option, so it identifies nothing. Previously only the buyer catalog filtered these; now
+// the write path drops them too, before they ever reach the facet table.
+const LISTING_POSITION = /^(?:opt|option|code|pkg)[\s-]*\d+$/i;
+
+// Shared by looksLikeNonOptionText (raw labels) and looksLikeJunkCanonicalKey (normalized keys).
+function looksLikeFragmentOrBoilerplate(text) {
+  const t = text.trim();
+  const words = t.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
   return (
-    NON_OPTION_TERMS.test(label) ||
-    SPLIT_NUMBER_FRAGMENT.test(label.replace(/^[^a-z0-9]+/i, "")) ||
-    BARE_DATE.test(trimmed) ||
-    BARE_NUMBER_OR_CURRENCY.test(trimmed) ||
-    MENTIONS_MILEAGE.test(label) ||
-    LONG_CAPS_RUN_GLUED_ON.test(label)
+    LEADING_CONJUNCTION.test(t) ||
+    LEADING_MODEL_YEAR.test(t) ||
+    SPLIT_SCREEN_SIZE.test(t) ||
+    GENERIC_STUB.test(words) ||
+    LISTING_POSITION.test(t)
   );
 }
 
+export function looksLikeNonOptionText(label) {
+  // Leading punctuation ("$0 ...", "(0 A) Marsh Gray") doesn't hide a split-number fragment.
+  const trimmed = label.trim();
+  const unbulleted = label.replace(/^[^a-z0-9]+/i, "");
+  return (
+    NON_OPTION_TERMS.test(label) ||
+    SPLIT_NUMBER_FRAGMENT.test(unbulleted) ||
+    BARE_DATE.test(trimmed) ||
+    BARE_NUMBER_OR_CURRENCY.test(trimmed) ||
+    MENTIONS_MILEAGE.test(label) ||
+    LONG_CAPS_RUN_GLUED_ON.test(label) ||
+    looksLikeFragmentOrBoilerplate(unbulleted)
+  );
+}
+
+// Several options joined into one string by the dealer's own feed: "4 Display; Rear View Auto Dim
+// Mirror; GPS Navigation; 8" (live, a DealerOn description). Kept whole it is junk (and usually long
+// enough to trip the sentence filter, losing the real options inside it); split, the real parts
+// survive and the fragments are dropped by the same rules as everything else. Semicolons, pipes and
+// bullets only — never commas or slashes, which real option names use ("Wiper/Washer", "Front,
+// Rear and Side Airbags").
+const LIST_SEPARATOR = /\s*(?:;|\||•)\s*/;
+
+export function splitOptionLabel(rawName) {
+  const parts = String(rawName || "").split(LIST_SEPARATOR).map((p) => p.trim()).filter(Boolean);
+  return parts.length ? parts : [];
+}
+
 /**
+ * @param {unknown} options
+ * @param {{ resolveKey?: (key: string) => ({ key: string, label: string } | null) }} [opts]
+ *   resolveKey maps a dealer key to an allowlisted canonical option (factoryOptionAllowlist.js's
+ *   resolveAllowlisted, bound to the vehicle's make). A hit stores the canonical key and label so
+ *   every dealer spelling of one real option lands on one key; a miss keeps the dealer key as-is
+ *   (still subject to every junk rule) — the buyer catalog, not the write path, decides what to show.
  * @returns {{ rows: Array<{ key: string, label: string, code: string | null }>, junkDropped: number }}
  * One row per distinct canonical key. Identity comes from the option's NAME, never its raw
  * per-listing `code` (a listing-position number like "OPT-35", different on every vehicle for the
  * same real option); a code with no name has nothing stable to key on and is skipped.
  */
-export function optionRowsFromOptions(options) {
+export function optionRowsFromOptions(options, opts = {}) {
+  const resolveKey = typeof opts.resolveKey === "function" ? opts.resolveKey : null;
   const byKey = new Map();
   let junkDropped = 0;
   if (!Array.isArray(options)) return { rows: [], junkDropped };
   for (const o of options) {
     const rawName = o && typeof o.name === "string" ? o.name.trim() : "";
     if (!rawName) continue;
-    // Checked on the raw, pre-truncation text — see looksLikeOptionSentence's own length note.
-    if (looksLikeOptionSentence(rawName) || looksLikeNonOptionText(rawName)) { junkDropped++; continue; }
-    const label = rawName.slice(0, 160);
-    const key = normalizeOptionKey(label);
-    if (!key) continue;
-    if (!byKey.has(key)) byKey.set(key, { key, label, code: str(o.code, 32) });
+    const parts = splitOptionLabel(rawName);
+    // A code belongs to the option it was listed with — never copy it onto parts split out of a
+    // joined list, where it can't be attributed to any one of them.
+    const code = parts.length === 1 ? str(o.code, 32) : null;
+    for (const part of parts) {
+      // Checked on the raw, pre-truncation text — see looksLikeOptionSentence's own length note.
+      if (looksLikeOptionSentence(part) || looksLikeNonOptionText(part)) { junkDropped++; continue; }
+      let label = part.slice(0, 160);
+      let key = normalizeOptionKey(label);
+      if (!key) continue;
+      const canonical = resolveKey ? resolveKey(key) : null;
+      if (canonical) ({ key, label } = canonical);
+      if (!byKey.has(key)) byKey.set(key, { key, label, code });
+    }
   }
   return { rows: [...byKey.values()], junkDropped };
 }
@@ -173,7 +249,8 @@ export function looksLikeJunkCanonicalKey(key) {
     SPLIT_NUMBER_FRAGMENT.test(key) ||
     BARE_DATE_NORMALIZED.test(key) ||
     BARE_NUMBER_NORMALIZED.test(key) ||
-    MENTIONS_MILEAGE.test(key)
+    MENTIONS_MILEAGE.test(key) ||
+    looksLikeFragmentOrBoilerplate(key)
   );
 }
 
@@ -200,17 +277,18 @@ export const CATALOG_MIN_VEHICLES = 25;
 /** The list a shopper actually scrolls — most common first. */
 export const CATALOG_MAX_OPTIONS = 60;
 
-// "opt 35" — a listing-position code (confirmed live 2026-09-25), not an option name.
-const LISTING_POSITION_KEY = /^(?:opt|option|code|pkg)\s*\d+$/;
-
 /** Whether a stored (canonical_key, label) is fit to show a buyer as a pickable factory option. */
 export function isBuyerFacingOption(key, label) {
   if (typeof key !== "string" || typeof label !== "string") return false;
-  if (MOJIBAKE.test(label)) return false;
   const cleanLabel = buyerOptionLabel(label);
+  // Checked on the CLEANED label, not the raw one: a mojibake bullet in front ("â?¢ Black 3-Piece
+  // Hard Top") is stripped by buyerOptionLabel and leaves a perfectly good name. Checking the raw
+  // label hid real, popular options — live 2026-10-01, Jeep Wrangler's "Black 3-Piece Hard Top"
+  // (7,355 vehicles) and "Stop-Start Dual Battery System" (7,071) never reached the filter panel.
+  // Mojibake that survives cleaning (mid-label) still means the text can't be trusted.
+  if (MOJIBAKE.test(cleanLabel)) return false;
   if (cleanLabel.length < 3 || cleanLabel.length > 60) return false;
   if (key.split(" ").length > 9) return false; // a spec run-on, not an option name
-  if (LISTING_POSITION_KEY.test(key)) return false;
   if (!/[a-z]/.test(key)) return false; // digits/symbols only
   return !looksLikeJunkCanonicalKey(key) && !looksLikeNonOptionText(cleanLabel);
 }
@@ -231,13 +309,27 @@ export function buyerOptionLabel(label) {
 /**
  * Raw facet rows ({ canonical_key, label, vehicleCount }, any order) -> the buyer-facing list:
  * junk removed, labels cleaned, same-label duplicates folded together, most common first, capped.
+ *
+ * @param {{ gate?: boolean, resolve?: (key: string) => ({ key: string, label: string } | null) }} [opts]
+ *   gate: true = allowlist mode for this make — ONLY options `resolve` vouches for are shown, under
+ *   their allowlisted label (OPTION_CATALOG_MODE=allowlist AND this make has an allowlist; a make
+ *   with none falls back to the heuristic list rather than going blank). The returned `key` is
+ *   always the STORED canonical_key, because that is what optionKeys= matches; before the options
+ *   backfill re-keys old rows, two stored spellings of one allowlisted option fold to whichever has
+ *   more vehicles (same rule as the label fold below), and become one exact key after it.
  */
-export function buyerOptionCatalog(rows) {
+export function buyerOptionCatalog(rows, opts = {}) {
+  const gate = Boolean(opts.gate) && typeof opts.resolve === "function";
   const byLabel = new Map();
   for (const r of rows) {
     const vehicleCount = Number(r.vehicleCount);
     if (!(vehicleCount >= CATALOG_MIN_VEHICLES) || !isBuyerFacingOption(r.canonical_key, r.label)) continue;
-    const label = buyerOptionLabel(r.label);
+    let label = buyerOptionLabel(r.label);
+    if (gate) {
+      const vouched = opts.resolve(r.canonical_key);
+      if (!vouched) continue;
+      label = vouched.label;
+    }
     const prev = byLabel.get(label.toLowerCase());
     // Two keys can differ only in punctuation we already display identically ("Sync 4" / "SYNC 4"
     // normalize to one key, but near-variants exist) — keep the bigger one, never sum: they

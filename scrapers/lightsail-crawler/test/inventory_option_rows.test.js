@@ -3,7 +3,7 @@
 // real server at import time).
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { normalizeOptionKey, optionRowsFromOptions, payloadHasOptions, looksLikeJunkCanonicalKey } from '../src/inventoryOptionRows.js';
+import { normalizeOptionKey, optionRowsFromOptions, payloadHasOptions, looksLikeJunkCanonicalKey, splitOptionLabel } from '../src/inventoryOptionRows.js';
 
 describe('optionRowsFromOptions', () => {
   it('canonicalizes by name and dedupes, keeping the first label/code seen', () => {
@@ -286,12 +286,124 @@ describe('buyer option labels — bullets and mojibake', () => {
     assert.equal(buyerOptionLabel('? Dual-zone electronic automatic temperature control'), 'Dual-zone electronic automatic temperature control');
     assert.equal(buyerOptionLabel('Radio: AM/FM Stereo with SiriusXM 360L'), 'Radio: AM/FM Stereo with SiriusXM 360L');
   });
-  it('drops mojibake labels instead of showing them', () => {
-    assert.equal(isBuyerFacingOption('unique sport cloth 40 console 40 front seats', '\u00e2?\u00a2 Unique Sport Cloth 40/console/40 front seats'), false);
+  // Changed 2026-10-01: a mojibake BULLET in front is decoration, stripped like any other bullet \u2014
+  // checking the raw label hid real top options (live Jeep Wrangler: "Black 3-Piece Hard Top",
+  // 7,355 vehicles; "Stop-Start Dual Battery System", 7,071). Mojibake inside the name still drops it.
+  it('shows an option whose only mojibake is a leading bullet, under the cleaned label', () => {
+    assert.equal(isBuyerFacingOption('unique sport cloth 40 console 40 front seats', '\u00e2?\u00a2 Unique Sport Cloth 40/console/40 front seats'), true);
+    const out = buyerOptionCatalog([{ canonical_key: 'black 3 piece hard top', label: '\u00e2?\u00a2 Black 3-Piece Hard Top', vehicleCount: 7355 }]);
+    assert.deepEqual(out, [{ key: 'black 3 piece hard top', label: 'Black 3-Piece Hard Top', vehicleCount: 7355 }]);
+  });
+  it('still drops a label with mojibake inside the name, where the text itself is suspect', () => {
+    assert.equal(isBuyerFacingOption('heated seats remote start', 'Heated Seats \u00e2?\u00a2 Remote Start'), false);
   });
   it('folds "**Sync 4**" and "Sync 4" into one entry', () => {
     const out = buyerOptionCatalog([{ canonical_key: 'sync 4', label: '**Sync 4**', vehicleCount: 4382 }, { canonical_key: 'sync 4 2', label: 'Sync 4', vehicleCount: 100 }]);
     assert.equal(out.length, 1);
     assert.equal(out[0].label, 'Sync 4');
+  });
+});
+
+// Gaps closed 2026-10-01, each from a live sample: the Jeep Wrangler buyer facet
+// (inv_option_facets) and DealerOn description-derived rows seen in a live upsert batch.
+describe('junk rules added 2026-10-01 — raw labels (write path)', () => {
+  const kept = (names) => optionRowsFromOptions(names.map((name) => ({ name }))).rows.map((r) => r.label);
+
+  it('drops dealer service plans, never a real "radio service"', () => {
+    assert.deepEqual(kept(['MYFLEXCARE SERVICE PLAN', 'Prepaid Service Plans', 'SiriusXM Radio Service']), ['SiriusXM Radio Service']);
+  });
+
+  it('drops dealer-listing boilerplate and vehicle titles', () => {
+    assert.deepEqual(kept([
+      '2020 Jeep Wrangler Unlimited 4x4 For Sale in Grand Rapids',
+      'As an award-winning Ford Dealership',
+      'Schedule a Test Drive',
+      'Twin Panel Moonroof',
+    ]), ['Twin Panel Moonroof']);
+  });
+
+  it('drops comma-split prose fragments that open with a conjunction, but keeps "In-Dash" and "Ford ..." options', () => {
+    assert.deepEqual(kept([
+      'and Mazda MX-5 Miata',
+      'and Medium Duty Work Trucks',
+      'or similar',
+      'In-Dash Navigation',
+      'Ford Co-Pilot360 Assist',
+      'Ash Gray Cloth Seats',
+    ]), ['In-Dash Navigation', 'Ford Co-Pilot360 Assist', 'Ash Gray Cloth Seats']);
+  });
+
+  it('drops a screen size split at its decimal point, never a real screen size', () => {
+    assert.deepEqual(kept([
+      '3 Display',
+      '4 Touchscreen Display',
+      '3" Display',
+      '10-inch Touchscreen',
+      '12.3-inch Digital Cluster Display',
+      '7 and 4 Pin Wiring Harness',
+      '4-Wheel Drive Swing Gate Decal',
+    ]), ['10-inch Touchscreen', '12.3-inch Digital Cluster Display', '7 and 4 Pin Wiring Harness', '4-Wheel Drive Swing Gate Decal']);
+  });
+
+  it('drops headings, calls to action and stubs — whole-label only', () => {
+    assert.deepEqual(kept(['Exp', 'For More Info', 'Equipment', 'Standard Equipment', 'Equipment Group 23S', 'Optional Equipment']), ['Equipment Group 23S']);
+  });
+
+  it('drops listing-position codes used as a name on the write path, not just in the catalog', () => {
+    assert.deepEqual(kept(['OPT-35', 'PKG 7', 'Option 12', 'Quick Order Package 23S Sport S']), ['Quick Order Package 23S Sport S']);
+  });
+});
+
+describe('joined option lists are split, and each part judged on its own', () => {
+  it('recovers the real options from a semicolon-joined dealer list and drops the fragments', () => {
+    const { rows, junkDropped } = optionRowsFromOptions([{ code: 'FEATURE', name: '4 Display; Rear View Auto Dim Mirror; GPS Navigation; 8' }]);
+    assert.deepEqual(rows, [
+      { key: 'rear view auto dim mirror', label: 'Rear View Auto Dim Mirror', code: null },
+      { key: 'gps navigation', label: 'GPS Navigation', code: null },
+    ]);
+    assert.equal(junkDropped, 2);
+  });
+
+  it('splits on pipes and bullets too, but never on slashes or commas real names use', () => {
+    assert.deepEqual(splitOptionLabel('Heated Seats | Remote Start'), ['Heated Seats', 'Remote Start']);
+    assert.deepEqual(splitOptionLabel('• Heated Seats • Remote Start'), ['Heated Seats', 'Remote Start']);
+    assert.deepEqual(splitOptionLabel('Rear Window Wiper/Washer'), ['Rear Window Wiper/Washer']);
+    assert.deepEqual(splitOptionLabel('Front, Rear and Side Airbags'), ['Front, Rear and Side Airbags']);
+  });
+
+  it('keeps a single option\'s own code, and never copies one code onto split-out parts', () => {
+    assert.equal(optionRowsFromOptions([{ code: 'PKG-101A', name: 'FX4 Off-Road Package' }]).rows[0].code, 'PKG-101A');
+    assert.ok(optionRowsFromOptions([{ code: 'PKG-9', name: 'Heated Seats; Remote Start' }]).rows.every((r) => r.code === null));
+  });
+});
+
+describe('looksLikeJunkCanonicalKey — 2026-10-01 rules agree on normalized keys', () => {
+  it('flags the same junk once normalized', () => {
+    for (const key of [
+      'myflexcare service plan',
+      'for more info',
+      'exp',
+      '3 display',
+      '4 touchscreen display',
+      'and mazda mx 5 miata',
+      '2020 jeep wrangler unlimited 4x4 for sale in grand rapids',
+      'as an award winning ford dealership',
+      'opt 35',
+    ]) assert.equal(looksLikeJunkCanonicalKey(key), true, key);
+  });
+
+  it('keeps real options, including the top live Wrangler options', () => {
+    for (const key of [
+      'in dash navigation',
+      '10 inch touchscreen',
+      '7 and 4 pin wiring harness',
+      '4 wheel drive swing gate decal',
+      'siriusxm radio service',
+      'black 3 piece hard top',
+      'equipment group 23s',
+      'quick order package 23s sport s',
+      'transmission 8 speed automatic 850re',
+      'sky one touch power top',
+    ]) assert.equal(looksLikeJunkCanonicalKey(key), false, key);
   });
 });

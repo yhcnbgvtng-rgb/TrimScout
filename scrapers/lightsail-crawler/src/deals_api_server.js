@@ -34,11 +34,19 @@ import mysql from "mysql2/promise";
 import { inventoryListQuery, totalFromPage, applyCountCap, deferredPageSql } from "./inventoryListQuery.js";
 import { createGate, SearchBusyError } from "./searchGate.js";
 import { createStableCache } from "./stableCache.js";
-import { optionRowsFromOptions, payloadHasOptions, buyerOptionCatalog, CATALOG_MIN_VEHICLES } from "./inventoryOptionRows.js";
+import { optionRowsFromOptions, payloadHasOptions, buyerOptionCatalog, isBuyerFacingOption, CATALOG_MIN_VEHICLES } from "./inventoryOptionRows.js";
+import { loadAllowlistFromEnv, resolveAllowlisted, hasAllowlistFor, catalogModeFromEnv } from "./factoryOptionAllowlist.js";
 import { normalizeMakeForWrite } from "./stellantisMake.js";
 import { tryAcquireSyncLock, releaseSyncLock, heartbeatSyncLock } from "./syncLock.js";
 
 const PORT = process.env.DEALS_API_PORT || 3004;
+
+// Factory-option allowlist (factoryOptionAllowlist.js). Empty unless OPTION_ALLOWLIST_PATH points at
+// a JSON file, so until Phase B ships real sticker/brochure data this changes nothing. Loaded once
+// at boot; a bad path is logged and falls back to the heuristic catalog rather than failing boot.
+const { allowlist: OPTION_ALLOWLIST, error: optionAllowlistError } = loadAllowlistFromEnv();
+const OPTION_CATALOG_MODE = catalogModeFromEnv();
+if (optionAllowlistError) console.warn(`[options] allowlist not loaded (${optionAllowlistError}); using the heuristic catalog`);
 
 function loadDbEnv() {
   const envPath = path.resolve(process.cwd(), ".env.trimscout-db");
@@ -2148,7 +2156,8 @@ async function handleInventoryBulk(req, res) {
       const optionRows = [];
       for (const v of withOptions) {
         const vin = v.vin.trim().toUpperCase(), dealerId = INV_DEALER(v.dealerId);
-        const { rows: facetRows, junkDropped } = optionRowsFromOptions(v.options);
+        const make = normalizeMakeForWrite({ make: v.make, vin: v.vin, model: v.model });
+        const { rows: facetRows, junkDropped } = optionRowsFromOptions(v.options, { resolveKey: (key) => resolveAllowlisted(OPTION_ALLOWLIST, make, key) });
         optionJunkDropped += junkDropped;
         for (const { key, label, code } of facetRows) optionRows.push([vin, dealerId, key, label, code]);
       }
@@ -2871,8 +2880,12 @@ async function handleInventoryCatalogOptions(req, res, params) {
         "Timed out waiting for an available database connection or a slow query"
       );
       return {
-        // Cleaned and capped for the buyer's checklist — see buyerOptionCatalog.
-        options: buyerOptionCatalog(optionRows),
+        // Cleaned and capped for the buyer's checklist — see buyerOptionCatalog. In allowlist mode,
+        // a make with an allowlist shows only options it vouches for; one without falls back.
+        options: buyerOptionCatalog(optionRows, {
+          gate: OPTION_CATALOG_MODE === "allowlist" && hasAllowlistFor(OPTION_ALLOWLIST, make),
+          resolve: (key) => resolveAllowlisted(OPTION_ALLOWLIST, make, key),
+        }),
         exteriorColors: [...new Set(colorRows.map((r) => r.exterior_color).filter(Boolean))].sort(),
         interiorColors: [...new Set(colorRows.map((r) => r.interior_color).filter(Boolean))].sort(),
         countsAsOf: catalogFacets.builtAt,
@@ -2982,7 +2995,9 @@ async function handleGlobalCatalogOptions(req, res) {
     const exteriorColors = [...new Set(colorRows.map((r) => r.exterior_color).filter(Boolean))].sort();
     const interiorColors = [...new Set(colorRows.map((r) => r.interior_color).filter(Boolean))].sort();
     return {
-      options: optionRows.map((r) => ({ key: r.canonical_key, label: r.label })),
+      // Same buyer-facing rule as the filter panel, so the AI search can't pick (or be shown) a key
+      // the panel would hide — previously this handed Gemini every stored key, junk included.
+      options: optionRows.filter((r) => isBuyerFacingOption(r.canonical_key, r.label)).map((r) => ({ key: r.canonical_key, label: r.label })),
       exteriorColors,
       interiorColors,
     };
