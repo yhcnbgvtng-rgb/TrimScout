@@ -89,7 +89,7 @@ free -m; swapon --show; dmesg -T | grep -iE "out of memory|killed process" | tai
 ```
 
 The box has no swap by default. A 2 GB swap file gives the OOM killer
-headroom during the nightly inventory sync (06:15 ET) and the peer crawl jobs
+headroom during the nightly inventory sync (each box syncs as soon as its own crawl finishes) and the peer crawl jobs
 without restarting anything — do this once (idempotent script; it checks disk
 space, creates the file, enables it, persists it in fstab, sets swappiness 10):
 
