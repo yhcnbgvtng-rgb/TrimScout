@@ -101,6 +101,7 @@ export async function resolveVehicleDealer(
   const [rows, seen] = await Promise.all([dealerDirectoryOrEmpty(), lookupSighting(vehicle.vin)]);
   // Lot age from our own crawl — the only "how long has it sat" we have when the factory build is missing.
   if (seen?.daysOnLot != null && !(vehicle.daysOnLot > 0)) vehicle = { ...vehicle, daysOnLot: seen.daysOnLot, lotFirstSeen: seen.firstSeen || undefined };
+  if (seen?.vdpUrl) vehicle = { ...vehicle, crawlListingUrl: seen.vdpUrl };
   const sightingRow = (): (typeof rows)[number] | null => {
     if (!seen?.dealerName) return null;
     const byId = seen.dealerId ? rows.find((r) => String(r.id) === seen.dealerId) : null;

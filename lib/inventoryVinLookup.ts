@@ -25,11 +25,20 @@ export interface InventoryDealerSighting {
   daysOnLot: number | null;
   /** The dealer's own window-sticker link, captured off their VDP during the crawl — real and dealer-specific, unlike a VIN-only OEM-site guess. */
   windowStickerUrl: string | null;
+  /** The dealer's own listing page for this VIN as our crawl captured it — what the wizard's VIN links to. Only ever an http(s) URL. */
+  vdpUrl?: string | null;
 }
 
 export type InventoryVinLookup = (vin: string) => Promise<InventoryDealerSighting | null>;
 
 const LOOKUP_TIMEOUT_MS = 4_000;
+
+/** Crawled URLs are page-scraped text: only a plain http(s) URL may become a link (never javascript:/data:). */
+export function safeHttpUrl(raw: string | null | undefined): string | null {
+  const u = (raw || "").trim();
+  if (!/^https?:\/\//i.test(u)) return null;
+  try { return new URL(u).toString(); } catch { return null; }
+}
 
 export function sightingFromListings(listings: InventoryVehicle[]): InventoryDealerSighting | null {
   const named = listings.filter((l) => (l.dealerName || "").trim());
@@ -50,6 +59,7 @@ export function sightingFromListings(listings: InventoryVehicle[]): InventoryDea
     firstSeen,
     daysOnLot,
     windowStickerUrl: best.windowStickerUrl || null,
+    vdpUrl: safeHttpUrl(best.vdpUrl),
   };
 }
 
