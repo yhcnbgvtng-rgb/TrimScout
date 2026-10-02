@@ -19,11 +19,11 @@
  * upserts by (VIN, store) in chunks, then sweeps every store that had ACTIVE vehicles in the file so VINs the
  * crawler no longer lists are marked removed. Idempotent — re-running just refreshes last_seen.
  *
- * Four boxes now run this (box1/box2 core at 6:15/6:45am ET, box3/box4 expansion at 7:15/7:45am ET) against
- * the SAME deals-box database. The 30-minute stagger alone isn't a guarantee — each run actually starts
- * whenever ITS OWN box's crawl finishes, not exactly at its cron time, so two runs can still land together
- * on an unlucky night (this happened for real 2026-09-23: two concurrent /api/inventory/bulk calls hit a
- * MySQL "Deadlock found when trying to get lock" error). Acquires a lock from the deals-api server itself
+ * Four boxes now run this (box1/box2 via a waiter cron started 22:05/22:10 ET, box3/box4 as the last stage of
+ * run_nightly_chain.sh) against the SAME deals-box database. Each run starts whenever ITS OWN box's crawl
+ * finishes, not at a fixed clock time, so two runs can still land together on an unlucky night (this
+ * happened for real 2026-09-23: two concurrent /api/inventory/bulk calls hit a MySQL "Deadlock found when
+ * trying to get lock" error). Acquires a lock from the deals-api server itself
  * (POST /api/ops/sync-lock/acquire — see handleSyncLockAcquire in deals_api_server.js) before the write
  * phase, so a second box's run waits for the first to finish instead of colliding. A single, unclustered
  * PM2 process backs that server, so an in-memory lock there is enough — no DB table needed.

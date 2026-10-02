@@ -61,13 +61,49 @@ These states' expansion-brand dealer files remain materialized on disk
 --concurrency=4,4` after adding a box (or after this backlog itself grows
 large enough to justify one) to get a fresh, real split covering them.
 
+## Nightly schedule (all times ET)
+
+Every box starts its crawl at **22:00**. Nothing after the start is on a clock:
+the next stage starts when the one before it has finished.
+
+| Box | 22:00 | Sync |
+|---|---|---|
+| box1 | core crawl | `run_sync_when_safe.sh` waiter, started 22:05 |
+| box2 | core crawl | same waiter, started 22:10 |
+| box3 | `scripts/run_nightly_chain.sh`: expansion crawl → core crawl → sync | the chain's last stage |
+| box4 | same as box3 | same |
+
+- **Waiter (box1/box2).** The ordinary sync cron, started early instead of at 06:15/06:45.
+  `run_sync_when_safe.sh` polls the crawl gate (`check-crawl-gate.mjs`: every `driver*.lock`
+  pid plus a `pgrep` for the crawl driver) every 300s and starts the sync on the first poll
+  after the crawl is gone, then queues on the shared sync lock like every other box. The wait
+  is capped at 20h: a crawl still running 20h after the waiter started (18:05 the next day)
+  means no sync that day — it logs and exits rather than syncing a half-finished crawl.
+- **Chain (box3/box4).** `run_nightly_chain.sh` runs expansion, then core (through
+  `run_core_crawl_when_safe.sh`), then `run_sync_when_safe.sh`, each as soon as the previous
+  one exits. A failed stage doesn't stop the next one. Each crawl's env (states, concurrency,
+  budget) stays in that box's crontab line as `CHAIN_EXPANSION_ENV` / `CHAIN_CORE_ENV`.
+  The chain holds `data/daily_crawl_runs/driver-nightly-chain.lock` until just before the
+  sync, which the sync gate already reads as "a crawl is running" — so the sync cannot start
+  in the gap between the two crawls, and an expansion crawl on its own can never trigger one.
+  `CHAIN_DRY_RUN=1 scripts/run_nightly_chain.sh` (with the two env lists set) prints the plan
+  and checks every piece exists without starting anything.
+- **Order of the syncs** is still decided by the shared sync lock (one writer at a time,
+  roughly 2.5–3.5h each), not by the crons.
+- **Logs.** Each box's sync log is named for the night its crawl started:
+  `~/inventory-sync/logs/sync-<night>.log` (use `ls -t` to find the latest). Chain boxes also
+  write `logs/chain-<night>.log` (stage start/exit lines); the crawls keep `logs/run-all-<night>.log`
+  (expansion) and `logs/run-all-core-<date>.log` (core).
+- **A reboot mid-chain** ends that night's chain: nothing resumes the remaining stages until
+  the next 22:00. Check `logs/chain-<night>.log` after any unplanned restart.
+
 ## Two side-jobs (core brands, box 3/box 4)
 
-Box 3 and box 4 each also run one small core-brand state at 4am ET
-(`CRAWLER_RUN_LABEL=core`, its own lock file so it never collides with
-the 11pm expansion job): RI on box 3, VT on box 4 — states moved off
-box 1 to lighten its load. Negligible rooftop count; not counted against
-the expansion SLA above since it's a different brand set entirely.
+Box 3 and box 4 each also run a core-brand job (`CRAWLER_RUN_LABEL=core`, its own lock
+file so it never collides with the expansion job). It was originally one small state
+at 4am ET (RI on box 3, VT on box 4 — states moved off box 1 to lighten its load); it
+now runs as the chain's second stage, straight after expansion. Its rooftop count is
+not counted against the expansion SLA above since it's a different brand set entirely.
 
 `CRAWLER_RUN_LABEL`/`CRAWLER_BRAND_SET` also scope each state's
 `dealer-bot-report-<state>-<runLabel>-<brand>-<date>.json` filename (fixed
@@ -410,8 +446,8 @@ Each "new rate" carries real margin over its single-night weighted-average measu
 |---|---|
 | Box 1 (10pm) | AK, AZ, CT, DE, IA, ID, KS, LA, MN, NY, OH, RI, VA |
 | Box 2 (10pm) | AL, CA, CO, GA, IN, MD, ME, MT, NC, ND, NV, OK, OR, PA, TN, TX, VT, WV, WY |
-| Box 3 core (4am) | AR, MA, MO, NH, SC, SD, NE, UT, WI |
-| Box 4 core (4am) | FL, HI, IL, KY, MI, MS, NJ, NM, WA |
+| Box 3 core (chained after expansion) | AR, MA, MO, NH, SC, SD, NE, UT, WI |
+| Box 4 core (chained after expansion) | FL, HI, IL, KY, MI, MS, NJ, NM, WA |
 
 FL/NJ/IL — the timeout victims — stay on box 4's core side-job (unchanged ownership); removing the 4 duplicate states from that job gives it real extra headroom on top of the sharding fix below.
 
