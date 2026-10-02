@@ -1,17 +1,21 @@
 import { NextResponse } from "next/server";
-import { crawlLinkForVin } from "@/lib/vinCrawlLink";
+import { auth } from "@/auth";
+import { crawlDataForVin, crawlSheetPathForVin } from "@/lib/vinCrawlLink";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 30;
 
 /**
- * GET /api/inventory/vin-link?vin=… — the dealer listing page our crawl captured for a VIN, for the
- * wizard's VIN hyperlinks. Public like the buyer search (it exposes only a dealer's own public listing
- * URL). `{ url: null, retry: true }` means the deals box was too slow to answer, not "no crawl data".
+ * GET /api/inventory/vin-link?vin=… — where the wizard's VIN should link: that VIN's page in the
+ * admin crawl sheet, when our crawl holds data for it. The crawl sheet is admin-only, so anyone
+ * whose real session isn't an admin always gets `{ url: null }` (the VIN stays plain text) and the
+ * deals box isn't even queried. `retry: true` means the box was too slow to answer — not "no data".
  */
 export async function GET(req: Request) {
-  const vin = new URL(req.url).searchParams.get("vin") || "";
-  const r = await crawlLinkForVin(vin);
-  if (r.status === "found") return NextResponse.json({ url: r.url });
-  return NextResponse.json({ url: null, ...(r.status === "unavailable" ? { retry: true } : {}) });
+  const session = await auth();
+  if ((session?.user as { role?: string } | undefined)?.role !== "admin") return NextResponse.json({ url: null });
+  const vin = (new URL(req.url).searchParams.get("vin") || "").trim().toUpperCase();
+  const r = await crawlDataForVin(vin);
+  if (r === "found") return NextResponse.json({ url: crawlSheetPathForVin(vin) });
+  return NextResponse.json({ url: null, ...(r === "unavailable" ? { retry: true } : {}) });
 }

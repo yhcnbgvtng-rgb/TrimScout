@@ -30,7 +30,7 @@ function toOptions<T>(rows: T[], valueKey: keyof T, countKey: keyof T): Dropdown
   return rows.map((r) => ({ value: String(r[valueKey]), label: String(r[valueKey]), count: Number(r[countKey]) || 0 }));
 }
 
-export default function VehiclesSheet() {
+export default function VehiclesSheet({ initialVin = null }: { initialVin?: string | null }) {
   const [stats, setStats] = useState<Stats | null>(null);
   const [rows, setRows] = useState<VehicleRow[]>([]);
   const [total, setTotal] = useState(0);
@@ -50,7 +50,7 @@ export default function VehiclesSheet() {
   const [minDays, setMinDays] = useState("");
   const [sort, setSort] = useState<{ key: SortKey; dir: "asc" | "desc" }>({ key: "dealer", dir: "asc" });
   const [exporting, setExporting] = useState(false);
-  const [vinOpen, setVinOpen] = useState<string | null>(null);
+  const [vinOpen, setVinOpen] = useState<string | null>(initialVin);
   const typedVin = /^[A-HJ-NPR-Z0-9]{17}$/i.test(q.trim()) ? q.trim().toUpperCase() : null;
 
   const [stateOptions, setStateOptions] = useState<DropdownOption[]>([]);

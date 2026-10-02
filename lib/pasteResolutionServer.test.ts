@@ -35,7 +35,7 @@ describe("sightingFromListings — the rooftop our crawl last saw the VIN at", (
       listing({ dealerId: "7486", lastSeenAt: "2026-09-15T22:00:00.000Z" }),
       listing({ dealerId: "9999", dealerName: "Lexus of Elsewhere", lastSeenAt: "2026-09-16T22:00:00.000Z" }),
     ]);
-    assert.deepEqual(s, { dealerId: "9999", dealerName: "Lexus of Elsewhere", city: "Whippany", state: "NJ", lastSeen: "2026-09-16", firstSeen: null, daysOnLot: null, windowStickerUrl: null, vdpUrl: null });
+    assert.deepEqual(s, { dealerId: "9999", dealerName: "Lexus of Elsewhere", city: "Whippany", state: "NJ", lastSeen: "2026-09-16", firstSeen: null, daysOnLot: null, windowStickerUrl: null });
     // Lot age: the feed's own figure first, else counted from the crawl's first sighting.
     assert.equal(sightingFromListings([listing({ daysOnLot: 12, crawlFirstSeen: "2026-09-01T00:00:00.000Z" })])?.daysOnLot, 12);
     const counted = sightingFromListings([listing({ daysOnLot: 0, crawlFirstSeen: "2026-09-10T00:00:00.000Z" })]);
@@ -49,23 +49,6 @@ describe("sightingFromListings — the rooftop our crawl last saw the VIN at", (
     const withSticker = sightingFromListings([listing({ windowStickerUrl: "https://www.windowsticker.forddirect.com/windowsticker.pdf?vin=2T2HGCEZ9TC38B302&dealerId=12345" })]);
     assert.equal(withSticker?.windowStickerUrl, "https://www.windowsticker.forddirect.com/windowsticker.pdf?vin=2T2HGCEZ9TC38B302&dealerId=12345");
     assert.equal(sightingFromListings([listing({})])?.windowStickerUrl, null, "no captured link is null, not undefined");
-  });
-});
-
-describe("VIN → crawled listing link", () => {
-  it("sightingFromListings carries the crawl's listing URL, and only ever an http(s) one", () => {
-    assert.equal(sightingFromListings([listing({ vdpUrl: "https://www.nielsenchevrolet.com/new/Chevrolet/2026-Chevrolet-Colorado-abc.htm?x=1" })])?.vdpUrl, "https://www.nielsenchevrolet.com/new/Chevrolet/2026-Chevrolet-Colorado-abc.htm?x=1");
-    assert.equal(sightingFromListings([listing({})])?.vdpUrl, null);
-    assert.equal(sightingFromListings([listing({ vdpUrl: "javascript:alert(1)" })])?.vdpUrl, null, "scraped text must never become a script link");
-    assert.equal(sightingFromListings([listing({ vdpUrl: "not a url" })])?.vdpUrl, null);
-  });
-
-  it("resolveVehicleDealer sets crawlListingUrl on the vehicle when the crawl has the VIN, and leaves it unset otherwise", async () => {
-    const withUrl = async () => ({ ...SIGHTING, vdpUrl: "https://dealer.example/vdp/1" });
-    const seen = await resolveVehicleDealer(vehicle(SEEN), { dealer: LINK }, null, withUrl);
-    assert.equal(seen.crawlListingUrl, "https://dealer.example/vdp/1");
-    const unseen = await resolveVehicleDealer(vehicle(UNSEEN), { dealer: LINK }, null, lookup);
-    assert.equal(unseen.crawlListingUrl, undefined, "no crawl data → plain VIN, no link");
   });
 });
 

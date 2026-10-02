@@ -12,7 +12,7 @@ async function askForLink(vin: string): Promise<string | null | undefined> {
     try {
       const res = await fetch(`/api/inventory/vin-link?vin=${encodeURIComponent(vin)}`);
       const json = (await res.json().catch(() => ({}))) as { url?: string | null; retry?: boolean };
-      if (res.ok && typeof json.url === "string" && /^https?:\/\//i.test(json.url)) return json.url;
+      if (res.ok && typeof json.url === "string" && json.url.startsWith("/admin/crawl?vin=")) return json.url;
       if (res.ok && !json.retry) return null;
     } catch {
       /* fall through to retry */
@@ -23,18 +23,18 @@ async function askForLink(vin: string): Promise<string | null | undefined> {
 }
 
 /**
- * A VIN, as a link to the dealer's listing page when our own inventory crawl captured one for it.
- * `href` is used as-is when the import already carried it (Vehicle.crawlListingUrl); otherwise the
- * link is looked up after the card renders — the import's own lookup is capped at 4s and often
- * misses on a loaded box, so relying on it alone left some VINs unlinked. Plain monospace text
- * when we have no crawl data (or until the lookup answers). Opens in a new tab.
+ * A VIN, as a link to that VIN's page in the admin crawl sheet (the day-by-day crawl history) when
+ * our own inventory crawl holds data for it. The lookup runs after the card renders (the import's
+ * own VIN lookup is capped at 4s and often misses on a loaded box) and only answers for admins —
+ * the crawl sheet is admin-only, so everyone else, and any VIN with no crawl data, gets plain
+ * monospace text. Opens in a new tab.
  */
-export function VinLink({ vin, href, className = "" }: { vin: string; href?: string | null; className?: string }) {
+export function VinLink({ vin, className = "" }: { vin: string; className?: string }) {
   const clean = (vin || "").trim().toUpperCase();
   const [looked, setLooked] = useState<string | null | undefined>(() => resolved.get(clean));
 
   useEffect(() => {
-    if (href || !/^[A-HJ-NPR-Z0-9]{17}$/.test(clean)) return;
+    if (!/^[A-HJ-NPR-Z0-9]{17}$/.test(clean)) return;
     if (resolved.has(clean)) { setLooked(resolved.get(clean)); return; }
     let live = true;
     const p = inFlight.get(clean) ?? askForLink(clean);
@@ -45,16 +45,16 @@ export function VinLink({ vin, href, className = "" }: { vin: string; href?: str
       if (live) setLooked(url);
     });
     return () => { live = false; };
-  }, [clean, href]);
+  }, [clean]);
 
-  const link = href || looked || null;
+  const link = looked || null;
   if (!link) return <span className={`font-mono ${className}`}>{vin}</span>;
   return (
     <a
       href={link}
       target="_blank"
       rel="noopener noreferrer"
-      title="Open the dealer's listing for this VIN"
+      title="Open this VIN in the crawl data"
       data-testid="vin-crawl-link"
       className={`font-mono underline decoration-dotted underline-offset-2 hover:text-emerald-300 ${className}`}
     >

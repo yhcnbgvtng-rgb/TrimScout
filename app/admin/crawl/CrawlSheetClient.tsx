@@ -36,7 +36,7 @@ function pretty(key: ColKey, v: string): string {
   return f?.pretty ? f.pretty(v) : v;
 }
 
-export default function CrawlSheetClient() {
+export default function CrawlSheetClient({ initialVin = null }: { initialVin?: string | null }) {
   const [rows, setRows] = useState<CrawlRow[]>([]);
   const [fetchedAt, setFetchedAt] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -50,7 +50,7 @@ export default function CrawlSheetClient() {
   const [hidden, setHidden] = useState<Set<ColKey>>(new Set(DEFAULT_HIDDEN));
   const [colsOpen, setColsOpen] = useState(false);
   const [openFacet, setOpenFacet] = useState<Facet | null>(null);
-  const [tab, setTab] = useState<"dealers" | "vehicles">("dealers");
+  const [tab, setTab] = useState<"dealers" | "vehicles">(initialVin ? "vehicles" : "dealers");
   // Crawl notes arrive separately (6 MB, hidden column) — pulled once, the first time they're needed.
   const [notesState, setNotesState] = useState<"none" | "loading" | "loaded">("none");
   const loadNotes = useCallback(async () => {
@@ -266,7 +266,7 @@ export default function CrawlSheetClient() {
           </div>}
         </div>
 
-        {tab === "vehicles" && <VehiclesSheet />}
+        {tab === "vehicles" && <VehiclesSheet initialVin={initialVin} />}
 
         {tab === "dealers" && <>
         <div className="rounded-2xl border border-border bg-surface p-3 flex flex-wrap items-center gap-2">

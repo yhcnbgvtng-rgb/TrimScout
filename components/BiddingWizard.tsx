@@ -177,7 +177,7 @@ function QuoteFormatMatrix({
           <p className="text-[10px] font-bold uppercase tracking-wide text-ink-faint">Vehicle</p>
           <p className="text-xs font-semibold text-white">{[primary.year, primary.make, primary.model, primary.trim].filter(Boolean).join(" ")}</p>
           <p className="text-[10px] text-ink-muted">
-            <VinLink vin={primary.vin} href={primary.crawlListingUrl} />
+            <VinLink vin={primary.vin} />
             {[primary.exteriorColor, primary.drivetrain].filter(Boolean).length ? ` · ${[primary.exteriorColor, primary.drivetrain].filter(Boolean).join(" · ")}` : ""}
             {cars.length > 1 ? ` · +${cars.length - 1} alternate${cars.length > 2 ? "s" : ""}` : ""}
           </p>
@@ -760,7 +760,7 @@ function AlternateVinField({
 
         {/* 3. Meta: VIN · dealer · change dealer, one muted line. */}
         <p className="text-[10px] leading-snug text-ink-muted">
-          <VinLink vin={vehicle.vin} href={vehicle.crawlListingUrl} />
+          <VinLink vin={vehicle.vin} />
           {vehicle.location?.dealerName ? (
             <>
               {" · "}
@@ -939,7 +939,7 @@ function FactoryOptionsCompare({
             </div>
             <p className="mt-1.5 truncate text-[12px] font-bold text-white">{vehicleLabel(v)}</p>
             <p className="mt-0.5 truncate text-[10px] text-ink-muted">
-              <VinLink vin={v.vin} href={v.crawlListingUrl} />
+              <VinLink vin={v.vin} />
               {v.location?.dealerName ? <> · {v.location.dealerName}</> : null}
             </p>
           </div>
@@ -2696,7 +2696,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                             site the link came from — so the buyer can confirm
                             this is the car and the store they meant. */}
                         <span className="block truncate text-[10px] text-ink-muted">
-                          <VinLink vin={selectedVehicle.vin} href={selectedVehicle.crawlListingUrl} />
+                          <VinLink vin={selectedVehicle.vin} />
                           {selectedVehicle.location?.dealerName?.trim() ? (
                             <>
                               {" · "}
