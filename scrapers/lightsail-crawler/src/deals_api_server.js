@@ -38,6 +38,8 @@ import { optionRowsFromOptions, payloadHasOptions, buyerOptionCatalog, isBuyerFa
 import { loadAllowlistFromEnv, resolveAllowlisted, hasAllowlistFor, catalogModeFromEnv } from "./factoryOptionAllowlist.js";
 import { normalizeMakeForWrite } from "./stellantisMake.js";
 import { tryAcquireSyncLock, releaseSyncLock, heartbeatSyncLock } from "./syncLock.js";
+import { parseSweepRequest, buildSweepStatement } from "./inventorySweep.js";
+import { groupExistingOptionRows, diffOptionSets, pairKey } from "./inventoryOptionsDiff.js";
 
 const PORT = process.env.DEALS_API_PORT || 3004;
 
@@ -47,6 +49,11 @@ const PORT = process.env.DEALS_API_PORT || 3004;
 const { allowlist: OPTION_ALLOWLIST, error: optionAllowlistError } = loadAllowlistFromEnv();
 const OPTION_CATALOG_MODE = catalogModeFromEnv();
 if (optionAllowlistError) console.warn(`[options] allowlist not loaded (${optionAllowlistError}); using the heuristic catalog`);
+
+// handleInventoryBulk rewrites a vehicle's factory-option facet rows only when they differ from what is
+// already stored (inventoryOptionsDiff.js) instead of deleting and re-inserting every set on every nightly
+// upsert. INVENTORY_OPTIONS_DIFF_WRITE=0 restores the old rewrite-everything behavior without a code change.
+const OPTIONS_DIFF_WRITE = process.env.INVENTORY_OPTIONS_DIFF_WRITE !== "0";
 
 function loadDbEnv() {
   const envPath = path.resolve(process.cwd(), ".env.trimscout-db");
@@ -148,6 +155,10 @@ function requireAuth(req, res) {
 function readBody(req, maxBytes = 1_000_000) {
   return new Promise((resolve, reject) => {
     let data = "";
+    // Decode as a stream: `data += chunk` on raw Buffers decodes each chunk on its own, so a multi-byte character
+    // (an accented dealer name, a "™" in an option) straddling a chunk boundary came out as U+FFFD — a few
+    // corrupted characters in every large nightly upsert.
+    req.setEncoding("utf8");
     req.on("data", (chunk) => {
       data += chunk;
       if (data.length > maxBytes) {
@@ -2097,7 +2108,11 @@ async function handleInventoryBulk(req, res) {
   const body = await readBody(req, 30_000_000);
   const vehicles = Array.isArray(body.vehicles) ? body.vehicles : null;
   if (!vehicles) return badRequest(res, "vehicles[] is required");
-  let upserted = 0, skipped = 0, optionSetsReplaced = 0, optionSetsKept = 0, optionRowsWritten = 0, optionJunkDropped = 0;
+  let upserted = 0, skipped = 0, optionSetsReplaced = 0, optionSetsKept = 0, optionSetsUnchanged = 0, optionRowsWritten = 0, optionJunkDropped = 0;
+  // Where the time inside this request goes, reported back so the sync's own log shows it every night
+  // (milliseconds, summed over the request's chunks).
+  const timings = { upsertMs: 0, optionsMs: 0, optionsReadMs: 0, daysMs: 0, totalMs: 0, chunks: 0 };
+  const tRequest = performance.now();
   for (let i = 0; i < vehicles.length; i += 500) {
     const chunk = vehicles.slice(i, i + 500).filter((v) => typeof v.vin === "string" && /^[A-HJ-NPR-Z0-9]{17}$/.test(v.vin.trim().toUpperCase()) && INV_STR(v.dealerName, 255));
     skipped += Math.min(500, vehicles.length - i) - chunk.length;
@@ -2116,6 +2131,8 @@ async function handleInventoryBulk(req, res) {
     // sync-lock only serializes sync runs against each other, not this endpoint against any other
     // caller (a backfill script was still running concurrently the day this was diagnosed).
     values.sort((a, b) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : a[1] - b[1]));
+    timings.chunks++;
+    const tUpsert = performance.now();
     await pool.query(
       `INSERT INTO dealer_inventory (vin, dealer_id, dealer_name, cond, year, make, model, trim, body_style, exterior_color, interior_color, mileage, price, msrp, stock_number, vdp_url, image_url, source,
         window_sticker_url, engine, transmission, days_on_lot, old_price, price_diff, price_change_type, change_type, price_history_json, options_json, options_total, base_msrp, crawl_first_seen, source_box)
@@ -2125,6 +2142,7 @@ async function handleInventoryBulk(req, res) {
         window_sticker_url = COALESCE(VALUES(window_sticker_url), window_sticker_url), engine = COALESCE(VALUES(engine), engine), transmission = COALESCE(VALUES(transmission), transmission), days_on_lot = COALESCE(VALUES(days_on_lot), days_on_lot), old_price = VALUES(old_price), price_diff = VALUES(price_diff), price_change_type = VALUES(price_change_type), change_type = VALUES(change_type), price_history_json = COALESCE(VALUES(price_history_json), price_history_json), options_json = COALESCE(VALUES(options_json), options_json), options_total = COALESCE(VALUES(options_total), options_total), base_msrp = COALESCE(VALUES(base_msrp), base_msrp), crawl_first_seen = COALESCE(VALUES(crawl_first_seen), crawl_first_seen), source_box = COALESCE(VALUES(source_box), source_box)`,
       [values]
     );
+    timings.upsertMs += performance.now() - tUpsert;
     upserted += chunk.length;
     // Replace each vehicle's canonicalized option set (dealer_inventory_options) in the same
     // chunk as its main upsert, so a chunk that fails partway never leaves a live VIN updated but
@@ -2140,32 +2158,52 @@ async function handleInventoryBulk(req, res) {
     const withOptions = chunk.filter((v) => payloadHasOptions(v.options));
     optionSetsKept += chunk.length - withOptions.length;
     if (withOptions.length) {
-      // Sorted by (vin, dealer_id) — same deadlock-avoidance reason as `values` above — before
-      // both the DELETE and the reinsert, so concurrent chunks lock rows in the same order.
-      const optionPairs = withOptions.map((v) => [v.vin.trim().toUpperCase(), INV_DEALER(v.dealerId)]).sort((a, b) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : a[1] - b[1]));
-      // NOT `WHERE (vin, dealer_id) IN (?)` — confirmed live 2026-09-28 via EXPLAIN: MariaDB's
-      // optimizer can't use this table's own (vin, dealer_id, canonical_key) primary key for a
-      // row-value/tuple IN-list, even a single-pair one. Every call fell back to a full table scan
-      // (`type: ALL`, 19.3M rows) instead of the index range scan (`type: range`, exact row count)
-      // a plain per-pair comparison gets — the real cause of this endpoint's sustained slowness and
-      // lock-wait/deadlock errors all day, not (only) the row-ordering issue fixed above: a
-      // multi-second-to-multi-minute full scan holding locks is far more likely to collide with
-      // anything else touching this table than a millisecond index lookup ever would.
-      const pairConds = optionPairs.map(() => "(vin = ? AND dealer_id = ?)").join(" OR ");
-      await pool.query(`DELETE FROM dealer_inventory_options WHERE ${pairConds}`, optionPairs.flat());
-      const optionRows = [];
+      const tOptions = performance.now();
+      // The facet rows each vehicle SHOULD have, derived from this payload by the rules above...
+      const desired = [];
       for (const v of withOptions) {
         const vin = v.vin.trim().toUpperCase(), dealerId = INV_DEALER(v.dealerId);
         const make = normalizeMakeForWrite({ make: v.make, vin: v.vin, model: v.model });
         const { rows: facetRows, junkDropped } = optionRowsFromOptions(v.options, { resolveKey: (key) => resolveAllowlisted(OPTION_ALLOWLIST, make, key) });
         optionJunkDropped += junkDropped;
-        for (const { key, label, code } of facetRows) optionRows.push([vin, dealerId, key, label, code]);
+        desired.push({ vin, dealerId, pair: pairKey(vin, dealerId), rows: facetRows });
       }
-      // Sorted by this table's own primary key (vin, dealer_id, canonical_key).
-      optionRows.sort((a, b) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : a[1] !== b[1] ? a[1] - b[1] : a[2] < b[2] ? -1 : a[2] > b[2] ? 1 : 0));
-      if (optionRows.length) await pool.query("INSERT INTO dealer_inventory_options (vin, dealer_id, canonical_key, label, code) VALUES ? ON DUPLICATE KEY UPDATE label = VALUES(label), code = VALUES(code)", [optionRows]);
-      optionSetsReplaced += withOptions.length;
-      optionRowsWritten += optionRows.length;
+      // ...compared with the rows each one already HAS, so only vehicles whose set actually changed are
+      // rewritten. Measured 2026-09-30: ~284k vehicles / 3.7M facet rows per box per night were being deleted and
+      // re-inserted unchanged — see inventoryOptionsDiff.js. The rewrite itself is unchanged.
+      let toReplace = desired;
+      if (OPTIONS_DIFF_WRITE) {
+        const tRead = performance.now();
+        const existing = await selectExistingOptionRows(pool, desired);
+        timings.optionsReadMs += performance.now() - tRead;
+        const { changed, unchanged } = diffOptionSets(desired, existing);
+        const changedPairs = new Set(changed);
+        toReplace = desired.filter((d) => changedPairs.has(d.pair));
+        optionSetsUnchanged += unchanged;
+      }
+      if (toReplace.length) {
+        // Sorted by (vin, dealer_id) — same deadlock-avoidance reason as `values` above — before
+        // both the DELETE and the reinsert, so concurrent chunks lock rows in the same order.
+        const optionPairs = toReplace.map((d) => [d.vin, d.dealerId]).sort((a, b) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : a[1] - b[1]));
+        // NOT `WHERE (vin, dealer_id) IN (?)` — confirmed live 2026-09-28 via EXPLAIN: MariaDB's
+        // optimizer can't use this table's own (vin, dealer_id, canonical_key) primary key for a
+        // row-value/tuple IN-list, even a single-pair one. Every call fell back to a full table scan
+        // (`type: ALL`, 19.3M rows) instead of the index range scan (`type: range`, exact row count)
+        // a plain per-pair comparison gets — the real cause of this endpoint's sustained slowness and
+        // lock-wait/deadlock errors all day, not (only) the row-ordering issue fixed above: a
+        // multi-second-to-multi-minute full scan holding locks is far more likely to collide with
+        // anything else touching this table than a millisecond index lookup ever would.
+        const pairConds = optionPairs.map(() => "(vin = ? AND dealer_id = ?)").join(" OR ");
+        await pool.query(`DELETE FROM dealer_inventory_options WHERE ${pairConds}`, optionPairs.flat());
+        const optionRows = [];
+        for (const d of toReplace) for (const { key, label, code } of d.rows) optionRows.push([d.vin, d.dealerId, key, label, code]);
+        // Sorted by this table's own primary key (vin, dealer_id, canonical_key).
+        optionRows.sort((a, b) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : a[1] !== b[1] ? a[1] - b[1] : a[2] < b[2] ? -1 : a[2] > b[2] ? 1 : 0));
+        if (optionRows.length) await pool.query("INSERT INTO dealer_inventory_options (vin, dealer_id, canonical_key, label, code) VALUES ? ON DUPLICATE KEY UPDATE label = VALUES(label), code = VALUES(code)", [optionRows]);
+        optionSetsReplaced += toReplace.length;
+        optionRowsWritten += optionRows.length;
+      }
+      timings.optionsMs += performance.now() - tOptions;
     }
     // Today's observation for every vehicle in the chunk, plus the crawl's dated price points
     // (backfill). This is the biggest of the three multi-row statements in this loop — up to
@@ -2187,13 +2225,27 @@ async function handleInventoryBulk(req, res) {
       }
     }
     const days = [...daysByKey.values()].sort((a, b) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : a[1] !== b[1] ? a[1] - b[1] : a[2] < b[2] ? -1 : a[2] > b[2] ? 1 : 0));
+    const tDays = performance.now();
     if (days.length) await pool.query("INSERT INTO dealer_inventory_days (vin, dealer_id, seen_on, price, mileage) VALUES ? ON DUPLICATE KEY UPDATE price = COALESCE(VALUES(price), price), mileage = COALESCE(VALUES(mileage), mileage)", [days]);
+    timings.daysMs += performance.now() - tDays;
   }
   invInvalidate();
   scheduleCatalogFacetRebuild();
+  timings.totalMs = performance.now() - tRequest;
+  for (const k of ["upsertMs", "optionsMs", "optionsReadMs", "daysMs", "totalMs"]) timings[k] = Math.round(timings[k]);
   // Option counters are reported back so the sync's own log shows what happened to the facet
   // table on every run, instead of it being invisible unless someone queries the DB.
-  sendJson(res, 200, { upserted, skipped, optionSetsReplaced, optionSetsKept, optionRowsWritten, optionJunkDropped });
+  sendJson(res, 200, { upserted, skipped, optionSetsReplaced, optionSetsKept, optionSetsUnchanged, optionRowsWritten, optionJunkDropped, timings });
+}
+
+// The option rows each of these vehicles currently has in dealer_inventory_options, grouped by vehicle. One
+// PK-range probe per vehicle (a plain per-pair comparison, never a row-value IN-list — see the options DELETE
+// in handleInventoryBulk for why that shape full-scans this table).
+async function selectExistingOptionRows(pool, desired) {
+  const pairs = [...new Map(desired.map((d) => [d.pair, d])).values()];
+  const conds = pairs.map(() => "(vin = ? AND dealer_id = ?)").join(" OR ");
+  const [rows] = await pool.query(`SELECT vin, dealer_id, canonical_key, label, code FROM dealer_inventory_options WHERE ${conds}`, pairs.flatMap((d) => [d.vin, d.dealerId]));
+  return groupExistingOptionRows(rows);
 }
 
 // GET /api/inventory/vin/:vin — every store that has listed the VIN, with its day-by-day observations.
@@ -2222,24 +2274,21 @@ async function handleInventoryVin(req, res, vin) {
   sendJson(res, 200, { vin, listings: rows.map(inventoryRowFromDb), days: days.map((r) => ({ dealerId: r.dealer_id ? String(r.dealer_id) : null, seenOn: fmt(r.seen_on), price: r.price, mileage: r.mileage })) });
 }
 
-// POST /api/inventory/sweep { dealerId, seenAfter, sources? } — a store's VINs not seen since `seenAfter` are
-// marked removed. With `sources` (e.g. ["nightly"]) only rows that crawler wrote are swept, so two crawlers
-// covering the same store don't erase each other's finds.
+// POST /api/inventory/sweep { dealerId | dealerIds, seenAfter, sources? } — a store's VINs not seen since
+// `seenAfter` are marked removed. With `sources` (e.g. ["nightly"]) only rows that crawler wrote are swept, so
+// two crawlers covering the same store don't erase each other's finds. `dealerIds` (up to 200) sweeps a whole
+// batch of stores in ONE statement and ONE cache invalidation; `dealerId` is the original single-store form,
+// unchanged. See inventorySweep.js.
 async function handleInventorySweep(req, res) {
   const pool = getPool();
   await ensureInventoryTable(pool);
   const body = await readBody(req);
-  const dealerId = INV_INT(body.dealerId);
-  const seenAfter = typeof body.seenAfter === "string" ? new Date(body.seenAfter) : null;
-  // dealerId 0 is the "no store matched" bucket — sweeping it retires rows that a later sync re-filed under a real store.
-  if (dealerId == null || !seenAfter || Number.isNaN(seenAfter.getTime())) return badRequest(res, "dealerId and seenAfter (ISO) are required");
-  const sources = Array.isArray(body.sources) ? body.sources.map((x) => INV_STR(x, 16)).filter(Boolean) : [];
-  const args = [dealerId, seenAfter];
-  let sql = "UPDATE dealer_inventory SET removed_at = CURRENT_TIMESTAMP WHERE dealer_id = ? AND removed_at IS NULL AND last_seen_at < ?";
-  if (sources.length) { sql += " AND source IN (?)"; args.push(sources); }
+  const parsed = parseSweepRequest(body, { toInt: INV_INT, toStr: INV_STR });
+  if (!parsed.ok) return badRequest(res, parsed.error);
+  const { sql, args } = buildSweepStatement(parsed);
   const [result] = await pool.query(sql, args);
   if (result.affectedRows) { invInvalidate(); scheduleCatalogFacetRebuild(); }
-  sendJson(res, 200, { removed: result.affectedRows });
+  sendJson(res, 200, parsed.batch ? { removed: result.affectedRows, stores: parsed.dealerIds.length } : { removed: result.affectedRows });
 }
 
 // inventoryListQuery lives in its own module (inventoryListQuery.js) purely so it can be

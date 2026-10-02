@@ -3,8 +3,10 @@
  * Sync the nightly dealer-inventory crawl (data/inventory/<STATE>.json per-state shards on the crawl box)
  * into the deals box's dealer_inventory table, so the site's Vehicles sheet shows what the crawler pulled.
  *
- * Runs on each crawl box (ubuntu@98.92.140.11, ubuntu@3.237.204.55) after scripts/run-daily-crawl.mjs:
+ * Runs on each of the four crawl boxes after scripts/run-daily-crawl.mjs (via run_sync_when_safe.sh):
  *   TRIMSCOUT_API_KEY=… node inventory-sync.mjs /home/ubuntu/nj-scraper/scrapers/lightsail-crawler/data/inventory
+ *   ... [--dry-run]    read the shards + dealership directory, print the request/sweep plan, send nothing
+ *   ... [--no-resume]  ignore saved progress and start over
  *
  * Was a single national_inventory_latest.json until the crawler's state-sharding fix (inventory_shards.js,
  * 2026-09) replaced that one nationwide file with one file per state — this reads a *directory* of those
@@ -12,12 +14,16 @@
  * Each shard has the exact same top-level-array-of-vehicle-objects shape the old national file had, so
  * everything past file discovery (row building, store matching, upsert, sweep) is unchanged.
  *
- * Depends only on its two siblings in this same directory (syncLockWait.js, syncCheckpoint.js) —
- * deploy all three files together to ~/inventory-sync/ on a box, not this file alone.
+ * Depends only on its siblings in this same directory (syncLockWait.js, syncLockHeartbeat.js, syncCheckpoint.js,
+ * syncHttp.js, syncBatching.js, syncSweep.js, syncRun.js) — deploy ALL of them together to ~/inventory-sync/
+ * on a box, never this file alone. scrapers/lightsail-crawler/docs/INVENTORY_SYNC_SPEED.md has the gated deploy checklist.
  *
  * Reads the JSON, resolves each vehicle's store to a directory row (dealer name + state),
  * upserts by (VIN, store) in chunks, then sweeps every store that had ACTIVE vehicles in the file so VINs the
- * crawler no longer lists are marked removed. Idempotent — re-running just refreshes last_seen.
+ * crawler no longer lists are marked removed. Idempotent — re-running just refreshes last_seen. The write phase
+ * (syncRun.js) saves its progress after every request: a run that dies partway — even in the sweep — is picked up
+ * by running the same command again, without repeating finished upserts (see syncCheckpoint.js for why the
+ * sweep cutoff is saved too). It never restarts itself.
  *
  * Four boxes now run this (box1/box2 via a waiter cron started 22:05/22:10 ET, box3/box4 as the last stage of
  * run_nightly_chain.sh) against the SAME deals-box database. Each run starts whenever ITS OWN box's crawl
@@ -33,9 +39,15 @@ import path from "node:path";
 import os from "node:os";
 import { waitForSyncLock } from "./syncLockWait.js";
 import { startSyncLockHeartbeat } from "./syncLockHeartbeat.js";
-import { computeFileIdentity, sortRows, makeCheckpoint, resumeFrom } from "./syncCheckpoint.js";
+import { computeFileIdentity } from "./syncCheckpoint.js";
+import { createApi } from "./syncHttp.js";
+import { planBatches } from "./syncBatching.js";
+import { runWritePhase, configFromEnv } from "./syncRun.js";
+import { SweepAbortError, LockLostError } from "./syncSweep.js";
 
-const DEALS_HOST = process.env.TRIMSCOUT_DEALS_HOST || "3.208.49.1";
+// The box-resident default is box2's static IP (the deals API host); every box's inventory-sync/.env sets
+// TRIMSCOUT_DEALS_HOST explicitly, so this only matters if that line is ever missing.
+const DEALS_HOST = process.env.TRIMSCOUT_DEALS_HOST || "52.202.234.65";
 const DEALS_PORT = process.env.TRIMSCOUT_DEALS_PORT || "3004";
 const AUTH_PORT = process.env.TRIMSCOUT_AUTH_PORT || "3003";
 const KEY = process.env.TRIMSCOUT_API_KEY || process.env.LIGHTSAIL_API_KEY;
@@ -43,11 +55,19 @@ const KEY = process.env.TRIMSCOUT_API_KEY || process.env.LIGHTSAIL_API_KEY;
 // box's inventory-sync/.env (box1/box2/box3/box4). Falls back to the box's own hostname so a box
 // that predates this label still tags its rows with *something* recognizable instead of nothing.
 const BOX_LABEL = process.env.TRIMSCOUT_BOX_LABEL || os.hostname();
-const inputPath = process.argv[2];
+const argv = process.argv.slice(2);
+const flags = new Set(argv.filter((a) => a.startsWith("--")));
+const inputPath = argv.find((a) => !a.startsWith("--"));
+const DRY_RUN = flags.has("--dry-run");
+const NO_RESUME = flags.has("--no-resume");
 if (!inputPath || !KEY) {
-  console.error("usage: TRIMSCOUT_API_KEY=… node inventory-sync.mjs <data/inventory dir, or a single shard .json file>");
+  // --dry-run needs the key too: it still reads the dealership directory (a GET) to assign stores.
+  console.error("usage: TRIMSCOUT_API_KEY=… node inventory-sync.mjs <data/inventory dir, or a single shard .json file> [--dry-run] [--no-resume]");
   process.exit(2);
 }
+const config = configFromEnv(process.env);
+const ts = () => new Date().toISOString().replace("T", " ").slice(0, 19);
+const log = (m) => console.log(`${ts()} ${m}`);
 
 // A bare file still works (manual/one-off use); the normal nightly case is a directory of per-state shards.
 // Sorted for a deterministic, reproducible run order — matters for log-reading, not for correctness.
@@ -60,34 +80,32 @@ if (files.length === 0) {
   process.exit(2);
 }
 
-const api = async (port, path, body) => {
-  const res = await fetch(`http://${DEALS_HOST}:${port}${path}`, {
-    method: body ? "POST" : "GET",
-    headers: { "Content-Type": "application/json", "X-Trimscout-Api-Key": KEY },
-    body: body ? JSON.stringify(body) : undefined,
-  });
-  const json = await res.json().catch(() => null);
-  if (!res.ok) throw new Error(`${path} -> ${res.status} ${json && json.error ? json.error : ""}`);
-  return json;
-};
+// node:http with explicit per-call deadlines (syncHttp.js) instead of fetch(): fetch gives up on any response
+// that takes more than 300s to start, which a loaded deals box can exceed on a bulk upsert or a sweep.
+// Per-call deadlines can be overridden (ms) — SYNC_BULK_TIMEOUT_MS / SYNC_SWEEP_TIMEOUT_MS / SYNC_STATS_TIMEOUT_MS —
+// but the defaults (20 min for bulk and sweep) are meant to be left alone.
+const envMs = (name) => { const v = Number(process.env[name]); return Number.isFinite(v) && v > 0 ? v : undefined; };
+const timeouts = Object.fromEntries(Object.entries({ bulk: envMs("SYNC_BULK_TIMEOUT_MS"), sweep: envMs("SYNC_SWEEP_TIMEOUT_MS"), stats: envMs("SYNC_STATS_TIMEOUT_MS") }).filter(([, v]) => v !== undefined));
+const api = createApi({ host: DEALS_HOST, key: KEY, timeouts });
+const dealsApi = (path, body, opts) => api(DEALS_PORT, path, body, opts);
 
 // Identifies this run in the lock-holder message another box's wait loop prints — not used for anything
 // else, so it doesn't need to be globally unique, just recognizable in a log.
 const LOCK_OWNER = `${os.hostname()}-${path.basename(inputPath)}-${process.pid}`;
 // Same 20h budget run_sync_when_safe.sh already gives the CRAWLER's own lock before it even starts
-// a sync — "how long are we willing to wait tonight" is one number, not two. Previously this gave
-// up after 3h and exited the process; a box's sync then just stayed dead, undetected, until someone
+// a sync — "how long are we willing to wait tonight" is one number, not two. Previously this gave up
+// after 3h and exited the process; a box's sync then just stayed dead, undetected, until someone
 // noticed and relaunched it by hand (happened for real 2026-09-29). Waiting longer costs nothing —
 // the lock is a plain one-writer-at-a-time serialization, not a sign of anything wrong — so this now
 // only exits (non-zero) if the full 20h budget is actually exhausted.
-async function acquireSyncLock({ pollMs = 30_000, maxWaitMs = 20 * 60 * 60 * 1000 } = {}) {
+async function acquireSyncLock({ pollMs = Number(process.env.SYNC_LOCK_POLL_MS) || 30_000, maxWaitMs = 20 * 60 * 60 * 1000 } = {}) {
   await waitForSyncLock({
     tryAcquire: () => api(DEALS_PORT, "/api/ops/sync-lock/acquire", { owner: LOCK_OWNER, heartbeat: true }),
     sleep: (ms) => new Promise((resolve) => setTimeout(resolve, ms)),
     pollMs,
     maxWaitMs,
     onPoll: ({ heldBy, heldSinceMs, waitedMs }) =>
-      console.log(`[sync] another box's sync is running (${heldBy}, held ${Math.round(heldSinceMs / 1000)}s) — waited ${Math.round(waitedMs / 1000)}s so far, still polling...`),
+      log(`[sync] another box's sync is running (${heldBy}, held ${Math.round(heldSinceMs / 1000)}s) — waited ${Math.round(waitedMs / 1000)}s so far, still polling...`),
   });
 }
 // Best-effort — a failed release just means the server's own staleness timeout clears it later; must
@@ -97,24 +115,6 @@ const releaseSyncLock = () => {
   if (lockHeartbeat) { lockHeartbeat.stop(); lockHeartbeat = null; }
   return api(DEALS_PORT, "/api/ops/sync-lock/release", { owner: LOCK_OWNER }).catch(() => {});
 };
-
-// One retry with a short delay before giving up — the sweep loop below makes one HTTP call per store
-// (1,500-2,500 of them on the bigger boxes), sequentially, against a deals box that's genuinely
-// resource-constrained; a single transient timeout used to abort the *entire* already-mostly-done sweep
-// (confirmed live 2026-09-23: the same store consistently failed the process on 3 separate full reruns,
-// each of which had already finished the whole upsert phase first). Sweeping is eventually consistent —
-// a store this misses just gets swept again next run — so a store that still fails after the retry is
-// skipped, not fatal.
-async function withRetry(fn, { retries = 1, delayMs = 3000 } = {}) {
-  for (let attempt = 0; ; attempt++) {
-    try {
-      return await fn();
-    } catch (err) {
-      if (attempt >= retries) throw err;
-      await new Promise((resolve) => setTimeout(resolve, delayMs));
-    }
-  }
-}
 
 const norm = (s) => String(s || "").toLowerCase().replace(/[^a-z0-9]/g, "");
 
@@ -203,90 +203,61 @@ for (const shardFile of files) {
   }
 }
 const unmatched = rows.filter((r) => !r.dealerId).length;
-console.log(`${total} vehicles in file, ${rows.length} active with a valid VIN`);
-console.log(`stores matched to the directory: ${rows.length - unmatched}/${rows.length} vehicles (${unmatched} unmatched — kept, keyed to store 0)`);
+log(`${total} vehicles in file, ${rows.length} active with a valid VIN`);
+log(`stores matched to the directory: ${rows.length - unmatched}/${rows.length} vehicles (${unmatched} unmatched — kept, keyed to store 0)`);
 
-// Checkpoint/resume: a crash partway through the upsert loop used to mean the *next* run redid
-// the whole file from row 0 — correct (upserts are idempotent) but slow and needless load on the
-// deals box, worse the longer a file has grown. Identified by each shard's path/size/mtime, not
-// its content, so checking it is cheap; a checkpoint for a different file (a new day's crawl) is
-// ignored entirely rather than resuming into unrelated data. This is purely an optimization on
-// top of the idempotent upserts below, never a second source of truth.
+// Resume state (syncCheckpoint.js): identifies the crawl output by each shard's path/size/mtime — not its
+// content, so checking it is cheap — plus a digest of every row's (vin, store) pair (syncRun.js). State for a
+// different crawl output (a new night's files) is ignored entirely rather than resumed into unrelated data.
 const fileIdentity = computeFileIdentity(files.map((f) => { const s = fs.statSync(f); return { path: f, size: s.size, mtimeMs: s.mtimeMs }; }));
 const CHECKPOINT_PATH = process.env.SYNC_CHECKPOINT_PATH || path.join(os.homedir(), ".inventory-sync-checkpoint.json");
-const loadCheckpoint = () => { try { return JSON.parse(fs.readFileSync(CHECKPOINT_PATH, "utf8")); } catch { return null; } };
-const saveCheckpoint = (cp) => fs.writeFileSync(CHECKPOINT_PATH, JSON.stringify(cp));
-const clearCheckpoint = () => { try { fs.unlinkSync(CHECKPOINT_PATH); } catch { /* nothing to clear */ } };
+const runStore = {
+  load: () => { if (NO_RESUME) return null; try { return JSON.parse(fs.readFileSync(CHECKPOINT_PATH, "utf8")); } catch { return null; } },
+  // Written to a temp file and renamed into place, so a kill mid-write can never leave a half-written state.
+  save: (state) => { const tmp = `${CHECKPOINT_PATH}.${process.pid}.tmp`; fs.writeFileSync(tmp, JSON.stringify(state)); fs.renameSync(tmp, CHECKPOINT_PATH); },
+  clear: () => { try { fs.unlinkSync(CHECKPOINT_PATH); } catch { /* nothing to clear */ } },
+};
 
-const sortedRows = sortRows(rows);
-const checkpoint = loadCheckpoint();
-const rowsToSync = resumeFrom(sortedRows, checkpoint, fileIdentity);
-if (checkpoint && rowsToSync.length < sortedRows.length) {
-  console.log(`[sync] resuming after ${checkpoint.lastDealerId}:${checkpoint.lastVin} — skipping ${sortedRows.length - rowsToSync.length} rows already upserted by a previous run against this same file`);
+if (DRY_RUN) {
+  // Read-only: the shards and the dealership directory have been read; nothing below touches the lock or any write endpoint.
+  const sorted = rows.slice().sort((a, b) => (a.dealerId ?? 0) - (b.dealerId ?? 0) || (a.vin < b.vin ? -1 : a.vin > b.vin ? 1 : 0));
+  const plan = planBatches(sorted, 0, { maxRows: config.batchRows, maxBytes: config.batchMaxBytes });
+  const stores = new Set(rows.map((r) => r.dealerId).filter(Boolean));
+  const mb = (n) => (n / 1048576).toFixed(2);
+  log(`[dry-run] upsert plan: ${plan.rows} rows -> ${plan.batches} requests of <= ${config.batchRows} rows / <= ${mb(config.batchMaxBytes)}MB (largest ${plan.maxRowsInBatch} rows); body size median ${mb(plan.medianBytes)}MB, p95 ${mb(plan.p95Bytes)}MB, max ${mb(plan.maxBytes)}MB, total ${mb(plan.totalBytes)}MB`);
+  log(`[dry-run] sweep plan: ${stores.size} stores -> ${Math.ceil(stores.size / config.sweepBatchStores)} batches of <= ${config.sweepBatchStores} stores, concurrency ${config.sweepConcurrency} (+ the store-0 bucket)`);
+  const m = process.memoryUsage();
+  log(`[dry-run] memory: rss ${mb(m.rss)}MB, heapUsed ${mb(m.heapUsed)}MB`);
+  log("[dry-run] nothing was sent: no lock taken, no writes");
+  process.exit(0);
 }
 
 // Only the write phase below needs the lock — everything above (reading shards, matching stores) is
 // local/read-only and safe to run in parallel with another box's sync.
-console.log(`[sync] acquiring sync lock as ${LOCK_OWNER}...`);
+log(`[sync] acquiring sync lock as ${LOCK_OWNER}...`);
 await acquireSyncLock();
 // Prove liveness for the whole upsert + sweep: without it a slow-but-healthy sync looks dead to the
 // server's staleness rule and another box reclaims the lock (two writers — happened 2026-10-01).
 lockHeartbeat = startSyncLockHeartbeat({
   heartbeat: () => api(DEALS_PORT, "/api/ops/sync-lock/heartbeat", { owner: LOCK_OWNER }),
   reacquire: () => api(DEALS_PORT, "/api/ops/sync-lock/acquire", { owner: LOCK_OWNER, heartbeat: true }),
+  log,
+  intervalMs: Number(process.env.SYNC_HEARTBEAT_MS) || 30_000,
 });
+let failed = false;
 try {
-  // The sweep compares against the deals box's clock; give it a 10-minute margin so a few seconds of clock
-  // skew between machines can't sweep rows this very run just wrote.
-  const started = new Date(Date.now() - 10 * 60 * 1000).toISOString();
-  let upserted = 0;
-  // What happened to the buyer /search factory-options facet table this run. `?? 0` so this stays
-  // compatible with a deals box that predates these counters.
-  const optionStats = { setsReplaced: 0, setsKept: 0, rowsWritten: 0, junkDropped: 0 };
-  for (let i = 0; i < rows.length; i += 2000) {
-    // Confirmed live 2026-09-28: a concurrent, legitimate, hours-long data-migration script
-    // (PR #347's options backfill) doing a paginated `SELECT ... FOR UPDATE` range scan over
-    // dealer_inventory collided with bulk upsert batches repeatedly — both "Deadlock found when
-    // trying to get lock" and "Lock wait timeout exceeded" (MySQL's own advice in both cases is
-    // "try restarting transaction"), and a single retry (the sweep loop's own default) wasn't
-    // enough since the contention was sustained, not a one-off blip. A batch is a plain upsert
-    // keyed on (VIN, dealer_id), so resending it after a failed attempt is always safe. More
-    // retries with real spacing than the sweep gets, since this is a background batch job that
-    // can afford to be patient — unlike the sweep's one-call-per-store loop, blocking longer here
-    // doesn't cascade into skipping other stores.
-    const batch = rowsToSync.slice(i, i + 2000);
-    const r = await withRetry(() => api(DEALS_PORT, "/api/inventory/bulk", { vehicles: batch }), { retries: 6, delayMs: 5000 });
-    upserted += r.upserted;
-    optionStats.setsReplaced += r.optionSetsReplaced ?? 0;
-    optionStats.setsKept += r.optionSetsKept ?? 0;
-    optionStats.rowsWritten += r.optionRowsWritten ?? 0;
-    optionStats.junkDropped += r.optionJunkDropped ?? 0;
-    // Only after the batch's own upsert call has actually succeeded — a checkpoint saved before
-    // that could point past rows the deals box never actually got.
-    saveCheckpoint(makeCheckpoint(fileIdentity, batch[batch.length - 1]));
-    process.stdout.write(`\r  upserted ${upserted}/${rowsToSync.length}`);
+  const r = await runWritePhase({ rows, fileIdentity, api: dealsApi, store: runStore, isLockLost: () => lockHeartbeat?.isLost() === true, log, config });
+  // Same fields as always (the ops scripts and log reads that parse this line keep working), plus run details.
+  log(JSON.stringify({ upserted: r.upserted, sweptStores: r.sweptStores, sweepFailed: r.sweepFailed, removed: r.removed, live: r.live, resumed: r.resumed, skippedRows: r.skippedRows, sweepMode: r.sweepMode, timings: { upsertMs: r.timings.upsertMs, sweepMs: r.timings.sweepMs, totalMs: r.timings.totalMs, requests: r.timings.requests, p50RequestMs: r.timings.p50RequestMs, p95RequestMs: r.timings.p95RequestMs } }));
+} catch (err) {
+  failed = true;
+  if (err instanceof SweepAbortError || err instanceof LockLostError) {
+    console.error(`${ts()} [sync] STOPPED: ${err.message}`);
+  } else {
+    console.error(`${ts()} [sync] FAILED:`, err);
   }
-  console.log();
-  console.log(`[sync] factory options: ${optionStats.setsReplaced} vehicles replaced (${optionStats.rowsWritten} rows, ${optionStats.junkDropped} junk sentences dropped), ${optionStats.setsKept} kept as-is (no options extracted this run)`);
-  const stores = [...new Set(rows.map((r) => r.dealerId).filter(Boolean))];
-  let removed = 0;
-  let sweepFailed = 0;
-  for (const id of stores) {
-    try {
-      removed += (await withRetry(() => api(DEALS_PORT, "/api/inventory/sweep", { dealerId: id, seenAfter: started, sources: ["nightly"] }))).removed;
-    } catch (err) {
-      sweepFailed++;
-      console.error(`[sync] sweep failed for store ${id} after retry, skipping (will sweep next run): ${err.message}`);
-    }
-  }
-  // The store-0 bucket holds vehicles whose store wasn't in the directory at sync time; once a rooftop is added
-  // they re-file under it, and the stale bucket rows are retired here.
-  try { removed += (await withRetry(() => api(DEALS_PORT, "/api/inventory/sweep", { dealerId: 0, seenAfter: started, sources: ["nightly"] }))).removed; } catch { /* box predates store-0 sweeps, or this one failed too — not fatal either way */ }
-  const stats = await withRetry(() => api(DEALS_PORT, "/api/inventory/stats"));
-  console.log(JSON.stringify({ upserted, sweptStores: stores.length - sweepFailed, sweepFailed, removed, live: { rows: stats.total, vins: stats.vins, inStock: stats.inStock, stores: stats.dealers, byState: stats.byState.slice(0, 8) } }));
-  // Reached only on full success — a checkpoint from a run that crashed anywhere above is left in
-  // place so the next run resumes from it.
-  clearCheckpoint();
+  console.error(`${ts()} [sync] Progress is saved in ${CHECKPOINT_PATH}. Running this same command again, while the crawl output on disk is unchanged, resumes from there — upserts that finished are not repeated, and the sweep cutoff is reused. Nothing restarts it automatically. Use --no-resume to ignore the saved state.`);
 } finally {
   await releaseSyncLock();
 }
+if (failed) process.exitCode = 1;
