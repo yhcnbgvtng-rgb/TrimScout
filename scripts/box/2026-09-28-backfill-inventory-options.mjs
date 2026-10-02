@@ -56,6 +56,18 @@ if (!fs.existsSync(modPath)) {
 }
 const { optionRowsFromOptions } = await import(modPath);
 
+// Same write-time key normalization as the nightly upsert (deals_api_server.js), so a backfilled
+// vehicle's dealer spellings land on the allowlisted canonical key too. Optional on purpose: a box
+// without src/factoryOptionAllowlist.js, or with OPTION_ALLOWLIST_PATH unset, behaves as before.
+const allowlistPath = path.resolve(process.cwd(), "src/factoryOptionAllowlist.js");
+let resolveForMake = () => null;
+if (fs.existsSync(allowlistPath)) {
+  const { loadAllowlistFromEnv, resolveAllowlisted } = await import(allowlistPath);
+  const { allowlist, error } = loadAllowlistFromEnv();
+  if (error) console.warn(`allowlist not loaded (${error}); keeping dealer keys as-is`);
+  resolveForMake = (make) => (key) => resolveAllowlisted(allowlist, make, key);
+}
+
 function loadDbEnv() {
   const raw = fs.readFileSync(path.resolve(process.cwd(), ".env.trimscout-db"), "utf-8");
   for (const line of raw.split("\n")) {
@@ -117,7 +129,7 @@ async function main() {
         try { options = JSON.parse(r.options_json); } catch { totals.unparseable++; continue; }
         if (!Array.isArray(options) || !options.length) continue;
         totals.withOptionsJson++;
-        const { rows: facetRows, junkDropped } = optionRowsFromOptions(options);
+        const { rows: facetRows, junkDropped } = optionRowsFromOptions(options, { resolveKey: resolveForMake(r.make) });
         totals.junkDropped += junkDropped;
         pairs.push([r.vin, r.dealer_id]);
         totals.replaced++;
