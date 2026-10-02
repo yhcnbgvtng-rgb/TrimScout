@@ -54,6 +54,8 @@ interface BaseProps {
    * buyer /search's separate color language.
    */
   accent?: "sky" | "emerald";
+  /** Fires each time the menu opens — lets a caller load this dropdown's options lazily instead of on page load. */
+  onOpen?: () => void;
 }
 
 interface SingleProps extends BaseProps {
@@ -64,6 +66,14 @@ interface SingleProps extends BaseProps {
 
 interface MultiProps extends BaseProps {
   multi: true;
+  /**
+   * How the closed trigger summarises several picks. "all" (default, factory options): picks are
+   * AND-ed, so the honest figure is the smallest option's count. "any": picks are OR-ed within one
+   * field (admin State/Make/...), so the figure is the SUM of the picked counts. Either way the
+   * label reads `<n> <selectedNoun>` — default "options".
+   */
+  multiMode?: "all" | "any";
+  selectedNoun?: string;
   value: string[];
   onChange: (value: string[]) => void;
 }
@@ -116,9 +126,14 @@ export default function SearchableDropdown(props: Props) {
     // option's own count — showing that minimum is an honest upper bound on the real combined
     // result, not a sum that would overstate it.
     const picked = options.filter((o) => selectedSet!.has(o.value));
+    const noun = props.selectedNoun || "option";
+    if (props.multiMode === "any") {
+      const sum = picked.reduce((t, o) => t + o.count, 0);
+      return `${props.value.length} ${noun}${props.value.length === 1 ? "" : "s"}${picked.length ? ` · ${sum.toLocaleString()}` : ""}`;
+    }
     const minCount = picked.length ? Math.min(...picked.map((o) => o.count)) : 0;
-    return `${props.value.length} option${props.value.length === 1 ? "" : "s"} · ${minCount.toLocaleString()}`;
-  }, [props.multi, props.value, options, selectedSet]);
+    return `${props.value.length} ${noun}${props.value.length === 1 ? "" : "s"} · ${minCount.toLocaleString()}`;
+  }, [props.multi, props.value, options, selectedSet, props.multi ? props.multiMode : undefined, props.multi ? props.selectedNoun : undefined]);
 
   const hasValue = props.multi ? props.value.length > 0 : Boolean(props.value);
 
@@ -138,6 +153,7 @@ export default function SearchableDropdown(props: Props) {
 
   const openMenu = () => {
     if (open) return;
+    props.onOpen?.();
     setOpen(true);
     setQuery("");
     setActiveIndex(-1);

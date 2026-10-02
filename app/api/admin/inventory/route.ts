@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireAdminSession } from "@/lib/adminAuth";
-import { listInventory, exportInventory, inventoryStats, inventoryFacets, inventoryByDealer, inventoryVin, inventoryAnalytics, InventoryApiError, type InventoryQuery } from "@/lib/inventoryApi";
+import { listInventory, exportInventory, inventoryStats, inventoryAdminFacets, inventoryByDealer, inventoryVin, inventoryAnalytics, InventoryApiError, type InventoryQuery } from "@/lib/inventoryApi";
 import { vehicleCsvHeader, vehicleCsvLine, vehicleSheetFilename, type VehicleRow } from "@/lib/crawlSheetColumns";
 
 export const dynamic = "force-dynamic";
@@ -12,6 +12,12 @@ export const maxDuration = 300;
  * vehicles for the given filters. `?export=1` streams the whole filter (cap 50k rows) as a CSV download — streamed
  * because a state's CSV is well past Vercel's 4.5MB limit on a buffered response body.
  */
+/** Every non-empty value of a repeated query param (state=FL&state=GA); undefined when absent. */
+function all(sp: URLSearchParams, key: string): string[] | undefined {
+  const vals = [...new Set(sp.getAll(key).map((v) => v.trim()).filter(Boolean))].slice(0, 25);
+  return vals.length ? vals : undefined;
+}
+
 export async function GET(req: Request) {
   const session = await requireAdminSession();
   if (!session) return NextResponse.json({ error: "Admin access required." }, { status: 403 });
@@ -20,13 +26,12 @@ export async function GET(req: Request) {
     // Aggregates change once a day (the sync); let the admin's browser keep them a minute so tab switches are instant.
     const aggHeaders = { "Cache-Control": "private, max-age=60" };
     if (sp.get("stats") === "1") return NextResponse.json(await inventoryStats(), { headers: aggHeaders });
-    // State/Make/Model/Trim dropdown counts for the Vehicles sheet's filter row — same box
-    // endpoint (and its covering indexes) the buyer /search page's GET /api/catalog/facets uses,
-    // reached here through the admin-authenticated route rather than the public one so the admin
-    // sheet's own API surface stays self-contained.
+    // State/Make/Model/Trim dropdown counts for the Vehicles sheet's filter row. Multi-value
+    // (state=FL&state=GA...) and scoped by the OTHER dropdowns' selections — the box's own
+    // admin-facets endpoint, which reads the same covering indexes as the buyer /search dropdowns.
     if (sp.get("facets") === "1") {
       return NextResponse.json(
-        await inventoryFacets({ state: sp.get("state") || undefined, make: sp.get("make") || undefined, model: sp.get("model") || undefined }),
+        await inventoryAdminFacets({ state: all(sp, "state"), make: all(sp, "make"), model: all(sp, "model") }),
         { headers: aggHeaders }
       );
     }
@@ -35,8 +40,8 @@ export async function GET(req: Request) {
     // Dealership analytics for the Site Analytics page — aggregated and cached on the box.
     if (sp.get("analytics") === "1") return NextResponse.json(await inventoryAnalytics({ state: sp.get("state") || undefined, make: sp.get("make") || undefined, dealerId: sp.get("dealerId") || null, model: sp.get("model") || undefined, from: sp.get("from") || undefined, to: sp.get("to") || undefined }));
     const q: InventoryQuery = {
-      dealerId: sp.get("dealerId") || undefined, state: sp.get("state") || undefined, make: sp.get("make") || undefined, model: sp.get("model") || undefined,
-      trim: sp.get("trim") || undefined, cond: sp.get("cond") || undefined, q: sp.get("q") || undefined, inStock: sp.get("inStock") === "1", sort: sp.get("sort") || undefined,
+      dealerId: sp.get("dealerId") || undefined, state: all(sp, "state"), make: all(sp, "make"), model: all(sp, "model"),
+      trim: all(sp, "trim"), cond: all(sp, "cond"), q: sp.get("q") || undefined, inStock: sp.get("inStock") === "1", sort: sp.get("sort") || undefined,
       changeType: sp.get("changeType") || undefined, priceChange: (sp.get("priceChange") as "drop" | "increase") || undefined, removed: sp.get("removed") === "1", hasSticker: sp.get("hasSticker") === "1",
       minDays: sp.get("minDays") ? Number(sp.get("minDays")) : undefined, possibleDemo: sp.get("possibleDemo") === "1",
     };
@@ -68,7 +73,12 @@ export async function GET(req: Request) {
     }
     const limit = Math.min(Number(sp.get("limit")) || 500, 2000);
     const offset = Number(sp.get("offset")) || 0;
-    return NextResponse.json(await listInventory({ ...q, limit, offset }));
+    // A multi-value filter (Ford + Chevrolet + Toyota...) can't read the page in index order, so the box would
+    // filesort every matching wide row. countCap routes it through the box's deferred-join page query (ids off
+    // the covering index, then just this page's rows) and a count that stops early; the response carries
+    // totalCapped, which the sheet shows as "100,000+". Single-value and unfiltered queries are exact, as before.
+    const multi = [q.state, q.make, q.model, q.trim, q.cond].some((v) => Array.isArray(v) && v.length > 1);
+    return NextResponse.json(await listInventory({ ...q, limit, offset, ...(multi ? { countCap: 100000 } : {}) }));
   } catch (err) {
     const message = err instanceof InventoryApiError ? err.message : "Could not load inventory.";
     const status = err instanceof InventoryApiError ? (err.status === 503 ? 503 : err.status === 400 || err.status === 404 ? err.status : 502) : 502;

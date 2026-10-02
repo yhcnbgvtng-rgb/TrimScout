@@ -32,6 +32,7 @@ import fs from "node:fs";
 import path from "node:path";
 import mysql from "mysql2/promise";
 import { inventoryListQuery, totalFromPage, applyCountCap, deferredPageSql } from "./inventoryListQuery.js";
+import { adminFacetQueries, adminFacetResponse } from "./inventoryAdminFacets.js";
 import { createGate, SearchBusyError } from "./searchGate.js";
 import { createStableCache } from "./stableCache.js";
 import { optionRowsFromOptions, payloadHasOptions, buyerOptionCatalog, isBuyerFacingOption, CATALOG_MIN_VEHICLES } from "./inventoryOptionRows.js";
@@ -2723,6 +2724,29 @@ async function handleInventoryFacets(req, res, params) {
   }));
 }
 
+// GET /api/inventory/admin-facets?state=&state=&make=&make=&model=&... (repeated params = multi-select) —
+// State/Make/Model/Trim hit counts for the admin Vehicles sheet. Its own endpoint so the buyer
+// /api/inventory/facets (single-value, its own stable cache) is untouched. Scoping rules, and why they
+// stop short of the sheet's other filters: see inventoryAdminFacets.js. Same stale-while-revalidate cache
+// as the buyer facets, keyed by the (order-independent) selection; same 20s statement cap.
+async function handleInventoryAdminFacets(req, res, params) {
+  const pool = getPool();
+  await ensureInventoryTable(pool);
+  const f = adminFacetQueries(params);
+  sendJson(res, 200, await stableCached(f.cacheKey, async () => {
+    const q = (query) =>
+      query
+        ? withPoolTimeout(
+            pool.query(`SET STATEMENT max_statement_time=${INV_LIST_STATEMENT_TIMEOUT_SECONDS} FOR ${query.sql}`, query.args),
+            POOL_WAIT_TIMEOUT_MS,
+            "Timed out waiting for an available database connection or a slow query"
+          ).then(([rows]) => rows)
+        : Promise.resolve([]);
+    const [states, makes, models, trims] = await Promise.all([q(f.queries.states), q(f.queries.makes), q(f.queries.models), q(f.queries.trims)]);
+    return adminFacetResponse({ states, makes, models, trims });
+  }));
+}
+
 // GET /api/inventory/by-dealer — in-stock counts per store, for the dealer sheet.
 async function handleInventoryByDealer(req, res) {
   const pool = getPool();
@@ -3334,6 +3358,7 @@ const server = http.createServer((req, res) => {
   if (req.method === "GET" && pathname === "/api/inventory/stats") return run(handleInventoryStats);
   if (req.method === "GET" && pathname === "/api/inventory/makes") return run(handleInventoryMakes);
   if (req.method === "GET" && pathname === "/api/inventory/facets") return run(handleInventoryFacets, url.searchParams);
+  if (req.method === "GET" && pathname === "/api/inventory/admin-facets") return run(handleInventoryAdminFacets, url.searchParams);
   if (req.method === "GET" && pathname === "/api/inventory/analytics") return run(handleInventoryAnalytics, url.searchParams);
   if (req.method === "GET" && pathname === "/api/inventory/market-pulse") return run(handleMarketPulse, url.searchParams);
   if (req.method === "GET" && pathname === "/api/inventory/by-dealer") return run(handleInventoryByDealer);

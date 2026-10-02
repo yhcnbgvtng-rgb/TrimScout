@@ -10,15 +10,39 @@
 // production six times across two days (five combinations on 2026-09-22, one more on 2026-09-25),
 // always the same shape — a filter combination the hand-tuned index hints didn't cover, found live
 // during an outage.
+/** Distinct, trimmed, non-empty values of a (possibly repeated) query param, capped so a hostile URL can't build a huge IN list. */
+export const MAX_MULTI_VALUES = 25;
+export function multiParam(params, key, normalize = (v) => v) {
+  const seen = new Set();
+  for (const raw of params.getAll(key)) {
+    const v = normalize(String(raw).trim());
+    if (v) seen.add(v);
+    if (seen.size >= MAX_MULTI_VALUES) break;
+  }
+  return [...seen];
+}
+
 export function inventoryListQuery(params) {
   const where = [], args = [];
   const p = (k) => (params.get(k) || "").trim();
+  // state/make/model/trim/cond accept REPEATED params (state=FL&state=GA): OR within a field, AND across
+  // fields. Repeated params, not a comma list — trims legitimately contain commas. One value keeps the exact
+  // `col = ?` SQL every index hint below was tuned against; several become `col IN (...)`.
+  const states = multiParam(params, "state", (v) => v.toUpperCase());
+  const makes = multiParam(params, "make");
+  const models = multiParam(params, "model");
+  const trims = multiParam(params, "trim");
+  const conds = multiParam(params, "cond");
+  const addIn = (col, vals) => {
+    if (vals.length === 1) { where.push(`${col} = ?`); args.push(vals[0]); }
+    else if (vals.length) { where.push(`${col} IN (${vals.map(() => "?").join(",")})`); args.push(...vals); }
+  };
   if (p("dealerId")) { where.push("i.dealer_id = ?"); args.push(Number(p("dealerId"))); }
-  if (p("state")) { where.push("i.state = ?"); args.push(p("state").toUpperCase()); }
-  if (p("make")) { where.push("i.make = ?"); args.push(p("make")); }
-  if (p("model")) { where.push("i.model = ?"); args.push(p("model")); }
-  if (p("trim")) { where.push("i.trim = ?"); args.push(p("trim")); }
-  if (p("cond")) { where.push("i.cond = ?"); args.push(p("cond")); }
+  addIn("i.state", states);
+  addIn("i.make", makes);
+  addIn("i.model", models);
+  addIn("i.trim", trims);
+  addIn("i.cond", conds);
   if (p("inStock") === "1") where.push("i.removed_at IS NULL");
   if (p("changeType")) { where.push("i.change_type = ?"); args.push(p("changeType").toUpperCase()); }
   if (p("priceChange") === "drop") where.push("i.price_diff < 0");
@@ -193,25 +217,26 @@ export function inventoryListQuery(params) {
   // removed_at in the key, forcing a residual filter over every one of that make's rows: 70s+ for
   // a common make. idx_inv_make_removed/idx_inv_state_removed (see ensureInventoryTable) seek
   // straight to the make/state and range-scan only the recently-removed rows within it.
+  const hasState = states.length > 0, hasMake = makes.length > 0, hasModel = models.length > 0;
   const indexHint = p("removed") === "1" && !p("dealerId")
-    ? (p("state") ? "FORCE INDEX (idx_inv_state_removed)" : p("make") ? "FORCE INDEX (idx_inv_make_removed)" : "FORCE INDEX (idx_inv_removed)")
+    ? (hasState ? "FORCE INDEX (idx_inv_state_removed)" : hasMake ? "FORCE INDEX (idx_inv_make_removed)" : "FORCE INDEX (idx_inv_removed)")
     // make+model+state, in stock: state's own index (below) walks the WHOLE state in dealer order and
     // needs a row lookup per car just to test make/model — measured live 2026-10-01, Ford F-150 in NJ
     // (1,555 of NJ's ~57k cars) never finished inside 10s. idx_inv_facet_make_model_state_trim
     // (removed_at, make, model, state, trim) is exactly the equality prefix, so the range is only
     // those 1,555 rows; the sort then runs over that tiny set. (Created for the facet dropdowns.)
-    : (p("make") && p("model") && p("state") && p("inStock") === "1" && !p("dealerId"))
+    : (hasMake && hasModel && hasState && p("inStock") === "1" && !p("dealerId"))
     ? "FORCE INDEX (idx_inv_facet_make_model_state_trim)"
     // make+state (no model) with sort=model: idx_inv_facet_make_state_model is (removed_at, make,
     // state, model) + the PK's vin, so (model, vin) is index order — the buyer's default for this
     // shape. Without it the state index walks all of the state's cars looking for a rare make (Porsche
     // in NJ never finished inside 10s, 2026-10-01); here the range is only that make's cars in the state.
-    : (p("make") && p("state") && !p("model") && p("inStock") === "1" && !p("dealerId") && (p("sort") || "").startsWith("model:"))
+    : (hasMake && hasState && !hasModel && p("inStock") === "1" && !p("dealerId") && (p("sort") || "").startsWith("model:"))
     ? "FORCE INDEX (idx_inv_facet_make_state_model)"
-    : (p("state") && !p("dealerId"))
+    : (hasState && !p("dealerId"))
     ? (p("inStock") === "1" ? "FORCE INDEX (idx_inv_stock_state)" : "FORCE INDEX (idx_inv_state_dealer)")
-    : !p("make") ? ""
-    : p("model")
+    : !hasMake ? ""
+    : hasModel
       ? (p("inStock") === "1" ? "FORCE INDEX (idx_inv_stock_make_model_trim)" : "FORCE INDEX (idx_inv_make_model_trim)")
       : p("inStock") === "1" ? "FORCE INDEX (idx_inv_stock_make_dealer)" : "FORCE INDEX (idx_inv_make_dealer)";
   const whereSql = where.length ? "WHERE " + where.join(" AND ") : "";

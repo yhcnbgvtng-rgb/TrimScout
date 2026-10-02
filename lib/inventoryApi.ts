@@ -81,13 +81,17 @@ export interface InventoryUpsert {
   sourceBox?: string | null;
 }
 
+/** Fields the box accepts as REPEATED params (state=FL&state=GA): OR within a field, AND across fields. */
+export const MULTI_VALUE_KEYS = ["state", "make", "model", "trim", "cond"] as const;
+
 export interface InventoryQuery {
   dealerId?: string;
-  state?: string;
-  make?: string;
-  model?: string;
-  trim?: string;
-  cond?: string;
+  /** state / make / model / trim / cond take one value or several (OR). One value is sent exactly as before. */
+  state?: string | string[];
+  make?: string | string[];
+  model?: string | string[];
+  trim?: string | string[];
+  cond?: string | string[];
   q?: string;
   inStock?: boolean;
   changeType?: string;
@@ -207,6 +211,10 @@ export function inventoryQueryString(q: InventoryQuery): string {
   for (const [k, v] of Object.entries(q)) {
     if (v === undefined || v === null || v === "" || v === false) continue;
     if (Array.isArray(v) && v.length === 0) continue;
+    if (Array.isArray(v) && (MULTI_VALUE_KEYS as readonly string[]).includes(k)) {
+      for (const one of v) if (one) p.append(k, String(one));
+      continue;
+    }
     p.set(k, v === true ? "1" : String(v));
   }
   const s = p.toString();
@@ -274,6 +282,24 @@ export async function inventoryFacets(f: { state?: string; make?: string; model?
   if (f.model) qs.set("model", f.model);
   const suffix = qs.toString();
   return request("GET", `/api/inventory/facets${suffix ? `?${suffix}` : ""}`);
+}
+
+export interface AdminInventoryFacets extends InventoryFacets {
+  /** Marker set by the box's admin-facets endpoint — absent on an un-patched box. */
+  multi?: boolean;
+}
+
+/**
+ * Multi-select facet counts for the admin Vehicles sheet. Each list is scoped by the OTHER fields'
+ * selections but not its own (see scrapers/lightsail-crawler/src/inventoryAdminFacets.js), so
+ * picking FL still shows GA's count. In-stock counts only. A box that predates the endpoint answers
+ * 404 — surfaced as-is so the sheet can say the box needs updating instead of showing wrong counts.
+ */
+export async function inventoryAdminFacets(f: { state?: string[]; make?: string[]; model?: string[] } = {}): Promise<AdminInventoryFacets> {
+  const qs = new URLSearchParams();
+  for (const k of ["state", "make", "model"] as const) for (const v of f[k] || []) if (v) qs.append(k, v);
+  const suffix = qs.toString();
+  return request("GET", `/api/inventory/admin-facets${suffix ? `?${suffix}` : ""}`);
 }
 
 /** Longest the box may take to stream a whole export — the route's maxDuration minus headroom. */
