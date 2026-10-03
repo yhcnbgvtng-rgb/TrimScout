@@ -81,13 +81,17 @@ export interface InventoryUpsert {
   sourceBox?: string | null;
 }
 
+/** Fields the box accepts as REPEATED params (state=FL&state=GA): OR within a field, AND across fields. */
+export const MULTI_VALUE_KEYS = ["state", "make", "model", "trim", "cond"] as const;
+
 export interface InventoryQuery {
   dealerId?: string;
-  state?: string;
-  make?: string;
-  model?: string;
-  trim?: string;
-  cond?: string;
+  /** state / make / model / trim / cond take one value or several (OR). One value is sent exactly as before. */
+  state?: string | string[];
+  make?: string | string[];
+  model?: string | string[];
+  trim?: string | string[];
+  cond?: string | string[];
   q?: string;
   inStock?: boolean;
   changeType?: string;
@@ -207,6 +211,10 @@ export function inventoryQueryString(q: InventoryQuery): string {
   for (const [k, v] of Object.entries(q)) {
     if (v === undefined || v === null || v === "" || v === false) continue;
     if (Array.isArray(v) && v.length === 0) continue;
+    if (Array.isArray(v) && (MULTI_VALUE_KEYS as readonly string[]).includes(k)) {
+      for (const one of v) if (one) p.append(k, String(one));
+      continue;
+    }
     p.set(k, v === true ? "1" : String(v));
   }
   const s = p.toString();
@@ -274,6 +282,39 @@ export async function inventoryFacets(f: { state?: string; make?: string; model?
   if (f.model) qs.set("model", f.model);
   const suffix = qs.toString();
   return request("GET", `/api/inventory/facets${suffix ? `?${suffix}` : ""}`);
+}
+
+/**
+ * The admin sheet's default sort (dealer:asc) has no fast plan for State + Make without a Model: the box
+ * walks the whole state's index in dealer order (Porsche in NJ never finishes inside the 20s cap). Measured
+ * live 2026-10-02: the same query sorted by model reads idx_inv_facet_make_state_model in index order and
+ * returns in ~60 ms. So for exactly that shape, an UNCHOSEN (default) dealer sort is swapped for model:asc —
+ * an explicitly chosen sort is left alone. Needs inStock (the index hint's own precondition). State alone
+ * (no Make) has no fast plan under any sort and is not changed.
+ */
+export function adminListSort(q: Pick<InventoryQuery, "state" | "make" | "model" | "inStock" | "dealerId" | "sort">): string | undefined {
+  const has = (v: string | string[] | undefined) => (Array.isArray(v) ? v.length > 0 : Boolean(v));
+  const isDefault = !q.sort || q.sort === "dealer:asc";
+  if (isDefault && q.inStock && !q.dealerId && has(q.state) && has(q.make) && !has(q.model)) return "model:asc";
+  return q.sort;
+}
+
+export interface AdminInventoryFacets extends InventoryFacets {
+  /** Marker set by the box's admin-facets endpoint — absent on an un-patched box. */
+  multi?: boolean;
+}
+
+/**
+ * Multi-select facet counts for the admin Vehicles sheet. Each list is scoped by the OTHER fields'
+ * selections but not its own (see scrapers/lightsail-crawler/src/inventoryAdminFacets.js), so
+ * picking FL still shows GA's count. In-stock counts only. A box that predates the endpoint answers
+ * 404 — surfaced as-is so the sheet can say the box needs updating instead of showing wrong counts.
+ */
+export async function inventoryAdminFacets(f: { state?: string[]; make?: string[]; model?: string[] } = {}): Promise<AdminInventoryFacets> {
+  const qs = new URLSearchParams();
+  for (const k of ["state", "make", "model"] as const) for (const v of f[k] || []) if (v) qs.append(k, v);
+  const suffix = qs.toString();
+  return request("GET", `/api/inventory/admin-facets${suffix ? `?${suffix}` : ""}`);
 }
 
 /** Longest the box may take to stream a whole export — the route's maxDuration minus headroom. */
