@@ -3,6 +3,15 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { withSharedDataLock } from './shared_data_lock.js';
 import { cacheShardPath, inventoryShardPath, listShardedStates } from './inventory_shards.js';
+import { shouldPreserveStoredOptions, buildOptionsPatch } from './liteCrawlOptionsGuard.js';
+import { lookupKnownGoodOptionVins } from './optionsStatusLookup.js';
+
+// Off by default — see liteCrawlOptionsGuard.js for what this changes. Read directly from
+// process.env (same convention as CRAWLER_PATCHRIGHT_FALLBACK elsewhere in this crawler) rather
+// than threaded through run-daily-crawl.mjs's buildBrandCrawlEnv, since every brand subprocess
+// already inherits the driver's full environment (see runStep's `{ ...process.env, ...env }`) —
+// setting it once at the top level (or not at all, tonight) is enough.
+const LITE_MODE_ENABLED = process.env.CRAWLER_LITE_NIGHTLY_MODE === '1';
 
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -451,6 +460,12 @@ export async function runEnrichmentPipeline(limit = Infinity, brand = null, dbRu
   // safety mechanism. Tune via CRAWLER_NHTSA_CONCURRENCY if needed.
   const nhtsaConcurrency = Math.max(1, Number(process.env.CRAWLER_NHTSA_CONCURRENCY) || 4);
 
+  // One bulk lookup for this whole run, not one per vehicle — see optionsStatusLookup.js. Empty
+  // (and a no-op below) whenever the mode is off, so this costs nothing unless explicitly enabled.
+  const knownGoodOptionVins = LITE_MODE_ENABLED
+    ? await lookupKnownGoodOptionVins(targetVehicles.map((v) => v.vin))
+    : new Set();
+
   const cacheHitOrSkipped = [];
   const needsFetch = [];
   for (const v of targetVehicles) {
@@ -473,15 +488,21 @@ export async function runEnrichmentPipeline(limit = Infinity, brand = null, dbRu
     // real per-VIN option scraping and would otherwise silently resurrect
     // the old guessed data. Only the (expensive, network-bound) NHTSA
     // lookup is cached.
-    const optionData = resolveFactoryOptions(v, brand);
+    //
+    // Lite mode's one exception: a VIN the deals box already has real stored options for gets
+    // NONE of this run's own options work applied — not even a genuinely fresh, non-empty
+    // extraction — so it can never be silently degraded by a dealer site having a bad day. See
+    // liteCrawlOptionsGuard.js.
+    const hasStoredOptions = knownGoodOptionVins.has(v.vin);
+    const preserveStoredOptions = shouldPreserveStoredOptions({ liteModeEnabled: LITE_MODE_ENABLED, hasStoredOptions });
+    const optionData = preserveStoredOptions ? null : resolveFactoryOptions(v, brand);
+    const { patch: optionsPatch, clearDealerListedOptions } = buildOptionsPatch({ liteModeEnabled: LITE_MODE_ENABLED, hasStoredOptions, optionData });
+    if (clearDealerListedOptions) delete v.dealerListedOptions;
     if (fromCache) cacheHits++;
     const cached = cache[v.vin];
     const patch = {
       nhtsa: fromCache ? cached.nhtsa : null,
-      factoryOptions: optionData.options,
-      optionCodes: optionData.optionCodes,
-      totalOptionsPrice: optionData.totalOptionsPrice,
-      baseMsrp: optionData.baseMsrp,
+      ...optionsPatch,
       ...(fromCache ? { enrichedAt: cached.enrichedAt } : {}),
     };
     Object.assign(v, patch);
@@ -499,16 +520,18 @@ export async function runEnrichmentPipeline(limit = Infinity, brand = null, dbRu
       const i = nextIndex++;
       if (i >= needsFetch.length) return;
       const v = needsFetch[i];
-      const optionData = resolveFactoryOptions(v, brand);
+      // See the matching comment in the cache-hit/skipped loop above — same guard, same reason.
+      const hasStoredOptions = knownGoodOptionVins.has(v.vin);
+      const preserveStoredOptions = shouldPreserveStoredOptions({ liteModeEnabled: LITE_MODE_ENABLED, hasStoredOptions });
+      const optionData = preserveStoredOptions ? null : resolveFactoryOptions(v, brand);
+      const { patch: optionsPatch, clearDealerListedOptions } = buildOptionsPatch({ liteModeEnabled: LITE_MODE_ENABLED, hasStoredOptions, optionData });
+      if (clearDealerListedOptions) delete v.dealerListedOptions;
       const progress = `[${i + 1}/${needsFetch.length}]`;
       const nhtsaData = await fetchNhtsaSpec(v.vin, v);
 
       const enrichment = {
         nhtsa: nhtsaData,
-        factoryOptions: optionData.options,
-        optionCodes: optionData.optionCodes,
-        totalOptionsPrice: optionData.totalOptionsPrice,
-        baseMsrp: optionData.baseMsrp,
+        ...optionsPatch,
         enrichedAt: new Date().toISOString(),
       };
 
@@ -523,8 +546,8 @@ export async function runEnrichmentPipeline(limit = Infinity, brand = null, dbRu
       enrichedCount++;
 
       if (enrichedCount % 50 === 0 || enrichedCount === 1) {
-        const baseMsrpStr = optionData.baseMsrp !== null ? `$${optionData.baseMsrp.toLocaleString()}` : "unknown";
-        const optionsStr = `$${optionData.totalOptionsPrice.toLocaleString()}`;
+        const baseMsrpStr = optionData && optionData.baseMsrp !== null ? `$${optionData.baseMsrp.toLocaleString()}` : "unknown";
+        const optionsStr = optionData ? `$${optionData.totalOptionsPrice.toLocaleString()}` : "preserved (stored)";
         const specStr = nhtsaData ? `${nhtsaData.engineDisplacementL || "?"} (${nhtsaData.plantCountry || "?"})` : "NHTSA lookup unavailable";
         console.log(`${progress} ✓ Enriched ${v.vin} (${v.year || "?"} ${v.model || "?"}): Base ${baseMsrpStr} | Options: ${optionsStr} | ${specStr}`);
       }

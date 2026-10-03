@@ -2292,6 +2292,33 @@ async function handleInventorySweep(req, res) {
   sendJson(res, 200, parsed.batch ? { removed: result.affectedRows, stores: parsed.dealerIds.length } : { removed: result.affectedRows });
 }
 
+// POST /api/inventory/options-status { vins: [...] } -> { status: { VIN: true|false } }
+// Read-only lookup for the nightly crawler's opt-in "lite" mode (CRAWLER_LITE_NIGHTLY_MODE, see
+// enricher.js / liteCrawlOptionsGuard.js there) — tells it which VINs already have real stored
+// factory options, so it can leave them alone rather than risk overwriting good data with an
+// empty result from a dealer site having a bad day. Not called at all while that mode is off.
+// A single-column `vin IN (?)` — NOT the tuple `(vin, dealer_id) IN (?)` shape fixed in PR #355 —
+// uses the leading column of each table's own primary key, so this stays a range scan rather than
+// a full table scan even without a dedicated index; also capped by the crawler's own batching
+// (optionsStatusLookup.js sends at most 2000 VINs per call) rather than one huge IN-list.
+const INV_OPTIONS_STATUS_MAX_VINS = 2000;
+async function handleInventoryOptionsStatus(req, res) {
+  const pool = getPool();
+  await ensureInventoryTable(pool);
+  const body = await readBody(req);
+  const vins = Array.isArray(body.vins) ? body.vins.map((v) => String(v || "").trim().toUpperCase()).filter(Boolean) : [];
+  if (!vins.length) return badRequest(res, "vins (non-empty array) is required");
+  if (vins.length > INV_OPTIONS_STATUS_MAX_VINS) return badRequest(res, `vins must be at most ${INV_OPTIONS_STATUS_MAX_VINS} per call`);
+  const known = new Set();
+  const [facetRows] = await pool.query("SELECT DISTINCT vin FROM dealer_inventory_options WHERE vin IN (?)", [vins]);
+  for (const r of facetRows) known.add(r.vin);
+  const [jsonRows] = await pool.query("SELECT vin FROM dealer_inventory WHERE vin IN (?) AND options_json IS NOT NULL AND options_json != '[]'", [vins]);
+  for (const r of jsonRows) known.add(r.vin);
+  const status = {};
+  for (const vin of vins) status[vin] = known.has(vin);
+  sendJson(res, 200, { status });
+}
+
 // inventoryListQuery lives in its own module (inventoryListQuery.js) purely so it can be
 // unit-tested without starting this file's real server — see that module's header comment.
 
@@ -3402,6 +3429,7 @@ const server = http.createServer((req, res) => {
   // dealer inventory (crawled vehicles)
   if (req.method === "POST" && pathname === "/api/inventory/bulk") return run(handleInventoryBulk);
   if (req.method === "POST" && pathname === "/api/inventory/sweep") return run(handleInventorySweep);
+  if (req.method === "POST" && pathname === "/api/inventory/options-status") return run(handleInventoryOptionsStatus);
   if (req.method === "POST" && pathname === "/api/inventory/catalog-facets/rebuild") return run(handleCatalogFacetRebuild);
   if (req.method === "GET" && pathname === "/api/inventory/catalog-facets/status") return run(handleCatalogFacetStatus);
   if (req.method === "GET" && pathname === "/api/inventory/stats") return run(handleInventoryStats);
@@ -3624,6 +3652,7 @@ server.listen(PORT, () => {
   console.log(`  (rfq_events logs rfq_invited/quote_received/quote_incomplete/buyer_picked/buyer_walked/desk_declined — no read endpoint; query the table directly)`);
   console.log(`  POST /api/inventory/bulk`);
   console.log(`  POST /api/inventory/sweep`);
+  console.log(`  POST /api/inventory/options-status`);
   console.log(`  GET  /api/inventory?dealerId=&state=&make=&model=&cond=&q=&inStock=1&limit=&offset=&sort=`);
   console.log(`  GET  /api/inventory/stats`);
 console.log(`  GET  /api/inventory/by-listing-url?url=`);
