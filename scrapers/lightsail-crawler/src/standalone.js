@@ -8,7 +8,7 @@ import { runEnrichmentPipeline } from './enricher.js';
 import { getBrand } from './brands.js';
 import { normalizeVehicleFields, splitPorscheTrimFromModelName } from './modelNormalizer.js';
 import { enrichYearAndModelFromUrl } from './porscheUrlFields.js';
-import { isVehicleLikeSchemaOrgType, readSchemaOrgVehicleFields } from './porscheSchemaOrgFields.js';
+import { findVehicleLd, readSchemaOrgVehicleFields } from './porscheSchemaOrgFields.js';
 import { classifyFetchResult, isBotProtected, isUncrawlable, decideProbeNext, BOT_CLASSES } from './bot_protection.js';
 import { withProbeRetry } from './probeRetry.js';
 import { writeProgress, emptyProgress } from './progress.js';
@@ -246,14 +246,20 @@ function extractSchemaOrgVehicle(html, url, dealer) {
     for (const block of ldBlocks) {
         try {
             const parsed = JSON.parse(block[1]);
+            // findVehicleLd handles both a flat Vehicle/Car object (the
+            // 2026-09-22 fix below) and a schema.org "@graph" wrapper
+            // bundling multiple entities into one block (2026-09-28 fix —
+            // see its own comment in porscheSchemaOrgFields.js).
+            //
             // Confirmed live 2026-09-22 on Porsche's own official retailer
             // platform (jackdaniels.porsche.com): its Vehicle JSON-LD uses
             // "@type":["Car","Product"] — an array, never the bare string
             // "Vehicle" this only used to match — so this strategy silently
             // returned null for every Porsche-network dealer's own real
             // markup, not just non-standard third-party ones.
-            if (parsed && isVehicleLikeSchemaOrgType(parsed['@type']) && parsed.vehicleIdentificationNumber) {
-                vehicleLd = parsed;
+            const found = findVehicleLd(parsed);
+            if (found) {
+                vehicleLd = found;
                 break;
             }
         } catch {

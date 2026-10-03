@@ -25,6 +25,27 @@ export function isVehicleLikeSchemaOrgType(type) {
   return types.includes('Vehicle') || types.includes('Car');
 }
 
+// Finds the Vehicle/Car node in a parsed JSON-LD block — which may BE that
+// node directly, or may be a schema.org "@graph" wrapper (the standard way
+// a page bundles multiple entities — the dealer's own AutoDealer listing,
+// breadcrumbs, and the vehicle — into one <script> tag) with the vehicle
+// node buried inside it. Confirmed live 2026-09-28: extractSchemaOrgVehicle
+// used to check `parsed['@type']` directly and nothing else, so any page
+// using @graph (a "Team Velocity/Apollo"-platform VDP, in this case) never
+// matched — its top-level object has no @type of its own at all, only
+// "@context" and "@graph" — even though a real Vehicle node with a real
+// VIN was sitting right there in the array. Silently extraction-failed for
+// 163 of 215 candidate URLs at one real dealer (Volkswagen of Hartford),
+// hiding a used Porsche Taycan trade-in that was otherwise fully
+// discoverable (its VDP URL was already correctly found by
+// vdpUrlFilter.js's bare-VIN-segment fix) — the bug was here, one stage
+// further downstream than URL discovery.
+export function findVehicleLd(parsed) {
+  if (!parsed || typeof parsed !== 'object') return null;
+  const candidates = Array.isArray(parsed['@graph']) ? parsed['@graph'] : [parsed];
+  return candidates.find((node) => node && isVehicleLikeSchemaOrgType(node['@type']) && node.vehicleIdentificationNumber) || null;
+}
+
 // { exteriorColor, interiorColor, mileage, engine, transmission } from a
 // parsed Vehicle/Car JSON-LD object. Never guesses — every value here is a
 // direct, confirmed-real property read (or a stated absence: mileage 0,
