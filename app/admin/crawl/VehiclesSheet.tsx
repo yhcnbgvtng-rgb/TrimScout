@@ -20,7 +20,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ArrowDown, ArrowUp, ArrowUpDown, Download, ListChecks, RefreshCw, Search, X } from "lucide-react";
 import { VEHICLE_SHEET_COLUMNS, vehicleRowCell, vehicleSheetFilename, type VehicleRow } from "@/lib/crawlSheetColumns";
 import {
-  EMPTY_FILTERS, activeFilterCount, buildVehicleQuery, cascadeCleared, facetKey, facetParams, filtersEqual, hasAnyFilter, loadAllFilters, pruneToOptions,
+  EMPTY_FILTERS, activeFilterCount, buildVehicleQuery, cascadeCleared, effectiveSort, facetKey, facetParams, filtersEqual, hasAnyFilter, loadAllFilters, pruneToOptions,
   type Movement, type SortKey, type VehicleFilters, type VehicleSort,
 } from "@/lib/vehicleFilters";
 import SearchableDropdown, { type DropdownOption } from "@/components/search/SearchableDropdown";
@@ -57,7 +57,8 @@ export default function VehiclesSheet({ initialVin = null }: { initialVin?: stri
   const [error, setError] = useState<string | null>(null);
   const [draft, setDraft] = useState<VehicleFilters>(EMPTY_FILTERS);
   const [applied, setApplied] = useState<Applied | null>(null);
-  const [sort, setSort] = useState<VehicleSort>({ key: "dealer", dir: "asc" });
+  // null = no explicit choice yet: the sort follows the applied filters (see effectiveSort).
+  const [sortChoice, setSort] = useState<VehicleSort | null>(null);
   const [exporting, setExporting] = useState(false);
   const [vinOpen, setVinOpen] = useState<string | null>(initialVin);
   const typedVin = /^[A-HJ-NPR-Z0-9]{17}$/i.test(draft.q.trim()) ? draft.q.trim().toUpperCase() : null;
@@ -119,7 +120,8 @@ export default function VehiclesSheet({ initialVin = null }: { initialVin?: stri
   const wantFacets = useCallback(() => setFacetsWanted(true), []);
 
   // ---- rows: only ever for the APPLIED filters --------------------------------------------------------
-  const query = useMemo(() => (applied ? buildVehicleQuery(applied.filters, sort) : null), [applied, sort]);
+  const sort = effectiveSort(applied?.filters ?? EMPTY_FILTERS, sortChoice);
+  const query = useMemo(() => (applied ? buildVehicleQuery(applied.filters, sortChoice) : null), [applied, sortChoice]);
 
   const loadStats = useCallback(async () => {
     const res = await fetch("/api/admin/inventory?stats=1", { cache: "no-store" });
@@ -213,7 +215,7 @@ export default function VehiclesSheet({ initialVin = null }: { initialVin?: stri
     }
   };
 
-  const onHeader = (key: keyof VehicleRow) => { const sk = SORT_FOR[key]; if (!sk) return; setSort((s) => (s.key === sk ? { key: sk, dir: s.dir === "asc" ? "desc" : "asc" } : { key: sk, dir: sk === "price" || sk === "year" || sk === "seen" || sk === "days" || sk === "msrp" ? "desc" : "asc" })); };
+  const onHeader = (key: keyof VehicleRow) => { const sk = SORT_FOR[key]; if (!sk) return; setSort(() => (sort.key === sk ? { key: sk, dir: sort.dir === "asc" ? "desc" : "asc" } : { key: sk, dir: sk === "price" || sk === "year" || sk === "seen" || sk === "days" || sk === "msrp" ? "desc" : "asc" })); };
   const totalW = VEHICLE_SHEET_COLUMNS.reduce((s, c) => s + (COL_W[c.key] || 120), 0);
   const canLoadMore = rows.length > 0 && (totalCapped ? lastPageFull : rows.length < total);
   const totalLabel = `${total.toLocaleString()}${totalCapped ? "+" : ""}`;

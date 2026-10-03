@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { EMPTY_FILTERS, activeFilterCount, buildVehicleQuery, cascadeCleared, facetKey, facetParams, filtersEqual, hasAnyFilter, loadAllFilters, pruneToOptions, type VehicleFilters } from "./vehicleFilters";
+import { EMPTY_FILTERS, activeFilterCount, buildVehicleQuery, cascadeCleared, effectiveSort, facetKey, facetParams, filtersEqual, hasAnyFilter, loadAllFilters, pruneToOptions, type VehicleFilters } from "./vehicleFilters";
 
 const f = (over: Partial<VehicleFilters>): VehicleFilters => ({ ...EMPTY_FILTERS, ...over });
 const sort = { key: "dealer", dir: "asc" } as const;
@@ -84,5 +84,24 @@ describe("cascade + prune", () => {
     const x = f({ models: ["F-150"], trims: ["XLT"] });
     assert.equal(pruneToOptions(x, ["F-150", "Bronco"], ["XLT"]), x);
     assert.deepEqual(pruneToOptions(x, ["Bronco"], ["XLT"]).models, []);
+  });
+});
+
+describe("effectiveSort — filter-aware default (in-stock State+Make without a Model → sort=model)", () => {
+  it("State+Make (single or multi) in stock with no Model defaults to model:asc", () => {
+    assert.equal(buildVehicleQuery(f({ states: ["NJ"], makes: ["Porsche"] }), null).get("sort"), "model:asc");
+    assert.equal(buildVehicleQuery(f({ states: ["NJ", "NY"], makes: ["Porsche", "Audi"] }), null).get("sort"), "model:asc");
+  });
+  it("keeps dealer:asc for State-only (model sort measured slower), no state, a Model, not-in-stock, or Sold", () => {
+    assert.equal(buildVehicleQuery(f({ states: ["NJ", "NY"] }), null).get("sort"), "dealer:asc");
+    assert.equal(buildVehicleQuery(f({ makes: ["Ford"] }), null).get("sort"), "dealer:asc");
+    assert.equal(buildVehicleQuery(f({ states: ["NJ"], makes: ["Ford"], models: ["F-150"] }), null).get("sort"), "dealer:asc");
+    assert.equal(buildVehicleQuery(f({ states: ["NJ"], makes: ["Ford"], inStock: false }), null).get("sort"), "dealer:asc");
+    assert.equal(buildVehicleQuery(f({ states: ["NJ"], makes: ["Ford"], movement: "removed" }), null).get("sort"), "dealer:asc");
+    assert.equal(buildVehicleQuery(EMPTY_FILTERS, null).get("sort"), "dealer:asc");
+  });
+  it("an explicit sort choice always wins over the default", () => {
+    assert.equal(buildVehicleQuery(f({ states: ["NJ"], makes: ["Ford"] }), { key: "price", dir: "desc" }).get("sort"), "price:desc");
+    assert.equal(buildVehicleQuery(f({ states: ["NJ"], makes: ["Ford"] }), { key: "dealer", dir: "asc" }).get("sort"), "dealer:asc");
   });
 });
