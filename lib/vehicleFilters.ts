@@ -57,8 +57,24 @@ export function loadAllFilters(draft: Pick<VehicleFilters, "inStock">): VehicleF
   return { ...EMPTY_FILTERS, inStock: draft.inStock };
 }
 
+/**
+ * The sort actually sent: the admin's explicit choice if they made one, else a filter-aware default.
+ * State+Make with no Model, in stock: the box's dealer-name default walks the whole state in dealer order
+ * and checks every car's make (503 at the 20s cap for NJ+NY Porsche and FL+TX Ford, measured on box2
+ * 2026-10-03); sort=model is the order idx_inv_facet_make_state_model already holds, so the same lists
+ * return in 0.1-1s. Only that shape: State-ONLY with sort=model was measured WORSE (NJ+NY: 503 at 20s vs
+ * 2.6s on the dealer default — no index is ordered by model within a state), and the not-in-stock /
+ * Sold views have no model-ordered path at all. Everything else keeps dealer:asc.
+ */
+export function effectiveSort(f: Pick<VehicleFilters, "states" | "makes" | "models" | "inStock" | "movement">, sort: VehicleSort | null): VehicleSort {
+  if (sort) return sort;
+  const modelOrderedPath = f.states.length > 0 && f.makes.length > 0 && f.models.length === 0 && f.inStock && f.movement !== "removed";
+  return modelOrderedPath ? { key: "model", dir: "asc" } : { key: "dealer", dir: "asc" };
+}
+
 /** The list/export query string for a set of filters. Multi-select fields repeat their key (state=FL&state=GA). */
-export function buildVehicleQuery(f: VehicleFilters, sort: VehicleSort): URLSearchParams {
+export function buildVehicleQuery(f: VehicleFilters, sortChoice: VehicleSort | null): URLSearchParams {
+  const sort = effectiveSort(f, sortChoice);
   const p = new URLSearchParams();
   for (const v of f.states) p.append("state", v);
   for (const v of f.makes) p.append("make", v);
