@@ -110,14 +110,10 @@ async function main() {
     for (const [make, pks] of byMake) {
       for (let i = 0; i < pks.length; i += BATCH) {
         const chunk = pks.slice(i, i + BATCH);
-        // vin IN (...) hits the primary key's vin prefix; a (vin, dealer_id) row-constructor IN beside make=
-        // made MariaDB scan the table (116s+ per 500-row batch on 2026-10-02). Same VIN resolves to the same
-        // make for every store's row, so matching on vin alone (still guarded by make = umbrella) is exact.
-        const vins = [...new Set(chunk.map((c) => c[0]))];
-        const ph = vins.map(() => "?").join(",");
+        const ph = chunk.map(() => "(?,?)").join(",");
         const [res] = await pool.query(
-          `UPDATE dealer_inventory SET make = ? WHERE vin IN (${ph}) AND make = ?`,
-          [make, ...vins, UMBRELLA_MAKE],
+          `UPDATE dealer_inventory SET make = ? WHERE make = ? AND (vin, dealer_id) IN (${ph})`,
+          [make, UMBRELLA_MAKE, ...chunk.flat()],
         );
         updated += res.affectedRows;
         await new Promise((r) => setTimeout(r, PAUSE_MS));
