@@ -72,6 +72,7 @@ import { isProcessAlive } from '../src/pid_lock.js';
 import { countRooftopsForState, countRooftopsForStates, projectedHours, MAX_PROJECTED_HOURS, P90_SECONDS_PER_ROOFTOP, estimatedSecondsForState } from '../src/capacity.js';
 import { buildBoxReport, renderBoxReportHtml, appendCapacityHistoryRow } from '../src/box_report.js';
 import { seedClaims, claimSpecificState, claimNextState, heartbeatClaim, releaseClaim, claimsStatus } from '../src/crawl_claims.js';
+import { addLiteShadowStats } from '../src/liteCrawlPlan.js';
 
 // CRAWLER_STEAL_ENABLED=1 turns on cross-box work-stealing (src/crawl_claims.js)
 // — off by default, so every box's behavior is unchanged unless explicitly
@@ -628,8 +629,12 @@ export async function runBrandSharded(state, brand, dealersFile, dealerCount, da
       if (shardStats) {
         anyStatsSeen = true;
         for (const key of Object.keys(combinedStats)) {
+          if (key === 'liteShadow') continue;
           combinedStats[key] += shardStats[key] || 0;
         }
+        // Lite-crawl shadow totals are a nested block, not a number — summed separately, and only
+        // present when CRAWLER_LITE_NIGHTLY=shadow, so off-mode stats keep exactly their old shape.
+        if (shardStats.liteShadow) combinedStats.liteShadow = addLiteShadowStats(combinedStats.liteShadow, shardStats.liteShadow);
       }
 
       console.log(`[driver] ${state} ${brand}: shard ${i + 1}/${shardCount} ${shardResult.status} (exit ${shardResult.exitCode}, ${Math.round(shardResult.durationMs / 1000)}s)${shardStats ? ` — ${shardStats.totalActiveInventory} active` : ''}`);
