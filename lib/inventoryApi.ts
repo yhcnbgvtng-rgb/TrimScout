@@ -284,6 +284,21 @@ export async function inventoryFacets(f: { state?: string; make?: string; model?
   return request("GET", `/api/inventory/facets${suffix ? `?${suffix}` : ""}`);
 }
 
+/**
+ * The admin sheet's default sort (dealer:asc) has no fast plan for State + Make without a Model: the box
+ * walks the whole state's index in dealer order (Porsche in NJ never finishes inside the 20s cap). Measured
+ * live 2026-10-02: the same query sorted by model reads idx_inv_facet_make_state_model in index order and
+ * returns in ~60 ms. So for exactly that shape, an UNCHOSEN (default) dealer sort is swapped for model:asc —
+ * an explicitly chosen sort is left alone. Needs inStock (the index hint's own precondition). State alone
+ * (no Make) has no fast plan under any sort and is not changed.
+ */
+export function adminListSort(q: Pick<InventoryQuery, "state" | "make" | "model" | "inStock" | "dealerId" | "sort">): string | undefined {
+  const has = (v: string | string[] | undefined) => (Array.isArray(v) ? v.length > 0 : Boolean(v));
+  const isDefault = !q.sort || q.sort === "dealer:asc";
+  if (isDefault && q.inStock && !q.dealerId && has(q.state) && has(q.make) && !has(q.model)) return "model:asc";
+  return q.sort;
+}
+
 export interface AdminInventoryFacets extends InventoryFacets {
   /** Marker set by the box's admin-facets endpoint — absent on an un-patched box. */
   multi?: boolean;

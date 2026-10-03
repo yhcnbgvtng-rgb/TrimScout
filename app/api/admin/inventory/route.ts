@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireAdminSession } from "@/lib/adminAuth";
-import { listInventory, exportInventory, inventoryStats, inventoryAdminFacets, inventoryByDealer, inventoryVin, inventoryAnalytics, InventoryApiError, type InventoryQuery } from "@/lib/inventoryApi";
+import { listInventory, exportInventory, inventoryStats, inventoryAdminFacets, adminListSort, inventoryByDealer, inventoryVin, inventoryAnalytics, InventoryApiError, type InventoryQuery } from "@/lib/inventoryApi";
 import { vehicleCsvHeader, vehicleCsvLine, vehicleSheetFilename, type VehicleRow } from "@/lib/crawlSheetColumns";
 
 export const dynamic = "force-dynamic";
@@ -45,6 +45,7 @@ export async function GET(req: Request) {
       changeType: sp.get("changeType") || undefined, priceChange: (sp.get("priceChange") as "drop" | "increase") || undefined, removed: sp.get("removed") === "1", hasSticker: sp.get("hasSticker") === "1",
       minDays: sp.get("minDays") ? Number(sp.get("minDays")) : undefined, possibleDemo: sp.get("possibleDemo") === "1",
     };
+    q.sort = adminListSort(q);
     if (sp.get("export") === "1") {
       const rows = exportInventory(q);
       // Pull the first row before committing to a 200 so a box/timeout failure still comes back as a JSON error.

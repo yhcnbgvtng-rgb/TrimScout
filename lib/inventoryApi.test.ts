@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { inventoryQueryString } from "./inventoryApi";
+import { inventoryQueryString, adminListSort } from "./inventoryApi";
 
 describe("inventoryQueryString — optionKeys array", () => {
   it("comma-joins an optionKeys array into a single query param", () => {
@@ -25,5 +25,24 @@ describe("inventoryQueryString — new PR 2 scalar filters", () => {
 
   it("omits undefined/empty fields", () => {
     assert.equal(inventoryQueryString({ priceMin: undefined, exteriorColor: "" }), "");
+  });
+});
+
+describe("adminListSort", () => {
+  const base = { inStock: true, state: ["NJ"], make: ["Porsche"] };
+  it("swaps the default dealer sort for model:asc on State + Make without a Model", () => {
+    assert.equal(adminListSort({ ...base, sort: "dealer:asc" }), "model:asc");
+    assert.equal(adminListSort({ ...base }), "model:asc");
+    assert.equal(adminListSort({ ...base, state: "NJ", make: "Porsche", sort: "dealer:asc" }), "model:asc");
+  });
+  it("leaves an explicitly chosen sort alone", () => {
+    assert.equal(adminListSort({ ...base, sort: "price:desc" }), "price:desc");
+  });
+  it("leaves every other shape alone", () => {
+    assert.equal(adminListSort({ ...base, model: ["911"], sort: "dealer:asc" }), "dealer:asc");
+    assert.equal(adminListSort({ state: ["NJ"], inStock: true, sort: "dealer:asc" }), "dealer:asc");
+    assert.equal(adminListSort({ make: ["Porsche"], inStock: true, sort: "dealer:asc" }), "dealer:asc");
+    assert.equal(adminListSort({ ...base, inStock: false, sort: "dealer:asc" }), "dealer:asc");
+    assert.equal(adminListSort({ ...base, dealerId: "5", sort: "dealer:asc" }), "dealer:asc");
   });
 });
