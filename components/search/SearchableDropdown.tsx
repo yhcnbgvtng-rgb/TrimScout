@@ -37,6 +37,11 @@ interface BaseProps {
   placeholder: string;
   options: DropdownOption[];
   loading?: boolean;
+  /**
+   * The counts are being refreshed (or the refresh failed): show "…" in place of every number, including the closed
+   * trigger's, so a number from the previous pick is never read as current. The options stay clickable.
+   */
+  countsLoading?: boolean;
   /** Shown in place of the trigger when the filter isn't unlocked yet — kept out of the DOM entirely by the caller otherwise (progressive-unlock). */
   disabledHint?: string;
   /**
@@ -98,7 +103,7 @@ const ACCENT = {
 } as const;
 
 export default function SearchableDropdown(props: Props) {
-  const { label, placeholder, options, loading, disabledHint, emptyMessage, accent = "sky" } = props;
+  const { label, placeholder, options, loading, countsLoading, disabledHint, emptyMessage, accent = "sky" } = props;
   const colors = ACCENT[accent];
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -119,7 +124,7 @@ export default function SearchableDropdown(props: Props) {
     if (!props.multi) {
       const opt = options.find((o) => o.value === props.value);
       if (!props.value) return "";
-      return opt ? `${opt.label} · ${opt.count.toLocaleString()}` : props.value;
+      return opt ? (countsLoading ? opt.label : `${opt.label} · ${opt.count.toLocaleString()}`) : props.value;
     }
     if (props.value.length === 0) return "";
     // The intersection of several must-have options can never exceed the smallest individual
@@ -129,11 +134,11 @@ export default function SearchableDropdown(props: Props) {
     const noun = props.selectedNoun || "option";
     if (props.multiMode === "any") {
       const sum = picked.reduce((t, o) => t + o.count, 0);
-      return `${props.value.length} ${noun}${props.value.length === 1 ? "" : "s"}${picked.length ? ` · ${sum.toLocaleString()}` : ""}`;
+      return `${props.value.length} ${noun}${props.value.length === 1 ? "" : "s"}${picked.length && !countsLoading ? ` · ${sum.toLocaleString()}` : ""}`;
     }
     const minCount = picked.length ? Math.min(...picked.map((o) => o.count)) : 0;
-    return `${props.value.length} ${noun}${props.value.length === 1 ? "" : "s"} · ${minCount.toLocaleString()}`;
-  }, [props.multi, props.value, options, selectedSet, props.multi ? props.multiMode : undefined, props.multi ? props.selectedNoun : undefined]);
+    return `${props.value.length} ${noun}${props.value.length === 1 ? "" : "s"}${countsLoading ? "" : ` · ${minCount.toLocaleString()}`}`;
+  }, [props.multi, props.value, options, selectedSet, props.multi ? props.multiMode : undefined, props.multi ? props.selectedNoun : undefined, countsLoading]);
 
   const hasValue = props.multi ? props.value.length > 0 : Boolean(props.value);
 
@@ -261,7 +266,7 @@ export default function SearchableDropdown(props: Props) {
           aria-multiselectable={props.multi || undefined}
           className="absolute left-0 top-full z-30 mt-1.5 max-h-64 w-72 max-w-[90vw] overflow-y-auto rounded-xl border border-border-strong bg-surface-elevated py-1 shadow-2xl"
         >
-          {loading ? (
+          {loading && options.length === 0 ? (
             <div className="px-3 py-4 text-center text-xs text-ink-faint">Loading…</div>
           ) : options.length === 0 && emptyMessage ? (
             <div className="px-3 py-4 text-center text-xs text-ink-faint">{emptyMessage}</div>
@@ -299,7 +304,7 @@ export default function SearchableDropdown(props: Props) {
                     )}
                     <span className="truncate">{o.label}</span>
                   </span>
-                  <span className={`shrink-0 tabular-nums ${selected ? colors.optionSelectedCount : "text-ink-faint"}`}>{o.count.toLocaleString()}</span>
+                  <span className={`shrink-0 tabular-nums ${selected ? colors.optionSelectedCount : "text-ink-faint"}`}>{countsLoading ? "…" : o.count.toLocaleString()}</span>
                 </button>
               );
             })
