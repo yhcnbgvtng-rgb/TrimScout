@@ -2,7 +2,7 @@
 
 // The Vehicles side of the crawl sheet: crawled dealer inventory, server-paged (the table is far bigger than
 // the dealer list), with the filters the box indexes — state, make, model, trim, condition, in-stock, free
-// text — server-side sort, and a CSV of the whole current filter (capped at 50k rows).
+// text — server-side sort, and a CSV of every row in the current result (no row maximum).
 //
 // FILTER-FIRST. The tab lands EMPTY: no rows are queried until the admin presses Apply (or Enter in the search
 // box) or Load all. Two copies of the filters exist — the DRAFT being edited and the APPLIED set the table shows
@@ -32,8 +32,8 @@ const SORT_FOR: Partial<Record<keyof VehicleRow, SortKey>> = { dealerName: "deal
 const COL_W: Partial<Record<keyof VehicleRow, number>> = { dealerName: 240, dealerState: 60, dealerCity: 130, condition: 90, year: 64, make: 110, model: 130, trim: 190, vin: 170, stockNumber: 100, price: 90, priceDiff: 90, msrp: 90, mileage: 80, daysOnLot: 90, changeType: 110, windowStickerUrl: 120, exteriorColor: 170, interiorColor: 150, bodyStyle: 100, engine: 200, transmission: 200, options: 260, optionsTotal: 90, vdpUrl: 260, crawlFirstSeen: 110, firstSeenAt: 100, lastSeenAt: 100, removedAt: 100, source: 90, sourceBox: 70 };
 const PAGE = 500;
 const ROW_H = 32;
-// The CSV is capped at this many rows (lib/inventoryApi exportInventory); "Load all" asks first above it.
-const CSV_CAP = 50000;
+// "Load all" asks for confirmation above this many rows (an estimate from the stats call). Not a CSV limit.
+const LOAD_ALL_CONFIRM_ROWS = 50000;
 // A State/Make/Model selection change refetches facet counts after this pause, so ticking several boxes in a row
 // is one request, not one per click.
 const FACET_DEBOUNCE_MS = 250;
@@ -179,7 +179,7 @@ export default function VehiclesSheet({ initialVin = null }: { initialVin?: stri
   // checkbox as it currently stands (default on), so Load all matches what that box says it will show.
   const loadAll = () => {
     const est = draft.inStock ? stats?.inStock : stats?.total;
-    if (est && est > CSV_CAP && !window.confirm(`Load all ~${est.toLocaleString()} vehicles?\n\nThey load ${PAGE} at a time, and the CSV download is capped at ${CSV_CAP.toLocaleString()} rows. Adding filters first is usually quicker.`)) return;
+    if (est && est > LOAD_ALL_CONFIRM_ROWS && !window.confirm(`Load all ~${est.toLocaleString()} vehicles?\n\nThey load ${PAGE} at a time. Adding filters first is usually quicker.`)) return;
     const f = loadAllFilters(draft);
     setDraft(f);
     applyFilters(f, "all");
@@ -208,7 +208,6 @@ export default function VehiclesSheet({ initialVin = null }: { initialVin?: stri
       a.download = vehicleSheetFilename();
       a.click();
       setTimeout(() => URL.revokeObjectURL(url), 1000);
-      if (total > CSV_CAP || totalCapped) setError("Export stopped at 50,000 rows — narrow the filter for the rest.");
     } catch (e) {
       setError(e instanceof Error ? e.message : "Export failed.");
     } finally {
@@ -282,7 +281,7 @@ export default function VehiclesSheet({ initialVin = null }: { initialVin?: stri
               <span className="text-white">{applied ? totalLabel : "—"}</span> vehicles{stats ? <span className="text-ink-faint"> · {stats.inStock.toLocaleString()} in stock across {stats.dealers.toLocaleString()} stores{stats.lastSeenAt ? ` · crawled ${new Date(stats.lastSeenAt).toLocaleDateString()}` : ""}</span> : null}
             </span>
             <button type="button" onClick={() => { void loadStats(); if (query) void load(query, 0, false); }} disabled={loading || !query} className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-surface-elevated hover:bg-surface px-3 py-2 text-xs font-bold text-ink-light hover:text-white disabled:opacity-50"><RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} /> Reload</button>
-            <button type="button" onClick={() => void download()} disabled={exporting || !query || total === 0} className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 px-3.5 py-2 text-xs font-black text-black shadow-md shadow-emerald-500/20 disabled:opacity-50"><Download className="h-3.5 w-3.5" /> {exporting ? "Preparing…" : `Download CSV (${Math.min(total, CSV_CAP).toLocaleString()})`}</button>
+            <button type="button" onClick={() => void download()} disabled={exporting || !query || total === 0} className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 px-3.5 py-2 text-xs font-black text-black shadow-md shadow-emerald-500/20 disabled:opacity-50"><Download className="h-3.5 w-3.5" /> {exporting ? "Preparing…" : `Download CSV (${totalLabel})`}</button>
           </div>
       </div>
 
@@ -381,7 +380,7 @@ export default function VehiclesSheet({ initialVin = null }: { initialVin?: stri
       </div>
       {vinOpen && <VinHistory vin={vinOpen} onClose={() => setVinOpen(null)} />}
       <p className="text-[11px] text-ink-faint max-w-3xl">
-        Vehicles come from the nightly crawl of each store&apos;s own website, synced every morning. One row per VIN per store — click a VIN for its day-by-day history; a VIN that vanishes from the site on the next crawl is marked <em>Removed</em> and drops out of &quot;in stock&quot;. Pick filters (several values in one box match any of them) and press Apply, or Load all. Dropdown counts are in-stock vehicles scoped by State, Make and Model. The CSV contains every vehicle matching the applied filters (up to 50,000).
+        Vehicles come from the nightly crawl of each store&apos;s own website, synced every morning. One row per VIN per store — click a VIN for its day-by-day history; a VIN that vanishes from the site on the next crawl is marked <em>Removed</em> and drops out of &quot;in stock&quot;. Pick filters (several values in one box match any of them) and press Apply, or Load all. Dropdown counts are in-stock vehicles scoped by State, Make and Model. The CSV contains every vehicle matching the applied filters.
       </p>
     </div>
   );

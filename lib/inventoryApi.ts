@@ -321,8 +321,8 @@ export async function inventoryAdminFacets(f: { state?: string[]; make?: string[
 const EXPORT_TIMEOUT_MS = 280_000;
 
 /**
- * Every vehicle matching `q` (cap 50k), one box query streamed as it arrives: yields each vehicle,
- * then returns whether the cap cut the result short. Throws if the box reports a failure or the
+ * Every vehicle matching `q` (no row maximum), one box query streamed as it arrives: yields each vehicle,
+ * then returns `{ capped }` (always false now that the box has no cap). Throws if the box reports a failure or the
  * stream ends without its {"done":true} trailer (cut off) — a partial CSV must never look complete.
  */
 export async function* exportInventory(q: InventoryQuery = {}): AsyncGenerator<InventoryVehicle, { capped: boolean }> {
