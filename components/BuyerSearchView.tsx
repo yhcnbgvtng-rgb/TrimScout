@@ -6,6 +6,8 @@ import { MapPin, SlidersHorizontal, X } from "lucide-react";
 import SearchableDropdown, { type DropdownOption } from "./search/SearchableDropdown";
 import { useBuyerSearchState } from "./search/useBuyerSearchState";
 import { MAX_PICKS, toPick, vehicleKey, type PickedVehicle } from "@/lib/buyerPicks";
+import { writeQuoteSeed } from "@/lib/quoteSeed";
+import { useRouter } from "next/navigation";
 
 interface BuyerVehicle {
   vehicleId?: number | null;
@@ -602,6 +604,12 @@ const pickLabel = (p: PickedVehicle) => [p.year, p.make, p.model, p.trim].filter
 
 /** Fixed bar at the bottom of the page: the ticked vehicles (max 3), a save control, and the limit notice. */
 function PicksBar({ state }: { state: ReturnType<typeof useBuyerSearchState> }) {
+  const router = useRouter();
+  // Explicit click only: hand the picked VINs + listing links to step 1 of Request a quote, then open it. Nothing is sent.
+  const requestQuote = () => {
+    writeQuoteSeed(window.sessionStorage, state.picks);
+    router.push("/?quote=1");
+  };
   const { picks, limitNotice, saveStatus, dirty, signedIn, atLimit } = state;
   const status =
     saveStatus === "saving" ? "Saving…"
@@ -628,6 +636,7 @@ function PicksBar({ state }: { state: ReturnType<typeof useBuyerSearchState> }) 
           <span role="status" aria-live="polite" className={`text-[11px] ${limitNotice ? "font-semibold text-amber-300" : "text-ink-faint"}`}>
             {limitNotice ? "You can pick up to 3 vehicles. Remove one to add another." : status || (atLimit ? "3 of 3 picked" : "")}
           </span>
+          <button type="button" onClick={requestQuote} disabled={picks.length === 0} className="rounded-lg bg-emerald-500 px-3 py-1.5 text-xs font-extrabold text-black hover:bg-emerald-400 disabled:cursor-not-allowed disabled:opacity-40">Request a quote{picks.length > 1 ? ` (${picks.length})` : ""}</button>
           <button type="button" onClick={() => void state.save()} disabled={picks.length === 0 || !dirty || saveStatus === "saving"} className="text-sm font-extrabold text-sky-400 hover:text-sky-300 disabled:cursor-not-allowed disabled:opacity-40">Save picks</button>
         </div>
       </div>

@@ -272,6 +272,11 @@ interface BiddingWizardProps {
   preselectedVehicle?: Vehicle | null;
   /** Seed Step 1 intent when the wizard is opened from a dealer-unsubscribed "Choose another vehicle" CTA. */
   initialIntent?: RfqLane | null;
+  /**
+   * Cars picked on buyer search ("Request a quote"): fed into Step 1 through the same paste path as a typed link or
+   * VIN — primary first, then the two alternates — one at a time, each still confirmed by the buyer. Nothing is sent.
+   */
+  seedVehicles?: Array<{ vin: string; vdpUrl: string | null }>;
   initialStrategy?: BiddingStrategy;
   onSubmitBidRequest: (request: BiddingRequest) => void;
   // Real reverse-auction flow: the buyer already picked a specific real
@@ -318,6 +323,8 @@ type PendingLink =
       resolution: Extract<LinkResolution, { ok: true }>;
       /** Built from the URL's VIN while the panel opened, so the store the VIN names is known before the buyer confirms. */
       prebuilt: PasteImportSuccess | null;
+      /** A VIN we already hold for this car (a pick from buyer search) — the panel's VIN box starts on it when the link names none. */
+      knownVin?: string;
       /** Why the URL's VIN didn't build — shown in the panel so the buyer sees it before Confirm, not after. */
       prebuildError: string | null;
     }
@@ -450,7 +457,7 @@ function LinkConfirmPanel({
   onRetry?: () => void;
 }) {
   const r = pending.resolution;
-  const [vin, setVin] = useState(r.vinFromUrl || "");
+  const [vin, setVin] = useState(r.vinFromUrl || pending.knownVin || "");
   const cleanVin = vin.trim().toUpperCase();
   // What the VIN itself said about the store — only valid for the VIN it was built for.
   const vinDealer =
@@ -1023,6 +1030,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   onClose,
   preselectedVehicle,
   initialIntent = null,
+  seedVehicles,
   initialStrategy = "flexible_discount",
   onSubmitBidRequest,
   lockVehicleSelection,
@@ -1684,7 +1692,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   const slotVehicles = (slot: VehicleSlot) =>
     slot === "primary" ? [altVehicle1, altVehicle2] : slot === "alt1" ? [selectedVehicle, altVehicle2] : [selectedVehicle, altVehicle1];
 
-  const parkLink = async (slot: VehicleSlot, raw: string): Promise<boolean> => {
+  const parkLink = async (slot: VehicleSlot, raw: string, knownVin?: string): Promise<boolean> => {
     if (classifyPaste(raw).kind !== "url") return false;
     // The link's own words decide used / CPO before anything is imported —
     // and the import below must see that decision, not the stale state.
@@ -1716,15 +1724,17 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     // link only gets a say when the VIN has none.
     let prebuilt: PasteImportSuccess | null = null;
     let prebuildError: string | null = null;
-    if (resolution.vinFromUrl) {
-      const built = await importPastedFactoryVehicle(resolution.vinFromUrl, fetch, { existingVehicles: slotVehicles(slot), ...importOpt, freeDecodeOnly: intent === "alternate" });
+    // knownVin: a seeded car whose link names no VIN — the buyer picked it on search, so we already have it.
+    const vinForBuild = resolution.vinFromUrl || knownVin;
+    if (vinForBuild) {
+      const built = await importPastedFactoryVehicle(vinForBuild, fetch, { existingVehicles: slotVehicles(slot), ...importOpt, freeDecodeOnly: intent === "alternate" });
       if (built.ok) prebuilt = built;
       else prebuildError = built.error;
     }
     // The link outlives the panel: a bare VIN pasted next for this slot
     // still gets the store the link named (rule: dealer from the VDP first).
     lastLinkRef.current[slot] = resolution;
-    setPendingLink({ kind: "link", slot, resolution, prebuilt, prebuildError });
+    setPendingLink({ kind: "link", slot, resolution, prebuilt, prebuildError, knownVin });
     return true;
   };
 
@@ -1834,6 +1844,37 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     else setAltVehicle2(stamp);
     setPendingLink(null);
   };
+
+  // ---- Seeded cars from buyer search ------------------------------------------------------------------------------
+  // One car per slot (primary, alt1, alt2), each waiting for the previous one's confirm panel to clear. A car that fails
+  // to resolve shows that slot's normal error and the next car moves on; nothing here submits or invites anyone.
+  const SEED_SLOTS: VehicleSlot[] = ["primary", "alt1", "alt2"];
+  const [seedIdx, setSeedIdx] = useState(0);
+  const [seedBusy, setSeedBusy] = useState(false);
+  const seedList = (seedVehicles || []).slice(0, SEED_SLOTS.length);
+  const seedOne = async (slot: VehicleSlot, car: { vin: string; vdpUrl: string | null }) => {
+    if (car.vdpUrl && (await parkLink(slot, car.vdpUrl, car.vin))) return;
+    const result = await importPastedFactoryVehicle(car.vin, fetch, { existingVehicles: slotVehicles(slot), ...(slot === "primary" ? usedOpt : {}), freeDecodeOnly: intent === "alternate" });
+    if (!result.ok) {
+      if (slot === "primary") setParseError(result.error);
+      else if (slot === "alt1") setAltError1(result.error);
+      else setAltError2(result.error);
+      return;
+    }
+    const settled = settleBareVinImport(slot, result);
+    if (slot === "primary") commitPrimaryImport(settled);
+    else if (slot === "alt1") setAltVehicle1(settled.vehicle);
+    else setAltVehicle2(settled.vehicle);
+  };
+  useEffect(() => {
+    if (!isOpen || step !== 1 || seedBusy || pendingLink || linkBusy || seedIdx >= seedList.length) return;
+    const slot = SEED_SLOTS[seedIdx];
+    const car = seedList[seedIdx];
+    setSeedIdx((i) => i + 1);
+    setSeedBusy(true);
+    void seedOne(slot, car).finally(() => setSeedBusy(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, step, seedBusy, pendingLink, linkBusy, seedIdx, seedList.length]);
 
   const handleParseDealerUrl = async (urlToParse?: string) => {
     const raw = (urlToParse || dealerUrlInput).trim();
