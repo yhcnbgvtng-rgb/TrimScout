@@ -30,6 +30,7 @@ interface BuyerVehicle {
   daysOnLot: number | null;
   priceDiff: number | null;
   distanceMiles: number | null;
+  dealerHasContact?: boolean | null;
 }
 
 interface SearchResults {
@@ -544,6 +545,7 @@ const TABLE_COLUMNS: Array<{ key: string; label: string; w: number; right?: bool
   { key: "price", label: "Price", w: 100, right: true, show: (v) => money(v.price) },
   { key: "dealer", label: "Dealer", w: 240, show: (v) => v.dealerName },
   { key: "state", label: "State", w: 60, show: (v) => v.dealerState ?? "" },
+  { key: "contact", label: "Contact on file", w: 110, show: (v) => (v.dealerHasContact == null ? "" : v.dealerHasContact ? "Yes" : "No") },
   { key: "listing", label: "Listing link", w: 170 },
   // Only when the search was by ZIP — after the fixed fields so their order never moves.
   { key: "distance", label: "Distance", w: 80, right: true, show: (v) => (v.distanceMiles == null ? "" : `${Math.round(v.distanceMiles)} mi`) },
