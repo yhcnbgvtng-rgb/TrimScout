@@ -21,7 +21,6 @@ interface BuyerVehicle {
   price: number | null;
   msrp: number | null;
   vdpUrl: string | null;
-  imageUrl: string | null;
   daysOnLot: number | null;
   priceDiff: number | null;
   distanceMiles: number | null;
@@ -483,11 +482,7 @@ export function BuyerSearchView() {
 
         {!searchError && results && (
           <>
-            <div className={`grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3 transition-opacity ${dirty ? "opacity-60" : ""}`}>
-              {results.vehicles.map((v) => (
-                <VehicleCard key={`${v.vin}-${v.dealerName}`} vehicle={v} />
-              ))}
-            </div>
+            {results.vehicles.length > 0 && <VehicleTable vehicles={results.vehicles} dimmed={dirty} />}
             {results.vehicles.length === 0 && (
               <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-surface/40 px-4 py-16 text-center text-sm text-ink-faint">
                 No vehicles match these filters — try widening them.
@@ -507,54 +502,74 @@ export function BuyerSearchView() {
   );
 }
 
-function VehicleCard({ vehicle: v }: { vehicle: BuyerVehicle }) {
-  const title = [v.year, v.make, v.model, v.trim].filter(Boolean).join(" ");
+const money = (n: number | null) => (n == null ? "" : `$${n.toLocaleString()}`);
+const condLabel = (c: BuyerVehicle["condition"]) => (c ? ({ new: "New", used: "Used", cpo: "Certified" } as const)[c] : "");
+
+// Same order, density and type style as the admin Vehicles table (app/admin/crawl/VehiclesSheet.tsx), limited to
+// what the public search returns. Distance only appears when the search was by ZIP.
+const TABLE_COLUMNS: Array<{ key: string; label: string; w: number; right?: boolean; show?: (v: BuyerVehicle) => string }> = [
+  { key: "dealer", label: "Dealer", w: 240, show: (v) => v.dealerName },
+  { key: "state", label: "State", w: 60, show: (v) => v.dealerState ?? "" },
+  { key: "city", label: "City", w: 130, show: (v) => v.dealerCity ?? "" },
+  { key: "condition", label: "Condition", w: 90, show: (v) => condLabel(v.condition) },
+  { key: "year", label: "Year", w: 64, show: (v) => (v.year == null ? "" : String(v.year)) },
+  { key: "make", label: "Make", w: 110, show: (v) => v.make ?? "" },
+  { key: "model", label: "Model", w: 130, show: (v) => v.model ?? "" },
+  { key: "trim", label: "Trim", w: 190, show: (v) => v.trim ?? "" },
+  { key: "vin", label: "VIN", w: 170, show: (v) => v.vin },
+  { key: "price", label: "Price", w: 90, right: true, show: (v) => money(v.price) },
+  { key: "priceDiff", label: "Price Δ", w: 90, right: true, show: (v) => (v.priceDiff == null || v.priceDiff === 0 ? "" : `${v.priceDiff < 0 ? "▼" : "▲"} $${Math.abs(v.priceDiff).toLocaleString()}`) },
+  { key: "msrp", label: "MSRP", w: 90, right: true, show: (v) => money(v.msrp) },
+  { key: "mileage", label: "Miles", w: 80, right: true, show: (v) => (v.mileage == null ? "" : v.mileage.toLocaleString()) },
+  { key: "days", label: "Days on lot", w: 90, right: true, show: (v) => (v.daysOnLot == null ? "" : String(v.daysOnLot)) },
+  { key: "ext", label: "Exterior", w: 170, show: (v) => v.exteriorColor ?? "" },
+  { key: "int", label: "Interior", w: 150, show: (v) => v.interiorColor ?? "" },
+  { key: "distance", label: "Distance", w: 80, right: true, show: (v) => (v.distanceMiles == null ? "" : `${Math.round(v.distanceMiles)} mi`) },
+  { key: "listing", label: "Listing", w: 120 },
+];
+const ROW_H = 32;
+
+function VehicleTable({ vehicles, dimmed }: { vehicles: BuyerVehicle[]; dimmed: boolean }) {
+  const cols = TABLE_COLUMNS.filter((c) => c.key !== "distance" || vehicles.some((v) => v.distanceMiles != null));
+  const totalW = cols.reduce((s, c) => s + c.w, 0);
   return (
-    <article className="flex flex-col overflow-hidden rounded-2xl border border-border bg-surface shadow-lg">
-      <div className="h-40 w-full bg-surface-elevated">
-        {v.imageUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={v.imageUrl} alt={title} className="h-full w-full object-cover" />
-        ) : (
-          <div className="flex h-full w-full items-center justify-center text-xs text-ink-faint">No photo</div>
-        )}
-      </div>
-      <div className="flex flex-1 flex-col gap-1.5 p-4">
-        <h3 className="text-sm font-bold text-white">{title || "Vehicle"}</h3>
-        <p className="text-lg font-extrabold text-emerald-400">
-          {v.price != null ? `$${v.price.toLocaleString()}` : "Call for price"}
-          {v.priceDiff != null && v.priceDiff < 0 && (
-            <span className="ml-2 rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] font-bold text-emerald-300">
-              ${Math.abs(v.priceDiff).toLocaleString()} price drop
-            </span>
-          )}
-        </p>
-        <p className="text-xs text-ink-muted">
-          {v.mileage != null ? `${v.mileage.toLocaleString()} mi` : "Mileage n/a"}
-          {v.exteriorColor ? ` • ${v.exteriorColor}` : ""}
-          {v.condition ? ` • ${v.condition}` : ""}
-        </p>
-        <p className="text-xs text-ink-faint">
-          {v.dealerName}
-          {v.dealerCity ? `, ${v.dealerCity}` : ""}
-          {v.dealerState ? `, ${v.dealerState}` : ""}
-          {v.distanceMiles != null ? ` • ${Math.round(v.distanceMiles)} mi away` : ""}
-        </p>
-        <div className="mt-auto pt-2">
-          {v.vdpUrl ? (
-            <Link
-              href={v.vdpUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex w-full items-center justify-center rounded-lg border border-border bg-surface-elevated px-3 py-2 text-xs font-bold text-ink-light hover:border-sky-500/50 hover:text-white"
-            >
-              View at dealer
-            </Link>
-          ) : (
-            <span className="block text-center text-[11px] text-ink-faint">No listing link available</span>
-          )}
+    <div className={`overflow-hidden rounded-2xl border border-border bg-surface transition-opacity ${dimmed ? "opacity-60" : ""}`}>
+      <div className="overflow-auto" style={{ maxHeight: "calc(100vh - 260px)", minHeight: 120 }}>
+        <div style={{ width: totalW, minWidth: "100%" }}>
+          <div className="sticky top-0 z-20 flex border-b border-border bg-surface-elevated" style={{ height: ROW_H }}>
+            {cols.map((c) => (
+              <div key={c.key} className={`flex shrink-0 items-center border-r border-border/60 px-2.5 text-[10.5px] font-black uppercase tracking-wider text-ink-faint ${c.right ? "justify-end" : ""}`} style={{ width: c.w }}>
+                <span className="truncate">{c.label}</span>
+              </div>
+            ))}
+          </div>
+          {vehicles.map((v, idx) => (
+            <div key={`${v.vin}-${v.dealerName}`} className={`flex border-b border-border/40 text-[11.5px] ${idx % 2 ? "bg-surface" : "bg-surface-elevated/40"} hover:bg-emerald-500/5`} style={{ height: ROW_H }}>
+              {cols.map((c) => {
+                const text = c.show ? c.show(v) : "";
+                const tone = c.key === "dealer" ? "font-semibold text-white"
+                  : c.key === "vin" ? "font-mono text-ink-light"
+                  : c.key === "priceDiff" ? `tabular-nums font-bold ${(v.priceDiff ?? 0) < 0 ? "text-emerald-300" : "text-amber-300"}`
+                  : c.key === "condition" ? (v.condition === "new" ? "text-emerald-300" : "text-amber-200")
+                  : c.right ? "tabular-nums text-ink-light" : "text-ink-light";
+                return (
+                  <div key={c.key} className={`flex shrink-0 items-center overflow-hidden whitespace-nowrap border-r border-border/40 px-2.5 ${c.right ? "justify-end" : ""} ${tone}`} style={{ width: c.w }} title={text || undefined}>
+                    {c.key === "listing" ? (
+                      v.vdpUrl ? (
+                        <Link href={v.vdpUrl} target="_blank" rel="noopener noreferrer" className="truncate text-sky-300 hover:underline">View at dealer ↗</Link>
+                      ) : (
+                        <span className="truncate text-ink-faint">No link</span>
+                      )
+                    ) : (
+                      <span className="truncate">{text}</span>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          ))}
         </div>
       </div>
-    </article>
+    </div>
   );
 }
