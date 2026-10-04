@@ -3,6 +3,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { runEnrichmentPipeline } from './enricher.js';
 import { getBrand } from './brands.js';
+import { readOdometer, resolveMileage } from './ingestSanitize.js';
 
 // Alternate Porsche discovery path: instead of scraping each dealer's own
 // (often bot-protected) website, this queries Porsche's own official
@@ -140,7 +141,7 @@ function mapFinderCarToVehicle(item) {
         bodyStyle: cleanString(item.bodyType),
         price,
         msrp: price,
-        mileage: item.mileageFromOdometer?.value ? Math.round(item.mileageFromOdometer.value) : 0,
+        mileage: resolveMileage(readOdometer(item.mileageFromOdometer?.value), isUsed ? 'USED' : 'NEW'),
         exteriorColor: cleanString(item.color),
         interiorColor: cleanString(item.vehicleInteriorColor),
         engine: cleanString(item.vehicleEngine?.fuelType),
