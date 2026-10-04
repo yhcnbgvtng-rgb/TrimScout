@@ -10,6 +10,8 @@ const DEALS_API_PORT = 3004;
 const DEFAULT_TIMEOUT_MS = 60_000;
 
 export interface InventoryVehicle {
+  /** Stable numeric id, one per VIN (null until the backfill reaches rows written before the id existed). */
+  vehicleId?: number | null;
   vin: string;
   dealerId: string | null;
   dealerName: string;

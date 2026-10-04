@@ -8,6 +8,7 @@ import { useBuyerSearchState } from "./search/useBuyerSearchState";
 import { MAX_PICKS, toPick, vehicleKey, type PickedVehicle } from "@/lib/buyerPicks";
 
 interface BuyerVehicle {
+  vehicleId?: number | null;
   vin: string;
   dealerId?: string | null;
   dealerName: string;
@@ -516,6 +517,7 @@ const condLabel = (c: BuyerVehicle["condition"]) => (c ? ({ new: "New", used: "U
 const TABLE_COLUMNS: Array<{ key: string; label: string; w: number; right?: boolean; show?: (v: BuyerVehicle) => string }> = [
   { key: "pick", label: "", w: 40 },
   { key: "days", label: "Days on market", w: 110, right: true, show: (v) => (v.daysOnLot == null ? "" : String(v.daysOnLot)) },
+  { key: "vehicleId", label: "Vehicle ID", w: 90, show: (v) => (v.vehicleId == null ? "" : String(v.vehicleId)) },
   { key: "vin", label: "VIN", w: 170, show: (v) => v.vin },
   { key: "year", label: "Year", w: 64, show: (v) => (v.year == null ? "" : String(v.year)) },
   { key: "make", label: "Make", w: 110, show: (v) => v.make ?? "" },
@@ -559,7 +561,7 @@ function VehicleTable({ vehicles, dimmed, picks, viewed, onTogglePick, onView }:
                 {cols.map((c) => {
                   const text = c.show ? c.show(v) : "";
                   const tone = isViewed ? "text-ink-faint" : c.key === "dealer" ? "font-semibold text-white"
-                    : c.key === "vin" ? "font-mono text-ink-light"
+                    : c.key === "vin" || c.key === "vehicleId" ? "font-mono text-ink-light"
                     : c.right ? "tabular-nums text-ink-light" : "text-ink-light";
                   return (
                     <div key={c.key} className={`flex shrink-0 items-center overflow-hidden whitespace-nowrap border-r border-border/40 px-2.5 ${c.right ? "justify-end" : ""} ${tone}`} style={{ width: c.w }} title={c.key === "pick" ? undefined : text || undefined}>
