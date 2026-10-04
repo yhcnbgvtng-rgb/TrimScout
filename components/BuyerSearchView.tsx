@@ -4,9 +4,12 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import Link from "next/link";
 import { MapPin, SlidersHorizontal, X } from "lucide-react";
 import SearchableDropdown, { type DropdownOption } from "./search/SearchableDropdown";
+import { useBuyerSearchState } from "./search/useBuyerSearchState";
+import { MAX_PICKS, toPick, vehicleKey, type PickedVehicle } from "@/lib/buyerPicks";
 
 interface BuyerVehicle {
   vin: string;
+  dealerId?: string | null;
   dealerName: string;
   dealerCity: string | null;
   dealerState: string | null;
@@ -125,6 +128,8 @@ function toOptions<T>(rows: T[], valueKey: keyof T, countKey: keyof T, labelFor?
 
 export function BuyerSearchView() {
   const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS);
+  const picksState = useBuyerSearchState();
+  const viewedSet = useMemo(() => new Set(picksState.viewed), [picksState.viewed]);
   const [moreOpen, setMoreOpen] = useState(false);
   const moreRef = useRef<HTMLDivElement>(null);
 
@@ -299,7 +304,7 @@ export function BuyerSearchView() {
   const optionDropdownOptions = useMemo(() => toOptions(catalogOptions, "key", "vehicleCount", (o) => o.label), [catalogOptions]);
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+    <div className="mx-auto max-w-7xl px-4 py-8 pb-28 sm:px-6 lg:px-8">
       <div className="mb-6">
         <h1 className="text-2xl font-extrabold tracking-tight text-white sm:text-3xl">Search real dealer inventory</h1>
       </div>
@@ -482,7 +487,7 @@ export function BuyerSearchView() {
 
         {!searchError && results && (
           <>
-            {results.vehicles.length > 0 && <VehicleTable vehicles={results.vehicles} dimmed={dirty} />}
+            {results.vehicles.length > 0 && <VehicleTable vehicles={results.vehicles} dimmed={dirty} picks={picksState.picks} viewed={viewedSet} onTogglePick={picksState.togglePicked} onView={picksState.markViewed} />}
             {results.vehicles.length === 0 && (
               <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-surface/40 px-4 py-16 text-center text-sm text-ink-faint">
                 No vehicles match these filters — try widening them.
@@ -498,6 +503,7 @@ export function BuyerSearchView() {
           </>
         )}
       </div>
+      <PicksBar state={picksState} />
     </div>
   );
 }
@@ -508,30 +514,32 @@ const condLabel = (c: BuyerVehicle["condition"]) => (c ? ({ new: "New", used: "U
 // Same order, density and type style as the admin Vehicles table (app/admin/crawl/VehiclesSheet.tsx), limited to
 // what the public search returns. Distance only appears when the search was by ZIP.
 const TABLE_COLUMNS: Array<{ key: string; label: string; w: number; right?: boolean; show?: (v: BuyerVehicle) => string }> = [
-  { key: "dealer", label: "Dealer", w: 240, show: (v) => v.dealerName },
-  { key: "state", label: "State", w: 60, show: (v) => v.dealerState ?? "" },
-  { key: "city", label: "City", w: 130, show: (v) => v.dealerCity ?? "" },
-  { key: "condition", label: "Condition", w: 90, show: (v) => condLabel(v.condition) },
+  { key: "pick", label: "", w: 40 },
+  { key: "days", label: "Days on market", w: 110, right: true, show: (v) => (v.daysOnLot == null ? "" : String(v.daysOnLot)) },
+  { key: "vin", label: "VIN", w: 170, show: (v) => v.vin },
   { key: "year", label: "Year", w: 64, show: (v) => (v.year == null ? "" : String(v.year)) },
   { key: "make", label: "Make", w: 110, show: (v) => v.make ?? "" },
   { key: "model", label: "Model", w: 130, show: (v) => v.model ?? "" },
   { key: "trim", label: "Trim", w: 190, show: (v) => v.trim ?? "" },
-  { key: "vin", label: "VIN", w: 170, show: (v) => v.vin },
-  { key: "price", label: "Price", w: 90, right: true, show: (v) => money(v.price) },
-  { key: "priceDiff", label: "Price Δ", w: 90, right: true, show: (v) => (v.priceDiff == null || v.priceDiff === 0 ? "" : `${v.priceDiff < 0 ? "▼" : "▲"} $${Math.abs(v.priceDiff).toLocaleString()}`) },
-  { key: "msrp", label: "MSRP", w: 90, right: true, show: (v) => money(v.msrp) },
-  { key: "mileage", label: "Miles", w: 80, right: true, show: (v) => (v.mileage == null ? "" : v.mileage.toLocaleString()) },
-  { key: "days", label: "Days on lot", w: 90, right: true, show: (v) => (v.daysOnLot == null ? "" : String(v.daysOnLot)) },
-  { key: "ext", label: "Exterior", w: 170, show: (v) => v.exteriorColor ?? "" },
-  { key: "int", label: "Interior", w: 150, show: (v) => v.interiorColor ?? "" },
+  { key: "ext", label: "Exterior color", w: 170, show: (v) => v.exteriorColor ?? "" },
+  { key: "int", label: "Interior color", w: 150, show: (v) => v.interiorColor ?? "" },
+  { key: "mileage", label: "Mileage", w: 90, right: true, show: (v) => (v.mileage == null ? "" : v.mileage.toLocaleString()) },
+  { key: "price", label: "Price", w: 100, right: true, show: (v) => money(v.price) },
+  { key: "dealer", label: "Dealer", w: 240, show: (v) => v.dealerName },
+  { key: "state", label: "State", w: 60, show: (v) => v.dealerState ?? "" },
+  { key: "listing", label: "Listing link", w: 170 },
+  // Only when the search was by ZIP — after the fixed fields so their order never moves.
   { key: "distance", label: "Distance", w: 80, right: true, show: (v) => (v.distanceMiles == null ? "" : `${Math.round(v.distanceMiles)} mi`) },
-  { key: "listing", label: "Listing", w: 120 },
 ];
 const ROW_H = 32;
 
-function VehicleTable({ vehicles, dimmed }: { vehicles: BuyerVehicle[]; dimmed: boolean }) {
+function VehicleTable({ vehicles, dimmed, picks, viewed, onTogglePick, onView }: {
+  vehicles: BuyerVehicle[]; dimmed: boolean; picks: PickedVehicle[]; viewed: Set<string>;
+  onTogglePick: (p: PickedVehicle) => void; onView: (key: string) => void;
+}) {
   const cols = TABLE_COLUMNS.filter((c) => c.key !== "distance" || vehicles.some((v) => v.distanceMiles != null));
   const totalW = cols.reduce((s, c) => s + c.w, 0);
+  const picked = new Set(picks.map((p) => p.key));
   return (
     <div className={`overflow-hidden rounded-2xl border border-border bg-surface transition-opacity ${dimmed ? "opacity-60" : ""}`}>
       <div className="overflow-auto" style={{ maxHeight: "calc(100vh - 260px)", minHeight: 120 }}>
@@ -543,31 +551,82 @@ function VehicleTable({ vehicles, dimmed }: { vehicles: BuyerVehicle[]; dimmed: 
               </div>
             ))}
           </div>
-          {vehicles.map((v, idx) => (
-            <div key={`${v.vin}-${v.dealerName}`} className={`flex border-b border-border/40 text-[11.5px] ${idx % 2 ? "bg-surface" : "bg-surface-elevated/40"} hover:bg-emerald-500/5`} style={{ height: ROW_H }}>
-              {cols.map((c) => {
-                const text = c.show ? c.show(v) : "";
-                const tone = c.key === "dealer" ? "font-semibold text-white"
-                  : c.key === "vin" ? "font-mono text-ink-light"
-                  : c.key === "priceDiff" ? `tabular-nums font-bold ${(v.priceDiff ?? 0) < 0 ? "text-emerald-300" : "text-amber-300"}`
-                  : c.key === "condition" ? (v.condition === "new" ? "text-emerald-300" : "text-amber-200")
-                  : c.right ? "tabular-nums text-ink-light" : "text-ink-light";
-                return (
-                  <div key={c.key} className={`flex shrink-0 items-center overflow-hidden whitespace-nowrap border-r border-border/40 px-2.5 ${c.right ? "justify-end" : ""} ${tone}`} style={{ width: c.w }} title={text || undefined}>
-                    {c.key === "listing" ? (
-                      v.vdpUrl ? (
-                        <Link href={v.vdpUrl} target="_blank" rel="noopener noreferrer" className="truncate text-sky-300 hover:underline">View at dealer ↗</Link>
+          {vehicles.map((v, idx) => {
+            const key = vehicleKey(v);
+            const isViewed = viewed.has(key);
+            return (
+              <div key={key} onClick={() => onView(key)} className={`flex cursor-default border-b border-border/40 text-[11.5px] ${idx % 2 ? "bg-surface" : "bg-surface-elevated/40"} hover:bg-sky-500/5`} style={{ height: ROW_H }}>
+                {cols.map((c) => {
+                  const text = c.show ? c.show(v) : "";
+                  const tone = isViewed ? "text-ink-faint" : c.key === "dealer" ? "font-semibold text-white"
+                    : c.key === "vin" ? "font-mono text-ink-light"
+                    : c.right ? "tabular-nums text-ink-light" : "text-ink-light";
+                  return (
+                    <div key={c.key} className={`flex shrink-0 items-center overflow-hidden whitespace-nowrap border-r border-border/40 px-2.5 ${c.right ? "justify-end" : ""} ${tone}`} style={{ width: c.w }} title={c.key === "pick" ? undefined : text || undefined}>
+                      {c.key === "pick" ? (
+                        <input
+                          type="checkbox"
+                          checked={picked.has(key)}
+                          onClick={(e) => e.stopPropagation()}
+                          onChange={() => onTogglePick(toPick(v))}
+                          aria-label={`Pick ${[v.year, v.make, v.model, v.trim].filter(Boolean).join(" ") || v.vin} for a quote`}
+                          className="h-3.5 w-3.5 accent-sky-500"
+                        />
+                      ) : c.key === "listing" ? (
+                        <span className="flex min-w-0 items-center gap-2">
+                          {v.vdpUrl ? (
+                            <Link href={v.vdpUrl} target="_blank" rel="noopener noreferrer" onClick={() => onView(key)} className="truncate text-sky-300 hover:underline">View at dealer ↗</Link>
+                          ) : (
+                            <span className="truncate text-ink-faint">No link</span>
+                          )}
+                          {isViewed && <span className="shrink-0 text-[10.5px] text-ink-faint">Viewed</span>}
+                        </span>
                       ) : (
-                        <span className="truncate text-ink-faint">No link</span>
-                      )
-                    ) : (
-                      <span className="truncate">{text}</span>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          ))}
+                        <span className="truncate">{text}</span>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const pickLabel = (p: PickedVehicle) => [p.year, p.make, p.model, p.trim].filter(Boolean).join(" ") || p.vin;
+
+/** Fixed bar at the bottom of the page: the ticked vehicles (max 3), a save control, and the limit notice. */
+function PicksBar({ state }: { state: ReturnType<typeof useBuyerSearchState> }) {
+  const { picks, limitNotice, saveStatus, dirty, signedIn, atLimit } = state;
+  const status =
+    saveStatus === "saving" ? "Saving…"
+    : saveStatus === "saved" ? (signedIn ? "Saved to your account" : "Saved for this session")
+    : saveStatus === "saved-local" ? "Saved on this device"
+    : dirty && picks.length > 0 ? "Not saved yet" : "";
+  return (
+    <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border-strong bg-surface-elevated/95 backdrop-blur" role="region" aria-label="Picked vehicles">
+      <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-x-4 gap-y-2 px-4 py-2.5 sm:px-6 lg:px-8">
+        <span className="text-xs font-bold text-white tabular-nums">Picked {picks.length} of {MAX_PICKS}</span>
+        {picks.length === 0 ? (
+          <span className="text-xs text-ink-faint">Tick up to 3 vehicles to use in a quote. They stay here while you search again.</span>
+        ) : (
+          <ul className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
+            {picks.map((p) => (
+              <li key={p.key} className="flex max-w-xs items-center gap-1.5 rounded-full border border-sky-500/40 bg-sky-500/10 py-1 pl-3 pr-1.5 text-[11px] text-sky-200">
+                <span className="truncate" title={`${pickLabel(p)} · ${p.dealerName}${p.price != null ? ` · $${p.price.toLocaleString()}` : ""}`}>{pickLabel(p)}<span className="text-sky-300/60"> · {p.dealerName}</span>{p.price != null && <span> · ${p.price.toLocaleString()}</span>}</span>
+                <button type="button" onClick={() => state.removePick(p.key)} aria-label={`Remove ${pickLabel(p)}`} className="rounded-full p-0.5 text-sky-300/70 hover:text-white"><X className="h-3 w-3" /></button>
+              </li>
+            ))}
+          </ul>
+        )}
+        <div className="ml-auto flex items-center gap-3">
+          <span role="status" aria-live="polite" className={`text-[11px] ${limitNotice ? "font-semibold text-amber-300" : "text-ink-faint"}`}>
+            {limitNotice ? "You can pick up to 3 vehicles. Remove one to add another." : status || (atLimit ? "3 of 3 picked" : "")}
+          </span>
+          <button type="button" onClick={() => void state.save()} disabled={picks.length === 0 || !dirty || saveStatus === "saving"} className="text-sm font-extrabold text-sky-400 hover:text-sky-300 disabled:cursor-not-allowed disabled:opacity-40">Save picks</button>
         </div>
       </div>
     </div>

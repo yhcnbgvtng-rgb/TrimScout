@@ -2796,6 +2796,42 @@ async function handleInventoryAdminFacets(req, res, params) {
   }));
 }
 
+// GET /api/buyer-search-state?userId= and PUT /api/buyer-search-state { userId, picks?, viewed? } — a signed-in
+// buyer's search picks (<= 3) and viewed marks, one row per user. The Next route only ever passes the SESSION's id.
+// PUT updates just the parts given. Table is created on first use; nothing here touches dealer_inventory.
+let buyerSearchStateReady = false;
+async function ensureBuyerSearchState(pool) {
+  if (buyerSearchStateReady) return;
+  await pool.query("CREATE TABLE IF NOT EXISTS buyer_search_state (user_id VARCHAR(64) NOT NULL PRIMARY KEY, picks_json TEXT NULL, viewed_json MEDIUMTEXT NULL, updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP)");
+  buyerSearchStateReady = true;
+}
+const BSS_STR = (v, n) => (typeof v === "string" && v.length > 0 && v.length <= n ? v : null);
+async function handleBuyerSearchState(req, res, params) {
+  const pool = getPool();
+  await ensureBuyerSearchState(pool);
+  if (req.method === "GET") {
+    const userId = BSS_STR((params.get("userId") || "").trim(), 64);
+    if (!userId) return badRequest(res, "userId is required");
+    const [[row]] = await pool.query("SELECT picks_json, viewed_json FROM buyer_search_state WHERE user_id = ?", [userId]);
+    const parse = (s) => { try { const v = JSON.parse(s || "[]"); return Array.isArray(v) ? v : []; } catch { return []; } };
+    return sendJson(res, 200, { picks: parse(row && row.picks_json), viewed: parse(row && row.viewed_json) });
+  }
+  const body = await readBody(req);
+  const userId = BSS_STR(typeof body.userId === "string" ? body.userId.trim() : "", 64);
+  if (!userId) return badRequest(res, "userId is required");
+  const picks = Array.isArray(body.picks) ? body.picks.slice(0, 3) : null;
+  const viewed = Array.isArray(body.viewed) ? body.viewed.filter((k) => BSS_STR(k, 300)).slice(-2000) : null;
+  if (!picks && !viewed) return badRequest(res, "picks or viewed is required");
+  const picksJson = picks ? JSON.stringify(picks) : null;
+  const viewedJson = viewed ? JSON.stringify(viewed) : null;
+  if (JSON.stringify(picks || []).length > 8000) return badRequest(res, "picks too large");
+  await pool.query(
+    "INSERT INTO buyer_search_state (user_id, picks_json, viewed_json) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE picks_json = COALESCE(VALUES(picks_json), picks_json), viewed_json = COALESCE(VALUES(viewed_json), viewed_json)",
+    [userId, picksJson, viewedJson]
+  );
+  sendJson(res, 200, { ok: true });
+}
+
 // GET /api/inventory/by-dealer — in-stock counts per store, for the dealer sheet.
 async function handleInventoryByDealer(req, res) {
   const pool = getPool();
@@ -3411,6 +3447,7 @@ const server = http.createServer((req, res) => {
   if (req.method === "GET" && pathname === "/api/inventory/analytics") return run(handleInventoryAnalytics, url.searchParams);
   if (req.method === "GET" && pathname === "/api/inventory/market-pulse") return run(handleMarketPulse, url.searchParams);
   if (req.method === "GET" && pathname === "/api/inventory/by-dealer") return run(handleInventoryByDealer);
+  if ((req.method === "GET" || req.method === "PUT") && pathname === "/api/buyer-search-state") return run(handleBuyerSearchState, url.searchParams);
   if (req.method === "GET" && pathname === "/api/inventory/catalog") return run(handleInventoryCatalogOptions, url.searchParams);
   if (req.method === "GET" && pathname === "/api/inventory/catalog/global") return run(handleGlobalCatalogOptions);
 if (req.method === "GET" && pathname === "/api/inventory/by-listing-url") return run(handleInventoryByListingUrl, url.searchParams);
