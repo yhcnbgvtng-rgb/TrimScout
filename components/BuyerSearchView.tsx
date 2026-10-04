@@ -3,7 +3,8 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { MapPin, SlidersHorizontal, X } from "lucide-react";
-import SearchableDropdown, { type DropdownOption } from "./search/SearchableDropdown";
+import type { DropdownOption } from "./search/SearchableDropdown";
+import { MultiPill, PillShell, SinglePill } from "./admin/FilterPill";
 
 interface BuyerVehicle {
   vin: string;
@@ -127,7 +128,6 @@ function toOptions<T>(rows: T[], valueKey: keyof T, countKey: keyof T, labelFor?
 export function BuyerSearchView() {
   const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS);
   const [moreOpen, setMoreOpen] = useState(false);
-  const moreRef = useRef<HTMLDivElement>(null);
 
   const [stateOptions, setStateOptions] = useState<DropdownOption[]>([]);
   const [makeOptions, setMakeOptions] = useState<DropdownOption[]>([]);
@@ -148,16 +148,6 @@ export function BuyerSearchView() {
   const [results, setResults] = useState<SearchResults | null>(null);
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
-
-  // Close the "More" popover on an outside click, same convention as SearchableDropdown.
-  useEffect(() => {
-    if (!moreOpen) return;
-    const onClick = (e: MouseEvent) => {
-      if (moreRef.current && !moreRef.current.contains(e.target as Node)) setMoreOpen(false);
-    };
-    document.addEventListener("mousedown", onClick);
-    return () => document.removeEventListener("mousedown", onClick);
-  }, [moreOpen]);
 
   // State + Make counts, cross-scoped by each other — always fetched (they're always visible).
   // Model/trim counts ride along on the same call whenever make/model are set; the box only
@@ -305,54 +295,21 @@ export function BuyerSearchView() {
         <h1 className="text-2xl font-extrabold tracking-tight text-white sm:text-3xl">Search real dealer inventory</h1>
       </div>
 
-      <div className="mb-6 rounded-2xl border border-border bg-surface p-4 shadow-lg">
-        <div className="flex flex-wrap items-end gap-3">
-          <div className="w-40">
-            <SearchableDropdown label="State" placeholder="All states" options={stateOptions} value={filters.state} loading={facetsLoading} onChange={(state) => setFilters((f) => ({ ...f, state }))} />
-          </div>
-          <div className="w-48">
-            <SearchableDropdown label="Make" placeholder="All makes" options={makeOptions} value={filters.make} loading={facetsLoading} onChange={setMake} />
-          </div>
-          <div className="w-48">
-            <SearchableDropdown label="Model" placeholder="All models" options={modelOptions} value={filters.model} loading={facetsLoading} onChange={setModel} disabledHint={modelDisabledHint} />
-          </div>
-          <div className="w-48">
-            <SearchableDropdown label="Trim" placeholder="Any trim" options={trimOptions} value={filters.trim} loading={facetsLoading} onChange={(trim) => setFilters((f) => ({ ...f, trim }))} disabledHint={trimDisabledHint} />
-          </div>
-          <div className="w-56">
-            <SearchableDropdown
-              multi
-              label="Factory options"
-              placeholder="Any options"
-              options={optionDropdownOptions}
-              value={filters.optionKeys}
-              onChange={(optionKeys) => setFilters((f) => ({ ...f, optionKeys }))}
-              disabledHint={optionsDisabledHint}
-              loading={catalogOptionsLoading}
-              emptyMessage={catalogOptionsFailed ? "Couldn't load factory options right now — try again in a moment." : "No factory options in inventory for this make/model yet."}
-            />
-          </div>
-
-          <div ref={moreRef} className="relative flex flex-col gap-1">
-            <span className="text-[10.5px] font-bold uppercase tracking-wide text-ink-faint">&nbsp;</span>
-            <button
-              type="button"
-              onClick={() => setMoreOpen((o) => !o)}
-              className={`flex items-center gap-1.5 rounded-xl border px-3 py-2.5 text-xs font-bold transition-colors ${
-                moreCount > 0 ? "border-sky-500/50 bg-sky-950/20 text-sky-300" : "border-border bg-surface-elevated text-ink-light hover:border-border-strong"
-              }`}
-            >
-              <SlidersHorizontal className="h-3.5 w-3.5" />
-              More{moreCount > 0 ? ` · ${moreCount}` : ""}
-            </button>
-
-            {moreOpen && (
+      <div className="mb-6">
+        <div className="flex flex-wrap items-center gap-2">
+          <SinglePill accent="sky" label="State" options={stateOptions} value={filters.state} loading={facetsLoading} onChange={(state) => setFilters((f) => ({ ...f, state }))} />
+          <SinglePill accent="sky" label="Make" options={makeOptions} value={filters.make} loading={facetsLoading} onChange={setMake} />
+          <SinglePill accent="sky" label="Model" options={modelOptions} value={filters.model} loading={facetsLoading} onChange={setModel} disabledHint={modelDisabledHint} />
+          <SinglePill accent="sky" label="Trim" options={trimOptions} value={filters.trim} loading={facetsLoading} onChange={(trim) => setFilters((f) => ({ ...f, trim }))} disabledHint={trimDisabledHint} />
+          <MultiPill accent="sky" summary="count" label="Factory options" options={optionDropdownOptions} value={filters.optionKeys} onChange={(optionKeys) => setFilters((f) => ({ ...f, optionKeys }))} disabledHint={optionsDisabledHint} loading={catalogOptionsLoading} emptyMessage={catalogOptionsFailed ? "Couldn't load factory options right now — try again in a moment." : "No factory options in inventory for this make/model yet."} />
+          <PillShell accent="sky" label="More" summary={moreCount > 0 ? String(moreCount) : undefined} active={moreCount > 0} width="w-80" open={moreOpen} onOpenChange={setMoreOpen}>
+            {() => (
               <div
                 onKeyDown={(e) => {
                   const t = e.target as HTMLElement;
                   if (e.key === "Enter" && t.tagName === "INPUT" && (t as HTMLInputElement).type !== "checkbox") { e.preventDefault(); submitSearch(); }
                 }}
-                className="absolute right-0 top-full z-30 mt-1.5 w-80 max-w-[92vw] space-y-3 rounded-xl border border-border-strong bg-surface-elevated p-3 shadow-2xl">
+                className="space-y-3 p-3">
                 <div>
                   <label className="mb-1 block text-[10.5px] font-bold uppercase tracking-wide text-ink-faint">Condition</label>
                   <select value={filters.cond} onChange={(e) => setFilters((f) => ({ ...f, cond: e.target.value }))} className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-white focus:border-sky-500/50 focus:outline-none">
@@ -440,20 +397,16 @@ export function BuyerSearchView() {
                 )}
               </div>
             )}
-          </div>
-
-          <div className="flex flex-col gap-1">
-            <span className="text-[10.5px] font-bold uppercase tracking-wide text-ink-faint">&nbsp;</span>
-            <button
-              type="button"
-              onClick={submitSearch}
-              disabled={Boolean(blockedReason) || searchLoading}
-              title={blockedReason ?? undefined}
-              className="rounded-xl bg-sky-500 px-5 py-2.5 text-xs font-extrabold text-white transition-colors hover:bg-sky-400 disabled:cursor-not-allowed disabled:opacity-40"
-            >
-              {searchLoading ? "Searching…" : "Search"}
-            </button>
-          </div>
+          </PillShell>
+          <button
+            type="button"
+            onClick={submitSearch}
+            disabled={Boolean(blockedReason) || searchLoading}
+            title={blockedReason ?? undefined}
+            className="ml-2 text-sm font-extrabold text-sky-400 transition-colors hover:text-sky-300 disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            {searchLoading ? "Searching…" : "Search"}
+          </button>
         </div>
         {(blockedReason || dirty) && (
           <p className="mt-2 text-[11px] text-ink-faint">{blockedReason ?? "Filters changed — press Search to update the results."}</p>
