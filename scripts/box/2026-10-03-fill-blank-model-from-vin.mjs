@@ -246,7 +246,18 @@ async function main() {
   const hb = setInterval(() => lockCall("heartbeat", owner).catch((e) => console.error(`  lock heartbeat failed: ${e.message}`)), 30_000);
   const release = async () => { clearInterval(hb); await lockCall("release", owner).catch(() => {}); };
   process.on("SIGTERM", async () => { await release(); process.exit(143); });
-  let updated = 0, planned = 0, statements = 0;
+  let updated = 0, planned = 0, statements = 0, slowest = 0, retries = 0;
+  // A deadlock or lock-wait timeout (another writer touching the same rows) is retried a few times; the statement is
+  // idempotent because it re-checks "still blank" per row.
+  const runUpdate = async (sql, params) => {
+    for (let attempt = 1; ; attempt++) {
+      try { return await pool.query(sql, params); } catch (err) {
+        if (!(err && (err.errno === 1213 || err.errno === 1205)) || attempt >= 5) throw err;
+        retries++; console.error(`  UPDATE hit ${err.code} (attempt ${attempt}); retrying in ${2 * attempt}s`);
+        await sleep(2000 * attempt);
+      }
+    }
+  };
   try {
     const groups = new Map();
     for (const f of fills) { const k = `${f.make}\u0000${f.model}`; if (!groups.has(k)) groups.set(k, { make: f.make, model: f.model, pairs: [] }); groups.get(k).pairs.push([f.vin, f.dealerId]); }
@@ -255,17 +266,22 @@ async function main() {
         const chunk = g.pairs.slice(i, i + UPDATE_BATCH);
         // A plain OR of per-row (vin = ? AND dealer_id = ?) comparisons — never a row-value IN-list, which MariaDB
         // cannot range-scan on this table. The trailing conditions re-check, per row, that it is still in stock and
-        // still blank, so a model a dealer's sync wrote in the meantime is never overwritten.
+        // still blank, so a model a dealer's sync wrote in the meantime is never overwritten. FORCE INDEX (PRIMARY)
+        // pins the plan EXPLAIN showed (range on the primary key, ~200 rows): a plan flip to a scan of the in-stock
+        // index would lock millions of rows.
         const conds = chunk.map(() => "(vin = ? AND dealer_id = ?)").join(" OR ");
-        const [res] = await pool.query(
-          `UPDATE dealer_inventory SET model = ? WHERE removed_at IS NULL AND make = ? AND (model IS NULL OR TRIM(model) = '') AND (${conds})`,
+        const t0 = Date.now();
+        const [res] = await runUpdate(
+          `UPDATE dealer_inventory FORCE INDEX (PRIMARY) SET model = ? WHERE removed_at IS NULL AND make = ? AND (model IS NULL OR TRIM(model) = '') AND (${conds})`,
           [g.model, g.make, ...chunk.flat()]);
+        const took = Date.now() - t0;
+        slowest = Math.max(slowest, took);
         updated += res.affectedRows; planned += chunk.length; statements++;
-        if (statements % 25 === 0) console.log(`  ...${fmt(updated)} updated of ${fmt(planned)} planned so far`);
-        await sleep(PAUSE_MS);
+        if (statements % 25 === 0) console.log(`  ...${fmt(updated)} updated of ${fmt(planned)} planned so far (slowest statement ${slowest} ms)`);
+        await sleep(took > 1500 ? PAUSE_MS + took : PAUSE_MS); // a slow statement means the database is busy: give it room
       }
     }
-    console.log(`\nApplied: ${fmt(updated)} rows updated of ${fmt(planned)} planned in ${fmt(statements)} statements (${fmt(planned - updated)} had changed since the dry run and were left alone).`);
+    console.log(`\nApplied: ${fmt(updated)} rows updated of ${fmt(planned)} planned in ${fmt(statements)} statements (${fmt(planned - updated)} had changed since the dry run and were left alone); slowest statement ${slowest} ms, ${retries} retries.`);
   } finally {
     await release();
   }
