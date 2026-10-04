@@ -9,6 +9,11 @@
 // digit fails is only filled when its own listing URL names the model. All of that logic, and its tests, live in
 // src/vinModelFill.js.
 //
+// Names: only a model the database already uses for that make is written. vPIC spells some models differently from dealers
+// ("Q6" vs "Q6 e-tron"); those are written under the names in APPROVED_MODEL_ALIASES (src/vinModelFill.js) and any other
+// spelling new to the database is HELD and listed in the report — --allow-new-spellings writes them as vPIC spells them.
+// VIN patterns vPIC is known to decode wrongly (VPIC_PATTERN_BLOCKLIST, e.g. 2026 Audi Q5 Sportback -> "SQ5") are never filled.
+//
 // SAFE BY DEFAULT: with no flags this is a DRY RUN — it reads, decodes, prints the report and writes the full
 // decisions to ~/fill-blank-model-decisions-<time>.json, and changes nothing.
 //   --apply --fleet-idle   performs the updates. --fleet-idle is the operator asserting no crawl or sync is running;
@@ -16,6 +21,7 @@
 //                          heartbeats it. Updates are by primary key in small batches with a pause between them.
 //   --decisions=FILE       with --apply: apply exactly the fills in a reviewed dry-run's file instead of recomputing.
 //   --make=Toyota          limit to one make (dry run or apply).
+//   --allow-new-spellings  also write vPIC spellings the database has never used for the make (default: hold them).
 //
 // Run on the deals box from /opt/trimscout-deals (needs src/vinModelFill.js deployed next to it):
 //   sudo node 2026-10-03-fill-blank-model-from-vin.mjs                                  # dry run
@@ -32,6 +38,7 @@ const APPLY = flag("apply");
 const FLEET_IDLE = flag("fleet-idle");
 const ONLY_MAKE = opt("make");
 const DECISIONS_IN = opt("decisions");
+const ALLOW_NEW_SPELLINGS = flag("allow-new-spellings");
 const UPDATE_BATCH = 200; // (vin, dealer_id) pairs per UPDATE
 const PAUSE_MS = 150;
 const VPIC_BATCH = 50; // vPIC's batch limit
@@ -166,7 +173,7 @@ async function main() {
   if (APPLY && DECISIONS_IN) {
     const saved = JSON.parse(fs.readFileSync(DECISIONS_IN, "utf8"));
     const wanted = new Map(saved.fills.map((f) => [`${f.vin}|${f.dealerId}`, f]));
-    decisions = rows.map((r) => { const f = wanted.get(`${r.vin}|${r.dealerId}`); return f ? { action: "fill", model: f.model, tier: f.tier, seenInDb: f.seenInDb } : { action: "skip", reason: "not in the reviewed decisions file (or no longer blank)" }; });
+    decisions = rows.map((r) => { const f = wanted.get(`${r.vin}|${r.dealerId}`); return f ? { action: "fill", model: f.model, tier: f.tier, seenInDb: f.seenInDb, aliased: f.aliased } : { action: "skip", reason: "not in the reviewed decisions file (or no longer blank)" }; });
     console.log(`Applying the reviewed decisions: ${fmt(saved.fills.length)} fills in ${DECISIONS_IN}`);
   } else {
     const [groups] = await pool.query("SELECT make, model, COUNT(*) AS n FROM dealer_inventory WHERE removed_at IS NULL AND model IS NOT NULL AND TRIM(model) <> '' GROUP BY make, model");
@@ -193,11 +200,12 @@ async function main() {
       for (const vin of vins) perVin.set(vin, each.has(vin) ? F.patternConsensus([each.get(vin)]) : undefined);
     }
     decisions = rows.map((r) => {
-      if (!F.VIN_RE.test(r.vin)) return F.decideRow(r, undefined, spellings);
+      const decide = (row, verdict) => F.decideRow(row, verdict, spellings, { allowNewSpellings: ALLOW_NEW_SPELLINGS });
+      if (!F.VIN_RE.test(r.vin)) return decide(r, undefined);
       const key = F.vinPatternKey(r.vin);
       const v = verdicts.get(key);
-      if (v && v.status === "inconsistent") return F.decideRow(r, perVin.has(r.vin) ? perVin.get(r.vin) : { status: "inconsistent" }, spellings);
-      return F.decideRow(r, v, spellings);
+      if (v && v.status === "inconsistent") return decide(r, perVin.has(r.vin) ? perVin.get(r.vin) : { status: "inconsistent" });
+      return decide(r, v);
     });
     console.log(`vPIC calls: ${fmt(vpicCalls)}; patterns whose samples disagreed: ${fmt(inconsistent.length)} (${fmt(skippedBigInconsistent)} VINs skipped as too many to decode one by one)`);
   }
@@ -214,11 +222,27 @@ async function main() {
   for (const r of s.reasons) console.log(`  ${pad(fmt(r.n), 8)}${r.reason}`);
 
   const fills = [];
-  decisions.forEach((d, i) => { if (d.action === "fill") fills.push({ ...rows[i], model: d.model, tier: d.tier, seenInDb: d.seenInDb }); });
+  decisions.forEach((d, i) => { if (d.action === "fill") fills.push({ ...rows[i], model: d.model, tier: d.tier, seenInDb: d.seenInDb, aliased: d.aliased }); });
+  const aliasFills = new Map();
+  for (const f of fills) if (f.aliased) aliasFills.set(`${f.make} → ${f.model}`, (aliasFills.get(`${f.make} → ${f.model}`) || 0) + 1);
+  console.log(`\nFilled under an approved alias (vPIC's spelling differs from dealers'): ${fmt([...aliasFills.values()].reduce((a, b) => a + b, 0))} rows in ${fmt(aliasFills.size)} names`);
+  for (const [k, n] of [...aliasFills.entries()].sort((a, b) => b[1] - a[1])) console.log(`  ${pad(fmt(n), 7)}${k}`);
   const newSpell = new Map();
-  for (const f of fills) if (!f.seenInDb) newSpell.set(`${f.make} → ${f.model}`, (newSpell.get(`${f.make} → ${f.model}`) || 0) + 1);
-  console.log(`\nModels filled that the database has NOT used before for that make (new spellings): ${fmt(newSpell.size)}`);
-  for (const [k, n] of [...newSpell.entries()].sort((a, b) => b[1] - a[1]).slice(0, 25)) console.log(`  ${pad(fmt(n), 7)}${k}`);
+  for (const f of fills) if (!f.seenInDb && !f.aliased) newSpell.set(`${f.make} → ${f.model}`, (newSpell.get(`${f.make} → ${f.model}`) || 0) + 1);
+  if (newSpell.size) {
+    console.log(`\nModels being written that the database has NOT used before for that make (--allow-new-spellings): ${fmt(newSpell.size)}`);
+    for (const [k, n] of [...newSpell.entries()].sort((a, b) => b[1] - a[1]).slice(0, 25)) console.log(`  ${pad(fmt(n), 7)}${k}`);
+  }
+  const held = new Map(); const blocked = new Map();
+  decisions.forEach((d) => {
+    if (d.action !== "skip" || !d.detail) return;
+    const into = d.reason.startsWith("vPIC is known") ? blocked : held;
+    into.set(d.detail, (into.get(d.detail) || 0) + 1);
+  });
+  console.log(`\nHeld — vPIC's spelling is not one the database uses and no alias is approved (stays blank): ${fmt([...held.values()].reduce((a, b) => a + b, 0))} rows in ${fmt(held.size)} spellings`);
+  for (const [k, n] of [...held.entries()].sort((a, b) => b[1] - a[1]).slice(0, 25)) console.log(`  ${pad(fmt(n), 7)}${k}`);
+  console.log(`\nBlocked — VIN patterns vPIC is known to decode wrongly (stays blank): ${fmt([...blocked.values()].reduce((a, b) => a + b, 0))} rows`);
+  for (const [k, n] of [...blocked.entries()].sort((a, b) => b[1] - a[1])) console.log(`  ${pad(fmt(n), 7)}${k.slice(0, 110)}`);
 
   const flToyota = fills.filter((f) => f.make === "Toyota" && f.state === "FL" && f.vin.startsWith("2T3"));
   const flToyotaAll = rows.filter((r) => r.make === "Toyota" && r.state === "FL" && r.vin.startsWith("2T3"));
@@ -233,7 +257,7 @@ async function main() {
   decisions.forEach((d, i) => { if (d.action === "skip") { const k = d.reason.replace(/\(row ".*"\)/, "(row vs vPIC)"); const n = shown.get(k) || 0; if (n < 2) { shown.set(k, n + 1); console.log(`  [${k.slice(0, 48)}] ${rows[i].vin} make=${rows[i].make} ${d.reason.startsWith("make mismatch") ? d.reason : ""}`); } } });
 
   const outFile = path.join(os.homedir(), `fill-blank-model-decisions-${new Date().toISOString().replace(/[:.]/g, "-")}.json`);
-  fs.writeFileSync(outFile, JSON.stringify({ generatedAt: new Date().toISOString(), before, totals: s.totals, fills: fills.map(({ vin, dealerId, make, model, tier, seenInDb }) => ({ vin, dealerId, make, model, tier, seenInDb })), skips: decisions.map((d, i) => (d.action === "skip" ? { vin: rows[i].vin, dealerId: rows[i].dealerId, make: rows[i].make, reason: d.reason } : null)).filter(Boolean) }));
+  fs.writeFileSync(outFile, JSON.stringify({ generatedAt: new Date().toISOString(), before, totals: s.totals, fills: fills.map(({ vin, dealerId, make, model, tier, seenInDb, aliased }) => ({ vin, dealerId, make, model, tier, seenInDb, aliased })), skips: decisions.map((d, i) => (d.action === "skip" ? { vin: rows[i].vin, dealerId: rows[i].dealerId, make: rows[i].make, reason: d.reason, detail: d.detail } : null)).filter(Boolean) }));
   console.log(`\nFull decisions written to ${outFile}`);
   if (!APPLY) { console.log("DRY RUN — nothing was changed."); await pool.end(); return; }
 

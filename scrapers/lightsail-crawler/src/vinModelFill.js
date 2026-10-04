@@ -9,13 +9,48 @@
 //   - look a VIN PATTERN up once, not every VIN: positions 1-8 (manufacturer + vehicle descriptor) plus the
 //     model-year character decide the model, the rest (check digit, plant, serial) does not.
 //
-// Two safeguards beyond that, because a wrong model is worse than a blank one:
+// Safeguards beyond that, because a wrong model is worse than a blank one:
 //   - a pattern is decoded from up to three sample VINs; if they disagree the pattern is not trusted as a
 //     group and each of its VINs is decoded on its own;
 //   - a VIN whose check digit fails (a typo, or a placeholder a dealer lists before the real VIN exists) is
-//     only filled when the dealer's own listing URL names the decoded model ("...2026-toyota-rav4-sport-utility").
+//     only filled when the dealer's own listing URL names the decoded model ("...2026-toyota-rav4-sport-utility");
+//   - only a model the database already uses for that make is written, so a fill never adds a new value to the
+//     model dropdown. vPIC spells some models differently from what dealers send ("Q6" vs "Q6 e-tron",
+//     "GLE-Class" vs "GLE"): those are written under a name someone approved (APPROVED_MODEL_ALIASES) or held;
+//   - VIN patterns vPIC is known to decode wrongly (VPIC_PATTERN_BLOCKLIST) are never filled.
 
 export const VIN_RE = /^[A-HJ-NPR-Z0-9]{17}$/;
+
+/**
+ * Names approved on 2026-10-03 for vPIC spellings that differ from what dealers send. [make, vPIC's model, name to write].
+ * The name is written exactly as given. Any other vPIC spelling the database does not already use is held, not written —
+ * for example Audi "SQ9" (no dealer has sent that model; vPIC mislabels new S variants) and the Mercedes EQ…-Class names.
+ */
+export const APPROVED_MODEL_ALIASES = [
+  ['Audi', 'Q6', 'Q6 e-tron'],
+  ['Audi', 'SQ6', 'SQ6 e-tron'],
+  ['Audi', 'Q4', 'Q4 e-tron'],
+  ['Mercedes-Benz', 'GLE-Class', 'GLE'],
+  ['Mercedes-Benz', 'GLB-Class', 'GLB'],
+  ['Nissan', 'Ariya Hatchback', 'Ariya'],
+  ['Nissan', 'Ariya MPV', 'Ariya'],
+  ['Toyota', 'Prius Prime (PHEV)', 'Prius Prime'],
+  ['Volvo', 'EX30 CC', 'EX30 Cross Country'],
+  ['Volvo', 'V60CC', 'V60 Cross Country'],
+  ['Volvo', 'V90CC', 'V90 Cross Country'],
+];
+
+/**
+ * VIN patterns (vinPatternKey) that vPIC decodes to the wrong model. Found 2026-10-03 by comparing every written model with what
+ * dealers send for the same pattern; the 494 rows were reverted with scripts/box/2026-10-03-revert-model-fill-rows.mjs. Rows in
+ * these patterns stay blank.
+ */
+export const VPIC_PATTERN_BLOCKLIST = new Map([
+  ['WA1EAAGUT', '2026 Audi Q5 Sportback: vPIC says SQ5 (3.0T V6); dealers send Q5 Sportback (2.0T, 4 cylinders)'],
+  ['WA1DAAGUT', '2026 Audi Q5 Sportback: vPIC says SQ5 (3.0T V6); dealers send Q5 Sportback (2.0T, 4 cylinders)'],
+  ['WA1FAAGUT', '2026 Audi Q5 Sportback: vPIC says SQ5 (3.0T V6); dealers send Q5 Sportback (2.0T, 4 cylinders)'],
+  ['JTJHY7AXK', '2019 Lexus LX 570: vPIC says GX; the dealer listing and other dealers say LX 570'],
+]);
 
 const TRANSLITERATION = { A: 1, B: 2, C: 3, D: 4, E: 5, F: 6, G: 7, H: 8, J: 1, K: 2, L: 3, M: 4, N: 5, P: 7, R: 9, S: 2, T: 3, U: 4, V: 5, W: 6, X: 7, Y: 8, Z: 9 };
 const WEIGHTS = [8, 7, 6, 5, 4, 3, 2, 10, 0, 9, 8, 7, 6, 5, 4, 3, 2];
@@ -125,27 +160,51 @@ export function buildSpellings(groups) {
   return out;
 }
 
-export function canonicalModel(spellings, rowMake, decodedModel) {
-  const existing = spellings.get(normalizeAlnum(rowMake))?.get(normalizeAlnum(decodedModel));
-  return existing ? { model: existing, seenInDb: true } : { model: decodedModel, seenInDb: false };
+/** Lookup for the approved aliases: normalised "make|vPIC model" -> the name to write. */
+export function buildAliasMap(list = APPROVED_MODEL_ALIASES) {
+  return new Map(list.map(([make, vpicModel, name]) => [`${normalizeAlnum(make)}|${normalizeAlnum(vpicModel)}`, name]));
+}
+const DEFAULT_ALIASES = buildAliasMap();
+
+/**
+ * The name to write for a decoded model. An approved alias is written exactly as approved; otherwise the spelling the database
+ * already uses for that make (so a fill reads "RAV4", not a differently-cased variant); otherwise vPIC's own spelling, flagged
+ * `seenInDb: false` because the database has never used it for that make.
+ * @returns {{model: string, seenInDb: boolean, aliased: boolean}}
+ */
+export function canonicalModel(spellings, rowMake, decodedModel, aliases = DEFAULT_ALIASES) {
+  const makeNorm = normalizeAlnum(rowMake);
+  const alias = aliases?.get(`${makeNorm}|${normalizeAlnum(decodedModel)}`);
+  const target = alias || decodedModel;
+  const existing = spellings.get(makeNorm)?.get(normalizeAlnum(target));
+  if (alias) return { model: alias, seenInDb: Boolean(existing), aliased: true };
+  return existing ? { model: existing, seenInDb: true, aliased: false } : { model: decodedModel, seenInDb: false, aliased: false };
 }
 
 /**
  * One row's verdict.
  * @param {{vin: string, dealerId: number, make: string|null, vdpUrl: string|null}} row
  * @param {{status: string, make?: string, model?: string}|undefined} verdict  the row's pattern (or its own VIN) decode result
- * @returns {{action: 'fill', model: string, tier: 'A'|'B', seenInDb: boolean} | {action: 'skip', reason: string}}
+ * @param {Map<string, Map<string, string>>} spellings  from buildSpellings
+ * @param {{aliases?: Map<string, string>, allowNewSpellings?: boolean}} [opts]  aliases default to APPROVED_MODEL_ALIASES; a model the database
+ *   has never used for the make (and no alias covers) is held unless allowNewSpellings
+ * @returns {{action: 'fill', model: string, tier: 'A'|'B', seenInDb: boolean, aliased: boolean} | {action: 'skip', reason: string, detail?: string}}
  */
-export function decideRow(row, verdict, spellings) {
+export function decideRow(row, verdict, spellings, { aliases = DEFAULT_ALIASES, allowNewSpellings = false } = {}) {
   if (!VIN_RE.test(row.vin || "")) return { action: "skip", reason: "not a 17-character VIN" };
+  const blocked = VPIC_PATTERN_BLOCKLIST.get(vinPatternKey(row.vin));
+  if (blocked) return { action: "skip", reason: "vPIC is known to decode this VIN pattern wrongly", detail: blocked };
   if (!row.make || !row.make.trim()) return { action: "skip", reason: "row has no make, so the decoded make cannot be checked" };
   if (!verdict) return { action: "skip", reason: "vPIC lookup failed (not decoded)" };
   if (verdict.status === "inconsistent") return { action: "skip", reason: "VINs of this pattern decode to different models" };
   if (verdict.status !== "ok") return { action: "skip", reason: "vPIC returned no model" };
   if (!makesMatch(row.make, verdict.make)) return { action: "skip", reason: `make mismatch (row "${row.make}" vs vPIC "${verdict.make}")` };
-  const { model, seenInDb } = canonicalModel(spellings, row.make, verdict.model);
-  if (checkDigitValid(row.vin)) return { action: "fill", model, tier: "A", seenInDb };
-  if (urlNamesModel(row.vdpUrl, row.vin, model)) return { action: "fill", model, tier: "B", seenInDb };
+  const { model, seenInDb, aliased } = canonicalModel(spellings, row.make, verdict.model, aliases);
+  if (!seenInDb && !aliased && !allowNewSpellings) {
+    return { action: "skip", reason: "vPIC spells this model differently from the database; held for an alias decision", detail: `${row.make} → ${verdict.model}` };
+  }
+  if (checkDigitValid(row.vin)) return { action: "fill", model, tier: "A", seenInDb, aliased };
+  if (urlNamesModel(row.vdpUrl, row.vin, model)) return { action: "fill", model, tier: "B", seenInDb, aliased };
   return { action: "skip", reason: "VIN check digit fails and the listing URL does not name the model" };
 }
 

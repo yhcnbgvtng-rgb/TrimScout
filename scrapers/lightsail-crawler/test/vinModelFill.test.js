@@ -5,6 +5,7 @@ import assert from 'node:assert/strict';
 import {
   VIN_RE, checkDigitValid, vinPatternKey, makesMatch, urlNamesModel, parseVpicResult, planDecodeTargets,
   patternConsensus, buildSpellings, canonicalModel, decideRow, summarize,
+  APPROVED_MODEL_ALIASES, VPIC_PATTERN_BLOCKLIST, buildAliasMap,
 } from '../src/vinModelFill.js';
 
 describe('checkDigitValid', () => {
@@ -127,13 +128,40 @@ describe('spellings already in the database', () => {
     { make: 'Jeep', model: 'Grand Cherokee', n: 400 }, { make: 'Ford', model: 'F-150', n: 700 }, { make: null, model: 'X', n: 1 },
   ]);
   it('reuses the most common existing spelling', () => {
-    assert.deepEqual(canonicalModel(spellings, 'Toyota', 'Rav4'), { model: 'RAV4', seenInDb: true });
-    assert.deepEqual(canonicalModel(spellings, 'Ford', 'F150'), { model: 'F-150', seenInDb: true });
-    assert.deepEqual(canonicalModel(spellings, 'Jeep', 'GRAND CHEROKEE'), { model: 'Grand Cherokee', seenInDb: true });
+    assert.deepEqual(canonicalModel(spellings, 'Toyota', 'Rav4'), { model: 'RAV4', seenInDb: true, aliased: false });
+    assert.deepEqual(canonicalModel(spellings, 'Ford', 'F150'), { model: 'F-150', seenInDb: true, aliased: false });
+    assert.deepEqual(canonicalModel(spellings, 'Jeep', 'GRAND CHEROKEE'), { model: 'Grand Cherokee', seenInDb: true, aliased: false });
   });
   it('keeps vPIC\'s spelling, flagged as new, when the database has never seen the model for that make', () => {
-    assert.deepEqual(canonicalModel(spellings, 'Toyota', 'Crown Signia'), { model: 'Crown Signia', seenInDb: false });
-    assert.deepEqual(canonicalModel(spellings, 'Lexus', 'RAV4'), { model: 'RAV4', seenInDb: false }, 'spellings are per make');
+    assert.deepEqual(canonicalModel(spellings, 'Toyota', 'Crown Signia'), { model: 'Crown Signia', seenInDb: false, aliased: false });
+    assert.deepEqual(canonicalModel(spellings, 'Lexus', 'RAV4'), { model: 'RAV4', seenInDb: false, aliased: false }, 'spellings are per make');
+  });
+});
+
+describe('approved aliases', () => {
+  const spellings = buildSpellings([{ make: 'Audi', model: 'Q6 e-tron', n: 38 }, { make: 'Mercedes-Benz', model: 'GLE', n: 2542 }, { make: 'Nissan', model: 'Ariya', n: 459 }]);
+  it('are exactly the names that were approved, one rule per make + vPIC spelling', () => {
+    assert.deepEqual(APPROVED_MODEL_ALIASES.map(([make, vpic, name]) => `${make} | ${vpic} -> ${name}`).sort(), [
+      'Audi | Q4 -> Q4 e-tron', 'Audi | Q6 -> Q6 e-tron', 'Audi | SQ6 -> SQ6 e-tron',
+      'Mercedes-Benz | GLB-Class -> GLB', 'Mercedes-Benz | GLE-Class -> GLE',
+      'Nissan | Ariya Hatchback -> Ariya', 'Nissan | Ariya MPV -> Ariya',
+      'Toyota | Prius Prime (PHEV) -> Prius Prime',
+      'Volvo | EX30 CC -> EX30 Cross Country', 'Volvo | V60CC -> V60 Cross Country', 'Volvo | V90CC -> V90 Cross Country',
+    ]);
+    assert.equal(buildAliasMap().size, APPROVED_MODEL_ALIASES.length, 'no two rules share a key');
+    assert.equal(APPROVED_MODEL_ALIASES.some(([make, vpic]) => /SQ9/i.test(vpic) && make === 'Audi'), false, 'SQ9 stays blank');
+  });
+  it('are written exactly as approved, and say whether the database already uses that name', () => {
+    assert.deepEqual(canonicalModel(spellings, 'Audi', 'Q6'), { model: 'Q6 e-tron', seenInDb: true, aliased: true });
+    assert.deepEqual(canonicalModel(spellings, 'Mercedes-Benz', 'GLE-Class'), { model: 'GLE', seenInDb: true, aliased: true });
+    assert.deepEqual(canonicalModel(spellings, 'Nissan', 'Ariya MPV'), { model: 'Ariya', seenInDb: true, aliased: true });
+    assert.deepEqual(canonicalModel(spellings, 'Volvo', 'EX30 CC'), { model: 'EX30 Cross Country', seenInDb: false, aliased: true });
+  });
+  it('match case- and punctuation-insensitively, and only for that make', () => {
+    assert.equal(canonicalModel(spellings, 'AUDI', 'q6').model, 'Q6 e-tron');
+    assert.equal(canonicalModel(spellings, 'Toyota', 'Prius Prime (PHEV)').model, 'Prius Prime');
+    assert.equal(canonicalModel(spellings, 'Lexus', 'Q6').aliased, false);
+    assert.equal(canonicalModel(spellings, 'Audi', 'Q6', null).aliased, false, 'a caller can turn aliases off');
   });
 });
 
@@ -146,12 +174,12 @@ describe('decideRow', () => {
 
   it('tier A: a clean VIN whose make matches is filled, using the database\'s own spelling', () => {
     assert.deepEqual(decideRow({ vin: goodVin, dealerId: 1, make: 'Toyota', vdpUrl: null }, { status: 'ok', make: 'TOYOTA', model: 'Rav4' }, spellings),
-      { action: 'fill', model: 'RAV4', tier: 'A', seenInDb: true });
+      { action: 'fill', model: 'RAV4', tier: 'A', seenInDb: true, aliased: false });
   });
 
   it('tier B: a VIN with a failing check digit is filled only when the listing URL names the model', () => {
     assert.equal(checkDigitValid(badVin), false);
-    assert.deepEqual(decideRow({ vin: badVin, dealerId: 1, make: 'Toyota', vdpUrl: slug(badVin) }, ok, spellings), { action: 'fill', model: 'RAV4', tier: 'B', seenInDb: true });
+    assert.deepEqual(decideRow({ vin: badVin, dealerId: 1, make: 'Toyota', vdpUrl: slug(badVin) }, ok, spellings), { action: 'fill', model: 'RAV4', tier: 'B', seenInDb: true, aliased: false });
     assert.deepEqual(decideRow({ vin: badVin, dealerId: 1, make: 'Toyota', vdpUrl: 'https://x.com/viewdetails/new/' + badVin }, ok, spellings),
       { action: 'skip', reason: 'VIN check digit fails and the listing URL does not name the model' });
   });
@@ -168,6 +196,41 @@ describe('decideRow', () => {
 
   it('never fills when the decoded make does not match, even for a clean VIN', () => {
     assert.equal(decideRow({ vin: goodVin, dealerId: 1, make: 'Ram', vdpUrl: null }, { status: 'ok', make: 'DODGE', model: 'Durango' }, spellings).action, 'skip');
+  });
+});
+
+describe('decideRow: names the database does not use yet, approved aliases, known vPIC errors', () => {
+  const spellings = buildSpellings([{ make: 'Audi', model: 'Q6 e-tron', n: 38 }, { make: 'Audi', model: 'SQ5', n: 500 }, { make: 'Lexus', model: 'GX', n: 200 }]);
+  const audiQ6 = { vin: 'WA1ACBF76TD018375', dealerId: 7, make: 'Audi', vdpUrl: null }; // a real VIN with a valid check digit
+  const decoded = (make, model) => ({ status: 'ok', make, model });
+
+  it('writes an approved alias under the approved name', () => {
+    assert.equal(checkDigitValid(audiQ6.vin), true);
+    assert.deepEqual(decideRow(audiQ6, decoded('AUDI', 'Q6'), spellings), { action: 'fill', model: 'Q6 e-tron', tier: 'A', seenInDb: true, aliased: true });
+  });
+
+  it('holds a vPIC spelling the database has never used for the make (and no alias covers), saying which', () => {
+    const d = decideRow(audiQ6, decoded('AUDI', 'SQ9'), spellings);
+    assert.equal(d.action, 'skip');
+    assert.match(d.reason, /differently from the database/);
+    assert.equal(d.detail, 'Audi → SQ9');
+  });
+
+  it('writes such a spelling only when explicitly allowed', () => {
+    assert.deepEqual(decideRow(audiQ6, decoded('AUDI', 'SQ9'), spellings, { allowNewSpellings: true }), { action: 'fill', model: 'SQ9', tier: 'A', seenInDb: false, aliased: false });
+  });
+
+  it('never fills a VIN pattern vPIC is known to decode wrongly, whatever vPIC says now', () => {
+    const q5Sportback2026 = { vin: 'WA1EAAGU0T2003324', dealerId: 7, make: 'Audi', vdpUrl: null }; // vPIC: SQ5 — dealers: Q5 Sportback
+    const lx570 = { vin: 'JTJHY7AX3K4308370', dealerId: 7, make: 'Lexus', vdpUrl: null }; // vPIC: GX — listing: LX 570
+    for (const [row, model] of [[q5Sportback2026, 'SQ5'], [lx570, 'GX']]) {
+      const d = decideRow(row, decoded(row.make.toUpperCase(), model), spellings);
+      assert.equal(d.action, 'skip', row.vin);
+      assert.equal(d.reason, 'vPIC is known to decode this VIN pattern wrongly');
+      assert.ok(d.detail.length > 10);
+    }
+    assert.notEqual(decideRow({ ...q5Sportback2026, vin: 'WA1EAAGU0V2003324' }, decoded('AUDI', 'SQ5'), spellings).reason, 'vPIC is known to decode this VIN pattern wrongly', 'the model year is part of the pattern: only the 2026 (T) pattern is blocked');
+    for (const key of VPIC_PATTERN_BLOCKLIST.keys()) assert.match(key, /^[A-HJ-NPR-Z0-9]{9}$/, 'keys are pattern keys: VIN positions 1-8 plus the model-year character');
   });
 });
 
