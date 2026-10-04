@@ -141,6 +141,8 @@ export function BuyerSearchView() {
   const [modelOptions, setModelOptions] = useState<DropdownOption[]>([]);
   const [trimOptions, setTrimOptions] = useState<DropdownOption[]>([]);
   const [facetsLoading, setFacetsLoading] = useState(false);
+  // The last facet refresh failed: the numbers on screen are for an earlier pick, so they are hidden, not shown stale.
+  const [facetsFailed, setFacetsFailed] = useState(false);
 
   const [catalogOptions, setCatalogOptions] = useState<CatalogOption[]>([]);
   const [exteriorColors, setExteriorColors] = useState<string[]>([]);
@@ -171,14 +173,20 @@ export function BuyerSearchView() {
   // computes what it can scope (see lib/inventoryApi.ts's inventoryFacets).
   useEffect(() => {
     const controller = new AbortController();
+    // Counts are pending the instant a pick changes them — the old numbers are hidden until the new ones arrive.
     setFacetsLoading(true);
     const sp = new URLSearchParams();
     if (filters.state) sp.set("state", filters.state);
     if (filters.make) sp.set("make", filters.make);
     if (filters.model) sp.set("model", filters.model);
     fetch(`/api/catalog/facets?${sp}`, { signal: controller.signal })
-      .then((r) => r.json())
+      .then((r) => {
+        // An error body ({error}) used to be read as "no states/makes/…" and blank every list.
+        if (!r.ok) throw new Error(`facets ${r.status}`);
+        return r.json();
+      })
       .then((json) => {
+        setFacetsFailed(false);
         setStateOptions(toOptions(json?.states || [], "state", "n"));
         setMakeOptions(toOptions(json?.makes || [], "make", "n"));
         setModelOptions(toOptions(json?.models || [], "model", "n"));
@@ -186,8 +194,9 @@ export function BuyerSearchView() {
       })
       .catch((e) => {
         if (e?.name === "AbortError") return;
-        // Soft-fail: keep whatever counts we already had rather than wiping the dropdowns out
-        // from under someone mid-selection — never block the UI on this.
+        // Keep the choices (never wipe the dropdowns mid-selection) but stop showing their counts: they belong to the
+        // previous pick. The next pick retries.
+        setFacetsFailed(true);
       })
       .finally(() => setFacetsLoading(false));
     return () => controller.abort();
@@ -307,7 +316,7 @@ export function BuyerSearchView() {
   const optionDropdownOptions = useMemo(() => toOptions(catalogOptions, "key", "vehicleCount", (o) => o.label), [catalogOptions]);
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 pb-28 sm:px-6 lg:px-8">
+    <div className="mx-auto max-w-7xl px-4 py-8 pb-28 accent-emerald-500 sm:px-6 lg:px-8 [&_*:focus-visible]:outline-emerald-500">
       <div className="mb-6">
         <h1 className="text-2xl font-extrabold tracking-tight text-white sm:text-3xl">Search real dealer inventory</h1>
       </div>
@@ -315,19 +324,20 @@ export function BuyerSearchView() {
       <div className="mb-6 rounded-2xl border border-border bg-surface p-4 shadow-lg">
         <div className="flex flex-wrap items-end gap-3">
           <div className="w-40">
-            <SearchableDropdown label="State" placeholder="All states" options={stateOptions} value={filters.state} loading={facetsLoading} onChange={(state) => setFilters((f) => ({ ...f, state }))} />
+            <SearchableDropdown accent="emerald" label="State" placeholder="All states" options={stateOptions} value={filters.state} countsLoading={facetsLoading || facetsFailed} onChange={(state) => setFilters((f) => ({ ...f, state }))} />
           </div>
           <div className="w-48">
-            <SearchableDropdown label="Make" placeholder="All makes" options={makeOptions} value={filters.make} loading={facetsLoading} onChange={setMake} />
+            <SearchableDropdown accent="emerald" label="Make" placeholder="All makes" options={makeOptions} value={filters.make} countsLoading={facetsLoading || facetsFailed} onChange={setMake} />
           </div>
           <div className="w-48">
-            <SearchableDropdown label="Model" placeholder="All models" options={modelOptions} value={filters.model} loading={facetsLoading} onChange={setModel} disabledHint={modelDisabledHint} />
+            <SearchableDropdown accent="emerald" label="Model" placeholder="All models" options={modelOptions} value={filters.model} countsLoading={facetsLoading || facetsFailed} onChange={setModel} disabledHint={modelDisabledHint} />
           </div>
           <div className="w-48">
-            <SearchableDropdown label="Trim" placeholder="Any trim" options={trimOptions} value={filters.trim} loading={facetsLoading} onChange={(trim) => setFilters((f) => ({ ...f, trim }))} disabledHint={trimDisabledHint} />
+            <SearchableDropdown accent="emerald" label="Trim" placeholder="Any trim" options={trimOptions} value={filters.trim} countsLoading={facetsLoading || facetsFailed} onChange={(trim) => setFilters((f) => ({ ...f, trim }))} disabledHint={trimDisabledHint} />
           </div>
           <div className="w-56">
             <SearchableDropdown
+              accent="emerald"
               multi
               label="Factory options"
               placeholder="Any options"
@@ -346,7 +356,7 @@ export function BuyerSearchView() {
               type="button"
               onClick={() => setMoreOpen((o) => !o)}
               className={`flex items-center gap-1.5 rounded-xl border px-3 py-2.5 text-xs font-bold transition-colors ${
-                moreCount > 0 ? "border-sky-500/50 bg-sky-950/20 text-sky-300" : "border-border bg-surface-elevated text-ink-light hover:border-border-strong"
+                moreCount > 0 ? "border-emerald-500/50 bg-emerald-950/20 text-emerald-300" : "border-border bg-surface-elevated text-ink-light hover:border-border-strong"
               }`}
             >
               <SlidersHorizontal className="h-3.5 w-3.5" />
@@ -362,7 +372,7 @@ export function BuyerSearchView() {
                 className="absolute right-0 top-full z-30 mt-1.5 w-80 max-w-[92vw] space-y-3 rounded-xl border border-border-strong bg-surface-elevated p-3 shadow-2xl">
                 <div>
                   <label className="mb-1 block text-[10.5px] font-bold uppercase tracking-wide text-ink-faint">Condition</label>
-                  <select value={filters.cond} onChange={(e) => setFilters((f) => ({ ...f, cond: e.target.value }))} className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-white focus:border-sky-500/50 focus:outline-none">
+                  <select value={filters.cond} onChange={(e) => setFilters((f) => ({ ...f, cond: e.target.value }))} className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-white focus:border-emerald-500/50 focus:outline-none">
                     <option value="">New + used</option>
                     <option value="new">New</option>
                     <option value="used">Used</option>
@@ -372,45 +382,45 @@ export function BuyerSearchView() {
                 <div className="grid grid-cols-2 gap-2">
                   <div>
                     <label className="mb-1 block text-[10.5px] font-bold uppercase tracking-wide text-ink-faint">Price min</label>
-                    <input type="number" value={filters.priceMin} onChange={(e) => setFilters((f) => ({ ...f, priceMin: e.target.value }))} placeholder="$0" className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-white placeholder:text-ink-faint focus:border-sky-500/50 focus:outline-none" />
+                    <input type="number" value={filters.priceMin} onChange={(e) => setFilters((f) => ({ ...f, priceMin: e.target.value }))} placeholder="$0" className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-white placeholder:text-ink-faint focus:border-emerald-500/50 focus:outline-none" />
                   </div>
                   <div>
                     <label className="mb-1 block text-[10.5px] font-bold uppercase tracking-wide text-ink-faint">Price max</label>
-                    <input type="number" value={filters.priceMax} onChange={(e) => setFilters((f) => ({ ...f, priceMax: e.target.value }))} placeholder="No max" className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-white placeholder:text-ink-faint focus:border-sky-500/50 focus:outline-none" />
+                    <input type="number" value={filters.priceMax} onChange={(e) => setFilters((f) => ({ ...f, priceMax: e.target.value }))} placeholder="No max" className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-white placeholder:text-ink-faint focus:border-emerald-500/50 focus:outline-none" />
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   <div>
                     <label className="mb-1 block text-[10.5px] font-bold uppercase tracking-wide text-ink-faint">Year min</label>
-                    <input type="number" value={filters.yearMin} onChange={(e) => setFilters((f) => ({ ...f, yearMin: e.target.value }))} placeholder="Any" className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-white placeholder:text-ink-faint focus:border-sky-500/50 focus:outline-none" />
+                    <input type="number" value={filters.yearMin} onChange={(e) => setFilters((f) => ({ ...f, yearMin: e.target.value }))} placeholder="Any" className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-white placeholder:text-ink-faint focus:border-emerald-500/50 focus:outline-none" />
                   </div>
                   <div>
                     <label className="mb-1 block text-[10.5px] font-bold uppercase tracking-wide text-ink-faint">Year max</label>
-                    <input type="number" value={filters.yearMax} onChange={(e) => setFilters((f) => ({ ...f, yearMax: e.target.value }))} placeholder="Any" className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-white placeholder:text-ink-faint focus:border-sky-500/50 focus:outline-none" />
+                    <input type="number" value={filters.yearMax} onChange={(e) => setFilters((f) => ({ ...f, yearMax: e.target.value }))} placeholder="Any" className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-white placeholder:text-ink-faint focus:border-emerald-500/50 focus:outline-none" />
                   </div>
                 </div>
                 <div>
                   <label className="mb-1 block text-[10.5px] font-bold uppercase tracking-wide text-ink-faint">Max odometer</label>
-                  <input type="number" value={filters.odometerMax} onChange={(e) => setFilters((f) => ({ ...f, odometerMax: e.target.value }))} placeholder="Any mileage" className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-white placeholder:text-ink-faint focus:border-sky-500/50 focus:outline-none" />
+                  <input type="number" value={filters.odometerMax} onChange={(e) => setFilters((f) => ({ ...f, odometerMax: e.target.value }))} placeholder="Any mileage" className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-white placeholder:text-ink-faint focus:border-emerald-500/50 focus:outline-none" />
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   <div>
                     <label className="mb-1 block text-[10.5px] font-bold uppercase tracking-wide text-ink-faint">Exterior</label>
-                    <select value={filters.exteriorColor} onChange={(e) => setFilters((f) => ({ ...f, exteriorColor: e.target.value }))} className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-white focus:border-sky-500/50 focus:outline-none">
+                    <select value={filters.exteriorColor} onChange={(e) => setFilters((f) => ({ ...f, exteriorColor: e.target.value }))} className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-white focus:border-emerald-500/50 focus:outline-none">
                       <option value="">Any</option>
                       {exteriorColors.map((c) => <option key={c} value={c}>{c}</option>)}
                     </select>
                   </div>
                   <div>
                     <label className="mb-1 block text-[10.5px] font-bold uppercase tracking-wide text-ink-faint">Interior</label>
-                    <select value={filters.interiorColor} onChange={(e) => setFilters((f) => ({ ...f, interiorColor: e.target.value }))} className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-white focus:border-sky-500/50 focus:outline-none">
+                    <select value={filters.interiorColor} onChange={(e) => setFilters((f) => ({ ...f, interiorColor: e.target.value }))} className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-white focus:border-emerald-500/50 focus:outline-none">
                       <option value="">Any</option>
                       {interiorColors.map((c) => <option key={c} value={c}>{c}</option>)}
                     </select>
                   </div>
                 </div>
                 <label className="flex items-center gap-2 text-xs text-ink-light">
-                  <input type="checkbox" checked={filters.possibleDemo} onChange={(e) => setFilters((f) => ({ ...f, possibleDemo: e.target.checked }))} className="h-3.5 w-3.5 rounded border-border accent-sky-500" />
+                  <input type="checkbox" checked={filters.possibleDemo} onChange={(e) => setFilters((f) => ({ ...f, possibleDemo: e.target.checked }))} className="h-3.5 w-3.5 rounded border-border accent-emerald-500" />
                   Include likely demo/loaner vehicles
                 </label>
                 <div className="border-t border-border pt-3">
@@ -418,11 +428,11 @@ export function BuyerSearchView() {
                     <MapPin className="h-3 w-3" /> Near
                   </label>
                   <div className="grid grid-cols-2 gap-2">
-                    <input type="text" value={filters.zip} onChange={(e) => setFilters((f) => ({ ...f, zip: e.target.value }))} placeholder="ZIP code" className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-white placeholder:text-ink-faint focus:border-sky-500/50 focus:outline-none" />
+                    <input type="text" value={filters.zip} onChange={(e) => setFilters((f) => ({ ...f, zip: e.target.value }))} placeholder="ZIP code" className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-white placeholder:text-ink-faint focus:border-emerald-500/50 focus:outline-none" />
                     <input
                       type="number" value={filters.radiusMiles} onChange={(e) => setFilters((f) => ({ ...f, radiusMiles: e.target.value }))} placeholder="Radius (mi)"
                       disabled={!filters.make || !filters.zip} title={!filters.zip ? "Enter a ZIP code to search within a radius" : !filters.make ? "Pick a make to search within a radius" : undefined}
-                      className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-white placeholder:text-ink-faint focus:border-sky-500/50 focus:outline-none disabled:opacity-40"
+                      className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-white placeholder:text-ink-faint focus:border-emerald-500/50 focus:outline-none disabled:opacity-40"
                     />
                   </div>
                   {filters.radiusMiles && (!filters.make || !filters.zip) && (
@@ -431,7 +441,7 @@ export function BuyerSearchView() {
                 </div>
                 <div>
                   <label className="mb-1 block text-[10.5px] font-bold uppercase tracking-wide text-ink-faint">Sort</label>
-                  <select value={filters.sort} onChange={(e) => setFilters((f) => ({ ...f, sort: e.target.value }))} className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-white focus:border-sky-500/50 focus:outline-none">
+                  <select value={filters.sort} onChange={(e) => setFilters((f) => ({ ...f, sort: e.target.value }))} className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-white focus:border-emerald-500/50 focus:outline-none">
                     <option value="">Best match</option>
                     <option value="price:asc">Price: low to high</option>
                     <option value="price:desc">Price: high to low</option>
@@ -456,12 +466,15 @@ export function BuyerSearchView() {
               onClick={submitSearch}
               disabled={Boolean(blockedReason) || searchLoading}
               title={blockedReason ?? undefined}
-              className="rounded-xl bg-sky-500 px-5 py-2.5 text-xs font-extrabold text-white transition-colors hover:bg-sky-400 disabled:cursor-not-allowed disabled:opacity-40"
+              className="rounded-xl bg-emerald-500 px-5 py-2.5 text-xs font-extrabold text-black transition-colors hover:bg-emerald-400 disabled:cursor-not-allowed disabled:opacity-40"
             >
               {searchLoading ? "Searching…" : "Search"}
             </button>
           </div>
         </div>
+        {facetsFailed && !facetsLoading && (
+          <p className="mt-2 text-[11px] text-amber-300" role="status">Couldn&apos;t refresh the counts just now, so they&apos;re hidden. Change a filter to try again.</p>
+        )}
         {(blockedReason || dirty) && (
           <p className="mt-2 text-[11px] text-ink-faint">{blockedReason ?? "Filters changed — press Search to update the results."}</p>
         )}
@@ -498,7 +511,7 @@ export function BuyerSearchView() {
             )}
             {hasMore && (
               <div className="mt-6 flex justify-center">
-                <button type="button" onClick={loadMore} disabled={searchLoading} className="rounded-xl border border-border bg-surface-elevated px-5 py-2.5 text-xs font-bold text-ink-light hover:border-sky-500/50 hover:text-white disabled:opacity-50">
+                <button type="button" onClick={loadMore} disabled={searchLoading} className="rounded-xl border border-border bg-surface-elevated px-5 py-2.5 text-xs font-bold text-ink-light hover:border-emerald-500/50 hover:text-white disabled:opacity-50">
                   {searchLoading ? "Loading…" : "Load more"}
                 </button>
               </div>
@@ -625,9 +638,9 @@ function PicksBar({ state }: { state: ReturnType<typeof useBuyerSearchState> }) 
         ) : (
           <ul className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
             {picks.map((p) => (
-              <li key={p.key} className="flex max-w-xs items-center gap-1.5 rounded-full border border-sky-500/40 bg-sky-500/10 py-1 pl-3 pr-1.5 text-[11px] text-sky-200">
-                <span className="truncate" title={`${pickLabel(p)} · ${p.dealerName}${p.price != null ? ` · $${p.price.toLocaleString()}` : ""}`}>{pickLabel(p)}<span className="text-sky-300/60"> · {p.dealerName}</span>{p.price != null && <span> · ${p.price.toLocaleString()}</span>}</span>
-                <button type="button" onClick={() => state.removePick(p.key)} aria-label={`Remove ${pickLabel(p)}`} className="rounded-full p-0.5 text-sky-300/70 hover:text-white"><X className="h-3 w-3" /></button>
+              <li key={p.key} className="flex max-w-xs items-center gap-1.5 rounded-full border border-emerald-500/40 bg-emerald-500/10 py-1 pl-3 pr-1.5 text-[11px] text-emerald-200">
+                <span className="truncate" title={`${pickLabel(p)} · ${p.dealerName}${p.price != null ? ` · $${p.price.toLocaleString()}` : ""}`}>{pickLabel(p)}<span className="text-emerald-300/60"> · {p.dealerName}</span>{p.price != null && <span> · ${p.price.toLocaleString()}</span>}</span>
+                <button type="button" onClick={() => state.removePick(p.key)} aria-label={`Remove ${pickLabel(p)}`} className="rounded-full p-0.5 text-emerald-300/70 hover:text-white"><X className="h-3 w-3" /></button>
               </li>
             ))}
           </ul>
@@ -637,7 +650,7 @@ function PicksBar({ state }: { state: ReturnType<typeof useBuyerSearchState> }) 
             {limitNotice ? "You can pick up to 3 vehicles. Remove one to add another." : status || (atLimit ? "3 of 3 picked" : "")}
           </span>
           <button type="button" onClick={requestQuote} disabled={picks.length === 0} className="rounded-lg bg-emerald-500 px-3 py-1.5 text-xs font-extrabold text-black hover:bg-emerald-400 disabled:cursor-not-allowed disabled:opacity-40">Request a quote{picks.length > 1 ? ` (${picks.length})` : ""}</button>
-          <button type="button" onClick={() => void state.save()} disabled={picks.length === 0 || !dirty || saveStatus === "saving"} className="text-sm font-extrabold text-sky-400 hover:text-sky-300 disabled:cursor-not-allowed disabled:opacity-40">Save picks</button>
+          <button type="button" onClick={() => void state.save()} disabled={picks.length === 0 || !dirty || saveStatus === "saving"} className="text-sm font-extrabold text-emerald-400 hover:text-emerald-300 disabled:cursor-not-allowed disabled:opacity-40">Save picks</button>
         </div>
       </div>
     </div>
