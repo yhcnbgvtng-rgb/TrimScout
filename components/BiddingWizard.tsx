@@ -2922,13 +2922,12 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
 
                 {/* Two alternate slots, always visible on a new car — optional,
                     the buyer fills them in or doesn't. Used requests are one car. */}
-                {isUsed ? (
-                  seedSkipped > 0 ? (
-                    <p className="text-[11px] text-amber-300" data-testid="seed-used-note">
-                      Used requests are one car, so {seedSkipped} other car{seedSkipped === 1 ? "" : "s"} you picked {seedSkipped === 1 ? "wasn't" : "weren't"} added. Request {seedSkipped === 1 ? "it" : "them"} separately.
-                    </p>
-                  ) : null
-                ) : (
+                {isUsed && seedSkipped > 0 ? (
+                  <p className="text-[11px] text-amber-300" data-testid="seed-used-note">
+                    Used requests are one car, so {seedSkipped} other car{seedSkipped === 1 ? "" : "s"} you picked {seedSkipped === 1 ? "wasn't" : "weren't"} added. Request {seedSkipped === 1 ? "it" : "them"} separately.
+                  </p>
+                ) : null}
+                {isUsed ? null : (
                   <div className="space-y-2" data-testid="alternate-vehicles">
                     <p className="text-[10px] text-ink-faint">
                       Optional: up to 2 similar vehicles — dealers can quote on any of the three.
