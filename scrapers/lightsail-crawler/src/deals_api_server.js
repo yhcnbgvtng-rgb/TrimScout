@@ -2308,7 +2308,7 @@ async function handleInventorySweep(req, res) {
 // 2+ hours after its caller was long gone, silently starving the box of resources until manually
 // killed. 20s is comfortably above every legitimately-fast query measured on this table (all
 // well under 1s once properly indexed) while still failing fast on anything pathological.
-// Not applied to handleExportInventory's streaming query — a 50k-row CSV export is expected to
+// Not applied to handleExportInventory's streaming query — a whole-filter CSV export is expected to
 // run longer than this by design.
 const INV_LIST_STATEMENT_TIMEOUT_SECONDS = 20;
 
@@ -2371,7 +2371,8 @@ async function handleListInventory(req, res, params) {
   sendJson(res, 200, body);
 }
 
-// GET /api/inventory/export?<same filters as /api/inventory>&max= — the admin sheet's CSV source.
+// GET /api/inventory/export?<same filters as /api/inventory> — the admin sheet's CSV source. No row maximum:
+// every row matching the filter is streamed (the trailer's `capped` is always false, kept for older callers).
 // The CSV used to page /api/inventory 2,000 rows at a time, so a 38k-row state paid ~20 separate
 // sorts; this runs the filter once and streams one vehicle per line (NDJSON) as MariaDB returns
 // rows, so neither this 1GB box nor the caller holds the whole export in memory. The last line is
@@ -2381,17 +2382,16 @@ async function handleExportInventory(req, res, params) {
   const pool = getPool();
   await ensureInventoryTable(pool);
   const { sql, args, orderBy } = inventoryListQuery(params);
-  const max = Math.min(Math.max(Number(params.get("max")) || 50000, 1), 50000);
   const conn = await pool.getConnection();
   let aborted = false;
   res.on("close", () => { if (!res.writableFinished) { aborted = true; conn.destroy(); } });
   res.writeHead(200, { "Content-Type": "application/x-ndjson; charset=utf-8", "Cache-Control": "no-store" });
-  let n = 0, capped = false;
+  let n = 0;
+  const capped = false;
   try {
-    const rows = conn.connection.query(`SELECT i.*, d.city AS dealer_city, d.state AS dealer_state ${sql} ORDER BY ${orderBy} LIMIT ?`, [...args, max + 1]).stream({ highWaterMark: 500 });
+    const rows = conn.connection.query(`SELECT i.*, d.city AS dealer_city, d.state AS dealer_state ${sql} ORDER BY ${orderBy}`, args).stream({ highWaterMark: 500 });
     for await (const row of rows) {
       if (aborted) break;
-      if (n === max) { capped = true; continue; }
       n++;
       if (!res.write(JSON.stringify(inventoryRowFromDb(row)) + "\n")) await new Promise((r) => { res.once("drain", r); res.once("close", r); });
     }
