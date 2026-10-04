@@ -54,6 +54,8 @@ interface BaseProps {
    * buyer /search's separate color language.
    */
   accent?: "sky" | "emerald";
+  /** Slimmer field for dense toolbars (admin filter bar): smaller label, tighter padding, text-xs. Default look is unchanged. */
+  compact?: boolean;
   /** Fires each time the menu opens — lets a caller load this dropdown's options lazily instead of on page load. */
   onOpen?: () => void;
 }
@@ -98,7 +100,7 @@ const ACCENT = {
 } as const;
 
 export default function SearchableDropdown(props: Props) {
-  const { label, placeholder, options, loading, disabledHint, emptyMessage, accent = "sky" } = props;
+  const { label, placeholder, options, loading, disabledHint, emptyMessage, accent = "sky", compact = false } = props;
   const colors = ACCENT[accent];
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -143,7 +145,7 @@ export default function SearchableDropdown(props: Props) {
         <span className="text-[10.5px] font-bold uppercase tracking-wide text-ink-faint">{label}</span>
         <div
           title={disabledHint}
-          className="flex w-full cursor-not-allowed items-center justify-between rounded-xl border border-border bg-surface/50 px-3 py-2.5 text-sm text-ink-faint"
+          className={`flex w-full cursor-not-allowed items-center justify-between rounded-xl border border-border bg-surface/50 px-3 text-ink-faint ${compact ? "py-1.5 text-xs" : "py-2.5 text-sm"}`}
         >
           <span>{disabledHint}</span>
         </div>
@@ -219,7 +221,7 @@ export default function SearchableDropdown(props: Props) {
         {label}
       </label>
       <div
-        className={`flex w-full items-center gap-2 rounded-xl border px-3 py-2.5 transition-colors ${
+        className={`flex w-full items-center gap-2 rounded-xl border px-3 transition-colors ${compact ? "py-1.5" : "py-2.5"} ${
           hasValue ? colors.triggerActive : "border-border bg-surface-elevated focus-within:border-border-strong"
         }`}
       >
@@ -244,7 +246,7 @@ export default function SearchableDropdown(props: Props) {
           }}
           onKeyDown={onKeyDown}
           onBlur={closeMenu}
-          className="w-full min-w-0 truncate bg-transparent text-sm font-semibold text-white placeholder:font-normal placeholder:text-ink-light focus:outline-none"
+          className={`w-full min-w-0 truncate bg-transparent font-semibold text-white placeholder:font-normal placeholder:text-ink-light focus:outline-none ${compact ? "text-xs" : "text-sm"}`}
         />
         {hasValue && !open && (
           <button type="button" tabIndex={-1} onMouseDown={(e) => e.preventDefault()} onClick={clear} aria-label={`Clear ${label}`} className="shrink-0 text-ink-faint hover:text-white">
