@@ -66,6 +66,7 @@ import {
   type DeskMatch,
   type LinkResolution,
 } from "../lib/linkImport";
+import { seedDealersOf, deskForSeedDealer } from "../lib/seedDealers";
 import { shopperDealStructurePayload, mapDealRequestJson } from "../lib/shopperDeal";
 import { defaultTermsForVehicles } from "../lib/dealTerms";
 import {
@@ -276,7 +277,7 @@ interface BiddingWizardProps {
    * Cars picked on buyer search ("Request a quote"): fed into Step 1 through the same paste path as a typed link or
    * VIN — primary first, then the two alternates — one at a time, each still confirmed by the buyer. Nothing is sent.
    */
-  seedVehicles?: Array<{ vin: string; vdpUrl: string | null }>;
+  seedVehicles?: Array<{ vin: string; vdpUrl: string | null; dealerName?: string; dealerState?: string | null }>;
   initialStrategy?: BiddingStrategy;
   onSubmitBidRequest: (request: BiddingRequest) => void;
   // Real reverse-auction flow: the buyer already picked a specific real
@@ -1894,6 +1895,33 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, step, seedBusy, pendingLink, linkBusy, seedIdx, seedList.length, isUsed]);
+
+  // Picked cars that start an "other vehicles" quote: their stores go straight into "Dealerships to ask" when the
+  // directory has a named contact for them. Read-only lookups (the same search the picker uses); the buyer can remove
+  // any of them or add others, and a store they added themselves is never duplicated.
+  const seedDealersStartedRef = React.useRef(false);
+  useEffect(() => {
+    if (!isOpen || intent !== "alternate" || seedDealersStartedRef.current) return;
+    const stores = seedDealersOf(seedList);
+    if (stores.length === 0) return;
+    seedDealersStartedRef.current = true;
+    let cancelled = false;
+    void (async () => {
+      const found: DeskMatch[] = [];
+      for (const store of stores) {
+        const desk = deskForSeedDealer(await searchDealers(store.dealerName, ""), store);
+        if (desk) found.push(desk);
+      }
+      if (cancelled || found.length === 0) return;
+      setAltDealers((list) => {
+        const next = [...list];
+        for (const d of found) if (next.length < MAX_PACKAGE_LINKS && !next.some((x) => x.deskId === d.deskId)) next.push(d);
+        return next;
+      });
+    })();
+    return () => { cancelled = true; seedDealersStartedRef.current = false; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, intent, seedList.length]);
 
   const handleParseDealerUrl = async (urlToParse?: string) => {
     const raw = (urlToParse || dealerUrlInput).trim();

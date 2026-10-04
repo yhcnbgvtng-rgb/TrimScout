@@ -10,6 +10,9 @@ export interface QuoteSeedVehicle {
   vin: string;
   /** The dealer's listing page for this car; null when the row had no link. */
   vdpUrl: string | null;
+  /** The store the search row listed the car at; lets the wizard prefill the dealership list. Optional. */
+  dealerName?: string;
+  dealerState?: string | null;
 }
 
 type StorageLike = Pick<Storage, "getItem" | "setItem" | "removeItem">;
@@ -24,16 +27,18 @@ const httpUrl = (u: unknown): string | null => {
 export function sanitizeQuoteSeed(raw: unknown): QuoteSeedVehicle[] {
   const out: QuoteSeedVehicle[] = [];
   for (const item of Array.isArray(raw) ? raw : []) {
-    const o = (item && typeof item === "object" ? item : {}) as { vin?: unknown; vdpUrl?: unknown };
+    const o = (item && typeof item === "object" ? item : {}) as { vin?: unknown; vdpUrl?: unknown; dealerName?: unknown; dealerState?: unknown };
     const vin = typeof o.vin === "string" ? o.vin.trim().toUpperCase() : "";
     if (!VIN.test(vin) || out.some((v) => v.vin === vin)) continue;
-    out.push({ vin, vdpUrl: httpUrl(o.vdpUrl) });
+    const dealerName = typeof o.dealerName === "string" ? o.dealerName.trim().slice(0, 200) : "";
+    const state = typeof o.dealerState === "string" ? o.dealerState.trim().toUpperCase() : "";
+    out.push({ vin, vdpUrl: httpUrl(o.vdpUrl), ...(dealerName ? { dealerName, dealerState: /^[A-Z]{2}$/.test(state) ? state : null } : {}) });
     if (out.length >= QUOTE_SEED_MAX) break;
   }
   return out;
 }
 
-export function writeQuoteSeed(store: StorageLike, vehicles: Array<{ vin: string; vdpUrl: string | null }>): QuoteSeedVehicle[] {
+export function writeQuoteSeed(store: StorageLike, vehicles: QuoteSeedVehicle[]): QuoteSeedVehicle[] {
   const seed = sanitizeQuoteSeed(vehicles);
   try { store.setItem(QUOTE_SEED_KEY, JSON.stringify(seed)); } catch { /* storage blocked: the button then opens a plain wizard */ }
   return seed;

@@ -620,7 +620,7 @@ function PicksBar({ state }: { state: ReturnType<typeof useBuyerSearchState> }) 
   const router = useRouter();
   // Explicit click only: hand the picked VINs + listing links to step 1 of Request a quote, then open it. Nothing is sent.
   const requestQuote = () => {
-    writeQuoteSeed(window.sessionStorage, state.picks);
+    writeQuoteSeed(window.sessionStorage, state.picks.map((p) => ({ vin: p.vin, vdpUrl: p.vdpUrl, dealerName: p.dealerName, dealerState: p.dealerState })));
     router.push("/?quote=1");
   };
   const { picks, limitNotice, saveStatus, dirty, signedIn, atLimit } = state;
