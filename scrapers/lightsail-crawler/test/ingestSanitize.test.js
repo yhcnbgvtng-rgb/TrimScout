@@ -1,5 +1,9 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { shardMileage } from '../../../scripts/box/shardMileage.js';
 
 import {
   readOdometer,
@@ -130,5 +134,45 @@ describe('rule 3 — window sticker: only real PDF/Monroney links', () => {
   it('rejects empty / non-string input', () => {
     assert.equal(isRealWindowStickerUrl(''), false);
     assert.equal(isRealWindowStickerUrl(null), false);
+  });
+});
+
+describe('#384 follow-up gap 1 — legacy vehicles write (db.js)', () => {
+  // db.js passes resolveMileage(r.mileage, normalizeInventoryType(r.inventoryType)); normalize yields NEW / USED / CERTIFIED_PRE_OWNED.
+  it('used/CPO with no odometer or an explicit 0 -> null; new keeps a stated 0', () => {
+    assert.equal(resolveMileage(null, 'USED'), null);
+    assert.equal(resolveMileage(0, 'USED'), null);
+    assert.equal(resolveMileage(0, 'CERTIFIED_PRE_OWNED'), null);
+    assert.equal(resolveMileage(0, 'NEW'), 0);
+    assert.equal(resolveMileage(14200, 'USED'), 14200);
+  });
+
+  it('db.js actually routes the mileage column through resolveMileage (no `: 0` default left)', () => {
+    const src = fs.readFileSync(path.join(path.dirname(fileURLToPath(import.meta.url)), '../src/db.js'), 'utf8');
+    assert.match(src, /resolveMileage\(r\.mileage, normalizeInventoryType\(r\.inventoryType\)\)/);
+    assert.doesNotMatch(src, /Number\.isFinite\(r\.mileage\) \? r\.mileage : 0/);
+  });
+});
+
+describe('#384 follow-up gap 2 — old shard mileage: 0 is treated as missing on read', () => {
+  it('used/CPO 0 -> null so the upsert cannot write the old 0 over a cleaned null', () => {
+    assert.equal(shardMileage(0, 'used'), null);
+    assert.equal(shardMileage(0, 'cpo'), null);
+    assert.equal(shardMileage('0', 'used'), null);
+  });
+
+  it('leaves real used miles, a stated 0 on a new car, high-mile new, and other conditions untouched', () => {
+    assert.equal(shardMileage(39061, 'used'), 39061);
+    assert.equal(shardMileage(0, 'new'), 0);
+    assert.equal(shardMileage(8500, 'new'), 8500);
+    assert.equal(shardMileage(0, 'wholesale'), 0);
+    assert.equal(shardMileage(0, null), 0);
+    assert.equal(shardMileage(null, 'used'), null);
+  });
+
+  it('inventory-sync.mjs applies it on read and never rewrites shard files for it', () => {
+    const src = fs.readFileSync(path.join(path.dirname(fileURLToPath(import.meta.url)), '../../../scripts/box/inventory-sync.mjs'), 'utf8');
+    assert.match(src, /mileage: shardMileage\(v\.mileage, cond\(v\.inventoryType\)\)/);
+    assert.doesNotMatch(src, /writeFileSync\([^)]*shard/i);
   });
 });

@@ -42,6 +42,7 @@ import { startSyncLockHeartbeat } from "./syncLockHeartbeat.js";
 import { computeFileIdentity } from "./syncCheckpoint.js";
 import { createApi } from "./syncHttp.js";
 import { planBatches } from "./syncBatching.js";
+import { shardMileage } from "./shardMileage.js";
 import { runWritePhase, configFromEnv } from "./syncRun.js";
 import { SweepAbortError, LockLostError } from "./syncSweep.js";
 
@@ -195,7 +196,7 @@ for (const shardFile of files) {
     if (!/^[A-HJ-NPR-Z0-9]{17}$/.test(String(v.vin || "").toUpperCase()) || (v.status || "ACTIVE").toUpperCase() !== "ACTIVE") continue;
     rows.push({
       vin: v.vin.toUpperCase(), dealerId: dealerIdFor(v), dealerName: v.dealerName || v.configDealerName, condition: cond(v.inventoryType), year: v.year, make: v.make, model: v.model, trim: v.trim,
-      bodyStyle: v.bodyStyle, exteriorColor: v.exteriorColor, interiorColor: v.interiorColor, mileage: v.mileage, price: v.price, msrp: v.msrp, stockNumber: v.stockNumber, vdpUrl: v.url, imageUrl: v.imageUrl, source: "nightly",
+      bodyStyle: v.bodyStyle, exteriorColor: v.exteriorColor, interiorColor: v.interiorColor, mileage: shardMileage(v.mileage, cond(v.inventoryType)), price: v.price, msrp: v.msrp, stockNumber: v.stockNumber, vdpUrl: v.url, imageUrl: v.imageUrl, source: "nightly",
       windowStickerUrl: v.windowStickerUrl || null, engine: v.engine || null, transmission: v.transmission || null, daysOnLot: num(v.daysOnLot), oldPrice: num(v.oldPrice), priceDiff: num(v.priceDiff),
       priceChangeType: v.priceChangeType || null, changeType: v.changeType || null, priceHistory: Array.isArray(v.priceHistory) && v.priceHistory.length ? v.priceHistory.slice(-60) : null,
       options: options(v), optionsTotal: num(v.totalOptionsPrice), baseMsrp: num(v.baseMsrp), crawlFirstSeen: v.firstSeen || null, sourceBox: BOX_LABEL,
