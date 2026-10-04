@@ -91,6 +91,7 @@ export function crawlSheetFilename(now: Date = new Date()): string {
 // ---- Vehicles (crawled dealer inventory) ----------------------------------------------------------------
 
 export interface VehicleRow {
+  vehicleId?: number | null;
   vin: string;
   dealerId: string | null;
   dealerName: string;
@@ -139,6 +140,7 @@ export const VEHICLE_SHEET_COLUMNS: Array<{ key: keyof VehicleRow; label: string
   { key: "make", label: "Make" },
   { key: "model", label: "Model" },
   { key: "trim", label: "Trim" },
+  { key: "vehicleId", label: "Vehicle ID" },
   { key: "vin", label: "VIN" },
   { key: "stockNumber", label: "Stock #" },
   { key: "price", label: "Price" },

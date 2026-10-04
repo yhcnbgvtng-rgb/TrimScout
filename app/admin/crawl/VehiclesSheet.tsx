@@ -29,7 +29,7 @@ import VinHistory from "./VinHistory";
 
 type Stats = { total: number; inStock: number; dealers: number; vins?: number; lastSeenAt: string | null; movement?: { arrivals: number; priceDrops: number; priceIncreases: number; withSticker: number; removedToday: number } };
 const SORT_FOR: Partial<Record<keyof VehicleRow, SortKey>> = { dealerName: "dealer", year: "year", make: "make", model: "model", price: "price", mileage: "mileage", lastSeenAt: "seen", daysOnLot: "days", priceDiff: "pricediff", msrp: "msrp" };
-const COL_W: Partial<Record<keyof VehicleRow, number>> = { dealerName: 240, dealerState: 60, dealerCity: 130, condition: 90, year: 64, make: 110, model: 130, trim: 190, vin: 170, stockNumber: 100, price: 90, priceDiff: 90, msrp: 90, mileage: 80, daysOnLot: 90, changeType: 110, windowStickerUrl: 120, exteriorColor: 170, interiorColor: 150, bodyStyle: 100, engine: 200, transmission: 200, options: 260, optionsTotal: 90, vdpUrl: 260, crawlFirstSeen: 110, firstSeenAt: 100, lastSeenAt: 100, removedAt: 100, source: 90, sourceBox: 70 };
+const COL_W: Partial<Record<keyof VehicleRow, number>> = { dealerName: 240, dealerState: 60, dealerCity: 130, condition: 90, year: 64, make: 110, model: 130, trim: 190, vehicleId: 90, vin: 170, stockNumber: 100, price: 90, priceDiff: 90, msrp: 90, mileage: 80, daysOnLot: 90, changeType: 110, windowStickerUrl: 120, exteriorColor: 170, interiorColor: 150, bodyStyle: 100, engine: 200, transmission: 200, options: 260, optionsTotal: 90, vdpUrl: 260, crawlFirstSeen: 110, firstSeenAt: 100, lastSeenAt: 100, removedAt: 100, source: 90, sourceBox: 70 };
 const PAGE = 500;
 const ROW_H = 32;
 // "Load all" asks for confirmation above this many rows (an estimate from the stats call). Not a CSV limit.
@@ -351,7 +351,7 @@ export default function VehiclesSheet({ initialVin = null }: { initialVin?: stri
                       : c.key === "mileage" && r.mileage != null ? r.mileage.toLocaleString()
                       : c.key === "condition" ? condLabel(r.condition)
                       : c.key === "options" && r.options?.length ? `${r.options.length} · ${raw}` : raw;
-                    const tone = c.key === "dealerName" ? "font-semibold text-white" : c.key === "vin" || c.key === "stockNumber" ? "font-mono text-ink-light"
+                    const tone = c.key === "dealerName" ? "font-semibold text-white" : c.key === "vin" || c.key === "stockNumber" || c.key === "vehicleId" ? "font-mono text-ink-light"
                       : c.key === "priceDiff" ? `tabular-nums justify-end font-bold ${diff != null && diff < 0 ? "text-emerald-300" : diff != null && diff > 0 ? "text-amber-300" : "text-ink-faint"}`
                       : c.key === "price" || c.key === "msrp" || c.key === "mileage" || c.key === "daysOnLot" || c.key === "optionsTotal" ? "tabular-nums text-ink-light justify-end"
                       : c.key === "condition" ? (r.condition === "new" ? "text-emerald-300" : "text-amber-200")
