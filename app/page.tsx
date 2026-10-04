@@ -17,6 +17,7 @@ import { consumeLandingView, loadShopperRequests, upsertShopperRequest } from ".
 import { Navbar } from "../components/Navbar";
 import { BidProgramIntro } from "../components/BidProgramIntro";
 import { FactoryMatchFlow } from "../components/FactoryMatchFlow";
+import { takeQuoteSeed, type QuoteSeedVehicle } from "../lib/quoteSeed";
 import { BiddingWizard } from "../components/BiddingWizard";
 import { LiveDealRoom } from "../components/LiveDealRoom";
 import { DealerPortal } from "../components/DealerPortal";
@@ -74,6 +75,8 @@ export default function Home() {
   const [preselectedVehicle, setPreselectedVehicle] = useState<Vehicle | null>(null);
   // Seeds Step 1 intent when the buyer clicks "Choose another vehicle" after a rooftop unsubscribed.
   const [repickIntent, setRepickIntent] = useState<RfqLane | null>(null);
+  // Cars picked on buyer search and handed over by its "Request a quote" button (lib/quoteSeed).
+  const [seedVehicles, setSeedVehicles] = useState<QuoteSeedVehicle[]>([]);
 
   // The quote request currently open in the quote room. Null until the buyer
   // opens one from the tracker — there is no demo request. A BMW fixture used
@@ -105,6 +108,24 @@ export default function Home() {
     url.searchParams.delete("repick");
     url.searchParams.delete("intent");
     window.history.replaceState({}, "", url.pathname + url.search + url.hash);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Arriving from buyer search's "Request a quote" button: ?quote=1 opens the wizard fresh on Step 1 with the picked cars
+  // (one car = a normal quote; two or three = the compare lane). The seed is read once and cleared, and so is the query,
+  // so a refresh doesn't reopen it. Nothing is submitted; the buyer confirms each car in Step 1.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const url = new URL(window.location.href);
+    if (url.searchParams.get("quote") !== "1") return;
+    const seed = takeQuoteSeed(window.sessionStorage);
+    url.searchParams.delete("quote");
+    window.history.replaceState({}, "", url.pathname + url.search + url.hash);
+    // Even with no usable cars (a row without a valid VIN), the buyer asked for a quote: open the wizard plain.
+    setPreselectedVehicle(null);
+    setRepickIntent(seed.length > 1 ? "alternate" : "same_spec");
+    setSeedVehicles(seed);
+    openFreshWizard();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -782,6 +803,7 @@ export default function Home() {
         vehicles={vehicles}
         preselectedVehicle={preselectedVehicle}
         initialIntent={repickIntent}
+        seedVehicles={seedVehicles}
         currentUser={currentUser}
         onRequireLogin={() => setIsAuthModalOpen(true)}
         onSwitchToBuyer={async () => {

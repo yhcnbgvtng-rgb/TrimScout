@@ -6,6 +6,8 @@ import { MapPin, SlidersHorizontal, X } from "lucide-react";
 import SearchableDropdown, { type DropdownOption } from "./search/SearchableDropdown";
 import { useBuyerSearchState } from "./search/useBuyerSearchState";
 import { MAX_PICKS, toPick, vehicleKey, type PickedVehicle } from "@/lib/buyerPicks";
+import { writeQuoteSeed } from "@/lib/quoteSeed";
+import { useRouter } from "next/navigation";
 
 interface BuyerVehicle {
   vehicleId?: number | null;
@@ -546,9 +548,9 @@ function VehicleTable({ vehicles, dimmed, picks, viewed, onTogglePick, onView }:
     <div className={`overflow-hidden rounded-2xl border border-border bg-surface transition-opacity ${dimmed ? "opacity-60" : ""}`}>
       <div className="overflow-auto" style={{ maxHeight: "calc(100vh - 260px)", minHeight: 120 }}>
         <div style={{ width: totalW, minWidth: "100%" }}>
-          <div className="sticky top-0 z-20 flex border-b border-border bg-surface-elevated" style={{ height: ROW_H }}>
+          <div className="sticky top-0 z-20 flex border-b border-gray-300 bg-gray-100" style={{ height: ROW_H }}>
             {cols.map((c) => (
-              <div key={c.key} className={`flex shrink-0 items-center border-r border-border/60 px-2.5 text-[10.5px] font-black uppercase tracking-wider text-ink-faint ${c.right ? "justify-end" : ""}`} style={{ width: c.w }}>
+              <div key={c.key} className={`flex shrink-0 items-center border-r border-gray-300 px-2.5 text-[10.5px] font-black uppercase tracking-wider text-gray-900 ${c.right ? "justify-end" : ""}`} style={{ width: c.w }}>
                 <span className="truncate">{c.label}</span>
               </div>
             ))}
@@ -557,7 +559,7 @@ function VehicleTable({ vehicles, dimmed, picks, viewed, onTogglePick, onView }:
             const key = vehicleKey(v);
             const isViewed = viewed.has(key);
             return (
-              <div key={key} onClick={() => onView(key)} className={`flex cursor-default border-b border-border/40 text-[11.5px] ${idx % 2 ? "bg-surface" : "bg-surface-elevated/40"} hover:bg-sky-500/5`} style={{ height: ROW_H }}>
+              <div key={key} onClick={() => onView(key)} className={`flex cursor-default border-b border-border/40 text-[11.5px] ${idx % 2 ? "bg-surface" : "bg-surface-elevated/40"} hover:bg-emerald-500/5`} style={{ height: ROW_H }}>
                 {cols.map((c) => {
                   const text = c.show ? c.show(v) : "";
                   const tone = isViewed ? "text-ink-faint" : c.key === "dealer" ? "font-semibold text-white"
@@ -572,12 +574,12 @@ function VehicleTable({ vehicles, dimmed, picks, viewed, onTogglePick, onView }:
                           onClick={(e) => e.stopPropagation()}
                           onChange={() => onTogglePick(toPick(v))}
                           aria-label={`Pick ${[v.year, v.make, v.model, v.trim].filter(Boolean).join(" ") || v.vin} for a quote`}
-                          className="h-3.5 w-3.5 accent-sky-500"
+                          className="h-3.5 w-3.5 accent-emerald-500"
                         />
                       ) : c.key === "listing" ? (
                         <span className="flex min-w-0 items-center gap-2">
                           {v.vdpUrl ? (
-                            <Link href={v.vdpUrl} target="_blank" rel="noopener noreferrer" onClick={() => onView(key)} className="truncate text-sky-300 hover:underline">View at dealer ↗</Link>
+                            <Link href={v.vdpUrl} target="_blank" rel="noopener noreferrer" onClick={() => onView(key)} className="truncate text-emerald-400 hover:underline">View at dealer ↗</Link>
                           ) : (
                             <span className="truncate text-ink-faint">No link</span>
                           )}
@@ -602,6 +604,12 @@ const pickLabel = (p: PickedVehicle) => [p.year, p.make, p.model, p.trim].filter
 
 /** Fixed bar at the bottom of the page: the ticked vehicles (max 3), a save control, and the limit notice. */
 function PicksBar({ state }: { state: ReturnType<typeof useBuyerSearchState> }) {
+  const router = useRouter();
+  // Explicit click only: hand the picked VINs + listing links to step 1 of Request a quote, then open it. Nothing is sent.
+  const requestQuote = () => {
+    writeQuoteSeed(window.sessionStorage, state.picks);
+    router.push("/?quote=1");
+  };
   const { picks, limitNotice, saveStatus, dirty, signedIn, atLimit } = state;
   const status =
     saveStatus === "saving" ? "Saving…"
@@ -628,6 +636,7 @@ function PicksBar({ state }: { state: ReturnType<typeof useBuyerSearchState> }) 
           <span role="status" aria-live="polite" className={`text-[11px] ${limitNotice ? "font-semibold text-amber-300" : "text-ink-faint"}`}>
             {limitNotice ? "You can pick up to 3 vehicles. Remove one to add another." : status || (atLimit ? "3 of 3 picked" : "")}
           </span>
+          <button type="button" onClick={requestQuote} disabled={picks.length === 0} className="rounded-lg bg-emerald-500 px-3 py-1.5 text-xs font-extrabold text-black hover:bg-emerald-400 disabled:cursor-not-allowed disabled:opacity-40">Request a quote{picks.length > 1 ? ` (${picks.length})` : ""}</button>
           <button type="button" onClick={() => void state.save()} disabled={picks.length === 0 || !dirty || saveStatus === "saving"} className="text-sm font-extrabold text-sky-400 hover:text-sky-300 disabled:cursor-not-allowed disabled:opacity-40">Save picks</button>
         </div>
       </div>
