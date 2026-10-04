@@ -17,13 +17,14 @@
 // keep adding to it; counts are in-stock vehicles scoped by State/Make/Model only (see inventoryAdminFacets.js).
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ArrowDown, ArrowUp, ArrowUpDown, Download, ListChecks, RefreshCw, Search, X } from "lucide-react";
+import { ArrowDown, ArrowUp, ArrowUpDown, Download, RefreshCw, Search, X } from "lucide-react";
 import { VEHICLE_SHEET_COLUMNS, vehicleRowCell, vehicleSheetFilename, type VehicleRow } from "@/lib/crawlSheetColumns";
 import {
   EMPTY_FILTERS, activeFilterCount, buildVehicleQuery, cascadeCleared, effectiveSort, facetKey, facetParams, filtersEqual, hasAnyFilter, loadAllFilters, pruneToOptions,
   type Movement, type SortKey, type VehicleFilters, type VehicleSort,
 } from "@/lib/vehicleFilters";
-import SearchableDropdown, { type DropdownOption } from "@/components/search/SearchableDropdown";
+import type { DropdownOption } from "@/components/search/SearchableDropdown";
+import { MultiPill, PillShell } from "@/components/admin/FilterPill";
 import VinHistory from "./VinHistory";
 
 type Stats = { total: number; inStock: number; dealers: number; vins?: number; lastSeenAt: string | null; movement?: { arrivals: number; priceDrops: number; priceIncreases: number; withSticker: number; removedToday: number } };
@@ -223,62 +224,66 @@ export default function VehiclesSheet({ initialVin = null }: { initialVin?: stri
     { field: "states", label: "State" }, { field: "makes", label: "Make" }, { field: "models", label: "Model" }, { field: "trims", label: "Trim" },
   ];
   const hasChips = chipGroups.some((g) => draft[g.field].length > 0);
+  // Filters that live behind "More filters" and differ from their default (In stock only defaults on).
+  const moreCount = (draft.movement ? 1 : 0) + (draft.minDays.trim() ? 1 : 0) + (draft.hasSticker ? 1 : 0) + (draft.possibleDemo ? 1 : 0) + (draft.inStock ? 0 : 1);
 
   return (
     <div className="space-y-4">
-      <div className="rounded-2xl border border-border bg-surface p-3 flex flex-wrap items-end gap-2">
-        <div className="relative flex-1 min-w-[220px]">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-ink-faint" />
-          <input id="veh-search" value={draft.q} onChange={(e) => setDraft((d) => ({ ...d, q: e.target.value }))} onKeyDown={(e) => { if (e.key === "Enter") apply(); }} placeholder="Search VIN, dealer, model, trim, stock #… (Enter to apply)" className="w-full rounded-xl border border-border bg-surface-elevated pl-9 pr-3 py-2 text-xs text-white placeholder:text-ink-faint focus:outline-none focus:ring-2 focus:ring-emerald-500/40" />
-        </div>
-        {typedVin && (
-          <button type="button" onClick={() => setVinOpen(typedVin)} className="rounded-xl border border-emerald-500/50 bg-emerald-500/10 px-3 py-2 text-[11px] font-bold text-emerald-300 hover:bg-emerald-500/20">VIN history →</button>
-        )}
-        <div className="w-44">
-          <SearchableDropdown multi multiMode="any" selectedNoun="state" accent="emerald" label="State" placeholder="All states" options={stateOptions} value={draft.states} loading={facetsLoading} onChange={setList("states")} onOpen={wantFacets} emptyMessage={facetsError ?? undefined} />
-        </div>
-        <div className="w-44">
-          <SearchableDropdown multi multiMode="any" selectedNoun="make" accent="emerald" label="Make" placeholder="All makes" options={makeOptions} value={draft.makes} loading={facetsLoading} onChange={setList("makes")} onOpen={wantFacets} emptyMessage={facetsError ?? undefined} />
-        </div>
-        <div className="w-44">
-          <SearchableDropdown multi multiMode="any" selectedNoun="model" accent="emerald" label="Model" placeholder="All models" options={modelOptions} value={draft.models} loading={facetsLoading} onChange={setList("models")} onOpen={wantFacets} disabledHint={draft.makes.length ? undefined : "Pick a make first"} emptyMessage={facetsError ?? undefined} />
-        </div>
-        <div className="w-44">
-          <SearchableDropdown multi multiMode="any" selectedNoun="trim" accent="emerald" label="Trim" placeholder="Any trim" options={trimOptions} value={draft.trims} loading={facetsLoading} onChange={setList("trims")} onOpen={wantFacets} disabledHint={draft.models.length ? undefined : "Pick a model first"} emptyMessage={facetsError ?? undefined} />
-        </div>
-        <div className="flex flex-col gap-1">
-          <span className="text-[10.5px] font-bold uppercase tracking-wide text-ink-faint">Condition</span>
-          <div className="flex gap-1" role="group" aria-label="Condition">
-            {CONDITIONS.map(([value, label]) => {
-              const on = draft.conds.includes(value);
-              return (
-                <button key={value} type="button" aria-pressed={on} onClick={() => setList("conds")(on ? draft.conds.filter((c) => c !== value) : [...draft.conds, value])} className={`rounded-xl border px-2.5 py-2.5 text-[11px] font-bold ${on ? "border-emerald-500/50 bg-emerald-500/15 text-emerald-300" : "border-border bg-surface-elevated text-ink-light hover:text-white"}`}>{label}</button>
-              );
-            })}
+      <div className="space-y-3">
+        <div className="flex items-center gap-4">
+          <div className="relative flex-1 border-b border-border-strong">
+            <label htmlFor="veh-search" className="sr-only">Search</label>
+            <Search className="pointer-events-none absolute left-0 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-ink-faint" />
+            <input id="veh-search" value={draft.q} onChange={(e) => setDraft((d) => ({ ...d, q: e.target.value }))} onKeyDown={(e) => { if (e.key === "Enter") apply(); }} placeholder="Search VIN, dealer, model, stock #" className="w-full bg-transparent py-2 pl-6 pr-2 text-sm text-white placeholder:text-ink-faint focus:outline-none" />
           </div>
+        {typedVin && (
+          <button type="button" onClick={() => setVinOpen(typedVin)} className="text-xs font-semibold text-emerald-400 hover:text-emerald-300">VIN history →</button>
+        )}
+          <button type="button" onClick={apply} disabled={!canApply || loading} title={canApply ? undefined : "Add a filter first — or use Load all"} className={`text-sm font-black text-emerald-400 hover:text-emerald-300 disabled:opacity-40 ${dirty && canApply ? "underline underline-offset-4" : ""}`}>
+            Apply{applied && dirty ? " changes" : ""}
+          </button>
+          <button type="button" onClick={loadAll} disabled={loading} className="text-xs font-medium text-ink-faint hover:text-ink-light disabled:opacity-50">Load all</button>
+          {(activeFilterCount(draft) > 0 || applied) && (
+            <button type="button" onClick={clearAll} className="inline-flex items-center gap-1 text-xs font-medium text-rose-300/80 hover:text-rose-200"><X className="h-3 w-3" /> Clear</button>
+          )}
         </div>
-        <select id="veh-movement" value={draft.movement} onChange={(e) => setDraft((d) => ({ ...d, movement: e.target.value as Movement }))} className="rounded-xl border border-border bg-surface-elevated px-2.5 py-2 text-[11px] font-bold text-ink-light">
+        <div className="flex flex-wrap items-center gap-2">
+          <MultiPill label="State" options={stateOptions} value={draft.states} loading={facetsLoading} onChange={setList("states")} onOpen={wantFacets} emptyMessage={facetsError ?? undefined} />
+          <MultiPill label="Make" options={makeOptions} value={draft.makes} loading={facetsLoading} onChange={setList("makes")} onOpen={wantFacets} emptyMessage={facetsError ?? undefined} />
+          <MultiPill label="Model" options={modelOptions} value={draft.models} loading={facetsLoading} onChange={setList("models")} onOpen={wantFacets} disabledHint={draft.makes.length ? undefined : "Pick a make first"} emptyMessage={facetsError ?? undefined} />
+          <MultiPill label="Trim" options={trimOptions} value={draft.trims} loading={facetsLoading} onChange={setList("trims")} onOpen={wantFacets} disabledHint={draft.models.length ? undefined : "Pick a model first"} emptyMessage={facetsError ?? undefined} />
+          <MultiPill label="Condition" searchable={false} options={CONDITIONS.map(([value, label]) => ({ value, label }))} value={draft.conds} onChange={setList("conds")} />
+          <PillShell label="More filters" summary={moreCount ? String(moreCount) : undefined} active={moreCount > 0} width="w-72">
+            {() => (
+              <div className="space-y-3 p-3">
+                <div className="space-y-1">
+                  <label htmlFor="veh-movement" className="text-[11px] font-bold uppercase tracking-wide text-ink-faint">Movement</label>
+                  <select id="veh-movement" value={draft.movement} onChange={(e) => setDraft((d) => ({ ...d, movement: e.target.value as Movement }))} className="w-full rounded-lg border border-border bg-surface px-2.5 py-1.5 text-xs text-ink-light">
           <option value="">Any movement</option><option value="arrivals">New arrivals</option><option value="drops">Price drops</option><option value="increases">Price increases</option><option value="removed">Sold (removed, 24h)</option>
         </select>
-        <input id="veh-mindays" value={draft.minDays} onChange={(e) => setDraft((d) => ({ ...d, minDays: e.target.value.replace(/\D/g, "") }))} onKeyDown={(e) => { if (e.key === "Enter") apply(); }} placeholder="Days on lot ≥" inputMode="numeric" className="w-28 rounded-xl border border-border bg-surface-elevated px-2.5 py-2 text-[11px] font-bold text-white placeholder:text-ink-faint" />
-        <label className="flex items-center gap-1.5 text-[11px] font-semibold text-ink-muted"><input type="checkbox" checked={draft.hasSticker} onChange={(e) => setDraft((d) => ({ ...d, hasSticker: e.target.checked }))} className="accent-emerald-500" /> Has window sticker</label>
-        <label className="flex items-center gap-1.5 text-[11px] font-semibold text-ink-muted" title="New condition with over 500 miles — usually a demo or loaner, not fresh off the truck"><input type="checkbox" checked={draft.possibleDemo} onChange={(e) => setDraft((d) => ({ ...d, possibleDemo: e.target.checked }))} className="accent-emerald-500" /> Possible demo</label>
-        <label className="flex items-center gap-1.5 text-[11px] font-semibold text-ink-muted"><input type="checkbox" checked={draft.inStock} onChange={(e) => setDraft((d) => ({ ...d, inStock: e.target.checked }))} className="accent-emerald-500" /> In stock only</label>
-
-        <button type="button" onClick={apply} disabled={!canApply || loading} title={canApply ? undefined : "Add a filter first — or use Load all"} className={`inline-flex items-center gap-1.5 rounded-xl px-4 py-2 text-xs font-black shadow-md disabled:opacity-40 ${dirty && canApply ? "bg-emerald-500 hover:bg-emerald-400 text-black shadow-emerald-500/20" : "border border-emerald-500/40 bg-emerald-500/10 text-emerald-300 hover:bg-emerald-500/20"}`}>
-          <Search className="h-3.5 w-3.5" /> Apply{applied && dirty ? " changes" : ""}
-        </button>
-        <button type="button" onClick={loadAll} disabled={loading} className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-surface-elevated hover:bg-surface px-3 py-2 text-xs font-bold text-ink-light hover:text-white disabled:opacity-50"><ListChecks className="h-3.5 w-3.5" /> Load all</button>
-        {(activeFilterCount(draft) > 0 || applied) && (
-          <button type="button" onClick={clearAll} className="inline-flex items-center gap-1 rounded-xl border border-rose-500/40 bg-rose-950/30 px-3 py-2 text-[11px] font-bold text-rose-300 hover:text-white"><X className="h-3 w-3" /> Clear</button>
-        )}
-        <div className="ml-auto flex items-center gap-2">
-          <span className="rounded-xl border border-border bg-surface-elevated px-3 py-2 text-[11px] font-bold text-ink-light tabular-nums">
-            <span className="text-white">{applied ? totalLabel : "—"}</span> vehicles{stats ? <span className="text-ink-faint"> · {stats.inStock.toLocaleString()} in stock across {stats.dealers.toLocaleString()} stores{stats.lastSeenAt ? ` · crawled ${new Date(stats.lastSeenAt).toLocaleDateString()}` : ""}</span> : null}
-          </span>
-          <button type="button" onClick={() => { void loadStats(); if (query) void load(query, 0, false); }} disabled={loading || !query} className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-surface-elevated hover:bg-surface px-3 py-2 text-xs font-bold text-ink-light hover:text-white disabled:opacity-50"><RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} /> Reload</button>
-          <button type="button" onClick={() => void download()} disabled={exporting || !query || total === 0} className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 px-3.5 py-2 text-xs font-black text-black shadow-md shadow-emerald-500/20 disabled:opacity-50"><Download className="h-3.5 w-3.5" /> {exporting ? "Preparing…" : `Download CSV (${Math.min(total, CSV_CAP).toLocaleString()})`}</button>
+                </div>
+                <div className="space-y-1">
+                  <label htmlFor="veh-mindays" className="text-[11px] font-bold uppercase tracking-wide text-ink-faint">Days on lot ≥</label>
+                  <input id="veh-mindays" value={draft.minDays} onChange={(e) => setDraft((d) => ({ ...d, minDays: e.target.value.replace(/\D/g, "") }))} onKeyDown={(e) => { if (e.key === "Enter") apply(); }} placeholder="Any" inputMode="numeric" className="w-full rounded-lg border border-border bg-surface px-2.5 py-1.5 text-xs text-ink-light placeholder:text-ink-faint" />
+                </div>
+                <div className="space-y-2 pt-1">
+                  <label className="flex items-center gap-2 text-xs text-ink-light"><input type="checkbox" checked={draft.hasSticker} onChange={(e) => setDraft((d) => ({ ...d, hasSticker: e.target.checked }))} className="accent-emerald-500" /> Has window sticker</label>
+                  <label className="flex items-center gap-2 text-xs text-ink-light" title="New condition with over 500 miles — usually a demo or loaner, not fresh off the truck"><input type="checkbox" checked={draft.possibleDemo} onChange={(e) => setDraft((d) => ({ ...d, possibleDemo: e.target.checked }))} className="accent-emerald-500" /> Possible demo</label>
+                  <label className="flex items-center gap-2 text-xs text-ink-light"><input type="checkbox" checked={draft.inStock} onChange={(e) => setDraft((d) => ({ ...d, inStock: e.target.checked }))} className="accent-emerald-500" /> In stock only</label>
+                </div>
+              </div>
+            )}
+          </PillShell>
         </div>
+      </div>
+      <div className="flex justify-end">
+          <div className="ml-auto flex items-center gap-2">
+            <span className="rounded-xl border border-border bg-surface-elevated px-3 py-2 text-[11px] font-bold text-ink-light tabular-nums">
+              <span className="text-white">{applied ? totalLabel : "—"}</span> vehicles{stats ? <span className="text-ink-faint"> · {stats.inStock.toLocaleString()} in stock across {stats.dealers.toLocaleString()} stores{stats.lastSeenAt ? ` · crawled ${new Date(stats.lastSeenAt).toLocaleDateString()}` : ""}</span> : null}
+            </span>
+            <button type="button" onClick={() => { void loadStats(); if (query) void load(query, 0, false); }} disabled={loading || !query} className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-surface-elevated hover:bg-surface px-3 py-2 text-xs font-bold text-ink-light hover:text-white disabled:opacity-50"><RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} /> Reload</button>
+            <button type="button" onClick={() => void download()} disabled={exporting || !query || total === 0} className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 px-3.5 py-2 text-xs font-black text-black shadow-md shadow-emerald-500/20 disabled:opacity-50"><Download className="h-3.5 w-3.5" /> {exporting ? "Preparing…" : `Download CSV (${Math.min(total, CSV_CAP).toLocaleString()})`}</button>
+          </div>
       </div>
 
       {hasChips && (
