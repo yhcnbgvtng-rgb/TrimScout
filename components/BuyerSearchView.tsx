@@ -546,9 +546,9 @@ function VehicleTable({ vehicles, dimmed, picks, viewed, onTogglePick, onView }:
     <div className={`overflow-hidden rounded-2xl border border-border bg-surface transition-opacity ${dimmed ? "opacity-60" : ""}`}>
       <div className="overflow-auto" style={{ maxHeight: "calc(100vh - 260px)", minHeight: 120 }}>
         <div style={{ width: totalW, minWidth: "100%" }}>
-          <div className="sticky top-0 z-20 flex border-b border-border bg-surface-elevated" style={{ height: ROW_H }}>
+          <div className="sticky top-0 z-20 flex border-b border-gray-300 bg-gray-100" style={{ height: ROW_H }}>
             {cols.map((c) => (
-              <div key={c.key} className={`flex shrink-0 items-center border-r border-border/60 px-2.5 text-[10.5px] font-black uppercase tracking-wider text-ink-faint ${c.right ? "justify-end" : ""}`} style={{ width: c.w }}>
+              <div key={c.key} className={`flex shrink-0 items-center border-r border-gray-300 px-2.5 text-[10.5px] font-black uppercase tracking-wider text-gray-900 ${c.right ? "justify-end" : ""}`} style={{ width: c.w }}>
                 <span className="truncate">{c.label}</span>
               </div>
             ))}
@@ -557,7 +557,7 @@ function VehicleTable({ vehicles, dimmed, picks, viewed, onTogglePick, onView }:
             const key = vehicleKey(v);
             const isViewed = viewed.has(key);
             return (
-              <div key={key} onClick={() => onView(key)} className={`flex cursor-default border-b border-border/40 text-[11.5px] ${idx % 2 ? "bg-surface" : "bg-surface-elevated/40"} hover:bg-sky-500/5`} style={{ height: ROW_H }}>
+              <div key={key} onClick={() => onView(key)} className={`flex cursor-default border-b border-border/40 text-[11.5px] ${idx % 2 ? "bg-surface" : "bg-surface-elevated/40"} hover:bg-emerald-500/5`} style={{ height: ROW_H }}>
                 {cols.map((c) => {
                   const text = c.show ? c.show(v) : "";
                   const tone = isViewed ? "text-ink-faint" : c.key === "dealer" ? "font-semibold text-white"
@@ -572,12 +572,12 @@ function VehicleTable({ vehicles, dimmed, picks, viewed, onTogglePick, onView }:
                           onClick={(e) => e.stopPropagation()}
                           onChange={() => onTogglePick(toPick(v))}
                           aria-label={`Pick ${[v.year, v.make, v.model, v.trim].filter(Boolean).join(" ") || v.vin} for a quote`}
-                          className="h-3.5 w-3.5 accent-sky-500"
+                          className="h-3.5 w-3.5 accent-emerald-500"
                         />
                       ) : c.key === "listing" ? (
                         <span className="flex min-w-0 items-center gap-2">
                           {v.vdpUrl ? (
-                            <Link href={v.vdpUrl} target="_blank" rel="noopener noreferrer" onClick={() => onView(key)} className="truncate text-sky-300 hover:underline">View at dealer ↗</Link>
+                            <Link href={v.vdpUrl} target="_blank" rel="noopener noreferrer" onClick={() => onView(key)} className="truncate text-emerald-400 hover:underline">View at dealer ↗</Link>
                           ) : (
                             <span className="truncate text-ink-faint">No link</span>
                           )}
