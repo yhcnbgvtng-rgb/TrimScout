@@ -16,6 +16,7 @@ import mysql from 'mysql2/promise';
 import fs from 'node:fs';
 import path from 'node:path';
 import { easternDateStamp } from './date_utils.js';
+import { resolveMileage } from './ingestSanitize.js';
 
 function loadDbEnv() {
   const envPath = path.resolve(process.cwd(), '.env.trimscout-db');
@@ -275,6 +276,20 @@ export async function ensureNjOpsSchema() {
       // already present
     }
   }
+  // vehicles.mileage must accept NULL: used/CPO rows with no odometer are stored as
+  // NULL, not 0 (resolveMileage). Only widens a NOT NULL column, keeping whatever
+  // type it already has; a no-op once nullable.
+  try {
+    const [[col]] = await pool.query(
+      `SELECT COLUMN_TYPE AS type, IS_NULLABLE AS nullable FROM information_schema.COLUMNS
+       WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'vehicles' AND COLUMN_NAME = 'mileage'`
+    );
+    if (col && col.nullable === 'NO' && /^[a-z]+(\(\d+\))?( unsigned)?$/i.test(col.type)) {
+      await pool.query(`ALTER TABLE vehicles MODIFY mileage ${col.type} NULL DEFAULT NULL`);
+    }
+  } catch {
+    // read-only / older MariaDB — non-fatal; a NULL write would then fail loudly rather than store a wrong 0
+  }
 }
 
 export async function upsertDomSnapshots(rows) {
@@ -448,7 +463,8 @@ export async function syncInventoryToDatabase(brandId, records, { runId = null }
           Number.isFinite(r.year) ? r.year : null,
           truncate(r.make, 64) || 'Unknown', truncate(r.model, 128), truncate(r.trim, 128), truncate(r.bodyStyle, 64),
           truncate(r.transmission, 64), truncate(r.engine, 128), truncate(r.exteriorColor, 128), truncate(r.interiorColor, 128),
-          Number.isFinite(r.mileage) ? r.mileage : 0,
+          // null (not 0) for a used/CPO row with no odometer — same rule as dealer_inventory; see ingestSanitize.js.
+          resolveMileage(r.mileage, normalizeInventoryType(r.inventoryType)),
           r.price ?? null, r.oldPrice ?? null, r.priceDiff || 0, r.msrp ?? null, r.baseMsrp ?? null,
           // total_options_price is an unsigned column, but confirmed live in
           // the Ford dataset: dealerListedOptions sometimes includes

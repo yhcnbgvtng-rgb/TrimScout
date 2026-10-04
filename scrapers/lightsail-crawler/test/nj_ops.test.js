@@ -363,10 +363,10 @@ describe('window sticker capture (link only)', () => {
     assert.equal(layer.windowStickerUrl, 'https://cdn.example.com/sticker.pdf');
     assert.equal(layer.windowStickerSource, 'vdp_datalayer');
 
+    // An image file is the site's button artwork, never the sticker document — dropped.
     const vehicle = applyWindowSticker({ vin: '4T1B11HK1SU000001' }, '<img alt="Window Sticker" src="/sticker/monroney.png">', 'https://example.com/vdp');
-    assert.match(vehicle.windowStickerUrl, /monroney/);
-    assert.equal(vehicle.windowStickerSource, 'vdp_image');
-    assert.ok(vehicle.collectedAt);
+    assert.equal(vehicle.windowStickerUrl, null);
+    assert.equal(vehicle.windowStickerSource, null);
   });
 
   it('does not harvest stickers from challenge pages (same skip as the crawler)', () => {

@@ -2,6 +2,7 @@ import { Actor } from 'apify';
 import { CheerioCrawler, log } from 'crawlee';
 import { gotScraping } from 'got-scraping';
 import vm from 'node:vm';
+import { readOdometer, resolveMileage } from './ingestSanitize.js';
 
 await Actor.init();
 
@@ -123,7 +124,7 @@ const crawler = new CheerioCrawler({
                     const retailValue = parseFloat(raw.retailValue || '0') || null;
                     const price = salePrice || askingPrice || retailValue || null;
                     const msrp = retailValue || askingPrice || null;
-                    const mileage = parseFloat(raw.odometer || raw.mileage || '0') || 0;
+                    const odometer = readOdometer(raw.odometer ?? raw.mileage);
 
                     const inventoryType = raw.inventoryType
                         ? raw.inventoryType.toUpperCase()
@@ -146,7 +147,7 @@ const crawler = new CheerioCrawler({
                         msrp,
                         salePrice,
                         askingPrice,
-                        mileage,
+                        mileage: resolveMileage(odometer, inventoryType),
                         exteriorColor: raw.exteriorColor || null,
                         interiorColor: raw.interiorColor || null,
                         engine: raw.engine || null,
@@ -184,7 +185,7 @@ const crawler = new CheerioCrawler({
                     msrp: null,
                     salePrice: priceMatch ? parseFloat(priceMatch[1].replace(/,/g, '')) : null,
                     askingPrice: null,
-                    mileage: 0,
+                    mileage: resolveMileage(null, url.includes('/new/') ? 'NEW' : 'USED'),
                     exteriorColor: null,
                     interiorColor: null,
                     engine: null,

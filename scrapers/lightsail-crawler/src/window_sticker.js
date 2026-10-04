@@ -2,6 +2,7 @@
 // Detect only — do not download or parse the PDF, do not bypass WAFs.
 
 import { isBotProtected } from './bot_protection.js';
+import { isRealWindowStickerUrl } from './ingestSanitize.js';
 
 const LABEL_RE = /window\s*sticker|monroney|manufacturer\s*sticker|view\s+window\s+sticker/i;
 const HREF_HINT_RE = /window[-_]?sticker|monroney|sticker\.pdf|windowsticker/i;
@@ -40,7 +41,11 @@ function found(url, source, now) {
 function resolveUrl(href, pageUrl) {
   if (!href || /^javascript:/i.test(href) || href.startsWith('#')) return null;
   try {
-    return new URL(href, pageUrl || 'https://example.invalid/').toString();
+    const url = new URL(href, pageUrl || 'https://example.invalid/').toString();
+    // Icon/CDN button assets (window-sticker.svg, /icons/...png) are the site's
+    // "Window Sticker" button artwork, not the sticker: treat as no hit so the
+    // next strategy gets a chance, and the row ends up blank rather than wrong.
+    return isRealWindowStickerUrl(url) ? url : null;
   } catch {
     return null;
   }
