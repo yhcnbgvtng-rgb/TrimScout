@@ -2,7 +2,7 @@
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { MapPin, SlidersHorizontal, X } from "lucide-react";
+import { MapPin, X } from "lucide-react";
 import type { DropdownOption } from "./search/SearchableDropdown";
 import { MultiPill, PillShell, SinglePill } from "./admin/FilterPill";
 import { useBuyerSearchState } from "./search/useBuyerSearchState";
