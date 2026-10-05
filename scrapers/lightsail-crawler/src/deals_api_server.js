@@ -41,6 +41,7 @@ import { normalizeMakeForWrite } from "./stellantisMake.js";
 import { tryAcquireSyncLock, releaseSyncLock, heartbeatSyncLock } from "./syncLock.js";
 import { parseSweepRequest, buildSweepStatement } from "./inventorySweep.js";
 import { groupExistingOptionRows, diffOptionSets, pairKey } from "./inventoryOptionsDiff.js";
+import { VEHICLE_IDS_DDL, VEHICLE_ID_COLUMN_DDL, resolveVehicleIds } from "./vehicleId.js";
 
 const PORT = process.env.DEALS_API_PORT || 3004;
 
@@ -1758,10 +1759,13 @@ async function ensureInventoryTable(pool) {
     await pool.query("ALTER TABLE dealer_inventory MODIFY dealer_id INT NOT NULL DEFAULT 0");
     await pool.query("ALTER TABLE dealer_inventory DROP PRIMARY KEY, ADD PRIMARY KEY (vin, dealer_id)");
   }
+  // Stable numeric vehicle id, one per VIN (src/vehicleId.js): the registry table is new and empty, so creating it is free.
+  await pool.query(VEHICLE_IDS_DDL);
   // The nightly crawl carries more than the core columns: window sticker, engine/transmission, days on lot,
   // day-over-day price movement, price history, factory options. Additive, so a fresh or old table both work.
   for (const ddl of [
     "MODIFY cond VARCHAR(12) NULL",
+    VEHICLE_ID_COLUMN_DDL,
     "ADD COLUMN IF NOT EXISTS window_sticker_url VARCHAR(700) NULL",
     "ADD COLUMN IF NOT EXISTS engine VARCHAR(160) NULL",
     "ADD COLUMN IF NOT EXISTS transmission VARCHAR(160) NULL",
@@ -2087,6 +2091,7 @@ const INV_DEALER = (v) => INV_INT(v) || 0;
 
 function inventoryRowFromDb(r) {
   return {
+    vehicleId: r.vehicle_id ?? null,
     vin: r.vin, dealerId: r.dealer_id ? String(r.dealer_id) : null, dealerName: r.dealer_name, condition: r.cond || null, year: r.year, make: r.make, model: r.model, trim: r.trim,
     bodyStyle: r.body_style, exteriorColor: r.exterior_color, interiorColor: r.interior_color, mileage: r.mileage, price: r.price, msrp: r.msrp, stockNumber: r.stock_number,
     vdpUrl: r.vdp_url, imageUrl: r.image_url, source: r.source, firstSeenAt: r.first_seen_at, lastSeenAt: r.last_seen_at, removedAt: r.removed_at,
@@ -2132,15 +2137,18 @@ async function handleInventoryBulk(req, res) {
     // sync-lock only serializes sync runs against each other, not this endpoint against any other
     // caller (a backfill script was still running concurrently the day this was diagnosed).
     values.sort((a, b) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : a[1] - b[1]));
+    // Stable numeric vehicle id: one per VIN, registered here on first sight and appended as the last column (vehicleId.js).
+    const vehicleIds = await resolveVehicleIds(pool, values.map((r) => r[0]));
+    for (const row of values) row.push(vehicleIds.get(row[0]));
     timings.chunks++;
     const tUpsert = performance.now();
     await pool.query(
       `INSERT INTO dealer_inventory (vin, dealer_id, dealer_name, cond, year, make, model, trim, body_style, exterior_color, interior_color, mileage, price, msrp, stock_number, vdp_url, image_url, source,
-        window_sticker_url, engine, transmission, days_on_lot, old_price, price_diff, price_change_type, change_type, price_history_json, options_json, options_total, base_msrp, crawl_first_seen, source_box)
+        window_sticker_url, engine, transmission, days_on_lot, old_price, price_diff, price_change_type, change_type, price_history_json, options_json, options_total, base_msrp, crawl_first_seen, source_box, vehicle_id)
        VALUES ? ON DUPLICATE KEY UPDATE dealer_id = VALUES(dealer_id), dealer_name = VALUES(dealer_name), cond = COALESCE(VALUES(cond), cond), year = COALESCE(VALUES(year), year), make = COALESCE(VALUES(make), make), model = COALESCE(VALUES(model), model), trim = COALESCE(VALUES(trim), trim), body_style = COALESCE(VALUES(body_style), body_style), exterior_color = COALESCE(VALUES(exterior_color), exterior_color), interior_color = COALESCE(VALUES(interior_color), interior_color), mileage = COALESCE(VALUES(mileage), mileage),
         price_change_count = price_change_count + IF(VALUES(price) IS NOT NULL AND price IS NOT NULL AND VALUES(price) <> price, 1, 0),
         price = COALESCE(VALUES(price), price), msrp = COALESCE(VALUES(msrp), msrp), stock_number = COALESCE(VALUES(stock_number), stock_number), vdp_url = VALUES(vdp_url), image_url = COALESCE(VALUES(image_url), image_url), source = VALUES(source), last_seen_at = CURRENT_TIMESTAMP, removed_at = NULL,
-        window_sticker_url = COALESCE(VALUES(window_sticker_url), window_sticker_url), engine = COALESCE(VALUES(engine), engine), transmission = COALESCE(VALUES(transmission), transmission), days_on_lot = COALESCE(VALUES(days_on_lot), days_on_lot), old_price = VALUES(old_price), price_diff = VALUES(price_diff), price_change_type = VALUES(price_change_type), change_type = VALUES(change_type), price_history_json = COALESCE(VALUES(price_history_json), price_history_json), options_json = COALESCE(VALUES(options_json), options_json), options_total = COALESCE(VALUES(options_total), options_total), base_msrp = COALESCE(VALUES(base_msrp), base_msrp), crawl_first_seen = COALESCE(VALUES(crawl_first_seen), crawl_first_seen), source_box = COALESCE(VALUES(source_box), source_box)`,
+        window_sticker_url = COALESCE(VALUES(window_sticker_url), window_sticker_url), engine = COALESCE(VALUES(engine), engine), transmission = COALESCE(VALUES(transmission), transmission), days_on_lot = COALESCE(VALUES(days_on_lot), days_on_lot), old_price = VALUES(old_price), price_diff = VALUES(price_diff), price_change_type = VALUES(price_change_type), change_type = VALUES(change_type), price_history_json = COALESCE(VALUES(price_history_json), price_history_json), options_json = COALESCE(VALUES(options_json), options_json), options_total = COALESCE(VALUES(options_total), options_total), base_msrp = COALESCE(VALUES(base_msrp), base_msrp), crawl_first_seen = COALESCE(VALUES(crawl_first_seen), crawl_first_seen), source_box = COALESCE(VALUES(source_box), source_box), vehicle_id = COALESCE(vehicle_id, VALUES(vehicle_id))`,
       [values]
     );
     timings.upsertMs += performance.now() - tUpsert;
@@ -2308,7 +2316,7 @@ async function handleInventorySweep(req, res) {
 // 2+ hours after its caller was long gone, silently starving the box of resources until manually
 // killed. 20s is comfortably above every legitimately-fast query measured on this table (all
 // well under 1s once properly indexed) while still failing fast on anything pathological.
-// Not applied to handleExportInventory's streaming query — a 50k-row CSV export is expected to
+// Not applied to handleExportInventory's streaming query — a whole-filter CSV export is expected to
 // run longer than this by design.
 const INV_LIST_STATEMENT_TIMEOUT_SECONDS = 20;
 
@@ -2371,7 +2379,8 @@ async function handleListInventory(req, res, params) {
   sendJson(res, 200, body);
 }
 
-// GET /api/inventory/export?<same filters as /api/inventory>&max= — the admin sheet's CSV source.
+// GET /api/inventory/export?<same filters as /api/inventory> — the admin sheet's CSV source. No row maximum:
+// every row matching the filter is streamed (the trailer's `capped` is always false, kept for older callers).
 // The CSV used to page /api/inventory 2,000 rows at a time, so a 38k-row state paid ~20 separate
 // sorts; this runs the filter once and streams one vehicle per line (NDJSON) as MariaDB returns
 // rows, so neither this 1GB box nor the caller holds the whole export in memory. The last line is
@@ -2381,17 +2390,16 @@ async function handleExportInventory(req, res, params) {
   const pool = getPool();
   await ensureInventoryTable(pool);
   const { sql, args, orderBy } = inventoryListQuery(params);
-  const max = Math.min(Math.max(Number(params.get("max")) || 50000, 1), 50000);
   const conn = await pool.getConnection();
   let aborted = false;
   res.on("close", () => { if (!res.writableFinished) { aborted = true; conn.destroy(); } });
   res.writeHead(200, { "Content-Type": "application/x-ndjson; charset=utf-8", "Cache-Control": "no-store" });
-  let n = 0, capped = false;
+  let n = 0;
+  const capped = false;
   try {
-    const rows = conn.connection.query(`SELECT i.*, d.city AS dealer_city, d.state AS dealer_state ${sql} ORDER BY ${orderBy} LIMIT ?`, [...args, max + 1]).stream({ highWaterMark: 500 });
+    const rows = conn.connection.query(`SELECT i.*, d.city AS dealer_city, d.state AS dealer_state ${sql} ORDER BY ${orderBy}`, args).stream({ highWaterMark: 500 });
     for await (const row of rows) {
       if (aborted) break;
-      if (n === max) { capped = true; continue; }
       n++;
       if (!res.write(JSON.stringify(inventoryRowFromDb(row)) + "\n")) await new Promise((r) => { res.once("drain", r); res.once("close", r); });
     }
@@ -2794,6 +2802,42 @@ async function handleInventoryAdminFacets(req, res, params) {
     const [states, makes, models, trims] = await Promise.all([q(f.queries.states), q(f.queries.makes), q(f.queries.models), q(f.queries.trims)]);
     return adminFacetResponse({ states, makes, models, trims });
   }));
+}
+
+// GET /api/buyer-search-state?userId= and PUT /api/buyer-search-state { userId, picks?, viewed? } — a signed-in
+// buyer's search picks (<= 3) and viewed marks, one row per user. The Next route only ever passes the SESSION's id.
+// PUT updates just the parts given. Table is created on first use; nothing here touches dealer_inventory.
+let buyerSearchStateReady = false;
+async function ensureBuyerSearchState(pool) {
+  if (buyerSearchStateReady) return;
+  await pool.query("CREATE TABLE IF NOT EXISTS buyer_search_state (user_id VARCHAR(64) NOT NULL PRIMARY KEY, picks_json TEXT NULL, viewed_json MEDIUMTEXT NULL, updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP)");
+  buyerSearchStateReady = true;
+}
+const BSS_STR = (v, n) => (typeof v === "string" && v.length > 0 && v.length <= n ? v : null);
+async function handleBuyerSearchState(req, res, params) {
+  const pool = getPool();
+  await ensureBuyerSearchState(pool);
+  if (req.method === "GET") {
+    const userId = BSS_STR((params.get("userId") || "").trim(), 64);
+    if (!userId) return badRequest(res, "userId is required");
+    const [[row]] = await pool.query("SELECT picks_json, viewed_json FROM buyer_search_state WHERE user_id = ?", [userId]);
+    const parse = (s) => { try { const v = JSON.parse(s || "[]"); return Array.isArray(v) ? v : []; } catch { return []; } };
+    return sendJson(res, 200, { picks: parse(row && row.picks_json), viewed: parse(row && row.viewed_json) });
+  }
+  const body = await readBody(req);
+  const userId = BSS_STR(typeof body.userId === "string" ? body.userId.trim() : "", 64);
+  if (!userId) return badRequest(res, "userId is required");
+  const picks = Array.isArray(body.picks) ? body.picks.slice(0, 3) : null;
+  const viewed = Array.isArray(body.viewed) ? body.viewed.filter((k) => BSS_STR(k, 300)).slice(-2000) : null;
+  if (!picks && !viewed) return badRequest(res, "picks or viewed is required");
+  const picksJson = picks ? JSON.stringify(picks) : null;
+  const viewedJson = viewed ? JSON.stringify(viewed) : null;
+  if (JSON.stringify(picks || []).length > 8000) return badRequest(res, "picks too large");
+  await pool.query(
+    "INSERT INTO buyer_search_state (user_id, picks_json, viewed_json) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE picks_json = COALESCE(VALUES(picks_json), picks_json), viewed_json = COALESCE(VALUES(viewed_json), viewed_json)",
+    [userId, picksJson, viewedJson]
+  );
+  sendJson(res, 200, { ok: true });
 }
 
 // GET /api/inventory/by-dealer — in-stock counts per store, for the dealer sheet.
@@ -3411,6 +3455,7 @@ const server = http.createServer((req, res) => {
   if (req.method === "GET" && pathname === "/api/inventory/analytics") return run(handleInventoryAnalytics, url.searchParams);
   if (req.method === "GET" && pathname === "/api/inventory/market-pulse") return run(handleMarketPulse, url.searchParams);
   if (req.method === "GET" && pathname === "/api/inventory/by-dealer") return run(handleInventoryByDealer);
+  if ((req.method === "GET" || req.method === "PUT") && pathname === "/api/buyer-search-state") return run(handleBuyerSearchState, url.searchParams);
   if (req.method === "GET" && pathname === "/api/inventory/catalog") return run(handleInventoryCatalogOptions, url.searchParams);
   if (req.method === "GET" && pathname === "/api/inventory/catalog/global") return run(handleGlobalCatalogOptions);
 if (req.method === "GET" && pathname === "/api/inventory/by-listing-url") return run(handleInventoryByListingUrl, url.searchParams);

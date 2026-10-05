@@ -16,6 +16,7 @@ import { normalizeMakeForWrite } from '../src/stellantisMake.js';
 import { buildAllowlist, resolveAllowlisted, EMPTY_ALLOWLIST } from '../src/factoryOptionAllowlist.js';
 import { pairKey, diffOptionSets, groupExistingOptionRows } from '../src/inventoryOptionsDiff.js';
 import { parseSweepRequest, buildSweepStatement } from '../src/inventorySweep.js';
+import { resolveVehicleIds } from '../src/vehicleId.js';
 
 const SRC = fs.readFileSync(new URL('../src/deals_api_server.js', import.meta.url), 'utf8');
 const extractFunction = (name) => {
@@ -34,17 +35,33 @@ const extractConst = (name) => {
 // ---- an in-memory database pool that understands exactly the statements these handlers issue ---------------
 function makeDb() {
   const db = {
-    inv: new Map(), // `${vin}|${dealer}` -> { dealerId, source, lastSeen, removed }
+    inv: new Map(), // `${vin}|${dealer}` -> { dealerId, source, lastSeen, removed, vehicleId }
+    ids: new Map(), // vehicle_ids registry: vin -> id (AUTO_INCREMENT, never reused)
+    nextId: 1,
     opts: new Map(), // `${vin}|${dealer}|${key}` -> { vin, dealer_id, canonical_key, label, code }
     days: new Map(),
     clock: 1_000,
-    n: { optionDeletes: 0, optionInserts: 0, optionSelects: 0, upserts: 0, sweeps: [] },
+    n: { optionDeletes: 0, optionInserts: 0, optionSelects: 0, upserts: 0, sweeps: [], idInserts: 0 },
   };
   const pairsOf = (flat) => { const out = []; for (let i = 0; i < flat.length; i += 2) out.push([flat[i], flat[i + 1]]); return out; };
   db.pool = {
     async query(sql, params = []) {
+      if (/^SELECT vin, vehicle_id FROM vehicle_ids WHERE vin IN/.test(sql)) return [params[0].filter((v) => db.ids.has(v)).map((v) => ({ vin: v, vehicle_id: db.ids.get(v) }))];
+      if (/^INSERT IGNORE INTO vehicle_ids \(vin\) VALUES/.test(sql)) {
+        let n = 0;
+        for (const [v] of params[0]) if (!db.ids.has(v)) { db.ids.set(v, db.nextId++); n++; db.n.idInserts++; }
+        return [{ affectedRows: n }];
+      }
       if (/^INSERT INTO dealer_inventory \(vin, dealer_id,/.test(sql)) {
-        for (const v of params[0]) db.inv.set(`${v[0]}|${v[1]}`, { dealerId: v[1], source: v[17], lastSeen: db.clock, removed: false });
+        // The statement must list vehicle_id LAST, give every row that many values, and keep an existing id on update.
+        const cols = sql.match(/^INSERT INTO dealer_inventory \(([^)]*)\)/)[1].split(',').map((c) => c.trim());
+        assert.equal(cols[cols.length - 1], 'vehicle_id', 'vehicle_id is the last column of the upsert');
+        assert.match(sql, /vehicle_id = COALESCE\(vehicle_id, VALUES\(vehicle_id\)\)/, 'an update keeps the id already stored');
+        for (const v of params[0]) {
+          assert.equal(v.length, cols.length, 'every row carries one value per listed column');
+          const prev = db.inv.get(`${v[0]}|${v[1]}`);
+          db.inv.set(`${v[0]}|${v[1]}`, { dealerId: v[1], source: v[17], lastSeen: db.clock, removed: false, vehicleId: prev?.vehicleId ?? v[v.length - 1] });
+        }
         db.n.upserts += params[0].length;
         return [{ affectedRows: params[0].length }];
       }
@@ -100,7 +117,7 @@ function loadHandlers(db) {
     normalizeMakeForWrite, optionRowsFromOptions, payloadHasOptions, resolveAllowlisted,
     OPTION_ALLOWLIST: EMPTY_ALLOWLIST,
     OPTIONS_DIFF_WRITE: true,
-    pairKey, diffOptionSets, groupExistingOptionRows, parseSweepRequest, buildSweepStatement,
+    pairKey, diffOptionSets, groupExistingOptionRows, parseSweepRequest, buildSweepStatement, resolveVehicleIds,
     performance,
   };
   vm.createContext(ctx);
@@ -281,5 +298,65 @@ describe('handleInventorySweep — the real handler, in-memory pool', () => {
     assert.equal((await h.sweep({ dealerIds: [], seenAfter: cutoff })).status, 400);
     assert.equal((await h.sweep({ dealerId: 1, dealerIds: [1], seenAfter: cutoff })).status, 400);
     assert.equal(db.n.sweeps.length, 0);
+  });
+});
+
+describe('handleInventoryBulk — stable numeric vehicle id (the real handler, in-memory pool)', () => {
+  const idOf = (db, i, dealer) => db.inv.get(`${vin(i)}|${dealer ?? (i % 3) + 1}`).vehicleId;
+
+  it('first night: every new VIN gets its own id, in order, and its row carries it', async () => {
+    const db = makeDb(); const h = loadHandlers(db);
+    await h.bulk([veh(1, null), veh(2, null), veh(3, null)]);
+    const ids = [1, 2, 3].map((i) => idOf(db, i));
+    assert.deepEqual(ids, [1, 2, 3]);
+    assert.equal(new Set(ids).size, 3);
+    assert.equal(db.n.idInserts, 3);
+  });
+
+  it('the same VIN listed by two stores shares ONE id', async () => {
+    const db = makeDb(); const h = loadHandlers(db);
+    await h.bulk([veh(1, null, { dealerId: 7, dealerName: 'Store A' }), veh(1, null, { dealerId: 8, dealerName: 'Store B' }), veh(2, null)]);
+    assert.equal(idOf(db, 1, 7), idOf(db, 1, 8));
+    assert.notEqual(idOf(db, 1, 7), idOf(db, 2));
+    assert.equal(db.ids.size, 2, 'two VINs registered, not three rows');
+  });
+
+  it('a later night keeps every id, registers nothing for known VINs, and gives a new VIN the next id', async () => {
+    const db = makeDb(); const h = loadHandlers(db);
+    await h.bulk([veh(1, null), veh(2, null)]);
+    const first = [idOf(db, 1), idOf(db, 2)];
+    db.n.idInserts = 0;
+    await h.bulk([veh(1, null), veh(2, null)]);
+    assert.deepEqual([idOf(db, 1), idOf(db, 2)], first);
+    assert.equal(db.n.idInserts, 0, 'known VINs never touch the registry again');
+    await h.bulk([veh(1, null), veh(2, null), veh(5, null)]);
+    assert.equal(idOf(db, 5), 3);
+    assert.deepEqual([idOf(db, 1), idOf(db, 2)], first);
+  });
+
+  it('a VIN that leaves the crawl and comes back keeps its id; a sold car\'s id is not reused for a new VIN', async () => {
+    const db = makeDb(); const h = loadHandlers(db);
+    await h.bulk([veh(1, null), veh(2, null)]);
+    const one = idOf(db, 1);
+    await h.bulk([veh(2, null)]);
+    await h.bulk([veh(9, null)]);
+    assert.equal(idOf(db, 9), 3, 'VIN 1 absent: its id 1 stays taken');
+    await h.bulk([veh(1, null)]);
+    assert.equal(idOf(db, 1), one);
+  });
+
+  it('a row written before ids existed (NULL id) is filled on its next upsert; an id already stored is never changed', async () => {
+    const db = makeDb(); const h = loadHandlers(db);
+    db.inv.set(`${vin(1)}|2`, { dealerId: 2, source: 'nightly', lastSeen: 1, removed: false, vehicleId: null });
+    db.inv.set(`${vin(2)}|3`, { dealerId: 3, source: 'nightly', lastSeen: 1, removed: false, vehicleId: 999 });
+    await h.bulk([veh(1, null), veh(2, null)]);
+    assert.equal(idOf(db, 1), 1, 'NULL -> registry id');
+    assert.equal(idOf(db, 2), 999, 'an existing id survives the update untouched');
+  });
+
+  it('a skipped (invalid) row registers no id', async () => {
+    const db = makeDb(); const h = loadHandlers(db);
+    await h.bulk([veh(1, null), { ...veh(2, null), vin: 'SHORT' }, { ...veh(3, null), dealerName: '' }]);
+    assert.equal(db.ids.size, 1);
   });
 });

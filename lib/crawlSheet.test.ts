@@ -194,3 +194,16 @@ describe("vehicles CSV export — streamed from the box", () => {
     assert.equal(vehicleCsvHeader() + vehicleCsvLine(row), vehicleRowsToCsv([row]));
   });
 });
+
+describe("vehicle id column", () => {
+  it("is the first identifier column, before VIN, and renders as plain text (empty until the backfill reaches the row)", async () => {
+    const { VEHICLE_SHEET_COLUMNS, vehicleRowCell, vehicleCsvHeader } = await import("./crawlSheetColumns");
+    const keys = VEHICLE_SHEET_COLUMNS.map((c) => c.key);
+    assert.equal(keys.indexOf("vehicleId") + 1, keys.indexOf("vin"));
+    assert.equal(VEHICLE_SHEET_COLUMNS.find((c) => c.key === "vehicleId")?.label, "Vehicle ID");
+    assert.equal(vehicleRowCell({ vin: "1HGCM82633A004352", vehicleId: 1234567 } as never, "vehicleId"), "1234567");
+    assert.equal(vehicleRowCell({ vin: "1HGCM82633A004352", vehicleId: null } as never, "vehicleId"), "");
+    assert.equal(vehicleRowCell({ vin: "1HGCM82633A004352" } as never, "vehicleId"), "");
+    assert.match(vehicleCsvHeader(), /Vehicle ID,VIN,/);
+  });
+});

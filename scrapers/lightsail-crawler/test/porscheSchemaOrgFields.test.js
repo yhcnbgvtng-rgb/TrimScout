@@ -70,8 +70,8 @@ describe('readSchemaOrgVehicleFields', () => {
     assert.equal(result.engine, '3.0L V6 Turbo');
   });
 
-  it('is a clean no-op (0/null, no throw) when given nothing', () => {
+  it('is a clean no-op (all null, no throw) when given nothing — absent odometer is null, not 0', () => {
     const result = readSchemaOrgVehicleFields({});
-    assert.deepEqual(result, { mileage: 0, exteriorColor: null, interiorColor: null, engine: null, transmission: null });
+    assert.deepEqual(result, { mileage: null, exteriorColor: null, interiorColor: null, engine: null, transmission: null });
   });
 });

@@ -12,6 +12,8 @@
 //   - vehicleEngine has no .name on this platform, only an enum-style
 //     .fuelType ("ELECTRIC", "PLUG_IN_HYBRID") — presented as words rather
 //     than shipped verbatim.
+import { readOdometer } from './ingestSanitize.js';
+
 function cleanString(val) {
   if (!val || val === 'null' || val === 'undefined' || val === 'NULL' || val === 'None') return null;
   const str = val.toString().trim();
@@ -27,10 +29,12 @@ export function isVehicleLikeSchemaOrgType(type) {
 
 // { exteriorColor, interiorColor, mileage, engine, transmission } from a
 // parsed Vehicle/Car JSON-LD object. Never guesses — every value here is a
-// direct, confirmed-real property read (or a stated absence: mileage 0,
+// direct, confirmed-real property read (or a stated absence: mileage/
 // engine/transmission null), same honesty bar as the rest of this file.
+// mileage is null when the page has no odometer value — never a 0 default;
+// whether a stated 0 is kept is decided per condition by resolveMileage().
 export function readSchemaOrgVehicleFields(vehicleLd) {
-  const mileage = Number.isFinite(vehicleLd?.mileageFromOdometer?.value) ? Math.round(vehicleLd.mileageFromOdometer.value) : 0;
+  const mileage = readOdometer(vehicleLd?.mileageFromOdometer?.value);
   const exteriorColor = cleanString(vehicleLd?.color);
   const interiorColor = cleanString(vehicleLd?.vehicleInteriorColor);
   const engine = cleanString(vehicleLd?.vehicleEngine?.name)

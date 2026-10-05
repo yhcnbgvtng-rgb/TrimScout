@@ -136,15 +136,38 @@ describe('extractWindowSticker — button/div/span with an href-like data attrib
   });
 });
 
-describe('extractWindowSticker — <img> fallback', () => {
-  it('matches an image whose src hints at a sticker', () => {
+describe('extractWindowSticker — <img> fallback and fake sticker assets', () => {
+  it('drops a .png icon whose src merely hints at a sticker (button artwork, not a sticker)', () => {
     const html = `<img src="/icons/window-sticker-icon.png" alt="icon">`;
-    assert.equal(extractWindowSticker(html, PAGE_URL).windowStickerSource, 'vdp_image');
+    assert.equal(extractWindowSticker(html, PAGE_URL).windowStickerUrl, null);
   });
 
-  it('matches an image labeled by alt/title even with a generic src', () => {
+  it('drops a .png image labeled by alt/title — an image file is never the sticker document', () => {
     const html = `<img src="/icons/generic.png" alt="Monroney Sticker">`;
-    assert.equal(extractWindowSticker(html, PAGE_URL).windowStickerUrl, 'https://www.example-ford-dealer.com/icons/generic.png');
+    assert.equal(extractWindowSticker(html, PAGE_URL).windowStickerUrl, null);
+  });
+
+  it('drops window-sticker.svg served from a CDN button-asset path (the live case)', () => {
+    const html = `<a href="https://cdn.dealer-assets.example.com/buttons/window-sticker.svg" aria-label="View Window Sticker">View Window Sticker</a>`;
+    assert.equal(extractWindowSticker(html, PAGE_URL).windowStickerUrl, null);
+  });
+
+  it('drops a sticker-labelled link to an icon asset even without an image extension', () => {
+    const html = `<a href="/assets/icons/window-sticker" title="Window Sticker">Window Sticker</a>`;
+    assert.equal(extractWindowSticker(html, PAGE_URL).windowStickerUrl, null);
+  });
+
+  it('falls through to a real PDF link when the page also has a fake .svg one', () => {
+    const html = `<img src="/img/window-sticker.svg" alt="Window Sticker">
+      <a href="https://windowsticker.forddirect.com/windowsticker.pdf?vin=1FTFW5L85TFB55586">Window Sticker</a>`;
+    const hit = extractWindowSticker(html, PAGE_URL);
+    assert.equal(hit.windowStickerUrl, 'https://windowsticker.forddirect.com/windowsticker.pdf?vin=1FTFW5L85TFB55586');
+    assert.equal(hit.windowStickerSource, 'vdp_link');
+  });
+
+  it('keeps an extensionless Monroney endpoint', () => {
+    const html = `<a href="https://api.example.com/monroney?vin=1FTFW5L85TFB55586">Window Sticker</a>`;
+    assert.equal(extractWindowSticker(html, PAGE_URL).windowStickerUrl, 'https://api.example.com/monroney?vin=1FTFW5L85TFB55586');
   });
 });
 

@@ -40,6 +40,13 @@ import { applyWindowSticker } from './window_sticker.js';
 import { recoverTrimFromUrl } from './vdpUrlTrim.js';
 import { parseFeaturesFromDescription } from './descriptionFeatures.js';
 import { resolveRunDate } from './date_utils.js';
+import {
+    readOdometer,
+    resolveMileage,
+    priceFromSource,
+    priceFromSchemaOrgOffers,
+    numberIsPaymentCopy,
+} from './ingestSanitize.js';
 
 // One shared V8 context, reused for every vehicle's DDC dataLayer eval
 // (Strategy 1) instead of creating a fresh one per call via
@@ -265,7 +272,9 @@ function extractSchemaOrgVehicle(html, url, dealer) {
     const vin = vehicleLd.vehicleIdentificationNumber.trim().toUpperCase();
     if (!/^[A-HJ-NPR-Z0-9]{17}$/i.test(vin)) return null;
 
-    const price = cleanPrice(vehicleLd.offers?.price);
+    // A monthly/lease Offer (UnitPriceSpecification per month, or a "$299/mo"
+    // string) is not the vehicle's price — see ingestSanitize.js.
+    const price = priceFromSchemaOrgOffers(vehicleLd.offers, cleanPrice);
     // Some dealer sites' schema.org Vehicle JSON-LD omits vehicleModelDate
     // and/or bakes trim into the URL slug rather than `model` (confirmed
     // live: Champion Porsche). See porscheUrlFields.js for the recovery
@@ -440,7 +449,7 @@ function extractPorscheRetailerVehicle(html, url, dealer) {
         bodyStyle: null,
         price,
         msrp: price,
-        mileage: typeof car.mileageValue === 'number' ? Math.round(car.mileageValue) : 0,
+        mileage: readOdometer(typeof car.mileageValue === 'number' ? car.mileageValue : null),
         exteriorColor: null,
         interiorColor: null,
         engine: cleanString(car.engineType),
@@ -928,12 +937,14 @@ for (let i = 0; i < dealers.length; i++) {
                         vm.runInContext('vehicles = ' + ddcMatch[1], ddcEvalContext);
                         if (ddcEvalContext.vehicles && ddcEvalContext.vehicles.length > 0) {
                             const raw = ddcEvalContext.vehicles[0];
-                            const askingPrice = cleanPrice(raw.askingPrice);
-                            const salePrice = cleanPrice(raw.salePrice);
-                            const retailValue = cleanPrice(raw.retailValue);
+                            const askingPrice = priceFromSource(raw.askingPrice, cleanPrice);
+                            const salePrice = priceFromSource(raw.salePrice, cleanPrice);
+                            const retailValue = priceFromSource(raw.retailValue, cleanPrice);
                             const price = salePrice || askingPrice || retailValue || null;
                             const msrp = retailValue || askingPrice || null;
-                            const mileage = parseFloat(raw.odometer || raw.mileage || '0') || 0;
+                            // null when the page had no odometer — never a `|| 0` default
+                            // (resolveMileage below decides what a stated 0 means per condition).
+                            const mileage = readOdometer(raw.odometer ?? raw.mileage);
 
                             const inventoryType = raw.inventoryType
                                 ? raw.inventoryType.toUpperCase()
@@ -1043,12 +1054,19 @@ for (let i = 0; i < dealers.length; i++) {
                     // an unrelated dollar figure from somewhere else entirely,
                     // like a finance-calculator payment estimate.
                     let priceMatch = html.match(/itemprop=["']price["'][^>]*content=["']([\d,]+(?:\.\d+)?)["']/i);
+                    // A figure sitting next to "/mo", "per month" or "down" is a lease
+                    // payment, not the price — drop it (price stays blank) rather than
+                    // store it. No minimum-price rule: cheap used cars are real prices.
+                    const priceIsPayment = (m) => !!m && numberIsPaymentCopy(html, m.index + m[0].lastIndexOf(m[1]), m[1].length);
+                    if (priceIsPayment(priceMatch)) priceMatch = null;
                     if (!priceMatch && vinMatch) {
                         const vinIndex = html.indexOf(vinMatch[1]);
                         if (vinIndex !== -1) {
                             const windowStart = Math.max(0, vinIndex - 2000);
                             const windowEnd = Math.min(html.length, vinIndex + 2000);
-                            priceMatch = html.slice(windowStart, windowEnd).match(/"price"\s*:\s*"?([\d,]+(?:\.\d+)?)"?/i);
+                            const windowText = html.slice(windowStart, windowEnd);
+                            priceMatch = windowText.match(/"price"\s*:\s*"?([\d,]+(?:\.\d+)?)"?/i);
+                            if (priceMatch && numberIsPaymentCopy(windowText, priceMatch.index + priceMatch[0].lastIndexOf(priceMatch[1]), priceMatch[1].length)) priceMatch = null;
                         }
                     }
 
@@ -1079,7 +1097,7 @@ for (let i = 0; i < dealers.length; i++) {
                             bodyStyle: null,
                             price,
                             msrp: null,
-                            mileage: 0,
+                            mileage: null,
                             exteriorColor: null,
                             interiorColor: null,
                             engine: null,
@@ -1154,6 +1172,9 @@ for (let i = 0; i < dealers.length; i++) {
                                 console.log(`⚠️ trim still blank after HTTP 200 and URL-slug recovery: ${vehicle.vin} ${url}`);
                             }
                         }
+                        // Condition is final here, so this is the one place a used/CPO
+                        // listing with no odometer becomes null instead of a 0 default.
+                        vehicle.mileage = resolveMileage(vehicle.mileage, vehicle.inventoryType);
                         applyWindowSticker(vehicle, html, url, { classification: pageClass.classification });
                         currentInventory.set(vehicle.vin, vehicle);
                         dealerCount++;

@@ -9,7 +9,7 @@ export const maxDuration = 300;
 
 /**
  * Crawled dealer inventory for the admin sheet. `?stats=1` returns the filter-menu counts; otherwise a page of
- * vehicles for the given filters. `?export=1` streams the whole filter (cap 50k rows) as a CSV download — streamed
+ * vehicles for the given filters. `?export=1` streams every row of the filter (no row maximum) as a CSV download — streamed
  * because a state's CSV is well past Vercel's 4.5MB limit on a buffered response body.
  */
 /** Every non-empty value of a repeated query param (state=FL&state=GA); undefined when absent. */
