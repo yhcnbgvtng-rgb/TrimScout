@@ -101,6 +101,14 @@ describe('batched sweep', () => {
     await runSweep({ api: f.api, stores: [3, 3, 1, NaN, 2], startedAt: 'x', batchStores: 10, ...fast });
     assert.deepEqual(f.calls.map((c) => c.dealerIds), [[1, 2, 3]]);
   });
+
+  it('sweeps numeric-string ids — the dealership directory returns ids as strings', async () => {
+    const f = fakeApi();
+    const r = await runSweep({ api: f.api, stores: ['12', '3', '3', 3, '1', 'abc', ''], startedAt: 'x', batchStores: 10, ...fast });
+    assert.deepEqual(f.calls.map((c) => c.dealerIds), [[1, 3, 12]]);
+    assert.equal(r.sweptStores, 3);
+    assert.equal(r.mode, 'batch');
+  });
 });
 
 describe('a deals API that predates the batch form', () => {
