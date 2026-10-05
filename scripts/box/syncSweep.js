@@ -73,7 +73,10 @@ export async function runSweep({
   retry = { batch: { retries: 3, delayMs: 5000, factor: 2, maxDelayMs: 60_000 }, store: { retries: 1, delayMs: 3000 } },
   maxConsecutiveStoreFailures = 5,
 }) {
-  const sorted = [...new Set(stores)].filter((id) => Number.isFinite(id)).sort((a, b) => a - b);
+  // The dealership directory API returns ids as strings ("123"), and Number.isFinite("123") is false — without this
+  // coercion every store was dropped, so the sweep made no calls and reported mode "none" (seen on box2, 2026-10-05).
+  const asStoreId = (id) => (typeof id === "string" && /^\d+$/.test(id.trim()) ? Number(id) : id);
+  const sorted = [...new Set(stores.map(asStoreId))].filter((id) => Number.isFinite(id)).sort((a, b) => a - b);
   const batches = [];
   for (let i = Math.min(startIndex, sorted.length); i < sorted.length; i += batchStores) batches.push({ start: i, ids: sorted.slice(i, i + batchStores) });
 
