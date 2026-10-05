@@ -17,6 +17,7 @@ import { buildAllowlist, resolveAllowlisted, EMPTY_ALLOWLIST } from '../src/fact
 import { pairKey, diffOptionSets, groupExistingOptionRows } from '../src/inventoryOptionsDiff.js';
 import { parseSweepRequest, buildSweepStatement } from '../src/inventorySweep.js';
 import { resolveVehicleIds } from '../src/vehicleId.js';
+import { guardPrice } from '../src/ingestGuards.js';
 
 const SRC = fs.readFileSync(new URL('../src/deals_api_server.js', import.meta.url), 'utf8');
 const extractFunction = (name) => {
@@ -38,6 +39,7 @@ function makeDb() {
     inv: new Map(), // `${vin}|${dealer}` -> { dealerId, source, lastSeen, removed, vehicleId }
     ids: new Map(), // vehicle_ids registry: vin -> id (AUTO_INCREMENT, never reused)
     nextId: 1,
+    rows: [], // every row sent to the dealer_inventory upsert, as the positional values array
     opts: new Map(), // `${vin}|${dealer}|${key}` -> { vin, dealer_id, canonical_key, label, code }
     days: new Map(),
     clock: 1_000,
@@ -63,6 +65,7 @@ function makeDb() {
           db.inv.set(`${v[0]}|${v[1]}`, { dealerId: v[1], source: v[17], lastSeen: db.clock, removed: false, vehicleId: prev?.vehicleId ?? v[v.length - 1] });
         }
         db.n.upserts += params[0].length;
+        db.rows.push(...params[0]);
         return [{ affectedRows: params[0].length }];
       }
       if (/^INSERT INTO dealer_inventory_days/.test(sql)) { for (const d of params[0]) db.days.set(`${d[0]}|${d[1]}|${d[2]}`, d); return [{ affectedRows: params[0].length }]; }
@@ -117,7 +120,7 @@ function loadHandlers(db) {
     normalizeMakeForWrite, optionRowsFromOptions, payloadHasOptions, resolveAllowlisted,
     OPTION_ALLOWLIST: EMPTY_ALLOWLIST,
     OPTIONS_DIFF_WRITE: true,
-    pairKey, diffOptionSets, groupExistingOptionRows, parseSweepRequest, buildSweepStatement, resolveVehicleIds,
+    pairKey, diffOptionSets, groupExistingOptionRows, parseSweepRequest, buildSweepStatement, resolveVehicleIds, guardPrice,
     performance,
   };
   vm.createContext(ctx);
@@ -358,5 +361,44 @@ describe('handleInventoryBulk — stable numeric vehicle id (the real handler, i
     const db = makeDb(); const h = loadHandlers(db);
     await h.bulk([veh(1, null), { ...veh(2, null), vin: 'SHORT' }, { ...veh(3, null), dealerName: '' }]);
     assert.equal(db.ids.size, 1);
+  });
+});
+
+describe('handleInventoryBulk — ingest guards (the real handler)', () => {
+  const COL = { year: 4, make: 5, price: 12, msrp: 13 };
+  const sent = (db, i) => db.rows.find((r) => r[0] === vin(i));
+
+  it('writes null for a ten-times-MSRP price and for a >$300k non-exotic, and reports how many', async () => {
+    const db = makeDb(); const h = loadHandlers(db);
+    const r = await h.bulk([
+      veh(1, null, { price: 459_900, msrp: 45_990 }),
+      veh(2, null, { price: 450_000, msrp: null }),
+      veh(3, null, { price: 24_995, msrp: 26_000 }),
+    ]);
+    assert.equal(sent(db, 1)[COL.price], null, 'x10 MSRP');
+    assert.equal(sent(db, 1)[COL.msrp], 45_990, 'the MSRP itself is untouched');
+    assert.equal(sent(db, 2)[COL.price], null, '>$300k Toyota');
+    assert.equal(sent(db, 3)[COL.price], 24_995, 'a normal price passes');
+    assert.equal(r.json.priceGuarded, 2);
+    assert.equal(r.json.upserted, 3, 'the vehicles themselves are still written');
+  });
+
+  it('keeps an exotic above the ceiling, a pre-1996 classic, and a $2,500 used car', async () => {
+    const db = makeDb(); const h = loadHandlers(db);
+    const r = await h.bulk([
+      veh(1, null, { make: 'Ferrari', model: '296', year: 2024, price: 425_000, msrp: 400_000 }),
+      veh(2, null, { make: 'Ford', model: 'Mustang', year: 1965, price: 440_162 }),
+      veh(3, null, { year: 2009, price: 2_500 }),
+    ]);
+    assert.equal(sent(db, 1)[COL.price], 425_000);
+    assert.equal(sent(db, 2)[COL.price], 440_162);
+    assert.equal(sent(db, 3)[COL.price], 2_500);
+    assert.equal(r.json.priceGuarded, 0);
+  });
+
+  it('stores LEXUS and Lexus under one make', async () => {
+    const db = makeDb(); const h = loadHandlers(db);
+    await h.bulk([veh(1, null, { make: 'LEXUS' }), veh(2, null, { make: 'Lexus' }), veh(3, null, { make: 'lexus' })]);
+    assert.deepEqual([1, 2, 3].map((i) => sent(db, i)[COL.make]), ['Lexus', 'Lexus', 'Lexus']);
   });
 });

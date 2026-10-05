@@ -38,6 +38,7 @@ import { createStableCache } from "./stableCache.js";
 import { optionRowsFromOptions, payloadHasOptions, buyerOptionCatalog, isBuyerFacingOption, CATALOG_MIN_VEHICLES } from "./inventoryOptionRows.js";
 import { loadAllowlistFromEnv, resolveAllowlisted, hasAllowlistFor, catalogModeFromEnv } from "./factoryOptionAllowlist.js";
 import { normalizeMakeForWrite } from "./stellantisMake.js";
+import { guardPrice } from "./ingestGuards.js";
 import { tryAcquireSyncLock, releaseSyncLock, heartbeatSyncLock } from "./syncLock.js";
 import { parseSweepRequest, buildSweepStatement } from "./inventorySweep.js";
 import { groupExistingOptionRows, diffOptionSets, pairKey } from "./inventoryOptionsDiff.js";
@@ -2114,7 +2115,7 @@ async function handleInventoryBulk(req, res) {
   const body = await readBody(req, 30_000_000);
   const vehicles = Array.isArray(body.vehicles) ? body.vehicles : null;
   if (!vehicles) return badRequest(res, "vehicles[] is required");
-  let upserted = 0, skipped = 0, optionSetsReplaced = 0, optionSetsKept = 0, optionSetsUnchanged = 0, optionRowsWritten = 0, optionJunkDropped = 0;
+  let upserted = 0, skipped = 0, optionSetsReplaced = 0, optionSetsKept = 0, optionSetsUnchanged = 0, optionRowsWritten = 0, optionJunkDropped = 0, priceGuarded = 0;
   // Where the time inside this request goes, reported back so the sync's own log shows it every night
   // (milliseconds, summed over the request's chunks).
   const timings = { upsertMs: 0, optionsMs: 0, optionsReadMs: 0, daysMs: 0, totalMs: 0, chunks: 0 };
@@ -2125,6 +2126,13 @@ async function handleInventoryBulk(req, res) {
     if (!chunk.length) continue;
     const values = chunk.map((v) => [v.vin.trim().toUpperCase(), INV_DEALER(v.dealerId), INV_STR(v.dealerName, 255), INV_STR(v.condition, 12), INV_INT(v.year), INV_STR(normalizeMakeForWrite({ make: v.make, vin: v.vin, model: v.model }), 64), INV_STR(v.model, 96), INV_STR(v.trim, 160), INV_STR(v.bodyStyle, 64), INV_STR(v.exteriorColor, 96), INV_STR(v.interiorColor, 96), INV_INT(v.mileage), INV_INT(v.price), INV_INT(v.msrp), INV_STR(v.stockNumber, 64), INV_STR(v.vdpUrl, 700), INV_STR(v.imageUrl, 700), INV_STR(v.source, 16),
       INV_STR(v.windowStickerUrl, 700), INV_STR(v.engine, 160), INV_STR(v.transmission, 160), INV_INT(v.daysOnLot), INV_INT(v.oldPrice), INV_INT(v.priceDiff), INV_STR(v.priceChangeType, 16), INV_STR(v.changeType, 16), INV_JSON_STR(v.priceHistory, 60000), INV_JSON_STR(v.options, 200000), INV_INT(v.optionsTotal), INV_INT(v.baseMsrp), INV_DATE(v.crawlFirstSeen), INV_STR(v.sourceBox, 16)]);
+    // Ingest guard (ingestGuards.js): a price that is plainly a parse error (> $300k on a non-exotic, or ~10x the row's own
+    // MSRP) is written as null, which the upsert's COALESCE turns into "keep the stored price". Column order is the
+    // INSERT's below: year [4], make [5], price [12], msrp [13].
+    for (const row of values) {
+      const g = guardPrice({ price: row[12], msrp: row[13], make: row[5], year: row[4] });
+      if (g.reason) { row[12] = g.price; priceGuarded++; }
+    }
     // Sorted by the table's own primary key (vin, dealer_id) before the multi-row INSERT below.
     // Confirmed live 2026-09-28 via SHOW ENGINE INNODB STATUS on a deliberately reproduced
     // deadlock (see the catch-up-sync deadlock-storm investigation): two concurrent chunks
@@ -2244,7 +2252,7 @@ async function handleInventoryBulk(req, res) {
   for (const k of ["upsertMs", "optionsMs", "optionsReadMs", "daysMs", "totalMs"]) timings[k] = Math.round(timings[k]);
   // Option counters are reported back so the sync's own log shows what happened to the facet
   // table on every run, instead of it being invisible unless someone queries the DB.
-  sendJson(res, 200, { upserted, skipped, optionSetsReplaced, optionSetsKept, optionSetsUnchanged, optionRowsWritten, optionJunkDropped, timings });
+  sendJson(res, 200, { upserted, skipped, optionSetsReplaced, optionSetsKept, optionSetsUnchanged, optionRowsWritten, optionJunkDropped, priceGuarded, timings });
 }
 
 // The option rows each of these vehicles currently has in dealer_inventory_options, grouped by vehicle. One
