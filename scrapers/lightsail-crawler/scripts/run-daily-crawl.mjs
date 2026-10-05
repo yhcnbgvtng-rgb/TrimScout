@@ -632,7 +632,7 @@ export async function runBrandSharded(state, brand, dealersFile, dealerCount, da
         }
       }
 
-      console.log(`[driver] ${state} ${brand}: shard ${i + 1}/${shardCount} ${shardResult.status} (exit ${shardResult.exitCode}, ${Math.round(shardResult.durationMs / 1000)}s)${shardStats ? ` — ${shardStats.totalActiveInventory} active` : ''}`);
+      console.log(`[driver] ${state} ${brand}: shard ${i + 1}/${shardCount} ${shardResult.status} (exit ${shardResult.exitCode}${shardResult.signal ? `, signal ${shardResult.signal}` : ''}, ${Math.round(shardResult.durationMs / 1000)}s)${shardStats ? ` — ${shardStats.totalActiveInventory} active` : ''}`);
       shardResults.push(shardResult);
     }
   } finally {
@@ -646,13 +646,28 @@ export async function runBrandSharded(state, brand, dealersFile, dealerCount, da
   const anyError = shardResults.some((r) => r.status === 'error');
   const overallStatus = anyTimedOut ? 'timeout' : anyError ? 'error' : 'ok';
 
+  // A failed shard used to flatten the whole brand to `exitCode: null` — the "exit null" seen on TX Stellantis / FL
+  // Cadillac — which hid (a) what actually killed the shard (exit code or signal) and (b) that the brand's OTHER
+  // shards did finish. The brand status above is unchanged (any failed shard still makes the brand 'error'/'timeout',
+  // so nothing downstream treats it as a clean run), but the result now carries the first failure's real exit
+  // code/signal and per-shard counts, and box_report credits the rooftops of the shards that completed.
+  const failedShards = shardResults.map((r, i) => ({ r, i })).filter(({ r }) => r.status !== 'ok');
+  const firstFailed = failedShards[0]?.r;
+  const shardsOk = shardResults.length - failedShards.length;
+  const dealersInOkShards = shardResults.reduce((sum, r) => sum + (r.status === 'ok' ? r.dealerCount || 0 : 0), 0);
+
   return {
     status: overallStatus,
     dealerCount,
     durationMs: totalDurationMs,
-    exitCode: overallStatus === 'ok' ? 0 : null,
+    exitCode: overallStatus === 'ok' ? 0 : (firstFailed?.exitCode ?? null),
+    signal: firstFailed?.signal ?? null,
     sharded: true,
     shardCount,
+    shardsOk,
+    shardsFailed: failedShards.length,
+    dealersInOkShards,
+    failedShards: failedShards.map(({ r, i }) => ({ shard: i, status: r.status, exitCode: r.exitCode ?? null, signal: r.signal ?? null, logFile: r.logFile ?? null })),
     shardResults,
     stats: anyStatsSeen ? combinedStats : null,
     logFile: shardResults[0]?.logFile ?? null,
@@ -808,7 +823,7 @@ async function runState(state, date) {
       result.stats = await readBrandStatsFromDailyChanges(state, brand, date);
     }
 
-    console.log(`[driver] ${state} ${brand}: ${result.status} (exit ${result.exitCode}, ${Math.round(result.durationMs / 1000)}s)${result.stats ? ` — ${result.stats.totalActiveInventory} active, ${result.stats.totalPriceDrops} drops, ${result.stats.totalSoldOrRemoved} sold` : ''}`);
+    console.log(`[driver] ${state} ${brand}: ${result.status} (exit ${result.exitCode}${result.signal ? `, signal ${result.signal}` : ''}${result.sharded ? `, ${result.shardsOk}/${result.shardCount} shards ok` : ''}, ${Math.round(result.durationMs / 1000)}s)${result.stats ? ` — ${result.stats.totalActiveInventory} active, ${result.stats.totalPriceDrops} drops, ${result.stats.totalSoldOrRemoved} sold` : ''}`);
 
     stateSummary.brands[brand] = result;
   }
@@ -830,6 +845,7 @@ export function computeGrandTotals(states) {
   let brandsOk = 0;
   let brandsFailed = 0;
   let brandsSkipped = 0;
+  let brandsPartial = 0; // failed brands that still had at least one shard complete (a subset of brandsFailed)
   for (const stateSummary of Object.values(states)) {
     for (const brandResult of Object.values(stateSummary.brands)) {
       if (brandResult.status === 'skipped') {
@@ -837,7 +853,10 @@ export function computeGrandTotals(states) {
         continue;
       }
       if (brandResult.status === 'ok') brandsOk++;
-      else brandsFailed++;
+      else {
+        brandsFailed++;
+        if (brandResult.shardsOk > 0) brandsPartial++;
+      }
       if (brandResult.stats) {
         for (const key of Object.keys(totals)) {
           totals[key] += brandResult.stats[key] || 0;
@@ -845,7 +864,7 @@ export function computeGrandTotals(states) {
       }
     }
   }
-  return { ...totals, brandsOk, brandsFailed, brandsSkipped };
+  return { ...totals, brandsOk, brandsFailed, brandsSkipped, brandsPartial };
 }
 
 // Runs every state's full pipeline (write-dealers -> bot-report -> per-
