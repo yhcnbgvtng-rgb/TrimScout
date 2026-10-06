@@ -149,6 +149,10 @@ export function inventoryListQuery(params) {
       args.push(like, like, like, like, like);
     }
   }
+  // MariaDB sorts NULL as the smallest value, so "price low to high" would start with every vehicle that has no price.
+  // For these nullable numeric columns an ascending sort puts the blanks last instead (descending already does). Not
+  // year (idx_inv_stock_year serves its sort in index order) and not the text/index-ordered keys.
+  const NULLS_LAST_ASC = new Set(["price", "mileage", "days"]);
   const sortable = { dealer: "i.dealer_name", year: "i.year", make: "i.make", model: "i.model", price: "i.price", mileage: "i.mileage", seen: "i.last_seen_at", days: "i.days_on_lot", pricediff: "i.price_diff", msrp: "i.msrp" };
   const [sk, sd] = (p("sort") || "dealer:asc").split(":");
   // sort=trim is the buyer search's default for make+model: idx_inv_stock_make_model_trim is ordered
@@ -158,7 +162,7 @@ export function inventoryListQuery(params) {
   // rows) while this order stops after 24 index entries (4ms). Only meaningful with make+model.
   const orderBy = sk === "trim"
     ? `i.trim ${sd === "desc" ? "DESC" : "ASC"}, i.dealer_name ${sd === "desc" ? "DESC" : "ASC"}, i.vin ${sd === "desc" ? "DESC" : "ASC"}`
-    : `${sortable[sk] || "i.dealer_name"} ${sd === "desc" ? "DESC" : "ASC"}, i.vin ASC`;
+    : `${NULLS_LAST_ASC.has(sk) && sd !== "desc" ? `(${sortable[sk]} IS NULL), ` : ""}${sortable[sk] || "i.dealer_name"} ${sd === "desc" ? "DESC" : "ASC"}, i.vin ASC`;
   // A make= filter combined with the default dealer_name sort made the optimizer pick
   // idx_inv_stock_dealer (295k-row estimate) over the far more selective idx_inv_stock_make
   // (removed_at, make, model) — confirmed live 2026-09-22: 110.9s vs 203ms forced. Likely

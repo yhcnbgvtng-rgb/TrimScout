@@ -2,11 +2,12 @@
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { MapPin, SlidersHorizontal, X } from "lucide-react";
+import { ArrowDown, ArrowUp, ArrowUpDown, MapPin, SlidersHorizontal, X } from "lucide-react";
 import SearchableDropdown, { type DropdownOption } from "./search/SearchableDropdown";
 import { useBuyerSearchState } from "./search/useBuyerSearchState";
 import { MAX_PICKS, toPick, vehicleKey, type PickedVehicle } from "@/lib/buyerPicks";
 import { writeQuoteSeed } from "@/lib/quoteSeed";
+import { SERVER_SORT_KEYS, isServerSortColumn, nextDir, parseServerSort, sortRows, type SortDir } from "@/lib/buyerTableSort";
 import { useRouter } from "next/navigation";
 
 interface BuyerVehicle {
@@ -133,6 +134,8 @@ function toOptions<T>(rows: T[], valueKey: keyof T, countKey: keyof T, labelFor?
 export function BuyerSearchView() {
   const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS);
   const picksState = useBuyerSearchState();
+  // Header sort. Server columns re-run the search with sort=<key>:<dir> (whole result set); the rest re-order the loaded rows.
+  const [clientSort, setClientSort] = useState<{ key: string; dir: SortDir } | null>(null);
   const viewedSet = useMemo(() => new Set(picksState.viewed), [picksState.viewed]);
   const [moreOpen, setMoreOpen] = useState(false);
   const moreRef = useRef<HTMLDivElement>(null);
@@ -292,6 +295,19 @@ export function BuyerSearchView() {
   };
   // Filters edited since the last Search — the results on screen no longer match the panel.
   const dirty = applied !== null && JSON.stringify(applied) !== JSON.stringify(filters);
+  useEffect(() => { setClientSort(null); }, [applied]);
+  const serverSort = parseServerSort(applied?.sort ?? "");
+  const activeSort: { column: string; dir: SortDir } | null = clientSort ? { column: clientSort.key, dir: clientSort.dir } : serverSort;
+  const onHeaderSort = (key: string) => {
+    if (isServerSortColumn(key)) {
+      const dir = nextDir(serverSort?.column === key && !clientSort ? serverSort.dir : null);
+      const sort = `${SERVER_SORT_KEYS[key]}:${dir}`;
+      setFilters((f) => ({ ...f, sort }));
+      setApplied((a) => (a ? { ...a, sort } : a)); // a new object re-runs the search on page 1 (the effect above clears any browser sort)
+    } else {
+      setClientSort({ key, dir: nextDir(clientSort?.key === key ? clientSort.dir : null) });
+    }
+  };
 
   const toggleOptionKey = (key: string) => {
     setFilters((f) => ({ ...f, optionKeys: f.optionKeys.includes(key) ? f.optionKeys.filter((k) => k !== key) : [...f.optionKeys, key] }));
@@ -444,6 +460,9 @@ export function BuyerSearchView() {
                   <label className="mb-1 block text-[10.5px] font-bold uppercase tracking-wide text-ink-faint">Sort</label>
                   <select value={filters.sort} onChange={(e) => setFilters((f) => ({ ...f, sort: e.target.value }))} className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-white focus:border-emerald-500/50 focus:outline-none">
                     <option value="">Best match</option>
+                    {filters.sort && !["price:asc", "price:desc", "mileage:asc", "days:asc", "distance"].includes(filters.sort) && (
+                      <option value={filters.sort}>Column sort: {filters.sort.replace(":", " ")}</option>
+                    )}
                     <option value="price:asc">Price: low to high</option>
                     <option value="price:desc">Price: high to low</option>
                     <option value="mileage:asc">Mileage: low to high</option>
@@ -504,7 +523,7 @@ export function BuyerSearchView() {
 
         {!searchError && results && (
           <>
-            {results.vehicles.length > 0 && <VehicleTable vehicles={results.vehicles} dimmed={dirty} picks={picksState.picks} viewed={viewedSet} onTogglePick={picksState.togglePicked} onView={picksState.markViewed} />}
+            {results.vehicles.length > 0 && <VehicleTable vehicles={clientSort ? sortRows(results.vehicles, CLIENT_SORT_VALUE[clientSort.key] ?? (() => null), clientSort.dir) : results.vehicles} activeSort={activeSort} onSort={onHeaderSort} dimmed={dirty} picks={picksState.picks} viewed={viewedSet} onTogglePick={picksState.togglePicked} onView={picksState.markViewed} />}
             {results.vehicles.length === 0 && (
               <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-surface/40 px-4 py-16 text-center text-sm text-ink-faint">
                 No vehicles match these filters — try widening them.
@@ -530,6 +549,12 @@ const condLabel = (c: BuyerVehicle["condition"]) => (c ? ({ new: "New", used: "U
 
 // Same order, density and type style as the admin Vehicles table (app/admin/crawl/VehiclesSheet.tsx), limited to
 // what the public search returns. Distance only appears when the search was by ZIP.
+// Columns the box can't order by: the rows already loaded are re-ordered in the browser (see lib/buyerTableSort.ts).
+const CLIENT_SORT_VALUE: Record<string, (v: BuyerVehicle) => string | number | boolean | null> = {
+  vin: (v) => v.vin, vehicleId: (v) => v.vehicleId ?? null, ext: (v) => v.exteriorColor, int: (v) => v.interiorColor,
+  state: (v) => v.dealerState, contact: (v) => v.dealerHasContact ?? null, distance: (v) => v.distanceMiles,
+};
+const NOT_SORTABLE = new Set(["pick", "listing"]);
 const TABLE_COLUMNS: Array<{ key: string; label: string; w: number; right?: boolean; show?: (v: BuyerVehicle) => string }> = [
   { key: "pick", label: "", w: 40 },
   { key: "days", label: "Days on market", w: 110, right: true, show: (v) => (v.daysOnLot == null ? "" : String(v.daysOnLot)) },
@@ -552,7 +577,8 @@ const TABLE_COLUMNS: Array<{ key: string; label: string; w: number; right?: bool
 ];
 const ROW_H = 32;
 
-function VehicleTable({ vehicles, dimmed, picks, viewed, onTogglePick, onView }: {
+function VehicleTable({ vehicles, dimmed, picks, viewed, onTogglePick, onView, activeSort, onSort }: {
+  activeSort: { column: string; dir: SortDir } | null; onSort: (key: string) => void;
   vehicles: BuyerVehicle[]; dimmed: boolean; picks: PickedVehicle[]; viewed: Set<string>;
   onTogglePick: (p: PickedVehicle) => void; onView: (key: string) => void;
 }) {
@@ -564,11 +590,22 @@ function VehicleTable({ vehicles, dimmed, picks, viewed, onTogglePick, onView }:
       <div className="overflow-auto" style={{ maxHeight: "calc(100vh - 260px)", minHeight: 120 }}>
         <div style={{ width: totalW, minWidth: "100%" }}>
           <div className="sticky top-0 z-20 flex border-b border-gray-300 bg-gray-100" style={{ height: ROW_H }}>
-            {cols.map((c) => (
-              <div key={c.key} className={`flex shrink-0 items-center border-r border-gray-300 px-2.5 text-[10.5px] font-black uppercase tracking-wider text-gray-900 ${c.right ? "justify-end" : ""}`} style={{ width: c.w }}>
-                <span className="truncate">{c.label}</span>
-              </div>
-            ))}
+            {cols.map((c) => {
+              const sortable = !NOT_SORTABLE.has(c.key) && c.label !== "";
+              const active = activeSort?.column === c.key ? activeSort.dir : null;
+              const base = `flex shrink-0 items-center border-r border-gray-300 px-2.5 text-[10.5px] font-black uppercase tracking-wider text-gray-900 ${c.right ? "justify-end" : ""}`;
+              if (!sortable) return (
+                <div key={c.key} role="columnheader" className={base} style={{ width: c.w }}><span className="truncate">{c.label}</span></div>
+              );
+              return (
+                <button key={c.key} type="button" role="columnheader" aria-sort={active === "asc" ? "ascending" : active === "desc" ? "descending" : "none"} onClick={() => onSort(c.key)}
+                  title={isServerSortColumn(c.key) ? `Sort all results by ${c.label}` : `Sort the loaded rows by ${c.label}`}
+                  className={`${base} gap-1 hover:bg-gray-200`} style={{ width: c.w }}>
+                  <span className="truncate">{c.label}</span>
+                  {active === "asc" ? <ArrowUp className="h-3 w-3 shrink-0 text-emerald-700" /> : active === "desc" ? <ArrowDown className="h-3 w-3 shrink-0 text-emerald-700" /> : <ArrowUpDown className="h-3 w-3 shrink-0 opacity-40" />}
+                </button>
+              );
+            })}
           </div>
           {vehicles.map((v, idx) => {
             const key = vehicleKey(v);

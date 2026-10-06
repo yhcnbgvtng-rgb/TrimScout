@@ -380,3 +380,18 @@ describe('deferredPageSql', () => {
     assert.deepEqual(r.args.slice(0, 3), ['heated front seats', '4wd', 2]);
   });
 });
+
+describe('inventoryListQuery — blanks last when sorting low to high', () => {
+  it('ascending price/mileage/days put NULLs after real values; descending is unchanged', () => {
+    assert.equal(query({ sort: 'price:asc' }).orderBy, '(i.price IS NULL), i.price ASC, i.vin ASC');
+    assert.equal(query({ sort: 'mileage:asc' }).orderBy, '(i.mileage IS NULL), i.mileage ASC, i.vin ASC');
+    assert.equal(query({ sort: 'days:asc' }).orderBy, '(i.days_on_lot IS NULL), i.days_on_lot ASC, i.vin ASC');
+    assert.equal(query({ sort: 'price:desc' }).orderBy, 'i.price DESC, i.vin ASC');
+  });
+  it('leaves year, text and index-ordered sorts exactly as they were', () => {
+    assert.equal(query({ sort: 'year:asc' }).orderBy, 'i.year ASC, i.vin ASC');
+    assert.equal(query({ sort: 'dealer:asc' }).orderBy, 'i.dealer_name ASC, i.vin ASC');
+    assert.equal(query({ sort: 'trim:asc' }).orderBy, 'i.trim ASC, i.dealer_name ASC, i.vin ASC');
+    assert.equal(query({ sort: 'bogus:asc' }).orderBy, 'i.dealer_name ASC, i.vin ASC');
+  });
+});
