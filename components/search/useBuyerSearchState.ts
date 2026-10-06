@@ -105,7 +105,23 @@ export function useBuyerSearchState() {
   }, [picks, userId]);
 
   const clearPicks = useCallback(() => { setPicks([]); setLimitNotice(false); setSaveStatus("idle"); }, []);
-  const removePick = useCallback((key: string) => { setPicks((cur) => cur.filter((p) => p.key !== key)); setLimitNotice(false); setSaveStatus("idle"); }, []);
+  // ✕ on a chip removes the car for good: from the bar AND from the saved list, immediately (no Save needed), so it
+  // doesn't come back on refresh. Only that car is dropped from the saved list — other picks that were ticked but not
+  // yet saved stay unsaved.
+  const removePick = useCallback((key: string) => {
+    setPicks((cur) => cur.filter((p) => p.key !== key));
+    setLimitNotice(false);
+    setSaveStatus("idle");
+    const wasSaved = savedRef.current.some((p) => p.key === key);
+    if (!wasSaved) return;
+    const nextSaved = savedRef.current.filter((p) => p.key !== key);
+    savedRef.current = nextSaved;
+    setSavedPicks(nextSaved);
+    const { store, key: storeKey } = storeFor();
+    write(store, storeKey, { picks: nextSaved, viewed: viewedRef.current });
+    if (userId) void fetch("/api/buyer/search-state", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ picks: nextSaved }) }).catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userId]);
 
   return { ready, signedIn: Boolean(userId), picks, viewed, saveStatus, limitNotice, dirty: !sameKeys(picks, savedPicks), atLimit: picks.length >= MAX_PICKS, togglePicked, markViewed, save, clearPicks, removePick };
 }
