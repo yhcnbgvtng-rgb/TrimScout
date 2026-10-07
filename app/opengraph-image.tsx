@@ -30,7 +30,7 @@ export default async function Image() {
           />
           <div style={{ display: 'flex', fontSize: 40, fontWeight: 800, color: '#f3f4f6', letterSpacing: '-0.02em' }}>
             <span>Trim</span>
-            <span style={{ color: '#E1DEDE' }}>Scout</span>
+            <span style={{ color: '#5DB391' }}>Scout</span>
           </div>
         </div>
 
@@ -69,7 +69,7 @@ export default async function Image() {
                 display: 'flex',
                 fontSize: 22,
                 fontWeight: 600,
-                color: '#E1DEDE',
+                color: '#5DB391',
                 border: '1px solid #232836',
                 borderRadius: 999,
                 padding: '10px 24px',

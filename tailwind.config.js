@@ -14,22 +14,24 @@ module.exports = {
         'surface-elevated': '#181C26',
         border: '#232836',
         'border-strong': '#31374A',
-        // Brand accent: Porsche Chalk (#E1DEDE, from data/porsche_color_codes.csv M9A). A neutral, so hierarchy comes from
-        // layout and type. 400 is one step LIGHTER than 500 on purpose: buttons are `bg-brand-500 hover:bg-brand-400`.
+        // Brand accent: Porsche Amazonas Green Metallic, lifted for use on the dark UI (the logo uses the deeper #2A6B53).
+        // 500 (#3D9474) is the button fill: black text on it is ~5.8:1. 400 is one step LIGHTER on purpose:
+        // buttons are `bg-brand-500 hover:bg-brand-400`, and 300/400 are the text-on-dark shades.
         brand: {
-          50: '#FAF9F9',
-          100: '#F5F3F3',
-          200: '#EFEDED',
-          300: '#EBE8E8',
-          400: '#E7E4E4',
-          500: '#E1DEDE',
-          600: '#C9C5C5',
-          700: '#A39F9F',
-          800: '#787474',
-          900: '#55524F',
-          950: '#2A2826',
+          50: '#EEF8F4',
+          100: '#D9EFE6',
+          200: '#B7E2D1',
+          300: '#8CCFB3',
+          400: '#5DB391',
+          500: '#3D9474',
+          600: '#2F7A60',
+          700: '#266350',
+          800: '#1E4F40',
+          900: '#173D32',
+          950: '#0B201B',
         },
-        // Meaning, not brand: good news only (approved, quoted, price drop, factory verified, success toasts).
+        // Meaning, not brand: good news only (approved, quoted, price drop, factory verified, success toasts). Brighter and more
+        // minty than the muted brand green, so a status badge never reads as a brand element.
         // Keep this out of buttons and chrome.
         positive: {
           50: '#ECFDF5',

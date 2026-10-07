@@ -100,7 +100,7 @@ export function buildOfferEmail(
               <img src="${DEALER_EMAIL_BASE_URL}/scoutmark.png" width="28" height="28" alt="TrimScout" style="display:block;border-radius:6px;" />
             </td>
             <td style="vertical-align:middle;">
-              <span style="font-size:18px;font-weight:800;color:#0f172a;letter-spacing:-0.02em;">Trim<span style="color:#8A857F;">Scout</span></span>
+              <span style="font-size:18px;font-weight:800;color:#0f172a;letter-spacing:-0.02em;">Trim<span style="color:#2A6B53;">Scout</span></span>
             </td>
           </tr>
         </table>
@@ -159,7 +159,7 @@ export function buildOfferEmail(
           </tr>
           <tr>
             <td style="padding:8px 0;font-size:13px;color:#64748b;">${hasTargetOtd ? "Target out-the-door price" : "Pricing"}</td>
-            <td style="padding:8px 0;font-size:14px;color:#17191F;font-weight:800;text-align:right;">${escapeHtml(otdLine)}</td>
+            <td style="padding:8px 0;font-size:14px;color:#2A6B53;font-weight:800;text-align:right;">${escapeHtml(otdLine)}</td>
           </tr>
         </table>
       </td>
@@ -171,8 +171,8 @@ export function buildOfferEmail(
              <td style="padding:24px 32px 4px;">
                <table role="presentation" cellpadding="0" cellspacing="0">
                  <tr>
-                   <td style="border-radius:10px;background:#17191F;">
-                     <a href="${escapeHtml(signupUrl)}" style="display:inline-block;padding:12px 24px;font-size:14px;font-weight:700;color:#E1DEDE;text-decoration:none;">Sign In / Sign Up to Respond</a>
+                   <td style="border-radius:10px;background:#2A6B53;">
+                     <a href="${escapeHtml(signupUrl)}" style="display:inline-block;padding:12px 24px;font-size:14px;font-weight:700;color:#ffffff;text-decoration:none;">Sign In / Sign Up to Respond</a>
                    </td>
                  </tr>
                </table>
@@ -304,7 +304,7 @@ export async function notifyDealerOfTradeIn(input: {
       has sent their trade-in for you to price:</p>
       <p style="font-size:16px;font-weight:700;margin:12px 0">${escapeHtml(input.tradeInTitle)}
       <span style="font-weight:400;color:#64748b"> · ${input.mileage.toLocaleString("en-US")} mi · ${input.photoCount} photo${input.photoCount === 1 ? "" : "s"}</span></p>
-      <p>Open the <a href="${DEALER_EMAIL_BASE_URL}/?tab=locked_deals" style="color:#17191F;font-weight:600;text-decoration:underline">Won Deals</a>
+      <p>Open the <a href="${DEALER_EMAIL_BASE_URL}/?tab=locked_deals" style="color:#2A6B53;font-weight:600;text-decoration:underline">Won Deals</a>
       tab in your TrimScout portal to see the photos and enter an allowance. The buyer sees your number, and their
       revised tax and registration, as soon as you save it.</p>
       <p style="font-size:12px;color:#64748b;margin-top:24px">Deal ref #${escapeHtml(input.dealId)}</p>
