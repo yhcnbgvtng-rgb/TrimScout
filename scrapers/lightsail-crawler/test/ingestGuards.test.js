@@ -12,7 +12,7 @@ describe('guardPrice', () => {
 
   it('a price above $300k on a non-exotic is dropped', () => {
     assert.deepEqual(guardPrice({ price: 450_000, msrp: null, make: 'Toyota', year: 2023 }), { price: null, msrp: null, reason: 'over-ceiling' });
-    assert.equal(guardPrice({ price: 300_001, make: 'Porsche', year: 2024 }).reason, 'over-ceiling', 'Porsche is not on the exotic list');
+    assert.equal(guardPrice({ price: 300_001, make: 'Mercedes-Benz', year: 2024 }).reason, 'over-ceiling', 'Mercedes-Benz with no MSRP to support it');
     assert.equal(guardPrice({ price: 999_999, make: 'LEXUS', year: 2024 }).price, null);
   });
 
@@ -22,6 +22,7 @@ describe('guardPrice', () => {
       assert.equal(guardPrice({ price: 425_000, make, year: 2024 }).price, 425_000, make);
     }
     assert.equal(isExoticMake('Toyota'), false);
+    assert.equal(isExoticMake('Porsche'), false, 'Porsche is exempt from the ceiling by its own rule, not by being an exotic');
     assert.equal(isExoticMake(null), false);
   });
 
@@ -50,6 +51,47 @@ describe('guardPrice', () => {
     assert.deepEqual(guardPrice({ price: null, msrp: 45_000, make: 'Ford' }), { price: null, msrp: 45_000, reason: null });
     assert.deepEqual(guardPrice({}), { price: null, msrp: null, reason: null });
     assert.equal(guardPrice({ price: 450_000, msrp: 777_000, make: 'Ford', year: 2024 }).msrp, 777_000);
+  });
+});
+
+describe('guardPrice — corrections from the live data (2026-10-07)', () => {
+  it('Porsche GT cars above $300k keep their price, with a normal MSRP or a nonsense one (498, 799)', () => {
+    assert.deepEqual(guardPrice({ price: 341_000, msrp: 241_300, make: 'Porsche', model: '911 GT3 RS', year: 2025 }), { price: 341_000, msrp: 241_300, reason: null });
+    assert.equal(guardPrice({ price: 336_000, msrp: 498, make: 'Porsche', model: '911', year: 2024 }).price, 336_000);
+    assert.equal(guardPrice({ price: 336_000, msrp: 799, make: 'PORSCHE', model: '911', year: 2024 }).price, 336_000);
+    assert.equal(guardPrice({ price: 1_600_000, msrp: 1_500_000, make: 'Porsche', model: '918 Spyder', year: 2015 }).price, 1_600_000);
+  });
+  it('a price above $300k is kept when its own MSRP supports it (<= 2x a usable MSRP)', () => {
+    assert.equal(guardPrice({ price: 330_000, msrp: 210_000, make: 'Chevrolet', model: 'Corvette', year: 2025 }).price, 330_000, 'Corvette ZR1X');
+    assert.equal(guardPrice({ price: 410_000, msrp: 205_000, make: 'Mercedes-Benz', model: 'G-Class', year: 2025 }).price, 410_000, 'exactly 2x');
+    assert.equal(guardPrice({ price: 410_001, msrp: 205_000, make: 'Mercedes-Benz', model: 'G-Class', year: 2025 }).reason, 'over-ceiling', 'just past 2x');
+  });
+  it('known collectible/halo models keep a price above the ceiling whatever the MSRP says', () => {
+    for (const [make, model] of [['Dodge', 'Viper ACR'], ['Chevrolet', 'Corvette ZR1X'], ['Mercedes-Benz', 'G 63 AMG'], ['Mercedes-Benz', 'AMG GT Black Series'], ['Acura', 'NSX'], ['Ford', 'GT'], ['Lexus', 'LFA'], ['Nissan', 'GT-R']]) {
+      assert.equal(guardPrice({ price: 320_000, msrp: 90_000, make, model, year: 2021 }).price, 320_000, `${make} ${model}`);
+    }
+    assert.equal(guardPrice({ price: 320_000, msrp: 90_000, make: 'Toyota', model: 'Camry', year: 2021 }).reason, 'over-ceiling', 'an ordinary model is still rejected');
+  });
+  it('~10x pair where the PRICE is the broken one: the price is nulled, the MSRP kept (Explorer $660,740 vs $66,074)', () => {
+    assert.deepEqual(guardPrice({ price: 660_740, msrp: 66_074, make: 'Ford', model: 'Explorer', year: 2025 }), { price: null, msrp: 66_074, reason: 'x10-msrp' });
+    assert.deepEqual(guardPrice({ price: 509_100, msrp: 50_910, make: 'Nissan', model: 'Murano', year: 2025 }), { price: null, msrp: 50_910, reason: 'x10-msrp' });
+  });
+  it('~10x pair where the MSRP is the broken one: the MSRP is nulled and the CORRECT price survives (Ram 3500 $75,170 vs $7,514; Gladiator $56,995 vs $5,918)', () => {
+    assert.deepEqual(guardPrice({ price: 75_170, msrp: 7_514, make: 'Ram', model: '3500', year: 2025 }), { price: 75_170, msrp: null, reason: 'x10-msrp-bad-msrp' });
+    assert.deepEqual(guardPrice({ price: 56_995, msrp: 5_918, make: 'Jeep', model: 'Gladiator', year: 2025 }), { price: 56_995, msrp: null, reason: 'x10-msrp-bad-msrp' });
+  });
+  it('the boundary between the two: an MSRP of exactly $15,000 is usable (price is the broken one), below it is not', () => {
+    assert.equal(guardPrice({ price: 150_000, msrp: 15_000, make: 'Ford', year: 2024 }).price, null);
+    assert.equal(guardPrice({ price: 149_000, msrp: 14_900, make: 'Ford', year: 2024 }).price, 149_000);
+    assert.equal(guardPrice({ price: 149_000, msrp: 14_900, make: 'Ford', year: 2024 }).msrp, null);
+  });
+  it('when the price is also outside the normal band the price goes (both numbers nonsense): never keep a >$300k price on a ~10x pair', () => {
+    assert.deepEqual(guardPrice({ price: 3_100_000, msrp: 310_000, make: 'Toyota', year: 2024 }).price, null);
+    assert.deepEqual(guardPrice({ price: 99_000, msrp: 9_900, make: 'Kia', year: 2024 }), { price: 99_000, msrp: null, reason: 'x10-msrp-bad-msrp' }, 'normal price: the MSRP is blamed');
+  });
+  it('the handler-facing contract: reason is null (no change) for everything legitimate in the cases above', () => {
+    assert.equal(guardPrice({ price: 38_000, msrp: 36_000, make: 'Toyota', model: 'Camry', year: 2025 }).reason, null);
+    assert.equal(guardPrice({ price: 2_500, msrp: null, make: 'Ford', year: 2009 }).reason, null);
   });
 });
 

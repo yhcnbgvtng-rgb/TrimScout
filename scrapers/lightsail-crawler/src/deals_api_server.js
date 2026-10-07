@@ -2126,12 +2126,13 @@ async function handleInventoryBulk(req, res) {
     if (!chunk.length) continue;
     const values = chunk.map((v) => [v.vin.trim().toUpperCase(), INV_DEALER(v.dealerId), INV_STR(v.dealerName, 255), INV_STR(v.condition, 12), INV_INT(v.year), INV_STR(normalizeMakeForWrite({ make: v.make, vin: v.vin, model: v.model }), 64), INV_STR(v.model, 96), INV_STR(v.trim, 160), INV_STR(v.bodyStyle, 64), INV_STR(v.exteriorColor, 96), INV_STR(v.interiorColor, 96), INV_INT(v.mileage), INV_INT(v.price), INV_INT(v.msrp), INV_STR(v.stockNumber, 64), INV_STR(v.vdpUrl, 700), INV_STR(v.imageUrl, 700), INV_STR(v.source, 16),
       INV_STR(v.windowStickerUrl, 700), INV_STR(v.engine, 160), INV_STR(v.transmission, 160), INV_INT(v.daysOnLot), INV_INT(v.oldPrice), INV_INT(v.priceDiff), INV_STR(v.priceChangeType, 16), INV_STR(v.changeType, 16), INV_JSON_STR(v.priceHistory, 60000), INV_JSON_STR(v.options, 200000), INV_INT(v.optionsTotal), INV_INT(v.baseMsrp), INV_DATE(v.crawlFirstSeen), INV_STR(v.sourceBox, 16)]);
-    // Ingest guard (ingestGuards.js): a price that is plainly a parse error (> $300k on a non-exotic, or ~10x the row's own
-    // MSRP) is written as null, which the upsert's COALESCE turns into "keep the stored price". Column order is the
-    // INSERT's below: year [4], make [5], price [12], msrp [13].
+    // Ingest guard (ingestGuards.js): a price that is plainly a parse error (> $300k and unsupported by its own MSRP, or ~10x the
+    // row's MSRP) is written as null, and an MSRP that is the corrupt half of a ~10x pair is written as null instead of the price;
+    // the upsert's COALESCE turns a null into "keep the stored value". Column order is the INSERT's below: year [4], make [5],
+    // model [6], price [12], msrp [13].
     for (const row of values) {
-      const g = guardPrice({ price: row[12], msrp: row[13], make: row[5], year: row[4] });
-      if (g.reason) { row[12] = g.price; priceGuarded++; }
+      const g = guardPrice({ price: row[12], msrp: row[13], make: row[5], model: row[6], year: row[4] });
+      if (g.reason) { row[12] = g.price; row[13] = g.msrp; priceGuarded++; }
     }
     // Sorted by the table's own primary key (vin, dealer_id) before the multi-row INSERT below.
     // Confirmed live 2026-09-28 via SHOW ENGINE INNODB STATUS on a deliberately reproduced

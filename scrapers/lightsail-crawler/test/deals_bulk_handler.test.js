@@ -383,6 +383,21 @@ describe('handleInventoryBulk — ingest guards (the real handler)', () => {
     assert.equal(r.json.upserted, 3, 'the vehicles themselves are still written');
   });
 
+  it('writes the MSRP as null (and KEEPS the price) when the MSRP is the corrupt half of a ~10x pair; keeps a Porsche GT and a supported >$300k price', async () => {
+    const db = makeDb(); const h = loadHandlers(db);
+    const r = await h.bulk([
+      veh(1, null, { make: 'Ram', model: '3500', price: 75_170, msrp: 7_514 }),
+      veh(2, null, { make: 'Porsche', model: '911', year: 2025, price: 336_000, msrp: 498 }),
+      veh(3, null, { make: 'Chevrolet', model: 'Corvette', year: 2025, price: 330_000, msrp: 210_000 }),
+      veh(4, null, { make: 'Ford', model: 'Explorer', price: 660_740, msrp: 66_074 }),
+    ]);
+    assert.deepEqual([sent(db, 1)[COL.price], sent(db, 1)[COL.msrp]], [75_170, null], 'correct price survives, corrupt msrp dropped');
+    assert.equal(sent(db, 2)[COL.price], 336_000, 'Porsche GT');
+    assert.equal(sent(db, 3)[COL.price], 330_000, 'supported by its MSRP');
+    assert.deepEqual([sent(db, 4)[COL.price], sent(db, 4)[COL.msrp]], [null, 66_074], 'broken price dropped, msrp kept');
+    assert.equal(r.json.priceGuarded, 2);
+  });
+
   it('keeps an exotic above the ceiling, a pre-1996 classic, and a $2,500 used car', async () => {
     const db = makeDb(); const h = loadHandlers(db);
     const r = await h.bulk([
