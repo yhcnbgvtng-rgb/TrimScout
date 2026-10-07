@@ -108,7 +108,7 @@ function ReceivedBody() {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/scoutmark.png" alt="TrimScout" className="h-8 w-8 rounded-lg" />
             <span className="font-extrabold text-lg tracking-tight text-white">
-              Trim<span className="text-emerald-400">Scout</span>
+              Trim<span className="text-brand-400">Scout</span>
             </span>
           </Link>
         </div>
@@ -123,7 +123,7 @@ function ReceivedBody() {
                 {ctx?.vin ? <> · VIN <span className="font-mono">{ctx.vin}</span></> : null}
                 {ctx?.stockNumber ? <> · stock {ctx.stockNumber}</> : null}
                 {ctx?.dealReference ? <> · ref {ctx.dealReference}</> : null}
-                {ctx?.factoryStickerUrl ? <> · <a href={ctx.factoryStickerUrl} target="_blank" rel="noreferrer" className="font-bold text-emerald-400 hover:text-emerald-300" data-testid="factory-sticker-link">Factory window sticker</a></> : null}
+                {ctx?.factoryStickerUrl ? <> · <a href={ctx.factoryStickerUrl} target="_blank" rel="noreferrer" className="font-bold text-brand-400 hover:text-brand-300" data-testid="factory-sticker-link">Factory window sticker</a></> : null}
               </p>
             ) : null}
           </div>
@@ -142,7 +142,7 @@ function ReceivedBody() {
               <p className="text-xs text-ink-muted">Your earlier quote stays on their compare for reference. Thanks for looking.</p>
             </div>
           ) : done ? (
-            <div className="rounded-2xl border border-emerald-500/40 bg-emerald-500/5 p-5 space-y-2 text-sm text-ink-light">
+            <div className="rounded-2xl border border-brand-500/40 bg-brand-500/5 p-5 space-y-2 text-sm text-ink-light">
               <p className="font-bold text-white">Quote submitted. Thank you.</p>
               {done.dueAtSigningTotal > 0 ? (
                 <p>
@@ -207,8 +207,8 @@ function ReceivedBody() {
                 <strong className="text-white">Submit this quote in TrimScout.</strong> Log in to your dealer account — or sign up if your store doesn&apos;t have one yet. Quotes don&apos;t go by email reply.
               </p>
               <p className="flex flex-wrap gap-2">
-                <a href="/?login=1" className="rounded-lg bg-emerald-500 px-4 py-2 text-xs font-extrabold text-black hover:bg-emerald-400">Log in to quote</a>
-                <a href="/signup" className="rounded-lg border border-emerald-500/60 px-4 py-2 text-xs font-bold text-emerald-300 hover:bg-emerald-500/10">Sign up</a>
+                <a href="/?login=1" className="rounded-lg bg-brand-500 px-4 py-2 text-xs font-extrabold text-black hover:bg-brand-400">Log in to quote</a>
+                <a href="/signup" className="rounded-lg border border-brand-500/60 px-4 py-2 text-xs font-bold text-brand-300 hover:bg-brand-500/10">Sign up</a>
               </p>
               <p className="text-xs text-ink-muted border-t border-border/60 pt-3">This is a non-binding quote request — not an auction, not a bid, and no response deadline.</p>
             </div>

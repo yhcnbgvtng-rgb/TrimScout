@@ -60,7 +60,7 @@ export default function AnalyticsClient() {
       <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 space-y-6">
         <div className="rounded-3xl border border-border-strong bg-surface p-6 shadow-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div className="flex items-center gap-3.5">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500/30 to-blue-500/20 text-emerald-400 border border-emerald-500/40 shadow-inner">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-500/30 to-blue-500/20 text-brand-400 border border-brand-500/40 shadow-inner">
               <BarChart3 className="h-6 w-6" />
             </div>
             <div>
@@ -72,7 +72,7 @@ export default function AnalyticsClient() {
             href={ANALYTICS_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 px-3.5 py-2 text-xs font-black text-black shadow-md shadow-emerald-500/20 transition-all"
+            className="inline-flex items-center gap-1.5 rounded-xl bg-brand-500 hover:bg-brand-400 px-3.5 py-2 text-xs font-black text-black shadow-md shadow-brand-500/20 transition-all"
           >
             <span>Open Analytics Dashboard</span>
             <ExternalLink className="h-3.5 w-3.5" />
@@ -99,7 +99,7 @@ export default function AnalyticsClient() {
                 key={item.label}
                 className="rounded-2xl border border-border/80 bg-background p-4 flex items-start gap-3"
               >
-                <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-400 shrink-0">
+                <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-brand-500/10 text-brand-400 shrink-0">
                   {item.icon}
                 </div>
                 <div>

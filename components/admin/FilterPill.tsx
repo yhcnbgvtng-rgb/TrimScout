@@ -8,9 +8,9 @@
 import { useEffect, useId, useMemo, useRef, useState, type ReactNode } from "react";
 import { ChevronDown, Search } from "lucide-react";
 
-export type PillAccent = "emerald" | "sky";
+export type PillAccent = "brand" | "sky";
 const ACCENT = {
-  emerald: { on: "border-emerald-500/50 bg-emerald-500/10 text-emerald-300", row: "text-emerald-300", box: "border-emerald-400 bg-emerald-500/30", dot: "bg-emerald-300" },
+  brand: { on: "border-brand-500/50 bg-brand-500/10 text-brand-300", row: "text-brand-300", box: "border-brand-400 bg-brand-500/30", dot: "bg-brand-300" },
   sky: { on: "border-sky-500/50 bg-sky-500/10 text-sky-300", row: "text-sky-300", box: "border-sky-400 bg-sky-500/30", dot: "bg-sky-300" },
 } as const;
 
@@ -27,7 +27,7 @@ export function pickSummary(values: string[]): string {
   return `${values[0]} +${values.length - 1}`;
 }
 
-export function PillShell({ label, summary, active, disabledHint, onOpen, width = "w-64", accent = "emerald", open: openProp, onOpenChange, align = "left", children }: {
+export function PillShell({ label, summary, active, disabledHint, onOpen, width = "w-64", accent = "brand", open: openProp, onOpenChange, align = "left", children }: {
   label: string;
   /** Text after the label when something is set, e.g. "FL, GA". */
   summary?: string;
@@ -166,7 +166,7 @@ export function MultiPill({ value, onChange, summary = "values", ...p }: ListPil
   return (
     <PillShell label={p.label} summary={text} active={value.length > 0} disabledHint={p.disabledHint} accent={p.accent} onOpen={() => { setQuery(""); p.onOpen?.(); }}>
       {() => (
-        <PillList {...p} searchable={p.searchable ?? true} accent={p.accent ?? "emerald"} multi selected={selected} query={query} setQuery={setQuery}
+        <PillList {...p} searchable={p.searchable ?? true} accent={p.accent ?? "brand"} multi selected={selected} query={query} setQuery={setQuery}
           onPick={(v) => onChange(selected.has(v) ? value.filter((x) => x !== v) : [...value, v])}
           onClear={() => onChange([])} clearLabel={`Clear ${p.label.toLowerCase()}`} />
       )}
@@ -182,7 +182,7 @@ export function SinglePill({ value, onChange, ...p }: ListPillBase & { value: st
   return (
     <PillShell label={p.label} summary={label} active={Boolean(value)} disabledHint={p.disabledHint} accent={p.accent} open={open} onOpenChange={setOpen} onOpen={() => { setQuery(""); p.onOpen?.(); }}>
       {() => (
-        <PillList {...p} searchable={p.searchable ?? true} accent={p.accent ?? "emerald"} multi={false} selected={new Set(value ? [value] : [])} query={query} setQuery={setQuery}
+        <PillList {...p} searchable={p.searchable ?? true} accent={p.accent ?? "brand"} multi={false} selected={new Set(value ? [value] : [])} query={query} setQuery={setQuery}
           onPick={(v) => { onChange(v === value ? "" : v); setOpen(false); }}
           onClear={() => { onChange(""); setOpen(false); }} clearLabel={`Clear ${p.label.toLowerCase()}`} />
       )}

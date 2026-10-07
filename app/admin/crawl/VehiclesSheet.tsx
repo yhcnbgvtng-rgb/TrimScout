@@ -8,7 +8,7 @@
 // box) or Load all. Two copies of the filters exist — the DRAFT being edited and the APPLIED set the table shows
 // (lib/vehicleFilters.ts); editing the draft never fetches rows. State/Make/Model/Trim are multi-select (OR
 // within a field, AND across fields) using the same searchable-combobox the buyer /search page does
-// (SearchableDropdown), themed emerald, with removable chips for every pick.
+// (SearchableDropdown), themed brand, with removable chips for every pick.
 //
 // FACET COUNTS follow the DRAFT selections, not the last-applied set — Model/Trim must unlock the moment a
 // make is ticked, before Apply. They are fetched lazily (first time any dropdown opens, never on page load) and
@@ -236,9 +236,9 @@ export default function VehiclesSheet({ initialVin = null }: { initialVin?: stri
             <input id="veh-search" value={draft.q} onChange={(e) => setDraft((d) => ({ ...d, q: e.target.value }))} onKeyDown={(e) => { if (e.key === "Enter") apply(); }} placeholder="Search VIN, dealer, model, stock #" className="w-full bg-transparent py-2 pl-6 pr-2 text-sm text-white placeholder:text-ink-faint focus:outline-none" />
           </div>
         {typedVin && (
-          <button type="button" onClick={() => setVinOpen(typedVin)} className="text-xs font-semibold text-emerald-400 hover:text-emerald-300">VIN history →</button>
+          <button type="button" onClick={() => setVinOpen(typedVin)} className="text-xs font-semibold text-brand-400 hover:text-brand-300">VIN history →</button>
         )}
-          <button type="button" onClick={apply} disabled={!canApply || loading} title={canApply ? undefined : "Add a filter first — or use Load all"} className={`text-sm font-black text-emerald-400 hover:text-emerald-300 disabled:opacity-40 ${dirty && canApply ? "underline underline-offset-4" : ""}`}>
+          <button type="button" onClick={apply} disabled={!canApply || loading} title={canApply ? undefined : "Add a filter first — or use Load all"} className={`text-sm font-black text-brand-400 hover:text-brand-300 disabled:opacity-40 ${dirty && canApply ? "underline underline-offset-4" : ""}`}>
             Apply{applied && dirty ? " changes" : ""}
           </button>
           <button type="button" onClick={loadAll} disabled={loading} className="text-xs font-medium text-ink-faint hover:text-ink-light disabled:opacity-50">Load all</button>
@@ -266,9 +266,9 @@ export default function VehiclesSheet({ initialVin = null }: { initialVin?: stri
                   <input id="veh-mindays" value={draft.minDays} onChange={(e) => setDraft((d) => ({ ...d, minDays: e.target.value.replace(/\D/g, "") }))} onKeyDown={(e) => { if (e.key === "Enter") apply(); }} placeholder="Any" inputMode="numeric" className="w-full rounded-lg border border-border bg-surface px-2.5 py-1.5 text-xs text-ink-light placeholder:text-ink-faint" />
                 </div>
                 <div className="space-y-2 pt-1">
-                  <label className="flex items-center gap-2 text-xs text-ink-light"><input type="checkbox" checked={draft.hasSticker} onChange={(e) => setDraft((d) => ({ ...d, hasSticker: e.target.checked }))} className="accent-emerald-500" /> Has window sticker</label>
-                  <label className="flex items-center gap-2 text-xs text-ink-light" title="New condition with over 500 miles — usually a demo or loaner, not fresh off the truck"><input type="checkbox" checked={draft.possibleDemo} onChange={(e) => setDraft((d) => ({ ...d, possibleDemo: e.target.checked }))} className="accent-emerald-500" /> Possible demo</label>
-                  <label className="flex items-center gap-2 text-xs text-ink-light"><input type="checkbox" checked={draft.inStock} onChange={(e) => setDraft((d) => ({ ...d, inStock: e.target.checked }))} className="accent-emerald-500" /> In stock only</label>
+                  <label className="flex items-center gap-2 text-xs text-ink-light"><input type="checkbox" checked={draft.hasSticker} onChange={(e) => setDraft((d) => ({ ...d, hasSticker: e.target.checked }))} className="accent-brand-500" /> Has window sticker</label>
+                  <label className="flex items-center gap-2 text-xs text-ink-light" title="New condition with over 500 miles — usually a demo or loaner, not fresh off the truck"><input type="checkbox" checked={draft.possibleDemo} onChange={(e) => setDraft((d) => ({ ...d, possibleDemo: e.target.checked }))} className="accent-brand-500" /> Possible demo</label>
+                  <label className="flex items-center gap-2 text-xs text-ink-light"><input type="checkbox" checked={draft.inStock} onChange={(e) => setDraft((d) => ({ ...d, inStock: e.target.checked }))} className="accent-brand-500" /> In stock only</label>
                 </div>
               </div>
             )}
@@ -281,15 +281,15 @@ export default function VehiclesSheet({ initialVin = null }: { initialVin?: stri
               <span className="text-white">{applied ? totalLabel : "—"}</span> vehicles{stats ? <span className="text-ink-faint"> · {stats.inStock.toLocaleString()} in stock across {stats.dealers.toLocaleString()} stores{stats.lastSeenAt ? ` · crawled ${new Date(stats.lastSeenAt).toLocaleDateString()}` : ""}</span> : null}
             </span>
             <button type="button" onClick={() => { void loadStats(); if (query) void load(query, 0, false); }} disabled={loading || !query} className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-surface-elevated hover:bg-surface px-3 py-2 text-xs font-bold text-ink-light hover:text-white disabled:opacity-50"><RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} /> Reload</button>
-            <button type="button" onClick={() => void download()} disabled={exporting || !query || total === 0} className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 px-3.5 py-2 text-xs font-black text-black shadow-md shadow-emerald-500/20 disabled:opacity-50"><Download className="h-3.5 w-3.5" /> {exporting ? "Preparing…" : `Download CSV (${totalLabel})`}</button>
+            <button type="button" onClick={() => void download()} disabled={exporting || !query || total === 0} className="inline-flex items-center gap-1.5 rounded-xl bg-brand-500 hover:bg-brand-400 px-3.5 py-2 text-xs font-black text-black shadow-md shadow-brand-500/20 disabled:opacity-50"><Download className="h-3.5 w-3.5" /> {exporting ? "Preparing…" : `Download CSV (${totalLabel})`}</button>
           </div>
       </div>
 
       {hasChips && (
         <div className="flex flex-wrap items-center gap-1.5" aria-label="Selected filters">
           {chipGroups.flatMap((g) => draft[g.field].map((v) => (
-            <button key={`${g.field}:${v}`} type="button" onClick={() => removeChip(g.field, v)} aria-label={`Remove ${g.label} ${v}`} className="inline-flex items-center gap-1 rounded-full border border-emerald-500/40 bg-emerald-500/10 px-2.5 py-1 text-[11px] font-bold text-emerald-300 hover:bg-emerald-500/20">
-              <span className="text-emerald-300/60">{g.label}</span> {v} <X className="h-3 w-3" />
+            <button key={`${g.field}:${v}`} type="button" onClick={() => removeChip(g.field, v)} aria-label={`Remove ${g.label} ${v}`} className="inline-flex items-center gap-1 rounded-full border border-brand-500/40 bg-brand-500/10 px-2.5 py-1 text-[11px] font-bold text-brand-300 hover:bg-brand-500/20">
+              <span className="text-brand-300/60">{g.label}</span> {v} <X className="h-3 w-3" />
             </button>
           )))}
         </div>
@@ -300,12 +300,12 @@ export default function VehiclesSheet({ initialVin = null }: { initialVin?: stri
         <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
           {([
             ["In stock", stats.inStock, "text-white", ""],
-            ["New arrivals", stats.movement.arrivals, "text-emerald-300", "arrivals"],
-            ["Price drops", stats.movement.priceDrops, "text-emerald-300", "drops"],
+            ["New arrivals", stats.movement.arrivals, "text-positive-300", "arrivals"],
+            ["Price drops", stats.movement.priceDrops, "text-positive-300", "drops"],
             ["Price increases", stats.movement.priceIncreases, "text-amber-300", "increases"],
             ["Removed (24h)", stats.movement.removedToday, "text-ink-muted", "removed"],
           ] as Array<[string, number, string, Movement]>).map(([label, n, tone, mv]) => (
-            <button key={label} type="button" onClick={() => mv && onTile(mv)} disabled={!mv} className={`rounded-xl border px-3 py-2 text-left ${mv && draft.movement === mv ? "border-emerald-500/60 bg-emerald-500/10" : "border-border bg-surface"} ${mv ? "hover:border-emerald-500/40" : ""}`}>
+            <button key={label} type="button" onClick={() => mv && onTile(mv)} disabled={!mv} className={`rounded-xl border px-3 py-2 text-left ${mv && draft.movement === mv ? "border-brand-500/60 bg-brand-500/10" : "border-border bg-surface"} ${mv ? "hover:border-brand-500/40" : ""}`}>
               <div className="text-[10px] font-black uppercase tracking-wider text-ink-faint">{label}</div>
               <div className={`text-lg font-black tabular-nums ${tone}`}>{n.toLocaleString()}</div>
             </button>
@@ -324,7 +324,7 @@ export default function VehiclesSheet({ initialVin = null }: { initialVin?: stri
                 return (
                   <button key={c.key} type="button" onClick={() => onHeader(c.key)} disabled={!sk} title={sk ? `Sort by ${c.label}` : undefined} className="flex items-center gap-1 border-r border-border/60 px-2.5 text-left text-[10.5px] font-black uppercase tracking-wider text-ink-faint enabled:hover:text-white shrink-0" style={{ width: COL_W[c.key] || 120 }}>
                     <span className="truncate">{c.label}</span>
-                    {sk ? (active ? (sort.dir === "asc" ? <ArrowUp className="h-3 w-3 text-emerald-400 shrink-0" /> : <ArrowDown className="h-3 w-3 text-emerald-400 shrink-0" />) : <ArrowUpDown className="h-3 w-3 opacity-30 shrink-0" />) : null}
+                    {sk ? (active ? (sort.dir === "asc" ? <ArrowUp className="h-3 w-3 text-brand-400 shrink-0" /> : <ArrowDown className="h-3 w-3 text-brand-400 shrink-0" />) : <ArrowUpDown className="h-3 w-3 opacity-30 shrink-0" />) : null}
                   </button>
                 );
               })}
@@ -342,7 +342,7 @@ export default function VehiclesSheet({ initialVin = null }: { initialVin?: stri
               </div>
             ) : (
               rows.map((r, idx) => (
-                <div key={`${r.vin}|${r.dealerId ?? ""}`} className={`flex border-b border-border/40 text-[11.5px] ${idx % 2 ? "bg-surface" : "bg-surface-elevated/40"} hover:bg-emerald-500/5 ${r.removedAt ? "opacity-60" : ""}`} style={{ height: ROW_H }}>
+                <div key={`${r.vin}|${r.dealerId ?? ""}`} className={`flex border-b border-border/40 text-[11.5px] ${idx % 2 ? "bg-surface" : "bg-surface-elevated/40"} hover:bg-brand-500/5 ${r.removedAt ? "opacity-60" : ""}`} style={{ height: ROW_H }}>
                   {VEHICLE_SHEET_COLUMNS.map((c) => {
                     const raw = vehicleRowCell(r, c.key);
                     const diff = r.priceDiff ?? null;
@@ -352,10 +352,10 @@ export default function VehiclesSheet({ initialVin = null }: { initialVin?: stri
                       : c.key === "condition" ? condLabel(r.condition)
                       : c.key === "options" && r.options?.length ? `${r.options.length} · ${raw}` : raw;
                     const tone = c.key === "dealerName" ? "font-semibold text-white" : c.key === "vin" || c.key === "stockNumber" || c.key === "vehicleId" ? "font-mono text-ink-light"
-                      : c.key === "priceDiff" ? `tabular-nums justify-end font-bold ${diff != null && diff < 0 ? "text-emerald-300" : diff != null && diff > 0 ? "text-amber-300" : "text-ink-faint"}`
+                      : c.key === "priceDiff" ? `tabular-nums justify-end font-bold ${diff != null && diff < 0 ? "text-positive-300" : diff != null && diff > 0 ? "text-amber-300" : "text-ink-faint"}`
                       : c.key === "price" || c.key === "msrp" || c.key === "mileage" || c.key === "daysOnLot" || c.key === "optionsTotal" ? "tabular-nums text-ink-light justify-end"
-                      : c.key === "condition" ? (r.condition === "new" ? "text-emerald-300" : "text-amber-200")
-                      : c.key === "changeType" ? (r.changeType === "NEW_ARRIVAL" ? "text-emerald-300" : "text-ink-muted") : "text-ink-light";
+                      : c.key === "condition" ? (r.condition === "new" ? "text-brand-300" : "text-amber-200")
+                      : c.key === "changeType" ? (r.changeType === "NEW_ARRIVAL" ? "text-positive-300" : "text-ink-muted") : "text-ink-light";
                     const link = c.key === "vdpUrl" || c.key === "windowStickerUrl" ? raw : "";
                     return (
                       <div key={c.key} className={`flex items-center border-r border-border/40 px-2.5 shrink-0 overflow-hidden whitespace-nowrap ${tone}`} style={{ width: COL_W[c.key] || 120 }} title={raw}>

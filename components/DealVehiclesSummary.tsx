@@ -24,7 +24,7 @@ function VehicleLine({
       {review?.vin ? (
         <div className="text-[11px] font-mono text-ink-muted mt-0.5">
           {review.vdpHref ? (
-            <a href={review.vdpHref} target="_blank" rel="noopener noreferrer" className="text-emerald-400 hover:underline">
+            <a href={review.vdpHref} target="_blank" rel="noopener noreferrer" className="text-brand-400 hover:underline">
               {review.vin}
             </a>
           ) : (
@@ -73,7 +73,7 @@ export function DealVehiclesSummary({
       {hidePrimary ? (
         compareHref ? (
           <div className="flex justify-end">
-            <Link href={compareHref} className="text-[11px] font-bold text-emerald-400 hover:underline">
+            <Link href={compareHref} className="text-[11px] font-bold text-brand-400 hover:underline">
               Review offer terms
             </Link>
           </div>
@@ -82,7 +82,7 @@ export function DealVehiclesSummary({
         <div className="flex items-start justify-between gap-2">
           <VehicleLine vehicle={primary} request={request} requested={requested} />
           {compareHref ? (
-            <Link href={compareHref} className="text-[11px] font-bold text-emerald-400 hover:underline shrink-0 mt-0.5">
+            <Link href={compareHref} className="text-[11px] font-bold text-brand-400 hover:underline shrink-0 mt-0.5">
               Review offer terms
             </Link>
           ) : null}

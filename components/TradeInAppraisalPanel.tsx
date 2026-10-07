@@ -92,7 +92,7 @@ export const TradeInAppraisalPanel: React.FC<TradeInAppraisalPanelProps> = ({
         </div>
         <span
           className={`rounded-full px-2.5 py-1 text-[10px] font-black uppercase border ${
-            appraisal ? "border-emerald-500/40 bg-emerald-950/30 text-emerald-300" : "border-amber-500/40 bg-amber-950/30 text-amber-300"
+            appraisal ? "border-brand-500/40 bg-brand-950/30 text-brand-300" : "border-amber-500/40 bg-amber-950/30 text-amber-300"
           }`}
         >
           {appraisal ? `Appraised ${formatCurrency(appraisal.allowance)}` : "Needs your number"}
@@ -120,7 +120,7 @@ export const TradeInAppraisalPanel: React.FC<TradeInAppraisalPanelProps> = ({
                 value={allowance ? Number(allowance.replace(/[^\d]/g, "")).toLocaleString("en-US") : ""}
                 onChange={(e) => setAllowance(e.target.value.replace(/[^\d]/g, "").slice(0, 6))}
                 placeholder="18,500"
-                className="w-full rounded-lg border border-border bg-background py-2 pl-6 pr-3 text-sm font-bold text-white placeholder-ink-faint focus:border-emerald-500 focus:outline-none font-mono"
+                className="w-full rounded-lg border border-border bg-background py-2 pl-6 pr-3 text-sm font-bold text-white placeholder-ink-faint focus:border-brand-500 focus:outline-none font-mono"
               />
             </div>
           </label>
@@ -133,7 +133,7 @@ export const TradeInAppraisalPanel: React.FC<TradeInAppraisalPanelProps> = ({
                 value={loanPayoff ? Number(loanPayoff.replace(/[^\d]/g, "")).toLocaleString("en-US") : ""}
                 onChange={(e) => setLoanPayoff(e.target.value.replace(/[^\d]/g, "").slice(0, 6))}
                 placeholder="0"
-                className="w-full rounded-lg border border-border bg-background py-2 pl-6 pr-3 text-xs text-ink-light placeholder-ink-faint focus:border-emerald-500 focus:outline-none font-mono"
+                className="w-full rounded-lg border border-border bg-background py-2 pl-6 pr-3 text-xs text-ink-light placeholder-ink-faint focus:border-brand-500 focus:outline-none font-mono"
               />
             </div>
           </label>
@@ -144,7 +144,7 @@ export const TradeInAppraisalPanel: React.FC<TradeInAppraisalPanelProps> = ({
               onChange={(e) => setNotes(e.target.value)}
               maxLength={1000}
               placeholder="Allowance assumes the condition shown; subject to in-person inspection at delivery."
-              className="w-full min-h-[56px] rounded-lg border border-border bg-background px-3 py-2 text-[11px] text-ink-light placeholder-ink-faint focus:border-emerald-500 focus:outline-none"
+              className="w-full min-h-[56px] rounded-lg border border-border bg-background px-3 py-2 text-[11px] text-ink-light placeholder-ink-faint focus:border-brand-500 focus:outline-none"
             />
           </label>
           {error && <p className="text-[11px] text-rose-400">{error}</p>}
@@ -152,7 +152,7 @@ export const TradeInAppraisalPanel: React.FC<TradeInAppraisalPanelProps> = ({
             type="button"
             onClick={submit}
             disabled={!(allowanceNum > 0) || isSubmitting}
-            className="rounded-xl bg-emerald-500 px-5 py-2.5 text-xs font-extrabold text-black hover:bg-emerald-400 transition-all active:scale-95 disabled:opacity-50 flex items-center gap-2"
+            className="rounded-xl bg-brand-500 px-5 py-2.5 text-xs font-extrabold text-black hover:bg-brand-400 transition-all active:scale-95 disabled:opacity-50 flex items-center gap-2"
           >
             {isSubmitting ? <><Loader2 className="h-4 w-4 animate-spin" /> Saving…</> : appraisal ? <><CheckCircle2 className="h-4 w-4" /> Update appraisal</> : "Send appraisal to buyer"}
           </button>

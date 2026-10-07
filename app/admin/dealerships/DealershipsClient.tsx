@@ -263,15 +263,15 @@ export default function DealershipsClient() {
 
       <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 space-y-6">
         {successToast && (
-          <div className="fixed bottom-6 right-6 z-50 rounded-2xl border border-emerald-500/40 bg-surface-elevated/95 backdrop-blur-md p-4 text-xs text-white shadow-2xl flex items-center gap-3 animate-fadeIn">
-            <CheckCircle2 className="h-5 w-5 text-emerald-400 shrink-0" />
+          <div className="fixed bottom-6 right-6 z-50 rounded-2xl border border-positive-500/40 bg-surface-elevated/95 backdrop-blur-md p-4 text-xs text-white shadow-2xl flex items-center gap-3 animate-fadeIn">
+            <CheckCircle2 className="h-5 w-5 text-positive-400 shrink-0" />
             <span className="font-semibold">{successToast}</span>
           </div>
         )}
 
         <div className="rounded-3xl border border-border-strong bg-surface p-6 shadow-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div className="flex items-center gap-3.5">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500/30 to-blue-500/20 text-emerald-400 border border-emerald-500/40 shadow-inner">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-500/30 to-blue-500/20 text-brand-400 border border-brand-500/40 shadow-inner">
               <Building2 className="h-6 w-6" />
             </div>
             <div>
@@ -289,7 +289,7 @@ export default function DealershipsClient() {
                 aria-expanded={isDownloadOpen}
                 className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-surface-elevated hover:bg-surface px-3.5 py-2 text-xs font-bold text-ink-light hover:text-white transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <Download className="h-3.5 w-3.5 text-emerald-400" />
+                <Download className="h-3.5 w-3.5 text-brand-400" />
                 <span>Download All ({dealerships.length.toLocaleString()})</span>
                 <ChevronDown className="h-3 w-3 text-ink-faint" />
               </button>
@@ -323,12 +323,12 @@ export default function DealershipsClient() {
               onClick={openUpload}
               className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-surface-elevated hover:bg-surface px-3.5 py-2 text-xs font-bold text-ink-light hover:text-white transition-all shadow-sm"
             >
-              <Upload className="h-3.5 w-3.5 text-emerald-400" />
+              <Upload className="h-3.5 w-3.5 text-brand-400" />
               <span>Upload Spreadsheet</span>
             </button>
             <button
               onClick={openCreate}
-              className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 px-3.5 py-2 text-xs font-black text-black shadow-md shadow-emerald-500/20 transition-all cursor-pointer"
+              className="inline-flex items-center gap-1.5 rounded-xl bg-brand-500 hover:bg-brand-400 px-3.5 py-2 text-xs font-black text-black shadow-md shadow-brand-500/20 transition-all cursor-pointer"
             >
               <Plus className="h-3.5 w-3.5" />
               <span>Add Dealership</span>
@@ -344,7 +344,7 @@ export default function DealershipsClient() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search by name, city, state, contact..."
-              className="w-full rounded-xl border border-border bg-surface-elevated pl-9 pr-3.5 py-2 text-xs text-white placeholder-ink-faint focus:border-emerald-500 focus:outline-none"
+              className="w-full rounded-xl border border-border bg-surface-elevated pl-9 pr-3.5 py-2 text-xs text-white placeholder-ink-faint focus:border-brand-500 focus:outline-none"
             />
           </div>
 
@@ -470,7 +470,7 @@ export default function DealershipsClient() {
                   value={form.dealerName}
                   onChange={(e) => setForm({ ...form, dealerName: e.target.value })}
                   placeholder="e.g. Stevens Creek Chevrolet"
-                  className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-white focus:border-emerald-500 focus:outline-none"
+                  className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-white focus:border-brand-500 focus:outline-none"
                 />
               </div>
 
@@ -480,7 +480,7 @@ export default function DealershipsClient() {
                   type="text"
                   value={form.address || ""}
                   onChange={(e) => setForm({ ...form, address: e.target.value })}
-                  className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-white focus:border-emerald-500 focus:outline-none"
+                  className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-white focus:border-brand-500 focus:outline-none"
                 />
               </div>
 
@@ -491,7 +491,7 @@ export default function DealershipsClient() {
                     type="text"
                     value={form.city || ""}
                     onChange={(e) => setForm({ ...form, city: e.target.value })}
-                    className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-white focus:border-emerald-500 focus:outline-none"
+                    className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-white focus:border-brand-500 focus:outline-none"
                   />
                 </div>
                 <div className="space-y-1">
@@ -501,7 +501,7 @@ export default function DealershipsClient() {
                     maxLength={2}
                     value={form.state || ""}
                     onChange={(e) => setForm({ ...form, state: e.target.value.toUpperCase() })}
-                    className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-white uppercase focus:border-emerald-500 focus:outline-none"
+                    className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-white uppercase focus:border-brand-500 focus:outline-none"
                   />
                 </div>
                 <div className="space-y-1">
@@ -511,7 +511,7 @@ export default function DealershipsClient() {
                     maxLength={10}
                     value={form.zipCode || ""}
                     onChange={(e) => setForm({ ...form, zipCode: e.target.value })}
-                    className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-white font-mono focus:border-emerald-500 focus:outline-none"
+                    className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-white font-mono focus:border-brand-500 focus:outline-none"
                   />
                 </div>
               </div>
@@ -523,7 +523,7 @@ export default function DealershipsClient() {
                     type="text"
                     value={form.contactName || ""}
                     onChange={(e) => setForm({ ...form, contactName: e.target.value })}
-                    className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-white focus:border-emerald-500 focus:outline-none"
+                    className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-white focus:border-brand-500 focus:outline-none"
                   />
                 </div>
                 <div className="space-y-1">
@@ -532,7 +532,7 @@ export default function DealershipsClient() {
                     type="text"
                     value={form.phone || ""}
                     onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                    className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-white focus:border-emerald-500 focus:outline-none"
+                    className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-white focus:border-brand-500 focus:outline-none"
                   />
                 </div>
               </div>
@@ -543,7 +543,7 @@ export default function DealershipsClient() {
                   type="email"
                   value={form.contactEmail || ""}
                   onChange={(e) => setForm({ ...form, contactEmail: e.target.value })}
-                  className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-white focus:border-emerald-500 focus:outline-none"
+                  className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-white focus:border-brand-500 focus:outline-none"
                 />
               </div>
 
@@ -555,7 +555,7 @@ export default function DealershipsClient() {
                     value={form.website || ""}
                     onChange={(e) => setForm({ ...form, website: e.target.value })}
                     placeholder="https://www.example.com/"
-                    className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-white focus:border-emerald-500 focus:outline-none"
+                    className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-white focus:border-brand-500 focus:outline-none"
                   />
                 </div>
                 <div className="space-y-1">
@@ -570,7 +570,7 @@ export default function DealershipsClient() {
                       })
                     }
                     placeholder="example.com; example-vanity.com"
-                    className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 font-mono text-white focus:border-emerald-500 focus:outline-none"
+                    className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 font-mono text-white focus:border-brand-500 focus:outline-none"
                   />
                 </div>
               </div>
@@ -581,7 +581,7 @@ export default function DealershipsClient() {
                   value={form.notes || ""}
                   onChange={(e) => setForm({ ...form, notes: e.target.value })}
                   rows={3}
-                  className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-white focus:border-emerald-500 focus:outline-none"
+                  className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-white focus:border-brand-500 focus:outline-none"
                 />
               </div>
 
@@ -596,7 +596,7 @@ export default function DealershipsClient() {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="rounded-xl bg-emerald-500 hover:bg-emerald-400 disabled:opacity-60 px-5 py-2 text-xs font-black text-black shadow-md shadow-emerald-500/20"
+                  className="rounded-xl bg-brand-500 hover:bg-brand-400 disabled:opacity-60 px-5 py-2 text-xs font-black text-black shadow-md shadow-brand-500/20"
                 >
                   {submitting ? "Saving…" : editing ? "Save Changes" : "Add Dealership"}
                 </button>
@@ -623,7 +623,7 @@ export default function DealershipsClient() {
 
             <div className="space-y-4 text-xs">
               <div
-                className="rounded-xl border border-dashed border-border bg-background p-5 text-center cursor-pointer hover:border-emerald-500/60 transition-all"
+                className="rounded-xl border border-dashed border-border bg-background p-5 text-center cursor-pointer hover:border-brand-500/60 transition-all"
                 onClick={() => fileInputRef.current?.click()}
               >
                 <input
@@ -637,7 +637,7 @@ export default function DealershipsClient() {
                     e.target.value = "";
                   }}
                 />
-                <Upload className="h-6 w-6 mx-auto text-emerald-400 mb-2" />
+                <Upload className="h-6 w-6 mx-auto text-brand-400 mb-2" />
                 <p className="text-ink-light font-semibold">
                   {csvFileName ? csvFileName : "Click to choose a CSV or Excel file"}
                 </p>
@@ -655,7 +655,7 @@ export default function DealershipsClient() {
 
               {csvPreview && !uploadResult && (
                 <div className="space-y-3">
-                  <div className="rounded-xl border border-emerald-500/30 bg-emerald-950/20 p-3 text-emerald-200">
+                  <div className="rounded-xl border border-brand-500/30 bg-brand-950/20 p-3 text-brand-200">
                     Found <strong>{csvPreview.rows.length}</strong> dealership
                     {csvPreview.rows.length === 1 ? "" : "s"} to import
                     {csvPreview.skippedRows > 0 ? `, skipped ${csvPreview.skippedRows} row(s) with no dealer name` : ""}.
@@ -697,8 +697,8 @@ export default function DealershipsClient() {
               )}
 
               {uploadResult && (
-                <div className="rounded-xl border border-emerald-500/40 bg-emerald-950/30 p-3 text-emerald-200 flex items-center gap-2">
-                  <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" />
+                <div className="rounded-xl border border-brand-500/40 bg-brand-950/30 p-3 text-brand-200 flex items-center gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-brand-400 shrink-0" />
                   <span>
                     Done — {uploadResult.created} created, {uploadResult.updated} updated
                     {uploadResult.skipped > 0 ? `, ${uploadResult.skipped} skipped` : ""}.
@@ -719,7 +719,7 @@ export default function DealershipsClient() {
                     type="button"
                     disabled={!csvPreview || csvPreview.rows.length === 0 || uploadSubmitting}
                     onClick={handleConfirmUpload}
-                    className="rounded-xl bg-emerald-500 hover:bg-emerald-400 disabled:opacity-60 px-5 py-2 text-xs font-black text-black shadow-md shadow-emerald-500/20"
+                    className="rounded-xl bg-brand-500 hover:bg-brand-400 disabled:opacity-60 px-5 py-2 text-xs font-black text-black shadow-md shadow-brand-500/20"
                   >
                     {uploadSubmitting
                       ? "Importing…"

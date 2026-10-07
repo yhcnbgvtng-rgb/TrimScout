@@ -131,7 +131,7 @@ export const RfqInviteDraft: React.FC<RfqInviteDraftProps> = ({ result, currentU
         </p>
       </div>
 
-      <div className="rounded-2xl border border-emerald-500/60 bg-surface p-5 space-y-3">
+      <div className="rounded-2xl border border-brand-500/60 bg-surface p-5 space-y-3">
         <div className="flex items-center justify-between gap-3">
           <div>
             <div className="text-sm font-bold text-white">
@@ -139,13 +139,13 @@ export const RfqInviteDraft: React.FC<RfqInviteDraftProps> = ({ result, currentU
             </div>
             <div className="text-[11px] text-ink-muted font-mono">VIN {v.vin}</div>
           </div>
-          <div className="text-sm font-extrabold text-emerald-400">{formatCurrency(v.dealerPrice)}</div>
+          <div className="text-sm font-extrabold text-brand-400">{formatCurrency(v.dealerPrice)}</div>
         </div>
         <div className="space-y-1 pt-2 border-t border-border/50">
           <p className="text-[11px] font-bold text-ink-light uppercase tracking-wide">Locked must-haves</p>
           {spec.mustHaves.map((m) => (
             <div key={m.code} className="flex items-start gap-1.5 text-[11px] text-white">
-              <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 shrink-0 mt-0.5" />
+              <CheckCircle2 className="h-3.5 w-3.5 text-brand-400 shrink-0 mt-0.5" />
               <span>{formatFactoryOptionLine({ code: m.code, description: m.name })}</span>
             </div>
           ))}
@@ -162,14 +162,14 @@ export const RfqInviteDraft: React.FC<RfqInviteDraftProps> = ({ result, currentU
                 value={d.name}
                 onChange={(e) => updateDealer(i, "name", e.target.value)}
                 placeholder="Dealer name"
-                className="flex-1 rounded-xl border border-border bg-background py-2 px-3 text-xs text-white placeholder-ink-faint focus:border-emerald-500 focus:outline-none"
+                className="flex-1 rounded-xl border border-border bg-background py-2 px-3 text-xs text-white placeholder-ink-faint focus:border-brand-500 focus:outline-none"
               />
               <input
                 type="email"
                 value={d.email}
                 onChange={(e) => updateDealer(i, "email", e.target.value)}
                 placeholder="Dealer email (optional)"
-                className="flex-1 rounded-xl border border-border bg-background py-2 px-3 text-xs text-white placeholder-ink-faint focus:border-emerald-500 focus:outline-none"
+                className="flex-1 rounded-xl border border-border bg-background py-2 px-3 text-xs text-white placeholder-ink-faint focus:border-brand-500 focus:outline-none"
               />
               {dealers.length > 1 && (
                 <button
@@ -186,7 +186,7 @@ export const RfqInviteDraft: React.FC<RfqInviteDraftProps> = ({ result, currentU
         {dealers.length < RFQ_MAX_INVITES && (
           <button
             onClick={addDealer}
-            className="flex items-center gap-1.5 text-xs font-bold text-emerald-400 hover:text-emerald-300 transition-colors"
+            className="flex items-center gap-1.5 text-xs font-bold text-brand-400 hover:text-brand-300 transition-colors"
           >
             <Plus className="h-3.5 w-3.5" />
             Add another dealer
@@ -221,7 +221,7 @@ export const RfqInviteDraft: React.FC<RfqInviteDraftProps> = ({ result, currentU
       <button
         onClick={handleConfirmAndSend}
         disabled={!canSend}
-        className="w-full flex items-center justify-center gap-2 rounded-xl bg-emerald-500 px-6 py-3.5 text-sm font-extrabold text-black hover:bg-emerald-400 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+        className="w-full flex items-center justify-center gap-2 rounded-xl bg-brand-500 px-6 py-3.5 text-sm font-extrabold text-black hover:bg-brand-400 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
       >
         <SendHorizontal className="h-4 w-4" />
         {isSending ? "Sending…" : `Confirm & Invite ${validDealers.length || ""} ${validDealers.length === 1 ? "Dealer" : "Dealers"}`}
