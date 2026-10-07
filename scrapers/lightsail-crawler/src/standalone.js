@@ -27,6 +27,7 @@ import { mergeInventorySnapshot } from './inventory_merge.js';
 import { buildBrandChangeRecord, mergeDailyChangesDocument } from './daily_changes.js';
 import { withSharedDataLock } from './shared_data_lock.js';
 import { inventoryShardPath, inventoryShardsDir, snapshotShardPath } from './inventory_shards.js';
+import { readJsonLarge, writeJsonLarge } from './bigJson.js';
 import { resolveKeptMake } from './brand_match.js';
 import { isLikelyVdpUrl } from './vdpUrlFilter.js';
 import { fillFromFacebookPixelViewContent } from './facebookPixelFields.js';
@@ -133,7 +134,7 @@ let domIndex = await loadDomIndex();
 
 let previousSnapshot = {};
 try {
-    previousSnapshot = JSON.parse(await fs.readFile(LATEST_SNAPSHOT_PATH, 'utf-8'));
+    previousSnapshot = await readJsonLarge(LATEST_SNAPSHOT_PATH);
     console.log(`Loaded previous baseline: ${Object.keys(previousSnapshot).length} vehicles.`);
 } catch {
     console.log('No previous baseline found. Starting fresh initial scan.');
@@ -1251,9 +1252,9 @@ for (let i = 0; i < dealers.length; i++) {
     // never read back by anything in this repo — but corrupting it for
     // nothing when a one-line scope fixes it isn't worth doing).
     try {
-        await fs.writeFile(
+        await writeJsonLarge(
             path.join(DATA_DIR, `checkpoint_raw_inventory_${checkpointSlug}.json`),
-            JSON.stringify(Array.from(currentInventory.values()), null, 2)
+            Array.from(currentInventory.values())
         );
     } catch (checkpointErr) {
         console.error(`⚠️ Checkpoint write failed: ${checkpointErr.message}`);
@@ -1307,7 +1308,7 @@ let soldVehicles;
 
 await withSharedDataLock(async () => {
     try {
-        latestPreviousSnapshot = JSON.parse(await fs.readFile(LATEST_SNAPSHOT_PATH, 'utf-8'));
+        latestPreviousSnapshot = await readJsonLarge(LATEST_SNAPSHOT_PATH);
     } catch {
         latestPreviousSnapshot = {};
     }
@@ -1334,8 +1335,10 @@ await withSharedDataLock(async () => {
         } catch {}
     }
 
-    await fs.writeFile(LATEST_SNAPSHOT_PATH, JSON.stringify(updatedSnapshot, null, 2));
-    await fs.writeFile(INVENTORY_SHARD_PATH, JSON.stringify(allRecords, null, 2));
+    // Streamed element by element and renamed into place (bigJson.js): a large state's shard no longer has to fit in
+    // one V8 string (~512 MB), and a kill mid-write can't leave a truncated file for the sync to read.
+    await writeJsonLarge(LATEST_SNAPSHOT_PATH, updatedSnapshot);
+    await writeJsonLarge(INVENTORY_SHARD_PATH, allRecords);
 }, { scope: state, label: `standalone:${state}/${brand.name}` });
 
 // Persist this brand's slot in today's daily_changes_<date>.json — merged
@@ -1364,7 +1367,7 @@ const brandChangeRecord = buildBrandChangeRecord({
 await withSharedDataLock(async () => {
     let existingChangesDoc = null;
     try {
-        existingChangesDoc = JSON.parse(await fs.readFile(path.join(CHANGES_DIR, `daily_changes_${todayDate}.json`), 'utf-8'));
+        existingChangesDoc = await readJsonLarge(path.join(CHANGES_DIR, `daily_changes_${todayDate}.json`));
     } catch {
         // No file yet today (first brand of the day, or first day ever) — fine.
     }
@@ -1378,7 +1381,7 @@ await withSharedDataLock(async () => {
         todayIso,
     });
 
-    await fs.writeFile(path.join(CHANGES_DIR, `daily_changes_${todayDate}.json`), JSON.stringify(dailyChangesDoc, null, 2));
+    await writeJsonLarge(path.join(CHANGES_DIR, `daily_changes_${todayDate}.json`), dailyChangesDoc);
 }, { scope: `daily-changes-${todayDate}`, label: `standalone:${state}/${brand.name}/daily-changes` });
 
 try {

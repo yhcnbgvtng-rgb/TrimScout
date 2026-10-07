@@ -3,6 +3,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { withSharedDataLock } from './shared_data_lock.js';
 import { cacheShardPath, inventoryShardPath, listShardedStates } from './inventory_shards.js';
+import { readJsonLarge, writeJsonLarge } from './bigJson.js';
 
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -386,8 +387,7 @@ export async function runEnrichmentPipeline(limit = Infinity, brand = null, dbRu
   await withSharedDataLock(async () => {
     let inventory;
     try {
-      const raw = await fs.readFile(INVENTORY_PATH, "utf-8");
-      inventory = JSON.parse(raw);
+      inventory = await readJsonLarge(INVENTORY_PATH);
     } catch (err) {
       console.error("Could not read inventory:", err.message);
       inventoryReadFailed = true;
@@ -395,8 +395,7 @@ export async function runEnrichmentPipeline(limit = Infinity, brand = null, dbRu
     }
 
     try {
-      const rawCache = await fs.readFile(CACHE_PATH, "utf-8");
-      cache = JSON.parse(rawCache);
+      cache = await readJsonLarge(CACHE_PATH);
     } catch {
       cache = {};
     }
@@ -554,12 +553,12 @@ export async function runEnrichmentPipeline(limit = Infinity, brand = null, dbRu
     await withSharedDataLock(async () => {
       let freshCache = {};
       try {
-        freshCache = JSON.parse(await fs.readFile(CACHE_PATH, 'utf-8'));
+        freshCache = await readJsonLarge(CACHE_PATH);
       } catch {
         freshCache = {};
       }
       const merged = { ...freshCache, ...Object.fromEntries(newCacheEntries) };
-      await fs.writeFile(CACHE_PATH, JSON.stringify(merged, null, 2));
+      await writeJsonLarge(CACHE_PATH, merged);
     }, { scope: state, label: `enricher-checkpoint:${state}/${brand?.name || 'unknown'}` });
   }
 
@@ -580,7 +579,7 @@ export async function runEnrichmentPipeline(limit = Infinity, brand = null, dbRu
   await withSharedDataLock(async () => {
     let freshInventory;
     try {
-      freshInventory = JSON.parse(await fs.readFile(INVENTORY_PATH, 'utf-8'));
+      freshInventory = await readJsonLarge(INVENTORY_PATH);
     } catch (err) {
       // Nothing on disk (shouldn't happen — we read it successfully in the
       // read-lock block above). No stale full copy to fall back to anymore
@@ -592,7 +591,7 @@ export async function runEnrichmentPipeline(limit = Infinity, brand = null, dbRu
     }
     let freshCache;
     try {
-      freshCache = JSON.parse(await fs.readFile(CACHE_PATH, 'utf-8'));
+      freshCache = await readJsonLarge(CACHE_PATH);
     } catch {
       freshCache = cache;
     }
@@ -611,8 +610,8 @@ export async function runEnrichmentPipeline(limit = Infinity, brand = null, dbRu
     freshInventory = null;
     freshCache = null;
 
-    await fs.writeFile(CACHE_PATH, JSON.stringify(mergedCache, null, 2));
-    await fs.writeFile(INVENTORY_PATH, JSON.stringify(mergedInventory, null, 2));
+    await writeJsonLarge(CACHE_PATH, mergedCache);
+    await writeJsonLarge(INVENTORY_PATH, mergedInventory);
 
     // Reassigned after the writes (not before) so the DB sync and closing
     // log lines below still see the merged result, matching prior behavior.
