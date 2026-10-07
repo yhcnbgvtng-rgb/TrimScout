@@ -5,18 +5,18 @@ import assert from "node:assert/strict";
 import { after, before, describe, it } from "node:test";
 import { JSDOM } from "jsdom";
 import { toPick } from "./buyerPicks";
-import { QUOTE_SEED_KEY, takeQuoteSeed, writeQuoteSeed } from "./quoteSeed";
+import { QUOTE_SEED_KEY, QUOTE_SEED_LANE, takeQuoteSeed, writeQuoteSeed } from "./quoteSeed";
 
 const NEW_VINS = ["2T36CRAV0TW113785", "2T36CRAV1TC046311", "2T36CRAV1TC046373"];
 const USED_VINS = ["2T3F1RFV4LC084047", "2T3P1RFV3MC200019", "2T3P1RFV9SW528394"];
 // Real search rows carry the dealer's listing link; a used link says "/used/" in its path.
-const row = (vin: string, condition: "new" | "used" | "cpo") => toPick({ vin, dealerId: "1", dealerName: "A Toyota", dealerState: "OH", year: 2026, make: "Toyota", model: "RAV4", trim: null, mileage: null, price: 30000, vdpUrl: `https://www.atoyota.com/viewdetails/${condition === "new" ? "new" : "used"}/${vin.toLowerCase()}/rav4`, condition });
-const DESK = { deskId: "1", dealerName: "A Toyota", city: "Youngstown", state: "OH", zip: "44503", knownNamed: false, emailOptOut: false };
+const row = (vin: string, condition: "new" | "used" | "cpo", dealer = "a") => toPick({ vin, dealerId: "1", dealerName: `Dealer ${dealer}`, dealerState: "OH", year: 2026, make: "Toyota", model: "RAV4", trim: null, mileage: null, price: 30000, vdpUrl: `https://www.dealer${dealer}.com/viewdetails/${condition === "new" ? "new" : "used"}/${vin.toLowerCase()}/rav4`, condition });
+const desk = (host: string) => { const d = host.replace(/^www\.dealer/, "").replace(/\.com$/, ""); return { deskId: d, dealerName: `Dealer ${d}`, city: "Youngstown", state: "OH", zip: "44503", knownNamed: false, emailOptOut: false }; };
 
 const vehicle = (vin: string, over: Record<string, unknown> = {}) => ({
   id: vin, vin, year: 2024, make: "Toyota", model: "RAV4", trim: "LE", bodyType: "SUV", engine: "", drivetrain: "AWD", transmission: "Auto", exteriorColor: "White", interiorColor: "Black",
   msrp: 0, dealerPrice: 0, daysOnLot: 3, status: "in_stock",
-  location: { dealerName: "A Toyota", city: "Youngstown", state: "OH", distanceMiles: 0, dealerConfirmed: false, dealerSource: "unknown" },
+  location: { dealerName: "Dealer a", city: "Youngstown", state: "OH", distanceMiles: 0, dealerConfirmed: false, dealerSource: "unknown" },
   packages: [], options: [], features: [], images: [], ...over,
 });
 
@@ -26,7 +26,7 @@ function stubFetch() {
     const url = String(input);
     const body = JSON.parse(String(init?.body || "{}")) as { paste?: string; vin?: string };
     const vin = (body.vin || (body.paste || "").match(/[A-HJ-NPR-Z0-9]{17}/i)?.[0] || "").toUpperCase();
-    if (url.startsWith("/api/desk-resolve")) return json({ status: "unique", desk: DESK, via: "website", host: "atoyota.com" });
+    if (url.startsWith("/api/desk-resolve")) { const host = new URL((JSON.parse(String(init?.body || "{}")) as { url: string }).url).hostname; return json({ status: "unique", desk: desk(host), via: "website", host }); }
     if (url.startsWith("/api/free-vin") || url.startsWith("/api/used-vin")) return json({ handled: true, vin, sticker: { status: "unreleased", pdfUrl: null, msrp: null, source: "free_decode" }, vehicle: vehicle(vin), buildConfidence: "dealer_listing_only", mustHaveLines: [], niceToHaveLines: [], filterableOptions: [], pdfUrl: null });
     if (url.includes("-sticker")) return json({ handled: false, notFord: true, notGm: true, notToyota: true, notHonda: true, vin, error: "no factory build" });
     if (url.startsWith("/api/status/features")) return json({ rfqSend: true });
@@ -45,6 +45,10 @@ describe("buyer search seed -> Step 1", () => {
     assert.deepEqual(takeQuoteSeed(store).map((c) => c.condition), ["used", "new", "cpo"]);
   });
 
+  it("picked cars always open the specific-vehicle lane (Open to anything would drop the cars from the request)", () => {
+    assert.equal(QUOTE_SEED_LANE, "same_spec");
+  });
+
   describe("real wizard", () => {
     let dom: JSDOM;
     before(() => {
@@ -59,7 +63,7 @@ describe("buyer search seed -> Step 1", () => {
     });
     after(() => dom.window.close());
 
-    async function run(picks: ReturnType<typeof row>[]) {
+    async function run(picks: ReturnType<typeof row>[], toStep3 = false) {
       const React = (await import("react")).default;
       const { act } = await import("react");
       const { createRoot } = await import("react-dom/client");
@@ -67,7 +71,7 @@ describe("buyer search seed -> Step 1", () => {
       const seed = picks.map((p) => ({ vin: p.vin, vdpUrl: p.vdpUrl, condition: p.condition }));
       const root = createRoot(dom.window.document.getElementById("root")!);
       await act(async () => {
-        root.render(React.createElement(BiddingWizard, { isOpen: true, onClose: () => {}, onSubmitBidRequest: () => {}, vehicles: [], preselectedVehicle: null, initialIntent: "alternate", seedVehicles: seed, currentUser: null, onRequireLogin: () => {} }));
+        root.render(React.createElement(BiddingWizard, { isOpen: true, onClose: () => {}, onSubmitBidRequest: () => {}, vehicles: [], preselectedVehicle: null, initialIntent: QUOTE_SEED_LANE, seedVehicles: seed, currentUser: null, onRequireLogin: () => {} }));
       });
       const doc = dom.window.document;
       const tick = async () => { await act(async () => { await new Promise((r) => setTimeout(r, 10)); }); };
@@ -77,6 +81,16 @@ describe("buyer search seed -> Step 1", () => {
         await tick();
         const confirm = button("Confirm & add");
         if (confirm) await act(async () => { confirm.click(); });
+      }
+      if (toStep3) {
+        const next = () => Array.from(doc.querySelectorAll<HTMLButtonElement>("button")).find((b) => b.textContent?.trim().startsWith("Continue"))!;
+        await act(async () => { next().click(); });
+        await tick();
+        const cash = Array.from(doc.querySelectorAll<HTMLElement>('[role="radio"]')).find((b) => /^Cash/.test(b.textContent?.trim() || ""))!;
+        await act(async () => { cash.click(); });
+        await tick();
+        await act(async () => { next().click(); });
+        await tick();
       }
       const text = doc.body.textContent || "";
       await act(async () => { root.unmount(); });
@@ -91,6 +105,18 @@ describe("buyer search seed -> Step 1", () => {
         assert.doesNotMatch(text, /weren't added|wasn't added/);
       });
     }
+
+    it("three picks at three dealers: Step 3 lists all three dealers, no 'Search dealerships'", async () => {
+      const text = await run([row(USED_VINS[0], "used", "a"), row(USED_VINS[1], "used", "b"), row(USED_VINS[2], "used", "c")], true);
+      for (const d of ["Dealer a", "Dealer b", "Dealer c"]) assert.ok(text.includes(d), `${d} is prefilled`);
+      assert.doesNotMatch(text, /Search dealerships/);
+    });
+
+    it("two picks at the same dealer list that dealer once", async () => {
+      const text = await run([row(NEW_VINS[0], "new", "a"), row(NEW_VINS[1], "new", "a"), row(NEW_VINS[2], "new", "b")], true);
+      assert.equal((text.match(/Dealer a/g) || []).length, 1, "Dealer a is listed once");
+      assert.ok(text.includes("Dealer b"));
+    });
 
     it("a new car picked beside used ones is left out and the note says so", async () => {
       const text = await run([row(USED_VINS[0], "used"), row(NEW_VINS[0], "new"), row(USED_VINS[1], "used")]);
