@@ -10,6 +10,8 @@ export interface QuoteSeedVehicle {
   vin: string;
   /** The dealer's listing page for this car; null when the row had no link. */
   vdpUrl: string | null;
+  /** What the listing says. Step 1 seats a used car only beside other used cars, a new one beside new; null = unknown, treated as new. */
+  condition: "new" | "used" | "cpo" | null;
 }
 
 type StorageLike = Pick<Storage, "getItem" | "setItem" | "removeItem">;
@@ -24,16 +26,16 @@ const httpUrl = (u: unknown): string | null => {
 export function sanitizeQuoteSeed(raw: unknown): QuoteSeedVehicle[] {
   const out: QuoteSeedVehicle[] = [];
   for (const item of Array.isArray(raw) ? raw : []) {
-    const o = (item && typeof item === "object" ? item : {}) as { vin?: unknown; vdpUrl?: unknown };
+    const o = (item && typeof item === "object" ? item : {}) as { vin?: unknown; vdpUrl?: unknown; condition?: unknown };
     const vin = typeof o.vin === "string" ? o.vin.trim().toUpperCase() : "";
     if (!VIN.test(vin) || out.some((v) => v.vin === vin)) continue;
-    out.push({ vin, vdpUrl: httpUrl(o.vdpUrl) });
+    out.push({ vin, vdpUrl: httpUrl(o.vdpUrl), condition: o.condition === "new" || o.condition === "used" || o.condition === "cpo" ? o.condition : null });
     if (out.length >= QUOTE_SEED_MAX) break;
   }
   return out;
 }
 
-export function writeQuoteSeed(store: StorageLike, vehicles: Array<{ vin: string; vdpUrl: string | null }>): QuoteSeedVehicle[] {
+export function writeQuoteSeed(store: StorageLike, vehicles: Array<{ vin: string; vdpUrl: string | null; condition?: QuoteSeedVehicle["condition"] }>): QuoteSeedVehicle[] {
   const seed = sanitizeQuoteSeed(vehicles);
   try { store.setItem(QUOTE_SEED_KEY, JSON.stringify(seed)); } catch { /* storage blocked: the button then opens a plain wizard */ }
   return seed;
