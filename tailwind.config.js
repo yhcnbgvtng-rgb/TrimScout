@@ -14,19 +14,20 @@ module.exports = {
         'surface-elevated': '#181C26',
         border: '#232836',
         'border-strong': '#31374A',
-        // Brand accent: copper. Buttons, links, selection, focus, the quote flow's primary actions.
+        // Brand accent: Porsche Chalk (#E1DEDE, from data/porsche_color_codes.csv M9A). A neutral, so hierarchy comes from
+        // layout and type. 400 is one step LIGHTER than 500 on purpose: buttons are `bg-brand-500 hover:bg-brand-400`.
         brand: {
-          50: '#FDF6EE',
-          100: '#FAE9D3',
-          200: '#F4D0A3',
-          300: '#ECB06C',
-          400: '#E48F43',
-          500: '#D9722A',
-          600: '#BF591F',
-          700: '#9C441C',
-          800: '#7E381E',
-          900: '#67301D',
-          950: '#38160D',
+          50: '#FAF9F9',
+          100: '#F5F3F3',
+          200: '#EFEDED',
+          300: '#EBE8E8',
+          400: '#E7E4E4',
+          500: '#E1DEDE',
+          600: '#C9C5C5',
+          700: '#A39F9F',
+          800: '#787474',
+          900: '#55524F',
+          950: '#2A2826',
         },
         // Meaning, not brand: good news only (approved, quoted, price drop, factory verified, success toasts).
         // Keep this out of buttons and chrome.

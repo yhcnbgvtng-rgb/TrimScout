@@ -35,7 +35,7 @@ export function approvalAlertHtml(rfq: RfqRequest): string {
       <tr><td style="padding:2px 12px 2px 0;color:#64748b">Buyer</td><td>${escapeHtml(rfq.buyerUserId)}</td></tr>
       ${rfq.buyerNote ? `<tr><td style="padding:2px 12px 2px 0;color:#64748b;vertical-align:top">Note</td><td>${escapeHtml(rfq.buyerNote)}</td></tr>` : ""}
     </table>
-    <p style="margin:16px 0"><a href="${url}" style="display:inline-block;background:#D9722A;color:#000;font-weight:800;padding:10px 16px;border-radius:10px;text-decoration:none">Open the approval desk</a></p>
+    <p style="margin:16px 0"><a href="${url}" style="display:inline-block;background:#17191F;color:#E1DEDE;font-weight:800;padding:10px 16px;border-radius:10px;text-decoration:none">Open the approval desk</a></p>
     <p style="font-size:11px;color:#64748b">Approve &amp; release, correct the quote sheet first, or reject with a reason the buyer will see.</p>
   </div>`;
 }
