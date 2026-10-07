@@ -128,12 +128,15 @@ async function main() {
       if (!DRY_RUN) await conn.beginTransaction();
       // FOR UPDATE: a nightly upsert touching the same vehicles waits for this small batch instead
       // of racing it and having fresher options overwritten by this run's older read.
+      // Keyset predicate spelled `vin >= ? AND (vin > ? OR dealer_id > ?)`, NOT `(vin, dealer_id) > (?, ?)`: MariaDB does not
+      // turn a row-value comparison into a primary-key range, so every batch rescanned from the start (25s+/batch
+      // by 2026-10-07, getting slower as the cursor advanced). This form is a real range scan.
       // Dry run: plain consistent read, no FOR UPDATE — it must never block a nightly upsert on a live box.
       [rows] = await conn.query(
         `SELECT vin, dealer_id, make, options_json FROM dealer_inventory
-         WHERE (vin, dealer_id) > (?, ?) AND removed_at IS NULL${MAKES.length ? " AND make IN (?)" : ""}
+         WHERE vin >= ? AND (vin > ? OR dealer_id > ?) AND removed_at IS NULL${MAKES.length ? " AND make IN (?)" : ""}
          ORDER BY vin, dealer_id LIMIT ?${DRY_RUN ? "" : " FOR UPDATE"}`,
-        MAKES.length ? [cursor.vin, cursor.dealerId, MAKES, BATCH] : [cursor.vin, cursor.dealerId, BATCH]
+        MAKES.length ? [cursor.vin, cursor.vin, cursor.dealerId, MAKES, BATCH] : [cursor.vin, cursor.vin, cursor.dealerId, BATCH]
       );
       if (!rows.length) { if (!DRY_RUN) await conn.rollback(); break; }
       cursor = { vin: rows[rows.length - 1].vin, dealerId: rows[rows.length - 1].dealer_id };
