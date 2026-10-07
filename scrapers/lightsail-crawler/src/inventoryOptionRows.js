@@ -152,7 +152,7 @@ export const DENY_RULES = [
   // Instrument-cluster items every car has — exact words only ("digital gauge cluster with settings" stays).
   ["instrument", /^(?:clock|digital clock|odometer|trip odometer|fuel gauge|tachometer|speedometer)$/i],
   // Single words left behind when a sentence was split ("ECO" is a real Toyota drive mode and is NOT here).
-  ["stub-word", /^(?:look|now|inc|tag|plus|news|artists|creators|comedy|live sports|talk and news|durability|mud|snow|cooled|rear|power|unlock|siri)$/i],
+  ["stub-word", /^(?:look|now|inc|tag|plus|news|artists|creators|comedy|live sports|talk and news|durability|mud|snow|cooled|rear|power)$/i],
   // A spec label whose value was cut off: bare "Engine"/"Transmission"/"Wheels"/"Tires"/"Radio", "Engine: 3",
   // "Wheels: 18 x 7", "Radio: AM/FM 8", a lone "17 x 7", "illuminated 3".
   ["spec-truncated", /^(?:engine|transmission|wheels?|tires?|radio)\b[^a-z]*(?:[a-z]{2,3}[\/\s][a-z]{2,3}(?:[\/\s][a-z]{2,3})?\s+)?[\d\s.x\/]*$|^(?:1[4-9]|2\d)\s*x\s*\d+(?:\.\d+)?$|^illuminated \d$|^bluetooth\W*streaming audio and \d usb c \d$/i],
@@ -198,7 +198,9 @@ function looksLikeFragmentOrBoilerplate(text) {
   );
 }
 
-export function looksLikeNonOptionText(label) {
+// The rules that existed before the 2026-10-07 deny list. Split out so the backfill report can attribute
+// each drop to "legacy" (already dropped today) vs a NEW deny rule (incremental), with no double counting.
+export function looksLikeLegacyNonOptionText(label) {
   // Leading punctuation ("$0 ...", "(0 A) Marsh Gray") doesn't hide a split-number fragment.
   const trimmed = label.trim();
   const unbulleted = label.replace(/^[^a-z0-9]+/i, "");
@@ -209,9 +211,12 @@ export function looksLikeNonOptionText(label) {
     BARE_NUMBER_OR_CURRENCY.test(trimmed) ||
     MENTIONS_MILEAGE.test(label) ||
     LONG_CAPS_RUN_GLUED_ON.test(label) ||
-    looksLikeFragmentOrBoilerplate(unbulleted) ||
-    denyRuleFor(unbulleted) !== null
+    looksLikeFragmentOrBoilerplate(unbulleted)
   );
+}
+
+export function looksLikeNonOptionText(label) {
+  return looksLikeLegacyNonOptionText(label) || denyRuleFor(label.replace(/^[^a-z0-9]+/i, "")) !== null;
 }
 
 // Several options joined into one string by the dealer's own feed: "4 Display; Rear View Auto Dim
@@ -257,7 +262,13 @@ export function optionRowsFromOptions(options, opts = {}) {
       const part = repairTruncatedLabel(rawPart);
       if (part !== rawPart) repaired.push({ from: rawPart, to: part });
       // Checked on the raw, pre-truncation text — see looksLikeOptionSentence's own length note.
-      if (looksLikeOptionSentence(part) || looksLikeNonOptionText(part)) { junkDropped++; dropped.push({ label: part, rule: denyRuleFor(part) || "legacy" }); continue; }
+      if (looksLikeOptionSentence(part) || looksLikeNonOptionText(part)) {
+        junkDropped++;
+        // "legacy" = already dropped before the deny list; otherwise the NEW rule that caught it (incremental only).
+        const legacy = looksLikeOptionSentence(part) || looksLikeLegacyNonOptionText(part);
+        dropped.push({ label: part, rule: legacy ? "legacy" : denyRuleFor(part.replace(/^[^a-z0-9]+/i, "")) });
+        continue;
+      }
       let label = part.slice(0, 160);
       let key = normalizeOptionKey(label);
       if (!key) continue;

@@ -224,12 +224,24 @@ function writeCsv() {
 
 function writeReport() {
   writeCsv();
-  const deny = [...dropReport].filter(([k]) => k.split("\t")[1] !== "legacy");
+  // Every drop is attributed to exactly one bucket: "legacy" (already dropped by the pre-2026-10-07 rules) or
+  // the NEW deny rule that is the first to catch it. So legacy + new = total, by construction. Units are
+  // vehicle-labels: one count per vehicle per distinct dropped label.
+  const perMake = new Map(); // make -> { legacy, added }
+  for (const [k, n] of dropReport) {
+    const [make, rule] = k.split("\t");
+    const m = perMake.get(make) || { legacy: 0, added: 0 };
+    if (rule === "legacy") m.legacy += n; else m.added += n;
+    perMake.set(make, m);
+  }
+  const sum = (f) => [...perMake.values()].reduce((a, m) => a + f(m), 0);
   console.log(`\nPer-make report: ${REPORT_PATH} (${dropReport.size} drop lines, ${repairReport.size} repair lines)`);
-  console.log(`New deny-rule drops (vehicle x label): ${deny.reduce((a, [, n]) => a + n, 0)}; repairs: ${[...repairReport.values()].reduce((a, n) => a + n, 0)}`);
-  const perMake = new Map();
-  for (const [k, n] of deny) { const make = k.split("\t")[0]; perMake.set(make, (perMake.get(make) || 0) + n); }
-  for (const [make, n] of [...perMake].sort((a, b) => b[1] - a[1]).slice(0, 25)) console.log(`  ${make.padEnd(18)} ${String(n).padStart(9)} vehicle-label drops`);
+  console.log(`Vehicle-label drops — already dropped today (legacy): ${sum((m) => m.legacy)}; ADDED by the new deny rules: ${sum((m) => m.added)}; total: ${sum((m) => m.legacy + m.added)}`);
+  console.log(`Truncation repairs (vehicles): ${[...repairReport.values()].reduce((a, n) => a + n, 0)}`);
+  console.log(`  ${"make".padEnd(18)} ${"legacy".padStart(10)} ${"added".padStart(10)} ${"total".padStart(10)}`);
+  for (const [make, m] of [...perMake].sort((a, b) => b[1].added - a[1].added).slice(0, 25)) {
+    console.log(`  ${make.padEnd(18)} ${String(m.legacy).padStart(10)} ${String(m.added).padStart(10)} ${String(m.legacy + m.added).padStart(10)}`);
+  }
 }
 
 main().catch((err) => { console.error("Backfill failed:", err); process.exit(1); });

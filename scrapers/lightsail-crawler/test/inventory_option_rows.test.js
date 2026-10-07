@@ -416,7 +416,7 @@ describe('deny rules added 2026-10-07 (option-normalize audit) — real live str
     'Standard EquipmentExterior18-in',
     'Clock', 'odometer', 'fuel gauge',
     'registered in the U', 'Apple CarPlay is a trademark of Apple Inc', 'an active data plan', 'on your phone or connected devices',
-    'artists', 'creators', 'comedy', 'live sports', 'talk and news', 'news', 'look', 'Now', 'Inc', 'Tag', 'Plus', 'power', 'rear', 'mud', 'snow', 'cooled', 'durability', 'unlock', 'Siri',
+    'artists', 'creators', 'comedy', 'live sports', 'talk and news', 'news', 'look', 'Now', 'Inc', 'Tag', 'Plus', 'power', 'rear', 'mud', 'snow', 'cooled', 'durability',
     'Engine', 'Transmission', 'Wheels', 'Engine: 3', 'Wheels: 18 x 7', '17 x 7', 'Radio: AM/FM 8', 'Radio: AM/FM/HD 8', 'Tires: 22', 'illuminated 3',
     'drive mode (Trail', 'advanced voice recognition (one shot VDE', 'Android Auto and MirrorLink) via USB',
     'get involved with', 'To Keep You Safe', 'putting YOU in control of the whole experience', 'From Our Sales Floor To Your Door',
@@ -434,11 +434,16 @@ describe('deny rules added 2026-10-07 (option-normalize audit) — real live str
     assert.deepEqual(dropped.map((d) => d.rule), ['see-ref', 'bare-size', 'spec-truncated']);
   });
 
+  it('attributes a label the OLD rules already dropped to "legacy", never to a new rule (no double counting)', () => {
+    const { dropped } = optionRowsFromOptions([{ name: '$0 Deductible Coverage' }, { name: 'See toyota' }]);
+    assert.deepEqual(dropped.map((d) => d.rule), ['legacy', 'see-ref']);
+  });
+
   // The rules the owner explicitly ruled out: trailing digit, lowercase start, leading digit, slash — plus ECO.
   const REAL = [
     'Sync 4', 'Premium Content 1', 'heated mirrors', 'wrapped steering wheel', 'wireless Apple CarPlay and Android Auto',
     '10-Speed Automatic', '4-Zone Automatic Climate Control', '360 - Degree Camera', '8-Way Power Driver Seat Adjuster', '180-Amp Alternator',
-    'Radio: AM/FM/HD Audio System', 'Radio: AM/FM/SiriusXM/HD Lexicon Prem Audio System', '4WD', 'AWD', 'ECO', 'Alexa Built In',
+    'Radio: AM/FM/HD Audio System', 'Radio: AM/FM/SiriusXM/HD Lexicon Prem Audio System', '4WD', 'AWD', 'ECO', 'Alexa Built In', 'Siri', 'unlock', 'Unlock', 'Siri', 'unlock', 'Unlock', 'Siri Eyes Free',
     'Navigation system: Google Built-in', 'digital gauge cluster with customizable settings', 'Bluetooth® streaming audio',
     'Multi-Information Display (MID)', 'Engine Block Heater', 'Transmission Skid Plate', 'Wheels: 20-inch Alloy', '3.5L V6 Engine',
     'Seat Adjuster (Driver, Passenger)', '4x4', '4 x 4', '4x2', '6x4', '12.3-inch Touchscreen', 'Tow Package 2',
