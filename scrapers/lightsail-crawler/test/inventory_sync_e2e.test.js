@@ -162,6 +162,27 @@ describe('inventory-sync.mjs against a fake deals API', () => {
     assert.ok(f.bulkBodies.flat().every((v) => v.dealerName.endsWith('Motors Café')));
   });
 
+  it('a multi-byte character straddling the reader\'s 1 MiB chunk boundary is not corrupted (used to become U+FFFD U+FFFD)', async () => {
+    const dir = workdir();
+    const { shardDir, stores } = writeShards(dir, { n: 2, perStore: 10 });
+    const file = path.join(shardDir, 'NJ.json');
+    const recs = JSON.parse(fs.readFileSync(file, 'utf8'));
+    // Put 'pad' BEFORE dealerName and size it so the first byte of the é in "...Motors Café" is the last byte of the first 1 MiB read.
+    const mk = (pad) => ({ vin: recs[0].vin, status: recs[0].status, updatedAt: recs[0].updatedAt, pad, ...recs[0] });
+    const probe = JSON.stringify(mk(''));
+    const before = Buffer.byteLength('[' + probe.slice(0, probe.indexOf('é')));
+    recs[0] = mk('x'.repeat((1 << 20) - 1 - before));
+    const text = JSON.stringify(recs);
+    assert.equal(Buffer.from(text).indexOf(Buffer.from('é')), (1 << 20) - 1, 'the fixture really straddles the boundary');
+    fs.writeFileSync(file, text);
+    const f = await newFake({ stores });
+    const r = await runSync(f, shardDir, { ckpt: path.join(dir, 'c.json'), env: { SYNC_BATCH_ROWS: '1000' } });
+    assert.equal(r.code, 0, r.stdout + r.stderr);
+    const names = f.bulkBodies.flat().map((v) => v.dealerName);
+    assert.ok(names.every((n) => n.endsWith('Motors Café')), names.filter((n) => !n.endsWith('Motors Café')).join('|'));
+    assert.ok(names.every((n) => !n.includes('\uFFFD')));
+  });
+
   it('against a deals API that predates batched sweeps it sweeps store by store and ends in the same state', async () => {
     const dir = workdir();
     const { shardDir, stores, total } = writeShards(dir, { n: 3, perStore: 10 });
