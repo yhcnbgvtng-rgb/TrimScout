@@ -20,6 +20,7 @@ const vehicle = (vin: string, over: Record<string, unknown> = {}) => ({
   packages: [], options: [], features: [], images: [], ...over,
 });
 
+const sent: Array<{ url: string; body: any }> = [];
 function stubFetch() {
   const json = (body: unknown, status = 200) => Promise.resolve(new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } }));
   return async (input: RequestInfo | URL, init?: RequestInit) => {
@@ -30,7 +31,11 @@ function stubFetch() {
     if (url.startsWith("/api/free-vin") || url.startsWith("/api/used-vin")) return json({ handled: true, vin, sticker: { status: "unreleased", pdfUrl: null, msrp: null, source: "free_decode" }, vehicle: vehicle(vin), buildConfidence: "dealer_listing_only", mustHaveLines: [], niceToHaveLines: [], filterableOptions: [], pdfUrl: null });
     if (url.includes("-sticker")) return json({ handled: false, notFord: true, notGm: true, notToyota: true, notHonda: true, vin, error: "no factory build" });
     if (url.startsWith("/api/status/features")) return json({ rfqSend: true });
-    if (url.startsWith("/api/quote-desks")) return json({ desks: {} });
+    if (url.startsWith("/api/rfqs")) { sent.push({ url, body }); return json({ rfq: { id: "rfq-test" }, invite: { stage: "sent" } }); }
+    if (url.startsWith("/api/quote-desks")) {
+      const asked = (JSON.parse(String(init?.body || "{}")).dealers || []) as Array<{ dealerName: string }>;
+      return json({ desks: asked.map((d) => ({ dealerName: d.dealerName, found: true, knownNamed: true, contactName: "Sam Seller", role: "sales_manager", emailMasked: "s***@x.com", emailDomain: "x.com", emailOptOut: false, blockedReason: null, blockedMessage: null, routing: "named" })) });
+    }
     if (url.startsWith("/api/dealer-contact")) return json({ contacts: {} });
     return json({});
   };
@@ -68,7 +73,7 @@ describe("buyer search seed -> Step 1", () => {
     });
     after(() => dom.window.close());
 
-    async function run(picks: ReturnType<typeof row>[], opts: { toStep3?: boolean } = {}) {
+    async function run(picks: ReturnType<typeof row>[], opts: { toStep3?: boolean; send?: boolean; signedIn?: boolean } = {}) {
       const React = (await import("react")).default;
       const { act } = await import("react");
       const { createRoot } = await import("react-dom/client");
@@ -76,7 +81,7 @@ describe("buyer search seed -> Step 1", () => {
       const seed = picks.map((p) => ({ vin: p.vin, vdpUrl: p.vdpUrl, condition: p.condition, dealerId: p.dealerId, dealerName: p.dealerName, dealerState: p.dealerState }));
       const root = createRoot(dom.window.document.getElementById("root")!);
       await act(async () => {
-        root.render(React.createElement(BiddingWizard, { isOpen: true, onClose: () => {}, onSubmitBidRequest: () => {}, vehicles: [], preselectedVehicle: null, initialIntent: "alternate", seedVehicles: seed, currentUser: null, onRequireLogin: () => {} }));
+        root.render(React.createElement(BiddingWizard, { isOpen: true, onClose: () => {}, onSubmitBidRequest: () => {}, vehicles: [], preselectedVehicle: null, initialIntent: "same_spec", seedVehicles: seed, currentUser: opts.signedIn ? ({ id: "u1", name: "T", email: "t@example.com", role: "buyer", phone: "", zipCode: "44503", savedVehicleIds: [] } as never) : null, onRequireLogin: () => {} }));
       });
       const doc = dom.window.document;
       const tick = async () => { await act(async () => { await new Promise((r) => setTimeout(r, 10)); }); };
@@ -88,7 +93,7 @@ describe("buyer search seed -> Step 1", () => {
         if (confirm) await act(async () => { confirm.click(); });
       }
       if (opts.toStep3) {
-        for (let i = 0; i < 4 && !doc.querySelector('[data-testid="alternate-dealers"]'); i++) {
+        for (let i = 0; i < 4 && !doc.querySelector('[data-testid="dealer-contact-list"]'); i++) {
           const cash = doc.querySelector<HTMLButtonElement>('[data-testid="quote-type-cash"]');
           if (cash) await act(async () => { cash.click(); });
           const next = Array.from(doc.querySelectorAll<HTMLButtonElement>("button")).find((b) => /^(Continue|Next)/.test(b.textContent?.trim() || "") && !b.disabled);
@@ -96,6 +101,22 @@ describe("buyer search seed -> Step 1", () => {
           await act(async () => { next.click(); });
           await tick();
         }
+      }
+      if (opts.send) {
+        const zip = doc.querySelector<HTMLInputElement>('input[placeholder="ZIP"]');
+        if (zip) {
+          await act(async () => { Object.getOwnPropertyDescriptor(dom.window.HTMLInputElement.prototype, "value")!.set!.call(zip, "44503"); zip.dispatchEvent(new dom.window.Event("input", { bubbles: true })); });
+        }
+        const no = doc.querySelector<HTMLButtonElement>('[data-testid="trade-in-no"]');
+        if (no) await act(async () => { no.click(); });
+        await tick();
+        const next = Array.from(doc.querySelectorAll<HTMLButtonElement>("button")).find((b) => b.textContent?.trim() === "Continue");
+        if (next) await act(async () => { next.click(); });
+        await tick();
+        const go = Array.from(doc.querySelectorAll<HTMLButtonElement>("button")).find((b) => /^Request (a quote|quotes from)/.test(b.textContent?.trim() || ""));
+        assert.ok(go && !go.disabled, "send button is on step 4");
+        await act(async () => { go.click(); });
+        for (let i = 0; i < 10; i++) await tick();
       }
       const text = doc.body.textContent || "";
       await act(async () => { root.unmount(); });
@@ -112,12 +133,21 @@ describe("buyer search seed -> Step 1", () => {
     }
 
     for (const [label, vins, cond] of [["new", NEW_VINS, "new"], ["used", USED_VINS, "used"]] as const) {
-      it(`${label} picks at three stores prefill Dealerships to ask`, async () => {
+      it(`${label} picks: 3 cars in the RFQ with condition, dealers prefilled on step 3`, async () => {
         const stores = [["1", "A Toyota", "OH"], ["2", "B Honda", "TX"], ["3", "C Kia", "FL"]] as const;
-        const picks = vins.map((v, i) => toPick({ ...row(v, cond), dealerId: stores[i][0], dealerName: stores[i][1], dealerState: stores[i][2] }));
-        const text = await run(picks, { toStep3: true });
+        // No listing link: the search row's store is all the wizard has, so it must come from the hand-off.
+        const picks = vins.map((v, i) => ({ ...toPick({ ...row(v, cond), dealerId: stores[i][0], dealerName: stores[i][1], dealerState: stores[i][2] }), vdpUrl: null }));
+        sent.length = 0;
+        const text = await run(picks, { toStep3: true, send: true, signedIn: true });
         for (const s of stores) assert.ok(text.includes(s[1]), `${s[1]} is listed`);
         assert.doesNotMatch(text, /Search dealerships/);
+        const rfq = sent.find((c) => c.url === "/api/rfqs");
+        assert.ok(rfq, "an RFQ was posted to the (stubbed) API");
+        assert.equal(rfq.body.lane, "same_spec");
+        const pastes = rfq.body.linkPastes as Array<{ vin: string; dealerName: string; dealerState: string; condition?: string }>;
+        assert.deepEqual(pastes.map((p) => p.vin).sort(), [...vins].sort());
+        assert.deepEqual(pastes.map((p) => p.dealerName).sort(), ["A Toyota", "B Honda", "C Kia"]);
+        for (const p of pastes) assert.equal(p.condition, cond === "new" ? undefined : "used", "per-car condition");
       });
     }
 

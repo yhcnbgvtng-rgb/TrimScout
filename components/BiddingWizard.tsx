@@ -1116,8 +1116,6 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   const [altDraft, setAltDraft] = useState<AlternateAskDraft>(EMPTY_ALTERNATE_DRAFT);
   const [altDealers, setAltDealers] = useState<DeskMatch[]>([]);
   const [altPicking, setAltPicking] = useState(false);
-  // Seeded dealers go in once per visit to the compare lane, so a dealer the buyer removes stays removed.
-  const altSeededRef = React.useRef(false);
   const chooseIntent = (next: RfqLane) => {
     if (next === intent) return;
     trackEvent("rfq_intent_selected", { intent: next });
@@ -1141,7 +1139,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     setAltVehicle1(null);
     setAltVehicle2(null);
     if (next === "alternate") setAltDraft(EMPTY_ALTERNATE_DRAFT);
-    if (next === "same_spec") { setAltDealers([]); altSeededRef.current = false; }
+    if (next === "same_spec") setAltDealers([]);
   };
 
   // Custom/Flexible Spec Fields
@@ -1275,7 +1273,6 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     setIntentConfirmed(true);
     setAltDraft(EMPTY_ALTERNATE_DRAFT);
     setAltDealers([]);
-    altSeededRef.current = false;
     setAltPicking(false);
     setLinkError(null);
     setSelectedVehicle(null);
@@ -1861,14 +1858,28 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   // advance the index twice and silently skip the next car.
   const seedStartedRef = React.useRef(-1);
   const seedList = (seedVehicles || []).slice(0, SEED_SLOTS.length);
-  // Every picked car's store goes into "Dealerships to ask" (deduped, max 3) whatever its brand or condition.
+  // A picked car whose listing link named no store keeps the store the search row said it sits at, so step 3's
+  // "Dealerships to ask" lists it (deduped by store, max 3; the buyer unticks to drop one). A store the link did
+  // name is never overwritten.
+  const seedDealerByVin = React.useMemo(() => {
+    const m = new Map<string, { deskId: string; dealerName: string; state: string | null }>();
+    for (const c of seedVehicles || []) {
+      const d = seedDealersFrom([c])[0];
+      if (d) m.set(c.vin.toUpperCase(), d);
+    }
+    return m;
+  }, [seedVehicles]);
   useEffect(() => {
-    if (!isOpen || intent !== "alternate" || altSeededRef.current) return;
-    const dealers = seedDealersFrom(seedVehicles || []);
-    if (!dealers.length) return;
-    altSeededRef.current = true;
-    setAltDealers((list) => [...list, ...dealers.filter((d) => !list.some((x) => x.deskId === d.deskId)).map((d) => ({ deskId: d.deskId, dealerName: d.dealerName, city: null, state: d.state, zip: null, knownNamed: false, emailOptOut: false }))].slice(0, MAX_PACKAGE_LINKS));
-  }, [isOpen, intent, seedVehicles]);
+    if (!seedDealerByVin.size) return;
+    const stamp = (v: Vehicle | null): Vehicle | null => {
+      const d = v ? seedDealerByVin.get(v.vin.toUpperCase()) : undefined;
+      if (!v || !d || dealerFromVdp(v) || v.location?.dealerConfirmed || v.location?.dealerSource === "buyer_picked") return v;
+      return { ...v, location: { ...v.location, dealerName: d.dealerName, state: d.state || v.location?.state || "", dealerConfirmed: true, dealerSource: "buyer_picked", deskId: d.deskId } };
+    };
+    setSelectedVehicle(stamp);
+    setAltVehicle1(stamp);
+    setAltVehicle2(stamp);
+  }, [seedDealerByVin, selectedVehicle, altVehicle1, altVehicle2]);
   const seedOne = async (slot: VehicleSlot, car: { vin: string; vdpUrl: string | null; condition?: "new" | "used" | "cpo" | null }) => {
     const listedUsed = (car.condition === "used" || car.condition === "cpo") && USED_VEHICLES_ENABLED;
     // A used primary flips the whole request to used even when its link doesn't say so (parkLink also detects it from the URL).

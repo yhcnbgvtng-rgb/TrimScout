@@ -112,7 +112,7 @@ export default function Home() {
   }, []);
 
   // Arriving from buyer search's "Request a quote" button: ?quote=1 opens the wizard fresh on Step 1 with the picked cars
-  // (one car = a normal quote; two or three = the compare lane). The seed is read once and cleared, and so is the query,
+  // (one to three cars, all in the "A vehicle with specific options" lane). The seed is read once and cleared, and so is the query,
   // so a refresh doesn't reopen it. Nothing is submitted; the buyer confirms each car in Step 1.
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -123,7 +123,7 @@ export default function Home() {
     window.history.replaceState({}, "", url.pathname + url.search + url.hash);
     // Even with no usable cars (a row without a valid VIN), the buyer asked for a quote: open the wizard plain.
     setPreselectedVehicle(null);
-    setRepickIntent(seed.length > 1 ? "alternate" : "same_spec");
+    setRepickIntent("same_spec");
     setSeedVehicles(seed);
     openFreshWizard();
     // eslint-disable-next-line react-hooks/exhaustive-deps
