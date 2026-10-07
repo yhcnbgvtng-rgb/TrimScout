@@ -5,7 +5,7 @@ import assert from "node:assert/strict";
 import { after, before, describe, it } from "node:test";
 import { JSDOM } from "jsdom";
 import { toPick } from "./buyerPicks";
-import { QUOTE_SEED_KEY, QUOTE_SEED_LANE, takeQuoteSeed, writeQuoteSeed } from "./quoteSeed";
+import { QUOTE_SEED_KEY, QUOTE_SEED_LANE, seedDealersFrom, takeQuoteSeed, writeQuoteSeed } from "./quoteSeed";
 
 const NEW_VINS = ["2T36CRAV0TW113785", "2T36CRAV1TC046311", "2T36CRAV1TC046373"];
 const USED_VINS = ["2T3F1RFV4LC084047", "2T3P1RFV3MC200019", "2T3P1RFV9SW528394"];
@@ -20,6 +20,7 @@ const vehicle = (vin: string, over: Record<string, unknown> = {}) => ({
   packages: [], options: [], features: [], images: [], ...over,
 });
 
+const sent: Array<{ url: string; body: any }> = [];
 function stubFetch() {
   const json = (body: unknown, status = 200) => Promise.resolve(new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } }));
   return async (input: RequestInfo | URL, init?: RequestInit) => {
@@ -30,11 +31,24 @@ function stubFetch() {
     if (url.startsWith("/api/free-vin") || url.startsWith("/api/used-vin")) return json({ handled: true, vin, sticker: { status: "unreleased", pdfUrl: null, msrp: null, source: "free_decode" }, vehicle: vehicle(vin), buildConfidence: "dealer_listing_only", mustHaveLines: [], niceToHaveLines: [], filterableOptions: [], pdfUrl: null });
     if (url.includes("-sticker")) return json({ handled: false, notFord: true, notGm: true, notToyota: true, notHonda: true, vin, error: "no factory build" });
     if (url.startsWith("/api/status/features")) return json({ rfqSend: true });
-    if (url.startsWith("/api/quote-desks")) return json({ desks: {} });
+    if (url.startsWith("/api/rfqs")) { sent.push({ url, body }); return json({ rfq: { id: "rfq-test" }, invite: { stage: "sent" } }); }
+    if (url.startsWith("/api/quote-desks")) {
+      const asked = (JSON.parse(String(init?.body || "{}")).dealers || []) as Array<{ dealerName: string }>;
+      return json({ desks: asked.map((d) => ({ dealerName: d.dealerName, found: true, knownNamed: true, contactName: "Sam Seller", role: "sales_manager", emailMasked: "s***@x.com", emailDomain: "x.com", emailOptOut: false, blockedReason: null, blockedMessage: null, routing: "named" })) });
+    }
     if (url.startsWith("/api/dealer-contact")) return json({ contacts: {} });
     return json({});
   };
 }
+
+describe("seedDealersFrom", () => {
+  it("dedupes by store, caps at 3, keeps pick order, skips nameless", () => {
+    const d = (dealerId: string | null, dealerName: string, dealerState: string | null) => ({ dealerId, dealerName, dealerState });
+    const out = seedDealersFrom([d("1", "A Toyota", "oh"), d("1", "A Toyota", "OH"), d(null, "B Ford", "TX"), d(null, "b ford", "tx"), d(null, "", "CA"), d("4", "C Kia", null), d("5", "D Audi", "NY")]);
+    assert.deepEqual(out.map((x) => x.dealerName), ["A Toyota", "B Ford", "C Kia"]);
+    assert.equal(out[0].state, "OH");
+  });
+});
 
 describe("buyer search seed -> Step 1", () => {
   it("the bottom bar's seed keeps each car's condition", () => {
@@ -63,15 +77,15 @@ describe("buyer search seed -> Step 1", () => {
     });
     after(() => dom.window.close());
 
-    async function run(picks: ReturnType<typeof row>[], toStep3 = false) {
+    async function run(picks: ReturnType<typeof row>[], toStep3 = false, send = false) {
       const React = (await import("react")).default;
       const { act } = await import("react");
       const { createRoot } = await import("react-dom/client");
       const { BiddingWizard } = await import("../components/BiddingWizard");
-      const seed = picks.map((p) => ({ vin: p.vin, vdpUrl: p.vdpUrl, condition: p.condition }));
+      const seed = picks.map((p) => ({ vin: p.vin, vdpUrl: p.vdpUrl, condition: p.condition, dealerId: p.dealerId, dealerName: p.dealerName, dealerState: p.dealerState }));
       const root = createRoot(dom.window.document.getElementById("root")!);
       await act(async () => {
-        root.render(React.createElement(BiddingWizard, { isOpen: true, onClose: () => {}, onSubmitBidRequest: () => {}, vehicles: [], preselectedVehicle: null, initialIntent: QUOTE_SEED_LANE, seedVehicles: seed, currentUser: null, onRequireLogin: () => {} }));
+        root.render(React.createElement(BiddingWizard, { isOpen: true, onClose: () => {}, onSubmitBidRequest: () => {}, vehicles: [], preselectedVehicle: null, initialIntent: QUOTE_SEED_LANE, seedVehicles: seed, currentUser: send ? ({ id: "u1", name: "T", email: "t@example.com", role: "buyer", phone: "", zipCode: "44503", savedVehicleIds: [] } as never) : null, onRequireLogin: () => {} }));
       });
       const doc = dom.window.document;
       const tick = async () => { await act(async () => { await new Promise((r) => setTimeout(r, 10)); }); };
@@ -91,6 +105,19 @@ describe("buyer search seed -> Step 1", () => {
         await tick();
         await act(async () => { next().click(); });
         await tick();
+      }
+      if (send) {
+        const zip = doc.querySelector<HTMLInputElement>('input[placeholder="ZIP"]')!;
+        await act(async () => { Object.getOwnPropertyDescriptor(dom.window.HTMLInputElement.prototype, "value")!.set!.call(zip, "44503"); zip.dispatchEvent(new dom.window.Event("input", { bubbles: true })); });
+        await act(async () => { doc.querySelector<HTMLButtonElement>('[data-testid="trade-in-no"]')!.click(); });
+        await tick();
+        const cont = Array.from(doc.querySelectorAll<HTMLButtonElement>("button")).find((b) => b.textContent?.trim().startsWith("Continue"))!;
+        await act(async () => { cont.click(); });
+        await tick();
+        const go = Array.from(doc.querySelectorAll<HTMLButtonElement>("button")).find((b) => /^Request (a quote|quotes from)/.test(b.textContent?.trim() || ""));
+        assert.ok(go && !go.disabled, "send button is on step 4");
+        await act(async () => { go.click(); });
+        for (let i = 0; i < 10; i++) await tick();
       }
       const text = doc.body.textContent || "";
       await act(async () => { root.unmount(); });
@@ -117,6 +144,23 @@ describe("buyer search seed -> Step 1", () => {
       assert.equal((text.match(/Dealer a/g) || []).length, 1, "Dealer a is listed once");
       assert.ok(text.includes("Dealer b"));
     });
+
+    for (const [label, vins, cond] of [["new", NEW_VINS, "new"], ["used", USED_VINS, "used"]] as const) {
+      it(`${label} picks with no listing link: dealers still prefill from the hand-off, and the request carries 3 cars with condition`, async () => {
+        const picks = vins.map((v, i) => ({ ...row(v, cond, "abc"[i]), vdpUrl: null }));
+        sent.length = 0;
+        const text = await run(picks, true, true);
+        for (const d of ["Dealer a", "Dealer b", "Dealer c"]) assert.ok(text.includes(d), `${d} is prefilled`);
+        assert.doesNotMatch(text, /Search dealerships/);
+        const rfq = sent.find((c) => c.url === "/api/rfqs");
+        assert.ok(rfq, "an RFQ was posted to the (stubbed) API");
+        assert.equal(rfq.body.lane, "same_spec");
+        const pastes = rfq.body.linkPastes as Array<{ vin: string; dealerName: string; condition?: string }>;
+        assert.deepEqual(pastes.map((p) => p.vin).sort(), [...vins].sort());
+        assert.deepEqual(pastes.map((p) => p.dealerName).sort(), ["Dealer a", "Dealer b", "Dealer c"]);
+        for (const p of pastes) assert.equal(p.condition, cond === "new" ? undefined : "used", "per-car condition (new is the unmarked default)");
+      });
+    }
 
     it("a new car picked beside used ones is left out and the note says so", async () => {
       const text = await run([row(USED_VINS[0], "used"), row(NEW_VINS[0], "new"), row(USED_VINS[1], "used")]);

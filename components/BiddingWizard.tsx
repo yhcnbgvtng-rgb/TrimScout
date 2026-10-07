@@ -68,6 +68,7 @@ import {
 } from "../lib/linkImport";
 import { shopperDealStructurePayload, mapDealRequestJson } from "../lib/shopperDeal";
 import { defaultTermsForVehicles } from "../lib/dealTerms";
+import { seedDealersFrom } from "../lib/quoteSeed";
 import {
   buildOfferCompareSnapshot,
   collectDealVehicles,
@@ -276,7 +277,7 @@ interface BiddingWizardProps {
    * Cars picked on buyer search ("Request a quote"): fed into Step 1 through the same paste path as a typed link or
    * VIN — primary first, then the two alternates — one at a time, each still confirmed by the buyer. Nothing is sent.
    */
-  seedVehicles?: Array<{ vin: string; vdpUrl: string | null; condition?: "new" | "used" | "cpo" | null }>;
+  seedVehicles?: Array<{ vin: string; vdpUrl: string | null; condition?: "new" | "used" | "cpo" | null; dealerId?: string | null; dealerName?: string | null; dealerState?: string | null }>;
   initialStrategy?: BiddingStrategy;
   onSubmitBidRequest: (request: BiddingRequest) => void;
   // Real reverse-auction flow: the buyer already picked a specific real
@@ -1857,6 +1858,28 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   // advance the index twice and silently skip the next car.
   const seedStartedRef = React.useRef(-1);
   const seedList = (seedVehicles || []).slice(0, SEED_SLOTS.length);
+  // A picked car whose listing link named no store keeps the store the search row said it sits at, so step 3's
+  // "Dealerships to ask" lists it (deduped by store, max 3; the buyer unticks to drop one). A store the link did
+  // name is never overwritten.
+  const seedDealerByVin = React.useMemo(() => {
+    const m = new Map<string, { deskId: string; dealerName: string; state: string | null }>();
+    for (const c of seedVehicles || []) {
+      const d = seedDealersFrom([c])[0];
+      if (d) m.set(c.vin.toUpperCase(), d);
+    }
+    return m;
+  }, [seedVehicles]);
+  useEffect(() => {
+    if (!seedDealerByVin.size) return;
+    const stamp = (v: Vehicle | null): Vehicle | null => {
+      const d = v ? seedDealerByVin.get(v.vin.toUpperCase()) : undefined;
+      if (!v || !d || dealerFromVdp(v) || v.location?.dealerConfirmed || v.location?.dealerSource === "buyer_picked") return v;
+      return { ...v, location: { ...v.location, dealerName: d.dealerName, state: d.state || v.location?.state || "", dealerConfirmed: true, dealerSource: "buyer_picked", deskId: d.deskId } };
+    };
+    setSelectedVehicle(stamp);
+    setAltVehicle1(stamp);
+    setAltVehicle2(stamp);
+  }, [seedDealerByVin, selectedVehicle, altVehicle1, altVehicle2]);
   const seedOne = async (slot: VehicleSlot, car: { vin: string; vdpUrl: string | null; condition?: "new" | "used" | "cpo" | null }) => {
     const listedUsed = (car.condition === "used" || car.condition === "cpo") && USED_VEHICLES_ENABLED;
     // A used primary flips the whole request to used even when its link doesn't say so (parkLink also detects it from the URL).
