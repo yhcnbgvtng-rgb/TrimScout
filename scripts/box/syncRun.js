@@ -52,7 +52,10 @@ const fmtDur = (ms) => (ms >= 3_600_000 ? `${(ms / 3_600_000).toFixed(2)}h` : ms
  * @param {{load: () => any, save: (state: object) => void, clear: () => void}} p.store  the run-state file
  * @param {() => boolean} [p.isLockLost]  true once the heartbeat has found the sync lock is no longer ours
  */
-export async function runWritePhase({ rows, fileIdentity, api, store, isLockLost = () => false, log = console.log, config = configFromEnv({}), now = Date.now, sleep }) {
+export async function runWritePhase({ rows, fileIdentity, api, store, isLockLost = () => false, log = console.log, config = configFromEnv({}), now = Date.now, sleep,
+  // Stores that must NOT be swept this run (their shard was over the size limit — see syncFreshness.js), the box this sync runs
+  // on, and how long another box's recent rows stay protected from this box's sweep.
+  sweepExclude = new Set(), sourceBox = null, foreignGraceMs = 48 * 3600_000 }) {
   const assertLock = () => {
     if (isLockLost()) throw new LockLostError();
   };
@@ -153,12 +156,16 @@ export async function runWritePhase({ rows, fileIdentity, api, store, isLockLost
   }
 
   // ---- sweep --------------------------------------------------------------------------------------------
-  const stores = [...new Set(rows.map((r) => r.dealerId).filter(Boolean))];
+  const stores = [...new Set(rows.map((r) => r.dealerId).filter(Boolean))].filter((id) => !sweepExclude.has(id));
+  if (sweepExclude.size) log(`[sync] not sweeping ${sweepExclude.size} store(s) whose shard is over the size limit (their cars are uploaded but nothing is retired from an incomplete file)`);
+  const foreignBefore = sourceBox ? new Date(Date.parse(state.startedAt) - foreignGraceMs).toISOString() : null;
   const tSweep = now();
   const sweep = await runSweep({
     api: (path, body) => api(path, body),
     stores,
     startedAt: state.startedAt,
+    sourceBox,
+    foreignBefore,
     batchStores: config.sweepBatchStores,
     concurrency: config.sweepConcurrency,
     startIndex: state.sweep.nextIndex,
@@ -181,7 +188,7 @@ export async function runWritePhase({ rows, fileIdentity, api, store, isLockLost
   if (!state.sweep.store0Done) {
     try {
       assertLock();
-      removed += (await withRetry(() => api(SWEEP_PATH, { dealerId: 0, seenAfter: state.startedAt, sources: ["nightly"] }), { retries: 1, delayMs: 3000 * config.retryScale, sleep }))?.removed ?? 0;
+      removed += (await withRetry(() => api(SWEEP_PATH, { dealerId: 0, seenAfter: state.startedAt, sources: ["nightly"], ...(sourceBox && foreignBefore ? { sourceBox, foreignBefore } : {}) }), { retries: 1, delayMs: 3000 * config.retryScale, sleep }))?.removed ?? 0;
     } catch (err) {
       if (err instanceof LockLostError) throw err;
       /* box predates store-0 sweeps, or this one failed too — not fatal either way */
