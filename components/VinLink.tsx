@@ -56,7 +56,7 @@ export function VinLink({ vin, className = "" }: { vin: string; className?: stri
       rel="noopener noreferrer"
       title="Open this VIN in the crawl data"
       data-testid="vin-crawl-link"
-      className={`font-mono underline decoration-dotted underline-offset-2 hover:text-emerald-300 ${className}`}
+      className={`font-mono underline decoration-dotted underline-offset-2 hover:text-brand-300 ${className}`}
     >
       {vin}
     </a>

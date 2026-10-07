@@ -296,7 +296,7 @@ export const DealerPortal: React.FC<DealerPortalProps> = ({
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-xl sm:text-2xl font-black text-white">Dealer Portal</h1>
-              <span className="rounded-md bg-emerald-500/10 px-2 py-0.5 text-xs font-bold text-emerald-400 border border-emerald-500/20 flex items-center gap-1">
+              <span className="rounded-md bg-brand-500/10 px-2 py-0.5 text-xs font-bold text-brand-400 border border-brand-500/20 flex items-center gap-1">
                 <CheckCircle2 className="h-3 w-3" /> Dealer Account
               </span>
             </div>
@@ -318,10 +318,10 @@ export const DealerPortal: React.FC<DealerPortalProps> = ({
 
       {/* WON DEAL BANNER */}
       {wonDeal && (
-        <div className="rounded-2xl border-2 border-emerald-500 bg-gradient-to-r from-emerald-950/40 via-surface-elevated to-surface p-5 space-y-3 shadow-xl animate-fadeIn">
+        <div className="rounded-2xl border-2 border-brand-500 bg-gradient-to-r from-brand-950/40 via-surface-elevated to-surface p-5 space-y-3 shadow-xl animate-fadeIn">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500 text-black font-extrabold shadow-lg">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-500 text-black font-extrabold shadow-lg">
                 <Sparkles className="h-5 w-5 fill-black" />
               </div>
               <div>
@@ -329,19 +329,19 @@ export const DealerPortal: React.FC<DealerPortalProps> = ({
                   <h3 className="text-sm sm:text-base font-black text-white">
                     Deal Locked — Certificate #{wonDeal.certificateId}
                   </h3>
-                  <span className="rounded bg-emerald-500 text-black px-2 py-0.5 text-[10px] font-black uppercase">
+                  <span className="rounded bg-brand-500 text-black px-2 py-0.5 text-[10px] font-black uppercase">
                     ACTION REQUIRED
                   </span>
                 </div>
                 <p className="text-xs text-ink-muted mt-0.5">
-                  Buyer paid to lock in your bid at <strong className="text-emerald-400 font-mono">{formatCurrency(wonDeal.winningBid.totalOtdPrice)}</strong>. Please upload the finalized purchase contract.
+                  Buyer paid to lock in your bid at <strong className="text-brand-400 font-mono">{formatCurrency(wonDeal.winningBid.totalOtdPrice)}</strong>. Please upload the finalized purchase contract.
                 </p>
               </div>
             </div>
 
             <button
               onClick={() => setIsUploadModalOpen(true)}
-              className="rounded-xl bg-emerald-500 px-5 py-2.5 text-xs font-extrabold text-black hover:bg-emerald-400 transition-all shadow-lg shadow-emerald-500/20 flex items-center gap-2 shrink-0 active:scale-95"
+              className="rounded-xl bg-brand-500 px-5 py-2.5 text-xs font-extrabold text-black hover:bg-brand-400 transition-all shadow-lg shadow-brand-500/20 flex items-center gap-2 shrink-0 active:scale-95"
             >
               <UploadCloud className="h-4 w-4" />
               <span>{wonDeal.paperworkStatus === "uploaded" ? "Update Paperwork" : "Upload Sales Contract Now →"}</span>
@@ -356,7 +356,7 @@ export const DealerPortal: React.FC<DealerPortalProps> = ({
           <div className="text-[11px] font-semibold text-ink-muted uppercase tracking-wider">Active Inbound Deals</div>
           <div className="text-2xl font-black text-white flex items-center gap-2">
             {inboundRequests.length}
-            <span className="text-xs font-bold text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded">Live</span>
+            <span className="text-xs font-bold text-positive-400 bg-positive-500/10 px-1.5 py-0.5 rounded">Live</span>
           </div>
           <p className="text-[10px] text-ink-faint">Matching your real inventory</p>
         </div>
@@ -369,7 +369,7 @@ export const DealerPortal: React.FC<DealerPortalProps> = ({
 
         <div className="rounded-2xl border border-border bg-surface p-4 space-y-1">
           <div className="text-[11px] font-semibold text-ink-muted uppercase tracking-wider">Deals Won</div>
-          <div className="text-2xl font-black text-emerald-400">{wonDeal ? 1 : 0}</div>
+          <div className="text-2xl font-black text-brand-400">{wonDeal ? 1 : 0}</div>
           <p className="text-[10px] text-ink-faint">$0 doc fee policy</p>
         </div>
 
@@ -388,7 +388,7 @@ export const DealerPortal: React.FC<DealerPortalProps> = ({
           onClick={() => setActiveTab("leads")}
           className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition-all ${
             activeTab === "leads"
-              ? "bg-emerald-500 text-black shadow-md"
+              ? "bg-brand-500 text-black shadow-md"
               : "bg-surface text-ink-muted hover:text-white border border-border"
           }`}
         >
@@ -400,7 +400,7 @@ export const DealerPortal: React.FC<DealerPortalProps> = ({
           onClick={() => setActiveTab("my_bids")}
           className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition-all ${
             activeTab === "my_bids"
-              ? "bg-emerald-500 text-black shadow-md"
+              ? "bg-brand-500 text-black shadow-md"
               : "bg-surface text-ink-muted hover:text-white border border-border"
           }`}
         >
@@ -413,8 +413,8 @@ export const DealerPortal: React.FC<DealerPortalProps> = ({
             onClick={() => setActiveTab("locked_deals")}
             className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition-all ${
               activeTab === "locked_deals"
-                ? "bg-emerald-500 text-black shadow-md"
-                : "bg-surface text-emerald-400 hover:text-white border border-emerald-500/30"
+                ? "bg-brand-500 text-black shadow-md"
+                : "bg-surface text-brand-400 hover:text-white border border-brand-500/30"
             }`}
           >
             <FileCheck className="h-4 w-4" />
@@ -428,7 +428,7 @@ export const DealerPortal: React.FC<DealerPortalProps> = ({
         <div className="space-y-4">
           <div className="flex items-center justify-between text-xs text-ink-muted">
             <span>Real buyer requests matching your live inventory</span>
-            <button onClick={refreshInboundRequests} className="text-emerald-400 font-medium hover:underline">
+            <button onClick={refreshInboundRequests} className="text-brand-400 font-medium hover:underline">
               ● Refresh
             </button>
           </div>
@@ -456,16 +456,16 @@ export const DealerPortal: React.FC<DealerPortalProps> = ({
             {inboundRequests.map((req) => (
               <div
                 key={req.requestId}
-                className="rounded-2xl border border-border-strong bg-surface p-5 space-y-4 shadow-lg hover:border-emerald-500/50 transition-all"
+                className="rounded-2xl border border-border-strong bg-surface p-5 space-y-4 shadow-lg hover:border-brand-500/50 transition-all"
               >
                 <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                   <div className="space-y-2">
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="rounded-md bg-emerald-500/20 px-2 py-0.5 text-xs font-mono font-bold text-emerald-400 border border-emerald-500/30">
+                      <span className="rounded-md bg-brand-500/20 px-2 py-0.5 text-xs font-mono font-bold text-brand-400 border border-brand-500/30">
                         {req.buyerAlias}
                       </span>
                       <span className="rounded-md bg-surface-elevated px-2 py-0.5 text-xs font-semibold text-ink-light border border-border flex items-center gap-1">
-                        <MapPin className="h-3 w-3 text-emerald-400" /> {req.buyerState ? `${req.buyerState} ` : ""}({req.distanceMiles} mi away)
+                        <MapPin className="h-3 w-3 text-brand-400" /> {req.buyerState ? `${req.buyerState} ` : ""}({req.distanceMiles} mi away)
                       </span>
                       <span className="rounded-md bg-blue-500/20 px-2 py-0.5 text-xs font-bold text-blue-400 border border-blue-500/30 flex items-center gap-1">
                         <Clock className="h-3 w-3" /> Expires {new Date(req.expiresAt).toLocaleString()}
@@ -490,7 +490,7 @@ export const DealerPortal: React.FC<DealerPortalProps> = ({
                         </h3>
                         <p className="text-xs text-ink-muted mt-0.5">
                           {req.referenceMsrp ? <>MSRP {formatCurrency(req.referenceMsrp)} · </> : null}
-                          Strategy: <strong className="text-emerald-400">
+                          Strategy: <strong className="text-brand-400">
                             {req.strategy === "flexible_discount" ? "Flexible Discount" : req.strategy === "exact_auction" ? "Exact Match Auction" : "Firm Target Offer"}
                           </strong>
                         </p>
@@ -525,7 +525,7 @@ export const DealerPortal: React.FC<DealerPortalProps> = ({
 
                     {req.buyerComment && (
                       <div className="rounded-xl border border-border bg-surface-elevated p-3 flex items-start gap-2.5">
-                        <MessageSquare className="h-3.5 w-3.5 text-emerald-400 shrink-0 mt-0.5" />
+                        <MessageSquare className="h-3.5 w-3.5 text-brand-400 shrink-0 mt-0.5" />
                         <div>
                           <div className="text-[10px] font-bold text-ink-muted uppercase tracking-wide">Buyer Comment</div>
                           <p className="text-xs text-ink-light mt-0.5 whitespace-pre-wrap">{req.buyerComment}</p>
@@ -557,7 +557,7 @@ export const DealerPortal: React.FC<DealerPortalProps> = ({
                         <div className="text-[11px] font-semibold text-ink-muted uppercase">Market So Far</div>
                         {req.bidCount > 0 ? (
                           <>
-                            <div className="text-xl font-black text-emerald-400 flex items-center gap-1.5 lg:justify-end">
+                            <div className="text-xl font-black text-brand-400 flex items-center gap-1.5 lg:justify-end">
                               <Percent className="h-4 w-4" />
                               <span>{req.leadingDiscountPercent}% off MSRP</span>
                             </div>
@@ -573,7 +573,7 @@ export const DealerPortal: React.FC<DealerPortalProps> = ({
 
                     <button
                       onClick={() => handleOpenBidModal(req)}
-                      className="rounded-xl bg-emerald-500 px-6 py-3 font-extrabold text-xs text-black hover:bg-emerald-400 transition-all shadow-lg shadow-emerald-500/20 flex items-center gap-2 active:scale-95"
+                      className="rounded-xl bg-brand-500 px-6 py-3 font-extrabold text-xs text-black hover:bg-brand-400 transition-all shadow-lg shadow-brand-500/20 flex items-center gap-2 active:scale-95"
                     >
                       <Zap className="h-4 w-4 fill-black" />
                       <span>Submit Binding OTD Bid</span>
@@ -591,7 +591,7 @@ export const DealerPortal: React.FC<DealerPortalProps> = ({
         <div className="space-y-4">
           <div className="flex items-center justify-between text-xs text-ink-muted">
             <span>Status of your submitted real bids</span>
-            <button onClick={refreshMyBids} className="text-emerald-400 font-medium hover:underline">
+            <button onClick={refreshMyBids} className="text-brand-400 font-medium hover:underline">
               ● Refresh
             </button>
           </div>
@@ -621,7 +621,7 @@ export const DealerPortal: React.FC<DealerPortalProps> = ({
                 key={bid.id}
                 className={`rounded-2xl border p-5 space-y-3 transition-all ${
                   bid.rank === 1
-                    ? "border-emerald-500 bg-surface shadow-lg ring-1 ring-emerald-500/40"
+                    ? "border-brand-500 bg-surface shadow-lg ring-1 ring-brand-500/40"
                     : "border-border bg-surface"
                 }`}
               >
@@ -629,7 +629,7 @@ export const DealerPortal: React.FC<DealerPortalProps> = ({
                   <div className="space-y-1.5">
                     <div className="flex items-center gap-2">
                       {bid.rank === 1 ? (
-                        <span className="rounded-md bg-emerald-500 px-2 py-0.5 text-xs font-black text-black flex items-center gap-1">
+                        <span className="rounded-md bg-brand-500 px-2 py-0.5 text-xs font-black text-black flex items-center gap-1">
                           ✓ Best Offer Submitted
                         </span>
                       ) : (
@@ -659,7 +659,7 @@ export const DealerPortal: React.FC<DealerPortalProps> = ({
                         {formatCurrency(bid.quotedOtdPrice)}{" "}
                         <span className="text-xs font-normal text-ink-muted">quoted</span>
                       </div>
-                      <div className="text-xs font-bold text-emerald-400">
+                      <div className="text-xs font-bold text-brand-400">
                         {bid.dealerDiscountPercent}% Off MSRP (-{formatCurrency(bid.dealerDiscountDollars)})
                       </div>
                     </div>
@@ -676,7 +676,7 @@ export const DealerPortal: React.FC<DealerPortalProps> = ({
                     </span>
                     <button
                       onClick={() => handleReviseBid(bid.dealRequestId)}
-                      className="rounded-lg bg-emerald-500 px-3.5 py-1.5 text-[11px] font-extrabold text-black hover:bg-emerald-400 transition-all active:scale-95 shrink-0"
+                      className="rounded-lg bg-brand-500 px-3.5 py-1.5 text-[11px] font-extrabold text-black hover:bg-brand-400 transition-all active:scale-95 shrink-0"
                     >
                       Revise your offer
                     </button>
@@ -693,14 +693,14 @@ export const DealerPortal: React.FC<DealerPortalProps> = ({
         <div className="space-y-4">
           <div className="flex items-center justify-between text-xs text-ink-muted">
             <span>Official Deal Certificate & Paperwork Fulfillment</span>
-            <span className="text-emerald-400 font-medium">● Legally Binding Locked Deal</span>
+            <span className="text-brand-400 font-medium">● Legally Binding Locked Deal</span>
           </div>
 
-          <div className="rounded-2xl border-2 border-emerald-500/60 bg-surface p-6 space-y-6 shadow-xl">
+          <div className="rounded-2xl border-2 border-brand-500/60 bg-surface p-6 space-y-6 shadow-xl">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-border pb-4">
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <span className="rounded bg-emerald-500 text-black px-2 py-0.5 text-xs font-mono font-black">
+                  <span className="rounded bg-brand-500 text-black px-2 py-0.5 text-xs font-mono font-black">
                     {wonDeal.certificateId}
                   </span>
                   <span className="text-xs text-ink-muted">Locked: {wonDeal.lockedAt}</span>
@@ -715,7 +715,7 @@ export const DealerPortal: React.FC<DealerPortalProps> = ({
 
               <div className="sm:text-right space-y-0.5">
                 <div className="text-xs text-ink-muted">Agreed Out-The-Door Price</div>
-                <div className="text-2xl font-black text-emerald-400 font-mono">
+                <div className="text-2xl font-black text-brand-400 font-mono">
                   {formatCurrency(wonDeal.winningBid.totalOtdPrice)}
                 </div>
                 <div className="text-[10px] text-ink-faint">Includes taxes & DMV fees</div>
@@ -723,8 +723,8 @@ export const DealerPortal: React.FC<DealerPortalProps> = ({
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              <div className="rounded-xl border border-emerald-500/30 bg-emerald-950/20 p-3.5 space-y-1">
-                <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-400">
+              <div className="rounded-xl border border-brand-500/30 bg-brand-950/20 p-3.5 space-y-1">
+                <div className="flex items-center gap-1.5 text-xs font-bold text-brand-400">
                   <CheckCircle2 className="h-4 w-4" /> 1. Deal Locked by Buyer
                 </div>
                 <p className="text-[11px] text-ink-muted">
@@ -734,12 +734,12 @@ export const DealerPortal: React.FC<DealerPortalProps> = ({
 
               <div className={`rounded-xl border p-3.5 space-y-1 ${
                 wonDeal.paperworkStatus === "uploaded"
-                  ? "border-emerald-500/30 bg-emerald-950/20 text-emerald-400"
+                  ? "border-brand-500/30 bg-brand-950/20 text-brand-400"
                   : "border-amber-500/40 bg-amber-950/20 text-amber-300"
               }`}>
                 <div className="flex items-center gap-1.5 text-xs font-bold">
                   {wonDeal.paperworkStatus === "uploaded" ? (
-                    <><CheckCircle2 className="h-4 w-4 text-emerald-400" /> 2. Contract Uploaded</>
+                    <><CheckCircle2 className="h-4 w-4 text-brand-400" /> 2. Contract Uploaded</>
                   ) : (
                     <><AlertCircle className="h-4 w-4 text-amber-400" /> 2. Upload Sales Contract</>
                   )}
@@ -780,7 +780,7 @@ export const DealerPortal: React.FC<DealerPortalProps> = ({
 
               <button
                 onClick={() => setIsUploadModalOpen(true)}
-                className="rounded-xl bg-emerald-500 px-5 py-2 text-xs font-extrabold text-black hover:bg-emerald-400 transition-all shadow-md flex items-center gap-2 shrink-0"
+                className="rounded-xl bg-brand-500 px-5 py-2 text-xs font-extrabold text-black hover:bg-brand-400 transition-all shadow-md flex items-center gap-2 shrink-0"
               >
                 <UploadCloud className="h-4 w-4" />
                 <span>{wonDeal.paperworkStatus === "uploaded" ? "Re-Upload New Version" : "Upload Contract PDF →"}</span>
@@ -815,7 +815,7 @@ export const DealerPortal: React.FC<DealerPortalProps> = ({
                       wd.paperworkStatus !== "uploaded"
                         ? "border-amber-500/40 bg-amber-950/30 text-amber-300"
                         : v?.status === "verified"
-                          ? "border-emerald-500/40 bg-emerald-950/30 text-emerald-300"
+                          ? "border-brand-500/40 bg-brand-950/30 text-brand-300"
                           : v?.status === "flagged"
                             ? "border-rose-500/40 bg-rose-950/30 text-rose-300"
                             : "border-blue-500/40 bg-blue-950/30 text-blue-300"
@@ -833,7 +833,7 @@ export const DealerPortal: React.FC<DealerPortalProps> = ({
 
                 {wd.paperworkStatus === "uploaded" && wd.contractFileName && (
                   <p className="text-[11px] text-ink-muted flex items-center gap-1.5">
-                    <FileCheck className="h-3.5 w-3.5 text-emerald-400" /> Current file: {wd.contractFileName}
+                    <FileCheck className="h-3.5 w-3.5 text-brand-400" /> Current file: {wd.contractFileName}
                   </p>
                 )}
 
@@ -857,7 +857,7 @@ export const DealerPortal: React.FC<DealerPortalProps> = ({
                   </div>
                 )}
                 {v && v.status === "verified" && (
-                  <div className="flex items-center gap-2 rounded-xl border border-emerald-500/40 bg-emerald-950/20 p-3 text-[11px] text-emerald-300">
+                  <div className="flex items-center gap-2 rounded-xl border border-brand-500/40 bg-brand-950/20 p-3 text-[11px] text-brand-300">
                     <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
                     Contract price and dealer name match the winning bid exactly.
                   </div>
@@ -930,7 +930,7 @@ export const DealerPortal: React.FC<DealerPortalProps> = ({
           <div className="relative w-full max-w-xl rounded-2xl border border-border-strong bg-surface shadow-2xl overflow-hidden my-8">
             <div className="flex items-center justify-between border-b border-border bg-surface-elevated px-6 py-4">
               <div className="flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/20 text-emerald-400">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-500/20 text-brand-400">
                   <UploadCloud className="h-4 w-4" />
                 </div>
                 <div>
@@ -947,9 +947,9 @@ export const DealerPortal: React.FC<DealerPortalProps> = ({
             </div>
 
             <div className="p-6 space-y-5 text-xs">
-              <div className="rounded-xl border border-emerald-500/30 bg-emerald-950/20 p-3 flex justify-between items-center">
+              <div className="rounded-xl border border-brand-500/30 bg-brand-950/20 p-3 flex justify-between items-center">
                 <span className="text-ink-muted">Locked Binding OTD Price:</span>
-                <span className="text-emerald-400 font-mono font-black text-sm">
+                <span className="text-brand-400 font-mono font-black text-sm">
                   {formatCurrency(wonDeal.winningBid.totalOtdPrice)}
                 </span>
               </div>
@@ -958,8 +958,8 @@ export const DealerPortal: React.FC<DealerPortalProps> = ({
                 <label className="font-bold text-ink-light uppercase text-[11px]">
                   1. Purchase Agreement / Buyer's Order PDF:
                 </label>
-                <div className="rounded-xl border-2 border-dashed border-border hover:border-emerald-500 bg-background p-5 text-center space-y-2 cursor-pointer transition-all">
-                  <FileText className="h-8 w-8 text-emerald-400 mx-auto" />
+                <div className="rounded-xl border-2 border-dashed border-border hover:border-brand-500 bg-background p-5 text-center space-y-2 cursor-pointer transition-all">
+                  <FileText className="h-8 w-8 text-brand-400 mx-auto" />
                   <div className="text-xs font-semibold text-white">
                     {selectedFileName}
                   </div>
@@ -979,12 +979,12 @@ export const DealerPortal: React.FC<DealerPortalProps> = ({
                     onClick={() => setDeliveryMethod("driveway_delivery")}
                     className={`rounded-xl p-3 text-left border transition-all ${
                       deliveryMethod === "driveway_delivery"
-                        ? "border-emerald-500 bg-emerald-500/10 text-white font-bold"
+                        ? "border-brand-500 bg-brand-500/10 text-white font-bold"
                         : "border-border bg-background text-ink-muted hover:text-white"
                     }`}
                   >
                     <div className="flex items-center gap-1.5 text-xs font-bold">
-                      <Truck className="h-3.5 w-3.5 text-emerald-400" /> Driveway Delivery
+                      <Truck className="h-3.5 w-3.5 text-brand-400" /> Driveway Delivery
                     </div>
                   </button>
 
@@ -993,7 +993,7 @@ export const DealerPortal: React.FC<DealerPortalProps> = ({
                     onClick={() => setDeliveryMethod("express_pickup")}
                     className={`rounded-xl p-3 text-left border transition-all ${
                       deliveryMethod === "express_pickup"
-                        ? "border-emerald-500 bg-emerald-500/10 text-white font-bold"
+                        ? "border-brand-500 bg-brand-500/10 text-white font-bold"
                         : "border-border bg-background text-ink-muted hover:text-white"
                     }`}
                   >
@@ -1019,7 +1019,7 @@ export const DealerPortal: React.FC<DealerPortalProps> = ({
 
               <button
                 onClick={handleConfirmUploadPaperwork}
-                className="flex items-center gap-2 rounded-xl bg-emerald-500 px-6 py-2.5 font-extrabold text-xs text-black hover:bg-emerald-400 transition-all shadow-lg shadow-emerald-500/20 active:scale-95"
+                className="flex items-center gap-2 rounded-xl bg-brand-500 px-6 py-2.5 font-extrabold text-xs text-black hover:bg-brand-400 transition-all shadow-lg shadow-brand-500/20 active:scale-95"
               >
                 <Send className="h-3.5 w-3.5 fill-black" />
                 <span>Transmit Contract to Buyer →</span>
@@ -1035,8 +1035,8 @@ export const DealerPortal: React.FC<DealerPortalProps> = ({
           <div className="relative w-full max-w-2xl rounded-2xl border border-border-strong bg-surface shadow-2xl overflow-hidden my-8">
             <div className="flex items-center justify-between border-b border-border bg-surface-elevated px-6 py-4">
               <div className="flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/20 text-emerald-400">
-                  <Zap className="h-4 w-4 fill-emerald-400" />
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-500/20 text-brand-400">
+                  <Zap className="h-4 w-4 fill-brand-400" />
                 </div>
                 <div>
                   <h2 className="text-base font-bold text-white">Submit Binding Out-The-Door Bid</h2>
@@ -1074,7 +1074,7 @@ export const DealerPortal: React.FC<DealerPortalProps> = ({
                 {selectedRequest.targetOtdPrice ? (
                   <div className="shrink-0 text-right">
                     <div className="text-[10px] font-bold text-ink-muted uppercase tracking-wide">Buyer's Target OTD</div>
-                    <div className="text-base font-black text-emerald-400">{formatCurrency(selectedRequest.targetOtdPrice)}</div>
+                    <div className="text-base font-black text-brand-400">{formatCurrency(selectedRequest.targetOtdPrice)}</div>
                   </div>
                 ) : null}
               </div>
@@ -1104,7 +1104,7 @@ export const DealerPortal: React.FC<DealerPortalProps> = ({
                   <select
                     value={selectedVehicleVin}
                     onChange={(e) => setSelectedVehicleVin(e.target.value)}
-                    className="w-full rounded-xl border border-border bg-background py-2.5 px-3 text-xs text-white focus:border-emerald-500 focus:outline-none font-mono"
+                    className="w-full rounded-xl border border-border bg-background py-2.5 px-3 text-xs text-white focus:border-brand-500 focus:outline-none font-mono"
                   >
                     {dealerInventory.map((v) => (
                       <option key={v.vin} value={v.vin}>
@@ -1127,10 +1127,10 @@ export const DealerPortal: React.FC<DealerPortalProps> = ({
                       step="0.1"
                       value={discountPercent}
                       onChange={(e) => setDiscountPercent(Number(e.target.value))}
-                      className="w-full rounded-xl border border-border bg-background py-2 pl-9 pr-3 text-sm text-white font-bold focus:border-emerald-500 focus:outline-none"
+                      className="w-full rounded-xl border border-border bg-background py-2 pl-9 pr-3 text-sm text-white font-bold focus:border-brand-500 focus:outline-none"
                     />
                   </div>
-                  <span className="text-[10px] text-emerald-400 font-medium">
+                  <span className="text-[10px] text-brand-400 font-medium">
                     Discount Amount: -{formatCurrency(otdPreview.discountDollars)}
                   </span>
                 </div>
@@ -1145,7 +1145,7 @@ export const DealerPortal: React.FC<DealerPortalProps> = ({
                       type="number"
                       value={rebates}
                       onChange={(e) => setRebates(Number(e.target.value))}
-                      className="w-full rounded-xl border border-border bg-background py-2 pl-9 pr-3 text-sm text-white font-bold focus:border-emerald-500 focus:outline-none"
+                      className="w-full rounded-xl border border-border bg-background py-2 pl-9 pr-3 text-sm text-white font-bold focus:border-brand-500 focus:outline-none"
                     />
                   </div>
                 </div>
@@ -1153,7 +1153,7 @@ export const DealerPortal: React.FC<DealerPortalProps> = ({
 
               {/* Real-time OTD invoice */}
               <div className="rounded-xl border border-border bg-surface-elevated p-4 space-y-2">
-                <div className="font-bold text-white text-[11px] uppercase tracking-wider text-emerald-400 border-b border-border pb-1.5">
+                <div className="font-bold text-white text-[11px] uppercase tracking-wider text-brand-400 border-b border-border pb-1.5">
                   Binding Itemized Out-The-Door Invoice (buyer's exact tax/DMV computed at checkout)
                 </div>
 
@@ -1162,13 +1162,13 @@ export const DealerPortal: React.FC<DealerPortalProps> = ({
                   <span className="text-white font-mono font-medium">{formatCurrency(otdPreview.msrp)}</span>
                 </div>
 
-                <div className="flex justify-between text-emerald-400 font-medium">
+                <div className="flex justify-between text-brand-400 font-medium">
                   <span>Dealer Discount ({discountPercent}%):</span>
                   <span className="font-mono">-{formatCurrency(otdPreview.discountDollars)}</span>
                 </div>
 
                 {rebates > 0 && (
-                  <div className="flex justify-between text-emerald-400 font-medium">
+                  <div className="flex justify-between text-brand-400 font-medium">
                     <span>Manufacturer Rebates:</span>
                     <span className="font-mono">-{formatCurrency(rebates)}</span>
                   </div>
@@ -1184,7 +1184,7 @@ export const DealerPortal: React.FC<DealerPortalProps> = ({
                   <span className="text-white font-mono">+{formatCurrency(otdPreview.docFee)}</span>
                 </div>
 
-                <div className="flex justify-between text-sm font-black text-emerald-400 border-t border-border pt-2">
+                <div className="flex justify-between text-sm font-black text-brand-400 border-t border-border pt-2">
                   <span>QUOTED PRICE (excl. tax/registration):</span>
                   <span className="font-mono text-base">{formatCurrency(otdPreview.quotedOtdPrice)}</span>
                 </div>
@@ -1209,14 +1209,14 @@ export const DealerPortal: React.FC<DealerPortalProps> = ({
                           type="number"
                           value={tradeInAllowance}
                           onChange={(e) => setTradeInAllowance(Number(e.target.value))}
-                          className="w-full rounded-lg border border-border bg-background py-1.5 pl-7 pr-2 text-xs font-bold text-white focus:border-emerald-500 focus:outline-none"
+                          className="w-full rounded-lg border border-border bg-background py-1.5 pl-7 pr-2 text-xs font-bold text-white focus:border-brand-500 focus:outline-none"
                         />
                       </div>
                     </div>
 
                     <div className="flex justify-between text-xs font-black text-white border-t border-blue-500/20 pt-1.5">
                       <span>NET OUT-OF-POCKET (approx.):</span>
-                      <span className="font-mono text-emerald-400 text-sm">
+                      <span className="font-mono text-brand-400 text-sm">
                         {formatCurrency(Math.max(0, finalNetOtdWithTrade - tradeInAllowance))}
                       </span>
                     </div>
@@ -1230,7 +1230,7 @@ export const DealerPortal: React.FC<DealerPortalProps> = ({
                   <input
                     value={salesRepName}
                     onChange={(e) => setSalesRepName(e.target.value)}
-                    className="w-full rounded-xl border border-border bg-background p-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
+                    className="w-full rounded-xl border border-border bg-background p-2 text-xs text-white focus:border-brand-500 focus:outline-none"
                   />
                 </div>
                 <div className="space-y-1">
@@ -1238,7 +1238,7 @@ export const DealerPortal: React.FC<DealerPortalProps> = ({
                   <input
                     value={salesRepTitle}
                     onChange={(e) => setSalesRepTitle(e.target.value)}
-                    className="w-full rounded-xl border border-border bg-background p-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
+                    className="w-full rounded-xl border border-border bg-background p-2 text-xs text-white focus:border-brand-500 focus:outline-none"
                   />
                 </div>
                 <div className="space-y-1">
@@ -1246,7 +1246,7 @@ export const DealerPortal: React.FC<DealerPortalProps> = ({
                   <input
                     value={salesRepPhone}
                     onChange={(e) => setSalesRepPhone(e.target.value)}
-                    className="w-full rounded-xl border border-border bg-background p-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
+                    className="w-full rounded-xl border border-border bg-background p-2 text-xs text-white focus:border-brand-500 focus:outline-none"
                   />
                 </div>
               </div>
@@ -1259,7 +1259,7 @@ export const DealerPortal: React.FC<DealerPortalProps> = ({
                   rows={2}
                   value={dealerNotes}
                   onChange={(e) => setDealerNotes(e.target.value)}
-                  className="w-full rounded-xl border border-border bg-background p-2.5 text-xs text-white focus:border-emerald-500 focus:outline-none"
+                  className="w-full rounded-xl border border-border bg-background p-2.5 text-xs text-white focus:border-brand-500 focus:outline-none"
                 />
               </div>
 
@@ -1289,7 +1289,7 @@ export const DealerPortal: React.FC<DealerPortalProps> = ({
               <button
                 onClick={handleTransmitBid}
                 disabled={isSubmittingBid || !matchedVehicle}
-                className="flex items-center gap-2 rounded-xl bg-emerald-500 px-6 py-2.5 font-extrabold text-xs text-black hover:bg-emerald-400 transition-all shadow-lg shadow-emerald-500/20 active:scale-95 disabled:opacity-60"
+                className="flex items-center gap-2 rounded-xl bg-brand-500 px-6 py-2.5 font-extrabold text-xs text-black hover:bg-brand-400 transition-all shadow-lg shadow-brand-500/20 active:scale-95 disabled:opacity-60"
               >
                 {isSubmittingBid ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Send className="h-3.5 w-3.5 fill-black" />}
                 <span>
@@ -1335,7 +1335,7 @@ export const DealerPortal: React.FC<DealerPortalProps> = ({
                 </div>
                 <div>
                   <span className="text-[10px] text-ink-faint uppercase font-bold">Condition</span>
-                  <div className="text-sm font-bold text-emerald-400 capitalize">{tradeInToInspect.condition.replace("_", " ")}</div>
+                  <div className="text-sm font-bold text-brand-400 capitalize">{tradeInToInspect.condition.replace("_", " ")}</div>
                 </div>
                 <div>
                   <span className="text-[10px] text-ink-faint uppercase font-bold">Est. Value</span>
@@ -1347,7 +1347,7 @@ export const DealerPortal: React.FC<DealerPortalProps> = ({
 
               <div className="space-y-2">
                 <div className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
-                  <ImageIcon className="h-4 w-4 text-emerald-400" />
+                  <ImageIcon className="h-4 w-4 text-brand-400" />
                   <span>Submitted Inspection Photos ({tradeInToInspect.photos.length}):</span>
                 </div>
 

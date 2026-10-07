@@ -96,7 +96,7 @@ describe("quote-request email — one template for Cash / Lease / Finance", () =
   it("opens with the TrimScout mark + wordmark (Trim green / Scout dark), linked home", () => {
     const html = quoteInviteHtml(base);
     assert.match(html, /<img src="https:\/\/[^"]+\/scoutmark\.png"[^>]*alt="TrimScout"/);
-    assert.match(html, /<span style="color:#059669">Trim<\/span>Scout/);
+    assert.match(html, /<span style="color:#2A6B53">Trim<\/span>Scout/);
   });
 
   it("card: car, facts, full VIN, 'Your listing' link (only when there is a listing), optional thumb", () => {

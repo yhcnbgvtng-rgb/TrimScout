@@ -132,7 +132,7 @@ describe("Configure Quote Request — vehicle resolve hardening", () => {
     assert.equal(card()!.dataset.dealerShown, "Freedom Ford");
     assert.equal(card()!.dataset.buildState, "factory_verified");
     assert.equal(doc.querySelector('[data-testid="factory-build-state"]'), null, "a real sticker needs no explanation");
-    assert.ok(card()!.className.includes("border-emerald-500/40"), "green card");
+    assert.ok(card()!.className.includes("border-brand-500/40"), "green card");
     assert.equal(continueBtn().disabled, false);
     assert.ok(logs.some((l) => l.includes('"resolvePath":"url_only"') && l.includes('"dealerFromVdp":true') && l.includes('"dealerShown":"Freedom Ford"')), "resolve logged");
 
@@ -146,7 +146,7 @@ describe("Configure Quote Request — vehicle resolve hardening", () => {
     assert.equal(card()!.dataset.resolvePath, "factory_pending");
     assert.equal(card()!.dataset.dealerFromVdp, "true");
     assert.equal(card()!.dataset.dealerShown, "Route 22 Toyota");
-    assert.ok(card()!.className.includes("border-emerald-500/40"), "the primary is green like an alternate");
+    assert.ok(card()!.className.includes("border-brand-500/40"), "the primary is green like an alternate");
     assert.match(doc.querySelector('[data-testid="factory-build-state"]')!.textContent!, /Factory build not published yet — details come from the VIN decode.*on the lot 12 days/);
     assert.equal(continueBtn().disabled, false, "a real car with a pending build still continues; the dealer confirms the build");
 

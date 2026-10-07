@@ -1147,7 +1147,9 @@ for (let i = 0; i < dealers.length; i++) {
                         // (or a short structured schema.org model) is ever written. Logged either way so a platform where this
                         // recovers nothing is visible in the crawl log.
                         if (!vehicle.model || !String(vehicle.model).trim()) {
-                            const recovered = recoverModelTrim({ vehicle, html, url });
+                            // extractOne's outer catch drops the vehicle on any throw, so a bug here must never escape.
+                            let recovered = null;
+                            try { recovered = recoverModelTrim({ vehicle, html, url }); } catch (err) { console.log(`⚠️ model recovery error (ignored): ${vehicle.vin} ${err.message}`); }
                             if (recovered && recovered.model) {
                                 vehicle.model = recovered.model;
                                 if (recovered.trim && !(vehicle.trim && String(vehicle.trim).trim())) vehicle.trim = recovered.trim;
@@ -1191,7 +1193,8 @@ for (let i = 0; i < dealers.length; i++) {
                         }
                         // Page-text trim (title / JSON-LD name) when the URL slug had none — same "only a blank trim" rule.
                         if (!vehicle.trim && vehicle.model) {
-                            const pageTrim = recoverTrim({ vehicle, html });
+                            let pageTrim = null;
+                            try { pageTrim = recoverTrim({ vehicle, html }); } catch (err) { console.log(`⚠️ trim recovery error (ignored): ${vehicle.vin} ${err.message}`); }
                             if (pageTrim) vehicle.trim = pageTrim.trim;
                         }
                         // Condition is final here, so this is the one place a used/CPO

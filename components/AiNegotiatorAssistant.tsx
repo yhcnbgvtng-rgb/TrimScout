@@ -48,7 +48,7 @@ const ACTION_STYLE: Record<NegotiateAction, { label: string; icon: React.ReactNo
   recommend_accept: {
     label: "Recommend accept",
     icon: <CheckCircle2 className="h-3.5 w-3.5" />,
-    className: "bg-emerald-500/15 text-emerald-300 border-emerald-500/30",
+    className: "bg-brand-500/15 text-brand-300 border-brand-500/30",
   },
   counter: {
     label: "Countered",
@@ -175,7 +175,7 @@ export const AiNegotiatorAssistant: React.FC = () => {
   return (
     <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8 space-y-6">
       <div className="flex items-center gap-3">
-        <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+        <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-brand-500/15 text-brand-400 border border-brand-500/30">
           <Bot className="h-5.5 w-5.5" />
         </div>
         <div>
@@ -207,7 +207,7 @@ export const AiNegotiatorAssistant: React.FC = () => {
                 onClick={() => setSelectedRequestId(r.id)}
                 className={`rounded-xl border px-3.5 py-2 text-xs font-bold transition-all ${
                   r.id === selectedRequestId
-                    ? "border-emerald-500 bg-emerald-500/10 text-emerald-300"
+                    ? "border-brand-500 bg-brand-500/10 text-brand-300"
                     : "border-border bg-surface text-ink-muted hover:text-white"
                 }`}
               >
@@ -237,7 +237,7 @@ export const AiNegotiatorAssistant: React.FC = () => {
                     value={guardrails.walkAwayOtd}
                     onChange={(e) => setGuardrails((g) => ({ ...g, walkAwayOtd: e.target.value }))}
                     placeholder="e.g. 61000"
-                    className="w-full rounded-lg border border-border bg-background px-2.5 py-1.5 text-xs font-mono text-white focus:border-emerald-500 focus:outline-none"
+                    className="w-full rounded-lg border border-border bg-background px-2.5 py-1.5 text-xs font-mono text-white focus:border-brand-500 focus:outline-none"
                   />
                 </label>
                 <label className="space-y-1">
@@ -246,7 +246,7 @@ export const AiNegotiatorAssistant: React.FC = () => {
                     type="number"
                     value={guardrails.concessionStep}
                     onChange={(e) => setGuardrails((g) => ({ ...g, concessionStep: e.target.value }))}
-                    className="w-full rounded-lg border border-border bg-background px-2.5 py-1.5 text-xs font-mono text-white focus:border-emerald-500 focus:outline-none"
+                    className="w-full rounded-lg border border-border bg-background px-2.5 py-1.5 text-xs font-mono text-white focus:border-brand-500 focus:outline-none"
                   />
                 </label>
                 <label className="space-y-1">
@@ -255,7 +255,7 @@ export const AiNegotiatorAssistant: React.FC = () => {
                     type="number"
                     value={guardrails.maxCountersPerDealer}
                     onChange={(e) => setGuardrails((g) => ({ ...g, maxCountersPerDealer: e.target.value }))}
-                    className="w-full rounded-lg border border-border bg-background px-2.5 py-1.5 text-xs font-mono text-white focus:border-emerald-500 focus:outline-none"
+                    className="w-full rounded-lg border border-border bg-background px-2.5 py-1.5 text-xs font-mono text-white focus:border-brand-500 focus:outline-none"
                   />
                 </label>
                 <label className="space-y-1">
@@ -265,7 +265,7 @@ export const AiNegotiatorAssistant: React.FC = () => {
                     value={guardrails.autoAcceptUnderOtd}
                     onChange={(e) => setGuardrails((g) => ({ ...g, autoAcceptUnderOtd: e.target.value }))}
                     placeholder="Never, unless set"
-                    className="w-full rounded-lg border border-border bg-background px-2.5 py-1.5 text-xs font-mono text-white focus:border-emerald-500 focus:outline-none"
+                    className="w-full rounded-lg border border-border bg-background px-2.5 py-1.5 text-xs font-mono text-white focus:border-brand-500 focus:outline-none"
                   />
                 </label>
                 <label className="space-y-1">
@@ -275,7 +275,7 @@ export const AiNegotiatorAssistant: React.FC = () => {
                     value={guardrails.fairOtdMid}
                     onChange={(e) => setGuardrails((g) => ({ ...g, fairOtdMid: e.target.value }))}
                     placeholder="Hold for more bids under this"
-                    className="w-full rounded-lg border border-border bg-background px-2.5 py-1.5 text-xs font-mono text-white focus:border-emerald-500 focus:outline-none"
+                    className="w-full rounded-lg border border-border bg-background px-2.5 py-1.5 text-xs font-mono text-white focus:border-brand-500 focus:outline-none"
                   />
                 </label>
               </div>
@@ -284,7 +284,7 @@ export const AiNegotiatorAssistant: React.FC = () => {
                   type="checkbox"
                   checked={guardrails.draftMessageWithAi}
                   onChange={(e) => setGuardrails((g) => ({ ...g, draftMessageWithAi: e.target.checked }))}
-                  className="h-3.5 w-3.5 rounded border-border text-emerald-500 focus:ring-0"
+                  className="h-3.5 w-3.5 rounded border-border text-brand-500 focus:ring-0"
                 />
                 Polish the counter message with AI (wording only — never changes the numbers or the action)
               </label>
@@ -324,7 +324,7 @@ export const AiNegotiatorAssistant: React.FC = () => {
                           onClick={() => runNegotiation(bid)}
                           disabled={runningBidId === bid.id || !guardrails.walkAwayOtd}
                           title={!guardrails.walkAwayOtd ? "Set a walk-away OTD above first" : undefined}
-                          className="flex items-center gap-1.5 rounded-xl bg-emerald-500 px-4 py-2 text-xs font-black text-black hover:bg-emerald-400 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                          className="flex items-center gap-1.5 rounded-xl bg-brand-500 px-4 py-2 text-xs font-black text-black hover:bg-brand-400 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
                         >
                           {runningBidId === bid.id ? (
                             <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -359,7 +359,7 @@ export const AiNegotiatorAssistant: React.FC = () => {
                           </p>
                         )}
                         {result.needsCheckout && (
-                          <p className="text-xs text-emerald-400 font-semibold">
+                          <p className="text-xs text-brand-400 font-semibold">
                             Under your auto-accept threshold — head to checkout to lock this in.
                           </p>
                         )}

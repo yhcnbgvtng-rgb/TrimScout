@@ -71,7 +71,7 @@ export function CounterSheetForm({
   }, [lease, used, edits]);
   const errors = sheet ? validateCounterSheet(sheet) : ["No quote to counter."];
 
-  const input = "w-full rounded-lg border border-border bg-background px-2.5 py-1.5 text-xs text-white placeholder-ink-faint focus:border-emerald-500 focus:outline-none tabular-nums";
+  const input = "w-full rounded-lg border border-border bg-background px-2.5 py-1.5 text-xs text-white placeholder-ink-faint focus:border-brand-500 focus:outline-none tabular-nums";
   const label = "block text-[10px] font-bold uppercase tracking-wide text-ink-faint";
   const setLine = (list: Line[], set: (l: Line[]) => void, i: number, amount: string) => set(list.map((l, j) => (j === i ? { ...l, amount } : l)));
   const strike = (list: Line[], set: (l: Line[]) => void, i: number) => setLine(list, set, i, "0");

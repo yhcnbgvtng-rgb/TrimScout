@@ -59,9 +59,9 @@ export default function VinHistory({ vin, onClose }: { vin: string; onClose: () 
                 )}
               </div>
               {data.listings.map((l, i) => (
-                <button key={`${l.dealerId}|${i}`} type="button" onClick={() => setWhich(i)} className={`flex w-full items-center justify-between gap-3 rounded-xl border px-3 py-2 text-left text-xs ${i === which ? "border-emerald-500/60 bg-emerald-500/10" : "border-border bg-surface-elevated hover:border-emerald-500/40"}`}>
+                <button key={`${l.dealerId}|${i}`} type="button" onClick={() => setWhich(i)} className={`flex w-full items-center justify-between gap-3 rounded-xl border px-3 py-2 text-left text-xs ${i === which ? "border-brand-500/60 bg-brand-500/10" : "border-border bg-surface-elevated hover:border-brand-500/40"}`}>
                   <span><span className="font-semibold text-white">{l.dealerName}</span>{l.dealerCity ? <span className="text-ink-muted"> · {l.dealerCity}, {l.dealerState}</span> : null}</span>
-                  <span className={`shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold uppercase ${l.removedAt ? "bg-border text-ink-muted" : "bg-emerald-500/15 text-emerald-300"}`}>{l.removedAt ? `removed ${l.removedAt.slice(0, 10)}` : "in stock"}</span>
+                  <span className={`shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold uppercase ${l.removedAt ? "bg-border text-ink-muted" : "bg-brand-500/15 text-brand-300"}`}>{l.removedAt ? `removed ${l.removedAt.slice(0, 10)}` : "in stock"}</span>
                 </button>
               ))}
             </div>
@@ -90,11 +90,11 @@ export default function VinHistory({ vin, onClose }: { vin: string; onClose: () 
               <div className="grid grid-cols-[110px_90px_1fr_100px_90px] border-b border-border bg-surface-elevated px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-ink-faint"><span>Date</span><span>Status</span><span>Price</span><span className="text-right">Change</span><span className="text-right">Miles</span></div>
               {timeline.length === 0 && <div className="p-4 text-xs text-ink-muted">No observations yet for this listing.</div>}
               {timeline.map((t) => (
-                <div key={t.date} className={`grid grid-cols-[110px_90px_1fr_100px_90px] items-center px-3 py-1 text-[11.5px] ${t.status === "gap" ? "text-ink-faint" : "text-ink-light"} ${t.delta ? "bg-emerald-500/5" : ""} border-b border-border/40`}>
+                <div key={t.date} className={`grid grid-cols-[110px_90px_1fr_100px_90px] items-center px-3 py-1 text-[11.5px] ${t.status === "gap" ? "text-ink-faint" : "text-ink-light"} ${t.delta ? "bg-brand-500/5" : ""} border-b border-border/40`}>
                   <span className="tabular-nums">{t.date}</span>
-                  <span className={t.status === "seen" ? "text-emerald-300" : t.status === "removed" ? "text-rose-300" : ""}>{t.status === "seen" ? "on site" : t.status === "removed" ? "removed" : "no crawl"}</span>
+                  <span className={t.status === "seen" ? "text-brand-300" : t.status === "removed" ? "text-rose-300" : ""}>{t.status === "seen" ? "on site" : t.status === "removed" ? "removed" : "no crawl"}</span>
                   <span className="tabular-nums">{money(t.price)}</span>
-                  <span className={`text-right tabular-nums font-bold ${t.delta && t.delta < 0 ? "text-emerald-300" : t.delta && t.delta > 0 ? "text-amber-300" : "text-ink-faint"}`}>{t.delta ? `${t.delta < 0 ? "▼" : "▲"} $${Math.abs(t.delta).toLocaleString()}` : ""}</span>
+                  <span className={`text-right tabular-nums font-bold ${t.delta && t.delta < 0 ? "text-brand-300" : t.delta && t.delta > 0 ? "text-amber-300" : "text-ink-faint"}`}>{t.delta ? `${t.delta < 0 ? "▼" : "▲"} $${Math.abs(t.delta).toLocaleString()}` : ""}</span>
                   <span className="text-right tabular-nums">{t.mileage != null ? t.mileage.toLocaleString() : ""}</span>
                 </div>
               ))}

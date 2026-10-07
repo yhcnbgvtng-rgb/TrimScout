@@ -105,7 +105,7 @@ export default function QuoteRequestsClient() {
               key={f.id}
               type="button"
               onClick={() => setFilter(f.id)}
-              className={`rounded-lg border px-3 py-1.5 text-[11px] font-bold ${filter === f.id ? "border-emerald-500 bg-emerald-500/10 text-white" : "border-border text-ink-muted hover:text-white"}`}
+              className={`rounded-lg border px-3 py-1.5 text-[11px] font-bold ${filter === f.id ? "border-brand-500 bg-brand-500/10 text-white" : "border-border text-ink-muted hover:text-white"}`}
               data-filter={f.id}
             >
               {f.label} · {counts[f.id]}
@@ -124,18 +124,18 @@ export default function QuoteRequestsClient() {
         <div className="space-y-3">
           {shown.map((r) => {
             const st = rfqTrackerStatus(r as never);
-            const tone = st === "quotes_in" ? "bg-emerald-500/15 text-emerald-300" : st === "awaiting" ? "bg-amber-500/15 text-amber-300" : st === "under_review" ? "bg-sky-500/15 text-sky-300" : st === "rejected" ? "bg-rose-500/15 text-rose-300" : "bg-border text-ink-muted";
+            const tone = st === "quotes_in" ? "bg-positive-500/15 text-positive-300" : st === "awaiting" ? "bg-amber-500/15 text-amber-300" : st === "under_review" ? "bg-sky-500/15 text-sky-300" : st === "rejected" ? "bg-rose-500/15 text-rose-300" : "bg-border text-ink-muted";
             const approval = r.approvalStatus ?? "approved";
             return (
               <section key={r.id} className="rounded-2xl border border-border bg-surface p-4 space-y-3" data-testid="admin-rfq">
                 <div className="flex flex-wrap items-start justify-between gap-2">
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="font-mono text-sm font-black text-emerald-400">{rfqDealNumber(r)}</span>
+                      <span className="font-mono text-sm font-black text-brand-400">{rfqDealNumber(r)}</span>
                       <span className="rounded bg-sky-500/15 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-sky-300">{rfqQuoteTypeLabel(r)}</span>
                       <span className={`rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide ${tone}`}>{rfqTrackerStatusLabel(r as never)}</span>
                       {r.leaseSheetLockedAt ? <span className="rounded bg-border px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-ink-muted">Sheet locked</span> : null}
-                      <span className={`rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide ${approval === "approved" ? "bg-emerald-500/10 text-emerald-300/80" : approval === "rejected" ? "bg-rose-500/15 text-rose-300" : "bg-sky-500/15 text-sky-300"}`} data-testid="approval-badge">
+                      <span className={`rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide ${approval === "approved" ? "bg-positive-500/10 text-positive-300/80" : approval === "rejected" ? "bg-rose-500/15 text-rose-300" : "bg-sky-500/15 text-sky-300"}`} data-testid="approval-badge">
                         {approval === "approved" ? `Released${r.approvalDecidedBy ? ` by ${r.approvalDecidedBy}` : ""}` : approval === "rejected" ? "Rejected" : "Pending review"}
                       </span>
                     </div>
@@ -178,12 +178,12 @@ export default function QuoteRequestsClient() {
                             {i.viewedAt ? ` · viewed ${new Date(i.viewedAt).toLocaleString()}` : i.sentAt ? ` · sent ${new Date(i.sentAt).toLocaleString()}` : ""}
                           </div>
                           {lease ? (
-                            <div className="text-[10px] text-emerald-300">
+                            <div className="text-[10px] text-brand-300">
                               Quoted ${lease.monthlyPaymentPreTax.toLocaleString()}/mo · DAS ${dueAtSigningTotal(lease.dueAtSigning).toLocaleString()} · {lease.termMonths} mo / {lease.milesPerYear.toLocaleString()} mi
                               {lease.counter?.counterOffer ? " · counter" : ""}
                             </div>
                           ) : i.quote ? (
-                            <div className="text-[10px] text-emerald-300">Quoted ${i.quote.price.toLocaleString()}</div>
+                            <div className="text-[10px] text-positive-300">Quoted ${i.quote.price.toLocaleString()}</div>
                           ) : null}
                         </div>
                         {i.calculatorUrl && i.status === "invited" ? (
@@ -192,7 +192,7 @@ export default function QuoteRequestsClient() {
                             target="_blank"
                             rel="noreferrer"
                             title="Opens this desk's calculator page. Counts as a dealer view: marks the invite viewed and locks the buyer's lease sheet."
-                            className="inline-flex shrink-0 items-center gap-1 rounded-lg bg-emerald-500 px-3 py-1.5 text-[11px] font-extrabold text-black hover:bg-emerald-400"
+                            className="inline-flex shrink-0 items-center gap-1 rounded-lg bg-brand-500 px-3 py-1.5 text-[11px] font-extrabold text-black hover:bg-brand-400"
                           >
                             <Calculator className="h-3.5 w-3.5" /> Quote as dealer
                           </a>

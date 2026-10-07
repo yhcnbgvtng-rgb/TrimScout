@@ -123,12 +123,16 @@ describe('standalone.js wiring', () => {
     const iRecover = src.indexOf('recoverModelTrim({ vehicle, html, url })');
     const iNormalize = src.indexOf('vehicle = normalizeVehicleFields(keptMake, vehicle);');
     assert.ok(iMake > 0 && iRecover > iMake && iNormalize > iRecover, 'order: make -> recover model -> normalize');
-    assert.match(src.slice(iRecover - 200, iRecover), /if \(!vehicle\.model \|\| !String\(vehicle\.model\)\.trim\(\)\)/, 'guarded by "model is blank"');
-    assert.match(src.slice(iRecover, iRecover + 400), /!\(vehicle\.trim && String\(vehicle\.trim\)\.trim\(\)\)/, 'trim only when blank');
+    assert.match(src.slice(iRecover - 700, iRecover), /if \(!vehicle\.model \|\| !String\(vehicle\.model\)\.trim\(\)\)/, 'guarded by "model is blank"');
+    assert.match(src.slice(iRecover, iRecover + 900), /!\(vehicle\.trim && String\(vehicle\.trim\)\.trim\(\)\)/, 'trim only when blank');
+  });
+  it('a throw inside either recovery can never drop the vehicle (extractOne\'s outer catch would)', () => {
+    assert.match(src, /try \{ recovered = recoverModelTrim\(\{ vehicle, html, url \}\); \} catch \(err\)/);
+    assert.match(src, /try \{ pageTrim = recoverTrim\(\{ vehicle, html \}\); \} catch \(err\)/);
   });
   it('recovers a page-text trim only when the trim is still blank', () => {
-    const i = src.indexOf('recoverTrim({ vehicle, html })');
+    const i = src.indexOf('try { pageTrim = recoverTrim({ vehicle, html });');
     assert.ok(i > 0);
-    assert.match(src.slice(i - 120, i), /if \(!vehicle\.trim && vehicle\.model\)/);
+    assert.match(src.slice(i - 260, i), /if \(!vehicle\.trim && vehicle\.model\)/);
   });
 });

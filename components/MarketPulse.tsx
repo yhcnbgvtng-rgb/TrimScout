@@ -19,7 +19,7 @@ function timeAgo(iso: string): string {
 function Tile({ label, value, icon }: { label: string; value: string; icon: React.ReactNode }) {
   return (
     <div className="flex items-center gap-3 rounded-2xl border border-border bg-surface p-4">
-      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-400">{icon}</div>
+      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand-500/10 text-brand-400">{icon}</div>
       <div className="min-w-0">
         <p className="text-lg font-extrabold text-white leading-none">{value}</p>
         <p className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-ink-faint">{label}</p>
@@ -89,7 +89,7 @@ export function MarketPulse() {
                   </div>
                   <div className="space-y-0.5 p-2">
                     <p className="truncate text-xs font-bold text-white">{title || "Vehicle"}</p>
-                    <p className="text-xs font-extrabold text-emerald-400">{v.price != null ? `$${v.price.toLocaleString()}` : "Call for price"}</p>
+                    <p className="text-xs font-extrabold text-brand-400">{v.price != null ? `$${v.price.toLocaleString()}` : "Call for price"}</p>
                     <p className="truncate text-[10px] text-ink-faint">{v.dealerState || ""}</p>
                   </div>
                 </div>
@@ -112,7 +112,7 @@ export function MarketPulse() {
           <div className="flex flex-wrap gap-2">
             {pulse.movingMakes.slice(0, 8).map((m) => (
               <span key={m.make} className="rounded-full border border-border bg-surface-elevated px-3 py-1.5 text-xs font-semibold text-ink-light">
-                {m.make} <span className="text-emerald-400">leaving lots faster</span>
+                {m.make} <span className="text-brand-400">leaving lots faster</span>
               </span>
             ))}
           </div>

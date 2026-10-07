@@ -101,7 +101,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         {/* Header */}
         <div className="border-b border-border bg-surface-elevated px-6 py-5 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-500/20 text-emerald-400">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-500/20 text-brand-400">
               <ShieldCheck className="h-5 w-5" />
             </div>
             <div>
@@ -157,7 +157,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     placeholder="name@example.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full rounded-xl border border-border bg-background py-2 pl-9 pr-3 text-xs text-white placeholder:text-ink-faint focus:border-emerald-500 focus:outline-none"
+                    className="w-full rounded-xl border border-border bg-background py-2 pl-9 pr-3 text-xs text-white placeholder:text-ink-faint focus:border-brand-500 focus:outline-none"
                   />
                 </div>
               </div>
@@ -173,7 +173,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     placeholder="••••••••••••"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full rounded-xl border border-border bg-background py-2 pl-9 pr-3 text-xs text-white placeholder:text-ink-faint focus:border-emerald-500 focus:outline-none"
+                    className="w-full rounded-xl border border-border bg-background py-2 pl-9 pr-3 text-xs text-white placeholder:text-ink-faint focus:border-brand-500 focus:outline-none"
                   />
                 </div>
               </div>
@@ -182,7 +182,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full flex items-center justify-center gap-2 rounded-xl bg-emerald-500 py-2.5 text-xs font-black text-black hover:bg-emerald-400 transition-all shadow-md shadow-emerald-500/20 active:scale-95 mt-2 cursor-pointer disabled:opacity-50 disabled:cursor-wait"
+                className="w-full flex items-center justify-center gap-2 rounded-xl bg-brand-500 py-2.5 text-xs font-black text-black hover:bg-brand-400 transition-all shadow-md shadow-brand-500/20 active:scale-95 mt-2 cursor-pointer disabled:opacity-50 disabled:cursor-wait"
               >
                 {isSubmitting ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -198,7 +198,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 <Link
                   href="/signup"
                   onClick={onClose}
-                  className="text-[11px] text-ink-muted hover:text-emerald-400 transition-colors inline-flex items-center gap-1"
+                  className="text-[11px] text-ink-muted hover:text-brand-400 transition-colors inline-flex items-center gap-1"
                 >
                   <UserPlus className="h-3 w-3" />
                   <span>

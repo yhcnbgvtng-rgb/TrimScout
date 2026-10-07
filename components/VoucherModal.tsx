@@ -36,9 +36,9 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
   // sent and waiting on the dealer, and priced (the revised numbers).
   const tradeInCard = deal.hasTradeIn ? (
     deal.tradeInAppraisal && deal.tradeIn ? (
-      <div className="rounded-xl border border-emerald-500/40 bg-emerald-950/20 p-4 space-y-2">
+      <div className="rounded-xl border border-brand-500/40 bg-brand-950/20 p-4 space-y-2">
         <div className="flex items-center justify-between gap-2">
-          <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-400">
+          <div className="flex items-center gap-1.5 text-xs font-bold text-brand-400">
             <Car className="h-4 w-4" /> Your trade-in is priced
           </div>
           <span className="font-mono text-sm font-black text-white">{formatCurrency(deal.tradeInAppraisal.allowance)}</span>
@@ -93,9 +93,9 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4 overflow-y-auto">
-      <div className="relative w-full max-w-xl rounded-2xl border-2 border-emerald-500 bg-surface shadow-2xl overflow-hidden my-8">
+      <div className="relative w-full max-w-xl rounded-2xl border-2 border-brand-500 bg-surface shadow-2xl overflow-hidden my-8">
         {/* Certificate Header Banner */}
-        <div className="bg-gradient-to-r from-emerald-600 via-emerald-500 to-emerald-600 p-6 text-black relative overflow-hidden">
+        <div className="bg-gradient-to-r from-brand-600 via-brand-500 to-brand-600 p-6 text-black relative overflow-hidden">
           <div className="flex items-start justify-between relative z-10">
             <div>
               <div className="inline-flex items-center gap-1 rounded-full bg-black/20 px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-black mb-1">
@@ -120,9 +120,9 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
         {/* Certificate Details */}
         <div className="p-6 space-y-5 text-xs">
           {/* Main Locked Price Card */}
-          <div className="rounded-xl border border-emerald-500/30 bg-emerald-950/20 p-4 flex items-center justify-between">
+          <div className="rounded-xl border border-brand-500/30 bg-brand-950/20 p-4 flex items-center justify-between">
             <div>
-              <span className="text-[10px] uppercase font-bold text-emerald-400">Locked Out-The-Door Price</span>
+              <span className="text-[10px] uppercase font-bold text-brand-400">Locked Out-The-Door Price</span>
               <div className="text-2xl sm:text-3xl font-black text-white">
                 {formatCurrency(deal.winningBid.totalOtdPrice)}
               </div>
@@ -131,7 +131,7 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
               </p>
             </div>
             <div className="text-right">
-              <span className="rounded bg-emerald-500/20 px-2 py-1 text-[11px] font-bold text-emerald-400 border border-emerald-500/30">
+              <span className="rounded bg-brand-500/20 px-2 py-1 text-[11px] font-bold text-brand-400 border border-brand-500/30">
                 {deal.winningBid.dealerDiscountPercent}% OFF MSRP
               </span>
             </div>
@@ -149,7 +149,7 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
             {/* Dealer Box */}
             <div className="rounded-xl border border-border bg-surface-elevated p-3 space-y-1">
               <span className="text-[10px] uppercase font-bold text-ink-faint">Selling Dealership</span>
-              <div className="font-bold text-emerald-400 text-xs truncate">{deal.winningBid.dealerName}</div>
+              <div className="font-bold text-brand-400 text-xs truncate">{deal.winningBid.dealerName}</div>
               <div className="text-ink-muted text-[11px] truncate">
                 {deal.winningBid.dealerCity}, {deal.winningBid.dealerState} ({deal.winningBid.distanceMiles} mi away)
               </div>
@@ -161,20 +161,20 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
           {/* Live Paperwork Status & Dispatch Tracker */}
           <div className={`rounded-xl border p-3.5 space-y-1.5 ${
             deal.paperworkStatus === "uploaded"
-              ? "border-emerald-500/40 bg-emerald-950/20"
+              ? "border-brand-500/40 bg-brand-950/20"
               : "border-blue-500/30 bg-blue-950/20"
           }`}>
             <div className="flex items-center justify-between">
               <span className="text-[10px] uppercase font-bold tracking-wider text-ink-light flex items-center gap-1.5">
                 {deal.paperworkStatus === "uploaded" ? (
-                  <><CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" /> Digital Sales Contract Ready</>
+                  <><CheckCircle2 className="h-3.5 w-3.5 text-brand-400" /> Digital Sales Contract Ready</>
                 ) : (
                   <><Clock className="h-3.5 w-3.5 text-blue-400 animate-spin" /> Dealership Paperwork Upload In Progress</>
                 )}
               </span>
               <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
                 deal.paperworkStatus === "uploaded"
-                  ? "bg-emerald-500/20 text-emerald-300"
+                  ? "bg-brand-500/20 text-brand-300"
                   : "bg-blue-500/20 text-blue-300"
               }`}>
                 {deal.paperworkStatus === "uploaded" ? "Ready for E-Sign" : "Message Sent to Dealer"}
@@ -185,12 +185,12 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
               {deal.paperworkStatus === "uploaded" ? (
                 <>
                   <strong className="text-white">{deal.winningBid.dealerName}</strong> uploaded{" "}
-                  <span className="text-emerald-400 font-mono font-semibold">{deal.uploadedContractName}</span>. Review and e-sign from your phone or laptop.
+                  <span className="text-brand-400 font-mono font-semibold">{deal.uploadedContractName}</span>. Review and e-sign from your phone or laptop.
                 </>
               ) : (
                 <>
                   An automated alert was sent to <strong className="text-white">{deal.winningBid.dealerName}</strong> to upload the completed purchase agreement matching your exact{" "}
-                  <strong className="text-emerald-400">{formatCurrency(deal.winningBid.totalOtdPrice)} OTD price</strong>.
+                  <strong className="text-brand-400">{formatCurrency(deal.winningBid.totalOtdPrice)} OTD price</strong>.
                 </>
               )}
             </p>
@@ -200,7 +200,7 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
           {deal.winningBid.salesRep && (
             <div className="rounded-xl border border-border bg-surface-elevated p-4 space-y-2">
               <div className="text-[10px] uppercase font-bold text-ink-light flex items-center gap-1.5">
-                <Phone className="h-3.5 w-3.5 text-emerald-400" /> Assigned Dealership Executive Contact
+                <Phone className="h-3.5 w-3.5 text-brand-400" /> Assigned Dealership Executive Contact
               </div>
               <div className="flex items-center justify-between">
                 <div>
@@ -208,7 +208,7 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
                   <div className="text-ink-muted text-xs">{deal.winningBid.salesRep.title}</div>
                 </div>
                 <div className="text-right">
-                  <div className="font-mono font-bold text-emerald-400 text-sm">{deal.winningBid.salesRep.phone}</div>
+                  <div className="font-mono font-bold text-brand-400 text-sm">{deal.winningBid.salesRep.phone}</div>
                   <span className="text-[10px] text-ink-faint">Direct Line</span>
                 </div>
               </div>
@@ -217,7 +217,7 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
 
           {/* Protection Policy */}
           <div className="rounded-xl border border-border bg-surface-elevated p-3 flex items-start gap-2.5 text-[11px] text-ink-light">
-            <ShieldCheck className="h-5 w-5 text-emerald-400 shrink-0 mt-0.5" />
+            <ShieldCheck className="h-5 w-5 text-brand-400 shrink-0 mt-0.5" />
             <div>
               <div className="font-bold text-white">$500 Purchase Protection Policy</div>
               <p className="text-ink-muted mt-0.5 leading-relaxed">
@@ -237,7 +237,7 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
           </button>
           <button
             onClick={onClose}
-            className="flex items-center gap-1.5 rounded-lg bg-emerald-500 px-5 py-2 text-xs font-extrabold text-black hover:bg-emerald-400 transition-all shadow-md shadow-emerald-500/20"
+            className="flex items-center gap-1.5 rounded-lg bg-brand-500 px-5 py-2 text-xs font-extrabold text-black hover:bg-brand-400 transition-all shadow-md shadow-brand-500/20"
           >
             <Calendar className="h-4 w-4 stroke-[2.5]" /> Schedule Delivery
           </button>

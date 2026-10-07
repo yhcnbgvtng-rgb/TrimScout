@@ -48,7 +48,7 @@ function OptionCheckList({
               type="checkbox"
               checked={isChecked}
               onChange={() => onToggle(opt.code)}
-              className="mt-0.5 h-3.5 w-3.5 shrink-0 rounded border-border text-emerald-500 focus:ring-0"
+              className="mt-0.5 h-3.5 w-3.5 shrink-0 rounded border-border text-brand-500 focus:ring-0"
             />
             <span className={`leading-snug ${isChecked ? "text-white" : "text-ink-light"}`}>
               {formatFactoryOptionLine({ code: opt.code, description: opt.name })}
@@ -71,7 +71,7 @@ function MatchCard({
 }) {
   const v = result.vehicle;
   return (
-    <div className={`rounded-2xl border p-4 space-y-3 bg-surface ${result.isFullMatch ? "border-emerald-500/60" : "border-border"}`}>
+    <div className={`rounded-2xl border p-4 space-y-3 bg-surface ${result.isFullMatch ? "border-brand-500/60" : "border-border"}`}>
       <div className="flex items-start justify-between gap-3">
         <div>
           <div className="text-sm font-bold text-white">
@@ -81,13 +81,13 @@ function MatchCard({
             {v.location.dealerName} · {v.location.city}, {v.location.state}
           </div>
         </div>
-        <div className="text-sm font-extrabold text-emerald-400 shrink-0">{formatCurrency(v.dealerPrice)}</div>
+        <div className="text-sm font-extrabold text-brand-400 shrink-0">{formatCurrency(v.dealerPrice)}</div>
       </div>
 
       <div className="space-y-1">
         {result.mustHavesHit.map((opt) => (
           <div key={opt.code} className="flex items-start gap-1.5 text-[11px] text-white">
-            <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 shrink-0 mt-0.5" />
+            <CheckCircle2 className="h-3.5 w-3.5 text-brand-400 shrink-0 mt-0.5" />
             <span>{formatFactoryOptionLine({ code: opt.code, description: opt.name })}</span>
           </div>
         ))}
@@ -102,7 +102,7 @@ function MatchCard({
       {result.isFullMatch && onInviteToQuote ? (
         <button
           onClick={() => onInviteToQuote(result)}
-          className="w-full flex items-center justify-center gap-2 rounded-lg bg-emerald-500 px-4 py-2 text-xs font-extrabold text-black hover:bg-emerald-400 transition-all"
+          className="w-full flex items-center justify-center gap-2 rounded-lg bg-brand-500 px-4 py-2 text-xs font-extrabold text-black hover:bg-brand-400 transition-all"
         >
           <Users className="h-3.5 w-3.5" />
           Invite Dealers to Quote
@@ -110,7 +110,7 @@ function MatchCard({
       ) : (
         <button
           onClick={() => onRequestQuote(v)}
-          className="w-full flex items-center justify-center gap-2 rounded-lg bg-emerald-500 px-4 py-2 text-xs font-extrabold text-black hover:bg-emerald-400 transition-all"
+          className="w-full flex items-center justify-center gap-2 rounded-lg bg-brand-500 px-4 py-2 text-xs font-extrabold text-black hover:bg-brand-400 transition-all"
         >
           <SendHorizontal className="h-3.5 w-3.5" />
           Request quote
@@ -194,7 +194,7 @@ export const FactoryMatchFlow: React.FC<FactoryMatchFlowProps> = ({
 
       <div className="rounded-2xl border border-border bg-surface p-5 space-y-3">
         <div className="flex items-center gap-2">
-          <ListChecks className="h-4 w-4 text-emerald-400" />
+          <ListChecks className="h-4 w-4 text-brand-400" />
           <h2 className="text-sm font-bold text-white">Must-have factory options</h2>
         </div>
         <p className="text-[11px] text-ink-muted">Check only what you require. Unchecked options are never held against a car.</p>

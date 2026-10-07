@@ -19,7 +19,7 @@ export const TradeInRevisedOtd: React.FC<{ input: RevisedOtdInput; compact?: boo
         tone === "total"
           ? "border-t border-border pt-2 text-sm font-black text-white"
           : tone === "credit"
-            ? "text-emerald-400"
+            ? "text-brand-400"
             : "text-ink-muted"
       }`}
     >

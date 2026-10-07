@@ -217,11 +217,11 @@ export const SignupView: React.FC<SignupViewProps> = ({
       <div>
         <div className="rounded-3xl border border-border-strong bg-surface p-6 sm:p-8 shadow-2xl space-y-6 relative overflow-hidden backdrop-blur-xl">
           {/* Background accent glow */}
-          <div className="absolute top-0 right-0 -mt-8 -mr-8 h-40 w-40 rounded-full bg-emerald-500/10 blur-3xl pointer-events-none" />
+          <div className="absolute top-0 right-0 -mt-8 -mr-8 h-40 w-40 rounded-full bg-brand-500/10 blur-3xl pointer-events-none" />
 
           {pendingApproval ? (
             <div className="text-center space-y-4 py-6">
-              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-500/10 text-brand-400 border border-brand-500/30">
                 <BadgeCheck className="h-7 w-7" />
               </div>
               <div className="space-y-1.5">
@@ -251,7 +251,7 @@ export const SignupView: React.FC<SignupViewProps> = ({
                   onClick={() => setRole("buyer")}
                   className={`flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-bold transition-all disabled:opacity-40 disabled:cursor-not-allowed ${
                     role === "buyer"
-                      ? "bg-emerald-500 text-black shadow-md shadow-emerald-500/20 font-black"
+                      ? "bg-brand-500 text-black shadow-md shadow-brand-500/20 font-black"
                       : "text-ink-muted hover:text-white"
                   }`}
                 >
@@ -265,7 +265,7 @@ export const SignupView: React.FC<SignupViewProps> = ({
                   onClick={() => setRole("dealer")}
                   className={`flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-bold transition-all disabled:opacity-40 disabled:cursor-not-allowed ${
                     role === "dealer"
-                      ? "bg-emerald-500 text-black shadow-md shadow-emerald-500/20 font-black"
+                      ? "bg-brand-500 text-black shadow-md shadow-brand-500/20 font-black"
                       : "text-ink-muted hover:text-white"
                   }`}
                 >
@@ -283,8 +283,8 @@ export const SignupView: React.FC<SignupViewProps> = ({
               </div>
             )}
             {inviteStatus === "valid" && (
-              <div className="rounded-xl border border-emerald-500/40 bg-emerald-950/30 p-3 text-xs text-emerald-300 flex items-center gap-2 animate-fadeIn">
-                <BadgeCheck className="h-4 w-4 text-emerald-400 shrink-0" />
+              <div className="rounded-xl border border-brand-500/40 bg-brand-950/30 p-3 text-xs text-brand-300 flex items-center gap-2 animate-fadeIn">
+                <BadgeCheck className="h-4 w-4 text-brand-400 shrink-0" />
                 <span>
                   You&apos;re signing up as <strong className="text-white">{dealerName}</strong> — invited by TrimScout.
                 </span>
@@ -321,7 +321,7 @@ export const SignupView: React.FC<SignupViewProps> = ({
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       placeholder={role === "buyer" ? "Alexander Vance" : "Marcus Vance"}
-                      className="w-full rounded-xl border border-border bg-surface-elevated pl-9 pr-3.5 py-2.5 text-white placeholder-ink-faint text-xs focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 transition-all"
+                      className="w-full rounded-xl border border-border bg-surface-elevated pl-9 pr-3.5 py-2.5 text-white placeholder-ink-faint text-xs focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 transition-all"
                     />
                   </div>
                 </div>
@@ -339,7 +339,7 @@ export const SignupView: React.FC<SignupViewProps> = ({
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder={role === "buyer" ? "alex@example.com" : "marcus@bmwsanrafael.com"}
-                      className="w-full rounded-xl border border-border bg-surface-elevated pl-9 pr-3.5 py-2.5 text-white placeholder-ink-faint text-xs focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 transition-all"
+                      className="w-full rounded-xl border border-border bg-surface-elevated pl-9 pr-3.5 py-2.5 text-white placeholder-ink-faint text-xs focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 transition-all"
                     />
                   </div>
                 </div>
@@ -361,7 +361,7 @@ export const SignupView: React.FC<SignupViewProps> = ({
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="Minimum 8 characters"
-                      className="w-full rounded-xl border border-border bg-surface-elevated pl-9 pr-9 py-2.5 text-white placeholder-ink-faint text-xs focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 transition-all"
+                      className="w-full rounded-xl border border-border bg-surface-elevated pl-9 pr-9 py-2.5 text-white placeholder-ink-faint text-xs focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 transition-all"
                     />
                     <button
                       type="button"
@@ -391,7 +391,7 @@ export const SignupView: React.FC<SignupViewProps> = ({
                       className={`w-full rounded-xl border bg-surface-elevated pl-9 pr-9 py-2.5 text-white placeholder-ink-faint text-xs focus:outline-none focus:ring-1 transition-all ${
                         confirmPassword.length > 0 && confirmPassword !== password
                           ? "border-rose-500 focus:border-rose-500 focus:ring-rose-500"
-                          : "border-border focus:border-emerald-500 focus:ring-emerald-500"
+                          : "border-border focus:border-brand-500 focus:ring-brand-500"
                       }`}
                     />
                     <button
@@ -417,7 +417,7 @@ export const SignupView: React.FC<SignupViewProps> = ({
                     Buyer Zip Code (For Tax Calculation)
                   </label>
                   <div className="relative">
-                    <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-emerald-400" />
+                    <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-brand-400" />
                     <input
                       type="text"
                       maxLength={5}
@@ -425,7 +425,7 @@ export const SignupView: React.FC<SignupViewProps> = ({
                       value={zipCode}
                       onChange={(e) => setZipCode(e.target.value.replace(/\D/g, ""))}
                       placeholder="94107"
-                      className="w-full rounded-xl border border-border bg-surface-elevated pl-9 pr-3.5 py-2.5 text-white placeholder-ink-faint text-xs font-mono focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 transition-all"
+                      className="w-full rounded-xl border border-border bg-surface-elevated pl-9 pr-3.5 py-2.5 text-white placeholder-ink-faint text-xs font-mono focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 transition-all"
                     />
                   </div>
                 </div>
@@ -437,7 +437,7 @@ export const SignupView: React.FC<SignupViewProps> = ({
                   <div className="space-y-1.5">
                     <label className="text-[10px] font-bold uppercase text-ink-faint">
                       Franchise Dealership Name
-                      {inviteStatus === "valid" && <span className="text-emerald-400 normal-case font-semibold"> · from your invite</span>}
+                      {inviteStatus === "valid" && <span className="text-brand-400 normal-case font-semibold"> · from your invite</span>}
                     </label>
                     <div className="relative">
                       <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-ink-faint" />
@@ -448,7 +448,7 @@ export const SignupView: React.FC<SignupViewProps> = ({
                         value={dealerName}
                         onChange={(e) => setDealerName(e.target.value)}
                         placeholder="e.g. BMW of San Rafael"
-                        className="w-full rounded-xl border border-border bg-surface-elevated pl-9 pr-3.5 py-2.5 text-white placeholder-ink-faint text-xs focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 transition-all disabled:opacity-70 disabled:cursor-not-allowed"
+                        className="w-full rounded-xl border border-border bg-surface-elevated pl-9 pr-3.5 py-2.5 text-white placeholder-ink-faint text-xs focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 transition-all disabled:opacity-70 disabled:cursor-not-allowed"
                       />
                     </div>
                   </div>
@@ -462,7 +462,7 @@ export const SignupView: React.FC<SignupViewProps> = ({
                       value={dealerTitle}
                       onChange={(e) => setDealerTitle(e.target.value)}
                       placeholder="General Sales Manager"
-                      className="w-full rounded-xl border border-border bg-surface-elevated px-3.5 py-2.5 text-white placeholder-ink-faint text-xs focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 transition-all"
+                      className="w-full rounded-xl border border-border bg-surface-elevated px-3.5 py-2.5 text-white placeholder-ink-faint text-xs focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 transition-all"
                     />
                   </div>
                 </div>
@@ -485,7 +485,7 @@ export const SignupView: React.FC<SignupViewProps> = ({
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
                       placeholder="(415) 555-0199"
-                      className="w-full rounded-xl border border-border bg-surface-elevated pl-9 pr-3.5 py-2.5 text-white placeholder-ink-faint text-xs focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 transition-all"
+                      className="w-full rounded-xl border border-border bg-surface-elevated pl-9 pr-3.5 py-2.5 text-white placeholder-ink-faint text-xs focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 transition-all"
                     />
                   </div>
                 </div>
@@ -497,7 +497,7 @@ export const SignupView: React.FC<SignupViewProps> = ({
                   type="checkbox"
                   checked={agreeTerms}
                   onChange={(e) => setAgreeTerms(e.target.checked)}
-                  className="mt-0.5 h-4 w-4 rounded border-border bg-surface-elevated text-emerald-500 focus:ring-emerald-500/20"
+                  className="mt-0.5 h-4 w-4 rounded border-border bg-surface-elevated text-brand-500 focus:ring-brand-500/20"
                 />
                 <span className="text-[11px] text-ink-muted leading-relaxed">
                   I agree to TrimScout's <span className="text-white underline">Terms of Service</span> and <span className="text-white underline">Privacy Policy</span>. I understand my contact info is shielded from dealers until I accept a certified deal voucher.
@@ -516,7 +516,7 @@ export const SignupView: React.FC<SignupViewProps> = ({
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full rounded-2xl bg-emerald-500 hover:bg-emerald-400 py-3 px-4 text-xs font-black text-black shadow-lg shadow-emerald-500/25 transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95 disabled:opacity-50"
+                className="w-full rounded-2xl bg-brand-500 hover:bg-brand-400 py-3 px-4 text-xs font-black text-black shadow-lg shadow-brand-500/25 transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95 disabled:opacity-50"
               >
                 {isLoading ? (
                   <>

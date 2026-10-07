@@ -147,7 +147,7 @@ export function LeaseCalculatorSheet({
     }
   };
 
-  const input = "w-full rounded-lg border border-border bg-surface py-2 px-2.5 text-xs text-white placeholder-ink-faint focus:border-emerald-500 focus:outline-none tabular-nums";
+  const input = "w-full rounded-lg border border-border bg-surface py-2 px-2.5 text-xs text-white placeholder-ink-faint focus:border-brand-500 focus:outline-none tabular-nums";
   const label = "block text-[10px] font-bold uppercase tracking-wide text-ink-light";
   const hint = "block text-[10px] text-ink-faint";
   // Render helpers (not components): a component defined inside render is a
@@ -183,7 +183,7 @@ export function LeaseCalculatorSheet({
           </div>
         );
       })}
-      <button type="button" onClick={() => setList((p) => [...p, { name: "", amount: "" }])} className="flex items-center gap-1 text-[11px] font-bold text-emerald-400 hover:text-emerald-300">
+      <button type="button" onClick={() => setList((p) => [...p, { name: "", amount: "" }])} className="flex items-center gap-1 text-[11px] font-bold text-brand-400 hover:text-brand-300">
         <Plus className="h-3 w-3" /> {addLabel}
       </button>
     </div>
@@ -339,7 +339,7 @@ export function LeaseCalculatorSheet({
       ) : null}
 
       <div className="flex gap-2">
-        <button type="button" onClick={submit} disabled={submitting} className="flex-1 rounded-lg bg-emerald-500 px-4 py-2.5 text-xs font-extrabold text-black hover:bg-emerald-400 transition-all disabled:opacity-50">
+        <button type="button" onClick={submit} disabled={submitting} className="flex-1 rounded-lg bg-brand-500 px-4 py-2.5 text-xs font-extrabold text-black hover:bg-brand-400 transition-all disabled:opacity-50">
           {submitting ? "Saving…" : "Save Quote"}
         </button>
         <button type="button" onClick={onCancel} className="rounded-lg border border-border px-4 py-2.5 text-xs font-bold text-ink-light hover:text-white">
