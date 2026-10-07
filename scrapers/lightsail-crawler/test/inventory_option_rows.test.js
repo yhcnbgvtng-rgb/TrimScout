@@ -3,7 +3,7 @@
 // real server at import time).
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { normalizeOptionKey, optionRowsFromOptions, payloadHasOptions, looksLikeJunkCanonicalKey, splitOptionLabel } from '../src/inventoryOptionRows.js';
+import { denyRuleFor, repairTruncatedLabel, normalizeOptionKey, optionRowsFromOptions, payloadHasOptions, looksLikeJunkCanonicalKey, splitOptionLabel } from '../src/inventoryOptionRows.js';
 
 describe('optionRowsFromOptions', () => {
   it('canonicalizes by name and dedupes, keeping the first label/code seen', () => {
@@ -157,7 +157,7 @@ describe('optionRowsFromOptions', () => {
   });
 
   it('returns nothing for a non-array', () => {
-    assert.deepEqual(optionRowsFromOptions(null), { rows: [], junkDropped: 0 });
+    assert.deepEqual(optionRowsFromOptions(null), { rows: [], junkDropped: 0, dropped: [], repaired: [] });
   });
 });
 
@@ -405,5 +405,76 @@ describe('looksLikeJunkCanonicalKey — 2026-10-01 rules agree on normalized key
       'transmission 8 speed automatic 850re',
       'sky one touch power top',
     ]) assert.equal(looksLikeJunkCanonicalKey(key), false, key);
+  });
+});
+
+describe('deny rules added 2026-10-07 (option-normalize audit) — real live strings', () => {
+  const JUNK = [
+    'See toyota', 'See onstar', 'See dealer or vw',
+    'com', 'com or dealer for details', 'com/connected-services for details', 'Check vehicle compatibility at https://mygarage',
+    '3 In', '5 in', '9 in',
+    'Standard EquipmentExterior18-in',
+    'Clock', 'odometer', 'fuel gauge',
+    'registered in the U', 'Apple CarPlay is a trademark of Apple Inc', 'an active data plan', 'on your phone or connected devices',
+    'artists', 'creators', 'comedy', 'live sports', 'talk and news', 'news', 'look', 'Now', 'Inc', 'Tag', 'Plus', 'power', 'rear', 'mud', 'snow', 'cooled', 'durability', 'unlock', 'Siri',
+    'Engine', 'Transmission', 'Wheels', 'Engine: 3', 'Wheels: 18 x 7', '17 x 7', 'Radio: AM/FM 8', 'Radio: AM/FM/HD 8', 'Tires: 22', 'illuminated 3',
+    'drive mode (Trail', 'advanced voice recognition (one shot VDE', 'Android Auto and MirrorLink) via USB',
+    'get involved with', 'To Keep You Safe', 'putting YOU in control of the whole experience', 'From Our Sales Floor To Your Door',
+  ];
+  it('drops every audited junk label on the write path', () => {
+    for (const name of JUNK) {
+      const { rows, junkDropped } = optionRowsFromOptions([{ name }]);
+      assert.equal(rows.length, 0, `should drop: ${name}`);
+      assert.equal(junkDropped, 1, name);
+    }
+  });
+
+  it('records which rule dropped each label (the backfill report reads this)', () => {
+    const { dropped } = optionRowsFromOptions([{ name: 'See toyota' }, { name: '5 in' }, { name: 'Engine' }]);
+    assert.deepEqual(dropped.map((d) => d.rule), ['see-ref', 'bare-size', 'spec-truncated']);
+  });
+
+  // The rules the owner explicitly ruled out: trailing digit, lowercase start, leading digit, slash — plus ECO.
+  const REAL = [
+    'Sync 4', 'Premium Content 1', 'heated mirrors', 'wrapped steering wheel', 'wireless Apple CarPlay and Android Auto',
+    '10-Speed Automatic', '4-Zone Automatic Climate Control', '360 - Degree Camera', '8-Way Power Driver Seat Adjuster', '180-Amp Alternator',
+    'Radio: AM/FM/HD Audio System', 'Radio: AM/FM/SiriusXM/HD Lexicon Prem Audio System', '4WD', 'AWD', 'ECO', 'Alexa Built In',
+    'Navigation system: Google Built-in', 'digital gauge cluster with customizable settings', 'Bluetooth® streaming audio',
+    'Multi-Information Display (MID)', 'Engine Block Heater', 'Transmission Skid Plate', 'Wheels: 20-inch Alloy', '3.5L V6 Engine',
+    'Seat Adjuster (Driver, Passenger)', '12.3-inch Touchscreen', 'Tow Package 2',
+  ];
+  it('keeps real options the owner ruled out of broad rules (trailing digit / lowercase / leading digit / slash / ECO)', () => {
+    for (const name of REAL) {
+      const { rows } = optionRowsFromOptions([{ name }]);
+      assert.equal(rows.length, 1, `should keep: ${name}`);
+    }
+  });
+
+  it('repairs a truncated "(MID" to "(MID)" instead of dropping it, and reports the repair', () => {
+    assert.equal(repairTruncatedLabel('Multi-Information Display (MID'), 'Multi-Information Display (MID)');
+    assert.equal(repairTruncatedLabel('Multi-Information Display (MID)'), 'Multi-Information Display (MID)');
+    const { rows, repaired } = optionRowsFromOptions([{ name: 'Multi-Information Display (MID' }]);
+    assert.equal(rows[0].label, 'Multi-Information Display (MID)');
+    assert.equal(rows[0].key, 'multi information display mid');
+    assert.deepEqual(repaired, [{ from: 'Multi-Information Display (MID', to: 'Multi-Information Display (MID)' }]);
+  });
+
+  it('never repairs anything else — "drive mode (Trail" is dropped, not completed', () => {
+    assert.equal(repairTruncatedLabel('drive mode (Trail'), 'drive mode (Trail');
+  });
+
+  it('denyRuleFor handles blanks and non-strings', () => {
+    assert.equal(denyRuleFor(''), null);
+    assert.equal(denyRuleFor(null), null);
+    assert.equal(denyRuleFor('Twin Panel Moonroof'), null);
+  });
+
+  it('the key-only purge classifier agrees on the key-visible rules, and keeps the real options', () => {
+    for (const k of ['see toyota', '3 in', '5 in', 'com', 'com or dealer for details', 'clock', 'engine', 'wheels 18 x 7', 'radio am fm 8', 'standard equipmentexterior18 in', 'get involved with', 'plus']) {
+      assert.equal(looksLikeJunkCanonicalKey(k), true, k);
+    }
+    for (const k of ['sync 4', 'premium content 1', 'heated mirrors', '10 speed automatic', 'radio am fm hd audio system', 'eco', 'awd', 'alexa built in', 'multi information display mid']) {
+      assert.equal(looksLikeJunkCanonicalKey(k), false, k);
+    }
   });
 });

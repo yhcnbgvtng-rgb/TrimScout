@@ -16,14 +16,24 @@
 // Needs src/inventoryOptionRows.js deployed on the box first (it's loaded from there, not copied,
 // so the backfill and the live upsert can never disagree). Run on box2 from /opt/trimscout-deals,
 // OUTSIDE the nightly sync window, in the background so a dropped SSH session doesn't kill it:
-//   sudo nohup node 2026-09-28-backfill-inventory-options.mjs [--dry-run] [--after=VIN:DEALER_ID]
-//     [--batch=250] [--pause-ms=150] [--min-free-mb=600] > ~/backfill.log 2>&1 &
+//   sudo nohup node 2026-09-28-backfill-inventory-options.mjs [--apply] [--after=VIN:DEALER_ID]
+//     [--batch=250] [--pause-ms=150] [--min-free-mb=600] [--report=/path/report.csv] [--rebuild-facets] > ~/backfill.log 2>&1 &
+//
+// SAFE BY DEFAULT (changed 2026-10-07, option-normalize deny rules): with no flag this is a DRY RUN —
+// plain SELECTs, no transaction, no row locks, nothing written, nothing rebuilt — and it writes a per-make
+// report (make, rule, label, vehicles) of every label the rules would DROP and every truncated label they
+// would REPAIR. Writing requires --apply. The catalog-facet rebuild is a separate, explicit --rebuild-facets
+// (it used to fire automatically after a write); without it the buyer dropdown keeps serving its last build
+// until the next nightly sync or a manual rebuild.
 import fs from "node:fs";
 import path from "node:path";
 import mysql from "mysql2/promise";
 
 const args = Object.fromEntries(process.argv.slice(2).map((a) => { const [k, v] = a.replace(/^--/, "").split("="); return [k, v ?? true]; }));
-const DRY_RUN = Boolean(args["dry-run"]);
+const DRY_RUN = !args.apply;
+if (args.apply && args["dry-run"]) { console.error("--apply and --dry-run are mutually exclusive"); process.exit(1); }
+const REBUILD_FACETS = Boolean(args["rebuild-facets"]) && !DRY_RUN;
+const REPORT_PATH = typeof args.report === "string" ? args.report : path.resolve(process.cwd(), `option-normalize-report-${DRY_RUN ? "dry" : "apply"}.csv`);
 // box2 is a shared box (MariaDB + deals/auth APIs + crawls). The first dry run (2026-09-28) read
 // 2,000 vehicles' full options_json per batch and the box stopped responding around 600K scanned.
 // Small batches, a pause between them, and a free-memory guard keep this a background job.
@@ -100,6 +110,9 @@ if (typeof args.after === "string") {
 
 const totals = { scanned: 0, withOptionsJson: 0, replaced: 0, nowWithFacet: 0, rowsWritten: 0, junkDropped: 0, unparseable: 0 };
 const byMake = new Map(); // make -> { replaced, nowWithFacet }
+const dropReport = new Map(); // `${make}\t${rule}\t${label}` -> vehicles (rule-attributed drops only; "legacy" = pre-existing filters)
+const repairReport = new Map(); // `${make}\t${from}\t${to}` -> vehicles
+const bump = (m, k) => m.set(k, (m.get(k) || 0) + 1);
 
 async function main() {
   console.log(`${DRY_RUN ? "[DRY RUN] " : ""}backfilling in-stock facet rows from options_json, batch=${BATCH}, starting after ${cursor.vin || "(start)"}:${cursor.dealerId}`);
@@ -109,16 +122,17 @@ async function main() {
     const conn = await pool.getConnection();
     let rows;
     try {
-      await conn.beginTransaction();
+      if (!DRY_RUN) await conn.beginTransaction();
       // FOR UPDATE: a nightly upsert touching the same vehicles waits for this small batch instead
       // of racing it and having fresher options overwritten by this run's older read.
+      // Dry run: plain consistent read, no FOR UPDATE — it must never block a nightly upsert on a live box.
       [rows] = await conn.query(
         `SELECT vin, dealer_id, make, options_json FROM dealer_inventory
          WHERE (vin, dealer_id) > (?, ?) AND removed_at IS NULL
-         ORDER BY vin, dealer_id LIMIT ? FOR UPDATE`,
+         ORDER BY vin, dealer_id LIMIT ?${DRY_RUN ? "" : " FOR UPDATE"}`,
         [cursor.vin, cursor.dealerId, BATCH]
       );
-      if (!rows.length) { await conn.rollback(); break; }
+      if (!rows.length) { if (!DRY_RUN) await conn.rollback(); break; }
       cursor = { vin: rows[rows.length - 1].vin, dealerId: rows[rows.length - 1].dealer_id };
       totals.scanned += rows.length;
 
@@ -129,8 +143,12 @@ async function main() {
         try { options = JSON.parse(r.options_json); } catch { totals.unparseable++; continue; }
         if (!Array.isArray(options) || !options.length) continue;
         totals.withOptionsJson++;
-        const { rows: facetRows, junkDropped } = optionRowsFromOptions(options, { resolveKey: resolveForMake(r.make) });
+        const { rows: facetRows, junkDropped, dropped = [], repaired = [] } = optionRowsFromOptions(options, { resolveKey: resolveForMake(r.make) });
         totals.junkDropped += junkDropped;
+        // One count per vehicle per distinct label, so the report reads as "vehicles affected".
+        const mk = r.make || "(none)";
+        for (const d of new Set(dropped.map((x) => `${x.rule}\t${x.label}`))) bump(dropReport, `${mk}\t${d}`);
+        for (const x of new Set(repaired.map((y) => `${y.from}\t${y.to}`))) bump(repairReport, `${mk}\t${x}`);
         pairs.push([r.vin, r.dealer_id]);
         totals.replaced++;
         const m = byMake.get(r.make || "(none)") || { replaced: 0, nowWithFacet: 0 };
@@ -149,9 +167,9 @@ async function main() {
         if (inserts.length) await conn.query("INSERT INTO dealer_inventory_options (vin, dealer_id, canonical_key, label, code) VALUES ?", [inserts]);
       }
       totals.rowsWritten += inserts.length;
-      if (DRY_RUN) await conn.rollback(); else await conn.commit();
+      if (!DRY_RUN) await conn.commit();
     } catch (err) {
-      await conn.rollback().catch(() => {});
+      if (!DRY_RUN) await conn.rollback().catch(() => {});
       console.error(`\nFailed after cursor ${cursor.vin}:${cursor.dealerId} — resume with --after=${cursor.vin}:${cursor.dealerId}`);
       throw err;
     } finally {
@@ -172,11 +190,12 @@ async function main() {
   for (const [make, m] of [...byMake].sort((a, b) => b[1].replaced - a[1].replaced).slice(0, 25)) {
     console.log(`  ${make.padEnd(18)} ${String(m.replaced).padStart(8)} / ${m.nowWithFacet}`);
   }
+  writeReport();
   await pool.end();
 
   // The buyer dropdown reads precomputed counts (inv_option_facets); rebuild them now rather than
   // waiting for the next nightly sync to trigger it.
-  if (!DRY_RUN) {
+  if (REBUILD_FACETS) {
     const port = process.env.DEALS_API_PORT || 3004;
     try {
       const res = await fetch(`http://127.0.0.1:${port}/api/inventory/catalog-facets/rebuild`, { method: "POST", headers: { "X-Trimscout-Api-Key": process.env.TRIMSCOUT_API_KEY || "" } });
@@ -186,6 +205,20 @@ async function main() {
       console.error(`\nCould not request a catalog facet rebuild (${err.message}) — it will run automatically after the next sync, or trigger it manually.`);
     }
   }
+}
+
+function writeReport() {
+  const csvCell = (v) => `"${String(v).replace(/"/g, '""')}"`;
+  const lines = ["kind,make,rule,label,repaired_to,vehicles"];
+  for (const [k, n] of dropReport) { const [make, rule, label] = k.split("\t"); lines.push(["drop", make, rule, label, "", n].map(csvCell).join(",")); }
+  for (const [k, n] of repairReport) { const [make, from, to] = k.split("\t"); lines.push(["repair", make, "truncation-repair", from, to, n].map(csvCell).join(",")); }
+  fs.writeFileSync(REPORT_PATH, lines.join("\n") + "\n");
+  const deny = [...dropReport].filter(([k]) => k.split("\t")[1] !== "legacy");
+  console.log(`\nPer-make report: ${REPORT_PATH} (${dropReport.size} drop lines, ${repairReport.size} repair lines)`);
+  console.log(`New deny-rule drops (vehicle x label): ${deny.reduce((a, [, n]) => a + n, 0)}; repairs: ${[...repairReport.values()].reduce((a, n) => a + n, 0)}`);
+  const perMake = new Map();
+  for (const [k, n] of deny) { const make = k.split("\t")[0]; perMake.set(make, (perMake.get(make) || 0) + n); }
+  for (const [make, n] of [...perMake].sort((a, b) => b[1] - a[1]).slice(0, 25)) console.log(`  ${make.padEnd(18)} ${String(n).padStart(9)} vehicle-label drops`);
 }
 
 main().catch((err) => { console.error("Backfill failed:", err); process.exit(1); });
