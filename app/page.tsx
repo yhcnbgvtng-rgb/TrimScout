@@ -17,7 +17,7 @@ import { consumeLandingView, loadShopperRequests, upsertShopperRequest } from ".
 import { Navbar } from "../components/Navbar";
 import { BidProgramIntro } from "../components/BidProgramIntro";
 import { FactoryMatchFlow } from "../components/FactoryMatchFlow";
-import { takeQuoteSeed, type QuoteSeedVehicle } from "../lib/quoteSeed";
+import { QUOTE_SEED_LANE, takeQuoteSeed, type QuoteSeedVehicle } from "../lib/quoteSeed";
 import { BiddingWizard } from "../components/BiddingWizard";
 import { LiveDealRoom } from "../components/LiveDealRoom";
 import { DealerPortal } from "../components/DealerPortal";
@@ -112,7 +112,7 @@ export default function Home() {
   }, []);
 
   // Arriving from buyer search's "Request a quote" button: ?quote=1 opens the wizard fresh on Step 1 with the picked cars
-  // (one car = a normal quote; two or three = the compare lane). The seed is read once and cleared, and so is the query,
+  // (always the specific-vehicle lane: the cars go in the request and Step 3 lists their dealers). The seed is read once and cleared, and so is the query,
   // so a refresh doesn't reopen it. Nothing is submitted; the buyer confirms each car in Step 1.
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -123,7 +123,7 @@ export default function Home() {
     window.history.replaceState({}, "", url.pathname + url.search + url.hash);
     // Even with no usable cars (a row without a valid VIN), the buyer asked for a quote: open the wizard plain.
     setPreselectedVehicle(null);
-    setRepickIntent(seed.length > 1 ? "alternate" : "same_spec");
+    setRepickIntent(QUOTE_SEED_LANE);
     setSeedVehicles(seed);
     openFreshWizard();
     // eslint-disable-next-line react-hooks/exhaustive-deps
