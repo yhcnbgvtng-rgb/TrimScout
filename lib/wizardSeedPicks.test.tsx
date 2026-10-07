@@ -5,7 +5,7 @@ import assert from "node:assert/strict";
 import { after, before, describe, it } from "node:test";
 import { JSDOM } from "jsdom";
 import { toPick } from "./buyerPicks";
-import { QUOTE_SEED_KEY, takeQuoteSeed, writeQuoteSeed } from "./quoteSeed";
+import { QUOTE_SEED_KEY, seedDealersFrom, takeQuoteSeed, writeQuoteSeed } from "./quoteSeed";
 
 const NEW_VINS = ["2T36CRAV0TW113785", "2T36CRAV1TC046311", "2T36CRAV1TC046373"];
 const USED_VINS = ["2T3F1RFV4LC084047", "2T3P1RFV3MC200019", "2T3P1RFV9SW528394"];
@@ -36,6 +36,15 @@ function stubFetch() {
   };
 }
 
+describe("seedDealersFrom", () => {
+  it("dedupes by store, caps at 3, keeps pick order, skips nameless", () => {
+    const d = (dealerId: string | null, dealerName: string, dealerState: string | null) => ({ dealerId, dealerName, dealerState });
+    const out = seedDealersFrom([d("1", "A Toyota", "oh"), d("1", "A Toyota", "OH"), d(null, "B Ford", "TX"), d(null, "b ford", "tx"), d(null, "", "CA"), d("4", "C Kia", null), d("5", "D Audi", "NY")]);
+    assert.deepEqual(out.map((x) => x.dealerName), ["A Toyota", "B Ford", "C Kia"]);
+    assert.equal(out[0].state, "OH");
+  });
+});
+
 describe("buyer search seed -> Step 1", () => {
   it("the bottom bar's seed keeps each car's condition", () => {
     const m = new Map<string, string>();
@@ -59,12 +68,12 @@ describe("buyer search seed -> Step 1", () => {
     });
     after(() => dom.window.close());
 
-    async function run(picks: ReturnType<typeof row>[]) {
+    async function run(picks: ReturnType<typeof row>[], opts: { toStep3?: boolean } = {}) {
       const React = (await import("react")).default;
       const { act } = await import("react");
       const { createRoot } = await import("react-dom/client");
       const { BiddingWizard } = await import("../components/BiddingWizard");
-      const seed = picks.map((p) => ({ vin: p.vin, vdpUrl: p.vdpUrl, condition: p.condition }));
+      const seed = picks.map((p) => ({ vin: p.vin, vdpUrl: p.vdpUrl, condition: p.condition, dealerId: p.dealerId, dealerName: p.dealerName, dealerState: p.dealerState }));
       const root = createRoot(dom.window.document.getElementById("root")!);
       await act(async () => {
         root.render(React.createElement(BiddingWizard, { isOpen: true, onClose: () => {}, onSubmitBidRequest: () => {}, vehicles: [], preselectedVehicle: null, initialIntent: "alternate", seedVehicles: seed, currentUser: null, onRequireLogin: () => {} }));
@@ -78,6 +87,16 @@ describe("buyer search seed -> Step 1", () => {
         const confirm = button("Confirm & add");
         if (confirm) await act(async () => { confirm.click(); });
       }
+      if (opts.toStep3) {
+        for (let i = 0; i < 4 && !doc.querySelector('[data-testid="alternate-dealers"]'); i++) {
+          const cash = doc.querySelector<HTMLButtonElement>('[data-testid="quote-type-cash"]');
+          if (cash) await act(async () => { cash.click(); });
+          const next = Array.from(doc.querySelectorAll<HTMLButtonElement>("button")).find((b) => /^(Continue|Next)/.test(b.textContent?.trim() || "") && !b.disabled);
+          if (!next) break;
+          await act(async () => { next.click(); });
+          await tick();
+        }
+      }
       const text = doc.body.textContent || "";
       await act(async () => { root.unmount(); });
       return text;
@@ -89,6 +108,16 @@ describe("buyer search seed -> Step 1", () => {
         for (const v of vins) assert.ok(text.includes(v), `${label} car ${v} is on Step 1`);
         assert.doesNotMatch(text, /Used requests are one car/);
         assert.doesNotMatch(text, /weren't added|wasn't added/);
+      });
+    }
+
+    for (const [label, vins, cond] of [["new", NEW_VINS, "new"], ["used", USED_VINS, "used"]] as const) {
+      it(`${label} picks at three stores prefill Dealerships to ask`, async () => {
+        const stores = [["1", "A Toyota", "OH"], ["2", "B Honda", "TX"], ["3", "C Kia", "FL"]] as const;
+        const picks = vins.map((v, i) => toPick({ ...row(v, cond), dealerId: stores[i][0], dealerName: stores[i][1], dealerState: stores[i][2] }));
+        const text = await run(picks, { toStep3: true });
+        for (const s of stores) assert.ok(text.includes(s[1]), `${s[1]} is listed`);
+        assert.doesNotMatch(text, /Search dealerships/);
       });
     }
 

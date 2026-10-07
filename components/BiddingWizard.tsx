@@ -68,6 +68,7 @@ import {
 } from "../lib/linkImport";
 import { shopperDealStructurePayload, mapDealRequestJson } from "../lib/shopperDeal";
 import { defaultTermsForVehicles } from "../lib/dealTerms";
+import { seedDealersFrom } from "../lib/quoteSeed";
 import {
   buildOfferCompareSnapshot,
   collectDealVehicles,
@@ -276,7 +277,7 @@ interface BiddingWizardProps {
    * Cars picked on buyer search ("Request a quote"): fed into Step 1 through the same paste path as a typed link or
    * VIN — primary first, then the two alternates — one at a time, each still confirmed by the buyer. Nothing is sent.
    */
-  seedVehicles?: Array<{ vin: string; vdpUrl: string | null; condition?: "new" | "used" | "cpo" | null }>;
+  seedVehicles?: Array<{ vin: string; vdpUrl: string | null; condition?: "new" | "used" | "cpo" | null; dealerId?: string | null; dealerName?: string | null; dealerState?: string | null }>;
   initialStrategy?: BiddingStrategy;
   onSubmitBidRequest: (request: BiddingRequest) => void;
   // Real reverse-auction flow: the buyer already picked a specific real
@@ -1115,6 +1116,8 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   const [altDraft, setAltDraft] = useState<AlternateAskDraft>(EMPTY_ALTERNATE_DRAFT);
   const [altDealers, setAltDealers] = useState<DeskMatch[]>([]);
   const [altPicking, setAltPicking] = useState(false);
+  // Seeded dealers go in once per visit to the compare lane, so a dealer the buyer removes stays removed.
+  const altSeededRef = React.useRef(false);
   const chooseIntent = (next: RfqLane) => {
     if (next === intent) return;
     trackEvent("rfq_intent_selected", { intent: next });
@@ -1138,7 +1141,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     setAltVehicle1(null);
     setAltVehicle2(null);
     if (next === "alternate") setAltDraft(EMPTY_ALTERNATE_DRAFT);
-    if (next === "same_spec") setAltDealers([]);
+    if (next === "same_spec") { setAltDealers([]); altSeededRef.current = false; }
   };
 
   // Custom/Flexible Spec Fields
@@ -1272,6 +1275,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     setIntentConfirmed(true);
     setAltDraft(EMPTY_ALTERNATE_DRAFT);
     setAltDealers([]);
+    altSeededRef.current = false;
     setAltPicking(false);
     setLinkError(null);
     setSelectedVehicle(null);
@@ -1857,6 +1861,14 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   // advance the index twice and silently skip the next car.
   const seedStartedRef = React.useRef(-1);
   const seedList = (seedVehicles || []).slice(0, SEED_SLOTS.length);
+  // Every picked car's store goes into "Dealerships to ask" (deduped, max 3) whatever its brand or condition.
+  useEffect(() => {
+    if (!isOpen || intent !== "alternate" || altSeededRef.current) return;
+    const dealers = seedDealersFrom(seedVehicles || []);
+    if (!dealers.length) return;
+    altSeededRef.current = true;
+    setAltDealers((list) => [...list, ...dealers.filter((d) => !list.some((x) => x.deskId === d.deskId)).map((d) => ({ deskId: d.deskId, dealerName: d.dealerName, city: null, state: d.state, zip: null, knownNamed: false, emailOptOut: false }))].slice(0, MAX_PACKAGE_LINKS));
+  }, [isOpen, intent, seedVehicles]);
   const seedOne = async (slot: VehicleSlot, car: { vin: string; vdpUrl: string | null; condition?: "new" | "used" | "cpo" | null }) => {
     const listedUsed = (car.condition === "used" || car.condition === "cpo") && USED_VEHICLES_ENABLED;
     // A used primary flips the whole request to used even when its link doesn't say so (parkLink also detects it from the URL).
