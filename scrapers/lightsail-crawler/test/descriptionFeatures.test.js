@@ -65,3 +65,20 @@ describe('parseFeaturesFromDescription', () => {
     assert.deepEqual(result.map((f) => f.name), ['2.0-amp USB port in center console', '3.5L V6 Engine', 'Twin Panel Moonroof', 'Tow Package']);
   });
 });
+
+describe('parseFeaturesFromDescription — never splits inside parentheses', () => {
+  it('keeps a parenthesised list whole instead of leaving a truncated "(MID" and orphan fragments', () => {
+    const names = parseFeaturesFromDescription('Multi-Information Display (MID, Trail, Sand), Heated Mirrors. Tow Package').map((f) => f.name);
+    assert.deepEqual(names, ['Multi-Information Display (MID, Trail, Sand)', 'Heated Mirrors', 'Tow Package']);
+  });
+
+  it('an unclosed "(" cannot swallow the next line', () => {
+    const names = parseFeaturesFromDescription('Drive Mode (Trail\nHeated Mirrors, Tow Package').map((f) => f.name);
+    assert.deepEqual(names, ['Drive Mode (Trail', 'Heated Mirrors', 'Tow Package']);
+  });
+
+  it('still keeps decimals and comma-grouped numbers whole, and still splits ordinary sentences', () => {
+    const names = parseFeaturesFromDescription('12.3 in Display, 2.0-amp USB port, 3.5L V6, $1,299 Wheel Package. Moonroof').map((f) => f.name);
+    assert.deepEqual(names, ['12.3 in Display', '2.0-amp USB port', '3.5L V6', '$1,299 Wheel Package', 'Moonroof']);
+  });
+});

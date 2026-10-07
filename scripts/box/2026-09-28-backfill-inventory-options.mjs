@@ -16,14 +16,27 @@
 // Needs src/inventoryOptionRows.js deployed on the box first (it's loaded from there, not copied,
 // so the backfill and the live upsert can never disagree). Run on box2 from /opt/trimscout-deals,
 // OUTSIDE the nightly sync window, in the background so a dropped SSH session doesn't kill it:
-//   sudo nohup node 2026-09-28-backfill-inventory-options.mjs [--dry-run] [--after=VIN:DEALER_ID]
-//     [--batch=250] [--pause-ms=150] [--min-free-mb=600] > ~/backfill.log 2>&1 &
+//   sudo nohup node 2026-09-28-backfill-inventory-options.mjs [--apply] [--after=VIN:DEALER_ID]
+//     [--make=Toyota[,Honda]] [--batch=250] [--pause-ms=150] [--min-free-mb=600] [--report=/path/report.csv] [--rebuild-facets] > ~/backfill.log 2>&1 &
+//
+// SAFE BY DEFAULT (changed 2026-10-07, option-normalize deny rules): with no flag this is a DRY RUN —
+// plain SELECTs, no transaction, no row locks, nothing written, nothing rebuilt — and it writes a per-make
+// report (make, rule, label, vehicles) of every label the rules would DROP and every truncated label they
+// would REPAIR. Writing requires --apply. The catalog-facet rebuild is a separate, explicit --rebuild-facets
+// (it used to fire automatically after a write); without it the buyer dropdown keeps serving its last build
+// until the next nightly sync or a manual rebuild.
 import fs from "node:fs";
 import path from "node:path";
 import mysql from "mysql2/promise";
 
 const args = Object.fromEntries(process.argv.slice(2).map((a) => { const [k, v] = a.replace(/^--/, "").split("="); return [k, v ?? true]; }));
-const DRY_RUN = Boolean(args["dry-run"]);
+const DRY_RUN = !args.apply;
+if (args.apply && args["dry-run"]) { console.error("--apply and --dry-run are mutually exclusive"); process.exit(1); }
+// --make=Toyota[,Honda]: only those makes (exact match on dealer_inventory.make). Keyset paging still walks the
+// (vin, dealer_id) primary key, so a make filter never changes ordering or resume (--after) semantics.
+const MAKES = typeof args.make === "string" ? args.make.split(",").map((m) => m.trim()).filter(Boolean) : [];
+const REBUILD_FACETS = Boolean(args["rebuild-facets"]) && !DRY_RUN;
+const REPORT_PATH = typeof args.report === "string" ? args.report : path.resolve(process.cwd(), `option-normalize-report-${DRY_RUN ? "dry" : "apply"}.csv`);
 // box2 is a shared box (MariaDB + deals/auth APIs + crawls). The first dry run (2026-09-28) read
 // 2,000 vehicles' full options_json per batch and the box stopped responding around 600K scanned.
 // Small batches, a pause between them, and a free-memory guard keep this a background job.
@@ -100,25 +113,32 @@ if (typeof args.after === "string") {
 
 const totals = { scanned: 0, withOptionsJson: 0, replaced: 0, nowWithFacet: 0, rowsWritten: 0, junkDropped: 0, unparseable: 0 };
 const byMake = new Map(); // make -> { replaced, nowWithFacet }
+const dropReport = new Map(); // `${make}\t${rule}\t${label}` -> vehicles (rule-attributed drops only; "legacy" = pre-existing filters)
+const repairReport = new Map(); // `${make}\t${from}\t${to}` -> vehicles
+const bump = (m, k) => m.set(k, (m.get(k) || 0) + 1);
 
 async function main() {
-  console.log(`${DRY_RUN ? "[DRY RUN] " : ""}backfilling in-stock facet rows from options_json, batch=${BATCH}, starting after ${cursor.vin || "(start)"}:${cursor.dealerId}`);
+  console.log(`${DRY_RUN ? "[DRY RUN] " : ""}backfilling in-stock facet rows from options_json, batch=${BATCH}, ${MAKES.length ? `makes=${MAKES.join(",")}, ` : ""}starting after ${cursor.vin || "(start)"}:${cursor.dealerId}`);
   for (;;) {
     await waitForMemory();
     if (PAUSE_MS) await new Promise((r) => setTimeout(r, PAUSE_MS));
     const conn = await pool.getConnection();
     let rows;
     try {
-      await conn.beginTransaction();
+      if (!DRY_RUN) await conn.beginTransaction();
       // FOR UPDATE: a nightly upsert touching the same vehicles waits for this small batch instead
       // of racing it and having fresher options overwritten by this run's older read.
+      // Keyset predicate spelled `vin >= ? AND (vin > ? OR dealer_id > ?)`, NOT `(vin, dealer_id) > (?, ?)`: MariaDB does not
+      // turn a row-value comparison into a primary-key range, so every batch rescanned from the start (25s+/batch
+      // by 2026-10-07, getting slower as the cursor advanced). This form is a real range scan.
+      // Dry run: plain consistent read, no FOR UPDATE — it must never block a nightly upsert on a live box.
       [rows] = await conn.query(
         `SELECT vin, dealer_id, make, options_json FROM dealer_inventory
-         WHERE (vin, dealer_id) > (?, ?) AND removed_at IS NULL
-         ORDER BY vin, dealer_id LIMIT ? FOR UPDATE`,
-        [cursor.vin, cursor.dealerId, BATCH]
+         WHERE vin >= ? AND (vin > ? OR dealer_id > ?) AND removed_at IS NULL${MAKES.length ? " AND make IN (?)" : ""}
+         ORDER BY vin, dealer_id LIMIT ?${DRY_RUN ? "" : " FOR UPDATE"}`,
+        MAKES.length ? [cursor.vin, cursor.vin, cursor.dealerId, MAKES, BATCH] : [cursor.vin, cursor.vin, cursor.dealerId, BATCH]
       );
-      if (!rows.length) { await conn.rollback(); break; }
+      if (!rows.length) { if (!DRY_RUN) await conn.rollback(); break; }
       cursor = { vin: rows[rows.length - 1].vin, dealerId: rows[rows.length - 1].dealer_id };
       totals.scanned += rows.length;
 
@@ -129,8 +149,12 @@ async function main() {
         try { options = JSON.parse(r.options_json); } catch { totals.unparseable++; continue; }
         if (!Array.isArray(options) || !options.length) continue;
         totals.withOptionsJson++;
-        const { rows: facetRows, junkDropped } = optionRowsFromOptions(options, { resolveKey: resolveForMake(r.make) });
+        const { rows: facetRows, junkDropped, dropped = [], repaired = [] } = optionRowsFromOptions(options, { resolveKey: resolveForMake(r.make) });
         totals.junkDropped += junkDropped;
+        // One count per vehicle per distinct label, so the report reads as "vehicles affected".
+        const mk = r.make || "(none)";
+        for (const d of new Set(dropped.map((x) => `${x.rule}\t${x.label}`))) bump(dropReport, `${mk}\t${d}`);
+        for (const x of new Set(repaired.map((y) => `${y.from}\t${y.to}`))) bump(repairReport, `${mk}\t${x}`);
         pairs.push([r.vin, r.dealer_id]);
         totals.replaced++;
         const m = byMake.get(r.make || "(none)") || { replaced: 0, nowWithFacet: 0 };
@@ -149,14 +173,15 @@ async function main() {
         if (inserts.length) await conn.query("INSERT INTO dealer_inventory_options (vin, dealer_id, canonical_key, label, code) VALUES ?", [inserts]);
       }
       totals.rowsWritten += inserts.length;
-      if (DRY_RUN) await conn.rollback(); else await conn.commit();
+      if (!DRY_RUN) await conn.commit();
     } catch (err) {
-      await conn.rollback().catch(() => {});
+      if (!DRY_RUN) await conn.rollback().catch(() => {});
       console.error(`\nFailed after cursor ${cursor.vin}:${cursor.dealerId} — resume with --after=${cursor.vin}:${cursor.dealerId}`);
       throw err;
     } finally {
       conn.release();
     }
+    if (totals.scanned % 25000 < BATCH) writeCsv(); // checkpoint: a killed run still leaves a usable partial report
     if (totals.scanned % 25000 < BATCH) console.log(`...${totals.scanned} in-stock scanned, ${totals.replaced} rebuilt, ${totals.rowsWritten} rows, ${availableMb()}MB available, cursor ${cursor.vin}:${cursor.dealerId}`);
   }
 
@@ -172,11 +197,12 @@ async function main() {
   for (const [make, m] of [...byMake].sort((a, b) => b[1].replaced - a[1].replaced).slice(0, 25)) {
     console.log(`  ${make.padEnd(18)} ${String(m.replaced).padStart(8)} / ${m.nowWithFacet}`);
   }
+  writeReport();
   await pool.end();
 
   // The buyer dropdown reads precomputed counts (inv_option_facets); rebuild them now rather than
   // waiting for the next nightly sync to trigger it.
-  if (!DRY_RUN) {
+  if (REBUILD_FACETS) {
     const port = process.env.DEALS_API_PORT || 3004;
     try {
       const res = await fetch(`http://127.0.0.1:${port}/api/inventory/catalog-facets/rebuild`, { method: "POST", headers: { "X-Trimscout-Api-Key": process.env.TRIMSCOUT_API_KEY || "" } });
@@ -185,6 +211,36 @@ async function main() {
     } catch (err) {
       console.error(`\nCould not request a catalog facet rebuild (${err.message}) — it will run automatically after the next sync, or trigger it manually.`);
     }
+  }
+}
+
+function writeCsv() {
+  const csvCell = (v) => `"${String(v).replace(/"/g, '""')}"`;
+  const lines = ["kind,make,rule,label,repaired_to,vehicles"];
+  for (const [k, n] of dropReport) { const [make, rule, label] = k.split("\t"); lines.push(["drop", make, rule, label, "", n].map(csvCell).join(",")); }
+  for (const [k, n] of repairReport) { const [make, from, to] = k.split("\t"); lines.push(["repair", make, "truncation-repair", from, to, n].map(csvCell).join(",")); }
+  fs.writeFileSync(REPORT_PATH, lines.join("\n") + "\n");
+}
+
+function writeReport() {
+  writeCsv();
+  // Every drop is attributed to exactly one bucket: "legacy" (already dropped by the pre-2026-10-07 rules) or
+  // the NEW deny rule that is the first to catch it. So legacy + new = total, by construction. Units are
+  // vehicle-labels: one count per vehicle per distinct dropped label.
+  const perMake = new Map(); // make -> { legacy, added }
+  for (const [k, n] of dropReport) {
+    const [make, rule] = k.split("\t");
+    const m = perMake.get(make) || { legacy: 0, added: 0 };
+    if (rule === "legacy") m.legacy += n; else m.added += n;
+    perMake.set(make, m);
+  }
+  const sum = (f) => [...perMake.values()].reduce((a, m) => a + f(m), 0);
+  console.log(`\nPer-make report: ${REPORT_PATH} (${dropReport.size} drop lines, ${repairReport.size} repair lines)`);
+  console.log(`Vehicle-label drops — already dropped today (legacy): ${sum((m) => m.legacy)}; ADDED by the new deny rules: ${sum((m) => m.added)}; total: ${sum((m) => m.legacy + m.added)}`);
+  console.log(`Truncation repairs (vehicles): ${[...repairReport.values()].reduce((a, n) => a + n, 0)}`);
+  console.log(`  ${"make".padEnd(18)} ${"legacy".padStart(10)} ${"added".padStart(10)} ${"total".padStart(10)}`);
+  for (const [make, m] of [...perMake].sort((a, b) => b[1].added - a[1].added).slice(0, 25)) {
+    console.log(`  ${make.padEnd(18)} ${String(m.legacy).padStart(10)} ${String(m.added).padStart(10)} ${String(m.legacy + m.added).padStart(10)}`);
   }
 }
 

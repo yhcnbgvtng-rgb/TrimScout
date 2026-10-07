@@ -131,6 +131,63 @@ const GENERIC_STUB = /^(?:exp|equipment|options?|features?|details|highlights|sp
 // the write path drops them too, before they ever reach the facet table.
 const LISTING_POSITION = /^(?:opt|option|code|pkg)[\s-]*\d+$/i;
 
+
+// ---- Deny rules added 2026-10-07 (option-normalize audit, docs/OPTION_NORMALIZE_AUDIT_2026-10-07.md) ----
+// Each rule is anchored/narrow on purpose and means the same thing on a raw label and on its normalized
+// canonical_key (lowercased, punctuation collapsed), so the write path and the key-only purge classifier
+// share ONE definition. Deliberately NO broad rules on a trailing digit ("Sync 4"), a lowercase start
+// ("heated mirrors"), a leading digit ("10-Speed Automatic") or a slash ("Radio: AM/FM/HD") — all real options.
+export const DENY_RULES = [
+  // Cross-references: "See toyota", "See onstar", "See dealer or vw".
+  ["see-ref", /^see\s+[a-z]/i],
+  // A screen size split at its decimal and left as a bare "<n> in": "3 In", "5 in", "9 in".
+  ["bare-size", /^\d+(?:\.\d+)?\s*-?\s*(?:in|inch|inches)\.?$|^\d+(?:\.\d+)?\s*"$/i],
+  // The ".com" tail of a URL split off at the dot: "com", "com or dealer for details", "com/connected-services ...".
+  ["url-crumb", /(?:^|\s)com(?:[\/\s)]|$)|https?:|www\.|\.com\b|\bmygarage\b/i],
+  ["see-details", /\bfor (?:important )?details\b/i],
+  // OnStar / SiriusXM / Apple / Google legal and plan boilerplate fragments.
+  ["legal-boilerplate", /\btrademarks?\b|\bregistered in the\b|\bactive data plan\b|\bdata allowance\b|\bconnected devices\b|\bon your car display\b|\btrial subscription\b/i],
+  // A section header glued to the next spec line: "Standard EquipmentExterior18-in".
+  ["glued-header", /^(?:standard|optional) equipment[a-z]/i],
+  // Instrument-cluster items every car has — exact words only ("digital gauge cluster with settings" stays).
+  ["instrument", /^(?:clock|digital clock|odometer|trip odometer|fuel gauge|tachometer|speedometer)$/i],
+  // Single words left behind when a sentence was split ("ECO" is a real Toyota drive mode and is NOT here).
+  ["stub-word", /^(?:look|now|inc|tag|plus|news|artists|creators|comedy|live sports|talk and news|durability|mud|snow|cooled|rear|power)$/i],
+  // A spec label whose value was cut off: bare "Engine"/"Transmission"/"Wheels"/"Tires"/"Radio", "Engine: 3",
+  // "Wheels: 18 x 7", "Radio: AM/FM 8", a lone "17 x 7", "illuminated 3".
+  ["spec-truncated", /^(?:engine|transmission|wheels?|tires?|radio)\b[^a-z]*(?:[a-z]{2,3}[\/\s][a-z]{2,3}(?:[\/\s][a-z]{2,3})?\s+)?[\d\s.x\/]*$|^(?:1[4-9]|2\d)\s*x\s*\d+(?:\.\d+)?$|^illuminated \d$|^bluetooth\W*streaming audio and \d usb c \d$/i],
+  // A parenthesis opened and never closed (or closed and never opened): the comma split cut the label.
+  ["unbalanced-paren", /^[^(]*\)|\([^)]*$/],
+  // Ends on a word that can only continue a sentence.
+  ["dangling", /\b(?:with|and|or|for|to|of|until)$/i],
+  // Second-person marketing copy.
+  ["marketing", /\b(?:you|your)\b|\bset the pace\b|\bcleaning and adjusting\b/i],
+];
+
+/** The deny rule a label trips, or null. Raw labels and normalized keys are both fine input. */
+// "Wheels: 18 x 8" is a real wheel-size spec, kept (owner decision 2026-10-07). Bare "Wheels"/"Tires" stay dropped.
+const WHEEL_SIZE_SPEC = /^wheels?\W*\d+(?:[.\s]\d+)?\s*x\s*\d+(?:[.\s]\d+)?$/i;
+
+export function denyRuleFor(text) {
+  const t = String(text || "").trim();
+  if (!t || WHEEL_SIZE_SPEC.test(t.replace(/^[^a-z0-9]+/i, ""))) return null;
+  for (const [name, re] of DENY_RULES) if (re.test(t)) return name;
+  return null;
+}
+
+// Truncated labels whose full form is certain, repaired instead of dropped (never invents anything else):
+// the comma-split parser used to cut "Multi-Information Display (MID, ...)" after "(MID".
+const TRUNCATION_REPAIRS = [
+  [/^multi[\s-]*information display \(mid$/i, (l) => `${l})`],
+];
+
+/** Repairs a known truncated label; returns the label unchanged when there is nothing to repair. */
+export function repairTruncatedLabel(label) {
+  const t = String(label || "").trim();
+  for (const [re, fix] of TRUNCATION_REPAIRS) if (re.test(t)) return fix(t);
+  return t;
+}
+
 // Shared by looksLikeNonOptionText (raw labels) and looksLikeJunkCanonicalKey (normalized keys).
 function looksLikeFragmentOrBoilerplate(text) {
   const t = text.trim();
@@ -144,7 +201,9 @@ function looksLikeFragmentOrBoilerplate(text) {
   );
 }
 
-export function looksLikeNonOptionText(label) {
+// The rules that existed before the 2026-10-07 deny list. Split out so the backfill report can attribute
+// each drop to "legacy" (already dropped today) vs a NEW deny rule (incremental), with no double counting.
+export function looksLikeLegacyNonOptionText(label) {
   // Leading punctuation ("$0 ...", "(0 A) Marsh Gray") doesn't hide a split-number fragment.
   const trimmed = label.trim();
   const unbulleted = label.replace(/^[^a-z0-9]+/i, "");
@@ -157,6 +216,10 @@ export function looksLikeNonOptionText(label) {
     LONG_CAPS_RUN_GLUED_ON.test(label) ||
     looksLikeFragmentOrBoilerplate(unbulleted)
   );
+}
+
+export function looksLikeNonOptionText(label) {
+  return looksLikeLegacyNonOptionText(label) || denyRuleFor(label.replace(/^[^a-z0-9]+/i, "")) !== null;
 }
 
 // Several options joined into one string by the dealer's own feed: "4 Display; Rear View Auto Dim
@@ -179,7 +242,7 @@ export function splitOptionLabel(rawName) {
  *   resolveAllowlisted, bound to the vehicle's make). A hit stores the canonical key and label so
  *   every dealer spelling of one real option lands on one key; a miss keeps the dealer key as-is
  *   (still subject to every junk rule) — the buyer catalog, not the write path, decides what to show.
- * @returns {{ rows: Array<{ key: string, label: string, code: string | null }>, junkDropped: number }}
+ * @returns {{ rows: Array<{ key: string, label: string, code: string | null }>, junkDropped: number, dropped: Array<{ label: string, rule: string }>, repaired: Array<{ from: string, to: string }> }}
  * One row per distinct canonical key. Identity comes from the option's NAME, never its raw
  * per-listing `code` (a listing-position number like "OPT-35", different on every vehicle for the
  * same real option); a code with no name has nothing stable to key on and is skipped.
@@ -188,7 +251,9 @@ export function optionRowsFromOptions(options, opts = {}) {
   const resolveKey = typeof opts.resolveKey === "function" ? opts.resolveKey : null;
   const byKey = new Map();
   let junkDropped = 0;
-  if (!Array.isArray(options)) return { rows: [], junkDropped };
+  const dropped = []; // { label, rule } for every dropped label — the backfill's per-make report reads this
+  const repaired = []; // { from, to }
+  if (!Array.isArray(options)) return { rows: [], junkDropped, dropped, repaired };
   for (const o of options) {
     const rawName = o && typeof o.name === "string" ? o.name.trim() : "";
     if (!rawName) continue;
@@ -196,9 +261,17 @@ export function optionRowsFromOptions(options, opts = {}) {
     // A code belongs to the option it was listed with — never copy it onto parts split out of a
     // joined list, where it can't be attributed to any one of them.
     const code = parts.length === 1 ? str(o.code, 32) : null;
-    for (const part of parts) {
+    for (const rawPart of parts) {
+      const part = repairTruncatedLabel(rawPart);
+      if (part !== rawPart) repaired.push({ from: rawPart, to: part });
       // Checked on the raw, pre-truncation text — see looksLikeOptionSentence's own length note.
-      if (looksLikeOptionSentence(part) || looksLikeNonOptionText(part)) { junkDropped++; continue; }
+      if (looksLikeOptionSentence(part) || looksLikeNonOptionText(part)) {
+        junkDropped++;
+        // "legacy" = already dropped before the deny list; otherwise the NEW rule that caught it (incremental only).
+        const legacy = looksLikeOptionSentence(part) || looksLikeLegacyNonOptionText(part);
+        dropped.push({ label: part, rule: legacy ? "legacy" : denyRuleFor(part.replace(/^[^a-z0-9]+/i, "")) });
+        continue;
+      }
       let label = part.slice(0, 160);
       let key = normalizeOptionKey(label);
       if (!key) continue;
@@ -207,7 +280,7 @@ export function optionRowsFromOptions(options, opts = {}) {
       if (!byKey.has(key)) byKey.set(key, { key, label, code });
     }
   }
-  return { rows: [...byKey.values()], junkDropped };
+  return { rows: [...byKey.values()], junkDropped, dropped, repaired };
 }
 
 // looksLikeOptionSentence/looksLikeNonOptionText are written for the RAW label (real punctuation —
@@ -250,7 +323,9 @@ export function looksLikeJunkCanonicalKey(key) {
     BARE_DATE_NORMALIZED.test(key) ||
     BARE_NUMBER_NORMALIZED.test(key) ||
     MENTIONS_MILEAGE.test(key) ||
-    looksLikeFragmentOrBoilerplate(key)
+    looksLikeFragmentOrBoilerplate(key) ||
+    // "unbalanced-paren" can't be seen on a key (punctuation is already stripped); every other rule can.
+    denyRuleFor(key) !== null
   );
 }
 
