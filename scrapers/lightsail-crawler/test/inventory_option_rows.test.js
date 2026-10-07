@@ -441,7 +441,7 @@ describe('deny rules added 2026-10-07 (option-normalize audit) — real live str
     'Radio: AM/FM/HD Audio System', 'Radio: AM/FM/SiriusXM/HD Lexicon Prem Audio System', '4WD', 'AWD', 'ECO', 'Alexa Built In',
     'Navigation system: Google Built-in', 'digital gauge cluster with customizable settings', 'Bluetooth® streaming audio',
     'Multi-Information Display (MID)', 'Engine Block Heater', 'Transmission Skid Plate', 'Wheels: 20-inch Alloy', '3.5L V6 Engine',
-    'Seat Adjuster (Driver, Passenger)', '12.3-inch Touchscreen', 'Tow Package 2',
+    'Seat Adjuster (Driver, Passenger)', '4x4', '4 x 4', '4x2', '6x4', '12.3-inch Touchscreen', 'Tow Package 2',
   ];
   it('keeps real options the owner ruled out of broad rules (trailing digit / lowercase / leading digit / slash / ECO)', () => {
     for (const name of REAL) {

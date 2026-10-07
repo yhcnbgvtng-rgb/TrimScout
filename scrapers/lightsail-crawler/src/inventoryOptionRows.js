@@ -155,7 +155,7 @@ export const DENY_RULES = [
   ["stub-word", /^(?:look|now|inc|tag|plus|news|artists|creators|comedy|live sports|talk and news|durability|mud|snow|cooled|rear|power|unlock|siri)$/i],
   // A spec label whose value was cut off: bare "Engine"/"Transmission"/"Wheels"/"Tires"/"Radio", "Engine: 3",
   // "Wheels: 18 x 7", "Radio: AM/FM 8", a lone "17 x 7", "illuminated 3".
-  ["spec-truncated", /^(?:engine|transmission|wheels?|tires?|radio)\b[^a-z]*(?:[a-z]{2,3}[\/\s][a-z]{2,3}(?:[\/\s][a-z]{2,3})?\s+)?[\d\s.x\/]*$|^\d+\s*x\s*\d+$|^illuminated \d$|^bluetooth\W*streaming audio and \d usb c \d$/i],
+  ["spec-truncated", /^(?:engine|transmission|wheels?|tires?|radio)\b[^a-z]*(?:[a-z]{2,3}[\/\s][a-z]{2,3}(?:[\/\s][a-z]{2,3})?\s+)?[\d\s.x\/]*$|^(?:1[4-9]|2\d)\s*x\s*\d+(?:\.\d+)?$|^illuminated \d$|^bluetooth\W*streaming audio and \d usb c \d$/i],
   // A parenthesis opened and never closed (or closed and never opened): the comma split cut the label.
   ["unbalanced-paren", /^[^(]*\)|\([^)]*$/],
   // Ends on a word that can only continue a sentence.
