@@ -7,6 +7,7 @@ import zlib from 'node:zlib';
 import { runEnrichmentPipeline } from './enricher.js';
 import { getBrand } from './brands.js';
 import { normalizeVehicleFields, splitPorscheTrimFromModelName } from './modelNormalizer.js';
+import { recoverModelTrim, recoverTrim } from './listingModel.js';
 import { enrichYearAndModelFromUrl } from './porscheUrlFields.js';
 import { isVehicleLikeSchemaOrgType, readSchemaOrgVehicleFields } from './porscheSchemaOrgFields.js';
 import { classifyFetchResult, isBotProtected, isUncrawlable, decideProbeNext, BOT_CLASSES } from './bot_protection.js';
@@ -1140,6 +1141,24 @@ for (let i = 0; i < dealers.length; i++) {
                         // vehicle, its own real make as the site reported
                         // it — never overwritten to this crawl's brand.
                         vehicle.make = keptMake;
+                        // Blank model recovery — see listingModel.js. ~1.2% of in-stock rows arrived with year + make but no
+                        // model (Honda/Toyota/Audi/Hyundai/Nissan/Ford ...) although the page's own title, JSON-LD, breadcrumbs or URL
+                        // name it. Runs here, after every extraction strategy converged and before the brand normalizer, for any
+                        // make. Never overwrites a model a strategy found; only a name the database already uses for that make
+                        // (or a short structured schema.org model) is ever written. Logged either way so a platform where this
+                        // recovers nothing is visible in the crawl log.
+                        if (!vehicle.model || !String(vehicle.model).trim()) {
+                            // extractOne's outer catch drops the vehicle on any throw, so a bug here must never escape.
+                            let recovered = null;
+                            try { recovered = recoverModelTrim({ vehicle, html, url }); } catch (err) { console.log(`⚠️ model recovery error (ignored): ${vehicle.vin} ${err.message}`); }
+                            if (recovered && recovered.model) {
+                                vehicle.model = recovered.model;
+                                if (recovered.trim && !(vehicle.trim && String(vehicle.trim).trim())) vehicle.trim = recovered.trim;
+                                console.log(`ℹ️ blank model recovered from ${recovered.source}: ${vehicle.vin} -> ${recovered.model}${recovered.trim ? ` / ${recovered.trim}` : ''}`);
+                            } else {
+                                console.log(`⚠️ model still blank after page recovery: ${vehicle.vin} ${url}`);
+                            }
+                        }
                         // Un-mix model/trim/body_style for brands whose
                         // source sites bake trim/body-style tokens into the
                         // model field (confirmed live: Porsche dealer.com
@@ -1172,6 +1191,12 @@ for (let i = 0; i < dealers.length; i++) {
                             } else {
                                 console.log(`⚠️ trim still blank after HTTP 200 and URL-slug recovery: ${vehicle.vin} ${url}`);
                             }
+                        }
+                        // Page-text trim (title / JSON-LD name) when the URL slug had none — same "only a blank trim" rule.
+                        if (!vehicle.trim && vehicle.model) {
+                            let pageTrim = null;
+                            try { pageTrim = recoverTrim({ vehicle, html }); } catch (err) { console.log(`⚠️ trim recovery error (ignored): ${vehicle.vin} ${err.message}`); }
+                            if (pageTrim) vehicle.trim = pageTrim.trim;
                         }
                         // Condition is final here, so this is the one place a used/CPO
                         // listing with no odometer becomes null instead of a 0 default.
