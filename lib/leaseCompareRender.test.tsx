@@ -37,7 +37,7 @@ describe("Compare lease quotes — an airy, scannable primary band", () => {
     assert.match(html, /\$664<span[^>]*>\/mo<\/span><\/span><span[^>]*data-testid="money-note">\$54\/mo less than Lexus of Route 10/);
     assert.match(html, /\$718<span[^>]*>\/mo<\/span><\/span><span[^>]*data-testid="money-note">\$54\/mo more than Bob Johnson Lexus/);
     assert.match(html, /data-testid="money-note">\$[\d,]+ (more|less) at signing than/);
-    assert.equal((html.match(/bg-emerald-500\/10/g) || []).length, 2, "one best-monthly cell and one best-DAS cell");
+    assert.equal((html.match(/bg-brand-500\/10/g) || []).length, 2, "one best-monthly cell and one best-DAS cell");
   });
   it("the dealer cell is just the name and the contact — no badges, no email; add-ons are a one-line summary", () => {
     // Rows are ranked by monthly, so Bob Johnson (lower monthly) is first; check both dealer cells.

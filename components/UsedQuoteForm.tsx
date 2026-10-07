@@ -164,7 +164,7 @@ export function UsedQuoteForm({
     }
   };
 
-  const input = "w-full rounded-lg border border-border bg-background px-3 py-2 text-xs text-white placeholder-ink-faint focus:border-emerald-500 focus:outline-none tabular-nums";
+  const input = "w-full rounded-lg border border-border bg-background px-3 py-2 text-xs text-white placeholder-ink-faint focus:border-brand-500 focus:outline-none tabular-nums";
   const labelCls = "block text-[10px] font-bold uppercase tracking-wide text-ink-faint";
   const hintCls = "block text-[10px] text-ink-faint";
   const field = (o: { k: keyof typeof f; title: string; kind?: "money" | "percent" | "text"; hint?: React.ReactNode; required?: boolean; placeholder?: string }) => {
@@ -180,11 +180,11 @@ export function UsedQuoteForm({
     );
   };
   const opBadge = (op: "+" | "−" | "=") => (
-    <span className={`flex h-5 w-5 shrink-0 items-center justify-center rounded font-mono text-[11px] font-black ${op === "=" ? "bg-emerald-500 text-black" : op === "−" ? "bg-rose-500/20 text-rose-300" : "bg-border text-white"}`}>{op}</span>
+    <span className={`flex h-5 w-5 shrink-0 items-center justify-center rounded font-mono text-[11px] font-black ${op === "=" ? "bg-brand-500 text-black" : op === "−" ? "bg-rose-500/20 text-rose-300" : "bg-border text-white"}`}>{op}</span>
   );
   /** One block of the vertical equation: sign badge, title, then its inputs. */
   const eqBlock = (op: "+" | "−" | "=", title: string, testid: string, body: React.ReactNode, note?: React.ReactNode) => (
-    <section className={`space-y-2.5 rounded-xl border px-3.5 py-3 ${op === "=" ? "border-emerald-500/40 bg-emerald-500/5" : "border-border/60 bg-background"}`} data-testid={testid} data-op={op}>
+    <section className={`space-y-2.5 rounded-xl border px-3.5 py-3 ${op === "=" ? "border-brand-500/40 bg-brand-500/5" : "border-border/60 bg-background"}`} data-testid={testid} data-op={op}>
       <div className="flex items-center gap-2.5">
         {opBadge(op)}
         <h4 className={`text-[11px] font-bold ${op === "=" ? "text-white" : "text-ink-light"}`}>{title}</h4>
@@ -239,7 +239,7 @@ export function UsedQuoteForm({
 
           {kind === "cash" ? (
             <div className="space-y-2" data-testid="cash-equation">
-              <p className="text-[10px] font-bold uppercase tracking-wide text-emerald-400">Out-the-door pricing — the same equation the buyer sees</p>
+              <p className="text-[10px] font-bold uppercase tracking-wide text-brand-400">Out-the-door pricing — the same equation the buyer sees</p>
               {eqBlock("+", "Selling price", "eq-selling-price", (
                 <div className="grid grid-cols-2 gap-3">
                   {field({ k: "sellingPrice", title: "Selling price", required: true, hint: "Before fees and taxes." })}
@@ -255,7 +255,7 @@ export function UsedQuoteForm({
                   {!noAddOns ? (
                     <>
                       {addOns.map((it, i) => feeRow(it, i, addOns, setAddOns, "add-on", false))}
-                      <button type="button" onClick={() => setAddOns((p) => [...p, { name: "", amount: "" }])} className="flex items-center gap-1 text-[11px] font-bold text-emerald-400 hover:text-emerald-300"><Plus className="h-3 w-3" /> Add an add-on line</button>
+                      <button type="button" onClick={() => setAddOns((p) => [...p, { name: "", amount: "" }])} className="flex items-center gap-1 text-[11px] font-bold text-brand-400 hover:text-brand-300"><Plus className="h-3 w-3" /> Add an add-on line</button>
                     </>
                   ) : null}
                 </>
@@ -263,7 +263,7 @@ export function UsedQuoteForm({
               {eqBlock("+", "Mandatory fees", "eq-mandatory-fees", (
                 <>
                   {fees.map((it, i) => (i === 0 ? null : feeRow(it, i, fees, setFees, "fee", i < STANDING_FEES)))}
-                  <button type="button" onClick={() => setFees((p) => [...p, { name: "", amount: "" }])} className="flex items-center gap-1 text-[11px] font-bold text-emerald-400 hover:text-emerald-300"><Plus className="h-3 w-3" /> Add another fee</button>
+                  <button type="button" onClick={() => setFees((p) => [...p, { name: "", amount: "" }])} className="flex items-center gap-1 text-[11px] font-bold text-brand-400 hover:text-brand-300"><Plus className="h-3 w-3" /> Add another fee</button>
                 </>
               ), "doc, title & registration, each named")}
               {eqBlock("+", "Sales tax", "eq-sales-tax", (
@@ -275,7 +275,7 @@ export function UsedQuoteForm({
               {eqBlock("−", "Rebates / credits", "rebates", (
                 <>
                   {rebates.map((it, i) => feeRow(it, i, rebates, setRebates, "rebate", false))}
-                  <button type="button" onClick={() => setRebates((p) => [...p, { name: "", amount: "" }])} className="flex items-center gap-1 text-[11px] font-bold text-emerald-400 hover:text-emerald-300"><Plus className="h-3 w-3" /> Add a rebate line</button>
+                  <button type="button" onClick={() => setRebates((p) => [...p, { name: "", amount: "" }])} className="flex items-center gap-1 text-[11px] font-bold text-brand-400 hover:text-brand-300"><Plus className="h-3 w-3" /> Add a rebate line</button>
                 </>
               ), "each named")}
               {eqBlock("=", "Out the door", "eq-out-the-door", (
@@ -337,7 +337,7 @@ export function UsedQuoteForm({
                 )}
               </div>
             ))}
-            <button type="button" onClick={() => setFees((p) => [...p, { name: "", amount: "" }])} className="flex items-center gap-1 text-[11px] font-bold text-emerald-400 hover:text-emerald-300"><Plus className="h-3 w-3" /> Add another fee</button>
+            <button type="button" onClick={() => setFees((p) => [...p, { name: "", amount: "" }])} className="flex items-center gap-1 text-[11px] font-bold text-brand-400 hover:text-brand-300"><Plus className="h-3 w-3" /> Add another fee</button>
             <p className={hintCls}>Sales tax, doc fee and title & registration are always listed — enter the amounts{d.estTaxOnPrice != null ? ` (tax on the price at ${zip}'s rate ≈ ${money(d.estTaxOnPrice)})` : ""}. Sales tax is required as its own line ($0 if none). A single unlabeled lump can&apos;t be submitted.</p>
             {kind === "finance" ? (
               <label className="flex items-start gap-2 text-[11px] text-ink-light">
@@ -365,7 +365,7 @@ export function UsedQuoteForm({
                     <button type="button" onClick={() => setAddOns((p) => p.filter((_, j) => j !== i))} className="text-ink-muted hover:text-rose-400" aria-label="Remove add-on"><Trash2 className="h-3.5 w-3.5" /></button>
                   </div>
                 ))}
-                <button type="button" onClick={() => setAddOns((p) => [...p, { name: "", amount: "" }])} className="flex items-center gap-1 text-[11px] font-bold text-emerald-400 hover:text-emerald-300"><Plus className="h-3 w-3" /> Add an add-on line</button>
+                <button type="button" onClick={() => setAddOns((p) => [...p, { name: "", amount: "" }])} className="flex items-center gap-1 text-[11px] font-bold text-brand-400 hover:text-brand-300"><Plus className="h-3 w-3" /> Add an add-on line</button>
               </>
             ) : null}
             <p className={hintCls}>Each add-on is its own line with its own price — never folded into the selling price or the payment. Either list them or confirm none.</p>
@@ -383,7 +383,7 @@ export function UsedQuoteForm({
                 <button type="button" onClick={() => setRebates((p) => p.filter((_, j) => j !== i))} className="text-ink-muted hover:text-rose-400" aria-label="Remove rebate"><Trash2 className="h-3.5 w-3.5" /></button>
               </div>
             ))}
-            <button type="button" onClick={() => setRebates((p) => [...p, { name: "", amount: "" }])} className="flex items-center gap-1 text-[11px] font-bold text-emerald-400 hover:text-emerald-300"><Plus className="h-3 w-3" /> Add a rebate line</button>
+            <button type="button" onClick={() => setRebates((p) => [...p, { name: "", amount: "" }])} className="flex items-center gap-1 text-[11px] font-bold text-brand-400 hover:text-brand-300"><Plus className="h-3 w-3" /> Add a rebate line</button>
           </section>
 
             </>
@@ -464,7 +464,7 @@ export function UsedQuoteForm({
           ))}
         </ul>
       ) : null}
-      <button type="button" onClick={submit} disabled={busy} className="w-full rounded-xl bg-emerald-500 py-2.5 text-xs font-extrabold text-black hover:bg-emerald-400 transition-all disabled:opacity-50">
+      <button type="button" onClick={submit} disabled={busy} className="w-full rounded-xl bg-brand-500 py-2.5 text-xs font-extrabold text-black hover:bg-brand-400 transition-all disabled:opacity-50">
         {busy ? "Submitting…" : `Submit ${kind} quote`}
       </button>
     </div>

@@ -21,7 +21,7 @@ const fmtMoney = (v: number | null | undefined) => (v == null ? "—" : `$${Math
 
 function BandBar({ bands, className = "" }: { bands: DomBands; className?: string }) {
   const s = bandShares(bands);
-  const tone: Record<keyof DomBands, string> = { d0_14: "bg-emerald-500", d15_45: "bg-sky-500", d46_90: "bg-amber-500", d90p: "bg-rose-500" };
+  const tone: Record<keyof DomBands, string> = { d0_14: "bg-brand-500", d15_45: "bg-sky-500", d46_90: "bg-amber-500", d90p: "bg-rose-500" };
   return (
     <div className={`flex h-2 w-full overflow-hidden rounded-full bg-border ${className}`} title={DOM_BAND_LABELS.map((b) => `${b.label}: ${s[b.key]}%`).join(" · ")} data-testid="band-bar">
       {DOM_BAND_LABELS.map((b) => (s[b.key] > 0 ? <span key={b.key} className={tone[b.key]} style={{ width: `${s[b.key]}%` }} /> : null))}
@@ -33,7 +33,7 @@ function BandLegend() {
   return (
     <div className="flex flex-wrap gap-3 text-[10px] text-ink-muted">
       {DOM_BAND_LABELS.map((b, i) => (
-        <span key={b.key} className="inline-flex items-center gap-1"><span className={`h-2 w-2 rounded-full ${["bg-emerald-500", "bg-sky-500", "bg-amber-500", "bg-rose-500"][i]}`} />{b.label} days</span>
+        <span key={b.key} className="inline-flex items-center gap-1"><span className={`h-2 w-2 rounded-full ${["bg-brand-500", "bg-sky-500", "bg-amber-500", "bg-rose-500"][i]}`} />{b.label} days</span>
       ))}
     </div>
   );
@@ -97,7 +97,7 @@ export default function DealerAnalyticsSection() {
   const modelsForFilter = useMemo(() => Array.from(new Set(byModel.map((r) => r.model))).sort(), [byModel]);
 
   const empty = !loading && !error && data && data.totals.n === 0;
-  const field = "rounded-lg border border-border bg-background px-2.5 py-1.5 text-[11px] text-ink-light focus:border-emerald-500 focus:outline-none";
+  const field = "rounded-lg border border-border bg-background px-2.5 py-1.5 text-[11px] text-ink-light focus:border-brand-500 focus:outline-none";
 
   return (
     <section className="rounded-3xl border border-border-strong bg-surface p-6 shadow-2xl space-y-5" data-testid="dealer-analytics">
@@ -155,7 +155,7 @@ export default function DealerAnalyticsSection() {
           {/* Leaderboards */}
           <div className="flex flex-wrap items-center gap-2">
             {(["dealers", "models", "trims", "years", "drive"] as const).map((t) => (
-              <button key={t} type="button" onClick={() => setTab(t)} className={`rounded-lg border px-3 py-1.5 text-[11px] font-bold ${tab === t ? "border-emerald-500 bg-emerald-500/10 text-white" : "border-border text-ink-muted hover:text-white"}`} data-tab={t}>
+              <button key={t} type="button" onClick={() => setTab(t)} className={`rounded-lg border px-3 py-1.5 text-[11px] font-bold ${tab === t ? "border-brand-500 bg-brand-500/10 text-white" : "border-border text-ink-muted hover:text-white"}`} data-tab={t}>
                 {t === "dealers" ? "DOM by dealership" : t === "models" ? "DOM by model" : t === "trims" ? "By model + trim" : t === "years" ? "By model year" : "Drivetrain / powertrain"}
               </button>
             ))}
@@ -171,7 +171,7 @@ export default function DealerAnalyticsSection() {
                     const turn = data.velocity.byDealer.find((v) => v.dealerId === d.dealerId);
                     return (
                       <tr key={d.dealerId} className="hover:bg-surface-elevated" data-testid="dealer-row">
-                        <td className="px-3 py-2"><button type="button" onClick={() => { apply({ dealerId: String(d.dealerId) }); setTab("models"); }} className="text-left font-semibold text-white hover:text-emerald-300">{d.dealerName}</button><span className="block text-[10px] text-ink-muted">{[d.city, d.state].filter(Boolean).join(", ")}</span></td>
+                        <td className="px-3 py-2"><button type="button" onClick={() => { apply({ dealerId: String(d.dealerId) }); setTab("models"); }} className="text-left font-semibold text-white hover:text-brand-300">{d.dealerName}</button><span className="block text-[10px] text-ink-muted">{[d.city, d.state].filter(Boolean).join(", ")}</span></td>
                         <td className="px-3 py-2 text-right">{d.n.toLocaleString()}</td>
                         <td className="px-3 py-2 text-right font-bold text-white">{fmtDays(d.avgDom)}</td>
                         <td className="px-3 py-2 text-right">{fmtDays(d.medianDom)}</td>
@@ -183,7 +183,7 @@ export default function DealerAnalyticsSection() {
                         <td className="px-3 py-2 text-right">{fmtPct(pct(d.missingPrice, d.n), 0)}</td>
                         <td className="px-3 py-2 text-right">{fmtPct(pct(d.missingPhoto, d.n), 0)}</td>
                         <td className={`px-3 py-2 text-right ${d.stale ? "text-amber-300" : ""}`}>{fmtPct(pct(d.stale, d.n), 0)}</td>
-                        <td className="px-3 py-2">{d.hasEmail ? <span className="text-emerald-300">on file</span> : <span className="text-ink-faint">—</span>}</td>
+                        <td className="px-3 py-2">{d.hasEmail ? <span className="text-brand-300">on file</span> : <span className="text-ink-faint">—</span>}</td>
                       </tr>
                     );
                   })}
@@ -198,7 +198,7 @@ export default function DealerAnalyticsSection() {
                     const disc = m.avgDiscount == null ? null : Number(m.avgDiscount) * 100;
                     return (
                       <tr key={`${m.make}|${m.model}`} className="hover:bg-surface-elevated" data-testid="model-row">
-                        <td className="px-3 py-2"><button type="button" onClick={() => { apply({ make: m.make, model: m.model, dealerId: "" }); setTab("dealers"); }} className="text-left font-semibold text-white hover:text-emerald-300">{m.make} {m.model}</button></td>
+                        <td className="px-3 py-2"><button type="button" onClick={() => { apply({ make: m.make, model: m.model, dealerId: "" }); setTab("dealers"); }} className="text-left font-semibold text-white hover:text-brand-300">{m.make} {m.model}</button></td>
                         <td className="px-3 py-2 text-right">{m.n.toLocaleString()}</td>
                         <td className="px-3 py-2 text-right font-bold text-white">{fmtDays(m.avgDom)}</td>
                         <td className="px-3 py-2 text-right">{fmtDays(m.medianDom)}</td>
@@ -255,7 +255,7 @@ export default function DealerAnalyticsSection() {
                 return (
                   <div key={b.key} className="flex items-center gap-3 text-[11px]">
                     <span className="w-14 text-ink-muted">{b.label}d</span>
-                    <div className="h-4 flex-1 overflow-hidden rounded bg-border"><div className={`h-full ${{ d0_14: "bg-emerald-500", d15_45: "bg-sky-500", d46_90: "bg-amber-500", d90p: "bg-rose-500" }[b.key]}`} style={{ width: `${share}%` }} /></div>
+                    <div className="h-4 flex-1 overflow-hidden rounded bg-border"><div className={`h-full ${{ d0_14: "bg-brand-500", d15_45: "bg-sky-500", d46_90: "bg-amber-500", d90p: "bg-rose-500" }[b.key]}`} style={{ width: `${share}%` }} /></div>
                     <span className="w-24 text-right tabular-nums text-white">{data.totals.bands[b.key].toLocaleString()} · {share}%</span>
                   </div>
                 );
@@ -284,7 +284,7 @@ export default function DealerAnalyticsSection() {
               {mix.length ? (
                 <table className="w-full text-[11px] tabular-nums">
                   <thead><tr className="text-[10px] uppercase tracking-wide text-ink-faint"><th className="text-left py-1">Model</th><th className="text-right py-1">Here</th><th className="text-right py-1">Brand norm</th><th className="text-right py-1">Δ pts</th></tr></thead>
-                  <tbody>{mix.map((r) => <tr key={`${r.make}|${r.model}`} className="border-t border-border/60"><td className="py-1 text-ink-light">{r.make} {r.model}</td><td className="py-1 text-right text-white">{r.scopeShare}%</td><td className="py-1 text-right">{r.normShare}%</td><td className={`py-1 text-right ${r.delta > 0 ? "text-emerald-300" : r.delta < 0 ? "text-amber-300" : ""}`}>{r.delta > 0 ? "+" : ""}{r.delta}</td></tr>)}</tbody>
+                  <tbody>{mix.map((r) => <tr key={`${r.make}|${r.model}`} className="border-t border-border/60"><td className="py-1 text-ink-light">{r.make} {r.model}</td><td className="py-1 text-right text-white">{r.scopeShare}%</td><td className="py-1 text-right">{r.normShare}%</td><td className={`py-1 text-right ${r.delta > 0 ? "text-brand-300" : r.delta < 0 ? "text-amber-300" : ""}`}>{r.delta > 0 ? "+" : ""}{r.delta}</td></tr>)}</tbody>
                 </table>
               ) : <p className="text-[11px] text-ink-muted">Pick a state or dealer to compare its mix to the brand norm.</p>}
               <p className="text-[10px] text-ink-faint">On-lot vs in-transit isn&apos;t captured by the crawl yet — every row here is a listed unit.</p>

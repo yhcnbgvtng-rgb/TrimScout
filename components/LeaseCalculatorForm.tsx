@@ -198,7 +198,7 @@ export function LeaseCalculatorForm({
   };
 
   // --- render helpers (plain functions: nested components would remount and drop focus) ---
-  const input = "w-full rounded-lg border border-border bg-background px-3 py-2 text-xs text-white placeholder-ink-faint focus:border-emerald-500 focus:outline-none tabular-nums";
+  const input = "w-full rounded-lg border border-border bg-background px-3 py-2 text-xs text-white placeholder-ink-faint focus:border-brand-500 focus:outline-none tabular-nums";
   const labelCls = "block text-[10px] font-bold uppercase tracking-wide text-ink-faint";
   const hintCls = "block text-[10px] text-ink-faint";
   type Fmt = "money" | "percent" | "mf" | "text";
@@ -271,7 +271,7 @@ export function LeaseCalculatorForm({
           </div>
         );
       })}
-      <button type="button" onClick={() => o.setList((p) => [...p, { name: "", amount: "" }])} className="flex items-center gap-1 text-[11px] font-bold text-emerald-400 hover:text-emerald-300">
+      <button type="button" onClick={() => o.setList((p) => [...p, { name: "", amount: "" }])} className="flex items-center gap-1 text-[11px] font-bold text-brand-400 hover:text-brand-300">
         <Plus className="h-3 w-3" /> {o.addLabel}
       </button>
       {o.hint ? <span className={hintCls}>{o.hint}</span> : null}
@@ -486,7 +486,7 @@ export function LeaseCalculatorForm({
         </ul>
       ) : null}
 
-      <button type="button" onClick={submit} disabled={busy} className="w-full rounded-xl bg-emerald-500 py-2.5 text-xs font-extrabold text-black hover:bg-emerald-400 transition-all disabled:opacity-50">
+      <button type="button" onClick={submit} disabled={busy} className="w-full rounded-xl bg-brand-500 py-2.5 text-xs font-extrabold text-black hover:bg-brand-400 transition-all disabled:opacity-50">
         {busy ? "Submitting…" : "Submit lease quote"}
       </button>
     </div>

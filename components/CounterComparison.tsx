@@ -44,7 +44,7 @@ export function CounterComparison({ sheet, beforeLabel = "Dealer quoted", afterL
                 </td>
                 <td className="px-3 py-1.5 text-right">{fmtRow(r.before, r.format)}</td>
                 <td className={`px-3 py-1.5 text-right ${moved && !r.total ? "text-sky-200" : ""}`}>{fmtRow(r.after, r.format)}</td>
-                <td className={`px-3 py-1.5 text-right ${moved ? (r.delta < 0 ? "text-emerald-300" : "text-amber-300") : "text-ink-faint"}`}>{moved ? fmtRow(r.delta, r.format) : "·"}</td>
+                <td className={`px-3 py-1.5 text-right ${moved ? (r.delta < 0 ? "text-brand-300" : "text-amber-300") : "text-ink-faint"}`}>{moved ? fmtRow(r.delta, r.format) : "·"}</td>
               </tr>
             );
           })}

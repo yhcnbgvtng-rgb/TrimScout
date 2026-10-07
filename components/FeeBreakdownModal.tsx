@@ -74,7 +74,7 @@ export const FeeBreakdownModal: React.FC<FeeBreakdownModalProps> = ({
         {/* Header */}
         <div className="flex items-center justify-between border-b border-border bg-surface-elevated px-6 py-4">
           <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/20 text-emerald-400">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-500/20 text-brand-400">
               <FileText className="h-4 w-4" />
             </div>
             <div>
@@ -97,7 +97,7 @@ export const FeeBreakdownModal: React.FC<FeeBreakdownModalProps> = ({
         <div className="p-6 space-y-5 text-xs">
           {/* Matched Car Summary */}
           <div className="rounded-xl border border-border bg-surface-elevated p-3 space-y-1">
-            <div className="text-[10px] uppercase font-bold text-emerald-400">Matched Spec</div>
+            <div className="text-[10px] uppercase font-bold text-brand-400">Matched Spec</div>
             <div className="font-bold text-white text-sm">{bid.matchedVehicleTitle}</div>
             <div className="text-ink-muted text-[11px]">{bid.matchedVehicleSpec}</div>
           </div>
@@ -109,13 +109,13 @@ export const FeeBreakdownModal: React.FC<FeeBreakdownModalProps> = ({
               <span className="text-white font-mono font-medium">{formatCurrency(bid.msrp)}</span>
             </div>
 
-            <div className="flex justify-between py-1 text-emerald-400 font-medium bg-emerald-500/5 px-2 rounded-lg">
+            <div className="flex justify-between py-1 text-brand-400 font-medium bg-brand-500/5 px-2 rounded-lg">
               <span>Dealer Discount ({formatPercent(bid.dealerDiscountPercent)} off MSRP):</span>
               <span className="font-mono font-bold">-{formatCurrency(bid.dealerDiscountDollars)}</span>
             </div>
 
             {bid.manufacturerRebates > 0 && (
-              <div className="flex justify-between py-1 text-emerald-400 font-medium bg-emerald-500/5 px-2 rounded-lg">
+              <div className="flex justify-between py-1 text-brand-400 font-medium bg-brand-500/5 px-2 rounded-lg">
                 <span>Manufacturer Rebates / Bonus Cash:</span>
                 <span className="font-mono font-bold">-{formatCurrency(bid.manufacturerRebates)}</span>
               </div>
@@ -148,24 +148,24 @@ export const FeeBreakdownModal: React.FC<FeeBreakdownModalProps> = ({
               <span className="text-ink-light font-mono">+{formatCurrency(bid.docFee)}</span>
             </div>
 
-            <div className="flex justify-between py-1 text-emerald-400 font-medium">
+            <div className="flex justify-between py-1 text-brand-400 font-medium">
               <span>Mandatory Dealer Accessories / Add-ons:</span>
               <span className="font-mono font-bold">$0 (Verified $0)</span>
             </div>
           </div>
 
           {/* Grand Total OTD */}
-          <div className="rounded-xl border border-emerald-500/40 bg-emerald-950/30 p-4 space-y-1">
+          <div className="rounded-xl border border-brand-500/40 bg-brand-950/30 p-4 space-y-1">
             <div className="flex items-center justify-between">
               <div>
-                <span className="text-[10px] uppercase font-extrabold text-emerald-400 tracking-wider">
+                <span className="text-[10px] uppercase font-extrabold text-brand-400 tracking-wider">
                   FINAL OUT-THE-DOOR (OTD) PRICE
                 </span>
                 <div className="text-2xl font-extrabold text-white">
                   {formatCurrency(bid.totalOtdPrice)}
                 </div>
               </div>
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500 text-black shadow-lg">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-500 text-black shadow-lg">
                 <CheckCircle2 className="h-6 w-6 stroke-[2.5]" />
               </div>
             </div>
@@ -176,17 +176,17 @@ export const FeeBreakdownModal: React.FC<FeeBreakdownModalProps> = ({
 
           {/* Protection Note */}
           <div className="flex items-center gap-2 text-[11px] text-ink-muted bg-surface-elevated p-2.5 rounded-lg border border-border">
-            <ShieldCheck className="h-4 w-4 text-emerald-400 shrink-0" />
+            <ShieldCheck className="h-4 w-4 text-brand-400 shrink-0" />
             <span>Protected by TrimScout $500 Price Protection Policy against dealer markup.</span>
           </div>
 
           {/* The one paid step, stated as a separate product so it can't read
               as a condition of the free quote. Everything above is the dealer's
               number, paid to the dealer; this is TrimScout's, paid to TrimScout. */}
-          <div className="rounded-xl border border-emerald-500/40 bg-emerald-950/20 p-3.5 space-y-1.5">
+          <div className="rounded-xl border border-brand-500/40 bg-brand-950/20 p-3.5 space-y-1.5">
             <div className="flex items-center justify-between gap-3">
               <div>
-                <div className="text-[10px] font-bold uppercase tracking-wide text-emerald-400">Optional paid step</div>
+                <div className="text-[10px] font-bold uppercase tracking-wide text-brand-400">Optional paid step</div>
                 <div className="text-xs font-bold text-white">{DEAL_CERTIFICATE_NAME}</div>
               </div>
               <span className="font-mono font-bold text-white text-sm">
@@ -220,7 +220,7 @@ export const FeeBreakdownModal: React.FC<FeeBreakdownModalProps> = ({
           <button
             onClick={handleLockIn}
             disabled={isSubmitting}
-            className="flex items-center gap-1.5 rounded-lg bg-emerald-500 px-5 py-2 text-xs font-extrabold text-black hover:bg-emerald-400 transition-all shadow-md shadow-emerald-500/20 active:scale-95 disabled:opacity-60 disabled:active:scale-100"
+            className="flex items-center gap-1.5 rounded-lg bg-brand-500 px-5 py-2 text-xs font-extrabold text-black hover:bg-brand-400 transition-all shadow-md shadow-brand-500/20 active:scale-95 disabled:opacity-60 disabled:active:scale-100"
           >
             {isSubmitting ? (
               <>

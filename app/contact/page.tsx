@@ -22,7 +22,7 @@ export default function ContactPage() {
               className="h-8 w-8 rounded-lg shadow-sm group-hover:scale-105 transition-transform"
             />
             <span className="font-extrabold text-lg tracking-tight text-white">
-              Trim<span className="text-emerald-400">Scout</span>
+              Trim<span className="text-brand-400">Scout</span>
             </span>
           </Link>
           <Link
@@ -45,9 +45,9 @@ export default function ContactPage() {
 
           <a
             href={`mailto:${CONTACT_EMAIL}`}
-            className="inline-flex items-center gap-2.5 rounded-xl border border-border bg-surface-elevated px-6 py-3.5 text-sm font-bold text-white hover:border-emerald-500/50 hover:bg-surface transition-all"
+            className="inline-flex items-center gap-2.5 rounded-xl border border-border bg-surface-elevated px-6 py-3.5 text-sm font-bold text-white hover:border-brand-500/50 hover:bg-surface transition-all"
           >
-            <Mail className="h-4 w-4 text-emerald-400" />
+            <Mail className="h-4 w-4 text-brand-400" />
             {CONTACT_EMAIL}
           </a>
         </div>
