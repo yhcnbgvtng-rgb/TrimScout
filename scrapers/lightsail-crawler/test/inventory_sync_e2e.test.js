@@ -23,14 +23,14 @@ function workdir() { const d = fs.mkdtempSync(path.join(os.tmpdir(), 'sync-e2e-'
 after(() => { for (const d of tmpRoots) fs.rmSync(d, { recursive: true, force: true }); });
 
 /** Two state shards, `perStore` vehicles for each of `n` stores, in the shape the crawler writes. */
-function writeShards(dir, { n = 3, perStore = 20 } = {}) {
+function writeShards(dir, { n = 3, perStore = 20, staleStoreIds = [] } = {}) {
   const stores = STORES(n);
   const shardDir = path.join(dir, 'inventory');
   fs.mkdirSync(shardDir, { recursive: true });
   const NJ = [], NY = [];
   let k = 0;
   for (const s of stores) for (let j = 0; j < perStore; j++, k++) {
-    (s.id % 2 ? NJ : NY).push({ vin: vin(k), status: 'ACTIVE', dealerName: s.name, state: s.id % 2 ? 'NJ' : 'NY', url: `https://${s.host}/vdp/${k}`, year: 2024, make: 'Toyota', model: 'Camry', price: 30000 + k, inventoryType: 'NEW', priceHistory: [{ date: '2026-10-01', price: 30500 + k }] });
+    (s.id % 2 ? NJ : NY).push({ vin: vin(k), status: 'ACTIVE', updatedAt: staleStoreIds.includes(s.id) ? '2026-09-26T08:01:16.071Z' : new Date().toISOString(), dealerName: s.name, state: s.id % 2 ? 'NJ' : 'NY', url: `https://${s.host}/vdp/${k}`, year: 2024, make: 'Toyota', model: 'Camry', price: 30000 + k, inventoryType: 'NEW', priceHistory: [{ date: '2026-10-01', price: 30500 + k }] });
   }
   fs.writeFileSync(path.join(shardDir, 'NJ.json'), JSON.stringify(NJ));
   fs.writeFileSync(path.join(shardDir, 'NY.json'), JSON.stringify(NY));
@@ -40,7 +40,7 @@ function writeShards(dir, { n = 3, perStore = 20 } = {}) {
 // ---- the fake deals API ----------------------------------------------------------------------------------
 function makeFake({ stores, legacySweep = false, preexisting = [] } = {}) {
   const db = new Map(); // `${vin}|${dealerId}` -> { dealerId, lastSeen, removed }
-  for (const r of preexisting) db.set(`${r.vin}|${r.dealerId}`, { dealerId: r.dealerId, lastSeen: r.lastSeen, removed: false });
+  for (const r of preexisting) db.set(`${r.vin}|${r.dealerId}`, { dealerId: r.dealerId, lastSeen: r.lastSeen, removed: false, sourceBox: r.sourceBox ?? null });
   const f = {
     db,
     legacySweep,
@@ -75,7 +75,7 @@ function makeFake({ stores, legacySweep = false, preexisting = [] } = {}) {
     if (url === '/api/inventory/bulk') {
       f.bulkBodies.push(body.vehicles);
       if (f.fail.bulk && f.fail.bulk(f.bulkBodies.length)) return send(500, { error: 'Internal server error' });
-      for (const v of body.vehicles) db.set(`${v.vin}|${v.dealerId}`, { dealerId: v.dealerId, lastSeen: Date.now(), removed: false, name: v.dealerName });
+      for (const v of body.vehicles) db.set(`${v.vin}|${v.dealerId}`, { dealerId: v.dealerId, lastSeen: Date.now(), removed: false, name: v.dealerName, sourceBox: v.sourceBox ?? null });
       return send(200, { upserted: body.vehicles.length, optionSetsReplaced: 0, optionSetsKept: body.vehicles.length, optionSetsUnchanged: 0, optionRowsWritten: 0, optionJunkDropped: 0, timings: { upsertMs: 10, optionsMs: 2, optionsReadMs: 1, daysMs: 3, totalMs: 16 } });
     }
     if (url === '/api/inventory/sweep') {
@@ -86,7 +86,12 @@ function makeFake({ stores, legacySweep = false, preexisting = [] } = {}) {
       if (f.fail.sweep && f.fail.sweep(body)) return send(500, { error: 'Internal server error' });
       const ids = new Set(body.dealerIds || [body.dealerId]);
       let removed = 0;
-      for (const r of db.values()) if (ids.has(r.dealerId) && !r.removed && r.lastSeen < Date.parse(body.seenAfter)) { r.removed = true; removed++; }
+      for (const r of db.values()) {
+        if (!ids.has(r.dealerId) || r.removed || !(r.lastSeen < Date.parse(body.seenAfter))) continue;
+        // inventorySweep.js: AND (source_box = ? OR source_box IS NULL OR last_seen_at < foreignBefore)
+        if (body.sourceBox && !(r.sourceBox === body.sourceBox || r.sourceBox == null || r.lastSeen < Date.parse(body.foreignBefore))) continue;
+        r.removed = true; removed++;
+      }
       return send(200, body.dealerIds ? { removed, stores: body.dealerIds.length } : { removed });
     }
     if (url === '/api/inventory/stats') { f.stats++; return send(200, { total: db.size, vins: db.size, inStock: f.active().length, dealers: stores.length, byState: [{ state: 'NJ', n: 1 }] }); }
@@ -369,5 +374,71 @@ describe('sync-lock-probe.mjs (the deploy gate\'s lock check)', () => {
     const closed = http.createServer(); await new Promise((r) => closed.listen(0, '127.0.0.1', r)); const p = closed.address().port; await new Promise((r) => closed.close(r));
     assert.equal((await probe(p)).code, 2);
     assert.equal((await probe(f.port, { TRIMSCOUT_API_KEY: '' })).code, 2);
+  });
+});
+
+
+describe('the 2026-10-07 failures: stale shard records and cross-box sweeps', () => {
+  it('stale records are not uploaded (so never re-stamped as seen) and their store is not swept; fresh stores are', async () => {
+    const dir = workdir();
+    const { shardDir, stores } = writeShards(dir, { n: 2, perStore: 20, staleStoreIds: [102] }); // store 102: 20 ACTIVE records last refreshed 11 days ago
+    const live102 = { vin: vin(800), dealerId: 102, lastSeen: Date.now() - 3_600_000, sourceBox: 'box-other' }; // a live car another box wrote an hour ago
+    const f = await newFake({ stores, preexisting: [live102] });
+    const r = await runSync(f, shardDir, { ckpt: path.join(dir, 'ckpt.json') });
+    assert.equal(r.code, 0, r.stdout + r.stderr);
+    const uploaded = f.bulkBodies.flat();
+    assert.equal(uploaded.length, 20, 'only the 20 fresh records');
+    assert.ok(uploaded.every((v) => v.dealerId === 101), 'nothing from the stale store went up');
+    assert.ok(!f.sweeps.some((s) => (s.dealerIds || [s.dealerId]).includes(102)), 'a store with no fresh upload is not swept');
+    assert.ok(f.active().includes(vin(800)), 'the other box\'s live car at that store was left alone');
+    assert.match(r.stdout, /skipped 20 ACTIVE record\(s\) the crawl has not refreshed/);
+  });
+
+  it('a sweep never retires a row another box wrote recently, but does retire this box\'s own stale rows and foreign rows nobody has seen for days', async () => {
+    const dir = workdir();
+    const { shardDir, stores } = writeShards(dir, { n: 1, perStore: 10 }); // store 101 gets 10 fresh rows from box-test
+    const H = 3_600_000;
+    const pre = [
+      { vin: vin(810), dealerId: 101, lastSeen: Date.now() - 5 * H, sourceBox: 'box-other' },   // another box wrote it 5h ago -> protected (the Brownsville case)
+      { vin: vin(811), dealerId: 101, lastSeen: Date.now() - 5 * H, sourceBox: 'box-test' },    // this box's own row, unlisted now -> retired
+      { vin: vin(812), dealerId: 101, lastSeen: Date.now() - 72 * H, sourceBox: 'box-other' },  // foreign but unseen for 3 days -> retired (how zombies age out)
+      { vin: vin(813), dealerId: 101, lastSeen: Date.now() - 5 * H, sourceBox: null },           // pre-tracking row, nobody recorded the writer -> retired as before
+    ];
+    const f = await newFake({ stores, preexisting: pre });
+    const r = await runSync(f, shardDir, { ckpt: path.join(dir, 'ckpt.json') });
+    assert.equal(r.code, 0, r.stdout + r.stderr);
+    const active = new Set(f.active());
+    assert.ok(active.has(vin(810)), 'the other box\'s recent row survives');
+    assert.ok(!active.has(vin(811)) && !active.has(vin(812)) && !active.has(vin(813)));
+    for (const sw of f.sweeps) { assert.equal(sw.sourceBox, 'box-test'); assert.ok(Date.parse(sw.foreignBefore) < Date.parse(sw.seenAfter)); }
+    assert.ok(f.sweeps.length > 0);
+  });
+
+  it('a truncated shard is skipped whole (nothing uploaded, its stores not swept), the other shards still sync, and the run exits 3', async () => {
+    const dir = workdir();
+    const { shardDir, stores } = writeShards(dir, { n: 2, perStore: 10 });
+    const ny = fs.readFileSync(path.join(shardDir, 'NY.json'), 'utf8');
+    fs.writeFileSync(path.join(shardDir, 'NY.json'), ny.slice(0, ny.length - 40)); // cut off mid-record, like a failed merge
+    const f = await newFake({ stores, preexisting: [{ vin: vin(820), dealerId: 102, lastSeen: Date.now() - 24 * 3_600_000, sourceBox: 'box-test' }] });
+    const r = await runSync(f, shardDir, { ckpt: path.join(dir, 'ckpt.json') });
+    assert.equal(r.code, 3, r.stdout + r.stderr);
+    assert.match(r.stdout, /SKIPPING NY\.json/);
+    const uploaded = f.bulkBodies.flat();
+    assert.equal(uploaded.length, 10);
+    assert.ok(uploaded.every((v) => v.dealerId === 101), 'only the intact NJ shard');
+    assert.ok(!f.sweeps.some((s) => (s.dealerIds || [s.dealerId]).includes(102)), 'the truncated shard\'s store is not swept');
+    assert.ok(f.active().includes(vin(820)), 'so its existing rows are not retired on the strength of a broken file');
+  });
+
+  it('a shard over the size limit still uploads its fresh records but none of its stores are swept', async () => {
+    const dir = workdir();
+    const { shardDir, stores } = writeShards(dir, { n: 2, perStore: 10 });
+    const f = await newFake({ stores, preexisting: [{ vin: vin(830), dealerId: 101, lastSeen: Date.now() - 24 * 3_600_000, sourceBox: 'box-test' }] });
+    const r = await runSync(f, shardDir, { ckpt: path.join(dir, 'ckpt.json'), env: { SYNC_SHARD_MAX_MB: '0.0001' } }); // every shard is "over the limit"
+    assert.equal(r.code, 0, r.stdout + r.stderr);
+    assert.match(r.stdout, /over the \d+MB limit/);
+    assert.equal(f.bulkBodies.flat().length, 20, 'fresh records are still uploaded');
+    assert.ok(!f.sweeps.some((s) => s.dealerIds), 'no store sweep at all');
+    assert.ok(f.active().includes(vin(830)), 'so nothing was retired on the strength of an unreliable file');
   });
 });
