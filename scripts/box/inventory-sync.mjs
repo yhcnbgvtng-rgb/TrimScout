@@ -37,6 +37,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import os from "node:os";
+import { StringDecoder } from "node:string_decoder";
 import { waitForSyncLock } from "./syncLockWait.js";
 import { startSyncLockHeartbeat } from "./syncLockHeartbeat.js";
 import { computeFileIdentity } from "./syncCheckpoint.js";
@@ -126,11 +127,14 @@ const norm = (s) => String(s || "").toLowerCase().replace(/[^a-z0-9]/g, "");
 function* streamTopLevelObjects(filePath) {
   const fd = fs.openSync(filePath, "r");
   const buf = Buffer.alloc(1 << 20);
+  // A multi-byte character can straddle a 1 MiB read boundary; decoding each chunk on its own turned it into U+FFFD U+FFFD
+  // (a corrupted dealer name / option string). A StringDecoder carries the partial character into the next chunk.
+  const decoder = new StringDecoder("utf8");
   let depth = 0, inStr = false, esc = false, started = false, cur = "";
   for (;;) {
     const n = fs.readSync(fd, buf, 0, buf.length, null);
     if (n <= 0) break;
-    const chunk = buf.toString("utf8", 0, n);
+    const chunk = decoder.write(buf.subarray(0, n));
     for (const ch of chunk) {
       if (!started) { if (ch === "[") started = true; continue; }
       if (depth === 0) { if (ch === "{") { depth = 1; cur = "{"; } continue; }
