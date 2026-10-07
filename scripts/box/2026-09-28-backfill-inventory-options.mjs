@@ -17,7 +17,7 @@
 // so the backfill and the live upsert can never disagree). Run on box2 from /opt/trimscout-deals,
 // OUTSIDE the nightly sync window, in the background so a dropped SSH session doesn't kill it:
 //   sudo nohup node 2026-09-28-backfill-inventory-options.mjs [--apply] [--after=VIN:DEALER_ID]
-//     [--batch=250] [--pause-ms=150] [--min-free-mb=600] [--report=/path/report.csv] [--rebuild-facets] > ~/backfill.log 2>&1 &
+//     [--make=Toyota[,Honda]] [--batch=250] [--pause-ms=150] [--min-free-mb=600] [--report=/path/report.csv] [--rebuild-facets] > ~/backfill.log 2>&1 &
 //
 // SAFE BY DEFAULT (changed 2026-10-07, option-normalize deny rules): with no flag this is a DRY RUN —
 // plain SELECTs, no transaction, no row locks, nothing written, nothing rebuilt — and it writes a per-make
@@ -32,6 +32,9 @@ import mysql from "mysql2/promise";
 const args = Object.fromEntries(process.argv.slice(2).map((a) => { const [k, v] = a.replace(/^--/, "").split("="); return [k, v ?? true]; }));
 const DRY_RUN = !args.apply;
 if (args.apply && args["dry-run"]) { console.error("--apply and --dry-run are mutually exclusive"); process.exit(1); }
+// --make=Toyota[,Honda]: only those makes (exact match on dealer_inventory.make). Keyset paging still walks the
+// (vin, dealer_id) primary key, so a make filter never changes ordering or resume (--after) semantics.
+const MAKES = typeof args.make === "string" ? args.make.split(",").map((m) => m.trim()).filter(Boolean) : [];
 const REBUILD_FACETS = Boolean(args["rebuild-facets"]) && !DRY_RUN;
 const REPORT_PATH = typeof args.report === "string" ? args.report : path.resolve(process.cwd(), `option-normalize-report-${DRY_RUN ? "dry" : "apply"}.csv`);
 // box2 is a shared box (MariaDB + deals/auth APIs + crawls). The first dry run (2026-09-28) read
@@ -115,7 +118,7 @@ const repairReport = new Map(); // `${make}\t${from}\t${to}` -> vehicles
 const bump = (m, k) => m.set(k, (m.get(k) || 0) + 1);
 
 async function main() {
-  console.log(`${DRY_RUN ? "[DRY RUN] " : ""}backfilling in-stock facet rows from options_json, batch=${BATCH}, starting after ${cursor.vin || "(start)"}:${cursor.dealerId}`);
+  console.log(`${DRY_RUN ? "[DRY RUN] " : ""}backfilling in-stock facet rows from options_json, batch=${BATCH}, ${MAKES.length ? `makes=${MAKES.join(",")}, ` : ""}starting after ${cursor.vin || "(start)"}:${cursor.dealerId}`);
   for (;;) {
     await waitForMemory();
     if (PAUSE_MS) await new Promise((r) => setTimeout(r, PAUSE_MS));
@@ -128,9 +131,9 @@ async function main() {
       // Dry run: plain consistent read, no FOR UPDATE — it must never block a nightly upsert on a live box.
       [rows] = await conn.query(
         `SELECT vin, dealer_id, make, options_json FROM dealer_inventory
-         WHERE (vin, dealer_id) > (?, ?) AND removed_at IS NULL
+         WHERE (vin, dealer_id) > (?, ?) AND removed_at IS NULL${MAKES.length ? " AND make IN (?)" : ""}
          ORDER BY vin, dealer_id LIMIT ?${DRY_RUN ? "" : " FOR UPDATE"}`,
-        [cursor.vin, cursor.dealerId, BATCH]
+        MAKES.length ? [cursor.vin, cursor.dealerId, MAKES, BATCH] : [cursor.vin, cursor.dealerId, BATCH]
       );
       if (!rows.length) { if (!DRY_RUN) await conn.rollback(); break; }
       cursor = { vin: rows[rows.length - 1].vin, dealerId: rows[rows.length - 1].dealer_id };
@@ -175,6 +178,7 @@ async function main() {
     } finally {
       conn.release();
     }
+    if (totals.scanned % 25000 < BATCH) writeCsv(); // checkpoint: a killed run still leaves a usable partial report
     if (totals.scanned % 25000 < BATCH) console.log(`...${totals.scanned} in-stock scanned, ${totals.replaced} rebuilt, ${totals.rowsWritten} rows, ${availableMb()}MB available, cursor ${cursor.vin}:${cursor.dealerId}`);
   }
 
@@ -207,12 +211,16 @@ async function main() {
   }
 }
 
-function writeReport() {
+function writeCsv() {
   const csvCell = (v) => `"${String(v).replace(/"/g, '""')}"`;
   const lines = ["kind,make,rule,label,repaired_to,vehicles"];
   for (const [k, n] of dropReport) { const [make, rule, label] = k.split("\t"); lines.push(["drop", make, rule, label, "", n].map(csvCell).join(",")); }
   for (const [k, n] of repairReport) { const [make, from, to] = k.split("\t"); lines.push(["repair", make, "truncation-repair", from, to, n].map(csvCell).join(",")); }
   fs.writeFileSync(REPORT_PATH, lines.join("\n") + "\n");
+}
+
+function writeReport() {
+  writeCsv();
   const deny = [...dropReport].filter(([k]) => k.split("\t")[1] !== "legacy");
   console.log(`\nPer-make report: ${REPORT_PATH} (${dropReport.size} drop lines, ${repairReport.size} repair lines)`);
   console.log(`New deny-rule drops (vehicle x label): ${deny.reduce((a, [, n]) => a + n, 0)}; repairs: ${[...repairReport.values()].reduce((a, n) => a + n, 0)}`);
