@@ -502,12 +502,12 @@ export const PORSCHE_OPTION_CATALOG: Record<string, PorscheOption> = {
 export const ENTHUSIAST_HIGHLIGHT_CODES = [
   // Packages
   { code: "P3R", label: "Premium Package Plus", icon: "💎", color: "purple" },
-  { code: "P3U", label: "Sport Package", icon: "🏆", color: "emerald" },
+  { code: "P3U", label: "Sport Package", icon: "🏆", color: "brand" },
   { code: "04S", label: "Weissach Package", icon: "🏁", color: "rose" },
   { code: "04H", label: "Heritage Design", icon: "👑", color: "amber" },
 
   // Performance & Chassis
-  { code: "8LH", label: "Sport Chrono", icon: "⏱️", color: "emerald" },
+  { code: "8LH", label: "Sport Chrono", icon: "⏱️", color: "brand" },
   { code: "2UH", label: "Front Axle Lift", icon: "🏎️", color: "blue" },
   { code: "1LX", label: "PCCB Ceramics (Black)", icon: "🛑", color: "amber" },
   { code: "1LQ", label: "PCCB Ceramics (Yellow)", icon: "🛑", color: "amber" },
@@ -520,7 +520,7 @@ export const ENTHUSIAST_HIGHLIGHT_CODES = [
   // Audio & Tech
   { code: "9VJ", label: "Burmester 3D High-End", icon: "🔊", color: "purple" },
   { code: "9VL", label: "BOSE Surround Sound", icon: "🎵", color: "sky" },
-  { code: "KA6", label: "Surround View 360°", icon: "📷", color: "emerald" },
+  { code: "KA6", label: "Surround View 360°", icon: "📷", color: "brand" },
   { code: "8JU", label: "HD-Matrix LED Black", icon: "💡", color: "yellow" },
   { code: "8T3", label: "Adaptive Cruise (ACC)", icon: "🎯", color: "blue" },
   { code: "KS1", label: "Head-Up Display (HUD)", icon: "📊", color: "violet" },

@@ -64,7 +64,7 @@ export function QuoteStatusStrip({ stage, detail, showTradeIn = false }: { stage
     const isCurrent = id === stage;
     const reached = pos < idx || isCurrent;
     const tone = isCurrent
-      ? id === "walked" ? "bg-rose-500/15 text-rose-300 border-rose-500/50" : id === "successful" ? "bg-emerald-500 text-black border-emerald-500" : "bg-emerald-500/15 text-emerald-300 border-emerald-500/50"
+      ? id === "walked" ? "bg-rose-500/15 text-rose-300 border-rose-500/50" : id === "successful" ? "bg-positive-500 text-black border-positive-500" : "bg-brand-500/15 text-brand-300 border-brand-500/50"
       : reached ? "bg-border/60 text-ink-light border-border" : "bg-transparent text-ink-faint border-border/60";
     return (
       <span key={id} className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-bold whitespace-nowrap ${tone}`} data-stage={id} aria-current={isCurrent ? "step" : undefined}>
@@ -139,7 +139,7 @@ export const DealTrackerDashboard: React.FC<DealTrackerDashboardProps> = ({
             <QuoteStatusStrip stage="draft" detail="Not sent yet — pick up where you left off." />
             <div className="flex flex-wrap items-center justify-between gap-2">
               <p className="text-sm font-semibold text-white">{draftSummary}</p>
-              <button type="button" onClick={onResumeDraft || onStartNewBid} data-testid="cta-request-quote-tracker-draft" className="inline-flex items-center gap-1 rounded-xl bg-emerald-500 px-3 py-2 text-xs font-extrabold text-black hover:bg-emerald-400">
+              <button type="button" onClick={onResumeDraft || onStartNewBid} data-testid="cta-request-quote-tracker-draft" className="inline-flex items-center gap-1 rounded-xl bg-brand-500 px-3 py-2 text-xs font-extrabold text-black hover:bg-brand-400">
                 Resume <ChevronRight className="h-3.5 w-3.5" />
               </button>
             </div>
@@ -152,14 +152,14 @@ export const DealTrackerDashboard: React.FC<DealTrackerDashboardProps> = ({
           {sortedQuoteRequests.map((rfq) => {
             const status = rfqTrackerStatus(rfq);
             const tone =
-              status === "quotes_in" ? "bg-emerald-500/15 text-emerald-300" : status === "awaiting" ? "bg-amber-500/15 text-amber-300" : "bg-border text-ink-muted";
+              status === "quotes_in" ? "bg-positive-500/15 text-positive-300" : status === "awaiting" ? "bg-amber-500/15 text-amber-300" : "bg-border text-ink-muted";
             const focused = rfq.id === focusRfqId;
             const sent = justSent?.rfqId === rfq.id ? justSent : null;
             return (
               <div
                 key={rfq.id}
                 ref={focused ? focusRef : undefined}
-                className={`rounded-2xl border bg-surface p-5 space-y-3 ${focused ? "border-emerald-500/60 shadow-lg shadow-emerald-500/10" : "border-border"}`}
+                className={`rounded-2xl border bg-surface p-5 space-y-3 ${focused ? "border-brand-500/60 shadow-lg shadow-brand-500/10" : "border-border"}`}
                 data-testid={focused ? "quote-request-focused" : undefined}
               >
                 <QuoteStatusStrip stage={rfqLifecycleStage(rfq)} detail={rfqLifecycleDetail(rfq)} showTradeIn={rfq.tradeInExpected === true} />
@@ -170,7 +170,7 @@ export const DealTrackerDashboard: React.FC<DealTrackerDashboardProps> = ({
                       <span className="font-bold">Not released.</span> {rfq.rejectionReason || "TrimScout couldn't send this request as submitted."}
                     </p>
                     {onResubmitRfq ? (
-                      <button type="button" onClick={() => onResubmitRfq(rfq)} className="shrink-0 rounded-lg bg-emerald-500 px-3 py-1.5 text-[11px] font-extrabold text-black hover:bg-emerald-400" data-testid="rfq-resubmit">
+                      <button type="button" onClick={() => onResubmitRfq(rfq)} className="shrink-0 rounded-lg bg-brand-500 px-3 py-1.5 text-[11px] font-extrabold text-black hover:bg-brand-400" data-testid="rfq-resubmit">
                         Fix &amp; resubmit
                       </button>
                     ) : null}
@@ -184,7 +184,7 @@ export const DealTrackerDashboard: React.FC<DealTrackerDashboardProps> = ({
                 <div className="flex flex-wrap items-start justify-between gap-2">
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="font-mono text-sm font-black text-emerald-400">{rfqDealNumber(rfq)}</span>
+                      <span className="font-mono text-sm font-black text-brand-400">{rfqDealNumber(rfq)}</span>
                       <span className="rounded bg-sky-500/15 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-sky-300">{rfqQuoteTypeLabel(rfq)}</span>
                       <span className={`rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide ${tone}`}>{rfqTrackerStatusLabel(rfq)}</span>
                     </div>
@@ -202,8 +202,8 @@ export const DealTrackerDashboard: React.FC<DealTrackerDashboardProps> = ({
                   </Link>
                 </div>
                 {sent ? (
-                  <div className="rounded-xl border border-emerald-500/40 bg-emerald-500/5 px-3 py-2 space-y-1">
-                    <p className="text-[11px] font-bold text-emerald-300">
+                  <div className="rounded-xl border border-brand-500/40 bg-brand-500/5 px-3 py-2 space-y-1">
+                    <p className="text-[11px] font-bold text-brand-300">
                       {sent.rows.filter((r) => r.sent).length} desk{sent.rows.filter((r) => r.sent).length === 1 ? "" : "s"} lined up — under review; we release it to them within 1 business day, and each replies on its own time through TrimScout.
                     </p>
                     <ul className="space-y-0.5">
@@ -224,7 +224,7 @@ export const DealTrackerDashboard: React.FC<DealTrackerDashboardProps> = ({
 
       {activeRequests.length === 0 && sortedQuoteRequests.length > 0 ? null : activeRequests.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-border bg-surface p-12 text-center space-y-4">
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-400">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-500/10 text-brand-400">
             <Car className="h-7 w-7" />
           </div>
           <div className="space-y-1">
@@ -237,7 +237,7 @@ export const DealTrackerDashboard: React.FC<DealTrackerDashboardProps> = ({
             type="button"
             onClick={onStartNewBid}
             data-testid="cta-request-quote-tracker-empty"
-            className="inline-flex items-center gap-2 rounded-xl bg-emerald-500 px-5 py-2.5 text-xs font-black text-black hover:bg-emerald-400 shadow-md shadow-emerald-500/20 transition-all"
+            className="inline-flex items-center gap-2 rounded-xl bg-brand-500 px-5 py-2.5 text-xs font-black text-black hover:bg-brand-400 shadow-md shadow-brand-500/20 transition-all"
           >
             <Zap className="h-4 w-4 fill-black" /> Request a quote
           </button>
@@ -295,7 +295,7 @@ export const DealTrackerDashboard: React.FC<DealTrackerDashboardProps> = ({
                     old badge + two stat tiles + separate waiting text). */}
                 <div className="px-6 sm:px-8 py-6 space-y-4">
                   <div className="flex items-start gap-3">
-                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-400">
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand-500/10 text-brand-400">
                       <Car className="h-5.5 w-5.5" />
                     </div>
                     <div className="min-w-0">
@@ -315,7 +315,7 @@ export const DealTrackerDashboard: React.FC<DealTrackerDashboardProps> = ({
                     <span className="text-ink-muted">{dealerCount} dealer{dealerCount === 1 ? "" : "s"}</span>
                     <span className="text-ink-faint">·</span>
                     {statusTone === "live" ? (
-                      <span className="font-bold text-emerald-400">{statusLabel}</span>
+                      <span className="font-bold text-brand-400">{statusLabel}</span>
                     ) : (
                       <span className={statusTone === "closed" ? "text-ink-faint font-semibold" : "text-ink-muted"}>
                         {statusLabel}
@@ -337,10 +337,10 @@ export const DealTrackerDashboard: React.FC<DealTrackerDashboardProps> = ({
                   <DealerEngagementChips dealers={req.dealerEngagement} />
 
                   {leading ? (
-                    <div className="rounded-xl border border-emerald-500/40 bg-emerald-950/20 p-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                    <div className="rounded-xl border border-brand-500/40 bg-brand-950/20 p-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                       <div className="space-y-1.5 min-w-0">
                         <div className="flex flex-wrap items-center gap-2">
-                          <span className="rounded bg-emerald-500 text-black px-2 py-0.5 text-[10px] font-black uppercase tracking-wider">
+                          <span className="rounded bg-brand-500 text-black px-2 py-0.5 text-[10px] font-black uppercase tracking-wider">
                             {req.directOffer ? "Dealer response" : "Leading bid"}
                           </span>
                           <span className="text-xs font-bold text-white">{leading.dealerName}</span>
@@ -360,13 +360,13 @@ export const DealTrackerDashboard: React.FC<DealTrackerDashboardProps> = ({
                           <div className="text-2xl font-black text-white font-mono">
                             {formatCurrency(leading.totalOtdPrice)}
                           </div>
-                          <div className="text-[11px] text-emerald-400 font-semibold flex items-center justify-end gap-1">
+                          <div className="text-[11px] text-brand-400 font-semibold flex items-center justify-end gap-1">
                             <TrendingDown className="h-3 w-3" /> Save {formatCurrency(leading.dealerDiscountDollars)} ({leading.dealerDiscountPercent}%)
                           </div>
                         </div>
                         <button
                           onClick={() => onOpenLiveDealRoom(req)}
-                          className="flex items-center gap-1.5 rounded-xl bg-emerald-500 px-4 py-2.5 text-xs font-black text-black hover:bg-emerald-400 transition-all shadow-md shadow-emerald-500/20 active:scale-95"
+                          className="flex items-center gap-1.5 rounded-xl bg-brand-500 px-4 py-2.5 text-xs font-black text-black hover:bg-brand-400 transition-all shadow-md shadow-brand-500/20 active:scale-95"
                         >
                           <span>{req.directOffer ? "View quote" : "Compare quotes"}</span>
                           <ArrowRight className="h-3.5 w-3.5 stroke-[2.5]" />
@@ -400,7 +400,7 @@ export const DealTrackerDashboard: React.FC<DealTrackerDashboardProps> = ({
                           <span className="text-[10px] uppercase font-bold text-ink-faint tracking-wider mr-2">Deal terms</span>
                           {mustHaveSummary} · {discountSummary} · Trade-in: {tradeInSummary}
                         </span>
-                        <span className="text-xs font-bold text-emerald-400 shrink-0">
+                        <span className="text-xs font-bold text-brand-400 shrink-0">
                           {termsOpen ? "Done" : "Edit"}
                         </span>
                       </button>
@@ -436,7 +436,7 @@ export const DealTrackerDashboard: React.FC<DealTrackerDashboardProps> = ({
                               aria-pressed={hasTradeIn}
                               aria-label={hasTradeIn ? "Remove trade-in from this deal" : "Attach a trade-in to this deal"}
                               className={`relative h-5 w-9 shrink-0 rounded-full transition-colors ${
-                                hasTradeIn ? "bg-emerald-500" : "bg-border"
+                                hasTradeIn ? "bg-brand-500" : "bg-border"
                               }`}
                             >
                               <span
@@ -466,7 +466,7 @@ export const DealTrackerDashboard: React.FC<DealTrackerDashboardProps> = ({
                   {!leading && (
                     <button
                       onClick={() => onOpenLiveDealRoom(req)}
-                      className="flex items-center gap-1 text-emerald-400 hover:text-emerald-300 font-bold"
+                      className="flex items-center gap-1 text-brand-400 hover:text-brand-300 font-bold"
                     >
                       <span>{req.directOffer ? "View quote" : "Compare quotes"}</span>
                       <ChevronRight className="h-4 w-4" />

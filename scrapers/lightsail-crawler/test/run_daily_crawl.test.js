@@ -219,6 +219,21 @@ describe('run-daily-crawl driver', () => {
   // tests exercise the real scheduling logic (worker pool, isolation,
   // timestamps) without spawning any real subprocesses.
   // ---------------------------------------------------------------------
+  describe('computeGrandTotals (partially failed sharded brands)', () => {
+    it('counts a failed brand that still had a completed shard as partial, without changing brandsFailed', () => {
+      const totals = computeGrandTotals({
+        TX: { brands: {
+          Stellantis: { status: 'error', sharded: true, shardCount: 3, shardsOk: 2, shardsFailed: 1, stats: null },
+          Ford: { status: 'error', stats: null },
+          Kia: { status: 'ok', stats: null },
+        } },
+      });
+      assert.equal(totals.brandsFailed, 2);
+      assert.equal(totals.brandsPartial, 1);
+      assert.equal(totals.brandsOk, 1);
+    });
+  });
+
   describe('runStatesWithBoundedConcurrency (bounded state parallelism)', () => {
     it('MAX_CONCURRENT_STATES defaults to 2 (box 1\'s 2 vCPUs) when CRAWLER_MAX_CONCURRENT_STATES is unset', () => {
       assert.equal(MAX_CONCURRENT_STATES, 2);
@@ -811,6 +826,51 @@ describe('run-daily-crawl driver', () => {
 
       assert.equal(result.status, 'timeout');
       assert.equal(result.shardResults[1].timedOut, true);
+    });
+
+    it('a failed shard no longer flattens the brand to exit null: keeps the first failure\'s real exit code and signal, and counts the shards that finished', async () => {
+      let call = 0;
+      const runStepFn = async () => {
+        call += 1;
+        // shard 2 of 3 (the middle 25 dealers) dies the way the oversized state file kills it: Node exit 1
+        const failed = call === 2;
+        return { startedAt: new Date().toISOString(), endedAt: new Date().toISOString(), durationMs: 500, exitCode: failed ? 1 : 0, signal: null, timedOut: false, logFile: `shard${call}.log` };
+      };
+      const result = await runBrandSharded('FL', 'Honda', dealersRelPath, 55, '2026-09-26', runStepFn, async () => null, tmpDir);
+
+      assert.equal(result.status, 'error', 'brand status is unchanged: a failed shard is still a failed brand');
+      assert.equal(result.exitCode, 1, 'the real exit code, not null');
+      assert.equal(result.signal, null);
+      assert.equal(call, 3, 'later shards still run after a failed one');
+      assert.equal(result.shardsOk, 2);
+      assert.equal(result.shardsFailed, 1);
+      assert.equal(result.dealersInOkShards, 30, 'shards of 25 and 5 completed');
+      assert.deepEqual(result.failedShards, [{ shard: 1, status: 'error', exitCode: 1, signal: null, logFile: 'shard2.log' }]);
+    });
+
+    it('a shard killed by a signal (heap OOM abort) reports that signal instead of a bare null', async () => {
+      let call = 0;
+      const runStepFn = async () => {
+        call += 1;
+        const killed = call === 1;
+        return { startedAt: new Date().toISOString(), endedAt: new Date().toISOString(), durationMs: 500, exitCode: killed ? null : 0, signal: killed ? 'SIGABRT' : null, timedOut: false, logFile: 'fake.log' };
+      };
+      const result = await runBrandSharded('FL', 'Honda', dealersRelPath, 55, '2026-09-26', runStepFn, async () => null, tmpDir);
+      assert.equal(result.status, 'error');
+      assert.equal(result.exitCode, null);
+      assert.equal(result.signal, 'SIGABRT');
+      assert.equal(result.shardsOk, 2);
+    });
+
+    it('an all-ok brand is unchanged: exit 0, no failed shards', async () => {
+      const runStepFn = async () => ({ startedAt: new Date().toISOString(), endedAt: new Date().toISOString(), durationMs: 100, exitCode: 0, signal: null, timedOut: false, logFile: 'fake.log' });
+      const result = await runBrandSharded('FL', 'Honda', dealersRelPath, 55, '2026-09-26', runStepFn, async () => null, tmpDir);
+      assert.equal(result.status, 'ok');
+      assert.equal(result.exitCode, 0);
+      assert.equal(result.shardsOk, 3);
+      assert.equal(result.shardsFailed, 0);
+      assert.equal(result.dealersInOkShards, 55);
+      assert.deepEqual(result.failedShards, []);
     });
 
     it('cleans up every temp shard file it creates, success or failure', async () => {

@@ -19,7 +19,7 @@ export default function TermsPage() {
               className="h-8 w-8 rounded-lg shadow-sm group-hover:scale-105 transition-transform"
             />
             <span className="font-extrabold text-lg tracking-tight text-white">
-              Trim<span className="text-emerald-400">Scout</span>
+              Trim<span className="text-brand-400">Scout</span>
             </span>
           </Link>
           <Link
@@ -52,7 +52,7 @@ export default function TermsPage() {
                 alternates, and send an anonymized quote request to the dealerships holding those cars or
                 to other dealers nearby. Dealers respond with out-the-door quotes. TrimScout is not a party to
                 any resulting sale, lease, or financing — see our{" "}
-                <Link href="/disclaimer" className="text-emerald-400 hover:underline">Disclaimer</Link>.
+                <Link href="/disclaimer" className="text-brand-400 hover:underline">Disclaimer</Link>.
               </p>
             </section>
 
@@ -141,7 +141,7 @@ export default function TermsPage() {
                 consequential damages, or for loss arising from reliance on vehicle data, dealer quotes, or dealer
                 conduct. Our total liability to you for any claim is limited to the fees you paid us in the twelve
                 months before the claim arose. Our{" "}
-                <Link href="/disclaimer" className="text-emerald-400 hover:underline">Disclaimer</Link> is part
+                <Link href="/disclaimer" className="text-brand-400 hover:underline">Disclaimer</Link> is part
                 of these terms.
               </p>
             </section>
@@ -166,7 +166,7 @@ export default function TermsPage() {
               <h2 className="text-sm font-bold text-white">Contact</h2>
               <p>
                 Questions about these terms:{" "}
-                <a href="mailto:general@trimscout.com" className="text-emerald-400 hover:underline">
+                <a href="mailto:general@trimscout.com" className="text-brand-400 hover:underline">
                   general@trimscout.com
                 </a>
                 .

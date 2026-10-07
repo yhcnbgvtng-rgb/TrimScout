@@ -96,7 +96,7 @@ function rooftopLine(input: QuoteInviteEmailInput): string {
 /** Logo + wordmark at the top of every dealer email; the mark is served from the live site. */
 export function emailHeader(): string {
   const home = escapeHtml(DEALER_EMAIL_BASE_URL);
-  return `<a href="${home}" style="display:inline-flex;align-items:center;gap:10px;text-decoration:none;margin:0 0 22px"><img src="${home}/scoutmark.png" width="32" height="32" alt="TrimScout" style="display:block;width:32px;height:32px;border-radius:8px;border:0"><span style="font-family:-apple-system,Segoe UI,Roboto,sans-serif;font-size:19px;font-weight:800;letter-spacing:-0.02em;color:#0f172a"><span style="color:#059669">Trim</span>Scout</span></a>`;
+  return `<a href="${home}" style="display:inline-flex;align-items:center;gap:10px;text-decoration:none;margin:0 0 22px"><img src="${home}/scoutmark.png" width="32" height="32" alt="TrimScout" style="display:block;width:32px;height:32px;border-radius:8px;border:0"><span style="font-family:-apple-system,Segoe UI,Roboto,sans-serif;font-size:19px;font-weight:800;letter-spacing:-0.02em;color:#0f172a"><span style="color:#2A6B53">Trim</span>Scout</span></a>`;
 }
 
 /** Where a desk logs in (opens the sign-in modal) or signs up. */
@@ -147,7 +147,7 @@ export function quoteInviteHtml(input: QuoteInviteEmailInput): string {
     <h1 style="font-size:20px;line-height:1.3;font-weight:800;letter-spacing:-0.01em;margin:0 0 12px">${escapeHtml(quoteInviteTitle(input))}</h1>
     <p style="font-size:15px;margin:0 0 20px">Hi ${escapeHtml(firstName)} — a buyer wants a <strong>${input.quoteType}</strong> quote on this unit. Submit in TrimScout — don&#39;t reply to this email.</p>
     <p style="margin:0 0 24px">
-      <a href="${view}" style="display:inline-block;background:#059669;color:#ffffff;text-decoration:none;font-weight:700;font-size:15px;padding:12px 22px;border-radius:8px">${copy.cta}</a>
+      <a href="${view}" style="display:inline-block;background:#2A6B53;color:#ffffff;text-decoration:none;font-weight:700;font-size:15px;padding:12px 22px;border-radius:8px">${copy.cta}</a>
     </p>
     <div style="border:1px solid #e2e8f0;border-radius:12px;padding:16px 18px">
       ${input.alternateAsk ? `<div style="font-size:16px;font-weight:800">Open to different vehicles</div>
@@ -156,7 +156,7 @@ export function quoteInviteHtml(input: QuoteInviteEmailInput): string {
         <div style="font-size:16px;font-weight:800">${escapeHtml(carName(input.vehicle))}</div>
         ${facts ? `<div style="font-size:13px;color:#475569">${facts}</div>` : ""}
         <div style="font-size:13px;color:#475569;font-family:ui-monospace,Menlo,monospace;margin-top:2px">VIN ${escapeHtml(input.vehicle.vin)}</div>
-        ${input.vehicle.vdpUrl ? `<div style="font-size:13px;margin-top:4px"><a href="${escapeHtml(input.vehicle.vdpUrl)}" style="color:#059669">Your listing</a></div>` : ""}
+        ${input.vehicle.vdpUrl ? `<div style="font-size:13px;margin-top:4px"><a href="${escapeHtml(input.vehicle.vdpUrl)}" style="color:#2A6B53;text-decoration:underline">Your listing</a></div>` : ""}
       </td></tr></table>`}
       <hr style="border:0;border-top:1px solid #e2e8f0;margin:14px 0">
       <table role="presentation" style="border-collapse:collapse;width:100%">
@@ -170,7 +170,7 @@ export function quoteInviteHtml(input: QuoteInviteEmailInput): string {
       </table>
     </div>
     <p style="font-size:13px;color:#475569;margin:14px 0 6px">${escapeHtml(copy.helper)}</p>
-    <p style="font-size:13px;margin:0 0 28px"><a href="${view}" style="color:#059669">View request details</a></p>
+    <p style="font-size:13px;margin:0 0 28px"><a href="${view}" style="color:#2A6B53;text-decoration:underline">View request details</a></p>
     <p style="font-size:12px;color:#64748b;border-top:1px solid #e2e8f0;padding-top:12px;margin:0;line-height:1.7">
       Sent to ${escapeHtml(input.contactName)}, ${escapeHtml(roleLabel)} · ${escapeHtml(input.dealerName)}${input.dealReference ? ` · ${escapeHtml(input.dealReference)}` : ""}<br>
       ${input.unsubscribeUrl ? `<a href="${escapeHtml(input.unsubscribeUrl)}" style="color:#64748b">Unsubscribe this rooftop</a> — stops these emails and closes out any open request still waiting on you.<br>` : ""}
@@ -240,7 +240,7 @@ export function buyerCounterHtml(input: BuyerCounterEmailInput): string {
     </table>`}
     ${input.note ? `<p style="font-size:14px"><span style="color:#64748b">Their note:</span> ${escapeHtml(input.note)}</p>` : ""}
     <p><strong>To reply:</strong> open the ${input.kind === "lease" || !input.kind ? "calculator" : "quote sheet"} below — it's prefilled with your last quote — and submit a revised quote, or mark that you can't do better. This is a request, not a bid, and there's no deadline on you.</p>
-    <p style="margin:18px 0"><a href="${escapeHtml(input.viewUrl)}" style="background:#10b981;color:#000;font-weight:700;padding:10px 16px;border-radius:8px;text-decoration:none">Open the calculator</a></p>
+    <p style="margin:18px 0"><a href="${escapeHtml(input.viewUrl)}" style="background:#2A6B53;color:#ffffff;font-weight:700;padding:10px 16px;border-radius:8px;text-decoration:none">Open the calculator</a></p>
     <p style="font-size:12px;color:#64748b">We pass messages between you and the buyer without sharing their email. Replies come back through TrimScout.</p>
   </div>`;
 }

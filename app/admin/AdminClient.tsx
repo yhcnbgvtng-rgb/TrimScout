@@ -54,7 +54,7 @@ export default function AdminClient() {
             </Link>
             <Link
               href="/admin/quote-requests"
-              className="inline-flex items-center gap-1.5 rounded-xl border border-emerald-500/40 bg-emerald-500/10 hover:bg-emerald-500/20 px-3 py-1.5 text-xs font-bold text-emerald-300 hover:text-white transition-all shadow-sm"
+              className="inline-flex items-center gap-1.5 rounded-xl border border-brand-500/40 bg-brand-500/10 hover:bg-brand-500/20 px-3 py-1.5 text-xs font-bold text-brand-300 hover:text-white transition-all shadow-sm"
             >
               <span>All quote requests</span>
             </Link>

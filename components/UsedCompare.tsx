@@ -49,7 +49,7 @@ export function UsedCompare({ rfq, prefs, onPick, onWalk, onCounter, busy }: { r
   const quoted = rows.filter((r) => r.used).length;
   const vin = rfq.invites[0]?.vehicle?.vin || rfq.vin;
   const cell = (v: React.ReactNode, extra = "") => <td className={`px-3 py-2.5 align-top tabular-nums ${extra}`}>{v}</td>;
-  const hi = "bg-emerald-500/10 font-extrabold text-emerald-300";
+  const hi = "bg-brand-500/10 font-extrabold text-brand-300";
   // Every line is named, always visible — a buyer has to see WHAT a dealer is adding on, not just the total.
   const lines = (total: number, items: LineItem[] | undefined, negative = false) =>
     items && items.length ? (
@@ -82,7 +82,7 @@ export function UsedCompare({ rfq, prefs, onPick, onWalk, onCounter, busy }: { r
           Waiting on {rows.length} dealer{rows.length === 1 ? "" : "s"} — quotes appear here as they reply. Nothing you need to do.
         </p>
       ) : best ? (
-        <div className="rounded-xl border border-emerald-500/40 bg-emerald-500/5 px-4 py-3" data-testid="used-glance-best">
+        <div className="rounded-xl border border-brand-500/40 bg-brand-500/5 px-4 py-3" data-testid="used-glance-best">
           <p className="text-[10px] font-bold uppercase tracking-wide text-ink-faint">{finance ? "Best on monthly, then cash due at signing" : "Lowest out the door"}</p>
           <p className="text-lg font-extrabold text-white tabular-nums">
             {finance && best.used!.kind === "finance" ? <>{fmtMoney(best.used!.monthlyPaymentPreTax)}<span className="text-xs font-semibold text-ink-muted">/mo · {fmtMoney(financeCashDue(best.used as UsedFinanceQuote))} due at signing</span></> : fmtMoney(cashOutTheDoor(best.used!))}
@@ -126,14 +126,14 @@ export function UsedCompare({ rfq, prefs, onPick, onWalk, onCounter, busy }: { r
                   : unsubscribed ? <span className="rounded bg-border px-1.5 py-0.5 text-[9px] font-bold uppercase text-ink-muted" data-testid="unsub-chip">Unsubscribed — won't reply</span>
                   : <span className="rounded bg-border px-1.5 py-0.5 text-[9px] font-bold uppercase text-ink-muted">Waiting</span>
                 : expired ? <span className="rounded bg-border px-1.5 py-0.5 text-[9px] font-bold uppercase text-ink-muted">Expired</span>
-                : picked ? <span className="rounded bg-emerald-500/15 px-1.5 py-0.5 text-[9px] font-bold uppercase text-emerald-300">Chosen</span>
+                : picked ? <span className="rounded bg-brand-500/15 px-1.5 py-0.5 text-[9px] font-bold uppercase text-brand-300">Chosen</span>
                 : unsubscribed ? <span className="rounded bg-border px-1.5 py-0.5 text-[9px] font-bold uppercase text-ink-muted" data-testid="unsub-chip">Unsubscribed — quote still valid</span>
                 : <span className="text-[10px] text-ink-muted">Quoted to your locks</span>;
               const fin = used?.kind === "finance" ? used : null;
               const colCount = 8 + (finance ? 2 : 0) + (rows.some((r) => r.used?.miles != null) ? 1 : 0);
               return (
                 <React.Fragment key={invite.id}>
-                <tr className={`${expired || invite.status === "declined" || (unsubscribed && !used) ? "opacity-50" : ""} ${picked ? "bg-emerald-500/5" : ""}`} data-testid={`used-row-${!used ? "waiting" : expired ? "expired" : "eligible"}`}>
+                <tr className={`${expired || invite.status === "declined" || (unsubscribed && !used) ? "opacity-50" : ""} ${picked ? "bg-brand-500/5" : ""}`} data-testid={`used-row-${!used ? "waiting" : expired ? "expired" : "eligible"}`}>
                   <td className="sticky left-0 z-10 bg-surface px-3 py-2.5 align-top">
                     <span className="block text-sm font-bold text-white">{invite.dealerName}</span>
                     {alternate ? <span className="mt-0.5 inline-block rounded bg-sky-500/15 px-1.5 py-0.5 text-[9px] font-bold uppercase text-sky-300" data-testid="alternate-badge">Alternate vehicle{lane !== "alternate" && invite.quote?.vin ? <span className="font-mono normal-case"> · {invite.quote.vin}</span> : null}</span> : null}
@@ -171,7 +171,7 @@ export function UsedCompare({ rfq, prefs, onPick, onWalk, onCounter, busy }: { r
                       {invite.buyerCounter && invite.status === "invited" ? <span className="text-[10px] text-sky-200">You countered: {counterSummary(invite.buyerCounter)}</span> : null}
                       {collecting && used && !expired && invite.quote ? (
                         <>
-                          <button type="button" onClick={() => onPick(invite.quote!.id)} disabled={busy} className="rounded-lg bg-emerald-500 px-2.5 py-1 text-[10px] font-extrabold text-black hover:bg-emerald-400 disabled:opacity-50" data-testid="choose-quote">Choose this quote</button>
+                          <button type="button" onClick={() => onPick(invite.quote!.id)} disabled={busy} className="rounded-lg bg-brand-500 px-2.5 py-1 text-[10px] font-extrabold text-black hover:bg-brand-400 disabled:opacity-50" data-testid="choose-quote">Choose this quote</button>
                           {onCounter && !unsubscribed ? (
                             <button type="button" onClick={() => setCountering(invite.id)} disabled={busy || countering === invite.id} className="rounded-lg border border-sky-500/50 px-2.5 py-1 text-[10px] font-bold text-sky-200 hover:bg-sky-500/10 disabled:opacity-50" data-testid="counter-quote">Counter</button>
                           ) : null}

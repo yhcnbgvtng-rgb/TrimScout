@@ -61,10 +61,10 @@ export function LeaseQuoteSheet({ rfq, compact = false, onSaved }: { rfq: RfqReq
           </span>
         </p>
       ) : editable ? (
-        <p className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-emerald-500/30 bg-emerald-500/5 px-3 py-2 text-[11px] text-ink-light" data-testid="sheet-unlocked">
+        <p className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-brand-500/30 bg-brand-500/5 px-3 py-2 text-[11px] text-ink-light" data-testid="sheet-unlocked">
           <span>{SHEET_UNLOCKED_COPY}</span>
           {!editing && !compact ? (
-            <button type="button" onClick={() => setEditing(true)} className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-400 hover:text-emerald-300">
+            <button type="button" onClick={() => setEditing(true)} className="inline-flex items-center gap-1 text-[11px] font-bold text-brand-400 hover:text-brand-300">
               <Pencil className="h-3 w-3" /> Adjust
             </button>
           ) : null}
@@ -80,7 +80,7 @@ export function LeaseQuoteSheet({ rfq, compact = false, onSaved }: { rfq: RfqReq
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <span className="text-[11px] font-semibold text-white">{vehicleLine(v)}</span>
                   {v.factoryVerified ? (
-                    <span className="inline-flex items-center gap-1 rounded bg-emerald-500/15 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-emerald-300">
+                    <span className="inline-flex items-center gap-1 rounded bg-brand-500/15 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-brand-300">
                       <CheckCircle2 className="h-3 w-3" /> Factory verified
                     </span>
                   ) : (
@@ -161,7 +161,7 @@ function LeasePrefsEditor({ rfq, prefs, onCancel, onSaved }: { rfq: RfqRequest; 
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const zipOk = zip === "" || /^\d{5}$/.test(zip);
-  const input = "w-full rounded-lg border border-border bg-background py-2 px-2.5 text-xs text-white focus:border-emerald-500 focus:outline-none";
+  const input = "w-full rounded-lg border border-border bg-background py-2 px-2.5 text-xs text-white focus:border-brand-500 focus:outline-none";
   const label = "block text-[10px] font-bold uppercase tracking-wide text-ink-faint";
 
   const save = async () => {
@@ -180,7 +180,7 @@ function LeasePrefsEditor({ rfq, prefs, onCancel, onSaved }: { rfq: RfqRequest; 
   };
 
   return (
-    <div className="space-y-3 rounded-xl border border-emerald-500/30 bg-background p-3" data-testid="lease-prefs-editor">
+    <div className="space-y-3 rounded-xl border border-brand-500/30 bg-background p-3" data-testid="lease-prefs-editor">
       <p className="text-[10px] font-bold uppercase tracking-wide text-ink-faint">Adjust lease preferences</p>
       <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3">
         <label className="space-y-1">
@@ -233,7 +233,7 @@ function LeasePrefsEditor({ rfq, prefs, onCancel, onSaved }: { rfq: RfqRequest; 
       </div>
       {error ? <p className="rounded-lg border border-rose-500/40 bg-rose-950/30 px-3 py-2 text-[11px] text-rose-300">{error}</p> : null}
       <div className="flex gap-2">
-        <button type="button" onClick={save} disabled={saving || !zipOk || !dasIntent || !band} className="rounded-lg bg-emerald-500 px-4 py-2 text-xs font-extrabold text-black hover:bg-emerald-400 transition-all disabled:opacity-50">
+        <button type="button" onClick={save} disabled={saving || !zipOk || !dasIntent || !band} className="rounded-lg bg-brand-500 px-4 py-2 text-xs font-extrabold text-black hover:bg-brand-400 transition-all disabled:opacity-50">
           {saving ? "Saving…" : "Save changes"}
         </button>
         <button type="button" onClick={onCancel} className="rounded-lg border border-border px-4 py-2 text-xs font-bold text-ink-light hover:text-white">

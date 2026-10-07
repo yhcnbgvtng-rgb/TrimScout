@@ -56,12 +56,12 @@ export function LeaseCompare({
           </p>
         ) : (
           <>
-            <div className="rounded-xl border border-emerald-500/40 bg-emerald-500/5 px-4 py-3">
+            <div className="rounded-xl border border-brand-500/40 bg-brand-500/5 px-4 py-3">
               <p className="text-[10px] font-bold uppercase tracking-wide text-ink-faint">Lowest monthly{lane === "alternate" ? " · among alternate quotes" : ""}</p>
               <p className="text-lg font-extrabold text-white tabular-nums">{fmtMoney(glance.lowestMonthly!.amount)}<span className="text-xs font-semibold text-ink-muted">/mo</span></p>
               <p className="text-[11px] text-ink-light">{glance.lowestMonthly!.dealerName}</p>
             </div>
-            <div className="rounded-xl border border-emerald-500/40 bg-emerald-500/5 px-4 py-3">
+            <div className="rounded-xl border border-brand-500/40 bg-brand-500/5 px-4 py-3">
               <p className="text-[10px] font-bold uppercase tracking-wide text-ink-faint">Lowest due at signing{lane === "alternate" ? " · among alternate quotes" : ""}</p>
               <p className="text-lg font-extrabold text-white tabular-nums">{fmtMoney(glance.lowestDas!.amount)}</p>
               <p className="text-[11px] text-ink-light">{glance.lowestDas!.dealerName}</p>
@@ -142,7 +142,7 @@ export function LeaseCompare({
 function Row({ r, open, toggle, collecting, onPick, busy, prefs, lane, countering, onStartCounter, onCancelCounter, onCounter }: { r: LeaseCompareRow; open: boolean; toggle: () => void; collecting: boolean; onPick: (id: string) => void; busy: boolean; prefs: LeaseCompareData["prefs"]; lane: LeaseCompareData["lane"]; countering: boolean; onStartCounter?: () => void; onCancelCounter: () => void; onCounter?: (c: CounterEditsPayload) => Promise<void> }) {
   const l = r.lease;
   const muted = r.kind === "expired" || r.kind === "declined" || r.kind === "countered" || r.kind === "unsubscribed";
-  const hi = "bg-emerald-500/10";
+  const hi = "bg-brand-500/10";
   // The chips are computed once in lib/leaseCompare; here they land next to the number they're about —
   // "/mo" deltas under Monthly, "at signing" deltas under Due at signing, anything else quietly under Status.
   const monthlyNote = r.chips.find((c) => /\/mo /.test(c)) || null;
@@ -152,7 +152,7 @@ function Row({ r, open, toggle, collecting, onPick, busy, prefs, lane, counterin
   const money = (v: React.ReactNode, note: string | null, best: boolean) =>
     cell(
       <>
-        <span className={`block text-base font-extrabold ${best ? "text-emerald-300" : "text-white"}`}>{v}</span>
+        <span className={`block text-base font-extrabold ${best ? "text-brand-300" : "text-white"}`}>{v}</span>
         {note ? <span className="mt-1 block max-w-[14rem] text-[10px] leading-snug text-ink-muted" data-testid="money-note">{note}</span> : null}
       </>,
       best ? hi : ""
@@ -161,7 +161,7 @@ function Row({ r, open, toggle, collecting, onPick, busy, prefs, lane, counterin
   const incentiveCount = l ? l.incentives.length : 0;
   const addOnTotal = l ? l.addOns.reduce((t, x) => t + x.amount, 0) : 0;
   const status =
-    r.kind === "eligible" ? (r.picked ? <span className="rounded bg-emerald-500/15 px-1.5 py-0.5 text-[9px] font-bold uppercase text-emerald-300">Chosen</span> : <span className="text-[10px] text-ink-muted">{r.alternate && lane !== "alternate" ? "Different vehicle" : "Matches your ask"}</span>)
+    r.kind === "eligible" ? (r.picked ? <span className="rounded bg-brand-500/15 px-1.5 py-0.5 text-[9px] font-bold uppercase text-brand-300">Chosen</span> : <span className="text-[10px] text-ink-muted">{r.alternate && lane !== "alternate" ? "Different vehicle" : "Matches your ask"}</span>)
     : r.unsubscribed && r.kind === "counter" ? <span className="rounded bg-border px-1.5 py-0.5 text-[9px] font-bold uppercase text-ink-muted" data-testid="unsub-chip">Unsubscribed — quote still valid</span>
     : r.kind === "counter" ? <span className="rounded bg-amber-500/15 px-1.5 py-0.5 text-[9px] font-bold uppercase text-amber-300">Counter</span>
     : r.kind === "expired" ? <span className="rounded bg-border px-1.5 py-0.5 text-[9px] font-bold uppercase text-ink-muted">Expired</span>
@@ -171,7 +171,7 @@ function Row({ r, open, toggle, collecting, onPick, busy, prefs, lane, counterin
     : <span className="rounded bg-border px-1.5 py-0.5 text-[9px] font-bold uppercase text-ink-muted">Waiting</span>;
   return (
     <>
-      <tr className={`${muted ? "opacity-50" : ""} ${r.picked ? "bg-emerald-500/5" : ""}`} data-testid={`lease-row-${r.kind}`}>
+      <tr className={`${muted ? "opacity-50" : ""} ${r.picked ? "bg-brand-500/5" : ""}`} data-testid={`lease-row-${r.kind}`}>
         <td className="sticky left-0 z-10 bg-surface px-4 py-4 align-top">
           <button type="button" onClick={toggle} className="flex items-start gap-2 text-left" aria-expanded={open} disabled={!l}>
             {l ? (open ? <ChevronDown className="mt-1 h-3.5 w-3.5 shrink-0 text-ink-muted" /> : <ChevronRight className="mt-1 h-3.5 w-3.5 shrink-0 text-ink-muted" />) : <span className="w-3.5" />}
@@ -190,7 +190,7 @@ function Row({ r, open, toggle, collecting, onPick, busy, prefs, lane, counterin
               <span className="mt-1 block text-[10px] font-normal leading-snug" data-testid="lines-summary">
                 {addOnCount ? <span className="text-amber-200">{addOnCount} add-on{addOnCount === 1 ? "" : "s"} +{fmtMoney(addOnTotal)}</span> : null}
                 {addOnCount && incentiveCount ? <span className="text-ink-faint"> · </span> : null}
-                {incentiveCount ? <span className="text-emerald-300">{incentiveCount} incentive{incentiveCount === 1 ? "" : "s"}</span> : null}
+                {incentiveCount ? <span className="text-brand-300">{incentiveCount} incentive{incentiveCount === 1 ? "" : "s"}</span> : null}
               </span>
             ) : null}
           </>,
@@ -214,7 +214,7 @@ function Row({ r, open, toggle, collecting, onPick, busy, prefs, lane, counterin
             {r.kind === "countered" && r.buyerCounter ? <span className="text-[10px] leading-snug text-sky-200">You asked: {counterSummary(r.buyerCounter)}</span> : null}
             {collecting && l && (r.kind === "eligible" || r.kind === "counter") && r.quoteId ? (
               <div className="flex flex-wrap items-center gap-2">
-                <button type="button" onClick={() => onPick(r.quoteId!)} disabled={busy} className="rounded-lg bg-emerald-500 px-3 py-1.5 text-[11px] font-extrabold text-black hover:bg-emerald-400 disabled:opacity-50" data-testid="choose-quote">
+                <button type="button" onClick={() => onPick(r.quoteId!)} disabled={busy} className="rounded-lg bg-brand-500 px-3 py-1.5 text-[11px] font-extrabold text-black hover:bg-brand-400 disabled:opacity-50" data-testid="choose-quote">
                   Choose this quote
                 </button>
                 {onStartCounter && !r.unsubscribed ? (

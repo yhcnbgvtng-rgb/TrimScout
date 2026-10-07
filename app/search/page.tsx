@@ -19,7 +19,7 @@ export default function SearchPage() {
               className="h-8 w-8 rounded-lg shadow-sm group-hover:scale-105 transition-transform"
             />
             <span className="font-extrabold text-lg tracking-tight text-white">
-              Trim<span className="text-emerald-400">Scout</span>
+              Trim<span className="text-brand-400">Scout</span>
             </span>
           </Link>
           <Link

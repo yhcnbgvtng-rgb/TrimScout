@@ -45,6 +45,7 @@ import { planBatches } from "./syncBatching.js";
 import { shardMileage } from "./shardMileage.js";
 import { runWritePhase, configFromEnv } from "./syncRun.js";
 import { SweepAbortError, LockLostError } from "./syncSweep.js";
+import { isFreshRecord, freshnessConfig, checkShardStructure, shardPlan } from "./syncFreshness.js";
 
 // The box-resident default is box2's static IP (the deals API host); every box's inventory-sync/.env sets
 // TRIMSCOUT_DEALS_HOST explicitly, so this only matters if that line is ever missing.
@@ -190,10 +191,35 @@ const options = (v) => {
 
 const rows = [];
 let total = 0;
+// What this run is allowed to claim about the crawl output (syncFreshness.js): only records the crawl refreshed recently
+// are uploaded (an upload stamps last_seen_at = now, which is a lie for a stale shard record), a truncated shard is not
+// read at all, and no store from an over-size shard is swept (retiring rows presumes the file is complete).
+const fcfg = freshnessConfig();
+const RUN_NOW_MS = Date.now();
+const noSweepStores = new Set();       // dealer ids that came from an over-size shard
+const skippedShards = [];              // { file, reason } — unreadable/truncated: nothing uploaded from them
+let staleSkipped = 0, freshUploaded = 0;
+const staleByStore = new Map();        // store name -> stale records skipped
 for (const shardFile of files) {
+  const sizeBytes = fs.statSync(shardFile).size;
+  const plan = shardPlan({ sizeBytes, structure: checkShardStructure(shardFile), maxBytes: fcfg.shardMaxBytes });
+  if (plan.action === "skip") {
+    skippedShards.push({ file: shardFile, reason: plan.reason });
+    log(`[sync] ✗ SKIPPING ${path.basename(shardFile)}: ${plan.reason}. Nothing from it is uploaded and none of its stores are swept; this run will exit non-zero.`);
+    continue;
+  }
+  if (plan.action === "noSweep") log(`[sync] ⚠ ${path.basename(shardFile)}: ${plan.reason}. Its fresh records are uploaded, but none of its stores are swept.`);
   for (const v of streamTopLevelObjects(shardFile)) {
     total++;
     if (!/^[A-HJ-NPR-Z0-9]{17}$/.test(String(v.vin || "").toUpperCase()) || (v.status || "ACTIVE").toUpperCase() !== "ACTIVE") continue;
+    if (!isFreshRecord(v, RUN_NOW_MS, fcfg.maxRecordAgeMs)) {
+      staleSkipped++;
+      const k = v.dealerName || v.configDealerName || "?";
+      staleByStore.set(k, (staleByStore.get(k) || 0) + 1);
+      continue;
+    }
+    freshUploaded++;
+    if (plan.action === "noSweep") { const id = dealerIdFor(v); if (id) noSweepStores.add(id); }
     rows.push({
       vin: v.vin.toUpperCase(), dealerId: dealerIdFor(v), dealerName: v.dealerName || v.configDealerName, condition: cond(v.inventoryType), year: v.year, make: v.make, model: v.model, trim: v.trim,
       bodyStyle: v.bodyStyle, exteriorColor: v.exteriorColor, interiorColor: v.interiorColor, mileage: shardMileage(v.mileage, cond(v.inventoryType)), price: v.price, msrp: v.msrp, stockNumber: v.stockNumber, vdpUrl: v.url, imageUrl: v.imageUrl, source: "nightly",
@@ -204,7 +230,11 @@ for (const shardFile of files) {
   }
 }
 const unmatched = rows.filter((r) => !r.dealerId).length;
-log(`${total} vehicles in file, ${rows.length} active with a valid VIN`);
+log(`${total} vehicles in file, ${rows.length} active with a valid VIN and refreshed in the last ${Math.round(fcfg.maxRecordAgeMs / 3600_000)}h`);
+if (staleSkipped) {
+  const top = [...staleByStore.entries()].sort((a, b) => b[1] - a[1]).slice(0, 5).map(([n, c]) => `${n} (${c})`).join(", ");
+  log(`[sync] skipped ${staleSkipped} ACTIVE record(s) the crawl has not refreshed within ${Math.round(fcfg.maxRecordAgeMs / 3600_000)}h (not uploaded, not re-stamped as seen) across ${staleByStore.size} store name(s); most: ${top}`);
+}
 log(`stores matched to the directory: ${rows.length - unmatched}/${rows.length} vehicles (${unmatched} unmatched — kept, keyed to store 0)`);
 
 // Resume state (syncCheckpoint.js): identifies the crawl output by each shard's path/size/mtime — not its
@@ -247,7 +277,7 @@ lockHeartbeat = startSyncLockHeartbeat({
 });
 let failed = false;
 try {
-  const r = await runWritePhase({ rows, fileIdentity, api: dealsApi, store: runStore, isLockLost: () => lockHeartbeat?.isLost() === true, log, config });
+  const r = await runWritePhase({ rows, fileIdentity, api: dealsApi, store: runStore, isLockLost: () => lockHeartbeat?.isLost() === true, log, config, sweepExclude: noSweepStores, sourceBox: BOX_LABEL, foreignGraceMs: fcfg.foreignGraceMs });
   // Same fields as always (the ops scripts and log reads that parse this line keep working), plus run details.
   log(JSON.stringify({ upserted: r.upserted, sweptStores: r.sweptStores, sweepFailed: r.sweepFailed, removed: r.removed, live: r.live, resumed: r.resumed, skippedRows: r.skippedRows, sweepMode: r.sweepMode, timings: { upsertMs: r.timings.upsertMs, sweepMs: r.timings.sweepMs, totalMs: r.timings.totalMs, requests: r.timings.requests, p50RequestMs: r.timings.p50RequestMs, p95RequestMs: r.timings.p95RequestMs } }));
 } catch (err) {
@@ -262,3 +292,4 @@ try {
   await releaseSyncLock();
 }
 if (failed) process.exitCode = 1;
+else if (skippedShards.length) { log(`[sync] exiting 3: ${skippedShards.length} shard file(s) were not synced (${skippedShards.map((x) => path.basename(x.file)).join(", ")}) — the rest of the run completed`); process.exitCode = 3; }

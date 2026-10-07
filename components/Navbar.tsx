@@ -79,7 +79,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             className="h-8 w-8 rounded-lg shadow-sm group-hover:scale-105 transition-transform"
           />
           <span className="font-extrabold text-lg tracking-tight text-white flex items-center">
-            Trim<span className="text-emerald-400">Scout</span>
+            Trim<span className="text-brand-400">Scout</span>
           </span>
         </div>
 
@@ -93,14 +93,14 @@ export const Navbar: React.FC<NavbarProps> = ({
                 onClick={() => onToggleView(link.id)}
                 className={`relative px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                   isActive
-                    ? "text-emerald-400 bg-emerald-500/10 font-bold"
+                    ? "text-brand-400 bg-brand-500/10 font-bold"
                     : "text-ink-muted hover:text-white hover:bg-surface-elevated"
                 }`}
               >
                 <span className="flex items-center gap-1.5">
                   {link.label}
                   {typeof link.badge === "number" && link.badge > 0 && (
-                    <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-emerald-500 px-1 text-[9px] font-black text-black">
+                    <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-brand-500 px-1 text-[9px] font-black text-black">
                       {link.badge}
                     </span>
                   )}
@@ -123,16 +123,16 @@ export const Navbar: React.FC<NavbarProps> = ({
             <div className="relative" ref={menuRef}>
               <button
                 onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                className="flex items-center gap-2 rounded-xl border border-border bg-surface-elevated py-1.5 pl-2 pr-3 text-xs font-bold text-white hover:border-emerald-500/50 hover:bg-surface transition-all shadow-sm"
+                className="flex items-center gap-2 rounded-xl border border-border bg-surface-elevated py-1.5 pl-2 pr-3 text-xs font-bold text-white hover:border-brand-500/50 hover:bg-surface transition-all shadow-sm"
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={user.avatarUrl || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80"}
                   alt={user.name}
-                  className="h-6 w-6 rounded-lg object-cover border border-emerald-500/40"
+                  className="h-6 w-6 rounded-lg object-cover border border-brand-500/40"
                 />
                 <span className="hidden sm:inline max-w-[100px] truncate">{user.name}</span>
-                <span className="rounded bg-emerald-500/20 px-1.5 py-0.2 text-[9px] font-extrabold text-emerald-400 uppercase hidden md:inline">
+                <span className="rounded bg-brand-500/20 px-1.5 py-0.2 text-[9px] font-extrabold text-brand-400 uppercase hidden md:inline">
                   {user.role === "buyer" ? "Buyer" : "Dealer"}
                 </span>
                 <ChevronDown className="h-3.5 w-3.5 text-ink-faint" />
@@ -150,11 +150,11 @@ export const Navbar: React.FC<NavbarProps> = ({
                       </div>
                     )}
                     {user.buyerAlias && (
-                      <div className="text-[10px] text-emerald-400 font-mono pt-0.5">
+                      <div className="text-[10px] text-brand-400 font-mono pt-0.5">
                         {user.buyerAlias}
                       </div>
                     )}
-                    <div className="flex items-center gap-1.5 text-[10px] text-emerald-400 font-semibold pt-1">
+                    <div className="flex items-center gap-1.5 text-[10px] text-brand-400 font-semibold pt-1">
                       <ShieldCheck className="h-3 w-3" />
                       <span>Privacy Shield active</span>
                     </div>
@@ -165,12 +165,12 @@ export const Navbar: React.FC<NavbarProps> = ({
                       onToggleView("track_deals");
                       setIsUserMenuOpen(false);
                     }}
-                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-ink-light hover:bg-emerald-500/10 hover:text-emerald-400 font-medium transition-colors text-left"
+                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-ink-light hover:bg-brand-500/10 hover:text-brand-400 font-medium transition-colors text-left"
                   >
                     <Layers className="h-4 w-4" />
                     <span className="flex-1">My Deal Tracker</span>
                     {activeDealCount > 0 && (
-                      <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-emerald-500 px-1 text-[9px] font-black text-black">
+                      <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-brand-500 px-1 text-[9px] font-black text-black">
                         {activeDealCount}
                       </span>
                     )}
@@ -181,7 +181,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                       onToggleView("deal_room");
                       setIsUserMenuOpen(false);
                     }}
-                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-ink-light hover:bg-emerald-500/10 hover:text-emerald-400 font-medium transition-colors text-left"
+                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-ink-light hover:bg-brand-500/10 hover:text-brand-400 font-medium transition-colors text-left"
                   >
                     <Presentation className="h-4 w-4" />
                     <span>Quote Room</span>
@@ -190,7 +190,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   <Link
                     href="/negotiator"
                     onClick={() => setIsUserMenuOpen(false)}
-                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-ink-light hover:bg-emerald-500/10 hover:text-emerald-400 font-medium transition-colors text-left"
+                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-ink-light hover:bg-brand-500/10 hover:text-brand-400 font-medium transition-colors text-left"
                   >
                     <Bot className="h-4 w-4" />
                     <span>AI Negotiator Assistant</span>
@@ -203,7 +203,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                     }}
                     className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-ink-light hover:bg-surface-elevated font-medium transition-colors text-left"
                   >
-                    <ShieldCheck className="h-4 w-4 text-emerald-400" />
+                    <ShieldCheck className="h-4 w-4 text-brand-400" />
                     <span>Switch Test Account</span>
                   </button>
 
@@ -239,15 +239,15 @@ export const Navbar: React.FC<NavbarProps> = ({
             <div className="flex items-center gap-2">
               <button
                 onClick={onOpenAuthModal}
-                className="flex items-center gap-1.5 rounded-xl border border-border bg-surface-elevated px-3 py-1.5 text-xs font-bold text-ink-light hover:text-white hover:border-emerald-500/50 hover:bg-surface transition-all shadow-sm"
+                className="flex items-center gap-1.5 rounded-xl border border-border bg-surface-elevated px-3 py-1.5 text-xs font-bold text-ink-light hover:text-white hover:border-brand-500/50 hover:bg-surface transition-all shadow-sm"
               >
-                <LogIn className="h-3.5 w-3.5 text-emerald-400" />
+                <LogIn className="h-3.5 w-3.5 text-brand-400" />
                 <span>Log In</span>
               </button>
 
               <Link
                 href="/signup"
-                className="hidden sm:flex items-center gap-1.5 rounded-xl border border-emerald-500/40 bg-emerald-950/40 hover:bg-emerald-900/50 px-3 py-1.5 text-xs font-extrabold text-emerald-400 hover:text-emerald-300 transition-all shadow-sm"
+                className="hidden sm:flex items-center gap-1.5 rounded-xl border border-brand-500/40 bg-brand-950/40 hover:bg-brand-900/50 px-3 py-1.5 text-xs font-extrabold text-brand-400 hover:text-brand-300 transition-all shadow-sm"
               >
                 <UserPlus className="h-3.5 w-3.5" />
                 <span>Sign Up</span>
@@ -260,7 +260,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             type="button"
             onClick={() => onRequestQuote("header")}
             data-testid="cta-request-quote-header"
-            className="flex items-center gap-1.5 rounded-xl bg-emerald-500 px-3.5 py-1.5 text-xs font-extrabold text-black hover:bg-emerald-400 transition-all shadow-sm active:scale-95"
+            className="flex items-center gap-1.5 rounded-xl bg-brand-500 px-3.5 py-1.5 text-xs font-extrabold text-black hover:bg-brand-400 transition-all shadow-sm active:scale-95"
           >
             <Zap className="h-3.5 w-3.5 fill-black" />
             <span className="hidden sm:inline">Request a Quote</span>
@@ -292,13 +292,13 @@ export const Navbar: React.FC<NavbarProps> = ({
                 }}
                 className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all ${
                   isActive
-                    ? "bg-emerald-500/10 text-emerald-400 font-bold"
+                    ? "bg-brand-500/10 text-brand-400 font-bold"
                     : "text-ink-muted hover:text-white hover:bg-surface"
                 }`}
               >
                 <span>{link.label}</span>
                 {typeof link.badge === "number" && link.badge > 0 && (
-                  <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-emerald-500 px-1 text-[9px] font-black text-black">
+                  <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-brand-500 px-1 text-[9px] font-black text-black">
                     {link.badge}
                   </span>
                 )}
@@ -320,7 +320,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               onRequestQuote("mobile_menu");
             }}
             data-testid="cta-request-quote-mobile"
-            className="w-full flex items-center justify-center gap-1.5 rounded-xl bg-emerald-500 py-2 text-xs font-extrabold text-black"
+            className="w-full flex items-center justify-center gap-1.5 rounded-xl bg-brand-500 py-2 text-xs font-extrabold text-black"
           >
             <Zap className="h-3.5 w-3.5 fill-black" />
             <span>Request a Quote</span>
@@ -331,7 +331,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               <Link
                 href="/signup"
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="w-full flex items-center justify-center gap-1.5 rounded-xl bg-emerald-500 py-2 text-xs font-extrabold text-black"
+                className="w-full flex items-center justify-center gap-1.5 rounded-xl bg-brand-500 py-2 text-xs font-extrabold text-black"
               >
                 <UserPlus className="h-3.5 w-3.5" />
                 <span>Create Free Account / Sign Up</span>

@@ -693,7 +693,7 @@ export default function Home() {
               </p>
               <button
                 onClick={() => setIsAuthModalOpen(true)}
-                className="inline-flex items-center gap-2 rounded-xl bg-emerald-500 px-6 py-2.5 text-xs font-black text-black hover:bg-emerald-400 shadow-md shadow-emerald-500/20 transition-all"
+                className="inline-flex items-center gap-2 rounded-xl bg-brand-500 px-6 py-2.5 text-xs font-black text-black hover:bg-brand-400 shadow-md shadow-brand-500/20 transition-all"
               >
                 Log In / Switch Account
               </button>
@@ -747,7 +747,7 @@ export default function Home() {
             <p className="text-sm text-ink-muted">Sign in with a dealer account to view the Dealer Portal.</p>
             <button
               onClick={() => setIsAuthModalOpen(true)}
-              className="rounded-xl bg-emerald-500 px-5 py-2 text-xs font-extrabold text-black hover:bg-emerald-400 transition-all"
+              className="rounded-xl bg-brand-500 px-5 py-2 text-xs font-extrabold text-black hover:bg-brand-400 transition-all"
             >
               Sign In
             </button>

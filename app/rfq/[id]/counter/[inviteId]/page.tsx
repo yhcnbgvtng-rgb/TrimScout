@@ -72,7 +72,7 @@ export default function CounterReviewPage() {
               <p className="text-[11px] text-ink-muted">This counter was sent before line-by-line counters existed; the dealer saw the summary above.</p>
             )}
             <div className="flex flex-wrap gap-2">
-              <Link href={`/rfq/${rfqId}`} className="rounded-lg bg-emerald-500 px-3.5 py-1.5 text-[11px] font-black text-black hover:bg-emerald-400">Back to the request</Link>
+              <Link href={`/rfq/${rfqId}`} className="rounded-lg bg-brand-500 px-3.5 py-1.5 text-[11px] font-black text-black hover:bg-brand-400">Back to the request</Link>
             </div>
           </section>
         ) : null}

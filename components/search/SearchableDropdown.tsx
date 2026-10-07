@@ -7,7 +7,7 @@
 // State/Make/Model/Trim can be tabbed to and typed into immediately, with ArrowUp/ArrowDown/Enter
 // to select without touching the mouse. A live hit-count shows on every row and on the closed
 // trigger once a value is picked — e.g. `NJ · 84,210`. Quiet slate chrome with a soft blue
-// selected/hover state by default (buyer /search's own look) — pass `accent="emerald"` to match
+// selected/hover state by default (buyer /search's own look) — pass `accent="brand"` to match
 // the admin Web Crawl Sheet's existing active-filter color instead, as its Vehicles tab does, so
 // the two sheets don't invent a second visual language. Supports both single-select
 // (State/Make/Model/Trim) and multi-select (factory options) through the same component so the
@@ -53,12 +53,12 @@ interface BaseProps {
    */
   emptyMessage?: string;
   /**
-   * "sky" (default) is this component's original buyer /search look. "emerald" matches the admin
+   * "sky" (default) is this component's original buyer /search look. "brand" matches the admin
    * Web Crawl Sheet's existing active-filter color (see the Dealers tab's facet buttons) — passed
    * by the admin Vehicles sheet so it visually matches its own Dealers tab rather than picking up
    * buyer /search's separate color language.
    */
-  accent?: "sky" | "emerald";
+  accent?: "sky" | "brand";
   /** Fires each time the menu opens — lets a caller load this dropdown's options lazily instead of on page load. */
   onOpen?: () => void;
 }
@@ -93,12 +93,12 @@ const ACCENT = {
     checkboxSelected: "border-sky-400 bg-sky-500/30",
     checkboxDot: "bg-sky-300",
   },
-  emerald: {
-    triggerActive: "border-emerald-500/50 bg-emerald-500/10",
-    optionSelected: "bg-emerald-500/15 text-emerald-300",
-    optionSelectedCount: "text-emerald-300/80",
-    checkboxSelected: "border-emerald-400 bg-emerald-500/30",
-    checkboxDot: "bg-emerald-300",
+  brand: {
+    triggerActive: "border-brand-500/50 bg-brand-500/10",
+    optionSelected: "bg-brand-500/15 text-brand-300",
+    optionSelectedCount: "text-brand-300/80",
+    checkboxSelected: "border-brand-400 bg-brand-500/30",
+    checkboxDot: "bg-brand-300",
   },
 } as const;
 
