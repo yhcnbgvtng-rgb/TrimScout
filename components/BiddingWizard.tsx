@@ -276,7 +276,7 @@ interface BiddingWizardProps {
    * Cars picked on buyer search ("Request a quote"): fed into Step 1 through the same paste path as a typed link or
    * VIN — primary first, then the two alternates — one at a time, each still confirmed by the buyer. Nothing is sent.
    */
-  seedVehicles?: Array<{ vin: string; vdpUrl: string | null }>;
+  seedVehicles?: Array<{ vin: string; vdpUrl: string | null; condition?: "new" | "used" | "cpo" | null }>;
   initialStrategy?: BiddingStrategy;
   onSubmitBidRequest: (request: BiddingRequest) => void;
   // Real reverse-auction flow: the buyer already picked a specific real
@@ -1857,9 +1857,15 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   // advance the index twice and silently skip the next car.
   const seedStartedRef = React.useRef(-1);
   const seedList = (seedVehicles || []).slice(0, SEED_SLOTS.length);
-  const seedOne = async (slot: VehicleSlot, car: { vin: string; vdpUrl: string | null }) => {
+  const seedOne = async (slot: VehicleSlot, car: { vin: string; vdpUrl: string | null; condition?: "new" | "used" | "cpo" | null }) => {
+    const listedUsed = (car.condition === "used" || car.condition === "cpo") && USED_VEHICLES_ENABLED;
+    // A used primary flips the whole request to used even when its link doesn't say so (parkLink also detects it from the URL).
+    if (slot === "primary" && listedUsed) setVehicleCondition(car.condition as UsedCondition);
     if (car.vdpUrl && (await parkLink(slot, car.vdpUrl, car.vin))) return;
-    const result = await importPastedFactoryVehicle(car.vin, fetch, { existingVehicles: slotVehicles(slot), ...(slot === "primary" ? usedOpt : {}), freeDecodeOnly: intent === "alternate" });
+    // An alternate is seated as used only when its listing says so (the effect below has already checked it matches the
+    // primary's kind).
+    const condOpt = slot === "primary" ? (listedUsed ? { condition: car.condition as UsedCondition } : usedOpt) : car.condition === "used" || car.condition === "cpo" ? { condition: car.condition as UsedCondition } : {};
+    const result = await importPastedFactoryVehicle(car.vin, fetch, { existingVehicles: slotVehicles(slot), ...condOpt, freeDecodeOnly: intent === "alternate" });
     if (!result.ok) {
       if (slot === "primary") setParseError(result.error);
       else if (slot === "alt1") setAltError1(result.error);
@@ -1880,11 +1886,11 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
       seedStartedRef.current = seedIdx;
       const slot = SEED_SLOTS[seedIdx];
       const car = seedList[seedIdx];
-      // Used requests are one car (the alternate slots only exist for a new car), so don't park a car in a slot the
-      // buyer can't see — stop here and say so.
-      if (slot !== "primary" && isUsed) {
-        setSeedSkipped(seedList.length - seedIdx);
-        setSeedIdx(seedList.length);
+      // A request is all new or all used: a used car can't sit beside a new one (different quote sheet, no lease).
+      // A car of the other kind is left out and the note says so; the next one still gets its turn.
+      if (slot !== "primary" && (car.condition === "used" || car.condition === "cpo") !== isUsed) {
+        setSeedSkipped((n) => n + 1);
+        setSeedIdx(seedIdx + 1);
         return;
       }
       setSeedIdx(seedIdx + 1);
@@ -2027,6 +2033,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     setAltError1(null);
     const result = await importPastedFactoryVehicle(raw, fetch, {
       existingVehicles: [selectedVehicle, altVehicle2],
+      ...usedOpt,
       freeDecodeOnly: intent === "alternate",
     });
     if (!result.ok) {
@@ -2071,6 +2078,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     setAltError2(null);
     const result = await importPastedFactoryVehicle(raw, fetch, {
       existingVehicles: [selectedVehicle, altVehicle1],
+      ...usedOpt,
       freeDecodeOnly: intent === "alternate",
     });
     if (!result.ok) {
@@ -2921,14 +2929,13 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                 )}
 
                 {/* Two alternate slots, always visible on a new car — optional,
-                    the buyer fills them in or doesn't. Used requests are one car. */}
-                {isUsed && seedSkipped > 0 ? (
+                    the buyer fills them in or doesn't. A request is all new or all used. */}
+                {seedSkipped > 0 ? (
                   <p className="text-[11px] text-amber-300" data-testid="seed-used-note">
-                    Used requests are one car, so {seedSkipped} other car{seedSkipped === 1 ? "" : "s"} you picked {seedSkipped === 1 ? "wasn't" : "weren't"} added. Request {seedSkipped === 1 ? "it" : "them"} separately.
+                    A request is all new or all used, so {seedSkipped} other car{seedSkipped === 1 ? "" : "s"} you picked {seedSkipped === 1 ? "wasn't" : "weren't"} added. Request {seedSkipped === 1 ? "it" : "them"} separately.
                   </p>
                 ) : null}
-                {isUsed ? null : (
-                  <div className="space-y-2" data-testid="alternate-vehicles">
+                <div className="space-y-2" data-testid="alternate-vehicles">
                     <p className="text-[10px] text-ink-faint">
                       Optional: up to 2 similar vehicles — dealers can quote on any of the three.
                     </p>
@@ -2979,8 +2986,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                     {selectedVehicle && altVehicle1 && altVehicle2 && mustHavePackages.length > 0 ? (
                       <FactoryOptionsCompare primary={selectedVehicle} alt1={altVehicle1} alt2={altVehicle2} mustHaves={selectedMustHaveRefs} />
                     ) : null}
-                  </div>
-                )}
+                </div>
               </WizardSection>
               ) : null}
             </div>

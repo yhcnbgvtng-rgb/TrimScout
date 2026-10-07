@@ -25,7 +25,11 @@ export interface PickedVehicle {
   mileage: number | null;
   price: number | null;
   vdpUrl: string | null;
+  /** new / used / cpo as the listing says; null when unknown (older saved picks). Step 1 needs it to seat each car. */
+  condition: PickCondition | null;
 }
+
+export type PickCondition = "new" | "used" | "cpo";
 
 export interface BuyerSearchState {
   picks: PickedVehicle[];
@@ -34,8 +38,8 @@ export interface BuyerSearchState {
 
 export const EMPTY_STATE: BuyerSearchState = { picks: [], viewed: [] };
 
-export function toPick(v: { vin: string; dealerId?: string | null; dealerName: string; dealerState: string | null; year: number | null; make: string | null; model: string | null; trim: string | null; mileage: number | null; price: number | null; vdpUrl: string | null }): PickedVehicle {
-  return { key: vehicleKey(v), vin: v.vin, dealerId: v.dealerId ?? null, dealerName: v.dealerName, dealerState: v.dealerState, year: v.year, make: v.make, model: v.model, trim: v.trim, mileage: v.mileage, price: v.price, vdpUrl: v.vdpUrl };
+export function toPick(v: { vin: string; dealerId?: string | null; dealerName: string; dealerState: string | null; year: number | null; make: string | null; model: string | null; trim: string | null; mileage: number | null; price: number | null; vdpUrl: string | null; condition?: PickCondition | null }): PickedVehicle {
+  return { key: vehicleKey(v), vin: v.vin, dealerId: v.dealerId ?? null, dealerName: v.dealerName, dealerState: v.dealerState, year: v.year, make: v.make, model: v.model, trim: v.trim, mileage: v.mileage, price: v.price, vdpUrl: v.vdpUrl, condition: v.condition ?? null };
 }
 
 export type ToggleResult = { picks: PickedVehicle[]; outcome: "added" | "removed" | "blocked" };
@@ -55,6 +59,9 @@ export function markViewed(viewed: string[], key: string): string[] {
 }
 
 const str = (v: unknown): string | null => (typeof v === "string" && v ? v.slice(0, 300) : null);
+// A listing link is kept whole (a cut-off URL is a broken link); anything absurdly long is dropped instead.
+const link = (v: unknown): string | null => (typeof v === "string" && v && v.length <= 2000 ? v : null);
+const cond = (v: unknown): PickCondition | null => (v === "new" || v === "used" || v === "cpo" ? v : null);
 const num = (v: unknown): number | null => (typeof v === "number" && Number.isFinite(v) ? v : null);
 
 /** Untrusted JSON (storage, network) -> a valid state. Bad entries are dropped; picks are capped at MAX_PICKS. */
@@ -65,7 +72,7 @@ export function sanitizeState(raw: unknown): BuyerSearchState {
     const r = (p && typeof p === "object" ? p : {}) as Record<string, unknown>;
     const vin = str(r.vin), dealerName = str(r.dealerName);
     if (!vin || !dealerName) continue;
-    const pick: PickedVehicle = { key: "", vin, dealerId: str(r.dealerId), dealerName, dealerState: str(r.dealerState), year: num(r.year), make: str(r.make), model: str(r.model), trim: str(r.trim), mileage: num(r.mileage), price: num(r.price), vdpUrl: str(r.vdpUrl) };
+    const pick: PickedVehicle = { key: "", vin, dealerId: str(r.dealerId), dealerName, dealerState: str(r.dealerState), year: num(r.year), make: str(r.make), model: str(r.model), trim: str(r.trim), mileage: num(r.mileage), price: num(r.price), vdpUrl: link(r.vdpUrl), condition: cond(r.condition) };
     pick.key = vehicleKey(pick);
     if (!picks.some((x) => x.key === pick.key)) picks.push(pick);
     if (picks.length >= MAX_PICKS) break;
