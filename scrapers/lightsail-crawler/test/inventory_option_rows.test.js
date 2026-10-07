@@ -417,7 +417,7 @@ describe('deny rules added 2026-10-07 (option-normalize audit) — real live str
     'Clock', 'odometer', 'fuel gauge',
     'registered in the U', 'Apple CarPlay is a trademark of Apple Inc', 'an active data plan', 'on your phone or connected devices',
     'artists', 'creators', 'comedy', 'live sports', 'talk and news', 'news', 'look', 'Now', 'Inc', 'Tag', 'Plus', 'power', 'rear', 'mud', 'snow', 'cooled', 'durability',
-    'Engine', 'Transmission', 'Wheels', 'Engine: 3', 'Wheels: 18 x 7', '17 x 7', 'Radio: AM/FM 8', 'Radio: AM/FM/HD 8', 'Tires: 22', 'illuminated 3',
+    'Engine', 'Transmission', 'Wheels', 'Engine: 3', '17 x 7', 'Radio: AM/FM 8', 'Radio: AM/FM/HD 8', 'Tires: 22', 'illuminated 3',
     'drive mode (Trail', 'advanced voice recognition (one shot VDE', 'Android Auto and MirrorLink) via USB',
     'get involved with', 'To Keep You Safe', 'putting YOU in control of the whole experience', 'From Our Sales Floor To Your Door',
   ];
@@ -446,7 +446,7 @@ describe('deny rules added 2026-10-07 (option-normalize audit) — real live str
     'Radio: AM/FM/HD Audio System', 'Radio: AM/FM/SiriusXM/HD Lexicon Prem Audio System', '4WD', 'AWD', 'ECO', 'Alexa Built In', 'Siri', 'unlock', 'Unlock', 'Siri', 'unlock', 'Unlock', 'Siri Eyes Free',
     'Navigation system: Google Built-in', 'digital gauge cluster with customizable settings', 'Bluetooth® streaming audio',
     'Multi-Information Display (MID)', 'Engine Block Heater', 'Transmission Skid Plate', 'Wheels: 20-inch Alloy', '3.5L V6 Engine',
-    'Seat Adjuster (Driver, Passenger)', '4x4', '4 x 4', '4x2', '6x4', '12.3-inch Touchscreen', 'Tow Package 2',
+    'Seat Adjuster (Driver, Passenger)', '4x4', '4 x 4', 'Wheels: 18 x 8', 'Wheels: 18 x 7', 'Wheels: 20 x 8.5', 'wheels 17 x 7', '4x2', '6x4', '12.3-inch Touchscreen', 'Tow Package 2',
   ];
   it('keeps real options the owner ruled out of broad rules (trailing digit / lowercase / leading digit / slash / ECO)', () => {
     for (const name of REAL) {
@@ -475,10 +475,10 @@ describe('deny rules added 2026-10-07 (option-normalize audit) — real live str
   });
 
   it('the key-only purge classifier agrees on the key-visible rules, and keeps the real options', () => {
-    for (const k of ['see toyota', '3 in', '5 in', 'com', 'com or dealer for details', 'clock', 'engine', 'wheels 18 x 7', 'radio am fm 8', 'standard equipmentexterior18 in', 'get involved with', 'plus']) {
+    for (const k of ['see toyota', '3 in', '5 in', 'com', 'com or dealer for details', 'clock', 'engine', 'wheels', 'radio am fm 8', 'standard equipmentexterior18 in', 'get involved with', 'plus']) {
       assert.equal(looksLikeJunkCanonicalKey(k), true, k);
     }
-    for (const k of ['sync 4', 'premium content 1', 'heated mirrors', '10 speed automatic', 'radio am fm hd audio system', 'eco', 'awd', 'alexa built in', 'multi information display mid']) {
+    for (const k of ['wheels 18 x 8', 'wheels 20 x 8 5', 'sync 4', 'premium content 1', 'heated mirrors', '10 speed automatic', 'radio am fm hd audio system', 'eco', 'awd', 'alexa built in', 'multi information display mid']) {
       assert.equal(looksLikeJunkCanonicalKey(k), false, k);
     }
   });

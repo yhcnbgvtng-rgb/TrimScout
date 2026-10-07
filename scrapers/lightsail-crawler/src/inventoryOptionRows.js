@@ -165,9 +165,12 @@ export const DENY_RULES = [
 ];
 
 /** The deny rule a label trips, or null. Raw labels and normalized keys are both fine input. */
+// "Wheels: 18 x 8" is a real wheel-size spec, kept (owner decision 2026-10-07). Bare "Wheels"/"Tires" stay dropped.
+const WHEEL_SIZE_SPEC = /^wheels?\W*\d+(?:[.\s]\d+)?\s*x\s*\d+(?:[.\s]\d+)?$/i;
+
 export function denyRuleFor(text) {
   const t = String(text || "").trim();
-  if (!t) return null;
+  if (!t || WHEEL_SIZE_SPEC.test(t.replace(/^[^a-z0-9]+/i, ""))) return null;
   for (const [name, re] of DENY_RULES) if (re.test(t)) return name;
   return null;
 }
