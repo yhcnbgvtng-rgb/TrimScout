@@ -5,6 +5,12 @@
  */
 export const QUOTE_SEED_KEY = "trimscout.quoteSeed.v1";
 export const QUOTE_SEED_MAX = 3;
+/**
+ * The lane the wizard opens on for picked cars, one car or three. Never "alternate" (Open to anything): that lane sends
+ * dealers only, so the cars would be left out of the request and Step 3 would ask for dealers from scratch. On the
+ * specific-vehicle lane the cars ride in the request and Step 3's dealer list is built from them.
+ */
+export const QUOTE_SEED_LANE = "same_spec" as const;
 
 export interface QuoteSeedVehicle {
   vin: string;
