@@ -62,7 +62,7 @@ async function dryRun() {
   const deals = opt("deals", process.env.DEALS_URL || "http://127.0.0.1:3004");
   const apiKey = process.env.TRIMSCOUT_API_KEY || readEnvFile(path.resolve(".env")).TRIMSCOUT_API_KEY;
   if (deals.includes(FORBIDDEN_HOST)) { console.error(`Refusing to run: this points at ${FORBIDDEN_HOST}.`); process.exit(1); }
-  const { parseStickerColors, stickerUrlForVin } = await import("../../scrapers/lightsail-crawler/src/fordStickerColors.js");
+  const { parseStickerColors, stickerUrlForVin, normalizeInterior, normalizeExterior } = await import("../../scrapers/lightsail-crawler/src/fordStickerColors.js");
   const { extractText } = await import("unpdf");
   fs.mkdirSync(cacheDir, { recursive: true });
 
@@ -150,9 +150,12 @@ async function dryRun() {
     const s = colors.get(c.vin);
     if (!s) continue;
     // A value already on the row (from the dealer's listing) always wins: only a blank field is ever planned.
-    const ext = blank(c.exteriorColor) && s.exteriorColor ? s.exteriorColor : null;
-    let int = blank(c.interiorColor) && s.interiorColor ? s.interiorColor : null;
-    if (blank(c.interiorColor) && s.interiorRaw && !s.interiorColor) { misses.interior_unnormalized = (misses.interior_unnormalized || 0) + 1; missLog.push({ vin: c.vin, reason: "interior_unnormalized", raw: s.interiorRaw }); }
+    // Re-derived from the cached printed text, so parser improvements apply to stickers fetched earlier without another request.
+    const sExt = normalizeExterior(s.exteriorRaw);
+    const sInt = s.interiorRaw ? normalizeInterior(s.interiorRaw) : null;
+    const ext = blank(c.exteriorColor) && sExt ? sExt : null;
+    let int = blank(c.interiorColor) && sInt ? sInt : null;
+    if (blank(c.interiorColor) && s.interiorRaw && !sInt) { misses.interior_unnormalized = (misses.interior_unnormalized || 0) + 1; missLog.push({ vin: c.vin, reason: "interior_unnormalized", raw: s.interiorRaw }); }
     if (ext || int) rows.push({ vin: c.vin, dealerId: c.dealerId, dealerName: c.dealerName, condition: c.condition, year: c.year, model: c.model, fill: { exterior_color: ext, interior_color: int }, sticker: { exteriorRaw: s.exteriorRaw, interiorRaw: s.interiorRaw } });
   }
   fs.writeFileSync(outFile, JSON.stringify(rows, null, 1));
