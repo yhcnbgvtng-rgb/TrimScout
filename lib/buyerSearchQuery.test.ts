@@ -104,3 +104,49 @@ describe("parseBuyerSearchParams — query gates", () => {
     assert.equal(parseBuyerSearchParams(sp({ make: "Ford" })).query.countCap, 1000);
   });
 });
+
+// ---- header sorting: what reaches the box ------------------------------------------------------------------------------------------
+describe("parseBuyerSearchParams — header sorts (whole-result-set, server side)", () => {
+  const sp2 = (o: Record<string, string>) => new URLSearchParams(o);
+
+  it("forwards a whitelisted sort to the box, and nullsLast only together with it", () => {
+    const { query } = parseBuyerSearchParams(sp2({ make: "Honda", model: "CR-V", sort: "price:desc", nullsLast: "1" }));
+    assert.equal(query.sort, "price:desc");
+    assert.equal(query.nullsLast, true);
+  });
+  it("every column's sort key reaches the box as sort=<key>:<dir>", () => {
+    for (const key of ["days", "vehicleid", "vin", "year", "make", "model", "trim", "ext", "int", "mileage", "price", "dealer", "state", "contact", "listing"]) {
+      for (const dir of ["asc", "desc"]) {
+        const { query } = parseBuyerSearchParams(sp2({ make: "Honda", model: "CR-V", sort: `${key}:${dir}`, nullsLast: "1" }));
+        assert.equal(query.sort, `${key}:${dir}`, `${key}:${dir}`);
+      }
+    }
+  });
+  it("the default order (no sort) never carries nullsLast: its index plans are tuned and must not change", () => {
+    const withModel = parseBuyerSearchParams(sp2({ make: "Honda", model: "CR-V", nullsLast: "1" })).query;
+    assert.equal(withModel.sort, "trim:asc");
+    assert.equal(withModel.nullsLast, undefined);
+    assert.equal(parseBuyerSearchParams(sp2({ make: "Honda", state: "VA", nullsLast: "1" })).query.nullsLast, undefined);
+    assert.equal(parseBuyerSearchParams(sp2({ make: "Honda", nullsLast: "1" })).query.nullsLast, undefined);
+  });
+  it("nullsLast is only honoured when it is exactly '1'", () => {
+    for (const v of ["0", "true", "", "yes"]) assert.equal(parseBuyerSearchParams(sp2({ make: "Honda", model: "CR-V", sort: "price:asc", nullsLast: v })).query.nullsLast, undefined, v);
+  });
+  it("an unknown or malformed sort is ignored — never forwarded to the box — and the normal default applies", () => {
+    for (const bad of ["nope:asc", "price:sideways", "price:asc;DROP TABLE x", "i.price:asc", "price:asc:desc", ""]) {
+      const { query } = parseBuyerSearchParams(sp2({ make: "Honda", model: "CR-V", sort: bad, nullsLast: "1" }));
+      assert.equal(query.sort, "trim:asc", bad);
+      assert.equal(query.nullsLast, undefined, bad);
+    }
+  });
+  it("distance sorts in memory in either direction: not forwarded to the box, direction kept", () => {
+    const asc = parseBuyerSearchParams(sp2({ make: "Ford", sort: "distance", zip: "07405", nullsLast: "1" }));
+    assert.deepEqual([asc.sortDistance, asc.distanceDir, asc.query.sort, asc.query.nullsLast], [true, "asc", undefined, undefined]);
+    const desc = parseBuyerSearchParams(sp2({ make: "Ford", sort: "distance:desc", zip: "07405" }));
+    assert.deepEqual([desc.sortDistance, desc.distanceDir, desc.query.sort], [true, "desc", undefined]);
+  });
+  it("the sort is carried with paging: the same sort and a later offset", () => {
+    const { query } = parseBuyerSearchParams(sp2({ make: "Honda", model: "CR-V", sort: "mileage:asc", nullsLast: "1", offset: "24", limit: "24" }));
+    assert.deepEqual([query.sort, query.offset, query.limit], ["mileage:asc", 24, 24]);
+  });
+});
