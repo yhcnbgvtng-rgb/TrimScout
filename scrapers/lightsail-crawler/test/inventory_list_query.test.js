@@ -7,7 +7,7 @@
 // rediscover the same trap by hitting a slow query in production.
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { inventoryListQuery, totalFromPage, applyCountCap, deferredPageSql } from '../src/inventoryListQuery.js';
+import { inventoryListQuery, totalFromPage, applyCountCap, deferredPageSql, withExportFastSort } from '../src/inventoryListQuery.js';
 
 function query(pairs) {
   return inventoryListQuery(new URLSearchParams(pairs));
@@ -446,5 +446,38 @@ describe('inventoryListQuery — every buyer-table column sorts on the server, b
     assert.equal(a.sql, b.sql);
     assert.deepEqual(a.args, b.args);
     assert.match(b.sql, /FORCE INDEX \(idx_inv_stock_make_model_trim\)/);
+  });
+});
+
+describe('withExportFastSort — CSV export default for in-stock State+Make (no Model)', () => {
+  const qs = (s) => new URLSearchParams(s);
+  it('swaps an unchosen sort (none or dealer:asc) for model:asc, and the query then takes the model-ordered index', () => {
+    for (const s of ['state=NJ&make=Porsche&inStock=1', 'state=NJ&make=Porsche&inStock=1&sort=dealer:asc', 'state=NJ&state=NY&make=Porsche&make=Audi&inStock=1']) {
+      const p = withExportFastSort(qs(s));
+      assert.equal(p.get('sort'), 'model:asc', s);
+      const q = inventoryListQuery(p);
+      assert.match(q.sql, /FORCE INDEX \(idx_inv_facet_make_state_model\)/, s);
+      assert.match(q.orderBy, /i\.model/, s);
+    }
+  });
+  it('without the swap the same filter keeps the dealer-order plan (the slow one being fixed)', () => {
+    const q = inventoryListQuery(qs('state=NJ&make=Porsche&inStock=1'));
+    assert.doesNotMatch(q.sql, /idx_inv_facet_make_state_model/);
+  });
+  it('leaves an explicit sort alone', () => {
+    const p = qs('state=NJ&make=Porsche&inStock=1&sort=price:desc');
+    assert.equal(withExportFastSort(p), p);
+    assert.equal(withExportFastSort(qs('state=NJ&make=Porsche&inStock=1&sort=year:asc')).get('sort'), 'year:asc');
+  });
+  it('changes nothing for other shapes: State-only, Make-only, with a Model, not in stock, dealerId, no filters', () => {
+    for (const s of ['state=NJ&inStock=1', 'make=Porsche&inStock=1', 'state=NJ&make=Porsche&model=911&inStock=1', 'state=NJ&make=Porsche', 'state=NJ&make=Porsche&inStock=1&dealerId=5', 'inStock=1', '']) {
+      const p = qs(s);
+      assert.equal(withExportFastSort(p), p, s);
+    }
+  });
+  it("does not mutate the caller's params", () => {
+    const p = qs('state=NJ&make=Porsche&inStock=1');
+    withExportFastSort(p);
+    assert.equal(p.get('sort'), null);
   });
 });

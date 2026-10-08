@@ -31,7 +31,7 @@ import { randomBytes } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import mysql from "mysql2/promise";
-import { inventoryListQuery, totalFromPage, applyCountCap, deferredPageSql } from "./inventoryListQuery.js";
+import { inventoryListQuery, totalFromPage, applyCountCap, deferredPageSql, withExportFastSort } from "./inventoryListQuery.js";
 import { adminFacetQueries, adminFacetResponse } from "./inventoryAdminFacets.js";
 import { createGate, SearchBusyError } from "./searchGate.js";
 import { createStableCache } from "./stableCache.js";
@@ -2398,7 +2398,8 @@ async function handleListInventory(req, res, params) {
 async function handleExportInventory(req, res, params) {
   const pool = getPool();
   await ensureInventoryTable(pool);
-  const { sql, args, orderBy } = inventoryListQuery(params);
+  // State+Make (no Model, in stock) with no chosen sort streams from the model-ordered index, like the list view.
+  const { sql, args, orderBy } = inventoryListQuery(withExportFastSort(params));
   const conn = await pool.getConnection();
   let aborted = false;
   res.on("close", () => { if (!res.writableFinished) { aborted = true; conn.destroy(); } });

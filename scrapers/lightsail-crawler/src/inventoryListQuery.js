@@ -22,6 +22,32 @@ export function multiParam(params, key, normalize = (v) => v) {
   return [...seen];
 }
 
+/**
+ * The CSV export's default sort, matching the list view's fast plan. State + Make without a Model, in
+ * stock, has no fast plan under the default dealer:asc order (the box walks the whole state in dealer
+ * order: NJ in-stock Porsche, 523 rows, took 52s to stream on 2026-10-04, and the list view 503s at its
+ * 20s cap), but sort=model reads idx_inv_facet_make_state_model in index order (see indexHint below).
+ * The admin Next route already swaps its own default for this shape (adminListSort in lib/inventoryApi.ts);
+ * this does the same for a caller of the box endpoint directly, so an export never depends on which client
+ * asked. Only an UNCHOSEN sort (none, or the dealer:asc default) is swapped; an explicit sort is left alone.
+ * Same preconditions as the index hint: inStock=1, no dealerId, a state and a make, no model.
+ * Returns the same params object when nothing changes, else a copy with sort=model:asc.
+ */
+export function withExportFastSort(params) {
+  const sort = (params.get("sort") || "").trim();
+  if (sort && sort !== "dealer:asc") return params;
+  const fast =
+    (params.get("inStock") || "").trim() === "1" &&
+    !(params.get("dealerId") || "").trim() &&
+    multiParam(params, "state").length > 0 &&
+    multiParam(params, "make").length > 0 &&
+    multiParam(params, "model").length === 0;
+  if (!fast) return params;
+  const next = new URLSearchParams(params);
+  next.set("sort", "model:asc");
+  return next;
+}
+
 // Sorting by the "Contact on file" column: 1 = the dealership has a contact email, 0 = it has a directory row but no email,
 // NULL = no directory row (unknown). Same meaning as lib/dealerContactIndex.ts. Reads the d join, so the page query keeps it.
 const CONTACT_SORT_EXPR = "(CASE WHEN d.id IS NULL THEN NULL WHEN d.contact_email IS NOT NULL AND TRIM(d.contact_email) <> '' THEN 1 ELSE 0 END)";
