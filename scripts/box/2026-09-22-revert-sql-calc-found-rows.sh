@@ -11,7 +11,7 @@
 # the prefix/suffix search indexes from the same day's other fix; only the count strategy
 # changes.
 #
-# Run on the box (ubuntu@3.208.49.1):
+# Run on the box (ubuntu@52.202.234.65):
 #   cd ~ && curl -fsSL -o 2026-09-22-revert-sql-calc-found-rows.sh https://raw.githubusercontent.com/yhcnbgvtng-rgb/TrimScout/main/scripts/box/2026-09-22-revert-sql-calc-found-rows.sh && sudo cp 2026-09-22-revert-sql-calc-found-rows.sh /opt/trimscout-deals/ && cd /opt/trimscout-deals && sudo bash 2026-09-22-revert-sql-calc-found-rows.sh
 # Idempotent. Backup, exact-replace with asserts, node --check, pm2 restart, health check.
 set -euo pipefail

@@ -32,7 +32,7 @@
 
 import os from 'node:os';
 
-const DEALS_HOST = process.env.TRIMSCOUT_DEALS_HOST || '3.208.49.1';
+const DEALS_HOST = process.env.TRIMSCOUT_DEALS_HOST || '52.202.234.65';
 const DEALS_PORT = process.env.TRIMSCOUT_DEALS_PORT || '3004';
 const KEY = process.env.TRIMSCOUT_API_KEY || process.env.LIGHTSAIL_API_KEY;
 

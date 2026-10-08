@@ -3,7 +3,7 @@
 # mysqldump backup. For clearing QA/smoke data before the approval gate goes live (2026-09-17: 22
 # requests, all smoke-* accounts + test buyer 2, Sep 13–15). Reversible from the dump.
 #
-# Run on the deals box (ubuntu@3.208.49.1):
+# Run on the deals box (ubuntu@52.202.234.65):
 #   curl -fsSL -o 2026-09-17-rfq-reset.sh https://raw.githubusercontent.com/yhcnbgvtng-rgb/TrimScout/main/scripts/box/2026-09-17-rfq-reset.sh && bash 2026-09-17-rfq-reset.sh
 # Prints counts before, backs up, asks for a typed YES, deletes, prints counts after.
 set -euo pipefail

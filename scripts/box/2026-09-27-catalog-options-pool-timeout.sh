@@ -22,7 +22,7 @@
 # existing INV_LIST_STATEMENT_TIMEOUT_SECONDS/POOL_WAIT_TIMEOUT_MS/withPoolTimeout, no new
 # mechanism, just applying the existing one to a handler that was missed.
 #
-# Run on the deals box (ubuntu@3.237.204.55 — box2):
+# Run on the deals box (ubuntu@52.202.234.65 — box2):
 #   cd ~ && curl -fsSL -o 2026-09-27-catalog-options-pool-timeout.sh "https://raw.githubusercontent.com/yhcnbgvtng-rgb/TrimScout/main/scripts/box/2026-09-27-catalog-options-pool-timeout.sh?cb=$(date +%s)" && sudo cp 2026-09-27-catalog-options-pool-timeout.sh /opt/trimscout-deals/src/ && cd /opt/trimscout-deals/src && sudo bash 2026-09-27-catalog-options-pool-timeout.sh
 set -euo pipefail
 FILE=/opt/trimscout-deals/src/deals_api_server.js

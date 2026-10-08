@@ -25,7 +25,7 @@
 # (indexed on dealer_id) run once at the end — not gated behind a live
 # request, since ~500k+ rows would make that request itself time out.
 #
-# Run on the deals box (ubuntu@3.237.204.55 — box2, post-migration):
+# Run on the deals box (ubuntu@52.202.234.65 — box2, post-migration):
 #   cd ~ && curl -fsSL -o 2026-09-25-dealer-inventory-state-column.sh https://raw.githubusercontent.com/yhcnbgvtng-rgb/TrimScout/main/scripts/box/2026-09-25-dealer-inventory-state-column.sh && curl -fsSL -o inventoryListQuery.js https://raw.githubusercontent.com/yhcnbgvtng-rgb/TrimScout/main/scrapers/lightsail-crawler/src/inventoryListQuery.js && sudo cp 2026-09-25-dealer-inventory-state-column.sh inventoryListQuery.js /opt/trimscout-deals/ && cd /opt/trimscout-deals && sudo bash 2026-09-25-dealer-inventory-state-column.sh
 # Idempotent. Backup, exact-replace with asserts, node --check, pm2 restart,
 # health check, then the one-time backfill UPDATE.
