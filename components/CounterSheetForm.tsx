@@ -46,6 +46,7 @@ export function CounterSheetForm({
   const [rebates, setRebates] = useState<Line[]>(toLines(lease ? lease.incentives : used?.rebates));
   const [fees, setFees] = useState<Line[]>(toLines(lease ? lease.dueAtSigning.otherFees : used?.dueAtSigning));
   const [note, setNote] = useState("");
+  const [lineNote, setLineNote] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
 
@@ -72,16 +73,21 @@ export function CounterSheetForm({
   const errors = sheet ? validateCounterSheet(sheet) : ["No quote to counter."];
 
   const input = "w-full rounded-lg border border-border bg-background px-2.5 py-1.5 text-xs text-white placeholder-ink-faint focus:border-brand-500 focus:outline-none tabular-nums";
+  const LR = "grid grid-cols-[minmax(0,1fr)_6.5rem] items-center gap-x-2 gap-y-1";
   const label = "block text-[10px] font-bold uppercase tracking-wide text-ink-faint";
   const setLine = (list: Line[], set: (l: Line[]) => void, i: number, amount: string) => set(list.map((l, j) => (j === i ? { ...l, amount } : l)));
   const strike = (list: Line[], set: (l: Line[]) => void, i: number) => setLine(list, set, i, "0");
+
+  const lineNotes = Object.entries(lineNote).filter(([, v]) => v.trim()).map(([k, v]) => `${k}: ${v.trim()}`);
+  const fullNote = [note.trim(), ...lineNotes].filter(Boolean).join(" · ").slice(0, 300);
+  const noteTooLong = [note.trim(), ...lineNotes].filter(Boolean).join(" · ").length > 300;
 
   const submit = async () => {
     if (!sheet || errors.length) return;
     setBusy(true);
     setServerError(null);
     try {
-      await onSubmit({ againstQuoteId: quoteId, edits, note: note.trim() || null });
+      await onSubmit({ againstQuoteId: quoteId, edits, note: fullNote || null });
     } catch (e) {
       setServerError(e instanceof Error ? e.message : "Could not send your counter.");
     } finally {
@@ -116,38 +122,56 @@ export function CounterSheetForm({
         ) : null}
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3" data-testid="counter-lines">
         <div className="space-y-1">
           <span className={label}>Add-ons <span className="normal-case font-normal text-ink-muted">— lower or strike</span></span>
           {addOns.length === 0 ? <p className="text-[10px] text-ink-faint">None quoted.</p> : null}
           {addOns.map((l, i) => (
-            <div key={i} className="flex items-center gap-1.5">
-              <span className="min-w-0 flex-1 text-[11px] leading-snug text-ink-light">{l.name}<span className="block text-[10px] text-ink-faint">quoted ${(lease ? lease.addOns : used!.addOns)[i]?.amount.toLocaleString()}</span></span>
-              <input value={l.amount} onChange={(e) => setLine(addOns, setAddOns, i, e.target.value)} inputMode="decimal" className={`${input} w-24 flex-none`} aria-label={`Add-on ${l.name}`} />
-              <button type="button" onClick={() => strike(addOns, setAddOns, i)} className="text-[10px] font-bold text-rose-300 hover:text-white" title="Ask to remove this add-on">strike</button>
+            <div key={i} className="grid grid-cols-[minmax(0,1fr)_6.5rem] items-center gap-x-2 gap-y-1">
+              <span className="min-w-0 break-words text-[11px] leading-snug text-ink-light">{l.name}<span className="block text-[10px] text-ink-faint">quoted ${(lease ? lease.addOns : used!.addOns)[i]?.amount.toLocaleString()}</span></span>
+              <input value={l.amount} onChange={(e) => setLine(addOns, setAddOns, i, e.target.value)} inputMode="decimal" className={input} aria-label={`Add-on ${l.name}`} />
+              <button type="button" onClick={() => strike(addOns, setAddOns, i)} className="col-span-2 justify-self-end text-[10px] font-bold text-rose-300 hover:text-white" title="Ask to remove this add-on">strike</button>
             </div>
           ))}
         </div>
         <div className="space-y-1">
           <span className={label}>Fees <span className="normal-case font-normal text-ink-muted">— {kind === "lease" ? "lower any" : "doc fee only"}</span></span>
+          {lease ? (
+            <div className={LR} data-testid="fixed-tax-line">
+              <span className="min-w-0 text-[11px] leading-snug text-ink-faint">Sales tax (fixed)</span>
+              <input value={String(lease.dueAtSigning.taxes)} readOnly disabled className={`${input} disabled:opacity-50`} aria-label="Sales tax (fixed)" />
+            </div>
+          ) : null}
           {fees.map((l, i) => (
-            <div key={i} className="flex items-center gap-1.5">
-              <span className={`min-w-0 flex-1 text-[11px] leading-snug ${feeEditable(l.name) ? "text-ink-light" : "text-ink-faint"}`}>{l.name}{feeEditable(l.name) ? "" : " (fixed)"}</span>
-              <input value={l.amount} onChange={(e) => setLine(fees, setFees, i, e.target.value)} inputMode="decimal" disabled={!feeEditable(l.name)} className={`${input} w-24 flex-none disabled:opacity-50`} aria-label={`Fee ${l.name}`} />
+            <div key={i} className="grid grid-cols-[minmax(0,1fr)_6.5rem] items-center gap-x-2 gap-y-1">
+              <span className={`min-w-0 break-words text-[11px] leading-snug ${feeEditable(l.name) ? "text-ink-light" : "text-ink-faint"}`}>{l.name}{feeEditable(l.name) ? "" : " (fixed)"}</span>
+              <input value={l.amount} onChange={(e) => setLine(fees, setFees, i, e.target.value)} inputMode="decimal" disabled={!feeEditable(l.name)} className={`${input} disabled:opacity-50`} aria-label={`Fee ${l.name}`} />
             </div>
           ))}
         </div>
         <div className="space-y-1">
           <span className={label}>{kind === "lease" ? "Incentives" : "Rebates"} <span className="normal-case font-normal text-ink-muted">— add or raise</span></span>
           {rebates.map((l, i) => (
-            <div key={i} className="flex items-center gap-1.5">
-              <input value={l.name} onChange={(e) => setRebates(rebates.map((x, j) => (j === i ? { ...x, name: e.target.value } : x)))} placeholder="Name" className={`${input} min-w-0 flex-1`} aria-label="Rebate name" />
-              <input value={l.amount} onChange={(e) => setLine(rebates, setRebates, i, e.target.value)} inputMode="decimal" className={`${input} w-24 flex-none`} aria-label={`Rebate ${l.name || i + 1}`} />
+            <div key={i} className="grid grid-cols-[minmax(0,1fr)_6.5rem] items-center gap-x-2 gap-y-1">
+              <input value={l.name} onChange={(e) => setRebates(rebates.map((x, j) => (j === i ? { ...x, name: e.target.value } : x)))} placeholder="Name" className={`${input} min-w-0`} aria-label="Rebate name" />
+              <input value={l.amount} onChange={(e) => setLine(rebates, setRebates, i, e.target.value)} inputMode="decimal" className={input} aria-label={`Rebate ${l.name || i + 1}`} />
             </div>
           ))}
           <button type="button" onClick={() => setRebates([...rebates, { name: "", amount: "" }])} className="text-[10px] font-bold text-sky-300 hover:text-white" data-testid="counter-add-rebate">+ Add a rebate you qualify for</button>
         </div>
       </div>
+
+      <fieldset className="space-y-1" data-testid="line-comments">
+        <legend className={label}>Comment on a line (optional)</legend>
+        <div className="grid gap-2 md:grid-cols-2">
+          {[{ k: "Price", on: true }, ...addOns.map((l) => ({ k: l.name, on: Boolean(l.name) })), ...fees.filter((l) => feeEditable(l.name)).map((l) => ({ k: l.name, on: Boolean(l.name) }))].filter((x) => x.on).slice(0, 8).map((x) => (
+            <div key={x.k} className={LR}>
+              <span className="min-w-0 break-words text-[11px] text-ink-light">{x.k}</span>
+              <input value={lineNote[x.k] || ""} onChange={(e) => setLineNote({ ...lineNote, [x.k]: e.target.value.slice(0, 80) })} placeholder="Comment" className={input} aria-label={`Comment on ${x.k}`} />
+            </div>
+          ))}
+        </div>
+      </fieldset>
 
       <label className="block space-y-1">
         <span className={label}>Note to the dealer (optional)</span>
@@ -161,6 +185,7 @@ export function CounterSheetForm({
         </div>
       ) : null}
 
+      {noteTooLong ? <p className="text-[11px] text-amber-200">Your note and line comments are over 300 characters — the end will be trimmed.</p> : null}
       {errors.length ? (
         <ul className="space-y-0.5 text-[11px] text-rose-300" data-testid="counter-errors">
           {errors.map((e) => <li key={e}>{e}</li>)}

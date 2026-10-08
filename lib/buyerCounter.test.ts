@@ -92,11 +92,11 @@ describe("buyer counter — the dealer's own sheet with price-side edits, a requ
     const compare = read("components/LeaseCompare.tsx");
     assert.match(compare, /data-testid="counter-quote"/);
     assert.match(compare, /<CounterSheetForm/);
-    assert.match(compare, />Buyer countered</);
-    assert.match(compare, />Revised</);
+    assert.match(compare, /"Buyer countered"/);
+    assert.match(compare, /"Revised"/);
     const used = read("components/UsedCompare.tsx");
     assert.match(used, /data-testid="counter-quote"/);
-    assert.match(used, /<CounterSheetForm dealerName=\{invite\.dealerName\} quote=\{\{ used \}\}/);
+    assert.match(used, /<CounterSheetForm dealerName=\{counteringRow\.invite\.dealerName\} quote=\{\{ used: counteringRow\.used \}\}/);
     assert.match(read("app/rfq/[id]/page.tsx"), /router\.push\(`\/rfq\/\$\{rfqId\}\/counter\/\$\{inviteId\}`\)/, "after sending, the buyer lands on the before/after page");
     assert.match(read("app/rfq/[id]/counter/[inviteId]/page.tsx"), /data-testid="counter-review"/);
     for (const f of ["components/CounterSheetForm.tsx", "components/CounterComparison.tsx", "components/LeaseCompare.tsx", "components/UsedCompare.tsx", "lib/quoteInviteEmail.ts", "lib/counterSheet.ts", "app/quote-request/received/page.tsx", "app/rfq/[id]/counter/[inviteId]/page.tsx"]) {
@@ -115,14 +115,13 @@ describe("every add-on, fee and rebate is shown by name — never a bare total",
     // ("1 add-on +$899 · 1 incentive") under Due at signing; every line is named in
     // the expanded detail, with the masked contact email there and nowhere else.
     const lease = read("components/LeaseCompare.tsx");
-    assert.match(lease, /<th className="px-4 py-3">Dealer<\/th>|Dealer<\/th>/);
-    assert.doesNotMatch(lease, /Add-ons \/ incentives<\/th>/, "no mid-table add-ons column");
     assert.match(lease, /data-testid="lines-summary"/);
     assert.match(lease, /data-testid="money-note"/, "deltas sit under the money columns, not in the dealer cell");
     assert.doesNotMatch(lease, /r\.chips\.map\(\(c\) => \(\s*<span key=\{c\} className="rounded bg-border/, "no comparison badges in the dealer cell");
     assert.match(lease, /Quoted by <span className="text-ink-light">/, "masked email only in the expand detail");
-    const headers = lease.match(/<th className="[^"]*px-4 py-3[^"]*">([^<]+)<\/th>/g)!.map((h) => h.replace(/<[^>]+>/g, ""));
-    assert.deepEqual(headers, ["Dealer", "Monthly", "Due at signing", "Cap cost", "MF (APR)", "Residual %", "Term / miles", "Expires", "Status"]);
+    // Dealers are columns now: the row labels are the locked line items, in order.
+    const labels = Array.from(lease.slice(lease.indexOf("LEASE_ROWS"), lease.indexOf("const badge")).matchAll(/label: "([^"]+)"/g)).map((m) => m[1]);
+    assert.deepEqual(labels, ["Monthly", "Due at signing", "Cap cost", "MF (APR)", "Residual %", "Term / miles", "Add-ons", "Fees", "Sales tax", "Rebates / credits", "Expires"]);
     const form = read("components/CounterSheetForm.tsx");
     assert.doesNotMatch(form, /truncate text-\[11px\]/, "line names wrap, never truncate, on the counter sheet");
   });
