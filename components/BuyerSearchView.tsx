@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { MapPin, SlidersHorizontal, X } from "lucide-react";
 import SearchableDropdown, { type DropdownOption } from "./search/SearchableDropdown";
@@ -317,7 +317,7 @@ export function BuyerSearchView() {
   const optionDropdownOptions = useMemo(() => toOptions(catalogOptions, "key", "vehicleCount", (o) => o.label), [catalogOptions]);
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 pb-28 accent-brand-500 sm:px-6 lg:px-8 [&_*:focus-visible]:outline-brand-500">
+    <div className="mx-auto max-w-7xl px-4 py-8 accent-brand-500 sm:px-6 lg:px-8 [&_*:focus-visible]:outline-brand-500" style={{ paddingBottom: "calc(var(--picks-bar-h, 7rem) + 1.5rem)" }}>
       <div className="mb-6">
         <h1 className="text-2xl font-extrabold tracking-tight text-white sm:text-3xl">Search real dealer inventory</h1>
       </div>
@@ -559,9 +559,23 @@ function VehicleTable({ vehicles, dimmed, picks, viewed, onTogglePick, onView }:
   const cols = TABLE_COLUMNS.filter((c) => c.key !== "distance" || vehicles.some((v) => v.distanceMiles != null));
   const totalW = cols.reduce((s, c) => s + c.w, 0);
   const picked = new Set(picks.map((p) => p.key));
+  // The scroller's own bottom edge — and with it the horizontal scrollbar and the last rows — must stay above the fixed picks bar.
+  // Its top moves with the filters above it, so measure it and cap the height at: viewport − its top − the bar's height (--picks-bar-h,
+  // published by PicksBar) − a margin. The page also pads its bottom by the bar's height, so everything stays reachable by scrolling.
+  const scroller = useRef<HTMLDivElement>(null);
+  useLayoutEffect(() => {
+    const el = scroller.current;
+    if (!el) return;
+    const measure = () => el.style.setProperty("--table-top", `${Math.round(el.getBoundingClientRect().top + window.scrollY)}px`);
+    measure();
+    window.addEventListener("resize", measure);
+    const ro = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(measure);
+    ro?.observe(document.body);
+    return () => { window.removeEventListener("resize", measure); ro?.disconnect(); };
+  });
   return (
     <div className={`overflow-hidden rounded-2xl border border-border bg-surface transition-opacity ${dimmed ? "opacity-60" : ""}`}>
-      <div className="overflow-auto" style={{ maxHeight: "calc(100vh - 260px)", minHeight: 120 }}>
+      <div ref={scroller} data-testid="results-scroller" className="overflow-x-auto overflow-y-auto overscroll-x-contain" style={{ maxHeight: "max(240px, calc(100dvh - var(--table-top, 260px) - var(--picks-bar-h, 7rem) - 1.25rem))", minHeight: 120 }}>
         <div style={{ width: totalW, minWidth: "100%" }}>
           <div className="sticky top-0 z-20 flex border-b border-gray-300 bg-gray-100" style={{ height: ROW_H }}>
             {cols.map((c) => (
@@ -609,6 +623,7 @@ function VehicleTable({ vehicles, dimmed, picks, viewed, onTogglePick, onView }:
               </div>
             );
           })}
+          <div aria-hidden style={{ height: 10 }} />
         </div>
       </div>
     </div>
@@ -620,29 +635,47 @@ const pickLabel = (p: PickedVehicle) => [p.year, p.make, p.model, p.trim].filter
 /** Fixed bar at the bottom of the page: the ticked vehicles (max 3), a save control, and the limit notice. */
 function PicksBar({ state }: { state: ReturnType<typeof useBuyerSearchState> }) {
   const router = useRouter();
+  // Publish the bar's real height (it grows when it wraps on a phone or shows a note) as --picks-bar-h, so the page's bottom
+  // padding and the results scroller can stay clear of it.
+  const bar = useRef<HTMLDivElement>(null);
+  useLayoutEffect(() => {
+    const el = bar.current;
+    if (!el) return;
+    const root = document.documentElement;
+    const publish = () => root.style.setProperty("--picks-bar-h", `${Math.ceil(el.getBoundingClientRect().height)}px`);
+    publish();
+    const ro = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(publish);
+    ro?.observe(el);
+    window.addEventListener("resize", publish);
+    return () => { ro?.disconnect(); window.removeEventListener("resize", publish); root.style.removeProperty("--picks-bar-h"); };
+  }, []);
   // Explicit click only: hand the picked VINs + listing links to step 1 of Request a quote, then open it. Nothing is sent.
   const requestQuote = () => {
     writeQuoteSeed(window.sessionStorage, state.picks);
     router.push("/?quote=1");
   };
-  const { picks, limitNotice, saveStatus, dirty, signedIn, atLimit } = state;
+  const { picks, limitNotice, saveStatus, dirty, signedIn, atLimit, notice, hasAnyPicks } = state;
   const status =
     saveStatus === "saving" ? "Saving…"
-    : saveStatus === "saved" ? (signedIn ? "Saved to your account" : "Saved for this session")
+    : saveStatus === "saved" ? (signedIn ? "Saved to your account for 7 days" : "Saved on this device for 7 days")
     : saveStatus === "saved-local" ? "Saved on this device"
+    : saveStatus === "cleared" ? "Picks cleared"
     : dirty && picks.length > 0 ? "Not saved yet" : "";
   return (
-    <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border-strong bg-surface-elevated/95 backdrop-blur" role="region" aria-label="Picked vehicles">
+    <div ref={bar} className="fixed inset-x-0 bottom-0 z-40 border-t border-border-strong bg-surface-elevated/95 backdrop-blur" role="region" aria-label="Picked vehicles">
       <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-x-4 gap-y-2 px-4 py-2.5 sm:px-6 lg:px-8">
+        {notice && (
+          <p role="status" aria-live="polite" data-testid="picks-notice" className="basis-full text-[11px] font-semibold text-amber-300">{notice}</p>
+        )}
         <span className="text-xs font-bold text-white tabular-nums">Picked {picks.length} of {MAX_PICKS}</span>
         {picks.length === 0 ? (
           <span className="text-xs text-ink-faint">Tick up to 3 vehicles to use in a quote. They stay here while you search again.</span>
         ) : (
-          <ul className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
+          <ul className="flex min-w-[16rem] flex-1 flex-wrap items-center gap-2">
             {picks.map((p) => (
-              <li key={p.key} className="flex max-w-xs items-center gap-1.5 rounded-full border border-brand-500/40 bg-brand-500/10 py-1 pl-3 pr-1.5 text-[11px] text-brand-200">
+              <li key={p.key} className="flex min-w-0 max-w-full items-center gap-1.5 sm:max-w-xs rounded-full border border-brand-500/40 bg-brand-500/10 py-1 pl-3 pr-1.5 text-[11px] text-brand-200">
                 <span className="truncate" title={`${pickLabel(p)} · ${p.dealerName}${p.price != null ? ` · $${p.price.toLocaleString()}` : ""}`}>{pickLabel(p)}<span className="text-brand-300/60"> · {p.dealerName}</span>{p.price != null && <span> · ${p.price.toLocaleString()}</span>}</span>
-                <button type="button" onClick={() => state.removePick(p.key)} aria-label={`Remove ${pickLabel(p)}`} className="rounded-full p-0.5 text-brand-300/70 hover:text-white"><X className="h-3 w-3" /></button>
+                <button type="button" onClick={() => void state.removePick(p.key)} aria-label={`Remove ${pickLabel(p)}`} className="rounded-full p-0.5 text-brand-300/70 hover:text-white"><X className="h-3 w-3" /></button>
               </li>
             ))}
           </ul>
@@ -653,6 +686,7 @@ function PicksBar({ state }: { state: ReturnType<typeof useBuyerSearchState> }) 
           </span>
           <button type="button" onClick={requestQuote} disabled={picks.length === 0} className="rounded-lg bg-brand-500 px-3 py-1.5 text-xs font-extrabold text-black hover:bg-brand-400 disabled:cursor-not-allowed disabled:opacity-40">Request a quote{picks.length > 1 ? ` (${picks.length})` : ""}</button>
           <button type="button" onClick={() => void state.save()} disabled={picks.length === 0 || !dirty || saveStatus === "saving"} className="text-sm font-extrabold text-brand-400 hover:text-brand-300 disabled:cursor-not-allowed disabled:opacity-40">Save picks</button>
+          <button type="button" onClick={() => void state.clearPicks()} disabled={!hasAnyPicks} className="text-sm font-bold text-ink-muted hover:text-white disabled:cursor-not-allowed disabled:opacity-40">Clear picks</button>
         </div>
       </div>
     </div>
